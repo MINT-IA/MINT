@@ -1,0 +1,466 @@
+{
+  "meta": {
+    "collected_at": "2026-07-23",
+    "profile": "célibataire, sans enfant, sans confession, sans fortune, chef-lieu",
+    "année_fiscale": "2026 (AR, AI, GR, AG, TG) ; 2025 (SG, TI — 2026 pas encore publié dans l'ESTV, MaxYear par canton vérifié via API_getTaxYearRangeCanton)",
+    "méthode": "API officielle du simulateur ESTV (swisstaxcalculator.estv.admin.ch), endpoint API_calculateSimpleTaxes, Relationship=1 (célibataire), Confession1=4 (sans confession — impôt d'église retourné = 0 sur les 35 points), fortune imposable = 0, revenu saisi = revenu IMPOSABLE (cantonal et fédéral identiques). 35/35 points vérifiés : cantonal+communal+taxe personnelle+église+IFD == total retourné par l'API.",
+    "convention": "cantonal_communal = impôt cantonal + impôt communal (chef-lieu) + taxe personnelle fixe éventuelle (TI 20 CHF) ; ifd = impôt fédéral direct ; total = cantonal_communal + ifd (impôt d'église = 0, profil sans confession)."
+  },
+  "cantons": {
+    "AR": {
+      "chef_lieu": "Herisau",
+      "bfs_id": 3001,
+      "estv_tax_location_id": 910000000,
+      "année_fiscale": "2026",
+      "points": {
+        "40000": {
+          "cantonal_communal": 4272,
+          "ifd": 198,
+          "total": 4470,
+          "détail": {
+            "cantonal": 1905,
+            "communal": 2367,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 9806,
+          "ifd": 968,
+          "total": 10774,
+          "détail": {
+            "cantonal": 4373,
+            "communal": 5433,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 15852,
+          "ifd": 2684,
+          "total": 18536,
+          "détail": {
+            "cantonal": 7069,
+            "communal": 8783,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 26396,
+          "ifd": 7076,
+          "total": 33472,
+          "détail": {
+            "cantonal": 11771,
+            "communal": 14625,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 47856,
+          "ifd": 19503,
+          "total": 67359,
+          "détail": {
+            "cantonal": 21341,
+            "communal": 26515,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Herisau (BFS 3001). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Multiplicateurs implicites vérifiés : canton 3.30, commune Herisau 4.10 (unités d'impôt simple, système AR)."
+    },
+    "AI": {
+      "chef_lieu": "Appenzell",
+      "bfs_id": 3101,
+      "estv_tax_location_id": 905000000,
+      "année_fiscale": "2026",
+      "points": {
+        "40000": {
+          "cantonal_communal": 3146,
+          "ifd": 198,
+          "total": 3344,
+          "détail": {
+            "cantonal": 1987,
+            "communal": 1159,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 7022,
+          "ifd": 968,
+          "total": 7990,
+          "détail": {
+            "cantonal": 4435,
+            "communal": 2587,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 11096,
+          "ifd": 2684,
+          "total": 13780,
+          "détail": {
+            "cantonal": 7008,
+            "communal": 4088,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 17860,
+          "ifd": 7076,
+          "total": 24936,
+          "détail": {
+            "cantonal": 11280,
+            "communal": 6580,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 30400,
+          "ifd": 19503,
+          "total": 49903,
+          "détail": {
+            "cantonal": 19200,
+            "communal": 11200,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Appenzell (BFS 3101). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Multiplicateurs implicites vérifiés : canton 96%, commune/district Appenzell 56%."
+    },
+    "SG": {
+      "chef_lieu": "Saint-Gall",
+      "bfs_id": 3203,
+      "estv_tax_location_id": 900000000,
+      "année_fiscale": "2025",
+      "points": {
+        "40000": {
+          "cantonal_communal": 4238,
+          "ifd": 198,
+          "total": 4436,
+          "détail": {
+            "cantonal": 1831,
+            "communal": 2407,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 10356,
+          "ifd": 968,
+          "total": 11324,
+          "détail": {
+            "cantonal": 4475,
+            "communal": 5881,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 17071,
+          "ifd": 2688,
+          "total": 19759,
+          "détail": {
+            "cantonal": 7376,
+            "communal": 9695,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 28492,
+          "ifd": 7081,
+          "total": 35573,
+          "détail": {
+            "cantonal": 12311,
+            "communal": 16181,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 51334,
+          "ifd": 19514,
+          "total": 70848,
+          "détail": {
+            "cantonal": 22181,
+            "communal": 29153,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2025, commune Saint-Gall (BFS 3203). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Année 2025 (2026 pas encore disponible dans l'ESTV pour SG, MaxYear=2025). Multiplicateurs implicites : canton 105%, ville 138%. Cross-check indépendant : Steuerfuss ville de St-Gall 2025 = 138% confirmé (SRF regionaljournal 2025-12-10, budget ville 2025) — ratio ESTV impôt communal/impôt simple = 1.3801, cohérent."
+    },
+    "GR": {
+      "chef_lieu": "Coire",
+      "bfs_id": 3901,
+      "estv_tax_location_id": 700000000,
+      "année_fiscale": "2026",
+      "points": {
+        "40000": {
+          "cantonal_communal": 3097,
+          "ifd": 198,
+          "total": 3295,
+          "détail": {
+            "cantonal": 1583,
+            "communal": 1514,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 8622,
+          "ifd": 968,
+          "total": 9590,
+          "détail": {
+            "cantonal": 4407,
+            "communal": 4215,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 14368,
+          "ifd": 2684,
+          "total": 17052,
+          "détail": {
+            "cantonal": 7344,
+            "communal": 7024,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 24362,
+          "ifd": 7076,
+          "total": 31438,
+          "détail": {
+            "cantonal": 12452,
+            "communal": 11910,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 44579,
+          "ifd": 19503,
+          "total": 64082,
+          "détail": {
+            "cantonal": 22785,
+            "communal": 21794,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Coire (BFS 3901). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Multiplicateurs implicites vérifiés : canton 92%, ville de Coire 88%."
+    },
+    "AG": {
+      "chef_lieu": "Aarau",
+      "bfs_id": 4001,
+      "estv_tax_location_id": 500000000,
+      "année_fiscale": "2026",
+      "points": {
+        "40000": {
+          "cantonal_communal": 3186,
+          "ifd": 198,
+          "total": 3384,
+          "détail": {
+            "cantonal": 1649,
+            "communal": 1537,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 8183,
+          "ifd": 968,
+          "total": 9151,
+          "détail": {
+            "cantonal": 4235,
+            "communal": 3948,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 13806,
+          "ifd": 2684,
+          "total": 16490,
+          "détail": {
+            "cantonal": 7146,
+            "communal": 6660,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 23656,
+          "ifd": 7076,
+          "total": 30732,
+          "détail": {
+            "cantonal": 12244,
+            "communal": 11412,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 44288,
+          "ifd": 19503,
+          "total": 63791,
+          "détail": {
+            "cantonal": 22923,
+            "communal": 21365,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Aarau (BFS 4001). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Multiplicateurs implicites vérifiés : canton 103%, commune Aarau 96%."
+    },
+    "TG": {
+      "chef_lieu": "Frauenfeld",
+      "bfs_id": 4566,
+      "estv_tax_location_id": 850000000,
+      "année_fiscale": "2026",
+      "points": {
+        "40000": {
+          "cantonal_communal": 3703,
+          "ifd": 198,
+          "total": 3901,
+          "détail": {
+            "cantonal": 1608,
+            "communal": 2095,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 8974,
+          "ifd": 968,
+          "total": 9942,
+          "détail": {
+            "cantonal": 3897,
+            "communal": 5077,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 14440,
+          "ifd": 2684,
+          "total": 17124,
+          "détail": {
+            "cantonal": 6271,
+            "communal": 8169,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 23852,
+          "ifd": 7076,
+          "total": 30928,
+          "détail": {
+            "cantonal": 10358,
+            "communal": 13494,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 43827,
+          "ifd": 19503,
+          "total": 63330,
+          "détail": {
+            "cantonal": 19032,
+            "communal": 24795,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Frauenfeld (BFS 4566). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Multiplicateurs implicites vérifiés : canton 109%, commune Frauenfeld 142%."
+    },
+    "TI": {
+      "chef_lieu": "Bellinzone",
+      "bfs_id": 5002,
+      "estv_tax_location_id": 650000000,
+      "année_fiscale": "2025",
+      "points": {
+        "40000": {
+          "cantonal_communal": 3720,
+          "ifd": 198,
+          "total": 3918,
+          "détail": {
+            "cantonal": 1917,
+            "communal": 1783,
+            "taxe_personnelle": 20,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 9979,
+          "ifd": 968,
+          "total": 10947,
+          "détail": {
+            "cantonal": 5160,
+            "communal": 4799,
+            "taxe_personnelle": 20,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 16987,
+          "ifd": 2688,
+          "total": 19675,
+          "détail": {
+            "cantonal": 8791,
+            "communal": 8176,
+            "taxe_personnelle": 20,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 29443,
+          "ifd": 7081,
+          "total": 36524,
+          "détail": {
+            "cantonal": 15245,
+            "communal": 14178,
+            "taxe_personnelle": 20,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 55098,
+          "ifd": 19514,
+          "total": 74612,
+          "détail": {
+            "cantonal": 28538,
+            "communal": 26540,
+            "taxe_personnelle": 20,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2025, commune Bellinzone (BFS 5002). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Année 2025 (2026 pas encore disponible dans l'ESTV pour TI, MaxYear=2025). Barème cantonal direct (multiplicateur cantonal 100%), moltiplicatore comunale Bellinzone 93%. Cross-check indépendant : moltiplicatore Bellinzona 2025 = 93% confirmé (bilanci preventivi 2025, MM 861, fixé à 93% depuis 2018) — ratio ESTV = 0.9300, cohérent. Imposta personale fixe 20 CHF incluse dans cantonal_communal."
+    }
+  }
+}

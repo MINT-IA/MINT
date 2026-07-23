@@ -133,37 +133,74 @@ FEDERAL_BRACKETS = [
     (float("inf"), 0.1150),  # au-delà : taux moyen max 11.5% (art. 36 al. 1)
 ]
 
+# Impôt cantonal+communal (chef-lieu) en CHF par revenu IMPOSABLE —
+# 26 cantons x 5 points, API officielle ESTV (swisstaxcalculator,
+# API_calculateSimpleTaxes, collecte 2026-07-23, beads MINT_nosync-97h).
+# Profil : célibataire, sans enfant, sans confession, fortune 0 ;
+# taxe personnelle incluse ; barèmes 2026 (SG et TI : 2025, l'ESTV
+# n'avait pas encore publié leur 2026 — re-collecter à publication).
+# Données brutes + vérifications : .planning/audit-etat-des-lieux-2026-07/
+# constants-audit/effective_rates_2026/ (identité cantonal+communal+IFD
+# == total ESTV validée sur les 130 points ; IFD recoupée Form. 58c 2026).
+CANTONAL_TAX_POINTS_INCOME = [40_000, 70_000, 100_000, 150_000, 250_000]
+
+CANTONAL_COMMUNAL_TAX_CHF = {
+    "AG": [3186, 8183, 13806, 23656, 44288],
+    "AI": [3146, 7022, 11096, 17860, 30400],
+    "AR": [4272, 9806, 15852, 26396, 47856],
+    "BE": [6839, 13129, 20273, 33232, 60810],
+    "BL": [3579, 10563, 18511, 32802, 62251],
+    "BS": [8400, 14700, 21000, 31500, 54844],
+    "FR": [5027, 11704, 18992, 32619, 59400],
+    "GE": [3706, 10593, 17967, 30803, 58279],
+    "GL": [3790, 8942, 14373, 23990, 45027],
+    "GR": [3097, 8622, 14368, 24362, 44579],
+    "JU": [4875, 11430, 18651, 31852, 58743],
+    "LU": [3410, 7760, 12110, 19648, 36020],
+    "NE": [5511, 12657, 20555, 34781, 62646],
+    "NW": [3220, 7634, 12191, 20054, 34130],
+    "OW": [5119, 8959, 12798, 19197, 31995],
+    "SG": [4238, 10356, 17071, 28492, 51334],  # barème 2025
+    "SH": [3085, 7525, 12772, 21661, 39408],
+    "SO": [4570, 11203, 18007, 30402, 55242],
+    "SZ": [2813, 5936, 9270, 14828, 25943],
+    "TG": [3703, 8974, 14440, 23852, 43827],
+    "TI": [3720, 9979, 16987, 29443, 55098],  # barème 2025
+    "UR": [5608, 9762, 13915, 20838, 34683],
+    "VD": [5666, 12039, 19588, 33776, 65070],
+    "VS": [3750, 9467, 16829, 32371, 59684],
+    "ZG": [1882, 4162, 7325, 13435, 23835],
+    "ZH": [2975, 7586, 13228, 23832, 48497],
+}
+
+
 def estimate_income_tax(
     taxable_income: float,
     canton: str,
     is_married: bool = False,
     income_factor_base: float | None = None,
 ) -> float:
-    """Impôt sur le revenu estimé — modèle fiscal backend CANONIQUE.
+    """Impôt sur le revenu estimé — modèle fiscal backend CANONIQUE (v2 -97h).
 
-    IFD 2026 progressif (FEDERAL_BRACKETS) + taux cantonal+communal effectif
-    calibré à 100k (EFFECTIVE_RATES_100K_SINGLE) avec facteur d'échelle
-    clampé 0.6-1.5, marié x0.80. Extrait de rente_vs_capital
-    (beads MINT_nosync-81n) pour que TOUS les moteurs backend qui ont besoin
-    d'un impôt revenu (RvC, rachat échelonné, coach) partagent LE MÊME
-    modèle — le rachat utilisait des paliers de taux marginaux hardcodés qui
-    inversaient la conclusion bloc/étalé vs le moteur mobile.
+    IFD 2026 progressif (FEDERAL_BRACKETS, recoupé Form. 58c) + impôt
+    cantonal+communal INTERPOLÉ LINÉAIREMENT entre points calibrés sur
+    l'API officielle ESTV (CANTONAL_COMMUNAL_TAX_CHF, 26 cantons x 5
+    points, chef-lieu, célibataire). Remplace le modèle
+    « taux_effectif(100k) x clamp(revenu/100k) » quasi quadratique dont
+    les DIFFÉRENCES d'impôt étaient fausses (taux marginal implicite
+    47.5% à 140k VD ; le modèle interpolé donne ~38%, réaliste) — c'était
+    le bloqueur de -81n (conclusions bloc/étalé inversées coach vs écran).
 
-    Args:
-        taxable_income: revenu imposable (après déductions du domaine).
-        canton: code canton.
-        is_married: splitting (x0.80 sur le total).
-        income_factor_base: base du facteur d'échelle du taux effectif ;
-            None -> taxable_income. rente_vs_capital passe la rente BRUTE
-            (comportement historique verrouillé par rvc_parity_v1.json).
+    Interpolation : linéaire sur l'IMPÔT entre points (monotone, vérifiée
+    sur les 130 points) ; sous 40k : linéaire depuis (0, 0) ; au-dessus de
+    250k : extrapolation à la pente du dernier segment. Marié : x0.80
+    (splitting, approximation LHID). income_factor_base est CONSERVÉ pour
+    compat de signature (l'ancien RvC le passait) mais IGNORÉ — le modèle
+    v2 n'a plus de facteur d'échelle.
 
-    LIMITE STRUCTURELLE (beads MINT_nosync-97h, review #987) : la composante
-    cantonale vaut ``revenu x taux(100k) x clamp(revenu/100k, 0.6, 1.5)`` —
-    entre les bornes du clamp elle évolue QUASI QUADRATIQUEMENT. Les
-    NIVEAUX d'impôt sont des estimations utilisables ; les DIFFÉRENCES
-    entre deux appels ne sont PAS un taux marginal fiable (ex. ~47.5%
-    implicite à 140k VD). Ne pas brancher un calcul d'économie marginale
-    (rachat, déductions) dessus avant le recalibrage multi-points -97h.
+    Limites (dites, pas cachées) : célibataire chef-lieu sans confession ;
+    les déductions réelles varient ; SG/TI barèmes 2025. Estimation
+    éducative, jamais un conseil fiscal (LSFin).
     """
     impot_federal = 0.0
     prev_bound = 0.0
@@ -174,12 +211,30 @@ def estimate_income_tax(
         impot_federal += taxable * rate
         prev_bound = upper
 
-    cantonal_rate = EFFECTIVE_RATES_100K_SINGLE.get(canton.upper(), 0.13)
-    factor_base = (
-        income_factor_base if income_factor_base is not None else taxable_income
-    )
-    income_factor = max(0.6, min(1.5, factor_base / 100_000))
-    impot_cantonal = taxable_income * cantonal_rate * income_factor
+    pts = CANTONAL_COMMUNAL_TAX_CHF.get(canton.upper())
+    if pts is None:
+        # Canton inconnu : moyenne simple des 26 (transparent, pas un 0.13 magique).
+        pts = [
+            sum(v[i] for v in CANTONAL_COMMUNAL_TAX_CHF.values())
+            / len(CANTONAL_COMMUNAL_TAX_CHF)
+            for i in range(len(CANTONAL_TAX_POINTS_INCOME))
+        ]
+
+    incomes = CANTONAL_TAX_POINTS_INCOME
+    if taxable_income <= 0:
+        impot_cantonal = 0.0
+    elif taxable_income <= incomes[0]:
+        impot_cantonal = pts[0] * (taxable_income / incomes[0])
+    elif taxable_income >= incomes[-1]:
+        slope = (pts[-1] - pts[-2]) / (incomes[-1] - incomes[-2])
+        impot_cantonal = pts[-1] + slope * (taxable_income - incomes[-1])
+    else:
+        impot_cantonal = 0.0
+        for i in range(len(incomes) - 1):
+            if incomes[i] <= taxable_income <= incomes[i + 1]:
+                ratio = (taxable_income - incomes[i]) / (incomes[i + 1] - incomes[i])
+                impot_cantonal = pts[i] + ratio * (pts[i + 1] - pts[i])
+                break
 
     total = impot_federal + impot_cantonal
     if is_married:
