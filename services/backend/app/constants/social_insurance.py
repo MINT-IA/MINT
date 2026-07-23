@@ -186,6 +186,28 @@ AVS_AGE_REFERENCE_HOMME: int = int(_get("avs.reference_age_men"))
 """Age de reference AVS pour les hommes."""
 
 AVS_AGE_REFERENCE_FEMME: int = int(_get("avs.reference_age_women"))
+"""DÉPRÉCIÉ pour les moteurs — int(64.5) = 64, faux pour les cohortes 1963+
+(65 depuis la réforme). Le scalaire registre est transitoire ; utiliser
+``avs_reference_age(birth_year, is_female)`` ci-dessous (beads -xx9)."""
+
+
+def avs_reference_age(birth_year: int, is_female: bool) -> int:
+    """Âge de référence AVS par cohorte (AVS 21, LAVS art. 21 al. 1).
+
+    MIRROR apps/mobile/lib/constants/social_insurance.dart
+    (``avsReferenceAge``, lignes ~150-157) et
+    couple_optimizer._analyze_avs_cap (bloc inline remplacé, beads -xx9).
+    Transition officielle femmes : <=1960 -> 64 ; 1961 -> 64+3 mois ;
+    1962 -> 64+6 mois ; 1963 -> 64+9 mois ; 1964+ -> 65. Les moteurs
+    travaillent en années entières : 1961/1962 simplifiés à 64,
+    1963 à 65 — même convention que le Dart (jamais divergent).
+    """
+    if not is_female:
+        return AVS_AGE_REFERENCE_HOMME
+    if birth_year <= 1962:
+        return 64
+    return 65
+
 """Age de reference AVS pour les femmes (depuis reforme AVS 21)."""
 
 AVS_REDUCTION_ANTICIPATION: float = _get("avs.anticipation_reduction")

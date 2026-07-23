@@ -36,7 +36,7 @@ from app.constants.social_insurance import (
     AVS_RENTE_MIN_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_AGE_REFERENCE_HOMME,
-    AVS_AGE_REFERENCE_FEMME,
+    avs_reference_age,
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
@@ -146,23 +146,24 @@ _EXPENSES_FACTOR: float = 0.85
 _RETIREMENT_AGE_DEFAULT: int = AVS_AGE_REFERENCE_HOMME  # 65
 
 
-def _get_retirement_age(gender: Optional[str]) -> int:
-    """Return retirement reference age based on gender (AVS21).
+def _get_retirement_age(gender: Optional[str], birth_year: int) -> int:
+    """Return retirement reference age based on gender AND cohort (AVS21).
 
-    - Men: 65 (LAVS art. 21 al. 1)
-    - Women: 64 (AVS21 reform, transitional from 64→65 for births 1961-1963)
-    - Unknown: 65 (conservative default — overestimates contribution years slightly)
+    Beads MINT_nosync-xx9 : l'ancienne version servait
+    ``AVS_AGE_REFERENCE_FEMME`` = int(64.5) = 64 à TOUTES les femmes —
+    faux pour les cohortes 1963+ (65 depuis la réforme AVS 21). L'âge de
+    référence dépend de la cohorte, pas d'un scalaire.
 
     Args:
         gender: "male", "female", or None if unknown.
+        birth_year: année de naissance (dérivée de input.age si besoin —
+            précision ±1 an sans birth_date, suffisante : seules les
+            cohortes 1961-1963 sont sensibles).
 
     Returns:
         Retirement reference age.
     """
-    if gender == "female":
-        return AVS_AGE_REFERENCE_FEMME  # 64 (AVS21 transitional)
-    # Male or unknown → 65
-    return AVS_AGE_REFERENCE_HOMME
+    return avs_reference_age(birth_year, gender == "female")
 
 # Default marginal tax rate for middle incomes (proxy)
 _DEFAULT_MARGINAL_TAX_RATE: float = 0.25
@@ -536,10 +537,15 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         ValueError: If age, salary, or canton are invalid.
     """
     # ── Resolve age from birth_date when provided ────────────────────────────
+    # Review Codex PR #985 : quand birth_date existe, bd.year est LA cohorte
+    # exacte — la re-dériver de l'âge bascule la frontière (une femme née le
+    # 31.12.1962 a 63 ans mi-2026 -> dérivation 1963 -> 65 ans au lieu de 64).
+    birth_year_exact: int | None = None
     if input.birth_date:
         from datetime import date
         try:
             bd = date.fromisoformat(input.birth_date[:10])
+            birth_year_exact = bd.year
             today = date.today()
             computed_age = today.year - bd.year - (
                 (today.month, today.day) < (bd.month, bd.day)
@@ -617,7 +623,15 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         estimated_fields.append("monthly_debt_service")
 
     # ── P2-26: Gender-aware retirement age (AVS21) ─────────────────────────
-    retirement_age = _get_retirement_age(getattr(input, "gender", None))
+    from datetime import date as _date
+    retirement_age = _get_retirement_age(
+        getattr(input, "gender", None),
+        # Cohorte exacte si birth_date fourni ; sinon dérivation par l'âge
+        # (±1 an, documenté dans _get_retirement_age).
+        birth_year_exact
+        if birth_year_exact is not None
+        else _date.today().year - input.age,
+    )
 
     # ── AVS projection ──────────────────────────────────────────────────────
     # FIX-092: Contribution years account for arrival age (expats).

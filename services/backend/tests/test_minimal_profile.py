@@ -456,3 +456,68 @@ def test_minimal_profile_archetype_signals_default_none():
         "None to False — that breaks the FATCA hard gate."
     )
     assert u.nationality is None
+
+
+class TestReferenceAgeCohort:
+    """Beads MINT_nosync-xx9 : l'âge de référence femmes dépend de la COHORTE.
+
+    L'ancien _get_retirement_age servait int(64.5) = 64 à TOUTES les femmes —
+    faux pour les cohortes 1963+ (65 depuis la réforme AVS 21). Miroir exact
+    du Dart avsReferenceAge (social_insurance.dart).
+    """
+
+    def test_woman_born_1990_gets_65(self):
+        from app.services.onboarding.minimal_profile_service import (
+            _get_retirement_age,
+        )
+
+        assert _get_retirement_age("female", 1990) == 65, (
+            "cohorte 1964+ : 65 ans — l'ancien scalaire 64 sous-estimait "
+            "l'âge de référence de la quasi-totalité des utilisatrices"
+        )
+
+    def test_transitional_cohorts_match_dart_convention(self):
+        from app.constants.social_insurance import avs_reference_age
+
+        # Convention années entières partagée avec le Dart : 1961/1962 -> 64,
+        # 1963 -> 65 (officiel : +3/+6/+9 mois).
+        assert avs_reference_age(1960, True) == 64
+        assert avs_reference_age(1961, True) == 64
+        assert avs_reference_age(1962, True) == 64
+        assert avs_reference_age(1963, True) == 65
+        assert avs_reference_age(1964, True) == 65
+        # Hommes : 65 toutes cohortes.
+        assert avs_reference_age(1961, False) == 65
+
+    def test_birth_date_end_of_1962_keeps_cohort_64(self, monkeypatch):
+        """Régression review #985 : née le 31.12.1962 (63 ans mi-2026) —
+        la dérivation par l'âge donnait cohorte 1963 -> 65 ; bd.year doit
+        primer. On espionne l'argument transmis à _get_retirement_age
+        (retirement_age n'est pas exposé dans le résultat)."""
+        import app.services.onboarding.minimal_profile_service as mps
+        from app.services.onboarding.onboarding_models import (
+            MinimalProfileInput,
+        )
+
+        captured = {}
+        orig = mps._get_retirement_age
+
+        def spy(gender, birth_year):
+            captured["birth_year"] = birth_year
+            return orig(gender, birth_year)
+
+        monkeypatch.setattr(mps, "_get_retirement_age", spy)
+        mps.compute_minimal_profile(
+            MinimalProfileInput(
+                age=40,  # volontairement faux : birth_date doit primer
+                gross_salary=90_000,
+                canton="VD",
+                birth_date="1962-12-31",
+                gender="female",
+            )
+        )
+        assert captured["birth_year"] == 1962, (
+            "bd.year doit primer sur la dérivation par l'âge — une femme "
+            "née le 31.12.1962 reste cohorte 1962 (64 ans, AVS 21)"
+        )
+        assert orig("female", 1962) == 64
