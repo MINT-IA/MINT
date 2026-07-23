@@ -37,7 +37,9 @@ class ConjointMissingHint extends StatelessWidget {
       // bandeau se tait — jamais de crash pour un hint.
       profile = null;
     }
-    final show = forceShow || (profile?.isMissingConjointData ?? false);
+    // Gate PRÉCIS (review PR #976) : un conjoint sans revenu contribue 0 —
+    // le calcul est mono-revenu même si l'objet conjoint existe.
+    final show = forceShow || (profile?.isMissingConjointIncome ?? false);
     if (!show) return const SizedBox.shrink();
 
     final s = S.of(context)!;

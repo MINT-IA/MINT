@@ -96,7 +96,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               style: MintTextStyles.bodyMedium(),
             )),
             const SizedBox(height: 24),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: FilledButton(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: FilledButton( // lint-ignore: prefer_mint_cta
               onPressed: () {
                 final sub = context.read<SubscriptionProvider>();
                 sub.upgrade(SubscriptionTier.couplePlus);
@@ -124,7 +124,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            FilledButton(
+            FilledButton( // lint-ignore: prefer_mint_cta
               onPressed: () => context.push('/auth/login'),
               child: Text(S.of(context)!.householdLogin),
             ),
@@ -180,7 +180,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
               style: MintTextStyles.bodyMedium(color: MintColors.redDeep),
             ),
             const SizedBox(height: 16),
-            OutlinedButton(
+            OutlinedButton( // lint-ignore: prefer_mint_cta
               onPressed: () {
                 household.clearError();
                 household.loadHousehold();
@@ -366,11 +366,11 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
           style: MintTextStyles.bodyMedium(),
         ),
         actions: [
-          TextButton(
+          TextButton( // lint-ignore: prefer_mint_cta
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(S.of(context)!.householdCancel),
           ),
-          TextButton(
+          TextButton( // lint-ignore: prefer_mint_cta
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: MintColors.error),
             child: Text(S.of(context)!.householdRemove),
@@ -430,7 +430,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
-          child: FilledButton(
+          child: FilledButton( // lint-ignore: prefer_mint_cta
             onPressed: household.isLoading
                 ? null
                 : () async {

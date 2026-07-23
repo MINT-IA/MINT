@@ -108,6 +108,36 @@ void main() {
     expect(find.text(l10n.coupleMonoIncomeHint), findsOneWidget);
   });
 
+  testWidgets('conjoint PRÉSENT mais sans revenu -> hint visible',
+      (tester) async {
+    // Review PR #976 : un ConjointProfile sans salaireBrutMensuel contribue
+    // 0 au revenu du couple — le calcul est réellement mono-revenu même si
+    // l'objet conjoint existe. L'ancien gate (conjoint == null) cachait le
+    // bandeau sur ce cas.
+    await tester.pumpWidget(_wrap(_profile(
+      conjoint: const ConjointProfile(firstName: 'Lau'),
+    )));
+    await tester.pump();
+    final l10n = await S.delegate.load(const Locale('fr'));
+    expect(find.text(l10n.coupleMonoIncomeHint), findsOneWidget,
+        reason: 'conjoint sans revenu = mono-revenu réel, le dire');
+  });
+
+  test('affordability : bandeau gaté sur la provenance du champ revenu', () {
+    final src = File('lib/screens/mortgage/affordability_screen.dart')
+        .readAsStringSync();
+    expect(src.contains('_incomeStillFromProfile()'), isTrue,
+        reason: 'review PR #976 : après une saisie manuelle (revenu combiné '
+            'entré à la main), le bandeau mentirait — il doit se taire dès '
+            'que le champ diverge du ménage profil');
+  });
+
+  test('retirement dashboard : hint câblé (projection couple visible)', () {
+    final src = File('lib/screens/coach/retirement_dashboard_screen.dart')
+        .readAsStringSync();
+    expect(src.contains('ConjointMissingHint'), isTrue);
+  });
+
   test('CTA : route existante /coach/chat via go (jamais push, tab-root)', () {
     final src = File('lib/widgets/couple/conjoint_missing_hint.dart')
         .readAsStringSync();
@@ -120,7 +150,7 @@ void main() {
   test('expat : hint gaté MARIÉ uniquement (concubinage = solo correct)', () {
     final src = File('lib/screens/expat_screen.dart').readAsStringSync();
     expect(
-        src.contains('if (isMarried && profile.isMissingConjointData)'),
+        src.contains('if (isMarried && profile.isMissingConjointIncome)'),
         isTrue,
         reason: 'panel : en concubinage l\'imposition est séparée — le '
             'calcul solo est correct, pas de fausse alerte');

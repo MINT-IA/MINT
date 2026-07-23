@@ -285,7 +285,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       // Panel : gate sur MARIÉ uniquement — en concubinage l'imposition est
       // séparée, le calcul solo est correct par conception (pas de fausse
       // alerte « donnée manquante »).
-      if (isMarried && profile.isMissingConjointData)
+      if (isMarried && profile.isMissingConjointIncome)
         const ConjointMissingHint(forceShow: true),
       TopCantonWidget(
       currentCanton: anchorCanton,

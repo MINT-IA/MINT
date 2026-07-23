@@ -312,6 +312,20 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         canton: _canton,
       );
 
+  /// Volet C -mla : vrai tant que le champ revenu vaut la valeur ménage
+  /// dérivée du profil (aucune saisie manuelle divergente).
+  bool _incomeStillFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return false;
+      final menage = revenuBrutMenageFromProfile(profile);
+      if (menage <= 0) return false;
+      return (_revenuBrut - menage).abs() < 1;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final result = _result;
@@ -345,11 +359,14 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
-                    // Honnêteté mono-revenu (beads MINT_nosync-mla volet C) :
-                    // le calcul délègue à revenuBrutAnnuelCouple — si le
-                    // conjoint financier est absent, le dire au lieu de
-                    // calculer en silence. Self-gated.
-                    const ConjointMissingHint(),
+                    // Honnêteté mono-revenu (beads MINT_nosync-mla volet C,
+                    // gate précisé review PR #976) : le bandeau n'est vrai
+                    // que si le champ revenu reflète ENCORE le ménage du
+                    // profil — dès que l'utilisateur saisit un autre montant
+                    // (ex. revenu combiné manuel), la provenance change et
+                    // le bandeau se tait.
+                    if (_incomeStillFromProfile())
+                      const ConjointMissingHint(),
                     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                     // SECTION 1 — L'ENJEU : la question hero
                     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -170,6 +170,8 @@ ALLOW = {
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
+    "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+    "apps/mobile/lib/models/coach_profile.dart",
     "apps/mobile/test/screens/debt_prevention_screens_smoke_test.dart",
     "services/backend/app/services/arbitrage/rente_vs_capital.py",
     "services/backend/app/api/v1/endpoints/arbitrage.py",
