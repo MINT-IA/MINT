@@ -330,14 +330,15 @@ class TestRenteVsCapital:
     def test_sophie_vd_married_250k(self):
         """Sophie: 64 ans, VD, married, 150k oblig + 100k surob, taux surob 4.5%.
 
-        VD base 0.08, married 0.08*0.85 = 0.068.
-        Progressive: 100k*0.068*1.0 + 100k*0.068*1.15 + 50k*0.068*1.30
-        = 6800 + 7820 + 4420 = 19040
+        Coefficient marié PAR CANTON (beads -ku6, audit swiss-brain Q5) :
+        VD base 0.08, splitting intégral LI VD art. 49 -> 0.08*0.78 = 0.0624.
+        Progressive: 100k*0.0624*1.0 + 100k*0.0624*1.15 + 50k*0.0624*1.30
+        = 6240 + 7176 + 4056 = 17472 (l'ancien 0.85 uniforme donnait 19040).
         """
         r = compute_rente_vs_capital(150_000, 100_000, 0.045, 64, "VD", "married")
         assert r["rente_annuelle"] == pytest.approx(14_700, abs=1)
-        assert r["impot_retrait"] == pytest.approx(19_040, abs=1)
-        assert r["capital_net"] == pytest.approx(230_960, abs=1)
+        assert r["impot_retrait"] == pytest.approx(17_472, abs=1)
+        assert r["capital_net"] == pytest.approx(232_528, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
         assert r["scenarios"]["central"]["break_even_age"] is not None
 
@@ -356,13 +357,14 @@ class TestRenteVsCapital:
     def test_anna_bs_married_100k(self):
         """Anna: 64 ans, BS, married, 80k oblig + 20k surob, taux surob 4.0%.
 
-        BS base 0.075, married 0.075*0.85 = 0.06375.
-        Progressive: 100k*0.06375*1.0 = 6375
+        Coefficient marié PAR CANTON (beads -ku6) : BS non tabulé ->
+        fallback 0.82. Base 0.075 -> 0.075*0.82 = 0.0615.
+        Progressive: 100k*0.0615*1.0 = 6150 (ancien 0.85 uniforme : 6375).
         """
         r = compute_rente_vs_capital(80_000, 20_000, 0.04, 64, "BS", "married")
         assert r["rente_annuelle"] == pytest.approx(6_240, abs=1)
-        assert r["impot_retrait"] == pytest.approx(6_375, abs=1)
-        assert r["capital_net"] == pytest.approx(93_625, abs=1)
+        assert r["impot_retrait"] == pytest.approx(6_150, abs=1)
+        assert r["capital_net"] == pytest.approx(93_850, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
 
     def test_thomas_lu_single_500k(self):

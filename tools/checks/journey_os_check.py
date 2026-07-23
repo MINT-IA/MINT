@@ -209,6 +209,11 @@ ALLOW = {
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",
+    # PR married-discount-canton (bead -ku6) : fin du 0.85 uniforme
+    "services/backend/app/services/rules_engine.py",
+    "services/backend/app/services/arbitrage/rachat_vs_marche.py",
+    "services/backend/app/services/arbitrage/calendrier_retraits.py",
+    "services/backend/tests/test_rules_engine.py",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
