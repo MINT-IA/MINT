@@ -24306,4 +24306,14 @@ class SPt extends S {
   @override
   String get reportSpouseDataMissingPrompt =>
       'Adiciona o rendimento e os anos de contribuição do teu cônjuge: a sua renda AVS não é estimada até lá.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'As tuas prestações mínimas totalizam CHF $montant — o plano baseia-se neste montante';
+  }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Orçamento inserido CHF $saisi, o plano usa CHF $effectif (prestações mínimas). Botão, edita o orçamento.';
+  }
 }

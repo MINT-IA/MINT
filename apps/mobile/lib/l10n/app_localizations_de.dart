@@ -24359,4 +24359,14 @@ class SDe extends S {
   @override
   String get reportSpouseDataMissingPrompt =>
       'Erfasse Einkommen und Beitragsjahre deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin nicht geschätzt.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'Deine Mindestraten betragen insgesamt CHF $montant — der Plan rechnet damit';
+  }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Eingegebenes Budget CHF $saisi, der Plan rechnet mit CHF $effectif (Mindestraten). Schaltfläche, ändert das Budget.';
+  }
 }

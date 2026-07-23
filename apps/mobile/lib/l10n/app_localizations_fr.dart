@@ -24295,4 +24295,14 @@ class SFr extends S {
   @override
   String get reportSpouseDataMissingPrompt =>
       'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'Tes mensualités minimales totalisent CHF $montant — le plan se base sur ce montant';
+  }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Budget saisi CHF $saisi, le plan se base sur CHF $effectif (mensualités minimales). Bouton, modifie le budget.';
+  }
 }

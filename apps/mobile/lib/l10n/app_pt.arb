@@ -11602,5 +11602,24 @@
     "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
   },
   "reportSpouseIncomeMissingPrompt": "Adiciona o rendimento do teu cônjuge: a sua renda AVS é estimada no mínimo legal até lá.",
-  "reportSpouseDataMissingPrompt": "Adiciona o rendimento e os anos de contribuição do teu cônjuge: a sua renda AVS não é estimada até lá."
+  "reportSpouseDataMissingPrompt": "Adiciona o rendimento e os anos de contribuição do teu cônjuge: a sua renda AVS não é estimada até lá.",
+  "repaymentBudgetEffectiveNote": "As tuas prestações mínimas totalizam CHF {montant} — o plano baseia-se neste montante",
+  "@repaymentBudgetEffectiveNote": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "semanticsRepaymentBudgetEffective": "Orçamento inserido CHF {saisi}, o plano usa CHF {effectif} (prestações mínimas). Botão, edita o orçamento.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
+  }
 }

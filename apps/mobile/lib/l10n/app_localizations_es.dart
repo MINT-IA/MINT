@@ -24299,4 +24299,14 @@ class SEs extends S {
   @override
   String get reportSpouseDataMissingPrompt =>
       'Añade los ingresos y los años de cotización de tu cónyuge: su renta AVS no se estima hasta entonces.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'Tus cuotas mínimas suman CHF $montant — el plan se basa en este importe';
+  }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Presupuesto introducido CHF $saisi, el plan usa CHF $effectif (cuotas mínimas). Botón, edita el presupuesto.';
+  }
 }

@@ -24175,4 +24175,14 @@ class SEn extends S {
   @override
   String get reportSpouseDataMissingPrompt =>
       'Add your spouse\'s income and contribution years: their AVS pension is not estimated until then.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'Your minimum payments total CHF $montant — the plan uses this amount';
+  }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Entered budget CHF $saisi, the plan uses CHF $effectif (minimum payments). Button, edits the budget.';
+  }
 }

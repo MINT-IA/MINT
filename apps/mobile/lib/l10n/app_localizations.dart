@@ -42465,6 +42465,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.'**
   String get reportSpouseDataMissingPrompt;
+
+  /// No description provided for @repaymentBudgetEffectiveNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes mensualités minimales totalisent CHF {montant} — le plan se base sur ce montant'**
+  String repaymentBudgetEffectiveNote(String montant);
+
+  /// No description provided for @semanticsRepaymentBudgetEffective.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget saisi CHF {saisi}, le plan se base sur CHF {effectif} (mensualités minimales). Bouton, modifie le budget.'**
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
