@@ -1,0 +1,570 @@
+[
+ {
+  "id": null,
+  "route": "/budget"
+ },
+ {
+  "id": null,
+  "route": "/cantonal-benchmark"
+ },
+ {
+  "id": null,
+  "route": "/retraite/rente-vs-capital"
+ },
+ {
+  "id": null,
+  "route": "/retraite"
+ },
+ {
+  "id": null,
+  "route": "/retraite?mode=preretraite"
+ },
+ {
+  "id": null,
+  "route": "/pilier-3a"
+ },
+ {
+  "id": null,
+  "route": "/3a-deep/staggered-withdrawal"
+ },
+ {
+  "id": null,
+  "route": "/fiscal"
+ },
+ {
+  "id": null,
+  "route": "/rachat-lpp"
+ },
+ {
+  "id": null,
+  "route": "/lpp-deep/rachat"
+ },
+ {
+  "id": null,
+  "route": "/epl"
+ },
+ {
+  "id": null,
+  "route": "/hypotheque"
+ },
+ {
+  "id": null,
+  "route": "/invalidite"
+ },
+ {
+  "id": null,
+  "route": "/simulator/job-comparison"
+ },
+ {
+  "id": null,
+  "route": "/assurances/lamal"
+ },
+ {
+  "id": null,
+  "route": "/decaissement"
+ },
+ {
+  "id": null,
+  "route": "/mortgage/amortization"
+ },
+ {
+  "id": null,
+  "route": "/mortgage/saron-vs-fixed"
+ },
+ {
+  "id": null,
+  "route": "/mortgage/epl-combined"
+ },
+ {
+  "id": null,
+  "route": "/independants/dividende-salaire"
+ },
+ {
+  "id": null,
+  "route": "/3a-deep/comparator"
+ },
+ {
+  "id": null,
+  "route": "/3a-deep/real-return"
+ },
+ {
+  "id": null,
+  "route": "/3a-retroactif"
+ },
+ {
+  "id": null,
+  "route": "/arbitrage/location-vs-propriete"
+ },
+ {
+  "id": null,
+  "route": "/succession"
+ },
+ {
+  "id": null,
+  "route": "/libre-passage"
+ },
+ {
+  "id": null,
+  "route": "/arbitrage/allocation-annuelle"
+ },
+ {
+  "id": null,
+  "route": "/assurances/coverage"
+ },
+ {
+  "id": null,
+  "route": "/segments/gender-gap"
+ },
+ {
+  "id": null,
+  "route": "/disability/self-employed"
+ },
+ {
+  "id": null,
+  "route": "/independants/avs"
+ },
+ {
+  "id": null,
+  "route": "/independants/ijm"
+ },
+ {
+  "id": null,
+  "route": "/independants/3a"
+ },
+ {
+  "id": null,
+  "route": "/independants/lpp-volontaire"
+ },
+ {
+  "id": null,
+  "route": "/simulator/compound"
+ },
+ {
+  "id": null,
+  "route": "/simulator/leasing"
+ },
+ {
+  "id": null,
+  "route": "/simulator/credit"
+ },
+ {
+  "id": null,
+  "route": "/debt/ratio"
+ },
+ {
+  "id": null,
+  "route": "/debt/repayment"
+ },
+ {
+  "id": null,
+  "route": "/check/debt"
+ },
+ {
+  "id": null,
+  "route": "/debt/help"
+ },
+ {
+  "id": null,
+  "route": "/rapport"
+ },
+ {
+  "id": null,
+  "route": "/timeline"
+ },
+ {
+  "id": null,
+  "route": "/arbitrage/bilan"
+ },
+ {
+  "id": null,
+  "route": "/coach/cockpit"
+ },
+ {
+  "id": null,
+  "route": "/mortgage/imputed-rental"
+ },
+ {
+  "id": null,
+  "route": "/divorce"
+ },
+ {
+  "id": null,
+  "route": "/naissance"
+ },
+ {
+  "id": null,
+  "route": "/mariage"
+ },
+ {
+  "id": null,
+  "route": "/concubinage"
+ },
+ {
+  "id": null,
+  "route": "/unemployment"
+ },
+ {
+  "id": null,
+  "route": "/first-job"
+ },
+ {
+  "id": null,
+  "route": "/life-event/housing-sale"
+ },
+ {
+  "id": null,
+  "route": "/life-event/donation"
+ },
+ {
+  "id": null,
+  "route": "/life-event/deces-proche"
+ },
+ {
+  "id": null,
+  "route": "/expatriation"
+ },
+ {
+  "id": null,
+  "route": "/segments/frontalier"
+ },
+ {
+  "id": null,
+  "route": "/segments/independant"
+ },
+ {
+  "id": null,
+  "route": "/life-event/demenagement-cantonal"
+ },
+ {
+  "id": null,
+  "route": "/disability/insurance"
+ },
+ {
+  "id": null,
+  "route": "/scan"
+ },
+ {
+  "id": null,
+  "route": "/documents"
+ },
+ {
+  "id": null,
+  "route": "/profile"
+ },
+ {
+  "id": null,
+  "route": "/scan/avs-guide"
+ },
+ {
+  "id": null,
+  "route": "/couple"
+ },
+ {
+  "id": null,
+  "route": "/open-banking"
+ },
+ {
+  "id": null,
+  "route": "/profile/privacy-control"
+ },
+ {
+  "id": null,
+  "route": "/profile/byok"
+ },
+ {
+  "id": null,
+  "route": "/profile/slm"
+ },
+ {
+  "id": null,
+  "route": "/scan/review"
+ },
+ {
+  "id": null,
+  "route": "/scan/impact"
+ },
+ {
+  "id": null,
+  "route": "/documents/:id"
+ },
+ {
+  "id": null,
+  "route": "/couple/accept"
+ },
+ {
+  "id": null,
+  "route": "/data-block/:type"
+ },
+ {
+  "id": null,
+  "route": "/bank-import"
+ },
+ {
+  "id": null,
+  "route": "/open-banking/transactions"
+ },
+ {
+  "id": null,
+  "route": "/open-banking/consents"
+ },
+ {
+  "id": null,
+  "route": "/profile/admin-observability"
+ },
+ {
+  "id": null,
+  "route": "/profile/admin-analytics"
+ },
+ {
+  "id": null,
+  "route": "/"
+ },
+ {
+  "id": null,
+  "route": "/coach/chat"
+ },
+ {
+  "id": null,
+  "route": "/achievements"
+ },
+ {
+  "id": null,
+  "route": "/home"
+ },
+ {
+  "id": null,
+  "route": "/auth/login"
+ },
+ {
+  "id": null,
+  "route": "/auth/register"
+ },
+ {
+  "id": null,
+  "route": "/auth/forgot-password"
+ },
+ {
+  "id": null,
+  "route": "/auth/verify-email"
+ },
+ {
+  "id": null,
+  "route": "/explore/retraite"
+ },
+ {
+  "id": null,
+  "route": "/explore/famille"
+ },
+ {
+  "id": null,
+  "route": "/explore/travail"
+ },
+ {
+  "id": null,
+  "route": "/explore/logement"
+ },
+ {
+  "id": null,
+  "route": "/explore/fiscalite"
+ },
+ {
+  "id": null,
+  "route": "/explore/patrimoine"
+ },
+ {
+  "id": null,
+  "route": "/explore/sante"
+ },
+ {
+  "id": null,
+  "route": "/coach/checkin"
+ },
+ {
+  "id": null,
+  "route": "/coach/refresh"
+ },
+ {
+  "id": null,
+  "route": "/coach/history"
+ },
+ {
+  "id": null,
+  "route": "/education/hub"
+ },
+ {
+  "id": null,
+  "route": "/education/theme/:id"
+ },
+ {
+  "id": null,
+  "route": "/portfolio"
+ },
+ {
+  "id": null,
+  "route": "/score-reveal"
+ },
+ {
+  "id": null,
+  "route": "/onb"
+ },
+ {
+  "id": null,
+  "route": "/onboarding/premier-eclairage"
+ },
+ {
+  "id": null,
+  "route": "/ask-mint"
+ },
+ {
+  "id": null,
+  "route": "/profile/bilan"
+ },
+ {
+  "id": null,
+  "route": "/confidence"
+ },
+ {
+  "id": null,
+  "route": "/coach/chat?topic=specialist"
+ },
+ {
+  "id": null,
+  "route": "/coach/chat?topic=taxDeclaration"
+ },
+ {
+  "id": null,
+  "route": "/coach/chat?topic=avsExtract"
+ },
+ {
+  "id": null,
+  "route": "/coach/chat?topic=lppTransfer"
+ },
+ {
+  "id": null,
+  "route": "/advisor"
+ },
+ {
+  "id": null,
+  "route": "/advisor/plan-30-days"
+ },
+ {
+  "id": null,
+  "route": "/advisor/wizard"
+ },
+ {
+  "id": null,
+  "route": "/arbitrage/calendrier-retraits"
+ },
+ {
+  "id": null,
+  "route": "/arbitrage/rachat-vs-marche"
+ },
+ {
+  "id": null,
+  "route": "/arbitrage/rente-vs-capital"
+ },
+ {
+  "id": null,
+  "route": "/budget/setup"
+ },
+ {
+  "id": null,
+  "route": "/coach/decaissement"
+ },
+ {
+  "id": null,
+  "route": "/coach/succession"
+ },
+ {
+  "id": null,
+  "route": "/disability/gap"
+ },
+ {
+  "id": null,
+  "route": "/document-scan"
+ },
+ {
+  "id": null,
+  "route": "/document-scan/avs-guide"
+ },
+ {
+  "id": null,
+  "route": "/household"
+ },
+ {
+  "id": null,
+  "route": "/household/accept"
+ },
+ {
+  "id": null,
+  "route": "/life-event/divorce"
+ },
+ {
+  "id": null,
+  "route": "/life-event/succession"
+ },
+ {
+  "id": null,
+  "route": "/lpp-deep/epl"
+ },
+ {
+  "id": null,
+  "route": "/lpp-deep/libre-passage"
+ },
+ {
+  "id": null,
+  "route": "/mortgage/affordability"
+ },
+ {
+  "id": null,
+  "route": "/report"
+ },
+ {
+  "id": null,
+  "route": "/report/v2"
+ },
+ {
+  "id": null,
+  "route": "/retirement"
+ },
+ {
+  "id": null,
+  "route": "/retirement/projection"
+ },
+ {
+  "id": null,
+  "route": "/simulator/3a"
+ },
+ {
+  "id": null,
+  "route": "/simulator/disability-gap"
+ },
+ {
+  "id": null,
+  "route": "/coach/agir"
+ },
+ {
+  "id": null,
+  "route": "/coach/dashboard"
+ },
+ {
+  "id": null,
+  "route": "/explore"
+ },
+ {
+  "id": null,
+  "route": "/mon-argent"
+ },
+ {
+  "id": null,
+  "route": "/tools"
+ },
+ {
+  "id": null,
+  "route": "/settings/confidentialite"
+ },
+ {
+  "id": null,
+  "route": "/settings/langue"
+ }
+]

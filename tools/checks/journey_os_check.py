@@ -381,6 +381,9 @@ DELETION_ALLOW = {
 }
 IGNORED_GENERATED_PREFIXES = (
     "services/backend/mint_backend.egg-info/",
+    # Cartographie navigation (audit 2026-07, demande Julien 2026-07-23) :
+    # artefacts d'analyse .planning, pas du code Journey OS.
+    ".planning/audit-etat-des-lieux-2026-07/",
 )
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
