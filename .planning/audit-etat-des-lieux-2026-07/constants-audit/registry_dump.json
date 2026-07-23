@@ -1,0 +1,1350 @@
+[
+ {
+  "key": "pillar3a.max_with_lpp",
+  "value": 7258.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 al. 1",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.max_without_lpp",
+  "value": 36288.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 al. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.income_rate_without_lpp",
+  "value": 0.2,
+  "unit": "ratio",
+  "source_title": "OPP3 art. 7 al. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2026",
+  "value": 7258.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2025",
+  "value": 7258.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2024",
+  "value": 7056.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2023",
+  "value": 6883.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2022",
+  "value": 6826.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2021",
+  "value": 6826.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2020",
+  "value": 6826.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2019",
+  "value": 6826.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2018",
+  "value": 6826.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2017",
+  "value": 6768.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "pillar3a.historical_limits.2016",
+  "value": 6768.0,
+  "unit": "CHF",
+  "source_title": "OPP3 art. 7 — OFAS publication annuelle",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.entry_threshold",
+  "value": 22680.0,
+  "unit": "CHF",
+  "source_title": "LPP art. 7",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.coordination_deduction",
+  "value": 26460.0,
+  "unit": "CHF",
+  "source_title": "LPP art. 8",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.min_coordinated_salary",
+  "value": 3780.0,
+  "unit": "CHF",
+  "source_title": "LPP art. 8 al. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.max_coordinated_salary",
+  "value": 64260.0,
+  "unit": "CHF",
+  "source_title": "LPP art. 8 al. 1",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.max_insured_salary",
+  "value": 90720.0,
+  "unit": "CHF",
+  "source_title": "LPP art. 8 al. 1",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.conversion_rate",
+  "value": 0.068,
+  "unit": "ratio",
+  "source_title": "LPP art. 14 al. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.min_interest_rate",
+  "value": 1.25,
+  "unit": "percent",
+  "source_title": "OPP2 — Conseil fédéral",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.bonification.25_34",
+  "value": 0.07,
+  "unit": "ratio",
+  "source_title": "LPP art. 16",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.bonification.35_44",
+  "value": 0.1,
+  "unit": "ratio",
+  "source_title": "LPP art. 16",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.bonification.45_54",
+  "value": 0.15,
+  "unit": "ratio",
+  "source_title": "LPP art. 16",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.bonification.55_65",
+  "value": 0.18,
+  "unit": "ratio",
+  "source_title": "LPP art. 16",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.conversion_rate_complementaire",
+  "value": 0.058,
+  "unit": "ratio",
+  "source_title": "Pratique caisses complémentaires",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.epl_minimum",
+  "value": 20000.0,
+  "unit": "CHF",
+  "source_title": "OPP2 art. 5",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lpp.epl_buyback_lock_years",
+  "value": 3.0,
+  "unit": "years",
+  "source_title": "LPP art. 79b al. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/donnees-importantes-de-la-prevoyance-professionnelle.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.max_monthly_pension",
+  "value": 2520.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.min_monthly_pension",
+  "value": 1260.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.couple_max_monthly",
+  "value": 3780.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 35",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.echelle44",
+  "value": [
+   [
+    14700,
+    1260
+   ],
+   [
+    17640,
+    1299
+   ],
+   [
+    20580,
+    1338
+   ],
+   [
+    23520,
+    1377
+   ],
+   [
+    26460,
+    1416
+   ],
+   [
+    29400,
+    1470
+   ],
+   [
+    32340,
+    1524
+   ],
+   [
+    35280,
+    1578
+   ],
+   [
+    38220,
+    1632
+   ],
+   [
+    41160,
+    1686
+   ],
+   [
+    44100,
+    1743
+   ],
+   [
+    47040,
+    1800
+   ],
+   [
+    49980,
+    1857
+   ],
+   [
+    52920,
+    1914
+   ],
+   [
+    55860,
+    1971
+   ],
+   [
+    58800,
+    2028
+   ],
+   [
+    61740,
+    2085
+   ],
+   [
+    64680,
+    2142
+   ],
+   [
+    67620,
+    2199
+   ],
+   [
+    70560,
+    2256
+   ],
+   [
+    73500,
+    2313
+   ],
+   [
+    76440,
+    2370
+   ],
+   [
+    79380,
+    2427
+   ],
+   [
+    82320,
+    2462
+   ],
+   [
+    85260,
+    2491
+   ],
+   [
+    88200,
+    2520
+   ]
+  ],
+  "unit": "CHF",
+  "source_title": "Mémento 6.01 — Tables des rentes AVS/AI (OFAS 2025)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.max_annual_pension",
+  "value": 30240.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.contribution_rate_employee",
+  "value": 0.053,
+  "unit": "ratio",
+  "source_title": "LAVS art. 5",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.contribution_rate_total",
+  "value": 0.106,
+  "unit": "ratio",
+  "source_title": "LAVS art. 5",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.full_contribution_years",
+  "value": 44.0,
+  "unit": "years",
+  "source_title": "LAVS art. 29ter",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.reference_age_men",
+  "value": 65.0,
+  "unit": "years",
+  "source_title": "LAVS art. 21",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.reference_age_women",
+  "value": 64.5,
+  "unit": "years",
+  "source_title": "LAVS art. 21 (réforme AVS 21)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.anticipation_reduction",
+  "value": 0.068,
+  "unit": "ratio",
+  "source_title": "LAVS art. 40",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.1",
+  "value": 0.052,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.2",
+  "value": 0.106,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.3",
+  "value": 0.164,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.4",
+  "value": 0.227,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.deferral_supplement.5",
+  "value": 0.315,
+  "unit": "ratio",
+  "source_title": "LAVS art. 39",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.retiree_franchise_monthly",
+  "value": 1400.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 4",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.retiree_franchise_annual",
+  "value": 16800.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 4",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.survivor_factor",
+  "value": 0.8,
+  "unit": "ratio",
+  "source_title": "LAVS art. 23-24",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.ramd_min",
+  "value": 14700.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.ramd_max",
+  "value": 88200.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 34",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.13th_pension_active",
+  "value": 1.0,
+  "unit": "boolean",
+  "source_title": "LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.13th_pension_start_year",
+  "value": 2026.0,
+  "unit": "years",
+  "source_title": "LAVS art. 34 (nouveau)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.13th_pension_factor",
+  "value": 1.0833333333333333,
+  "unit": "ratio",
+  "source_title": "LAVS art. 34 (nouveau)",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.voluntary_contribution_min",
+  "value": 514.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.voluntary_contribution_max",
+  "value": 25700.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 2",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.min_contribution_independent",
+  "value": 530.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 8",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "avs.independent_min_income_threshold",
+  "value": 10100.0,
+  "unit": "CHF",
+  "source_title": "LAVS art. 8",
+  "source_url": "https://www.bsv.admin.ch/fr/cotisations-apercu",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ai.contribution_rate_employee",
+  "value": 0.007,
+  "unit": "ratio",
+  "source_title": "LAI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ai.contribution_rate_total",
+  "value": 0.014,
+  "unit": "ratio",
+  "source_title": "LAI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ai.full_pension_monthly",
+  "value": 2520.0,
+  "unit": "CHF",
+  "source_title": "LAI art. 28",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.contribution_rate_employee",
+  "value": 0.0025,
+  "unit": "ratio",
+  "source_title": "LAPG art. 27",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.contribution_rate_total",
+  "value": 0.005,
+  "unit": "ratio",
+  "source_title": "LAPG art. 27",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.maternity_days",
+  "value": 98.0,
+  "unit": "days",
+  "source_title": "LAPG art. 16d",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.maternity_rate",
+  "value": 0.8,
+  "unit": "ratio",
+  "source_title": "LAPG art. 16f",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "apg.paternity_days",
+  "value": 10.0,
+  "unit": "days",
+  "source_title": "LAPG art. 16i",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.max_insured_salary",
+  "value": 148200.0,
+  "unit": "CHF",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.contribution_rate_employee",
+  "value": 0.011,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.contribution_rate_total",
+  "value": 0.022,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.solidarity_rate_employee",
+  "value": 0.005,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.solidarity_rate_total",
+  "value": 0.01,
+  "unit": "ratio",
+  "source_title": "LACI art. 3",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.benefit_rate_standard",
+  "value": 0.7,
+  "unit": "ratio",
+  "source_title": "LACI art. 22",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "ac.benefit_rate_family",
+  "value": 0.8,
+  "unit": "ratio",
+  "source_title": "LACI art. 22",
+  "source_url": "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lamal.copay_rate",
+  "value": 0.1,
+  "unit": "ratio",
+  "source_title": "LAMal art. 64",
+  "source_url": "https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lamal.copay_cap_adult",
+  "value": 700.0,
+  "unit": "CHF",
+  "source_title": "LAMal art. 64 al. 2",
+  "source_url": "https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lamal.copay_cap_child",
+  "value": 350.0,
+  "unit": "CHF",
+  "source_title": "LAMal art. 64 al. 4",
+  "source_url": "https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "mortgage.theoretical_rate",
+  "value": 0.05,
+  "unit": "ratio",
+  "source_title": "FINMA/ASB — Directives en matière d'hypothèques",
+  "source_url": "https://www.finma.ch/fr/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "mortgage.amortization_rate",
+  "value": 0.01,
+  "unit": "ratio",
+  "source_title": "FINMA/ASB — Directives en matière d'hypothèques",
+  "source_url": "https://www.finma.ch/fr/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "mortgage.maintenance_rate",
+  "value": 0.01,
+  "unit": "ratio",
+  "source_title": "FINMA/ASB — Directives en matière d'hypothèques",
+  "source_url": "https://www.finma.ch/fr/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "mortgage.max_charge_ratio",
+  "value": 0.3333333333333333,
+  "unit": "ratio",
+  "source_title": "FINMA/ASB — Règle du 1/3",
+  "source_url": "https://www.finma.ch/fr/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "mortgage.min_equity",
+  "value": 0.2,
+  "unit": "ratio",
+  "source_title": "FINMA/ASB — Fonds propres",
+  "source_url": "https://www.finma.ch/fr/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "mortgage.max_2nd_pillar",
+  "value": 0.1,
+  "unit": "ratio",
+  "source_title": "FINMA/ASB — Fonds propres 2e pilier",
+  "source_url": "https://www.finma.ch/fr/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.default_rate",
+  "value": 0.065,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 — taux par défaut",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.married_discount",
+  "value": 0.85,
+  "unit": "ratio",
+  "source_title": "LIFD — splitting cantonal",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.bracket.0_100k",
+  "value": 1.0,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.bracket.100k_200k",
+  "value": 1.15,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.bracket.200k_500k",
+  "value": 1.3,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.bracket.500k_1m",
+  "value": 1.5,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.bracket.1m_plus",
+  "value": 1.7,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.ZH",
+  "value": 0.065,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG ZH",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.BE",
+  "value": 0.075,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG BE",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.LU",
+  "value": 0.055,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG LU",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.UR",
+  "value": 0.05,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG UR",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.SZ",
+  "value": 0.04,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG SZ",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.OW",
+  "value": 0.045,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG OW",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.NW",
+  "value": 0.04,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG NW",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.GL",
+  "value": 0.055,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG GL",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.ZG",
+  "value": 0.035,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG ZG",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.FR",
+  "value": 0.07,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + LICD FR",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.SO",
+  "value": 0.065,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG SO",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.BS",
+  "value": 0.075,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG BS",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.BL",
+  "value": 0.065,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG BL",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.SH",
+  "value": 0.06,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG SH",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.AR",
+  "value": 0.055,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG AR",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.AI",
+  "value": 0.045,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG AI",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.SG",
+  "value": 0.06,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG SG",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.GR",
+  "value": 0.055,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG GR",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.AG",
+  "value": 0.06,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG AG",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.TG",
+  "value": 0.055,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + StG TG",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.TI",
+  "value": 0.065,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + LT TI",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.VD",
+  "value": 0.08,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + LI VD",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.VS",
+  "value": 0.06,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + LF VS",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.NE",
+  "value": 0.07,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + LCdir NE",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.GE",
+  "value": 0.075,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + LIPP GE",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "capital_tax.cantonal.JU",
+  "value": 0.065,
+  "unit": "ratio",
+  "source_title": "LIFD art. 38 + LI JU",
+  "source_url": "https://www.estv.admin.ch/",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ }
+]

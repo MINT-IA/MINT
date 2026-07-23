@@ -83,14 +83,14 @@ void main() {
       // grossAnnualSalary = NetIncomeBreakdown.estimateBrutFromNet(60000)
       //   uses Newton-Raphson iteration (not the old / 0.87 linear approx)
       //   → ~67548 CHF with current social charges constants
-      // renteFromRAMD(~67548) via Echelle 44 concave table:
-      //   67548 is between 67620 (2199) and 64680 (2142)
-      //   ratio ≈ (67548-64680)/(67620-64680) = 0.9755 → ~2194 CHF
+      // renteFromRAMD(~67382) via table officielle OFAS 318.117.011 :
+      //   67382 est entre 66528 (2197) et 68040 (2218)
+      //   ratio ≈ (67382-66528)/1512 = 0.565 → ~2208.9 CHF
       // With anneesContribuees=40 + futureYears=19 = 44 total => gapFactor=1.0
-      // So rente = ~2194
+      // So rente = ~2208.9
 
       expect(
-          report.retirementProjection?.monthlyAvsRent, closeTo(2194.38, 1.0));
+          report.retirementProjection?.monthlyAvsRent, closeTo(2208.9, 1.5));
     });
 
     test('Married AVS Rent calculation with spouse gaps', () {

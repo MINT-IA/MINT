@@ -38,7 +38,12 @@ _OFAS_AVS_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/do
 _OFAS_CONTRIBUTIONS_URL = "https://www.bsv.admin.ch/fr/cotisations-apercu"
 _OFAS_3A_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html"
 _FINMA_URL = "https://www.finma.ch/fr/"
-_REVIEWED = date(2026, 6, 26)
+# Audit factuel -zaw (2026-07-23) : 132 constantes vérifiées sur sources
+# officielles par 4 agents WebSearch — 12 valeurs corrigées (échelle 44,
+# RAMD, ajournement 2/3/4 ans, cotisation volontaire, limites 3a
+# historiques), provenance précisée (OAMal 103, OEPL 5, doc 318.117.011).
+# Verdicts complets : .planning/audit-etat-des-lieux-2026-07/constants-audit/.
+_REVIEWED = date(2026, 7, 23)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # All regulatory parameters — seeded from social_insurance.py
@@ -124,7 +129,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2023",
-        value=6_883.0,
+        value=7_056.0,
         unit="CHF",
         tax_year=2023,
         effective_from=date(2023, 1, 1),
@@ -137,7 +142,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2022",
-        value=6_826.0,
+        value=6_883.0,
         unit="CHF",
         tax_year=2022,
         effective_from=date(2022, 1, 1),
@@ -150,7 +155,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2021",
-        value=6_826.0,
+        value=6_883.0,
         unit="CHF",
         tax_year=2021,
         effective_from=date(2021, 1, 1),
@@ -189,7 +194,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2018",
-        value=6_826.0,
+        value=6_768.0,
         unit="CHF",
         tax_year=2018,
         effective_from=date(2018, 1, 1),
@@ -359,7 +364,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_LPP_URL,
         source_title="Pratique caisses complémentaires",
         source_type="estimate",
-        description="Taux de conversion blended pour caisses complémentaires (~60% oblig. 6.8% + ~40% suroblig. ~4.3%).",
+        description="Taux de conversion surobligatoire INDICATIF : fixé librement par chaque caisse (aucune valeur légale). Hypothèse éditable, jamais à présenter comme réglementaire (audit -zaw 2026-07-23).",
         reviewed_at=_REVIEWED,
     ),
 
@@ -372,7 +377,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_LPP_URL,
-        source_title="OPP2 art. 5",
+        source_title="OEPL art. 5 (retrait EPL minimum)",
         source_type="ordinance",
         description="Montant minimum pour un retrait EPL.",
         reviewed_at=_REVIEWED,
@@ -428,18 +433,28 @@ _PARAMETERS: list[RegulatoryParameter] = [
     RegulatoryParameter(
         key="avs.echelle44",
         value=[
-            [14700, 1260], [17640, 1299], [20580, 1338], [23520, 1377],
-            [26460, 1416], [29400, 1470], [32340, 1524], [35280, 1578],
-            [38220, 1632], [41160, 1686], [44100, 1743], [47040, 1800],
-            [49980, 1857], [52920, 1914], [55860, 1971], [58800, 2028],
-            [61740, 2085], [64680, 2142], [67620, 2199], [70560, 2256],
-            [73500, 2313], [76440, 2370], [79380, 2427], [82320, 2462],
-            [85260, 2491], [88200, 2520],
+            # Doc OFAS 318.117.011 « Tables des rentes 2025 » p. 20
+            # (échelle 44, rente vieillesse 1/1), valable dès 1.1.2025 et
+            # inchangé en 2026 (OFAS « Montants dès le 1.1.2026 »).
+            # 51 paliers, pas RAMD 1'512 ; borne = « jusqu'à ».
+            [15120, 1260], [16632, 1293], [18144, 1326], [19656, 1358],
+            [21168, 1391], [22680, 1424], [24192, 1457], [25704, 1489],
+            [27216, 1522], [28728, 1555], [30240, 1588], [31752, 1620],
+            [33264, 1653], [34776, 1686], [36288, 1719], [37800, 1751],
+            [39312, 1784], [40824, 1817], [42336, 1850], [43848, 1882],
+            [45360, 1915], [46872, 1935], [48384, 1956], [49896, 1976],
+            [51408, 1996], [52920, 2016], [54432, 2036], [55944, 2056],
+            [57456, 2076], [58968, 2097], [60480, 2117], [61992, 2137],
+            [63504, 2157], [65016, 2177], [66528, 2197], [68040, 2218],
+            [69552, 2238], [71064, 2258], [72576, 2278], [74088, 2298],
+            [75600, 2318], [77112, 2339], [78624, 2359], [80136, 2379],
+            [81648, 2399], [83160, 2419], [84672, 2439], [86184, 2460],
+            [87696, 2480], [89208, 2500], [90720, 2520],
         ],
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
-        source_title="Mémento 6.01 — Tables des rentes AVS/AI (OFAS 2025)",
+        source_title="OFAS doc 318.117.011 Tables des rentes 2025 p.20 (échelle 44) — valable 2026",
         source_type="law",
         description="Échelle 44 — table de correspondance RAMD annuel → rente mensuelle AVS. "
         "Mise à jour tous les 2 ans par le Conseil fédéral (indice mixte).",
@@ -540,7 +555,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.deferral_supplement.2",
-        value=0.106,
+        value=0.108,
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
@@ -551,7 +566,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.deferral_supplement.3",
-        value=0.164,
+        value=0.171,
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
@@ -562,7 +577,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.deferral_supplement.4",
-        value=0.227,
+        value=0.240,
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
@@ -617,7 +632,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.ramd_min",
-        value=14_700.0,
+        value=15_120.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
@@ -628,7 +643,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.ramd_max",
-        value=88_200.0,
+        value=90_720.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
@@ -674,24 +689,24 @@ _PARAMETERS: list[RegulatoryParameter] = [
     # AVS volontaire (expatriés)
     RegulatoryParameter(
         key="avs.voluntary_contribution_min",
-        value=514.0,
+        value=530.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 2",
         source_type="law",
-        description="Cotisation annuelle minimale AVS volontaire.",
+        description="Cotisation AVS/AI/APG annuelle minimale des personnes sans activité lucrative (Mémento 2.03, 2025/2026).",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
         key="avs.voluntary_contribution_max",
-        value=25_700.0,
+        value=26_500.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 2",
         source_type="law",
-        description="Cotisation annuelle maximale AVS volontaire.",
+        description="Cotisation AVS/AI/APG annuelle maximale des personnes sans activité lucrative (50 x 530, Mémento 2.03, 2025/2026).",
         reviewed_at=_REVIEWED,
     ),
     # AVS indépendants
@@ -904,7 +919,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url="https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
-        source_title="LAMal art. 64",
+        source_title="OAMal art. 103 (participation aux coûts)",
         source_type="law",
         description="Quote-part : 10% des frais au-dessus de la franchise.",
         reviewed_at=_REVIEWED,

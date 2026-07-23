@@ -126,12 +126,13 @@ void main() {
       expect(AvsCalculator.renteFromRAMD(122207), equals(2520.0));
     });
 
-    test('Lauren (67000) → ~2187 via Echelle 44 lookup', () {
-      // 67000 is between 64680 (2142) and 67620 (2199)
-      // ratio = (67000 - 64680) / (67620 - 64680) = 2320/2940 ≈ 0.789
-      // rente = 2142 + 0.789 * (2199 - 2142) = 2142 + 45.0 ≈ 2187
+    test('Lauren (67000) → ~2203.6 via Echelle 44 lookup', () {
+      // Table officielle OFAS 318.117.011 (audit -zaw) :
+      // 67000 est entre 66528 (2197) et 68040 (2218)
+      // ratio = (67000 - 66528) / 1512 ≈ 0.312
+      // rente = 2197 + 0.312 * 21 ≈ 2203.6
       final rente = AvsCalculator.renteFromRAMD(67000);
-      expect(rente, closeTo(2187, 2));
+      expect(rente, closeTo(2203.6, 2));
     });
 
     test('high income → max rente', () {
@@ -144,11 +145,13 @@ void main() {
     });
 
     test('RAMD min exact → min rente 1260', () {
-      expect(AvsCalculator.renteFromRAMD(14700), equals(1260.0));
+      // Borne officielle 2025/2026 : 15'120 (OFAS 318.117.011).
+      expect(AvsCalculator.renteFromRAMD(15120), equals(1260.0));
     });
 
     test('RAMD max exact → max rente 2520', () {
-      expect(AvsCalculator.renteFromRAMD(88200), equals(2520.0));
+      // Borne officielle 2025/2026 : 90'720 (36× rente min annuelle).
+      expect(AvsCalculator.renteFromRAMD(90720), equals(2520.0));
     });
 
     test('zero → zero', () {
@@ -159,26 +162,25 @@ void main() {
       expect(AvsCalculator.renteFromRAMD(-5000), equals(0.0));
     });
 
-    test('between two table points: 50000 → between 1857 and 1914', () {
-      // 50000 is between 49980 (1857) and 52920 (1914)
-      // ratio = (50000 - 49980) / (52920 - 49980) = 20/2940 ≈ 0.0068
-      // rente = 1857 + 0.0068 * 57 ≈ 1857.39
+    test('between two table points: 50000 → between 1976 and 1996', () {
+      // Table officielle : 50000 est entre 49896 (1976) et 51408 (1996)
+      // ratio = (50000 - 49896) / 1512 ≈ 0.069
+      // rente = 1976 + 0.069 * 20 ≈ 1977.4
       final rente = AvsCalculator.renteFromRAMD(50000);
-      expect(rente, greaterThanOrEqualTo(1857));
-      expect(rente, lessThanOrEqualTo(1914));
-      expect(rente, closeTo(1857.4, 1));
+      expect(rente, greaterThanOrEqualTo(1976));
+      expect(rente, lessThanOrEqualTo(1996));
+      expect(rente, closeTo(1977.4, 1));
     });
 
     test('Echelle 44 is concave: middle incomes differ from naive linear', () {
-      // With old linear interpolation: mid = (14700+88200)/2 = 51450
-      // Old linear rente at 51450 = 1260 + (2520-1260) * (51450-14700)/(88200-14700) = 1890
-      // Echelle 44 at 51450: between 49980 (1857) and 52920 (1914)
-      // ratio = (51450-49980)/(52920-49980) = 1470/2940 = 0.5 → 1857+28.5 = 1885.5
-      // The concave table gives a DIFFERENT result than naive linear
+      // Interpolation linéaire naïve min→max : 1260 + 1260 *
+      // (51450-15120)/75600 ≈ 1865.5. Table officielle à 51450 :
+      // entre 51408 (1996) et 52920 (2016) → 1996 + 0.028*20 ≈ 1996.6.
+      // La table concave monte plus vite que la corde en bas d'échelle.
       final rente = AvsCalculator.renteFromRAMD(51450);
-      expect(rente, closeTo(1885.5, 1));
-      // The key assertion: not equal to naive linear (1890)
-      expect(rente, isNot(closeTo(1890, 2)));
+      expect(rente, closeTo(1996.6, 1));
+      // The key assertion: not equal to naive linear (1865.5)
+      expect(rente, isNot(closeTo(1865.5, 2)));
     });
 
     test('all table exact points return exact values', () {
