@@ -219,6 +219,11 @@ ALLOW = {
     "services/backend/tests/test_estv_oracle.py",
     ".github/workflows/calc-rigor-failure-comment.md",
     "services/backend/tests/fixtures/estv_oracle.SCHEMA.md",
+    # -ku6 : addenda de résolution datés sur les archives de phase 92.5
+    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
+    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-PLAN.md",
+    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-SUMMARY.md",
+    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-04-g6-gate-wiring-PLAN.md",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
