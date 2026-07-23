@@ -1,6 +1,6 @@
 {
   "_doc": "Goldens de parité croisée RvC (beads MINT_nosync-axj). Backend rente_vs_capital.py = canonique (L2 comparer, ADR data-architecture) ; arbitrage_engine.dart = miroir fallback offline. Les DEUX suites (pytest test_rvc_parity_fixture.py + flutter rvc_parity_fixture_test.dart) pinent ces valeurs : toute dérive unilatérale casse la suite du côté qui dérive. Recalibration = backend d'abord, puis miroir Dart, puis régénérer ces expected AVEC citation.",
-  "_provenance": "Générés 2026-07-23 après unification -axj : impôt rente miroir (0.85 × IFD 2026 + taux effectif cantonal 100k clampé 0.6-1.5, marié ×0.80), coefficient capital marié PAR CANTON (audit swiss-brain 2026-04-18 Q5), horizon défaut 30, breakeven relatif (années après retraite). RÉGÉNÉRÉS 2026-07-23 (soir) après le modèle fiscal v2 -97h (interpolation 130 points ESTV — l'impôt rente change).",
+  "_provenance": "Générés 2026-07-23 après unification -axj : impôt rente miroir (0.85 × IFD 2026 + taux effectif cantonal 100k clampé 0.6-1.5, marié ×0.80), coefficient capital marié PAR CANTON (audit swiss-brain 2026-04-18 Q5), horizon défaut 30, breakeven relatif (années après retraite). RÉGÉNÉRÉS 2026-07-23 (soir) après le modèle fiscal v2 -97h (interpolation 130 points ESTV — l'impôt rente change). RÉGÉNÉRÉS après bascule capital v2 (-2i2 PR B : l'impôt de retrait des chemins capital/mixte change).",
   "tolerance_chf": 0.05,
   "cases": [
     {
@@ -21,12 +21,12 @@
           "cumulative_tax_impact": 71427.62
         },
         "full_capital": {
-          "terminal_value": 77374.05,
-          "cumulative_tax_impact": 48400.0
+          "terminal_value": 78479.72,
+          "cumulative_tax_impact": 41946.69
         },
         "mixed": {
-          "terminal_value": 560814.5,
-          "cumulative_tax_impact": 65199.4
+          "terminal_value": 565761.51,
+          "cumulative_tax_impact": 60904.09
         }
       }
     },
@@ -49,11 +49,11 @@
         },
         "full_capital": {
           "terminal_value": 0.0,
-          "cumulative_tax_impact": 57761.25
+          "cumulative_tax_impact": 51524.91
         },
         "mixed": {
-          "terminal_value": 1037405.85,
-          "cumulative_tax_impact": 68041.61
+          "terminal_value": 1040861.38,
+          "cumulative_tax_impact": 65053.45
         }
       }
     },
@@ -76,11 +76,11 @@
         },
         "full_capital": {
           "terminal_value": 0.0,
-          "cumulative_tax_impact": 48400.0
+          "cumulative_tax_impact": 41946.69
         },
         "mixed": {
-          "terminal_value": 613222.94,
-          "cumulative_tax_impact": 72256.09
+          "terminal_value": 618190.07,
+          "cumulative_tax_impact": 67960.78
         }
       }
     }

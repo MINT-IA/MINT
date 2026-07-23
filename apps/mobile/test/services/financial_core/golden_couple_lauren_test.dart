@@ -130,12 +130,11 @@ void main() {
         canton: laurenCanton,
         isMarried: false,
       );
-      // VS base rate = 6.0%, bracket 0-100k = 1.0x
-      // 19620 * 0.06 * 1.0 = 1177.2
-      expect(tax, closeTo(19620 * 0.06 * 1.0, 1));
+      // v2 -2i2 : VS 19620 — IFD art. 38 (1/5) + cantonal ESTV interpolé
+      expect(tax, closeTo(830.8468, 1));
     });
 
-    test('6. Lauren capital tax VS married → ~15% discount', () {
+    test('6. Lauren capital tax VS married → coeff cantonal 0.81', () {
       final taxSingle = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: laurenLppAvoir,
         canton: laurenCanton,
@@ -146,12 +145,10 @@ void main() {
         canton: laurenCanton,
         isMarried: true,
       );
-      // Audit 2026-04-18 Q5 : coefficient marié par canton.
-      // Lauren = VS → 0.81 (pas 0.85 uniforme).
-      expect(
-        taxMarried,
-        closeTo(taxSingle * marriedCapitalTaxDiscountFor(laurenCanton), 0.01),
-      );
+      // Audit 2026-04-18 Q5 : coefficient marié par canton (VS → 0.81).
+      // v2 -2i2 : VS 19620 marié — coeff 0.81 appliqué à la part cantonale
+      // seule (IFD art. 38 non réduite), donc ≠ taxSingle × 0.81.
+      expect(taxMarried, closeTo(674.2792, 0.01));
       expect(taxMarried, lessThan(taxSingle));
     });
 

@@ -219,6 +219,12 @@ ALLOW = {
     "apps/mobile/lib/services/financial_core/tax_calculator.dart",
     "services/backend/app/services/lpp_deep/epl_service.py",
     "services/backend/app/services/mortgage/epl_combined_service.py",
+    "apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart",
+    "apps/mobile/test/services/financial_core/tax_calculator_test.dart",
+    "apps/mobile/test/services/lpp_deep_service_test.dart",
+    "apps/mobile/test/services/tax_calculator_extended_test.dart",
+    "services/backend/tests/test_calendrier_retraits.py",
+    "services/backend/tests/test_lpp_deep.py",
     # PR rachat-79b-window (bead -a6e) : fenêtre art. 79b al. 3 flux live
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/services/lpp_deep_service.dart",

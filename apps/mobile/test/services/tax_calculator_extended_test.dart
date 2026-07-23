@@ -99,17 +99,19 @@ void main() {
         isMarried: true,
       );
       expect(taxMarried, lessThan(taxSingle));
-      // Audit 2026-04-18 Q5 : ZH = splitting intégral → 0.73 (pas 0.85).
-      expect(taxMarried / taxSingle, closeTo(0.73, 0.02));
+      // Audit 2026-04-18 Q5 : discount cantonal, pas scalaire 0.85.
+      // v2 -2i2 : ZH 500000 — coeff ZH 0.73 sur la part cantonale seule
+      // (IFD art. 38 non réduite) → ratio total 0.8108.
+      expect(taxMarried / taxSingle, closeTo(0.8108, 0.02));
     });
 
-    test('unknown canton falls back to default rate', () {
+    test('unknown canton falls back to ZH', () {
       final tax = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: 100000,
         canton: 'XX',
       );
-      // Default 6.5%
-      expect(tax, closeTo(6500, 200));
+      // v2 -2i2 : ZH 100000 (repli resolveCanton pour canton inconnu)
+      expect(tax, closeTo(4816.888, 1));
     });
   });
 
