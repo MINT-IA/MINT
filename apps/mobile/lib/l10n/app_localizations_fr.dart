@@ -24294,5 +24294,5 @@ class SFr extends S {
 
   @override
   String get reportSpouseDataMissingPrompt =>
-      'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n\'est pas estimée en attendant.';
+      'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.';
 }

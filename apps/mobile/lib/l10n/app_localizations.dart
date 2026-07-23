@@ -42463,7 +42463,7 @@ abstract class S {
   /// No description provided for @reportSpouseDataMissingPrompt.
   ///
   /// In fr, this message translates to:
-  /// **'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n\'est pas estimée en attendant.'**
+  /// **'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.'**
   String get reportSpouseDataMissingPrompt;
 }
 
