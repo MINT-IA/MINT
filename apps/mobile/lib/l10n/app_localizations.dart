@@ -16732,7 +16732,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket1Value.
   ///
   /// In fr, this message translates to:
-  /// **'200 indemnités'**
+  /// **'260 indemnités'**
   String get unemploymentBracket1Value;
 
   /// No description provided for @unemploymentBracket2.
@@ -16744,7 +16744,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket2Value.
   ///
   /// In fr, this message translates to:
-  /// **'260 indemnités'**
+  /// **'400 indemnités'**
   String get unemploymentBracket2Value;
 
   /// No description provided for @unemploymentBracket3.

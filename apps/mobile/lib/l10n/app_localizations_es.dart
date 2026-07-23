@@ -9478,13 +9478,13 @@ class SEs extends S {
   String get unemploymentBracket1 => '12–17 meses cotiz.';
 
   @override
-  String get unemploymentBracket1Value => '200 prestaciones';
+  String get unemploymentBracket1Value => '260 indemnizaciones';
 
   @override
   String get unemploymentBracket2 => '18–21 meses cotiz.';
 
   @override
-  String get unemploymentBracket2Value => '260 prestaciones';
+  String get unemploymentBracket2Value => '400 indemnizaciones';
 
   @override
   String unemploymentBracket3(int age) {

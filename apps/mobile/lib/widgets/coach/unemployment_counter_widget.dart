@@ -103,12 +103,12 @@ class UnemploymentCounterWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Text('⏳', style: TextStyle(fontSize: 24)),
+              Text('⏳', style: MintTextStyles.headlineSmall()),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Ton capital temps',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -318,7 +318,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('⚠️', style: TextStyle(fontSize: 18)),
+          Text('⚠️', style: MintTextStyles.titleLarge()),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

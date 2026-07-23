@@ -301,12 +301,12 @@ Current exact-name misses:
 ```text
 ac.employee_rate
 ac.enhanced_rate_threshold
-ac.intermediate_days
+ac.days_18_months
 ac.max_monthly_insured_income
-ac.min_days
+ac.days_12_months
 ac.salary_ceiling
 ac.senior_age_threshold
-ac.senior_days
+ac.days_22_months_senior
 ac.solidarity_rate
 avs.early_retirement_reduction
 avs.employee_rate

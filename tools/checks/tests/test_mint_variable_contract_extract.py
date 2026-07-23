@@ -56,13 +56,9 @@ def test_cli_json_freezes_current_variable_contract_snapshot() -> None:
         "wealthEstimate",
     ]
     assert snapshot["secure_wizard_store"]["static_sensitive_count"] == 101
-    assert snapshot["onboarding_flush"]["completeAndFlushToProfile_key_count"] == 21
+    assert snapshot["onboarding_flush"]["completeAndFlushToProfile_key_count"] == 17
     assert snapshot["onboarding_flush"]["completeAndFlushToProfile_keys"] == [
-        "legacy_onb_intent",
-        "onb_axis_schema_version",
-        "onb_axis_v2",
         "onb_intent",
-        "onb_signal_axes_v2",
         "q_avs_arrival_year",
         "q_avs_lacunes_status",
         "q_avs_years_abroad",
@@ -80,21 +76,23 @@ def test_cli_json_freezes_current_variable_contract_snapshot() -> None:
         "q_net_income_range_low",
         "q_wants_deeper",
     ]
-    assert snapshot["regulatory"]["backend_registry"]["count"] == 113
+    assert snapshot["regulatory"]["backend_registry"]["count"] == 123
+    # Les 10 clés -7vx/-4za ont effective_from 2025-01-01 : elles sont
+    # actives au 2026-06-15 aussi — le pin daté suit le registre COURANT.
     assert (
-        snapshot["regulatory"]["backend_registry"]["active_count_on_2026_06_15"] == 103
+        snapshot["regulatory"]["backend_registry"]["active_count_on_2026_06_15"] == 113
     )
     assert (
         snapshot["regulatory"]["backend_registry"]["version_hash_on_2026_06_15"]
-        == "6eb0dcbd291cd0a175d0c6c22558cf609203f1966a5aaa07066e2c831599f98b"
+        == "62f5157f26121ca1ae9071f900a111e0e3b72fa604e2d1067b5037fc9dea48c3"
     )
-    assert snapshot["regulatory"]["dart_generated_snapshot"]["param_count"] == 103
+    assert snapshot["regulatory"]["dart_generated_snapshot"]["param_count"] == 113
     assert (
         snapshot["regulatory"]["dart_generated_snapshot"]["effective_on"]
-        == "2026-06-12"
+        == "2026-07-23"
     )
-    assert snapshot["regulatory"]["dart_reg_unique_key_count"] == 43
-    assert snapshot["regulatory"]["dart_reg_exact_miss_count"] == 9
+    assert snapshot["regulatory"]["dart_reg_unique_key_count"] == 44
+    assert snapshot["regulatory"]["dart_reg_exact_miss_count"] == 0
 
 
 def test_cli_check_passes_for_current_repo_snapshot() -> None:
@@ -153,31 +151,14 @@ def test_snapshot_classifies_remaining_regulatory_misses_for_pr6() -> None:
     proc = _run("--json")
     snapshot = json.loads(proc.stdout)
 
-    assert snapshot["regulatory"]["dart_reg_exact_misses"] == [
-        "ac.enhanced_rate_threshold",
-        "ac.intermediate_days",
-        "ac.min_days",
-        "ac.senior_age_threshold",
-        "ac.senior_days",
-        "projection.avs_indexation_rate",
-        "projection.inflation_rate",
-        "projection.life_expectancy",
-        "projection.safe_withdrawal_rate",
-    ]
-    assert snapshot["regulatory"]["dart_reg_registry_backfill_required"] == [
-        "ac.enhanced_rate_threshold",
-        "ac.intermediate_days",
-        "ac.min_days",
-        "ac.senior_age_threshold",
-        "ac.senior_days",
-    ]
-    assert snapshot["regulatory"]["dart_reg_descoped_until_owner_phase"] == [
-        "projection.avs_indexation_rate",
-        "projection.inflation_rate",
-        "projection.life_expectancy",
-        "projection.safe_withdrawal_rate",
-    ]
-    assert snapshot["regulatory"]["dart_reg_unclassified_exact_misses"] == []
+    # Backfill soldé (beads -7vx PR #984 : projection.* ; -4za : ac.*) —
+    # le contrat verrouille désormais ZÉRO clé reg() Dart absente du
+    # registre. Toute nouvelle clé consommée côté Dart sans entrée registre
+    # recasse ce test.
+    assert snapshot["regulatory"]["dart_reg_exact_miss_count"] == 0
+    assert snapshot["regulatory"]["dart_reg_exact_misses"] == []
+    assert snapshot["regulatory"]["dart_reg_registry_backfill_required"] == []
+    assert snapshot["regulatory"]["dart_reg_descoped_until_owner_phase"] == []
 
 
 def test_regulatory_miss_classifier_keeps_unknown_misses_fail_loud() -> None:
@@ -185,13 +166,13 @@ def test_regulatory_miss_classifier_keeps_unknown_misses_fail_loud() -> None:
 
     classification = module._classify_dart_reg_exact_misses(
         [
-            "ac.min_days",
+            "ac.days_12_months",
             "projection.inflation_rate",
             "new.unknown_key",
         ]
     )
 
-    assert classification["dart_reg_registry_backfill_required"] == ["ac.min_days"]
+    assert classification["dart_reg_registry_backfill_required"] == ["ac.days_12_months"]
     assert classification["dart_reg_descoped_until_owner_phase"] == [
         "projection.inflation_rate",
     ]

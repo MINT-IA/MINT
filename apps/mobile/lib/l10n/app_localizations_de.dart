@@ -9506,13 +9506,13 @@ class SDe extends S {
   String get unemploymentBracket1 => '12–17 Monate Beitrag';
 
   @override
-  String get unemploymentBracket1Value => '200 Taggelder';
+  String get unemploymentBracket1Value => '260 Taggelder';
 
   @override
   String get unemploymentBracket2 => '18–21 Monate Beitrag';
 
   @override
-  String get unemploymentBracket2Value => '260 Taggelder';
+  String get unemploymentBracket2Value => '400 Taggelder';
 
   @override
   String unemploymentBracket3(int age) {

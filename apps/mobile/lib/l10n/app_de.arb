@@ -4375,9 +4375,9 @@
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
   "unemploymentBracket1": "12–17 Monate Beitrag",
-  "unemploymentBracket1Value": "200 Taggelder",
+  "unemploymentBracket1Value": "260 Taggelder",
   "unemploymentBracket2": "18–21 Monate Beitrag",
-  "unemploymentBracket2Value": "260 Taggelder",
+  "unemploymentBracket2Value": "400 Taggelder",
   "unemploymentBracket3": ">= 22 Monate, < {age} J.",
   "@unemploymentBracket3": {
     "placeholders": {

@@ -117,8 +117,10 @@ void main() {
       expect(result.tauxIndemnite, 0.80);
     });
 
-    test('salaire exactement au seuil (CHF 3797) sans enfants => taux 70%', () {
-      // gainAssureMensuel >= 3797 && no children && no disability => 70%
+    test('salaire exactement au seuil (CHF 3797) sans enfants => taux 80%', () {
+      // Review #986 : borne INCLUSIVE — le SECO donne 80% lorsque le gain
+      // assuré NE DÉPASSE PAS 3'797 CHF (OACI art. 33). L'ancien test
+      // pinnait 70% au seuil exact.
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 3797,
         age: 30,
@@ -127,7 +129,30 @@ void main() {
         hasDisability: false,
       );
 
+      expect(result.tauxIndemnite, 0.80);
+    });
+
+    test('salaire juste au-dessus du seuil (CHF 3798) => taux 70%', () {
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 3798,
+        age: 30,
+        moisCotisation: 18,
+      );
+
       expect(result.tauxIndemnite, 0.70);
+    });
+
+    test('invalidité >= 40% : 22 mois ouvrent les 520 jours sans les 55 ans',
+        () {
+      // Review #986 : let. c = 22 mois ET (55 ans OU invalidité >= 40%).
+      final result = UnemploymentService.calculateBenefits(
+        gainAssureMensuel: 6000,
+        age: 45,
+        moisCotisation: 22,
+        hasDisability: true,
+      );
+
+      expect(result.nombreIndemnites, 520);
     });
 
     test('salaire juste en dessous du seuil => taux 80%', () {

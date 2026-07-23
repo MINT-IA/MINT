@@ -208,12 +208,12 @@ Dart `reg()` key names without exact backend registry key match:
 |---|---|
 | `ac.employee_rate` | Candidate alias; bind or rename to registry key. |
 | `ac.enhanced_rate_threshold` | Backfill or documented Dart-only default. |
-| `ac.intermediate_days` | Backfill or documented Dart-only default. |
+| `ac.days_18_months` | Backfill or documented Dart-only default. |
 | `ac.max_monthly_insured_income` | Backfill or documented Dart-only default. |
-| `ac.min_days` | Backfill or documented Dart-only default. |
+| `ac.days_12_months` | Backfill or documented Dart-only default. |
 | `ac.salary_ceiling` | Candidate alias; bind or rename to registry key. |
 | `ac.senior_age_threshold` | Backfill or documented Dart-only default. |
-| `ac.senior_days` | Backfill or documented Dart-only default. |
+| `ac.days_22_months_senior` | Backfill or documented Dart-only default. |
 | `ac.solidarity_rate` | Candidate alias; bind or rename to registry key. |
 | `avs.early_retirement_reduction` | Candidate alias for `avs.anticipation_reduction`; confirm. |
 | `avs.employee_rate` | Candidate alias for `avs.contribution_rate_employee`; confirm. |

@@ -215,6 +215,10 @@ ALLOW = {
     "apps/mobile/lib/services/unemployment_service.dart",
     "apps/mobile/lib/widgets/coach/unemployment_counter_widget.dart",
     "apps/mobile/test/services/unemployment_service_test.dart",
+    "tools/checks/mint_variable_contract_extract.py",
+    "tools/checks/tests/test_mint_variable_contract_extract.py",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02c-variable-contract-lints-implementation-PLAN.md",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",

@@ -116,13 +116,9 @@ EXPECTED = {
     ("secure_wizard_store", "classified_non_sensitive_outputs"): ["q_canton"],
     ("secure_wizard_store", "classified_product_preference_outputs"): ["q_main_goal"],
     ("secure_wizard_store", "mapped_wizard_outputs_unclassified"): [],
-    ("onboarding_flush", "completeAndFlushToProfile_key_count"): 21,
+    ("onboarding_flush", "completeAndFlushToProfile_key_count"): 17,
     ("onboarding_flush", "completeAndFlushToProfile_keys"): [
-        "legacy_onb_intent",
-        "onb_axis_schema_version",
-        "onb_axis_v2",
         "onb_intent",
-        "onb_signal_axes_v2",
         "q_avs_arrival_year",
         "q_avs_lacunes_status",
         "q_avs_years_abroad",
@@ -140,49 +136,32 @@ EXPECTED = {
         "q_net_income_range_low",
         "q_wants_deeper",
     ],
-    ("regulatory", "backend_registry", "count"): 113,
-    ("regulatory", "backend_registry", "active_count_on_2026_06_15"): 103,
+    # -7vx (+4 projection.*) et -4za (+6 ac.*) : 113 -> 123 entrées.
+    ("regulatory", "backend_registry", "count"): 123,
+    ("regulatory", "backend_registry", "active_count_on_2026_06_15"): 113,
     ("regulatory", "backend_registry", "version_hash_on_2026_06_15"): (
-        "6eb0dcbd291cd0a175d0c6c22558cf609203f1966a5aaa07066e2c831599f98b"
+        "62f5157f26121ca1ae9071f900a111e0e3b72fa604e2d1067b5037fc9dea48c3"
     ),
-    ("regulatory", "dart_generated_snapshot", "param_count"): 103,
-    ("regulatory", "dart_generated_snapshot", "effective_on"): "2026-06-12",
-    ("regulatory", "dart_reg_unique_key_count"): 43,
-    ("regulatory", "dart_reg_exact_miss_count"): 9,
-    ("regulatory", "dart_reg_exact_misses"): [
-        "ac.enhanced_rate_threshold",
-        "ac.intermediate_days",
-        "ac.min_days",
-        "ac.senior_age_threshold",
-        "ac.senior_days",
-        "projection.avs_indexation_rate",
-        "projection.inflation_rate",
-        "projection.life_expectancy",
-        "projection.safe_withdrawal_rate",
-    ],
-    ("regulatory", "dart_reg_registry_backfill_required"): [
-        "ac.enhanced_rate_threshold",
-        "ac.intermediate_days",
-        "ac.min_days",
-        "ac.senior_age_threshold",
-        "ac.senior_days",
-    ],
-    ("regulatory", "dart_reg_descoped_until_owner_phase"): [
-        "projection.avs_indexation_rate",
-        "projection.inflation_rate",
-        "projection.life_expectancy",
-        "projection.safe_withdrawal_rate",
-    ],
+    ("regulatory", "dart_generated_snapshot", "param_count"): 113,
+    ("regulatory", "dart_generated_snapshot", "effective_on"): "2026-07-23",
+    ("regulatory", "dart_reg_unique_key_count"): 44,
+    # Backfill soldé : projection.* enregistrées par -7vx (PR #984),
+    # ac.* par -4za — plus aucune clé reg() Dart absente du registre.
+    ("regulatory", "dart_reg_exact_miss_count"): 0,
+    ("regulatory", "dart_reg_exact_misses"): [],
+    ("regulatory", "dart_reg_registry_backfill_required"): [],
+    # projection.* enregistrées par -7vx : plus rien de descoped.
+    ("regulatory", "dart_reg_descoped_until_owner_phase"): [],
     ("regulatory", "dart_reg_unclassified_exact_misses"): [],
     ("regulatory", "non_static_reg_keys"): [],
 }
 
 DART_REGISTRY_BACKFILL_REQUIRED = {
     "ac.enhanced_rate_threshold",
-    "ac.intermediate_days",
-    "ac.min_days",
+    "ac.days_18_months",
+    "ac.days_12_months",
     "ac.senior_age_threshold",
-    "ac.senior_days",
+    "ac.days_22_months_senior",
 }
 DART_REG_DESCOPED_UNTIL_OWNER_PHASE = {
     "projection.avs_indexation_rate",
