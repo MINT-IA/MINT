@@ -221,6 +221,32 @@ def clean_database():
         db.close()
 
 
+def seed_transfer_consent(user_id: str = "test-user-id") -> None:
+    """Seed the TRANSFER_US_ANTHROPIC grant for the fixture user.
+
+    beads MINT_nosync-tcr : CONSENT_GATE_ENFORCEMENT_MODE est hard_block par
+    défaut — le coach 403 sans grant. Les fixtures modélisent l'utilisateur
+    POST-consentement (le mobile obtient le grant à son premier message via
+    la ConsentSheet). Les tests du chemin SANS grant suppriment les receipts
+    (voir test_consent_gate_default_hard_block.py).
+    """
+    from app.services.consent.consent_service import (
+        consent_service as _consent_svc,
+    )
+
+    db = TestingSessionLocal()
+    try:
+        _consent_svc.grant(
+            db,
+            user_id=user_id,
+            purpose="transfer_us_anthropic",
+            policy_version="v2.4.0",
+        )
+        db.commit()
+    finally:
+        db.close()
+
+
 @pytest.fixture
 def client():
     """Test client with test database and auth override."""
@@ -228,6 +254,7 @@ def client():
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
     app.dependency_overrides[get_current_user] = _fake_user
+    seed_transfer_consent()
 
     with TestClient(app) as test_client:
         yield test_client
@@ -256,6 +283,7 @@ def client_with_blank_profile():
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
     app.dependency_overrides[get_current_user] = _fake_user
+    seed_transfer_consent()
 
     # Insert a ProfileModel row with data={} tied to _fake_user.id.
     db = TestingSessionLocal()

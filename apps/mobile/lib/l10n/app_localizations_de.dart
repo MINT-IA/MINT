@@ -24302,4 +24302,8 @@ class SDe extends S {
   @override
   String get expatTopCantonsDisclaimer =>
       'Bildungstool — keine Steuerberatung im Sinne des FIDLEG. Steuern geschätzt mit dem vereinfachten MINT-Kantonsmodell (kantonale Tarife, Hauptort) — keine exakten Steuerberechnungen. Differenz nur auf dem Einkommen — variiert mit Vermögen und Familiensituation.';
+
+  @override
+  String get coachConsentDeclined =>
+      'Der Coach benötigt deine Einwilligung, um deine Nachrichten an den KI-Dienst zu übermitteln (Server in den USA). Ohne sie kann der Coach nicht antworten. Sende deine Nachricht jederzeit erneut: Die Einwilligung wird dir dann wieder angeboten.';
 }

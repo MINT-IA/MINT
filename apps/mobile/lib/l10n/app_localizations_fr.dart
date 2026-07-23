@@ -24238,4 +24238,8 @@ class SFr extends S {
   @override
   String get expatTopCantonsDisclaimer =>
       'Outil éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Impôts estimés via le modèle simplifié MINT par canton (barèmes cantonaux, chef-lieu) — ce ne sont pas des calculs fiscaux exacts. Écart calculé sur le revenu seul — varie selon le patrimoine et la situation familiale.';
+
+  @override
+  String get coachConsentDeclined =>
+      'Le coach a besoin de ton accord pour transmettre tes messages au service d\'IA (serveurs aux États-Unis). Sans cet accord, il ne peut pas répondre. Renvoie ton message quand tu veux : la demande d\'accord te sera proposée à nouveau.';
 }

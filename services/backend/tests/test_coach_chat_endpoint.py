@@ -73,12 +73,27 @@ _ORCHESTRATOR_TOOL_RESULT = {
 }
 
 
+def _mock_consent_gate_allow():
+    """Stub du gate TRANSFER_US_ANTHROPIC (hard_block par défaut,
+    beads MINT_nosync-tcr). Ces tests ciblent le contrat HTTP et le câblage
+    orchestrateur — le gate a ses tests e2e dédiés
+    (test_consent_gate_default_hard_block.py + test_consent_gate_log_only_mode.py)."""
+    from app.services.consent.consent_service import ConsentCheckResult
+
+    return patch(
+        "app.services.consent.consent_service.consent_service.check_or_log",
+        return_value=ConsentCheckResult(grant_exists=True, allow=True),
+    )
+
+
 @pytest.fixture
 def client_with_auth():
     """Test client with auth override (authenticated user)."""
     app.dependency_overrides[require_current_user] = _fake_user
     app.dependency_overrides[get_current_user] = _fake_user
-    with _mock_entitlements_premium(), TestClient(app) as c:
+    with _mock_entitlements_premium(), _mock_consent_gate_allow(), TestClient(
+        app
+    ) as c:
         yield c
     app.dependency_overrides.pop(require_current_user, None)
     app.dependency_overrides.pop(get_current_user, None)

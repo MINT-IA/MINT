@@ -4097,91 +4097,149 @@
   "coachCitationChipsHeader": "Calculs serveur",
   "@coachCitationChipsHeader": {
     "description": "Header text for the Wave 1b citation-chip section under coach messages. Rendered above the list of tool-call chips.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationChipLabel": "{toolDisplayName} — calculé",
   "@coachCitationChipLabel": {
     "description": "Label rendered on each citation chip. toolDisplayName interpolates a localized name (e.g. 'Budget actuel').",
     "placeholders": {
-      "toolDisplayName": { "type": "String" }
+      "toolDisplayName": {
+        "type": "String"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationModalTitle": "Source du calcul : {toolDisplayName}",
   "@coachCitationModalTitle": {
     "description": "Title of the citation-chip modal (bottom sheet). Identifies which tool computed the values.",
     "placeholders": {
-      "toolDisplayName": { "type": "String" }
+      "toolDisplayName": {
+        "type": "String"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationJsonViewerLabel": "Voir le détail du calcul (JSON)",
   "@coachCitationJsonViewerLabel": {
     "description": "Label on the ExpansionTile that wraps the pretty-printed JSON viewer in the citation modal.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRememberCta": "Souviens-toi de cette source",
   "@coachCitationRememberCta": {
     "description": "Call-to-action button at the bottom of the citation modal. Wires (in a future wave) to save_insight tool persistence.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolBudgetSnapshot": "Budget actuel",
   "@coachToolBudgetSnapshot": {
     "description": "Display name for the get_budget_status server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolRetirementProjection": "Projection de retraite",
   "@coachToolRetirementProjection": {
     "description": "Display name for the get_retirement_projection server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolCrossPillarAnalysis": "Analyse inter-piliers",
   "@coachToolCrossPillarAnalysis": {
     "description": "Display name for the get_cross_pillar_analysis server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolCoupleOptimization": "Optimisation couple",
   "@coachToolCoupleOptimization": {
     "description": "Display name for the get_couple_optimization server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolCapStatus": "Cap du jour",
   "@coachToolCapStatus": {
     "description": "Display name for the get_cap_status server-side tool (daily cap validation).",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolRetrieveMemories": "Souvenirs",
   "@coachToolRetrieveMemories": {
     "description": "Display name for the retrieve_memories BM25 server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeJustNow": "à l'instant",
   "@coachCitationRelativeJustNow": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 minute. Replaces Dart literal in coach_citation_modal.dart.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeMinutes": "{count, plural, =1{il y a {count} min} other{il y a {count} min}}",
   "@coachCitationRelativeMinutes": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 hour. FR doesn't pluralize 'min'; ICU branches are identical.",
     "placeholders": {
-      "count": { "type": "int", "format": "compact" }
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeHours": "{count, plural, =1{il y a {count} h} other{il y a {count} h}}",
   "@coachCitationRelativeHours": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 day.",
     "placeholders": {
-      "count": { "type": "int", "format": "compact" }
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeDays": "{count, plural, =1{il y a {count} j} other{il y a {count} j}}",
   "@coachCitationRelativeDays": {
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" },
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    },
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta ≥ 1 day.",
     "placeholders": {
-      "count": { "type": "int", "format": "compact" }
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
     }
   },
   "profileDefaultName": "Utilisateur",
@@ -12665,17 +12723,27 @@
   "aujourdhuiCompleteCommitment": "Marquer comme terminé",
   "coachSequenceNextStepLabel": "Étape suivante : {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}},
-    "x-mint-meta": {"level": "N3"}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée.",
   "@coachSequenceCompletedMessage": {
-    "x-mint-meta": {"level": "N3"}
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "betaDisclosureEyebrow": "MINT en test",
   "@betaDisclosureEyebrow": {
     "description": "Beta disclosure sheet — uppercase eyebrow.",
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlinePrefix": "Tu testes une version qui",
   "@betaDisclosureHeadlinePrefix": {
@@ -12731,22 +12799,30 @@
   "chatInputHint": "Tape ton message...",
   "@chatInputHint": {
     "description": "Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "chatIntentExplainLabel": "Explique-moi",
   "@chatIntentExplainLabel": {
     "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=explain. Replaces raw enum 'explain'. Accent-clean FR, imperative reflexive. LSFin-clean.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "chatIntentReassureLabel": "Rassure-moi",
   "@chatIntentReassureLabel": {
     "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=reassure. Replaces raw enum 'reassure'. Accent-clean FR, imperative reflexive. LSFin-clean.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "chatIntentSimulateLabel": "Simule",
   "@chatIntentSimulateLabel": {
     "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=simulate. Reserved for forward compat ; today simulate deep-links to Explorer and does not open the overlay.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "narrativeSleeveNextStepExplain": "Tape une question pour creuser.",
   "@narrativeSleeveNextStepExplain": {
@@ -12979,5 +13055,9 @@
       "canton": {}
     }
   },
-  "expatTopCantonsDisclaimer": "Outil éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Impôts estimés via le modèle simplifié MINT par canton (barèmes cantonaux, chef-lieu) — ce ne sont pas des calculs fiscaux exacts. Écart calculé sur le revenu seul — varie selon le patrimoine et la situation familiale."
+  "expatTopCantonsDisclaimer": "Outil éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Impôts estimés via le modèle simplifié MINT par canton (barèmes cantonaux, chef-lieu) — ce ne sont pas des calculs fiscaux exacts. Écart calculé sur le revenu seul — varie selon le patrimoine et la situation familiale.",
+  "coachConsentDeclined": "Le coach a besoin de ton accord pour transmettre tes messages au service d'IA (serveurs aux États-Unis). Sans cet accord, il ne peut pas répondre. Renvoie ton message quand tu veux : la demande d'accord te sera proposée à nouveau.",
+  "@coachConsentDeclined": {
+    "description": "Message systeme du chat coach quand l'utilisateur refuse le consentement transfer_us_anthropic (beads MINT_nosync-tcr). Panel: la voie de reprise citee doit etre VRAIE — renvoyer le message re-declenche la sheet ; Profil->Confidentialite n'offre PAS de grant (dead-end interdit)."
+  }
 }

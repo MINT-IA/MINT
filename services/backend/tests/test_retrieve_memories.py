@@ -29,6 +29,16 @@ from fastapi.testclient import TestClient
 
 from app.api.v1.endpoints.coach_chat import _handle_retrieve_memories
 from app.main import app
+from app.services.consent.consent_service import ConsentCheckResult
+
+
+def _consent_gate_allow():
+    """Stub du gate TRANSFER_US_ANTHROPIC (hard_block par defaut,
+    beads MINT_nosync-tcr) — gate teste dans ses fichiers dedies."""
+    return patch(
+        "app.services.consent.consent_service.consent_service.check_or_log",
+        return_value=ConsentCheckResult(grant_exists=True, allow=True),
+    )
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES
 
 
@@ -277,7 +287,7 @@ class TestRetrieveMemoriesEndpointIntercept:
         with patch(
             "app.api.v1.endpoints.coach_chat._get_orchestrator",
             return_value=mock_orch,
-        ), TestClient(app) as client:
+        ), _consent_gate_allow(), TestClient(app) as client:
             response = client.post("/api/v1/coach/chat", json=body)
 
         assert response.status_code == 200
@@ -315,7 +325,7 @@ class TestRetrieveMemoriesEndpointIntercept:
         with patch(
             "app.api.v1.endpoints.coach_chat._get_orchestrator",
             return_value=mock_orch,
-        ), TestClient(app) as client:
+        ), _consent_gate_allow(), TestClient(app) as client:
             response = client.post("/api/v1/coach/chat", json=body)
 
         assert response.status_code == 200

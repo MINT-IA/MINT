@@ -24119,4 +24119,8 @@ class SEn extends S {
   @override
   String get expatTopCantonsDisclaimer =>
       'Educational tool — not tax advice under FinSA. Taxes estimated with MINT\'s simplified per-canton model (cantonal scales, capital city) — these are not exact tax calculations. Gap based on income only — varies with wealth and family situation.';
+
+  @override
+  String get coachConsentDeclined =>
+      'The coach needs your consent to send your messages to the AI service (servers in the United States). Without it, the coach cannot reply. Resend your message anytime: you will be asked for consent again.';
 }

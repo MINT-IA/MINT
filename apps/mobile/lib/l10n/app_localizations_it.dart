@@ -24304,4 +24304,8 @@ class SIt extends S {
   @override
   String get expatTopCantonsDisclaimer =>
       'Strumento educativo — non costituisce consulenza fiscale ai sensi della LSerFi. Imposte stimate con il modello semplificato MINT per cantone (tariffe cantonali, capoluogo) — non sono calcoli fiscali esatti. Divario basato solo sul reddito — varia con patrimonio e situazione familiare.';
+
+  @override
+  String get coachConsentDeclined =>
+      'Il coach ha bisogno del tuo consenso per trasmettere i tuoi messaggi al servizio di IA (server negli Stati Uniti). Senza, il coach non può rispondere. Rinvia il tuo messaggio quando vuoi: ti verrà richiesto di nuovo il consenso.';
 }

@@ -11350,44 +11350,68 @@
   "aujourdhuiCompleteCommitment": "Als erledigt markieren",
   "coachSequenceNextStepLabel": "Nächster Schritt: {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}},
-    "x-mint-meta": {"level": "N3"}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSequenceCompletedMessage": "Du hast diese geführte Sequenz abgeschlossen.",
   "@coachSequenceCompletedMessage": {
-    "x-mint-meta": {"level": "N3"}
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "betaDisclosureEyebrow": "MINT in der Beta",
   "@betaDisclosureEyebrow": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlinePrefix": "Du testest eine Version, die",
   "@betaDisclosureHeadlinePrefix": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlineEm": "mit dir lernt",
   "@betaDisclosureHeadlineEm": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlineSuffix": ".",
   "@betaDisclosureHeadlineSuffix": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletNoAdvice": "MINT ist keine Finanzberatung im Sinne des FIDLEG — es ist nur ein Bildungswerkzeug.",
   "@betaDisclosureBulletNoAdvice": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletNoBank": "Keine Bankdaten werden bei uns gespeichert. Deine Daten bleiben auf deinem Gerät, ausser du stimmst ausdrücklich zu.",
   "@betaDisclosureBulletNoBank": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletDataLocal": "Dein Feedback während der Beta hilft uns, MINT zu verbessern. Wir lesen alles.",
   "@betaDisclosureBulletDataLocal": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureCta": "Verstanden, los geht's",
   "@betaDisclosureCta": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureSemanticsLabel": "Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.",
   "coachOnboardingFirstAssistantGreeting": "Willkommen bei MINT. Bevor wir starten — was bringt dich heute hierher?",
@@ -11515,5 +11539,9 @@
       "canton": {}
     }
   },
-  "expatTopCantonsDisclaimer": "Bildungstool — keine Steuerberatung im Sinne des FIDLEG. Steuern geschätzt mit dem vereinfachten MINT-Kantonsmodell (kantonale Tarife, Hauptort) — keine exakten Steuerberechnungen. Differenz nur auf dem Einkommen — variiert mit Vermögen und Familiensituation."
+  "expatTopCantonsDisclaimer": "Bildungstool — keine Steuerberatung im Sinne des FIDLEG. Steuern geschätzt mit dem vereinfachten MINT-Kantonsmodell (kantonale Tarife, Hauptort) — keine exakten Steuerberechnungen. Differenz nur auf dem Einkommen — variiert mit Vermögen und Familiensituation.",
+  "coachConsentDeclined": "Der Coach benötigt deine Einwilligung, um deine Nachrichten an den KI-Dienst zu übermitteln (Server in den USA). Ohne sie kann der Coach nicht antworten. Sende deine Nachricht jederzeit erneut: Die Einwilligung wird dir dann wieder angeboten.",
+  "@coachConsentDeclined": {
+    "description": "Message systeme du chat coach quand l'utilisateur refuse le consentement transfer_us_anthropic (beads MINT_nosync-tcr). Panel: la voie de reprise citee doit etre VRAIE — renvoyer le message re-declenche la sheet ; Profil->Confidentialite n'offre PAS de grant (dead-end interdit)."
+  }
 }

@@ -62,6 +62,12 @@ def client():
     app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
     app.dependency_overrides[get_current_user] = _fake_user
+    # beads MINT_nosync-tcr : le gate TRANSFER_US_ANTHROPIC est hard_block
+    # par défaut — ces tests ciblent le consentement MÉMOIRE, pas le gate
+    # de transfert : on modélise l'utilisateur post-ConsentSheet.
+    from tests.conftest import seed_transfer_consent
+
+    seed_transfer_consent()
 
     with _mock_entitlements_premium(), TestClient(app) as c:
         yield c
