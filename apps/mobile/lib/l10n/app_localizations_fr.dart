@@ -24287,4 +24287,12 @@ class SFr extends S {
 
   @override
   String get coupleMonoIncomeCta => 'Ajouter son revenu avec le coach';
+
+  @override
+  String get reportSpouseIncomeMissingPrompt =>
+      'Renseigne le revenu de ton/ta conjoint·e : sa rente AVS est estimée au minimum légal en attendant.';
+
+  @override
+  String get reportSpouseDataMissingPrompt =>
+      'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.';
 }
