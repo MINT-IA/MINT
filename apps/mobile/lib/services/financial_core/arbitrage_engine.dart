@@ -168,16 +168,38 @@ class ArbitrageEngine {
     return _roundPyMirror2(total);
   }
 
-  /// Arrondi à 2 décimales — miroir de ``round(x, 2)`` Python (review Codex
-  /// PR #978 : ``(x*100).roundToDouble()`` divergeait au demi-centime,
-  /// 379.70 Dart vs 379.69 backend). ``round()`` Python arrondit sur la
-  /// représentation DÉCIMALE du double (le total calculé vaut
-  /// 379.694999999… en binaire -> 379.69) ; ``toStringAsFixed`` opère sur
-  /// la même représentation décimale et reproduit ce comportement. Écart
-  /// théorique résiduel : un tie binaire EXACT (.005 représentable, ex.
-  /// 0.125) — impossible pour un impôt issu de produits de taux.
-  static double _roundPyMirror2(double value) =>
-      double.parse(value.toStringAsFixed(2));
+  /// Arrondi à 2 décimales — miroir exact de ``round(x, 2)`` Python
+  /// (review Codex PR #978, rounds 2-3).
+  ///
+  /// Cas général : ``toStringAsFixed(2)`` opère sur la représentation
+  /// décimale du double, comme Python (379.694999… -> 379.69 là où
+  /// ``(x*100).roundToDouble()`` donnait 379.70).
+  ///
+  /// Tie exact : Python arrondit half-even quand la valeur RATIONNELLE du
+  /// double vaut exactement k.5 centimes (0.125 -> 0.12, atteignable via
+  /// rente 1.6460580202530979 VD) alors que ``toStringAsFixed`` fait
+  /// half-away (-> 0.13). Un tel tie ((2k+1)/200 représentable en binaire)
+  /// impose 25 | (2k+1), donc valeur = entier + impair/8 : sa décimale
+  /// exacte est FINIE en x.xx5. ``toStringAsFixed(20)`` (correctly
+  /// rounded) la rend donc comme « …5 » suivi de zéros — signature
+  /// détectable sans arithmétique flottante intermédiaire (le détecteur
+  /// précédent multipliait par 200 et fabriquait de faux ties).
+  static double _roundPyMirror2(double value) {
+    final s = value.toStringAsFixed(20);
+    final dot = s.indexOf('.');
+    final frac = s.substring(dot + 1);
+    final isExactTie = frac.length >= 3 &&
+        frac[2] == '5' &&
+        frac.substring(3).replaceAll('0', '').isEmpty;
+    if (isExactTie) {
+      final whole = int.parse(s.substring(0, dot).replaceAll('-', ''));
+      final cents = whole * 100 + int.parse(frac.substring(0, 2));
+      final even = cents.isEven ? cents : cents + 1;
+      final result = even / 100;
+      return value.isNegative ? -result : result;
+    }
+    return double.parse(value.toStringAsFixed(2));
+  }
 
   /// Compare full rente, full capital, and mixed (obligatoire rente +
   /// surobligatoire capital) strategies over [horizon] years.

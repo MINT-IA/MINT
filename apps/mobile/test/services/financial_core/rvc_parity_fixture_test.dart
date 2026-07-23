@@ -27,6 +27,20 @@ void main() {
     );
   });
 
+  test('arrondi miroir : tie binaire EXACT en half-even (contre-exemple Codex)', () {
+    // Review round 3 : rente 1.6460580202530979 VD -> impôt pré-arrondi
+    // EXACTEMENT 0.125 (représentable en binaire). round() Python donne
+    // 0.12 (half-even) ; toStringAsFixed seul donnerait 0.13.
+    expect(
+      ArbitrageEngine.estimateIncomeTaxOnRenteRvc(
+        1.6460580202530979,
+        'VD',
+        false,
+      ),
+      0.12,
+    );
+  });
+
   final fixture = File('../../tools/fixtures/rvc_parity_v1.json');
   final data =
       jsonDecode(fixture.readAsStringSync()) as Map<String, dynamic>;
