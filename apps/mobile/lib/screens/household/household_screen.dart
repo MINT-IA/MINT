@@ -13,6 +13,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/couple/conjoint_missing_hint.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Household management screen — Couple+ tier.
 ///
@@ -290,6 +292,19 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 12),
             ...activeMembers.map((member) => _buildMemberTile(
                   context, household, member)),
+            // Volet C (beads MINT_nosync-mla) : partenaire household lié
+            // mais AUCUNE donnée financière ne nourrit les calculs couple
+            // (le backend household n'expose pas le profil du partenaire).
+            // Rendre la limite visible + pointer vers la saisie coach.
+            if (activeMembers
+                        .where((m) => m['status'] == 'active')
+                        .length >
+                    1 &&
+                context.watch<CoachProfileProvider>().profile?.conjoint ==
+                    null) ...[
+              const SizedBox(height: 8),
+              const ConjointMissingHint(forceShow: true),
+            ],
           ],
         ),
       ),

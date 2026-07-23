@@ -42411,6 +42411,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Mensualité (estimée)'**
   String get repaymentFieldInstallmentEstimated;
+
+  /// Bandeau honnetete mono-revenu (beads MINT_nosync-mla volet C) : couple declare mais profil financier conjoint absent — le calcul couple est en realite mono-revenu
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce calcul repose sur ton seul revenu : celui de ton/ta partenaire n\'est pas encore renseigné.'**
+  String get coupleMonoIncomeHint;
+
+  /// CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter son revenu avec le coach'**
+  String get coupleMonoIncomeCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

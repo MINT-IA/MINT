@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/couple/conjoint_missing_hint.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
@@ -344,6 +345,11 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 ),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    // Honnêteté mono-revenu (beads MINT_nosync-mla volet C) :
+                    // le calcul délègue à revenuBrutAnnuelCouple — si le
+                    // conjoint financier est absent, le dire au lieu de
+                    // calculer en silence. Self-gated.
+                    const ConjointMissingHint(),
                     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                     // SECTION 1 — L'ENJEU : la question hero
                     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

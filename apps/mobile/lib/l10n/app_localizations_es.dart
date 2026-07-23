@@ -24261,4 +24261,11 @@ class SEs extends S {
 
   @override
   String get repaymentFieldInstallmentEstimated => 'Cuota (estimada)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'Este cálculo se basa solo en tus ingresos: los de tu pareja aún no se han añadido.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Añadir sus ingresos con el coach';
 }
