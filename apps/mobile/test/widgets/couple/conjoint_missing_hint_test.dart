@@ -24,6 +24,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/couple/conjoint_missing_hint.dart';
 import 'package:mint_mobile/screens/mortgage/affordability_screen.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 
 CoachProfile _profile({
   CoachCivilStatus etatCivil = CoachCivilStatus.marie,
@@ -195,6 +196,39 @@ void main() {
           findsOneWidget,
           reason: 'écran réel : le calcul est mono-revenu, le bandeau doit '
               'être rendu');
+    });
+
+    testWidgets(
+        'saisie manuelle d\'un revenu divergent -> le bandeau se tait '
+        '(provenance)', (tester) async {
+      // Review PR #976 round 3 : sans _incomeStillFromProfile, le bandeau
+      // continuerait de s'afficher après qu'un revenu combiné a été saisi
+      // à la main — il mentirait. On édite le champ revenu via son contrat
+      // onChanged (premier MintAmountField de l'écran) et le bandeau doit
+      // disparaître.
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
+      await tester.pumpWidget(affordabilityApp(_profile(
+        conjoint: const ConjointProfile(firstName: 'Lau'),
+      )));
+      await tester.pump(const Duration(milliseconds: 400));
+      final l10n = await S.delegate.load(const Locale('fr'));
+      expect(find.text(l10n.coupleMonoIncomeHint, skipOffstage: false),
+          findsOneWidget);
+
+      final incomeField = tester.widget<MintAmountField>(
+          find.byType(MintAmountField, skipOffstage: false).first);
+      incomeField.onChanged(150000); // revenu combiné saisi à la main
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text(l10n.coupleMonoIncomeHint, skipOffstage: false),
+          findsNothing,
+          reason: 'le champ diverge du ménage profil : la provenance a '
+              'changé, le bandeau doit se taire au lieu de mentir');
     });
 
     testWidgets('marié, conjoint AVEC revenu -> pas de bandeau',
