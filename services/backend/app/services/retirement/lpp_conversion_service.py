@@ -126,25 +126,37 @@ class LppConversionService:
         impot = calculate_progressive_capital_tax(capital_lpp, taux)
         capital_net = round(capital_lpp - impot, 2)
 
-        # Breakeven — uses net rente (after tax) vs net capital
+        # Breakeven SIMPLIFIÉ — cumul NOMINAL d'une rente constante vs
+        # capital net, sans rendement ni trajectoire patrimoniale
+        # (contrairement au RvC complet rente_vs_capital.py — sémantique
+        # volontairement distincte, review #989 : ce comparateur est le
+        # niveau « overview », le RvC est le simulateur complet).
         duree = max(0, life_expectancy - retirement_age)
         breakeven = retirement_age
+        breakeven_atteint = False
         if rente_nette_annuelle > 0:
             cumul = 0.0
             for y in range(duree + 1):
                 cumul += rente_nette_annuelle
                 if cumul >= capital_net:
                     breakeven = retirement_age + y
+                    breakeven_atteint = True
                     break
             else:
-                breakeven = life_expectancy  # Never reached
+                breakeven = life_expectancy  # jamais atteint sur l'horizon
 
         recommandation = (
             f"La rente LPP te verse CHF {rente_nette_mensuelle:,.0f}/mois net à vie "
             f"(brut CHF {rente_brute_mensuelle:,.0f}, impôt ~CHF {round(rente_impot_annuel / 12):,.0f}/mois). "
             f"Le capital te donne CHF {capital_net:,.0f} net après impôt de retrait. "
-            f"Si tu vis au-delà de {breakeven} ans, la rente nette dépasse le capital en cumul. "
-            f"Les deux options présentent des profils différents — le choix dépend de ta situation."
+            + (
+                f"Si tu vis au-delà de {breakeven} ans, la rente nette dépasse "
+                f"le capital en cumul. "
+                if breakeven_atteint
+                else f"Sur l'horizon simulé (jusqu'à {life_expectancy} ans), le "
+                f"cumul de la rente nette ne rattrape pas le capital net. "
+            )
+            + "Les deux options présentent des profils différents — le choix dépend de ta situation."
         )
 
         premier_eclairage = (
