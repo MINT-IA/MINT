@@ -29878,7 +29878,20 @@
               }
             ],
             "title": "Currentage",
-            "description": "Age actuel, requis pour un receipt RvC complet"
+            "description": "Age actuel \u2014 requis pour le receipt seulement en mode estimation (input_mode='estimate')"
+          },
+          "inputMode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(certificate|estimate)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inputmode",
+            "description": "Mode de saisie mobile : 'certificate' (valeurs reelles du certificat LPP, pas de projection \u2014 current_age inutile) ou 'estimate' (projection cote mobile \u2014 current_age requis pour un receipt complet). Absent = appel hors ecran RvC, traite comme certificate (le backend ne projette jamais)."
           },
           "isMarried": {
             "anyOf": [

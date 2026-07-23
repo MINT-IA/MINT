@@ -1133,6 +1133,7 @@ class ApiService {
     int horizon = 25,
     bool isMarried = false,
     int? currentAge,
+    String? inputMode,
   }) async {
     final payload = {
       'capital_lpp_total': capitalLppTotal,
@@ -1149,6 +1150,11 @@ class ApiService {
       'horizon': horizon,
       'is_married': isMarried,
       if (currentAge != null) 'current_age': currentAge,
+      // beads MINT_nosync-8wy : le backend ne peut pas déduire l'intention
+      // (certificat = valeurs réelles sans âge vs estimation incomplète) —
+      // le mode est annoncé explicitement pour que le receipt exige
+      // current_age seulement en mode estimation.
+      if (inputMode != null) 'input_mode': inputMode,
     };
     final response = await post('/arbitrage/rente-vs-capital', payload);
 
