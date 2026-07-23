@@ -1283,6 +1283,55 @@ _PARAMETERS: list[RegulatoryParameter] = [
         description="Taux de base impôt retrait capital — Jura.",
         reviewed_at=_REVIEWED,
     ),
+    # ── Hypothèses de projection (beads MINT_nosync-7vx, verdict D -zaw) ──
+    # HYPOTHÈSES PRODUIT, pas des paramètres légaux (source_type="estimate").
+    # Enregistrées pour la provenance datée + la cohérence mobile (les
+    # fallbacks Dart reg('projection.*') de social_insurance.dart doivent
+    # rester identiques — verrou test_regulatory_registry).
+    RegulatoryParameter(
+        key="projection.avs_indexation_rate",
+        value=0.01,
+        unit="ratio",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.eak.admin.ch/fr/augmentation-des-rentes-avsai-de-29-pourcent-au-1er-janvier-2025",
+        source_title="LAVS art. 33ter (indice mixte) — lissage produit",
+        source_type="estimate",
+        description="Indexation AVS supposée : 1%/an. Lissage long terme de l'indice mixte (dernière adaptation +2.9% au 1.1.2025, ≈1.45%/an lissé — cadence récente supérieure, à surveiller). Hypothèse produit DÉFENDABLE, pas une valeur légale.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="projection.inflation_rate",
+        value=0.015,
+        unit="ratio",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.snb.ch/en/snb-explained/price-stability",
+        source_title="Cible BNS stabilité des prix 0-2% — hypothèse prudente-haute",
+        source_type="estimate",
+        description="Inflation supposée : 1.5%/an. Dans la bande BNS 0-2% ; ~2.5x la moyenne CH 1994-2024 (≈0.6%) — prudent-haut (surestimer l'inflation protège l'adéquation de la projection). Hypothèse produit, réviser annuellement.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="projection.life_expectancy",
+        value=87.0,
+        unit="years",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.bfs.admin.ch/bfs/fr/home/statistiques/population/naissances-deces/esperance-vie.html",
+        source_title="Tables de mortalité OFS — espérance de vie à 65 ans",
+        source_type="estimate",
+        description="Espérance de vie de planification : 87 ans. Espérance à 65 ans ≈ 85-89 ans (OFS) ; 87 = médiane prudente. Validée PR #968 (reference_ofs_mortality_table_2023.md).",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="projection.safe_withdrawal_rate",
+        value=0.04,
+        unit="ratio",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.aaii.com/journal/199802/feature.pdf",
+        source_title="Règle des 4% — Bengen 1994 / Trinity Study 1998",
+        source_type="estimate",
+        description="Taux de retrait supposé : 4%/an. Benchmark reconnu mais US-centré (horizon 30 ans) ; en contexte suisse 3-3.5% serait plus prudent — hypothèse ÉDITABLE par l'utilisateur, présentée en scénarios (NEVER #8), jamais comme garantie de durabilité.",
+        reviewed_at=_REVIEWED,
+    ),
 ]
 
 

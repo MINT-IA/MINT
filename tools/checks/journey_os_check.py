@@ -194,6 +194,7 @@ ALLOW = {
     "services/backend/app/services/retirement/avs_estimation_service.py",
     "services/backend/tests/test_golden_julien_lauren.py",
     "services/backend/tests/test_fiscal.py",
+    "services/backend/tests/test_regulatory_registry.py",
     # PR rvc-single-truth (bead -axj) : parité croisée RvC
     "apps/mobile/test/services/financial_core/rvc_parity_fixture_test.dart",
     "services/backend/tests/test_rvc_parity_fixture.py",
