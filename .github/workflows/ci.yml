@@ -32,6 +32,10 @@ jobs:
             backend:
               - 'services/backend/**'
               - 'tools/openapi/**'
+              # -5u4 : le gate test_calc_registry compare le registre committé
+              # à la sortie du générateur — une PR ne touchant QUE le
+              # générateur doit exécuter la suite backend (review Codex #981).
+              - 'tools/generate_calc_registry.py'
               - 'tools/checks/regulatory_freshness_monitor.py'
               - 'tools/checks/tests/test_regulatory_freshness_monitor.py'
               - '.github/workflows/regulatory-freshness-monitor.yml'

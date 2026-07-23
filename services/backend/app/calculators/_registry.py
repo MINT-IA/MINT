@@ -346,7 +346,7 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
     "multi_account_service__MultiAccountService_simulate_staggered_withdrawal": {
         "name": "multi_account_service__MultiAccountService_simulate_staggered_withdrawal",
         "file": "app/services/pillar_3a_deep/multi_account_service.py",
-        "profile_fields_needed": ["avoir_total", "nb_comptes", "canton", "revenu_imposable", "age_retrait_debut", "age_retrait_fin"],
+        "profile_fields_needed": ["avoir_total", "nb_comptes", "canton", "revenu_imposable", "age_retrait_debut", "age_retrait_fin", "frais_annuels_par_compte"],
         "life_events_served": ["retirement"],
         "output_type": "L1",
     },
@@ -691,6 +691,9 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "wealth_tax_service__WealthTaxService_compare_all_cantons",
         "wealth_tax_service__WealthTaxService_estimate_wealth_tax",
         "wealth_tax_service__WealthTaxService_simulate_move_wealth",
+    },
+    "frais_annuels_par_compte": {
+        "multi_account_service__MultiAccountService_simulate_staggered_withdrawal",
     },
     "frais_entretien_annuels": {
         "imputed_rental_service__ImputedRentalService_calculate",
