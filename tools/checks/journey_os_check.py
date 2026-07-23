@@ -144,6 +144,8 @@ ALLOW = {
     "services/backend/tests/test_coach_eu_routing.py",
     "services/backend/tests/test_rvc_certificate_receipt.py",
     "services/backend/tests/test_rente_vs_capital.py",
+    "services/backend/tests/test_rvc_premier_eclairage_totals.py",
+    "services/backend/app/services/arbitrage/rente_vs_capital.py",
     "services/backend/app/api/v1/endpoints/arbitrage.py",
     "services/backend/app/schemas/arbitrage.py",
     "tools/openapi/mint.openapi.canonical.json",

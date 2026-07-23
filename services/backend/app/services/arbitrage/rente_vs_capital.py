@@ -40,7 +40,6 @@ from app.services.arbitrage.arbitrage_models import (
     YearlySnapshot,
     TrajectoireOption,
     ArbitrageResult,
-    compute_terminal_spread,
     add_tornado_sensitivity,
 )
 
@@ -340,29 +339,64 @@ def _calculate_breakeven(option_a: TrajectoireOption, option_b: TrajectoireOptio
     return -1
 
 
+def _total_economic_value(option: TrajectoireOption) -> float:
+    """Valeur économique totale d'une option RvC (beads MINT_nosync-h5i).
+
+    Les `terminal_value` des trois options n'ont PAS la même sémantique :
+    - full_rente : revenus nets cumulés (déjà une valeur totale) ;
+    - mixed : capital surob résiduel + revenus cumulés (déjà totale) ;
+    - full_capital : capital RÉSIDUEL seul — les retraits SWR déjà consommés
+      (annual_cashflow) doivent être ré-additionnés, sinon on compare des
+      revenus cumulés à un solde résiduel (pommes/oranges). Miroir du moteur
+      mobile (arbitrage_engine.dart : capitalTotalValue = cumWithdrawals +
+      residual).
+    """
+    if option.id == "full_capital":
+        return (
+            sum(snap.annual_cashflow for snap in option.trajectory)
+            + option.terminal_value
+        )
+    return option.terminal_value
+
+
+def _rvc_total_value_spread(options: List[TrajectoireOption]) -> float:
+    """Spread Tornado sur les valeurs économiques TOTALES.
+
+    Remplace `compute_terminal_spread` pour RvC (review Codex PR #971) : le
+    spread générique compare des terminal_value bruts, ce qui ré-introduit
+    l'asymétrie résiduel-vs-cumulé corrigée dans le premier éclairage.
+    """
+    if len(options) < 2:
+        return 0.0
+    totals = [_total_economic_value(o) for o in options]
+    return max(totals) - min(totals)
+
+
 def _build_premier_eclairage(options: List[TrajectoireOption], horizon: int) -> str:
     """Build the most striking delta as premier éclairage.
 
-    Compares terminal values between options A and B.
+    Compare la valeur économique TOTALE des deux options (voir
+    `_total_economic_value`, beads MINT_nosync-h5i).
     """
     if len(options) < 2:
         return "Simulation incomplete."
 
-    rente_terminal = options[0].terminal_value
-    capital_terminal = options[1].terminal_value
-    delta = abs(capital_terminal - rente_terminal)
+    rente_total = _total_economic_value(options[0])
+    capital_total_value = _total_economic_value(options[1])
+    delta = abs(capital_total_value - rente_total)
 
-    if capital_terminal > rente_terminal:
+    if capital_total_value > rente_total:
         return (
             f"Dans ce scenario simule sur {horizon} ans, le retrait en capital "
-            f"pourrait representer {delta:,.0f} CHF de plus en patrimoine cumule "
+            f"pourrait representer {delta:,.0f} CHF de plus en valeur "
+            f"economique totale (retraits cumules + capital residuel) "
             f"que la rente — mais sans revenu a vie."
         )
     else:
         return (
             f"Dans ce scenario simule sur {horizon} ans, la rente pourrait "
-            f"representer {delta:,.0f} CHF de plus en revenus cumules "
-            f"que le capital — avec un revenu a vie."
+            f"representer {delta:,.0f} CHF de plus en valeur economique "
+            f"totale que le retrait en capital — avec un revenu a vie."
         )
 
 
@@ -509,7 +543,9 @@ def compare_rente_vs_capital(
         is_married=is_married,
     )
 
-    base_spread = compute_terminal_spread(options)
+    # Review Codex PR #971 : spread sur les valeurs TOTALES, pas sur les
+    # terminal_value bruts (asymétrie résiduel-vs-cumulé).
+    base_spread = _rvc_total_value_spread(options)
     sensitivity: Dict[str, float] = {}
 
     def _spread_variant(
@@ -542,7 +578,7 @@ def compare_rente_vs_capital(
             age_retraite=age_retraite,
             inflation=inflation,
         )
-        return compute_terminal_spread([option_a, variant_b, variant_c])
+        return _rvc_total_value_spread([option_a, variant_b, variant_c])
 
     # ── Tornado variables ──────────────────────────────────────────────
     rendement_low = max(0.0, rendement_capital - 0.01)
