@@ -4228,7 +4228,7 @@ class SEn extends S {
 
   @override
   String get naissanceChecklistItem5Desc =>
-      'An additional child entitles you to a tax deduction of CHF 6,700/year (LIFD art. 35). If you have childcare costs, you can deduct up to CHF 25,500/year. Remember to adjust your tax instalments for the current year.';
+      'An additional child entitles you to a tax deduction of CHF 6,800/year (LIFD art. 35). If you have childcare costs, you can deduct up to CHF 25,800/year. Remember to adjust your tax instalments for the current year.';
 
   @override
   String get naissanceChecklistItem6Title => 'Adapt the family budget';

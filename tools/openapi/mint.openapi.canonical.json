@@ -29984,7 +29984,7 @@
     },
     "/api/v1/family/naissance/impact-fiscal": {
       "post": {
-        "description": "Calcule l'economie fiscale liee aux enfants.\n\nDeduction par enfant: CHF 6'700. Frais de garde: max CHF 25'500.\n\nSources: LIFD art. 35, 33.",
+        "description": "Calcule l'economie fiscale liee aux enfants.\n\nDeduction par enfant: CHF 6'800. Frais de garde: max CHF 25'800.\n\nSources: LIFD art. 35 al. 1 let. a, art. 33 al. 3.",
         "operationId": "impact_fiscal_enfant_api_v1_family_naissance_impact_fiscal_post",
         "requestBody": {
           "content": {

@@ -348,9 +348,9 @@ def estimate_allocations(
 def impact_fiscal_enfant(request: Request, body: ImpactFiscalEnfantRequest) -> ImpactFiscalEnfantResponse:
     """Calcule l'economie fiscale liee aux enfants.
 
-    Deduction par enfant: CHF 6'700. Frais de garde: max CHF 25'500.
+    Deduction par enfant: CHF 6'800. Frais de garde: max CHF 25'800.
 
-    Sources: LIFD art. 35, 33.
+    Sources: LIFD art. 35 al. 1 let. a, art. 33 al. 3.
     """
     service = NaissanceService()
     result = service.calculate_impact_fiscal_enfant(

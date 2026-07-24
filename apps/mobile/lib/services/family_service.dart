@@ -37,8 +37,8 @@ class FamilyService {
   /// Insurance deduction — single person.
   static const double deductionAssuranceCelibataire = 1800.0;
 
-  /// Deduction per child — federal (LIFD art. 35 al. 1 let. a, 2025 value).
-  static const double deductionParEnfant = 6700.0;
+  /// Deduction per child — federal (LIFD art. 35 al. 1 let. a, ESTV 2026).
+  static const double deductionParEnfant = 6800.0;
 
   /// Deduction per child — cantonal (LHID art. 9 al. 2 let. c).
   /// AFC "Charge fiscale en Suisse 2024" tables, rounded to CHF 100.
@@ -82,8 +82,8 @@ class FamilyService {
     return deductionParEnfant + cantonal;
   }
 
-  /// Maximum childcare deduction (LIFD art. 33 al. 3).
-  static const double deductionGardeMax = 25500.0;
+  /// Maximum childcare deduction (LIFD art. 33 al. 3, ESTV 2026).
+  static const double deductionGardeMax = 25800.0;
 
   // ════════════════════════════════════════════════════════════
   //  SURVIVOR BENEFITS CONSTANTS

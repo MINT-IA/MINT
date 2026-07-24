@@ -4248,7 +4248,7 @@ class SPt extends S {
 
   @override
   String get naissanceChecklistItem5Desc =>
-      'Um filho adicional dá-te direito a uma dedução fiscal de CHF 6\'700/ano (LIFD art. 35). Se tiveres despesas de guarda, podes deduzir até CHF 25\'500/ano. Lembra-te de adaptar os teus pagamentos por conta para o ano em curso.';
+      'Um filho adicional dá-te direito a uma dedução fiscal de CHF 6\'800/ano (LIFD art. 35). Se tiveres despesas de guarda, podes deduzir até CHF 25\'800/ano. Lembra-te de adaptar os teus pagamentos por conta para o ano em curso.';
 
   @override
   String get naissanceChecklistItem6Title => 'Adaptar o orçamento familiar';

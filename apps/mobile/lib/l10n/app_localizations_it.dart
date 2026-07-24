@@ -4259,7 +4259,7 @@ class SIt extends S {
 
   @override
   String get naissanceChecklistItem5Desc =>
-      'Un figlio in più ti dà diritto a una deduzione fiscale di CHF 6\'700/anno (LIFD art. 35). Se hai spese di custodia, puoi dedurre fino a CHF 25\'500/anno. Ricorda di adattare i tuoi acconti fiscali per l\'anno in corso.';
+      'Un figlio in più ti dà diritto a una deduzione fiscale di CHF 6\'800/anno (LIFD art. 35). Se hai spese di custodia, puoi dedurre fino a CHF 25\'800/anno. Ricorda di adattare i tuoi acconti fiscali per l\'anno in corso.';
 
   @override
   String get naissanceChecklistItem6Title => 'Adattare il budget familiare';

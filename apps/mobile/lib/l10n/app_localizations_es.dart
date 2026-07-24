@@ -4251,7 +4251,7 @@ class SEs extends S {
 
   @override
   String get naissanceChecklistItem5Desc =>
-      'Un hijo adicional te da derecho a una deducción fiscal de CHF 6\'700/año (LIFD art. 35). Si tienes gastos de guardería, puedes deducir hasta CHF 25\'500/año. Recuerda adaptar tus pagos anticipados de impuestos para el año en curso.';
+      'Un hijo adicional te da derecho a una deducción fiscal de CHF 6\'800/año (LIFD art. 35). Si tienes gastos de guardería, puedes deducir hasta CHF 25\'800/año. Recuerda adaptar tus pagos anticipados de impuestos para el año en curso.';
 
   @override
   String get naissanceChecklistItem6Title => 'Adaptar el presupuesto familiar';

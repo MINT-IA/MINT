@@ -54,8 +54,8 @@ lifeEvent: "birth"
 - Astuce : compare les primes enfants entre caisses, les ecarts peuvent etre importants.
 
 ### Impact fiscal des enfants (LIFD art. 35)
-- **Deduction par enfant** : CHF 6'700 par an (LIFD art. 35 al. 1 let. a).
-- **Deduction frais de garde** : jusqu'a CHF 25'500 par enfant et par an (LIFD art. 33 al. 3).
+- **Deduction par enfant** : CHF 6'800 par an (LIFD art. 35 al. 1 let. a).
+- **Deduction frais de garde** : jusqu'a CHF 25'800 par enfant et par an (LIFD art. 33 al. 3).
 - **Economie reelle** : depend de ton taux marginal d'imposition. A 20% de taux marginal, un enfant represente environ CHF 1'340/an d'economie fiscale.
 
 ### Impact sur la carriere et la retraite

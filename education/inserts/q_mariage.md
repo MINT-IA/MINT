@@ -42,7 +42,7 @@ Pour compenser l'effet de la declaration commune, la Confederation applique un *
 - **Deduction pour couple marie** : CHF 2'700 (LIFD)
 - **Deduction pour double revenu** : CHF 2'800 si les deux conjoints travaillent (LIFD art. 33 al. 2)
 - **Deduction assurance** : CHF 3'600 (vs CHF 1'800 pour un celibataire)
-- **Deduction par enfant** : CHF 6'700 (LIFD art. 35 al. 1 let. a)
+- **Deduction par enfant** : CHF 6'800 (LIFD art. 35 al. 1 let. a)
 
 ### Ce que tu peux faire
 - Utilise le simulateur MINT pour comparer ta situation avant/apres mariage.

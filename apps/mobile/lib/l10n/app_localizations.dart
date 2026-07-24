@@ -7783,7 +7783,7 @@ abstract class S {
   /// No description provided for @naissanceChecklistItem5Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6\'700/an (LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu\'à CHF 25\'500/an. Pense à adapter tes acomptes d\'impôts pour l\'année en cours.'**
+  /// **'Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6\'800/an (LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu\'à CHF 25\'800/an. Pense à adapter tes acomptes d\'impôts pour l\'année en cours.'**
   String get naissanceChecklistItem5Desc;
 
   /// No description provided for @naissanceChecklistItem6Title.

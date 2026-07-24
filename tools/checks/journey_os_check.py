@@ -136,6 +136,23 @@ ALLOW = {
     # campagne-A : mariage_service -> moteur fiscal canonique + double-activité LIFD 33 al.2
     "services/backend/app/services/family/mariage_service.py",
     "services/backend/tests/test_family.py",
+    # campagne-A : naissance_service -> déductions IFD 2026 enfant/garde + article 33 al.3
+    "services/backend/app/services/family/naissance_service.py",
+    "services/backend/app/api/v1/endpoints/family.py",
+    # campagne-A : déduction enfant/garde 2026 servie partout (mobile + corpus)
+    "apps/mobile/lib/services/family_service.dart",
+    "apps/mobile/lib/widgets/coach/fiscal_superpower_widget.dart",
+    "apps/mobile/test/services/family_service_test.dart",
+    "apps/mobile/test/services/financial_report_service_test.dart",
+    "apps/mobile/test/widgets/coach/fiscal_superpower_widget_test.dart",
+    "education/inserts/q_naissance.md",
+    "education/inserts/q_mariage.md",
+    "education/inserts/concepts/naissance_impact_financier.md",
+    "education/inserts/concepts/fiscal_deductions_courantes.md",
+    "services/backend/education_inserts/q_naissance.md",
+    "services/backend/education_inserts/q_mariage.md",
+    "services/backend/education_inserts/concepts/naissance_impact_financier.md",
+    "services/backend/education_inserts/concepts/fiscal_deductions_courantes.md",
     # -8p4 : tax_calculator.dart chemin revenu -> modèle v2 (PR B)
     "apps/mobile/lib/services/financial_core/tax_calculator.dart",
     "apps/mobile/test/services/financial_core/tax_calculator_v2_identity_test.dart",
