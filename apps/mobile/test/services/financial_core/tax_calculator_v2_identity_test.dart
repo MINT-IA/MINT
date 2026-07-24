@@ -10,6 +10,30 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 /// (delta 1000, clamp 0-0.50), économie = différence exacte. Les tables
 /// v1 (_effectiveRates100k / _incomeAdjustment) sont supprimées.
 void main() {
+  test('contrat parts <-> total : 26 cantons x statuts x revenus '
+      '(review #1007)', () {
+    // La décomposition et le total partagent désormais les mêmes boucles
+    // (délégation) — ce contrat verrouille l'identité sur toute la
+    // grille : bornes (<40k), intervalles, extrapolation (>250k),
+    // fallback canton inconnu, marié x0.80 proportionnel vs somme.
+    const incomes = [8000.0, 40000.0, 85000.0, 100000.0, 140000.0, 300000.0];
+    final cantons = [...cantonalCommunalTaxChf.keys, 'XX'];
+    for (final canton in cantons) {
+      for (final income in incomes) {
+        for (final married in [false, true]) {
+          final total = estimateIncomeTaxV2(income, canton,
+              isMarried: married);
+          final parts = estimateIncomeTaxV2Parts(income, canton,
+              isMarried: married);
+          expect(parts.federal + parts.cantonal, closeTo(total, 0.01),
+              reason: '$canton/$income/married=$married');
+          expect(parts.federal, greaterThanOrEqualTo(0));
+          expect(parts.cantonal, greaterThanOrEqualTo(0));
+        }
+      }
+    }
+  });
+
   test('tombstone : les tables v1 sont supprimées du source', () {
     final src = File('lib/services/financial_core/tax_calculator.dart')
         .readAsStringSync();

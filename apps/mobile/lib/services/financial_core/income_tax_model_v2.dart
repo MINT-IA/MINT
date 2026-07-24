@@ -77,7 +77,13 @@ const Map<String, List<double>> cantonalCommunalTaxChf = {
 /// [taxableIncome] : revenu IMPOSABLE. Marié : x0.80 (splitting).
 /// Limites (dites) : célibataire chef-lieu sans confession ; estimation
 /// éducative, jamais un conseil fiscal (LSFin).
-double estimateIncomeTaxV2(
+/// Décomposition (fédéral, cantonal+communal) — miroir Dart de
+/// `estimate_income_tax_parts` backend (PR #997). Le facteur marié x0.80
+/// est appliqué PROPORTIONNELLEMENT aux deux parts : la somme peut
+/// différer du total canonique [estimateIncomeTaxV2] d'au plus un
+/// centime d'arrondi (même conception que le backend — les fixtures de
+/// parité pinent les TOTAUX, la décomposition sert l'affichage).
+({double federal, double cantonal}) estimateIncomeTaxV2Parts(
   double taxableIncome,
   String canton, {
   bool isMarried = false,
@@ -109,11 +115,11 @@ double estimateIncomeTaxV2(
   } else if (taxableIncome <= incomes.first) {
     impotCantonal = pts.first * (taxableIncome / incomes.first);
   } else if (taxableIncome >= incomes.last) {
-    final slope = (pts[pts.length - 1] - pts[pts.length - 2]) /
-        (incomes[incomes.length - 1] - incomes[incomes.length - 2]);
+    final slope = (pts.last - pts[pts.length - 2]) /
+        (incomes.last - incomes[incomes.length - 2]);
     impotCantonal = pts.last + slope * (taxableIncome - incomes.last);
   } else {
-    impotCantonal = pts.last;
+    impotCantonal = 0;
     for (var i = 0; i < incomes.length - 1; i++) {
       if (taxableIncome >= incomes[i] && taxableIncome <= incomes[i + 1]) {
         final ratio =
@@ -124,7 +130,25 @@ double estimateIncomeTaxV2(
     }
   }
 
-  var total = impotFederal + impotCantonal;
+  if (isMarried) {
+    impotFederal *= 0.80;
+    impotCantonal *= 0.80;
+  }
+  return (federal: impotFederal, cantonal: impotCantonal);
+}
+
+double estimateIncomeTaxV2(
+  double taxableIncome,
+  String canton, {
+  bool isMarried = false,
+}) {
+  // Review #1007 : délégation à la décomposition — une seule
+  // implémentation des boucles (contrat d'identité testé sur les 26
+  // cantons). Le facteur marié s'applique à la SOMME, ordre des
+  // flottants identique à l'ancien corps (leçon backend #997 — les
+  // parités croisées sont gelées au centime).
+  final parts = estimateIncomeTaxV2Parts(taxableIncome, canton);
+  var total = parts.federal + parts.cantonal;
   if (isMarried) {
     total *= 0.80;
   }

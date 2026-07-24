@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:mint_mobile/data/commune_data.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FISCAL SERVICE — Sprint S20 / Comparateur 26 cantons
@@ -18,38 +19,6 @@ import 'package:mint_mobile/data/commune_data.dart';
 class FiscalService {
   FiscalService._();
 
-  // ════════════════════════════════════════════════════════════
-  //  EFFECTIVE TAX RATES — single, 100k income, chef-lieu
-  // ════════════════════════════════════════════════════════════
-
-  static const Map<String, double> effectiveRates100kSingle = {
-    'ZG': 0.0823,
-    'NW': 0.0891,
-    'OW': 0.0934,
-    'AI': 0.0956,
-    'AR': 0.1012,
-    'SZ': 0.1034,
-    'UR': 0.1067,
-    'LU': 0.1089,
-    'GL': 0.1102,
-    'TG': 0.1145,
-    'SH': 0.1167,
-    'AG': 0.1189,
-    'GR': 0.1203,
-    'BL': 0.1256,
-    'SG': 0.1278,
-    'ZH': 0.1290,
-    'FR': 0.1312,
-    'SO': 0.1334,
-    'TI': 0.1356,
-    'BE': 0.1389,
-    'NE': 0.1423,
-    'VS': 0.1456,
-    'VD': 0.1489,
-    'JU': 0.1512,
-    'GE': 0.1545,
-    'BS': 0.1578,
-  };
 
   // ════════════════════════════════════════════════════════════
   //  CANTON NAMES (French)
@@ -88,15 +57,6 @@ class FiscalService {
   //  INCOME ADJUSTMENT FACTORS (relative to 100k base)
   // ════════════════════════════════════════════════════════════
 
-  static const Map<int, double> _incomeAdjustments = {
-    50000: 0.75,
-    80000: 0.90,
-    100000: 1.00,
-    150000: 1.10,
-    200000: 1.18,
-    300000: 1.25,
-    500000: 1.32,
-  };
 
   // ════════════════════════════════════════════════════════════
   //  FAMILY ADJUSTMENTS
@@ -110,11 +70,19 @@ class FiscalService {
     'marie_3': 0.66,
   };
 
+  /// Réduction enfants RELATIVE à marié sans enfant (convention #997) —
+  /// célibataire avec enfants : inchangé (limite dite).
+  static double _childFactor(
+      {required bool isMarried, required int children}) {
+    if (!isMarried || children <= 0) return 1.0;
+    final key = 'marie_${min(children, 3)}';
+    return _familyAdjustments[key]! / _familyAdjustments['marie_0']!;
+  }
+
   // ════════════════════════════════════════════════════════════
   //  NATIONAL AVERAGE (for comparison gauge)
   // ════════════════════════════════════════════════════════════
 
-  static const double nationalAverageRate100k = 0.1250;
 
   // ════════════════════════════════════════════════════════════
   //  1. ESTIMATE TAX
@@ -133,17 +101,19 @@ class FiscalService {
     int nombreEnfants = 0,
     String? commune,
   }) {
-    final baseRate = effectiveRates100kSingle[canton] ?? 0.13;
-    final incomeAdj = _interpolateIncomeAdjustment(revenuBrut);
-    final familyKey = '${etatCivil}_${min(nombreEnfants, 3)}';
-    final familyAdj = _familyAdjustments[familyKey] ?? 1.0;
-
-    final effectiveRate = baseRate * incomeAdj * familyAdj;
-    final chargeTotaleBase = revenuBrut * effectiveRate;
-
-    // Split: ~25% federal, ~75% cantonal+communal
-    final impotFederal = chargeTotaleBase * 0.25;
-    double impotCantonalCommunal = chargeTotaleBase * 0.75;
+    // Beads -2b7 : miroir du backend #997 — parts du modèle v2 sur le
+    // revenu imposable (~85% du brut, simplification documentée), enfants
+    // en ratio relatif marié, ratio communal appliqué à la part
+    // cantonale RÉELLE. Remplace « taux effectif 100k x facteur revenu »
+    // (différences d'impôt fausses — même défaut que le bloc supprimé
+    // backend).
+    final revenuImposable = revenuBrut * 0.85;
+    final isMarried = etatCivil == 'marie';
+    final parts = estimateIncomeTaxV2Parts(revenuImposable, canton,
+        isMarried: isMarried);
+    final cf = _childFactor(isMarried: isMarried, children: nombreEnfants);
+    var impotFederal = parts.federal * cf;
+    double impotCantonalCommunal = parts.cantonal * cf;
 
     // Ajustement communal (ratio commune / chef-lieu)
     String communeLabel = '';
@@ -164,7 +134,7 @@ class FiscalService {
       'canton': canton,
       'cantonNom': cantonNames[canton] ?? canton,
       'commune': communeLabel,
-      'revenuImposable': revenuBrut,
+      'revenuImposable': revenuImposable,
       'impotFederal': impotFederal,
       'impotCantonalCommunal': impotCantonalCommunal,
       'chargeTotale': chargeTotale,
@@ -183,7 +153,7 @@ class FiscalService {
     int nombreEnfants = 0,
   }) {
     final results = <Map<String, dynamic>>[];
-    for (final canton in effectiveRates100kSingle.keys) {
+    for (final canton in cantonalCommunalTaxChf.keys) {
       results.add(estimateTax(
         revenuBrut: revenuBrut,
         canton: canton,
@@ -270,23 +240,6 @@ class FiscalService {
   //  HELPERS
   // ════════════════════════════════════════════════════════════
 
-  /// Interpolate income adjustment between known brackets.
-  static double _interpolateIncomeAdjustment(double income) {
-    final keys = _incomeAdjustments.keys.toList()..sort();
-    if (income <= keys.first) return _incomeAdjustments[keys.first]!;
-    if (income >= keys.last) return _incomeAdjustments[keys.last]!;
-
-    for (int i = 0; i < keys.length - 1; i++) {
-      if (income >= keys[i] && income <= keys[i + 1]) {
-        final ratio = (income - keys[i]) / (keys[i + 1] - keys[i]);
-        return _incomeAdjustments[keys[i]]! +
-            ratio *
-                (_incomeAdjustments[keys[i + 1]]! -
-                    _incomeAdjustments[keys[i]]!);
-      }
-    }
-    return 1.0;
-  }
 
   /// Format a number with Swiss apostrophe separators.
   static String _formatNumber(double value) {
@@ -321,9 +274,20 @@ class FiscalService {
     String etatCivil = 'celibataire',
     int nombreEnfants = 0,
   }) {
-    final incomeAdj = _interpolateIncomeAdjustment(revenuBrut);
-    final familyKey = '${etatCivil}_${min(nombreEnfants, 3)}';
-    final familyAdj = _familyAdjustments[familyKey] ?? 1.0;
-    return nationalAverageRate100k * incomeAdj * familyAdj * 100;
+    // Beads -2b7 : moyenne RÉELLE des 26 charges v2 au profil donné —
+    // remplace la constante 12.5% x facteurs (heuristique).
+    if (revenuBrut <= 0) return 0;
+    double total = 0;
+    var n = 0;
+    for (final canton in cantonalCommunalTaxChf.keys) {
+      total += estimateTax(
+        revenuBrut: revenuBrut,
+        canton: canton,
+        etatCivil: etatCivil,
+        nombreEnfants: nombreEnfants,
+      )['chargeTotale'] as double;
+      n += 1;
+    }
+    return (total / n) / revenuBrut * 100;
   }
 }

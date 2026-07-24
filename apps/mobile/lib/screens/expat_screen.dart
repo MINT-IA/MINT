@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
 import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -262,7 +263,7 @@ class _ExpatScreenState extends State<ExpatScreen>
     // profil non resolu ne doit jamais fabriquer une ancre (review Codex).
     final profileCanton = profile?.canton ?? '';
     final anchorCanton =
-        FiscalService.effectiveRates100kSingle.containsKey(profileCanton)
+        cantonalCommunalTaxChf.containsKey(profileCanton)
             ? profileCanton
             : _forfaitCanton;
     final isMarried = profile != null && profile.etatCivil.name == 'marie';

@@ -137,6 +137,11 @@ ALLOW = {
     "apps/mobile/test/services/life_events_service_test.dart",
     "apps/mobile/test/services/coaching_service_test.dart",
     "apps/mobile/test/services/financial_parity_test.dart",
+    # -2b7 : FiscalService mobile -> modèle v2 (dernier vestige v1)
+    "apps/mobile/lib/services/fiscal_service.dart",
+    "apps/mobile/lib/services/financial_core/income_tax_model_v2.dart",
+    "apps/mobile/lib/screens/expat_screen.dart",
+    "apps/mobile/test/services/fiscal_service_test.dart",
     "apps/mobile/test/services/independants_service_test.dart",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",
