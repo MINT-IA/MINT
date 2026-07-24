@@ -659,17 +659,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   //  BUILD — 4 BLOCS
   // ═══════════════════════════════════════════════════════════════
 
-  /// Prompt d'enrichissement au plus fort impact (couche 4). axisPrompts est
-  /// emis en ordre de verification, pas par impact — max explicite.
-  String? _topPromptCategory() {
-    final prompts = _canonicalEnhanced?.axisPrompts;
-    if (prompts == null || prompts.isEmpty) return null;
-    var best = prompts.first;
-    for (final p in prompts.skip(1)) {
-      if (p.impact > best.impact) best = p;
-    }
-    return best.category;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -781,7 +770,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                                   // confidence_scorer.dart:425), on prend le
                                   // max. Plus de 'lpp' code en dur
                                   // (MINT_nosync-84r).
-                                  topEnrichmentCategory: _topPromptCategory(),
+                                  topEnrichmentCategory: IndicatifBanner.topEnrichmentCategoryFrom(
+                                      _canonicalEnhanced),
                                 ),
 
                                 if (_hasEstimatedValues &&

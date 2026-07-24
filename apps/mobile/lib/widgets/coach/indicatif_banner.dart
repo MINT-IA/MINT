@@ -37,6 +37,25 @@ class IndicatifBanner extends StatelessWidget {
   });
 
   /// Maps enrichment categories to data block route types.
+  /// Catégorie d'enrichissement au plus fort impact d'un profil réel —
+  /// SOURCE UNIQUE du pattern couche 4 (beads -84r/-jzk, panel #jzk).
+  ///
+  /// Lit `baseResult.prompts` (catégories income/lpp/3a/patrimoine/...,
+  /// triées EVI décroissant, scorer:411-416) — PAS `axisPrompts`, qui
+  /// n'émet que freshness/accuracy/understanding : aucune n'est routable
+  /// et le fallback 'lpp' se déclenchait systématiquement (les 3 écrans
+  /// dupliquaient ce bug, latent sur RvC dont le hardcode était 'lpp').
+  /// Prend le premier prompt dont la catégorie est ROUTABLE : fiscalite,
+  /// foreign_pension, retirement_urgency, couple n'ont pas de data-block.
+  static String? topEnrichmentCategoryFrom(EnhancedConfidence? enhanced) {
+    final prompts = enhanced?.baseResult.prompts;
+    if (prompts == null) return null;
+    for (final p in prompts) {
+      if (_categoryToRoute.containsKey(p.category)) return p.category;
+    }
+    return null;
+  }
+
   static const _categoryToRoute = {
     'income': 'revenu',
     'lpp': 'lpp',
@@ -51,7 +70,10 @@ class IndicatifBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     if (confidenceScore >= 70) return const SizedBox.shrink();
 
-    final route = _categoryToRoute[topEnrichmentCategory] ?? 'lpp';
+    // Review #998 : pas de fallback arbitraire — si aucune catégorie
+    // routable (données complètes mais freshness/accuracy basses), le CTA
+    // est masqué plutôt que d'envoyer à tort vers LPP.
+    final route = _categoryToRoute[topEnrichmentCategory];
     final pct = confidenceScore.round();
 
     return Container(
@@ -92,6 +114,7 @@ class IndicatifBanner extends StatelessWidget {
             S.of(context)!.indicativeBannerBody,
             style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
+          if (route != null) ...[
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
@@ -109,6 +132,7 @@ class IndicatifBanner extends StatelessWidget {
               ),
             ),
           ),
+          ],
         ],
       ),
     );

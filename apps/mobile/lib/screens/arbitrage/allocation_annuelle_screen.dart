@@ -66,6 +66,8 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   // captee a l'auto-fill et passee a l'arbitrage (un profil = un score). Null
   // en usage standalone (pas de profil) → la banniere indicative est masquee
   // plutot que d'afficher 0% (le plancher fiction 50.0 a ete retire au plan 11).
+  /// -jzk : EnhancedConfidence COMPLET conservé (couche 4).
+  EnhancedConfidence? _canonicalEnhanced;
   double? _canonicalConfidence;
 
   @override
@@ -95,7 +97,10 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
   void _autoFillFromProfileData(CoachProfile profile) {
     // Codex W3 : score canonique unique, calcule sur ce profil.
-    _canonicalConfidence = ConfidenceScorer.scoreEnhanced(profile).combined;
+    // -jzk : garder l'EnhancedConfidence COMPLET (axisPrompts pour la
+    // couche 4), pas seulement .combined.
+    _canonicalEnhanced = ConfidenceScorer.scoreEnhanced(profile);
+    _canonicalConfidence = _canonicalEnhanced!.combined;
 
     // Annual contribution capacity: 3a max for salaried
     if (profile.salaireBrutMensuel > 0) {
@@ -170,6 +175,8 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
     setState(() => _result = result);
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
@@ -220,7 +227,10 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                               _dataSources.isNotEmpty)
                             IndicatifBanner(
                               confidenceScore: _result!.confidenceScore,
-                              topEnrichmentCategory: '3a',
+                              // -jzk : catégorie au plus FORT impact du profil réel —
+                              // plus de '3a' codé en dur.
+                              topEnrichmentCategory: IndicatifBanner.topEnrichmentCategoryFrom(
+                                      _canonicalEnhanced),
                             ),
                           if (_hasEstimatedValues)
                             Padding(
