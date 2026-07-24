@@ -518,7 +518,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         double.tryParse(_rachatAnnuelCtrl.text.replaceAll("'", '')) ?? 0;
     if (rachatAnnuel > 0 && currentAge != null) {
       final yearsToRetirement = math.max(0, _ageRetraite - currentAge);
-      const lppReturn = 0.0125;
+      // -b6k : taux d'intérêt minimal LPP (OPP2, décision annuelle du
+      // Conseil fédéral) — registre + fallback, unité percent -> ratio.
+      final lppReturn =
+          reg('lpp.min_interest_rate', lppTauxInteretMin) / 100;
       final fvRachat = yearsToRetirement > 0
           ? rachatAnnuel *
               (math.pow(1 + lppReturn, yearsToRetirement) - 1) /
