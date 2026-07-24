@@ -9,17 +9,17 @@ void main() {
     const FiscalSuperpower(
       label: 'Déduction enfant',
       emoji: '👶',
-      annualDeduction: 6700,
+      annualDeduction: 6800,
       taxSaving: 1675,
-      legalRef: 'LIFD art. 213',
+      legalRef: 'LIFD art. 35 al. 1 let. a',
     ),
     const FiscalSuperpower(
       label: 'Frais de garde',
       emoji: '🏫',
-      annualDeduction: 25500,
+      annualDeduction: 25800,
       taxSaving: 6375,
-      legalRef: 'LIFD art. 212',
-      note: 'max CHF 25\'500/an',
+      legalRef: 'LIFD art. 33 al. 3',
+      note: 'max CHF 25\'800/an',
     ),
   ];
 

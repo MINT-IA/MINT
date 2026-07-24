@@ -280,7 +280,7 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FamilyService - Fiscal Impact of Children', () {
-    test('deduction per child is CHF 6700', () {
+    test('deduction per child is CHF 6800', () {
       final result = FamilyService.calculateImpactFiscalEnfant(
         revenuImposable: 80000,
         tauxMarginal: 0.20,
@@ -290,7 +290,7 @@ void main() {
       expect(result['deductionEnfants'], FamilyService.deductionParEnfant);
     });
 
-    test('childcare deduction is capped at CHF 25500', () {
+    test('childcare deduction is capped at CHF 25800', () {
       final result = FamilyService.calculateImpactFiscalEnfant(
         revenuImposable: 100000,
         tauxMarginal: 0.20,
@@ -492,8 +492,8 @@ void main() {
 
   group('FamilyService - Compliance', () {
     test('constants match CLAUDE.md source of truth', () {
-      // Deduction per child: CHF 6700 (LIFD art. 35)
-      expect(FamilyService.deductionParEnfant, 6700.0);
+      // Deduction per child: CHF 6800 (LIFD art. 35 al. 1 let. a, ESTV 2026)
+      expect(FamilyService.deductionParEnfant, 6800.0);
 
       // APG daily max: CHF 220 (LAPG art. 16e)
       expect(FamilyService.apgDailyMax, 220.0);

@@ -37,8 +37,8 @@ L'arrivée d'un enfant a des implications sur presque tous les aspects financier
 - Subsides possibles selon le revenu (comme pour les adultes).
 
 **Impact fiscal** :
-- Déduction pour enfant : CHF 6'600/an par enfant (LIFD art. 35 al. 1 let. a).
-- Déduction pour frais de garde : jusqu'à CHF 25'500/an par enfant (LIFD art. 33 al. 1 let. hbis).
+- Déduction pour enfant : CHF 6'800/an par enfant (LIFD art. 35 al. 1 let. a).
+- Déduction pour frais de garde : jusqu'à CHF 25'800/an par enfant (LIFD art. 33 al. 3).
 - Barème pour famille monoparentale (si applicable).
 
 **Impact sur la prévoyance** :

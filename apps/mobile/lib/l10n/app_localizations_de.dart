@@ -4262,7 +4262,7 @@ class SDe extends S {
 
   @override
   String get naissanceChecklistItem5Desc =>
-      'Ein zusätzliches Kind gibt dir Anspruch auf einen Steuerabzug von CHF 6\'700/Jahr (DBG Art. 35). Bei Betreuungskosten kannst du bis CHF 25\'500/Jahr abziehen. Denke daran, deine Steuervorauszahlungen für das laufende Jahr anzupassen.';
+      'Ein zusätzliches Kind gibt dir Anspruch auf einen Steuerabzug von CHF 6\'800/Jahr (DBG Art. 35). Bei Betreuungskosten kannst du bis CHF 25\'800/Jahr abziehen. Denke daran, deine Steuervorauszahlungen für das laufende Jahr anzupassen.';
 
   @override
   String get naissanceChecklistItem6Title => 'Familienbudget anpassen';

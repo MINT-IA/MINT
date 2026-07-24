@@ -40,7 +40,7 @@ Les principales déductions fiscales en Suisse (LIFD + impôts cantonaux) :
 - Travaux d'économie d'énergie : déductibles (rénovation énergétique).
 
 **Famille** :
-- Déduction pour enfant : CHF 6'700/enfant (fédéral) — LIFD art. 35 al. 1 let. a.
+- Déduction pour enfant : CHF 6'800/enfant (fédéral) — LIFD art. 35 al. 1 let. a.
 - Déduction pour garde d'enfant : jusqu'à CHF 25'800 (fédéral).
 - Déduction pour couple marié : CHF 2'800 (fédéral).
 

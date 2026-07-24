@@ -522,6 +522,7 @@ class NaissanceService:
             "LAFam art. 3 (allocations familiales cantonales)",
             "LAMal art. 3 (obligation d'assurance — inscription bebe dans les 3 mois)",
             "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'800)",
+            "LIFD art. 33 al. 3 (frais de garde par des tiers: max CHF 25'800)",
         ]
 
         return ChecklistNaissance(

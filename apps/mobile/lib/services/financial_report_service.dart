@@ -317,8 +317,8 @@ class FinancialReportService {
       deductions['Rachat LPP'] = lppBuyback;
     }
 
-    // Enfants — déduction fédérale LIFD art. 35 al. 1 let. a (6'700 CHF
-    // en 2025) + déduction cantonale LHID art. 9 al. 2 let. c (7'000-13'000
+    // Enfants — déduction fédérale LIFD art. 35 al. 1 let. a (6'800 CHF
+    // en 2026) + déduction cantonale LHID art. 9 al. 2 let. c (7'000-13'000
     // CHF selon canton). Wave 7 fiscal audit P0-R4 : le flat 6'500 ignorait
     // toute la couche cantonale (sous-estimation ~55 % pour VS/VD/GE).
     if (profile.hasChildren) {
