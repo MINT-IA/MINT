@@ -224,6 +224,10 @@ class MintColors {
   static const Color pinkHot = Color(0xFFFF6482); // Hot pink
   static const Color redApple = Color(0xFFFF2D55); // Apple red
   static const Color greenDirect = Color(0xFF22C55E); // Green-500
+  /// Green-700 — INTERDIT en texte de taille normale : 3.75:1 sur
+  /// porcelaine / 4.12:1 sur blanc, sous le seuil AA 4.5:1 (beads -dy0,
+  /// flag panel a11y -a6e). Utiliser [greenForest] (7.17:1). Toléré :
+  /// grand texte >= 24px (seuil 3:1) et icônes/graphiques (WCAG 1.4.11).
   static const Color greenDark = Color(0xFF388E3C); // Green-700
   static const Color greenMint = Color(0xFF32D74B); // iOS green mint
   static const Color greenClassic = Color(0xFF27AE60); // Flat green

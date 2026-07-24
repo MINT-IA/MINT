@@ -157,7 +157,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                   label: 'Véhicule d\'occasion équivalent',
                   sublabel: 'tu en es propriétaire',
                   amount: _occasionEquivalent,
-                  amountColor: MintColors.greenDark,
+                  amountColor: MintColors.greenForest,
                 ),
                 
                 const SizedBox(height: 16),
@@ -172,13 +172,13 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.savings, color: MintColors.greenDark, size: 20),
+                      const Icon(Icons.savings, color: MintColors.greenForest, size: 20),
                       const SizedBox(width: 12),
                       Text(
                         'Économie potentielle: ${formatChfWithPrefix(_totalRemaining - _occasionEquivalent)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: MintColors.greenDark,
+                          color: MintColors.greenForest,
                         ),
                       ),
                     ],
