@@ -519,9 +519,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (rachatAnnuel > 0 && currentAge != null) {
       final yearsToRetirement = math.max(0, _ageRetraite - currentAge);
       // -b6k : taux d'intérêt minimal LPP (OPP2, décision annuelle du
-      // Conseil fédéral) — registre + fallback, unité percent -> ratio.
-      final lppReturn =
-          reg('lpp.min_interest_rate', lppTauxInteretMin) / 100;
+      // Conseil fédéral) — registre + fallback via le helper ratio.
+      final lppReturn = lppMinInterestRatio();
       final fvRachat = yearsToRetirement > 0
           ? rachatAnnuel *
               (math.pow(1 + lppReturn, yearsToRetirement) - 1) /
