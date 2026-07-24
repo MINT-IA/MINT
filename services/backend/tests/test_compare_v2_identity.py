@@ -42,6 +42,14 @@ def test_estimate_tax_identity_with_v2_married(comparator):
     )
 
 
+def test_married_bit_identity_locked_tg():
+    """Verrou au centime EXACT (review #997 r1/r2) : x0.80 par part
+    donnait 58'678.10 sur ce cas (arrondi d'un centime plus bas) — le
+    facteur marié DOIT s'appliquer à la somme, ordre flottants identique
+    à l'ancien corps. Ce pin échoue sous l'implémentation fautive."""
+    assert estimate_income_tax(280_195, "TG", is_married=True) == 58_678.11
+
+
 def test_parts_sum_to_total(comparator):
     """fédéral + cantonal/communal == charge_totale (au centime)."""
     for civil in ("celibataire", "marie"):
