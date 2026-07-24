@@ -24369,4 +24369,9 @@ class SDe extends S {
   String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
     return 'Eingegebenes Budget CHF $saisi, der Plan rechnet mit CHF $effectif (Mindestraten). Schaltfläche, ändert das Budget.';
   }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Deine Daten präzisieren — Block $bloc';
+  }
 }

@@ -13137,5 +13137,13 @@
         "type": "String"
       }
     }
+  },
+  "indicativeBannerCtaSemantics": "Préciser tes données — bloc {bloc}",
+  "@indicativeBannerCtaSemantics": {
+    "placeholders": {
+      "bloc": {
+        "type": "String"
+      }
+    }
   }
 }

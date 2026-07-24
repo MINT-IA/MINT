@@ -24305,4 +24305,9 @@ class SFr extends S {
   String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
     return 'Budget saisi CHF $saisi, le plan se base sur CHF $effectif (mensualités minimales). Bouton, modifie le budget.';
   }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Préciser tes données — bloc $bloc';
+  }
 }

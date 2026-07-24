@@ -11618,5 +11618,13 @@
         "type": "String"
       }
     }
+  },
+  "indicativeBannerCtaSemantics": "Deine Daten präzisieren — Block {bloc}",
+  "@indicativeBannerCtaSemantics": {
+    "placeholders": {
+      "bloc": {
+        "type": "String"
+      }
+    }
   }
 }

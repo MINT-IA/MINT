@@ -11638,5 +11638,13 @@
         "type": "String"
       }
     }
+  },
+  "indicativeBannerCtaSemantics": "Refine your data — {bloc} block",
+  "@indicativeBannerCtaSemantics": {
+    "placeholders": {
+      "bloc": {
+        "type": "String"
+      }
+    }
   }
 }

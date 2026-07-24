@@ -211,6 +211,9 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                           if (_canonicalConfidence != null ||
                               _dataSources.isNotEmpty)
                             IndicatifBanner(
+                              // -7vv : contrat MUST de fromBareScore — trame 4 axes RÉELLE
+                              // (le score de visibilité reste _result.confidenceScore).
+                              confidence: _canonicalEnhanced,
                               confidenceScore: _result!.confidenceScore,
                               // -jzk : catégorie au plus FORT impact du profil réel —
                               // plus de 'patrimoine' codé en dur.

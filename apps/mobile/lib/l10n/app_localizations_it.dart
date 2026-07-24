@@ -24371,4 +24371,9 @@ class SIt extends S {
   String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
     return 'Budget inserito CHF $saisi, il piano usa CHF $effectif (rate minime). Pulsante, modifica il budget.';
   }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Precisare i tuoi dati — blocco $bloc';
+  }
 }
