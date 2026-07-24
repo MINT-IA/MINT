@@ -378,25 +378,44 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Scan staging logs (or fall back to clean fixture)
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Install railway CLI
+        run: npm install -g @railway/cli
+      - name: Scan staging logs (real scan armed — beads MINT_nosync-4ip)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          # Real staging-log scan requires a VERIFIED `railway logs` invocation
-          # (service/environment context) — no workflow has ever run one; arming
-          # it untested inside the sole required check could block every backend
-          # PR. Tracked separately (audit T15-F02 follow-up). Until then the
-          # fixture fallback is kept but made HONEST: it annotates loudly that
-          # no real staging log was scanned, instead of claiming token absence.
-          if [[ -n "${RAILWAY_TOKEN:-}" ]] && command -v railway >/dev/null 2>&1; then
-            python3 scripts/check_pii_in_logs.py --railway
+          # Scan RÉEL armé (audit T15-F02 follow-up). Invocation vérifiée
+          # localement le 2026-07-24 : `railway logs --service MINT
+          # --environment staging --json --lines 5000` -> exit 0, 5000
+          # lignes, scan « OK: no raw PII patterns detected ». NB : l'API
+          # rejette lines > 5000.
+          #
+          # Triage des exit codes — le gate reste BLOQUANT sur du PII :
+          #   1 = PII détecté          -> FAIL (nLPD / GDPR art. 5)
+          #   2 = fetch/infra en panne -> warning BRUYANT + fixture, pour
+          #       qu'une panne Railway ne bloque pas tous les PRs backend
+          #       sans pour autant passer sous silence l'absence de scan.
+          if [[ -z "${RAILWAY_TOKEN:-}" ]]; then
+            echo "::warning title=PII log gate ran on FIXTURE::RAILWAY_TOKEN absent — staging logs were NOT scanned (PRIV-03)."
+            mkdir -p /tmp/pii_fixture
+            printf 'INFO document fingerprint computed count=5\nINFO consent receipt issued purpose=projection\n' > /tmp/pii_fixture/clean.log
+            python3 scripts/check_pii_in_logs.py --fixture /tmp/pii_fixture/clean.log
+            exit $?
+          fi
+          set +e
+          python3 scripts/check_pii_in_logs.py --railway
+          rc=$?
+          set -e
+          if [[ $rc -eq 0 ]]; then
+            echo "PII log gate: staging scan clean."
+          elif [[ $rc -eq 1 ]]; then
+            echo "::error title=PII detected in staging logs::PRIV-03 — raw PII pattern(s) in staging logs. Blocking."
+            exit 1
           else
-            if [[ -z "${RAILWAY_TOKEN:-}" ]]; then
-              reason="RAILWAY_TOKEN absent"
-            else
-              reason="railway CLI not installed"
-            fi
-            echo "::warning title=PII log gate ran on FIXTURE::${reason} — staging logs were NOT scanned (PRIV-03). Real-scan arming tracked in beads."
+            echo "::warning title=PII log gate fetch FAILED::railway logs exit ${rc} — staging logs were NOT scanned (PRIV-03). Falling back to fixture; investigate if persistent."
             mkdir -p /tmp/pii_fixture
             printf 'INFO document fingerprint computed count=5\nINFO consent receipt issued purpose=projection\n' > /tmp/pii_fixture/clean.log
             python3 scripts/check_pii_in_logs.py --fixture /tmp/pii_fixture/clean.log

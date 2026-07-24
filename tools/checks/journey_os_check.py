@@ -138,6 +138,9 @@ ALLOW = {
     "apps/mobile/test/screens/expat_top_cantons_real_test.dart",
     "apps/mobile/test/screens/arbitrage/rvc_layer4_prompts_test.dart",
     "apps/mobile/test/widgets/coach/smart_default_indicatif_test.dart",
+    # -4ip : scan PII réel armé sur logs staging
+    "scripts/check_pii_in_logs.py",
+    ".github/workflows/ci.yml",
     "services/backend/tests/test_allocation_annuelle.py",
     "services/backend/tests/test_arbitrage_allocation_annuelle_grounding.py",
     "services/backend/education_inserts/concepts/avs_cotisations_independants.md",
