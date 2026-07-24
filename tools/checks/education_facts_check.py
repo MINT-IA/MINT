@@ -119,17 +119,22 @@ def _iter_files() -> list[Path]:
 def scan_text(text: str) -> list[tuple[str, int, str]]:
     """Return (fact_id, line_no, correct_statement) for each superseded hit.
 
-    A line is a hit for a fact when it matches a superseded token AND (the fact
-    has no context requirement OR a context keyword is present on the line).
+    A hit requires a superseded token on the CURRENT line AND (the fact has no
+    context requirement OR a context keyword within a 2-line window: the current
+    line or the previous one). The window closes the Markdown split-line blind
+    spot (Codex #1017) where a label/heading (« Déduction pour enfant : ») sits
+    on its own line above the value (« CHF 6'700 »).
     """
+    lines = text.splitlines()
     hits: list[tuple[str, int, str]] = []
-    for i, line in enumerate(text.splitlines(), start=1):
+    for i, line in enumerate(lines):
+        window = line if i == 0 else lines[i - 1] + "\n" + line
         for fact, sup, ctx in _COMPILED:
             if not any(p.search(line) for p in sup):
                 continue
-            if ctx is not None and not any(p.search(line) for p in ctx):
+            if ctx is not None and not any(p.search(window) for p in ctx):
                 continue
-            hits.append((fact["id"], i, fact["correct"]))
+            hits.append((fact["id"], i + 1, fact["correct"]))
     return hits
 
 
@@ -153,6 +158,12 @@ _MUST_CATCH: list[tuple[str, str]] = [
     ("allocation : de CHF 200 à CHF 305 par enfant", "allocations_familiales_range"),
     ("allocation de 200 a 305 francs", "allocations_familiales_range"),
     ("family allowance CHF 200 to 305/month per child", "allocations_familiales_range"),
+    ("allocation enfant de CHF 200-305", "allocations_familiales_range"),          # « - » branch
+    ("Familienzulage: CHF 200 bis CHF 305 pro Kind", "allocations_familiales_range"),  # « bis » branch
+    # Cross-line Markdown split (Codex #1017 P1): label above the value.
+    ("Déduction pour enfant selon la LIFD:\nCHF 6'700 par année", "ifd_deduction_enfant"),
+    ("Frais de garde des enfants:\nplafond CHF 25'500", "ifd_frais_garde_montant"),
+    ("Allocation familiale mensuelle:\nCHF 200-300/mois", "allocations_familiales_range"),
     ("salaire coordonné LPP plafonné à 88'200", "lpp_avs_millesimes_perimes"),
     ("coordination LPP CHF 88,200", "lpp_avs_millesimes_perimes"),
     ("rente AVS chimère 61'740", "lpp_avs_millesimes_perimes"),
@@ -171,6 +182,7 @@ _MUST_NOT_CATCH: list[str] = [
     "CO art. 212 (déduction contractuelle)",                     # art. 212 of the CO, not LIFD
     "Budget mobilier CHF 250-400 selon le ménage",               # 250-400 without allocation context
     "un capital de 88'200 CHF sur ton compte 3a",                # bare amount, no LPP/AVS/rente context
+    "Coût de la vie estimé:\nCHF 250-400 par semaine",           # cross-line, no allocation context
 ]
 
 

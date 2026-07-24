@@ -157,7 +157,7 @@ pre-commit:
       # on the full served corpus (fast, stdlib). Also wired as a required
       # ci-gate job so a hooks-bypassed push cannot regress the 2026 truth.
       run: python3 tools/checks/education_facts_check.py --self-test && python3 tools/checks/education_facts_check.py
-      glob: "{education/inserts/**/*.md,services/backend/education_inserts/**/*.md,apps/mobile/lib/l10n/app_*.arb,tools/checks/education_facts_check.py}"
+      glob: "{education/inserts/**/*.md,services/backend/education_inserts/**/*.md,legal/**/*.md,apps/mobile/lib/l10n/app_*.arb,tools/checks/education_facts_check.py}"
       tags: [compliance, content, campagne-a]
       fail_text: "Superseded fiscal/social value re-introduced in served content — use the official 2026 value (ESTV/AFC, OFAS/BSV). See tools/checks/education_facts_check.py."
     no-3a-ceiling-as-tax-saving-gate:
