@@ -101,6 +101,14 @@ regulatory constants — two version trails, two audit chains.
 Validated 4509 gzip bytes / 95.6% headroom vs 100 KB ceiling per \
 `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/01-01-BUNDLE-SIZE-REPORT.md`. \
 Re-litigate the bake-all-26-cantons posture only if compressed snapshot > 100 KB.
+
+### UI Kit réel (beads -dj3)
+
+Widgets réutilisables de `lib/widgets/premium/` : MintAmountField, \
+MintPickerTile, MintChoiceCard, MintBottomSheet, MintDialog, MintEntrance, \
+MintHeroNumber, MintCountUp, MintConfidenceNotice. Les anciens noms \
+MintCard / MintSection / MintPremiumButton / MintGlassCard n'existent pas \
+dans le code — ne pas les citer ni les recréer.
 """
 
 _BACKEND_MARKER_BODY = """\
@@ -145,6 +153,14 @@ All migrated L2-L4 calcs land in `services/backend/app/api/v1/endpoints/` with \
 `Depends(get_profile_filled)` — the server is the PRIMARY enforcement layer \
 for LSFin banned-terms + nLPD scrubbing ; mobile thin clients are presentation \
 only, never re-implement calculator logic across the L1/L2 boundary.
+
+### Modèles fiscaux canoniques (v2, calibrés ESTV — 2026-07)
+
+`app/services/fiscal/cantonal_comparator.py` : estimate_income_tax(_parts), \
+estimate_income_tax_on_rente, estimate_capital_withdrawal_tax (IFD exact + \
+interpolation ESTV, marié par canton) ; fortune : wealth_tax_service. Ne \
+jamais recomposer un taux plat ni un proxy heuristique — parités croisées \
+gelées au centime (tools/fixtures/*.json). Modèle v1 supprimé.
 """
 
 

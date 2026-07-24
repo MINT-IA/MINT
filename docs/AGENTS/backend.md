@@ -169,3 +169,15 @@ clean worktree, fetch + divergence check, cited source verification, normal
 merge or fast-forward only, then plain `git push origin staging`. Never
 force-push or rewrite `staging`, `dev`, or `main`; if branch protection rejects
 direct push, open a PR into `staging`.
+
+## Modèles fiscaux canoniques (v2, calibrés ESTV — 2026-07)
+
+`app/services/fiscal/cantonal_comparator.py` : `estimate_income_tax` /
+`estimate_income_tax_parts` (IFD 2026 progressif + interpolation cantonale
+ESTV 26×5 points), `estimate_income_tax_on_rente` (convention rente ×0.85),
+`estimate_capital_withdrawal_tax` (IFD art. 38 exact + interpolation capital
+ESTV, coefficient marié PAR canton). Fortune : `fiscal/wealth_tax_service.py`
+(exonérations cantonales, marié ×2). Ne JAMAIS recomposer un taux plat ou un
+proxy heuristique sur un autre impôt — les parités croisées backend/mobile
+sont gelées au centime (`tools/fixtures/*.json`, consommées par pytest ET
+flutter test). Le modèle v1 (`EFFECTIVE_RATES_100K_SINGLE`) est supprimé.

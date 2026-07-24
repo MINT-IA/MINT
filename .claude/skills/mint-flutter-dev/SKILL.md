@@ -39,4 +39,8 @@ Regulatory constants (`plafond_3a`, AVS rentes, LIFD brackets, canton tax …) s
 
 Validated 4509 gzip bytes / 95.6% headroom vs 100 KB ceiling per `.planning/phases/mint-data-architecture-v1-01-calc-engine-canonical/01-01-BUNDLE-SIZE-REPORT.md`. Re-litigate the bake-all-26-cantons posture only if compressed snapshot > 100 KB.
 
+### UI Kit réel (beads -dj3)
+
+Widgets réutilisables de `lib/widgets/premium/` : MintAmountField, MintPickerTile, MintChoiceCard, MintBottomSheet, MintDialog, MintEntrance, MintHeroNumber, MintCountUp, MintConfidenceNotice. Les anciens noms MintCard / MintSection / MintPremiumButton / MintGlassCard n'existent pas dans le code — ne pas les citer ni les recréer.
+
 <!-- mint-data-architecture-v1-01-canonical:end -->
