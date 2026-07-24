@@ -55,6 +55,30 @@ void main() {
     );
   });
 
+  test('mensuel = v2/12 (célibataire, marié, enfants) — review #1006', () {
+    final single = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+      revenuAnnuelImposable: 120000,
+      canton: 'GE',
+    );
+    expect(single, closeTo(estimateIncomeTaxV2(120000, 'GE') / 12, 0.01));
+
+    final married = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+      revenuAnnuelImposable: 120000,
+      canton: 'GE',
+      etatCivil: 'marie',
+    );
+    expect(married,
+        closeTo(estimateIncomeTaxV2(120000, 'GE', isMarried: true) / 12, 0.01));
+
+    final kids = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+      revenuAnnuelImposable: 120000,
+      canton: 'GE',
+      etatCivil: 'marie',
+      nombreEnfants: 2,
+    );
+    expect(kids, closeTo(married * 0.72 / 0.85, 0.01));
+  });
+
   test('enfants : ratio relatif marié (convention #997/#1005)', () {
     final base = RetirementTaxCalculator.estimateMarginalRate(140000, 'VD',
         isMarried: true);

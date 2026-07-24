@@ -544,12 +544,17 @@ class RetirementTaxCalculator {
     int nombreEnfants = 0,
   }) {
     if (revenuAnnuelImposable <= 0) return 0;
-    final result = FiscalService.estimateTax(
-      revenuBrut: revenuAnnuelImposable,
-      canton: canton,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-    );
-    return ((result['chargeTotale'] as double?) ?? 0) / 12;
+    // Beads -8p4 review #1006 : miroir EXACT du backend #1005
+    // (estimate_income_tax v2 / 12, enfants en ratio) — l'ancienne
+    // délégation à FiscalService.estimateTax laissait ce chemin sur un
+    // autre modèle que la marginale/économie v2 du même fichier.
+    final cantonCode = resolveCanton(canton).code;
+    final isMarried = etatCivil == 'marie';
+    final cf = _childFactor(
+        isMarried: isMarried, children: nombreEnfants);
+    return cf *
+        estimateIncomeTaxV2(revenuAnnuelImposable, cantonCode,
+            isMarried: isMarried) /
+        12;
   }
 }
