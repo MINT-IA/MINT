@@ -17,18 +17,42 @@ const _keys = [
   'rachatEchelonneImpactBlocExplain',
 ];
 
-// Mots complets (regex \b) par langue — review #1001 : contains('wise')
-// matchait « otherwise ».
+// Frontières Latin par lookarounds — review #1001 r1/r2 : \b ASCII ne
+// borde ni « futé » ni « può » (é/ò hors \w) et contains('wise')
+// matchait « otherwise ». (?<![lettre])mot(?![lettre]) est sûr pour les
+// six langues.
+const _latin = 'a-zà-öø-ÿ';
+RegExp _word(String alternatives) =>
+    RegExp('(?<![$_latin])(?:$alternatives)(?![$_latin])');
+
 final _judgmentPatterns = [
-  RegExp(r'\b(malin|astucieux|futé|judicieux|habile)\b'),
-  RegExp(r'\b(smart|clever|wise|shrewd|savvy)\b'),
-  RegExp(r'\b(klug|schlau|weise|geschickt)\b'),
-  RegExp(r'\b(inteligente|astuto|listo|sensato)\b'),
-  RegExp(r'\b(furbo|saggio|scaltro)\b'),
-  RegExp(r'\b(esperto|sábio|sensato)\b'),
+  _word('malin|astucieux|futé|judicieux|habile'),
+  _word('smart|clever|wise|shrewd|savvy'),
+  _word('klug|schlau|weise|geschickt'),
+  _word('inteligente|astuto|listo|sensato'),
+  _word('furbo|saggio|scaltro|intelligente'),
+  _word('esperto|sábio'),
 ];
 
+bool _hasJudgment(String text) =>
+    _judgmentPatterns.any((p) => p.hasMatch(text));
+
 void main() {
+  test('self-test : la garde détecte les jugements accentués et évite les '
+      'faux positifs', () {
+    // Review #1001 r2 : \b ASCII laissait passer « futé » — preuve
+    // positive que les mots accentués sont attrapés.
+    expect(_hasJudgment('échelonner est futé'), isTrue);
+    expect(_hasJudgment('scaglionare è furbo'), isTrue);
+    expect(_hasJudgment('escalonar é sábio'), isTrue);
+    expect(_hasJudgment('staggering is smart'), isTrue);
+    // Faux positifs interdits.
+    expect(_hasJudgment('otherwise the deduction'), isFalse);
+    expect(_hasJudgment('les chiffres diffèrent'), isFalse);
+    expect(_hasJudgment('une tranche futée'), isFalse,
+        reason: 'mot différent (futée) — frontière droite active');
+  });
+
   test('copie rachat échelonné : éducatif neutre, qualifié, sans jugement '
       '(2 clés × 6 langues)', () {
     for (final locale in _locales) {
@@ -37,13 +61,9 @@ void main() {
       ) as Map<String, dynamic>;
       for (final key in _keys) {
         final text = (arb[key] as String).toLowerCase();
-        for (final pat in _judgmentPatterns) {
-          expect(pat.hasMatch(text), isFalse,
-              reason: '[$locale/$key] jugement de stratégie '
-                  '(${pat.pattern}) — recommandation implicite');
-        }
-        expect(RegExp(r'\bintelligente\b').hasMatch(text), isFalse,
-            reason: '[$locale/$key] jugement de stratégie');
+        expect(_hasJudgment(text), isFalse,
+            reason: '[$locale/$key] jugement de stratégie — '
+                'recommandation implicite');
       }
       // Le tip reste ancré sur le mécanisme (marginal | Grenzsteuersatz)
       // ET qualifié (peut/kann/can/puede/può/pode — pas d'absolu).
