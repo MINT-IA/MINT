@@ -841,11 +841,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            size: 20,
-            color: MintColors.textMuted,
-          ),
+          // W0 (façade honesty) : pas de chevron — ces « prochaines étapes »
+          // sont une orientation externe (ouvrir un compte, préparer les
+          // documents, consulter un ou une spécialiste) sans navigation
+          // in-app. Un chevron impliquerait une action qui n'existe pas.
         ],
       ),
     );
