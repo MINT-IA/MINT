@@ -357,6 +357,9 @@ ALLOW = {
     "apps/mobile/lib/services/unemployment_service.dart",
     "apps/mobile/lib/widgets/coach/unemployment_counter_widget.dart",
     "apps/mobile/test/services/unemployment_service_test.dart",
+    # campagne-B W1 : preuve runtime rendu-calculé triade Travail (job_comparison leg)
+    "apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart",
+    ".planning/audit/2026-07-w1-travail-triade-runtime-proof.md",
     "tools/checks/mint_variable_contract_extract.py",
     "tools/checks/tests/test_mint_variable_contract_extract.py",
     ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md",

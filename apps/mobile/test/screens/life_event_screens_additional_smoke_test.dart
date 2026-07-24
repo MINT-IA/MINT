@@ -21,6 +21,9 @@ import 'package:mint_mobile/screens/frontalier_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/unemployment_screen.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
+import 'package:mint_mobile/screens/job_comparison_screen.dart';
+import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
+import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
 import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
 
@@ -265,12 +268,22 @@ void main() {
       expect(find.textContaining('assuré'), findsWidgets);
     });
 
-    testWidgets('shows result after initial calculation', (tester) async {
+    testWidgets('renders computed result (result-gated timeline widget)',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // initState calls _calculate(), result should be non-null
-      // Result renders CHF amount
-      expect(find.textContaining('CHF'), findsWidgets);
+      // Anti-façade: assert a COMPUTE-GATED widget, not generic CHF. The gain
+      // slider renders CHF unconditionally, so find.textContaining('CHF') would
+      // stay green even if the computed result disappeared. UnemploymentTimeline
+      // Widget only renders inside `if (_result != null)` and consumes
+      // `_result!.timeline` — it cannot appear unless calculateBenefits()
+      // (initState) produced a result. It sits below the sliders → scroll in.
+      await tester.scrollUntilVisible(
+        find.byType(UnemploymentTimelineWidget),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byType(UnemploymentTimelineWidget), findsOneWidget);
     });
   });
 
@@ -309,11 +322,22 @@ void main() {
       expect(find.textContaining('Canton'), findsWidgets);
     });
 
-    testWidgets('shows results section with CHF amounts', (tester) async {
+    testWidgets('renders computed result (result-gated breakdown widget)',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // initState calls _calculate(), result should render CHF breakdown
-      expect(find.textContaining('CHF'), findsWidgets);
+      // Anti-façade: assert a COMPUTE-GATED widget, not generic CHF. The salary
+      // slider renders CHF min/max labels unconditionally, so
+      // find.textContaining('CHF') would stay green even if the computed result
+      // disappeared. SalaryBreakdownWidget only renders inside
+      // `if (_result != null)` and consumes `_result!.brut/netEstime/...` — it
+      // cannot appear unless analyzeSalary() (initState) produced a result.
+      await tester.scrollUntilVisible(
+        find.byType(SalaryBreakdownWidget),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byType(SalaryBreakdownWidget), findsOneWidget);
     });
   });
 
@@ -415,6 +439,57 @@ void main() {
       await tester.pump();
       // Timeline shows days/steps
       expect(find.textContaining('mois', skipOffstage: false), findsWidgets);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  //  8. JobComparisonScreen — newJob leg of the Travail triad
+  //     (campagne-B W1 : preuve runtime — la comparaison rend un
+  //      verdict CALCULÉ, pas une façade). firstJob + jobLoss ont
+  //      déjà leur preuve de rendu calculé ci-dessus (groupes 4 & 5).
+  // ═══════════════════════════════════════════════════════════
+
+  group('JobComparisonScreen', () {
+    Widget buildScreen() =>
+        _buildWrappedWithProvider(const JobComparisonScreen());
+
+    testWidgets('renders without crash', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+      expect(find.byType(Scaffold), findsOneWidget);
+    });
+
+    testWidgets('displays app bar title', (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+      // i18n: jobCompareTitle = "Comparer deux emplois"
+      expect(find.textContaining('Comparer'), findsWidgets);
+    });
+
+    testWidgets('renders computed VERDICT only after "Comparer" tap',
+        (tester) async {
+      await tester.pumpWidget(buildScreen());
+      await tester.pump();
+
+      // Anti-façade guard: the verdict card is gated on `_result != null`,
+      // so before compute the "VERDICT" label (jobCompareVerdictLabel) is
+      // absent. If compute never rendered, this test would stay RED.
+      expect(find.text('VERDICT', skipOffstage: false), findsNothing);
+
+      // Scroll the "Comparer" FilledButton into view and tap it (_compare()).
+      final compareButton = find.widgetWithText(FilledButton, 'Comparer');
+      await tester.scrollUntilVisible(
+        compareButton,
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(compareButton);
+      await tester.pumpAndSettle();
+
+      // Computed comparison output now rendered: the VERDICT card appears
+      // (only reachable when JobComparisonService.compare produced a result).
+      expect(find.text('VERDICT', skipOffstage: false), findsWidgets);
     });
   });
 }
