@@ -27,6 +27,9 @@ ATTESTATION_DOCS = [
     "docs/DATA_ACQUISITION_STRATEGY.md",
     "PRIVACY.md",
     "legal/PRIVACY.md",
+    # Étiquettes App Store / Play Store — un « Data Not Collected » y est une
+    # déclaration opposable à Apple/Google, pas juste du texte marketing.
+    "legal/APP_STORE_PRIVACY_LABELS.md",
     # Référence FR de l'app — les 5 autres locales suivent par parité ARB.
     "apps/mobile/lib/l10n/app_fr.arb",
 ]
@@ -59,6 +62,14 @@ FALSE_PROMISE_PATTERNS = [
     # matchent pas. Les autres géo-attestations fausses de PRIVACY.md
     # (analytics « restent en Suisse ») relèvent d'un bead PRIVACY.md dédié.
     r"serveur\b.{0,15}\bsuisse",
+    # Étiquettes App Store / Play Store « Data Not Collected » : le profil
+    # financier est persisté côté serveur (Railway) ET transmis au coach
+    # Anthropic (US) avec les montants exacts. Toute déclaration « tout reste sur
+    # l'appareil / financial info local seulement / aucune donnée partagée » est
+    # une fausse déclaration opposable aux stores.
+    r"toutes les donn[ée]es personnelles restent sur l['’]appareil",
+    r"donn[ée]es financi[èe]res stock[ée]es localement uniquement",
+    r"no data shared with third parties",
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in FALSE_PROMISE_PATTERNS]

@@ -625,6 +625,23 @@ jobs:
       - name: Run no-E2EE-overclaim lint
         run: python3 tools/checks/no_e2ee_overclaim.py
 
+  # ─── Compliance — no false on-device / store privacy attestation ─────────
+  # « CI Gate » est le seul check requis ; ce gate tournait dans ai-workflow-
+  # guards (workflow séparé, non requis) donc décoratif au merge. Un « Data Not
+  # Collected » / « tout reste sur l'appareil » faux (App Store, PRIVACY.md, ARB)
+  # alors que le profil financier est synchronisé serveur + envoyé au coach
+  # Anthropic (US) est une fausse déclaration opposable. Câblé requis ici.
+  privacy-attestation:
+    name: Privacy attestation (no false on-device claim)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run no-false-privacy-attestation gate
+        run: python3 tools/checks/no_false_privacy_attestation.py
+
   # ─── Campagne-A cluster C — served-content fiscal fact regression gate ───
   # Guards the RAG education corpus (.md) and localized ARB strings against
   # re-introducing superseded fiscal/social values (IFD deductions, LIFD article
@@ -788,7 +805,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, contracts-drift, pii-log-gate, pg-integration, truth-in-crypto, screen-registry-parity, screen-registry-three-way-parity, education-facts]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, contracts-drift, pii-log-gate, pg-integration, truth-in-crypto, screen-registry-parity, screen-registry-three-way-parity, education-facts, privacy-attestation]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -816,6 +833,7 @@ jobs:
           screen_registry_parity="${{ needs.screen-registry-parity.result }}"
           screen_registry_three_way="${{ needs.screen-registry-three-way-parity.result }}"
           education_facts="${{ needs.education-facts.result }}"
+          privacy_attestation="${{ needs.privacy-attestation.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -839,8 +857,8 @@ jobs:
           # (cancellation or infra failure) — do NOT collapse it to success.
           # Audit T15-F01/F02 (MINT_nosync-aoa): its red previously skipped
           # backend/flutter, which collapsed to success -> gate stayed green.
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$contracts_drift" != "success" ]] || [[ "$pii_log" != "success" ]] || [[ "$pg_integration" != "success" ]] || [[ "$truth_in_crypto" != "success" ]] || [[ "$screen_registry_parity" != "success" ]] || [[ "$screen_registry_three_way" != "success" ]] || [[ "$education_facts" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi contracts_drift=$contracts_drift pii_log=$pii_log pg_integration=$pg_integration truth_in_crypto=$truth_in_crypto screen_registry_parity=$screen_registry_parity screen_registry_three_way=$screen_registry_three_way education_facts=$education_facts"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$contracts_drift" != "success" ]] || [[ "$pii_log" != "success" ]] || [[ "$pg_integration" != "success" ]] || [[ "$truth_in_crypto" != "success" ]] || [[ "$screen_registry_parity" != "success" ]] || [[ "$screen_registry_three_way" != "success" ]] || [[ "$education_facts" != "success" ]] || [[ "$privacy_attestation" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi contracts_drift=$contracts_drift pii_log=$pii_log pg_integration=$pg_integration truth_in_crypto=$truth_in_crypto screen_registry_parity=$screen_registry_parity screen_registry_three_way=$screen_registry_three_way education_facts=$education_facts privacy_attestation=$privacy_attestation"
             exit 1
           fi
           echo "All checks passed"

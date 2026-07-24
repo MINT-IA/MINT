@@ -14,26 +14,28 @@ Depuis décembre 2020, Apple exige que chaque application déclare ses pratiques
 
 > **Référence** : Apple Developer Documentation — [App Privacy Details](https://developer.apple.com/app-store/app-privacy-details/)
 
-### Déclarations MINT (Phase 1)
+### Déclarations MINT (état actuel de l'app)
 
-#### « Data Not Collected »
+#### Collecte réelle
 
-En Phase 1, MINT peut déclarer **« Data Not Collected »** pour la majorité des catégories, car toutes les données personnelles restent sur l'appareil.
+> Brouillon technique reflétant le comportement RÉEL de l'app. Les valeurs finales soumises à Apple/Google doivent être validées avec le conseil juridique (comme la politique de confidentialité, cf. `docs/legal/privacy_policy_v2.3.0.md`).
+
+L'app collecte un **profil financier** : chiffré, synchronisé côté serveur (Railway, US) et transmis pseudonymisé — montants exacts inclus — au coach IA (Anthropic, US), sans nom, IBAN ni numéro AVS. Les catégories concernées déclarent donc une collecte de données financières liées à l'identité, pour la fonctionnalité de l'app (jamais pour du tracking).
 
 #### Catégories détaillées
 
 | Catégorie Apple | Collecté ? | Lié à l'identité ? | Suivi (tracking) ? | Notes |
 |----------------|-----------|-------------------|-------------------|-------|
-| **Contact Info** (name, email, phone) | Non | — | — | Pas de compte obligatoire en Phase 1 |
+| **Contact Info** (name, email, phone) | Non | — | — | Ni nom, email ni téléphone transmis (cf. PRIVACY.md 2.3) |
 | **Health & Fitness** | Non | — | — | — |
-| **Financial Info** | Non (local seulement) | — | — | Données financières stockées localement uniquement |
+| **Financial Info** | **Oui** | **Oui** | Non | Profil (salaire, LPP, 3a, patrimoine) chiffré, synchronisé serveur + envoyé au coach IA Anthropic (montants exacts, pseudonymisé) — App Functionality |
 | **Location** | Non | — | — | Canton déclaré manuellement, pas de GPS |
 | **Sensitive Info** | Non | — | — | — |
 | **Contacts** | Non | — | — | — |
-| **User Content** | Non | — | — | — |
+| **User Content** | **Oui** | **Oui** | Non | Messages écrits au coach transmis à Anthropic (US) tels quels — App Functionality |
 | **Browsing History** | Non | — | — | — |
 | **Search History** | Non | — | — | — |
-| **Identifiers** (User ID, Device ID) | Non | — | — | Pas de tracking ID |
+| **Identifiers** (User ID) | **Oui** | **Oui** | Non | ID de compte / session (auth JWT) — App Functionality, aucun tracking cross-app |
 | **Purchases** | Oui (via App Store) | Non | Non | Gérés par Apple, pas par MINT |
 | **Usage Data** (product interaction) | Oui (optionnel) | Non | Non | Analytics anonymisées, désactivables |
 | **Diagnostics** (crash data, performance) | Oui | Non | Non | Logs d'erreurs anonymisés, 30 jours max |
@@ -41,19 +43,21 @@ En Phase 1, MINT peut déclarer **« Data Not Collected »** pour la majorité d
 #### Résumé pour App Store Connect
 
 ```
-✅ Data Used to Track You: NONE
-✅ Data Linked to You: NONE
+✅ Data Used to Track You: NONE (aucun tracking cross-app, ATT non requis)
+⚠️ Data Linked to You:
+   - Financial Info (profil financier — App Functionality)
+   - User Content (messages au coach IA)
+   - Identifiers (ID de compte)
 ⚠️ Data Not Linked to You:
-   - Usage Data (Analytics — optional, anonymized)
-   - Diagnostics (Crash logs — anonymized)
+   - Usage Data (Analytics — optionnel)
+   - Diagnostics (Crash logs)
 ```
 
-### Déclarations MINT (Phase 2+ — à mettre à jour)
+### Évolutions futures à déclarer
 
-Lors de l'introduction de comptes utilisateur ou d'Open Banking :
-- **Contact Info** → Email (lié à l'identité, pour compte)
-- **Financial Info** → Soldes, transactions (lié à l'identité, pour fonctionnalité)
-- **Identifiers** → User ID (lié à l'identité, pour compte)
+Lors de l'introduction de l'Open Banking (import de soldes / transactions bancaires réels) :
+- **Financial Info** → soldes et transactions bancaires (lié à l'identité, pour fonctionnalité)
+- **Contact Info** → email, si une authentification par email est ajoutée
 
 ---
 
@@ -65,14 +69,14 @@ Depuis juillet 2022, Google exige que chaque application déclare ses pratiques 
 
 > **Référence** : Google Play Console Help — [Provide information for Google Play's Data safety section](https://support.google.com/googleplay/android-developer/answer/10787469)
 
-### Déclarations MINT (Phase 1)
+### Déclarations MINT (état actuel de l'app)
 
 #### Questionnaire Data Safety
 
 | Question Google | Réponse MINT | Justification |
 |----------------|-------------|---------------|
-| L'application collecte-t-elle ou partage-t-elle des données utilisateur ? | Oui (usage + diagnostics) | Analytics anonymisées + crash logs |
-| L'application partage-t-elle des données avec des tiers ? | Non | Aucun partage de données |
+| L'application collecte-t-elle ou partage-t-elle des données utilisateur ? | Oui (profil financier + usage + diagnostics) | Profil financier synchronisé serveur + coach IA + analytics + crash logs |
+| L'application partage-t-elle des données avec des tiers ? | **Oui** | Coach IA Anthropic (US) reçoit le profil financier pseudonymisé (montants exacts) |
 | Les données sont-elles chiffrées en transit ? | Oui | HTTPS/TLS 1.2+ pour appels API |
 | Les données sont-elles chiffrées au repos ? | Oui | EncryptedSharedPreferences (AES-256-GCM) |
 | L'utilisateur peut-il demander la suppression ? | Oui | Fonction « Supprimer toutes mes données » |
@@ -85,14 +89,14 @@ Depuis juillet 2022, Google exige que chaque application déclare ses pratiques 
 | **App activity** (interactions, other actions) | Oui | Non | Oui (désactivable) | Analytics |
 | **App info and performance** (crash logs, diagnostics) | Oui | Non | Non | Stabilité |
 | **Device or other IDs** | Non | — | — | — |
-| **Financial info** | Non (local seulement) | — | — | Stocké localement |
-| **Personal info** | Non | — | — | Pas de compte Phase 1 |
+| **Financial info** | **Oui** | **Oui** (coach IA Anthropic) | Non | Profil chiffré synchronisé serveur + envoyé au coach IA |
+| **Personal info** | Non | — | — | Ni nom, email, IBAN ni numéro AVS (cf. PRIVACY.md) |
 | **Location** | Non | — | — | Canton déclaré manuellement |
 
 #### Résumé pour Google Play Console
 
 ```
-✅ No data shared with third parties
+⚠️ Data shared with third parties: Yes (coach IA — Anthropic PBC, US)
 ✅ Data encrypted in transit (TLS 1.2+)
 ✅ Data encrypted at rest (AES-256)
 ✅ User can request data deletion

@@ -47,6 +47,10 @@ REQUIRED_IN_GATE = {
     # Campagne-A cluster C: guards served-content fiscal facts (RAG corpus +
     # ARB) against regression of the 2026 values (beads #1010/#1013/#1014/#1015).
     "education-facts": "education_facts",
+    # Compliance: forbids false on-device / « Data Not Collected » store
+    # attestations while the app syncs the financial profile server-side + to
+    # the Anthropic coach (US). Was decorative (ai-workflow-guards, non-requis).
+    "privacy-attestation": "privacy_attestation",
 }
 # Jobs with no path-filter `if:` — a skip is never legitimate, so the
 # aggregator must not collapse their skipped result to success. (pg-integration
@@ -58,6 +62,7 @@ NO_SKIP_COLLAPSE = {
     "screen-registry-parity": "screen_registry_parity",
     "screen-registry-three-way-parity": "screen_registry_three_way",
     "education-facts": "education_facts",
+    "privacy-attestation": "privacy_attestation",
 }
 
 
