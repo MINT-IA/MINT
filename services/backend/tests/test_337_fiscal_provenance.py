@@ -24,9 +24,54 @@ GENERIC_HOMEPAGES = {
     "https://www.admin.ch",
 }
 
-# Clés legacy du modèle capital v1 : encore consommées UNIQUEMENT par la
-# validation canton + le chemin override explicite (base_rate_override) —
-# le calcul canonique est estimate_capital_withdrawal_tax (v2, -2i2).
+# Review #994 r1 : la garde verrouille l'ENSEMBLE EXACT des clés et les
+# URLs officielles attendues par groupe — pas des formes approximatives.
+ASB_HYPO_PDF = (
+    "https://www.finma.ch/fr/~/media/finma/dokumente/dokumentencenter/"
+    "myfinma/4dokumentation/selbstregulierung/"
+    "sbvg_rl_hypofinanzierungen_20231213.pdf"
+)
+FEDLEX_ART38 = "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_38"
+ESTV_CAPITAL_SIM = (
+    "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-benefit-tax"
+)
+VZ_TENUE = (
+    "https://www.vermoegenszentrum.ch/fr/competences/"
+    "un-bien-foncier-doit-etre-financierement-supportable"
+)
+
+CANTONS = [
+    "ZH", "BE", "LU", "UR", "SZ", "OW", "NW", "GL", "ZG", "FR", "SO",
+    "BS", "BL", "SH", "AR", "AI", "SG", "GR", "AG", "TG", "TI", "VD",
+    "VS", "NE", "GE", "JU",
+]
+
+# Ensemble exact des 39 clés (verdict C) + URL officielle attendue.
+# La directive ASB ne norme QUE max_2nd_pillar et amortization_rate
+# (vérifié sur le PDF, review #994) — les 4 autres clés mortgage sont
+# des conventions de place (test de tenue).
+EXPECTED_SOURCES = {
+    "mortgage.theoretical_rate": VZ_TENUE,
+    "mortgage.maintenance_rate": VZ_TENUE,
+    "mortgage.max_charge_ratio": VZ_TENUE,
+    "mortgage.min_equity": VZ_TENUE,
+    "mortgage.max_2nd_pillar": ASB_HYPO_PDF,
+    "mortgage.amortization_rate": ASB_HYPO_PDF,
+    "capital_tax.default_rate": FEDLEX_ART38,
+    "capital_tax.married_discount": ESTV_CAPITAL_SIM,
+    "capital_tax.bracket.0_100k": ESTV_CAPITAL_SIM,
+    "capital_tax.bracket.100k_200k": ESTV_CAPITAL_SIM,
+    "capital_tax.bracket.200k_500k": ESTV_CAPITAL_SIM,
+    "capital_tax.bracket.500k_1m": ESTV_CAPITAL_SIM,
+    "capital_tax.bracket.1m_plus": ESTV_CAPITAL_SIM,
+    **{f"capital_tax.cantonal.{c}": ESTV_CAPITAL_SIM for c in CANTONS},
+}
+
+# Clés legacy du modèle capital v1 : encore consommées par la validation
+# canton, le chemin override explicite (base_rate_override) et deux proxys
+# heuristiques actifs (location_vs_propriete, allocation invest libre —
+# beads -cm4) ; le calcul canonique est estimate_capital_withdrawal_tax
+# (v2, -2i2).
 LEGACY_ESTIMATE_PREFIXES = (
     "capital_tax.default_rate",
     "capital_tax.married_discount",
@@ -43,7 +88,9 @@ def fiscal_params():
         for p in reg.get_all()
         if p.key.startswith(("mortgage.", "capital_tax."))
     ]
-    assert len(params) == 39, "périmètre verdict C : 6 mortgage + 33 capital_tax"
+    assert {p.key for p in params} == set(EXPECTED_SOURCES), (
+        "périmètre verdict C : ensemble EXACT des 39 clés (review #994)"
+    )
     return params
 
 
@@ -70,19 +117,41 @@ def test_legacy_capital_keys_are_estimates_with_notes(fiscal_params):
                 f"{p.key}: approximation étiquetée '{p.source_type}'"
             )
             assert p.notes, f"{p.key}: note manquante (chemin canonique v2)"
-            assert "v2" in p.notes or "estimate_capital_withdrawal_tax" in p.notes, (
+            assert "estimate_capital_withdrawal_tax" in p.notes, (
                 f"{p.key}: la note doit pointer le calcul canonique"
             )
+            if p.key.startswith("capital_tax.cantonal."):
+                # Review #994 : la note ne doit pas nier les proxys actifs
+                # (location_vs_propriete, allocation invest libre).
+                assert "proxy" in p.notes, (
+                    f"{p.key}: usages proxy restants non documentés"
+                )
 
 
-def test_mortgage_keys_cite_asb_directive(fiscal_params):
-    """Les 6 clés mortgage citent la directive ASB précise (PDF), datée."""
+def test_exact_official_source_per_key(fiscal_params):
+    """Chaque clé cite l'URL officielle attendue — au caractère près.
+
+    Review #994 : une URL arbitraire « en .pdf contenant hypo » passait ;
+    et la directive ASB était sur-attribuée à 4 clés de convention de
+    place qu'elle ne norme pas.
+    """
     for p in fiscal_params:
-        if p.key.startswith("mortgage."):
-            assert p.source_url.endswith(".pdf"), (
-                f"{p.key}: doit citer le document directive, pas un portail"
-            )
-            assert "hypo" in p.source_url.lower(), p.key
+        assert p.source_url == EXPECTED_SOURCES[p.key], (
+            f"{p.key}: {p.source_url}"
+        )
+
+
+def test_practice_keys_not_attributed_to_asb_directive(fiscal_params):
+    """Les 4 conventions de place ne sont pas étiquetées « circular ASB »."""
+    for key in (
+        "mortgage.theoretical_rate",
+        "mortgage.maintenance_rate",
+        "mortgage.max_charge_ratio",
+        "mortgage.min_equity",
+    ):
+        p = next(x for x in fiscal_params if x.key == key)
+        assert p.source_type == "estimate", key
+        assert p.notes, key
 
 
 def test_amortization_rate_documents_real_rule(fiscal_params):

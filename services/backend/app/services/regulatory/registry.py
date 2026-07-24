@@ -58,11 +58,28 @@ _ESTV_CAPITAL_SIM_URL = (
     "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-benefit-tax"
 )
 _LEGACY_CAPITAL_NOTE = (
-    "Approximation v1 (taux plat) — le calcul canonique est le modèle v2 "
-    "estimate_capital_withdrawal_tax (IFD art. 38 exact + interpolation "
-    "ESTV 130 points, beads -2i2) ; cette clé ne sert plus qu'à la "
-    "validation canton et au chemin override explicite "
-    "(calculate_progressive_capital_tax)."
+    "Approximation v1 (taux plat) — le calcul canonique de l'impôt de "
+    "retrait est le modèle v2 estimate_capital_withdrawal_tax (IFD "
+    "art. 38 exact + interpolation ESTV 130 points, beads -2i2). Usages "
+    "restants : validation canton, chemin override explicite "
+    "(calculate_progressive_capital_tax), et deux proxys heuristiques "
+    "actifs — location_vs_propriete (impôt revenu approx. 3x le taux) et "
+    "allocation_annuelle invest libre (impôt fortune approx. 5% du "
+    "taux) — migrations v2 suivies en beads."
+)
+
+# Pratique bancaire de place (test de tenue) — non normée par la
+# directive ASB : celle-ci ne fixe que la part min. hors 2e pilier et
+# l'amortissement aux 2/3 en 15 ans (vérifié sur le PDF, review #994).
+_VZ_TENUE_URL = (
+    "https://www.vermoegenszentrum.ch/fr/competences/"
+    "un-bien-foncier-doit-etre-financierement-supportable"
+)
+_PRATIQUE_TENUE_NOTE = (
+    "Convention de place appliquée par les banques dans le test de tenue "
+    "des charges — non normée par la directive ASB exigences minimales "
+    "(qui ne fixe que la part min. 10% hors 2e pilier et l'amortissement "
+    "aux 2/3 de la valeur de nantissement en 15 ans)."
 )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -978,11 +995,12 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.05,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_ASB_HYPO_URL,
-        source_title="ASB — Directives exigences minimales financements hypothécaires (rév. 2023, en vigueur 01.01.2025)",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Taux d'intérêt théorique pour le calcul de capacité (5%).",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.amortization_rate",
@@ -1006,33 +1024,36 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.01,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_ASB_HYPO_URL,
-        source_title="ASB — Directives exigences minimales financements hypothécaires (rév. 2023, en vigueur 01.01.2025)",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Taux de frais accessoires annuels (entretien, assurance) : 1%.",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.max_charge_ratio",
         value=1.0 / 3.0,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_ASB_HYPO_URL,
-        source_title="ASB — Directives exigences minimales (règle du 1/3, rév. 2023)",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Ratio maximal des charges par rapport au revenu brut (règle du 1/3).",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.min_equity",
         value=0.20,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_ASB_HYPO_URL,
-        source_title="ASB — Directives exigences minimales (fonds propres, rév. 2023)",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Part minimale de fonds propres (20% du prix d'achat).",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.max_2nd_pillar",
