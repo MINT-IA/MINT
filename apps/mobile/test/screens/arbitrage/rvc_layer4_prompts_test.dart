@@ -45,6 +45,11 @@ void main() {
     );
     expect(bannerCall.contains("topEnrichmentCategory: 'lpp'"), isFalse,
         reason: 'catégorie codée en dur = couche 4 jetée');
-    expect(bannerCall.contains('_topPromptCategory'), isTrue);
+    // -jzk : helper local remplacé par la source unique centrale —
+    // le local lisait axisPrompts (jamais routable, fallback 'lpp'
+    // systématique : no-op latent car le hardcode remplacé était 'lpp').
+    expect(
+        bannerCall.contains('IndicatifBanner.topEnrichmentCategoryFrom'),
+        isTrue);
   });
 }

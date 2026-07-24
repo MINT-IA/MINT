@@ -194,6 +194,13 @@ ALLOW = {
     "services/backend/app/services/retirement/avs_estimation_service.py",
     "services/backend/tests/test_golden_julien_lauren.py",
     "services/backend/tests/test_fiscal.py",
+    # -jzk : couche-4 top-prompt étendue (helper central IndicatifBanner)
+    "apps/mobile/lib/screens/arbitrage/location_vs_propriete_screen.dart",
+    "apps/mobile/lib/screens/arbitrage/allocation_annuelle_screen.dart",
+    "apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart",
+    "apps/mobile/lib/widgets/coach/indicatif_banner.dart",
+    "apps/mobile/test/screens/arbitrage/layer4_prompts_extension_test.dart",
+    "apps/mobile/test/screens/arbitrage/rvc_layer4_prompts_test.dart",
     "services/backend/tests/test_regulatory_registry.py",
     # PR rvc-single-truth (bead -axj) : parité croisée RvC
     "apps/mobile/test/services/financial_core/rvc_parity_fixture_test.dart",
