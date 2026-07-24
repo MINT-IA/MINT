@@ -15392,7 +15392,7 @@ class SEn extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'To be deductible this year, your 3a contribution must be credited to your account by 31 December — the value date is what counts, not the transfer date. Don\'t leave it too late.';
+      'To be deductible this year, your 3a contribution must be credited to your account by 31 December at the latest. An order placed too late may only be credited in January — and then count for the following year. Don\'t leave it too late.';
 
   @override
   String get communityChallenge03Title =>

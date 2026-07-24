@@ -15468,7 +15468,7 @@ class SPt extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Para ser dedutível este ano, a tua contribuição 3a deve estar creditada na conta até 31 de dezembro — o que conta é a data-valor, não a data da ordem. Não deixes para a última hora.';
+      'Para ser dedutível este ano, a tua contribuição 3a deve estar creditada na conta até 31 de dezembro. Uma ordem dada demasiado tarde pode só ser creditada em janeiro — e contar então para o ano seguinte. Não deixes para a última hora.';
 
   @override
   String get communityChallenge03Title =>

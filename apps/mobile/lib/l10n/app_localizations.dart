@@ -27230,7 +27230,7 @@ abstract class S {
   /// No description provided for @communityChallenge03Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Pour être déduit de cette année, ton versement 3a doit être crédité sur ton compte avant le 31 décembre — c\'est la date de valeur qui compte, pas la date de l\'ordre. Ne t\'y prends pas trop tard.'**
+  /// **'Pour être déduit de cette année, ton versement 3a doit être crédité sur ton compte au plus tard le 31 décembre. Un ordre passé trop tard peut n\'être crédité qu\'en janvier — et compter alors pour l\'année suivante. Ne t\'y prends pas trop tard.'**
   String get communityChallenge03Desc;
 
   /// No description provided for @communityChallenge03Title.

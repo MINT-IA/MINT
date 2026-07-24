@@ -15515,7 +15515,7 @@ class SIt extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Per essere deducibile quest\'anno, il tuo versamento 3a deve essere accreditato sul conto entro il 31 dicembre — conta la data di valuta, non la data dell\'ordine. Non aspettare troppo.';
+      'Per essere deducibile quest\'anno, il tuo versamento 3a deve essere accreditato sul conto entro il 31 dicembre. Un ordine dato troppo tardi potrebbe essere accreditato solo a gennaio — e contare quindi per l\'anno successivo. Non aspettare troppo.';
 
   @override
   String get communityChallenge03Title =>
