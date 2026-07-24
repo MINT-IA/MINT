@@ -196,6 +196,8 @@ ALLOW = {
     "education/inserts/concepts/donation_entre_vifs.md",
     "services/backend/tests/test_education_inserts_truth.py",
     # campagne-A bead A2 : montants LPP/AVS périmés alignés sur registry (2026-07-24)
+    "education/inserts/concepts/avs_bonifications_educatives.md",
+    "services/backend/education_inserts/concepts/avs_bonifications_educatives.md",
     "education/inserts/concepts/avs_rente_calcul.md",
     "education/inserts/concepts/deduction_coordination.md",
     "education/inserts/concepts/lpp_1e_plans.md",
