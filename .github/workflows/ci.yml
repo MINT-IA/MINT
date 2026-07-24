@@ -766,7 +766,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, contracts-drift, pii-log-gate]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, contracts-drift, pii-log-gate, pg-integration, truth-in-crypto, screen-registry-parity, screen-registry-three-way-parity]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -789,6 +789,10 @@ jobs:
           cache_gi="${{ needs.cache-gitignore-check.result }}"
           contracts_drift="${{ needs.contracts-drift.result }}"
           pii_log="${{ needs.pii-log-gate.result }}"
+          pg_integration="${{ needs.pg-integration.result }}"
+          truth_in_crypto="${{ needs.truth-in-crypto.result }}"
+          screen_registry_parity="${{ needs.screen-registry-parity.result }}"
+          screen_registry_three_way="${{ needs.screen-registry-three-way-parity.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -800,12 +804,19 @@ jobs:
           # pii-log-gate has a path-filter `if` (backend changes || push):
           # a skip is legitimate on mobile-only PRs.
           [[ "$pii_log" == "skipped" ]] && pii_log="success"
+          # pg-integration has a path-filter `if` (backend changes || push):
+          # a skip is legitimate on mobile/docs-only PRs.
+          [[ "$pg_integration" == "skipped" ]] && pg_integration="success"
+          # truth-in-crypto + screen-registry-parity + screen-registry-three-way
+          # have NO path-filter `if:` (they run unconditionally) — a skip is
+          # never legitimate (cancellation / dependency failure), do NOT collapse
+          # it (audit T15-F03: these compliance jobs were decorative at merge).
           # contracts-drift has NO path filter: a skip is never legitimate
           # (cancellation or infra failure) — do NOT collapse it to success.
           # Audit T15-F01/F02 (MINT_nosync-aoa): its red previously skipped
           # backend/flutter, which collapsed to success -> gate stayed green.
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$contracts_drift" != "success" ]] || [[ "$pii_log" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi contracts_drift=$contracts_drift pii_log=$pii_log"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$contracts_drift" != "success" ]] || [[ "$pii_log" != "success" ]] || [[ "$pg_integration" != "success" ]] || [[ "$truth_in_crypto" != "success" ]] || [[ "$screen_registry_parity" != "success" ]] || [[ "$screen_registry_three_way" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi contracts_drift=$contracts_drift pii_log=$pii_log pg_integration=$pg_integration truth_in_crypto=$truth_in_crypto screen_registry_parity=$screen_registry_parity screen_registry_three_way=$screen_registry_three_way"
             exit 1
           fi
           echo "All checks passed"
