@@ -606,6 +606,9 @@ ALLOW = {
     "legal/APP_STORE_PRIVACY_LABELS.md",
     # cluster B W0 : Retroactive3a — retrait du faux chevron (façade sans câblage)
     "apps/mobile/test/screens/pillar_3a_deep/retroactive_3a_screen_test.dart",
+    # cluster B W0 : TransactionList — filtre période mort câblé (façade contrôle)
+    "apps/mobile/lib/screens/open_banking/transaction_list_screen.dart",
+    "apps/mobile/test/screens/open_banking/transaction_list_screen_test.dart",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
     "tools/checks/maestro_locator_audit.py",
