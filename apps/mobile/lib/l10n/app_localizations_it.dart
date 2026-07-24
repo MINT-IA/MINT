@@ -21874,7 +21874,7 @@ class SIt extends S {
 
   @override
   String get bankImportTransparency =>
-      'Il tuo estratto conto viene inviato criptato al nostro server svizzero per l\'analisi. Le transazioni vengono categorizzate, poi il file originale viene eliminato. Solo i riepiloghi per categoria vengono conservati nel tuo profilo.';
+      'Il tuo estratto conto viene inviato cifrato al nostro server per l\'analisi (elaborazione automatica, senza IA). Il file originale viene eliminato dopo l\'elaborazione; nel tuo profilo vengono conservati solo i riepiloghi per categoria.';
 
   @override
   String get coachTransparencySLM =>
@@ -21903,7 +21903,7 @@ class SIt extends S {
 
   @override
   String get dataTransparencyScanDetail =>
-      'Inviato criptato al nostro server svizzero. Analizzato ed eliminato. Solo il risultato viene conservato.';
+      'Inviato cifrato al nostro server e letto dall\'API di Claude (Anthropic, Stati Uniti) con il tuo consenso per estrarre le cifre. Il file originale viene eliminato; viene conservato solo il risultato.';
 
   @override
   String get dataTransparencyCoach => 'Quando parli con il coach';

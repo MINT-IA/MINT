@@ -21804,7 +21804,7 @@ class SFr extends S {
 
   @override
   String get bankImportTransparency =>
-      'Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.';
+      'Ton relevé est envoyé chiffré à notre serveur pour analyse (traitement automatique, sans IA). Le fichier brut est supprimé après traitement ; seuls les résumés par catégorie sont conservés dans ton profil.';
 
   @override
   String get coachTransparencySLM =>
@@ -21833,7 +21833,7 @@ class SFr extends S {
 
   @override
   String get dataTransparencyScanDetail =>
-      'Envoyé chiffré à notre serveur suisse. Parsé et supprimé. Seul le résultat est conservé.';
+      'Envoyé chiffré à notre serveur, puis lu par l\'API Claude (Anthropic, États-Unis) avec ton consentement pour en extraire les chiffres. Le fichier brut est supprimé ; seul le résultat est conservé.';
 
   @override
   String get dataTransparencyCoach => 'Quand tu parles au coach';

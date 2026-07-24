@@ -21697,7 +21697,7 @@ class SEn extends S {
 
   @override
   String get bankImportTransparency =>
-      'Your statement is sent encrypted to our Swiss server for analysis. Transactions are categorized, then the raw file is deleted. Only category summaries are kept in your profile.';
+      'Your statement is sent encrypted to our server for analysis (automated processing, no AI). The raw file is deleted after processing; only per-category summaries are kept in your profile.';
 
   @override
   String get coachTransparencySLM =>
@@ -21726,7 +21726,7 @@ class SEn extends S {
 
   @override
   String get dataTransparencyScanDetail =>
-      'Sent encrypted to our Swiss server. Parsed and deleted. Only the result is kept.';
+      'Sent encrypted to our server, then read by the Claude API (Anthropic, United States) with your consent to extract the figures. The raw file is deleted; only the result is kept.';
 
   @override
   String get dataTransparencyCoach => 'When you talk to the coach';

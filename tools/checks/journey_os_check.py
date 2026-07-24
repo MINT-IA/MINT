@@ -104,6 +104,11 @@ ALLOW = {
     "tools/checks/create_or_update_mint_skills.py",
     # -dwr : posture LSFin du tip rachat échelonné (copie x6 + garde)
     "apps/mobile/test/l10n/rachat_echelonne_posture_test.dart",
+    # campagne-A privacy server geo (2026-07-24)
+    "tools/checks/no_false_privacy_attestation.py",
+    "lefthook.yml",
+    ".github/workflows/ai-workflow-guards.yml",
+    ".planning/decisions/2026-07-24-campagne-contenu-officiel-garanti.md",
     # -b6k : littéral lppReturn -> reg() avec fallback
     "apps/mobile/test/screens/arbitrage/rvc_lpp_return_registry_test.dart",
     "tools/checks/ci_gate_aggregation_check.py",

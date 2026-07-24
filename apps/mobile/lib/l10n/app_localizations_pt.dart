@@ -21817,7 +21817,7 @@ class SPt extends S {
 
   @override
   String get bankImportTransparency =>
-      'O teu extrato é enviado encriptado para o nosso servidor suíço para análise. As transações são categorizadas e depois o ficheiro original é eliminado. Apenas os resumos por categoria são mantidos no teu perfil.';
+      'O teu extrato é enviado cifrado ao nosso servidor para análise (processamento automático, sem IA). O ficheiro original é eliminado após o processamento; só os resumos por categoria são conservados no teu perfil.';
 
   @override
   String get coachTransparencySLM =>
@@ -21846,7 +21846,7 @@ class SPt extends S {
 
   @override
   String get dataTransparencyScanDetail =>
-      'Enviado encriptado para o nosso servidor suíço. Analisado e eliminado. Apenas o resultado é mantido.';
+      'Enviado cifrado ao nosso servidor e lido pela API Claude (Anthropic, Estados Unidos) com o teu consentimento para extrair os números. O ficheiro original é eliminado; só o resultado é conservado.';
 
   @override
   String get dataTransparencyCoach => 'Quando falas com o coach';
