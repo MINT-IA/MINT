@@ -230,7 +230,7 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('DivorceService - Tax Impact', () {
-    test('married tax uses 18% on combined income', () {
+    test('married tax = combined income x marginale v2 ZH (~28.5%)', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
           marriageDurationYears: 10,
@@ -247,9 +247,11 @@ void main() {
         ),
       );
 
-      // Uses RetirementTaxCalculator.estimateMarginalRate(180000, 'ZH', isMarried: true)
-      // Effective: 12.9% * 1.15 income adj * 0.85 married * 1.3 marginal ≈ 16.36%
-      expect(result.taxImpact.estimatedTaxMarried, closeTo(29455.50, 50));
+      // beads -8p4 : marginale v2 ZH 180k marié ≈ 0.28532 (pente locale,
+      // splitting x0.80) -> 180000 x 0.28532 = 51'357.60. NB la formule
+      // combined x MARGINALE (héritée) surestime vs un impôt effectif —
+      // limite dite du simulateur divorce, inchangée par cette bascule.
+      expect(result.taxImpact.estimatedTaxMarried, closeTo(51357.60, 50));
     });
 
     test('individual taxes sum is different from married tax', () {
