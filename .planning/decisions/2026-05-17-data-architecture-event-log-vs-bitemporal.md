@@ -247,8 +247,10 @@ The `database-architect` agent's initial run wrote only a title-stub to engram o
 ### Addendum 2026-07-24 — volet fiscal du calc-engine complété (statut : constat)
 
 Le domaine fiscal L2 est backend-canonique en pratique : modèles v2
-revenu/capital/rente calibrés sur l'API ESTV (130 points, PRs #987, #991,
-#994, #995, #997), dernier consommateur du modèle v1
+revenu/capital/rente calibrés sur l'API ESTV (130 points — revenu : PR
+#988 ; capital : PRs #990/#991 ; proxys restants : #995 ; comparaison
+cantonale : #997 ; provenance du registre : #994), dernier consommateur
+du modèle v1
 (`EFFECTIVE_RATES_100K_SINGLE`) supprimé, parités croisées gelées par
 fixtures partagées (`tools/fixtures/`). Reste hors périmètre : copie privée
 `_INCOME_ADJUSTMENT` de couple_optimizer (beads MINT_nosync-5up).

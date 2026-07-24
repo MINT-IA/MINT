@@ -176,8 +176,9 @@ direct push, open a PR into `staging`.
 `estimate_income_tax_parts` (IFD 2026 progressif + interpolation cantonale
 ESTV 26×5 points), `estimate_income_tax_on_rente` (convention rente ×0.85),
 `estimate_capital_withdrawal_tax` (IFD art. 38 exact + interpolation capital
-ESTV, coefficient marié PAR canton). Fortune : `fiscal/wealth_tax_service.py`
-(exonérations cantonales, marié ×2). Ne JAMAIS recomposer un taux plat ou un
+ESTV, coefficient marié PAR canton). Fortune : `fiscal/wealth_tax_service.py` —
+modèle SIMPLIFIÉ (taux effectifs OFS 2024 + exonérations cantonales,
+marié ×2), pas calibré ESTV. Ne JAMAIS recomposer un taux plat ou un
 proxy heuristique sur un autre impôt — les parités croisées backend/mobile
 sont gelées au centime (`tools/fixtures/*.json`, consommées par pytest ET
 flutter test). Le modèle v1 (`EFFECTIVE_RATES_100K_SINGLE`) est supprimé.
