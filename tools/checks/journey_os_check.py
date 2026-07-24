@@ -115,6 +115,8 @@ ALLOW = {
     "services/backend/tests/test_segments.py",
     "apps/mobile/lib/services/independants_service.dart",
     "apps/mobile/lib/constants/social_insurance.dart",
+    # -b9c : sémantique taux AVS combinés + provenance taux min LPP
+    "services/backend/tests/test_b9c_avs_combined_semantics.py",
     "apps/mobile/test/services/independants_service_test.dart",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",

@@ -348,6 +348,14 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="ordinance",
         description="Taux d'intérêt minimum LPP (fixé par le Conseil fédéral).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Maintenu à 1.25% pour 2026 par décision du Conseil fédéral "
+            "du 2025-11-05 (recommandation Commission LPP 10 voix contre "
+            "6) — vérifié admin.ch le 2026-07-24. Le Conseil fédéral "
+            "réexamine le taux au moins tous les deux ans (LPP art. 15 "
+            "al. 3) — re-vérifier avant toute utilisation pour une "
+            "année ultérieure."
+        ),
     ),
     RegulatoryParameter(
         key="lpp.bonification.25_34",
@@ -518,6 +526,12 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation AVS/AI/APG part salarié : 5.3% (total 10.6%).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "COMBINÉ AVS+AI+APG (AVS pur 8.7% + AI 1.4% + APG 0.5% = "
+            "10.6% paritaire). Ne JAMAIS additionner avec "
+            "ai.contribution_rate_* ni apg.contribution_rate_* — ils y "
+            "sont déjà inclus (beads MINT_nosync-b9c, verdict A -zaw)."
+        ),
     ),
     RegulatoryParameter(
         key="avs.contribution_rate_total",
@@ -529,6 +543,12 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation AVS/AI/APG total (salarié + employeur) : 10.6%.",
         reviewed_at=_REVIEWED,
+        notes=(
+            "COMBINÉ AVS+AI+APG (AVS pur 8.7% + AI 1.4% + APG 0.5% = "
+            "10.6% paritaire). Ne JAMAIS additionner avec "
+            "ai.contribution_rate_* ni apg.contribution_rate_* — ils y "
+            "sont déjà inclus (beads MINT_nosync-b9c, verdict A -zaw)."
+        ),
     ),
     RegulatoryParameter(
         key="avs.full_contribution_years",
@@ -786,6 +806,11 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation AI part salarié : 0.7% (total 1.4%).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Déjà INCLUS dans avs.contribution_rate_* (taux combiné "
+            "AVS+AI+APG) — clé séparée pour référence/affichage "
+            "uniquement, ne pas additionner (beads MINT_nosync-b9c)."
+        ),
     ),
     RegulatoryParameter(
         key="ai.contribution_rate_total",
@@ -823,6 +848,11 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation APG part salarié : 0.25% (total 0.5%).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Déjà INCLUS dans avs.contribution_rate_* (taux combiné "
+            "AVS+AI+APG) — clé séparée pour référence/affichage "
+            "uniquement, ne pas additionner (beads MINT_nosync-b9c)."
+        ),
     ),
     RegulatoryParameter(
         key="apg.contribution_rate_total",
