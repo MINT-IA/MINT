@@ -23,7 +23,7 @@ Rules:
       "optimal", "meilleur", "parfait", "conseiller"
 """
 
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
@@ -73,28 +73,57 @@ def _estimate_tax_benefit_mortgage(
     maintenance_cost: float,
     canton: str,
     is_married: bool,
+    revenu_annuel: Optional[float] = None,
+    mortgage_balance: Optional[float] = None,
+    amortization: float = 0.0,
 ) -> float:
-    """Estimate tax benefit from mortgage interest and maintenance deductions.
+    """Tax benefit from mortgage interest and maintenance deductions.
 
-    Mortgage interest and maintenance costs are tax-deductible (LIFD art. 32).
-    We estimate the benefit using a proxy income tax rate.
+    Mortgage interest and maintenance costs are tax-deductible (LIFD
+    art. 32-33). Beads MINT_nosync-cm4 : l'économie est MARGINALE —
+    différence du modèle v2 ``estimate_income_tax`` (130 points ESTV)
+    avec et sans la déduction. L'ancien proxy « impôt revenu approx.
+    3x le taux plat de retrait capital » sur/sous-estimait par canton.
 
     Args:
         mortgage_interest: Annual mortgage interest paid (CHF).
         maintenance_cost: Annual maintenance costs (CHF).
         canton: Canton code.
         is_married: Whether the person is married.
+        revenu_annuel: Revenu imposable annuel. None -> ancrage au revenu
+            minimal du test de tenue : 3 x (5% de la dette + amortissement
+            + entretien) — le revenu le plus bas auquel la banque accorde
+            ce prêt (règle du tiers). Conservateur : un revenu réel plus
+            haut aurait un taux marginal plus élevé.
+        mortgage_balance: Dette hypothécaire (CHF) pour l'ancrage.
+        amortization: Amortissement annuel (CHF) pour l'ancrage.
 
     Returns:
         Estimated annual tax saving (CHF).
+
+    NB : la valeur locative imposable (imputed rent) n'est pas modélisée
+    ici — même périmètre que le proxy remplacé.
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    # Income tax rate is roughly 3x the capital withdrawal base rate
-    income_rate = base_rate * 3.0
-    if is_married:
-        income_rate *= 0.80  # Splitting benefit
+    from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
     deductible = mortgage_interest + maintenance_cost
-    return round(deductible * income_rate, 2)
+    if deductible <= 0:
+        return 0.0
+    if revenu_annuel is None:
+        if mortgage_balance is not None:
+            revenu_annuel = 3.0 * (
+                mortgage_balance * _FINMA_TAUX_THEORIQUE
+                + amortization
+                + maintenance_cost
+            )
+        else:
+            revenu_annuel = 3.0 * deductible
+    saving = estimate_income_tax(
+        revenu_annuel, canton, is_married=is_married
+    ) - estimate_income_tax(
+        max(0.0, revenu_annuel - deductible), canton, is_married=is_married
+    )
+    return round(max(0.0, saving), 2)
 
 
 def _build_location_option(
@@ -181,15 +210,22 @@ def _build_propriete_option(
         amortization = amort_annuel_2nd_rank if mortgage > seuil_premier_rang else 0.0
         maintenance = prix_bien * taux_entretien
 
+        solde_pour_ancrage = mortgage
+
         # Reduce mortgage by amortization (floor at 1st rank level)
         mortgage = max(seuil_premier_rang, mortgage - amortization)
 
         # Total annual cost
         annual_cost = mortgage_interest + amortization + maintenance
 
-        # Tax benefit from deductions
+        # Tax benefit from deductions — modèle v2 marginal (beads -cm4)
         tax_benefit = _estimate_tax_benefit_mortgage(
-            mortgage_interest, maintenance, canton, is_married
+            mortgage_interest,
+            maintenance,
+            canton,
+            is_married,
+            mortgage_balance=solde_pour_ancrage,
+            amortization=amortization,
         )
 
         net_annual_cost = annual_cost - tax_benefit

@@ -262,16 +262,20 @@ def _build_investissement_libre_option(
     annees: int,
     rendement_marche: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 4: Investissement libre (free investment).
 
     No tax deduction. Full liquidity. Growth at market return.
-    Wealth tax applies annually (~0.3-0.5%).
+    Impôt fortune annuel : WealthTaxService (beads -cm4) — exonération
+    cantonale (ZH 77k, doublée marié) + barème effectif, à la place du
+    proxy plat « 5% du taux de retrait capital » qui taxait dès le
+    premier franc.
     """
-    # Approximate wealth tax rate
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    wealth_tax_rate = base_rate * 0.05  # Very rough proxy: ~0.2-0.4%
-    wealth_tax_rate = max(0.002, min(wealth_tax_rate, 0.005))
+    from app.services.fiscal.wealth_tax_service import WealthTaxService
+
+    wealth_svc = WealthTaxService()
+    civil_status = "marie" if is_married else "celibataire"
 
     trajectory: List[YearlySnapshot] = []
     capital = 0.0
@@ -281,8 +285,10 @@ def _build_investissement_libre_option(
         capital += montant
         growth = capital * rendement_marche
         capital += growth
-        # Annual wealth tax
-        annual_wealth_tax = capital * wealth_tax_rate
+        # Annual wealth tax — modèle canonique (exonération + barème)
+        annual_wealth_tax = wealth_svc.estimate_wealth_tax(
+            capital, canton.upper(), civil_status
+        ).impot_fortune
         capital -= annual_wealth_tax
         cumulative_tax += annual_wealth_tax
 
@@ -435,6 +441,7 @@ def compare_allocation_annuelle(
         annees=annees_avant_retraite,
         rendement_marche=rendement_marche,
         canton=canton,
+        is_married=is_married,
     ))
 
     # Breakeven: compare 3a vs invest libre if both present
@@ -547,6 +554,7 @@ def compare_allocation_annuelle(
             annees=annees_avant_retraite,
             rendement_marche=variant_rendement_marche,
             canton=canton,
+            is_married=is_married,
         ))
 
         return variant_options

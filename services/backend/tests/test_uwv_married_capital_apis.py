@@ -53,10 +53,16 @@ def test_allocation_annuelle_married_lowers_withdrawal_tax():
     for oid in ("3a", "rachat_lpp", "amort_indirect"):
         assert oid in by_id_s, f"option {oid} absente : le test ne prouve rien"
         assert by_id_m[oid].terminal_value > by_id_s[oid].terminal_value, oid
-    # Invest libre : pas de retrait capital 2e/3e pilier -> inchangé.
+    # Invest libre : pas de retrait capital 2e/3e pilier — mais depuis la
+    # migration -cm4 l'impôt fortune est marié-aware (socle d'exonération
+    # doublé, WealthTaxService) : marié >= célibataire par un AUTRE canal.
     assert (
         by_id_m["invest_libre"].terminal_value
-        == by_id_s["invest_libre"].terminal_value
+        >= by_id_s["invest_libre"].terminal_value
+    )
+    assert (
+        by_id_m["invest_libre"].cumulative_tax_impact
+        <= by_id_s["invest_libre"].cumulative_tax_impact
     )
 
 
