@@ -9019,7 +9019,7 @@ class SIt extends S {
 
   @override
   String get rachatEchelonneImpactBlocExplain =>
-      'In blocco, la deduzione attraversa più scaglioni. Scaglionando, ogni deduzione resta nello scaglione più alto.';
+      'In blocco, la deduzione attraversa più scaglioni (aliquota media più bassa). Scaglionando, una parte maggiore di ogni deduzione può restare negli scaglioni alti, a parità di reddito.';
 
   @override
   String get rachatEchelonneBloc => 'Blocco';
@@ -9075,7 +9075,7 @@ class SIt extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Ecco perché scaglionare i riscatti è intelligente.';
+      'Perché le cifre differiscono: a parità di reddito, una tranche scaglionata può essere dedotta a un\'aliquota marginale più alta, mentre un riscatto unico sposta parte della deduzione verso aliquote più basse.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

@@ -102,6 +102,8 @@ ALLOW = {
     ".claude/skills/mint-backend-dev/SKILL.md",
     ".planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md",
     "tools/checks/create_or_update_mint_skills.py",
+    # -dwr : posture LSFin du tip rachat échelonné (copie x6 + garde)
+    "apps/mobile/test/l10n/rachat_echelonne_posture_test.dart",
     "tools/checks/ci_gate_aggregation_check.py",
     "services/backend/app/constants/social_insurance.py",
     "services/backend/app/services/independants/avs_cotisations_service.py",

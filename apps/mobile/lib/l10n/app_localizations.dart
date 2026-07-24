@@ -15898,7 +15898,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneImpactBlocExplain.
   ///
   /// In fr, this message translates to:
-  /// **'En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, chaque déduction reste dans la tranche la plus haute.'**
+  /// **'En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, une part plus grande de chaque déduction peut rester dans des tranches élevées, à revenu comparable.'**
   String get rachatEchelonneImpactBlocExplain;
 
   /// No description provided for @rachatEchelonneBloc.
@@ -15988,7 +15988,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneTauxMarginalTip.
   ///
   /// In fr, this message translates to:
-  /// **'C\'est pour ça qu\'échelonner tes rachats est malin : chaque tranche reste dans un taux marginal élevé.'**
+  /// **'Pourquoi les chiffres diffèrent : à revenu comparable, une tranche échelonnée peut être déduite à un taux marginal plus élevé, alors qu\'un rachat en bloc fait glisser une partie de la déduction vers des taux plus bas.'**
   String get rachatEchelonneTauxMarginalTip;
 
   /// No description provided for @rachatEchelonneTauxMarginalSemantics.

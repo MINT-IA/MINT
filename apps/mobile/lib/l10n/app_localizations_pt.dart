@@ -8996,7 +8996,7 @@ class SPt extends S {
 
   @override
   String get rachatEchelonneImpactBlocExplain =>
-      'Em bloco, a dedução atravessa vários escalões. Escalonando, cada dedução fica no escalão mais alto.';
+      'Em bloco, a dedução atravessa vários escalões (taxa média mais baixa). Escalonando, uma parte maior de cada dedução pode permanecer em escalões altos, com rendimentos comparáveis.';
 
   @override
   String get rachatEchelonneBloc => 'Bloco';
@@ -9053,7 +9053,7 @@ class SPt extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'É por isso que escalonar os resgates é inteligente.';
+      'Porque é que os números diferem: com rendimentos comparáveis, uma tranche escalonada pode ser deduzida a uma taxa marginal mais alta, enquanto um resgate único desloca parte da dedução para taxas mais baixas.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

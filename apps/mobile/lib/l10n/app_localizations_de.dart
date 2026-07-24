@@ -9029,7 +9029,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneImpactBlocExplain =>
-      'Bei Einmalzahlung durchquert der Abzug mehrere Stufen. Gestaffelt bleibt jeder Abzug in der höchsten Stufe.';
+      'Bei Einmalzahlung durchquert der Abzug mehrere Stufen (tieferer Durchschnittssatz). Gestaffelt kann bei vergleichbarem Einkommen ein grösserer Teil jedes Abzugs in höheren Stufen bleiben.';
 
   @override
   String get rachatEchelonneBloc => 'Einmal';
@@ -9085,7 +9085,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Deshalb ist es klug, Einkäufe zu staffeln.';
+      'Warum sich die Zahlen unterscheiden: Bei vergleichbarem Einkommen kann eine gestaffelte Tranche zu einem höheren Grenzsteuersatz abgezogen werden, während ein Einmaleinkauf einen Teil des Abzugs in tiefere Sätze verschiebt.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

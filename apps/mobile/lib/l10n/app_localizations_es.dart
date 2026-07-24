@@ -9000,7 +9000,7 @@ class SEs extends S {
 
   @override
   String get rachatEchelonneImpactBlocExplain =>
-      'En bloque, la deducción atraviesa varios tramos. Escalonando, cada deducción queda en el tramo más alto.';
+      'En bloque, la deducción atraviesa varios tramos (tasa media más baja). Escalonando, una mayor parte de cada deducción puede permanecer en tramos altos, con ingresos comparables.';
 
   @override
   String get rachatEchelonneBloc => 'Bloque';
@@ -9056,7 +9056,7 @@ class SEs extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Por eso escalonar los rescates es inteligente.';
+      'Por qué difieren las cifras: con ingresos comparables, un tramo escalonado puede deducirse a una tasa marginal más alta, mientras que un rescate único desplaza parte de la deducción hacia tasas más bajas.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>
