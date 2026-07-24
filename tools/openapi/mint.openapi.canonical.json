@@ -489,6 +489,18 @@
             "from_profile": "canton",
             "title": "Canton"
           },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
+          },
           "isPropertyOwner": {
             "anyOf": [
               {
@@ -8863,6 +8875,18 @@
             "from_profile": "canton",
             "title": "Canton"
           },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
+          },
           "montantRetraitSouhaite": {
             "description": "Montant de retrait souhaite (CHF)",
             "minimum": 0.0,
@@ -9406,6 +9430,18 @@
             "minimum": 0.0,
             "title": "Epargnecash",
             "type": "number"
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
           },
           "prixCible": {
             "default": 0,
@@ -13807,6 +13843,18 @@
             "minimum": 65.0,
             "title": "Esperancevie",
             "type": "integer"
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
           }
         },
         "required": [

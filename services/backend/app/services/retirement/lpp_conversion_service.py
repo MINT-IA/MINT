@@ -76,6 +76,7 @@ class LppConversionService:
         retirement_age: int = 65,
         life_expectancy: int = 87,
         taux_marginal_revenu: Optional[float] = None,
+        is_married: bool = False,
     ) -> LppConversionResult:
         """Compare rente vs capital withdrawal for given LPP capital.
 
@@ -88,6 +89,10 @@ class LppConversionService:
                 la rente (flat). None (défaut) -> convention canonique
                 estimate_income_tax_on_rente (modèle v2, beads -amq) —
                 l'ancien flat 25% surestimait l'impôt d'une rente typique.
+            is_married: Marié·e — appliqué aux DEUX côtés (splitting sur
+                l'impôt rente ET coefficient cantonal sur l'impôt de
+                retrait capital) pour ne pas biaiser la comparaison
+                (beads MINT_nosync-uwv, défaut False).
 
         Returns:
             LppConversionResult with complete comparison.
@@ -114,7 +119,7 @@ class LppConversionService:
             rente_impot_annuel = round(rente_brute_annuelle * taux_marginal, 2)
         else:
             rente_impot_annuel = estimate_income_tax_on_rente(
-                rente_brute_annuelle, canton_upper
+                rente_brute_annuelle, canton_upper, is_married=is_married
             )
 
         # Rente net after income tax
@@ -127,7 +132,9 @@ class LppConversionService:
             estimate_capital_withdrawal_tax,
         )
 
-        impot = estimate_capital_withdrawal_tax(capital_lpp, canton_upper)
+        impot = estimate_capital_withdrawal_tax(
+            capital_lpp, canton_upper, is_married=is_married
+        )
         capital_net = round(capital_lpp - impot, 2)
 
         # Breakeven SIMPLIFIÉ — cumul NOMINAL d'une rente constante vs

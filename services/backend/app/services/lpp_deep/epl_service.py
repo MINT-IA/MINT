@@ -110,6 +110,7 @@ class EPLService:
         annees_depuis_dernier_rachat: Optional[int] = None,
         avoir_a_50_ans: Optional[float] = None,
         canton: str = "ZH",
+        is_married: bool = False,
     ) -> EPLResult:
         """Simulate an EPL withdrawal.
 
@@ -123,6 +124,8 @@ class EPLService:
             annees_depuis_dernier_rachat: Years since last buyback.
             avoir_a_50_ans: LPP savings at age 50 (if known, for age >= 50 rule).
             canton: Canton code for tax estimation.
+            is_married: Marié·e — coefficient cantonal réduit sur l'impôt
+                de retrait (beads MINT_nosync-uwv, défaut False).
 
         Returns:
             EPLResult with complete simulation.
@@ -170,7 +173,9 @@ class EPLService:
             estimate_capital_withdrawal_tax,
         )
 
-        impot_estime = estimate_capital_withdrawal_tax(montant_effectif, canton_upper)
+        impot_estime = estimate_capital_withdrawal_tax(
+            montant_effectif, canton_upper, is_married=is_married
+        )
         # v2 -2i2 : plus de taux de base cantonal — le taux exposé est le taux
         # effectif dérivé du modèle v2 (impôt / montant), 0 si aucun retrait.
         taux_impot = (
