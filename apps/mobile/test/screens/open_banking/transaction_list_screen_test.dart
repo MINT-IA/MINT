@@ -19,39 +19,45 @@ void main() {
     );
   }
 
-  testWidgets('renders and shows the mock transactions (this month)',
+  // formatChf inserts a non-breaking space between « CHF » and the amount.
+  const zeroChf = 'CHF\u00A00.00';
+
+  testWidgets('renders with this-month transactions (no empty state)',
       (tester) async {
     await tester.pumpWidget(buildTransactionListScreen());
     await tester.pump();
     expect(find.byType(TransactionListScreen), findsOneWidget);
-    // Default period is « Ce mois » — the demo data is this month, so the
-    // empty state must NOT show.
+    // Default period « Ce mois » — the demo data is this month, so the list is
+    // populated and the empty state must NOT show.
     expect(find.text('Aucune transaction'), findsNothing);
   });
 
   testWidgets(
-      'period chips actually filter — « Mois précédent » empties the list (W0)',
+      'period chips filter both the list and the monthly summary (W0)',
       (tester) async {
     // Anti-façade: the period chips used to setState(_selectedPeriod) without
-    // _filteredTransactions ever reading it (audit segment-D dead filter).
-    // Now they filter. The demo data is all the current month, so tapping
-    // « Mois précédent » yields an honest empty state. RED while the filter is
-    // decorative (transactions still shown), GREEN once it filters.
+    // _filteredTransactions ever reading it (audit segment-D dead filter). Now
+    // the period drives BOTH the list and the monthly summary. The demo data is
+    // all the current month, so « Mois précédent » yields an honest empty list
+    // AND a zeroed summary. RED while the filter is decorative, GREEN once wired.
     await tester.pumpWidget(buildTransactionListScreen());
-    // Settle the MintEntrance animations so the chip is fully opaque and
-    // receives pointer events (data is static — pumpAndSettle is safe here).
     await tester.pumpAndSettle();
 
-    // This month: transactions present, no empty state.
+    // This month: list populated, no empty state.
     expect(find.text('Aucune transaction'), findsNothing);
 
     // Tap the « Mois précédent » chip.
     await tester.tap(find.text('Mois précédent'));
     await tester.pumpAndSettle();
 
-    // The list is now filtered to last month (empty in the demo) → the honest
-    // empty state shows. A decorative (unwired) chip would leave the
-    // transactions in place and this would fail.
+    // The list is now filtered to last month (empty in the demo) → honest
+    // empty state. A decorative (unwired) chip would leave the list in place.
     expect(find.text('Aucune transaction'), findsOneWidget);
+
+    // Consistency lock (Codex #1020) : the monthly summary follows the period
+    // too, so its rows read CHF 0.00 for the empty « mois précédent » (income,
+    // expenses AND net all zero). A summary still computed on the current month
+    // (the introduced bug) would show non-zero income/expenses here.
+    expect(find.text(zeroChf), findsWidgets);
   });
 }
