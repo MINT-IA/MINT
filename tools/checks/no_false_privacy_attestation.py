@@ -15,6 +15,7 @@ the defect exists — and stays GREEN only once the docs tell the truth.
 """
 from __future__ import annotations
 
+import argparse
 import re
 import sys
 from pathlib import Path
@@ -62,17 +63,76 @@ FALSE_PROMISE_PATTERNS = [
     # matchent pas. Les autres géo-attestations fausses de PRIVACY.md
     # (analytics « restent en Suisse ») relèvent d'un bead PRIVACY.md dédié.
     r"serveur\b.{0,15}\bsuisse",
-    # Étiquettes App Store / Play Store « Data Not Collected » : le profil
-    # financier est persisté côté serveur (Railway) ET transmis au coach
-    # Anthropic (US) avec les montants exacts. Toute déclaration « tout reste sur
-    # l'appareil / financial info local seulement / aucune donnée partagée » est
-    # une fausse déclaration opposable aux stores.
+    # Étiquettes App Store / Play Store : le profil financier est persisté côté
+    # serveur (Railway) ET transmis au coach Anthropic (US) avec les montants
+    # exacts, et les documents uploadés partent chez Claude Vision (US). Ces
+    # motifs ciblent les FORMULATIONS FAUSSES précises (« tout reste sur
+    # l'appareil / financial info local seulement / aucune donnée partagée »),
+    # PAS le libellé de catégorie légitime « Data Not Collected » (vrai
+    # per-catégorie pour Location, Contacts, etc. — non matché à dessein).
     r"toutes les donn[ée]es personnelles restent sur l['’]appareil",
     r"donn[ée]es financi[èe]res stock[ée]es localement uniquement",
     r"no data shared with third parties",
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in FALSE_PROMISE_PATTERNS]
+
+# Self-test (Codex #1018 P2): prove each pattern has teeth and none over-matches
+# a legitimate line. Each positive must hit ≥1 pattern; every pattern must be
+# hit by ≥1 positive (no dead/broken regex); no negative may hit any pattern.
+_SELF_TEST_POSITIVES = [
+    "your document never leaves your phone",
+    "on-device OCR by default for all uploads",
+    "aucun document ne quitte l'appareil",
+    "le parsing se fait intégralement sur ton appareil",
+    "toutes tes données personnelles restent sur ton appareil",
+    "le coach reçoit uniquement des données agrégées",
+    "on n'envoie jamais ton salaire exact au coach",
+    "contexte agrégé (pas de PII) transmis au modèle",
+    "ton salaire exact n'est jamais envoyé à Anthropic",
+    '"dataTransparencySalaryDetail": "jamais envoyé au serveur"',
+    "ton relevé est traité sur notre serveur suisse",
+    "toutes les données personnelles restent sur l'appareil",
+    "Financial Info — données financières stockées localement uniquement",
+    "No data shared with third parties",
+]
+_SELF_TEST_NEGATIVES = [
+    "Location: Data Not Collected",                       # legit per-category
+    "Contacts: Data Not Collected",                       # legit per-category
+    "Financial Info | Oui | Oui | Non | profil synchronisé serveur",
+    "shared with Anthropic (US) — coach IA",
+    "MINT est conçu en Suisse",                           # « serveur suisse » non matché
+    "hébergement en Suisse prévu en Phase 2",             # projet futur légitime
+    "le 3a est un pilier suisse",
+    "profil pseudonymisé, montants exacts inclus, transmis au coach",
+]
+
+
+def _line_hits(line: str) -> bool:
+    return any(rx.search(line) for rx in _COMPILED)
+
+
+def _self_test() -> int:
+    failures: list[str] = []
+    for sample in _SELF_TEST_POSITIVES:
+        if not _line_hits(sample):
+            failures.append(f"MISS (should flag): {sample!r}")
+    for sample in _SELF_TEST_NEGATIVES:
+        if _line_hits(sample):
+            failures.append(f"FALSE POSITIVE (should be clean): {sample!r}")
+    # No dead pattern: every regex must be exercised by ≥1 positive.
+    for pat, rx in zip(FALSE_PROMISE_PATTERNS, _COMPILED):
+        if not any(rx.search(s) for s in _SELF_TEST_POSITIVES):
+            failures.append(f"DEAD PATTERN (no positive covers it): {pat!r}")
+    if failures:
+        print("no_false_privacy_attestation --self-test FAILED:")
+        for f in failures:
+            print(f"  ✗ {f}")
+        return 1
+    print(f"no_false_privacy_attestation --self-test OK "
+          f"({len(_SELF_TEST_POSITIVES)} flagged, {len(_SELF_TEST_NEGATIVES)} clean, "
+          f"{len(FALSE_PROMISE_PATTERNS)} patterns covered).")
+    return 0
 
 
 def _read(rel: str) -> list[str] | None:
@@ -133,4 +193,10 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--self-test", action="store_true",
+        help="Verify the false-promise patterns catch known lies and not legitimate lines.",
+    )
+    args = parser.parse_args()
+    sys.exit(_self_test() if args.self_test else main())

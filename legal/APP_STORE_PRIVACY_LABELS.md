@@ -32,7 +32,7 @@ L'app collecte un **profil financier** : chiffré, synchronisé côté serveur (
 | **Location** | Non | — | — | Canton déclaré manuellement, pas de GPS |
 | **Sensitive Info** | Non | — | — | — |
 | **Contacts** | Non | — | — | — |
-| **User Content** | **Oui** | **Oui** | Non | Messages écrits au coach transmis à Anthropic (US) tels quels — App Functionality |
+| **User Content** (documents, messages) | **Oui** | **Oui** | Non | Documents uploadés (certificats LPP, fiches de paie, contrats) analysés par Anthropic Claude Vision (US, masquage PII lorsque possible) + messages écrits au coach transmis tels quels à Anthropic (US) — App Functionality |
 | **Browsing History** | Non | — | — | — |
 | **Search History** | Non | — | — | — |
 | **Identifiers** (User ID) | **Oui** | **Oui** | Non | ID de compte / session (auth JWT) — App Functionality, aucun tracking cross-app |
@@ -46,7 +46,7 @@ L'app collecte un **profil financier** : chiffré, synchronisé côté serveur (
 ✅ Data Used to Track You: NONE (aucun tracking cross-app, ATT non requis)
 ⚠️ Data Linked to You:
    - Financial Info (profil financier — App Functionality)
-   - User Content (messages au coach IA)
+   - User Content (documents uploadés → Claude Vision + messages au coach IA)
    - Identifiers (ID de compte)
 ⚠️ Data Not Linked to You:
    - Usage Data (Analytics — optionnel)
@@ -75,8 +75,8 @@ Depuis juillet 2022, Google exige que chaque application déclare ses pratiques 
 
 | Question Google | Réponse MINT | Justification |
 |----------------|-------------|---------------|
-| L'application collecte-t-elle ou partage-t-elle des données utilisateur ? | Oui (profil financier + usage + diagnostics) | Profil financier synchronisé serveur + coach IA + analytics + crash logs |
-| L'application partage-t-elle des données avec des tiers ? | **Oui** | Coach IA Anthropic (US) reçoit le profil financier pseudonymisé (montants exacts) |
+| L'application collecte-t-elle ou partage-t-elle des données utilisateur ? | Oui (profil financier + documents + messages + usage + diagnostics) | Profil financier synchronisé serveur ; documents + messages envoyés au coach/Vision IA ; analytics + crash logs |
+| L'application partage-t-elle des données avec des tiers ? | **Oui** | Coach IA Anthropic (US) reçoit le profil financier pseudonymisé (montants exacts), les documents uploadés (Claude Vision) et les messages du coach |
 | Les données sont-elles chiffrées en transit ? | Oui | HTTPS/TLS 1.2+ pour appels API |
 | Les données sont-elles chiffrées au repos ? | Oui | EncryptedSharedPreferences (AES-256-GCM) |
 | L'utilisateur peut-il demander la suppression ? | Oui | Fonction « Supprimer toutes mes données » |
@@ -90,7 +90,9 @@ Depuis juillet 2022, Google exige que chaque application déclare ses pratiques 
 | **App info and performance** (crash logs, diagnostics) | Oui | Non | Non | Stabilité |
 | **Device or other IDs** | Non | — | — | — |
 | **Financial info** | **Oui** | **Oui** (coach IA Anthropic) | Non | Profil chiffré synchronisé serveur + envoyé au coach IA |
-| **Personal info** | Non | — | — | Ni nom, email, IBAN ni numéro AVS (cf. PRIVACY.md) |
+| **Personal info** (User IDs) | **Oui** | **Oui** | Non | Identifiant de compte (auth JWT) uniquement ; ni nom, email, IBAN ni numéro AVS (cf. PRIVACY.md) |
+| **Messages** (in-app messages) | **Oui** | **Oui** (Anthropic US) | Non | Messages écrits au coach transmis tels quels à Anthropic |
+| **Photos & videos / Files & docs** | **Oui** | **Oui** (Anthropic US) | Non | Documents uploadés (certificats, fiches de paie, contrats) analysés par Claude Vision (US) |
 | **Location** | Non | — | — | Canton déclaré manuellement |
 
 #### Résumé pour Google Play Console
