@@ -9075,7 +9075,7 @@ class SIt extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Ecco perché scaglionare i riscatti è intelligente.';
+      'Perché le cifre differiscono: ogni tranche scaglionata è dedotta a un\'aliquota marginale elevata, mentre un riscatto unico sposta la deduzione verso aliquote più basse.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

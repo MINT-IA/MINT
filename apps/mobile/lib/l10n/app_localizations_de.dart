@@ -9085,7 +9085,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Deshalb ist es klug, Einkäufe zu staffeln.';
+      'Warum sich die Zahlen unterscheiden: Jede gestaffelte Tranche wird zu einem hohen Grenzsteuersatz abgezogen, während ein Einmaleinkauf den Abzug in tiefere Sätze verschiebt.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

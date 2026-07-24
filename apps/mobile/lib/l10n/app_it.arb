@@ -4184,7 +4184,7 @@
   },
   "rachatEchelonneTauxMarginalTitle": "Aliquota marginale",
   "rachatEchelonneTauxMarginalBody": "L'aliquota marginale è la percentuale d'imposta sull'ultimo franco guadagnato. Con un'aliquota del 32 %, una deduzione di CHF 1'000 corrisponde a un impatto fiscale indicativo di CHF 320. Più alto è il reddito, più questa aliquota può aumentare.",
-  "rachatEchelonneTauxMarginalTip": "Ecco perché scaglionare i riscatti è intelligente.",
+  "rachatEchelonneTauxMarginalTip": "Perché le cifre differiscono: ogni tranche scaglionata è dedotta a un'aliquota marginale elevata, mentre un riscatto unico sposta la deduzione verso aliquote più basse.",
   "rachatEchelonneTauxMarginalSemantics": "Informazioni sull'aliquota marginale",
   "staggered3aTitle": "Prelievo 3a scaglionato",
   "staggered3aEconomie": "Risparmio stimato",

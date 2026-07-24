@@ -9054,7 +9054,7 @@ class SFr extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'C\'est pour ça qu\'échelonner tes rachats est malin : chaque tranche reste dans un taux marginal élevé.';
+      'Pourquoi les chiffres diffèrent : chaque tranche échelonnée est déduite à un taux marginal élevé, alors qu\'un rachat en bloc fait glisser la déduction vers des taux plus bas.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

@@ -9053,7 +9053,7 @@ class SPt extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'É por isso que escalonar os resgates é inteligente.';
+      'Porque é que os números diferem: cada tranche escalonada é deduzida a uma taxa marginal elevada, enquanto um resgate único desloca a dedução para taxas mais baixas.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

@@ -9056,7 +9056,7 @@ class SEs extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Por eso escalonar los rescates es inteligente.';
+      'Por qué difieren las cifras: cada tramo escalonado se deduce a una tasa marginal alta, mientras que un rescate único desplaza la deducción hacia tasas más bajas.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

@@ -15988,7 +15988,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneTauxMarginalTip.
   ///
   /// In fr, this message translates to:
-  /// **'C\'est pour ça qu\'échelonner tes rachats est malin : chaque tranche reste dans un taux marginal élevé.'**
+  /// **'Pourquoi les chiffres diffèrent : chaque tranche échelonnée est déduite à un taux marginal élevé, alors qu\'un rachat en bloc fait glisser la déduction vers des taux plus bas.'**
   String get rachatEchelonneTauxMarginalTip;
 
   /// No description provided for @rachatEchelonneTauxMarginalSemantics.

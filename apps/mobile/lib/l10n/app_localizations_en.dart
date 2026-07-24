@@ -9005,7 +9005,7 @@ class SEn extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'That\'s why staggering buybacks is smart: each instalment stays in a high marginal bracket.';
+      'Why the figures differ: each staggered instalment is deducted at a high marginal rate, while a lump-sum buyback pushes the deduction into lower brackets.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>

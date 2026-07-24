@@ -4184,7 +4184,7 @@
   },
   "rachatEchelonneTauxMarginalTitle": "Taxa marginal de impostos",
   "rachatEchelonneTauxMarginalBody": "A taxa marginal é a percentagem de imposto sobre o teu último franco ganho. Com uma taxa de 32 %, uma dedução de CHF 1'000 corresponde a um impacto fiscal indicativo de CHF 320. Quanto maior o rendimento, mais esta taxa pode subir.",
-  "rachatEchelonneTauxMarginalTip": "É por isso que escalonar os resgates é inteligente.",
+  "rachatEchelonneTauxMarginalTip": "Porque é que os números diferem: cada tranche escalonada é deduzida a uma taxa marginal elevada, enquanto um resgate único desloca a dedução para taxas mais baixas.",
   "rachatEchelonneTauxMarginalSemantics": "Informação sobre a taxa marginal",
   "staggered3aTitle": "Levantamento 3a escalonado",
   "staggered3aEconomie": "Poupança estimada",

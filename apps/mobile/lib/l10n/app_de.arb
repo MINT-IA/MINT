@@ -4184,7 +4184,7 @@
   },
   "rachatEchelonneTauxMarginalTitle": "Grenzsteuersatz",
   "rachatEchelonneTauxMarginalBody": "Der Grenzsteuersatz ist der Steuerprozentsatz auf deinen letzten verdienten Franken. Bei 32 % entspricht ein Abzug von CHF 1'000 einem indikativen Steuereffekt von CHF 320. Je höher dein Einkommen, desto stärker kann dieser Satz steigen.",
-  "rachatEchelonneTauxMarginalTip": "Deshalb ist es klug, Einkäufe zu staffeln.",
+  "rachatEchelonneTauxMarginalTip": "Warum sich die Zahlen unterscheiden: Jede gestaffelte Tranche wird zu einem hohen Grenzsteuersatz abgezogen, während ein Einmaleinkauf den Abzug in tiefere Sätze verschiebt.",
   "rachatEchelonneTauxMarginalSemantics": "Information zum Grenzsteuersatz",
   "staggered3aTitle": "Gestaffelter 3a-Bezug",
   "staggered3aEconomie": "Geschätzte Ersparnis",
