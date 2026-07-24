@@ -15392,7 +15392,7 @@ class SEn extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Some cantons allow you to complete the previous year’s pillar 3a contribution until March. Check your canton’s rules.';
+      'To be deductible this year, your 3a contribution must be credited to your account by 31 December at the latest. An order placed too late may only be credited in January — and then count for the following year. Don\'t leave it too late.';
 
   @override
   String get communityChallenge03Title =>

@@ -15510,7 +15510,7 @@ class SDe extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Einige Kantone erlauben es, die 3a-Einzahlung des Vorjahres bis März zu ergänzen. Prüfe die Regeln deines Kantons.';
+      'Damit dein 3a-Beitrag dieses Jahr abziehbar ist, muss er spätestens am 31. Dezember deinem Konto gutgeschrieben sein. Ein zu spät erteilter Auftrag wird womöglich erst im Januar gutgeschrieben — und zählt dann fürs nächste Jahr. Warte nicht zu lange.';
 
   @override
   String get communityChallenge03Title =>

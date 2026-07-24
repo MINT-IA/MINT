@@ -27230,7 +27230,7 @@ abstract class S {
   /// No description provided for @communityChallenge03Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Certains cantons permettent de compléter le versement 3a de l’année précédente jusqu’en mars. Vérifie les règles de ton canton.'**
+  /// **'Pour être déduit de cette année, ton versement 3a doit être crédité sur ton compte au plus tard le 31 décembre. Un ordre passé trop tard peut n\'être crédité qu\'en janvier — et compter alors pour l\'année suivante. Ne t\'y prends pas trop tard.'**
   String get communityChallenge03Desc;
 
   /// No description provided for @communityChallenge03Title.

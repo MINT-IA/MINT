@@ -15476,7 +15476,7 @@ class SEs extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Algunos cantones permiten completar la aportación del año anterior al pilar 3a hasta marzo. Comprueba las normas de tu cantón.';
+      'Para que sea deducible este año, tu aportación al 3a debe estar abonada en tu cuenta a más tardar el 31 de diciembre. Una orden dada demasiado tarde puede abonarse solo en enero — y contar entonces para el año siguiente. No lo dejes para el último momento.';
 
   @override
   String get communityChallenge03Title =>

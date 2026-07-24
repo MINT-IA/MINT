@@ -15464,7 +15464,7 @@ class SFr extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Certains cantons permettent de compléter le versement 3a de l’année précédente jusqu’en mars. Vérifie les règles de ton canton.';
+      'Pour être déduit de cette année, ton versement 3a doit être crédité sur ton compte au plus tard le 31 décembre. Un ordre passé trop tard peut n\'être crédité qu\'en janvier — et compter alors pour l\'année suivante. Ne t\'y prends pas trop tard.';
 
   @override
   String get communityChallenge03Title =>

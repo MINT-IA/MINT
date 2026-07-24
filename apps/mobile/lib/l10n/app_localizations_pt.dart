@@ -15468,7 +15468,7 @@ class SPt extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Alguns cantões permitem completar a contribuição do ano anterior para o pilar 3a até março. Verifica as regras do teu cantão.';
+      'Para ser dedutível este ano, a tua contribuição 3a deve estar creditada na conta até 31 de dezembro. Uma ordem dada demasiado tarde pode só ser creditada em janeiro — e contar então para o ano seguinte. Não deixes para a última hora.';
 
   @override
   String get communityChallenge03Title =>
