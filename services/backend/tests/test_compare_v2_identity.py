@@ -58,11 +58,13 @@ def test_children_reduce_relative_to_married(comparator):
     assert two.charge_totale < base.charge_totale
 
 
-def test_fl_still_accepted_with_average_fallback(comparator):
-    """FL (Liechtenstein) reste accepté — fallback moyenne 26 cantons,
-    documenté (compat API : l'ancienne table le listait)."""
-    est = comparator.estimate_tax(100_000, "FL")
-    assert est.charge_totale > 0
+def test_fl_rejected_as_before(comparator):
+    """FL rejeté — l'ancienne table ne le listait PAS (« FL removed —
+    not a Swiss canton », dev:51) ; le filtre if c != 'FL' était
+    vestigial. Review #997 : l'accepter aurait été une extension
+    comportementale injustifiée."""
+    with pytest.raises(ValueError, match="Canton inconnu"):
+        comparator.estimate_tax(100_000, "FL")
 
 
 def test_compare_all_cantons_still_26(comparator):
@@ -81,7 +83,8 @@ def test_simulate_move_is_v2_difference():
 
 
 def test_effective_rates_table_removed():
-    """Le bloc déprécié est bien supprimé — plus aucun consommateur."""
+    """Pierre tombale : le bloc déprécié est supprimé du module — la
+    référence par nom ici est la GARDE d'absence, pas un usage."""
     import app.services.fiscal.cantonal_comparator as mod
 
     assert not hasattr(mod, "EFFECTIVE_RATES_100K_SINGLE")

@@ -313,10 +313,15 @@ def estimate_income_tax(
     les déductions réelles varient ; SG/TI barèmes 2025. Estimation
     éducative, jamais un conseil fiscal (LSFin).
     """
-    fed, cant = estimate_income_tax_parts(
-        taxable_income, canton, is_married=is_married
-    )
-    return round(fed + cant, 2)
+    # Review #997 : le facteur marié s'applique à la SOMME (ordre des
+    # flottants bit-identique à l'ancien corps — les parités croisées
+    # RvC/Dart sont gelées au centime ; x0.80 par part peut dévier d'un
+    # centime après arrondi, ex. TG 280'195 marié).
+    fed, cant = estimate_income_tax_parts(taxable_income, canton)
+    total = fed + cant
+    if is_married:
+        total *= 0.80
+    return round(total, 2)
 
 
 def estimate_income_tax_on_rente(
@@ -432,7 +437,7 @@ class CantonalComparator:
         """
         canton = canton.upper()
 
-        if canton != "FL" and canton not in CANTONAL_COMMUNAL_TAX_CHF:
+        if canton not in CANTONAL_COMMUNAL_TAX_CHF:
             raise ValueError(
                 f"Canton inconnu: '{canton}'. "
                 f"Codes valides: {', '.join(sorted(CANTONAL_COMMUNAL_TAX_CHF.keys()))}"
@@ -447,8 +452,7 @@ class CantonalComparator:
         # 2. Modèle v2 canonique (beads compare-v2) : IFD progressif +
         # interpolation ESTV 130 points — remplace « taux effectif 100k x
         # facteur de revenu » dont les différences d'impôt étaient fausses.
-        # FL : pas dans la grille ESTV -> fallback moyenne des 26 (compat
-        # API, l'ancienne table le listait).
+        # FL rejeté comme avant (« not a Swiss canton », vérifié sur dev).
         is_married = civil_status == "marie"
         impot_federal, impot_cantonal_communal = estimate_income_tax_parts(
             revenu_imposable, canton, is_married=is_married
