@@ -19,7 +19,7 @@ status: "READY"
 - Auswirkung auf Säule 3a-Limite (Klein vs. Gross).
 
 ## Hypothèses
-- Standard BVG-Eintrittsschwelle (22'050 CHF).
+- Standard BVG-Eintrittsschwelle (22'680 CHF).
 - Kein komplexer überobligatorischer BVG-Plan.
 
 ## Limites

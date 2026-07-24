@@ -14,7 +14,7 @@ La rente AVS maximale est de CHF 2'520/mois (CHF 30'240/an en 2025). Mais seule 
 ## Niveau 0
 Imagine un escalier avec 44 marches. Chaque année où tu cotises à l'AVS entre 21 et 65 ans, tu montes une marche. Si tu rates une année (voyage, études à l'étranger sans cotisation), tu as une marche en moins — et ta rente sera réduite proportionnellement.
 
-Ensuite, on regarde combien tu as gagné en moyenne pendant toutes ces années. C'est ton "revenu annuel moyen déterminant" (RAMD). Plus il est élevé, plus ta rente est haute — mais il y a un plafond. Au-delà d'un certain revenu moyen (~CHF 88'200/an), ta rente n'augmente plus.
+Ensuite, on regarde combien tu as gagné en moyenne pendant toutes ces années. C'est ton "revenu annuel moyen déterminant" (RAMD). Plus il est élevé, plus ta rente est haute — mais il y a un plafond. Au-delà d'un certain revenu moyen (~CHF 90'720/an), ta rente n'augmente plus.
 
 Limite de l'analogie : les bonifications pour tâches éducatives ou d'assistance peuvent "gonfler" ton RAMD sans que tu aies gagné ce revenu. C'est un bonus pour ceux qui ont élevé des enfants ou pris soin de proches.
 
@@ -37,7 +37,7 @@ Le calcul de la rente AVS repose sur deux facteurs principaux (LAVS art. 29 ss) 
 
 **Barème 2025** :
 - RAMD minimum (rente min) : CHF 15'120 → rente CHF 1'260/mois
-- RAMD maximum (rente max) : CHF 88'200 → rente CHF 2'520/mois
+- RAMD maximum (rente max) : CHF 90'720 → rente CHF 2'520/mois
 - Entre les deux : interpolation selon les tables OFAS
 
 Le splitting (LAVS art. 29quinquies) redistribue les revenus des couples mariés à 50/50 pendant les années de mariage.

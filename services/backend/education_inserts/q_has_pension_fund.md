@@ -19,7 +19,7 @@ status: "READY"
 - Impact sur plafond 3a (Petit vs Grand).
 
 ## Hypothèses
-- Seuil d'entrée LPP standard (22'050 CHF).
+- Seuil d'entrée LPP standard (22'680 CHF).
 - Pas de plan lpp surobligatoire complexe.
 
 ## Limites
