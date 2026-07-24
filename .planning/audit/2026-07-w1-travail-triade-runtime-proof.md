@@ -1,7 +1,7 @@
 ---
 date: 2026-07-24
 status: Verified
-description: "W1 Travail triade (firstJob/newJob/jobLoss) — état réel sur dev vs audit périmé. Le code est complet+câblé ; la preuve de rendu-calculé au niveau widget est maintenant complète pour les 3 écrans. La preuve end-to-end sur sim est bloquée par une régression du harnais Maestro (onboarding)."
+description: "W1 Travail triade (firstJob/newJob/jobLoss) — état réel sur dev vs audit périmé. Le code est complet+câblé ; ce bead établit une preuve de rendu-CALCULÉ (widget gaté sur le résultat) pour les 3 écrans — en durcissant 2 tests faibles (CHF générique) et en ajoutant le 3e. La preuve end-to-end sur sim est bloquée par une régression du harnais Maestro (onboarding)."
 related:
   - .planning/decisions/2026-07-24-campagne-contenu-officiel-garanti.md
   - apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart
@@ -11,17 +11,22 @@ related:
 
 ## TLDR
 
-L'audit 2026-07 (SHA gelé) listait la triade Travail comme « incomplète, sans preuve runtime ». Vérification sur dev courant (agent mint-mobile, citations) : **l'audit est périmé sur le code** — les 3 événements (firstJob / newJob / jobLoss) sont réels, routés, atteignables, et service-backed. Le seul écart réel vs le mandat ADR:48 (« complète avec preuve runtime ») était la preuve de **rendu-calculé**. Elle existait déjà pour 2 des 3 écrans (tests widget passants) ; ce bead ajoute le 3e (job_comparison). La preuve **end-to-end sur sim** reste bloquée par une régression du harnais Maestro (voir §Blocage).
+L'audit 2026-07 (SHA gelé) listait la triade Travail comme « incomplète, sans preuve runtime ». Vérification sur dev courant (agent mint-mobile, citations) : **l'audit est périmé sur le code** — les 3 événements (firstJob / newJob / jobLoss) sont réels, routés, atteignables, et service-backed. Le seul écart réel vs le mandat ADR:48 (« complète avec preuve runtime ») était la preuve de **rendu-calculé**. Correction post-Codex (#1022 r1 FAIL) : les 2 tests widget « pré-existants » n'étaient **pas** des preuves de rendu-calculé — ils assertaient `CHF` générique, satisfait par les libellés d'input inconditionnels. Ce bead **durcit les 3** en assertant un widget gaté sur `_result != null`. La preuve **end-to-end sur sim** reste bloquée par une régression du harnais Maestro (voir §Blocage).
 
-## Ce qui était déjà prouvé (audit périmé)
+## L'état réel avant ce bead (post-Codex, corrigé)
 
-- `first_job_screen` : `_calculate()` en `initState` → rend le premier éclairage + CHF calculé. Preuve : `test/screens/life_event_screens_additional_smoke_test.dart` groupe FirstJobScreen, test « shows results section with CHF amounts » (passant sur dev).
-- `unemployment_screen` (jobLoss) : `calculateBenefits()` en `initState` → rend l'indemnité CHF. Preuve : même fichier, groupe UnemploymentScreen, test « shows result after initial calculation » (passant).
-- `job_comparison_screen` (newJob) : `job_comparison_profile_seed_test.dart` prouvait le **seeding des entrées** depuis le profil, mais **pas** le rendu de la sortie calculée (verdict) après le tap « Comparer ».
+- `first_job_screen` : `_calculate()` en `initState` rend bien le résultat, MAIS le test « shows results section with CHF amounts » assertait `find.textContaining('CHF')` — **faux positif** : le slider de salaire rend des libellés CHF min/max inconditionnels (`first_job_screen.dart:374-389`). Le test restait vert même sans résultat calculé.
+- `unemployment_screen` (jobLoss) : même défaut — le slider de gain assuré rend `CHF` inconditionnellement (`unemployment_screen.dart:196-212`). Le test « shows result after initial calculation » était donc faible.
+- `job_comparison_screen` (newJob) : `job_comparison_profile_seed_test.dart` prouvait le **seeding des entrées**, pas la sortie calculée.
 
-## Ce que ce bead ajoute
+## Ce que ce bead livre
 
-Un 3e test de rendu-calculé pour `JobComparisonScreen`, dans le fichier qui héberge déjà les 2 autres : tap « Comparer » → assert que la carte VERDICT (gated sur `_result != null`) apparaît (absente avant le tap, présente après → garde anti-façade auto-portée). Les 3 écrans de la triade ont désormais une preuve de rendu-calculé passante et gatée en CI.
+Preuve de rendu-**calculé** pour les 3 écrans, via l'assertion d'un widget **structurellement gaté sur le résultat** (impossible à rendre sans compute), pas `CHF` générique :
+- `first_job` : `SalaryBreakdownWidget` (consomme `_result!.brut/netEstime/...`, gaté `if (_result != null)`). Preuve RED déterministe : neutraliser `_calculate()` → test rouge, restauré.
+- `unemployment` : `UnemploymentTimelineWidget` (consomme `_result!.timeline`, même gate).
+- `job_comparison` : carte VERDICT (`jobCompareVerdictLabel`, gate `_result != null`) après le tap « Comparer » — absente avant, présente après.
+
+Les 3 écrans de la triade ont désormais une preuve de rendu-calculé passante, gatée en CI, et déterministe (non satisfiable par des libellés d'input).
 
 ## Blocage : preuve end-to-end sur sim (harnais Maestro cassé sur dev)
 
