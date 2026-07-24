@@ -54,9 +54,10 @@ SCOPE_GLOBS = (
 _AP = r"['’]"
 
 # Each fact: the CORRECT 2026 statement, the CONTEXT keywords (any one must be
-# on the same line for an amount to count — None = unambiguous, no context), and
-# the superseded TOKEN patterns that must not reappear. A hit = context (or None)
-# AND a superseded token, on the same line.
+# within the 2-line window — current or previous line — for an amount to count;
+# None = unambiguous, no context), and the superseded TOKEN patterns that must
+# not reappear. A hit = a superseded token on the current line AND context (or
+# None) within the window (see scan_text).
 FACTS: list[dict] = [
     {
         "id": "ifd_deduction_enfant",
