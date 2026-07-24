@@ -59,6 +59,24 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
           .toList();
     }
 
+    // Filter by period — les chips « ce mois / mois dernier » filtrent
+    // désormais réellement la liste (audit segment-D : elles faisaient
+    // setState(_selectedPeriod) sans que _filteredTransactions ne le lise).
+    // Le demo est du mois courant, donc « mois dernier » affiche honnêtement
+    // l'état vide (_buildEmptyState) plutôt qu'un filtre décoratif.
+    final now = DateTime.now();
+    if (_selectedPeriod == 'this_month') {
+      transactions = transactions
+          .where((tx) => tx.date.year == now.year && tx.date.month == now.month)
+          .toList();
+    } else if (_selectedPeriod == 'last_month') {
+      final lastMonth = DateTime(now.year, now.month - 1);
+      transactions = transactions
+          .where((tx) =>
+              tx.date.year == lastMonth.year && tx.date.month == lastMonth.month)
+          .toList();
+    }
+
     // Sort by date descending
     transactions.sort((a, b) => b.date.compareTo(a.date));
     return transactions;
