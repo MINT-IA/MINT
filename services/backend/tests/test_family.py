@@ -452,22 +452,22 @@ class TestAllocationsFamiliales:
 class TestImpactFiscalEnfant:
     """Tests for NaissanceService.calculate_impact_fiscal_enfant()."""
 
-    def test_deduction_per_child_6700(self, naissance_service):
-        """Deduction per child should be CHF 6'700."""
+    def test_deduction_per_child_6800(self, naissance_service):
+        """Deduction per child should be CHF 6'800 (IFD 2026, art. 35 al. 1 let. a)."""
         result = naissance_service.calculate_impact_fiscal_enfant(
             revenu_imposable=100_000, taux_marginal=0.30, nb_enfants=2,
         )
         assert result.deduction_enfants == DEDUCTION_ENFANT_NAISSANCE * 2
-        assert result.deduction_enfants == 13_400
+        assert result.deduction_enfants == 13_600
 
-    def test_frais_garde_capped_25500(self, naissance_service):
-        """Daycare deduction should be capped at CHF 25'500."""
+    def test_frais_garde_capped_25800(self, naissance_service):
+        """Daycare deduction should be capped at CHF 25'800 (IFD 2026, art. 33 al. 3)."""
         result = naissance_service.calculate_impact_fiscal_enfant(
             revenu_imposable=100_000, taux_marginal=0.30, nb_enfants=1,
             frais_garde=30_000,
         )
         assert result.deduction_frais_garde == DEDUCTION_FRAIS_GARDE_MAX
-        assert result.deduction_frais_garde == 25_500
+        assert result.deduction_frais_garde == 25_800
 
     def test_economie_impot_calculation(self, naissance_service):
         """Tax savings should be total deduction * marginal rate."""

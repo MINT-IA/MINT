@@ -136,6 +136,9 @@ ALLOW = {
     # campagne-A : mariage_service -> moteur fiscal canonique + double-activité LIFD 33 al.2
     "services/backend/app/services/family/mariage_service.py",
     "services/backend/tests/test_family.py",
+    # campagne-A : naissance_service -> déductions IFD 2026 enfant/garde + article 33 al.3
+    "services/backend/app/services/family/naissance_service.py",
+    "services/backend/app/api/v1/endpoints/family.py",
     # -8p4 : tax_calculator.dart chemin revenu -> modèle v2 (PR B)
     "apps/mobile/lib/services/financial_core/tax_calculator.dart",
     "apps/mobile/test/services/financial_core/tax_calculator_v2_identity_test.dart",

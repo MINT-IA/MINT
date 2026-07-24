@@ -8,8 +8,8 @@ Sources:
     - LAPG art. 16d-16h (allocation maternite: 14 sem., 80%, max CHF 220/j)
     - LAPG art. 16i-16l (allocation paternite: 2 sem., 80%, max CHF 220/j)
     - LAFam art. 3 (allocations familiales: CHF 200-300/mois selon canton)
-    - LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'700)
-    - LIFD art. 33 al. 1 let. hbis (frais de garde: max CHF 25'500)
+    - LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'800)
+    - LIFD art. 33 al. 3 (frais de garde par des tiers: max CHF 25'800)
     - LPP art. 7-8 (salaire coordonne, bonifications de vieillesse)
     - OPP 2 (ordonnance LPP, salaire minimum / seuil d'entree)
 
@@ -74,10 +74,10 @@ AGE_LIMITE_FORMATION = 25    # Allocation de formation: 16-25 ans
 # ---------------------------------------------------------------------------
 
 # Deduction par enfant (LIFD art. 35 al. 1 let. a)
-DEDUCTION_PAR_ENFANT = 6_700.0  # CHF
+DEDUCTION_PAR_ENFANT = 6_800.0  # CHF (ESTV 2026 ; 6'700 = valeur perimee 2023-2024)
 
-# Deduction frais de garde (LIFD art. 33 al. 1 let. hbis)
-DEDUCTION_FRAIS_GARDE_MAX = 25_500.0  # CHF
+# Deduction frais de garde par des tiers (LIFD art. 33 al. 3)
+DEDUCTION_FRAIS_GARDE_MAX = 25_800.0  # CHF (ESTV 2026 ; 25'500 = valeur perimee)
 
 # ---------------------------------------------------------------------------
 # Impact LPP (LPP art. 7-8, OPP2)
@@ -166,8 +166,8 @@ class NaissanceService:
     - APG maternite: 14 semaines, 80% du salaire, max CHF 220/jour (LAPG art. 16d-16h)
     - APG paternite: 2 semaines, 80% du salaire, max CHF 220/jour (LAPG art. 16i-16l)
     - Allocations familiales: CHF 200-300/mois selon canton (LAFam art. 3)
-    - Deduction fiscale par enfant: CHF 6'700 (LIFD art. 35 al. 1 let. a)
-    - Deduction frais de garde: max CHF 25'500 (LIFD art. 33 al. 1 let. hbis)
+    - Deduction fiscale par enfant: CHF 6'800 (LIFD art. 35 al. 1 let. a)
+    - Deduction frais de garde: max CHF 25'800 (LIFD art. 33 al. 3)
     - Interruption de carriere = lacunes LPP + perte de capacite 3a
     """
 
@@ -327,8 +327,8 @@ class NaissanceService:
         )
 
         sources = [
-            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'700)",
-            "LIFD art. 33 al. 1 let. hbis (frais de garde: max CHF 25'500)",
+            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'800)",
+            "LIFD art. 33 al. 3 (frais de garde par des tiers: max CHF 25'800)",
         ]
 
         return ImpactFiscalEnfant(
@@ -475,9 +475,9 @@ class NaissanceService:
 
         # --- Priorite basse : optimisation ---
         priorite_basse = [
-            "Calculer l'impact fiscal de l'enfant — deduction de CHF 6'700 par enfant "
-            "(LIFD art. 35 al. 1 let. a) + frais de garde max CHF 25'500 "
-            "(LIFD art. 33 al. 1 let. hbis)",
+            "Calculer l'impact fiscal de l'enfant — deduction de CHF 6'800 par enfant "
+            "(LIFD art. 35 al. 1 let. a) + frais de garde max CHF 25'800 "
+            "(LIFD art. 33 al. 3)",
         ]
 
         if civil_status == "marie" and has_3a:
@@ -521,7 +521,7 @@ class NaissanceService:
             "LAPG art. 16i-16l (conge paternite: 2 sem., 80%, max CHF 220/j)",
             "LAFam art. 3 (allocations familiales cantonales)",
             "LAMal art. 3 (obligation d'assurance — inscription bebe dans les 3 mois)",
-            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'700)",
+            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'800)",
         ]
 
         return ChecklistNaissance(
