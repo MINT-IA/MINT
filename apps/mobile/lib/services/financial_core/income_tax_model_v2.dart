@@ -77,6 +77,66 @@ const Map<String, List<double>> cantonalCommunalTaxChf = {
 /// [taxableIncome] : revenu IMPOSABLE. Marié : x0.80 (splitting).
 /// Limites (dites) : célibataire chef-lieu sans confession ; estimation
 /// éducative, jamais un conseil fiscal (LSFin).
+/// Décomposition (fédéral, cantonal+communal) — miroir Dart de
+/// `estimate_income_tax_parts` backend (PR #997). Le facteur marié x0.80
+/// est appliqué PROPORTIONNELLEMENT aux deux parts : la somme peut
+/// différer du total canonique [estimateIncomeTaxV2] d'au plus un
+/// centime d'arrondi (même conception que le backend — les fixtures de
+/// parité pinent les TOTAUX, la décomposition sert l'affichage).
+({double federal, double cantonal}) estimateIncomeTaxV2Parts(
+  double taxableIncome,
+  String canton, {
+  bool isMarried = false,
+}) {
+  var impotFederal = 0.0;
+  var prevBound = 0.0;
+  for (final bracket in incomeTaxFederalBrackets2026) {
+    final upper = bracket[0];
+    final rate = bracket[1];
+    if (taxableIncome <= prevBound) break;
+    final taxable =
+        (taxableIncome < upper ? taxableIncome : upper) - prevBound;
+    impotFederal += taxable * rate;
+    prevBound = upper;
+  }
+
+  var pts = cantonalCommunalTaxChf[canton.toUpperCase()];
+  if (pts == null) {
+    final all = cantonalCommunalTaxChf.values.toList();
+    pts = List<double>.generate(
+      cantonalTaxPointsIncome.length,
+      (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
+    );
+  }
+  final incomes = cantonalTaxPointsIncome;
+  double impotCantonal;
+  if (taxableIncome <= 0) {
+    impotCantonal = 0;
+  } else if (taxableIncome <= incomes.first) {
+    impotCantonal = pts.first * (taxableIncome / incomes.first);
+  } else if (taxableIncome >= incomes.last) {
+    final slope = (pts.last - pts[pts.length - 2]) /
+        (incomes.last - incomes[incomes.length - 2]);
+    impotCantonal = pts.last + slope * (taxableIncome - incomes.last);
+  } else {
+    impotCantonal = 0;
+    for (var i = 0; i < incomes.length - 1; i++) {
+      if (taxableIncome >= incomes[i] && taxableIncome <= incomes[i + 1]) {
+        final ratio =
+            (taxableIncome - incomes[i]) / (incomes[i + 1] - incomes[i]);
+        impotCantonal = pts[i] + ratio * (pts[i + 1] - pts[i]);
+        break;
+      }
+    }
+  }
+
+  if (isMarried) {
+    impotFederal *= 0.80;
+    impotCantonal *= 0.80;
+  }
+  return (federal: impotFederal, cantonal: impotCantonal);
+}
+
 double estimateIncomeTaxV2(
   double taxableIncome,
   String canton, {
