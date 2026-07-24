@@ -4235,7 +4235,7 @@ class SIt extends S {
 
   @override
   String get naissanceChecklistItem2Desc =>
-      'Fai la richiesta tramite il tuo datore di lavoro (o la tua cassa assegni se sei indipendente). Gli assegni vengono versati dal mese di nascita. L\'importo dipende dal cantone (CHF 200 a CHF 305/mese per figlio).';
+      'Fai la richiesta tramite il tuo datore di lavoro (o la tua cassa assegni se sei indipendente). Gli assegni vengono versati dal mese di nascita. L\'importo dipende dal cantone (CHF 215 a CHF 330/mese per figlio).';
 
   @override
   String get naissanceChecklistItem3Title =>

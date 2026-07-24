@@ -9,7 +9,7 @@ tags: [naissance, famille, allocations, conge_maternite, conge_paternite, lapg, 
 L'utilisateur attend un enfant ou vient d'en avoir un et veut comprendre les implications financières (coûts, allocations, congés, prévoyance).
 
 ## Premier Éclairage
-Un enfant coûte en moyenne CHF 1'500 à CHF 1'800/mois en Suisse (de la naissance à 18 ans), soit environ CHF 325'000 à CHF 390'000 au total. Les allocations familiales (CHF 200-300/mois) ne couvrent qu'une fraction de ce coût.
+Un enfant coûte en moyenne CHF 1'500 à CHF 1'800/mois en Suisse (de la naissance à 18 ans), soit environ CHF 325'000 à CHF 390'000 au total. Les allocations familiales (CHF 215-330/mois) ne couvrent qu'une fraction de ce coût.
 
 ## Niveau 0
 Imagine ton budget actuel — et maintenant, ajoute une nouvelle personne qui a besoin de tout. L'arrivée d'un enfant, c'est un bouleversement financier autant qu'émotionnel. Entre les couches, la crèche, l'assurance maladie du petit·e, et la possible réduction du temps de travail, ton budget va changer radicalement.
@@ -26,8 +26,8 @@ L'arrivée d'un enfant a des implications sur presque tous les aspects financier
 - Certains employeurs offrent des congés plus longs (convention collective ou contrat).
 
 **Allocations familiales** (LAFam art. 3-5) :
-- Allocation pour enfant : CHF 200-300/mois (selon le canton) jusqu'à 16 ans.
-- Allocation de formation : CHF 250-400/mois (selon le canton) de 16 à 25 ans.
+- Allocation pour enfant : CHF 215-330/mois (selon le canton) jusqu'à 16 ans.
+- Allocation de formation : CHF 268-477/mois (selon le canton) de 16 à 25 ans.
 - Un seul droit par enfant (pas de double versement).
 - À demander auprès de l'employeur ou de la caisse d'allocations familiales.
 

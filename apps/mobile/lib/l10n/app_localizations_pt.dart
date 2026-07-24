@@ -4225,7 +4225,7 @@ class SPt extends S {
 
   @override
   String get naissanceChecklistItem2Desc =>
-      'Solicita através do teu empregador (ou da tua caixa de abonos se fores independente). Os abonos são pagos a partir do mês de nascimento. O montante depende do cantão (CHF 200 a CHF 305/mês por filho).';
+      'Solicita através do teu empregador (ou da tua caixa de abonos se fores independente). Os abonos são pagos a partir do mês de nascimento. O montante depende do cantão (CHF 215 a CHF 330/mês por filho).';
 
   @override
   String get naissanceChecklistItem3Title =>

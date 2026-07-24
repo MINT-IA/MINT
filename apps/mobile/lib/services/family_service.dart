@@ -123,32 +123,36 @@ class FamilyService {
   //  CANTONAL FAMILY ALLOCATIONS (CHF/month per child)
   // ════════════════════════════════════════════════════════════
 
+  // Montant de base « allocation pour enfant » (CHF/mois), taux standard 2026.
+  // Source : OFAS/BSV « Genres et montants des allocations familiales 2026 »
+  // (Stand 12.12.2025). Minimum fédéral LAFam art. 5 = 215. Modulations âge
+  // (ZH/LU/ZG) et rang (FR/VD/VS/NE/GE) non modélisées (montant de base).
   static const Map<String, double> allocationsMensuelles = {
-    'GE': 300.0,
-    'VD': 300.0,
-    'VS': 305.0,
-    'NE': 220.0,
+    'ZH': 215.0,
+    'BE': 250.0,
+    'LU': 215.0,
+    'UR': 240.0,
+    'SZ': 230.0,
+    'OW': 220.0,
+    'NW': 258.0,
+    'GL': 215.0,
+    'ZG': 330.0,
     'FR': 265.0,
-    'BE': 230.0,
-    'ZH': 200.0,
-    'BS': 200.0,
-    'LU': 210.0,
-    'AG': 200.0,
-    'SG': 200.0,
-    'TI': 200.0,
-    'GR': 220.0,
-    'SO': 200.0,
-    'TG': 200.0,
-    'BL': 200.0,
-    'AR': 200.0,
-    'AI': 200.0,
-    'GL': 200.0,
-    'SH': 200.0,
-    'ZG': 300.0,
-    'SZ': 200.0,
-    'OW': 200.0,
-    'NW': 200.0,
-    'UR': 200.0,
+    'SO': 215.0,
+    'BS': 275.0,
+    'BL': 215.0,
+    'SH': 230.0,
+    'AR': 230.0,
+    'AI': 245.0,
+    'SG': 245.0,
+    'GR': 240.0,
+    'AG': 225.0,
+    'TG': 215.0,
+    'TI': 215.0,
+    'VD': 322.0,
+    'VS': 327.0,
+    'NE': 240.0,
+    'GE': 311.0,
     'JU': 275.0,
   };
 
@@ -405,7 +409,7 @@ class FamilyService {
     required String canton,
     int nbEnfants = 1,
   }) {
-    final mensuelParEnfant = allocationsMensuelles[canton] ?? 200.0;
+    final mensuelParEnfant = allocationsMensuelles[canton] ?? 215.0;
     final mensuelTotal = mensuelParEnfant * nbEnfants;
     final annuelTotal = mensuelTotal * 12;
 

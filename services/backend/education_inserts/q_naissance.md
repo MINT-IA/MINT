@@ -42,9 +42,9 @@ lifeEvent: "birth"
 - **Flexibilite** : tu peux les prendre en bloc ou par jours isoles.
 
 ### Allocations familiales (LAFam art. 3)
-- **Minimum legal** : CHF 200/mois par enfant (LAFam art. 5).
-- **Variation cantonale** : de CHF 200 (ZH, AG, TG...) a CHF 305 (VS). Geneve et Vaud versent CHF 300.
-- **Allocation de formation** : des 16 ans, le montant augmente (min. CHF 250/mois).
+- **Minimum legal** : CHF 215/mois par enfant (LAFam art. 5, releve au 1.1.2025).
+- **Variation cantonale** : de CHF 215 (ZH, GL, TI...) a CHF 330 (ZG). Geneve 311, Vaud 322, Valais 327 (OFAS 2026).
+- **Allocation de formation** : des 16 ans, le montant augmente (min. CHF 268/mois).
 - **Qui verse** : c'est l'employeur qui avance le montant (via la caisse d'allocations familiales).
 - **Delai** : tu as 3 mois apres la naissance pour deposer ta demande.
 

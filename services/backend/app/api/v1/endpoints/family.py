@@ -297,7 +297,7 @@ def estimate_allocations(
 ) -> AllocationsFamilialesResponse:
     """Estime les allocations familiales cantonales.
 
-    Allocation enfant: CHF 200-300/mois, allocation formation: +CHF 50/mois.
+    Allocation enfant: CHF 215-330/mois, formation par canton (OFAS/BSV 2026).
 
     Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
     when not supplied in the body (W0 audit row 18 sev-2 — canton-indexed
