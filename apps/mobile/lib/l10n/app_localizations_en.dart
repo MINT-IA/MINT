@@ -8950,7 +8950,7 @@ class SEn extends S {
 
   @override
   String get rachatEchelonneImpactBlocExplain =>
-      'As a lump sum, the deduction crosses several brackets (lower average rate). By staggering, each deduction stays in the highest bracket.';
+      'As a lump sum, the deduction crosses several brackets (lower average rate). By staggering, a larger share of each deduction can remain in higher brackets, at a comparable income.';
 
   @override
   String get rachatEchelonneBloc => 'Lump sum';
@@ -9005,7 +9005,7 @@ class SEn extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Why the figures differ: each staggered instalment is deducted at a high marginal rate, while a lump-sum buyback pushes the deduction into lower brackets.';
+      'Why the figures differ: at a comparable income, a staggered instalment can be deducted at a higher marginal rate, while a lump-sum buyback shifts part of the deduction into lower brackets.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>
