@@ -38209,7 +38209,7 @@ abstract class S {
   /// No description provided for @bankImportTransparency.
   ///
   /// In fr, this message translates to:
-  /// **'Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.'**
+  /// **'Ton relevé est envoyé chiffré à notre serveur pour analyse (traitement automatique, sans IA). Le fichier brut est supprimé après traitement ; seuls les résumés par catégorie sont conservés dans ton profil.'**
   String get bankImportTransparency;
 
   /// No description provided for @coachTransparencySLM.
@@ -38257,7 +38257,7 @@ abstract class S {
   /// No description provided for @dataTransparencyScanDetail.
   ///
   /// In fr, this message translates to:
-  /// **'Envoyé chiffré à notre serveur suisse. Parsé et supprimé. Seul le résultat est conservé.'**
+  /// **'Envoyé chiffré à notre serveur, puis lu par l\'API Claude (Anthropic, États-Unis) avec ton consentement pour en extraire les chiffres. Le fichier brut est supprimé ; seul le résultat est conservé.'**
   String get dataTransparencyScanDetail;
 
   /// No description provided for @dataTransparencyCoach.

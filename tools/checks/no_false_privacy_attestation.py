@@ -51,6 +51,14 @@ FALSE_PROMISE_PATTERNS = [
     r"contexte agr[ée]g[ée] \(pas de pii\)",
     r"salaire exact n['’]est (pas|jamais) (envoy|partag)",
     r'"dataTransparencySalaryDetail":.*[Jj]amais envoy',
+    # Beads campagne-A (panel 2026-07-24) : le backend est hébergé hors de
+    # Suisse (Railway, cf. legal/PRIVACY.md) — toute string affirmant que le
+    # relevé/document part vers un « serveur suisse » est fausse. Motif ancré
+    # sur « serveur » : les mentions légitimes (« conçu en Suisse », « le 3a
+    # en Suisse », le projet futur « hébergement en Suisse en Phase 2 ») ne
+    # matchent pas. Les autres géo-attestations fausses de PRIVACY.md
+    # (analytics « restent en Suisse ») relèvent d'un bead PRIVACY.md dédié.
+    r"serveur\b.{0,15}\bsuisse",
 ]
 
 _COMPILED = [re.compile(p, re.IGNORECASE) for p in FALSE_PROMISE_PATTERNS]

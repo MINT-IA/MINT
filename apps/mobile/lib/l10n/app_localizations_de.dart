@@ -21863,7 +21863,7 @@ class SDe extends S {
 
   @override
   String get bankImportTransparency =>
-      'Dein Kontoauszug wird verschlüsselt an unseren Schweizer Server zur Analyse gesendet. Transaktionen werden kategorisiert, dann wird die Rohdatei gelöscht. Nur Kategorie-Zusammenfassungen bleiben in deinem Profil.';
+      'Dein Kontoauszug wird verschlüsselt zur Analyse an unseren Server gesendet (automatische Verarbeitung, ohne KI). Die Originaldatei wird nach der Verarbeitung gelöscht; nur die Zusammenfassungen pro Kategorie werden in deinem Profil gespeichert.';
 
   @override
   String get coachTransparencySLM =>
@@ -21892,7 +21892,7 @@ class SDe extends S {
 
   @override
   String get dataTransparencyScanDetail =>
-      'Verschlüsselt an unseren Schweizer Server gesendet. Analysiert und gelöscht. Nur das Ergebnis wird gespeichert.';
+      'Verschlüsselt an unseren Server gesendet und mit deiner Einwilligung von der Claude-API (Anthropic, USA) ausgelesen, um die Zahlen zu extrahieren. Die Originaldatei wird gelöscht; nur das Ergebnis wird gespeichert.';
 
   @override
   String get dataTransparencyCoach => 'Wenn du mit dem Coach sprichst';

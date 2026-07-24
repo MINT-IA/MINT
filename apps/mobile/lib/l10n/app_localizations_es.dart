@@ -21813,7 +21813,7 @@ class SEs extends S {
 
   @override
   String get bankImportTransparency =>
-      'Tu extracto se envía cifrado a nuestro servidor suizo para su análisis. Las transacciones se categorizan y luego el archivo original se elimina. Solo los resúmenes por categoría se conservan en tu perfil.';
+      'Tu extracto se envía cifrado a nuestro servidor para su análisis (procesamiento automático, sin IA). El archivo original se elimina tras el procesamiento; solo se conservan los resúmenes por categoría en tu perfil.';
 
   @override
   String get coachTransparencySLM =>
@@ -21842,7 +21842,7 @@ class SEs extends S {
 
   @override
   String get dataTransparencyScanDetail =>
-      'Enviado cifrado a nuestro servidor suizo. Analizado y eliminado. Solo se conserva el resultado.';
+      'Enviado cifrado a nuestro servidor y leído por la API de Claude (Anthropic, Estados Unidos) con tu consentimiento para extraer las cifras. El archivo original se elimina; solo se conserva el resultado.';
 
   @override
   String get dataTransparencyCoach => 'Cuando hablas con el coach';

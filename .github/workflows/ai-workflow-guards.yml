@@ -42,6 +42,8 @@ jobs:
         run: python3 tools/checks/journey_os_check.py
       - name: Sentry privacy guard (nLPD)
         run: python3 tools/checks/verify_sentry_init.py
+      - name: False privacy attestation guard (campagne-A)
+        run: python3 tools/checks/no_false_privacy_attestation.py
       - name: Mint 2 navigation spine guard
         run: python3 tools/checks/mint2_navigation_spine_guard.py
       - name: Mint 2 VZ route contract guard
