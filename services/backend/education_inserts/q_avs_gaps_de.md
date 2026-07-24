@@ -23,7 +23,7 @@ status: "READY"
 - Vollständige Erwerbsbiografie = 44 Beitragsjahre (21-65 Jahre).
 - 1 fehlendes Jahr = -1/44 der Rente (~2.3% weniger).
 - Max. Rente ledig: ~2'520 CHF/Monat.
-- Max. Rente Paar: ~3'675 CHF/Monat.
+- Max. Rente Paar: ~3'780 CHF/Monat.
 
 ## Limites
 - Nur der individuelle AHV-Kontoauszug ist massgebend.
