@@ -31,11 +31,10 @@ apps/mobile/
   - `ProfileProvider`, `BudgetProvider` = patterns existants. No Riverpod, no Bloc.
 - **Material 3**, responsive layout, CustomPainter for charts.
 - **AppBar** : white background standard. Exception : Pulse uses gradient primary.
-- **Deprecated** : `MintGlassCard`, `MintPremiumButton` legacy, font `Outfit` — à ne pas utiliser dans du code neuf.
-- **UI Kit** (réutiliser, pas ré-inventer) :
-  - `MintCard(child: ...)`
-  - `MintSection(title: 'TITRE', children: [...])`
-  - `MintPremiumButton(text: 'Label', onTap: () {})`
+- **UI Kit** (réutiliser, pas ré-inventer — classes RÉELLES de `lib/widgets/premium/`, beads -dj3 ; les anciens `MintCard`/`MintSection`/`MintPremiumButton`/`MintGlassCard` n'existent pas dans le code — ne pas les citer ni les recréer) :
+  - Saisie : `MintAmountField`, `MintPickerTile`, `MintChoiceCard`
+  - Surfaces : `MintBottomSheet`, `MintDialog`, `MintEntrance`
+  - Chiffres : `MintHeroNumber`, `MintCountUp`, `MintConfidenceNotice`
 
 ## 3. i18n (NON-NEGOTIABLE)
 
