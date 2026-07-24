@@ -27,54 +27,7 @@ from typing import List
 # Constants — Taux effectifs 2024/2026 (simplifies)
 # ---------------------------------------------------------------------------
 
-# Effective tax rates by canton (single, no children, 100k income, chef-lieu)
-# Source: Administration federale des contributions — Charge fiscale 2024
-# DÉPRÉCIÉ pour les calculs d'impôt (beads -97h) : remplacé par
-# estimate_income_tax v2 (interpolation CANTONAL_COMMUNAL_TAX_CHF, 130
-# points ESTV) dans RvC et rachat échelonné. Reste consommé UNIQUEMENT par
-# compare() (écran comparaison cantonale) — à migrer vers v2 dans une
-# itération dédiée ; ne PAS brancher de nouveau calcul dessus.
-EFFECTIVE_RATES_100K_SINGLE = {
-    "ZG": 0.0823,   # Zoug — lowest
-    "NW": 0.0891,
-    "OW": 0.0934,
-    "AI": 0.0956,
-    "AR": 0.1012,
-    "SZ": 0.1034,
-    "UR": 0.1067,
-    "LU": 0.1089,
-    "GL": 0.1102,
-    "TG": 0.1145,
-    "SH": 0.1167,
-    "AG": 0.1189,
-    "GR": 0.1203,
-    # FL (Liechtenstein) removed — not a Swiss canton
-    "BL": 0.1256,
-    "SG": 0.1278,
-    "ZH": 0.1290,
-    "FR": 0.1312,
-    "SO": 0.1334,
-    "TI": 0.1356,
-    "BE": 0.1389,
-    "NE": 0.1423,
-    "VS": 0.1456,
-    "VD": 0.1489,
-    "JU": 0.1512,
-    "GE": 0.1545,
-    "BS": 0.1578,   # Bale-Ville — highest
-}
 
-# Adjustment factors by income level (relative to 100k)
-# Progressive: higher income -> higher effective rate (marginal effect)
-INCOME_ADJUSTMENT = {
-    50000: 0.75,    # Lower income -> lower effective rate
-    80000: 0.90,
-    100000: 1.00,
-    150000: 1.10,
-    200000: 1.18,
-    300000: 1.25,
-    500000: 1.32,
-}
 
 # Family adjustment (married with children -> splitting + deductions)
 FAMILY_ADJUSTMENTS = {
@@ -281,34 +234,17 @@ def estimate_capital_withdrawal_tax(
     return round(ifd + cantonal, 2)
 
 
-def estimate_income_tax(
+def estimate_income_tax_parts(
     taxable_income: float,
     canton: str,
     is_married: bool = False,
-    income_factor_base: float | None = None,
-) -> float:
-    """Impôt sur le revenu estimé — modèle fiscal backend CANONIQUE (v2 -97h).
-
-    IFD 2026 progressif (FEDERAL_BRACKETS, recoupé Form. 58c) + impôt
-    cantonal+communal INTERPOLÉ LINÉAIREMENT entre points calibrés sur
-    l'API officielle ESTV (CANTONAL_COMMUNAL_TAX_CHF, 26 cantons x 5
-    points, chef-lieu, célibataire). Remplace le modèle
-    « taux_effectif(100k) x clamp(revenu/100k) » quasi quadratique dont
-    les DIFFÉRENCES d'impôt étaient fausses (taux marginal implicite
-    47.5% à 140k VD ; le modèle interpolé donne ~38%, réaliste) — c'était
-    le bloqueur de -81n (conclusions bloc/étalé inversées coach vs écran).
-
-    Interpolation : linéaire sur l'IMPÔT entre points (monotone, vérifiée
-    sur les 130 points) ; sous 40k : linéaire depuis (0, 0) ; au-dessus de
-    250k : extrapolation à la pente du dernier segment. Marié : x0.80
-    (splitting, approximation LHID). income_factor_base est CONSERVÉ pour
-    compat de signature (l'ancien RvC le passait) mais IGNORÉ — le modèle
-    v2 n'a plus de facteur d'échelle.
-
-    Limites (dites, pas cachées) : célibataire chef-lieu sans confession ;
-    les déductions réelles varient ; SG/TI barèmes 2025. Estimation
-    éducative, jamais un conseil fiscal (LSFin).
-    """
+) -> tuple:
+    """(impôt fédéral, impôt cantonal+communal) — mêmes conventions que
+    ``estimate_income_tax`` (v2). Le facteur marié x0.80 (splitting,
+    approximation LHID) est appliqué PROPORTIONNELLEMENT aux deux parts :
+    la somme arrondie == le total canonique. Consommé par l'écran
+    comparaison cantonale (beads compare-v2) qui doit afficher la
+    décomposition sans recomposer un modèle parallèle."""
     impot_federal = 0.0
     prev_bound = 0.0
     for upper, rate in FEDERAL_BRACKETS:
@@ -343,7 +279,46 @@ def estimate_income_tax(
                 impot_cantonal = pts[i] + ratio * (pts[i + 1] - pts[i])
                 break
 
-    total = impot_federal + impot_cantonal
+    if is_married:
+        impot_federal *= 0.80
+        impot_cantonal *= 0.80
+    return impot_federal, impot_cantonal
+
+
+def estimate_income_tax(
+    taxable_income: float,
+    canton: str,
+    is_married: bool = False,
+    income_factor_base: float | None = None,
+) -> float:
+    """Impôt sur le revenu estimé — modèle fiscal backend CANONIQUE (v2 -97h).
+
+    IFD 2026 progressif (FEDERAL_BRACKETS, recoupé Form. 58c) + impôt
+    cantonal+communal INTERPOLÉ LINÉAIREMENT entre points calibrés sur
+    l'API officielle ESTV (CANTONAL_COMMUNAL_TAX_CHF, 26 cantons x 5
+    points, chef-lieu, célibataire). Remplace le modèle
+    « taux_effectif(100k) x clamp(revenu/100k) » quasi quadratique dont
+    les DIFFÉRENCES d'impôt étaient fausses (taux marginal implicite
+    47.5% à 140k VD ; le modèle interpolé donne ~38%, réaliste) — c'était
+    le bloqueur de -81n (conclusions bloc/étalé inversées coach vs écran).
+
+    Interpolation : linéaire sur l'IMPÔT entre points (monotone, vérifiée
+    sur les 130 points) ; sous 40k : linéaire depuis (0, 0) ; au-dessus de
+    250k : extrapolation à la pente du dernier segment. Marié : x0.80
+    (splitting, approximation LHID). income_factor_base est CONSERVÉ pour
+    compat de signature (l'ancien RvC le passait) mais IGNORÉ — le modèle
+    v2 n'a plus de facteur d'échelle.
+
+    Limites (dites, pas cachées) : célibataire chef-lieu sans confession ;
+    les déductions réelles varient ; SG/TI barèmes 2025. Estimation
+    éducative, jamais un conseil fiscal (LSFin).
+    """
+    # Review #997 : le facteur marié s'applique à la SOMME (ordre des
+    # flottants bit-identique à l'ancien corps — les parités croisées
+    # RvC/Dart sont gelées au centime ; x0.80 par part peut dévier d'un
+    # centime après arrondi, ex. TG 280'195 marié).
+    fed, cant = estimate_income_tax_parts(taxable_income, canton)
+    total = fed + cant
     if is_married:
         total *= 0.80
     return round(total, 2)
@@ -462,43 +437,40 @@ class CantonalComparator:
         """
         canton = canton.upper()
 
-        if canton not in EFFECTIVE_RATES_100K_SINGLE:
+        if canton not in CANTONAL_COMMUNAL_TAX_CHF:
             raise ValueError(
                 f"Canton inconnu: '{canton}'. "
-                f"Codes valides: {', '.join(sorted(EFFECTIVE_RATES_100K_SINGLE.keys()))}"
+                f"Codes valides: {', '.join(sorted(CANTONAL_COMMUNAL_TAX_CHF.keys()))}"
             )
 
         if income <= 0:
             raise ValueError("Le revenu doit etre superieur a 0 CHF.")
 
-        # 1. Base rate for canton at 100k
-        base_rate = EFFECTIVE_RATES_100K_SINGLE[canton]
-
-        # 2. Adjust for income level
-        income_factor = self._interpolate_income_adjustment(income)
-
-        # 3. Adjust for family situation
-        family_factor = self._get_family_adjustment(civil_status, children)
-
-        # 4. Effective cantonal+communal rate
-        cantonal_rate = base_rate * income_factor * family_factor
-
-        # 5. Estimate revenu imposable (simplified: ~85% of gross for employed)
+        # 1. Revenu imposable (simplification documentée : ~85% du brut)
         revenu_imposable = income * 0.85
 
-        # 6. Calculate federal tax (same everywhere)
-        impot_federal = self._calculate_federal_tax(revenu_imposable, civil_status)
+        # 2. Modèle v2 canonique (beads compare-v2) : IFD progressif +
+        # interpolation ESTV 130 points — remplace « taux effectif 100k x
+        # facteur de revenu » dont les différences d'impôt étaient fausses.
+        # FL rejeté comme avant (« not a Swiss canton », vérifié sur dev).
+        is_married = civil_status == "marie"
+        impot_federal, impot_cantonal_communal = estimate_income_tax_parts(
+            revenu_imposable, canton, is_married=is_married
+        )
 
-        # 7. Apply family adjustment to federal tax too
-        if civil_status == "marie":
-            # Splitting: federal tax on half income * 2 (already handled in brackets)
-            # Simplified: apply family factor
-            impot_federal = impot_federal * family_factor
+        # 3. Enfants : réduction supplémentaire RELATIVE à marié sans
+        # enfant (ratios de l'ancienne grille FAMILY_ADJUSTMENTS,
+        # approximation des déductions par enfant). Célibataire avec
+        # enfants : inchangé (comme avant), limite dite.
+        if is_married and children > 0:
+            child_factor = self._get_family_adjustment(
+                civil_status, children
+            ) / FAMILY_ADJUSTMENTS["marie_sans_enfant"]
+            impot_federal *= child_factor
+            impot_cantonal_communal *= child_factor
 
-        # 8. Cantonal + communal tax
-        impot_cantonal_communal = round(income * cantonal_rate, 2)
-
-        # 9. Total
+        impot_federal = round(impot_federal, 2)
+        impot_cantonal_communal = round(impot_cantonal_communal, 2)
         charge_totale = round(impot_federal + impot_cantonal_communal, 2)
 
         # 10. Effective rate (percentage)
@@ -532,9 +504,7 @@ class CantonalComparator:
         """
         estimates = []
         # Use only the 26 cantons (exclude FL)
-        cantons_to_compare = [
-            c for c in EFFECTIVE_RATES_100K_SINGLE.keys() if c != "FL"
-        ]
+        cantons_to_compare = list(CANTONAL_COMMUNAL_TAX_CHF.keys())
 
         for canton in cantons_to_compare:
             estimate = self.estimate_tax(income, canton, civil_status, children)
@@ -635,35 +605,6 @@ class CantonalComparator:
     # Private helpers
     # -------------------------------------------------------------------
 
-    def _interpolate_income_adjustment(self, income: float) -> float:
-        """Linear interpolation between income brackets.
-
-        Returns an adjustment factor relative to the 100k base rate.
-        For incomes below 50k or above 500k, clamps to the boundary value.
-        """
-        sorted_brackets = sorted(INCOME_ADJUSTMENT.items())
-
-        # Below minimum bracket
-        if income <= sorted_brackets[0][0]:
-            return sorted_brackets[0][1]
-
-        # Above maximum bracket
-        if income >= sorted_brackets[-1][0]:
-            return sorted_brackets[-1][1]
-
-        # Find surrounding brackets and interpolate
-        for i in range(len(sorted_brackets) - 1):
-            lower_income, lower_factor = sorted_brackets[i]
-            upper_income, upper_factor = sorted_brackets[i + 1]
-
-            if lower_income <= income <= upper_income:
-                # Linear interpolation
-                ratio = (income - lower_income) / (upper_income - lower_income)
-                return lower_factor + ratio * (upper_factor - lower_factor)
-
-        # Fallback (should never reach here)
-        return 1.0
-
     def _get_family_adjustment(
         self, civil_status: str, children: int
     ) -> float:
@@ -685,40 +626,6 @@ class CantonalComparator:
         else:
             # 3+ children: use marie_3_enfants as floor
             return FAMILY_ADJUSTMENTS["marie_3_enfants"]
-
-    def _calculate_federal_tax(
-        self, revenu_imposable: float, civil_status: str
-    ) -> float:
-        """Calculate simplified federal income tax (IFD).
-
-        Uses progressive brackets from LIFD art. 36.
-        For married couples, applies the splitting method (taxed on half,
-        then doubled).
-        """
-        if civil_status == "marie":
-            # Splitting: calculate on half, multiply by 2
-            half_tax = self._apply_federal_brackets(revenu_imposable / 2)
-            return round(half_tax * 2, 2)
-
-        return round(self._apply_federal_brackets(revenu_imposable), 2)
-
-    def _apply_federal_brackets(self, revenu: float) -> float:
-        """Apply progressive federal tax brackets."""
-        if revenu <= 0:
-            return 0.0
-
-        tax = 0.0
-        previous_bound = 0.0
-
-        for upper_bound, rate in FEDERAL_BRACKETS:
-            if revenu <= upper_bound:
-                tax += (revenu - previous_bound) * rate
-                break
-            else:
-                tax += (upper_bound - previous_bound) * rate
-                previous_bound = upper_bound
-
-        return tax
 
     def _build_move_alerts(
         self,

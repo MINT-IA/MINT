@@ -112,6 +112,13 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
         "life_events_served": ["taxes"],
         "output_type": "L1",
     },
+    "cantonal_comparator__estimate_income_tax_parts": {
+        "name": "cantonal_comparator__estimate_income_tax_parts",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["taxable_income", "canton", "is_married"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
     "church_tax_service__ChurchTaxService_compare_church_tax_all_cantons": {
         "name": "church_tax_service__ChurchTaxService_compare_church_tax_all_cantons",
         "file": "app/services/fiscal/church_tax_service.py",
@@ -601,6 +608,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "cantonal_comparator__estimate_capital_withdrawal_tax",
         "cantonal_comparator__estimate_income_tax",
         "cantonal_comparator__estimate_income_tax_on_rente",
+        "cantonal_comparator__estimate_income_tax_parts",
         "church_tax_service__ChurchTaxService_estimate_church_tax",
         "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
         "concubinage_service__ConcubinageService_estimate_inheritance_tax",
@@ -801,6 +809,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "cantonal_comparator__estimate_capital_withdrawal_tax",
         "cantonal_comparator__estimate_income_tax",
         "cantonal_comparator__estimate_income_tax_on_rente",
+        "cantonal_comparator__estimate_income_tax_parts",
         "concubinage_service__ConcubinageService_estimate_inheritance_tax",
         "epl_combined_service__EplCombinedService_calculate",
         "epl_service__EPLService_simulate",
@@ -1034,6 +1043,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     },
     "taxable_income": {
         "cantonal_comparator__estimate_income_tax",
+        "cantonal_comparator__estimate_income_tax_parts",
     },
     "valeur_venale": {
         "imputed_rental_service__ImputedRentalService_calculate",
