@@ -3065,7 +3065,7 @@
   "renteVsCapitalRachatTooltip": "Si haces compras LPP cada año, su valor futuro se añade al capital en la jubilación. Bloqueo de 3 años antes de EPL (LPP art. 79b).",
   "renteVsCapitalEplLabel": "Retiro EPL para compra inmobiliaria",
   "renteVsCapitalEplHint": "Importe retirado (mín. 20'000)",
-  "renteVsCapitalEplTooltip": "El retiro EPL reduce tu capital LPP y por tanto tu capital o pensión a la jubilación. Mínimo CHF 20'000 (OPP2 art. 5). Bloquea la recompra LPP durante 3 años.",
+  "renteVsCapitalEplTooltip": "El retiro EPL reduce tu capital LPP y por tanto tu capital o pensión a la jubilación. Mínimo CHF 20'000 (OPP2 art. 5). Tras un rescate LPP voluntario, toda retirada de capital — incluida la EPL — queda bloqueada 3 años (art. 79b apdo. 3).",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (mín. CHF 20'000)",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",

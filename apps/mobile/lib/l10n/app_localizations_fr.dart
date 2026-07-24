@@ -6432,7 +6432,7 @@ class SFr extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20\'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.';
+      'Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20\'000 (OPP2 art. 5). Après un rachat LPP volontaire, tout retrait en capital — EPL compris — est bloqué 3 ans (art. 79b al. 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>

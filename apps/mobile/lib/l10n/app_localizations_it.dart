@@ -6446,7 +6446,7 @@ class SIt extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'Il prelievo EPL riduce il tuo avere LPP e quindi il tuo capitale o la tua rendita al pensionamento. Minimo CHF 20\'000 (OPP2 art. 5). Blocca il riscatto LPP per 3 anni.';
+      'Il prelievo EPL riduce il tuo avere LPP e quindi il tuo capitale o la tua rendita al pensionamento. Minimo CHF 20\'000 (OPP2 art. 5). Dopo un riscatto LPP volontario, ogni prelievo in capitale — EPL compreso — è bloccato per 3 anni (art. 79b cpv. 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>

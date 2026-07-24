@@ -435,7 +435,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_LPP_URL,
         source_title="LPP art. 79b al. 3",
         source_type="law",
-        description="Délai de blocage des rachats LPP après un retrait EPL.",
+        description="Délai (3 ans) pendant lequel un retrait en capital (dont EPL) est bloqué après un rachat LPP volontaire — art. 79b al. 3. NB : le blocage EPL→rachat (art. 79b al. 4) dure jusqu'au remboursement, pas 3 ans.",
         reviewed_at=_REVIEWED,
     ),
 

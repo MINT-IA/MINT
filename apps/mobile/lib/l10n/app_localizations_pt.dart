@@ -6429,7 +6429,7 @@ class SPt extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'O levantamento EPL reduz o teu capital LPP e portanto o teu capital ou pensão na reforma. Mínimo CHF 20\'000 (OPP2 art. 5). Bloqueia a recompra LPP durante 3 anos.';
+      'O levantamento EPL reduz o teu capital LPP e portanto o teu capital ou pensão na reforma. Mínimo CHF 20\'000 (OPP2 art. 5). Após um resgate LPP voluntário, qualquer levantamento de capital — incluindo EPL — fica bloqueado 3 anos (art. 79b n.º 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>
