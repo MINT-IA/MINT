@@ -394,7 +394,13 @@ jobs:
         run: npm install -g @railway/cli@4.59.0
       - name: Scan staging logs (real scan armed — beads MINT_nosync-4ip)
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # PROJECT_STAGING_TOKEN : token projet scopé staging — le
+          # RAILWAY_TOKEN générique ne résolvait pas l'environnement par
+          # nom en CI (« Environment staging not found », run 30065175408).
+          # IDs par secrets (repo public : pas d'UUID en clair).
+          RAILWAY_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN }}
+          RAILWAY_PII_SERVICE: ${{ secrets.RAILWAY_STAGING_SERVICE_ID }}
+          RAILWAY_PII_ENVIRONMENT: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID }}
         run: |
           # Scan RÉEL armé (audit T15-F02 follow-up). Invocation vérifiée
           # localement le 2026-07-24 : `railway logs --service MINT
