@@ -142,49 +142,13 @@ double estimateIncomeTaxV2(
   String canton, {
   bool isMarried = false,
 }) {
-  var impotFederal = 0.0;
-  var prevBound = 0.0;
-  for (final bracket in incomeTaxFederalBrackets2026) {
-    final upper = bracket[0];
-    final rate = bracket[1];
-    if (taxableIncome <= prevBound) break;
-    final taxable =
-        (taxableIncome < upper ? taxableIncome : upper) - prevBound;
-    impotFederal += taxable * rate;
-    prevBound = upper;
-  }
-
-  var pts = cantonalCommunalTaxChf[canton.toUpperCase()];
-  if (pts == null) {
-    final all = cantonalCommunalTaxChf.values.toList();
-    pts = List<double>.generate(
-      cantonalTaxPointsIncome.length,
-      (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
-    );
-  }
-  final incomes = cantonalTaxPointsIncome;
-  double impotCantonal;
-  if (taxableIncome <= 0) {
-    impotCantonal = 0;
-  } else if (taxableIncome <= incomes.first) {
-    impotCantonal = pts.first * (taxableIncome / incomes.first);
-  } else if (taxableIncome >= incomes.last) {
-    final slope = (pts[pts.length - 1] - pts[pts.length - 2]) /
-        (incomes[incomes.length - 1] - incomes[incomes.length - 2]);
-    impotCantonal = pts.last + slope * (taxableIncome - incomes.last);
-  } else {
-    impotCantonal = pts.last;
-    for (var i = 0; i < incomes.length - 1; i++) {
-      if (taxableIncome >= incomes[i] && taxableIncome <= incomes[i + 1]) {
-        final ratio =
-            (taxableIncome - incomes[i]) / (incomes[i + 1] - incomes[i]);
-        impotCantonal = pts[i] + ratio * (pts[i + 1] - pts[i]);
-        break;
-      }
-    }
-  }
-
-  var total = impotFederal + impotCantonal;
+  // Review #1007 : délégation à la décomposition — une seule
+  // implémentation des boucles (contrat d'identité testé sur les 26
+  // cantons). Le facteur marié s'applique à la SOMME, ordre des
+  // flottants identique à l'ancien corps (leçon backend #997 — les
+  // parités croisées sont gelées au centime).
+  final parts = estimateIncomeTaxV2Parts(taxableIncome, canton);
+  var total = parts.federal + parts.cantonal;
   if (isMarried) {
     total *= 0.80;
   }
