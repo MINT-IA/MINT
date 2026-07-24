@@ -30,13 +30,10 @@ Rules:
 from typing import List, Optional
 
 from app.constants.social_insurance import (
-    AVS_RAMD_MIN,
-    AVS_RAMD_MAX,
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_AGE_REFERENCE_HOMME,
     avs_reference_age,
+    rente_from_ramd,
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
@@ -131,10 +128,6 @@ def _detect_archetype(input: MinimalProfileInput) -> str:
 # Constants — derived from social_insurance.py
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# AVS linear interpolation boundaries (RAMD) — from social_insurance.py
-_AVS_RAMD_LOW: float = AVS_RAMD_MIN
-_AVS_RAMD_HIGH: float = AVS_RAMD_MAX
-
 # Approximate net salary factor (Swiss average: ~87% of gross after social deductions)
 _NET_SALARY_FACTOR: float = 0.87
 
@@ -211,12 +204,10 @@ _SOURCES = [
 def _estimate_avs_monthly(gross_salary: float, contribution_years: int) -> float:
     """Estimate monthly AVS rente based on RAMD and contribution years.
 
-    Uses LAVS art. 34 formula:
-    - If RAMD <= 15'120 CHF: minimum rente (1'260 CHF/month)
-    - If RAMD >= 90'720 CHF: maximum rente (2'520 CHF/month)
-    - Between: linear interpolation
-
-    Then apply reduction for incomplete contribution years (< 44).
+    Uses LAVS art. 34 via the canonical echelle 44 lookup
+    (``social_insurance.rente_from_ramd``) — official OFAS table,
+    NOT a naive min->max interpolation. Then applies the reduction
+    for incomplete contribution years (< 44).
 
     Args:
         gross_salary: Annual gross salary (used as proxy for RAMD).
@@ -228,17 +219,9 @@ def _estimate_avs_monthly(gross_salary: float, contribution_years: int) -> float
     if gross_salary <= 0:
         return 0.0
 
-    # Determine full rente from RAMD (linear interpolation)
-    if gross_salary <= _AVS_RAMD_LOW:
-        full_rente = AVS_RENTE_MIN_MENSUELLE
-    elif gross_salary >= _AVS_RAMD_HIGH:
-        full_rente = AVS_RENTE_MAX_MENSUELLE
-    else:
-        # Linear interpolation between min and max
-        ratio = (gross_salary - _AVS_RAMD_LOW) / (_AVS_RAMD_HIGH - _AVS_RAMD_LOW)
-        full_rente = AVS_RENTE_MIN_MENSUELLE + ratio * (
-            AVS_RENTE_MAX_MENSUELLE - AVS_RENTE_MIN_MENSUELLE
-        )
+    # Full rente from RAMD via the single canonical echelle 44 function
+    # (règle 4 / NEVER #3 — one source of truth per layer, no local copies).
+    full_rente = rente_from_ramd(gross_salary)
 
     # Apply reduction for incomplete contribution years
     complete_years = AVS_DUREE_COTISATION_COMPLETE  # 44

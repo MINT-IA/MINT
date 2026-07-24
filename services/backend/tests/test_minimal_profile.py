@@ -29,7 +29,11 @@ from app.services.onboarding.minimal_profile_service import (
     _estimate_3a_tax_impact,
 )
 from app.services.onboarding.onboarding_models import MinimalProfileInput
-from app.constants.social_insurance import AVS_RENTE_MAX_MENSUELLE, AVS_RENTE_MIN_MENSUELLE
+from app.constants.social_insurance import (
+    AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_MIN_MENSUELLE,
+    rente_from_ramd,
+)
 
 
 # Banned terms that must NEVER appear in user-facing text
@@ -263,26 +267,44 @@ class TestAvsProjection:
         assert abs(partial - full * 0.5) < 1.0  # ~50% of full
 
     def test_avs_ramd_lauren_67k_full_years(self):
-        """Golden couple: Lauren (67k, full 44 years) uses RAMD interpolation.
+        """Golden couple: Lauren (67k, full 44 years) uses the official echelle 44.
 
-        Bornes RAMD officielles 2025/2026 (audit -zaw, OFAS doc 318.117.011) :
-        min 15'120, max 90'720. RAMD = 67'000 :
-        ratio = (67000-15120)/(90720-15120) ≈ 0.6862
-        full_rente = 1260 + 0.6862 * 1260 ≈ 2124.7 CHF/mois.
-        NB : l'interpolation LINÉAIRE est un proxy — la table officielle
-        (palier « jusqu'à 68'040 ») donnerait 2'218 ; l'estimation minimale
-        reste volontairement prudente.
+        La rente pleine délègue à la fonction canonique unique
+        ``social_insurance.rente_from_ramd`` (table officielle OFAS
+        318.117.011, alimentée par le registre avs.echelle44) — PLUS
+        d'interpolation naïve min->max locale (règle 4 / NEVER #3).
+        RAMD = 67'000 tombe entre les paliers « jusqu'à 66'528 » (2'197)
+        et « jusqu'à 68'040 » (2'218) :
+        ratio = (67000-66528)/(68040-66528) ≈ 0.3122
+        full_rente = 2197 + 0.3122 * (2218-2197) ≈ 2'203.56 CHF/mois.
         """
         full_rente = _estimate_avs_monthly(67_000.0, 44)
-        # RAMD interpolation: must be between min and max
+        # Délégation à la fonction canonique (anti-façade) — le service arrondit
+        # à 2 décimales, d'où la tolérance stricte plutôt qu'un == exact.
+        assert abs(full_rente - rente_from_ramd(67_000.0)) < 0.01
+        # Valeur officielle échelle 44 (~2'203.56), PAS le proxy naïf 2'124.7.
+        assert abs(full_rente - 2203.56) < 0.1, f"Expected ~2203.56, got {full_rente}"
+        assert full_rente > 2150.0, "Doit refléter l'échelle 44, pas l'ancien proxy naïf"
         assert AVS_RENTE_MIN_MENSUELLE < full_rente < AVS_RENTE_MAX_MENSUELLE
-        # Expected: ~2124.7 CHF for full years (linear interpolation)
-        assert abs(full_rente - 2124.7) < 5.0, f"Expected ~2124.7, got {full_rente}"
 
         # With 40 contribution years (~expat with partial gap)
         partial_rente = _estimate_avs_monthly(67_000.0, 40)
         expected_partial = full_rente * (40 / 44)
         assert abs(partial_rente - expected_partial) < 1.0
+
+    def test_avs_uses_official_echelle44_not_naive_interpolation(self):
+        """RAMD 52'920 (palier exact échelle 44) doit rendre 2'016, pas ~1'890.
+
+        Garde anti-régression : l'ancienne interpolation naïve min->max
+        rendait ~1'890 pour ce RAMD ; la table officielle OFAS (palier
+        « jusqu'à 52'920 ») rend exactement 2'016. Le service onboarding
+        doit servir la valeur canonique (règle 4 / NEVER #3).
+        """
+        rente = _estimate_avs_monthly(52_920.0, 44)
+        assert rente == 2016.0, f"Échelle 44 officielle attend 2016.0, obtenu {rente}"
+        assert rente == rente_from_ramd(52_920.0)
+        # L'ancien proxy naïf (~1'890) est explicitement rejeté.
+        assert rente > 1950.0, "Régression : interpolation naïve détectée"
 
 
 # ===========================================================================

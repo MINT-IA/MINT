@@ -133,6 +133,8 @@ ALLOW = {
     # -5up PR A : couple_optimizer backend -> modèle fiscal v2
     "services/backend/app/services/couple_optimizer/couple_optimizer.py",
     "services/backend/tests/test_5up_couple_v2_identity.py",
+    # journey-os AVS échelle 44 : couple_optimizer délègue à rente_from_ramd canonique
+    "services/backend/tests/test_couple_optimizer.py",
     # campagne-A : mariage_service -> moteur fiscal canonique + double-activité LIFD 33 al.2
     "services/backend/app/services/family/mariage_service.py",
     "services/backend/tests/test_family.py",

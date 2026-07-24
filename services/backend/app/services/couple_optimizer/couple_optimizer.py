@@ -221,62 +221,10 @@ _AVS_DEFERRAL_BONUS: Dict[int, float] = {
     5: 0.315,
 }
 
-# MIRROR Dart social_insurance.dart avsEchelle44 — table officielle OFAS
-# 318.117.011 p. 20 (51 paliers, dès 1.1.2025, inchangée 2026 — audit -zaw).
-# Format: list of (RAMD_annual, rente_mensuelle).
-_AVS_ECHELLE_44: list = [
-    (15_120.0, 1_260.0),
-    (16_632.0, 1_293.0),
-    (18_144.0, 1_326.0),
-    (19_656.0, 1_358.0),
-    (21_168.0, 1_391.0),
-    (22_680.0, 1_424.0),
-    (24_192.0, 1_457.0),
-    (25_704.0, 1_489.0),
-    (27_216.0, 1_522.0),
-    (28_728.0, 1_555.0),
-    (30_240.0, 1_588.0),
-    (31_752.0, 1_620.0),
-    (33_264.0, 1_653.0),
-    (34_776.0, 1_686.0),
-    (36_288.0, 1_719.0),
-    (37_800.0, 1_751.0),
-    (39_312.0, 1_784.0),
-    (40_824.0, 1_817.0),
-    (42_336.0, 1_850.0),
-    (43_848.0, 1_882.0),
-    (45_360.0, 1_915.0),
-    (46_872.0, 1_935.0),
-    (48_384.0, 1_956.0),
-    (49_896.0, 1_976.0),
-    (51_408.0, 1_996.0),
-    (52_920.0, 2_016.0),
-    (54_432.0, 2_036.0),
-    (55_944.0, 2_056.0),
-    (57_456.0, 2_076.0),
-    (58_968.0, 2_097.0),
-    (60_480.0, 2_117.0),
-    (61_992.0, 2_137.0),
-    (63_504.0, 2_157.0),
-    (65_016.0, 2_177.0),
-    (66_528.0, 2_197.0),
-    (68_040.0, 2_218.0),
-    (69_552.0, 2_238.0),
-    (71_064.0, 2_258.0),
-    (72_576.0, 2_278.0),
-    (74_088.0, 2_298.0),
-    (75_600.0, 2_318.0),
-    (77_112.0, 2_339.0),
-    (78_624.0, 2_359.0),
-    (80_136.0, 2_379.0),
-    (81_648.0, 2_399.0),
-    (83_160.0, 2_419.0),
-    (84_672.0, 2_439.0),
-    (86_184.0, 2_460.0),
-    (87_696.0, 2_480.0),
-    (89_208.0, 2_500.0),
-    (90_720.0, 2_520.0),
-]
+# Echelle 44 (rente AVS depuis RAMD) : PAS de copie locale. La table + le
+# lookup canoniques vivent dans app.constants.social_insurance.rente_from_ramd
+# (règle 4 / NEVER #3 — une seule source de vérité backend, alimentée par le
+# registre avs.echelle44). Voir _avs_compute_monthly_rente ci-dessous.
 
 
 # ────────────────────────────────────────────────────────────
@@ -404,29 +352,6 @@ def _estimate_monthly_income_tax(
 # ────────────────────────────────────────────────────────────
 
 
-def _rente_from_ramd(gross_annual_salary: float) -> float:
-    """AVS rente based on RAMD using Echelle 44 (LAVS art. 34).
-
-    # MIRROR Dart avs_calculator.dart:136-150 (renteFromRAMD).
-
-    Concave lookup + linear interpolation between table points.
-    """
-    if gross_annual_salary <= 0:
-        return 0.0
-    table = _AVS_ECHELLE_44
-    if gross_annual_salary <= table[0][0]:
-        return table[0][1]
-    if gross_annual_salary >= table[-1][0]:
-        return table[-1][1]
-    for i in range(len(table) - 1):
-        lower = table[i]
-        upper = table[i + 1]
-        if lower[0] <= gross_annual_salary <= upper[0]:
-            ratio = (gross_annual_salary - lower[0]) / (upper[0] - lower[0])
-            return lower[1] + ratio * (upper[1] - lower[1])
-    return table[-1][1]  # fallback
-
-
 def _avs_compute_monthly_rente(
     *,
     current_age: int,
@@ -471,8 +396,11 @@ def _avs_compute_monthly_rente(
     gap_factor = effective_years / full_years if full_years > 0 else 0.0
 
     # MIRROR Dart avs_calculator.dart:69-102 — RAMD-based rente.
+    # Fonction canonique unique (règle 4 / NEVER #3) — pas de copie locale.
+    from app.constants.social_insurance import rente_from_ramd
+
     effective_salary = gross_annual_salary
-    base_rente = _rente_from_ramd(effective_salary)
+    base_rente = rente_from_ramd(effective_salary)
     rente = base_rente * gap_factor
 
     # MIRROR Dart avs_calculator.dart:104-115 — early/late retirement adjustments.
