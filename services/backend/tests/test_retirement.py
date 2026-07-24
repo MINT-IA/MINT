@@ -24,6 +24,7 @@ from app.constants.social_insurance import (
     AVS_REDUCTION_ANTICIPATION as AVS_ANTICIPATION_PENALTY_PER_YEAR,
     AVS_SUPPLEMENT_AJOURNEMENT as AVS_DEFERRAL_BONUS,
     AVS_DUREE_COTISATION_COMPLETE as AVS_FULL_CONTRIBUTION_YEARS,
+    rente_from_ramd,
 )
 from app.services.retirement.lpp_conversion_service import (
     LppConversionService,
@@ -68,6 +69,27 @@ class TestAvsEstimation:
         assert result.facteur_ajustement == 1.0
         assert result.penalite_ou_bonus_pct == 0.0
         assert result.rente_mensuelle == AVS_MAX_RENTE_MENSUELLE
+
+    def test_ramd_uses_official_echelle44_not_naive_interpolation(self, avs_service):
+        """Anti-façade : la rente basée sur le RAMD passe par l'échelle 44
+        officielle (table du registre) et non plus par une interpolation naïve
+        min→max locale (la fonction canonique social_insurance.rente_from_ramd
+        impose : « ALL backend services MUST use this single function »).
+
+        RAMD 52'920 → 2'016/mois (échelle 44 officielle, OFAS 318.117.011).
+        L'ancienne interpolation min→max donnait 1'890 (écart 126 CHF/mois) →
+        ce test est ROUGE avec le code d'avant, VERT après délégation.
+        """
+        result = avs_service.estimate(
+            current_age=50,
+            retirement_age=65,
+            annees_lacunes=0,
+            gross_salary=52_920,
+        )
+        # 44 années cotisées (gap_factor=1), retraite normale (factor=1) →
+        # rente_mensuelle == rente_from_ramd(52'920) == 2'016 (pas 1'890).
+        assert result.rente_mensuelle == 2016.0
+        assert result.rente_mensuelle == rente_from_ramd(52_920)
 
     def test_anticipation_63(self, avs_service):
         """Anticipation at 63 (2 years early) = -13.6% penalty."""

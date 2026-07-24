@@ -333,6 +333,29 @@ def test_avs_cap_low_incomes_no_cap() -> None:
     assert result.monthly_reduction == pytest.approx(0.0, abs=0.01)
 
 
+def test_avs_rente_delegates_to_canonical_echelle44_no_local_copy() -> None:
+    """Anti-façade : la rente AVS couple délègue à la fonction canonique unique.
+
+    Le couple_optimizer NE doit PAS redéfinir sa propre table échelle 44
+    ni son propre ``_rente_from_ramd`` (règle 4 / NEVER #3). La rente pleine
+    (carrière complète 44 ans, sans ajustement) doit égaler exactement
+    ``social_insurance.rente_from_ramd``.
+    """
+    from app.services.couple_optimizer import couple_optimizer as _mod
+    from app.constants.social_insurance import rente_from_ramd
+
+    # Full career (arrival 20, current 65, retire 65) → gap_factor 1.0, no adj.
+    rente = _mod._avs_compute_monthly_rente(
+        current_age=65, retirement_age=65, gross_annual_salary=52_920.0
+    )
+    assert rente == pytest.approx(rente_from_ramd(52_920.0), abs=0.01)
+    assert rente == pytest.approx(2016.0, abs=0.01)  # palier officiel exact
+
+    # Aucune copie locale de la table ou du lookup ne subsiste.
+    assert not hasattr(_mod, "_AVS_ECHELLE_44"), "Table échelle 44 dupliquée détectée"
+    assert not hasattr(_mod, "_rente_from_ramd"), "Copie locale de rente_from_ramd détectée"
+
+
 # ---------------------------------------------------------------------------
 # Marriage penalty (Tests 13-16) — Dart couple_optimizer.dart:373-422
 # ---------------------------------------------------------------------------
