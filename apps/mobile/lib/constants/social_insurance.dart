@@ -91,6 +91,13 @@ const double lppEarlyRetirementRateReduction = 0.002;
 /// Taux d'interet minimum LPP en % (fixe par le Conseil federal).
 const double lppTauxInteretMin = 1.25;
 
+/// Taux d'intérêt minimal LPP en RATIO (beads -b6k) — la clé registre
+/// `lpp.min_interest_rate` et le fallback [lppTauxInteretMin] sont en
+/// POURCENT (1.25) : la conversion /100 vit ici, une seule fois, pour
+/// que cache et fallback rendent le même 0.0125.
+double lppMinInterestRatio() =>
+    reg('lpp.min_interest_rate', lppTauxInteretMin) / 100;
+
 /// Taux de bonification de vieillesse par tranche d'age (LPP art. 16).
 const Map<String, double> lppBonificationsVieillesse = {
   '25-34': 0.07,

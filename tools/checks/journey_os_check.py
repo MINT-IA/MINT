@@ -104,6 +104,8 @@ ALLOW = {
     "tools/checks/create_or_update_mint_skills.py",
     # -dwr : posture LSFin du tip rachat échelonné (copie x6 + garde)
     "apps/mobile/test/l10n/rachat_echelonne_posture_test.dart",
+    # -b6k : littéral lppReturn -> reg() avec fallback
+    "apps/mobile/test/screens/arbitrage/rvc_lpp_return_registry_test.dart",
     "tools/checks/ci_gate_aggregation_check.py",
     "services/backend/app/constants/social_insurance.py",
     "services/backend/app/services/independants/avs_cotisations_service.py",
