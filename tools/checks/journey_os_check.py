@@ -286,6 +286,9 @@ ALLOW = {
     "services/backend/app/schemas/mortgage.py",
     "services/backend/app/schemas/retirement.py",
     "services/backend/tests/test_uwv_married_capital_apis.py",
+    # -337 : provenance des 39 clés fiscales du registre
+    "services/backend/app/services/regulatory/registry.py",
+    "services/backend/tests/test_337_fiscal_provenance.py",
     "services/backend/app/schemas/arbitrage.py",
     "tools/openapi/mint.openapi.canonical.json",
     "tools/openapi/openapi.json",
