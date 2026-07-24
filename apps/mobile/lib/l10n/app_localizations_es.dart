@@ -24309,4 +24309,9 @@ class SEs extends S {
   String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
     return 'Presupuesto introducido CHF $saisi, el plan usa CHF $effectif (cuotas mínimas). Botón, edita el presupuesto.';
   }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Precisar tus datos — bloque $bloc';
+  }
 }

@@ -142,6 +142,7 @@ ALLOW = {
     "apps/mobile/lib/services/financial_core/income_tax_model_v2.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/test/services/fiscal_service_test.dart",
+    # -7vv : IndicatifBanner — trame réelle, CTA audible, fiscalite routable
     "apps/mobile/test/services/independants_service_test.dart",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",

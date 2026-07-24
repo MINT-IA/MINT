@@ -765,6 +765,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
                                 // ── Confidence banner ──
                                 IndicatifBanner(
+                                  // -7vv : contrat MUST de fromBareScore — trame 4 axes RÉELLE
+                                  // (le score de visibilité reste _result.confidenceScore).
+                                  confidence: _canonicalEnhanced,
                                   confidenceScore: _result!.confidenceScore,
                                   // Couche 4 : categorie du prompt au plus
                                   // FORT impact du profil reel — axisPrompts

@@ -42477,6 +42477,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Budget saisi CHF {saisi}, le plan se base sur CHF {effectif} (mensualités minimales). Bouton, modifie le budget.'**
   String semanticsRepaymentBudgetEffective(String saisi, String effectif);
+
+  /// No description provided for @indicativeBannerCtaSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préciser tes données — bloc {bloc}'**
+  String indicativeBannerCtaSemantics(String bloc);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

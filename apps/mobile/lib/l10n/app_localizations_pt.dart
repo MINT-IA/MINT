@@ -24316,4 +24316,9 @@ class SPt extends S {
   String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
     return 'Orçamento inserido CHF $saisi, o plano usa CHF $effectif (prestações mínimas). Botão, edita o orçamento.';
   }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Precisar os teus dados — bloco $bloc';
+  }
 }

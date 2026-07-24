@@ -24185,4 +24185,9 @@ class SEn extends S {
   String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
     return 'Entered budget CHF $saisi, the plan uses CHF $effectif (minimum payments). Button, edits the budget.';
   }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Refine your data — $bloc block';
+  }
 }

@@ -64,7 +64,29 @@ class IndicatifBanner extends StatelessWidget {
     'patrimoine': 'patrimoine',
     'objectif_retraite': 'objectifRetraite',
     'menage': 'compositionMenage',
+    // -7vv : le bloc fiscalite EXISTE (data_block_enrichment
+    // _supportedBlockTypes) — la catégorie émise par le scorer est donc
+    // routable. foreign_pension / retirement_urgency / couple n'ont
+    // toujours pas de bloc : filtrées par topEnrichmentCategoryFrom.
+    'fiscalite': 'fiscalite',
   };
+
+  /// Titre localisé du bloc cible — rend la couche 4 AUDIBLE (VoiceOver
+  /// annonce vers quoi le CTA emmène, suivi panel -jzk / beads -7vv).
+  static String blockTitleFor(BuildContext context, String route) {
+    final l = S.of(context)!;
+    return switch (route) {
+      'revenu' => l.dataBlockRevenuTitle,
+      'lpp' => l.dataBlockLppTitle,
+      'avs' => l.dataBlockAvsTitle,
+      '3a' => l.dataBlock3aTitle,
+      'patrimoine' => l.dataBlockPatrimoineTitle,
+      'fiscalite' => l.dataBlockFiscaliteTitle,
+      'objectifRetraite' => l.dataBlockObjectifTitle,
+      'compositionMenage' => l.dataBlockMenageTitle,
+      _ => l.dataBlockUnknownTitle,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +140,11 @@ class IndicatifBanner extends StatelessWidget {
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
-            child: TextButton.icon(
+            child: Semantics(
+              button: true,
+              label: S.of(context)!.indicativeBannerCtaSemantics(
+                  blockTitleFor(context, route)),
+              child: TextButton.icon(
               onPressed: () => context.push('/data-block/$route'),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
@@ -129,6 +155,7 @@ class IndicatifBanner extends StatelessWidget {
                 foregroundColor: MintColors.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              ),
               ),
             ),
           ),

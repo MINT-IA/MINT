@@ -72,8 +72,10 @@ void main() {
     // la bannière est alors masqué, pas de fallback lpp arbitraire).
     expect(
       IndicatifBanner.topEnrichmentCategoryFrom(synth(const [
+        // -7vv : 'fiscalite' est devenue ROUTABLE (bloc réel) — le cas
+        // exclusivement non-routable utilise les catégories sans bloc.
         EnrichmentPrompt(
-            category: 'fiscalite', label: 'x', impact: 9, action: 'x'),
+            category: 'foreign_pension', label: 'x', impact: 9, action: 'x'),
         EnrichmentPrompt(
             category: 'retirement_urgency',
             label: 'y',
@@ -81,6 +83,15 @@ void main() {
             action: 'y'),
       ])),
       isNull,
+    );
+
+    // -7vv : fiscalite est routable (bloc data_block_enrichment réel).
+    expect(
+      IndicatifBanner.topEnrichmentCategoryFrom(synth(const [
+        EnrichmentPrompt(
+            category: 'fiscalite', label: 'x', impact: 9, action: 'x'),
+      ])),
+      'fiscalite',
     );
 
     // Non routable en tête -> saute au premier ROUTABLE (ordre conservé).

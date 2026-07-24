@@ -11621,5 +11621,13 @@
         "type": "String"
       }
     }
+  },
+  "indicativeBannerCtaSemantics": "Precisare i tuoi dati — blocco {bloc}",
+  "@indicativeBannerCtaSemantics": {
+    "placeholders": {
+      "bloc": {
+        "type": "String"
+      }
+    }
   }
 }
