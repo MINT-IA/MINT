@@ -39,6 +39,12 @@ jobs:
               - 'tools/checks/regulatory_freshness_monitor.py'
               - 'tools/checks/tests/test_regulatory_freshness_monitor.py'
               - '.github/workflows/regulatory-freshness-monitor.yml'
+            pii_gate:
+              # -4ip r2 : une PR qui touche le gate lui-même doit
+              # l'exécuter (path-filter blind spot — le job avait été
+              # skipped sur la PR d'armement).
+              - 'scripts/check_pii_in_logs.py'
+              - '.github/workflows/ci.yml'
             flutter:
               - 'apps/mobile/**'
               - '.github/workflows/ci.yml'
@@ -371,7 +377,7 @@ jobs:
   pii-log-gate:
     name: PII log gate (PRIV-03)
     needs: [changes]
-    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.pii_gate == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -382,7 +388,9 @@ jobs:
         with:
           node-version: "22"
       - name: Install railway CLI
-        run: npm install -g @railway/cli
+        # Épinglé : version testée localement (review #999 — un
+        # breaking change amont déclencherait sinon le chemin d'échec).
+        run: npm install -g @railway/cli@4.59.0
       - name: Scan staging logs (real scan armed — beads MINT_nosync-4ip)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
@@ -405,20 +413,28 @@ jobs:
             python3 scripts/check_pii_in_logs.py --fixture /tmp/pii_fixture/clean.log
             exit $?
           fi
-          set +e
-          python3 scripts/check_pii_in_logs.py --railway
-          rc=$?
-          set -e
+          # Review #999 : pas de fail-open — pour l'unique required check
+          # sécurité, une panne de fetch BLOQUE (après 2 retries pour
+          # absorber les transitoires). Un warning non bloquant pouvait
+          # désarmer le scan indéfiniment (token expiré, CLI cassé...).
+          rc=2
+          for attempt in 1 2 3; do
+            set +e
+            python3 scripts/check_pii_in_logs.py --railway
+            rc=$?
+            set -e
+            [[ $rc -eq 0 || $rc -eq 1 ]] && break
+            echo "fetch attempt ${attempt} failed (exit ${rc}) — retrying in 20s"
+            sleep 20
+          done
           if [[ $rc -eq 0 ]]; then
             echo "PII log gate: staging scan clean."
           elif [[ $rc -eq 1 ]]; then
             echo "::error title=PII detected in staging logs::PRIV-03 — raw PII pattern(s) in staging logs. Blocking."
             exit 1
           else
-            echo "::warning title=PII log gate fetch FAILED::railway logs exit ${rc} — staging logs were NOT scanned (PRIV-03). Falling back to fixture; investigate if persistent."
-            mkdir -p /tmp/pii_fixture
-            printf 'INFO document fingerprint computed count=5\nINFO consent receipt issued purpose=projection\n' > /tmp/pii_fixture/clean.log
-            python3 scripts/check_pii_in_logs.py --fixture /tmp/pii_fixture/clean.log
+            echo "::error title=PII log gate fetch FAILED::railway logs exit ${rc} after 3 attempts — staging logs could NOT be scanned (PRIV-03). Blocking: fix the fetch (token/CLI/service), do not merge blind."
+            exit 1
           fi
 
   # ─── Flutter Analysis & Tests (3-shard parallel) ────────────
