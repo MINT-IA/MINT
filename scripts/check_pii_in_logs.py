@@ -5,8 +5,10 @@ PRIV-03 — Phase 29.
 
 Two input modes:
     --fixture <path>   : read a local file (used by tests + offline runs)
-    --railway          : invoke `railway logs --json` for the last 24h
-                         (requires RAILWAY_TOKEN env var)
+    --railway          : invoke `railway logs --json -n 5000` on the
+                         staging service (requires RAILWAY_TOKEN ;
+                         RAILWAY_PII_SERVICE / RAILWAY_PII_ENVIRONMENT
+                         override the MINT/staging defaults)
 
 Patterns checked:
     - Raw IBAN (CH + 19 digits, with/without spaces)
@@ -25,6 +27,7 @@ warn-only in .github/workflows/ci.yml — flips to blocking in Phase 30.
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -75,10 +78,25 @@ def _scan_text(text: str) -> list[tuple[str, str]]:
 
 
 def _fetch_railway_logs() -> str:
-    """Invoke railway CLI to fetch JSON logs. Requires RAILWAY_TOKEN."""
+    """Invoke railway CLI to fetch JSON logs. Requires RAILWAY_TOKEN.
+
+    Beads MINT_nosync-4ip : l'invocation nue `railway logs --json --lines
+    10000` échouait DOUBLEMENT hors terminal lié — (1) sans contexte
+    service/environnement (« Environment must be specified ») et (2)
+    l'API rejette lines > 5000 (« Error in limit - Invalid input »,
+    vérifié CLI 2026-07-24). Contexte injectable via env pour la CI ;
+    défauts = staging (cible du gate PRIV-03).
+    """
+    service = os.environ.get("RAILWAY_PII_SERVICE", "MINT")
+    environment = os.environ.get("RAILWAY_PII_ENVIRONMENT", "staging")
     try:
         proc = subprocess.run(
-            ["railway", "logs", "--json", "--lines", "10000"],
+            [
+                "railway", "logs",
+                "--service", service,
+                "--environment", environment,
+                "--json", "--lines", "5000",
+            ],
             capture_output=True, text=True, timeout=120,
         )
     except FileNotFoundError:
