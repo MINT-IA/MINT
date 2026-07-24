@@ -564,6 +564,10 @@ class EplCombinedRequest(BaseModel):
         0, alias="avoirLppTotal",
         description="Avoir LPP total (CHF)", ge=0
     )
+    is_married: Optional[bool] = Field(
+        None, alias="isMarried",
+        description="Marie·e (coefficient cantonal retrait capital, defaut: False)",
+    )
     avoirObligatoire: float = Field(
         0, alias="avoirObligatoire",
         description="Part obligatoire LPP (CHF)", ge=0

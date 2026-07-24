@@ -412,6 +412,11 @@ def arbitrage_allocation_annuelle(
                 else 0.04
             ),
             canton=str(resolved["canton"]).upper(),
+            is_married=(
+                resolved["is_married"]
+                if resolved["is_married"] is not None
+                else False
+            ),
         )
 
         return _result_to_response(result, AllocationAnnuelleResponse)

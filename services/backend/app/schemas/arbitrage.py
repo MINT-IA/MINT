@@ -249,6 +249,10 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
         default=None, ge=0,
         description="Potentiel de rachat LPP disponible (CHF, defaut: 0)",
     )
+    is_married: Optional[bool] = Field(
+        default=None,
+        description="Marie·e (coefficient cantonal retrait capital, defaut: False)",
+    )
     is_property_owner: Optional[bool] = Field(
         default=None,
         description="Proprietaire d'un bien immobilier (lu depuis le profil si absent)",

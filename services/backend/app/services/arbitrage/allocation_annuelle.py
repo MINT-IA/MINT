@@ -71,6 +71,7 @@ def _build_3a_option(
     annees: int,
     rendement_3a: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 1: Pillar 3a contribution trajectory.
 
@@ -107,7 +108,7 @@ def _build_3a_option(
         estimate_capital_withdrawal_tax,
     )
 
-    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton)
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton, is_married=is_married)
     net_capital = capital_3a - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving  # net tax effect
@@ -128,6 +129,7 @@ def _build_rachat_lpp_option(
     annees: int,
     rendement_lpp: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 2: Rachat LPP (voluntary buyback) trajectory.
 
@@ -180,7 +182,7 @@ def _build_rachat_lpp_option(
         estimate_capital_withdrawal_tax,
     )
 
-    withdrawal_tax = estimate_capital_withdrawal_tax(capital_lpp, canton)
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_lpp, canton, is_married=is_married)
     net_capital = capital_lpp - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving
@@ -201,6 +203,7 @@ def _build_amortissement_indirect_option(
     taux_hypothecaire: float,
     rendement_3a: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 3: Amortissement indirect (indirect mortgage amortization).
 
@@ -240,7 +243,7 @@ def _build_amortissement_indirect_option(
         estimate_capital_withdrawal_tax,
     )
 
-    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton)
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton, is_married=is_married)
     net_capital = capital_3a - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving
@@ -354,6 +357,7 @@ def compare_allocation_annuelle(
     rendement_lpp: float = 0.0125,
     rendement_marche: float = 0.04,
     canton: str = "VD",
+    is_married: bool = False,
 ) -> ArbitrageResult:
     """Compare allocation strategies for available annual savings.
 
@@ -377,6 +381,8 @@ def compare_allocation_annuelle(
         rendement_lpp: Expected LPP caisse return (default 1.25%).
         rendement_marche: Expected free market return (default 4%).
         canton: Canton code for tax estimation (default VD).
+        is_married: Marié·e — coefficient cantonal réduit sur l'impôt de
+            retrait capital (beads MINT_nosync-uwv, défaut False).
 
     Returns:
         ArbitrageResult with eligible options, sensitivity, and compliance.
@@ -396,6 +402,7 @@ def compare_allocation_annuelle(
             annees=annees_avant_retraite,
             rendement_3a=rendement_3a,
             canton=canton,
+            is_married=is_married,
         ))
 
     # Option 2: Rachat LPP (only if potential > 0)
@@ -407,6 +414,7 @@ def compare_allocation_annuelle(
             annees=annees_avant_retraite,
             rendement_lpp=rendement_lpp,
             canton=canton,
+            is_married=is_married,
         ))
 
     # Option 3: Amortissement indirect (only if property owner)
@@ -418,6 +426,7 @@ def compare_allocation_annuelle(
             taux_hypothecaire=taux_hypothecaire,
             rendement_3a=rendement_3a,
             canton=canton,
+            is_married=is_married,
         ))
 
     # Option 4: Investissement libre (always available)
@@ -508,6 +517,7 @@ def compare_allocation_annuelle(
                 annees=annees_avant_retraite,
                 rendement_3a=variant_rendement_3a,
                 canton=canton,
+                is_married=is_married,
             ))
 
         if potentiel_rachat_lpp > 0 and montant_disponible > 0:
@@ -518,6 +528,7 @@ def compare_allocation_annuelle(
                 annees=annees_avant_retraite,
                 rendement_lpp=variant_rendement_lpp,
                 canton=canton,
+                is_married=is_married,
             ))
 
         if is_property_owner and montant_disponible > 0:
@@ -528,6 +539,7 @@ def compare_allocation_annuelle(
                 taux_hypothecaire=variant_taux_hypothecaire,
                 rendement_3a=variant_rendement_3a,
                 canton=canton,
+                is_married=is_married,
             ))
 
         variant_options.append(_build_investissement_libre_option(

@@ -124,6 +124,7 @@ class EplCombinedService:
         a_rachete_recemment: bool = False,
         annees_depuis_dernier_rachat: Optional[int] = None,
         avoir_lpp_a_50_ans: Optional[float] = None,
+        is_married: bool = False,
     ) -> EplCombinedResult:
         """Calculate combined EPL equity from all sources.
 
@@ -139,6 +140,8 @@ class EplCombinedService:
             a_rachete_recemment: Whether a LPP buyback was done recently.
             annees_depuis_dernier_rachat: Years since last LPP buyback.
             avoir_lpp_a_50_ans: LPP savings at age 50 (if known).
+            is_married: Marié·e — coefficient cantonal réduit sur l'impôt
+                de retrait 3a ET LPP (beads MINT_nosync-uwv, défaut False).
 
         Returns:
             EplCombinedResult with complete analysis.
@@ -161,7 +164,9 @@ class EplCombinedService:
         # ---- 3a EPL ----
         # Full withdrawal allowed for primary residence (OPP3 art. 1)
         retrait_3a = avoir_3a
-        impot_3a = estimate_capital_withdrawal_tax(retrait_3a, canton)
+        impot_3a = estimate_capital_withdrawal_tax(
+            retrait_3a, canton, is_married=is_married
+        )
         net_3a = round(retrait_3a - impot_3a, 2)
 
         # ---- LPP EPL ----
@@ -176,6 +181,7 @@ class EplCombinedService:
             annees_depuis_dernier_rachat=annees_depuis_dernier_rachat,
             avoir_a_50_ans=avoir_lpp_a_50_ans,
             canton=canton,
+            is_married=is_married,
         )
 
         retrait_lpp = epl_lpp.montant_effectif

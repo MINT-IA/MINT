@@ -148,6 +148,10 @@ class LppConversionRequest(BaseModel):
         default=87, ge=65, le=100,
         description="Esperance de vie estimee",
     )
+    is_married: Optional[bool] = Field(
+        default=None,
+        description="Marie·e (coefficient cantonal retrait capital, defaut: False)",
+    )
 
 
 class LppConversionResponse(BaseModel):

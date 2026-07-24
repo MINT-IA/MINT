@@ -251,6 +251,7 @@ def simulate_epl(
         annees_depuis_dernier_rachat=resolved["anneesDernierRachat"],
         avoir_a_50_ans=resolved["avoirA50Ans"],
         canton=str(resolved["canton"]),
+        is_married=bool(resolved["is_married"]),
     )
 
     return EPLResponse(
