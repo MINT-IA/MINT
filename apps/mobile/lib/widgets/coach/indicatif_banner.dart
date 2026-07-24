@@ -142,6 +142,9 @@ class IndicatifBanner extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Semantics(
               button: true,
+              // Review #1008 : excludeSemantics évite le doublon avec le
+              // libellé enfant « Préciser » — un seul label annoncé.
+              excludeSemantics: true,
               label: S.of(context)!.indicativeBannerCtaSemantics(
                   blockTitleFor(context, route)),
               child: TextButton.icon(
