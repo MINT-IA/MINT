@@ -351,8 +351,10 @@ _PARAMETERS: list[RegulatoryParameter] = [
         notes=(
             "Maintenu à 1.25% pour 2026 par décision du Conseil fédéral "
             "du 2025-11-05 (recommandation Commission LPP 10 voix contre "
-            "6) — vérifié admin.ch le 2026-07-24. Décision ANNUELLE : "
-            "re-vérifier chaque automne."
+            "6) — vérifié admin.ch le 2026-07-24. Le Conseil fédéral "
+            "réexamine le taux au moins tous les deux ans (LPP art. 15 "
+            "al. 3) — re-vérifier avant toute utilisation pour une "
+            "année ultérieure."
         ),
     ),
     RegulatoryParameter(
