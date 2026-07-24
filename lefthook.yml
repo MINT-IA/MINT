@@ -149,6 +149,17 @@ pre-commit:
       glob: "{.github/workflows/ci.yml,tools/checks/ci_gate_aggregation_check.py}"
       tags: [compliance, ci, audit-2026-07]
       fail_text: "ci-gate no longer gates the compliance jobs (contracts-drift / pii-log-gate). Re-wire needs + aggregation — audit T15-F01/F02."
+    education-facts-gate:
+      # Campagne-A cluster C: forbid re-introducing superseded fiscal/social
+      # values (IFD deductions, LIFD article numbers, cantonal family allowances,
+      # LPP/AVS millésimes) into the SERVED content (RAG corpus + ARB), which no
+      # unit test covers. --self-test proves the checker has teeth; the scan runs
+      # on the full served corpus (fast, stdlib). Also wired as a required
+      # ci-gate job so a hooks-bypassed push cannot regress the 2026 truth.
+      run: python3 tools/checks/education_facts_check.py --self-test && python3 tools/checks/education_facts_check.py
+      glob: "{education/inserts/**/*.md,services/backend/education_inserts/**/*.md,apps/mobile/lib/l10n/app_*.arb,tools/checks/education_facts_check.py}"
+      tags: [compliance, content, campagne-a]
+      fail_text: "Superseded fiscal/social value re-introduced in served content — use the official 2026 value (ESTV/AFC, OFAS/BSV). See tools/checks/education_facts_check.py."
     no-3a-ceiling-as-tax-saving-gate:
       # Trust rule: CHF 7'258 / CHF 36'288 are 3a deductible contribution
       # ceilings, not the user's tax saving. Tax impact requires a separate
