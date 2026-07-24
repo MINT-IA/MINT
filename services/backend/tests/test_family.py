@@ -31,7 +31,7 @@ from app.services.family.naissance_service import (
     APG_TAUX,
     APG_MAX_JOUR,
     ALLOCATIONS_ENFANT_PAR_CANTON,
-    ALLOCATION_FORMATION_SUPPLEMENT,
+    ALLOCATIONS_FORMATION_PAR_CANTON,
     DEDUCTION_PAR_ENFANT as DEDUCTION_ENFANT_NAISSANCE,
     DEDUCTION_FRAIS_GARDE_MAX,
     LPP_DEDUCTION_COORDINATION,
@@ -383,34 +383,34 @@ class TestCongeParentalAPG:
 class TestAllocationsFamiliales:
     """Tests for NaissanceService.estimate_allocations()."""
 
-    def test_geneve_300_per_child(self, naissance_service):
-        """GE should give CHF 300/month per child under 16."""
+    def test_geneve_311_per_child(self, naissance_service):
+        """GE should give CHF 311/month per child under 16 (OFAS 2026)."""
         result = naissance_service.estimate_allocations(
             canton="GE", nb_enfants=1, ages_enfants=[5],
         )
-        assert result.total_mensuel == 300.0
-        assert result.total_annuel == 3600.0
+        assert result.total_mensuel == 311.0
+        assert result.total_annuel == 3732.0
 
-    def test_zurich_200_per_child(self, naissance_service):
-        """ZH should give CHF 200/month per child under 16."""
+    def test_zurich_215_per_child(self, naissance_service):
+        """ZH should give CHF 215/month per child (federal minimum, OFAS 2026)."""
         result = naissance_service.estimate_allocations(
             canton="ZH", nb_enfants=1, ages_enfants=[10],
         )
-        assert result.total_mensuel == 200.0
+        assert result.total_mensuel == 215.0
 
-    def test_valais_305_per_child(self, naissance_service):
-        """VS should give CHF 305/month per child."""
+    def test_valais_327_per_child(self, naissance_service):
+        """VS should give CHF 327/month per child (OFAS 2026)."""
         result = naissance_service.estimate_allocations(
             canton="VS", nb_enfants=1, ages_enfants=[3],
         )
-        assert result.total_mensuel == 305.0
+        assert result.total_mensuel == 327.0
 
-    def test_zug_300_per_child(self, naissance_service):
-        """ZG should give CHF 300/month per child."""
+    def test_zug_330_per_child(self, naissance_service):
+        """ZG should give CHF 330/month per child (OFAS 2026)."""
         result = naissance_service.estimate_allocations(
             canton="ZG", nb_enfants=1, ages_enfants=[8],
         )
-        assert result.total_mensuel == 300.0
+        assert result.total_mensuel == 330.0
 
     def test_jura_275_per_child(self, naissance_service):
         """JU should give CHF 275/month per child."""
@@ -420,20 +420,23 @@ class TestAllocationsFamiliales:
         assert result.total_mensuel == 275.0
 
     def test_formation_allocation_16_plus(self, naissance_service):
-        """Child 16+ should get formation allocation (base + 50 CHF)."""
+        """Child 16+ should get the cantonal formation allocation (per-canton
+        lookup, not enfant + 50 — the old +50 model was factually wrong)."""
         result = naissance_service.estimate_allocations(
             canton="ZH", nb_enfants=1, ages_enfants=[18],
         )
-        expected = ALLOCATIONS_ENFANT_PAR_CANTON["ZH"] + ALLOCATION_FORMATION_SUPPLEMENT
+        expected = ALLOCATIONS_FORMATION_PAR_CANTON["ZH"]  # 268, not 215 + 50
         assert result.total_mensuel == expected
+        assert result.total_mensuel == 268.0
 
     def test_multiple_children(self, naissance_service):
-        """Multiple children should sum allocations."""
+        """Multiple children should sum allocations (OFAS 2026: GE enfant 311,
+        formation 415)."""
         result = naissance_service.estimate_allocations(
             canton="GE", nb_enfants=3, ages_enfants=[3, 8, 17],
         )
-        # 2 children under 16: 300 each; 1 child 17: 300 + 50 = 350
-        expected = 300 + 300 + 350
+        # 2 children under 16: enfant 311 each; 1 child 17 in formation: 415.
+        expected = 311 + 311 + 415
         assert result.total_mensuel == expected
         assert result.total_annuel == round(expected * 12, 2)
 
@@ -857,8 +860,8 @@ class TestChecklistNaissance:
         """Chiffre choc should mention the canton allocation amount."""
         result = naissance_service.checklist_naissance(canton="GE")
         assert "GE" in result.premier_eclairage
-        # GE allocation = 300 * 12 = 3600
-        assert "3,600" in result.premier_eclairage or "3'600" in result.premier_eclairage or "3600" in result.premier_eclairage
+        # GE allocation = 311 * 12 = 3732 (OFAS 2026)
+        assert "3,732" in result.premier_eclairage or "3'732" in result.premier_eclairage or "3732" in result.premier_eclairage
 
     def test_checklist_no_banned_words(self, naissance_service):
         """Checklist should not contain banned words."""
@@ -919,8 +922,8 @@ class TestEdgeCases:
             canton="GE", nb_enfants=5,
             ages_enfants=[1, 3, 7, 12, 17],
         )
-        # 4 children under 16: 300 each; 1 child 17 (formation): 350
-        expected = 300 * 4 + 350
+        # 4 children under 16: GE enfant 311 each; 1 child 17 (formation): 415.
+        expected = 311 * 4 + 415
         assert result.total_mensuel == expected
 
     def test_career_gap_zero_salary_below_seuil(self, naissance_service):

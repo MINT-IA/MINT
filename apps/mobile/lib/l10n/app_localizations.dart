@@ -7747,7 +7747,7 @@ abstract class S {
   /// No description provided for @naissanceChecklistItem2Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Fais la demande auprès de ton employeur (ou de ta caisse d\'allocations si tu es indépendant·e). Les allocations sont versées dès le mois de naissance. Le montant dépend du canton (CHF 200 à CHF 305/mois par enfant).'**
+  /// **'Fais la demande auprès de ton employeur (ou de ta caisse d\'allocations si tu es indépendant·e). Les allocations sont versées dès le mois de naissance. Le montant dépend du canton (CHF 215 à CHF 330/mois par enfant).'**
   String get naissanceChecklistItem2Desc;
 
   /// No description provided for @naissanceChecklistItem3Title.

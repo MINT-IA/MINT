@@ -45,7 +45,7 @@ C'est ton **domicile fiscal au 31 decembre** qui determine le canton d'impositio
 Les primes LAMal varient fortement d'un canton a l'autre. Les differences peuvent atteindre CHF 200-400/mois par adulte. Apres un demenagement, tu disposes de **3 mois** pour changer de caisse ou adapter ta prime a la region.
 
 ### Allocations familiales (LAFam art. 3)
-Chaque canton fixe le montant des allocations familiales. Elles vont de CHF 200/mois (minimum legal) a CHF 305/mois par enfant selon le canton. Un demenagement peut donc augmenter ou diminuer tes allocations.
+Chaque canton fixe le montant des allocations familiales. Elles vont de CHF 215/mois (minimum legal) a CHF 330/mois par enfant selon le canton (OFAS 2026). Un demenagement peut donc augmenter ou diminuer tes allocations.
 
 ### Deductions cantonales specifiques
 Certains cantons offrent des deductions supplementaires (frais de garde, 3e pilier, frais de transport, deduction pour locataires) qui n'existent pas partout. Renseigne-toi sur les specificites du canton cible.

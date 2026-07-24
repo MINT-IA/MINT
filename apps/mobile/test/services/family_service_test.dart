@@ -223,23 +223,23 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FamilyService - Family Allocations', () {
-    test('Valais has highest allocations at CHF 305/month', () {
+    test('Zug has highest allocations at CHF 330/month (OFAS 2026)', () {
       final result = FamilyService.estimateAllocations(
-        canton: 'VS',
+        canton: 'ZG',
         nbEnfants: 1,
       );
 
-      expect(result['mensuelParEnfant'], 305.0);
+      expect(result['mensuelParEnfant'], 330.0);
       expect(result['rank'], 1);
     });
 
-    test('Zurich has minimum allocations at CHF 200/month', () {
+    test('Zurich has minimum allocations at CHF 215/month (OFAS 2026)', () {
       final result = FamilyService.estimateAllocations(
         canton: 'ZH',
         nbEnfants: 1,
       );
 
-      expect(result['mensuelParEnfant'], 200.0);
+      expect(result['mensuelParEnfant'], 215.0);
     });
 
     test('annual total is 12x monthly for multiple children', () {
@@ -248,8 +248,8 @@ void main() {
         nbEnfants: 3,
       );
 
-      expect(result['mensuelTotal'], 300.0 * 3);
-      expect(result['annuelTotal'], 300.0 * 3 * 12);
+      expect(result['mensuelTotal'], 311.0 * 3);
+      expect(result['annuelTotal'], 311.0 * 3 * 12);
     });
 
     test('ranking returns 26 cantons sorted descending', () {
@@ -265,13 +265,13 @@ void main() {
       expect(firstAmount, greaterThanOrEqualTo(lastAmount));
     });
 
-    test('unknown canton defaults to CHF 200', () {
+    test('unknown canton defaults to CHF 215 (federal minimum)', () {
       final result = FamilyService.estimateAllocations(
         canton: 'XX',
         nbEnfants: 1,
       );
 
-      expect(result['mensuelParEnfant'], 200.0);
+      expect(result['mensuelParEnfant'], 215.0);
     });
   });
 
@@ -523,10 +523,10 @@ void main() {
     test('all 26 cantons have allocations defined', () {
       expect(FamilyService.allocationsMensuelles.length, 26);
 
-      // Minimum allocation should be at least CHF 200 (LAFam art. 5)
+      // Minimum allocation should be at least CHF 215 (LAFam art. 5, 2025)
       for (final entry in FamilyService.allocationsMensuelles.entries) {
-        expect(entry.value, greaterThanOrEqualTo(200.0),
-            reason: '${entry.key} allocation should be >= CHF 200 (LAFam art. 5)');
+        expect(entry.value, greaterThanOrEqualTo(215.0),
+            reason: '${entry.key} allocation should be >= CHF 215 (LAFam art. 5)');
       }
     });
 

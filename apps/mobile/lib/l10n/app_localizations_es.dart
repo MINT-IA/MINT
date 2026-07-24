@@ -4228,7 +4228,7 @@ class SEs extends S {
 
   @override
   String get naissanceChecklistItem2Desc =>
-      'Solicítalo a través de tu empleador (o de tu caja de asignaciones si eres autónomo/a). Las asignaciones se pagan desde el mes de nacimiento. El importe depende del cantón (CHF 200 a CHF 305/mes por hijo).';
+      'Solicítalo a través de tu empleador (o de tu caja de asignaciones si eres autónomo/a). Las asignaciones se pagan desde el mes de nacimiento. El importe depende del cantón (CHF 215 a CHF 330/mes por hijo).';
 
   @override
   String get naissanceChecklistItem3Title =>

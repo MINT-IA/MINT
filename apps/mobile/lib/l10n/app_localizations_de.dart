@@ -4240,7 +4240,7 @@ class SDe extends S {
 
   @override
   String get naissanceChecklistItem2Desc =>
-      'Stelle den Antrag über deinen Arbeitgeber (oder deine Ausgleichskasse bei Selbständigkeit). Die Zulagen werden ab dem Geburtsmonat ausbezahlt. Der Betrag hängt vom Kanton ab (CHF 200 bis CHF 305/Monat pro Kind).';
+      'Stelle den Antrag über deinen Arbeitgeber (oder deine Ausgleichskasse bei Selbständigkeit). Die Zulagen werden ab dem Geburtsmonat ausbezahlt. Der Betrag hängt vom Kanton ab (CHF 215 bis CHF 330/Monat pro Kind).';
 
   @override
   String get naissanceChecklistItem3Title =>

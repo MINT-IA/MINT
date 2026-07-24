@@ -153,6 +153,10 @@ ALLOW = {
     "services/backend/education_inserts/q_mariage.md",
     "services/backend/education_inserts/concepts/naissance_impact_financier.md",
     "services/backend/education_inserts/concepts/fiscal_deductions_courantes.md",
+    # campagne-A : allocations familiales LAFam 2026 (table OFAS/BSV, 26 cantons)
+    "apps/mobile/lib/widgets/visualizations/canton_allocation_map.dart",
+    "education/inserts/q_canton_move.md",
+    "services/backend/education_inserts/q_canton_move.md",
     # -8p4 : tax_calculator.dart chemin revenu -> modèle v2 (PR B)
     "apps/mobile/lib/services/financial_core/tax_calculator.dart",
     "apps/mobile/test/services/financial_core/tax_calculator_v2_identity_test.dart",

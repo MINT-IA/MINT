@@ -4206,7 +4206,7 @@ class SEn extends S {
 
   @override
   String get naissanceChecklistItem2Desc =>
-      'Apply through your employer (or your allowance office if self-employed). Allowances are paid from the month of birth. The amount depends on the canton (CHF 200 to CHF 305/month per child).';
+      'Apply through your employer (or your allowance office if self-employed). Allowances are paid from the month of birth. The amount depends on the canton (CHF 215 to CHF 330/month per child).';
 
   @override
   String get naissanceChecklistItem3Title =>
