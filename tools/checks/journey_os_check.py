@@ -125,6 +125,9 @@ ALLOW = {
     "apps/mobile/lib/theme/colors.dart",
     "apps/mobile/test/accessibility/green_dark_text_contrast_test.dart",
     "apps/mobile/lib/screens/open_banking/open_banking_hub_screen.dart",
+    # -5up PR A : couple_optimizer backend -> modèle fiscal v2
+    "services/backend/app/services/couple_optimizer/couple_optimizer.py",
+    "services/backend/tests/test_5up_couple_v2_identity.py",
     "apps/mobile/test/services/independants_service_test.dart",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",
