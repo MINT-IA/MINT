@@ -15515,7 +15515,7 @@ class SIt extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Alcuni cantoni permettono di completare il versamento al pilastro 3a dell\'anno precedente fino a marzo. Controlla le regole del tuo cantone.';
+      'Per essere deducibile quest\'anno, il tuo versamento 3a deve essere accreditato sul conto entro il 31 dicembre — conta la data di valuta, non la data dell\'ordine. Non aspettare troppo.';
 
   @override
   String get communityChallenge03Title =>
