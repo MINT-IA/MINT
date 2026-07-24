@@ -467,7 +467,7 @@ class _HouseholdScreenState extends State<HouseholdScreen> {
             const SizedBox(height: 8),
             Text(
               S.of(context)!.householdInviteSentTitle,
-              style: MintTextStyles.titleMedium(color: MintColors.greenDark),
+              style: MintTextStyles.titleMedium(color: MintColors.greenForest),
             ),
             const SizedBox(height: 8),
             MintSurface(

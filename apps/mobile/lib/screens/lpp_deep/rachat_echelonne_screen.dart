@@ -945,7 +945,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('${l.rachatEchelonneEconomieFiscale}\u00a0: CHF ${formatChf(result.economieEchelonneTotal)}', style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700)),
+                    Text('${l.rachatEchelonneEconomieFiscale}\u00a0: CHF ${formatChf(result.economieEchelonneTotal)}', style: MintTextStyles.bodySmall(color: MintColors.greenForest).copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
                     Text('CHF ${formatChf(_rachatMax - result.economieEchelonneTotal)}', style: MintTextStyles.labelMedium()),
                     if (result.tranchesEnFenetre > 0) ...[
@@ -1029,7 +1029,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       // Flexible : deux montants CHF longs débordaient à
                       // 320pt (révélé par le test 79b — panel -a6e).
                       Flexible(child: Text('CHF ${formatChf(year.montantRachat)}', style: MintTextStyles.titleMedium())),
-                      Flexible(child: Text('-CHF ${formatChf(year.economieFiscale)}', textAlign: TextAlign.end, style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700))),
+                      Flexible(child: Text('-CHF ${formatChf(year.economieFiscale)}', textAlign: TextAlign.end, style: MintTextStyles.bodySmall(color: MintColors.greenForest).copyWith(fontWeight: FontWeight.w700))),
                     ],
                   ),
                   const SizedBox(height: MintSpacing.xs),

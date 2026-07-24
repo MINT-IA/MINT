@@ -117,6 +117,14 @@ ALLOW = {
     "apps/mobile/lib/constants/social_insurance.dart",
     # -b9c : sémantique taux AVS combinés + provenance taux min LPP
     "services/backend/tests/test_b9c_avs_combined_semantics.py",
+    # -dy0 : contraste AA — sites texte greenDark -> greenForest
+    "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+    "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
+    "apps/mobile/lib/screens/household/household_screen.dart",
+    "apps/mobile/lib/widgets/educational/leasing_cost_insert_widget.dart",
+    "apps/mobile/lib/theme/colors.dart",
+    "apps/mobile/test/accessibility/green_dark_text_contrast_test.dart",
+    "apps/mobile/lib/screens/open_banking/open_banking_hub_screen.dart",
     "apps/mobile/test/services/independants_service_test.dart",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",
