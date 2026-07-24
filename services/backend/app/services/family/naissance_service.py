@@ -444,7 +444,8 @@ class NaissanceService:
         Returns:
             ChecklistNaissance avec les actions recommandees par priorite.
         """
-        alloc_base = ALLOCATIONS_ENFANT_PAR_CANTON.get(canton, 200.0)
+        alloc_base = ALLOCATIONS_ENFANT_PAR_CANTON.get(
+            canton, ALLOCATION_ENFANT_MIN_FEDERAL)
 
         # --- Priorite haute : delais legaux stricts ---
         priorite_haute = [

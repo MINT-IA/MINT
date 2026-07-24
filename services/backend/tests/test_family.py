@@ -863,6 +863,14 @@ class TestChecklistNaissance:
         # GE allocation = 311 * 12 = 3732 (OFAS 2026)
         assert "3,732" in result.premier_eclairage or "3'732" in result.premier_eclairage or "3732" in result.premier_eclairage
 
+    def test_checklist_unknown_canton_uses_federal_minimum(self, naissance_service):
+        """Anti-régression : un canton inconnu retombe sur le minimum fédéral
+        LAFam 215/mois (2'580/an), pas l'ancien 200 (2'400/an)."""
+        result = naissance_service.checklist_naissance(canton="XX")
+        # 215 * 12 = 2580 ; l'ancien fallback 200 aurait donné 2400.
+        assert "2,580" in result.premier_eclairage or "2'580" in result.premier_eclairage or "2580" in result.premier_eclairage
+        assert "2400" not in result.premier_eclairage and "2'400" not in result.premier_eclairage
+
     def test_checklist_no_banned_words(self, naissance_service):
         """Checklist should not contain banned words."""
         result = naissance_service.checklist_naissance(
