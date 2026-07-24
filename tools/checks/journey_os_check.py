@@ -603,6 +603,7 @@ ALLOW = {
     "tools/claude_review.sh",
     "tools/checks/active_context_guard.py",
     "tools/checks/education_facts_check.py",
+    "legal/APP_STORE_PRIVACY_LABELS.md",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
     "tools/checks/maestro_locator_audit.py",
