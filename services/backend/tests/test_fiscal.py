@@ -21,7 +21,7 @@ from app.services.fiscal.cantonal_comparator import (
     DISCLAIMER,
     SOURCES,
     CANTON_NAMES,
-    EFFECTIVE_RATES_100K_SINGLE,
+    CANTONAL_COMMUNAL_TAX_CHF,
     FAMILY_ADJUSTMENTS,
 )
 
@@ -55,7 +55,7 @@ class TestTaxEstimation:
         """Basel-Stadt (BS) should have the highest rate."""
         estimate_bs = comparator.estimate_tax(100_000, "BS")
         # Compare with all other cantons (excluding FL)
-        for canton in EFFECTIVE_RATES_100K_SINGLE:
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
             if canton in ("BS", "FL"):
                 continue
             estimate_other = comparator.estimate_tax(100_000, canton)
@@ -99,7 +99,7 @@ class TestTaxEstimation:
     def test_estimate_all_cantons_valid(self, comparator):
         """All 26 cantons should produce valid estimates."""
         count = 0
-        for canton in EFFECTIVE_RATES_100K_SINGLE:
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
             if canton == "FL":
                 continue  # FL is not a canton
             estimate = comparator.estimate_tax(100_000, canton)
@@ -132,7 +132,7 @@ class TestTaxEstimation:
 
     def test_rate_between_0_and_50_percent(self, comparator):
         """Effective rate should be a sane value (between 0% and 50%)."""
-        for canton in EFFECTIVE_RATES_100K_SINGLE:
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
             if canton == "FL":
                 continue
             estimate = comparator.estimate_tax(100_000, canton)
@@ -312,44 +312,6 @@ class TestMoveSimulation:
 # Internal helpers tests
 # ===========================================================================
 
-class TestInternalHelpers:
-    """Tests for internal helper methods."""
-
-    def test_interpolate_income_at_100k(self, comparator):
-        """Income adjustment at 100k should be exactly 1.0."""
-        factor = comparator._interpolate_income_adjustment(100_000)
-        assert factor == 1.0
-
-    def test_interpolate_income_below_minimum(self, comparator):
-        """Income below 50k should clamp to 0.75."""
-        factor = comparator._interpolate_income_adjustment(20_000)
-        assert factor == 0.75
-
-    def test_interpolate_income_above_maximum(self, comparator):
-        """Income above 500k should clamp to 1.32."""
-        factor = comparator._interpolate_income_adjustment(1_000_000)
-        assert factor == 1.32
-
-    def test_interpolate_income_between_brackets(self, comparator):
-        """Income between brackets should interpolate linearly."""
-        factor = comparator._interpolate_income_adjustment(75_000)
-        # Between 50k (0.75) and 80k (0.90)
-        # 75k is 25k/30k = 83.3% of the way
-        expected = 0.75 + (25_000 / 30_000) * (0.90 - 0.75)
-        assert abs(factor - expected) < 0.001
-
-    def test_family_adjustment_celibataire(self, comparator):
-        """Celibataire should return factor 1.0."""
-        factor = comparator._get_family_adjustment("celibataire", 0)
-        assert factor == 1.0
-
-    def test_family_adjustment_marie_3plus(self, comparator):
-        """3+ children should use the marie_3_enfants floor."""
-        factor_3 = comparator._get_family_adjustment("marie", 3)
-        factor_5 = comparator._get_family_adjustment("marie", 5)
-        assert factor_3 == FAMILY_ADJUSTMENTS["marie_3_enfants"]
-        assert factor_5 == FAMILY_ADJUSTMENTS["marie_3_enfants"]
-
 
 # ===========================================================================
 # Compliance Tests
@@ -398,9 +360,7 @@ class TestFiscalCompliance:
 
     def test_canton_names_all_present(self):
         """All 26 canton codes should have a name."""
-        cantons_26 = [
-            c for c in EFFECTIVE_RATES_100K_SINGLE.keys() if c != "FL"
-        ]
+        cantons_26 = list(CANTONAL_COMMUNAL_TAX_CHF.keys())
         for canton in cantons_26:
             assert canton in CANTON_NAMES, f"Missing name for canton {canton}"
             assert len(CANTON_NAMES[canton]) > 2

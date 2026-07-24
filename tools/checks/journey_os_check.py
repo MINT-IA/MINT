@@ -296,6 +296,10 @@ ALLOW = {
     "lefthook.yml",
     ".github/workflows/ai-workflow-guards.yml",
     "decisions/ADR-20260419-v2.8-kill-policy.md",
+    # compare-v2 : écran comparaison cantonale migré sur le modèle v2
+    "services/backend/app/services/fiscal/__init__.py",
+    "services/backend/tests/test_compare_v2_identity.py",
+    "services/backend/tests/test_fiscal.py",
     "services/backend/app/schemas/arbitrage.py",
     "tools/openapi/mint.openapi.canonical.json",
     "tools/openapi/openapi.json",
