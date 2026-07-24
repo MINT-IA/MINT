@@ -133,6 +133,9 @@ ALLOW = {
     # -5up PR A : couple_optimizer backend -> modèle fiscal v2
     "services/backend/app/services/couple_optimizer/couple_optimizer.py",
     "services/backend/tests/test_5up_couple_v2_identity.py",
+    # campagne-A : mariage_service -> moteur fiscal canonique + double-activité LIFD 33 al.2
+    "services/backend/app/services/family/mariage_service.py",
+    "services/backend/tests/test_family.py",
     # -8p4 : tax_calculator.dart chemin revenu -> modèle v2 (PR B)
     "apps/mobile/lib/services/financial_core/tax_calculator.dart",
     "apps/mobile/test/services/financial_core/tax_calculator_v2_identity_test.dart",

@@ -16,9 +16,10 @@ import pytest
 
 from app.services.family.mariage_service import (
     MariageService,
-    DEDUCTION_DOUBLE_ACTIVITE,
+    deduction_double_activite,
     DEDUCTION_MARIES,
     DEDUCTION_ASSURANCES_MARIES,
+    DEDUCTION_ASSURANCES_CELIBATAIRE,
     DEDUCTION_PAR_ENFANT,
     AVS_SURVIVOR_FACTOR,
     LPP_SURVIVOR_FACTOR,
@@ -97,13 +98,19 @@ class TestMariageFiscalComparison:
         assert result.revenus_cumules == 130_000
 
     def test_deductions_double_activite(self, mariage_service):
-        """Both partners working should include double-activity deduction."""
+        """Both partners working should include the double-activity deduction,
+        computed as the LIFD art. 33 al. 2 formula (50% of the lower income,
+        bounded) — NOT a fixed amount."""
         result = mariage_service.compare_fiscal_impact(
             revenu_1=80_000, revenu_2=60_000, canton="ZH",
         )
-        # Deductions should include: MARIES + ASSURANCES_MARIES + DOUBLE_ACTIVITE
-        expected_deductions = DEDUCTION_MARIES + DEDUCTION_ASSURANCES_MARIES + DEDUCTION_DOUBLE_ACTIVITE
+        expected_da = deduction_double_activite(80_000, 60_000)
+        expected_deductions = (
+            DEDUCTION_MARIES + DEDUCTION_ASSURANCES_MARIES + expected_da
+        )
         assert result.deductions_mariage == expected_deductions
+        # The formula scales with income — it is not the old fixed 2'800.
+        assert expected_da != 2_800.0
 
     def test_deductions_no_double_activite_single_earner(self, mariage_service):
         """Single earner: no double-activity deduction."""
@@ -114,11 +121,12 @@ class TestMariageFiscalComparison:
         assert result.deductions_mariage == expected_deductions
 
     def test_deductions_with_children(self, mariage_service):
-        """Children should add 6700/enfant to marriage deductions."""
+        """Children should add 6800/enfant to marriage deductions."""
         result = mariage_service.compare_fiscal_impact(
             revenu_1=100_000, revenu_2=50_000, canton="ZH", enfants=2,
         )
-        base = DEDUCTION_MARIES + DEDUCTION_ASSURANCES_MARIES + DEDUCTION_DOUBLE_ACTIVITE
+        expected_da = deduction_double_activite(100_000, 50_000)
+        base = DEDUCTION_MARIES + DEDUCTION_ASSURANCES_MARIES + expected_da
         expected = base + DEDUCTION_PAR_ENFANT * 2
         assert result.deductions_mariage == expected
 
@@ -156,6 +164,55 @@ class TestMariageFiscalComparison:
             revenu_1=80_000, revenu_2=60_000, canton="ZH",
         )
         assert "CHF" in result.premier_eclairage
+
+    def test_tax_delegates_to_canonical_engine(self, mariage_service, monkeypatch):
+        """Anti-façade : compare_fiscal_impact DOIT déléguer la charge fiscale
+        au moteur canonique estimate_income_tax() — deux appels célibataires
+        (is_married=False) et un appel marié (is_married=True), sur les revenus
+        imposables attendus, et sa valeur de retour doit alimenter le résultat.
+
+        On espionne l'import : une ré-implémentation locale du barème (l'ancien
+        défaut — barèmes IFD 2024 + multiplicateur cantonal heuristique)
+        échouerait ce test même en reproduisant les mêmes nombres.
+        """
+        calls = []
+
+        def spy(taxable_income, canton, is_married=False, **kwargs):
+            calls.append((round(taxable_income, 2), canton, is_married))
+            return 5000.0 if is_married else 1000.0
+
+        monkeypatch.setattr(
+            "app.services.family.mariage_service.estimate_income_tax", spy
+        )
+
+        revenu_1, revenu_2, canton, enfants = 100_000, 70_000, "VD", 1
+        deductions = (
+            DEDUCTION_MARIES
+            + DEDUCTION_ASSURANCES_MARIES
+            + deduction_double_activite(revenu_1, revenu_2)
+            + DEDUCTION_PAR_ENFANT * enfants
+        )
+        ri_marie = round(max(0, revenu_1 + revenu_2 - deductions), 2)
+        ri_1 = round(max(0, revenu_1 - DEDUCTION_ASSURANCES_CELIBATAIRE
+                         - DEDUCTION_PAR_ENFANT * enfants / 2), 2)
+        ri_2 = round(max(0, revenu_2 - DEDUCTION_ASSURANCES_CELIBATAIRE
+                         - DEDUCTION_PAR_ENFANT * enfants / 2), 2)
+
+        result = mariage_service.compare_fiscal_impact(
+            revenu_1=revenu_1, revenu_2=revenu_2, canton=canton, enfants=enfants,
+        )
+
+        # Exactement 3 délégations : 2 célibataires (False) + 1 marié (True).
+        assert len(calls) == 3
+        assert sum(1 for c in calls if c[2] is False) == 2
+        assert sum(1 for c in calls if c[2] is True) == 1
+        # Les bons revenus imposables sont transmis au moteur canonique.
+        assert (ri_1, canton, False) in calls
+        assert (ri_2, canton, False) in calls
+        assert (ri_marie, canton, True) in calls
+        # La valeur de retour du moteur alimente réellement le résultat.
+        assert result.impot_maries_total == 5000.0
+        assert result.impot_celibataires_total == round(1000.0 + 1000.0, 2)
 
 
 # ===========================================================================
