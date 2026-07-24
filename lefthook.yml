@@ -58,6 +58,13 @@ pre-commit:
       # active context router.
       run: python3 tools/checks/mint_rules_guard.py
       tags: [agents, planning, rules]
+    sentry-privacy-guard:
+      # nLPD A1 — masquage PII Sentry Replay (maskAllText/maskAllImages/
+      # sendDefaultPii/allowlist) verrouille main.dart. Beads -glq : le
+      # script existait (8 invariants) mais aucun runner ne l'exécutait.
+      run: python3 tools/checks/verify_sentry_init.py
+      glob: "apps/mobile/{lib/main.dart,pubspec.yaml}"
+      tags: [sentry, privacy]
     journey-os-guard:
       # Journey OS — records, issues, generated board, durable evidence, and
       # branch authorization stay mechanically coherent before commits.

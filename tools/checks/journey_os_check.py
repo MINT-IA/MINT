@@ -292,6 +292,10 @@ ALLOW = {
     # -cm4 : migration des 2 proxys heuristiques fiscaux vers v2
     "services/backend/app/services/arbitrage/location_vs_propriete.py",
     "services/backend/tests/test_cm4_proxy_migrations.py",
+    # -glq : gardes mécaniques câblées (sentry privacy) + ADR amendé
+    "lefthook.yml",
+    ".github/workflows/ai-workflow-guards.yml",
+    "decisions/ADR-20260419-v2.8-kill-policy.md",
     "services/backend/app/schemas/arbitrage.py",
     "tools/openapi/mint.openapi.canonical.json",
     "tools/openapi/openapi.json",
