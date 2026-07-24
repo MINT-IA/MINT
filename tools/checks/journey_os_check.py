@@ -604,6 +604,8 @@ ALLOW = {
     "tools/checks/active_context_guard.py",
     "tools/checks/education_facts_check.py",
     "legal/APP_STORE_PRIVACY_LABELS.md",
+    # cluster B W0 : Retroactive3a — retrait du faux chevron (façade sans câblage)
+    "apps/mobile/test/screens/pillar_3a_deep/retroactive_3a_screen_test.dart",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
     "tools/checks/maestro_locator_audit.py",
