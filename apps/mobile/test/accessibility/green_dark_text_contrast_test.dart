@@ -45,32 +45,48 @@ void main() {
     }
   });
 
-  test('sites texte migrés : plus de greenDark en style de texte normal',
+  test('sites texte migrés : plus de greenDark en contexte texte normal',
       () {
-    // Patterns EXACTS des 7 sites corrigés — une réintroduction du token
-    // dans un style de texte normal sur ces surfaces échoue ici.
-    const forbidden = {
+    // Review #1004 : regex tolérantes aux espaces/retours à la ligne, et
+    // pour leasing les lignes Icon( sont EXCLUES (icônes : 1.4.11, 3:1
+    // suffit) — la garde ne rejette que les contextes texte.
+    RegExp ctx(String prefix) => RegExp(
+        prefix + r'\s*\(\s*color:\s*MintColors\.greenDark|' +
+            prefix + r'\s*\(\s*\)\s*\.copyWith\([^)]*MintColors\.greenDark',
+        dotAll: true);
+
+    final checks = <String, List<RegExp>>{
       'lib/screens/lpp_deep/rachat_echelonne_screen.dart': [
-        'bodySmall(color: MintColors.greenDark',
+        ctx('bodySmall'),
       ],
       'lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart': [
-        'labelMedium().copyWith(color: MintColors.greenDark',
-        'labelMedium().copyWith(fontWeight: FontWeight.bold, color: MintColors.greenDark',
+        ctx('labelMedium'),
       ],
       'lib/screens/household/household_screen.dart': [
-        'titleMedium(color: MintColors.greenDark',
+        ctx('titleMedium'),
       ],
-      'lib/widgets/educational/leasing_cost_insert_widget.dart': [
-        'MintColors.greenDark',
+      'lib/screens/open_banking/open_banking_hub_screen.dart': [
+        // Review #1004 P1 : l'avatar rend des INITIALES en Text — BCV ne
+        // doit plus mapper greenDark.
+        RegExp(r"case\s+'bcv':\s*(//[^\n]*\n\s*)*return\s+MintColors\.greenDark"),
       ],
     };
-    forbidden.forEach((path, patterns) {
+    checks.forEach((path, patterns) {
       final src = File(path).readAsStringSync();
       for (final pat in patterns) {
-        expect(src.contains(pat), isFalse,
-            reason: '$path réintroduit greenDark en texte normal '
+        expect(pat.hasMatch(src), isFalse,
+            reason: '$path réintroduit greenDark en contexte texte '
                 '(AA 4.5:1 — beads -dy0)');
       }
     });
+
+    // Leasing : greenDark interdit HORS lignes Icon( (texte du widget).
+    final leasing = File(
+            'lib/widgets/educational/leasing_cost_insert_widget.dart')
+        .readAsLinesSync()
+        .where((l) => !l.contains('Icon('))
+        .join('\n');
+    expect(leasing.contains('MintColors.greenDark'), isFalse,
+        reason: 'leasing : greenDark en contexte texte (icônes exclues)');
   });
 }

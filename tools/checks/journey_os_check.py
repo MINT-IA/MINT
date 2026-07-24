@@ -124,6 +124,7 @@ ALLOW = {
     "apps/mobile/lib/widgets/educational/leasing_cost_insert_widget.dart",
     "apps/mobile/lib/theme/colors.dart",
     "apps/mobile/test/accessibility/green_dark_text_contrast_test.dart",
+    "apps/mobile/lib/screens/open_banking/open_banking_hub_screen.dart",
     "apps/mobile/test/services/independants_service_test.dart",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",
