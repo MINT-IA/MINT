@@ -118,9 +118,9 @@ void main() {
   group('RetirementTaxCalculator.estimateMarginalRate', () {
     test('high income (>200k) → higher marginal rate', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(250000, 'ZH');
-      // ZH effective 12.90% × income adj 1.15 × 1.3 marginal factor ≈ 0.193
-      expect(rate, greaterThan(0.15));
-      expect(rate, lessThan(0.30));
+      // beads -8p4 : marginale = pente locale du modèle v2 (ESTV 130 points) : ZH 250k ≈ 0.379
+      expect(rate, greaterThan(0.30));
+      expect(rate, lessThan(0.45));
     });
 
     test('low income (<80k) → lower marginal rate', () {
@@ -144,9 +144,9 @@ void main() {
 
     test('Julien golden profile — VS 122k single marginal rate', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(122207, 'VS');
-      // VS effective 14.56% × income adj ~1.044 × 1.3 ≈ 0.198
-      expect(rate, greaterThan(0.15));
-      expect(rate, lessThan(0.25));
+      // beads -8p4 : marginale = pente locale du modèle v2 (ESTV 130 points) : VS 122k ≈ 0.399 (cf. « ~38% à 140k VD réaliste », -97h)
+      expect(rate, greaterThan(0.35));
+      expect(rate, lessThan(0.45));
     });
 
     test('VS married 122k → rate ~0.16-0.21 (family splitting)', () {
@@ -156,13 +156,15 @@ void main() {
         isMarried: true,
         children: 0,
       );
-      expect(rate, greaterThan(0.15));
-      expect(rate, lessThan(0.22));
+      // beads -8p4 : marginale = pente locale du modèle v2 (ESTV 130 points) : VS 122k marié ≈ 0.319 (splitting x0.80)
+      expect(rate, greaterThan(0.27));
+      expect(rate, lessThan(0.37));
     });
 
     test('ZG single 100k → lowest rate', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(100000, 'ZG');
-      expect(rate, lessThan(0.15));
+      // beads -8p4 : marginale = pente locale du modèle v2 (ESTV 130 points) : ZG 100k ≈ 0.171 (reste le plus bas)
+      expect(rate, lessThan(0.20));
     });
 
     test('BS single 100k → highest rate', () {
@@ -222,8 +224,8 @@ void main() {
 
     test('unknown canton → fallback to Swiss average', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(100000, 'XX');
-      // Fallback 0.13 × 1.0 × 1.3 = 0.169
-      expect(rate, closeTo(0.169, 0.01));
+      // resolveCanton('XX') -> ZH (Wave 7 C1) ; v2 ZH 100k ≈ 0.254
+      expect(rate, closeTo(0.2541, 0.01));
     });
   });
 
@@ -267,9 +269,10 @@ void main() {
         deduction: 50000,
         canton: 'VS',
       );
-      // VS marginal ~19.8% at 122k → ~9'900 saved
-      expect(saving, greaterThan(7000));
-      expect(saving, lessThan(15000));
+      // beads -8p4 : différence exacte v2 — tax(122207) - tax(72207)
+      // VS = 17'132 (oracle backend estimate_income_tax, parité prouvée)
+      expect(saving, greaterThan(15000));
+      expect(saving, lessThan(19000));
     });
   });
 

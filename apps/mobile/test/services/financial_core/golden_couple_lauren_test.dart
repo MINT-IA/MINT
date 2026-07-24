@@ -170,9 +170,9 @@ void main() {
         laurenSalary,
         laurenCanton,
       );
-      // VS effective 14.56% × income adj ~0.87 × 1.3 ≈ 0.165
-      expect(rate, greaterThan(0.14));
-      expect(rate, lessThan(0.20));
+      // beads -8p4 : pente locale v2 — VS 67k ≈ 0.220
+      expect(rate, greaterThan(0.18));
+      expect(rate, lessThan(0.26));
     });
   });
 

@@ -400,8 +400,9 @@ void main() {
           reason: 'VS should have higher marginal rate than ZG');
       expect(rateVS, greaterThan(0.15),
           reason: 'VS marginal rate at 122k should be > 15%');
-      expect(rateZG, lessThan(0.20),
-          reason: 'ZG marginal rate at 122k should be < 20%');
+      // beads -8p4 v2 : ZG 122k ≈ 0.210 — reste nettement sous VS (0.399)
+      expect(rateZG, lessThan(0.25),
+          reason: 'ZG marginal rate at 122k should stay well below VS');
     });
 
     test('3d. NetIncomeBreakdown — Julien', () {

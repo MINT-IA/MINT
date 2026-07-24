@@ -759,13 +759,10 @@ void main() {
         ),
       );
 
-      // Wave 7 C1 — `resolveCanton('XX')` retombe sur ZH (canton fallback
-      // documenté), donc `estimateMarginalRate` utilise ZH réel (0.1290)
-      // × income adj 0.90 × marginal uplift 1.3 ≈ 0.15093 → 7'258 ×
-      // 0.15093 ≈ 1'095.45 CHF. Avant la normalisation, le caller
-      // tombait sur le Swiss-average générique 0.13.
+      // Wave 7 C1 — resolveCanton('XX') retombe sur ZH. beads -8p4 :
+      // marginale v2 ZH 80k ≈ 0.2475 -> 7'258 x 0.2475 ≈ 1'796.35 CHF.
       final missing3a = tips.firstWhere((t) => t.id == 'missing_3a');
-      expect(missing3a.estimatedImpactChf, closeTo(1095.45, 5));
+      expect(missing3a.estimatedImpactChf, closeTo(1796.35, 5));
     });
   });
 
