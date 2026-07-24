@@ -6449,7 +6449,7 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20\'000 (BVV2 Art. 5). Nach einem freiwilligen BVG-Einkauf ist jeder Kapitalbezug — auch WEF — 3 Jahre gesperrt (Art. 79b Abs. 3).';
+      'Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20\'000 (BVV2 Art. 5). Achtung: Nach einem freiwilligen BVG-Einkauf lässt ein Kapitalbezug innerhalb von 3 Jahren den Steuerabzug dieses Einkaufs entfallen (Art. 79b Abs. 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>

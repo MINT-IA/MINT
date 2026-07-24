@@ -435,7 +435,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_LPP_URL,
         source_title="LPP art. 79b al. 3",
         source_type="law",
-        description="Délai (3 ans) pendant lequel un retrait en capital (dont EPL) est bloqué APRÈS un rachat LPP volontaire — art. 79b al. 3. Distinct du blocage des rachats tant qu'un versement EPL n'est pas remboursé (jusqu'au remboursement, pas 3 ans).",
+        description="Délai de 3 ans de l'art. 79b al. 3 : un retrait en capital dans les 3 ans suivant un rachat LPP volontaire fait perdre la déduction fiscale du rachat (reprise AFC). Distinct du blocage des rachats tant qu'un versement EPL n'est pas remboursé.",
         reviewed_at=_REVIEWED,
     ),
 

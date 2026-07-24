@@ -3065,7 +3065,7 @@
   "renteVsCapitalRachatTooltip": "Se fizeres resgates LPP todos os anos, o seu valor futuro é adicionado ao capital na reforma. Bloqueio de 3 anos antes de EPL (LPP art. 79b).",
   "renteVsCapitalEplLabel": "Levantamento EPL para compra de imóvel",
   "renteVsCapitalEplHint": "Montante levantado (mín. 20'000)",
-  "renteVsCapitalEplTooltip": "O levantamento EPL reduz o teu capital LPP e portanto o teu capital ou pensão na reforma. Mínimo CHF 20'000 (OPP2 art. 5). Após um resgate LPP voluntário, qualquer levantamento de capital — incluindo EPL — fica bloqueado 3 anos (art. 79b n.º 3).",
+  "renteVsCapitalEplTooltip": "O levantamento EPL reduz o teu haver LPP e, portanto, o teu capital ou pensão na reforma. Mínimo CHF 20'000 (OPP2 art. 5). Atenção: após um resgate LPP voluntário, um levantamento de capital nos 3 anos seguintes faz perder a dedução fiscal desse resgate (art. 79b n.º 3).",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (mín. CHF 20'000)",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",
