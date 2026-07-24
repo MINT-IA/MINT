@@ -37,10 +37,24 @@ CI_YML = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 REQUIRED_IN_GATE = {
     "contracts-drift": "contracts_drift",
     "pii-log-gate": "pii_log",
+    # Audit T15-F03 (cluster enforcement, campagne-A): these compliance jobs
+    # were DEFINED in ci.yml but absent from ci-gate's `needs`, so they ran but
+    # never blocked a merge ("CI Gate" is the sole required check). Wire them.
+    "pg-integration": "pg_integration",
+    "truth-in-crypto": "truth_in_crypto",
+    "screen-registry-parity": "screen_registry_parity",
+    "screen-registry-three-way-parity": "screen_registry_three_way",
 }
 # Jobs with no path-filter `if:` — a skip is never legitimate, so the
-# aggregator must not collapse their skipped result to success.
-NO_SKIP_COLLAPSE = {"contracts-drift": "contracts_drift"}
+# aggregator must not collapse their skipped result to success. (pg-integration
+# is NOT here: it has `if: needs.changes.outputs.backend == 'true' || push`, so
+# a skip on a mobile/docs-only PR is legitimate and must collapse to success.)
+NO_SKIP_COLLAPSE = {
+    "contracts-drift": "contracts_drift",
+    "truth-in-crypto": "truth_in_crypto",
+    "screen-registry-parity": "screen_registry_parity",
+    "screen-registry-three-way-parity": "screen_registry_three_way",
+}
 
 
 def main() -> int:
