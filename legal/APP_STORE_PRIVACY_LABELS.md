@@ -90,7 +90,7 @@ Depuis juillet 2022, Google exige que chaque application déclare ses pratiques 
 | **App info and performance** (crash logs, diagnostics) | Oui | Non | Non | Stabilité |
 | **Device or other IDs** | Non | — | — | — |
 | **Financial info** | **Oui** | **Oui** (coach IA Anthropic) | Non | Profil chiffré synchronisé serveur + envoyé au coach IA |
-| **Personal info** (User IDs) | **Oui** | **Oui** | Non | Identifiant de compte (auth JWT) uniquement ; ni nom, email, IBAN ni numéro AVS (cf. PRIVACY.md) |
+| **Personal info** (User IDs) | **Oui** | Non | Non | Identifiant de compte (auth JWT) — métadonnée interne, non transmise au coach/tiers ; ni nom, email, IBAN ni numéro AVS (cf. PRIVACY.md) |
 | **Messages** (in-app messages) | **Oui** | **Oui** (Anthropic US) | Non | Messages écrits au coach transmis tels quels à Anthropic |
 | **Photos & videos / Files & docs** | **Oui** | **Oui** (Anthropic US) | Non | Documents uploadés (certificats, fiches de paie, contrats) analysés par Claude Vision (US) |
 | **Location** | Non | — | — | Canton déclaré manuellement |
