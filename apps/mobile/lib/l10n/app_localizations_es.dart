@@ -6432,7 +6432,7 @@ class SEs extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'El retiro EPL reduce tu capital LPP y por tanto tu capital o pensión a la jubilación. Mínimo CHF 20\'000 (OPP2 art. 5). Bloquea la recompra LPP durante 3 años.';
+      'El retiro EPL reduce tu haber LPP y, por tanto, tu capital o pensión a la jubilación. Mínimo CHF 20\'000 (OPP2 art. 5). Atención: tras un rescate LPP voluntario, una retirada de capital en los 3 años siguientes hace perder la deducción fiscal de ese rescate (art. 79b apdo. 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>

@@ -3065,7 +3065,7 @@
   "renteVsCapitalRachatTooltip": "If you make LPP buybacks each year, their future value is added to the capital at retirement. 3-year lock before EPL (LPP art. 79b).",
   "renteVsCapitalEplLabel": "EPL withdrawal for property purchase",
   "renteVsCapitalEplHint": "Amount withdrawn (min 20,000)",
-  "renteVsCapitalEplTooltip": "The EPL withdrawal reduces your LPP assets and therefore your capital or pension at retirement. Minimum CHF 20,000 (OPP2 art. 5). Blocks LPP buyback for 3 years.",
+  "renteVsCapitalEplTooltip": "The EPL withdrawal reduces your LPP assets and therefore your capital or pension at retirement. Minimum CHF 20'000 (OPP2 art. 5). Note: after a voluntary LPP buyback, a capital withdrawal within 3 years forfeits that buyback's tax deduction (art. 79b para. 3).",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20,000)",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",

@@ -6391,7 +6391,7 @@ class SEn extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'The EPL withdrawal reduces your LPP assets and therefore your capital or pension at retirement. Minimum CHF 20,000 (OPP2 art. 5). Blocks LPP buyback for 3 years.';
+      'The EPL withdrawal reduces your LPP assets and therefore your capital or pension at retirement. Minimum CHF 20\'000 (OPP2 art. 5). Note: after a voluntary LPP buyback, a capital withdrawal within 3 years forfeits that buyback\'s tax deduction (art. 79b para. 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>

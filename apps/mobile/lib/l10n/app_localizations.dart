@@ -11565,7 +11565,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalEplTooltip.
   ///
   /// In fr, this message translates to:
-  /// **'Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20\'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.'**
+  /// **'Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20\'000 (OPP2 art. 5). Attention : après un rachat LPP volontaire, un retrait en capital dans les 3 ans fait perdre la déduction fiscale du rachat (art. 79b al. 3).'**
   String get renteVsCapitalEplTooltip;
 
   /// No description provided for @renteVsCapitalEplLegalRef.

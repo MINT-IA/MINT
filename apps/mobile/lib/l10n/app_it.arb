@@ -3065,7 +3065,7 @@
   "renteVsCapitalRachatTooltip": "Se fai riscatti LPP ogni anno, il loro valore futuro viene aggiunto al capitale al pensionamento. Blocco di 3 anni prima di EPL (LPP art. 79b).",
   "renteVsCapitalEplLabel": "Prelievo EPL per acquisto immobiliare",
   "renteVsCapitalEplHint": "Importo prelevato (min. 20'000)",
-  "renteVsCapitalEplTooltip": "Il prelievo EPL riduce il tuo avere LPP e quindi il tuo capitale o la tua rendita al pensionamento. Minimo CHF 20'000 (OPP2 art. 5). Blocca il riscatto LPP per 3 anni.",
+  "renteVsCapitalEplTooltip": "Il prelievo EPL riduce il tuo avere LPP e quindi il tuo capitale o la tua rendita al pensionamento. Minimo CHF 20'000 (OPP2 art. 5). Attenzione: dopo un riscatto LPP volontario, un prelievo in capitale entro 3 anni fa perdere la deduzione fiscale di quel riscatto (art. 79b cpv. 3).",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min. CHF 20'000)",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",

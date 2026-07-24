@@ -143,7 +143,7 @@ EXPECTED = {
         "62f5157f26121ca1ae9071f900a111e0e3b72fa604e2d1067b5037fc9dea48c3"
     ),
     ("regulatory", "dart_generated_snapshot", "param_count"): 113,
-    ("regulatory", "dart_generated_snapshot", "effective_on"): "2026-07-23",
+    ("regulatory", "dart_generated_snapshot", "effective_on"): "2026-07-24",
     ("regulatory", "dart_reg_unique_key_count"): 44,
     # Backfill soldé : projection.* enregistrées par -7vx (PR #984),
     # ac.* par -4za — plus aucune clé reg() Dart absente du registre.

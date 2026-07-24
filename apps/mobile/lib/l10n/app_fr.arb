@@ -3131,7 +3131,7 @@
   "renteVsCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
   "renteVsCapitalEplLabel": "Retrait EPL pour achat immobilier",
   "renteVsCapitalEplHint": "Montant retiré (min 20'000)",
-  "renteVsCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+  "renteVsCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Attention : après un rachat LPP volontaire, un retrait en capital dans les 3 ans fait perdre la déduction fiscale du rachat (art. 79b al. 3).",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",

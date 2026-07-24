@@ -452,7 +452,7 @@ EPL_MONTANT_MINIMUM: float = _get("lpp.epl_minimum")
 """Montant minimum pour un retrait EPL (OPP2 art. 5)."""
 
 EPL_BLOCAGE_RACHAT_ANNEES: int = int(_get("lpp.epl_buyback_lock_years"))
-"""Delai de blocage des rachats LPP apres un retrait EPL (LPP art. 79b al. 3)."""
+"""Delai de 3 ans (art. 79b al. 3) : un retrait en capital dans les 3 ans suivant un rachat LPP fait perdre la deduction fiscale du rachat. Le nom historique EPL_BLOCAGE_RACHAT est trompeur (c'est le retrait apres rachat qui est concerne)."""
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Hypotheque — Pratique bancaire suisse (ASB / FINMA)
