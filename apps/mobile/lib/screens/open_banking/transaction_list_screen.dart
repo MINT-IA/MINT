@@ -49,37 +49,62 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     ];
   }
 
-  List<BankTransaction> get _filteredTransactions {
-    var transactions = OpenBankingService.getMockTransactions();
+  /// Transactions du mois sélectionné par le sélecteur de période (« ce mois /
+  /// mois précédent »), SANS le filtre catégorie. Base commune à la liste ET au
+  /// résumé mensuel : le sélecteur de période pilote désormais réellement les
+  /// deux (audit segment-D : les chips faisaient setState(_selectedPeriod) sans
+  /// que rien ne le lise). Le demo étant du mois courant, « mois précédent »
+  /// donne une liste vide (état honnête) et un résumé à zéro — cohérents.
+  List<BankTransaction> get _periodTransactions {
+    final all = OpenBankingService.getMockTransactions();
+    final now = DateTime.now();
+    if (_selectedPeriod == 'last_month') {
+      final lastMonth = DateTime(now.year, now.month - 1);
+      return all
+          .where((tx) =>
+              tx.date.year == lastMonth.year && tx.date.month == lastMonth.month)
+          .toList();
+    }
+    // this_month (défaut)
+    return all
+        .where((tx) => tx.date.year == now.year && tx.date.month == now.month)
+        .toList();
+  }
 
-    // Filter by category
+  List<BankTransaction> get _filteredTransactions {
+    var transactions = _periodTransactions;
+
+    // Filter by category (n'affecte que la liste, pas le résumé mensuel).
     if (_selectedCategory != 'all') {
       transactions = transactions
           .where((tx) => tx.category == _selectedCategory)
           .toList();
     }
 
-    // Filter by period — les chips « ce mois / mois dernier » filtrent
-    // désormais réellement la liste (audit segment-D : elles faisaient
-    // setState(_selectedPeriod) sans que _filteredTransactions ne le lise).
-    // Le demo est du mois courant, donc « mois dernier » affiche honnêtement
-    // l'état vide (_buildEmptyState) plutôt qu'un filtre décoratif.
-    final now = DateTime.now();
-    if (_selectedPeriod == 'this_month') {
-      transactions = transactions
-          .where((tx) => tx.date.year == now.year && tx.date.month == now.month)
-          .toList();
-    } else if (_selectedPeriod == 'last_month') {
-      final lastMonth = DateTime(now.year, now.month - 1);
-      transactions = transactions
-          .where((tx) =>
-              tx.date.year == lastMonth.year && tx.date.month == lastMonth.month)
-          .toList();
-    }
-
     // Sort by date descending
     transactions.sort((a, b) => b.date.compareTo(a.date));
     return transactions;
+  }
+
+  /// Résumé (revenus / dépenses / net) du mois SÉLECTIONNÉ — remplace
+  /// getMonthlySummary() qui ignorait la période et restait figé sur le mois
+  /// courant, contredisant une liste filtrée sur « mois précédent ».
+  Map<String, double> get _periodSummary {
+    double income = 0;
+    double expenses = 0;
+    for (final tx in _periodTransactions) {
+      if (tx.amount >= 0) {
+        income += tx.amount;
+      } else {
+        expenses += tx.amount.abs();
+      }
+    }
+    return {
+      'income': income,
+      'expenses': expenses,
+      'net': income - expenses,
+      'savingsRate': income > 0 ? ((income - expenses) / income * 100) : 0,
+    };
   }
 
   Map<String, List<BankTransaction>> get _groupedTransactions {
@@ -93,7 +118,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final summary = OpenBankingService.getMonthlySummary();
+    final summary = _periodSummary;
     final grouped = _groupedTransactions;
 
     return Scaffold(
