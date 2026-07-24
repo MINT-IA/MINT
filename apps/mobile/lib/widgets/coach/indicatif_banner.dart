@@ -70,7 +70,10 @@ class IndicatifBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     if (confidenceScore >= 70) return const SizedBox.shrink();
 
-    final route = _categoryToRoute[topEnrichmentCategory] ?? 'lpp';
+    // Review #998 : pas de fallback arbitraire — si aucune catégorie
+    // routable (données complètes mais freshness/accuracy basses), le CTA
+    // est masqué plutôt que d'envoyer à tort vers LPP.
+    final route = _categoryToRoute[topEnrichmentCategory];
     final pct = confidenceScore.round();
 
     return Container(
@@ -111,6 +114,7 @@ class IndicatifBanner extends StatelessWidget {
             S.of(context)!.indicativeBannerBody,
             style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
+          if (route != null) ...[
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
@@ -128,6 +132,7 @@ class IndicatifBanner extends StatelessWidget {
               ),
             ),
           ),
+          ],
         ],
       ),
     );

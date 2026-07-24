@@ -158,12 +158,28 @@ void main() {
       expect(find.textContaining('55'), findsOneWidget);
     });
 
-    testWidgets('shows Preciser CTA button', (tester) async {
+    testWidgets('shows Preciser CTA button when a category is routable',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        const IndicatifBanner(
+          confidenceScore: 40,
+          topEnrichmentCategory: 'lpp',
+        ),
+      ));
+
+      expect(find.text('Préciser'), findsOneWidget);
+    });
+
+    testWidgets('hides CTA when no routable category (review #998)',
+        (tester) async {
+      // Pas de fallback lpp arbitraire : données complètes mais confiance
+      // basse (freshness/accuracy) -> bannière informative SANS CTA.
       await tester.pumpWidget(_wrap(
         const IndicatifBanner(confidenceScore: 40),
       ));
 
-      expect(find.text('Préciser'), findsOneWidget);
+      expect(find.textContaining('indicatif'), findsOneWidget);
+      expect(find.text('Préciser'), findsNothing);
     });
 
     testWidgets('confidence 0 still renders', (tester) async {

@@ -50,6 +50,49 @@ void main() {
 
   test('helper null-safe et catégories non routables filtrées', () {
     expect(IndicatifBanner.topEnrichmentCategoryFrom(null), isNull);
+
+    EnhancedConfidence synth(List<EnrichmentPrompt> prompts) =>
+        EnhancedConfidence(
+          completeness: 50,
+          accuracy: 50,
+          freshness: 50,
+          understanding: 50,
+          combined: 50,
+          level: 'medium',
+          baseResult: ProjectionConfidence(
+            score: 50,
+            level: 'medium',
+            prompts: prompts,
+            assumptions: const [],
+          ),
+          axisPrompts: const [],
+        );
+
+    // Review #998 : liste EXCLUSIVEMENT non routable -> null (le CTA de
+    // la bannière est alors masqué, pas de fallback lpp arbitraire).
+    expect(
+      IndicatifBanner.topEnrichmentCategoryFrom(synth(const [
+        EnrichmentPrompt(
+            category: 'fiscalite', label: 'x', impact: 9, action: 'x'),
+        EnrichmentPrompt(
+            category: 'retirement_urgency',
+            label: 'y',
+            impact: 5,
+            action: 'y'),
+      ])),
+      isNull,
+    );
+
+    // Non routable en tête -> saute au premier ROUTABLE (ordre conservé).
+    expect(
+      IndicatifBanner.topEnrichmentCategoryFrom(synth(const [
+        EnrichmentPrompt(
+            category: 'foreign_pension', label: 'x', impact: 9, action: 'x'),
+        EnrichmentPrompt(
+            category: 'patrimoine', label: 'y', impact: 5, action: 'y'),
+      ])),
+      'patrimoine',
+    );
   });
 
   test('location_vs_propriete passe la catégorie RÉELLE, plus de hardcode',
