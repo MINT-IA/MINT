@@ -61,11 +61,11 @@ _LEGACY_CAPITAL_NOTE = (
     "Approximation v1 (taux plat) — le calcul canonique de l'impôt de "
     "retrait est le modèle v2 estimate_capital_withdrawal_tax (IFD "
     "art. 38 exact + interpolation ESTV 130 points, beads -2i2). Usages "
-    "restants : validation canton, chemin override explicite "
-    "(calculate_progressive_capital_tax), et deux proxys heuristiques "
-    "actifs — location_vs_propriete (impôt revenu approx. 3x le taux) et "
-    "allocation_annuelle invest libre (impôt fortune approx. 5% du "
-    "taux) — migrations v2 suivies en beads."
+    "restants : validation canton et chemin override explicite "
+    "(calculate_progressive_capital_tax). Les deux anciens proxys "
+    "heuristiques (location_vs_propriete impôt revenu, allocation "
+    "invest libre impôt fortune) ont été migrés vers les modèles v2 "
+    "(beads -cm4)."
 )
 
 # Pratique bancaire de place (test de tenue) — non normée par la

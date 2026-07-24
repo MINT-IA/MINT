@@ -140,3 +140,68 @@ def test_mortgage_tax_benefit_default_income_anchor_documented():
     )
     assert implicit == pytest.approx(explicit, abs=0.01)
     assert implicit > 0
+
+def test_mortgage_anchor_uses_pre_amortization_balance_in_real_loop():
+    """La boucle réelle transmet le solde AVANT amortissement (review #995).
+
+    Année 1 : dette 80% du prix, amortissement 2e rang = (80% - 65%)
+    du prix / 15. Le bénéfice fiscal de la trajectoire doit égaler le
+    helper appelé avec CE solde — un solde post-amortissement décale
+    l'ancrage (3 x 5% de la dette) et donc la marginale.
+    """
+    from app.services.arbitrage.location_vs_propriete import (
+        compare_location_vs_propriete,
+    )
+
+    # prix choisi pour que les ancrages pre/post amortissement encadrent
+    # le point 150k du modele v2 (0.18 x prix vs 0.1785 x prix) — dans un
+    # meme segment lineaire la marginale serait identique et le test ne
+    # discriminerait rien.
+    prix = 837000.0
+    r = compare_location_vs_propriete(
+        capital_disponible=200000,
+        loyer_mensuel_actuel=2000,
+        prix_bien=prix,
+        canton="VD",
+        horizon_annees=5,
+        taux_hypotheque=0.02,
+        taux_entretien=0.01,
+        is_married=False,
+    )
+    achat = next(o for o in r.options if o.id != "location")
+    year1_benefit = -achat.trajectory[0].cumulative_tax_delta
+
+    mortgage = prix * 0.80
+    amort = (mortgage - prix * 0.65) / 15
+    expected = _estimate_tax_benefit_mortgage(
+        mortgage * 0.02,
+        prix * 0.01,
+        "VD",
+        is_married=False,
+        mortgage_balance=mortgage,
+        amortization=amort,
+    )
+    assert year1_benefit == pytest.approx(expected, abs=0.01)
+
+    # Discriminant : le solde post-amortissement donnerait un autre ancrage.
+    post_amort = _estimate_tax_benefit_mortgage(
+        mortgage * 0.02,
+        prix * 0.01,
+        "VD",
+        is_married=False,
+        mortgage_balance=mortgage - amort,
+        amortization=amort,
+    )
+    assert abs(post_amort - expected) > 0.01, (
+        "le test ne discrimine pas : ancrages pre/post amortissement egaux"
+    )
+
+
+def test_mortgage_benefit_deductible_exceeding_income_floors_at_zero_tax():
+    """revenu - déductible < 0 : plancher à 0, pas de crash ni négatif."""
+    benefit = _estimate_tax_benefit_mortgage(
+        15000, 5000, "VD", is_married=False, revenu_annuel=10000
+    )
+    expected = estimate_income_tax(10000, "VD") - estimate_income_tax(0, "VD")
+    assert benefit == pytest.approx(max(0.0, expected), abs=0.01)
+    assert benefit >= 0

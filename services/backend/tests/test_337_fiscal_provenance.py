@@ -68,10 +68,9 @@ EXPECTED_SOURCES = {
 }
 
 # Clés legacy du modèle capital v1 : encore consommées par la validation
-# canton, le chemin override explicite (base_rate_override) et deux proxys
-# heuristiques actifs (location_vs_propriete, allocation invest libre —
-# beads -cm4) ; le calcul canonique est estimate_capital_withdrawal_tax
-# (v2, -2i2).
+# canton et le chemin override explicite (base_rate_override) — les deux
+# anciens proxys heuristiques ont été migrés vers les modèles v2 (-cm4) ;
+# le calcul canonique est estimate_capital_withdrawal_tax (v2, -2i2).
 LEGACY_ESTIMATE_PREFIXES = (
     "capital_tax.default_rate",
     "capital_tax.married_discount",
@@ -121,10 +120,14 @@ def test_legacy_capital_keys_are_estimates_with_notes(fiscal_params):
                 f"{p.key}: la note doit pointer le calcul canonique"
             )
             if p.key.startswith("capital_tax.cantonal."):
-                # Review #994 : la note ne doit pas nier les proxys actifs
-                # (location_vs_propriete, allocation invest libre).
-                assert "proxy" in p.notes, (
-                    f"{p.key}: usages proxy restants non documentés"
+                # Review #995 : depuis -cm4 les 2 proxys heuristiques
+                # sont migrés — la note liste les usages restants réels
+                # et ne doit plus prétendre de proxys actifs.
+                assert "validation canton" in p.notes, (
+                    f"{p.key}: usages restants non documentés"
+                )
+                assert "migrés" in p.notes, (
+                    f"{p.key}: la note doit dater la migration -cm4"
                 )
 
 
