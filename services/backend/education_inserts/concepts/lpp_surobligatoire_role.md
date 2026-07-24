@@ -22,13 +22,13 @@ La distinction obligatoire/surobligatoire est régie par LPP art. 49 :
 **Part obligatoire** (réglementée) :
 - Taux d'intérêt minimum : 1.25 % en 2025 (fixé par le Conseil fédéral, LPP art. 15).
 - Taux de conversion minimum : 6.8 % à 65 ans (LPP art. 14).
-- Salaire coordonné plafonné entre CHF 26'460 et CHF 88'200.
+- Salaire coordonné plafonné entre CHF 26'460 et CHF 90'720.
 - Bonifications selon barème légal (7-18 %).
 
 **Part surobligatoire** (libre) :
 - Taux d'intérêt : librement fixé par la caisse (souvent 0.5-3 %).
 - Taux de conversion : librement fixé (souvent 4.5-5.8 %).
-- Peut assurer le salaire au-delà de CHF 88'200.
+- Peut assurer le salaire au-delà de CHF 90'720.
 - Bonifications potentiellement plus élevées.
 
 **Méthode de l'enveloppe (Umhüllende)** :

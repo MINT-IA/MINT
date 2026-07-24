@@ -31,17 +31,17 @@ Exemples :
 | CHF 30'000  | CHF 3'780 (minimum légal) | 13% |
 | CHF 40'000  | CHF 13'540 | 34% |
 | CHF 50'000  | CHF 23'540 | 47% |
-| CHF 88'200  | CHF 61'740 | 70% |
-| CHF 120'000 | CHF 61'740 (plafond) | 51% |
+| CHF 90'720  | CHF 64'260 | 71% |
+| CHF 120'000 | CHF 64'260 (plafond) | 54% |
 
-Le plafond du salaire coordonné LPP est de **CHF 61'740** (LPP art. 8 al. 2). Au-delà, les cotisations LPP obligatoires ne s'appliquent plus — la couverture supplémentaire relève du surobligatoire.
+Le plafond du salaire coordonné LPP est de **CHF 64'260** (LPP art. 8 al. 2). Au-delà, les cotisations LPP obligatoires ne s'appliquent plus — la couverture supplémentaire relève du surobligatoire.
 
 Pour les personnes à **temps partiel avec plusieurs employeurs**, chaque employeur applique la déduction séparément — ce qui réduit fortement la couverture totale. Certaines caisses permettent de s'assurer volontairement sur la totalité des revenus cumulés.
 
 ## Sources
 - LPP art. 7 (salaire annuel minimum d'accès : CHF 22'680)
 - LPP art. 8 al. 1 (déduction de coordination : CHF 26'460)
-- LPP art. 8 al. 2 (salaire coordonné minimum : CHF 3'780, plafond CHF 61'740)
+- LPP art. 8 al. 2 (salaire coordonné minimum : CHF 3'780, plafond CHF 64'260)
 
 ## Disclaimer
 Information à caractère éducatif — ne constitue pas un conseil en prévoyance au sens de la LSFin. Les montants sont basés sur les seuils 2025 et peuvent être révisés. Selon ta situation (temps partiel, plusieurs employeurs), l'impact peut être significatif. Consulte un·e spécialiste pour ta situation personnelle.

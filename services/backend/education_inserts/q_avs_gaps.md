@@ -22,7 +22,7 @@ status: "READY"
 ## Hypothèses
 - Carrière complète = 44 années de cotisation (21-65 ans).
 - 1 année manquante = -1/44e de rente (~2.3% en moins).
-- Rente max célibataire: ~2'450 CHF/mois.
+- Rente max célibataire: ~2'520 CHF/mois.
 - Rente max couple: ~3'675 CHF/mois.
 
 ## Limites

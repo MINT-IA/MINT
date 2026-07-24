@@ -22,7 +22,7 @@ status: "READY"
 ## Hypothèses
 - Vollständige Erwerbsbiografie = 44 Beitragsjahre (21-65 Jahre).
 - 1 fehlendes Jahr = -1/44 der Rente (~2.3% weniger).
-- Max. Rente ledig: ~2'450 CHF/Monat.
+- Max. Rente ledig: ~2'520 CHF/Monat.
 - Max. Rente Paar: ~3'675 CHF/Monat.
 
 ## Limites
