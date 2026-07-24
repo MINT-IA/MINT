@@ -602,6 +602,7 @@ ALLOW = {
     "tools/claude_review.py",
     "tools/claude_review.sh",
     "tools/checks/active_context_guard.py",
+    "tools/checks/education_facts_check.py",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
     "tools/checks/maestro_locator_audit.py",

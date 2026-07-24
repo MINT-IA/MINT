@@ -44,6 +44,9 @@ REQUIRED_IN_GATE = {
     "truth-in-crypto": "truth_in_crypto",
     "screen-registry-parity": "screen_registry_parity",
     "screen-registry-three-way-parity": "screen_registry_three_way",
+    # Campagne-A cluster C: guards served-content fiscal facts (RAG corpus +
+    # ARB) against regression of the 2026 values (beads #1010/#1013/#1014/#1015).
+    "education-facts": "education_facts",
 }
 # Jobs with no path-filter `if:` — a skip is never legitimate, so the
 # aggregator must not collapse their skipped result to success. (pg-integration
@@ -54,6 +57,7 @@ NO_SKIP_COLLAPSE = {
     "truth-in-crypto": "truth_in_crypto",
     "screen-registry-parity": "screen_registry_parity",
     "screen-registry-three-way-parity": "screen_registry_three_way",
+    "education-facts": "education_facts",
 }
 
 
