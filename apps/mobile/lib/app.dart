@@ -743,7 +743,7 @@ final _router = GoRouter(
       path: '/explore/retraite',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ExploreHubScreen(
-        title: 'Retraite & Prevoyance',
+        title: 'Retraite & Prévoyance',
         entries: [
           HubEntry(
               icon: Icons.timeline,
@@ -761,7 +761,7 @@ final _router = GoRouter(
               route: '/epl'),
           HubEntry(
               icon: Icons.calendar_month,
-              label: 'Sequence de decaissement',
+              label: 'Séquence de décaissement',
               route: '/decaissement'),
           HubEntry(
               icon: Icons.account_balance_wallet,
@@ -779,12 +779,12 @@ final _router = GoRouter(
           HubEntry(
               icon: Icons.favorite,
               label: 'Mariage',
-              subtitle: 'AVS, LPP, fiscalite couple',
+              subtitle: 'AVS, LPP, fiscalité couple',
               route: '/mariage'),
           HubEntry(
               icon: Icons.child_friendly,
               label: 'Naissance',
-              subtitle: 'Allocations, conge, budget',
+              subtitle: 'Allocations, congé, budget',
               route: '/naissance'),
           HubEntry(
               icon: Icons.people,
@@ -799,7 +799,7 @@ final _router = GoRouter(
           HubEntry(
               icon: Icons.account_balance,
               label: 'Succession',
-              subtitle: 'Droits, reserves, planning',
+              subtitle: 'Droits, réserves, planning',
               route: '/succession'),
         ],
       ),
@@ -813,14 +813,14 @@ final _router = GoRouter(
           HubEntry(
               icon: Icons.school, label: 'Premier emploi', route: '/first-job'),
           HubEntry(
-              icon: Icons.work_off, label: 'Chomage', route: '/unemployment'),
+              icon: Icons.work_off, label: 'Chômage', route: '/unemployment'),
           HubEntry(
               icon: Icons.compare,
               label: 'Comparateur d\'emplois',
               route: '/simulator/job-comparison'),
           HubEntry(
               icon: Icons.business_center,
-              label: 'Independant',
+              label: 'Indépendant',
               route: '/segments/independant'),
           HubEntry(
               icon: Icons.flight_takeoff,
@@ -841,7 +841,7 @@ final _router = GoRouter(
         entries: [
           HubEntry(
               icon: Icons.house,
-              label: 'Capacite hypothecaire',
+              label: 'Capacité hypothécaire',
               route: '/hypotheque'),
           HubEntry(
               icon: Icons.payments,
@@ -849,7 +849,7 @@ final _router = GoRouter(
               route: '/mortgage/amortization'),
           HubEntry(
               icon: Icons.account_balance_wallet,
-              label: 'EPL combine',
+              label: 'EPL combiné',
               route: '/mortgage/epl-combined'),
           HubEntry(
               icon: Icons.receipt,
@@ -861,11 +861,11 @@ final _router = GoRouter(
               route: '/mortgage/saron-vs-fixed'),
           HubEntry(
               icon: Icons.sell,
-              label: 'Vente immobiliere',
+              label: 'Vente immobilière',
               route: '/life-event/housing-sale'),
           HubEntry(
               icon: Icons.compare_arrows,
-              label: 'Location vs propriete',
+              label: 'Location vs propriété',
               route: '/arbitrage/location-vs-propriete'),
         ],
       ),
@@ -874,13 +874,13 @@ final _router = GoRouter(
       path: '/explore/fiscalite',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ExploreHubScreen(
-        title: 'Fiscalite',
+        title: 'Fiscalité',
         entries: [
           HubEntry(
               icon: Icons.savings, label: 'Pilier 3a', route: '/pilier-3a'),
           HubEntry(
               icon: Icons.history,
-              label: '3a retroactif',
+              label: '3a rétroactif',
               route: '/3a-retroactif'),
           HubEntry(
               icon: Icons.compare,
@@ -888,11 +888,11 @@ final _router = GoRouter(
               route: '/3a-deep/comparator'),
           HubEntry(
               icon: Icons.trending_up,
-              label: 'Rendement reel 3a',
+              label: 'Rendement réel 3a',
               route: '/3a-deep/real-return'),
           HubEntry(
               icon: Icons.view_timeline,
-              label: 'Retrait echelonne 3a',
+              label: 'Retrait échelonné 3a',
               route: '/3a-deep/staggered-withdrawal'),
           HubEntry(
               icon: Icons.map, label: 'Comparateur cantonal', route: '/fiscal'),
@@ -919,11 +919,11 @@ final _router = GoRouter(
               route: '/life-event/donation'),
           HubEntry(
               icon: Icons.people,
-              label: 'Deces d\'un proche',
+              label: 'Décès d\'un proche',
               route: '/life-event/deces-proche'),
           HubEntry(
               icon: Icons.swap_vert,
-              label: 'Demenagement cantonal',
+              label: 'Déménagement cantonal',
               route: '/life-event/demenagement-cantonal'),
         ],
       ),
@@ -932,19 +932,19 @@ final _router = GoRouter(
       path: '/explore/sante',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ExploreHubScreen(
-        title: 'Sante & Protection',
+        title: 'Santé & Protection',
         entries: [
           HubEntry(
               icon: Icons.accessibility,
-              label: 'Lacune invalidite',
+              label: 'Lacune invalidité',
               route: '/invalidite'),
           HubEntry(
               icon: Icons.shield,
-              label: 'Assurance invalidite',
+              label: 'Assurance invalidité',
               route: '/disability/insurance'),
           HubEntry(
               icon: Icons.business,
-              label: 'Invalidite independant',
+              label: 'Invalidité indépendant',
               route: '/disability/self-employed'),
           HubEntry(
               icon: Icons.local_hospital,
