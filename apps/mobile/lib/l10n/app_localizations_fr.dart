@@ -3364,6 +3364,52 @@ class SFr extends S {
       'Situation complète, ton analyse de salaire est prête.';
 
   @override
+  String get naissanceGateFactSalaire => 'Salaire mensuel brut';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'Ton congé APG se calcule sur ton salaire.';
+
+  @override
+  String get naissanceGateFactParent => 'Parent concerné';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'La durée du congé diffère entre maternité et paternité.';
+
+  @override
+  String get naissanceGateFactCanton => 'Canton';
+
+  @override
+  String get naissanceGateWhyCanton =>
+      'Les allocations familiales varient selon ton canton.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Nombre d\'enfants';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'Le total des allocations dépend du nombre d\'enfants.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Revenu annuel brut';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'L\'impact fiscal se calcule sur ton revenu imposable.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Frais de garde';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'Tes frais de garde réels déterminent la déduction.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'Le nombre d\'enfants modifie les déductions et les coûts.';
+
+  @override
   String get housingSaleIntroText =>
       'Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t\'aide à estimer le produit net de ta vente.';
 

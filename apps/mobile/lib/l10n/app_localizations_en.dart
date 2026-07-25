@@ -3338,6 +3338,51 @@ class SEn extends S {
       'Your situation is complete, your salary analysis is ready.';
 
   @override
+  String get naissanceGateFactSalaire => 'Gross monthly salary';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'Your APG leave is calculated from your salary.';
+
+  @override
+  String get naissanceGateFactParent => 'Parent concerned';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'Leave duration differs between maternity and paternity.';
+
+  @override
+  String get naissanceGateFactCanton => 'Canton';
+
+  @override
+  String get naissanceGateWhyCanton => 'Family allowances vary by canton.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Number of children';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'The total allowances depend on the number of children.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Gross annual income';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'The tax impact is calculated on your taxable income.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Childcare costs';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'Your real childcare costs determine the deduction.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'The number of children changes deductions and costs.';
+
+  @override
   String get housingSaleIntroText =>
       'Selling property in Switzerland involves a capital gains tax (LHID art. 12), possible reimbursement of pension funds used (EPL), and transaction costs. This tool helps you estimate your net sale proceeds.';
 

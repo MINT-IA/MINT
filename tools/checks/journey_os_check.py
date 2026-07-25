@@ -185,6 +185,8 @@ ALLOW = {
     "apps/mobile/test/screens/life_event_screens_v2_smoke_test.dart",
     "apps/mobile/lib/screens/first_job_screen.dart",
     "apps/mobile/test/screens/first_job_gate_test.dart",
+    "apps/mobile/lib/screens/naissance_screen.dart",
+    "apps/mobile/test/screens/naissance_gate_test.dart",
     "apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart",
     ".planning/decisions/2026-07-25-p2-simulator-result-gating.md",
     ".planning/reports/SESSION-2026-07-25-p2-gate-dur.html",

@@ -6159,6 +6159,84 @@ abstract class S {
   /// **'Situation complète, ton analyse de salaire est prête.'**
   String get firstJobGateAnnounceComplete;
 
+  /// No description provided for @naissanceGateFactSalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire mensuel brut'**
+  String get naissanceGateFactSalaire;
+
+  /// No description provided for @naissanceGateWhySalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton congé APG se calcule sur ton salaire.'**
+  String get naissanceGateWhySalaire;
+
+  /// No description provided for @naissanceGateFactParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parent concerné'**
+  String get naissanceGateFactParent;
+
+  /// No description provided for @naissanceGateWhyParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'La durée du congé diffère entre maternité et paternité.'**
+  String get naissanceGateWhyParent;
+
+  /// No description provided for @naissanceGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get naissanceGateFactCanton;
+
+  /// No description provided for @naissanceGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les allocations familiales varient selon ton canton.'**
+  String get naissanceGateWhyCanton;
+
+  /// No description provided for @naissanceGateFactEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get naissanceGateFactEnfants;
+
+  /// No description provided for @naissanceGateWhyEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le total des allocations dépend du nombre d\'enfants.'**
+  String get naissanceGateWhyEnfants;
+
+  /// No description provided for @naissanceGateFactRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu annuel brut'**
+  String get naissanceGateFactRevenu;
+
+  /// No description provided for @naissanceGateWhyRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impact fiscal se calcule sur ton revenu imposable.'**
+  String get naissanceGateWhyRevenu;
+
+  /// No description provided for @naissanceGateFactFraisGarde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais de garde'**
+  String get naissanceGateFactFraisGarde;
+
+  /// No description provided for @naissanceGateWhyFraisGarde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes frais de garde réels déterminent la déduction.'**
+  String get naissanceGateWhyFraisGarde;
+
+  /// No description provided for @naissanceGateWhyEnfantsImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nombre d\'enfants modifie les déductions et les coûts.'**
+  String get naissanceGateWhyEnfantsImpact;
+
   /// No description provided for @housingSaleIntroText.
   ///
   /// In fr, this message translates to:

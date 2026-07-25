@@ -188,7 +188,10 @@ void main() {
       await tester.pump();
       // Default tab is Conge — should show salary slider and type toggle
       expect(find.text('Type de congé'), findsOneWidget);
-      expect(find.text('Salaire mensuel brut'), findsOneWidget);
+      // P2 gate dur: with no profile the congé output is gated, so the salary
+      // fact label surfaces both on its input control AND in the situation-gate
+      // card's missing-fact list — hence findsWidgets, not findsOneWidget.
+      expect(find.text('Salaire mensuel brut'), findsWidgets);
     });
 
     testWidgets('Tab 1 (Conge) shows Mere/Pere toggle', (tester) async {
