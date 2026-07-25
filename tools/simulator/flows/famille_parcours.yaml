@@ -1,0 +1,79 @@
+# tools/simulator/flows/famille_parcours.yaml
+#
+# campagne-B — end-to-end sim proof of the Famille life-event parcours
+# (mariage / naissance / divorce). Complements the backend fiscal engines
+# (#1013 mariage, #1014 naissance) with the USER-FLOW proof: a real launch
+# reaches each authed screen and it renders its computed output.
+#
+# Same harness as travail_triad.yaml: requires a seeded build
+# (--dart-define=MINT_E2E_ARCHETYPE=swiss_native) which boots into a navigable
+# guest shell via the kReleaseMode-guarded hook in auth_provider.dart. The
+# routes below are not _isMainShellPath, so deeplinks render directly.
+# Semantic locators only (no pixels).
+
+appId: ch.mint.app
+tags:
+  - campagne-b
+  - famille-parcours
+  - runtime-proof
+  - feature:life-events
+---
+
+# ── Cold launch → navigable guest shell (via E2E hook) ────────────────
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# ── mariage — Mariage & fiscalité (computes on load) ──────────────────
+- openLink: "mintapp:///mariage"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*Mariage.*"
+    timeout: 12000
+# Computed hero (pénalité/bonus fiscal) renders a CHF figure.
+- assertVisible:
+    text: ".*CHF.*"
+
+# ── naissance — Naissance & famille (computes on load) ────────────────
+- openLink: "mintapp:///naissance"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*Naissance.*"
+    timeout: 12000
+- assertVisible:
+    text: ".*CHF.*"
+
+# ── divorce — computes on "Simuler" tap → result-gated "PARTAGE LPP" ──
+- openLink: "mintapp:///divorce"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*Divorce.*"
+    timeout: 12000
+- scrollUntilVisible:
+    element:
+      text: "Simuler"
+    direction: DOWN
+    timeout: 12000
+- tapOn:
+    text: "Simuler"
+- waitForAnimationToEnd:
+    timeout: 8000
+# "PARTAGE LPP" only renders inside `if (_result != null)` — proves the
+# simulation was computed and its result section rendered end-to-end.
+- extendedWaitUntil:
+    visible:
+      text: ".*PARTAGE LPP.*"
+    timeout: 12000
