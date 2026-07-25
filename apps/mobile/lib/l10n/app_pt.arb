@@ -11719,5 +11719,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "divorceGateFactRevenu1": "O teu rendimento anual bruto",
+  "divorceGateWhyRevenu1": "Serve para estimar o imposto e a pensão de alimentos.",
+  "divorceGateFactRevenu2": "Rendimento anual do teu ex-cônjuge",
+  "divorceGateWhyRevenu2": "Permite comparar o imposto e estimar a pensão de alimentos.",
+  "divorceGateFactLpp1": "O teu património LPP atual",
+  "divorceGateWhyLpp1": "A partilha abrange a LPP acumulada durante o casamento.",
+  "divorceGateFactLpp2": "Património LPP atual do teu ex-cônjuge",
+  "divorceGateWhyLpp2": "A partilha compara os patrimónios LPP dos dois cônjuges.",
+  "divorceGateFactAvoir1": "O teu património LPP no casamento",
+  "divorceGateWhyAvoir1": "Só se partilha a parte adquirida após o casamento (CC art. 122).",
+  "divorceGateFactAvoir2": "Património LPP do teu ex-cônjuge no casamento",
+  "divorceGateWhyAvoir2": "Só se partilha a parte adquirida após o casamento (CC art. 122).",
+  "divorceGateFactFortune": "Património comum do agregado",
+  "divorceGateWhyFortune": "Define a massa a partilhar entre os cônjuges.",
+  "divorceGateFactDettes": "Dívidas comuns do agregado",
+  "divorceGateWhyDettes": "Reduzem o património líquido a partilhar.",
+  "divorceGateFactEnfants": "Número de filhos",
+  "divorceGateWhyEnfants": "As contribuições de sustento dependem do número de filhos.",
+  "divorceGateFactDuree": "Duração do casamento",
+  "divorceGateWhyDuree": "A pensão ao cônjuge depende da duração do casamento.",
+  "divorceGateFactCanton": "O teu cantão de residência",
+  "divorceGateWhyCanton": "Indica o teu cantão no perfil para estimar o imposto do divórcio.",
+  "divorceFilmPensionEstimee": "Pensão de alimentos estimada",
+  "divorceImpactFiscalCantonNote": "Estimativa no cantão atual do agregado para ambos os cônjuges — o cantão futuro da outra pessoa é desconhecido."
 }

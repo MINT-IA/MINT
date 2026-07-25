@@ -23,6 +23,7 @@ void main() {
     test('equal LPP avoirs produce zero transfer', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -52,6 +53,7 @@ void main() {
     test('unequal LPP avoirs produce correct transfer direction 1 -> 2', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -80,6 +82,7 @@ void main() {
     test('large LPP transfer triggers alert', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 15,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -115,6 +118,7 @@ void main() {
     test('participation aux acquets splits fortune 50/50', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -137,6 +141,7 @@ void main() {
     test('communaute de biens also splits 50/50', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.communauteDeBiens,
@@ -159,6 +164,7 @@ void main() {
     test('separation de biens splits proportionally to income', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.separationDeBiens,
@@ -182,6 +188,7 @@ void main() {
     test('separation de biens with zero income splits 50/50 as fallback', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 5,
           numberOfChildren: 0,
           regime: MatrimonialRegime.separationDeBiens,
@@ -203,6 +210,7 @@ void main() {
     test('debts greater than 50% of fortune triggers alert', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -233,6 +241,7 @@ void main() {
     test('married tax = combined income x marginale v2 ZH (~28.5%)', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -257,6 +266,7 @@ void main() {
     test('individual taxes sum is different from married tax', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -280,6 +290,7 @@ void main() {
     test('large tax delta triggers fiscal impact alert', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -306,6 +317,7 @@ void main() {
     test('zero income produces zero individual tax', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 5,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -332,6 +344,7 @@ void main() {
     test('children produce CHF 600/month each', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 3,
           numberOfChildren: 2,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -353,6 +366,7 @@ void main() {
     test('long marriage >= 10y with income gap adds spousal maintenance at 15%', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 12,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -376,6 +390,7 @@ void main() {
     test('medium marriage 5-9y with income gap adds spousal maintenance at 8%', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 7,
           numberOfChildren: 1,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -401,6 +416,7 @@ void main() {
     test('short marriage < 5y with no children produces zero', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 3,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -427,6 +443,7 @@ void main() {
     test('checklist contains 10 mandatory items', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 1,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -452,6 +469,7 @@ void main() {
     test('children trigger garde alert', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 5,
           numberOfChildren: 2,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -476,6 +494,7 @@ void main() {
     test('separation de biens triggers regime-specific alert', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 5,
           numberOfChildren: 0,
           regime: MatrimonialRegime.separationDeBiens,
@@ -499,6 +518,7 @@ void main() {
     test('long marriage with large income gap triggers entretien alert', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 15,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -947,6 +967,7 @@ void main() {
     test('divorce with zero fortune and zero debts', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 1,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,

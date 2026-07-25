@@ -24509,4 +24509,89 @@ class SEn extends S {
   String indicativeBannerCtaSemantics(String bloc) {
     return 'Refine your data — $bloc block';
   }
+
+  @override
+  String get divorceGateFactRevenu1 => 'Your gross annual income';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'It is used to estimate tax and maintenance support.';
+
+  @override
+  String get divorceGateFactRevenu2 => 'Your ex-spouse\'s annual income';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'It lets us compare tax and estimate maintenance support.';
+
+  @override
+  String get divorceGateFactLpp1 => 'Your current LPP assets';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'The split covers LPP built up during the marriage.';
+
+  @override
+  String get divorceGateFactLpp2 => 'Your ex-spouse\'s current LPP assets';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'The split compares both spouses\' LPP assets.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'Your LPP assets at marriage';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Only the share earned after the marriage is split (CC art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 =>
+      'Your ex-spouse\'s LPP assets at marriage';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Only the share earned after the marriage is split (CC art. 122).';
+
+  @override
+  String get divorceGateFactFortune => 'Household joint assets';
+
+  @override
+  String get divorceGateWhyFortune =>
+      'It sets the estate to be divided between spouses.';
+
+  @override
+  String get divorceGateFactDettes => 'Household joint debts';
+
+  @override
+  String get divorceGateWhyDettes =>
+      'They reduce the net assets to be divided.';
+
+  @override
+  String get divorceGateFactEnfants => 'Number of children';
+
+  @override
+  String get divorceGateWhyEnfants =>
+      'Maintenance contributions depend on the number of children.';
+
+  @override
+  String get divorceGateFactDuree => 'Marriage duration';
+
+  @override
+  String get divorceGateWhyDuree =>
+      'Spousal maintenance depends on how long the marriage lasted.';
+
+  @override
+  String get divorceGateFactCanton => 'Your canton of residence';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'Add your canton in your profile to estimate the divorce tax impact.';
+
+  @override
+  String get divorceFilmPensionEstimee => 'Estimated maintenance';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Estimated at the household\'s current canton for both spouses — the other\'s future canton is unknown.';
 }

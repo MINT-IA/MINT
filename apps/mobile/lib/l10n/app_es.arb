@@ -11719,5 +11719,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "divorceGateFactRevenu1": "Tu ingreso anual bruto",
+  "divorceGateWhyRevenu1": "Sirve para estimar el impuesto y la pensión alimenticia.",
+  "divorceGateFactRevenu2": "Ingreso anual de tu excónyuge",
+  "divorceGateWhyRevenu2": "Permite comparar el impuesto y estimar la pensión alimenticia.",
+  "divorceGateFactLpp1": "Tu haber LPP actual",
+  "divorceGateWhyLpp1": "El reparto abarca la LPP acumulada durante el matrimonio.",
+  "divorceGateFactLpp2": "Haber LPP actual de tu excónyuge",
+  "divorceGateWhyLpp2": "El reparto compara los haberes LPP de ambos cónyuges.",
+  "divorceGateFactAvoir1": "Tu haber LPP al casarte",
+  "divorceGateWhyAvoir1": "Solo se reparte la parte adquirida después del matrimonio (CC art. 122).",
+  "divorceGateFactAvoir2": "Haber LPP de tu excónyuge al casarse",
+  "divorceGateWhyAvoir2": "Solo se reparte la parte adquirida después del matrimonio (CC art. 122).",
+  "divorceGateFactFortune": "Patrimonio común del hogar",
+  "divorceGateWhyFortune": "Fija la masa a repartir entre los cónyuges.",
+  "divorceGateFactDettes": "Deudas comunes del hogar",
+  "divorceGateWhyDettes": "Reducen el patrimonio neto a repartir.",
+  "divorceGateFactEnfants": "Número de hijos",
+  "divorceGateWhyEnfants": "Las contribuciones de manutención dependen del número de hijos.",
+  "divorceGateFactDuree": "Duración del matrimonio",
+  "divorceGateWhyDuree": "La pensión al cónyuge depende de la duración del matrimonio.",
+  "divorceGateFactCanton": "Tu cantón de residencia",
+  "divorceGateWhyCanton": "Indica tu cantón en tu perfil para estimar el impuesto del divorcio.",
+  "divorceFilmPensionEstimee": "Pensión alimenticia estimada",
+  "divorceImpactFiscalCantonNote": "Estimación en el cantón actual del hogar para ambos cónyuges — se desconoce el cantón futuro de la otra persona."
 }

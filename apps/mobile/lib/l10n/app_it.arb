@@ -11719,5 +11719,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "divorceGateFactRevenu1": "Il tuo reddito annuo lordo",
+  "divorceGateWhyRevenu1": "Serve a stimare l'imposta e il contributo di mantenimento.",
+  "divorceGateFactRevenu2": "Reddito annuo del tuo ex coniuge",
+  "divorceGateWhyRevenu2": "Permette di confrontare l'imposta e stimare il mantenimento.",
+  "divorceGateFactLpp1": "Il tuo avere LPP attuale",
+  "divorceGateWhyLpp1": "La ripartizione riguarda la LPP maturata durante il matrimonio.",
+  "divorceGateFactLpp2": "Avere LPP attuale del tuo ex coniuge",
+  "divorceGateWhyLpp2": "La ripartizione confronta gli averi LPP dei due coniugi.",
+  "divorceGateFactAvoir1": "Il tuo avere LPP al matrimonio",
+  "divorceGateWhyAvoir1": "Si divide solo la parte maturata dopo il matrimonio (CC art. 122).",
+  "divorceGateFactAvoir2": "Avere LPP del tuo ex coniuge al matrimonio",
+  "divorceGateWhyAvoir2": "Si divide solo la parte maturata dopo il matrimonio (CC art. 122).",
+  "divorceGateFactFortune": "Patrimonio comune della famiglia",
+  "divorceGateWhyFortune": "Determina la massa da dividere tra i coniugi.",
+  "divorceGateFactDettes": "Debiti comuni della famiglia",
+  "divorceGateWhyDettes": "Riducono il patrimonio netto da dividere.",
+  "divorceGateFactEnfants": "Numero di figli",
+  "divorceGateWhyEnfants": "I contributi di mantenimento dipendono dal numero di figli.",
+  "divorceGateFactDuree": "Durata del matrimonio",
+  "divorceGateWhyDuree": "Il mantenimento al coniuge dipende dalla durata del matrimonio.",
+  "divorceGateFactCanton": "Il tuo cantone di residenza",
+  "divorceGateWhyCanton": "Indica il tuo cantone nel profilo per stimare l'imposta del divorzio.",
+  "divorceFilmPensionEstimee": "Mantenimento stimato",
+  "divorceImpactFiscalCantonNote": "Stima nel cantone attuale del nucleo per entrambi i coniugi — il cantone futuro dell'altra persona non è noto."
 }

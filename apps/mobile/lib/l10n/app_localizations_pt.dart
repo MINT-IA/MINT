@@ -24649,4 +24649,89 @@ class SPt extends S {
   String indicativeBannerCtaSemantics(String bloc) {
     return 'Precisar os teus dados — bloco $bloc';
   }
+
+  @override
+  String get divorceGateFactRevenu1 => 'O teu rendimento anual bruto';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'Serve para estimar o imposto e a pensão de alimentos.';
+
+  @override
+  String get divorceGateFactRevenu2 => 'Rendimento anual do teu ex-cônjuge';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'Permite comparar o imposto e estimar a pensão de alimentos.';
+
+  @override
+  String get divorceGateFactLpp1 => 'O teu património LPP atual';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'A partilha abrange a LPP acumulada durante o casamento.';
+
+  @override
+  String get divorceGateFactLpp2 => 'Património LPP atual do teu ex-cônjuge';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'A partilha compara os patrimónios LPP dos dois cônjuges.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'O teu património LPP no casamento';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Só se partilha a parte adquirida após o casamento (CC art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 =>
+      'Património LPP do teu ex-cônjuge no casamento';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Só se partilha a parte adquirida após o casamento (CC art. 122).';
+
+  @override
+  String get divorceGateFactFortune => 'Património comum do agregado';
+
+  @override
+  String get divorceGateWhyFortune =>
+      'Define a massa a partilhar entre os cônjuges.';
+
+  @override
+  String get divorceGateFactDettes => 'Dívidas comuns do agregado';
+
+  @override
+  String get divorceGateWhyDettes =>
+      'Reduzem o património líquido a partilhar.';
+
+  @override
+  String get divorceGateFactEnfants => 'Número de filhos';
+
+  @override
+  String get divorceGateWhyEnfants =>
+      'As contribuições de sustento dependem do número de filhos.';
+
+  @override
+  String get divorceGateFactDuree => 'Duração do casamento';
+
+  @override
+  String get divorceGateWhyDuree =>
+      'A pensão ao cônjuge depende da duração do casamento.';
+
+  @override
+  String get divorceGateFactCanton => 'O teu cantão de residência';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'Indica o teu cantão no perfil para estimar o imposto do divórcio.';
+
+  @override
+  String get divorceFilmPensionEstimee => 'Pensão de alimentos estimada';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Estimativa no cantão atual do agregado para ambos os cônjuges — o cantão futuro da outra pessoa é desconhecido.';
 }

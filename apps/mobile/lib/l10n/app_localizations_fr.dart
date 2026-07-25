@@ -24640,4 +24640,88 @@ class SFr extends S {
   String indicativeBannerCtaSemantics(String bloc) {
     return 'Préciser tes données — bloc $bloc';
   }
+
+  @override
+  String get divorceGateFactRevenu1 => 'Ton revenu annuel brut';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'Il sert à estimer l\'impôt et la contribution d\'entretien.';
+
+  @override
+  String get divorceGateFactRevenu2 => 'Revenu annuel de ton ex-conjoint';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'Il permet de comparer l\'impôt et d\'estimer la contribution d\'entretien.';
+
+  @override
+  String get divorceGateFactLpp1 => 'Ton avoir LPP actuel';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'Le partage porte sur la LPP acquise pendant le mariage.';
+
+  @override
+  String get divorceGateFactLpp2 => 'Avoir LPP actuel de ton ex-conjoint';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'Le partage compare les avoirs LPP des deux conjoints.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'Ton avoir LPP au mariage';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Seule la part acquise après le mariage est partagée (CC art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 => 'Avoir LPP de ton ex-conjoint au mariage';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Seule la part acquise après le mariage est partagée (CC art. 122).';
+
+  @override
+  String get divorceGateFactFortune => 'Fortune commune du ménage';
+
+  @override
+  String get divorceGateWhyFortune =>
+      'Elle fixe la masse à partager entre les conjoints.';
+
+  @override
+  String get divorceGateFactDettes => 'Dettes communes du ménage';
+
+  @override
+  String get divorceGateWhyDettes =>
+      'Elles réduisent la fortune nette à partager.';
+
+  @override
+  String get divorceGateFactEnfants => 'Nombre d\'enfants';
+
+  @override
+  String get divorceGateWhyEnfants =>
+      'Les contributions d\'entretien dépendent du nombre d\'enfants.';
+
+  @override
+  String get divorceGateFactDuree => 'Durée du mariage';
+
+  @override
+  String get divorceGateWhyDuree =>
+      'La contribution au conjoint dépend de la durée du mariage.';
+
+  @override
+  String get divorceGateFactCanton => 'Ton canton de résidence';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'Renseigne ton canton dans ton profil pour estimer l\'impôt du divorce.';
+
+  @override
+  String get divorceFilmPensionEstimee => 'Pension alimentaire estimée';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l\'autre n\'est pas connu.';
 }

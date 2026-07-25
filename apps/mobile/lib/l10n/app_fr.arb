@@ -13255,5 +13255,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "divorceGateFactRevenu1": "Ton revenu annuel brut",
+  "divorceGateWhyRevenu1": "Il sert à estimer l'impôt et la contribution d'entretien.",
+  "divorceGateFactRevenu2": "Revenu annuel de ton ex-conjoint",
+  "divorceGateWhyRevenu2": "Il permet de comparer l'impôt et d'estimer la contribution d'entretien.",
+  "divorceGateFactLpp1": "Ton avoir LPP actuel",
+  "divorceGateWhyLpp1": "Le partage porte sur la LPP acquise pendant le mariage.",
+  "divorceGateFactLpp2": "Avoir LPP actuel de ton ex-conjoint",
+  "divorceGateWhyLpp2": "Le partage compare les avoirs LPP des deux conjoints.",
+  "divorceGateFactAvoir1": "Ton avoir LPP au mariage",
+  "divorceGateWhyAvoir1": "Seule la part acquise après le mariage est partagée (CC art. 122).",
+  "divorceGateFactAvoir2": "Avoir LPP de ton ex-conjoint au mariage",
+  "divorceGateWhyAvoir2": "Seule la part acquise après le mariage est partagée (CC art. 122).",
+  "divorceGateFactFortune": "Fortune commune du ménage",
+  "divorceGateWhyFortune": "Elle fixe la masse à partager entre les conjoints.",
+  "divorceGateFactDettes": "Dettes communes du ménage",
+  "divorceGateWhyDettes": "Elles réduisent la fortune nette à partager.",
+  "divorceGateFactEnfants": "Nombre d'enfants",
+  "divorceGateWhyEnfants": "Les contributions d'entretien dépendent du nombre d'enfants.",
+  "divorceGateFactDuree": "Durée du mariage",
+  "divorceGateWhyDuree": "La contribution au conjoint dépend de la durée du mariage.",
+  "divorceGateFactCanton": "Ton canton de résidence",
+  "divorceGateWhyCanton": "Renseigne ton canton dans ton profil pour estimer l'impôt du divorce.",
+  "divorceFilmPensionEstimee": "Pension alimentaire estimée",
+  "divorceImpactFiscalCantonNote": "Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l'autre n'est pas connu."
 }

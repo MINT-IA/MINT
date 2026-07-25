@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -15,18 +16,34 @@ class DivorceFilmWidget extends StatelessWidget {
     super.key,
     required this.myLpp,
     required this.partnerLpp,
+    required this.lppTransfer,
+    required this.lppTransferDirection,
     required this.annualTaxMarried,
     required this.annualTaxSingle,
     required this.childrenCount,
-    this.hasAlimony = true,
+    required this.monthlyPension,
   });
 
   final double myLpp;
   final double partnerLpp;
+
+  /// Transfert LPP RÉEL du service (part acquise pendant le mariage, CC art. 122
+  /// / LFLP art. 22a) — la valeur affichée sur la carte Partage LPP / le hero.
+  /// Le film ne recalcule JAMAIS un partage du solde total.
+  final double lppTransfer;
+
+  /// Sens du transfert : '1 → 2' (conjoint 1 = toi verses), '2 → 1' (tu reçois)
+  /// ou '-' (aucun transfert).
+  final String lppTransferDirection;
+
   final double annualTaxMarried;
   final double annualTaxSingle;
   final int childrenCount;
-  final bool hasAlimony;
+
+  /// Pension alimentaire mensuelle RÉELLE (calcul income-gap du service), la même
+  /// valeur que la carte Pension de l'écran. Aucun forfait CHF/enfant + CHF
+  /// conjoint codé en dur : chaque CHF du film trace une valeur réelle.
+  final double monthlyPension;
 
   static String _fmt(double v) {
     final n = v.round().abs();
@@ -38,18 +55,21 @@ class DivorceFilmWidget extends StatelessWidget {
     return '$n';
   }
 
-  double get _equalShare => (myLpp + partnerLpp) / 2;
-  double get _lppTransfer => (myLpp - _equalShare).clamp(0, double.infinity);
-  // LPP rente loss using taux de conversion minimum (LPP art. 14)
-  double get _lppMonthlyRenteLoss => _lppTransfer * (lppTauxConversionMin / 100) / 12;
+  /// Solde LPP de l'utilisateur APRÈS le transfert réel : '1 → 2' = tu verses
+  /// (soustrait), sinon tu reçois ou rien (ajoute 0). Jamais un partage du solde
+  /// total : on applique le transfert RÉEL du service au solde de départ.
+  double get _myLppAfter => (lppTransferDirection == '1 → 2'
+          ? myLpp - lppTransfer
+          : myLpp + lppTransfer)
+      .clamp(0, double.infinity);
+
+  // LPP rente loss using taux de conversion minimum (LPP art. 14), sur le
+  // transfert RÉEL du service.
+  double get _lppMonthlyRenteLoss =>
+      lppTransfer * (lppTauxConversionMin / 100) / 12;
 
   double get _annualTaxDelta => annualTaxSingle - annualTaxMarried;
   double get _monthlyTaxDelta => _annualTaxDelta / 12;
-
-  // Montants indicatifs OFS / jurisprudence cantonale — remplacer par le jugement réel
-  double get _monthlyChildPension => childrenCount * 1500.0;
-  double get _monthlyAlimony => hasAlimony ? 500.0 : 0.0;
-  double get _totalMonthlyPension => _monthlyChildPension + _monthlyAlimony;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +113,7 @@ class DivorceFilmWidget extends StatelessWidget {
                     emoji: '👧',
                     title: 'Les pensions alimentaires',
                     color: MintColors.info,
-                    content: _buildAct3Content(),
+                    content: _buildAct3Content(context),
                     legalRef: 'LIFD art. 33 (déductible) / art. 23 (imposable bénéficiaire)',
                   ),
                   const SizedBox(height: 16),
@@ -222,22 +242,36 @@ class DivorceFilmWidget extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 8),
               child: Icon(Icons.arrow_forward, size: 20, color: MintColors.textSecondary),
             ),
-            Expanded(child: _buildLppCard('Toi (après)', _equalShare, MintColors.scoreAttention)),
+            Expanded(child: _buildLppCard('Toi (après)', _myLppAfter, MintColors.scoreAttention)),
           ],
         ),
-        if (_lppTransfer > 0) ...[
+        if (lppTransfer > 0) ...[
           const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: MintColors.scoreCritique.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              'Tu transfères CHF ${_fmt(_lppTransfer)} → ta rente LPP baisse de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois',
-              style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700, height: 1.4),
-            ),
-          ),
+          Builder(builder: (context) {
+            // Le sens du transfert vient du service (CC art. 122). '1 → 2' = TOI
+            // (conjoint 1) verses à l'ex → ta rente baisse ; '2 → 1' = tu reçois
+            // → ta rente augmente. Le montant est le même dans les deux sens ; la
+            // phrase ne doit jamais dire « tu transfères » quand tu reçois.
+            final userPays = lppTransferDirection == '1 → 2';
+            final tone =
+                userPays ? MintColors.scoreCritique : MintColors.scoreExcellent;
+            final message = userPays
+                ? 'Tu transfères CHF ${_fmt(lppTransfer)} → ta rente LPP baisse de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois'
+                : 'Tu reçois CHF ${_fmt(lppTransfer)} → ta rente LPP augmente de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois';
+            return Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: tone.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                message,
+                style: MintTextStyles.labelMedium(color: tone)
+                    .copyWith(fontWeight: FontWeight.w700, height: 1.4),
+              ),
+            );
+          }),
         ],
       ],
     );
@@ -271,12 +305,12 @@ class DivorceFilmWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _buildTaxCard('Mariés', annualTaxMarried, MintColors.scoreExcellent)),
+            Expanded(child: _buildTaxCard('Couple marié', annualTaxMarried, MintColors.scoreExcellent)),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 8),
               child: Icon(Icons.arrow_forward, size: 20, color: MintColors.textSecondary),
             ),
-            Expanded(child: _buildTaxCard('Séparé·e', annualTaxSingle, MintColors.scoreCritique)),
+            Expanded(child: _buildTaxCard('2 foyers séparés', annualTaxSingle, MintColors.scoreCritique)),
           ],
         ),
         const SizedBox(height: 10),
@@ -288,17 +322,24 @@ class DivorceFilmWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
+            // annualTaxSingle = impôt des DEUX ex-conjoints séparés (C1 + C2) ;
+            // le delta est donc le changement au niveau du MÉNAGE, pas l'impôt
+            // personnel de l'utilisateur. On ne dit jamais « tu perds » (la
+            // répartition individuelle dépend du revenu de chacun).
             positive
-                ? '+CHF ${_fmt(_monthlyTaxDelta)}/mois d\'impôts — tu perds le splitting marié.'
-                : '-CHF ${_fmt(_monthlyTaxDelta.abs())}/mois d\'impôts — tu gagnes en indépendance.',
+                ? '+CHF ${_fmt(_monthlyTaxDelta)}/mois d\'impôts pour le ménage — la fin du splitting marié.'
+                : '-CHF ${_fmt(_monthlyTaxDelta.abs())}/mois d\'impôts pour le ménage après la séparation.',
             style: MintTextStyles.labelMedium(color: positive ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700, height: 1.4),
           ),
         ),
         if (childrenCount > 0)
           Padding(
             padding: const EdgeInsets.only(top: 8),
+            // Seul le NOMBRE d'enfants est confirmé — pas la garde ni des frais
+            // de garde réels. On énonce la condition (« si »), jamais un « tu peux
+            // déduire » qui présumerait la garde et l'éligibilité (LIFD art. 35).
             child: Text(
-              '💡 Avec la garde des enfants, tu peux déduire les frais de garde (LIFD art. 35).',
+              '💡 Si tu as la garde et paies des frais de garde, ils peuvent être déductibles (LIFD art. 35).',
               style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(height: 1.4),
             ),
           ),
@@ -327,34 +368,26 @@ class DivorceFilmWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildAct3Content() {
+  Widget _buildAct3Content(BuildContext context) {
+    // Une SEULE pension réelle (service income-gap), jamais un forfait par
+    // enfant/conjoint codé en dur — cohérent avec la carte Pension de l'écran.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (childrenCount > 0)
-          _buildPensionRow('Enfant${childrenCount > 1 ? 's' : ''} ($childrenCount)', _monthlyChildPension),
-        if (hasAlimony)
-          _buildPensionRow('Entretien conjoint·e (3-5 ans)', _monthlyAlimony),
-        if (_totalMonthlyPension > 0) ...[
-          const SizedBox(height: 8),
-          const Divider(),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total mensuel', style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-              Text(
-                'CHF ${_fmt(_totalMonthlyPension)}/mois',
-                style: MintTextStyles.labelLarge(color: MintColors.info).copyWith(fontWeight: FontWeight.w800),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '⚠️ La pension versée est déductible de TES impôts. Elle est imposable pour l\'autre.',
-            style: MintTextStyles.labelSmall(color: MintColors.scoreAttention).copyWith(height: 1.4),
-          ),
-        ],
+        _buildPensionRow(
+          S.of(context)!.divorceFilmPensionEstimee,
+          monthlyPension,
+        ),
+        const SizedBox(height: 8),
+        // Le service ne fournit PAS le sens du versement (montant non signé =
+        // écart de revenus + enfants ; la direction du volet enfants dépend de la
+        // garde, non captée). On énonce donc la règle fiscale GÉNÉRALE (vraie dans
+        // les deux sens), jamais un « déductible de TES impôts » qui serait faux
+        // quand c'est toi qui la reçois (LIFD art. 33/23).
+        Text(
+          '⚠️ La pension alimentaire est déductible du revenu de la personne qui la verse et imposable pour celle qui la reçoit.',
+          style: MintTextStyles.labelSmall(color: MintColors.scoreAttention).copyWith(height: 1.4),
+        ),
       ],
     );
   }
@@ -379,8 +412,7 @@ class DivorceFilmWidget extends StatelessWidget {
   Widget _buildDisclaimer() {
     return Text(
       'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
-      'Source : CC art. 122 (partage LPP), LIFD art. 33/23/35 (pensions alimentaires). '
-      'Pension indicative : CHF 1\'500/enfant + CHF 500 conjoint·e.',
+      'Source : CC art. 122 (partage LPP), LIFD art. 33/23/35 (pensions alimentaires).',
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

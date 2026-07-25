@@ -11736,5 +11736,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "divorceGateFactRevenu1": "Your gross annual income",
+  "divorceGateWhyRevenu1": "It is used to estimate tax and maintenance support.",
+  "divorceGateFactRevenu2": "Your ex-spouse's annual income",
+  "divorceGateWhyRevenu2": "It lets us compare tax and estimate maintenance support.",
+  "divorceGateFactLpp1": "Your current LPP assets",
+  "divorceGateWhyLpp1": "The split covers LPP built up during the marriage.",
+  "divorceGateFactLpp2": "Your ex-spouse's current LPP assets",
+  "divorceGateWhyLpp2": "The split compares both spouses' LPP assets.",
+  "divorceGateFactAvoir1": "Your LPP assets at marriage",
+  "divorceGateWhyAvoir1": "Only the share earned after the marriage is split (CC art. 122).",
+  "divorceGateFactAvoir2": "Your ex-spouse's LPP assets at marriage",
+  "divorceGateWhyAvoir2": "Only the share earned after the marriage is split (CC art. 122).",
+  "divorceGateFactFortune": "Household joint assets",
+  "divorceGateWhyFortune": "It sets the estate to be divided between spouses.",
+  "divorceGateFactDettes": "Household joint debts",
+  "divorceGateWhyDettes": "They reduce the net assets to be divided.",
+  "divorceGateFactEnfants": "Number of children",
+  "divorceGateWhyEnfants": "Maintenance contributions depend on the number of children.",
+  "divorceGateFactDuree": "Marriage duration",
+  "divorceGateWhyDuree": "Spousal maintenance depends on how long the marriage lasted.",
+  "divorceGateFactCanton": "Your canton of residence",
+  "divorceGateWhyCanton": "Add your canton in your profile to estimate the divorce tax impact.",
+  "divorceFilmPensionEstimee": "Estimated maintenance",
+  "divorceImpactFiscalCantonNote": "Estimated at the household's current canton for both spouses — the other's future canton is unknown."
 }

@@ -24704,4 +24704,89 @@ class SIt extends S {
   String indicativeBannerCtaSemantics(String bloc) {
     return 'Precisare i tuoi dati — blocco $bloc';
   }
+
+  @override
+  String get divorceGateFactRevenu1 => 'Il tuo reddito annuo lordo';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'Serve a stimare l\'imposta e il contributo di mantenimento.';
+
+  @override
+  String get divorceGateFactRevenu2 => 'Reddito annuo del tuo ex coniuge';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'Permette di confrontare l\'imposta e stimare il mantenimento.';
+
+  @override
+  String get divorceGateFactLpp1 => 'Il tuo avere LPP attuale';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'La ripartizione riguarda la LPP maturata durante il matrimonio.';
+
+  @override
+  String get divorceGateFactLpp2 => 'Avere LPP attuale del tuo ex coniuge';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'La ripartizione confronta gli averi LPP dei due coniugi.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'Il tuo avere LPP al matrimonio';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Si divide solo la parte maturata dopo il matrimonio (CC art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 =>
+      'Avere LPP del tuo ex coniuge al matrimonio';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Si divide solo la parte maturata dopo il matrimonio (CC art. 122).';
+
+  @override
+  String get divorceGateFactFortune => 'Patrimonio comune della famiglia';
+
+  @override
+  String get divorceGateWhyFortune =>
+      'Determina la massa da dividere tra i coniugi.';
+
+  @override
+  String get divorceGateFactDettes => 'Debiti comuni della famiglia';
+
+  @override
+  String get divorceGateWhyDettes =>
+      'Riducono il patrimonio netto da dividere.';
+
+  @override
+  String get divorceGateFactEnfants => 'Numero di figli';
+
+  @override
+  String get divorceGateWhyEnfants =>
+      'I contributi di mantenimento dipendono dal numero di figli.';
+
+  @override
+  String get divorceGateFactDuree => 'Durata del matrimonio';
+
+  @override
+  String get divorceGateWhyDuree =>
+      'Il mantenimento al coniuge dipende dalla durata del matrimonio.';
+
+  @override
+  String get divorceGateFactCanton => 'Il tuo cantone di residenza';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'Indica il tuo cantone nel profilo per stimare l\'imposta del divorzio.';
+
+  @override
+  String get divorceFilmPensionEstimee => 'Mantenimento stimato';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Stima nel cantone attuale del nucleo per entrambi i coniugi — il cantone futuro dell\'altra persona non è noto.';
 }

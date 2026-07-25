@@ -24695,4 +24695,91 @@ class SDe extends S {
   String indicativeBannerCtaSemantics(String bloc) {
     return 'Deine Daten präzisieren — Block $bloc';
   }
+
+  @override
+  String get divorceGateFactRevenu1 => 'Dein jährliches Bruttoeinkommen';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'Es dient zur Schätzung von Steuern und Unterhaltsbeiträgen.';
+
+  @override
+  String get divorceGateFactRevenu2 =>
+      'Jährliches Einkommen deiner Ex-Partnerin oder deines Ex-Partners';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'Damit lassen sich Steuern vergleichen und der Unterhalt schätzen.';
+
+  @override
+  String get divorceGateFactLpp1 => 'Dein aktuelles BVG-Guthaben';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'Geteilt wird das während der Ehe aufgebaute BVG-Guthaben.';
+
+  @override
+  String get divorceGateFactLpp2 =>
+      'Aktuelles BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'Der Ausgleich vergleicht die BVG-Guthaben beider Ehegatten.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'Dein BVG-Guthaben bei der Heirat';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 =>
+      'BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners bei der Heirat';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).';
+
+  @override
+  String get divorceGateFactFortune => 'Gemeinsames Vermögen des Haushalts';
+
+  @override
+  String get divorceGateWhyFortune =>
+      'Es bestimmt die zwischen den Ehegatten zu teilende Masse.';
+
+  @override
+  String get divorceGateFactDettes => 'Gemeinsame Schulden des Haushalts';
+
+  @override
+  String get divorceGateWhyDettes =>
+      'Sie verringern das zu teilende Nettovermögen.';
+
+  @override
+  String get divorceGateFactEnfants => 'Anzahl Kinder';
+
+  @override
+  String get divorceGateWhyEnfants =>
+      'Die Unterhaltsbeiträge hängen von der Anzahl Kinder ab.';
+
+  @override
+  String get divorceGateFactDuree => 'Ehedauer';
+
+  @override
+  String get divorceGateWhyDuree =>
+      'Der Ehegattenunterhalt hängt von der Dauer der Ehe ab.';
+
+  @override
+  String get divorceGateFactCanton => 'Dein Wohnkanton';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'Hinterlege deinen Kanton im Profil, um die Steuerfolgen der Scheidung zu schätzen.';
+
+  @override
+  String get divorceFilmPensionEstimee => 'Geschätzter Unterhalt';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Schätzung im aktuellen Kanton des Haushalts für beide Ehepartner — der künftige Kanton der anderen Person ist unbekannt.';
 }
