@@ -3387,6 +3387,54 @@ class SEn extends S {
       'Example — average costs in Switzerland, not your situation';
 
   @override
+  String get mariageGateFactRevenu1 => 'Your gross annual income';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'The couple\'s tax gap is based on your income.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Partner\'s income';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'Joint taxation depends on your partner\'s income.';
+
+  @override
+  String get mariageGateFactCanton => 'Canton of residence';
+
+  @override
+  String get mariageGateWhyCanton => 'The tax scale varies by canton.';
+
+  @override
+  String get mariageGateFactEnfants => 'Number of children';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'Child deductions change the couple\'s tax.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'Your assets';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'The regime split is based on your assets.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Partner\'s assets';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'The split compares both of your assets.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Monthly LPP pension';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'The survivor\'s pension is based on the deceased\'s LPP pension.';
+
+  @override
   String get housingSaleIntroText =>
       'Selling property in Switzerland involves a capital gains tax (LHID art. 12), possible reimbursement of pension funds used (EPL), and transaction costs. This tool helps you estimate your net sale proceeds.';
 

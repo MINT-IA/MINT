@@ -3423,6 +3423,55 @@ class SIt extends S {
       'Esempio — costi medi in Svizzera, non la tua situazione';
 
   @override
+  String get mariageGateFactRevenu1 => 'Il tuo reddito lordo annuo';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'La differenza fiscale della coppia si calcola sul tuo reddito.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Reddito del coniuge';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'La tassazione congiunta dipende dal reddito del tuo coniuge.';
+
+  @override
+  String get mariageGateFactCanton => 'Cantone di residenza';
+
+  @override
+  String get mariageGateWhyCanton =>
+      'L\'aliquota fiscale varia in base al tuo cantone.';
+
+  @override
+  String get mariageGateFactEnfants => 'Numero di figli';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'Le deduzioni per figli modificano l\'imposta della coppia.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'Il tuo patrimonio';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'La divisione del regime si calcola sui vostri patrimoni.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Patrimonio del coniuge';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'La divisione confronta i vostri due patrimoni.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Rendita LPP mensile';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'La rendita per superstiti si calcola sulla rendita LPP del defunto.';
+
+  @override
   String get housingSaleIntroText =>
       'Vendere un immobile in Svizzera comporta un\'imposta sugli utili immobiliari (LAID art. 12), l\'eventuale rimborso dei fondi previdenziali utilizzati (EPL) e costi di transazione. Questo strumento ti aiuta a stimare il ricavo netto della vendita.';
 

@@ -3416,6 +3416,54 @@ class SEs extends S {
       'Ejemplo — costes medios en Suiza, no tu situación';
 
   @override
+  String get mariageGateFactRevenu1 => 'Tu ingreso bruto anual';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'La diferencia fiscal de la pareja se calcula sobre tu ingreso.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Ingreso del cónyuge';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'La tributación conjunta depende del ingreso de tu cónyuge.';
+
+  @override
+  String get mariageGateFactCanton => 'Cantón de residencia';
+
+  @override
+  String get mariageGateWhyCanton => 'La escala fiscal varía según tu cantón.';
+
+  @override
+  String get mariageGateFactEnfants => 'Número de hijos';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'Las deducciones por hijos modifican el impuesto de la pareja.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'Tu patrimonio';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'El reparto del régimen se calcula sobre vuestros patrimonios.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Patrimonio del cónyuge';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'El reparto compara vuestros dos patrimonios.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Pensión LPP mensual';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'La pensión de superviviente se calcula sobre la pensión LPP del fallecido.';
+
+  @override
   String get housingSaleIntroText =>
       'Vender una propiedad en Suiza implica un impuesto sobre las ganancias inmobiliarias (LHID art. 12), el posible reembolso de fondos de previsión utilizados (EPL) y gastos de transacción. Esta herramienta te ayuda a estimar el producto neto de tu venta.';
 

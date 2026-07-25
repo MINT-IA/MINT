@@ -3426,6 +3426,54 @@ class SDe extends S {
       'Beispiel — Durchschnittskosten in der Schweiz, nicht deine Situation';
 
   @override
+  String get mariageGateFactRevenu1 => 'Dein jährliches Bruttoeinkommen';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'Die Steuerdifferenz des Paares beruht auf deinem Einkommen.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Einkommen des Partners';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'Die gemeinsame Besteuerung hängt vom Einkommen deines Partners ab.';
+
+  @override
+  String get mariageGateFactCanton => 'Wohnkanton';
+
+  @override
+  String get mariageGateWhyCanton => 'Der Steuertarif variiert je nach Kanton.';
+
+  @override
+  String get mariageGateFactEnfants => 'Anzahl Kinder';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'Kinderabzüge verändern die Steuer des Paares.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'Dein Vermögen';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'Die Aufteilung des Güterstands beruht auf euren Vermögen.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Vermögen des Partners';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'Die Aufteilung vergleicht eure beiden Vermögen.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Monatliche BVG-Rente';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'Die Hinterlassenenrente beruht auf der BVG-Rente der verstorbenen Person.';
+
+  @override
   String get housingSaleIntroText =>
       'Der Verkauf einer Immobilie in der Schweiz beinhaltet eine Grundstückgewinnsteuer (StHG Art. 12), eine mögliche Rückzahlung der verwendeten Vorsorgegelder (WEF) und Transaktionskosten. Dieses Tool hilft dir, den Nettoerlös deines Verkaufs zu schätzen.';
 

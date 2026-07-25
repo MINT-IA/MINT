@@ -95,11 +95,14 @@ void main() {
       expect(find.textContaining('ne constitue pas'), findsWidgets);
     });
 
-    testWidgets('Tab 1 (Impots) shows fiscal comparison card',
+    testWidgets('Tab 1 (Impots) gates the fiscal figure without a profile',
         (tester) async {
       await tester.pumpWidget(buildMariageScreen());
       await tester.pumpAndSettle();
-      expect(find.text('COMPARAISON FISCALE'), findsOneWidget);
+      // P2 gate dur : sans profil, aucun chiffre marié/célibataire fabriqué —
+      // le slot résultat porte la carte de situation, pas la comparaison.
+      expect(find.text('COMPARAISON FISCALE'), findsNothing);
+      expect(find.byType(SituationGateCard), findsWidgets);
     });
 
     testWidgets('Tab 2 (Regime) renders without crash', (tester) async {
@@ -120,9 +123,12 @@ void main() {
       // Tap Protection tab
       await tester.tap(find.text('Protection'));
       await tester.pumpAndSettle();
-      // Check for content that should be visible at the top of the tab
+      // P2 gate dur : sans profil, la rente de survivant est gatée (défaut LPP
+      // 2500 fabriqué) — la carte de situation s'affiche et l'input LPP reste
+      // visible ; le narratif « Que se passe-t-il » est derrière le gate.
+      expect(find.byType(SituationGateCard), findsWidgets);
       expect(
-        find.textContaining('Que se passe-t-il', skipOffstage: false),
+        find.text('Rente LPP mensuelle du défunt', skipOffstage: false),
         findsWidgets,
       );
     });
