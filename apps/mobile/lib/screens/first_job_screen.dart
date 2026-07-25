@@ -386,6 +386,23 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   @visibleForTesting
   double get debugTaux => _tauxActivite;
 
+  /// @visibleForTesting : contrat de retour — une vraie interaction utilisateur
+  /// doit émettre `completed`, jamais `abandoned`. Une régression du seul
+  /// « le scénario de salaire ne pose pas ce drapeau » suffit à casser le
+  /// contrat même quand le résultat s'affiche.
+  @visibleForTesting
+  bool get debugHasUserInteracted => _hasUserInteracted;
+
+  /// @visibleForTesting : émet le retour final avec un contexte de séquence
+  /// injecté (sans passer par GoRouter), pour prouver `completed` vs
+  /// `abandoned` selon l'interaction réelle.
+  @visibleForTesting
+  void debugEmitFinalReturn({required String runId, required String stepId}) {
+    _seqRunId = runId;
+    _seqStepId = stepId;
+    _emitFinalReturn();
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -1398,6 +1415,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 onTap: () {
                   HapticFeedback.lightImpact();
                   // Choisir un scénario de salaire = fournir un salaire (touch).
+                  // Compte comme interaction pour le contrat de retour (sinon
+                  // PopScope émet ScreenReturn.abandoned alors que l'utilisateur
+                  // a bien agi).
+                  _hasUserInteracted = true;
                   _salaireTouched = true;
                   _salaireSeeded = false;
                   _salaire = s.value;

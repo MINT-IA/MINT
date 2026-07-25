@@ -9,7 +9,10 @@ import 'package:mint_mobile/services/first_job_service.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// P2 « gate dur » — anti-façade contract for first_job_screen.
 ///
@@ -345,5 +348,55 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(SalaryBreakdownWidget), findsOneWidget,
         reason: 'touched (seed superseded) → survives the clear');
+  });
+
+  // ── Return contract: the gate must not turn a real interaction into an
+  //    abandoned return (Codex regression finding on the scenario chip). ──
+  group('First Job return contract', () {
+    testWidgets('selecting a salary scenario counts as interaction → completed',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      // All three facts SEEDED (keys) → gate complete, result + scenario chips
+      // render, but the user has TOUCHED nothing yet (_hasUserInteracted false).
+      final profile = _profile(
+        canton: 'GE',
+        salaire: 5500,
+        provided: {'salary', 'age', 'canton'},
+      );
+      await _pump(tester, _FakeProvider(profile));
+
+      final state = tester.state(find.byType(FirstJobScreen)) as dynamic;
+      expect(state.debugHasUserInteracted, isFalse,
+          reason: 'seeded, not touched — no interaction yet');
+      expect(find.byType(SalaryBreakdownWidget), findsOneWidget,
+          reason: 'all facts seeded → result (and scenario chips) render');
+
+      // Choose the "Médian CH" salary scenario chip (changes salary by touch).
+      await tester.tap(find.textContaining('Médian CH'));
+      await tester.pumpAndSettle();
+
+      expect(state.debugHasUserInteracted, isTrue,
+          reason: 'choosing a salary scenario is a real user interaction');
+      expect(find.byType(SalaryBreakdownWidget), findsOneWidget,
+          reason: 'still complete after the scenario touch');
+
+      // The routed final return must be completed, never abandoned.
+      state.debugEmitFinalReturn(runId: 'r1', stepId: 's1');
+      await tester.pumpAndSettle();
+      expect(await ScreenCompletionTracker.lastOutcome('first_job'),
+          ScreenOutcome.completed,
+          reason: 'interacted → completed, not abandoned');
+    });
+
+    testWidgets('no interaction → abandoned (contract still honored)',
+        (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      await _pump(tester, _FakeProvider(null));
+      final state = tester.state(find.byType(FirstJobScreen)) as dynamic;
+      state.debugEmitFinalReturn(runId: 'r2', stepId: 's2');
+      await tester.pumpAndSettle();
+      expect(await ScreenCompletionTracker.lastOutcome('first_job'),
+          ScreenOutcome.abandoned);
+    });
   });
 }
