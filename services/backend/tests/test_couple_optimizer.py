@@ -356,6 +356,26 @@ def test_avs_rente_delegates_to_canonical_echelle44_no_local_copy() -> None:
     assert not hasattr(_mod, "_rente_from_ramd"), "Copie locale de rente_from_ramd détectée"
 
 
+def test_pilier3a_ceiling_sourced_from_registry_no_local_copy() -> None:
+    """Anti-façade (P1) : le plafond 3a trace au registre unique, pas hardcodé.
+
+    Le couple_optimizer utilisait une copie locale ``_PILIER_3A_PLAFOND_AVEC_LPP
+    = 7258.0`` servie telle quelle dans l'analyse 3a (dérive silencieuse si le
+    registre ``pillar3a.max_with_lpp`` change). Elle doit être supprimée au
+    profit de ``social_insurance.PILIER_3A_PLAFOND_AVEC_LPP`` (règle 4 / NEVER
+    #3).
+    """
+    from app.services.couple_optimizer import couple_optimizer as _mod
+    from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
+    # La copie locale hardcodée n'existe plus.
+    assert not hasattr(_mod, "_PILIER_3A_PLAFOND_AVEC_LPP"), (
+        "Copie locale hardcodée du plafond 3a détectée"
+    )
+    # Le registre reste la source (valeur 2026 vérifiée -zaw).
+    assert PILIER_3A_PLAFOND_AVEC_LPP == 7258.0
+
+
 # ---------------------------------------------------------------------------
 # Marriage penalty (Tests 13-16) — Dart couple_optimizer.dart:373-422
 # ---------------------------------------------------------------------------
