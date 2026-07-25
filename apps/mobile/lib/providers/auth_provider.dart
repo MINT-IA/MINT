@@ -615,11 +615,22 @@ class AuthProvider extends ChangeNotifier {
           debugPrint('[Auth] best-effort failed: $e');
         }
       } else {
-        _authLifecycle = _isLocalMode && hasExplicitLocalMode
+        // E2E harness: a seeded archetype build (MINT_E2E_ARCHETYPE) boots
+        // straight into a navigable guest shell (guestEmpty ⇒
+        // allowsMainNavigation) so simulator proofs can reach authenticated
+        // screens without driving the onboarding storyboard to its seal.
+        // Double-guarded (kReleaseMode + dart-define) — never active in a
+        // release build; mirrors the kReleaseMode-guarded seed activation in
+        // coach_profile_seeds.dart. Normal builds leave MINT_E2E_ARCHETYPE
+        // empty ⇒ e2eSeededGuest is false ⇒ behaviour is unchanged.
+        const e2eArchetype = String.fromEnvironment('MINT_E2E_ARCHETYPE');
+        final e2eSeededGuest = !kReleaseMode && e2eArchetype.isNotEmpty;
+        _authLifecycle = (_isLocalMode && hasExplicitLocalMode) || e2eSeededGuest
             ? AuthLifecycleState.guestEmpty(
                 installId: await _loadOrCreateInstallId(prefs),
               )
             : AuthLifecycleState.freshVisitor();
+        if (e2eSeededGuest) _isLocalMode = true;
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
