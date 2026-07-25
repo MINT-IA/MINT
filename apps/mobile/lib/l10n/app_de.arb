@@ -11716,5 +11716,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "divorceGateFactRevenu1": "Dein jährliches Bruttoeinkommen",
+  "divorceGateWhyRevenu1": "Es dient zur Schätzung von Steuern und Unterhaltsbeiträgen.",
+  "divorceGateFactRevenu2": "Jährliches Einkommen deiner Ex-Partnerin oder deines Ex-Partners",
+  "divorceGateWhyRevenu2": "Damit lassen sich Steuern vergleichen und der Unterhalt schätzen.",
+  "divorceGateFactLpp1": "Dein aktuelles BVG-Guthaben",
+  "divorceGateWhyLpp1": "Geteilt wird das während der Ehe aufgebaute BVG-Guthaben.",
+  "divorceGateFactLpp2": "Aktuelles BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners",
+  "divorceGateWhyLpp2": "Der Ausgleich vergleicht die BVG-Guthaben beider Ehegatten.",
+  "divorceGateFactAvoir1": "Dein BVG-Guthaben bei der Heirat",
+  "divorceGateWhyAvoir1": "Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).",
+  "divorceGateFactAvoir2": "BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners bei der Heirat",
+  "divorceGateWhyAvoir2": "Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).",
+  "divorceGateFactFortune": "Gemeinsames Vermögen des Haushalts",
+  "divorceGateWhyFortune": "Es bestimmt die zwischen den Ehegatten zu teilende Masse.",
+  "divorceGateFactDettes": "Gemeinsame Schulden des Haushalts",
+  "divorceGateWhyDettes": "Sie verringern das zu teilende Nettovermögen.",
+  "divorceGateFactEnfants": "Anzahl Kinder",
+  "divorceGateWhyEnfants": "Die Unterhaltsbeiträge hängen von der Anzahl Kinder ab.",
+  "divorceGateFactDuree": "Ehedauer",
+  "divorceGateWhyDuree": "Der Ehegattenunterhalt hängt von der Dauer der Ehe ab.",
+  "divorceGateFactCanton": "Dein Wohnkanton",
+  "divorceGateWhyCanton": "Hinterlege deinen Kanton im Profil, um die Steuerfolgen der Scheidung zu schätzen.",
+  "divorceFilmPensionEstimee": "Geschätzter Unterhalt",
+  "divorceImpactFiscalCantonNote": "Schätzung im aktuellen Kanton des Haushalts für beide Ehepartner — der künftige Kanton der anderen Person ist unbekannt."
 }

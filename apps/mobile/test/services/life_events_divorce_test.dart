@@ -24,6 +24,7 @@ void main() {
       // transfert = (216250 − 80000)/2 = 68125 (et NON |416250−80000|/2 = 168125).
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 12,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -58,6 +59,7 @@ void main() {
         'parts acquises pendant le mariage égales → transfert nul', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -88,6 +90,7 @@ void main() {
         '(jamais négative)', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 5,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -117,6 +120,7 @@ void main() {
         'pas de split silencieux sur le total', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -150,6 +154,7 @@ void main() {
         'les deux avoirAuMariage null → résultat incomplet', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 8,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,

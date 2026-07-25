@@ -43023,6 +43023,150 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Préciser tes données — bloc {bloc}'**
   String indicativeBannerCtaSemantics(String bloc);
+
+  /// No description provided for @divorceGateFactRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get divorceGateFactRevenu1;
+
+  /// No description provided for @divorceGateWhyRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il sert à estimer l\'impôt et la contribution d\'entretien.'**
+  String get divorceGateWhyRevenu1;
+
+  /// No description provided for @divorceGateFactRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu annuel de ton ex-conjoint'**
+  String get divorceGateFactRevenu2;
+
+  /// No description provided for @divorceGateWhyRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il permet de comparer l\'impôt et d\'estimer la contribution d\'entretien.'**
+  String get divorceGateWhyRevenu2;
+
+  /// No description provided for @divorceGateFactLpp1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avoir LPP actuel'**
+  String get divorceGateFactLpp1;
+
+  /// No description provided for @divorceGateWhyLpp1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage porte sur la LPP acquise pendant le mariage.'**
+  String get divorceGateWhyLpp1;
+
+  /// No description provided for @divorceGateFactLpp2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP actuel de ton ex-conjoint'**
+  String get divorceGateFactLpp2;
+
+  /// No description provided for @divorceGateWhyLpp2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage compare les avoirs LPP des deux conjoints.'**
+  String get divorceGateWhyLpp2;
+
+  /// No description provided for @divorceGateFactAvoir1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avoir LPP au mariage'**
+  String get divorceGateFactAvoir1;
+
+  /// No description provided for @divorceGateWhyAvoir1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seule la part acquise après le mariage est partagée (CC art. 122).'**
+  String get divorceGateWhyAvoir1;
+
+  /// No description provided for @divorceGateFactAvoir2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP de ton ex-conjoint au mariage'**
+  String get divorceGateFactAvoir2;
+
+  /// No description provided for @divorceGateWhyAvoir2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seule la part acquise après le mariage est partagée (CC art. 122).'**
+  String get divorceGateWhyAvoir2;
+
+  /// No description provided for @divorceGateFactFortune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fortune commune du ménage'**
+  String get divorceGateFactFortune;
+
+  /// No description provided for @divorceGateWhyFortune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elle fixe la masse à partager entre les conjoints.'**
+  String get divorceGateWhyFortune;
+
+  /// No description provided for @divorceGateFactDettes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dettes communes du ménage'**
+  String get divorceGateFactDettes;
+
+  /// No description provided for @divorceGateWhyDettes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Elles réduisent la fortune nette à partager.'**
+  String get divorceGateWhyDettes;
+
+  /// No description provided for @divorceGateFactEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get divorceGateFactEnfants;
+
+  /// No description provided for @divorceGateWhyEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les contributions d\'entretien dépendent du nombre d\'enfants.'**
+  String get divorceGateWhyEnfants;
+
+  /// No description provided for @divorceGateFactDuree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée du mariage'**
+  String get divorceGateFactDuree;
+
+  /// No description provided for @divorceGateWhyDuree.
+  ///
+  /// In fr, this message translates to:
+  /// **'La contribution au conjoint dépend de la durée du mariage.'**
+  String get divorceGateWhyDuree;
+
+  /// No description provided for @divorceGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton de résidence'**
+  String get divorceGateFactCanton;
+
+  /// No description provided for @divorceGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne ton canton dans ton profil pour estimer l\'impôt du divorce.'**
+  String get divorceGateWhyCanton;
+
+  /// No description provided for @divorceFilmPensionEstimee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pension alimentaire estimée'**
+  String get divorceFilmPensionEstimee;
+
+  /// No description provided for @divorceImpactFiscalCantonNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l\'autre n\'est pas connu.'**
+  String get divorceImpactFiscalCantonNote;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

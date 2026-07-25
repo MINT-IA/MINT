@@ -24642,4 +24642,87 @@ class SEs extends S {
   String indicativeBannerCtaSemantics(String bloc) {
     return 'Precisar tus datos — bloque $bloc';
   }
+
+  @override
+  String get divorceGateFactRevenu1 => 'Tu ingreso anual bruto';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'Sirve para estimar el impuesto y la pensión alimenticia.';
+
+  @override
+  String get divorceGateFactRevenu2 => 'Ingreso anual de tu excónyuge';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'Permite comparar el impuesto y estimar la pensión alimenticia.';
+
+  @override
+  String get divorceGateFactLpp1 => 'Tu haber LPP actual';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'El reparto abarca la LPP acumulada durante el matrimonio.';
+
+  @override
+  String get divorceGateFactLpp2 => 'Haber LPP actual de tu excónyuge';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'El reparto compara los haberes LPP de ambos cónyuges.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'Tu haber LPP al casarte';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Solo se reparte la parte adquirida después del matrimonio (CC art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 => 'Haber LPP de tu excónyuge al casarse';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Solo se reparte la parte adquirida después del matrimonio (CC art. 122).';
+
+  @override
+  String get divorceGateFactFortune => 'Patrimonio común del hogar';
+
+  @override
+  String get divorceGateWhyFortune =>
+      'Fija la masa a repartir entre los cónyuges.';
+
+  @override
+  String get divorceGateFactDettes => 'Deudas comunes del hogar';
+
+  @override
+  String get divorceGateWhyDettes => 'Reducen el patrimonio neto a repartir.';
+
+  @override
+  String get divorceGateFactEnfants => 'Número de hijos';
+
+  @override
+  String get divorceGateWhyEnfants =>
+      'Las contribuciones de manutención dependen del número de hijos.';
+
+  @override
+  String get divorceGateFactDuree => 'Duración del matrimonio';
+
+  @override
+  String get divorceGateWhyDuree =>
+      'La pensión al cónyuge depende de la duración del matrimonio.';
+
+  @override
+  String get divorceGateFactCanton => 'Tu cantón de residencia';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'Indica tu cantón en tu perfil para estimar el impuesto del divorcio.';
+
+  @override
+  String get divorceFilmPensionEstimee => 'Pensión alimenticia estimada';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Estimación en el cantón actual del hogar para ambos cónyuges — se desconoce el cantón futuro de la otra persona.';
 }

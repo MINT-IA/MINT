@@ -17,6 +17,14 @@ class DivorceInput {
   final int marriageDurationYears;
   final int numberOfChildren;
   final MatrimonialRegime regime;
+
+  /// Canton de résidence RÉEL de l'utilisateur, utilisé pour le barème d'impôt
+  /// (marié + individuel). Aucune valeur codée en dur : l'impôt du divorce d'un
+  /// contribuable GE ne peut pas être présenté avec le barème d'un autre canton.
+  /// La chaîne vide « » signifie « canton non confirmé » — l'écran bloque alors
+  /// l'affichage du résultat (gate dur), la valeur ne sert qu'au calcul interne.
+  final String canton;
+
   final double incomeConjoint1;
   final double incomeConjoint2;
   final double lppConjoint1;
@@ -41,6 +49,7 @@ class DivorceInput {
     required this.marriageDurationYears,
     required this.numberOfChildren,
     required this.regime,
+    required this.canton,
     required this.incomeConjoint1,
     required this.incomeConjoint2,
     required this.lppConjoint1,
@@ -233,14 +242,18 @@ class DivorceService {
     // Married couples benefit from ~15-25% effective discount (splitting).
     // After divorce, each is taxed individually.
     final combinedIncome = input.incomeConjoint1 + input.incomeConjoint2;
-    // Married rate via centralized calculator (splitting + canton-average)
+    // Married rate via centralized calculator (splitting), au barème du canton
+    // RÉEL de l'utilisateur — jamais un canton codé en dur.
     final marriedRate = RetirementTaxCalculator.estimateMarginalRate(
-      combinedIncome, 'ZH', isMarried: true,
+      combinedIncome, input.canton, isMarried: true,
     );
     final taxMarried = combinedIncome * marriedRate;
-    // Individual rates slightly higher per person
-    final taxC1 = _estimateIndividualTax(input.incomeConjoint1);
-    final taxC2 = _estimateIndividualTax(input.incomeConjoint2);
+    // Les deux impôts individuels utilisent le canton (confirmé) du ménage. Au
+    // moment du divorce le domicile est commun → base légale correcte pour la
+    // comparaison marié/séparés ; le canton futur de l'ex n'est PAS connu et n'est
+    // pas fabriqué (l'écran l'énonce via divorceImpactFiscalCantonNote).
+    final taxC1 = _estimateIndividualTax(input.incomeConjoint1, input.canton);
+    final taxC2 = _estimateIndividualTax(input.incomeConjoint2, input.canton);
     final totalTaxAfter = taxC1 + taxC2;
 
     final taxImpact = TaxImpactResult(
@@ -294,10 +307,13 @@ class DivorceService {
     }
 
     if (taxImpact.delta > 5000) {
+      // taxImpact.delta = impôt des deux ex-conjoints séparés − impôt du couple
+      // marié : c'est le surcoût du MÉNAGE (fin du splitting), pas l'impôt
+      // personnel de l'utilisateur — on ne l'attribue jamais à « ton budget ».
       alerts.add(
         'L\'impact fiscal du divorce est important : '
-        '+${chf.formatChfWithPrefix(taxImpact.delta)}/an. Anticipez ce surcout '
-        'dans ton budget.',
+        '+${chf.formatChfWithPrefix(taxImpact.delta)}/an pour le ménage. '
+        'Anticipez ce surcoût dans le budget des deux foyers.',
       );
     }
 
@@ -351,16 +367,14 @@ class DivorceService {
   /// Simplified individual tax estimation (Swiss progressive).
   ///
   /// Delegates to RetirementTaxCalculator.estimateMarginalRate for the
-  /// income-based marginal rate, then applies it as an effective rate.
-  /// Canton defaults to 'ZH' (median tax burden) since the divorce
-  /// service does not have canton in scope here.
-  /// TODO(profile-injection): Pass canton from DivorceInput when available.
-  static double _estimateIndividualTax(double income) {
+  /// income-based marginal rate at the user's REAL [canton], then applies it as
+  /// an effective rate. Le canton est fourni par DivorceInput (donnée réelle du
+  /// profil) — jamais un proxy médian codé en dur.
+  static double _estimateIndividualTax(double income, String canton) {
     if (income <= 0) return 0;
-    // Use centralized marginal rate (AFC taux marginaux 2025).
-    // 'ZH' is used as a median proxy — not exact, but avoids fabricated brackets.
+    // Use centralized marginal rate (AFC taux marginaux 2025) au canton réel.
     final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(income, 'ZH');
+        RetirementTaxCalculator.estimateMarginalRate(income, canton);
     // Effective tax ≈ ~60-70% of marginal rate for progressive systems.
     // This approximation aligns with the old bracket-based approach.
     return income * marginalRate * 0.65;
