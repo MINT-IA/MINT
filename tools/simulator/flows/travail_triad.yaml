@@ -1,0 +1,94 @@
+# tools/simulator/flows/travail_triad.yaml
+#
+# campagne-B W1 — end-to-end sim proof of the Travail life-event triad
+# (firstJob / newJob / jobLoss). Complements the widget-level compute-gated
+# render proofs (test/screens/life_event_screens_additional_smoke_test.dart)
+# with the USER-FLOW proof: a real launch reaches each authed screen and it
+# renders its computed output.
+#
+# ─── PRE-REQUISITE ─────────────────────────────────────────────────────
+# App built + installed with the E2E seed dart-defines (walker archetype
+# build), which boots straight into a navigable guest shell via the
+# kReleaseMode-guarded hook in auth_provider.dart (guestEmpty ⇒
+# allowsMainNavigation). Build (mirrors tools/simulator/walker.sh):
+#   flutter build ios --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=swiss_native
+# Without MINT_E2E_ARCHETYPE the app boots to landing and these deeplinks
+# redirect to /auth/register (the authed routes require a sealed dossier).
+#
+# ─── WHY DEEPLINKS ─────────────────────────────────────────────────────
+# /first-job, /unemployment, /simulator/job-comparison are NOT main-shell
+# paths (_isMainShellPath, app.dart), so in guestEmpty they render directly
+# without the onboarding storyboard. Semantic locators only (no pixels).
+
+appId: ch.mint.app
+tags:
+  - campagne-b
+  - travail-triade
+  - runtime-proof
+  - feature:life-events
+---
+
+# ── Cold launch → navigable guest shell (via E2E hook) ────────────────
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+# Let checkAuth() settle the guestEmpty lifecycle before deep-linking.
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# ── firstJob — Premier emploi (computes on load) ──────────────────────
+- openLink: "mintapp:///first-job"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "Premier emploi"
+    timeout: 12000
+# Computed output rendered (premier éclairage shows a CHF figure).
+- assertVisible:
+    text: ".*CHF.*"
+
+# ── jobLoss — Perte d'emploi (computes on load) ───────────────────────
+- openLink: "mintapp:///unemployment"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "Perte d'emploi"
+    timeout: 12000
+- assertVisible:
+    text: ".*CHF.*"
+
+# ── newJob — Comparer deux emplois (computes on "Comparer" tap) ───────
+- openLink: "mintapp:///simulator/job-comparison"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: "Comparer deux emplois"
+    timeout: 12000
+# Drive the compute and assert the result-gated VERDICT card renders — the
+# strong anti-façade signal (VERDICT only exists when _result != null).
+- scrollUntilVisible:
+    element:
+      text: "Comparer"
+    direction: DOWN
+    timeout: 12000
+- tapOn:
+    text: "Comparer"
+- waitForAnimationToEnd:
+    timeout: 8000
+# The VERDICT label sits in an icon+text pill; iOS merges the accessibility
+# label, so match by regex. VERDICT only renders when _result != null, so this
+# proves the comparison was computed and its result card rendered end-to-end.
+- extendedWaitUntil:
+    visible:
+      text: ".*VERDICT.*"
+    timeout: 12000

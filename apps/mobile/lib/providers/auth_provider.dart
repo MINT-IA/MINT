@@ -235,6 +235,13 @@ class AuthProvider extends ChangeNotifier {
   // accounts, not "the user deliberately entered guest mode".
   bool _isLocalMode = true;
   static const _authLocalModeKey = 'auth_local_mode';
+
+  /// Test-only seam for the E2E seeded-guest boot hook in [checkAuth]. When
+  /// non-null it stands in for the compile-time `MINT_E2E_ARCHETYPE`
+  /// dart-define (which cannot be set from a widget test). Never assigned in
+  /// production code paths.
+  @visibleForTesting
+  static String? debugE2eArchetypeOverride;
   static const _mintInstallIdKey = '_mint_install_id';
 
   static String _localDataSyncPendingKey(String userId) =>
@@ -615,7 +622,29 @@ class AuthProvider extends ChangeNotifier {
           debugPrint('[Auth] best-effort failed: $e');
         }
       } else {
-        _authLifecycle = _isLocalMode && hasExplicitLocalMode
+        // E2E harness: a seeded archetype build (MINT_E2E_ARCHETYPE) boots
+        // straight into a navigable guest shell (guestEmpty ⇒
+        // allowsMainNavigation) so simulator proofs can reach authenticated
+        // screens without driving the onboarding storyboard to its seal.
+        // Double-guarded (kReleaseMode + dart-define) — never active in a
+        // release build; mirrors the kReleaseMode-guarded seed activation in
+        // coach_profile_seeds.dart. Normal builds leave MINT_E2E_ARCHETYPE
+        // empty ⇒ e2eSeededGuest is false ⇒ behaviour is unchanged.
+        final e2eArchetype = debugE2eArchetypeOverride ??
+            const String.fromEnvironment('MINT_E2E_ARCHETYPE');
+        final e2eSeededGuest = !kReleaseMode && e2eArchetype.isNotEmpty;
+        if (e2eSeededGuest) {
+          // Uphold the local-only contract CONSISTENTLY: persist the override
+          // to SharedPreferences so consumers that read `auth_local_mode`
+          // directly (e.g. persistence-consent / cloud-sync checks) agree with
+          // the guestLocal/localOnly lifecycle. Without this, a reused seeded
+          // build carrying a stale `auth_local_mode=false` would advertise
+          // localOnly via the lifecycle while prefs-readers still believed
+          // cloud sync was on. Mirrors enableLocalMode() (auth_provider.dart).
+          _isLocalMode = true;
+          await prefs.setBool(_authLocalModeKey, true);
+        }
+        _authLifecycle = (_isLocalMode && hasExplicitLocalMode) || e2eSeededGuest
             ? AuthLifecycleState.guestEmpty(
                 installId: await _loadOrCreateInstallId(prefs),
               )

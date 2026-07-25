@@ -998,6 +998,27 @@ void main() {
     });
 
     test(
+        'E2E seeded guest boots navigable local-only, persisting the override '
+        'over a stale auth_local_mode=false (Codex #1024)', () async {
+      // Stale pref from a prior run where cloud sync had been toggled on.
+      SharedPreferences.setMockInitialValues({'auth_local_mode': false});
+      AuthProvider.debugE2eArchetypeOverride = 'swiss_native';
+      addTearDown(() => AuthProvider.debugE2eArchetypeOverride = null);
+
+      await provider.checkAuth();
+
+      // Navigable guest shell (guestEmpty ⇒ allowsMainNavigation).
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      // Local-only contract upheld consistently — cloud sync stays OFF.
+      expect(provider.isCloudSyncEnabled, isFalse);
+      // The override is PERSISTED so SharedPreferences-readers agree with the
+      // guestLocal/localOnly lifecycle — closes the contradiction Codex #1024
+      // flagged (memory-only _isLocalMode vs stale prefs).
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('auth_local_mode'), isTrue);
+    });
+
+    test(
         'fresh install purge failure stays pending and blocks stale auth '
         'on the next launch', () async {
       var failJwtDelete = true;
