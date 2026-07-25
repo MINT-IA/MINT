@@ -440,4 +440,54 @@ void main() {
     expect(find.byKey(_reserveFigure), findsNothing,
         reason: 'seeded fortune provenance gone on clear → réserve re-gates');
   });
+
+  // ── 12. Touched facts are user data → immune to a profile clear (Codex). ──
+  testWidgets('a figure computed purely on TOUCHED facts survives a clear',
+      (tester) async {
+    final fake = _MutableProvider();
+    await _pump(tester, fake);
+    // Everything confirmed by touch — no seed at all.
+    await _touchCanton(tester, 'GE');
+    await _touchNbEnfants(tester, 2);
+    await _touchFortune(tester, 500000);
+    await _touchRegime(tester, 'participation_acquets');
+    await _tapCalculer(tester);
+    expect(find.byKey(_reserveFigure), findsOneWidget);
+    expect(find.byKey(_taxCard), findsOneWidget);
+
+    fake.clearProfile();
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(_reserveFigure), findsOneWidget,
+        reason: 'touched facts are local user data, immune to a profile clear');
+    expect(find.byKey(_taxCard), findsOneWidget);
+  });
+
+  // ── 13. Seed → touch → clear: the touched value survives (seed superseded). ─
+  testWidgets('seed then touch then clear: touched supersedes seed, figure survives',
+      (tester) async {
+    final fake = _MutableProvider();
+    await _pump(tester, fake);
+    // Seed canton + fortune from the profile.
+    fake.hydrate(_profile(
+      canton: 'VD',
+      epargneLiquide: 400000,
+      provided: {'canton', 'liquidSavings'},
+    ));
+    await tester.pumpAndSettle();
+    // The user then TOUCHES both (supersedes the seed) + completes réserve.
+    await _touchCanton(tester, 'GE');
+    await _touchFortune(tester, 700000);
+    await _touchNbEnfants(tester, 2);
+    await _touchRegime(tester, 'participation_acquets');
+    await _tapCalculer(tester);
+    expect(find.byKey(_reserveFigure), findsOneWidget);
+
+    fake.clearProfile();
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(_reserveFigure), findsOneWidget,
+        reason: 'canton/fortune were touched (seed superseded) → survive clear');
+    expect(find.byKey(_taxCard), findsOneWidget);
+  });
 }

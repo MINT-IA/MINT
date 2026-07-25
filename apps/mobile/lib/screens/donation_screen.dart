@@ -703,6 +703,8 @@ class _DonationScreenState extends State<DonationScreen> {
             formatValue: (v) => _chfFmt(v),
             onChanged: (v) => setState(() {
               _fortuneTouched = true;
+              _fortuneSeeded = false; // touched supersede le seed → donnée user,
+              // immunisée à un clear de profil.
               _fortuneTotaleDonateur = v;
               _afterFactChanged();
             }),
@@ -1431,6 +1433,8 @@ class _DonationScreenState extends State<DonationScreen> {
                 if (v != null) {
                   setState(() {
                     _cantonTouched = true;
+                    _cantonSeeded = false; // touched supersede le seed → donnée
+                    // user, immunisée à un clear de profil.
                     _canton = v;
                     _afterFactChanged();
                   });
