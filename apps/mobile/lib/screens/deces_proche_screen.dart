@@ -1,20 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
-import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 
 /// Screen for navigating the financial impact of a relative's death in Switzerland.
 ///
 /// Covers succession timeline, urgent actions, fiscal obligations,
 /// 2nd/3rd pillar beneficiaries, and marital regime impact.
 /// Life Event: deathOfRelative.
+///
+/// P2 « gate dur » : les deux sorties chiffrées/personnalisées de l'écran sont
+/// gatées derrière les faits de situation qu'ELLES consomment.
+///   • Bénéficiaires (capital LPP + 3a du défunt) — chiffres échos de données que
+///     SEUL l'utilisateur peut fournir (avoirs du DÉFUNT, jamais dans son propre
+///     profil) → faits TOUCH-ONLY. Aucun amorçage depuis le patrimoine/LPP/3a de
+///     l'utilisateur : ce serait attribuer SES avoirs au défunt (fabrication).
+///   • Impact fiscal (exonération / imposition cantonale) — affirmation
+///     personnalisée gatée sur le lien de parenté (touch) + le canton de la
+///     succession (clé 'canton' ou touch ; défaut = domicile du DÉFUNT, que
+///     l'utilisateur confirme/corrige — l'impôt successoral est cantonal).
+/// Un fait n'est CONFIRMÉ que s'il vient de données réelles (provenance
+/// `userProvidedFields` / champ touché) ; une valeur égale à un défaut fabriqué
+/// reste ASSUMED. Aucun chiffre/affirmation ne s'affiche sur un défaut inventé.
+/// Réf : .planning/decisions/2026-07-25-p2-simulator-result-gating.md
+///
+/// `_fortuneDefunt` et `_testamentExiste` restent des entrées de situation
+/// éditables mais ne nourrissent AUCUNE sortie chiffrée (pas de service de
+/// réserve/quotité sur cet écran) → ils ne gatent rien. Leur amorçage fabriqué
+/// (patrimoine de l'utilisateur → fortune du défunt) est retiré.
 class DecesProcheScreen extends StatefulWidget {
   const DecesProcheScreen({super.key});
 
@@ -26,42 +47,146 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
   // ── Input state ──
   String _lienParente = 'conjoint';
   String _canton = 'ZH';
-  double _fortuneDefunt = 500000;
+  double _fortuneDefunt = 500000; // entrée éditable ; ne nourrit aucune sortie.
   double _lppDefunt = 200000;
   double _pilier3aDefunt = 50000;
-  bool _testamentExiste = false;
+  bool _testamentExiste = false; // entrée ; n'affecte aucune sortie chiffrée.
 
+  // ── P2 « gate dur » : provenance PAR FAIT (touch-only) ──
+  // Toutes les données de cet écran concernent le DÉFUNT (lien avec le défunt,
+  // canton du dernier domicile du défunt, avoirs LPP/3a du défunt) : AUCUNE
+  // n'est dans le profil de l'utilisateur → toutes TOUCH-ONLY. On ne lit donc
+  // jamais le profil ici (seeder le canton de l'utilisateur comme celui du
+  // défunt serait la même fabrication que d'attribuer les avoirs de
+  // l'utilisateur au défunt).
+  bool _lienTouched = false;
+  bool _cantonTouched = false;
+  bool _lppTouched = false;
+  bool _pilier3aTouched = false;
+
+  // Baselines pour l'annonce VoiceOver incomplet→complet (par sortie).
+  bool _beneficiairesGateComplete = false;
+  bool _impactGateComplete = false;
+
+  // Ancres pour scroll-to-first-missing quand une situation est incomplète.
+  final _lienKey = GlobalKey();
+  final _cantonKey = GlobalKey();
+  final _lppKey = GlobalKey();
+  final _pilier3aKey = GlobalKey();
+
+  /// P2 (zéro donnée inventée) : cet écran ne lit PAS le profil de l'utilisateur.
+  /// Toutes les données concernent le défunt (lien, canton du défunt, avoirs du
+  /// défunt) et sont donc fournies par l'utilisateur (touch). On calcule juste
+  /// la baseline pour l'annonce VoiceOver incomplet→complet.
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _refreshGateBaselines();
   }
 
-  void _initializeFromProfile() {
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      setState(() {
-        if (profile.canton.isNotEmpty) {
-          _canton = profile.canton;
-        }
-        final totalPatrimoine = profile.patrimoine.totalPatrimoine;
-        if (totalPatrimoine > 0) {
-          _fortuneDefunt = totalPatrimoine;
-        }
-        final lpp = profile.prevoyance.avoirLppTotal;
-        if (lpp != null && lpp > 0) {
-          _lppDefunt = lpp;
-        }
-        if (profile.prevoyance.totalEpargne3a > 0) {
-          _pilier3aDefunt = profile.prevoyance.totalEpargne3a;
-        }
-      });
-    } catch (_) {}
+  // ── P2 provenance getters (touch-only, non-latching) ──
+  FactProvenance get _lienProvenance =>
+      _lienTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _cantonProvenance =>
+      _cantonTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _lppProvenance =>
+      _lppTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _pilier3aProvenance =>
+      _pilier3aTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  // ── Per-output gates (determinative facts only) ──
+  // Bénéficiaires : capital LPP + capital 3a du défunt (les deux chiffres échos
+  // du bloc « prévoyance du défunt »). Aucune source profil → touch seul.
+  SituationGate _beneficiairesGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'lppDefunt',
+          label: (c) => S.of(c)!.decesGateFactLpp,
+          why: (c) => S.of(c)!.decesGateWhyLpp,
+          provenance: _lppProvenance,
+          onComplete: () => _scrollToKey(_lppKey),
+        ),
+        SituationFact(
+          key: 'pilier3aDefunt',
+          label: (c) => S.of(c)!.decesGateFact3a,
+          why: (c) => S.of(c)!.decesGateWhy3a,
+          provenance: _pilier3aProvenance,
+          onComplete: () => _scrollToKey(_pilier3aKey),
+        ),
+      ]);
+
+  // Impact fiscal : l'exonération / imposition dépend du lien de parenté et du
+  // canton de la succession (barème cantonal). La fortune du défunt ne change
+  // pas l'affirmation qualitative (exonéré / soumis) → non gatée ici.
+  SituationGate _impactFiscalGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'lienParente',
+          label: (c) => S.of(c)!.decesGateFactLien,
+          why: (c) => S.of(c)!.decesGateWhyLien,
+          provenance: _lienProvenance,
+          onComplete: () => _scrollToKey(_lienKey),
+        ),
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.decesGateFactCanton,
+          why: (c) => S.of(c)!.decesGateWhyCanton,
+          provenance: _cantonProvenance,
+          onComplete: () => _scrollToKey(_cantonKey),
+        ),
+      ]);
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
+      );
+    }
   }
+
+  void _refreshGateBaselines() {
+    _beneficiairesGateComplete = _beneficiairesGate(context).complete;
+    _impactGateComplete = _impactFiscalGate(context).complete;
+  }
+
+  void _announceComplete() {
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      S.of(context)!.situationGateAnnounceComplete,
+      Directionality.of(context),
+    );
+  }
+
+  /// L'utilisateur a édité un fait de situation : rebuild (les sorties se
+  /// recalculent inline dans leur branche `complete`, aucun résultat stocké à
+  /// invalider) et annonce le passage incomplet→complet d'une sortie pour
+  /// VoiceOver (le scroll ≠ déplacement de focus).
+  void _afterFactChanged() {
+    final wasBeneficiaires = _beneficiairesGateComplete;
+    final wasImpact = _impactGateComplete;
+    setState(() {});
+    _refreshGateBaselines();
+    final newlyComplete = (_beneficiairesGateComplete && !wasBeneficiaires) ||
+        (_impactGateComplete && !wasImpact);
+    if (newlyComplete) _announceComplete();
+  }
+
+  /// @visibleForTesting : entrées consommées par les sorties (preuve P2).
+  @visibleForTesting
+  String get debugLienParente => _lienParente;
+  @visibleForTesting
+  String get debugCanton => _canton;
+  @visibleForTesting
+  double get debugLppDefunt => _lppDefunt;
+  @visibleForTesting
+  double get debugPilier3aDefunt => _pilier3aDefunt;
+  @visibleForTesting
+  double get debugFortuneDefunt => _fortuneDefunt;
 
   @override
   Widget build(BuildContext context) {
@@ -101,11 +226,11 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
               MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTimeline(s)),
               const SizedBox(height: 24),
 
-              // ── Beneficiaires LPP / 3a ──
+              // ── Beneficiaires LPP / 3a (gaté) ──
               MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBeneficiaires(s)),
               const SizedBox(height: 24),
 
-              // ── Impact fiscal ──
+              // ── Impact fiscal (gaté) ──
               _buildImpactFiscal(s),
               const SizedBox(height: 24),
 
@@ -123,7 +248,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
   }
 
   Widget _buildPremierEclairage(S s) {
-    const delaiRepudiation = 3; // mois — CC art. 567
+    const delaiRepudiation = 3; // mois — CC art. 567 (constante légale)
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -218,9 +343,16 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         ),
         const SizedBox(height: MintSpacing.md),
 
-        // Lien de parenté
-        Text(s.decesProcheLienParente,
-            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
+        // Lien de parenté (fait de situation TOUCH-ONLY)
+        Row(
+          key: _lienKey,
+          children: [
+            Expanded(
+              child: Text(s.decesProcheLienParente,
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
+            ),
+          ],
+        ),
         const SizedBox(height: 8),
         SegmentedButton<String>(
           segments: [
@@ -229,12 +361,20 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
             ButtonSegment(value: 'enfant', label: Text(s.decesProcheLienEnfant)),
           ],
           selected: {_lienParente},
-          onSelectionChanged: (v) => setState(() => _lienParente = v.first),
+          onSelectionChanged: (v) {
+            // Sélectionner = fournir la donnée (touch seul ; aucune clé profil).
+            _lienTouched = true;
+            _lienParente = v.first;
+            _afterFactChanged();
+          },
         ),
         const SizedBox(height: 16),
 
-        // Fortune du défunt
+        // Fortune du défunt — entrée éditable ; ne nourrit AUCUNE sortie chiffrée
+        // (pas de service de réserve/quotité). Jamais amorcée depuis le
+        // patrimoine de l'utilisateur (ce serait attribuer sa fortune au défunt).
         MintPremiumSlider(
+          key: const Key('deces_fortune_field'),
           label: s.decesProcheFortune,
           value: _fortuneDefunt,
           min: 0,
@@ -245,29 +385,78 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Canton
+        // Capital LPP du défunt (TOUCH-ONLY ; alimente la carte bénéficiaires)
+        KeyedSubtree(
+          key: _lppKey,
+          child: MintPremiumSlider(
+            key: const Key('deces_lpp_field'),
+            label: s.decesProchebeneficiairesLpp,
+            value: _lppDefunt,
+            min: 0,
+            max: 2000000,
+            divisions: 100,
+            formatValue: (v) => formatChfWithPrefix(v),
+            onChanged: (v) {
+              _lppTouched = true;
+              _lppDefunt = v;
+              _afterFactChanged();
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Capital 3a du défunt (TOUCH-ONLY ; alimente la carte bénéficiaires)
+        KeyedSubtree(
+          key: _pilier3aKey,
+          child: MintPremiumSlider(
+            key: const Key('deces_3a_field'),
+            label: s.decesProchebeneficiaires3a,
+            value: _pilier3aDefunt,
+            min: 0,
+            max: 500000,
+            divisions: 100,
+            formatValue: (v) => formatChfWithPrefix(v),
+            onChanged: (v) {
+              _pilier3aTouched = true;
+              _pilier3aDefunt = v;
+              _afterFactChanged();
+            },
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Canton de la succession (clé 'canton' ou touch)
         Row(
+          key: _cantonKey,
           children: [
             Text(s.decesProcheCanton,
                 style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)),
             const SizedBox(width: 12),
             DropdownButton<String>(
               value: _canton,
-              items: ['VD', 'GE', 'VS', 'BE', 'ZH', 'BS', 'LU', 'TI', 'SG', 'AG']
+              items: FamilyService.sortedCantonCodes
                   .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                   .toList(),
-              onChanged: (v) => setState(() => _canton = v ?? _canton),
+              onChanged: (v) {
+                if (v != null) {
+                  // Touch = l'utilisateur renseigne le canton du défunt.
+                  _cantonTouched = true;
+                  _canton = v;
+                  _afterFactChanged();
+                }
+              },
             ),
           ],
         ),
         const SizedBox(height: 16),
 
-        // Testament
+        // Testament — entrée de situation ; n'affecte aucune sortie chiffrée de
+        // cet écran (les bénéficiaires LPP/3a suivent l'ordre OPP2/OPP3, l'impôt
+        // successoral dépend du lien + canton) → non gaté.
         SwitchListTile(
           title: Text(s.decesProchTestament,
               style: MintTextStyles.bodyMedium()),
           value: _testamentExiste,
-
           onChanged: (v) => setState(() => _testamentExiste = v),
         ),
       ],
@@ -276,10 +465,10 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
 
   Widget _buildTimeline(S s) {
     final etapes = [
-      (s.decesProchTimeline1Titre, s.decesProchTimeline1Desc, '0-3\u00A0j'),
-      (s.decesProchTimeline2Titre, s.decesProchTimeline2Desc, '1-4\u00A0sem'),
-      (s.decesProchTimeline3Titre, s.decesProchTimeline3Desc, '1-3\u00A0mois'),
-      (s.decesProchTimeline4Titre, s.decesProchTimeline4Desc, '3-12\u00A0mois'),
+      (s.decesProchTimeline1Titre, s.decesProchTimeline1Desc, '0-3 j'),
+      (s.decesProchTimeline2Titre, s.decesProchTimeline2Desc, '1-4 sem'),
+      (s.decesProchTimeline3Titre, s.decesProchTimeline3Desc, '1-3 mois'),
+      (s.decesProchTimeline4Titre, s.decesProchTimeline4Desc, '3-12 mois'),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,8 +513,21 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
     );
   }
 
+  /// Carte bénéficiaires : les deux chiffres (capital LPP + 3a du défunt) sont
+  /// des échos de faits que SEUL l'utilisateur peut fournir. Sur les défauts
+  /// 200000/50000 ce serait une prévoyance du défunt fabriquée → gate sur
+  /// {lppDefunt, pilier3aDefunt}. Tant que les deux faits ne sont pas confirmés,
+  /// on affiche la carte de situation (jamais un chiffre inventé).
   Widget _buildBeneficiaires(S s) {
+    final gate = _beneficiairesGate(context);
+    if (!gate.complete) {
+      return SituationGateCard(
+        title: s.donationGateTitle,
+        gate: gate,
+      );
+    }
     return Container(
+      key: const Key('deces_beneficiaires_card'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.coachBubble,
@@ -366,10 +568,20 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
     );
   }
 
+  /// Impact fiscal : affirmation personnalisée (exonéré / soumis au canton).
+  /// Gatée sur {lienParente, canton} — sur les défauts conjoint/ZH ce serait une
+  /// affirmation fiscale personnalisée fabriquée (mauvais lien / mauvais canton).
   Widget _buildImpactFiscal(S s) {
-    // Simplified succession tax estimate — most cantons exempt conjoint
+    final gate = _impactFiscalGate(context);
+    if (!gate.complete) {
+      return SituationGateCard(
+        title: s.donationGateTitle,
+        gate: gate,
+      );
+    }
     final estExempt = _lienParente == 'conjoint';
     return Container(
+      key: const Key('deces_impact_card'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: estExempt ? MintColors.successBg : MintColors.warningBg,

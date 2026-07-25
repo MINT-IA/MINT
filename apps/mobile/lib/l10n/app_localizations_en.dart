@@ -7245,6 +7245,34 @@ class SEn extends S {
       'The LPP beneficiary order is set by the pension fund rules (OPP2 art. 48). The 3a follows OPP3 art. 2.';
 
   @override
+  String get decesGateFactLpp => 'Deceased\'s LPP capital';
+
+  @override
+  String get decesGateWhyLpp =>
+      'The LPP capital passed to beneficiaries depends on the deceased\'s pension assets.';
+
+  @override
+  String get decesGateFact3a => 'Deceased\'s pillar 3a capital';
+
+  @override
+  String get decesGateWhy3a =>
+      'The pillar 3a capital paid to beneficiaries depends on the deceased\'s 3a savings.';
+
+  @override
+  String get decesGateFactLien => 'Your relationship to the deceased';
+
+  @override
+  String get decesGateWhyLien =>
+      'Exemption from inheritance tax depends on your family relationship.';
+
+  @override
+  String get decesGateFactCanton => 'Canton of the estate';
+
+  @override
+  String get decesGateWhyCanton =>
+      'Inheritance tax is cantonal; it depends on the deceased\'s canton of residence.';
+
+  @override
   String get decesProchImpactFiscalTitre => 'Tax impact';
 
   @override

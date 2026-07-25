@@ -7300,6 +7300,34 @@ class SEs extends S {
       'El orden de beneficiarios LPP lo fija el reglamento de la caja (OPP2 art. 48). El 3a sigue la OPP3 art. 2.';
 
   @override
+  String get decesGateFactLpp => 'Capital LPP de la persona fallecida';
+
+  @override
+  String get decesGateWhyLpp =>
+      'El capital LPP transmitido a los beneficiarios depende de los activos de previsión de la persona fallecida.';
+
+  @override
+  String get decesGateFact3a => 'Capital del pilar 3a de la persona fallecida';
+
+  @override
+  String get decesGateWhy3a =>
+      'El capital del pilar 3a pagado a los beneficiarios depende de los ahorros 3a de la persona fallecida.';
+
+  @override
+  String get decesGateFactLien => 'Tu vínculo con la persona fallecida';
+
+  @override
+  String get decesGateWhyLien =>
+      'La exención del impuesto de sucesiones depende de tu vínculo de parentesco.';
+
+  @override
+  String get decesGateFactCanton => 'Cantón de la sucesión';
+
+  @override
+  String get decesGateWhyCanton =>
+      'El impuesto de sucesiones es cantonal; depende del cantón de domicilio de la persona fallecida.';
+
+  @override
   String get decesProchImpactFiscalTitre => 'Impacto fiscal';
 
   @override
