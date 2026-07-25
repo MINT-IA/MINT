@@ -9603,6 +9603,38 @@ class SPt extends S {
       'Balanço total (impostos + seguro de saúde)';
 
   @override
+  String get demenagementGateFactRevenu => 'O teu rendimento bruto anual';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'Determina o imposto sobre o rendimento comparado entre os dois cantões.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'O teu cantão atual';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'A sua tabela fiscal e os seus prémios são o ponto de partida.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'O cantão de destino';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'O cantão que estás a considerar define a nova tabela a comparar.';
+
+  @override
+  String get demenagementGateFactSituation => 'A tua situação familiar';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'O número de prémios LAMal do agregado depende disso.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Prémios LAMal médios (adulto, franquia 300) e índices fiscais relativos: referências cantonais indicativas, não o teu prémio real.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Transferência de $amount ($direction)';
   }

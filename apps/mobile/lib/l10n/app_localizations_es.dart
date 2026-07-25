@@ -9607,6 +9607,38 @@ class SEs extends S {
       'Balance total (impuestos + seguro médico)';
 
   @override
+  String get demenagementGateFactRevenu => 'Tu ingreso bruto anual';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'Determina el impuesto sobre la renta comparado entre los dos cantones.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'Tu cantón actual';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'Su baremo fiscal y sus primas son el punto de partida.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'El cantón de destino';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'El cantón que consideras fija el nuevo baremo a comparar.';
+
+  @override
+  String get demenagementGateFactSituation => 'Tu situación familiar';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'El número de primas LAMal del hogar depende de ello.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Primas LAMal medias (adulto, franquicia 300) e índices fiscales relativos: referencias cantonales indicativas, no tu prima real.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Transferencia de $amount ($direction)';
   }

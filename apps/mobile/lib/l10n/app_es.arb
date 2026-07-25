@@ -4375,6 +4375,15 @@
   },
   "demenagementInsightNegatif": "Esta mudanza cuesta más. Verifica que la calidad de vida compensa la diferencia.",
   "demenagementBilanTotal": "Balance total (impuestos + seguro médico)",
+  "demenagementGateFactRevenu": "Tu ingreso bruto anual",
+  "demenagementGateWhyRevenu": "Determina el impuesto sobre la renta comparado entre los dos cantones.",
+  "demenagementGateFactCantonDepart": "Tu cantón actual",
+  "demenagementGateWhyCantonDepart": "Su baremo fiscal y sus primas son el punto de partida.",
+  "demenagementGateFactCantonArrivee": "El cantón de destino",
+  "demenagementGateWhyCantonArrivee": "El cantón que consideras fija el nuevo baremo a comparar.",
+  "demenagementGateFactSituation": "Tu situación familiar",
+  "demenagementGateWhySituation": "El número de primas LAMal del hogar depende de ello.",
+  "demenagementReferenceCaption": "Primas LAMal medias (adulto, franquicia 300) e índices fiscales relativos: referencias cantonales indicativas, no tu prima real.",
   "divorceTransfertAmount": "Transferencia de {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {

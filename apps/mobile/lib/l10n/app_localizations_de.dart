@@ -9627,6 +9627,38 @@ class SDe extends S {
   String get demenagementBilanTotal => 'Gesamtbilanz (Steuern + Krankenkasse)';
 
   @override
+  String get demenagementGateFactRevenu => 'Dein Bruttojahreseinkommen';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'Es bestimmt die verglichene Einkommenssteuer zwischen den beiden Kantonen.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'Dein aktueller Kanton';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'Sein Steuertarif und seine Prämien sind der Ausgangspunkt.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'Der Zielkanton';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'Der ins Auge gefasste Kanton bestimmt den neuen Vergleichstarif.';
+
+  @override
+  String get demenagementGateFactSituation => 'Deine Familiensituation';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'Die Anzahl der KVG-Prämien des Haushalts hängt davon ab.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Durchschnittliche KVG-Prämien (Erwachsene, Franchise 300) und relative Steuerindizes: indikative kantonale Richtwerte, nicht deine tatsächliche Prämie.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Übertragung von $amount ($direction)';
   }

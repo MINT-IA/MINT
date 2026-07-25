@@ -4375,6 +4375,15 @@
   },
   "demenagementInsightNegatif": "Dieser Umzug kostet mehr. Prüfe, ob die Lebensqualität den Unterschied ausgleicht.",
   "demenagementBilanTotal": "Gesamtbilanz (Steuern + Krankenkasse)",
+  "demenagementGateFactRevenu": "Dein Bruttojahreseinkommen",
+  "demenagementGateWhyRevenu": "Es bestimmt die verglichene Einkommenssteuer zwischen den beiden Kantonen.",
+  "demenagementGateFactCantonDepart": "Dein aktueller Kanton",
+  "demenagementGateWhyCantonDepart": "Sein Steuertarif und seine Prämien sind der Ausgangspunkt.",
+  "demenagementGateFactCantonArrivee": "Der Zielkanton",
+  "demenagementGateWhyCantonArrivee": "Der ins Auge gefasste Kanton bestimmt den neuen Vergleichstarif.",
+  "demenagementGateFactSituation": "Deine Familiensituation",
+  "demenagementGateWhySituation": "Die Anzahl der KVG-Prämien des Haushalts hängt davon ab.",
+  "demenagementReferenceCaption": "Durchschnittliche KVG-Prämien (Erwachsene, Franchise 300) und relative Steuerindizes: indikative kantonale Richtwerte, nicht deine tatsächliche Prämie.",
   "divorceTransfertAmount": "Übertragung von {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {

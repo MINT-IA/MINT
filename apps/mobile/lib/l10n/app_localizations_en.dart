@@ -9547,6 +9547,38 @@ class SEn extends S {
       'Total balance (taxes + health insurance)';
 
   @override
+  String get demenagementGateFactRevenu => 'Your gross annual income';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'It sets the income tax compared between the two cantons.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'Your current canton';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'Its tax scale and premiums are the starting point.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'The destination canton';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'The canton you are considering sets the new scale to compare.';
+
+  @override
+  String get demenagementGateFactSituation => 'Your family situation';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'The number of LAMal premiums for the household depends on it.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Average LAMal premiums (adult, CHF 300 deductible) and relative tax indices: indicative cantonal benchmarks, not your actual premium.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Transfer of $amount ($direction)';
   }

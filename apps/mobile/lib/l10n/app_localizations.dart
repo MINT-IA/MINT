@@ -16933,6 +16933,60 @@ abstract class S {
   /// **'Bilan total (impôts + LAMal)'**
   String get demenagementBilanTotal;
 
+  /// No description provided for @demenagementGateFactRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get demenagementGateFactRevenu;
+
+  /// No description provided for @demenagementGateWhyRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il fixe l\'impôt sur le revenu comparé entre les deux cantons.'**
+  String get demenagementGateWhyRevenu;
+
+  /// No description provided for @demenagementGateFactCantonDepart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton actuel'**
+  String get demenagementGateFactCantonDepart;
+
+  /// No description provided for @demenagementGateWhyCantonDepart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son barème fiscal et ses primes servent de point de départ.'**
+  String get demenagementGateWhyCantonDepart;
+
+  /// No description provided for @demenagementGateFactCantonArrivee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le canton d\'arrivée'**
+  String get demenagementGateFactCantonArrivee;
+
+  /// No description provided for @demenagementGateWhyCantonArrivee.
+  ///
+  /// In fr, this message translates to:
+  /// **'La destination envisagée fixe le nouveau barème à comparer.'**
+  String get demenagementGateWhyCantonArrivee;
+
+  /// No description provided for @demenagementGateFactSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation familiale'**
+  String get demenagementGateFactSituation;
+
+  /// No description provided for @demenagementGateWhySituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nombre de primes LAMal du ménage en dépend.'**
+  String get demenagementGateWhySituation;
+
+  /// No description provided for @demenagementReferenceCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Primes LAMal moyennes (adulte, franchise 300) et indices fiscaux relatifs : repères cantonaux indicatifs, pas ta prime réelle.'**
+  String get demenagementReferenceCaption;
+
   /// No description provided for @divorceTransfertAmount.
   ///
   /// In fr, this message translates to:
