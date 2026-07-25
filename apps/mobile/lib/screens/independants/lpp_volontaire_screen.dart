@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LPP VOLONTAIRE SCREEN — Sprint S18 / Independants complet
@@ -35,12 +36,45 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
   int _age = 40;
   double _tauxMarginal = 0.30;
   LppVolontaireResult? _result;
+  bool _prefilled = false;
 
   @override
   void initState() {
     super.initState();
     _calculate();
   }
+
+  /// P2 (zéro donnée inventée) : amorce revenu net + âge depuis le profil réel.
+  /// [independentNetProfessionalIncomeAnnual] est un revenu NET annuel (même
+  /// base que le slider). On clampe sur les bornes des contrôles (revenu
+  /// 0..250000, âge 25..65) pour ne jamais violer un assert. Champs absents →
+  /// on garde le défaut éditable, jamais de fabrication.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_prefilled) return;
+    _prefilled = true;
+    final profile = context.coachProfileOrNull;
+    if (profile == null) return;
+    var seeded = false;
+    final net = profile.independentNetProfessionalIncomeAnnual;
+    if (net != null && net > 0) {
+      _revenuNet = net.clamp(0.0, 250000.0);
+      seeded = true;
+    }
+    final age = profile.ageOrNull;
+    if (age != null) {
+      _age = age.clamp(25, 65);
+      seeded = true;
+    }
+    if (seeded) _calculate();
+  }
+
+  /// @visibleForTesting : valeurs amorcées (preuve du seed profil, P2).
+  @visibleForTesting
+  double get debugRevenuNet => _revenuNet;
+  @visibleForTesting
+  int get debugAge => _age;
 
   void _calculate() {
     setState(() {

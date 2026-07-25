@@ -14,6 +14,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -36,12 +37,35 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   bool _affilieLpp = false;
   double _tauxMarginal = 0.30;
   Pillar3aIndepResult? _result;
+  bool _prefilled = false;
 
   @override
   void initState() {
     super.initState();
     _calculate();
   }
+
+  /// P2 (zéro donnée inventée) : amorce le revenu net depuis le profil réel de
+  /// l'utilisateur — [CoachProfile.independentNetProfessionalIncomeAnnual] est
+  /// un revenu NET annuel professionnel (même base que le slider), donc pas de
+  /// confusion brut/net. On clampe sur les bornes du slider (0..300000) pour ne
+  /// jamais violer l'assert de valeur. Si le champ est absent, on conserve le
+  /// défaut éditable — jamais de fabrication.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_prefilled) return;
+    _prefilled = true;
+    final net = context.coachProfileOrNull?.independentNetProfessionalIncomeAnnual;
+    if (net != null && net > 0) {
+      _revenuNet = net.clamp(0.0, 300000.0);
+      _calculate();
+    }
+  }
+
+  /// @visibleForTesting : revenu net amorcé (preuve du seed profil, P2).
+  @visibleForTesting
+  double get debugRevenuNet => _revenuNet;
 
   void _calculate() {
     setState(() {
