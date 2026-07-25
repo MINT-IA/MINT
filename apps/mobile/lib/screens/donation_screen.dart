@@ -12,6 +12,8 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -61,6 +63,17 @@ class _DonationScreenState extends State<DonationScreen> {
   double _fortuneTotaleDonateur = 800000;
   String _regimeMatrimonial = 'participation_acquets';
 
+  // ── P2 profile seed state ──
+  // Seule la SITUATION réelle du donateur est amorcée depuis le profil ; les
+  // paramètres du scénario (montant, lien, type, valeur immobilière du bien
+  // donné, avancement d'hoirie, régime) restent des hypothèses éditables.
+  bool _prefilled = false;
+  CoachProfileProvider? _profileProvider;
+  bool _donateurAgeTouched = false;
+  bool _cantonTouched = false;
+  bool _nbEnfantsTouched = false;
+  bool _fortuneTouched = false;
+
   // Result
   DonationResult? _result;
 
@@ -91,11 +104,85 @@ class _DonationScreenState extends State<DonationScreen> {
     'separation_biens': 'Séparation de biens',
   };
 
+  /// P2 (zéro donnée inventée) : amorce la situation réelle du donateur depuis
+  /// le profil. On s'abonne au provider car `loadFromWizard()` hydrate le profil
+  /// de façon asynchrone : l'écran peut être monté avant l'arrivée des données.
+  /// Un champ édité par l'utilisateur (touched) n'est jamais réécrasé par une
+  /// hydratation tardive ; un champ absent garde son défaut éditable.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
+    }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+  }
+
+  void _seedFromProfile() {
+    if (_prefilled) return;
+    final profile = _profileProvider?.profile;
+    if (profile == null) return; // pas encore hydraté : le listener rejouera.
+    _prefilled = true;
+    var changed = false;
+
+    if (!_donateurAgeTouched) {
+      final age = profile.ageOrNull;
+      if (age != null) {
+        _donateurAge = age.clamp(18, 95);
+        changed = true;
+      }
+    }
+    if (!_cantonTouched) {
+      final c = profile.canton;
+      if (c.isNotEmpty && c != 'unknown' && _cantons.contains(c)) {
+        _canton = c;
+        changed = true;
+      }
+    }
+    // nombreEnfants : n'amorcer que > 0 (un 0 est ambigu — défaut ou réel —
+    // sans marqueur userProvidedFields dédié, on ne fabrique pas).
+    if (!_nbEnfantsTouched && profile.nombreEnfants > 0) {
+      _nbEnfants = profile.nombreEnfants.clamp(0, 6);
+      changed = true;
+    }
+    // Fortune totale = patrimoine NET (actifs - dettes), base correcte pour la
+    // réserve héréditaire. Accesseur canonique du modèle (pas de recalcul).
+    if (!_fortuneTouched) {
+      final net =
+          profile.patrimoine.patrimoineNet(profile.dettes.totalDettes);
+      if (net > 0) {
+        _fortuneTotaleDonateur = net.clamp(0.0, 5000000.0);
+        changed = true;
+      }
+    }
+
+    if (changed && mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
     _scrollController.dispose();
     super.dispose();
   }
+
+  /// @visibleForTesting : valeurs amorcées (preuve du seed profil, P2).
+  @visibleForTesting
+  int get debugDonateurAge => _donateurAge;
+  @visibleForTesting
+  String get debugCanton => _canton;
+  @visibleForTesting
+  int get debugNbEnfants => _nbEnfants;
+  @visibleForTesting
+  double get debugFortuneTotale => _fortuneTotaleDonateur;
 
   void _simulate() {
     setState(() {
@@ -329,7 +416,10 @@ class _DonationScreenState extends State<DonationScreen> {
             minValue: 18,
             maxValue: 95,
             formatValue: (v) => '$v ans',
-            onChanged: (v) => setState(() => _donateurAge = v),
+            onChanged: (v) => setState(() {
+              _donateurAgeTouched = true;
+              _donateurAge = v;
+            }),
           ),
           const SizedBox(height: 16),
           MintPickerTile(
@@ -338,15 +428,20 @@ class _DonationScreenState extends State<DonationScreen> {
             minValue: 0,
             maxValue: 6,
             formatValue: (v) => '$v',
-            onChanged: (v) => setState(() => _nbEnfants = v),
+            onChanged: (v) => setState(() {
+              _nbEnfantsTouched = true;
+              _nbEnfants = v;
+            }),
           ),
           const SizedBox(height: 16),
           MintAmountField(
             label: S.of(context)!.donationFortuneTotale,
             value: _fortuneTotaleDonateur,
             formatValue: (v) => _chfFmt(v),
-            onChanged: (v) =>
-                setState(() => _fortuneTotaleDonateur = v),
+            onChanged: (v) => setState(() {
+              _fortuneTouched = true;
+              _fortuneTotaleDonateur = v;
+            }),
             min: 0,
             max: 5000000,
           ),
@@ -1039,7 +1134,12 @@ class _DonationScreenState extends State<DonationScreen> {
                 );
               }).toList(),
               onChanged: (v) {
-                if (v != null) setState(() => _canton = v);
+                if (v != null) {
+                  setState(() {
+                    _cantonTouched = true;
+                    _canton = v;
+                  });
+                }
               },
             ),
           ),

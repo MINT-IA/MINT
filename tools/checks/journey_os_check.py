@@ -178,6 +178,8 @@ ALLOW = {
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",
     "apps/mobile/lib/screens/independants/avs_cotisations_screen.dart",
+    "apps/mobile/lib/screens/donation_screen.dart",
+    "apps/mobile/test/screens/donation_profile_seed_test.dart",
     "apps/mobile/lib/screens/independants/pillar_3a_indep_screen.dart",
     "apps/mobile/lib/screens/independants/lpp_volontaire_screen.dart",
     "apps/mobile/test/screens/indep_profile_seed_test.dart",
