@@ -6063,6 +6063,156 @@ abstract class S {
   /// **'Complète ta situation pour un calcul fondé sur tes données'**
   String get donationGateTitle;
 
+  /// No description provided for @expatForfaitGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour un forfait fondé sur tes données'**
+  String get expatForfaitGateTitle;
+
+  /// No description provided for @expatTopCantonsGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour un classement cantonal personnalisé'**
+  String get expatTopCantonsGateTitle;
+
+  /// No description provided for @expatDepartGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour chiffrer ton capital de prévoyance'**
+  String get expatDepartGateTitle;
+
+  /// No description provided for @expatAvsGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour estimer ta lacune AVS'**
+  String get expatAvsGateTitle;
+
+  /// No description provided for @expatAvsProjectionGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour projeter ta rente AVS'**
+  String get expatAvsProjectionGateTitle;
+
+  /// No description provided for @expatGateFactForfaitCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton du forfait'**
+  String get expatGateFactForfaitCanton;
+
+  /// No description provided for @expatGateWhyForfaitCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le minimum imposable dépend du canton choisi.'**
+  String get expatGateWhyForfaitCanton;
+
+  /// No description provided for @expatGateFactLivingExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses de vie mondiales'**
+  String get expatGateFactLivingExpenses;
+
+  /// No description provided for @expatGateWhyLivingExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le forfait se calcule sur tes dépenses de vie annuelles.'**
+  String get expatGateWhyLivingExpenses;
+
+  /// No description provided for @expatGateFactActualIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu mondial réel'**
+  String get expatGateFactActualIncome;
+
+  /// No description provided for @expatGateWhyActualIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'La comparaison utilise ton revenu mondial, pas ton salaire suisse.'**
+  String get expatGateWhyActualIncome;
+
+  /// No description provided for @expatGateFactIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu imposable'**
+  String get expatGateFactIncome;
+
+  /// No description provided for @expatGateWhyIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'écart fiscal entre cantons se calcule sur ton revenu réel.'**
+  String get expatGateWhyIncome;
+
+  /// No description provided for @expatGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de résidence'**
+  String get expatGateFactCanton;
+
+  /// No description provided for @expatGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le classement compare les cantons à ta charge fiscale actuelle.'**
+  String get expatGateWhyCanton;
+
+  /// No description provided for @expatGateFactPillar3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde du 3e pilier'**
+  String get expatGateFactPillar3a;
+
+  /// No description provided for @expatGateWhyPillar3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton capital de prévoyance en jeu inclut ton 3a.'**
+  String get expatGateWhyPillar3a;
+
+  /// No description provided for @expatGateFactLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get expatGateFactLpp;
+
+  /// No description provided for @expatGateWhyLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton capital de prévoyance en jeu inclut ton avoir LPP.'**
+  String get expatGateWhyLpp;
+
+  /// No description provided for @expatGateFactYearsInCh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années de cotisation en Suisse'**
+  String get expatGateFactYearsInCh;
+
+  /// No description provided for @expatGateWhyYearsInCh.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente AVS dépend de tes années de cotisation.'**
+  String get expatGateWhyYearsInCh;
+
+  /// No description provided for @expatGateFactYearsAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années passées à l\'étranger'**
+  String get expatGateFactYearsAbroad;
+
+  /// No description provided for @expatGateWhyYearsAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les années hors de Suisse creusent la lacune de cotisation.'**
+  String get expatGateWhyYearsAbroad;
+
+  /// No description provided for @expatGateFactAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get expatGateFactAge;
+
+  /// No description provided for @expatGateWhyAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'La projection de rente dépend des années qu\'il te reste à cotiser.'**
+  String get expatGateWhyAge;
+
   /// No description provided for @donationCompleterSituation.
   ///
   /// In fr, this message translates to:
