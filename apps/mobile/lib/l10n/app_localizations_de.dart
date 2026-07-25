@@ -3351,6 +3351,31 @@ class SDe extends S {
   String get donationGateWhyRegime => 'Dein Güterstand verändert die Erbmasse.';
 
   @override
+  String get firstJobGateFactSalaire => 'Bruttomonatslohn';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'Das ist der Ausgangsbetrag deiner Lohnanalyse.';
+
+  @override
+  String get firstJobGateFactAge => 'Alter';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'Die BVG (2. Säule) wird ab 25 Jahren obligatorisch.';
+
+  @override
+  String get firstJobGateFactCanton => 'Kanton';
+
+  @override
+  String get firstJobGateWhyCanton =>
+      'Steuern und Abzüge variieren je nach Kanton.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'Deine Situation ist vollständig, deine Lohnanalyse ist bereit.';
+
+  @override
   String get housingSaleIntroText =>
       'Der Verkauf einer Immobilie in der Schweiz beinhaltet eine Grundstückgewinnsteuer (StHG Art. 12), eine mögliche Rückzahlung der verwendeten Vorsorgegelder (WEF) und Transaktionskosten. Dieses Tool hilft dir, den Nettoerlös deines Verkaufs zu schätzen.';
 

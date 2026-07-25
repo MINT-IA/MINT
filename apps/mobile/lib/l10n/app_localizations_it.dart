@@ -3348,6 +3348,31 @@ class SIt extends S {
       'Il tuo regime matrimoniale modifica la massa ereditaria.';
 
   @override
+  String get firstJobGateFactSalaire => 'Salario lordo mensile';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'È l\'importo di partenza della tua analisi salariale.';
+
+  @override
+  String get firstJobGateFactAge => 'Età';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'La LPP (2° pilastro) diventa obbligatoria dai 25 anni.';
+
+  @override
+  String get firstJobGateFactCanton => 'Cantone';
+
+  @override
+  String get firstJobGateWhyCanton =>
+      'Le imposte e le deduzioni variano a seconda del cantone.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'La tua situazione è completa, la tua analisi salariale è pronta.';
+
+  @override
   String get housingSaleIntroText =>
       'Vendere un immobile in Svizzera comporta un\'imposta sugli utili immobiliari (LAID art. 12), l\'eventuale rimborso dei fondi previdenziali utilizzati (EPL) e costi di transazione. Questo strumento ti aiuta a stimare il ricavo netto della vendita.';
 

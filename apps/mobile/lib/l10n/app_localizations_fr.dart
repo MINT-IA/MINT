@@ -3339,6 +3339,31 @@ class SFr extends S {
       'Ton régime matrimonial modifie la masse successorale.';
 
   @override
+  String get firstJobGateFactSalaire => 'Salaire brut mensuel';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'C\'est le montant de départ de ton analyse de salaire.';
+
+  @override
+  String get firstJobGateFactAge => 'Âge';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'La LPP (2e pilier) devient obligatoire dès 25 ans.';
+
+  @override
+  String get firstJobGateFactCanton => 'Canton';
+
+  @override
+  String get firstJobGateWhyCanton =>
+      'Les impôts et déductions varient selon ton canton.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'Situation complète, ton analyse de salaire est prête.';
+
+  @override
   String get housingSaleIntroText =>
       'Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t\'aide à estimer le produit net de ta vente.';
 

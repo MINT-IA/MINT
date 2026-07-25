@@ -3314,6 +3314,30 @@ class SEn extends S {
       'Your matrimonial property regime changes the estate mass.';
 
   @override
+  String get firstJobGateFactSalaire => 'Gross monthly salary';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'It\'s the starting figure for your salary analysis.';
+
+  @override
+  String get firstJobGateFactAge => 'Age';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'Occupational pension (2nd pillar, LPP) becomes mandatory from age 25.';
+
+  @override
+  String get firstJobGateFactCanton => 'Canton';
+
+  @override
+  String get firstJobGateWhyCanton => 'Taxes and deductions vary by canton.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'Your situation is complete, your salary analysis is ready.';
+
+  @override
   String get housingSaleIntroText =>
       'Selling property in Switzerland involves a capital gains tax (LHID art. 12), possible reimbursement of pension funds used (EPL), and transaction costs. This tool helps you estimate your net sale proceeds.';
 

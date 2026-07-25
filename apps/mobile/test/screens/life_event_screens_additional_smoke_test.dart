@@ -23,6 +23,7 @@ import 'package:mint_mobile/screens/unemployment_screen.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
 import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
@@ -322,22 +323,25 @@ void main() {
       expect(find.textContaining('Canton'), findsWidgets);
     });
 
-    testWidgets('renders computed result (result-gated breakdown widget)',
+    testWidgets('P2 gate dur: with no profile the breakdown is result-gated',
         (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // Anti-façade: assert a COMPUTE-GATED widget, not generic CHF. The salary
-      // slider renders CHF min/max labels unconditionally, so
-      // find.textContaining('CHF') would stay green even if the computed result
-      // disappeared. SalaryBreakdownWidget only renders inside
-      // `if (_result != null)` and consumes `_result!.brut/netEstime/...` — it
-      // cannot appear unless analyzeSalary() (initState) produced a result.
+      // A fresh provider has no profile → salaire / âge / canton are fabricated
+      // defaults (unconfirmed). The salary breakdown must NOT compute on them;
+      // the situation gate takes its slot. The result slot is below the fold in
+      // a lazy CustomScrollView, so scroll to reach it (same pattern the
+      // breakdown assertion used before gating). Full compute path is covered
+      // by first_job_gate_test.dart.
       await tester.scrollUntilVisible(
-        find.byType(SalaryBreakdownWidget),
+        find.byType(SituationGateCard),
         300,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.byType(SalaryBreakdownWidget), findsOneWidget);
+      expect(find.byType(SituationGateCard), findsOneWidget,
+          reason: 'the gated result slot shows the situation gate');
+      expect(find.byType(SalaryBreakdownWidget), findsNothing,
+          reason: 'no breakdown on fabricated defaults (P2 gate dur)');
     });
   });
 

@@ -1,6 +1,7 @@
 import 'dart:math' show pow;
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -23,6 +24,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -50,7 +52,30 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   String _canton = 'ZH';
   double _tauxActivite = 100;
   FirstJobResult? _result;
-  bool _seededFromProfile = false;
+
+  // ── P2 « gate dur » : provenance par fait, ré-évaluée à chaque notify ──
+  // Un fait de SITUATION n'est CONFIRMÉ que s'il vient des données réelles :
+  // soit amorcé depuis un champ profil réellement fourni
+  // (`userProvidedFields`), soit touché par l'utilisateur. Une valeur égale à
+  // un défaut fabriqué reste ASSUMED (jamais confirmée). Pas de latch global
+  // `_seededFromProfile` : `loadFromWizard` notifie plusieurs fois
+  // (cache→frais→fusionné) ; un latch au 1er notify échouerait un champ dont la
+  // donnée arrive au notify suivant.
+  CoachProfileProvider? _profileProvider;
+  bool _salaireTouched = false;
+  bool _salaireSeeded = false; // provenance = userProvidedFields('salary').
+  bool _ageTouched = false;
+  bool _ageSeeded = false; // provenance = userProvidedFields('age'), 18-30 only.
+  bool _cantonTouched = false;
+  bool _cantonSeeded = false; // provenance = userProvidedFields('canton').
+
+  // Baseline pour l'annonce VoiceOver incomplet→complet.
+  bool _lastGateComplete = false;
+
+  // Anchors pour scroll-to-first-missing quand la situation est incomplète.
+  final _salaireKey = GlobalKey();
+  final _ageKey = GlobalKey();
+  final _cantonKey = GlobalKey();
 
   // Checklist tracking
   final Set<int> _checkedItems = {};
@@ -88,7 +113,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   @override
   void initState() {
     super.initState();
-    _calculate();
+    // Gate dur : au 1er frame rien n'est confirmé → aucun résultat fabriqué.
+    _computeResult();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
     });
@@ -133,33 +159,232 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
   }
 
+  /// P2 (zéro donnée inventée) : on s'abonne au provider car `loadFromWizard()`
+  /// hydrate le profil de façon asynchrone (l'écran peut être monté avant
+  /// l'arrivée des données). Un champ édité (touched) n'est jamais réécrasé par
+  /// une hydratation tardive ; un champ absent garde son défaut éditable mais
+  /// reste non confirmé → gaté.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_seededFromProfile) return;
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
-    final age = profile.ageOrNull;
-    if (age == null || age > 30) return;
-    _seededFromProfile = true;
-    setState(() {
-      _salaire = profile.salaireBrutMensuel.clamp(2000, 15000);
-      _age = age.clamp(18, 30);
-      if (profile.canton.isNotEmpty) _canton = profile.canton;
-    });
-    _calculate();
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
+    }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+    // Baseline APRÈS le seed : pas d'annonce parasite si le profil confirme
+    // déjà tout au premier build.
+    _lastGateComplete = _situationGate(context).complete;
   }
 
-  void _calculate() {
-    setState(() {
-      _result = FirstJobService.analyzeSalary(
-        salaireBrutMensuel: _salaire,
-        age: _age,
-        canton: _canton,
-        tauxActivite: _tauxActivite,
-      );
-    });
+  /// Seed provenance-gaté, rejoué à CHAQUE notify (aucun latch global).
+  /// Un champ n'est amorcé — et donc confirmé — que si sa provenance est réelle :
+  /// une clé `userProvidedFields`, jamais valeur≠défaut. L'âge n'est amorcé que
+  /// dans la plage du slider (18-30, intention premier emploi) ; hors plage il
+  /// reste non confirmé → gaté, et sa valeur ne sort jamais des bornes du slider
+  /// (pas d'assert).
+  void _seedFromProfile() {
+    final profile = _profileProvider?.profile;
+    var changed = false;
+
+    if (profile == null) {
+      // Profil absent : pas encore hydraté (le listener rejouera) ou effacé
+      // (logout / reset) pendant que l'écran est monté. La provenance issue du
+      // profil disparaît : les faits seededFromProfile retombent à non
+      // confirmés (un fait TOUCHÉ reste une donnée user et survit). Tout
+      // résultat qui reposait sur un fait seedé est invalidé — aucun chiffre ne
+      // survit à sa source.
+      if (_salaireSeeded) {
+        _salaireSeeded = false;
+        changed = true;
+      }
+      if (_ageSeeded) {
+        _ageSeeded = false;
+        changed = true;
+      }
+      if (_cantonSeeded) {
+        _cantonSeeded = false;
+        changed = true;
+      }
+      if (changed) _calculate();
+      return;
+    }
+
+    // Salaire : clé 'salary'.
+    if (!_salaireTouched) {
+      final hasKey = profile.userProvidedFields.contains('salary');
+      if (_salaireSeeded != hasKey) {
+        _salaireSeeded = hasKey;
+        changed = true;
+      }
+      if (hasKey) {
+        final v = profile.salaireBrutMensuel.clamp(2000.0, 15000.0);
+        if (v != _salaire) {
+          _salaire = v;
+          changed = true;
+        }
+      }
+    }
+
+    // Âge : clé 'age', amorcé seulement dans la plage du slider (18-30).
+    if (!_ageTouched) {
+      final age = profile.ageOrNull;
+      final inRange = age != null && age >= 18 && age <= 30;
+      final valid = profile.userProvidedFields.contains('age') && inRange;
+      if (_ageSeeded != valid) {
+        _ageSeeded = valid;
+        changed = true;
+      }
+      if (valid && age != _age) {
+        _age = age;
+        changed = true;
+      }
+    }
+
+    // Canton : clé 'canton'.
+    if (!_cantonTouched) {
+      final c = profile.canton;
+      final valid = profile.userProvidedFields.contains('canton') &&
+          c.isNotEmpty &&
+          c != 'unknown' &&
+          _cantons.contains(c);
+      if (_cantonSeeded != valid) {
+        _cantonSeeded = valid;
+        changed = true;
+      }
+      if (valid && c != _canton) {
+        _canton = c;
+        changed = true;
+      }
+    }
+
+    if (changed) _calculate();
   }
+
+  @override
+  void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
+    super.dispose();
+  }
+
+  // ── P2 provenance getters (live, non-latching) ──
+  FactProvenance get _salaireProvenance => _salaireTouched
+      ? FactProvenance.touched
+      : (_salaireSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _ageProvenance => _ageTouched
+      ? FactProvenance.touched
+      : (_ageSeeded ? FactProvenance.seededFromProfile : FactProvenance.assumed);
+
+  FactProvenance get _cantonProvenance => _cantonTouched
+      ? FactProvenance.touched
+      : (_cantonSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  /// Le badge « profil » s'affiche dès qu'un fait vient réellement du profil.
+  bool get _seededFromProfile =>
+      _salaireSeeded || _ageSeeded || _cantonSeeded;
+
+  // ── Gate (sortie unique = la décomposition du salaire) ──
+  // Faits déterminants : salaire (le chiffre), âge (seuil LPP obligatoire à
+  // 25 ans), canton (fiscalité / déductions cantonales). Le taux d'activité est
+  // un paramètre de SCÉNARIO → non gaté, mais l'éditer invalide le résultat.
+  SituationGate _situationGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'salary',
+          label: (c) => S.of(c)!.firstJobGateFactSalaire,
+          why: (c) => S.of(c)!.firstJobGateWhySalaire,
+          provenance: _salaireProvenance,
+          onComplete: () => _scrollToKey(_salaireKey),
+        ),
+        SituationFact(
+          key: 'age',
+          label: (c) => S.of(c)!.firstJobGateFactAge,
+          why: (c) => S.of(c)!.firstJobGateWhyAge,
+          provenance: _ageProvenance,
+          onComplete: () => _scrollToKey(_ageKey),
+        ),
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.firstJobGateFactCanton,
+          why: (c) => S.of(c)!.firstJobGateWhyCanton,
+          provenance: _cantonProvenance,
+          onComplete: () => _scrollToKey(_cantonKey),
+        ),
+      ]);
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
+      );
+    }
+  }
+
+  /// Calcule le résultat SEULEMENT si le gate est complet (compute-time gate).
+  /// Sinon aucun chiffre : le slot résultat affiche la carte de situation à la
+  /// place. Un résultat n'existe donc jamais sur un défaut fabriqué.
+  void _computeResult() {
+    _result = _situationGate(context).complete
+        ? FirstJobService.analyzeSalary(
+            salaireBrutMensuel: _salaire,
+            age: _age,
+            canton: _canton,
+            tauxActivite: _tauxActivite,
+          )
+        : null;
+  }
+
+  /// Recalcule + rebuild, SANS annonce (seed profil, ou édition d'un paramètre
+  /// de scénario comme le taux d'activité). Toute entrée qui bouge invalide
+  /// d'abord le résultat : aucun chiffre périmé ne survit à une entrée modifiée.
+  void _calculate() {
+    _computeResult();
+    _lastGateComplete = _situationGate(context).complete;
+    if (mounted) setState(() {});
+  }
+
+  /// L'utilisateur a édité un fait de SITUATION déterminant (salaire, âge,
+  /// canton) : recalcule et annonce le passage incomplet→complet pour VoiceOver
+  /// (le scroll ≠ déplacement de focus).
+  void _afterSituationFactChanged() {
+    final wasComplete = _lastGateComplete;
+    _computeResult();
+    final nowComplete = _situationGate(context).complete;
+    if (nowComplete && !wasComplete) {
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        S.of(context)!.firstJobGateAnnounceComplete,
+        Directionality.of(context),
+      );
+    }
+    _lastGateComplete = nowComplete;
+    if (mounted) setState(() {});
+  }
+
+  /// @visibleForTesting : entrées consommées par analyzeSalary (preuve P2).
+  @visibleForTesting
+  double get debugSalaire => _salaire;
+  @visibleForTesting
+  int get debugAge => _age;
+  @visibleForTesting
+  String get debugCanton => _canton;
+  @visibleForTesting
+  double get debugTaux => _tauxActivite;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +392,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturn();
       },
-      child: Scaffold(
+      // ILLOG-02 : conteneur Semantics racine (motif rente_vs_capital) sinon le
+      // pont AX iOS effondre toute la route en un seul nœud (« 1 element »).
+      child: Semantics(
+        identifier: 'first_job_screen',
+        container: true,
+        explicitChildNodes: true,
+        child: Scaffold(
           backgroundColor: MintColors.background,
           body: Center(
               child: ConstrainedBox(
@@ -205,7 +436,12 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                 delay: const Duration(milliseconds: 400),
                                 child: _buildCantonAndActivity()),
                             const SizedBox(height: MintSpacing.lg),
-                            if (_result != null) ...[
+                            // Gate dur : la décomposition (et tous les chiffres
+                            // qui en dérivent) ne s'affiche que si les faits
+                            // déterminants sont confirmés. Sinon la carte de
+                            // situation prend sa place dans le slot résultat.
+                            if (_result != null &&
+                                _situationGate(context).complete) ...[
                               _buildPremierEclairage(),
                               const SizedBox(height: MintSpacing.lg),
                               SalaryBreakdownWidget(
@@ -309,6 +545,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               const SizedBox(height: MintSpacing.lg),
                               _buildMintAnalysisSection(),
                               const SizedBox(height: MintSpacing.lg),
+                            ] else ...[
+                              // Slot résultat gaté : la carte de situation
+                              // remplace la décomposition tant que salaire, âge
+                              // et canton ne sont pas confirmés (données réelles).
+                              MintEntrance(
+                                child: SituationGateCard(
+                                  title: S.of(context)!.donationGateTitle,
+                                  gate: _situationGate(context),
+                                ),
+                              ),
+                              const SizedBox(height: MintSpacing.lg),
                             ],
                             MintEntrance(
                                 delay: const Duration(milliseconds: 400),
@@ -318,7 +565,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                         ),
                       ),
                     ],
-                  )))),
+                  ))))),
     );
   }
 
@@ -373,6 +620,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildSalaireSlider() {
     return _buildSliderCard(
+      cardKey: _salaireKey,
       title: S.of(context)!.firstJobSalaryTitle,
       valueLabel: FirstJobService.formatChf(_salaire),
       minLabel: S.of(context)!.firstJobSalaryMin,
@@ -383,14 +631,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       divisions: 260,
       onChanged: (v) {
         _hasUserInteracted = true;
+        _salaireTouched = true;
+        _salaireSeeded = false; // touched supersede le seed (donnée user).
         _salaire = v;
-        _calculate();
+        _afterSituationFactChanged();
       },
     );
   }
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
+      cardKey: _ageKey,
       title: S.of(context)!.unemploymentAgeSliderTitle,
       valueLabel: S.of(context)!.unemploymentAgeValue(_age),
       minLabel: S.of(context)!.unemploymentAgeMin,
@@ -401,13 +652,16 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       divisions: 12,
       onChanged: (v) {
         _hasUserInteracted = true;
+        _ageTouched = true;
+        _ageSeeded = false; // touched supersede le seed (donnée user).
         _age = v.toInt();
-        _calculate();
+        _afterSituationFactChanged();
       },
     );
   }
 
   Widget _buildSliderCard({
+    Key? cardKey,
     required String title,
     required String valueLabel,
     required String minLabel,
@@ -419,6 +673,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     required ValueChanged<double> onChanged,
   }) {
     return MintSurface(
+      key: cardKey,
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
       child: MintPremiumSlider(
@@ -444,6 +699,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         children: [
           // Canton dropdown
           Row(
+            key: _cantonKey,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -470,8 +726,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     onChanged: (v) {
                       if (v != null) {
                         _hasUserInteracted = true;
+                        _cantonTouched = true;
+                        _cantonSeeded = false; // touched supersede le seed.
                         _canton = v;
-                        _calculate();
+                        _afterSituationFactChanged();
                       }
                     },
                   ),
@@ -1139,8 +1397,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               child: GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  setState(() => _salaire = s.value);
-                  _calculate();
+                  // Choisir un scénario de salaire = fournir un salaire (touch).
+                  _salaireTouched = true;
+                  _salaireSeeded = false;
+                  _salaire = s.value;
+                  _afterSituationFactChanged();
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
