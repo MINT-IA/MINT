@@ -56,16 +56,15 @@ tags:
       text: ".*Frontalier.*"
     timeout: 12000
 
-# ── EXCLUDED: /invalidite, /life-event/deces-proche,
-#             /life-event/demenagement-cantonal ────────────────────────
-# A11Y FINDING (surfaced by this harness, tracked as a separate follow-up):
-# these three premium life-event screens RENDER correctly (verified by
-# screenshots — e.g. invalidite "1 personne sur 5" / "Comprendre ta lacune
-# invalidité" / CHF chips; deces "Urgences : premières 48 heures" / "Fortune
-# CHF 77'616") but expose NO text to the iOS accessibility tree, so Maestro
-# (and, by extension, VoiceOver) cannot read them — multiple distinct anchors
-# all failed against visibly-rendered screens. This is a real accessibility
-# gap (rule-9) worth its own investigation (likely a MergeSemantics /
-# ExcludeSemantics / custom-paint header issue). Excluded here to keep this
-# flow green while the a11y gap is documented rather than hidden.
+# ── EXCLUDED: /invalidite, /life-event/deces-proche (tested),
+#             /life-event/demenagement-cantonal (untested) ─────────────
+# SIM-OBSERVABILITY FINDING (tracked as a follow-up): the two TESTED screens
+# (invalidite, deces-proche) RENDER correctly (screenshots) but Maestro could
+# not match ANY of their text anchors — a confirmed test-observability gap.
+# This does NOT prove VoiceOver fails: mint_hero_number.dart carries an
+# explicit Semantics(label:), so a label exists (likely an aggregated/merged
+# label, not matchable sub-strings). VoiceOver impact is a RISK to verify
+# directly (debugDumpSemanticsTree / device). demenagement-cantonal is
+# INFERRED only, not tested. Excluded here so the flow stays green while the
+# gap is documented honestly.
 # See .planning/audit/2026-07-life-event-screens-a11y-gap.md.

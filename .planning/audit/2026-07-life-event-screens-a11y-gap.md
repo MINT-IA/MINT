@@ -1,38 +1,39 @@
 ---
 date: 2026-07-25
 status: Finding
-description: "Trois écrans life-event premium (invalidité, décès-proche, déménagement-cantonal) RENDENT correctement mais n'exposent AUCUN texte à l'arbre d'accessibilité iOS — Maestro (et donc VoiceOver) ne peut rien y lire. Gap d'accessibilité (rule-9) découvert par le harnais sim."
+description: "Sur DEUX écrans life-event premium testés (invalidité, décès-proche), Maestro ne parvient à matcher AUCUNE de leurs ancres texte alors qu'ils rendent visiblement — gap d'OBSERVABILITÉ sim confirmé. VoiceOver n'est PAS prouvé cassé (les widgets hero portent un Semantics(label)) : c'est un RISQUE a11y à vérifier directement. Déménagement-cantonal : NON testé (inféré). Ne pas surestimer."
 related:
   - tools/simulator/flows/parcours_secondaires.yaml
   - .planning/decisions/2026-07-24-campagne-contenu-officiel-garanti.md
 ---
 
-# Finding a11y — écrans life-event premium non lisibles par l'accessibilité iOS
+# Finding — observabilité sim des écrans life-event premium (+ risque a11y à vérifier)
 
 ## TLDR
 
-En construisant les preuves sim des parcours secondaires (2026-07-25), trois écrans se sont révélés **impossibles à asserter par Maestro** alors qu'ils **rendent visiblement** (screenshots à l'appui) : `/invalidite` (DisabilityGapScreen), `/life-event/deces-proche` (DecesProcheScreen), `/life-event/demenagement-cantonal` (DemenagementCantonalScreen). Plusieurs ancres distinctes (titre, hero, section, CHF) ont toutes échoué contre des écrans visiblement rendus. Comme Maestro lit l'arbre d'accessibilité iOS, cela signifie que **VoiceOver ne peut pas lire ces écrans non plus** — un vrai gap d'accessibilité (rule-9 / EnhancedConfidence n'est pas en cause ici, c'est l'a11y du rendu).
+En construisant les preuves sim des parcours secondaires (2026-07-25), **deux** écrans premium testés se sont révélés **impossibles à asserter par Maestro** alors qu'ils **rendent visiblement** (screenshots) : `/invalidite` (DisabilityGapScreen) et `/life-event/deces-proche` (DecesProcheScreen). Plusieurs ancres texte distinctes ont toutes échoué. **Ce qui est confirmé** = un gap d'**observabilité** (Maestro ne matche pas le texte de ces écrans). **Ce qui n'est PAS prouvé** = que VoiceOver échoue : `mint_hero_number.dart:28-29` porte un `Semantics(label: '$value — $caption')`, donc un label existe ; le problème Maestro vient plausiblement d'une **fusion de sémantique** (un seul label agrégé au lieu de nœuds texte matchables), pas d'une absence de sémantique. `/life-event/demenagement-cantonal` n'a **pas** été testé (inféré par similarité, à confirmer).
 
-## Preuves
+## Ce qui est confirmé (2 écrans testés)
 
-- **invalidite** : screenshot montre « 1 personne sur 5 », « Comprendre ta lacune invalidité », chips « CHF 9'500 » / « CHF 25'872 ». Ancres testées et **échouées** : `.*personne sur 5.*`, `.*lacune.*`, `.*CHF.*`.
-- **deces-proche** : screenshot montre « Urgences : premières 48 heures », liste numérotée, « Fortune estimée du défunt CHF 77'616 ». Ancres testées et **échouées** : `.*proche.*` (titre), `.*Urgences.*` (section body).
-- **demenagement-cantonal** : non atteint (flow tronqué), mais même famille d'écran premium (hero MintHeroNumber + SliverAppBar gradient) → même risque.
+- **invalidite** : rend « 1 personne sur 5 », « Comprendre ta lacune invalidité », chips « CHF 9'500 » / « CHF 25'872 » (screenshot). Ancres Maestro testées et **échouées** : `.*personne sur 5.*`, `.*lacune.*`, `.*CHF.*`.
+- **deces-proche** : rend « Urgences : premières 48 heures », « Fortune estimée du défunt CHF 77'616 » (screenshot). Ancres **échouées** : `.*proche.*` (titre), `.*Urgences.*` (section body).
 
-## Contraste (écrans qui exposent bien leur texte)
+→ Conclusion **sûre** : Maestro ne peut pas asserter sur ces deux écrans (gap d'observabilité de test). Les 3 écrans concubinage/expatriation/frontalier, eux, exposent leur texte et passent.
 
-Les écrans à onglets / standards exposent leur texte normalement et passent : `/concubinage`, `/expatriation`, `/segments/frontalier`, ainsi que tous les parcours core déjà prouvés (Travail #1024, Famille #1025, Logement+Succession #1026). Le problème est spécifique aux écrans « premium hero » (SliverAppBar à gradient + MintHeroNumber + cartes stylées).
+## Ce qui n'est PAS confirmé (à ne pas surestimer)
 
-## Hypothèse de cause (à investiguer)
+- **VoiceOver KO** : NON prouvé. Les widgets hero (`mint_hero_number.dart`) ont un `Semantics(label:)` explicite → VoiceOver lit probablement au moins le label agrégé. Le risque a11y est **réel mais à vérifier directement** (VoiceOver sur device, ou dump de l'arbre sémantique Flutter `debugDumpSemanticsTree` / `flutter test` avec `SemanticsHandle`).
+- **Cause exacte** : hypothèse = sémantique fusionnée / label agrégé (les sous-textes ne sont plus des nœuds matchables). NON confirmée au niveau code.
+- **demenagement-cantonal** : **NON testé**. Inféré par similarité de famille d'écran uniquement.
 
-Probable `MergeSemantics` / `ExcludeSemantics` implicite, un `Semantics(header: true)` qui masque le sous-arbre, ou un rendu texte custom (RichText/CustomPaint) qui n'expose pas de label plain-text. À vérifier dans les widgets partagés `mint_hero_number.dart`, `mint_result_hero_card.dart`, et les `_buildAppBar` à FlexibleSpaceBar de ces écrans.
+## Suivi (bead séparé)
 
-## Impact & suivi
-
-- **Impact** : utilisateurs VoiceOver ne peuvent pas lire ces écrans → exclusion de fait des personnes malvoyantes sur ces parcours. Sérieux pour une app de « lucidité financière ».
-- **Suivi (bead séparé)** : auditer les widgets hero premium + ajouter des `Semantics(label:)` explicites ou retirer le `ExcludeSemantics`, puis ré-inclure ces 3 écrans dans `parcours_secondaires.yaml`.
+1. Vérifier directement l'a11y : dump `debugDumpSemanticsTree` de invalidite + deces (et tester demenagement), ou VoiceOver device.
+2. Si nœuds texte réellement non exposés → ajouter des `Semantics(label:)` granulaires (ou retirer une fusion) sur les widgets hero premium, puis ré-inclure les écrans dans `parcours_secondaires.yaml`.
+3. Sinon (label agrégé suffisant pour VoiceOver) → traiter comme un simple gap d'observabilité Maestro (ex. exposer un `id`/testTag stable) et non un bug a11y.
 
 ## Data gaps
 
-- Non confirmé au niveau code que c'est bien `ExcludeSemantics`/`MergeSemantics` (hypothèse). Le screenshot prouve le rendu ; la cause exacte reste à confirmer dans le code des widgets hero.
-- `demenagement-cantonal` non testé directement (inféré par similarité) — à confirmer.
+- Équivalence « Maestro ne matche pas » ⇏ « VoiceOver ne lit pas » : c'est justement le point à trancher.
+- demenagement non exercé.
+- Cause code non confirmée (hypothèse de fusion sémantique seulement).
