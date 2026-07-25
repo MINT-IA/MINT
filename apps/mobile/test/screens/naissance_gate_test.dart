@@ -886,5 +886,46 @@ void main() {
           reason: '20000 > 15000 → not representable → un-confirmed, never '
               'silently clamped to 15000');
     });
+
+    testWidgets(
+        'positive above-range salary (20000/mo→240000/an) leaves impact gated',
+        (tester) async {
+      // Mutation-proves the impact RANGE guard (not just >0): 240000 > 200000
+      // must NOT confirm/clamp-to-200000.
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+            salaire: 20000,
+            canton: 'GE',
+            gender: 'F',
+            provided: {'salary', 'canton'})),
+      );
+      await _goToTab(tester, 'Impact');
+      await _touchFraisGarde(tester, 1200);
+      await _incrementChildren(tester);
+      expect(find.byKey(_impactFigure), findsNothing,
+          reason: '240000 > 200000 → revenu unconfirmed → impact gated, not '
+              'clamped to 200000');
+    });
+
+    testWidgets(
+        'positive below-impact-range salary (2000/mo→24000/an) leaves impact gated',
+        (tester) async {
+      // 2000/mo is IN the congé range but 24000/an is below the impact range —
+      // impact must stay gated (not clamped up to 30000).
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+            salaire: 2000,
+            canton: 'GE',
+            gender: 'F',
+            provided: {'salary', 'canton'})),
+      );
+      await _goToTab(tester, 'Impact');
+      await _touchFraisGarde(tester, 1200);
+      await _incrementChildren(tester);
+      expect(find.byKey(_impactFigure), findsNothing,
+          reason: '24000 < 30000 → revenu unconfirmed → impact gated');
+    });
   });
 }
