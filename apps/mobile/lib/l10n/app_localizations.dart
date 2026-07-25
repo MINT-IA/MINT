@@ -6243,6 +6243,90 @@ abstract class S {
   /// **'Exemple — coûts moyens en Suisse, pas ta situation'**
   String get naissanceCostGenericExampleLabel;
 
+  /// No description provided for @mariageGateFactRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get mariageGateFactRevenu1;
+
+  /// No description provided for @mariageGateWhyRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'écart d\'impôt du couple se calcule sur ton revenu.'**
+  String get mariageGateWhyRevenu1;
+
+  /// No description provided for @mariageGateFactRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu du conjoint'**
+  String get mariageGateFactRevenu2;
+
+  /// No description provided for @mariageGateWhyRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'imposition commune dépend du revenu de ton conjoint.'**
+  String get mariageGateWhyRevenu2;
+
+  /// No description provided for @mariageGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de résidence'**
+  String get mariageGateFactCanton;
+
+  /// No description provided for @mariageGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le barème d\'impôt varie selon ton canton.'**
+  String get mariageGateWhyCanton;
+
+  /// No description provided for @mariageGateFactEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get mariageGateFactEnfants;
+
+  /// No description provided for @mariageGateWhyEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les déductions pour enfants modifient l\'impôt du couple.'**
+  String get mariageGateWhyEnfants;
+
+  /// No description provided for @mariageGateFactPatrimoine1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton patrimoine'**
+  String get mariageGateFactPatrimoine1;
+
+  /// No description provided for @mariageGateWhyPatrimoine1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage du régime se calcule sur vos patrimoines.'**
+  String get mariageGateWhyPatrimoine1;
+
+  /// No description provided for @mariageGateFactPatrimoine2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine du conjoint'**
+  String get mariageGateFactPatrimoine2;
+
+  /// No description provided for @mariageGateWhyPatrimoine2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage compare vos deux patrimoines.'**
+  String get mariageGateWhyPatrimoine2;
+
+  /// No description provided for @mariageGateFactRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente LPP mensuelle'**
+  String get mariageGateFactRenteLpp;
+
+  /// No description provided for @mariageGateWhyRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente de survivant se calcule sur la rente LPP du défunt.'**
+  String get mariageGateWhyRenteLpp;
+
   /// No description provided for @housingSaleIntroText.
   ///
   /// In fr, this message translates to:

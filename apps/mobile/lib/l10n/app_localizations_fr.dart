@@ -3414,6 +3414,55 @@ class SFr extends S {
       'Exemple — coûts moyens en Suisse, pas ta situation';
 
   @override
+  String get mariageGateFactRevenu1 => 'Ton revenu annuel brut';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'L\'écart d\'impôt du couple se calcule sur ton revenu.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Revenu du conjoint';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'L\'imposition commune dépend du revenu de ton conjoint.';
+
+  @override
+  String get mariageGateFactCanton => 'Canton de résidence';
+
+  @override
+  String get mariageGateWhyCanton =>
+      'Le barème d\'impôt varie selon ton canton.';
+
+  @override
+  String get mariageGateFactEnfants => 'Nombre d\'enfants';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'Les déductions pour enfants modifient l\'impôt du couple.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'Ton patrimoine';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'Le partage du régime se calcule sur vos patrimoines.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Patrimoine du conjoint';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'Le partage compare vos deux patrimoines.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Rente LPP mensuelle';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'La rente de survivant se calcule sur la rente LPP du défunt.';
+
+  @override
   String get housingSaleIntroText =>
       'Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t\'aide à estimer le produit net de ta vente.';
 

@@ -3413,6 +3413,55 @@ class SPt extends S {
       'Exemplo — custos médios na Suíça, não a tua situação';
 
   @override
+  String get mariageGateFactRevenu1 => 'O teu rendimento bruto anual';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'A diferença fiscal do casal calcula-se sobre o teu rendimento.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Rendimento do cônjuge';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'A tributação conjunta depende do rendimento do teu cônjuge.';
+
+  @override
+  String get mariageGateFactCanton => 'Cantão de residência';
+
+  @override
+  String get mariageGateWhyCanton =>
+      'A tabela fiscal varia consoante o teu cantão.';
+
+  @override
+  String get mariageGateFactEnfants => 'Número de filhos';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'As deduções por filhos alteram o imposto do casal.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'O teu património';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'A partilha do regime calcula-se sobre os vossos patrimónios.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Património do cônjuge';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'A partilha compara os vossos dois patrimónios.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Pensão LPP mensal';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'A pensão de sobrevivência calcula-se sobre a pensão LPP do falecido.';
+
+  @override
   String get housingSaleIntroText =>
       'Vender um imóvel na Suíça implica um imposto sobre as mais-valias imobiliárias (LHID art. 12), o eventual reembolso dos fundos de previdência utilizados (EPL) e custos de transação. Esta ferramenta ajuda-te a estimar o produto líquido da venda.';
 
