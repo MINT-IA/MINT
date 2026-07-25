@@ -114,10 +114,10 @@ void main() {
 
     expect(node, isNotNull,
         reason: 'screen-root Semantics boundary "$identifier" missing '
-            '(ILLOG-02 collapse) — VoiceOver/Maestro cannot read the screen');
+            '(necessary precondition for the ILLOG-02 a11y contract)');
     expect(node!.getSemanticsData().identifier, identifier);
     expect(labels, isNotEmpty,
-        reason: 'no body labels under the "$identifier" boundary');
+        reason: 'no descendant labels under the "$identifier" boundary');
   }
 
   testWidgets('DisabilityGapScreen exposes a screen-root semantics boundary',

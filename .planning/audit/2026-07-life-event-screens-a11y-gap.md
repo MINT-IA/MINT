@@ -36,7 +36,7 @@ Deux écrans premium **testés** (`/invalidite`, `/life-event/deces-proche`) **r
 
 ## Suivi (bead dédié)
 
-1. Mesurer directement : `debugDumpSemanticsTree` device (le tree Dart est peuplé — la collapse est bridge-iOS) et/ou VoiceOver sur device, pour les 3 écrans.
+1. Mesurer directement : `debugDumpSemanticsTree` device et/ou VoiceOver sur device, pour les 3 écrans. (Hypothèse par analogie ILLOG-02 : le tree Dart serait peuplé et la collapse serait côté bridge-iOS — NON mesuré ici, à confirmer.)
 2. Identifier l'effondrement résiduel (probable Semantics sans explicitChildNodes plus bas, ex. `_buildAppBar` SliverAppBar ou hero).
 3. Une fois observables → ré-inclure dans `parcours_secondaires.yaml`.
 
