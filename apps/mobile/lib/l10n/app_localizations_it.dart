@@ -7313,6 +7313,34 @@ class SIt extends S {
       'L\'ordine dei beneficiari LPP è stabilito dal regolamento della cassa (OPP2 art. 48). Il 3a segue l\'OPP3 art. 2.';
 
   @override
+  String get decesGateFactLpp => 'Capitale LPP del defunto';
+
+  @override
+  String get decesGateWhyLpp =>
+      'Il capitale LPP trasferito ai beneficiari dipende dagli averi previdenziali del defunto.';
+
+  @override
+  String get decesGateFact3a => 'Capitale del pilastro 3a del defunto';
+
+  @override
+  String get decesGateWhy3a =>
+      'Il capitale del pilastro 3a versato ai beneficiari dipende dai risparmi 3a del defunto.';
+
+  @override
+  String get decesGateFactLien => 'Il tuo legame con il defunto';
+
+  @override
+  String get decesGateWhyLien =>
+      'L\'esenzione dall\'imposta di successione dipende dal tuo grado di parentela.';
+
+  @override
+  String get decesGateFactCanton => 'Cantone della successione';
+
+  @override
+  String get decesGateWhyCanton =>
+      'L\'imposta di successione è cantonale; dipende dal cantone di domicilio del defunto.';
+
+  @override
   String get decesProchImpactFiscalTitre => 'Impatto fiscale';
 
   @override

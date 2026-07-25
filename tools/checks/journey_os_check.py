@@ -616,6 +616,7 @@ ALLOW = {
     # a11y ILLOG-02 contract : screen-root Semantics sur 3 écrans life-event premium
     "apps/mobile/lib/screens/disability/disability_gap_screen.dart",
     "apps/mobile/lib/screens/deces_proche_screen.dart",
+    "apps/mobile/test/screens/deces_gate_test.dart",
     "apps/mobile/lib/screens/demenagement_cantonal_screen.dart",
     "apps/mobile/test/screens/life_event_premium_a11y_test.dart",
     "tools/checks/baselines/prefer_mint_cta.baseline.txt",

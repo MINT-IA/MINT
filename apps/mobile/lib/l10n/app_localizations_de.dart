@@ -7313,6 +7313,34 @@ class SDe extends S {
       'Die Reihenfolge der BVG-Begünstigten wird durch das Reglement der Pensionskasse festgelegt (BVV2 Art. 48). Die Säule 3a folgt BVV3 Art. 2.';
 
   @override
+  String get decesGateFactLpp => 'BVG-Kapital der verstorbenen Person';
+
+  @override
+  String get decesGateWhyLpp =>
+      'Das an die Begünstigten übertragene BVG-Kapital hängt vom Vorsorgeguthaben der verstorbenen Person ab.';
+
+  @override
+  String get decesGateFact3a => 'Säule-3a-Kapital der verstorbenen Person';
+
+  @override
+  String get decesGateWhy3a =>
+      'Das an die Begünstigten ausgezahlte Säule-3a-Kapital hängt vom 3a-Guthaben der verstorbenen Person ab.';
+
+  @override
+  String get decesGateFactLien => 'Dein Verhältnis zur verstorbenen Person';
+
+  @override
+  String get decesGateWhyLien =>
+      'Die Befreiung von der Erbschaftssteuer hängt von deinem Verwandtschaftsverhältnis ab.';
+
+  @override
+  String get decesGateFactCanton => 'Kanton des Nachlasses';
+
+  @override
+  String get decesGateWhyCanton =>
+      'Die Erbschaftssteuer ist kantonal; sie hängt vom Wohnsitzkanton der verstorbenen Person ab.';
+
+  @override
   String get decesProchImpactFiscalTitre => 'Steuerliche Auswirkungen';
 
   @override

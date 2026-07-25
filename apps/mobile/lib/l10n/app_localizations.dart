@@ -13038,6 +13038,54 @@ abstract class S {
   /// **'L\'ordre des bénéficiaires LPP est fixé par le règlement de la caisse (OPP2 art. 48). Le 3a suit l\'OPP3 art. 2.'**
   String get decesProchebeneficiairesNote;
 
+  /// No description provided for @decesGateFactLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital LPP du défunt'**
+  String get decesGateFactLpp;
+
+  /// No description provided for @decesGateWhyLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le capital LPP transmis aux bénéficiaires dépend de l\'avoir de prévoyance du défunt.'**
+  String get decesGateWhyLpp;
+
+  /// No description provided for @decesGateFact3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a du défunt'**
+  String get decesGateFact3a;
+
+  /// No description provided for @decesGateWhy3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le capital 3a versé aux bénéficiaires dépend de l\'épargne 3a du défunt.'**
+  String get decesGateWhy3a;
+
+  /// No description provided for @decesGateFactLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton lien avec le défunt'**
+  String get decesGateFactLien;
+
+  /// No description provided for @decesGateWhyLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'exonération de l\'impôt de succession dépend de ton lien de parenté.'**
+  String get decesGateWhyLien;
+
+  /// No description provided for @decesGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de la succession'**
+  String get decesGateFactCanton;
+
+  /// No description provided for @decesGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impôt de succession est cantonal ; il dépend du domicile du défunt.'**
+  String get decesGateWhyCanton;
+
   /// No description provided for @decesProchImpactFiscalTitre.
   ///
   /// In fr, this message translates to:
