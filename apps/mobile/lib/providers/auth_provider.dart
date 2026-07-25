@@ -235,6 +235,13 @@ class AuthProvider extends ChangeNotifier {
   // accounts, not "the user deliberately entered guest mode".
   bool _isLocalMode = true;
   static const _authLocalModeKey = 'auth_local_mode';
+
+  /// Test-only seam for the E2E seeded-guest boot hook in [checkAuth]. When
+  /// non-null it stands in for the compile-time `MINT_E2E_ARCHETYPE`
+  /// dart-define (which cannot be set from a widget test). Never assigned in
+  /// production code paths.
+  @visibleForTesting
+  static String? debugE2eArchetypeOverride;
   static const _mintInstallIdKey = '_mint_install_id';
 
   static String _localDataSyncPendingKey(String userId) =>
@@ -623,14 +630,25 @@ class AuthProvider extends ChangeNotifier {
         // release build; mirrors the kReleaseMode-guarded seed activation in
         // coach_profile_seeds.dart. Normal builds leave MINT_E2E_ARCHETYPE
         // empty ⇒ e2eSeededGuest is false ⇒ behaviour is unchanged.
-        const e2eArchetype = String.fromEnvironment('MINT_E2E_ARCHETYPE');
+        final e2eArchetype = debugE2eArchetypeOverride ??
+            const String.fromEnvironment('MINT_E2E_ARCHETYPE');
         final e2eSeededGuest = !kReleaseMode && e2eArchetype.isNotEmpty;
+        if (e2eSeededGuest) {
+          // Uphold the local-only contract CONSISTENTLY: persist the override
+          // to SharedPreferences so consumers that read `auth_local_mode`
+          // directly (e.g. persistence-consent / cloud-sync checks) agree with
+          // the guestLocal/localOnly lifecycle. Without this, a reused seeded
+          // build carrying a stale `auth_local_mode=false` would advertise
+          // localOnly via the lifecycle while prefs-readers still believed
+          // cloud sync was on. Mirrors enableLocalMode() (auth_provider.dart).
+          _isLocalMode = true;
+          await prefs.setBool(_authLocalModeKey, true);
+        }
         _authLifecycle = (_isLocalMode && hasExplicitLocalMode) || e2eSeededGuest
             ? AuthLifecycleState.guestEmpty(
                 installId: await _loadOrCreateInstallId(prefs),
               )
             : AuthLifecycleState.freshVisitor();
-        if (e2eSeededGuest) _isLocalMode = true;
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
