@@ -601,6 +601,7 @@ ALLOW = {
     "apps/mobile/lib/screens/deces_proche_screen.dart",
     "apps/mobile/lib/screens/demenagement_cantonal_screen.dart",
     "apps/mobile/test/screens/life_event_premium_a11y_test.dart",
+    "tools/checks/baselines/prefer_mint_cta.baseline.txt",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
