@@ -315,6 +315,32 @@ void main() {
           reason: 'the écart is the real FiscalService delta, not a fabrication');
     });
 
+    testWidgets('below-range income (12000/an) does NOT unlock the ranking',
+        (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+            salaire: 1000, canton: 'GE', provided: {'salary', 'canton'})),
+      );
+      expect(find.byType(TopCantonWidget), findsNothing,
+          reason: '12000/an < 20000 → income un-confirmed → ranking gated');
+      expect(_gateWith(tester, 'income').gate.missing.map((f) => f.key),
+          contains('income'));
+    });
+
+    testWidgets('above-range income (2.4M/an) does NOT unlock the ranking',
+        (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+            salaire: 200000, canton: 'GE', provided: {'salary', 'canton'})),
+      );
+      expect(find.byType(TopCantonWidget), findsNothing,
+          reason: '2.4M/an > 2M → income un-confirmed → ranking gated (no clamp)');
+      expect(_gateWith(tester, 'income').gate.missing.map((f) => f.key),
+          contains('income'));
+    });
+
     testWidgets('income confirmed but canton key missing → still gated',
         (tester) async {
       await _pump(

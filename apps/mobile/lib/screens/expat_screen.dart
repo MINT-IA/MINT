@@ -285,7 +285,13 @@ class _ExpatScreenState extends State<ExpatScreen>
         provided.contains('civilStatus') && profile.etatCivil.name == 'marie';
     final income =
         married ? profile.revenuBrutAnnuelCouple : profile.revenuBrutAnnuel;
-    final incomeSeeded = provided.contains('salary') && income > 0;
+    // Revenu confirmé seulement dans une plage annuelle plausible : un revenu
+    // hors plage (ex. 1200/an ou 6M/an) ne doit pas débloquer un classement CHF
+    // personnalisé sur une valeur aberrante (pas de clamp — hors plage = non
+    // confirmé, gaté).
+    final incomeSeeded = provided.contains('salary') &&
+        income >= 20000.0 &&
+        income <= 2000000.0;
     final anchorValid = provided.contains('canton') &&
         cantonalCommunalTaxChf.containsKey(profile.canton);
     final anchor = anchorValid ? profile.canton : _forfaitCanton;
