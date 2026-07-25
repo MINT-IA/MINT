@@ -3282,6 +3282,96 @@ class SEn extends S {
       'Complete your situation for a calculation based on your data';
 
   @override
+  String get expatForfaitGateTitle =>
+      'Complete your situation for a lump-sum based on your data';
+
+  @override
+  String get expatTopCantonsGateTitle =>
+      'Complete your profile for a personalised cantonal ranking';
+
+  @override
+  String get expatDepartGateTitle =>
+      'Complete your situation to quantify your pension capital';
+
+  @override
+  String get expatAvsGateTitle =>
+      'Complete your situation to estimate your AVS gap';
+
+  @override
+  String get expatAvsProjectionGateTitle =>
+      'Complete your situation to project your AVS pension';
+
+  @override
+  String get expatGateFactForfaitCanton => 'Lump-sum canton';
+
+  @override
+  String get expatGateWhyForfaitCanton =>
+      'The taxable minimum depends on the chosen canton.';
+
+  @override
+  String get expatGateFactLivingExpenses => 'Worldwide living expenses';
+
+  @override
+  String get expatGateWhyLivingExpenses =>
+      'The lump-sum is based on your annual living expenses.';
+
+  @override
+  String get expatGateFactActualIncome => 'Actual worldwide income';
+
+  @override
+  String get expatGateWhyActualIncome =>
+      'The comparison uses your worldwide income, not your Swiss salary.';
+
+  @override
+  String get expatGateFactIncome => 'Taxable income';
+
+  @override
+  String get expatGateWhyIncome =>
+      'The tax gap between cantons is based on your real income.';
+
+  @override
+  String get expatGateFactCanton => 'Canton of residence';
+
+  @override
+  String get expatGateWhyCanton =>
+      'The ranking compares cantons against your current tax burden.';
+
+  @override
+  String get expatGateFactPillar3a => 'Pillar 3a balance';
+
+  @override
+  String get expatGateWhyPillar3a =>
+      'Your pension capital at stake includes your 3a.';
+
+  @override
+  String get expatGateFactLpp => 'LPP assets';
+
+  @override
+  String get expatGateWhyLpp =>
+      'Your pension capital at stake includes your LPP assets.';
+
+  @override
+  String get expatGateFactYearsInCh => 'Contribution years in Switzerland';
+
+  @override
+  String get expatGateWhyYearsInCh =>
+      'The AVS pension depends on your contribution years.';
+
+  @override
+  String get expatGateFactYearsAbroad => 'Years spent abroad';
+
+  @override
+  String get expatGateWhyYearsAbroad =>
+      'Years outside Switzerland widen the contribution gap.';
+
+  @override
+  String get expatGateFactAge => 'Age';
+
+  @override
+  String get expatGateWhyAge =>
+      'The pension projection depends on the years you have left to contribute.';
+
+  @override
   String donationCompleterSituation(int confirmed, int total) {
     return 'Complete my situation ($confirmed/$total)';
   }

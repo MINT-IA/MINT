@@ -3316,6 +3316,96 @@ class SIt extends S {
       'Completa la tua situazione per un calcolo basato sui tuoi dati';
 
   @override
+  String get expatForfaitGateTitle =>
+      'Completa la tua situazione per un forfait basato sui tuoi dati';
+
+  @override
+  String get expatTopCantonsGateTitle =>
+      'Completa il tuo profilo per una classifica cantonale personalizzata';
+
+  @override
+  String get expatDepartGateTitle =>
+      'Completa la tua situazione per quantificare il tuo capitale di previdenza';
+
+  @override
+  String get expatAvsGateTitle =>
+      'Completa la tua situazione per stimare la tua lacuna AVS';
+
+  @override
+  String get expatAvsProjectionGateTitle =>
+      'Completa la tua situazione per proiettare la tua rendita AVS';
+
+  @override
+  String get expatGateFactForfaitCanton => 'Cantone del forfait';
+
+  @override
+  String get expatGateWhyForfaitCanton =>
+      'Il minimo imponibile dipende dal cantone scelto.';
+
+  @override
+  String get expatGateFactLivingExpenses => 'Spese di vita mondiali';
+
+  @override
+  String get expatGateWhyLivingExpenses =>
+      'Il forfait si calcola sulle tue spese di vita annuali.';
+
+  @override
+  String get expatGateFactActualIncome => 'Reddito mondiale reale';
+
+  @override
+  String get expatGateWhyActualIncome =>
+      'Il confronto usa il tuo reddito mondiale, non il tuo salario svizzero.';
+
+  @override
+  String get expatGateFactIncome => 'Reddito imponibile';
+
+  @override
+  String get expatGateWhyIncome =>
+      'La differenza fiscale tra cantoni si calcola sul tuo reddito reale.';
+
+  @override
+  String get expatGateFactCanton => 'Cantone di residenza';
+
+  @override
+  String get expatGateWhyCanton =>
+      'La classifica confronta i cantoni con il tuo carico fiscale attuale.';
+
+  @override
+  String get expatGateFactPillar3a => 'Saldo del pilastro 3a';
+
+  @override
+  String get expatGateWhyPillar3a =>
+      'Il tuo capitale di previdenza in gioco include il tuo 3a.';
+
+  @override
+  String get expatGateFactLpp => 'Averi LPP';
+
+  @override
+  String get expatGateWhyLpp =>
+      'Il tuo capitale di previdenza in gioco include i tuoi averi LPP.';
+
+  @override
+  String get expatGateFactYearsInCh => 'Anni di contribuzione in Svizzera';
+
+  @override
+  String get expatGateWhyYearsInCh =>
+      'La rendita AVS dipende dai tuoi anni di contribuzione.';
+
+  @override
+  String get expatGateFactYearsAbroad => 'Anni all\'estero';
+
+  @override
+  String get expatGateWhyYearsAbroad =>
+      'Gli anni fuori dalla Svizzera ampliano la lacuna contributiva.';
+
+  @override
+  String get expatGateFactAge => 'Età';
+
+  @override
+  String get expatGateWhyAge =>
+      'La proiezione della rendita dipende dagli anni che ti restano da contribuire.';
+
+  @override
   String donationCompleterSituation(int confirmed, int total) {
     return 'Completa la mia situazione ($confirmed/$total)';
   }

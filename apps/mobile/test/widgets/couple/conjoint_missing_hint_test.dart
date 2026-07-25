@@ -151,8 +151,12 @@ void main() {
 
   test('expat : hint gaté MARIÉ uniquement (concubinage = solo correct)', () {
     final src = File('lib/screens/expat_screen.dart').readAsStringSync();
+    // Le gate-dur P2 (PR #1038) a déplacé la logique dans _seedFromProfile :
+    // `married = ...etatCivil.name == 'marie'` puis
+    // `missingConj = married && profile.isMissingConjointIncome`. L'intention
+    // (hint gaté MARIÉ uniquement — concubinage = solo correct) est conservée.
     expect(
-        src.contains('if (isMarried && profile.isMissingConjointIncome)'),
+        src.contains('married && profile.isMissingConjointIncome'),
         isTrue,
         reason: 'panel : en concubinage l\'imposition est séparée — le '
             'calcul solo est correct, pas de fausse alerte');

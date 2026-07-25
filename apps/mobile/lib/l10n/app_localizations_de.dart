@@ -3319,6 +3319,96 @@ class SDe extends S {
       'Vervollständige deine Situation für eine Berechnung auf Basis deiner Daten';
 
   @override
+  String get expatForfaitGateTitle =>
+      'Vervollständige deine Situation für eine Pauschale auf Basis deiner Daten';
+
+  @override
+  String get expatTopCantonsGateTitle =>
+      'Vervollständige dein Profil für ein personalisiertes Kantonsranking';
+
+  @override
+  String get expatDepartGateTitle =>
+      'Vervollständige deine Situation, um dein Vorsorgekapital zu beziffern';
+
+  @override
+  String get expatAvsGateTitle =>
+      'Vervollständige deine Situation, um deine AHV-Lücke zu schätzen';
+
+  @override
+  String get expatAvsProjectionGateTitle =>
+      'Vervollständige deine Situation, um deine AHV-Rente zu projizieren';
+
+  @override
+  String get expatGateFactForfaitCanton => 'Kanton der Pauschale';
+
+  @override
+  String get expatGateWhyForfaitCanton =>
+      'Das steuerbare Minimum hängt vom gewählten Kanton ab.';
+
+  @override
+  String get expatGateFactLivingExpenses => 'Weltweite Lebenshaltungskosten';
+
+  @override
+  String get expatGateWhyLivingExpenses =>
+      'Die Pauschale basiert auf deinen jährlichen Lebenshaltungskosten.';
+
+  @override
+  String get expatGateFactActualIncome => 'Tatsächliches weltweites Einkommen';
+
+  @override
+  String get expatGateWhyActualIncome =>
+      'Der Vergleich nutzt dein weltweites Einkommen, nicht deinen Schweizer Lohn.';
+
+  @override
+  String get expatGateFactIncome => 'Steuerbares Einkommen';
+
+  @override
+  String get expatGateWhyIncome =>
+      'Die Steuerdifferenz zwischen Kantonen basiert auf deinem realen Einkommen.';
+
+  @override
+  String get expatGateFactCanton => 'Wohnkanton';
+
+  @override
+  String get expatGateWhyCanton =>
+      'Das Ranking vergleicht die Kantone mit deiner aktuellen Steuerlast.';
+
+  @override
+  String get expatGateFactPillar3a => 'Guthaben Säule 3a';
+
+  @override
+  String get expatGateWhyPillar3a =>
+      'Dein betroffenes Vorsorgekapital umfasst deine Säule 3a.';
+
+  @override
+  String get expatGateFactLpp => 'BVG-Guthaben';
+
+  @override
+  String get expatGateWhyLpp =>
+      'Dein betroffenes Vorsorgekapital umfasst dein BVG-Guthaben.';
+
+  @override
+  String get expatGateFactYearsInCh => 'Beitragsjahre in der Schweiz';
+
+  @override
+  String get expatGateWhyYearsInCh =>
+      'Die AHV-Rente hängt von deinen Beitragsjahren ab.';
+
+  @override
+  String get expatGateFactYearsAbroad => 'Jahre im Ausland';
+
+  @override
+  String get expatGateWhyYearsAbroad =>
+      'Jahre ausserhalb der Schweiz vergrössern die Beitragslücke.';
+
+  @override
+  String get expatGateFactAge => 'Alter';
+
+  @override
+  String get expatGateWhyAge =>
+      'Die Rentenprojektion hängt von den verbleibenden Beitragsjahren ab.';
+
+  @override
   String donationCompleterSituation(int confirmed, int total) {
     return 'Meine Situation vervollständigen ($confirmed/$total)';
   }
