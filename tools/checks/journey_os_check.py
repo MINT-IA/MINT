@@ -592,6 +592,7 @@ ALLOW = {
     "tools/simulator/test_mint2_quality_gate.py",
     "tools/contracts/screen_registry.json",
     "tools/simulator/flows/travail_triad.yaml",
+    "tools/simulator/flows/famille_parcours.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
