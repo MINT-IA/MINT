@@ -195,10 +195,9 @@ _FAMILY_ADJUSTMENT: Dict[str, float] = {
 # MIRROR Dart couple_optimizer.dart:146
 _MIN_DELTA: float = 100.0
 
-# MIRROR Dart social_insurance.dart:351 — `const double pilier3aPlafondAvecLpp = 7258.0`
-# Also matches backend constant PILIER_3A_PLAFOND_AVEC_LPP at
-# `services/backend/app/constants/social_insurance.py:339`.
-_PILIER_3A_PLAFOND_AVEC_LPP: float = 7258.0
+# Plafond 3a : source unique = registre (PILIER_3A_PLAFOND_AVEC_LPP,
+# social_insurance.py, alimenté par pillar3a.max_with_lpp). Importé au point
+# d'usage — plus de copie locale hardcodée (règle 4 / NEVER #3).
 
 # AVS constants — MIRROR Dart social_insurance.dart:
 _AVS_RENTE_MAX_MENSUELLE: float = 2520.0  # line 118
@@ -712,7 +711,11 @@ class CoupleOptimizer:
             )
 
         canton = user.get("canton") or "ZH"
-        ceiling = _PILIER_3A_PLAFOND_AVEC_LPP
+        # Registry-sourced (règle 4 / NEVER #3) — pas de copie locale hardcodée
+        # du plafond 3a, qui dériverait silencieusement si le registre change.
+        from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
+        ceiling = PILIER_3A_PLAFOND_AVEC_LPP
         children = _i(user.get("nombreEnfants"), default=0) or 0
         is_married = user.get("etatCivil") == "marie"
 
