@@ -6117,6 +6117,48 @@ abstract class S {
   /// **'Ton régime matrimonial modifie la masse successorale.'**
   String get donationGateWhyRegime;
 
+  /// No description provided for @firstJobGateFactSalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut mensuel'**
+  String get firstJobGateFactSalaire;
+
+  /// No description provided for @firstJobGateWhySalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est le montant de départ de ton analyse de salaire.'**
+  String get firstJobGateWhySalaire;
+
+  /// No description provided for @firstJobGateFactAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get firstJobGateFactAge;
+
+  /// No description provided for @firstJobGateWhyAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'La LPP (2e pilier) devient obligatoire dès 25 ans.'**
+  String get firstJobGateWhyAge;
+
+  /// No description provided for @firstJobGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get firstJobGateFactCanton;
+
+  /// No description provided for @firstJobGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les impôts et déductions varient selon ton canton.'**
+  String get firstJobGateWhyCanton;
+
+  /// No description provided for @firstJobGateAnnounceComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation complète, ton analyse de salaire est prête.'**
+  String get firstJobGateAnnounceComplete;
+
   /// No description provided for @housingSaleIntroText.
   ///
   /// In fr, this message translates to:

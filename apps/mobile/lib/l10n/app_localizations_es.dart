@@ -3341,6 +3341,31 @@ class SEs extends S {
       'Tu régimen matrimonial modifica la masa hereditaria.';
 
   @override
+  String get firstJobGateFactSalaire => 'Salario bruto mensual';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'Es el importe inicial de tu análisis salarial.';
+
+  @override
+  String get firstJobGateFactAge => 'Edad';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'La LPP (2.º pilar) es obligatoria a partir de los 25 años.';
+
+  @override
+  String get firstJobGateFactCanton => 'Cantón';
+
+  @override
+  String get firstJobGateWhyCanton =>
+      'Los impuestos y las deducciones varían según el cantón.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'Tu situación está completa, tu análisis salarial está listo.';
+
+  @override
   String get housingSaleIntroText =>
       'Vender una propiedad en Suiza implica un impuesto sobre las ganancias inmobiliarias (LHID art. 12), el posible reembolso de fondos de previsión utilizados (EPL) y gastos de transacción. Esta herramienta te ayuda a estimar el producto neto de tu venta.';
 

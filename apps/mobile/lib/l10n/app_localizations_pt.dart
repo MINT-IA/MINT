@@ -3338,6 +3338,31 @@ class SPt extends S {
       'O teu regime matrimonial altera a massa sucessória.';
 
   @override
+  String get firstJobGateFactSalaire => 'Salário bruto mensal';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'É o valor inicial da tua análise salarial.';
+
+  @override
+  String get firstJobGateFactAge => 'Idade';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'A LPP (2.º pilar) torna-se obrigatória a partir dos 25 anos.';
+
+  @override
+  String get firstJobGateFactCanton => 'Cantão';
+
+  @override
+  String get firstJobGateWhyCanton =>
+      'Os impostos e as deduções variam consoante o cantão.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'A tua situação está completa, a tua análise salarial está pronta.';
+
+  @override
   String get housingSaleIntroText =>
       'Vender um imóvel na Suíça implica um imposto sobre as mais-valias imobiliárias (LHID art. 12), o eventual reembolso dos fundos de previdência utilizados (EPL) e custos de transação. Esta ferramenta ajuda-te a estimar o produto líquido da venda.';
 
