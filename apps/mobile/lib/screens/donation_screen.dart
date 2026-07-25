@@ -152,9 +152,30 @@ class _DonationScreenState extends State<DonationScreen> {
   /// provenance is real: a `userProvidedFields` key, never value≠default.
   void _seedFromProfile() {
     final profile = _profileProvider?.profile;
-    if (profile == null) return; // pas encore hydraté : le listener rejouera.
     var changed = false; // valeur OU provenance a bougé → rebuild.
     var valueChanged = false; // une valeur CONSOMMÉE par le calcul a bougé.
+
+    if (profile == null) {
+      // Profil absent : soit pas encore hydraté (le listener rejouera), soit
+      // effacé pendant que l'écran est monté (logout / reset → clear()). Dans
+      // les deux cas la provenance issue du profil disparaît : les faits
+      // seededFromProfile retombent à non confirmés (un fait TOUCHÉ reste
+      // valide, c'est une donnée user). Tout chiffre qui reposait sur une
+      // donnée seedée est invalidé — aucun résultat ne survit à sa source.
+      if (_cantonSeeded) {
+        _cantonSeeded = false;
+        changed = true;
+      }
+      if (_fortuneSeeded) {
+        _fortuneSeeded = false;
+        changed = true;
+      }
+      if (changed) {
+        _invalidateResult();
+        if (mounted) setState(() {});
+      }
+      return;
+    }
 
     // Âge : non gaté, mais consommé par DonationService.calculate → invalide
     // un résultat déjà calculé s'il change.

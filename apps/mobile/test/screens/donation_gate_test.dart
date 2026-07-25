@@ -50,6 +50,11 @@ class _MutableProvider extends CoachProfileProvider {
     _p = p;
     notifyListeners();
   }
+
+  void clearProfile() {
+    _p = null;
+    notifyListeners();
+  }
 }
 
 CoachProfile _profile({
@@ -402,5 +407,37 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(_taxCard), findsNothing,
         reason: 'provenance re-evaluated each notify (no latch) → gate re-closes');
+  });
+
+  // ── 11. Profile cleared while mounted (logout/reset): figures that relied on
+  //        seeded facts must vanish (Codex null-profile finding).
+  testWidgets(
+      'clearing the profile removes figures that relied on seeded facts',
+      (tester) async {
+    final fake = _MutableProvider();
+    await _pump(tester, fake);
+    // canton + fortune confirmed by SEED (keys); children + régime by touch.
+    fake.hydrate(_profile(
+      canton: 'GE',
+      epargneLiquide: 400000,
+      provided: {'canton', 'liquidSavings'},
+    ));
+    await tester.pumpAndSettle();
+    await _touchNbEnfants(tester, 2);
+    await _touchRegime(tester, 'participation_acquets');
+    await _tapCalculer(tester);
+    expect(find.byKey(_taxCard), findsOneWidget);
+    expect(find.byKey(_reserveFigure), findsOneWidget);
+
+    // Profile cleared (logout / account reset) while the screen is mounted.
+    fake.clearProfile();
+    await tester.pumpAndSettle();
+
+    // canton + fortune were seeded (not touched) → their provenance vanishes →
+    // both outputs re-gate; no figure survives its data source.
+    expect(find.byKey(_taxCard), findsNothing,
+        reason: 'seeded canton provenance gone on clear → tax re-gates');
+    expect(find.byKey(_reserveFigure), findsNothing,
+        reason: 'seeded fortune provenance gone on clear → réserve re-gates');
   });
 }
