@@ -37,6 +37,11 @@ CoachProfile _donorProfile({
   int nombreEnfants = 0,
   double epargneLiquide = 0,
   double dette = 0,
+  // P2 « gate dur » : le seed du canton et de la fortune n'a lieu que si leur
+  // provenance est réelle (clé userProvidedFields), jamais valeur≠défaut. Les
+  // cas « champs présents » fournissent donc les clés ; les cas « champs
+  // absents » passent `provided: {}`.
+  Set<String> provided = const {'canton', 'liquidSavings'},
 }) {
   return CoachProfile(
     birthYear: birthYear,
@@ -45,6 +50,7 @@ CoachProfile _donorProfile({
     nombreEnfants: nombreEnfants,
     patrimoine: PatrimoineProfile(epargneLiquide: epargneLiquide),
     dettes: DetteProfile(autresDettes: dette),
+    userProvidedFields: provided,
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(birthYear + 65),
@@ -101,7 +107,9 @@ void main() {
   testWidgets('keeps static defaults when profile fields absent/empty',
       (tester) async {
     // birthYear 0 → ageOrNull null; nbEnfants 0 (ambigu) not seeded; net 0.
-    final profile = _donorProfile(birthYear: 0, canton: 'unknown');
+    // provided: {} → aucune provenance → canton/fortune gardent leurs défauts.
+    final profile =
+        _donorProfile(birthYear: 0, canton: 'unknown', provided: {});
     await _pump(tester, _FakeCoachProfileProvider(profile));
 
     final s = _state(tester);

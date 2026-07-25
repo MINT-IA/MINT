@@ -3284,6 +3284,60 @@ class SPt extends S {
   String get donationCanton => 'Cantão';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmed,
+      locale: localeName,
+      other: '$confirmed/$total concluídos',
+      one: '$confirmed/$total concluído',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Completar';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'A tua situação está completa, podes executar o cálculo.';
+
+  @override
+  String get donationGateTitle =>
+      'Completa a tua situação para um cálculo baseado nos teus dados';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Completar a minha situação ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Cantão da doação';
+
+  @override
+  String get donationGateWhyCanton => 'O imposto sobre doações é cantonal.';
+
+  @override
+  String get donationGateFactEnfants => 'Número de filhos';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'A tua reserva hereditária depende do número de filhos.';
+
+  @override
+  String get donationGateFactFortune => 'Património líquido';
+
+  @override
+  String get donationGateWhyFortune =>
+      'O montante da reserva calcula-se sobre o teu património líquido.';
+
+  @override
+  String get donationGateFactRegime => 'Regime matrimonial';
+
+  @override
+  String get donationGateWhyRegime =>
+      'O teu regime matrimonial altera a massa sucessória.';
+
+  @override
   String get housingSaleIntroText =>
       'Vender um imóvel na Suíça implica um imposto sobre as mais-valias imobiliárias (LHID art. 12), o eventual reembolso dos fundos de previdência utilizados (EPL) e custos de transação. Esta ferramenta ajuda-te a estimar o produto líquido da venda.';
 

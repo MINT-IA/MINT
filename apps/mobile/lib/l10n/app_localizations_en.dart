@@ -3266,6 +3266,54 @@ class SEn extends S {
   String get donationCanton => 'Canton';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    return '$confirmed/$total completed';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Complete';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'Your situation is complete, you can run the calculation.';
+
+  @override
+  String get donationGateTitle =>
+      'Complete your situation for a calculation based on your data';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Complete my situation ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Canton of the donation';
+
+  @override
+  String get donationGateWhyCanton => 'Donation tax is set at cantonal level.';
+
+  @override
+  String get donationGateFactEnfants => 'Number of children';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'Your statutory reserve depends on the number of children.';
+
+  @override
+  String get donationGateFactFortune => 'Net wealth';
+
+  @override
+  String get donationGateWhyFortune =>
+      'The reserve amount is calculated on your net wealth.';
+
+  @override
+  String get donationGateFactRegime => 'Matrimonial property regime';
+
+  @override
+  String get donationGateWhyRegime =>
+      'Your matrimonial property regime changes the estate mass.';
+
+  @override
   String get housingSaleIntroText =>
       'Selling property in Switzerland involves a capital gains tax (LHID art. 12), possible reimbursement of pension funds used (EPL), and transaction costs. This tool helps you estimate your net sale proceeds.';
 

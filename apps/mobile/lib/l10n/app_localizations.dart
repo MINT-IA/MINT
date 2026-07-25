@@ -6039,6 +6039,84 @@ abstract class S {
   /// **'Canton'**
   String get donationCanton;
 
+  /// No description provided for @situationGateProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{confirmed}/{total} complété{confirmed, plural, =0{} =1{} other{s}}'**
+  String situationGateProgress(int confirmed, int total);
+
+  /// No description provided for @situationGateCompleterAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter'**
+  String get situationGateCompleterAction;
+
+  /// No description provided for @situationGateAnnounceComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation complète, tu peux lancer le calcul.'**
+  String get situationGateAnnounceComplete;
+
+  /// No description provided for @donationGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour un calcul fondé sur tes données'**
+  String get donationGateTitle;
+
+  /// No description provided for @donationCompleterSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter ma situation ({confirmed}/{total})'**
+  String donationCompleterSituation(int confirmed, int total);
+
+  /// No description provided for @donationGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de la donation'**
+  String get donationGateFactCanton;
+
+  /// No description provided for @donationGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impôt sur les donations est cantonal.'**
+  String get donationGateWhyCanton;
+
+  /// No description provided for @donationGateFactEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get donationGateFactEnfants;
+
+  /// No description provided for @donationGateWhyEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réserve héréditaire dépend du nombre d\'enfants.'**
+  String get donationGateWhyEnfants;
+
+  /// No description provided for @donationGateFactFortune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fortune nette'**
+  String get donationGateFactFortune;
+
+  /// No description provided for @donationGateWhyFortune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant de la réserve se calcule sur ta fortune nette.'**
+  String get donationGateWhyFortune;
+
+  /// No description provided for @donationGateFactRegime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régime matrimonial'**
+  String get donationGateFactRegime;
+
+  /// No description provided for @donationGateWhyRegime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton régime matrimonial modifie la masse successorale.'**
+  String get donationGateWhyRegime;
+
   /// No description provided for @housingSaleIntroText.
   ///
   /// In fr, this message translates to:
