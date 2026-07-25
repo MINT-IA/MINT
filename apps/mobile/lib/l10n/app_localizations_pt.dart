@@ -3363,6 +3363,56 @@ class SPt extends S {
       'A tua situação está completa, a tua análise salarial está pronta.';
 
   @override
+  String get naissanceGateFactSalaire => 'Salário mensal bruto';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'A tua licença APG é calculada com base no teu salário.';
+
+  @override
+  String get naissanceGateFactParent => 'Progenitor em causa';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'A duração da licença difere entre maternidade e paternidade.';
+
+  @override
+  String get naissanceGateFactCanton => 'Cantão';
+
+  @override
+  String get naissanceGateWhyCanton =>
+      'Os abonos de família variam consoante o teu cantão.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Número de filhos';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'O total dos abonos depende do número de filhos.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Rendimento anual bruto';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'O impacto fiscal é calculado sobre o teu rendimento tributável.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Despesas de guarda';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'As tuas despesas reais de guarda determinam a dedução.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'O número de filhos altera as deduções e os custos.';
+
+  @override
+  String get naissanceCostGenericExampleLabel =>
+      'Exemplo — custos médios na Suíça, não a tua situação';
+
+  @override
   String get housingSaleIntroText =>
       'Vender um imóvel na Suíça implica um imposto sobre as mais-valias imobiliárias (LHID art. 12), o eventual reembolso dos fundos de previdência utilizados (EPL) e custos de transação. Esta ferramenta ajuda-te a estimar o produto líquido da venda.';
 

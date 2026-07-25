@@ -3376,6 +3376,56 @@ class SDe extends S {
       'Deine Situation ist vollständig, deine Lohnanalyse ist bereit.';
 
   @override
+  String get naissanceGateFactSalaire => 'Brutto-Monatslohn';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'Dein EO-Urlaub wird auf Basis deines Lohns berechnet.';
+
+  @override
+  String get naissanceGateFactParent => 'Betroffenes Elternteil';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'Die Urlaubsdauer unterscheidet sich zwischen Mutterschaft und Vaterschaft.';
+
+  @override
+  String get naissanceGateFactCanton => 'Kanton';
+
+  @override
+  String get naissanceGateWhyCanton =>
+      'Familienzulagen variieren je nach Kanton.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Anzahl Kinder';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'Die Gesamtzulagen hängen von der Anzahl der Kinder ab.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Brutto-Jahreseinkommen';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'Die steuerliche Auswirkung wird auf deinem steuerbaren Einkommen berechnet.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Betreuungskosten';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'Deine tatsächlichen Betreuungskosten bestimmen den Abzug.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'Die Anzahl der Kinder verändert Abzüge und Kosten.';
+
+  @override
+  String get naissanceCostGenericExampleLabel =>
+      'Beispiel — Durchschnittskosten in der Schweiz, nicht deine Situation';
+
+  @override
   String get housingSaleIntroText =>
       'Der Verkauf einer Immobilie in der Schweiz beinhaltet eine Grundstückgewinnsteuer (StHG Art. 12), eine mögliche Rückzahlung der verwendeten Vorsorgegelder (WEF) und Transaktionskosten. Dieses Tool hilft dir, den Nettoerlös deines Verkaufs zu schätzen.';
 

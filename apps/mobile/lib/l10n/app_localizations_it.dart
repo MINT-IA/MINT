@@ -3373,6 +3373,56 @@ class SIt extends S {
       'La tua situazione è completa, la tua analisi salariale è pronta.';
 
   @override
+  String get naissanceGateFactSalaire => 'Salario mensile lordo';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'Il tuo congedo APG si calcola sul tuo salario.';
+
+  @override
+  String get naissanceGateFactParent => 'Genitore interessato';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'La durata del congedo differisce tra maternità e paternità.';
+
+  @override
+  String get naissanceGateFactCanton => 'Cantone';
+
+  @override
+  String get naissanceGateWhyCanton =>
+      'Gli assegni familiari variano secondo il tuo cantone.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Numero di figli';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'Il totale degli assegni dipende dal numero di figli.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Reddito annuo lordo';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'L\'impatto fiscale si calcola sul tuo reddito imponibile.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Spese di custodia';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'Le tue spese di custodia reali determinano la deduzione.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'Il numero di figli modifica deduzioni e costi.';
+
+  @override
+  String get naissanceCostGenericExampleLabel =>
+      'Esempio — costi medi in Svizzera, non la tua situazione';
+
+  @override
   String get housingSaleIntroText =>
       'Vendere un immobile in Svizzera comporta un\'imposta sugli utili immobiliari (LAID art. 12), l\'eventuale rimborso dei fondi previdenziali utilizzati (EPL) e costi di transazione. Questo strumento ti aiuta a stimare il ricavo netto della vendita.';
 

@@ -3366,6 +3366,56 @@ class SEs extends S {
       'Tu situación está completa, tu análisis salarial está listo.';
 
   @override
+  String get naissanceGateFactSalaire => 'Salario mensual bruto';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'Tu permiso APG se calcula según tu salario.';
+
+  @override
+  String get naissanceGateFactParent => 'Progenitor concernido';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'La duración del permiso difiere entre maternidad y paternidad.';
+
+  @override
+  String get naissanceGateFactCanton => 'Cantón';
+
+  @override
+  String get naissanceGateWhyCanton =>
+      'Las asignaciones familiares varían según tu cantón.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Número de hijos';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'El total de las asignaciones depende del número de hijos.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Ingreso anual bruto';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'El impacto fiscal se calcula sobre tu ingreso imponible.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Gastos de guardería';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'Tus gastos reales de guardería determinan la deducción.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'El número de hijos modifica las deducciones y los costes.';
+
+  @override
+  String get naissanceCostGenericExampleLabel =>
+      'Ejemplo — costes medios en Suiza, no tu situación';
+
+  @override
   String get housingSaleIntroText =>
       'Vender una propiedad en Suiza implica un impuesto sobre las ganancias inmobiliarias (LHID art. 12), el posible reembolso de fondos de previsión utilizados (EPL) y gastos de transacción. Esta herramienta te ayuda a estimar el producto neto de tu venta.';
 
