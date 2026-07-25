@@ -1,39 +1,47 @@
 ---
 date: 2026-07-25
-status: Finding
-description: "Sur DEUX écrans life-event premium testés (invalidité, décès-proche), Maestro ne parvient à matcher AUCUNE de leurs ancres texte alors qu'ils rendent visiblement — gap d'OBSERVABILITÉ sim confirmé. VoiceOver n'est PAS prouvé cassé (les widgets hero portent un Semantics(label)) : c'est un RISQUE a11y à vérifier directement. Déménagement-cantonal : NON testé (inféré). Ne pas surestimer."
+status: Finding — necessary a11y boundary landed, observability NOT restored
+description: "Sur DEUX écrans premium testés (invalidité, décès-proche), Maestro ne matche AUCUNE ancre texte alors qu'ils rendent — gap d'OBSERVABILITÉ (même symptôme observé qu'ILLOG-02). On a ajouté le contrat screen-root Semantics(container+explicitChildNodes) aux 3 écrans (nécessaire, test-épinglé). Post-wrapper, SEUL invalidité a été re-testé sur sim : échoue toujours. décès/déménagement non re-testés post-wrapper ; déménagement jamais testé du tout. Impact VoiceOver NON mesuré (risque, pas un fait)."
 related:
   - tools/simulator/flows/parcours_secondaires.yaml
-  - .planning/decisions/2026-07-24-campagne-contenu-officiel-garanti.md
+  - apps/mobile/test/screens/life_event_premium_a11y_test.dart
+  - apps/mobile/test/screens/rente_vs_capital_semantics_test.dart
 ---
 
-# Finding — observabilité sim des écrans life-event premium (+ risque a11y à vérifier)
+# Finding a11y — observabilité des écrans life-event premium
 
 ## TLDR
 
-En construisant les preuves sim des parcours secondaires (2026-07-25), **deux** écrans premium testés se sont révélés **impossibles à asserter par Maestro** alors qu'ils **rendent visiblement** (screenshots) : `/invalidite` (DisabilityGapScreen) et `/life-event/deces-proche` (DecesProcheScreen). Plusieurs ancres texte distinctes ont toutes échoué. **Ce qui est confirmé** = un gap d'**observabilité** (Maestro ne matche pas le texte de ces écrans). **Ce qui n'est PAS prouvé** = que VoiceOver échoue : `mint_hero_number.dart:28-29` porte un `Semantics(label: '$value — $caption')`, donc un label existe ; le problème Maestro vient plausiblement d'une **fusion de sémantique** (un seul label agrégé au lieu de nœuds texte matchables), pas d'une absence de sémantique. `/life-event/demenagement-cantonal` n'a **pas** été testé (inféré par similarité, à confirmer).
+Deux écrans premium **testés** (`/invalidite`, `/life-event/deces-proche`) **rendent visiblement** mais Maestro n'a matché AUCUNE de leurs ancres texte — même **symptôme observé** que la régression ILLOG-02 (RenteVsCapitalScreen : Maestro/`idb` lisaient ~1 élément sur un écran rendu). C'est confirmé comme un gap d'**observabilité** (Maestro/arbre a11y iOS). **Ce qui n'est PAS mesuré** = VoiceOver : je n'ai PAS testé VoiceOver ; « Maestro ne matche pas » n'établit pas « VoiceOver ne lit pas ». On a ajouté le contrat screen-root `Semantics(container:true, explicitChildNodes:true, identifier)` aux 3 écrans (miroir du fix RvC `rente_vs_capital_screen.dart:684-687`), épinglé par `life_event_premium_a11y_test.dart` (RED sans wrapper → GREEN avec). **Post-wrapper, seul `invalidite` a été re-testé sur sim reconstruit : `.*lacune.*` échoue toujours.** `deces-proche` et `demenagement-cantonal` n'ont PAS été re-testés post-wrapper (et `demenagement` n'a jamais été exercé, même pré-wrapper).
 
-## Ce qui est confirmé (2 écrans testés)
+## Périmètre exact des preuves (ne pas généraliser)
 
-- **invalidite** : rend « 1 personne sur 5 », « Comprendre ta lacune invalidité », chips « CHF 9'500 » / « CHF 25'872 » (screenshot). Ancres Maestro testées et **échouées** : `.*personne sur 5.*`, `.*lacune.*`, `.*CHF.*`.
-- **deces-proche** : rend « Urgences : premières 48 heures », « Fortune estimée du défunt CHF 77'616 » (screenshot). Ancres **échouées** : `.*proche.*` (titre), `.*Urgences.*` (section body).
+| Écran | Maestro pré-wrapper | Maestro post-wrapper | VoiceOver |
+|---|---|---|---|
+| invalidite | testé → FAIL (3 ancres) | **re-testé → FAIL** (`.*lacune.*`) | **non mesuré** |
+| deces-proche | testé → FAIL (2 ancres) | non re-testé | non mesuré |
+| demenagement-cantonal | **jamais testé** (inféré) | non testé | non mesuré |
 
-→ Conclusion **sûre** : Maestro ne peut pas asserter sur ces deux écrans (gap d'observabilité de test). Les 3 écrans concubinage/expatriation/frontalier, eux, exposent leur texte et passent.
+## Ce qui est confirmé
 
-## Ce qui n'est PAS confirmé (à ne pas surestimer)
+- Sur invalidite + deces : Maestro ne matche pas leur texte alors qu'ils rendent (screenshots). Symptôme = classe ILLOG-02 (observabilité).
+- Le contrat screen-root Semantics manquait sur les 3 écrans (les écrans sains budget/mon_argent/rvc l'ont). Ajouté.
+- Sur invalidite re-testé post-wrapper : le wrapper screen-root seul ne restaure PAS l'observabilité Maestro.
 
-- **VoiceOver KO** : NON prouvé. Les widgets hero (`mint_hero_number.dart`) ont un `Semantics(label:)` explicite → VoiceOver lit probablement au moins le label agrégé. Le risque a11y est **réel mais à vérifier directement** (VoiceOver sur device, ou dump de l'arbre sémantique Flutter `debugDumpSemanticsTree` / `flutter test` avec `SemanticsHandle`).
-- **Cause exacte** : hypothèse = sémantique fusionnée / label agrégé (les sous-textes ne sont plus des nœuds matchables). NON confirmée au niveau code.
-- **demenagement-cantonal** : **NON testé**. Inféré par similarité de famille d'écran uniquement.
+## Ce qui n'est PAS confirmé
 
-## Suivi (bead séparé)
+- Impact VoiceOver : **non mesuré** sur aucun des 3 écrans. Risque plausible (Maestro lit l'arbre a11y iOS) mais non établi.
+- Observabilité post-wrapper de deces + demenagement : **non re-testée**.
+- Cause profonde de l'effondrement résiduel : hypothèse (SliverAppBar gradient / merged hero semantics), non confirmée code.
 
-1. Vérifier directement l'a11y : dump `debugDumpSemanticsTree` de invalidite + deces (et tester demenagement), ou VoiceOver device.
-2. Si nœuds texte réellement non exposés → ajouter des `Semantics(label:)` granulaires (ou retirer une fusion) sur les widgets hero premium, puis ré-inclure les écrans dans `parcours_secondaires.yaml`.
-3. Sinon (label agrégé suffisant pour VoiceOver) → traiter comme un simple gap d'observabilité Maestro (ex. exposer un `id`/testTag stable) et non un bug a11y.
+## Suivi (bead dédié)
 
-## Data gaps
+1. Mesurer directement : `debugDumpSemanticsTree` device et/ou VoiceOver sur device, pour les 3 écrans. (Hypothèse par analogie ILLOG-02 : le tree Dart serait peuplé et la collapse serait côté bridge-iOS — NON mesuré ici, à confirmer.)
+2. Identifier l'effondrement résiduel (probable Semantics sans explicitChildNodes plus bas, ex. `_buildAppBar` SliverAppBar ou hero).
+3. Une fois observables → ré-inclure dans `parcours_secondaires.yaml`.
 
-- Équivalence « Maestro ne matche pas » ⇏ « VoiceOver ne lit pas » : c'est justement le point à trancher.
-- demenagement non exercé.
-- Cause code non confirmée (hypothèse de fusion sémantique seulement).
+## Ce qui est livré ce bead (honnête)
+
+- Contrat screen-root Semantics sur les 3 écrans (correct, aligne sur les écrans sains, test-épinglé). Le test vérifie que le nœud identifiant existe et a des labels descendants — une **précondition nécessaire**, PAS une preuve que l'écran est entièrement lisible.
+- 3 écrans **restés exclus** du flow sim (toujours non observables).
+- Ce doc = périmètre de preuve exact + résultat négatif (wrapper seul insuffisant sur invalidite).

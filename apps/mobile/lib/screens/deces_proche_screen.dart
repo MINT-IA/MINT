@@ -66,7 +66,11 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context)!;
-    return Scaffold(
+    return Semantics(
+      identifier: 'deces_proche_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(s.decesProcheTitre, style: MintTextStyles.headlineMedium()),
@@ -115,7 +119,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           ),
         ),
       ))),
-    );
+    ));
   }
 
   Widget _buildPremierEclairage(S s) {

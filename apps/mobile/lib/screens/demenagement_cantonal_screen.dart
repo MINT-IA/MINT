@@ -98,7 +98,11 @@ class _DemenagementCantonalScreenState
     final economieTotal = _economieFiscaleAnnuelle + _economieLamalAnnuelle;
     final estPositif = economieTotal >= 0;
 
-    return Scaffold(
+    return Semantics(
+      identifier: 'demenagement_cantonal_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
       backgroundColor: MintColors.porcelaine,
       // ── White standard AppBar (Design System §4.5) ──
       appBar: AppBar(
@@ -183,7 +187,7 @@ class _DemenagementCantonalScreenState
           ),
         ),
       ))),
-    );
+    ));
   }
 
   double get _economieFiscaleAnnuelle {
