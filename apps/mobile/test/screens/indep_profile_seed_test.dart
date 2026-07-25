@@ -6,6 +6,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/independants/lpp_volontaire_screen.dart';
 import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:provider/provider.dart';
 
 /// P2 (zéro donnée inventée) : les deux écrans indépendants doivent amorcer
@@ -169,6 +171,33 @@ void main() {
               'permanently stranded on the fabricated default');
     });
 
+    testWidgets('does NOT overwrite a user edit made before hydration',
+        (tester) async {
+      final fake = _MutableFakeProvider();
+      await _pump(tester, const Pillar3aIndepScreen(), fake);
+
+      // User edits income during the cold-start race (profile still null).
+      final field = tester.widget<MintAmountField>(find.byType(MintAmountField));
+      field.onChanged(200000);
+      await tester.pump();
+      var state = tester.state(find.byType(Pillar3aIndepScreen)) as dynamic;
+      expect(state.debugRevenuNet, closeTo(200000, 0.01));
+
+      // Profile hydrates late with a different income + explicit affiliation.
+      fake.hydrate(_indepProfile(
+        birthYear: currentYear - 45,
+        independentNet: 140000,
+        userProvidedFields: {'pensionFundYes'},
+      ));
+      await tester.pump();
+
+      state = tester.state(find.byType(Pillar3aIndepScreen)) as dynamic;
+      expect(state.debugRevenuNet, closeTo(200000, 0.01),
+          reason: 'user edit preserved — never clobbered by late hydration');
+      expect(state.debugAffilieLpp, isTrue,
+          reason: 'the untouched field still seeds from the profile');
+    });
+
     testWidgets('keeps default and does not crash with no profile',
         (tester) async {
       await _pump(tester, const Pillar3aIndepScreen(),
@@ -242,6 +271,32 @@ void main() {
       expect(state.debugRevenuNet, closeTo(120000, 0.01),
           reason: 'seeds once profile hydrates — not stranded on default');
       expect(state.debugAge, 52);
+    });
+
+    testWidgets('does NOT overwrite a user age edit made before hydration',
+        (tester) async {
+      final fake = _MutableFakeProvider();
+      await _pump(tester, const LppVolontaireScreen(), fake);
+
+      // User picks an age during the race (profile still null).
+      final picker = tester.widget<MintPickerTile>(find.byType(MintPickerTile));
+      picker.onChanged(33);
+      await tester.pump();
+      var state = tester.state(find.byType(LppVolontaireScreen)) as dynamic;
+      expect(state.debugAge, 33);
+
+      // Profile hydrates late with a different age + income.
+      fake.hydrate(_indepProfile(
+        birthYear: currentYear - 52,
+        independentNet: 120000,
+      ));
+      await tester.pump();
+
+      state = tester.state(find.byType(LppVolontaireScreen)) as dynamic;
+      expect(state.debugAge, 33,
+          reason: 'user age edit preserved — not clobbered by late hydration');
+      expect(state.debugRevenuNet, closeTo(120000, 0.01),
+          reason: 'the untouched revenu field still seeds from the profile');
     });
 
     testWidgets('keeps defaults and does not crash with no profile',

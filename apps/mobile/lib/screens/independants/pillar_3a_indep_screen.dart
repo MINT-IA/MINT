@@ -40,6 +40,10 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   Pillar3aIndepResult? _result;
   bool _prefilled = false;
   CoachProfileProvider? _profileProvider;
+  // Une entrée éditée par l'utilisateur ne doit jamais être écrasée par une
+  // hydratation tardive du profil (course cold-start). Par-champ.
+  bool _revenuNetTouched = false;
+  bool _affilieLppTouched = false;
 
   @override
   void initState() {
@@ -82,7 +86,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     // professionnel (même base que le slider) → pas de confusion brut/net.
     // Clampé sur les bornes du slider (0..300000) pour ne jamais violer l'assert.
     final net = profile.independentNetProfessionalIncomeAnnual;
-    if (net != null && net > 0) {
+    if (!_revenuNetTouched && net != null && net > 0) {
       _revenuNet = net.clamp(0.0, 300000.0);
       changed = true;
     }
@@ -90,12 +94,14 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     // Affiliation LPP : n'utiliser QUE la vérité explicite de l'utilisateur
     // (elle fait basculer le plafond 3a petit/grand). Inconnu → défaut éditable.
     final fields = profile.userProvidedFields;
-    if (fields.contains('pensionFundYes')) {
-      _affilieLpp = true;
-      changed = true;
-    } else if (fields.contains('pensionFundNo')) {
-      _affilieLpp = false;
-      changed = true;
+    if (!_affilieLppTouched) {
+      if (fields.contains('pensionFundYes')) {
+        _affilieLpp = true;
+        changed = true;
+      } else if (fields.contains('pensionFundNo')) {
+        _affilieLpp = false;
+        changed = true;
+      }
     }
 
     if (changed && mounted) _calculate();
@@ -249,6 +255,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             child: Switch(
               value: _affilieLpp,
               onChanged: (v) {
+                _affilieLppTouched = true;
                 _affilieLpp = v;
                 _calculate();
               },
@@ -276,6 +283,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         formatValue: (v) => IndependantsService.formatChf(v),
         onChanged: (v) {
           setState(() {
+            _revenuNetTouched = true;
             _revenuNet = v;
             _calculate();
           });
