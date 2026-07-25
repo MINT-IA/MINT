@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -12,6 +13,9 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -49,6 +53,12 @@ class _DonationScreenState extends State<DonationScreen> {
   final _scrollController = ScrollController();
   final _resultsKey = GlobalKey();
 
+  // Anchors for scroll-to-first-missing when the situation is incomplete.
+  final _cantonKey = GlobalKey();
+  final _nbEnfantsKey = GlobalKey();
+  final _fortuneKey = GlobalKey();
+  final _regimeKey = GlobalKey();
+
   // ── Input state ──
   double _montant = 100000;
   int _donateurAge = 55;
@@ -60,6 +70,27 @@ class _DonationScreenState extends State<DonationScreen> {
   int _nbEnfants = 2;
   double _fortuneTotaleDonateur = 800000;
   String _regimeMatrimonial = 'participation_acquets';
+
+  // ── P2 « gate dur » : provenance par fait, ré-évaluée à chaque notify ──
+  // Un fait de SITUATION n'est CONFIRMÉ que s'il vient des données réelles :
+  // soit amorcé depuis un champ profil réellement fourni
+  // (`userProvidedFields`), soit touché par l'utilisateur. Une valeur égale à
+  // un défaut fabriqué reste ASSUMED (jamais confirmée). Pas de latch global
+  // `_prefilled` : `loadFromWizard` notifie jusqu'à 5× (cache→frais→fusionné),
+  // un latch au notify #1 échouerait un champ dont la donnée arrive au #2.
+  CoachProfileProvider? _profileProvider;
+  bool _donateurAgeTouched = false; // âge : confort seul, ne gate jamais.
+  bool _cantonTouched = false;
+  bool _cantonSeeded = false; // provenance = userProvidedFields('canton').
+  bool _nbEnfantsTouched = false; // pas de clé → confirmable au touch seul.
+  bool _fortuneTouched = false;
+  bool _fortuneSeeded = false; // provenance = userProvidedFields('liquidSavings').
+  bool _regimeTouched = false; // pas de clé → confirmable au touch seul.
+
+  // Le résultat n'existe qu'après un calcul explicite ; un changement de fait
+  // déterminant le remet à null (stale-result invalidation).
+  bool _hasComputed = false;
+  bool _lastUnionComplete = false;
 
   // Result
   DonationResult? _result;
@@ -91,13 +122,273 @@ class _DonationScreenState extends State<DonationScreen> {
     'separation_biens': 'Séparation de biens',
   };
 
+  /// P2 (zéro donnée inventée) : amorce la situation réelle du donateur depuis
+  /// le profil. On s'abonne au provider car `loadFromWizard()` hydrate le profil
+  /// de façon asynchrone : l'écran peut être monté avant l'arrivée des données.
+  /// Un champ édité par l'utilisateur (touched) n'est jamais réécrasé par une
+  /// hydratation tardive ; un champ absent garde son défaut éditable.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
+    }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+    // Baseline for the incomplete→complete announce (no spurious announce on
+    // first build when the profile already confirms every fact).
+    _lastUnionComplete = _unionGate(context).complete;
+  }
+
+  /// Provenance-gated seed, re-run on EVERY provider notify (no global latch).
+  /// A field seeds — and thereby counts as confirmed — only when its
+  /// provenance is real: a `userProvidedFields` key, never value≠default.
+  void _seedFromProfile() {
+    final profile = _profileProvider?.profile;
+    var changed = false; // valeur OU provenance a bougé → rebuild.
+    var valueChanged = false; // une valeur CONSOMMÉE par le calcul a bougé.
+
+    if (profile == null) {
+      // Profil absent : soit pas encore hydraté (le listener rejouera), soit
+      // effacé pendant que l'écran est monté (logout / reset → clear()). Dans
+      // les deux cas la provenance issue du profil disparaît : les faits
+      // seededFromProfile retombent à non confirmés (un fait TOUCHÉ reste
+      // valide, c'est une donnée user). Tout chiffre qui reposait sur une
+      // donnée seedée est invalidé — aucun résultat ne survit à sa source.
+      if (_cantonSeeded) {
+        _cantonSeeded = false;
+        changed = true;
+      }
+      if (_fortuneSeeded) {
+        _fortuneSeeded = false;
+        changed = true;
+      }
+      if (changed) {
+        _invalidateResult();
+        if (mounted) setState(() {});
+      }
+      return;
+    }
+
+    // Âge : non gaté, mais consommé par DonationService.calculate → invalide
+    // un résultat déjà calculé s'il change.
+    if (!_donateurAgeTouched) {
+      final age = profile.ageOrNull;
+      if (age != null) {
+        final v = age.clamp(18, 95);
+        if (v != _donateurAge) {
+          _donateurAge = v;
+          changed = true;
+          valueChanged = true;
+        }
+      }
+    }
+
+    // Canton : provenance RÉ-ÉVALUÉE à chaque notify (jamais latch). Confirmé
+    // seulement si l'utilisateur a réellement fourni un canton valide ; si un
+    // profil ultérieur ne porte plus la clé, la provenance retombe et le gate
+    // se referme.
+    if (!_cantonTouched) {
+      final c = profile.canton;
+      final valid = profile.userProvidedFields.contains('canton') &&
+          c.isNotEmpty &&
+          c != 'unknown' &&
+          _cantons.contains(c);
+      if (_cantonSeeded != valid) {
+        _cantonSeeded = valid;
+        changed = true;
+      }
+      if (valid && c != _canton) {
+        _canton = c;
+        changed = true;
+        valueChanged = true;
+      }
+    }
+
+    // Nombre d'enfants : AUCUNE clé userProvidedFields → confirmable au touch
+    // seul. On amorce la VALEUR (confort) quand > 0 ; ne confirme jamais le
+    // fait (le gate reste tant que non touché).
+    if (!_nbEnfantsTouched && profile.nombreEnfants > 0) {
+      final v = profile.nombreEnfants.clamp(0, 6);
+      if (v != _nbEnfants) {
+        _nbEnfants = v;
+        changed = true;
+        valueChanged = true;
+      }
+    }
+
+    // Fortune nette : provenance RÉ-ÉVALUÉE à chaque notify (jamais latch).
+    // Patrimoine NET (actifs - dettes), accesseur canonique. Un net ≤ 0 est un
+    // zéro légitime : la valeur reflète la donnée réelle dès la provenance.
+    if (!_fortuneTouched) {
+      final hasKey = profile.userProvidedFields.contains('liquidSavings');
+      if (_fortuneSeeded != hasKey) {
+        _fortuneSeeded = hasKey;
+        changed = true;
+      }
+      if (hasKey) {
+        final net =
+            profile.patrimoine.patrimoineNet(profile.dettes.totalDettes);
+        final v = net.clamp(0.0, 5000000.0);
+        if (v != _fortuneTotaleDonateur) {
+          _fortuneTotaleDonateur = v;
+          changed = true;
+          valueChanged = true;
+        }
+      }
+    }
+
+    // Une valeur consommée qui bouge (typiquement une hydratation tardive)
+    // invalide tout résultat déjà calculé : sinon un chiffre calculé sur un
+    // défaut fabriqué pourrait s'afficher quand le gate s'ouvre plus tard.
+    if (valueChanged) _invalidateResult();
+
+    if (changed && mounted) setState(() {});
+  }
+
+  /// Un résultat n'est valide que pour les entrées avec lesquelles il a été
+  /// calculé. Toute entrée (situation OU scénario) qui bouge le remet à null →
+  /// aucun chiffre périmé ne survit à un changement d'entrée.
+  void _invalidateResult() {
+    _result = null;
+    _hasComputed = false;
+  }
+
+  // ── P2 provenance getters (live, non-latching) ──
+  FactProvenance get _cantonProvenance => _cantonTouched
+      ? FactProvenance.touched
+      : (_cantonSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _nbEnfantsProvenance =>
+      _nbEnfantsTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _fortuneProvenance => _fortuneTouched
+      ? FactProvenance.touched
+      : (_fortuneSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _regimeProvenance =>
+      _regimeTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  // ── Per-output gates (determinative facts only) ──
+  // Gift tax (cantonal) is determined by canton alone.
+  SituationGate _taxGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.donationGateFactCanton,
+          why: (c) => S.of(c)!.donationGateWhyCanton,
+          provenance: _cantonProvenance,
+          onComplete: () => _scrollToKey(_cantonKey),
+        ),
+      ]);
+
+  // Réserve / quotité are determined by children count, net wealth, régime.
+  SituationGate _reserveGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'nbEnfants',
+          label: (c) => S.of(c)!.donationGateFactEnfants,
+          why: (c) => S.of(c)!.donationGateWhyEnfants,
+          provenance: _nbEnfantsProvenance,
+          onComplete: () => _scrollToKey(_nbEnfantsKey),
+        ),
+        SituationFact(
+          key: 'fortune',
+          label: (c) => S.of(c)!.donationGateFactFortune,
+          why: (c) => S.of(c)!.donationGateWhyFortune,
+          provenance: _fortuneProvenance,
+          onComplete: () => _scrollToKey(_fortuneKey),
+        ),
+        SituationFact(
+          key: 'regime',
+          label: (c) => S.of(c)!.donationGateFactRegime,
+          why: (c) => S.of(c)!.donationGateWhyRegime,
+          provenance: _regimeProvenance,
+          onComplete: () => _scrollToKey(_regimeKey),
+        ),
+      ]);
+
+  // Union used by the CTA counter + scroll routing (canton first on screen).
+  SituationGate _unionGate(BuildContext context) => SituationGate([
+        ..._taxGate(context).facts,
+        ..._reserveGate(context).facts,
+      ]);
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
+      );
+    }
+  }
+
+  void _scrollToFirstMissing() {
+    final missing = _unionGate(context).missing;
+    if (missing.isEmpty) return;
+    missing.first.onComplete?.call();
+  }
+
+  /// Situation-fact edit hook: invalidate any stale figure (a displayed number
+  /// must never outlive a fact change) and announce a gate lift for VoiceOver.
+  void _afterFactChanged() {
+    _invalidateResult();
+    final nowComplete = _unionGate(context).complete;
+    if (nowComplete && !_lastUnionComplete) {
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        S.of(context)!.situationGateAnnounceComplete,
+        Directionality.of(context),
+      );
+    }
+    _lastUnionComplete = nowComplete;
+  }
+
   @override
   void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
     _scrollController.dispose();
     super.dispose();
   }
 
+  /// @visibleForTesting : valeurs amorcées (preuve du seed profil, P2).
+  @visibleForTesting
+  int get debugDonateurAge => _donateurAge;
+  @visibleForTesting
+  String get debugCanton => _canton;
+  @visibleForTesting
+  int get debugNbEnfants => _nbEnfants;
+  @visibleForTesting
+  double get debugFortuneTotale => _fortuneTotaleDonateur;
+
   void _simulate() {
+    final taxComplete = _taxGate(context).complete;
+    final reserveComplete = _reserveGate(context).complete;
+
+    // Compute-time gate : if no output has its determinative facts confirmed,
+    // produce NO figure at all — surface the gate + scroll to the first gap.
+    if (!taxComplete && !reserveComplete) {
+      setState(() {
+        _result = null;
+        _hasComputed = true;
+      });
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _scrollToFirstMissing());
+      return;
+    }
+
     setState(() {
       _result = DonationService.calculate(
         montant: _montant,
@@ -112,91 +403,137 @@ class _DonationScreenState extends State<DonationScreen> {
         regimeMatrimonial: _regimeMatrimonial,
       );
       _checklistState = List.filled(_result!.checklist.length, false);
+      _hasComputed = true;
     });
 
-    // Smooth scroll to results
+    final unionComplete = taxComplete && reserveComplete;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_resultsKey.currentContext != null) {
+      if (unionComplete && _resultsKey.currentContext != null) {
         Scrollable.ensureVisible(
           _resultsKey.currentContext!,
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
         );
+      } else {
+        // A partially-gated compute still nudges the user to the next gap.
+        _scrollToFirstMissing();
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MintColors.background,
-      appBar: AppBar(
-        title: Text(S.of(context)!.donationAppBarTitle),
-      ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            MintEntrance(child: _buildHeader()),
-            const SizedBox(height: 24),
-            MintEntrance(
-              delay: const Duration(milliseconds: 100),
-              child: _buildIntroCard(),
-            ),
-            const SizedBox(height: 24),
-            MintEntrance(
-              delay: const Duration(milliseconds: 150),
-              child: _buildDonationSection(),
-            ),
-            const SizedBox(height: 12),
-            MintEntrance(
-              delay: const Duration(milliseconds: 200),
-              child: _buildSuccessionContextSection(),
-            ),
-            const SizedBox(height: 24),
-            _buildSimulateButton(),
-            const SizedBox(height: 24),
-            if (_result != null) ...[
-              Container(key: _resultsKey),
-              MintEntrance(child: _buildTaxCard()),
+    final union = _unionGate(context);
+    final bothOutputsUnlocked = _result != null &&
+        _taxGate(context).complete &&
+        _reserveGate(context).complete;
+    // ILLOG-02 fix: screen-root Semantics container (rente_vs_capital pattern).
+    // Without this the iOS AX bridge collapses the whole route into a single
+    // header node and `idb ui describe-all` reports "1 element".
+    return Semantics(
+      identifier: 'donation_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        backgroundColor: MintColors.background,
+        appBar: AppBar(
+          title: Text(S.of(context)!.donationAppBarTitle),
+        ),
+        body: SingleChildScrollView(
+          controller: _scrollController,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              MintEntrance(child: _buildHeader()),
               const SizedBox(height: 24),
               MintEntrance(
                 delay: const Duration(milliseconds: 100),
-                child: _buildReserveCard(),
+                child: _buildIntroCard(),
               ),
               const SizedBox(height: 24),
+              MintEntrance(
+                delay: const Duration(milliseconds: 150),
+                child: _buildDonationSection(),
+              ),
+              const SizedBox(height: 12),
               MintEntrance(
                 delay: const Duration(milliseconds: 200),
-                child: _buildQuotiteCard(),
+                child: _buildSuccessionContextSection(),
               ),
               const SizedBox(height: 24),
-              MintEntrance(
-                delay: const Duration(milliseconds: 300),
-                child: _buildImpactSuccessionCard(),
-              ),
+              _buildSimulateButton(union),
               const SizedBox(height: 24),
-              if (_result!.alerts.isNotEmpty) ...[
+              if (_hasComputed) ...[
+                Container(key: _resultsKey),
+                // Gift-tax output slot (gated on canton).
+                MintEntrance(child: _buildTaxSlot()),
+                const SizedBox(height: 24),
+                // Réserve / quotité output slot (gated on nbEnfants+fortune+régime).
                 MintEntrance(
-                  delay: const Duration(milliseconds: 350),
-                  child: _buildAlertsSection(),
+                  delay: const Duration(milliseconds: 100),
+                  child: _buildReserveSlot(),
                 ),
                 const SizedBox(height: 24),
+                // Secondary cards need BOTH outputs (they cite the quotité).
+                if (bothOutputsUnlocked) ...[
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 200),
+                    child: _buildImpactSuccessionCard(),
+                  ),
+                  const SizedBox(height: 24),
+                  if (_result!.alerts.isNotEmpty) ...[
+                    MintEntrance(
+                      delay: const Duration(milliseconds: 350),
+                      child: _buildAlertsSection(),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 400),
+                    child: _buildChecklistSection(),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ],
-              MintEntrance(
-                delay: const Duration(milliseconds: 400),
-                child: _buildChecklistSection(),
-              ),
+              _buildEducationalFooter(),
               const SizedBox(height: 24),
+              _buildDisclaimer(),
+              const SizedBox(height: 40),
             ],
-            _buildEducationalFooter(),
-            const SizedBox(height: 24),
-            _buildDisclaimer(),
-            const SizedBox(height: 40),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  /// Gift-tax output: the figure only when its determinative fact (canton) is
+  /// confirmed and a result exists; otherwise the gate card.
+  Widget _buildTaxSlot() {
+    if (_result != null && _taxGate(context).complete) {
+      return _buildTaxCard();
+    }
+    return SituationGateCard(
+      title: S.of(context)!.donationGateTitle,
+      gate: _taxGate(context),
+    );
+  }
+
+  /// Réserve / quotité output: both figures together, or the gate card.
+  Widget _buildReserveSlot() {
+    if (_result != null && _reserveGate(context).complete) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildReserveCard(),
+          const SizedBox(height: 24),
+          _buildQuotiteCard(),
+        ],
+      );
+    }
+    return SituationGateCard(
+      title: S.of(context)!.donationGateTitle,
+      gate: _reserveGate(context),
     );
   }
 
@@ -282,7 +619,10 @@ class _DonationScreenState extends State<DonationScreen> {
             label: S.of(context)!.donationMontantLabel,
             value: _montant,
             formatValue: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _montant = v),
+            onChanged: (v) => setState(() {
+              _montant = v;
+              _invalidateResult();
+            }),
             min: 10000,
             max: 2000000,
           ),
@@ -298,7 +638,10 @@ class _DonationScreenState extends State<DonationScreen> {
               label: S.of(context)!.donationValeurImmobiliere,
               value: _valeurImmobiliere,
               formatValue: (v) => _chfFmt(v),
-              onChanged: (v) => setState(() => _valeurImmobiliere = v),
+              onChanged: (v) => setState(() {
+                _valeurImmobiliere = v;
+                _invalidateResult();
+              }),
               min: 100000,
               max: 3000000,
             ),
@@ -307,7 +650,10 @@ class _DonationScreenState extends State<DonationScreen> {
           _buildSwitch(
             label: S.of(context)!.donationAvancementHoirie,
             value: _avancementHoirie,
-            onChanged: (v) => setState(() => _avancementHoirie = v),
+            onChanged: (v) => setState(() {
+              _avancementHoirie = v;
+              _invalidateResult();
+            }),
           ),
         ],
       ),
@@ -329,24 +675,39 @@ class _DonationScreenState extends State<DonationScreen> {
             minValue: 18,
             maxValue: 95,
             formatValue: (v) => '$v ans',
-            onChanged: (v) => setState(() => _donateurAge = v),
+            onChanged: (v) => setState(() {
+              _donateurAgeTouched = true;
+              _donateurAge = v;
+              _invalidateResult();
+            }),
           ),
           const SizedBox(height: 16),
           MintPickerTile(
+            key: _nbEnfantsKey,
             label: S.of(context)!.donationNbEnfants,
             value: _nbEnfants,
             minValue: 0,
             maxValue: 6,
             formatValue: (v) => '$v',
-            onChanged: (v) => setState(() => _nbEnfants = v),
+            onChanged: (v) => setState(() {
+              _nbEnfantsTouched = true;
+              _nbEnfants = v;
+              _afterFactChanged();
+            }),
           ),
           const SizedBox(height: 16),
           MintAmountField(
+            key: _fortuneKey,
             label: S.of(context)!.donationFortuneTotale,
             value: _fortuneTotaleDonateur,
             formatValue: (v) => _chfFmt(v),
-            onChanged: (v) =>
-                setState(() => _fortuneTotaleDonateur = v),
+            onChanged: (v) => setState(() {
+              _fortuneTouched = true;
+              _fortuneSeeded = false; // touched supersede le seed → donnée user,
+              // immunisée à un clear de profil.
+              _fortuneTotaleDonateur = v;
+              _afterFactChanged();
+            }),
             min: 0,
             max: 5000000,
           ),
@@ -377,7 +738,10 @@ class _DonationScreenState extends State<DonationScreen> {
               button: true,
               selected: selected,
               child: GestureDetector(
-                onTap: () => setState(() => _lienParente = lien),
+                onTap: () => setState(() {
+                  _lienParente = lien;
+                  _invalidateResult();
+                }),
                 child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -428,7 +792,10 @@ class _DonationScreenState extends State<DonationScreen> {
               button: true,
               selected: selected,
               child: GestureDetector(
-                onTap: () => setState(() => _typeDonation = type),
+                onTap: () => setState(() {
+                  _typeDonation = type;
+                  _invalidateResult();
+                }),
                 child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -464,6 +831,7 @@ class _DonationScreenState extends State<DonationScreen> {
     final regimes = ['participation_acquets', 'communaute_biens', 'separation_biens'];
 
     return Column(
+      key: _regimeKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -481,7 +849,13 @@ class _DonationScreenState extends State<DonationScreen> {
               button: true,
               selected: selected,
               child: GestureDetector(
-                onTap: () => setState(() => _regimeMatrimonial = regime),
+                key: ValueKey('donationRegime_$regime'),
+                onTap: () => setState(() {
+                  // Touching a régime chip (even the current one) confirms it.
+                  _regimeMatrimonial = regime;
+                  _regimeTouched = true;
+                  _afterFactChanged();
+                }),
                 child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -513,9 +887,19 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Simulate Button ──
-  Widget _buildSimulateButton() {
+  // Label morphs to « Compléter ma situation (N/total) » while any required
+  // fact is unconfirmed; tapping then scrolls to the first gap instead of
+  // computing on fabricated data. Never silently hard-disabled.
+  Widget _buildSimulateButton(SituationGate union) {
+    final complete = union.complete;
+    final label = complete
+        ? S.of(context)!.donationCalculer
+        : S.of(context)!.donationCompleterSituation(
+            union.confirmedCount,
+            union.total,
+          );
     return Semantics(
-      label: S.of(context)!.donationCalculer,
+      label: label,
       button: true,
       child: SizedBox(
         width: double.infinity,
@@ -524,9 +908,12 @@ class _DonationScreenState extends State<DonationScreen> {
             HapticFeedback.lightImpact();
             _simulate();
           },
-          icon: const Icon(Icons.calculate_outlined, size: 20),
+          icon: Icon(
+            complete ? Icons.calculate_outlined : Icons.edit_note,
+            size: 20,
+          ),
           label: Text(
-            S.of(context)!.donationCalculer,
+            label,
             style: MintTextStyles.titleMedium(color: MintColors.white),
           ),
           style: FilledButton.styleFrom(
@@ -548,6 +935,7 @@ class _DonationScreenState extends State<DonationScreen> {
     final hasTax = r.impotDonation > 0;
     final accentColor = hasTax ? MintColors.indigo : MintColors.success;
     return MintResultHeroCard(
+      key: const Key('donationTaxCard'),
       eyebrow: S.of(context)!.donationImpotTitle,
       primaryValue: hasTax ? _chfFmt(r.impotDonation) : S.of(context)!.donationExoneree,
       primaryLabel: hasTax
@@ -590,6 +978,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.reserveHereditaireTotale),
+            key: const Key('donationReserveFigure'),
             style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: 4),
@@ -708,6 +1097,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(height: 16),
           Text(
             _chfFmt(r.quotiteDisponible),
+            key: const Key('donationQuotiteFigure'),
             style: MintTextStyles.headlineMedium(),
           ),
           const SizedBox(height: 4),
@@ -1012,6 +1402,7 @@ class _DonationScreenState extends State<DonationScreen> {
   // ── Canton Dropdown ──
   Widget _buildCantonDropdown() {
     return Column(
+      key: _cantonKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -1039,7 +1430,15 @@ class _DonationScreenState extends State<DonationScreen> {
                 );
               }).toList(),
               onChanged: (v) {
-                if (v != null) setState(() => _canton = v);
+                if (v != null) {
+                  setState(() {
+                    _cantonTouched = true;
+                    _cantonSeeded = false; // touched supersede le seed → donnée
+                    // user, immunisée à un clear de profil.
+                    _canton = v;
+                    _afterFactChanged();
+                  });
+                }
               },
             ),
           ),

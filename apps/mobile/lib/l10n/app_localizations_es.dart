@@ -3286,6 +3286,61 @@ class SEs extends S {
   String get donationCanton => 'Cantón';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmed,
+      locale: localeName,
+      other: '$confirmed/$total completados',
+      one: '$confirmed/$total completado',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Completar';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'Tu situación está completa, puedes ejecutar el cálculo.';
+
+  @override
+  String get donationGateTitle =>
+      'Completa tu situación para un cálculo basado en tus datos';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Completar mi situación ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Cantón de la donación';
+
+  @override
+  String get donationGateWhyCanton =>
+      'El impuesto sobre donaciones es cantonal.';
+
+  @override
+  String get donationGateFactEnfants => 'Número de hijos';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'Tu legítima depende del número de hijos.';
+
+  @override
+  String get donationGateFactFortune => 'Patrimonio neto';
+
+  @override
+  String get donationGateWhyFortune =>
+      'El importe de la legítima se calcula sobre tu patrimonio neto.';
+
+  @override
+  String get donationGateFactRegime => 'Régimen matrimonial';
+
+  @override
+  String get donationGateWhyRegime =>
+      'Tu régimen matrimonial modifica la masa hereditaria.';
+
+  @override
   String get housingSaleIntroText =>
       'Vender una propiedad en Suiza implica un impuesto sobre las ganancias inmobiliarias (LHID art. 12), el posible reembolso de fondos de previsión utilizados (EPL) y gastos de transacción. Esta herramienta te ayuda a estimar el producto neto de tu venta.';
 

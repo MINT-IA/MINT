@@ -3303,6 +3303,54 @@ class SDe extends S {
   String get donationCanton => 'Kanton';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    return '$confirmed/$total ausgefüllt';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Ergänzen';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'Deine Situation ist vollständig, du kannst die Berechnung starten.';
+
+  @override
+  String get donationGateTitle =>
+      'Vervollständige deine Situation für eine Berechnung auf Basis deiner Daten';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Meine Situation vervollständigen ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Kanton der Schenkung';
+
+  @override
+  String get donationGateWhyCanton =>
+      'Die Schenkungssteuer wird auf kantonaler Ebene erhoben.';
+
+  @override
+  String get donationGateFactEnfants => 'Anzahl der Kinder';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'Dein Pflichtteil hängt von der Anzahl der Kinder ab.';
+
+  @override
+  String get donationGateFactFortune => 'Nettovermögen';
+
+  @override
+  String get donationGateWhyFortune =>
+      'Der Pflichtteilsbetrag wird auf deinem Nettovermögen berechnet.';
+
+  @override
+  String get donationGateFactRegime => 'Güterstand';
+
+  @override
+  String get donationGateWhyRegime => 'Dein Güterstand verändert die Erbmasse.';
+
+  @override
   String get housingSaleIntroText =>
       'Der Verkauf einer Immobilie in der Schweiz beinhaltet eine Grundstückgewinnsteuer (StHG Art. 12), eine mögliche Rückzahlung der verwendeten Vorsorgegelder (WEF) und Transaktionskosten. Dieses Tool hilft dir, den Nettoerlös deines Verkaufs zu schätzen.';
 

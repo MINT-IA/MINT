@@ -1456,6 +1456,39 @@
   "donationEduConcubinTitle": "Donations et concubins",
   "donationEduConcubinBody": "Les concubins n'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l'impôt cantonal sur les donations entre concubins est généralement élevé (18-25 % selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.",
   "donationCanton": "Canton",
+  "situationGateProgress": "{confirmed}/{total} complété{confirmed, plural, =0{} =1{} other{s}}",
+  "@situationGateProgress": {
+    "placeholders": {
+      "confirmed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "situationGateCompleterAction": "Compléter",
+  "situationGateAnnounceComplete": "Situation complète, tu peux lancer le calcul.",
+  "donationGateTitle": "Complète ta situation pour un calcul fondé sur tes données",
+  "donationCompleterSituation": "Compléter ma situation ({confirmed}/{total})",
+  "@donationCompleterSituation": {
+    "placeholders": {
+      "confirmed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "donationGateFactCanton": "Canton de la donation",
+  "donationGateWhyCanton": "L'impôt sur les donations est cantonal.",
+  "donationGateFactEnfants": "Nombre d'enfants",
+  "donationGateWhyEnfants": "Ta réserve héréditaire dépend du nombre d'enfants.",
+  "donationGateFactFortune": "Fortune nette",
+  "donationGateWhyFortune": "Le montant de la réserve se calcule sur ta fortune nette.",
+  "donationGateFactRegime": "Régime matrimonial",
+  "donationGateWhyRegime": "Ton régime matrimonial modifie la masse successorale.",
   "housingSaleIntroText": "Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t'aide à estimer le produit net de ta vente.",
   "housingSaleBienTitle": "BIEN IMMOBILIER",
   "housingSaleBienSubtitle": "Prix d'achat, vente, investissements",

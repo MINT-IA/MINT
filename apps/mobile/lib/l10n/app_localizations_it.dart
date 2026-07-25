@@ -3294,6 +3294,60 @@ class SIt extends S {
   String get donationCanton => 'Cantone';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmed,
+      locale: localeName,
+      other: '$confirmed/$total completati',
+      one: '$confirmed/$total completato',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Completa';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'La tua situazione è completa, puoi avviare il calcolo.';
+
+  @override
+  String get donationGateTitle =>
+      'Completa la tua situazione per un calcolo basato sui tuoi dati';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Completa la mia situazione ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Cantone della donazione';
+
+  @override
+  String get donationGateWhyCanton => 'L\'imposta sulle donazioni è cantonale.';
+
+  @override
+  String get donationGateFactEnfants => 'Numero di figli';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'La tua quota di legittima dipende dal numero di figli.';
+
+  @override
+  String get donationGateFactFortune => 'Patrimonio netto';
+
+  @override
+  String get donationGateWhyFortune =>
+      'L\'importo della legittima si calcola sul tuo patrimonio netto.';
+
+  @override
+  String get donationGateFactRegime => 'Regime matrimoniale';
+
+  @override
+  String get donationGateWhyRegime =>
+      'Il tuo regime matrimoniale modifica la massa ereditaria.';
+
+  @override
   String get housingSaleIntroText =>
       'Vendere un immobile in Svizzera comporta un\'imposta sugli utili immobiliari (LAID art. 12), l\'eventuale rimborso dei fondi previdenziali utilizzati (EPL) e costi di transazione. Questo strumento ti aiuta a stimare il ricavo netto della vendita.';
 

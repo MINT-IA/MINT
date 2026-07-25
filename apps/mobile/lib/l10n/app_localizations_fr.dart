@@ -3283,6 +3283,62 @@ class SFr extends S {
   String get donationCanton => 'Canton';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmed,
+      locale: localeName,
+      other: 's',
+      one: '',
+      zero: '',
+    );
+    return '$confirmed/$total complété$_temp0';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Compléter';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'Situation complète, tu peux lancer le calcul.';
+
+  @override
+  String get donationGateTitle =>
+      'Complète ta situation pour un calcul fondé sur tes données';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Compléter ma situation ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Canton de la donation';
+
+  @override
+  String get donationGateWhyCanton =>
+      'L\'impôt sur les donations est cantonal.';
+
+  @override
+  String get donationGateFactEnfants => 'Nombre d\'enfants';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'Ta réserve héréditaire dépend du nombre d\'enfants.';
+
+  @override
+  String get donationGateFactFortune => 'Fortune nette';
+
+  @override
+  String get donationGateWhyFortune =>
+      'Le montant de la réserve se calcule sur ta fortune nette.';
+
+  @override
+  String get donationGateFactRegime => 'Régime matrimonial';
+
+  @override
+  String get donationGateWhyRegime =>
+      'Ton régime matrimonial modifie la masse successorale.';
+
+  @override
   String get housingSaleIntroText =>
       'Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t\'aide à estimer le produit net de ta vente.';
 
