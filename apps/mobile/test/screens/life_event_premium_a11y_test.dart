@@ -1,23 +1,25 @@
 // ────────────────────────────────────────────────────────────
 //  LIFE-EVENT PREMIUM SCREENS — Accessibility (Semantics) contract
 //
-//  Same class of bug as ILLOG-02 (RenteVsCapitalScreen): these premium
-//  life-event screens rendered pixels but their route subtree collapsed on
-//  the iOS accessibility bridge, so Maestro (and VoiceOver) could read almost
-//  nothing. Surfaced 2026-07-25 building parcours_secondaires.yaml: three
-//  distinct text anchors all failed against visibly-rendered /invalidite and
-//  /life-event/deces-proche.
+//  Surfaced 2026-07-25 building parcours_secondaires.yaml: on the visibly-
+//  rendered /invalidite and /life-event/deces-proche, Maestro matched none of
+//  their text anchors — the same OBSERVED symptom as ILLOG-02
+//  (RenteVsCapitalScreen: Maestro/idb read ~1 element on a rendered screen).
+//  VoiceOver was NOT measured; a Maestro text-match failure does not by itself
+//  establish VoiceOver behaviour.
 //
-//  Root cause (identical to ILLOG-02): no screen-root
-//  `Semantics(container: true, explicitChildNodes: true)` boundary above the
-//  Scaffold, so the iOS bridge collapses the subtree into a single node.
-//  Fix: wrap each screen's Scaffold in that boundary with a stable
-//  `identifier` (mirrors rente_vs_capital_screen.dart:684-687 post-fix).
+//  These screens lacked the screen-root
+//  `Semantics(container: true, explicitChildNodes: true, identifier: ...)`
+//  boundary that the healthy screens have (mirrors rente_vs_capital_screen.dart
+//  :684-687). This test pins that NECESSARY boundary: each screen must expose a
+//  semantics node carrying its `<screen>_screen` identifier with descendant
+//  labels. RED without the wrapper (no such node), GREEN with it.
 //
-//  This test pins the contract: each screen must expose a semantics node
-//  carrying its `<screen>_screen` identifier, and the screen's body labels
-//  must live UNDER that boundary. RED without the wrapper (no such node),
-//  GREEN with it.
+//  NOTE (0-TRUST): this contract is a necessary precondition, NOT proof the
+//  screen is fully readable by Maestro/VoiceOver — asserting descendant labels
+//  exist would be satisfied by a single AppBar label. Post-wrapper, invalidite
+//  STILL fails Maestro on the sim, so a deeper collapse remains (see
+//  .planning/audit/2026-07-life-event-screens-a11y-gap.md).
 // ────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';

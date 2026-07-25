@@ -1,36 +1,47 @@
 ---
 date: 2026-07-25
-status: Finding — partial fix landed, root collapse NOT yet resolved
-description: "Trois écrans life-event premium (invalidité, décès-proche, déménagement-cantonal) rendent mais leur sous-arbre d'accessibilité s'effondre côté iOS (classe ILLOG-02) : Maestro — et VoiceOver — ne lisent presque rien. On a ajouté le contrat screen-root Semantics(container+explicitChildNodes) (nécessaire, test-épinglé) mais il est INSUFFISANT seul : un rebuild sim échoue TOUJOURS les assertions texte. Cause profonde restante (SliverAppBar gradient / hero merged semantics) à traiter."
+status: Finding — necessary a11y boundary landed, observability NOT restored
+description: "Sur DEUX écrans premium testés (invalidité, décès-proche), Maestro ne matche AUCUNE ancre texte alors qu'ils rendent — gap d'OBSERVABILITÉ (même symptôme observé qu'ILLOG-02). On a ajouté le contrat screen-root Semantics(container+explicitChildNodes) aux 3 écrans (nécessaire, test-épinglé). Post-wrapper, SEUL invalidité a été re-testé sur sim : échoue toujours. décès/déménagement non re-testés post-wrapper ; déménagement jamais testé du tout. Impact VoiceOver NON mesuré (risque, pas un fait)."
 related:
   - tools/simulator/flows/parcours_secondaires.yaml
   - apps/mobile/test/screens/life_event_premium_a11y_test.dart
   - apps/mobile/test/screens/rente_vs_capital_semantics_test.dart
 ---
 
-# Finding a11y — écrans life-event premium (classe ILLOG-02)
+# Finding a11y — observabilité des écrans life-event premium
 
 ## TLDR
 
-Trois écrans premium (`/invalidite`, `/life-event/deces-proche`, `/life-event/demenagement-cantonal`) **rendent visiblement** mais Maestro ne matche AUCUNE ancre texte — même symptôme que la régression documentée **ILLOG-02** (RenteVsCapitalScreen : « rend des pixels mais arbre d'accessibilité ~vide », `idb ui describe-all` = 1 élément). C'est donc un **vrai gap a11y** (VoiceOver concerné), pas un simple caprice Maestro. **Fix partiel livré** : les 3 écrans portent désormais le contrat screen-root `Semantics(container:true, explicitChildNodes:true)` (miroir du fix RvC `rente_vs_capital_screen.dart:684-687`), épinglé par `life_event_premium_a11y_test.dart` (RED sans le wrapper → GREEN avec). **MAIS insuffisant** : un app seedée reconstruite échoue TOUJOURS `.*lacune.*` sur invalidite (2026-07-25, écran visiblement rendu). L'effondrement résiduel est plus profond.
+Deux écrans premium **testés** (`/invalidite`, `/life-event/deces-proche`) **rendent visiblement** mais Maestro n'a matché AUCUNE de leurs ancres texte — même **symptôme observé** que la régression ILLOG-02 (RenteVsCapitalScreen : Maestro/`idb` lisaient ~1 élément sur un écran rendu). C'est confirmé comme un gap d'**observabilité** (Maestro/arbre a11y iOS). **Ce qui n'est PAS mesuré** = VoiceOver : je n'ai PAS testé VoiceOver ; « Maestro ne matche pas » n'établit pas « VoiceOver ne lit pas ». On a ajouté le contrat screen-root `Semantics(container:true, explicitChildNodes:true, identifier)` aux 3 écrans (miroir du fix RvC `rente_vs_capital_screen.dart:684-687`), épinglé par `life_event_premium_a11y_test.dart` (RED sans wrapper → GREEN avec). **Post-wrapper, seul `invalidite` a été re-testé sur sim reconstruit : `.*lacune.*` échoue toujours.** `deces-proche` et `demenagement-cantonal` n'ont PAS été re-testés post-wrapper (et `demenagement` n'a jamais été exercé, même pré-wrapper).
+
+## Périmètre exact des preuves (ne pas généraliser)
+
+| Écran | Maestro pré-wrapper | Maestro post-wrapper | VoiceOver |
+|---|---|---|---|
+| invalidite | testé → FAIL (3 ancres) | **re-testé → FAIL** (`.*lacune.*`) | **non mesuré** |
+| deces-proche | testé → FAIL (2 ancres) | non re-testé | non mesuré |
+| demenagement-cantonal | **jamais testé** (inféré) | non testé | non mesuré |
 
 ## Ce qui est confirmé
 
-- Symptôme = classe ILLOG-02 (cf. `rente_vs_capital_semantics_test.dart` en-tête) : sous-arbre de route effondré sur le bridge a11y iOS.
-- Les 3 écrans n'avaient PAS le contrat screen-root (les écrans sains budget/mon_argent/rvc l'ont). Ajouté maintenant.
-- Le wrapper screen-root seul **ne suffit pas** à restaurer l'observabilité Maestro (donc pas non plus VoiceOver) : sim rebuild + re-run = toujours FAILED sur invalidite.
+- Sur invalidite + deces : Maestro ne matche pas leur texte alors qu'ils rendent (screenshots). Symptôme = classe ILLOG-02 (observabilité).
+- Le contrat screen-root Semantics manquait sur les 3 écrans (les écrans sains budget/mon_argent/rvc l'ont). Ajouté.
+- Sur invalidite re-testé post-wrapper : le wrapper screen-root seul ne restaure PAS l'observabilité Maestro.
 
-## Cause profonde restante (à investiguer — bead dédié)
+## Ce qui n'est PAS confirmé
 
-Candidats : le `_buildAppBar` à `SliverAppBar`/`FlexibleSpaceBar` gradient (invalidite) porte peut-être sa propre `Semantics` sans `explicitChildNodes` qui ré-effondre son sous-arbre ; ou un `MergeSemantics`/`ExcludeSemantics` implicite dans `mint_hero_number` / cartes stylées. À trancher avec `debugDumpSemanticsTree` **côté device** (le tree Dart est peuplé — la collapse est bridge-iOS) ou VoiceOver device.
+- Impact VoiceOver : **non mesuré** sur aucun des 3 écrans. Risque plausible (Maestro lit l'arbre a11y iOS) mais non établi.
+- Observabilité post-wrapper de deces + demenagement : **non re-testée**.
+- Cause profonde de l'effondrement résiduel : hypothèse (SliverAppBar gradient / merged hero semantics), non confirmée code.
+
+## Suivi (bead dédié)
+
+1. Mesurer directement : `debugDumpSemanticsTree` device (le tree Dart est peuplé — la collapse est bridge-iOS) et/ou VoiceOver sur device, pour les 3 écrans.
+2. Identifier l'effondrement résiduel (probable Semantics sans explicitChildNodes plus bas, ex. `_buildAppBar` SliverAppBar ou hero).
+3. Une fois observables → ré-inclure dans `parcours_secondaires.yaml`.
 
 ## Ce qui est livré ce bead (honnête)
 
-1. Contrat screen-root Semantics sur les 3 écrans (correct a11y, aligne sur les écrans sains, test-épinglé). **N'affirme PAS** résoudre l'observabilité complète.
-2. Les 3 écrans restent **exclus** de `parcours_secondaires.yaml` (toujours non observables).
-3. Ce doc = résultat négatif clair : wrapper seul insuffisant.
-
-## Data gaps
-
-- Cause exacte de l'effondrement résiduel non confirmée au niveau code (nécessite un dump semantics device).
-- Bénéfice VoiceOver du wrapper screen-root non mesuré directement (Maestro toujours KO ⇒ probablement pas encore lisible ; à confirmer device).
+- Contrat screen-root Semantics sur les 3 écrans (correct, aligne sur les écrans sains, test-épinglé). Le test vérifie que le nœud identifiant existe et a des labels descendants — une **précondition nécessaire**, PAS une preuve que l'écran est entièrement lisible.
+- 3 écrans **restés exclus** du flow sim (toujours non observables).
+- Ce doc = périmètre de preuve exact + résultat négatif (wrapper seul insuffisant sur invalidite).
