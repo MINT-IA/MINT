@@ -56,15 +56,13 @@ tags:
       text: ".*Frontalier.*"
     timeout: 12000
 
-# ── EXCLUDED: /invalidite, /life-event/deces-proche (tested),
-#             /life-event/demenagement-cantonal (untested) ─────────────
-# SIM-OBSERVABILITY FINDING (tracked as a follow-up): the two TESTED screens
-# (invalidite, deces-proche) RENDER correctly (screenshots) but Maestro could
-# not match ANY of their text anchors — a confirmed test-observability gap.
-# This does NOT prove VoiceOver fails: mint_hero_number.dart carries an
-# explicit Semantics(label:), so a label exists (likely an aggregated/merged
-# label, not matchable sub-strings). VoiceOver impact is a RISK to verify
-# directly (debugDumpSemanticsTree / device). demenagement-cantonal is
-# INFERRED only, not tested. Excluded here so the flow stays green while the
-# gap is documented honestly.
+# ── STILL EXCLUDED: /invalidite, /life-event/deces-proche,
+#             /life-event/demenagement-cantonal ────────────────────────
+# These 3 premium screens now carry a screen-root Semantics(container:true,
+# explicitChildNodes:true) boundary (ILLOG-02 contract, pinned by
+# life_event_premium_a11y_test.dart). But that boundary alone is NOT
+# sufficient: a rebuilt seeded app STILL fails Maestro text assertions on
+# them (invalidite ".*lacune.*" failed against a visibly-rendered screen,
+# 2026-07-25) — the iOS a11y collapse is deeper (gradient SliverAppBar /
+# merged hero semantics). Kept excluded pending dedicated a11y work.
 # See .planning/audit/2026-07-life-event-screens-a11y-gap.md.
