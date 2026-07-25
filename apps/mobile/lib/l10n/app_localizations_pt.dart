@@ -3409,6 +3409,10 @@ class SPt extends S {
       'O número de filhos altera as deduções e os custos.';
 
   @override
+  String get naissanceCostGenericExampleLabel =>
+      'Exemplo — custos médios na Suíça, não a tua situação';
+
+  @override
   String get housingSaleIntroText =>
       'Vender um imóvel na Suíça implica um imposto sobre as mais-valias imobiliárias (LHID art. 12), o eventual reembolso dos fundos de previdência utilizados (EPL) e custos de transação. Esta ferramenta ajuda-te a estimar o produto líquido da venda.';
 

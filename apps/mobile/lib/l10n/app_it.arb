@@ -1471,6 +1471,7 @@
   "naissanceGateFactFraisGarde": "Spese di custodia",
   "naissanceGateWhyFraisGarde": "Le tue spese di custodia reali determinano la deduzione.",
   "naissanceGateWhyEnfantsImpact": "Il numero di figli modifica deduzioni e costi.",
+  "naissanceCostGenericExampleLabel": "Esempio — costi medi in Svizzera, non la tua situazione",
   "housingSaleIntroText": "Vendere un immobile in Svizzera comporta un'imposta sugli utili immobiliari (LAID art. 12), l'eventuale rimborso dei fondi previdenziali utilizzati (EPL) e costi di transazione. Questo strumento ti aiuta a stimare il ricavo netto della vendita.",
   "housingSaleBienTitle": "IMMOBILE",
   "housingSaleBienSubtitle": "Prezzo d'acquisto, vendita, investimenti",

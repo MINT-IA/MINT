@@ -3422,6 +3422,10 @@ class SDe extends S {
       'Die Anzahl der Kinder verändert Abzüge und Kosten.';
 
   @override
+  String get naissanceCostGenericExampleLabel =>
+      'Beispiel — Durchschnittskosten in der Schweiz, nicht deine Situation';
+
+  @override
   String get housingSaleIntroText =>
       'Der Verkauf einer Immobilie in der Schweiz beinhaltet eine Grundstückgewinnsteuer (StHG Art. 12), eine mögliche Rückzahlung der verwendeten Vorsorgegelder (WEF) und Transaktionskosten. Dieses Tool hilft dir, den Nettoerlös deines Verkaufs zu schätzen.';
 

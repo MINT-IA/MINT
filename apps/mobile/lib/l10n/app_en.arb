@@ -1471,6 +1471,7 @@
   "naissanceGateFactFraisGarde": "Childcare costs",
   "naissanceGateWhyFraisGarde": "Your real childcare costs determine the deduction.",
   "naissanceGateWhyEnfantsImpact": "The number of children changes deductions and costs.",
+  "naissanceCostGenericExampleLabel": "Example — average costs in Switzerland, not your situation",
   "housingSaleIntroText": "Selling property in Switzerland involves a capital gains tax (LHID art. 12), possible reimbursement of pension funds used (EPL), and transaction costs. This tool helps you estimate your net sale proceeds.",
   "housingSaleBienTitle": "PROPERTY",
   "housingSaleBienSubtitle": "Purchase price, sale, investments",

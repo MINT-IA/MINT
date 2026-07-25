@@ -3410,6 +3410,10 @@ class SFr extends S {
       'Le nombre d\'enfants modifie les déductions et les coûts.';
 
   @override
+  String get naissanceCostGenericExampleLabel =>
+      'Exemple — coûts moyens en Suisse, pas ta situation';
+
+  @override
   String get housingSaleIntroText =>
       'Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t\'aide à estimer le produit net de ta vente.';
 

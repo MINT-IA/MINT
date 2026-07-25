@@ -6,6 +6,9 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
+import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
+import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
@@ -64,6 +67,7 @@ CoachProfile _profile({
   double salaire = 6000,
   int nombreEnfants = 0,
   String? gender,
+  double epargne3a = 0,
   Set<String> provided = const {},
 }) {
   return CoachProfile(
@@ -72,6 +76,7 @@ CoachProfile _profile({
     salaireBrutMensuel: salaire,
     nombreEnfants: nombreEnfants,
     gender: gender,
+    prevoyance: PrevoyanceProfile(totalEpargne3a: epargne3a),
     userProvidedFields: provided,
     goalA: GoalA(
       type: GoalAType.retraite,
@@ -83,7 +88,7 @@ CoachProfile _profile({
 
 Future<void> _pump(WidgetTester tester, CoachProfileProvider provider) async {
   // Tall surface so each (lazy) tab's result slot is inflated without scrolling.
-  await tester.binding.setSurfaceSize(const Size(1200, 6000));
+  await tester.binding.setSurfaceSize(const Size(1200, 8000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(
     ChangeNotifierProvider<CoachProfileProvider>.value(
@@ -195,6 +200,34 @@ String _expectedImpactEconomie(WidgetTester tester) {
   );
   return FamilyService.formatChf(r['economieFiscale'] as double);
 }
+
+/// Expected NET impact for the current confirmed inputs — with the fabricated
+/// « autres coûts » forfaitaire (1500/enfant/mois) EXCLUDED. Only gated inputs:
+/// net = économie fiscale + allocations − frais de garde réels.
+({double net, double netWithFakeCost}) _expectedImpactNet(WidgetTester tester) {
+  final st = _state(tester);
+  final revenu = st.debugRevenu as double;
+  final nb = st.debugNbEnfantsImpact as int;
+  final frais = st.debugFraisGarde as double;
+  final eco = FamilyService.calculateImpactFiscalEnfant(
+    revenuImposable: revenu,
+    tauxMarginal: 0.15 + (revenu / 1000000),
+    nbEnfants: nb,
+    fraisGarde: frais,
+  )['economieFiscale'] as double;
+  final alloc = FamilyService.estimateAllocations(
+    canton: st.debugCanton as String,
+    nbEnfants: nb,
+  )['annuelTotal'] as double;
+  final fraisAnnuel = frais * 12 * nb;
+  final net = eco + alloc - fraisAnnuel;
+  // The pre-fix formula also subtracted a fabricated 1500/enfant/mois.
+  final netWithFakeCost = net - (1500.0 * nb * 12);
+  return (net: net, netWithFakeCost: netWithFakeCost);
+}
+
+String _fmtNet(double net) =>
+    '${net >= 0 ? "+" : ""}${FamilyService.formatChf(net)}';
 
 void main() {
   // ══════════════════════════════════════════════════════════════
@@ -584,6 +617,106 @@ void main() {
           isNot(contains('fraisGarde')),
           reason: 'touched frais de garde + nbEnfants survive the clear');
     });
+
+    // ── Codex re-review: NO fabricated personal CHF in the revealed subtree ──
+    testWidgets('net impact excludes the fabricated 1500/enfant « autres coûts »',
+        (tester) async {
+      // Canton + rôle seedés (impact gate les consomme aussi) ; revenu + frais
+      // + enfants touchés → sortie impact complète.
+      await _pump(
+        tester,
+        _FakeProvider(
+            _profile(canton: 'GE', gender: 'F', provided: {'canton'})),
+      );
+      await _goToTab(tester, 'Impact');
+      await _touchRevenu(tester, 90000);
+      await _touchFraisGarde(tester, 800);
+      await _incrementChildren(tester);
+
+      final exp = _expectedImpactNet(tester);
+      // Sanity: with nb ≥ 1 the two formulas differ (1500×nb×12 > 0), so the
+      // assertion below cannot pass vacuously.
+      expect(exp.net, isNot(exp.netWithFakeCost));
+      expect(
+        find.descendant(
+            of: find.byKey(const Key('naissanceImpactNet')),
+            matching: find.text(_fmtNet(exp.net))),
+        findsOneWidget,
+        reason: 'net = économie fiscale + allocations − frais de garde only',
+      );
+      expect(
+        find.descendant(
+            of: find.byKey(const Key('naissanceImpactNet')),
+            matching: find.text(_fmtNet(exp.netWithFakeCost))),
+        findsNothing,
+        reason: 'the pre-fix net (with the 1500 forfait) must NOT be rendered',
+      );
+    });
+
+    testWidgets('Clause 3a renders the REAL profile 3a balance when > 0',
+        (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+          salaire: 6500,
+          canton: 'GE',
+          gender: 'F',
+          epargne3a: 35000,
+          provided: {'salary', 'canton'},
+        )),
+      );
+      await _goToTab(tester, 'Impact');
+      await _touchFraisGarde(tester, 1200);
+      await _incrementChildren(tester);
+
+      final clause = find.byType(Clause3aWidget);
+      expect(clause, findsOneWidget,
+          reason: 'a real profile 3a balance (>0) shows the clause widget');
+      expect(tester.widget<Clause3aWidget>(clause).balance3a, 35000.0,
+          reason: 'the widget carries the REAL profile 3a, not revenu × 0.3');
+    });
+
+    testWidgets('Clause 3a is absent when the profile 3a balance is 0/unknown',
+        (tester) async {
+      await _pump(
+        // epargne3a defaults to 0 → unknown 3a balance.
+        tester,
+        _FakeProvider(_profile(
+          salaire: 6500,
+          canton: 'GE',
+          gender: 'F',
+          provided: {'salary', 'canton'},
+        )),
+      );
+      await _goToTab(tester, 'Impact');
+      await _touchFraisGarde(tester, 1200);
+      await _incrementChildren(tester);
+
+      expect(find.byKey(_impactFigure), findsOneWidget,
+          reason: 'the impact output is otherwise complete');
+      expect(find.byType(Clause3aWidget), findsNothing,
+          reason: 'no real 3a balance → no invented 30%-of-income clause shown');
+    });
+
+    testWidgets('generic-example caption sits above the cost widgets',
+        (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(
+            _profile(canton: 'GE', gender: 'F', provided: {'canton'})),
+      );
+      await _goToTab(tester, 'Impact');
+      await _touchRevenu(tester, 90000);
+      await _touchFraisGarde(tester, 1000);
+      await _incrementChildren(tester);
+
+      // The generic Swiss-average widgets stay, but are explicitly framed.
+      expect(find.text('Exemple — coûts moyens en Suisse, pas ta situation'),
+          findsOneWidget,
+          reason: 'the generic-average caption must be present');
+      expect(find.byType(BudgetBebeWidget), findsOneWidget);
+      expect(find.byType(BabyCostWidget), findsOneWidget);
+    });
   });
 
   // ══════════════════════════════════════════════════════════════
@@ -614,7 +747,7 @@ void main() {
   // A screen with no provider (isolated pump) must not crash and must gate.
   testWidgets('no provider in tree: defaults kept, every output gated',
       (tester) async {
-    await tester.binding.setSurfaceSize(const Size(1200, 6000));
+    await tester.binding.setSurfaceSize(const Size(1200, 8000));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(
       const MaterialApp(

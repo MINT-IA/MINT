@@ -3419,6 +3419,10 @@ class SIt extends S {
       'Il numero di figli modifica deduzioni e costi.';
 
   @override
+  String get naissanceCostGenericExampleLabel =>
+      'Esempio — costi medi in Svizzera, non la tua situazione';
+
+  @override
   String get housingSaleIntroText =>
       'Vendere un immobile in Svizzera comporta un\'imposta sugli utili immobiliari (LAID art. 12), l\'eventuale rimborso dei fondi previdenziali utilizzati (EPL) e costi di transazione. Questo strumento ti aiuta a stimare il ricavo netto della vendita.';
 

@@ -1471,6 +1471,7 @@
   "naissanceGateFactFraisGarde": "Gastos de guardería",
   "naissanceGateWhyFraisGarde": "Tus gastos reales de guardería determinan la deducción.",
   "naissanceGateWhyEnfantsImpact": "El número de hijos modifica las deducciones y los costes.",
+  "naissanceCostGenericExampleLabel": "Ejemplo — costes medios en Suiza, no tu situación",
   "housingSaleIntroText": "Vender una propiedad en Suiza implica un impuesto sobre las ganancias inmobiliarias (LHID art. 12), el posible reembolso de fondos de previsión utilizados (EPL) y gastos de transacción. Esta herramienta te ayuda a estimar el producto neto de tu venta.",
   "housingSaleBienTitle": "PROPIEDAD",
   "housingSaleBienSubtitle": "Precio de compra, venta, inversiones",

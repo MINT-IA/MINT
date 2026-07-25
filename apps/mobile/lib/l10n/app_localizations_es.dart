@@ -3412,6 +3412,10 @@ class SEs extends S {
       'El número de hijos modifica las deducciones y los costes.';
 
   @override
+  String get naissanceCostGenericExampleLabel =>
+      'Ejemplo — costes medios en Suiza, no tu situación';
+
+  @override
   String get housingSaleIntroText =>
       'Vender una propiedad en Suiza implica un impuesto sobre las ganancias inmobiliarias (LHID art. 12), el posible reembolso de fondos de previsión utilizados (EPL) y gastos de transacción. Esta herramienta te ayuda a estimar el producto neto de tu venta.';
 

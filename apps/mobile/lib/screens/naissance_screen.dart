@@ -479,10 +479,12 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final allocAnnuel = allocResult['annuelTotal'] as double;
 
     final economieFiscale = fiscalResult['economieFiscale'] as double;
-    final coutEstime = 1500.0 * _nbEnfantsImpact * 12;
     final fraisGardeAnnuel = _fraisGarde * 12 * _nbEnfantsImpact;
-    final coutTotal = coutEstime + fraisGardeAnnuel;
-    final netImpact = economieFiscale + allocAnnuel - coutTotal;
+    // Net = uniquement des inputs gatés (économie fiscale + allocations − frais
+    // de garde RÉELS). Aucun « autres coûts » forfaitaire inventé
+    // (1500/enfant/mois) : un coût fabriqué n'a pas sa place dans un net
+    // personnalisé (Codex P2 : zéro CHF personnel fabriqué dans la sortie).
+    final netImpact = economieFiscale + allocAnnuel - fraisGardeAnnuel;
 
     // Career gap LPP projection
     final interruptionMois = _isMother ? 12 : 2;
@@ -492,7 +494,6 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       'fiscalResult': fiscalResult,
       'allocAnnuel': allocAnnuel,
       'economieFiscale': economieFiscale,
-      'coutEstime': coutEstime,
       'fraisGardeAnnuel': fraisGardeAnnuel,
       'netImpact': netImpact,
       'interruptionMois': interruptionMois,
@@ -1266,7 +1267,6 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final fiscalResult = r['fiscalResult'] as Map<String, dynamic>;
     final allocAnnuel = r['allocAnnuel'] as double;
     final economieFiscale = r['economieFiscale'] as double;
-    final coutEstime = r['coutEstime'] as double;
     final fraisGardeAnnuel = r['fraisGardeAnnuel'] as double;
     final netImpact = r['netImpact'] as double;
     final interruptionMois = r['interruptionMois'] as int;
@@ -1274,6 +1274,11 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
     final cantonNom = FamilyService.cantonNames[_cantonAlloc] ?? _cantonAlloc;
     final plural = _nbEnfantsImpact > 1 ? 's' : '';
+
+    // Solde 3a RÉEL du profil (jamais estimé) : la clause 3a n'est rendue que
+    // s'il existe un solde renseigné. Inconnu / nul → widget omis.
+    final totalEpargne3a =
+        _profileProvider?.profile?.prevoyance.totalEpargne3a ?? 0.0;
 
     return [
       // 1. Tax savings
@@ -1407,10 +1412,6 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             amount: allocAnnuel,
           ),
           WaterfallStep(
-            label: S.of(context)!.naissanceWaterfallCosts,
-            amount: -coutEstime,
-          ),
-          WaterfallStep(
             label: S.of(context)!.naissanceWaterfallChildcare,
             amount: -fraisGardeAnnuel,
           ),
@@ -1428,6 +1429,26 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         S.of(context)!.naissanceChildCostEducational,
       ),
       const SizedBox(height: MintSpacing.lg),
+
+      // Caption : les deux widgets ci-dessous exposent des MOYENNES suisses
+      // génériques (crèche, alimentation, budget 50/30/20) — pas la situation
+      // de l'utilisateur. Étiquetés comme tels ; non gatés sur des faits perso.
+      Padding(
+        padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.info_outline, size: 14, color: MintColors.textMuted),
+            const SizedBox(width: MintSpacing.xs + 2),
+            Expanded(
+              child: Text(
+                S.of(context)!.naissanceCostGenericExampleLabel,
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+              ),
+            ),
+          ],
+        ),
+      ),
 
       BudgetBebeWidget(
         monthlyIncome: _revenuImpact / 12,
@@ -1475,12 +1496,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       ),
       const SizedBox(height: MintSpacing.lg),
 
-      // ── P8-C : Clause 3a beneficiaire (OPP3 art. 2) ──
-      Clause3aWidget(
-        balance3a: _revenuImpact * 0.3, // DECISION: known approximation (~30% du revenu). Accurate 3a projection requires full profile data not available in birth-event context. Acceptable for educational illustration (OPP3).
-        hasClause: false,
-      ),
-      const SizedBox(height: MintSpacing.lg),
+      // ── P8-C : Clause 3a bénéficiaire (OPP3 art. 2) ──
+      // Rendue UNIQUEMENT avec le solde 3a RÉEL du profil ; jamais un montant
+      // inventé (aucune approximation « % du revenu »). Solde inconnu / nul →
+      // widget omis (pas de 3a fabriqué dans la sortie impact).
+      if (totalEpargne3a > 0) ...[
+        Clause3aWidget(
+          balance3a: totalEpargne3a,
+          hasClause: false,
+        ),
+        const SizedBox(height: MintSpacing.lg),
+      ],
     ];
   }
 

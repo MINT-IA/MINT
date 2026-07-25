@@ -6237,6 +6237,12 @@ abstract class S {
   /// **'Le nombre d\'enfants modifie les déductions et les coûts.'**
   String get naissanceGateWhyEnfantsImpact;
 
+  /// No description provided for @naissanceCostGenericExampleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemple — coûts moyens en Suisse, pas ta situation'**
+  String get naissanceCostGenericExampleLabel;
+
   /// No description provided for @housingSaleIntroText.
   ///
   /// In fr, this message translates to:

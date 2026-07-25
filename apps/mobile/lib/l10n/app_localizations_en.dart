@@ -3383,6 +3383,10 @@ class SEn extends S {
       'The number of children changes deductions and costs.';
 
   @override
+  String get naissanceCostGenericExampleLabel =>
+      'Example — average costs in Switzerland, not your situation';
+
+  @override
   String get housingSaleIntroText =>
       'Selling property in Switzerland involves a capital gains tax (LHID art. 12), possible reimbursement of pension funds used (EPL), and transaction costs. This tool helps you estimate your net sale proceeds.';
 
