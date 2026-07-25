@@ -4375,6 +4375,15 @@
   },
   "demenagementInsightNegatif": "Esta mudança custa mais. Verifica se a qualidade de vida compensa a diferença.",
   "demenagementBilanTotal": "Balanço total (impostos + seguro de saúde)",
+  "demenagementGateFactRevenu": "O teu rendimento bruto anual",
+  "demenagementGateWhyRevenu": "Determina o imposto sobre o rendimento comparado entre os dois cantões.",
+  "demenagementGateFactCantonDepart": "O teu cantão atual",
+  "demenagementGateWhyCantonDepart": "A sua tabela fiscal e os seus prémios são o ponto de partida.",
+  "demenagementGateFactCantonArrivee": "O cantão de destino",
+  "demenagementGateWhyCantonArrivee": "O cantão que estás a considerar define a nova tabela a comparar.",
+  "demenagementGateFactSituation": "A tua situação familiar",
+  "demenagementGateWhySituation": "O número de prémios LAMal do agregado depende disso.",
+  "demenagementReferenceCaption": "Prémios LAMal médios (adulto, franquia 300) e índices fiscais relativos: referências cantonais indicativas, não o teu prémio real.",
   "divorceTransfertAmount": "Transferência de {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {

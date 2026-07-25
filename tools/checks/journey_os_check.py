@@ -618,6 +618,7 @@ ALLOW = {
     "apps/mobile/lib/screens/deces_proche_screen.dart",
     "apps/mobile/test/screens/deces_gate_test.dart",
     "apps/mobile/lib/screens/demenagement_cantonal_screen.dart",
+    "apps/mobile/test/screens/demenagement_gate_test.dart",
     "apps/mobile/test/screens/life_event_premium_a11y_test.dart",
     "tools/checks/baselines/prefer_mint_cta.baseline.txt",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",

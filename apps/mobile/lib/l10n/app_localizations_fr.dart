@@ -9609,6 +9609,38 @@ class SFr extends S {
   String get demenagementBilanTotal => 'Bilan total (impôts + LAMal)';
 
   @override
+  String get demenagementGateFactRevenu => 'Ton revenu annuel brut';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'Il fixe l\'impôt sur le revenu comparé entre les deux cantons.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'Ton canton actuel';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'Son barème fiscal et ses primes servent de point de départ.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'Le canton d\'arrivée';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'La destination envisagée fixe le nouveau barème à comparer.';
+
+  @override
+  String get demenagementGateFactSituation => 'Ta situation familiale';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'Le nombre de primes LAMal du ménage en dépend.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Primes LAMal moyennes (adulte, franchise 300) et indices fiscaux relatifs : repères cantonaux indicatifs, pas ta prime réelle.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Transfert de $amount ($direction)';
   }

@@ -4375,6 +4375,15 @@
   },
   "demenagementInsightNegatif": "Questo trasloco costa di più. Verifica che la qualità della vita compensi la differenza.",
   "demenagementBilanTotal": "Bilancio totale (imposte + assicurazione malattia)",
+  "demenagementGateFactRevenu": "Il tuo reddito lordo annuo",
+  "demenagementGateWhyRevenu": "Determina l'imposta sul reddito confrontata tra i due cantoni.",
+  "demenagementGateFactCantonDepart": "Il tuo cantone attuale",
+  "demenagementGateWhyCantonDepart": "La sua tariffa fiscale e i suoi premi sono il punto di partenza.",
+  "demenagementGateFactCantonArrivee": "Il cantone di destinazione",
+  "demenagementGateWhyCantonArrivee": "Il cantone che stai valutando fissa la nuova tariffa da confrontare.",
+  "demenagementGateFactSituation": "La tua situazione familiare",
+  "demenagementGateWhySituation": "Il numero di premi LAMal del nucleo dipende da questo.",
+  "demenagementReferenceCaption": "Premi LAMal medi (adulto, franchigia 300) e indici fiscali relativi: riferimenti cantonali indicativi, non il tuo premio reale.",
   "divorceTransfertAmount": "Trasferimento di {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {

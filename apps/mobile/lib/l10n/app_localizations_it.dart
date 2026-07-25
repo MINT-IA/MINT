@@ -9626,6 +9626,38 @@ class SIt extends S {
       'Bilancio totale (imposte + assicurazione malattia)';
 
   @override
+  String get demenagementGateFactRevenu => 'Il tuo reddito lordo annuo';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'Determina l\'imposta sul reddito confrontata tra i due cantoni.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'Il tuo cantone attuale';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'La sua tariffa fiscale e i suoi premi sono il punto di partenza.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'Il cantone di destinazione';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'Il cantone che stai valutando fissa la nuova tariffa da confrontare.';
+
+  @override
+  String get demenagementGateFactSituation => 'La tua situazione familiare';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'Il numero di premi LAMal del nucleo dipende da questo.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Premi LAMal medi (adulto, franchigia 300) e indici fiscali relativi: riferimenti cantonali indicativi, non il tuo premio reale.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Trasferimento di $amount ($direction)';
   }

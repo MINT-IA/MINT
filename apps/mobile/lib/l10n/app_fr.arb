@@ -4848,6 +4848,15 @@
   },
   "demenagementInsightNegatif": "Ce déménagement te coûte. Vérifie que le cadre de vie compense la différence.",
   "demenagementBilanTotal": "Bilan total (impôts + LAMal)",
+  "demenagementGateFactRevenu": "Ton revenu annuel brut",
+  "demenagementGateWhyRevenu": "Il fixe l'impôt sur le revenu comparé entre les deux cantons.",
+  "demenagementGateFactCantonDepart": "Ton canton actuel",
+  "demenagementGateWhyCantonDepart": "Son barème fiscal et ses primes servent de point de départ.",
+  "demenagementGateFactCantonArrivee": "Le canton d'arrivée",
+  "demenagementGateWhyCantonArrivee": "La destination envisagée fixe le nouveau barème à comparer.",
+  "demenagementGateFactSituation": "Ta situation familiale",
+  "demenagementGateWhySituation": "Le nombre de primes LAMal du ménage en dépend.",
+  "demenagementReferenceCaption": "Primes LAMal moyennes (adulte, franchise 300) et indices fiscaux relatifs : repères cantonaux indicatifs, pas ta prime réelle.",
   "divorceTransfertAmount": "Transfert de {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {

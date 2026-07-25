@@ -4375,6 +4375,15 @@
   },
   "demenagementInsightNegatif": "This move costs more. Check if the quality of life offsets the difference.",
   "demenagementBilanTotal": "Total balance (taxes + health insurance)",
+  "demenagementGateFactRevenu": "Your gross annual income",
+  "demenagementGateWhyRevenu": "It sets the income tax compared between the two cantons.",
+  "demenagementGateFactCantonDepart": "Your current canton",
+  "demenagementGateWhyCantonDepart": "Its tax scale and premiums are the starting point.",
+  "demenagementGateFactCantonArrivee": "The destination canton",
+  "demenagementGateWhyCantonArrivee": "The canton you are considering sets the new scale to compare.",
+  "demenagementGateFactSituation": "Your family situation",
+  "demenagementGateWhySituation": "The number of LAMal premiums for the household depends on it.",
+  "demenagementReferenceCaption": "Average LAMal premiums (adult, CHF 300 deductible) and relative tax indices: indicative cantonal benchmarks, not your actual premium.",
   "divorceTransfertAmount": "Transfer of {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {

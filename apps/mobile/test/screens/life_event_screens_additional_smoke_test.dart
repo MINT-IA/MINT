@@ -24,6 +24,7 @@ import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
 import 'package:mint_mobile/screens/demenagement_cantonal_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
@@ -372,11 +373,20 @@ void main() {
       expect(find.textContaining('actuel'), findsWidgets);
     });
 
-    testWidgets('shows economy CHF hero number', (tester) async {
+    testWidgets('P2 gate dur: with no profile the economy figure is gated',
+        (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // Hero displays CHF delta (positive or negative)
-      expect(find.textContaining('CHF'), findsWidgets);
+      await tester.pump(const Duration(milliseconds: 500));
+      // No provider/profile → revenu / cantons / situation are fabricated
+      // defaults (unconfirmed). The economy hero must NOT compute on them; the
+      // situation gate takes the result slot. Full compute path is covered by
+      // demenagement_gate_test.dart. Screen is a SingleChildScrollView so the
+      // gate card is built without scrolling.
+      expect(find.byType(SituationGateCard), findsOneWidget,
+          reason: 'the gated result slot shows the situation gate');
+      expect(find.byType(MintHeroNumber), findsNothing,
+          reason: 'no economy figure on fabricated defaults (P2 gate dur)');
     });
 
     testWidgets('shows checklist section', (tester) async {
