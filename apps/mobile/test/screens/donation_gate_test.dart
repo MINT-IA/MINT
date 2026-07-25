@@ -315,4 +315,92 @@ void main() {
     expect(find.byKey(_taxCard), findsNothing,
         reason: 'the whole result area is invalidated until re-computed');
   });
+
+  // ── 8. Fabrication-leak (Codex): a late fortune seed that completes the
+  //       réserve gate must NOT reveal a réserve computed on the assumed 800k.
+  testWidgets(
+      'late fortune hydration never leaks a réserve computed on the assumed default',
+      (tester) async {
+    final fake = _MutableProvider();
+    await _pump(tester, fake);
+    // Canton + children + régime confirmed by touch; fortune stays ASSUMED
+    // (no key, not touched) at the fabricated 800000 default.
+    await _touchCanton(tester, 'GE');
+    await _touchNbEnfants(tester, 2);
+    await _touchRegime(tester, 'participation_acquets');
+    await _tapCalculer(tester);
+    expect(find.byKey(_taxCard), findsOneWidget);
+    expect(find.byKey(_reserveFigure), findsNothing,
+        reason: 'réserve gated while fortune is an assumed default');
+
+    // A real fortune (≠ the 800000 default) arrives late and completes the gate.
+    fake.hydrate(_profile(epargneLiquide: 300000, provided: {'liquidSavings'}));
+    await tester.pumpAndSettle();
+
+    // The stale réserve (computed on 800000) must NOT surface — the late seed
+    // invalidated _result.
+    expect(find.byKey(_reserveFigure), findsNothing,
+        reason: 'stale réserve on the assumed 800000 must not leak');
+
+    // Re-computing yields the réserve on the REAL seeded fortune.
+    await _tapCalculer(tester);
+    final expected = DonationService.calculate(
+      montant: 100000,
+      donateurAge: 55,
+      lienParente: 'descendant',
+      canton: 'GE',
+      nbEnfants: 2,
+      fortuneTotaleDonateur: 300000,
+      regimeMatrimonial: 'participation_acquets',
+    );
+    final figure = tester.widget<Text>(find.byKey(_reserveFigure));
+    expect(figure.data, _chf(expected.reserveHereditaireTotale),
+        reason: 'recomputed on the real seeded fortune, not the default');
+  });
+
+  // ── 9. Scenario-edit invalidation (Codex): editing a scenario param that
+  //       feeds an output must remove the now-stale figure.
+  testWidgets('editing a scenario param (montant) invalidates the shown figures',
+      (tester) async {
+    await _pump(tester, _FakeProvider(null));
+    await _touchCanton(tester, 'GE');
+    await _touchNbEnfants(tester, 2);
+    await _touchFortune(tester, 500000);
+    await _touchRegime(tester, 'participation_acquets');
+    await _tapCalculer(tester);
+    expect(find.byKey(_reserveFigure), findsOneWidget);
+
+    // montant feeds tax/succession outputs → editing it must not leave a stale
+    // figure on screen.
+    final montant = tester
+        .widgetList<MintAmountField>(find.byType(MintAmountField))
+        .firstWhere((f) => f.min == 10000 && f.max == 2000000);
+    montant.onChanged(250000);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(_reserveFigure), findsNothing,
+        reason: 'a scenario edit invalidates the stale result');
+    expect(find.byKey(_taxCard), findsNothing);
+  });
+
+  // ── 10. Provenance non-latch (Codex): a later profile without the key must
+  //        re-close the gate (provenance re-evaluated on every notify).
+  testWidgets(
+      'canton provenance is non-latching: a later profile without the key re-gates',
+      (tester) async {
+    final fake = _MutableProvider();
+    await _pump(tester, fake);
+    // First authoritative profile carries the canton key → confirmed.
+    fake.hydrate(_profile(canton: 'GE', provided: {'canton'}));
+    await tester.pumpAndSettle();
+    await _tapCalculer(tester);
+    expect(find.byKey(_taxCard), findsOneWidget,
+        reason: 'canton confirmed via userProvidedFields → tax shows');
+
+    // A later profile no longer carries the key → provenance must drop.
+    fake.hydrate(_profile(canton: 'GE', provided: {}));
+    await tester.pumpAndSettle();
+    expect(find.byKey(_taxCard), findsNothing,
+        reason: 'provenance re-evaluated each notify (no latch) → gate re-closes');
+  });
 }

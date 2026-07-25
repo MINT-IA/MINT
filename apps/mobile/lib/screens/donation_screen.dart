@@ -153,9 +153,11 @@ class _DonationScreenState extends State<DonationScreen> {
   void _seedFromProfile() {
     final profile = _profileProvider?.profile;
     if (profile == null) return; // pas encore hydraté : le listener rejouera.
-    var changed = false;
+    var changed = false; // valeur OU provenance a bougé → rebuild.
+    var valueChanged = false; // une valeur CONSOMMÉE par le calcul a bougé.
 
-    // Âge : confort seul. Ne conditionne AUCUN résultat → jamais gaté.
+    // Âge : non gaté, mais consommé par DonationService.calculate → invalide
+    // un résultat déjà calculé s'il change.
     if (!_donateurAgeTouched) {
       final age = profile.ageOrNull;
       if (age != null) {
@@ -163,56 +165,79 @@ class _DonationScreenState extends State<DonationScreen> {
         if (v != _donateurAge) {
           _donateurAge = v;
           changed = true;
+          valueChanged = true;
         }
       }
     }
 
-    // Canton : provenance = userProvidedFields('canton'). On amorce ET on
-    // confirme uniquement si l'utilisateur l'a réellement fourni (jamais un
-    // défaut fantôme du modèle).
-    if (!_cantonTouched && profile.userProvidedFields.contains('canton')) {
+    // Canton : provenance RÉ-ÉVALUÉE à chaque notify (jamais latch). Confirmé
+    // seulement si l'utilisateur a réellement fourni un canton valide ; si un
+    // profil ultérieur ne porte plus la clé, la provenance retombe et le gate
+    // se referme.
+    if (!_cantonTouched) {
       final c = profile.canton;
-      if (c.isNotEmpty && c != 'unknown' && _cantons.contains(c)) {
-        if (c != _canton) {
-          _canton = c;
-          changed = true;
-        }
-        if (!_cantonSeeded) {
-          _cantonSeeded = true;
-          changed = true;
-        }
+      final valid = profile.userProvidedFields.contains('canton') &&
+          c.isNotEmpty &&
+          c != 'unknown' &&
+          _cantons.contains(c);
+      if (_cantonSeeded != valid) {
+        _cantonSeeded = valid;
+        changed = true;
+      }
+      if (valid && c != _canton) {
+        _canton = c;
+        changed = true;
+        valueChanged = true;
       }
     }
 
-    // Nombre d'enfants : AUCUNE clé userProvidedFields n'existe → confirmable
-    // au touch seul. On amorce la VALEUR (confort) quand > 0, mais cela ne
-    // confirme pas le fait (le gate reste tant que non touché).
+    // Nombre d'enfants : AUCUNE clé userProvidedFields → confirmable au touch
+    // seul. On amorce la VALEUR (confort) quand > 0 ; ne confirme jamais le
+    // fait (le gate reste tant que non touché).
     if (!_nbEnfantsTouched && profile.nombreEnfants > 0) {
       final v = profile.nombreEnfants.clamp(0, 6);
       if (v != _nbEnfants) {
         _nbEnfants = v;
         changed = true;
+        valueChanged = true;
       }
     }
 
-    // Fortune nette : provenance = userProvidedFields('liquidSavings').
-    // Patrimoine NET (actifs - dettes), accesseur canonique du modèle. Un net
-    // ≤ 0 est un zéro légitime : la valeur amorcée reflète la donnée réelle
-    // (jamais le défaut fabriqué) dès que la provenance est présente.
-    if (!_fortuneTouched && profile.userProvidedFields.contains('liquidSavings')) {
-      final net = profile.patrimoine.patrimoineNet(profile.dettes.totalDettes);
-      final v = net.clamp(0.0, 5000000.0);
-      if (v != _fortuneTotaleDonateur) {
-        _fortuneTotaleDonateur = v;
+    // Fortune nette : provenance RÉ-ÉVALUÉE à chaque notify (jamais latch).
+    // Patrimoine NET (actifs - dettes), accesseur canonique. Un net ≤ 0 est un
+    // zéro légitime : la valeur reflète la donnée réelle dès la provenance.
+    if (!_fortuneTouched) {
+      final hasKey = profile.userProvidedFields.contains('liquidSavings');
+      if (_fortuneSeeded != hasKey) {
+        _fortuneSeeded = hasKey;
         changed = true;
       }
-      if (!_fortuneSeeded) {
-        _fortuneSeeded = true;
-        changed = true;
+      if (hasKey) {
+        final net =
+            profile.patrimoine.patrimoineNet(profile.dettes.totalDettes);
+        final v = net.clamp(0.0, 5000000.0);
+        if (v != _fortuneTotaleDonateur) {
+          _fortuneTotaleDonateur = v;
+          changed = true;
+          valueChanged = true;
+        }
       }
     }
+
+    // Une valeur consommée qui bouge (typiquement une hydratation tardive)
+    // invalide tout résultat déjà calculé : sinon un chiffre calculé sur un
+    // défaut fabriqué pourrait s'afficher quand le gate s'ouvre plus tard.
+    if (valueChanged) _invalidateResult();
 
     if (changed && mounted) setState(() {});
+  }
+
+  /// Un résultat n'est valide que pour les entrées avec lesquelles il a été
+  /// calculé. Toute entrée (situation OU scénario) qui bouge le remet à null →
+  /// aucun chiffre périmé ne survit à un changement d'entrée.
+  void _invalidateResult() {
+    _result = null;
+    _hasComputed = false;
   }
 
   // ── P2 provenance getters (live, non-latching) ──
@@ -298,8 +323,7 @@ class _DonationScreenState extends State<DonationScreen> {
   /// Situation-fact edit hook: invalidate any stale figure (a displayed number
   /// must never outlive a fact change) and announce a gate lift for VoiceOver.
   void _afterFactChanged() {
-    _result = null;
-    _hasComputed = false;
+    _invalidateResult();
     final nowComplete = _unionGate(context).complete;
     if (nowComplete && !_lastUnionComplete) {
       SemanticsService.sendAnnouncement(
@@ -574,7 +598,10 @@ class _DonationScreenState extends State<DonationScreen> {
             label: S.of(context)!.donationMontantLabel,
             value: _montant,
             formatValue: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _montant = v),
+            onChanged: (v) => setState(() {
+              _montant = v;
+              _invalidateResult();
+            }),
             min: 10000,
             max: 2000000,
           ),
@@ -590,7 +617,10 @@ class _DonationScreenState extends State<DonationScreen> {
               label: S.of(context)!.donationValeurImmobiliere,
               value: _valeurImmobiliere,
               formatValue: (v) => _chfFmt(v),
-              onChanged: (v) => setState(() => _valeurImmobiliere = v),
+              onChanged: (v) => setState(() {
+                _valeurImmobiliere = v;
+                _invalidateResult();
+              }),
               min: 100000,
               max: 3000000,
             ),
@@ -599,7 +629,10 @@ class _DonationScreenState extends State<DonationScreen> {
           _buildSwitch(
             label: S.of(context)!.donationAvancementHoirie,
             value: _avancementHoirie,
-            onChanged: (v) => setState(() => _avancementHoirie = v),
+            onChanged: (v) => setState(() {
+              _avancementHoirie = v;
+              _invalidateResult();
+            }),
           ),
         ],
       ),
@@ -624,6 +657,7 @@ class _DonationScreenState extends State<DonationScreen> {
             onChanged: (v) => setState(() {
               _donateurAgeTouched = true;
               _donateurAge = v;
+              _invalidateResult();
             }),
           ),
           const SizedBox(height: 16),
@@ -681,7 +715,10 @@ class _DonationScreenState extends State<DonationScreen> {
               button: true,
               selected: selected,
               child: GestureDetector(
-                onTap: () => setState(() => _lienParente = lien),
+                onTap: () => setState(() {
+                  _lienParente = lien;
+                  _invalidateResult();
+                }),
                 child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -732,7 +769,10 @@ class _DonationScreenState extends State<DonationScreen> {
               button: true,
               selected: selected,
               child: GestureDetector(
-                onTap: () => setState(() => _typeDonation = type),
+                onTap: () => setState(() {
+                  _typeDonation = type;
+                  _invalidateResult();
+                }),
                 child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
