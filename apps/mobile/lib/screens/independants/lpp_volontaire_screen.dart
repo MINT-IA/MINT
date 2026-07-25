@@ -13,6 +13,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:provider/provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LPP VOLONTAIRE SCREEN — Sprint S18 / Independants complet
@@ -37,6 +38,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
   double _tauxMarginal = 0.30;
   LppVolontaireResult? _result;
   bool _prefilled = false;
+  CoachProfileProvider? _profileProvider;
 
   @override
   void initState() {
@@ -45,18 +47,35 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
   }
 
   /// P2 (zéro donnée inventée) : amorce revenu net + âge depuis le profil réel.
-  /// [independentNetProfessionalIncomeAnnual] est un revenu NET annuel (même
-  /// base que le slider). On clampe sur les bornes des contrôles (revenu
-  /// 0..250000, âge 25..65) pour ne jamais violer un assert. Champs absents →
-  /// on garde le défaut éditable, jamais de fabrication.
+  /// On s'abonne au [CoachProfileProvider] car `loadFromWizard()` hydrate le
+  /// profil de façon asynchrone au démarrage : l'écran peut être monté avant
+  /// l'arrivée des vraies données. Le listener amorce une seule fois dès que le
+  /// profil est disponible, au lieu de rester figé sur les défauts fabriqués.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
+    }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+  }
+
+  void _seedFromProfile() {
     if (_prefilled) return;
+    final profile = _profileProvider?.profile;
+    if (profile == null) return; // pas encore hydraté : le listener rejouera.
     _prefilled = true;
-    final profile = context.coachProfileOrNull;
-    if (profile == null) return;
     var seeded = false;
+
+    // NET annuel professionnel (même base que le slider). Clampé 0..250000.
     final net = profile.independentNetProfessionalIncomeAnnual;
     if (net != null && net > 0) {
       _revenuNet = net.clamp(0.0, 250000.0);
@@ -67,7 +86,14 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       _age = age.clamp(25, 65);
       seeded = true;
     }
-    if (seeded) _calculate();
+
+    if (seeded && mounted) _calculate();
+  }
+
+  @override
+  void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
+    super.dispose();
   }
 
   /// @visibleForTesting : valeurs amorcées (preuve du seed profil, P2).

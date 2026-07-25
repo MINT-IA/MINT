@@ -9,14 +9,14 @@ import 'package:mint_mobile/screens/independants/pillar_3a_indep_screen.dart';
 import 'package:provider/provider.dart';
 
 /// P2 (zéro donnée inventée) : les deux écrans indépendants doivent amorcer
-/// leur revenu net (et l'âge, pour LPP volontaire) depuis le vrai
-/// [CoachProfile] plutôt que depuis les fixtures statiques 100000 / 80000 / 40.
+/// leur revenu net (et l'âge / l'affiliation LPP) depuis le vrai [CoachProfile]
+/// plutôt que depuis les fixtures statiques 100000 / 80000 / 40 / false.
 ///
-/// - [independentNetProfessionalIncomeAnnual] est un revenu NET annuel
-///   professionnel : même base que le slider (pas de confusion brut/net).
-/// - Champ absent → on garde le défaut éditable (jamais de fabrication).
-/// - Valeur hors bornes → clampée aux limites du slider (pas de crash d'assert).
+/// Couvre aussi la course d'hydratation asynchrone : `loadFromWizard()` peuple
+/// le profil APRÈS le montage de l'écran, donc le seed doit se déclencher via
+/// notification du provider et non par une lecture unique au montage.
 
+/// Fake immuable : injecte un profil (ou null) déjà présent au montage.
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   _FakeCoachProfileProvider(this._injected);
   final CoachProfile? _injected;
@@ -24,9 +24,21 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
   CoachProfile? get profile => _injected;
 }
 
+/// Fake mutable : démarre sans profil puis l'hydrate (course asynchrone).
+class _MutableFakeProvider extends CoachProfileProvider {
+  CoachProfile? _p;
+  @override
+  CoachProfile? get profile => _p;
+  void hydrate(CoachProfile p) {
+    _p = p;
+    notifyListeners();
+  }
+}
+
 CoachProfile _indepProfile({
   required int birthYear,
   double? independentNet,
+  Set<String> userProvidedFields = const {},
 }) {
   return CoachProfile(
     birthYear: birthYear,
@@ -34,6 +46,7 @@ CoachProfile _indepProfile({
     salaireBrutMensuel: 0,
     employmentStatus: 'independant',
     independentNetProfessionalIncomeAnnual: independentNet,
+    userProvidedFields: userProvidedFields,
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(birthYear + 65),
@@ -106,6 +119,56 @@ void main() {
           reason: 'clamped to slider max to avoid an out-of-range assert');
     });
 
+    testWidgets('seeds _affilieLpp=true from explicit pensionFundYes',
+        (tester) async {
+      final profile = _indepProfile(
+        birthYear: currentYear - 45,
+        independentNet: 90000,
+        userProvidedFields: {'pensionFundYes'},
+      );
+      await _pump(tester, const Pillar3aIndepScreen(),
+          _FakeCoachProfileProvider(profile));
+
+      final state = tester.state(find.byType(Pillar3aIndepScreen)) as dynamic;
+      expect(state.debugAffilieLpp, isTrue,
+          reason: 'known affiliation truth used, not fabricated false');
+    });
+
+    testWidgets('keeps _affilieLpp=false default when affiliation unknown',
+        (tester) async {
+      final profile = _indepProfile(
+        birthYear: currentYear - 45,
+        independentNet: 90000,
+      );
+      await _pump(tester, const Pillar3aIndepScreen(),
+          _FakeCoachProfileProvider(profile));
+
+      final state = tester.state(find.byType(Pillar3aIndepScreen)) as dynamic;
+      expect(state.debugAffilieLpp, isFalse,
+          reason: 'unknown affiliation keeps editable default (no fabrication)');
+    });
+
+    testWidgets('seeds when profile hydrates AFTER mount (async load race)',
+        (tester) async {
+      final fake = _MutableFakeProvider();
+      await _pump(tester, const Pillar3aIndepScreen(), fake);
+
+      var state = tester.state(find.byType(Pillar3aIndepScreen)) as dynamic;
+      expect(state.debugRevenuNet, closeTo(100000, 0.01),
+          reason: 'default while profile not yet hydrated');
+
+      fake.hydrate(_indepProfile(
+        birthYear: currentYear - 45,
+        independentNet: 140000,
+      ));
+      await tester.pump();
+
+      state = tester.state(find.byType(Pillar3aIndepScreen)) as dynamic;
+      expect(state.debugRevenuNet, closeTo(140000, 0.01),
+          reason: 'seeds once profile hydrates via notifyListeners — not '
+              'permanently stranded on the fabricated default');
+    });
+
     testWidgets('keeps default and does not crash with no profile',
         (tester) async {
       await _pump(tester, const Pillar3aIndepScreen(),
@@ -158,6 +221,27 @@ void main() {
       expect(state.debugRevenuNet, closeTo(250000, 0.01),
           reason: 'clamped to slider max');
       expect(state.debugAge, 65, reason: 'clamped to picker max');
+    });
+
+    testWidgets('seeds when profile hydrates AFTER mount (async load race)',
+        (tester) async {
+      final fake = _MutableFakeProvider();
+      await _pump(tester, const LppVolontaireScreen(), fake);
+
+      var state = tester.state(find.byType(LppVolontaireScreen)) as dynamic;
+      expect(state.debugRevenuNet, closeTo(80000, 0.01));
+      expect(state.debugAge, 40);
+
+      fake.hydrate(_indepProfile(
+        birthYear: currentYear - 52,
+        independentNet: 120000,
+      ));
+      await tester.pump();
+
+      state = tester.state(find.byType(LppVolontaireScreen)) as dynamic;
+      expect(state.debugRevenuNet, closeTo(120000, 0.01),
+          reason: 'seeds once profile hydrates — not stranded on default');
+      expect(state.debugAge, 52);
     });
 
     testWidgets('keeps defaults and does not crash with no profile',
