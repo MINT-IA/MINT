@@ -180,6 +180,7 @@ ALLOW = {
     "apps/mobile/lib/screens/independants/avs_cotisations_screen.dart",
     "apps/mobile/lib/screens/donation_screen.dart",
     "apps/mobile/test/screens/donation_profile_seed_test.dart",
+    ".planning/decisions/2026-07-25-p2-simulator-result-gating.md",
     "apps/mobile/lib/screens/independants/pillar_3a_indep_screen.dart",
     "apps/mobile/lib/screens/independants/lpp_volontaire_screen.dart",
     "apps/mobile/test/screens/indep_profile_seed_test.dart",
