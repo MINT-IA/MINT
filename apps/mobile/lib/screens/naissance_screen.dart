@@ -209,18 +209,19 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       }
     }
 
-    // Congé — salaire mensuel : clé 'salary' ET valeur > 0. Un salaire ≤ 0
-    // (même avec la clé) est une donnée invalide/incomplète → NON confirmé,
-    // sinon le congé se débloquerait sur le défaut fabriqué 6000.
+    // Congé — salaire mensuel : clé 'salary' ET valeur DANS la plage
+    // représentable du contrôle [2000, 15000]. Un clamp fabriquerait une valeur
+    // ≠ la vraie (ex. 1000 affiché 2000) ; hors plage → NON confirmé (gaté).
     if (!_salaireTouched) {
+      final v = profile.salaireBrutMensuel;
       final valid = profile.userProvidedFields.contains('salary') &&
-          profile.salaireBrutMensuel > 0;
+          v >= 2000.0 &&
+          v <= 15000.0;
       if (_salaireSeeded != valid) {
         _salaireSeeded = valid;
         changed = true;
       }
       if (valid) {
-        final v = profile.salaireBrutMensuel.clamp(2000.0, 15000.0);
         if (v != _salaireMensuel) {
           _salaireMensuel = v;
           changed = true;
@@ -276,22 +277,22 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       }
     }
 
-    // Impact — revenu annuel : clé 'salary' ET salaire > 0 (salaire × 12). Un
-    // salaire ≤ 0 avec la clé n'est PAS confirmé (sinon l'impact se débloquerait
-    // sur le défaut fabriqué 80000).
+    // Impact — revenu annuel = salaire × 12 : clé 'salary' ET revenu DANS la
+    // plage représentable [30000, 200000]. Hors plage → NON confirmé (un clamp
+    // fabriquerait un revenu ≠ le vrai). Pas de clamp : on ne seede que la
+    // vraie valeur en plage.
     if (!_revenuTouched) {
+      final annual = profile.salaireBrutMensuel * 12;
       final valid = profile.userProvidedFields.contains('salary') &&
-          profile.salaireBrutMensuel > 0;
+          annual >= 30000.0 &&
+          annual <= 200000.0;
       if (_revenuSeeded != valid) {
         _revenuSeeded = valid;
         changed = true;
       }
-      if (valid) {
-        final v = (profile.salaireBrutMensuel * 12).clamp(30000.0, 200000.0);
-        if (v != _revenuImpact) {
-          _revenuImpact = v;
-          changed = true;
-        }
+      if (valid && annual != _revenuImpact) {
+        _revenuImpact = annual;
+        changed = true;
       }
     }
 

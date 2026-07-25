@@ -838,5 +838,53 @@ void main() {
       expect(find.byKey(_congeHero), findsNothing,
           reason: 'salary→0 un-confirms → congé re-gates, no stale 6500');
     });
+
+    testWidgets('salary=0 with key does NOT unlock impact', (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+            salaire: 0, canton: 'GE', gender: 'F', provided: {'salary', 'canton'})),
+      );
+      await _goToTab(tester, 'Impact');
+      await _touchFraisGarde(tester, 1200);
+      await _incrementChildren(tester);
+      expect(find.byKey(_impactFigure), findsNothing,
+          reason: 'revenu = 0×12 out of range → unconfirmed → impact gated');
+      final gate =
+          tester.widget<SituationGateCard>(find.byType(SituationGateCard));
+      expect(gate.gate.missing.map((f) => f.key), contains('revenu'));
+    });
+
+    testWidgets('valid→zero salary rehydration re-gates impact', (tester) async {
+      final fake = _MutableProvider();
+      await _pump(tester, fake);
+      fake.hydrate(_profile(
+          salaire: 6500, canton: 'GE', gender: 'F', provided: {'salary', 'canton'}));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      await _goToTab(tester, 'Impact');
+      await _touchFraisGarde(tester, 1200);
+      await _incrementChildren(tester);
+      expect(find.byKey(_impactFigure), findsOneWidget);
+
+      fake.hydrate(_profile(
+          salaire: 0, canton: 'GE', gender: 'F', provided: {'salary', 'canton'}));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(_impactFigure), findsNothing,
+          reason: 'revenu→0 un-confirms → impact re-gates, no stale');
+    });
+
+    testWidgets('out-of-range salary (20000/mo) is not clamped-confirmed on congé',
+        (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(
+            _profile(salaire: 20000, gender: 'F', provided: {'salary'})),
+      );
+      expect(find.byKey(_congeHero), findsNothing,
+          reason: '20000 > 15000 → not representable → un-confirmed, never '
+              'silently clamped to 15000');
+    });
   });
 }
