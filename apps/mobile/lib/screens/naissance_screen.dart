@@ -96,6 +96,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   // profil → touch seul) + nb enfants (sans clé → touch seul).
   bool _revenuTouched = false;
   bool _revenuSeeded = false; // provenance = userProvidedFields('salary').
+  double _totalEpargne3a = 0.0; // solde 3a réel (profil), 0 si inconnu/effacé.
   bool _fraisGardeTouched = false; // aucune source profil → confirmable au touch.
   bool _nbEnfantsImpactTouched = false; // pas de clé → confirmable au touch seul.
 
@@ -183,12 +184,29 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         _revenuSeeded = false;
         changed = true;
       }
+      // Le solde 3a affiché (clause OPP3) est une donnée profil live : sur un
+      // clear il doit disparaître, sinon un ancien solde CHF resterait rendu.
+      if (_totalEpargne3a != 0.0) {
+        _totalEpargne3a = 0.0;
+        changed = true;
+      }
       if (changed) {
         _recalculateAll();
         _refreshGateBaselines();
         if (mounted) setState(() {});
       }
       return;
+    }
+
+    // Solde 3a réel (clause bénéficiaire OPP3) — ré-évalué à chaque notify,
+    // jamais inventé. Champ d'état (pas de lecture live en build) pour qu'un
+    // clear le remette à 0 et retire la carte.
+    {
+      final e3a = profile.prevoyance.totalEpargne3a;
+      if (e3a != _totalEpargne3a) {
+        _totalEpargne3a = e3a;
+        changed = true;
+      }
     }
 
     // Congé — salaire mensuel : clé 'salary'.
@@ -1276,9 +1294,9 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     final plural = _nbEnfantsImpact > 1 ? 's' : '';
 
     // Solde 3a RÉEL du profil (jamais estimé) : la clause 3a n'est rendue que
-    // s'il existe un solde renseigné. Inconnu / nul → widget omis.
-    final totalEpargne3a =
-        _profileProvider?.profile?.prevoyance.totalEpargne3a ?? 0.0;
+    // s'il existe un solde renseigné. Champ d'état ré-évalué à chaque notify
+    // (pas de lecture live) → un clear le remet à 0 et retire la carte.
+    final totalEpargne3a = _totalEpargne3a;
 
     return [
       // 1. Tax savings

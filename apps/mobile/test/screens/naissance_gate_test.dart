@@ -698,6 +698,42 @@ void main() {
           reason: 'no real 3a balance → no invented 30%-of-income clause shown');
     });
 
+    testWidgets('Clause 3a does not survive a profile clear (no stale balance)',
+        (tester) async {
+      final fake = _MutableProvider();
+      await _pump(tester, fake);
+      // Real 3a balance, but NO provenance keys + gender null → every fact is
+      // confirmed by TOUCH, so a clear changes no seeded flag (Codex's exact
+      // scenario where build() would skip setState and strand the 3a balance).
+      fake.hydrate(_profile(epargne3a: 35000));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      await _selectParent(tester, isMother: true); // congé tab (default)
+      await _goToTab(tester, 'Allocations');
+      await _touchCanton(tester, 'GE');
+      await _goToTab(tester, 'Impact');
+      await _touchRevenu(tester, 90000);
+      await _touchFraisGarde(tester, 1200);
+      await _incrementChildren(tester);
+
+      expect(find.byType(Clause3aWidget), findsOneWidget);
+      expect(
+          tester.widget<Clause3aWidget>(find.byType(Clause3aWidget)).balance3a,
+          35000.0);
+
+      // Cleared while mounted: touched facts survive (impact stays shown) but
+      // the profile 3a must vanish, not persist stale.
+      fake.clearProfile();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.byKey(_impactFigure), findsOneWidget,
+          reason: 'touched facts survive the clear → impact still shown');
+      expect(find.byType(Clause3aWidget), findsNothing,
+          reason: 'profile 3a is now a state field → 0 on clear, no stale CHF');
+    });
+
     testWidgets('generic-example caption sits above the cost widgets',
         (tester) async {
       await _pump(
