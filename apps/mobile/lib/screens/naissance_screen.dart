@@ -209,14 +209,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       }
     }
 
-    // Congé — salaire mensuel : clé 'salary'.
+    // Congé — salaire mensuel : clé 'salary' ET valeur > 0. Un salaire ≤ 0
+    // (même avec la clé) est une donnée invalide/incomplète → NON confirmé,
+    // sinon le congé se débloquerait sur le défaut fabriqué 6000.
     if (!_salaireTouched) {
-      final hasKey = profile.userProvidedFields.contains('salary');
-      if (_salaireSeeded != hasKey) {
-        _salaireSeeded = hasKey;
+      final valid = profile.userProvidedFields.contains('salary') &&
+          profile.salaireBrutMensuel > 0;
+      if (_salaireSeeded != valid) {
+        _salaireSeeded = valid;
         changed = true;
       }
-      if (hasKey && profile.salaireBrutMensuel > 0) {
+      if (valid) {
         final v = profile.salaireBrutMensuel.clamp(2000.0, 15000.0);
         if (v != _salaireMensuel) {
           _salaireMensuel = v;
@@ -273,14 +276,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       }
     }
 
-    // Impact — revenu annuel : dérive de la clé 'salary' (salaire × 12).
+    // Impact — revenu annuel : clé 'salary' ET salaire > 0 (salaire × 12). Un
+    // salaire ≤ 0 avec la clé n'est PAS confirmé (sinon l'impact se débloquerait
+    // sur le défaut fabriqué 80000).
     if (!_revenuTouched) {
-      final hasKey = profile.userProvidedFields.contains('salary');
-      if (_revenuSeeded != hasKey) {
-        _revenuSeeded = hasKey;
+      final valid = profile.userProvidedFields.contains('salary') &&
+          profile.salaireBrutMensuel > 0;
+      if (_revenuSeeded != valid) {
+        _revenuSeeded = valid;
         changed = true;
       }
-      if (hasKey && profile.salaireBrutMensuel > 0) {
+      if (valid) {
         final v = (profile.salaireBrutMensuel * 12).clamp(30000.0, 200000.0);
         if (v != _revenuImpact) {
           _revenuImpact = v;

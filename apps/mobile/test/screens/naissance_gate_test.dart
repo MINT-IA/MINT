@@ -804,4 +804,39 @@ void main() {
     expect(find.byType(MintResultHeroCard), findsNothing,
         reason: 'no output computes without a confirmed fact');
   });
+
+  // ── Zero/invalid salary provenance (Codex): a 'salary' key with value ≤ 0
+  //    must NOT confirm the fact (else congé/impact unlock on the fabricated
+  //    6000/80000 defaults). ──
+  group('salary provenance requires a positive value', () {
+    testWidgets('salary key with a zero value does NOT unlock congé',
+        (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(salaire: 0, gender: 'F', provided: {'salary'})),
+      );
+      expect(find.byKey(_congeHero), findsNothing,
+          reason: 'zero salary with key is not a confirmed salary');
+      final gate =
+          tester.widget<SituationGateCard>(find.byType(SituationGateCard));
+      expect(gate.gate.missing.map((f) => f.key), contains('salaire'));
+    });
+
+    testWidgets('valid→zero salary rehydration re-gates congé (no stale salary)',
+        (tester) async {
+      final fake = _MutableProvider();
+      await _pump(tester, fake);
+      fake.hydrate(_profile(salaire: 6500, gender: 'F', provided: {'salary'}));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(_congeHero), findsOneWidget,
+          reason: 'valid seeded salary + gender → congé shows');
+
+      fake.hydrate(_profile(salaire: 0, gender: 'F', provided: {'salary'}));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byKey(_congeHero), findsNothing,
+          reason: 'salary→0 un-confirms → congé re-gates, no stale 6500');
+    });
+  });
 }
