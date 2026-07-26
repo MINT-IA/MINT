@@ -157,11 +157,18 @@ class ConcubinageService:
         fiscal = mariage_svc.compare_fiscal_impact(revenu_1, revenu_2, canton, enfants)
 
         comparaisons = [
+            # `avantage` reste NEUTRE sur la ligne fiscale, contrairement aux
+            # lignes suivantes. Celles-ci reposent sur des faits juridiques nets
+            # (le conjoint est heritier legal, il est exonere d'impot successoral
+            # dans tous les cantons) ; celle-ci repose sur une estimation
+            # forfaitaire, sans bareme cantonal detaille, sans commune et sans
+            # deductions reelles. Designer un gagnant sur cette base est le meme
+            # pseudo-conseil que celui retire cote mobile (PR #1053).
             ComparisonItem(
-                domaine="Fiscalite (impot sur le revenu)",
-                mariage=f"Imposition commune (bareme marie). Impot estime: CHF {fiscal.impot_maries_total:,.0f}",
-                concubinage=f"Imposition separee (2 declarations). Impot estime: CHF {fiscal.impot_celibataires_total:,.0f}",
-                avantage="concubinage" if fiscal.est_penalite_mariage else "mariage",
+                domaine="Fiscalité (impôt sur le revenu)",
+                mariage=f"Imposition commune, barème marié. Impôt estimé : CHF {fiscal.impot_maries_total:,.0f}",
+                concubinage=f"Imposition séparée, 2 déclarations. Impôt estimé : CHF {fiscal.impot_celibataires_total:,.0f}",
+                avantage="neutre",
             ),
             ComparisonItem(
                 domaine="Prevoyance AVS",
