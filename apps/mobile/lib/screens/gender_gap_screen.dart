@@ -4,7 +4,9 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/segments_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -46,6 +48,14 @@ bool _isValidCanton(String c) => _kSwissCantons.contains(c.trim().toUpperCase())
 /// position est explicite à l'écran, ce n'est donc pas une fabrication cachée. Il
 /// reste interactif ; le RÉSULTAT reste gaté tant que les faits de situation
 /// consommés ne sont pas confirmés.
+///
+/// P3 « zéro impasse » : CHAQUE fait a un contrôle éditable dans la section
+/// « Paramètres » (montant, âge, années, sélecteur de canton) et chaque
+/// `SituationFact` renvoie vers lui (`onComplete`). Un utilisateur sans profil
+/// peut donc débloquer la rente en saisissant ses données ici — un gate qu'on ne
+/// peut pas compléter serait une impasse, pas un gate. Les contrôles démarrent
+/// NON confirmés (« Non renseigné ») : la saisie ou le seed profil sont les deux
+/// seules provenances, jamais un défaut fabriqué.
 class GenderGapScreen extends StatefulWidget {
   const GenderGapScreen({super.key});
 
@@ -65,14 +75,21 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   double? _avoirLpp; // consommé (comparaison)
   int? _age; // consommé (comparaison)
   int? _anneesCotisation; // affichage seul (service ne le lit pas)
-  // Le canton n'a pas de contrôle à l'écran : `_canton` porte la valeur réelle
-  // seedée, `_cantonConfirmed` dit si elle vient d'une donnée utilisateur. Non
-  // confirmé → affiché « Non renseigné » (affichage seul ; LPP fédérale).
+  // `_canton` porte la valeur réelle (seedée OU choisie dans le sélecteur) ;
+  // `_cantonConfirmed` dit si elle vient d'une donnée utilisateur. Non confirmé →
+  // le sélecteur n'affiche AUCUN canton (hint « Non renseigné »), jamais 'ZH'.
   String _canton = '';
   bool _cantonConfirmed = false;
 
   GenderGapResult? _result;
   bool _seeded = false;
+
+  // ── Ancres de scroll (« Compléter » depuis une carte de situation) ──
+  final _revenuKey = GlobalKey();
+  final _ageKey = GlobalKey();
+  final _avoirLppKey = GlobalKey();
+  final _anneesKey = GlobalKey();
+  final _cantonKey = GlobalKey();
 
   @override
   void initState() {
@@ -153,6 +170,27 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
     _result = GenderGapService.analyse(input: input);
   }
 
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
+      );
+    }
+  }
+
+  /// Un fait déterminant a bougé : recalcule (un chiffre affiché ne survit jamais
+  /// à un changement d'entrée — stale-invalidation).
+  void _onFactChanged(VoidCallback apply) {
+    setState(() {
+      apply();
+      _recompute();
+    });
+  }
+
   // ── Debug getters (@visibleForTesting) : provenance confirmée (null == non
   //    renseigné). Les tests anti-façade assertent aussi sur le CHF rendu. ──
   @visibleForTesting
@@ -177,26 +215,29 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
 
   // Comparaison de rente (rente projetée à 100 % vs au taux + lacune) : le
   // service consomme revenu + avoir LPP + âge (pas le canton, pas les années).
-  // `onComplete: null` — aucun contrôle à l'écran ne saisit ces faits ; la carte
-  // renvoie vers le profil (via `why`).
+  // Chaque fait renvoie vers SON contrôle dans « Paramètres » — le gate se
+  // complète à l'écran, sans profil (zéro impasse).
   SituationGate _pensionGate(BuildContext context) => SituationGate([
         SituationFact(
           key: 'revenu',
           label: (c) => S.of(c)!.genderGapRevenuAnnuel,
           why: (c) => S.of(c)!.genderGapGateWhyRevenu,
           provenance: _prov(_revenuAnnuel != null),
+          onComplete: () => _scrollToKey(_revenuKey),
         ),
         SituationFact(
           key: 'avoirLpp',
           label: (c) => S.of(c)!.genderGapAvoirLpp,
           why: (c) => S.of(c)!.genderGapGateWhyAvoirLpp,
           provenance: _prov(_avoirLpp != null),
+          onComplete: () => _scrollToKey(_avoirLppKey),
         ),
         SituationFact(
           key: 'age',
           label: (c) => S.of(c)!.genderGapAge,
           why: (c) => S.of(c)!.genderGapGateWhyAge,
           provenance: _prov(_age != null),
+          onComplete: () => _scrollToKey(_ageKey),
         ),
       ]);
 
@@ -209,6 +250,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           label: (c) => S.of(c)!.genderGapRevenuAnnuel,
           why: (c) => S.of(c)!.genderGapGateWhyRevenu,
           provenance: _prov(_revenuAnnuel != null),
+          onComplete: () => _scrollToKey(_revenuKey),
         ),
       ]);
 
@@ -388,6 +430,7 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
   // ── Input section ──────────────────────────────────────────
 
   Widget _buildInputSection(S s) {
+    final sortedCodes = FamilyService.sortedCantonCodes;
     return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
       child: Column(
@@ -398,37 +441,108 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             style: MintTextStyles.titleMedium(),
           ),
           const SizedBox(height: MintSpacing.md),
-          // Un fait non confirmé est rendu « Non renseigné », jamais le nombre
-          // fabriqué (85000 / 40 / 120000 / 15 / 'ZH').
-          _buildInputRow(
-            s.genderGapRevenuAnnuel,
-            _revenuAnnuel != null
-                ? GenderGapService.formatChf(_revenuAnnuel!)
-                : s.genderGapNonRenseigne,
+          // P3 « zéro impasse » : chaque fait est SAISISSABLE ici. Tant qu'il
+          // n'est ni seedé ni saisi, le contrôle rend « Non renseigné », jamais
+          // le nombre fabriqué (85000 / 40 / 120000 / 15 / 'ZH').
+          MintAmountField(
+            key: _revenuKey,
+            label: s.genderGapRevenuAnnuel,
+            value: _revenuAnnuel ?? 0,
+            formatValue: (v) => _revenuAnnuel == null
+                ? s.genderGapNonRenseigne
+                : GenderGapService.formatChf(v),
+            onChanged: (v) => _onFactChanged(() => _revenuAnnuel = v),
+            min: 0,
+            max: 2000000,
           ),
           const SizedBox(height: MintSpacing.sm),
-          _buildInputRow(
-            s.genderGapAge,
-            _age != null ? s.genderGapAgeValue('$_age') : s.genderGapNonRenseigne,
+          MintAmountField(
+            key: _ageKey,
+            label: s.genderGapAge,
+            value: (_age ?? 0).toDouble(),
+            formatValue: (v) => _age == null
+                ? s.genderGapNonRenseigne
+                : s.genderGapAgeValue('${v.round()}'),
+            onChanged: (v) => _onFactChanged(() => _age = v.round()),
+            min: 16,
+            max: 99,
+            suffix: s.trajectoryFieldAgeUnit,
           ),
           const SizedBox(height: MintSpacing.sm),
-          _buildInputRow(
-            s.genderGapAvoirLpp,
-            _avoirLpp != null
-                ? GenderGapService.formatChf(_avoirLpp!)
-                : s.genderGapNonRenseigne,
+          MintAmountField(
+            key: _avoirLppKey,
+            label: s.genderGapAvoirLpp,
+            value: _avoirLpp ?? 0,
+            formatValue: (v) => _avoirLpp == null
+                ? s.genderGapNonRenseigne
+                : GenderGapService.formatChf(v),
+            onChanged: (v) => _onFactChanged(() => _avoirLpp = v),
+            min: 0,
+            max: 5000000,
           ),
           const SizedBox(height: MintSpacing.sm),
-          _buildInputRow(
-            s.genderGapAnneesCotisation,
-            _anneesCotisation != null
-                ? '$_anneesCotisation'
-                : s.genderGapNonRenseigne,
+          MintAmountField(
+            key: _anneesKey,
+            label: s.genderGapAnneesCotisation,
+            value: (_anneesCotisation ?? 0).toDouble(),
+            formatValue: (v) => _anneesCotisation == null
+                ? s.genderGapNonRenseigne
+                : '${v.round()}',
+            onChanged: (v) => _onFactChanged(() => _anneesCotisation = v.round()),
+            min: 0,
+            max: 50,
+            suffix: s.trajectoryFieldAgeUnit,
           ),
           const SizedBox(height: MintSpacing.sm),
-          _buildInputRow(
-            s.genderGapCanton,
-            _cantonConfirmed ? _canton : s.genderGapNonRenseigne,
+          // Sélecteur de canton (motif concubinage) : le TOUCHER confirme le
+          // fait. Non confirmé → aucune valeur sélectionnée, hint « Non
+          // renseigné » (le 'ZH' legacy de `fromJson` n'apparaît jamais).
+          Row(
+            key: _cantonKey,
+            children: [
+              Expanded(
+                child: Text(
+                  s.genderGapCanton,
+                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: MintColors.appleSurface,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _cantonConfirmed ? _canton : null,
+                    hint: _cantonConfirmed
+                        ? null
+                        : Text(
+                            s.genderGapNonRenseigne,
+                            style: MintTextStyles.bodySmall(
+                                color: MintColors.textPrimary),
+                          ),
+                    style:
+                        MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                    items: sortedCodes.map((code) {
+                      return DropdownMenuItem(
+                        value: code,
+                        child:
+                            Text('$code — ${FamilyService.cantonNames[code]}'),
+                      );
+                    }).toList(),
+                    onChanged: (v) {
+                      if (v != null) {
+                        _onFactChanged(() {
+                          _canton = v;
+                          _cantonConfirmed = true;
+                        });
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: MintSpacing.sm),
           Container(
@@ -452,22 +566,6 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInputRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-        ),
-        Text(
-          value,
-          style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
-        ),
-      ],
     );
   }
 

@@ -4346,6 +4346,9 @@ class SEn extends S {
   String get expatCurrentCanton => 'Current canton';
 
   @override
+  String get expatNonRenseigne => 'Not provided';
+
+  @override
   String get expatPillar3aBalance => 'Pillar 3a balance';
 
   @override
@@ -10313,15 +10316,15 @@ class SEn extends S {
 
   @override
   String get genderGapGateWhyRevenu =>
-      'Your annual income is the basis for the LPP pension projection. Add it in your profile.';
+      'Your annual income is the basis for the LPP pension projection.';
 
   @override
   String get genderGapGateWhyAvoirLpp =>
-      'Your current LPP assets are the starting point of the projection. Add them from your pension certificate.';
+      'Your current LPP assets are the projection\'s starting point (shown on your pension certificate).';
 
   @override
   String get genderGapGateWhyAge =>
-      'Your age determines the number of years until retirement. Complete your date of birth in your profile.';
+      'Your age determines how many contribution years remain.';
 
   @override
   String get achievementsErrorMessage => 'Loading failed. Try again?';
@@ -24690,7 +24693,7 @@ class SEn extends S {
 
   @override
   String get divorceGateWhyCanton =>
-      'Add your canton in your profile to estimate the divorce tax impact.';
+      'The income tax scale depends on your canton of residence.';
 
   @override
   String get divorceFilmPensionEstimee => 'Estimated maintenance';

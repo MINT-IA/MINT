@@ -4375,6 +4375,9 @@ class SEs extends S {
   String get expatCurrentCanton => 'Cantón actual';
 
   @override
+  String get expatNonRenseigne => 'Sin indicar';
+
+  @override
   String get expatPillar3aBalance => 'Saldo pilar 3a';
 
   @override
@@ -10375,15 +10378,15 @@ class SEs extends S {
 
   @override
   String get genderGapGateWhyRevenu =>
-      'Tus ingresos anuales son la base de la proyección de pensión LPP. Añádelos en tu perfil.';
+      'Tu ingreso anual sirve de base para la proyección de renta LPP.';
 
   @override
   String get genderGapGateWhyAvoirLpp =>
-      'Tus activos LPP actuales son el punto de partida de la proyección. Añádelos desde tu certificado de previsión.';
+      'Tu haber LPP actual es el punto de partida de la proyección (figura en tu certificado de previsión).';
 
   @override
   String get genderGapGateWhyAge =>
-      'Tu edad determina el número de años hasta la jubilación. Completa tu fecha de nacimiento en tu perfil.';
+      'Tu edad determina cuántos años de cotización te quedan.';
 
   @override
   String get achievementsErrorMessage => 'La carga falló. ¿Reintentamos?';
@@ -24819,7 +24822,7 @@ class SEs extends S {
 
   @override
   String get divorceGateWhyCanton =>
-      'Indica tu cantón en tu perfil para estimar el impuesto del divorcio.';
+      'El baremo del impuesto sobre la renta depende de tu cantón de domicilio.';
 
   @override
   String get divorceFilmPensionEstimee => 'Pensión alimenticia estimada';
