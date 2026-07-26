@@ -201,6 +201,7 @@ ALLOW = {
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/audit/2026-07-26-advisor-lens-simulators.md",
     "tools/checks/generate_theme_maps.py",
+    "tools/checks/nav_graph.py",
     "apps/mobile/test/screens/simulator_screens_smoke_test.dart",
     "apps/mobile/lib/services/life_events_service.dart",
     "apps/mobile/test/services/life_events_divorce_test.dart",
