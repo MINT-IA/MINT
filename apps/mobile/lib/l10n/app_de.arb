@@ -4423,7 +4423,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Differenz: {sign}{amount}/Jahr",
+  "divorceFiscalDelta": "Steuerdifferenz des Haushalts: {sign}{amount}/Jahr (Ende des Ehegatten-Splittings)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {

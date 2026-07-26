@@ -4423,7 +4423,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Differenza: {sign}{amount}/anno",
+  "divorceFiscalDelta": "Differenza d'imposta del nucleo: {sign}{amount}/anno (fine dello splitting coniugale)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {

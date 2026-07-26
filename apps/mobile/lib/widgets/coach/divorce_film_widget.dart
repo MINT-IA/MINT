@@ -305,19 +305,28 @@ class DivorceFilmWidget extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _buildTaxCard('Couple marié', annualTaxMarried, MintColors.scoreExcellent)),
+            // LSFin : marié vs séparé est une COMPARAISON informative, pas un verdict.
+            // À deux revenus, « séparé » est souvent moins cher (Heiratsstrafe) —
+            // colorer marié en vert « succès » et séparé en rouge « danger » cadrerait
+            // le mariage comme toujours meilleur (steering). Ton neutre des deux côtés ;
+            // le sens de l'écart est porté, neutre, par le bandeau ci-dessous.
+            Expanded(child: _buildTaxCard('Couple marié', annualTaxMarried, MintColors.info)),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 8),
               child: Icon(Icons.arrow_forward, size: 20, color: MintColors.textSecondary),
             ),
-            Expanded(child: _buildTaxCard('2 foyers séparés', annualTaxSingle, MintColors.scoreCritique)),
+            Expanded(child: _buildTaxCard('2 foyers séparés', annualTaxSingle, MintColors.info)),
           ],
         ),
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          // LSFin : ce delta est une info éducative. Une BAISSE d'impôt (delta ≤ 0,
+          // fréquente à deux revenus) ne doit pas être cadrée en vert « succès »
+          // (« le divorce fait gagner ») → ton informatif neutre (info) ; une
+          // hausse garde le ton attention (scoreCritique = surcoût réel).
           decoration: BoxDecoration(
-            color: (positive ? MintColors.scoreCritique : MintColors.scoreExcellent)
+            color: (positive ? MintColors.scoreCritique : MintColors.info)
                 .withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -329,7 +338,7 @@ class DivorceFilmWidget extends StatelessWidget {
             positive
                 ? '+CHF ${_fmt(_monthlyTaxDelta)}/mois d\'impôts pour le ménage — la fin du splitting marié.'
                 : '-CHF ${_fmt(_monthlyTaxDelta.abs())}/mois d\'impôts pour le ménage après la séparation.',
-            style: MintTextStyles.labelMedium(color: positive ? MintColors.scoreCritique : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700, height: 1.4),
+            style: MintTextStyles.labelMedium(color: positive ? MintColors.scoreCritique : MintColors.info).copyWith(fontWeight: FontWeight.w700, height: 1.4),
           ),
         ),
         if (childrenCount > 0)

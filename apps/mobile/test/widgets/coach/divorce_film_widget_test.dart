@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/colors.dart';
 
 void main() {
   // myLpp=180000, partnerLpp=80000
@@ -132,6 +133,21 @@ void main() {
     await tester.pumpWidget(buildWidget());
     expect(find.textContaining("11'200"), findsWidgets);
     expect(find.textContaining("12'400"), findsWidgets);
+  });
+
+  testWidgets('acte 2 married/separated cards are NEUTRAL, not green/red steering',
+      (tester) async {
+    await tester.pumpWidget(buildWidget());
+    // LSFin: married-vs-separated is an informative comparison, not a verdict.
+    // Coloring married green (success) / separated red (danger) would steer —
+    // marriage always "better" — even when separation is cheaper (Heiratsstrafe).
+    // Both value texts must be neutral info, never scoreExcellent/scoreCritique.
+    final married = tester.widget<Text>(find.text("CHF 11'200/an"));
+    final separated = tester.widget<Text>(find.text("CHF 12'400/an"));
+    expect(married.style?.color, MintColors.info);
+    expect(separated.style?.color, MintColors.info);
+    expect(married.style?.color, isNot(MintColors.scoreExcellent));
+    expect(separated.style?.color, isNot(MintColors.scoreCritique));
   });
 
   testWidgets('acte 3 shows the REAL monthly pension, not a per-child forfait',

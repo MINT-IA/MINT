@@ -4896,7 +4896,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Différence : {sign}{amount}/an",
+  "divorceFiscalDelta": "Écart d'impôt du ménage : {sign}{amount}/an (fin du splitting marié)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {

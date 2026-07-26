@@ -5,6 +5,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
 import 'package:mint_mobile/widgets/coach/prix_du_silence_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
@@ -284,6 +286,58 @@ void main() {
       // appliqué aux deux conjoints (le canton futur de l'ex n'est pas inventé).
       expect(find.textContaining('canton actuel du ménage'), findsOneWidget,
           reason: 'the shared-canton basis is disclosed, not silent');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  TAX DELTA LSFin FRAMING — a decrease is NEUTRAL, never green/success
+  // ══════════════════════════════════════════════════════════════
+  group('Tax delta LSFin framing (negative delta ≠ success/green)', () {
+    testWidgets(
+        'two-earner NEGATIVE delta: neutral info tone/color, mechanism-named copy',
+        (tester) async {
+      // Canton seeded (GE), incomes driven explicitly → GE 90k + 50k. Depuis la
+      // bascule vers l'impôt EFFECTIF, ce couple à deux revenus a un delta
+      // NÉGATIF (le divorce baisse l'impôt du ménage — fin du splitting). Ce cas
+      // ne doit JAMAIS être cadré en vert « succès » : cadrer « le divorce fait
+      // baisser l'impôt » comme un gain, c'est orienter vers le divorce (LSFin).
+      await _pump(tester, _FakeProvider(_profile(provided: {'canton'})));
+      await _setAmount(tester, _income1, 90000);
+      await _setAmount(tester, _income2, 50000);
+      await _simulate(tester);
+
+      // Tax card unlocked (canton + income1 + income2 all confirmed).
+      expect(_gate(tester, _taxTitle), isNull);
+
+      // The delta readout is present and mechanism-named (« fin du splitting »).
+      final deltaText = find.textContaining('fin du splitting marié');
+      expect(deltaText, findsOneWidget,
+          reason: 'the neutral mechanism-named delta copy renders');
+
+      // COLOR: the delta text is NEUTRAL info blue, never success green.
+      final txt = tester.widget<Text>(deltaText);
+      expect(txt.style?.color, MintColors.info,
+          reason: 'a tax decrease is informative-neutral, not a win');
+      expect(txt.style?.color, isNot(MintColors.success),
+          reason: 'never green-frame « divorce lowers tax » (LSFin steering)');
+
+      // TONE: the closest surface is the neutral « bleu » tone, never « sauge »
+      // (the explicit success/positive green surface).
+      final surfaces = tester
+          .widgetList<MintSurface>(
+            find.ancestor(of: deltaText, matching: find.byType(MintSurface)),
+          )
+          .toList();
+      expect(surfaces.first.tone, MintSurfaceTone.bleu,
+          reason: 'the delta box uses the neutral informational tone');
+      expect(surfaces.map((s) => s.tone), isNot(contains(MintSurfaceTone.sauge)),
+          reason: 'no success/green surface anywhere above the delta');
+
+      // COPY neutrality: shown as a signed écart, never a saving/gain/économie.
+      final label = txt.data ?? '';
+      expect(label.contains('économie'), isFalse);
+      expect(label.contains('gain'), isFalse);
+      expect(label.contains('/an'), isTrue);
     });
   });
 

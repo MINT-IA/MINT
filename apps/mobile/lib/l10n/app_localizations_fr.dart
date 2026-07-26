@@ -9749,7 +9749,7 @@ class SFr extends S {
 
   @override
   String divorceFiscalDelta(String sign, String amount) {
-    return 'Différence : $sign$amount/an';
+    return 'Écart d\'impôt du ménage : $sign$amount/an (fin du splitting marié)';
   }
 
   @override

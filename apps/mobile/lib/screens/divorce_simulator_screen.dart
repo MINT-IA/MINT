@@ -979,7 +979,12 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     }
     final r = _result!;
     final isIncrease = r.taxImpact.delta > 0;
-    final accentColor = isIncrease ? MintColors.warning : MintColors.success;
+    // LSFin : le delta fiscal est une information ÉDUCATIVE, jamais un bénéfice ni
+    // une raison de divorcer. Une baisse d'impôt (delta ≤ 0 — fréquente pour un
+    // couple à deux revenus, c'est la « pénalité de mariage » qui disparaît) ne
+    // doit PAS être cadrée en vert/succès (« le divorce fait gagner »). On la rend
+    // en bleu neutre (info) ; une hausse (surcoût réel) garde le ton attention.
+    final accentColor = isIncrease ? MintColors.warning : MintColors.info;
     return MintSurface(
       tone: MintSurfaceTone.blanc,
       child: Column(
@@ -1012,7 +1017,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           MintSurface(
-            tone: isIncrease ? MintSurfaceTone.peche : MintSurfaceTone.sauge,
+            // sauge = ton « succès/positif » (vert) : proscrit pour une baisse
+            // d'impôt (cadrerait le divorce comme un gain). bleu = informatif neutre.
+            tone: isIncrease ? MintSurfaceTone.peche : MintSurfaceTone.bleu,
             padding: const EdgeInsets.all(MintSpacing.sm + 4),
             radius: 12,
             child: Row(

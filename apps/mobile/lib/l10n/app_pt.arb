@@ -4423,7 +4423,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Diferença: {sign}{amount}/ano",
+  "divorceFiscalDelta": "Diferença de imposto do agregado: {sign}{amount}/ano (fim do splitting conjugal)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {
