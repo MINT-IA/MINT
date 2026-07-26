@@ -10352,6 +10352,29 @@ class SEs extends S {
       'LPP art. 8 (deducción de coordinación) / LPP art. 14 (tasa de conversión 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rescate voluntario) / OFS 2024 (estadísticas gender gap)';
 
   @override
+  String get genderGapNonRenseigne => 'Sin especificar';
+
+  @override
+  String get genderGapGatePensionTitle =>
+      'Completa tu situación para estimar tu pensión';
+
+  @override
+  String get genderGapGateCoordTitle =>
+      'Completa tu situación para este detalle de coordinación';
+
+  @override
+  String get genderGapGateWhyRevenu =>
+      'Tus ingresos anuales son la base de la proyección de pensión LPP. Añádelos en tu perfil.';
+
+  @override
+  String get genderGapGateWhyAvoirLpp =>
+      'Tus activos LPP actuales son el punto de partida de la proyección. Añádelos desde tu certificado de previsión.';
+
+  @override
+  String get genderGapGateWhyAge =>
+      'Tu edad determina el número de años hasta la jubilación. Completa tu fecha de nacimiento en tu perfil.';
+
+  @override
   String get achievementsErrorMessage => 'La carga falló. ¿Reintentamos?';
 
   @override
@@ -24793,4 +24816,8 @@ class SEs extends S {
   @override
   String get divorceImpactFiscalCantonNote =>
       'Estimación en el cantón actual del hogar para ambos cónyuges — se desconoce el cantón futuro de la otra persona.';
+
+  @override
+  String get genderGapProjectionAssumptions =>
+      'Hipótesis de proyección: 1.5 %/año de rendimiento sobre los haberes LPP, brecha acumulada estimada sobre ~20 años de jubilación.';
 }

@@ -5293,6 +5293,12 @@
   "genderGapDisclaimer": "Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.",
   "genderGapSources": "Sources",
   "genderGapSourcesBody": "LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)",
+  "genderGapNonRenseigne": "Non renseigné",
+  "genderGapGatePensionTitle": "Complète ta situation pour estimer ta rente",
+  "genderGapGateCoordTitle": "Complète ta situation pour ce détail de coordination",
+  "genderGapGateWhyRevenu": "Ton revenu annuel sert de base à la projection de rente LPP. Renseigne-le dans ton profil.",
+  "genderGapGateWhyAvoirLpp": "Ton avoir LPP actuel est le point de départ de la projection. Ajoute-le depuis ton certificat de prévoyance.",
+  "genderGapGateWhyAge": "Ton âge détermine le nombre d'années jusqu'à la retraite. Complète ta date de naissance dans ton profil.",
   "achievementsErrorMessage": "Le chargement a buté. On réessaie ?",
   "documentsEmptyVoice": "C'est vide pour l'instant. Un scan de certificat, et tout s'éclaire.",
   "documentsConfidenceChoc": "{count} documents = {pct} % de confiance",
@@ -13298,5 +13304,6 @@
   "divorceGateFactCanton": "Ton canton de résidence",
   "divorceGateWhyCanton": "Renseigne ton canton dans ton profil pour estimer l'impôt du divorce.",
   "divorceFilmPensionEstimee": "Pension alimentaire estimée",
-  "divorceImpactFiscalCantonNote": "Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l'autre n'est pas connu."
+  "divorceImpactFiscalCantonNote": "Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l'autre n'est pas connu.",
+  "genderGapProjectionAssumptions": "Hypothèses de projection : rendement 1.5 %/an sur les avoirs LPP, lacune cumulée estimée sur ~20 ans de retraite."
 }

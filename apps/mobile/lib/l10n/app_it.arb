@@ -4820,6 +4820,12 @@
   "genderGapDisclaimer": "I risultati presentati sono stime semplificate a titolo indicativo. Non costituiscono una consulenza finanziaria personalizzata. Consulta la tua cassa pensioni e uno specialista qualificato prima di prendere decisioni.",
   "genderGapSources": "Fonti",
   "genderGapSourcesBody": "LPP art. 8 (deduzione di coordinamento) / LPP art. 14 (tasso di conversione 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (riscatto volontario) / UST 2024 (statistiche gender gap)",
+  "genderGapNonRenseigne": "Non indicato",
+  "genderGapGatePensionTitle": "Completa la tua situazione per stimare la tua rendita",
+  "genderGapGateCoordTitle": "Completa la tua situazione per questo dettaglio di coordinamento",
+  "genderGapGateWhyRevenu": "Il tuo reddito annuo è la base per la proiezione della rendita LPP. Aggiungilo nel tuo profilo.",
+  "genderGapGateWhyAvoirLpp": "Il tuo avere LPP attuale è il punto di partenza della proiezione. Aggiungilo dal tuo certificato di previdenza.",
+  "genderGapGateWhyAge": "La tua età determina il numero di anni fino al pensionamento. Completa la tua data di nascita nel tuo profilo.",
   "achievementsErrorMessage": "Il caricamento non è riuscito. Riprovare?",
   "documentsEmptyVoice": "Vuoto per ora. Scansiona un certificato e tutto diventa più chiaro.",
   "documentsConfidenceChoc": "{count} documenti = {pct}% di fiducia",
@@ -11762,5 +11768,6 @@
   "divorceGateFactCanton": "Il tuo cantone di residenza",
   "divorceGateWhyCanton": "Indica il tuo cantone nel profilo per stimare l'imposta del divorzio.",
   "divorceFilmPensionEstimee": "Mantenimento stimato",
-  "divorceImpactFiscalCantonNote": "Stima nel cantone attuale del nucleo per entrambi i coniugi — il cantone futuro dell'altra persona non è noto."
+  "divorceImpactFiscalCantonNote": "Stima nel cantone attuale del nucleo per entrambi i coniugi — il cantone futuro dell'altra persona non è noto.",
+  "genderGapProjectionAssumptions": "Ipotesi di proiezione: 1.5 %/anno di rendimento sugli averi LPP, lacuna cumulata stimata su ~20 anni di pensionamento."
 }

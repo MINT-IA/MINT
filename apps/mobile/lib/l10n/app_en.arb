@@ -4820,6 +4820,12 @@
   "genderGapDisclaimer": "The results shown are simplified estimates for informational purposes only. They do not constitute personalised financial advice. Consult your pension fund and a qualified specialist before making any decisions.",
   "genderGapSources": "Sources",
   "genderGapSourcesBody": "LPP art. 8 (coordination deduction) / LPP art. 14 (conversion rate 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (voluntary buyback) / FSO 2024 (gender gap statistics)",
+  "genderGapNonRenseigne": "Not provided",
+  "genderGapGatePensionTitle": "Complete your situation to estimate your pension",
+  "genderGapGateCoordTitle": "Complete your situation for this coordination detail",
+  "genderGapGateWhyRevenu": "Your annual income is the basis for the LPP pension projection. Add it in your profile.",
+  "genderGapGateWhyAvoirLpp": "Your current LPP assets are the starting point of the projection. Add them from your pension certificate.",
+  "genderGapGateWhyAge": "Your age determines the number of years until retirement. Complete your date of birth in your profile.",
   "achievementsErrorMessage": "Loading failed. Try again?",
   "documentsEmptyVoice": "Nothing here yet. Scan a certificate and everything becomes clearer.",
   "documentsConfidenceChoc": "{count} documents = {pct}% confidence",
@@ -11779,5 +11785,6 @@
   "divorceGateFactCanton": "Your canton of residence",
   "divorceGateWhyCanton": "Add your canton in your profile to estimate the divorce tax impact.",
   "divorceFilmPensionEstimee": "Estimated maintenance",
-  "divorceImpactFiscalCantonNote": "Estimated at the household's current canton for both spouses — the other's future canton is unknown."
+  "divorceImpactFiscalCantonNote": "Estimated at the household's current canton for both spouses — the other's future canton is unknown.",
+  "genderGapProjectionAssumptions": "Projection assumptions: 1.5%/yr return on LPP assets, cumulative gap estimated over ~20 years of retirement."
 }

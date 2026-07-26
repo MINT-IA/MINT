@@ -18211,6 +18211,42 @@ abstract class S {
   /// **'LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)'**
   String get genderGapSourcesBody;
 
+  /// No description provided for @genderGapNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get genderGapNonRenseigne;
+
+  /// No description provided for @genderGapGatePensionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour estimer ta rente'**
+  String get genderGapGatePensionTitle;
+
+  /// No description provided for @genderGapGateCoordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour ce détail de coordination'**
+  String get genderGapGateCoordTitle;
+
+  /// No description provided for @genderGapGateWhyRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel sert de base à la projection de rente LPP. Renseigne-le dans ton profil.'**
+  String get genderGapGateWhyRevenu;
+
+  /// No description provided for @genderGapGateWhyAvoirLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avoir LPP actuel est le point de départ de la projection. Ajoute-le depuis ton certificat de prévoyance.'**
+  String get genderGapGateWhyAvoirLpp;
+
+  /// No description provided for @genderGapGateWhyAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton âge détermine le nombre d\'années jusqu\'à la retraite. Complète ta date de naissance dans ton profil.'**
+  String get genderGapGateWhyAge;
+
   /// No description provided for @achievementsErrorMessage.
   ///
   /// In fr, this message translates to:
@@ -43281,6 +43317,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l\'autre n\'est pas connu.'**
   String get divorceImpactFiscalCantonNote;
+
+  /// No description provided for @genderGapProjectionAssumptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses de projection : rendement 1.5 %/an sur les avoirs LPP, lacune cumulée estimée sur ~20 ans de retraite.'**
+  String get genderGapProjectionAssumptions;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

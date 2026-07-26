@@ -10355,6 +10355,29 @@ class SFr extends S {
       'LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)';
 
   @override
+  String get genderGapNonRenseigne => 'Non renseigné';
+
+  @override
+  String get genderGapGatePensionTitle =>
+      'Complète ta situation pour estimer ta rente';
+
+  @override
+  String get genderGapGateCoordTitle =>
+      'Complète ta situation pour ce détail de coordination';
+
+  @override
+  String get genderGapGateWhyRevenu =>
+      'Ton revenu annuel sert de base à la projection de rente LPP. Renseigne-le dans ton profil.';
+
+  @override
+  String get genderGapGateWhyAvoirLpp =>
+      'Ton avoir LPP actuel est le point de départ de la projection. Ajoute-le depuis ton certificat de prévoyance.';
+
+  @override
+  String get genderGapGateWhyAge =>
+      'Ton âge détermine le nombre d\'années jusqu\'à la retraite. Complète ta date de naissance dans ton profil.';
+
+  @override
   String get achievementsErrorMessage => 'Le chargement a buté. On réessaie ?';
 
   @override
@@ -24793,4 +24816,8 @@ class SFr extends S {
   @override
   String get divorceImpactFiscalCantonNote =>
       'Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l\'autre n\'est pas connu.';
+
+  @override
+  String get genderGapProjectionAssumptions =>
+      'Hypothèses de projection : rendement 1.5 %/an sur les avoirs LPP, lacune cumulée estimée sur ~20 ans de retraite.';
 }

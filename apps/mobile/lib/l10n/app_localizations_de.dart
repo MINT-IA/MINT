@@ -10373,6 +10373,29 @@ class SDe extends S {
       'BVG Art. 8 (Koordinationsabzug) / BVG Art. 14 (Umwandlungssatz 6.8%) / BVV2 Art. 5 / BVV3 Art. 7 / BVG Art. 79b (freiwilliger Einkauf) / BFS 2024 (Gender-Gap-Statistik)';
 
   @override
+  String get genderGapNonRenseigne => 'Nicht angegeben';
+
+  @override
+  String get genderGapGatePensionTitle =>
+      'Vervollständige deine Angaben, um deine Rente zu schätzen';
+
+  @override
+  String get genderGapGateCoordTitle =>
+      'Vervollständige deine Angaben für dieses Koordinationsdetail';
+
+  @override
+  String get genderGapGateWhyRevenu =>
+      'Dein Jahreseinkommen ist die Grundlage für die BVG-Rentenprojektion. Ergänze es in deinem Profil.';
+
+  @override
+  String get genderGapGateWhyAvoirLpp =>
+      'Dein aktuelles BVG-Guthaben ist der Ausgangspunkt der Projektion. Ergänze es aus deinem Vorsorgeausweis.';
+
+  @override
+  String get genderGapGateWhyAge =>
+      'Dein Alter bestimmt die Anzahl Jahre bis zur Pensionierung. Ergänze dein Geburtsdatum in deinem Profil.';
+
+  @override
   String get achievementsErrorMessage =>
       'Laden fehlgeschlagen. Nochmal versuchen?';
 
@@ -24851,4 +24874,8 @@ class SDe extends S {
   @override
   String get divorceImpactFiscalCantonNote =>
       'Schätzung im aktuellen Kanton des Haushalts für beide Ehepartner — der künftige Kanton der anderen Person ist unbekannt.';
+
+  @override
+  String get genderGapProjectionAssumptions =>
+      'Projektionsannahmen: 1.5 %/Jahr Rendite auf BVG-Guthaben, kumulierte Lücke geschätzt über ~20 Rentenjahre.';
 }
