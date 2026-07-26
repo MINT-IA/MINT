@@ -729,7 +729,8 @@ class SEn extends S {
   String get divorcePatrimoine => 'ASSETS';
 
   @override
-  String get divorcePatrimoineSubtitle => 'Common fortune and debts';
+  String get divorcePatrimoineSubtitle =>
+      'Indicative markers — no share is computed';
 
   @override
   String get divorceSimuler => 'Simulate';
@@ -741,10 +742,10 @@ class SEn extends S {
   String get divorceTotalLpp => 'Total LPP assets (current)';
 
   @override
-  String get divorcePartConjoint1 => 'Share Spouse 1';
+  String get divorcePartConjoint1 => 'Spouse 1\'s assets after the split';
 
   @override
-  String get divorcePartConjoint2 => 'Share Spouse 2';
+  String get divorcePartConjoint2 => 'Spouse 2\'s assets after the split';
 
   @override
   String get divorceTransfert => 'Transfer';
@@ -765,13 +766,11 @@ class SEn extends S {
   String get divorceTotalApresDivorce => 'Total after divorce';
 
   @override
-  String get divorcePartagePatrimoine => 'ASSET DIVISION';
+  String get divorcePartagePatrimoine =>
+      'LIQUIDATION OF THE MATRIMONIAL PROPERTY REGIME';
 
   @override
-  String get divorceFortuneNette => 'Net fortune';
-
-  @override
-  String get divorcePensionAlimentaire => 'ALIMONY (ESTIMATE)';
+  String get divorcePensionAlimentaire => 'MAINTENANCE CONTRIBUTION';
 
   @override
   String get divorcePointsAttention => 'POINTS OF ATTENTION';
@@ -2570,7 +2569,7 @@ class SEn extends S {
 
   @override
   String get divorceIntroText =>
-      'A divorce has financial consequences that are often underestimated: division of assets, pension sharing (LPP/3a), tax impact and alimony. This tool helps you see more clearly.';
+      'A divorce has financial consequences that are often underestimated: liquidation of the matrimonial property regime, splitting of pension assets (LPP/3a), tax impact and maintenance contributions. This tool helps you see more clearly.';
 
   @override
   String divorceYears(int count) {
@@ -2591,14 +2590,10 @@ class SEn extends S {
   String get divorceSeparation => 'Separation of property';
 
   @override
-  String get divorceFortune => 'Common fortune';
+  String get divorceFortune => 'Household assets (indicative)';
 
   @override
-  String get divorceDettes => 'Common debts';
-
-  @override
-  String get divorcePensionDescription =>
-      'Estimate based on income gap and number of children. The actual amount depends on many factors (custody, needs, standard of living).';
+  String get divorceDettes => 'Household debts (indicative)';
 
   @override
   String get divorceActionsTitle => 'Actions to take';
@@ -2612,7 +2607,7 @@ class SEn extends S {
 
   @override
   String get divorceEduParticipationContent =>
-      'Participation in acquired property is the default matrimonial regime in Switzerland (CC art. 181 ff). Each spouse keeps their own property (acquired before marriage or by inheritance/donation). Acquired assets (property acquired during marriage) are shared equally in case of divorce. It is the most common regime in Switzerland.';
+      'Participation in acquired property is Switzerland\'s default matrimonial regime (CC art. 181 ff). Each spouse keeps their personal property (acquired before the marriage or received by inheritance or gift). On divorce each spouse is entitled to half of the OTHER\'s surplus (CC art. 215) and the two claims offset each other. The calculation is made on each spouse\'s own acquired-property account, after additions, compensation between the estates and attribution of debts — not on a single common pot.';
 
   @override
   String get divorceEduLppTitle => 'How does LPP sharing work?';
@@ -9692,28 +9687,6 @@ class SEn extends S {
   String divorceFiscalDelta(String sign, String amount) {
     return 'Household tax difference: $sign$amount/year (end of married splitting)';
   }
-
-  @override
-  String divorcePensionMois(String amount) {
-    return '$amount/month';
-  }
-
-  @override
-  String divorcePensionAnnuel(String amount) {
-    return 'i.e. $amount/year';
-  }
-
-  @override
-  String get divorceConjoint1Label => 'Spouse 1';
-
-  @override
-  String get divorceConjoint2Label => 'Spouse 2';
-
-  @override
-  String get divorceSplitC1 => 'S1';
-
-  @override
-  String get divorceSplitC2 => 'S2';
 
   @override
   String get unemploymentVague1Label => 'Wave 1 — Administrative urgency';
@@ -24622,14 +24595,61 @@ class SEn extends S {
 
   @override
   String get divorceGateWhyRevenu1 =>
-      'It is used to estimate tax and maintenance support.';
+      'It is used to estimate the household tax before and after the divorce.';
 
   @override
   String get divorceGateFactRevenu2 => 'Your ex-spouse\'s annual income';
 
   @override
   String get divorceGateWhyRevenu2 =>
-      'It lets us compare tax and estimate maintenance support.';
+      'It allows comparing the married household\'s tax with that of two separate households.';
+
+  @override
+  String get divorcePensionEnfantTitre =>
+      'Child maintenance (CC art. 276, 285, 285a)';
+
+  @override
+  String get divorcePensionEnfantFacteurs =>
+      'It follows the child\'s needs and age, childcare and education costs, and takes family allowances into account. The parent who looks after the child day to day already provides an in-kind contribution: it reduces accordingly what is asked of them in money. A savings share can be added when means allow.';
+
+  @override
+  String get divorcePensionConjointTitre => 'Spousal maintenance (CC art. 125)';
+
+  @override
+  String get divorcePensionConjointFacteurs =>
+      'It is not automatic. The first question is whether each spouse can provide for themselves. If not, what counts is how tasks were shared during the marriage, its length, the standard of living you had, age and health, income and assets, training and earning prospects, and pension provision. A long marriage creates no automatic entitlement.';
+
+  @override
+  String get divorcePensionMethode =>
+      'The reference method has two stages (BGE 147 III 265). First, each person\'s minimum subsistence level is established: housing, health insurance, food, work expenses, childcare. Those charges come before everything else. Then what is left — the surplus — is shared between the households. The reasoning is on net disposable income, never on gross salaries. The surplus is not split at random: it is allocated by « large and small heads » (a full share per adult, a half share per child), with case-by-case adjustments.';
+
+  @override
+  String get divorcePensionLeviers =>
+      'What pushes the amount up or down: the share of custody first — the more you look after the child, the less you pay in money. Then your earning capacity: if you can work more, a hypothetical income can be imputed to you. The standard of living during the marriage acts as a ceiling. And the clean-break principle pushes each spouse towards financial independence over time. Careful: more care does not always remove the cash obligation — each parent\'s contributive capacity also counts, and the financially stronger parent may still pay despite substantial care.';
+
+  @override
+  String get divorceRegimeAcquets =>
+      'What counts is what was acquired during the marriage. Whatever each spouse owned before, and whatever they received by inheritance or gift, stays theirs: that is personal property. On the rest, each spouse is entitled to half of the other\'s surplus (CC art. 215). So it is the comparison of your two accounts that decides, not a common pot: whoever accumulated more pays the other HALF of the difference between the two benefits. Before comparing, what left the acquired property is added back (art. 208), compensation between personal and acquired property is settled (art. 206 and 209), and each debt is attached to the estate it belongs to.';
+
+  @override
+  String get divorceLppTransferCaveat =>
+      'This amount is computed on the balances you entered (current assets minus assets at marriage). Two legal elements are not included here: the interest accruing on the vested benefit existing at the time of marriage, and the valuation date set by law (the start of divorce proceedings). Your pension fund issues the exact statement.';
+
+  @override
+  String get divorceRegimeCommunaute =>
+      'During the marriage, most of what you own forms a common estate. But on divorce that estate is not cut in two straight away: each spouse first takes back what would have been their personal property under participation in acquired property — what they had before the marriage, their inheritances, their gifts (CC art. 242 para. 1). Only the remainder left after those take-backs is split in half (art. 242 para. 2). Article 241, often quoted, only covers dissolution by death or by a change of regime.';
+
+  @override
+  String get divorceRegimeSeparation =>
+      'There is nothing to divide: each spouse keeps what belongs to them. What decides is therefore proof of ownership. Whoever claims an asset must show it is theirs — invoice, contract, land-register entry. Failing proof, the asset is presumed to belong to both in co-ownership (CC art. 248). Having financed an asset does not automatically make it yours: it can found a claim or a co-ownership share, without replacing title. And a co-owned asset can be allocated to one of you against compensation if that spouse shows an overriding interest (art. 251).';
+
+  @override
+  String get divorcePatrimoineNoShare =>
+      'To apply this rule to your case you need two separate inventories — yours and your spouse\'s — with, for each asset, its acquisition date and its origin. It is that document, not a household total, that determines who owes what. The final amount is then set by agreement or by the court.';
+
+  @override
+  String get divorcePatrimoineIndicatifHint =>
+      'These two amounts are not used to compute any share: they are markers to prepare your discussion. What decides is each spouse\'s inventory — acquisition date, origin of the asset, attached debts.';
 
   @override
   String get divorceGateFactLpp1 => 'Your current LPP assets';
@@ -24661,32 +24681,15 @@ class SEn extends S {
       'Only the share earned after the marriage is split (CC art. 122).';
 
   @override
-  String get divorceGateFactFortune => 'Household joint assets';
+  String get divorcePensionNoEstimate =>
+      'There is no fixed scale: the amount cannot be derived from income and the number of children. It is built from both households\' real budgets. Here is the mechanism, so you can reason about your own situation.';
 
   @override
-  String get divorceGateWhyFortune =>
-      'It sets the estate to be divided between spouses.';
+  String get divorcePensionFacteursTitre => 'How the amount is built';
 
   @override
-  String get divorceGateFactDettes => 'Household joint debts';
-
-  @override
-  String get divorceGateWhyDettes =>
-      'They reduce the net assets to be divided.';
-
-  @override
-  String get divorceGateFactEnfants => 'Number of children';
-
-  @override
-  String get divorceGateWhyEnfants =>
-      'Maintenance contributions depend on the number of children.';
-
-  @override
-  String get divorceGateFactDuree => 'Marriage duration';
-
-  @override
-  String get divorceGateWhyDuree =>
-      'Spousal maintenance depends on how long the marriage lasted.';
+  String get divorcePensionSpecialiste =>
+      'The exact amount is set by agreement between you or, failing that, by the court. A specialist puts figures on the concrete case using these elements.';
 
   @override
   String get divorceGateFactCanton => 'Your canton of residence';
@@ -24694,9 +24697,6 @@ class SEn extends S {
   @override
   String get divorceGateWhyCanton =>
       'The income tax scale depends on your canton of residence.';
-
-  @override
-  String get divorceFilmPensionEstimee => 'Estimated maintenance';
 
   @override
   String get divorceImpactFiscalCantonNote =>

@@ -248,21 +248,20 @@
   "divorce3aConjoint1": "3a Cónyuge 1",
   "divorce3aConjoint2": "3a Cónyuge 2",
   "divorcePatrimoine": "PATRIMONIO",
-  "divorcePatrimoineSubtitle": "Fortuna y deudas comunes",
+  "divorcePatrimoineSubtitle": "Referencias indicativas — no se calcula ninguna parte",
   "divorceSimuler": "Simular",
   "divorcePartageLpp": "REPARTO LPP",
   "divorceTotalLpp": "Haber LPP total (actual)",
-  "divorcePartConjoint1": "Parte Cónyuge 1",
-  "divorcePartConjoint2": "Parte Cónyuge 2",
+  "divorcePartConjoint1": "Haber del cónyuge 1 tras el reparto",
+  "divorcePartConjoint2": "Haber del cónyuge 2 tras el reparto",
   "divorceTransfert": "Transferencia",
   "divorceImpactFiscal": "IMPACTO FISCAL",
   "divorceImpotMarie": "Impuesto estimado (casado)",
   "divorceImpotConjoint1": "Impuesto Cónyuge 1 (individual)",
   "divorceImpotConjoint2": "Impuesto Cónyuge 2 (individual)",
   "divorceTotalApresDivorce": "Total después del divorcio",
-  "divorcePartagePatrimoine": "REPARTO DEL PATRIMONIO",
-  "divorceFortuneNette": "Fortuna neta",
-  "divorcePensionAlimentaire": "PENSIÓN ALIMENTICIA (ESTIMACIÓN)",
+  "divorcePartagePatrimoine": "LIQUIDACIÓN DEL RÉGIMEN MATRIMONIAL",
+  "divorcePensionAlimentaire": "CONTRIBUCIÓN DE ALIMENTOS",
   "divorcePointsAttention": "PUNTOS DE ATENCIÓN",
   "divorceActions": "Acciones a emprender",
   "divorceActionsSubtitle": "Checklist de preparación",
@@ -1167,7 +1166,7 @@
   "mariageDisclaimer": "Estimaciones simplificadas con fines educativos — no constituye asesoramiento fiscal ni jurídico. Los importes dependen de muchos factores (deducciones, municipio, patrimonio, etc.). Consulta a un·a especialista fiscal para un cálculo personalizado.",
   "divorceAppBarTitle": "Divorcio — Impacto financiero",
   "divorceHeaderSubtitle": "Anticipa las consecuencias financieras",
-  "divorceIntroText": "Un divorcio tiene consecuencias financieras a menudo subestimadas: reparto del patrimonio, de la previsión (LPP/3a), impacto fiscal y pensión alimenticia. Esta herramienta te ayuda a ver más claro.",
+  "divorceIntroText": "Un divorcio tiene consecuencias financieras a menudo subestimadas: liquidación del régimen matrimonial, reparto de la previsión (LPP/3a), impacto fiscal y contribuciones de alimentos. Esta herramienta te ayuda a verlo con más claridad.",
   "divorceYears": "{count} años",
   "@divorceYears": {
     "placeholders": {
@@ -1180,13 +1179,12 @@
   "divorceParticipationDefault": "Participación en los gananciales (defecto)",
   "divorceCommunaute": "Comunidad de bienes",
   "divorceSeparation": "Separación de bienes",
-  "divorceFortune": "Fortuna común",
-  "divorceDettes": "Deudas comunes",
-  "divorcePensionDescription": "Estimación basada en la diferencia de ingresos y el número de hijos. El importe real depende de muchos factores (custodia, necesidades, nivel de vida).",
+  "divorceFortune": "Patrimonio del hogar (indicativo)",
+  "divorceDettes": "Deudas del hogar (indicativo)",
   "divorceActionsTitle": "Acciones a tomar",
   "divorceComprendre": "COMPRENDER",
   "divorceEduParticipationTitle": "¿Qué es la participación en los bienes gananciales?",
-  "divorceEduParticipationContent": "La participación en los bienes gananciales es el régimen matrimonial por defecto en Suiza (CC art. 181 ss). Cada cónyuge conserva sus bienes propios (adquiridos antes del matrimonio o por sucesión/donación). Los bienes gananciales (adquiridos durante el matrimonio) se reparten por partes iguales en caso de divorcio. Es el régimen más común en Suiza.",
+  "divorceEduParticipationContent": "La participación en las ganancias es el régimen matrimonial por defecto en Suiza (CC art. 181 ss). Cada persona conserva sus bienes propios (adquiridos antes del matrimonio o recibidos por herencia o donación). En caso de divorcio, cada una tiene derecho a la mitad del beneficio de la OTRA (CC art. 215) y ambos créditos se compensan. El cálculo se hace sobre la cuenta de ganancias de cada cónyuge, tras las reuniones, las recompensas entre masas y la atribución de las deudas — no sobre un patrimonio común único.",
   "divorceEduLppTitle": "¿Cómo funciona el reparto LPP?",
   "divorceEduLppContent": "Desde el 1 de enero de 2017 (CC art. 122), los haberes de previsión profesional (2° pilar) acumulados durante el matrimonio se reparten por partes iguales en caso de divorcio. El reparto se hace directamente entre las dos cajas de pensiones, sin pasar por las cuentas personales de los cónyuges. Es un derecho imperativo al que los cónyuges solo pueden renunciar bajo condiciones estrictas.",
   "donationAppBarTitle": "Donación — Simulador",
@@ -4435,26 +4433,6 @@
       }
     }
   },
-  "divorcePensionMois": "{amount}/mes",
-  "@divorcePensionMois": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorcePensionAnnuel": "es decir {amount}/año",
-  "@divorcePensionAnnuel": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorceConjoint1Label": "Cónyuge 1",
-  "divorceConjoint2Label": "Cónyuge 2",
-  "divorceSplitC1": "C1",
-  "divorceSplitC2": "C2",
   "unemploymentVague1Label": "Ola 1 — Urgencia administrativa",
   "unemploymentVague1Text": "Inscríbete en la ORP dentro de los primeros 5 días. Si no: pérdida de prestaciones. Cada día de retraso = prestación perdida.",
   "unemploymentVague2Label": "Ola 2 — Presupuesto a ajustar",
@@ -11750,9 +11728,21 @@
     }
   },
   "divorceGateFactRevenu1": "Tu ingreso anual bruto",
-  "divorceGateWhyRevenu1": "Sirve para estimar el impuesto y la pensión alimenticia.",
+  "divorceGateWhyRevenu1": "Sirve para estimar el impuesto del hogar antes y después del divorcio.",
   "divorceGateFactRevenu2": "Ingreso anual de tu excónyuge",
-  "divorceGateWhyRevenu2": "Permite comparar el impuesto y estimar la pensión alimenticia.",
+  "divorceGateWhyRevenu2": "Permite comparar el impuesto del hogar casado con el de dos hogares separados.",
+  "divorcePensionEnfantTitre": "Alimentos del hijo (CC art. 276, 285, 285a)",
+  "divorcePensionEnfantFacteurs": "Sigue las necesidades del hijo y su edad, los gastos de custodia y de formación, y tiene en cuenta las asignaciones familiares. El progenitor que se ocupa del hijo a diario ya aporta una contribución en especie: reduce en esa medida lo que se le pide en dinero. Puede añadirse una parte de ahorro si los medios lo permiten.",
+  "divorcePensionConjointTitre": "Alimentos del cónyuge (CC art. 125)",
+  "divorcePensionConjointFacteurs": "No se da por supuesto. Primero se mira si cada persona puede subvenir sola a sus necesidades. Si no es el caso, lo que cuenta es el reparto de tareas durante el matrimonio, su duración, el nivel de vida que teníais, la edad y el estado de salud, los ingresos y el patrimonio, las perspectivas de formación y de ganancia, y la previsión. Una larga duración del matrimonio no crea ningún derecho automático.",
+  "divorcePensionMethode": "El método de referencia tiene dos etapas (ATF 147 III 265). Primero se establece el mínimo vital de cada persona: vivienda, seguro de enfermedad, alimentación, gastos profesionales, gastos de custodia. Esas cargas van antes que todo lo demás. Después, lo que queda — el excedente — se reparte entre los hogares. Se razona sobre los ingresos disponibles netos, nunca sobre los salarios brutos. El excedente no se reparte al azar: se distribuye por « cabezas grandes y pequeñas » (una parte entera por adulto, media por hijo), con ajustes según el caso.",
+  "divorcePensionLeviers": "Lo que hace subir o bajar el importe: el porcentaje de custodia primero — cuanto más cuidas al hijo, menos pagas en dinero. Después tu capacidad de ganancia: si puedes trabajar más, puede imputársete un ingreso hipotético. El nivel de vida del matrimonio actúa como techo. Y el principio de clean-break empuja a cada uno hacia su autonomía financiera con el tiempo. Atención: cuidar más no siempre exime de pagar — la capacidad contributiva de cada uno también cuenta, y el progenitor económicamente más fuerte puede pagar pese a una custodia amplia.",
+  "divorceRegimeAcquets": "Lo que cuenta es lo que se adquirió durante el matrimonio. Lo que cada persona poseía antes, y lo que recibió por herencia o donación, sigue siendo suyo: son los bienes propios. Sobre el resto, cada una tiene derecho a la mitad del beneficio de la otra (CC art. 215). Es pues la comparación de vuestras dos cuentas la que decide, no un fondo común: quien más acumuló paga a la otra persona la MITAD de la diferencia entre los dos beneficios. Antes de comparar, se reintegra a las ganancias lo que salió de ellas (art. 208), se saldan las recompensas entre bienes propios y ganancias (art. 206 y 209), y se vincula cada deuda a la masa que le corresponde.",
+  "divorceLppTransferCaveat": "Este importe se calcula sobre los haberes que has indicado (haber actual menos haber al casarse). Dos elementos legales no se incluyen aquí: el interés que corre sobre la prestación de salida existente al casarse, y la fecha de valoración prevista por la ley (el inicio del procedimiento de divorcio). Tu caja de pensiones emite el cómputo exacto.",
+  "divorceRegimeCommunaute": "Durante el matrimonio, lo esencial de lo que poseéis forma una masa común. Pero en el divorcio esa masa no se parte en dos de entrada: cada persona recupera primero lo que habrían sido sus bienes propios bajo la participación en las ganancias — lo que tenía antes del matrimonio, sus herencias, sus donaciones (CC art. 242 ap. 1). Solo el resto que queda tras esas recuperaciones se reparte por mitad (art. 242 ap. 2). El artículo 241, a menudo citado, solo contempla la disolución por fallecimiento o por cambio de régimen.",
+  "divorceRegimeSeparation": "No hay nada que repartir: cada persona conserva lo que le pertenece. Lo que decide es, por tanto, la prueba de la propiedad. Quien reivindica un bien debe mostrar que es suyo — factura, contrato, inscripción en el registro de la propiedad. A falta de prueba, se presume que el bien pertenece a ambos en copropiedad (CC art. 248). Haber financiado un bien no lo convierte automáticamente en tuyo: puede fundar un crédito o una cuota de copropiedad, sin sustituir al título. Y un bien en copropiedad puede atribuirse a uno de vosotros contra indemnización si acredita un interés preponderante (art. 251).",
+  "divorcePatrimoineNoShare": "Para aplicar esta regla a tu caso necesitas dos inventarios separados — el tuyo y el de tu cónyuge — con, para cada bien, su fecha de adquisición y su origen. Es ese documento, y no un total del hogar, el que determina quién debe qué. El importe definitivo se fija después por convenio o por el tribunal.",
+  "divorcePatrimoineIndicatifHint": "Estos dos importes no sirven para calcular ninguna parte: son referencias para preparar tu conversación. Lo que decide es el inventario de cada uno — fecha de adquisición, origen del bien, deudas vinculadas.",
   "divorceGateFactLpp1": "Tu haber LPP actual",
   "divorceGateWhyLpp1": "El reparto abarca la LPP acumulada durante el matrimonio.",
   "divorceGateFactLpp2": "Haber LPP actual de tu excónyuge",
@@ -11761,17 +11751,11 @@
   "divorceGateWhyAvoir1": "Solo se reparte la parte adquirida después del matrimonio (CC art. 122).",
   "divorceGateFactAvoir2": "Haber LPP de tu excónyuge al casarse",
   "divorceGateWhyAvoir2": "Solo se reparte la parte adquirida después del matrimonio (CC art. 122).",
-  "divorceGateFactFortune": "Patrimonio común del hogar",
-  "divorceGateWhyFortune": "Fija la masa a repartir entre los cónyuges.",
-  "divorceGateFactDettes": "Deudas comunes del hogar",
-  "divorceGateWhyDettes": "Reducen el patrimonio neto a repartir.",
-  "divorceGateFactEnfants": "Número de hijos",
-  "divorceGateWhyEnfants": "Las contribuciones de manutención dependen del número de hijos.",
-  "divorceGateFactDuree": "Duración del matrimonio",
-  "divorceGateWhyDuree": "La pensión al cónyuge depende de la duración del matrimonio.",
+  "divorcePensionNoEstimate": "No existe un baremo: el importe no se deduce de los ingresos y del número de hijos. Se construye a partir de los presupuestos reales de ambos hogares. Aquí tienes el mecanismo, para que puedas razonar sobre tu situación.",
+  "divorcePensionFacteursTitre": "Cómo se construye el importe",
+  "divorcePensionSpecialiste": "El importe exacto se fija por convenio entre vosotros o, a falta de acuerdo, por el tribunal. Una persona especialista cifra el caso concreto a partir de estos elementos.",
   "divorceGateFactCanton": "Tu cantón de residencia",
   "divorceGateWhyCanton": "El baremo del impuesto sobre la renta depende de tu cantón de domicilio.",
-  "divorceFilmPensionEstimee": "Pensión alimenticia estimada",
   "divorceImpactFiscalCantonNote": "Estimación en el cantón actual del hogar para ambos cónyuges — se desconoce el cantón futuro de la otra persona.",
   "genderGapProjectionAssumptions": "Hipótesis de proyección: 1.5 %/año de rendimiento sobre los haberes LPP, brecha acumulada estimada sobre ~20 años de jubilación."
 }

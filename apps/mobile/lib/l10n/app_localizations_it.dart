@@ -733,7 +733,8 @@ class SIt extends S {
   String get divorcePatrimoine => 'PATRIMONIO';
 
   @override
-  String get divorcePatrimoineSubtitle => 'Patrimonio e debiti comuni';
+  String get divorcePatrimoineSubtitle =>
+      'Riferimenti indicativi — nessuna quota viene calcolata';
 
   @override
   String get divorceSimuler => 'Simulare';
@@ -745,10 +746,10 @@ class SIt extends S {
   String get divorceTotalLpp => 'Avere LPP totale (attuale)';
 
   @override
-  String get divorcePartConjoint1 => 'Quota Coniuge 1';
+  String get divorcePartConjoint1 => 'Avere del coniuge 1 dopo la divisione';
 
   @override
-  String get divorcePartConjoint2 => 'Quota Coniuge 2';
+  String get divorcePartConjoint2 => 'Avere del coniuge 2 dopo la divisione';
 
   @override
   String get divorceTransfert => 'Trasferimento';
@@ -769,13 +770,10 @@ class SIt extends S {
   String get divorceTotalApresDivorce => 'Totale dopo il divorzio';
 
   @override
-  String get divorcePartagePatrimoine => 'DIVISIONE DEL PATRIMONIO';
+  String get divorcePartagePatrimoine => 'LIQUIDAZIONE DEL REGIME MATRIMONIALE';
 
   @override
-  String get divorceFortuneNette => 'Patrimonio netto';
-
-  @override
-  String get divorcePensionAlimentaire => 'ALIMENTI (STIMA)';
+  String get divorcePensionAlimentaire => 'CONTRIBUTO DI MANTENIMENTO';
 
   @override
   String get divorcePointsAttention => 'PUNTI DI ATTENZIONE';
@@ -2587,7 +2585,7 @@ class SIt extends S {
 
   @override
   String get divorceIntroText =>
-      'Un divorzio ha conseguenze finanziarie spesso sottovalutate: divisione del patrimonio, della previdenza (LPP/3a), impatto fiscale e alimenti. Questo strumento ti aiuta a vederci più chiaro.';
+      'Un divorzio ha conseguenze finanziarie spesso sottovalutate: liquidazione del regime matrimoniale, divisione della previdenza (LPP/3a), impatto fiscale e contributi di mantenimento. Questo strumento ti aiuta a vederci più chiaro.';
 
   @override
   String divorceYears(int count) {
@@ -2608,14 +2606,10 @@ class SIt extends S {
   String get divorceSeparation => 'Separazione dei beni';
 
   @override
-  String get divorceFortune => 'Patrimonio comune';
+  String get divorceFortune => 'Patrimonio della famiglia (indicativo)';
 
   @override
-  String get divorceDettes => 'Debiti comuni';
-
-  @override
-  String get divorcePensionDescription =>
-      'Stima basata sulla differenza di reddito e il numero di figli. L\'importo reale dipende da molti fattori (custodia, bisogni, tenore di vita).';
+  String get divorceDettes => 'Debiti della famiglia (indicativo)';
 
   @override
   String get divorceActionsTitle => 'Azioni da intraprendere';
@@ -2629,7 +2623,7 @@ class SIt extends S {
 
   @override
   String get divorceEduParticipationContent =>
-      'La partecipazione agli acquisti è il regime matrimoniale predefinito in Svizzera (CC art. 181 ss). Ciascun coniuge conserva i propri beni (acquisiti prima del matrimonio o per successione/donazione). Gli acquisti (beni acquisiti durante il matrimonio) sono divisi in parti uguali in caso di divorzio. È il regime più comune in Svizzera.';
+      'La partecipazione agli acquisti è il regime matrimoniale ordinario in Svizzera (CC art. 181 ss). Ciascuno conserva i propri beni (acquisiti prima del matrimonio o ricevuti per successione o donazione). In caso di divorzio ciascuno ha diritto alla metà dell\'aumento dell\'ALTRO (CC art. 215) e i due crediti si compensano. Il calcolo si fa sul conto degli acquisti di ciascun coniuge, dopo le riunioni, i compensi tra masse e l\'attribuzione dei debiti — non su un patrimonio comune unico.';
 
   @override
   String get divorceEduLppTitle => 'Come funziona la divisione LPP?';
@@ -9771,28 +9765,6 @@ class SIt extends S {
   String divorceFiscalDelta(String sign, String amount) {
     return 'Differenza d\'imposta del nucleo: $sign$amount/anno (fine dello splitting coniugale)';
   }
-
-  @override
-  String divorcePensionMois(String amount) {
-    return '$amount/mese';
-  }
-
-  @override
-  String divorcePensionAnnuel(String amount) {
-    return 'ovvero $amount/anno';
-  }
-
-  @override
-  String get divorceConjoint1Label => 'Coniuge 1';
-
-  @override
-  String get divorceConjoint2Label => 'Coniuge 2';
-
-  @override
-  String get divorceSplitC1 => 'C1';
-
-  @override
-  String get divorceSplitC2 => 'C2';
 
   @override
   String get unemploymentVague1Label => 'Onda 1 — Urgenza amministrativa';
@@ -24817,14 +24789,62 @@ class SIt extends S {
 
   @override
   String get divorceGateWhyRevenu1 =>
-      'Serve a stimare l\'imposta e il contributo di mantenimento.';
+      'Serve a stimare l\'imposta della famiglia prima e dopo il divorzio.';
 
   @override
   String get divorceGateFactRevenu2 => 'Reddito annuo del tuo ex coniuge';
 
   @override
   String get divorceGateWhyRevenu2 =>
-      'Permette di confrontare l\'imposta e stimare il mantenimento.';
+      'Permette di confrontare l\'imposta della famiglia sposata con quella di due nuclei separati.';
+
+  @override
+  String get divorcePensionEnfantTitre =>
+      'Mantenimento del figlio (CC art. 276, 285, 285a)';
+
+  @override
+  String get divorcePensionEnfantFacteurs =>
+      'Segue i bisogni del figlio e la sua età, le spese di custodia e di formazione, e tiene conto degli assegni familiari. Il genitore che si occupa del figlio ogni giorno fornisce già un contributo in natura: riduce di altrettanto ciò che gli viene chiesto in denaro. Una quota di risparmio può aggiungersi se i mezzi lo permettono.';
+
+  @override
+  String get divorcePensionConjointTitre =>
+      'Mantenimento del coniuge (CC art. 125)';
+
+  @override
+  String get divorcePensionConjointFacteurs =>
+      'Non è scontato. Si guarda anzitutto se ciascuno può provvedere da solo ai propri bisogni. In caso contrario, ciò che conta è la ripartizione dei compiti durante il matrimonio, la sua durata, il tenore di vita che avevate, l\'età e lo stato di salute, i redditi e il patrimonio, le prospettive di formazione e di guadagno, e la previdenza. Una lunga durata del matrimonio non crea alcun diritto automatico.';
+
+  @override
+  String get divorcePensionMethode =>
+      'Il metodo di riferimento si svolge in due fasi (DTF 147 III 265). Dapprima si stabilisce il minimo vitale di ciascuna persona: abitazione, assicurazione malattia, alimentazione, spese professionali, spese di custodia. Questi oneri vengono prima di tutto il resto. Poi ciò che resta — l\'eccedenza — si ripartisce tra i nuclei. Si ragiona sui redditi disponibili netti, mai sui salari lordi. L\'eccedenza non si divide a caso: si ripartisce per « teste grandi e piccole » (una quota intera per adulto, mezza per figlio), con adeguamenti caso per caso.';
+
+  @override
+  String get divorcePensionLeviers =>
+      'Ciò che fa salire o scendere l\'importo: anzitutto la percentuale di custodia — più tieni il figlio, meno versi in denaro. Poi la tua capacità di guadagno: se puoi lavorare di più, ti può essere imputato un reddito ipotetico. Il tenore di vita del matrimonio funge da tetto. E il principio del clean-break spinge ciascuno verso la propria autonomia finanziaria col tempo. Attenzione: occuparsene di più non esonera sempre dal versare — conta anche la capacità contributiva, e il genitore economicamente più solido può versare nonostante una custodia ampia.';
+
+  @override
+  String get divorceRegimeAcquets =>
+      'Ciò che conta è quanto è stato acquisito durante il matrimonio. Quanto ciascuno possedeva prima, e quanto ha ricevuto per successione o donazione, gli resta: sono i beni propri. Sul resto, ciascuno ha diritto alla metà dell\'aumento dell\'altro (CC art. 215). È dunque il confronto dei vostri due conti a decidere, non un fondo comune: chi ha accumulato di più versa all\'altro la METÀ della differenza tra i due utili. Prima di confrontare, si reintegra negli acquisti ciò che ne è uscito (art. 208), si regolano i compensi tra beni propri e acquisti (art. 206 e 209), e si collega ogni debito alla massa che lo riguarda.';
+
+  @override
+  String get divorceLppTransferCaveat =>
+      'Questo importo si calcola sugli averi che hai indicato (avere attuale meno avere al matrimonio). Due elementi legali non sono inclusi qui: l\'interesse che matura sulla prestazione d\'uscita esistente al momento del matrimonio e la data di valutazione prevista dalla legge (l\'avvio della procedura di divorzio). Il tuo istituto di previdenza rilascia il conteggio esatto.';
+
+  @override
+  String get divorceRegimeCommunaute =>
+      'Durante il matrimonio, l\'essenziale di quanto possedete forma una massa comune. Ma al divorzio questa massa non si taglia subito in due: ciascuno riprende dapprima quanto sarebbero stati i suoi beni propri sotto la partecipazione agli acquisti — quanto aveva prima del matrimonio, le sue eredità, le sue donazioni (CC art. 242 cpv. 1). Solo il saldo che resta dopo queste riprese si divide per metà (art. 242 cpv. 2). L\'articolo 241, spesso citato, riguarda soltanto lo scioglimento per decesso o per cambiamento di regime.';
+
+  @override
+  String get divorceRegimeSeparation =>
+      'Non c\'è nulla da dividere: ciascuno tiene ciò che gli appartiene. Ciò che decide è dunque la prova della proprietà. Chi rivendica un bene deve mostrare che è suo — fattura, contratto, iscrizione al registro fondiario. In mancanza di prova, il bene si presume appartenere a entrambi in comproprietà (CC art. 248). Aver finanziato un bene non lo rende automaticamente tuo: può fondare un credito o una quota di comproprietà, senza sostituire il titolo. E un bene in comproprietà può essere attribuito a uno di voi contro indennità se dimostra un interesse preponderante (art. 251).';
+
+  @override
+  String get divorcePatrimoineNoShare =>
+      'Per applicare questa regola al tuo caso ti servono due inventari separati — il tuo e quello del coniuge — con, per ogni bene, la data di acquisto e l\'origine. È questo documento, e non un totale familiare, a determinare chi deve che cosa. L\'importo definitivo si fissa poi per convenzione o dal tribunale.';
+
+  @override
+  String get divorcePatrimoineIndicatifHint =>
+      'Questi due importi non servono a calcolare alcuna quota: sono riferimenti per preparare la tua discussione. Ciò che decide è l\'inventario di ciascuno — data di acquisto, origine del bene, debiti collegati.';
 
   @override
   String get divorceGateFactLpp1 => 'Il tuo avere LPP attuale';
@@ -24856,32 +24876,15 @@ class SIt extends S {
       'Si divide solo la parte maturata dopo il matrimonio (CC art. 122).';
 
   @override
-  String get divorceGateFactFortune => 'Patrimonio comune della famiglia';
+  String get divorcePensionNoEstimate =>
+      'Non esiste un tariffario: l\'importo non si deduce dal reddito e dal numero di figli. Si costruisce a partire dai bilanci reali dei due nuclei. Ecco il meccanismo, perché tu possa ragionare sulla tua situazione.';
 
   @override
-  String get divorceGateWhyFortune =>
-      'Determina la massa da dividere tra i coniugi.';
+  String get divorcePensionFacteursTitre => 'Come si costruisce l\'importo';
 
   @override
-  String get divorceGateFactDettes => 'Debiti comuni della famiglia';
-
-  @override
-  String get divorceGateWhyDettes =>
-      'Riducono il patrimonio netto da dividere.';
-
-  @override
-  String get divorceGateFactEnfants => 'Numero di figli';
-
-  @override
-  String get divorceGateWhyEnfants =>
-      'I contributi di mantenimento dipendono dal numero di figli.';
-
-  @override
-  String get divorceGateFactDuree => 'Durata del matrimonio';
-
-  @override
-  String get divorceGateWhyDuree =>
-      'Il mantenimento al coniuge dipende dalla durata del matrimonio.';
+  String get divorcePensionSpecialiste =>
+      'L\'importo esatto si fissa per convenzione tra voi o, in mancanza di accordo, dal tribunale. Una persona specialista quantifica il caso concreto sulla base di questi elementi.';
 
   @override
   String get divorceGateFactCanton => 'Il tuo cantone di residenza';
@@ -24889,9 +24892,6 @@ class SIt extends S {
   @override
   String get divorceGateWhyCanton =>
       'La tariffa dell\'imposta sul reddito dipende dal tuo cantone di domicilio.';
-
-  @override
-  String get divorceFilmPensionEstimee => 'Mantenimento stimato';
 
   @override
   String get divorceImpactFiscalCantonNote =>
