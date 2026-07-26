@@ -6831,15 +6831,6 @@ class SEn extends S {
   String get concubinageCanton => 'Canton';
 
   @override
-  String get concubinageAvantages => 'avantages';
-
-  @override
-  String get concubinageMariage => 'Mariage';
-
-  @override
-  String get concubinageConcubinage => 'Concubinage';
-
-  @override
   String get concubinageDetailFiscal => 'DÉTAIL FISCAL';
 
   @override
@@ -6849,10 +6840,20 @@ class SEn extends S {
   String get concubinageImpotsMaries => 'Impôts mariés';
 
   @override
-  String get concubinagePenaliteMariage => 'Marriage penalty';
+  String get concubinageEcartImpotMariePlusEleve =>
+      'Household tax higher when married';
 
   @override
-  String get concubinageBonusMariage => 'Bonus mariage';
+  String get concubinageEcartImpotConcubinagePlusEleve =>
+      'Household tax higher when cohabiting';
+
+  @override
+  String get concubinageMecaniqueImpositionCommune =>
+      'Once married, both incomes are added together and taxed jointly, under a reduced scale reserved for couples. Which way the gap goes depends on how the incomes are split: when they are close, adding them pushes taxable income up faster than the reduced scale brings it down — this is the effect known as « Heiratsstrafe ». When one income dominates, that same scale brings the household tax below what two single people would pay.';
+
+  @override
+  String get concubinageFiscalModelLimit =>
+      'Simplified estimate: it accounts for neither your actual deductions, nor your municipality, nor the detailed cantonal scale. The real gap may therefore differ, including in its direction.';
 
   @override
   String get concubinageImpotSuccession => 'INHERITANCE TAX';
@@ -6953,16 +6954,10 @@ class SEn extends S {
   String get concubinageCriteriaImpots => 'Impôts';
 
   @override
-  String get concubinageCriteriaPenaliteFiscale => 'Marriage penalty';
+  String get concubinageCriteriaImpotPlusEleve => 'Higher household tax';
 
   @override
-  String get concubinageCriteriaBonusFiscal => 'Bonus fiscal';
-
-  @override
-  String get concubinageCriteriaAvantageux => 'Avantageux';
-
-  @override
-  String get concubinageCriteriaDesavantageux => 'Désavantageux';
+  String get concubinageCriteriaImpotMoinsEleve => 'Lower household tax';
 
   @override
   String get concubinageCriteriaHeritage => 'Héritage';

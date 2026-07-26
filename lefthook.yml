@@ -129,6 +129,20 @@ pre-commit:
       glob: "apps/mobile/lib/l10n/*.arb"
       tags: [compliance, lsfin, phase-34-guard-01]
       fail_text: "LSFin banned terms detected in ARB. Rewrite using permitted vocabulary (« vise à fournir », « est conçue pour », …) — CLAUDE.md TOP rule #1."
+    no-hardcoded-fr-added-lines-gate:
+      # CLAUDE.md TOP rule #5 (i18n). MINT expose 6 langues et un sélecteur de
+      # langue (`lib/screens/settings/langue_settings_screen.dart`), mais 151
+      # libellés user-facing sont écrits en français dur dans des services rendus
+      # tels quels par des écrans — un utilisateur germanophone les voit en
+      # français. Le lint existait depuis « Phase 34 GUARD-04 » sans jamais être
+      # câblé : en fichier entier il compte 4922 violations héritées et bloquerait
+      # tout commit, donc il restait décoratif et la dette grossissait. Ce gate ne
+      # juge que les lignes AJOUTÉES : l'existant passe, le neuf est arrêté.
+      # Échappatoire explicite et grep-able : `// lint-ignore` sur la ligne.
+      run: python3 tools/checks/no_hardcoded_fr.py --self-test && python3 tools/checks/no_hardcoded_fr.py --added-only
+      glob: "apps/mobile/lib/**/*.dart"
+      tags: [i18n, phase-34-guard-04]
+      fail_text: "Nouveau littéral français en dur. Passe par AppLocalizations (clé ARB dans les 6 langues, puis `flutter gen-l10n`) — CLAUDE.md TOP rule #5. Si la chaîne n'est pas rendue à l'utilisateur, marque la ligne `// lint-ignore`."
     no-false-privacy-attestation-gate:
       # Audit 2026-07 (T16-F02/F34/F36): forbids "document never leaves phone" /
       # "on-device OCR by default" / "toutes tes données restent sur ton appareil"
