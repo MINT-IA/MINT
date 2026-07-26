@@ -114,99 +114,64 @@ void main() {
   //  DIVORCE SERVICE — PATRIMOINE SPLIT
   // ════════════════════════════════════════════════════════════
 
-  group('DivorceService - Patrimoine Split', () {
-    test('participation aux acquets splits fortune 50/50', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 10,
-          numberOfChildren: 0,
-          regime: MatrimonialRegime.participationAuxAcquets,
-          incomeConjoint1: 80000,
-          incomeConjoint2: 60000,
-          lppConjoint1: 100000,
-          lppConjoint2: 100000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 200000,
-          dettesCommunes: 0,
-        ),
-      );
-
-      expect(result.patrimoineSplit.fortuneNette, 200000);
-      expect(result.patrimoineSplit.shareConjoint1, 100000);
-      expect(result.patrimoineSplit.shareConjoint2, 100000);
+  group('DivorceService - Liquidation du régime (aucune part calculée)', () {
+    // HIGH #3 (audit conseiller 2026-07-26) : le service ne produit PLUS aucune
+    // part de liquidation. `PatrimoineSplitResult` a été supprimé — comme le
+    // champ d'entretien — pour qu'un chiffre indéfendable ne puisse pas dormir
+    // dans le résultat en attendant qu'une surface l'affiche.
+    //
+    // Pourquoi aucune part n'est défendable :
+    //  • participation aux acquêts (CC art. 215) : moitié du bénéfice de
+    //    L'AUTRE, créances compensées, après réunions (208), récompenses
+    //    (206/209) et attribution des dettes → exige le compte de CHAQUE époux ;
+    //  • communauté : au divorce c'est l'art. 242 al. 1-2 (reprise d'abord, puis
+    //    solde partagé), pas l'art. 241 (décès / changement de régime) ;
+    //  • séparation de biens : aucune masse à partager (art. 247-251).
+    test('DivorceResult exposes no patrimoine share for ANY régime', () {
+      for (final regime in MatrimonialRegime.values) {
+        final result = DivorceService.simulate(
+          input: DivorceInput(
+            canton: 'ZH',
+            marriageDurationYears: 10,
+            numberOfChildren: 0,
+            regime: regime,
+            incomeConjoint1: 120000,
+            incomeConjoint2: 60000,
+            lppConjoint1: 100000,
+            lppConjoint2: 100000,
+            avoirAuMariage1: 0,
+            avoirAuMariage2: 0,
+            pillar3aConjoint1: 0,
+            pillar3aConjoint2: 0,
+            fortuneCommune: 180000,
+            dettesCommunes: 0,
+          ),
+        );
+        // The result object carries LPP, tax, alerts and checklist — nothing else.
+        // A `patrimoineSplit` accessor would not compile; this asserts the shape
+        // that remains, so re-adding a share field is a visible, deliberate act.
+        expect(result.lppSplit, isNotNull);
+        expect(result.taxImpact, isNotNull);
+        expect(result.alerts, isNotNull);
+        expect(result.checklist, isNotNull);
+        // MUTATION-PROOF on the two deleted rules: neither the 50/50 of the net
+        // pot (90'000) nor the income-proportional share (120'000 / 60'000) can
+        // appear anywhere in the rendered alert strings.
+        for (final a in result.alerts) {
+          expect(a.contains('90'), isFalse, reason: 'no 50/50 half of 180k');
+          expect(a.contains("120'000"), isFalse,
+              reason: 'no income-proportional share');
+          expect(a.contains("60'000"), isFalse);
+        }
+      }
     });
+  });
 
-    test('communaute de biens also splits 50/50', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 10,
-          numberOfChildren: 0,
-          regime: MatrimonialRegime.communauteDeBiens,
-          incomeConjoint1: 80000,
-          incomeConjoint2: 40000,
-          lppConjoint1: 100000,
-          lppConjoint2: 100000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 300000,
-          dettesCommunes: 100000,
-        ),
-      );
+  // ════════════════════════════════════════════════════════════
+  //  DIVORCE SERVICE — DEBT RATIO (qualitative only, self-guarded)
+  // ════════════════════════════════════════════════════════════
 
-      expect(result.patrimoineSplit.fortuneNette, 200000);
-      expect(result.patrimoineSplit.shareConjoint1, 100000);
-      expect(result.patrimoineSplit.shareConjoint2, 100000);
-    });
-
-    test('separation de biens splits proportionally to income', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 10,
-          numberOfChildren: 0,
-          regime: MatrimonialRegime.separationDeBiens,
-          incomeConjoint1: 120000,
-          incomeConjoint2: 60000,
-          lppConjoint1: 100000,
-          lppConjoint2: 100000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 180000,
-          dettesCommunes: 0,
-        ),
-      );
-
-      // Income ratio: 120k / 180k = 2/3 and 60k / 180k = 1/3
-      expect(result.patrimoineSplit.fortuneNette, 180000);
-      expect(result.patrimoineSplit.shareConjoint1, closeTo(120000, 0.01));
-      expect(result.patrimoineSplit.shareConjoint2, closeTo(60000, 0.01));
-    });
-
-    test('separation de biens with zero income splits 50/50 as fallback', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 5,
-          numberOfChildren: 0,
-          regime: MatrimonialRegime.separationDeBiens,
-          incomeConjoint1: 0,
-          incomeConjoint2: 0,
-          lppConjoint1: 50000,
-          lppConjoint2: 50000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 100000,
-          dettesCommunes: 0,
-        ),
-      );
-
-      expect(result.patrimoineSplit.shareConjoint1, 50000);
-      expect(result.patrimoineSplit.shareConjoint2, 50000);
-    });
-
+  group('DivorceService - Debt ratio alert', () {
     test('debts greater than 50% of fortune triggers alert', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
@@ -226,9 +191,40 @@ void main() {
       );
 
       expect(
-        result.alerts.any((a) => a.contains('dettes communes')),
+        result.alerts.any((a) => a.contains('dettes du ménage sont élevées')),
         isTrue,
         reason: 'High debt ratio should trigger an alert',
+      );
+      // Qualitative only — the constat never carries a share or a CHF.
+      final alert = result.alerts
+          .firstWhere((a) => a.contains('dettes du ménage sont élevées'));
+      expect(alert.contains('CHF'), isFalse);
+    });
+
+    test('no debt ratio claim when the patrimoine is not provided', () {
+      // Self-guard: fortuneCommune == 0 is what an UNCONFIRMED fact looks like
+      // once the screen passes `_fortuneCommune ?? 0`. Comparing debts against a
+      // fabricated 0 would assert « debts are high » with no basis at all.
+      final result = DivorceService.simulate(
+        input: const DivorceInput(
+          canton: 'ZH',
+          marriageDurationYears: 10,
+          numberOfChildren: 0,
+          regime: MatrimonialRegime.participationAuxAcquets,
+          incomeConjoint1: 80000,
+          incomeConjoint2: 60000,
+          lppConjoint1: 0,
+          lppConjoint2: 0,
+          pillar3aConjoint1: 0,
+          pillar3aConjoint2: 0,
+          fortuneCommune: 0,
+          dettesCommunes: 150000,
+        ),
+      );
+      expect(
+        result.alerts.any((a) => a.contains('dettes du ménage sont élevées')),
+        isFalse,
+        reason: 'no ratio claim against an unconfirmed 0 patrimoine',
       );
     });
   });
@@ -382,104 +378,6 @@ void main() {
     });
   });
 
-  // ════════════════════════════════════════════════════════════
-  //  DIVORCE SERVICE — PENSION ALIMENTAIRE
-  // ════════════════════════════════════════════════════════════
-
-  group('DivorceService - Pension Alimentaire', () {
-    test('children produce CHF 600/month each', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 3,
-          numberOfChildren: 2,
-          regime: MatrimonialRegime.participationAuxAcquets,
-          incomeConjoint1: 80000,
-          incomeConjoint2: 80000,
-          lppConjoint1: 100000,
-          lppConjoint2: 100000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 0,
-          dettesCommunes: 0,
-        ),
-      );
-
-      // Short marriage (< 5 years), equal incomes: only child contribution
-      expect(result.pensionAlimentaireMonthly, closeTo(1200, 0.01));
-    });
-
-    test('long marriage >= 10y with income gap adds spousal maintenance at 15%', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 12,
-          numberOfChildren: 0,
-          regime: MatrimonialRegime.participationAuxAcquets,
-          incomeConjoint1: 120000,
-          incomeConjoint2: 40000,
-          lppConjoint1: 200000,
-          lppConjoint2: 50000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 0,
-          dettesCommunes: 0,
-        ),
-      );
-
-      // Income gap = 80000, monthly gap = 80000/12 = ~6666.67
-      // Spousal maintenance = 6666.67 * 0.15 = 1000.00
-      const expectedSpousal = (80000 / 12.0) * 0.15;
-      expect(result.pensionAlimentaireMonthly, closeTo(expectedSpousal, 0.01));
-    });
-
-    test('medium marriage 5-9y with income gap adds spousal maintenance at 8%', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 7,
-          numberOfChildren: 1,
-          regime: MatrimonialRegime.participationAuxAcquets,
-          incomeConjoint1: 100000,
-          incomeConjoint2: 40000,
-          lppConjoint1: 100000,
-          lppConjoint2: 100000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 0,
-          dettesCommunes: 0,
-        ),
-      );
-
-      // Child: 600
-      // Spousal: (60000 / 12) * 0.08 = 400
-      const expectedChild = 600.0;
-      const expectedSpousal = (60000 / 12.0) * 0.08;
-      expect(
-          result.pensionAlimentaireMonthly, closeTo(expectedChild + expectedSpousal, 0.01));
-    });
-
-    test('short marriage < 5y with no children produces zero', () {
-      final result = DivorceService.simulate(
-        input: const DivorceInput(
-          canton: 'ZH',
-          marriageDurationYears: 3,
-          numberOfChildren: 0,
-          regime: MatrimonialRegime.participationAuxAcquets,
-          incomeConjoint1: 80000,
-          incomeConjoint2: 80000,
-          lppConjoint1: 100000,
-          lppConjoint2: 100000,
-          pillar3aConjoint1: 0,
-          pillar3aConjoint2: 0,
-          fortuneCommune: 0,
-          dettesCommunes: 0,
-        ),
-      );
-
-      expect(result.pensionAlimentaireMonthly, 0);
-    });
-  });
 
   // ════════════════════════════════════════════════════════════
   //  DIVORCE SERVICE — CHECKLIST & ALERTS
@@ -556,9 +454,17 @@ void main() {
       );
 
       expect(
-        result.alerts.any((a) => a.contains('separation de biens')),
+        result.alerts.any((a) => a.contains('séparation de biens')),
         isTrue,
       );
+      final alert = result.alerts
+          .firstWhere((a) => a.contains('séparation de biens'));
+      expect(alert, contains('CC art. 247'),
+          reason: 'no masse à partager under this régime');
+      expect(alert, contains('CC art. 248'),
+          reason: 'proof of ownership / co-ownership presumption');
+      expect(alert.contains('plus simple'), isFalse,
+          reason: 'the old « le partage est plus simple » framing is gone');
     });
 
     test('long marriage with large income gap triggers entretien alert', () {
@@ -579,11 +485,25 @@ void main() {
         ),
       );
 
-      expect(
-        result.alerts.any((a) => a.contains('contribution d\'entretien')),
-        isTrue,
-        reason: 'Marriage >= 10y with income gap > 40k should trigger entretien alert',
+      final alert = result.alerts.firstWhere(
+        (a) => a.contains('contribution d\'entretien'),
+        orElse: () => '',
       );
+      expect(alert, isNotEmpty,
+          reason: 'Marriage >= 10y with income gap > 40k flags a point to EXAMINE');
+      // HIGH #1 — CC art. 125 al. 1-2 requires an INDIVIDUAL assessment; a long
+      // marriage creates no automatic entitlement (ATF 137 III 102 ;
+      // TF 5A_853/2024). The alert may invite an examination, never assert one.
+      expect(alert.contains('probable'), isFalse,
+          reason: 'the « une contribution est probable » claim is gone');
+      expect(alert, contains('examiner'),
+          reason: 'it invites an examination, not a conclusion');
+      expect(alert, contains('CC art. 125'));
+      expect(alert, contains('aucun droit'),
+          reason: 'it states plainly that the facts establish no entitlement');
+      // And never a number.
+      expect(RegExp(r'\d').hasMatch(alert.replaceAll('125', '')), isFalse,
+          reason: 'the alert carries no figure at all');
     });
   });
 
@@ -1028,11 +948,7 @@ void main() {
         ),
       );
 
-      expect(result.patrimoineSplit.fortuneNette, 0);
-      expect(result.patrimoineSplit.shareConjoint1, 0);
-      expect(result.patrimoineSplit.shareConjoint2, 0);
       expect(result.taxImpact.estimatedTaxMarried, 0);
-      expect(result.pensionAlimentaireMonthly, 0);
     });
 
     test('succession with zero fortune', () {

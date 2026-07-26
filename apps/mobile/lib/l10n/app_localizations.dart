@@ -1458,7 +1458,7 @@ abstract class S {
   /// No description provided for @divorcePatrimoineSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Fortune et dettes communes'**
+  /// **'Repères indicatifs — aucune part n\'est calculée'**
   String get divorcePatrimoineSubtitle;
 
   /// No description provided for @divorceSimuler.
@@ -1482,13 +1482,13 @@ abstract class S {
   /// No description provided for @divorcePartConjoint1.
   ///
   /// In fr, this message translates to:
-  /// **'Part Conjoint 1'**
+  /// **'Avoir de Conjoint 1 après partage'**
   String get divorcePartConjoint1;
 
   /// No description provided for @divorcePartConjoint2.
   ///
   /// In fr, this message translates to:
-  /// **'Part Conjoint 2'**
+  /// **'Avoir de Conjoint 2 après partage'**
   String get divorcePartConjoint2;
 
   /// No description provided for @divorceTransfert.
@@ -1530,19 +1530,13 @@ abstract class S {
   /// No description provided for @divorcePartagePatrimoine.
   ///
   /// In fr, this message translates to:
-  /// **'PARTAGE DU PATRIMOINE'**
+  /// **'LIQUIDATION DU RÉGIME MATRIMONIAL'**
   String get divorcePartagePatrimoine;
-
-  /// No description provided for @divorceFortuneNette.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fortune nette'**
-  String get divorceFortuneNette;
 
   /// No description provided for @divorcePensionAlimentaire.
   ///
   /// In fr, this message translates to:
-  /// **'PENSION ALIMENTAIRE (ESTIMATION)'**
+  /// **'CONTRIBUTION D\'ENTRETIEN'**
   String get divorcePensionAlimentaire;
 
   /// No description provided for @divorcePointsAttention.
@@ -4788,7 +4782,7 @@ abstract class S {
   /// No description provided for @divorceIntroText.
   ///
   /// In fr, this message translates to:
-  /// **'Un divorce a des conséquences financières souvent sous-estimées : partage du patrimoine, de la prévoyance (LPP/3a), impact fiscal et pension alimentaire. Cet outil vous aide à y voir plus clair.'**
+  /// **'Un divorce a des conséquences financières souvent sous-estimées : liquidation du régime matrimonial, partage de la prévoyance (LPP/3a), impact fiscal et contribution d\'entretien. Cet outil t\'aide à y voir plus clair.'**
   String get divorceIntroText;
 
   /// No description provided for @divorceYears.
@@ -4824,20 +4818,14 @@ abstract class S {
   /// No description provided for @divorceFortune.
   ///
   /// In fr, this message translates to:
-  /// **'Fortune commune'**
+  /// **'Patrimoine du ménage (indicatif)'**
   String get divorceFortune;
 
   /// No description provided for @divorceDettes.
   ///
   /// In fr, this message translates to:
-  /// **'Dettes communes'**
+  /// **'Dettes du ménage (indicatif)'**
   String get divorceDettes;
-
-  /// No description provided for @divorcePensionDescription.
-  ///
-  /// In fr, this message translates to:
-  /// **'Estimation basée sur l\'écart de revenus et le nombre d\'enfants. Le montant réel dépend de nombreux facteurs (garde, besoins, train de vie).'**
-  String get divorcePensionDescription;
 
   /// No description provided for @divorceActionsTitle.
   ///
@@ -4860,7 +4848,7 @@ abstract class S {
   /// No description provided for @divorceEduParticipationContent.
   ///
   /// In fr, this message translates to:
-  /// **'La participation aux acquêts est le régime matrimonial par défaut en Suisse (CC art. 181 ss). Chaque conjoint conserve ses biens propres (ceux acquis avant le mariage ou par succession/donation). Les acquêts (biens acquis pendant le mariage) sont partagés à parts égales en cas de divorce. C\'est le régime le plus courant en Suisse.'**
+  /// **'La participation aux acquêts est le régime matrimonial par défaut en Suisse (CC art. 181 ss). Chacun conserve ses biens propres (acquis avant le mariage ou reçus par succession ou donation). En cas de divorce, chacun a droit à la moitié du bénéfice de l\'autre (CC art. 215) et les deux créances se compensent. Le calcul se fait sur le compte d\'acquêts de chaque époux, après réunions aux acquêts, récompenses entre masses et attribution des dettes — pas sur un patrimoine commun unique.'**
   String get divorceEduParticipationContent;
 
   /// No description provided for @divorceEduLppTitle.
@@ -17172,42 +17160,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Écart d\'impôt du ménage : {sign}{amount}/an (fin du splitting marié)'**
   String divorceFiscalDelta(String sign, String amount);
-
-  /// No description provided for @divorcePensionMois.
-  ///
-  /// In fr, this message translates to:
-  /// **'{amount}/mois'**
-  String divorcePensionMois(String amount);
-
-  /// No description provided for @divorcePensionAnnuel.
-  ///
-  /// In fr, this message translates to:
-  /// **'soit {amount}/an'**
-  String divorcePensionAnnuel(String amount);
-
-  /// No description provided for @divorceConjoint1Label.
-  ///
-  /// In fr, this message translates to:
-  /// **'Conjoint 1'**
-  String get divorceConjoint1Label;
-
-  /// No description provided for @divorceConjoint2Label.
-  ///
-  /// In fr, this message translates to:
-  /// **'Conjoint 2'**
-  String get divorceConjoint2Label;
-
-  /// No description provided for @divorceSplitC1.
-  ///
-  /// In fr, this message translates to:
-  /// **'C1'**
-  String get divorceSplitC1;
-
-  /// No description provided for @divorceSplitC2.
-  ///
-  /// In fr, this message translates to:
-  /// **'C2'**
-  String get divorceSplitC2;
 
   /// No description provided for @unemploymentVague1Label.
   ///
@@ -43207,7 +43159,7 @@ abstract class S {
   /// No description provided for @divorceGateWhyRevenu1.
   ///
   /// In fr, this message translates to:
-  /// **'Il sert à estimer l\'impôt et la contribution d\'entretien.'**
+  /// **'Il sert à estimer l\'impôt du ménage avant et après le divorce.'**
   String get divorceGateWhyRevenu1;
 
   /// No description provided for @divorceGateFactRevenu2.
@@ -43219,8 +43171,80 @@ abstract class S {
   /// No description provided for @divorceGateWhyRevenu2.
   ///
   /// In fr, this message translates to:
-  /// **'Il permet de comparer l\'impôt et d\'estimer la contribution d\'entretien.'**
+  /// **'Il permet de comparer l\'impôt du ménage marié et celui de deux foyers séparés.'**
   String get divorceGateWhyRevenu2;
+
+  /// No description provided for @divorcePensionEnfantTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entretien de l\'enfant (CC art. 276, 285, 285a)'**
+  String get divorcePensionEnfantTitre;
+
+  /// No description provided for @divorcePensionEnfantFacteurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il suit les besoins de l\'enfant et son âge, les frais de garde et de formation, et il tient compte des allocations familiales. Le parent qui s\'occupe de l\'enfant au quotidien apporte déjà une contribution en nature : elle réduit d\'autant ce qu\'on lui demande en argent. Une part d\'épargne peut s\'ajouter si les moyens le permettent.'**
+  String get divorcePensionEnfantFacteurs;
+
+  /// No description provided for @divorcePensionConjointTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entretien du conjoint (CC art. 125)'**
+  String get divorcePensionConjointTitre;
+
+  /// No description provided for @divorcePensionConjointFacteurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il ne va pas de soi. On regarde d\'abord si chacun peut subvenir seul à ses besoins. Si ce n\'est pas le cas, ce qui compte, c\'est la répartition des tâches pendant le mariage, sa durée, le train de vie que vous aviez, l\'âge et l\'état de santé, les revenus et la fortune, les perspectives de formation et de gain, et la prévoyance. Une longue durée de mariage ne crée aucun droit automatique.'**
+  String get divorcePensionConjointFacteurs;
+
+  /// No description provided for @divorcePensionMethode.
+  ///
+  /// In fr, this message translates to:
+  /// **'La méthode de référence se fait en deux étapes (ATF 147 III 265). D\'abord, on établit le minimum vital de chaque personne : logement, assurance maladie, alimentation, frais professionnels, frais de garde. Ces charges passent avant tout le reste. Ensuite, ce qui reste — l\'excédent — se répartit entre les ménages. On raisonne sur les revenus disponibles nets, jamais sur les salaires bruts. L\'excédent ne se coupe pas en deux au hasard : il se répartit par « grandes et petites têtes » (une part pleine par adulte, une demi-part par enfant), avec des ajustements selon le cas.'**
+  String get divorcePensionMethode;
+
+  /// No description provided for @divorcePensionLeviers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui fait monter ou descendre le montant : le taux de garde d\'abord — plus tu gardes l\'enfant, moins tu verses en argent. Puis ta capacité de gain : si tu peux travailler davantage, un revenu hypothétique peut t\'être imputé. Le train de vie du mariage sert de plafond. Et le principe du clean-break pousse chacun vers son autonomie financière avec le temps. Attention : garder davantage ne dispense pas toujours de verser — la capacité contributive de chacun compte aussi, et le parent le plus solide financièrement peut verser malgré une garde importante.'**
+  String get divorcePensionLeviers;
+
+  /// No description provided for @divorceRegimeAcquets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui compte, c\'est ce qui a été acquis pendant le mariage. Ce que chacun possédait avant, et ce qu\'il a reçu par héritage ou donation, lui reste : ce sont les biens propres. Sur le reste, chacun a droit à la moitié du bénéfice de l\'autre (CC art. 215). C\'est donc la comparaison de vos deux comptes qui décide, pas une cagnotte commune : celui qui a le plus accumulé verse à l\'autre la MOITIÉ de la différence entre les deux bénéfices. Avant de comparer, on remet dans les acquêts ce qui en est sorti (art. 208), on règle les récompenses entre biens propres et acquêts (art. 206 et 209), et on rattache chaque dette à la masse qu\'elle concerne.'**
+  String get divorceRegimeAcquets;
+
+  /// No description provided for @divorceLppTransferCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce montant se calcule sur les avoirs que tu as saisis (avoir actuel moins avoir au mariage). Deux éléments légaux ne sont pas repris ici : l\'intérêt qui court sur la prestation de sortie existant au moment du mariage, et la date de valorisation retenue par la loi (l\'introduction de la procédure de divorce). Ta caisse de pension établit le décompte exact.'**
+  String get divorceLppTransferCaveat;
+
+  /// No description provided for @divorceRegimeCommunaute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pendant le mariage, l\'essentiel de ce que vous possédez forme une masse commune. Mais au divorce, on ne coupe pas cette masse en deux d\'emblée : chacun reprend d\'abord ce qui aurait été ses biens propres sous la participation aux acquêts — ce qu\'il avait avant le mariage, ses héritages, ses donations (CC art. 242 al. 1). Seul le solde qui reste après ces reprises se partage par moitié (art. 242 al. 2). L\'article 241, souvent cité, ne concerne que la dissolution par décès ou par changement de régime.'**
+  String get divorceRegimeCommunaute;
+
+  /// No description provided for @divorceRegimeSeparation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il n\'y a rien à partager : chacun garde ce qui lui appartient. Ce qui décide, c\'est donc la preuve de la propriété. Qui revendique un bien doit montrer qu\'il est à lui — facture, contrat, inscription au registre foncier. À défaut de preuve, le bien est présumé appartenir aux deux en copropriété (CC art. 248). Avoir financé un bien ne le rend pas automatiquement tien : cela peut fonder une créance ou une part de copropriété, sans remplacer le titre. Et un bien en copropriété peut être attribué à l\'un de vous contre indemnité s\'il justifie d\'un intérêt prépondérant (art. 251).'**
+  String get divorceRegimeSeparation;
+
+  /// No description provided for @divorcePatrimoineNoShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour appliquer cette règle à ton cas, il te faut deux inventaires séparés — le tien et celui de ton conjoint — avec, pour chaque bien, sa date d\'acquisition et son origine. C\'est ce document, et non un total de ménage, qui détermine qui doit quoi. Le montant définitif se fixe ensuite par convention ou par le tribunal.'**
+  String get divorcePatrimoineNoShare;
+
+  /// No description provided for @divorcePatrimoineIndicatifHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces deux montants ne servent à calculer aucune part : ce sont des repères pour préparer ta discussion. Ce qui décide, c\'est l\'inventaire de chacun — date d\'acquisition, origine du bien, dettes rattachées.'**
+  String get divorcePatrimoineIndicatifHint;
 
   /// No description provided for @divorceGateFactLpp1.
   ///
@@ -43270,53 +43294,23 @@ abstract class S {
   /// **'Seule la part acquise après le mariage est partagée (CC art. 122).'**
   String get divorceGateWhyAvoir2;
 
-  /// No description provided for @divorceGateFactFortune.
+  /// No description provided for @divorcePensionNoEstimate.
   ///
   /// In fr, this message translates to:
-  /// **'Fortune commune du ménage'**
-  String get divorceGateFactFortune;
+  /// **'Il n\'existe pas de barème : le montant ne se déduit pas des revenus et du nombre d\'enfants. Il se construit à partir des budgets réels des deux ménages. Voici la mécanique, pour que tu puisses raisonner sur ta situation.'**
+  String get divorcePensionNoEstimate;
 
-  /// No description provided for @divorceGateWhyFortune.
+  /// No description provided for @divorcePensionFacteursTitre.
   ///
   /// In fr, this message translates to:
-  /// **'Elle fixe la masse à partager entre les conjoints.'**
-  String get divorceGateWhyFortune;
+  /// **'Comment le montant se construit'**
+  String get divorcePensionFacteursTitre;
 
-  /// No description provided for @divorceGateFactDettes.
+  /// No description provided for @divorcePensionSpecialiste.
   ///
   /// In fr, this message translates to:
-  /// **'Dettes communes du ménage'**
-  String get divorceGateFactDettes;
-
-  /// No description provided for @divorceGateWhyDettes.
-  ///
-  /// In fr, this message translates to:
-  /// **'Elles réduisent la fortune nette à partager.'**
-  String get divorceGateWhyDettes;
-
-  /// No description provided for @divorceGateFactEnfants.
-  ///
-  /// In fr, this message translates to:
-  /// **'Nombre d\'enfants'**
-  String get divorceGateFactEnfants;
-
-  /// No description provided for @divorceGateWhyEnfants.
-  ///
-  /// In fr, this message translates to:
-  /// **'Les contributions d\'entretien dépendent du nombre d\'enfants.'**
-  String get divorceGateWhyEnfants;
-
-  /// No description provided for @divorceGateFactDuree.
-  ///
-  /// In fr, this message translates to:
-  /// **'Durée du mariage'**
-  String get divorceGateFactDuree;
-
-  /// No description provided for @divorceGateWhyDuree.
-  ///
-  /// In fr, this message translates to:
-  /// **'La contribution au conjoint dépend de la durée du mariage.'**
-  String get divorceGateWhyDuree;
+  /// **'Le montant exact se fixe par convention entre vous ou, faute d\'accord, par le tribunal. Un·e spécialiste chiffre le cas concret sur la base de ces éléments.'**
+  String get divorcePensionSpecialiste;
 
   /// No description provided for @divorceGateFactCanton.
   ///
@@ -43329,12 +43323,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Le barème de l\'impôt sur le revenu dépend de ton canton de domicile.'**
   String get divorceGateWhyCanton;
-
-  /// No description provided for @divorceFilmPensionEstimee.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pension alimentaire estimée'**
-  String get divorceFilmPensionEstimee;
 
   /// No description provided for @divorceImpactFiscalCantonNote.
   ///

@@ -248,21 +248,20 @@
   "divorce3aConjoint1": "3a Coniuge 1",
   "divorce3aConjoint2": "3a Coniuge 2",
   "divorcePatrimoine": "PATRIMONIO",
-  "divorcePatrimoineSubtitle": "Patrimonio e debiti comuni",
+  "divorcePatrimoineSubtitle": "Riferimenti indicativi — nessuna quota viene calcolata",
   "divorceSimuler": "Simulare",
   "divorcePartageLpp": "DIVISIONE LPP",
   "divorceTotalLpp": "Avere LPP totale (attuale)",
-  "divorcePartConjoint1": "Quota Coniuge 1",
-  "divorcePartConjoint2": "Quota Coniuge 2",
+  "divorcePartConjoint1": "Avere del coniuge 1 dopo la divisione",
+  "divorcePartConjoint2": "Avere del coniuge 2 dopo la divisione",
   "divorceTransfert": "Trasferimento",
   "divorceImpactFiscal": "IMPATTO FISCALE",
   "divorceImpotMarie": "Imposta stimata (sposato)",
   "divorceImpotConjoint1": "Imposta Coniuge 1 (individuale)",
   "divorceImpotConjoint2": "Imposta Coniuge 2 (individuale)",
   "divorceTotalApresDivorce": "Totale dopo il divorzio",
-  "divorcePartagePatrimoine": "DIVISIONE DEL PATRIMONIO",
-  "divorceFortuneNette": "Patrimonio netto",
-  "divorcePensionAlimentaire": "ALIMENTI (STIMA)",
+  "divorcePartagePatrimoine": "LIQUIDAZIONE DEL REGIME MATRIMONIALE",
+  "divorcePensionAlimentaire": "CONTRIBUTO DI MANTENIMENTO",
   "divorcePointsAttention": "PUNTI DI ATTENZIONE",
   "divorceActions": "Azioni da intraprendere",
   "divorceActionsSubtitle": "Checklist di preparazione",
@@ -1167,7 +1166,7 @@
   "mariageDisclaimer": "Stime semplificate a scopo educativo — non costituisce consulenza fiscale o giuridica. Gli importi dipendono da molti fattori (deduzioni, comune, patrimonio, ecc.). Consulta un·a specialista fiscale per un calcolo personalizzato.",
   "divorceAppBarTitle": "Divorzio — Impatto finanziario",
   "divorceHeaderSubtitle": "Anticipa le conseguenze finanziarie",
-  "divorceIntroText": "Un divorzio ha conseguenze finanziarie spesso sottovalutate: divisione del patrimonio, della previdenza (LPP/3a), impatto fiscale e alimenti. Questo strumento ti aiuta a vederci più chiaro.",
+  "divorceIntroText": "Un divorzio ha conseguenze finanziarie spesso sottovalutate: liquidazione del regime matrimoniale, divisione della previdenza (LPP/3a), impatto fiscale e contributi di mantenimento. Questo strumento ti aiuta a vederci più chiaro.",
   "divorceYears": "{count} anni",
   "@divorceYears": {
     "placeholders": {
@@ -1180,13 +1179,12 @@
   "divorceParticipationDefault": "Partecipazione agli acquisti (predefinito)",
   "divorceCommunaute": "Comunione dei beni",
   "divorceSeparation": "Separazione dei beni",
-  "divorceFortune": "Patrimonio comune",
-  "divorceDettes": "Debiti comuni",
-  "divorcePensionDescription": "Stima basata sulla differenza di reddito e il numero di figli. L'importo reale dipende da molti fattori (custodia, bisogni, tenore di vita).",
+  "divorceFortune": "Patrimonio della famiglia (indicativo)",
+  "divorceDettes": "Debiti della famiglia (indicativo)",
   "divorceActionsTitle": "Azioni da intraprendere",
   "divorceComprendre": "COMPRENDERE",
   "divorceEduParticipationTitle": "Cos'è la partecipazione agli acquisti?",
-  "divorceEduParticipationContent": "La partecipazione agli acquisti è il regime matrimoniale predefinito in Svizzera (CC art. 181 ss). Ciascun coniuge conserva i propri beni (acquisiti prima del matrimonio o per successione/donazione). Gli acquisti (beni acquisiti durante il matrimonio) sono divisi in parti uguali in caso di divorzio. È il regime più comune in Svizzera.",
+  "divorceEduParticipationContent": "La partecipazione agli acquisti è il regime matrimoniale ordinario in Svizzera (CC art. 181 ss). Ciascuno conserva i propri beni (acquisiti prima del matrimonio o ricevuti per successione o donazione). In caso di divorzio ciascuno ha diritto alla metà dell'aumento dell'ALTRO (CC art. 215) e i due crediti si compensano. Il calcolo si fa sul conto degli acquisti di ciascun coniuge, dopo le riunioni, i compensi tra masse e l'attribuzione dei debiti — non su un patrimonio comune unico.",
   "divorceEduLppTitle": "Come funziona la divisione LPP?",
   "divorceEduLppContent": "Dal 1° gennaio 2017 (CC art. 122), i capitali di previdenza professionale (2° pilastro) accumulati durante il matrimonio vengono divisi in parti uguali in caso di divorzio. La divisione avviene direttamente tra le due casse pensioni, senza passare dai conti personali dei coniugi. È un diritto imperativo a cui i coniugi possono rinunciare solo a condizioni rigorose.",
   "donationAppBarTitle": "Donazione — Simulatore",
@@ -4435,26 +4433,6 @@
       }
     }
   },
-  "divorcePensionMois": "{amount}/mese",
-  "@divorcePensionMois": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorcePensionAnnuel": "ovvero {amount}/anno",
-  "@divorcePensionAnnuel": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorceConjoint1Label": "Coniuge 1",
-  "divorceConjoint2Label": "Coniuge 2",
-  "divorceSplitC1": "C1",
-  "divorceSplitC2": "C2",
   "unemploymentVague1Label": "Onda 1 — Urgenza amministrativa",
   "unemploymentVague1Text": "Iscrizione all'URC entro i primi 5 giorni. Altrimenti: perdita di indennità. Ogni giorno di ritardo = indennità persa.",
   "unemploymentVague2Label": "Onda 2 — Budget da adeguare",
@@ -11750,9 +11728,21 @@
     }
   },
   "divorceGateFactRevenu1": "Il tuo reddito annuo lordo",
-  "divorceGateWhyRevenu1": "Serve a stimare l'imposta e il contributo di mantenimento.",
+  "divorceGateWhyRevenu1": "Serve a stimare l'imposta della famiglia prima e dopo il divorzio.",
   "divorceGateFactRevenu2": "Reddito annuo del tuo ex coniuge",
-  "divorceGateWhyRevenu2": "Permette di confrontare l'imposta e stimare il mantenimento.",
+  "divorceGateWhyRevenu2": "Permette di confrontare l'imposta della famiglia sposata con quella di due nuclei separati.",
+  "divorcePensionEnfantTitre": "Mantenimento del figlio (CC art. 276, 285, 285a)",
+  "divorcePensionEnfantFacteurs": "Segue i bisogni del figlio e la sua età, le spese di custodia e di formazione, e tiene conto degli assegni familiari. Il genitore che si occupa del figlio ogni giorno fornisce già un contributo in natura: riduce di altrettanto ciò che gli viene chiesto in denaro. Una quota di risparmio può aggiungersi se i mezzi lo permettono.",
+  "divorcePensionConjointTitre": "Mantenimento del coniuge (CC art. 125)",
+  "divorcePensionConjointFacteurs": "Non è scontato. Si guarda anzitutto se ciascuno può provvedere da solo ai propri bisogni. In caso contrario, ciò che conta è la ripartizione dei compiti durante il matrimonio, la sua durata, il tenore di vita che avevate, l'età e lo stato di salute, i redditi e il patrimonio, le prospettive di formazione e di guadagno, e la previdenza. Una lunga durata del matrimonio non crea alcun diritto automatico.",
+  "divorcePensionMethode": "Il metodo di riferimento si svolge in due fasi (DTF 147 III 265). Dapprima si stabilisce il minimo vitale di ciascuna persona: abitazione, assicurazione malattia, alimentazione, spese professionali, spese di custodia. Questi oneri vengono prima di tutto il resto. Poi ciò che resta — l'eccedenza — si ripartisce tra i nuclei. Si ragiona sui redditi disponibili netti, mai sui salari lordi. L'eccedenza non si divide a caso: si ripartisce per « teste grandi e piccole » (una quota intera per adulto, mezza per figlio), con adeguamenti caso per caso.",
+  "divorcePensionLeviers": "Ciò che fa salire o scendere l'importo: anzitutto la percentuale di custodia — più tieni il figlio, meno versi in denaro. Poi la tua capacità di guadagno: se puoi lavorare di più, ti può essere imputato un reddito ipotetico. Il tenore di vita del matrimonio funge da tetto. E il principio del clean-break spinge ciascuno verso la propria autonomia finanziaria col tempo. Attenzione: occuparsene di più non esonera sempre dal versare — conta anche la capacità contributiva, e il genitore economicamente più solido può versare nonostante una custodia ampia.",
+  "divorceRegimeAcquets": "Ciò che conta è quanto è stato acquisito durante il matrimonio. Quanto ciascuno possedeva prima, e quanto ha ricevuto per successione o donazione, gli resta: sono i beni propri. Sul resto, ciascuno ha diritto alla metà dell'aumento dell'altro (CC art. 215). È dunque il confronto dei vostri due conti a decidere, non un fondo comune: chi ha accumulato di più versa all'altro la METÀ della differenza tra i due utili. Prima di confrontare, si reintegra negli acquisti ciò che ne è uscito (art. 208), si regolano i compensi tra beni propri e acquisti (art. 206 e 209), e si collega ogni debito alla massa che lo riguarda.",
+  "divorceLppTransferCaveat": "Questo importo si calcola sugli averi che hai indicato (avere attuale meno avere al matrimonio). Due elementi legali non sono inclusi qui: l'interesse che matura sulla prestazione d'uscita esistente al momento del matrimonio e la data di valutazione prevista dalla legge (l'avvio della procedura di divorzio). Il tuo istituto di previdenza rilascia il conteggio esatto.",
+  "divorceRegimeCommunaute": "Durante il matrimonio, l'essenziale di quanto possedete forma una massa comune. Ma al divorzio questa massa non si taglia subito in due: ciascuno riprende dapprima quanto sarebbero stati i suoi beni propri sotto la partecipazione agli acquisti — quanto aveva prima del matrimonio, le sue eredità, le sue donazioni (CC art. 242 cpv. 1). Solo il saldo che resta dopo queste riprese si divide per metà (art. 242 cpv. 2). L'articolo 241, spesso citato, riguarda soltanto lo scioglimento per decesso o per cambiamento di regime.",
+  "divorceRegimeSeparation": "Non c'è nulla da dividere: ciascuno tiene ciò che gli appartiene. Ciò che decide è dunque la prova della proprietà. Chi rivendica un bene deve mostrare che è suo — fattura, contratto, iscrizione al registro fondiario. In mancanza di prova, il bene si presume appartenere a entrambi in comproprietà (CC art. 248). Aver finanziato un bene non lo rende automaticamente tuo: può fondare un credito o una quota di comproprietà, senza sostituire il titolo. E un bene in comproprietà può essere attribuito a uno di voi contro indennità se dimostra un interesse preponderante (art. 251).",
+  "divorcePatrimoineNoShare": "Per applicare questa regola al tuo caso ti servono due inventari separati — il tuo e quello del coniuge — con, per ogni bene, la data di acquisto e l'origine. È questo documento, e non un totale familiare, a determinare chi deve che cosa. L'importo definitivo si fissa poi per convenzione o dal tribunale.",
+  "divorcePatrimoineIndicatifHint": "Questi due importi non servono a calcolare alcuna quota: sono riferimenti per preparare la tua discussione. Ciò che decide è l'inventario di ciascuno — data di acquisto, origine del bene, debiti collegati.",
   "divorceGateFactLpp1": "Il tuo avere LPP attuale",
   "divorceGateWhyLpp1": "La ripartizione riguarda la LPP maturata durante il matrimonio.",
   "divorceGateFactLpp2": "Avere LPP attuale del tuo ex coniuge",
@@ -11761,17 +11751,11 @@
   "divorceGateWhyAvoir1": "Si divide solo la parte maturata dopo il matrimonio (CC art. 122).",
   "divorceGateFactAvoir2": "Avere LPP del tuo ex coniuge al matrimonio",
   "divorceGateWhyAvoir2": "Si divide solo la parte maturata dopo il matrimonio (CC art. 122).",
-  "divorceGateFactFortune": "Patrimonio comune della famiglia",
-  "divorceGateWhyFortune": "Determina la massa da dividere tra i coniugi.",
-  "divorceGateFactDettes": "Debiti comuni della famiglia",
-  "divorceGateWhyDettes": "Riducono il patrimonio netto da dividere.",
-  "divorceGateFactEnfants": "Numero di figli",
-  "divorceGateWhyEnfants": "I contributi di mantenimento dipendono dal numero di figli.",
-  "divorceGateFactDuree": "Durata del matrimonio",
-  "divorceGateWhyDuree": "Il mantenimento al coniuge dipende dalla durata del matrimonio.",
+  "divorcePensionNoEstimate": "Non esiste un tariffario: l'importo non si deduce dal reddito e dal numero di figli. Si costruisce a partire dai bilanci reali dei due nuclei. Ecco il meccanismo, perché tu possa ragionare sulla tua situazione.",
+  "divorcePensionFacteursTitre": "Come si costruisce l'importo",
+  "divorcePensionSpecialiste": "L'importo esatto si fissa per convenzione tra voi o, in mancanza di accordo, dal tribunale. Una persona specialista quantifica il caso concreto sulla base di questi elementi.",
   "divorceGateFactCanton": "Il tuo cantone di residenza",
   "divorceGateWhyCanton": "La tariffa dell'imposta sul reddito dipende dal tuo cantone di domicilio.",
-  "divorceFilmPensionEstimee": "Mantenimento stimato",
   "divorceImpactFiscalCantonNote": "Stima nel cantone attuale del nucleo per entrambi i coniugi — il cantone futuro dell'altra persona non è noto.",
   "genderGapProjectionAssumptions": "Ipotesi di proiezione: 1.5 %/anno di rendimento sugli averi LPP, lacuna cumulata stimata su ~20 anni di pensionamento."
 }

@@ -308,83 +308,20 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         ),
       ]);
 
-  // Partage du patrimoine : fortune + dettes communes ; en séparation de biens le
-  // partage suit les revenus → ils deviennent déterminants pour cette sortie.
-  SituationGate _patrimoineGate(BuildContext context) {
-    final facts = <SituationFact>[
-      SituationFact(
-        key: 'fortune',
-        label: (c) => S.of(c)!.divorceGateFactFortune,
-        why: (c) => S.of(c)!.divorceGateWhyFortune,
-        provenance: _prov(_fortuneCommune != null),
-        onComplete: () => _scrollToKey(_fortuneKey),
-      ),
-      SituationFact(
-        key: 'dettes',
-        label: (c) => S.of(c)!.divorceGateFactDettes,
-        why: (c) => S.of(c)!.divorceGateWhyDettes,
-        provenance: _prov(_dettesCommunes != null),
-        onComplete: () => _scrollToKey(_dettesKey),
-      ),
-    ];
-    if (_regime == MatrimonialRegime.separationDeBiens) {
-      facts.addAll([
-        SituationFact(
-          key: 'income1',
-          label: (c) => S.of(c)!.divorceGateFactRevenu1,
-          why: (c) => S.of(c)!.divorceGateWhyRevenu1,
-          provenance: _prov(_incomeConjoint1 != null),
-          onComplete: () => _scrollToKey(_income1Key),
-        ),
-        SituationFact(
-          key: 'income2',
-          label: (c) => S.of(c)!.divorceGateFactRevenu2,
-          why: (c) => S.of(c)!.divorceGateWhyRevenu2,
-          provenance: _prov(_incomeConjoint2 != null),
-          onComplete: () => _scrollToKey(_income2Key),
-        ),
-      ]);
-    }
-    return SituationGate(facts);
-  }
-
-  // Pension alimentaire : revenus des deux conjoints + nombre d'enfants + durée.
-  SituationGate _pensionGate(BuildContext context) => SituationGate([
-        SituationFact(
-          key: 'income1',
-          label: (c) => S.of(c)!.divorceGateFactRevenu1,
-          why: (c) => S.of(c)!.divorceGateWhyRevenu1,
-          provenance: _prov(_incomeConjoint1 != null),
-          onComplete: () => _scrollToKey(_income1Key),
-        ),
-        SituationFact(
-          key: 'income2',
-          label: (c) => S.of(c)!.divorceGateFactRevenu2,
-          why: (c) => S.of(c)!.divorceGateWhyRevenu2,
-          provenance: _prov(_incomeConjoint2 != null),
-          onComplete: () => _scrollToKey(_income2Key),
-        ),
-        SituationFact(
-          key: 'enfants',
-          label: (c) => S.of(c)!.divorceGateFactEnfants,
-          why: (c) => S.of(c)!.divorceGateWhyEnfants,
-          provenance: _prov(_childrenTouched),
-          onComplete: () => _scrollToKey(_childrenKey),
-        ),
-        SituationFact(
-          key: 'duree',
-          label: (c) => S.of(c)!.divorceGateFactDuree,
-          why: (c) => S.of(c)!.divorceGateWhyDuree,
-          provenance: _prov(_marriageDurationTouched),
-          onComplete: () => _scrollToKey(_durationKey),
-        ),
-      ]);
-
+  // Il n'y a PAS de gate « patrimoine » ni de gate « entretien ».
+  //
+  // Un SituationGate promet « renseigne ces faits et ton chiffre apparaît ». Ces
+  // deux cartes n'affichent plus AUCUN montant personnel — la liquidation du
+  // régime exige les comptes de chaque époux, et le montant d'un entretien ne se
+  // déduit pas des revenus et du nombre d'enfants. Les gater serait une promesse
+  // qui ne sera jamais tenue. Invariant retenu : un gate existe si et seulement
+  // si un CHF se trouve derrière. Il reste donc deux gates (LPP, fiscal).
+  //
+  // Le patrimoine/les dettes ne nourrissent plus qu'un constat QUALITATIF sur le
+  // niveau d'endettement, que le service auto-protège (il exige un patrimoine
+  // non nul avant d'énoncer le ratio) — aucun gate d'écran n'est nécessaire.
   bool _allGatesComplete(BuildContext context) =>
-      _lppGate(context).complete &&
-      _taxGate(context).complete &&
-      _patrimoineGate(context).complete &&
-      _pensionGate(context).complete;
+      _lppGate(context).complete && _taxGate(context).complete;
 
   void _scrollToKey(GlobalKey key) {
     final ctx = key.currentContext;
@@ -511,7 +448,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                 const SizedBox(height: MintSpacing.xl),
                 _buildPatrimoineSplitCard(),
                 const SizedBox(height: MintSpacing.xl),
-                _buildPensionAlimentaireCard(),
+                _buildPensionEducationalCard(),
                 const SizedBox(height: MintSpacing.xl),
                 // Alertes : gatées derrière l'ensemble des faits pour qu'aucun CHF
                 // (transfert LPP, delta fiscal) issu d'un 0 fabriqué n'y apparaisse.
@@ -910,6 +847,20 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             min: 0,
             max: 2000000,
           ),
+          const SizedBox(height: MintSpacing.xs),
+          // Ces montants ne produisent AUCUNE part : ils ne servent qu'au constat
+          // qualitatif d'endettement. On le dit à la saisie pour qu'un total
+          // « patrimoine du ménage » ne se lise jamais comme une masse à couper
+          // en deux (la liquidation exige les comptes de chaque époux).
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              S.of(context)!.divorcePatrimoineIndicatifHint,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.textMuted,
+              ).copyWith(height: 1.4),
+            ),
+          ),
           const SizedBox(height: MintSpacing.md),
           MintAmountField(
             key: _dettesKey,
@@ -1022,6 +973,18 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               ),
             ),
           ],
+          const SizedBox(height: MintSpacing.sm),
+          // Le transfert se calcule sur les avoirs saisis (actuel − au mariage).
+          // Deux éléments légaux ne sont pas modélisés : l'intérêt afférent à la
+          // prestation de sortie au moment du mariage, et la date de valorisation
+          // (introduction de la procédure). On l'énonce plutôt que de le laisser
+          // implicite derrière un montant présenté comme « le » transfert.
+          Text(
+            S.of(context)!.divorceLppTransferCaveat,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.textMuted,
+            ).copyWith(height: 1.4),
+          ),
         ],
       ),
     );
@@ -1126,16 +1089,34 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   }
 
   // --- Patrimoine Split Card ---
+  // --- Liquidation du régime matrimonial : ÉDUCATIF par régime, aucun CHF ---
+  //
+  // Plus aucune part personnelle n'est affichée, pour AUCUN régime. Un patrimoine
+  // commun unique divisé en deux n'est pas la liquidation suisse :
+  //  • participation aux acquêts (CC art. 215) — moitié du bénéfice de L'AUTRE,
+  //    créances compensées, après réunions (208), récompenses (206/209) et
+  //    attribution des dettes ; cela exige le compte de CHAQUE époux ;
+  //  • communauté de biens — au divorce c'est CC art. 242 al. 1-2 (reprise
+  //    d'abord, solde partagé), pas l'art. 241 (décès / changement de régime) ;
+  //  • séparation de biens (CC art. 247-251) — aucune masse à partager.
+  // La carte énonce la mécanique du régime choisi. Aucun fait à gater : il n'y a
+  // pas de chiffre à débloquer, donc pas de SituationGateCard (elle promettrait
+  // un montant qui ne viendra jamais).
   Widget _buildPatrimoineSplitCard() {
-    final gate = _patrimoineGate(context);
-    if (!gate.complete) {
-      return SituationGateCard(
-        title: S.of(context)!.divorcePartagePatrimoine,
-        gate: gate,
-      );
+    final String regimeRule;
+    switch (_regime) {
+      case MatrimonialRegime.participationAuxAcquets:
+        regimeRule = S.of(context)!.divorceRegimeAcquets;
+      case MatrimonialRegime.communauteDeBiens:
+        regimeRule = S.of(context)!.divorceRegimeCommunaute;
+      case MatrimonialRegime.separationDeBiens:
+        regimeRule = S.of(context)!.divorceRegimeSeparation;
     }
-    final r = _result!;
     return MintSurface(
+      // Ancre de test : « aucune part personnelle » se vérifie DANS cette carte
+      // (les champs de saisie affichent légitimement les CHF que l'utilisateur a
+      // tapés — c'est la carte-résultat qui ne doit rien calculer).
+      key: const Key('divorce_liquidation_card'),
       tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1147,93 +1128,68 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
           const SizedBox(height: MintSpacing.md),
-          MintSignalRow(
-            label: S.of(context)!.divorceFortuneNette,
-            value: _chfFmt(r.patrimoineSplit.fortuneNette),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          // Visual bar for split
-          Semantics(
-            label: S.of(context)!.divorcePartagePatrimoine,
-            child: _buildSplitBar(
-              r.patrimoineSplit.shareConjoint1,
-              r.patrimoineSplit.shareConjoint2,
-            ),
+          Text(
+            regimeRule,
+            style: MintTextStyles.bodySmall(
+              color: MintColors.textPrimary,
+            ).copyWith(height: 1.5),
           ),
           const SizedBox(height: MintSpacing.sm + 4),
-          MintSignalRow(
-            label: S.of(context)!.divorceConjoint1Label,
-            value: _chfFmt(r.patrimoineSplit.shareConjoint1),
-          ),
-          MintSignalRow(
-            label: S.of(context)!.divorceConjoint2Label,
-            value: _chfFmt(r.patrimoineSplit.shareConjoint2),
+          // Fin de parcours : ce que l'utilisateur doit préparer pour appliquer
+          // la règle à SON cas (deux inventaires), puis qui fixe le montant.
+          // Même traitement visuel que divorceImpactFiscalCantonNote.
+          Text(
+            S.of(context)!.divorcePatrimoineNoShare,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.textMuted,
+            ).copyWith(height: 1.4),
           ),
         ],
       ),
     );
   }
 
-  // --- Split Bar Visual ---
-  Widget _buildSplitBar(double share1, double share2) {
-    final total = share1.abs() + share2.abs();
-    final pct1 = total > 0 ? share1.abs() / total : 0.5;
-    return Container(
-      height: 24,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Row(
-          children: [
-            Flexible(
-              flex: (pct1 * 100).toInt().clamp(1, 99),
-              child: Container(
-                color: MintColors.purple,
-                alignment: Alignment.center,
-                child: Text(
-                  S.of(context)!.divorceSplitC1,
-                  style: MintTextStyles.labelSmall(
-                    color: MintColors.white,
-                  ).copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-            Flexible(
-              flex: ((1 - pct1) * 100).toInt().clamp(1, 99),
-              child: Container(
-                color: MintColors.purple.withValues(alpha: 0.15),
-                alignment: Alignment.center,
-                child: Text(
-                  S.of(context)!.divorceSplitC2,
-                  style: MintTextStyles.labelSmall(
-                    color: MintColors.purple,
-                  ).copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ),
-          ],
+  // Un sous-titre + sa liste de critères, pour un objet juridique donné.
+  Widget _buildPensionFactorGroup(String title, String factors) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: MintTextStyles.labelMedium(
+            color: MintColors.textPrimary,
+          ).copyWith(fontWeight: FontWeight.w600),
         ),
-      ),
+        const SizedBox(height: MintSpacing.xs),
+        Text(
+          factors,
+          style: MintTextStyles.labelMedium(
+            color: MintColors.textSecondary,
+          ).copyWith(height: 1.5),
+        ),
+      ],
     );
   }
 
-  // --- Pension Alimentaire Card ---
-  Widget _buildPensionAlimentaireCard() {
-    final gate = _pensionGate(context);
-    if (!gate.complete) {
-      return SituationGateCard(
-        title: S.of(context)!.divorcePensionAlimentaire,
-        gate: gate,
-      );
-    }
-    final r = _result!;
-    if (r.pensionAlimentaireMonthly <= 0) {
-      return const SizedBox.shrink();
-    }
+  // --- Contribution d'entretien : carte ÉDUCATIVE, aucun montant ---
+  //
+  // Objectif LUCIDITÉ, pas conseil : la carte doit rendre la mécanique suisse
+  // COMPRÉHENSIBLE pour que l'utilisateur raisonne sur SA situation. « On ne peut
+  // pas calculer, va voir un·e spécialiste » serait un cul-de-sac — l'inverse du
+  // produit. Ordre délibéré : (1) il n'y a pas de barème, (2) LA méthode en deux
+  // étapes (minimum vital puis excédent, ATF 147 III 265) — c'est elle qui rend
+  // lucide, (3) les leviers qui font monter ou descendre le montant, (4) enfant
+  // vs conjoint, deux logiques différentes à distinguer pour arbitrer, (5) et
+  // SEULEMENT à la fin, ce qui revient vraiment au spécialiste et au tribunal :
+  // la fixation contraignante. Jamais un CHF, et pas de gate (aucun chiffre à
+  // débloquer — un gate promettrait un montant qui ne viendra pas).
+  //
+  // Composants : MintSurface + MintTextStyles + MintSpacing uniquement, exactement
+  // comme _buildLppSplitCard / _buildTaxImpactCard. Aucun nouveau motif visuel ;
+  // la note de clôture reprend le traitement de divorceImpactFiscalCantonNote.
+  Widget _buildPensionEducationalCard() {
     return MintSurface(
+      key: const Key('divorce_entretien_card'),
       tone: MintSurfaceTone.peche,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1245,34 +1201,57 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
           const SizedBox(height: MintSpacing.md),
-          Semantics(
-            label: S.of(context)!.divorcePensionMois(
-              _chfFmt(r.pensionAlimentaireMonthly),
-            ),
-            child: Text(
-              S.of(context)!.divorcePensionMois(
-                _chfFmt(r.pensionAlimentaireMonthly),
-              ),
-              style: MintTextStyles.displaySmall(
-                color: MintColors.textPrimary,
-              ),
-            ),
-          ),
-          const SizedBox(height: MintSpacing.xs),
+          // (1) Pas de barème — et on enchaîne tout de suite sur la mécanique.
           Text(
-            S.of(context)!.divorcePensionAnnuel(
-              _chfFmt(r.pensionAlimentaireMonthly * 12),
-            ),
-            style: MintTextStyles.bodyMedium(
-              color: MintColors.textSecondary,
-            ),
+            S.of(context)!.divorcePensionNoEstimate,
+            style: MintTextStyles.bodySmall(
+              color: MintColors.textPrimary,
+            ).copyWith(height: 1.5),
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
-            S.of(context)!.divorcePensionDescription,
+            S.of(context)!.divorcePensionFacteursTitre,
+            style: MintTextStyles.bodyMedium(
+              color: MintColors.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          // (2) La méthode en deux étapes : le mécanisme qui rend lucide.
+          Text(
+            S.of(context)!.divorcePensionMethode,
             style: MintTextStyles.labelMedium(
-              color: MintColors.textMuted,
+              color: MintColors.textSecondary,
             ).copyWith(height: 1.5),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          // (3) Les leviers, en langage clair : garde, capacité de gain, train de
+          // vie plafond, clean-break.
+          Text(
+            S.of(context)!.divorcePensionLeviers,
+            style: MintTextStyles.labelMedium(
+              color: MintColors.textSecondary,
+            ).copyWith(height: 1.5),
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          // (4) Enfant et conjoint : deux logiques différentes, pas une citation
+          // juridique — l'utilisateur doit les distinguer pour arbitrer.
+          _buildPensionFactorGroup(
+            S.of(context)!.divorcePensionEnfantTitre,
+            S.of(context)!.divorcePensionEnfantFacteurs,
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          _buildPensionFactorGroup(
+            S.of(context)!.divorcePensionConjointTitre,
+            S.of(context)!.divorcePensionConjointFacteurs,
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          // (5) Fin de parcours : ce qui relève vraiment du spécialiste et du
+          // tribunal — la fixation contraignante, jamais l'explication.
+          Text(
+            S.of(context)!.divorcePensionSpecialiste,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.textMuted,
+            ).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -1478,9 +1457,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   }
 
   // --- MINT Coach Widget: Divorce Film ---
-  // Rendu uniquement quand les QUATRE sorties sont confirmées (voir build) →
+  // Rendu uniquement quand les sorties chiffrées sont confirmées (voir build) →
   // chaque CHF du film trace une valeur réelle du service (myLpp/partnerLpp,
-  // impôts, pension alimentaire), jamais un forfait fabriqué.
+  // transfert LPP, impôts), jamais un forfait fabriqué. L'acte 3 (entretien) ne
+  // rend plus AUCUN montant : il énonce la règle fiscale, comme la carte.
   Widget _buildMintDivorceSection() {
     final r = _result!;
     return DivorceFilmWidget(
@@ -1495,10 +1475,6 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       annualTaxSingle: r.taxImpact.estimatedTaxConjoint1 +
           r.taxImpact.estimatedTaxConjoint2,
       childrenCount: _childrenTouched ? _numberOfChildren : 0,
-      // Pension alimentaire RÉELLE (écart de revenus + enfants + durée, service
-      // income-gap) — la même valeur que la carte Pension, jamais un forfait
-      // CHF 1'500/enfant + CHF 500 codé en dur.
-      monthlyPension: r.pensionAlimentaireMonthly,
     );
   }
 

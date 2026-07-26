@@ -42,7 +42,16 @@ class DivorceInput {
 
   final double pillar3aConjoint1;
   final double pillar3aConjoint2;
+
+  /// Repère INDICATIF sur le patrimoine du ménage. Ce n'est PAS une masse
+  /// partageable et aucune part n'en est dérivée : la liquidation du régime
+  /// exige les comptes de chaque époux séparément (voir la note au-dessus de
+  /// [DivorceResult]). Seul le constat qualitatif sur le niveau d'endettement
+  /// s'appuie dessus.
   final double fortuneCommune;
+
+  /// Dettes du ménage, repère INDICATIF au même titre que [fortuneCommune].
+  /// Sert uniquement au ratio qualitatif d'endettement, jamais à une part.
   final double dettesCommunes;
 
   const DivorceInput({
@@ -72,6 +81,9 @@ class LppSplitResult {
   final double acquisConjoint1;
   final double acquisConjoint2;
 
+  /// Solde de prévoyance de chaque conjoint APRÈS le partage : avoir actuel
+  /// ∓ transfert. Ce n'est pas « la moitié des acquêts » — cette moitié n'est
+  /// l'avoir de personne. Les deux soldes s'additionnent à [totalLpp].
   final double shareConjoint1;
   final double shareConjoint2;
   final double transferAmount;
@@ -111,33 +123,48 @@ class TaxImpactResult {
   });
 }
 
-/// Patrimoine split result.
-class PatrimoineSplitResult {
-  final double fortuneNette;
-  final double shareConjoint1;
-  final double shareConjoint2;
-
-  const PatrimoineSplitResult({
-    required this.fortuneNette,
-    required this.shareConjoint1,
-    required this.shareConjoint2,
-  });
-}
+// ⚠️ Il n'existe PLUS de `PatrimoineSplitResult` — c'est délibéré.
+//
+// Aucune part personnelle de liquidation n'est calculée, pour aucun régime :
+//  • participation aux acquêts (CC art. 215) : chacun a droit à la moitié du
+//    bénéfice de L'AUTRE, puis les deux créances se compensent. Cela exige le
+//    compte d'acquêts de CHAQUE époux, après réunions (art. 208), récompenses
+//    (art. 206 et 209) et attribution de chaque dette à la bonne masse. Une
+//    masse commune unique divisée par deux n'approche ce résultat que si aucun
+//    de ces éléments n'existe — hypothèse que rien ne permet de poser ;
+//  • communauté de biens : en cas de DIVORCE c'est CC art. 242 al. 1-2 (chacun
+//    reprend d'abord les biens communs qui auraient été ses biens propres sous
+//    participation, seul le solde se partage par moitié), et non l'art. 241 qui
+//    ne vise que la dissolution par décès ou changement de régime ;
+//  • séparation de biens (CC art. 247-251) : il n'y a pas de masse à partager.
+//
+// L'UI énonce ces mécaniques par régime au lieu d'un chiffre. Les champs de
+// parts ont été SUPPRIMÉS plutôt que laissés calculés : une part indéfendable
+// qui dort dans le résultat finit par être affichée (audit conseiller
+// 2026-07-26, HIGH #3).
 
 /// Full divorce simulation result.
+///
+/// AUCUN montant d'entretien n'est exposé — délibérément. Le droit suisse fait
+/// dépendre l'entretien des revenus disponibles nets, du minimum vital, du
+/// logement, des frais de garde, du taux de garde, du train de vie, de la
+/// capacité de gain et du clean-break. L'ancienne heuristique (forfait par
+/// enfant + pourcentage de l'écart de revenus + seuils de durée) ne correspondait
+/// à aucune règle suisse et a été supprimée (audit conseiller 2026-07-26) : les
+/// écrans énoncent les facteurs déterminants et renvoient vers un·e spécialiste.
+/// L'alerte qualitative signale un point à EXAMINER au sens de CC art. 125 — le
+/// droit résulte d'un examen individuel et une longue durée de mariage ne le
+/// crée pas automatiquement (ATF 137 III 102 ; TF 5A_853/2024). Elle n'affirme
+/// donc ni probabilité, ni droit, ni montant.
 class DivorceResult {
   final LppSplitResult lppSplit;
   final TaxImpactResult taxImpact;
-  final PatrimoineSplitResult patrimoineSplit;
-  final double pensionAlimentaireMonthly;
   final List<String> alerts;
   final List<String> checklist;
 
   const DivorceResult({
     required this.lppSplit,
     required this.taxImpact,
-    required this.patrimoineSplit,
-    required this.pensionAlimentaireMonthly,
     required this.alerts,
     required this.checklist,
   });
@@ -181,17 +208,29 @@ class DivorceService {
           (input.lppConjoint1 - input.avoirAuMariage1!).clamp(0.0, double.infinity);
       final acquis2 =
           (input.lppConjoint2 - input.avoirAuMariage2!).clamp(0.0, double.infinity);
-      final totalAcquis = acquis1 + acquis2;
-      final halfAcquis = totalAcquis / 2;
       lppTransfer = (acquis1 - acquis2).abs() / 2;
       final lppDirection = acquis1 > acquis2 ? '1 \u2192 2' : '2 \u2192 1';
+
+      // Solde de CHACUN après partage = son avoir actuel ∓ le transfert. C'est
+      // la seule lecture honnête : la « moitié du pool acquis » n'est l'avoir de
+      // personne et ne se réconcilie pas avec le total affiché (audit conseiller
+      // 2026-07-26). Les deux soldes s'additionnent bien à `totalLpp`.
+      final pays1 = acquis1 > acquis2;
+      final solde1 = (pays1
+              ? input.lppConjoint1 - lppTransfer
+              : input.lppConjoint1 + lppTransfer)
+          .clamp(0.0, double.infinity);
+      final solde2 = (pays1
+              ? input.lppConjoint2 + lppTransfer
+              : input.lppConjoint2 - lppTransfer)
+          .clamp(0.0, double.infinity);
 
       lppSplit = LppSplitResult(
         totalLpp: totalLpp,
         acquisConjoint1: acquis1,
         acquisConjoint2: acquis2,
-        shareConjoint1: halfAcquis,
-        shareConjoint2: halfAcquis,
+        shareConjoint1: solde1,
+        shareConjoint2: solde2,
         transferAmount: lppTransfer,
         transferDirection: acquis1 == acquis2 ? '-' : lppDirection,
       );
@@ -205,37 +244,10 @@ class DivorceService {
     // Note: 3a split depends on regime but is handled separately via
     // the LPP/3a partage logic. The patrimoine split below covers net wealth.
 
-    // ---- Patrimoine Split ----
-    final fortuneNette = input.fortuneCommune - input.dettesCommunes;
-    double shareC1;
-    double shareC2;
-
-    switch (input.regime) {
-      case MatrimonialRegime.participationAuxAcquets:
-        // Each keeps own property; acquêts (= common fortune here) split 50/50
-        shareC1 = fortuneNette / 2;
-        shareC2 = fortuneNette / 2;
-      case MatrimonialRegime.communauteDeBiens:
-        // Everything pooled and split 50/50
-        shareC1 = fortuneNette / 2;
-        shareC2 = fortuneNette / 2;
-      case MatrimonialRegime.separationDeBiens:
-        // Each keeps their own — simplified: we split proportionally to income
-        final totalIncome = input.incomeConjoint1 + input.incomeConjoint2;
-        if (totalIncome > 0) {
-          shareC1 = fortuneNette * (input.incomeConjoint1 / totalIncome);
-          shareC2 = fortuneNette * (input.incomeConjoint2 / totalIncome);
-        } else {
-          shareC1 = fortuneNette / 2;
-          shareC2 = fortuneNette / 2;
-        }
-    }
-
-    final patrimoineSplit = PatrimoineSplitResult(
-      fortuneNette: fortuneNette,
-      shareConjoint1: shareC1,
-      shareConjoint2: shareC2,
-    );
+    // ---- Liquidation du régime matrimonial ----
+    // AUCUNE part n'est calculée (voir la note au-dessus de DivorceResult).
+    // `fortuneCommune` / `dettesCommunes` ne servent plus qu'au constat
+    // QUALITATIF sur le niveau d'endettement, jamais à une part personnelle.
 
     // ---- Tax Impact ----
     // Impôt EFFECTIF des deux côtés (marié vs deux célibataires), via la fonction
@@ -272,28 +284,18 @@ class DivorceService {
     );
 
     // ---- Pension Alimentaire ----
-    // Simplified estimation based on Swiss practice.
-    // Child contributions: CHF 600/month per child (base, age-independent).
-    // Spousal maintenance: depends on marriage duration and income gap.
-    // Aligned with backend (job_comparator/divorce_simulator) parameters.
-    double pensionAlimentaire = 0;
+    // ⚠️ AUCUN MONTANT D'ENTRETIEN N'EST CALCULÉ ICI — c'est délibéré.
+    // L'ancien modèle (forfait CHF 600/enfant + 8-15 % de l'écart de revenus +
+    // seuils à 5/10 ans) ne correspond à AUCUNE règle du droit de la famille
+    // suisse : le montant dépend des revenus disponibles nets, du minimum vital,
+    // du logement, des frais de garde, du taux de garde, du train de vie, de la
+    // capacité de gain et du clean-break. Il a été supprimé plutôt que laissé
+    // calculé (audit conseiller 2026-07-26) — un chiffre indéfendable qui dort
+    // dans le résultat finit par être affiché. L'écart de revenus reste utilisé
+    // pour l'alerte QUALITATIVE ci-dessous, qui signale un point à EXAMINER au
+    // sens de CC art. 125 — jamais une probabilité, un droit ou un montant.
     final incomeGap =
         (input.incomeConjoint1 - input.incomeConjoint2).abs();
-
-    // Children contribution (always applies if children exist)
-    final childContribution = input.numberOfChildren * 600.0;
-
-    // Spousal maintenance: only for marriages >= 5 years with income gap
-    double spouseContribution = 0;
-    if (input.marriageDurationYears >= 10 && incomeGap > 0) {
-      // Long marriage: ~15% of monthly income gap
-      spouseContribution = (incomeGap / 12.0) * 0.15;
-    } else if (input.marriageDurationYears >= 5 && incomeGap > 0) {
-      // Shorter marriage: reduced spousal maintenance (~8%)
-      spouseContribution = (incomeGap / 12.0) * 0.08;
-    }
-
-    pensionAlimentaire = childContribution + spouseContribution;
 
     // ---- Alerts ----
     final alerts = <String>[];
@@ -306,10 +308,16 @@ class DivorceService {
       );
     }
 
-    if (input.dettesCommunes > input.fortuneCommune * 0.5) {
+    // Ratio purement qualitatif. Garde-fou : sans patrimoine renseigné
+    // (fortuneCommune == 0 quand le fait n'est pas confirmé), le ratio se
+    // calculerait contre un 0 fabriqué et affirmerait « dettes élevées » sans
+    // base. On exige donc les deux montants pour émettre le constat.
+    if (input.fortuneCommune > 0 &&
+        input.dettesCommunes > input.fortuneCommune * 0.5) {
       alerts.add(
-        'Le niveau de dettes communes est eleve. Clarifiez la '
-        'repartition des dettes avant de signer la convention.',
+        'Les dettes du ménage sont élevées par rapport au patrimoine indiqué. '
+        'L\'attribution de chaque dette à la bonne masse est un point à '
+        'clarifier avant de signer la convention.',
       );
     }
 
@@ -324,10 +332,20 @@ class DivorceService {
       );
     }
 
+    // CC art. 125 al. 1-2 : le droit à une contribution d'entretien résulte d'un
+    // examen INDIVIDUEL (capacité de subvenir soi-même, répartition des tâches
+    // pendant le mariage, durée, train de vie, âge et santé, revenus et fortune,
+    // prise en charge des enfants, formation et perspectives de gain,
+    // prévoyance). Une longue durée de mariage ne crée AUCUN droit automatique
+    // (ATF 137 III 102 ; TF 5A_853/2024). L'alerte signale donc un point à
+    // EXAMINER — jamais une probabilité, jamais un droit, jamais un montant.
     if (input.marriageDurationYears >= 10 && incomeGap > 40000) {
       alerts.add(
-        'Mariage de longue duree avec ecart de revenus important. '
-        'Une contribution d\'entretien au conjoint est probable.',
+        'Mariage de longue durée avec un écart de revenus important : '
+        'cela justifie d\'examiner une éventuelle contribution d\'entretien '
+        'au conjoint (CC art. 125). Les éléments saisis ici n\'établissent '
+        'aucun droit — celui-ci dépend d\'un examen individuel de la '
+        'situation des deux conjoints.',
       );
     }
 
@@ -341,9 +359,10 @@ class DivorceService {
 
     if (input.regime == MatrimonialRegime.separationDeBiens) {
       alerts.add(
-        'Regime de separation de biens : le partage du patrimoine '
-        'est plus simple mais le 3a n\'est pas automatiquement '
-        'partage.',
+        'Régime de séparation de biens : il n\'y a pas de masse à partager '
+        '(CC art. 247), mais la propriété de chaque bien doit être prouvée — '
+        'à défaut, le bien est présumé en copropriété (CC art. 248). Le 3a '
+        'n\'est pas automatiquement partagé.',
       );
     }
 
@@ -364,8 +383,6 @@ class DivorceService {
     return DivorceResult(
       lppSplit: lppSplit,
       taxImpact: taxImpact,
-      patrimoineSplit: patrimoineSplit,
-      pensionAlimentaireMonthly: pensionAlimentaire,
       alerts: alerts,
       checklist: checklist,
     );

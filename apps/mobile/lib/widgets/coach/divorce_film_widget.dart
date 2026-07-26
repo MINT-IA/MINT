@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -8,7 +7,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 //  P2-B  Le Film du divorce en 3 actes
 //  Charte : L2 (Avant/Après) + L4 (Raconte)
 //  Source : CC art. 122 (partage LPP), LIFD art. 33/23 (pensions),
-//           LIFD art. 35 (déduction parent isolé)
+//           LIFD art. 33 al. 3 (frais de garde par un tiers)
 // ────────────────────────────────────────────────────────────
 
 class DivorceFilmWidget extends StatelessWidget {
@@ -21,7 +20,6 @@ class DivorceFilmWidget extends StatelessWidget {
     required this.annualTaxMarried,
     required this.annualTaxSingle,
     required this.childrenCount,
-    required this.monthlyPension,
   });
 
   final double myLpp;
@@ -39,11 +37,6 @@ class DivorceFilmWidget extends StatelessWidget {
   final double annualTaxMarried;
   final double annualTaxSingle;
   final int childrenCount;
-
-  /// Pension alimentaire mensuelle RÉELLE (calcul income-gap du service), la même
-  /// valeur que la carte Pension de l'écran. Aucun forfait CHF/enfant + CHF
-  /// conjoint codé en dur : chaque CHF du film trace une valeur réelle.
-  final double monthlyPension;
 
   static String _fmt(double v) {
     final n = v.round().abs();
@@ -64,9 +57,6 @@ class DivorceFilmWidget extends StatelessWidget {
       .clamp(0, double.infinity);
 
   // LPP rente loss using taux de conversion minimum (LPP art. 14), sur le
-  // transfert RÉEL du service.
-  double get _lppMonthlyRenteLoss =>
-      lppTransfer * (lppTauxConversionMin / 100) / 12;
 
   double get _annualTaxDelta => annualTaxSingle - annualTaxMarried;
   double get _monthlyTaxDelta => _annualTaxDelta / 12;
@@ -96,7 +86,7 @@ class DivorceFilmWidget extends StatelessWidget {
                     title: 'Le partage obligatoire',
                     color: MintColors.scoreCritique,
                     content: _buildAct1Content(),
-                    legalRef: 'CC art. 122 — non négociable',
+                    legalRef: 'CC art. 122 — règle par défaut',
                   ),
                   const SizedBox(height: 12),
                   _buildAct(
@@ -105,7 +95,7 @@ class DivorceFilmWidget extends StatelessWidget {
                     title: 'L\'impôt change',
                     color: MintColors.scoreAttention,
                     content: _buildAct2Content(),
-                    legalRef: 'LIFD art. 35 (déduction parent isolé)',
+                    legalRef: 'LIFD art. 33 al. 3 (frais de garde)',
                   ),
                   const SizedBox(height: 12),
                   _buildAct(
@@ -231,7 +221,7 @@ class DivorceFilmWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '"Vos LPP accumulés pendant le mariage sont coupés en deux. Point."',
+          '"Par défaut, la prévoyance accumulée pendant le mariage se partage par moitié — le juge peut s\'en écarter, et une renonciation reste possible si la prévoyance de chacun reste suffisante (CC art. 124b)."',
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontStyle: FontStyle.italic, height: 1.4),
         ),
         const SizedBox(height: 12),
@@ -255,9 +245,13 @@ class DivorceFilmWidget extends StatelessWidget {
             final userPays = lppTransferDirection == '1 → 2';
             final tone =
                 userPays ? MintColors.scoreCritique : MintColors.scoreExcellent;
+            // Pas de CHF/mois : le taux de conversion s'applique au capital À LA
+            // RETRAITE, pas au transfert d'aujourd'hui. Chiffrer la rente ici
+            // supposerait connus les années restantes, les intérêts et le taux
+            // de ta caisse au moment venu. On énonce le MÉCANISME à la place.
             final message = userPays
-                ? 'Tu transfères CHF ${_fmt(lppTransfer)} → ta rente LPP baisse de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois'
-                : 'Tu reçois CHF ${_fmt(lppTransfer)} → ta rente LPP augmente de ~CHF ${_fmt(_lppMonthlyRenteLoss)}/mois';
+                ? 'Tu transfères CHF ${_fmt(lppTransfer)}. Ce capital ne travaillera plus pour toi : il sortira de ton avoir, avec les intérêts qu\'il aurait produits jusqu\'à la retraite. C\'est le capital atteint À CE MOMENT-LÀ qui sera converti en rente, au taux de ta caisse.'
+                : 'Tu reçois CHF ${_fmt(lppTransfer)}. Ce capital rejoint ton avoir et produira des intérêts jusqu\'à la retraite. C\'est le capital atteint À CE MOMENT-LÀ qui sera converti en rente, au taux de ta caisse.';
             return Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -346,9 +340,9 @@ class DivorceFilmWidget extends StatelessWidget {
             padding: const EdgeInsets.only(top: 8),
             // Seul le NOMBRE d'enfants est confirmé — pas la garde ni des frais
             // de garde réels. On énonce la condition (« si »), jamais un « tu peux
-            // déduire » qui présumerait la garde et l'éligibilité (LIFD art. 35).
+            // déduire » qui présumerait la garde et l'éligibilité (LIFD art. 33 al. 3).
             child: Text(
-              '💡 Si tu as la garde et paies des frais de garde, ils peuvent être déductibles (LIFD art. 35).',
+              '💡 Les frais de garde par un tiers peuvent être déduits (LIFD art. 33 al. 3), sous conditions : des frais justifiés, un enfant en dessous de l\'âge limite, et un lien direct avec ton activité, ta formation ou une incapacité. La garde seule ne suffit pas.',
               style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(height: 1.4),
             ),
           ),
@@ -378,14 +372,26 @@ class DivorceFilmWidget extends StatelessWidget {
   }
 
   Widget _buildAct3Content(BuildContext context) {
-    // Une SEULE pension réelle (service income-gap), jamais un forfait par
-    // enfant/conjoint codé en dur — cohérent avec la carte Pension de l'écran.
+    // AUCUN montant d'entretien ici. Ni forfait par enfant, ni écart de revenus :
+    // le montant d'une contribution d'entretien ne se déduit pas des revenus et
+    // du nombre d'enfants (revenus disponibles nets, minimum vital, logement,
+    // assurance maladie, frais de garde et de formation, taux de garde, train de
+    // vie, capacité de gain, clean-break, fiscalité et allocations familiales).
+    // Le film énonce donc la même chose que la carte de l'écran : pas de chiffre,
+    // la règle fiscale générale, et le renvoi au calcul d'un·e spécialiste.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildPensionRow(
-          S.of(context)!.divorceFilmPensionEstimee,
-          monthlyPension,
+        Text(
+          S.of(context)!.divorcePensionNoEstimate,
+          style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
+              .copyWith(height: 1.4),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          S.of(context)!.divorcePensionSpecialiste,
+          style: MintTextStyles.labelSmall(color: MintColors.textSecondary)
+              .copyWith(height: 1.4),
         ),
         const SizedBox(height: 8),
         // Le service ne fournit PAS le sens du versement (montant non signé =
@@ -394,34 +400,17 @@ class DivorceFilmWidget extends StatelessWidget {
         // les deux sens), jamais un « déductible de TES impôts » qui serait faux
         // quand c'est toi qui la reçois (LIFD art. 33/23).
         Text(
-          '⚠️ La pension alimentaire est déductible du revenu de la personne qui la verse et imposable pour celle qui la reçoit.',
+          '⚠️ La contribution est déductible du revenu de la personne qui la verse et imposable pour celle qui la reçoit — sauf pour un enfant MAJEUR : là, elle n\'est ni déductible ni imposable (LIFD art. 33).',
           style: MintTextStyles.labelSmall(color: MintColors.scoreAttention).copyWith(height: 1.4),
         ),
       ],
     );
   }
 
-  Widget _buildPensionRow(String label, double amount) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(child: Text(label, style: MintTextStyles.labelMedium(color: MintColors.textPrimary), overflow: TextOverflow.ellipsis)),
-          const SizedBox(width: 8),
-          Text(
-            'CHF ${_fmt(amount)}/mois',
-            style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildDisclaimer() {
     return Text(
       'Outil éducatif · ne constitue pas un conseil juridique au sens de la LSFin. '
-      'Source : CC art. 122 (partage LPP), LIFD art. 33/23/35 (pensions alimentaires).',
+      'Sources : CC art. 122 et 124b (partage LPP), CC art. 125 et 276/285 (contributions d\'entretien), LIFD art. 33 al. 1 let. c et art. 23 let. f (traitement fiscal des contributions), LIFD art. 33 al. 3 (frais de garde).',
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

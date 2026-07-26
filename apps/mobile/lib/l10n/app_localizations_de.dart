@@ -736,7 +736,8 @@ class SDe extends S {
   String get divorcePatrimoine => 'VERMÖGEN';
 
   @override
-  String get divorcePatrimoineSubtitle => 'Gemeinsames Vermögen und Schulden';
+  String get divorcePatrimoineSubtitle =>
+      'Richtwerte — es wird kein Anteil berechnet';
 
   @override
   String get divorceSimuler => 'Simulieren';
@@ -748,10 +749,10 @@ class SDe extends S {
   String get divorceTotalLpp => 'Gesamtes BVG-Guthaben (aktuell)';
 
   @override
-  String get divorcePartConjoint1 => 'Anteil Ehepartner 1';
+  String get divorcePartConjoint1 => 'Guthaben Ehepartner 1 nach der Teilung';
 
   @override
-  String get divorcePartConjoint2 => 'Anteil Ehepartner 2';
+  String get divorcePartConjoint2 => 'Guthaben Ehepartner 2 nach der Teilung';
 
   @override
   String get divorceTransfert => 'Übertragung';
@@ -772,13 +773,10 @@ class SDe extends S {
   String get divorceTotalApresDivorce => 'Total nach Scheidung';
 
   @override
-  String get divorcePartagePatrimoine => 'VERMÖGENSTEILUNG';
+  String get divorcePartagePatrimoine => 'AUFLÖSUNG DES GÜTERSTANDS';
 
   @override
-  String get divorceFortuneNette => 'Nettovermögen';
-
-  @override
-  String get divorcePensionAlimentaire => 'UNTERHALTSBEITRÄGE (SCHÄTZUNG)';
+  String get divorcePensionAlimentaire => 'UNTERHALTSBEITRAG';
 
   @override
   String get divorcePointsAttention => 'AUFMERKSAMKEITSPUNKTE';
@@ -2599,7 +2597,7 @@ class SDe extends S {
 
   @override
   String get divorceIntroText =>
-      'Eine Scheidung hat oft unterschätzte finanzielle Folgen: Vermögensaufteilung, Vorsorgeteilung (BVG/3a), steuerliche Auswirkungen und Unterhaltsbeiträge. Dieses Tool hilft dir, klarer zu sehen.';
+      'Eine Scheidung hat oft unterschätzte finanzielle Folgen: Auflösung des Güterstands, Teilung der Vorsorge (BVG/Säule 3a), Steuerfolgen und Unterhaltsbeiträge. Dieses Werkzeug hilft dir, klarer zu sehen.';
 
   @override
   String divorceYears(int count) {
@@ -2620,14 +2618,10 @@ class SDe extends S {
   String get divorceSeparation => 'Gütertrennung';
 
   @override
-  String get divorceFortune => 'Gemeinsames Vermögen';
+  String get divorceFortune => 'Vermögen des Haushalts (Richtwert)';
 
   @override
-  String get divorceDettes => 'Gemeinsame Schulden';
-
-  @override
-  String get divorcePensionDescription =>
-      'Schätzung basierend auf Einkommensunterschied und Kinderzahl. Der tatsächliche Betrag hängt von vielen Faktoren ab (Sorgerecht, Bedürfnisse, Lebensstandard).';
+  String get divorceDettes => 'Schulden des Haushalts (Richtwert)';
 
   @override
   String get divorceActionsTitle => 'Zu ergreifende Massnahmen';
@@ -2641,7 +2635,7 @@ class SDe extends S {
 
   @override
   String get divorceEduParticipationContent =>
-      'Die Errungenschaftsbeteiligung ist der standardmässige Güterstand in der Schweiz (ZGB Art. 181 ff). Jeder Ehepartner behält sein Eigengut (vor der Ehe oder durch Erbschaft/Schenkung erworben). Die Errungenschaften (während der Ehe erworbenes Vermögen) werden bei einer Scheidung hälftig geteilt. Es ist der häufigste Güterstand in der Schweiz.';
+      'Die Errungenschaftsbeteiligung ist der ordentliche Güterstand in der Schweiz (ZGB Art. 181 ff.). Jede Person behält ihr Eigengut (vor der Ehe erworben oder durch Erbschaft oder Schenkung erhalten). Bei Scheidung hat jede Person Anspruch auf die Hälfte des Vorschlags der ANDEREN (ZGB Art. 215); die beiden Forderungen werden verrechnet. Die Berechnung erfolgt auf der Errungenschaftsrechnung jedes Ehegatten, nach Hinzurechnungen, Ersatzforderungen und Schuldenzuordnung — nicht auf einem einzigen gemeinsamen Topf.';
 
   @override
   String get divorceEduLppTitle => 'Wie funktioniert die BVG-Teilung?';
@@ -9771,28 +9765,6 @@ class SDe extends S {
   String divorceFiscalDelta(String sign, String amount) {
     return 'Steuerdifferenz des Haushalts: $sign$amount/Jahr (Ende des Ehegatten-Splittings)';
   }
-
-  @override
-  String divorcePensionMois(String amount) {
-    return '$amount/Monat';
-  }
-
-  @override
-  String divorcePensionAnnuel(String amount) {
-    return 'd.h. $amount/Jahr';
-  }
-
-  @override
-  String get divorceConjoint1Label => 'Ehepartner 1';
-
-  @override
-  String get divorceConjoint2Label => 'Ehepartner 2';
-
-  @override
-  String get divorceSplitC1 => 'E1';
-
-  @override
-  String get divorceSplitC2 => 'E2';
 
   @override
   String get unemploymentVague1Label =>
@@ -24807,7 +24779,7 @@ class SDe extends S {
 
   @override
   String get divorceGateWhyRevenu1 =>
-      'Es dient zur Schätzung von Steuern und Unterhaltsbeiträgen.';
+      'Es dient der Schätzung der Haushaltssteuer vor und nach der Scheidung.';
 
   @override
   String get divorceGateFactRevenu2 =>
@@ -24815,7 +24787,55 @@ class SDe extends S {
 
   @override
   String get divorceGateWhyRevenu2 =>
-      'Damit lassen sich Steuern vergleichen und der Unterhalt schätzen.';
+      'Er erlaubt den Vergleich der Steuer des Ehepaars mit jener zweier getrennter Haushalte.';
+
+  @override
+  String get divorcePensionEnfantTitre =>
+      'Kindesunterhalt (ZGB Art. 276, 285, 285a)';
+
+  @override
+  String get divorcePensionEnfantFacteurs =>
+      'Er richtet sich nach den Bedürfnissen und dem Alter des Kindes, nach Betreuungs- und Ausbildungskosten, und berücksichtigt die Familienzulagen. Wer das Kind im Alltag betreut, leistet bereits einen Naturalunterhalt: Er senkt entsprechend, was in Geld verlangt wird. Ein Sparanteil kann hinzukommen, wenn es die Mittel erlauben.';
+
+  @override
+  String get divorcePensionConjointTitre =>
+      'Nachehelicher Unterhalt (ZGB Art. 125)';
+
+  @override
+  String get divorcePensionConjointFacteurs =>
+      'Er versteht sich nicht von selbst. Zuerst wird geprüft, ob jede Person selbst für ihren Unterhalt aufkommen kann. Wenn nicht, zählen die Aufgabenteilung während der Ehe, ihre Dauer, der Lebensstandard, den ihr hattet, Alter und Gesundheit, Einkommen und Vermögen, Ausbildungs- und Erwerbsaussichten sowie die Vorsorge. Eine lange Ehedauer begründet keinen automatischen Anspruch.';
+
+  @override
+  String get divorcePensionMethode =>
+      'Die Referenzmethode verläuft in zwei Schritten (BGE 147 III 265). Zuerst wird das Existenzminimum jeder Person bestimmt: Wohnen, Krankenversicherung, Ernährung, Berufsauslagen, Betreuungskosten. Diese Lasten gehen allem anderen vor. Danach wird der verbleibende Überschuss zwischen den Haushalten verteilt. Gerechnet wird mit den verfügbaren Nettoeinkommen, nie mit Bruttolöhnen. Der Überschuss wird nicht willkürlich geteilt: Er wird nach « grossen und kleinen Köpfen » verteilt (ein voller Anteil pro erwachsene Person, ein halber pro Kind), mit fallweisen Anpassungen.';
+
+  @override
+  String get divorcePensionLeviers =>
+      'Was den Betrag steigen oder sinken lässt: zuerst der Betreuungsanteil — je mehr du das Kind betreust, desto weniger zahlst du in Geld. Dann deine Erwerbsfähigkeit: Kannst du mehr arbeiten, kann dir ein hypothetisches Einkommen angerechnet werden. Der Lebensstandard während der Ehe wirkt als Obergrenze. Und der Clean-Break-Grundsatz drängt jede Person mit der Zeit zur finanziellen Eigenständigkeit. Achtung: Mehr Betreuung befreit nicht immer von Zahlungen — auch die Leistungsfähigkeit zählt, und der finanziell stärkere Elternteil kann trotz erheblicher Betreuung zahlen.';
+
+  @override
+  String get divorceRegimeAcquets =>
+      'Massgebend ist, was während der Ehe erworben wurde. Was jede Person vorher besass und was sie durch Erbschaft oder Schenkung erhielt, bleibt ihr: das ist das Eigengut. Am Rest hat jede Person Anspruch auf die Hälfte des Vorschlags der anderen (ZGB Art. 215). Es entscheidet also der Vergleich eurer beiden Rechnungen, nicht ein gemeinsamer Topf: Wer mehr angesammelt hat, zahlt der anderen Person die HÄLFTE der Differenz zwischen den beiden Vorschlägen. Vor dem Vergleich wird der Errungenschaft hinzugerechnet, was ihr entzogen wurde (Art. 208), werden die Ersatzforderungen zwischen Eigengut und Errungenschaft geregelt (Art. 206 und 209) und jede Schuld der Masse zugeordnet, die sie betrifft.';
+
+  @override
+  String get divorceLppTransferCaveat =>
+      'Dieser Betrag wird auf den von dir erfassten Guthaben berechnet (aktuelles Guthaben minus Guthaben bei Heirat). Zwei rechtliche Elemente fehlen hier: der Zins auf der bei der Heirat bestehenden Austrittsleistung und das gesetzliche Bewertungsdatum (Einleitung des Scheidungsverfahrens). Deine Pensionskasse erstellt die genaue Abrechnung.';
+
+  @override
+  String get divorceRegimeCommunaute =>
+      'Während der Ehe bildet das meiste, was ihr besitzt, ein Gesamtgut. Bei der Scheidung wird dieses Gut aber nicht sofort halbiert: Jede Person nimmt zuerst zurück, was unter der Errungenschaftsbeteiligung ihr Eigengut gewesen wäre — was sie vor der Ehe hatte, ihre Erbschaften, ihre Schenkungen (ZGB Art. 242 Abs. 1). Nur der nach diesen Rücknahmen verbleibende Rest wird hälftig geteilt (Art. 242 Abs. 2). Der oft zitierte Artikel 241 betrifft nur die Auflösung durch Tod oder durch Güterstandswechsel.';
+
+  @override
+  String get divorceRegimeSeparation =>
+      'Es gibt nichts zu teilen: Jede Person behält, was ihr gehört. Entscheidend ist deshalb der Eigentumsbeweis. Wer einen Vermögenswert beansprucht, muss zeigen, dass er ihm gehört — Rechnung, Vertrag, Grundbucheintrag. Fehlt der Beweis, wird vermutet, dass der Wert beiden zu Miteigentum gehört (ZGB Art. 248). Etwas finanziert zu haben, macht es nicht automatisch zu deinem: Es kann eine Forderung oder einen Miteigentumsanteil begründen, ersetzt aber den Titel nicht. Und ein Wert in Miteigentum kann einer Person gegen Entschädigung zugewiesen werden, wenn sie ein überwiegendes Interesse nachweist (Art. 251).';
+
+  @override
+  String get divorcePatrimoineNoShare =>
+      'Um diese Regel auf deinen Fall anzuwenden, brauchst du zwei getrennte Inventare — deines und jenes deines Ehegatten — mit Erwerbsdatum und Herkunft jedes Vermögenswerts. Dieses Dokument, nicht eine Haushaltssumme, bestimmt, wer was schuldet. Der endgültige Betrag wird danach durch Vereinbarung oder durch das Gericht festgelegt.';
+
+  @override
+  String get divorcePatrimoineIndicatifHint =>
+      'Diese beiden Beträge dienen nicht der Berechnung eines Anteils: Sie sind Anhaltspunkte zur Vorbereitung deines Gesprächs. Entscheidend ist das Inventar jeder Person — Erwerbsdatum, Herkunft des Werts, zugehörige Schulden.';
 
   @override
   String get divorceGateFactLpp1 => 'Dein aktuelles BVG-Guthaben';
@@ -24848,32 +24868,15 @@ class SDe extends S {
       'Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).';
 
   @override
-  String get divorceGateFactFortune => 'Gemeinsames Vermögen des Haushalts';
+  String get divorcePensionNoEstimate =>
+      'Es gibt keinen Tarif: Der Betrag lässt sich nicht aus dem Einkommen und der Anzahl Kinder ableiten. Er wird aus den tatsächlichen Budgets beider Haushalte aufgebaut. Hier ist der Mechanismus, damit du deine eigene Lage einschätzen kannst.';
 
   @override
-  String get divorceGateWhyFortune =>
-      'Es bestimmt die zwischen den Ehegatten zu teilende Masse.';
+  String get divorcePensionFacteursTitre => 'Wie der Betrag zustande kommt';
 
   @override
-  String get divorceGateFactDettes => 'Gemeinsame Schulden des Haushalts';
-
-  @override
-  String get divorceGateWhyDettes =>
-      'Sie verringern das zu teilende Nettovermögen.';
-
-  @override
-  String get divorceGateFactEnfants => 'Anzahl Kinder';
-
-  @override
-  String get divorceGateWhyEnfants =>
-      'Die Unterhaltsbeiträge hängen von der Anzahl Kinder ab.';
-
-  @override
-  String get divorceGateFactDuree => 'Ehedauer';
-
-  @override
-  String get divorceGateWhyDuree =>
-      'Der Ehegattenunterhalt hängt von der Dauer der Ehe ab.';
+  String get divorcePensionSpecialiste =>
+      'Der genaue Betrag wird durch eure Vereinbarung oder, mangels Einigung, durch das Gericht festgelegt. Eine Fachperson beziffert den konkreten Fall anhand dieser Elemente.';
 
   @override
   String get divorceGateFactCanton => 'Dein Wohnkanton';
@@ -24881,9 +24884,6 @@ class SDe extends S {
   @override
   String get divorceGateWhyCanton =>
       'Der Einkommenssteuertarif hängt von deinem Wohnkanton ab.';
-
-  @override
-  String get divorceFilmPensionEstimee => 'Geschätzter Unterhalt';
 
   @override
   String get divorceImpactFiscalCantonNote =>
