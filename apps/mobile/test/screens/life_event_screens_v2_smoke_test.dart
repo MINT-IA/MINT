@@ -301,19 +301,16 @@ void main() {
       expect(find.text('Checklist'), findsOneWidget);
     });
 
-    testWidgets('Tab 1 (Comparateur) shows decision matrix', (tester) async {
+    testWidgets('Tab 1 (Comparateur) gates the comparison until data entered',
+        (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
-      // Decision matrix may be below fold due to hero chiffre-choc — scroll
-      final listFinder = find.byType(Scrollable).last;
-      await tester.scrollUntilVisible(
-        find.textContaining('Comparaison des droits'),
-        200,
-        scrollable: listFinder,
-      );
-      await tester.pumpAndSettle();
-      expect(
-          find.textContaining('Comparaison des droits'), findsOneWidget);
+      // Gate-dur (P2) : à l'ouverture sans données, la comparaison fiscale ne
+      // calcule AUCUN chiffre fabriqué — une SituationGateCard remplace la
+      // matrice « Comparaison des droits » jusqu'à ce que revenus + canton
+      // soient confirmés.
+      expect(find.byType(SituationGateCard), findsWidgets);
+      expect(find.textContaining('Comparaison des droits'), findsNothing);
     });
 
     testWidgets('Tab 1 (Comparateur) shows input sliders', (tester) async {
