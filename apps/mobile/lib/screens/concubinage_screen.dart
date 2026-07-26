@@ -1349,7 +1349,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                               color: isChecked
                                   ? MintColors.success
                                   : MintColors.transparent,
-                              borderRadius: BorderRadius.circular(7),
+                              borderRadius: BorderRadius.circular(7), // lint-ignore: prefer_mint_radius — case à cocher pré-existante, hors périmètre gate-dur
                               border: Border.all(
                                 color: isChecked
                                     ? MintColors.success
