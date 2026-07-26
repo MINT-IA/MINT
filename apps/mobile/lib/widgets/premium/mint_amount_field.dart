@@ -58,11 +58,21 @@ class MintAmountField extends StatelessWidget {
     double clamped = parsed;
     if (min != null && clamped < min!) clamped = min!;
     if (max != null && clamped > max!) clamped = max!;
-    // Fermer la feuille AVANT de notifier. `onChanged` déclenche le `setState`
-    // du parent, donc une reconstruction ; si la feuille est encore montée à cet
-    // instant, ses dépendances héritées sont invalidées sous elle et Flutter
-    // lève `assert(_dependents.isEmpty)` dans
-    // `InheritedElement.debugDeactivated()`.
+    // Fermer la feuille AVANT de notifier.
+    //
+    // Ce qui est DÉMONTRÉ (test/widgets/premium/mint_amount_field_test.dart) :
+    // dans l'ordre inverse — `onChanged` d'abord, `pop` ensuite — Flutter lève
+    // `assert(_dependents.isEmpty)` dans `InheritedElement.debugDeactivated()`
+    // dès que le parent reconstruit ; dans cet ordre-ci, non. L'ordre est donc
+    // le déclencheur.
+    //
+    // Ce qui n'est PAS démontré : le mécanisme interne exact. Un `setState`
+    // parent pendant qu'une route modale est montée est normalement licite. Ne
+    // pas transformer cette inversion en explication de la cause racine.
+    //
+    // Contrat pour les appelants : `onChanged` est invoqué APRÈS l'initiation
+    // de la fermeture. Un `onChanged` qui appelle lui-même `pop` viserait donc
+    // la route du dessous.
     Navigator.of(ctx).pop();
     onChanged(clamped);
   }
@@ -149,6 +159,22 @@ class _AmountEditorSheet extends StatefulWidget {
 class _AmountEditorSheetState extends State<_AmountEditorSheet> {
   late final TextEditingController _controller;
 
+  /// Une route reste montée pendant son animation inverse : le bouton et le
+  /// champ existent encore après le premier `pop`. Cette garde rend explicite
+  /// l'invariant « une feuille ne se valide qu'une fois ».
+  ///
+  /// Honnêteté sur son statut : je n'ai PAS réussi à provoquer une double
+  /// soumission en test — le second tap n'atteint plus la cible, qui glisse
+  /// hors de sa position. C'est donc une prévention, pas la correction d'un
+  /// défaut constaté.
+  bool _submitted = false;
+
+  void _submit(String text) {
+    if (_submitted) return;
+    _submitted = true;
+    widget.onSubmit(text);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -219,13 +245,13 @@ class _AmountEditorSheetState extends State<_AmountEditorSheet> {
                 vertical: MintSpacing.md,
               ),
             ),
-            onSubmitted: widget.onSubmit,
+            onSubmitted: _submit,
           ),
           const SizedBox(height: MintSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () => widget.onSubmit(_controller.text),
+              onPressed: () => _submit(_controller.text),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 foregroundColor: MintColors.background,
