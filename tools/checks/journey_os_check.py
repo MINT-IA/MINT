@@ -192,6 +192,8 @@ ALLOW = {
     "apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart",
     "apps/mobile/lib/screens/divorce_simulator_screen.dart",
     "apps/mobile/test/screens/divorce_gate_test.dart",
+    "apps/mobile/lib/screens/concubinage_screen.dart",
+    "apps/mobile/test/screens/concubinage_gate_test.dart",
     "apps/mobile/lib/services/life_events_service.dart",
     "apps/mobile/test/services/life_events_divorce_test.dart",
     "apps/mobile/lib/widgets/coach/divorce_film_widget.dart",

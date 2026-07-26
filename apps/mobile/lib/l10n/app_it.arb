@@ -3243,7 +3243,7 @@
       }
     }
   },
-  "concubinageWarningSuccession": "In concubinato, il tuo partner pagherebbe {impot} di imposta di successione su un patrimonio di {patrimoine}. Se sposato/a, sarebbe totalmente esente.",
+  "concubinageWarningSuccession": "Se designi il·la partner per testamento, pagherebbe {impot} di imposta di successione su un patrimonio di {patrimoine} (aliquota per terzi). Sposato·a, ne sarebbe esente.",
   "@concubinageWarningSuccession": {
     "placeholders": {
       "impot": {
@@ -3269,7 +3269,7 @@
     }
   },
   "concubinageChecklist1Title": "Redigere un testamento",
-  "concubinageChecklist1Desc": "Senza testamento, il/la tuo/a partner non eredita nulla — tutto va ai tuoi genitori o fratelli e sorelle. Un testamento olografo (scritto a mano, datato, firmato) è sufficiente. Puoi legare la quota disponibile al/alla tuo/a partner.",
+  "concubinageChecklist1Desc": "Senza testamento, il·la tuo·a partner non eredita nulla — la tua successione segue l'ordine legale (prima i tuoi discendenti, altrimenti i tuoi genitori, poi i tuoi fratelli). Un testamento olografo (scritto a mano, datato, firmato) basta; puoi lasciare la quota disponibile al·la tuo·a partner.",
   "concubinageChecklist2Title": "Clausola beneficiaria LPP",
   "concubinageChecklist2Desc": "Contatta la tua cassa pensioni per iscrivere il/la tuo/a partner come beneficiario/a. Senza questa clausola, il capitale di decesso LPP non gli/le spetta. La maggior parte delle casse accetta il/la concubino/a a certe condizioni (economia domestica comune, ecc.).",
   "concubinageChecklist3Title": "Convenzione di concubinato",
@@ -6313,8 +6313,27 @@
   "concubinageProtectionMaried": "Coniugato",
   "concubinageProtectionConcubinLabel": "Concubino",
   "concubinageProtectionWarning": "In concubinato, se il tuo partner muore, non ricevi né rendita AVS, né rendita LPP automatica, e non sei erede legale. Ogni protezione va anticipata.",
+  "concubinageProtectionConditionsNote": "Le protezioni del matrimonio (rendite per superstiti AVS e LPP) dipendono da condizioni di idoneità; la convivenza non vi dà alcun accesso, quali che siano le condizioni.",
   "concubinageProtectionLppSlider": "Rendita LPP mensile del partner",
   "concubinageProtectionSurvivorZero": "CHF 0/mese per il concubino superstite senza azione",
+  "concubinageInheritanceConditional": "Senza testamento, il·la tuo·tua partner non è erede legale: non eredita nulla e il tuo patrimonio va ai tuoi eredi legali. Se lo·la designi per testamento (entro la quota disponibile), pagherebbe allora l'imposta di successione qui sotto, all'aliquota per terzi, senza l'esenzione di un·a coniuge sposato·a. L'importo sotto presuppone che tu possa lasciare tutto il tuo patrimonio; se hai discendenti, la loro quota legittima limita la parte trasmissibile — e quindi l'imposta.",
+  "concubinageSurvivorLppDetail": "Possibile rendita per superstiti (60 %) — condizioni LPP art. 19: figlio a carico, o 45 anni e 5 anni di matrimonio.",
+  "concubinageSurvivorAvsNote": "Un·a coniuge superstite può ricevere anche una rendita AVS per superstiti (LAVS art. 23, a determinate condizioni); un·a convivente non ne ha mai diritto.",
+  "concubinage3aClauseEducational": "Senza una clausola beneficiaria che designi il·la tuo·tua partner, il tuo pilastro 3a segue l'ordine legale dei beneficiari (OPP3 art. 2) e il·la tuo·tua partner non è beneficiario·a per impostazione predefinita. Con una clausola depositata presso la tua fondazione 3a, puoi designarlo·a.",
+  "concubinageGateFactRevenu1": "Il tuo reddito annuo lordo",
+  "concubinageGateWhyRevenu1": "Il reddito di entrambi i partner determina la differenza fiscale tra matrimonio e concubinato.",
+  "concubinageGateFactRevenu2": "Il reddito annuo lordo del tuo partner",
+  "concubinageGateWhyRevenu2": "Senza il reddito del tuo partner, la differenza fiscale della coppia non può essere stimata.",
+  "concubinageGateFactCanton": "Il tuo cantone di residenza",
+  "concubinageGateWhyCanton": "La tariffa fiscale e l'aliquota di successione dipendono dal tuo cantone.",
+  "concubinageGateFactPatrimoine": "Il tuo patrimonio totale",
+  "concubinageGateWhyPatrimoine": "Il patrimonio trasmesso fissa l'importo soggetto all'imposta di successione.",
+  "concubinageGateFactRenteLpp": "La rendita LPP mensile del tuo partner",
+  "concubinageGateWhyRenteLpp": "La rendita LPP del partner serve a stimare la rendita per superstiti.",
+  "concubinageGateFiscalTitle": "Confronto fiscale",
+  "concubinageGateInheritanceTitle": "Imposta di successione",
+  "concubinageGateSurvivorTitle": "Rendita per superstiti",
+  "concubinageNonRenseigne": "Non indicato",
   "concubinageDecisionMatrixTitle": "Matrimonio vs Concubinato",
   "concubinageDecisionMatrixSubtitle": "Confronto dei diritti e degli obblighi",
   "concubinageDecisionMatrixColumnMarriage": "Matrimonio",

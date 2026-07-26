@@ -6912,7 +6912,7 @@ class SFr extends S {
 
   @override
   String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'En concubinage, ton partenaire paierait $impot d\'impôt successoral sur un patrimoine de $patrimoine. Marié-e, il/elle serait totalement exonéré-e.';
+    return 'Si tu désignes ton·ta partenaire par testament, il·elle paierait $impot d\'impôt de succession sur un patrimoine de $patrimoine (taux tiers). Marié·e, il·elle en serait exonéré·e.';
   }
 
   @override
@@ -6937,7 +6937,7 @@ class SFr extends S {
 
   @override
   String get concubinageChecklist1Desc =>
-      'Sans testament, ton partenaire n\'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.';
+      'Sans testament, ton partenaire n\'hérite de rien — ta succession suit l\'ordre légal (d\'abord tes descendants, sinon tes parents, puis tes frères et sœurs). Un testament olographe (écrit à la main, daté, signé) suffit ; tu peux léguer la quotité disponible à ton/ta partenaire.';
 
   @override
   String get concubinageChecklist2Title => 'Clause bénéficiaire LPP';
@@ -13391,12 +13391,81 @@ class SFr extends S {
       'En concubinage, si ton partenaire décède, tu ne reçois ni rente AVS, ni rente LPP automatique, et tu n’es pas héritier légal. Chaque protection doit être anticipée.';
 
   @override
+  String get concubinageProtectionConditionsNote =>
+      'Les protections du mariage (rentes de survivant AVS et LPP) dépendent de conditions d\'éligibilité ; le concubinage n\'y donne aucun accès, quelles que soient les conditions.';
+
+  @override
   String get concubinageProtectionLppSlider =>
       'Rente LPP mensuelle du partenaire';
 
   @override
   String get concubinageProtectionSurvivorZero =>
       'CHF 0/mois pour le concubin survivant sans démarche';
+
+  @override
+  String get concubinageInheritanceConditional =>
+      'Sans testament, ton·ta partenaire n\'est pas héritier·ère légal·e : il·elle n\'hérite de rien et ton patrimoine revient à tes héritiers légaux. Si tu le·la désignes par testament (dans la limite de la quotité disponible), il·elle paierait alors l\'impôt de succession ci-dessous, au taux « tiers », sans l\'exonération d\'un·e conjoint·e marié·e. Le montant ci-dessous suppose que tu peux léguer tout ton patrimoine ; si tu as des descendant·e·s, leur réserve héréditaire limite la part transmissible — et donc l\'impôt.';
+
+  @override
+  String get concubinageSurvivorLppDetail =>
+      'Rente de survivant possible (60 %) — conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage.';
+
+  @override
+  String get concubinageSurvivorAvsNote =>
+      'Un·e conjoint·e survivant·e peut toucher en plus une rente AVS de survivant (LAVS art. 23, sous conditions) ; un·e concubin·e n\'y a jamais droit.';
+
+  @override
+  String get concubinage3aClauseEducational =>
+      'Sans clause bénéficiaire désignant ton·ta partenaire, ton 3a suit l\'ordre légal des bénéficiaires (OPP3 art. 2) et ton·ta partenaire n\'en est pas bénéficiaire par défaut. Avec une clause déposée auprès de ta fondation 3a, tu peux l\'y désigner.';
+
+  @override
+  String get concubinageGateFactRevenu1 => 'Ton revenu annuel brut';
+
+  @override
+  String get concubinageGateWhyRevenu1 =>
+      'Le revenu des deux partenaires détermine l\'écart d\'impôt entre mariage et concubinage.';
+
+  @override
+  String get concubinageGateFactRevenu2 =>
+      'Le revenu annuel brut de ton partenaire';
+
+  @override
+  String get concubinageGateWhyRevenu2 =>
+      'Sans le revenu de ton partenaire, l\'écart d\'impôt du couple ne peut pas être estimé.';
+
+  @override
+  String get concubinageGateFactCanton => 'Ton canton de résidence';
+
+  @override
+  String get concubinageGateWhyCanton =>
+      'Le barème d\'impôt et le taux de succession dépendent de ton canton.';
+
+  @override
+  String get concubinageGateFactPatrimoine => 'Ton patrimoine total';
+
+  @override
+  String get concubinageGateWhyPatrimoine =>
+      'Le patrimoine transmis fixe le montant soumis à l\'impôt de succession.';
+
+  @override
+  String get concubinageGateFactRenteLpp =>
+      'La rente LPP mensuelle de ton partenaire';
+
+  @override
+  String get concubinageGateWhyRenteLpp =>
+      'La rente LPP du partenaire sert à estimer la rente de survivant.';
+
+  @override
+  String get concubinageGateFiscalTitle => 'Comparaison fiscale';
+
+  @override
+  String get concubinageGateInheritanceTitle => 'Impôt de succession';
+
+  @override
+  String get concubinageGateSurvivorTitle => 'Rente de survivant';
+
+  @override
+  String get concubinageNonRenseigne => 'Non renseigné';
 
   @override
   String get concubinageDecisionMatrixTitle => 'Mariage vs Concubinage';

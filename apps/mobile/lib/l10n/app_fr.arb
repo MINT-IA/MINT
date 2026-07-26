@@ -3329,7 +3329,7 @@
       }
     }
   },
-  "concubinageWarningSuccession": "En concubinage, ton partenaire paierait {impot} d'impôt successoral sur un patrimoine de {patrimoine}. Marié-e, il/elle serait totalement exonéré-e.",
+  "concubinageWarningSuccession": "Si tu désignes ton·ta partenaire par testament, il·elle paierait {impot} d'impôt de succession sur un patrimoine de {patrimoine} (taux tiers). Marié·e, il·elle en serait exonéré·e.",
   "@concubinageWarningSuccession": {
     "placeholders": {
       "impot": {
@@ -3355,7 +3355,7 @@
     }
   },
   "concubinageChecklist1Title": "Rédiger un testament",
-  "concubinageChecklist1Desc": "Sans testament, ton partenaire n'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.",
+  "concubinageChecklist1Desc": "Sans testament, ton partenaire n'hérite de rien — ta succession suit l'ordre légal (d'abord tes descendants, sinon tes parents, puis tes frères et sœurs). Un testament olographe (écrit à la main, daté, signé) suffit ; tu peux léguer la quotité disponible à ton/ta partenaire.",
   "concubinageChecklist2Title": "Clause bénéficiaire LPP",
   "concubinageChecklist2Desc": "Contacte ta caisse de pension pour inscrire ton/ta partenaire comme bénéficiaire. Sans cette clause, le capital décès LPP ne lui revient pas. La plupart des caisses acceptent le concubin sous conditions (ménage commun, etc.).",
   "concubinageChecklist3Title": "Convention de concubinage",
@@ -6807,8 +6807,27 @@
   "concubinageProtectionMaried": "Marié",
   "concubinageProtectionConcubinLabel": "Concubin",
   "concubinageProtectionWarning": "En concubinage, si ton partenaire décède, tu ne reçois ni rente AVS, ni rente LPP automatique, et tu n’es pas héritier légal. Chaque protection doit être anticipée.",
+  "concubinageProtectionConditionsNote": "Les protections du mariage (rentes de survivant AVS et LPP) dépendent de conditions d'éligibilité ; le concubinage n'y donne aucun accès, quelles que soient les conditions.",
   "concubinageProtectionLppSlider": "Rente LPP mensuelle du partenaire",
   "concubinageProtectionSurvivorZero": "CHF 0/mois pour le concubin survivant sans démarche",
+  "concubinageInheritanceConditional": "Sans testament, ton·ta partenaire n'est pas héritier·ère légal·e : il·elle n'hérite de rien et ton patrimoine revient à tes héritiers légaux. Si tu le·la désignes par testament (dans la limite de la quotité disponible), il·elle paierait alors l'impôt de succession ci-dessous, au taux « tiers », sans l'exonération d'un·e conjoint·e marié·e. Le montant ci-dessous suppose que tu peux léguer tout ton patrimoine ; si tu as des descendant·e·s, leur réserve héréditaire limite la part transmissible — et donc l'impôt.",
+  "concubinageSurvivorLppDetail": "Rente de survivant possible (60 %) — conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage.",
+  "concubinageSurvivorAvsNote": "Un·e conjoint·e survivant·e peut toucher en plus une rente AVS de survivant (LAVS art. 23, sous conditions) ; un·e concubin·e n'y a jamais droit.",
+  "concubinage3aClauseEducational": "Sans clause bénéficiaire désignant ton·ta partenaire, ton 3a suit l'ordre légal des bénéficiaires (OPP3 art. 2) et ton·ta partenaire n'en est pas bénéficiaire par défaut. Avec une clause déposée auprès de ta fondation 3a, tu peux l'y désigner.",
+  "concubinageGateFactRevenu1": "Ton revenu annuel brut",
+  "concubinageGateWhyRevenu1": "Le revenu des deux partenaires détermine l'écart d'impôt entre mariage et concubinage.",
+  "concubinageGateFactRevenu2": "Le revenu annuel brut de ton partenaire",
+  "concubinageGateWhyRevenu2": "Sans le revenu de ton partenaire, l'écart d'impôt du couple ne peut pas être estimé.",
+  "concubinageGateFactCanton": "Ton canton de résidence",
+  "concubinageGateWhyCanton": "Le barème d'impôt et le taux de succession dépendent de ton canton.",
+  "concubinageGateFactPatrimoine": "Ton patrimoine total",
+  "concubinageGateWhyPatrimoine": "Le patrimoine transmis fixe le montant soumis à l'impôt de succession.",
+  "concubinageGateFactRenteLpp": "La rente LPP mensuelle de ton partenaire",
+  "concubinageGateWhyRenteLpp": "La rente LPP du partenaire sert à estimer la rente de survivant.",
+  "concubinageGateFiscalTitle": "Comparaison fiscale",
+  "concubinageGateInheritanceTitle": "Impôt de succession",
+  "concubinageGateSurvivorTitle": "Rente de survivant",
+  "concubinageNonRenseigne": "Non renseigné",
   "concubinageDecisionMatrixTitle": "Mariage vs Concubinage",
   "concubinageDecisionMatrixSubtitle": "Comparaison des droits et obligations",
   "concubinageDecisionMatrixColumnMarriage": "Mariage",

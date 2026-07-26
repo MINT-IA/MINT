@@ -3243,7 +3243,7 @@
       }
     }
   },
-  "concubinageWarningSuccession": "Em união de facto, o teu parceiro pagaria {impot} de imposto sucessório sobre um património de {patrimoine}. Casado/a, estaria totalmente isento/a.",
+  "concubinageWarningSuccession": "Se designares o·a teu·tua parceiro·a por testamento, pagaria {impot} de imposto de sucessão sobre um património de {patrimoine} (taxa de terceiros). Casado·a, estaria isento·a.",
   "@concubinageWarningSuccession": {
     "placeholders": {
       "impot": {
@@ -3269,7 +3269,7 @@
     }
   },
   "concubinageChecklist1Title": "Redigir um testamento",
-  "concubinageChecklist1Desc": "Sem testamento, o/a teu/tua parceiro/a não herda nada — tudo vai para os teus pais ou irmãos. Um testamento manuscrito (escrito à mão, datado, assinado) é suficiente. Podes legar a quota disponível ao/à teu/tua parceiro/a.",
+  "concubinageChecklist1Desc": "Sem testamento, o·a teu·tua parceiro·a não herda nada — a tua sucessão segue a ordem legal (primeiro os teus descendentes, senão os teus pais, depois os teus irmãos). Um testamento hológrafo (escrito à mão, datado, assinado) basta; podes legar a quota disponível ao·à teu·tua parceiro·a.",
   "concubinageChecklist2Title": "Cláusula de beneficiário LPP",
   "concubinageChecklist2Desc": "Contacta a tua caixa de pensões para inscrever o/a teu/tua parceiro/a como beneficiário/a. Sem esta cláusula, o capital de falecimento LPP não lhe pertence. A maioria das caixas aceita o/a parceiro/a de facto sob certas condições (lar comum, etc.).",
   "concubinageChecklist3Title": "Acordo de união de facto",
@@ -6313,8 +6313,27 @@
   "concubinageProtectionMaried": "Casado",
   "concubinageProtectionConcubinLabel": "Concubino",
   "concubinageProtectionWarning": "Em concubinato, se o teu parceiro falecer, não recebes pensão AVS, nem pensão LPP automática, e não és herdeiro legal. Cada proteção deve ser antecipada.",
+  "concubinageProtectionConditionsNote": "As proteções do casamento (pensões de sobrevivência AVS e LPP) dependem de condições de elegibilidade; a união de facto não dá acesso a elas, quaisquer que sejam as condições.",
   "concubinageProtectionLppSlider": "Pensão LPP mensal do parceiro",
   "concubinageProtectionSurvivorZero": "CHF 0/mês para o concubino sobrevivente sem diligências",
+  "concubinageInheritanceConditional": "Sem testamento, o·a teu·tua parceiro·a não é herdeiro·a legal: não herda nada e o teu património vai para os teus herdeiros legais. Se o·a designares por testamento (dentro da quota disponível), pagaria então o imposto de sucessão abaixo, à taxa de terceiros, sem a isenção de um·a cônjuge casado·a. O montante abaixo pressupõe que podes legar todo o teu património; se tiveres descendentes, a legítima deles limita a parte transmissível — e portanto o imposto.",
+  "concubinageSurvivorLppDetail": "Possível pensão de sobrevivência (60 %) — condições LPP art. 19: filho dependente, ou 45 anos e 5 anos de casamento.",
+  "concubinageSurvivorAvsNote": "Um·a cônjuge sobrevivente pode receber ainda uma pensão AVS de sobrevivência (LAVS art. 23, sob condições); um·a companheiro·a nunca tem direito a ela.",
+  "concubinage3aClauseEducational": "Sem uma cláusula de beneficiário que designe o·a teu·tua parceiro·a, o teu pilar 3a segue a ordem legal dos beneficiários (OPP3 art. 2) e o·a teu·tua parceiro·a não é beneficiário·a por defeito. Com uma cláusula entregue à tua fundação 3a, podes designá-lo·a.",
+  "concubinageGateFactRevenu1": "O teu rendimento anual bruto",
+  "concubinageGateWhyRevenu1": "O rendimento de ambos os parceiros determina a diferença fiscal entre casamento e união de facto.",
+  "concubinageGateFactRevenu2": "O rendimento anual bruto do teu parceiro",
+  "concubinageGateWhyRevenu2": "Sem o rendimento do teu parceiro, a diferença fiscal do casal não pode ser estimada.",
+  "concubinageGateFactCanton": "O teu cantão de residência",
+  "concubinageGateWhyCanton": "A tabela fiscal e a taxa de sucessão dependem do teu cantão.",
+  "concubinageGateFactPatrimoine": "O teu património total",
+  "concubinageGateWhyPatrimoine": "O património transmitido fixa o montante sujeito ao imposto de sucessão.",
+  "concubinageGateFactRenteLpp": "A pensão LPP mensal do teu parceiro",
+  "concubinageGateWhyRenteLpp": "A pensão LPP do parceiro serve para estimar a pensão de sobrevivência.",
+  "concubinageGateFiscalTitle": "Comparação fiscal",
+  "concubinageGateInheritanceTitle": "Imposto de sucessão",
+  "concubinageGateSurvivorTitle": "Pensão de sobrevivência",
+  "concubinageNonRenseigne": "Não indicado",
   "concubinageDecisionMatrixTitle": "Casamento vs Concubinato",
   "concubinageDecisionMatrixSubtitle": "Comparação dos direitos e obrigações",
   "concubinageDecisionMatrixColumnMarriage": "Casamento",

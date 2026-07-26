@@ -6860,7 +6860,7 @@ class SEn extends S {
 
   @override
   String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'In cohabitation, your partner would pay $impot in inheritance tax on assets of $patrimoine. If married, they would be fully exempt.';
+    return 'If you name your partner in a will, they would pay $impot in inheritance tax on wealth of $patrimoine (third-party rate). Married, they would be exempt.';
   }
 
   @override
@@ -6884,7 +6884,7 @@ class SEn extends S {
 
   @override
   String get concubinageChecklist1Desc =>
-      'Without a will, your partner inherits nothing — everything goes to your parents or siblings. A handwritten will (handwritten, dated, signed) is sufficient. You can bequeath the disposable portion to your partner.';
+      'Without a will, your partner inherits nothing — your estate follows the legal order (first your descendants, otherwise your parents, then your siblings). A holographic will (handwritten, dated, signed) is enough; you can bequeath the available portion to your partner.';
 
   @override
   String get concubinageChecklist2Title => 'LPP beneficiary clause';
@@ -13317,11 +13317,80 @@ class SEn extends S {
       'In cohabitation, if your partner dies, you receive no AVS pension, no automatic LPP pension, and you are not a legal heir. Every protection must be planned ahead.';
 
   @override
+  String get concubinageProtectionConditionsNote =>
+      'Marriage protections (AVS and LPP survivor\'s pensions) depend on eligibility conditions; cohabitation grants no access to them, whatever the conditions.';
+
+  @override
   String get concubinageProtectionLppSlider => 'Partner’s monthly LPP pension';
 
   @override
   String get concubinageProtectionSurvivorZero =>
       'CHF 0/month for the surviving cohabiting partner without action';
+
+  @override
+  String get concubinageInheritanceConditional =>
+      'Without a will, your partner is not a legal heir: they inherit nothing and your wealth goes to your legal heirs. If you name them in a will (within the disposable portion), they would then pay the inheritance tax below, at the third-party rate, without the exemption a married spouse has. The amount below assumes you can bequeath your entire estate; if you have descendants, their statutory reserve limits the transmissible share — and therefore the tax.';
+
+  @override
+  String get concubinageSurvivorLppDetail =>
+      'Possible survivor\'s pension (60%) — LPP art. 19 conditions: dependent child, or age 45 and 5 years of marriage.';
+
+  @override
+  String get concubinageSurvivorAvsNote =>
+      'A surviving spouse may also receive an AVS survivor\'s pension (LAVS art. 23, under conditions); a cohabiting partner is never entitled to it.';
+
+  @override
+  String get concubinage3aClauseEducational =>
+      'Without a beneficiary clause naming your partner, your pillar 3a follows the legal order of beneficiaries (OPP3 art. 2) and your partner is not a beneficiary by default. With a clause filed with your 3a foundation, you can name them there.';
+
+  @override
+  String get concubinageGateFactRevenu1 => 'Your gross annual income';
+
+  @override
+  String get concubinageGateWhyRevenu1 =>
+      'Both partners\' income drives the tax gap between marriage and cohabitation.';
+
+  @override
+  String get concubinageGateFactRevenu2 =>
+      'Your partner\'s gross annual income';
+
+  @override
+  String get concubinageGateWhyRevenu2 =>
+      'Without your partner\'s income, the couple\'s tax gap cannot be estimated.';
+
+  @override
+  String get concubinageGateFactCanton => 'Your canton of residence';
+
+  @override
+  String get concubinageGateWhyCanton =>
+      'The tax scale and inheritance rate depend on your canton.';
+
+  @override
+  String get concubinageGateFactPatrimoine => 'Your total wealth';
+
+  @override
+  String get concubinageGateWhyPatrimoine =>
+      'The wealth transferred sets the amount subject to inheritance tax.';
+
+  @override
+  String get concubinageGateFactRenteLpp =>
+      'Your partner\'s monthly LPP pension';
+
+  @override
+  String get concubinageGateWhyRenteLpp =>
+      'The partner\'s LPP pension is used to estimate the survivor\'s pension.';
+
+  @override
+  String get concubinageGateFiscalTitle => 'Tax comparison';
+
+  @override
+  String get concubinageGateInheritanceTitle => 'Inheritance tax';
+
+  @override
+  String get concubinageGateSurvivorTitle => 'Survivor\'s pension';
+
+  @override
+  String get concubinageNonRenseigne => 'Not provided';
 
   @override
   String get concubinageDecisionMatrixTitle => 'Marriage vs Cohabitation';
