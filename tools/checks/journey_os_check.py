@@ -198,6 +198,7 @@ ALLOW = {
     "apps/mobile/lib/screens/gender_gap_screen.dart",
     "apps/mobile/test/screens/gender_gap_gate_test.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
+    ".planning/audit/2026-07-26-advisor-lens-simulators.md",
     "apps/mobile/test/screens/simulator_screens_smoke_test.dart",
     "apps/mobile/lib/services/life_events_service.dart",
     "apps/mobile/test/services/life_events_divorce_test.dart",
