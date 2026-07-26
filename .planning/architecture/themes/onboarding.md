@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème onboarding — 5 routes : 4 câblées (lien cliquable), 1 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
+description: "Carte de navigation du thème onboarding — 2 routes : 2 câblées (lien cliquable), 0 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « onboarding » — carte de navigation
@@ -10,10 +10,10 @@ description: "Carte de navigation du thème onboarding — 5 routes : 4 câblée
 
 | | Routes | Signification |
 |---|---:|---|
-| 🟢 câblée | 4 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 1 | atteignable seulement via le registre / le coach |
+| 🟢 câblée | 2 | un lien cliquable y mène depuis un écran |
+| 🟡 séquence | 0 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **5** | **verdict : PARCOURABLE** (4/5 = 80 % cliquables) |
+| **Total** | **2** | **verdict : PARCOURABLE** (2/2 = 100 % cliquables) |
 
 ## Hors périmètre produit
 
@@ -21,15 +21,18 @@ Ces routes ne doivent PAS être cliquables — les compter comme des îles crée
 
 | Route | Écran | Nature |
 |---|---|---|
-| `/onboarding/enrichment` | ? | onboarding |
-| `/onboarding/intent` | ? | onboarding |
-| `/onboarding/minimal` | ? | onboarding |
-| `/onboarding/plan` | ? | onboarding |
-| `/onboarding/premier-eclairage` | ? | onboarding |
-| `/onboarding/promise` | ? | onboarding |
-| `/onboarding/quick` | ? | onboarding |
-| `/onboarding/quick-start` | ? | onboarding |
-| `/onboarding/smart` | ? | onboarding |
+| `/ask-mint` | ? | redirect |
+| `/onboarding/enrichment` | ? | redirect |
+| `/onboarding/intent` | ? | redirect |
+| `/onboarding/minimal` | ? | redirect |
+| `/onboarding/plan` | ? | redirect |
+| `/onboarding/premier-eclairage` | ? | redirect |
+| `/onboarding/promise` | ? | redirect |
+| `/onboarding/quick` | ? | redirect |
+| `/onboarding/quick-start` | ? | redirect |
+| `/onboarding/smart` | ? | redirect |
+| `/score-reveal` | ? | redirect |
+| `/start` | ? | redirect |
 | `/waitlist` | ? | deeplink |
 
 ## Inventaire (routes produit)
@@ -37,10 +40,7 @@ Ces routes ne doivent PAS être cliquables — les compter comme des îles crée
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
 | `/` | LandingScreen | 🟢 câblée | `anonymous_chat_screen`, `login_screen`, `privacy_center_screen`, `profile_drawer`, `register_screen`, `waitlist_success` | non |
-| `/ask-mint` | ? | 🟢 câblée | `byok_settings_screen` | oui |
 | `/onb` | OnboardingShellScreen | 🟢 câblée | `financial_summary_screen`, `retirement_dashboard_screen` | oui |
-| `/score-reveal` | ? | 🟡 séquence | — | oui |
-| `/start` | ? | 🟢 câblée | `landing_screen` | non |
 
 ## Graphe des entrées
 
@@ -52,8 +52,6 @@ graph LR
   profile_drawer["profile_drawer"] --> _["/"]
   register_screen["register_screen"] --> _["/"]
   waitlist_success["waitlist_success"] --> _["/"]
-  byok_settings_screen["byok_settings_screen"] --> _ask_mint["/ask-mint"]
   financial_summary_screen["financial_summary_screen"] --> _onb["/onb"]
   retirement_dashboard_screen["retirement_dashboard_screen"] --> _onb["/onb"]
-  landing_screen["landing_screen"] --> _start["/start"]
 ```

@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème coach — 16 routes : 2 câblées (lien cliquable), 13 atteignables seulement par séquence/registre, 1 îles. Verdict : PORTE UNIQUE."
+description: "Carte de navigation du thème coach — 3 routes : 2 câblées (lien cliquable), 1 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « coach » — carte de navigation
@@ -11,15 +11,9 @@ description: "Carte de navigation du thème coach — 16 routes : 2 câblées (l
 | | Routes | Signification |
 |---|---:|---|
 | 🟢 câblée | 2 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 13 | atteignable seulement via le registre / le coach |
-| 🔴 île | 1 | aucun chemin détecté |
-| **Total** | **16** | **verdict : PORTE UNIQUE** (2/16 = 12 % cliquables) |
-
-## ⚠️ Portes manquantes
-
-Ces routes n'ont **aucun lien cliquable**. Un utilisateur qui explore l'app ne peut pas les atteindre : elles dépendent d'une décision du coach ou d'une séquence.
-
-- `/anonymous/chat` — ?
+| 🟡 séquence | 1 | atteignable seulement via le registre / le coach |
+| 🔴 île | 0 | aucun chemin détecté |
+| **Total** | **3** | **verdict : PARCOURABLE** (2/3 = 67 % cliquables) |
 
 ## Hors périmètre produit
 
@@ -27,27 +21,27 @@ Ces routes ne doivent PAS être cliquables — les compter comme des îles crée
 
 | Route | Écran | Nature |
 |---|---|---|
+| `/advisor` | ? | redirect |
+| `/advisor/plan-30-days` | ? | redirect |
+| `/advisor/wizard` | ? | redirect |
+| `/anonymous/chat` | ? | redirect |
+| `/arbitrage/rachat-vs-marche` | ? | redirect |
+| `/coach/agir` | ? | redirect |
+| `/coach/checkin` | ? | redirect |
+| `/coach/cockpit` | ? | redirect |
+| `/coach/dashboard` | ? | redirect |
+| `/coach/decaissement` | ? | redirect |
+| `/coach/refresh` | ? | redirect |
+| `/coach/succession` | ? | redirect |
 | `/debug/chat-as-verb` | ChatAsVerbDemoScreen | admin |
+| `/lpp-deep/rachat` | ? | redirect |
 
 ## Inventaire (routes produit)
 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
-| `/advisor` | ? | 🟡 séquence | — | oui |
-| `/advisor/plan-30-days` | ? | 🟡 séquence | — | oui |
-| `/advisor/wizard` | ? | 🟡 séquence | — | oui |
-| `/anonymous/chat` | ? | 🔴 île | — | non |
-| `/arbitrage/rachat-vs-marche` | ? | 🟡 séquence | — | oui |
-| `/coach/agir` | ? | 🟡 séquence | — | oui |
 | `/coach/chat` | ? | 🟢 câblée | `arbitrage_bilan_screen`, `aujourdhui_screen`, `budget_screen`, `budget_setup_screen`, `cantonal_benchmark_screen`, `cap_du_jour_banner`, `commitments_and_checkins_card`, `conjoint_missing_hint`, `conversation_history_screen`, `document_impact_screen`, `financial_report_screen_v2`, `mon_argent_screen`, `retroactive_3a_screen`, `staggered_withdrawal_screen` | oui |
-| `/coach/checkin` | ? | 🟡 séquence | — | oui |
-| `/coach/cockpit` | ? | 🟡 séquence | — | oui |
-| `/coach/dashboard` | ? | 🟡 séquence | — | oui |
-| `/coach/decaissement` | ? | 🟡 séquence | — | oui |
 | `/coach/history` | ConversationHistoryScreen | 🟡 séquence | — | oui |
-| `/coach/refresh` | ? | 🟡 séquence | — | oui |
-| `/coach/succession` | ? | 🟡 séquence | — | oui |
-| `/lpp-deep/rachat` | ? | 🟡 séquence | — | oui |
 | `/rachat-lpp` | RachatEchelonneScreen | 🟢 câblée | `drawer:coach`, `hub:/explore/retraite` | oui |
 
 ## Graphe des entrées
