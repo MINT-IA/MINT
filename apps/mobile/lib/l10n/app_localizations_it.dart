@@ -6925,7 +6925,7 @@ class SIt extends S {
 
   @override
   String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'In concubinato, il tuo partner pagherebbe $impot di imposta di successione su un patrimonio di $patrimoine. Se sposato/a, sarebbe totalmente esente.';
+    return 'Se designi il·la partner per testamento, pagherebbe $impot di imposta di successione su un patrimonio di $patrimoine (aliquota per terzi). Sposato·a, ne sarebbe esente.';
   }
 
   @override
@@ -6950,7 +6950,7 @@ class SIt extends S {
 
   @override
   String get concubinageChecklist1Desc =>
-      'Senza testamento, il/la tuo/a partner non eredita nulla — tutto va ai tuoi genitori o fratelli e sorelle. Un testamento olografo (scritto a mano, datato, firmato) è sufficiente. Puoi legare la quota disponibile al/alla tuo/a partner.';
+      'Senza testamento, il·la tuo·a partner non eredita nulla — la tua successione segue l\'ordine legale (prima i tuoi discendenti, altrimenti i tuoi genitori, poi i tuoi fratelli). Un testamento olografo (scritto a mano, datato, firmato) basta; puoi lasciare la quota disponibile al·la tuo·a partner.';
 
   @override
   String get concubinageChecklist2Title => 'Clausola beneficiaria LPP';
@@ -13416,12 +13416,81 @@ class SIt extends S {
       'In concubinato, se il tuo partner muore, non ricevi né rendita AVS, né rendita LPP automatica, e non sei erede legale. Ogni protezione va anticipata.';
 
   @override
+  String get concubinageProtectionConditionsNote =>
+      'Le protezioni del matrimonio (rendite per superstiti AVS e LPP) dipendono da condizioni di idoneità; la convivenza non vi dà alcun accesso, quali che siano le condizioni.';
+
+  @override
   String get concubinageProtectionLppSlider =>
       'Rendita LPP mensile del partner';
 
   @override
   String get concubinageProtectionSurvivorZero =>
       'CHF 0/mese per il concubino superstite senza azione';
+
+  @override
+  String get concubinageInheritanceConditional =>
+      'Senza testamento, il·la tuo·tua partner non è erede legale: non eredita nulla e il tuo patrimonio va ai tuoi eredi legali. Se lo·la designi per testamento (entro la quota disponibile), pagherebbe allora l\'imposta di successione qui sotto, all\'aliquota per terzi, senza l\'esenzione di un·a coniuge sposato·a. L\'importo sotto presuppone che tu possa lasciare tutto il tuo patrimonio; se hai discendenti, la loro quota legittima limita la parte trasmissibile — e quindi l\'imposta.';
+
+  @override
+  String get concubinageSurvivorLppDetail =>
+      'Possibile rendita per superstiti (60 %) — condizioni LPP art. 19: figlio a carico, o 45 anni e 5 anni di matrimonio.';
+
+  @override
+  String get concubinageSurvivorAvsNote =>
+      'Un·a coniuge superstite può ricevere anche una rendita AVS per superstiti (LAVS art. 23, a determinate condizioni); un·a convivente non ne ha mai diritto.';
+
+  @override
+  String get concubinage3aClauseEducational =>
+      'Senza una clausola beneficiaria che designi il·la tuo·tua partner, il tuo pilastro 3a segue l\'ordine legale dei beneficiari (OPP3 art. 2) e il·la tuo·tua partner non è beneficiario·a per impostazione predefinita. Con una clausola depositata presso la tua fondazione 3a, puoi designarlo·a.';
+
+  @override
+  String get concubinageGateFactRevenu1 => 'Il tuo reddito annuo lordo';
+
+  @override
+  String get concubinageGateWhyRevenu1 =>
+      'Il reddito di entrambi i partner determina la differenza fiscale tra matrimonio e concubinato.';
+
+  @override
+  String get concubinageGateFactRevenu2 =>
+      'Il reddito annuo lordo del tuo partner';
+
+  @override
+  String get concubinageGateWhyRevenu2 =>
+      'Senza il reddito del tuo partner, la differenza fiscale della coppia non può essere stimata.';
+
+  @override
+  String get concubinageGateFactCanton => 'Il tuo cantone di residenza';
+
+  @override
+  String get concubinageGateWhyCanton =>
+      'La tariffa fiscale e l\'aliquota di successione dipendono dal tuo cantone.';
+
+  @override
+  String get concubinageGateFactPatrimoine => 'Il tuo patrimonio totale';
+
+  @override
+  String get concubinageGateWhyPatrimoine =>
+      'Il patrimonio trasmesso fissa l\'importo soggetto all\'imposta di successione.';
+
+  @override
+  String get concubinageGateFactRenteLpp =>
+      'La rendita LPP mensile del tuo partner';
+
+  @override
+  String get concubinageGateWhyRenteLpp =>
+      'La rendita LPP del partner serve a stimare la rendita per superstiti.';
+
+  @override
+  String get concubinageGateFiscalTitle => 'Confronto fiscale';
+
+  @override
+  String get concubinageGateInheritanceTitle => 'Imposta di successione';
+
+  @override
+  String get concubinageGateSurvivorTitle => 'Rendita per superstiti';
+
+  @override
+  String get concubinageNonRenseigne => 'Non indicato';
 
   @override
   String get concubinageDecisionMatrixTitle => 'Matrimonio vs Concubinato';

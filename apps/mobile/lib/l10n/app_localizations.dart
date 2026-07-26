@@ -12381,7 +12381,7 @@ abstract class S {
   /// No description provided for @concubinageWarningSuccession.
   ///
   /// In fr, this message translates to:
-  /// **'En concubinage, ton partenaire paierait {impot} d\'impôt successoral sur un patrimoine de {patrimoine}. Marié-e, il/elle serait totalement exonéré-e.'**
+  /// **'Si tu désignes ton·ta partenaire par testament, il·elle paierait {impot} d\'impôt de succession sur un patrimoine de {patrimoine} (taux tiers). Marié·e, il·elle en serait exonéré·e.'**
   String concubinageWarningSuccession(String impot, String patrimoine);
 
   /// No description provided for @concubinageNeutralTitle.
@@ -12417,7 +12417,7 @@ abstract class S {
   /// No description provided for @concubinageChecklist1Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Sans testament, ton partenaire n\'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.'**
+  /// **'Sans testament, ton partenaire n\'hérite de rien — ta succession suit l\'ordre légal (d\'abord tes descendants, sinon tes parents, puis tes frères et sœurs). Un testament olographe (écrit à la main, daté, signé) suffit ; tu peux léguer la quotité disponible à ton/ta partenaire.'**
   String get concubinageChecklist1Desc;
 
   /// No description provided for @concubinageChecklist2Title.
@@ -23623,6 +23623,12 @@ abstract class S {
   /// **'En concubinage, si ton partenaire décède, tu ne reçois ni rente AVS, ni rente LPP automatique, et tu n’es pas héritier légal. Chaque protection doit être anticipée.'**
   String get concubinageProtectionWarning;
 
+  /// No description provided for @concubinageProtectionConditionsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les protections du mariage (rentes de survivant AVS et LPP) dépendent de conditions d\'éligibilité ; le concubinage n\'y donne aucun accès, quelles que soient les conditions.'**
+  String get concubinageProtectionConditionsNote;
+
   /// No description provided for @concubinageProtectionLppSlider.
   ///
   /// In fr, this message translates to:
@@ -23634,6 +23640,114 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'CHF 0/mois pour le concubin survivant sans démarche'**
   String get concubinageProtectionSurvivorZero;
+
+  /// No description provided for @concubinageInheritanceConditional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans testament, ton·ta partenaire n\'est pas héritier·ère légal·e : il·elle n\'hérite de rien et ton patrimoine revient à tes héritiers légaux. Si tu le·la désignes par testament (dans la limite de la quotité disponible), il·elle paierait alors l\'impôt de succession ci-dessous, au taux « tiers », sans l\'exonération d\'un·e conjoint·e marié·e. Le montant ci-dessous suppose que tu peux léguer tout ton patrimoine ; si tu as des descendant·e·s, leur réserve héréditaire limite la part transmissible — et donc l\'impôt.'**
+  String get concubinageInheritanceConditional;
+
+  /// No description provided for @concubinageSurvivorLppDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente de survivant possible (60 %) — conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage.'**
+  String get concubinageSurvivorLppDetail;
+
+  /// No description provided for @concubinageSurvivorAvsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un·e conjoint·e survivant·e peut toucher en plus une rente AVS de survivant (LAVS art. 23, sous conditions) ; un·e concubin·e n\'y a jamais droit.'**
+  String get concubinageSurvivorAvsNote;
+
+  /// No description provided for @concubinage3aClauseEducational.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans clause bénéficiaire désignant ton·ta partenaire, ton 3a suit l\'ordre légal des bénéficiaires (OPP3 art. 2) et ton·ta partenaire n\'en est pas bénéficiaire par défaut. Avec une clause déposée auprès de ta fondation 3a, tu peux l\'y désigner.'**
+  String get concubinage3aClauseEducational;
+
+  /// No description provided for @concubinageGateFactRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get concubinageGateFactRevenu1;
+
+  /// No description provided for @concubinageGateWhyRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le revenu des deux partenaires détermine l\'écart d\'impôt entre mariage et concubinage.'**
+  String get concubinageGateWhyRevenu1;
+
+  /// No description provided for @concubinageGateFactRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le revenu annuel brut de ton partenaire'**
+  String get concubinageGateFactRevenu2;
+
+  /// No description provided for @concubinageGateWhyRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans le revenu de ton partenaire, l\'écart d\'impôt du couple ne peut pas être estimé.'**
+  String get concubinageGateWhyRevenu2;
+
+  /// No description provided for @concubinageGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton de résidence'**
+  String get concubinageGateFactCanton;
+
+  /// No description provided for @concubinageGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le barème d\'impôt et le taux de succession dépendent de ton canton.'**
+  String get concubinageGateWhyCanton;
+
+  /// No description provided for @concubinageGateFactPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton patrimoine total'**
+  String get concubinageGateFactPatrimoine;
+
+  /// No description provided for @concubinageGateWhyPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le patrimoine transmis fixe le montant soumis à l\'impôt de succession.'**
+  String get concubinageGateWhyPatrimoine;
+
+  /// No description provided for @concubinageGateFactRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente LPP mensuelle de ton partenaire'**
+  String get concubinageGateFactRenteLpp;
+
+  /// No description provided for @concubinageGateWhyRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente LPP du partenaire sert à estimer la rente de survivant.'**
+  String get concubinageGateWhyRenteLpp;
+
+  /// No description provided for @concubinageGateFiscalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparaison fiscale'**
+  String get concubinageGateFiscalTitle;
+
+  /// No description provided for @concubinageGateInheritanceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt de succession'**
+  String get concubinageGateInheritanceTitle;
+
+  /// No description provided for @concubinageGateSurvivorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente de survivant'**
+  String get concubinageGateSurvivorTitle;
+
+  /// No description provided for @concubinageNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get concubinageNonRenseigne;
 
   /// No description provided for @concubinageDecisionMatrixTitle.
   ///

@@ -3243,7 +3243,7 @@
       }
     }
   },
-  "concubinageWarningSuccession": "In cohabitation, your partner would pay {impot} in inheritance tax on assets of {patrimoine}. If married, they would be fully exempt.",
+  "concubinageWarningSuccession": "If you name your partner in a will, they would pay {impot} in inheritance tax on wealth of {patrimoine} (third-party rate). Married, they would be exempt.",
   "@concubinageWarningSuccession": {
     "placeholders": {
       "impot": {
@@ -3269,7 +3269,7 @@
     }
   },
   "concubinageChecklist1Title": "Draft a will",
-  "concubinageChecklist1Desc": "Without a will, your partner inherits nothing — everything goes to your parents or siblings. A handwritten will (handwritten, dated, signed) is sufficient. You can bequeath the disposable portion to your partner.",
+  "concubinageChecklist1Desc": "Without a will, your partner inherits nothing — your estate follows the legal order (first your descendants, otherwise your parents, then your siblings). A holographic will (handwritten, dated, signed) is enough; you can bequeath the available portion to your partner.",
   "concubinageChecklist2Title": "LPP beneficiary clause",
   "concubinageChecklist2Desc": "Contact your pension fund to register your partner as beneficiary. Without this clause, the LPP death capital does not go to them. Most funds accept the cohabitant under conditions (shared household, etc.).",
   "concubinageChecklist3Title": "Cohabitation agreement",
@@ -6313,8 +6313,27 @@
   "concubinageProtectionMaried": "Married",
   "concubinageProtectionConcubinLabel": "Cohabiting",
   "concubinageProtectionWarning": "In cohabitation, if your partner dies, you receive no AVS pension, no automatic LPP pension, and you are not a legal heir. Every protection must be planned ahead.",
+  "concubinageProtectionConditionsNote": "Marriage protections (AVS and LPP survivor's pensions) depend on eligibility conditions; cohabitation grants no access to them, whatever the conditions.",
   "concubinageProtectionLppSlider": "Partner’s monthly LPP pension",
   "concubinageProtectionSurvivorZero": "CHF 0/month for the surviving cohabiting partner without action",
+  "concubinageInheritanceConditional": "Without a will, your partner is not a legal heir: they inherit nothing and your wealth goes to your legal heirs. If you name them in a will (within the disposable portion), they would then pay the inheritance tax below, at the third-party rate, without the exemption a married spouse has. The amount below assumes you can bequeath your entire estate; if you have descendants, their statutory reserve limits the transmissible share — and therefore the tax.",
+  "concubinageSurvivorLppDetail": "Possible survivor's pension (60%) — LPP art. 19 conditions: dependent child, or age 45 and 5 years of marriage.",
+  "concubinageSurvivorAvsNote": "A surviving spouse may also receive an AVS survivor's pension (LAVS art. 23, under conditions); a cohabiting partner is never entitled to it.",
+  "concubinage3aClauseEducational": "Without a beneficiary clause naming your partner, your pillar 3a follows the legal order of beneficiaries (OPP3 art. 2) and your partner is not a beneficiary by default. With a clause filed with your 3a foundation, you can name them there.",
+  "concubinageGateFactRevenu1": "Your gross annual income",
+  "concubinageGateWhyRevenu1": "Both partners' income drives the tax gap between marriage and cohabitation.",
+  "concubinageGateFactRevenu2": "Your partner's gross annual income",
+  "concubinageGateWhyRevenu2": "Without your partner's income, the couple's tax gap cannot be estimated.",
+  "concubinageGateFactCanton": "Your canton of residence",
+  "concubinageGateWhyCanton": "The tax scale and inheritance rate depend on your canton.",
+  "concubinageGateFactPatrimoine": "Your total wealth",
+  "concubinageGateWhyPatrimoine": "The wealth transferred sets the amount subject to inheritance tax.",
+  "concubinageGateFactRenteLpp": "Your partner's monthly LPP pension",
+  "concubinageGateWhyRenteLpp": "The partner's LPP pension is used to estimate the survivor's pension.",
+  "concubinageGateFiscalTitle": "Tax comparison",
+  "concubinageGateInheritanceTitle": "Inheritance tax",
+  "concubinageGateSurvivorTitle": "Survivor's pension",
+  "concubinageNonRenseigne": "Not provided",
   "concubinageDecisionMatrixTitle": "Marriage vs Cohabitation",
   "concubinageDecisionMatrixSubtitle": "Comparison of rights and obligations",
   "concubinageDecisionMatrixColumnMarriage": "Marriage",

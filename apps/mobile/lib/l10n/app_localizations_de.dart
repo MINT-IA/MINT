@@ -6920,7 +6920,7 @@ class SDe extends S {
 
   @override
   String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Im Konkubinat würde dein·e Partner·in $impot Erbschaftssteuer auf ein Vermögen von $patrimoine zahlen. Verheiratet wäre er/sie vollständig befreit.';
+    return 'Wenn du deine·n Partner·in testamentarisch begünstigst, würde er·sie $impot Erbschaftssteuer auf ein Vermögen von $patrimoine zahlen (Satz für Nichtverwandte). Verheiratet wäre er·sie befreit.';
   }
 
   @override
@@ -6944,7 +6944,7 @@ class SDe extends S {
 
   @override
   String get concubinageChecklist1Desc =>
-      'Ohne Testament erbt dein·e Partner·in nichts — alles geht an deine Eltern oder Geschwister. Ein handschriftliches Testament (handgeschrieben, datiert, unterschrieben) genügt. Du kannst die frei verfügbare Quote deinem/deiner Partner·in vermachen.';
+      'Ohne Testament erbt dein·e Partner·in nichts — dein Nachlass folgt der gesetzlichen Erbfolge (zuerst deine Nachkommen, sonst deine Eltern, dann deine Geschwister). Ein eigenhändiges Testament (handschriftlich, datiert, unterschrieben) genügt; du kannst deinem·r Partner·in die verfügbare Quote vermachen.';
 
   @override
   String get concubinageChecklist2Title => 'BVG-Begünstigungsklausel';
@@ -13414,12 +13414,81 @@ class SDe extends S {
       'Im Konkubinat erhältst du bei Tod des Partners keine AHV-Rente, keine automatische BVG-Rente und bist kein gesetzlicher Erbe. Jeder Schutz muss vorausgeplant werden.';
 
   @override
+  String get concubinageProtectionConditionsNote =>
+      'Der Schutz der Ehe (AHV- und BVG-Hinterlassenenrenten) hängt von Anspruchsvoraussetzungen ab; das Konkubinat gewährt darauf keinen Zugang, unabhängig von den Bedingungen.';
+
+  @override
   String get concubinageProtectionLppSlider =>
       'Monatliche BVG-Rente des Partners';
 
   @override
   String get concubinageProtectionSurvivorZero =>
       'CHF 0/Monat für den überlebenden Konkubinatspartner ohne Massnahmen';
+
+  @override
+  String get concubinageInheritanceConditional =>
+      'Ohne Testament ist dein·e Partner·in kein·e gesetzliche·r Erbe·in: er·sie erbt nichts und dein Vermögen geht an deine gesetzlichen Erben. Wenn du ihn·sie testamentarisch begünstigst (im Rahmen der freien Quote), würde er·sie die untenstehende Erbschaftssteuer zahlen, zum Satz für Nichtverwandte, ohne die Befreiung eines·einer Ehepartners·in. Der Betrag unten setzt voraus, dass du dein ganzes Vermögen vermachen kannst; hast du Nachkommen, begrenzt deren Pflichtteil den übertragbaren Anteil — und damit die Steuer.';
+
+  @override
+  String get concubinageSurvivorLppDetail =>
+      'Mögliche Hinterlassenenrente (60 %) — Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre.';
+
+  @override
+  String get concubinageSurvivorAvsNote =>
+      'Ein·e überlebende·r Ehepartner·in kann zusätzlich eine AHV-Hinterlassenenrente erhalten (AHVG Art. 23, unter Bedingungen); ein·e Konkubinatspartner·in hat nie Anspruch darauf.';
+
+  @override
+  String get concubinage3aClauseEducational =>
+      'Ohne Begünstigtenklausel für deine·n Partner·in folgt deine Säule 3a der gesetzlichen Begünstigtenordnung (BVV3 Art. 2), und dein·e Partner·in ist nicht automatisch begünstigt. Mit einer bei deiner 3a-Stiftung hinterlegten Klausel kannst du ihn·sie dort einsetzen.';
+
+  @override
+  String get concubinageGateFactRevenu1 => 'Dein jährliches Bruttoeinkommen';
+
+  @override
+  String get concubinageGateWhyRevenu1 =>
+      'Das Einkommen beider Partner bestimmt die Steuerdifferenz zwischen Ehe und Konkubinat.';
+
+  @override
+  String get concubinageGateFactRevenu2 =>
+      'Das jährliche Bruttoeinkommen deines Partners';
+
+  @override
+  String get concubinageGateWhyRevenu2 =>
+      'Ohne das Einkommen deines Partners lässt sich die Steuerdifferenz des Paares nicht schätzen.';
+
+  @override
+  String get concubinageGateFactCanton => 'Dein Wohnkanton';
+
+  @override
+  String get concubinageGateWhyCanton =>
+      'Der Steuertarif und der Erbschaftssteuersatz hängen von deinem Kanton ab.';
+
+  @override
+  String get concubinageGateFactPatrimoine => 'Dein Gesamtvermögen';
+
+  @override
+  String get concubinageGateWhyPatrimoine =>
+      'Das übertragene Vermögen bestimmt den erbschaftssteuerpflichtigen Betrag.';
+
+  @override
+  String get concubinageGateFactRenteLpp =>
+      'Die monatliche BVG-Rente deines Partners';
+
+  @override
+  String get concubinageGateWhyRenteLpp =>
+      'Die BVG-Rente des Partners dient zur Schätzung der Hinterlassenenrente.';
+
+  @override
+  String get concubinageGateFiscalTitle => 'Steuervergleich';
+
+  @override
+  String get concubinageGateInheritanceTitle => 'Erbschaftssteuer';
+
+  @override
+  String get concubinageGateSurvivorTitle => 'Hinterlassenenrente';
+
+  @override
+  String get concubinageNonRenseigne => 'Nicht angegeben';
 
   @override
   String get concubinageDecisionMatrixTitle => 'Ehe vs Konkubinat';

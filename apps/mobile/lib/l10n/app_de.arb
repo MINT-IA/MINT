@@ -3243,7 +3243,7 @@
       }
     }
   },
-  "concubinageWarningSuccession": "Im Konkubinat würde dein·e Partner·in {impot} Erbschaftssteuer auf ein Vermögen von {patrimoine} zahlen. Verheiratet wäre er/sie vollständig befreit.",
+  "concubinageWarningSuccession": "Wenn du deine·n Partner·in testamentarisch begünstigst, würde er·sie {impot} Erbschaftssteuer auf ein Vermögen von {patrimoine} zahlen (Satz für Nichtverwandte). Verheiratet wäre er·sie befreit.",
   "@concubinageWarningSuccession": {
     "placeholders": {
       "impot": {
@@ -3269,7 +3269,7 @@
     }
   },
   "concubinageChecklist1Title": "Testament verfassen",
-  "concubinageChecklist1Desc": "Ohne Testament erbt dein·e Partner·in nichts — alles geht an deine Eltern oder Geschwister. Ein handschriftliches Testament (handgeschrieben, datiert, unterschrieben) genügt. Du kannst die frei verfügbare Quote deinem/deiner Partner·in vermachen.",
+  "concubinageChecklist1Desc": "Ohne Testament erbt dein·e Partner·in nichts — dein Nachlass folgt der gesetzlichen Erbfolge (zuerst deine Nachkommen, sonst deine Eltern, dann deine Geschwister). Ein eigenhändiges Testament (handschriftlich, datiert, unterschrieben) genügt; du kannst deinem·r Partner·in die verfügbare Quote vermachen.",
   "concubinageChecklist2Title": "BVG-Begünstigungsklausel",
   "concubinageChecklist2Desc": "Kontaktiere deine Pensionskasse, um deine·n Partner·in als Begünstigte·n einzutragen. Ohne diese Klausel geht das BVG-Todesfallkapital nicht an sie/ihn. Die meisten Kassen akzeptieren den Konkubinatspartner unter Bedingungen (gemeinsamer Haushalt etc.).",
   "concubinageChecklist3Title": "Konkubinatsvertrag",
@@ -6313,8 +6313,27 @@
   "concubinageProtectionMaried": "Verheiratet",
   "concubinageProtectionConcubinLabel": "Konkubinat",
   "concubinageProtectionWarning": "Im Konkubinat erhältst du bei Tod des Partners keine AHV-Rente, keine automatische BVG-Rente und bist kein gesetzlicher Erbe. Jeder Schutz muss vorausgeplant werden.",
+  "concubinageProtectionConditionsNote": "Der Schutz der Ehe (AHV- und BVG-Hinterlassenenrenten) hängt von Anspruchsvoraussetzungen ab; das Konkubinat gewährt darauf keinen Zugang, unabhängig von den Bedingungen.",
   "concubinageProtectionLppSlider": "Monatliche BVG-Rente des Partners",
   "concubinageProtectionSurvivorZero": "CHF 0/Monat für den überlebenden Konkubinatspartner ohne Massnahmen",
+  "concubinageInheritanceConditional": "Ohne Testament ist dein·e Partner·in kein·e gesetzliche·r Erbe·in: er·sie erbt nichts und dein Vermögen geht an deine gesetzlichen Erben. Wenn du ihn·sie testamentarisch begünstigst (im Rahmen der freien Quote), würde er·sie die untenstehende Erbschaftssteuer zahlen, zum Satz für Nichtverwandte, ohne die Befreiung eines·einer Ehepartners·in. Der Betrag unten setzt voraus, dass du dein ganzes Vermögen vermachen kannst; hast du Nachkommen, begrenzt deren Pflichtteil den übertragbaren Anteil — und damit die Steuer.",
+  "concubinageSurvivorLppDetail": "Mögliche Hinterlassenenrente (60 %) — Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre.",
+  "concubinageSurvivorAvsNote": "Ein·e überlebende·r Ehepartner·in kann zusätzlich eine AHV-Hinterlassenenrente erhalten (AHVG Art. 23, unter Bedingungen); ein·e Konkubinatspartner·in hat nie Anspruch darauf.",
+  "concubinage3aClauseEducational": "Ohne Begünstigtenklausel für deine·n Partner·in folgt deine Säule 3a der gesetzlichen Begünstigtenordnung (BVV3 Art. 2), und dein·e Partner·in ist nicht automatisch begünstigt. Mit einer bei deiner 3a-Stiftung hinterlegten Klausel kannst du ihn·sie dort einsetzen.",
+  "concubinageGateFactRevenu1": "Dein jährliches Bruttoeinkommen",
+  "concubinageGateWhyRevenu1": "Das Einkommen beider Partner bestimmt die Steuerdifferenz zwischen Ehe und Konkubinat.",
+  "concubinageGateFactRevenu2": "Das jährliche Bruttoeinkommen deines Partners",
+  "concubinageGateWhyRevenu2": "Ohne das Einkommen deines Partners lässt sich die Steuerdifferenz des Paares nicht schätzen.",
+  "concubinageGateFactCanton": "Dein Wohnkanton",
+  "concubinageGateWhyCanton": "Der Steuertarif und der Erbschaftssteuersatz hängen von deinem Kanton ab.",
+  "concubinageGateFactPatrimoine": "Dein Gesamtvermögen",
+  "concubinageGateWhyPatrimoine": "Das übertragene Vermögen bestimmt den erbschaftssteuerpflichtigen Betrag.",
+  "concubinageGateFactRenteLpp": "Die monatliche BVG-Rente deines Partners",
+  "concubinageGateWhyRenteLpp": "Die BVG-Rente des Partners dient zur Schätzung der Hinterlassenenrente.",
+  "concubinageGateFiscalTitle": "Steuervergleich",
+  "concubinageGateInheritanceTitle": "Erbschaftssteuer",
+  "concubinageGateSurvivorTitle": "Hinterlassenenrente",
+  "concubinageNonRenseigne": "Nicht angegeben",
   "concubinageDecisionMatrixTitle": "Ehe vs Konkubinat",
   "concubinageDecisionMatrixSubtitle": "Vergleich der Rechte und Pflichten",
   "concubinageDecisionMatrixColumnMarriage": "Ehe",
