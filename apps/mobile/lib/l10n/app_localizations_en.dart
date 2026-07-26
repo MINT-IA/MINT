@@ -18485,7 +18485,7 @@ class SEn extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Marriage changes your taxation (LIFD art. 9), your matrimonial regime (CC art. 181) and your survivor benefits (LAVS art. 23, LPP art. 19). Depending on your respective incomes, the tax impact could be positive or negative.';
+      'Marriage changes your taxation (FTA art. 9), your matrimonial property regime (CC art. 181) and your survivor rights (AHV art. 23, BVG art. 19). Depending on how your two incomes compare, the household tax can move either way.';
 
   @override
   String get narrativeMarriageHeadline => 'Financial impact of marriage';

@@ -18590,7 +18590,7 @@ class SEs extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'El matrimonio modifica tu imposición (LIFD art. 9), tu régimen matrimonial (CC art. 181) y tus derechos de sobreviviente (LAVS art. 23, LPP art. 19). Según vuestros ingresos respectivos, el impacto fiscal podría ser positivo o negativo.';
+      'El matrimonio modifica tu tributación (LIFD art. 9), tu régimen matrimonial (CC art. 181) y tus derechos de supervivencia (LAVS art. 23, LPP art. 19). Según cómo se repartan vuestros dos ingresos, el impuesto del hogar puede ir en un sentido o en el otro.';
 
   @override
   String get narrativeMarriageHeadline => 'Impacto financiero del matrimonio';

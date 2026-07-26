@@ -18623,7 +18623,7 @@ class SDe extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Die Ehe verändert deine Besteuerung (DBG Art. 9), dein Güterrecht (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nach euren jeweiligen Einkommen könnte die steuerliche Auswirkung positiv oder negativ sein.';
+      'Die Heirat ändert deine Besteuerung (DBG Art. 9), deinen Güterstand (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nachdem, wie sich eure beiden Einkommen verteilen, kann die Haushaltssteuer in beide Richtungen gehen.';
 
   @override
   String get narrativeMarriageHeadline => 'Finanzielle Auswirkungen der Ehe';

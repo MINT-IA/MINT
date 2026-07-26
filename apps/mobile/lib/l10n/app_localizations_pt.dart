@@ -18589,7 +18589,7 @@ class SPt extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'O casamento modifica a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Dependendo dos vossos rendimentos respetivos, o impacto fiscal pode ser positivo ou negativo.';
+      'O casamento altera a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Consoante a repartição dos vossos dois rendimentos, o imposto do agregado pode ir num sentido ou no outro.';
 
   @override
   String get narrativeMarriageHeadline => 'Impacto financeiro do casamento';

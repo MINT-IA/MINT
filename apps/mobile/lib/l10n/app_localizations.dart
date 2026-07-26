@@ -32619,7 +32619,7 @@ abstract class S {
   /// No description provided for @narrativeMarriageBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon vos revenus respectifs, l’impact fiscal pourrait être positif ou négatif.'**
+  /// **'Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon la répartition de vos deux revenus, l’impôt du ménage peut aller dans un sens comme dans l’autre.'**
   String get narrativeMarriageBody;
 
   /// No description provided for @narrativeMarriageHeadline.

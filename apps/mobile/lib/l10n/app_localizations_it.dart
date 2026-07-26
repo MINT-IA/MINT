@@ -18639,7 +18639,7 @@ class SIt extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Il matrimonio modifica la tua imposizione (LIFD art. 9), il tuo regime matrimoniale (CC art. 181) e i tuoi diritti di superstite (LAVS art. 23, LPP art. 19). A seconda dei vostri rispettivi redditi, l’impatto fiscale potrebbe essere positivo o negativo.';
+      'Il matrimonio modifica la tua imposizione (LIFD art. 9), il tuo regime matrimoniale (CC art. 181) e i tuoi diritti di superstite (LAVS art. 23, LPP art. 19). A seconda di come si ripartiscono i vostri due redditi, l’imposta del nucleo può andare in un senso o nell’altro.';
 
   @override
   String get narrativeMarriageHeadline => 'Impatto finanziario del matrimonio';

@@ -126,7 +126,7 @@ Mission : faire de MINT l'application de lucidité financière suisse — toutes
 <ul>
 <li><strong>P1</strong> — suite de l'audit conseiller : 9 constats non-divorce (labels « pénalité/bonus » fiscaux, succession forfaitaire, gender_gap qui modélise le minimum LPP et non le plan réel, plafond 3a périmé, partage LPP sans intérêts ni date de valorisation…).</li>
 <li><strong>P1</strong> — couple : le write-back du conjoint manquant (l'invitation ménage n'alimente aucun calcul).</li>
-<li><strong>P2/P3</strong> — modèle marié ×0.80 trop grossier, backend <code>divorce_simulator.py</code> à taux plats, preuve VoiceOver des cartes de gate, bande d'incertitude (NEVER #9), clés <code>userProvidedFields</code> manquantes, sémantique de l'échelle 44, cible de redesign à localiser.</li>
+<li><strong>P2/P3</strong> — modèle marié trop grossier (facteur 0.92 sur un taux de base ajusté, sans barème réel ni commune — j'ai longtemps écrit ×0.80 par confusion avec <code>avsSurvivorFactor</code>, voir <code>family_service.dart:341</code>), backend <code>divorce_simulator.py</code> à taux plats, preuve VoiceOver des cartes de gate, bande d'incertitude (NEVER #9), clés <code>userProvidedFields</code> manquantes, sémantique de l'échelle 44, cible de redesign à localiser.</li>
 </ul>
 
 <h2>6. La leçon de méthode de cette session</h2>
