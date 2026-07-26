@@ -485,7 +485,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         // barème réduit, sens dicté par la répartition) — expliqué avant le
         // chiffre pour qu'il se lise comme une mécanique, pas comme un verdict.
         _buildEducationalInsert(
-          S.of(context)!.concubinageMecaniqueImpositionCommune,
+          S.of(context)!.impositionCommuneMecanique,
         ),
         const SizedBox(height: MintSpacing.lg),
         _buildFiscalDetailCard(),
@@ -725,7 +725,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
             ),
             child: Text(
-              S.of(context)!.concubinageFiscalModelLimit,
+              S.of(context)!.fiscalEstimationModelLimit,
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
           ),
@@ -747,7 +747,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   //
   // Le taux, lui, reste : c'est une information réelle et personnalisée (le
   // canton est un fait confirmé), encadrée d'une limite de modèle — même motif
-  // et mêmes tokens que `concubinageFiscalModelLimit` sur la carte fiscale.
+  // et mêmes tokens que `fiscalEstimationModelLimit` sur la carte fiscale.
   // La carte est rendue même à 0 % (SZ/OW/NW) : « aucun impôt de succession dans
   // ton canton » est précisément l'information utile.
   Widget _buildInheritanceCard() {

@@ -2430,14 +2430,36 @@ class SIt extends S {
   String get mariageMaries => 'Sposati';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Penalità +$amount/anno';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Imposta del nucleo: due single o sposati';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bonus -$amount/anno';
-  }
+  String get mariageDeuxCelibataires => '2 single';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Differenza annua: imposta del nucleo più alta da sposati';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Differenza annua: imposta del nucleo più alta da due single';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Differenza annua: imposta del nucleo identica nei due casi';
+
+  @override
+  String get mariageParAn => 'all’anno';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'Il verso della differenza si gioca sulla ripartizione dei tuoi due redditi: la loro somma tira l’imposta del nucleo verso l’alto, l’aliquota ridotta riservata alle coppie la tira verso il basso.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Redditi vicini';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'Un reddito domina';
 
   @override
   String get mariageDeductions => 'DEDUZIONI MATRIMONIO';
@@ -6912,11 +6934,11 @@ class SIt extends S {
       'Imposta del nucleo più alta in convivenza';
 
   @override
-  String get concubinageMecaniqueImpositionCommune =>
+  String get impositionCommuneMecanique =>
       'Da sposati, i due redditi vengono sommati e tassati insieme, con un’aliquota ridotta riservata alle coppie. Il verso della differenza dipende dalla ripartizione dei redditi: quando sono vicini, la somma alza il reddito imponibile più di quanto l’aliquota ridotta lo abbassi — è il cosiddetto effetto « Heiratsstrafe ». Quando un reddito domina nettamente, la stessa aliquota porta l’imposta del nucleo sotto quella di due singoli.';
 
   @override
-  String get concubinageFiscalModelLimit =>
+  String get fiscalEstimationModelLimit =>
       'Stima semplificata: non tiene conto né delle tue deduzioni reali, né del tuo comune, né dell’aliquota cantonale dettagliata. La differenza reale può quindi variare, anche nel suo verso.';
 
   @override
@@ -18617,7 +18639,7 @@ class SIt extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Il matrimonio modifica la tua imposizione (LIFD art. 9), il tuo regime matrimoniale (CC art. 181) e i tuoi diritti di superstite (LAVS art. 23, LPP art. 19). A seconda dei vostri rispettivi redditi, l’impatto fiscale potrebbe essere positivo o negativo.';
+      'Il matrimonio modifica la tua imposizione (LIFD art. 9), il tuo regime matrimoniale (CC art. 181) e i tuoi diritti di superstite (LAVS art. 23, LPP art. 19). A seconda di come si ripartiscono i vostri due redditi, l’imposta del nucleo può andare in un senso o nell’altro.';
 
   @override
   String get narrativeMarriageHeadline => 'Impatto finanziario del matrimonio';

@@ -2424,14 +2424,36 @@ class SEs extends S {
   String get mariageMaries => 'Casados';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Penalización +$amount/año';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Impuesto del hogar: dos solteros o casados';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bonificación -$amount/año';
-  }
+  String get mariageDeuxCelibataires => '2 solteros';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Diferencia anual: impuesto del hogar más alto casados';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Diferencia anual: impuesto del hogar más alto como dos solteros';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Diferencia anual: impuesto del hogar idéntico en ambos casos';
+
+  @override
+  String get mariageParAn => 'al año';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'El sentido de la diferencia se juega en el reparto de tus dos ingresos: su suma tira del impuesto del hogar hacia arriba, la escala reducida reservada a las parejas lo tira hacia abajo.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Ingresos parecidos';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'Un ingreso domina';
 
   @override
   String get mariageDeductions => 'DEDUCCIONES MATRIMONIO';
@@ -6897,11 +6919,11 @@ class SEs extends S {
       'Impuesto del hogar más alto en pareja de hecho';
 
   @override
-  String get concubinageMecaniqueImpositionCommune =>
+  String get impositionCommuneMecanique =>
       'Casados, ambos ingresos se suman y se gravan conjuntamente, con una escala reducida reservada a las parejas. El sentido de la diferencia depende del reparto de los ingresos: cuando son parecidos, la suma eleva la base imponible más rápido de lo que la escala reducida la rebaja — es el efecto llamado « Heiratsstrafe ». Cuando un ingreso domina claramente, esa misma escala sitúa el impuesto del hogar por debajo del de dos solteros.';
 
   @override
-  String get concubinageFiscalModelLimit =>
+  String get fiscalEstimationModelLimit =>
       'Estimación simplificada: no tiene en cuenta ni tus deducciones reales, ni tu municipio, ni la escala cantonal detallada. La diferencia real puede por tanto variar, incluso en su sentido.';
 
   @override
@@ -18568,7 +18590,7 @@ class SEs extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'El matrimonio modifica tu imposición (LIFD art. 9), tu régimen matrimonial (CC art. 181) y tus derechos de sobreviviente (LAVS art. 23, LPP art. 19). Según vuestros ingresos respectivos, el impacto fiscal podría ser positivo o negativo.';
+      'El matrimonio modifica tu tributación (LIFD art. 9), tu régimen matrimonial (CC art. 181) y tus derechos de supervivencia (LAVS art. 23, LPP art. 19). Según cómo se repartan vuestros dos ingresos, el impuesto del hogar puede ir en un sentido o en el otro.';
 
   @override
   String get narrativeMarriageHeadline => 'Impacto financiero del matrimonio';

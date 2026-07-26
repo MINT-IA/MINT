@@ -1107,22 +1107,15 @@
   "mariageEnfants": "Kinder",
   "mariageFiscalComparison": "STEUERVERGLEICH",
   "mariageMaries": "Verheiratet",
-  "mariagePenaltyAmount": "Strafe +{amount}/Jahr",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonus -{amount}/Jahr",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Haushaltssteuer: zwei Alleinstehende oder verheiratet",
+  "mariageDeuxCelibataires": "2 Alleinstehende",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Jährliche Differenz: Haushaltssteuer höher als Ehepaar",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Jährliche Differenz: Haushaltssteuer höher als zwei Alleinstehende",
+  "mariageEcartAnnuelImpotIdentique": "Jährliche Differenz: Haushaltssteuer in beiden Fällen gleich",
+  "mariageParAn": "pro Jahr",
+  "mariageRepartitionCaption": "Die Richtung der Differenz entscheidet sich an der Verteilung deiner beiden Einkommen: ihre Addition zieht die Haushaltssteuer nach oben, der für Paare reservierte reduzierte Tarif zieht sie nach unten.",
+  "mariageRepartitionRevenusProches": "Ähnliche Einkommen",
+  "mariageRepartitionRevenuDomine": "Ein Einkommen dominiert",
   "mariageDeductions": "EHEABZÜGE",
   "mariageDeductionCouple": "Abzug Ehepaar",
   "mariageDeductionInsurance": "Versicherungsabzug (verheiratet)",
@@ -3231,8 +3224,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Haushaltssteuer höher als Ehepaar",
   "concubinageEcartImpotConcubinagePlusEleve": "Haushaltssteuer höher im Konkubinat",
-  "concubinageMecaniqueImpositionCommune": "Als Ehepaar werden beide Einkommen zusammengezählt und gemeinsam besteuert, mit einem für Paare reservierten reduzierten Tarif. Die Richtung der Differenz hängt von der Verteilung der Einkommen ab: Liegen sie nahe beieinander, hebt die Addition das steuerbare Einkommen stärker an, als der reduzierte Tarif es senkt — das ist der sogenannte Effekt « Heiratsstrafe ». Dominiert ein Einkommen deutlich, senkt derselbe Tarif die Haushaltssteuer unter jene von zwei Alleinstehenden.",
-  "concubinageFiscalModelLimit": "Vereinfachte Schätzung: Sie berücksichtigt weder deine tatsächlichen Abzüge noch deine Gemeinde noch den detaillierten kantonalen Tarif. Die tatsächliche Differenz kann daher abweichen, auch in ihrer Richtung.",
+  "impositionCommuneMecanique": "Als Ehepaar werden beide Einkommen zusammengezählt und gemeinsam besteuert, mit einem für Paare reservierten reduzierten Tarif. Die Richtung der Differenz hängt von der Verteilung der Einkommen ab: Liegen sie nahe beieinander, hebt die Addition das steuerbare Einkommen stärker an, als der reduzierte Tarif es senkt — das ist der sogenannte Effekt « Heiratsstrafe ». Dominiert ein Einkommen deutlich, senkt derselbe Tarif die Haushaltssteuer unter jene von zwei Alleinstehenden.",
+  "fiscalEstimationModelLimit": "Vereinfachte Schätzung: Sie berücksichtigt weder deine tatsächlichen Abzüge noch deine Gemeinde noch den detaillierten kantonalen Tarif. Die tatsächliche Differenz kann daher abweichen, auch in ihrer Richtung.",
   "concubinageImpotSuccession": "ERBSCHAFTSSTEUER",
   "concubinageMarieExonere": "0% (befreit)",
   "concubinageConcubinLabel": "Konkubinatspartner·in",
@@ -9015,7 +9008,7 @@
   "narrativeLibrePassageBody": "Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.",
   "narrativeLibrePassageHeadline": "Freizügigkeit: 6 Monate zum Handeln",
   "narrativeMarriageBadge": "Ehe",
-  "narrativeMarriageBody": "Die Ehe verändert deine Besteuerung (DBG Art. 9), dein Güterrecht (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nach euren jeweiligen Einkommen könnte die steuerliche Auswirkung positiv oder negativ sein.",
+  "narrativeMarriageBody": "Die Heirat ändert deine Besteuerung (DBG Art. 9), deinen Güterstand (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nachdem, wie sich eure beiden Einkommen verteilen, kann die Haushaltssteuer in beide Richtungen gehen.",
   "narrativeMarriageHeadline": "Finanzielle Auswirkungen der Ehe",
   "narrativeRachatBadge": "2. Säule",
   "narrativeRachatBody": "Einen BVG-Einkauf über mehrere Jahre zu verteilen, erlaubt den Abzug jeder Tranche vom steuerbaren Einkommen (BVG Art. 79b). Die Steuerprogression macht diese Strategie oft vorteilhafter als eine Einmalzahlung.",

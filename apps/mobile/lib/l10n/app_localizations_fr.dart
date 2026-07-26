@@ -2424,14 +2424,36 @@ class SFr extends S {
   String get mariageMaries => 'Mariés';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Pénalité +$amount/an';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Impôt du ménage : deux célibataires ou marié·e·s';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bonus -$amount/an';
-  }
+  String get mariageDeuxCelibataires => '2 célibataires';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Écart annuel : impôt du ménage plus élevé marié·e·s';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Écart annuel : impôt du ménage plus élevé à deux célibataires';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Écart annuel : impôt du ménage identique dans les deux cas';
+
+  @override
+  String get mariageParAn => 'par an';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'Le sens de l’écart se joue sur la répartition de tes deux revenus : leur addition tire l’impôt du ménage vers le haut, le barème réduit des couples le tire vers le bas.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Revenus proches';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'Un revenu domine';
 
   @override
   String get mariageDeductions => 'DÉDUCTIONS MARIAGE';
@@ -6899,11 +6921,11 @@ class SFr extends S {
       'Impôt du ménage plus élevé en concubinage';
 
   @override
-  String get concubinageMecaniqueImpositionCommune =>
+  String get impositionCommuneMecanique =>
       'Marié·e·s, les deux revenus sont additionnés et imposés ensemble, avec un barème réduit réservé aux couples. Le sens de l’écart dépend de la répartition des revenus : quand ils sont proches, l’addition fait monter le revenu imposable plus vite que le barème réduit ne l’abaisse — c’est l’effet dit « Heiratsstrafe ». Quand un revenu domine largement, ce même barème abaisse l’impôt du ménage sous celui de deux célibataires.';
 
   @override
-  String get concubinageFiscalModelLimit =>
+  String get fiscalEstimationModelLimit =>
       'Estimation simplifiée : elle ne tient compte ni de tes déductions réelles, ni de ta commune, ni du barème cantonal détaillé. L’écart réel peut donc différer, y compris dans son sens.';
 
   @override
@@ -18555,7 +18577,7 @@ class SFr extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon vos revenus respectifs, l’impact fiscal pourrait être positif ou négatif.';
+      'Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon la répartition de vos deux revenus, l’impôt du ménage peut aller dans un sens comme dans l’autre.';
 
   @override
   String get narrativeMarriageHeadline => 'Impact financier du mariage';

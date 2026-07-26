@@ -196,6 +196,11 @@ ALLOW = {
     "apps/mobile/lib/screens/concubinage_screen.dart",
     "apps/mobile/test/screens/concubinage_gate_test.dart",
     "apps/mobile/lib/widgets/visualizations/concubinage_decision_matrix.dart",
+    # Renommage : la jauge « pénalité du mariage » devient une comparaison
+    # d'impôt du ménage. Les deux chemins sont listés le temps que le
+    # renommage soit derrière nous.
+    "apps/mobile/lib/widgets/visualizations/marriage_penalty_gauge.dart",
+    "apps/mobile/lib/widgets/visualizations/marriage_tax_comparison.dart",
     "tools/checks/no_hardcoded_fr.py",
     "tools/checks/_baseline_diff.py",
     "tools/checks/prefer_mint_cta.py",

@@ -1107,22 +1107,15 @@
   "mariageEnfants": "Figli",
   "mariageFiscalComparison": "CONFRONTO FISCALE",
   "mariageMaries": "Sposati",
-  "mariagePenaltyAmount": "Penalità +{amount}/anno",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonus -{amount}/anno",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Imposta del nucleo: due single o sposati",
+  "mariageDeuxCelibataires": "2 single",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Differenza annua: imposta del nucleo più alta da sposati",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Differenza annua: imposta del nucleo più alta da due single",
+  "mariageEcartAnnuelImpotIdentique": "Differenza annua: imposta del nucleo identica nei due casi",
+  "mariageParAn": "all’anno",
+  "mariageRepartitionCaption": "Il verso della differenza si gioca sulla ripartizione dei tuoi due redditi: la loro somma tira l’imposta del nucleo verso l’alto, l’aliquota ridotta riservata alle coppie la tira verso il basso.",
+  "mariageRepartitionRevenusProches": "Redditi vicini",
+  "mariageRepartitionRevenuDomine": "Un reddito domina",
   "mariageDeductions": "DEDUZIONI MATRIMONIO",
   "mariageDeductionCouple": "Deduzione coppia sposata",
   "mariageDeductionInsurance": "Deduzione assicurazione (sposata)",
@@ -3231,8 +3224,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Imposta del nucleo più alta da sposati",
   "concubinageEcartImpotConcubinagePlusEleve": "Imposta del nucleo più alta in convivenza",
-  "concubinageMecaniqueImpositionCommune": "Da sposati, i due redditi vengono sommati e tassati insieme, con un’aliquota ridotta riservata alle coppie. Il verso della differenza dipende dalla ripartizione dei redditi: quando sono vicini, la somma alza il reddito imponibile più di quanto l’aliquota ridotta lo abbassi — è il cosiddetto effetto « Heiratsstrafe ». Quando un reddito domina nettamente, la stessa aliquota porta l’imposta del nucleo sotto quella di due singoli.",
-  "concubinageFiscalModelLimit": "Stima semplificata: non tiene conto né delle tue deduzioni reali, né del tuo comune, né dell’aliquota cantonale dettagliata. La differenza reale può quindi variare, anche nel suo verso.",
+  "impositionCommuneMecanique": "Da sposati, i due redditi vengono sommati e tassati insieme, con un’aliquota ridotta riservata alle coppie. Il verso della differenza dipende dalla ripartizione dei redditi: quando sono vicini, la somma alza il reddito imponibile più di quanto l’aliquota ridotta lo abbassi — è il cosiddetto effetto « Heiratsstrafe ». Quando un reddito domina nettamente, la stessa aliquota porta l’imposta del nucleo sotto quella di due singoli.",
+  "fiscalEstimationModelLimit": "Stima semplificata: non tiene conto né delle tue deduzioni reali, né del tuo comune, né dell’aliquota cantonale dettagliata. La differenza reale può quindi variare, anche nel suo verso.",
   "concubinageImpotSuccession": "IMPOSTA DI SUCCESSIONE",
   "concubinageMarieExonere": "0% (esente)",
   "concubinageConcubinLabel": "Convivente",
@@ -9015,7 +9008,7 @@
   "narrativeLibrePassageBody": "Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 3). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.",
   "narrativeLibrePassageHeadline": "Libero passaggio: 6 mesi per agire",
   "narrativeMarriageBadge": "Matrimonio",
-  "narrativeMarriageBody": "Il matrimonio modifica la tua imposizione (LIFD art. 9), il tuo regime matrimoniale (CC art. 181) e i tuoi diritti di superstite (LAVS art. 23, LPP art. 19). A seconda dei vostri rispettivi redditi, l’impatto fiscale potrebbe essere positivo o negativo.",
+  "narrativeMarriageBody": "Il matrimonio modifica la tua imposizione (LIFD art. 9), il tuo regime matrimoniale (CC art. 181) e i tuoi diritti di superstite (LAVS art. 23, LPP art. 19). A seconda di come si ripartiscono i vostri due redditi, l’imposta del nucleo può andare in un senso o nell’altro.",
   "narrativeMarriageHeadline": "Impatto finanziario del matrimonio",
   "narrativeRachatBadge": "2º pilastro",
   "narrativeRachatBody": "Ripartire un riscatto LPP su più anni permette di dedurre ogni tranche dal reddito imponibile (LPP art. 79b). La progressività fiscale rende questa strategia spesso più vantaggiosa di un versamento unico.",

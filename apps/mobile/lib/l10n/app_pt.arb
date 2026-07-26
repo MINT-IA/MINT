@@ -1107,22 +1107,15 @@
   "mariageEnfants": "Filhos",
   "mariageFiscalComparison": "COMPARAÇÃO FISCAL",
   "mariageMaries": "Casados",
-  "mariagePenaltyAmount": "Penalização +{amount}/ano",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bónus -{amount}/ano",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Imposto do agregado: dois solteiros ou casados",
+  "mariageDeuxCelibataires": "2 solteiros",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Diferença anual: imposto do agregado mais alto casados",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Diferença anual: imposto do agregado mais alto como dois solteiros",
+  "mariageEcartAnnuelImpotIdentique": "Diferença anual: imposto do agregado idêntico nos dois casos",
+  "mariageParAn": "por ano",
+  "mariageRepartitionCaption": "O sentido da diferença joga-se na repartição dos teus dois rendimentos: a sua soma puxa o imposto do agregado para cima, a tabela reduzida reservada aos casais puxa-o para baixo.",
+  "mariageRepartitionRevenusProches": "Rendimentos próximos",
+  "mariageRepartitionRevenuDomine": "Um rendimento domina",
   "mariageDeductions": "DEDUÇÕES CASAMENTO",
   "mariageDeductionCouple": "Dedução casal casado",
   "mariageDeductionInsurance": "Dedução seguro (casada)",
@@ -3231,8 +3224,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Imposto do agregado mais elevado se casados",
   "concubinageEcartImpotConcubinagePlusEleve": "Imposto do agregado mais elevado em união de facto",
-  "concubinageMecaniqueImpositionCommune": "Casados, os dois rendimentos são somados e tributados em conjunto, com uma tabela reduzida reservada aos casais. O sentido da diferença depende da repartição dos rendimentos: quando são próximos, a soma faz subir o rendimento tributável mais depressa do que a tabela reduzida o baixa — é o efeito conhecido por « Heiratsstrafe ». Quando um rendimento domina claramente, essa mesma tabela coloca o imposto do agregado abaixo do de dois solteiros.",
-  "concubinageFiscalModelLimit": "Estimativa simplificada: não tem em conta as tuas deduções reais, nem o teu município, nem a tabela cantonal detalhada. A diferença real pode assim variar, incluindo no seu sentido.",
+  "impositionCommuneMecanique": "Casados, os dois rendimentos são somados e tributados em conjunto, com uma tabela reduzida reservada aos casais. O sentido da diferença depende da repartição dos rendimentos: quando são próximos, a soma faz subir o rendimento tributável mais depressa do que a tabela reduzida o baixa — é o efeito conhecido por « Heiratsstrafe ». Quando um rendimento domina claramente, essa mesma tabela coloca o imposto do agregado abaixo do de dois solteiros.",
+  "fiscalEstimationModelLimit": "Estimativa simplificada: não tem em conta as tuas deduções reais, nem o teu município, nem a tabela cantonal detalhada. A diferença real pode assim variar, incluindo no seu sentido.",
   "concubinageImpotSuccession": "IMPOSTO SOBRE SUCESSÕES",
   "concubinageMarieExonere": "0% (isento)",
   "concubinageConcubinLabel": "Parceiro/a",
@@ -9015,7 +9008,7 @@
   "narrativeLibrePassageBody": "Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.",
   "narrativeLibrePassageHeadline": "Livre passagem: 6 meses para agir",
   "narrativeMarriageBadge": "Casamento",
-  "narrativeMarriageBody": "O casamento modifica a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Dependendo dos vossos rendimentos respetivos, o impacto fiscal pode ser positivo ou negativo.",
+  "narrativeMarriageBody": "O casamento altera a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Consoante a repartição dos vossos dois rendimentos, o imposto do agregado pode ir num sentido ou no outro.",
   "narrativeMarriageHeadline": "Impacto financeiro do casamento",
   "narrativeRachatBadge": "2º pilar",
   "narrativeRachatBody": "Distribuir uma recompra LPP por vários anos permite deduzir cada parcela do rendimento tributável (LPP art. 79b). A progressividade fiscal torna esta estratégia frequentemente mais vantajosa do que um pagamento único.",

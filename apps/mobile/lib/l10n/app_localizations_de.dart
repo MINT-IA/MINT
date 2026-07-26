@@ -2441,14 +2441,36 @@ class SDe extends S {
   String get mariageMaries => 'Verheiratet';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Strafe +$amount/Jahr';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Haushaltssteuer: zwei Alleinstehende oder verheiratet';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bonus -$amount/Jahr';
-  }
+  String get mariageDeuxCelibataires => '2 Alleinstehende';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Jährliche Differenz: Haushaltssteuer höher als Ehepaar';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Jährliche Differenz: Haushaltssteuer höher als zwei Alleinstehende';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Jährliche Differenz: Haushaltssteuer in beiden Fällen gleich';
+
+  @override
+  String get mariageParAn => 'pro Jahr';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'Die Richtung der Differenz entscheidet sich an der Verteilung deiner beiden Einkommen: ihre Addition zieht die Haushaltssteuer nach oben, der für Paare reservierte reduzierte Tarif zieht sie nach unten.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Ähnliche Einkommen';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'Ein Einkommen dominiert';
 
   @override
   String get mariageDeductions => 'EHEABZÜGE';
@@ -6906,11 +6928,11 @@ class SDe extends S {
       'Haushaltssteuer höher im Konkubinat';
 
   @override
-  String get concubinageMecaniqueImpositionCommune =>
+  String get impositionCommuneMecanique =>
       'Als Ehepaar werden beide Einkommen zusammengezählt und gemeinsam besteuert, mit einem für Paare reservierten reduzierten Tarif. Die Richtung der Differenz hängt von der Verteilung der Einkommen ab: Liegen sie nahe beieinander, hebt die Addition das steuerbare Einkommen stärker an, als der reduzierte Tarif es senkt — das ist der sogenannte Effekt « Heiratsstrafe ». Dominiert ein Einkommen deutlich, senkt derselbe Tarif die Haushaltssteuer unter jene von zwei Alleinstehenden.';
 
   @override
-  String get concubinageFiscalModelLimit =>
+  String get fiscalEstimationModelLimit =>
       'Vereinfachte Schätzung: Sie berücksichtigt weder deine tatsächlichen Abzüge noch deine Gemeinde noch den detaillierten kantonalen Tarif. Die tatsächliche Differenz kann daher abweichen, auch in ihrer Richtung.';
 
   @override
@@ -18601,7 +18623,7 @@ class SDe extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Die Ehe verändert deine Besteuerung (DBG Art. 9), dein Güterrecht (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nach euren jeweiligen Einkommen könnte die steuerliche Auswirkung positiv oder negativ sein.';
+      'Die Heirat ändert deine Besteuerung (DBG Art. 9), deinen Güterstand (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nachdem, wie sich eure beiden Einkommen verteilen, kann die Haushaltssteuer in beide Richtungen gehen.';
 
   @override
   String get narrativeMarriageHeadline => 'Finanzielle Auswirkungen der Ehe';

@@ -1107,22 +1107,15 @@
   "mariageEnfants": "Children",
   "mariageFiscalComparison": "TAX COMPARISON",
   "mariageMaries": "Married",
-  "mariagePenaltyAmount": "Penalty +{amount}/year",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonus -{amount}/year",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Household tax: two single people or married",
+  "mariageDeuxCelibataires": "2 single people",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Annual gap: household tax higher when married",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Annual gap: household tax higher as two single people",
+  "mariageEcartAnnuelImpotIdentique": "Annual gap: household tax identical either way",
+  "mariageParAn": "per year",
+  "mariageRepartitionCaption": "Which way the gap goes is decided by how your two incomes are split: adding them pulls the household tax up, the reduced scale reserved for couples pulls it down.",
+  "mariageRepartitionRevenusProches": "Close incomes",
+  "mariageRepartitionRevenuDomine": "One income dominates",
   "mariageDeductions": "MARRIAGE DEDUCTIONS",
   "mariageDeductionCouple": "Married couple deduction",
   "mariageDeductionInsurance": "Insurance deduction (married)",
@@ -3231,8 +3224,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Household tax higher when married",
   "concubinageEcartImpotConcubinagePlusEleve": "Household tax higher when cohabiting",
-  "concubinageMecaniqueImpositionCommune": "Once married, both incomes are added together and taxed jointly, under a reduced scale reserved for couples. Which way the gap goes depends on how the incomes are split: when they are close, adding them pushes taxable income up faster than the reduced scale brings it down — this is the effect known as « Heiratsstrafe ». When one income dominates, that same scale brings the household tax below what two single people would pay.",
-  "concubinageFiscalModelLimit": "Simplified estimate: it accounts for neither your actual deductions, nor your municipality, nor the detailed cantonal scale. The real gap may therefore differ, including in its direction.",
+  "impositionCommuneMecanique": "Once married, both incomes are added together and taxed jointly, under a reduced scale reserved for couples. Which way the gap goes depends on how the incomes are split: when they are close, adding them pushes taxable income up faster than the reduced scale brings it down — this is the effect known as « Heiratsstrafe ». When one income dominates, that same scale brings the household tax below what two single people would pay.",
+  "fiscalEstimationModelLimit": "Simplified estimate: it accounts for neither your actual deductions, nor your municipality, nor the detailed cantonal scale. The real gap may therefore differ, including in its direction.",
   "concubinageImpotSuccession": "INHERITANCE TAX",
   "concubinageMarieExonere": "0% (exempt)",
   "concubinageConcubinLabel": "Cohabiting partner",
@@ -9015,7 +9008,7 @@
   "narrativeLibrePassageBody": "When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 3). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.",
   "narrativeLibrePassageHeadline": "Vested benefits: 6 months to act",
   "narrativeMarriageBadge": "Marriage",
-  "narrativeMarriageBody": "Marriage changes your taxation (LIFD art. 9), your matrimonial regime (CC art. 181) and your survivor benefits (LAVS art. 23, LPP art. 19). Depending on your respective incomes, the tax impact could be positive or negative.",
+  "narrativeMarriageBody": "Marriage changes your taxation (FTA art. 9), your matrimonial property regime (CC art. 181) and your survivor rights (AHV art. 23, BVG art. 19). Depending on how your two incomes compare, the household tax can move either way.",
   "narrativeMarriageHeadline": "Financial impact of marriage",
   "narrativeRachatBadge": "2nd pillar",
   "narrativeRachatBody": "Spreading an LPP buy-back over several years allows you to deduct each instalment from taxable income (LPP art. 79b). Tax progressivity often makes this strategy more advantageous than a single payment.",

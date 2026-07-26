@@ -1125,22 +1125,15 @@
   "mariageEnfants": "Enfants",
   "mariageFiscalComparison": "COMPARAISON FISCALE",
   "mariageMaries": "Mariés",
-  "mariagePenaltyAmount": "Pénalité +{amount}/an",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonus -{amount}/an",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Impôt du ménage : deux célibataires ou marié·e·s",
+  "mariageDeuxCelibataires": "2 célibataires",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Écart annuel : impôt du ménage plus élevé marié·e·s",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Écart annuel : impôt du ménage plus élevé à deux célibataires",
+  "mariageEcartAnnuelImpotIdentique": "Écart annuel : impôt du ménage identique dans les deux cas",
+  "mariageParAn": "par an",
+  "mariageRepartitionCaption": "Le sens de l’écart se joue sur la répartition de tes deux revenus : leur addition tire l’impôt du ménage vers le haut, le barème réduit des couples le tire vers le bas.",
+  "mariageRepartitionRevenusProches": "Revenus proches",
+  "mariageRepartitionRevenuDomine": "Un revenu domine",
   "mariageDeductions": "DÉDUCTIONS MARIAGE",
   "mariageDeductionCouple": "Déduction couple marié",
   "mariageDeductionInsurance": "Déduction assurance (mariée)",
@@ -3317,8 +3310,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Impôt du ménage plus élevé marié",
   "concubinageEcartImpotConcubinagePlusEleve": "Impôt du ménage plus élevé en concubinage",
-  "concubinageMecaniqueImpositionCommune": "Marié·e·s, les deux revenus sont additionnés et imposés ensemble, avec un barème réduit réservé aux couples. Le sens de l’écart dépend de la répartition des revenus : quand ils sont proches, l’addition fait monter le revenu imposable plus vite que le barème réduit ne l’abaisse — c’est l’effet dit « Heiratsstrafe ». Quand un revenu domine largement, ce même barème abaisse l’impôt du ménage sous celui de deux célibataires.",
-  "concubinageFiscalModelLimit": "Estimation simplifiée : elle ne tient compte ni de tes déductions réelles, ni de ta commune, ni du barème cantonal détaillé. L’écart réel peut donc différer, y compris dans son sens.",
+  "impositionCommuneMecanique": "Marié·e·s, les deux revenus sont additionnés et imposés ensemble, avec un barème réduit réservé aux couples. Le sens de l’écart dépend de la répartition des revenus : quand ils sont proches, l’addition fait monter le revenu imposable plus vite que le barème réduit ne l’abaisse — c’est l’effet dit « Heiratsstrafe ». Quand un revenu domine largement, ce même barème abaisse l’impôt du ménage sous celui de deux célibataires.",
+  "fiscalEstimationModelLimit": "Estimation simplifiée : elle ne tient compte ni de tes déductions réelles, ni de ta commune, ni du barème cantonal détaillé. L’écart réel peut donc différer, y compris dans son sens.",
   "concubinageImpotSuccession": "IMPÔT SUR LA SUCCESSION",
   "concubinageMarieExonere": "0 % (exonéré·e)",
   "concubinageConcubinLabel": "Concubin·e",
@@ -9796,7 +9789,7 @@
   "narrativeLibrePassageBody": "Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 3). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.",
   "narrativeLibrePassageHeadline": "Libre passage : 6 mois pour agir",
   "narrativeMarriageBadge": "Mariage",
-  "narrativeMarriageBody": "Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon vos revenus respectifs, l’impact fiscal pourrait être positif ou négatif.",
+  "narrativeMarriageBody": "Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon la répartition de vos deux revenus, l’impôt du ménage peut aller dans un sens comme dans l’autre.",
   "narrativeMarriageHeadline": "Impact financier du mariage",
   "narrativeRachatBadge": "2e pilier",
   "narrativeRachatBody": "Répartir un rachat LPP sur plusieurs années permet de déduire chaque tranche du revenu imposable (LPP art. 79b). La progressivité fiscale rend cette stratégie souvent plus avantageuse qu’un versement unique.",

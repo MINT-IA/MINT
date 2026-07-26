@@ -2413,14 +2413,36 @@ class SEn extends S {
   String get mariageMaries => 'Married';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Penalty +$amount/year';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Household tax: two single people or married';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bonus -$amount/year';
-  }
+  String get mariageDeuxCelibataires => '2 single people';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Annual gap: household tax higher when married';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Annual gap: household tax higher as two single people';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Annual gap: household tax identical either way';
+
+  @override
+  String get mariageParAn => 'per year';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'Which way the gap goes is decided by how your two incomes are split: adding them pulls the household tax up, the reduced scale reserved for couples pulls it down.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Close incomes';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'One income dominates';
 
   @override
   String get mariageDeductions => 'MARRIAGE DEDUCTIONS';
@@ -6848,11 +6870,11 @@ class SEn extends S {
       'Household tax higher when cohabiting';
 
   @override
-  String get concubinageMecaniqueImpositionCommune =>
+  String get impositionCommuneMecanique =>
       'Once married, both incomes are added together and taxed jointly, under a reduced scale reserved for couples. Which way the gap goes depends on how the incomes are split: when they are close, adding them pushes taxable income up faster than the reduced scale brings it down — this is the effect known as « Heiratsstrafe ». When one income dominates, that same scale brings the household tax below what two single people would pay.';
 
   @override
-  String get concubinageFiscalModelLimit =>
+  String get fiscalEstimationModelLimit =>
       'Simplified estimate: it accounts for neither your actual deductions, nor your municipality, nor the detailed cantonal scale. The real gap may therefore differ, including in its direction.';
 
   @override
@@ -18463,7 +18485,7 @@ class SEn extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Marriage changes your taxation (LIFD art. 9), your matrimonial regime (CC art. 181) and your survivor benefits (LAVS art. 23, LPP art. 19). Depending on your respective incomes, the tax impact could be positive or negative.';
+      'Marriage changes your taxation (FTA art. 9), your matrimonial property regime (CC art. 181) and your survivor rights (AHV art. 23, BVG art. 19). Depending on how your two incomes compare, the household tax can move either way.';
 
   @override
   String get narrativeMarriageHeadline => 'Financial impact of marriage';
