@@ -115,3 +115,74 @@ conseiller ferme cet angle mort.
 - Bead P1 : les neuf autres constats.
 - Prompt de la revue conservé pour réutilisation : lentille conseiller à relancer
   après chaque changement de logique métier significatif.
+
+---
+
+## Journal de vérification (2026-07-26, après-midi)
+
+> **À lire AVANT de rouvrir un constat de cette page.** Chacun des onze constats
+> a été confronté au code. Plusieurs étaient faux. Rouvrir un constat déjà
+> invalidé ici coûte une demi-journée pour rien.
+
+### Constats INVALIDÉS — ne pas corriger
+
+| Constat | Ce que dit la vérification |
+|---|---|
+| #11 « plafond 3a périmé » | **Faux.** Le code lit le registre : `reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)` = 36'288, conforme à OPP3 art. 7 al. 2. Seul le *commentaire* de `segments_service.dart:726` porte encore l'ancienne valeur 35'280. Bug de commentaire, pas de calcul. |
+| `7'056` dans `coach_profile_seeds.dart` | **Faux positif.** C'est l'ancien plafond 2022, mais `activeSeed` est court-circuité par `kReleaseMode` : les builds de production reçoivent `null`. Aucun utilisateur n'y est exposé. Seed de debug et de walker uniquement. |
+| #11 « formulation trop directive » sur gender gap | **Mal attribué.** Les recommandations de gender gap sont saines (« Explorer une augmentation du taux d'activité », « Vérifier la proratisation »). Les impératifs prescriptifs (« Souscrire une assurance IJM », « Souscrire une assurance LAA ») sont dans le parcours **indépendant**, pas ici. Chantier distinct : prescription de produit. |
+| Plafond du salaire coordonné LPP absent | **Faux — constat produit par la revue Codex elle-même.** Le plafond existe : `LppCalculator.computeSalaireCoordonne` borne par `lpp.max_coordinated_salary`, et `lppSalaireCoordMax = 64260.0` (= 90'720 − 26'460), exactement la valeur réclamée. |
+
+**Le relecteur expert se trompe aussi.** Deux des constats invalidés ci-dessus
+proviennent de la revue Codex. Le protocole 0-TRUST s'applique à l'auditeur au
+même titre qu'au code : un constat n'est pas un fait tant qu'il n'a pas été
+confronté à la source.
+
+### Constats CONFIRMÉS et traités
+
+| Constat | Traitement | Preuve |
+|---|---|---|
+| #4 label « pénalité / bonus » | Remplacé par la mécanique et le sens de l'écart, sans qualificatif de valeur, plus une note de limite du modèle. Ligne « Impôts » de la matrice passée en neutre, montant privé de son signe et de son rouge/vert — la couleur était la version chromatique du verdict. | PR #1053, `mergedAt=2026-07-26T14:06:13Z` |
+| #9 score à pondération égale | Retiré sans remplacement. Deux verdicts dormants trouvés au passage : `fiscalAdvantage` (aucun consommateur) et un **second** compteur agrégé interne au widget, invisible au grep parce qu'il dérivait le gagnant des `advantage` de chaque ligne. | idem |
+| #7 clause bénéficiaire 3a | Déjà fermé par un travail antérieur : la carte conditionnelle cite OPP3 art. 2 et l'ordre légal des bénéficiaires. | `concubinage3aClauseEducational` |
+| #8 protection LPP du concubin | Partiellement fermé : le texte renvoie à l'inscription auprès de la caisse et mentionne les conditions de ménage commun. Reste vague sur l'exigence de déclaration écrite et la durée. | `concubinageChecklist2Desc` |
+
+### Constats CONFIRMÉS, en cours
+
+- **#5 impôt successoral.** Trois défauts distincts, tous établis contre le code :
+  1. la base est `patrimoine * taux`, soit **100 % du patrimoine**, alors que la
+     réserve des descendants plafonne le legs à la moitié de la succession nette
+     (CC art. 470-471, révision entrée en vigueur le 1.1.2023) — et qu'un bien en
+     copropriété n'entre dans la succession que pour la quote-part du défunt ;
+  2. le texte pédagogique annonce « souvent entre 20 % et 40 % » alors que la
+     table `_inheritanceTaxRatesNonMarie` **du même fichier** va de 0.00 à 0.25,
+     Schwyz et Obwald ne prélevant rien. **Le texte contredit ses propres
+     données** ;
+  3. « CC art. 462 » est cité pour une exonération **fiscale**. Cet article règle
+     la part successorale **civile** du conjoint. L'exonération découle des lois
+     fiscales **cantonales**, et elle vaut dans **tous** les cantons.
+- **#10 modèle LPP de gender gap.** Le calcul emploie le régime obligatoire
+  minimal — salaire coordonné légal et taux de conversion minimal de 6.8 % — ce
+  qui n'est pas le règlement de la caisse de l'utilisateur. L'écran divulgue le
+  rendement et l'horizon, jamais le modèle. Nuance à retenir : appliquer 6.8 % à
+  la totalité du capital peut aussi **surestimer**, les caisses enveloppantes
+  appliquant souvent un taux plus bas sur l'ensemble.
+
+### Un défaut d'une autre nature, trouvé en cherchant à prouver
+
+En tentant de constater sur simulateur le cluster fiscal **déverrouillé**, un
+plantage est apparu : valider un montant faisait crasher l'app en debug.
+
+Deux défauts superposés, le second masqué par le premier — l'ordre
+`onChanged` puis `pop` d'une part, un `TextEditingController` libéré dès le `pop`
+alors que l'animation de sortie reconstruit encore le champ d'autre part. Cause
+de fond commune : un objet à cycle de vie confié à un `StatelessWidget`.
+
+L'assert n'existant qu'en debug, l'incident était invisible en release. Mais il
+rendait **tout fait saisissable inconfirmable sur simulateur**, donc la preuve
+device des écrans « gate dur » mécaniquement impossible — sur les **17 fichiers**
+qui dépendent de `MintAmountField`. Corrigé et prouvé par test dans la même PR.
+
+**Leçon de méthode :** chercher à prouver un travail révèle des défauts que
+relire le code ne révèle pas. L'obstacle rencontré en cours de vérification vaut
+souvent plus que ce qu'on cherchait à vérifier.
