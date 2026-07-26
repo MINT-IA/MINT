@@ -6917,19 +6917,14 @@ class SDe extends S {
   String get concubinageImpotSuccession => 'ERBSCHAFTSSTEUER';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Übertragenes Vermögen';
+  String get concubinageMarieExonere => '0% (befreit)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (befreit)';
+  String get concubinageConcubinLabel => 'Konkubinatspartner·in';
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Partner·in (~$taux%)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Wenn du deine·n Partner·in testamentarisch begünstigst, würde er·sie $impot Erbschaftssteuer auf ein Vermögen von $patrimoine zahlen (Satz für Nichtverwandte). Verheiratet wäre er·sie befreit.';
+    return '~$taux% (Satz für Nichtverwandte)';
   }
 
   @override
@@ -7024,7 +7019,8 @@ class SDe extends S {
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Befreit (ZGB Art. 462)';
+  String get concubinageCriteriaHeritageMarriage =>
+      'Befreit (kantonales Steuerrecht)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -13386,7 +13382,7 @@ class SDe extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'Ein verheirateter Ehegatte ist in den meisten Kantonen von der Erbschaftssteuer befreit (ZGB Art. 462). Ein Konkubinatspartner zahlt Steuern zum Drittsatz, oft zwischen 20 % und 40 %.';
+      'Die Befreiung des·der überlebenden Ehegatt·in stammt nicht aus dem Zivilgesetzbuch: Sie steht in den kantonalen Steuergesetzen und gilt in allen 26 Kantonen. Ein·e Konkubinatspartner·in fällt unter den Satz für « Nichtverwandte » — und die Unterschiede zwischen den Kantonen sind sehr gross: Einige erheben gar keine Erbschaftssteuer, andere besteuern Nichtverwandte hoch. Hier wiegt der Kanton so schwer wie die Beziehung.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13431,7 +13427,11 @@ class SDe extends S {
 
   @override
   String get concubinageInheritanceConditional =>
-      'Ohne Testament ist dein·e Partner·in kein·e gesetzliche·r Erbe·in: er·sie erbt nichts und dein Vermögen geht an deine gesetzlichen Erben. Wenn du ihn·sie testamentarisch begünstigst (im Rahmen der freien Quote), würde er·sie die untenstehende Erbschaftssteuer zahlen, zum Satz für Nichtverwandte, ohne die Befreiung eines·einer Ehepartners·in. Der Betrag unten setzt voraus, dass du dein ganzes Vermögen vermachen kannst; hast du Nachkommen, begrenzt deren Pflichtteil den übertragbaren Anteil — und damit die Steuer.';
+      'Ohne Testament erbt dein·e Partner·in nichts: Dein Nachlass geht an deine gesetzlichen Erben. Mit einem Testament hängt der Anteil, den du ihm·ihr zuwenden kannst, von deinen Nachkommen ab: Sind welche vorhanden, beträgt ihr Pflichtteil die Hälfte des Nachlasses, die verfügbare Quote ist damit auf die andere Hälfte begrenzt; sind keine vorhanden, wurde der Pflichtteil der Eltern am 1. Januar 2023 aufgehoben und du kannst über den ganzen Nachlass verfügen (ZGB Art. 470-471). In den Nachlass fällt nur dein Anteil: Ein in Miteigentum gehaltenes Objekt zählt nur im Umfang deiner Quote.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'Dieser Satz ist eine Grössenordnung, nicht der Satz, der angewendet wird: Die kantonalen Tarife sind progressiv, sehen Freibeträge vor und werden teils durch eine Gemeindesteuer ergänzt. Der geschuldete Betrag hängt anschliessend vom tatsächlich zugewendeten Anteil ab.';
 
   @override
   String get concubinageSurvivorLppDetail =>
@@ -24885,6 +24885,13 @@ class SDe extends S {
       'Schätzung im aktuellen Kanton des Haushalts für beide Ehepartner — der künftige Kanton der anderen Person ist unbekannt.';
 
   @override
-  String get genderGapProjectionAssumptions =>
-      'Projektionsannahmen: 1.5 %/Jahr Rendite auf BVG-Guthaben, kumulierte Lücke geschätzt über ~20 Rentenjahre.';
+  String genderGapProjectionAssumptions(
+      String rendement, String tauxMin, String annees) {
+    return 'Projektionsannahmen: Die Rendite von $rendement %/Jahr auf den BVG-Guthaben ist eine MINT-Annahme, kein gesetzlicher Satz — der BVG-Mindestzinssatz beträgt $tauxMin %/Jahr. Die kumulierte Lücke ist die jährliche Lücke multipliziert mit $annees Rentenjahren, ohne Diskontierung und ohne Indexierung: eine illustrative Grössenordnung, kein bereits erlittener Verlust.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Verwendetes Modell: das gesetzliche BVG-Obligatorium — koordinierter Lohn nach Gesetz und Mindestumwandlungssatz von $tauxConversion %. Das ist nicht das Reglement deiner Pensionskasse. Bei einem überobligatorischen Plan, häufig oberhalb der Obergrenze des obligatorisch versicherten Lohns, weichen die tatsächlichen Renten in beide Richtungen von dieser Illustration ab: $tauxConversion % auf das gesamte Kapital anzuwenden kann auch zu hoch greifen, denn umhüllende Kassen wenden oft einen tieferen Satz auf das ganze Guthaben an.';
+  }
 }

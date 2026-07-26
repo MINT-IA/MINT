@@ -6904,19 +6904,14 @@ class SPt extends S {
   String get concubinageImpotSuccession => 'IMPOSTO SOBRE SUCESSÕES';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Património transmitido';
+  String get concubinageMarieExonere => '0% (isento)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (isento)';
+  String get concubinageConcubinLabel => 'Parceiro/a';
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Parceiro/a (~$taux%)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Se designares o·a teu·tua parceiro·a por testamento, pagaria $impot de imposto de sucessão sobre um património de $patrimoine (taxa de terceiros). Casado·a, estaria isento·a.';
+    return '~$taux% (taxa de terceiros)';
   }
 
   @override
@@ -7013,7 +7008,8 @@ class SPt extends S {
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Isento (CC art. 462)';
+  String get concubinageCriteriaHeritageMarriage =>
+      'Isento (lei fiscal cantonal)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -13359,7 +13355,7 @@ class SPt extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'Um cônjuge casado está isento do imposto de sucessão na maioria dos cantões (CC art. 462). Um concubino paga imposto à taxa de terceiros, frequentemente entre 20 % e 40 %.';
+      'A isenção do·a cônjuge sobrevivo·a não vem do Código Civil: está inscrita nas leis fiscais cantonais e vale nos 26 cantões. Um·a parceiro·a em união de facto fica sujeito·a à taxa de « terceiros » — e a diferença entre cantões é muito ampla: alguns não cobram qualquer imposto de sucessão, outros tributam pesadamente os terceiros. Aqui o cantão pesa tanto como o vínculo.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13403,7 +13399,11 @@ class SPt extends S {
 
   @override
   String get concubinageInheritanceConditional =>
-      'Sem testamento, o·a teu·tua parceiro·a não é herdeiro·a legal: não herda nada e o teu património vai para os teus herdeiros legais. Se o·a designares por testamento (dentro da quota disponível), pagaria então o imposto de sucessão abaixo, à taxa de terceiros, sem a isenção de um·a cônjuge casado·a. O montante abaixo pressupõe que podes legar todo o teu património; se tiveres descendentes, a legítima deles limita a parte transmissível — e portanto o imposto.';
+      'Sem testamento, o·a teu·tua parceiro·a não herda nada: a sucessão vai para os teus herdeiros legais. Com testamento, o que lhe podes deixar depende dos teus descendentes: se os tiveres, a legítima deles corresponde a metade da sucessão e a quota disponível fica limitada à outra metade; se não os tiveres, a legítima dos pais foi suprimida a 1 de janeiro de 2023 e podes dispor da totalidade (CC art. 470-471). O que entra na sucessão é a tua parte: um bem em compropriedade só conta até à tua quota-parte.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'Esta taxa é uma ordem de grandeza, não a taxa que será aplicada: as tabelas cantonais são progressivas, preveem franquias e por vezes somam-se a um imposto comunal. O montante devido depende depois da parte efetivamente legada.';
 
   @override
   String get concubinageSurvivorLppDetail =>
@@ -24839,6 +24839,13 @@ class SPt extends S {
       'Estimativa no cantão atual do agregado para ambos os cônjuges — o cantão futuro da outra pessoa é desconhecido.';
 
   @override
-  String get genderGapProjectionAssumptions =>
-      'Pressupostos de projeção: 1.5 %/ano de rendimento sobre os haveres LPP, lacuna acumulada estimada ao longo de ~20 anos de reforma.';
+  String genderGapProjectionAssumptions(
+      String rendement, String tauxMin, String annees) {
+    return 'Pressupostos de projeção: o rendimento de $rendement %/ano sobre os haveres LPP é um pressuposto MINT, não uma taxa legal — a taxa de juro mínima LPP é de $tauxMin %/ano. A lacuna acumulada é a lacuna anual multiplicada por $annees anos de reforma, sem atualização nem indexação: uma ordem de grandeza ilustrativa, não uma perda já sofrida.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Modelo utilizado: o regime LPP obrigatório mínimo — salário coordenado legal e taxa de conversão mínima de $tauxConversion %. Não é o regulamento da tua caixa de pensões. Com um plano sobreobrigatório, frequente acima do limite do salário segurado obrigatório, as rendas reais afastam-se desta ilustração em ambos os sentidos: aplicar $tauxConversion % à totalidade do capital também pode sobrestimar, porque as caixas envolventes aplicam muitas vezes uma taxa mais baixa sobre o conjunto do haver.';
+  }
 }

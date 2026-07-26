@@ -3234,23 +3234,12 @@
   "concubinageMecaniqueImpositionCommune": "Als Ehepaar werden beide Einkommen zusammengezählt und gemeinsam besteuert, mit einem für Paare reservierten reduzierten Tarif. Die Richtung der Differenz hängt von der Verteilung der Einkommen ab: Liegen sie nahe beieinander, hebt die Addition das steuerbare Einkommen stärker an, als der reduzierte Tarif es senkt — das ist der sogenannte Effekt « Heiratsstrafe ». Dominiert ein Einkommen deutlich, senkt derselbe Tarif die Haushaltssteuer unter jene von zwei Alleinstehenden.",
   "concubinageFiscalModelLimit": "Vereinfachte Schätzung: Sie berücksichtigt weder deine tatsächlichen Abzüge noch deine Gemeinde noch den detaillierten kantonalen Tarif. Die tatsächliche Differenz kann daher abweichen, auch in ihrer Richtung.",
   "concubinageImpotSuccession": "ERBSCHAFTSSTEUER",
-  "concubinagePatrimoineTransmis": "Übertragenes Vermögen",
-  "concubinageMarieExonere": "CHF 0 (befreit)",
-  "concubinageConcubinTaux": "Partner·in (~{taux}%)",
+  "concubinageMarieExonere": "0% (befreit)",
+  "concubinageConcubinLabel": "Konkubinatspartner·in",
+  "concubinageConcubinTaux": "~{taux}% (Satz für Nichtverwandte)",
   "@concubinageConcubinTaux": {
     "placeholders": {
       "taux": {
-        "type": "String"
-      }
-    }
-  },
-  "concubinageWarningSuccession": "Wenn du deine·n Partner·in testamentarisch begünstigst, würde er·sie {impot} Erbschaftssteuer auf ein Vermögen von {patrimoine} zahlen (Satz für Nichtverwandte). Verheiratet wäre er·sie befreit.",
-  "@concubinageWarningSuccession": {
-    "placeholders": {
-      "impot": {
-        "type": "String"
-      },
-      "patrimoine": {
         "type": "String"
       }
     }
@@ -3290,7 +3279,7 @@
   "concubinageCriteriaImpotPlusEleve": "Höhere Haushaltssteuer",
   "concubinageCriteriaImpotMoinsEleve": "Niedrigere Haushaltssteuer",
   "concubinageCriteriaHeritage": "Héritage",
-  "concubinageCriteriaHeritageMarriage": "Befreit (ZGB Art. 462)",
+  "concubinageCriteriaHeritageMarriage": "Befreit (kantonales Steuerrecht)",
   "concubinageCriteriaHeritageConcubinage": "Impôt cantonal",
   "concubinageCriteriaProtection": "Todesfallschutz",
   "concubinageCriteriaProtectionMarriage": "AHV + BVG Hinterlassenenleistungen",
@@ -6288,7 +6277,7 @@
   "concubinageHeroPremierEclairageDesc": "Im Konkubinat ist dein Partner kein gesetzlicher Erbe. Ohne Testament geht dieser Betrag vollständig an andere.",
   "concubinageEducationalAvs": "In der Schweiz gilt die 150 %-Plafonierung der AHV-Ehepaarrenten (AHVG Art. 35) nur für Verheiratete. Konkubinatspartner erhalten je ihre volle Einzelrente — ein echter Vorteil, wenn beide maximal eingezahlt haben.",
   "concubinageEducationalLpp": "Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 19) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen — und es muss beantragt werden.",
-  "concubinageEducationalSuccession": "Ein verheirateter Ehegatte ist in den meisten Kantonen von der Erbschaftssteuer befreit (ZGB Art. 462). Ein Konkubinatspartner zahlt Steuern zum Drittsatz, oft zwischen 20 % und 40 %.",
+  "concubinageEducationalSuccession": "Die Befreiung des·der überlebenden Ehegatt·in stammt nicht aus dem Zivilgesetzbuch: Sie steht in den kantonalen Steuergesetzen und gilt in allen 26 Kantonen. Ein·e Konkubinatspartner·in fällt unter den Satz für « Nichtverwandte » — und die Unterschiede zwischen den Kantonen sind sehr gross: Einige erheben gar keine Erbschaftssteuer, andere besteuern Nichtverwandte hoch. Hier wiegt der Kanton so schwer wie die Beziehung.",
   "concubinageProtectionIntro": "Im Konkubinat schützt die Schweiz nicht wie bei der Ehe. Hier siehst du, was sich ändert und was du vorausplanen kannst.",
   "concubinageProtectionAvsSurvivor": "AHV-Hinterlassenenrente",
   "concubinageProtectionLppSurvivor": "BVG-Hinterlassenenrente",
@@ -6301,7 +6290,8 @@
   "concubinageProtectionConditionsNote": "Der Schutz der Ehe (AHV- und BVG-Hinterlassenenrenten) hängt von Anspruchsvoraussetzungen ab; das Konkubinat gewährt darauf keinen Zugang, unabhängig von den Bedingungen.",
   "concubinageProtectionLppSlider": "Monatliche BVG-Rente des Partners",
   "concubinageProtectionSurvivorZero": "CHF 0/Monat für den überlebenden Konkubinatspartner ohne Massnahmen",
-  "concubinageInheritanceConditional": "Ohne Testament ist dein·e Partner·in kein·e gesetzliche·r Erbe·in: er·sie erbt nichts und dein Vermögen geht an deine gesetzlichen Erben. Wenn du ihn·sie testamentarisch begünstigst (im Rahmen der freien Quote), würde er·sie die untenstehende Erbschaftssteuer zahlen, zum Satz für Nichtverwandte, ohne die Befreiung eines·einer Ehepartners·in. Der Betrag unten setzt voraus, dass du dein ganzes Vermögen vermachen kannst; hast du Nachkommen, begrenzt deren Pflichtteil den übertragbaren Anteil — und damit die Steuer.",
+  "concubinageInheritanceConditional": "Ohne Testament erbt dein·e Partner·in nichts: Dein Nachlass geht an deine gesetzlichen Erben. Mit einem Testament hängt der Anteil, den du ihm·ihr zuwenden kannst, von deinen Nachkommen ab: Sind welche vorhanden, beträgt ihr Pflichtteil die Hälfte des Nachlasses, die verfügbare Quote ist damit auf die andere Hälfte begrenzt; sind keine vorhanden, wurde der Pflichtteil der Eltern am 1. Januar 2023 aufgehoben und du kannst über den ganzen Nachlass verfügen (ZGB Art. 470-471). In den Nachlass fällt nur dein Anteil: Ein in Miteigentum gehaltenes Objekt zählt nur im Umfang deiner Quote.",
+  "concubinageInheritanceRateLimit": "Dieser Satz ist eine Grössenordnung, nicht der Satz, der angewendet wird: Die kantonalen Tarife sind progressiv, sehen Freibeträge vor und werden teils durch eine Gemeindesteuer ergänzt. Der geschuldete Betrag hängt anschliessend vom tatsächlich zugewendeten Anteil ab.",
   "concubinageSurvivorLppDetail": "Mögliche Hinterlassenenrente (60 %) — Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre.",
   "concubinageSurvivorAvsNote": "Ein·e überlebende·r Ehepartner·in kann zusätzlich eine AHV-Hinterlassenenrente erhalten (AHVG Art. 23, unter Bedingungen); ein·e Konkubinatspartner·in hat nie Anspruch darauf.",
   "concubinage3aClauseEducational": "Ohne Begünstigtenklausel für deine·n Partner·in folgt deine Säule 3a der gesetzlichen Begünstigtenordnung (BVV3 Art. 2), und dein·e Partner·in ist nicht automatisch begünstigt. Mit einer bei deiner 3a-Stiftung hinterlegten Klausel kannst du ihn·sie dort einsetzen.",
@@ -11751,5 +11741,26 @@
   "divorceGateFactCanton": "Dein Wohnkanton",
   "divorceGateWhyCanton": "Der Einkommenssteuertarif hängt von deinem Wohnkanton ab.",
   "divorceImpactFiscalCantonNote": "Schätzung im aktuellen Kanton des Haushalts für beide Ehepartner — der künftige Kanton der anderen Person ist unbekannt.",
-  "genderGapProjectionAssumptions": "Projektionsannahmen: 1.5 %/Jahr Rendite auf BVG-Guthaben, kumulierte Lücke geschätzt über ~20 Rentenjahre."
+  "genderGapProjectionAssumptions": "Projektionsannahmen: Die Rendite von {rendement} %/Jahr auf den BVG-Guthaben ist eine MINT-Annahme, kein gesetzlicher Satz — der BVG-Mindestzinssatz beträgt {tauxMin} %/Jahr. Die kumulierte Lücke ist die jährliche Lücke multipliziert mit {annees} Rentenjahren, ohne Diskontierung und ohne Indexierung: eine illustrative Grössenordnung, kein bereits erlittener Verlust.",
+  "@genderGapProjectionAssumptions": {
+    "placeholders": {
+      "rendement": {
+        "type": "String"
+      },
+      "tauxMin": {
+        "type": "String"
+      },
+      "annees": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapModelLegalMinimum": "Verwendetes Modell: das gesetzliche BVG-Obligatorium — koordinierter Lohn nach Gesetz und Mindestumwandlungssatz von {tauxConversion} %. Das ist nicht das Reglement deiner Pensionskasse. Bei einem überobligatorischen Plan, häufig oberhalb der Obergrenze des obligatorisch versicherten Lohns, weichen die tatsächlichen Renten in beide Richtungen von dieser Illustration ab: {tauxConversion} % auf das gesamte Kapital anzuwenden kann auch zu hoch greifen, denn umhüllende Kassen wenden oft einen tieferen Satz auf das ganze Guthaben an.",
+  "@genderGapModelLegalMinimum": {
+    "placeholders": {
+      "tauxConversion": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -168,11 +168,13 @@ class GenderGapService {
     );
 
     // Convert capital to annual pension
-    final convRateMin = reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
+    final convRateMin = tauxConversionApplique;
     final renteAt100 = capital100 * convRateMin;
     final renteAtCurrentTaux = capitalActuel * convRateMin;
     final lacuneAnnuelle = renteAt100 - renteAtCurrentTaux;
-    final lacuneTotale = lacuneAnnuelle * 20; // approx 20 years of retirement
+    // Multiplication ILLUSTRATIVE : ni actualisation, ni indexation, et ce n'est
+    // pas une perte acquise. L'écran l'énonce (`genderGapProjectionAssumptions`).
+    final lacuneTotale = lacuneAnnuelle * dureeRetraiteAnnees;
 
     // Build recommendations
     final recommendations = _buildRecommendations(
@@ -196,10 +198,28 @@ class GenderGapService {
     );
   }
 
-  // ── Private helpers ────────────────────────────────────────
+  // ── Paramètres du MODÈLE, exposés pour être divulgués à l'écran ──────
+  //
+  // Le calcul emploie le régime LPP obligatoire MINIMAL (salaire coordonné légal
+  // + taux de conversion minimal légal) : ce n'est pas le règlement de la caisse
+  // de l'utilisateur·rice. Ces accesseurs existent pour que la copie affichée ne
+  // puisse pas diverger des valeurs réellement employées par `analyse()`.
 
-  /// Projected annual return on LPP capital (conservative estimate).
+  /// Rendement annuel projeté sur le capital LPP. HYPOTHÈSE MINT, pas une valeur
+  /// légale : le taux d'intérêt minimal LPP est servi par [tauxInteretMinimalLpp].
   static const double projectedReturn = 0.015;
+
+  /// Durée de retraite retenue pour cumuler la lacune annuelle (illustratif).
+  static const int dureeRetraiteAnnees = 20;
+
+  /// Taux de conversion appliqué au capital projeté : le MINIMUM légal.
+  static double get tauxConversionApplique =>
+      reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
+
+  /// Taux d'intérêt minimal LPP (valeur légale), pour situer [projectedReturn].
+  static double get tauxInteretMinimalLpp => lppMinInterestRatio();
+
+  // ── Private helpers ────────────────────────────────────────
 
   /// Build personalised recommendations.
   static List<GenderGapRecommendation> _buildRecommendations({

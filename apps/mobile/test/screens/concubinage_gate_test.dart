@@ -219,7 +219,9 @@ void main() {
   });
 
   // ══════════════════════════════════════════════════════════════
-  //  INHERITANCE — gated on patrimoine + canton, exact impôt on unlock
+  //  INHERITANCE — gated on patrimoine + canton ; le TAUX cantonal sur
+  //  déverrouillage (le montant en francs est retiré, cf. le groupe
+  //  « Succession — taux réel, pas de montant fabriqué » plus bas)
   // ══════════════════════════════════════════════════════════════
   group('Inheritance card', () {
     testWidgets('patrimoine entered but canton untouched → gated on canton',
@@ -229,11 +231,11 @@ void main() {
       final g = _gate(tester, _inheritanceTitle);
       expect(g, isNotNull);
       expect(g!.gate.missing.map((f) => f.key), <String>['canton']);
-      // The hero appears (patrimoine confirmed) but the succession impôt does not.
-      expect(find.text(FamilyService.formatChf(75000)), findsNothing);
+      // The hero appears (patrimoine confirmed) but the succession rate does not.
+      expect(find.textContaining('taux tiers'), findsNothing);
     });
 
-    testWidgets('patrimoine + canton (VD 25%) → impôt = 75\'000 renders',
+    testWidgets('patrimoine + canton (VD) → le taux tiers 25 % rend',
         (tester) async {
       // Canton seeded from the profile (key + valid); patrimoine typed.
       await _pump(
@@ -242,38 +244,176 @@ void main() {
       );
       await _setAmount(tester, _patrimoine, 300000);
       expect(_gate(tester, _inheritanceTitle), isNull);
-      // Deterministic: 300000 × VD-taux-tiers 0.25 = 75000 (real canton rate,
-      // never a hardcoded 24%).
-      expect(find.text(FamilyService.formatChf(75000)), findsWidgets);
-      expect(find.text(FamilyService.formatChf(300000)), findsWidgets);
-      // HOLE 2: the CHF is framed CONDITIONALLY (no presumed inheritance). The
-      // « sans testament → rien » + « si testament → taux tiers » wording must be
-      // present, and the tax must read as conditional (« paierait », « Si tu »),
-      // never « ton partenaire paie X » unconditionally.
+      // Déterministe : le taux tiers réel du canton VD (0.25), jamais un 24 %
+      // codé en dur ni un montant calculé sur une base invérifiable.
+      expect(find.textContaining('~25 %'), findsOneWidget);
+      expect(find.text(FamilyService.formatChf(75000)), findsNothing,
+          reason: '300000 × 0.25 supposait que 100 % peut aller au partenaire');
+      expect(find.text(FamilyService.formatChf(300000)), findsWidgets,
+          reason: 'le hero écho du patrimoine saisi reste');
+      // Le cadre reste CONDITIONNEL (aucune présomption d'héritage) et énonce
+      // la règle qui décide : sans testament rien, avec descendant·e·s la
+      // réserve plafonne le legs à la moitié de la succession.
       expect(find.textContaining('Sans testament'), findsWidgets,
           reason: 'the non-heir default is stated, not a presumed inheritance');
-      expect(find.textContaining('Si tu'), findsWidgets,
-          reason: 'the tax is conditional on a testament designation');
-      // The tax is on 100% of the patrimoine → disclose it's a MAXIMUM: the
-      // réserve héréditaire of descendants limits the transmissible share.
-      expect(find.textContaining('réserve héréditaire'), findsWidgets,
-          reason: 'the full-estate tax is caveated by the descendants reserve');
+      expect(find.textContaining('réserve'), findsWidgets,
+          reason: 'la réserve des descendant·e·s plafonne la quotité disponible');
     });
 
-    testWidgets('stale invalidation: editing patrimoine drops the old impôt',
+    testWidgets('stale invalidation: editing patrimoine drops the old echo',
         (tester) async {
       await _pump(
         tester,
         _FakeProvider(_profile(canton: 'VD', provided: {'canton'})),
       );
       await _setAmount(tester, _patrimoine, 300000);
-      expect(find.text(FamilyService.formatChf(75000)), findsWidgets);
+      expect(find.text(FamilyService.formatChf(300000)), findsWidgets);
       // Re-edit the determinative fact → the prior figure must not survive.
       await _setAmount(tester, _patrimoine, 400000);
-      expect(find.text(FamilyService.formatChf(75000)), findsNothing,
+      expect(find.text(FamilyService.formatChf(300000)), findsNothing,
           reason: 'a displayed figure never outlives a fact change');
-      expect(find.text(FamilyService.formatChf(100000)), findsWidgets,
-          reason: '400000 × 0.25 = 100000');
+      expect(find.text(FamilyService.formatChf(400000)), findsWidgets);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  SUCCESSION — le TAUX cantonal, jamais un montant calculé sur une
+  //  base invérifiable
+  //
+  //  L'ancienne carte affichait `patrimoine × taux`, ce qui suppose que 100 %
+  //  du patrimoine peut aller au·à la partenaire. Depuis la révision du droit
+  //  successoral entrée en vigueur le 1.1.2023 : sans testament, un·e concubin·e
+  //  n'hérite de RIEN ; avec testament, la réserve des descendant·e·s vaut la
+  //  MOITIÉ de la succession (CC art. 470-471), donc la quotité disponible
+  //  plafonne à 1/2 en leur présence ; la réserve des parents ayant été
+  //  supprimée, sans descendant·e la quotité disponible est de 100 %. De plus un
+  //  bien en copropriété n'entre dans la succession que pour la quote-part
+  //  du·de la défunt·e : `patrimoine` n'est pas la bonne base.
+  //
+  //  Le montant en francs est donc indéfendable et il est RETIRÉ. Le TAUX
+  //  cantonal, lui, est un fait réel et personnalisé (le canton est un fait
+  //  confirmé) : il reste, encadré d'une note de limite de modèle.
+  // ══════════════════════════════════════════════════════════════
+  group('Succession — taux réel, pas de montant fabriqué', () {
+    Future<void> unlock(WidgetTester tester, {String canton = 'VD'}) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(canton: canton, provided: {'canton'})),
+      );
+      await _setAmount(tester, _patrimoine, 300000);
+    }
+
+    Set<String> chfTexts(WidgetTester tester) => tester
+        .widgetList<Text>(find.byType(Text))
+        .map((t) => t.data ?? '')
+        .where((s) => s.contains('CHF'))
+        .toSet();
+
+    testWidgets('(a) aucun montant en francs d\'impôt successoral n\'est rendu',
+        (tester) async {
+      await unlock(tester);
+      expect(_gate(tester, _inheritanceTitle), isNull,
+          reason: 'patrimoine + canton confirmés → la carte est ouverte');
+      // 300000 × 0.25 = 75000 (l'ancien « impôt ») et 225000 (l'ancien « net
+      // hérité ») : deux montants calculés sur une hypothèse invérifiable.
+      expect(find.text(FamilyService.formatChf(75000)), findsNothing,
+          reason: 'patrimoine × taux suppose que 100 % peut aller au partenaire');
+      expect(find.text(FamilyService.formatChf(225000)), findsNothing);
+      // Le SEUL montant en francs de l'onglet est l'écho du patrimoine SAISI.
+      expect(chfTexts(tester), {FamilyService.formatChf(300000)},
+          reason: 'aucun franc calculé sur la succession n\'est rendu');
+    });
+
+    testWidgets('(b) le taux cantonal et sa note de limite sont rendus',
+        (tester) async {
+      await unlock(tester); // VD → taux tiers 25 %
+      expect(find.textContaining('~25\u00A0%'), findsOneWidget);
+      expect(find.textContaining('taux tiers'), findsWidgets);
+      // Limite du modèle attachée au taux : barèmes progressifs, franchises,
+      // impôt communal → ordre de grandeur, pas le taux qui s'appliquera.
+      expect(find.textContaining('ordre de grandeur'), findsWidgets);
+      expect(find.textContaining('progressifs'), findsWidgets);
+      expect(find.textContaining('franchises'), findsWidgets);
+      expect(find.textContaining('communal'), findsWidgets);
+      // La règle qui décide vraiment est énoncée.
+      expect(find.textContaining('quotité disponible'), findsWidgets);
+      expect(find.textContaining('moitié'), findsWidgets,
+          reason: 'la réserve des descendant·e·s plafonne le legs à 1/2');
+    });
+
+    testWidgets('(b bis) le taux suit le canton confirmé (GE → 24 %)',
+        (tester) async {
+      await unlock(tester, canton: 'GE');
+      expect(find.textContaining('~24\u00A0%'), findsOneWidget);
+      expect(find.textContaining('~25\u00A0%'), findsNothing,
+          reason: 'le taux est cantonal, jamais un taux par défaut');
+    });
+
+    testWidgets('(c) canton non confirmé → carte gatée, aucun taux rendu',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _setAmount(tester, _patrimoine, 300000);
+      final g = _gate(tester, _inheritanceTitle);
+      expect(g, isNotNull);
+      expect(g!.gate.missing.map((f) => f.key), <String>['canton']);
+      expect(find.textContaining('taux tiers'), findsNothing);
+      expect(find.textContaining('ordre de grandeur'), findsNothing);
+    });
+
+    testWidgets('(c bis) patrimoine absent → carte gatée, aucun taux rendu',
+        (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(canton: 'VD', provided: {'canton'})),
+      );
+      final g = _gate(tester, _inheritanceTitle);
+      expect(g, isNotNull);
+      expect(g!.gate.missing.map((f) => f.key), <String>['patrimoine']);
+      expect(find.textContaining('taux tiers'), findsNothing);
+      expect(find.textContaining('ordre de grandeur'), findsNothing);
+    });
+
+    testWidgets(
+        '(A2) l\'encart pédagogique décrit l\'écart réel entre cantons, '
+        'et (A3) impute l\'exonération aux lois fiscales cantonales',
+        (tester) async {
+      await unlock(tester);
+      // A2 : la table du même dépôt va de 0.00 (SZ, OW) à 0.25 — « souvent
+      // entre 20 % et 40 % » était faux aux deux bouts.
+      expect(find.textContaining('20\u00A0% et 40\u00A0%'), findsNothing);
+      // A3 : il n'existe pas d'impôt successoral fédéral ordinaire ;
+      // l'exonération du·de la conjoint·e vient des lois fiscales CANTONALES,
+      // et elle vaut dans TOUS les cantons.
+      expect(find.textContaining('lois fiscales cantonales'), findsWidgets);
+      expect(find.textContaining('26 cantons'), findsWidgets);
+    });
+
+    testWidgets('(A3) la matrice ne cite plus CC 462 pour une exonération FISCALE',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _setAmount(tester, _revenu1, 80000);
+      await _setAmount(tester, _revenu2, 60000);
+      await _setCanton(tester, 'VD');
+      expect(find.byType(ConcubinageDecisionMatrix), findsOneWidget);
+      expect(find.textContaining('462'), findsNothing,
+          reason: 'CC 462 règle la part successorale CIVILE, pas le fiscal');
+      expect(find.textContaining('loi fiscale cantonale'), findsWidgets);
+    });
+
+    test('le service ne renvoie plus de montant d\'impôt successoral', () {
+      final r = FamilyService.compareMariageVsConcubinage(
+        revenu1: 80000,
+        revenu2: 60000,
+        canton: 'VD',
+      );
+      final inheritance = r['inheritance'] as Map<String, dynamic>;
+      expect(inheritance.containsKey('impot'), isFalse,
+          reason: 'un montant dormant finit toujours par être rebranché');
+      expect(inheritance.containsKey('netHerite'), isFalse);
+      expect(inheritance['taux'], 0.25, reason: 'le taux VD reste servi');
+      final married = r['inheritanceMarried'] as Map<String, dynamic>;
+      expect(married['taux'], 0.0);
+      expect(married.containsKey('impot'), isFalse);
     });
   });
 
@@ -596,7 +736,6 @@ void main() {
         revenu1: 80000,
         revenu2: 60000,
         canton: 'VD',
-        patrimoine: 300000,
       );
       expect(r.containsKey('scoreMariage'), isFalse,
           reason: 'critères hétérogènes à poids égal = pseudo-conseil');

@@ -6910,19 +6910,14 @@ class SFr extends S {
   String get concubinageImpotSuccession => 'IMPÔT SUR LA SUCCESSION';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Patrimoine transmis';
+  String get concubinageMarieExonere => '0 % (exonéré·e)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (exonéré)';
+  String get concubinageConcubinLabel => 'Concubin·e';
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Concubin-e (~$taux %)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Si tu désignes ton·ta partenaire par testament, il·elle paierait $impot d\'impôt de succession sur un patrimoine de $patrimoine (taux tiers). Marié·e, il·elle en serait exonéré·e.';
+    return '~$taux % (taux tiers)';
   }
 
   @override
@@ -7017,7 +7012,8 @@ class SFr extends S {
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Exonéré (CC art. 462)';
+  String get concubinageCriteriaHeritageMarriage =>
+      'Exonéré (loi fiscale cantonale)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -13365,7 +13361,7 @@ class SFr extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'Un conjoint marié est exonéré d’impôt successoral dans la plupart des cantons (CC art. 462). Un concubin paie l’impôt au taux des tiers, souvent entre 20 % et 40 %.';
+      'L\'exonération du·de la conjoint·e survivant·e ne vient pas du Code civil : elle est inscrite dans les lois fiscales cantonales, et elle vaut dans les 26 cantons. Un·e concubin·e, lui·elle, relève du taux des « tiers » — et l\'écart entre cantons est très large : certains ne prélèvent aucun impôt de succession, d\'autres imposent lourdement les tiers. Ici, le canton pèse autant que le lien.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13410,7 +13406,11 @@ class SFr extends S {
 
   @override
   String get concubinageInheritanceConditional =>
-      'Sans testament, ton·ta partenaire n\'est pas héritier·ère légal·e : il·elle n\'hérite de rien et ton patrimoine revient à tes héritiers légaux. Si tu le·la désignes par testament (dans la limite de la quotité disponible), il·elle paierait alors l\'impôt de succession ci-dessous, au taux « tiers », sans l\'exonération d\'un·e conjoint·e marié·e. Le montant ci-dessous suppose que tu peux léguer tout ton patrimoine ; si tu as des descendant·e·s, leur réserve héréditaire limite la part transmissible — et donc l\'impôt.';
+      'Sans testament, ton·ta partenaire n\'hérite de rien : ta succession revient à tes héritiers légaux. Avec un testament, ce que tu peux lui léguer dépend de tes descendant·e·s : si tu en as, leur réserve représente la moitié de la succession et la quotité disponible plafonne donc à l\'autre moitié ; si tu n\'en as pas, la réserve des parents a été supprimée le 1er janvier 2023 et tu peux disposer de la totalité (CC art. 470-471). Ce qui entre dans la succession, c\'est ta part : un bien détenu en copropriété n\'y figure qu\'à hauteur de ta quote-part.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'Ce taux est un ordre de grandeur, pas le taux qui s\'appliquera : les barèmes cantonaux sont progressifs, prévoient des franchises et s\'accompagnent parfois d\'un impôt communal. Le montant dû dépend ensuite de la part réellement léguée.';
 
   @override
   String get concubinageSurvivorLppDetail =>
@@ -24829,6 +24829,13 @@ class SFr extends S {
       'Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l\'autre n\'est pas connu.';
 
   @override
-  String get genderGapProjectionAssumptions =>
-      'Hypothèses de projection : rendement 1.5 %/an sur les avoirs LPP, lacune cumulée estimée sur ~20 ans de retraite.';
+  String genderGapProjectionAssumptions(
+      String rendement, String tauxMin, String annees) {
+    return 'Hypothèses de projection : le rendement de $rendement %/an sur les avoirs LPP est une hypothèse MINT, pas un taux légal — le taux d\'intérêt minimal LPP est de $tauxMin %/an. La lacune cumulée est la lacune annuelle multipliée par $annees ans de retraite, sans actualisation ni indexation : un ordre de grandeur illustratif, pas une perte déjà subie.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Modèle employé : le régime LPP obligatoire minimal — salaire coordonné légal et taux de conversion minimal de $tauxConversion %. Ce n\'est pas le règlement de ta caisse. Avec un plan surobligatoire, fréquent au-delà du plafond du salaire assuré obligatoire, les rentes réelles s\'écartent de cette illustration dans un sens comme dans l\'autre : appliquer $tauxConversion % à la totalité du capital peut aussi surestimer, car les caisses enveloppantes retiennent souvent un taux plus bas sur l\'ensemble de l\'avoir.';
+  }
 }

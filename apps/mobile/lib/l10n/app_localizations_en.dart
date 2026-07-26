@@ -6859,19 +6859,14 @@ class SEn extends S {
   String get concubinageImpotSuccession => 'INHERITANCE TAX';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Assets transferred';
+  String get concubinageMarieExonere => '0% (exempt)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (exempt)';
+  String get concubinageConcubinLabel => 'Cohabiting partner';
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Partner (~$taux%)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'If you name your partner in a will, they would pay $impot in inheritance tax on wealth of $patrimoine (third-party rate). Married, they would be exempt.';
+    return '~$taux% (third-party rate)';
   }
 
   @override
@@ -6963,7 +6958,7 @@ class SEn extends S {
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Exempt (CC art. 462)';
+  String get concubinageCriteriaHeritageMarriage => 'Exempt (cantonal tax law)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -13291,7 +13286,7 @@ class SEn extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'A married spouse is exempt from inheritance tax in most cantons (CC art. 462). A cohabiting partner pays tax at the third-party rate, often between 20% and 40%.';
+      'The surviving spouse\'s exemption does not come from the Civil Code: it is written into cantonal tax laws, and it applies in all 26 cantons. A cohabiting partner falls under the « third-party » rate — and the spread between cantons is very wide: some levy no inheritance tax at all, others tax third parties heavily. Here the canton weighs as much as the relationship.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13335,7 +13330,11 @@ class SEn extends S {
 
   @override
   String get concubinageInheritanceConditional =>
-      'Without a will, your partner is not a legal heir: they inherit nothing and your wealth goes to your legal heirs. If you name them in a will (within the disposable portion), they would then pay the inheritance tax below, at the third-party rate, without the exemption a married spouse has. The amount below assumes you can bequeath your entire estate; if you have descendants, their statutory reserve limits the transmissible share — and therefore the tax.';
+      'Without a will, your partner inherits nothing: your estate goes to your legal heirs. With a will, what you can leave them depends on your descendants: if you have any, their statutory share is half of the estate, so the disposable portion is capped at the other half; if you have none, the parents\' statutory share was abolished on 1 January 2023 and you may dispose of the whole estate (CC art. 470-471). What enters the estate is your share: property held in co-ownership counts only up to your own portion.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'This rate is an order of magnitude, not the rate that will apply: cantonal scales are progressive, include allowances and are sometimes topped up by a communal tax. The amount due then depends on the share actually bequeathed.';
 
   @override
   String get concubinageSurvivorLppDetail =>
@@ -24698,6 +24697,13 @@ class SEn extends S {
       'Estimated at the household\'s current canton for both spouses — the other\'s future canton is unknown.';
 
   @override
-  String get genderGapProjectionAssumptions =>
-      'Projection assumptions: 1.5%/yr return on LPP assets, cumulative gap estimated over ~20 years of retirement.';
+  String genderGapProjectionAssumptions(
+      String rendement, String tauxMin, String annees) {
+    return 'Projection assumptions: the $rendement%/yr return on LPP assets is a MINT assumption, not a legal rate — the LPP minimum interest rate is $tauxMin%/yr. The cumulative gap is the annual gap multiplied by $annees years of retirement, with no discounting or indexation: an illustrative order of magnitude, not a loss already incurred.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Model used: the minimum mandatory LPP regime — statutory coordinated salary and a minimum conversion rate of $tauxConversion%. This is not your own pension fund\'s rules. With a super-mandatory plan, common above the ceiling of the mandatory insured salary, actual pensions depart from this illustration in either direction: applying $tauxConversion% to the entire capital can also overstate it, because wrap-around funds often apply a lower rate to the whole balance.';
+  }
 }
