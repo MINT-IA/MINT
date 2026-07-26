@@ -56,14 +56,14 @@ ROUND_TRIP_FIXTURES: list[tuple[str, list[str]]] = [
         [
             "succession_simulator__SuccessionSimulator_simulate",
             "mariage_service__MariageService_estimate_survivor_benefits",
-            "concubinage_service__ConcubinageService_estimate_inheritance_tax",
+            "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint",
         ],
     ),
     (
         "je suis en concubinage à Genève et je veux comprendre l'impact fiscal",
         [
             "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
-            "concubinage_service__ConcubinageService_estimate_inheritance_tax",
+            "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint",
         ],
     ),
     (

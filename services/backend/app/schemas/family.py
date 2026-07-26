@@ -463,10 +463,9 @@ class ConcubinageCompareRequest(FamilyBaseModel):
         default=0, ge=0, le=20,
         description="Nombre d'enfants",
     )
-    patrimoine: float = Field(
-        default=0.0, ge=0,
-        description="Patrimoine total du couple (CHF)",
-    )
+    # Pas de `patrimoine` : la succession n'est plus chiffree (ni montant, ni
+    # taux), donc un patrimoine ne changerait aucune sortie. Un champ dormant
+    # finit toujours par etre rebranche.
 
 
 class ComparisonItemSchema(FamilyBaseModel):
@@ -490,25 +489,22 @@ class ConcubinageCompareResponse(FamilyBaseModel):
         ..., description="Score de protection concubinage (sur 10)",
     )
     impot_celibataires_total: float = Field(
-        ..., description="Impot en tant que 2 celibataires (CHF)",
+        ..., description="Impot sur le revenu, en tant que 2 celibataires (CHF)",
     )
     impot_maries_total: float = Field(
-        ..., description="Impot en tant que couple marie (CHF)",
+        ..., description="Impot sur le revenu, en tant que couple marie (CHF)",
     )
     difference_fiscale: float = Field(
-        ..., description="Difference fiscale (CHF)",
+        ..., description="Ecart d'impot sur le revenu (CHF)",
     )
-    impot_succession_conjoint: float = Field(
-        ..., description="Impot de succession si conjoint (CHF)",
-    )
-    impot_succession_concubin: float = Field(
-        ..., description="Impot de succession si concubin (CHF)",
-    )
+    # Pas de `impot_succession_*` ni de `taux_succession_*` : la succession
+    # n'est plus chiffree. Le mecanisme est porte par la ligne « Succession »
+    # de `comparaisons` et par POST /family/concubinage/succession.
     synthese: str = Field(
         ..., description="Synthese pedagogique",
     )
     premier_eclairage: str = Field(
-        ..., description="Chiffre choc pedagogique",
+        ..., description="Le mecanisme successoral, sans montant ni taux",
     )
     disclaimer: str = Field(
         ..., description="Avertissement legal",
@@ -524,58 +520,52 @@ class ConcubinageCompareResponse(FamilyBaseModel):
 # ===========================================================================
 
 class SuccessionRequest(FamilyBaseModel):
-    """Requete pour la comparaison d'impot sur les successions.
+    """Requete pour l'expose du mecanisme successoral en concubinage.
 
-    Per D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened
-    from `default="ZH"` to Optional `default=None` with the `from_profile`
-    marker so the `_resolve_defaults` helper can fill it from
-    `_user.profile.canton` before the missing-check fires. A silent ZH default
-    on null canton (W0 audit row 23 sev-3) returned wrong concubin tax rates
-    (~18% ZH vs canton-specific 0-26%) ; the grounding contract closes that
-    silent-wrong-tax class.
+    Per D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is Optional
+    `default=None` with the `from_profile` marker so `_resolve_defaults` can
+    fill it from `_user.profile.canton` before the missing-check fires.
+
+    Ne porte plus AUCUN champ chiffre :
+      - `patrimoine` etait REQUIS, donc l'endpoint reclamait a l'utilisateur
+        son patrimoine (422 s'il manquait) dans le seul but de produire un
+        montant indefendable. La doctrine dit l'inverse : retirer le chiffre
+        plutot qu'exiger des champs.
+      - `is_married` etait déjà mort — la reponse a toujours decrit les deux
+        situations, le drapeau ne changeait rien.
+    Les clients qui envoient encore ces champs ne sont pas casses : Pydantic
+    les ignore.
     """
 
-    patrimoine: float = Field(
-        ..., ge=0,
-        description="Patrimoine a transmettre (CHF)",
-    )
     canton: Optional[str] = Field(
         default=None, min_length=2, max_length=2,
         description="Code canton (2 lettres, lu depuis le profil si absent)",
         json_schema_extra={"from_profile": "canton"},
     )
-    is_married: bool = Field(
-        default=False,
-        description="True pour conjoint, False pour concubin",
-    )
 
 
 class SuccessionResponse(FamilyBaseModel):
-    """Reponse pour la comparaison d'impot sur les successions."""
+    """Reponse : le mecanisme successoral, sans montant ni taux.
+
+    Le taux plat par canton a ete retire avec le montant : il est dementi sur
+    au moins deux cantons et ignore la commune, la franchise, la part reellement
+    recue et la duree de vie commune.
+    """
 
     canton: str = Field(
         ..., description="Code canton",
     )
-    patrimoine: float = Field(
-        ..., description="Patrimoine transmis (CHF)",
+    regle_transmission: str = Field(
+        ..., description="Ce qui peut etre legue, et a qui (CC art. 470-471)",
     )
-    impot_conjoint: float = Field(
-        ..., description="Impot si conjoint survivant (CHF)",
+    charge_concubin: str = Field(
+        ..., description="Qui paie quoi, enonce sans etre chiffre",
     )
-    impot_concubin: float = Field(
-        ..., description="Impot si concubin survivant (CHF)",
-    )
-    difference: float = Field(
-        ..., description="Difference impot concubin - conjoint (CHF)",
-    )
-    taux_conjoint: float = Field(
-        ..., description="Taux effectif conjoint",
-    )
-    taux_concubin: float = Field(
-        ..., description="Taux effectif concubin",
+    facteurs_determinants: List[str] = Field(
+        ..., description="Ce dont dependrait un chiffre reel",
     )
     premier_eclairage: str = Field(
-        ..., description="Chiffre choc pedagogique",
+        ..., description="Le mecanisme successoral, sans montant ni taux",
     )
     disclaimer: str = Field(
         ..., description="Avertissement legal",

@@ -136,14 +136,14 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
     "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage": {
         "name": "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
         "file": "app/services/family/concubinage_service.py",
-        "profile_fields_needed": ["revenu_1", "revenu_2", "canton", "enfants", "patrimoine"],
+        "profile_fields_needed": ["revenu_1", "revenu_2", "canton", "enfants"],
         "life_events_served": ["family", "marriage"],
         "output_type": "L1",
     },
-    "concubinage_service__ConcubinageService_estimate_inheritance_tax": {
-        "name": "concubinage_service__ConcubinageService_estimate_inheritance_tax",
+    "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint": {
+        "name": "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint",
         "file": "app/services/family/concubinage_service.py",
-        "profile_fields_needed": ["patrimoine", "canton", "is_married"],
+        "profile_fields_needed": ["canton"],
         "life_events_served": ["family", "marriage"],
         "output_type": "L1",
     },
@@ -611,7 +611,7 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "cantonal_comparator__estimate_income_tax_parts",
         "church_tax_service__ChurchTaxService_estimate_church_tax",
         "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
-        "concubinage_service__ConcubinageService_estimate_inheritance_tax",
+        "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint",
         "epl_combined_service__EplCombinedService_calculate",
         "epl_service__EPLService_simulate",
         "expat_service__ExpatService_compare_tax_burden",
@@ -810,7 +810,6 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "cantonal_comparator__estimate_income_tax",
         "cantonal_comparator__estimate_income_tax_on_rente",
         "cantonal_comparator__estimate_income_tax_parts",
-        "concubinage_service__ConcubinageService_estimate_inheritance_tax",
         "epl_combined_service__EplCombinedService_calculate",
         "epl_service__EPLService_simulate",
         "location_vs_propriete__compare_location_vs_propriete",
@@ -866,10 +865,6 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     },
     "new": {
         "job_comparator__JobComparator_compare",
-    },
-    "patrimoine": {
-        "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
-        "concubinage_service__ConcubinageService_estimate_inheritance_tax",
     },
     "patrimoine_1": {
         "mariage_service__MariageService_simulate_regime_matrimonial",

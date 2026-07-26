@@ -5075,13 +5075,6 @@
             "title": "Enfants",
             "type": "integer"
           },
-          "patrimoine": {
-            "default": 0.0,
-            "description": "Patrimoine total du couple (CHF)",
-            "minimum": 0.0,
-            "title": "Patrimoine",
-            "type": "number"
-          },
           "revenu1": {
             "description": "Revenu annuel personne 1 (CHF)",
             "minimum": 0.0,
@@ -5114,7 +5107,7 @@
             "type": "array"
           },
           "differenceFiscale": {
-            "description": "Difference fiscale (CHF)",
+            "description": "Ecart d'impot sur le revenu (CHF)",
             "title": "Differencefiscale",
             "type": "number"
           },
@@ -5124,27 +5117,17 @@
             "type": "string"
           },
           "impotCelibatairesTotal": {
-            "description": "Impot en tant que 2 celibataires (CHF)",
+            "description": "Impot sur le revenu, en tant que 2 celibataires (CHF)",
             "title": "Impotcelibatairestotal",
             "type": "number"
           },
           "impotMariesTotal": {
-            "description": "Impot en tant que couple marie (CHF)",
+            "description": "Impot sur le revenu, en tant que couple marie (CHF)",
             "title": "Impotmariestotal",
             "type": "number"
           },
-          "impotSuccessionConcubin": {
-            "description": "Impot de succession si concubin (CHF)",
-            "title": "Impotsuccessionconcubin",
-            "type": "number"
-          },
-          "impotSuccessionConjoint": {
-            "description": "Impot de succession si conjoint (CHF)",
-            "title": "Impotsuccessionconjoint",
-            "type": "number"
-          },
           "premierEclairage": {
-            "description": "Chiffre choc pedagogique",
+            "description": "Le mecanisme successoral, sans montant ni taux",
             "title": "Premiereclairage",
             "type": "string"
           },
@@ -5179,8 +5162,6 @@
           "impotCelibatairesTotal",
           "impotMariesTotal",
           "differenceFiscale",
-          "impotSuccessionConjoint",
-          "impotSuccessionConcubin",
           "synthese",
           "premierEclairage",
           "disclaimer"
@@ -22031,7 +22012,7 @@
         "type": "object"
       },
       "SuccessionRequest": {
-        "description": "Requete pour la comparaison d'impot sur les successions.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker so the `_resolve_defaults` helper can fill it from\n`_user.profile.canton` before the missing-check fires. A silent ZH default\non null canton (W0 audit row 23 sev-3) returned wrong concubin tax rates\n(~18% ZH vs canton-specific 0-26%) ; the grounding contract closes that\nsilent-wrong-tax class.",
+        "description": "Requete pour l'expose du mecanisme successoral en concubinage.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is Optional\n`default=None` with the `from_profile` marker so `_resolve_defaults` can\nfill it from `_user.profile.canton` before the missing-check fires.\n\nNe porte plus AUCUN champ chiffre :\n  - `patrimoine` etait REQUIS, donc l'endpoint reclamait a l'utilisateur\n    son patrimoine (422 s'il manquait) dans le seul but de produire un\n    montant indefendable. La doctrine dit l'inverse : retirer le chiffre\n    plutot qu'exiger des champs.\n  - `is_married` etait déjà mort — la reponse a toujours decrit les deux\n    situations, le drapeau ne changeait rien.\nLes clients qui envoient encore ces champs ne sont pas casses : Pydantic\nles ignore.",
         "properties": {
           "canton": {
             "anyOf": [
@@ -22047,62 +22028,45 @@
             "description": "Code canton (2 lettres, lu depuis le profil si absent)",
             "from_profile": "canton",
             "title": "Canton"
-          },
-          "isMarried": {
-            "default": false,
-            "description": "True pour conjoint, False pour concubin",
-            "title": "Ismarried",
-            "type": "boolean"
-          },
-          "patrimoine": {
-            "description": "Patrimoine a transmettre (CHF)",
-            "minimum": 0.0,
-            "title": "Patrimoine",
-            "type": "number"
           }
         },
-        "required": [
-          "patrimoine"
-        ],
         "title": "SuccessionRequest",
         "type": "object"
       },
       "SuccessionResponse": {
-        "description": "Reponse pour la comparaison d'impot sur les successions.",
+        "description": "Reponse : le mecanisme successoral, sans montant ni taux.\n\nLe taux plat par canton a ete retire avec le montant : il est dementi sur\nau moins deux cantons et ignore la commune, la franchise, la part reellement\nrecue et la duree de vie commune.",
         "properties": {
           "canton": {
             "description": "Code canton",
             "title": "Canton",
             "type": "string"
           },
-          "difference": {
-            "description": "Difference impot concubin - conjoint (CHF)",
-            "title": "Difference",
-            "type": "number"
+          "chargeConcubin": {
+            "description": "Qui paie quoi, enonce sans etre chiffre",
+            "title": "Chargeconcubin",
+            "type": "string"
           },
           "disclaimer": {
             "description": "Avertissement legal",
             "title": "Disclaimer",
             "type": "string"
           },
-          "impotConcubin": {
-            "description": "Impot si concubin survivant (CHF)",
-            "title": "Impotconcubin",
-            "type": "number"
-          },
-          "impotConjoint": {
-            "description": "Impot si conjoint survivant (CHF)",
-            "title": "Impotconjoint",
-            "type": "number"
-          },
-          "patrimoine": {
-            "description": "Patrimoine transmis (CHF)",
-            "title": "Patrimoine",
-            "type": "number"
+          "facteursDeterminants": {
+            "description": "Ce dont dependrait un chiffre reel",
+            "items": {
+              "type": "string"
+            },
+            "title": "Facteursdeterminants",
+            "type": "array"
           },
           "premierEclairage": {
-            "description": "Chiffre choc pedagogique",
+            "description": "Le mecanisme successoral, sans montant ni taux",
             "title": "Premiereclairage",
+            "type": "string"
+          },
+          "regleTransmission": {
+            "description": "Ce qui peut etre legue, et a qui (CC art. 470-471)",
+            "title": "Regletransmission",
             "type": "string"
           },
           "sources": {
@@ -22112,26 +22076,13 @@
             },
             "title": "Sources",
             "type": "array"
-          },
-          "tauxConcubin": {
-            "description": "Taux effectif concubin",
-            "title": "Tauxconcubin",
-            "type": "number"
-          },
-          "tauxConjoint": {
-            "description": "Taux effectif conjoint",
-            "title": "Tauxconjoint",
-            "type": "number"
           }
         },
         "required": [
           "canton",
-          "patrimoine",
-          "impotConjoint",
-          "impotConcubin",
-          "difference",
-          "tauxConjoint",
-          "tauxConcubin",
+          "regleTransmission",
+          "chargeConcubin",
+          "facteursDeterminants",
           "premierEclairage",
           "disclaimer"
         ],
@@ -29591,7 +29542,7 @@
     },
     "/api/v1/family/concubinage/succession": {
       "post": {
-        "description": "Compare l'impot de succession conjoint vs concubin.\n\nLe conjoint est exonere dans la plupart des cantons. Le concubin\nest impose au taux 'tiers' (10-25% selon le canton).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 23 sev-3 fix — legacy default\n\"ZH\" silently returned wrong concubin tax rates for non-ZH users).\nMissing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-default branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: Lois cantonales successions, CC art. 457-466.",
+        "description": "Enonce le mecanisme successoral du concubinage, sans le chiffrer.\n\nLe conjoint survivant est exonere d'impot successoral dans TOUS les\ncantons — par la loi fiscale cantonale, pas par le Code civil. Le concubin\nreleve du taux dit 'des tiers'. Ni ce taux ni le montant ne sont rendus :\nils dependent de la commune, de la franchise, de la part reellement recue\net de la duree de vie commune, qu'aucun taux plat ne represente.\n\nLe `patrimoine` n'est plus demande : il alimentait un `patrimoine x taux`\nqui supposait que 100 % du patrimoine pouvait revenir au ou a la\npartenaire, ce que la revision du droit successoral au 1.1.2023 dement.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body. Missing profile.canton triggers a 422 with\nthe D-CE-08 `CoachToolIncomplete` envelope when\n`PROFILE_GROUNDING_STRICT_MODE=true`.\n\nSources: lois fiscales cantonales sur les successions, CC art. 457 ss,\nCC art. 470-471.",
         "operationId": "compare_succession_api_v1_family_concubinage_succession_post",
         "requestBody": {
           "content": {

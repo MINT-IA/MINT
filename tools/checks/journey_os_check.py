@@ -141,6 +141,15 @@ ALLOW = {
     # campagne-A : naissance_service -> déductions IFD 2026 enfant/garde + article 33 al.3
     "services/backend/app/services/family/naissance_service.py",
     "services/backend/app/api/v1/endpoints/family.py",
+    # succession concubinage : retrait du montant ET du taux d'impôt successoral
+    # (base fausse depuis la révision du droit successoral au 1.1.2023 ; taux plat
+    # par canton démenti sur au moins deux cantons) + citation CC 462 corrigée
+    "services/backend/app/services/family/concubinage_service.py",
+    "services/backend/app/schemas/family.py",
+    "services/backend/tests/test_anthropic_defer_loading_adapter.py",
+    "services/backend/tests/test_tool_search_round_trip.py",
+    "services/backend/tests/test_canton_required_grounding.py",
+    "services/backend/tests/test_blank_profile_422_contract.py",
     # campagne-A : déduction enfant/garde 2026 servie partout (mobile + corpus)
     "apps/mobile/lib/services/family_service.dart",
     "apps/mobile/lib/widgets/coach/fiscal_superpower_widget.dart",

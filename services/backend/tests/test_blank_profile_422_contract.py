@@ -87,7 +87,7 @@ W1_GROUNDED_ENDPOINTS: list[tuple[str, dict]] = [
         "aConcubin": False,
         "aTestament": False,
     }),
-    ("/api/v1/family/concubinage/succession", {"patrimoine": 500000, "isMarried": False}),
+    ("/api/v1/family/concubinage/succession", {}),
     ("/api/v1/arbitrage/location-vs-propriete", {
         "capitalDisponible": 200000,
         "loyerMensuelActuel": 2500,

@@ -12,6 +12,8 @@ Target: 64 tests.
 Run: cd services/backend && python3 -m pytest tests/test_family.py -v
 """
 
+import re
+
 import pytest
 
 from app.services.family.mariage_service import (
@@ -39,7 +41,6 @@ from app.services.family.naissance_service import (
 )
 from app.services.family.concubinage_service import (
     ConcubinageService,
-    TAUX_SUCCESSION_PAR_CANTON,
     DISCLAIMER as CONCUBINAGE_DISCLAIMER,
 )
 
@@ -570,7 +571,7 @@ class TestConcubinageComparison:
     def test_succession_advantage_mariage(self, concubinage_service):
         """Succession should favor marriage."""
         result = concubinage_service.compare_mariage_vs_concubinage(
-            revenu_1=80_000, revenu_2=60_000, canton="ZH", patrimoine=500_000,
+            revenu_1=80_000, revenu_2=60_000, canton="ZH",
         )
         succession_comparison = [c for c in result.comparaisons if "Succession" in c.domaine][0]
         assert succession_comparison.avantage == "mariage"
@@ -588,52 +589,267 @@ class TestConcubinageComparison:
 
 
 # ===========================================================================
-# ConcubinageService — Inheritance Tax (5 tests)
+# ConcubinageService — Succession : verite du modele (non-regression)
+#
+# L'ancienne classe TestInheritanceTax verrouillait `patrimoine x taux` :
+# elle attendait un montant (`impot_concubin == 500_000 * 0.18`), une
+# `difference` en francs et un « CHF » dans le premier éclairage. Le montant
+# ET le taux ayant ete retires, ces attentes sont devenues le contraire du
+# contrat. Elles sont remplacees par les trois classes ci-dessous.
 # ===========================================================================
 
-class TestInheritanceTax:
-    """Tests for ConcubinageService.estimate_inheritance_tax()."""
+# Tout montant rendu par ce service passe par un token "CHF" (aucun autre
+# format monetaire n'est produit dans le fichier) : chercher ce token suffit
+# a prouver qu'aucun montant d'impot successoral n'est emis.
+_MONTANT_RE = re.compile(r"CHF|francs", re.IGNORECASE)
 
-    def test_conjoint_exonere_zurich(self, concubinage_service):
-        """Married spouse in ZH should pay 0 inheritance tax."""
-        result = concubinage_service.estimate_inheritance_tax(
-            patrimoine=500_000, canton="ZH", is_married=True,
-        )
-        assert result.impot_conjoint == 0.0
-        assert result.taux_conjoint == 0.0
+# Le taux plat par canton a ete retire lui aussi : il est dementi sur au
+# moins deux cantons, et le bareme reel depend aussi de la commune, du
+# montant reçu, du lien et de la duree de vie commune.
+_POURCENTAGE_RE = re.compile(r"\d\s*(?:%|pour\s*cent)")
 
-    def test_concubin_taxe_zurich(self, concubinage_service):
-        """Cohabitant in ZH should pay ~18% inheritance tax."""
-        result = concubinage_service.estimate_inheritance_tax(
-            patrimoine=500_000, canton="ZH", is_married=False,
-        )
-        expected = 500_000 * TAUX_SUCCESSION_PAR_CANTON["ZH"]["concubin"]
-        assert result.impot_concubin == expected
-        assert result.taux_concubin == 0.18
+# Les mots francais du perimetre succession, aplatis en ASCII (regle #2).
+_ASCII_FR_RE = re.compile(
+    r"\b(impot|impots|heritier|heritiers|heritiere|heritieres|maries|etiez"
+    r"|exonere|exoneres|exonerent|exoneree|difference|reserve|deces)\b",
+    re.IGNORECASE,
+)
 
-    def test_difference_positive(self, concubinage_service):
-        """Difference should be positive (concubin pays more)."""
-        result = concubinage_service.estimate_inheritance_tax(
-            patrimoine=500_000, canton="VD",
-        )
-        assert result.difference > 0
-        assert result.impot_concubin > result.impot_conjoint
+# Une fin de phrase = ponctuation + espace + majuscule. La contrainte de
+# majuscule evite de couper « CC art. 462 » en plein milieu d'une citation.
+_PHRASE_RE = re.compile(r"(?<=[.!?;])\s+(?=[«\"A-ZÀ-Ý])")
 
-    def test_schwyz_no_succession_tax(self, concubinage_service):
-        """SZ has no inheritance tax — both should be 0."""
-        result = concubinage_service.estimate_inheritance_tax(
-            patrimoine=500_000, canton="SZ",
-        )
-        assert result.impot_conjoint == 0.0
-        assert result.impot_concubin == 0.0
-        assert result.difference == 0.0
 
-    def test_premier_eclairage_contains_amount(self, concubinage_service):
-        """Chiffre choc should contain CHF amount."""
-        result = concubinage_service.estimate_inheritance_tax(
-            patrimoine=1_000_000, canton="GE",
+def _strip_accents(texte: str) -> str:
+    import unicodedata
+    return "".join(
+        c for c in unicodedata.normalize("NFD", texte)
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+def _phrases(texte: str) -> list[str]:
+    return [p for p in _PHRASE_RE.split(texte) if p.strip()]
+
+
+def _phrases_exoneration(texte: str) -> list[str]:
+    return [p for p in _phrases(texte) if "exoner" in _strip_accents(p).lower()]
+
+
+def _textes_exposure(result) -> list[str]:
+    """Tous les textes rendus par compare_succession_concubin_vs_conjoint()."""
+    return [
+        result.premier_eclairage,
+        result.regle_transmission,
+        result.charge_concubin,
+        *result.facteurs_determinants,
+        *result.sources,
+    ]
+
+
+class TestSuccessionNiMontantNiTaux:
+    """La succession du concubinage expose un mecanisme, ni montant ni taux.
+
+    `patrimoine x taux` supposait que 100 % du patrimoine pouvait revenir au
+    ou a la partenaire. Depuis la revision du droit successoral en vigueur au
+    1.1.2023, un concubin sans testament n'herite de rien et, avec testament,
+    la quotite disponible plafonne a 1/2 en presence de descendants
+    (CC art. 470-471). Le taux plat par canton est tombe avec le montant.
+    """
+
+    def test_methode_estimate_inheritance_tax_supprimee(self, concubinage_service):
+        """Un nom qui promet une estimation finit par etre rebranche sur un chiffre."""
+        assert not hasattr(concubinage_service, "estimate_inheritance_tax")
+
+    def test_table_de_taux_supprimee(self):
+        """Pas de table dormante qu'un futur ecran rebranchera."""
+        import app.services.family.concubinage_service as module
+        assert not hasattr(module, "TAUX_SUCCESSION_PAR_CANTON")
+        assert not hasattr(module, "_DEFAULT_TAUX_SUCCESSION")
+
+    def test_n_expose_aucun_champ_montant_ni_taux(self, concubinage_service):
+        """Ni patrimoine, ni impot, ni difference, ni taux dans la sortie."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        for champ_mort in (
+            "patrimoine", "impot_conjoint", "impot_concubin", "difference",
+            "taux_conjoint", "taux_concubin",
+        ):
+            assert not hasattr(result, champ_mort), f"{champ_mort} encore expose"
+
+    def test_ne_prend_plus_de_patrimoine(self, concubinage_service):
+        """Le patrimoine ne doit plus etre un parametre : il ne decide plus rien."""
+        with pytest.raises(TypeError):
+            concubinage_service.compare_succession_concubin_vs_conjoint(
+                patrimoine=500_000, canton="GE",
+            )
+
+    def test_aucun_texte_ne_porte_de_montant_ni_de_pourcentage(self, concubinage_service):
+        """C'est ce que le coach peut resservir : aucun chiffre fiscal dedans."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        for texte in _textes_exposure(result):
+            assert not _MONTANT_RE.search(texte), texte
+            assert not _POURCENTAGE_RE.search(texte), texte
+
+    def test_regle_de_la_quotite_disponible_enoncee(self, concubinage_service):
+        """A la place du chiffre : la regle qui decide l'arbitrage."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        regle = result.regle_transmission.lower()
+        assert "testament" in regle
+        assert "quotité disponible" in regle
+        assert "470" in result.regle_transmission  # CC art. 470-471
+
+    def test_charge_du_concubin_dite_sans_la_chiffrer(self, concubinage_service):
+        """Le taux « tiers » et l'ampleur de l'ecart cantonal, sans pourcentage."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        charge = _strip_accents(result.charge_concubin).lower()
+        assert "tiers" in charge
+        assert "communal" in charge
+
+    def test_les_quatre_facteurs_sont_nommes(self, concubinage_service):
+        """L'utilisateur doit comprendre ce qu'il faudrait pour obtenir un chiffre."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        facteurs = " ".join(result.facteurs_determinants).lower()
+        assert "commune" in facteurs          # canton ET commune
+        assert "reçu" in facteurs             # montant effectivement perçu
+        assert "lien" in facteurs             # lien avec la personne défunte
+        assert "durée de vie commune" in facteurs
+        assert len(result.facteurs_determinants) == 4
+
+    def test_exoneration_jamais_imputee_au_code_civil(self, concubinage_service):
+        """CC art. 462 regle la part successorale CIVILE, pas une exoneration fiscale."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        assert all("462" not in s for s in result.sources), result.sources
+
+        phrases = [p for texte in _textes_exposure(result) for p in _phrases_exoneration(texte)]
+        assert phrases, "aucune phrase ne mentionne l'exoneration"
+        for phrase in phrases:
+            assert "462" not in phrase, phrase
+            assert "cantonal" in _strip_accents(phrase).lower(), phrase
+
+    def test_portee_de_l_exoneration_est_tous_les_cantons(self, concubinage_service):
+        """L'exoneration du conjoint vaut dans TOUS les cantons, pas « la plupart »."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        blob = " ".join(_textes_exposure(result)).lower()
+        assert "plupart des cantons" not in blob
+        assert "tous les cantons" in blob
+
+    def test_textes_succession_accentues(self, concubinage_service):
+        """Regle #2 du depot : pas de francais aplati en ASCII."""
+        result = concubinage_service.compare_succession_concubin_vs_conjoint(canton="GE")
+        for texte in _textes_exposure(result):
+            trouve = _ASCII_FR_RE.search(texte)
+            assert trouve is None, f"{trouve.group(0)!r} dans : {texte}"
+
+
+class TestComparaisonSuccessionNiMontantNiTaux:
+    """La comparaison mariage/concubinage ne chiffre plus la succession."""
+
+    def test_comparaison_ne_prend_plus_de_patrimoine(self, concubinage_service):
+        """Parametre mort une fois le chiffre retire : retire aussi."""
+        with pytest.raises(TypeError):
+            concubinage_service.compare_mariage_vs_concubinage(
+                revenu_1=80_000, revenu_2=60_000, canton="VD", patrimoine=500_000,
+            )
+
+    def test_comparaison_n_expose_ni_montant_ni_taux_successoral(self, concubinage_service):
+        result = concubinage_service.compare_mariage_vs_concubinage(
+            revenu_1=80_000, revenu_2=60_000, canton="VD",
         )
-        assert "CHF" in result.premier_eclairage
+        for champ_mort in (
+            "impot_succession_conjoint", "impot_succession_concubin",
+            "taux_succession_conjoint", "taux_succession_concubin",
+        ):
+            assert not hasattr(result, champ_mort), f"{champ_mort} encore expose"
+
+    def test_premier_eclairage_comparaison_ne_porte_aucun_chiffre_fiscal(
+        self, concubinage_service,
+    ):
+        result = concubinage_service.compare_mariage_vs_concubinage(
+            revenu_1=80_000, revenu_2=60_000, canton="VD",
+        )
+        assert not _MONTANT_RE.search(result.premier_eclairage), result.premier_eclairage
+        assert not _POURCENTAGE_RE.search(result.premier_eclairage), result.premier_eclairage
+
+    def test_ligne_succession_ne_porte_aucun_chiffre_fiscal(self, concubinage_service):
+        result = concubinage_service.compare_mariage_vs_concubinage(
+            revenu_1=80_000, revenu_2=60_000, canton="VD",
+        )
+        ligne = [c for c in result.comparaisons if "Succession" in c.domaine][0]
+        for texte in (ligne.mariage, ligne.concubinage):
+            assert not _MONTANT_RE.search(texte), texte
+            assert not _POURCENTAGE_RE.search(texte), texte
+
+    def test_synthese_ne_chiffre_plus_la_succession(self, concubinage_service):
+        """La synthese garde l'ecart d'impot sur le REVENU, jamais un ecart successoral."""
+        result = concubinage_service.compare_mariage_vs_concubinage(
+            revenu_1=80_000, revenu_2=60_000, canton="VD",
+        )
+        for phrase in _phrases(result.synthese):
+            if "succession" in _strip_accents(phrase).lower():
+                assert not _MONTANT_RE.search(phrase), phrase
+
+    def test_ligne_succession_impute_l_exoneration_au_droit_fiscal_cantonal(
+        self, concubinage_service,
+    ):
+        result = concubinage_service.compare_mariage_vs_concubinage(
+            revenu_1=80_000, revenu_2=60_000, canton="VD",
+        )
+        ligne = [c for c in result.comparaisons if "Succession" in c.domaine][0]
+        phrases = _phrases_exoneration(ligne.mariage) + _phrases_exoneration(ligne.concubinage)
+        assert phrases, "aucune phrase ne mentionne l'exoneration"
+        for phrase in phrases:
+            assert "462" not in phrase, phrase
+            assert "cantonal" in _strip_accents(phrase).lower(), phrase
+        assert "plupart des cantons" not in ligne.mariage.lower()
+
+
+class TestSuccessionEndpointNiMontantNiTaux:
+    """Le contrat HTTP suit le service : le mecanisme, aucun chiffre fiscal."""
+
+    def test_endpoint_succession_ne_rend_ni_montant_ni_taux(self, client):
+        response = client.post(
+            "/api/v1/family/concubinage/succession",
+            json={"canton": "ZH"},
+        )
+        assert response.status_code == 200, response.text
+        data = response.json()
+        for champ_mort in (
+            "patrimoine", "impotConjoint", "impotConcubin", "difference",
+            "tauxConjoint", "tauxConcubin",
+        ):
+            assert champ_mort not in data, f"{champ_mort} encore dans la reponse"
+        assert data["canton"] == "ZH"
+        assert data["regleTransmission"]
+        assert data["chargeConcubin"]
+        assert len(data["facteursDeterminants"]) == 4
+        assert not _MONTANT_RE.search(data["premierEclairage"])
+        assert not _POURCENTAGE_RE.search(data["premierEclairage"])
+
+    def test_endpoint_succession_n_exige_plus_le_patrimoine(self, client):
+        """Ne plus reclamer un champ dont on n'a aucun usage defendable."""
+        from app.schemas.family import SuccessionRequest
+        assert "patrimoine" not in SuccessionRequest.model_fields
+        assert "is_married" not in SuccessionRequest.model_fields
+        # Un corps sans patrimoine passe : plus de 422 sur ce champ.
+        response = client.post(
+            "/api/v1/family/concubinage/succession", json={"canton": "VD"},
+        )
+        assert response.status_code == 200, response.text
+
+    def test_endpoint_compare_ne_rend_aucun_chiffre_successoral(self, client):
+        response = client.post(
+            "/api/v1/family/concubinage/compare",
+            json={"revenu1": 80000, "revenu2": 60000, "canton": "VD", "enfants": 0},
+        )
+        assert response.status_code == 200, response.text
+        data = response.json()
+        for champ_mort in (
+            "impotSuccessionConjoint", "impotSuccessionConcubin",
+            "tauxSuccessionConjoint", "tauxSuccessionConcubin",
+        ):
+            assert champ_mort not in data, f"{champ_mort} encore dans la reponse"
+        assert not _MONTANT_RE.search(data["premierEclairage"])
+        assert not _POURCENTAGE_RE.search(data["premierEclairage"])
 
 
 # ===========================================================================
@@ -1097,7 +1313,6 @@ class TestFamilyEndpoints:
                 "revenu2": 60000,
                 "canton": "ZH",
                 "enfants": 0,
-                "patrimoine": 500000,
             },
         )
         assert response.status_code == 200
@@ -1112,17 +1327,13 @@ class TestFamilyEndpoints:
         """POST /family/concubinage/succession should return 200."""
         response = client.post(
             "/api/v1/family/concubinage/succession",
-            json={
-                "patrimoine": 500000,
-                "canton": "ZH",
-                "isMarried": False,
-            },
+            json={"canton": "ZH"},
         )
         assert response.status_code == 200
         data = response.json()
-        assert "impotConjoint" in data
-        assert "impotConcubin" in data
-        assert "difference" in data
+        assert "regleTransmission" in data
+        assert "chargeConcubin" in data
+        assert "facteursDeterminants" in data
         assert "disclaimer" in data
 
     def test_concubinage_checklist_endpoint(self, client):
