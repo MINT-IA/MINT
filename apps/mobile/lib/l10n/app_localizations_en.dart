@@ -10289,6 +10289,29 @@ class SEn extends S {
       'LPP art. 8 (coordination deduction) / LPP art. 14 (conversion rate 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (voluntary buyback) / FSO 2024 (gender gap statistics)';
 
   @override
+  String get genderGapNonRenseigne => 'Not provided';
+
+  @override
+  String get genderGapGatePensionTitle =>
+      'Complete your situation to estimate your pension';
+
+  @override
+  String get genderGapGateCoordTitle =>
+      'Complete your situation for this coordination detail';
+
+  @override
+  String get genderGapGateWhyRevenu =>
+      'Your annual income is the basis for the LPP pension projection. Add it in your profile.';
+
+  @override
+  String get genderGapGateWhyAvoirLpp =>
+      'Your current LPP assets are the starting point of the projection. Add them from your pension certificate.';
+
+  @override
+  String get genderGapGateWhyAge =>
+      'Your age determines the number of years until retirement. Complete your date of birth in your profile.';
+
+  @override
   String get achievementsErrorMessage => 'Loading failed. Try again?';
 
   @override
@@ -24663,4 +24686,8 @@ class SEn extends S {
   @override
   String get divorceImpactFiscalCantonNote =>
       'Estimated at the household\'s current canton for both spouses — the other\'s future canton is unknown.';
+
+  @override
+  String get genderGapProjectionAssumptions =>
+      'Projection assumptions: 1.5%/yr return on LPP assets, cumulative gap estimated over ~20 years of retirement.';
 }

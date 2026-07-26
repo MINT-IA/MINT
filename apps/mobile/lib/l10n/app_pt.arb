@@ -4820,6 +4820,12 @@
   "genderGapDisclaimer": "Os resultados apresentados são estimativas simplificadas a título indicativo. Não constituem aconselhamento financeiro personalizado. Consulta a tua caixa de pensões e um especialista qualificado antes de tomar decisões.",
   "genderGapSources": "Fontes",
   "genderGapSourcesBody": "LPP art. 8 (dedução de coordenação) / LPP art. 14 (taxa de conversão 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (resgate voluntário) / OFS 2024 (estatísticas gender gap)",
+  "genderGapNonRenseigne": "Não indicado",
+  "genderGapGatePensionTitle": "Completa a tua situação para estimar a tua pensão",
+  "genderGapGateCoordTitle": "Completa a tua situação para este detalhe de coordenação",
+  "genderGapGateWhyRevenu": "O teu rendimento anual é a base para a projeção de pensão LPP. Adiciona-o no teu perfil.",
+  "genderGapGateWhyAvoirLpp": "Os teus ativos LPP atuais são o ponto de partida da projeção. Adiciona-os a partir do teu certificado de previdência.",
+  "genderGapGateWhyAge": "A tua idade determina o número de anos até à reforma. Completa a tua data de nascimento no teu perfil.",
   "achievementsErrorMessage": "O carregamento falhou. Tentar novamente?",
   "documentsEmptyVoice": "Vazio por enquanto. Digitaliza um certificado e tudo fica mais claro.",
   "documentsConfidenceChoc": "{count} documentos = {pct}% de confiança",
@@ -11762,5 +11768,6 @@
   "divorceGateFactCanton": "O teu cantão de residência",
   "divorceGateWhyCanton": "Indica o teu cantão no perfil para estimar o imposto do divórcio.",
   "divorceFilmPensionEstimee": "Pensão de alimentos estimada",
-  "divorceImpactFiscalCantonNote": "Estimativa no cantão atual do agregado para ambos os cônjuges — o cantão futuro da outra pessoa é desconhecido."
+  "divorceImpactFiscalCantonNote": "Estimativa no cantão atual do agregado para ambos os cônjuges — o cantão futuro da outra pessoa é desconhecido.",
+  "genderGapProjectionAssumptions": "Pressupostos de projeção: 1.5 %/ano de rendimento sobre os haveres LPP, lacuna acumulada estimada ao longo de ~20 anos de reforma."
 }

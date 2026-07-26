@@ -4820,6 +4820,12 @@
   "genderGapDisclaimer": "Los resultados mostrados son estimaciones simplificadas con fines informativos. No constituyen asesoramiento financiero personalizado. Consulta tu caja de pensiones y a un especialista cualificado antes de tomar decisiones.",
   "genderGapSources": "Fuentes",
   "genderGapSourcesBody": "LPP art. 8 (deducción de coordinación) / LPP art. 14 (tasa de conversión 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rescate voluntario) / OFS 2024 (estadísticas gender gap)",
+  "genderGapNonRenseigne": "Sin especificar",
+  "genderGapGatePensionTitle": "Completa tu situación para estimar tu pensión",
+  "genderGapGateCoordTitle": "Completa tu situación para este detalle de coordinación",
+  "genderGapGateWhyRevenu": "Tus ingresos anuales son la base de la proyección de pensión LPP. Añádelos en tu perfil.",
+  "genderGapGateWhyAvoirLpp": "Tus activos LPP actuales son el punto de partida de la proyección. Añádelos desde tu certificado de previsión.",
+  "genderGapGateWhyAge": "Tu edad determina el número de años hasta la jubilación. Completa tu fecha de nacimiento en tu perfil.",
   "achievementsErrorMessage": "La carga falló. ¿Reintentamos?",
   "documentsEmptyVoice": "Vacío por ahora. Escanea un certificado y todo se aclara.",
   "documentsConfidenceChoc": "{count} documentos = {pct}% de confianza",
@@ -11762,5 +11768,6 @@
   "divorceGateFactCanton": "Tu cantón de residencia",
   "divorceGateWhyCanton": "Indica tu cantón en tu perfil para estimar el impuesto del divorcio.",
   "divorceFilmPensionEstimee": "Pensión alimenticia estimada",
-  "divorceImpactFiscalCantonNote": "Estimación en el cantón actual del hogar para ambos cónyuges — se desconoce el cantón futuro de la otra persona."
+  "divorceImpactFiscalCantonNote": "Estimación en el cantón actual del hogar para ambos cónyuges — se desconoce el cantón futuro de la otra persona.",
+  "genderGapProjectionAssumptions": "Hipótesis de proyección: 1.5 %/año de rendimiento sobre los haberes LPP, brecha acumulada estimada sobre ~20 años de jubilación."
 }
