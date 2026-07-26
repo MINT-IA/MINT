@@ -15,14 +15,14 @@ description: "Index des cartes de navigation par thème — une carte par univer
 | [home](themes/home.md) | 10 | 5 | 5 | 0 | PARCOURABLE |
 | [documents](themes/documents.md) | 8 | 4 | 4 | 0 | PARCOURABLE |
 | [logement](themes/logement.md) | 8 | 7 | 1 | 0 | PARCOURABLE |
-| [insights](themes/insights.md) | 7 | 1 | 6 | 0 | PORTE UNIQUE |
+| [insights](themes/insights.md) | 7 | 2 | 5 | 0 | PORTE UNIQUE |
 | [profil](themes/profil.md) | 7 | 4 | 3 | 0 | PARCOURABLE |
 | [onboarding](themes/onboarding.md) | 5 | 4 | 1 | 0 | PARCOURABLE |
 | [auth](themes/auth.md) | 3 | 3 | 0 | 0 | PARCOURABLE |
 | [autres](themes/autres.md) | 3 | 1 | 2 | 0 | PORTE UNIQUE |
 | [admin](themes/admin.md) | 0 | 0 | 0 | 0 | AUCUNE PORTE |
 | [non-classe](themes/non-classe.md) | 0 | 0 | 0 | 0 | AUCUNE PORTE |
-| **Total** | **134** | **71** | **60** | **3** | |
+| **Total** | **134** | **72** | **59** | **3** | |
 
 ## Comment lire
 

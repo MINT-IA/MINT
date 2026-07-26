@@ -41,7 +41,7 @@ description: "Carte de navigation du thème lifeevents — 33 routes : 24 câbl�
 | `/explore/sante` | ExploreHubScreen | 🟢 câblée | `explorer_screen` | oui |
 | `/explore/travail` | ExploreHubScreen | 🟢 câblée | `explorer_screen` | oui |
 | `/first-job` | FirstJobScreen | 🟢 câblée | `hub:/explore/travail` | oui |
-| `/fiscal` | FiscalComparatorScreen | 🟢 câblée | `coach_message_bubble`, `hub:/explore/fiscalite` | oui |
+| `/fiscal` | FiscalComparatorScreen | 🟢 câblée | `coach_message_bubble`, `drawer:coach`, `hub:/explore/fiscalite` | oui |
 | `/life-event/deces-proche` | DecesProcheScreen | 🟢 câblée | `hub:/explore/patrimoine` | oui |
 | `/life-event/demenagement-cantonal` | DemenagementCantonalScreen | 🟢 câblée | `hub:/explore/patrimoine` | oui |
 | `/life-event/divorce` | ? | 🟡 séquence | — | oui |
@@ -75,6 +75,7 @@ graph LR
   explorer_screen["explorer_screen"] --> _explore_travail["/explore/travail"]
   hub__explore_travail["hub:/explore/travail"] --> _first_job["/first-job"]
   coach_message_bubble["coach_message_bubble"] --> _fiscal["/fiscal"]
+  drawer_coach["drawer:coach"] --> _fiscal["/fiscal"]
   hub__explore_fiscalite["hub:/explore/fiscalite"] --> _fiscal["/fiscal"]
   hub__explore_patrimoine["hub:/explore/patrimoine"] --> _life_event_deces_proche["/life-event/deces-proche"]
   hub__explore_patrimoine["hub:/explore/patrimoine"] --> _life_event_demenagement_cantonal["/life-event/demenagement-cantonal"]

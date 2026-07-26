@@ -48,7 +48,7 @@ Ces routes ne doivent PAS être cliquables — les compter comme des îles crée
 | `/coach/refresh` | ? | 🟡 séquence | — | oui |
 | `/coach/succession` | ? | 🟡 séquence | — | oui |
 | `/lpp-deep/rachat` | ? | 🟡 séquence | — | oui |
-| `/rachat-lpp` | RachatEchelonneScreen | 🟢 câblée | `hub:/explore/retraite` | oui |
+| `/rachat-lpp` | RachatEchelonneScreen | 🟢 câblée | `drawer:coach`, `hub:/explore/retraite` | oui |
 
 ## Graphe des entrées
 
@@ -68,5 +68,6 @@ graph LR
   mon_argent_screen["mon_argent_screen"] --> _coach_chat["/coach/chat"]
   retroactive_3a_screen["retroactive_3a_screen"] --> _coach_chat["/coach/chat"]
   staggered_withdrawal_screen["staggered_withdrawal_screen"] --> _coach_chat["/coach/chat"]
+  drawer_coach["drawer:coach"] --> _rachat_lpp["/rachat-lpp"]
   hub__explore_retraite["hub:/explore/retraite"] --> _rachat_lpp["/rachat-lpp"]
 ```

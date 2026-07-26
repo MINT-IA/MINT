@@ -75,6 +75,19 @@ def hub_edges() -> dict:
             edges[m.group(1)].add("explorer_screen")
     return {k: sorted(v) for k, v in edges.items()}
 
+def drawer_edges() -> dict:
+    """Routes ouvertes EN TIROIR depuis le chat (`ChatDrawerHost`).
+
+    Troisième mécanisme de navigation de l'app, après les liens littéraux et les
+    hubs : le coach affiche une carte, l'utilisateur tape, un tiroir s'ouvre sur
+    l'écran. C'est atteignable en cliquant — donc ça compte comme une porte.
+    """
+    f = MOBILE / "lib/widgets/coach/chat_drawer_host.dart"
+    if not f.exists():
+        return {}
+    return {r: ["drawer:coach"] for r in
+            sorted(set(re.findall(r"'(/[a-z0-9/_:-]+)'", f.read_text(encoding="utf-8"))))}
+
 def registry_routes() -> set:
     p = MOBILE / "lib/services/navigation/screen_registry.dart"
     if not p.exists():
@@ -102,9 +115,9 @@ def nature(route: str) -> str:
 def main() -> int:
     routes = routes_from_app_dart()
     edges = literal_edges()
-    for r, srcs in hub_edges().items():          # les hubs comptent : ils sont cliquables
-        edges.setdefault(r, [])
-        edges[r] = sorted(set(edges[r]) | set(srcs))
+    for src in (hub_edges(), drawer_edges()):    # hubs et tiroirs : cliquables aussi
+        for r, ss in src.items():
+            edges[r] = sorted(set(edges.get(r, [])) | set(ss))
     reg = registry_routes()
     clusters = json.loads((PARTS / "clusters.json").read_text(encoding="utf-8"))
 
