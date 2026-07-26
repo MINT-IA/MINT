@@ -46,8 +46,8 @@ Ces routes ne doivent PAS être cliquables — les compter comme des îles crée
 | `/rente-vs-capital` | ? | 🔴 île | — | non |
 | `/retirement` | ? | 🟡 séquence | — | oui |
 | `/retirement/projection` | ? | 🟡 séquence | — | oui |
-| `/retraite` | RetirementDashboardScreen | 🟢 câblée | `coach_message_bubble`, `early_retirement_comparison`, `hub:/explore/retraite`, `retirement_dashboard_screen`, `smart_shortcuts`, `trajectory_card`, `widget_renderer` | oui |
-| `/retraite/rente-vs-capital` | RenteVsCapitalScreen | 🟢 câblée | `coach_message_bubble`, `hub:/explore/retraite`, `onboarding_shell_screen` | oui |
+| `/retraite` | RetirementDashboardScreen | 🟢 câblée | `coach_message_bubble`, `drawer:coach`, `early_retirement_comparison`, `hub:/explore/retraite`, `retirement_dashboard_screen`, `smart_shortcuts`, `trajectory_card`, `widget_renderer` | oui |
+| `/retraite/rente-vs-capital` | RenteVsCapitalScreen | 🟢 câblée | `coach_message_bubble`, `drawer:coach`, `hub:/explore/retraite`, `onboarding_shell_screen` | oui |
 | `/simulator/3a` | ? | 🟡 séquence | — | oui |
 | `/simulator/compound` | SimulatorCompoundScreen | 🟡 séquence | — | oui |
 | `/simulator/credit` | ConsumerCreditSimulatorScreen | 🟡 séquence | — | oui |
@@ -66,6 +66,7 @@ graph LR
   hub__explore_sante["hub:/explore/sante"] --> _invalidite["/invalidite"]
   hub__explore_retraite["hub:/explore/retraite"] --> _libre_passage["/libre-passage"]
   coach_message_bubble["coach_message_bubble"] --> _retraite["/retraite"]
+  drawer_coach["drawer:coach"] --> _retraite["/retraite"]
   early_retirement_comparison["early_retirement_comparison"] --> _retraite["/retraite"]
   hub__explore_retraite["hub:/explore/retraite"] --> _retraite["/retraite"]
   retirement_dashboard_screen["retirement_dashboard_screen"] --> _retraite["/retraite"]
@@ -73,6 +74,7 @@ graph LR
   trajectory_card["trajectory_card"] --> _retraite["/retraite"]
   widget_renderer["widget_renderer"] --> _retraite["/retraite"]
   coach_message_bubble["coach_message_bubble"] --> _retraite_rente_vs_capital["/retraite/rente-vs-capital"]
+  drawer_coach["drawer:coach"] --> _retraite_rente_vs_capital["/retraite/rente-vs-capital"]
   hub__explore_retraite["hub:/explore/retraite"] --> _retraite_rente_vs_capital["/retraite/rente-vs-capital"]
   onboarding_shell_screen["onboarding_shell_screen"] --> _retraite_rente_vs_capital["/retraite/rente-vs-capital"]
   hub__explore_travail["hub:/explore/travail"] --> _simulator_job_comparison["/simulator/job-comparison"]

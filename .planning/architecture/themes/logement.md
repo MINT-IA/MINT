@@ -20,7 +20,7 @@ description: "Carte de navigation du thème logement — 8 routes : 7 câblées 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
 | `/epl` | EplScreen | 🟢 câblée | `hub:/explore/retraite` | oui |
-| `/hypotheque` | AffordabilityScreen | 🟢 câblée | `hub:/explore/logement` | oui |
+| `/hypotheque` | AffordabilityScreen | 🟢 câblée | `drawer:coach`, `hub:/explore/logement` | oui |
 | `/life-event/housing-sale` | HousingSaleScreen | 🟢 câblée | `hub:/explore/logement` | oui |
 | `/mortgage/affordability` | ? | 🟡 séquence | — | oui |
 | `/mortgage/amortization` | AmortizationScreen | 🟢 câblée | `hub:/explore/logement` | oui |
@@ -33,6 +33,7 @@ description: "Carte de navigation du thème logement — 8 routes : 7 câblées 
 ```mermaid
 graph LR
   hub__explore_retraite["hub:/explore/retraite"] --> _epl["/epl"]
+  drawer_coach["drawer:coach"] --> _hypotheque["/hypotheque"]
   hub__explore_logement["hub:/explore/logement"] --> _hypotheque["/hypotheque"]
   hub__explore_logement["hub:/explore/logement"] --> _life_event_housing_sale["/life-event/housing-sale"]
   hub__explore_logement["hub:/explore/logement"] --> _mortgage_amortization["/mortgage/amortization"]

@@ -30,7 +30,7 @@ description: "Carte de navigation du thème pilier3a — 13 routes : 8 câblées
 | `/independants/avs` | AvsCotisationsScreen | 🟡 séquence | — | oui |
 | `/independants/dividende-salaire` | DividendeVsSalaireScreen | 🟡 séquence | — | oui |
 | `/independants/ijm` | IjmScreen | 🟡 séquence | — | oui |
-| `/pilier-3a` | Simulator3aScreen | 🟢 câblée | `coach_message_bubble`, `hub:/explore/fiscalite` | oui |
+| `/pilier-3a` | Simulator3aScreen | 🟢 câblée | `coach_message_bubble`, `drawer:coach`, `hub:/explore/fiscalite` | oui |
 | `/segments/independant` | IndependantScreen | 🟢 câblée | `hub:/explore/travail` | oui |
 
 ## Graphe des entrées
@@ -44,6 +44,7 @@ graph LR
   hub__explore_patrimoine["hub:/explore/patrimoine"] --> _arbitrage_allocation_annuelle["/arbitrage/allocation-annuelle"]
   hub__explore_logement["hub:/explore/logement"] --> _arbitrage_location_vs_propriete["/arbitrage/location-vs-propriete"]
   coach_message_bubble["coach_message_bubble"] --> _pilier_3a["/pilier-3a"]
+  drawer_coach["drawer:coach"] --> _pilier_3a["/pilier-3a"]
   hub__explore_fiscalite["hub:/explore/fiscalite"] --> _pilier_3a["/pilier-3a"]
   hub__explore_travail["hub:/explore/travail"] --> _segments_independant["/segments/independant"]
 ```
