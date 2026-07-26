@@ -7,13 +7,15 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
-import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
+import 'package:mint_mobile/widgets/visualizations/marriage_tax_comparison.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
 import 'package:provider/provider.dart';
 
@@ -98,23 +100,29 @@ CoachProfile _profile({
   );
 }
 
-Future<void> _pump(WidgetTester tester, CoachProfileProvider provider) async {
+Future<void> _pump(
+  WidgetTester tester,
+  CoachProfileProvider provider, {
+  // Non-FR pump = the i18n probe : any string still hardcoded in French shows
+  // up verbatim under another locale instead of being translated.
+  Locale locale = const Locale('fr'),
+}) async {
   // Tall surface so each (lazy) tab's result slot is inflated without scrolling.
   await tester.binding.setSurfaceSize(const Size(1200, 9000));
   addTearDown(() => tester.binding.setSurfaceSize(null));
   await tester.pumpWidget(
     ChangeNotifierProvider<CoachProfileProvider>.value(
       value: provider,
-      child: const MaterialApp(
-        locale: Locale('fr'),
-        localizationsDelegates: [
+      child: MaterialApp(
+        locale: locale,
+        localizationsDelegates: const [
           S.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: S.supportedLocales,
-        home: MariageScreen(),
+        home: const MariageScreen(),
       ),
     ),
   );
@@ -198,9 +206,11 @@ String _expectedFiscalPrimary(WidgetTester tester) {
     canton: st.debugCanton as String,
     nbEnfants: st.debugNbEnfants as int,
   );
+  // Sans signe : « + » / « - » était la forme typographique du verdict
+  // « pénalité » / « bonus », que ce modèle forfaitaire ne peut pas porter.
+  // Le sens de l'écart est désormais dans le LIBELLÉ sous le montant.
   final diff = r['difference'] as double;
-  final isPen = r['isPenalite'] as bool;
-  return '${isPen ? "+" : "-"}${FamilyService.formatChf(diff.abs())}';
+  return FamilyService.formatChf(diff.abs());
 }
 
 String _expectedSurvivorPrimary(WidgetTester tester) {
@@ -225,8 +235,8 @@ void main() {
 
       expect(find.byKey(_fiscalHero), findsNothing,
           reason: 'no fiscal figure on fabricated defaults 80000/60000/VD/0');
-      expect(find.byType(MarriagePenaltyGauge), findsNothing,
-          reason: 'the penalty gauge is a fiscal figure too → gated');
+      expect(find.byType(MarriageTaxComparison), findsNothing,
+          reason: 'the tax comparison is a fiscal figure too → gated');
       final gate = _gateWith(tester, 'revenu1');
       expect(gate.missing.map((f) => f.key),
           containsAll(<String>['revenu1', 'revenu2', 'canton', 'nbEnfants']));
@@ -249,7 +259,7 @@ void main() {
       expect(find.byType(SituationGateCard), findsNothing,
           reason: 'salary key + canton key + conjoint + touched nbEnfants');
       expect(find.byKey(_fiscalHero), findsOneWidget);
-      expect(find.byType(MarriagePenaltyGauge), findsOneWidget);
+      expect(find.byType(MarriageTaxComparison), findsOneWidget);
       expect(_state(tester).debugRevenu1, 96000.0);
       expect(_state(tester).debugRevenu2, 66000.0);
       expect(
@@ -876,7 +886,238 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(MariageScreen), findsOneWidget);
     expect(find.byKey(_fiscalHero), findsNothing);
-    expect(find.byType(MarriagePenaltyGauge), findsNothing,
+    expect(find.byType(MarriageTaxComparison), findsNothing,
         reason: 'no fiscal figure computes without a confirmed fact');
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  IMPÔT DU COUPLE — mécanique, pas verdict
+  //
+  //  Même constat que sur concubinage (PR #1053) : « Pénalité » / « Bonus » et
+  //  le rouge/vert sont des jugements de valeur posés sur une estimation
+  //  forfaitaire (barème marié forfaitaire, ni déductions réelles, ni commune,
+  //  ni barème cantonal détaillé). Les libellés DÉCRIVENT le sens de l'écart.
+  //
+  //  S'y ajoute un défaut propre à cet écran : les deux branches du ternaire du
+  //  récit renvoyaient LA MÊME clé, si bien qu'un couple dont l'impôt BAISSE
+  //  lisait un texte sur « la pénalité du mariage ». L'écran se contredisait.
+  //
+  //  Chaque assertion est sur le RENDU : elle repasse ROUGE si un verdict
+  //  revient (mot, couleur, récit de la mauvaise branche, chaîne hors ARB).
+  // ══════════════════════════════════════════════════════════════
+  group('Impôt du couple — mécanique, pas verdict', () {
+    // Revenus PROCHES → l'impôt du ménage marié dépasse celui de 2 célibataires.
+    Future<void> unlockMariePlusEleve(WidgetTester tester,
+        {Locale locale = const Locale('fr')}) async {
+      await _pump(tester, _FakeProvider(null), locale: locale);
+      await _touchRevenu1(tester, 80000);
+      await _touchRevenu2(tester, 60000);
+      await _touchCanton(tester, 'VD');
+      await _incrementChildren(tester);
+    }
+
+    // Revenu TRÈS INÉGAL → le barème réduit fait passer l'impôt du ménage marié
+    // sous celui de 2 célibataires. C'est la branche que le récit contredisait.
+    Future<void> unlockCelibatairesPlusEleve(WidgetTester tester,
+        {Locale locale = const Locale('fr')}) async {
+      await _pump(tester, _FakeProvider(null), locale: locale);
+      await _touchRevenu1(tester, 200000);
+      await _touchRevenu2(tester, 0);
+      await _touchCanton(tester, 'VD');
+      await _incrementChildren(tester);
+    }
+
+    // Les deux fixtures ci-dessus valent par leur SENS, pas par leurs chiffres :
+    // si le moteur change, ce test tombe avant les assertions de rendu et dit
+    // pourquoi, au lieu de les laisser mentir.
+    test('les deux fixtures encadrent bien les deux sens de l\'écart', () {
+      expect(
+        FamilyService.compareFiscalMariage(
+            revenu1: 80000, revenu2: 60000, canton: 'VD', nbEnfants: 1)['isPenalite'],
+        isTrue,
+        reason: 'revenus proches → impôt du ménage plus élevé marié',
+      );
+      expect(
+        FamilyService.compareFiscalMariage(
+            revenu1: 200000, revenu2: 0, canton: 'VD', nbEnfants: 1)['isPenalite'],
+        isFalse,
+        reason: 'un revenu domine → impôt du ménage plus élevé à deux célibataires',
+      );
+    });
+
+    /// Every rendered `Text.data` on the current tab.
+    List<String> renderedTexts(WidgetTester tester) => tester
+        .widgetList<Text>(find.byType(Text))
+        .map((t) => t.data ?? '')
+        .toList();
+
+    // ── (a) aucun qualificatif de valeur sur les deux surfaces ──
+    //
+    // « pénalité » survit à UN seul endroit et c'est voulu : l'encart éducatif
+    // en bas d'onglet, où c'est un fait de société (~700'000 couples, arrêt du
+    // TF de 1984) et non le verdict rendu sur CE couple.
+    void expectNoVerdictWord(WidgetTester tester) {
+      final penalite = renderedTexts(tester)
+          .where((s) => s.toLowerCase().contains('pénalité'))
+          .toList();
+      expect(penalite.length, 1,
+          reason: '« pénalité » ne doit subsister que dans le fait éducatif, '
+              'trouvé ${penalite.length} fois : $penalite');
+      expect(penalite.single, contains("700'000"),
+          reason: 'le seul « pénalité » restant est le fait de société, '
+              'pas un verdict sur ce couple');
+
+      final bonus = renderedTexts(tester)
+          .where((s) => s.toLowerCase().contains('bonus'))
+          .toList();
+      expect(bonus, isEmpty,
+          reason: '« bonus » est un jugement que ce modèle forfaitaire ne '
+              'peut pas porter, trouvé : $bonus');
+    }
+
+    testWidgets('(a) branche « impôt plus élevé marié » : aucun qualificatif',
+        (tester) async {
+      await unlockMariePlusEleve(tester);
+      expectNoVerdictWord(tester);
+    });
+
+    testWidgets('(a) branche « impôt plus élevé célibataires » : idem',
+        (tester) async {
+      await unlockCelibatairesPlusEleve(tester);
+      expectNoVerdictWord(tester);
+    });
+
+    testWidgets('(a) le montant du hero est rendu sans signe', (tester) async {
+      await unlockMariePlusEleve(tester);
+      final hero =
+          tester.widget<MintResultHeroCard>(find.byKey(_fiscalHero));
+      expect(hero.primaryValue.startsWith('+'), isFalse,
+          reason: 'le signe est la forme typographique du verdict');
+      expect(hero.primaryValue.startsWith('-'), isFalse);
+      expect(hero.primaryValue, _expectedFiscalPrimary(tester));
+    });
+
+    // ── (a) le rouge/vert, version chromatique du même verdict ──
+    testWidgets('(a) le hero n\'est plus accentué en rouge ni en vert',
+        (tester) async {
+      await unlockMariePlusEleve(tester);
+      final penalityHero =
+          tester.widget<MintResultHeroCard>(find.byKey(_fiscalHero));
+      expect(penalityHero.accentColor, isNot(MintColors.error));
+      expect(penalityHero.accentColor, isNot(MintColors.success));
+
+      await unlockCelibatairesPlusEleve(tester);
+      final bonusHero =
+          tester.widget<MintResultHeroCard>(find.byKey(_fiscalHero));
+      expect(bonusHero.accentColor, isNot(MintColors.success));
+      expect(bonusHero.accentColor, isNot(MintColors.error));
+    });
+
+    testWidgets('(a) aucun texte ni icône de l\'onglet Impôts en rouge/vert',
+        (tester) async {
+      await unlockMariePlusEleve(tester);
+      // L'onglet Impôts (hero + saisies + comparaison + déductions + encart)
+      // n'a plus aucune raison légitime de porter une couleur de valence : le
+      // sens est porté par le libellé et par la longueur des barres.
+      final colouredTexts = tester
+          .widgetList<Text>(find.byType(Text))
+          .where((t) =>
+              t.style?.color == MintColors.error ||
+              t.style?.color == MintColors.success)
+          .map((t) => t.data ?? '')
+          .toList();
+      expect(colouredTexts, isEmpty,
+          reason: 'rouge/vert = verdict chromatique, trouvé : $colouredTexts');
+
+      final colouredIcons = tester
+          .widgetList<Icon>(find.byType(Icon))
+          .where((i) =>
+              i.color == MintColors.error || i.color == MintColors.success)
+          .map((i) => i.icon.toString())
+          .toList();
+      expect(colouredIcons, isEmpty,
+          reason: 'idem pour les icônes, trouvé : $colouredIcons');
+    });
+
+    // ── (b) le récit du hero suit la branche ──
+    testWidgets(
+        '(b) impôt plus bas marié : le récit n\'est plus le texte de pénalité',
+        (tester) async {
+      await unlockCelibatairesPlusEleve(tester);
+      final hero = tester.widget<MintResultHeroCard>(find.byKey(_fiscalHero));
+      expect(hero.narrative, isNot(contains("700'000")),
+          reason: 'un couple dont l\'impôt BAISSE lisait le fait « pénalité » : '
+              'les deux branches du ternaire renvoyaient la même clé');
+      expect(hero.narrative, contains('additionnés'),
+          reason: 'le hero énonce le mécanisme, vrai dans les deux sens');
+      expect(hero.narrative, contains('barème réduit'));
+    });
+
+    testWidgets('(b) le mécanisme est le même récit dans les deux branches',
+        (tester) async {
+      await unlockMariePlusEleve(tester);
+      final a = tester.widget<MintResultHeroCard>(find.byKey(_fiscalHero));
+      await unlockCelibatairesPlusEleve(tester);
+      final b = tester.widget<MintResultHeroCard>(find.byKey(_fiscalHero));
+      expect(a.narrative, b.narrative,
+          reason: 'le mécanisme de l\'imposition commune ne dépend pas du sens '
+              'de l\'écart — c\'est le libellé qui porte le sens');
+    });
+
+    testWidgets('(b) la limite du modèle accompagne le chiffre', (tester) async {
+      await unlockMariePlusEleve(tester);
+      expect(find.textContaining('Estimation simplifiée'), findsWidgets);
+      expect(find.textContaining('barème cantonal détaillé'), findsWidgets);
+    });
+
+    // ── (d) la direction est énoncée textuellement, dans les deux sens ──
+    testWidgets('(d) le sens de l\'écart est écrit, et il s\'inverse',
+        (tester) async {
+      await unlockMariePlusEleve(tester);
+      expect(find.textContaining('plus élevé marié'), findsWidgets,
+          reason: 'la direction ne peut pas reposer sur la seule couleur');
+      expect(find.textContaining('plus élevé à deux célibataires'), findsNothing);
+
+      await unlockCelibatairesPlusEleve(tester);
+      expect(find.textContaining('plus élevé à deux célibataires'), findsWidgets);
+      expect(find.textContaining('plus élevé marié'), findsNothing);
+    });
+
+    // ── (c) la comparaison ne rend plus aucune chaîne hors ARB ──
+    testWidgets('(c) sous locale de, aucune chaîne française ne subsiste',
+        (tester) async {
+      await unlockMariePlusEleve(tester, locale: const Locale('de'));
+      for (final fr in const [
+        'Impact fiscal du mariage',
+        'Pénalité du mariage',
+        'Bonus du mariage',
+        'Aucun impact',
+        '2 célibataires',
+        'Mariés',
+        'Aucune différence',
+        'par an',
+      ]) {
+        expect(find.text(fr), findsNothing,
+            reason: '« $fr » est rendu en français à un germanophone');
+      }
+      expect(find.text('2 Alleinstehende'), findsWidgets,
+          reason: 'preuve positive que la comparaison passe bien par l\'ARB');
+    });
+
+    testWidgets('(c) le label Semantics énonce le sens ET l\'ampleur',
+        (tester) async {
+      final handle = tester.ensureSemantics();
+      await unlockMariePlusEleve(tester);
+      // Ancien label : « Thermomètre pénalité du mariage. Différence: … » —
+      // français dur, et un verdict jusque dans VoiceOver.
+      final node = tester.getSemantics(
+          find.bySemanticsLabel(RegExp('deux célibataires ou marié')).first);
+      expect(node.label, contains('plus élevé marié'),
+          reason: 'le sens doit rester accessible sans voir les barres');
+      expect(node.label, contains('CHF'), reason: 'l\'ampleur aussi');
+      expect(node.label.toLowerCase(), isNot(contains('pénalité')),
+          reason: 'le verdict survivait en VoiceOver');
+      handle.dispose();
+    });
   });
 }

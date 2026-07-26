@@ -10,7 +10,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
-import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
+import 'package:mint_mobile/widgets/visualizations/marriage_tax_comparison.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -27,7 +27,7 @@ import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 // ────────────────────────────────────────────────────────────
 //
 // Four-tab interactive screen:
-//   Tab 1: "Impots"     — Marriage penalty/bonus calculator
+//   Tab 1: "Impots"     — household tax, married vs two single people
 //   Tab 2: "Regime"     — Matrimonial regime comparison
 //   Tab 3: "Protection" — Survivor benefits (married vs not)
 //   Tab 4: "Checklist"  — Essential steps before/after marriage
@@ -615,9 +615,11 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: MintSpacing.xl),
 
         if (fiscalReady) ...[
-          MarriagePenaltyGauge(
+          MarriageTaxComparison(
             taxSingles: (_fiscalResult!['totalCelibataires'] as double),
             taxMarried: (_fiscalResult!['totalMarie'] as double),
+            revenu1: (_fiscalResult!['revenu1'] as double),
+            revenu2: (_fiscalResult!['revenu2'] as double),
           ),
           const SizedBox(height: MintSpacing.xl),
           _buildDeductionsBreakdown(),
@@ -632,31 +634,58 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 
+  // Hero fiscal : le SENS de l'écart, jamais un verdict.
+  //
+  // Il portait « Pénalité +X/an » en rouge ou « Bonus -X/an » en vert, sur une
+  // estimation forfaitaire (barème marié forfaitaire, ni déductions réelles, ni
+  // commune, ni barème cantonal détaillé) — trop grossière pour qualifier un
+  // régime. Même correctif que sur concubinage : montant sans signe, libellé
+  // qui décrit le sens, accent neutre, limite du modèle attachée au chiffre.
+  //
+  // Le récit énonce le MÉCANISME de l'imposition commune, qui est vrai dans les
+  // deux sens. Il tenait auparavant dans un ternaire dont les DEUX branches
+  // renvoyaient `mariageEducationalPenalty` : un couple dont l'impôt baissait
+  // lisait « Bonus » accompagné d'un texte sur la pénalité du mariage.
+  // Ce fait de société garde sa place dans l'encart éducatif en bas d'onglet,
+  // où il est un fait et non le verdict rendu sur ce couple-ci.
   Widget _buildFiscalHeroCard() {
     final result = _fiscalResult!;
     final difference = result['difference'] as double;
-    final isPenalite = result['isPenalite'] as bool;
+    final impotMenagePlusEleveMarie = result['isPenalite'] as bool;
     final totalMarie = result['totalMarie'] as double;
 
-    return MintResultHeroCard(
-      key: const Key('mariageFiscalHero'),
-      eyebrow: S.of(context)!.mariageFiscalComparison,
-      primaryValue:
-          '${isPenalite ? "+" : "-"}${FamilyService.formatChf(difference.abs())}',
-      primaryLabel: isPenalite
-          ? S
-              .of(context)!
-              .mariagePenaltyAmount(FamilyService.formatChf(difference.abs()))
-          : S
-              .of(context)!
-              .mariageBonusAmount(FamilyService.formatChf(difference.abs())),
-      secondaryValue: FamilyService.formatChf(totalMarie),
-      secondaryLabel: S.of(context)!.mariageMaries,
-      narrative: isPenalite
-          ? S.of(context)!.mariageEducationalPenalty
-          : S.of(context)!.mariageEducationalPenalty,
-      accentColor: isPenalite ? MintColors.error : MintColors.success,
-      tone: MintSurfaceTone.porcelaine,
+    return Column(
+      children: [
+        MintResultHeroCard(
+          key: const Key('mariageFiscalHero'),
+          eyebrow: S.of(context)!.mariageFiscalComparison,
+          primaryValue: FamilyService.formatChf(difference.abs()),
+          primaryLabel: impotMenagePlusEleveMarie
+              ? S.of(context)!.mariageEcartAnnuelImpotPlusEleveMarie
+              : S.of(context)!.mariageEcartAnnuelImpotPlusEleveCelibataires,
+          secondaryValue: FamilyService.formatChf(totalMarie),
+          secondaryLabel: S.of(context)!.mariageMaries,
+          narrative: S.of(context)!.impositionCommuneMecanique,
+          accentColor: MintColors.textPrimary,
+          tone: MintSurfaceTone.porcelaine,
+        ),
+        const SizedBox(height: MintSpacing.md),
+        // Limite du modèle, attachée au chiffre — mêmes tokens que sur la
+        // carte fiscale de concubinage.
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: MintColors.info.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
+          ),
+          child: Text(
+            S.of(context)!.fiscalEstimationModelLimit,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                .copyWith(height: 1.4),
+          ),
+        ),
+      ],
     );
   }
 

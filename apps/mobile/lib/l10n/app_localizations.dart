@@ -4509,17 +4509,59 @@ abstract class S {
   /// **'Mariés'**
   String get mariageMaries;
 
-  /// No description provided for @mariagePenaltyAmount.
+  /// No description provided for @mariageTaxComparisonTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pénalité +{amount}/an'**
-  String mariagePenaltyAmount(String amount);
+  /// **'Impôt du ménage : deux célibataires ou marié·e·s'**
+  String get mariageTaxComparisonTitle;
 
-  /// No description provided for @mariageBonusAmount.
+  /// No description provided for @mariageDeuxCelibataires.
   ///
   /// In fr, this message translates to:
-  /// **'Bonus -{amount}/an'**
-  String mariageBonusAmount(String amount);
+  /// **'2 célibataires'**
+  String get mariageDeuxCelibataires;
+
+  /// No description provided for @mariageEcartAnnuelImpotPlusEleveMarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart annuel : impôt du ménage plus élevé marié·e·s'**
+  String get mariageEcartAnnuelImpotPlusEleveMarie;
+
+  /// No description provided for @mariageEcartAnnuelImpotPlusEleveCelibataires.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart annuel : impôt du ménage plus élevé à deux célibataires'**
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires;
+
+  /// No description provided for @mariageEcartAnnuelImpotIdentique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart annuel : impôt du ménage identique dans les deux cas'**
+  String get mariageEcartAnnuelImpotIdentique;
+
+  /// No description provided for @mariageParAn.
+  ///
+  /// In fr, this message translates to:
+  /// **'par an'**
+  String get mariageParAn;
+
+  /// No description provided for @mariageRepartitionCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le sens de l’écart se joue sur la répartition de tes deux revenus : leur addition tire l’impôt du ménage vers le haut, le barème réduit des couples le tire vers le bas.'**
+  String get mariageRepartitionCaption;
+
+  /// No description provided for @mariageRepartitionRevenusProches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus proches'**
+  String get mariageRepartitionRevenusProches;
+
+  /// No description provided for @mariageRepartitionRevenuDomine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un revenu domine'**
+  String get mariageRepartitionRevenuDomine;
 
   /// No description provided for @mariageDeductions.
   ///
@@ -12348,17 +12390,17 @@ abstract class S {
   /// **'Impôt du ménage plus élevé en concubinage'**
   String get concubinageEcartImpotConcubinagePlusEleve;
 
-  /// No description provided for @concubinageMecaniqueImpositionCommune.
+  /// No description provided for @impositionCommuneMecanique.
   ///
   /// In fr, this message translates to:
   /// **'Marié·e·s, les deux revenus sont additionnés et imposés ensemble, avec un barème réduit réservé aux couples. Le sens de l’écart dépend de la répartition des revenus : quand ils sont proches, l’addition fait monter le revenu imposable plus vite que le barème réduit ne l’abaisse — c’est l’effet dit « Heiratsstrafe ». Quand un revenu domine largement, ce même barème abaisse l’impôt du ménage sous celui de deux célibataires.'**
-  String get concubinageMecaniqueImpositionCommune;
+  String get impositionCommuneMecanique;
 
-  /// No description provided for @concubinageFiscalModelLimit.
+  /// No description provided for @fiscalEstimationModelLimit.
   ///
   /// In fr, this message translates to:
   /// **'Estimation simplifiée : elle ne tient compte ni de tes déductions réelles, ni de ta commune, ni du barème cantonal détaillé. L’écart réel peut donc différer, y compris dans son sens.'**
-  String get concubinageFiscalModelLimit;
+  String get fiscalEstimationModelLimit;
 
   /// No description provided for @concubinageImpotSuccession.
   ///

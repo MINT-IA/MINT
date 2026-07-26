@@ -2424,14 +2424,36 @@ class SPt extends S {
   String get mariageMaries => 'Casados';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Penalização +$amount/ano';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Imposto do agregado: dois solteiros ou casados';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bónus -$amount/ano';
-  }
+  String get mariageDeuxCelibataires => '2 solteiros';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Diferença anual: imposto do agregado mais alto casados';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Diferença anual: imposto do agregado mais alto como dois solteiros';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Diferença anual: imposto do agregado idêntico nos dois casos';
+
+  @override
+  String get mariageParAn => 'por ano';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'O sentido da diferença joga-se na repartição dos teus dois rendimentos: a sua soma puxa o imposto do agregado para cima, a tabela reduzida reservada aos casais puxa-o para baixo.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Rendimentos próximos';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'Um rendimento domina';
 
   @override
   String get mariageDeductions => 'DEDUÇÕES CASAMENTO';
@@ -6893,11 +6915,11 @@ class SPt extends S {
       'Imposto do agregado mais elevado em união de facto';
 
   @override
-  String get concubinageMecaniqueImpositionCommune =>
+  String get impositionCommuneMecanique =>
       'Casados, os dois rendimentos são somados e tributados em conjunto, com uma tabela reduzida reservada aos casais. O sentido da diferença depende da repartição dos rendimentos: quando são próximos, a soma faz subir o rendimento tributável mais depressa do que a tabela reduzida o baixa — é o efeito conhecido por « Heiratsstrafe ». Quando um rendimento domina claramente, essa mesma tabela coloca o imposto do agregado abaixo do de dois solteiros.';
 
   @override
-  String get concubinageFiscalModelLimit =>
+  String get fiscalEstimationModelLimit =>
       'Estimativa simplificada: não tem em conta as tuas deduções reais, nem o teu município, nem a tabela cantonal detalhada. A diferença real pode assim variar, incluindo no seu sentido.';
 
   @override

@@ -1107,22 +1107,15 @@
   "mariageEnfants": "Filhos",
   "mariageFiscalComparison": "COMPARAÇÃO FISCAL",
   "mariageMaries": "Casados",
-  "mariagePenaltyAmount": "Penalização +{amount}/ano",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bónus -{amount}/ano",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Imposto do agregado: dois solteiros ou casados",
+  "mariageDeuxCelibataires": "2 solteiros",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Diferença anual: imposto do agregado mais alto casados",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Diferença anual: imposto do agregado mais alto como dois solteiros",
+  "mariageEcartAnnuelImpotIdentique": "Diferença anual: imposto do agregado idêntico nos dois casos",
+  "mariageParAn": "por ano",
+  "mariageRepartitionCaption": "O sentido da diferença joga-se na repartição dos teus dois rendimentos: a sua soma puxa o imposto do agregado para cima, a tabela reduzida reservada aos casais puxa-o para baixo.",
+  "mariageRepartitionRevenusProches": "Rendimentos próximos",
+  "mariageRepartitionRevenuDomine": "Um rendimento domina",
   "mariageDeductions": "DEDUÇÕES CASAMENTO",
   "mariageDeductionCouple": "Dedução casal casado",
   "mariageDeductionInsurance": "Dedução seguro (casada)",
@@ -3231,8 +3224,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Imposto do agregado mais elevado se casados",
   "concubinageEcartImpotConcubinagePlusEleve": "Imposto do agregado mais elevado em união de facto",
-  "concubinageMecaniqueImpositionCommune": "Casados, os dois rendimentos são somados e tributados em conjunto, com uma tabela reduzida reservada aos casais. O sentido da diferença depende da repartição dos rendimentos: quando são próximos, a soma faz subir o rendimento tributável mais depressa do que a tabela reduzida o baixa — é o efeito conhecido por « Heiratsstrafe ». Quando um rendimento domina claramente, essa mesma tabela coloca o imposto do agregado abaixo do de dois solteiros.",
-  "concubinageFiscalModelLimit": "Estimativa simplificada: não tem em conta as tuas deduções reais, nem o teu município, nem a tabela cantonal detalhada. A diferença real pode assim variar, incluindo no seu sentido.",
+  "impositionCommuneMecanique": "Casados, os dois rendimentos são somados e tributados em conjunto, com uma tabela reduzida reservada aos casais. O sentido da diferença depende da repartição dos rendimentos: quando são próximos, a soma faz subir o rendimento tributável mais depressa do que a tabela reduzida o baixa — é o efeito conhecido por « Heiratsstrafe ». Quando um rendimento domina claramente, essa mesma tabela coloca o imposto do agregado abaixo do de dois solteiros.",
+  "fiscalEstimationModelLimit": "Estimativa simplificada: não tem em conta as tuas deduções reais, nem o teu município, nem a tabela cantonal detalhada. A diferença real pode assim variar, incluindo no seu sentido.",
   "concubinageImpotSuccession": "IMPOSTO SOBRE SUCESSÕES",
   "concubinageMarieExonere": "0% (isento)",
   "concubinageConcubinLabel": "Parceiro/a",

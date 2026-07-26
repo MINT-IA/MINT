@@ -1107,22 +1107,15 @@
   "mariageEnfants": "Hijos",
   "mariageFiscalComparison": "COMPARACIÓN FISCAL",
   "mariageMaries": "Casados",
-  "mariagePenaltyAmount": "Penalización +{amount}/año",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonificación -{amount}/año",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Impuesto del hogar: dos solteros o casados",
+  "mariageDeuxCelibataires": "2 solteros",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Diferencia anual: impuesto del hogar más alto casados",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Diferencia anual: impuesto del hogar más alto como dos solteros",
+  "mariageEcartAnnuelImpotIdentique": "Diferencia anual: impuesto del hogar idéntico en ambos casos",
+  "mariageParAn": "al año",
+  "mariageRepartitionCaption": "El sentido de la diferencia se juega en el reparto de tus dos ingresos: su suma tira del impuesto del hogar hacia arriba, la escala reducida reservada a las parejas lo tira hacia abajo.",
+  "mariageRepartitionRevenusProches": "Ingresos parecidos",
+  "mariageRepartitionRevenuDomine": "Un ingreso domina",
   "mariageDeductions": "DEDUCCIONES MATRIMONIO",
   "mariageDeductionCouple": "Deducción pareja casada",
   "mariageDeductionInsurance": "Deducción seguro (casada)",
@@ -3231,8 +3224,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Impuesto del hogar más alto casados",
   "concubinageEcartImpotConcubinagePlusEleve": "Impuesto del hogar más alto en pareja de hecho",
-  "concubinageMecaniqueImpositionCommune": "Casados, ambos ingresos se suman y se gravan conjuntamente, con una escala reducida reservada a las parejas. El sentido de la diferencia depende del reparto de los ingresos: cuando son parecidos, la suma eleva la base imponible más rápido de lo que la escala reducida la rebaja — es el efecto llamado « Heiratsstrafe ». Cuando un ingreso domina claramente, esa misma escala sitúa el impuesto del hogar por debajo del de dos solteros.",
-  "concubinageFiscalModelLimit": "Estimación simplificada: no tiene en cuenta ni tus deducciones reales, ni tu municipio, ni la escala cantonal detallada. La diferencia real puede por tanto variar, incluso en su sentido.",
+  "impositionCommuneMecanique": "Casados, ambos ingresos se suman y se gravan conjuntamente, con una escala reducida reservada a las parejas. El sentido de la diferencia depende del reparto de los ingresos: cuando son parecidos, la suma eleva la base imponible más rápido de lo que la escala reducida la rebaja — es el efecto llamado « Heiratsstrafe ». Cuando un ingreso domina claramente, esa misma escala sitúa el impuesto del hogar por debajo del de dos solteros.",
+  "fiscalEstimationModelLimit": "Estimación simplificada: no tiene en cuenta ni tus deducciones reales, ni tu municipio, ni la escala cantonal detallada. La diferencia real puede por tanto variar, incluso en su sentido.",
   "concubinageImpotSuccession": "IMPUESTO DE SUCESIÓN",
   "concubinageMarieExonere": "0% (exento)",
   "concubinageConcubinLabel": "Concubino/a",

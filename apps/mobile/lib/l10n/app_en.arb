@@ -1107,22 +1107,15 @@
   "mariageEnfants": "Children",
   "mariageFiscalComparison": "TAX COMPARISON",
   "mariageMaries": "Married",
-  "mariagePenaltyAmount": "Penalty +{amount}/year",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonus -{amount}/year",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Household tax: two single people or married",
+  "mariageDeuxCelibataires": "2 single people",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Annual gap: household tax higher when married",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Annual gap: household tax higher as two single people",
+  "mariageEcartAnnuelImpotIdentique": "Annual gap: household tax identical either way",
+  "mariageParAn": "per year",
+  "mariageRepartitionCaption": "Which way the gap goes is decided by how your two incomes are split: adding them pulls the household tax up, the reduced scale reserved for couples pulls it down.",
+  "mariageRepartitionRevenusProches": "Close incomes",
+  "mariageRepartitionRevenuDomine": "One income dominates",
   "mariageDeductions": "MARRIAGE DEDUCTIONS",
   "mariageDeductionCouple": "Married couple deduction",
   "mariageDeductionInsurance": "Insurance deduction (married)",
@@ -3231,8 +3224,8 @@
   "concubinageImpotsMaries": "Impôts mariés",
   "concubinageEcartImpotMariePlusEleve": "Household tax higher when married",
   "concubinageEcartImpotConcubinagePlusEleve": "Household tax higher when cohabiting",
-  "concubinageMecaniqueImpositionCommune": "Once married, both incomes are added together and taxed jointly, under a reduced scale reserved for couples. Which way the gap goes depends on how the incomes are split: when they are close, adding them pushes taxable income up faster than the reduced scale brings it down — this is the effect known as « Heiratsstrafe ». When one income dominates, that same scale brings the household tax below what two single people would pay.",
-  "concubinageFiscalModelLimit": "Simplified estimate: it accounts for neither your actual deductions, nor your municipality, nor the detailed cantonal scale. The real gap may therefore differ, including in its direction.",
+  "impositionCommuneMecanique": "Once married, both incomes are added together and taxed jointly, under a reduced scale reserved for couples. Which way the gap goes depends on how the incomes are split: when they are close, adding them pushes taxable income up faster than the reduced scale brings it down — this is the effect known as « Heiratsstrafe ». When one income dominates, that same scale brings the household tax below what two single people would pay.",
+  "fiscalEstimationModelLimit": "Simplified estimate: it accounts for neither your actual deductions, nor your municipality, nor the detailed cantonal scale. The real gap may therefore differ, including in its direction.",
   "concubinageImpotSuccession": "INHERITANCE TAX",
   "concubinageMarieExonere": "0% (exempt)",
   "concubinageConcubinLabel": "Cohabiting partner",
