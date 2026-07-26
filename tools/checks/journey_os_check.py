@@ -188,6 +188,7 @@ ALLOW = {
     "apps/mobile/lib/screens/naissance_screen.dart",
     "apps/mobile/lib/screens/mariage_screen.dart",
     "apps/mobile/test/screens/mariage_gate_test.dart",
+    "apps/mobile/lib/widgets/coach/couple_narrative_timeline.dart",
     "apps/mobile/test/screens/naissance_gate_test.dart",
     "apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart",
     "apps/mobile/lib/screens/divorce_simulator_screen.dart",

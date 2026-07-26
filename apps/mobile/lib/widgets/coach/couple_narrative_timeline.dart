@@ -25,8 +25,10 @@ class CoupleAct {
   /// Period (e.g., "2026-2041 (15 ans)").
   final String period;
 
-  /// Combined monthly income.
-  final double monthlyIncome;
+  /// Combined monthly income. Null for illustrative future acts: those show
+  /// only the [deltaPercent] + [insight] under the timeline's illustrative
+  /// caption, never a specific CHF that would read as a personal projection.
+  final double? monthlyIncome;
 
   /// Percentage change vs previous act (null for act 1).
   final double? deltaPercent;
@@ -41,7 +43,7 @@ class CoupleAct {
     required this.number,
     required this.title,
     required this.period,
-    required this.monthlyIncome,
+    this.monthlyIncome,
     this.deltaPercent,
     required this.insight,
     this.isDip = false,
@@ -59,12 +61,18 @@ class CoupleNarrativeTimeline extends StatelessWidget {
   /// Optional coaching tip.
   final String? coachTip;
 
+  /// Optional caption framing future acts as an illustrative "parcours-type".
+  /// When set, it is rendered as an info banner so per-act delta percentages
+  /// read as example trajectories, not a projection of the couple's income.
+  final String? illustrativeCaption;
+
   const CoupleNarrativeTimeline({
     super.key,
     required this.acts,
     required this.partner1Name,
     required this.partner2Name,
     this.coachTip,
+    this.illustrativeCaption,
   });
 
   @override
@@ -103,6 +111,13 @@ class CoupleNarrativeTimeline extends StatelessWidget {
 
             // ── Acts ──
             ...acts.map((act) => _buildAct(act)),
+
+            // ── Illustrative caption — frames the future acts (delta %) as an
+            //    example trajectory, not a projection of the couple's income. ──
+            if (illustrativeCaption != null) ...[
+              const SizedBox(height: 12),
+              _buildIllustrativeCaption(),
+            ],
 
             // ── Coach tip ──
             if (coachTip != null) ...[
@@ -184,15 +199,19 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
 
-                  // Income
+                  // Income \u2014 a specific CHF is rendered ONLY for acts carrying a
+                  // real, confirmed figure (monthlyIncome != null). Illustrative
+                  // future acts show the delta % alone, framed by the caption
+                  // below \u2014 never a fabricated future CHF read as a projection.
                   Row(
                     children: [
-                      Text(
-                        'Revenus\u00a0: ${formatChfWithPrefix(act.monthlyIncome)}/mois',
-                        style: MintTextStyles.bodySmall(color: actColor).copyWith(fontWeight: FontWeight.w600),
-                      ),
+                      if (act.monthlyIncome != null)
+                        Text(
+                          'Revenus\u00a0: ${formatChfWithPrefix(act.monthlyIncome!)}/mois',
+                          style: MintTextStyles.bodySmall(color: actColor).copyWith(fontWeight: FontWeight.w600),
+                        ),
                       if (act.deltaPercent != null) ...[
-                        const SizedBox(width: 6),
+                        if (act.monthlyIncome != null) const SizedBox(width: 6),
                         Text(
                           '(${act.deltaPercent! >= 0 ? "+" : ""}${act.deltaPercent!.toStringAsFixed(0)}%)',
                           style: MintTextStyles.labelSmall(color: MintColors.textMuted),
@@ -224,6 +243,31 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIllustrativeCaption() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.info.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline, size: 16, color: MintColors.info),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              illustrativeCaption!,
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary)
+                  .copyWith(height: 1.4),
             ),
           ),
         ],

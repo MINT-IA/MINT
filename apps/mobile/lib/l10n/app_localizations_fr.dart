@@ -2529,10 +2529,14 @@ class SFr extends S {
 
   @override
   String get mariageLppSurvivorFootnote =>
-      'LPP art. 19 — mariés (concubins : clause nécessaire)';
+      'Sous conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage';
 
   @override
-  String get mariageSurvivorMonthly => 'Revenu mensuel du survivant marié';
+  String get mariageSurvivorMonthly => 'Rente LPP de survivant, par mois';
+
+  @override
+  String get mariageSurvivorAvsNote =>
+      'En tant que conjoint·e survivant·e, tu peux toucher en plus une rente AVS de survivant, sous conditions (LAVS art. 23). Son montant dépend de la carrière de cotisation du défunt et n\'est pas chiffré ici.';
 
   @override
   String get mariageVsConcubin => 'MARIÉ VS CONCUBIN';
@@ -2552,6 +2556,10 @@ class SFr extends S {
   @override
   String get mariageConcubinWarning =>
       'En concubinage, le partenaire survivant n\'a droit à rien par défaut — ni rente AVS, ni héritage exonéré. Il faut tout prévoir par contrat.';
+
+  @override
+  String get mariageProtectionConditionsNote =>
+      'Les protections du mariage (rentes de survivant AVS et LPP) sont un accès légal soumis à conditions d\'éligibilité (LPP art. 19, LAVS art. 23), pas une réception automatique.';
 
   @override
   String get mariageProtectionsEssentielles => 'PROTECTIONS ESSENTIELLES';
@@ -3090,7 +3098,7 @@ class SFr extends S {
 
   @override
   String get mariageChecklistItem3Desc =>
-      'Le mariage change l\'ordre des bénéficiaires. Ton conjoint devient automatiquement bénéficiaire de la rente de survivant LPP (LPP art. 19). Vérifie aussi les bénéficiaires de ton 3e pilier.';
+      'Le mariage change l\'ordre des bénéficiaires. Ton conjoint peut alors bénéficier de la rente de survivant LPP, sous conditions (LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage). Vérifie aussi les bénéficiaires de ton 3e pilier.';
 
   @override
   String get mariageChecklistItem4Title =>
@@ -4453,6 +4461,10 @@ class SFr extends S {
   @override
   String get mariageTimelineCoachTip =>
       'Chaque phase de vie demande d\'adapter ton contrat de mariage et ta prévoyance.';
+
+  @override
+  String get mariageTimelineIllustrativeCaption =>
+      'Parcours illustratif : les actes 2 et 3 montrent des exemples de trajectoires de vie (évolution de carrière, temps partiel). Les variations en pourcentage ne sont pas une projection de tes revenus.';
 
   @override
   String get mariageTimelineAct1Title => 'Vous travaillez tous les deux';

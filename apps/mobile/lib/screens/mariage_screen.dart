@@ -7,11 +7,9 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
-import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
@@ -979,7 +977,13 @@ class _MariageScreenState extends State<MariageScreen>
             partner1Name: S.of(context)!.mariageTimelinePartner1,
             partner2Name: S.of(context)!.mariageTimelinePartner2,
             coachTip: S.of(context)!.mariageTimelineCoachTip,
+            // Actes 2-3 = parcours-type illustratif : les +15 %/−35 % sont des
+            // hypothèses de trajectoire (carrière, temps partiel), PAS une
+            // projection des revenus de CE couple. Le caption le dit, et aucun
+            // CHF futur fabriqué n'est présenté comme une projection personnelle.
+            illustrativeCaption: S.of(context)!.mariageTimelineIllustrativeCaption,
             acts: [
+              // Acte 1 = revenu mensuel RÉEL confirmé du couple (donnée gatée).
               CoupleAct(
                 number: 1,
                 title: S.of(context)!.mariageTimelineAct1Title,
@@ -987,11 +991,12 @@ class _MariageScreenState extends State<MariageScreen>
                 monthlyIncome: (_revenu1 + _revenu2) / 12,
                 insight: S.of(context)!.mariageTimelineAct1Insight,
               ),
+              // Actes 2-3 = illustratifs : delta % + insight, AUCUN CHF (le
+              // multiplicateur 1.15 / 0.65 n'est étayé par rien pour ce couple).
               CoupleAct(
                 number: 2,
                 title: S.of(context)!.mariageTimelineAct2Title,
                 period: S.of(context)!.mariageTimelineAct2Period,
-                monthlyIncome: (_revenu1 + _revenu2) / 12 * 1.15,
                 deltaPercent: 15,
                 insight: S.of(context)!.mariageTimelineAct2Insight,
               ),
@@ -999,7 +1004,6 @@ class _MariageScreenState extends State<MariageScreen>
                 number: 3,
                 title: S.of(context)!.mariageTimelineAct3Title,
                 period: S.of(context)!.mariageTimelineAct3Period,
-                monthlyIncome: (_revenu1 + _revenu2) / 12 * 0.65,
                 deltaPercent: -35,
                 isDip: true,
                 insight: S.of(context)!.mariageTimelineAct3Insight,
@@ -1206,33 +1210,28 @@ class _MariageScreenState extends State<MariageScreen>
   }
 
   /// Sortie « rente de survivant » — rendue seulement via le render-gate
-  /// (`protectionReady`). La part AVS est la rente maximale légale (constante
-  /// documentée, cf. libellé « 80 % de la rente maximale ») ; la part LPP dérive
-  /// de la rente LPP confirmée du défunt.
+  /// (`protectionReady`). La figure affichée est fondée sur la SEULE donnée
+  /// confirmée : la rente LPP de survivant (60 % de la rente LPP du défunt, LPP
+  /// art. 19). La rente AVS de survivant n'est PAS chiffrée — son montant dépend
+  /// de la carrière de cotisation (non confirmée) ; l'afficher au maximum légal
+  /// serait un chiffre personnel fabriqué. Elle est énoncée qualitativement
+  /// (aucun CHF, LAVS art. 23), à l'image de concubinage_screen.
   List<Widget> _buildProtectionResults() {
-    const avsSurvivor = avsRenteMaxMensuelle * FamilyService.avsSurvivorFactor;
     final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
-    final totalSurvivor = avsSurvivor + lppSurvivor;
 
     return [
       MintResultHeroCard(
         key: const Key('mariageSurvivorHero'),
         eyebrow: S.of(context)!.mariageTabProtection,
-        primaryValue: '${FamilyService.formatChf(totalSurvivor)}/mois',
+        primaryValue: '${FamilyService.formatChf(lppSurvivor)}/mois',
         primaryLabel: S.of(context)!.mariageSurvivorMonthly,
         narrative: S.of(context)!.mariageProtectionIntro,
         accentColor: MintColors.success,
         tone: MintSurfaceTone.sauge,
       ),
       const SizedBox(height: MintSpacing.xl),
-      _buildSurvivorCard(
-        icon: Icons.account_balance_outlined,
-        label: S.of(context)!.mariageAvsSurvivor,
-        subtitle: S.of(context)!.mariageAvsSurvivorSub,
-        value: avsSurvivor,
-        footnote: S.of(context)!.mariageAvsSurvivorFootnote,
-      ),
-      const SizedBox(height: MintSpacing.sm + 4),
+      // Rente LPP de survivant — donnée confirmée (rente LPP du défunt × 60 %).
+      // Le footnote porte le caveat d'éligibilité LPP art. 19.
       _buildSurvivorCard(
         icon: Icons.savings_outlined,
         label: S.of(context)!.mariageLppSurvivor,
@@ -1241,11 +1240,9 @@ class _MariageScreenState extends State<MariageScreen>
         footnote: S.of(context)!.mariageLppSurvivorFootnote,
       ),
       const SizedBox(height: MintSpacing.xl),
-      SurvivorPensionWidget(
-        partnerAvsRente: avsRenteMaxMensuelle,
-        partnerLppMonthly: _renteLpp,
-        isConcubin: false,
-      ),
+      // Avantage AVS énoncé QUALITATIVEMENT (aucun CHF : la rente AVS de survivant
+      // dépend de la carrière de cotisation, non confirmée ; LAVS art. 23).
+      _buildEducationalInsert(S.of(context)!.mariageSurvivorAvsNote),
       const SizedBox(height: MintSpacing.lg),
     ];
   }
@@ -1331,6 +1328,15 @@ class _MariageScreenState extends State<MariageScreen>
               S.of(context)!.mariageHeritageExonere, true, false),
           _buildComparisonRow(
               S.of(context)!.mariagePensionAlimentaire, true, false),
+          const SizedBox(height: MintSpacing.sm),
+          // Les ✓ du mariage sont un accès légal SOUS CONDITIONS d'éligibilité
+          // (rente de survivant LPP art. 19, rente AVS LAVS art. 23) — pas une
+          // réception automatique. Énoncé sous le tableau (motif concubinage
+          // `concubinageProtectionConditionsNote`).
+          Text(
+            S.of(context)!.mariageProtectionConditionsNote,
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
           const SizedBox(height: MintSpacing.sm),
           Container(
             padding: const EdgeInsets.all(MintSpacing.sm + 4),
