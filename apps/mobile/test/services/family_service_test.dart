@@ -387,7 +387,8 @@ void main() {
       expect(inheritance.containsKey('impot'), isFalse);
       expect(inheritance.containsKey('netHerite'), isFalse);
       expect(inheritance.containsKey('patrimoine'), isFalse);
-      expect(inheritance['taux'], 0.25);
+      expect(inheritance.containsKey('taux'), isFalse,
+          reason: 'la table cantonale invérifiable a été retirée');
     });
   });
 
@@ -396,51 +397,41 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FamilyService - Inheritance Tax', () {
-    test('married partner is always exempt (all cantons)', () {
-      // L'exonération vient des lois fiscales CANTONALES (il n'existe pas
-      // d'impôt successoral fédéral ordinaire) — pas de CC art. 462, qui règle
-      // la part successorale CIVILE du·de la conjoint·e.
+    test('aucun taux cantonal n\'est plus servi, quel que soit le canton', () {
+      // Le taux a suivi le montant. La table `_inheritanceTaxRatesNonMarie` qui
+      // le fournissait était INVÉRIFIABLE : deux écarts indépendants constatés
+      // contre des sources fiscales (`NW` y valait 0.00 alors que Nidwald impose
+      // les non-parents ; `NE` y valait 0.20 pour une réalité bien plus élevée),
+      // et deux sources sérieuses se contredisant sur les détails d'un même
+      // canton — preuve que le domaine est trop fin pour un taux plat.
+      //
+      // Un test de ce fichier affirmait d'ailleurs « no inheritance tax in
+      // SZ/OW/NW even for non-married » et passait au vert : il gravait la
+      // donnée fausse. Un test vert ne prouve pas un fait, il prouve que le code
+      // fait ce que le test attend — y compris quand les deux se trompent
+      // ensemble.
       for (final canton in FamilyService.cantonNames.keys) {
-        final result = FamilyService.estimateInheritanceTax(
-          canton: canton,
-          isMarried: true,
-        );
-        expect(result['taux'], 0.0,
-            reason: 'Married partner should be tax-exempt in $canton');
-      }
-    });
-
-    test('non-married partner falls under the cantonal third-party rate', () {
-      final result = FamilyService.estimateInheritanceTax(
-        canton: 'VD', // 25%
-        isMarried: false,
-      );
-
-      expect(result['taux'], 0.25);
-    });
-
-    test('no inheritance tax in SZ/OW/NW even for non-married', () {
-      for (final canton in ['SZ', 'OW', 'NW']) {
-        final result = FamilyService.estimateInheritanceTax(
-          canton: canton,
-          isMarried: false,
-        );
-
-        expect(result['taux'], 0.0,
-            reason: '$canton should have no inheritance tax');
+        for (final married in [true, false]) {
+          final result = FamilyService.estimateInheritanceTax(
+            canton: canton,
+            isMarried: married,
+          );
+          expect(result.containsKey('taux'), isFalse,
+              reason: 'aucun taux ne doit être servi ($canton, marié=$married)');
+        }
       }
     });
 
     test('aucun montant en francs n\'est produit, quel que soit le canton', () {
-      // Le service ne renvoie QUE le taux : pas d'`impot`, pas de `netHerite`,
-      // pas de `patrimoine`. La base (« 100 % du patrimoine peut aller au·à la
-      // partenaire ») est invérifiable, donc le montant est retiré.
+      // Le service ne renvoie plus que le canton et l'état civil. Ni `impot`
+      // (la base « 100 % du patrimoine peut aller au·à la partenaire » est
+      // invérifiable), ni `netHerite`, ni `patrimoine`, ni `taux`.
       for (final canton in FamilyService.cantonNames.keys) {
         final result = FamilyService.estimateInheritanceTax(
           canton: canton,
           isMarried: false,
         );
-        expect(result.keys.toSet(), {'canton', 'isMarried', 'taux'},
+        expect(result.keys.toSet(), {'canton', 'isMarried'},
             reason: 'un montant dormant finit toujours par être rebranché');
       }
     });
@@ -543,16 +534,25 @@ void main() {
       }
     });
 
-    test('all 26 cantons have inheritance tax rates defined', () {
-      // Accessed via estimateInheritanceTax for each canton
+    test('aucun canton ne porte plus de taux successoral', () {
+      // Ce test garantissait l'inverse : que les 26 cantons aient un taux
+      // défini. C'était un garde de COUVERTURE d'une table dont personne
+      // n'avait vérifié le CONTENU — et il passait au vert en gravant des
+      // valeurs fausses (`NW` à 0 % alors que Nidwald impose les non-parents,
+      // `NE` très sous-estimé).
+      //
+      // La leçon vaut au-delà de ce cas : une table de constantes qui « a l'air
+      // de données » n'est pas vérifiée du seul fait qu'elle existe, compile et
+      // qu'un test en compte les entrées. Compter n'est pas vérifier.
       for (final canton in FamilyService.cantonNames.keys) {
-        final result = FamilyService.estimateInheritanceTax(
-          canton: canton,
-          isMarried: false,
-        );
-        expect(result['taux'], isA<double>());
-        expect(result['taux'] as double, greaterThanOrEqualTo(0.0));
-        expect(result['taux'] as double, lessThanOrEqualTo(1.0));
+        for (final married in [true, false]) {
+          final result = FamilyService.estimateInheritanceTax(
+            canton: canton,
+            isMarried: married,
+          );
+          expect(result.containsKey('taux'), isFalse,
+              reason: 'aucun taux ne doit réapparaître ($canton)');
+        }
       }
     });
 

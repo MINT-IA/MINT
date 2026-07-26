@@ -6936,9 +6936,7 @@ class SEs extends S {
   String get concubinageConcubinLabel => 'Concubino/a';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return '~$taux% (tasa de terceros)';
-  }
+  String get concubinageConcubinTaux => 'Gravado·a al tipo de «terceros»';
 
   @override
   String get concubinageNeutralTitle =>
@@ -13433,7 +13431,7 @@ class SEs extends S {
 
   @override
   String get concubinageInheritanceRateLimit =>
-      'Esta tasa es un orden de magnitud, no la tasa que se aplicará: los baremos cantonales son progresivos, prevén franquicias y a veces se suman a un impuesto comunal. El importe adeudado depende luego de la parte realmente legada.';
+      'Aquí no se muestra ningún tipo, y es deliberado: la carga va de cero en algunos cantones a casi la mitad de la parte recibida en los más gravosos, con escalas progresivas, franquicias y a veces un impuesto comunal. Cuatro elementos la determinan: tu cantón y tu municipio, la parte realmente recibida, el vínculo de parentesco y la duración de vuestra convivencia.';
 
   @override
   String get concubinageSurvivorLppDetail =>

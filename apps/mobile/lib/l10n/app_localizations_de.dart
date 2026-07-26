@@ -6945,9 +6945,7 @@ class SDe extends S {
   String get concubinageConcubinLabel => 'Konkubinatspartner·in';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return '~$taux% (Satz für Nichtverwandte)';
-  }
+  String get concubinageConcubinTaux => 'Zum Satz für „Dritte“ besteuert';
 
   @override
   String get concubinageNeutralTitle => 'Keine Option passt für alle';
@@ -13453,7 +13451,7 @@ class SDe extends S {
 
   @override
   String get concubinageInheritanceRateLimit =>
-      'Dieser Satz ist eine Grössenordnung, nicht der Satz, der angewendet wird: Die kantonalen Tarife sind progressiv, sehen Freibeträge vor und werden teils durch eine Gemeindesteuer ergänzt. Der geschuldete Betrag hängt anschliessend vom tatsächlich zugewendeten Anteil ab.';
+      'Hier wird bewusst kein Satz angezeigt: die Belastung reicht von null in einigen Kantonen bis zu fast der Hälfte des erhaltenen Anteils in den schwersten, mit progressiven Tarifen, Freibeträgen und teils einer Gemeindesteuer. Vier Dinge bestimmen sie: dein Kanton und deine Gemeinde, der tatsächlich erhaltene Anteil, der Verwandtschaftsgrad und die Dauer eures gemeinsamen Haushalts.';
 
   @override
   String get concubinageSurvivorLppDetail =>

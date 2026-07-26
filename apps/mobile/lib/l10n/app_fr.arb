@@ -3315,14 +3315,7 @@
   "concubinageImpotSuccession": "IMPÔT SUR LA SUCCESSION",
   "concubinageMarieExonere": "0 % (exonéré·e)",
   "concubinageConcubinLabel": "Concubin·e",
-  "concubinageConcubinTaux": "~{taux} % (taux tiers)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageConcubinTaux": "Imposé·e au taux des « tiers »",
   "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
   "concubinageNeutralDesc": "Le choix entre mariage et concubinage dépend de ta situation : revenus, patrimoine, enfants, canton, projet de vie. Le mariage offre plus de protections légales automatiques, le concubinage plus de flexibilité. Un·e spécialiste peut t'aider à y voir plus clair.",
   "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
@@ -6778,7 +6771,7 @@
   "concubinageProtectionLppSlider": "Rente LPP mensuelle du partenaire",
   "concubinageProtectionSurvivorZero": "CHF 0/mois pour le concubin survivant sans démarche",
   "concubinageInheritanceConditional": "Sans testament, ton·ta partenaire n'hérite de rien : ta succession revient à tes héritiers légaux. Avec un testament, ce que tu peux lui léguer dépend de tes descendant·e·s : si tu en as, leur réserve représente la moitié de la succession et la quotité disponible plafonne donc à l'autre moitié ; si tu n'en as pas, la réserve des parents a été supprimée le 1er janvier 2023 et tu peux disposer de la totalité (CC art. 470-471). Ce qui entre dans la succession, c'est ta part : un bien détenu en copropriété n'y figure qu'à hauteur de ta quote-part.",
-  "concubinageInheritanceRateLimit": "Ce taux est un ordre de grandeur, pas le taux qui s'appliquera : les barèmes cantonaux sont progressifs, prévoient des franchises et s'accompagnent parfois d'un impôt communal. Le montant dû dépend ensuite de la part réellement léguée.",
+  "concubinageInheritanceRateLimit": "Aucun taux n’est affiché ici, et c’est délibéré : la charge va de zéro dans certains cantons à près de la moitié de la part reçue dans les plus lourds, avec des barèmes progressifs, des franchises et parfois un impôt communal. Quatre éléments la déterminent : ton canton et ta commune, la part réellement reçue, le lien de parenté, et la durée de votre vie commune.",
   "concubinageSurvivorLppDetail": "Rente de survivant possible (60 %) — conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage.",
   "concubinageSurvivorAvsNote": "Un·e conjoint·e survivant·e peut toucher en plus une rente AVS de survivant (LAVS art. 23, sous conditions) ; un·e concubin·e n'y a jamais droit.",
   "concubinage3aClauseEducational": "Sans clause bénéficiaire désignant ton·ta partenaire, ton 3a suit l'ordre légal des bénéficiaires (OPP3 art. 2) et ton·ta partenaire n'en est pas bénéficiaire par défaut. Avec une clause déposée auprès de ta fondation 3a, tu peux l'y désigner.",

@@ -3229,14 +3229,7 @@
   "concubinageImpotSuccession": "IMPOSTO SOBRE SUCESSÕES",
   "concubinageMarieExonere": "0% (isento)",
   "concubinageConcubinLabel": "Parceiro/a",
-  "concubinageConcubinTaux": "~{taux}% (taxa de terceiros)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageConcubinTaux": "Tributado·a à taxa de «terceiros»",
   "concubinageNeutralTitle": "Nenhuma opção é universalmente adequada",
   "concubinageNeutralDesc": "A escolha entre casamento e união de facto depende da tua situação: rendimentos, património, filhos, cantão, projeto de vida. O casamento oferece mais proteções legais automáticas, a união de facto mais flexibilidade. Um/a especialista pode ajudar-te a ver com mais clareza.",
   "concubinageChecklistIntro": "Em união de facto, nada é automático. Estas são as proteções essenciais para proteger o/a teu/tua parceiro/a.",
@@ -6284,7 +6277,7 @@
   "concubinageProtectionLppSlider": "Pensão LPP mensal do parceiro",
   "concubinageProtectionSurvivorZero": "CHF 0/mês para o concubino sobrevivente sem diligências",
   "concubinageInheritanceConditional": "Sem testamento, o·a teu·tua parceiro·a não herda nada: a sucessão vai para os teus herdeiros legais. Com testamento, o que lhe podes deixar depende dos teus descendentes: se os tiveres, a legítima deles corresponde a metade da sucessão e a quota disponível fica limitada à outra metade; se não os tiveres, a legítima dos pais foi suprimida a 1 de janeiro de 2023 e podes dispor da totalidade (CC art. 470-471). O que entra na sucessão é a tua parte: um bem em compropriedade só conta até à tua quota-parte.",
-  "concubinageInheritanceRateLimit": "Esta taxa é uma ordem de grandeza, não a taxa que será aplicada: as tabelas cantonais são progressivas, preveem franquias e por vezes somam-se a um imposto comunal. O montante devido depende depois da parte efetivamente legada.",
+  "concubinageInheritanceRateLimit": "Aqui não é mostrada nenhuma taxa, e é deliberado: a carga vai de zero em alguns cantões a quase metade da parte recebida nos mais pesados, com tabelas progressivas, franquias e por vezes um imposto comunal. Quatro elementos a determinam: o teu cantão e o teu município, a parte realmente recebida, o vínculo de parentesco e a duração da vossa vida em comum.",
   "concubinageSurvivorLppDetail": "Possível pensão de sobrevivência (60 %) — condições LPP art. 19: filho dependente, ou 45 anos e 5 anos de casamento.",
   "concubinageSurvivorAvsNote": "Um·a cônjuge sobrevivente pode receber ainda uma pensão AVS de sobrevivência (LAVS art. 23, sob condições); um·a companheiro·a nunca tem direito a ela.",
   "concubinage3aClauseEducational": "Sem uma cláusula de beneficiário que designe o·a teu·tua parceiro·a, o teu pilar 3a segue a ordem legal dos beneficiários (OPP3 art. 2) e o·a teu·tua parceiro·a não é beneficiário·a por defeito. Com uma cláusula entregue à tua fundação 3a, podes designá-lo·a.",

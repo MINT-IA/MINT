@@ -751,9 +751,6 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   // La carte est rendue même à 0 % (SZ/OW/NW) : « aucun impôt de succession dans
   // ton canton » est précisément l'information utile.
   Widget _buildInheritanceCard() {
-    final result = _comparisonResult!;
-    final inheritance = result['inheritance'] as Map<String, dynamic>;
-    final taux = inheritance['taux'] as double;
 
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
@@ -790,9 +787,22 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ),
           ),
           const SizedBox(height: 16),
-          // Comparaison de TAUX, pas de montants : marié·e exonéré·e (lois
-          // fiscales cantonales, dans les 26 cantons) vs concubin·e au taux
-          // « tiers » du canton confirmé.
+          // Comparaison QUALITATIVE, sans aucun chiffre : le conjoint survivant
+          // est exonéré dans les 26 cantons (lois fiscales cantonales), le·la
+          // concubin·e relève du barème des « tiers ».
+          //
+          // Le taux cantonal était affiché ici jusqu'au 2026-07-26. Il a été
+          // retiré : la table `_inheritanceTaxRatesNonMarie` s'est révélée
+          // invérifiable — deux écarts indépendants constatés (NW donné à 0 %
+          // alors que Nidwald impose les non-parents ; NE très sous-estimé), et
+          // deux sources sérieuses se contredisant sur les détails d'un même
+          // canton. Un taux plat par canton ne peut pas rendre des barèmes
+          // progressifs, des franchises et des impôts communaux.
+          //
+          // Ce qui remplace le chiffre n'est pas un vide : c'est l'énoncé des
+          // quatre éléments qui le déterminent. L'utilisateur comprend pourquoi
+          // aucun montant ne lui est donné, et ce qu'il faudrait pour en obtenir
+          // un — c'est de la lucidité, pas une dérobade.
           _buildResultRow(
             S.of(context)!.concubinageMarieExonereLabel,
             S.of(context)!.concubinageMarieExonere,
@@ -800,9 +810,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           const SizedBox(height: 8),
           _buildResultRow(
             S.of(context)!.concubinageConcubinLabel,
-            S.of(context)!.concubinageConcubinTaux(
-                  (taux * 100).toStringAsFixed(0),
-                ),
+            S.of(context)!.concubinageConcubinTaux,
           ),
           const SizedBox(height: 12),
           // Limite du modèle, attachée au taux (même motif que la carte fiscale).
