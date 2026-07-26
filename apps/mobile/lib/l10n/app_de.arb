@@ -3229,14 +3229,7 @@
   "concubinageImpotSuccession": "ERBSCHAFTSSTEUER",
   "concubinageMarieExonere": "0% (befreit)",
   "concubinageConcubinLabel": "Konkubinatspartner·in",
-  "concubinageConcubinTaux": "~{taux}% (Satz für Nichtverwandte)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageConcubinTaux": "Zum Satz für „Dritte“ besteuert",
   "concubinageNeutralTitle": "Keine Option passt für alle",
   "concubinageNeutralDesc": "Die Wahl zwischen Heirat und Konkubinat hängt von deiner Situation ab: Einkommen, Vermögen, Kinder, Kanton, Lebensentwurf. Die Ehe bietet mehr automatischen Rechtsschutz, das Konkubinat mehr Flexibilität. Ein·e Spezialist·in kann dir helfen, klarer zu sehen.",
   "concubinageChecklistIntro": "Im Konkubinat ist nichts automatisch. Hier sind die wichtigsten Schutzmassnahmen, um deine·n Partner·in abzusichern.",
@@ -6284,7 +6277,7 @@
   "concubinageProtectionLppSlider": "Monatliche BVG-Rente des Partners",
   "concubinageProtectionSurvivorZero": "CHF 0/Monat für den überlebenden Konkubinatspartner ohne Massnahmen",
   "concubinageInheritanceConditional": "Ohne Testament erbt dein·e Partner·in nichts: Dein Nachlass geht an deine gesetzlichen Erben. Mit einem Testament hängt der Anteil, den du ihm·ihr zuwenden kannst, von deinen Nachkommen ab: Sind welche vorhanden, beträgt ihr Pflichtteil die Hälfte des Nachlasses, die verfügbare Quote ist damit auf die andere Hälfte begrenzt; sind keine vorhanden, wurde der Pflichtteil der Eltern am 1. Januar 2023 aufgehoben und du kannst über den ganzen Nachlass verfügen (ZGB Art. 470-471). In den Nachlass fällt nur dein Anteil: Ein in Miteigentum gehaltenes Objekt zählt nur im Umfang deiner Quote.",
-  "concubinageInheritanceRateLimit": "Dieser Satz ist eine Grössenordnung, nicht der Satz, der angewendet wird: Die kantonalen Tarife sind progressiv, sehen Freibeträge vor und werden teils durch eine Gemeindesteuer ergänzt. Der geschuldete Betrag hängt anschliessend vom tatsächlich zugewendeten Anteil ab.",
+  "concubinageInheritanceRateLimit": "Hier wird bewusst kein Satz angezeigt: die Belastung reicht von null in einigen Kantonen bis zu fast der Hälfte des erhaltenen Anteils in den schwersten, mit progressiven Tarifen, Freibeträgen und teils einer Gemeindesteuer. Vier Dinge bestimmen sie: dein Kanton und deine Gemeinde, der tatsächlich erhaltene Anteil, der Verwandtschaftsgrad und die Dauer eures gemeinsamen Haushalts.",
   "concubinageSurvivorLppDetail": "Mögliche Hinterlassenenrente (60 %) — Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre.",
   "concubinageSurvivorAvsNote": "Ein·e überlebende·r Ehepartner·in kann zusätzlich eine AHV-Hinterlassenenrente erhalten (AHVG Art. 23, unter Bedingungen); ein·e Konkubinatspartner·in hat nie Anspruch darauf.",
   "concubinage3aClauseEducational": "Ohne Begünstigtenklausel für deine·n Partner·in folgt deine Säule 3a der gesetzlichen Begünstigtenordnung (BVV3 Art. 2), und dein·e Partner·in ist nicht automatisch begünstigt. Mit einer bei deiner 3a-Stiftung hinterlegten Klausel kannst du ihn·sie dort einsetzen.",

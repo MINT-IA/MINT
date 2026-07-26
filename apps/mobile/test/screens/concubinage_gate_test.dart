@@ -232,10 +232,11 @@ void main() {
       expect(g, isNotNull);
       expect(g!.gate.missing.map((f) => f.key), <String>['canton']);
       // The hero appears (patrimoine confirmed) but the succession rate does not.
-      expect(find.textContaining('taux tiers'), findsNothing);
+      expect(find.textContaining('~25'), findsNothing,
+          reason: 'aucun taux tant que le canton n\'est pas confirmé');
     });
 
-    testWidgets('patrimoine + canton (VD) → le taux tiers 25 % rend',
+    testWidgets('patrimoine + canton (VD) → la carte ouvre, sans aucun taux',
         (tester) async {
       // Canton seeded from the profile (key + valid); patrimoine typed.
       await _pump(
@@ -246,7 +247,6 @@ void main() {
       expect(_gate(tester, _inheritanceTitle), isNull);
       // Déterministe : le taux tiers réel du canton VD (0.25), jamais un 24 %
       // codé en dur ni un montant calculé sur une base invérifiable.
-      expect(find.textContaining('~25 %'), findsOneWidget);
       expect(find.text(FamilyService.formatChf(75000)), findsNothing,
           reason: '300000 × 0.25 supposait que 100 % peut aller au partenaire');
       expect(find.text(FamilyService.formatChf(300000)), findsWidgets,
@@ -324,29 +324,37 @@ void main() {
           reason: 'aucun franc calculé sur la succession n\'est rendu');
     });
 
-    testWidgets('(b) le taux cantonal et sa note de limite sont rendus',
-        (tester) async {
-      await unlock(tester); // VD → taux tiers 25 %
-      expect(find.textContaining('~25\u00A0%'), findsOneWidget);
-      expect(find.textContaining('taux tiers'), findsWidgets);
-      // Limite du modèle attachée au taux : barèmes progressifs, franchises,
-      // impôt communal → ordre de grandeur, pas le taux qui s'appliquera.
-      expect(find.textContaining('ordre de grandeur'), findsWidgets);
-      expect(find.textContaining('progressifs'), findsWidgets);
-      expect(find.textContaining('franchises'), findsWidgets);
-      expect(find.textContaining('communal'), findsWidgets);
+    testWidgets('(b) le barème est nommé sans être chiffré, et les quatre '
+        'facteurs qui décident sont énoncés', (tester) async {
+      await unlock(tester);
+      expect(find.textContaining('tiers'), findsWidgets);
+      expect(find.textContaining('~25'), findsNothing,
+          reason: 'aucun taux cantonal : la table était invérifiable');
+      expect(find.textContaining('~24'), findsNothing);
+      // Ce qui remplace le chiffre n'est pas un vide, c'est l'énoncé de ce qui
+      // le détermine — l'utilisateur comprend pourquoi aucun montant ne lui est
+      // donné, et ce qu'il faudrait pour en obtenir un.
+      expect(find.textContaining('canton'), findsWidgets);
+      expect(find.textContaining('commune'), findsWidgets);
+      expect(find.textContaining('part réellement reçue'), findsWidgets);
+      expect(find.textContaining('vie commune'), findsWidgets);
       // La règle qui décide vraiment est énoncée.
       expect(find.textContaining('quotité disponible'), findsWidgets);
       expect(find.textContaining('moitié'), findsWidgets,
           reason: 'la réserve des descendant·e·s plafonne le legs à 1/2');
     });
 
-    testWidgets('(b bis) le taux suit le canton confirmé (GE → 24 %)',
+    testWidgets('(b bis) aucun canton ne fait réapparaître un pourcentage',
         (tester) async {
-      await unlock(tester, canton: 'GE');
-      expect(find.textContaining('~24\u00A0%'), findsOneWidget);
-      expect(find.textContaining('~25\u00A0%'), findsNothing,
-          reason: 'le taux est cantonal, jamais un taux par défaut');
+      // Garde anti-résurrection : un test de ce dépôt affirmait jadis « no
+      // inheritance tax in SZ/OW/NW » et passait au vert, gravant une donnée
+      // fausse — Nidwald impose bien les non-parents. On vérifie donc l'absence
+      // de chiffre sur plusieurs cantons, pas la justesse d'un chiffre.
+      for (final c in ['GE', 'NW', 'NE', 'SZ']) {
+        await unlock(tester, canton: c);
+        expect(find.textContaining('~'), findsNothing,
+            reason: 'aucun pourcentage successoral pour $c');
+      }
     });
 
     testWidgets('(c) canton non confirmé → carte gatée, aucun taux rendu',
@@ -356,8 +364,8 @@ void main() {
       final g = _gate(tester, _inheritanceTitle);
       expect(g, isNotNull);
       expect(g!.gate.missing.map((f) => f.key), <String>['canton']);
-      expect(find.textContaining('taux tiers'), findsNothing);
-      expect(find.textContaining('ordre de grandeur'), findsNothing);
+      expect(find.textContaining('~25'), findsNothing,
+          reason: 'aucun taux tant que le canton n\'est pas confirmé');
     });
 
     testWidgets(
@@ -379,7 +387,7 @@ void main() {
       );
       expect(_gate(tester, _inheritanceTitle), isNull,
           reason: 'le canton seul suffit désormais à ouvrir la carte');
-      expect(find.textContaining('taux tiers'), findsWidgets);
+      expect(find.textContaining('tiers'), findsWidgets);
     });
 
     testWidgets('(c ter) canton NON confirmé → carte gatée, aucun taux rendu',
@@ -390,7 +398,8 @@ void main() {
       final g = _gate(tester, _inheritanceTitle);
       expect(g, isNotNull);
       expect(g!.gate.missing.map((f) => f.key), <String>['canton']);
-      expect(find.textContaining('taux tiers'), findsNothing);
+      expect(find.textContaining('~25'), findsNothing,
+          reason: 'aucun taux tant que le canton n\'est pas confirmé');
     });
 
     testWidgets(
@@ -430,9 +439,15 @@ void main() {
       expect(inheritance.containsKey('impot'), isFalse,
           reason: 'un montant dormant finit toujours par être rebranché');
       expect(inheritance.containsKey('netHerite'), isFalse);
-      expect(inheritance['taux'], 0.25, reason: 'le taux VD reste servi');
+      // Le TAUX est parti à son tour : la table cantonale qui le servait était
+      // invérifiable (NW donné à 0 % alors que Nidwald impose les non-parents,
+      // NE très sous-estimé, et deux sources se contredisant sur un même
+      // canton). Un taux plat ne peut rendre ni la progressivité, ni les
+      // franchises, ni l'impôt communal de VD/FR/GR.
+      expect(inheritance.containsKey('taux'), isFalse,
+          reason: 'aucun taux cantonal ne doit plus être servi');
       final married = r['inheritanceMarried'] as Map<String, dynamic>;
-      expect(married['taux'], 0.0);
+      expect(married.containsKey('taux'), isFalse);
       expect(married.containsKey('impot'), isFalse);
     });
   });

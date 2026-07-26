@@ -231,34 +231,22 @@ class FamilyService {
   /// Inheritance tax rates for non-married partners by canton (taux "tiers").
   /// Married partners are tax-exempt in all cantons.
   /// Source: Lois cantonales sur les droits de succession, 2024.
-  static const Map<String, double> _inheritanceTaxRatesNonMarie = {
-    'ZH': 0.18,
-    'BE': 0.15,
-    'LU': 0.20,
-    'UR': 0.15,
-    'SZ': 0.00,   // SZ: pas d'impot succession
-    'OW': 0.00,   // OW: pas d'impot succession
-    'NW': 0.00,   // NW: pas d'impot succession
-    'GL': 0.15,
-    'ZG': 0.10,
-    'FR': 0.25,
-    'SO': 0.15,
-    'BS': 0.20,
-    'BL': 0.20,
-    'SH': 0.20,
-    'AR': 0.15,
-    'AI': 0.12,
-    'SG': 0.15,
-    'GR': 0.20,
-    'AG': 0.15,
-    'TG': 0.15,
-    'TI': 0.20,
-    'VD': 0.25,
-    'VS': 0.25,
-    'NE': 0.20,
-    'GE': 0.24,
-    'JU': 0.20,
-  };
+  // ⚠️ La table `_inheritanceTaxRatesNonMarie` (un taux plat par canton pour un
+  // héritier non parent) a été SUPPRIMÉE le 2026-07-26. Ne pas la réintroduire.
+  //
+  // Elle était invérifiable. Deux écarts indépendants constatés contre des
+  // sources fiscales : `NW` y valait 0.00 alors que Nidwald impose les
+  // non-parents, et `NE` y valait 0.20 pour une réalité bien plus élevée. Et
+  // deux sources sérieuses se contredisaient sur les détails d'un même canton —
+  // ce qui prouve que le domaine est trop fin pour un taux plat : les barèmes
+  // sont tantôt progressifs, comportent des franchises variables, et plusieurs
+  // cantons (VD, FR, GR) y ajoutent un impôt communal qui peut presque doubler
+  // la charge.
+  //
+  // Retirer un chiffre invérifiable est juste que la source ait raison ou tort
+  // sur tel canton : c'est ce qui a permis de trancher sans résoudre chaque cas.
+  // Le jumeau backend (`TAUX_SUCCESSION_PAR_CANTON`) a été retiré en même temps
+  // — PR #1058.
 
   // ════════════════════════════════════════════════════════════
   //  1. COMPARE FISCAL MARIAGE
@@ -580,10 +568,14 @@ class FamilyService {
     required String canton,
     required bool isMarried,
   }) {
+    // Aucun taux n'est renvoyé. La table cantonale qui le fournissait a été
+    // retirée : elle s'est révélée invérifiable (voir le commentaire à sa
+    // place). Ce qui reste est qualitatif et solide — le conjoint survivant est
+    // exonéré dans les 26 cantons, le·la concubin·e relève du barème des
+    // « tiers ».
     return {
       'canton': canton,
       'isMarried': isMarried,
-      'taux': isMarried ? 0.0 : (_inheritanceTaxRatesNonMarie[canton] ?? 0.08),
     };
   }
 

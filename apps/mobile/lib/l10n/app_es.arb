@@ -3229,14 +3229,7 @@
   "concubinageImpotSuccession": "IMPUESTO DE SUCESIÓN",
   "concubinageMarieExonere": "0% (exento)",
   "concubinageConcubinLabel": "Concubino/a",
-  "concubinageConcubinTaux": "~{taux}% (tasa de terceros)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageConcubinTaux": "Gravado·a al tipo de «terceros»",
   "concubinageNeutralTitle": "Ninguna opción es universalmente adecuada",
   "concubinageNeutralDesc": "La elección entre matrimonio y concubinato depende de tu situación: ingresos, patrimonio, hijos, cantón, proyecto de vida. El matrimonio ofrece más protecciones legales automáticas, el concubinato más flexibilidad. Un/a especialista puede ayudarte a ver más claro.",
   "concubinageChecklistIntro": "En concubinato, nada es automático. Estas son las protecciones esenciales para proteger a tu pareja.",
@@ -6284,7 +6277,7 @@
   "concubinageProtectionLppSlider": "Pensión LPP mensual del/de la pareja",
   "concubinageProtectionSurvivorZero": "CHF 0/mes para el concubino superviviente sin trámites",
   "concubinageInheritanceConditional": "Sin testamento, tu pareja no hereda nada: tu sucesión pasa a tus herederos legales. Con testamento, lo que puedes legarle depende de tus descendientes: si los tienes, su legítima representa la mitad de la sucesión, por lo que la porción disponible se limita a la otra mitad; si no los tienes, la legítima de los padres se suprimió el 1 de enero de 2023 y puedes disponer de la totalidad (CC art. 470-471). Lo que entra en la sucesión es tu parte: un bien en copropiedad solo cuenta hasta tu cuota.",
-  "concubinageInheritanceRateLimit": "Esta tasa es un orden de magnitud, no la tasa que se aplicará: los baremos cantonales son progresivos, prevén franquicias y a veces se suman a un impuesto comunal. El importe adeudado depende luego de la parte realmente legada.",
+  "concubinageInheritanceRateLimit": "Aquí no se muestra ningún tipo, y es deliberado: la carga va de cero en algunos cantones a casi la mitad de la parte recibida en los más gravosos, con escalas progresivas, franquicias y a veces un impuesto comunal. Cuatro elementos la determinan: tu cantón y tu municipio, la parte realmente recibida, el vínculo de parentesco y la duración de vuestra convivencia.",
   "concubinageSurvivorLppDetail": "Posible renta de supervivencia (60 %) — condiciones LPP art. 19: hijo a cargo, o 45 años y 5 años de matrimonio.",
   "concubinageSurvivorAvsNote": "Un·a cónyuge superviviente puede recibir además una renta AVS de supervivencia (LAVS art. 23, bajo condiciones); un·a conviviente nunca tiene derecho a ella.",
   "concubinage3aClauseEducational": "Sin una cláusula de beneficiario que designe a tu pareja, tu pilar 3a sigue el orden legal de beneficiarios (OPP3 art. 2) y tu pareja no es beneficiaria por defecto. Con una cláusula presentada ante tu fundación 3a, puedes designarla.",

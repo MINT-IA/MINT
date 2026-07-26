@@ -6951,9 +6951,7 @@ class SIt extends S {
   String get concubinageConcubinLabel => 'Convivente';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return '~$taux% (aliquota per terzi)';
-  }
+  String get concubinageConcubinTaux => 'Tassato·a all’aliquota per «terzi»';
 
   @override
   String get concubinageNeutralTitle =>
@@ -13457,7 +13455,7 @@ class SIt extends S {
 
   @override
   String get concubinageInheritanceRateLimit =>
-      'Questa aliquota è un ordine di grandezza, non l\'aliquota che sarà applicata: le tariffe cantonali sono progressive, prevedono franchigie e talvolta si aggiungono a un\'imposta comunale. L\'importo dovuto dipende poi dalla quota effettivamente lasciata.';
+      'Qui non viene mostrata alcuna aliquota, ed è deliberato: l’onere va da zero in alcuni cantoni a quasi la metà della quota ricevuta in quelli più pesanti, con tariffe progressive, franchigie e talvolta un’imposta comunale. Quattro elementi lo determinano: il tuo cantone e il tuo comune, la quota realmente ricevuta, il legame di parentela e la durata della vostra convivenza.';
 
   @override
   String get concubinageSurvivorLppDetail =>

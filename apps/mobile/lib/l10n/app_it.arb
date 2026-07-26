@@ -3229,14 +3229,7 @@
   "concubinageImpotSuccession": "IMPOSTA DI SUCCESSIONE",
   "concubinageMarieExonere": "0% (esente)",
   "concubinageConcubinLabel": "Convivente",
-  "concubinageConcubinTaux": "~{taux}% (aliquota per terzi)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageConcubinTaux": "Tassato·a all’aliquota per «terzi»",
   "concubinageNeutralTitle": "Nessuna opzione è universalmente adatta",
   "concubinageNeutralDesc": "La scelta tra matrimonio e concubinato dipende dalla tua situazione: reddito, patrimonio, figli, cantone, progetto di vita. Il matrimonio offre più protezioni legali automatiche, il concubinato più flessibilità. Uno/a specialista può aiutarti a vederci più chiaro.",
   "concubinageChecklistIntro": "In concubinato, nulla è automatico. Ecco le protezioni essenziali da mettere in atto per proteggere il/la tuo/a partner.",
@@ -6284,7 +6277,7 @@
   "concubinageProtectionLppSlider": "Rendita LPP mensile del partner",
   "concubinageProtectionSurvivorZero": "CHF 0/mese per il concubino superstite senza azione",
   "concubinageInheritanceConditional": "Senza testamento, il·la tuo·tua partner non eredita nulla: la successione va ai tuoi eredi legali. Con un testamento, ciò che puoi lasciargli·le dipende dai tuoi discendenti: se ne hai, la loro legittima è la metà della successione e la quota disponibile è quindi limitata all'altra metà; se non ne hai, la legittima dei genitori è stata soppressa il 1° gennaio 2023 e puoi disporre dell'intero patrimonio (CC art. 470-471). Nella successione entra la tua parte: un bene in comproprietà vi figura solo per la tua quota.",
-  "concubinageInheritanceRateLimit": "Questa aliquota è un ordine di grandezza, non l'aliquota che sarà applicata: le tariffe cantonali sono progressive, prevedono franchigie e talvolta si aggiungono a un'imposta comunale. L'importo dovuto dipende poi dalla quota effettivamente lasciata.",
+  "concubinageInheritanceRateLimit": "Qui non viene mostrata alcuna aliquota, ed è deliberato: l’onere va da zero in alcuni cantoni a quasi la metà della quota ricevuta in quelli più pesanti, con tariffe progressive, franchigie e talvolta un’imposta comunale. Quattro elementi lo determinano: il tuo cantone e il tuo comune, la quota realmente ricevuta, il legame di parentela e la durata della vostra convivenza.",
   "concubinageSurvivorLppDetail": "Possibile rendita per superstiti (60 %) — condizioni LPP art. 19: figlio a carico, o 45 anni e 5 anni di matrimonio.",
   "concubinageSurvivorAvsNote": "Un·a coniuge superstite può ricevere anche una rendita AVS per superstiti (LAVS art. 23, a determinate condizioni); un·a convivente non ne ha mai diritto.",
   "concubinage3aClauseEducational": "Senza una clausola beneficiaria che designi il·la tuo·tua partner, il tuo pilastro 3a segue l'ordine legale dei beneficiari (OPP3 art. 2) e il·la tuo·tua partner non è beneficiario·a per impostazione predefinita. Con una clausola depositata presso la tua fondazione 3a, puoi designarlo·a.",

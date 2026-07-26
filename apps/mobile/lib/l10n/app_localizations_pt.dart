@@ -6932,9 +6932,7 @@ class SPt extends S {
   String get concubinageConcubinLabel => 'Parceiro/a';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return '~$taux% (taxa de terceiros)';
-  }
+  String get concubinageConcubinTaux => 'Tributado·a à taxa de «terceiros»';
 
   @override
   String get concubinageNeutralTitle =>
@@ -13425,7 +13423,7 @@ class SPt extends S {
 
   @override
   String get concubinageInheritanceRateLimit =>
-      'Esta taxa é uma ordem de grandeza, não a taxa que será aplicada: as tabelas cantonais são progressivas, preveem franquias e por vezes somam-se a um imposto comunal. O montante devido depende depois da parte efetivamente legada.';
+      'Aqui não é mostrada nenhuma taxa, e é deliberado: a carga vai de zero em alguns cantões a quase metade da parte recebida nos mais pesados, com tabelas progressivas, franquias e por vezes um imposto comunal. Quatro elementos a determinam: o teu cantão e o teu município, a parte realmente recebida, o vínculo de parentesco e a duração da vossa vida em comum.';
 
   @override
   String get concubinageSurvivorLppDetail =>

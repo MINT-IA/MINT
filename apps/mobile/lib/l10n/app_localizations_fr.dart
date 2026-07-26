@@ -6938,9 +6938,7 @@ class SFr extends S {
   String get concubinageConcubinLabel => 'Concubin·e';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return '~$taux % (taux tiers)';
-  }
+  String get concubinageConcubinTaux => 'Imposé·e au taux des « tiers »';
 
   @override
   String get concubinageNeutralTitle =>
@@ -13432,7 +13430,7 @@ class SFr extends S {
 
   @override
   String get concubinageInheritanceRateLimit =>
-      'Ce taux est un ordre de grandeur, pas le taux qui s\'appliquera : les barèmes cantonaux sont progressifs, prévoient des franchises et s\'accompagnent parfois d\'un impôt communal. Le montant dû dépend ensuite de la part réellement léguée.';
+      'Aucun taux n’est affiché ici, et c’est délibéré : la charge va de zéro dans certains cantons à près de la moitié de la part reçue dans les plus lourds, avec des barèmes progressifs, des franchises et parfois un impôt communal. Quatre éléments la déterminent : ton canton et ta commune, la part réellement reçue, le lien de parenté, et la durée de votre vie commune.';
 
   @override
   String get concubinageSurvivorLppDetail =>

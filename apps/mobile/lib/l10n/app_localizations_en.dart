@@ -6887,9 +6887,7 @@ class SEn extends S {
   String get concubinageConcubinLabel => 'Cohabiting partner';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return '~$taux% (third-party rate)';
-  }
+  String get concubinageConcubinTaux => 'Taxed at the “third party” rate';
 
   @override
   String get concubinageNeutralTitle => 'No option is universally suited';
@@ -13356,7 +13354,7 @@ class SEn extends S {
 
   @override
   String get concubinageInheritanceRateLimit =>
-      'This rate is an order of magnitude, not the rate that will apply: cantonal scales are progressive, include allowances and are sometimes topped up by a communal tax. The amount due then depends on the share actually bequeathed.';
+      'No rate is shown here, deliberately: the burden ranges from zero in some cantons to nearly half of the share received in the heaviest ones, with progressive scales, allowances and sometimes a communal tax. Four things determine it: your canton and municipality, the share actually received, the family link, and how long you have lived together.';
 
   @override
   String get concubinageSurvivorLppDetail =>

@@ -3229,14 +3229,7 @@
   "concubinageImpotSuccession": "INHERITANCE TAX",
   "concubinageMarieExonere": "0% (exempt)",
   "concubinageConcubinLabel": "Cohabiting partner",
-  "concubinageConcubinTaux": "~{taux}% (third-party rate)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageConcubinTaux": "Taxed at the “third party” rate",
   "concubinageNeutralTitle": "No option is universally suited",
   "concubinageNeutralDesc": "The choice between marriage and cohabitation depends on your situation: income, assets, children, canton, life plans. Marriage offers more automatic legal protections, cohabitation more flexibility. A specialist can help you see more clearly.",
   "concubinageChecklistIntro": "In cohabitation, nothing is automatic. Here are the essential protections to put in place to protect your partner.",
@@ -6284,7 +6277,7 @@
   "concubinageProtectionLppSlider": "Partner’s monthly LPP pension",
   "concubinageProtectionSurvivorZero": "CHF 0/month for the surviving cohabiting partner without action",
   "concubinageInheritanceConditional": "Without a will, your partner inherits nothing: your estate goes to your legal heirs. With a will, what you can leave them depends on your descendants: if you have any, their statutory share is half of the estate, so the disposable portion is capped at the other half; if you have none, the parents' statutory share was abolished on 1 January 2023 and you may dispose of the whole estate (CC art. 470-471). What enters the estate is your share: property held in co-ownership counts only up to your own portion.",
-  "concubinageInheritanceRateLimit": "This rate is an order of magnitude, not the rate that will apply: cantonal scales are progressive, include allowances and are sometimes topped up by a communal tax. The amount due then depends on the share actually bequeathed.",
+  "concubinageInheritanceRateLimit": "No rate is shown here, deliberately: the burden ranges from zero in some cantons to nearly half of the share received in the heaviest ones, with progressive scales, allowances and sometimes a communal tax. Four things determine it: your canton and municipality, the share actually received, the family link, and how long you have lived together.",
   "concubinageSurvivorLppDetail": "Possible survivor's pension (60%) — LPP art. 19 conditions: dependent child, or age 45 and 5 years of marriage.",
   "concubinageSurvivorAvsNote": "A surviving spouse may also receive an AVS survivor's pension (LAVS art. 23, under conditions); a cohabiting partner is never entitled to it.",
   "concubinage3aClauseEducational": "Without a beneficiary clause naming your partner, your pillar 3a follows the legal order of beneficiaries (OPP3 art. 2) and your partner is not a beneficiary by default. With a clause filed with your 3a foundation, you can name them there.",
