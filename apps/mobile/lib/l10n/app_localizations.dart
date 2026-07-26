@@ -7960,6 +7960,12 @@ abstract class S {
   /// **'Canton actuel'**
   String get expatCurrentCanton;
 
+  /// No description provided for @expatNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get expatNonRenseigne;
+
   /// No description provided for @expatPillar3aBalance.
   ///
   /// In fr, this message translates to:
@@ -18250,19 +18256,19 @@ abstract class S {
   /// No description provided for @genderGapGateWhyRevenu.
   ///
   /// In fr, this message translates to:
-  /// **'Ton revenu annuel sert de base à la projection de rente LPP. Renseigne-le dans ton profil.'**
+  /// **'Ton revenu annuel sert de base à la projection de rente LPP.'**
   String get genderGapGateWhyRevenu;
 
   /// No description provided for @genderGapGateWhyAvoirLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Ton avoir LPP actuel est le point de départ de la projection. Ajoute-le depuis ton certificat de prévoyance.'**
+  /// **'Ton avoir LPP actuel est le point de départ de la projection (il figure sur ton certificat de prévoyance).'**
   String get genderGapGateWhyAvoirLpp;
 
   /// No description provided for @genderGapGateWhyAge.
   ///
   /// In fr, this message translates to:
-  /// **'Ton âge détermine le nombre d\'années jusqu\'à la retraite. Complète ta date de naissance dans ton profil.'**
+  /// **'Ton âge détermine le nombre d\'années qu\'il te reste à cotiser.'**
   String get genderGapGateWhyAge;
 
   /// No description provided for @achievementsErrorMessage.
@@ -43321,7 +43327,7 @@ abstract class S {
   /// No description provided for @divorceGateWhyCanton.
   ///
   /// In fr, this message translates to:
-  /// **'Renseigne ton canton dans ton profil pour estimer l\'impôt du divorce.'**
+  /// **'Le barème de l\'impôt sur le revenu dépend de ton canton de domicile.'**
   String get divorceGateWhyCanton;
 
   /// No description provided for @divorceFilmPensionEstimee.

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -110,9 +111,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   double? _dettesCommunes;
 
   // Canton de résidence RÉEL de l'utilisateur (= conjoint 1), amorcé depuis le
-  // profil. Détermine le barème d'impôt du divorce. Aucun contrôle in-screen →
-  // pour un utilisateur anonyme il reste null (impact fiscal gaté), la « why »
-  // du gate renvoie vers le profil. null = non confirmé.
+  // profil OU choisi dans le sélecteur de la section Revenus (P3 « zéro
+  // impasse » : sans contrôle à l'écran, un anonyme ne pouvait JAMAIS ouvrir le
+  // gate fiscal). Détermine le barème d'impôt du divorce. null = non confirmé.
   String? _userCanton;
 
   // Result
@@ -137,6 +138,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
   final _dettesKey = GlobalKey();
   final _childrenKey = GlobalKey();
   final _durationKey = GlobalKey();
+  final _cantonKey = GlobalKey();
 
   @override
   void didChangeDependencies() {
@@ -185,7 +187,10 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
         // exactement le trou que le gate dur ferme.
         if (profile.userProvidedFields.contains('canton') &&
             _isValidCanton(profile.canton)) {
-          _userCanton = profile.canton;
+          // Normalisé sur le code canonique : `_isValidCanton` accepte ' vd ',
+          // et le sélecteur à l'écran n'expose que les 26 codes canoniques —
+          // une valeur non normalisée n'y correspondrait pas.
+          _userCanton = profile.canton.trim().toUpperCase();
         }
         // ── Conjoint 2 = l'EX-CONJOINT : JAMAIS amorcé (aucune donnée du profil
         //    ne le décrit ; le seeder depuis les avoirs de l'utilisateur serait la
@@ -277,8 +282,8 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
 
   // Impact fiscal : revenu des deux conjoints + canton RÉEL (le barème d'impôt
   // dépend du canton — un chiffre fiscal sur un canton fabriqué serait faux).
-  // Le canton n'a pas de contrôle in-screen → onComplete null (la « why » oriente
-  // vers le profil).
+  // Le canton a désormais son sélecteur dans la section Revenus → onComplete y
+  // renvoie (le gate se complète à l'écran, profil ou pas).
   SituationGate _taxGate(BuildContext context) => SituationGate([
         SituationFact(
           key: 'income1',
@@ -299,6 +304,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           label: (c) => S.of(c)!.divorceGateFactCanton,
           why: (c) => S.of(c)!.divorceGateWhyCanton,
           provenance: _prov(_userCanton != null),
+          onComplete: () => _scrollToKey(_cantonKey),
         ),
       ]);
 
@@ -736,8 +742,61 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             min: 0,
             max: 300000,
           ),
+          const SizedBox(height: MintSpacing.md),
+          _buildCantonPicker(),
         ],
       ),
+    );
+  }
+
+  // --- Canton picker (barème d'impôt du divorce) ---
+  // P3 « zéro impasse » : le fait `canton` du gate fiscal se complète ICI. Le
+  // TOUCHER confirme le fait (comme le seed profil) ; tant qu'il n'est ni seedé
+  // ni choisi, aucune valeur n'est sélectionnée (hint « Non renseigné ») — le
+  // 'ZH' legacy de `fromJson` n'apparaît jamais.
+  Widget _buildCantonPicker() {
+    final sortedCodes = FamilyService.sortedCantonCodes;
+    return Row(
+      key: _cantonKey,
+      children: [
+        Expanded(
+          child: Text(
+            S.of(context)!.divorceGateFactCanton,
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: _userCanton,
+              hint: _userCanton != null
+                  ? null
+                  : Text(
+                      S.of(context)!.divorceNonRenseigne,
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textPrimary),
+                    ),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+              items: sortedCodes.map((code) {
+                return DropdownMenuItem(
+                  value: code,
+                  child: Text('$code — ${FamilyService.cantonNames[code]}'),
+                );
+              }).toList(),
+              onChanged: (v) {
+                if (v != null) {
+                  _onFactChanged(() => _userCanton = v);
+                }
+              },
+            ),
+          ),
+        ),
+      ],
     );
   }
 

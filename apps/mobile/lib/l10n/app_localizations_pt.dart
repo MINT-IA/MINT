@@ -4373,6 +4373,9 @@ class SPt extends S {
   String get expatCurrentCanton => 'Cantão atual';
 
   @override
+  String get expatNonRenseigne => 'Não indicado';
+
+  @override
   String get expatPillar3aBalance => 'Saldo pilar 3a';
 
   @override
@@ -10370,15 +10373,15 @@ class SPt extends S {
 
   @override
   String get genderGapGateWhyRevenu =>
-      'O teu rendimento anual é a base para a projeção de pensão LPP. Adiciona-o no teu perfil.';
+      'O teu rendimento anual serve de base à projeção de pensão LPP.';
 
   @override
   String get genderGapGateWhyAvoirLpp =>
-      'Os teus ativos LPP atuais são o ponto de partida da projeção. Adiciona-os a partir do teu certificado de previdência.';
+      'O teu haver LPP atual é o ponto de partida da projeção (consta do teu certificado de previdência).';
 
   @override
   String get genderGapGateWhyAge =>
-      'A tua idade determina o número de anos até à reforma. Completa a tua data de nascimento no teu perfil.';
+      'A tua idade determina quantos anos de contribuição te restam.';
 
   @override
   String get achievementsErrorMessage =>
@@ -24829,7 +24832,7 @@ class SPt extends S {
 
   @override
   String get divorceGateWhyCanton =>
-      'Indica o teu cantão no perfil para estimar o imposto do divórcio.';
+      'A tabela do imposto sobre o rendimento depende do teu cantão de domicílio.';
 
   @override
   String get divorceFilmPensionEstimee => 'Pensão de alimentos estimada';

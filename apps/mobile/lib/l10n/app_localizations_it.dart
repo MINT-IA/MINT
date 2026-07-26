@@ -4384,6 +4384,9 @@ class SIt extends S {
   String get expatCurrentCanton => 'Cantone attuale';
 
   @override
+  String get expatNonRenseigne => 'Non indicato';
+
+  @override
   String get expatPillar3aBalance => 'Saldo pilastro 3a';
 
   @override
@@ -10397,15 +10400,15 @@ class SIt extends S {
 
   @override
   String get genderGapGateWhyRevenu =>
-      'Il tuo reddito annuo è la base per la proiezione della rendita LPP. Aggiungilo nel tuo profilo.';
+      'Il tuo reddito annuo è la base della proiezione di rendita LPP.';
 
   @override
   String get genderGapGateWhyAvoirLpp =>
-      'Il tuo avere LPP attuale è il punto di partenza della proiezione. Aggiungilo dal tuo certificato di previdenza.';
+      'Il tuo avere LPP attuale è il punto di partenza della proiezione (figura sul tuo certificato di previdenza).';
 
   @override
   String get genderGapGateWhyAge =>
-      'La tua età determina il numero di anni fino al pensionamento. Completa la tua data di nascita nel tuo profilo.';
+      'La tua età determina quanti anni di contribuzione ti restano.';
 
   @override
   String get achievementsErrorMessage =>
@@ -24885,7 +24888,7 @@ class SIt extends S {
 
   @override
   String get divorceGateWhyCanton =>
-      'Indica il tuo cantone nel profilo per stimare l\'imposta del divorzio.';
+      'La tariffa dell\'imposta sul reddito dipende dal tuo cantone di domicilio.';
 
   @override
   String get divorceFilmPensionEstimee => 'Mantenimento stimato';

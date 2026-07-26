@@ -5,6 +5,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
+import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
@@ -146,6 +147,15 @@ Future<void> _setPicker(WidgetTester tester, int index, int v) async {
   await tester.pump();
 }
 
+/// P3 « zéro impasse » : the canton fact is completable on screen (Revenus
+/// section). Only one `DropdownButton<String>` exists on this screen.
+Future<void> _setCanton(WidgetTester tester, String c) async {
+  tester
+      .widget<DropdownButton<String>>(find.byType(DropdownButton<String>))
+      .onChanged!(c);
+  await tester.pump();
+}
+
 Future<void> _simulate(WidgetTester tester) async {
   await tester.tap(find.text('Simuler'));
   await tester.pump();
@@ -253,6 +263,78 @@ void main() {
       expect(gated!.gate.missing.map((f) => f.key), contains('canton'));
       expect(find.textContaining('/an'), findsNothing,
           reason: 'no tax delta CHF on an unconfirmed canton');
+    });
+
+    // ── P3 « zéro impasse » : before P3 the `canton` fact had NO on-screen
+    //    control and NO `onComplete` — an anonymous user could never open the
+    //    tax card. It is now completable in place (Revenus section picker).
+    testWidgets('P3: the canton fact carries an onComplete (no dead end)',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _simulate(tester);
+      final gated = _gate(tester, _taxTitle)!;
+      for (final f in gated.gate.facts) {
+        expect(f.onComplete, isNotNull,
+            reason: '${f.key} has no completion path → impasse');
+      }
+    });
+
+    testWidgets(
+        'P3 ANTI-IMPASSE — ANON picks the canton on screen + both incomes → the '
+        'tax figure renders', (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      // The picker exists and starts EMPTY (« Non renseigné » hint) — never the
+      // legacy fabricated 'ZH'.
+      expect(find.byType(DropdownButton<String>), findsOneWidget);
+      expect(_state(tester).debugCanton, isNull);
+      expect(find.text('Non renseigné'), findsWidgets);
+
+      await _setAmount(tester, _income1, 90000);
+      await _setAmount(tester, _income2, 50000);
+      await _setCanton(tester, 'VD');
+      await _simulate(tester);
+
+      expect(_state(tester).debugCanton, 'VD',
+          reason: 'touching the picker confirms the fact, like a profile seed');
+      expect(_gate(tester, _taxTitle), isNull,
+          reason: 'an anonymous user CAN now unlock the tax card on screen');
+      expect(find.textContaining('/an'), findsWidgets);
+      // The figures are the service output on the PICKED canton.
+      final expected = DivorceService.simulate(
+        input: const DivorceInput(
+          marriageDurationYears: 0,
+          numberOfChildren: 0,
+          regime: MatrimonialRegime.participationAuxAcquets,
+          canton: 'VD',
+          incomeConjoint1: 90000,
+          incomeConjoint2: 50000,
+          lppConjoint1: 0,
+          lppConjoint2: 0,
+          pillar3aConjoint1: 0,
+          pillar3aConjoint2: 0,
+          fortuneCommune: 0,
+          dettesCommunes: 0,
+        ),
+      );
+      expect(find.text(_chf(expected.taxImpact.estimatedTaxMarried)),
+          findsWidgets,
+          reason: 'the married-tax row is the real VD figure, not a ZH default');
+    });
+
+    testWidgets('P3: picking the canton invalidates the stale result',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _setAmount(tester, _income1, 90000);
+      await _setAmount(tester, _income2, 50000);
+      await _setCanton(tester, 'VD');
+      await _simulate(tester);
+      expect(_gate(tester, _taxTitle), isNull);
+
+      // Changing the canton drops the computed result (stale-invalidation).
+      await _setCanton(tester, 'GE');
+      expect(_state(tester).debugCanton, 'GE');
+      expect(find.textContaining('/an'), findsNothing,
+          reason: 'the previous VD figures must not survive a canton change');
     });
 
     testWidgets('canton from profile + income2 (ex) missing → gated on income2',

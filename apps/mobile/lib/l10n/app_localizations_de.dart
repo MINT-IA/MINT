@@ -4381,6 +4381,9 @@ class SDe extends S {
   String get expatCurrentCanton => 'Aktueller Kanton';
 
   @override
+  String get expatNonRenseigne => 'Nicht angegeben';
+
+  @override
   String get expatPillar3aBalance => 'Säule 3a Guthaben';
 
   @override
@@ -10396,15 +10399,15 @@ class SDe extends S {
 
   @override
   String get genderGapGateWhyRevenu =>
-      'Dein Jahreseinkommen ist die Grundlage für die BVG-Rentenprojektion. Ergänze es in deinem Profil.';
+      'Dein Jahreseinkommen ist die Grundlage der BVG-Rentenprojektion.';
 
   @override
   String get genderGapGateWhyAvoirLpp =>
-      'Dein aktuelles BVG-Guthaben ist der Ausgangspunkt der Projektion. Ergänze es aus deinem Vorsorgeausweis.';
+      'Dein aktuelles BVG-Guthaben ist der Ausgangspunkt der Projektion (steht auf deinem Vorsorgeausweis).';
 
   @override
   String get genderGapGateWhyAge =>
-      'Dein Alter bestimmt die Anzahl Jahre bis zur Pensionierung. Ergänze dein Geburtsdatum in deinem Profil.';
+      'Dein Alter bestimmt, wie viele Beitragsjahre dir bleiben.';
 
   @override
   String get achievementsErrorMessage =>
@@ -24877,7 +24880,7 @@ class SDe extends S {
 
   @override
   String get divorceGateWhyCanton =>
-      'Hinterlege deinen Kanton im Profil, um die Steuerfolgen der Scheidung zu schätzen.';
+      'Der Einkommenssteuertarif hängt von deinem Wohnkanton ab.';
 
   @override
   String get divorceFilmPensionEstimee => 'Geschätzter Unterhalt';

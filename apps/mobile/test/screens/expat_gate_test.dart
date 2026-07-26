@@ -146,10 +146,36 @@ Future<void> _pumpEdit(WidgetTester tester) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
+// Tab 1 carries two canton dropdowns since P3 (forfait, then the top-cantons
+// anchor) — the forfait card builds first.
 Future<void> _touchForfaitCanton(WidgetTester tester, String c) async {
   tester
-      .widget<DropdownButton<String>>(find.byType(DropdownButton<String>))
+      .widgetList<DropdownButton<String>>(find.byType(DropdownButton<String>))
+      .first
       .onChanged!(c);
+  await _pumpEdit(tester);
+}
+
+// ── Top-cantons interactions (tab 1, P3 « zéro impasse ») ──
+Future<void> _touchTopIncome(WidgetTester tester, double v) async {
+  _amountField(tester, min: 20000, max: 2000000).onChanged(v);
+  await _pumpEdit(tester);
+}
+
+Future<void> _touchTopAnchor(WidgetTester tester, String c) async {
+  tester
+      .widgetList<DropdownButton<String>>(find.byType(DropdownButton<String>))
+      .toList()[1]
+      .onChanged!(c);
+  await _pumpEdit(tester);
+}
+
+// ── AVS projection age picker (tab 3, P3) — third picker on the tab. ──
+Future<void> _touchAge(WidgetTester tester, int v) async {
+  tester
+      .widgetList<MintPickerTile>(find.byType(MintPickerTile))
+      .toList()[2]
+      .onChanged(v);
   await _pumpEdit(tester);
 }
 
@@ -614,6 +640,35 @@ void main() {
           contains('age'));
     });
 
+    testWidgets('keyed age BELOW the picker range (10 ans) → still gated',
+        (tester) async {
+      // Value-in-range = the CONTROL's range (picker 16-99). A legacy/junk
+      // profile age outside it is never confirmed and never clamped into a
+      // projection presented as the user's own.
+      final y = DateTime.now().year - 10;
+      await _pump(tester, _FakeProvider(_profile(birthYear: y, provided: {'age'})));
+      await _goToTab(tester, 'AVS');
+      await _touchYearsInCh(tester, 28);
+
+      expect(find.byType(AvsGapWidget), findsNothing,
+          reason: 'age 10 is outside the picker range → unconfirmed, not clamped');
+      expect(_gateWith(tester, 'age').gate.missing.map((f) => f.key),
+          contains('age'));
+    });
+
+    testWidgets('keyed age ABOVE the picker range (120 ans) → still gated',
+        (tester) async {
+      final y = DateTime.now().year - 120;
+      await _pump(tester, _FakeProvider(_profile(birthYear: y, provided: {'age'})));
+      await _goToTab(tester, 'AVS');
+      await _touchYearsInCh(tester, 28);
+
+      expect(find.byType(AvsGapWidget), findsNothing,
+          reason: 'age 120 is outside the picker range → unconfirmed');
+      expect(_gateWith(tester, 'age').gate.missing.map((f) => f.key),
+          contains('age'));
+    });
+
     testWidgets('clearing profile re-gates the projection (no stale age)',
         (tester) async {
       final fake = _MutableProvider();
@@ -628,6 +683,133 @@ void main() {
       await _pumpEdit(tester);
       expect(find.byType(AvsGapWidget), findsNothing,
           reason: 'seeded age loses provenance on clear → projection re-gates');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  P3 « ZÉRO IMPASSE » — top-cantons + AVS-projection facts are completable
+  //  ON SCREEN.
+  //
+  //  Before P3 `income`, `canton` (top cantons) and `age` (AVS projection) had
+  //  no on-screen control and no `onComplete`: an anonymous user could never
+  //  open those two outputs. These tests go RED if the controls or their
+  //  `onComplete` are removed.
+  // ══════════════════════════════════════════════════════════════
+  group('P3 zéro impasse — on-screen completion (no profile)', () {
+    testWidgets('every fact of every gate carries a non-null onComplete',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      for (final tab in <String?>[null, 'Départ', 'AVS']) {
+        if (tab != null) await _goToTab(tester, tab);
+        for (final card in tester
+            .widgetList<SituationGateCard>(find.byType(SituationGateCard))) {
+          for (final f in card.gate.facts) {
+            expect(f.onComplete, isNotNull,
+                reason: '${card.title} / ${f.key} has no completion path');
+          }
+        }
+      }
+    });
+
+    testWidgets(
+        'ANTI-IMPASSE (top cantons) — ANON types the revenu + picks the canton '
+        '→ the REAL FiscalService ranking renders', (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      // Gate-dur invariant holds on open: no ranking on the fabricated defaults.
+      expect(find.byType(TopCantonWidget), findsNothing);
+      expect(_state(tester).debugTopIncome, 0,
+          reason: 'the income control starts empty, never pre-filled');
+
+      await _touchTopIncome(tester, 120000);
+      expect(find.byType(TopCantonWidget), findsNothing,
+          reason: 'the anchor canton is still un-confirmed → still gated');
+      expect(_gateWith(tester, 'income').gate.missing.map((f) => f.key),
+          <String>['canton']);
+
+      await _touchTopAnchor(tester, 'GE');
+
+      expect(find.byType(TopCantonWidget), findsOneWidget,
+          reason: 'both facts completed ON SCREEN, with no profile at all');
+      final w = tester.widget<TopCantonWidget>(find.byType(TopCantonWidget));
+      expect(w.currentCanton, 'GE');
+      expect(w.rankings, isNotEmpty);
+      final first = w.rankings.first;
+      final chargeAnchor = FiscalService.estimateTax(
+        revenuBrut: 120000,
+        canton: 'GE',
+        etatCivil: 'celibataire',
+        nombreEnfants: 0,
+      )['chargeTotale'] as double;
+      final chargeCand = FiscalService.estimateTax(
+        revenuBrut: 120000,
+        canton: first.shortCode,
+        etatCivil: 'celibataire',
+        nombreEnfants: 0,
+      )['chargeTotale'] as double;
+      expect(first.annualTaxSaving, closeTo(chargeAnchor - chargeCand, 1),
+          reason: 'the écart is the real FiscalService delta on the TYPED facts');
+    });
+
+    testWidgets('a typed top-cantons revenu is never overwritten by a late seed',
+        (tester) async {
+      final fake = _MutableProvider();
+      await _pump(tester, fake);
+      await _touchTopIncome(tester, 150000);
+      await _touchTopAnchor(tester, 'GE');
+      expect(_state(tester).debugTopIncome, 150000);
+
+      // The profile hydrates afterwards with a different salary.
+      fake.hydrate(
+          _profile(salaire: 10000, canton: 'VD', provided: {'salary', 'canton'}));
+      await _pumpEdit(tester);
+      expect(_state(tester).debugTopIncome, 150000,
+          reason: 'a touched fact is user data — a late seed never clobbers it');
+      expect(_state(tester).debugTopAnchor, 'GE');
+    });
+
+    testWidgets(
+        'ANTI-IMPASSE (AVS projection) — ANON picks the âge on screen → the '
+        'projection renders on the typed age', (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _goToTab(tester, 'AVS');
+      expect(find.byType(AvsGapWidget), findsNothing,
+          reason: 'nothing projected on the fabricated 20 ans / âge 40');
+
+      await _touchYearsInCh(tester, 28);
+      expect(find.byType(AvsGapWidget), findsNothing,
+          reason: 'the âge fact is still assumed → still gated');
+      expect(_gateWith(tester, 'age').gate.missing.map((f) => f.key),
+          <String>['age']);
+
+      await _touchAge(tester, 52);
+
+      expect(find.byType(AvsGapWidget), findsOneWidget,
+          reason: 'the âge was completed ON SCREEN, with no profile at all');
+      final w = tester.widget<AvsGapWidget>(find.byType(AvsGapWidget));
+      expect(w.currentAge, 52,
+          reason: 'the projection carries the TYPED age, not the default 40');
+      expect(w.currentContributionYears, 28);
+    });
+
+    testWidgets('a typed âge supersedes the profile seed and survives a clear',
+        (tester) async {
+      final fake = _MutableProvider();
+      await _pump(tester, fake);
+      await _goToTab(tester, 'AVS');
+      fake.hydrate(_profile(birthYear: 1985, provided: {'age'}));
+      await _pumpEdit(tester);
+      await _touchYearsInCh(tester, 28);
+      await _touchAge(tester, 52);
+      expect(
+          tester.widget<AvsGapWidget>(find.byType(AvsGapWidget)).currentAge, 52,
+          reason: 'the typed age wins over the seeded one');
+
+      fake.clearProfile();
+      await _pumpEdit(tester);
+      expect(find.byType(AvsGapWidget), findsOneWidget,
+          reason: 'a TOUCHED fact is user data — it survives a profile clear');
+      expect(
+          tester.widget<AvsGapWidget>(find.byType(AvsGapWidget)).currentAge, 52);
     });
   });
 

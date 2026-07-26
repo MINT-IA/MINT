@@ -58,15 +58,18 @@ class _ExpatScreenState extends State<ExpatScreen>
   bool _actualIncomeTouched = false;
 
   // ── Tab 1: Top cantons — classement personnalisé sur le revenu RÉEL du profil
-  //    (jamais le défaut forfait 5M). Faits profil, aucun contrôle in-screen →
-  //    onComplete null. Snapshots re-évalués à chaque notify (pas de lecture
-  //    live en build). ──
+  //    (jamais le défaut forfait 5M). Amorçable depuis le profil OU saisissable
+  //    à l'écran (P3 « zéro impasse » : sans contrôle, un anonyme ne pouvait
+  //    jamais ouvrir ce gate). Snapshots re-évalués à chaque notify (pas de
+  //    lecture live en build). ──
   bool _topCantonsHasChildren = false;
   List<CantonRanking> _topCantonsResult = const [];
   double _topIncome = 0;
   bool _topIncomeSeeded = false;
+  bool _topIncomeTouched = false;
   String _topAnchor = 'VD';
   bool _topAnchorSeeded = false;
+  bool _topAnchorTouched = false;
   bool _topMarried = false;
   int _topProfileEnfants = 0;
   bool _topMissingConjointIncome = false;
@@ -94,6 +97,15 @@ class _ExpatScreenState extends State<ExpatScreen>
   // Projection AvsGapWidget : âge RÉEL du profil (clé 'age'), pas le défaut 40.
   int? _profileAge;
   bool _ageSeeded = false;
+  // Contrôle à l'écran (P3 « zéro impasse ») : le wheel a besoin d'une valeur
+  // affichable, `_ageTouched` dit si l'utilisateur l'a confirmée. Le défaut 40
+  // reste ASSUMED → la projection reste gatée tant qu'il n'est ni seedé ni
+  // touché (motif divorce durée/enfants).
+  int _ageInput = 40;
+  bool _ageTouched = false;
+
+  /// L'âge qui alimente la projection : la saisie prime sur le seed profil.
+  int? get _effectiveAge => _ageTouched ? _ageInput : _profileAge;
 
   // ── Gate baselines (annonce VoiceOver au passage incomplet→complet) ──
   bool _forfaitGateComplete = false;
@@ -110,6 +122,9 @@ class _ExpatScreenState extends State<ExpatScreen>
   final _lppKey = GlobalKey();
   final _yearsInChKey = GlobalKey();
   final _yearsAbroadKey = GlobalKey();
+  final _topIncomeKey = GlobalKey();
+  final _topAnchorKey = GlobalKey();
+  final _ageKey = GlobalKey();
 
   // ── Debug getters (tests anti-façade : lire l'état confirmé, jamais un bool
   //    interne comme vérité — les tests assertent sur le CHF rendu) ──
@@ -300,7 +315,8 @@ class _ExpatScreenState extends State<ExpatScreen>
       _topIncomeSeeded = incomeSeeded;
       changed = true;
     }
-    if (incomeSeeded && income != _topIncome) {
+    // Une valeur SAISIE n'est jamais réécrasée par une hydratation tardive.
+    if (incomeSeeded && !_topIncomeTouched && income != _topIncome) {
       _topIncome = income;
       changed = true;
     }
@@ -308,7 +324,7 @@ class _ExpatScreenState extends State<ExpatScreen>
       _topAnchorSeeded = anchorValid;
       changed = true;
     }
-    if (anchor != _topAnchor) {
+    if (!_topAnchorTouched && anchor != _topAnchor) {
       _topAnchor = anchor;
       changed = true;
     }
@@ -328,14 +344,26 @@ class _ExpatScreenState extends State<ExpatScreen>
     // ── AVS projection — âge RÉEL (clé 'age' + ageOrNull non-null), pas le
     //    défaut 40. Champ d'état ré-évalué à chaque notify (un clear le remet à
     //    null → la projection AvsGapWidget se re-gate). ──
-    final ageSeeded = provided.contains('age') && profile.ageOrNull != null;
-    final age = profile.ageOrNull;
+    // Value-in-range = la plage du CONTRÔLE (picker 16-99). Une valeur hors
+    // plage (profil legacy à 10 ou 120 ans) reste NON confirmée — jamais clampée
+    // dans une projection AVS présentée comme la sienne.
+    final ageValue = profile.ageOrNull;
+    final ageSeeded = provided.contains('age') &&
+        ageValue != null &&
+        ageValue >= 16 &&
+        ageValue <= 99;
+    final age = ageSeeded ? ageValue : null;
     if (_ageSeeded != ageSeeded) {
       _ageSeeded = ageSeeded;
       changed = true;
     }
     if (_profileAge != age) {
       _profileAge = age;
+      changed = true;
+    }
+    // Le contrôle à l'écran suit l'âge réel tant qu'il n'a pas été édité.
+    if (ageSeeded && !_ageTouched && age != null && age != _ageInput) {
+      _ageInput = age;
       changed = true;
     }
 
@@ -401,12 +429,16 @@ class _ExpatScreenState extends State<ExpatScreen>
   FactProvenance get _actualIncomeProvenance =>
       _actualIncomeTouched ? FactProvenance.touched : FactProvenance.assumed;
 
-  FactProvenance get _topIncomeProvenance => _topIncomeSeeded
-      ? FactProvenance.seededFromProfile
-      : FactProvenance.assumed;
-  FactProvenance get _topAnchorProvenance => _topAnchorSeeded
-      ? FactProvenance.seededFromProfile
-      : FactProvenance.assumed;
+  FactProvenance get _topIncomeProvenance => _topIncomeTouched
+      ? FactProvenance.touched
+      : (_topIncomeSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+  FactProvenance get _topAnchorProvenance => _topAnchorTouched
+      ? FactProvenance.touched
+      : (_topAnchorSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
 
   FactProvenance get _pillar3aProvenance => _pillar3aTouched
       ? FactProvenance.touched
@@ -423,8 +455,11 @@ class _ExpatScreenState extends State<ExpatScreen>
       _yearsInChTouched ? FactProvenance.touched : FactProvenance.assumed;
   FactProvenance get _yearsAbroadProvenance =>
       _yearsAbroadTouched ? FactProvenance.touched : FactProvenance.assumed;
-  FactProvenance get _ageProvenance =>
-      _ageSeeded ? FactProvenance.seededFromProfile : FactProvenance.assumed;
+  FactProvenance get _ageProvenance => _ageTouched
+      ? FactProvenance.touched
+      : (_ageSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
 
   // ════════════════════════════════════════════════════════════
   //  GATES — chaque sortie gate sur les faits QU'ELLE consomme
@@ -455,20 +490,23 @@ class _ExpatScreenState extends State<ExpatScreen>
         ),
       ]);
 
-  // Top cantons : revenu imposable réel + canton d'ancrage réel (facts profil,
-  // aucun contrôle in-screen → onComplete null).
+  // Top cantons : revenu imposable réel + canton d'ancrage réel — amorcés depuis
+  // le profil OU saisis dans la carte d'entrées du classement (onComplete y
+  // renvoie : le gate se complète à l'écran, profil ou pas).
   SituationGate _topCantonsGate(BuildContext context) => SituationGate([
         SituationFact(
           key: 'income',
           label: (c) => S.of(c)!.expatGateFactIncome,
           why: (c) => S.of(c)!.expatGateWhyIncome,
           provenance: _topIncomeProvenance,
+          onComplete: () => _scrollToKey(_topIncomeKey),
         ),
         SituationFact(
           key: 'canton',
           label: (c) => S.of(c)!.expatGateFactCanton,
           why: (c) => S.of(c)!.expatGateWhyCanton,
           provenance: _topAnchorProvenance,
+          onComplete: () => _scrollToKey(_topAnchorKey),
         ),
       ]);
 
@@ -523,6 +561,7 @@ class _ExpatScreenState extends State<ExpatScreen>
           label: (c) => S.of(c)!.expatGateFactAge,
           why: (c) => S.of(c)!.expatGateWhyAge,
           provenance: _ageProvenance,
+          onComplete: () => _scrollToKey(_ageKey),
         ),
       ]);
 
@@ -749,16 +788,11 @@ class _ExpatScreenState extends State<ExpatScreen>
 
   Widget _buildTopCantonSection() {
     // Gate dur : le classement CHF est personnalisé (barème sur le revenu réel).
-    // Sans revenu + canton réels du profil, chaque écart serait fabriqué (défaut
-    // forfait 5M / ancrage VD). Faits profil → onComplete null (le profil se
-    // complète ailleurs). Snapshots re-évalués en _seedFromProfile (pas de
-    // lecture live en build).
-    if (!_topCantonsGate(context).complete) {
-      return SituationGateCard(
-        title: S.of(context)!.expatTopCantonsGateTitle,
-        gate: _topCantonsGate(context),
-      );
-    }
+    // Sans revenu + canton réels, chaque écart serait fabriqué (défaut forfait
+    // 5M / ancrage VD). P3 : les DEUX faits ont leur contrôle juste au-dessus →
+    // le gate se complète à l'écran, jamais une impasse. Snapshots re-évalués en
+    // _seedFromProfile (pas de lecture live en build).
+    final gate = _topCantonsGate(context);
     // Le modèle famille de FiscalService n'a de variante enfants que pour les
     // mariés — le toggle serait numériquement inerte sinon (façade) : masqué
     // hors mariage, pré-réglé sur le profil.
@@ -767,25 +801,122 @@ class _ExpatScreenState extends State<ExpatScreen>
         : 0;
 
     return Column(children: [
-      // Honnêteté mono-revenu (beads MINT_nosync-mla volet C) : marié sans
-      // conjoint financier -> le classement couple est en fait mono-revenu.
-      // Gate sur MARIÉ uniquement — en concubinage l'imposition est séparée, le
-      // calcul solo est correct par conception (pas de fausse alerte « donnée
-      // manquante »).
-      if (_topMissingConjointIncome)
-        const ConjointMissingHint(forceShow: true),
-      TopCantonWidget(
-        currentCanton: _topAnchor,
-        rankings: _topCantonsResult,
-        hasChildren: enfants > 0,
-        onChildrenChanged: _topMarried
-            ? (v) {
-                _topCantonsHasChildren = v;
-                _afterFactsChanged();
-              }
-            : null,
-      ),
+      _buildTopCantonInputCard(),
+      const SizedBox(height: MintSpacing.lg),
+      if (!gate.complete)
+        SituationGateCard(
+          title: S.of(context)!.expatTopCantonsGateTitle,
+          gate: gate,
+        )
+      else ...[
+        // Honnêteté mono-revenu (beads MINT_nosync-mla volet C) : marié sans
+        // conjoint financier -> le classement couple est en fait mono-revenu.
+        // Gate sur MARIÉ uniquement — en concubinage l'imposition est séparée,
+        // le calcul solo est correct par conception (pas de fausse alerte
+        // « donnée manquante »).
+        if (_topMissingConjointIncome)
+          const ConjointMissingHint(forceShow: true),
+        TopCantonWidget(
+          currentCanton: _topAnchor,
+          rankings: _topCantonsResult,
+          hasChildren: enfants > 0,
+          onChildrenChanged: _topMarried
+              ? (v) {
+                  _topCantonsHasChildren = v;
+                  _afterFactsChanged();
+                }
+              : null,
+        ),
+      ],
     ]);
+  }
+
+  /// Entrées du classement cantonal (P3 « zéro impasse ») : revenu imposable +
+  /// canton d'ancrage. Le TOUCHER confirme le fait, exactement comme le seed
+  /// profil ; tant qu'aucune provenance n'existe le contrôle rend « Non
+  /// renseigné » / aucun canton sélectionné — jamais le défaut fabriqué.
+  Widget _buildTopCantonInputCard() {
+    final l = S.of(context)!;
+    final sortedCodes = ExpatService.sortedCantonCodes;
+    final incomeKnown = _topIncomeTouched || _topIncomeSeeded;
+    final anchorKnown = _topAnchorTouched || _topAnchorSeeded;
+
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          KeyedSubtree(
+            key: _topIncomeKey,
+            child: MintAmountField(
+              label: l.expatGateFactIncome,
+              value: _topIncome,
+              formatValue: (v) =>
+                  incomeKnown ? ExpatService.formatChf(v) : l.expatNonRenseigne,
+              onChanged: (v) {
+                _topIncome = v;
+                _topIncomeTouched = true;
+                _afterFactsChanged();
+              },
+              min: 20000,
+              max: 2000000,
+            ),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          KeyedSubtree(
+            key: _topAnchorKey,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l.expatGateFactCanton,
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: anchorKnown ? _topAnchor : null,
+                      hint: anchorKnown
+                          ? null
+                          : Text(
+                              l.expatNonRenseigne,
+                              style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textPrimary),
+                            ),
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary),
+                      items: sortedCodes.map((code) {
+                        return DropdownMenuItem(
+                          value: code,
+                          child: Text(
+                              '$code — ${ExpatService.cantonNames[code]}'),
+                        );
+                      }).toList(),
+                      onChanged: (v) {
+                        if (v != null) {
+                          _topAnchor = v;
+                          _topAnchorTouched = true;
+                          _afterFactsChanged();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildForfaitInputCard() {
@@ -1830,10 +1961,10 @@ class _ExpatScreenState extends State<ExpatScreen>
         // Projection AvsGapWidget : rente future = f(années de cotisation, âge
         // réel). Gate dur sur {yearsInCh (touché), âge (clé 'age')} — sinon la
         // rente serait projetée sur le défaut 20 ans / âge 40 fabriqués.
-        if (_avsProjectionGate(context).complete && _profileAge != null) ...[
+        if (_avsProjectionGate(context).complete && _effectiveAge != null) ...[
           AvsGapWidget(
             currentContributionYears: _yearsInCh,
-            currentAge: _profileAge!,
+            currentAge: _effectiveAge!,
           ),
         ] else ...[
           SituationGateCard(
@@ -1889,6 +2020,25 @@ class _ExpatScreenState extends State<ExpatScreen>
               onChanged: (v) {
                 _yearsAbroad = v;
                 _yearsAbroadTouched = true;
+                _afterFactsChanged();
+              },
+            ),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          // P3 « zéro impasse » : l'âge de la projection se saisit ICI quand le
+          // profil ne le porte pas. Non touché + non seedé = ASSUMED → la
+          // projection reste gatée (le défaut 40 ne débloque rien).
+          KeyedSubtree(
+            key: _ageKey,
+            child: MintPickerTile(
+              label: l.expatGateFactAge,
+              value: _ageInput,
+              minValue: 16,
+              maxValue: 99,
+              formatValue: (v) => l.ageYears('$v'),
+              onChanged: (v) {
+                _ageInput = v;
+                _ageTouched = true;
                 _afterFactsChanged();
               },
             ),

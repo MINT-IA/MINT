@@ -6,6 +6,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/services/segments_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 import 'package:provider/provider.dart';
@@ -140,6 +141,51 @@ Future<void> _setTaux(WidgetTester tester, double v) async {
       .onChanged(v);
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 50));
+}
+
+// ── P3 « zéro impasse » : the on-screen controls of the « Paramètres » block.
+//    Each situation fact is editable here, so an anonymous user (no profile)
+//    can complete the gate without ever leaving the screen. Fields are
+//    disambiguated by their (min, max) range — all four differ.
+MintAmountField _field(
+  WidgetTester tester, {
+  required double min,
+  required double max,
+}) =>
+    tester
+        .widgetList<MintAmountField>(find.byType(MintAmountField))
+        .firstWhere((f) => f.min == min && f.max == max);
+
+Future<void> _pumpEdit(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 300));
+}
+
+Future<void> _enterRevenu(WidgetTester tester, double v) async {
+  _field(tester, min: 0, max: 2000000).onChanged(v);
+  await _pumpEdit(tester);
+}
+
+Future<void> _enterAge(WidgetTester tester, double v) async {
+  _field(tester, min: 16, max: 99).onChanged(v);
+  await _pumpEdit(tester);
+}
+
+Future<void> _enterAvoirLpp(WidgetTester tester, double v) async {
+  _field(tester, min: 0, max: 5000000).onChanged(v);
+  await _pumpEdit(tester);
+}
+
+Future<void> _enterAnnees(WidgetTester tester, double v) async {
+  _field(tester, min: 0, max: 50).onChanged(v);
+  await _pumpEdit(tester);
+}
+
+Future<void> _enterCanton(WidgetTester tester, String c) async {
+  tester
+      .widget<DropdownButton<String>>(find.byType(DropdownButton<String>))
+      .onChanged!(c);
+  await _pumpEdit(tester);
 }
 
 void main() {
@@ -380,7 +426,8 @@ void main() {
       );
       expect(_state(tester).debugCantonConfirmed, isTrue);
       expect(_state(tester).debugCanton, 'GE');
-      expect(find.text('GE'), findsOneWidget);
+      // The picker shows the seeded canton (code — name, concubinage idiom).
+      expect(find.text('GE — Geneve'), findsOneWidget);
     });
 
     testWidgets('legacy valid "ZH" WITHOUT the canton key → NOT confirmed',
@@ -489,6 +536,176 @@ void main() {
       expect(_state(tester).debugTauxActivite, 40);
       // Result stays gated (taux is not a situation fact).
       expect(find.byType(SituationGateCard), findsNWidgets(2));
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  P3 « ZÉRO IMPASSE » — every gated fact is completable ON SCREEN
+  //
+  //  Before P3 the « Paramètres » block was DISPLAY-ONLY and no fact carried an
+  //  `onComplete`: an anonymous user could never confirm revenu / avoir LPP /
+  //  âge / canton, so the pension gate could never open. A gate the user cannot
+  //  complete is a dead end, not a gate. These tests go RED if the controls are
+  //  reverted to read-only rows or if an `onComplete` is dropped.
+  // ══════════════════════════════════════════════════════════════
+  group('P3 zéro impasse — on-screen completion (no profile)', () {
+    testWidgets('every fact of both gates carries a non-null onComplete',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      for (final title in <String>[_pensionGateTitle, _coordGateTitle]) {
+        final g = _gate(tester, title)!;
+        for (final f in g.gate.facts) {
+          expect(f.onComplete, isNotNull,
+              reason: '${g.title} / ${f.key} has no completion path → impasse');
+        }
+      }
+    });
+
+    testWidgets('an editable control exists for each parameter, all unconfirmed',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      // 4 amount fields (revenu / âge / avoir LPP / années) + 1 canton picker.
+      expect(find.byType(MintAmountField), findsNWidgets(4));
+      expect(find.byType(DropdownButton<String>), findsOneWidget);
+      // NONE of them is pre-filled with the old fabricated default
+      // (85000 / 40 / 120000 / 15 / 'ZH') — they all read « Non renseigné ».
+      expect(find.text(_nonRenseigne), findsNWidgets(5));
+      final st = _state(tester);
+      expect(st.debugRevenuAnnuel, isNull);
+      expect(st.debugAge, isNull);
+      expect(st.debugAvoirLpp, isNull);
+      expect(st.debugAnneesCotisation, isNull);
+      expect(st.debugCantonConfirmed, isFalse);
+      // The gate-dur invariant still holds: no figure on open.
+      expect(find.byType(SituationGateCard), findsNWidgets(2));
+      expect(find.textContaining(_pensionHeading), findsNothing);
+    });
+
+    testWidgets('typing the revenu on screen unlocks the coordination detail',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      expect(_gate(tester, _coordGateTitle), isNotNull);
+
+      await _enterRevenu(tester, 96000);
+
+      expect(_state(tester).debugRevenuAnnuel, 96000.0);
+      expect(_gate(tester, _coordGateTitle), isNull,
+          reason: 'the revenu fact was completed in place → gate lifted');
+      expect(find.textContaining(_coordHeading), findsOneWidget);
+      // The figure is the real service output on the typed value.
+      final st = _state(tester);
+      final expected = GenderGapService.analyse(
+        input: GenderGapInput(
+          tauxActivite: st.debugTauxActivite,
+          age: 0,
+          revenuAnnuel: 96000.0 * (st.debugTauxActivite / 100),
+          avoirLpp: 0,
+          anneesCotisation: 0,
+          canton: '',
+        ),
+      );
+      expect(find.text(GenderGapService.formatChf(expected.salaireCoordonne100)),
+          findsWidgets);
+      // Pension still gated on the two facts NOT yet entered.
+      expect(_gate(tester, _pensionGateTitle)!.gate.missing.map((f) => f.key),
+          <String>['avoirLpp', 'age']);
+    });
+
+    testWidgets(
+        'ANTI-IMPASSE PROOF — revenu + avoir LPP + âge + canton typed on screen '
+        'unlock the pension figure with NO profile at all', (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      expect(find.byType(SituationGateCard), findsNWidgets(2));
+
+      await _enterRevenu(tester, 96000);
+      await _enterAvoirLpp(tester, 120000);
+      await _enterAge(tester, 40);
+      await _enterAnnees(tester, 15);
+      await _enterCanton(tester, 'GE');
+
+      final st = _state(tester);
+      expect(st.debugRevenuAnnuel, 96000.0);
+      expect(st.debugAvoirLpp, 120000.0);
+      expect(st.debugAge, 40);
+      expect(st.debugAnneesCotisation, 15);
+      expect(st.debugCantonConfirmed, isTrue);
+      expect(st.debugCanton, 'GE');
+
+      // No gate card left, and the rente card renders the REAL service figure.
+      expect(find.byType(SituationGateCard), findsNothing,
+          reason: 'an anonymous user CAN complete the gate on screen');
+      expect(find.textContaining(_pensionHeading), findsOneWidget);
+      expect(find.text(_nonRenseigne), findsNothing);
+
+      final expected = GenderGapService.analyse(
+        input: GenderGapInput(
+          tauxActivite: st.debugTauxActivite,
+          age: 40,
+          revenuAnnuel: 96000.0 * (st.debugTauxActivite / 100),
+          avoirLpp: 120000,
+          anneesCotisation: 15,
+          canton: 'GE',
+        ),
+      );
+      expect(find.text(GenderGapService.formatChf(expected.lacuneAnnuelle)),
+          findsWidgets,
+          reason: 'the gap is the service output on the TYPED facts');
+      expect(find.text(_lacuneLabel), findsOneWidget);
+    });
+
+    testWidgets('editing a typed fact invalidates the stale figure',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _enterRevenu(tester, 96000);
+      await _enterAvoirLpp(tester, 120000);
+      await _enterAge(tester, 40);
+
+      final st = _state(tester);
+      GenderGapResult analyse(double revenu) => GenderGapService.analyse(
+            input: GenderGapInput(
+              tauxActivite: st.debugTauxActivite,
+              age: 40,
+              revenuAnnuel: revenu * (st.debugTauxActivite / 100),
+              avoirLpp: 120000,
+              anneesCotisation: 0,
+              canton: '',
+            ),
+          );
+      final before = analyse(96000);
+      expect(find.text(GenderGapService.formatChf(before.lacuneAnnuelle)),
+          findsWidgets);
+
+      await _enterRevenu(tester, 150000);
+
+      final after = analyse(150000);
+      expect(after.lacuneAnnuelle, isNot(before.lacuneAnnuelle));
+      expect(find.text(GenderGapService.formatChf(before.lacuneAnnuelle)),
+          findsNothing,
+          reason: 'the stale gap must not survive an input change');
+      expect(find.text(GenderGapService.formatChf(after.lacuneAnnuelle)),
+          findsWidgets);
+    });
+
+    testWidgets('a typed canton is confirmed provenance (touch == real data)',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      expect(_state(tester).debugCantonConfirmed, isFalse);
+      await _enterCanton(tester, 'VD');
+      expect(_state(tester).debugCantonConfirmed, isTrue);
+      expect(_state(tester).debugCanton, 'VD');
+      expect(find.text('VD — Vaud'), findsOneWidget);
+    });
+
+    testWidgets('a profile-seeded fact still seeds — the picker is an ADDITIONAL '
+        'path, not a replacement', (tester) async {
+      await _pump(tester, _FakeProvider(_fullProfile()));
+      final st = _state(tester);
+      expect(st.debugRevenuAnnuel, 96000.0);
+      expect(st.debugCantonConfirmed, isTrue);
+      expect(find.byType(SituationGateCard), findsNothing);
+      // …and the seeded value stays editable in place.
+      await _enterRevenu(tester, 120000);
+      expect(_state(tester).debugRevenuAnnuel, 120000.0);
     });
   });
 
