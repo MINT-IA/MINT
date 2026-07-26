@@ -2519,10 +2519,14 @@ class SEn extends S {
 
   @override
   String get mariageLppSurvivorFootnote =>
-      'LPP art. 19 — married (cohabitants: clause required)';
+      'Subject to LPP art. 19 conditions: dependent child, or age 45 and 5 years of marriage';
 
   @override
-  String get mariageSurvivorMonthly => 'Monthly income of the married survivor';
+  String get mariageSurvivorMonthly => 'LPP survivor pension, per month';
+
+  @override
+  String get mariageSurvivorAvsNote =>
+      'As a surviving spouse, you may also receive an AVS survivor\'s pension, under conditions (LAVS art. 23). Its amount depends on the deceased\'s contribution history and is not quantified here.';
 
   @override
   String get mariageVsConcubin => 'MARRIED VS COHABITANT';
@@ -2542,6 +2546,10 @@ class SEn extends S {
   @override
   String get mariageConcubinWarning =>
       'In cohabitation, the surviving partner has no rights by default — no AVS pension, no tax-exempt inheritance. Everything must be planned by contract.';
+
+  @override
+  String get mariageProtectionConditionsNote =>
+      'Marriage protections (AVS and LPP survivor pensions) are a legal access subject to eligibility conditions (LPP art. 19, LAVS art. 23), not an automatic payout.';
 
   @override
   String get mariageProtectionsEssentielles => 'ESSENTIAL PROTECTIONS';
@@ -3076,7 +3084,7 @@ class SEn extends S {
 
   @override
   String get mariageChecklistItem3Desc =>
-      'Marriage changes the order of beneficiaries. Your spouse automatically becomes the LPP survivor pension beneficiary (LPP art. 19). Also check your 3rd pillar beneficiaries.';
+      'Marriage changes the order of beneficiaries. Your spouse may then receive the LPP survivor pension, under conditions (LPP art. 19: dependent child, or age 45 and 5 years of marriage). Also check your 3rd pillar beneficiaries.';
 
   @override
   String get mariageChecklistItem4Title =>
@@ -4421,6 +4429,10 @@ class SEn extends S {
   @override
   String get mariageTimelineCoachTip =>
       'Each life phase requires adapting your marriage contract and pension planning.';
+
+  @override
+  String get mariageTimelineIllustrativeCaption =>
+      'Illustrative journey: acts 2 and 3 show example life trajectories (career growth, part-time work). The percentage changes are not a projection of your income.';
 
   @override
   String get mariageTimelineAct1Title => 'You both work';

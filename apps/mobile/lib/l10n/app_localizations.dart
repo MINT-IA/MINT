@@ -4698,14 +4698,20 @@ abstract class S {
   /// No description provided for @mariageLppSurvivorFootnote.
   ///
   /// In fr, this message translates to:
-  /// **'LPP art. 19 — mariés (concubins : clause nécessaire)'**
+  /// **'Sous conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage'**
   String get mariageLppSurvivorFootnote;
 
   /// No description provided for @mariageSurvivorMonthly.
   ///
   /// In fr, this message translates to:
-  /// **'Revenu mensuel du survivant marié'**
+  /// **'Rente LPP de survivant, par mois'**
   String get mariageSurvivorMonthly;
+
+  /// No description provided for @mariageSurvivorAvsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant que conjoint·e survivant·e, tu peux toucher en plus une rente AVS de survivant, sous conditions (LAVS art. 23). Son montant dépend de la carrière de cotisation du défunt et n\'est pas chiffré ici.'**
+  String get mariageSurvivorAvsNote;
 
   /// No description provided for @mariageVsConcubin.
   ///
@@ -4742,6 +4748,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'En concubinage, le partenaire survivant n\'a droit à rien par défaut — ni rente AVS, ni héritage exonéré. Il faut tout prévoir par contrat.'**
   String get mariageConcubinWarning;
+
+  /// No description provided for @mariageProtectionConditionsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les protections du mariage (rentes de survivant AVS et LPP) sont un accès légal soumis à conditions d\'éligibilité (LPP art. 19, LAVS art. 23), pas une réception automatique.'**
+  String get mariageProtectionConditionsNote;
 
   /// No description provided for @mariageProtectionsEssentielles.
   ///
@@ -5706,7 +5718,7 @@ abstract class S {
   /// No description provided for @mariageChecklistItem3Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Le mariage change l\'ordre des bénéficiaires. Ton conjoint devient automatiquement bénéficiaire de la rente de survivant LPP (LPP art. 19). Vérifie aussi les bénéficiaires de ton 3e pilier.'**
+  /// **'Le mariage change l\'ordre des bénéficiaires. Ton conjoint peut alors bénéficier de la rente de survivant LPP, sous conditions (LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage). Vérifie aussi les bénéficiaires de ton 3e pilier.'**
   String get mariageChecklistItem3Desc;
 
   /// No description provided for @mariageChecklistItem4Title.
@@ -8109,6 +8121,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Chaque phase de vie demande d\'adapter ton contrat de mariage et ta prévoyance.'**
   String get mariageTimelineCoachTip;
+
+  /// No description provided for @mariageTimelineIllustrativeCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours illustratif : les actes 2 et 3 montrent des exemples de trajectoires de vie (évolution de carrière, temps partiel). Les variations en pourcentage ne sont pas une projection de tes revenus.'**
+  String get mariageTimelineIllustrativeCaption;
 
   /// No description provided for @mariageTimelineAct1Title.
   ///

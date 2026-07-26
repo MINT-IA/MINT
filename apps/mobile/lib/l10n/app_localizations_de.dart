@@ -2547,11 +2547,14 @@ class SDe extends S {
 
   @override
   String get mariageLppSurvivorFootnote =>
-      'BVG Art. 19 — Verheiratete (Konkubinat: Klausel erforderlich)';
+      'Unter Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre';
 
   @override
-  String get mariageSurvivorMonthly =>
-      'Monatliches Einkommen des verheirateten Hinterbliebenen';
+  String get mariageSurvivorMonthly => 'BVG-Hinterlassenenrente, pro Monat';
+
+  @override
+  String get mariageSurvivorAvsNote =>
+      'Als überlebende·r Ehepartner·in kannst du zusätzlich eine AHV-Hinterlassenenrente erhalten, unter Bedingungen (AHVG Art. 23). Ihr Betrag hängt von der Beitragslaufbahn der verstorbenen Person ab und wird hier nicht beziffert.';
 
   @override
   String get mariageVsConcubin => 'VERHEIRATET VS KONKUBINAT';
@@ -2571,6 +2574,10 @@ class SDe extends S {
   @override
   String get mariageConcubinWarning =>
       'Im Konkubinat hat der überlebende Partner standardmässig keine Rechte — keine AHV-Rente, kein steuerbefreites Erbe. Alles muss vertraglich geregelt werden.';
+
+  @override
+  String get mariageProtectionConditionsNote =>
+      'Die Schutzwirkungen der Ehe (AHV- und BVG-Hinterlassenenrenten) sind ein rechtlicher Zugang unter Anspruchsbedingungen (BVG Art. 19, AHVG Art. 23), keine automatische Auszahlung.';
 
   @override
   String get mariageProtectionsEssentielles => 'WESENTLICHE SCHUTZMASSNAHMEN';
@@ -3111,7 +3118,7 @@ class SDe extends S {
 
   @override
   String get mariageChecklistItem3Desc =>
-      'Die Heirat ändert die Begünstigtenreihenfolge. Dein Ehepartner wird automatisch Begünstigter der BVG-Hinterlassenenrente (BVG Art. 19). Prüfe auch die Begünstigten deiner 3. Säule.';
+      'Die Heirat ändert die Begünstigtenreihenfolge. Dein Ehepartner kann dann die BVG-Hinterlassenenrente erhalten, unter Bedingungen (BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre). Prüfe auch die Begünstigten deiner 3. Säule.';
 
   @override
   String get mariageChecklistItem4Title =>
@@ -4457,6 +4464,10 @@ class SDe extends S {
   @override
   String get mariageTimelineCoachTip =>
       'Jede Lebensphase erfordert eine Anpassung Ihres Ehevertrags und Ihrer Vorsorge.';
+
+  @override
+  String get mariageTimelineIllustrativeCaption =>
+      'Illustrativer Verlauf: Akt 2 und 3 zeigen beispielhafte Lebenswege (Karriereentwicklung, Teilzeit). Die prozentualen Veränderungen sind keine Projektion deines Einkommens.';
 
   @override
   String get mariageTimelineAct1Title => 'Ihr arbeitet beide';

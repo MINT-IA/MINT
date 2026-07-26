@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/mariage_screen.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
@@ -204,9 +205,12 @@ String _expectedFiscalPrimary(WidgetTester tester) {
 
 String _expectedSurvivorPrimary(WidgetTester tester) {
   final st = _state(tester);
-  const avs = avsRenteMaxMensuelle * FamilyService.avsSurvivorFactor;
+  // P2 residual fix: the survivor figure is the CONFIRMED LPP survivor rente
+  // ONLY (renteLpp × 60%). No fabricated max-AVS component — the AVS survivor
+  // rente depends on an unconfirmed contribution history (LAVS art. 23) and is
+  // stated qualitatively, never as a personal CHF.
   final lpp = (st.debugRenteLpp as double) * FamilyService.lppSurvivorFactor;
-  return '${FamilyService.formatChf(avs + lpp)}/mois';
+  return '${FamilyService.formatChf(lpp)}/mois';
 }
 
 void main() {
@@ -549,6 +553,46 @@ void main() {
       await _goToTab(tester, 'Régime');
       expect(find.byType(CoupleNarrativeTimeline), findsOneWidget);
     });
+
+    // ── HOLE C: acts 2/3 used (revenu1+revenu2)/12 × 1.15 / × 0.65 — hardcoded
+    //    multipliers rendered as the couple's FUTURE monthly income. Only Act 1
+    //    (real, confirmed current income) may show a CHF; the future acts are
+    //    illustrative (delta % + insight under a « Parcours illustratif »
+    //    caption), never a fabricated future personal CHF. ──
+    testWidgets(
+        'timeline future acts are illustrative — no fabricated future CHF, '
+        'caption present', (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+            salaire: 8000, // revenu1 = 96000
+            canton: 'GE',
+            conjointSalaire: 5000, // revenu2 = 60000
+            provided: {'salary', 'canton'})),
+      );
+      await _goToTab(tester, 'Régime');
+      expect(find.byType(CoupleNarrativeTimeline), findsOneWidget);
+
+      final r1 = _state(tester).debugRevenu1 as double;
+      final r2 = _state(tester).debugRevenu2 as double;
+      final act1 = (r1 + r2) / 12; // real confirmed couple monthly income
+
+      // Act 1 (real, confirmed) income IS shown.
+      expect(find.textContaining(formatChf(act1), skipOffstage: false),
+          findsWidgets,
+          reason: 'act 1 = the real confirmed couple monthly income');
+      // Acts 2/3 fabricated future income (×1.15 / ×0.65) must NOT be rendered.
+      expect(find.textContaining(formatChf(act1 * 1.15), skipOffstage: false),
+          findsNothing,
+          reason: 'no fabricated +15% future CHF presented as a projection');
+      expect(find.textContaining(formatChf(act1 * 0.65), skipOffstage: false),
+          findsNothing,
+          reason: 'no fabricated -35% future CHF presented as a projection');
+      // The illustrative caption frames the future acts.
+      expect(find.textContaining('Parcours illustratif', skipOffstage: false),
+          findsOneWidget,
+          reason: 'future acts framed as an illustrative parcours, not a projection');
+    });
   });
 
   // ══════════════════════════════════════════════════════════════
@@ -585,8 +629,61 @@ void main() {
             of: find.byKey(_survivorHero),
             matching: find.text(_expectedSurvivorPrimary(tester))),
         findsOneWidget,
-        reason: 'the hero renders avsSurvivor + lppSurvivor from the seeded rente',
+        reason: 'the hero renders the LPP survivor rente only (no max-AVS blend)',
       );
+    });
+
+    // ── P2 residual fix (mirrors concubinage): the survivor figure must be the
+    //    CONFIRMED LPP survivor rente only. The fabricated max-AVS component
+    //    (avsRenteMaxMensuelle × avsSurvivorFactor) and any total blending it in
+    //    are ABSENT; the shared SurvivorPensionWidget (which carried the
+    //    fabrication) is gone; the art. 19 / LAVS art. 23 caveats are present. ──
+    testWidgets(
+        'survivor figure is LPP-only — no fabricated max-AVS, no shared widget, '
+        'eligibility caveats present', (tester) async {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(avoirLpp: 300000, provided: {'avoirLpp'})),
+      );
+      await _goToTab(tester, 'Protection');
+
+      expect(find.byKey(_survivorHero), findsOneWidget);
+      final rente = _state(tester).debugRenteLpp as double;
+      final lppSurvivor = rente * FamilyService.lppSurvivorFactor;
+
+      // Hero == the confirmed LPP survivor rente (renteLpp × 60%), scoped to the
+      // hero (the LPP card renders the same figure below).
+      expect(
+        find.descendant(
+            of: find.byKey(_survivorHero),
+            matching: find.text('${FamilyService.formatChf(lppSurvivor)}/mois')),
+        findsOneWidget,
+        reason: 'hero shows the confirmed LPP survivor rente, not a max-AVS blend',
+      );
+
+      // OLD fabrication: max-AVS as a personal figure (2520 × 0.80 = 2016) and the
+      // total that blended it into the hero — both must be ABSENT anywhere.
+      const avsFab = avsRenteMaxMensuelle * FamilyService.avsSurvivorFactor;
+      expect(find.text('${FamilyService.formatChf(avsFab)}/mois'), findsNothing,
+          reason: 'no fabricated personal max-AVS component');
+      expect(
+        find.text('${FamilyService.formatChf(avsFab + lppSurvivor)}/mois'),
+        findsNothing,
+        reason: 'no max-AVS + LPP blended total in the hero',
+      );
+
+      // The shared widget (carried partnerAvsRente = max-AVS) is removed.
+      expect(find.byType(SurvivorPensionWidget), findsNothing,
+          reason: 'SurvivorPensionWidget removed from mariage protection');
+
+      // LPP figure is CONDITIONAL on art. 19 eligibility, and the AVS advantage is
+      // stated qualitatively (LAVS art. 23) with no CHF.
+      expect(find.textContaining('enfant à charge'), findsOneWidget,
+          reason: 'LPP art. 19 eligibility caveat present under the LPP figure');
+      // « LAVS art. 23 » now appears in BOTH the qualitative AVS note and the
+      // HOLE-A conditions caveat under the comparison table — at least one.
+      expect(find.textContaining('LAVS art. 23'), findsWidgets,
+          reason: 'AVS advantage stated qualitatively, no fabricated CHF');
     });
 
     testWidgets('touch renteLpp: survivor hero renders', (tester) async {
@@ -639,6 +736,43 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byKey(_survivorHero), findsNothing,
           reason: 'seeded LPP loses provenance on clear → protection re-gates');
+    });
+
+    // ── HOLE A: the ✓/✗ comparison table rendered married ✓ for AVS + LPP
+    //    survivor pensions UNCONDITIONALLY. Eligibility is conditional (LPP
+    //    art. 19, LAVS art. 23) → a caveat must sit under the table. The table
+    //    is educational (always rendered, even with no profile). ──
+    testWidgets('protection comparison table carries the conditions caveat',
+        (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _goToTab(tester, 'Protection');
+      expect(
+          find.textContaining('réception automatique', skipOffstage: false),
+          findsOneWidget,
+          reason: 'the ✓ table states married pensions are conditional access, '
+              'not an automatic payout');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  CHECKLIST (tab 4) — HOLE B: the LPP-beneficiary item must be CONDITIONAL.
+  //  Old copy said the spouse « devient automatiquement bénéficiaire » — false
+  //  and contradicts the art. 19 caveat shown elsewhere.
+  // ══════════════════════════════════════════════════════════════
+  group('Checklist honesty (LPP beneficiary conditional)', () {
+    testWidgets('item is conditional — no « automatiquement »', (tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _goToTab(tester, 'Checklist');
+      // AnimatedCrossFade builds the (collapsed) description → skipOffstage:false
+      // reaches it without expanding the item.
+      expect(
+          find.textContaining('automatiquement', skipOffstage: false),
+          findsNothing,
+          reason: 'the spouse does NOT automatically become the LPP survivor '
+              'beneficiary — eligibility is conditional (art. 19)');
+      expect(find.textContaining('sous conditions', skipOffstage: false),
+          findsWidgets,
+          reason: 'the LPP survivor beneficiary is framed as conditional');
     });
   });
 
