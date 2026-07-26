@@ -12,14 +12,21 @@ Exit codes:
   1 — violations found (stderr has `path:line: snippet` rows)
 
 Use --file <path> to lint a single file (pattern used by ingest_git.py).
-Phase 34 GUARD-04 will refine the heuristic and wire CI. Plan 01 only needs
-the early-ship version to feed the violations table.
+
+--added-only : ne juge QUE les lignes ajoutées par le diff indexé. C'est le mode
+utilisé par le hook pre-commit. Raison : le dépôt porte une dette héritée de
+plusieurs milliers de littéraux ; un contrôle sur fichier entier bloquerait tout
+commit touchant un fichier déjà en dette, donc il n'a jamais pu être câblé et la
+dette a continué de croître. En ne jugeant que ce qui est AJOUTÉ, la barrière
+devient posable aujourd'hui : l'existant reste tel quel, le neuf est arrêté.
 """
 from __future__ import annotations
 
 import argparse
 import re
+import subprocess
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 # Quoted FR-ish literals. We match either (a) accented chars inside the quotes
@@ -54,7 +61,32 @@ EXCLUDE_SUBSTRINGS = (
 
 
 def _line_is_exempt(line: str) -> bool:
+    stripped = line.lstrip()
+    # Un commentaire n'est jamais rendu à l'utilisateur : le signaler produisait
+    # 352 faux positifs sur 5274, ce qui rendait la sortie illisible.
+    if stripped.startswith(("///", "//", "*", "/*")):
+        return True
     return any(marker in line for marker in IGNORE_MARKERS)
+
+
+def _staged_added_lines() -> dict[str, set[int]]:
+    """Lignes AJOUTÉES par le diff indexé, indexées par chemin de fichier."""
+    proc = subprocess.run(
+        ["git", "diff", "--cached", "-U0", "--", "apps/mobile/lib"],
+        capture_output=True, text=True,
+    )
+    added: dict[str, set[int]] = defaultdict(set)
+    current: str | None = None
+    for line in proc.stdout.splitlines():
+        if line.startswith("+++ b/"):
+            current = line[6:]
+        elif line.startswith("@@") and current:
+            m = re.search(r"\+(\d+)(?:,(\d+))?", line)
+            if m:
+                start = int(m.group(1))
+                for i in range(start, start + int(m.group(2) or 1)):
+                    added[current].add(i)
+    return added
 
 
 def scan_file(path: Path) -> list[tuple[int, str, str]]:
@@ -94,6 +126,38 @@ def _collect_paths(scope: list[str]) -> list[Path]:
     return paths
 
 
+def _self_test() -> int:
+    """Prouve que le lint détecte encore, et qu'il ignore encore les commentaires.
+
+    Sans cela, un lint peut cesser de détecter sans que personne s'en aperçoive :
+    il continue de sortir 0 et passe pour vert.
+    """
+    import tempfile
+    cases = [
+        ("    return const Text('Ton épargne de prévoyance');", True, "code accentué"),
+        ("    title: 'le montant du rachat',", True, "code, mots FR"),
+        ("/// Sonde de prévoyance — commentaire.", False, "commentaire doc"),
+        ("// une ligne de commentaire", False, "commentaire ligne"),
+        ("    Text(AppLocalizations.of(context)!.greeting),", False, "passe par l10n"),
+        ("    final x = 'plain ascii value';", False, "chaîne non FR"),
+    ]
+    failures = 0
+    with tempfile.TemporaryDirectory() as d:
+        for line, should_flag, why in cases:
+            p = Path(d) / "probe.dart"
+            p.write_text(line + "\n", encoding="utf-8")
+            flagged = bool(scan_file(p))
+            if flagged != should_flag:
+                print(f"no_hardcoded_fr self-test FAIL [{why}] : "
+                      f"attendu flag={should_flag}, obtenu {flagged} — {line!r}",
+                      file=sys.stderr)
+                failures += 1
+    if failures:
+        return 1
+    print(f"no_hardcoded_fr self-test OK ({len(cases)} cas)")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=(
@@ -104,6 +168,16 @@ def main() -> int:
     )
     ap.add_argument("--file", help="Lint a single file")
     ap.add_argument(
+        "--self-test",
+        action="store_true",
+        help="Vérifie que le lint détecte encore ce qu'il doit détecter",
+    )
+    ap.add_argument(
+        "--added-only",
+        action="store_true",
+        help="Ne juger que les lignes ajoutées par le diff indexé (mode hook)",
+    )
+    ap.add_argument(
         "--scope",
         nargs="*",
         default=DEFAULT_SCOPE,
@@ -111,7 +185,16 @@ def main() -> int:
     )
     args = ap.parse_args()
 
-    if args.file:
+    if args.self_test:
+        return _self_test()
+
+    added: dict[str, set[int]] | None = None
+    if args.added_only:
+        added = _staged_added_lines()
+        paths = [Path(f) for f in added
+                 if f.endswith(".dart") and Path(f).exists()
+                 and not any(ex in "/" + f + "/" for ex in EXCLUDE_SUBSTRINGS)]
+    elif args.file:
         target = Path(args.file)
         if not target.exists():
             print(f"no_hardcoded_fr: file not found: {target}", file=sys.stderr)
@@ -122,12 +205,23 @@ def main() -> int:
 
     found = 0
     for path in paths:
+        allowed = added.get(path.as_posix()) if added is not None else None
         for lineno, snippet, kind in scan_file(path):
+            if allowed is not None and lineno not in allowed:
+                continue
             print(f"{path}:{lineno}: {snippet} ({kind})", file=sys.stderr)
             found += 1
 
     if found:
-        print(f"no_hardcoded_fr: FAIL — {found} hardcoded FR literal(s)", file=sys.stderr)
+        if args.added_only:
+            print(
+                f"no_hardcoded_fr: FAIL — {found} nouveau(x) littéral(aux) FR "
+                "en dur. Passe par AppLocalizations (clé ARB dans les 6 langues) "
+                "ou marque la ligne `// lint-ignore` si elle n'est pas rendue.",
+                file=sys.stderr,
+            )
+        else:
+            print(f"no_hardcoded_fr: FAIL — {found} hardcoded FR literal(s)", file=sys.stderr)
         return 1
     return 0
 
