@@ -14,9 +14,29 @@ from pathlib import Path
 from collections import defaultdict
 
 ROOT = Path(__file__).resolve().parents[2]
+_REDIRECTS: set = set()
 MOBILE = ROOT / "apps/mobile"
 PARTS = ROOT / ".planning/audit-etat-des-lieux-2026-07/routemap-parts"
 OUT = ROOT / ".planning/architecture/themes"
+
+def redirect_routes() -> set:
+    """Routes qui ne sont QUE des redirections legacy (`redirect:` sans
+    `builder:`), souvent instrumentées par `MintBreadcrumbs.legacyRedirectHit`.
+
+    Ce ne sont pas des destinations mais des panneaux de réexpédition : les
+    compter comme des écrans fait croire à des îles et à des thèmes pauvres qui
+    n'existent pas. 48 des 158 chemins de MINT sont dans ce cas.
+    """
+    src = (MOBILE / "lib/app.dart").read_text(encoding="utf-8")
+    out = set()
+    for part in re.split(r"(?=path:\s*')", src):
+        m = re.match(r"path:\s*'([^']+)'", part)
+        if not m:
+            continue
+        head = part[:400]
+        if "redirect:" in head and "builder:" not in head:
+            out.add(m.group(1))
+    return out
 
 def routes_from_app_dart() -> dict:
     """path -> screen class, via le parse à pile d'imbrication de app.dart."""
@@ -102,6 +122,8 @@ def nature(route: str) -> str:
     les distinguer produit un faux problème (« 24 îles ») et envoie corriger ce
     qui n'est pas cassé.
     """
+    if route in _REDIRECTS:
+        return "redirect"
     if route.startswith("/__e2e"):
         return "e2e"
     if route.startswith(("/admin", "/debug")) or "admin-observability" in route:
@@ -113,6 +135,8 @@ def nature(route: str) -> str:
     return "produit"
 
 def main() -> int:
+    global _REDIRECTS
+    _REDIRECTS = redirect_routes()
     routes = routes_from_app_dart()
     edges = literal_edges()
     for src in (hub_edges(), drawer_edges()):    # hubs et tiroirs : cliquables aussi

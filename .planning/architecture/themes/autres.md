@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème autres — 3 routes : 1 câblées (lien cliquable), 2 atteignables seulement par séquence/registre, 0 îles. Verdict : PORTE UNIQUE."
+description: "Carte de navigation du thème autres — 2 routes : 1 câblées (lien cliquable), 1 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « autres » — carte de navigation
@@ -11,16 +11,23 @@ description: "Carte de navigation du thème autres — 3 routes : 1 câblées (l
 | | Routes | Signification |
 |---|---:|---|
 | 🟢 câblée | 1 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 2 | atteignable seulement via le registre / le coach |
+| 🟡 séquence | 1 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **3** | **verdict : PORTE UNIQUE** (1/3 = 33 % cliquables) |
+| **Total** | **2** | **verdict : PARCOURABLE** (1/2 = 50 % cliquables) |
+
+## Hors périmètre produit
+
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
+
+| Route | Écran | Nature |
+|---|---|---|
+| `/tools` | ? | redirect |
 
 ## Inventaire (routes produit)
 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
 | `/timeline` | TimelineScreen | 🟡 séquence | — | oui |
-| `/tools` | ? | 🟡 séquence | — | oui |
 | `/unemployment` | UnemploymentScreen | 🟢 câblée | `hub:/explore/travail` | oui |
 
 ## Graphe des entrées

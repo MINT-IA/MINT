@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème documents — 8 routes : 4 câblées (lien cliquable), 4 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
+description: "Carte de navigation du thème documents — 6 routes : 4 câblées (lien cliquable), 2 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « documents » — carte de navigation
@@ -11,16 +11,23 @@ description: "Carte de navigation du thème documents — 8 routes : 4 câblées
 | | Routes | Signification |
 |---|---:|---|
 | 🟢 câblée | 4 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 4 | atteignable seulement via le registre / le coach |
+| 🟡 séquence | 2 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **8** | **verdict : PARCOURABLE** (4/8 = 50 % cliquables) |
+| **Total** | **6** | **verdict : PARCOURABLE** (4/6 = 67 % cliquables) |
+
+## Hors périmètre produit
+
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
+
+| Route | Écran | Nature |
+|---|---|---|
+| `/document-scan` | ? | redirect |
+| `/document-scan/avs-guide` | ? | redirect |
 
 ## Inventaire (routes produit)
 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
-| `/document-scan` | ? | 🟡 séquence | — | oui |
-| `/document-scan/avs-guide` | ? | 🟡 séquence | — | oui |
 | `/documents` | DocumentsScreen | 🟢 câblée | `widget_renderer` | oui |
 | `/documents/:id` | ? | 🟡 séquence | — | oui |
 | `/scan` | ? | 🟢 câblée | `avs_guide_screen`, `cap_du_jour_banner`, `coach_chat_screen`, `data_quality_card`, `document_scan_cta`, `financial_summary_screen`, `hero_retirement_card`, `mon_argent_screen` | oui |

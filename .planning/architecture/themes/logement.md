@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème logement — 8 routes : 7 câblées (lien cliquable), 1 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
+description: "Carte de navigation du thème logement — 7 routes : 7 câblées (lien cliquable), 0 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « logement » — carte de navigation
@@ -11,9 +11,17 @@ description: "Carte de navigation du thème logement — 8 routes : 7 câblées 
 | | Routes | Signification |
 |---|---:|---|
 | 🟢 câblée | 7 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 1 | atteignable seulement via le registre / le coach |
+| 🟡 séquence | 0 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **8** | **verdict : PARCOURABLE** (7/8 = 88 % cliquables) |
+| **Total** | **7** | **verdict : PARCOURABLE** (7/7 = 100 % cliquables) |
+
+## Hors périmètre produit
+
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
+
+| Route | Écran | Nature |
+|---|---|---|
+| `/mortgage/affordability` | ? | redirect |
 
 ## Inventaire (routes produit)
 
@@ -22,7 +30,6 @@ description: "Carte de navigation du thème logement — 8 routes : 7 câblées 
 | `/epl` | EplScreen | 🟢 câblée | `hub:/explore/retraite` | oui |
 | `/hypotheque` | AffordabilityScreen | 🟢 câblée | `drawer:coach`, `hub:/explore/logement` | oui |
 | `/life-event/housing-sale` | HousingSaleScreen | 🟢 câblée | `hub:/explore/logement` | oui |
-| `/mortgage/affordability` | ? | 🟡 séquence | — | oui |
 | `/mortgage/amortization` | AmortizationScreen | 🟢 câblée | `hub:/explore/logement` | oui |
 | `/mortgage/epl-combined` | EplCombinedScreen | 🟢 câblée | `hub:/explore/logement` | oui |
 | `/mortgage/imputed-rental` | ImputedRentalScreen | 🟢 câblée | `hub:/explore/logement` | oui |

@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème pilier3a — 13 routes : 8 câblées (lien cliquable), 5 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
+description: "Carte de navigation du thème pilier3a — 12 routes : 8 câblées (lien cliquable), 4 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « pilier3a » — carte de navigation
@@ -11,9 +11,17 @@ description: "Carte de navigation du thème pilier3a — 13 routes : 8 câblées
 | | Routes | Signification |
 |---|---:|---|
 | 🟢 câblée | 8 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 5 | atteignable seulement via le registre / le coach |
+| 🟡 séquence | 4 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **13** | **verdict : PARCOURABLE** (8/13 = 62 % cliquables) |
+| **Total** | **12** | **verdict : PARCOURABLE** (8/12 = 67 % cliquables) |
+
+## Hors périmètre produit
+
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
+
+| Route | Écran | Nature |
+|---|---|---|
+| `/arbitrage/calendrier-retraits` | ? | redirect |
 
 ## Inventaire (routes produit)
 
@@ -24,7 +32,6 @@ description: "Carte de navigation du thème pilier3a — 13 routes : 8 câblées
 | `/3a-deep/staggered-withdrawal` | StaggeredWithdrawalScreen | 🟢 câblée | `hub:/explore/fiscalite` | oui |
 | `/3a-retroactif` | Retroactive3aScreen | 🟢 câblée | `hub:/explore/fiscalite` | oui |
 | `/arbitrage/allocation-annuelle` | AllocationAnnuelleScreen | 🟢 câblée | `hub:/explore/patrimoine` | oui |
-| `/arbitrage/calendrier-retraits` | ? | 🟡 séquence | — | oui |
 | `/arbitrage/location-vs-propriete` | LocationVsProprieteScreen | 🟢 câblée | `hub:/explore/logement` | oui |
 | `/independants/3a` | Pillar3aIndepScreen | 🟡 séquence | — | oui |
 | `/independants/avs` | AvsCotisationsScreen | 🟡 séquence | — | oui |

@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème lifeevents — 33 routes : 24 câblées (lien cliquable), 9 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
+description: "Carte de navigation du thème lifeevents — 30 routes : 24 câblées (lien cliquable), 6 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « lifeevents » — carte de navigation
@@ -11,9 +11,19 @@ description: "Carte de navigation du thème lifeevents — 33 routes : 24 câbl�
 | | Routes | Signification |
 |---|---:|---|
 | 🟢 câblée | 24 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 9 | atteignable seulement via le registre / le coach |
+| 🟡 séquence | 6 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **33** | **verdict : PARCOURABLE** (24/33 = 73 % cliquables) |
+| **Total** | **30** | **verdict : PARCOURABLE** (24/30 = 80 % cliquables) |
+
+## Hors périmètre produit
+
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
+
+| Route | Écran | Nature |
+|---|---|---|
+| `/disability/gap` | ? | redirect |
+| `/life-event/divorce` | ? | redirect |
+| `/life-event/succession` | ? | redirect |
 
 ## Inventaire (routes produit)
 
@@ -25,7 +35,6 @@ description: "Carte de navigation du thème lifeevents — 33 routes : 24 câbl�
 | `/debt/help` | HelpResourcesScreen | 🟡 séquence | — | oui |
 | `/debt/ratio` | DebtRatioScreen | 🟡 séquence | — | oui |
 | `/debt/repayment` | RepaymentScreen | 🟢 câblée | `debt_ratio_screen` | oui |
-| `/disability/gap` | ? | 🟡 séquence | — | oui |
 | `/disability/insurance` | DisabilityInsuranceScreen | 🟢 câblée | `hub:/explore/sante` | oui |
 | `/disability/self-employed` | DisabilitySelfEmployedScreen | 🟢 câblée | `hub:/explore/sante` | oui |
 | `/divorce` | DivorceSimulatorScreen | 🟢 câblée | `hub:/explore/famille` | oui |
@@ -44,9 +53,7 @@ description: "Carte de navigation du thème lifeevents — 33 routes : 24 câbl�
 | `/fiscal` | FiscalComparatorScreen | 🟢 câblée | `coach_message_bubble`, `drawer:coach`, `hub:/explore/fiscalite` | oui |
 | `/life-event/deces-proche` | DecesProcheScreen | 🟢 câblée | `hub:/explore/patrimoine` | oui |
 | `/life-event/demenagement-cantonal` | DemenagementCantonalScreen | 🟢 câblée | `hub:/explore/patrimoine` | oui |
-| `/life-event/divorce` | ? | 🟡 séquence | — | oui |
 | `/life-event/donation` | DonationScreen | 🟢 câblée | `hub:/explore/patrimoine` | oui |
-| `/life-event/succession` | ? | 🟡 séquence | — | oui |
 | `/mariage` | MariageScreen | 🟢 câblée | `hub:/explore/famille` | oui |
 | `/naissance` | NaissanceScreen | 🟢 câblée | `hub:/explore/famille` | oui |
 | `/segments/frontalier` | FrontalierScreen | 🟢 câblée | `hub:/explore/travail` | oui |

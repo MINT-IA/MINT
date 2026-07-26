@@ -1,5 +1,5 @@
 ---
-description: "Carte de navigation du thème home — 10 routes : 5 câblées (lien cliquable), 5 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
+description: "Carte de navigation du thème home — 9 routes : 5 câblées (lien cliquable), 4 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « home » — carte de navigation
@@ -11,9 +11,17 @@ description: "Carte de navigation du thème home — 10 routes : 5 câblées (li
 | | Routes | Signification |
 |---|---:|---|
 | 🟢 câblée | 5 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 5 | atteignable seulement via le registre / le coach |
+| 🟡 séquence | 4 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **10** | **verdict : PARCOURABLE** (5/10 = 50 % cliquables) |
+| **Total** | **9** | **verdict : PARCOURABLE** (5/9 = 56 % cliquables) |
+
+## Hors périmètre produit
+
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
+
+| Route | Écran | Nature |
+|---|---|---|
+| `/portfolio` | ? | redirect |
 
 ## Inventaire (routes produit)
 
@@ -28,7 +36,6 @@ description: "Carte de navigation du thème home — 10 routes : 5 câblées (li
 | `/open-banking` | OpenBankingHubScreen | 🟡 séquence | — | oui |
 | `/open-banking/consents` | ConsentScreen | 🟡 séquence | — | oui |
 | `/open-banking/transactions` | TransactionListScreen | 🟡 séquence | — | oui |
-| `/portfolio` | ? | 🟡 séquence | — | oui |
 
 ## Graphe des entrées
 
