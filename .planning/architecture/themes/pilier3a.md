@@ -1,41 +1,49 @@
 ---
-description: "Carte de navigation du thème pilier3a — 13 routes : 1 câblées (lien cliquable), 12 atteignables seulement par séquence/registre, 0 îles. Verdict : PORTE UNIQUE."
+description: "Carte de navigation du thème pilier3a — 13 routes : 8 câblées (lien cliquable), 5 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « pilier3a » — carte de navigation
 
-> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart`, un grep littéral des `context.go/push`, et le `ScreenRegistry`. Aucune donnée saisie à la main.
+> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart` : routes, liens littéraux `context.go/push`, liens des hubs thématiques (`ExploreHubScreen`/`_HubCard`, cliquables mais via variable), et `ScreenRegistry`. Aucune donnée saisie à la main.
 
 ## TLDR
 
 | | Routes | Signification |
 |---|---:|---|
-| 🟢 câblée | 1 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 12 | atteignable seulement via le registre / le coach |
+| 🟢 câblée | 8 | un lien cliquable y mène depuis un écran |
+| 🟡 séquence | 5 | atteignable seulement via le registre / le coach |
 | 🔴 île | 0 | aucun chemin détecté |
-| **Total** | **13** | **verdict : PORTE UNIQUE** (1/13 = 8 % cliquables) |
+| **Total** | **13** | **verdict : PARCOURABLE** (8/13 = 62 % cliquables) |
 
-## Inventaire
+## Inventaire (routes produit)
 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
-| `/3a-deep/comparator` | ProviderComparatorScreen | 🟡 séquence | — | oui |
-| `/3a-deep/real-return` | RealReturnScreen | 🟡 séquence | — | oui |
-| `/3a-deep/staggered-withdrawal` | StaggeredWithdrawalScreen | 🟡 séquence | — | oui |
-| `/3a-retroactif` | Retroactive3aScreen | 🟡 séquence | — | oui |
-| `/arbitrage/allocation-annuelle` | AllocationAnnuelleScreen | 🟡 séquence | — | oui |
+| `/3a-deep/comparator` | ProviderComparatorScreen | 🟢 câblée | `hub:/explore/fiscalite` | oui |
+| `/3a-deep/real-return` | RealReturnScreen | 🟢 câblée | `hub:/explore/fiscalite` | oui |
+| `/3a-deep/staggered-withdrawal` | StaggeredWithdrawalScreen | 🟢 câblée | `hub:/explore/fiscalite` | oui |
+| `/3a-retroactif` | Retroactive3aScreen | 🟢 câblée | `hub:/explore/fiscalite` | oui |
+| `/arbitrage/allocation-annuelle` | AllocationAnnuelleScreen | 🟢 câblée | `hub:/explore/patrimoine` | oui |
 | `/arbitrage/calendrier-retraits` | ? | 🟡 séquence | — | oui |
-| `/arbitrage/location-vs-propriete` | LocationVsProprieteScreen | 🟡 séquence | — | oui |
+| `/arbitrage/location-vs-propriete` | LocationVsProprieteScreen | 🟢 câblée | `hub:/explore/logement` | oui |
 | `/independants/3a` | Pillar3aIndepScreen | 🟡 séquence | — | oui |
 | `/independants/avs` | AvsCotisationsScreen | 🟡 séquence | — | oui |
 | `/independants/dividende-salaire` | DividendeVsSalaireScreen | 🟡 séquence | — | oui |
 | `/independants/ijm` | IjmScreen | 🟡 séquence | — | oui |
-| `/pilier-3a` | Simulator3aScreen | 🟢 câblée | `coach_message_bubble` | oui |
-| `/segments/independant` | IndependantScreen | 🟡 séquence | — | oui |
+| `/pilier-3a` | Simulator3aScreen | 🟢 câblée | `coach_message_bubble`, `hub:/explore/fiscalite` | oui |
+| `/segments/independant` | IndependantScreen | 🟢 câblée | `hub:/explore/travail` | oui |
 
 ## Graphe des entrées
 
 ```mermaid
 graph LR
+  hub__explore_fiscalite["hub:/explore/fiscalite"] --> _3a_deep_comparator["/3a-deep/comparator"]
+  hub__explore_fiscalite["hub:/explore/fiscalite"] --> _3a_deep_real_return["/3a-deep/real-return"]
+  hub__explore_fiscalite["hub:/explore/fiscalite"] --> _3a_deep_staggered_withdrawal["/3a-deep/staggered-withdrawal"]
+  hub__explore_fiscalite["hub:/explore/fiscalite"] --> _3a_retroactif["/3a-retroactif"]
+  hub__explore_patrimoine["hub:/explore/patrimoine"] --> _arbitrage_allocation_annuelle["/arbitrage/allocation-annuelle"]
+  hub__explore_logement["hub:/explore/logement"] --> _arbitrage_location_vs_propriete["/arbitrage/location-vs-propriete"]
   coach_message_bubble["coach_message_bubble"] --> _pilier_3a["/pilier-3a"]
+  hub__explore_fiscalite["hub:/explore/fiscalite"] --> _pilier_3a["/pilier-3a"]
+  hub__explore_travail["hub:/explore/travail"] --> _segments_independant["/segments/independant"]
 ```

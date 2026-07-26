@@ -1,28 +1,35 @@
 ---
-description: "Carte de navigation du thème coach — 17 routes : 1 câblées (lien cliquable), 14 atteignables seulement par séquence/registre, 2 îles. Verdict : PORTE UNIQUE."
+description: "Carte de navigation du thème coach — 16 routes : 2 câblées (lien cliquable), 13 atteignables seulement par séquence/registre, 1 îles. Verdict : PORTE UNIQUE."
 ---
 
 # Thème « coach » — carte de navigation
 
-> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart`, un grep littéral des `context.go/push`, et le `ScreenRegistry`. Aucune donnée saisie à la main.
+> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart` : routes, liens littéraux `context.go/push`, liens des hubs thématiques (`ExploreHubScreen`/`_HubCard`, cliquables mais via variable), et `ScreenRegistry`. Aucune donnée saisie à la main.
 
 ## TLDR
 
 | | Routes | Signification |
 |---|---:|---|
-| 🟢 câblée | 1 | un lien cliquable y mène depuis un écran |
-| 🟡 séquence | 14 | atteignable seulement via le registre / le coach |
-| 🔴 île | 2 | aucun chemin détecté |
-| **Total** | **17** | **verdict : PORTE UNIQUE** (1/17 = 6 % cliquables) |
+| 🟢 câblée | 2 | un lien cliquable y mène depuis un écran |
+| 🟡 séquence | 13 | atteignable seulement via le registre / le coach |
+| 🔴 île | 1 | aucun chemin détecté |
+| **Total** | **16** | **verdict : PORTE UNIQUE** (2/16 = 12 % cliquables) |
 
 ## ⚠️ Portes manquantes
 
 Ces routes n'ont **aucun lien cliquable**. Un utilisateur qui explore l'app ne peut pas les atteindre : elles dépendent d'une décision du coach ou d'une séquence.
 
 - `/anonymous/chat` — ?
-- `/debug/chat-as-verb` — ChatAsVerbDemoScreen
 
-## Inventaire
+## Hors périmètre produit
+
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
+
+| Route | Écran | Nature |
+|---|---|---|
+| `/debug/chat-as-verb` | ChatAsVerbDemoScreen | admin |
+
+## Inventaire (routes produit)
 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
@@ -40,9 +47,8 @@ Ces routes n'ont **aucun lien cliquable**. Un utilisateur qui explore l'app ne p
 | `/coach/history` | ConversationHistoryScreen | 🟡 séquence | — | oui |
 | `/coach/refresh` | ? | 🟡 séquence | — | oui |
 | `/coach/succession` | ? | 🟡 séquence | — | oui |
-| `/debug/chat-as-verb` | ChatAsVerbDemoScreen | 🔴 île | — | non |
 | `/lpp-deep/rachat` | ? | 🟡 séquence | — | oui |
-| `/rachat-lpp` | RachatEchelonneScreen | 🟡 séquence | — | oui |
+| `/rachat-lpp` | RachatEchelonneScreen | 🟢 câblée | `hub:/explore/retraite` | oui |
 
 ## Graphe des entrées
 
@@ -62,4 +68,5 @@ graph LR
   mon_argent_screen["mon_argent_screen"] --> _coach_chat["/coach/chat"]
   retroactive_3a_screen["retroactive_3a_screen"] --> _coach_chat["/coach/chat"]
   staggered_withdrawal_screen["staggered_withdrawal_screen"] --> _coach_chat["/coach/chat"]
+  hub__explore_retraite["hub:/explore/retraite"] --> _rachat_lpp["/rachat-lpp"]
 ```

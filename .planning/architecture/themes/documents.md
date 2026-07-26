@@ -4,7 +4,7 @@ description: "Carte de navigation du thème documents — 8 routes : 4 câblées
 
 # Thème « documents » — carte de navigation
 
-> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart`, un grep littéral des `context.go/push`, et le `ScreenRegistry`. Aucune donnée saisie à la main.
+> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart` : routes, liens littéraux `context.go/push`, liens des hubs thématiques (`ExploreHubScreen`/`_HubCard`, cliquables mais via variable), et `ScreenRegistry`. Aucune donnée saisie à la main.
 
 ## TLDR
 
@@ -15,7 +15,7 @@ description: "Carte de navigation du thème documents — 8 routes : 4 câblées
 | 🔴 île | 0 | aucun chemin détecté |
 | **Total** | **8** | **verdict : PARCOURABLE** (4/8 = 50 % cliquables) |
 
-## Inventaire
+## Inventaire (routes produit)
 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|

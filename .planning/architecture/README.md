@@ -8,21 +8,21 @@ description: "Index des cartes de navigation par thème — une carte par univer
 
 | Thème | Routes | 🟢 câblées | 🟡 séquence | 🔴 îles | Verdict |
 |---|---:|---:|---:|---:|---|
-| [onboarding](themes/onboarding.md) | 15 | 4 | 2 | 9 | PARTIELLE |
-| [non-classe](themes/non-classe.md) | 6 | 0 | 0 | 6 | AUCUNE PORTE |
-| [retraite](themes/retraite.md) | 22 | 2 | 17 | 3 | PORTE UNIQUE |
-| [admin](themes/admin.md) | 3 | 0 | 0 | 3 | AUCUNE PORTE |
-| [coach](themes/coach.md) | 17 | 1 | 14 | 2 | PORTE UNIQUE |
-| [auth](themes/auth.md) | 5 | 4 | 0 | 1 | PARTIELLE |
-| [lifeevents](themes/lifeevents.md) | 33 | 4 | 29 | 0 | PARTIELLE |
-| [pilier3a](themes/pilier3a.md) | 13 | 1 | 12 | 0 | PORTE UNIQUE |
+| [retraite](themes/retraite.md) | 21 | 8 | 11 | 2 | PARTIELLE |
+| [coach](themes/coach.md) | 16 | 2 | 13 | 1 | PORTE UNIQUE |
+| [lifeevents](themes/lifeevents.md) | 33 | 24 | 9 | 0 | PARCOURABLE |
+| [pilier3a](themes/pilier3a.md) | 13 | 8 | 5 | 0 | PARCOURABLE |
 | [home](themes/home.md) | 10 | 5 | 5 | 0 | PARCOURABLE |
 | [documents](themes/documents.md) | 8 | 4 | 4 | 0 | PARCOURABLE |
-| [logement](themes/logement.md) | 8 | 0 | 8 | 0 | AUCUNE PORTE |
-| [profil](themes/profil.md) | 8 | 4 | 4 | 0 | PARCOURABLE |
+| [logement](themes/logement.md) | 8 | 7 | 1 | 0 | PARCOURABLE |
 | [insights](themes/insights.md) | 7 | 1 | 6 | 0 | PORTE UNIQUE |
-| [autres](themes/autres.md) | 3 | 0 | 3 | 0 | AUCUNE PORTE |
-| **Total** | **158** | **30** | **104** | **24** | |
+| [profil](themes/profil.md) | 7 | 4 | 3 | 0 | PARCOURABLE |
+| [onboarding](themes/onboarding.md) | 5 | 4 | 1 | 0 | PARCOURABLE |
+| [auth](themes/auth.md) | 3 | 3 | 0 | 0 | PARCOURABLE |
+| [autres](themes/autres.md) | 3 | 1 | 2 | 0 | PORTE UNIQUE |
+| [admin](themes/admin.md) | 0 | 0 | 0 | 0 | AUCUNE PORTE |
+| [non-classe](themes/non-classe.md) | 0 | 0 | 0 | 0 | AUCUNE PORTE |
+| **Total** | **134** | **71** | **60** | **3** | |
 
 ## Comment lire
 

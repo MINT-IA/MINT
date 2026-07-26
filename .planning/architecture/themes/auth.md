@@ -1,35 +1,36 @@
 ---
-description: "Carte de navigation du thème auth — 5 routes : 4 câblées (lien cliquable), 0 atteignables seulement par séquence/registre, 1 îles. Verdict : PARTIELLE."
+description: "Carte de navigation du thème auth — 3 routes : 3 câblées (lien cliquable), 0 atteignables seulement par séquence/registre, 0 îles. Verdict : PARCOURABLE."
 ---
 
 # Thème « auth » — carte de navigation
 
-> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart`, un grep littéral des `context.go/push`, et le `ScreenRegistry`. Aucune donnée saisie à la main.
+> Généré mécaniquement par `tools/checks/generate_theme_maps.py` depuis `app.dart` : routes, liens littéraux `context.go/push`, liens des hubs thématiques (`ExploreHubScreen`/`_HubCard`, cliquables mais via variable), et `ScreenRegistry`. Aucune donnée saisie à la main.
 
 ## TLDR
 
 | | Routes | Signification |
 |---|---:|---|
-| 🟢 câblée | 4 | un lien cliquable y mène depuis un écran |
+| 🟢 câblée | 3 | un lien cliquable y mène depuis un écran |
 | 🟡 séquence | 0 | atteignable seulement via le registre / le coach |
-| 🔴 île | 1 | aucun chemin détecté |
-| **Total** | **5** | **verdict : PARTIELLE** (4/5 = 80 % cliquables) |
+| 🔴 île | 0 | aucun chemin détecté |
+| **Total** | **3** | **verdict : PARCOURABLE** (3/3 = 100 % cliquables) |
 
-## ⚠️ Portes manquantes
+## Hors périmètre produit
 
-Ces routes n'ont **aucun lien cliquable**. Un utilisateur qui explore l'app ne peut pas les atteindre : elles dépendent d'une décision du coach ou d'une séquence.
+Ces routes ne doivent PAS être cliquables — les compter comme des îles créerait un faux problème.
 
-- `/auth/verify` — ?
+| Route | Écran | Nature |
+|---|---|---|
+| `/auth/verify` | ? | deeplink |
+| `/auth/verify-email` | VerifyEmailScreen | deeplink |
 
-## Inventaire
+## Inventaire (routes produit)
 
 | Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |
 |---|---|---|---|---|
 | `/auth/forgot-password` | ForgotPasswordScreen | 🟢 câblée | `login_screen` | oui |
 | `/auth/login` | LoginScreen | 🟢 câblée | `coach_chat_screen`, `forgot_password_screen`, `household_screen`, `landing_screen`, `profile_drawer`, `register_screen`, `verify_email_screen` | oui |
 | `/auth/register` | RegisterScreen | 🟢 câblée | `coach_chat_screen`, `document_scan_screen`, `login_screen` | oui |
-| `/auth/verify` | ? | 🔴 île | — | non |
-| `/auth/verify-email` | VerifyEmailScreen | 🟢 câblée | `login_screen` | oui |
 
 ## Graphe des entrées
 
@@ -46,5 +47,4 @@ graph LR
   coach_chat_screen["coach_chat_screen"] --> _auth_register["/auth/register"]
   document_scan_screen["document_scan_screen"] --> _auth_register["/auth/register"]
   login_screen["login_screen"] --> _auth_register["/auth/register"]
-  login_screen["login_screen"] --> _auth_verify_email["/auth/verify-email"]
 ```

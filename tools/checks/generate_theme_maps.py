@@ -49,15 +49,62 @@ def literal_edges() -> dict:
             edges[m.group(1).split("?")[0]].add(Path(f).stem)
     return {k: sorted(v) for k, v in edges.items()}
 
+def hub_edges() -> dict:
+    """Arêtes des HUBS THÉMATIQUES : `ExploreHubScreen(entries:[HubEntry(route:…)])`
+    déclarés dans app.dart, et les `_HubCard(route:…)` de l'écran Explorer.
+
+    Ces liens SONT cliquables (un ListTile/Card avec onTap → context.push) mais
+    passent par une variable, donc un grep littéral les rate. Les ignorer ferait
+    conclure à tort qu'un thème n'a « aucune porte » — c'est arrivé.
+    """
+    edges = defaultdict(set)
+    app = (MOBILE / "lib/app.dart").read_text(encoding="utf-8")
+    current = None
+    for line in app.split("\n"):
+        pm = re.search(r"path:\s*'(/explore/[^']*)'", line)
+        if pm:
+            current = pm.group(1)
+        if "ExploreHubScreen" in line and current is None:
+            continue
+        rm = re.search(r"route:\s*'(/[^']+)'", line)
+        if rm and current:
+            edges[rm.group(1)].add(f"hub:{current}")
+    ex = MOBILE / "lib/screens/explore/explorer_screen.dart"
+    if ex.exists():
+        for m in re.finditer(r"route:\s*'(/[^']+)'", ex.read_text(encoding="utf-8")):
+            edges[m.group(1)].add("explorer_screen")
+    return {k: sorted(v) for k, v in edges.items()}
+
 def registry_routes() -> set:
     p = MOBILE / "lib/services/navigation/screen_registry.dart"
     if not p.exists():
         return set()
     return set(re.findall(r"'(/[^']+)'", p.read_text(encoding="utf-8")))
 
+def nature(route: str) -> str:
+    """Nature de la route, déduite MÉCANIQUEMENT du chemin.
+
+    Toutes les routes ne doivent pas être cliquables : une route E2E, une console
+    d'admin ou une cible de deep-link e-mail sont légitimement des îles. Ne pas
+    les distinguer produit un faux problème (« 24 îles ») et envoie corriger ce
+    qui n'est pas cassé.
+    """
+    if route.startswith("/__e2e"):
+        return "e2e"
+    if route.startswith(("/admin", "/debug")) or "admin-observability" in route:
+        return "admin"
+    if route.startswith("/auth/verify") or route.startswith("/waitlist"):
+        return "deeplink"
+    if route.startswith("/onboarding/"):
+        return "onboarding"      # entré par le flux d'inscription, pas exploré
+    return "produit"
+
 def main() -> int:
     routes = routes_from_app_dart()
     edges = literal_edges()
+    for r, srcs in hub_edges().items():          # les hubs comptent : ils sont cliquables
+        edges.setdefault(r, [])
+        edges[r] = sorted(set(edges[r]) | set(srcs))
     reg = registry_routes()
     clusters = json.loads((PARTS / "clusters.json").read_text(encoding="utf-8"))
 
@@ -75,7 +122,9 @@ def main() -> int:
 
     index_rows, changed = [], False
     for theme in sorted(by_theme):
-        rs = sorted(by_theme[theme])
+        allr = sorted(by_theme[theme])
+        rs = [r for r in allr if nature(r) == "produit"]
+        hors = [r for r in allr if nature(r) != "produit"]
         cab = [r for r in rs if edges.get(r)]
         seq = [r for r in rs if not edges.get(r) and r in reg]
         isl = [r for r in rs if not edges.get(r) and r not in reg]
@@ -96,8 +145,9 @@ def main() -> int:
             "---", "",
             f"# Thème « {theme} » — carte de navigation", "",
             "> Généré mécaniquement par `tools/checks/generate_theme_maps.py` "
-            "depuis `app.dart`, un grep littéral des `context.go/push`, et le "
-            "`ScreenRegistry`. Aucune donnée saisie à la main.", "",
+            "depuis `app.dart` : routes, liens littéraux `context.go/push`, liens des "
+            "hubs thématiques (`ExploreHubScreen`/`_HubCard`, cliquables mais via "
+            "variable), et `ScreenRegistry`. Aucune donnée saisie à la main.", "",
             "## TLDR", "",
             f"| | Routes | Signification |", "|---|---:|---|",
             f"| 🟢 câblée | {len(cab)} | un lien cliquable y mène depuis un écran |",
@@ -114,7 +164,15 @@ def main() -> int:
             for r in (isl or seq):
                 L.append(f"- `{r}` — {routes.get(r) or '?'}")
             L.append("")
-        L += ["## Inventaire", "",
+        if hors:
+            L += ["## Hors périmètre produit", "",
+                  "Ces routes ne doivent PAS être cliquables — les compter comme "
+                  "des îles créerait un faux problème.", "",
+                  "| Route | Écran | Nature |", "|---|---|---|"]
+            for r in hors:
+                L.append(f"| `{r}` | {routes.get(r) or '?'} | {nature(r)} |")
+            L.append("")
+        L += ["## Inventaire (routes produit)", "",
               "| Route | Écran | Classe | Entrées (écrans qui y mènent) | Registre |",
               "|---|---|---|---|---|"]
         for r in rs:
