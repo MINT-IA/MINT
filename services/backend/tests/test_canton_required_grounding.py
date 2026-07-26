@@ -153,7 +153,7 @@ ENDPOINT_MATRIX = [
     ),
     pytest.param(
         "/api/v1/family/concubinage/succession",
-        {"patrimoine": 500000, "isMarried": False},
+        {},
         _concubinage_succession_canton,
         id="family_concubinage_succession",
     ),

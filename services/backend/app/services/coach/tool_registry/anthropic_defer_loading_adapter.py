@@ -286,11 +286,16 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
         "matrimonial."
     ),
     "succession_simulator__SuccessionSimulator_simulate": (
-        "Estime les frais de succession cantonaux selon CC art. 462 (conjoint "
-        "survivant) et CC art. 467-469 (réserves héréditaires, réforme 2023 "
-        "1/2 vs 3/4). Produit l'impôt CHF par héritier et la part nette. "
+        "Estime la répartition successorale et les frais de succession "
+        "cantonaux. La part successorale CIVILE du·de la conjoint·e "
+        "survivant·e relève de CC art. 462 ; la réserve héréditaire et la "
+        "quotité disponible relèvent de CC art. 470-471 (réforme entrée en "
+        "vigueur au 1.1.2023 : réserve des descendant·e·s ramenée de 3/4 à "
+        "1/2 de leur part légale, réserve des parents supprimée). L'impôt, "
+        "lui, est cantonal — il n'existe pas d'impôt successoral fédéral "
+        "ordinaire. Produit l'impôt CHF par héritier·ère et la part nette. "
         "Mots-clés : succession, héritage, conjoint, réserve héréditaire, "
-        "canton, impôt."
+        "quotité disponible, canton, impôt."
     ),
     "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage": (
         "Compare la situation fiscale d'un couple marié (CC art. 159) vs "
@@ -299,11 +304,16 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
         "Mots-clés : mariage, concubinage, couple, impôt, canton, AVS, "
         "splitting fiscal."
     ),
-    "concubinage_service__ConcubinageService_estimate_inheritance_tax": (
-        "Estime l'impôt de succession entre concubins (CC art. 462 inappli- "
-        "cable, fiscalité cantonale durcie) selon canton et patrimoine. "
-        "Produit l'impôt CHF + la part nette. Mots-clés : concubinage, "
-        "succession, héritage, canton, impôt, conjoint."
+    "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint": (
+        "Compare la situation successorale d'un·e concubin·e et d'un·e "
+        "conjoint·e survivant·e, sans la chiffrer : un·e concubin·e n'hérite "
+        "de rien sans testament, et avec testament la quotité disponible "
+        "plafonne à la moitié de la succession nette en présence de "
+        "descendant·e·s (CC art. 470-471). Ne produit AUCUN montant et AUCUN "
+        "taux : la charge dépend du canton et de la commune, de la part "
+        "réellement reçue, du lien de parenté et de la durée de vie commune. "
+        "Mots-clés : concubinage, succession, héritage, testament, quotité "
+        "disponible, réserve héréditaire, canton, conjoint."
     ),
     "mariage_service__MariageService_compare_fiscal_impact": (
         "Compare l'impact fiscal d'un mariage (CC art. 159) selon canton et "

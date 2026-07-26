@@ -9,6 +9,8 @@ The default adapter wires :
 """
 from __future__ import annotations
 
+import re
+
 import pytest
 
 
@@ -108,3 +110,70 @@ def test_latency_tier_classifies_chip_long_tail_and_unknown(adapter) -> None:
 def test_beta_header_property_is_canonical_anthropic_string(adapter) -> None:
     """The beta header is the canonical 2025-10-19 string (CONTEXT D-CE-01)."""
     assert adapter.beta_header == "tool-search-tool-2025-10-19"
+
+
+# ===========================================================================
+# Surface coach — la description est ce que le modele lit pour CHOISIR
+# ===========================================================================
+#
+# Le service a cesse de produire un montant et un taux d'impot successoral.
+# Tant que la description annonce « Produit l'impôt CHF + la part nette », la
+# promesse survit au correctif : c'est ce texte que le modele consulte.
+#
+# Option B (decidee) : l'outil RESTE selectionnable — s'il disparaissait, un
+# «combien paierait mon concubin ?» ferait repondre le modele depuis ses
+# poids, qui inventerait un taux cantonal. Il reste donc joignable, mais il
+# retourne de la prose et sa description doit le dire.
+
+_CONCUBINAGE_SUCCESSION_TOOL = (
+    "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint"
+)
+
+
+@pytest.fixture
+def descriptions():
+    from app.services.coach.tool_registry.anthropic_defer_loading_adapter import (
+        _TOOL_DESCRIPTIONS_FR,
+    )
+
+    return _TOOL_DESCRIPTIONS_FR
+
+
+def test_ancien_nom_outil_succession_concubinage_absent(descriptions) -> None:
+    """Le nom qui promettait une estimation chiffree ne doit plus exister."""
+    assert (
+        "concubinage_service__ConcubinageService_estimate_inheritance_tax"
+        not in descriptions
+    )
+
+
+def test_outil_succession_concubinage_reste_joignable(descriptions) -> None:
+    """Option B : l'outil demeure, sinon le modele repond de memoire."""
+    assert _CONCUBINAGE_SUCCESSION_TOOL in descriptions
+
+
+def test_description_succession_concubinage_ne_promet_aucun_chiffre(descriptions) -> None:
+    """Ni montant CHF, ni pourcentage, ni « part nette » dans la promesse."""
+    desc = descriptions[_CONCUBINAGE_SUCCESSION_TOOL]
+    assert "CHF" not in desc, desc
+    assert not re.search(r"\d\s*%", desc), desc
+    assert "part nette" not in desc.lower(), desc
+
+
+def test_description_succession_concubinage_n_impute_rien_au_cc_462(descriptions) -> None:
+    """CC art. 462 regle une part successorale CIVILE, pas la fiscalite."""
+    desc = descriptions[_CONCUBINAGE_SUCCESSION_TOOL]
+    assert "462" not in desc, desc
+
+
+def test_description_succession_simulator_cite_les_bons_articles(descriptions) -> None:
+    """Les reserves hereditaires sont aux CC art. 470-471, pas 467-469.
+
+    Source dans le depot meme : `succession_simulator.py` docstring —
+    « CC art. 470-471 (reserves hereditaires, reforme 2023) » et
+    « CC art. 467-469 (capacite de disposer, testament) ». La description
+    coach inversait les deux.
+    """
+    desc = descriptions["succession_simulator__SuccessionSimulator_simulate"]
+    assert "470-471" in desc, desc
+    assert "467-469" not in desc, desc
