@@ -3234,23 +3234,12 @@
   "concubinageMecaniqueImpositionCommune": "Da sposati, i due redditi vengono sommati e tassati insieme, con un’aliquota ridotta riservata alle coppie. Il verso della differenza dipende dalla ripartizione dei redditi: quando sono vicini, la somma alza il reddito imponibile più di quanto l’aliquota ridotta lo abbassi — è il cosiddetto effetto « Heiratsstrafe ». Quando un reddito domina nettamente, la stessa aliquota porta l’imposta del nucleo sotto quella di due singoli.",
   "concubinageFiscalModelLimit": "Stima semplificata: non tiene conto né delle tue deduzioni reali, né del tuo comune, né dell’aliquota cantonale dettagliata. La differenza reale può quindi variare, anche nel suo verso.",
   "concubinageImpotSuccession": "IMPOSTA DI SUCCESSIONE",
-  "concubinagePatrimoineTransmis": "Patrimonio trasmesso",
-  "concubinageMarieExonere": "CHF 0 (esente)",
-  "concubinageConcubinTaux": "Convivente (~{taux}%)",
+  "concubinageMarieExonere": "0% (esente)",
+  "concubinageConcubinLabel": "Convivente",
+  "concubinageConcubinTaux": "~{taux}% (aliquota per terzi)",
   "@concubinageConcubinTaux": {
     "placeholders": {
       "taux": {
-        "type": "String"
-      }
-    }
-  },
-  "concubinageWarningSuccession": "Se designi il·la partner per testamento, pagherebbe {impot} di imposta di successione su un patrimonio di {patrimoine} (aliquota per terzi). Sposato·a, ne sarebbe esente.",
-  "@concubinageWarningSuccession": {
-    "placeholders": {
-      "impot": {
-        "type": "String"
-      },
-      "patrimoine": {
         "type": "String"
       }
     }
@@ -3290,7 +3279,7 @@
   "concubinageCriteriaImpotPlusEleve": "Imposta del nucleo più alta",
   "concubinageCriteriaImpotMoinsEleve": "Imposta del nucleo più bassa",
   "concubinageCriteriaHeritage": "Héritage",
-  "concubinageCriteriaHeritageMarriage": "Esente (CC art. 462)",
+  "concubinageCriteriaHeritageMarriage": "Esente (legge fiscale cantonale)",
   "concubinageCriteriaHeritageConcubinage": "Impôt cantonal",
   "concubinageCriteriaProtection": "Protezione in caso di decesso",
   "concubinageCriteriaProtectionMarriage": "AVS + LPP superstite",
@@ -6288,7 +6277,7 @@
   "concubinageHeroPremierEclairageDesc": "In concubinato, il tuo partner non è erede legale. Senza testamento, questo importo gli sfugge interamente.",
   "concubinageEducationalAvs": "In Svizzera, il tetto del 150 % sulle rendite AVS di coppia (LAVS art. 35) si applica solo ai coniugi. I concubini percepiscono ciascuno la propria rendita individuale completa — un vantaggio reale quando entrambi hanno versato al massimo.",
   "concubinageEducationalLpp": "La rendita LPP superstite (60 % della rendita del defunto, LPP art. 19) è riservata ai coniugi. In concubinato, solo il regolamento della cassa può prevedere un capitale di decesso — e bisogna richiederlo.",
-  "concubinageEducationalSuccession": "Un coniuge è esente dall’imposta di successione nella maggior parte dei cantoni (CC art. 462). Un concubino paga l’imposta all’aliquota dei terzi, spesso tra il 20 % e il 40 %.",
+  "concubinageEducationalSuccession": "L'esenzione del·la coniuge superstite non deriva dal Codice civile: è iscritta nelle leggi fiscali cantonali e vale in tutti i 26 cantoni. Un·a convivente rientra invece nell'aliquota per i « terzi » — e il divario tra cantoni è molto ampio: alcuni non prelevano alcuna imposta di successione, altri tassano pesantemente i terzi. Qui il cantone pesa quanto il legame.",
   "concubinageProtectionIntro": "In concubinato, la Svizzera non protegge come il matrimonio. Ecco cosa cambia e cosa puoi anticipare.",
   "concubinageProtectionAvsSurvivor": "Rendita AVS superstite",
   "concubinageProtectionLppSurvivor": "Rendita LPP superstite",
@@ -6301,7 +6290,8 @@
   "concubinageProtectionConditionsNote": "Le protezioni del matrimonio (rendite per superstiti AVS e LPP) dipendono da condizioni di idoneità; la convivenza non vi dà alcun accesso, quali che siano le condizioni.",
   "concubinageProtectionLppSlider": "Rendita LPP mensile del partner",
   "concubinageProtectionSurvivorZero": "CHF 0/mese per il concubino superstite senza azione",
-  "concubinageInheritanceConditional": "Senza testamento, il·la tuo·tua partner non è erede legale: non eredita nulla e il tuo patrimonio va ai tuoi eredi legali. Se lo·la designi per testamento (entro la quota disponibile), pagherebbe allora l'imposta di successione qui sotto, all'aliquota per terzi, senza l'esenzione di un·a coniuge sposato·a. L'importo sotto presuppone che tu possa lasciare tutto il tuo patrimonio; se hai discendenti, la loro quota legittima limita la parte trasmissibile — e quindi l'imposta.",
+  "concubinageInheritanceConditional": "Senza testamento, il·la tuo·tua partner non eredita nulla: la successione va ai tuoi eredi legali. Con un testamento, ciò che puoi lasciargli·le dipende dai tuoi discendenti: se ne hai, la loro legittima è la metà della successione e la quota disponibile è quindi limitata all'altra metà; se non ne hai, la legittima dei genitori è stata soppressa il 1° gennaio 2023 e puoi disporre dell'intero patrimonio (CC art. 470-471). Nella successione entra la tua parte: un bene in comproprietà vi figura solo per la tua quota.",
+  "concubinageInheritanceRateLimit": "Questa aliquota è un ordine di grandezza, non l'aliquota che sarà applicata: le tariffe cantonali sono progressive, prevedono franchigie e talvolta si aggiungono a un'imposta comunale. L'importo dovuto dipende poi dalla quota effettivamente lasciata.",
   "concubinageSurvivorLppDetail": "Possibile rendita per superstiti (60 %) — condizioni LPP art. 19: figlio a carico, o 45 anni e 5 anni di matrimonio.",
   "concubinageSurvivorAvsNote": "Un·a coniuge superstite può ricevere anche una rendita AVS per superstiti (LAVS art. 23, a determinate condizioni); un·a convivente non ne ha mai diritto.",
   "concubinage3aClauseEducational": "Senza una clausola beneficiaria che designi il·la tuo·tua partner, il tuo pilastro 3a segue l'ordine legale dei beneficiari (OPP3 art. 2) e il·la tuo·tua partner non è beneficiario·a per impostazione predefinita. Con una clausola depositata presso la tua fondazione 3a, puoi designarlo·a.",
@@ -11754,5 +11744,26 @@
   "divorceGateFactCanton": "Il tuo cantone di residenza",
   "divorceGateWhyCanton": "La tariffa dell'imposta sul reddito dipende dal tuo cantone di domicilio.",
   "divorceImpactFiscalCantonNote": "Stima nel cantone attuale del nucleo per entrambi i coniugi — il cantone futuro dell'altra persona non è noto.",
-  "genderGapProjectionAssumptions": "Ipotesi di proiezione: 1.5 %/anno di rendimento sugli averi LPP, lacuna cumulata stimata su ~20 anni di pensionamento."
+  "genderGapProjectionAssumptions": "Ipotesi di proiezione: il rendimento del {rendement} %/anno sugli averi LPP è un'ipotesi MINT, non un tasso legale — il tasso d'interesse minimo LPP è del {tauxMin} %/anno. La lacuna cumulata è la lacuna annua moltiplicata per {annees} anni di pensionamento, senza attualizzazione né indicizzazione: un ordine di grandezza illustrativo, non una perdita già subita.",
+  "@genderGapProjectionAssumptions": {
+    "placeholders": {
+      "rendement": {
+        "type": "String"
+      },
+      "tauxMin": {
+        "type": "String"
+      },
+      "annees": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapModelLegalMinimum": "Modello impiegato: il regime LPP obbligatorio minimo — salario coordinato legale e aliquota di conversione minima del {tauxConversion} %. Non è il regolamento della tua cassa pensioni. Con un piano sovraobbligatorio, frequente oltre il tetto del salario assicurato obbligatorio, le rendite effettive si scostano da questa illustrazione in entrambi i sensi: applicare il {tauxConversion} % all'intero capitale può anche sovrastimare, perché le casse avvolgenti applicano spesso un'aliquota più bassa sull'insieme dell'avere.",
+  "@genderGapModelLegalMinimum": {
+    "placeholders": {
+      "tauxConversion": {
+        "type": "String"
+      }
+    }
+  }
 }

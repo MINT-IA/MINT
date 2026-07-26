@@ -6923,19 +6923,14 @@ class SIt extends S {
   String get concubinageImpotSuccession => 'IMPOSTA DI SUCCESSIONE';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Patrimonio trasmesso';
+  String get concubinageMarieExonere => '0% (esente)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (esente)';
+  String get concubinageConcubinLabel => 'Convivente';
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Convivente (~$taux%)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Se designi il·la partner per testamento, pagherebbe $impot di imposta di successione su un patrimonio di $patrimoine (aliquota per terzi). Sposato·a, ne sarebbe esente.';
+    return '~$taux% (aliquota per terzi)';
   }
 
   @override
@@ -7031,7 +7026,8 @@ class SIt extends S {
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Esente (CC art. 462)';
+  String get concubinageCriteriaHeritageMarriage =>
+      'Esente (legge fiscale cantonale)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -13390,7 +13386,7 @@ class SIt extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'Un coniuge è esente dall’imposta di successione nella maggior parte dei cantoni (CC art. 462). Un concubino paga l’imposta all’aliquota dei terzi, spesso tra il 20 % e il 40 %.';
+      'L\'esenzione del·la coniuge superstite non deriva dal Codice civile: è iscritta nelle leggi fiscali cantonali e vale in tutti i 26 cantoni. Un·a convivente rientra invece nell\'aliquota per i « terzi » — e il divario tra cantoni è molto ampio: alcuni non prelevano alcuna imposta di successione, altri tassano pesantemente i terzi. Qui il cantone pesa quanto il legame.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13435,7 +13431,11 @@ class SIt extends S {
 
   @override
   String get concubinageInheritanceConditional =>
-      'Senza testamento, il·la tuo·tua partner non è erede legale: non eredita nulla e il tuo patrimonio va ai tuoi eredi legali. Se lo·la designi per testamento (entro la quota disponibile), pagherebbe allora l\'imposta di successione qui sotto, all\'aliquota per terzi, senza l\'esenzione di un·a coniuge sposato·a. L\'importo sotto presuppone che tu possa lasciare tutto il tuo patrimonio; se hai discendenti, la loro quota legittima limita la parte trasmissibile — e quindi l\'imposta.';
+      'Senza testamento, il·la tuo·tua partner non eredita nulla: la successione va ai tuoi eredi legali. Con un testamento, ciò che puoi lasciargli·le dipende dai tuoi discendenti: se ne hai, la loro legittima è la metà della successione e la quota disponibile è quindi limitata all\'altra metà; se non ne hai, la legittima dei genitori è stata soppressa il 1° gennaio 2023 e puoi disporre dell\'intero patrimonio (CC art. 470-471). Nella successione entra la tua parte: un bene in comproprietà vi figura solo per la tua quota.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'Questa aliquota è un ordine di grandezza, non l\'aliquota che sarà applicata: le tariffe cantonali sono progressive, prevedono franchigie e talvolta si aggiungono a un\'imposta comunale. L\'importo dovuto dipende poi dalla quota effettivamente lasciata.';
 
   @override
   String get concubinageSurvivorLppDetail =>
@@ -24894,6 +24894,13 @@ class SIt extends S {
       'Stima nel cantone attuale del nucleo per entrambi i coniugi — il cantone futuro dell\'altra persona non è noto.';
 
   @override
-  String get genderGapProjectionAssumptions =>
-      'Ipotesi di proiezione: 1.5 %/anno di rendimento sugli averi LPP, lacuna cumulata stimata su ~20 anni di pensionamento.';
+  String genderGapProjectionAssumptions(
+      String rendement, String tauxMin, String annees) {
+    return 'Ipotesi di proiezione: il rendimento del $rendement %/anno sugli averi LPP è un\'ipotesi MINT, non un tasso legale — il tasso d\'interesse minimo LPP è del $tauxMin %/anno. La lacuna cumulata è la lacuna annua moltiplicata per $annees anni di pensionamento, senza attualizzazione né indicizzazione: un ordine di grandezza illustrativo, non una perdita già subita.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Modello impiegato: il regime LPP obbligatorio minimo — salario coordinato legale e aliquota di conversione minima del $tauxConversion %. Non è il regolamento della tua cassa pensioni. Con un piano sovraobbligatorio, frequente oltre il tetto del salario assicurato obbligatorio, le rendite effettive si scostano da questa illustrazione in entrambi i sensi: applicare il $tauxConversion % all\'intero capitale può anche sovrastimare, perché le casse avvolgenti applicano spesso un\'aliquota più bassa sull\'insieme dell\'avere.';
+  }
 }

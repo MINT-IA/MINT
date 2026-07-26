@@ -6908,19 +6908,14 @@ class SEs extends S {
   String get concubinageImpotSuccession => 'IMPUESTO DE SUCESIÓN';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Patrimonio transmitido';
+  String get concubinageMarieExonere => '0% (exento)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (exento)';
+  String get concubinageConcubinLabel => 'Concubino/a';
 
   @override
   String concubinageConcubinTaux(String taux) {
-    return 'Concubino/a (~$taux%)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Si designas a tu pareja por testamento, pagaría $impot de impuesto de sucesiones sobre un patrimonio de $patrimoine (tasa de terceros). Casada, estaría exenta.';
+    return '~$taux% (tasa de terceros)';
   }
 
   @override
@@ -7016,7 +7011,8 @@ class SEs extends S {
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Exento (CC art. 462)';
+  String get concubinageCriteriaHeritageMarriage =>
+      'Exento (ley fiscal cantonal)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -13366,7 +13362,7 @@ class SEs extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'Un cónyuge casado está exento del impuesto de sucesión en la mayoría de los cantones (CC art. 462). Un concubino paga impuesto a la tasa de terceros, a menudo entre el 20 % y el 40 %.';
+      'La exención del·de la cónyuge superviviente no procede del Código Civil: está inscrita en las leyes fiscales cantonales y se aplica en los 26 cantones. Un·a concubino·a queda sujeto·a a la tasa de « terceros », y la diferencia entre cantones es muy amplia: algunos no cobran ningún impuesto de sucesión, otros gravan fuertemente a los terceros. Aquí el cantón pesa tanto como el vínculo.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13411,7 +13407,11 @@ class SEs extends S {
 
   @override
   String get concubinageInheritanceConditional =>
-      'Sin testamento, tu pareja no es heredera legal: no hereda nada y tu patrimonio pasa a tus herederos legales. Si la designas por testamento (dentro de la cuota disponible), pagaría entonces el impuesto de sucesiones de abajo, a la tasa de terceros, sin la exención de un cónyuge casado. El importe siguiente supone que puedes legar todo tu patrimonio; si tienes descendientes, su legítima limita la parte transmisible — y por tanto el impuesto.';
+      'Sin testamento, tu pareja no hereda nada: tu sucesión pasa a tus herederos legales. Con testamento, lo que puedes legarle depende de tus descendientes: si los tienes, su legítima representa la mitad de la sucesión, por lo que la porción disponible se limita a la otra mitad; si no los tienes, la legítima de los padres se suprimió el 1 de enero de 2023 y puedes disponer de la totalidad (CC art. 470-471). Lo que entra en la sucesión es tu parte: un bien en copropiedad solo cuenta hasta tu cuota.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'Esta tasa es un orden de magnitud, no la tasa que se aplicará: los baremos cantonales son progresivos, prevén franquicias y a veces se suman a un impuesto comunal. El importe adeudado depende luego de la parte realmente legada.';
 
   @override
   String get concubinageSurvivorLppDetail =>
@@ -24829,6 +24829,13 @@ class SEs extends S {
       'Estimación en el cantón actual del hogar para ambos cónyuges — se desconoce el cantón futuro de la otra persona.';
 
   @override
-  String get genderGapProjectionAssumptions =>
-      'Hipótesis de proyección: 1.5 %/año de rendimiento sobre los haberes LPP, brecha acumulada estimada sobre ~20 años de jubilación.';
+  String genderGapProjectionAssumptions(
+      String rendement, String tauxMin, String annees) {
+    return 'Hipótesis de proyección: el rendimiento de $rendement %/año sobre los haberes LPP es una hipótesis de MINT, no una tasa legal — el tipo de interés mínimo LPP es del $tauxMin %/año. La brecha acumulada es la brecha anual multiplicada por $annees años de jubilación, sin actualización ni indexación: un orden de magnitud ilustrativo, no una pérdida ya sufrida.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Modelo empleado: el régimen LPP obligatorio mínimo — salario coordinado legal y tasa de conversión mínima del $tauxConversion %. No es el reglamento de tu caja de pensiones. Con un plan sobreobligatorio, frecuente por encima del techo del salario asegurado obligatorio, las rentas reales se apartan de esta ilustración en ambos sentidos: aplicar el $tauxConversion % a la totalidad del capital también puede sobrestimar, porque las cajas envolventes suelen aplicar una tasa más baja al conjunto del haber.';
+  }
 }

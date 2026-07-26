@@ -168,7 +168,6 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       revenu1: _revenu1 ?? 0,
       revenu2: _revenu2 ?? 0,
       canton: _cantonConfirmed ? _canton : '',
-      patrimoine: _patrimoine ?? 0,
     );
   }
 
@@ -222,14 +221,18 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
   // Impôt de succession : patrimoine transmis + canton (le taux « tiers » est
   // cantonal — un impôt sur un canton fabriqué serait faux).
+  // Le patrimoine ne gate PLUS cette carte. Il la gatait tant qu'elle affichait
+  // un montant d'impôt ; ce montant est retiré (il supposait que 100 % du
+  // patrimoine revenait au partenaire, ce que la réserve des descendants
+  // interdit — CC art. 470-471). Ce qui reste — le taux applicable et la règle
+  // de la quotité disponible — ne dépend que du canton.
+  //
+  // Continuer à l'exiger violerait la règle ADR §2, citée dans
+  // `gender_gap_gate_test.dart` : un fait qui ne change AUCUNE sortie ne doit
+  // pas gater un chiffre qu'il ne peut pas modifier. Le coût aurait été réel —
+  // demander un montant de patrimoine pour lire une information qui n'en dépend
+  // pas est exactement le formulaire à vingt champs qu'on refuse.
   SituationGate _inheritanceGate(BuildContext context) => SituationGate([
-        SituationFact(
-          key: 'patrimoine',
-          label: (c) => S.of(c)!.concubinageGateFactPatrimoine,
-          why: (c) => S.of(c)!.concubinageGateWhyPatrimoine,
-          provenance: _prov(_patrimoine != null),
-          onComplete: () => _scrollToKey(_patrimoineKey),
-        ),
         SituationFact(
           key: 'canton',
           label: (c) => S.of(c)!.concubinageGateFactCanton,
@@ -490,7 +493,8 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
-  // Impôt de succession — gate patrimoine + canton avant tout chiffre.
+  // Impôt de succession — gate sur le canton seul : c'est le seul fait dont
+  // dépend ce qui est encore affiché.
   Widget _buildInheritanceSection() {
     final gate = _inheritanceGate(context);
     if (!gate.complete) {
@@ -730,13 +734,26 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
+  // Carte succession : le TAUX cantonal, jamais un montant en francs.
+  //
+  // L'ancienne carte affichait `patrimoine × taux` (+ le patrimoine « transmis »
+  // et un encart d'alerte reprenant les deux). Cette base est fausse : depuis la
+  // révision du droit successoral en vigueur au 1.1.2023, sans testament le·la
+  // concubin·e n'hérite de RIEN, et avec testament la réserve des descendant·e·s
+  // plafonne le legs à la moitié de la succession (CC art. 470-471) ; un bien en
+  // copropriété n'entre par ailleurs dans la succession que pour la quote-part
+  // du·de la défunt·e. Un chiffre bâti là-dessus est indéfendable : il est
+  // retiré, et on énonce à la place le mécanisme + la règle qui décide.
+  //
+  // Le taux, lui, reste : c'est une information réelle et personnalisée (le
+  // canton est un fait confirmé), encadrée d'une limite de modèle — même motif
+  // et mêmes tokens que `concubinageFiscalModelLimit` sur la carte fiscale.
+  // La carte est rendue même à 0 % (SZ/OW/NW) : « aucun impôt de succession dans
+  // ton canton » est précisément l'information utile.
   Widget _buildInheritanceCard() {
     final result = _comparisonResult!;
     final inheritance = result['inheritance'] as Map<String, dynamic>;
-    final impot = inheritance['impot'] as double;
     final taux = inheritance['taux'] as double;
-
-    if (impot <= 0) return const SizedBox.shrink();
 
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
@@ -756,10 +773,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ],
           ),
           const SizedBox(height: 12),
-          // Cadre CONDITIONNEL : sans testament, le·la concubin·e n'est pas
-          // héritier·ère (il·elle n'hérite de rien) ; le chiffre ci-dessous n'est
-          // dû QUE SI on le·la désigne par testament (taux tiers, pas d'exonération
-          // contrairement au·à la conjoint·e marié·e). Aucune présomption d'héritage.
+          // La règle qui décide vraiment l'arbitrage : sans testament le·la
+          // partenaire n'hérite en principe de rien ; avec des descendant·e·s on
+          // ne peut lui attribuer au maximum que la moitié de la succession nette
+          // sans entamer leur réserve. Aucune présomption d'héritage.
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -773,49 +790,33 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
             ),
           ),
           const SizedBox(height: 16),
+          // Comparaison de TAUX, pas de montants : marié·e exonéré·e (lois
+          // fiscales cantonales, dans les 26 cantons) vs concubin·e au taux
+          // « tiers » du canton confirmé.
           _buildResultRow(
-            S.of(context)!.concubinagePatrimoineTransmis,
-            FamilyService.formatChf(_patrimoine!),
+            S.of(context)!.concubinageMarieExonereLabel,
+            S.of(context)!.concubinageMarieExonere,
           ),
           const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildResultRow(S.of(context)!.concubinageMarieExonereLabel, S.of(context)!.concubinageMarieExonere),
-                    const SizedBox(height: 8),
-                    _buildResultRow(
-                      S.of(context)!.concubinageConcubinTaux((taux * 100).toStringAsFixed(0)),
-                      FamilyService.formatChf(impot),
-                    ),
-                  ],
+          _buildResultRow(
+            S.of(context)!.concubinageConcubinLabel,
+            S.of(context)!.concubinageConcubinTaux(
+                  (taux * 100).toStringAsFixed(0),
                 ),
-              ),
-            ],
           ),
           const SizedBox(height: 12),
+          // Limite du modèle, attachée au taux (même motif que la carte fiscale).
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: MintColors.error.withValues(alpha: 0.08),
+              color: MintColors.info.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.warning_amber,
-                    size: 18, color: MintColors.error),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    S.of(context)!.concubinageWarningSuccession(FamilyService.formatChf(impot), FamilyService.formatChf(_patrimoine!)),
-                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
-                  ),
-                ),
-              ],
+            child: Text(
+              S.of(context)!.concubinageInheritanceRateLimit,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(height: 1.4),
             ),
           ),
         ],

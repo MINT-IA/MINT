@@ -340,7 +340,6 @@ void main() {
         revenu1: 80000,
         revenu2: 60000,
         canton: 'VD',
-        patrimoine: 500000,
       );
 
       expect(result, containsPair('fiscal', isA<Map<String, dynamic>>()));
@@ -359,7 +358,6 @@ void main() {
         revenu1: 80000,
         revenu2: 60000,
         canton: 'VD',
-        patrimoine: 300000,
       );
 
       expect(result.containsKey('scoreMariage'), isFalse);
@@ -372,16 +370,24 @@ void main() {
       expect(result['lppSurvivorFactor'], FamilyService.lppSurvivorFactor);
     });
 
-    test('zero patrimoine produces zero inheritance tax', () {
+    test('la comparaison n\'expose aucun montant d\'impôt successoral', () {
+      // `patrimoine × taux` supposait que 100 % du patrimoine peut aller au·à la
+      // partenaire — faux depuis la révision du 1.1.2023 (réserve des
+      // descendant·e·s = 1/2, CC art. 470-471) et faux pour un bien en
+      // copropriété (seule la quote-part du·de la défunt·e entre en succession).
+      // Seul le TAUX cantonal survit. Garde anti-résurrection : un montant
+      // dormant dans le résultat finit toujours par être affiché.
       final result = FamilyService.compareMariageVsConcubinage(
         revenu1: 80000,
         revenu2: 60000,
         canton: 'VD',
-        patrimoine: 0,
       );
 
       final inheritance = result['inheritance'] as Map<String, dynamic>;
-      expect(inheritance['impot'], 0.0);
+      expect(inheritance.containsKey('impot'), isFalse);
+      expect(inheritance.containsKey('netHerite'), isFalse);
+      expect(inheritance.containsKey('patrimoine'), isFalse);
+      expect(inheritance['taux'], 0.25);
     });
   });
 
@@ -391,52 +397,52 @@ void main() {
 
   group('FamilyService - Inheritance Tax', () {
     test('married partner is always exempt (all cantons)', () {
+      // L'exonération vient des lois fiscales CANTONALES (il n'existe pas
+      // d'impôt successoral fédéral ordinaire) — pas de CC art. 462, qui règle
+      // la part successorale CIVILE du·de la conjoint·e.
       for (final canton in FamilyService.cantonNames.keys) {
         final result = FamilyService.estimateInheritanceTax(
-          patrimoine: 500000,
           canton: canton,
           isMarried: true,
         );
-        expect(result['impot'], 0.0,
+        expect(result['taux'], 0.0,
             reason: 'Married partner should be tax-exempt in $canton');
-        expect(result['netHerite'], 500000.0);
       }
     });
 
-    test('non-married partner pays inheritance tax in most cantons', () {
+    test('non-married partner falls under the cantonal third-party rate', () {
       final result = FamilyService.estimateInheritanceTax(
-        patrimoine: 500000,
         canton: 'VD', // 25%
         isMarried: false,
       );
 
       expect(result['taux'], 0.25);
-      expect(result['impot'], 125000.0);
-      expect(result['netHerite'], 375000.0);
     });
 
     test('no inheritance tax in SZ/OW/NW even for non-married', () {
       for (final canton in ['SZ', 'OW', 'NW']) {
         final result = FamilyService.estimateInheritanceTax(
-          patrimoine: 500000,
           canton: canton,
           isMarried: false,
         );
 
-        expect(result['impot'], 0.0,
+        expect(result['taux'], 0.0,
             reason: '$canton should have no inheritance tax');
       }
     });
 
-    test('high patrimoine produces proportional tax', () {
-      final result = FamilyService.estimateInheritanceTax(
-        patrimoine: 1000000,
-        canton: 'GE', // 24%
-        isMarried: false,
-      );
-
-      expect(result['impot'], 240000.0);
-      expect(result['netHerite'], 760000.0);
+    test('aucun montant en francs n\'est produit, quel que soit le canton', () {
+      // Le service ne renvoie QUE le taux : pas d'`impot`, pas de `netHerite`,
+      // pas de `patrimoine`. La base (« 100 % du patrimoine peut aller au·à la
+      // partenaire ») est invérifiable, donc le montant est retiré.
+      for (final canton in FamilyService.cantonNames.keys) {
+        final result = FamilyService.estimateInheritanceTax(
+          canton: canton,
+          isMarried: false,
+        );
+        expect(result.keys.toSet(), {'canton', 'isMarried', 'taux'},
+            reason: 'un montant dormant finit toujours par être rebranché');
+      }
     });
   });
 
@@ -541,7 +547,6 @@ void main() {
       // Accessed via estimateInheritanceTax for each canton
       for (final canton in FamilyService.cantonNames.keys) {
         final result = FamilyService.estimateInheritanceTax(
-          patrimoine: 100000,
           canton: canton,
           isMarried: false,
         );

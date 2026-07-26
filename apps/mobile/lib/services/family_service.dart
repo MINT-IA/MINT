@@ -502,12 +502,15 @@ class FamilyService {
   // ════════════════════════════════════════════════════════════
 
   /// Full comparison: marriage vs cohabitation.
+  ///
+  /// NB : plus de paramètre `patrimoine`. La succession n'expose plus qu'un
+  /// TAUX cantonal (voir [estimateInheritanceTax]) : accepter un patrimoine qui
+  /// ne change plus aucune sortie laisserait croire qu'il est pris en compte.
   static Map<String, dynamic> compareMariageVsConcubinage({
     required double revenu1,
     required double revenu2,
     required String canton,
     int nbEnfants = 0,
-    double patrimoine = 0,
   }) {
     // Fiscal comparison
     final fiscal = compareFiscalMariage(
@@ -517,14 +520,12 @@ class FamilyService {
       nbEnfants: nbEnfants,
     );
 
-    // Inheritance comparison
+    // Inheritance comparison — cantonal RATE only, never an amount.
     final inheritance = estimateInheritanceTax(
-      patrimoine: patrimoine,
       canton: canton,
       isMarried: false,
     );
     final inheritanceMarried = estimateInheritanceTax(
-      patrimoine: patrimoine,
       canton: canton,
       isMarried: true,
     );
@@ -553,35 +554,36 @@ class FamilyService {
   //  6. ESTIMATE INHERITANCE TAX
   // ════════════════════════════════════════════════════════════
 
-  /// Estimate inheritance tax for married vs non-married.
+  /// Cantonal inheritance-tax RATE for a married vs a non-married partner.
+  ///
+  /// Returns the rate only — NEVER an amount in francs. `patrimoine × taux`
+  /// assumed that 100 % of the estate could go to the partner, which the Swiss
+  /// succession law revision in force since 1.1.2023 contradicts: with no will
+  /// a cohabiting partner inherits NOTHING; with a will, the descendants'
+  /// statutory share is half of the estate (CC art. 470-471), so the disposable
+  /// portion is capped at 1/2 in their presence (the parents' statutory share
+  /// was abolished, so with no descendant it is 100 %). A co-owned asset also
+  /// enters the estate only up to the deceased's own share — `patrimoine` is
+  /// not the right base. The amount was therefore removed rather than shown on
+  /// an unverifiable assumption.
+  ///
+  /// The rate itself is real, cantonal and personalised (the canton is a
+  /// confirmed fact), but it stays an order of magnitude: cantonal scales are
+  /// progressive, carry allowances and sometimes a communal tax — the screen
+  /// renders it with `concubinageInheritanceRateLimit` attached.
+  ///
+  /// The married exemption does NOT come from CC art. 462 (that article governs
+  /// the CIVIL share of the surviving spouse): there is no ordinary federal
+  /// inheritance tax, and the exemption is granted by the CANTONAL tax laws —
+  /// in all 26 of them.
   static Map<String, dynamic> estimateInheritanceTax({
-    required double patrimoine,
     required String canton,
     required bool isMarried,
   }) {
-    if (isMarried) {
-      // Married partners are tax-exempt in all cantons
-      return {
-        'patrimoine': patrimoine,
-        'canton': canton,
-        'isMarried': true,
-        'taux': 0.0,
-        'impot': 0.0,
-        'netHerite': patrimoine,
-      };
-    }
-
-    final taux = _inheritanceTaxRatesNonMarie[canton] ?? 0.08;
-    final impot = patrimoine * taux;
-    final netHerite = patrimoine - impot;
-
     return {
-      'patrimoine': patrimoine,
       'canton': canton,
-      'isMarried': false,
-      'taux': taux,
-      'impot': impot,
-      'netHerite': netHerite,
+      'isMarried': isMarried,
+      'taux': isMarried ? 0.0 : (_inheritanceTaxRatesNonMarie[canton] ?? 0.08),
     };
   }
 

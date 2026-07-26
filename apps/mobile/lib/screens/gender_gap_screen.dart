@@ -655,11 +655,26 @@ class _GenderGapScreenState extends State<GenderGapScreen> {
             ),
           ),
           const SizedBox(height: MintSpacing.sm),
-          // Transparence : la projection repose sur des hypothèses simplifiées
-          // (rendement LPP + durée de retraite) — on les énonce plutôt que de les
-          // laisser implicites derrière un chiffre « ta situation ».
+          // Transparence : on divulgue le MODÈLE, pas seulement ses hypothèses
+          // numériques. Les valeurs viennent de GenderGapService pour que la
+          // copie ne puisse pas diverger du calcul.
           Text(
-            s.genderGapProjectionAssumptions,
+            s.genderGapProjectionAssumptions(
+              (GenderGapService.projectedReturn * 100).toStringAsFixed(1),
+              (GenderGapService.tauxInteretMinimalLpp * 100).toStringAsFixed(2),
+              '${GenderGapService.dureeRetraiteAnnees}',
+            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                .copyWith(height: 1.4),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          // Le régime employé est le minimum légal LPP — pas le règlement de la
+          // caisse de l'utilisatrice. L'écart peut jouer dans les deux sens.
+          Text(
+            s.genderGapModelLegalMinimum(
+              (GenderGapService.tauxConversionApplique * 100)
+                  .toStringAsFixed(1),
+            ),
             style: MintTextStyles.labelSmall(color: MintColors.textMuted)
                 .copyWith(height: 1.4),
           ),

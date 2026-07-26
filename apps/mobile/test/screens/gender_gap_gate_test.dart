@@ -321,6 +321,42 @@ void main() {
       // No parameter row is "Non renseigné" once everything is confirmed.
       expect(find.text(_nonRenseigne), findsNothing);
     });
+
+    // ────────────────────────────────────────────────────────────
+    //  Le MODÈLE employé est divulgué, pas seulement ses hypothèses
+    //  numériques. Le calcul applique le régime LPP obligatoire MINIMAL
+    //  (salaire coordonné légal + taux de conversion minimal légal) : ce n'est
+    //  pas le règlement de la caisse de l'utilisatrice. Pour un plan
+    //  surobligatoire, appliquer le taux minimal à la TOTALITÉ du capital peut
+    //  aussi SURESTIMER, car les caisses enveloppantes retiennent souvent un
+    //  taux plus bas sur l'ensemble de l'avoir. Le 1.5 %/an est une hypothèse
+    //  MINT, pas une valeur légale. Le cumul sur ~20 ans est une multiplication
+    //  illustrative, sans actualisation ni indexation.
+    // ────────────────────────────────────────────────────────────
+    testWidgets('(d) le modèle divulgué est le régime LPP obligatoire MINIMAL',
+        (tester) async {
+      await _pump(tester, _FakeProvider(_fullProfile()));
+
+      // B1 — le régime employé est nommé, et son écart au plan réel aussi.
+      expect(find.textContaining('régime LPP obligatoire minimal'),
+          findsOneWidget,
+          reason: 'le modèle employé est nommé, pas laissé implicite');
+      expect(find.textContaining('6.8\u00A0%'), findsWidgets,
+          reason: 'le taux de conversion minimal légal est cité');
+      expect(find.textContaining('règlement de ta caisse'), findsWidgets);
+      expect(find.textContaining('surestimer'), findsWidgets,
+          reason: 'l\'écart peut jouer dans les deux sens, pas seulement à la baisse');
+
+      // B2 — 1.5 %/an est une hypothèse MINT, pas un taux légal.
+      expect(find.textContaining('hypothèse MINT'), findsWidgets);
+      expect(find.textContaining('1.25\u00A0%'), findsWidgets,
+          reason: 'le minimum légal LPP situe l\'hypothèse');
+
+      // B3 — le cumul est une multiplication illustrative, pas une perte acquise.
+      expect(find.textContaining('sans actualisation ni indexation'),
+          findsWidgets);
+      expect(find.textContaining('ordre de grandeur'), findsWidgets);
+    });
   });
 
   // ══════════════════════════════════════════════════════════════
