@@ -387,8 +387,8 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ),
         const SizedBox(height: MintSpacing.lg),
 
-        // Cluster fiscal (matrice + score + détail) — gaté sur revenu1 + revenu2
-        // + canton (l'écart d'impôt et le verdict de score en dépendent).
+        // Cluster fiscal (matrice + mécanique + détail) — gaté sur revenu1 +
+        // revenu2 + canton (l'écart d'impôt en dépend).
         MintEntrance(
           delay: const Duration(milliseconds: 200),
           child: _buildFiscalCluster(),
@@ -457,9 +457,15 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
-  // Cluster fiscal : matrice + score + détail fiscal partagent les mêmes faits
-  // (revenu1, revenu2, canton) → un seul gate en tête. Tant qu'il est incomplet,
-  // aucun verdict fiscal (score, « avantage », delta CHF) n'est calculé.
+  // Cluster fiscal : matrice + mécanique + détail fiscal partagent les mêmes
+  // faits (revenu1, revenu2, canton) → un seul gate en tête. Tant qu'il est
+  // incomplet, aucun chiffre fiscal (écart CHF) n'est calculé.
+  //
+  // AUCUN score agrégé : l'ancienne carte « X avantages vs Y avantages » pesait
+  // des critères hétérogènes à poids égal pour désigner un gagnant — c'est
+  // l'arbitrage de l'utilisateur·rice, pas celui de l'app. La comparaison reste
+  // critère par critère (matrice), et `_buildNeutralConclusion()` en bas d'onglet
+  // porte le cadrage « aucune option n'est universellement adaptée ».
   Widget _buildFiscalCluster() {
     final gate = _fiscalGate(context);
     if (!gate.complete) {
@@ -472,7 +478,12 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       children: [
         ConcubinageDecisionMatrix(criteria: _matrixCriteria),
         const SizedBox(height: MintSpacing.lg),
-        _buildScoreSummary(),
+        // Le mécanisme réel derrière l'écart d'impôt (cumul des revenus +
+        // barème réduit, sens dicté par la répartition) — expliqué avant le
+        // chiffre pour qu'il se lise comme une mécanique, pas comme un verdict.
+        _buildEducationalInsert(
+          S.of(context)!.concubinageMecaniqueImpositionCommune,
+        ),
         const SizedBox(height: MintSpacing.lg),
         _buildFiscalDetailCard(),
       ],
@@ -583,17 +594,27 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   }
 
   List<ComparisonCriteria> get _matrixCriteria {
-    final isPenalite = _comparisonResult != null
+    // `isPenalite` = signe de l'écart (impôt marié > impôt de 2 célibataires),
+    // PAS un jugement : le modèle est une estimation simplifiée (barème marié
+    // forfaitaire, ni déductions réelles, ni commune, ni barème cantonal
+    // détaillé) — trop grossier pour qualifier un régime de « pénalité », de
+    // « bonus » ou d'« avantageux ». Les libellés DÉCRIVENT donc le sens de
+    // l'écart, et la ligne est `neutral` : la matrice ne désigne pas de côté
+    // gagnant sur un chiffre dont le sens lui-même peut basculer.
+    final impotMenagePlusEleveMarie = _comparisonResult != null
         ? (_comparisonResult!['fiscal'] as Map<String, dynamic>)['isPenalite']
             as bool
         : false;
     return [
       ComparisonCriteria(
         label: S.of(context)!.concubinageCriteriaImpots,
-        marriageLabel: isPenalite ? S.of(context)!.concubinageCriteriaPenaliteFiscale : S.of(context)!.concubinageCriteriaBonusFiscal,
-        concubinageLabel: isPenalite ? S.of(context)!.concubinageCriteriaAvantageux : S.of(context)!.concubinageCriteriaDesavantageux,
-        advantage:
-            isPenalite ? Advantage.concubinage : Advantage.marriage,
+        marriageLabel: impotMenagePlusEleveMarie
+            ? S.of(context)!.concubinageCriteriaImpotPlusEleve
+            : S.of(context)!.concubinageCriteriaImpotMoinsEleve,
+        concubinageLabel: impotMenagePlusEleveMarie
+            ? S.of(context)!.concubinageCriteriaImpotMoinsEleve
+            : S.of(context)!.concubinageCriteriaImpotPlusEleve,
+        advantage: Advantage.neutral,
         icon: Icons.account_balance_outlined,
       ),
       ComparisonCriteria(
@@ -627,79 +648,16 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     ];
   }
 
-  Widget _buildScoreSummary() {
-    final result = _comparisonResult!;
-    final scoreMariage = result['scoreMariage'] as int;
-    final scoreConcubinage = result['scoreConcubinage'] as int;
-
-    return Semantics(
-      label: '${S.of(context)!.concubinageMariage}: $scoreMariage ${S.of(context)!.concubinageAvantages}, ${S.of(context)!.concubinageConcubinage}: $scoreConcubinage ${S.of(context)!.concubinageAvantages}',
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.primary,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    '$scoreMariage',
-                    style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800), // lint-ignore: prefer_mint_text_style
-                  ),
-                  const SizedBox(height: MintSpacing.xs),
-                  Text(
-                    S.of(context)!.concubinageAvantages,
-                    style: MintTextStyles.labelSmall(color: MintColors.white60),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    S.of(context)!.concubinageMariage,
-                    style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 1,
-              height: 60,
-              color: MintColors.white24,
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    '$scoreConcubinage',
-                    style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800), // lint-ignore: prefer_mint_text_style
-                  ),
-                  const SizedBox(height: MintSpacing.xs),
-                  Text(
-                    S.of(context)!.concubinageAvantages,
-                    style: MintTextStyles.labelSmall(color: MintColors.white60),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    S.of(context)!.concubinageConcubinage,
-                    style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildFiscalDetailCard() {
     final result = _comparisonResult!;
     final fiscal = result['fiscal'] as Map<String, dynamic>;
     final totalCelib = fiscal['totalCelibataires'] as double;
     final totalMarie = fiscal['totalMarie'] as double;
     final difference = fiscal['difference'] as double;
-    final isPenalite = fiscal['isPenalite'] as bool;
+    // Sens de l'écart, jamais un verdict : « plus élevé » d'un côté est un fait
+    // descriptif, « pénalité »/« bonus » serait un jugement que ce modèle
+    // simplifié ne peut pas porter (cf. l'encart de limite ci-dessous).
+    final impotMenagePlusEleveMarie = fiscal['isPenalite'] as bool;
 
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
@@ -734,15 +692,38 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                isPenalite ? S.of(context)!.concubinagePenaliteMariage : S.of(context)!.concubinageBonusMariage,
-                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  impotMenagePlusEleveMarie
+                      ? S.of(context)!.concubinageEcartImpotMariePlusEleve
+                      : S.of(context)!.concubinageEcartImpotConcubinagePlusEleve,
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                ),
               ),
+              const SizedBox(width: MintSpacing.sm),
+              // Montant de l'écart, sans signe ni couleur de valeur : le libellé
+              // porte déjà le sens, et rouge/vert re-poserait le verdict
+              // « pénalité »/« bonus » que ce modèle ne peut pas soutenir.
               Text(
-                '${isPenalite ? "+" : "-"}${FamilyService.formatChf(difference.abs())}',
-                style: MintTextStyles.titleLarge(color: isPenalite ? MintColors.error : MintColors.success).copyWith(fontWeight: FontWeight.w700),
+                FamilyService.formatChf(difference.abs()),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          // Limite du modèle, attachée au chiffre (même motif que l'encart
+          // conditionnel de la carte succession, mêmes tokens).
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
+            ),
+            child: Text(
+              S.of(context)!.concubinageFiscalModelLimit,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+            ),
           ),
         ],
       ),

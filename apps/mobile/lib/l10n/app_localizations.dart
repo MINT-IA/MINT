@@ -12318,24 +12318,6 @@ abstract class S {
   /// **'Canton'**
   String get concubinageCanton;
 
-  /// No description provided for @concubinageAvantages.
-  ///
-  /// In fr, this message translates to:
-  /// **'avantages'**
-  String get concubinageAvantages;
-
-  /// No description provided for @concubinageMariage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mariage'**
-  String get concubinageMariage;
-
-  /// No description provided for @concubinageConcubinage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Concubinage'**
-  String get concubinageConcubinage;
-
   /// No description provided for @concubinageDetailFiscal.
   ///
   /// In fr, this message translates to:
@@ -12354,17 +12336,29 @@ abstract class S {
   /// **'Impôts mariés'**
   String get concubinageImpotsMaries;
 
-  /// No description provided for @concubinagePenaliteMariage.
+  /// No description provided for @concubinageEcartImpotMariePlusEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Pénalité mariage'**
-  String get concubinagePenaliteMariage;
+  /// **'Impôt du ménage plus élevé marié'**
+  String get concubinageEcartImpotMariePlusEleve;
 
-  /// No description provided for @concubinageBonusMariage.
+  /// No description provided for @concubinageEcartImpotConcubinagePlusEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Bonus mariage'**
-  String get concubinageBonusMariage;
+  /// **'Impôt du ménage plus élevé en concubinage'**
+  String get concubinageEcartImpotConcubinagePlusEleve;
+
+  /// No description provided for @concubinageMecaniqueImpositionCommune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e·s, les deux revenus sont additionnés et imposés ensemble, avec un barème réduit réservé aux couples. Le sens de l’écart dépend de la répartition des revenus : quand ils sont proches, l’addition fait monter le revenu imposable plus vite que le barème réduit ne l’abaisse — c’est l’effet dit « Heiratsstrafe ». Quand un revenu domine largement, ce même barème abaisse l’impôt du ménage sous celui de deux célibataires.'**
+  String get concubinageMecaniqueImpositionCommune;
+
+  /// No description provided for @concubinageFiscalModelLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation simplifiée : elle ne tient compte ni de tes déductions réelles, ni de ta commune, ni du barème cantonal détaillé. L’écart réel peut donc différer, y compris dans son sens.'**
+  String get concubinageFiscalModelLimit;
 
   /// No description provided for @concubinageImpotSuccession.
   ///
@@ -12528,29 +12522,17 @@ abstract class S {
   /// **'Impôts'**
   String get concubinageCriteriaImpots;
 
-  /// No description provided for @concubinageCriteriaPenaliteFiscale.
+  /// No description provided for @concubinageCriteriaImpotPlusEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Pénalité fiscale'**
-  String get concubinageCriteriaPenaliteFiscale;
+  /// **'Impôt du ménage plus élevé'**
+  String get concubinageCriteriaImpotPlusEleve;
 
-  /// No description provided for @concubinageCriteriaBonusFiscal.
+  /// No description provided for @concubinageCriteriaImpotMoinsEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Bonus fiscal'**
-  String get concubinageCriteriaBonusFiscal;
-
-  /// No description provided for @concubinageCriteriaAvantageux.
-  ///
-  /// In fr, this message translates to:
-  /// **'Avantageux'**
-  String get concubinageCriteriaAvantageux;
-
-  /// No description provided for @concubinageCriteriaDesavantageux.
-  ///
-  /// In fr, this message translates to:
-  /// **'Désavantageux'**
-  String get concubinageCriteriaDesavantageux;
+  /// **'Impôt du ménage moins élevé'**
+  String get concubinageCriteriaImpotMoinsEleve;
 
   /// No description provided for @concubinageCriteriaHeritage.
   ///

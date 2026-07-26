@@ -532,41 +532,20 @@ class FamilyService {
     // AVS survivor
     final avsSurvivorRente = reg('avs.max_monthly_pension', avsRenteMaxMensuelle) * avsSurvivorFactor;
 
-    // Score comparison
-    int scoreMariage = 0;
-    int scoreConcubinage = 0;
-
-    // Tax advantage
-    if ((fiscal['difference'] as double) < 0) {
-      scoreMariage++;
-    } else if ((fiscal['difference'] as double) > 0) {
-      scoreConcubinage++;
-    }
-
-    // AVS survivor: married always wins
-    scoreMariage++;
-
-    // LPP survivor: married = automatic, concubinage = requires clause
-    scoreMariage++;
-
-    // Inheritance: married = exonerated
-    scoreMariage++;
-
-    // Pension alimentaire: married = protected
-    scoreMariage++;
-
-    // Simplicity of separation: concubinage wins
-    scoreConcubinage++;
-
+    // NB : AUCUN score agrégé ni gagnant n'est renvoyé (`scoreMariage`,
+    // `scoreConcubinage`, `fiscalAdvantage` — retirés). Compter des critères
+    // hétérogènes (protection du·de la survivant·e, impôt annuel, héritage) à
+    // poids égal et en tirer un gagnant est du pseudo-conseil : leur importance
+    // relative dépend de la situation de chacun·e, et c'est précisément
+    // l'arbitrage qui appartient à l'utilisateur·rice. La comparaison est rendue
+    // critère par critère (matrice), sans agrégation. Ne pas ré-introduire :
+    // un verdict qui dort dans le résultat finit par être affiché.
     return {
       'fiscal': fiscal,
       'inheritance': inheritance,
       'inheritanceMarried': inheritanceMarried,
       'avsSurvivorRente': avsSurvivorRente,
       'lppSurvivorFactor': lppSurvivorFactor,
-      'scoreMariage': scoreMariage,
-      'scoreConcubinage': scoreConcubinage,
-      'fiscalAdvantage': (fiscal['difference'] as double) < 0 ? 'mariage' : 'concubinage',
     };
   }
 

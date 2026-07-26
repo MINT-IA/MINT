@@ -346,11 +346,15 @@ void main() {
       expect(result, containsPair('fiscal', isA<Map<String, dynamic>>()));
       expect(result, containsPair('inheritance', isA<Map<String, dynamic>>()));
       expect(result, containsPair('inheritanceMarried', isA<Map<String, dynamic>>()));
-      expect(result, containsPair('scoreMariage', isA<int>()));
-      expect(result, containsPair('scoreConcubinage', isA<int>()));
+      expect(result, containsPair('avsSurvivorRente', isA<double>()));
     });
 
-    test('marriage always scores higher on protection (AVS/LPP/heritage)', () {
+    test('no aggregated score, no winner — the arbitration is the user\'s', () {
+      // Constat B (audit conseiller) : compter des critères hétérogènes
+      // (protection du·de la survivant·e, impôt annuel, héritage) à poids égal
+      // et en tirer un gagnant est du pseudo-conseil — leur importance dépend
+      // de la situation de chacun·e. Ce test est la garde anti-résurrection :
+      // un verdict qui dort dans le résultat finit par être affiché.
       final result = FamilyService.compareMariageVsConcubinage(
         revenu1: 80000,
         revenu2: 60000,
@@ -358,11 +362,14 @@ void main() {
         patrimoine: 300000,
       );
 
-      final scoreMariage = result['scoreMariage'] as int;
-      final scoreConcubinage = result['scoreConcubinage'] as int;
-
-      // Marriage should always have more structural advantages
-      expect(scoreMariage, greaterThan(scoreConcubinage));
+      expect(result.containsKey('scoreMariage'), isFalse);
+      expect(result.containsKey('scoreConcubinage'), isFalse);
+      expect(result.containsKey('fiscalAdvantage'), isFalse);
+      // Les faits par critère restent disponibles — c'est la comparaison
+      // critère par critère qui est rendue, pas un agrégat.
+      expect(result['fiscal'], isA<Map<String, dynamic>>());
+      expect(result['inheritance'], isA<Map<String, dynamic>>());
+      expect(result['lppSurvivorFactor'], FamilyService.lppSurvivorFactor);
     });
 
     test('zero patrimoine produces zero inheritance tax', () {

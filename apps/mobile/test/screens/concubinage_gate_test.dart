@@ -24,7 +24,7 @@ import 'package:provider/provider.dart';
 /// A default is a null « Non renseigné », never an invented 80000/60000/300000.
 ///
 /// Per-output fact manifest:
-///   • Fiscal cluster (matrix + score + détail) → revenu1, revenu2, canton
+///   • Fiscal cluster (matrix + mécanique + détail) → revenu1, revenu2, canton
 ///   • Impôt de succession                       → patrimoine, canton
 ///   • Hero patrimoine                           → shown only when patrimoine ≠ null
 ///   • Rente de survivant (Tab2)                 → renteLpp; MARRIED figure is the
@@ -478,6 +478,131 @@ void main() {
           reason: 'succession follows descendants-first legal order');
       expect(find.textContaining('tout va à tes parents'), findsNothing,
           reason: 'never presume the user has no children');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  LSFin — la comparaison DÉCRIT la mécanique, elle ne rend AUCUN verdict
+  //
+  //  Constat A (audit conseiller) : le moteur fiscal est un modèle simplifié
+  //  (marié = barème ×0.92 forfaitaire, pas de déductions réelles, pas de
+  //  commune) — il ne permet pas de qualifier un régime de « pénalité », de
+  //  « bonus » ni d'« avantageux ». Les libellés DÉCRIVENT le sens de l'écart.
+  //  Constat B : aucun score agrégé / gagnant. L'arbitrage appartient à
+  //  l'utilisateur·rice.
+  //
+  //  Chaque assertion est sur le RENDU : elle repasse ROUGE si un verdict
+  //  revient (libellé, compteur de score, champ de service ressuscité).
+  // ══════════════════════════════════════════════════════════════
+  group('Comparateur — mécanique, pas verdict', () {
+    // Revenus PROCHES → l'impôt du ménage marié dépasse celui de 2 célibataires
+    // (80000/60000/VD → +CHF 1'810 environ).
+    Future<void> unlockPenalite(WidgetTester tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _setAmount(tester, _revenu1, 80000);
+      await _setAmount(tester, _revenu2, 60000);
+      await _setCanton(tester, 'VD');
+    }
+
+    // Revenu TRÈS INÉGAL → le barème réduit fait passer l'impôt du ménage marié
+    // sous celui de 2 célibataires (200000/0/VD).
+    Future<void> unlockBonus(WidgetTester tester) async {
+      await _pump(tester, _FakeProvider(null));
+      await _setAmount(tester, _revenu1, 200000);
+      await _setAmount(tester, _revenu2, 0);
+      await _setCanton(tester, 'VD');
+    }
+
+    // (a) — aucun qualificatif de valeur, dans AUCUNE des deux branches.
+    const verdictWords = [
+      'Pénalité',
+      'pénalité',
+      'Bonus',
+      'bonus',
+      'Avantageux',
+      'avantageux',
+      'Désavantageux',
+      'désavantageux',
+    ];
+
+    testWidgets('(a) branche « impôt marié plus élevé » : aucun qualificatif',
+        (tester) async {
+      await unlockPenalite(tester);
+      for (final w in verdictWords) {
+        expect(find.textContaining(w), findsNothing,
+            reason: '« $w » est un verdict, pas une description du mécanisme');
+      }
+    });
+
+    testWidgets('(a) branche « impôt concubinage plus élevé » : idem',
+        (tester) async {
+      await unlockBonus(tester);
+      for (final w in verdictWords) {
+        expect(find.textContaining(w), findsNothing,
+            reason: '« $w » est un verdict, pas une description du mécanisme');
+      }
+    });
+
+    testWidgets('(a bis) les libellés DÉCRIVENT le sens de l\'écart',
+        (tester) async {
+      await unlockPenalite(tester);
+      // Ligne « Impôts » de la matrice : les deux côtés sont nommés par le sens.
+      expect(find.text('Impôt du ménage plus élevé'), findsWidgets);
+      expect(find.text('Impôt du ménage moins élevé'), findsWidgets);
+      // Détail fiscal : le sens de l'écart est explicite, sans jugement.
+      expect(find.text('Impôt du ménage plus élevé marié'), findsOneWidget);
+      expect(find.text('Impôt du ménage plus élevé en concubinage'), findsNothing);
+    });
+
+    testWidgets('(a ter) le sens s\'inverse avec un revenu très inégal',
+        (tester) async {
+      await unlockBonus(tester);
+      expect(find.text('Impôt du ménage plus élevé en concubinage'),
+          findsOneWidget);
+      expect(find.text('Impôt du ménage plus élevé marié'), findsNothing);
+    });
+
+    // (b) — le mécanisme réel est énoncé (cumul des revenus + répartition).
+    testWidgets('(b) le mécanisme de l\'imposition commune est énoncé',
+        (tester) async {
+      await unlockPenalite(tester);
+      expect(find.textContaining('additionnés'), findsWidgets,
+          reason: 'le cumul des revenus est le mécanisme réel');
+      expect(find.textContaining('barème réduit'), findsWidgets,
+          reason: 'le barème réservé aux couples est nommé');
+      expect(find.textContaining('répartition des revenus'), findsWidgets,
+          reason: 'le sens de l\'écart dépend de la répartition');
+      // La limite du modèle accompagne le chiffre.
+      expect(find.textContaining('Estimation simplifiée'), findsWidgets);
+      expect(find.textContaining('barème cantonal détaillé'), findsWidgets);
+    });
+
+    // (c) — aucun score / gagnant agrégé, ni rendu ni dormant dans le service.
+    testWidgets('(c) aucun compteur de score agrégé n\'est rendu',
+        (tester) async {
+      await unlockPenalite(tester);
+      // L'ancien rendu affichait deux entiers nus (4 / 1) + le mot « avantages »
+      // dans la carte-score de l'écran ET dans le compteur de la matrice.
+      for (final n in ['0', '1', '2', '3', '4', '5', '6']) {
+        expect(find.text(n), findsNothing,
+            reason: 'un entier nu = un compteur de score ressuscité');
+      }
+      expect(find.text('avantages'), findsNothing);
+      expect(find.textContaining('avantages,'), findsNothing);
+    });
+
+    test('(c) le service ne renvoie plus de score ni de gagnant', () {
+      final r = FamilyService.compareMariageVsConcubinage(
+        revenu1: 80000,
+        revenu2: 60000,
+        canton: 'VD',
+        patrimoine: 300000,
+      );
+      expect(r.containsKey('scoreMariage'), isFalse,
+          reason: 'critères hétérogènes à poids égal = pseudo-conseil');
+      expect(r.containsKey('scoreConcubinage'), isFalse);
+      expect(r.containsKey('fiscalAdvantage'), isFalse,
+          reason: 'verdict dormant : finit toujours par être affiché');
     });
   });
 

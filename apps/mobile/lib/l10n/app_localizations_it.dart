@@ -6895,15 +6895,6 @@ class SIt extends S {
   String get concubinageCanton => 'Canton';
 
   @override
-  String get concubinageAvantages => 'avantages';
-
-  @override
-  String get concubinageMariage => 'Mariage';
-
-  @override
-  String get concubinageConcubinage => 'Concubinage';
-
-  @override
   String get concubinageDetailFiscal => 'DÉTAIL FISCAL';
 
   @override
@@ -6913,10 +6904,20 @@ class SIt extends S {
   String get concubinageImpotsMaries => 'Impôts mariés';
 
   @override
-  String get concubinagePenaliteMariage => 'Penalità matrimonio';
+  String get concubinageEcartImpotMariePlusEleve =>
+      'Imposta del nucleo più alta da sposati';
 
   @override
-  String get concubinageBonusMariage => 'Bonus mariage';
+  String get concubinageEcartImpotConcubinagePlusEleve =>
+      'Imposta del nucleo più alta in convivenza';
+
+  @override
+  String get concubinageMecaniqueImpositionCommune =>
+      'Da sposati, i due redditi vengono sommati e tassati insieme, con un’aliquota ridotta riservata alle coppie. Il verso della differenza dipende dalla ripartizione dei redditi: quando sono vicini, la somma alza il reddito imponibile più di quanto l’aliquota ridotta lo abbassi — è il cosiddetto effetto « Heiratsstrafe ». Quando un reddito domina nettamente, la stessa aliquota porta l’imposta del nucleo sotto quella di due singoli.';
+
+  @override
+  String get concubinageFiscalModelLimit =>
+      'Stima semplificata: non tiene conto né delle tue deduzioni reali, né del tuo comune, né dell’aliquota cantonale dettagliata. La differenza reale può quindi variare, anche nel suo verso.';
 
   @override
   String get concubinageImpotSuccession => 'IMPOSTA DI SUCCESSIONE';
@@ -7020,16 +7021,11 @@ class SIt extends S {
   String get concubinageCriteriaImpots => 'Impôts';
 
   @override
-  String get concubinageCriteriaPenaliteFiscale => 'Penalità fiscale';
+  String get concubinageCriteriaImpotPlusEleve => 'Imposta del nucleo più alta';
 
   @override
-  String get concubinageCriteriaBonusFiscal => 'Bonus fiscal';
-
-  @override
-  String get concubinageCriteriaAvantageux => 'Avantageux';
-
-  @override
-  String get concubinageCriteriaDesavantageux => 'Désavantageux';
+  String get concubinageCriteriaImpotMoinsEleve =>
+      'Imposta del nucleo più bassa';
 
   @override
   String get concubinageCriteriaHeritage => 'Héritage';
