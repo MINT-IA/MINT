@@ -238,7 +238,8 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('DivorceService - Tax Impact', () {
-    test('married tax = combined income x marginale v2 ZH (~28.5%)', () {
+    test('married tax = impôt EFFECTIF barème marié ZH 180k (estimateIncomeTaxV2)',
+        () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
           canton: 'ZH',
@@ -256,11 +257,13 @@ void main() {
         ),
       );
 
-      // beads -8p4 : marginale v2 ZH 180k marié ≈ 0.28532 (pente locale,
-      // splitting x0.80) -> 180000 x 0.28532 = 51'357.60. NB la formule
-      // combined x MARGINALE (héritée) surestime vs un impôt effectif —
-      // limite dite du simulateur divorce, inchangée par cette bascule.
-      expect(result.taxImpact.estimatedTaxMarried, closeTo(51357.60, 50));
+      // Bascule vers l'impôt EFFECTIF canonique : combined 180k au barème marié
+      // (splitting) ZH = estimateMonthlyIncomeTax(180000,'ZH','marie',0) × 12 =
+      // 33'285.71 (impôt effectif, plus la marginale × revenu qui donnait
+      // 51'357.60 en surestimant). Symétrique avec les impôts individuels
+      // effectifs → le delta reflète la vraie « pénalité de mariage » (négatif
+      // ici pour ce couple à deux revenus).
+      expect(result.taxImpact.estimatedTaxMarried, closeTo(33285.71, 50));
     });
 
     test('individual taxes sum is different from married tax', () {
@@ -287,7 +290,7 @@ void main() {
       expect(result.taxImpact.delta, totalAfter - result.taxImpact.estimatedTaxMarried);
     });
 
-    test('large tax delta triggers fiscal impact alert', () {
+    test('large tax delta triggers fiscal impact alert (defensive guard)', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
           canton: 'ZH',
@@ -305,13 +308,56 @@ void main() {
         ),
       );
 
-      // Delta should be > 5000 given these incomes
+      // Depuis la bascule vers l'impôt effectif, ce profil à DEUX revenus a un
+      // delta NÉGATIF (≈ −7'580 : le divorce baisse l'impôt du ménage — fin du
+      // splitting). Le garde `if (delta > 5000)` ne se déclenche donc plus ici :
+      // le cas « surcoût » réel (delta positif) est couvert par le test
+      // single-earner ci-dessous. On conserve ce garde défensif : si un jour ce
+      // profil repassait positif, l'alerte devrait exister.
       if (result.taxImpact.delta > 5000) {
         expect(
           result.alerts.any((a) => a.contains('impact fiscal')),
           isTrue,
         );
       }
+    });
+
+    test('single-earner divorce → delta POSITIF → alerte surcoût (caution)', () {
+      // Un seul revenu (mono-actif) : le barème marié (splitting) est plus BAS
+      // que le barème célibataire sur le même revenu → séparé, l'impôt MONTE.
+      // GE 120k + 0 → delta ≈ +5'470 (> 5000) : c'est un vrai surcoût de ménage.
+      final result = DivorceService.simulate(
+        input: const DivorceInput(
+          canton: 'GE',
+          marriageDurationYears: 10,
+          numberOfChildren: 0,
+          regime: MatrimonialRegime.participationAuxAcquets,
+          incomeConjoint1: 120000,
+          incomeConjoint2: 0,
+          lppConjoint1: 100000,
+          lppConjoint2: 100000,
+          pillar3aConjoint1: 0,
+          pillar3aConjoint2: 0,
+          fortuneCommune: 0,
+          dettesCommunes: 0,
+        ),
+      );
+
+      // Le delta est bien POSITIF (surcoût réel), pas un gain.
+      expect(result.taxImpact.delta, greaterThan(5000),
+          reason: 'mono-actif : la fin du splitting fait monter l\'impôt');
+      // L'alerte fiscale se déclenche…
+      final fiscalAlert = result.alerts.firstWhere(
+        (a) => a.contains('impact fiscal'),
+        orElse: () => '',
+      );
+      expect(fiscalAlert, isNotEmpty,
+          reason: 'un delta > 5000 doit déclencher l\'alerte surcoût');
+      // …et son cadrage est une MISE EN GARDE (surcoût à anticiper), jamais un
+      // bénéfice/une raison de divorcer (LSFin : information, pas incitation).
+      expect(fiscalAlert, contains('surcoût'));
+      expect(fiscalAlert, contains('Anticipez'));
+      expect(fiscalAlert, contains('pour le ménage'));
     });
 
     test('zero income produces zero individual tax', () {

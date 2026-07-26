@@ -9742,7 +9742,7 @@ class SPt extends S {
 
   @override
   String divorceFiscalDelta(String sign, String amount) {
-    return 'Diferença: $sign$amount/ano';
+    return 'Diferença de imposto do agregado: $sign$amount/ano (fim do splitting conjugal)';
   }
 
   @override

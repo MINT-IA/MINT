@@ -17164,7 +17164,7 @@ abstract class S {
   /// No description provided for @divorceFiscalDelta.
   ///
   /// In fr, this message translates to:
-  /// **'Différence : {sign}{amount}/an'**
+  /// **'Écart d\'impôt du ménage : {sign}{amount}/an (fin du splitting marié)'**
   String divorceFiscalDelta(String sign, String amount);
 
   /// No description provided for @divorcePensionMois.

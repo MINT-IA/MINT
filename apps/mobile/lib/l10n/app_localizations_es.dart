@@ -9746,7 +9746,7 @@ class SEs extends S {
 
   @override
   String divorceFiscalDelta(String sign, String amount) {
-    return 'Diferencia: $sign$amount/año';
+    return 'Diferencia de impuestos del hogar: $sign$amount/año (fin del splitting conyugal)';
   }
 
   @override

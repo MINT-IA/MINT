@@ -238,16 +238,23 @@ class DivorceService {
     );
 
     // ---- Tax Impact ----
-    // Simplified Swiss tax estimation:
-    // Married couples benefit from ~15-25% effective discount (splitting).
-    // After divorce, each is taxed individually.
+    // Impôt EFFECTIF des deux côtés (marié vs deux célibataires), via la fonction
+    // canonique estimateMonthlyIncomeTax (estimateIncomeTaxV2/12) — plus de
+    // marginale × revenu (qui surestimait le côté marié) ni de coefficient 0.65.
+    // Les deux côtés partagent le MÊME modèle effectif → le delta est symétrique
+    // et révèle la « pénalité de mariage » réelle (le divorce baisse souvent
+    // l'impôt du ménage à deux revenus). NEVER #3 : une seule source de vérité L1.
     final combinedIncome = input.incomeConjoint1 + input.incomeConjoint2;
-    // Married rate via centralized calculator (splitting), au barème du canton
-    // RÉEL de l'utilisateur — jamais un canton codé en dur.
-    final marriedRate = RetirementTaxCalculator.estimateMarginalRate(
-      combinedIncome, input.canton, isMarried: true,
-    );
-    final taxMarried = combinedIncome * marriedRate;
+    // Impôt marié au barème « marié » (splitting) du canton RÉEL du ménage —
+    // jamais un canton codé en dur. nombreEnfants:0 : le facteur enfant vaut 1.0,
+    // les enfants relèvent de la garde/pension, pas de ce partage d'impôt.
+    final taxMarried = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+          revenuAnnuelImposable: combinedIncome,
+          canton: input.canton,
+          etatCivil: 'marie',
+          nombreEnfants: 0,
+        ) *
+        12;
     // Les deux impôts individuels utilisent le canton (confirmé) du ménage. Au
     // moment du divorce le domicile est commun → base légale correcte pour la
     // comparaison marié/séparés ; le canton futur de l'ex n'est PAS connu et n'est
@@ -364,20 +371,22 @@ class DivorceService {
     );
   }
 
-  /// Simplified individual tax estimation (Swiss progressive).
+  /// Impôt individuel (célibataire) via la fonction canonique effective.
   ///
-  /// Delegates to RetirementTaxCalculator.estimateMarginalRate for the
-  /// income-based marginal rate at the user's REAL [canton], then applies it as
-  /// an effective rate. Le canton est fourni par DivorceInput (donnée réelle du
-  /// profil) — jamais un proxy médian codé en dur.
+  /// Réutilise RetirementTaxCalculator.estimateMonthlyIncomeTax (impôt EFFECTIF
+  /// estimateIncomeTaxV2/12, barème célibataire) au canton RÉEL fourni par
+  /// DivorceInput (donnée réelle du profil) — jamais un proxy médian codé en dur,
+  /// jamais la marginale × revenu × 0.65. Symétrique avec l'impôt marié : le delta
+  /// compare deux impôts EFFECTIFS (NEVER #3 : une seule source de vérité L1).
   static double _estimateIndividualTax(double income, String canton) {
     if (income <= 0) return 0;
-    // Use centralized marginal rate (AFC taux marginaux 2025) au canton réel.
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(income, canton);
-    // Effective tax ≈ ~60-70% of marginal rate for progressive systems.
-    // This approximation aligns with the old bracket-based approach.
-    return income * marginalRate * 0.65;
+    return RetirementTaxCalculator.estimateMonthlyIncomeTax(
+          revenuAnnuelImposable: income,
+          canton: canton,
+          etatCivil: 'celibataire',
+          nombreEnfants: 0,
+        ) *
+        12;
   }
 
 }

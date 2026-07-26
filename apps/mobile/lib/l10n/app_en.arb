@@ -4423,7 +4423,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Difference: {sign}{amount}/year",
+  "divorceFiscalDelta": "Household tax difference: {sign}{amount}/year (end of married splitting)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {

@@ -9766,7 +9766,7 @@ class SIt extends S {
 
   @override
   String divorceFiscalDelta(String sign, String amount) {
-    return 'Differenza: $sign$amount/anno';
+    return 'Differenza d\'imposta del nucleo: $sign$amount/anno (fine dello splitting coniugale)';
   }
 
   @override

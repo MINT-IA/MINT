@@ -4423,7 +4423,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Diferencia: {sign}{amount}/año",
+  "divorceFiscalDelta": "Diferencia de impuestos del hogar: {sign}{amount}/año (fin del splitting conyugal)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {
