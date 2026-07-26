@@ -30,6 +30,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _baseline_diff import new_violations  # noqa: E402
+
 LINT_NAME = "prefer_mint_color_token"
 
 REPO = Path(__file__).resolve().parents[2]
@@ -213,7 +216,7 @@ def main(argv: list[str] | None = None) -> int:
         baseline = _load_baseline(args.baseline)
 
     current_set = set(current)
-    new = sorted(current_set - baseline)
+    new = new_violations(sorted(current_set), baseline)
     if new:
         print(f"::error::{LINT_NAME}: {len(new)} new violation(s):")
         for v in new:
