@@ -197,6 +197,8 @@ ALLOW = {
     "apps/mobile/test/screens/concubinage_gate_test.dart",
     "apps/mobile/lib/widgets/visualizations/concubinage_decision_matrix.dart",
     "tools/checks/no_hardcoded_fr.py",
+    "apps/mobile/lib/widgets/premium/mint_amount_field.dart",
+    "apps/mobile/test/widgets/premium/mint_amount_field_test.dart",
     "lefthook.yml",
     "tools/checks/baselines/prefer_mint_text_style.baseline.txt",
     "apps/mobile/lib/screens/gender_gap_screen.dart",
