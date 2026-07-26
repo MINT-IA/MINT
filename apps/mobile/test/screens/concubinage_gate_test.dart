@@ -360,17 +360,37 @@ void main() {
       expect(find.textContaining('ordre de grandeur'), findsNothing);
     });
 
-    testWidgets('(c bis) patrimoine absent → carte gatée, aucun taux rendu',
+    testWidgets(
+        '(c bis) le patrimoine ne gate PLUS : canton seul confirmé → le taux '
+        'est rendu (ADR §2 — un fait qui ne change aucune sortie ne gate pas)',
         (tester) async {
+      // Le patrimoine gatait cette carte tant qu'elle affichait un MONTANT
+      // d'impôt. Ce montant est retiré : il supposait que 100 % du patrimoine
+      // revenait au partenaire, ce que la réserve des descendants interdit
+      // (CC art. 470-471). Ce qui reste — le taux applicable et la règle de la
+      // quotité disponible — ne dépend que du canton.
+      //
+      // Continuer à exiger un montant de patrimoine pour lire une information
+      // qui n'en dépend pas serait exactement le formulaire à vingt champs que
+      // la doctrine refuse.
       await _pump(
         tester,
         _FakeProvider(_profile(canton: 'VD', provided: {'canton'})),
       );
+      expect(_gate(tester, _inheritanceTitle), isNull,
+          reason: 'le canton seul suffit désormais à ouvrir la carte');
+      expect(find.textContaining('taux tiers'), findsWidgets);
+    });
+
+    testWidgets('(c ter) canton NON confirmé → carte gatée, aucun taux rendu',
+        (tester) async {
+      // Le canton, lui, reste gatant : c'est de lui que dépend le taux. Sans
+      // lui, afficher un taux reviendrait à en fabriquer un.
+      await _pump(tester, _FakeProvider(_profile(provided: const {})));
       final g = _gate(tester, _inheritanceTitle);
       expect(g, isNotNull);
-      expect(g!.gate.missing.map((f) => f.key), <String>['patrimoine']);
+      expect(g!.gate.missing.map((f) => f.key), <String>['canton']);
       expect(find.textContaining('taux tiers'), findsNothing);
-      expect(find.textContaining('ordre de grandeur'), findsNothing);
     });
 
     testWidgets(

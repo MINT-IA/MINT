@@ -221,14 +221,18 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
   // Impôt de succession : patrimoine transmis + canton (le taux « tiers » est
   // cantonal — un impôt sur un canton fabriqué serait faux).
+  // Le patrimoine ne gate PLUS cette carte. Il la gatait tant qu'elle affichait
+  // un montant d'impôt ; ce montant est retiré (il supposait que 100 % du
+  // patrimoine revenait au partenaire, ce que la réserve des descendants
+  // interdit — CC art. 470-471). Ce qui reste — le taux applicable et la règle
+  // de la quotité disponible — ne dépend que du canton.
+  //
+  // Continuer à l'exiger violerait la règle ADR §2, citée dans
+  // `gender_gap_gate_test.dart` : un fait qui ne change AUCUNE sortie ne doit
+  // pas gater un chiffre qu'il ne peut pas modifier. Le coût aurait été réel —
+  // demander un montant de patrimoine pour lire une information qui n'en dépend
+  // pas est exactement le formulaire à vingt champs qu'on refuse.
   SituationGate _inheritanceGate(BuildContext context) => SituationGate([
-        SituationFact(
-          key: 'patrimoine',
-          label: (c) => S.of(c)!.concubinageGateFactPatrimoine,
-          why: (c) => S.of(c)!.concubinageGateWhyPatrimoine,
-          provenance: _prov(_patrimoine != null),
-          onComplete: () => _scrollToKey(_patrimoineKey),
-        ),
         SituationFact(
           key: 'canton',
           label: (c) => S.of(c)!.concubinageGateFactCanton,
@@ -489,7 +493,8 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
-  // Impôt de succession — gate patrimoine + canton avant tout chiffre.
+  // Impôt de succession — gate sur le canton seul : c'est le seul fait dont
+  // dépend ce qui est encore affiché.
   Widget _buildInheritanceSection() {
     final gate = _inheritanceGate(context);
     if (!gate.complete) {
