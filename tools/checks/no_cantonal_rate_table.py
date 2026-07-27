@@ -63,7 +63,6 @@ ALLOWED = {
     # DETTE HÉRITÉE — à résorber, chacune retirée de cette liste par la PR qui
     # la supprime ou la recalibre. Ne rien ajouter ici.
     "services/backend/app/services/coaching_engine.py::CANTON_MARGINAL_TAX_RATES",
-    "services/backend/app/services/lpp_deep/rachat_echelonne_service.py::TAUX_MARGINAUX_PAR_CANTON",
     "services/backend/app/services/fiscal/church_tax_service.py::CHURCH_TAX_RATES",
     "services/backend/app/services/fiscal/wealth_tax_service.py::EFFECTIVE_WEALTH_TAX_RATES_500K",
     "services/backend/app/services/fiscal/wealth_tax_service.py::WEALTH_TAX_EXEMPTIONS",
