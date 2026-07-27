@@ -129,6 +129,21 @@ pre-commit:
       glob: "apps/mobile/lib/l10n/*.arb"
       tags: [compliance, lsfin, phase-34-guard-01]
       fail_text: "LSFin banned terms detected in ARB. Rewrite using permitted vocabulary (« vise à fournir », « est conçue pour », …) — CLAUDE.md TOP rule #1."
+    no-cantonal-rate-table-gate:
+      # Le 2026-07-27, l'écran de recommandations affichait « Économisez CHF X/an
+      # d'impôts » sur un chiffre surestimé de 25 à 77 %. La cause : une table de
+      # taux marginaux par canton dont la source déclarée était « swiss-brain
+      # estimates », c'est-à-dire nous-mêmes. Le dépôt en portait HUIT, donnant
+      # pour Zurich 0.30, 0.28, 0.28, 0.34, 0.25 et 0.129 — deux surfaces du même
+      # produit pouvaient répondre différemment à la même question.
+      #
+      # La leçon n'est pas « corriger les huit » : c'est que rien n'empêchait
+      # d'en écrire une neuvième. Ce gate refuse toute NOUVELLE table de taux
+      # indexée par canton. Sa liste d'autorisation ne peut que rétrécir.
+      run: python3 tools/checks/no_cantonal_rate_table.py --self-test && python3 tools/checks/no_cantonal_rate_table.py
+      glob: "services/backend/app/**/*.py"
+      tags: [fiscal, provenance]
+      fail_text: "Nouvelle table de taux par canton. Un taux n'est pas une donnée, c'est une DÉRIVÉE du modèle calibré — emploie `fiscal.cantonal_comparator.estimate_marginal_rate` ou `estimate_tax_saving`. Un vrai barème exige une source primaire, sa date de collecte et sa méthode de vérification."
     no-hardcoded-fr-added-lines-gate:
       # CLAUDE.md TOP rule #5 (i18n). MINT expose 6 langues et un sélecteur de
       # langue (`lib/screens/settings/langue_settings_screen.dart`), mais 151
