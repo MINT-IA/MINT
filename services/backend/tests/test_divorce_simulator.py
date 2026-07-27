@@ -207,3 +207,74 @@ class TestDivorceEdgeCases:
         result = simulator.simulate(data)
         child_items = [c for c in result.checklist if "enfant" in c.lower()]
         assert len(child_items) >= 1
+
+
+# ---------------------------------------------------------------------------
+# Impact fiscal — delegation a l'etalon (hand-off 2026-07-27 §3.4)
+# ---------------------------------------------------------------------------
+
+class TestFiscalDelegueALEtalon:
+    """L'impact fiscal du divorce DERIVE de l'etalon, plus d'une table plate.
+
+    CANTON_TAX_RATES (12/26 cantons, taux plats x revenu brut) ignorait la
+    progressivite et retombait sur DEFAULT_TAX_RATES en silence pour 14
+    cantons. Hand-off §3.4 : « impot sur le revenu, donc l'etalon le
+    couvre — fusionner, pas retirer. » Aucune assertion fiscale n'existait
+    avant ces tests.
+    """
+
+    def test_impot_commun_delegue_a_l_etalon(self, simulator):
+        from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
+        # AI etait ABSENT de l'ancienne table -> fallback silencieux.
+        for canton in ("VS", "ZH", "AI"):
+            result = simulator.simulate(_base_input(canton=canton))
+            attendu = round(estimate_income_tax(180_000, canton, is_married=True), 2)
+            obtenu = result.impact_fiscal_avant["impot_commun"]
+            assert obtenu == pytest.approx(attendu, abs=0.01), (
+                f"{canton} : {obtenu} != etalon {attendu}"
+            )
+
+    def test_impot_apres_sans_enfant_bareme_celibataire(self, simulator):
+        """Revenus egaux, sans enfant : chacun a l'etalon celibataire."""
+        from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
+        data = _base_input(
+            nombre_enfants=0,
+            revenu_annuel_conjoint_1=90_000,
+            revenu_annuel_conjoint_2=90_000,
+            canton="ZH",
+        )
+        result = simulator.simulate(data)
+        attendu = round(estimate_income_tax(90_000, "ZH", is_married=False), 2)
+        assert result.impact_fiscal_apres["impot_conjoint_1"] == pytest.approx(
+            attendu, abs=0.01
+        )
+        assert result.impact_fiscal_apres["impot_conjoint_2"] == pytest.approx(
+            attendu, abs=0.01
+        )
+
+    def test_parent_gardien_au_bareme_parental(self, simulator):
+        """Avec enfants, le parent gardien profite du bareme parental.
+
+        Proxy etalon : bareme marie (LIFD art. 36 al. 2bis — le bareme
+        parental est le bareme des personnes mariees pour qui vit avec des
+        enfants). L'autre ex-conjoint reste au bareme celibataire.
+        """
+        from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
+        data = _base_input(
+            nombre_enfants=2,
+            revenu_annuel_conjoint_1=90_000,
+            revenu_annuel_conjoint_2=90_000,
+            canton="ZH",
+        )
+        result = simulator.simulate(data)
+        gardien = round(estimate_income_tax(90_000, "ZH", is_married=True), 2)
+        autre = round(estimate_income_tax(90_000, "ZH", is_married=False), 2)
+        assert result.impact_fiscal_apres["impot_conjoint_1"] == pytest.approx(
+            gardien, abs=0.01
+        )
+        assert result.impact_fiscal_apres["impot_conjoint_2"] == pytest.approx(
+            autre, abs=0.01
+        )

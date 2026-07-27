@@ -434,6 +434,9 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
+    "services/backend/app/services/divorce_simulator.py",
+    "services/backend/tests/test_divorce_simulator.py",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
