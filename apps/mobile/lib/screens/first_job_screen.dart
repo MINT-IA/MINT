@@ -219,17 +219,26 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
     // Salaire : clé 'salary'.
     if (!_salaireTouched) {
-      final hasKey = profile.userProvidedFields.contains('salary');
-      if (_salaireSeeded != hasKey) {
-        _salaireSeeded = hasKey;
+      // La clé seule ne suffit PAS : il faut aussi que la valeur tienne dans la
+      // plage du contrôle. Sans ce second test, un salaire à 0 portant la clé
+      // passait par `clamp(2000, 15000)` et ressortait à CHF 2'000 — un montant
+      // que l'utilisateur n'a jamais saisi, déclaré « confirmé », et sur lequel
+      // la décomposition du salaire se calculait.
+      //
+      // Le clamp EST la fabrication : borner une valeur hors plage produit un
+      // chiffre inventé, en bas comme en haut. Un salaire réel de 20'000
+      // afficherait 15'000, ce qui n'est pas davantage défendable. Hors plage
+      // ⇒ non amorcé ⇒ le gate demande la saisie.
+      final raw = profile.salaireBrutMensuel;
+      final inRange = raw >= 2000.0 && raw <= 15000.0;
+      final seeded = profile.userProvidedFields.contains('salary') && inRange;
+      if (_salaireSeeded != seeded) {
+        _salaireSeeded = seeded;
         changed = true;
       }
-      if (hasKey) {
-        final v = profile.salaireBrutMensuel.clamp(2000.0, 15000.0);
-        if (v != _salaire) {
-          _salaire = v;
-          changed = true;
-        }
+      if (seeded && raw != _salaire) {
+        _salaire = raw;
+        changed = true;
       }
     }
 

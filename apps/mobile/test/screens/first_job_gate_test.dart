@@ -144,6 +144,35 @@ FirstJobResult _expectedFor(WidgetTester tester, {double? taux}) {
 
 void main() {
   // ── 1. No profile → breakdown gated, gate card lists all 3 facts ──
+  testWidgets(
+      'clé salary présente mais valeur HORS PLAGE → non confirmé, pas de '
+      'CHF 2\'000 fabriqué par le clamp', (tester) async {
+    // Régression : `_salaireSeeded` ne testait que la présence de la clé, puis
+    // amorçait `profile.salaireBrutMensuel.clamp(2000, 15000)`. Un salaire à 0
+    // portant la clé ressortait donc à CHF 2'000 — un montant jamais saisi,
+    // déclaré « confirmé », sur lequel la décomposition se calculait.
+    //
+    // Le clamp EST la fabrication, dans les deux sens : un salaire réel de
+    // 20'000 afficherait 15'000, ce qui n'est pas plus défendable.
+    for (final horsPlage in [0.0, 500.0, 20000.0]) {
+      await _pump(
+        tester,
+        _FakeProvider(_profile(
+          salaire: horsPlage,
+          provided: {'salary', 'age', 'canton'},
+        )),
+      );
+      expect(find.byType(SituationGateCard), findsOneWidget,
+          reason: 'la sortie doit rester gatée pour un salaire de $horsPlage');
+      final gate =
+          tester.widget<SituationGateCard>(find.byType(SituationGateCard));
+      expect(gate.gate.missing.map((f) => f.key), contains('salary'),
+          reason: 'le salaire hors plage ne doit pas compter comme confirmé');
+      expect(find.byType(SalaryBreakdownWidget), findsNothing,
+          reason: 'aucune décomposition sur un montant fabriqué');
+    }
+  });
+
   testWidgets('no profile: breakdown gated, gate lists {salary, age, canton}',
       (tester) async {
     await _pump(tester, _FakeProvider(null));
