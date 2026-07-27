@@ -201,12 +201,21 @@ def main() -> int:
     if args.added_only:
         added = _staged_added_lines(args.scope)
         paths = [Path(f) for f in added
-                 if Path(f).suffix in TEXT_EXTS and Path(f).exists()
+                 if Path(f).suffix in TEXT_EXTS
                  and not any(ex in "/" + f + "/" for ex in EXCLUDE_SUBSTRINGS)]
         found = 0
         for path in paths:
+            # Juger le BLOB INDEXÉ, pas le worktree : c'est l'index qui sera
+            # commité. Lire le worktree laisse passer un `creer` indexé dont
+            # seule la copie de travail a été corrigée (revue Codex 2026-07-27).
+            blob = subprocess.run(
+                ["git", "show", f":{path.as_posix()}"],
+                capture_output=True, text=True,
+            )
+            if blob.returncode != 0:
+                continue
             allowed = added.get(path.as_posix(), set())
-            for lineno, snippet, pat in scan_file(path):
+            for lineno, snippet, pat in scan_text(blob.stdout):
                 if lineno not in allowed:
                     continue
                 print(f"{path}:{lineno}: {snippet} ({pat})", file=sys.stderr)
