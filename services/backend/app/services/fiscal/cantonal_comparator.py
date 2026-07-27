@@ -285,6 +285,57 @@ def estimate_income_tax_parts(
     return impot_federal, impot_cantonal
 
 
+def estimate_marginal_rate(
+    taxable_income: float,
+    canton: str,
+    is_married: bool = False,
+) -> float:
+    """Taux marginal — PENTE LOCALE du modele canonique, jamais une table.
+
+    Le taux marginal n'est pas une donnee : c'est une DERIVEE de
+    ``CANTONAL_COMMUNAL_TAX_CHF``. Toute table qui le stocke est, par
+    construction, une copie qui divergera. Le depot en portait huit, qui
+    donnaient pour Zurich 0.30, 0.28, 0.28, 0.34, 0.25 et 0.129 — jusqu'a
+    dix points d'ecart entre deux surfaces du meme produit.
+
+    Mesure du 2026-07-27 contre cette fonction, sur 12 couples
+    canton/revenu : l'ancienne composition ``IFD_2024 + add-on cantonal``
+    de ``rules_engine`` surestimait de +11.2 points en moyenne, soit une
+    economie d'impot 3a annoncee jusqu'a +74 % au-dessus du reel a Zoug.
+
+    Bornee a [0.0, 0.50]. Un plancher non nul inventerait une economie
+    pour un revenu non impose.
+    """
+    if taxable_income <= 0:
+        return 0.0
+    delta = min(1000.0, taxable_income)
+    hi = estimate_income_tax(taxable_income, canton, is_married=is_married)
+    lo = estimate_income_tax(taxable_income - delta, canton, is_married=is_married)
+    return max(0.0, min(0.50, (hi - lo) / delta))
+
+
+def estimate_tax_saving(
+    taxable_income: float,
+    deduction: float,
+    canton: str,
+    is_married: bool = False,
+) -> float:
+    """Economie fiscale d'une deduction — DIFFERENCE d'impot, pas un produit.
+
+    ``deduction x taux_marginal`` est une approximation qui se degrade des
+    que la deduction traverse un palier : le taux marginal du dernier franc
+    n'est pas celui des 7'258 francs precedents. La difference d'impot est
+    exacte par construction.
+    """
+    if deduction <= 0 or taxable_income <= 0:
+        return 0.0
+    hi = estimate_income_tax(taxable_income, canton, is_married=is_married)
+    lo = estimate_income_tax(
+        max(0.0, taxable_income - deduction), canton, is_married=is_married
+    )
+    return max(0.0, hi - lo)
+
+
 def estimate_income_tax(
     taxable_income: float,
     canton: str,
