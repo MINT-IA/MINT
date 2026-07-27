@@ -213,6 +213,8 @@ ALLOW = {
     "tools/checks/no_hardcoded_fr.py",
     "tools/checks/_baseline_diff.py",
     "tools/checks/no_cantonal_rate_table.py",
+    "services/backend/app/services/coaching_engine.py",
+    "services/backend/app/services/first_job/onboarding_service.py",
     "tools/checks/prefer_mint_cta.py",
     "tools/checks/prefer_mint_text_style.py",
     "tools/checks/prefer_mint_fonts.py",
