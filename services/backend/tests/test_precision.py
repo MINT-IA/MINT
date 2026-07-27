@@ -292,6 +292,27 @@ class TestDelegueALEtalon:
         assert len(rate_alerts) >= 1
         assert "eleve" in rate_alerts[0].message.lower()
 
+    def test_canton_inconnu_ne_fabrique_ni_alerte_ni_default(self):
+        """« CH » passe le schema (2 lettres) mais n'est pas un canton.
+
+        Servir la moyenne de l'etalon sous l'etiquette « dans le canton
+        CH » fabriquerait un chiffre local (revue Codex 2026-07-27) :
+        Check 6 se tait (comportement d'avant conserve) et aucun
+        SmartDefault taux_marginal n'est emis (avant : taux de ZH
+        etiquetes du canton inconnu).
+        """
+        alerts = cross_validate({
+            "salaire_brut": 150_000,
+            "taux_marginal": 0.60,
+            "canton": "CH",
+        })
+        assert [a for a in alerts if a.field_name == "taux_marginal"] == []
+
+        defaults = compute_smart_defaults(
+            archetype="swiss_native", age=35, salary=80_000, canton="CH",
+        )
+        assert "taux_marginal" not in [d.field_name for d in defaults]
+
 
 # ===================================================================
 # 3. Smart Defaults Tests (10 tests)

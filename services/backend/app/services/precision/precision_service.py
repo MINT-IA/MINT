@@ -534,17 +534,20 @@ def compute_smart_defaults(
     ))
 
     # ── Marginal tax rate estimation ────────────────────────────────────
+    # Canton hors des 26 -> pas de default : l'ancien fallback servait les
+    # taux de ZH etiquetes « dans le canton XX » (chiffre fabrique).
     marginal_rate = _estimate_marginal_rate(salary, canton)
-    defaults.append(SmartDefault(
-        field_name="taux_marginal",
-        value=round(marginal_rate, 4),
-        source=(
-            f"Estimation basee sur un revenu de {_format_chf(salary)}/an "
-            f"dans le canton {canton}. Pente du modele fiscal calibre sur "
-            f"l'API ESTV (IFD + impot cantonal + communal)."
-        ),
-        confidence=0.55,
-    ))
+    if marginal_rate > 0:
+        defaults.append(SmartDefault(
+            field_name="taux_marginal",
+            value=round(marginal_rate, 4),
+            source=(
+                f"Estimation basee sur un revenu de {_format_chf(salary)}/an "
+                f"dans le canton {canton}. Pente du modele fiscal calibre sur "
+                f"l'API ESTV (IFD + impot cantonal + communal)."
+            ),
+            confidence=0.55,
+        ))
 
     # ── Liquidity reserve estimation ────────────────────────────────────
     net_ratio = _CANTON_NET_RATIO.get(canton, 0.78)
@@ -720,12 +723,28 @@ def _estimate_marginal_rate(salary: float, canton: str) -> float:
 
     L'ancienne table 3-tranches divergeait de l'etalon jusqu'a +5,3 points
     (GE, tranche high) et retombait sur 0.25 sans source pour un canton ou
-    une tranche inconnus. L'etalon couvre aussi le canton inconnu (pente du
-    multiplicateur par defaut) — Check 6 ne se tait donc plus en silence.
-    """
-    from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+    une tranche inconnus.
 
-    return estimate_marginal_rate(salary, canton.upper() if canton else canton)
+    Canton hors des 26 -> 0.0 : le schema ne valide que la longueur (2
+    lettres), et servir la moyenne de l'etalon sous l'etiquette « dans le
+    canton XX » fabriquerait un chiffre local (revue Codex 2026-07-27).
+    Les appelants traitent 0.0 comme « pas de reference » : Check 6 se
+    tait, aucun SmartDefault n'est emis.
+
+    Approximation assumee : l'entree est le salaire BRUT alors que
+    l'etalon est calibre sur le revenu imposable — surestime pour qui a
+    des deductions. Meme convention que les surfaces jumelles deja
+    drainees ; en deriver un imposable inventerait une deduction.
+    """
+    from app.services.fiscal.cantonal_comparator import (
+        CANTONAL_COMMUNAL_TAX_CHF,
+        estimate_marginal_rate,
+    )
+
+    canton_code = (canton or "").upper()
+    if canton_code not in CANTONAL_COMMUNAL_TAX_CHF:
+        return 0.0
+    return estimate_marginal_rate(salary, canton_code)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
