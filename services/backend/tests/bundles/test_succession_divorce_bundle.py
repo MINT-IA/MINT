@@ -64,12 +64,21 @@ def test_succession_divorce_bundle_forbids_extra():
 
 def test_succession_divorce_bundle_cites_swiss_articles():
     """Prompt fragment must cite CC art. 122-124 + CC art. 462 +
-    CC art. 467-469 + LAVS art. 29sexies."""
+    CC art. 470-471 + LAVS art. 29sexies.
+
+    Les reserves hereditaires sont aux CC art. 470-471, pas 467-469
+    (capacite de disposer + vices de volonte). Source dans le depot :
+    `succession_simulator.py` docstring + adaptateur coach (meme
+    correction, test_anthropic_defer_loading_adapter.py:170). Ce test
+    exigeait la citation fausse — un test vert qui gravait un fait faux
+    (regle 3 du hand-off 2026-07-27).
+    """
     bundle = SuccessionDivorceBundle()
     fragment = bundle.prompt_fragment
     assert "CC art. 122-124" in fragment, "missing CC art. 122-124"
     assert "CC art. 462" in fragment, "missing CC art. 462"
-    assert "CC art. 467-469" in fragment, "missing CC art. 467-469"
+    assert "CC art. 470-471" in fragment, "missing CC art. 470-471"
+    assert "467-469" not in fragment, "reserves mal citees (467-469)"
     assert "LAVS art. 29sexies" in fragment, "missing LAVS art. 29sexies"
 
 
