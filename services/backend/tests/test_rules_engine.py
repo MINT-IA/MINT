@@ -249,44 +249,56 @@ class TestDebtRiskScore:
 
 
 class TestMarginalTaxRate:
-    """Tests for marginal tax rate (IFD + cantonal estimation)."""
+    """Taux marginal — assertions derivees de l'ETALON, jamais de bandes ecrites a la main.
 
-    def test_zh_100k_single(self):
-        """ZH medium tax: IFD marginal 6.60% + ZH 30% = ~36.6% -> clamped."""
-        rate = calculate_marginal_tax_rate("ZH", 100000, "single")
-        assert 0.28 <= rate <= 0.40
+    Ces tests validaient auparavant le bug qu'ils etaient censes couvrir.
+    Leurs docstrings le documentaient meme : « IFD marginal 6.60% + ZH 30%
+    = ~36.6% ». `test_zh_100k_single` acceptait 0.28-0.40 pour une verite a
+    0.254, et `test_low_income_floor` exigeait un plancher de 10 % sur un
+    revenu de CHF 20'000 — c'est-a-dire qu'il EXIGEAIT le plancher invente.
 
-    def test_ge_100k_single(self):
-        """GE high tax: IFD marginal 6.60% + GE 41% = ~47.6% -> clamped 0.45."""
-        rate = calculate_marginal_tax_rate("GE", 100000, "single")
-        assert 0.35 <= rate <= 0.45
+    Une bande ecrite a la main ne prouve rien : elle encode l'attente de son
+    auteur. Les assertions comparent desormais a
+    ``fiscal.cantonal_comparator.estimate_marginal_rate``, qui est la pente
+    du modele calibre sur l'API officielle ESTV.
+    """
 
-    def test_lu_100k_single(self):
-        """LU low tax: IFD marginal 6.60% + LU 25% = ~31.6%."""
-        rate = calculate_marginal_tax_rate("LU", 100000, "single")
-        assert 0.20 <= rate <= 0.35
+    def test_delegue_a_l_etalon_sur_26_cantons(self):
+        """Aucune surface publique ne doit devier de la pente canonique."""
+        from app.services.fiscal.cantonal_comparator import (
+            CANTONAL_COMMUNAL_TAX_CHF,
+            estimate_marginal_rate,
+        )
 
-    def test_ge_higher_than_lu(self):
-        """GE should always be higher than LU for same income."""
-        rate_ge = calculate_marginal_tax_rate("GE", 100000)
-        rate_lu = calculate_marginal_tax_rate("LU", 100000)
-        assert rate_ge > rate_lu
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
+            for revenu in (40000, 80000, 100000, 150000):
+                attendu = estimate_marginal_rate(revenu, canton)
+                obtenu = calculate_marginal_tax_rate(canton, revenu, "single")
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
 
-    def test_canton_actually_matters(self):
-        """Le canton ne doit PLUS être ignoré."""
-        rate_zh = calculate_marginal_tax_rate("ZH", 100000)
-        rate_ge = calculate_marginal_tax_rate("GE", 100000)
-        assert rate_zh != rate_ge
+    def test_pas_de_plancher_invente_sur_un_revenu_peu_impose(self):
+        """Un revenu de 20'000 a Zoug n'a PAS un taux marginal de 10 %.
 
-    def test_low_income_floor(self):
-        """Very low income should still return at least 0.10."""
-        rate = calculate_marginal_tax_rate("ZG", 20000, "single")
-        assert rate >= 0.10
+        L'ancien clamp [0.10, 0.45] inventait un taux pour des revenus
+        quasi non imposes et masquait les cantons les plus lourds.
+        """
+        assert calculate_marginal_tax_rate("ZG", 20000, "single") < 0.10
 
-    def test_very_high_income_ceiling(self):
-        """Very high income should be clamped at 0.45."""
-        rate = calculate_marginal_tax_rate("GE", 1000000, "single")
-        assert rate <= 0.45
+    def test_ordre_cantonal_conserve(self):
+        """Geneve reste au-dessus de Lucerne a revenu egal."""
+        assert calculate_marginal_tax_rate("GE", 100000) > calculate_marginal_tax_rate(
+            "LU", 100000
+        )
+
+    def test_le_canton_change_le_resultat(self):
+        assert calculate_marginal_tax_rate("ZH", 100000) != calculate_marginal_tax_rate(
+            "GE", 100000
+        )
+
+    def test_revenu_nul_ne_produit_aucun_taux(self):
+        assert calculate_marginal_tax_rate("ZH", 0, "single") == 0.0
 
     def test_married_lower_than_single(self):
         """Married bracket starts higher, so marginal rate should differ."""

@@ -9,11 +9,9 @@ from typing import List, Optional, Tuple
 
 from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
-    married_capital_tax_discount_for,
     PILIER_3A_PLAFOND_AVEC_LPP,
     PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    calculate_progressive_capital_tax,
     get_ai_rente_monthly,
 )
 
@@ -319,53 +317,44 @@ def calculate_leasing_opportunity_cost(
 # --- IFD Brackets (LIFD art. 36, 2024) ---
 # Format: list of (cumulative_threshold_CHF, marginal_rate_percent)
 
-IFD_BRACKETS_SINGLE = [
-    (14500, 0.0), (31600, 0.77), (41400, 0.88), (55200, 2.64),
-    (72500, 2.97), (78100, 5.94), (103600, 6.60), (134600, 8.80),
-    (176000, 11.00), (755200, 13.20), (float("inf"), 11.50),
-]
 
-IFD_BRACKETS_MARRIED = [
-    (28300, 0.0), (50900, 1.0), (58400, 2.0), (75300, 3.0),
-    (90300, 4.0), (103400, 5.0), (114700, 6.0), (124200, 7.0),
-    (131700, 8.0), (137300, 9.0), (141200, 10.0), (143100, 11.0),
-    (145000, 12.0), (895900, 13.0), (float("inf"), 11.50),
-]
 
 # Estimated cantonal+communal marginal add-on by canton.
 # These approximate the additional cantonal/communal marginal rate on top of IFD.
 # Source: swiss-brain estimates based on chef-lieu rates, 2024.
 # All 26 cantons — estimated cantonal+communal marginal add-on (chef-lieu, 2024).
-CANTON_MARGINAL_MULTIPLIERS = {
-    "AG": 0.31, "AI": 0.26, "AR": 0.28, "BE": 0.36,
-    "BL": 0.32, "BS": 0.33, "FR": 0.37, "GE": 0.41,
-    "GL": 0.28, "GR": 0.29, "JU": 0.40, "LU": 0.25,
-    "NE": 0.39, "NW": 0.24, "OW": 0.24, "SG": 0.30,
-    "SH": 0.30, "SO": 0.32, "SZ": 0.24, "TG": 0.29,
-    "TI": 0.33, "UR": 0.26, "VD": 0.38, "VS": 0.34,
-    "ZG": 0.22, "ZH": 0.30,
-}
-
-_DEFAULT_CANTON_MULTIPLIER = 0.32  # Moyenne CH
 
 
-def _get_ifd_marginal_rate(income_gross: float, household_type: str) -> float:
-    """Return the IFD marginal rate (as decimal, e.g. 0.066) for the last bracket reached.
 
-    Barèmes LIFD art. 36 al. 1 (célibataires) et al. 2 (mariés), 2024.
-    """
-    brackets = (
-        IFD_BRACKETS_MARRIED if household_type == "married" else IFD_BRACKETS_SINGLE
-    )
-    previous = 0.0
-    marginal_rate_pct = 0.0
-    for threshold, rate_pct in brackets:
-        if income_gross <= previous:
-            break
-        marginal_rate_pct = rate_pct
-        previous = threshold
-    return marginal_rate_pct / 100
 
+# Le depot emploie TROIS libelles pour un menage marie : « married »,
+# « couple » et « family » (recensement du 2026-07-27 : couple x15,
+# single x12, married x2). Tester `== "married"` seul faisait recevoir le
+# bareme celibataire a la majorite des menages maries — c'est ce qu'un
+# golden a revele en refusant une valeur pourtant recalculee.
+_MARRIED_HOUSEHOLD_LABELS = frozenset({"married", "couple", "family"})
+
+
+def _is_married_household(household_type: str | None) -> bool:
+    return (household_type or "single").lower() in _MARRIED_HOUSEHOLD_LABELS
+
+
+# Les baremes IFD 2024 (IFD_BRACKETS_SINGLE / _MARRIED) et la table d'add-on
+# cantonal (CANTON_MARGINAL_MULTIPLIERS) ont ete SUPPRIMES le 2026-07-27.
+# Ne pas les reintroduire.
+#
+# Le taux marginal n'est pas une donnee, c'est une DERIVEE du modele fiscal
+# canonique. Toute table qui le stocke est une copie qui divergera : le depot
+# en portait huit, donnant pour Zurich 0.30, 0.28, 0.28, 0.34, 0.25 et 0.129.
+#
+# Cette composition-ci additionnait un bareme federal 2024 et un add-on dont
+# la source declaree etait « swiss-brain estimates », c'est-a-dire nous-memes.
+# Mesure du 2026-07-27 sur 12 couples canton/revenu : +11.2 points d'ecart
+# moyen, et une economie d'impot 3a annoncee jusqu'a +74 % au-dessus du reel
+# a Zoug — dans une phrase a l'imperatif (« Economisez CHF X/an d'impots »).
+#
+# Source unique desormais : fiscal.cantonal_comparator.estimate_marginal_rate
+# et estimate_tax_saving, calibrees sur l'API officielle ESTV.
 
 def calculate_marginal_tax_rate(
     canton: str, income_gross: float, household_type: str = "single"
@@ -383,14 +372,26 @@ def calculate_marginal_tax_rate(
     Returns:
         Combined marginal tax rate as a decimal (e.g. 0.35 for 35%).
 
-    Sources:
-        - IFD: LIFD art. 36 (2024)
-        - Cantonal: swiss-brain estimates based on chef-lieu rates
+    Source : PENTE LOCALE du modele fiscal canonique
+    (``fiscal.cantonal_comparator.estimate_marginal_rate``), calibre sur
+    l'API officielle ESTV.
+
+    Cette fonction composait auparavant un bareme federal 2024 avec un
+    « add-on cantonal » dont la source declaree etait « swiss-brain
+    estimates » — c'est-a-dire nous-memes. Mesure du 2026-07-27 sur 12
+    couples canton/revenu : surestimation de +11.2 points en moyenne, et
+    jusqu'a +74 % sur l'economie d'impot 3a annoncee a Zoug.
+
+    Le clamp [0.10, 0.45] est retire avec elle : un plancher a 10 %
+    inventait un taux marginal pour des revenus non imposes, et un plafond
+    a 45 % masquait les cantons les plus lourds. La pente est bornee a
+    [0.0, 0.50] par la fonction canonique.
     """
-    ifd_marginal = _get_ifd_marginal_rate(income_gross, household_type)
-    canton_addon = CANTON_MARGINAL_MULTIPLIERS.get(canton, _DEFAULT_CANTON_MULTIPLIER)
-    combined = ifd_marginal + canton_addon
-    return max(0.10, min(0.45, round(combined, 4)))
+    from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+    return estimate_marginal_rate(
+        income_gross, canton, is_married=_is_married_household(household_type)
+    )
 
 
 def get_3a_ceiling(
@@ -423,9 +424,15 @@ def calculate_tax_potential(
     has_2nd_pillar: Optional[bool] = None,
 ) -> str:
     """Estimate potential tax savings (3a only) for MVP display."""
+    from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
     ceiling = get_3a_ceiling(employment_status, has_2nd_pillar)
-    marginal_rate = calculate_marginal_tax_rate(canton, income_gross, household_type)
-    saving = ceiling * marginal_rate
+    # DIFFERENCE d'impot, pas « plafond x taux marginal ». Le taux marginal
+    # du dernier franc n'est pas celui des 7'258 francs precedents : le
+    # produit surestime des que la deduction traverse un palier.
+    saving = estimate_tax_saving(
+        income_gross, ceiling, canton, is_married=_is_married_household(household_type)
+    )
     # Format as range "~1100-1400" to be safe/realistic relative to user expectation
     low = int(saving * 0.9 / 100) * 100
     high = int(saving * 1.1 / 100) * 100
