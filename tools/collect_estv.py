@@ -49,15 +49,25 @@ API_HOST = "swisstaxcalculator.estv.admin.ch"
 API_OPERATION = "API_calculateSimpleTaxes"
 
 
-def _load_archive() -> tuple[dict, dict[str, dict]]:
-    """(consolidated, canton -> bloc de lot) depuis l'archive du 2026-07-23."""
+def _load_archive() -> tuple[dict, dict[str, dict], dict[str, int]]:
+    """(consolidated, canton -> bloc, canton -> Confession1) de l'archive.
+
+    Le code de confession N'EST PAS uniforme entre les lots : les métas des
+    lots 1-2 documentent Confession1=5, le lot 3 documente Confession1=4
+    (relevé par revue Codex 2026-07-27), le lot 4 ne le documente pas. Il se
+    lit donc dans l'archive, jamais en dur.
+    """
     consolidated = json.loads((ARCHIVE_DIR / "consolidated.json").read_text())
     by_canton: dict[str, dict] = {}
+    confession_by_canton: dict[str, int] = {}
     for lot in sorted(ARCHIVE_DIR.glob("lot*.json")):
         data = json.loads(lot.read_text())
+        m = re.search(r"Confession1=(\d)", json.dumps(data["meta"], ensure_ascii=False))
         for canton, bloc in data["cantons"].items():
             by_canton[canton] = bloc
-    return consolidated, by_canton
+            if m:
+                confession_by_canton[canton] = int(m.group(1))
+    return consolidated, by_canton, confession_by_canton
 
 
 def _tax_location_id(bloc: dict) -> int | None:
@@ -68,7 +78,9 @@ def _tax_location_id(bloc: dict) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def build_payload(canton: str, revenu: int, bloc: dict, tax_year: int) -> dict:
+def build_payload(
+    canton: str, revenu: int, bloc: dict, tax_year: int, confession: int | None
+) -> dict:
     """Requête API_calculateSimpleTaxes conforme à meta.méthode (2026-07-23)."""
     location = _tax_location_id(bloc)
     if location is None:
@@ -77,11 +89,17 @@ def build_payload(canton: str, revenu: int, bloc: dict, tax_year: int) -> dict:
             "ni source_note) — à récupérer via API_searchLocation avant toute "
             "re-collecte."
         )
+    if confession is None:
+        raise ValueError(
+            f"{canton}: Confession1 absent des métas de son lot — le code "
+            "exact (5 pour les lots 1-2, 4 pour le lot 3) doit venir de "
+            "l'archive, pas d'une constante."
+        )
     return {
         "TaxYear": tax_year,
         "TaxLocationID": location,
         "Relationship": 1,
-        "Confession1": 5,
+        "Confession1": confession,
         "TaxableIncomeCanton": revenu,
         "TaxableIncomeFed": revenu,
         "TaxableFortune": 0,
@@ -89,7 +107,7 @@ def build_payload(canton: str, revenu: int, bloc: dict, tax_year: int) -> dict:
 
 
 def dry_run(canton: str, revenu: int) -> int:
-    consolidated, by_canton = _load_archive()
+    consolidated, by_canton, _ = _load_archive()
     points = consolidated["points_chf"].get(canton)
     bloc = by_canton.get(canton)
     if points is None or bloc is None:
