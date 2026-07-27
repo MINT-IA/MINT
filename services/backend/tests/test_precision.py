@@ -250,6 +250,49 @@ class TestCrossValidation:
         assert rate_alerts[0].severity == "warning"
 
 
+class TestDelegueALEtalon:
+    """Le taux marginal de precision_service DERIVE de l'etalon, plus d'une table.
+
+    Constat 2026-07-27 (.planning/architecture/2026-07-27-constat-precision-
+    service-taux-marginaux.md) : _MARGINAL_RATES_BY_CANTON servait l'alerte
+    Check 6 ET le SmartDefault taux_marginal (fallback 0.25 sans source),
+    avec des ecarts mesures jusqu'a +5,3 points contre l'etalon (GE high).
+    """
+
+    def test_taux_marginal_delegue_a_l_etalon_sur_26_cantons(self):
+        from app.services.fiscal.cantonal_comparator import (
+            CANTONAL_COMMUNAL_TAX_CHF,
+            estimate_marginal_rate,
+        )
+        from app.services.precision.precision_service import (
+            _estimate_marginal_rate,
+        )
+
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
+            for revenu in (45_000, 90_000, 150_000):
+                attendu = estimate_marginal_rate(revenu, canton)
+                obtenu = _estimate_marginal_rate(revenu, canton)
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
+
+    def test_alerte_bord_de_bande_derive_de_l_etalon(self):
+        """GE 150k, saisie 0.60 : 0.60 > 1.6 x etalon (~0.587) -> « semble eleve ».
+
+        Avec la table (0.42, borne 0.672) l'alerte restait muette — cas de
+        bascule mesure du constat. La bande [0.5x ; 1.6x] est conservee ;
+        seule la valeur de reference change de source.
+        """
+        alerts = cross_validate({
+            "salaire_brut": 150_000,
+            "taux_marginal": 0.60,
+            "canton": "GE",
+        })
+        rate_alerts = [a for a in alerts if a.field_name == "taux_marginal"]
+        assert len(rate_alerts) >= 1
+        assert "eleve" in rate_alerts[0].message.lower()
+
+
 # ===================================================================
 # 3. Smart Defaults Tests (10 tests)
 # ===================================================================

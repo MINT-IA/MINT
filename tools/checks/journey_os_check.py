@@ -434,6 +434,9 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # Drain des taux marginaux vers l'étalon (hand-off 2026-07-27 §3.1b)
+    "services/backend/app/services/precision/precision_service.py",
+    "services/backend/tests/test_precision.py",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
