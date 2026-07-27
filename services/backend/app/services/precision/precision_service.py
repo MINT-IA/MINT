@@ -241,38 +241,14 @@ _CANTON_NET_RATIO: Dict[str, float] = {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Estimated marginal tax rates by canton and income bracket
+# Marginal tax rate — DERIVE de l'etalon, plus une table
 # ═══════════════════════════════════════════════════════════════════════════════
-
-_MARGINAL_RATES_BY_CANTON: Dict[str, Dict[str, float]] = {
-    # For each canton: low (<60k), mid (60k-120k), high (>120k)
-    "ZH": {"low": 0.18, "mid": 0.28, "high": 0.35},
-    "BE": {"low": 0.20, "mid": 0.30, "high": 0.38},
-    "LU": {"low": 0.16, "mid": 0.25, "high": 0.32},
-    "UR": {"low": 0.14, "mid": 0.22, "high": 0.28},
-    "SZ": {"low": 0.12, "mid": 0.20, "high": 0.26},
-    "OW": {"low": 0.13, "mid": 0.21, "high": 0.27},
-    "NW": {"low": 0.12, "mid": 0.20, "high": 0.26},
-    "GL": {"low": 0.16, "mid": 0.25, "high": 0.31},
-    "ZG": {"low": 0.10, "mid": 0.18, "high": 0.23},
-    "FR": {"low": 0.19, "mid": 0.29, "high": 0.36},
-    "SO": {"low": 0.18, "mid": 0.28, "high": 0.35},
-    "BS": {"low": 0.21, "mid": 0.31, "high": 0.38},
-    "BL": {"low": 0.19, "mid": 0.29, "high": 0.36},
-    "SH": {"low": 0.17, "mid": 0.26, "high": 0.33},
-    "AR": {"low": 0.16, "mid": 0.25, "high": 0.31},
-    "AI": {"low": 0.13, "mid": 0.21, "high": 0.27},
-    "SG": {"low": 0.17, "mid": 0.26, "high": 0.33},
-    "GR": {"low": 0.16, "mid": 0.25, "high": 0.32},
-    "AG": {"low": 0.17, "mid": 0.26, "high": 0.33},
-    "TG": {"low": 0.16, "mid": 0.24, "high": 0.31},
-    "TI": {"low": 0.18, "mid": 0.28, "high": 0.35},
-    "VD": {"low": 0.22, "mid": 0.32, "high": 0.40},
-    "VS": {"low": 0.17, "mid": 0.27, "high": 0.34},
-    "NE": {"low": 0.20, "mid": 0.30, "high": 0.37},
-    "GE": {"low": 0.22, "mid": 0.33, "high": 0.42},
-    "JU": {"low": 0.20, "mid": 0.30, "high": 0.37},
-}
+# La table `_MARGINAL_RATES_BY_CANTON` (26 cantons x 3 tranches) a ete
+# SUPPRIMEE le 2026-07-27. Ne pas la reintroduire : un taux marginal est une
+# DERIVEE du modele calibre (`fiscal.cantonal_comparator`), pas une donnee.
+# Elle divergeait de l'etalon jusqu'a +5,3 points (GE, tranche high) et son
+# fallback 0.25 n'avait aucune source. Constat :
+# .planning/architecture/2026-07-27-constat-precision-service-taux-marginaux.md
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -476,9 +452,7 @@ def cross_validate(profile: dict) -> List[CrossValidationAlert]:
 
     # ── Check 6: Marginal rate vs income coherence ─────────────────────
     if taux_marginal > 0 and salary > 0 and canton:
-        expected_bracket = _get_income_bracket(salary)
-        rates = _MARGINAL_RATES_BY_CANTON.get(canton, {})
-        expected_rate = rates.get(expected_bracket, 0)
+        expected_rate = _estimate_marginal_rate(salary, canton)
 
         if expected_rate > 0:
             if taux_marginal < expected_rate * 0.5:
@@ -566,8 +540,8 @@ def compute_smart_defaults(
         value=round(marginal_rate, 4),
         source=(
             f"Estimation basee sur un revenu de {_format_chf(salary)}/an "
-            f"dans le canton {canton}. Baremes cantonaux approximatifs "
-            f"(LIFD + impot cantonal + communal)."
+            f"dans le canton {canton}. Pente du modele fiscal calibre sur "
+            f"l'API ESTV (IFD + impot cantonal + communal)."
         ),
         confidence=0.55,
     ))
@@ -742,19 +716,16 @@ def _lpp_confidence(archetype: str) -> float:
 
 
 def _estimate_marginal_rate(salary: float, canton: str) -> float:
-    """Estime le taux marginal d'imposition."""
-    bracket = _get_income_bracket(salary)
-    rates = _MARGINAL_RATES_BY_CANTON.get(canton, _MARGINAL_RATES_BY_CANTON.get("ZH", {}))
-    return rates.get(bracket, 0.25)
+    """Taux marginal — PENTE du modele fiscal canonique, plus une table.
 
+    L'ancienne table 3-tranches divergeait de l'etalon jusqu'a +5,3 points
+    (GE, tranche high) et retombait sur 0.25 sans source pour un canton ou
+    une tranche inconnus. L'etalon couvre aussi le canton inconnu (pente du
+    multiplicateur par defaut) — Check 6 ne se tait donc plus en silence.
+    """
+    from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
 
-def _get_income_bracket(salary: float) -> str:
-    """Determine la tranche de revenu."""
-    if salary < 60_000:
-        return "low"
-    elif salary <= 120_000:
-        return "mid"
-    return "high"
+    return estimate_marginal_rate(salary, canton.upper() if canton else canton)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
