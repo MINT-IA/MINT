@@ -240,7 +240,10 @@ class TestDivorceTaxImpact:
             canton="GE",
         )
         result = divorce_sim.simulate(data)
-        attendu = round(estimate_income_tax(160_000, "GE", is_married=True), 2)
+        # base imposable = 85 % du brut (convention de l'etalon).
+        attendu = round(
+            estimate_income_tax(160_000 * 0.85, "GE", is_married=True), 2
+        )
         assert result.impact_fiscal_avant["impot_commun"] == pytest.approx(
             attendu, abs=0.01
         )

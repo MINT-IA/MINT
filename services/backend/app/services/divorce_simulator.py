@@ -86,6 +86,15 @@ class DivorceSimulator:
     # 40'752 a l'etalon). Hand-off 2026-07-27 §3.4 : « fusionner, pas
     # retirer ».
 
+    # Conversion brut -> imposable : MEME simplification documentee que
+    # CantonalComparator.estimate_tax (« imposable ~ 85 % du brut »). Le
+    # flux mobile envoie salaireBrutMensuel x 12
+    # (divorce_simulator_screen.dart:156) ; servir le brut a un modele
+    # calibre sur le revenu imposable surestimait l'impot et le delta
+    # (revue Codex P1 2026-07-27). Pas une nouvelle constante : la
+    # convention vit dans l'etalon.
+    TAUX_IMPOSABLE_DU_BRUT = 0.85
+
     # Pension alimentaire: simplified "method du minimum vital"
     # Rough estimate: ~1/3 of income gap for children, 10-20% for spouse (short marriages get less)
     PENSION_CHILD_MONTHLY_BASE = 600.0       # Base per child (CHF/month)
@@ -350,17 +359,14 @@ class DivorceSimulator:
         from app.services.fiscal.cantonal_comparator import estimate_income_tax
 
         revenu_total = data.revenu_annuel_conjoint_1 + data.revenu_annuel_conjoint_2
+        imposable = revenu_total * self.TAUX_IMPOSABLE_DU_BRUT
 
         # Etalon : IFD progressif + interpolation ESTV, bareme marie.
-        impot_commun = estimate_income_tax(
-            revenu_total, data.canton, is_married=True
-        )
-        taux_effectif = (
-            round(impot_commun / revenu_total, 4) if revenu_total > 0 else 0.0
-        )
+        impot_commun = estimate_income_tax(imposable, data.canton, is_married=True)
+        taux_effectif = round(impot_commun / imposable, 4) if imposable > 0 else 0.0
 
         return {
-            "revenu_impose_commun": round(revenu_total, 2),
+            "revenu_impose_commun": round(imposable, 2),
             "impot_commun": round(impot_commun, 2),
             "taux_applique": taux_effectif,
             "source": "LIFD art. 36",
@@ -400,28 +406,33 @@ class DivorceSimulator:
         else:
             married_1, married_2 = False, False
 
-        # Tax on individual income
-        # Pension alimentaire: payer deducts, receiver adds
+        # Base imposable (~85 % du brut, convention de l'etalon), puis
+        # pension alimentaire : deduite EN PLEIN du revenu imposable du
+        # debiteur (LIFD art. 33), ajoutee en plein chez le creancier
+        # (LIFD art. 23).
+        imposable_1 = data.revenu_annuel_conjoint_1 * self.TAUX_IMPOSABLE_DU_BRUT
+        imposable_2 = data.revenu_annuel_conjoint_2 * self.TAUX_IMPOSABLE_DU_BRUT
+
         if data.revenu_annuel_conjoint_1 > data.revenu_annuel_conjoint_2:
-            revenu_1_apres = data.revenu_annuel_conjoint_1 - pension_est
-            revenu_2_apres = data.revenu_annuel_conjoint_2 + pension_est
+            imposable_1_apres = imposable_1 - pension_est
+            imposable_2_apres = imposable_2 + pension_est
         elif data.revenu_annuel_conjoint_2 > data.revenu_annuel_conjoint_1:
-            revenu_1_apres = data.revenu_annuel_conjoint_1 + pension_est
-            revenu_2_apres = data.revenu_annuel_conjoint_2 - pension_est
+            imposable_1_apres = imposable_1 + pension_est
+            imposable_2_apres = imposable_2 - pension_est
         else:
-            revenu_1_apres = data.revenu_annuel_conjoint_1
-            revenu_2_apres = data.revenu_annuel_conjoint_2
+            imposable_1_apres = imposable_1
+            imposable_2_apres = imposable_2
 
         impot_1 = estimate_income_tax(
-            max(0.0, revenu_1_apres), data.canton, is_married=married_1
+            max(0.0, imposable_1_apres), data.canton, is_married=married_1
         )
         impot_2 = estimate_income_tax(
-            max(0.0, revenu_2_apres), data.canton, is_married=married_2
+            max(0.0, imposable_2_apres), data.canton, is_married=married_2
         )
         impot_total_apres = impot_1 + impot_2
 
         impot_avant = estimate_income_tax(
-            data.revenu_annuel_conjoint_1 + data.revenu_annuel_conjoint_2,
+            imposable_1 + imposable_2,
             data.canton,
             is_married=True,
         )

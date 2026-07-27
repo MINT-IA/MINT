@@ -229,7 +229,11 @@ class TestFiscalDelegueALEtalon:
         # AI etait ABSENT de l'ancienne table -> fallback silencieux.
         for canton in ("VS", "ZH", "AI"):
             result = simulator.simulate(_base_input(canton=canton))
-            attendu = round(estimate_income_tax(180_000, canton, is_married=True), 2)
+            # base imposable = 85 % du brut (convention de l'etalon,
+            # CantonalComparator.estimate_tax) — revue Codex P1.
+            attendu = round(
+                estimate_income_tax(180_000 * 0.85, canton, is_married=True), 2
+            )
             obtenu = result.impact_fiscal_avant["impot_commun"]
             assert obtenu == pytest.approx(attendu, abs=0.01), (
                 f"{canton} : {obtenu} != etalon {attendu}"
@@ -246,7 +250,9 @@ class TestFiscalDelegueALEtalon:
             canton="ZH",
         )
         result = simulator.simulate(data)
-        attendu = round(estimate_income_tax(90_000, "ZH", is_married=False), 2)
+        attendu = round(
+            estimate_income_tax(90_000 * 0.85, "ZH", is_married=False), 2
+        )
         assert result.impact_fiscal_apres["impot_conjoint_1"] == pytest.approx(
             attendu, abs=0.01
         )
@@ -270,8 +276,12 @@ class TestFiscalDelegueALEtalon:
             canton="ZH",
         )
         result = simulator.simulate(data)
-        gardien = round(estimate_income_tax(90_000, "ZH", is_married=True), 2)
-        autre = round(estimate_income_tax(90_000, "ZH", is_married=False), 2)
+        gardien = round(
+            estimate_income_tax(90_000 * 0.85, "ZH", is_married=True), 2
+        )
+        autre = round(
+            estimate_income_tax(90_000 * 0.85, "ZH", is_married=False), 2
+        )
         assert result.impact_fiscal_apres["impot_conjoint_1"] == pytest.approx(
             gardien, abs=0.01
         )
