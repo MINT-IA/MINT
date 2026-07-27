@@ -437,6 +437,7 @@ ALLOW = {
     # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
     "services/backend/app/services/divorce_simulator.py",
     "services/backend/tests/test_divorce_simulator.py",
+    "services/backend/tests/test_life_events.py",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
