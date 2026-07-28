@@ -56,6 +56,14 @@ ALLOWED = {
     # vérification écrite (identité cantonal+communal+IFD sur 130 points).
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_COMMUNAL_TAX_CHF",
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_CAPITAL_TAX_CHF",
+    # ÉTALON — socle succession/donation (ADR 2026-07-28 P4). Source primaire :
+    # ESTV, dossier successions/donations, état 1.1.2025, archivé 2026-07-28
+    # sous .planning/audit-etat-des-lieux-2026-07/constants-audit/
+    # succession_donation_2025/socle_extraction.json. Méthode de vérification :
+    # parité champ par champ module ↔ archive
+    # (tests/test_succession_donation_socle.py). Ce ne sont pas des taux plats :
+    # statuts, franchises, multiplicateurs et plafonds de classe sourcés.
+    "services/backend/app/services/fiscal/succession_donation_socle.py::SOCLE_CANTONS",
     # NON-BARÈME — indexé par canton, mais ne porte aucun taux. Les valeurs
     # sont des dates d'échéance (mois, jour) issues des administrations
     # cantonales : un fait de calendrier, pas un chiffre financier dérivable.
