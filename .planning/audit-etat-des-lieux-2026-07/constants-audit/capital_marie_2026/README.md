@@ -77,18 +77,27 @@ Faits saillants :
   (pas de réduction ; artefact d'arrondi ESTV — l'invariant `marié ≤ célibataire`
   tient à ±1 CHF).
 
-## IFD marié (hors périmètre de ce recalibrage — à documenter pour suite)
+## IFD marié — BRANCHÉ (panel actuariel)
 
 L'IFD (art. 38 LIFD = 1/5 du barème revenu) diffère aussi selon l'état civil
 (barème marié art. 36 al. 2, splitting) : 363 / 3676 / 10176 / 16676 / 23000 CHF
 (marié) contre 537 / 3901 / 10501 / 17101 / 23000 CHF (célibataire) aux 5 points.
-Ce recalibrage NE traite QUE la part cantonale (périmètre décidé : « même format
-que la table célibataire, interpolation comme le célibataire au lieu du rabais »).
-L'étalon `estimate_capital_withdrawal_tax` conserve l'IFD célibataire
-(`FEDERAL_BRACKETS`, art. 36 al. 1) pour le marié — approximation PRÉ-EXISTANTE
-inchangée (l'ancien modèle faisait déjà ainsi). Les valeurs IFD mariées sont
-archivées dans `consolidated.json` (`ifd_marie_par_montant`) pour un éventuel
-PR fédéral dédié.
+
+Le panel a mesuré qu'appliquer le barème CÉLIBATAIRE au marié (première version,
+cantonal seul) laissait un résiduel jusqu'à **+13.6 %** (SZ 100k). L'IFD marié
+est donc désormais BRANCHÉ : `FEDERAL_CAPITAL_IFD_MARRIED_CHF`
+(`ifd_marie_par_montant`) interpolée sur la MÊME grille, **bornée par l'IFD
+célibataire** (`_ifd_married_capital = min(interp, célibataire)`). La borne
+préserve le seuil non imposable sous 100k (l'interpolation depuis (0, 0)
+surestimerait l'IFD là où le barème réel est nul) et garantit al. 2 ≤ al. 1
+au-delà d'1M.
+
+**Post-condition `min(marié, célibataire)`** sur l'étalon : les tables 5 points
+extrapolent au-delà d'1M à la pente du dernier segment ; ces pentes divergent
+(TI célibataire concave au sommet → le marié croisait le célibataire vers
+~1.09M sans borne). Le `min()` garantit l'invariant `marié ≤ célibataire`
+PARTOUT et absorbe l'arrondi ESTV +1 CHF de SO (750k/1M). Résiduel après
+branchement : **0.0 %** aux points de grille (SZ/ZH/GE vérifiés).
 
 ## Fichiers
 
