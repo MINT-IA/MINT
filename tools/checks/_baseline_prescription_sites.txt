@@ -1,40 +1,41 @@
 # Baseline-cliquet des prescriptions de produit — ADR 2026-07-28.
-# Entrées chemin::motif, sans numéros de ligne. La liste ne peut que
-# RÉTRÉCIR : chaque réécriture retire son entrée dans le même commit.
-# Régénérer une entrée légitime : --emit-baseline (jamais en ajout).
-apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule
-apps/mobile/lib/l10n/app_fr.arb::souscrire-imperatif
-apps/mobile/lib/models/age_band_policy.dart::souscrire-imperatif
-apps/mobile/lib/models/clarity_state.dart::ouvrir-vehicule
-apps/mobile/lib/screens/expat_screen.dart::souscrire-imperatif
-apps/mobile/lib/services/coach/compliance_guard.dart::souscrire-imperatif
-apps/mobile/lib/services/coaching_service.dart::ouvrir-vehicule
-apps/mobile/lib/services/first_job_service.dart::prix-co-occurrent
-apps/mobile/lib/services/first_job_service.dart::souscrire-imperatif
-apps/mobile/lib/services/lpp_deep_service.dart::ouvrir-vehicule
-apps/mobile/lib/services/report/report_builder.dart::ouvrir-vehicule
-apps/mobile/lib/services/report/report_builder.dart::souscrire-imperatif
-apps/mobile/lib/services/segments_service.dart::ouvrir-vehicule
-apps/mobile/lib/services/segments_service.dart::souscrire-imperatif
-apps/mobile/lib/services/segments_service.dart::verser-le-maximum
-apps/mobile/lib/widgets/coach/disability_countdown_widget.dart::prix-co-occurrent
-apps/mobile/lib/widgets/coach/disability_countdown_widget.dart::souscrire-imperatif
-services/backend/app/api/v1/endpoints/partners.py::ouvrir-vehicule
-services/backend/app/routes/wizard.py::ouvrir-vehicule
-services/backend/app/services/coach/coach_tools.py::ouvrir-vehicule
-services/backend/app/services/coach/concept_registry.py::ouvrir-vehicule
-services/backend/app/services/coaching_engine.py::ouvrir-vehicule
-services/backend/app/services/coverage_checklist_service.py::souscrire-imperatif
-services/backend/app/services/educational_content_service.py::verser-le-maximum
-services/backend/app/services/family/concubinage_service.py::souscrire-imperatif
-services/backend/app/services/first_job/onboarding_service.py::ouvrir-vehicule
-services/backend/app/services/first_job/onboarding_service.py::prix-co-occurrent
-services/backend/app/services/first_job/onboarding_service.py::souscrire-imperatif
-services/backend/app/services/gender_gap_service.py::verser-le-maximum
-services/backend/app/services/independant_service.py::souscrire-imperatif
-services/backend/app/services/independant_service.py::verser-le-maximum
-services/backend/app/services/job_comparator.py::souscrire-imperatif
-services/backend/app/services/lpp_deep/libre_passage_service.py::ouvrir-vehicule
-services/backend/app/services/pillar_3a_deep/multi_account_service.py::ouvrir-vehicule
-services/backend/app/services/pillar_3a_deep/provider_comparator_service.py::souscrire-imperatif
-services/backend/app/services/precision/precision_service.py::ouvrir-vehicule
+# Entrées chemin::motif::compte, sans numéros de ligne. La liste ne peut
+# que RÉTRÉCIR : chaque réécriture retire/réduit son entrée dans le même
+# commit. L'anti-croissance est verrouillé en CI contre origin/dev.
+apps/mobile/lib/l10n/app_de.arb::de-saeule-eroeffnen::1
+apps/mobile/lib/l10n/app_en.arb::en-open-pillar::3
+apps/mobile/lib/l10n/app_en.arb::en-take-out-insurance::1
+apps/mobile/lib/l10n/app_es.arb::es-contrata-seguro::1
+apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::3
+apps/mobile/lib/l10n/app_fr.arb::souscrire-imperatif::1
+apps/mobile/lib/l10n/app_it.arb::it-apri-pilastro::2
+apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::2
+apps/mobile/lib/l10n_regional/app_regional_vs.arb::verser-le-maximum::1
+apps/mobile/lib/models/age_band_policy.dart::souscrire-imperatif::1
+apps/mobile/lib/models/clarity_state.dart::ouvrir-vehicule::1
+apps/mobile/lib/screens/expat_screen.dart::souscrire-imperatif::1
+apps/mobile/lib/services/coaching_service.dart::ouvrir-vehicule::2
+apps/mobile/lib/services/first_job_service.dart::prix-co-occurrent::1
+apps/mobile/lib/services/first_job_service.dart::souscrire-imperatif::1
+apps/mobile/lib/services/report/report_builder.dart::ouvrir-vehicule::1
+apps/mobile/lib/services/report/report_builder.dart::souscrire-imperatif::1
+apps/mobile/lib/services/segments_service.dart::ouvrir-vehicule::1
+apps/mobile/lib/services/segments_service.dart::souscrire-imperatif::4
+apps/mobile/lib/services/segments_service.dart::verser-le-maximum::1
+apps/mobile/lib/widgets/coach/disability_countdown_widget.dart::prix-co-occurrent::1
+apps/mobile/lib/widgets/coach/disability_countdown_widget.dart::souscrire-imperatif::1
+services/backend/app/routes/wizard.py::ouvrir-vehicule::1
+services/backend/app/services/coach/coach_tools.py::ouvrir-vehicule::1
+services/backend/app/services/coaching_engine.py::ouvrir-vehicule::1
+services/backend/app/services/coverage_checklist_service.py::souscrire-imperatif::1
+services/backend/app/services/educational_content_service.py::verser-le-maximum::2
+services/backend/app/services/family/concubinage_service.py::souscrire-imperatif::1
+services/backend/app/services/first_job/onboarding_service.py::ouvrir-vehicule::1
+services/backend/app/services/first_job/onboarding_service.py::prix-co-occurrent::1
+services/backend/app/services/first_job/onboarding_service.py::souscrire-imperatif::1
+services/backend/app/services/gender_gap_service.py::verser-le-maximum::1
+services/backend/app/services/independant_service.py::souscrire-imperatif::4
+services/backend/app/services/independant_service.py::verser-le-maximum::1
+services/backend/app/services/job_comparator.py::souscrire-imperatif::1
+services/backend/app/services/pillar_3a_deep/provider_comparator_service.py::souscrire-imperatif::1
+services/backend/app/services/precision/precision_service.py::ouvrir-vehicule::1

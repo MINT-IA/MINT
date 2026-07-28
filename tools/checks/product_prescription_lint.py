@@ -6,10 +6,17 @@ Refuse tout NOUVEL impératif d'achat (« Souscris… », « Ouvrez un compte…
 .arb). La dette existante est portée par une BASELINE-CLIQUET
 (``_baseline_prescription_sites.txt``, patron ``hmac_pepper_audit``) :
 
-- site connu (dans la baseline) : toléré, en attente de réécriture ;
-- site NOUVEAU hors baseline : exit 1 ;
-- entrée de baseline devenue introuvable : exit 1 — la liste ne peut que
-  rétrécir, dans le même commit que la réécriture.
+- entrée ``chemin::motif::compte`` connue : tolérée, en attente de
+  réécriture ;
+- NOUVELLE entrée (fichier neuf, motif neuf, ou occurrence de PLUS dans un
+  fichier baseliné) : exit 1 ;
+- entrée devenue introuvable ou compte réduit : exit 1 — la baseline doit
+  rétrécir dans le même commit que la réécriture ;
+- l'anti-croissance de la baseline elle-même est verrouillée en CI
+  (comparaison contre origin/dev, bootstrap excepté).
+
+Limite assumée : scan par ligne — une prescription coupée sur deux lignes
+(concaténation de chaînes) échappe aux motifs multi-mots.
 
 Le vocabulaire canonique vit côté backend
 (``app/services/coach/prescription_vocab.py``) et ce lint le CHARGE — jamais
@@ -54,15 +61,15 @@ EXCLUDE_SUBSTRINGS = (
     "/__pycache__/",
     "/tests/",
     "/test/",
-    # Le vocabulaire lui-même et les gardes portent les motifs par design.
-    "/tools/checks/",
+    # Le vocabulaire et les gardes runtime CITENT les motifs par design.
     "/app/services/coach/prescription_vocab.py/",
+    "/app/services/coach/compliance_guard.py/",
+    "/lib/services/coach/compliance_guard.dart/",
     # Fichiers l10n GÉNÉRÉS depuis les .arb (source de vérité : l'ARB ;
     # le généré ne peut pas porter de lint-ignore et double-compterait).
     "/lib/l10n/app_localizations",
 )
 
-IGNORE_MARKER = "lint-ignore: prescription"
 
 
 def _load_vocab():
@@ -89,12 +96,20 @@ def _compile(vocab):
     return motifs, prix
 
 
+_IGNORE_RE = re.compile(r"(?:#|//)\s*lint-ignore:\s*prescription\s*$")
+
+
 def _line_is_exempt(line: str) -> bool:
-    if IGNORE_MARKER in line:
+    # Échappatoire ANCRÉE en commentaire de fin de ligne — un contenu qui
+    # porterait la chaîne au milieu d'une valeur .arb n'exempte rien
+    # (revue adversariale P2-4).
+    if _IGNORE_RE.search(line.rstrip()):
         return True
     stripped = line.lstrip()
-    # Un commentaire n'est jamais rendu à l'utilisateur.
-    return stripped.startswith(("#", "//", "///", "*", "/*", '"""', "'''"))
+    # Seuls les vrais commentaires ligne sont exempts. Les bullets « * » et
+    # le contenu de docstrings/prompts NE le sont plus : un prompt LLM peut
+    # porter une prescription rendue (revue adversariale P2-1).
+    return stripped.startswith(("#", "//"))
 
 
 def scan_text(text: str, motifs, prix) -> list[tuple[int, str, str]]:
@@ -170,7 +185,24 @@ def _self_test(motifs, prix) -> int:
         ("ouvre une porte sur tes finances", False, "hors véhicule financier"),
         ("Souscriｓ une assurance", True, "evasion NFKC (s pleine chasse)"),
         ("# Souscris une assurance — commentaire", False, "commentaire exempt"),
-        ("Souscris une RC  // lint-ignore: prescription", False, "échappatoire"),
+        ("Souscris une RC  // lint-ignore: prescription", False, "échappatoire ancrée"),
+        (
+            '"k": "Souscris ceci lint-ignore: prescription et cela",',
+            True,
+            "marqueur au milieu d'une valeur : n'exempte pas (P2-4)",
+        ),
+        ("  * Souscris une APG des CHF 45/mois", True, "bullet de prompt (P2-1)"),
+        ("open a pillar 3a today", True, "en : open pillar"),
+        ("Take out death/disability risk insurance", True, "en : take out insurance"),
+        ("25 Jahre: Säule 3a eröffnen", True, "de : verbe final"),
+        ("Aos 25 anos, abrir um 3º pilar", True, "pt : abrir pilar"),
+        ("Ouvre un 3ème pilier des maintenant", True, "variante ème (P2-3)"),
+        ("Versez-y le montant maximum", True, "variante -y + montant (P2-3)"),
+        (
+            "Ouvrez un compte pour recevoir vos alertes",
+            False,
+            "compte applicatif non financier : plus matché",
+        ),
     ]
     failures = 0
     for line, should_flag, why in cases:
@@ -206,11 +238,12 @@ def main() -> int:
         return _self_test(motifs, prix)
 
     found = _scan_repo(motifs, prix)
-    current = {
-        f"{path}::{name}"
-        for path, rows in found.items()
-        for _, name, _ in rows
-    }
+    counts: dict[str, int] = {}
+    for path, rows in found.items():
+        for _, name, _ in rows:
+            key = f"{path}::{name}"
+            counts[key] = counts.get(key, 0) + 1
+    current = {f"{key}::{n}" for key, n in counts.items()}
 
     if args.emit_baseline:
         for entry in sorted(current):
@@ -218,6 +251,10 @@ def main() -> int:
         return 0
 
     baseline = _read_baseline()
+    # Cliquet par COMPTE (revue adversariale P1-1) : une occurrence de PLUS
+    # dans un fichier déjà baseliné change l'entrée path::motif::N -> échec
+    # « nouveau site » ; une de moins -> entrée périmée, la baseline doit
+    # rétrécir dans le même commit.
     new_sites = current - baseline
     stale = baseline - current
 
