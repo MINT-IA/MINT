@@ -49,9 +49,11 @@ def test_married_table_matches_estv_archive(canton):
         )
 
 
-def test_married_table_covers_26_cantons_5_points():
+def test_married_table_covers_26_cantons_full_grid():
     assert len(CANTONAL_CAPITAL_TAX_MARRIED_CHF) == 26
     assert set(CANTONAL_CAPITAL_TAX_MARRIED_CHF) == set(CANTONAL_CAPITAL_TAX_CHF)
+    # Grille 7 noeuds (175k/350k ajoutés CAP-1 #1098).
+    assert len(CAPITAL_TAX_POINTS_AMOUNT) == 7
     for c, pts in CANTONAL_CAPITAL_TAX_MARRIED_CHF.items():
         assert len(pts) == len(CAPITAL_TAX_POINTS_AMOUNT), c
 

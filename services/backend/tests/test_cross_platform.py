@@ -133,15 +133,16 @@ class TestConstantsAlignment:
         # CANTONAL_CAPITAL_TAX_MARRIED_CHF, miroir exact du Dart
         # cantonalCapitalTaxMarriedChf. Points de grille figés Python <-> Dart.
         assert len(CANTONAL_CAPITAL_TAX_MARRIED_CHF) == 26
+        # Grille 7 noeuds (175k/350k ajoutés CAP-1 #1098).
         assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["VD"] == [
-            3281, 11360, 27705, 45743, 63840,
+            3281, 7013, 11360, 17577, 27705, 45743, 63840,
         ]
         assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["ZH"] == [
-            4280, 10700, 21400, 32100, 57652,
+            4280, 7490, 10700, 14980, 21400, 32100, 57652,
         ]
         # BS : aucune réduction mariée cantonale (ESTV) -> == célibataire.
         assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["BS"] == [
-            4750, 16750, 36750, 56750, 76750,
+            4750, 10750, 16750, 24750, 36750, 56750, 76750,
         ]
 
     def test_progressive_brackets(self):

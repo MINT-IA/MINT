@@ -1,6 +1,6 @@
 {
   "_doc": "Goldens de parité croisée du modèle capital v2 (beads MINT_nosync-2i2). estimate_capital_withdrawal_tax (backend) et estimateCapitalWithdrawalTaxV2 (Dart) partagent la table ESTV — les DEUX suites pinnent ces valeurs, calibrées sur les points officiels (ZH 500k == ESTV à <1 CHF).",
-  "_provenance": "API ESTV API_calculateManyCapitalTaxes — célibataire (2026-07-23) : CANTONAL_CAPITAL_TAX_CHF ; marié (Relationship=2, 2026-07-28) : CANTONAL_CAPITAL_TAX_MARRIED_CHF + IFD marié FEDERAL_CAPITAL_IFD_MARRIED_CHF (art. 38 al. 2, bornée par le célibataire ; post-condition marié <= célibataire) — triage AnnAssign #1095. 26 cantons x 5 montants, homme 65 ans. ZH 500k marié = point de grille -> estv_reference = 21400 + 10176 = 31576.",
+  "_provenance": "API ESTV API_calculateManyCapitalTaxes — célibataire (2026-07-23) : CANTONAL_CAPITAL_TAX_CHF ; marié (Relationship=2, 2026-07-28) : CANTONAL_CAPITAL_TAX_MARRIED_CHF + IFD marié FEDERAL_CAPITAL_IFD_MARRIED_CHF (art. 38 al. 2, bornée par le célibataire ; post-condition marié <= célibataire) — triage AnnAssign #1095. 26 cantons x 7 montants (175k/350k ajoutés CAP-1 #1098). ZH 500k marié = noeud -> estv_reference 31576 ; ZG 175k = noeud -> estv_reference 6775.",
   "tolerance_chf": 0.05,
   "cases": [
     {
@@ -28,8 +28,8 @@
       "amount": 175000,
       "canton": "ZG",
       "is_married": false,
-      "expected": 6739.63,
-      "estv_reference": null
+      "expected": 6775.13,
+      "estv_reference": 6775
     },
     {
       "amount": 1500000,

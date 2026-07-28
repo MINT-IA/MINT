@@ -281,8 +281,9 @@ class TestLppConversion:
     def test_progressive_brackets_300k(self, lpp_service):
         """300k interpolates between calibrated ESTV points."""
         result = lpp_service.compare(capital_lpp=300_000, canton="ZH")
-        # v2 -2i2 : ZH 300000 (taux effectif 6.23% > 4.82% à 100k — progressif)
-        expected = 18694.09
+        # CAP-1 #1098 : ZH 300000 interpole désormais 250k->350k (noeud ajouté)
+        # au lieu de 250k->500k — moins de surestimation sur ZH convexe.
+        expected = 18060.69
         assert result.option_capital_impot == round(expected, 2)
 
     def test_progressive_brackets_1m(self, lpp_service):
