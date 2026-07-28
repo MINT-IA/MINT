@@ -158,6 +158,18 @@ pre-commit:
       glob: "apps/mobile/lib/**/*.dart"
       tags: [i18n, phase-34-guard-04]
       fail_text: "Nouveau littéral français en dur. Passe par AppLocalizations (clé ARB dans les 6 langues, puis `flutter gen-l10n`) — CLAUDE.md TOP rule #5. Si la chaîne n'est pas rendue à l'utilisateur, marque la ligne `// lint-ignore`."
+    product-prescription-gate:
+      # ADR 2026-07-28-prescriptions : l'impératif d'achat (« Souscris… »,
+      # « Ouvrez un compte… », « Versez le maximum ») est à réécrire en
+      # description conditionnelle sourcée. Baseline-CLIQUET : 36 sites
+      # hérités tolérés en attente de réécriture ; tout NOUVEAU site est
+      # refusé ; une entrée réécrite doit quitter la baseline dans le même
+      # commit. Vocabulaire canonique côté backend (prescription_vocab.py),
+      # chargé par le lint. Échappatoire : `lint-ignore: prescription`.
+      run: python3 tools/checks/product_prescription_lint.py --self-test && python3 tools/checks/product_prescription_lint.py
+      glob: "{apps/mobile/lib/**/*.{dart,arb},services/backend/app/**/*.py,tools/checks/_baseline_prescription_sites.txt}"
+      tags: [compliance, prescriptions, adr-2026-07-28]
+      fail_text: "Nouvel impératif d'achat de produit (ADR 2026-07-28-prescriptions). Réécris en description conditionnelle sourcée (constat -> conséquence -> options, prix en info datée), ou marque `lint-ignore: prescription` si la ligne n'est pas rendue."
     no-false-privacy-attestation-gate:
       # Audit 2026-07 (T16-F02/F34/F36): forbids "document never leaves phone" /
       # "on-device OCR by default" / "toutes tes données restent sur ton appareil"
