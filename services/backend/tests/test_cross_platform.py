@@ -45,8 +45,11 @@ from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     RETRAIT_CAPITAL_TRANCHES,
-    married_capital_tax_discount_for,
     get_lpp_bonification_rate,
+)
+from app.services.fiscal.cantonal_comparator import (
+    CANTONAL_CAPITAL_TAX_MARRIED_CHF,
+    estimate_capital_withdrawal_tax,
 )
 
 from app.services.onboarding.minimal_profile_service import compute_minimal_profile
@@ -124,16 +127,22 @@ class TestConstantsAlignment:
     def test_pilier_3a_plafond_sans_lpp(self):
         assert PILIER_3A_PLAFOND_SANS_LPP == 36_288.0
 
-    def test_married_capital_tax_discount(self):
-        # Beads -ku6 : le scalaire 0.85 est DÉPRÉCIÉ (aucun consommateur) —
-        # la vérité est la table PAR CANTON, miroir exact du Dart
-        # marriedCapitalTaxDiscountByCanton (audit swiss-brain Q5).
-        assert married_capital_tax_discount_for("ZH") == 0.73
-        assert married_capital_tax_discount_for("ZG") == 0.70
-        assert married_capital_tax_discount_for("GE") == 0.73
-        assert married_capital_tax_discount_for("VD") == 0.78
-        # Canton non tabulé -> fallback empirique.
-        assert married_capital_tax_discount_for("BS") == 0.82
+    def test_married_capital_tax_married_table(self):
+        # Triage AnnAssign #1095 : le rabais forfaitaire par canton (inventé)
+        # est SUPPRIMÉ ; la vérité est l'étalon ESTV mariée
+        # CANTONAL_CAPITAL_TAX_MARRIED_CHF, miroir exact du Dart
+        # cantonalCapitalTaxMarriedChf. Points de grille figés Python <-> Dart.
+        assert len(CANTONAL_CAPITAL_TAX_MARRIED_CHF) == 26
+        assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["VD"] == [
+            3281, 11360, 27705, 45743, 63840,
+        ]
+        assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["ZH"] == [
+            4280, 10700, 21400, 32100, 57652,
+        ]
+        # BS : aucune réduction mariée cantonale (ESTV) -> == célibataire.
+        assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["BS"] == [
+            4750, 16750, 36750, 56750, 76750,
+        ]
 
     def test_progressive_brackets(self):
         """Progressive withdrawal tax brackets (LIFD art. 38)."""
@@ -246,19 +255,16 @@ class TestProgressiveTax:
         assert abs(result - expected) < 1.0
 
     def test_married_discount(self):
-        """Marié·e·s : rabais capital PAR CANTON (ZH splitting intégral 0.73).
-
-        Beads -ku6 : l'ancien test vérifiait le scalaire uniforme 0.85,
-        jugé faux par l'audit swiss-brain Q5.
+        """Marié·e·s : l'impôt capital marié dérive de l'étalon ESTV mariée
+        (CANTONAL_CAPITAL_TAX_MARRIED_CHF), plus d'un rabais forfaitaire
+        (triage AnnAssign #1095). ZH réduit la part cantonale à 500k
+        (21400 vs 24567 CHF, étalon ESTV) -> impôt marié < célibataire.
         """
-        single_rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        married_rate = single_rate * married_capital_tax_discount_for("ZH")
-
-        single_tax = self._progressive_tax(500_000, single_rate / 100)
-        married_tax = self._progressive_tax(500_000, married_rate / 100)
-
+        single_tax = estimate_capital_withdrawal_tax(500_000, "ZH")
+        married_tax = estimate_capital_withdrawal_tax(
+            500_000, "ZH", is_married=True
+        )
         assert married_tax < single_tax
-        assert abs(married_tax / single_tax - 0.73) < 0.01
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

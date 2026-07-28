@@ -30,11 +30,8 @@ from pathlib import Path
 
 import pytest
 
-from app.constants.social_insurance import (
-    married_capital_tax_discount_for,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
-    TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
-    calculate_progressive_capital_tax,
+from app.services.fiscal.cantonal_comparator import (
+    estimate_capital_withdrawal_tax,
 )
 
 # Tolerance per CONTEXT 92.5 D-14 (same as differential canton tax tolerance from D-06).
@@ -57,29 +54,21 @@ def _load_vectors() -> list[dict]:
 def _mint_capital_tax_for(vector: dict) -> float:
     """Compute MINT's expected canton capital tax for the vector.
 
-    Uses the existing canonical helper. Combines:
-      base_rate := TAUX_IMPOT_RETRAIT_CAPITAL[canton]   (or DEFAULT fallback)
-      discount  := married_capital_tax_discount_for(canton)  (only when married,
-                   per-canton table — beads -ku6, ex-0.85 scalar)
-      tax       := calculate_progressive_capital_tax(amount, base * discount)
+    Uses the canonical v2 étalon ``estimate_capital_withdrawal_tax`` (IFD
+    art. 38 + interpolation ESTV ; l'état civil marié interpole
+    ``CANTONAL_CAPITAL_TAX_MARRIED_CHF``, plus de rabais forfaitaire —
+    triage AnnAssign #1095). NEVER re-implements brackets here (CLAUDE.md
+    §4 NEVER #3, ADR-20260223).
 
-    NEVER re-implements brackets here (CLAUDE.md §4 NEVER #3, ADR-20260223).
-
-    NOTE: This compares CAPITAL tax. For income-tax ESTV vectors, the
-    matcher will need to compose `cantonal_comparator.py`'s effective
-    rates with FEDERAL_BRACKETS — but that wiring is OUT-OF-SCOPE for
-    the MVP scaffold (the 50-vector matrix in CONTEXT 92.5 D-12 mixes
-    income and capital cases ; the first Julien capture run will reveal
-    which matchers we need). For now, vectors with `gross_income_chf` are
-    treated as capital-withdrawal stand-ins (income == capital surrogate)
-    until the operator refines the schema.
+    NOTE: vectors with `gross_income_chf` are treated as capital-withdrawal
+    stand-ins (income == capital surrogate) until the operator refines the
+    schema (the 50-vector CONTEXT 92.5 D-12 matrix mixes income and capital
+    cases).
     """
     canton = vector["canton"]
     married = vector["marital_status"] == "married"
     amount = float(vector["gross_income_chf"])  # surrogate ; see docstring
-    base = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton, TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
-    rate = base * (married_capital_tax_discount_for(canton) if married else 1.0)
-    return calculate_progressive_capital_tax(amount, rate)
+    return estimate_capital_withdrawal_tax(amount, canton, is_married=married)
 
 
 @pytest.fixture(scope="session")

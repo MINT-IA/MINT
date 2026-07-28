@@ -381,40 +381,16 @@ RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = _get_capital_tranch
 
 MARRIED_CAPITAL_TAX_DISCOUNT: float = _get("capital_tax.married_discount")
 """DÉPRÉCIÉ — scalaire historique uniforme (0.85), faux pour les cantons à
-splitting intégral (audit swiss-brain 2026-04-18 Q5 : ZH/ZG ~0.70).
-Plus AUCUN consommateur actif depuis beads -ku6 (rules_engine,
-rachat_vs_marche, calendrier_retraits et les harnais de test migrés vers
-``married_capital_tax_discount_for(canton)``). Conservé uniquement comme
-valeur registre ``capital_tax.married_discount`` ; toute nouvelle
-consommation doit passer par la fonction par canton."""
+splitting intégral. Plus AUCUN consommateur actif. Conservé uniquement comme
+valeur registre ``capital_tax.married_discount``.
 
-# MIRROR apps/mobile/lib/constants/social_insurance.dart
-# (`marriedCapitalTaxDiscountByCanton` + fallback 0.82) — coefficients marié
-# par canton, sources LF cantonales (ZH §37, BE art. 44, LU §58, ZG §36,
-# VD art. 49, GE LIPP art. 41, VS art. 33b, TI art. 38). Valeurs 2026,
-# cumul capital ~250k. Beads MINT_nosync-axj : parité RvC backend<->mobile.
-MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON: Dict[str, float] = {
-    "ZH": 0.73,
-    "BE": 0.80,
-    "LU": 0.82,
-    "ZG": 0.70,
-    "VD": 0.78,
-    "GE": 0.73,
-    "VS": 0.81,
-    "TI": 0.80,
-}
-
-MARRIED_CAPITAL_TAX_DISCOUNT_FALLBACK: float = 0.82
-"""Fallback pour les 18 cantons non tabulés (moyenne empirique)."""
-
-
-def married_capital_tax_discount_for(canton: str) -> float:
-    """Coefficient marié par canton (miroir Dart ``marriedCapitalTaxDiscountFor``)."""
-    return MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON.get(
-        canton.upper(), MARRIED_CAPITAL_TAX_DISCOUNT_FALLBACK
-    )
-
-"""Reduction d'impot pour les couples maries (splitting cantonal ~15%)."""
+Le rabais marié forfaitaire par canton (inventé — 8/26 cantons tabulés + un
+repli 0.82) a été SUPPRIMÉ : l'impôt capital marié canonique est désormais
+dérivé de l'étalon ESTV ``CANTONAL_CAPITAL_TAX_MARRIED_CHF`` par interpolation
+(comme le célibataire) dans
+``fiscal.cantonal_comparator.estimate_capital_withdrawal_tax`` (triage AnnAssign
+#1095). Le traitement marié est un effet de barème (splitting), pas un
+coefficient plat."""
 
 
 def calculate_progressive_capital_tax(montant: float, base_rate: float) -> float:

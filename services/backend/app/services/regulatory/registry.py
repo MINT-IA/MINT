@@ -1124,10 +1124,12 @@ _PARAMETERS: list[RegulatoryParameter] = [
         reviewed_at=_REVIEWED,
         notes=(
             "Aucun rabais marié uniforme n'existe en droit fédéral — le "
-            "calcul canonique v2 utilise les coefficients PAR CANTON "
-            "(MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON, ex. ZH 0.73, audit "
-            "swiss-brain 2026-04-18 Q5) via estimate_capital_withdrawal_tax. "
-            "Clé conservée pour compat du chemin override."
+            "calcul canonique dérive l'impôt capital marié de l'étalon ESTV "
+            "CANTONAL_CAPITAL_TAX_MARRIED_CHF par interpolation (comme le "
+            "célibataire) via estimate_capital_withdrawal_tax. Le rabais "
+            "forfaitaire par canton (MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON "
+            "+ FALLBACK 0.82) a été supprimé (triage AnnAssign #1095). Clé "
+            "scalaire conservée pour compat registre."
         ),
     ),
     RegulatoryParameter(

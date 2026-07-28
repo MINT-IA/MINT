@@ -31,7 +31,6 @@ from typing import List, Dict, Optional
 
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    married_capital_tax_discount_for,
     calculate_progressive_capital_tax,
 )
 
@@ -108,13 +107,14 @@ def _capital_tax(
     return estimate_capital_withdrawal_tax(amount, canton, is_married=is_married)
 
 
-def _get_base_rate(canton: str, is_married: bool) -> float:
-    """Get the capital tax base rate for a canton, with married discount."""
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    if is_married:
-        # Coefficient marié PAR CANTON (beads MINT_nosync-ku6).
-        base_rate *= married_capital_tax_discount_for(canton)
-    return base_rate
+def _get_base_rate(canton: str) -> float:
+    """Taux de base capital du canton — bande de sensibilité tornado (v1).
+
+    Ne porte PLUS le rabais marié forfaitaire (supprimé, triage AnnAssign
+    #1095) : l'effet marié canonique vit dans le modèle v2
+    ``estimate_capital_withdrawal_tax`` (interpolation table mariée ESTV)
+    utilisé par les options. Cette base ne sert qu'à la bande ±0.01."""
+    return TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
 
 
 def _build_same_year_option(
@@ -347,7 +347,7 @@ def compare_calendrier_retraits(
     base_spread = compute_terminal_spread(options)
     sensitivity: Dict[str, float] = {}
 
-    base_rate_current = _get_base_rate(canton, is_married)
+    base_rate_current = _get_base_rate(canton)
 
     def _spread_variant(
         *,

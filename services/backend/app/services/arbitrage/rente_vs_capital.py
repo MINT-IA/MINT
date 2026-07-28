@@ -31,7 +31,6 @@ from typing import List, Dict
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
     TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
-    married_capital_tax_discount_for,
     LPP_TAUX_CONVERSION_MIN,
     calculate_progressive_capital_tax,
 )

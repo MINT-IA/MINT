@@ -56,6 +56,13 @@ ALLOWED = {
     # vérification écrite (identité cantonal+communal+IFD sur 130 points).
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_COMMUNAL_TAX_CHF",
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_CAPITAL_TAX_CHF",
+    # Étalon capital MARIÉ — API ESTV API_calculateManyCapitalTaxes
+    # (Relationship=2, collecte 2026-07-28), MÊME grille que la table
+    # célibataire ; pipeline vérifié (reproduit les 130 points célibataires
+    # committés au CHF près). Remplace le rabais forfaitaire inventé
+    # MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON. Brut :
+    # .planning/audit-etat-des-lieux-2026-07/constants-audit/capital_marie_2026/.
+    "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_CAPITAL_TAX_MARRIED_CHF",
     # NON-BARÈME — indexé par canton, mais ne porte aucun taux. Les valeurs
     # sont des dates d'échéance (mois, jour) issues des administrations
     # cantonales : un fait de calendrier, pas un chiffre financier dérivable.

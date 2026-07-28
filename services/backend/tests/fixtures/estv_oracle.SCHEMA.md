@@ -24,7 +24,7 @@ Total : **5 x 5 x 2 = 50 vectors exact** (CONTEXT D-12, no edge-case ceiling —
 | --- | --- | --- |
 | `id` | `string` | Stable identifier `<canton>__<combo_label>__age<N>` (e.g. `ZH__single_60k__age40`). Used by pytest parametrize IDs and by the freshness lint. |
 | `canton` | `string` | Two-letter canton code (one of `CANTONS` in `capture_estv_oracle.py`). |
-| `marital_status` | `string` | `single` or `married`. Maps to `married_capital_tax_discount_for(canton)` in `social_insurance.py` when `married` (per-canton table, beads -ku6). |
+| `marital_status` | `string` | `single` or `married`. Passé en `is_married` à `estimate_capital_withdrawal_tax` : la part cantonale mariée interpole l'étalon ESTV `CANTONAL_CAPITAL_TAX_MARRIED_CHF` (le rabais forfaitaire par canton a été supprimé — triage AnnAssign #1095). |
 | `gross_income_chf` | `int` | Annual gross income in CHF, integer for stable test IDs. |
 | `age` | `int` | Age in years (`40` or `60`). Reserved for future age-conditional matchers ; not currently consumed by the capital-tax matcher. |
 | `expected_tax_chf` | `float \| null` | The ESTV expected tax value in CHF. **`null` on first commit** (scaffold) ; populated only after Julien drives a real Playwright capture. The pytest matcher cleanly skips per-vector when this field is null. |
