@@ -5739,20 +5739,6 @@
   "reportRetirementTitle": "Il tuo Pensionamento",
   "reportRetirementKeyLabel": "Reddito stimato a 65 anni",
   "reportRetirementSource": "Fonti: LPP art. 14, OPP3, LAVS",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Riscatto LPP disponibile: CHF {available} — impatto fiscale stimato: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {

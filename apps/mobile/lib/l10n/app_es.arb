@@ -5744,20 +5744,6 @@
   "reportRetirementTitle": "Tu Jubilación",
   "reportRetirementKeyLabel": "Ingreso estimado a los 65 años",
   "reportRetirementSource": "Fuentes: LPP art. 14, OPP3, LAVS",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Rescate LPP disponible: CHF {available} — impacto fiscal estimado: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {

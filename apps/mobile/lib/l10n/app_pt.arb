@@ -5739,20 +5739,6 @@
   "reportRetirementTitle": "A tua Reforma",
   "reportRetirementKeyLabel": "Rendimento estimado aos 65 anos",
   "reportRetirementSource": "Fontes: LPP art. 14, OPP3, LAVS",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Resgate LPP disponível: CHF {available} — impacto fiscal estimado: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {

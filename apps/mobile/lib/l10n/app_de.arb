@@ -5744,20 +5744,6 @@
   "reportRetirementTitle": "Deine Rente",
   "reportRetirementKeyLabel": "Geschätztes Einkommen mit 65",
   "reportRetirementSource": "Quellen: BVG Art. 14, BVV3, AHVG",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "BVG-Einkauf verfügbar: CHF {available} — geschätzte Steuerwirkung: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {

@@ -5744,20 +5744,6 @@
   "reportRetirementTitle": "Your Retirement",
   "reportRetirementKeyLabel": "Estimated income at 65",
   "reportRetirementSource": "Sources: LPP art. 14, OPP3, LAVS",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "LPP buyback available: CHF {available} — estimated tax impact: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
