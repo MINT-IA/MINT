@@ -77,6 +77,19 @@ ALLOWED = {
     "services/backend/app/services/onboarding/minimal_profile_service.py::effective_rates_100k",
     "services/backend/app/services/succession_simulator.py::CANTON_SUCCESSION_TAX",
     "services/backend/app/services/divorce_simulator.py::CANTON_TAX_RATES",
+    # RÉVÉLÉES par l'extension AnnAssign du 2026-07-28 (les tables ANNOTÉES
+    # échappaient au visiteur) — DETTE HÉRITÉE gelée, à trier une à une :
+    # les 3 premières meurent déjà dans des PR ouvertes (#1087, #1072, P5).
+    "services/backend/app/services/donation_service.py::TAUX_DONATION_CANTONAL",
+    "services/backend/app/services/precision/precision_service.py::_MARGINAL_RATES_BY_CANTON",
+    "services/backend/app/services/housing_sale_service.py::TAUX_PLUS_VALUE_IMMOBILIERE",
+    "services/backend/app/constants/social_insurance.py::MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON",
+    "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_ENFANT_PAR_CANTON",
+    "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_FORMATION_PAR_CANTON",
+    "services/backend/app/services/fiscal/commune_service.py::COMMUNE_DATA",
+    "services/backend/app/services/precision/precision_service.py::_CANTON_NET_RATIO",
+    "services/backend/app/services/rag/cantonal_knowledge.py::_TAX_SPECIFICS",
+    "services/backend/app/services/rag/cantonal_knowledge.py::_HOUSING_MARKET",
 }
 
 
@@ -95,6 +108,24 @@ def _is_numeric_payload(node: ast.AST) -> bool:
     return False
 
 
+def _assigned_dict(node):
+    """(nom, ast.Dict) si le nœud affecte un dict littéral à un nom.
+
+    Couvre ast.Assign ET ast.AnnAssign : les tables ANNOTÉES
+    (`X: Dict[...] = {...}`) échappaient au garde — c'est ainsi que
+    `TAUX_DONATION_CANTONAL` et `_MARGINAL_RATES_BY_CANTON` vivaient
+    incognito (découverte revue adversariale 2026-07-28).
+    """
+    if isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
+        target = node.targets[0]
+        name = target.id if isinstance(target, ast.Name) else "<?>"
+        return name, node.value
+    if isinstance(node, ast.AnnAssign) and isinstance(node.value, ast.Dict):
+        name = node.target.id if isinstance(node.target, ast.Name) else "<?>"
+        return name, node.value
+    return None
+
+
 def find_tables(root: Path) -> list[tuple[str, int, str]]:
     """(chemin relatif, ligne, nom) de chaque table canton -> nombre."""
     out: list[tuple[str, int, str]] = []
@@ -105,21 +136,21 @@ def find_tables(root: Path) -> list[tuple[str, int, str]]:
             continue
         rel = path.relative_to(ROOT).as_posix()
         for node in ast.walk(tree):
-            if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+            assigned = _assigned_dict(node)
+            if assigned is None:
                 continue
+            name, dict_node = assigned
             keys = [
                 k.value
-                for k in node.value.keys
+                for k in dict_node.keys
                 if isinstance(k, ast.Constant) and isinstance(k.value, str)
             ]
             # ≥ 3 clés, toutes cantonales : en dessous, c'est un cas
             # particulier nommé (« GE a un régime spécial »), pas un barème.
             if len(keys) < 3 or not set(keys) <= CANTONS:
                 continue
-            if not any(_is_numeric_payload(v) for v in node.value.values):
+            if not any(_is_numeric_payload(v) for v in dict_node.values):
                 continue
-            target = node.targets[0]
-            name = target.id if isinstance(target, ast.Name) else "<?>"
             out.append((rel, node.lineno, name))
     return out
 
@@ -131,6 +162,11 @@ def _self_test() -> int:
 
     cases = [
         ("table de taux -> détectée", 'X = {"ZH": 0.30, "GE": 0.41, "VD": 0.39}', True),
+        (
+            "table ANNOTÉE -> détectée (AnnAssign, angle mort 2026-07-28)",
+            'X: dict[str, float] = {"ZH": 0.30, "GE": 0.41, "VD": 0.39}',
+            True,
+        ),
         ("table de noms -> ignorée", 'X = {"ZH": "Zurich", "GE": "Genève", "VD": "Vaud"}', False),
         (
             "taux imbriqués -> détectés",
@@ -158,18 +194,18 @@ def _self_test() -> int:
             tree = ast.parse(f.read_text(encoding="utf-8"))
             found = False
             for node in ast.walk(tree):
-                if not isinstance(node, ast.Assign) or not isinstance(
-                    node.value, ast.Dict
-                ):
+                assigned = _assigned_dict(node)
+                if assigned is None:
                     continue
+                _, dict_node = assigned
                 keys = [
                     k.value
-                    for k in node.value.keys
+                    for k in dict_node.keys
                     if isinstance(k, ast.Constant) and isinstance(k.value, str)
                 ]
                 if len(keys) < 3 or not set(keys) <= CANTONS:
                     continue
-                if any(_is_numeric_payload(v) for v in node.value.values):
+                if any(_is_numeric_payload(v) for v in dict_node.values):
                     found = True
             if found != should_find:
                 print(
