@@ -58,6 +58,12 @@ Sur les 26 chefs-lieux à 30k, l'erreur maximale du nouveau modèle est **6.76 %
 
 ## Limite résiduelle (dite, pas cachée)
 
+**Résiduel connu accepté — TI 30k = +6.8 %.** C'est le seul chef-lieu au-dessus
+de la bande ~5 % à 30k (barème TI 2025 très convexe entre 25k et 35k, où 30k est
+un point interpolé et non un nœud). Ramené de +46.7 % (ancien modèle) à +6.8 % ;
+les 25 autres cantons sont sous 4 %. Non corrigé plus finement à dessein (un nœud
+30k dédié « collerait au test » sans améliorer la courbe ailleurs).
+
 Le nouveau nœud le plus bas est 15'000 CHF. Deux zones gardent une erreur
 **relative** plus élevée, sur des montants d'impôt **faibles en absolu** :
 
