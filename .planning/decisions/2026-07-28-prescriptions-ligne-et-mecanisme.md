@@ -74,10 +74,13 @@ mémos, convergents sur le fond, complémentaires sur la forme.
    `ouvr(e|ez|ir) un(e)? (compte|3e pilier)` ancré sur le véhicule ;
    `vers(e|ez|er) le maximum` ; motif prix `CHF \d+/mois` co-occurrent.
    Échappatoire : `lint-ignore: prescription` (grep-able, distinct de
-   l'i18n). Le tuple `PRESCRIPTION_MOTIFS` est **exporté** vers le Layer 2
-   de `ComplianceGuard` (précédent : `BANNED_TERMS` →
-   `runtime_verb_gate`) — un vocabulaire, deux points d'application
-   (authoring-time pour le statique, runtime pour le LLM).
+   l'i18n). Un vocabulaire, deux points d'application (authoring-time pour
+   le statique, runtime pour le LLM) — mais le **canonique vit côté
+   backend** (`app/services/coach/prescription_vocab.py`) et c'est le LINT
+   qui l'importe, pas l'inverse : le build Railway/Docker n'embarque que
+   `services/backend/`, un import runtime depuis `tools/` casserait en
+   production — classe d'échec déjà documentée dans `runtime_verb_gate.py`
+   (revue Codex P1). Un test de parité CI verrouille lint ↔ vocabulaire.
 5. **Séquencement** : lint d'abord (la barrière ne dépend pas des
    réécritures), réécritures ensuite jusqu'à baseline vide. Unités TDD :
    U1 motifs (16 chaînes de l'inventaire matchées, « la souscription

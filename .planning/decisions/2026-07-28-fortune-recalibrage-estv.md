@@ -65,6 +65,13 @@ ci-dessous.
    somme du détail) ; monotonie **faible** par canton seulement (les ex æquo
    réels sont un signe de santé, pas un défaut à lisser) ; points hold-out
    (350k, 1.25M) ≤ 3 % ; interpolation ≤ 5 % relatif.
+   **Borne bouclier au runtime** (revue Codex P1) : la courbe collectée est
+   income-free par convention, mais le bouclier rend l'impôt fortune
+   dépendant du revenu à GE/VD — le service applique donc au runtime un
+   plafond dérivé du revenu réel de l'utilisateur (impôt cantonal
+   revenu+fortune ≤ ~60 % du revenu net imposable pour les cantons à
+   bouclier) et lève l'alerte existante quand le plafond mord ; le modèle
+   est étiqueté « hors bouclier » dans ses sources.
 6. **Livraison** : les deux tables (py + dart) sont **générées** depuis le
    même JSON archivé, avec test de parité — l'écran fiscal est L1
    offline-capable, pas de délégation backend. Nouvelle table inscrite
@@ -98,4 +105,8 @@ U1 purge attribution (strings-only, py + dart + coach) · U2 extension
 `collect_estv.py` mode fortune + `API_searchLocation` lot 4 (réseau refusé
 par défaut, activé par flag explicite) · U3 pilote 1 canton + sonde GE,
 convention gelée · U4 collecte 4 lots + archives · U5 codegen py/dart +
-parité + bascule du service + allowlist garde.
+parité + bascule du service + borne bouclier runtime + allowlist garde.
+
+**Dépendance déclarée** (revue Codex P2) : `tools/collect_estv.py` vit sur
+la PR #1069 (`codex/journey-os-collect-estv-dry-run`), non fusionnée à la
+date de cet ADR — U2-U4 ne démarrent qu'après sa fusion dans `dev`.
