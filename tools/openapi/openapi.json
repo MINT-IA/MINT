@@ -21695,6 +21695,13 @@
             "title": "Prixremploi",
             "description": "Price of replacement property (CHF)",
             "default": 0.0
+          },
+          "anneesOccupation": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Anneesoccupation",
+            "description": "Proven owner-occupation years (VD double-count, art. 72 al. 4 LI)",
+            "default": 0
           }
         },
         "type": "object",
@@ -21723,25 +21730,58 @@
             "title": "Dureedetention",
             "description": "Years of ownership"
           },
+          "modeleGain": {
+            "type": "string",
+            "title": "Modelegain",
+            "description": "Gains-tax model: calibre | mecanisme | inconnu"
+          },
           "tauxImpositionPlusValue": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Tauximpositionplusvalue",
-            "description": "Tax rate"
+            "description": "Effective tax rate (null if canton not calibrated)"
           },
           "impotPlusValue": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Impotplusvalue",
-            "description": "Tax on capital gain (CHF)"
+            "description": "Tax on capital gain (CHF, null if canton not calibrated)"
           },
           "remploiReport": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Remploireport",
-            "description": "Tax deferred via reinvestment (CHF)"
+            "description": "Tax deferred via reinvestment (CHF, null if not calibrated)"
           },
           "impotEffectif": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Impoteffectif",
-            "description": "Actual tax due (CHF)"
+            "description": "Actual tax due (CHF, null if canton not calibrated)"
           },
           "remboursementEplLpp": {
             "type": "number",
@@ -21759,9 +21799,22 @@
             "description": "Mortgage payoff (CHF)"
           },
           "produitNet": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Produitnet",
-            "description": "Net proceeds (CHF)"
+            "description": "Net proceeds (CHF, null if gains tax not calibrated)"
+          },
+          "gainImmobilier": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Gainimmobilier",
+            "description": "Gains-tax verdict (model, tax, effective rate, mechanisms, source)"
           },
           "checklist": {
             "items": {
@@ -21804,18 +21857,14 @@
           "plusValueBrute",
           "plusValueImposable",
           "dureeDetention",
-          "tauxImpositionPlusValue",
-          "impotPlusValue",
-          "remploiReport",
-          "impotEffectif",
+          "modeleGain",
           "remboursementEplLpp",
           "remboursementEpl3a",
           "soldeHypotheque",
-          "produitNet",
           "disclaimer"
         ],
         "title": "HousingSaleSimulationResponse",
-        "description": "Response model for housing sale simulation."
+        "description": "Response model for housing sale simulation.\n\nPour un canton non calibre (hors ZH / VD / GE), l'impot sur les gains\nimmobiliers n'est pas chiffre : `tauxImpositionPlusValue`, `impotPlusValue`,\n`remploiReport`, `impotEffectif` et `produitNet` valent alors `null` et\n`gainImmobilier` porte le mecanisme + le renvoi au calculateur cantonal."
       },
       "IjmRequest": {
         "properties": {
