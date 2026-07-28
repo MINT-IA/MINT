@@ -1,7 +1,8 @@
 # Baseline-cliquet des prescriptions de produit — ADR 2026-07-28.
-# Entrées chemin::motif::hash8(extrait normalisé) — PAR OCCURRENCE. La
-# liste ne peut que RÉTRÉCIR ; réécrire ou déplacer un site change son
-# hash et exige une mise à jour consciente dans le même commit.
+# Entrées chemin::motif::hash8(ligne normalisée complète) — PAR
+# OCCURRENCE. La liste ne peut que RÉTRÉCIR ; réécrire ou déplacer un
+# site (même au-delà du 120e caractère) change son hash et exige une
+# mise à jour consciente dans le même commit.
 # Anti-croissance verrouillé en CI contre origin/dev (bootstrap excepté).
 apps/mobile/lib/l10n/app_de.arb::de-saeule-eroeffnen::42a63816
 apps/mobile/lib/l10n/app_de.arb::de-saeule-eroeffnen::696d8d7c
@@ -13,7 +14,7 @@ apps/mobile/lib/l10n/app_de.arb::vehicule-puis-ouvrir::ba4a2da4
 apps/mobile/lib/l10n/app_en.arb::en-open-pillar::5166b18e
 apps/mobile/lib/l10n/app_en.arb::en-open-pillar::994d1b2d
 apps/mobile/lib/l10n/app_en.arb::en-open-pillar::9ca1aa8c
-apps/mobile/lib/l10n/app_en.arb::en-open-pillar::aa765c57
+apps/mobile/lib/l10n/app_en.arb::en-open-pillar::daa83258
 apps/mobile/lib/l10n/app_en.arb::en-open-pillar::ef0682fe
 apps/mobile/lib/l10n/app_en.arb::en-take-out-insurance::8ad48254
 apps/mobile/lib/l10n/app_en.arb::vehicule-puis-ouvrir::28cbd531
@@ -25,15 +26,15 @@ apps/mobile/lib/l10n/app_es.arb::es-contrata-seguro::2a13f997
 apps/mobile/lib/l10n/app_es.arb::vehicule-puis-ouvrir::e69bf789
 apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::19f778fb
 apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::85ab5f5c
-apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::8ffc2bb3
 apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::a3926643
+apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::f5c5cad7
 apps/mobile/lib/l10n/app_fr.arb::souscrire-imperatif::7ed7f95d
 apps/mobile/lib/l10n/app_fr.arb::vehicule-puis-ouvrir::b6b82e1a
 apps/mobile/lib/l10n/app_it.arb::it-apri-pilastro::3e7afaff
 apps/mobile/lib/l10n/app_it.arb::it-apri-pilastro::4f326693
 apps/mobile/lib/l10n/app_it.arb::it-apri-pilastro::5a97ca38
 apps/mobile/lib/l10n/app_it.arb::vehicule-puis-ouvrir::4503780d
-apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::12be5910
+apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::3ec60463
 apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::a805bb10
 apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::bc4ed058
 apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::c475efcb
@@ -64,7 +65,7 @@ services/backend/app/services/coaching_engine.py::ouvrir-vehicule::32c227ac
 services/backend/app/services/coverage_checklist_service.py::souscrire-imperatif::63aaf03e
 services/backend/app/services/educational_content_service.py::verser-le-maximum::3517d307
 services/backend/app/services/educational_content_service.py::verser-le-maximum::eb31885b
-services/backend/app/services/family/concubinage_service.py::souscrire-imperatif::dde3efdc
+services/backend/app/services/family/concubinage_service.py::souscrire-imperatif::9fe5b11d
 services/backend/app/services/first_job/onboarding_service.py::ouvrir-vehicule::257547aa
 services/backend/app/services/first_job/onboarding_service.py::prix-co-occurrent::8b7448ae
 services/backend/app/services/first_job/onboarding_service.py::souscrire-imperatif::8b7448ae

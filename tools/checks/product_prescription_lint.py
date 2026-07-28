@@ -131,12 +131,31 @@ def scan_text(
         hits = [name for name, rx in motifs if rx.search(nfkc)]
         if not hits:
             continue
-        snippet = line.strip()[:120]
+        # Ligne COMPLÈTE : le hash de baseline doit couvrir toute la ligne
+        # (revue adversariale 2026-07-28 P2 : tronquer avant hachage laissait
+        # la queue au-delà de 120 caractères hors surveillance). La troncature
+        # n'intervient qu'à l'affichage des diagnostics.
+        snippet = line.strip()
         for name in hits:
             out.append((lineno, name, snippet))
         if prix.search(nfkc):
             out.append((lineno, "prix-co-occurrent", snippet))
     return out
+
+
+def derive_entries(found: dict[str, list[tuple[int, str, str]]]) -> set[str]:
+    """Entrées de baseline PAR OCCURRENCE : chemin::motif::hash8(ligne
+    normalisée complète), suffixe -N pour les doublons verbatim."""
+    current: set[str] = set()
+    for path, rows in found.items():
+        vus: dict[str, int] = {}
+        for _, name, snippet in rows:
+            norme = " ".join(snippet.lower().split())
+            h = hashlib.sha1(norme.encode()).hexdigest()[:8]
+            base = f"{path}::{name}::{h}"
+            vus[base] = vus.get(base, 0) + 1
+            current.add(base if vus[base] == 1 else f"{base}-{vus[base]}")
+    return current
 
 
 def _collect_paths() -> list[Path]:
@@ -218,6 +237,14 @@ def _self_test(motifs, prix) -> int:
             False,
             "compte applicatif non financier : plus matché",
         ),
+        # Véhicule AVANT le verbe (revue adversariale #1084 P2) : les 6
+        # traductions réelles de firstJob3aHeader doivent toutes matcher.
+        ("PILIER 3A — À OUVRIR MAINTENANT", True, "fr : véhicule-puis-ouvrir"),
+        ("PILLAR 3A — OPEN NOW", True, "en : véhicule-puis-ouvrir"),
+        ("SÄULE 3A — JETZT ERÖFFNEN", True, "de : véhicule-puis-ouvrir"),
+        ("PILASTRO 3A — DA APRIRE ORA", True, "it : véhicule-puis-ouvrir"),
+        ("PILAR 3A — ABRIR AHORA", True, "es : véhicule-puis-ouvrir"),
+        ("PILAR 3A — ABRIR AGORA", True, "pt : véhicule-puis-ouvrir"),
     ]
     failures = 0
     for case in cases:
@@ -232,9 +259,36 @@ def _self_test(motifs, prix) -> int:
                 file=sys.stderr,
             )
             failures += 1
+    # Mécanique des entrées (revue adversariale #1084 P2) : la queue au-delà
+    # du 120e caractère compte dans le hash, et un doublon verbatim reçoit
+    # un suffixe -2.
+    prefixe = "Souscris une assurance vie complète " + "x " * 50
+    assert len(prefixe) > 120
+    a = derive_entries({"p.dart": [(1, "souscrire-imperatif", prefixe + "AAA")]})
+    b = derive_entries({"p.dart": [(1, "souscrire-imperatif", prefixe + "BBB")]})
+    if a == b:
+        print(
+            "self-test FAIL [hash ligne complète] : deux queues différentes "
+            "au-delà de 120 caractères donnent la même entrée",
+            file=sys.stderr,
+        )
+        failures += 1
+    doublon = derive_entries({"p.dart": [
+        (1, "souscrire-imperatif", "Souscris X"),
+        (2, "souscrire-imperatif", "Souscris X"),
+    ]})
+    if len(doublon) != 2 or not any(e.endswith("-2") for e in doublon):
+        print(
+            "self-test FAIL [doublon verbatim] : suffixe -2 absent",
+            file=sys.stderr,
+        )
+        failures += 1
     if failures:
         return 1
-    print(f"product_prescription_lint self-test OK ({len(cases)} cas)")
+    print(
+        f"product_prescription_lint self-test OK "
+        f"({len(cases)} cas + mécanique des entrées)"
+    )
     return 0
 
 
@@ -255,20 +309,13 @@ def main() -> int:
         return _self_test(motifs, prix)
 
     found = _scan_repo(motifs, prix)
-    # Entrées PAR OCCURRENCE : chemin::motif::hash8(extrait normalisé)
-    # (revue Codex 2026-07-28 P1) — retirer une occurrence baselinée et en
-    # ajouter une autre du même motif dans le même fichier change le hash :
-    # l'échange est visible. Éditer le texte d'un site baseliné change
-    # aussi son hash -> stale + new -> passage conscient par la baseline.
-    current: set[str] = set()
-    for path, rows in found.items():
-        vus: dict[str, int] = {}
-        for _, name, snippet in rows:
-            norme = " ".join(snippet.lower().split())
-            h = hashlib.sha1(norme.encode()).hexdigest()[:8]
-            base = f"{path}::{name}::{h}"
-            vus[base] = vus.get(base, 0) + 1
-            current.add(base if vus[base] == 1 else f"{base}-{vus[base]}")
+    # Entrées PAR OCCURRENCE (revue Codex 2026-07-28 P1) — retirer une
+    # occurrence baselinée et en ajouter une autre du même motif dans le même
+    # fichier change le hash : l'échange est visible. Le hash couvre la ligne
+    # normalisée COMPLÈTE (revue adversariale P2) : éditer un site baseliné,
+    # y compris au-delà du 120e caractère, change son hash -> stale + new ->
+    # passage conscient par la baseline.
+    current = derive_entries(found)
 
     if args.emit_baseline:
         for entry in sorted(current):
@@ -288,7 +335,10 @@ def main() -> int:
         for path, rows in sorted(found.items()):
             for lineno, name, snippet in rows:
                 if f"{path}::{name}" in failing_keys:
-                    print(f"{path}:{lineno}: [{name}] {snippet}", file=sys.stderr)
+                    print(
+                        f"{path}:{lineno}: [{name}] {snippet[:120]}",
+                        file=sys.stderr,
+                    )
         print(
             f"product_prescription_lint: FAIL — {len(new_sites)} nouveau(x) "
             "site(s) de prescription hors baseline. Réécris en description "
