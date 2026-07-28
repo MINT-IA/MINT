@@ -53,9 +53,10 @@ void main() {
         canton: 'VD',
       );
 
-      // v2 -2i2 : sanity backend
-      // estimate_capital_withdrawal_tax(300000, 'VD') = 22277.89.
-      expect(r['capitalImpot'] as double, closeTo(22277.89, 1)); // v2 -2i2
+      // CAP-1 #1098 : grille 7 noeuds (350k ajouté) -> VD 300k interpole
+      // désormais 250k->350k. estimate_capital_withdrawal_tax(300000, 'VD')
+      // = 22244.69 (était 22277.89 avec l'interp 250k->500k).
+      expect(r['capitalImpot'] as double, closeTo(22244.69, 1)); // v2, CAP-1
     });
 
     test('breakeven age — point ou rente cumule depasse capital net', () {
