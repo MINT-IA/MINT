@@ -658,7 +658,10 @@ class ComplianceGuardrails:
 
                 if tax:
                     canton_lines.append(
-                        f"Taux marginal cantonal+communal (approx.): {tax['marginal_rate_pct']}%"
+                        "Taux marginal cantonal+communal: dépend du revenu — "
+                        "utilise l'outil fiscal "
+                        "(cantonal_comparator__estimate_marginal_rate) pour tout "
+                        "chiffre; ne jamais avancer un taux marginal sans cet appel."
                     )
                     canton_lines.append(
                         f"Impôt sur la fortune (‰): {tax['wealth_tax_rate_permille']}"

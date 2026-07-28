@@ -10,6 +10,7 @@ All tests run without chromadb or an LLM API key (pure logic / HTTP only).
 from __future__ import annotations
 
 import asyncio
+import re
 import unittest.mock as mock
 
 import pytest
@@ -293,8 +294,8 @@ class TestCantonalEnrichment:
         )
 
         assert "VS" in prompt
-        # VS marginal rate is 36.0%
-        assert "36.0" in prompt or "36%" in prompt or "Valais" in prompt
+        # Marginal rate is NOT a static per-canton scalar: it must be a tool directive.
+        assert "cantonal_comparator__estimate_marginal_rate" in prompt
 
     def test_canton_zh_injected(self):
         """ZH (Zurich) tax data appears in system prompt when canton=ZH."""
@@ -307,8 +308,9 @@ class TestCantonalEnrichment:
         )
 
         assert "ZH" in prompt
-        # ZH marginal rate is 32.5%
-        assert "32.5" in prompt or "Zurich" in prompt
+        # Wealth-tax permille (untouched field) still injected for ZH.
+        assert "Impôt sur la fortune" in prompt
+        assert "cantonal_comparator__estimate_marginal_rate" in prompt
 
     def test_canton_ti_injected(self):
         """TI (Tessin) tax data appears in system prompt when canton=TI."""
@@ -321,8 +323,39 @@ class TestCantonalEnrichment:
         )
 
         assert "TI" in prompt
-        # TI marginal rate is 33.5%
-        assert "33.5" in prompt or "Tessin" in prompt
+        assert "cantonal_comparator__estimate_marginal_rate" in prompt
+
+    def test_canton_marginal_rate_is_tool_directive_not_static_number(self):
+        """The cantonal block must NOT inject a fabricated static marginal rate.
+
+        Doctrine (forced-tool-invocation): a marginal rate depends on income,
+        so the coach must be directed to the fiscal étalon tool
+        (cantonal_comparator__estimate_marginal_rate) instead of receiving a
+        per-canton scalar that would contradict the on-screen figure.
+        """
+        from app.services.rag.guardrails import ComplianceGuardrails
+
+        guardrails = ComplianceGuardrails()
+        for canton in ["ZH", "GE", "VS", "TI", "ZG", "BE"]:
+            prompt = guardrails.build_system_prompt(
+                language="fr",
+                profile_context={"canton": canton},
+            )
+            marginal_lines = [
+                ln for ln in prompt.splitlines()
+                if ln.startswith("Taux marginal")
+            ]
+            assert marginal_lines, f"No marginal-rate line for canton {canton}"
+            for ln in marginal_lines:
+                assert not re.search(r"\d+(\.\d+)?\s*%", ln), (
+                    f"Static marginal percentage leaked for {canton}: {ln!r}"
+                )
+                assert "dépend du revenu" in ln, (
+                    f"Marginal-rate directive missing income-dependency note for {canton}"
+                )
+                assert "cantonal_comparator__estimate_marginal_rate" in ln, (
+                    f"Marginal-rate directive missing fiscal tool name for {canton}"
+                )
 
     def test_canton_lowercase_normalized(self):
         """Lowercase canton code 'vs' is normalized to 'VS'."""

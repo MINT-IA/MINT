@@ -41,13 +41,15 @@ SOURCES = [
 # Tax specifics by canton
 # ---------------------------------------------------------------------------
 
-# Combined cantonal+communal marginal rate (approximate, main city, 2025)
-# Rates are effective marginal rates for a single person earning 100k CHF
+# NOTE: no `marginal_rate_pct` field here on purpose. A marginal rate depends on
+# income, so no per-canton scalar is correct — deriving one contradicts the
+# on-screen figure. Any marginal rate must come from the fiscal étalon
+# (fiscal.cantonal_comparator.estimate_marginal_rate). `rank_income_tax` below is
+# an ordinal AFC ranking (1 = lowest burden), not a rate.
 _TAX_SPECIFICS: dict[str, dict] = {
     "ZH": {
         "canton": "ZH",
         "name": "Zurich",
-        "marginal_rate_pct": 32.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.5,
         "inheritance_tax_direct_heirs": False,
@@ -59,7 +61,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "BE": {
         "canton": "BE",
         "name": "Berne",
-        "marginal_rate_pct": 41.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 4.5,
         "inheritance_tax_direct_heirs": False,
@@ -71,7 +72,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "VD": {
         "canton": "VD",
         "name": "Vaud",
-        "marginal_rate_pct": 41.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 3.5,
         "inheritance_tax_direct_heirs": False,
@@ -83,7 +83,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "GE": {
         "canton": "GE",
         "name": "Genève",
-        "marginal_rate_pct": 44.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 4.5,
         "inheritance_tax_direct_heirs": False,
@@ -95,7 +94,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "VS": {
         "canton": "VS",
         "name": "Valais",
-        "marginal_rate_pct": 36.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.5,
         "inheritance_tax_direct_heirs": False,
@@ -107,7 +105,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "TI": {
         "canton": "TI",
         "name": "Tessin",
-        "marginal_rate_pct": 33.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.0,
         "inheritance_tax_direct_heirs": False,
@@ -119,7 +116,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "ZG": {
         "canton": "ZG",
         "name": "Zoug",
-        "marginal_rate_pct": 22.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 0.75,
         "inheritance_tax_direct_heirs": False,
@@ -131,7 +127,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "BS": {
         "canton": "BS",
         "name": "Bâle-Ville",
-        "marginal_rate_pct": 36.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 3.5,
         "inheritance_tax_direct_heirs": False,
@@ -143,7 +138,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "LU": {
         "canton": "LU",
         "name": "Lucerne",
-        "marginal_rate_pct": 31.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.0,
         "inheritance_tax_direct_heirs": False,
@@ -155,7 +149,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "AG": {
         "canton": "AG",
         "name": "Argovie",
-        "marginal_rate_pct": 35.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.5,
         "inheritance_tax_direct_heirs": False,
@@ -167,7 +160,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "SG": {
         "canton": "SG",
         "name": "Saint-Gall",
-        "marginal_rate_pct": 33.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.0,
         "inheritance_tax_direct_heirs": False,
@@ -393,8 +385,12 @@ class CantonalKnowledge:
 
     @staticmethod
     def lowest_tax_canton() -> str:
-        """Return the canton with the lowest income tax rate."""
-        return min(_TAX_SPECIFICS.items(), key=lambda x: x[1]["marginal_rate_pct"])[0]
+        """Return the canton with the lowest income-tax burden.
+
+        Derived from the ordinal AFC ranking (``rank_income_tax``, 1 = lowest),
+        never from a fabricated per-canton marginal rate.
+        """
+        return min(_TAX_SPECIFICS.items(), key=lambda x: x[1]["rank_income_tax"])[0]
 
     @staticmethod
     def highest_rent_canton() -> str:
@@ -407,7 +403,12 @@ class CantonalKnowledge:
     @staticmethod
     def compare_tax(canton_a: str, canton_b: str) -> Optional[dict]:
         """
-        Compare tax rates between two cantons.
+        Compare the income-tax burden of two cantons, ordinally.
+
+        Uses the AFC ordinal ranking (``rank_income_tax``, 1 = lowest burden),
+        never a per-canton marginal rate: a marginal rate depends on income, so
+        no cantonal scalar is correct. For an actual figure, call the fiscal
+        étalon (``fiscal.cantonal_comparator.estimate_marginal_rate``).
 
         Returns:
             Comparison dict, or None if either canton is missing.
@@ -416,12 +417,12 @@ class CantonalKnowledge:
         b = _TAX_SPECIFICS.get(canton_b.upper())
         if a is None or b is None:
             return None
-        diff = a["marginal_rate_pct"] - b["marginal_rate_pct"]
+        diff = a["rank_income_tax"] - b["rank_income_tax"]
         return {
             "canton_a": canton_a.upper(),
             "canton_b": canton_b.upper(),
-            "rate_a": a["marginal_rate_pct"],
-            "rate_b": b["marginal_rate_pct"],
-            "difference_pct": round(diff, 2),
+            "rank_a": a["rank_income_tax"],
+            "rank_b": b["rank_income_tax"],
+            "rank_difference": diff,
             "cheaper_canton": canton_a.upper() if diff < 0 else canton_b.upper(),
         }

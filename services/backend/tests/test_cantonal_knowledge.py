@@ -27,7 +27,7 @@ def test_all_major_cantons_have_tax_specifics():
 def test_tax_specifics_structure():
     """Tax specifics dict must have required fields."""
     required_keys = [
-        "canton", "name", "marginal_rate_pct", "capital_gains_tax",
+        "canton", "name", "capital_gains_tax",
         "wealth_tax_rate_permille", "inheritance_tax_direct_heirs",
         "notable_deductions", "source",
     ]
@@ -43,21 +43,18 @@ def test_zg_has_lowest_tax_rate():
     assert lowest == "ZG", f"Expected ZG as lowest tax canton, got {lowest}"
 
 
-def test_zg_tax_rate_is_below_25():
-    """Zoug marginal rate must be below 25%."""
-    data = CantonalKnowledge.tax_specifics("ZG")
-    assert data["marginal_rate_pct"] < 25, (
-        f"ZG marginal rate expected < 25%, got {data['marginal_rate_pct']}%"
-    )
+def test_no_static_marginal_rate_field():
+    """No canton may carry a fabricated static marginal_rate_pct scalar.
 
-
-def test_ge_tax_rate_is_highest():
-    """Geneva (GE) must have one of the highest tax rates."""
-    ge = CantonalKnowledge.tax_specifics("GE")
-    zh = CantonalKnowledge.tax_specifics("ZH")
-    assert ge["marginal_rate_pct"] > zh["marginal_rate_pct"], (
-        "GE should have higher rate than ZH"
-    )
+    A marginal rate depends on income — it must be derived from the fiscal
+    étalon (fiscal.cantonal_comparator.estimate_marginal_rate), never stored
+    as a per-canton constant that would contradict the on-screen figure.
+    """
+    for canton in CantonalKnowledge.all_cantons():
+        data = CantonalKnowledge.tax_specifics(canton)
+        assert "marginal_rate_pct" not in data, (
+            f"Canton {canton} still carries a fabricated marginal_rate_pct scalar"
+        )
 
 
 def test_tax_specifics_unknown_canton_returns_none():
@@ -173,11 +170,14 @@ def test_housing_unknown_canton_returns_none():
 
 
 def test_compare_tax_zg_vs_ge():
-    """Zoug should be significantly cheaper than Geneva."""
+    """Zoug should rank as cheaper than Geneva on income-tax burden (ordinal)."""
     comparison = CantonalKnowledge.compare_tax("ZG", "GE")
     assert comparison is not None
     assert comparison["cheaper_canton"] == "ZG"
-    assert comparison["difference_pct"] < 0  # ZG - GE < 0
+    assert comparison["rank_difference"] < 0  # ZG rank - GE rank < 0
+    # No fabricated marginal-rate scalar may leak out of the comparison.
+    assert "rate_a" not in comparison
+    assert "rate_b" not in comparison
 
 
 def test_compare_tax_unknown_canton_returns_none():
@@ -187,7 +187,7 @@ def test_compare_tax_unknown_canton_returns_none():
 
 
 def test_compare_tax_same_canton():
-    """Comparing a canton to itself returns 0 difference."""
+    """Comparing a canton to itself returns 0 rank difference."""
     result = CantonalKnowledge.compare_tax("ZH", "ZH")
     assert result is not None
-    assert result["difference_pct"] == 0.0
+    assert result["rank_difference"] == 0

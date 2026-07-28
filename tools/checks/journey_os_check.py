@@ -711,6 +711,13 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # P1 triage AnnAssign (#1095) : purge du taux marginal cantonal fabriqué
+    # injecté au coach par le RAG. Le taux dépend du revenu — le coach est
+    # dirigé vers l'étalon fiscal (cantonal_comparator.estimate_marginal_rate)
+    # plutôt que de recevoir un scalaire cantonal démenti par l'écran.
+    "services/backend/app/services/rag/cantonal_knowledge.py",
+    "services/backend/tests/test_cantonal_knowledge.py",
+    "services/backend/tests/test_rag_s67_wiring.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
