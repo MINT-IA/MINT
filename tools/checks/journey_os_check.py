@@ -711,6 +711,17 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # LOT-2 réécriture prescriptions produit BACKEND (ADR 2026-07-28-prescriptions)
+    "services/backend/app/routes/wizard.py",
+    "services/backend/app/services/coach/coach_tools.py",
+    "services/backend/app/services/coaching_engine.py",
+    "services/backend/app/services/coverage_checklist_service.py",
+    "services/backend/app/services/educational_content_service.py",
+    "services/backend/app/services/first_job/onboarding_service.py",
+    "services/backend/app/services/gender_gap_service.py",
+    "services/backend/app/services/job_comparator.py",
+    "services/backend/app/services/pillar_3a_deep/provider_comparator_service.py",
+    "services/backend/app/services/precision/precision_service.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

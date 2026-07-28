@@ -414,7 +414,7 @@ def cross_validate(profile: dict) -> List[CrossValidationAlert]:
             field_name="pillar_3a_balance",
             severity="error",
             message=(
-                "Tu ne peux ouvrir un 3e pilier qu'a partir de 18 ans "
+                "Un 3e pilier n'est accessible qu'à partir de 18 ans "
                 "avec un revenu soumis a l'AVS (OPP3 art. 7)."
             ),
             suggestion=(

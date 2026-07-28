@@ -27,7 +27,7 @@ DISCLAIMER = (
     "pas un conseil en placement ni une recommandation de produit au sens de la "
     "LSFin. Les rendements passes ne prejugent pas des rendements futurs. "
     "Les frais et rendements proviennent de donnees publiques (2025/2026). "
-    "Consultez un ou une specialiste avant de souscrire."
+    "Comparez les offres et consultez un ou une specialiste avant toute decision."
 )
 
 
