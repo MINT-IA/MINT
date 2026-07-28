@@ -98,25 +98,33 @@ def _compile(vocab):
 
 _IGNORE_RE = re.compile(r"(?:#|//)\s*lint-ignore:\s*prescription\s*$")
 
+# Préfixes de commentaire PAR LANGAGE (revue Codex P2) : « # Souscris » dans
+# une chaîne multi-ligne .dart n'est pas un commentaire Dart — il reste
+# scanné ; « // Open a pillar 3a » dans une chaîne .py idem. Le résidu
+# assumé : un marqueur du MÊME langage à l'intérieur d'une chaîne
+# multi-ligne de ce langage (limite du scan par ligne, documentée).
+_COMMENT_PREFIXES = {".py": ("#",), ".dart": ("//",), ".arb": ()}
 
-def _line_is_exempt(line: str) -> bool:
+
+def _line_is_exempt(line: str, suffix: str) -> bool:
     # Échappatoire ANCRÉE en commentaire de fin de ligne — un contenu qui
     # porterait la chaîne au milieu d'une valeur .arb n'exempte rien
     # (revue adversariale P2-4).
     if _IGNORE_RE.search(line.rstrip()):
         return True
-    stripped = line.lstrip()
-    # Seuls les vrais commentaires ligne sont exempts. Les bullets « * » et
-    # le contenu de docstrings/prompts NE le sont plus : un prompt LLM peut
-    # porter une prescription rendue (revue adversariale P2-1).
-    return stripped.startswith(("#", "//"))
+    prefixes = _COMMENT_PREFIXES.get(suffix, ())
+    if not prefixes:
+        return False
+    return line.lstrip().startswith(prefixes)
 
 
-def scan_text(text: str, motifs, prix) -> list[tuple[int, str, str]]:
+def scan_text(
+    text: str, motifs, prix, suffix: str = ".dart"
+) -> list[tuple[int, str, str]]:
     """(ligne, nom-du-motif, extrait) — motif prix seulement co-occurrent."""
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
-        if _line_is_exempt(line):
+        if _line_is_exempt(line, suffix):
             continue
         nfkc = unicodedata.normalize("NFKC", line)
         hits = [name for name, rx in motifs if rx.search(nfkc)]
@@ -165,7 +173,7 @@ def _scan_repo(motifs, prix) -> dict[str, list[tuple[int, str, str]]]:
             text = path.read_text(encoding="utf-8", errors="ignore")
         except OSError:
             continue
-        rows = scan_text(text, motifs, prix)
+        rows = scan_text(text, motifs, prix, suffix=path.suffix)
         if rows:
             found[path.relative_to(ROOT).as_posix()] = rows
     return found
@@ -184,7 +192,13 @@ def _self_test(motifs, prix) -> int:
         ("une APG coûte typiquement dès CHF 45/mois", False, "prix seul = info"),
         ("ouvre une porte sur tes finances", False, "hors véhicule financier"),
         ("Souscriｓ une assurance", True, "evasion NFKC (s pleine chasse)"),
-        ("# Souscris une assurance — commentaire", False, "commentaire exempt"),
+        ("# Souscris une assurance", False, "commentaire python exempt", ".py"),
+        ("# Souscris une assurance", True, "# dans une chaine .dart : scanne (Codex P2)", ".dart"),
+        ("// Open a pillar 3a", True, "// dans une chaine .py : scanne (Codex P2)", ".py"),
+        ("Ouvrir compte 3a", True, "infinitif sans article (Codex P1)"),
+        ("3a-Konto eröffnen", True, "de : verbe final Konto (Codex P1)"),
+        ("Open multiple 3a accounts", True, "en : multiple/pluriel (Codex P1)"),
+        ("Abrir una cuenta 3a", True, "es : una (Codex P1)"),
         ("Souscris une RC  // lint-ignore: prescription", False, "échappatoire ancrée"),
         (
             '"k": "Souscris ceci lint-ignore: prescription et cela",',
@@ -205,8 +219,10 @@ def _self_test(motifs, prix) -> int:
         ),
     ]
     failures = 0
-    for line, should_flag, why in cases:
-        rows = scan_text(line + "\n", motifs, prix)
+    for case in cases:
+        line, should_flag, why = case[0], case[1], case[2]
+        suffix = case[3] if len(case) > 3 else ".dart"
+        rows = scan_text(line + "\n", motifs, prix, suffix=suffix)
         flagged = any(name != "prix-co-occurrent" for _, name, _ in rows)
         if flagged != should_flag:
             print(
@@ -261,9 +277,12 @@ def main() -> int:
     status = 0
     if new_sites:
         status = 1
+        # Les entrées portent le compte (path::motif::N) — les diagnostics
+        # se sélectionnent sur la clé path::motif (revue Codex P2).
+        failing_keys = {e.rpartition("::")[0] for e in new_sites}
         for path, rows in sorted(found.items()):
             for lineno, name, snippet in rows:
-                if f"{path}::{name}" in new_sites:
+                if f"{path}::{name}" in failing_keys:
                     print(f"{path}:{lineno}: [{name}] {snippet}", file=sys.stderr)
         print(
             f"product_prescription_lint: FAIL — {len(new_sites)} nouveau(x) "

@@ -56,21 +56,40 @@ jobs:
           python3 tools/checks/product_prescription_lint.py
       - name: Prescription baseline anti-growth (cliquet)
         # La baseline ne peut pas GROSSIR vs origin/dev — le blanchiment par
-        # --emit-baseline est refusé ici (bootstrap : fichier absent sur dev).
+        # --emit-baseline est refusé (bootstrap : fichier absent sur dev).
+        # Comparaison par CLÉ chemin::motif avec comptes : réduire ::3 -> ::2
+        # est un rétrécissement légitime, pas une addition (revue Codex P1).
         run: |
           git fetch origin dev --quiet
-          if git show origin/dev:tools/checks/_baseline_prescription_sites.txt \
-              > /tmp/baseline_dev.txt 2>/dev/null; then
-            added=$(grep '::' tools/checks/_baseline_prescription_sites.txt \
-              | grep -Fxv -f <(grep '::' /tmp/baseline_dev.txt) || true)
-            if [ -n "$added" ]; then
-              echo "::error::Baseline prescriptions en CROISSANCE (cliquet) :"
-              echo "$added"
-              exit 1
-            fi
-          else
-            echo "Bootstrap : baseline absente sur origin/dev, croissance initiale admise."
-          fi
+          git show origin/dev:tools/checks/_baseline_prescription_sites.txt \
+            > /tmp/baseline_dev.txt 2>/dev/null || {
+              echo "Bootstrap : baseline absente sur origin/dev."; exit 0; }
+          python3 - <<'EOF'
+          from pathlib import Path
+
+          def lire(p):
+              entrees = {}
+              for l in Path(p).read_text().splitlines():
+                  l = l.strip()
+                  if not l or l.startswith("#") or "::" not in l:
+                      continue
+                  chemin_motif, _, compte = l.rpartition("::")
+                  entrees[chemin_motif] = int(compte) if compte.isdigit() else 1
+              return entrees
+
+          dev = lire("/tmp/baseline_dev.txt")
+          cur = lire("tools/checks/_baseline_prescription_sites.txt")
+          fautes = [
+              f"{k}: {dev.get(k, 0)} -> {n}"
+              for k, n in sorted(cur.items())
+              if n > dev.get(k, 0)
+          ]
+          if fautes:
+              print("::error::Baseline prescriptions en CROISSANCE (cliquet) :")
+              print("\n".join(fautes))
+              raise SystemExit(1)
+          print("Cliquet OK : aucune clé en croissance.")
+          EOF
       - name: Mermaid render guard
         run: python3 tools/checks/mermaid_render_guard.py
       - name: Maestro locator audit

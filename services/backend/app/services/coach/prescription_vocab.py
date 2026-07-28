@@ -36,7 +36,7 @@ PRESCRIPTION_MOTIFS: tuple[tuple[str, str], ...] = (
     # troisième / possessifs (revue adversariale P2-3).
     (
         "ouvrir-vehicule",
-        r"\bouvr(?:e|ez|ir)\s+(?:un|une|ton|ta|votre|le|la)\s+"
+        r"\bouvr(?:e|ez|ir)\s+(?:(?:un|une|ton|ta|votre|le|la)\s+)?"
         r"(?:compte\s*3a|3\s*(?:e|ème|eme)?\s*pilier|troisi[eè]me\s+pilier)\b",
     ),
     # « Verse(z)(-y) le (montant) max(imum) ».
@@ -48,13 +48,13 @@ PRESCRIPTION_MOTIFS: tuple[tuple[str, str], ...] = (
     ("en-take-out-insurance", r"\btake\s+out\b[^.\n]{0,60}\binsurance\b"),
     (
         "en-open-pillar",
-        r"\bopen\s+(?:a|an|your)\s+(?:pillar\s*3a?|3a\s+account|third\s+pillar)\b",
+        r"\bopen\s+(?:(?:a|an|your|multiple)\s+)?(?:pillar\s*3a?|3a\s+accounts?|third\s+pillar)\b",
     ),
     ("en-pay-the-max", r"\b(?:pay|contribute)\s+(?:in\s+)?the\s+max(?:imum)?\b"),
     # ── Deutsch ─────────────────────────────────────────────────────
     (
         "de-saeule-eroeffnen",
-        r"\bs[äa]ule\s*3a\s+er[öo]ffnen\b"
+        r"\b(?:s[äa]ule\s*3a|3a[- ]?konto)\s+er[öo]ffnen\b"
         r"|\ber[öo]ffne\s+(?:ein|dein|ihr)e?\s+(?:s[äa]ule\s*3a|3a[- ]?konto)\b",
     ),
     (
@@ -65,19 +65,19 @@ PRESCRIPTION_MOTIFS: tuple[tuple[str, str], ...] = (
     # ── Italiano ────────────────────────────────────────────────────
     (
         "it-apri-pilastro",
-        r"\bapri(?:re)?\s+(?:un|il)\s+(?:pilastro\s*3a?|terzo\s+pilastro|conto\s*3a)\b",
+        r"\bapri(?:re)?\s+(?:(?:un|una|il)\s+)?(?:pilastro\s*3a?|terzo\s+pilastro|conto\s*3a)\b",
     ),
     ("it-stipula-assicurazione", r"\bstipula(?:re)?\s+(?:un[’']?\s*)?assicurazione\b"),
     # ── Español ─────────────────────────────────────────────────────
     (
         "es-abre-pilar",
-        r"\babr(?:e|ir|a)\s+(?:un|tu)\s+(?:pilar\s*3a?|tercer\s+pilar|cuenta\s*3a)\b",
+        r"\babr(?:e|ir|a)\s+(?:(?:un|una|tu)\s+)?(?:pilar\s*3a?|tercer\s+pilar|cuenta\s*3a)\b",
     ),
     ("es-contrata-seguro", r"\bcontrata(?:r)?\s+(?:un\s+)?seguro\b"),
     # ── Português ───────────────────────────────────────────────────
     (
         "pt-abre-pilar",
-        r"\babr(?:e|ir|a)\s+(?:um|o|a)\s+(?:3\.?\s*[ºo°]?\s*pilar|terceiro\s+pilar|conta\s*3a)\b",
+        r"\babr(?:e|ir|a)\s+(?:(?:um|uma|o|a)\s+)?(?:3\.?\s*[ºo°]?\s*pilar|terceiro\s+pilar|conta\s*3a)\b",
     ),
     ("pt-contrate-seguro", r"\bcontrat(?:e|ar)\s+(?:um\s+)?seguro\b"),
 )

@@ -1,16 +1,19 @@
 # Baseline-cliquet des prescriptions de produit — ADR 2026-07-28.
 # Entrées chemin::motif::compte, sans numéros de ligne. La liste ne peut
 # que RÉTRÉCIR : chaque réécriture retire/réduit son entrée dans le même
-# commit. L'anti-croissance est verrouillé en CI contre origin/dev.
-apps/mobile/lib/l10n/app_de.arb::de-saeule-eroeffnen::1
-apps/mobile/lib/l10n/app_en.arb::en-open-pillar::3
+# commit. L'anti-croissance est verrouillé en CI contre origin/dev
+# (comparaison par clé avec comptes — réduire un compte est légitime).
+apps/mobile/lib/l10n/app_de.arb::de-saeule-eroeffnen::4
+apps/mobile/lib/l10n/app_en.arb::en-open-pillar::5
 apps/mobile/lib/l10n/app_en.arb::en-take-out-insurance::1
+apps/mobile/lib/l10n/app_es.arb::es-abre-pilar::3
 apps/mobile/lib/l10n/app_es.arb::es-contrata-seguro::1
-apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::3
+apps/mobile/lib/l10n/app_fr.arb::ouvrir-vehicule::4
 apps/mobile/lib/l10n/app_fr.arb::souscrire-imperatif::1
-apps/mobile/lib/l10n/app_it.arb::it-apri-pilastro::2
-apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::2
+apps/mobile/lib/l10n/app_it.arb::it-apri-pilastro::3
+apps/mobile/lib/l10n/app_pt.arb::pt-abre-pilar::5
 apps/mobile/lib/l10n_regional/app_regional_vs.arb::verser-le-maximum::1
+apps/mobile/lib/models/age_band_policy.dart::ouvrir-vehicule::1
 apps/mobile/lib/models/age_band_policy.dart::souscrire-imperatif::1
 apps/mobile/lib/models/clarity_state.dart::ouvrir-vehicule::1
 apps/mobile/lib/screens/expat_screen.dart::souscrire-imperatif::1
