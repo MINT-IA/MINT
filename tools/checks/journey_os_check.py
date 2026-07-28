@@ -346,6 +346,7 @@ ALLOW = {
     "apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart",
     "apps/mobile/test/services/regulatory_sync_integration_test.dart",
     "services/backend/app/services/fiscal/cantonal_comparator.py",
+    "services/backend/tests/test_fiscal_low_nodes.py",
     "services/backend/app/services/regulatory/registry.py",
     "services/backend/tests/fixtures/coach_tools_parity_v1.jsonl",
     "services/backend/tests/test_minimal_profile.py",
