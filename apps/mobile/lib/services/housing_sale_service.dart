@@ -363,6 +363,10 @@ class HousingSaleService {
     final plusValueBrute = prixVente - coutAcquisitionTotal;
     final gainImposable = max(0.0, plusValueBrute);
 
+    // ── EPL repayment obligations (LPP art. 30d, OPP2 art. 30e) ──
+    final remboursementEplLpp = residencePrincipale ? eplLppUtilise : 0.0;
+    final remboursementEpl3a = residencePrincipale ? epl3aUtilise : 0.0;
+
     // ── Capital gains tax — delegated to the calibrated canton model ──
     final verdict = verdictGainImmobilier(
       canton,
@@ -377,8 +381,29 @@ class HousingSaleService {
     double? remploiReport;
     double? impotEffectif;
     double? produitNet;
+    GainImmobilierVerdict gainImmobilier = verdict;
 
-    if (impotChf == null) {
+    if (gainImposable <= 0) {
+      // Gain nul ou negatif : impot 0 deterministe quel que soit le canton
+      // (rien a imposer). On garde le modele du canton, le produit net reste
+      // calcule.
+      impotPlusValue = 0.0;
+      tauxImposition = 0.0;
+      remploiReport = 0.0;
+      impotEffectif = 0.0;
+      produitNet = prixVente -
+          hypothequeRestante -
+          remboursementEplLpp -
+          remboursementEpl3a;
+      gainImmobilier = GainImmobilierVerdict(
+        canton: verdict.canton,
+        modele: verdict.modele,
+        impotChf: 0.0,
+        tauxEffectifPct: 0.0,
+        mecanismes: verdict.mecanismes,
+        source: verdict.source,
+      );
+    } else if (impotChf == null) {
       // Canton non calibre : aucun impot fabrique.
       tauxImposition = null;
       impotPlusValue = null;
@@ -387,33 +412,32 @@ class HousingSaleService {
       produitNet = null;
     } else {
       impotPlusValue = impotChf;
-      tauxImposition =
-          gainImposable > 0 ? _round4(impotChf / gainImposable) : 0.0;
+      tauxImposition = _round4(impotChf / gainImposable);
 
-      // Remploi (report d'imposition) sur l'impot, LHID art. 12 al. 3.
+      // Remploi — methode ABSOLUE (ATF 130 II 202), LHID art. 12 al. 3 let. e :
+      // report sur la part du reinvestissement qui excede les couts
+      // d'investissement du bien vendu (prix d'achat + impenses).
       double report = 0;
-      if (projetRemploi && residencePrincipale && prixRemploi > 0 && impotChf > 0) {
-        if (prixRemploi >= prixVente) {
-          report = impotChf;
-        } else {
-          report = _round2(impotChf * (prixRemploi / prixVente));
+      if (projetRemploi &&
+          residencePrincipale &&
+          prixRemploi > 0 &&
+          impotChf > 0) {
+        final coutsInvestissement = prixVente - gainImposable;
+        final gainReinvesti =
+            min(gainImposable, max(0.0, prixRemploi - coutsInvestissement));
+        if (gainReinvesti > 0) {
+          report = _round2(impotChf * gainReinvesti / gainImposable);
         }
       }
       remploiReport = report;
       impotEffectif = _round2(impotChf - report);
 
-      final remboursementLpp = residencePrincipale ? eplLppUtilise : 0.0;
-      final remboursement3a = residencePrincipale ? epl3aUtilise : 0.0;
       produitNet = prixVente -
           hypothequeRestante -
           impotEffectif -
-          remboursementLpp -
-          remboursement3a;
+          remboursementEplLpp -
+          remboursementEpl3a;
     }
-
-    // ── EPL repayment obligations (LPP art. 30d, OPP2 art. 30e) ──
-    final remboursementEplLpp = residencePrincipale ? eplLppUtilise : 0.0;
-    final remboursementEpl3a = residencePrincipale ? epl3aUtilise : 0.0;
 
     // ── Solde hypotheque ──
     final soldeHypotheque = hypothequeRestante;
@@ -421,8 +445,9 @@ class HousingSaleService {
     // ── Alerts ──
     final alerts = <String>[];
 
-    // Canton non calibre : dire honnetement qu'aucun impot n'est chiffre.
-    if (impotChf == null && verdict.mecanismes.isNotEmpty) {
+    // Canton non calibre AVEC un gain positif : dire honnetement qu'aucun
+    // impot n'est chiffre. (Sur une perte, l'impot est 0 partout.)
+    if (impotPlusValue == null && verdict.mecanismes.isNotEmpty) {
       alerts.add(verdict.mecanismes.first);
     }
 
@@ -549,7 +574,7 @@ class HousingSaleService {
       remboursementEpl3a: remboursementEpl3a,
       soldeHypotheque: soldeHypotheque,
       produitNet: produitNet,
-      gainImmobilier: verdict,
+      gainImmobilier: gainImmobilier,
       checklist: checklist,
       alerts: alerts,
       disclaimer: disclaimer,

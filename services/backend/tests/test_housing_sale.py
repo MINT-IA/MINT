@@ -303,18 +303,34 @@ class TestHousingSaleRemploi:
         assert result.remploi_report == result.impot_plus_value
         assert result.impot_effectif == 0.0
 
-    def test_partial_remploi(self, service):
-        """Partial remploi: replacement price < sale price -> proportional deferral."""
+    def test_partial_remploi_methode_absolue(self, service):
+        """Remploi partiel — methode ABSOLUE (ATF 130 II 202) : le report ne
+        porte que sur la part reinvestie AU-DELA des couts d'investissement.
+
+        Cas du TF : achat 500k, vente 1M (gain 500k), remploi 600k -> gain
+        reinvesti 100k sur 500k -> 20 % de l'impot reporte (PAS 60 %)."""
+        inp = HousingSaleInput(
+            prix_achat=500_000, prix_vente=1_000_000,
+            annee_achat=2018, annee_vente=2025, canton="VD",
+            projet_remploi=True, prix_remploi=600_000,
+        )
+        result = service.calculate(inp)
+        # imposable 500k, VD 7y = 16% -> impot 80k ; gain reinvesti 100k/500k = 0.2
+        expected_report = round(result.impot_plus_value * 0.20, 2)
+        assert result.remploi_report == expected_report
+        assert result.impot_effectif == round(result.impot_plus_value - expected_report, 2)
+
+    def test_remploi_capital_seul_ne_defere_rien(self, service):
+        """Reinvestir uniquement son capital initial (pas le gain) -> report 0
+        (correction TF : l'ancienne methode proportionnelle reportait a tort)."""
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=1_000_000,
             annee_achat=2018, annee_vente=2025, canton="VD",
             projet_remploi=True, prix_remploi=500_000,
         )
         result = service.calculate(inp)
-        # imposable 500k, taux VD 7y = 16% -> impot 80k ; ratio 0.5 -> report 40k
-        expected_report = round(result.impot_plus_value * 0.50, 2)
-        assert result.remploi_report == expected_report
-        assert result.impot_effectif == round(result.impot_plus_value - expected_report, 2)
+        assert result.remploi_report == 0.0
+        assert result.impot_effectif == result.impot_plus_value
 
     def test_remploi_with_zero_tax(self, service):
         """Remploi with zero tax (no gain): no deferral needed."""
@@ -457,6 +473,22 @@ class TestHousingSaleNetProceeds:
         # GE 10y = 10% ; taxable 200k -> tax 20k
         expected = 700_000 - 0 - 20_000
         assert result.produit_net == expected
+
+    def test_loss_non_calibrated_produit_net(self, service):
+        """F4 : gain nul/negatif -> impot 0 deterministe MEME pour un canton non
+        calibre (BE), et le produit net reste calcule (non nullifie)."""
+        inp = HousingSaleInput(
+            prix_achat=800_000, prix_vente=600_000,
+            annee_achat=2020, annee_vente=2025, canton="BE",
+            hypotheque_restante=500_000,
+        )
+        result = service.calculate(inp)
+        assert result.modele_gain == "mecanisme"
+        assert result.impot_plus_value == 0.0
+        assert result.taux_imposition_plus_value == 0.0
+        assert result.produit_net == 100_000  # 600k - 500k
+        # Sur une perte, aucun impot en jeu -> pas de renvoi mecanisme.
+        assert not any("Berne" in a for a in result.alerts)
 
 
 # ===========================================================================

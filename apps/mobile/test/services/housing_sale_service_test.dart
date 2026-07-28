@@ -287,6 +287,22 @@ void main() {
       expect(result.produitNet, isNull);
       expect(result.alerts, anyElement(contains('Berne')));
     });
+
+    test('perte dans un canton non calibre (BE) => impot 0, produit net calcule', () {
+      // F4 : gain <= 0 -> impot 0 deterministe, produit net non nullifie.
+      final result = HousingSaleService.calculate(
+        prixAchat: 800000,
+        prixVente: 600000,
+        anneeAchat: 2020,
+        anneeVente: 2025,
+        canton: 'BE',
+        hypothequeRestante: 500000,
+      );
+      expect(result.modeleGain, 'mecanisme');
+      expect(result.impotPlusValue, 0.0);
+      expect(result.produitNet, 100000.0); // 600k - 500k
+      expect(result.alerts, isNot(anyElement(contains('Berne'))));
+    });
   });
 
   // ════════════════════════════════════════════════════════════
@@ -309,21 +325,36 @@ void main() {
       expect(result.impotEffectif, 0.0);
     });
 
-    test('remploi partiel: proportionnel au ratio (sur l\'impot)', () {
+    test('remploi partiel: methode absolue ATF 130 II 202 (20 %, pas 60 %)', () {
+      // Achat 500k, vente 1M (gain 500k), remploi 600k -> gain reinvesti
+      // 100k sur 500k -> 20 % de l'impot reporte.
       final result = HousingSaleService.calculate(
         prixAchat: 500000,
-        prixVente: 700000,
+        prixVente: 1000000,
         anneeAchat: 2015,
         anneeVente: 2025,
         canton: 'ZH',
         residencePrincipale: true,
-        prixRemploi: 350000, // 50% du prix de vente
+        prixRemploi: 600000,
         projetRemploi: true,
       );
-      final expectedReport = (result.impotPlusValue! * 0.50);
-      expect(result.remploiReport, closeTo(expectedReport, 0.01));
-      expect(result.impotEffectif,
-          closeTo(result.impotPlusValue! - expectedReport, 0.01));
+      expect(result.remploiReport, closeTo(result.impotPlusValue! * 0.20, 0.01));
+      expect(result.impotEffectif, closeTo(result.impotPlusValue! * 0.80, 0.01));
+    });
+
+    test('remploi du capital seul ne defere rien (correction TF)', () {
+      final result = HousingSaleService.calculate(
+        prixAchat: 500000,
+        prixVente: 1000000,
+        anneeAchat: 2015,
+        anneeVente: 2025,
+        canton: 'ZH',
+        residencePrincipale: true,
+        prixRemploi: 500000, // = couts d'investissement -> gain reinvesti 0
+        projetRemploi: true,
+      );
+      expect(result.remploiReport, 0.0);
+      expect(result.impotEffectif, result.impotPlusValue);
     });
 
     test('remploi impossible si pas residence principale', () {
