@@ -42,12 +42,13 @@
       "loi": "EStG 27.05.1908 + loi 28.07.1919",
       "succession": true,
       "donation": false,
+      "reprise_donations": "Aucun impôt cantonal sur les donations, MAIS « les donations survenues au cours des cinq dernières années avant la mort du disposant sont cependant imposées au titre de succession » (dossier_erbschaft_fr.pdf, p. 8, note 1) — donation LU ≠ 0 impôt si le donateur décède dans les 5 ans.",
       "categories": {
         "conjoint": {"statut": "exonere", "note": "y compris partenaire enregistré"},
         "descendant": {"statut": "exonere", "note": "exonérés au niveau CANTONAL ; les Einwohnergemeinden peuvent prélever une Erbanfallsteuer sur les dévolutions aux descendants (taux de base max 1 % + surcharge comme le canton, exonération si <100000) — assimilés : adoptés, enfants naturels sans droit successoral, Stiefkinder, Pflegekinder >=2 ans"},
         "parent": {"statut": "taxe", "multiplicateur": null, "note": "taux de base 6 % + surcharge progressive (jusqu'à +100 % au-delà de 500000) -> max 12 %"},
         "fratrie": {"statut": "taxe", "multiplicateur": null, "note": "taux de base 6 % (comme parents, neveux et nièces) + surcharge -> max 12 %"},
-        "concubin": {"statut": "exonere", "note": "exonéré si >=2 ans de relation de type conjugal (eheähnlich) avec le défunt ; déduction 2000 pour Lebenspartner ; sinon übrige 20 %"},
+        "concubin": {"statut": "exonere", "exoneration_conditionnelle": true, "note": "exonéré si >=2 ans de relation de type conjugal (eheähnlich) avec le défunt ; déduction 2000 pour Lebenspartner ; sinon übrige 20 %"},
         "tiers": {"statut": "taxe_lourd", "multiplicateur": null, "note": "taux de base 20 % + surcharge jusqu'à +100 % ; grands-parents/oncles/tantes/cousins 15 % ; domestiques et employés du défunt 6 % (déduction 2000)"}
       },
       "bareme_base": {"forme": "taux fixes par classe + surcharge progressive", "min_pct": 6, "max_pct": 20, "note": "surcharge de 0 % (<=10000) à +100 % (>500000) de l'impôt ; pas de multiple annuel ; exonération des dévolutions <=1000 si revenu <=4000 ou fortune <=10000"},
@@ -63,7 +64,7 @@
         "descendant": {"statut": "exonere", "note": "Kinder, Adoptiv- und Stiefkinder"},
         "parent": {"statut": "exonere", "note": "Eltern expressément exonérés"},
         "fratrie": {"statut": "taxe", "multiplicateur": null, "note": "8 % (y compris Stiefgeschwister)"},
-        "concubin": {"statut": "exonere", "note": "exonéré si enfants mineurs communs OU >=5 ans de ménage commun avec même domicile fiscal ; sinon tiers 24 %"},
+        "concubin": {"statut": "exonere", "exoneration_conditionnelle": true, "note": "exonéré si enfants mineurs communs OU >=5 ans de ménage commun avec même domicile fiscal ; sinon tiers 24 %"},
         "tiers": {"statut": "taxe_lourd", "multiplicateur": null, "note": "24 % (übrige erbberechtigte + non-parents) ; oncles/tantes/descendants de fratrie 12 %"}
       },
       "bareme_base": {"forme": "proportionnel par classe", "min_pct": 8, "max_pct": 24, "note": "franchise générale : dévolutions jusqu'à 15000 exonérées ; impôts <100 CHF non perçus"},
@@ -97,7 +98,7 @@
         "descendant": {"statut": "exonere", "note": "enfants, petits-enfants, arrière-petits-enfants, Stief- und Pflegekinder"},
         "parent": {"statut": "exonere", "note": "Eltern, Stief-/Pflegeeltern et Schwiegereltern exonérés"},
         "fratrie": {"statut": "taxe", "multiplicateur": null, "note": "5 % (Geschwister et leurs descendants, grands-parents, arrière-grands-parents)"},
-        "concubin": {"statut": "exonere", "note": "exonéré si >=5 ans de communauté d'habitation durable au même domicile ; sinon tiers 15 %"},
+        "concubin": {"statut": "exonere", "exoneration_conditionnelle": true, "note": "exonéré si >=5 ans de communauté d'habitation durable au même domicile ; sinon tiers 15 %"},
         "tiers": {"statut": "taxe_lourd", "multiplicateur": null, "note": "15 % (übrige) ; oncles/tantes et leurs descendants 10 %"}
       },
       "bareme_base": {"forme": "proportionnel par classe", "min_pct": 5, "max_pct": 15, "note": "déduction générale 20000 par bénéficiaire et par période fiscale ; fortune commerciale d'exploitation exonérée"},
@@ -130,7 +131,7 @@
         "descendant": {"statut": "exonere", "note": "y compris Stiefkinder"},
         "parent": {"statut": "exonere", "note": "Eltern und Stiefeltern exonérés"},
         "fratrie": {"statut": "taxe", "multiplicateur": "40 % du montant d'impôt du barème", "note": "Geschwister, Stiefgeschwister"},
-        "concubin": {"statut": "exonere", "note": "« Lebenspartner » exonérés — aucune condition de durée précisée dans la source"},
+        "concubin": {"statut": "exonere", "exoneration_conditionnelle": false, "note": "« Lebenspartner » exonérés — aucune condition de durée précisée dans la source"},
         "tiers": {"statut": "taxe_lourd", "multiplicateur": "100 % du montant d'impôt du barème", "note": "beaux-enfants/beaux-parents 20 % ; grands-parents/oncles/tantes/enfants de fratrie 60 % ; petits-enfants de fratrie/enfants d'oncles-tantes 80 %"}
       },
       "bareme_base": {"forme": "progressif", "min_pct": 10, "max_pct": 20, "note": "20 % au-delà de 600000 ; l'impôt dû = pourcentage (selon parenté) du montant calculé au barème ; franchise 5000 (cadeaux usuels), 10000 pour Pflegekinder/filleuls/personnel"},
@@ -141,6 +142,7 @@
       "loi": "LISD 14.09.2007 (art. 8, 24, 25) + LICo 10.05.1963",
       "succession": true,
       "donation": true,
+      "reprise_donations": "« Les donations effectuées au cours des cinq dernières années précédant le décès d'un défunt sont prises en compte dans le calcul des droits de succession » (dossier_erbschaft_fr.pdf, p. 8, note 3).",
       "categories": {
         "conjoint": {"statut": "exonere", "note": "y compris partenaire enregistré"},
         "descendant": {"statut": "exonere", "note": "« parents en ligne directe » exonérés ; enfants du conjoint/partenaire, enfants placés ou recueillis et leurs descendants : taxés 7.75 %"},
@@ -278,7 +280,7 @@
         "descendant": {"statut": "exonere", "note": "Nachkommen, Stief-/Pflegekinder, descendants non communs du conjoint/concubin et leurs descendants"},
         "parent": {"statut": "exonere", "note": "Eltern, Stief-/Pflegeeltern exonérés"},
         "fratrie": {"statut": "taxe", "multiplicateur": null, "note": "5 % (bénéficiaires de la souche parentale / elterlicher Stamm)"},
-        "concubin": {"statut": "exonere", "note": "Konkubinatspartner exonérés — aucune condition de durée précisée dans la source"},
+        "concubin": {"statut": "exonere", "exoneration_conditionnelle": false, "note": "Konkubinatspartner exonérés — aucune condition de durée précisée dans la source"},
         "tiers": {"statut": "taxe_lourd", "multiplicateur": null, "note": "15 % (übrige)"}
       },
       "bareme_base": {"forme": "proportionnel (2 classes)", "min_pct": 5, "max_pct": 15, "note": "déductions : 7700 par libéralité, 15300 pour personnes dans le besoin"},
@@ -361,7 +363,7 @@
         "descendant": {"statut": "exonere", "note": "descendants en ligne directe et enfants adoptifs"},
         "parent": {"statut": "exonere", "note": "ascendants en ligne directe exonérés"},
         "fratrie": {"statut": "taxe", "multiplicateur": null, "note": "10 % (parentèle des pères et mères)"},
-        "concubin": {"statut": "exonere", "note": "exonéré si concubinage éprouvé >=5 ans OU enfant en commun ; sinon autres attributions 25 %"},
+        "concubin": {"statut": "exonere", "exoneration_conditionnelle": true, "note": "exonéré si concubinage éprouvé >=5 ans OU enfant en commun ; sinon autres attributions 25 %"},
         "tiers": {"statut": "taxe_lourd", "multiplicateur": null, "note": "25 % ; parentèle des grands-parents 15 %, des arrière-grands-parents 20 %"}
       },
       "bareme_base": {"forme": "proportionnel par parentèle", "min_pct": 10, "max_pct": 25, "note": "parts successorales <=20000 exonérées ; donations annuelles <10000 exonérées ; pas de multiple annuel"},
