@@ -216,117 +216,145 @@ _PENSION_FUNDS: dict[str, list[str]] = {
 # ---------------------------------------------------------------------------
 # Housing market by canton
 # ---------------------------------------------------------------------------
+#
+# PROVENANCE & MILLÉSIME. Ces valeurs sont des ORDRES DE GRANDEUR éducatifs, PAS
+# des chiffres primaires cités : elles ne doivent jamais être présentées comme
+# exactes ni alimenter un calcul. Elles servent uniquement de contexte
+# qualitatif au coach (cf. guardrails.build_system_prompt, qui n'injecte que le
+# loyer médian, le prix au m² et la pression, tous encadrés par DISCLAIMER
+# « Données cantonales approximatives »).
+#
+# Source par famille de champ :
+#   - median_rent_4pce_chf        : ordre de grandeur ~2024, proche des loyers
+#     affichés (offre). Ce n'est PAS le loyer moyen du parc publié par l'OFS
+#     (Relevé structurel des loyers), qui est sensiblement plus bas. À
+#     revérifier avant tout usage chiffré.  # source à consolider
+#   - median_price_per_sqm_buy_chf : indices de marché privés (Wüest Partner /
+#     RealAdvisor) ~2024. L'OFS ne publie PAS de prix d'achat au m². Ordre de
+#     grandeur.  # source à consolider
+#   - rental_vacancy_rate_pct     : famille OFS « Dénombrement des logements
+#     vacants » (relevé au 1er juin ~2024).  # source à consolider
+#   - market_pressure / comment   : appréciation qualitative éditoriale.
+#
+# Millésime des chiffres : ~2024. Date de collecte d'origine : non tracée
+# (Sprint S67). Contre-vérification 2026-07 (échantillon ZH/GE) : les loyers du
+# dict dépassent le loyer moyen OFS du parc, et le prix au m² provient d'indices
+# de marché, pas de l'OFS — voir triage-tables-annassign.md #10.
+#
+# `avg_mortgage_rate_pct` RETIRÉ : un taux hypothécaire est un taux de marché
+# NATIONAL daté, pas un fait cantonal (il était identique — 1.8 — pour tous les
+# cantons). Aucune constante hypothécaire nationale canonique n'existe pour le
+# remplacer, et le coach ne l'injectait pas.
+
+_HOUSING_SOURCE = (
+    "Estimations éducatives ~2024 (ordres de grandeur, non des chiffres "
+    "primaires cités) : loyers proches de l'offre affichée (et non le loyer "
+    "moyen du parc OFS, plus bas) ; prix d'achat au m² issus d'indices de "
+    "marché privés (Wüest Partner / RealAdvisor), pas de l'OFS ; taux de "
+    "vacance famille OFS « logements vacants ». Millésime ~2024, date de "
+    "collecte non tracée. À revérifier avant tout usage chiffré — cf. "
+    "provenance en tête de module."
+)
 
 _HOUSING_MARKET: dict[str, dict] = {
     "ZH": {
         "canton": "ZH",
         "median_rent_4pce_chf": 2_400,
         "median_price_per_sqm_buy_chf": 12_500,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.8,
         "market_pressure": "très élevé",
         "comment": "Marché zurichois très tendu, surtout ville de Zurich et lac.",
-        "source": "OFS Statistique des loyers 2024, SNB Bulletin 2024",
+        "source": _HOUSING_SOURCE,
     },
     "BE": {
         "canton": "BE",
         "median_rent_4pce_chf": 1_650,
         "median_price_per_sqm_buy_chf": 7_200,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.5,
         "market_pressure": "modéré",
         "comment": "Berne plus abordable que ZH/GE. Disparités ville/campagne.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "VD": {
         "canton": "VD",
         "median_rent_4pce_chf": 2_100,
         "median_price_per_sqm_buy_chf": 10_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.9,
         "market_pressure": "élevé",
         "comment": "Lausanne et Riviera parmi les plus chers de Romandie.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "GE": {
         "canton": "GE",
         "median_rent_4pce_chf": 2_800,
         "median_price_per_sqm_buy_chf": 14_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.4,
         "market_pressure": "extrêmement élevé",
         "comment": "Genève = loyer médian le plus élevé de Suisse. Vacance quasi nulle.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "VS": {
         "canton": "VS",
         "median_rent_4pce_chf": 1_450,
         "median_price_per_sqm_buy_chf": 6_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 2.2,
         "market_pressure": "modéré",
         "comment": "Valais plus abordable, sauf stations ski (Verbier, Crans-Montana).",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "TI": {
         "canton": "TI",
         "median_rent_4pce_chf": 1_600,
         "median_price_per_sqm_buy_chf": 7_500,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.8,
         "market_pressure": "modéré",
         "comment": "Lugano plus tendu que le reste du canton.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "ZG": {
         "canton": "ZG",
         "median_rent_4pce_chf": 2_350,
         "median_price_per_sqm_buy_chf": 13_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.7,
         "market_pressure": "très élevé",
         "comment": "Zoug parmi les plus chers de Suisse centrale. Attractivité fiscale.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "BS": {
         "canton": "BS",
         "median_rent_4pce_chf": 1_900,
         "median_price_per_sqm_buy_chf": 9_500,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.1,
         "market_pressure": "élevé",
         "comment": "Bâle-Ville dense, pression immobilière forte.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "LU": {
         "canton": "LU",
         "median_rent_4pce_chf": 1_750,
         "median_price_per_sqm_buy_chf": 8_200,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.4,
         "market_pressure": "modéré",
         "comment": "Lucerne bien situé, légèrement sous la moyenne nationale.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "AG": {
         "canton": "AG",
         "median_rent_4pce_chf": 1_650,
         "median_price_per_sqm_buy_chf": 7_800,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 2.0,
         "market_pressure": "modéré",
         "comment": "Argovie relativement abordable, notamment hors zones ZH.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "SG": {
         "canton": "SG",
         "median_rent_4pce_chf": 1_600,
         "median_price_per_sqm_buy_chf": 7_200,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 2.1,
         "market_pressure": "modéré",
         "comment": "Saint-Gall accessible, surtout hors ville.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
 }
 

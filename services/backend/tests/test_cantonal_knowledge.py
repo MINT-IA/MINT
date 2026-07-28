@@ -143,13 +143,47 @@ def test_housing_market_structure():
     """Housing market dict must have required fields."""
     required_keys = [
         "canton", "median_rent_4pce_chf", "median_price_per_sqm_buy_chf",
-        "avg_mortgage_rate_pct", "rental_vacancy_rate_pct", "market_pressure",
+        "rental_vacancy_rate_pct", "market_pressure",
         "comment", "source",
     ]
     for canton in ["ZH", "GE", "VD"]:
         data = CantonalKnowledge.housing_market(canton)
         for key in required_keys:
             assert key in data, f"Canton {canton} housing data missing key '{key}'"
+
+
+def test_no_per_canton_mortgage_rate_field():
+    """No canton may carry a per-canton avg_mortgage_rate_pct scalar.
+
+    A mortgage rate is a dated NATIONAL market rate, not a cantonal fact — the
+    removed field was an identical 1.8 across all cantons. Feeding a non-sourced,
+    non-cantonal figure per canton is the same failure class as a fabricated
+    per-canton marginal rate.
+    """
+    for canton in ["ZH", "BE", "VD", "GE", "VS", "TI", "ZG", "BS", "LU", "AG", "SG"]:
+        data = CantonalKnowledge.housing_market(canton)
+        assert "avg_mortgage_rate_pct" not in data, (
+            f"Canton {canton} still carries a per-canton avg_mortgage_rate_pct"
+        )
+
+
+def test_housing_provenance_present_and_flagged():
+    """Every housing entry must carry a non-empty, honestly-flagged source.
+
+    The figures are educational orders of magnitude, not primary-quoted values,
+    so the provenance string must say so (it must flag re-verification) rather
+    than pass them off as an exact official statistic.
+    """
+    for canton in ["ZH", "BE", "VD", "GE", "VS", "TI", "ZG", "BS", "LU", "AG", "SG"]:
+        data = CantonalKnowledge.housing_market(canton)
+        source = data.get("source", "")
+        assert isinstance(source, str) and source.strip(), (
+            f"Canton {canton} housing data missing a non-empty source"
+        )
+        assert "revérifier" in source.lower(), (
+            f"Canton {canton} housing source must flag re-verification, "
+            f"not pass estimates off as a primary figure: {source!r}"
+        )
 
 
 def test_ge_has_highest_median_rent():
