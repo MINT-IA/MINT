@@ -3606,6 +3606,10 @@ class SFr extends S {
   String get housingSaleResidencePrincipale => 'Résidence principale';
 
   @override
+  String get housingSaleAnneesOccupation =>
+      'Années d\'occupation comme résidence principale';
+
+  @override
   String get housingSaleFinancementTitle => 'FINANCEMENT';
 
   @override

@@ -6573,6 +6573,12 @@ abstract class S {
   /// **'Résidence principale'**
   String get housingSaleResidencePrincipale;
 
+  /// No description provided for @housingSaleAnneesOccupation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années d\'occupation comme résidence principale'**
+  String get housingSaleAnneesOccupation;
+
   /// No description provided for @housingSaleFinancementTitle.
   ///
   /// In fr, this message translates to:

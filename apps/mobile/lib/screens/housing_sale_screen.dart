@@ -64,6 +64,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   double _prixRemploi = 900000;
   double _eplLppUtilise = 0;
   double _epl3aUtilise = 0;
+  int _anneesOccupation = 0; // VD : occupation personnelle prouvee (art. 72 al. 4)
 
   // Result
   HousingSaleResult? _result;
@@ -95,6 +96,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         hypothequeRestante: _hypothequeRestante,
         projetRemploi: _projetRemploi,
         prixRemploi: _prixRemploi,
+        anneesOccupation: _canton == 'VD' ? _anneesOccupation : 0,
       );
       _checklistState = List.filled(_result!.checklist.length, false);
     });
@@ -171,14 +173,21 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             _buildEducationalFooter(),
             const SizedBox(height: 24),
             // ── P15-A : Les 3 surprises de la vente ──────────
-            SaleSurprisesWidget(
-              salePrice: _prixVente,
-              purchasePrice: _prixAchat,
-              eplWithdrawn: _eplLppUtilise + _epl3aUtilise,
-              holdingYears: 2025 - _anneeAchat,
-              canton: _canton,
-            ),
-            const SizedBox(height: 24),
+            // SaleSurprisesWidget calcule en interne avec des taux forfaitaires
+            // (constantes enfouies, pas d'entree montant). On ne le rend donc
+            // QUE pour un canton calibre, ou le resultat officiel fait foi.
+            // TODO(P5-suivi) : cabler ses chiffres sur le resultat calibre ou
+            // le retirer (son modele interne peut differer de la carte impot).
+            if (_result != null && _result!.modeleGain == 'calibre') ...[
+              SaleSurprisesWidget(
+                salePrice: _prixVente,
+                purchasePrice: _prixAchat,
+                eplWithdrawn: _eplLppUtilise + _epl3aUtilise,
+                holdingYears: 2025 - _anneeAchat,
+                canton: _canton,
+              ),
+              const SizedBox(height: 24),
+            ],
             // ── P15-B : Net réel calculateur ─────────────────────
             // Uniquement quand l'impot est chiffre (canton calibre).
             if (_result != null && _result!.impotEffectif != null) ...[
@@ -193,12 +202,15 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             ],
 
             // ── P15-C : Chrono du remploi ─────────────────────
-            if (_residencePrincipale) ...[
+            // Alimente le montant reportable depuis le resultat calibre (impot
+            // sur le gain) ; gate sur canton calibre pour ne jamais exposer un
+            // taux forfaitaire sur un canton non calibre.
+            if (_result != null &&
+                _result!.modeleGain == 'calibre' &&
+                _residencePrincipale) ...[
               RemploiCountdownWidget(
                 saleDate: DateTime(2025, 1, 1),
-                deferredTax: (_prixVente - _prixAchat - _investissementsValorisants)
-                        .clamp(0, double.infinity) *
-                    0.20,
+                deferredTax: _result!.impotPlusValue ?? 0,
               ),
               const SizedBox(height: 24),
             ],
@@ -341,6 +353,19 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             value: _residencePrincipale,
             onChanged: (v) => setState(() => _residencePrincipale = v),
           ),
+          // VD : les annees d'occupation personnelle prouvees comptent double
+          // (art. 72 al. 4 LI). Champ affiche seulement pour Vaud.
+          if (_canton == 'VD') ...[
+            const SizedBox(height: 16),
+            MintPickerTile(
+              label: S.of(context)!.housingSaleAnneesOccupation,
+              value: _anneesOccupation.clamp(0, 2025 - _anneeAchat),
+              minValue: 0,
+              maxValue: 2025 - _anneeAchat,
+              formatValue: (v) => '$v',
+              onChanged: (v) => setState(() => _anneesOccupation = v),
+            ),
+          ],
         ],
       ),
     );
