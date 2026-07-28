@@ -83,7 +83,6 @@ ALLOWED = {
     "services/backend/app/services/first_job/onboarding_service.py::CANTONAL_TAX_RATE_ESTIMATES",
     "services/backend/app/services/mortgage/imputed_rental_service.py::TAUX_VALEUR_LOCATIVE",
     "services/backend/app/services/onboarding/minimal_profile_service.py::effective_rates_100k",
-    "services/backend/app/services/succession_simulator.py::CANTON_SUCCESSION_TAX",
     "services/backend/app/services/divorce_simulator.py::CANTON_TAX_RATES",
 }
 
