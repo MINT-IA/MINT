@@ -99,11 +99,10 @@ void main() {
         isMarried: true,
       );
       expect(taxMarried, lessThan(taxSingle));
-      // Triage AnnAssign #1095 : part cantonale mariée interpolée sur l'étalon
-      // ESTV cantonalCapitalTaxMarriedChf (plus de rabais forfaitaire).
-      // ZH 500000 : cantonal marié 21400 vs 24567 (point de grille ESTV) +
-      // IFD célibataire inchangé (10501) → ratio total 0.9097.
-      expect(taxMarried / taxSingle, closeTo(0.9097, 0.02));
+      // Triage AnnAssign #1095 : part cantonale ET IFD (art. 38 al. 2) mariés
+      // sur l'étalon ESTV. ZH 500000 (point de grille) : cantonal marié 21400
+      // (vs 24567) + IFD marié 10176 (vs 10501) → 31576 / 35068 = 0.9004.
+      expect(taxMarried / taxSingle, closeTo(0.9004, 0.02));
     });
 
     test('unknown canton falls back to ZH', () {

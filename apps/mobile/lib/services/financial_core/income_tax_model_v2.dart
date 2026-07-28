@@ -234,15 +234,56 @@ const Map<String, List<double>> cantonalCapitalTaxMarriedChf = {
   'ZH': [4280, 10700, 21400, 32100, 57652],
 };
 
-/// Impôt total sur un retrait en capital 2e/3e pilier — modèle v2 -2i2,
-/// MIRROR exact du backend estimate_capital_withdrawal_tax.
-double estimateCapitalWithdrawalTaxV2(
-  double amount,
-  String canton, {
-  bool isMarried = false,
-}) {
-  if (amount <= 0) return 0;
+/// IFD (art. 38 = 1/5 du barème revenu) sur une prestation en capital, état
+/// civil MARIÉ — barème art. 36 al. 2 (splitting), CANTON-INDÉPENDANT, MÊME
+/// grille. MIRROR backend FEDERAL_CAPITAL_IFD_MARRIED_CHF (API ESTV
+/// API_calculateManyCapitalTaxes Relationship=2, 2026-07-28, triage AnnAssign
+/// #1095). Sans ça, appliquer le barème célibataire au marié surestime jusqu'à
+/// ~13.6 % (SZ 100k).
+const List<double> federalCapitalIfdMarriedChf = [
+  363,
+  3676,
+  10176,
+  16676,
+  23000,
+];
 
+/// Interpolation des tables capital 5 points (même mécanique partout) :
+/// <100k linéaire depuis (0, 0) ; entre points linéaire ; >1M extrapolation à
+/// la pente du dernier segment.
+double _interpolateCapitalPoints(List<double> pts, double amount) {
+  final amounts = capitalTaxPointsAmount;
+  if (amount <= amounts.first) {
+    return pts.first * (amount / amounts.first);
+  }
+  if (amount >= amounts.last) {
+    final slope = (pts[pts.length - 1] - pts[pts.length - 2]) /
+        (amounts[amounts.length - 1] - amounts[amounts.length - 2]);
+    return pts.last + slope * (amount - amounts.last);
+  }
+  for (var i = 0; i < amounts.length - 1; i++) {
+    if (amount >= amounts[i] && amount <= amounts[i + 1]) {
+      final ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i]);
+      return pts[i] + ratio * (pts[i + 1] - pts[i]);
+    }
+  }
+  return pts.last;
+}
+
+/// Points cantonaux du canton, ou moyenne des 26 si canton inconnu.
+List<double> _cantonalCapitalPts(
+    Map<String, List<double>> table, String canton) {
+  final pts = table[canton.toUpperCase()];
+  if (pts != null) return pts;
+  final all = table.values.toList();
+  return List<double>.generate(
+    capitalTaxPointsAmount.length,
+    (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
+  );
+}
+
+/// IFD art. 38 célibataire = 1/5 du barème revenu (exact via les tranches).
+double _ifdSingleCapital(double amount) {
   var ifdFull = 0.0;
   var prevBound = 0.0;
   for (final bracket in incomeTaxFederalBrackets2026) {
@@ -253,36 +294,38 @@ double estimateCapitalWithdrawalTaxV2(
     ifdFull += taxable * rate;
     prevBound = upper;
   }
-  final ifd = ifdFull / 5.0;
+  return ifdFull / 5.0;
+}
 
-  final table =
-      isMarried ? cantonalCapitalTaxMarriedChf : cantonalCapitalTaxChf;
-  var pts = table[canton.toUpperCase()];
-  if (pts == null) {
-    final all = table.values.toList();
-    pts = List<double>.generate(
-      capitalTaxPointsAmount.length,
-      (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
-    );
-  }
-  final amounts = capitalTaxPointsAmount;
-  double cantonal;
-  if (amount <= amounts.first) {
-    cantonal = pts.first * (amount / amounts.first);
-  } else if (amount >= amounts.last) {
-    final slope = (pts[pts.length - 1] - pts[pts.length - 2]) /
-        (amounts[amounts.length - 1] - amounts[amounts.length - 2]);
-    cantonal = pts.last + slope * (amount - amounts.last);
-  } else {
-    cantonal = pts.last;
-    for (var i = 0; i < amounts.length - 1; i++) {
-      if (amount >= amounts[i] && amount <= amounts[i + 1]) {
-        final ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i]);
-        cantonal = pts[i] + ratio * (pts[i + 1] - pts[i]);
-        break;
-      }
-    }
-  }
+/// IFD art. 38 marié (barème al. 2, splitting), bornée par le célibataire :
+/// exact aux grilles, préserve le seuil non imposable sous 100k (l'interp
+/// depuis (0, 0) surestimerait), et borne l'extrapolation al. 2 <= al. 1
+/// au-delà d'1M.
+double _ifdMarriedCapital(double amount) {
+  final interp = _interpolateCapitalPoints(federalCapitalIfdMarriedChf, amount);
+  final single = _ifdSingleCapital(amount);
+  return interp < single ? interp : single;
+}
 
-  return ifd + cantonal;
+/// Impôt total sur un retrait en capital 2e/3e pilier — modèle v2 -2i2,
+/// MIRROR exact du backend estimate_capital_withdrawal_tax. Marié : part
+/// cantonale (cantonalCapitalTaxMarriedChf) ET IFD (art. 38 al. 2,
+/// federalCapitalIfdMarriedChf) sur l'étalon ESTV ; post-condition
+/// marié <= célibataire (croisement d'extrapolations, arrondi ESTV — #1095).
+double estimateCapitalWithdrawalTaxV2(
+  double amount,
+  String canton, {
+  bool isMarried = false,
+}) {
+  if (amount <= 0) return 0;
+
+  final single = _ifdSingleCapital(amount) +
+      _interpolateCapitalPoints(
+          _cantonalCapitalPts(cantonalCapitalTaxChf, canton), amount);
+  if (!isMarried) return single;
+
+  final married = _ifdMarriedCapital(amount) +
+      _interpolateCapitalPoints(
+          _cantonalCapitalPts(cantonalCapitalTaxMarriedChf, canton), amount);
+  return married < single ? married : single;
 }
