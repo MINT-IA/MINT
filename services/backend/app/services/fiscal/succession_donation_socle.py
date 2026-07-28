@@ -126,6 +126,13 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
  'LU': {'loi': 'EStG 27.05.1908 + loi 28.07.1919',
         'succession': True,
         'donation': False,
+        'reprise_donations': 'Aucun impôt cantonal sur les donations, MAIS '
+                             '« les donations survenues au cours des cinq '
+                             'dernières années avant la mort du disposant '
+                             'sont cependant imposées au titre de succession » '
+                             '(dossier_erbschaft_fr.pdf, p. 8, note 1) — '
+                             'donation LU ≠ 0 impôt si le donateur décède '
+                             'dans les 5 ans.',
         'categories': {'conjoint': {'statut': 'exonere',
                                     'note': 'y compris partenaire enregistré'},
                        'descendant': {'statut': 'exonere',
@@ -152,6 +159,7 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
                                            'neveux et nièces) + surcharge -> '
                                            'max 12 %'},
                        'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
                                     'note': 'exonéré si >=2 ans de relation '
                                             'de type conjugal (eheähnlich) '
                                             'avec le défunt ; déduction 2000 '
@@ -190,6 +198,7 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
                                    'multiplicateur': None,
                                    'note': '8 % (y compris Stiefgeschwister)'},
                        'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
                                     'note': 'exonéré si enfants mineurs '
                                             'communs OU >=5 ans de ménage '
                                             'commun avec même domicile fiscal '
@@ -244,6 +253,7 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
                                            'descendants, grands-parents, '
                                            'arrière-grands-parents)'},
                        'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
                                     'note': 'exonéré si >=5 ans de communauté '
                                             "d'habitation durable au même "
                                             'domicile ; sinon tiers 15 %'},
@@ -319,6 +329,7 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
                                                      'du barème',
                                    'note': 'Geschwister, Stiefgeschwister'},
                        'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': False,
                                     'note': '« Lebenspartner » exonérés — '
                                             'aucune condition de durée '
                                             'précisée dans la source'},
@@ -344,6 +355,11 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
  'FR': {'loi': 'LISD 14.09.2007 (art. 8, 24, 25) + LICo 10.05.1963',
         'succession': True,
         'donation': True,
+        'reprise_donations': '« Les donations effectuées au cours des cinq '
+                             "dernières années précédant le décès d'un défunt "
+                             'sont prises en compte dans le calcul des droits '
+                             'de succession » (dossier_erbschaft_fr.pdf, '
+                             'p. 8, note 3).',
         'categories': {'conjoint': {'statut': 'exonere',
                                     'note': 'y compris partenaire enregistré'},
                        'descendant': {'statut': 'exonere',
@@ -683,6 +699,7 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
                                    'note': '5 % (bénéficiaires de la souche '
                                            'parentale / elterlicher Stamm)'},
                        'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': False,
                                     'note': 'Konkubinatspartner exonérés — '
                                             'aucune condition de durée '
                                             'précisée dans la source'},
@@ -905,6 +922,7 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
                                    'note': '10 % (parentèle des pères et '
                                            'mères)'},
                        'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
                                     'note': 'exonéré si concubinage éprouvé '
                                             '>=5 ans OU enfant en commun ; '
                                             'sinon autres attributions 25 %'},
@@ -1169,8 +1187,12 @@ def verdict(
     if communal:
         mecanismes.append(f"Communal : {communal}")
 
+    # Pas de bascule pour une exonération inconditionnelle (GR/ZG) : la
+    # source ne documente aucune condition, on n'en suggère pas une.
     bascule = None
-    if categorie == "concubin":
+    if categorie == "concubin" and (
+        statut != STATUT_EXONERE or cat.get("exoneration_conditionnelle")
+    ):
         bascule = _BASCULE_CONCUBIN
         if note:
             bascule += f" Condition cantonale actuelle pour concubin·e : {note}"

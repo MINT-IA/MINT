@@ -119,6 +119,24 @@ class TestVerdicts:
         assert "50000" in v["bascule"]
         assert "5 ans" in v["bascule"]
 
+    def test_concubin_exonere_inconditionnel_sans_bascule(self):
+        """GR/ZG : la source exonère le concubin SANS condition documentée —
+        le verdict ne doit suggérer aucune condition (revue adversariale
+        #1087, P2 : la bascule était posée inconditionnellement)."""
+        for canton in ("GR", "ZG"):
+            v = verdict(canton, "concubin", "succession")
+            assert v["statut"] == "exonere", canton
+            assert v["bascule"] is None, f"{canton}: {v['bascule']}"
+
+    def test_concubin_exonere_sous_condition_porte_la_condition(self):
+        """LU/UR/NW/VS : exonération conditionnelle (durée de ménage, enfant
+        commun…) — la bascule doit porter la condition cantonale."""
+        for canton in ("LU", "UR", "NW", "VS"):
+            v = verdict(canton, "concubin", "succession")
+            assert v["statut"] == "exonere", canton
+            assert v["bascule"] is not None, canton
+            assert "Condition cantonale actuelle" in v["bascule"], canton
+
     def test_sz_ow_tout_exonere(self):
         """SZ et OW : aucun impôt succession/donation, toutes catégories."""
         for canton in ("SZ", "OW"):

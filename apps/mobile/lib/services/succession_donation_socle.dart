@@ -123,6 +123,7 @@ class SuccessionDonationSocle {
     'LU': {
       'succession': true,
       'donation': false,
+      'concubinExonerationConditionnelle': true,
       'statuts': {
         'conjoint': 'exonere',
         'descendant': 'exonere',
@@ -146,6 +147,7 @@ class SuccessionDonationSocle {
     'UR': {
       'succession': true,
       'donation': true,
+      'concubinExonerationConditionnelle': true,
       'statuts': {
         'conjoint': 'exonere',
         'descendant': 'exonere',
@@ -187,6 +189,7 @@ class SuccessionDonationSocle {
     'NW': {
       'succession': true,
       'donation': true,
+      'concubinExonerationConditionnelle': true,
       'statuts': {
         'conjoint': 'exonere',
         'descendant': 'exonere',
@@ -233,6 +236,7 @@ class SuccessionDonationSocle {
     'ZG': {
       'succession': true,
       'donation': true,
+      'concubinExonerationConditionnelle': false,
       'statuts': {
         'conjoint': 'exonere',
         'descendant': 'exonere',
@@ -440,6 +444,7 @@ class SuccessionDonationSocle {
     'GR': {
       'succession': true,
       'donation': true,
+      'concubinExonerationConditionnelle': false,
       'statuts': {
         'conjoint': 'exonere',
         'descendant': 'exonere',
@@ -555,6 +560,7 @@ class SuccessionDonationSocle {
     'VS': {
       'succession': true,
       'donation': true,
+      'concubinExonerationConditionnelle': true,
       'statuts': {
         'conjoint': 'exonere',
         'descendant': 'exonere',
@@ -715,8 +721,13 @@ class SuccessionDonationSocle {
     final note = notes?[categorie];
     if (note != null) mecanismes.add(note);
 
+    // Pas de bascule pour une exonération inconditionnelle (GR/ZG) : la
+    // source ne documente aucune condition, on n'en suggère pas une.
     String? bascule;
-    if (categorie == 'concubin') {
+    final exoConditionnelle =
+        data['concubinExonerationConditionnelle'] as bool?;
+    if (categorie == 'concubin' &&
+        (statut != 'exonere' || exoConditionnelle == true)) {
       bascule = note == null
           ? _basculeConcubin
           : '$_basculeConcubin Condition cantonale actuelle pour ' // lint-ignore

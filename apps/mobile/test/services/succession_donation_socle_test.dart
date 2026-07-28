@@ -74,6 +74,10 @@ void main() {
               reason: '$code.$cat.franchise');
           expect(notes![cat], archCat['note'], reason: '$code.$cat.note');
         }
+        expect(mini['concubinExonerationConditionnelle'],
+            (archCats['concubin'] as Map<String, dynamic>)[
+                'exoneration_conditionnelle'],
+            reason: '$code.concubinExonerationConditionnelle');
       }
     });
 
@@ -127,6 +131,33 @@ void main() {
       expect(v.bascule, contains('ariage'));
       expect(v.bascule, contains('50000'));
       expect(v.bascule, contains('5 ans'));
+    });
+
+    test('GR/ZG concubin : exonération inconditionnelle, AUCUNE bascule', () {
+      // Revue adversariale #1087 P2 : la bascule était posée
+      // inconditionnellement — la source ne documente aucune condition.
+      for (final canton in ['GR', 'ZG']) {
+        final v = SuccessionDonationSocle.verdict(
+          canton: canton,
+          categorie: 'concubin',
+        );
+        expect(v.statut, 'exonere', reason: canton);
+        expect(v.bascule, isNull, reason: '$canton: ${v.bascule}');
+      }
+    });
+
+    test('LU/UR/NW/VS concubin : exonération conditionnelle, bascule portée',
+        () {
+      for (final canton in ['LU', 'UR', 'NW', 'VS']) {
+        final v = SuccessionDonationSocle.verdict(
+          canton: canton,
+          categorie: 'concubin',
+        );
+        expect(v.statut, 'exonere', reason: canton);
+        expect(v.bascule, isNotNull, reason: canton);
+        expect(v.bascule, contains('Condition cantonale actuelle'),
+            reason: canton);
+      }
     });
 
     test('LU donation : aucun impôt — le verdict le DIT', () {
