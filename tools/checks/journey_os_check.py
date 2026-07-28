@@ -437,6 +437,8 @@ ALLOW = {
     # Fix remploi méthode absolue (ADR 2026-07-28-remplacements P2)
     "services/backend/app/services/housing_sale_service.py",
     "services/backend/tests/test_housing_sale.py",
+    "apps/mobile/lib/services/housing_sale_service.dart",
+    "apps/mobile/test/services/housing_sale_service_test.dart",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
