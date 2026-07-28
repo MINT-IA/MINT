@@ -1,0 +1,65 @@
+{
+ "meta": {
+  "source": "priminfo.admin.ch/downloads/gesamtbericht_eu.xlsx, telecharge 2026-07-28",
+  "profil": "adulte 26+ (AKL-ERW) et jeune 19-25 (AKL-JUG), franchise 300 (FRA-300), SANS accident (OHN-UNF — frontalier salarie suisse couvert LAA employeur), tarif BASE inclus, Geschaeftsjahr 2026",
+  "methode": "min/moyenne/max des primes mensuelles CHF inter-assureurs par pays de residence"
+ },
+ "primes_chf_mois": {
+  "AT": {
+   "AKL-ERW": {
+    "min": 299.4,
+    "moyenne": 495.84,
+    "max": 748.1,
+    "n": 13
+   },
+   "AKL-JUG": {
+    "min": 239.6,
+    "moyenne": 411.67,
+    "max": 551.0,
+    "n": 13
+   }
+  },
+  "DE": {
+   "AKL-ERW": {
+    "min": 227.9,
+    "moyenne": 480.77,
+    "max": 1059.9,
+    "n": 13
+   },
+   "AKL-JUG": {
+    "min": 164.1,
+    "moyenne": 400.27,
+    "max": 742.1,
+    "n": 13
+   }
+  },
+  "FR": {
+   "AKL-ERW": {
+    "min": 200.0,
+    "moyenne": 520.89,
+    "max": 823.1,
+    "n": 13
+   },
+   "AKL-JUG": {
+    "min": 180.0,
+    "moyenne": 436.77,
+    "max": 760.7,
+    "n": 13
+   }
+  },
+  "IT": {
+   "AKL-ERW": {
+    "min": 279.0,
+    "moyenne": 408.09,
+    "max": 487.2,
+    "n": 14
+   },
+   "AKL-JUG": {
+    "min": 239.6,
+    "moyenne": 343.44,
+    "max": 475.3,
+    "n": 14
+   }
+  }
+ }
+}

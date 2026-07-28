@@ -434,6 +434,9 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # LAMal frontalier par pays de résidence (ADR 2026-07-28-remplacements P3)
+    "services/backend/app/services/expat/frontalier_service.py",
+    "services/backend/tests/test_expat.py",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
