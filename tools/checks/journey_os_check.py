@@ -436,6 +436,7 @@ ALLOW = {
     "services/backend/tests/test_rules_engine.py",
     # Lint prescriptions (ADR 2026-07-28-prescriptions U1-U4)
     "services/backend/app/services/coach/prescription_vocab.py",
+    "services/backend/tests/test_prescription_vocab.py",
     "tools/checks/product_prescription_lint.py",
     "tools/checks/_baseline_prescription_sites.txt",
     "services/backend/tests/test_calc_diff_harness.py",
