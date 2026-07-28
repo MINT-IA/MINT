@@ -4,7 +4,9 @@
 état civil MARIÉ, a été collecté auprès de l'API officielle ESTV
 (`API_calculateManyCapitalTaxes`, `Relationship=2`) pour les 26 chefs-lieux sur
 la MÊME grille que la table célibataire `CANTONAL_CAPITAL_TAX_CHF`
-(5 montants : 100k / 250k / 500k / 750k / 1M CHF). Ces valeurs remplacent le
+(7 montants : 100k / **175k** / 250k / **350k** / 500k / 750k / 1M CHF — les
+noeuds 175k et 350k ajoutés 2026-07-28, finding CAP-1 #1098, voir plus bas).
+Ces valeurs remplacent le
 rabais forfaitaire inventé `MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON`
 (8 cantons tabulés + `FALLBACK = 0.82` pour les 18 autres). La table générée
 est `CANTONAL_CAPITAL_TAX_MARRIED_CHF` (étalon, interpolée comme la
@@ -99,8 +101,36 @@ extrapolent au-delà d'1M à la pente du dernier segment ; ces pentes divergent
 PARTOUT et absorbe l'arrondi ESTV +1 CHF de SO (750k/1M). Résiduel après
 branchement : **0.0 %** aux points de grille (SZ/ZH/GE vérifiés).
 
+## Densification de grille — CAP-1 (#1098, 2026-07-28)
+
+L'oracle ESTV a mesuré qu'entre 100k et 500k, l'interpolation linéaire 5 noeuds
+SURESTIMAIT la part cantonale jusqu'à **+22.9 %** sur les cantons à barème
+CONVEXE (le segment linéaire passe au-dessus de la courbe réelle). Deux noeuds
+ajoutés par capture ESTV réelle (célibataire ET marié, MÊME grille) : **175k**
+(entre 100k et 250k) et **350k** (entre 250k et 500k). IFD ajoutés :
+175k = 1965 (single) / 1726 (marié) ; 350k = 6541 (single) / 6276 (marié),
+canton-indépendants et vérifiés.
+
+Erreur cantonale (interp 5 noeuds vs ESTV) AVANT → APRÈS (noeud exact) :
+
+| Point | avant | après |
+|---|---|---|
+| BL 350k | +22.9 % | ~0 % |
+| GR 350k | +19.0 % | ~0 % |
+| TI 350k | +16.4 % | ~0 % |
+| SZ 175k | +16.3 % | ~0 % |
+| FR 175k | +12.5 % | ~0 % |
+
+**Interaction #1098** : la fixture oracle de la branche #1098 traite 175k/350k
+comme points HORS-noeud ; après fusion des deux branches ils deviennent de la
+reproduction de noeuds (erreur ~0, tolérances toujours satisfaites — aucune
+casse ; le prochain refresh de l'oracle devra choisir de nouveaux points
+hors-noeud).
+
 ## Fichiers
 
-- `consolidated.json` — table mariée (`points_chf_marie`), IFD marié/célibataire,
-  référence célibataire, `meta.methode`.
-- `raw_married.json` — réponses brutes ESTV (requête + réponse) par point marié.
+- `consolidated.json` — tables mariée + célibataire de référence (7 noeuds),
+  IFD marié/célibataire (7 noeuds), `meta.methode` + `meta.cap1_densification`.
+- `raw_married.json` — réponses brutes ESTV (5 noeuds initiaux).
+- `raw_nodes_175k_350k.json` — réponses brutes ESTV des 2 noeuds ajoutés
+  (célibataire + marié, CAP-1).
