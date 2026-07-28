@@ -4585,7 +4585,7 @@ class SIt extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Sottoscrivere un\'assicurazione rischio decesso/invalidità';
+      'Verificare la tua copertura per il rischio decesso/invalidità';
 
   @override
   String get naissanceChecklistItem9Desc =>

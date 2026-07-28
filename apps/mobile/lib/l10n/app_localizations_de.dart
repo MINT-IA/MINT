@@ -4579,7 +4579,7 @@ class SDe extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Todes-/Invaliditätsrisikoversicherung abschliessen';
+      'Deine Absicherung für Todes-/Invaliditätsrisiko prüfen';
 
   @override
   String get naissanceChecklistItem9Desc =>

@@ -4580,7 +4580,7 @@ class SFr extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Souscrire une assurance risque décès/invalidité';
+      'Vérifier ta couverture risque décès/invalidité';
 
   @override
   String get naissanceChecklistItem9Desc =>

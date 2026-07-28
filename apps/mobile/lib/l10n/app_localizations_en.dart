@@ -4545,7 +4545,7 @@ class SEn extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Take out death/disability risk insurance';
+      'Review your death/disability risk cover';
 
   @override
   String get naissanceChecklistItem9Desc =>

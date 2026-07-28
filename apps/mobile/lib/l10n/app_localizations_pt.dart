@@ -4573,7 +4573,7 @@ class SPt extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Subscrever um seguro de risco de morte/invalidez';
+      'Rever a tua cobertura de risco de morte/invalidez';
 
   @override
   String get naissanceChecklistItem9Desc =>

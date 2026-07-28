@@ -4576,7 +4576,7 @@ class SEs extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Contratar un seguro de riesgo de fallecimiento/invalidez';
+      'Revisar tu cobertura de riesgo de fallecimiento/invalidez';
 
   @override
   String get naissanceChecklistItem9Desc =>
