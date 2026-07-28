@@ -39,10 +39,10 @@ void main() {
     });
 
     test('married differentiation per cantonal ESTV schedule', () {
-      // Triage AnnAssign #1095 : la part cantonale ET l'IFD (art. 38 al. 2)
-      // mariés interpolent l'étalon ESTV. Le traitement marié est un effet de
-      // BARÈME par canton, pas un coefficient plat. ZH 300000 : réduction
-      // cantonale faible à ce montant + IFD marié réduit → ratio 0.953.
+      // Triage AnnAssign #1095 + CAP-1 #1098 : grille 7 noeuds (350k ajouté).
+      // ZH 300000 interpole 250k->350k où ZH marié == célibataire au cantonal
+      // -> seule l'IFD marié réduit -> ratio 0.9865 (plus proche d'1 qu'avant :
+      // ESTV ne réduit pas ZH ≤ 350k au cantonal).
       final single = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: 300000,
         canton: 'ZH',
@@ -54,9 +54,9 @@ void main() {
         isMarried: true,
       );
       expect(married, lessThan(single));
-      expect(married / single, closeTo(0.953, 0.01));
+      expect(married / single, closeTo(0.9865, 0.01));
 
-      // VS 300000 : ratio 0.9734, DIFFÉRENT de ZH -> la différenciation par
+      // VS 300000 : ratio 0.9731, DIFFÉRENT de ZH -> la différenciation par
       // canton (effet de barème ESTV) est préservée.
       final marriedVS = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: 300000, canton: 'VS', isMarried: true,
@@ -64,7 +64,7 @@ void main() {
       final singleVS = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: 300000, canton: 'VS', isMarried: false,
       );
-      expect(marriedVS / singleVS, closeTo(0.9734, 0.01));
+      expect(marriedVS / singleVS, closeTo(0.9731, 0.01));
     });
 
     test('VD has highest rate', () {
