@@ -711,6 +711,23 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # Socle succession/donation (ADR 2026-07-28 P4) : drain des tables de
+    # taux plats succession+donation vers le socle 3-champs ESTV 1.1.2025
+    # (statut / plage sourcée / mécanismes), backend + miroirs Dart.
+    "services/backend/app/services/fiscal/succession_donation_socle.py",
+    "services/backend/tests/test_succession_donation_socle.py",
+    "services/backend/app/services/succession_simulator.py",
+    "services/backend/tests/test_succession_simulator.py",
+    "services/backend/app/services/donation_service.py",
+    "services/backend/tests/test_donation.py",
+    "services/backend/tests/test_donation_service.py",
+    "services/backend/tests/test_life_events.py",
+    "services/backend/app/schemas/life_events.py",
+    "services/backend/app/api/v1/endpoints/life_events.py",
+    "apps/mobile/lib/services/succession_donation_socle.dart",
+    "apps/mobile/test/services/succession_donation_socle_test.dart",
+    "apps/mobile/lib/services/donation_service.dart",
+    "apps/mobile/test/services/donation_service_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
