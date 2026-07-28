@@ -178,6 +178,40 @@ class TestConcubinAlerts:
         result = simulator.simulate(data)
         assert result.alerte_concubin == ""
 
+    def test_concubin_alert_sans_chiffre_plat_avec_bascule(self, simulator):
+        """L'alerte concubin garde son message, perd le chiffre plat
+        (« souvent 20-35% ») et gagne la bascule du socle : mariage ou
+        pacte → exonération + condition cantonale (ZH : franchise 50'000
+        si ≥5 ans de ménage commun). ADR 2026-07-28 P4."""
+        data = _base_input(
+            etat_civil="concubin",
+            a_conjoint=False,
+            a_concubin=True,
+            nombre_enfants=0,
+            a_parents_vivants=True,
+            canton="ZH",
+        )
+        result = simulator.simulate(data)
+        assert "AUCUN droit" in result.alerte_concubin
+        assert "20-35" not in result.alerte_concubin
+        assert "exon" in result.alerte_concubin.lower()
+        assert "50000" in result.alerte_concubin
+        assert "5 ans" in result.alerte_concubin
+
+    def test_concubin_alert_lu_exonere_sous_condition(self, simulator):
+        """LU : concubin déjà exonéré si ≥2 ans de relation — l'alerte
+        relaie la condition du socle au lieu d'un taux inventé."""
+        data = _base_input(
+            etat_civil="concubin",
+            a_conjoint=False,
+            a_concubin=True,
+            nombre_enfants=0,
+            a_parents_vivants=True,
+            canton="LU",
+        )
+        result = simulator.simulate(data)
+        assert "2 ans" in result.alerte_concubin
+
 
 # ---------------------------------------------------------------------------
 # Edge Cases + Compliance

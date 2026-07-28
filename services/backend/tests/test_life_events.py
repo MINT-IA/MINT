@@ -741,10 +741,19 @@ class TestSuccessionTestament:
 # ===========================================================================
 
 class TestSuccessionTax:
-    """Tests for succession tax by canton and kinship."""
+    """Tests for succession tax verdicts (socle ESTV 1.1.2025).
+
+    GOLDEN MIS À JOUR (ADR 2026-07-28 P4) : l'ancienne classe gravait des
+    montants « montant × taux plat » issus de CANTON_SUCCESSION_TAX, table
+    non sourcée démentie par le socle ESTV (ex. ZH concubin y figurait à
+    18 % alors que le barème réel est progressif ×6 avec franchise 50k ;
+    NE descendants à 3 % sans la déduction de 50k). La fiscalité émet
+    désormais un verdict par héritier {montant_herite, statut, plage,
+    mécanismes, bascule, source} — plus aucun impôt chiffré en francs.
+    """
 
     def test_tax_conjoint_exempt_geneva(self, succession_sim):
-        """Geneva: conjoint and descendants are tax-exempt."""
+        """Geneva: conjoint and descendants are tax-exempt (verdict)."""
         data = _succession_input(
             fortune_totale=1000000.0,
             etat_civil="marie",
@@ -755,13 +764,14 @@ class TestSuccessionTax:
         result = succession_sim.simulate(data)
         fiscalite = result.fiscalite
         details = fiscalite.get("details_par_heritier", {})
-        if "conjoint" in details:
-            assert details["conjoint"]["impot"] == 0.0
-        if "enfants" in details:
-            assert details["enfants"]["impot"] == 0.0
+        assert details["conjoint"]["statut"] == "exonere"
+        assert details["enfants"]["statut"] == "exonere"
+        assert details["conjoint"]["montant_herite"] == pytest.approx(500000.0)
 
-    def test_tax_concubin_high_zurich(self, succession_sim):
-        """Zurich: concubin pays 18% succession tax."""
+    def test_tax_concubin_zurich_verdict_bascule(self, succession_sim):
+        """Zurich concubin : taxé (übrige ×6), bascule mariage/pacte avec
+        la condition cantonale franchise 50'000 si ≥5 ans — plus aucun
+        « 18 % » plat (chiffre de l'ancienne table, non sourcé)."""
         data = _succession_input(
             fortune_totale=600000.0,
             etat_civil="celibataire",
@@ -773,15 +783,19 @@ class TestSuccessionTax:
             canton="ZH",
         )
         result = succession_sim.simulate(data)
-        fiscalite = result.fiscalite
-        details = fiscalite.get("details_par_heritier", {})
-        if "concubin" in details:
-            assert details["concubin"]["taux"] == pytest.approx(0.18, abs=0.001)
-            # QD = 300k, tax = 300k * 0.18 = 54k
-            assert details["concubin"]["impot"] == pytest.approx(54000.0, abs=0.01)
+        details = result.fiscalite["details_par_heritier"]
+        concubin = details["concubin"]
+        assert concubin["montant_herite"] == pytest.approx(300000.0, abs=0.01)
+        assert concubin["statut"] == "taxe"
+        assert "50000" in concubin["bascule"]
+        assert "5 ans" in concubin["bascule"]
+        assert "taux" not in concubin
+        assert "impot" not in concubin
 
     def test_tax_neuchatel_descendants_taxed(self, succession_sim):
-        """Neuchatel: descendants ARE taxed (3%)."""
+        """Neuchatel: descendants ARE taxed — statut « taxe » du socle,
+        avec la déduction 50'000 dans les mécanismes (l'ancien 3 % plat
+        ignorait cette franchise)."""
         data = _succession_input(
             fortune_totale=500000.0,
             etat_civil="celibataire",
@@ -790,15 +804,14 @@ class TestSuccessionTax:
             canton="NE",
         )
         result = succession_sim.simulate(data)
-        fiscalite = result.fiscalite
-        details = fiscalite.get("details_par_heritier", {})
-        if "enfants" in details:
-            assert details["enfants"]["taux"] == pytest.approx(0.03, abs=0.001)
-            # 500k * 0.03 = 15000
-            assert details["enfants"]["impot"] == pytest.approx(15000.0, abs=0.01)
+        details = result.fiscalite["details_par_heritier"]
+        enfants = details["enfants"]
+        assert enfants["statut"] == "taxe"
+        assert any("50000" in m for m in enfants["mecanismes"])
 
     def test_tax_fratrie_vaud(self, succession_sim):
-        """Vaud: siblings pay 7% succession tax."""
+        """Vaud fratrie : statut « taxe » (barème progressif 5.940-12.500 %
+        dans les mécanismes sourcés — l'ancien 7 % plat est retiré)."""
         data = _succession_input(
             fortune_totale=300000.0,
             etat_civil="celibataire",
@@ -809,11 +822,19 @@ class TestSuccessionTax:
             canton="VD",
         )
         result = succession_sim.simulate(data)
-        fiscalite = result.fiscalite
-        details = fiscalite.get("details_par_heritier", {})
-        if "fratrie" in details:
-            assert details["fratrie"]["taux"] == pytest.approx(0.07, abs=0.001)
-            assert details["fratrie"]["impot"] == pytest.approx(21000.0, abs=0.01)
+        details = result.fiscalite["details_par_heritier"]
+        fratrie = details["fratrie"]
+        assert fratrie["statut"] == "taxe"
+        assert fratrie["montant_herite"] == pytest.approx(300000.0)
+        assert "impot" not in fratrie
+
+    def test_tax_no_flat_total(self, succession_sim):
+        """La fiscalité ne porte plus de total en francs (montant × taux
+        plat supprimé) et cite la source ESTV."""
+        data = _succession_input(fortune_totale=1000000.0, canton="GE")
+        result = succession_sim.simulate(data)
+        assert "total_impot_succession" not in result.fiscalite
+        assert "ESTV" in result.fiscalite["source"]
 
 
 # ===========================================================================
