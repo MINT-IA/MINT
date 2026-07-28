@@ -11870,7 +11870,7 @@ class SFr extends S {
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Compare les prestataires et ouvre un compte dédié au rattrapage.';
+      'Comparer les prestataires (frais, conditions) ; un compte dédié pourrait simplifier le suivi du rattrapage.';
 
   @override
   String get retroactive3aPrepDocuments => 'Préparer les documents';

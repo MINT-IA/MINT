@@ -11891,7 +11891,7 @@ class SDe extends S {
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Vergleiche Anbieter und eröffne ein dediziertes Nachholkonto.';
+      'Anbieter vergleichen (Gebühren, Konditionen) hilft; ein dediziertes Konto könnte die Nachverfolgung des Nachholens vereinfachen.';
 
   @override
   String get retroactive3aPrepDocuments => 'Dokumente vorbereiten';

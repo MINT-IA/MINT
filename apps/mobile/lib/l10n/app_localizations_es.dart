@@ -11866,7 +11866,7 @@ class SEs extends S {
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Compara proveedores y abre una cuenta dedicada a la recuperación.';
+      'Comparar proveedores (comisiones, condiciones) ayuda; una cuenta dedicada podría simplificar el seguimiento de la recuperación.';
 
   @override
   String get retroactive3aPrepDocuments => 'Preparar documentos';

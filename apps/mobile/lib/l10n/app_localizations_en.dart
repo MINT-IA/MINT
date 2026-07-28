@@ -11798,7 +11798,7 @@ class SEn extends S {
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Compare providers and open a dedicated catch-up account.';
+      'Comparing providers (fees, terms) helps; a dedicated account could simplify tracking the catch-up.';
 
   @override
   String get retroactive3aPrepDocuments => 'Prepare documents';

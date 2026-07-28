@@ -11862,7 +11862,7 @@ class SPt extends S {
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Compara fornecedores e abre uma conta dedicada à recuperação.';
+      'Comparar fornecedores (custos, condições) ajuda; uma conta dedicada poderia simplificar o acompanhamento da recuperação.';
 
   @override
   String get retroactive3aPrepDocuments => 'Preparar documentos';

@@ -11891,7 +11891,7 @@ class SIt extends S {
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Confronta i fornitori e apri un conto dedicato al recupero.';
+      'Confrontare i fornitori (costi, condizioni) aiuta; un conto dedicato potrebbe semplificare il monitoraggio del recupero.';
 
   @override
   String get retroactive3aPrepDocuments => 'Preparare i documenti';
