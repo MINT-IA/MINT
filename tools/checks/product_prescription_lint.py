@@ -6,12 +6,12 @@ Refuse tout NOUVEL impératif d'achat (« Souscris… », « Ouvrez un compte…
 .arb). La dette existante est portée par une BASELINE-CLIQUET
 (``_baseline_prescription_sites.txt``, patron ``hmac_pepper_audit``) :
 
-- entrée ``chemin::motif::compte`` connue : tolérée, en attente de
+- entrée ``chemin::motif::hash(extrait)`` connue : tolérée, en attente de
   réécriture ;
-- NOUVELLE entrée (fichier neuf, motif neuf, ou occurrence de PLUS dans un
-  fichier baseliné) : exit 1 ;
-- entrée devenue introuvable ou compte réduit : exit 1 — la baseline doit
-  rétrécir dans le même commit que la réécriture ;
+- NOUVELLE entrée (fichier neuf, motif neuf, occurrence supplémentaire ou
+  ÉCHANGE d'occurrence — le hash d'extrait change) : exit 1 ;
+- entrée devenue introuvable (site réécrit ou déplacé) : exit 1 — la
+  baseline doit être mise à jour consciemment dans le même commit ;
 - l'anti-croissance de la baseline elle-même est verrouillée en CI
   (comparaison contre origin/dev, bootstrap excepté).
 
@@ -37,6 +37,7 @@ Usage :
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import re
 import sys
@@ -254,12 +255,20 @@ def main() -> int:
         return _self_test(motifs, prix)
 
     found = _scan_repo(motifs, prix)
-    counts: dict[str, int] = {}
+    # Entrées PAR OCCURRENCE : chemin::motif::hash8(extrait normalisé)
+    # (revue Codex 2026-07-28 P1) — retirer une occurrence baselinée et en
+    # ajouter une autre du même motif dans le même fichier change le hash :
+    # l'échange est visible. Éditer le texte d'un site baseliné change
+    # aussi son hash -> stale + new -> passage conscient par la baseline.
+    current: set[str] = set()
     for path, rows in found.items():
-        for _, name, _ in rows:
-            key = f"{path}::{name}"
-            counts[key] = counts.get(key, 0) + 1
-    current = {f"{key}::{n}" for key, n in counts.items()}
+        vus: dict[str, int] = {}
+        for _, name, snippet in rows:
+            norme = " ".join(snippet.lower().split())
+            h = hashlib.sha1(norme.encode()).hexdigest()[:8]
+            base = f"{path}::{name}::{h}"
+            vus[base] = vus.get(base, 0) + 1
+            current.add(base if vus[base] == 1 else f"{base}-{vus[base]}")
 
     if args.emit_baseline:
         for entry in sorted(current):
@@ -267,10 +276,6 @@ def main() -> int:
         return 0
 
     baseline = _read_baseline()
-    # Cliquet par COMPTE (revue adversariale P1-1) : une occurrence de PLUS
-    # dans un fichier déjà baseliné change l'entrée path::motif::N -> échec
-    # « nouveau site » ; une de moins -> entrée périmée, la baseline doit
-    # rétrécir dans le même commit.
     new_sites = current - baseline
     stale = baseline - current
 

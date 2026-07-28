@@ -44,6 +44,15 @@ PRESCRIPTION_MOTIFS: tuple[tuple[str, str], ...] = (
         "verser-le-maximum",
         r"\bvers(?:e|ez|er)(?:-y)?\s+le\s+(?:montant\s+)?max(?:imum)?\b",
     ),
+    # Véhicule-D'ABORD (revue Codex 2026-07-28) : les CTA canoniques du
+    # produit (« PILIER 3A — À OUVRIR MAINTENANT », « PILLAR 3A — OPEN
+    # NOW », …) mettent le véhicule avant le verbe — dérivés des 6
+    # traductions réelles de firstJob3aHeader.
+    (
+        "vehicule-puis-ouvrir",
+        r"\b(?:pilier|compte|pillar|pilastro|pilar|s[äa]ule)\s*3a?\b"
+        r"[^.\n]{0,30}\b(?:à\s+ouvrir|ouvrir|open|er[öo]ffnen|abrir|(?:da\s+)?aprire)\b",
+    ),
     # ── English ─────────────────────────────────────────────────────
     ("en-take-out-insurance", r"\btake\s+out\b[^.\n]{0,60}\binsurance\b"),
     (
