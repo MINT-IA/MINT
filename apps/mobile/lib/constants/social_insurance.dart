@@ -443,47 +443,12 @@ const List<List<double>> retraitCapitalTranches = [
   [1000000, double.infinity, 1.70],
 ];
 
-/// Coefficient appliqué à l'impôt capital célibataire quand le contribuable
-/// est marié — fonction du canton. Audit swiss-brain 2026-04-18 Q5 : le
-/// scalaire 0.85 uniforme était **faux** (cantons à splitting complet
-/// comme ZH/ZG descendent à 0.70). Chaque canton légifère son propre
-/// tarif couple (LHID art. 11 al. 1 autorise tarif marié ≤ 85% du tarif
-/// célibataire pour le revenu ; pour le capital, chaque canton fixe).
-///
-/// Valeurs 2026 pour un cumul capital ~250k (retrait médian LPP+3a) :
-///   ZH : splitting intégral, barème séparé → 0.73 (LF ZH §37)
-///   BE : barème couple dédié + splitting → 0.80 (LF BE art. 44)
-///   LU : tarif spécial marié → 0.82 (LF LU §58)
-///   ZG : splitting intégral (canton le plus bas CH) → 0.70 (LF ZG §36)
-///   VD : splitting intégral → 0.78 (LI VD art. 49)
-///   GE : quotient familial + splitting → 0.73 (LIPP art. 41)
-///   VS : barème marié progressif → 0.81 (LF VS art. 33b)
-///   TI : splitting intégral → 0.80 (LT TI art. 38)
-///
-/// Les 18 autres cantons (AG/AI/AR/BL/BS/FR/GL/GR/JU/NE/NW/OW/SG/SH/SO/
-/// SZ/TG/UR) utilisent le fallback — `marriedCapitalTaxDiscountFallback`.
-/// Approximation à ±5 points ; ADR-20260418-cantonal-capital-tax-married
-/// prévu pour la table exhaustive tabulée par tranche de montant.
-const Map<String, double> marriedCapitalTaxDiscountByCanton = {
-  'ZH': 0.73,
-  'BE': 0.80,
-  'LU': 0.82,
-  'ZG': 0.70,
-  'VD': 0.78,
-  'GE': 0.73,
-  'VS': 0.81,
-  'TI': 0.80,
-};
-
-/// Fallback pour les 18 cantons non tabulés (moyenne empirique). À
-/// remplacer par la matrice complète une fois l'ADR résolu. La UI DOIT
-/// signaler à l'utilisateur quand ce fallback s'applique.
-const double marriedCapitalTaxDiscountFallback = 0.82;
-
-/// Helper : retourne le coefficient du canton demandé ou le fallback.
-double marriedCapitalTaxDiscountFor(String canton) =>
-    marriedCapitalTaxDiscountByCanton[canton.toUpperCase()] ??
-    marriedCapitalTaxDiscountFallback;
+/// Impôt capital MARIÉ : le rabais forfaitaire par canton (inventé) a été
+/// SUPPRIMÉ (triage AnnAssign #1095). La part cantonale mariée est désormais
+/// interpolée sur l'étalon ESTV `cantonalCapitalTaxMarriedChf`
+/// (financial_core/income_tax_model_v2.dart), miroir du backend
+/// `CANTONAL_CAPITAL_TAX_MARRIED_CHF` — comme le célibataire, plus de
+/// coefficient plat.
 
 /// Noms complets des 26 cantons suisses en francais.
 const Map<String, String> cantonFullNames = {

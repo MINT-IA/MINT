@@ -15,8 +15,6 @@
 //  (mêmes tables, mêmes conventions d'interpolation).
 // ────────────────────────────────────────────────────────────
 
-import 'package:mint_mobile/constants/social_insurance.dart';
-
 /// Barème IFD 2026 (LIFD art. 36, célibataire) — (borne sup, taux tranche).
 const List<List<double>> incomeTaxFederalBrackets2026 = [
   [15200, 0.0000],
@@ -199,6 +197,43 @@ const Map<String, List<double>> cantonalCapitalTaxChf = {
   'ZH': [4280, 10700, 24567, 52601, 86542],
 };
 
+/// Impôt cantonal+communal (chef-lieu) sur une PRESTATION EN CAPITAL, état
+/// civil MARIÉ — MIRROR backend CANTONAL_CAPITAL_TAX_MARRIED_CHF (API ESTV
+/// API_calculateManyCapitalTaxes, Relationship=2, collecte 2026-07-28, MÊME
+/// grille que le célibataire). Remplace le rabais forfaitaire par canton
+/// (inventé — supprimé, triage AnnAssign #1095) : le traitement marié est un
+/// effet de barème (splitting), pas un coefficient plat (ex. ZH sans réduction
+/// ≤ 250k puis 0.61 à 750k ; BS/BL/GL/LU/OW/UR sans réduction). IFD art. 38
+/// NON incluse — barème célibataire (approximation pré-existante).
+const Map<String, List<double>> cantonalCapitalTaxMarriedChf = {
+  'AG': [2846, 11208, 26573, 42377, 58795],
+  'AI': [2220, 7258, 15200, 22800, 30400],
+  'AR': [5550, 13876, 29282, 47782, 66282],
+  'BE': [3438, 11297, 27484, 47071, 67903],
+  'BL': [3300, 8250, 23100, 47850, 72600],
+  'BS': [4750, 16750, 36750, 56750, 76750],
+  'FR': [2340, 12600, 35100, 57600, 80100],
+  'GE': [2365, 9680, 23302, 37817, 53101],
+  'GL': [4828, 12070, 24140, 36210, 48280],
+  'GR': [2700, 6750, 13500, 27000, 36000],
+  'JU': [4687, 13822, 29259, 44697, 60134],
+  'LU': [3016, 9106, 19256, 29406, 39556],
+  'NE': [4725, 13931, 31333, 47302, 63625],
+  'NW': [2480, 8157, 17041, 25566, 34091],
+  'OW': [5119, 12798, 25596, 38394, 51192],
+  'SG': [4860, 12150, 24300, 36450, 48600],
+  'SH': [1810, 6929, 15741, 23611, 31482],
+  'SO': [3442, 12244, 27769, 42526, 56701], // 750k/1M: ESTV arrondit +1 CHF (pas de réduction à haut montant)
+  'SZ': [917, 4419, 16999, 32063, 42750],
+  'TG': [5020, 12550, 25100, 37650, 50200],
+  'TI': [3860, 9650, 19300, 28950, 54019], // sensible âge/sexe (homme/65 retenu)
+  'UR': [3705, 9263, 18525, 27788, 37050],
+  'VD': [3281, 11360, 27705, 45743, 63840],
+  'VS': [4116, 11206, 32751, 58800, 78400], // sensible âge/sexe (homme/65 retenu)
+  'ZG': [1558, 6546, 17205, 27605, 38005],
+  'ZH': [4280, 10700, 21400, 32100, 57652],
+};
+
 /// Impôt total sur un retrait en capital 2e/3e pilier — modèle v2 -2i2,
 /// MIRROR exact du backend estimate_capital_withdrawal_tax.
 double estimateCapitalWithdrawalTaxV2(
@@ -220,9 +255,11 @@ double estimateCapitalWithdrawalTaxV2(
   }
   final ifd = ifdFull / 5.0;
 
-  var pts = cantonalCapitalTaxChf[canton.toUpperCase()];
+  final table =
+      isMarried ? cantonalCapitalTaxMarriedChf : cantonalCapitalTaxChf;
+  var pts = table[canton.toUpperCase()];
   if (pts == null) {
-    final all = cantonalCapitalTaxChf.values.toList();
+    final all = table.values.toList();
     pts = List<double>.generate(
       capitalTaxPointsAmount.length,
       (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
@@ -247,11 +284,5 @@ double estimateCapitalWithdrawalTaxV2(
     }
   }
 
-  if (isMarried) {
-    // Coefficient par canton importé directement (review #990 : une
-    // dépendance injectable nullable permettait une divergence silencieuse
-    // marié == célibataire si le caller oubliait l'injection).
-    cantonal *= marriedCapitalTaxDiscountFor(canton.toUpperCase());
-  }
   return ifd + cantonal;
 }

@@ -99,10 +99,11 @@ void main() {
         isMarried: true,
       );
       expect(taxMarried, lessThan(taxSingle));
-      // Audit 2026-04-18 Q5 : discount cantonal, pas scalaire 0.85.
-      // v2 -2i2 : ZH 500000 — coeff ZH 0.73 sur la part cantonale seule
-      // (IFD art. 38 non réduite) → ratio total 0.8108.
-      expect(taxMarried / taxSingle, closeTo(0.8108, 0.02));
+      // Triage AnnAssign #1095 : part cantonale mariée interpolée sur l'étalon
+      // ESTV cantonalCapitalTaxMarriedChf (plus de rabais forfaitaire).
+      // ZH 500000 : cantonal marié 21400 vs 24567 (point de grille ESTV) +
+      // IFD célibataire inchangé (10501) → ratio total 0.9097.
+      expect(taxMarried / taxSingle, closeTo(0.9097, 0.02));
     });
 
     test('unknown canton falls back to ZH', () {

@@ -134,7 +134,7 @@ void main() {
       expect(tax, closeTo(830.8468, 1));
     });
 
-    test('6. Lauren capital tax VS married → coeff cantonal 0.81', () {
+    test('6. Lauren capital tax VS married (étalon ESTV)', () {
       final taxSingle = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: laurenLppAvoir,
         canton: laurenCanton,
@@ -145,10 +145,11 @@ void main() {
         canton: laurenCanton,
         isMarried: true,
       );
-      // Audit 2026-04-18 Q5 : coefficient marié par canton (VS → 0.81).
-      // v2 -2i2 : VS 19620 marié — coeff 0.81 appliqué à la part cantonale
-      // seule (IFD art. 38 non réduite), donc ≠ taxSingle × 0.81.
-      expect(taxMarried, closeTo(674.2792, 0.01));
+      // Triage AnnAssign #1095 : part cantonale mariée interpolée sur l'étalon
+      // ESTV cantonalCapitalTaxMarriedChf (plus de rabais forfaitaire). VS
+      // 19620 < 100k -> interpolation linéaire depuis (0,0) : cantonal marié
+      // 4116 x 0.1962 = 807.56 + IFD célibataire 6.81 = 814.366.
+      expect(taxMarried, closeTo(814.366, 0.01));
       expect(taxMarried, lessThan(taxSingle));
     });
 
