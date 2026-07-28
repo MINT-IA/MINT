@@ -247,21 +247,26 @@ LAMAL_FRONTALIER_MILLESIME = 2026
 
 LAMAL_FRONTALIER_PRIMES = {
     # pays de résidence -> classe d'âge -> {min, moyenne, max} CHF/mois
+    # (adulte/jeune : franchise 300 ; enfant : franchise 0, norme enfants)
     "FR": {
         "adulte": {"min": 200.0, "moyenne": 520.89, "max": 823.1},
         "jeune": {"min": 180.0, "moyenne": 436.77, "max": 760.7},
+        "enfant": {"min": 46.0, "moyenne": 142.9, "max": 246.5},
     },
     "DE": {
         "adulte": {"min": 227.9, "moyenne": 480.77, "max": 1059.9},
         "jeune": {"min": 164.1, "moyenne": 400.27, "max": 742.1},
+        "enfant": {"min": 49.85, "moyenne": 130.47, "max": 297.1},
     },
     "IT": {
         "adulte": {"min": 279.0, "moyenne": 408.09, "max": 487.2},
         "jeune": {"min": 239.6, "moyenne": 343.44, "max": 475.3},
+        "enfant": {"min": 41.2, "moyenne": 113.29, "max": 203.7},
     },
     "AT": {
         "adulte": {"min": 299.4, "moyenne": 495.84, "max": 748.1},
         "jeune": {"min": 239.6, "moyenne": 411.67, "max": 551.0},
+        "enfant": {"min": 63.1, "moyenne": 135.99, "max": 211.2},
     },
 }
 # Pays de référence pour un pays de résidence hors dataset (LI n'est pas
@@ -799,10 +804,10 @@ class FrontalierSegmentService:
             # nommée explicitement dans le texte rendu — pas de défaut muet.
             pays_data = LAMAL_FRONTALIER_PRIMES[_LAMAL_PAYS_REFERENCE]
             pays_reference_note = (
-                " (donnees indisponibles pour ton pays de residence : "
-                "reference France)"
+                " (données indisponibles pour ton pays de résidence : "
+                "référence France)"
             )
-        classe = "jeune" if 19 <= age < 26 else "adulte"
+        classe = "enfant" if age < 19 else ("jeune" if age < 26 else "adulte")
         classe_data = pays_data[classe]
         prime_base = classe_data["moyenne"]
 
@@ -825,8 +830,10 @@ class FrontalierSegmentService:
 
         plage = (
             f"primes {LAMAL_FRONTALIER_MILLESIME} selon l'assureur : de "
-            f"CHF {classe_data['min']:,.0f} a CHF {classe_data['max']:,.0f}"
-            f"/mois (moyenne utilisee ici : CHF {classe_data['moyenne']:,.0f})"
+            f"CHF {classe_data['min']:,.0f} à CHF {classe_data['max']:,.0f}"
+            f"/mois (moyenne utilisée ici : CHF {classe_data['moyenne']:,.0f} — "
+            f"tarif de ta classe d'âge appliqué à chaque membre de la famille, "
+            f"borne haute pour les enfants)"
             f"{pays_reference_note}"
         )
         if economie_lamal > 0:

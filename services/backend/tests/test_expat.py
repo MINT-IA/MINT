@@ -384,6 +384,50 @@ class TestLamalOption:
         assert "200" in result.recommandation  # min FR adulte
         assert "823" in result.recommandation  # max FR adulte
 
+    def test_age_18_classe_enfant(self, frontalier_service):
+        """18 ans (plancher du schema) : classe ENFANT du registre, pas adulte.
+
+        Revue adversariale 2026-07-28 : la classe adulte pour un 18 ans
+        (deux classes d'ecart) pouvait inverser la conclusion LAMal/
+        residence. France enfant : 142.90 CHF/mois (franchise 0).
+        """
+        result = frontalier_service.estimate_lamal_option(
+            age=18, canton="GE", family_size=1, residence_country="FR",
+        )
+        assert result.prime_lamal_mensuelle == 142.9
+
+    def test_parite_table_archive(self):
+        """La table du service == l'archive JSON, cellule par cellule.
+
+        Sans ce test, une coquille dans les litteraux DE/IT/AT shipperait
+        verte (seule FR etait assertee), et le refresh annuel n'aurait pas
+        de point d'update mecanique (revue adversariale P3).
+        """
+        import json
+        from pathlib import Path as _P
+
+        from app.services.expat.frontalier_service import (
+            LAMAL_FRONTALIER_PRIMES,
+            LAMAL_FRONTALIER_MILLESIME,
+        )
+
+        archive_path = (
+            _P(__file__).resolve().parents[3]
+            / ".planning/audit-etat-des-lieux-2026-07/constants-audit"
+            / "lamal_frontaliers_2026/extraction_fr300_sans_accident.json"
+        )
+        arch = json.loads(archive_path.read_text())
+        cls_map = {"AKL-ERW": "adulte", "AKL-JUG": "jeune", "AKL-KIN": "enfant"}
+        assert str(LAMAL_FRONTALIER_MILLESIME) in arch["meta"]["profil"]
+        for pays, classes in arch["primes_chf_mois"].items():
+            for akl, cellule in classes.items():
+                table = LAMAL_FRONTALIER_PRIMES[pays][cls_map[akl]]
+                for champ in ("min", "moyenne", "max"):
+                    assert table[champ] == cellule[champ], (
+                        f"{pays}.{cls_map[akl]}.{champ}: "
+                        f"table {table[champ]} != archive {cellule[champ]}"
+                    )
+
     def test_pays_sans_donnees_explicite(self, frontalier_service):
         """Pays hors dataset (LI) : reference France, EXPLICITEMENT nommee."""
         result = frontalier_service.estimate_lamal_option(
