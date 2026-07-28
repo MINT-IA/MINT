@@ -31,6 +31,7 @@ ALLOW = {
     str(ISSUE_SCHEMA),
     # Suppression clés mortes l10n — purge de la liste d'audit statique.
     "apps/mobile/test/l10n/fiscal_trust_copy_test.dart",
+    "apps/mobile/test/services/coach/de_it_terminology_test.dart",
     str(JOURNEYS / "README.md"),
     str(JOURNEYS / "PRIORITY_RUBRIC.md"),
     str(journey_os_generate.SUMMARY),

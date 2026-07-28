@@ -96,13 +96,16 @@ void main() {
   group('Group 1 - DE financial terminology', () {
     test('DE ARB contains Vorsorge or Pensionskasse for retirement concepts', () {
       // Find keys where FR contains "retraite" or "pension"
+      // Population COMPLÈTE des clés retraite/pension : l'ancien take(20)
+      // échantillonnait une fenêtre dépendante de l'ordre d'insertion — la
+      // suppression de clés mortes déplaçait la fenêtre et faisait basculer
+      // le ratio sans changement de qualité de traduction.
       final retirementKeys = frArb.keys
           .where((k) => !k.startsWith('@'))
           .where((k) {
             final v = frArb[k].toString().toLowerCase();
             return v.contains('retraite') || v.contains('pension');
           })
-          .take(20)
           .toList();
 
       expect(retirementKeys, isNotEmpty,
@@ -240,13 +243,16 @@ void main() {
 
   group('Group 2 - IT financial terminology', () {
     test('IT ARB contains pensionamento or previdenza for retirement', () {
+      // Population COMPLÈTE des clés retraite/pension : l'ancien take(20)
+      // échantillonnait une fenêtre dépendante de l'ordre d'insertion — la
+      // suppression de clés mortes déplaçait la fenêtre et faisait basculer
+      // le ratio sans changement de qualité de traduction.
       final retirementKeys = frArb.keys
           .where((k) => !k.startsWith('@'))
           .where((k) {
             final v = frArb[k].toString().toLowerCase();
             return v.contains('retraite') || v.contains('pension');
           })
-          .take(20)
           .toList();
 
       expect(retirementKeys, isNotEmpty);
