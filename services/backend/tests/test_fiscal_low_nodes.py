@@ -127,11 +127,20 @@ def test_inc1_ge_30k_regression():
 
 
 def test_inc1_all_four_failure_points_improved(archive):
-    """Les 4 points d'echec documentes d'INC-1 sont tous ramenes sous 7%
-    (l'ancien modele : +46 a +60%)."""
+    """Les 4 points d'echec documentes d'INC-1 : SURESTIMATION signee.
+
+    Le finding INC-1 est une SUR-estimation (erreur signee > +40%), pas une
+    erreur en valeur absolue : un abs() accepterait une sous-estimation severe
+    (ex. l'archive corrompue donnait -98.92% et passait via abs). On assert donc
+    le SIGNE : ancien modele > +40% (surestime), nouveau une petite
+    surestimation dans la bande documentee [0, +7%]."""
     errs = archive["measured_error_vs_estv"]
     for c in INC1_CANTONS:
-        old = abs(errs[c]["30000"]["old_rel_err_pct"])
-        new = abs(errs[c]["30000"]["new_rel_err_pct"])
-        assert old > 40.0, f"{c}: l'ancien ecart mesure devrait etre > 40% ({old})"
-        assert new <= 7.0, f"{c}: nouvel ecart {new}% > 7%"
+        old = errs[c]["30000"]["old_rel_err_pct"]
+        new = errs[c]["30000"]["new_rel_err_pct"]
+        assert old > 40.0, (
+            f"{c}: l'ancien modele doit SURESTIMER de > +40% (erreur signee {old})"
+        )
+        assert 0.0 <= new <= 7.0, (
+            f"{c}: nouvel ecart signe {new}% hors bande documentee [0, +7]"
+        )
