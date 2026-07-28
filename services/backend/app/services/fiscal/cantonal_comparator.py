@@ -212,6 +212,76 @@ CANTONAL_CAPITAL_TAX_MARRIED_CHF = {
     "ZH": [4280, 10700, 21400, 32100, 57652],
 }
 
+# IFD (art. 38 LIFD = 1/5 du barème revenu) sur une prestation en capital, état
+# civil MARIÉ — barème art. 36 al. 2 (splitting), CANTON-INDÉPENDANT, sur la
+# MÊME grille (100k/250k/500k/750k/1M). API ESTV API_calculateManyCapitalTaxes
+# (Relationship=2, collecte 2026-07-28). Le célibataire se calcule EXACTEMENT
+# via FEDERAL_BRACKETS (barème al. 1) ; le marié via interpolation 5 points (le
+# barème al. 2 complet n'est pas re-tabulé). Écart réel jusqu'à ~13.6 %
+# (SZ 100k) si on appliquait le barème célibataire au marié — d'où cette table.
+# Brut : .planning/audit-etat-des-lieux-2026-07/constants-audit/
+# capital_marie_2026/consolidated.json (ifd_marie_par_montant).
+FEDERAL_CAPITAL_IFD_MARRIED_CHF = [363, 3676, 10176, 16676, 23000]
+
+
+def _interpolate_capital_points(pts: list, amount: float) -> float:
+    """Interpolation des tables capital 5 points (même mécanique partout).
+
+    <100k : linéaire depuis (0, 0) ; entre points : linéaire ; >1M :
+    extrapolation à la pente du dernier segment.
+    """
+    amounts = CAPITAL_TAX_POINTS_AMOUNT
+    if amount <= amounts[0]:
+        return pts[0] * (amount / amounts[0])
+    if amount >= amounts[-1]:
+        slope = (pts[-1] - pts[-2]) / (amounts[-1] - amounts[-2])
+        return pts[-1] + slope * (amount - amounts[-1])
+    for i in range(len(amounts) - 1):
+        if amounts[i] <= amount <= amounts[i + 1]:
+            ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i])
+            return pts[i] + ratio * (pts[i + 1] - pts[i])
+    return pts[-1]
+
+
+def _cantonal_capital_pts(table: dict, canton: str) -> list:
+    """Points cantonaux du canton, ou moyenne des 26 si canton inconnu."""
+    pts = table.get(canton.upper())
+    if pts is None:
+        pts = [
+            sum(v[i] for v in table.values()) / len(table)
+            for i in range(len(CAPITAL_TAX_POINTS_AMOUNT))
+        ]
+    return pts
+
+
+def _ifd_single_capital(amount: float) -> float:
+    """IFD art. 38 célibataire = 1/5 du barème revenu (FEDERAL_BRACKETS, exact)."""
+    ifd_full = 0.0
+    prev_bound = 0.0
+    for upper, rate in FEDERAL_BRACKETS:
+        if amount <= prev_bound:
+            break
+        taxable = min(amount, upper) - prev_bound
+        ifd_full += taxable * rate
+        prev_bound = upper
+    return ifd_full / 5.0
+
+
+def _ifd_married_capital(amount: float) -> float:
+    """IFD art. 38 marié (barème al. 2, splitting), bornée par l'IFD célibataire.
+
+    Points ESTV interpolés (exact aux montants de grille) ; la borne
+    ``min(interp, célibataire)`` (a) préserve le seuil non imposable SOUS 100k
+    — l'interpolation linéaire depuis (0, 0) surestimerait l'IFD là où le
+    barème réel est nul — et (b) garantit al. 2 <= al. 1 au-delà d'1M, où les
+    pentes d'extrapolation divergent. Aux points de grille, l'IFD marié ESTV
+    < célibataire (sauf 1M égal) donc la borne ne mord pas.
+    """
+    return min(
+        _interpolate_capital_points(FEDERAL_CAPITAL_IFD_MARRIED_CHF, amount),
+        _ifd_single_capital(amount),
+    )
+
 
 def estimate_capital_withdrawal_tax(
     amount: float,
@@ -223,11 +293,12 @@ def estimate_capital_withdrawal_tax(
     IFD art. 38 (1/5 du barème revenu progressif, plafond 11.5%/5) +
     impôt cantonal+communal INTERPOLÉ entre points calibrés ESTV.
     Remplace « taux de base cantonal x multiplicateurs par tranche »
-    (approximation à ±40% sur certains cantons). Marié : part cantonale
-    interpolée sur ``CANTONAL_CAPITAL_TAX_MARRIED_CHF`` (collecte ESTV
-    état civil marié) — comme le célibataire, plus de rabais forfaitaire.
-    L'IFD reste dérivée du barème célibataire (``FEDERAL_BRACKETS``,
-    art. 36 al. 1) pour les deux états civils (approximation pré-existante).
+    (approximation à ±40% sur certains cantons).
+
+    Marié : part cantonale interpolée sur ``CANTONAL_CAPITAL_TAX_MARRIED_CHF``
+    ET IFD interpolée sur ``FEDERAL_CAPITAL_IFD_MARRIED_CHF`` (barème al. 2,
+    splitting) — les DEUX parts sont l'étalon ESTV marié (plus de rabais
+    forfaitaire, plus d'IFD célibataire appliquée au marié).
 
     Interpolation : linéaire sur l'impôt ; <100k : linéaire depuis (0, 0) ;
     >1M : extrapolation à la pente du dernier segment. Estimation
@@ -236,41 +307,21 @@ def estimate_capital_withdrawal_tax(
     if amount <= 0:
         return 0.0
 
-    # IFD art. 38 : 1/5 du barème revenu appliqué au montant.
-    ifd_full = 0.0
-    prev_bound = 0.0
-    for upper, rate in FEDERAL_BRACKETS:
-        if amount <= prev_bound:
-            break
-        taxable = min(amount, upper) - prev_bound
-        ifd_full += taxable * rate
-        prev_bound = upper
-    ifd = ifd_full / 5.0
-
-    table = (
-        CANTONAL_CAPITAL_TAX_MARRIED_CHF if is_married else CANTONAL_CAPITAL_TAX_CHF
+    single = _ifd_single_capital(amount) + _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_CHF, canton), amount
     )
-    pts = table.get(canton.upper())
-    if pts is None:
-        pts = [
-            sum(v[i] for v in table.values()) / len(table)
-            for i in range(len(CAPITAL_TAX_POINTS_AMOUNT))
-        ]
-    amounts = CAPITAL_TAX_POINTS_AMOUNT
-    if amount <= amounts[0]:
-        cantonal = pts[0] * (amount / amounts[0])
-    elif amount >= amounts[-1]:
-        slope = (pts[-1] - pts[-2]) / (amounts[-1] - amounts[-2])
-        cantonal = pts[-1] + slope * (amount - amounts[-1])
-    else:
-        cantonal = pts[-1]
-        for i in range(len(amounts) - 1):
-            if amounts[i] <= amount <= amounts[i + 1]:
-                ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i])
-                cantonal = pts[i] + ratio * (pts[i + 1] - pts[i])
-                break
+    if not is_married:
+        return round(single, 2)
 
-    return round(ifd + cantonal, 2)
+    married = _ifd_married_capital(amount) + _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_MARRIED_CHF, canton), amount
+    )
+    # Post-condition : marié <= célibataire PARTOUT. Les tables 5 points
+    # extrapolent au-delà d'1M à la pente du dernier segment ; ces pentes
+    # peuvent DIVERGER (TI célibataire concave au sommet -> le marié croiserait
+    # le célibataire vers ~1.09M sans borne). min() garantit l'invariant et
+    # absorbe l'arrondi ESTV +1 CHF (SO 750k/1M).
+    return round(min(married, single), 2)
 
 
 def estimate_income_tax_parts(

@@ -31,6 +31,7 @@ ARCHIVE = (
 )
 _ARCH = json.loads(ARCHIVE.read_text(encoding="utf-8"))
 _MARIE = _ARCH["points_chf_marie"]
+_IFD_MARIE = _ARCH["ifd_marie_par_montant"]
 _AMOUNTS = [str(a) for a in CAPITAL_TAX_POINTS_AMOUNT]
 
 CANTONS = sorted(CANTONAL_CAPITAL_TAX_MARRIED_CHF)
@@ -55,25 +56,26 @@ def test_married_table_covers_26_cantons_5_points():
         assert len(pts) == len(CAPITAL_TAX_POINTS_AMOUNT), c
 
 
-# ── L'étalon interpole la table mariée (pas un rabais) ───────────────────────
+# ── L'étalon reproduit le TOTAL marié ESTV (cantonal + IFD) aux grilles ──────
 @pytest.mark.parametrize("canton", CANTONS)
-def test_estimate_uses_married_table_at_grid_points(canton):
-    """À un point de grille, impôt marié == impôt célibataire − (part
-    cantonale célibataire − part cantonale mariée) : l'IFD est identique
-    (barème célibataire conservé), donc l'écart == l'écart cantonal de la
-    table ESTV. Prouve l'interpolation sur la table mariée."""
+def test_married_total_matches_estv_at_grid_points(canton):
+    """À un point de grille, impôt marié == min(cantonal_marié + IFD_marié
+    ESTV, célibataire). Les DEUX parts (cantonale ET IFD art. 38 al. 2) sont
+    l'étalon marié ESTV. La borne min() ne mord qu'à SO 1M (arrondi ESTV
+    +1 CHF, documenté)."""
     for i, amount_s in enumerate(_AMOUNTS):
         amount = float(amount_s)
         single = estimate_capital_withdrawal_tax(amount, canton)
         married = estimate_capital_withdrawal_tax(amount, canton, is_married=True)
-        expected_delta = (
-            CANTONAL_CAPITAL_TAX_CHF[canton][i]
-            - CANTONAL_CAPITAL_TAX_MARRIED_CHF[canton][i]
+        estv_married = round(
+            min(_MARIE[canton][amount_s] + _IFD_MARIE[amount_s][0], single), 2
         )
-        assert single - married == pytest.approx(expected_delta, abs=0.02), (
-            f"{canton}@{amount}: écart {single - married} != table "
-            f"{expected_delta}"
+        assert married == pytest.approx(estv_married, abs=0.02), (
+            f"{canton}@{amount}: {married} != ESTV marié {estv_married}"
         )
+        # IFD marié < célibataire (sauf 1M égal) -> marié < célibataire aux
+        # cantons sans réduction cantonale AUSSI (ex. BS/LU) via le fédéral.
+        assert married <= single + 0.01
 
 
 # ── Invariant de sanité : marié ≤ célibataire sur toute la grille ────────────

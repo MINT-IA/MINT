@@ -131,41 +131,46 @@ def test_lpp_conversion_married_coherent_both_sides():
 
 
 def test_married_arithmetic_lock_vd():
-    """Verrou arithmétique : married < single ne suffit pas — on fige, à un
-    point HORS grille (200k, VD), la mécanique exacte :
+    """Verrou arithmétique : on fige, à un point HORS grille (200k, VD), la
+    mécanique EXACTE des DEUX parts marié (cantonale ESTV + IFD art. 38 al. 2
+    ESTV), recomposées depuis les tables publiques :
 
-        impôt_marié = IFD (barème célibataire, inchangé)
-                    + part_cantonale MARIÉE interpolée sur l'étalon ESTV
-                      ``CANTONAL_CAPITAL_TAX_MARRIED_CHF``
+        impôt_marié = min( IFD_marié(interp, borné célibataire)
+                           + part_cantonale_MARIÉE(interp), célibataire )
 
-    en recomposant les DEUX parts cantonales depuis les tables publiques.
-    Plus de coefficient forfaitaire — l'écart doit égaler l'écart de barème.
+    L'écart single−married = (IFD_cél − IFD_marié) + (cant_cél − cant_marié).
     """
     from app.services.fiscal.cantonal_comparator import (
+        _cantonal_capital_pts,
+        _ifd_married_capital,
+        _ifd_single_capital,
+        _interpolate_capital_points,
         CANTONAL_CAPITAL_TAX_CHF,
         CANTONAL_CAPITAL_TAX_MARRIED_CHF,
-        CAPITAL_TAX_POINTS_AMOUNT,
         estimate_capital_withdrawal_tax,
     )
 
-    amount = 200_000
-    amts = CAPITAL_TAX_POINTS_AMOUNT
-    ratio = (amount - amts[0]) / (amts[1] - amts[0])
-
-    def _interp(table):
-        pts = table["VD"]
-        return pts[0] + ratio * (pts[1] - pts[0])
-
-    cantonal_single = _interp(CANTONAL_CAPITAL_TAX_CHF)
-    cantonal_married = _interp(CANTONAL_CAPITAL_TAX_MARRIED_CHF)
-    # Réduction mariée cantonale VD réelle (> 0) : le verrou n'est pas trivial.
-    assert cantonal_single - cantonal_married > 100
+    amount = 200_000.0
+    cant_single = _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_CHF, "VD"), amount
+    )
+    cant_married = _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_MARRIED_CHF, "VD"), amount
+    )
+    ifd_single = _ifd_single_capital(amount)
+    ifd_married = _ifd_married_capital(amount)
+    # Cantonal : réduction mariée VD réelle (verrou non trivial). IFD :
+    # marié <= célibataire toujours (borne), mais l'écart est faible en
+    # milieu de segment (interp linéaire vs barème courbe du célibataire).
+    assert cant_single - cant_married > 100
+    assert 0.0 <= ifd_single - ifd_married
 
     single = estimate_capital_withdrawal_tax(amount, "VD")
     married = estimate_capital_withdrawal_tax(amount, "VD", is_married=True)
-    # IFD identique des deux côtés -> l'écart == l'écart des parts cantonales.
+    assert single == pytest.approx(ifd_single + cant_single, abs=0.02)
+    assert married == pytest.approx(ifd_married + cant_married, abs=0.02)
     assert single - married == pytest.approx(
-        cantonal_single - cantonal_married, abs=0.02
+        (ifd_single - ifd_married) + (cant_single - cant_married), abs=0.02
     )
 
 
