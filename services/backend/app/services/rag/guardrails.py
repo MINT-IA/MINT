@@ -50,14 +50,16 @@ def fiscal_marginal_tool_available(tools: Optional[list]) -> bool:
     A marginal rate depends on income, so the cantonal enrichment must never hand
     the coach a static number. When the fiscal tool is reachable the prompt
     mandates it; otherwise it forbids any figure and redirects to the in-app
-    simulation. Detection is a substring match on each tool's ``name`` (Anthropic
-    tool-definition format) so it tolerates the ``cantonal_comparator__`` prefix.
+    simulation. Detection compares each tool's ``name`` (Anthropic
+    tool-definition format) EXACTLY to the canonical registry name — a
+    substring match could mandate the canonical tool while only a
+    differently-named lookalike was supplied (revue Codex P2).
     """
     if not tools:
         return False
     for tool in tools:
         name = tool.get("name", "") if isinstance(tool, dict) else tool
-        if "estimate_marginal_rate" in str(name):
+        if str(name) == _FISCAL_MARGINAL_TOOL:
             return True
     return False
 

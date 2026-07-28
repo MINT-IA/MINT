@@ -596,6 +596,14 @@ class TestFiscalMarginalToolAvailable:
         tools = [{"name": "save_insight"}, {"name": "retrieve_memories"}]
         assert fiscal_marginal_tool_available(tools) is False
 
+    def test_lookalike_name_is_false(self):
+        """Revue Codex P2 : un sosie contenant la sous-chaîne ne doit pas
+        faire mandater l'outil canonique absent — égalité EXACTE exigée."""
+        from app.services.rag.guardrails import fiscal_marginal_tool_available
+
+        tools = [{"name": "custom_estimate_marginal_rate"}]
+        assert fiscal_marginal_tool_available(tools) is False
+
     def test_mixed_list_with_fiscal_tool_is_true(self):
         from app.services.rag.guardrails import fiscal_marginal_tool_available
 
