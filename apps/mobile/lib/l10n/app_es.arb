@@ -1395,17 +1395,6 @@
   "donationCalculer": "Calcular",
   "donationImpotTitle": "IMPUESTO SOBRE LA DONACIÓN",
   "donationExoneree": "Exenta",
-  "donationTauxCanton": "Tasa: {taux}% (cantón {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Monto de la donación",
   "donationLienRow": "Parentesco",
   "donationReserveTitle": "LEGÍTIMA (2023)",
@@ -11748,6 +11737,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Imponible",
+  "donationVerdictInconnu": "Por verificar",
+  "donationPlageJusqua": "hasta ~{pct} % (baremo cantonal, sin recargos municipales)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

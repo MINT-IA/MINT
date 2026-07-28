@@ -3237,11 +3237,6 @@ class SFr extends S {
   String get donationExoneree => 'Exonérée';
 
   @override
-  String donationTauxCanton(String taux, String canton) {
-    return 'Taux : $taux % (canton $canton)';
-  }
-
-  @override
   String get donationMontantRow => 'Montant de la donation';
 
   @override
@@ -24857,5 +24852,16 @@ class SFr extends S {
   @override
   String genderGapModelLegalMinimum(String tauxConversion) {
     return 'Modèle employé : le régime LPP obligatoire minimal — salaire coordonné légal et taux de conversion minimal de $tauxConversion %. Ce n\'est pas le règlement de ta caisse. Avec un plan surobligatoire, fréquent au-delà du plafond du salaire assuré obligatoire, les rentes réelles s\'écartent de cette illustration dans un sens comme dans l\'autre : appliquer $tauxConversion % à la totalité du capital peut aussi surestimer, car les caisses enveloppantes retiennent souvent un taux plus bas sur l\'ensemble de l\'avoir.';
+  }
+
+  @override
+  String get donationVerdictImposable => 'Imposable';
+
+  @override
+  String get donationVerdictInconnu => 'À vérifier';
+
+  @override
+  String donationPlageJusqua(String pct) {
+    return 'jusqu\'à ~$pct % (barème cantonal, hors part communale)';
   }
 }

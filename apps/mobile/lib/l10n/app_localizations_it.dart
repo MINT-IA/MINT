@@ -3249,11 +3249,6 @@ class SIt extends S {
   String get donationExoneree => 'Esente';
 
   @override
-  String donationTauxCanton(String taux, String canton) {
-    return 'Aliquota: $taux% (cantone $canton)';
-  }
-
-  @override
   String get donationMontantRow => 'Importo della donazione';
 
   @override
@@ -24922,5 +24917,16 @@ class SIt extends S {
   @override
   String genderGapModelLegalMinimum(String tauxConversion) {
     return 'Modello impiegato: il regime LPP obbligatorio minimo — salario coordinato legale e aliquota di conversione minima del $tauxConversion %. Non è il regolamento della tua cassa pensioni. Con un piano sovraobbligatorio, frequente oltre il tetto del salario assicurato obbligatorio, le rendite effettive si scostano da questa illustrazione in entrambi i sensi: applicare il $tauxConversion % all\'intero capitale può anche sovrastimare, perché le casse avvolgenti applicano spesso un\'aliquota più bassa sull\'insieme dell\'avere.';
+  }
+
+  @override
+  String get donationVerdictImposable => 'Imponibile';
+
+  @override
+  String get donationVerdictInconnu => 'Da verificare';
+
+  @override
+  String donationPlageJusqua(String pct) {
+    return 'fino a ~$pct % (tariffa cantonale, esclusi supplementi comunali)';
   }
 }

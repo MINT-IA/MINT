@@ -5967,12 +5967,6 @@ abstract class S {
   /// **'Exonérée'**
   String get donationExoneree;
 
-  /// No description provided for @donationTauxCanton.
-  ///
-  /// In fr, this message translates to:
-  /// **'Taux : {taux} % (canton {canton})'**
-  String donationTauxCanton(String taux, String canton);
-
   /// No description provided for @donationMontantRow.
   ///
   /// In fr, this message translates to:
@@ -43366,6 +43360,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Modèle employé : le régime LPP obligatoire minimal — salaire coordonné légal et taux de conversion minimal de {tauxConversion} %. Ce n\'est pas le règlement de ta caisse. Avec un plan surobligatoire, fréquent au-delà du plafond du salaire assuré obligatoire, les rentes réelles s\'écartent de cette illustration dans un sens comme dans l\'autre : appliquer {tauxConversion} % à la totalité du capital peut aussi surestimer, car les caisses enveloppantes retiennent souvent un taux plus bas sur l\'ensemble de l\'avoir.'**
   String genderGapModelLegalMinimum(String tauxConversion);
+
+  /// No description provided for @donationVerdictImposable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imposable'**
+  String get donationVerdictImposable;
+
+  /// No description provided for @donationVerdictInconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get donationVerdictInconnu;
+
+  /// No description provided for @donationPlageJusqua.
+  ///
+  /// In fr, this message translates to:
+  /// **'jusqu\'à ~{pct} % (barème cantonal, hors part communale)'**
+  String donationPlageJusqua(String pct);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

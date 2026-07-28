@@ -1395,17 +1395,6 @@
   "donationCalculer": "Berechnen",
   "donationImpotTitle": "SCHENKUNGSSTEUER",
   "donationExoneree": "Befreit",
-  "donationTauxCanton": "Satz: {taux}% (Kanton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Schenkungsbetrag",
   "donationLienRow": "Verwandtschaftsgrad",
   "donationReserveTitle": "PFLICHTTEIL (2023)",
@@ -11745,6 +11734,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Steuerpflichtig",
+  "donationVerdictInconnu": "Zu prüfen",
+  "donationPlageJusqua": "bis ~{pct} % (kantonaler Tarif, ohne Gemeindezuschläge)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

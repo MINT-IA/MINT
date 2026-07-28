@@ -3239,11 +3239,6 @@ class SPt extends S {
   String get donationExoneree => 'Isenta';
 
   @override
-  String donationTauxCanton(String taux, String canton) {
-    return 'Taxa: $taux% (cantão $canton)';
-  }
-
-  @override
   String get donationMontantRow => 'Montante da doação';
 
   @override
@@ -24867,5 +24862,16 @@ class SPt extends S {
   @override
   String genderGapModelLegalMinimum(String tauxConversion) {
     return 'Modelo utilizado: o regime LPP obrigatório mínimo — salário coordenado legal e taxa de conversão mínima de $tauxConversion %. Não é o regulamento da tua caixa de pensões. Com um plano sobreobrigatório, frequente acima do limite do salário segurado obrigatório, as rendas reais afastam-se desta ilustração em ambos os sentidos: aplicar $tauxConversion % à totalidade do capital também pode sobrestimar, porque as caixas envolventes aplicam muitas vezes uma taxa mais baixa sobre o conjunto do haver.';
+  }
+
+  @override
+  String get donationVerdictImposable => 'Tributável';
+
+  @override
+  String get donationVerdictInconnu => 'A verificar';
+
+  @override
+  String donationPlageJusqua(String pct) {
+    return 'até ~$pct % (tabela cantonal, sem sobretaxas municipais)';
   }
 }
