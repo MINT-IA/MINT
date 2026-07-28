@@ -246,27 +246,66 @@ CHARGES_SOCIALES_PAYS = {
 LAMAL_FRONTALIER_MILLESIME = 2026
 
 LAMAL_FRONTALIER_PRIMES = {
-    # pays de résidence -> classe d'âge -> {min, moyenne, max} CHF/mois
-    # (adulte/jeune : franchise 300 ; enfant : franchise 0, norme enfants)
+    # pays de résidence -> classe d'âge -> variante accident ->
+    # {min, moyenne, max} CHF/mois. sans_accident = salarié suisse
+    # >= 8 h/sem couvert LAA ; avec_accident = membres de famille et
+    # < 8 h/sem (revue Codex P1 : les proches n'ont pas la LAA).
+    # (adulte/jeune : franchise 300 ; enfant : franchise 0)
     "FR": {
-        "adulte": {"min": 200.0, "moyenne": 520.89, "max": 823.1},
-        "jeune": {"min": 180.0, "moyenne": 436.77, "max": 760.7},
-        "enfant": {"min": 46.0, "moyenne": 142.9, "max": 246.5},
+        "adulte": {
+            "sans_accident": {"min": 200.0, "moyenne": 520.89, "max": 823.1},
+            "avec_accident": {"min": 215.0, "moyenne": 556.75, "max": 885.0},
+        },
+        "jeune": {
+            "sans_accident": {"min": 180.0, "moyenne": 436.77, "max": 760.7},
+            "avec_accident": {"min": 193.5, "moyenne": 466.93, "max": 818.0},
+        },
+        "enfant": {
+            "sans_accident": {"min": 46.0, "moyenne": 142.9, "max": 246.5},
+            "avec_accident": {"min": 49.4, "moyenne": 152.73, "max": 265.0},
+        },
     },
     "DE": {
-        "adulte": {"min": 227.9, "moyenne": 480.77, "max": 1059.9},
-        "jeune": {"min": 164.1, "moyenne": 400.27, "max": 742.1},
-        "enfant": {"min": 49.85, "moyenne": 130.47, "max": 297.1},
+        "adulte": {
+            "sans_accident": {"min": 227.9, "moyenne": 480.77, "max": 1059.9},
+            "avec_accident": {"min": 245.0, "moyenne": 513.04, "max": 1112.9},
+        },
+        "jeune": {
+            "sans_accident": {"min": 164.1, "moyenne": 400.27, "max": 742.1},
+            "avec_accident": {"min": 176.4, "moyenne": 427.28, "max": 779.2},
+        },
+        "enfant": {
+            "sans_accident": {"min": 49.85, "moyenne": 130.47, "max": 297.1},
+            "avec_accident": {"min": 53.55, "moyenne": 139.19, "max": 311.9},
+        },
     },
     "IT": {
-        "adulte": {"min": 279.0, "moyenne": 408.09, "max": 487.2},
-        "jeune": {"min": 239.6, "moyenne": 343.44, "max": 475.3},
-        "enfant": {"min": 41.2, "moyenne": 113.29, "max": 203.7},
+        "adulte": {
+            "sans_accident": {"min": 279.0, "moyenne": 408.09, "max": 487.2},
+            "avec_accident": {"min": 300.0, "moyenne": 436.15, "max": 513.3},
+        },
+        "jeune": {
+            "sans_accident": {"min": 239.6, "moyenne": 343.44, "max": 475.3},
+            "avec_accident": {"min": 257.6, "moyenne": 367.09, "max": 511.0},
+        },
+        "enfant": {
+            "sans_accident": {"min": 41.2, "moyenne": 113.29, "max": 203.7},
+            "avec_accident": {"min": 44.3, "moyenne": 121.09, "max": 219.0},
+        },
     },
     "AT": {
-        "adulte": {"min": 299.4, "moyenne": 495.84, "max": 748.1},
-        "jeune": {"min": 239.6, "moyenne": 411.67, "max": 551.0},
-        "enfant": {"min": 63.1, "moyenne": 135.99, "max": 211.2},
+        "adulte": {
+            "sans_accident": {"min": 299.4, "moyenne": 495.84, "max": 748.1},
+            "avec_accident": {"min": 321.9, "moyenne": 529.97, "max": 790.0},
+        },
+        "jeune": {
+            "sans_accident": {"min": 239.6, "moyenne": 411.67, "max": 551.0},
+            "avec_accident": {"min": 257.6, "moyenne": 440.08, "max": 592.5},
+        },
+        "enfant": {
+            "sans_accident": {"min": 63.1, "moyenne": 135.99, "max": 211.2},
+            "avec_accident": {"min": 67.8, "moyenne": 145.34, "max": 227.0},
+        },
     },
 }
 # Pays de référence pour un pays de résidence hors dataset (LI n'est pas
@@ -808,10 +847,18 @@ class FrontalierSegmentService:
                 "référence France)"
             )
         classe = "enfant" if age < 19 else ("jeune" if age < 26 else "adulte")
-        classe_data = pays_data[classe]
+        # Le salarié suisse (>= 8 h/sem) est couvert LAA -> sans accident.
+        # Les MEMBRES DE FAMILLE n'ont pas la LAA -> variante avec accident,
+        # classe adulte en borne haute (revue Codex P1 : le sans-accident
+        # uniforme sous-estimait chaque proche et pouvait inverser la
+        # comparaison — AT : 495.84 sans vs 529.97 avec, résidence 513.33).
+        classe_data = pays_data[classe]["sans_accident"]
         prime_base = classe_data["moyenne"]
+        prime_proches = pays_data["adulte"]["avec_accident"]["moyenne"]
 
-        prime_lamal_mensuelle = round(prime_base * family_size, 2)
+        prime_lamal_mensuelle = round(
+            prime_base + prime_proches * max(0, family_size - 1), 2
+        )
         prime_lamal_annuelle = round(prime_lamal_mensuelle * 12, 2)
 
         # Prime pays de residence

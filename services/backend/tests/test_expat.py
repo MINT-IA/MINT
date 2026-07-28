@@ -420,13 +420,14 @@ class TestLamalOption:
         cls_map = {"AKL-ERW": "adulte", "AKL-JUG": "jeune", "AKL-KIN": "enfant"}
         assert str(LAMAL_FRONTALIER_MILLESIME) in arch["meta"]["profil"]
         for pays, classes in arch["primes_chf_mois"].items():
-            for akl, cellule in classes.items():
-                table = LAMAL_FRONTALIER_PRIMES[pays][cls_map[akl]]
-                for champ in ("min", "moyenne", "max"):
-                    assert table[champ] == cellule[champ], (
-                        f"{pays}.{cls_map[akl]}.{champ}: "
-                        f"table {table[champ]} != archive {cellule[champ]}"
-                    )
+            for akl, variantes in classes.items():
+                for variante, cellule in variantes.items():
+                    table = LAMAL_FRONTALIER_PRIMES[pays][cls_map[akl]][variante]
+                    for champ in ("min", "moyenne", "max"):
+                        assert table[champ] == cellule[champ], (
+                            f"{pays}.{cls_map[akl]}.{variante}.{champ}: "
+                            f"table {table[champ]} != archive {cellule[champ]}"
+                        )
 
     def test_pays_sans_donnees_explicite(self, frontalier_service):
         """Pays hors dataset (LI) : reference France, EXPLICITEMENT nommee."""
@@ -436,15 +437,20 @@ class TestLamalOption:
         assert result.prime_lamal_mensuelle == 520.89
         assert "France" in result.recommandation
 
-    def test_family_size_multiplier(self, frontalier_service):
-        """Family size > 1 should multiply the premium."""
-        result_single = frontalier_service.estimate_lamal_option(
-            age=35, canton="ZH", family_size=1, residence_country="FR",
-        )
+    def test_family_composition_avec_accident_pour_les_proches(self, frontalier_service):
+        """Les membres de famille n'ont PAS la LAA : variante avec accident.
+
+        Golden mis a jour (revue Codex P1) : l'ancien x3 uniforme au tarif
+        sans-accident sous-estimait chaque proche (le salarie seul est
+        couvert LAA) et pouvait inverser la comparaison (AT : 495.84 sans
+        vs residence 513.33, avec = 529.97). Attendu : salarie sans-accident
+        + (n-1) adultes avec-accident.
+        """
         result_family = frontalier_service.estimate_lamal_option(
             age=35, canton="ZH", family_size=3, residence_country="FR",
         )
-        assert result_family.prime_lamal_annuelle == result_single.prime_lamal_annuelle * 3
+        attendu = round(520.89 + 2 * 556.75, 2)
+        assert result_family.prime_lamal_mensuelle == attendu
 
     def test_all_residence_countries(self, frontalier_service):
         """All residence countries should return valid results."""
