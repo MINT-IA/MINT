@@ -829,55 +829,6 @@ class SDe extends S {
       'Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).';
 
   @override
-  String get coachingAge25Title => '25 Jahre: Säule 3a eröffnen';
-
-  @override
-  String get coachingAge25Message =>
-      'Mit 25 ist der ideale Zeitpunkt, eine Säule 3a zu eröffnen. Dank Zinseszins zählt jedes Jahr.';
-
-  @override
-  String get coachingAge35Title => '35 Jahre: Vorsorge-Check';
-
-  @override
-  String get coachingAge35Message =>
-      'Mit 35 sollten Sie prüfen, ob Ihre Vorsorge auf Kurs ist. Haben Sie eine 3a? Reicht Ihre BVG?';
-
-  @override
-  String get coachingAge45Title => '45 Jahre: Strategie optimieren';
-
-  @override
-  String get coachingAge45Message =>
-      'Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt ist der Moment, deinen 3a-Spielraum, mögliche BVG-Einkäufe und deine Trajektorie zu prüfen.';
-
-  @override
-  String get coachingAge50Title => '50 Jahre: Rente vorbereiten';
-
-  @override
-  String get coachingAge50Message =>
-      'Mit 50 rückt die Rente näher. Prüfen Sie Ihr BVG-Guthaben und planen Sie letzte Einkäufe.';
-
-  @override
-  String get coachingAge55Title => '55 Jahre: Letzte Etappe';
-
-  @override
-  String get coachingAge55Message =>
-      'Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Gestaffelte 3a-Bezüge können den Steuereffekt verändern.';
-
-  @override
-  String get coachingAge58Title => '58 Jahre: Frühpensionierung möglich';
-
-  @override
-  String get coachingAge58Message =>
-      'Ab 58 können Sie einen vorzeitigen Bezug Ihrer 2. Säule in Betracht ziehen. Achtung: Die Rente wird gekürzt.';
-
-  @override
-  String get coachingAge63Title => '63 Jahre: Letzte Anpassungen';
-
-  @override
-  String get coachingAge63Message =>
-      '2 Jahre vor der Rente: Strategie finalisieren. Letzter BVG-Einkauf, Wahl Rente/Kapital.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -12411,17 +12362,9 @@ class SDe extends S {
   String get reportRetirementSource => 'Quellen: BVG Art. 14, BVV3, AHVG';
 
   @override
-  String get reportRetirement3aNone =>
-      'Noch kein 3a — abzugsfähiger Spielraum anhand deines LPP-Status zu schätzen';
-
-  @override
   String reportRetirement3aNoneWithRoom(String amount) {
     return 'Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF $amount/Jahr';
   }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 Säule-3a-Konto — öffne ein 2. zur Auszahlungsoptimierung';
 
   @override
   String reportRetirement3aMulti(int count) {

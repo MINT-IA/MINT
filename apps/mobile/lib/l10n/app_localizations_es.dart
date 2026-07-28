@@ -824,55 +824,6 @@ class SEs extends S {
       'Información educativa, no asesoramiento jurídico (LSFin/CC).';
 
   @override
-  String get coachingAge25Title => '25 anos: abrir el 3er pilar';
-
-  @override
-  String get coachingAge25Message =>
-      'A los 25 anos es el momento ideal para abrir un 3er pilar. Gracias al interes compuesto, cada ano cuenta.';
-
-  @override
-  String get coachingAge35Title => '35 anos: revision de prevision';
-
-  @override
-  String get coachingAge35Message =>
-      'A los 35 anos, verifica que tu prevision va por buen camino. ?Tienes un 3a? ?Tu LPP es suficiente?';
-
-  @override
-  String get coachingAge45Title => '45 anos: optimizar la estrategia';
-
-  @override
-  String get coachingAge45Message =>
-      'A los 45 anos, quedan 20 anos para la jubilacion. Es el momento de revisar tu margen 3a, posibles recompras LPP y tu trayectoria.';
-
-  @override
-  String get coachingAge50Title => '50 anos: preparar la jubilacion';
-
-  @override
-  String get coachingAge50Message =>
-      'A los 50 anos, la jubilacion se acerca. Verifica tu haber LPP y planifica los ultimos rescates.';
-
-  @override
-  String get coachingAge55Title => '55 anos: ultima recta';
-
-  @override
-  String get coachingAge55Message =>
-      'A los 55 anos, la planificacion fiscal del retiro se vuelve crucial. Escalonar los retiros 3a puede modificar el impacto fiscal.';
-
-  @override
-  String get coachingAge58Title => '58 anos: jubilacion anticipada posible';
-
-  @override
-  String get coachingAge58Message =>
-      'A partir de los 58 anos, un retiro anticipado del 2º pilar es posible. Atencion: la renta sera reducida.';
-
-  @override
-  String get coachingAge63Title => '63 anos: ultimos ajustes';
-
-  @override
-  String get coachingAge63Message =>
-      'A 2 anos de la jubilacion legal: finalizar la estrategia. Ultimo rescate LPP, eleccion renta/capital.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -12389,17 +12340,9 @@ class SEs extends S {
   String get reportRetirementSource => 'Fuentes: LPP art. 14, OPP3, LAVS';
 
   @override
-  String get reportRetirement3aNone =>
-      'Aún sin 3a — margen deducible a estimar según tu situación LPP';
-
-  @override
   String reportRetirement3aNoneWithRoom(String amount) {
     return 'Aún sin 3a — margen deducible estimado: CHF $amount/año';
   }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 cuenta 3a — abre una 2.a para optimizar el retiro';
 
   @override
   String reportRetirement3aMulti(int count) {

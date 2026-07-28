@@ -277,20 +277,6 @@
   "successionEdu3aBody": "El 3er pilar se paga directamente segun la OPP3, no segun tu testamento.",
   "successionEduConcubinBody": "Los companeros no tienen derechos sucesorios legales. Sin testamento, no reciben nada.",
   "successionDisclaimer": "Información educativa, no asesoramiento jurídico (LSFin/CC).",
-  "coachingAge25Title": "25 anos: abrir el 3er pilar",
-  "coachingAge25Message": "A los 25 anos es el momento ideal para abrir un 3er pilar. Gracias al interes compuesto, cada ano cuenta.",
-  "coachingAge35Title": "35 anos: revision de prevision",
-  "coachingAge35Message": "A los 35 anos, verifica que tu prevision va por buen camino. ?Tienes un 3a? ?Tu LPP es suficiente?",
-  "coachingAge45Title": "45 anos: optimizar la estrategia",
-  "coachingAge45Message": "A los 45 anos, quedan 20 anos para la jubilacion. Es el momento de revisar tu margen 3a, posibles recompras LPP y tu trayectoria.",
-  "coachingAge50Title": "50 anos: preparar la jubilacion",
-  "coachingAge50Message": "A los 50 anos, la jubilacion se acerca. Verifica tu haber LPP y planifica los ultimos rescates.",
-  "coachingAge55Title": "55 anos: ultima recta",
-  "coachingAge55Message": "A los 55 anos, la planificacion fiscal del retiro se vuelve crucial. Escalonar los retiros 3a puede modificar el impacto fiscal.",
-  "coachingAge58Title": "58 anos: jubilacion anticipada posible",
-  "coachingAge58Message": "A partir de los 58 anos, un retiro anticipado del 2º pilar es posible. Atencion: la renta sera reducida.",
-  "coachingAge63Title": "63 anos: ultimos ajustes",
-  "coachingAge63Message": "A 2 anos de la jubilacion legal: finalizar la estrategia. Ultimo rescate LPP, eleccion renta/capital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Funcionalidad en preparacion — consulta regulatoria FINMA en curso",
   "openBankingAddBank": "Anadir un banco",
@@ -5758,8 +5744,6 @@
   "reportRetirementTitle": "Tu Jubilación",
   "reportRetirementKeyLabel": "Ingreso estimado a los 65 años",
   "reportRetirementSource": "Fuentes: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Aún sin 3a — margen deducible a estimar según tu situación LPP",
-  "reportRetirement3aNoneWithRoom": "Aún sin 3a — margen deducible estimado: CHF {amount}/año",
   "@reportRetirement3aNoneWithRoom": {
     "placeholders": {
       "amount": {
@@ -5767,8 +5751,6 @@
       }
     }
   },
-  "reportRetirement3aOne": "1 cuenta 3a — abre una 2.a para optimizar el retiro",
-  "reportRetirement3aMulti": "{count} cuentas 3a — buena diversificación",
   "@reportRetirement3aMulti": {
     "placeholders": {
       "count": {

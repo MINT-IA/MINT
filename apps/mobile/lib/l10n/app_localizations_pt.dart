@@ -823,55 +823,6 @@ class SPt extends S {
       'Informação educativa, não aconselhamento jurídico (LSFin/CC).';
 
   @override
-  String get coachingAge25Title => '25 anos: abrir o 3º pilar';
-
-  @override
-  String get coachingAge25Message =>
-      'Aos 25 anos e o momento ideal para abrir um 3º pilar. Gracas aos juros compostos, cada ano conta.';
-
-  @override
-  String get coachingAge35Title => '35 anos: ponto de situação de previdência';
-
-  @override
-  String get coachingAge35Message =>
-      'Aos 35 anos, verifica que a tua previdência está no bom caminho. Tens um 3a? A tua LPP é suficiente?';
-
-  @override
-  String get coachingAge45Title => '45 anos: otimizar a estrategia';
-
-  @override
-  String get coachingAge45Message =>
-      'Aos 45 anos, faltam 20 anos para a reforma. É o momento de verificar a tua margem 3a, possíveis recompras LPP e a tua trajetória.';
-
-  @override
-  String get coachingAge50Title => '50 anos: preparar a reforma';
-
-  @override
-  String get coachingAge50Message =>
-      'Aos 50 anos, a reforma aproxima-se. Verifica o teu haver LPP e planeia os ultimos resgates.';
-
-  @override
-  String get coachingAge55Title => '55 anos: ultima reta';
-
-  @override
-  String get coachingAge55Message =>
-      'Aos 55 anos, o planeamento fiscal do levantamento torna-se crucial. Escalonar os levantamentos 3a pode alterar o impacto fiscal.';
-
-  @override
-  String get coachingAge58Title => '58 anos: reforma antecipada possível';
-
-  @override
-  String get coachingAge58Message =>
-      'A partir dos 58 anos, um levantamento antecipado do 2º pilar é possível. Atenção: a renda será reduzida.';
-
-  @override
-  String get coachingAge63Title => '63 anos: ultimos ajustes';
-
-  @override
-  String get coachingAge63Message =>
-      'A 2 anos da reforma legal: finalizar a estrategia. Ultimo resgate LPP, escolha renda/capital.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -12384,17 +12335,9 @@ class SPt extends S {
   String get reportRetirementSource => 'Fontes: LPP art. 14, OPP3, LAVS';
 
   @override
-  String get reportRetirement3aNone =>
-      'Ainda sem 3a — margem dedutível a estimar segundo o teu estatuto LPP';
-
-  @override
   String reportRetirement3aNoneWithRoom(String amount) {
     return 'Ainda sem 3a — margem dedutível estimada: CHF $amount/ano';
   }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 conta 3a — abre uma 2.ª para otimizar o levantamento';
 
   @override
   String reportRetirement3aMulti(int count) {

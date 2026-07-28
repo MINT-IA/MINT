@@ -826,56 +826,6 @@ class SIt extends S {
       'Informazione educativa, non consulenza legale (LSerFi/CC).';
 
   @override
-  String get coachingAge25Title => '25 anni: aprire il 3° pilastro';
-
-  @override
-  String get coachingAge25Message =>
-      'A 25 anni è il momento ideale per aprire un 3° pilastro. Grazie all\'interesse composto, ogni anno conta.';
-
-  @override
-  String get coachingAge35Title => '35 anni: verifica previdenziale';
-
-  @override
-  String get coachingAge35Message =>
-      'A 35 anni, verificate che la vostra previdenza sia sulla buona strada. Avete un 3a? Il vostro LPP è sufficiente?';
-
-  @override
-  String get coachingAge45Title => '45 anni: ottimizzare la strategia';
-
-  @override
-  String get coachingAge45Message =>
-      'A 45 anni restano 20 anni alla pensione. È il momento di verificare il margine 3a, eventuali riscatti LPP e la tua traiettoria.';
-
-  @override
-  String get coachingAge50Title => '50 anni: preparare la pensione';
-
-  @override
-  String get coachingAge50Message =>
-      'A 50 anni la pensione si avvicina. Verificate il vostro avere LPP e pianificate gli ultimi riscatti.';
-
-  @override
-  String get coachingAge55Title => '55 anni: ultimo tratto';
-
-  @override
-  String get coachingAge55Message =>
-      'A 55 anni la pianificazione fiscale del prelievo diventa cruciale. Scaglionare i prelievi 3a può modificare l\'impatto fiscale.';
-
-  @override
-  String get coachingAge58Title =>
-      '58 anni: pensionamento anticipato possibile';
-
-  @override
-  String get coachingAge58Message =>
-      'Dai 58 anni, un prelievo anticipato del 2° pilastro è possibile. Attenzione: la rendita sarà ridotta.';
-
-  @override
-  String get coachingAge63Title => '63 anni: ultimi aggiustamenti';
-
-  @override
-  String get coachingAge63Message =>
-      'A 2 anni dalla pensione legale: finalizzare la strategia. Ultimo riscatto LPP, scelta rendita/capitale.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -12414,17 +12364,9 @@ class SIt extends S {
   String get reportRetirementSource => 'Fonti: LPP art. 14, OPP3, LAVS';
 
   @override
-  String get reportRetirement3aNone =>
-      'Ancora nessun 3a — margine deducibile da stimare secondo il tuo stato LPP';
-
-  @override
   String reportRetirement3aNoneWithRoom(String amount) {
     return 'Ancora nessun 3a — margine deducibile stimato: CHF $amount/anno';
   }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 conto 3a — apri un 2° per ottimizzare il prelievo';
 
   @override
   String reportRetirement3aMulti(int count) {

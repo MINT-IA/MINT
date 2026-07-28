@@ -824,55 +824,6 @@ class SFr extends S {
       'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.';
 
   @override
-  String get coachingAge25Title => '25 ans : démarrer son 3e pilier';
-
-  @override
-  String get coachingAge25Message =>
-      'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.';
-
-  @override
-  String get coachingAge35Title => '35 ans : faire le point prévoyance';
-
-  @override
-  String get coachingAge35Message =>
-      'À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?';
-
-  @override
-  String get coachingAge45Title => '45 ans : optimiser sa stratégie';
-
-  @override
-  String get coachingAge45Message =>
-      'À 45 ans, il reste 20 ans avant la retraite. C\'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.';
-
-  @override
-  String get coachingAge50Title => '50 ans : préparer sa retraite';
-
-  @override
-  String get coachingAge50Message =>
-      'À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.';
-
-  @override
-  String get coachingAge55Title => '55 ans : dernière ligne droite';
-
-  @override
-  String get coachingAge55Message =>
-      'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l\'impact fiscal.';
-
-  @override
-  String get coachingAge58Title => '58 ans : retraite anticipée possible';
-
-  @override
-  String get coachingAge58Message =>
-      'Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.';
-
-  @override
-  String get coachingAge63Title => '63 ans : derniers ajustements';
-
-  @override
-  String get coachingAge63Message =>
-      'À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -12390,17 +12341,9 @@ class SFr extends S {
   String get reportRetirementSource => 'Sources : LPP art. 14, OPP3, LAVS';
 
   @override
-  String get reportRetirement3aNone =>
-      'Pas encore de 3a — marge déductible à estimer selon ton statut LPP';
-
-  @override
   String reportRetirement3aNoneWithRoom(String amount) {
     return 'Pas encore de 3a — marge déductible estimée : CHF $amount/an';
   }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 compte 3a — ouvre un 2e pour optimiser le retrait';
 
   @override
   String reportRetirement3aMulti(int count) {

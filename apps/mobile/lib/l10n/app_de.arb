@@ -277,20 +277,6 @@
   "successionEdu3aBody": "Die Säule 3a wird direkt gemäss BVV3 ausbezahlt, nicht gemäss Ihrem Testament.",
   "successionEduConcubinBody": "Konkubinatspartner haben kein gesetzliches Erbrecht. Ohne Testament erhalten sie nichts.",
   "successionDisclaimer": "Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).",
-  "coachingAge25Title": "25 Jahre: Säule 3a eröffnen",
-  "coachingAge25Message": "Mit 25 ist der ideale Zeitpunkt, eine Säule 3a zu eröffnen. Dank Zinseszins zählt jedes Jahr.",
-  "coachingAge35Title": "35 Jahre: Vorsorge-Check",
-  "coachingAge35Message": "Mit 35 sollten Sie prüfen, ob Ihre Vorsorge auf Kurs ist. Haben Sie eine 3a? Reicht Ihre BVG?",
-  "coachingAge45Title": "45 Jahre: Strategie optimieren",
-  "coachingAge45Message": "Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt ist der Moment, deinen 3a-Spielraum, mögliche BVG-Einkäufe und deine Trajektorie zu prüfen.",
-  "coachingAge50Title": "50 Jahre: Rente vorbereiten",
-  "coachingAge50Message": "Mit 50 rückt die Rente näher. Prüfen Sie Ihr BVG-Guthaben und planen Sie letzte Einkäufe.",
-  "coachingAge55Title": "55 Jahre: Letzte Etappe",
-  "coachingAge55Message": "Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Gestaffelte 3a-Bezüge können den Steuereffekt verändern.",
-  "coachingAge58Title": "58 Jahre: Frühpensionierung möglich",
-  "coachingAge58Message": "Ab 58 können Sie einen vorzeitigen Bezug Ihrer 2. Säule in Betracht ziehen. Achtung: Die Rente wird gekürzt.",
-  "coachingAge63Title": "63 Jahre: Letzte Anpassungen",
-  "coachingAge63Message": "2 Jahre vor der Rente: Strategie finalisieren. Letzter BVG-Einkauf, Wahl Rente/Kapital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Funktion in Vorbereitung — regulatorische Konsultation FINMA lauft",
   "openBankingAddBank": "Bank hinzufugen",
@@ -5758,8 +5744,6 @@
   "reportRetirementTitle": "Deine Rente",
   "reportRetirementKeyLabel": "Geschätztes Einkommen mit 65",
   "reportRetirementSource": "Quellen: BVG Art. 14, BVV3, AHVG",
-  "reportRetirement3aNone": "Noch kein 3a — abzugsfähiger Spielraum anhand deines LPP-Status zu schätzen",
-  "reportRetirement3aNoneWithRoom": "Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF {amount}/Jahr",
   "@reportRetirement3aNoneWithRoom": {
     "placeholders": {
       "amount": {
@@ -5767,8 +5751,6 @@
       }
     }
   },
-  "reportRetirement3aOne": "1 Säule-3a-Konto — öffne ein 2. zur Auszahlungsoptimierung",
-  "reportRetirement3aMulti": "{count} Säule-3a-Konten — gute Diversifikation",
   "@reportRetirement3aMulti": {
     "placeholders": {
       "count": {

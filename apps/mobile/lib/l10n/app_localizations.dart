@@ -1629,90 +1629,6 @@ abstract class S {
   /// **'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.'**
   String get successionDisclaimer;
 
-  /// No description provided for @coachingAge25Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'25 ans : démarrer son 3e pilier'**
-  String get coachingAge25Title;
-
-  /// No description provided for @coachingAge25Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.'**
-  String get coachingAge25Message;
-
-  /// No description provided for @coachingAge35Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'35 ans : faire le point prévoyance'**
-  String get coachingAge35Title;
-
-  /// No description provided for @coachingAge35Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?'**
-  String get coachingAge35Message;
-
-  /// No description provided for @coachingAge45Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'45 ans : optimiser sa stratégie'**
-  String get coachingAge45Title;
-
-  /// No description provided for @coachingAge45Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 45 ans, il reste 20 ans avant la retraite. C\'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.'**
-  String get coachingAge45Message;
-
-  /// No description provided for @coachingAge50Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'50 ans : préparer sa retraite'**
-  String get coachingAge50Title;
-
-  /// No description provided for @coachingAge50Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.'**
-  String get coachingAge50Message;
-
-  /// No description provided for @coachingAge55Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'55 ans : dernière ligne droite'**
-  String get coachingAge55Title;
-
-  /// No description provided for @coachingAge55Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l\'impact fiscal.'**
-  String get coachingAge55Message;
-
-  /// No description provided for @coachingAge58Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'58 ans : retraite anticipée possible'**
-  String get coachingAge58Title;
-
-  /// No description provided for @coachingAge58Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.'**
-  String get coachingAge58Message;
-
-  /// No description provided for @coachingAge63Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'63 ans : derniers ajustements'**
-  String get coachingAge63Title;
-
-  /// No description provided for @coachingAge63Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.'**
-  String get coachingAge63Message;
-
   /// No description provided for @openBankingTitle.
   ///
   /// In fr, this message translates to:
@@ -21859,23 +21775,11 @@ abstract class S {
   /// **'Sources : LPP art. 14, OPP3, LAVS'**
   String get reportRetirementSource;
 
-  /// No description provided for @reportRetirement3aNone.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore de 3a — marge déductible à estimer selon ton statut LPP'**
-  String get reportRetirement3aNone;
-
   /// No description provided for @reportRetirement3aNoneWithRoom.
   ///
   /// In fr, this message translates to:
   /// **'Pas encore de 3a — marge déductible estimée : CHF {amount}/an'**
   String reportRetirement3aNoneWithRoom(String amount);
-
-  /// No description provided for @reportRetirement3aOne.
-  ///
-  /// In fr, this message translates to:
-  /// **'1 compte 3a — ouvre un 2e pour optimiser le retrait'**
-  String get reportRetirement3aOne;
 
   /// No description provided for @reportRetirement3aMulti.
   ///

@@ -823,55 +823,6 @@ class SEn extends S {
       'Educational information, not legal advice (FinSA/CC). Consult a specialist for your situation.';
 
   @override
-  String get coachingAge25Title => '25: Start your pillar 3a';
-
-  @override
-  String get coachingAge25Message =>
-      'At 25, it\'s the ideal time to open a pillar 3a. Thanks to compound interest, every year counts.';
-
-  @override
-  String get coachingAge35Title => '35: Pension check-up';
-
-  @override
-  String get coachingAge35Message =>
-      'At 35, verify your pension is on track. Do you have a 3a? Is your pension fund sufficient?';
-
-  @override
-  String get coachingAge45Title => '45: Optimise your strategy';
-
-  @override
-  String get coachingAge45Message =>
-      'At 45, there are 20 years until retirement. Time to check your 3a room, possible pension fund buybacks and trajectory.';
-
-  @override
-  String get coachingAge50Title => '50: Prepare for retirement';
-
-  @override
-  String get coachingAge50Message =>
-      'At 50, retirement is approaching. Check your pension fund balance and plan your final buybacks.';
-
-  @override
-  String get coachingAge55Title => '55: The final stretch';
-
-  @override
-  String get coachingAge55Message =>
-      'At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals can change the tax impact.';
-
-  @override
-  String get coachingAge58Title => '58: Early retirement possible';
-
-  @override
-  String get coachingAge58Message =>
-      'From 58, early withdrawal of your 2nd pillar is possible. Note: the pension will be reduced.';
-
-  @override
-  String get coachingAge63Title => '63: Final adjustments';
-
-  @override
-  String get coachingAge63Message =>
-      '2 years from retirement: finalise your strategy. Last pension buyback, annuity vs lump sum choice.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -12317,17 +12268,9 @@ class SEn extends S {
   String get reportRetirementSource => 'Sources: LPP art. 14, OPP3, LAVS';
 
   @override
-  String get reportRetirement3aNone =>
-      'No 3a yet — deductible room to estimate from your LPP status';
-
-  @override
   String reportRetirement3aNoneWithRoom(String amount) {
     return 'No 3a yet — estimated deductible room: CHF $amount/year';
   }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 pillar 3a account — open a 2nd to optimise withdrawal';
 
   @override
   String reportRetirement3aMulti(int count) {
