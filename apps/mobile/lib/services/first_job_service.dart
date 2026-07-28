@@ -295,7 +295,7 @@ class FirstJobService {
     return const [
       'Comparer les types de 3a avant de signer (banque, titres, assurance-vie)',
       'Choisir ta franchise LAMal sur priminfo.admin.ch',
-      'Souscrire une RC privee (~CHF 5/mois)',
+      'Comparer une RC privée (coût courant ~CHF 5/mois)', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
       'Verifier ton certificat de prévoyance LPP',
       'Preparer ta premiere declaration fiscale',
       'Mettre en place un virement epargne automatique (10-20% du net)',
