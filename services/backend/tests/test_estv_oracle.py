@@ -100,6 +100,21 @@ def test_oracle_fixture_present_or_skip() -> None:
     assert len(VECTORS) > 0
 
 
+def test_oracle_fixture_matrice_complete() -> None:
+    """La fixture porte la matrice ENTIÈRE : 26 cantons × (6 revenus + 4
+    capitaux) = 260 vecteurs. Sans cette borne, une capture partielle (panne
+    transitoire ESTV) réduirait la couverture en silence — les tests ne
+    paramètrent que les vecteurs présents (revue Codex P1)."""
+    if not VECTORS:
+        pytest.skip("fixture vide — couvert par test_oracle_fixture_present_or_skip")
+    assert len(VECTORS) == 260, len(VECTORS)
+    par_canton: dict[str, int] = {}
+    for v in VECTORS:
+        par_canton[v["canton"]] = par_canton.get(v["canton"], 0) + 1
+    assert len(par_canton) == 26, sorted(par_canton)
+    assert all(n == 10 for n in par_canton.values()), par_canton
+
+
 @pytest.mark.parametrize("v", VECTORS, ids=VECTOR_IDS)
 def test_mint_matches_estv(v: dict) -> None:
     """Par vecteur hors-nœud : l'interpolation MINT reste dans la bande de

@@ -323,6 +323,12 @@ def main() -> int:
     )
     parser.add_argument("--sleep", type=float, default=0.3, help="Pause entre requêtes ESTV (politesse).")
     parser.add_argument("--dry-run", action="store_true", help="Capture + rapport, sans écrire le JSONL.")
+    parser.add_argument(
+        "--allow-partial", action="store_true",
+        help="Autorise l'écriture d'une capture incomplète (défaut : refus — "
+        "une panne transitoire ne doit pas réduire silencieusement la "
+        "couverture de l'oracle, revue Codex).",
+    )
     args = parser.parse_args()
 
     vectors, gate = capture(args.sleep)
@@ -358,6 +364,20 @@ def main() -> int:
     if args.dry_run:
         print("[capture] --dry-run : rien écrit.", file=sys.stderr)
         return 0
+
+    # Matrice attendue complète : toute capture partielle est REFUSÉE par
+    # défaut — les tests ne paramètrent que les vecteurs présents, donc une
+    # fixture partielle réduirait la couverture en silence jusqu'au refresh
+    # suivant (revue Codex P1).
+    attendu = len(CANTONS) * (len(INCOME_OFFNODE) + len(CAPITAL_OFFNODE))
+    if len(vectors) != attendu and not args.allow_partial:
+        print(
+            f"[capture] REFUS d'écrire : {len(vectors)}/{attendu} vecteurs "
+            "capturés (échecs hors-nœud ou cantons hors porte). Relance, ou "
+            "force en connaissance de cause avec --allow-partial.",
+            file=sys.stderr,
+        )
+        return 1
 
     _write_jsonl(args.output, vectors)
     print(f"[capture] écrit {len(vectors)} vecteurs -> {args.output}", file=sys.stderr)
