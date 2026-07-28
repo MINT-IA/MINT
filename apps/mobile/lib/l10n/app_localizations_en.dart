@@ -2844,7 +2844,7 @@ class SEn extends S {
   String get firstJobActivityRate => 'Activity rate';
 
   @override
-  String get firstJob3aHeader => 'PILLAR 3A — OPEN NOW';
+  String get firstJob3aHeader => 'PILLAR 3A — TO CONSIDER';
 
   @override
   String get firstJob3aAnnualCap => 'Annual cap';
@@ -7907,7 +7907,7 @@ class SEn extends S {
   String get firstSalaryBefore31Dec => 'Before Dec 31';
 
   @override
-  String get firstSalaryTask1 => 'Open a 3a account (bank or fintech)';
+  String get firstSalaryTask1 => 'Compare 3a accounts (bank or fintech)';
 
   @override
   String get firstSalaryTask2 => 'Set up an automatic monthly transfer';
@@ -11123,7 +11123,7 @@ class SEn extends S {
   String get pillar3aIndepBonASavoir => 'Good to know';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Open multiple 3a accounts';
+  String get pillar3aIndepEduComptesTitle => 'Multiple 3a accounts, a staggered withdrawal';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -11794,7 +11794,7 @@ class SEn extends S {
   String get retroactive3aProchainesEtapes => 'Next steps';
 
   @override
-  String get retroactive3aOuvrirCompte => 'Open a 3a account';
+  String get retroactive3aOuvrirCompte => 'Consider a dedicated 3a account';
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
@@ -17430,7 +17430,7 @@ class SEn extends S {
 
   @override
   String get indepPlanOuvrir3a =>
-      'Open 3a account (deduction up to CHF 36,288)';
+      'Compare 3a accounts (deduction up to CHF 36,288)';
 
   @override
   String get indepProtApg => 'Disappears — parental leave';
