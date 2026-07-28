@@ -23,7 +23,6 @@ from app.services.expat.frontalier_service import (
     AC_TAUX_EMPLOYE,
     AC_PLAFOND,
     AC_SOLIDARITE_TAUX,
-    LAMAL_PRIMES_MENSUELLES,
 )
 from app.services.expat.expat_service import (
     ExpatService,

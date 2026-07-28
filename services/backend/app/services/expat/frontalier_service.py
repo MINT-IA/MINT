@@ -226,22 +226,47 @@ CHARGES_SOCIALES_PAYS = {
 }
 
 # ---------------------------------------------------------------------------
-# Primes LAMal estimees (LAMal art. 61, OPAS)
-# Primes mensuelles moyennes pour adultes avec franchise 300, 2025
+# Primes LAMal frontaliers — par PAYS DE RÉSIDENCE (LAMal art. 3, OLCP art. 9)
 # ---------------------------------------------------------------------------
+# L'ancienne table par CANTON DE TRAVAIL a été SUPPRIMÉE le 2026-07-28 : un
+# frontalier paie une prime spécifique à son pays de résidence, pas celle du
+# canton où il travaille — la comparaison LAMal/assurance-résidence pouvait
+# en être inversée (constat PR #1077, ADR 2026-07-28-remplacements §8).
+# Ne pas la réintroduire.
+#
+# Source primaire : priminfo.admin.ch/downloads/gesamtbericht_eu.xlsx
+# (répertoire OFSP des primes UE/AELE), Geschäftsjahr 2026, téléchargé et
+# archivé le 2026-07-28 avec méthode d'extraction :
+# .planning/audit-etat-des-lieux-2026-07/constants-audit/
+# lamal_frontaliers_2026/extraction_fr300_sans_accident.json
+# Profil : franchise 300, SANS accident (salarié suisse couvert LAA
+# employeur), min/moyenne/max inter-assureurs (n=13-14).
+# Rafraîchissement annuel : publication OFSP fin septembre.
 
-LAMAL_PRIMES_MENSUELLES = {
-    # Canton: prime mensuelle moyenne adulte, franchise 300 CHF
-    # Source: OFSP, primes LAMal 2025
-    "GE": 580.0, "VD": 540.0, "BS": 520.0, "BE": 480.0,
-    "ZH": 460.0, "TI": 500.0, "LU": 430.0, "AG": 440.0,
-    "SG": 420.0, "FR": 470.0, "VS": 430.0, "NE": 510.0,
-    "JU": 490.0, "SO": 450.0, "BL": 470.0, "SH": 430.0,
-    "TG": 410.0, "GR": 400.0, "ZG": 380.0, "SZ": 400.0,
-    "OW": 390.0, "NW": 380.0, "UR": 400.0, "GL": 410.0,
-    "AR": 400.0, "AI": 380.0,
+LAMAL_FRONTALIER_MILLESIME = 2026
+
+LAMAL_FRONTALIER_PRIMES = {
+    # pays de résidence -> classe d'âge -> {min, moyenne, max} CHF/mois
+    "FR": {
+        "adulte": {"min": 200.0, "moyenne": 520.89, "max": 823.1},
+        "jeune": {"min": 180.0, "moyenne": 436.77, "max": 760.7},
+    },
+    "DE": {
+        "adulte": {"min": 227.9, "moyenne": 480.77, "max": 1059.9},
+        "jeune": {"min": 164.1, "moyenne": 400.27, "max": 742.1},
+    },
+    "IT": {
+        "adulte": {"min": 279.0, "moyenne": 408.09, "max": 487.2},
+        "jeune": {"min": 239.6, "moyenne": 343.44, "max": 475.3},
+    },
+    "AT": {
+        "adulte": {"min": 299.4, "moyenne": 495.84, "max": 748.1},
+        "jeune": {"min": 239.6, "moyenne": 411.67, "max": 551.0},
+    },
 }
-_DEFAULT_LAMAL_PRIME = 460.0
+# Pays de référence pour un pays de résidence hors dataset (LI n'est pas
+# dans gesamtbericht_eu) — TOUJOURS nommé explicitement dans le texte rendu.
+_LAMAL_PAYS_REFERENCE = "FR"
 
 # Primes mensuelles estimees dans les pays voisins (securite sociale + complementaire)
 # Source: estimations basees sur les systemes de sante respectifs
@@ -765,11 +790,21 @@ class FrontalierSegmentService:
         canton_upper = canton.upper()
         country = residence_country.upper()
 
-        # Prime LAMal
-        prime_base = LAMAL_PRIMES_MENSUELLES.get(canton_upper, _DEFAULT_LAMAL_PRIME)
-        # Ajustement age (jeune adulte 19-25 : ~25% reduction)
-        if age < 26:
-            prime_base = round(prime_base * 0.75, 2)
+        # Prime LAMal frontalier : par PAYS DE RÉSIDENCE (registre OFSP
+        # priminfo UE/AELE) — le canton de travail ne fixe PAS cette prime.
+        pays_data = LAMAL_FRONTALIER_PRIMES.get(country)
+        pays_reference_note = ""
+        if pays_data is None:
+            # Pays hors dataset (ex. LI) : référence France, TOUJOURS
+            # nommée explicitement dans le texte rendu — pas de défaut muet.
+            pays_data = LAMAL_FRONTALIER_PRIMES[_LAMAL_PAYS_REFERENCE]
+            pays_reference_note = (
+                " (donnees indisponibles pour ton pays de residence : "
+                "reference France)"
+            )
+        classe = "jeune" if 19 <= age < 26 else "adulte"
+        classe_data = pays_data[classe]
+        prime_base = classe_data["moyenne"]
 
         prime_lamal_mensuelle = round(prime_base * family_size, 2)
         prime_lamal_annuelle = round(prime_lamal_mensuelle * 12, 2)
@@ -788,26 +823,35 @@ class FrontalierSegmentService:
 
         economie_lamal = round(prime_residence_annuelle - prime_lamal_annuelle, 2)
 
+        plage = (
+            f"primes {LAMAL_FRONTALIER_MILLESIME} selon l'assureur : de "
+            f"CHF {classe_data['min']:,.0f} a CHF {classe_data['max']:,.0f}"
+            f"/mois (moyenne utilisee ici : CHF {classe_data['moyenne']:,.0f})"
+            f"{pays_reference_note}"
+        )
         if economie_lamal > 0:
             recommandation = (
                 f"L'option LAMal est potentiellement avantageuse : tu economiserais "
                 f"~CHF {economie_lamal:,.0f}/an par rapport a l'assurance {country}. "
-                f"Attention : la LAMal n'est pas subventionnee pour les frontaliers "
-                f"(pas de reduction de prime). Compare les prestations couvertes."
+                f"{plage}. Attention : la LAMal n'est pas subventionnee pour les "
+                f"frontaliers (pas de reduction de prime). Compare les prestations "
+                f"couvertes."
             )
         else:
             recommandation = (
                 f"L'assurance dans ton pays de residence ({country}) est potentiellement "
                 f"plus avantageuse : ~CHF {abs(economie_lamal):,.0f}/an moins cher que la LAMal. "
-                f"Cependant, la LAMal offre un acces direct au systeme de sante suisse, "
-                f"ce qui peut etre un avantage pratique si tu travailles en Suisse."
+                f"{plage}. Cependant, la LAMal offre un acces direct au systeme de "
+                f"sante suisse, ce qui peut etre un avantage pratique si tu "
+                f"travailles en Suisse."
             )
 
         sources = [
             "LAMal art. 3 (assurance obligatoire des personnes residant en Suisse)",
             "LAMal art. 6 (exceptions et droit d'option)",
             "OLCP art. 9 (droit d'option des frontaliers)",
-            "OPAS (ordonnance sur les prestations de l'assurance obligatoire)",
+            f"Primes LAMal frontaliers : registre OFSP priminfo UE/AELE, "
+            f"millesime {LAMAL_FRONTALIER_MILLESIME}, franchise 300, sans accident",
             residence_data.get("source", ""),
         ]
 
