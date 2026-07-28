@@ -12,7 +12,6 @@ import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
-import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
 
@@ -173,21 +172,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             _buildEducationalFooter(),
             const SizedBox(height: 24),
             // ── P15-A : Les 3 surprises de la vente ──────────
-            // SaleSurprisesWidget calcule en interne avec des taux forfaitaires
-            // (constantes enfouies, pas d'entree montant). On ne le rend donc
-            // QUE pour un canton calibre, ou le resultat officiel fait foi.
-            // TODO(P5-suivi) : cabler ses chiffres sur le resultat calibre ou
-            // le retirer (son modele interne peut differer de la carte impot).
-            if (_result != null && _result!.modeleGain == 'calibre') ...[
-              SaleSurprisesWidget(
-                salePrice: _prixVente,
-                purchasePrice: _prixAchat,
-                eplWithdrawn: _eplLppUtilise + _epl3aUtilise,
-                holdingYears: 2025 - _anneeAchat,
-                canton: _canton,
-              ),
-              const SizedBox(height: 24),
-            ],
+            // SaleSurprisesWidget calcule l'impot avec un taux forfaitaire
+            // interne (constantes enfouies, pas d'entree montant) : sur un
+            // canton calibre il contredirait la carte impot officielle sur le
+            // meme ecran. Retire du rendu tant qu'il n'est pas cable sur le
+            // verdict calibre. TODO(P5-suivi) : cabler ou supprimer le widget.
             // ── P15-B : Net réel calculateur ─────────────────────
             // Uniquement quand l'impot est chiffre (canton calibre).
             if (_result != null && _result!.impotEffectif != null) ...[
