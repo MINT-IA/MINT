@@ -334,6 +334,29 @@ class TestNetGrossPlausibilityBand:
     d'assurances sociales et de l'etalon fiscal ESTV, au revenu de l'utilisateur.
     """
 
+    def test_ac_plafonnee_au_salaire_assure(self):
+        """Revue Codex P2 : l'AC (1.1%) est plafonnee au salaire assure
+        (LACI) — au-dela, le taux de charges DIMINUE avec le salaire."""
+        from app.services.precision.precision_service import (
+            _employee_social_charge_rate,
+        )
+        from app.constants.social_insurance import (
+            AC_PLAFOND_SALAIRE_ASSURE,
+            AVS_COTISATION_SALARIE,
+            AC_COTISATION_SALARIE,
+        )
+
+        sous_plafond = _employee_social_charge_rate(100000, 0.0)
+        assert sous_plafond == pytest.approx(
+            AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE
+        )
+        au_dessus = _employee_social_charge_rate(300000, 0.0)
+        attendu = AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE * (
+            AC_PLAFOND_SALAIRE_ASSURE / 300000
+        )
+        assert au_dessus == pytest.approx(attendu)
+        assert au_dessus < sous_plafond
+
     def test_aucune_table_canton_net_ratio_dans_le_module(self):
         """Le residu `_CANTON_NET_RATIO` a ete draine — plus de constante."""
         import inspect

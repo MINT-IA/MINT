@@ -32,8 +32,10 @@ from app.constants.social_insurance import (
     LPP_SALAIRE_COORDONNE_MIN,
     LPP_SALAIRE_COORDONNE_MAX,
     LPP_TAUX_INTERET_MIN,
+    AVS_COTISATION_SALARIE,
     AVS_DUREE_COTISATION_COMPLETE,
-    COTISATIONS_SALARIE_TOTAL,
+    AC_COTISATION_SALARIE,
+    AC_PLAFOND_SALAIRE_ASSURE,
     PILIER_3A_PLAFOND_AVEC_LPP,
     get_lpp_bonification_rate,
 )
@@ -796,10 +798,13 @@ def _employee_social_charge_rate(salary: float, lpp_bonification_rate: float) ->
     """Charges sociales du salarie (part employe) en fraction du salaire BRUT.
 
     Composantes :
-    - AVS/AI/APG + AC = ``COTISATIONS_SALARIE_TOTAL`` (6.4% ; AVS_COTISATION_SALARIE
-      regroupe AI et APG, cf. social_insurance.py). L'AC solidaire au-dela du
-      plafond (LACI) est ignoree : elle n'abaisse les charges que des tres hauts
-      revenus, jamais la borne pertinente de la bande.
+    - AVS/AI/APG = ``AVS_COTISATION_SALARIE`` (5.3%, regroupe AI et APG,
+      cf. social_insurance.py) sur TOUT le salaire ; AC (1.1%) plafonnee au
+      salaire assure ``AC_PLAFOND_SALAIRE_ASSURE`` (LACI — revue Codex :
+      appliquer l'AC au-dela du plafond sous-estimait le net des hauts
+      revenus). L'AC solidaire au-dela du plafond est ignoree : elle
+      n'abaisse les charges que des tres hauts revenus, jamais la borne
+      pertinente de la bande.
     - LPP : la part du salarie vaut au plus la moitie de la bonification de
       vieillesse (l'employeur cotise au moins autant que le salarie, LPP art. 66
       al. 1), appliquee au salaire coordonne. Sous le seuil d'entree (LPP art. 7)
@@ -810,7 +815,8 @@ def _employee_social_charge_rate(salary: float, lpp_bonification_rate: float) ->
     """
     if salary <= 0:
         return 0.0
-    rate = COTISATIONS_SALARIE_TOTAL
+    ac_assiette = min(salary, AC_PLAFOND_SALAIRE_ASSURE)
+    rate = AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE * (ac_assiette / salary)
     if salary >= LPP_SEUIL_ENTREE and lpp_bonification_rate > 0:
         coordonne = max(salary - LPP_DEDUCTION_COORDINATION, LPP_SALAIRE_COORDONNE_MIN)
         coordonne = min(coordonne, LPP_SALAIRE_COORDONNE_MAX)
@@ -846,7 +852,8 @@ def _net_gross_ratio_band(salary: float, canton: str):
     if salary <= 0 or canton_code not in CANTONAL_COMMUNAL_TAX_CHF:
         return None
 
-    ratio_max = 1.0 - COTISATIONS_SALARIE_TOTAL
+    # Charges minimales au salaire reel : AVS pleine + AC plafonnee, LPP nulle.
+    ratio_max = 1.0 - _employee_social_charge_rate(salary, 0.0)
 
     lpp_bonif_max = get_lpp_bonification_rate(_LPP_BONIFICATION_AGE_MAX)
     charges_max = _employee_social_charge_rate(salary, lpp_bonif_max) + _ANP_IJM_RATE_MAX
