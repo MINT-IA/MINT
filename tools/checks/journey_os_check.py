@@ -715,9 +715,13 @@ ALLOW = {
     # injecté au coach par le RAG. Le taux dépend du revenu — le coach est
     # dirigé vers l'étalon fiscal (cantonal_comparator.estimate_marginal_rate)
     # plutôt que de recevoir un scalaire cantonal démenti par l'écran.
+    # Second volet : la directive n'est mandatée que si l'outil fiscal est
+    # réellement atteignable dans la requête (rag.py ne relaie que les tools
+    # annoncés par le client) — sinon variante sans outil + renvoi simulation.
     "services/backend/app/services/rag/cantonal_knowledge.py",
     "services/backend/tests/test_cantonal_knowledge.py",
     "services/backend/tests/test_rag_s67_wiring.py",
+    "services/backend/app/api/v1/endpoints/rag.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

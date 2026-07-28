@@ -38,6 +38,29 @@ from app.services.coach.context_packet_sanitizer import summarize_coach_context_
 
 logger = logging.getLogger(__name__)
 
+# Coach fiscal tool that yields an income-dependent marginal rate. The cantonal
+# system-prompt block only mandates it when it is actually reachable in the
+# current request (see `fiscal_marginal_tool_available` / `build_system_prompt`).
+_FISCAL_MARGINAL_TOOL = "cantonal_comparator__estimate_marginal_rate"
+
+
+def fiscal_marginal_tool_available(tools: Optional[list]) -> bool:
+    """Return True when the request's tool list exposes the fiscal marginal tool.
+
+    A marginal rate depends on income, so the cantonal enrichment must never hand
+    the coach a static number. When the fiscal tool is reachable the prompt
+    mandates it; otherwise it forbids any figure and redirects to the in-app
+    simulation. Detection is a substring match on each tool's ``name`` (Anthropic
+    tool-definition format) so it tolerates the ``cantonal_comparator__`` prefix.
+    """
+    if not tools:
+        return False
+    for tool in tools:
+        name = tool.get("name", "") if isinstance(tool, dict) else tool
+        if "estimate_marginal_rate" in str(name):
+            return True
+    return False
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Post-filter regexes (2026-04-15 — PR A prompt hardening)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -629,6 +652,7 @@ class ComplianceGuardrails:
         self,
         language: str = "fr",
         profile_context: Optional[dict] = None,
+        fiscal_tools_available: bool = False,
     ) -> str:
         """Return the MINT compliance system prompt for the given language.
 
@@ -637,6 +661,14 @@ class ComplianceGuardrails:
 
         If profile_context contains a canton field, canton-specific tax
         and housing data are injected so Claude is canton-aware.
+
+        ``fiscal_tools_available`` gates the marginal-rate directive. Both
+        variants stay figure-free (a marginal rate depends on income), but the
+        wording differs: when the fiscal tool is reachable in this request it is
+        mandated; otherwise the prompt forbids any figure and redirects to the
+        in-app simulation. Callers must pass this from their actual tool list
+        (defaults to the safe, tool-less variant) — never mandate a tool the
+        request cannot reach.
         """
         base = self.SYSTEM_PROMPTS.get(language, self.SYSTEM_PROMPTS["fr"])
 
@@ -657,12 +689,20 @@ class ComplianceGuardrails:
                 canton_lines: list[str] = [f"Canton de l'utilisateur: {canton.upper()}"]
 
                 if tax:
-                    canton_lines.append(
-                        "Taux marginal cantonal+communal: dépend du revenu — "
-                        "utilise l'outil fiscal "
-                        "(cantonal_comparator__estimate_marginal_rate) pour tout "
-                        "chiffre; ne jamais avancer un taux marginal sans cet appel."
-                    )
+                    if fiscal_tools_available:
+                        canton_lines.append(
+                            "Taux marginal cantonal+communal: dépend du revenu — "
+                            "utilise l'outil fiscal "
+                            f"({_FISCAL_MARGINAL_TOOL}) pour tout chiffre; "
+                            "ne jamais avancer un taux marginal sans cet appel."
+                        )
+                    else:
+                        canton_lines.append(
+                            "Taux marginal cantonal+communal: dépend du revenu — "
+                            "n'avance JAMAIS de taux marginal chiffré; renvoie "
+                            "vers la simulation fiscale de l'app pour un chiffre "
+                            "personnalisé."
+                        )
                     canton_lines.append(
                         f"Impôt sur la fortune (‰): {tax['wealth_tax_rate_permille']}"
                     )
