@@ -28,6 +28,11 @@ Ethical requirements:
 from dataclasses import dataclass
 from typing import List, Dict
 
+from app.services.fiscal.succession_donation_socle import (
+    CATEGORIES as SOCLE_CATEGORIES,
+    verdict as socle_verdict,
+)
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Constants
@@ -50,49 +55,24 @@ SOURCES: List[str] = [
     "Lois cantonales sur l'impot sur les donations",
 ]
 
-# Tax rates on donations by canton and relationship.
-# Many cantons exempt spouse and direct descendants.
-# Concubins and third parties pay the highest rates.
-TAUX_DONATION_CANTONAL: Dict[str, Dict[str, float]] = {
-    "ZH": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.0,
-        "fratrie": 0.06, "concubin": 0.18, "tiers": 0.24,
-    },
-    "BE": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.0,
-        "fratrie": 0.06, "concubin": 0.18, "tiers": 0.24,
-    },
-    "VD": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.05,
-        "fratrie": 0.07, "concubin": 0.25, "tiers": 0.25,
-    },
-    "GE": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.0,
-        "fratrie": 0.10, "concubin": 0.24, "tiers": 0.30,
-    },
-    "LU": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.0,
-        "fratrie": 0.08, "concubin": 0.20, "tiers": 0.25,
-    },
-    "BS": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.0,
-        "fratrie": 0.08, "concubin": 0.22, "tiers": 0.28,
-    },
-    "SZ": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.0,
-        "fratrie": 0.0, "concubin": 0.0, "tiers": 0.0,
-    },
-    "OW": {
-        "conjoint": 0.0, "descendant": 0.0, "parent": 0.0,
-        "fratrie": 0.0, "concubin": 0.0, "tiers": 0.0,
-    },
-}
-
-# Default rates for cantons not explicitly listed
-TAUX_DONATION_DEFAULT: Dict[str, float] = {
-    "conjoint": 0.0, "descendant": 0.0, "parent": 0.02,
-    "fratrie": 0.08, "concubin": 0.20, "tiers": 0.25,
-}
+# -----------------------------------------------------------------------------
+# Pas de table de taux de donation par canton — NE PAS EN RECRÉER UNE.
+#
+# TAUX_DONATION_CANTONAL (8 cantons) et TAUX_DONATION_DEFAULT vivaient ici :
+# des taux plats non sourcés, démentis par le socle ESTV 1.1.2025. Erreur la
+# plus grave : LU y figurait à fratrie 8 %/tiers 25 % alors que Lucerne ne
+# prélève AUCUN impôt sur les donations (reprise dans la masse successorale
+# si décès dans les 5 ans). « VD parent 5 % » contre un barème progressif
+# 2.970-6.289 % ; VD descendant 0 % implicite alors que la ligne directe y
+# est taxée ; un « défaut » fabriqué servait 18 cantons dont AI, pourtant
+# sourcé.
+#
+# La source de vérité est app/services/fiscal/succession_donation_socle.py
+# (statut / plage sourcée / mécanismes / bascule, parité verrouillée sur
+# l'archive ESTV). Garde anti-résurrection : tools/checks/
+# no_cantonal_rate_table.py. ADR :
+# .planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md
+# -----------------------------------------------------------------------------
 
 # Reserve hereditaire rates (CC art. 470-471, revision 2023)
 # These are the fraction of the LEGAL share that is protected.
@@ -126,10 +106,14 @@ class DonationInput:
 
 @dataclass
 class DonationResult:
-    """Result of donation simulation."""
+    """Result of donation simulation.
+
+    La fiscalité est un VERDICT du socle ESTV (statut / plage sourcée /
+    mécanismes / bascule / source) — plus de taux plat ni d'impôt
+    « montant × taux » (ADR 2026-07-28 P4).
+    """
     montant_donation: float                            # Donation amount
-    taux_imposition: float                             # Tax rate
-    impot_donation: float                              # Tax amount
+    verdict_fiscal: dict                               # Socle verdict (statut, plage, mécanismes, bascule, source)
     reserve_hereditaire_totale: float                  # Total reserved shares
     quotite_disponible: float                          # Freely disposable share
     donation_depasse_quotite: bool                     # Whether donation exceeds quotite
@@ -168,9 +152,15 @@ class DonationService:
         Returns:
             DonationResult with tax, reserves, and compliance outputs.
         """
-        # Tax
-        taux = self._get_tax_rate(input_data.canton, input_data.lien_parente)
-        impot = self._compute_tax(input_data.montant, taux)
+        # Verdict fiscal (socle ESTV — pas de montant × taux).
+        # Lien de parenté hors nomenclature -> classe « tiers » (comme
+        # l'ancien fallback), sans fabriquer de chiffre.
+        categorie = (
+            input_data.lien_parente
+            if input_data.lien_parente in SOCLE_CATEGORIES
+            else "tiers"
+        )
+        verdict_fiscal = socle_verdict(input_data.canton, categorie, "donation")
 
         # Reserve and quotite disponible
         legal_shares = self._compute_legal_shares(input_data)
@@ -190,18 +180,18 @@ class DonationService:
         impact = self._compute_impact_succession(input_data, donation_depasse)
 
         # Compliance outputs
-        checklist = self._generate_checklist(input_data, taux)
+        checklist = self._generate_checklist(input_data, verdict_fiscal)
         alerts = self._generate_alerts(
-            input_data, taux, donation_depasse, depassement, quotite_disponible,
+            input_data, verdict_fiscal, donation_depasse, depassement,
+            quotite_disponible,
         )
         premier_eclairage = self._generate_premier_eclairage(
-            input_data.montant, impot, taux, input_data.lien_parente,
+            input_data.montant, verdict_fiscal, input_data.lien_parente,
         )
 
         return DonationResult(
             montant_donation=round(input_data.montant, 2),
-            taux_imposition=taux,
-            impot_donation=round(impot, 2),
+            verdict_fiscal=verdict_fiscal,
             reserve_hereditaire_totale=round(reserve_totale, 2),
             quotite_disponible=round(quotite_disponible, 2),
             donation_depasse_quotite=donation_depasse,
@@ -217,32 +207,6 @@ class DonationService:
     # ------------------------------------------------------------------
     # Private computation methods
     # ------------------------------------------------------------------
-
-    def _get_tax_rate(self, canton: str, lien_parente: str) -> float:
-        """Get donation tax rate for a given canton and relationship.
-
-        Args:
-            canton: Canton code (e.g. "GE", "VD", "ZH", "SZ").
-            lien_parente: Relationship ("conjoint", "descendant", "parent",
-                          "fratrie", "concubin", "tiers").
-
-        Returns:
-            Tax rate as decimal (e.g. 0.24 for 24%).
-        """
-        canton_rates = TAUX_DONATION_CANTONAL.get(canton, TAUX_DONATION_DEFAULT)
-        return canton_rates.get(lien_parente, canton_rates.get("tiers", 0.25))
-
-    def _compute_tax(self, montant: float, taux: float) -> float:
-        """Compute donation tax amount.
-
-        impot = montant * taux
-
-        Returns:
-            Tax amount (>= 0).
-        """
-        if montant <= 0 or taux <= 0:
-            return 0.0
-        return round(montant * taux, 2)
 
     def _compute_legal_shares(self, data: DonationInput) -> Dict[str, float]:
         """Compute legal shares (parts legales) per CC art. 457-462.
@@ -410,7 +374,7 @@ class DonationService:
     # ------------------------------------------------------------------
 
     def _generate_checklist(
-        self, data: DonationInput, taux: float
+        self, data: DonationInput, verdict_fiscal: dict
     ) -> List[str]:
         """Generate action checklist for donation.
 
@@ -446,10 +410,14 @@ class DonationService:
                 "les conflits lors de la succession"
             )
 
-        if data.lien_parente == "concubin":
+        if data.lien_parente == "concubin" and verdict_fiscal["statut"] in (
+            "taxe", "taxe_lourd",
+        ):
+            bascule = verdict_fiscal.get("bascule") or ""
             checklist.append(
-                f"Attention : ton concubin paiera un impot de donation "
-                f"eleve ({taux * 100:.0f}%) dans le canton de {data.canton}"
+                f"Attention : une donation à un·e concubin·e est imposée "
+                f"dans le canton de {data.canton} (souvent la classe la "
+                f"plus lourde du barème). {bascule}".rstrip()
             )
 
         if data.fortune_totale_donateur > 0:
@@ -468,7 +436,7 @@ class DonationService:
     def _generate_alerts(
         self,
         data: DonationInput,
-        taux: float,
+        verdict_fiscal: dict,
         donation_depasse: bool,
         depassement: float,
         quotite_disponible: float,
@@ -486,10 +454,22 @@ class DonationService:
                 "— les heritiers reserves peuvent la contester"
             )
 
-        if data.lien_parente == "concubin" and taux > 0.15:
+        # Concubin : verdict du socle — message conservé, chiffre plat
+        # retiré, bascule ajoutée (ADR 2026-07-28 P4).
+        if data.lien_parente == "concubin" and verdict_fiscal["statut"] in (
+            "taxe", "taxe_lourd",
+        ):
+            plage = verdict_fiscal.get("plage_max_pct")
+            plage_txt = (
+                f" (jusqu'à ~{plage:.0f}% selon le barème cantonal, hors "
+                f"mécanismes communaux)"
+                if plage is not None
+                else ""
+            )
+            bascule = verdict_fiscal.get("bascule") or ""
             alerts.append(
-                f"Impot de donation eleve pour un concubin dans le canton "
-                f"de {data.canton} : {taux * 100:.0f}%"
+                f"Donation à un·e concubin·e imposée dans le canton "
+                f"de {data.canton}{plage_txt}. {bascule}".rstrip()
             )
 
         if data.type_donation == "immobilier":
@@ -504,10 +484,15 @@ class DonationService:
                 "requalifier cette donation"
             )
 
-        if data.montant > 500_000 and data.lien_parente in ("concubin", "tiers"):
+        if (
+            data.montant > 500_000
+            and data.lien_parente in ("concubin", "tiers")
+            and verdict_fiscal["statut"] in ("taxe", "taxe_lourd")
+        ):
             alerts.append(
                 f"Donation importante a un {data.lien_parente} : l'impot "
-                f"s'eleve a {round(data.montant * taux):,.0f} CHF"
+                f"cantonal de donation peut etre substantiel — fais chiffrer "
+                f"le bareme exact par l'administration fiscale ou un·e notaire"
             )
 
         return alerts
@@ -515,29 +500,55 @@ class DonationService:
     def _generate_premier_eclairage(
         self,
         montant: float,
-        impot: float,
-        taux: float,
+        verdict_fiscal: dict,
         lien_parente: str,
     ) -> dict:
-        """Generate the impact number (premier éclairage).
+        """Generate the impact statement (premier éclairage).
+
+        Verdict directionnel du socle : plage sourcée quand elle existe,
+        jamais un impôt en francs calculé sur un taux plat.
 
         Returns:
             dict with montant and texte.
         """
-        if impot > 0:
-            net = round(montant - impot, 2)
+        statut = verdict_fiscal["statut"]
+        mecanismes = verdict_fiscal.get("mecanismes") or []
+
+        if statut == "exonere":
+            # LU donation : le message dédié du socle prime (pas de 0 muet).
+            lucerne = next((m for m in mecanismes if "Lucerne" in m), None)
+            if lucerne:
+                texte = f"Donation de {montant:,.0f} CHF : {lucerne}"
+            else:
+                texte = (
+                    f"Donation de {montant:,.0f} CHF exonérée d'impôt "
+                    f"pour un·e {lien_parente} dans ce canton."
+                )
+            return {"montant": round(montant, 2), "texte": texte}
+
+        if statut == "inconnu":
             return {
-                "montant": round(impot, 2),
+                "montant": round(montant, 2),
                 "texte": (
-                    f"Impot de donation : {impot:,.0f} CHF "
-                    f"(taux de {taux * 100:.0f}% pour un·e {lien_parente}). "
-                    f"Le donataire recevra effectivement {net:,.0f} CHF net."
+                    f"Donation de {montant:,.0f} CHF : canton non couvert "
+                    f"par le socle ESTV — consulte l'administration fiscale "
+                    f"cantonale."
                 ),
             }
+
+        plage = verdict_fiscal.get("plage_max_pct")
+        plage_txt = (
+            f" — jusqu'à ~{plage:.0f}% selon le barème cantonal (hors "
+            f"mécanismes communaux)"
+            if plage is not None
+            else " selon le barème cantonal"
+        )
+        bascule = verdict_fiscal.get("bascule")
+        bascule_txt = f" {bascule}" if bascule else ""
         return {
             "montant": round(montant, 2),
             "texte": (
-                f"Donation de {montant:,.0f} CHF exoneree d'impot "
-                f"pour un·e {lien_parente} dans ce canton."
+                f"Donation de {montant:,.0f} CHF à un·e {lien_parente} : "
+                f"imposable dans ce canton{plage_txt}.{bascule_txt}"
             ),
         }
