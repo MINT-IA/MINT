@@ -1,4 +1,5 @@
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/succession_donation_socle.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
@@ -476,7 +477,11 @@ class SuccessionResult {
   final double totalEstate;
   final List<String> alerts;
   final List<String> checklist;
-  final Map<String, double> taxByHeir;
+
+  /// Verdict fiscal directionnel par héritier (socle ESTV 1.1.2025) —
+  /// remplace l'ancien `taxByHeir` en montant × taux plat
+  /// (ADR 2026-07-28 P4).
+  final Map<String, SuccessionDonationVerdict> verdictByHeir;
   final String pillar3aBeneficiaryOrder;
 
   const SuccessionResult({
@@ -487,7 +492,7 @@ class SuccessionResult {
     required this.totalEstate,
     required this.alerts,
     required this.checklist,
-    required this.taxByHeir,
+    required this.verdictByHeir,
     required this.pillar3aBeneficiaryOrder,
   });
 }
@@ -546,16 +551,14 @@ class SuccessionService {
       );
     }
 
-    // ---- Tax by Heir ----
-    final taxByHeir = <String, double>{};
+    // ---- Verdict fiscal par héritier (socle ESTV — pas de montant × taux) ----
+    final verdictByHeir = <String, SuccessionDonationVerdict>{};
     final distribution = testamentDistribution ?? legalDistribution;
     for (final heir in distribution) {
-      final tax = _estimateSuccessionTax(
-        amount: heir.amount,
+      verdictByHeir[heir.heirLabel] = SuccessionDonationSocle.verdict(
         canton: input.canton,
-        kinship: _kinshipFromLabel(heir.heirLabel),
+        categorie: _kinshipFromLabel(heir.heirLabel),
       );
-      taxByHeir[heir.heirLabel] = tax;
     }
 
     // ---- 3a Beneficiary Order (OPP3 art. 2) ----
@@ -565,11 +568,23 @@ class SuccessionService {
     final alerts = <String>[];
 
     if (input.civilStatus == CivilStatus.concubinage) {
+      // Message conservé, chiffre/étiquette plat retiré, bascule du socle
+      // ajoutée (ADR 2026-07-28 P4).
+      final concubinVerdict = SuccessionDonationSocle.verdict(
+        canton: input.canton,
+        categorie: 'concubin',
+      );
+      final fiscal = concubinVerdict.statut == 'exonere'
+          ? 'Dans ton canton, une transmission au concubin peut être ' // lint-ignore
+              'exonérée sous condition.' // lint-ignore
+          : 'La fiscalité est aussi nettement plus lourde ' // lint-ignore
+              '(souvent la classe la plus chargée du barème cantonal).'; // lint-ignore
+      final bascule =
+          concubinVerdict.bascule == null ? '' : ' ${concubinVerdict.bascule}';
       alerts.add(
         'En concubinage, ton/ta partenaire n\'a AUCUN droit '
         'successoral legal. Sans testament, il/elle ne recoit '
-        'rien. La fiscalite est aussi nettement plus lourde '
-        '(taux "tiers").',
+        'rien. $fiscal$bascule',
       );
     }
 
@@ -630,7 +645,7 @@ class SuccessionService {
       totalEstate: totalEstate,
       alerts: alerts,
       checklist: checklist,
-      taxByHeir: taxByHeir,
+      verdictByHeir: verdictByHeir,
       pillar3aBeneficiaryOrder: pillar3aOrder,
     );
   }
@@ -805,79 +820,24 @@ class SuccessionService {
     return shares;
   }
 
-  /// Estimate succession tax by canton and kinship.
-  static double _estimateSuccessionTax({
-    required double amount,
-    required String canton,
-    required String kinship,
-  }) {
-    if (amount <= 0) return 0;
+  // --------------------------------------------------------------------
+  // Pas de table de taux successoral par canton — NE PAS EN RECRÉER UNE.
+  //
+  // _successionTaxRates (6 cantons + fallback VD) vivait ici : des taux
+  // plats non sourcés, à l'envers du socle ESTV 1.1.2025 sur au moins
+  // deux cantons (VD enfant 0.0 alors que la ligne directe y est TAXÉE,
+  // déduction 1M par souche ; ZH enfant 0.02 alors que les descendants y
+  // sont EXONÉRÉS). La source de vérité mobile est
+  // lib/services/succession_donation_socle.dart (mini-socle généré,
+  // parité verrouillée sur l'archive ESTV). ADR :
+  // .planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md
+  // --------------------------------------------------------------------
 
-    // In most Swiss cantons, spouse and descendants are exempt or near-exempt.
-    // Concubins and third parties pay significantly more.
-    // Simplified rates:
-    final rates = _successionTaxRates[canton] ?? _successionTaxRates['VD']!;
-    final rate = rates[kinship] ?? rates['tiers']!;
-    return amount * rate;
-  }
-
-  /// Simplified succession tax rates by canton and kinship.
-  static const _successionTaxRates = <String, Map<String, double>>{
-    'VD': {
-      'conjoint': 0.0, // exempt
-      'enfant': 0.0, // exempt
-      'parent': 0.0, // exempt
-      'fratrie': 0.07, // ~7%
-      'concubin': 0.25, // ~25%
-      'tiers': 0.25, // ~25%
-    },
-    'GE': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.24,
-      'tiers': 0.26,
-    },
-    'ZH': {
-      'conjoint': 0.0,
-      'enfant': 0.02, // low rate
-      'parent': 0.02,
-      'fratrie': 0.06,
-      'concubin': 0.18,
-      'tiers': 0.24,
-    },
-    'BE': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.24,
-      'tiers': 0.30,
-    },
-    'LU': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.08,
-      'concubin': 0.20,
-      'tiers': 0.28,
-    },
-    'BS': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.10,
-      'concubin': 0.22,
-      'tiers': 0.25,
-    },
-  };
-
-  /// Determine kinship category from heir label.
+  /// Map heir label to a socle categorie.
   static String _kinshipFromLabel(String label) {
     final lower = label.toLowerCase();
     if (lower.contains('conjoint')) return 'conjoint';
-    if (lower.contains('enfant')) return 'enfant';
+    if (lower.contains('enfant')) return 'descendant';
     if (lower.contains('parent')) return 'parent';
     if (lower.contains('fratrie')) return 'fratrie';
     if (lower.contains('concubin')) return 'concubin';

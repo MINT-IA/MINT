@@ -60,10 +60,11 @@ void main() {
         final archCats = archData['categories'] as Map<String, dynamic>?;
         final statuts = mini['statuts'] as Map<String, String>?;
         final franchises = mini['franchises'] as Map<String, num>?;
+        final notes = mini['notes'] as Map<String, String?>?;
         if (archCats == null) {
           expect(statuts, isNull, reason: '$code.statuts');
           expect(franchises, isNull, reason: '$code.franchises');
-          expect(mini['concubinNote'], isNull, reason: '$code.concubinNote');
+          expect(notes, isNull, reason: '$code.notes');
           continue;
         }
         for (final cat in _categories) {
@@ -71,12 +72,8 @@ void main() {
           expect(statuts![cat], archCat['statut'], reason: '$code.$cat.statut');
           expect(franchises?[cat], archCat['franchise'],
               reason: '$code.$cat.franchise');
+          expect(notes![cat], archCat['note'], reason: '$code.$cat.note');
         }
-        expect(
-          mini['concubinNote'],
-          (archCats['concubin'] as Map<String, dynamic>)['note'],
-          reason: '$code.concubinNote',
-        );
       }
     });
 
