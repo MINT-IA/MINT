@@ -574,9 +574,14 @@ class SuccessionService {
         canton: input.canton,
         categorie: 'concubin',
       );
+      // « sous condition » seulement si le socle porte une bascule (revue
+      // adversariale P3 : ne pas inventer de condition pour GR/ZG/OW/SZ).
       final fiscal = concubinVerdict.statut == 'exonere'
-          ? 'Dans ton canton, une transmission au concubin peut être ' // lint-ignore
-              'exonérée sous condition.' // lint-ignore
+          ? (concubinVerdict.bascule != null
+              ? 'Dans ton canton, une transmission au concubin peut être ' // lint-ignore
+                  'exonérée sous condition.' // lint-ignore
+              : 'Dans ton canton, une transmission au concubin est ' // lint-ignore
+                  'exonérée d\'impôt successoral.') // lint-ignore
           : 'La fiscalité est aussi nettement plus lourde ' // lint-ignore
               '(souvent la classe la plus chargée du barème cantonal).'; // lint-ignore
       final bascule =

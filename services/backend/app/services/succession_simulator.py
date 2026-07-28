@@ -549,10 +549,19 @@ class SuccessionSimulator:
 
         v = socle_verdict(data.canton, "concubin", "succession")
         if v["statut"] == "exonere":
-            fiscal_phrase = (
-                "Dans votre canton, une transmission au concubin peut être "
-                "exonérée sous condition."
-            )
+            # « sous condition » SEULEMENT si le socle en porte une (revue
+            # adversariale P3 : GR/ZG n'ont pas de condition documentée,
+            # OW/SZ n'ont aucun impôt — ne pas inventer de condition).
+            if v.get("bascule"):
+                fiscal_phrase = (
+                    "Dans votre canton, une transmission au concubin peut "
+                    "être exonérée sous condition."
+                )
+            else:
+                fiscal_phrase = (
+                    "Dans votre canton, une transmission au concubin est "
+                    "exonérée d'impôt successoral."
+                )
         else:
             fiscal_phrase = (
                 "De plus, dans votre canton, une transmission au concubin "

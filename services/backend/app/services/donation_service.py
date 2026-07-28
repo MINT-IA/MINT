@@ -491,8 +491,8 @@ class DonationService:
         ):
             alerts.append(
                 f"Donation importante a un {data.lien_parente} : l'impot "
-                f"cantonal de donation peut etre substantiel — fais chiffrer "
-                f"le bareme exact par l'administration fiscale ou un·e notaire"
+                f"cantonal de donation peut être substantiel — fais chiffrer "
+                f"le barème exact par l'administration fiscale ou un·e notaire"
             )
 
         return alerts
