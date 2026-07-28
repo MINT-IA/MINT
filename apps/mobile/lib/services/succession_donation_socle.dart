@@ -11,9 +11,11 @@
 // NE PAS éditer les valeurs à la main : corriger l'archive, régénérer.
 //
 // Champs portés côté mobile (mini-socle) : statuts par catégorie, franchises
-// CHF, note concubin (condition cantonale de la bascule), plafond de la
-// classe au tarif maximal + son caveat. Les notes complètes par catégorie,
-// barèmes de base et impôt communal vivent dans le socle backend.
+// CHF, multiplicateurs par catégorie, notes par catégorie, plafond de la
+// classe au tarif maximal + son caveat, impôt communal (canton-level). Ces
+// champs mécanismes sont alignés cellule par cellule sur le socle backend
+// (parité py↔dart verrouillée). Les barèmes de base détaillés (min/max/forme)
+// restent côté socle backend.
 //
 // MODÈLE (ADR) : verdict directionnel {statut, plage SEULEMENT si sourcée,
 // mécanismes, bascule, source} — plus JAMAIS de « montant × taux plat ».
@@ -94,8 +96,17 @@ class SuccessionDonationSocle {
         'concubin': 'non listé dans les multiplicateurs -> übrige x6 ; franchise 50000 si >=5 ans de ménage commun avec le défunt/donateur', // lint-ignore
         'tiers': null, // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': 'x1', // lint-ignore
+        'fratrie': 'x3', // lint-ignore
+        'concubin': 'x6', // lint-ignore
+        'tiers': 'x6', // lint-ignore
+      },
       'maxEffectifTiersPct': 42,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'BE': {
       'succession': true,
@@ -117,8 +128,17 @@ class SuccessionDonationSocle {
         'concubin': '>=10 ans de ménage commun avec même domicile fiscal : x6 ; sinon tiers x16', // lint-ignore
         'tiers': 'neveux/nièces, beaux-enfants/beaux-parents, oncles/tantes : x11', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': 'x6', // lint-ignore
+        'fratrie': 'x6', // lint-ignore
+        'concubin': 'x6', // lint-ignore
+        'tiers': 'x16', // lint-ignore
+      },
       'maxEffectifTiersPct': 40,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal ; les Einwohnergemeinden reçoivent 20 % du produit cantonal', // lint-ignore
     },
     'LU': {
       'succession': true,
@@ -141,8 +161,17 @@ class SuccessionDonationSocle {
         'concubin': 'exonéré si >=2 ans de relation de type conjugal (eheähnlich) avec le défunt ; déduction 2000 pour Lebenspartner ; sinon übrige 20 %', // lint-ignore
         'tiers': 'taux de base 20 % + surcharge jusqu\'à +100 % ; grands-parents/oncles/tantes/cousins 15 % ; domestiques et employés du défunt 6 % (déduction 2000)', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 40,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'l\'Erbschaftssteuer cantonale est répartie 70 % canton / 30 % commune de taxation ; en outre impôt communal propre possible sur les descendants (max 1 % de base + surcharge)', // lint-ignore
     },
     'UR': {
       'succession': true,
@@ -165,8 +194,17 @@ class SuccessionDonationSocle {
         'concubin': 'exonéré si enfants mineurs communs OU >=5 ans de ménage commun avec même domicile fiscal ; sinon tiers 24 %', // lint-ignore
         'tiers': '24 % (übrige erbberechtigte + non-parents) ; oncles/tantes/descendants de fratrie 12 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 24,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal ; répartition du produit : 10 % préciput canton, solde 50 % canton / 50 % communes', // lint-ignore
     },
     'SZ': {
       'succession': false,
@@ -174,8 +212,10 @@ class SuccessionDonationSocle {
       'statuts': null,
       'franchises': null,
       'notes': null,
+      'multiplicateurs': null,
       'maxEffectifTiersPct': 0,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'ni le canton ni les communes (politiques et ecclésiastiques) ne prélèvent d\'impôt sur les successions et donations', // lint-ignore
     },
     'OW': {
       'succession': false,
@@ -183,8 +223,10 @@ class SuccessionDonationSocle {
       'statuts': null,
       'franchises': null,
       'notes': null,
+      'multiplicateurs': null,
       'maxEffectifTiersPct': 0,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'ni le canton ni les communes (politiques et ecclésiastiques) ne prélèvent d\'impôt sur les successions et donations', // lint-ignore
     },
     'NW': {
       'succession': true,
@@ -207,8 +249,17 @@ class SuccessionDonationSocle {
         'concubin': 'exonéré si >=5 ans de communauté d\'habitation durable au même domicile ; sinon tiers 15 %', // lint-ignore
         'tiers': '15 % (übrige) ; oncles/tantes et leurs descendants 10 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 15,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'GL': {
       'succession': true,
@@ -230,8 +281,17 @@ class SuccessionDonationSocle {
         'concubin': '4 % (assimilé fratrie) si >=5 ans de ménage commun de type conjugal avant la libéralité ; sinon übrige 10 %', // lint-ignore
         'tiers': '10 % + surcharge', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 25,
       'maxEffectifTiersNote': '10 % x 2.5 (surcharge +150 %) = 25 % ; jusqu\'à 30 % si Bausteuerzuschlag de 20 % appliqué', // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'ZG': {
       'succession': true,
@@ -254,8 +314,17 @@ class SuccessionDonationSocle {
         'concubin': '« Lebenspartner » exonérés — aucune condition de durée précisée dans la source', // lint-ignore
         'tiers': 'beaux-enfants/beaux-parents 20 % ; grands-parents/oncles/tantes/enfants de fratrie 60 % ; petits-enfants de fratrie/enfants d\'oncles-tantes 80 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': '40 % du montant d\'impôt du barème', // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': '100 % du montant d\'impôt du barème', // lint-ignore
+      },
       'maxEffectifTiersPct': 20,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal ; 100 % du produit revient aux Einwohnergemeinden', // lint-ignore
     },
     'FR': {
       'succession': true,
@@ -277,8 +346,17 @@ class SuccessionDonationSocle {
         'concubin': '8.25 % si ménage commun >=10 ans avec même domicile fiscal ; sinon 22 %', // lint-ignore
         'tiers': '22 % ; neveux/oncles 8.25 %, petits-neveux 10.50 %, cousins 12.75 %, descendants de cousins 17.25 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 22,
       'maxEffectifTiersNote': 'hors centimes additionnels communaux ; avec centimes (max 70 % selon complément) : jusqu\'à 37.4 %', // lint-ignore
+      'communal': 'les communes sont autorisées à prélever des centimes additionnels à l\'impôt cantonal (Steuermäppchen sans plafond chiffré ; complément dossier FR déc. 2024 : max 70 % de l\'impôt cantonal, utilisé par toutes les communes sauf Pierrafortscha)', // lint-ignore
     },
     'SO': {
       'succession': true,
@@ -300,8 +378,17 @@ class SuccessionDonationSocle {
         'concubin': '>=5 ans de ménage commun ininterrompu avec même domicile fiscal au moment de la naissance de la créance fiscale : Klasse 3 (6-18 %) ; sinon Klasse 5', // lint-ignore
         'tiers': '12-36 % ; oncles/tantes/neveux/nièces Klasse 4 (9-27 %)', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': 'Klasse 2', // lint-ignore
+        'concubin': 'Klasse 3', // lint-ignore
+        'tiers': 'Klasse 5', // lint-ignore
+      },
       'maxEffectifTiersPct': 36,
       'maxEffectifTiersNote': 'marginal max Klasse 5 AVANT multiple annuel (non chiffré dans la source) et hors Nachlasstaxe (max 17 pour mille)', // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'BS': {
       'succession': true,
@@ -323,8 +410,17 @@ class SuccessionDonationSocle {
         'concubin': '6 % de base (« Personen in nichtehelichen Zusammenlebensformen ») — aucune condition de durée précisée dans la source', // lint-ignore
         'tiers': '18 % de base ; neveux/nièces 8 %, oncles/tantes/beaux-frères 10 %, autres parents avec droit successoral 14 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 49.5,
       'maxEffectifTiersNote': '18 % x 2.75 (surcharge +175 % au-delà de 3000000)', // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'BL': {
       'succession': true,
@@ -346,8 +442,17 @@ class SuccessionDonationSocle {
         'concubin': '15 % si >=5 ans de ménage commun ininterrompu ; sinon übrige 30 % (franchise 10000)', // lint-ignore
         'tiers': '30 % ; oncles/tantes/neveux/cousins etc. 22.5 % (franchise 20000)', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 30,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal (part au produit non mentionnée dans la source)', // lint-ignore
     },
     'SH': {
       'succession': true,
@@ -369,8 +474,17 @@ class SuccessionDonationSocle {
         'concubin': 'aucune disposition spécifique dans la source -> übrige x5', // lint-ignore
         'tiers': 'autres parents souche parentale x3, souche grand-parentale x4', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': 'x1', // lint-ignore
+        'fratrie': 'x2', // lint-ignore
+        'concubin': 'x5', // lint-ignore
+        'tiers': 'x5', // lint-ignore
+      },
       'maxEffectifTiersPct': 50,
       'maxEffectifTiersNote': '10 % x 5 (marginal) ; au-delà de 700000 : 8 % x 5 = 40 % sur la totalité', // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'AR': {
       'succession': true,
@@ -392,8 +506,17 @@ class SuccessionDonationSocle {
         'concubin': '12 % (« nicht verheiratete Lebenspartner ») — aucune condition de durée précisée dans la source ; déduction 10000 par dévolution', // lint-ignore
         'tiers': '32 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 32,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal ; les Einwohnergemeinden reçoivent 50 % du produit cantonal', // lint-ignore
     },
     'AI': {
       'succession': true,
@@ -415,8 +538,17 @@ class SuccessionDonationSocle {
         'concubin': 'non mentionné dans la source -> übrige 20 %', // lint-ignore
         'tiers': '20 % ; nièces/neveux 9 %, tantes/oncles/Pflegekinder/Stiefeltern 12 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 20,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'SG': {
       'succession': true,
@@ -438,8 +570,17 @@ class SuccessionDonationSocle {
         'concubin': '10 % (Konkubinatspartner) — aucune condition de durée précisée dans la source', // lint-ignore
         'tiers': '30 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 30,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'GR': {
       'succession': true,
@@ -462,8 +603,17 @@ class SuccessionDonationSocle {
         'concubin': 'Konkubinatspartner exonérés — aucune condition de durée précisée dans la source', // lint-ignore
         'tiers': '15 % (übrige)', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 15,
       'maxEffectifTiersNote': 'cantonal seul ; impôt communal FACULTATIF en sus (ex. Chur : 20 % pour les tiers -> jusqu\'à 35 % cumulé ; complément dossier FR : communal max 25 % pour les autres bénéficiaires)', // lint-ignore
+      'communal': 'aucune part au produit cantonal ; Erbschafts-/Schenkungssteuer communale FACULTATIVE selon les règles du StG cantonal (exemple Stadt Chur : souche parentale 5 %, autres bénéficiaires 20 %)', // lint-ignore
     },
     'AG': {
       'succession': true,
@@ -485,8 +635,17 @@ class SuccessionDonationSocle {
         'concubin': '>=5 ans de ménage commun (même domicile) : Klasse 1, 4-9 % ; sinon Klasse 3', // lint-ignore
         'tiers': 'barème progressif 12-32 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': 'Klasse 2', // lint-ignore
+        'concubin': 'Klasse 1', // lint-ignore
+        'tiers': 'Klasse 3', // lint-ignore
+      },
       'maxEffectifTiersPct': 32,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal ; la commune de domicile (ou de situation des biens) reçoit 1/3 du produit cantonal', // lint-ignore
     },
     'TG': {
       'succession': true,
@@ -508,8 +667,17 @@ class SuccessionDonationSocle {
         'concubin': 'non mentionné dans la source -> übrige 8 % de base -> max 28 %', // lint-ignore
         'tiers': '8 % de base ; oncles/tantes/descendants de fratrie 6 % (max 21 %)', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 28,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal, aucune part au produit cantonal', // lint-ignore
     },
     'TI': {
       'succession': true,
@@ -531,8 +699,17 @@ class SuccessionDonationSocle {
         'concubin': 'non mentionné dans la source -> non-parents x3.0, taux max 35 %', // lint-ignore
         'tiers': 'neveux/oncles/beaux-parents x1.3 (max 18.5 %) ; petits-neveux/cousins/beaux-fils x1.8 (max 27 %)', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': 'x1.0', // lint-ignore
+        'concubin': 'x3.0', // lint-ignore
+        'tiers': 'x3.0', // lint-ignore
+      },
       'maxEffectifTiersPct': 35,
       'maxEffectifTiersNote': 'plafond EXPLICITE « Taux maximum en % » de la source pour la classe x3.0 (sans plafond, 17.85 x 3 = 53.55)', // lint-ignore
+      'communal': 'aucun impôt communal', // lint-ignore
     },
     'VD': {
       'succession': true,
@@ -554,8 +731,17 @@ class SuccessionDonationSocle {
         'concubin': 'non mentionné dans la source -> autres collatéraux et personnes non apparentées : 17.820-25.000 %', // lint-ignore
         'tiers': '17.820 % (part 20000) à 25.000 % (part 500000, extrait) ; oncles/tantes/neveux 8.910-16.500 % ; grands-oncles/cousins 13.860-20.000 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 25,
       'maxEffectifTiersNote': 'valeur au palier 500000 de l\'extrait de barème publié (barème complet non reproduit dans la source) ; hors centimes communaux : avec centimes max (100 % de l\'impôt cantonal), jusqu\'à 50 %', // lint-ignore
+      'communal': 'les communes de domicile du défunt/donateur peuvent prélever des centimes additionnels jusqu\'à concurrence de l\'impôt cantonal (max un franc par franc perçu par l\'État = +100 %) ; pas de participation au rendement cantonal', // lint-ignore
     },
     'VS': {
       'succession': true,
@@ -578,8 +764,17 @@ class SuccessionDonationSocle {
         'concubin': 'exonéré si concubinage éprouvé >=5 ans OU enfant en commun ; sinon autres attributions 25 %', // lint-ignore
         'tiers': '25 % ; parentèle des grands-parents 15 %, des arrière-grands-parents 20 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 25,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal ; les communes participent à raison de 2/3 au rendement net de l\'impôt cantonal', // lint-ignore
     },
     'NE': {
       'succession': true,
@@ -601,8 +796,17 @@ class SuccessionDonationSocle {
         'concubin': '20 % si ménage commun >=5 ans avec le défunt/donateur ; sinon 45 % (sans degré de parenté)', // lint-ignore
         'tiers': '45 % (bénéficiaires sans degré de parenté) ; neveux 18 %, oncles/tantes 20 %, petits-neveux 21 %, cousins 23 %, alliés 2e parentèle 31 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 45,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal, aucune participation au produit cantonal', // lint-ignore
     },
     'GE': {
       'succession': true,
@@ -624,8 +828,17 @@ class SuccessionDonationSocle {
         'concubin': 'non mentionné dans la source -> autres bénéficiaires', // lint-ignore
         'tiers': 'succession : 20-26 % (>100000) ; donation : 24-26 % ; oncles/tantes/neveux : 8-13 % (succession) / 10.5-14 % (donation) ; + centimes additionnels cantonaux', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 26,
       'maxEffectifTiersNote': 'hors CENTIMES ADDITIONNELS CANTONAUX : fixés chaque année par le Grand Conseil, taux NON CHIFFRÉ dans les deux sources ; aucun centime sur la 1ère catégorie (ligne directe, conjoint, alliés). La charge effective tiers est donc supérieure à 26 % sans que la source permette de la chiffrer', // lint-ignore
+      'communal': 'aucun impôt communal, aucune participation au produit cantonal (la surtaxe en centimes est cantonale)', // lint-ignore
     },
     'JU': {
       'succession': true,
@@ -647,8 +860,17 @@ class SuccessionDonationSocle {
         'concubin': '14 % si ménage commun >10 ans avec le défunt/donateur (idem ses descendants et ceux de l\'ex-concubin >10 ans) ; sinon 35 %', // lint-ignore
         'tiers': '35 % (autres parents, parents par alliance, sans parenté) ; oncles/tantes/neveux/cousins/beaux-frères 21 %', // lint-ignore
       },
+      'multiplicateurs': <String, String?>{
+        'conjoint': null, // lint-ignore
+        'descendant': null, // lint-ignore
+        'parent': null, // lint-ignore
+        'fratrie': null, // lint-ignore
+        'concubin': null, // lint-ignore
+        'tiers': null, // lint-ignore
+      },
       'maxEffectifTiersPct': 35,
       'maxEffectifTiersNote': null, // lint-ignore
+      'communal': 'aucun impôt communal ; les communes participent à raison de 20 % au rendement de l\'impôt cantonal', // lint-ignore
     },
   };
 
@@ -682,6 +904,9 @@ class SuccessionDonationSocle {
       );
     }
 
+    // Communal (canton-level) — miroir du socle backend, empilé en dernier.
+    final communal = data['communal'] as String?;
+
     // Canton sans cet impôt (SZ/OW toujours ; LU côté donation).
     final leveCetImpot = data[typeTransmission] == true;
     if (!leveCetImpot) {
@@ -691,6 +916,7 @@ class SuccessionDonationSocle {
         mecanismes: [
           if (code == 'LU' && typeTransmission == 'donation')
             _luDonationMessage,
+          if (communal != null) 'Communal : $communal', // lint-ignore
         ],
         bascule: null,
         source: source,
@@ -701,25 +927,32 @@ class SuccessionDonationSocle {
     final statut = statuts[categorie]!;
 
     double? plageMaxPct;
-    final mecanismes = <String>[];
     if (statut == 'taxe_lourd') {
       final maxPct = data['maxEffectifTiersPct'] as num?;
-      if (maxPct != null && maxPct > 0) {
-        plageMaxPct = maxPct.toDouble();
-        final maxNote = data['maxEffectifTiersNote'] as String?;
-        if (maxNote != null) mecanismes.add(maxNote);
-      }
+      if (maxPct != null && maxPct > 0) plageMaxPct = maxPct.toDouble();
     }
 
+    // Ordre des mécanismes aligné sur le socle backend (parité py↔dart) :
+    // franchise -> multiplicateur -> note -> maxNote -> communal.
+    final mecanismes = <String>[];
     final franchises = data['franchises'] as Map<String, num>?;
     final franchise = franchises?[categorie];
     if (franchise != null) {
-      mecanismes.insert(0, 'Franchise ${_fmtChf(franchise)} CHF');
+      mecanismes.add('Franchise ${_fmtChf(franchise)} CHF');
     }
-
+    final multiplicateurs = data['multiplicateurs'] as Map<String, String?>?;
+    final multiplicateur = multiplicateurs?[categorie];
+    if (multiplicateur != null) {
+      mecanismes.add('Multiplicateur $multiplicateur'); // lint-ignore
+    }
     final notes = data['notes'] as Map<String, String?>?;
     final note = notes?[categorie];
     if (note != null) mecanismes.add(note);
+    if (plageMaxPct != null) {
+      final maxNote = data['maxEffectifTiersNote'] as String?;
+      if (maxNote != null) mecanismes.add(maxNote);
+    }
+    if (communal != null) mecanismes.add('Communal : $communal'); // lint-ignore
 
     // Pas de bascule pour une exonération inconditionnelle (GR/ZG) : la
     // source ne documente aucune condition, on n'en suggère pas une.

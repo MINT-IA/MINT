@@ -56,15 +56,19 @@ void main() {
             reason: '$code.maxEffectifTiersPct');
         expect(mini['maxEffectifTiersNote'], archData['max_effectif_tiers_note'],
             reason: '$code.maxEffectifTiersNote');
+        expect(mini['communal'], archData['communal'],
+            reason: '$code.communal');
 
         final archCats = archData['categories'] as Map<String, dynamic>?;
         final statuts = mini['statuts'] as Map<String, String>?;
         final franchises = mini['franchises'] as Map<String, num>?;
         final notes = mini['notes'] as Map<String, String?>?;
+        final multiplicateurs = mini['multiplicateurs'] as Map<String, String?>?;
         if (archCats == null) {
           expect(statuts, isNull, reason: '$code.statuts');
           expect(franchises, isNull, reason: '$code.franchises');
           expect(notes, isNull, reason: '$code.notes');
+          expect(multiplicateurs, isNull, reason: '$code.multiplicateurs');
           continue;
         }
         for (final cat in _categories) {
@@ -73,6 +77,8 @@ void main() {
           expect(franchises?[cat], archCat['franchise'],
               reason: '$code.$cat.franchise');
           expect(notes![cat], archCat['note'], reason: '$code.$cat.note');
+          expect(multiplicateurs![cat], archCat['multiplicateur'],
+              reason: '$code.$cat.multiplicateur');
         }
         expect(mini['concubinExonerationConditionnelle'],
             (archCats['concubin'] as Map<String, dynamic>)[
@@ -230,6 +236,59 @@ void main() {
         ),
         throwsArgumentError,
       );
+    });
+  });
+
+  group('Parité comportementale py↔dart — ordre + contenu des mécanismes', () {
+    // Pas de harnais d'exécution py↔dart en direct (test_cross_platform aligne
+    // des CONSTANTES via un contrat JSON, pas les verdicts). On verrouille donc
+    // l'ordre ET le contenu exacts — franchise -> multiplicateur -> note ->
+    // maxNote -> communal — pour 3 cantons représentatifs, golden figé sur la
+    // sortie du socle backend (services/backend/app/services/fiscal/
+    // succession_donation_socle.py, verdict()). Toute divergence d'empilement
+    // (ex. le défaut #1087 P3 : dart sans multiplicateur ni communal) casse ici.
+    test('SH tiers succession : 5 entrées, ordre exact', () {
+      final v =
+          SuccessionDonationSocle.verdict(canton: 'SH', categorie: 'tiers');
+      expect(v.mecanismes, [
+        'Franchise 10\'000 CHF',
+        'Multiplicateur x5',
+        'autres parents souche parentale x3, souche grand-parentale x4',
+        '10 % x 5 (marginal) ; au-delà de 700000 : 8 % x 5 = 40 % sur la totalité',
+        'Communal : aucun impôt communal, aucune part au produit cantonal',
+      ]);
+    });
+
+    test('ZH concubin succession : franchise, multiplicateur, note, communal',
+        () {
+      final v =
+          SuccessionDonationSocle.verdict(canton: 'ZH', categorie: 'concubin');
+      expect(v.mecanismes, [
+        'Franchise 50\'000 CHF',
+        'Multiplicateur x6',
+        'non listé dans les multiplicateurs -> übrige x6 ; franchise 50000 si >=5 ans de ménage commun avec le défunt/donateur',
+        'Communal : aucun impôt communal, aucune part au produit cantonal',
+      ]);
+    });
+
+    test('LU donation : message reprise + communal, sans multiplicateur', () {
+      final v = SuccessionDonationSocle.verdict(
+        canton: 'LU',
+        categorie: 'tiers',
+        typeTransmission: 'donation',
+      );
+      expect(v.mecanismes, [
+        'Lucerne (LU) ne prélève pas d\'impôt sur les donations ; les donations effectuées dans les 5 ans précédant le décès sont toutefois reprises dans la masse successorale imposable (dossier ESTV, état 1.1.2025).',
+        'Communal : l\'Erbschaftssteuer cantonale est répartie 70 % canton / 30 % commune de taxation ; en outre impôt communal propre possible sur les descendants (max 1 % de base + surcharge)',
+      ]);
+    });
+
+    test('SZ succession : canton sans impôt expose quand même le communal', () {
+      final v =
+          SuccessionDonationSocle.verdict(canton: 'SZ', categorie: 'tiers');
+      expect(v.mecanismes, [
+        'Communal : ni le canton ni les communes (politiques et ecclésiastiques) ne prélèvent d\'impôt sur les successions et donations',
+      ]);
     });
   });
 }
