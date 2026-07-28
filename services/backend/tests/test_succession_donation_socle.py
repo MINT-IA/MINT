@@ -110,14 +110,52 @@ class TestVerdicts:
         assert v["plage_max_pct"] == 40
 
     def test_zh_concubin_bascule_franchise_50k_5ans(self):
-        """ZH concubin : taxé (übrige ×6), bascule mariage/pacte, condition
-        cantonale franchise 50'000 si ≥5 ans de ménage commun."""
+        """ZH concubin : übrige ×6 = la classe au tarif maximal (même
+        multiplicateur que tiers) → taxe_lourd avec plage 42 % (arbitrage
+        swiss-brain 2026-07-28, P3 revue adversariale). Bascule mariage/pacte,
+        franchise 50'000 si ≥5 ans de ménage commun."""
+        for tt in ("succession", "donation"):
+            v = verdict("ZH", "concubin", tt)
+            assert v["statut"] == "taxe_lourd", tt
+            assert v["plage_max_pct"] == 42, tt
         v = verdict("ZH", "concubin", "succession")
-        assert v["statut"] == "taxe"
         assert v["bascule"] is not None
         assert "ariage" in v["bascule"]  # Mariage/mariage
         assert "50000" in v["bascule"]
         assert "5 ans" in v["bascule"]
+
+    def test_concubins_conditionnels_sans_plage_tiers(self):
+        """BE (x6 qualifiant < x16 tiers), SO/AG (Klassen distinctes) : le
+        taux qualifiant est plus bas que les tiers — pas de plage tiers
+        plaquée dessus."""
+        for canton in ("BE", "SO", "AG"):
+            v = verdict(canton, "concubin", "succession")
+            assert v["statut"] == "taxe", canton
+            assert v["plage_max_pct"] is None, canton
+
+    def test_pas_de_fuite_de_plage_sur_multiplicateurs_null(self):
+        """Anti-footgun : dans les cantons à taux-dans-les-notes
+        (multiplicateur null des deux côtés), None == None ne doit JAMAIS
+        exposer la plage tiers sur une autre catégorie."""
+        for canton, cat in (("NE", "parent"), ("VD", "descendant")):
+            v = verdict(canton, cat, "succession")
+            assert v["plage_max_pct"] is None, f"{canton}.{cat}"
+
+    def test_invariant_multiplicateur_egal_tiers_implique_taxe_lourd(self):
+        """Invariant mécanique (arbitrage swiss-brain) : si une catégorie
+        porte le MÊME multiplicateur non-null que la classe tiers du canton,
+        son statut doit être taxe_lourd — sinon la plage sourcée du plafond
+        réel n'est pas exposée (c'était le défaut ZH concubin)."""
+        for canton, data in SOCLE_CANTONS.items():
+            cats = data.get("categories")
+            if not cats:
+                continue
+            tiers_mult = cats.get("tiers", {}).get("multiplicateur")
+            if not tiers_mult:
+                continue
+            for nom, cat in cats.items():
+                if cat.get("multiplicateur") == tiers_mult:
+                    assert cat["statut"] == "taxe_lourd", f"{canton}.{nom}"
 
     def test_concubin_exonere_inconditionnel_sans_bascule(self):
         """GR/ZG : la source exonère le concubin SANS condition documentée —

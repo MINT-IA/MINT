@@ -769,8 +769,9 @@ class TestSuccessionTax:
         assert details["conjoint"]["montant_herite"] == pytest.approx(500000.0)
 
     def test_tax_concubin_zurich_verdict_bascule(self, succession_sim):
-        """Zurich concubin : taxé (übrige ×6), bascule mariage/pacte avec
-        la condition cantonale franchise 50'000 si ≥5 ans — plus aucun
+        """Zurich concubin : übrige ×6 = la classe au tarif maximal →
+        taxe_lourd (arbitrage swiss-brain 2026-07-28), bascule mariage/pacte
+        avec la condition cantonale franchise 50'000 si ≥5 ans — plus aucun
         « 18 % » plat (chiffre de l'ancienne table, non sourcé)."""
         data = _succession_input(
             fortune_totale=600000.0,
@@ -786,7 +787,7 @@ class TestSuccessionTax:
         details = result.fiscalite["details_par_heritier"]
         concubin = details["concubin"]
         assert concubin["montant_herite"] == pytest.approx(300000.0, abs=0.01)
-        assert concubin["statut"] == "taxe"
+        assert concubin["statut"] == "taxe_lourd"
         assert "50000" in concubin["bascule"]
         assert "5 ans" in concubin["bascule"]
         assert "taux" not in concubin

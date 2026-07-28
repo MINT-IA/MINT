@@ -122,15 +122,28 @@ void main() {
     });
 
     test('ZH concubin : bascule mariage/pacte + franchise 50k ≥5 ans', () {
+      // übrige ×6 = la classe au tarif maximal (même multiplicateur que
+      // tiers) → taxe_lourd avec plage 42 % (arbitrage swiss-brain
+      // 2026-07-28, P3 revue adversariale).
       final v = SuccessionDonationSocle.verdict(
         canton: 'ZH',
         categorie: 'concubin',
       );
-      expect(v.statut, 'taxe');
+      expect(v.statut, 'taxe_lourd');
+      expect(v.plageMaxPct, 42);
       expect(v.bascule, isNotNull);
       expect(v.bascule, contains('ariage'));
       expect(v.bascule, contains('50000'));
       expect(v.bascule, contains('5 ans'));
+    });
+
+    test('BE concubin : x6 qualifiant < x16 tiers — pas de plage tiers', () {
+      final v = SuccessionDonationSocle.verdict(
+        canton: 'BE',
+        categorie: 'concubin',
+      );
+      expect(v.statut, 'taxe');
+      expect(v.plageMaxPct, isNull);
     });
 
     test('GR/ZG concubin : exonération inconditionnelle, AUCUNE bascule', () {

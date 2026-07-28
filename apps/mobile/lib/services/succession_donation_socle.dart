@@ -82,7 +82,7 @@ class SuccessionDonationSocle {
         'descendant': 'exonere',
         'parent': 'taxe',
         'fratrie': 'taxe',
-        'concubin': 'taxe',
+        'concubin': 'taxe_lourd',
         'tiers': 'taxe_lourd',
       },
       'franchises': {'parent': 200000, 'fratrie': 15000, 'concubin': 50000},

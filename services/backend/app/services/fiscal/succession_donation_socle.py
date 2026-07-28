@@ -69,7 +69,7 @@ SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
                        'fratrie': {'statut': 'taxe',
                                    'multiplicateur': 'x3',
                                    'franchise': 15000},
-                       'concubin': {'statut': 'taxe',
+                       'concubin': {'statut': 'taxe_lourd',
                                     'multiplicateur': 'x6',
                                     'franchise': 50000,
                                     'note': 'non listé dans les '

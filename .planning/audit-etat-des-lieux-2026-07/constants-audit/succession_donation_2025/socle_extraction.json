@@ -15,7 +15,7 @@
         "descendant": {"statut": "exonere", "note": null},
         "parent": {"statut": "taxe", "multiplicateur": "x1", "franchise": 200000, "note": "franchise 200000 par Elternteil"},
         "fratrie": {"statut": "taxe", "multiplicateur": "x3", "franchise": 15000},
-        "concubin": {"statut": "taxe", "multiplicateur": "x6", "franchise": 50000, "note": "non listé dans les multiplicateurs -> übrige x6 ; franchise 50000 si >=5 ans de ménage commun avec le défunt/donateur"},
+        "concubin": {"statut": "taxe_lourd", "multiplicateur": "x6", "franchise": 50000, "note": "non listé dans les multiplicateurs -> übrige x6 ; franchise 50000 si >=5 ans de ménage commun avec le défunt/donateur"},
         "tiers": {"statut": "taxe_lourd", "multiplicateur": "x6", "note": null}
       },
       "bareme_base": {"forme": "progressif", "min_pct": 2, "max_pct": 7, "note": "7 % marginal sur la tranche 840000-1500000 ; au-delà de 1500000 le marginal redescend à 6 %"},
