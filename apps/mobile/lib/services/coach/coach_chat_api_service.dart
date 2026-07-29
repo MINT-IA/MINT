@@ -59,9 +59,11 @@ class CoachChatApiService {
     int cashLevel = 3,
     // Tranche firstJob PR-E (E2) — handoff /first-job -> coach : receiptId +
     // inputsHash transmis au backend (CoachChatRequest), qui résout le MÊME
-    // MoneyTruthReceipt scopé au propriétaire (SPEC §4.3).
+    // MoneyTruthReceipt scopé au propriétaire (SPEC §4.3). `receiptInputs` =
+    // double ceinture (chemin pending) si le store a échoué.
     String? receiptId,
     String? inputsHash,
+    Map<String, dynamic>? receiptInputs,
   }) async {
     final uri = Uri.parse('$baseUrl/coach/chat');
 
@@ -117,6 +119,9 @@ class CoachChatApiService {
       body['receipt_id'] = receiptId;
       if (inputsHash != null && inputsHash.isNotEmpty) {
         body['inputs_hash'] = inputsHash;
+      }
+      if (receiptInputs != null && receiptInputs.isNotEmpty) {
+        body['receipt_inputs'] = receiptInputs;
       }
     }
     // No api_key — backend fills in server-side ANTHROPIC_API_KEY

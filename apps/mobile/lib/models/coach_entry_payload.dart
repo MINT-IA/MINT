@@ -92,6 +92,12 @@ class CoachEntryPayload {
   /// résolution serveur. Null hors handoff firstJob.
   final String? inputsHash;
 
+  /// Tranche firstJob PR-E (E2) — inputs normalisés du receipt (double ceinture
+  /// du contrat §4.3) : transmis à la requête coach comme `receiptInputs` pour
+  /// que le chemin `pending` grounde même si le store a échoué (aucune ligne
+  /// résolvable côté serveur). Null hors handoff firstJob.
+  final Map<String, dynamic>? receiptInputs;
+
   const CoachEntryPayload({
     required this.source,
     this.topic,
@@ -99,6 +105,7 @@ class CoachEntryPayload {
     this.userMessage,
     this.receiptId,
     this.inputsHash,
+    this.receiptInputs,
   });
 
   /// Build a system prompt injection describing this entry context.

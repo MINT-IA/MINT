@@ -320,6 +320,45 @@ def test_resolve_receipt_context_returns_grounded_dict_for_stored():
         db.close()
 
 
+def test_resolve_receipt_context_pending_no_row_with_inputs():
+    """DOUBLE CEINTURE (Codex P1) : le coach grounde via `pending` depuis les
+    `receiptInputs` SEULS — aucune ligne en base (store échoué / non appelé),
+    JAMAIS `not_found` muet quand le payload porte les inputs (SPEC §4.3 c.3)."""
+    db = _db()
+    try:
+        inputs = {"salaireBrutMensuel": 6788.0, "age": 30, "canton": "ZH"}
+        ctx = resolve_receipt_context(
+            db,
+            _User("user-a"),
+            _Body(
+                receipt_id="rcpt-never-stored",
+                inputs_hash="a" * 64,
+                receipt_inputs=inputs,
+            ),
+        )
+        assert ctx is not None
+        assert ctx["status"] == "pending"
+        assert ctx["inputs"] == inputs
+        assert "value" not in ctx  # pas de valeur inventée sans receipt résolu
+    finally:
+        db.close()
+
+
+def test_resolve_receipt_context_not_found_no_row_no_inputs():
+    """Sans ligne ET sans inputs -> not_found propre (le CTA doit donc TOUJOURS
+    porter receiptInputs — c'est la raison de la ceinture 2)."""
+    db = _db()
+    try:
+        ctx = resolve_receipt_context(
+            db,
+            _User("user-a"),
+            _Body(receipt_id="rcpt-nada", inputs_hash="a" * 64),
+        )
+        assert ctx == {"status": "not_found"}
+    finally:
+        db.close()
+
+
 def test_resolve_receipt_context_pending_for_cross_owner_with_inputs():
     db = _db()
     try:

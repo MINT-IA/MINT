@@ -35,6 +35,7 @@ abstract final class E2eCoachRouteFixture {
       isLoggedIn = false,
       receiptId,
       inputsHash,
+      receiptInputs,
     }) async {
       return const CoachResponse(
         message: 'Ouvre le bon outil pour comparer.',

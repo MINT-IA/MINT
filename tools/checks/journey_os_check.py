@@ -895,6 +895,11 @@ ALLOW = {
     "apps/mobile/lib/services/coach_llm_service.dart",
     "apps/mobile/lib/services/coach/e2e_coach_route_fixture.dart",
     "apps/mobile/test/screens/first_job_ask_coach_cta_test.dart",
+    # PR-E (E2, revue Codex P1) — fermeture de la façade du handoff : store
+    # POST du receipt AVANT la nav (ceinture 1) + receiptInputs dans la requête
+    # coach (ceinture 2). Le coach grounde vraiment (resolved OU pending).
+    "apps/mobile/lib/services/coach/money_truth_receipt_api_service.dart",
+    "apps/mobile/test/services/money_truth_receipt_handoff_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
