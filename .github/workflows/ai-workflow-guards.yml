@@ -50,6 +50,29 @@ jobs:
         run: python3 tools/checks/mint2_vz_route_contract_guard.py
       - name: Workflow contract guard
         run: python3 tools/checks/workflow_contract_guard.py
+      - name: Product prescription lint (ADR 2026-07-28)
+        run: |
+          python3 tools/checks/product_prescription_lint.py --self-test
+          python3 tools/checks/product_prescription_lint.py
+      - name: Prescription baseline anti-growth (cliquet)
+        # La baseline ne peut pas GROSSIR vs origin/dev — le blanchiment par
+        # --emit-baseline est refusé (bootstrap : fichier absent sur dev).
+        # Les entrées sont par OCCURRENCE (chemin::motif::hash d'extrait) :
+        # toute entrée présente ici et absente de dev est une addition —
+        # y compris l'échange d'occurrence même-fichier (revue Codex P1).
+        run: |
+          git fetch origin dev --quiet
+          git show origin/dev:tools/checks/_baseline_prescription_sites.txt \
+            > /tmp/baseline_dev.txt 2>/dev/null || {
+              echo "Bootstrap : baseline absente sur origin/dev."; exit 0; }
+          added=$(grep '::' tools/checks/_baseline_prescription_sites.txt \
+            | grep -Fxv -f <(grep '::' /tmp/baseline_dev.txt) || true)
+          if [ -n "$added" ]; then
+            echo "::error::Baseline prescriptions en CROISSANCE (cliquet) :"
+            echo "$added"
+            exit 1
+          fi
+          echo "Cliquet OK : aucune entrée ajoutée vs origin/dev."
       - name: Mermaid render guard
         run: python3 tools/checks/mermaid_render_guard.py
       - name: Maestro locator audit

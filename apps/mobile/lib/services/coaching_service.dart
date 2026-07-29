@@ -406,7 +406,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       category: 'prevoyance',
       priority: CoachingPriority.haute,
       title: 'Tu n\'as pas de 3e pilier',
-      message: 'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
+      message: 'Un 3e pilier permettrait de déduire jusqu\'à ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
           '${formatChfWithPrefix(plafond)} de ton revenu imposable chaque année. '
           'L\'impact fiscal indicatif est de ${formatChfWithPrefix(impact)} par an '
           'dans le canton de ${profile.canton}.',
@@ -783,7 +783,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       case 25:
         return const _MilestoneInfo(
           title: '25 ans : démarrer son 3e pilier',
-          message: 'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. '
+          message: 'À 25 ans, un 3e pilier démarré tôt peut déjà beaucoup peser. ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
               'Grâce aux intérêts composés, chaque année compte. '
               'Même un petit versement mensuel fait une grande différence '
               'sur 40 ans.',

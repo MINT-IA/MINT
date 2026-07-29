@@ -223,15 +223,30 @@ class TestDivorceTaxImpact:
     """Tests for tax impact before/after divorce."""
 
     def test_tax_before_joint_taxation(self, divorce_sim):
-        """Joint taxation: combined income at married rate."""
+        """Joint taxation: combined income at the married scale of the etalon.
+
+        Golden mis a jour le 2026-07-27 avec explication de l'ecart
+        (regle 2 du hand-off) : l'ancienne valeur 48000.0 gravait la table
+        plate supprimee (GE married_rate 0.30 x 160k). L'etalon progressif
+        donne 33380.99 pour 160k marie a GE — la table surestimait de
+        +14'619 CHF (+44 %). L'assertion delegue desormais a l'etalon au
+        lieu de graver un nombre.
+        """
+        from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
         data = _divorce_input(
             revenu_annuel_conjoint_1=100000.0,
             revenu_annuel_conjoint_2=60000.0,
             canton="GE",
         )
         result = divorce_sim.simulate(data)
-        # GE married rate = 0.30 -> 160k * 0.30 = 48000
-        assert result.impact_fiscal_avant["impot_commun"] == pytest.approx(48000.0, abs=0.01)
+        # base imposable = 85 % du brut (convention de l'etalon).
+        attendu = round(
+            estimate_income_tax(160_000 * 0.85, "GE", is_married=True), 2
+        )
+        assert result.impact_fiscal_avant["impot_commun"] == pytest.approx(
+            attendu, abs=0.01
+        )
 
     def test_tax_after_individual_taxation(self, divorce_sim):
         """Individual taxation after divorce should generally be higher total."""

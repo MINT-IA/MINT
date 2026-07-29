@@ -13,7 +13,7 @@ Sources:
     - Accords bilateraux CH-UE (ALCP art. 21)
     - Accord CH-FR du 11.04.1983 (regime special frontaliers FR-GE)
     - Accord CH-IT du 03.10.1974 (exception Tessin-Italie)
-    - Reglement CE 883/2004 art. 11 (securite sociale dans le pays d'emploi)
+    - Reglement CE 883/2004 art. 11 (sécurité sociale dans le pays d'emploi)
     - LAVS art. 5 (cotisations AVS/AI/APG)
     - LACI art. 3 (cotisations assurance-chomage)
     - LPP art. 2, 7, 8 (prevoyance professionnelle obligatoire)
@@ -42,7 +42,7 @@ DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
     "ton canton de travail, de ta situation personnelle et des accords "
     "bilateraux en vigueur. Ne constitue pas un conseil fiscal ou juridique "
-    "(LSFin/LLCA). Consulte un ou une specialiste."
+    "(LSFin/LLCA). Consulte un ou une spécialiste."
 )
 
 # ---------------------------------------------------------------------------
@@ -60,64 +60,69 @@ DISCLAIMER = (
 #     (retrocession de 38.8% de l'impot a la source au fisc italien)
 
 CANTON_SOURCE_TAX_RATES = {
-    # Canton: {"base_rate": taux de base %, "multiplier": multiplicateur cantonal+communal}
+    # Canton: {"multiplier": multiplicateur cantonal+communal, "special": regime}
     # Source: ordonnances cantonales impot a la source 2024/2025
-    "GE": {"base_rate": 0.0, "multiplier": 1.0, "special": "quasi_resident"},
+    # Le champ "base_rate" (4.5 % decore de 24 citations) a ete SUPPRIME le
+    # 2026-07-28 : il n'etait lu nulle part — le calcul vivant est
+    # `_calculate_source_tax_progressive(salaire) x multiplier`. Ne pas le
+    # reintroduire. Constat : .planning/architecture/
+    # 2026-07-27-constat-frontalier-base-rate-lamal.md (PR #1077).
+    "GE": {"multiplier": 1.0, "special": "quasi_resident"},
     # GE: regime special — pas d'impot a la source standard
     # mais imposition ordinaire si quasi-resident (LIFD art. 99a, LIPP-GE art. 6)
-    "VD": {"base_rate": 4.5, "multiplier": 1.55},
+    "VD": {"multiplier": 1.55},
     # VD: 4.5% base + multiplicateur cantonal/communal (LI-VD art. 174)
-    "VS": {"base_rate": 4.5, "multiplier": 1.40},
+    "VS": {"multiplier": 1.40},
     # VS: 4.5% base + multiplicateur (LF-VS art. 108)
-    "BS": {"base_rate": 4.5, "multiplier": 1.45},
+    "BS": {"multiplier": 1.45},
     # BS: 4.5% base + multiplicateur (StG-BS § 120)
-    "TI": {"base_rate": 0.0, "multiplier": 1.0, "special": "italie"},
+    "TI": {"multiplier": 1.0, "special": "italie"},
     # TI: accord CH-IT — frontaliers IT imposes en Italie
     # Retrocession de 38.8% (accord du 03.10.1974 art. 3)
-    "BE": {"base_rate": 4.5, "multiplier": 1.52},
+    "BE": {"multiplier": 1.52},
     # BE: standard source tax (StG-BE art. 119)
-    "ZH": {"base_rate": 4.5, "multiplier": 1.48},
+    "ZH": {"multiplier": 1.48},
     # ZH: standard source tax (StG-ZH § 95)
-    "AG": {"base_rate": 4.5, "multiplier": 1.42},
+    "AG": {"multiplier": 1.42},
     # AG: standard source tax (StG-AG § 120)
-    "SG": {"base_rate": 4.5, "multiplier": 1.40},
+    "SG": {"multiplier": 1.40},
     # SG: standard source tax (StG-SG art. 112)
-    "LU": {"base_rate": 4.5, "multiplier": 1.38},
+    "LU": {"multiplier": 1.38},
     # LU: standard source tax (StG-LU § 108)
-    "FR": {"base_rate": 4.5, "multiplier": 1.50},
+    "FR": {"multiplier": 1.50},
     # FR: standard source tax (LICD-FR art. 136)
-    "NE": {"base_rate": 4.5, "multiplier": 1.52},
+    "NE": {"multiplier": 1.52},
     # NE: standard source tax (LCdir-NE art. 159)
-    "JU": {"base_rate": 4.5, "multiplier": 1.55},
+    "JU": {"multiplier": 1.55},
     # JU: standard source tax (LI-JU art. 142)
-    "SO": {"base_rate": 4.5, "multiplier": 1.45},
+    "SO": {"multiplier": 1.45},
     # SO: standard source tax (StG-SO § 118)
-    "BL": {"base_rate": 4.5, "multiplier": 1.44},
+    "BL": {"multiplier": 1.44},
     # BL: standard source tax (StG-BL § 114)
-    "SH": {"base_rate": 4.5, "multiplier": 1.40},
+    "SH": {"multiplier": 1.40},
     # SH: standard source tax (StG-SH art. 107)
-    "TG": {"base_rate": 4.5, "multiplier": 1.38},
+    "TG": {"multiplier": 1.38},
     # TG: standard source tax (StG-TG § 110)
-    "GR": {"base_rate": 4.5, "multiplier": 1.42},
+    "GR": {"multiplier": 1.42},
     # GR: standard source tax (StG-GR art. 105)
-    "ZG": {"base_rate": 4.5, "multiplier": 1.22},
+    "ZG": {"multiplier": 1.22},
     # ZG: standard source tax (StG-ZG § 92) — canton a faible fiscalite
-    "SZ": {"base_rate": 4.5, "multiplier": 1.24},
+    "SZ": {"multiplier": 1.24},
     # SZ: standard source tax (StG-SZ § 95)
-    "OW": {"base_rate": 4.5, "multiplier": 1.30},
+    "OW": {"multiplier": 1.30},
     # OW: standard source tax (StG-OW art. 98)
-    "NW": {"base_rate": 4.5, "multiplier": 1.28},
+    "NW": {"multiplier": 1.28},
     # NW: standard source tax (StG-NW art. 98)
-    "UR": {"base_rate": 4.5, "multiplier": 1.32},
+    "UR": {"multiplier": 1.32},
     # UR: standard source tax (StG-UR art. 100)
-    "GL": {"base_rate": 4.5, "multiplier": 1.35},
+    "GL": {"multiplier": 1.35},
     # GL: standard source tax (StG-GL art. 110)
-    "AR": {"base_rate": 4.5, "multiplier": 1.30},
+    "AR": {"multiplier": 1.30},
     # AR: standard source tax (StG-AR art. 100)
-    "AI": {"base_rate": 4.5, "multiplier": 1.28},
+    "AI": {"multiplier": 1.28},
     # AI: standard source tax (StG-AI art. 95)
 }
-_DEFAULT_SOURCE_TAX = {"base_rate": 4.5, "multiplier": 1.40}
+_DEFAULT_SOURCE_TAX = {"multiplier": 1.40}
 
 # Bareme simplifie impot a la source par tranche (LIFD art. 85)
 # Utilise pour estimer l'impot a la source federal avant multiplicateur cantonal
@@ -183,7 +188,7 @@ AANP_TAUX = 0.014  # ~1.4% (LAA art. 91, moyenne)
 
 # ---------------------------------------------------------------------------
 # Charges sociales pays voisins (estimations simplifiees 2025)
-# Source: securite sociale respective de chaque pays
+# Source: sécurité sociale respective de chaque pays
 # ---------------------------------------------------------------------------
 
 CHARGES_SOCIALES_PAYS = {
@@ -191,7 +196,7 @@ CHARGES_SOCIALES_PAYS = {
         "label": "France",
         "taux_employe_total": 0.225,  # ~22.5% (CSG 9.2% + CRDS 0.5% + secu ~13%)
         "taux_employeur_total": 0.45,  # ~45%
-        # Source: Code de la securite sociale (CSS), CGI art. 1600-0S
+        # Source: Code de la sécurité sociale (CSS), CGI art. 1600-0S
         "source": "CSS art. L241-1, CGI art. 1600-0S (CSG/CRDS)",
     },
     "DE": {
@@ -226,24 +231,93 @@ CHARGES_SOCIALES_PAYS = {
 }
 
 # ---------------------------------------------------------------------------
-# Primes LAMal estimees (LAMal art. 61, OPAS)
-# Primes mensuelles moyennes pour adultes avec franchise 300, 2025
+# Primes LAMal frontaliers — par PAYS DE RÉSIDENCE (LAMal art. 3, OLCP art. 9)
 # ---------------------------------------------------------------------------
+# L'ancienne table par CANTON DE TRAVAIL a été SUPPRIMÉE le 2026-07-28 : un
+# frontalier paie une prime spécifique à son pays de résidence, pas celle du
+# canton où il travaille — la comparaison LAMal/assurance-résidence pouvait
+# en être inversée (constat PR #1077, ADR 2026-07-28-remplacements §8).
+# Ne pas la réintroduire.
+#
+# Source primaire : priminfo.admin.ch/downloads/gesamtbericht_eu.xlsx
+# (répertoire OFSP des primes UE/AELE), Geschäftsjahr 2026, téléchargé et
+# archivé le 2026-07-28 avec méthode d'extraction :
+# .planning/audit-etat-des-lieux-2026-07/constants-audit/
+# lamal_frontaliers_2026/extraction_fr300_sans_accident.json
+# Profil : franchise 300, SANS accident (salarié suisse couvert LAA
+# employeur), min/moyenne/max inter-assureurs (n=13-14).
+# Rafraîchissement annuel : publication OFSP fin septembre.
 
-LAMAL_PRIMES_MENSUELLES = {
-    # Canton: prime mensuelle moyenne adulte, franchise 300 CHF
-    # Source: OFSP, primes LAMal 2025
-    "GE": 580.0, "VD": 540.0, "BS": 520.0, "BE": 480.0,
-    "ZH": 460.0, "TI": 500.0, "LU": 430.0, "AG": 440.0,
-    "SG": 420.0, "FR": 470.0, "VS": 430.0, "NE": 510.0,
-    "JU": 490.0, "SO": 450.0, "BL": 470.0, "SH": 430.0,
-    "TG": 410.0, "GR": 400.0, "ZG": 380.0, "SZ": 400.0,
-    "OW": 390.0, "NW": 380.0, "UR": 400.0, "GL": 410.0,
-    "AR": 400.0, "AI": 380.0,
+LAMAL_FRONTALIER_MILLESIME = 2026
+
+LAMAL_FRONTALIER_PRIMES = {
+    # pays de résidence -> classe d'âge -> variante accident ->
+    # {min, moyenne, max} CHF/mois. sans_accident = salarié suisse
+    # >= 8 h/sem couvert LAA ; avec_accident = membres de famille et
+    # < 8 h/sem (revue Codex P1 : les proches n'ont pas la LAA).
+    # (adulte/jeune : franchise 300 ; enfant : franchise 0)
+    "FR": {
+        "adulte": {
+            "sans_accident": {"min": 200.0, "moyenne": 520.89, "max": 823.1},
+            "avec_accident": {"min": 215.0, "moyenne": 556.75, "max": 885.0},
+        },
+        "jeune": {
+            "sans_accident": {"min": 180.0, "moyenne": 436.77, "max": 760.7},
+            "avec_accident": {"min": 193.5, "moyenne": 466.93, "max": 818.0},
+        },
+        "enfant": {
+            "sans_accident": {"min": 46.0, "moyenne": 142.9, "max": 246.5},
+            "avec_accident": {"min": 49.4, "moyenne": 152.73, "max": 265.0},
+        },
+    },
+    "DE": {
+        "adulte": {
+            "sans_accident": {"min": 227.9, "moyenne": 480.77, "max": 1059.9},
+            "avec_accident": {"min": 245.0, "moyenne": 513.04, "max": 1112.9},
+        },
+        "jeune": {
+            "sans_accident": {"min": 164.1, "moyenne": 400.27, "max": 742.1},
+            "avec_accident": {"min": 176.4, "moyenne": 427.28, "max": 779.2},
+        },
+        "enfant": {
+            "sans_accident": {"min": 49.85, "moyenne": 130.47, "max": 297.1},
+            "avec_accident": {"min": 53.55, "moyenne": 139.19, "max": 311.9},
+        },
+    },
+    "IT": {
+        "adulte": {
+            "sans_accident": {"min": 279.0, "moyenne": 408.09, "max": 487.2},
+            "avec_accident": {"min": 300.0, "moyenne": 436.15, "max": 513.3},
+        },
+        "jeune": {
+            "sans_accident": {"min": 239.6, "moyenne": 343.44, "max": 475.3},
+            "avec_accident": {"min": 257.6, "moyenne": 367.09, "max": 511.0},
+        },
+        "enfant": {
+            "sans_accident": {"min": 41.2, "moyenne": 113.29, "max": 203.7},
+            "avec_accident": {"min": 44.3, "moyenne": 121.09, "max": 219.0},
+        },
+    },
+    "AT": {
+        "adulte": {
+            "sans_accident": {"min": 299.4, "moyenne": 495.84, "max": 748.1},
+            "avec_accident": {"min": 321.9, "moyenne": 529.97, "max": 790.0},
+        },
+        "jeune": {
+            "sans_accident": {"min": 239.6, "moyenne": 411.67, "max": 551.0},
+            "avec_accident": {"min": 257.6, "moyenne": 440.08, "max": 592.5},
+        },
+        "enfant": {
+            "sans_accident": {"min": 63.1, "moyenne": 135.99, "max": 211.2},
+            "avec_accident": {"min": 67.8, "moyenne": 145.34, "max": 227.0},
+        },
+    },
 }
-_DEFAULT_LAMAL_PRIME = 460.0
+# Pays de référence pour un pays de résidence hors dataset (LI n'est pas
+# dans gesamtbericht_eu) — TOUJOURS nommé explicitement dans le texte rendu.
+_LAMAL_PAYS_REFERENCE = "FR"
 
-# Primes mensuelles estimees dans les pays voisins (securite sociale + complementaire)
+# Primes mensuelles estimees dans les pays voisins (sécurité sociale + complementaire)
 # Source: estimations basees sur les systemes de sante respectifs
 ASSURANCE_RESIDENCE_PRIMES = {
     "FR": {"prime_mensuelle": 0.0, "cotisation_pct": 0.131,
@@ -601,7 +675,7 @@ class FrontalierSegmentService:
             recommandation = (
                 f"Avec {home_office_days} jours de teletravail a l'etranger, "
                 f"tu es largement en dessous du seuil de 90 jours. "
-                f"L'imposition reste integralement en Suisse. Marge de securite: "
+                f"L'imposition reste integralement en Suisse. Marge de sécurité: "
                 f"{REGLE_90_JOURS_SEUIL - home_office_days} jours."
             )
         elif home_office_days <= REGLE_90_JOURS_SEUIL:
@@ -765,13 +839,31 @@ class FrontalierSegmentService:
         canton_upper = canton.upper()
         country = residence_country.upper()
 
-        # Prime LAMal
-        prime_base = LAMAL_PRIMES_MENSUELLES.get(canton_upper, _DEFAULT_LAMAL_PRIME)
-        # Ajustement age (jeune adulte 19-25 : ~25% reduction)
-        if age < 26:
-            prime_base = round(prime_base * 0.75, 2)
+        # Prime LAMal frontalier : par PAYS DE RÉSIDENCE (registre OFSP
+        # priminfo UE/AELE) — le canton de travail ne fixe PAS cette prime.
+        pays_data = LAMAL_FRONTALIER_PRIMES.get(country)
+        pays_reference_note = ""
+        if pays_data is None:
+            # Pays hors dataset (ex. LI) : référence France, TOUJOURS
+            # nommée explicitement dans le texte rendu — pas de défaut muet.
+            pays_data = LAMAL_FRONTALIER_PRIMES[_LAMAL_PAYS_REFERENCE]
+            pays_reference_note = (
+                " (données indisponibles pour ton pays de résidence : "
+                "référence France)"
+            )
+        classe = "enfant" if age < 19 else ("jeune" if age < 26 else "adulte")
+        # Le salarié suisse (>= 8 h/sem) est couvert LAA -> sans accident.
+        # Les MEMBRES DE FAMILLE n'ont pas la LAA -> variante avec accident,
+        # classe adulte en borne haute (revue Codex P1 : le sans-accident
+        # uniforme sous-estimait chaque proche et pouvait inverser la
+        # comparaison — AT : 495.84 sans vs 529.97 avec, résidence 513.33).
+        classe_data = pays_data[classe]["sans_accident"]
+        prime_base = classe_data["moyenne"]
+        prime_proches = pays_data["adulte"]["avec_accident"]["moyenne"]
 
-        prime_lamal_mensuelle = round(prime_base * family_size, 2)
+        prime_lamal_mensuelle = round(
+            prime_base + prime_proches * max(0, family_size - 1), 2
+        )
         prime_lamal_annuelle = round(prime_lamal_mensuelle * 12, 2)
 
         # Prime pays de residence
@@ -788,26 +880,37 @@ class FrontalierSegmentService:
 
         economie_lamal = round(prime_residence_annuelle - prime_lamal_annuelle, 2)
 
+        plage = (
+            f"primes {LAMAL_FRONTALIER_MILLESIME} selon l'assureur : de "
+            f"CHF {classe_data['min']:,.0f} à CHF {classe_data['max']:,.0f}"
+            f"/mois (moyenne utilisée ici : CHF {classe_data['moyenne']:,.0f} — "
+            f"tarif de ta classe d'âge appliqué à chaque membre de la famille, "
+            f"borne haute pour les enfants)"
+            f"{pays_reference_note}"
+        )
         if economie_lamal > 0:
             recommandation = (
                 f"L'option LAMal est potentiellement avantageuse : tu economiserais "
                 f"~CHF {economie_lamal:,.0f}/an par rapport a l'assurance {country}. "
-                f"Attention : la LAMal n'est pas subventionnee pour les frontaliers "
-                f"(pas de reduction de prime). Compare les prestations couvertes."
+                f"{plage}. Attention : la LAMal n'est pas subventionnee pour les "
+                f"frontaliers (pas de reduction de prime). Compare les prestations "
+                f"couvertes."
             )
         else:
             recommandation = (
                 f"L'assurance dans ton pays de residence ({country}) est potentiellement "
                 f"plus avantageuse : ~CHF {abs(economie_lamal):,.0f}/an moins cher que la LAMal. "
-                f"Cependant, la LAMal offre un acces direct au systeme de sante suisse, "
-                f"ce qui peut etre un avantage pratique si tu travailles en Suisse."
+                f"{plage}. Cependant, la LAMal offre un acces direct au systeme de "
+                f"sante suisse, ce qui peut etre un avantage pratique si tu "
+                f"travailles en Suisse."
             )
 
         sources = [
             "LAMal art. 3 (assurance obligatoire des personnes residant en Suisse)",
             "LAMal art. 6 (exceptions et droit d'option)",
             "OLCP art. 9 (droit d'option des frontaliers)",
-            "OPAS (ordonnance sur les prestations de l'assurance obligatoire)",
+            f"Primes LAMal frontaliers : registre OFSP priminfo UE/AELE, "
+            f"millesime {LAMAL_FRONTALIER_MILLESIME}, franchise 300, sans accident",
             residence_data.get("source", ""),
         ]
 

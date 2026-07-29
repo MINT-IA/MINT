@@ -30202,7 +30202,7 @@
     },
     "/api/v1/fiscal/wealth-tax/compare": {
       "post": {
-        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier éclairage.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier éclairage.\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "compare_wealth_tax_api_v1_fiscal_wealth_tax_compare_post",
         "requestBody": {
           "content": {
@@ -30244,7 +30244,7 @@
     },
     "/api/v1/fiscal/wealth-tax/estimate": {
       "post": {
-        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (no silent hardcoded fallback). Missing\nrequired profile field triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-defaults branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (no silent hardcoded fallback). Missing\nrequired profile field triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-defaults branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "estimate_wealth_tax_api_v1_fiscal_wealth_tax_estimate_post",
         "requestBody": {
           "content": {
@@ -30291,7 +30291,7 @@
     },
     "/api/v1/fiscal/wealth-tax/move": {
       "post": {
-        "description": "Simulate wealth tax savings from moving between cantons.\n\nReturns annual, monthly, and 10-year cumulative savings\non wealth tax from a cantonal move.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Simulate wealth tax savings from moving between cantons.\n\nReturns annual, monthly, and 10-year cumulative savings\non wealth tax from a cantonal move.\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "simulate_wealth_tax_move_api_v1_fiscal_wealth_tax_move_post",
         "requestBody": {
           "content": {
