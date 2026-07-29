@@ -244,8 +244,15 @@ class DonationSimulationResponse(BaseModel):
     """Response model for donation simulation."""
 
     montantDonation: float = Field(..., description="Donation amount (CHF)")
-    tauxImposition: float = Field(..., description="Tax rate")
-    impotDonation: float = Field(..., description="Tax amount (CHF)")
+    verdictFiscal: dict = Field(
+        ...,
+        description=(
+            "Verdict fiscal du socle ESTV 1.1.2025 : statut (exonere/taxe/"
+            "taxe_lourd), plage_max_pct (uniquement si sourcée), mecanismes, "
+            "bascule, source — remplace le couple tauxImposition/"
+            "impotDonation (taux plat, ADR 2026-07-28 P4)"
+        ),
+    )
     reserveHereditaireTotale: float = Field(..., description="Total reserved shares (CHF)")
     quotiteDisponible: float = Field(..., description="Freely disposable share (CHF)")
     donationDepasseQuotite: bool = Field(..., description="Whether donation exceeds quotite")

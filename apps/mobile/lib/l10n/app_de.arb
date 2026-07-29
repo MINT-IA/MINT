@@ -277,20 +277,6 @@
   "successionEdu3aBody": "Die Säule 3a wird direkt gemäss BVV3 ausbezahlt, nicht gemäss Ihrem Testament.",
   "successionEduConcubinBody": "Konkubinatspartner haben kein gesetzliches Erbrecht. Ohne Testament erhalten sie nichts.",
   "successionDisclaimer": "Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).",
-  "coachingAge25Title": "25 Jahre: Säule 3a eröffnen",
-  "coachingAge25Message": "Mit 25 ist der ideale Zeitpunkt, eine Säule 3a zu eröffnen. Dank Zinseszins zählt jedes Jahr.",
-  "coachingAge35Title": "35 Jahre: Vorsorge-Check",
-  "coachingAge35Message": "Mit 35 sollten Sie prüfen, ob Ihre Vorsorge auf Kurs ist. Haben Sie eine 3a? Reicht Ihre BVG?",
-  "coachingAge45Title": "45 Jahre: Strategie optimieren",
-  "coachingAge45Message": "Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt ist der Moment, deinen 3a-Spielraum, mögliche BVG-Einkäufe und deine Trajektorie zu prüfen.",
-  "coachingAge50Title": "50 Jahre: Rente vorbereiten",
-  "coachingAge50Message": "Mit 50 rückt die Rente näher. Prüfen Sie Ihr BVG-Guthaben und planen Sie letzte Einkäufe.",
-  "coachingAge55Title": "55 Jahre: Letzte Etappe",
-  "coachingAge55Message": "Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Gestaffelte 3a-Bezüge können den Steuereffekt verändern.",
-  "coachingAge58Title": "58 Jahre: Frühpensionierung möglich",
-  "coachingAge58Message": "Ab 58 können Sie einen vorzeitigen Bezug Ihrer 2. Säule in Betracht ziehen. Achtung: Die Rente wird gekürzt.",
-  "coachingAge63Title": "63 Jahre: Letzte Anpassungen",
-  "coachingAge63Message": "2 Jahre vor der Rente: Strategie finalisieren. Letzter BVG-Einkauf, Wahl Rente/Kapital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Funktion in Vorbereitung — regulatorische Konsultation FINMA lauft",
   "openBankingAddBank": "Bank hinzufugen",
@@ -1262,7 +1248,7 @@
   "firstJobHeaderDesc": "Verstehe deine Gehaltsabrechnung! Wir zeigen dir, wohin deine Beiträge fliessen, was dein Arbeitgeber zusätzlich zahlt und die ersten finanziellen Reflexe.",
   "firstJobSalaryTitle": "Monatlicher Bruttolohn",
   "firstJobActivityRate": "Beschäftigungsgrad",
-  "firstJob3aHeader": "SÄULE 3A — JETZT ERÖFFNEN",
+  "firstJob3aHeader": "SÄULE 3A — ZU PRÜFEN",
   "firstJob3aAnnualCap": "Jährliche Obergrenze",
   "firstJob3aMonthlySuggestion": "Vorschlag /Monat",
   "firstJob3aWarningTitle": "ACHTUNG — LEBENSVERSICHERUNG 3A",
@@ -1395,17 +1381,6 @@
   "donationCalculer": "Berechnen",
   "donationImpotTitle": "SCHENKUNGSSTEUER",
   "donationExoneree": "Befreit",
-  "donationTauxCanton": "Satz: {taux}% (Kanton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Schenkungsbetrag",
   "donationLienRow": "Verwandtschaftsgrad",
   "donationReserveTitle": "PFLICHTTEIL (2023)",
@@ -1946,7 +1921,7 @@
   "naissanceChecklistItem7Desc": "Wenn du dein Arbeitspensum reduzierst, sinken deine BVG-Beiträge. Jedes Teilzeitjahr bedeutet weniger Kapital bei der Pensionierung. Erwäge, den Maximalbetrag in die 3. Säule einzuzahlen (CHF 7'258/Jahr).",
   "naissanceChecklistItem8Title": "Testament verfassen oder aktualisieren",
   "naissanceChecklistItem8Desc": "Die Ankunft eines Kindes ändert die Erbfolge. Kinder sind Pflichtteilsberechtigte (ZGB Art. 471). Falls du ein Testament hast, überprüfe, ob es die gesetzlichen Pflichtteile einhält.",
-  "naissanceChecklistItem9Title": "Todes-/Invaliditätsrisikoversicherung abschliessen",
+  "naissanceChecklistItem9Title": "Deine Absicherung für Todes-/Invaliditätsrisiko prüfen",
   "naissanceChecklistItem9Desc": "Mit einem unterhaltsberechtigten Kind wird der finanzielle Schutz bei Tod oder Invalidität noch wichtiger. Überprüfe deine aktuelle Deckung (BVG, Lebensversicherung) und ergänze sie bei Bedarf.",
   "naissanceBabyCostCreche": "Krippe / Betreuung",
   "naissanceBabyCostCrecheNote": "Durchschnittlicher subventionierter Tarif — variiert stark nach Kanton",
@@ -3599,7 +3574,7 @@
   "firstSalaryWeek1": "Woche 1",
   "firstSalaryWeek2": "Woche 2",
   "firstSalaryBefore31Dec": "Vor 31.12",
-  "firstSalaryTask1": "Ein 3a-Konto eröffnen (Bank oder Fintech)",
+  "firstSalaryTask1": "3a-Konten vergleichen (Bank oder Fintech)",
   "firstSalaryTask2": "Einen automatischen monatlichen Dauerauftrag einrichten",
   "firstSalaryTask3": "KVG-Franchisen mit deinen geschätzten Gesundheitskosten vergleichen",
   "firstSalaryTask4": "Private Haftpflicht prüfen (ca. CHF 100/Jahr)",
@@ -5237,7 +5212,7 @@
     }
   },
   "pillar3aIndepBonASavoir": "Gut zu wissen",
-  "pillar3aIndepEduComptesTitle": "Mehrere 3a-Konten eröffnen",
+  "pillar3aIndepEduComptesTitle": "Mehrere 3a-Konten, gestaffelter Bezug",
   "pillar3aIndepEduComptesBody": "Auch mit der grossen 3a wird die Mehrkonten-Strategie (bis 5) empfohlen, um den gestaffelten Bezug bei der Pensionierung zu optimieren.",
   "pillar3aIndepEduConditionTitle": "Bedingung: kein BVG",
   "pillar3aIndepEduConditionBody": "Die grosse 3a (20 % des Einkommens, max 36’288) ist nur verfügbar, wenn du nicht freiwillig BVG-versichert bist. Mit BVG sinkt die Obergrenze auf 7’258.",
@@ -5520,8 +5495,8 @@
   "retroactive3aAvecRattrapage": "Mit Nachholung",
   "retroactive3aEconomieFiscale": "Steuereffekt",
   "retroactive3aProchainesEtapes": "Nächste Schritte",
-  "retroactive3aOuvrirCompte": "3a-Konto eröffnen",
-  "retroactive3aOuvrirCompteSubtitle": "Vergleiche Anbieter und eröffne ein dediziertes Nachholkonto.",
+  "retroactive3aOuvrirCompte": "Ein dediziertes 3a-Konto erwägen",
+  "retroactive3aOuvrirCompteSubtitle": "Anbieter vergleichen (Gebühren, Konditionen) hilft; ein dediziertes Konto könnte die Nachverfolgung des Nachholens vereinfachen.",
   "retroactive3aPrepDocuments": "Dokumente vorbereiten",
   "retroactive3aPrepDocumentsSubtitle": "Lohnausweis, AHV-Beitragsnachweis, Nachweis fehlender 3a-Beiträge für jedes Jahr.",
   "retroactive3aConsulterSpecialiste": "Fachperson konsultieren",
@@ -5759,24 +5734,6 @@
   "reportRetirementTitle": "Deine Rente",
   "reportRetirementKeyLabel": "Geschätztes Einkommen mit 65",
   "reportRetirementSource": "Quellen: BVG Art. 14, BVV3, AHVG",
-  "reportRetirement3aNone": "Noch kein 3a — abzugsfähiger Spielraum anhand deines LPP-Status zu schätzen",
-  "reportRetirement3aNoneWithRoom": "Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF {amount}/Jahr",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 Säule-3a-Konto — öffne ein 2. zur Auszahlungsoptimierung",
-  "reportRetirement3aMulti": "{count} Säule-3a-Konten — gute Diversifikation",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "BVG-Einkauf verfügbar: CHF {available} — geschätzte Steuerwirkung: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
@@ -8704,7 +8661,7 @@
   "indepPlanInscriptionAvsConseq": "Rückwirkende Bussen bei Fristüberschreitung",
   "indepPlanLaa": "Unfallversicherung UVG (wenn kein BVG)",
   "indepPlanLaaConseq": "Kein Berufsunfall-Schutz",
-  "indepPlanOuvrir3a": "3a-Konto eröffnen (Abzug bis CHF 36'288)",
+  "indepPlanOuvrir3a": "3a-Konten vergleichen (Abzug bis CHF 36'288)",
   "indepProtApg": "Entfällt — Elternurlaub",
   "indepProtAvs": "Verdopple deinen Beitrag",
   "indepProtIjm": "Entfällt — Krankheit CHF 0",
@@ -11746,6 +11703,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Steuerpflichtig",
+  "donationVerdictInconnu": "Zu prüfen",
+  "donationPlageJusqua": "bis ~{pct} % (kantonaler Tarif, ohne Gemeindezuschläge)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

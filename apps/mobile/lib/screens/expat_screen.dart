@@ -1400,7 +1400,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               label: 'LAMal \u2014 assurance maladie',
               emoji: '\u{1F3E5}',
               before: 'Couverture universelle en Suisse',
-              after: 'L\u2019assurance maladie est \u00e0 souscrire dans le pays de r\u00e9sidence',
+              after: 'L\u2019assurance maladie rel\u00e8ve d\u00e9sormais du pays de r\u00e9sidence', // lint-ignore: no_hardcoded_fr (dette i18n pr\u00e9existante, LOT 3)
               legalRef: 'LAMal art. 3',
               impact:
                   'La couverture internationale est souvent partielle et '

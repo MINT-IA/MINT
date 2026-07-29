@@ -316,7 +316,7 @@ class ClarityState {
       actions.add(const ClarityAction(
         id: '3a',
         label: '3a',
-        description: 'Ouvrir un compte 3a',
+        description: 'Comparer les comptes 3a', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         status: ActionStatus.pending,
         impactOnPrecision: 10,
       ));

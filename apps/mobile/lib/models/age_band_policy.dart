@@ -430,7 +430,7 @@ class LifeEvent {
         'has_debt_student',
       ],
       timelineItems: [
-        'Ouvrir compte 3a (dès le 1er salaire)',
+        'Comparer les comptes 3a (dès le 1er salaire)', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         'Comprendre fiche de salaire (AVS/LPP/LAA)',
         'Mettre en place épargne automatique',
       ],
@@ -448,7 +448,7 @@ class LifeEvent {
       ],
       timelineItems: [
         'Affiliation AVS indépendant',
-        'Souscrire IJM (URGENCE: 0 couverture sans)',
+        'Comparer une assurance IJM (sans, pas d\'indemnité maladie)', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         'Choisir solution prévoyance (3a étendu)',
         'Planification fiscale acomptes',
       ],

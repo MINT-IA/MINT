@@ -82,34 +82,9 @@ LAMAL_PREMIUM_ESTIMATES = {
 }
 
 # Estimated marginal tax rates by canton (very simplified)
-CANTONAL_TAX_RATE_ESTIMATES = {
-    "ZH": 0.25,
-    "BE": 0.28,
-    "VD": 0.30,
-    "GE": 0.32,
-    "LU": 0.22,
-    "BS": 0.30,
-    "SG": 0.25,
-    "AG": 0.24,
-    "TI": 0.27,
-    "FR": 0.28,
-    "NE": 0.30,
-    "VS": 0.26,
-    "JU": 0.30,
-    "SO": 0.27,
-    "TG": 0.24,
-    "BL": 0.28,
-    "GR": 0.24,
-    "SZ": 0.18,
-    "ZG": 0.16,
-    "SH": 0.26,
-    "AR": 0.25,
-    "AI": 0.22,
-    "GL": 0.24,
-    "NW": 0.20,
-    "OW": 0.20,
-    "UR": 0.22,
-}
+# `CANTONAL_TAX_RATE_ESTIMATES` a ete SUPPRIMEE le 2026-07-27 : aucune source,
+# et un defaut a 0.25 pour tout canton inconnu. Le taux marginal se derive du
+# modele calibre ESTV (garde : tools/checks/no_cantonal_rate_table.py).
 
 DISCLAIMER = (
     "MINT est un outil educatif. Ce simulateur ne constitue pas un conseil "
@@ -299,9 +274,16 @@ class FirstJobOnboardingService:
         montant_mensuel = round(plafond / 12, 2) if eligible else 0.0
 
         # Estimate tax savings
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
         canton_upper = canton.upper()
-        taux_marginal = CANTONAL_TAX_RATE_ESTIMATES.get(canton_upper, 0.25)
-        economie_fiscale = round(plafond * taux_marginal, 2) if eligible else 0.0
+        # DIFFERENCE d'impot, pas « plafond x taux » : le taux marginal du
+        # dernier franc n'est pas celui des 7'258 francs precedents.
+        economie_fiscale = (
+            round(estimate_tax_saving(annuel, plafond, canton_upper), 2)
+            if eligible
+            else 0.0
+        )
 
         alerte_assurance_vie = (
             "Attention: evite les produits 3a lies a une assurance-vie. "
@@ -357,9 +339,9 @@ class FirstJobOnboardingService:
     def _build_checklist(self) -> List[str]:
         """Build the first job onboarding checklist."""
         return [
-            "Ouvrir un compte 3a fintech (pas une assurance-vie !)",
+            "Comparer les comptes 3a fintech (plutôt qu'une assurance-vie)",
             "Choisir ta franchise LAMal — compare sur priminfo.admin.ch",
-            "Souscrire une RC privee (~CHF 5/mois)",
+            "Comparer une RC privée (coût courant ~CHF 5/mois)",
             "Verifier ton certificat de prevoyance LPP",
             "Preparer ta premiere declaration fiscale",
             "Mettre en place un virement automatique epargne (10-20% du net)",

@@ -286,12 +286,13 @@ class IndependantService:
         if not input_data.a_ijm:
             urgences.append({
                 "id": "ijm_urgence",
-                "titre": "Souscrire une assurance perte de gain maladie",
+                "titre": "Comparer une assurance perte de gain maladie (IJM)",
                 "description": (
                     "PRIORITE ABSOLUE: sans IJM, une maladie de quelques "
                     "semaines peut mettre en peril votre activite et vos "
-                    "finances. Souscrivez une couverture d'au moins 720 jours "
-                    "avec un delai d'attente de 30-60 jours."
+                    "finances. Une couverture d'au moins 720 jours, avec un "
+                    "délai d'attente de 30-60 jours, est un repère de marché "
+                    "à comparer selon votre situation."
                 ),
                 "cout_estime_annuel": ijm_cost,
                 "source": "LCA, bonne pratique",
@@ -301,11 +302,12 @@ class IndependantService:
         if not input_data.a_laa:
             urgences.append({
                 "id": "laa_urgence",
-                "titre": "Souscrire une assurance accident privee",
+                "titre": "Comparer une assurance accident privée",
                 "description": (
                     "En cas d'accident, la LAMal couvre les soins mais pas "
-                    "la perte de gain. Souscrivez une assurance accident "
-                    "privee pour couvrir le risque de perte de revenu."
+                    "la perte de gain. Une assurance accident privée peut "
+                    "couvrir ce risque de perte de revenu — à comparer selon "
+                    "votre situation."
                 ),
                 "cout_estime_annuel": laa_cost,
                 "source": "LAA art. 4",
@@ -333,10 +335,10 @@ class IndependantService:
             "id": "maximiser_3a",
             "titre": "Maximiser le 3e pilier",
             "description": (
-                f"Versez le maximum annuel dans votre 3e pilier: "
+                f"Le plafond annuel du 3e pilier est de "
                 f"CHF {plafond_3a:,.0f}. "
                 f"{'(grand plafond: 20% du revenu net, sans LPP)' if not input_data.a_lpp_volontaire else '(plafond salarie, avec LPP volontaire)'}. "
-                f"L'economie fiscale est significative."
+                f"Cotiser au plafond réduit d'autant le revenu imposable."
             ),
             "source": "OPP3 art. 7, LIFD art. 33",
             "priorite": "haute",
