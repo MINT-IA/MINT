@@ -24,12 +24,13 @@ Sources:
 Sprint S19 — Chomage (LACI) + Premier emploi.
 """
 
-from typing import List, Tuple
+from datetime import datetime, timezone
+from typing import Iterable, List, Optional, Tuple
+from uuid import uuid4
 
 from app.constants.social_insurance import (
     AVS_COTISATION_SALARIE,
     AC_COTISATION_SALARIE,
-    AC_COTISATION_SOLIDARITE_SALARIE,
     AC_PLAFOND_SALAIRE_ASSURE,
     LAMAL_QUOTE_PART_CAP_ADULT,
     LPP_SEUIL_ENTREE,
@@ -39,6 +40,14 @@ from app.constants.social_insurance import (
     LPP_BONIFICATIONS_VIEILLESSE,
     PILIER_3A_PLAFOND_AVEC_LPP,
 )
+from app.models.lucidity.money_truth_receipt import (
+    FIRST_JOB_NET_SALARY_CLAIM_ID,
+    MoneyTruthRange,
+    MoneyTruthReceipt,
+    MoneyTruthSource,
+)
+from app.schemas.enhanced_confidence import EnhancedConfidence
+from app.services.coach.inputs_hash import compute_inputs_hash
 
 
 # ---------------------------------------------------------------------------
@@ -48,7 +57,8 @@ from app.constants.social_insurance import (
 # Employee deduction rates
 AVS_AI_APG_RATE = AVS_COTISATION_SALARIE  # 5.30% employee share (LAVS art. 5)
 AC_RATE = AC_COTISATION_SALARIE  # 1.1% employee (up to 148'200/year, LACI art. 3)
-AC_SOLIDARITY_RATE = AC_COTISATION_SOLIDARITE_SALARIE  # 0.5% solidarity above 148'200
+# Pas d'AC_SOLIDARITY_RATE : le pour-cent de solidarite a ete aboli au 1.1.2023
+# (fonds AC > 2,5 Mia CHF fin 2022, LACI art. 90c al. 4) -> 0% au-dela du plafond.
 AC_SALARY_CAP = AC_PLAFOND_SALAIRE_ASSURE  # CHF/year
 AANP_RATE = 0.013  # ~1.3% estimate (varies by employer/risk class, not in centralized constants)
 
@@ -103,6 +113,76 @@ SOURCES = [
     "OPP3 art. 7 al. 1 (plafond 3a salaries: 7'258 CHF)",
     "LAMal art. 61-65 (franchises: 300-2'500, quote-part 10%, max 700 CHF)",
 ]
+
+
+# ---------------------------------------------------------------------------
+# MoneyTruthReceipt v1 — producteur du claim firstjob.net_salary.v1 (PR-B).
+#
+# Le net firstJob est L1 (mobile-canonical, offline). Ce producteur backend
+# émet le MÊME receipt que le miroir Dart
+# (`apps/mobile/lib/services/first_job_service.dart::buildNetSalaryReceipt`) :
+# mêmes `inputs` normalisés, MÊME `inputs_hash` (compute_inputs_hash), même
+# `value` après arrondi. La parité est verrouillée par
+# `tools/fixtures/money_truth_receipt_v1.json`.
+# ---------------------------------------------------------------------------
+
+# Version du moteur de calcul (composant `engine_version` du receipt). Chaîne
+# stable partagée avec le miroir Dart. Le mapping vers
+# `constants_version_hash + app_version` de ProjectionAuditRecord est câblé en
+# PR-E (persistance), hors de ce fichier.
+FIRST_JOB_NET_ENGINE_VERSION = "firstjob-net-receipt-v1"
+
+# Millésime des règles de cotisation appliquées (≠ millésime des statistiques,
+# SPEC §4.1). Les taux AVS/AC/LPP/LAMal utilisés pour le net sont 2026.
+FIRST_JOB_NET_TAX_YEAR = 2026
+
+# Hypothèse bornante figée (SPEC §4.1) : la classe de risque AANP dépend de
+# l'employeur. Le net point utilise 1.3% ; la bande recalcule le net avec
+# l'AANP basse (1.0% -> net haut) et haute (1.5% -> net bas).
+AANP_RATE_LOW = 0.010   # borne haute du net (déduction minimale)
+AANP_RATE_HIGH = 0.015  # borne basse du net (déduction maximale)
+
+# Champs du gate d'entrée (SPEC : firstJobGateWhySalaire/Age/Canton) — servent
+# à dériver l'axe `completeness` de la confiance.
+FIRST_JOB_GATE_FIELDS = ("salaireBrutMensuel", "age", "canton")
+
+
+def _first_job_net_confidence(
+    user_provided_fields: Optional[Iterable[str]] = None,
+) -> EnhancedConfidence:
+    """Mapping DÉCLARÉ PR-B des champs du gate vers les 4 axes EnhancedConfidence.
+
+    Pas de nouveau scorer (règle 4 / NEVER #3) — on peuple la forme fil
+    existante `EnhancedConfidence` (completeness × accuracy × freshness ×
+    understanding, combiné = moyenne géométrique).
+
+    - completeness : part des 3 champs du gate réellement fournis par
+      l'utilisateur (salaireBrutMensuel, age, canton). Défaut : les 3 présents.
+    - accuracy : 0.90 — taux AVS/AC/LPP/LAMal canoniques, mais l'AANP est une
+      estimation (~1.0-1.5%) et l'impôt source est exclu -> pas 1.0.
+    - freshness : 1.00 — les règles de cotisation appliquées sont l'année en
+      cours (tax_year 2026).
+    - understanding : 0.50 — le gate a explicité le « pourquoi »
+      (firstJobGateWhy*), mais aucune session coach n'a encore eu lieu.
+    """
+    provided = (
+        set(user_provided_fields)
+        if user_provided_fields is not None
+        else set(FIRST_JOB_GATE_FIELDS)
+    )
+    gate = set(FIRST_JOB_GATE_FIELDS)
+    completeness = len(provided & gate) / len(gate)
+    accuracy = 0.90
+    freshness = 1.00
+    understanding = 0.50
+    combined = (completeness * accuracy * freshness * understanding) ** 0.25
+    return EnhancedConfidence(
+        completeness=completeness,
+        accuracy=accuracy,
+        freshness=freshness,
+        understanding=understanding,
+        score=combined,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -198,26 +278,127 @@ class FirstJobOnboardingService:
             "sources": list(SOURCES),
         }
 
+    def build_net_salary_receipt(
+        self,
+        salaire_brut_mensuel: float,
+        canton: str = "ZH",
+        age: int = 25,
+        etat_civil: str = "celibataire",
+        taux_activite: float = 100.0,
+        user_provided_fields: Optional[Iterable[str]] = None,
+        receipt_id: Optional[str] = None,
+        computed_at: Optional[str] = None,
+    ) -> MoneyTruthReceipt:
+        """Émet le MoneyTruthReceipt du claim firstjob.net_salary.v1 (SPEC §4).
+
+        `value` = net firstJob (point, AANP 1.3%). `range` = recalcul du net
+        avec l'AANP basse / haute (hypothèse bornante figée PR-B). `inputs_hash`
+        = compute_inputs_hash des inputs normalisés (même algo, mêmes champs que
+        le miroir Dart). `confidence` = mapping déclaré (voir
+        `_first_job_net_confidence`).
+
+        `receipt_id` / `computed_at` sont injectables pour les tests
+        déterministes ; sinon uuid4 / horodatage courant.
+        """
+        canton_norm = canton.upper()
+        etat_norm = etat_civil.lower()
+
+        point = self._calculate_salary_breakdown(
+            brut=salaire_brut_mensuel,
+            canton=canton_norm,
+            age=age,
+            taux_activite=taux_activite,
+            aanp_rate=AANP_RATE,
+        )
+        net = point["net_estime"]
+        net_high = self._calculate_salary_breakdown(
+            brut=salaire_brut_mensuel,
+            canton=canton_norm,
+            age=age,
+            taux_activite=taux_activite,
+            aanp_rate=AANP_RATE_LOW,  # déduction minimale -> net haut
+        )["net_estime"]
+        net_low = self._calculate_salary_breakdown(
+            brut=salaire_brut_mensuel,
+            canton=canton_norm,
+            age=age,
+            taux_activite=taux_activite,
+            aanp_rate=AANP_RATE_HIGH,  # déduction maximale -> net bas
+        )["net_estime"]
+
+        inputs = {
+            "salaireBrutMensuel": float(salaire_brut_mensuel),
+            "age": int(age),
+            "canton": canton_norm,
+            "tauxActivite": float(taux_activite),
+            "etatCivil": etat_norm,
+        }
+
+        assumptions = [
+            "AANP 1.0-1.5% selon la classe de risque de l'employeur (defaut 1.3%)",
+            f"tauxActivite={taux_activite:.0f}%",
+            f"etatCivil={etat_norm}",
+            "impot a la source non applique (resident-e impose-e ordinairement)",
+            "net mensuel hors 13e salaire et hors bonus",
+        ]
+
+        return MoneyTruthReceipt(
+            claim_id=FIRST_JOB_NET_SALARY_CLAIM_ID,
+            receipt_id=receipt_id or str(uuid4()),
+            inputs=inputs,
+            inputs_hash=compute_inputs_hash(inputs),
+            jurisdiction=f"CH-{canton_norm}",
+            tax_year=FIRST_JOB_NET_TAX_YEAR,
+            base="net",
+            civil_status=etat_norm,
+            assumptions=assumptions,
+            engine="app.services.first_job.onboarding_service",
+            engine_version=FIRST_JOB_NET_ENGINE_VERSION,
+            rounding="CHF arrondi au 1 franc",
+            sources=[
+                MoneyTruthSource(id="avs", label="AVS/AI/APG (LAVS art. 5 / LAI art. 3 / LAPG art. 27)", vintage=FIRST_JOB_NET_TAX_YEAR),
+                MoneyTruthSource(id="ac", label="AC (LACI art. 3)", vintage=FIRST_JOB_NET_TAX_YEAR),
+                MoneyTruthSource(id="lpp", label="LPP bonifications (LPP art. 16)", vintage=FIRST_JOB_NET_TAX_YEAR),
+                MoneyTruthSource(id="aanp", label="AANP estimation (LAA art. 91)", vintage=FIRST_JOB_NET_TAX_YEAR),
+            ],
+            value=net,
+            range=MoneyTruthRange(low=net_low, high=net_high),
+            confidence=_first_job_net_confidence(user_provided_fields),
+            computed_at=computed_at
+            or datetime.now(timezone.utc).isoformat(),
+        )
+
     def _calculate_salary_breakdown(
         self,
         brut: float,
         canton: str,
         age: int,
         taux_activite: float,
+        aanp_rate: float = AANP_RATE,
     ) -> dict:
-        """Calculate detailed salary breakdown from gross to net."""
+        """Calculate detailed salary breakdown from gross to net.
+
+        `aanp_rate` défaut = AANP_RATE (comportement inchangé). Le producteur
+        de MoneyTruthReceipt (PR-B) le fait varier sur [1.0%, 1.5%] pour la
+        borne haute / basse du net (l'AANP est l'hypothèse non confirmée du
+        gate : la classe de risque exacte dépend de l'employeur).
+        """
         annuel = brut * 12 * (taux_activite / 100)
 
         # Employee deductions
         avs = round(brut * AVS_AI_APG_RATE, 2)
 
-        # AC: 1.1% up to 148'200/year, 0.5% solidarity above
+        # AC : 1.1% jusqu'au plafond (148'200/an), 0% au-dela. Le pour-cent de
+        # solidarite (1% sur la part > plafond) a ete ABOLI au 1.1.2023 : le
+        # fonds AC a depasse 2,5 Mia CHF fin 2022, supprimant la base legale
+        # (LACI art. 90c al. 4). Source : SECO / memento ahv-iv.ch 2.08
+        # (etat 1.1.2025) ; suppression confirmee CHSS 2023.
         if annuel <= AC_SALARY_CAP:
             ac = round(brut * AC_RATE, 2)
         else:
-            ac = round(brut * AC_SOLIDARITY_RATE, 2)
+            ac = round((AC_SALARY_CAP / 12) * AC_RATE, 2)  # 1.1% du plafond mensuel
 
-        aanp = round(brut * AANP_RATE, 2)
+        aanp = round(brut * aanp_rate, 2)
 
         # LPP (employee share = half of total bonification rate)
         lpp = 0.0
@@ -232,8 +413,14 @@ class FirstJobOnboardingService:
 
         # Employer invisible contributions (matching + employer-only)
         # Employer pays: AVS 5.3%, AC 1.1%, AANP varies, LPP match, CAF, etc.
+        # AC employeur : meme regle que le salarie (0% au-dela du plafond depuis
+        # l'abolition de la solidarite le 1.1.2023).
         employer_avs = round(brut * AVS_AI_APG_RATE, 2)
-        employer_ac = round(brut * AC_RATE, 2) if annuel <= AC_SALARY_CAP else round(brut * AC_SOLIDARITY_RATE, 2)
+        employer_ac = (
+            round(brut * AC_RATE, 2)
+            if annuel <= AC_SALARY_CAP
+            else round((AC_SALARY_CAP / 12) * AC_RATE, 2)
+        )
         employer_aanp = round(brut * 0.008, 2)  # employer AAP + AANP share
         employer_lpp = lpp  # employer matches employee share
         employer_caf = round(brut * 0.005, 2)  # family allowances contribution (~0.5%)
@@ -377,3 +564,27 @@ def get_first_job_checklist() -> dict:
     """Get the generic first job checklist."""
     service = FirstJobOnboardingService()
     return {"checklist": service._build_checklist()}
+
+
+def build_first_job_net_salary_receipt(
+    salaire_brut_mensuel: float,
+    canton: str = "ZH",
+    age: int = 25,
+    etat_civil: str = "celibataire",
+    taux_activite: float = 100.0,
+    user_provided_fields: Optional[Iterable[str]] = None,
+    receipt_id: Optional[str] = None,
+    computed_at: Optional[str] = None,
+) -> MoneyTruthReceipt:
+    """Convenience wrapper — émet le MoneyTruthReceipt firstjob.net_salary.v1."""
+    service = FirstJobOnboardingService()
+    return service.build_net_salary_receipt(
+        salaire_brut_mensuel=salaire_brut_mensuel,
+        canton=canton,
+        age=age,
+        etat_civil=etat_civil,
+        taux_activite=taux_activite,
+        user_provided_fields=user_provided_fields,
+        receipt_id=receipt_id,
+        computed_at=computed_at,
+    )

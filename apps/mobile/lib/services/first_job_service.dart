@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:uuid/uuid.dart';
+
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/money_truth_receipt.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -132,6 +135,34 @@ class FirstJobService {
   /// AANP (accident non-professionnel) rate.
   static const double _aanpRate = 0.013;
 
+  // ── MoneyTruthReceipt v1 (PR-B) — hypothèse bornante AANP + métadonnées ──
+  //
+  // La classe de risque AANP dépend de l'employeur (~1.0-1.5%). Le net point
+  // utilise 1.3% ; la bande d'incertitude recalcule le net avec l'AANP basse
+  // (net haut) et haute (net bas). Mêmes valeurs que le producteur backend
+  // (onboarding_service.py) — SPEC §4.1.
+
+  /// AANP basse (déduction minimale) → borne HAUTE du net.
+  static const double _aanpRateLow = 0.010;
+
+  /// AANP haute (déduction maximale) → borne BASSE du net.
+  static const double _aanpRateHigh = 0.015;
+
+  /// Millésime des règles de cotisation appliquées (≠ millésime statistique).
+  static const int _firstJobNetTaxYear = 2026;
+
+  /// Version du moteur de calcul (champ `engineVersion`). Chaîne stable
+  /// partagée avec le backend.
+  static const String _firstJobNetEngineVersion = 'firstjob-net-receipt-v1';
+
+  /// Champs du gate d'entrée (firstJobGateWhySalaire/Age/Canton) — base de
+  /// l'axe `completeness` de la confiance.
+  static const Set<String> _firstJobGateFields = {
+    'salaireBrutMensuel',
+    'age',
+    'canton',
+  };
+
   /// LPP maximum coordinated salary.
   /// Uses centralized constant from social_insurance.dart.
   static double get _lppMaxCoordinated =>
@@ -159,12 +190,15 @@ class FirstJobService {
 
     // Deductions
     final avs = brut * _avsAiApgRate;
-    // AC: standard rate up to ceiling, solidarity 0.5% on excess (LACI art. 3)
+    // AC : 1.1% jusqu'au plafond (148'200/an), 0% au-dela. Le pour-cent de
+    // solidarite (1% sur la part > plafond) a ete ABOLI au 1.1.2023 (fonds AC
+    // > 2,5 Mia CHF fin 2022 -> LACI art. 90c al. 4). Source : SECO / memento
+    // ahv-iv.ch 2.08 (etat 1.1.2025). Aligne sur onboarding_service.py backend.
     final acCeil = reg('ac.max_insured_salary', acPlafondSalaireAssure);
     final acEmpRate = reg('ac.contribution_rate_employee', acCotisationSalarie);
     final ac = annuel <= acCeil
         ? brut * acEmpRate
-        : (acCeil * acEmpRate + (annuel - acCeil) * 0.005) / 12;
+        : (acCeil * acEmpRate) / 12; // 1.1% du plafond mensuel, 0% au-dela
     final aanp = brut * _aanpRate;
 
     // LPP
@@ -256,6 +290,125 @@ class FirstJobService {
           'plus avantageuse. Compare sur priminfo.admin.ch pour ton canton.',
       checklist: _buildChecklist(),
       premierEclairage: premierEclairage,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  MoneyTruthReceipt v1 — producteur du claim firstjob.net_salary.v1 (PR-B)
+  // ════════════════════════════════════════════════════════════
+
+  /// Émet le MoneyTruthReceipt du net firstJob (SPEC §4).
+  ///
+  /// `value` = net firstJob point (= [FirstJobResult.netEstime] : le MÊME
+  /// chiffre que l'écran, aucune divergence intra-écran). `range` = recalcul du
+  /// net avec l'AANP basse / haute (hypothèse bornante figée). `inputsHash` =
+  /// [computeInputsHash] des inputs normalisés — MÊME algorithme et MÊMES
+  /// champs que le producteur backend, donc MÊME hash octet pour octet.
+  ///
+  /// `receiptId` / `computedAt` sont injectables pour les tests déterministes.
+  static MoneyTruthReceipt buildNetSalaryReceipt({
+    required double salaireBrutMensuel,
+    required int age,
+    required String canton,
+    double tauxActivite = 100.0,
+    String etatCivil = 'celibataire',
+    Set<String>? userProvidedFields,
+    String? receiptId,
+    String? computedAt,
+  }) {
+    final cantonNorm = canton.toUpperCase();
+    final etatNorm = etatCivil.toLowerCase();
+
+    final result = analyzeSalary(
+      salaireBrutMensuel: salaireBrutMensuel,
+      age: age,
+      canton: cantonNorm,
+      tauxActivite: tauxActivite,
+    );
+    final pointNet = result.netEstime;
+
+    // AANP est une déduction linéaire : net(aanp) = pointNet + brut*(1.3% - aanp).
+    final netHigh = pointNet + salaireBrutMensuel * (_aanpRate - _aanpRateLow);
+    final netLow = pointNet + salaireBrutMensuel * (_aanpRate - _aanpRateHigh);
+
+    final inputs = <String, dynamic>{
+      'salaireBrutMensuel': salaireBrutMensuel,
+      'age': age,
+      'canton': cantonNorm,
+      'tauxActivite': tauxActivite,
+      'etatCivil': etatNorm,
+    };
+
+    return MoneyTruthReceipt(
+      claimId: kFirstJobNetSalaryClaimId,
+      receiptId: receiptId ?? const Uuid().v4(),
+      inputs: inputs,
+      inputsHash: computeInputsHash(inputs),
+      jurisdiction: 'CH-$cantonNorm',
+      taxYear: _firstJobNetTaxYear,
+      base: 'net',
+      civilStatus: etatNorm,
+      assumptions: [
+        'AANP 1,0-1,5 % selon la classe de risque de l\'employeur (défaut 1,3 %)', // lint-ignore: no_hardcoded_fr (i18n -> PR-G ; receipt interne, non rendu en PR-B)
+        'Taux d\'activité : ${tauxActivite.toStringAsFixed(0)} %', // lint-ignore: no_hardcoded_fr (i18n -> PR-G ; receipt interne, non rendu en PR-B)
+        'État civil : $etatNorm', // lint-ignore: no_hardcoded_fr (i18n -> PR-G ; receipt interne, non rendu en PR-B)
+        'Impôt à la source non appliqué (résident·e imposé·e ordinairement)', // lint-ignore: no_hardcoded_fr (i18n -> PR-G ; receipt interne, non rendu en PR-B)
+        'Net mensuel hors 13e salaire et hors bonus', // lint-ignore: no_hardcoded_fr (i18n -> PR-G ; receipt interne, non rendu en PR-B)
+      ],
+      engine: 'financial_core.first_job_service',
+      engineVersion: _firstJobNetEngineVersion,
+      rounding: 'CHF arrondi au 1 franc',
+      sources: const [
+        MoneyTruthSource(
+          id: 'avs',
+          label: 'AVS/AI/APG (LAVS art. 5 · LAI art. 3 · LAPG art. 27)',
+          vintage: _firstJobNetTaxYear,
+        ),
+        MoneyTruthSource(
+          id: 'ac',
+          label: 'AC (LACI art. 3)',
+          vintage: _firstJobNetTaxYear,
+        ),
+        MoneyTruthSource(
+          id: 'lpp',
+          label: 'LPP bonifications (LPP art. 16)',
+          vintage: _firstJobNetTaxYear,
+        ),
+        MoneyTruthSource(
+          id: 'aanp',
+          label: 'AANP estimation (LAA art. 91)',
+          vintage: _firstJobNetTaxYear,
+        ),
+      ],
+      value: pointNet,
+      range: MoneyTruthRange(low: netLow, high: netHigh),
+      confidence: _firstJobNetConfidence(userProvidedFields),
+      computedAt: computedAt ?? DateTime.now().toUtc().toIso8601String(),
+    );
+  }
+
+  /// Mapping DÉCLARÉ PR-B des champs du gate vers les 4 axes
+  /// [MoneyTruthConfidence] (forme fil EnhancedConfidence). Pas de nouveau
+  /// scorer — mêmes valeurs que le backend (`_first_job_net_confidence`).
+  static MoneyTruthConfidence _firstJobNetConfidence(
+    Set<String>? userProvidedFields,
+  ) {
+    final provided = userProvidedFields ?? _firstJobGateFields;
+    final completeness =
+        provided.intersection(_firstJobGateFields).length /
+            _firstJobGateFields.length;
+    const accuracy = 0.90;
+    const freshness = 1.00;
+    const understanding = 0.50;
+    final combined =
+        pow(completeness * accuracy * freshness * understanding, 0.25)
+            .toDouble();
+    return MoneyTruthConfidence(
+      completeness: completeness,
+      accuracy: accuracy,
+      freshness: freshness,
+      understanding: understanding,
+      score: combined,
     );
   }
 
