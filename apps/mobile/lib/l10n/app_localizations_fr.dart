@@ -10473,7 +10473,7 @@ class SFr extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'Souvent choisie';
 
   @override
   String get authLoginSubtitle => 'Accède à ton espace financier personnel';
@@ -17147,13 +17147,6 @@ class SFr extends S {
 
   @override
   String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Impôt à la source (estimation)';
 
   @override
   String get firstJobPayslipLppExplanation =>

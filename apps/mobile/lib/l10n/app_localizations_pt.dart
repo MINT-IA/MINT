@@ -10465,7 +10465,7 @@ class SPt extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'Frequentemente escolhida';
 
   @override
   String get authLoginSubtitle => 'Acede ao teu espaço financeiro pessoal';
@@ -17155,13 +17155,6 @@ class SPt extends S {
 
   @override
   String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Deduzido diretamente do salário se fores tributado na fonte. A taxa varia por cantão, estado civil e rendimento.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Imposto na fonte (estimativa)';
 
   @override
   String get firstJobPayslipLppExplanation =>

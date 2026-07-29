@@ -5312,7 +5312,7 @@
       }
     }
   },
-  "firstJobTopBadge": "TOP",
+  "firstJobTopBadge": "Souvent choisie",
   "authLoginSubtitle": "Accède à ton espace financier personnel",
   "authPasswordRequired": "Mot de passe requis",
   "authForgotPasswordLink": "Mot de passe oublié ?",
@@ -9338,8 +9338,6 @@
   "firstJobPayslipAcLabel": "Assurance-chômage (AC)",
   "firstJobPayslipAvsExplanation": "Cotisation salarié·e : 5.3 % du brut. Ton employeur paie aussi 5.3 % en plus.",
   "firstJobPayslipAvsLabel": "AVS/AI/APG",
-  "firstJobPayslipImpotExplanation": "Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.",
-  "firstJobPayslipImpotLabel": "Impôt à la source (estimation)",
   "firstJobPayslipLppExplanation": "Épargne vieillesse obligatoire dès 25 ans. Le taux exact dépend de ta caisse et ton âge.",
   "firstJobPayslipLppLabel": "LPP (2e pilier)",
   "firstJobPrimePerMonth": "{amount}/mois",

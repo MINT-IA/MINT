@@ -4839,7 +4839,7 @@
       }
     }
   },
-  "firstJobTopBadge": "TOP",
+  "firstJobTopBadge": "Frequentemente escolhida",
   "authLoginSubtitle": "Acede ao teu espaço financeiro pessoal",
   "authPasswordRequired": "Palavra-passe obrigatória",
   "authForgotPasswordLink": "Esqueceste a palavra-passe?",
@@ -8557,8 +8557,6 @@
   "firstJobPayslipAcLabel": "Seguro-desemprego (AC)",
   "firstJobPayslipAvsExplanation": "Contribuição do trabalhador: 5.3% do salário bruto. O teu empregador também paga 5.3% adicional.",
   "firstJobPayslipAvsLabel": "AVS/AI/APG",
-  "firstJobPayslipImpotExplanation": "Deduzido diretamente do salário se fores tributado na fonte. A taxa varia por cantão, estado civil e rendimento.",
-  "firstJobPayslipImpotLabel": "Imposto na fonte (estimativa)",
   "firstJobPayslipLppExplanation": "Poupança para reforma obrigatória a partir dos 25 anos. A taxa exata depende da tua caixa e idade.",
   "firstJobPayslipLppLabel": "LPP (2.º pilar)",
   "firstJobPrimePerMonth": "{amount}/mês",

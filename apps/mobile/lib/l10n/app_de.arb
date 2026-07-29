@@ -4839,7 +4839,7 @@
       }
     }
   },
-  "firstJobTopBadge": "TOP",
+  "firstJobTopBadge": "Häufig gewählt",
   "authLoginSubtitle": "Zugang zu deinem persönlichen Finanzbereich",
   "authPasswordRequired": "Passwort erforderlich",
   "authForgotPasswordLink": "Passwort vergessen?",
@@ -8557,8 +8557,6 @@
   "firstJobPayslipAcLabel": "Arbeitslosenversicherung (ALV)",
   "firstJobPayslipAvsExplanation": "Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.",
   "firstJobPayslipAvsLabel": "AHV/IV/EO",
-  "firstJobPayslipImpotExplanation": "Direkt vom Lohn abgezogen, wenn du quellensteuerpflichtig bist. Satz variiert je nach Kanton, Status und Einkommen.",
-  "firstJobPayslipImpotLabel": "Quellensteuer (Schätzung)",
   "firstJobPayslipLppExplanation": "Obligatorische Altersvorsorge ab 25 Jahren. Der genaue Satz hängt von deiner Kasse und deinem Alter ab.",
   "firstJobPayslipLppLabel": "BVG (2. Säule)",
   "firstJobPrimePerMonth": "{amount}/Monat",

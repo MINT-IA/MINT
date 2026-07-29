@@ -10468,7 +10468,7 @@ class SEs extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'A menudo elegida';
 
   @override
   String get authLoginSubtitle => 'Accede a tu espacio financiero personal';
@@ -17156,13 +17156,6 @@ class SEs extends S {
 
   @override
   String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Deducido directamente del salario si pagas impuestos en la fuente. La tasa varía según cantón, estado civil e ingresos.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Impuesto en la fuente (estimación)';
 
   @override
   String get firstJobPayslipLppExplanation =>
