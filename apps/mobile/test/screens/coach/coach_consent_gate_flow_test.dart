@@ -49,6 +49,9 @@ class _FakeGate {
     String language = 'fr',
     int cashLevel = 2,
     bool isLoggedIn = false,
+    String? receiptId,
+    String? inputsHash,
+    Map<String, dynamic>? receiptInputs,
   }) async {
     serverCalls++;
     if (!granted) {

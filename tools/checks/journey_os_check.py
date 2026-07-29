@@ -900,6 +900,10 @@ ALLOW = {
     # coach (ceinture 2). Le coach grounde vraiment (resolved OU pending).
     "apps/mobile/lib/services/coach/money_truth_receipt_api_service.dart",
     "apps/mobile/test/services/money_truth_receipt_handoff_test.dart",
+    # PR-E (revue Codex CI) — mocks OrchestratorChatFn existants mis à jour à la
+    # signature étendue (receiptId/inputsHash/receiptInputs) + heads alembic
+    # attendus incluent p126.
+    "apps/mobile/test/services/coach_context_packet_payload_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
