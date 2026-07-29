@@ -186,9 +186,19 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
 class LifeEventSuggestionsSection extends StatelessWidget {
   final List<LifeEventSuggestion> suggestions;
 
+  /// Optional per-card accessibility identifier (Maestro `id:` locator).
+  ///
+  /// The mount site owns the identifier namespace so the same generic
+  /// section can be reused on different surfaces without leaking a
+  /// surface-specific id. Returns `null` for cards that carry no contract
+  /// testID. On /home this maps the firstJob card to
+  /// `home-lifeevent-card-firstJob` (TRANCHE-FIRSTJOB-SPEC §3.1).
+  final String? Function(LifeEventSuggestion suggestion)? cardIdentifier;
+
   const LifeEventSuggestionsSection({
     super.key,
     required this.suggestions,
+    this.cardIdentifier,
   });
 
   @override
@@ -248,6 +258,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
     return Material(
       color: MintColors.transparent,
       child: Semantics(
+        identifier: cardIdentifier?.call(suggestion),
         label: suggestion.title,
         button: true,
         child: InkWell(

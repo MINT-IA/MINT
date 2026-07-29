@@ -570,6 +570,12 @@ ALLOW = {
     "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart",
     "apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart",
     "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
+    # --- Tranche firstJob PR-D: /home -> /first-job life-event entry ---
+    "apps/mobile/lib/screens/aujourdhui/home_life_events.dart",
+    "apps/mobile/lib/widgets/life_event_suggestions.dart",
+    "apps/mobile/test/screens/aujourdhui/home_life_events_test.dart",
+    "apps/mobile/test/screens/aujourdhui/aujourdhui_first_job_entry_test.dart",
+    "apps/mobile/test/widgets/life_event_suggestions_home_entry_test.dart",
     "apps/mobile/lib/screens/budget/budget_setup_screen.dart",
     "apps/mobile/test/screens/budget_setup_screen_test.dart",
     "apps/mobile/lib/screens/debug/debug_mint2_account_claim_screen.dart",

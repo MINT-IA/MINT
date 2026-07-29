@@ -18,6 +18,7 @@ import 'package:mint_mobile/models/financial_plan.dart' show computeProfileHash;
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
+import 'package:mint_mobile/screens/aujourdhui/home_life_events.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -34,6 +35,7 @@ import 'package:mint_mobile/widgets/aujourdhui/commitments_and_checkins_card.dar
 // canonical façade-sans-câblage pattern (CLAUDE.md NEVER #6).
 import 'package:mint_mobile/widgets/home/confidence_score_card.dart';
 import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
+import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/widgets/tension/cleo_loop_indicator.dart';
 import 'package:mint_mobile/widgets/tension/tension_card_widget.dart';
 import 'package:mint_mobile/widgets/timeline/month_header_widget.dart';
@@ -152,11 +154,42 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     );
   }
 
+  /// Life-event suggestion cards for /home, fed by [CoachProfileProvider].
+  ///
+  /// PR-D (TRANCHE-FIRSTJOB-SPEC §1 T3): surfaces the firstJob entry
+  /// (`home-lifeevent-card-firstJob`) for young-active profiles. Returns
+  /// null when there is no profile or no eligible suggestion so the caller
+  /// renders no section at all — no empty-state dead space (D4).
+  Widget? _buildLifeEventSection(BuildContext context) {
+    final profile = context.watch<CoachProfileProvider>().profile;
+    if (profile == null) return null;
+    final suggestions = homeLifeEventSuggestions(profile, S.of(context)!);
+    if (suggestions.isEmpty) return null;
+    return LifeEventSuggestionsSection(
+      suggestions: suggestions,
+      cardIdentifier: homeLifeEventCardIdentifier,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Route-root accessibility anchor (`home_route_state`) present in every
+    // render state (loading / empty / populated) so the acceptance flow can
+    // assert it landed on /home before scrolling to a life-event card. Same
+    // screen-root Semantics motif as first_job_screen / mon_argent_screen.
+    return Semantics(
+      identifier: 'home_route_state',
+      container: true,
+      explicitChildNodes: true,
+      child: _buildHomeBody(context),
+    );
+  }
+
+  Widget _buildHomeBody(BuildContext context) {
     final provider = context.watch<TimelineProvider>();
     final l10n = S.of(context)!;
     final planSection = _buildPlanAndConfidenceSection(context);
+    final lifeEventSection = _buildLifeEventSection(context);
 
     if (provider.isLoading) {
       return const Scaffold(
@@ -230,6 +263,18 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                         ),
                       ),
                     ),
+                  ),
+                )
+              // Fresh firstJob persona (no commitments/landmarks/conversations
+              // yet) lands here with an empty timeline. Surface the life-event
+              // suggestions so /home is not a void and the firstJob entry is
+              // reachable (PR-D). Scrollable so `scrollUntilVisible` resolves
+              // the card. Shown only when a profile yields suggestions.
+              else if (lifeEventSection != null)
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(top: 8, bottom: 24),
+                    child: lifeEventSection,
                   ),
                 )
               else
@@ -405,6 +450,18 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
+                ),
+              ),
+
+            // ── Life-event suggestions (PR-D, post-timeline) ───
+            // TRANCHE-FIRSTJOB-SPEC §1 T3: profile-driven life-event cards
+            // (firstJob entry `home-lifeevent-card-firstJob`). Hidden when
+            // no profile / no eligible suggestion (D4 — no empty section).
+            if (lifeEventSection != null)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: lifeEventSection,
                 ),
               ),
 
