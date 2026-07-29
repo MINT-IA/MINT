@@ -921,6 +921,12 @@ ALLOW = {
     # signature étendue (receiptId/inputsHash/receiptInputs) + heads alembic
     # attendus incluent p126.
     "apps/mobile/test/services/coach_context_packet_payload_test.dart",
+    # Phase 3' — harnais de parité coach × MoneyTruthReceipt contre STAGING réel
+    # (SPEC TRANCHE-FIRSTJOB §4.3 / §4.4). Test integration_staging skippé par
+    # défaut (opt-in MINT_STAGING_PARITY=1) : rejoue profil firstJob × questions
+    # chiffrées, grade la grille 8 points côté client, isole la casse de chaîne.
+    "services/backend/tests/test_coach_receipt_parity_staging.py",
+    "services/backend/pytest.ini",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
