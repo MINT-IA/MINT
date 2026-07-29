@@ -438,6 +438,10 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # Purge attribution fortune (ADR 2026-07-28-fortune U1)
+    "services/backend/app/services/fiscal/wealth_tax_service.py",
+    "apps/mobile/lib/services/wealth_tax_service.dart",
+    "services/backend/app/api/v1/endpoints/wealth_tax.py",
     # Fix remploi méthode absolue (ADR 2026-07-28-remplacements P2)
     "services/backend/app/services/housing_sale_service.py",
     "services/backend/tests/test_housing_sale.py",
