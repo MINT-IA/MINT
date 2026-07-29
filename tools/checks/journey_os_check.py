@@ -211,8 +211,12 @@ ALLOW = {
     "apps/mobile/lib/widgets/visualizations/marriage_penalty_gauge.dart",
     "apps/mobile/lib/widgets/visualizations/marriage_tax_comparison.dart",
     "tools/checks/no_hardcoded_fr.py",
+    "tools/collect_estv.py",
+    "tools/checks/accent_lint_fr.py",
     "tools/checks/_baseline_diff.py",
     "tools/checks/no_cantonal_rate_table.py",
+    "services/backend/app/services/coaching_engine.py",
+    "services/backend/app/services/first_job/onboarding_service.py",
     "tools/checks/prefer_mint_cta.py",
     "tools/checks/prefer_mint_text_style.py",
     "tools/checks/prefer_mint_fonts.py",
@@ -437,6 +441,10 @@ ALLOW = {
     # Drain des taux marginaux vers l'étalon (hand-off 2026-07-27 §3.1b)
     "services/backend/app/services/precision/precision_service.py",
     "services/backend/tests/test_precision.py",
+    # ADR des décisions déléguées (panels 2026-07-28)
+    ".planning/decisions/2026-07-28-fortune-recalibrage-estv.md",
+    ".planning/decisions/2026-07-28-prescriptions-ligne-et-mecanisme.md",
+    ".planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
