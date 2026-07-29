@@ -1,0 +1,1209 @@
+"""
+Socle succession/donation — verdicts directionnels par canton × catégorie.
+
+CONSTANTES LITTÉRALES générées depuis l'archive
+.planning/audit-etat-des-lieux-2026-07/constants-audit/succession_donation_2025/
+socle_extraction.json (le build Docker n'embarque pas .planning/ — aucune
+lecture runtime de l'archive ; la parité module ↔ archive est verrouillée par
+tests/test_succession_donation_socle.py, champ par champ).
+
+Source primaire : ESTV, dossier « Impôts sur les successions et les
+donations », état 1.1.2025 (Steuermäppchen Erbschafts-/Schenkungssteuer,
+version 26.11.2025), archivée le 2026-07-28.
+ADR : .planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md
+
+Modèle (ADR, décision « un socle, deux calques ») :
+    - `statut` ∈ {exonere, taxe, taxe_lourd} — toujours renseignable ;
+    - `plage_max_pct` UNIQUEMENT quand une source primaire la donne
+      (max_effectif_tiers_pct = plafond de la classe au tarif maximal,
+      HORS centimes additionnels et parts communales) — jamais de plage
+      fabriquée depuis un défaut ;
+    - `mecanismes` : franchises CHF, multiplicateurs, conditions
+      (ex. concubin ≥ 5 ans), impôt communal — en toutes lettres, sourcés ;
+    - `bascule` (concubins) : « mariage ou partenariat enregistré →
+      exonération » + condition cantonale quand le socle en porte une.
+
+Faits durs (panel + Codex, ADR) : seule l'exonération du CONJOINT tient
+26/26. « Descendants exonérés » est faux comme généralisation (VD, NE, AI
+imposent la ligne directe ; LU au niveau communal au-delà de 100k).
+LU ne prélève AUCUN impôt sur les donations. OW/SZ : aucun impôt.
+
+Compliance : jamais « garanti », « optimal », « assuré ».
+"""
+
+from typing import Optional
+
+STATUT_EXONERE = "exonere"
+STATUT_TAXE = "taxe"
+STATUT_TAXE_LOURD = "taxe_lourd"
+STATUT_INCONNU = "inconnu"  # canton hors socle : on le dit, on ne devine pas
+
+CATEGORIES = ("conjoint", "descendant", "parent", "fratrie", "concubin", "tiers")
+TYPES_TRANSMISSION = ("succession", "donation")
+
+_LU_DONATION_MESSAGE = (
+    "Lucerne (LU) ne prélève pas d'impôt sur les donations ; les donations "
+    "effectuées dans les 5 ans précédant le décès sont toutefois reprises "
+    "dans la masse successorale imposable (dossier ESTV, état 1.1.2025)."
+)
+
+_BASCULE_CONCUBIN = (
+    "Mariage ou partenariat enregistré → exonération "
+    "(le conjoint est exonéré dans les 26 cantons)."
+)
+
+SOCLE_SOURCE = (
+    'ESTV Steuermäppchen Erbschafts-/Schenkungssteuer, période 2025, archivé 2026-07-28 (steuermappchen_erbschaft.pdf, 35 p., version 26.11.2025)'
+)
+
+SOCLE_CANTONS = {'ZH': {'loi': 'EschG 28.09.1986',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere', 'note': None},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': 'x1',
+                                  'franchise': 200000,
+                                  'note': 'franchise 200000 par Elternteil'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': 'x3',
+                                   'franchise': 15000},
+                       'concubin': {'statut': 'taxe_lourd',
+                                    'multiplicateur': 'x6',
+                                    'franchise': 50000,
+                                    'note': 'non listé dans les '
+                                            'multiplicateurs -> übrige x6 ; '
+                                            'franchise 50000 si >=5 ans de '
+                                            'ménage commun avec le '
+                                            'défunt/donateur'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': 'x6',
+                                 'note': None}},
+        'bareme_base': {'forme': 'progressif',
+                        'min_pct': 2,
+                        'max_pct': 7,
+                        'note': '7 % marginal sur la tranche 840000-1500000 ; '
+                                'au-delà de 1500000 le marginal redescend à 6 '
+                                '%'},
+        'max_effectif_tiers_pct': 42,
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'BE': {'loi': 'EschG 23.11.1999',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'y compris Stief- und '
+                                              'Pflegekinder (Pflegekinder si '
+                                              'prise en charge >=2 ans)'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': 'x6',
+                                  'note': 'déduction générale 12000 (une fois '
+                                          'par 5 ans pour le même donateur) ; '
+                                          'cumul des libéralités sur 5 ans '
+                                          'pour le taux'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': 'x6',
+                                   'note': 'y compris Halbgeschwister'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': 'x6',
+                                    'note': '>=10 ans de ménage commun avec '
+                                            'même domicile fiscal : x6 ; '
+                                            'sinon tiers x16'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': 'x16',
+                                 'note': 'neveux/nièces, '
+                                         'beaux-enfants/beaux-parents, '
+                                         'oncles/tantes : x11'}},
+        'bareme_base': {'forme': 'progressif',
+                        'min_pct': 1.0,
+                        'max_pct': 2.5,
+                        'note': '2.5 % au-delà de 663600'},
+        'max_effectif_tiers_pct': 40,
+        'communal': 'aucun impôt communal ; les Einwohnergemeinden reçoivent '
+                    '20 % du produit cantonal'},
+ 'LU': {'loi': 'EStG 27.05.1908 + loi 28.07.1919',
+        'succession': True,
+        'donation': False,
+        'reprise_donations': 'Aucun impôt cantonal sur les donations, MAIS '
+                             '« les donations survenues au cours des cinq '
+                             'dernières années avant la mort du disposant '
+                             'sont cependant imposées au titre de succession » '
+                             '(dossier_erbschaft_fr.pdf, p. 8, note 1) — '
+                             'donation LU ≠ 0 impôt si le donateur décède '
+                             'dans les 5 ans.',
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'exonérés au niveau CANTONAL ; '
+                                              'les Einwohnergemeinden peuvent '
+                                              'prélever une Erbanfallsteuer '
+                                              'sur les dévolutions aux '
+                                              'descendants (taux de base max '
+                                              '1 % + surcharge comme le '
+                                              'canton, exonération si '
+                                              '<100000) — assimilés : '
+                                              'adoptés, enfants naturels sans '
+                                              'droit successoral, '
+                                              'Stiefkinder, Pflegekinder >=2 '
+                                              'ans'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'note': 'taux de base 6 % + surcharge '
+                                          "progressive (jusqu'à +100 % "
+                                          'au-delà de 500000) -> max 12 %'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': 'taux de base 6 % (comme parents, '
+                                           'neveux et nièces) + surcharge -> '
+                                           'max 12 %'},
+                       'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
+                                    'note': 'exonéré si >=2 ans de relation '
+                                            'de type conjugal (eheähnlich) '
+                                            'avec le défunt ; déduction 2000 '
+                                            'pour Lebenspartner ; sinon '
+                                            'übrige 20 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': 'taux de base 20 % + surcharge '
+                                         "jusqu'à +100 % ; "
+                                         'grands-parents/oncles/tantes/cousins '
+                                         '15 % ; domestiques et employés du '
+                                         'défunt 6 % (déduction 2000)'}},
+        'bareme_base': {'forme': 'taux fixes par classe + surcharge '
+                                 'progressive',
+                        'min_pct': 6,
+                        'max_pct': 20,
+                        'note': 'surcharge de 0 % (<=10000) à +100 % '
+                                "(>500000) de l'impôt ; pas de multiple "
+                                'annuel ; exonération des dévolutions <=1000 '
+                                'si revenu <=4000 ou fortune <=10000'},
+        'max_effectif_tiers_pct': 40,
+        'communal': "l'Erbschaftssteuer cantonale est répartie 70 % canton / "
+                    '30 % commune de taxation ; en outre impôt communal '
+                    'propre possible sur les descendants (max 1 % de base + '
+                    'surcharge)'},
+ 'UR': {'loi': 'Steuergesetz 26.09.2010',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Kinder, Adoptiv- und '
+                                              'Stiefkinder'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern expressément exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '8 % (y compris Stiefgeschwister)'},
+                       'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
+                                    'note': 'exonéré si enfants mineurs '
+                                            'communs OU >=5 ans de ménage '
+                                            'commun avec même domicile fiscal '
+                                            '; sinon tiers 24 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '24 % (übrige erbberechtigte + '
+                                         'non-parents) ; '
+                                         'oncles/tantes/descendants de '
+                                         'fratrie 12 %'}},
+        'bareme_base': {'forme': 'proportionnel par classe',
+                        'min_pct': 8,
+                        'max_pct': 24,
+                        'note': "franchise générale : dévolutions jusqu'à "
+                                '15000 exonérées ; impôts <100 CHF non '
+                                'perçus'},
+        'max_effectif_tiers_pct': 24,
+        'communal': 'aucun impôt communal ; répartition du produit : 10 % '
+                    'préciput canton, solde 50 % canton / 50 % communes'},
+ 'SZ': {'loi': None,
+        'succession': False,
+        'donation': False,
+        'categories': None,
+        'bareme_base': None,
+        'max_effectif_tiers_pct': 0,
+        'communal': 'ni le canton ni les communes (politiques et '
+                    "ecclésiastiques) ne prélèvent d'impôt sur les "
+                    'successions et donations'},
+ 'OW': {'loi': None,
+        'succession': False,
+        'donation': False,
+        'categories': None,
+        'bareme_base': None,
+        'max_effectif_tiers_pct': 0,
+        'communal': 'ni le canton ni les communes (politiques et '
+                    "ecclésiastiques) ne prélèvent d'impôt sur les "
+                    'successions et donations'},
+ 'NW': {'loi': 'Steuergesetz 22.03.2000, art. 153-168',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'enfants, petits-enfants, '
+                                              'arrière-petits-enfants, Stief- '
+                                              'und Pflegekinder'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern, Stief-/Pflegeeltern et '
+                                          'Schwiegereltern exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '5 % (Geschwister et leurs '
+                                           'descendants, grands-parents, '
+                                           'arrière-grands-parents)'},
+                       'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
+                                    'note': 'exonéré si >=5 ans de communauté '
+                                            "d'habitation durable au même "
+                                            'domicile ; sinon tiers 15 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '15 % (übrige) ; oncles/tantes et '
+                                         'leurs descendants 10 %'}},
+        'bareme_base': {'forme': 'proportionnel par classe',
+                        'min_pct': 5,
+                        'max_pct': 15,
+                        'note': 'déduction générale 20000 par bénéficiaire et '
+                                'par période fiscale ; fortune commerciale '
+                                "d'exploitation exonérée"},
+        'max_effectif_tiers_pct': 15,
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'GL': {'loi': 'Steuergesetz 07.05.2000, art. 116-128',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'descendants directs et '
+                                              'Adoptivkinder exonérés ; '
+                                              'Stief- und Pflegekinder TAXÉS '
+                                              'à 6 % avec franchise 100000'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'franchise': 50000,
+                                  'note': '2.5 % (Eltern, Adoptiveltern, '
+                                          'Grosseltern) + surcharge selon '
+                                          'montant ; franchise 50000 par '
+                                          'Elternteil'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'franchise': 10000,
+                                   'note': '4 % + surcharge ; Halbgeschwister '
+                                           '5 %'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'franchise': 10000,
+                                    'note': '4 % (assimilé fratrie) si >=5 '
+                                            'ans de ménage commun de type '
+                                            'conjugal avant la libéralité ; '
+                                            'sinon übrige 10 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'franchise': 10000,
+                                 'note': '10 % + surcharge'}},
+        'bareme_base': {'forme': 'proportionnel par classe + surcharge '
+                                 'progressive',
+                        'min_pct': 2.5,
+                        'max_pct': 10,
+                        'note': "surcharge sur le montant d'impôt : +50 % "
+                                'au-delà de 200000, +100 % au-delà de 400000, '
+                                '+150 % au-delà de 2000000 ; en sus, '
+                                'Bausteuerzuschlag possible de max +20 % du '
+                                "montant d'impôt (financement de grands "
+                                'travaux)'},
+        'max_effectif_tiers_pct': 25,
+        'max_effectif_tiers_note': '10 % x 2.5 (surcharge +150 %) = 25 % ; '
+                                   "jusqu'à 30 % si Bausteuerzuschlag de 20 % "
+                                   'appliqué',
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'ZG': {'loi': 'Steuergesetz 25.05.2000, §§ 172-186',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'y compris Stiefkinder'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern und Stiefeltern exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': "40 % du montant d'impôt "
+                                                     'du barème',
+                                   'note': 'Geschwister, Stiefgeschwister'},
+                       'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': False,
+                                    'note': '« Lebenspartner » exonérés — '
+                                            'aucune condition de durée '
+                                            'précisée dans la source'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': "100 % du montant d'impôt "
+                                                   'du barème',
+                                 'note': 'beaux-enfants/beaux-parents 20 % ; '
+                                         'grands-parents/oncles/tantes/enfants '
+                                         'de fratrie 60 % ; petits-enfants de '
+                                         "fratrie/enfants d'oncles-tantes 80 "
+                                         '%'}},
+        'bareme_base': {'forme': 'progressif',
+                        'min_pct': 10,
+                        'max_pct': 20,
+                        'note': "20 % au-delà de 600000 ; l'impôt dû = "
+                                'pourcentage (selon parenté) du montant '
+                                'calculé au barème ; franchise 5000 (cadeaux '
+                                'usuels), 10000 pour '
+                                'Pflegekinder/filleuls/personnel'},
+        'max_effectif_tiers_pct': 20,
+        'communal': 'aucun impôt communal ; 100 % du produit revient aux '
+                    'Einwohnergemeinden'},
+ 'FR': {'loi': 'LISD 14.09.2007 (art. 8, 24, 25) + LICo 10.05.1963',
+        'succession': True,
+        'donation': True,
+        'reprise_donations': '« Les donations effectuées au cours des cinq '
+                             "dernières années précédant le décès d'un défunt "
+                             'sont prises en compte dans le calcul des droits '
+                             'de succession » (dossier_erbschaft_fr.pdf, '
+                             'p. 8, note 3).',
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': '« parents en ligne directe » '
+                                              'exonérés ; enfants du '
+                                              'conjoint/partenaire, enfants '
+                                              'placés ou recueillis et leurs '
+                                              'descendants : taxés 7.75 %'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'ligne directe (ascendants) '
+                                          'exonérée'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '5.25 %'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'note': '8.25 % si ménage commun >=10 ans '
+                                            'avec même domicile fiscal ; '
+                                            'sinon 22 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '22 % ; neveux/oncles 8.25 %, '
+                                         'petits-neveux 10.50 %, cousins '
+                                         '12.75 %, descendants de cousins '
+                                         '17.25 %'}},
+        'bareme_base': {'forme': 'proportionnel par classe',
+                        'min_pct': 5.25,
+                        'max_pct': 22,
+                        'note': 'déduction personnelle 5000 par bénéficiaire '
+                                '(une seule fois par 5 ans pour le même '
+                                'disposant)'},
+        'max_effectif_tiers_pct': 22,
+        'max_effectif_tiers_note': 'hors centimes additionnels communaux ; '
+                                   'avec centimes (max 70 % selon complément) '
+                                   ": jusqu'à 37.4 %",
+        'communal': 'les communes sont autorisées à prélever des centimes '
+                    "additionnels à l'impôt cantonal (Steuermäppchen sans "
+                    'plafond chiffré ; complément dossier FR déc. 2024 : max '
+                    "70 % de l'impôt cantonal, utilisé par toutes les "
+                    'communes sauf Pierrafortscha)'},
+ 'SO': {'loi': 'StG 01.12.1985, §§ 217-245 + VV 28.01.1986 + ATB 12.02.1996',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen, Adoptivkinder et '
+                                              'leurs descendants'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern und Adoptiveltern exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': 'Klasse 2',
+                                   'note': 'barème progressif 4-12 % '
+                                           '(marginal max 12 % sur la tranche '
+                                           '76000-167183, puis 10 %)'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': 'Klasse 3',
+                                    'note': '>=5 ans de ménage commun '
+                                            'ininterrompu avec même domicile '
+                                            'fiscal au moment de la naissance '
+                                            'de la créance fiscale : Klasse 3 '
+                                            '(6-18 %) ; sinon Klasse 5'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': 'Klasse 5',
+                                 'note': '12-36 % ; '
+                                         'oncles/tantes/neveux/nièces Klasse '
+                                         '4 (9-27 %)'}},
+        'bareme_base': {'forme': 'progressif par classes (5 classes)',
+                        'min_pct': 2,
+                        'max_pct': 36,
+                        'note': 'Klasse 5 : 12 % (premiers 30396), 30 %, 36 % '
+                                '(tranche 76000-167183), 30 % ab 167183 ; '
+                                'JÄHRLICHES VIELFACHES applicable (multiple '
+                                'annuel, valeur non précisée dans la source) '
+                                '; déduction 15200 par libéralité (une fois '
+                                'par 5 ans par donateur) ; en sus '
+                                'NACHLASSTAXE sur la masse successorale nette '
+                                ': 8 pour mille (<=500000) à 17 pour mille, '
+                                '12 pour mille sur le tout au-delà de '
+                                '2000000'},
+        'max_effectif_tiers_pct': 36,
+        'max_effectif_tiers_note': 'marginal max Klasse 5 AVANT multiple '
+                                   'annuel (non chiffré dans la source) et '
+                                   'hors Nachlasstaxe (max 17 pour mille)',
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'BS': {'loi': 'Gesetz über die direkten Steuern 12.04.2000, §§ 117-134 + VV '
+               '14.11.2002',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen, Adoptivnachkommen '
+                                              'et Pflegekinder'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'note': '4 % de base (Eltern, '
+                                          'Adoptiveltern) + surcharge selon '
+                                          'montant -> max 11 %'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '6 % de base (avec grands-parents, '
+                                           'Halbgeschwister, '
+                                           'beaux-enfants/beaux-parents) -> '
+                                           'max 16.5 %'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'note': '6 % de base (« Personen in '
+                                            'nichtehelichen '
+                                            'Zusammenlebensformen ») — aucune '
+                                            'condition de durée précisée dans '
+                                            'la source'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '18 % de base ; neveux/nièces 8 %, '
+                                         'oncles/tantes/beaux-frères 10 %, '
+                                         'autres parents avec droit '
+                                         'successoral 14 %'}},
+        'bareme_base': {'forme': 'proportionnel par classe + surcharge '
+                                 'progressive',
+                        'min_pct': 4,
+                        'max_pct': 18,
+                        'note': "surcharge sur le montant d'impôt : +25 % "
+                                '(<=100000) à +175 % (>3000000) ; lissage au '
+                                'passage de palier ; déduction 2000 '
+                                '(succession seulement) ; donations entre '
+                                'vifs <=10000 exonérées, Heiratsgut <=40000'},
+        'max_effectif_tiers_pct': 49.5,
+        'max_effectif_tiers_note': '18 % x 2.75 (surcharge +175 % au-delà de '
+                                   '3000000)',
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'BL': {'loi': 'ErbStG 07.01.1980 + VErbStG 16.06.1981',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'descendants directs ; '
+                                              'assimilés : Stief- und '
+                                              'Pflegekinder si >=10 ans de '
+                                              'ménage commun avant leurs 25 '
+                                              'ans (sinon taxés 7.5 % avec '
+                                              'franchise 50000)'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern expressément exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'franchise': 30000,
+                                   'note': '15 % (avec grands-parents, '
+                                           'arrière-grands-parents, '
+                                           'beaux-parents, beaux-enfants, '
+                                           'Stiefeltern, Stiefgrosskinder)'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'franchise': 30000,
+                                    'note': '15 % si >=5 ans de ménage commun '
+                                            'ininterrompu ; sinon übrige 30 % '
+                                            '(franchise 10000)'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'franchise': 10000,
+                                 'note': '30 % ; oncles/tantes/neveux/cousins '
+                                         'etc. 22.5 % (franchise 20000)'}},
+        'bareme_base': {'forme': 'proportionnel par classe avec franchises',
+                        'min_pct': 7.5,
+                        'max_pct': 30,
+                        'note': 'pas de surcharge ni multiple annuel ; '
+                                'Belastungsgrenze : il doit rester au moins '
+                                '10000 de la dévolution après impôt'},
+        'max_effectif_tiers_pct': 30,
+        'communal': 'aucun impôt communal (part au produit non mentionnée '
+                    'dans la source)'},
+ 'SH': {'loi': 'Gesetz über die Erbschafts- und Schenkungssteuer 13.12.1976 + '
+               'Verordnung 13.12.1976',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen, Adoptiv- und '
+                                              'Stiefkinder ; Pflegekinder '
+                                              'assimilés si prise en charge '
+                                              '>=2 ans'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': 'x1',
+                                  'franchise': 30000,
+                                  'note': 'Eltern, Adoptiv- und Stiefeltern'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': 'x2',
+                                   'franchise': 10000,
+                                   'note': 'avec grands-parents (voll- und '
+                                           'halbbürtige Geschwister)'},
+                       'concubin': {'statut': 'taxe_lourd',
+                                    'multiplicateur': 'x5',
+                                    'franchise': 10000,
+                                    'note': 'aucune disposition spécifique '
+                                            'dans la source -> übrige x5'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': 'x5',
+                                 'franchise': 10000,
+                                 'note': 'autres parents souche parentale x3, '
+                                         'souche grand-parentale x4'}},
+        'bareme_base': {'forme': 'progressif',
+                        'min_pct': 2,
+                        'max_pct': 10,
+                        'note': '10 % marginal sur la tranche 520000-700000 ; '
+                                'au-delà de 700000 : 8 % sur la totalité'},
+        'max_effectif_tiers_pct': 50,
+        'max_effectif_tiers_note': '10 % x 5 (marginal) ; au-delà de 700000 : '
+                                   '8 % x 5 = 40 % sur la totalité',
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'AR': {'loi': 'Steuergesetz 21.05.2000, art. 3a et 135-149',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen ainsi que Stief- '
+                                              'und Pflegekinder'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern expressément exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'franchise': 5000,
+                                   'note': '22 % (avec grands-parents, '
+                                           'Stiefeltern, beaux-parents, '
+                                           'beaux-enfants)'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'franchise': 10000,
+                                    'note': '12 % (« nicht verheiratete '
+                                            'Lebenspartner ») — aucune '
+                                            'condition de durée précisée dans '
+                                            'la source ; déduction 10000 par '
+                                            'dévolution'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'franchise': 5000,
+                                 'note': '32 %'}},
+        'bareme_base': {'forme': 'proportionnel par classe',
+                        'min_pct': 12,
+                        'max_pct': 32,
+                        'note': "franchise générale : dévolutions jusqu'à "
+                                '2000 exonérées'},
+        'max_effectif_tiers_pct': 32,
+        'communal': 'aucun impôt communal ; les Einwohnergemeinden reçoivent '
+                    '50 % du produit cantonal'},
+ 'AI': {'loi': 'Steuergesetz 25.04.1999, art. 58 et 95-102',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'taxe',
+                                      'multiplicateur': None,
+                                      'franchise': 300000,
+                                      'note': 'TAXÉS 1 % (Nachkommen und '
+                                              'Stiefkinder) ; franchise '
+                                              '300000 par '
+                                              'descendant/Stiefkind/Pflegekind '
+                                              '(>=2 ans)'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'franchise': 20000,
+                                  'note': '4 % (Eltern und Grosseltern) ; '
+                                          'franchise 20000 par Elternteil'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'franchise': 5000,
+                                   'note': '6 % (Geschwister und '
+                                           'Adoptivgeschwister)'},
+                       'concubin': {'statut': 'taxe_lourd',
+                                    'multiplicateur': None,
+                                    'franchise': 5000,
+                                    'note': 'non mentionné dans la source -> '
+                                            'übrige 20 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'franchise': 5000,
+                                 'note': '20 % ; nièces/neveux 9 %, '
+                                         'tantes/oncles/Pflegekinder/Stiefeltern '
+                                         '12 %'}},
+        'bareme_base': {'forme': 'proportionnel par classe',
+                        'min_pct': 1,
+                        'max_pct': 20,
+                        'note': "cadeaux usuels et Heiratsgut jusqu'à 5000 "
+                                'exonérés'},
+        'max_effectif_tiers_pct': 20,
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'SG': {'loi': 'Steuergesetz 09.04.1998, art. 142-157 + Steuerverordnung '
+               '20.10.1998',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen ainsi que Stief- '
+                                              'und Pflegekinder'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'franchise': 25000,
+                                  'note': '10 % (Eltern, '
+                                          'Stief-/Pflegeeltern)'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'franchise': 10000,
+                                   'note': '20 % (avec beaux-parents, '
+                                           'gendre/bru, grands-parents)'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'franchise': 25000,
+                                    'note': '10 % (Konkubinatspartner) — '
+                                            'aucune condition de durée '
+                                            'précisée dans la source'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'franchise': 10000,
+                                 'note': '30 %'}},
+        'bareme_base': {'forme': 'proportionnel par classe',
+                        'min_pct': 10,
+                        'max_pct': 30,
+                        'note': 'dévolutions <5000 exonérées'},
+        'max_effectif_tiers_pct': 30,
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'GR': {'loi': 'Steuergesetz 08.06.1986, art. 106-115 + GKStG 31.08.2006 art. '
+               '21 + Steuergesetz Stadt Chur 08.11.2007 art. 9',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen, '
+                                              'Stief-/Pflegekinder, '
+                                              'descendants non communs du '
+                                              'conjoint/concubin et leurs '
+                                              'descendants'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern, Stief-/Pflegeeltern '
+                                          'exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '5 % (bénéficiaires de la souche '
+                                           'parentale / elterlicher Stamm)'},
+                       'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': False,
+                                    'note': 'Konkubinatspartner exonérés — '
+                                            'aucune condition de durée '
+                                            'précisée dans la source'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '15 % (übrige)'}},
+        'bareme_base': {'forme': 'proportionnel (2 classes)',
+                        'min_pct': 5,
+                        'max_pct': 15,
+                        'note': 'déductions : 7700 par libéralité, 15300 pour '
+                                'personnes dans le besoin'},
+        'max_effectif_tiers_pct': 15,
+        'max_effectif_tiers_note': 'cantonal seul ; impôt communal FACULTATIF '
+                                   'en sus (ex. Chur : 20 % pour les tiers -> '
+                                   "jusqu'à 35 % cumulé ; complément dossier "
+                                   'FR : communal max 25 % pour les autres '
+                                   'bénéficiaires)',
+        'communal': 'aucune part au produit cantonal ; '
+                    'Erbschafts-/Schenkungssteuer communale FACULTATIVE selon '
+                    'les règles du StG cantonal (exemple Stadt Chur : souche '
+                    'parentale 5 %, autres bénéficiaires 20 %)'},
+ 'AG': {'loi': 'Steuergesetz 15.12.1998, §§ 142-151 + Verordnung 11.09.2000, '
+               '§§ 49-54',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen, Stiefkinder, '
+                                              'Pflegekinder (>=2 ans de prise '
+                                              'en charge)'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'Eltern, Stiefeltern, Pflegeeltern '
+                                          'exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': 'Klasse 2',
+                                   'note': 'barème progressif 6-23 % (avec '
+                                           'grands-parents)'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': 'Klasse 1',
+                                    'note': '>=5 ans de ménage commun (même '
+                                            'domicile) : Klasse 1, 4-9 % ; '
+                                            'sinon Klasse 3'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': 'Klasse 3',
+                                 'note': 'barème progressif 12-32 %'}},
+        'bareme_base': {'forme': 'progressif par classes (3 classes)',
+                        'min_pct': 4,
+                        'max_pct': 32,
+                        'note': 'marginal max Klasse 3 : 32 % au-delà de '
+                                '960000 ; cumul des libéralités entre mêmes '
+                                'personnes sur 5 ans pour le taux ; cadeaux '
+                                '<=5000 exonérés'},
+        'max_effectif_tiers_pct': 32,
+        'communal': 'aucun impôt communal ; la commune de domicile (ou de '
+                    'situation des biens) reçoit 1/3 du produit cantonal'},
+ 'TG': {'loi': 'Gesetz über die Erbschafts- und Schenkungssteuer 15.06.1989',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'Nachkommen exonérés ; '
+                                              'Stiefkinder TAXÉS 4 % de base '
+                                              '(comme '
+                                              'grands-parents/fratrie)'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'franchise': 20000,
+                                  'note': '2 % de base + surcharge -> max 7 % '
+                                          '; franchise 20000 par Elternteil'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '4 % de base (avec grands-parents, '
+                                           'Stiefkinder, beaux-enfants, '
+                                           'Pflegekinder >=2 ans) -> max 14 '
+                                           '%'},
+                       'concubin': {'statut': 'taxe_lourd',
+                                    'multiplicateur': None,
+                                    'note': 'non mentionné dans la source -> '
+                                            'übrige 8 % de base -> max 28 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '8 % de base ; '
+                                         'oncles/tantes/descendants de '
+                                         'fratrie 6 % (max 21 %)'}},
+        'bareme_base': {'forme': 'proportionnel par classe + surcharge '
+                                 'progressive',
+                        'min_pct': 2,
+                        'max_pct': 8,
+                        'note': "surcharge : +0.5 % de l'impôt simple par "
+                                "tranche de 1000 jusqu'à 500000 ; au-delà de "
+                                '500000 : +250 % uniforme (facteur max 3.5) ; '
+                                'cadeaux et dévolutions légales <=5000 '
+                                'exonérés ; personnes durablement dépendantes '
+                                'de soins : franchise 100000'},
+        'max_effectif_tiers_pct': 28,
+        'communal': 'aucun impôt communal, aucune part au produit cantonal'},
+ 'TI': {'loi': 'Legge tributaria 21.06.1994, art. 141-178 + Regolamento '
+               '18.10.1994',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'non listé explicitement dans la '
+                                            'page Steuermäppchen (le tableau '
+                                            'des multiples commence aux '
+                                            'frères) ; exonération confirmée '
+                                            'par le complément '
+                                            'dossier_erbschaft_fr (tableau '
+                                            '§6, déc. 2024)'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'même réserve : confirmé '
+                                              'exonéré par le complément '
+                                              'dossier_erbschaft_fr (tableau '
+                                              '§6)'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'même réserve : confirmé exonéré '
+                                          'par le complément '
+                                          'dossier_erbschaft_fr (tableau §6)'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': 'x1.0',
+                                   'note': "frères et enfants d'un autre lit "
+                                           '; taux maximum plafonné à 15.5 %'},
+                       'concubin': {'statut': 'taxe_lourd',
+                                    'multiplicateur': 'x3.0',
+                                    'note': 'non mentionné dans la source -> '
+                                            'non-parents x3.0, taux max 35 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': 'x3.0',
+                                 'note': 'neveux/oncles/beaux-parents x1.3 '
+                                         '(max 18.5 %) ; '
+                                         'petits-neveux/cousins/beaux-fils '
+                                         'x1.8 (max 27 %)'}},
+        'bareme_base': {'forme': 'progressif',
+                        'min_pct': 5.95,
+                        'max_pct': 17.85,
+                        'note': '17.85 % au-delà de 675100 ; les 10000 '
+                                'premiers francs par bénéficiaire (par '
+                                'disposant) exonérés'},
+        'max_effectif_tiers_pct': 35,
+        'max_effectif_tiers_note': 'plafond EXPLICITE « Taux maximum en % » '
+                                   'de la source pour la classe x3.0 (sans '
+                                   'plafond, 17.85 x 3 = 53.55)',
+        'communal': 'aucun impôt communal'},
+ 'VD': {'loi': 'Loi 27.02.1963 (droit de mutation + successions/donations) + '
+               "arrêté d'application 01.06.2005 + loi 05.12.1956 sur les "
+               'impôts communaux',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'conjoint survivant et partenaire '
+                                            'enregistré'},
+                       'descendant': {'statut': 'taxe',
+                                      'multiplicateur': None,
+                                      'note': 'ligne directe TAXÉE : 1.350 % '
+                                              '(part 20000) à 2.859 % (part '
+                                              '500000, extrait du barème) ; '
+                                              'déduction 1000000 par souche '
+                                              'héréditaire (réduite de 1/100e '
+                                              'par tranche de 1000 dès '
+                                              '1001000) ; donations '
+                                              '<=300000/an par enfant en '
+                                              'ligne directe descendante '
+                                              'exonérées'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'note': 'père/mère, grands-parents, '
+                                          'arrière-grands-parents, '
+                                          "descendants d'un précédent mariage "
+                                          'du conjoint : 2.970-6.289 % '
+                                          '(extrait)'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': 'frères/sœurs, gendres et brus : '
+                                           '5.940-12.500 % (extrait)'},
+                       'concubin': {'statut': 'taxe_lourd',
+                                    'multiplicateur': None,
+                                    'note': 'non mentionné dans la source -> '
+                                            'autres collatéraux et personnes '
+                                            'non apparentées : 17.820-25.000 '
+                                            '%'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '17.820 % (part 20000) à 25.000 % '
+                                         '(part 500000, extrait) ; '
+                                         'oncles/tantes/neveux 8.910-16.500 % '
+                                         '; grands-oncles/cousins '
+                                         '13.860-20.000 %'}},
+        'bareme_base': {'forme': 'progressif par catégorie (extrait du barème '
+                                 'général dans la source)',
+                        'min_pct': 1.35,
+                        'max_pct': 25,
+                        'note': 'pas de surtaxe, pas de multiple annuel ; '
+                                'parts <10000 par bénéficiaire exonérées ; '
+                                'donations <=10000/an par bénéficiaire '
+                                'exonérées'},
+        'max_effectif_tiers_pct': 25,
+        'max_effectif_tiers_note': "valeur au palier 500000 de l'extrait de "
+                                   'barème publié (barème complet non '
+                                   'reproduit dans la source) ; hors centimes '
+                                   'communaux : avec centimes max (100 % de '
+                                   "l'impôt cantonal), jusqu'à 50 %",
+        'communal': 'les communes de domicile du défunt/donateur peuvent '
+                    "prélever des centimes additionnels jusqu'à concurrence "
+                    "de l'impôt cantonal (max un franc par franc perçu par "
+                    "l'État = +100 %) ; pas de participation au rendement "
+                    'cantonal'},
+ 'VS': {'loi': 'Loi fiscale 10.03.1976, art. 1 et 111-118',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere', 'note': None},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'descendants en ligne directe '
+                                              'et enfants adoptifs'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'ascendants en ligne directe '
+                                          'exonérés'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '10 % (parentèle des pères et '
+                                           'mères)'},
+                       'concubin': {'statut': 'exonere',
+                                    'exoneration_conditionnelle': True,
+                                    'note': 'exonéré si concubinage éprouvé '
+                                            '>=5 ans OU enfant en commun ; '
+                                            'sinon autres attributions 25 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '25 % ; parentèle des grands-parents '
+                                         '15 %, des arrière-grands-parents 20 '
+                                         '%'}},
+        'bareme_base': {'forme': 'proportionnel par parentèle',
+                        'min_pct': 10,
+                        'max_pct': 25,
+                        'note': 'parts successorales <=20000 exonérées ; '
+                                'donations annuelles <10000 exonérées ; pas '
+                                'de multiple annuel'},
+        'max_effectif_tiers_pct': 25,
+        'communal': 'aucun impôt communal ; les communes participent à raison '
+                    "de 2/3 au rendement net de l'impôt cantonal"},
+ 'NE': {'loi': 'Loi du 01.10.2002 instituant un impôt sur les successions et '
+               'sur les donations entre vifs',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'conjoint exonéré ; partenaire '
+                                            'enregistré exonéré seulement si '
+                                            'le partenariat a duré au moins 2 '
+                                            'ans'},
+                       'descendant': {'statut': 'taxe',
+                                      'multiplicateur': None,
+                                      'franchise': 50000,
+                                      'note': 'TAXÉS 3 % (héritiers 1ère '
+                                              'parentèle = enfants) ; '
+                                              'déduction personnelle 50000 '
+                                              'pour les enfants (et 50000 '
+                                              "pour les descendants d'un "
+                                              'enfant prédécédé)'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'franchise': 50000,
+                                  'note': '3 % (pères et mères, '
+                                          'grands-parents) ; déduction 50000 '
+                                          'pour les parents'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '15 %'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'note': '20 % si ménage commun >=5 ans '
+                                            'avec le défunt/donateur ; sinon '
+                                            '45 % (sans degré de parenté)'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '45 % (bénéficiaires sans degré de '
+                                         'parenté) ; neveux 18 %, '
+                                         'oncles/tantes 20 %, petits-neveux '
+                                         '21 %, cousins 23 %, alliés 2e '
+                                         'parentèle 31 %'}},
+        'bareme_base': {'forme': 'proportionnel par degré de parenté',
+                        'min_pct': 3,
+                        'max_pct': 45,
+                        'note': 'dispositions entre vifs <=10000 exonérées ; '
+                                'dispositions pour cause de mort <=10000 '
+                                'exonérées (sauf enfants/descendants/parents) '
+                                '; impôt minimum 100 CHF si inventaire ; pas '
+                                'de multiple annuel'},
+        'max_effectif_tiers_pct': 45,
+        'communal': 'aucun impôt communal, aucune participation au produit '
+                    'cantonal'},
+ 'GE': {'loi': 'LDS 26.11.1960 + LDE 09.10.1969 + LBA (budget annuel)',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': "EXCEPTION : pas d'exonération si "
+                                            'le défunt/donateur était imposé '
+                                            "d'après la dépense (forfait) "
+                                            "lors de l'une des 3 dernières "
+                                            'taxations définitives -> barème '
+                                            '1ère catégorie 0-6 % (succession '
+                                            'et donation)'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'même exception forfait-dépense '
+                                              ': enfants 0-6 %, '
+                                              'petits-enfants 2.4-7.2 % '
+                                              '(succession) / 3.6-7.2 % '
+                                              '(donation), autres descendants '
+                                              '2.6-7.8 % / 3.9-7.8 %'},
+                       'parent': {'statut': 'exonere',
+                                  'note': 'ascendants exonérés, même '
+                                          'exception forfait-dépense '
+                                          '(père/mère 0-6 %)'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': 'succession : 6-11 % (>200000) ; '
+                                           'donation : 9-12 % (>300000) ; + '
+                                           'centimes additionnels cantonaux'},
+                       'concubin': {'statut': 'taxe_lourd',
+                                    'multiplicateur': None,
+                                    'note': 'non mentionné dans la source -> '
+                                            'autres bénéficiaires'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': 'succession : 20-26 % (>100000) ; '
+                                         'donation : 24-26 % ; '
+                                         'oncles/tantes/neveux : 8-13 % '
+                                         '(succession) / 10.5-14 % (donation) '
+                                         '; + centimes additionnels '
+                                         'cantonaux'}},
+        'bareme_base': {'forme': 'progressif par catégorie, barèmes distincts '
+                                 'succession / donation',
+                        'min_pct': 6,
+                        'max_pct': 26,
+                        'note': '26 % au-delà de 200000 (succession, autres '
+                                'bénéficiaires) ; petites libéralités '
+                                'exonérées (5000 première catégorie, 2500 '
+                                'institués non légaux, 500 autres, 10000 '
+                                'descendant mineur héritier légal)'},
+        'max_effectif_tiers_pct': 26,
+        'max_effectif_tiers_note': 'hors CENTIMES ADDITIONNELS CANTONAUX : '
+                                   'fixés chaque année par le Grand Conseil, '
+                                   'taux NON CHIFFRÉ dans les deux sources ; '
+                                   'aucun centime sur la 1ère catégorie '
+                                   '(ligne directe, conjoint, alliés). La '
+                                   'charge effective tiers est donc '
+                                   'supérieure à 26 % sans que la source '
+                                   'permette de la chiffrer',
+        'communal': 'aucun impôt communal, aucune participation au produit '
+                    'cantonal (la surtaxe en centimes est cantonale)'},
+ 'JU': {'loi': 'LISD 13.12.2006, art. 10, 11, 21 et 22',
+        'succession': True,
+        'donation': True,
+        'categories': {'conjoint': {'statut': 'exonere',
+                                    'note': 'y compris partenaire enregistré'},
+                       'descendant': {'statut': 'exonere',
+                                      'note': 'descendants exonérés ; enfants '
+                                              'du '
+                                              'conjoint/ex-conjoint/partenaire/ex-partenaire '
+                                              'et leurs descendants, enfants '
+                                              'placés ou confiés : taxés 7 %'},
+                       'parent': {'statut': 'taxe',
+                                  'multiplicateur': None,
+                                  'note': 'TAXÉS 7 % (les ascendants)'},
+                       'fratrie': {'statut': 'taxe',
+                                   'multiplicateur': None,
+                                   'note': '14 % (avec le conjoint des '
+                                           'ascendants)'},
+                       'concubin': {'statut': 'taxe',
+                                    'multiplicateur': None,
+                                    'note': '14 % si ménage commun >10 ans '
+                                            'avec le défunt/donateur (idem '
+                                            'ses descendants et ceux de '
+                                            "l'ex-concubin >10 ans) ; sinon "
+                                            '35 %'},
+                       'tiers': {'statut': 'taxe_lourd',
+                                 'multiplicateur': None,
+                                 'note': '35 % (autres parents, parents par '
+                                         'alliance, sans parenté) ; '
+                                         'oncles/tantes/neveux/cousins/beaux-frères '
+                                         '21 %'}},
+        'bareme_base': {'forme': 'proportionnel par degré de parenté',
+                        'min_pct': 7,
+                        'max_pct': 35,
+                        'note': 'biens acquis <10000 exonérés (cumul des '
+                                'acquisitions de la même personne sur les 5 '
+                                'années précédentes) ; pas de multiple '
+                                'annuel'},
+        'max_effectif_tiers_pct': 35,
+        'communal': 'aucun impôt communal ; les communes participent à raison '
+                    "de 20 % au rendement de l'impôt cantonal"}}
+
+
+def _fmt_chf(montant: float) -> str:
+    """1000000 -> « 1'000'000 » (style suisse)."""
+    return f"{montant:,.0f}".replace(",", "'")
+
+
+def verdict(
+    canton: str, categorie: str, type_transmission: str = "succession"
+) -> dict:
+    """Verdict directionnel du socle pour un canton × catégorie.
+
+    Args:
+        canton: code canton (2 lettres, ex. "GE").
+        categorie: "conjoint" | "descendant" | "parent" | "fratrie" |
+            "concubin" | "tiers".
+        type_transmission: "succession" | "donation".
+
+    Returns:
+        dict {statut, plage_max_pct | None, mecanismes: [str],
+        bascule: str | None, source} — sans montant ni taux plat :
+        la plage n'est renvoyée que si la source la donne.
+    """
+    if categorie not in CATEGORIES:
+        raise ValueError(f"catégorie inconnue : {categorie!r}")
+    if type_transmission not in TYPES_TRANSMISSION:
+        raise ValueError(f"type de transmission inconnu : {type_transmission!r}")
+
+    code = (canton or "").strip().upper()
+    data = SOCLE_CANTONS.get(code)
+
+    if data is None:
+        return {
+            "canton": code,
+            "categorie": categorie,
+            "type_transmission": type_transmission,
+            "statut": STATUT_INCONNU,
+            "plage_max_pct": None,
+            "mecanismes": [
+                "Canton non couvert par le socle ESTV 2025 — consulter "
+                "l'administration fiscale cantonale pour les règles "
+                "applicables."
+            ],
+            "bascule": None,
+            "source": SOCLE_SOURCE,
+        }
+
+    loi = data.get("loi")
+    source = f"{loi} — {SOCLE_SOURCE}" if loi else SOCLE_SOURCE
+    communal = data.get("communal")
+
+    # Cantons sans impôt succession/donation (SZ, OW) — et LU côté donation.
+    leve_cet_impot = data.get(type_transmission, False)
+    if not leve_cet_impot:
+        mecanismes = []
+        if code == "LU" and type_transmission == "donation":
+            mecanismes.append(_LU_DONATION_MESSAGE)
+        if communal:
+            mecanismes.append(f"Communal : {communal}")
+        return {
+            "canton": code,
+            "categorie": categorie,
+            "type_transmission": type_transmission,
+            "statut": STATUT_EXONERE,
+            "plage_max_pct": None,
+            "mecanismes": mecanismes,
+            "bascule": None,
+            "source": source,
+        }
+
+    cat = data["categories"][categorie]
+    statut = cat["statut"]
+
+    # Plage : seulement la classe au tarif maximal du canton, dont
+    # max_effectif_tiers_pct est le plafond sourcé. Jamais de plage
+    # fabriquée pour les autres classes.
+    plage_max_pct: Optional[float] = None
+    if statut == STATUT_TAXE_LOURD:
+        max_pct = data.get("max_effectif_tiers_pct")
+        if max_pct:
+            plage_max_pct = max_pct
+
+    mecanismes = []
+    franchise = cat.get("franchise")
+    if franchise:
+        mecanismes.append(f"Franchise {_fmt_chf(franchise)} CHF")
+    multiplicateur = cat.get("multiplicateur")
+    if multiplicateur:
+        mecanismes.append(f"Multiplicateur {multiplicateur}")
+    note = cat.get("note")
+    if note:
+        mecanismes.append(note)
+    if plage_max_pct is not None and data.get("max_effectif_tiers_note"):
+        mecanismes.append(data["max_effectif_tiers_note"])
+    if communal:
+        mecanismes.append(f"Communal : {communal}")
+
+    # Pas de bascule pour une exonération inconditionnelle (GR/ZG) : la
+    # source ne documente aucune condition, on n'en suggère pas une.
+    bascule = None
+    if categorie == "concubin" and (
+        statut != STATUT_EXONERE or cat.get("exoneration_conditionnelle")
+    ):
+        bascule = _BASCULE_CONCUBIN
+        if note:
+            bascule += f" Condition cantonale actuelle pour concubin·e : {note}"
+
+    return {
+        "canton": code,
+        "categorie": categorie,
+        "type_transmission": type_transmission,
+        "statut": statut,
+        "plage_max_pct": plage_max_pct,
+        "mecanismes": mecanismes,
+        "bascule": bascule,
+        "source": source,
+    }

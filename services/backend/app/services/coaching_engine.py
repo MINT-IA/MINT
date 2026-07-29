@@ -302,34 +302,10 @@ class CoachingEngine:
     # Simplified marginal tax rates by canton
     # (combined: federal + cantonal + communal, ~80 kCHF income)
     # Aligned with Flutter coaching_service.dart for consistency.
-    CANTON_MARGINAL_TAX_RATES = {
-        "ZH": 0.34,
-        "BE": 0.38,
-        "LU": 0.30,
-        "UR": 0.25,
-        "SZ": 0.24,
-        "OW": 0.25,
-        "NW": 0.25,
-        "GL": 0.29,
-        "ZG": 0.22,
-        "FR": 0.35,
-        "SO": 0.35,
-        "BS": 0.37,
-        "BL": 0.35,
-        "SH": 0.33,
-        "AR": 0.30,
-        "AI": 0.27,
-        "SG": 0.33,
-        "GR": 0.32,
-        "AG": 0.33,
-        "TG": 0.31,
-        "TI": 0.35,
-        "VD": 0.37,
-        "VS": 0.32,
-        "NE": 0.38,
-        "GE": 0.37,
-        "JU": 0.38,
-    }
+    # `CANTON_MARGINAL_TAX_RATES` a ete SUPPRIMEE le 2026-07-27. Ne pas la
+    # reintroduire : elle donnait 0.34 pour Zurich contre 0.248 a l'etalon
+    # ESTV. Le taux marginal est une DERIVEE du modele fiscal, jamais une
+    # table (garde : tools/checks/no_cantonal_rate_table.py).
     DEFAULT_MARGINAL_TAX_RATE = 0.33
 
     # Priority ordering for sort
@@ -381,11 +357,18 @@ class CoachingEngine:
     # Helper: get marginal tax rate
     # ------------------------------------------------------------------
 
-    def _get_marginal_rate(self, canton: str) -> float:
-        """Get simplified marginal tax rate for a canton."""
-        return self.CANTON_MARGINAL_TAX_RATES.get(
-            canton.upper(), self.DEFAULT_MARGINAL_TAX_RATE
-        )
+    def _get_marginal_rate(self, canton: str, revenu_annuel: float = 0.0) -> float:
+        """Taux marginal — PENTE du modele fiscal canonique, plus une table.
+
+        `CANTON_MARGINAL_TAX_RATES` donnait 0.34 pour Zurich la ou l'etalon
+        ESTV donne 0.248 a 80k : dix points d'ecart, propages dans chaque
+        economie d'impot affichee par le coach.
+        """
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        if revenu_annuel <= 0:
+            return 0.0
+        return estimate_marginal_rate(revenu_annuel, canton.upper())
 
     # ------------------------------------------------------------------
     # (a) 3a deadline (Oct 1 - Dec 31)
@@ -423,7 +406,7 @@ class CoachingEngine:
         days_remaining = (end_of_year - today).days
 
         # Calculate fiscal impact
-        taux = self._get_marginal_rate(profile.canton)
+        taux = self._get_marginal_rate(profile.canton, profile.revenu_annuel)
         if profile.has_3a:
             montant_deductible = montant_restant
         else:
@@ -477,7 +460,7 @@ class CoachingEngine:
         else:
             plafond = self.PLAFOND_3A_SALARIE
 
-        taux = self._get_marginal_rate(profile.canton)
+        taux = self._get_marginal_rate(profile.canton, profile.revenu_annuel)
         economie_annuelle = plafond * taux
 
         tips.append(CoachingTip(
@@ -493,8 +476,8 @@ class CoachingEngine:
                 f"L'impact reel depend de votre revenu imposable."
             ),
             action=(
-                "Ouvrez un compte 3a aupres d'une banque ou d'une assurance "
-                "et commencez a epargner des maintenant."
+                "Comparer les comptes 3a (banque, assurance) selon les frais "
+                "et la souplesse de versement, puis décider où épargner."
             ),
             estimated_impact_chf=round(economie_annuelle, 2),
             source="LIFD art. 33",
@@ -517,7 +500,7 @@ class CoachingEngine:
         if profile.age < 25:
             return tips
 
-        taux = self._get_marginal_rate(profile.canton)
+        taux = self._get_marginal_rate(profile.canton, profile.revenu_annuel)
         # Estimate: suggest buying back up to the full gap,
         # but show impact for a reasonable yearly amount
         montant_rachat_sugere = min(profile.lacune_lpp, 20_000.0)

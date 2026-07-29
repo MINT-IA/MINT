@@ -302,20 +302,6 @@
   "successionEdu3aBody": "Le 3e pilier est versé directement selon l'OPP3, pas selon ton testament.",
   "successionEduConcubinBody": "Les concubins n'ont aucun droit successoral légal. Sans testament, ils ne reçoivent rien.",
   "successionDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.",
-  "coachingAge25Title": "25 ans : démarrer son 3e pilier",
-  "coachingAge25Message": "À 25 ans, c'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.",
-  "coachingAge35Title": "35 ans : faire le point prévoyance",
-  "coachingAge35Message": "À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?",
-  "coachingAge45Title": "45 ans : optimiser sa stratégie",
-  "coachingAge45Message": "À 45 ans, il reste 20 ans avant la retraite. C'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.",
-  "coachingAge50Title": "50 ans : préparer sa retraite",
-  "coachingAge50Message": "À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.",
-  "coachingAge55Title": "55 ans : dernière ligne droite",
-  "coachingAge55Message": "À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l'impact fiscal.",
-  "coachingAge58Title": "58 ans : retraite anticipée possible",
-  "coachingAge58Message": "Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.",
-  "coachingAge63Title": "63 ans : derniers ajustements",
-  "coachingAge63Message": "À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Fonctionnalité en préparation — consultation réglementaire FINMA en cours",
   "openBankingAddBank": "Ajouter une banque",
@@ -1280,7 +1266,7 @@
   "firstJobHeaderDesc": "Comprends ta fiche de salaire ! On te montre où vont tes cotisations, ce que ton employeur paie en plus, et les premiers réflexes financiers à adopter.",
   "firstJobSalaryTitle": "Salaire brut mensuel",
   "firstJobActivityRate": "Taux d'activité",
-  "firstJob3aHeader": "PILIER 3A — À OUVRIR MAINTENANT",
+  "firstJob3aHeader": "PILIER 3A — À ENVISAGER",
   "firstJob3aAnnualCap": "Plafond annuel",
   "firstJob3aMonthlySuggestion": "Suggestion /mois",
   "firstJob3aWarningTitle": "ATTENTION — ASSURANCE-VIE 3A",
@@ -1413,17 +1399,6 @@
   "donationCalculer": "Calculer",
   "donationImpotTitle": "IMPÔT SUR LA DONATION",
   "donationExoneree": "Exonérée",
-  "donationTauxCanton": "Taux : {taux} % (canton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Montant de la donation",
   "donationLienRow": "Lien de parenté",
   "donationReserveTitle": "RÉSERVE HÉRÉDITAIRE (2023)",
@@ -1551,6 +1526,7 @@
   "housingSaleInvestissements": "Investissements valorisants",
   "housingSaleFraisAcquisition": "Frais d'acquisition (notaire, etc.)",
   "housingSaleResidencePrincipale": "Résidence principale",
+  "housingSaleAnneesOccupation": "Années d'occupation comme résidence principale",
   "housingSaleFinancementTitle": "FINANCEMENT",
   "housingSaleFinancementSubtitle": "Hypothèque restante",
   "housingSaleHypotheque": "Hypothèque restante",
@@ -1983,7 +1959,7 @@
   "naissanceChecklistItem7Desc": "Si tu réduis ton taux d'activité, tes cotisations LPP baissent. Chaque année à temps partiel représente moins de capital à la retraite. Envisage de compenser en versant le maximum au 3e pilier (CHF 7'258/an).",
   "naissanceChecklistItem8Title": "Rédiger ou mettre à jour le testament",
   "naissanceChecklistItem8Desc": "L'arrivée d'un enfant modifie l'ordre successoral. Les enfants sont des héritiers réservataires (CC art. 471). Si tu as un testament, vérifie qu'il respecte les réserves légales.",
-  "naissanceChecklistItem9Title": "Souscrire une assurance risque décès/invalidité",
+  "naissanceChecklistItem9Title": "Vérifier ta couverture risque décès/invalidité",
   "naissanceChecklistItem9Desc": "Avec un enfant à charge, la protection financière en cas de décès ou d'invalidité devient encore plus importante. Vérifie ta couverture actuelle (LPP, assurance-vie) et complète si nécessaire.",
   "naissanceBabyCostCreche": "Crèche / garde",
   "naissanceBabyCostCrecheNote": "Tarif moyen subventionné — varie fortement selon canton",
@@ -3892,7 +3868,7 @@
   "firstSalaryWeek1": "Semaine 1",
   "firstSalaryWeek2": "Semaine 2",
   "firstSalaryBefore31Dec": "Avant 31.12",
-  "firstSalaryTask1": "Ouvrir un compte 3a (banque ou fintech)",
+  "firstSalaryTask1": "Comparer les comptes 3a (banque ou fintech)",
   "firstSalaryTask2": "Mettre en place un virement automatique mensuel",
   "firstSalaryTask3": "Comparer les franchises LAMal avec tes dépenses de santé estimées",
   "firstSalaryTask4": "Vérifier ta RC privée (env. CHF 100/an)",
@@ -5709,7 +5685,7 @@
     }
   },
   "pillar3aIndepBonASavoir": "Bon à savoir",
-  "pillar3aIndepEduComptesTitle": "Ouvre plusieurs comptes 3a",
+  "pillar3aIndepEduComptesTitle": "Plusieurs comptes 3a, un retrait échelonné",
   "pillar3aIndepEduComptesBody": "Même avec le grand 3a, la stratégie des comptes multiples (jusqu’à 5) est recommandée pour optimiser le retrait échelonné à la retraite.",
   "pillar3aIndepEduConditionTitle": "Condition : pas de LPP",
   "pillar3aIndepEduConditionBody": "Le grand 3a (20 % du revenu, max 36’288) n’est accessible que si tu n’es pas affilié·e à une LPP volontaire. Avec LPP, le plafond tombe à 7’258.",
@@ -5992,8 +5968,8 @@
   "retroactive3aAvecRattrapage": "Avec rattrapage",
   "retroactive3aEconomieFiscale": "d’impact fiscal",
   "retroactive3aProchainesEtapes": "Prochaines étapes",
-  "retroactive3aOuvrirCompte": "Ouvrir un compte 3a",
-  "retroactive3aOuvrirCompteSubtitle": "Compare les prestataires et ouvre un compte dédié au rattrapage.",
+  "retroactive3aOuvrirCompte": "Envisager un compte 3a dédié",
+  "retroactive3aOuvrirCompteSubtitle": "Comparer les prestataires (frais, conditions) ; un compte dédié pourrait simplifier le suivi du rattrapage.",
   "retroactive3aPrepDocuments": "Préparer les documents",
   "retroactive3aPrepDocumentsSubtitle": "Certificat de salaire, attestation de cotisations AVS, justificatif d’absence de 3a pour chaque année.",
   "retroactive3aConsulterSpecialiste": "Consulter un·e spécialiste",
@@ -6231,24 +6207,6 @@
   "reportRetirementTitle": "Ta Retraite",
   "reportRetirementKeyLabel": "Revenu estimé à 65 ans",
   "reportRetirementSource": "Sources : LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Pas encore de 3a — marge déductible à estimer selon ton statut LPP",
-  "reportRetirement3aNoneWithRoom": "Pas encore de 3a — marge déductible estimée : CHF {amount}/an",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 compte 3a — ouvre un 2e pour optimiser le retrait",
-  "reportRetirement3aMulti": "{count} comptes 3a — bonne diversification",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Rachat LPP disponible : CHF {available} — impact fiscal estimé : CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
@@ -9484,7 +9442,7 @@
   "indepPlanInscriptionAvsConseq": "Amendes rétroactives si délai dépassé",
   "indepPlanLaa": "Assurance accidents LAA (si pas LPP)",
   "indepPlanLaaConseq": "Pas de couverture accident professionnel",
-  "indepPlanOuvrir3a": "Ouvrir compte 3a (déduction jusqu'à CHF 36'288)",
+  "indepPlanOuvrir3a": "Comparer les comptes 3a (déduction jusqu'à CHF 36'288)",
   "indepProtApg": "Disparaît — congé parental",
   "indepProtAvs": "Double ta cotisation",
   "indepProtIjm": "Disparaît — maladie 0 CHF",
@@ -13284,6 +13242,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Imposable",
+  "donationVerdictInconnu": "À vérifier",
+  "donationPlageJusqua": "jusqu'à ~{pct} % (barème cantonal, hors part communale)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

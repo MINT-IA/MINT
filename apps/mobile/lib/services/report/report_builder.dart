@@ -107,7 +107,7 @@ class ReportBuilder {
         recommendations.add(Recommendation(
           id: 'reco_3a_generic',
           kind: 'tax_optimization',
-          title: 'Ouvrir un 3e pilier',
+          title: 'Envisager un 3e pilier', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
           summary: 'Estime ta marge 3a avec ton revenu et ton canton.',
           why: [
             first3aTaxImpact > 0
@@ -270,7 +270,7 @@ class ReportBuilder {
       disclaimers: [
         'Ceci n\'est pas un conseil financier personnalisé.',
         'Les performances passées ne préjugent pas des performances futures.',
-        'Vérifie toujours tes capacités de remboursement avant de souscrire un crédit.',
+        'Vérifie toujours tes capacités de remboursement avant de t\'engager dans un crédit.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
       ],
       generatedAt: now,
     );

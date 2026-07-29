@@ -292,7 +292,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
         ),
         const SizedBox(height: 8),
         _buildAction(
-          '→ Souscris une APG privée (dès CHF 45/mois)',
+          '→ Comparer une APG privée (coût courant dès CHF 45/mois)', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
           MintColors.info,
         ),
       ],

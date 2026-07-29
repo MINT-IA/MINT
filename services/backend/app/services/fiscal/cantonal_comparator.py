@@ -92,43 +92,60 @@ FEDERAL_BRACKETS = [
 ]
 
 # Impôt cantonal+communal (chef-lieu) en CHF par revenu IMPOSABLE —
-# 26 cantons x 5 points, API officielle ESTV (swisstaxcalculator,
-# API_calculateSimpleTaxes, collecte 2026-07-23, beads MINT_nosync-97h).
+# 26 cantons x 8 points, API officielle ESTV (swisstaxcalculator,
+# API_calculateSimpleTaxes). Points 40k-250k : collecte 2026-07-23
+# (beads MINT_nosync-97h). Points bas 15k/25k/35k : collecte 2026-07-28
+# (finding INC-1 de l'oracle #1098, voir le bloc NŒUDS BAS ci-dessous).
 # Profil : célibataire, sans enfant, sans confession, fortune 0 ;
 # taxe personnelle incluse ; barèmes 2026 (SG et TI : 2025, l'ESTV
 # n'avait pas encore publié leur 2026 — re-collecter à publication).
 # Données brutes + vérifications : .planning/audit-etat-des-lieux-2026-07/
-# constants-audit/effective_rates_2026/ (identité cantonal+communal+IFD
-# == total ESTV validée sur les 130 points ; IFD recoupée Form. 58c 2026).
-CANTONAL_TAX_POINTS_INCOME = [40_000, 70_000, 100_000, 150_000, 250_000]
+# constants-audit/effective_rates_2026/ (points 40k-250k, identité
+# cantonal+communal+IFD == total ESTV validée sur les 130 points ; IFD
+# recoupée Form. 58c 2026) et constants-audit/etalon_noeuds_bas_2026/
+# (points bas 15k/25k/35k, porte d'intégrité 26/26 cantons).
+#
+# NŒUDS BAS (finding INC-1) : sous l'ancien premier nœud (40k),
+# l'interpolation linéaire depuis (0, 0) SURESTIMAIT l'impôt cantonal
+# jusqu'à +59.8 % (GE 30k : 2780 vs ESTV 1739), parce que la plupart des
+# cantons ont un seuil non imposable (~15k). Les nœuds 15k/25k/35k
+# ramènent l'erreur à 30k sous 4 % pour 25/26 cantons (TI : 6.8 %,
+# résiduel mesuré et documenté). LIMITE DITE : dans le genou post-seuil
+# [15k, 25k] (le barème cantonal y est le plus convexe), l'erreur
+# relative au point 20k reste élevée sur un impôt faible en absolu
+# (< ~260 CHF, soit < ~1.5 % du revenu) — estimation éducative, jamais un
+# conseil fiscal (LSFin).
+CANTONAL_TAX_POINTS_INCOME = [
+    15_000, 25_000, 35_000, 40_000, 70_000, 100_000, 150_000, 250_000,
+]
 
 CANTONAL_COMMUNAL_TAX_CHF = {
-    "AG": [3186, 8183, 13806, 23656, 44288],
-    "AI": [3146, 7022, 11096, 17860, 30400],
-    "AR": [4272, 9806, 15852, 26396, 47856],
-    "BE": [6839, 13129, 20273, 33232, 60810],
-    "BL": [3579, 10563, 18511, 32802, 62251],
-    "BS": [8400, 14700, 21000, 31500, 54844],
-    "FR": [5027, 11704, 18992, 32619, 59400],
-    "GE": [3706, 10593, 17967, 30803, 58279],
-    "GL": [3790, 8942, 14373, 23990, 45027],
-    "GR": [3097, 8622, 14368, 24362, 44579],
-    "JU": [4875, 11430, 18651, 31852, 58743],
-    "LU": [3410, 7760, 12110, 19648, 36020],
-    "NE": [5511, 12657, 20555, 34781, 62646],
-    "NW": [3220, 7634, 12191, 20054, 34130],
-    "OW": [5119, 8959, 12798, 19197, 31995],
-    "SG": [4238, 10356, 17071, 28492, 51334],  # barème 2025
-    "SH": [3085, 7525, 12772, 21661, 39408],
-    "SO": [4570, 11203, 18007, 30402, 55242],
-    "SZ": [2813, 5936, 9270, 14828, 25943],
-    "TG": [3703, 8974, 14440, 23852, 43827],
-    "TI": [3720, 9979, 16987, 29443, 55098],  # barème 2025
-    "UR": [5608, 9762, 13915, 20838, 34683],
-    "VD": [5666, 12039, 19588, 33776, 65070],
-    "VS": [3750, 9467, 16829, 32371, 59684],
-    "ZG": [1882, 4162, 7325, 13435, 23835],
-    "ZH": [2975, 7586, 13228, 23832, 48497],
+    "AG": [410, 1271, 2490, 3186, 8183, 13806, 23656, 44288],
+    "AI": [456, 1368, 2538, 3146, 7022, 11096, 17860, 30400],
+    "AR": [578, 1895, 3458, 4272, 9806, 15852, 26396, 47856],
+    "BE": [2088, 3927, 5834, 6839, 13129, 20273, 33232, 60810],
+    "BL": [0, 1011, 2612, 3579, 10563, 18511, 32802, 62251],
+    "BS": [3150, 5250, 7350, 8400, 14700, 21000, 31500, 54844],
+    "FR": [932, 2321, 4067, 5027, 11704, 18992, 32619, 59400],
+    "GE": [25, 878, 2700, 3706, 10593, 17967, 30803, 58279],
+    "GL": [453, 1579, 3006, 3790, 8942, 14373, 23990, 45027],
+    "GR": [0, 814, 2289, 3097, 8622, 14368, 24362, 44579],
+    "JU": [663, 2158, 3917, 4875, 11430, 18651, 31852, 58743],
+    "LU": [164, 1236, 2684, 3410, 7760, 12110, 19648, 36020],
+    "NE": [448, 2204, 4399, 5511, 12657, 20555, 34781, 62646],
+    "NW": [159, 1101, 2501, 3220, 7634, 12191, 20054, 34130],
+    "OW": [1920, 3200, 4480, 5119, 8959, 12798, 19197, 31995],
+    "SG": [331, 1750, 3266, 4238, 10356, 17071, 28492, 51334],  # barème 2025
+    "SH": [548, 1413, 2470, 3085, 7525, 12772, 21661, 39408],
+    "SO": [303, 1551, 3544, 4570, 11203, 18007, 30402, 55242],
+    "SZ": [663, 1461, 2350, 2813, 5936, 9270, 14828, 25943],
+    "TG": [150, 1363, 2869, 3703, 8974, 14440, 23852, 43827],
+    "TI": [301, 1254, 2807, 3720, 9979, 16987, 29443, 55098],  # barème 2025
+    "UR": [2147, 3531, 4916, 5608, 9762, 13915, 20838, 34683],
+    "VD": [1348, 2957, 4763, 5666, 12039, 19588, 33776, 65070],
+    "VS": [765, 1681, 2979, 3750, 9467, 16829, 32371, 59684],
+    "ZG": [472, 951, 1525, 1882, 4162, 7325, 13435, 23835],
+    "ZH": [431, 1252, 2333, 2975, 7586, 13228, 23832, 48497],
 }
 
 
@@ -438,7 +455,7 @@ def estimate_income_tax(
 
     IFD 2026 progressif (FEDERAL_BRACKETS, recoupé Form. 58c) + impôt
     cantonal+communal INTERPOLÉ LINÉAIREMENT entre points calibrés sur
-    l'API officielle ESTV (CANTONAL_COMMUNAL_TAX_CHF, 26 cantons x 5
+    l'API officielle ESTV (CANTONAL_COMMUNAL_TAX_CHF, 26 cantons x 8
     points, chef-lieu, célibataire). Remplace le modèle
     « taux_effectif(100k) x clamp(revenu/100k) » quasi quadratique dont
     les DIFFÉRENCES d'impôt étaient fausses (taux marginal implicite
@@ -446,7 +463,7 @@ def estimate_income_tax(
     le bloqueur de -81n (conclusions bloc/étalé inversées coach vs écran).
 
     Interpolation : linéaire sur l'IMPÔT entre points (monotone, vérifiée
-    sur les 130 points) ; sous 40k : linéaire depuis (0, 0) ; au-dessus de
+    sur les 208 points) ; sous 15k : linéaire depuis (0, 0) ; au-dessus de
     250k : extrapolation à la pente du dernier segment. Marié : x0.80
     (splitting, approximation LHID). income_factor_base est CONSERVÉ pour
     compat de signature (l'ancien RvC le passait) mais IGNORÉ — le modèle
@@ -593,7 +610,7 @@ class CantonalComparator:
         revenu_imposable = income * 0.85
 
         # 2. Modèle v2 canonique (beads compare-v2) : IFD progressif +
-        # interpolation ESTV 130 points — remplace « taux effectif 100k x
+        # interpolation ESTV 208 points — remplace « taux effectif 100k x
         # facteur de revenu » dont les différences d'impôt étaient fausses.
         # FL rejeté comme avant (« not a Swiss canton », vérifié sur dev).
         is_married = civil_status == "marie"

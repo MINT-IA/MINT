@@ -277,20 +277,6 @@
   "successionEdu3aBody": "Pillar 3a is paid directly according to OPO3, not according to your will.",
   "successionEduConcubinBody": "Cohabiting partners have no legal inheritance rights. Without a will, they receive nothing.",
   "successionDisclaimer": "Educational information, not legal advice (FinSA/CC). Consult a specialist for your situation.",
-  "coachingAge25Title": "25: Start your pillar 3a",
-  "coachingAge25Message": "At 25, it's the ideal time to open a pillar 3a. Thanks to compound interest, every year counts.",
-  "coachingAge35Title": "35: Pension check-up",
-  "coachingAge35Message": "At 35, verify your pension is on track. Do you have a 3a? Is your pension fund sufficient?",
-  "coachingAge45Title": "45: Optimise your strategy",
-  "coachingAge45Message": "At 45, there are 20 years until retirement. Time to check your 3a room, possible pension fund buybacks and trajectory.",
-  "coachingAge50Title": "50: Prepare for retirement",
-  "coachingAge50Message": "At 50, retirement is approaching. Check your pension fund balance and plan your final buybacks.",
-  "coachingAge55Title": "55: The final stretch",
-  "coachingAge55Message": "At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals can change the tax impact.",
-  "coachingAge58Title": "58: Early retirement possible",
-  "coachingAge58Message": "From 58, early withdrawal of your 2nd pillar is possible. Note: the pension will be reduced.",
-  "coachingAge63Title": "63: Final adjustments",
-  "coachingAge63Message": "2 years from retirement: finalise your strategy. Last pension buyback, annuity vs lump sum choice.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Feature in preparation — FINMA regulatory consultation in progress",
   "openBankingAddBank": "Add a bank",
@@ -1262,7 +1248,7 @@
   "firstJobHeaderDesc": "Understand your payslip! We show you where your contributions go, what your employer pays on top, and the first financial reflexes to adopt.",
   "firstJobSalaryTitle": "Monthly gross salary",
   "firstJobActivityRate": "Activity rate",
-  "firstJob3aHeader": "PILLAR 3A — OPEN NOW",
+  "firstJob3aHeader": "PILLAR 3A — TO CONSIDER",
   "firstJob3aAnnualCap": "Annual cap",
   "firstJob3aMonthlySuggestion": "Suggestion /month",
   "firstJob3aWarningTitle": "WARNING — LIFE INSURANCE 3A",
@@ -1395,17 +1381,6 @@
   "donationCalculer": "Calculate",
   "donationImpotTitle": "DONATION TAX",
   "donationExoneree": "Exempt",
-  "donationTauxCanton": "Rate: {taux}% (canton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Donation amount",
   "donationLienRow": "Kinship",
   "donationReserveTitle": "RESERVED PORTION (2023)",
@@ -1513,6 +1488,7 @@
   "housingSaleInvestissements": "Value-enhancing investments",
   "housingSaleFraisAcquisition": "Acquisition costs (notary, etc.)",
   "housingSaleResidencePrincipale": "Primary residence",
+  "housingSaleAnneesOccupation": "Years lived in as main residence",
   "housingSaleFinancementTitle": "FINANCING",
   "housingSaleFinancementSubtitle": "Remaining mortgage",
   "housingSaleHypotheque": "Remaining mortgage",
@@ -1945,7 +1921,7 @@
   "naissanceChecklistItem7Desc": "If you reduce your work rate, your LPP contributions decrease. Each part-time year means less capital at retirement. Consider compensating by contributing the maximum to the 3rd pillar (CHF 7,258/year).",
   "naissanceChecklistItem8Title": "Draft or update the will",
   "naissanceChecklistItem8Desc": "The arrival of a child changes the inheritance order. Children are forced heirs (CC art. 471). If you have a will, check that it respects the legal reserves.",
-  "naissanceChecklistItem9Title": "Take out death/disability risk insurance",
+  "naissanceChecklistItem9Title": "Review your death/disability risk cover",
   "naissanceChecklistItem9Desc": "With a dependent child, financial protection in case of death or disability becomes even more important. Check your current coverage (LPP, life insurance) and supplement if necessary.",
   "naissanceBabyCostCreche": "Daycare / childcare",
   "naissanceBabyCostCrecheNote": "Average subsidized rate — varies greatly by canton",
@@ -3598,7 +3574,7 @@
   "firstSalaryWeek1": "Week 1",
   "firstSalaryWeek2": "Week 2",
   "firstSalaryBefore31Dec": "Before Dec 31",
-  "firstSalaryTask1": "Open a 3a account (bank or fintech)",
+  "firstSalaryTask1": "Compare 3a accounts (bank or fintech)",
   "firstSalaryTask2": "Set up an automatic monthly transfer",
   "firstSalaryTask3": "Compare LAMal deductibles with your estimated health expenses",
   "firstSalaryTask4": "Check your private liability insurance (approx. CHF 100/year)",
@@ -5236,7 +5212,7 @@
     }
   },
   "pillar3aIndepBonASavoir": "Good to know",
-  "pillar3aIndepEduComptesTitle": "Open multiple 3a accounts",
+  "pillar3aIndepEduComptesTitle": "Multiple 3a accounts, a staggered withdrawal",
   "pillar3aIndepEduComptesBody": "Even with the big 3a, the multiple accounts strategy (up to 5) is recommended to optimize staggered withdrawal at retirement.",
   "pillar3aIndepEduConditionTitle": "Condition: no LPP",
   "pillar3aIndepEduConditionBody": "The big 3a (20% of income, max 36,288) is only available if you're not affiliated to a voluntary LPP. With LPP, the cap drops to 7,258.",
@@ -5519,8 +5495,8 @@
   "retroactive3aAvecRattrapage": "With catch-up",
   "retroactive3aEconomieFiscale": "in tax impact",
   "retroactive3aProchainesEtapes": "Next steps",
-  "retroactive3aOuvrirCompte": "Open a 3a account",
-  "retroactive3aOuvrirCompteSubtitle": "Compare providers and open a dedicated catch-up account.",
+  "retroactive3aOuvrirCompte": "Consider a dedicated 3a account",
+  "retroactive3aOuvrirCompteSubtitle": "Comparing providers (fees, terms) helps; a dedicated account could simplify tracking the catch-up.",
   "retroactive3aPrepDocuments": "Prepare documents",
   "retroactive3aPrepDocumentsSubtitle": "Salary certificate, AVS contribution statement, proof of absence of 3a for each year.",
   "retroactive3aConsulterSpecialiste": "Consult a specialist",
@@ -5758,24 +5734,6 @@
   "reportRetirementTitle": "Your Retirement",
   "reportRetirementKeyLabel": "Estimated income at 65",
   "reportRetirementSource": "Sources: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "No 3a yet — deductible room to estimate from your LPP status",
-  "reportRetirement3aNoneWithRoom": "No 3a yet — estimated deductible room: CHF {amount}/year",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 pillar 3a account — open a 2nd to optimise withdrawal",
-  "reportRetirement3aMulti": "{count} pillar 3a accounts — good diversification",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "LPP buyback available: CHF {available} — estimated tax impact: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
@@ -8703,7 +8661,7 @@
   "indepPlanInscriptionAvsConseq": "Retroactive fines if deadline missed",
   "indepPlanLaa": "Accident insurance LAA (if no LPP)",
   "indepPlanLaaConseq": "No professional accident coverage",
-  "indepPlanOuvrir3a": "Open 3a account (deduction up to CHF 36,288)",
+  "indepPlanOuvrir3a": "Compare 3a accounts (deduction up to CHF 36,288)",
   "indepProtApg": "Disappears — parental leave",
   "indepProtAvs": "Double your contribution",
   "indepProtIjm": "Disappears — illness CHF 0",
@@ -11765,6 +11723,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Taxable",
+  "donationVerdictInconnu": "To be verified",
+  "donationPlageJusqua": "up to ~{pct}% (cantonal scale, excluding municipal surcharges)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

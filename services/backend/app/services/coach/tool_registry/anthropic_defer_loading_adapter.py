@@ -293,7 +293,7 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
         "vigueur au 1.1.2023 : réserve des descendant·e·s ramenée de 3/4 à "
         "1/2 de leur part légale, réserve des parents supprimée). L'impôt, "
         "lui, est cantonal — il n'existe pas d'impôt successoral fédéral "
-        "ordinaire. Produit l'impôt CHF par héritier·ère et la part nette. "
+        "ordinaire. Produit par héritier·ère un VERDICT fiscal sourcé ESTV (statut exonéré/taxé, plafond « jusqu'à X % » quand la source le donne, franchises et bascules — PAS de montant d'impôt en CHF). "
         "Mots-clés : succession, héritage, conjoint, réserve héréditaire, "
         "quotité disponible, canton, impôt."
     ),

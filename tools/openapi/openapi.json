@@ -4438,7 +4438,7 @@
           "wealth-tax"
         ],
         "summary": "Estimate Wealth Tax",
-        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (no silent hardcoded fallback). Missing\nrequired profile field triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-defaults branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (no silent hardcoded fallback). Missing\nrequired profile field triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-defaults branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "estimate_wealth_tax_api_v1_fiscal_wealth_tax_estimate_post",
         "requestBody": {
           "content": {
@@ -4485,7 +4485,7 @@
           "wealth-tax"
         ],
         "summary": "Compare Wealth Tax",
-        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier \u00e9clairage.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier \u00e9clairage.\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "compare_wealth_tax_api_v1_fiscal_wealth_tax_compare_post",
         "requestBody": {
           "content": {
@@ -4527,7 +4527,7 @@
           "wealth-tax"
         ],
         "summary": "Simulate Wealth Tax Move",
-        "description": "Simulate wealth tax savings from moving between cantons.\n\nReturns annual, monthly, and 10-year cumulative savings\non wealth tax from a cantonal move.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Simulate wealth tax savings from moving between cantons.\n\nReturns annual, monthly, and 10-year cumulative savings\non wealth tax from a cantonal move.\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "simulate_wealth_tax_move_api_v1_fiscal_wealth_tax_move_post",
         "requestBody": {
           "content": {
@@ -5197,7 +5197,7 @@
           "family"
         ],
         "summary": "Compare Succession",
-        "description": "Compare l'impot de succession conjoint vs concubin.\n\nLe conjoint est exonere dans la plupart des cantons. Le concubin\nest impose au taux 'tiers' (10-25% selon le canton).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 23 sev-3 fix \u2014 legacy default\n\"ZH\" silently returned wrong concubin tax rates for non-ZH users).\nMissing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-default branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: Lois cantonales successions, CC art. 457-466.",
+        "description": "Enonce le mecanisme successoral du concubinage, sans le chiffrer.\n\nLe conjoint survivant est exonere d'impot successoral dans TOUS les\ncantons \u2014 par la loi fiscale cantonale, pas par le Code civil. Le concubin\nreleve du taux dit 'des tiers'. Ni ce taux ni le montant ne sont rendus :\nils dependent de la commune, de la franchise, de la part reellement recue\net de la duree de vie commune, qu'aucun taux plat ne represente.\n\nLe `patrimoine` n'est plus demande : il alimentait un `patrimoine x taux`\nqui supposait que 100 % du patrimoine pouvait revenir au ou a la\npartenaire, ce que la revision du droit successoral au 1.1.2023 dement.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body. Missing profile.canton triggers a 422 with\nthe D-CE-08 `CoachToolIncomplete` envelope when\n`PROFILE_GROUNDING_STRICT_MODE=true`.\n\nSources: lois fiscales cantonales sur les successions, CC art. 457 ss,\nCC art. 470-471.",
         "operationId": "compare_succession_api_v1_family_concubinage_succession_post",
         "requestBody": {
           "content": {
@@ -10436,6 +10436,18 @@
             "title": "Potentielrachatlpp",
             "description": "Potentiel de rachat LPP disponible (CHF, defaut: 0)"
           },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ismarried",
+            "description": "Marie\u00b7e (coefficient cantonal retrait capital, defaut: False)"
+          },
           "isPropertyOwner": {
             "anyOf": [
               {
@@ -15024,13 +15036,6 @@
             "title": "Enfants",
             "description": "Nombre d'enfants",
             "default": 0
-          },
-          "patrimoine": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Patrimoine",
-            "description": "Patrimoine total du couple (CHF)",
-            "default": 0.0
           }
         },
         "type": "object",
@@ -15064,27 +15069,17 @@
           "impotCelibatairesTotal": {
             "type": "number",
             "title": "Impotcelibatairestotal",
-            "description": "Impot en tant que 2 celibataires (CHF)"
+            "description": "Impot sur le revenu, en tant que 2 celibataires (CHF)"
           },
           "impotMariesTotal": {
             "type": "number",
             "title": "Impotmariestotal",
-            "description": "Impot en tant que couple marie (CHF)"
+            "description": "Impot sur le revenu, en tant que couple marie (CHF)"
           },
           "differenceFiscale": {
             "type": "number",
             "title": "Differencefiscale",
-            "description": "Difference fiscale (CHF)"
-          },
-          "impotSuccessionConjoint": {
-            "type": "number",
-            "title": "Impotsuccessionconjoint",
-            "description": "Impot de succession si conjoint (CHF)"
-          },
-          "impotSuccessionConcubin": {
-            "type": "number",
-            "title": "Impotsuccessionconcubin",
-            "description": "Impot de succession si concubin (CHF)"
+            "description": "Ecart d'impot sur le revenu (CHF)"
           },
           "synthese": {
             "type": "string",
@@ -15094,7 +15089,7 @@
           "premierEclairage": {
             "type": "string",
             "title": "Premiereclairage",
-            "description": "Chiffre choc pedagogique"
+            "description": "Le mecanisme successoral, sans montant ni taux"
           },
           "disclaimer": {
             "type": "string",
@@ -15118,8 +15113,6 @@
           "impotCelibatairesTotal",
           "impotMariesTotal",
           "differenceFiscale",
-          "impotSuccessionConjoint",
-          "impotSuccessionConcubin",
           "synthese",
           "premierEclairage",
           "disclaimer"
@@ -18548,15 +18541,11 @@
             "title": "Montantdonation",
             "description": "Donation amount (CHF)"
           },
-          "tauxImposition": {
-            "type": "number",
-            "title": "Tauximposition",
-            "description": "Tax rate"
-          },
-          "impotDonation": {
-            "type": "number",
-            "title": "Impotdonation",
-            "description": "Tax amount (CHF)"
+          "verdictFiscal": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Verdictfiscal",
+            "description": "Verdict fiscal du socle ESTV 1.1.2025 : statut (exonere/taxe/taxe_lourd), plage_max_pct (uniquement si sourc\u00e9e), mecanismes, bascule, source \u2014 remplace le couple tauxImposition/impotDonation (taux plat, ADR 2026-07-28 P4)"
           },
           "reserveHereditaireTotale": {
             "type": "number",
@@ -18622,8 +18611,7 @@
         "type": "object",
         "required": [
           "montantDonation",
-          "tauxImposition",
-          "impotDonation",
+          "verdictFiscal",
           "reserveHereditaireTotale",
           "quotiteDisponible",
           "donationDepasseQuotite",
@@ -18777,6 +18765,18 @@
             "title": "Aracheterecemment",
             "description": "Un rachat LPP a-t-il ete effectue recemment?",
             "default": false
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ismarried",
+            "description": "Marie\u00b7e (coefficient cantonal retrait capital, defaut: False)"
           },
           "anneesDernierRachat": {
             "anyOf": [
@@ -19282,6 +19282,18 @@
             "title": "Avoirlpptotal",
             "description": "Avoir LPP total (CHF)",
             "default": 0
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ismarried",
+            "description": "Marie\u00b7e (coefficient cantonal retrait capital, defaut: False)"
           },
           "avoirObligatoire": {
             "type": "number",
@@ -21695,6 +21707,13 @@
             "title": "Prixremploi",
             "description": "Price of replacement property (CHF)",
             "default": 0.0
+          },
+          "anneesOccupation": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Anneesoccupation",
+            "description": "Proven owner-occupation years (VD double-count, art. 72 al. 4 LI)",
+            "default": 0
           }
         },
         "type": "object",
@@ -21723,25 +21742,58 @@
             "title": "Dureedetention",
             "description": "Years of ownership"
           },
+          "modeleGain": {
+            "type": "string",
+            "title": "Modelegain",
+            "description": "Gains-tax model: calibre | mecanisme | inconnu"
+          },
           "tauxImpositionPlusValue": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Tauximpositionplusvalue",
-            "description": "Tax rate"
+            "description": "Effective tax rate (null if canton not calibrated)"
           },
           "impotPlusValue": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Impotplusvalue",
-            "description": "Tax on capital gain (CHF)"
+            "description": "Tax on capital gain (CHF, null if canton not calibrated)"
           },
           "remploiReport": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Remploireport",
-            "description": "Tax deferred via reinvestment (CHF)"
+            "description": "Tax deferred via reinvestment (CHF, null if not calibrated)"
           },
           "impotEffectif": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Impoteffectif",
-            "description": "Actual tax due (CHF)"
+            "description": "Actual tax due (CHF, null if canton not calibrated)"
           },
           "remboursementEplLpp": {
             "type": "number",
@@ -21759,9 +21811,22 @@
             "description": "Mortgage payoff (CHF)"
           },
           "produitNet": {
-            "type": "number",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Produitnet",
-            "description": "Net proceeds (CHF)"
+            "description": "Net proceeds (CHF, null if gains tax not calibrated)"
+          },
+          "gainImmobilier": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Gainimmobilier",
+            "description": "Gains-tax verdict (model, tax, effective rate, mechanisms, source)"
           },
           "checklist": {
             "items": {
@@ -21804,18 +21869,14 @@
           "plusValueBrute",
           "plusValueImposable",
           "dureeDetention",
-          "tauxImpositionPlusValue",
-          "impotPlusValue",
-          "remploiReport",
-          "impotEffectif",
+          "modeleGain",
           "remboursementEplLpp",
           "remboursementEpl3a",
           "soldeHypotheque",
-          "produitNet",
           "disclaimer"
         ],
         "title": "HousingSaleSimulationResponse",
-        "description": "Response model for housing sale simulation."
+        "description": "Response model for housing sale simulation.\n\nPour un canton non calibre (hors ZH / VD / GE), l'impot sur les gains\nimmobiliers n'est pas chiffre : `tauxImpositionPlusValue`, `impotPlusValue`,\n`remploiReport`, `impotEffectif` et `produitNet` valent alors `null` et\n`gainImmobilier` porte le mecanisme + le renvoi au calculateur cantonal."
       },
       "IjmRequest": {
         "properties": {
@@ -23757,6 +23818,18 @@
             "title": "Esperancevie",
             "description": "Esperance de vie estimee",
             "default": 87
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ismarried",
+            "description": "Marie\u00b7e (coefficient cantonal retrait capital, defaut: False)"
           }
         },
         "type": "object",
@@ -31935,12 +32008,6 @@
       },
       "SuccessionRequest": {
         "properties": {
-          "patrimoine": {
-            "type": "number",
-            "minimum": 0.0,
-            "title": "Patrimoine",
-            "description": "Patrimoine a transmettre (CHF)"
-          },
           "canton": {
             "anyOf": [
               {
@@ -31955,20 +32022,11 @@
             "title": "Canton",
             "description": "Code canton (2 lettres, lu depuis le profil si absent)",
             "from_profile": "canton"
-          },
-          "isMarried": {
-            "type": "boolean",
-            "title": "Ismarried",
-            "description": "True pour conjoint, False pour concubin",
-            "default": false
           }
         },
         "type": "object",
-        "required": [
-          "patrimoine"
-        ],
         "title": "SuccessionRequest",
-        "description": "Requete pour la comparaison d'impot sur les successions.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker so the `_resolve_defaults` helper can fill it from\n`_user.profile.canton` before the missing-check fires. A silent ZH default\non null canton (W0 audit row 23 sev-3) returned wrong concubin tax rates\n(~18% ZH vs canton-specific 0-26%) ; the grounding contract closes that\nsilent-wrong-tax class."
+        "description": "Requete pour l'expose du mecanisme successoral en concubinage.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is Optional\n`default=None` with the `from_profile` marker so `_resolve_defaults` can\nfill it from `_user.profile.canton` before the missing-check fires.\n\nNe porte plus AUCUN champ chiffre :\n  - `patrimoine` etait REQUIS, donc l'endpoint reclamait a l'utilisateur\n    son patrimoine (422 s'il manquait) dans le seul but de produire un\n    montant indefendable. La doctrine dit l'inverse : retirer le chiffre\n    plutot qu'exiger des champs.\n  - `is_married` etait d\u00e9j\u00e0 mort \u2014 la reponse a toujours decrit les deux\n    situations, le drapeau ne changeait rien.\nLes clients qui envoient encore ces champs ne sont pas casses : Pydantic\nles ignore."
       },
       "SuccessionResponse": {
         "properties": {
@@ -31977,40 +32035,28 @@
             "title": "Canton",
             "description": "Code canton"
           },
-          "patrimoine": {
-            "type": "number",
-            "title": "Patrimoine",
-            "description": "Patrimoine transmis (CHF)"
+          "regleTransmission": {
+            "type": "string",
+            "title": "Regletransmission",
+            "description": "Ce qui peut etre legue, et a qui (CC art. 470-471)"
           },
-          "impotConjoint": {
-            "type": "number",
-            "title": "Impotconjoint",
-            "description": "Impot si conjoint survivant (CHF)"
+          "chargeConcubin": {
+            "type": "string",
+            "title": "Chargeconcubin",
+            "description": "Qui paie quoi, enonce sans etre chiffre"
           },
-          "impotConcubin": {
-            "type": "number",
-            "title": "Impotconcubin",
-            "description": "Impot si concubin survivant (CHF)"
-          },
-          "difference": {
-            "type": "number",
-            "title": "Difference",
-            "description": "Difference impot concubin - conjoint (CHF)"
-          },
-          "tauxConjoint": {
-            "type": "number",
-            "title": "Tauxconjoint",
-            "description": "Taux effectif conjoint"
-          },
-          "tauxConcubin": {
-            "type": "number",
-            "title": "Tauxconcubin",
-            "description": "Taux effectif concubin"
+          "facteursDeterminants": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Facteursdeterminants",
+            "description": "Ce dont dependrait un chiffre reel"
           },
           "premierEclairage": {
             "type": "string",
             "title": "Premiereclairage",
-            "description": "Chiffre choc pedagogique"
+            "description": "Le mecanisme successoral, sans montant ni taux"
           },
           "disclaimer": {
             "type": "string",
@@ -32029,17 +32075,14 @@
         "type": "object",
         "required": [
           "canton",
-          "patrimoine",
-          "impotConjoint",
-          "impotConcubin",
-          "difference",
-          "tauxConjoint",
-          "tauxConcubin",
+          "regleTransmission",
+          "chargeConcubin",
+          "facteursDeterminants",
           "premierEclairage",
           "disclaimer"
         ],
         "title": "SuccessionResponse",
-        "description": "Reponse pour la comparaison d'impot sur les successions."
+        "description": "Reponse : le mecanisme successoral, sans montant ni taux.\n\nLe taux plat par canton a ete retire avec le montant : il est dementi sur\nau moins deux cantons et ignore la commune, la franchise, la part reellement\nrecue et la duree de vie commune."
       },
       "SuccessionSimulationRequest": {
         "properties": {

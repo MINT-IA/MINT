@@ -752,7 +752,13 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('SuccessionService - Cantonal Tax', () {
-    test('spouse and children are tax-exempt in VD', () {
+    // GOLDENS MIS À JOUR (ADR 2026-07-28 P4) : l'ancienne table Dart
+    // _successionTaxRates gravait des taux plats non sourcés, à l'envers
+    // du socle ESTV 1.1.2025 : elle donnait VD enfant 0.0 (la ligne
+    // directe y est TAXÉE, déduction 1M par souche) et ZH enfant 0.02
+    // (les descendants y sont EXONÉRÉS). Le service émet désormais un
+    // verdict par héritier — plus aucun montant × taux.
+    test('VD : conjoint exonéré, descendants TAXÉS (verdict socle)', () {
       final result = SuccessionService.simulate(
         input: const SuccessionInput(
           civilStatus: CivilStatus.marie,
@@ -768,13 +774,13 @@ void main() {
         ),
       );
 
-      for (final entry in result.taxByHeir.entries) {
-        expect(entry.value, 0.0,
-            reason: 'Spouse and children should be exempt in VD');
-      }
+      expect(result.verdictByHeir['Conjoint']!.statut, 'exonere');
+      final enfant = result.verdictByHeir['Enfant 1']!;
+      expect(enfant.statut, 'taxe');
+      expect(enfant.mecanismes.join(' '), contains('1000000'));
     });
 
-    test('ZH taxes children at 2%', () {
+    test('ZH : descendants exonérés (l\'ancien 2 % plat était faux)', () {
       final result = SuccessionService.simulate(
         input: const SuccessionInput(
           civilStatus: CivilStatus.divorce,
@@ -790,7 +796,7 @@ void main() {
         ),
       );
 
-      expect(result.taxByHeir['Enfant 1'], closeTo(200000 * 0.02, 0.01));
+      expect(result.verdictByHeir['Enfant 1']!.statut, 'exonere');
     });
   });
 
@@ -974,7 +980,10 @@ void main() {
       }
     });
 
-    test('unknown canton in succession uses VD fallback rates', () {
+    test('unknown canton in succession -> verdict « inconnu », sans défaut',
+        () {
+      // GOLDEN MIS À JOUR : l'ancien comportement retombait sur les taux
+      // VD (défaut fabriqué). Le socle répond honnêtement « inconnu ».
       final result = SuccessionService.simulate(
         input: const SuccessionInput(
           civilStatus: CivilStatus.celibataire,
@@ -990,8 +999,9 @@ void main() {
         ),
       );
 
-      // Should not throw; parents in VD have 0% tax rate
-      expect(result.taxByHeir, isNotEmpty);
+      // Should not throw; verdict présent et honnête.
+      expect(result.verdictByHeir, isNotEmpty);
+      expect(result.verdictByHeir.values.first.statut, 'inconnu');
     });
   });
 }

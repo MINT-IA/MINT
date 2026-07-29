@@ -429,8 +429,7 @@ def simulate_donation(
 
     return DonationSimulationResponse(
         montantDonation=result.montant_donation,
-        tauxImposition=result.taux_imposition,
-        impotDonation=result.impot_donation,
+        verdictFiscal=result.verdict_fiscal,
         reserveHereditaireTotale=result.reserve_hereditaire_totale,
         quotiteDisponible=result.quotite_disponible,
         donationDepasseQuotite=result.donation_depasse_quotite,
@@ -474,6 +473,7 @@ def simulate_housing_sale(
         hypotheque_restante=body.hypothequeRestante,
         projet_remploi=body.projetRemploi,
         prix_remploi=body.prixRemploi,
+        annees_occupation=body.anneesOccupation,
     )
 
     result = _housing_sale_svc.calculate(input_data)
@@ -482,6 +482,7 @@ def simulate_housing_sale(
         plusValueBrute=result.plus_value_brute,
         plusValueImposable=result.plus_value_imposable,
         dureeDetention=result.duree_detention,
+        modeleGain=result.modele_gain,
         tauxImpositionPlusValue=result.taux_imposition_plus_value,
         impotPlusValue=result.impot_plus_value,
         remploiReport=result.remploi_report,
@@ -490,6 +491,7 @@ def simulate_housing_sale(
         remboursementEpl3a=result.remboursement_epl_3a,
         soldeHypotheque=result.solde_hypotheque,
         produitNet=result.produit_net,
+        gainImmobilier=result.gain_immobilier,
         checklist=result.checklist,
         alerts=result.alerts,
         disclaimer=result.disclaimer,

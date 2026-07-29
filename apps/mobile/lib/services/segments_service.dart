@@ -813,9 +813,9 @@ class IndependantService {
         recommendation: input.hasIjm
             ? 'Ta couverture IJM est en place. Vérifie le délai de carence '
                 'et le niveau d\u2019indemnisation journalière.'
-            : 'URGENT : sans IJM, tu n\'as aucun revenu en cas de maladie. '
-                'Souscrivez une assurance IJM individuelle (indemnité journalière '
-                'en cas de maladie).',
+            : 'Sans IJM, une maladie prolongée peut interrompre ton revenu. ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'Une assurance IJM individuelle (indemnité journalière en cas ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'de maladie) est à comparer selon ta situation.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         source: 'LAMal / Pratique indépendants',
       ),
       CoverageGapItem(
@@ -825,9 +825,9 @@ class IndependantService {
         urgency: input.hasLaa ? 'basse' : 'haute',
         recommendation: input.hasLaa
             ? 'Ta couverture accident est en place.'
-            : 'Souscrivez une assurance accident individuelle. '
-                'Sans LAA, les frais médicaux et la perte de gain '
-                'en cas d\'accident ne sont pas couverts.',
+            : 'Sans LAA, les frais médicaux et la perte de gain en cas ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'd\'accident ne sont pas couverts. Une assurance accident ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'individuelle est à comparer selon ta situation.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         source: 'LAA art. 4',
       ),
       CoverageGapItem(
@@ -838,9 +838,10 @@ class IndependantService {
         recommendation: input.has3a
             ? 'Vérifie que tu verses le plafond '
                 '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}).'
-            : 'Ouvrez un 3e pilier et versez le maximum '
-                '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}). '
-                'Sans LPP, le 3a est ton principal outil de prévoyance.',
+            : 'Sans LPP, le 3a devient ton principal outil de prévoyance. ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'Cotiser jusqu\'au plafond '
+                '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}) '
+                'est une option à comparer avec d\'autres usages de cette épargne.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         source: 'OPP3 art. 7',
       ),
     ];
@@ -939,15 +940,15 @@ class IndependantService {
 
     if (!input.hasIjm) {
       recs.add(
-        'Souscrire une assurance IJM individuelle : '
-        'comparer les offres (délai de carence 30, 60 ou 90 jours, '
-        'couverture 80% du revenu).',
+        'Comparer une assurance IJM individuelle : ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+        'délai de carence 30, 60 ou 90 jours, ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+        'couverture jusqu\'à 80% du revenu.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
       );
     }
 
     if (!input.hasLaa) {
       recs.add(
-        'Souscrire une assurance accident individuelle (LAA) : '
+        'Comparer une assurance accident individuelle (LAA) : ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         'vérifier que la couverture inclut l\'accident professionnel '
         'et non-professionnel.',
       );

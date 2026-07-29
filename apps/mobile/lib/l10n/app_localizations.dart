@@ -67,7 +67,7 @@ import 'app_localizations_pt.dart';
 /// property.
 abstract class S {
   S(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -89,11 +89,11 @@ abstract class S {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -102,7 +102,7 @@ abstract class S {
     Locale('en'),
     Locale('es'),
     Locale('it'),
-    Locale('pt')
+    Locale('pt'),
   ];
 
   /// No description provided for @landingFeature1Title.
@@ -1628,90 +1628,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.'**
   String get successionDisclaimer;
-
-  /// No description provided for @coachingAge25Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'25 ans : démarrer son 3e pilier'**
-  String get coachingAge25Title;
-
-  /// No description provided for @coachingAge25Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.'**
-  String get coachingAge25Message;
-
-  /// No description provided for @coachingAge35Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'35 ans : faire le point prévoyance'**
-  String get coachingAge35Title;
-
-  /// No description provided for @coachingAge35Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?'**
-  String get coachingAge35Message;
-
-  /// No description provided for @coachingAge45Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'45 ans : optimiser sa stratégie'**
-  String get coachingAge45Title;
-
-  /// No description provided for @coachingAge45Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 45 ans, il reste 20 ans avant la retraite. C\'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.'**
-  String get coachingAge45Message;
-
-  /// No description provided for @coachingAge50Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'50 ans : préparer sa retraite'**
-  String get coachingAge50Title;
-
-  /// No description provided for @coachingAge50Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.'**
-  String get coachingAge50Message;
-
-  /// No description provided for @coachingAge55Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'55 ans : dernière ligne droite'**
-  String get coachingAge55Title;
-
-  /// No description provided for @coachingAge55Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l\'impact fiscal.'**
-  String get coachingAge55Message;
-
-  /// No description provided for @coachingAge58Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'58 ans : retraite anticipée possible'**
-  String get coachingAge58Title;
-
-  /// No description provided for @coachingAge58Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.'**
-  String get coachingAge58Message;
-
-  /// No description provided for @coachingAge63Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'63 ans : derniers ajustements'**
-  String get coachingAge63Title;
-
-  /// No description provided for @coachingAge63Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.'**
-  String get coachingAge63Message;
 
   /// No description provided for @openBankingTitle.
   ///
@@ -5274,7 +5190,7 @@ abstract class S {
   /// No description provided for @firstJob3aHeader.
   ///
   /// In fr, this message translates to:
-  /// **'PILIER 3A — À OUVRIR MAINTENANT'**
+  /// **'PILIER 3A — À ENVISAGER'**
   String get firstJob3aHeader;
 
   /// No description provided for @firstJob3aAnnualCap.
@@ -5967,12 +5883,6 @@ abstract class S {
   /// **'Exonérée'**
   String get donationExoneree;
 
-  /// No description provided for @donationTauxCanton.
-  ///
-  /// In fr, this message translates to:
-  /// **'Taux : {taux} % (canton {canton})'**
-  String donationTauxCanton(String taux, String canton);
-
   /// No description provided for @donationMontantRow.
   ///
   /// In fr, this message translates to:
@@ -6573,6 +6483,12 @@ abstract class S {
   /// **'Résidence principale'**
   String get housingSaleResidencePrincipale;
 
+  /// No description provided for @housingSaleAnneesOccupation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années d\'occupation comme résidence principale'**
+  String get housingSaleAnneesOccupation;
+
   /// No description provided for @housingSaleFinancementTitle.
   ///
   /// In fr, this message translates to:
@@ -6818,7 +6734,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{betterJob} vaut {annualDelta}/an de plus en rente viagère, soit {monthlyDelta}/mois À VIE après la retraite.'**
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta);
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  );
 
   /// No description provided for @jobCompareLifetime20Years.
   ///
@@ -8317,7 +8236,7 @@ abstract class S {
   /// No description provided for @naissanceChecklistItem9Title.
   ///
   /// In fr, this message translates to:
-  /// **'Souscrire une assurance risque décès/invalidité'**
+  /// **'Vérifier ta couverture risque décès/invalidité'**
   String get naissanceChecklistItem9Title;
 
   /// No description provided for @naissanceChecklistItem9Desc.
@@ -10527,7 +10446,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Simulation incluant l\'intérêt de la caisse ({fundRate} %) et l\'impact fiscal indicatif lissé sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.'**
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome);
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  );
 
   /// No description provided for @simRealInterestTitle.
   ///
@@ -10972,7 +10894,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Comparaison forfait fiscal. Imposition ordinaire : {ordinary}. Forfait fiscal : {forfait}. Économie : {savings}.'**
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings);
+    String ordinary,
+    String forfait,
+    String savings,
+  );
 
   /// No description provided for @forfaitFiscalOrdinaryLabel.
   ///
@@ -14121,7 +14046,7 @@ abstract class S {
   /// No description provided for @firstSalaryTask1.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir un compte 3a (banque ou fintech)'**
+  /// **'Comparer les comptes 3a (banque ou fintech)'**
   String get firstSalaryTask1;
 
   /// No description provided for @firstSalaryTask2.
@@ -15203,7 +15128,9 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : {chargesTheoriques}/mois. Au taux réel (~1,5 %) : {chargesReelles}/mois.'**
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles);
+    String chargesTheoriques,
+    String chargesReelles,
+  );
 
   /// No description provided for @affordabilityInsightEquityTitle.
   ///
@@ -19684,7 +19611,7 @@ abstract class S {
   /// No description provided for @pillar3aIndepEduComptesTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvre plusieurs comptes 3a'**
+  /// **'Plusieurs comptes 3a, un retrait échelonné'**
   String get pillar3aIndepEduComptesTitle;
 
   /// No description provided for @pillar3aIndepEduComptesBody.
@@ -20926,13 +20853,13 @@ abstract class S {
   /// No description provided for @retroactive3aOuvrirCompte.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir un compte 3a'**
+  /// **'Envisager un compte 3a dédié'**
   String get retroactive3aOuvrirCompte;
 
   /// No description provided for @retroactive3aOuvrirCompteSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Compare les prestataires et ouvre un compte dédié au rattrapage.'**
+  /// **'Comparer les prestataires (frais, conditions) ; un compte dédié pourrait simplifier le suivi du rattrapage.'**
   String get retroactive3aOuvrirCompteSubtitle;
 
   /// No description provided for @retroactive3aPrepDocuments.
@@ -21858,30 +21785,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sources : LPP art. 14, OPP3, LAVS'**
   String get reportRetirementSource;
-
-  /// No description provided for @reportRetirement3aNone.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore de 3a — marge déductible à estimer selon ton statut LPP'**
-  String get reportRetirement3aNone;
-
-  /// No description provided for @reportRetirement3aNoneWithRoom.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore de 3a — marge déductible estimée : CHF {amount}/an'**
-  String reportRetirement3aNoneWithRoom(String amount);
-
-  /// No description provided for @reportRetirement3aOne.
-  ///
-  /// In fr, this message translates to:
-  /// **'1 compte 3a — ouvre un 2e pour optimiser le retrait'**
-  String get reportRetirement3aOne;
-
-  /// No description provided for @reportRetirement3aMulti.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count} comptes 3a — bonne diversification'**
-  String reportRetirement3aMulti(int count);
 
   /// No description provided for @reportRetirementLppText.
   ///
@@ -24816,15 +24719,16 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject);
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  );
 
   /// No description provided for @agentLetterAvsOrg.
   ///
@@ -24873,31 +24777,33 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : {toComplete}\nIBAN ou numéro de compte : {toComplete}\nAdresse : {toComplete}\n\nDate de sortie : {toComplete}\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete);
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  );
 
   /// No description provided for @agentLetterPensionFundBody.
   ///
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé {year} (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}\n{policeNumber}'**
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber);
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  );
 
   /// No description provided for @agentLetterPensionSubject.
   ///
@@ -28252,7 +28158,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois'**
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount);
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  );
 
   /// No description provided for @disabilityGapAct3Duration.
   ///
@@ -30831,7 +30740,7 @@ abstract class S {
   /// No description provided for @indepPlanOuvrir3a.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)'**
+  /// **'Comparer les comptes 3a (déduction jusqu\'à CHF 36\'288)'**
   String get indepPlanOuvrir3a;
 
   /// No description provided for @indepProtApg.
@@ -34937,7 +34846,9 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Revenu estimé à la retraite : {totalMonthly} CHF/mois vs {currentMonthly} CHF/mois actuellement'**
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly);
+    String totalMonthly,
+    String currentMonthly,
+  );
 
   /// No description provided for @rcReplacementRateSubtitle.
   ///
@@ -35334,7 +35245,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marge légale restante : {legal}/an. Équivalent mensuel : {monthly}/mois. Budget libre actuel : {free}/mois. Marge légale ≠ capacité mensuelle : garde une réserve avant d’augmenter le 3a.'**
   String budgetIndependentNoLppDecisionSummary(
-      String legal, String monthly, String free);
+    String legal,
+    String monthly,
+    String free,
+  );
 
   /// No description provided for @budgetIndependentNoLppMonthlyCapacityShortfall.
   ///
@@ -35742,8 +35656,13 @@ abstract class S {
   ///
   /// In fr, this message translates to:
   /// **'Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.'**
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine);
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  );
 
   /// No description provided for @scoreGaugeSubtitle.
   ///
@@ -35888,7 +35807,11 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{label} : {status}. Fourchette typique {low} à {high}'**
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high);
+    String label,
+    String status,
+    String low,
+    String high,
+  );
 
   /// No description provided for @semanticsBenchmarkToggle.
   ///
@@ -43359,13 +43282,34 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Hypothèses de projection : le rendement de {rendement} %/an sur les avoirs LPP est une hypothèse MINT, pas un taux légal — le taux d\'intérêt minimal LPP est de {tauxMin} %/an. La lacune cumulée est la lacune annuelle multipliée par {annees} ans de retraite, sans actualisation ni indexation : un ordre de grandeur illustratif, pas une perte déjà subie.'**
   String genderGapProjectionAssumptions(
-      String rendement, String tauxMin, String annees);
+    String rendement,
+    String tauxMin,
+    String annees,
+  );
 
   /// No description provided for @genderGapModelLegalMinimum.
   ///
   /// In fr, this message translates to:
   /// **'Modèle employé : le régime LPP obligatoire minimal — salaire coordonné légal et taux de conversion minimal de {tauxConversion} %. Ce n\'est pas le règlement de ta caisse. Avec un plan surobligatoire, fréquent au-delà du plafond du salaire assuré obligatoire, les rentes réelles s\'écartent de cette illustration dans un sens comme dans l\'autre : appliquer {tauxConversion} % à la totalité du capital peut aussi surestimer, car les caisses enveloppantes retiennent souvent un taux plus bas sur l\'ensemble de l\'avoir.'**
   String genderGapModelLegalMinimum(String tauxConversion);
+
+  /// No description provided for @donationVerdictImposable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imposable'**
+  String get donationVerdictImposable;
+
+  /// No description provided for @donationVerdictInconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get donationVerdictInconnu;
+
+  /// No description provided for @donationPlageJusqua.
+  ///
+  /// In fr, this message translates to:
+  /// **'jusqu\'à ~{pct} % (barème cantonal, hors part communale)'**
+  String donationPlageJusqua(String pct);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
@@ -43378,13 +43322,13 @@ class _SDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => <String>[
-        'de',
-        'en',
-        'es',
-        'fr',
-        'it',
-        'pt'
-      ].contains(locale.languageCode);
+    'de',
+    'en',
+    'es',
+    'fr',
+    'it',
+    'pt',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_SDelegate old) => false;
@@ -43408,8 +43352,9 @@ S lookupS(Locale locale) {
   }
 
   throw FlutterError(
-      'S.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'S.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

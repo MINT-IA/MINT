@@ -388,7 +388,7 @@ class ConcubinageService:
             "Rediger un testament (chacun) — le concubin n'herite de rien sans testament",
             "Verifier si ta caisse de pension (LPP) permet de designer ton concubin comme beneficiaire",
             "Declarer ton concubin comme beneficiaire 3a (formulaire aupres du prestataire)",
-            "Souscrire une assurance-deces (risque pur) — indemnite non soumise a l'impot sur les successions dans certains cantons",
+            "Comparer une assurance-décès (risque pur) — l'indemnité n'est pas soumise à l'impôt sur les successions dans certains cantons",
         ]
 
         priorite_moyenne = [

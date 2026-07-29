@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/donation_service.dart';
+import 'package:mint_mobile/services/succession_donation_socle.dart';
 
 /// Unit tests for DonationService — Sprint S24 (Donations)
 ///
@@ -18,9 +19,16 @@ void main() {
   //  IMPOT SUR LES DONATIONS PAR CANTON
   // ════════════════════════════════════════════════════════════
 
-  group('DonationService - Impot cantonal', () {
-    test('donation au conjoint = exoneree dans tous les cantons', () {
-      for (final canton in DonationService.tauxDonationCantonal.keys) {
+  group('DonationService - Verdict fiscal (socle ESTV)', () {
+    // GOLDENS MIS À JOUR (ADR 2026-07-28 P4) : l'ancienne table Dart
+    // tauxDonationCantonal gravait des taux plats non sourcés — LU y
+    // figurait taxé alors que Lucerne ne prélève AUCUN impôt sur les
+    // donations ; « GE tiers 30 % » contre un barème progressif 24-26 % +
+    // centimes ; canton inconnu retombait sur les taux VD. Le service
+    // émet désormais un verdict {statut, plage sourcée, mécanismes,
+    // bascule, source} — plus de montant × taux.
+    test('donation au conjoint = exonérée dans les 26 cantons', () {
+      for (final canton in SuccessionDonationSocle.cantons.keys) {
         final result = DonationService.calculate(
           montant: 100000,
           donateurAge: 50,
@@ -28,9 +36,8 @@ void main() {
           canton: canton,
         );
 
-        expect(result.tauxImposition, 0.0,
+        expect(result.verdictFiscal.statut, 'exonere',
             reason: 'Conjoint devrait etre exonere dans $canton');
-        expect(result.impotDonation, 0.0);
       }
     });
 
@@ -43,13 +50,25 @@ void main() {
           canton: canton,
         );
 
-        expect(result.tauxImposition, 0.0,
+        expect(result.verdictFiscal.statut, 'exonere',
             reason: 'Descendant devrait etre exonere dans $canton');
-        expect(result.impotDonation, 0.0);
       }
     });
 
-    test('donation a un tiers en GE => taux 30%', () {
+    test('VD descendant : TAXÉ, franchise donation 300k/an dans les notes',
+        () {
+      final result = DonationService.calculate(
+        montant: 400000,
+        donateurAge: 55,
+        lienParente: 'descendant',
+        canton: 'VD',
+      );
+
+      expect(result.verdictFiscal.statut, 'taxe');
+      expect(result.verdictFiscal.mecanismes.join(' '), contains('300000'));
+    });
+
+    test('donation a un tiers en GE => taxe_lourd, plage sourcée ~26 %', () {
       final result = DonationService.calculate(
         montant: 100000,
         donateurAge: 50,
@@ -57,11 +76,11 @@ void main() {
         canton: 'GE',
       );
 
-      expect(result.tauxImposition, 0.30);
-      expect(result.impotDonation, 30000.0);
+      expect(result.verdictFiscal.statut, 'taxe_lourd');
+      expect(result.verdictFiscal.plageMaxPct, 26);
     });
 
-    test('donation a un concubin en VD => taux 25%', () {
+    test('donation a un concubin en VD => taxe_lourd + bascule', () {
       final result = DonationService.calculate(
         montant: 200000,
         donateurAge: 45,
@@ -69,12 +88,26 @@ void main() {
         canton: 'VD',
       );
 
-      expect(result.tauxImposition, 0.25);
-      expect(result.impotDonation, 50000.0);
+      expect(result.verdictFiscal.statut, 'taxe_lourd');
+      expect(result.verdictFiscal.bascule, isNotNull);
+      expect(result.verdictFiscal.bascule, contains('ariage'));
     });
 
-    test('Schwyz (SZ) => taux 0% pour tous les liens', () {
-      for (final lien in DonationService.tauxDonationCantonal['SZ']!.keys) {
+    test('Lucerne : aucun impôt donation — le service le DIT', () {
+      final result = DonationService.calculate(
+        montant: 250000,
+        donateurAge: 55,
+        lienParente: 'fratrie',
+        canton: 'LU',
+      );
+
+      expect(result.verdictFiscal.statut, 'exonere');
+      expect(result.verdictFiscal.mecanismes.join(' '), contains('Lucerne'));
+      expect(result.premierEclairage, contains('Lucerne'));
+    });
+
+    test('Schwyz (SZ) => exonéré pour tous les liens', () {
+      for (final lien in SuccessionDonationSocle.categories) {
         final result = DonationService.calculate(
           montant: 100000,
           donateurAge: 50,
@@ -82,13 +115,12 @@ void main() {
           canton: 'SZ',
         );
 
-        expect(result.tauxImposition, 0.0,
-            reason: 'SZ devrait etre a 0% pour $lien');
-        expect(result.impotDonation, 0.0);
+        expect(result.verdictFiscal.statut, 'exonere',
+            reason: 'SZ devrait etre exonere pour $lien');
       }
     });
 
-    test('canton inconnu => fallback sur VD', () {
+    test('canton inconnu => verdict « inconnu », plus de fallback VD', () {
       final resultUnknown = DonationService.calculate(
         montant: 100000,
         donateurAge: 50,
@@ -96,15 +128,8 @@ void main() {
         canton: 'XX',
       );
 
-      final resultVD = DonationService.calculate(
-        montant: 100000,
-        donateurAge: 50,
-        lienParente: 'tiers',
-        canton: 'VD',
-      );
-
-      expect(resultUnknown.tauxImposition, resultVD.tauxImposition);
-      expect(resultUnknown.impotDonation, resultVD.impotDonation);
+      expect(resultUnknown.verdictFiscal.statut, 'inconnu');
+      expect(resultUnknown.verdictFiscal.plageMaxPct, isNull);
     });
   });
 
@@ -241,16 +266,19 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('DonationService - Alertes', () {
-    test('concubin avec taux > 15% => alerte taux eleve', () {
+    test('concubin taxé => alerte avec bascule, sans chiffre plat', () {
+      // GOLDEN MIS À JOUR : l'alerte citait « 25% » plat ; elle garde son
+      // message, perd le chiffre, gagne la bascule mariage/pacte.
       final result = DonationService.calculate(
         montant: 100000,
         donateurAge: 50,
         lienParente: 'concubin',
-        canton: 'VD', // 25%
+        canton: 'VD',
       );
 
-      expect(result.alerts,
-          anyElement(contains('taux d\'imposition')));
+      expect(result.alerts, anyElement(contains('concubin')));
+      expect(result.alerts, anyElement(contains('ariage')));
+      expect(result.alerts, isNot(anyElement(contains('25%'))));
     });
 
     test('donation immobiliere => alerte notaire obligatoire', () {
@@ -371,7 +399,10 @@ void main() {
       expect(result.sources, anyElement(contains('CC art. 522')));
     });
 
-    test('premier éclairage mentionne impot ou exoneration', () {
+    test('premier éclairage : verdict directionnel, jamais impot × taux',
+        () {
+      // GOLDEN MIS À JOUR : « Impot : CHF X (Y%) » était calculé sur un
+      // taux plat non sourcé — remplacé par le verdict + plage sourcée.
       // Cas exonere
       final resultExonere = DonationService.calculate(
         montant: 100000,
@@ -379,7 +410,7 @@ void main() {
         lienParente: 'conjoint',
         canton: 'ZH',
       );
-      expect(resultExonere.premierEclairage, contains('exoneree'));
+      expect(resultExonere.premierEclairage, contains('exon'));
 
       // Cas impose
       final resultImpose = DonationService.calculate(
@@ -388,7 +419,9 @@ void main() {
         lienParente: 'tiers',
         canton: 'GE',
       );
-      expect(resultImpose.premierEclairage, contains('Impot'));
+      expect(resultImpose.premierEclairage.toLowerCase(),
+          contains('imposable'));
+      expect(resultImpose.premierEclairage, contains('~26'));
     });
   });
 }

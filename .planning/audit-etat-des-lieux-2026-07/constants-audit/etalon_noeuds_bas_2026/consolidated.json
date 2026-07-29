@@ -1,0 +1,1464 @@
+{
+ "meta": {
+  "source": "API ESTV swisstaxcalculator (API_calculateSimpleTaxes), collecte 2026-07-28",
+  "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+  "profil": "célibataire, sans enfant, sans confession (Confession1=4), fortune 0, taxe personnelle incluse",
+  "tax_year": "2026 partout SAUF SG/TI = 2025 (l'ESTV n'a pas encore publié leur 2026 ; identique à la table committée)",
+  "objet": "Étendre CANTONAL_COMMUNAL_TAX_CHF vers le bas (nœuds 15k/25k/35k) pour corriger INC-1 : sous l'ancien premier nœud (40k), l'interpolation linéaire depuis (0,0) surestimait l'impôt cantonal jusqu'à +59.8% (GE 30k : 2780 vs ESTV 1739).",
+  "noeuds_ajoutes_chf": [
+   15000,
+   25000,
+   35000
+  ],
+  "points_diagnostic_chf": [
+   10000,
+   20000,
+   30000
+  ],
+  "premier_noeud_committe_chf": 40000,
+  "node_tolerance_chf": 1.0,
+  "cantons_dans_la_porte": 26,
+  "cantons_hors_porte": [],
+  "methode": "API JSON officielle ESTV (swisstaxcalculator, même endpoint que la calibration committée et l'oracle). Pour CHAQUE canton, les 5 nœuds committés (cantonal_communal) sont reproduits à +/-1 CHF AVANT d'accepter le moindre point bas ; un canton hors porte est abandonné (aucune donnée inventée). cantonal_communal = IncomeTaxCanton + IncomeTaxCity + PersonalTax + IncomeTaxChurch."
+ },
+ "node_integrity_gate": {
+  "AG": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3186)",
+    "70000:ok(8183)",
+    "100000:ok(13806)",
+    "150000:ok(23656)",
+    "250000:ok(44288)"
+   ]
+  },
+  "AI": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3146)",
+    "70000:ok(7022)",
+    "100000:ok(11096)",
+    "150000:ok(17860)",
+    "250000:ok(30400)"
+   ]
+  },
+  "AR": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(4272)",
+    "70000:ok(9806)",
+    "100000:ok(15852)",
+    "150000:ok(26396)",
+    "250000:ok(47856)"
+   ]
+  },
+  "BE": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(6839)",
+    "70000:ok(13129)",
+    "100000:ok(20273)",
+    "150000:ok(33232)",
+    "250000:ok(60810)"
+   ]
+  },
+  "BL": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3579)",
+    "70000:ok(10563)",
+    "100000:ok(18511)",
+    "150000:ok(32802)",
+    "250000:ok(62251)"
+   ]
+  },
+  "BS": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(8400)",
+    "70000:ok(14700)",
+    "100000:ok(21000)",
+    "150000:ok(31500)",
+    "250000:ok(54844)"
+   ]
+  },
+  "FR": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(5027)",
+    "70000:ok(11704)",
+    "100000:ok(18992)",
+    "150000:ok(32619)",
+    "250000:ok(59400)"
+   ]
+  },
+  "GE": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3706)",
+    "70000:ok(10593)",
+    "100000:ok(17967)",
+    "150000:ok(30803)",
+    "250000:ok(58279)"
+   ]
+  },
+  "GL": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3790)",
+    "70000:ok(8942)",
+    "100000:ok(14373)",
+    "150000:ok(23990)",
+    "250000:ok(45027)"
+   ]
+  },
+  "GR": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3097)",
+    "70000:ok(8622)",
+    "100000:ok(14368)",
+    "150000:ok(24362)",
+    "250000:ok(44579)"
+   ]
+  },
+  "JU": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(4875)",
+    "70000:ok(11430)",
+    "100000:ok(18651)",
+    "150000:ok(31852)",
+    "250000:ok(58743)"
+   ]
+  },
+  "LU": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3410)",
+    "70000:ok(7760)",
+    "100000:ok(12110)",
+    "150000:ok(19648)",
+    "250000:ok(36020)"
+   ]
+  },
+  "NE": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(5511)",
+    "70000:ok(12657)",
+    "100000:ok(20555)",
+    "150000:ok(34781)",
+    "250000:ok(62646)"
+   ]
+  },
+  "NW": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3220)",
+    "70000:ok(7634)",
+    "100000:ok(12191)",
+    "150000:ok(20054)",
+    "250000:ok(34130)"
+   ]
+  },
+  "OW": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(5119)",
+    "70000:ok(8959)",
+    "100000:ok(12798)",
+    "150000:ok(19197)",
+    "250000:ok(31995)"
+   ]
+  },
+  "SG": {
+   "year": 2025,
+   "ok": true,
+   "detail": [
+    "40000:ok(4238)",
+    "70000:ok(10356)",
+    "100000:ok(17071)",
+    "150000:ok(28492)",
+    "250000:ok(51334)"
+   ]
+  },
+  "SH": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3085)",
+    "70000:ok(7525)",
+    "100000:ok(12772)",
+    "150000:ok(21661)",
+    "250000:ok(39408)"
+   ]
+  },
+  "SO": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(4570)",
+    "70000:ok(11203)",
+    "100000:ok(18007)",
+    "150000:ok(30402)",
+    "250000:ok(55242)"
+   ]
+  },
+  "SZ": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(2813)",
+    "70000:ok(5936)",
+    "100000:ok(9270)",
+    "150000:ok(14828)",
+    "250000:ok(25943)"
+   ]
+  },
+  "TG": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3703)",
+    "70000:ok(8974)",
+    "100000:ok(14440)",
+    "150000:ok(23852)",
+    "250000:ok(43827)"
+   ]
+  },
+  "TI": {
+   "year": 2025,
+   "ok": true,
+   "detail": [
+    "40000:ok(3720)",
+    "70000:ok(9979)",
+    "100000:ok(16987)",
+    "150000:ok(29443)",
+    "250000:ok(55098)"
+   ]
+  },
+  "UR": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(5608)",
+    "70000:ok(9762)",
+    "100000:ok(13915)",
+    "150000:ok(20838)",
+    "250000:ok(34683)"
+   ]
+  },
+  "VD": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(5666)",
+    "70000:ok(12039)",
+    "100000:ok(19588)",
+    "150000:ok(33776)",
+    "250000:ok(65070)"
+   ]
+  },
+  "VS": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(3750)",
+    "70000:ok(9467)",
+    "100000:ok(16829)",
+    "150000:ok(32371)",
+    "250000:ok(59684)"
+   ]
+  },
+  "ZG": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(1882)",
+    "70000:ok(4162)",
+    "100000:ok(7325)",
+    "150000:ok(13435)",
+    "250000:ok(23835)"
+   ]
+  },
+  "ZH": {
+   "year": 2026,
+   "ok": true,
+   "detail": [
+    "40000:ok(2975)",
+    "70000:ok(7586)",
+    "100000:ok(13228)",
+    "150000:ok(23832)",
+    "250000:ok(48497)"
+   ]
+  }
+ },
+ "points_chf_cantonal_communal": {
+  "AG": {
+   "10000": 151.0,
+   "15000": 410.0,
+   "20000": 784.0,
+   "25000": 1271.0,
+   "30000": 1855.0,
+   "35000": 2490.0
+  },
+  "AI": {
+   "10000": 182.0,
+   "15000": 456.0,
+   "20000": 866.0,
+   "25000": 1368.0,
+   "30000": 1930.0,
+   "35000": 2538.0
+  },
+  "AR": {
+   "10000": 78.0,
+   "15000": 578.0,
+   "20000": 1229.0,
+   "25000": 1895.0,
+   "30000": 2644.0,
+   "35000": 3458.0
+  },
+  "BE": {
+   "10000": 1275.0,
+   "15000": 2088.0,
+   "20000": 2990.0,
+   "25000": 3927.0,
+   "30000": 4864.0,
+   "35000": 5834.0
+  },
+  "BL": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 422.0,
+   "25000": 1011.0,
+   "30000": 1749.0,
+   "35000": 2612.0
+  },
+  "BS": {
+   "10000": 2100.0,
+   "15000": 3150.0,
+   "20000": 4200.0,
+   "25000": 5250.0,
+   "30000": 6300.0,
+   "35000": 7350.0
+  },
+  "FR": {
+   "10000": 394.0,
+   "15000": 932.0,
+   "20000": 1599.0,
+   "25000": 2321.0,
+   "30000": 3172.0,
+   "35000": 4067.0
+  },
+  "GE": {
+   "10000": 25.0,
+   "15000": 25.0,
+   "20000": 192.0,
+   "25000": 878.0,
+   "30000": 1739.0,
+   "35000": 2700.0
+  },
+  "GL": {
+   "10000": 0.0,
+   "15000": 453.0,
+   "20000": 936.0,
+   "25000": 1579.0,
+   "30000": 2242.0,
+   "35000": 3006.0
+  },
+  "GR": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 211.0,
+   "25000": 814.0,
+   "30000": 1534.0,
+   "35000": 2289.0
+  },
+  "JU": {
+   "10000": 245.0,
+   "15000": 663.0,
+   "20000": 1410.0,
+   "25000": 2158.0,
+   "30000": 2960.0,
+   "35000": 3917.0
+  },
+  "LU": {
+   "10000": 52.0,
+   "15000": 164.0,
+   "20000": 596.0,
+   "25000": 1236.0,
+   "30000": 1960.0,
+   "35000": 2684.0
+  },
+  "NE": {
+   "10000": 86.0,
+   "15000": 448.0,
+   "20000": 1160.0,
+   "25000": 2204.0,
+   "30000": 3289.0,
+   "35000": 4399.0
+  },
+  "NW": {
+   "10000": 50.0,
+   "15000": 159.0,
+   "20000": 527.0,
+   "25000": 1101.0,
+   "30000": 1796.0,
+   "35000": 2501.0
+  },
+  "OW": {
+   "10000": 1280.0,
+   "15000": 1920.0,
+   "20000": 2560.0,
+   "25000": 3200.0,
+   "30000": 3839.0,
+   "35000": 4480.0
+  },
+  "SG": {
+   "10000": 0.0,
+   "15000": 331.0,
+   "20000": 1021.0,
+   "25000": 1750.0,
+   "30000": 2479.0,
+   "35000": 3266.0
+  },
+  "SH": {
+   "10000": 200.0,
+   "15000": 548.0,
+   "20000": 945.0,
+   "25000": 1413.0,
+   "30000": 1914.0,
+   "35000": 2470.0
+  },
+  "SO": {
+   "10000": 50.0,
+   "15000": 303.0,
+   "20000": 827.0,
+   "25000": 1551.0,
+   "30000": 2518.0,
+   "35000": 3544.0
+  },
+  "SZ": {
+   "10000": 326.0,
+   "15000": 663.0,
+   "20000": 1047.0,
+   "25000": 1461.0,
+   "30000": 1888.0,
+   "35000": 2350.0
+  },
+  "TG": {
+   "10000": 0.0,
+   "15000": 150.0,
+   "20000": 635.0,
+   "25000": 1363.0,
+   "30000": 2116.0,
+   "35000": 2869.0
+  },
+  "TI": {
+   "10000": 20.0,
+   "15000": 301.0,
+   "20000": 840.0,
+   "25000": 1254.0,
+   "30000": 1902.0,
+   "35000": 2807.0
+  },
+  "UR": {
+   "10000": 1455.0,
+   "15000": 2147.0,
+   "20000": 2839.0,
+   "25000": 3531.0,
+   "30000": 4224.0,
+   "35000": 4916.0
+  },
+  "VD": {
+   "10000": 713.0,
+   "15000": 1348.0,
+   "20000": 2136.0,
+   "25000": 2957.0,
+   "30000": 3860.0,
+   "35000": 4763.0
+  },
+  "VS": {
+   "10000": 444.0,
+   "15000": 765.0,
+   "20000": 1167.0,
+   "25000": 1681.0,
+   "30000": 2291.0,
+   "35000": 2979.0
+  },
+  "ZG": {
+   "10000": 260.0,
+   "15000": 472.0,
+   "20000": 698.0,
+   "25000": 951.0,
+   "30000": 1231.0,
+   "35000": 1525.0
+  },
+  "ZH": {
+   "10000": 152.0,
+   "15000": 431.0,
+   "20000": 820.0,
+   "25000": 1252.0,
+   "30000": 1788.0,
+   "35000": 2333.0
+  }
+ },
+ "ifd_chf": {
+  "AG": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "AI": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "AR": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "BE": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "BL": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "BS": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "FR": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "GE": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "GL": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "GR": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "JU": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "LU": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "NE": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "NW": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "OW": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "SG": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "SH": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "SO": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "SZ": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "TG": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "TI": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "UR": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "VD": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "VS": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "ZG": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  },
+  "ZH": {
+   "10000": 0.0,
+   "15000": 0.0,
+   "20000": 37.0,
+   "25000": 75.0,
+   "30000": 114.0,
+   "35000": 154.0
+  }
+ },
+ "added_nodes_for_table": {
+  "AG": [
+   410,
+   1271,
+   2490
+  ],
+  "AI": [
+   456,
+   1368,
+   2538
+  ],
+  "AR": [
+   578,
+   1895,
+   3458
+  ],
+  "BE": [
+   2088,
+   3927,
+   5834
+  ],
+  "BL": [
+   0,
+   1011,
+   2612
+  ],
+  "BS": [
+   3150,
+   5250,
+   7350
+  ],
+  "FR": [
+   932,
+   2321,
+   4067
+  ],
+  "GE": [
+   25,
+   878,
+   2700
+  ],
+  "GL": [
+   453,
+   1579,
+   3006
+  ],
+  "GR": [
+   0,
+   814,
+   2289
+  ],
+  "JU": [
+   663,
+   2158,
+   3917
+  ],
+  "LU": [
+   164,
+   1236,
+   2684
+  ],
+  "NE": [
+   448,
+   2204,
+   4399
+  ],
+  "NW": [
+   159,
+   1101,
+   2501
+  ],
+  "OW": [
+   1920,
+   3200,
+   4480
+  ],
+  "SG": [
+   331,
+   1750,
+   3266
+  ],
+  "SH": [
+   548,
+   1413,
+   2470
+  ],
+  "SO": [
+   303,
+   1551,
+   3544
+  ],
+  "SZ": [
+   663,
+   1461,
+   2350
+  ],
+  "TG": [
+   150,
+   1363,
+   2869
+  ],
+  "TI": [
+   301,
+   1254,
+   2807
+  ],
+  "UR": [
+   2147,
+   3531,
+   4916
+  ],
+  "VD": [
+   1348,
+   2957,
+   4763
+  ],
+  "VS": [
+   765,
+   1681,
+   2979
+  ],
+  "ZG": [
+   472,
+   951,
+   1525
+  ],
+  "ZH": [
+   431,
+   1252,
+   2333
+  ]
+ },
+ "measured_error_vs_estv": {
+  "AG": {
+   "10000": {
+    "estv_cantonal_communal": 151.0,
+    "old_model": 796.5,
+    "old_rel_err_pct": 427.48,
+    "new_model": 273.33,
+    "new_rel_err_pct": 81.02
+   },
+   "20000": {
+    "estv_cantonal_communal": 784.0,
+    "old_model": 1593.0,
+    "old_rel_err_pct": 103.19,
+    "new_model": 840.5,
+    "new_rel_err_pct": 7.21
+   },
+   "30000": {
+    "estv_cantonal_communal": 1855.0,
+    "old_model": 2389.5,
+    "old_rel_err_pct": 28.81,
+    "new_model": 1880.5,
+    "new_rel_err_pct": 1.37
+   }
+  },
+  "AI": {
+   "10000": {
+    "estv_cantonal_communal": 182.0,
+    "old_model": 786.5,
+    "old_rel_err_pct": 332.14,
+    "new_model": 304.0,
+    "new_rel_err_pct": 67.03
+   },
+   "20000": {
+    "estv_cantonal_communal": 866.0,
+    "old_model": 1573.0,
+    "old_rel_err_pct": 81.64,
+    "new_model": 912.0,
+    "new_rel_err_pct": 5.31
+   },
+   "30000": {
+    "estv_cantonal_communal": 1930.0,
+    "old_model": 2359.5,
+    "old_rel_err_pct": 22.25,
+    "new_model": 1953.0,
+    "new_rel_err_pct": 1.19
+   }
+  },
+  "AR": {
+   "10000": {
+    "estv_cantonal_communal": 78.0,
+    "old_model": 1068.0,
+    "old_rel_err_pct": 1269.23,
+    "new_model": 385.33,
+    "new_rel_err_pct": 394.02
+   },
+   "20000": {
+    "estv_cantonal_communal": 1229.0,
+    "old_model": 2136.0,
+    "old_rel_err_pct": 73.8,
+    "new_model": 1236.5,
+    "new_rel_err_pct": 0.61
+   },
+   "30000": {
+    "estv_cantonal_communal": 2644.0,
+    "old_model": 3204.0,
+    "old_rel_err_pct": 21.18,
+    "new_model": 2676.5,
+    "new_rel_err_pct": 1.23
+   }
+  },
+  "BE": {
+   "10000": {
+    "estv_cantonal_communal": 1275.0,
+    "old_model": 1709.75,
+    "old_rel_err_pct": 34.1,
+    "new_model": 1392.0,
+    "new_rel_err_pct": 9.18
+   },
+   "20000": {
+    "estv_cantonal_communal": 2990.0,
+    "old_model": 3419.5,
+    "old_rel_err_pct": 14.36,
+    "new_model": 3007.5,
+    "new_rel_err_pct": 0.59
+   },
+   "30000": {
+    "estv_cantonal_communal": 4864.0,
+    "old_model": 5129.25,
+    "old_rel_err_pct": 5.45,
+    "new_model": 4880.5,
+    "new_rel_err_pct": 0.34
+   }
+  },
+  "BL": {
+   "10000": {
+    "estv_cantonal_communal": 0.0,
+    "old_model": 894.75,
+    "old_rel_err_pct": null,
+    "new_model": 0.0,
+    "new_rel_err_pct": null
+   },
+   "20000": {
+    "estv_cantonal_communal": 422.0,
+    "old_model": 1789.5,
+    "old_rel_err_pct": 324.05,
+    "new_model": 505.5,
+    "new_rel_err_pct": 19.79
+   },
+   "30000": {
+    "estv_cantonal_communal": 1749.0,
+    "old_model": 2684.25,
+    "old_rel_err_pct": 53.47,
+    "new_model": 1811.5,
+    "new_rel_err_pct": 3.57
+   }
+  },
+  "BS": {
+   "10000": {
+    "estv_cantonal_communal": 2100.0,
+    "old_model": 2100.0,
+    "old_rel_err_pct": 0.0,
+    "new_model": 2100.0,
+    "new_rel_err_pct": 0.0
+   },
+   "20000": {
+    "estv_cantonal_communal": 4200.0,
+    "old_model": 4200.0,
+    "old_rel_err_pct": 0.0,
+    "new_model": 4200.0,
+    "new_rel_err_pct": 0.0
+   },
+   "30000": {
+    "estv_cantonal_communal": 6300.0,
+    "old_model": 6300.0,
+    "old_rel_err_pct": 0.0,
+    "new_model": 6300.0,
+    "new_rel_err_pct": 0.0
+   }
+  },
+  "FR": {
+   "10000": {
+    "estv_cantonal_communal": 394.0,
+    "old_model": 1256.75,
+    "old_rel_err_pct": 218.97,
+    "new_model": 621.33,
+    "new_rel_err_pct": 57.7
+   },
+   "20000": {
+    "estv_cantonal_communal": 1599.0,
+    "old_model": 2513.5,
+    "old_rel_err_pct": 57.19,
+    "new_model": 1626.5,
+    "new_rel_err_pct": 1.72
+   },
+   "30000": {
+    "estv_cantonal_communal": 3172.0,
+    "old_model": 3770.25,
+    "old_rel_err_pct": 18.86,
+    "new_model": 3194.0,
+    "new_rel_err_pct": 0.69
+   }
+  },
+  "GE": {
+   "10000": {
+    "estv_cantonal_communal": 25.0,
+    "old_model": 926.5,
+    "old_rel_err_pct": 3606.0,
+    "new_model": 16.67,
+    "new_rel_err_pct": -33.33
+   },
+   "20000": {
+    "estv_cantonal_communal": 192.0,
+    "old_model": 1853.0,
+    "old_rel_err_pct": 865.1,
+    "new_model": 451.5,
+    "new_rel_err_pct": 135.16
+   },
+   "30000": {
+    "estv_cantonal_communal": 1739.0,
+    "old_model": 2779.5,
+    "old_rel_err_pct": 59.83,
+    "new_model": 1789.0,
+    "new_rel_err_pct": 2.88
+   }
+  },
+  "GL": {
+   "10000": {
+    "estv_cantonal_communal": 0.0,
+    "old_model": 947.5,
+    "old_rel_err_pct": null,
+    "new_model": 302.0,
+    "new_rel_err_pct": null
+   },
+   "20000": {
+    "estv_cantonal_communal": 936.0,
+    "old_model": 1895.0,
+    "old_rel_err_pct": 102.46,
+    "new_model": 1016.0,
+    "new_rel_err_pct": 8.55
+   },
+   "30000": {
+    "estv_cantonal_communal": 2242.0,
+    "old_model": 2842.5,
+    "old_rel_err_pct": 26.78,
+    "new_model": 2292.5,
+    "new_rel_err_pct": 2.25
+   }
+  },
+  "GR": {
+   "10000": {
+    "estv_cantonal_communal": 0.0,
+    "old_model": 774.25,
+    "old_rel_err_pct": null,
+    "new_model": 0.0,
+    "new_rel_err_pct": null
+   },
+   "20000": {
+    "estv_cantonal_communal": 211.0,
+    "old_model": 1548.5,
+    "old_rel_err_pct": 633.89,
+    "new_model": 407.0,
+    "new_rel_err_pct": 92.89
+   },
+   "30000": {
+    "estv_cantonal_communal": 1534.0,
+    "old_model": 2322.75,
+    "old_rel_err_pct": 51.42,
+    "new_model": 1551.5,
+    "new_rel_err_pct": 1.14
+   }
+  },
+  "JU": {
+   "10000": {
+    "estv_cantonal_communal": 245.0,
+    "old_model": 1218.75,
+    "old_rel_err_pct": 397.45,
+    "new_model": 442.0,
+    "new_rel_err_pct": 80.41
+   },
+   "20000": {
+    "estv_cantonal_communal": 1410.0,
+    "old_model": 2437.5,
+    "old_rel_err_pct": 72.87,
+    "new_model": 1410.5,
+    "new_rel_err_pct": 0.04
+   },
+   "30000": {
+    "estv_cantonal_communal": 2960.0,
+    "old_model": 3656.25,
+    "old_rel_err_pct": 23.52,
+    "new_model": 3037.5,
+    "new_rel_err_pct": 2.62
+   }
+  },
+  "LU": {
+   "10000": {
+    "estv_cantonal_communal": 52.0,
+    "old_model": 852.5,
+    "old_rel_err_pct": 1539.42,
+    "new_model": 109.33,
+    "new_rel_err_pct": 110.26
+   },
+   "20000": {
+    "estv_cantonal_communal": 596.0,
+    "old_model": 1705.0,
+    "old_rel_err_pct": 186.07,
+    "new_model": 700.0,
+    "new_rel_err_pct": 17.45
+   },
+   "30000": {
+    "estv_cantonal_communal": 1960.0,
+    "old_model": 2557.5,
+    "old_rel_err_pct": 30.48,
+    "new_model": 1960.0,
+    "new_rel_err_pct": 0.0
+   }
+  },
+  "NE": {
+   "10000": {
+    "estv_cantonal_communal": 86.0,
+    "old_model": 1377.75,
+    "old_rel_err_pct": 1502.03,
+    "new_model": 298.67,
+    "new_rel_err_pct": 247.29
+   },
+   "20000": {
+    "estv_cantonal_communal": 1160.0,
+    "old_model": 2755.5,
+    "old_rel_err_pct": 137.54,
+    "new_model": 1326.0,
+    "new_rel_err_pct": 14.31
+   },
+   "30000": {
+    "estv_cantonal_communal": 3289.0,
+    "old_model": 4133.25,
+    "old_rel_err_pct": 25.67,
+    "new_model": 3301.5,
+    "new_rel_err_pct": 0.38
+   }
+  },
+  "NW": {
+   "10000": {
+    "estv_cantonal_communal": 50.0,
+    "old_model": 805.0,
+    "old_rel_err_pct": 1510.0,
+    "new_model": 106.0,
+    "new_rel_err_pct": 112.0
+   },
+   "20000": {
+    "estv_cantonal_communal": 527.0,
+    "old_model": 1610.0,
+    "old_rel_err_pct": 205.5,
+    "new_model": 630.0,
+    "new_rel_err_pct": 19.54
+   },
+   "30000": {
+    "estv_cantonal_communal": 1796.0,
+    "old_model": 2415.0,
+    "old_rel_err_pct": 34.47,
+    "new_model": 1801.0,
+    "new_rel_err_pct": 0.28
+   }
+  },
+  "OW": {
+   "10000": {
+    "estv_cantonal_communal": 1280.0,
+    "old_model": 1279.75,
+    "old_rel_err_pct": -0.02,
+    "new_model": 1280.0,
+    "new_rel_err_pct": 0.0
+   },
+   "20000": {
+    "estv_cantonal_communal": 2560.0,
+    "old_model": 2559.5,
+    "old_rel_err_pct": -0.02,
+    "new_model": 2560.0,
+    "new_rel_err_pct": 0.0
+   },
+   "30000": {
+    "estv_cantonal_communal": 3839.0,
+    "old_model": 3839.25,
+    "old_rel_err_pct": 0.01,
+    "new_model": 3840.0,
+    "new_rel_err_pct": 0.03
+   }
+  },
+  "SG": {
+   "10000": {
+    "estv_cantonal_communal": 0.0,
+    "old_model": 1059.5,
+    "old_rel_err_pct": null,
+    "new_model": 220.67,
+    "new_rel_err_pct": null
+   },
+   "20000": {
+    "estv_cantonal_communal": 1021.0,
+    "old_model": 2119.0,
+    "old_rel_err_pct": 107.54,
+    "new_model": 1040.5,
+    "new_rel_err_pct": 1.91
+   },
+   "30000": {
+    "estv_cantonal_communal": 2479.0,
+    "old_model": 3178.5,
+    "old_rel_err_pct": 28.22,
+    "new_model": 2508.0,
+    "new_rel_err_pct": 1.17
+   }
+  },
+  "SH": {
+   "10000": {
+    "estv_cantonal_communal": 200.0,
+    "old_model": 771.25,
+    "old_rel_err_pct": 285.62,
+    "new_model": 365.33,
+    "new_rel_err_pct": 82.67
+   },
+   "20000": {
+    "estv_cantonal_communal": 945.0,
+    "old_model": 1542.5,
+    "old_rel_err_pct": 63.23,
+    "new_model": 980.5,
+    "new_rel_err_pct": 3.76
+   },
+   "30000": {
+    "estv_cantonal_communal": 1914.0,
+    "old_model": 2313.75,
+    "old_rel_err_pct": 20.89,
+    "new_model": 1941.5,
+    "new_rel_err_pct": 1.44
+   }
+  },
+  "SO": {
+   "10000": {
+    "estv_cantonal_communal": 50.0,
+    "old_model": 1142.5,
+    "old_rel_err_pct": 2185.0,
+    "new_model": 202.0,
+    "new_rel_err_pct": 304.0
+   },
+   "20000": {
+    "estv_cantonal_communal": 827.0,
+    "old_model": 2285.0,
+    "old_rel_err_pct": 176.3,
+    "new_model": 927.0,
+    "new_rel_err_pct": 12.09
+   },
+   "30000": {
+    "estv_cantonal_communal": 2518.0,
+    "old_model": 3427.5,
+    "old_rel_err_pct": 36.12,
+    "new_model": 2547.5,
+    "new_rel_err_pct": 1.17
+   }
+  },
+  "SZ": {
+   "10000": {
+    "estv_cantonal_communal": 326.0,
+    "old_model": 703.25,
+    "old_rel_err_pct": 115.72,
+    "new_model": 442.0,
+    "new_rel_err_pct": 35.58
+   },
+   "20000": {
+    "estv_cantonal_communal": 1047.0,
+    "old_model": 1406.5,
+    "old_rel_err_pct": 34.34,
+    "new_model": 1062.0,
+    "new_rel_err_pct": 1.43
+   },
+   "30000": {
+    "estv_cantonal_communal": 1888.0,
+    "old_model": 2109.75,
+    "old_rel_err_pct": 11.75,
+    "new_model": 1905.5,
+    "new_rel_err_pct": 0.93
+   }
+  },
+  "TG": {
+   "10000": {
+    "estv_cantonal_communal": 0.0,
+    "old_model": 925.75,
+    "old_rel_err_pct": null,
+    "new_model": 100.0,
+    "new_rel_err_pct": null
+   },
+   "20000": {
+    "estv_cantonal_communal": 635.0,
+    "old_model": 1851.5,
+    "old_rel_err_pct": 191.57,
+    "new_model": 756.5,
+    "new_rel_err_pct": 19.13
+   },
+   "30000": {
+    "estv_cantonal_communal": 2116.0,
+    "old_model": 2777.25,
+    "old_rel_err_pct": 31.25,
+    "new_model": 2116.0,
+    "new_rel_err_pct": 0.0
+   }
+  },
+  "TI": {
+   "10000": {
+    "estv_cantonal_communal": 20.0,
+    "old_model": 930.0,
+    "old_rel_err_pct": 4550.0,
+    "new_model": 200.67,
+    "new_rel_err_pct": 903.33
+   },
+   "20000": {
+    "estv_cantonal_communal": 840.0,
+    "old_model": 1860.0,
+    "old_rel_err_pct": 121.43,
+    "new_model": 777.5,
+    "new_rel_err_pct": -7.44
+   },
+   "30000": {
+    "estv_cantonal_communal": 1902.0,
+    "old_model": 2790.0,
+    "old_rel_err_pct": 46.69,
+    "new_model": 2030.5,
+    "new_rel_err_pct": 6.76
+   }
+  },
+  "UR": {
+   "10000": {
+    "estv_cantonal_communal": 1455.0,
+    "old_model": 1402.0,
+    "old_rel_err_pct": -3.64,
+    "new_model": 1431.33,
+    "new_rel_err_pct": -1.63
+   },
+   "20000": {
+    "estv_cantonal_communal": 2839.0,
+    "old_model": 2804.0,
+    "old_rel_err_pct": -1.23,
+    "new_model": 2839.0,
+    "new_rel_err_pct": 0.0
+   },
+   "30000": {
+    "estv_cantonal_communal": 4224.0,
+    "old_model": 4206.0,
+    "old_rel_err_pct": -0.43,
+    "new_model": 4223.5,
+    "new_rel_err_pct": -0.01
+   }
+  },
+  "VD": {
+   "10000": {
+    "estv_cantonal_communal": 713.0,
+    "old_model": 1416.5,
+    "old_rel_err_pct": 98.67,
+    "new_model": 898.67,
+    "new_rel_err_pct": 26.04
+   },
+   "20000": {
+    "estv_cantonal_communal": 2136.0,
+    "old_model": 2833.0,
+    "old_rel_err_pct": 32.63,
+    "new_model": 2152.5,
+    "new_rel_err_pct": 0.77
+   },
+   "30000": {
+    "estv_cantonal_communal": 3860.0,
+    "old_model": 4249.5,
+    "old_rel_err_pct": 10.09,
+    "new_model": 3860.0,
+    "new_rel_err_pct": 0.0
+   }
+  },
+  "VS": {
+   "10000": {
+    "estv_cantonal_communal": 444.0,
+    "old_model": 937.5,
+    "old_rel_err_pct": 111.15,
+    "new_model": 510.0,
+    "new_rel_err_pct": 14.86
+   },
+   "20000": {
+    "estv_cantonal_communal": 1167.0,
+    "old_model": 1875.0,
+    "old_rel_err_pct": 60.67,
+    "new_model": 1223.0,
+    "new_rel_err_pct": 4.8
+   },
+   "30000": {
+    "estv_cantonal_communal": 2291.0,
+    "old_model": 2812.5,
+    "old_rel_err_pct": 22.76,
+    "new_model": 2330.0,
+    "new_rel_err_pct": 1.7
+   }
+  },
+  "ZG": {
+   "10000": {
+    "estv_cantonal_communal": 260.0,
+    "old_model": 470.5,
+    "old_rel_err_pct": 80.96,
+    "new_model": 314.67,
+    "new_rel_err_pct": 21.03
+   },
+   "20000": {
+    "estv_cantonal_communal": 698.0,
+    "old_model": 941.0,
+    "old_rel_err_pct": 34.81,
+    "new_model": 711.5,
+    "new_rel_err_pct": 1.93
+   },
+   "30000": {
+    "estv_cantonal_communal": 1231.0,
+    "old_model": 1411.5,
+    "old_rel_err_pct": 14.66,
+    "new_model": 1238.0,
+    "new_rel_err_pct": 0.57
+   }
+  },
+  "ZH": {
+   "10000": {
+    "estv_cantonal_communal": 152.0,
+    "old_model": 743.75,
+    "old_rel_err_pct": 389.31,
+    "new_model": 287.33,
+    "new_rel_err_pct": 89.04
+   },
+   "20000": {
+    "estv_cantonal_communal": 820.0,
+    "old_model": 1487.5,
+    "old_rel_err_pct": 81.4,
+    "new_model": 841.5,
+    "new_rel_err_pct": 2.62
+   },
+   "30000": {
+    "estv_cantonal_communal": 1788.0,
+    "old_model": 2231.25,
+    "old_rel_err_pct": 24.79,
+    "new_model": 1792.5,
+    "new_rel_err_pct": 0.25
+   }
+  }
+ }
+}

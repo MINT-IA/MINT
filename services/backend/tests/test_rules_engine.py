@@ -313,6 +313,51 @@ class TestMarginalTaxRate:
         assert 0.10 <= rate <= 0.45
 
 
+class TestMinimalProfileDelegueALEtalon:
+    """minimal_profile_service ne doit porter aucune table de taux marginaux.
+
+    `effective_rates_100k` (26 valeurs x ajustement de revenu x1.3, clamp
+    [0.05, 0.45]) donnait 0.1290 pour ZH la ou l'etalon donne 0.1323 a
+    100k, et son clamp inventait un plancher de 5 % pour des revenus quasi
+    non imposes. Memes exigences que TestMarginalTaxRate : la seule source
+    du taux marginal est ``fiscal.cantonal_comparator``.
+    """
+
+    def test_taux_marginal_delegue_a_l_etalon_sur_26_cantons(self):
+        from app.services.fiscal.cantonal_comparator import (
+            CANTONAL_COMMUNAL_TAX_CHF,
+            estimate_marginal_rate,
+        )
+        from app.services.onboarding.minimal_profile_service import (
+            _compute_marginal_tax_rate,
+        )
+
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
+            for revenu in (40000, 80000, 100000, 150000):
+                attendu = estimate_marginal_rate(revenu, canton)
+                obtenu = _compute_marginal_tax_rate(revenu, canton)
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
+
+    def test_economie_3a_est_une_difference_d_impot(self):
+        """L'integration en 10 pas approximait ce que l'etalon calcule exactement."""
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+        from app.services.onboarding.minimal_profile_service import (
+            _estimate_tax_saving,
+        )
+
+        for canton in ("ZH", "GE", "VD", "ZG"):
+            for revenu in (80000, 100000):
+                attendu = estimate_tax_saving(revenu, 7258, canton)
+                obtenu = _estimate_tax_saving(
+                    income=revenu, deduction=7258, canton=canton
+                )
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
+
+
 class TestRenteVsCapital:
     """Tests for compute_rente_vs_capital (LPP rente vs capital withdrawal).
 

@@ -20,9 +20,8 @@ import pytest
 from app.services.donation_service import (
     DonationService,
     DonationInput,
-    TAUX_DONATION_CANTONAL,
-    TAUX_DONATION_DEFAULT,
 )
+from app.services.fiscal.succession_donation_socle import SOCLE_CANTONS
 
 
 # ---------------------------------------------------------------------------
@@ -55,22 +54,31 @@ def base_input():
 # TestDonationTax — all cantons, all relationships (10 tests)
 # ===========================================================================
 
-class TestDonationTax:
-    """Tests for cantonal donation tax rates and amounts."""
+class TestDonationVerdict:
+    """Verdicts fiscaux du socle ESTV 1.1.2025 — plus de montant × taux.
+
+    GOLDEN MIS À JOUR (ADR 2026-07-28 P4) : l'ancienne classe gravait les
+    taux plats de TAUX_DONATION_CANTONAL (8 cantons + défaut), table non
+    sourcée et démentie : LU y figurait à fratrie 8 %/tiers 25 % alors que
+    Lucerne ne prélève AUCUN impôt sur les donations ; « VD parent 5 % »
+    contre un barème progressif 2.970-6.289 % ; AI passait par un défaut
+    25 % alors que ses taux sont sourcés. Le service émet désormais un
+    verdict {statut, plage sourcée, mécanismes, bascule, source}.
+    """
 
     def test_conjoint_exempt_all_cantons(self, service):
-        """Spouse donations are tax-free in all listed cantons."""
-        for canton in TAUX_DONATION_CANTONAL:
+        """Conjoint exonéré — la seule généralisation qui tient 26/26."""
+        for canton in SOCLE_CANTONS:
             inp = DonationInput(
                 montant=200_000, donateur_age=50,
                 lien_parente="conjoint", canton=canton,
             )
             result = service.calculate(inp)
-            assert result.taux_imposition == 0.0, f"Failed for {canton}"
-            assert result.impot_donation == 0.0, f"Failed for {canton}"
+            assert result.verdict_fiscal["statut"] == "exonere", f"{canton}"
 
     def test_descendant_exempt_most_cantons(self, service):
-        """Descendant donations are tax-free in most cantons."""
+        """Descendant exonéré dans ces cantons (mais PAS une généralisation :
+        VD/NE/AI imposent la ligne directe)."""
         exempt_cantons = ["ZH", "BE", "GE", "LU", "BS", "SZ", "OW"]
         for canton in exempt_cantons:
             inp = DonationInput(
@@ -78,47 +86,70 @@ class TestDonationTax:
                 lien_parente="descendant", canton=canton,
             )
             result = service.calculate(inp)
-            assert result.taux_imposition == 0.0, f"Failed for {canton}"
+            assert result.verdict_fiscal["statut"] == "exonere", f"{canton}"
 
-    def test_vaud_parent_5_percent(self, service):
-        """VD taxes parent donations at 5%."""
+    def test_vaud_descendant_taxe_franchise_300k_an(self, service):
+        """VD ligne directe : TAXÉE (l'ancien 0 % implicite était faux) —
+        avec la franchise donation 300'000/an par enfant dans les
+        mécanismes sourcés."""
+        inp = DonationInput(
+            montant=400_000, donateur_age=55,
+            lien_parente="descendant", canton="VD",
+        )
+        result = service.calculate(inp)
+        assert result.verdict_fiscal["statut"] == "taxe"
+        joined = " ".join(result.verdict_fiscal["mecanismes"])
+        assert "300000" in joined
+
+    def test_vaud_parent_taxe_sans_taux_plat(self, service):
+        """VD parent : statut taxe, barème progressif dans les mécanismes —
+        l'ancien « 5 % » plat (source inconnue) est retiré."""
         inp = DonationInput(
             montant=100_000, donateur_age=55,
             lien_parente="parent", canton="VD",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition == 0.05
-        assert result.impot_donation == 5_000
+        assert result.verdict_fiscal["statut"] == "taxe"
+        assert result.verdict_fiscal["plage_max_pct"] is None
 
-    def test_geneve_concubin_24_percent(self, service):
-        """GE taxes concubin donations at 24%."""
+    def test_geneve_concubin_taxe_lourd_bascule(self, service):
+        """GE concubin : classe la plus lourde, plage sourcée 26 % (hors
+        centimes additionnels), bascule mariage/pacte."""
         inp = DonationInput(
             montant=200_000, donateur_age=50,
             lien_parente="concubin", canton="GE",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition == 0.24
-        assert result.impot_donation == 48_000
+        v = result.verdict_fiscal
+        assert v["statut"] == "taxe_lourd"
+        assert v["plage_max_pct"] == 26
+        assert v["bascule"] is not None and "xonération" in v["bascule"]
 
-    def test_geneve_tiers_30_percent(self, service):
-        """GE taxes third-party donations at 30%."""
+    def test_geneve_tiers_taxe_lourd_caveat_centimes(self, service):
+        """GE tiers : plage 26 % AVEC caveat centimes additionnels (la
+        charge réelle est supérieure, non chiffrable dans la source)."""
         inp = DonationInput(
             montant=100_000, donateur_age=50,
             lien_parente="tiers", canton="GE",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition == 0.30
-        assert result.impot_donation == 30_000
+        v = result.verdict_fiscal
+        assert v["statut"] == "taxe_lourd"
+        assert v["plage_max_pct"] == 26
+        assert any("centimes" in m.lower() for m in v["mecanismes"])
 
-    def test_zurich_fratrie_6_percent(self, service):
-        """ZH taxes sibling donations at 6%."""
+    def test_zurich_fratrie_taxe_franchise(self, service):
+        """ZH fratrie : statut taxe, multiplicateur ×3 + franchise 15'000
+        dans les mécanismes — l'ancien « 6 % » plat est retiré."""
         inp = DonationInput(
             montant=50_000, donateur_age=60,
             lien_parente="fratrie", canton="ZH",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition == 0.06
-        assert result.impot_donation == 3_000
+        v = result.verdict_fiscal
+        assert v["statut"] == "taxe"
+        joined = " ".join(v["mecanismes"])
+        assert "15'000" in joined or "15000" in joined
 
     def test_schwyz_zero_all(self, service):
         """SZ has no donation tax for anyone."""
@@ -128,8 +159,7 @@ class TestDonationTax:
                 lien_parente=lien, canton="SZ",
             )
             result = service.calculate(inp)
-            assert result.taux_imposition == 0.0, f"Failed for {lien} in SZ"
-            assert result.impot_donation == 0.0, f"Failed for {lien} in SZ"
+            assert result.verdict_fiscal["statut"] == "exonere", f"{lien} in SZ"
 
     def test_obwald_zero_all(self, service):
         """OW has no donation tax for anyone."""
@@ -139,27 +169,43 @@ class TestDonationTax:
                 lien_parente=lien, canton="OW",
             )
             result = service.calculate(inp)
-            assert result.impot_donation == 0.0, f"Failed for {lien} in OW"
+            assert result.verdict_fiscal["statut"] == "exonere", f"{lien} in OW"
 
-    def test_unknown_canton_uses_default(self, service):
-        """Unknown canton should use default rates."""
+    def test_lucerne_aucun_impot_donation_message_dedie(self, service):
+        """LU ne prélève PAS d'impôt sur les donations — le service le DIT
+        (l'ancienne table l'inscrivait à fratrie 8 %/tiers 25 %, erreur
+        prouvée par l'ADR). Pas de 0 muet."""
+        for lien in ["fratrie", "concubin", "tiers"]:
+            inp = DonationInput(
+                montant=250_000, donateur_age=55,
+                lien_parente=lien, canton="LU",
+            )
+            result = service.calculate(inp)
+            assert result.verdict_fiscal["statut"] == "exonere", lien
+            joined = " ".join(result.verdict_fiscal["mecanismes"])
+            assert "Lucerne" in joined, joined
+        assert "Lucerne" in result.premier_eclairage["texte"]
+
+    def test_appenzell_ai_sourced_plus_de_defaut(self, service):
+        """AI est désormais SOURCÉ (fratrie 6 %) — l'ancien test le faisait
+        passer par un « défaut » 8 % fabriqué."""
         inp = DonationInput(
             montant=100_000, donateur_age=50,
             lien_parente="fratrie", canton="AI",
         )
         result = service.calculate(inp)
-        expected_rate = TAUX_DONATION_DEFAULT["fratrie"]
-        assert result.taux_imposition == expected_rate
-        assert result.impot_donation == round(100_000 * expected_rate, 2)
+        assert result.verdict_fiscal["statut"] == "taxe"
+        assert "ESTV" in result.verdict_fiscal["source"]
 
-    def test_tax_amount_formula(self, service):
-        """Tax = montant * taux."""
+    def test_canton_inconnu_honnete(self, service):
+        """Canton hors socle : statut « inconnu », aucun chiffre fabriqué."""
         inp = DonationInput(
-            montant=250_000, donateur_age=55,
-            lien_parente="concubin", canton="LU",
+            montant=100_000, donateur_age=50,
+            lien_parente="fratrie", canton="XX",
         )
         result = service.calculate(inp)
-        assert result.impot_donation == round(250_000 * 0.20, 2)
+        assert result.verdict_fiscal["statut"] == "inconnu"
+        assert result.verdict_fiscal["plage_max_pct"] is None
 
 
 # ===========================================================================
@@ -475,22 +521,28 @@ class TestDonationEdgeCases:
     """Edge case tests."""
 
     def test_zero_donation(self, service):
-        """Zero donation: zero tax."""
+        """Zero donation: verdict rendu quand même, montant 0."""
         inp = DonationInput(
             montant=0, donateur_age=50,
             lien_parente="tiers", canton="GE",
         )
         result = service.calculate(inp)
-        assert result.impot_donation == 0.0
+        assert result.montant_donation == 0.0
+        assert result.verdict_fiscal["statut"] == "taxe_lourd"
 
-    def test_very_large_donation(self, service):
-        """Very large donation: tax computed correctly."""
+    def test_very_large_donation_sans_impot_chiffre(self, service):
+        """GOLDEN MIS À JOUR : l'ancien test gravait 5M × 30 % = 1.5M
+        d'impôt « calculé » sur un taux plat non sourcé (GE réel : barème
+        progressif 24-26 % + centimes additionnels non chiffrables).
+        Plus aucun impôt en francs — verdict + plage sourcée."""
         inp = DonationInput(
             montant=5_000_000, donateur_age=70,
             lien_parente="tiers", canton="GE",
         )
         result = service.calculate(inp)
-        assert result.impot_donation == round(5_000_000 * 0.30, 2)
+        assert not hasattr(result, "impot_donation")
+        assert not hasattr(result, "taux_imposition")
+        assert result.verdict_fiscal["plage_max_pct"] == 26
 
     def test_concubin_high_tax_alert(self, service):
         """Concubin with high tax rate triggers alert."""
@@ -512,8 +564,9 @@ class TestDonationEdgeCases:
         age_alerts = [a for a in result.alerts if "deces" in a.lower()]
         assert len(age_alerts) > 0
 
-    def test_premier_eclairage_with_tax(self, service):
-        """Chiffre choc should mention tax amount when > 0."""
+    def test_premier_eclairage_verdict_taxe(self, service):
+        """Premier éclairage : verdict directionnel, plage sourcée
+        seulement — plus de « Impot : X CHF » calculé sur un taux plat."""
         inp = DonationInput(
             montant=100_000, donateur_age=50,
             lien_parente="concubin", canton="GE",
@@ -522,6 +575,9 @@ class TestDonationEdgeCases:
         assert "montant" in result.premier_eclairage
         assert "texte" in result.premier_eclairage
         assert result.premier_eclairage["montant"] > 0
+        texte = result.premier_eclairage["texte"]
+        assert "imposable" in texte.lower()
+        assert "~26" in texte  # plage sourcée GE, jamais un impôt en francs
 
     def test_premier_eclairage_exempt(self, service):
         """Chiffre choc for tax-exempt donation."""
@@ -530,16 +586,16 @@ class TestDonationEdgeCases:
             lien_parente="descendant", canton="ZH",
         )
         result = service.calculate(inp)
-        assert "exoneree" in result.premier_eclairage["texte"]
+        assert "exon" in result.premier_eclairage["texte"]
 
     def test_schwyz_concubin_zero_tax(self, service):
-        """SZ: even concubin pays zero tax."""
+        """SZ: even concubin is exempt (no donation tax at all)."""
         inp = DonationInput(
             montant=1_000_000, donateur_age=50,
             lien_parente="concubin", canton="SZ",
         )
         result = service.calculate(inp)
-        assert result.impot_donation == 0.0
+        assert result.verdict_fiscal["statut"] == "exonere"
 
     def test_checklist_has_minimum_items(self, service, base_input):
         """Checklist should have at least 5 items."""

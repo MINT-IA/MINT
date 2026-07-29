@@ -1,6 +1,6 @@
 {
   "_doc": "Goldens de parité croisée RvC (beads MINT_nosync-axj). Backend rente_vs_capital.py = canonique (L2 comparer, ADR data-architecture) ; arbitrage_engine.dart = miroir fallback offline. Les DEUX suites (pytest test_rvc_parity_fixture.py + flutter rvc_parity_fixture_test.dart) pinent ces valeurs : toute dérive unilatérale casse la suite du côté qui dérive. Recalibration = backend d'abord, puis miroir Dart, puis régénérer ces expected AVEC citation.",
-  "_provenance": "Générés 2026-07-23 après unification -axj : impôt rente miroir (0.85 × IFD 2026 + taux effectif cantonal 100k clampé 0.6-1.5, marié ×0.80), coefficient capital marié PAR CANTON (audit swiss-brain 2026-04-18 Q5), horizon défaut 30, breakeven relatif (années après retraite). RÉGÉNÉRÉS 2026-07-23 (soir) après le modèle fiscal v2 -97h (interpolation 130 points ESTV — l'impôt rente change). RÉGÉNÉRÉS après bascule capital v2 (-2i2 PR B : l'impôt de retrait des chemins capital/mixte change). RÉGÉNÉRÉS 2026-07-28 (married_ge_800k) après recalibrage capital MARIÉ (triage AnnAssign #1095) : la part cantonale ET l'IFD (art. 38 al. 2) mariés interpolent l'étalon ESTV (CANTONAL_CAPITAL_TAX_MARRIED_CHF + FEDERAL_CAPITAL_IFD_MARRIED_CHF), post-condition marié <= célibataire. RÉGÉNÉRÉS 2026-07-28 (composante mixed des 3 cas) après densification de grille CAP-1 #1098 (noeuds 175k/350k) : les retraits partiels de l'option mixte tombant entre 250k et 500k interpolent plus finement.",
+  "_provenance": "Générés 2026-07-23 après unification -axj : impôt rente miroir (0.85 × IFD 2026 + taux effectif cantonal 100k clampé 0.6-1.5, marié ×0.80), coefficient capital marié PAR CANTON (audit swiss-brain 2026-04-18 Q5), horizon défaut 30, breakeven relatif (années après retraite). RÉGÉNÉRÉS 2026-07-23 (soir) après le modèle fiscal v2 -97h (interpolation 130 points ESTV — l'impôt rente change). RÉGÉNÉRÉS après bascule capital v2 (-2i2 PR B : l'impôt de retrait des chemins capital/mixte change). RÉGÉNÉRÉS 2026-07-28 après extension des nœuds bas 15k/25k/35k de CANTONAL_COMMUNAL_TAX_CHF (finding INC-1) : l'impôt rente sous 40k baisse (fin de la surestimation depuis (0,0)). RÉGÉNÉRÉS 2026-07-28 (married_ge_800k) après recalibrage capital MARIÉ (triage AnnAssign #1095) : la part cantonale ET l'IFD (art. 38 al. 2) mariés interpolent l'étalon ESTV (CANTONAL_CAPITAL_TAX_MARRIED_CHF + FEDERAL_CAPITAL_IFD_MARRIED_CHF), post-condition marié <= célibataire. RÉGÉNÉRÉS 2026-07-28 (composante mixed des 3 cas) après densification de grille CAP-1 #1098 (noeuds 175k/350k). RE-DÉRIVÉS 2026-07-29 au merge du train : toutes les valeurs pinées recalculées depuis les moteurs FUSIONNÉS (nœuds bas revenu #1099 + capital marié #1097 ensemble).",
   "tolerance_chf": 0.05,
   "cases": [
     {
@@ -17,16 +17,16 @@
       "expected": {
         "breakeven_year": 13,
         "full_rente": {
-          "terminal_value": 514276.07,
-          "cumulative_tax_impact": 71427.62
+          "terminal_value": 531329.97,
+          "cumulative_tax_impact": 54373.72
         },
         "full_capital": {
           "terminal_value": 78479.72,
           "cumulative_tax_impact": 41946.69
         },
         "mixed": {
-          "terminal_value": 565931.21,
-          "cumulative_tax_impact": 60756.75
+          "terminal_value": 582948.62,
+          "cumulative_tax_impact": 43739.34
         }
       }
     },
@@ -44,16 +44,16 @@
       "expected": {
         "breakeven_year": 12,
         "full_rente": {
-          "terminal_value": 1004450.6,
-          "cumulative_tax_impact": 70579.27
+          "terminal_value": 1026332.66,
+          "cumulative_tax_impact": 48697.21
         },
         "full_capital": {
           "terminal_value": 0.0,
           "cumulative_tax_impact": 58814.6
         },
         "mixed": {
-          "terminal_value": 1039241.36,
-          "cumulative_tax_impact": 66454.36
+          "terminal_value": 1072221.83,
+          "cumulative_tax_impact": 33473.89
         }
       }
     },
@@ -71,16 +71,16 @@
       "expected": {
         "breakeven_year": 13,
         "full_rente": {
-          "terminal_value": 590088.27,
-          "cumulative_tax_impact": 81805.4
+          "terminal_value": 610918.96,
+          "cumulative_tax_impact": 60974.71
         },
         "full_capital": {
           "terminal_value": 0.0,
           "cumulative_tax_impact": 41946.69
         },
         "mixed": {
-          "terminal_value": 618360.45,
-          "cumulative_tax_impact": 67813.44
+          "terminal_value": 637957.59,
+          "cumulative_tax_impact": 48216.3
         }
       }
     }
