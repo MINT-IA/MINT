@@ -211,6 +211,7 @@ ALLOW = {
     "apps/mobile/lib/widgets/visualizations/marriage_penalty_gauge.dart",
     "apps/mobile/lib/widgets/visualizations/marriage_tax_comparison.dart",
     "tools/checks/no_hardcoded_fr.py",
+    "tools/checks/accent_lint_fr.py",
     "tools/checks/_baseline_diff.py",
     "tools/checks/no_cantonal_rate_table.py",
     "tools/checks/prefer_mint_cta.py",

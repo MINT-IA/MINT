@@ -2,8 +2,9 @@
 # Phase 30.5 CTX-01 D-04 originally scoped this skeleton to memory_retention only.
 # 2026-05-10: replay on last 50 commits of `dev` measured 0/50 commits blocked by
 # banned_terms_arb and 0/50 by arb_parity → activated as HARD gates.
-# Remaining GUARD-* lints (accent_lint_fr 26/50, no_hardcoded_fr 23/50, no_bare_catch
-# script absent) deferred until --diff/baseline mode lands — see ROADMAP_V2 Phase 34.
+# Remaining GUARD-* lints (no_bare_catch script absent) deferred until
+# --diff/baseline mode lands — see ROADMAP_V2 Phase 34. accent_lint_fr et
+# no_hardcoded_fr sont câblés en mode --added-only (2026-07-27 / 2026-07-26).
 
 min_version: 2.1.5
 
@@ -158,6 +159,17 @@ pre-commit:
       glob: "apps/mobile/lib/**/*.dart"
       tags: [i18n, phase-34-guard-04]
       fail_text: "Nouveau littéral français en dur. Passe par AppLocalizations (clé ARB dans les 6 langues, puis `flutter gen-l10n`) — CLAUDE.md TOP rule #5. Si la chaîne n'est pas rendue à l'utilisateur, marque la ligne `// lint-ignore`."
+    accent-fr-added-lines-gate:
+      # CLAUDE.md TOP rule #2 (accents 100% FR). Le lint existait depuis Phase
+      # 30.5 sans être câblé : en fichier entier il compte ~263 violations
+      # héritées et bloquerait tout commit touchant un fichier en dette — donc
+      # il restait décoratif. Même patron que no_hardcoded_fr : ce gate ne juge
+      # que les lignes AJOUTÉES par le diff indexé ; l'existant passe, le neuf
+      # est arrêté. Hand-off 2026-07-27 §3.5.
+      run: python3 tools/checks/accent_lint_fr.py --self-test && python3 tools/checks/accent_lint_fr.py --added-only
+      glob: "{apps/mobile/lib/**/*.{dart,arb,md},services/backend/app/**/*.{py,md},tools/**/*.{py,md}}"
+      tags: [i18n, accents, phase-34-guard-04]
+      fail_text: "Nouveau mot français aplati en ASCII (`creer` au lieu de `créer`) — CLAUDE.md TOP rule #2. Corrige l'accent ; la dette héritée n'est pas jugée, seules les lignes ajoutées le sont."
     no-false-privacy-attestation-gate:
       # Audit 2026-07 (T16-F02/F34/F36): forbids "document never leaves phone" /
       # "on-device OCR by default" / "toutes tes données restent sur ton appareil"
