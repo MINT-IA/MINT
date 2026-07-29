@@ -8,7 +8,7 @@ POST /api/v1/fiscal/wealth-tax/church    — Estimate church tax for one canton
 
 All endpoints are stateless (no data storage). Pure computation on the fly.
 
-Sources: LHID art. 14, OFS Charge Fiscale 2024, lois fiscales cantonales.
+Sources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours, ADR 2026-07-28), lois fiscales cantonales.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -77,7 +77,7 @@ def estimate_wealth_tax(
     otherwise a warning is logged and the legacy hardcoded-defaults branch
     resumes (non-strict graceful Flutter rollout).
 
-    Sources: LHID art. 14, OFS Charge Fiscale 2024.
+    Sources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).
     """
     resolved = _resolve_defaults(profile_data, body, WealthTaxEstimateRequest)
     missing = _required_profile_fields_missing(resolved, WealthTaxEstimateRequest)
@@ -130,7 +130,7 @@ def compare_wealth_tax(request: Request, body: WealthTaxComparisonRequest) -> We
     Returns a sorted list from cheapest to most expensive canton,
     with the ecart max and a premier éclairage.
 
-    Sources: LHID art. 14, OFS Charge Fiscale 2024.
+    Sources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).
     """
     service = WealthTaxService()
 
@@ -190,7 +190,7 @@ def simulate_wealth_tax_move(request: Request, body: WealthTaxMoveRequest) -> We
     Returns annual, monthly, and 10-year cumulative savings
     on wealth tax from a cantonal move.
 
-    Sources: LHID art. 14, OFS Charge Fiscale 2024.
+    Sources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).
     """
     service = WealthTaxService()
 

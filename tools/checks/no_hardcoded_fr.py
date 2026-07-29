@@ -94,6 +94,10 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
         text = path.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         return []
+    return scan_text(text)
+
+
+def scan_text(text: str) -> list[tuple[int, str, str]]:
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         if _line_is_exempt(line):
@@ -188,13 +192,40 @@ def main() -> int:
     if args.self_test:
         return _self_test()
 
-    added: dict[str, set[int]] | None = None
     if args.added_only:
         added = _staged_added_lines()
         paths = [Path(f) for f in added
-                 if f.endswith(".dart") and Path(f).exists()
+                 if f.endswith(".dart")
                  and not any(ex in "/" + f + "/" for ex in EXCLUDE_SUBSTRINGS)]
-    elif args.file:
+        found = 0
+        for path in paths:
+            # Juger le BLOB INDEXÉ, pas le worktree : c'est l'index qui sera
+            # commité. Lire le worktree laissait passer un littéral indexé
+            # dont seule la copie de travail avait été corrigée — trou relevé
+            # par revue Codex sur le portage accent_lint_fr (2026-07-27).
+            blob = subprocess.run(
+                ["git", "show", f":{path.as_posix()}"],
+                capture_output=True, text=True,
+            )
+            if blob.returncode != 0:
+                continue
+            allowed = added.get(path.as_posix(), set())
+            for lineno, snippet, kind in scan_text(blob.stdout):
+                if lineno not in allowed:
+                    continue
+                print(f"{path}:{lineno}: {snippet} ({kind})", file=sys.stderr)
+                found += 1
+        if found:
+            print(
+                f"no_hardcoded_fr: FAIL — {found} nouveau(x) littéral(aux) FR "
+                "en dur. Passe par AppLocalizations (clé ARB dans les 6 langues) "
+                "ou marque la ligne `// lint-ignore` si elle n'est pas rendue.",
+                file=sys.stderr,
+            )
+            return 1
+        return 0
+
+    if args.file:
         target = Path(args.file)
         if not target.exists():
             print(f"no_hardcoded_fr: file not found: {target}", file=sys.stderr)
@@ -205,23 +236,12 @@ def main() -> int:
 
     found = 0
     for path in paths:
-        allowed = added.get(path.as_posix()) if added is not None else None
         for lineno, snippet, kind in scan_file(path):
-            if allowed is not None and lineno not in allowed:
-                continue
             print(f"{path}:{lineno}: {snippet} ({kind})", file=sys.stderr)
             found += 1
 
     if found:
-        if args.added_only:
-            print(
-                f"no_hardcoded_fr: FAIL — {found} nouveau(x) littéral(aux) FR "
-                "en dur. Passe par AppLocalizations (clé ARB dans les 6 langues) "
-                "ou marque la ligne `// lint-ignore` si elle n'est pas rendue.",
-                file=sys.stderr,
-            )
-        else:
-            print(f"no_hardcoded_fr: FAIL — {found} hardcoded FR literal(s)", file=sys.stderr)
+        print(f"no_hardcoded_fr: FAIL — {found} hardcoded FR literal(s)", file=sys.stderr)
         return 1
     return 0
 

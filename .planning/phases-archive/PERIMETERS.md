@@ -1,5 +1,12 @@
 # MINT — Debug Perimeters (live audit log)
 
+> **SUPERSEDED par Journey OS (`.planning/journeys/`)** — figé au 2026-05-07,
+> conservé pour l'historique. Ne jamais relire ce fichier comme état courant :
+> les statuts P1-P3 « PROVISIONALLY READY » / P4 IN_FLIGHT / P5-P7 PENDING
+> datent du 2026-05-07. Le gate G6 (calc-correctness) reste vivant via
+> `.github/workflows/calc-rigor.yml` + `tools/checks/g6_path_check.py`.
+> Réconciliation plans 2026-07-29.
+
 **Started:** 2026-05-07
 **Doctrine:** 1 perimeter active at a time. No phase GSD theater. No spec docs. This file IS the artifact.
 
