@@ -1,6 +1,6 @@
 {
   "_doc": "Parité croisée MoneyTruthReceipt v1 (claim firstjob.net_salary.v1, PR-B). MÊMES inputs -> MÊME inputsHash (octet pour octet, compute_inputs_hash / computeInputsHash) ET MÊME net après arrondi au 1 CHF, py (onboarding_service.py) ET dart (first_job_service.dart). Rejoué par services/backend/tests/test_money_truth_receipt_parity.py ET apps/mobile/test/services/financial_core/money_truth_receipt_parity_test.dart. Toute dérive unilatérale casse la suite du côté qui dérive.",
-  "_provenance": "Gelé 2026-07-29 depuis le producteur backend réel (build_first_job_net_salary_receipt). Cas bornés annuel <= 148'200 (hors branche AC solidarité, divergence py/dart pré-existante -> PR-A). backendNetChf / backendRangeChf informatifs ; les assertions dures portent sur expectedInputsHash + expectedNetRounded.",
+  "_provenance": "Gelé 2026-07-29 depuis le producteur backend réel (build_first_job_net_salary_receipt). Couvre les deux branches AC : sous plafond (1.1%) et au-dessus (0% depuis l'abolition de la solidarité le 1.1.2023, LACI art. 90c al. 4 ; source SECO/ahv-iv.ch 2.08). backendNetChf / backendRangeChf informatifs ; les assertions dures portent sur expectedInputsHash + expectedNetRounded.",
   "cases": [
     {
       "id": "fj_median_zh_30",
@@ -204,6 +204,57 @@
       "backendRangeChf": {
         "low": 10919.17,
         "high": 10979.17
+      }
+    },
+    {
+      "id": "fj_above_cap_zh_30",
+      "inputs": {
+        "salaireBrutMensuel": 13000.0,
+        "age": 30,
+        "canton": "ZH",
+        "tauxActivite": 100.0,
+        "etatCivil": "celibataire"
+      },
+      "expectedInputsHash": "ee330edd94022374f59d18ebabc5d35ad0a03212dad35c29ff62db4da12a50ad",
+      "expectedNetRounded": 11819,
+      "backendNetChf": 11818.72,
+      "backendRangeChf": {
+        "low": 11792.72,
+        "high": 11857.72
+      }
+    },
+    {
+      "id": "fj_above_cap_vd_45",
+      "inputs": {
+        "salaireBrutMensuel": 15000.0,
+        "age": 45,
+        "canton": "VD",
+        "tauxActivite": 100.0,
+        "etatCivil": "marie"
+      },
+      "expectedInputsHash": "0f315d034b14c4ef32058b9f531e9a6e38c170ae04b3ef3d19164407e2ce1697",
+      "expectedNetRounded": 13473,
+      "backendNetChf": 13472.53,
+      "backendRangeChf": {
+        "low": 13442.53,
+        "high": 13517.53
+      }
+    },
+    {
+      "id": "fj_above_cap_ge_55",
+      "inputs": {
+        "salaireBrutMensuel": 20000.0,
+        "age": 55,
+        "canton": "GE",
+        "tauxActivite": 100.0,
+        "etatCivil": "celibataire"
+      },
+      "expectedInputsHash": "3202b673c57f6df162c4be46d607b4f76f798d8e430067f5f762dc9ffa8cfd3d",
+      "expectedNetRounded": 18062,
+      "backendNetChf": 18062.2,
+      "backendRangeChf": {
+        "low": 18022.2,
+        "high": 18122.2
       }
     }
   ]

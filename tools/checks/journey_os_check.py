@@ -860,6 +860,9 @@ ALLOW = {
     "apps/mobile/test/services/financial_core/money_truth_receipt_test.dart",
     "apps/mobile/test/services/financial_core/money_truth_receipt_parity_test.dart",
     "tools/fixtures/money_truth_receipt_v1.json",
+    # PR-B addendum (revue Codex) : correction légale AC — le pour-cent de
+    # solidarité (>148'200) a été aboli au 1.1.2023 ; test firstJob adapté.
+    "apps/mobile/test/services/first_job_service_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

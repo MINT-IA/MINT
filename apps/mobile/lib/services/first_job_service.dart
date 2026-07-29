@@ -189,12 +189,15 @@ class FirstJobService {
 
     // Deductions
     final avs = brut * _avsAiApgRate;
-    // AC: standard rate up to ceiling, solidarity 0.5% on excess (LACI art. 3)
+    // AC : 1.1% jusqu'au plafond (148'200/an), 0% au-dela. Le pour-cent de
+    // solidarite (1% sur la part > plafond) a ete ABOLI au 1.1.2023 (fonds AC
+    // > 2,5 Mia CHF fin 2022 -> LACI art. 90c al. 4). Source : SECO / memento
+    // ahv-iv.ch 2.08 (etat 1.1.2025). Aligne sur onboarding_service.py backend.
     final acCeil = reg('ac.max_insured_salary', acPlafondSalaireAssure);
     final acEmpRate = reg('ac.contribution_rate_employee', acCotisationSalarie);
     final ac = annuel <= acCeil
         ? brut * acEmpRate
-        : (acCeil * acEmpRate + (annuel - acCeil) * 0.005) / 12;
+        : (acCeil * acEmpRate) / 12; // 1.1% du plafond mensuel, 0% au-dela
     final aanp = brut * _aanpRate;
 
     // LPP

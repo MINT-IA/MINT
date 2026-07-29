@@ -31,7 +31,6 @@ from uuid import uuid4
 from app.constants.social_insurance import (
     AVS_COTISATION_SALARIE,
     AC_COTISATION_SALARIE,
-    AC_COTISATION_SOLIDARITE_SALARIE,
     AC_PLAFOND_SALAIRE_ASSURE,
     LAMAL_QUOTE_PART_CAP_ADULT,
     LPP_SEUIL_ENTREE,
@@ -58,7 +57,8 @@ from app.services.coach.inputs_hash import compute_inputs_hash
 # Employee deduction rates
 AVS_AI_APG_RATE = AVS_COTISATION_SALARIE  # 5.30% employee share (LAVS art. 5)
 AC_RATE = AC_COTISATION_SALARIE  # 1.1% employee (up to 148'200/year, LACI art. 3)
-AC_SOLIDARITY_RATE = AC_COTISATION_SOLIDARITE_SALARIE  # 0.5% solidarity above 148'200
+# Pas d'AC_SOLIDARITY_RATE : le pour-cent de solidarite a ete aboli au 1.1.2023
+# (fonds AC > 2,5 Mia CHF fin 2022, LACI art. 90c al. 4) -> 0% au-dela du plafond.
 AC_SALARY_CAP = AC_PLAFOND_SALAIRE_ASSURE  # CHF/year
 AANP_RATE = 0.013  # ~1.3% estimate (varies by employer/risk class, not in centralized constants)
 
@@ -388,11 +388,15 @@ class FirstJobOnboardingService:
         # Employee deductions
         avs = round(brut * AVS_AI_APG_RATE, 2)
 
-        # AC: 1.1% up to 148'200/year, 0.5% solidarity above
+        # AC : 1.1% jusqu'au plafond (148'200/an), 0% au-dela. Le pour-cent de
+        # solidarite (1% sur la part > plafond) a ete ABOLI au 1.1.2023 : le
+        # fonds AC a depasse 2,5 Mia CHF fin 2022, supprimant la base legale
+        # (LACI art. 90c al. 4). Source : SECO / memento ahv-iv.ch 2.08
+        # (etat 1.1.2025) ; suppression confirmee CHSS 2023.
         if annuel <= AC_SALARY_CAP:
             ac = round(brut * AC_RATE, 2)
         else:
-            ac = round(brut * AC_SOLIDARITY_RATE, 2)
+            ac = round((AC_SALARY_CAP / 12) * AC_RATE, 2)  # 1.1% du plafond mensuel
 
         aanp = round(brut * aanp_rate, 2)
 
@@ -409,8 +413,14 @@ class FirstJobOnboardingService:
 
         # Employer invisible contributions (matching + employer-only)
         # Employer pays: AVS 5.3%, AC 1.1%, AANP varies, LPP match, CAF, etc.
+        # AC employeur : meme regle que le salarie (0% au-dela du plafond depuis
+        # l'abolition de la solidarite le 1.1.2023).
         employer_avs = round(brut * AVS_AI_APG_RATE, 2)
-        employer_ac = round(brut * AC_RATE, 2) if annuel <= AC_SALARY_CAP else round(brut * AC_SOLIDARITY_RATE, 2)
+        employer_ac = (
+            round(brut * AC_RATE, 2)
+            if annuel <= AC_SALARY_CAP
+            else round((AC_SALARY_CAP / 12) * AC_RATE, 2)
+        )
         employer_aanp = round(brut * 0.008, 2)  # employer AAP + AANP share
         employer_lpp = lpp  # employer matches employee share
         employer_caf = round(brut * 0.005, 2)  # family allowances contribution (~0.5%)
