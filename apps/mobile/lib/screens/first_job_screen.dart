@@ -1080,11 +1080,19 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Ancre du net : l'appareil porte la valeur nette (== _result!.netEstime
-          // == receipt.value), pas un second net divergent.
-          Text(
-            l.firstJobLuciditeNetValue(net),
-            style: MintTextStyles.titleMedium(color: MintColors.primary)
-                .copyWith(fontWeight: FontWeight.w700),
+          // == receipt.value), pas un second net divergent. `id` = source UNIQUE
+          // du net (SPEC §2.1 A2 / §3.1 `firstjob-net-value`), consommée par le
+          // flow d'acceptation (assertVisible + copyTextFrom pour la parité
+          // dashboard↔coach). MergeSemantics : identifiant + valeur = UN nœud a11y.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-net-value',
+              child: Text(
+                l.firstJobLuciditeNetValue(net),
+                style: MintTextStyles.titleMedium(color: MintColors.primary)
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
           ),
           const SizedBox(height: MintSpacing.xs),
           // Bande d'incertitude (sobre) : bornes = net recalculé avec l'AANP

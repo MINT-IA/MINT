@@ -1,0 +1,125 @@
+# tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml
+#
+# VARIANTE SEEDED du test d'acceptation de la tranche verticale firstJob.
+# Spec : .planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md
+#
+# ─── POURQUOI UNE VARIANTE SEEDED (diagnostic PR-I, 2026-07-29) ─────────
+# firstjob_tranche_acceptance_red.yaml marche le PARCOURS REEL
+# (landing -> /onb -> /home). Ce parcours est INJOUABLE via locators
+# semantiques aujourd'hui : 9 des 11 testIDs onb-* (onb-entry-continue,
+# onb-intent-travail, onb-employment-salarie, onb-civil-celibataire,
+# onb-years-abroad-no, onb-birthdate-open/confirm, onb-canton-VD,
+# onb-revenue-continue) n'existent PAS dans apps/mobile/lib -> le flow
+# echouerait sur un pas onb-* = run INVALIDE (SPEC §3 isolation du rouge),
+# pas une preuve. Le cablage de ces ids releve de la decision
+# onboarding-canonique (SPEC §3.1), HORS de cette tranche.
+#
+# Ce flow atterrit donc sur /home via le seed d'archetype
+# (MINT_E2E_ARCHETYPE=jeune_diplome_zurich, persona 25 ans -> guestEmpty ->
+# shell navigable, auth_provider.dart:625-651). Le seed saute la SAISIE
+# d'onboarding (hors-tranche), il ne masque PAS RED-1/RED-2 : la carte
+# life event /home et le CTA coach sont toujours TAPES ci-dessous. Le seed
+# ne court-circuite donc que ce que la tranche ne livre pas.
+#
+# ─── BUILD (miroir walker) ─────────────────────────────────────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=jeune_diplome_zurich
+#
+# ─── PORTEE PROUVEE ────────────────────────────────────────────────────
+# T2 (/home shell) -> RED-1 (carte firstJob /home) -> /first-job
+# (appareil de lucidite : net + confidence + millesime + pourquoi) ->
+# RED-2 (CTA coach -> /coach/chat s'ouvre). La PARITE de contenu coach
+# (5b/5c du flow _red) exige un backend staging a jour (endpoint
+# /api/v1/lucidity/receipts) : hors de ce flow tant que staging n'est pas
+# avance (voir rapport PR-I). Locators 100% semantiques, zero pixel.
+
+appId: ch.mint.app
+tags:
+  - phase-1prime
+  - tranche-firstjob
+  - acceptance
+  - seeded
+  - feature:first-job
+---
+
+# ═══════════════════════════════════════════════════════════════════════
+# 0. COLD LAUNCH SEEDE -> /home (guestEmpty shell navigable)
+#    Le seed guestEmpty atterrit sur le landing (initialLocation `/`) ; on
+#    rejoint le shell canonique /home par deeplink. Ce raccourci ne masque
+#    AUCUN livrable de tranche : landing->/home releve de la decision
+#    onboarding-canonique (HORS-tranche, testIDs onb-* non cables), tandis
+#    que RED-1 (/home->/first-job) et RED-2 (/first-job->/coach) sont TAPES
+#    plus bas. Contraste avec travail_triad qui deeplinke /first-job (ce qui
+#    masquerait RED-1) : ici on deeplinke seulement l'entree du shell.
+# ═══════════════════════════════════════════════════════════════════════
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 1. RED-1 : /home -> /first-job (tap carte life event « Premier emploi »)
+#    Preuve que LifeEventSuggestionsSection est montee (PR-D).
+# ═══════════════════════════════════════════════════════════════════════
+- scrollUntilVisible:
+    element:
+      id: "home-lifeevent-card-firstJob"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "home-lifeevent-card-firstJob"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 2. /first-job — premier chiffre + appareil de lucidite
+# ═══════════════════════════════════════════════════════════════════════
+- extendedWaitUntil:
+    visible:
+      id: "first_job_screen"
+    timeout: 15000
+# 2a. Premier chiffre (ancre temps/taps du seuil go/no-go).
+- extendedWaitUntil:
+    visible:
+      id: "firstjob-premier-eclairage-value"
+    timeout: 15000
+- assertVisible:
+    text: ".*CHF.*"
+# 2b. Source UNIQUE du net (PR-A anchor firstjob-net-value, ajoute PR-I).
+- assertVisible:
+    id: "firstjob-net-value"
+# 2c. Appareil de lucidite (PR-C) : confidence + millesime + pourquoi.
+- assertVisible:
+    id: "firstjob-confidence-chip"
+- assertVisible:
+    id: "firstjob-source-vintage"
+- tapOn:
+    id: "firstjob-why-net"
+- extendedWaitUntil:
+    visible:
+      id: "firstjob-why-net-body"
+    timeout: 8000
+
+# ═══════════════════════════════════════════════════════════════════════
+# 3. RED-2 : /first-job -> /coach/chat (tap CTA « Demander au coach »)
+#    Preuve que le handoff coach est cable (PR-E). La NAV est L1-local ;
+#    le CONTENU coach (chiffre/parite) depend de staging -> hors flow.
+# ═══════════════════════════════════════════════════════════════════════
+- scrollUntilVisible:
+    element:
+      id: "firstjob-ask-coach"
+    direction: DOWN
+    timeout: 12000
+- tapOn:
+    id: "firstjob-ask-coach"
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 20000

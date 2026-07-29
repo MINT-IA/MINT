@@ -100,6 +100,11 @@ void main() {
     // … et l'appareil complet l'accompagne : les 4 ancres du contrat A3.
     expect(_byId('firstjob-premier-eclairage-value'), findsOneWidget,
         reason: 'le premier chiffre porte l\'ancre du flow d\'acceptation');
+    // Source UNIQUE du net (SPEC §2.1 A2 / §3.1) — ancre consommée par le flow
+    // d'acceptation (assertVisible + copyTextFrom parité dashboard↔coach). Un
+    // SEUL nœud porte cet id : pas de second net divergent.
+    expect(_byId('firstjob-net-value'), findsOneWidget,
+        reason: 'la source unique du net porte l\'ancre firstjob-net-value');
     expect(_byId('firstjob-confidence-chip'), findsOneWidget,
         reason: 'la confiance (EnhancedConfidence réutilisée) est rendue');
     expect(find.byType(MintTrameConfiance), findsOneWidget,
@@ -134,6 +139,13 @@ void main() {
     final net = FirstJobService.formatChf(receipt.value);
     expect(find.textContaining(net), findsWidgets,
         reason: 'l\'ancre porte la valeur du receipt (net non divergent)');
+    // L'ancre firstjob-net-value porte EXACTEMENT receipt.value : le net copié
+    // par le flow (copyTextFrom) est bien la valeur du receipt.
+    expect(
+        find.descendant(
+            of: _byId('firstjob-net-value'), matching: find.textContaining(net)),
+        findsOneWidget,
+        reason: 'firstjob-net-value porte la valeur nette du receipt');
     expect(receipt.value,
         FirstJobService.analyzeSalary(
                 salaireBrutMensuel: 6500, age: 25, canton: 'VD')
@@ -181,6 +193,8 @@ void main() {
     expect(find.byType(SalaryBreakdownWidget), findsNothing,
         reason: 'aucun net sur un profil non confirmé');
     // L'appareil est co-gaté avec le net : jamais d'appareil sur un chiffre absent.
+    expect(_byId('firstjob-net-value'), findsNothing,
+        reason: 'aucune ancre de net sur un gate incomplet');
     expect(_byId('firstjob-confidence-chip'), findsNothing);
     expect(_byId('firstjob-source-vintage'), findsNothing);
     expect(_byId('firstjob-why-net'), findsNothing);
