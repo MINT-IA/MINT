@@ -478,6 +478,11 @@ ALLOW = {
     "services/backend/tests/test_estv_oracle.py",
     ".github/workflows/calc-rigor-failure-comment.md",
     "services/backend/tests/fixtures/estv_oracle.SCHEMA.md",
+    # Réveil de l'oracle ESTV (capture hors-nœuds + garde anti-partiel).
+    "services/backend/tests/fixtures/estv_oracle_2025.jsonl",
+    "services/backend/tests/scripts/capture_estv_oracle.py",
+    "services/backend/tests/scripts/README.md",
+    "services/backend/pyproject.toml",
     # -ku6 : addenda de résolution datés sur les archives de phase 92.5
     # (répertoire déplacé vers phases-archive/ le 2026-07-29)
     ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
