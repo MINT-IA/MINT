@@ -715,6 +715,18 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # Réconciliation plans 2026-07-29 : blocs de clôture datés sur les
+    # artefacts principaux des 8 phases de-facto closes + wiki lint/INDEX.
+    ".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-CONTEXT.md",
+    ".planning/phases/mint-data-spine-plan-vivant-v1/CONTEXT.md",
+    ".planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-CONTEXT.md",
+    ".planning/phases/mint-grounded-coach-m1/mint-grounded-coach-m1-CONTEXT.md",
+    ".planning/phases/mint-illogism-fixes/mint-illogism-fixes-CONTEXT.md",
+    ".planning/phases/01.5-archetype-hard-gate-fatca/01.5-CONTEXT.md",
+    ".planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-CONTEXT.md",
+    ".planning/phases/97-mvp-parfait-maestro-full-power-maestro-driven-on-device-grou/97-CONTEXT.md",
+    "tools/checks/wiki_lint.py",
+    ".planning/INDEX.md",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
