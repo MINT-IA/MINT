@@ -81,7 +81,6 @@ ALLOWED = {
     # RÉVÉLÉES par l'extension AnnAssign du 2026-07-28 (les tables ANNOTÉES
     # échappaient au visiteur) — DETTE HÉRITÉE gelée, à trier une à une :
     # les 3 premières meurent déjà dans des PR ouvertes (#1087, #1072, P5).
-    "services/backend/app/services/housing_sale_service.py::TAUX_PLUS_VALUE_IMMOBILIERE",
     "services/backend/app/constants/social_insurance.py::MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON",
     "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_ENFANT_PAR_CANTON",
     "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_FORMATION_PAR_CANTON",

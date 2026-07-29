@@ -751,6 +751,18 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # P5 gains immobiliers calibres (ADR 2026-07-28, branche
+    # codex/journey-os-gains-immo-calibres) : drainage de la table fabriquee
+    # TAUX_PLUS_VALUE_IMMOBILIERE vers l'etalon ZH/VD/GE.
+    "services/backend/app/services/fiscal/gains_immobiliers_calibres.py",
+    "services/backend/tests/test_gains_immobiliers_calibres.py",
+    "services/backend/app/services/housing_sale_service.py",
+    "services/backend/app/schemas/life_events.py",
+    "services/backend/app/api/v1/endpoints/life_events.py",
+    "services/backend/tests/test_housing_sale.py",
+    "apps/mobile/lib/services/housing_sale_service.dart",
+    "apps/mobile/test/services/housing_sale_service_test.dart",
+    "apps/mobile/lib/screens/housing_sale_screen.dart",
     # Socle succession/donation (ADR 2026-07-28 P4) : drain des tables de
     # taux plats succession+donation vers le socle 3-champs ESTV 1.1.2025
     # (statut / plage sourcée / mécanismes), backend + miroirs Dart.

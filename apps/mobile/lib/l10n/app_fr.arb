@@ -1526,6 +1526,7 @@
   "housingSaleInvestissements": "Investissements valorisants",
   "housingSaleFraisAcquisition": "Frais d'acquisition (notaire, etc.)",
   "housingSaleResidencePrincipale": "Résidence principale",
+  "housingSaleAnneesOccupation": "Années d'occupation comme résidence principale",
   "housingSaleFinancementTitle": "FINANCEMENT",
   "housingSaleFinancementSubtitle": "Hypothèque restante",
   "housingSaleHypotheque": "Hypothèque restante",

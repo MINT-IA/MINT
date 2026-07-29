@@ -1488,6 +1488,7 @@
   "housingSaleInvestissements": "Value-enhancing investments",
   "housingSaleFraisAcquisition": "Acquisition costs (notary, etc.)",
   "housingSaleResidencePrincipale": "Primary residence",
+  "housingSaleAnneesOccupation": "Years lived in as main residence",
   "housingSaleFinancementTitle": "FINANCING",
   "housingSaleFinancementSubtitle": "Remaining mortgage",
   "housingSaleHypotheque": "Remaining mortgage",

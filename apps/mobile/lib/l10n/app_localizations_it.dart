@@ -3561,6 +3561,10 @@ class SIt extends S {
   String get housingSaleResidencePrincipale => 'Residenza principale';
 
   @override
+  String get housingSaleAnneesOccupation =>
+      'Anni di occupazione come residenza principale';
+
+  @override
   String get housingSaleFinancementTitle => 'FINANZIAMENTO';
 
   @override

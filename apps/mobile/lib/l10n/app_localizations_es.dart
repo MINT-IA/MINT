@@ -3552,6 +3552,10 @@ class SEs extends S {
   String get housingSaleResidencePrincipale => 'Residencia principal';
 
   @override
+  String get housingSaleAnneesOccupation =>
+      'Años ocupada como residencia principal';
+
+  @override
   String get housingSaleFinancementTitle => 'FINANCIACIÓN';
 
   @override

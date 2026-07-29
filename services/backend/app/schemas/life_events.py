@@ -311,22 +311,50 @@ class HousingSaleSimulationRequest(BaseModel):
     prixRemploi: float = Field(
         0.0, description="Price of replacement property (CHF)", ge=0
     )
+    anneesOccupation: int = Field(
+        0,
+        description="Proven owner-occupation years (VD double-count, art. 72 al. 4 LI)",
+        ge=0,
+    )
 
 
 class HousingSaleSimulationResponse(BaseModel):
-    """Response model for housing sale simulation."""
+    """Response model for housing sale simulation.
+
+    Pour un canton non calibre (hors ZH / VD / GE), l'impot sur les gains
+    immobiliers n'est pas chiffre : `tauxImpositionPlusValue`, `impotPlusValue`,
+    `remploiReport`, `impotEffectif` et `produitNet` valent alors `null` et
+    `gainImmobilier` porte le mecanisme + le renvoi au calculateur cantonal.
+    """
 
     plusValueBrute: float = Field(..., description="Gross capital gain (CHF)")
     plusValueImposable: float = Field(..., description="Taxable capital gain (CHF)")
     dureeDetention: int = Field(..., description="Years of ownership")
-    tauxImpositionPlusValue: float = Field(..., description="Tax rate")
-    impotPlusValue: float = Field(..., description="Tax on capital gain (CHF)")
-    remploiReport: float = Field(..., description="Tax deferred via reinvestment (CHF)")
-    impotEffectif: float = Field(..., description="Actual tax due (CHF)")
+    modeleGain: str = Field(
+        ..., description="Gains-tax model: calibre | mecanisme | inconnu"
+    )
+    tauxImpositionPlusValue: Optional[float] = Field(
+        None, description="Effective tax rate (null if canton not calibrated)"
+    )
+    impotPlusValue: Optional[float] = Field(
+        None, description="Tax on capital gain (CHF, null if canton not calibrated)"
+    )
+    remploiReport: Optional[float] = Field(
+        None, description="Tax deferred via reinvestment (CHF, null if not calibrated)"
+    )
+    impotEffectif: Optional[float] = Field(
+        None, description="Actual tax due (CHF, null if canton not calibrated)"
+    )
     remboursementEplLpp: float = Field(..., description="EPL LPP to repay (CHF)")
     remboursementEpl3a: float = Field(..., description="EPL 3a to repay (CHF)")
     soldeHypotheque: float = Field(..., description="Mortgage payoff (CHF)")
-    produitNet: float = Field(..., description="Net proceeds (CHF)")
+    produitNet: Optional[float] = Field(
+        None, description="Net proceeds (CHF, null if gains tax not calibrated)"
+    )
+    gainImmobilier: dict = Field(
+        default_factory=dict,
+        description="Gains-tax verdict (model, tax, effective rate, mechanisms, source)",
+    )
     checklist: List[str] = Field(default_factory=list, description="Action items")
     alerts: List[str] = Field(default_factory=list, description="Warning messages")
     disclaimer: str = Field(..., description="Legal disclaimer")

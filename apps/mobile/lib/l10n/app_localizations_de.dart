@@ -3561,6 +3561,9 @@ class SDe extends S {
   String get housingSaleResidencePrincipale => 'Hauptwohnsitz';
 
   @override
+  String get housingSaleAnneesOccupation => 'Jahre als Hauptwohnsitz bewohnt';
+
+  @override
   String get housingSaleFinancementTitle => 'FINANZIERUNG';
 
   @override

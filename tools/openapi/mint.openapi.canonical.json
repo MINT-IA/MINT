@@ -11684,6 +11684,13 @@
             "title": "Anneevente",
             "type": "integer"
           },
+          "anneesOccupation": {
+            "default": 0,
+            "description": "Proven owner-occupation years (VD double-count, art. 72 al. 4 LI)",
+            "minimum": 0.0,
+            "title": "Anneesoccupation",
+            "type": "integer"
+          },
           "canton": {
             "default": "GE",
             "description": "Canton code (2-letter)",
@@ -11768,7 +11775,7 @@
         "type": "object"
       },
       "HousingSaleSimulationResponse": {
-        "description": "Response model for housing sale simulation.",
+        "description": "Response model for housing sale simulation.\n\nPour un canton non calibre (hors ZH / VD / GE), l'impot sur les gains\nimmobiliers n'est pas chiffre : `tauxImpositionPlusValue`, `impotPlusValue`,\n`remploiReport`, `impotEffectif` et `produitNet` valent alors `null` et\n`gainImmobilier` porte le mecanisme + le renvoi au calculateur cantonal.",
         "properties": {
           "alerts": {
             "description": "Warning messages",
@@ -11796,15 +11803,40 @@
             "title": "Dureedetention",
             "type": "integer"
           },
+          "gainImmobilier": {
+            "additionalProperties": true,
+            "description": "Gains-tax verdict (model, tax, effective rate, mechanisms, source)",
+            "title": "Gainimmobilier",
+            "type": "object"
+          },
           "impotEffectif": {
-            "description": "Actual tax due (CHF)",
-            "title": "Impoteffectif",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Actual tax due (CHF, null if canton not calibrated)",
+            "title": "Impoteffectif"
           },
           "impotPlusValue": {
-            "description": "Tax on capital gain (CHF)",
-            "title": "Impotplusvalue",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax on capital gain (CHF, null if canton not calibrated)",
+            "title": "Impotplusvalue"
+          },
+          "modeleGain": {
+            "description": "Gains-tax model: calibre | mecanisme | inconnu",
+            "title": "Modelegain",
+            "type": "string"
           },
           "plusValueBrute": {
             "description": "Gross capital gain (CHF)",
@@ -11823,9 +11855,16 @@
             "type": "object"
           },
           "produitNet": {
-            "description": "Net proceeds (CHF)",
-            "title": "Produitnet",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Net proceeds (CHF, null if gains tax not calibrated)",
+            "title": "Produitnet"
           },
           "remboursementEpl3a": {
             "description": "EPL 3a to repay (CHF)",
@@ -11838,9 +11877,16 @@
             "type": "number"
           },
           "remploiReport": {
-            "description": "Tax deferred via reinvestment (CHF)",
-            "title": "Remploireport",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax deferred via reinvestment (CHF, null if not calibrated)",
+            "title": "Remploireport"
           },
           "soldeHypotheque": {
             "description": "Mortgage payoff (CHF)",
@@ -11856,23 +11902,26 @@
             "type": "array"
           },
           "tauxImpositionPlusValue": {
-            "description": "Tax rate",
-            "title": "Tauximpositionplusvalue",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Effective tax rate (null if canton not calibrated)",
+            "title": "Tauximpositionplusvalue"
           }
         },
         "required": [
           "plusValueBrute",
           "plusValueImposable",
           "dureeDetention",
-          "tauxImpositionPlusValue",
-          "impotPlusValue",
-          "remploiReport",
-          "impotEffectif",
+          "modeleGain",
           "remboursementEplLpp",
           "remboursementEpl3a",
           "soldeHypotheque",
-          "produitNet",
           "disclaimer"
         ],
         "title": "HousingSaleSimulationResponse",

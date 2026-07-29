@@ -3550,6 +3550,10 @@ class SPt extends S {
   String get housingSaleResidencePrincipale => 'Residência principal';
 
   @override
+  String get housingSaleAnneesOccupation =>
+      'Anos ocupada como residência principal';
+
+  @override
   String get housingSaleFinancementTitle => 'FINANCIAMENTO';
 
   @override

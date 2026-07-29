@@ -1,16 +1,16 @@
 """
 Tests for HousingSaleService (Sprint S24 — housingSale life event).
 
-Covers:
-    - TestHousingSalePlusValue — basic gain calculations (7 tests)
-    - TestHousingSaleTaxRate — all 6 cantons, various durations (10 tests)
-    - TestHousingSaleRemploi — full, partial, no remploi (6 tests)
-    - TestHousingSaleEPL — EPL repayment with/without LPP/3a (5 tests)
-    - TestHousingSaleNetProceeds — net proceeds calculation (5 tests)
-    - TestHousingSaleCompliance — disclaimer, sources, banned terms (5 tests)
-    - TestHousingSaleEdgeCases — zero price, very long detention, etc. (6 tests)
-
-Target: 44 tests.
+L'impot sur les gains immobiliers est desormais delegue au modele calibre
+``fiscal.gains_immobiliers_calibres`` (ADR 2026-07-28 P5). Les anciennes
+assertions gravees sur la table fabriquee ``TAUX_PLUS_VALUE_IMMOBILIERE`` (par
+duree, exoneration 0 % apres 20-25 ans) etaient fausses sur ZH, VD et GE ; elles
+sont remplacees ici par des assertions etalon :
+    - ZH : tarif progressif par montant + majoration/rabais de duree (jamais 0 %).
+    - VD : bareme degressif 25 lignes.
+    - GE : 2 % des 25 ans (l'exoneration totale est morte, revision 1.1.2025).
+    - BE / LU / BS + cantons inconnus : aucun impot chiffre (None), verdict
+      mecanisme / inconnu.
 
 Run: cd services/backend && python3 -m pytest tests/test_housing_sale.py -v
 """
@@ -20,6 +20,12 @@ import pytest
 from app.services.housing_sale_service import (
     HousingSaleService,
     HousingSaleInput,
+)
+from app.services.fiscal.gains_immobiliers_calibres import (
+    impot_base_zh,
+    impot_zh,
+    taux_ge,
+    taux_vd,
 )
 
 
@@ -34,7 +40,7 @@ def service():
 
 @pytest.fixture
 def base_input():
-    """A standard sale scenario: bought 800k in 2015, selling 1M in 2025."""
+    """A standard sale scenario: bought 800k in 2015, selling 1M in 2025 (GE)."""
     return HousingSaleInput(
         prix_achat=800_000,
         prix_vente=1_000_000,
@@ -124,104 +130,142 @@ class TestHousingSalePlusValue:
 
 
 # ===========================================================================
-# TestHousingSaleTaxRate — all 6 cantons, various durations (10 tests)
+# TestHousingSaleTaxRate — calibrated cantons + mechanism/unknown (12 tests)
 # ===========================================================================
 
 class TestHousingSaleTaxRate:
-    """Tests for canton-specific tax rate schedules."""
+    """Tests for the calibrated gains-tax model per canton."""
 
-    def test_zurich_short_detention_high_rate(self, service):
-        """ZH: < 2 years = 50%."""
+    def test_zurich_short_detention_majoration(self, service):
+        """ZH: 1 year -> progressive tarif + majoration de courte duree (×1.25)."""
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=700_000,
             annee_achat=2024, annee_vente=2025, canton="ZH",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition_plus_value == 0.50
+        # imposable 200k, duree 1 -> base(200k) × 1.25
+        assert result.modele_gain == "calibre"
+        assert result.impot_plus_value == impot_zh(200_000, 1)
+        assert result.impot_plus_value == 86_750.0
 
-    def test_zurich_20_years_exempt(self, service):
-        """ZH: >= 20 years = 0% (exempt)."""
+    def test_zurich_long_detention_never_exempt(self, service):
+        """ZH: >= 20 years -> rabais plafonne a 50 %, JAMAIS 0 % (correction P5)."""
         inp = HousingSaleInput(
             prix_achat=300_000, prix_vente=500_000,
             annee_achat=2000, annee_vente=2025, canton="ZH",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition_plus_value == 0.0
-        assert result.impot_plus_value == 0.0
+        # imposable 200k, duree 25 -> base(200k) × 0.5
+        assert result.impot_plus_value == impot_zh(200_000, 25)
+        assert result.impot_plus_value == round(impot_base_zh(200_000) * 0.5, 2)
+        assert result.impot_plus_value > 0
 
-    def test_bern_1_year_45_percent(self, service):
-        """BE: < 1 year = 45%."""
+    def test_bern_mecanisme_no_number(self, service):
+        """BE: gains tax exists but is not tabulated -> no fabricated number."""
         inp = HousingSaleInput(
             prix_achat=400_000, prix_vente=500_000,
             annee_achat=2025, annee_vente=2025, canton="BE",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition_plus_value == 0.45
+        assert result.modele_gain == "mecanisme"
+        assert result.impot_plus_value is None
+        assert result.taux_imposition_plus_value is None
+        assert result.produit_net is None
 
-    def test_bern_25_years_exempt(self, service):
-        """BE: >= 25 years = 0%."""
+    def test_bern_long_detention_still_mecanisme(self, service):
+        """BE: long ownership still yields no fabricated number."""
         inp = HousingSaleInput(
             prix_achat=200_000, prix_vente=500_000,
             annee_achat=1998, annee_vente=2025, canton="BE",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition_plus_value == 0.0
+        assert result.modele_gain == "mecanisme"
+        assert result.impot_plus_value is None
 
-    def test_vaud_5_to_10_years(self, service):
-        """VD: 5-10 years = 20%."""
+    def test_vaud_7_years(self, service):
+        """VD: 7 years -> bareme degressif = 16 %."""
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=700_000,
             annee_achat=2018, annee_vente=2025, canton="VD",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition_plus_value == 0.20
+        assert result.taux_imposition_plus_value == taux_vd(7)
+        assert result.taux_imposition_plus_value == 0.16
+        assert result.impot_plus_value == 200_000 * 0.16
 
-    def test_geneve_10_to_25_years(self, service):
-        """GE: 10-25 years = 10%."""
+    def test_geneve_15_years(self, service):
+        """GE: 15 years -> 10 %."""
         inp = HousingSaleInput(
             prix_achat=800_000, prix_vente=1_200_000,
             annee_achat=2010, annee_vente=2025, canton="GE",
         )
         result = service.calculate(inp)
+        assert result.taux_imposition_plus_value == taux_ge(15)
         assert result.taux_imposition_plus_value == 0.10
 
-    def test_lucerne_5_to_10_years(self, service):
-        """LU: 5-10 years = 21%."""
+    def test_lucerne_mecanisme(self, service):
+        """LU: not calibrated -> mechanism, no number."""
         inp = HousingSaleInput(
             prix_achat=400_000, prix_vente=550_000,
             annee_achat=2018, annee_vente=2025, canton="LU",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition_plus_value == 0.21
+        assert result.modele_gain == "mecanisme"
+        assert result.impot_plus_value is None
 
-    def test_basel_long_detention(self, service):
-        """BS: >= 20 years = 10% (not fully exempt)."""
+    def test_basel_mecanisme(self, service):
+        """BS: not calibrated -> mechanism, no number."""
         inp = HousingSaleInput(
             prix_achat=300_000, prix_vente=600_000,
             annee_achat=2000, annee_vente=2025, canton="BS",
         )
         result = service.calculate(inp)
-        assert result.taux_imposition_plus_value == 0.10
+        assert result.modele_gain == "mecanisme"
+        assert result.impot_plus_value is None
 
-    def test_unknown_canton_uses_default(self, service):
-        """Unknown canton should use default rates."""
+    def test_unknown_canton_inconnu(self, service):
+        """Unknown canton -> honest 'inconnu' verdict, no fabricated rate."""
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=700_000,
             annee_achat=2020, annee_vente=2025, canton="TG",
         )
         result = service.calculate(inp)
-        # TG not in our dict, should use default: 5 years -> bracket (5, 10) = 0.22
-        assert result.taux_imposition_plus_value == 0.22
+        assert result.modele_gain == "inconnu"
+        assert result.taux_imposition_plus_value is None
+        assert result.impot_plus_value is None
+        assert result.produit_net is None
+
+    def test_geneve_25_years_two_percent(self, service):
+        """GE: >= 25 years -> 2 % (revision 1.1.2025), no longer exempt."""
+        inp = HousingSaleInput(
+            prix_achat=200_000, prix_vente=800_000,
+            annee_achat=1995, annee_vente=2025, canton="GE",
+        )
+        result = service.calculate(inp)
+        # 30 years -> 2 %
+        assert result.taux_imposition_plus_value == 0.02
+        assert result.impot_plus_value == 600_000 * 0.02
+
+    def test_vaud_double_occupation(self, service):
+        """VD: proven owner-occupation years count double (art. 72 al. 4)."""
+        inp = HousingSaleInput(
+            prix_achat=500_000, prix_vente=700_000,
+            annee_achat=2017, annee_vente=2025, canton="VD",  # 8 years owned
+            annees_occupation=8,
+        )
+        result = service.calculate(inp)
+        # duree effective 8 + 8 = 16 -> 11 %
+        assert result.taux_imposition_plus_value == taux_vd(16)
+        assert result.taux_imposition_plus_value == 0.11
 
     def test_tax_amount_computation(self, service):
-        """Tax = taxable gain * rate."""
+        """VD tax = taxable gain * rate."""
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=700_000,
             annee_achat=2018, annee_vente=2025, canton="VD",
         )
         result = service.calculate(inp)
-        # Taxable gain = 200k, rate = 20%
-        expected_tax = 200_000 * 0.20
+        expected_tax = 200_000 * taux_vd(7)
         assert result.impot_plus_value == expected_tax
 
 
@@ -230,10 +274,10 @@ class TestHousingSaleTaxRate:
 # ===========================================================================
 
 class TestHousingSaleRemploi:
-    """Tests for reinvestment tax deferral (remploi)."""
+    """Tests for reinvestment tax deferral (remploi). Deferral applies to tax."""
 
     def test_no_remploi_zero_report(self, service, base_input):
-        """No remploi project: zero deferral."""
+        """No remploi project: zero deferral (GE calibrated)."""
         result = service.calculate(base_input)
         assert result.remploi_report == 0.0
 
@@ -245,7 +289,6 @@ class TestHousingSaleRemploi:
             projet_remploi=True, prix_remploi=700_000,
         )
         result = service.calculate(inp)
-        # Full deferral
         assert result.remploi_report == result.impot_plus_value
         assert result.impot_effectif == 0.0
 
@@ -260,18 +303,26 @@ class TestHousingSaleRemploi:
         assert result.remploi_report == result.impot_plus_value
         assert result.impot_effectif == 0.0
 
-    def test_remploi_sous_couts_investissement_aucun_report(self, service):
-        """Remploi <= couts d'investissement : AUCUN report (methode absolue).
+    def test_partial_remploi_methode_absolue(self, service):
+        """Remploi partiel — methode ABSOLUE (ATF 130 II 202) : le report ne
+        porte que sur la part reinvestie AU-DELA des couts d'investissement.
 
-        ATF 130 II 202 : le report ne porte que sur la part du
-        reinvestissement qui EXCEDE les couts d'investissement du bien
-        vendu. Achat 500k, vente 1M, remploi 500k : le reinvestissement ne
-        fait que re-employer le capital initial, le gain de 500k est
-        entierement realise -> report zero. L'ancienne methode
-        proportionnelle (ce test assertait « ratio 0.50 -> report 50k »)
-        gravait la methode ecartee par le Tribunal federal — ADR
-        2026-07-28-remplacements.
-        """
+        Cas du TF : achat 500k, vente 1M (gain 500k), remploi 600k -> gain
+        reinvesti 100k sur 500k -> 20 % de l'impot reporte (PAS 60 %)."""
+        inp = HousingSaleInput(
+            prix_achat=500_000, prix_vente=1_000_000,
+            annee_achat=2018, annee_vente=2025, canton="VD",
+            projet_remploi=True, prix_remploi=600_000,
+        )
+        result = service.calculate(inp)
+        # imposable 500k, VD 7y = 16% -> impot 80k ; gain reinvesti 100k/500k = 0.2
+        expected_report = round(result.impot_plus_value * 0.20, 2)
+        assert result.remploi_report == expected_report
+        assert result.impot_effectif == round(result.impot_plus_value - expected_report, 2)
+
+    def test_remploi_capital_seul_ne_defere_rien(self, service):
+        """Reinvestir uniquement son capital initial (pas le gain) -> report 0
+        (correction TF : l'ancienne methode proportionnelle reportait a tort)."""
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=1_000_000,
             annee_achat=2018, annee_vente=2025, canton="VD",
@@ -280,40 +331,6 @@ class TestHousingSaleRemploi:
         result = service.calculate(inp)
         assert result.remploi_report == 0.0
         assert result.impot_effectif == result.impot_plus_value
-
-    def test_remploi_partiel_methode_absolue(self, service):
-        """Remploi partiel : report sur la seule part au-dela des couts.
-
-        Achat 500k, vente 1M (gain 500k), remploi 750k : gain reinvesti =
-        750k - 500k = 250k -> la moitie de l'impot est reportee.
-        """
-        inp = HousingSaleInput(
-            prix_achat=500_000, prix_vente=1_000_000,
-            annee_achat=2018, annee_vente=2025, canton="VD",
-            projet_remploi=True, prix_remploi=750_000,
-        )
-        result = service.calculate(inp)
-        expected_report = round(result.impot_plus_value * 0.50, 2)
-        assert result.remploi_report == expected_report
-        assert result.impot_effectif == round(
-            result.impot_plus_value - expected_report, 2
-        )
-
-    def test_remploi_residence_secondaire_aucun_report(self, service):
-        """Le report de remploi est reserve a la residence principale.
-
-        LHID art. 12 al. 3 let. e : habitation ayant durablement servi au
-        propre usage. Le champ residence_principale existait mais n'etait
-        jamais teste par _compute_remploi.
-        """
-        inp = HousingSaleInput(
-            prix_achat=500_000, prix_vente=1_000_000,
-            annee_achat=2018, annee_vente=2025, canton="VD",
-            residence_principale=False,
-            projet_remploi=True, prix_remploi=1_000_000,
-        )
-        result = service.calculate(inp)
-        assert result.remploi_report == 0.0
 
     def test_remploi_with_zero_tax(self, service):
         """Remploi with zero tax (no gain): no deferral needed."""
@@ -390,7 +407,7 @@ class TestHousingSaleEPL:
         result = service.calculate(inp)
         epl_alerts = [a for a in result.alerts if "EPL" in a]
         assert len(epl_alerts) > 0
-        assert "70,000" in epl_alerts[0] or "70'000" in epl_alerts[0] or "70,000" in epl_alerts[0]
+        assert "70,000" in epl_alerts[0] or "70'000" in epl_alerts[0]
 
 
 # ===========================================================================
@@ -398,13 +415,12 @@ class TestHousingSaleEPL:
 # ===========================================================================
 
 class TestHousingSaleNetProceeds:
-    """Tests for net proceeds calculation."""
+    """Tests for net proceeds calculation (calibrated cantons)."""
 
     def test_net_proceeds_basic(self, service, base_input):
         """Net = sale price - mortgage - tax - EPL."""
         result = service.calculate(base_input)
-        # Sale: 1M, mortgage: 400k, tax: 120k * 0.10 (GE 10y) = 12k
-        # EPL: 0
+        # GE 10y = 10% ; taxable 120k -> tax 12k
         expected = 1_000_000 - 400_000 - 12_000
         assert result.produit_net == expected
 
@@ -417,7 +433,7 @@ class TestHousingSaleNetProceeds:
             hypotheque_restante=300_000,
         )
         result = service.calculate(inp)
-        # Gain: 300k imposable, rate 10% (GE 10y) -> tax 30k
+        # GE 10y = 10% ; taxable 300k -> tax 30k
         expected = 800_000 - 300_000 - 30_000 - 50_000 - 20_000
         assert result.produit_net == expected
 
@@ -454,9 +470,25 @@ class TestHousingSaleNetProceeds:
             hypotheque_restante=0,
         )
         result = service.calculate(inp)
-        # Gain: 200k, rate 10% (GE 10y) -> tax 20k
+        # GE 10y = 10% ; taxable 200k -> tax 20k
         expected = 700_000 - 0 - 20_000
         assert result.produit_net == expected
+
+    def test_loss_non_calibrated_produit_net(self, service):
+        """F4 : gain nul/negatif -> impot 0 deterministe MEME pour un canton non
+        calibre (BE), et le produit net reste calcule (non nullifie)."""
+        inp = HousingSaleInput(
+            prix_achat=800_000, prix_vente=600_000,
+            annee_achat=2020, annee_vente=2025, canton="BE",
+            hypotheque_restante=500_000,
+        )
+        result = service.calculate(inp)
+        assert result.modele_gain == "mecanisme"
+        assert result.impot_plus_value == 0.0
+        assert result.taux_imposition_plus_value == 0.0
+        assert result.produit_net == 100_000  # 600k - 500k
+        # Sur une perte, aucun impot en jeu -> pas de renvoi mecanisme.
+        assert not any("Berne" in a for a in result.alerts)
 
 
 # ===========================================================================
@@ -518,30 +550,30 @@ class TestHousingSaleEdgeCases:
         assert result.plus_value_brute == 500_000
         assert result.plus_value_imposable == 500_000
 
-    def test_very_long_detention_30_years(self, service):
-        """30 years of ownership: should use lowest bracket."""
+    def test_very_long_detention_30_years_ge(self, service):
+        """GE: 30 years -> 2 % (not exempt anymore, revision 1.1.2025)."""
         inp = HousingSaleInput(
             prix_achat=200_000, prix_vente=800_000,
             annee_achat=1995, annee_vente=2025, canton="GE",
         )
         result = service.calculate(inp)
-        # GE: 25-999 years = 0%
-        assert result.taux_imposition_plus_value == 0.0
-        assert result.impot_effectif == 0.0
+        assert result.taux_imposition_plus_value == 0.02
+        assert result.impot_effectif == 600_000 * 0.02
 
-    def test_same_year_sale(self, service):
-        """Bought and sold in same year: duration = 0."""
+    def test_same_year_sale_zh(self, service):
+        """ZH: same-year sale (duration 0) -> majoration de courte duree."""
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=550_000,
             annee_achat=2025, annee_vente=2025, canton="ZH",
         )
         result = service.calculate(inp)
         assert result.duree_detention == 0
-        # ZH: 0-2 years = 50%
-        assert result.taux_imposition_plus_value == 0.50
+        # imposable 50k, duree 0 -> base(50k) × 1.5
+        assert result.impot_plus_value == impot_zh(50_000, 0)
+        assert result.impot_plus_value == round(impot_base_zh(50_000) * 1.5, 2)
 
     def test_negative_plus_value_no_tax(self, service):
-        """Negative gain: no tax due."""
+        """Negative gain: no tax due (calibrated canton -> 0, not None)."""
         inp = HousingSaleInput(
             prix_achat=800_000, prix_vente=700_000,
             annee_achat=2020, annee_vente=2025, canton="ZH",

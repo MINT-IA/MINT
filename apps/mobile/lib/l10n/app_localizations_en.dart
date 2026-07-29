@@ -3524,6 +3524,9 @@ class SEn extends S {
   String get housingSaleResidencePrincipale => 'Primary residence';
 
   @override
+  String get housingSaleAnneesOccupation => 'Years lived in as main residence';
+
+  @override
   String get housingSaleFinancementTitle => 'FINANCING';
 
   @override
