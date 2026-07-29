@@ -60,64 +60,69 @@ DISCLAIMER = (
 #     (retrocession de 38.8% de l'impot a la source au fisc italien)
 
 CANTON_SOURCE_TAX_RATES = {
-    # Canton: {"base_rate": taux de base %, "multiplier": multiplicateur cantonal+communal}
+    # Canton: {"multiplier": multiplicateur cantonal+communal, "special": regime}
     # Source: ordonnances cantonales impot a la source 2024/2025
-    "GE": {"base_rate": 0.0, "multiplier": 1.0, "special": "quasi_resident"},
+    # Le champ "base_rate" (4.5 % decore de 24 citations) a ete SUPPRIME le
+    # 2026-07-28 : il n'etait lu nulle part — le calcul vivant est
+    # `_calculate_source_tax_progressive(salaire) x multiplier`. Ne pas le
+    # reintroduire. Constat : .planning/architecture/
+    # 2026-07-27-constat-frontalier-base-rate-lamal.md (PR #1077).
+    "GE": {"multiplier": 1.0, "special": "quasi_resident"},
     # GE: regime special — pas d'impot a la source standard
     # mais imposition ordinaire si quasi-resident (LIFD art. 99a, LIPP-GE art. 6)
-    "VD": {"base_rate": 4.5, "multiplier": 1.55},
+    "VD": {"multiplier": 1.55},
     # VD: 4.5% base + multiplicateur cantonal/communal (LI-VD art. 174)
-    "VS": {"base_rate": 4.5, "multiplier": 1.40},
+    "VS": {"multiplier": 1.40},
     # VS: 4.5% base + multiplicateur (LF-VS art. 108)
-    "BS": {"base_rate": 4.5, "multiplier": 1.45},
+    "BS": {"multiplier": 1.45},
     # BS: 4.5% base + multiplicateur (StG-BS § 120)
-    "TI": {"base_rate": 0.0, "multiplier": 1.0, "special": "italie"},
+    "TI": {"multiplier": 1.0, "special": "italie"},
     # TI: accord CH-IT — frontaliers IT imposes en Italie
     # Retrocession de 38.8% (accord du 03.10.1974 art. 3)
-    "BE": {"base_rate": 4.5, "multiplier": 1.52},
+    "BE": {"multiplier": 1.52},
     # BE: standard source tax (StG-BE art. 119)
-    "ZH": {"base_rate": 4.5, "multiplier": 1.48},
+    "ZH": {"multiplier": 1.48},
     # ZH: standard source tax (StG-ZH § 95)
-    "AG": {"base_rate": 4.5, "multiplier": 1.42},
+    "AG": {"multiplier": 1.42},
     # AG: standard source tax (StG-AG § 120)
-    "SG": {"base_rate": 4.5, "multiplier": 1.40},
+    "SG": {"multiplier": 1.40},
     # SG: standard source tax (StG-SG art. 112)
-    "LU": {"base_rate": 4.5, "multiplier": 1.38},
+    "LU": {"multiplier": 1.38},
     # LU: standard source tax (StG-LU § 108)
-    "FR": {"base_rate": 4.5, "multiplier": 1.50},
+    "FR": {"multiplier": 1.50},
     # FR: standard source tax (LICD-FR art. 136)
-    "NE": {"base_rate": 4.5, "multiplier": 1.52},
+    "NE": {"multiplier": 1.52},
     # NE: standard source tax (LCdir-NE art. 159)
-    "JU": {"base_rate": 4.5, "multiplier": 1.55},
+    "JU": {"multiplier": 1.55},
     # JU: standard source tax (LI-JU art. 142)
-    "SO": {"base_rate": 4.5, "multiplier": 1.45},
+    "SO": {"multiplier": 1.45},
     # SO: standard source tax (StG-SO § 118)
-    "BL": {"base_rate": 4.5, "multiplier": 1.44},
+    "BL": {"multiplier": 1.44},
     # BL: standard source tax (StG-BL § 114)
-    "SH": {"base_rate": 4.5, "multiplier": 1.40},
+    "SH": {"multiplier": 1.40},
     # SH: standard source tax (StG-SH art. 107)
-    "TG": {"base_rate": 4.5, "multiplier": 1.38},
+    "TG": {"multiplier": 1.38},
     # TG: standard source tax (StG-TG § 110)
-    "GR": {"base_rate": 4.5, "multiplier": 1.42},
+    "GR": {"multiplier": 1.42},
     # GR: standard source tax (StG-GR art. 105)
-    "ZG": {"base_rate": 4.5, "multiplier": 1.22},
+    "ZG": {"multiplier": 1.22},
     # ZG: standard source tax (StG-ZG § 92) — canton a faible fiscalite
-    "SZ": {"base_rate": 4.5, "multiplier": 1.24},
+    "SZ": {"multiplier": 1.24},
     # SZ: standard source tax (StG-SZ § 95)
-    "OW": {"base_rate": 4.5, "multiplier": 1.30},
+    "OW": {"multiplier": 1.30},
     # OW: standard source tax (StG-OW art. 98)
-    "NW": {"base_rate": 4.5, "multiplier": 1.28},
+    "NW": {"multiplier": 1.28},
     # NW: standard source tax (StG-NW art. 98)
-    "UR": {"base_rate": 4.5, "multiplier": 1.32},
+    "UR": {"multiplier": 1.32},
     # UR: standard source tax (StG-UR art. 100)
-    "GL": {"base_rate": 4.5, "multiplier": 1.35},
+    "GL": {"multiplier": 1.35},
     # GL: standard source tax (StG-GL art. 110)
-    "AR": {"base_rate": 4.5, "multiplier": 1.30},
+    "AR": {"multiplier": 1.30},
     # AR: standard source tax (StG-AR art. 100)
-    "AI": {"base_rate": 4.5, "multiplier": 1.28},
+    "AI": {"multiplier": 1.28},
     # AI: standard source tax (StG-AI art. 95)
 }
-_DEFAULT_SOURCE_TAX = {"base_rate": 4.5, "multiplier": 1.40}
+_DEFAULT_SOURCE_TAX = {"multiplier": 1.40}
 
 # Bareme simplifie impot a la source par tranche (LIFD art. 85)
 # Utilise pour estimer l'impot a la source federal avant multiplicateur cantonal
