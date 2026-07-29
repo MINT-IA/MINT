@@ -137,22 +137,21 @@ class HousingSaleService {
     final plusValueBrute = prixVente - coutAcquisitionTotal;
 
     // ── Remploi (report d'imposition) ──
-    // If replacing primary residence, deferred taxation on reinvested portion
-    // LHID art. 12 al. 3
+    // LHID art. 12 al. 3 let. e — méthode ABSOLUE (ATF 130 II 202) :
+    // seul le réinvestissement qui EXCÈDE les coûts d'investissement du
+    // bien vendu reporte le gain. L'ancienne méthode proportionnelle
+    // (ratio prixRemploi/prixVente) a été écartée par le Tribunal
+    // fédéral — parité avec le backend, ADR 2026-07-28-remplacements.
     double remploiReport = 0;
     double plusValueImposable = plusValueBrute;
 
     if (projetRemploi && residencePrincipale && prixRemploi > 0) {
-      if (prixRemploi >= prixVente) {
-        // Full remploi: entire gain is deferred
-        remploiReport = plusValueBrute;
-        plusValueImposable = 0;
-      } else {
-        // Partial remploi: proportional deferral
-        final ratio = prixRemploi / prixVente;
-        remploiReport = plusValueBrute * ratio;
-        plusValueImposable = plusValueBrute - remploiReport;
-      }
+      final gainReinvesti = min(
+        plusValueBrute,
+        max(0.0, prixRemploi - coutAcquisitionTotal),
+      );
+      remploiReport = max(0.0, gainReinvesti);
+      plusValueImposable = plusValueBrute - remploiReport;
     }
 
     // No tax on losses

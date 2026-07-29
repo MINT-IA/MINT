@@ -160,7 +160,13 @@ void main() {
       expect(result.impotPlusValue, 0.0);
     });
 
-    test('remploi partiel: proportionnel au ratio', () {
+    test('remploi sous les couts d\'investissement: aucun report (methode absolue)', () {
+      // ATF 130 II 202 : le report ne porte que sur la part du
+      // reinvestissement qui EXCEDE les couts d'investissement du bien
+      // vendu. Remploi 350k < couts 500k : le gain est entierement
+      // realise -> report zero. L'ancien test assertait la methode
+      // proportionnelle ecartee par le Tribunal federal (ratio 0.50) —
+      // ADR 2026-07-28-remplacements, parite avec le backend.
       final result = HousingSaleService.calculate(
         prixAchat: 500000,
         prixVente: 700000,
@@ -169,15 +175,29 @@ void main() {
         canton: 'ZH',
         residencePrincipale: true,
         projetRemploi: true,
-        prixRemploi: 350000, // 50% du prix de vente
+        prixRemploi: 350000,
       );
 
-      // ratio = 350000 / 700000 = 0.50
-      // remploi = plusValueBrute * 0.50
-      final expectedRemploi = result.plusValueBrute * 0.50;
-      expect(result.remploiReport, closeTo(expectedRemploi, 0.01));
-      expect(result.plusValueImposable,
-          closeTo(result.plusValueBrute - expectedRemploi, 0.01));
+      expect(result.remploiReport, 0.0);
+      expect(result.plusValueImposable, result.plusValueBrute);
+    });
+
+    test('remploi partiel: seule la part au-dela des couts est reportee', () {
+      // Achat 500k, vente 700k (gain 200k), remploi 600k :
+      // gain reinvesti = 600k - 500k = 100k -> la moitie du gain.
+      final result = HousingSaleService.calculate(
+        prixAchat: 500000,
+        prixVente: 700000,
+        anneeAchat: 2015,
+        anneeVente: 2025,
+        canton: 'ZH',
+        residencePrincipale: true,
+        projetRemploi: true,
+        prixRemploi: 600000,
+      );
+
+      expect(result.remploiReport, closeTo(100000, 0.01));
+      expect(result.plusValueImposable, closeTo(100000, 0.01));
     });
 
     test('remploi impossible si pas residence principale', () {
