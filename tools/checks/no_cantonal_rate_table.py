@@ -72,7 +72,6 @@ ALLOWED = {
     "services/backend/app/services/expat/expat_service.py::FORFAIT_TAUX_ESTIMES",
     "services/backend/app/services/mortgage/imputed_rental_service.py::TAUX_VALEUR_LOCATIVE",
     "services/backend/app/services/succession_simulator.py::CANTON_SUCCESSION_TAX",
-    "services/backend/app/services/divorce_simulator.py::CANTON_TAX_RATES",
     # RÉVÉLÉES par l'extension AnnAssign du 2026-07-28 (les tables ANNOTÉES
     # échappaient au visiteur) — DETTE HÉRITÉE gelée, à trier une à une :
     # les 3 premières meurent déjà dans des PR ouvertes (#1087, #1072, P5).
