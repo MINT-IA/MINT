@@ -441,6 +441,11 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # Lint prescriptions (ADR 2026-07-28-prescriptions U1-U4)
+    "services/backend/app/services/coach/prescription_vocab.py",
+    "services/backend/tests/test_prescription_vocab.py",
+    "tools/checks/product_prescription_lint.py",
+    "tools/checks/_baseline_prescription_sites.txt",
     # Purge attribution fortune (ADR 2026-07-28-fortune U1)
     "services/backend/app/services/fiscal/wealth_tax_service.py",
     "apps/mobile/lib/services/wealth_tax_service.dart",

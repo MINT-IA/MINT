@@ -1,0 +1,6 @@
+# Baseline-cliquet des prescriptions de produit — ADR 2026-07-28.
+# Entrées chemin::motif::hash8(ligne normalisée complète) — PAR
+# OCCURRENCE. La liste ne peut que RÉTRÉCIR ; réécrire ou déplacer un
+# site (même au-delà du 120e caractère) change son hash et exige une
+# mise à jour consciente dans le même commit.
+# Anti-croissance verrouillé en CI contre origin/dev (bootstrap excepté).
