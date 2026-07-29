@@ -66,7 +66,6 @@ ALLOWED = {
     "services/backend/app/services/fiscal/wealth_tax_service.py::EFFECTIVE_WEALTH_TAX_RATES_500K",
     "services/backend/app/services/fiscal/wealth_tax_service.py::WEALTH_TAX_EXEMPTIONS",
     "services/backend/app/services/expat/frontalier_service.py::CANTON_SOURCE_TAX_RATES",
-    "services/backend/app/services/expat/frontalier_service.py::LAMAL_PRIMES_MENSUELLES",
     "services/backend/app/services/expat/expat_service.py::TAUX_IMPOSITION_CAPITAL_PREVOYANCE",
     "services/backend/app/services/expat/expat_service.py::FORFAIT_FISCAL_BASE_CANTONALE",
     "services/backend/app/services/expat/expat_service.py::FORFAIT_TAUX_ESTIMES",

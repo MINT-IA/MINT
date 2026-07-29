@@ -231,22 +231,91 @@ CHARGES_SOCIALES_PAYS = {
 }
 
 # ---------------------------------------------------------------------------
-# Primes LAMal estimees (LAMal art. 61, OPAS)
-# Primes mensuelles moyennes pour adultes avec franchise 300, 2025
+# Primes LAMal frontaliers — par PAYS DE RÉSIDENCE (LAMal art. 3, OLCP art. 9)
 # ---------------------------------------------------------------------------
+# L'ancienne table par CANTON DE TRAVAIL a été SUPPRIMÉE le 2026-07-28 : un
+# frontalier paie une prime spécifique à son pays de résidence, pas celle du
+# canton où il travaille — la comparaison LAMal/assurance-résidence pouvait
+# en être inversée (constat PR #1077, ADR 2026-07-28-remplacements §8).
+# Ne pas la réintroduire.
+#
+# Source primaire : priminfo.admin.ch/downloads/gesamtbericht_eu.xlsx
+# (répertoire OFSP des primes UE/AELE), Geschäftsjahr 2026, téléchargé et
+# archivé le 2026-07-28 avec méthode d'extraction :
+# .planning/audit-etat-des-lieux-2026-07/constants-audit/
+# lamal_frontaliers_2026/extraction_fr300_sans_accident.json
+# Profil : franchise 300, SANS accident (salarié suisse couvert LAA
+# employeur), min/moyenne/max inter-assureurs (n=13-14).
+# Rafraîchissement annuel : publication OFSP fin septembre.
 
-LAMAL_PRIMES_MENSUELLES = {
-    # Canton: prime mensuelle moyenne adulte, franchise 300 CHF
-    # Source: OFSP, primes LAMal 2025
-    "GE": 580.0, "VD": 540.0, "BS": 520.0, "BE": 480.0,
-    "ZH": 460.0, "TI": 500.0, "LU": 430.0, "AG": 440.0,
-    "SG": 420.0, "FR": 470.0, "VS": 430.0, "NE": 510.0,
-    "JU": 490.0, "SO": 450.0, "BL": 470.0, "SH": 430.0,
-    "TG": 410.0, "GR": 400.0, "ZG": 380.0, "SZ": 400.0,
-    "OW": 390.0, "NW": 380.0, "UR": 400.0, "GL": 410.0,
-    "AR": 400.0, "AI": 380.0,
+LAMAL_FRONTALIER_MILLESIME = 2026
+
+LAMAL_FRONTALIER_PRIMES = {
+    # pays de résidence -> classe d'âge -> variante accident ->
+    # {min, moyenne, max} CHF/mois. sans_accident = salarié suisse
+    # >= 8 h/sem couvert LAA ; avec_accident = membres de famille et
+    # < 8 h/sem (revue Codex P1 : les proches n'ont pas la LAA).
+    # (adulte/jeune : franchise 300 ; enfant : franchise 0)
+    "FR": {
+        "adulte": {
+            "sans_accident": {"min": 200.0, "moyenne": 520.89, "max": 823.1},
+            "avec_accident": {"min": 215.0, "moyenne": 556.75, "max": 885.0},
+        },
+        "jeune": {
+            "sans_accident": {"min": 180.0, "moyenne": 436.77, "max": 760.7},
+            "avec_accident": {"min": 193.5, "moyenne": 466.93, "max": 818.0},
+        },
+        "enfant": {
+            "sans_accident": {"min": 46.0, "moyenne": 142.9, "max": 246.5},
+            "avec_accident": {"min": 49.4, "moyenne": 152.73, "max": 265.0},
+        },
+    },
+    "DE": {
+        "adulte": {
+            "sans_accident": {"min": 227.9, "moyenne": 480.77, "max": 1059.9},
+            "avec_accident": {"min": 245.0, "moyenne": 513.04, "max": 1112.9},
+        },
+        "jeune": {
+            "sans_accident": {"min": 164.1, "moyenne": 400.27, "max": 742.1},
+            "avec_accident": {"min": 176.4, "moyenne": 427.28, "max": 779.2},
+        },
+        "enfant": {
+            "sans_accident": {"min": 49.85, "moyenne": 130.47, "max": 297.1},
+            "avec_accident": {"min": 53.55, "moyenne": 139.19, "max": 311.9},
+        },
+    },
+    "IT": {
+        "adulte": {
+            "sans_accident": {"min": 279.0, "moyenne": 408.09, "max": 487.2},
+            "avec_accident": {"min": 300.0, "moyenne": 436.15, "max": 513.3},
+        },
+        "jeune": {
+            "sans_accident": {"min": 239.6, "moyenne": 343.44, "max": 475.3},
+            "avec_accident": {"min": 257.6, "moyenne": 367.09, "max": 511.0},
+        },
+        "enfant": {
+            "sans_accident": {"min": 41.2, "moyenne": 113.29, "max": 203.7},
+            "avec_accident": {"min": 44.3, "moyenne": 121.09, "max": 219.0},
+        },
+    },
+    "AT": {
+        "adulte": {
+            "sans_accident": {"min": 299.4, "moyenne": 495.84, "max": 748.1},
+            "avec_accident": {"min": 321.9, "moyenne": 529.97, "max": 790.0},
+        },
+        "jeune": {
+            "sans_accident": {"min": 239.6, "moyenne": 411.67, "max": 551.0},
+            "avec_accident": {"min": 257.6, "moyenne": 440.08, "max": 592.5},
+        },
+        "enfant": {
+            "sans_accident": {"min": 63.1, "moyenne": 135.99, "max": 211.2},
+            "avec_accident": {"min": 67.8, "moyenne": 145.34, "max": 227.0},
+        },
+    },
 }
-_DEFAULT_LAMAL_PRIME = 460.0
+# Pays de référence pour un pays de résidence hors dataset (LI n'est pas
+# dans gesamtbericht_eu) — TOUJOURS nommé explicitement dans le texte rendu.
+_LAMAL_PAYS_REFERENCE = "FR"
 
 # Primes mensuelles estimees dans les pays voisins (securite sociale + complementaire)
 # Source: estimations basees sur les systemes de sante respectifs
@@ -770,13 +839,31 @@ class FrontalierSegmentService:
         canton_upper = canton.upper()
         country = residence_country.upper()
 
-        # Prime LAMal
-        prime_base = LAMAL_PRIMES_MENSUELLES.get(canton_upper, _DEFAULT_LAMAL_PRIME)
-        # Ajustement age (jeune adulte 19-25 : ~25% reduction)
-        if age < 26:
-            prime_base = round(prime_base * 0.75, 2)
+        # Prime LAMal frontalier : par PAYS DE RÉSIDENCE (registre OFSP
+        # priminfo UE/AELE) — le canton de travail ne fixe PAS cette prime.
+        pays_data = LAMAL_FRONTALIER_PRIMES.get(country)
+        pays_reference_note = ""
+        if pays_data is None:
+            # Pays hors dataset (ex. LI) : référence France, TOUJOURS
+            # nommée explicitement dans le texte rendu — pas de défaut muet.
+            pays_data = LAMAL_FRONTALIER_PRIMES[_LAMAL_PAYS_REFERENCE]
+            pays_reference_note = (
+                " (données indisponibles pour ton pays de résidence : "
+                "référence France)"
+            )
+        classe = "enfant" if age < 19 else ("jeune" if age < 26 else "adulte")
+        # Le salarié suisse (>= 8 h/sem) est couvert LAA -> sans accident.
+        # Les MEMBRES DE FAMILLE n'ont pas la LAA -> variante avec accident,
+        # classe adulte en borne haute (revue Codex P1 : le sans-accident
+        # uniforme sous-estimait chaque proche et pouvait inverser la
+        # comparaison — AT : 495.84 sans vs 529.97 avec, résidence 513.33).
+        classe_data = pays_data[classe]["sans_accident"]
+        prime_base = classe_data["moyenne"]
+        prime_proches = pays_data["adulte"]["avec_accident"]["moyenne"]
 
-        prime_lamal_mensuelle = round(prime_base * family_size, 2)
+        prime_lamal_mensuelle = round(
+            prime_base + prime_proches * max(0, family_size - 1), 2
+        )
         prime_lamal_annuelle = round(prime_lamal_mensuelle * 12, 2)
 
         # Prime pays de residence
@@ -793,26 +880,37 @@ class FrontalierSegmentService:
 
         economie_lamal = round(prime_residence_annuelle - prime_lamal_annuelle, 2)
 
+        plage = (
+            f"primes {LAMAL_FRONTALIER_MILLESIME} selon l'assureur : de "
+            f"CHF {classe_data['min']:,.0f} à CHF {classe_data['max']:,.0f}"
+            f"/mois (moyenne utilisée ici : CHF {classe_data['moyenne']:,.0f} — "
+            f"tarif de ta classe d'âge appliqué à chaque membre de la famille, "
+            f"borne haute pour les enfants)"
+            f"{pays_reference_note}"
+        )
         if economie_lamal > 0:
             recommandation = (
                 f"L'option LAMal est potentiellement avantageuse : tu economiserais "
                 f"~CHF {economie_lamal:,.0f}/an par rapport a l'assurance {country}. "
-                f"Attention : la LAMal n'est pas subventionnee pour les frontaliers "
-                f"(pas de reduction de prime). Compare les prestations couvertes."
+                f"{plage}. Attention : la LAMal n'est pas subventionnee pour les "
+                f"frontaliers (pas de reduction de prime). Compare les prestations "
+                f"couvertes."
             )
         else:
             recommandation = (
                 f"L'assurance dans ton pays de residence ({country}) est potentiellement "
                 f"plus avantageuse : ~CHF {abs(economie_lamal):,.0f}/an moins cher que la LAMal. "
-                f"Cependant, la LAMal offre un acces direct au systeme de sante suisse, "
-                f"ce qui peut etre un avantage pratique si tu travailles en Suisse."
+                f"{plage}. Cependant, la LAMal offre un acces direct au systeme de "
+                f"sante suisse, ce qui peut etre un avantage pratique si tu "
+                f"travailles en Suisse."
             )
 
         sources = [
             "LAMal art. 3 (assurance obligatoire des personnes residant en Suisse)",
             "LAMal art. 6 (exceptions et droit d'option)",
             "OLCP art. 9 (droit d'option des frontaliers)",
-            "OPAS (ordonnance sur les prestations de l'assurance obligatoire)",
+            f"Primes LAMal frontaliers : registre OFSP priminfo UE/AELE, "
+            f"millesime {LAMAL_FRONTALIER_MILLESIME}, franchise 300, sans accident",
             residence_data.get("source", ""),
         ]
 
