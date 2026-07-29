@@ -2805,6 +2805,9 @@ class SPt extends S {
   String get firstJobActivityRate => 'Taxa de atividade';
 
   @override
+  String get firstJobAskCoach => 'Perguntar ao coach';
+
+  @override
   String get firstJob3aHeader => 'PILAR 3A — A CONSIDERAR';
 
   @override
@@ -17133,13 +17136,15 @@ class SPt extends S {
   }
 
   @override
-  String get firstJobPayslipAanpExplanation => 'Seguro de acidentes fora do trabalho, descontado do teu salário.';
+  String get firstJobPayslipAanpExplanation =>
+      'Seguro de acidentes fora do trabalho, descontado do teu salário.';
 
   @override
   String get firstJobPayslipAanpLabel => 'Acidentes não profissionais (AANP)';
 
   @override
-  String get firstJobPayslipAcExplanation => 'Contribuição para o seguro-desemprego (LACI). Protege-te em caso de perda de emprego.';
+  String get firstJobPayslipAcExplanation =>
+      'Contribuição para o seguro-desemprego (LACI). Protege-te em caso de perda de emprego.';
 
   @override
   String get firstJobPayslipAcLabel => 'Seguro-desemprego (AC)';
@@ -17177,7 +17182,8 @@ class SPt extends S {
   String get firstJobScenarioDefault => 'Padrão';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH (todos os setores · ESS 2022)';
+  String get firstJobScenarioMedianCH =>
+      'Mediana CH (todos os setores · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'O meu salário';

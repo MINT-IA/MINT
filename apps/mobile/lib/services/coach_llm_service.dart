@@ -319,6 +319,11 @@ typedef OrchestratorChatFn = Future<CoachResponse> Function({
   String language,
   int cashLevel,
   bool isLoggedIn,
+  // firstJob PR-E (E2) — handoff coach : receiptId + inputsHash portés par
+  // l'entrée /first-job, transmis au backend pour la résolution du
+  // MoneyTruthReceipt (SPEC §4.3). Optionnels : null hors handoff firstJob.
+  String? receiptId,
+  String? inputsHash,
 });
 
 /// Service de chat LLM pour le Coach MINT
@@ -355,6 +360,10 @@ class CoachLlmService {
     // Default false so any forgotten caller falls through to anon (the
     // pre-fix behaviour) rather than crashing.
     bool isLoggedIn = false,
+    // firstJob PR-E (E2) — handoff coach : receiptId + inputsHash portés par
+    // l'entrée /first-job, transmis au backend (SPEC §4.3).
+    String? receiptId,
+    String? inputsHash,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
@@ -378,6 +387,8 @@ class CoachLlmService {
       language: language,
       cashLevel: cashLevel,
       isLoggedIn: isLoggedIn,
+      receiptId: receiptId,
+      inputsHash: inputsHash,
     );
 
     // suggestedActions are resolved at the screen layer (CoachChatScreen)

@@ -888,6 +888,12 @@ ALLOW = {
     "services/backend/app/schemas/coach_chat.py",
     "services/backend/tests/test_money_truth_receipt_store.py",
     "services/backend/alembic/versions/p126_money_truth_receipts.py",
+    # PR-E (E2) mobile — CTA firstjob-ask-coach (RED-2) + propagation
+    # receiptId/inputsHash au backend via l'entrée coach (SPEC §1 T5 / §4.3).
+    "apps/mobile/lib/models/coach_entry_payload.dart",
+    "apps/mobile/lib/services/coach_llm_service.dart",
+    "apps/mobile/lib/services/coach/e2e_coach_route_fixture.dart",
+    "apps/mobile/test/screens/first_job_ask_coach_cta_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

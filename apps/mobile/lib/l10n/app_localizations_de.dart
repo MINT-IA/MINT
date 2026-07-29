@@ -2825,6 +2825,9 @@ class SDe extends S {
   String get firstJobActivityRate => 'Beschäftigungsgrad';
 
   @override
+  String get firstJobAskCoach => 'Den Coach fragen';
+
+  @override
   String get firstJob3aHeader => 'SÄULE 3A — ZU PRÜFEN';
 
   @override
@@ -17162,13 +17165,15 @@ class SDe extends S {
   }
 
   @override
-  String get firstJobPayslipAanpExplanation => 'Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.';
+  String get firstJobPayslipAanpExplanation =>
+      'Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.';
 
   @override
   String get firstJobPayslipAanpLabel => 'Nichtberufsunfälle (NBU)';
 
   @override
-  String get firstJobPayslipAcExplanation => 'Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.';
+  String get firstJobPayslipAcExplanation =>
+      'Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.';
 
   @override
   String get firstJobPayslipAcLabel => 'Arbeitslosenversicherung (ALV)';

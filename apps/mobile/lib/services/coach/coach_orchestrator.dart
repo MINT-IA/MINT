@@ -348,6 +348,10 @@ class CoachOrchestrator {
     // 3-message anon quota, returning « Limite atteinte. Crée un compte
     // pour continuer. » — a trust-killer for users who ARE logged in.
     bool isLoggedIn = false,
+    // firstJob PR-E (E2) — handoff coach : receiptId + inputsHash portés par
+    // l'entrée /first-job, transmis au backend (SPEC §4.3).
+    String? receiptId,
+    String? inputsHash,
   }) async {
     // Sub-phase 01.5 W02-T03 Task 5 — orchestrator-level archetype
     // refusal (defense-in-depth, secondary gate per Mapper §7.4).
@@ -466,6 +470,8 @@ class CoachOrchestrator {
         memoryBlock: memoryBlock,
         language: language,
         cashLevel: cashLevel,
+        receiptId: receiptId,
+        inputsHash: inputsHash,
       );
       if (serverKeyResponse != null) {
         debugPrint('[CoachChain] tier3=ServerKey SUCCESS');
@@ -1031,6 +1037,10 @@ class CoachOrchestrator {
     String? memoryBlock,
     String language = 'fr',
     int cashLevel = 3,
+    // firstJob PR-E (E2) — handoff coach : receiptId + inputsHash transmis
+    // au backend pour la résolution du MoneyTruthReceipt (SPEC §4.3).
+    String? receiptId,
+    String? inputsHash,
   }) async {
     final service = CoachChatApiService();
 
@@ -1073,6 +1083,8 @@ class CoachOrchestrator {
             memoryBlock: memoryBlock,
             language: language,
             cashLevel: cashLevel,
+            receiptId: receiptId,
+            inputsHash: inputsHash,
           )
           .timeout(_byokTimeout);
 

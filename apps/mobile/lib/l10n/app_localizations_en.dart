@@ -2795,6 +2795,9 @@ class SEn extends S {
   String get firstJobActivityRate => 'Activity rate';
 
   @override
+  String get firstJobAskCoach => 'Ask the coach';
+
+  @override
   String get firstJob3aHeader => 'PILLAR 3A — TO CONSIDER';
 
   @override
@@ -17037,13 +17040,15 @@ class SEn extends S {
   }
 
   @override
-  String get firstJobPayslipAanpExplanation => 'Insurance for accidents outside work, deducted from your salary.';
+  String get firstJobPayslipAanpExplanation =>
+      'Insurance for accidents outside work, deducted from your salary.';
 
   @override
   String get firstJobPayslipAanpLabel => 'Non-occupational accidents (AANP)';
 
   @override
-  String get firstJobPayslipAcExplanation => 'Contribution to unemployment insurance (LACI). It protects you if you lose your job.';
+  String get firstJobPayslipAcExplanation =>
+      'Contribution to unemployment insurance (LACI). It protects you if you lose your job.';
 
   @override
   String get firstJobPayslipAcLabel => 'Unemployment insurance (AC)';

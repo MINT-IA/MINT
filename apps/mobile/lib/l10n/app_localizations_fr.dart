@@ -2805,6 +2805,9 @@ class SFr extends S {
   String get firstJobActivityRate => 'Taux d\'activité';
 
   @override
+  String get firstJobAskCoach => 'Demander au coach';
+
+  @override
   String get firstJob3aHeader => 'PILIER 3A — À ENVISAGER';
 
   @override
@@ -17125,13 +17128,15 @@ class SFr extends S {
   }
 
   @override
-  String get firstJobPayslipAanpExplanation => 'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.';
+  String get firstJobPayslipAanpExplanation =>
+      'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.';
 
   @override
   String get firstJobPayslipAanpLabel => 'Accidents non pro. (AANP)';
 
   @override
-  String get firstJobPayslipAcExplanation => 'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.';
+  String get firstJobPayslipAcExplanation =>
+      'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.';
 
   @override
   String get firstJobPayslipAcLabel => 'Assurance-chômage (AC)';
@@ -17169,7 +17174,8 @@ class SFr extends S {
   String get firstJobScenarioDefault => 'Défaut';
 
   @override
-  String get firstJobScenarioMedianCH => 'Médiane CH (tous secteurs · ESS 2022)';
+  String get firstJobScenarioMedianCH =>
+      'Médiane CH (tous secteurs · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mon salaire';

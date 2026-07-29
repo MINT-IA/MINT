@@ -5187,6 +5187,12 @@ abstract class S {
   /// **'Taux d\'activité'**
   String get firstJobActivityRate;
 
+  /// No description provided for @firstJobAskCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander au coach'**
+  String get firstJobAskCoach;
+
   /// No description provided for @firstJob3aHeader.
   ///
   /// In fr, this message translates to:
@@ -30122,7 +30128,7 @@ abstract class S {
   /// No description provided for @firstJobPayslipAcExplanation.
   ///
   /// In fr, this message translates to:
-  /// **'Cotisation à l'assurance-chômage (LACI). Elle te protège en cas de perte d'emploi.'**
+  /// **'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.'**
   String get firstJobPayslipAcExplanation;
 
   /// No description provided for @firstJobPayslipAcLabel.
@@ -32516,7 +32522,7 @@ abstract class S {
   /// No description provided for @narrativeFirstJobBody.
   ///
   /// In fr, this message translates to:
-  /// **'Entre l'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c'est le premier pas vers une bonne gestion.'**
+  /// **'Entre l\'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c\'est le premier pas vers une bonne gestion.'**
   String get narrativeFirstJobBody;
 
   /// No description provided for @narrativeFirstJobHeadline.

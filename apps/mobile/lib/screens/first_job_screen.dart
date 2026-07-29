@@ -470,6 +470,12 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                 _situationGate(context).complete) ...[
                               _buildPremierEclairage(),
                               const SizedBox(height: MintSpacing.lg),
+                              // Tranche firstJob PR-E (E2) — handoff coach : le
+                              // CTA émet le MoneyTruthReceipt du net (MÊME
+                              // chiffre que l'écran) et navigue vers /coach/chat
+                              // en portant receiptId + inputsHash (RED-2 / §1 T5).
+                              _buildAskCoachCta(),
+                              const SizedBox(height: MintSpacing.lg),
                               SalaryBreakdownWidget(
                                 brut: _result!.brut,
                                 netEstime: _result!.netEstime,
@@ -841,6 +847,72 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         ],
       ),
     );
+  }
+
+  // ── Handoff coach (PR-E, E2) ────────────────────────────────
+
+  /// CTA « Demander au coach » — porte le MoneyTruthReceipt du net firstJob
+  /// vers /coach/chat (SPEC §1 T5 / §4.3). N'est monté que dans la branche
+  /// gatée (`_result != null` + situation complète), donc le net et le receipt
+  /// existent quand ce bouton est visible.
+  Widget _buildAskCoachCta() {
+    final l10n = S.of(context)!;
+    return Semantics(
+      identifier: 'firstjob-ask-coach',
+      button: true,
+      label: l10n.firstJobAskCoach,
+      child: Material(
+        color: MintColors.primary,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _onAskCoachTapped,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: MintSpacing.md,
+              horizontal: MintSpacing.lg,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.forum_outlined,
+                    size: 18, color: MintColors.white),
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  l10n.firstJobAskCoach,
+                  style: MintTextStyles.bodyMedium(color: MintColors.white)
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Émet le receipt du net firstJob (MÊME chiffre que l'écran : le producteur
+  /// réutilise `FirstJobService.analyzeSalary`) et navigue vers le coach en
+  /// portant `receiptId` + `inputsHash`. Le backend résout le MÊME receipt
+  /// scopé au propriétaire (SPEC §4.3). Le gate étant complet, les trois faits
+  /// de situation sont confirmés (confidence completeness = 1.0).
+  void _onAskCoachTapped() {
+    if (_result == null) return;
+    final receipt = FirstJobService.buildNetSalaryReceipt(
+      salaireBrutMensuel: _salaire,
+      age: _age,
+      canton: _canton,
+      tauxActivite: _tauxActivite,
+    );
+    final uri = Uri(
+      path: '/coach/chat',
+      queryParameters: <String, String>{
+        'topic': 'firstJobNet',
+        'receiptId': receipt.receiptId,
+        'inputsHash': receipt.inputsHash,
+      },
+    );
+    context.go(uri.toString());
   }
 
   // ── 3a Recommendation ──────────────────────────────────────

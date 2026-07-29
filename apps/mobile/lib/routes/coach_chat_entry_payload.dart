@@ -14,18 +14,29 @@ CoachEntryPayload? coachChatEntryPayloadFromQuery(
   final topic = query['topic'];
   final e2eUserMessage = query['e2eUserMessage']?.trim();
 
+  // Tranche firstJob PR-E (E2) — handoff /first-job -> coach : receiptId +
+  // inputsHash portés par l'URL, transmis au backend pour la résolution
+  // serveur du MoneyTruthReceipt (SPEC §4.3).
+  final receiptId = query['receiptId']?.trim();
+  final inputsHash = query['inputsHash']?.trim();
+  final hasReceipt = receiptId != null && receiptId.isNotEmpty;
+
   if (debugMode && e2eUserMessage != null && e2eUserMessage.isNotEmpty) {
     return CoachEntryPayload(
       source: CoachEntrySource.direct,
       topic: topic,
       userMessage: e2eUserMessage,
+      receiptId: hasReceipt ? receiptId : null,
+      inputsHash: hasReceipt ? inputsHash : null,
     );
   }
 
-  if (topic != null && topic.isNotEmpty) {
+  if ((topic != null && topic.isNotEmpty) || hasReceipt) {
     return CoachEntryPayload(
       source: CoachEntrySource.direct,
       topic: topic,
+      receiptId: hasReceipt ? receiptId : null,
+      inputsHash: hasReceipt ? inputsHash : null,
     );
   }
 
