@@ -743,6 +743,13 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # --- LOT-3 réécriture prescriptions produit DART (ADR 2026-07-28-prescriptions) ---
+    "apps/mobile/lib/models/age_band_policy.dart",
+    "apps/mobile/lib/models/clarity_state.dart",
+    "apps/mobile/lib/services/coaching_service.dart",
+    "apps/mobile/lib/services/first_job_service.dart",
+    "apps/mobile/lib/services/report/report_builder.dart",
+    "apps/mobile/lib/widgets/coach/disability_countdown_widget.dart",
     # LOT-2 réécriture prescriptions produit BACKEND (ADR 2026-07-28-prescriptions)
     "services/backend/app/routes/wizard.py",
     "services/backend/app/services/coach/coach_tools.py",
