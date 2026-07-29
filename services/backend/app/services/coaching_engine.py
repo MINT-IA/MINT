@@ -476,8 +476,8 @@ class CoachingEngine:
                 f"L'impact reel depend de votre revenu imposable."
             ),
             action=(
-                "Ouvrez un compte 3a aupres d'une banque ou d'une assurance "
-                "et commencez a epargner des maintenant."
+                "Comparer les comptes 3a (banque, assurance) selon les frais "
+                "et la souplesse de versement, puis décider où épargner."
             ),
             estimated_impact_chf=round(economie_annuelle, 2),
             source="LIFD art. 33",

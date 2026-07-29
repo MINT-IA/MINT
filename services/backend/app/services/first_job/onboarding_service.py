@@ -339,9 +339,9 @@ class FirstJobOnboardingService:
     def _build_checklist(self) -> List[str]:
         """Build the first job onboarding checklist."""
         return [
-            "Ouvrir un compte 3a fintech (pas une assurance-vie !)",
+            "Comparer les comptes 3a fintech (plutôt qu'une assurance-vie)",
             "Choisir ta franchise LAMal — compare sur priminfo.admin.ch",
-            "Souscrire une RC privee (~CHF 5/mois)",
+            "Comparer une RC privée (coût courant ~CHF 5/mois)",
             "Verifier ton certificat de prevoyance LPP",
             "Preparer ta premiere declaration fiscale",
             "Mettre en place un virement automatique epargne (10-20% du net)",
