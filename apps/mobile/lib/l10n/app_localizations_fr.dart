@@ -17125,13 +17125,15 @@ class SFr extends S {
   }
 
   @override
-  String get firstJobPayslipAanpExplanation => 'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.';
+  String get firstJobPayslipAanpExplanation =>
+      'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.';
 
   @override
   String get firstJobPayslipAanpLabel => 'Accidents non pro. (AANP)';
 
   @override
-  String get firstJobPayslipAcExplanation => 'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.';
+  String get firstJobPayslipAcExplanation =>
+      'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.';
 
   @override
   String get firstJobPayslipAcLabel => 'Assurance-chômage (AC)';
@@ -17169,7 +17171,8 @@ class SFr extends S {
   String get firstJobScenarioDefault => 'Défaut';
 
   @override
-  String get firstJobScenarioMedianCH => 'Médiane CH (tous secteurs · ESS 2022)';
+  String get firstJobScenarioMedianCH =>
+      'Médiane CH (tous secteurs · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mon salaire';
@@ -24847,5 +24850,51 @@ class SFr extends S {
   @override
   String donationPlageJusqua(String pct) {
     return 'jusqu\'à ~$pct % (barème cantonal, hors part communale)';
+  }
+
+  @override
+  String firstJobLuciditeNetValue(String value) {
+    return 'Net estimé $value par mois';
+  }
+
+  @override
+  String firstJobLuciditeNetRange(String low, String high) {
+    return 'Fourchette : $low à $high selon la classe de risque AANP';
+  }
+
+  @override
+  String firstJobLuciditeVintage(String sources, String year) {
+    return '$sources · barèmes $year';
+  }
+
+  @override
+  String get firstJobLuciditeWhyTitle => 'Pourquoi ce chiffre ?';
+
+  @override
+  String get firstJobLuciditeAssumptionsLabel => 'Hypothèses de calcul';
+
+  @override
+  String get firstJobLuciditeAssumptionAanp =>
+      'Cotisation AANP entre 1,0 % et 1,5 % selon la classe de risque de l\'employeur (défaut 1,3 %)';
+
+  @override
+  String firstJobLuciditeAssumptionTaux(String taux) {
+    return 'Taux d\'activité supposé : $taux %, modifiable';
+  }
+
+  @override
+  String get firstJobLuciditeAssumptionImpotSource =>
+      'Impôt à la source non appliqué (résident·e imposé·e ordinairement)';
+
+  @override
+  String get firstJobLuciditeAssumptionPeriode =>
+      'Net mensuel, hors 13e salaire et hors bonus';
+
+  @override
+  String get firstJobLuciditeSourcesLabel => 'Sources et millésimes';
+
+  @override
+  String firstJobLuciditeEngineLabel(String version) {
+    return 'Moteur de calcul : $version';
   }
 }

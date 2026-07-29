@@ -30122,7 +30122,7 @@ abstract class S {
   /// No description provided for @firstJobPayslipAcExplanation.
   ///
   /// In fr, this message translates to:
-  /// **'Cotisation à l'assurance-chômage (LACI). Elle te protège en cas de perte d'emploi.'**
+  /// **'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.'**
   String get firstJobPayslipAcExplanation;
 
   /// No description provided for @firstJobPayslipAcLabel.
@@ -32516,7 +32516,7 @@ abstract class S {
   /// No description provided for @narrativeFirstJobBody.
   ///
   /// In fr, this message translates to:
-  /// **'Entre l'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c'est le premier pas vers une bonne gestion.'**
+  /// **'Entre l\'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c\'est le premier pas vers une bonne gestion.'**
   String get narrativeFirstJobBody;
 
   /// No description provided for @narrativeFirstJobHeadline.
@@ -43334,6 +43334,72 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'jusqu\'à ~{pct} % (barème cantonal, hors part communale)'**
   String donationPlageJusqua(String pct);
+
+  /// No description provided for @firstJobLuciditeNetValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net estimé {value} par mois'**
+  String firstJobLuciditeNetValue(String value);
+
+  /// No description provided for @firstJobLuciditeNetRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette : {low} à {high} selon la classe de risque AANP'**
+  String firstJobLuciditeNetRange(String low, String high);
+
+  /// No description provided for @firstJobLuciditeVintage.
+  ///
+  /// In fr, this message translates to:
+  /// **'{sources} · barèmes {year}'**
+  String firstJobLuciditeVintage(String sources, String year);
+
+  /// No description provided for @firstJobLuciditeWhyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi ce chiffre ?'**
+  String get firstJobLuciditeWhyTitle;
+
+  /// No description provided for @firstJobLuciditeAssumptionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses de calcul'**
+  String get firstJobLuciditeAssumptionsLabel;
+
+  /// No description provided for @firstJobLuciditeAssumptionAanp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation AANP entre 1,0 % et 1,5 % selon la classe de risque de l\'employeur (défaut 1,3 %)'**
+  String get firstJobLuciditeAssumptionAanp;
+
+  /// No description provided for @firstJobLuciditeAssumptionTaux.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux d\'activité supposé : {taux} %, modifiable'**
+  String firstJobLuciditeAssumptionTaux(String taux);
+
+  /// No description provided for @firstJobLuciditeAssumptionImpotSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt à la source non appliqué (résident·e imposé·e ordinairement)'**
+  String get firstJobLuciditeAssumptionImpotSource;
+
+  /// No description provided for @firstJobLuciditeAssumptionPeriode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net mensuel, hors 13e salaire et hors bonus'**
+  String get firstJobLuciditeAssumptionPeriode;
+
+  /// No description provided for @firstJobLuciditeSourcesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources et millésimes'**
+  String get firstJobLuciditeSourcesLabel;
+
+  /// No description provided for @firstJobLuciditeEngineLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moteur de calcul : {version}'**
+  String firstJobLuciditeEngineLabel(String version);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

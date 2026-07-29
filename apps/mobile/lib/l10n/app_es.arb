@@ -11723,5 +11723,57 @@
         "type": "String"
       }
     }
+  },
+  "firstJobLuciditeNetValue": "Neto estimado en {value} al mes",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Horquilla: de {low} a {high} según la clase de riesgo AANP",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · baremos {year}",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "¿Por qué esta cifra?",
+  "firstJobLuciditeAssumptionsLabel": "Supuestos de cálculo",
+  "firstJobLuciditeAssumptionAanp": "Cotización AANP entre 1,0 % y 1,5 % según la clase de riesgo del empleador (por defecto 1,3 %)",
+  "firstJobLuciditeAssumptionTaux": "Tasa de actividad supuesta: {taux} %, modificable",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Impuesto en la fuente no aplicado (residente con tributación ordinaria)",
+  "firstJobLuciditeAssumptionPeriode": "Neto mensual, sin 13.ª paga ni bonificaciones",
+  "firstJobLuciditeSourcesLabel": "Fuentes y años",
+  "firstJobLuciditeEngineLabel": "Motor de cálculo: {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   }
 }
