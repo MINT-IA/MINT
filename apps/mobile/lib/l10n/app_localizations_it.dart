@@ -2812,7 +2812,7 @@ class SIt extends S {
   String get firstJobActivityRate => 'Tasso di attività';
 
   @override
-  String get firstJob3aHeader => 'PILASTRO 3A — DA APRIRE ORA';
+  String get firstJob3aHeader => 'PILASTRO 3A — DA VALUTARE';
 
   @override
   String get firstJob3aAnnualCap => 'Tetto annuale';
@@ -4535,7 +4535,7 @@ class SIt extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Sottoscrivere un\'assicurazione rischio decesso/invalidità';
+      'Verificare la tua copertura per il rischio decesso/invalidità';
 
   @override
   String get naissanceChecklistItem9Desc =>
@@ -7932,7 +7932,7 @@ class SIt extends S {
   String get firstSalaryBefore31Dec => 'Prima del 31.12';
 
   @override
-  String get firstSalaryTask1 => 'Aprire un conto 3a (banca o fintech)';
+  String get firstSalaryTask1 => 'Confrontare i conti 3a (banca o fintech)';
 
   @override
   String get firstSalaryTask2 => 'Impostare un bonifico automatico mensile';
@@ -11164,7 +11164,7 @@ class SIt extends S {
   String get pillar3aIndepBonASavoir => 'Buono a sapersi';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Apri più conti 3a';
+  String get pillar3aIndepEduComptesTitle => 'Più conti 3a, un prelievo scaglionato';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -11837,11 +11837,11 @@ class SIt extends S {
   String get retroactive3aProchainesEtapes => 'Prossimi passi';
 
   @override
-  String get retroactive3aOuvrirCompte => 'Aprire un conto 3a';
+  String get retroactive3aOuvrirCompte => 'Valutare un conto 3a dedicato';
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Confronta i fornitori e apri un conto dedicato al recupero.';
+      'Confrontare i fornitori (costi, condizioni) aiuta; un conto dedicato potrebbe semplificare il monitoraggio del recupero.';
 
   @override
   String get retroactive3aPrepDocuments => 'Preparare i documenti';
@@ -17517,7 +17517,7 @@ class SIt extends S {
 
   @override
   String get indepPlanOuvrir3a =>
-      'Aprire conto 3a (deduzione fino a CHF 36\'288)';
+      'Confrontare i conti 3a (deduzione fino a CHF 36\'288)';
 
   @override
   String get indepProtApg => 'Scompare — congedo parentale';

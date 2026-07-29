@@ -1,5 +1,7 @@
 # Wave 1c: Coach Tool-Dispatch RCA — Context
 
+> **Statut : CLOS 2026-07-29** — le HANDOFF pointait « after PR #631 », mergée depuis longtemps ; la doctrine forced-tool-invocation et les gates money-trust ont repris la surface. Réconciliation plans 2026-07-29.
+
 **Gathered:** 2026-05-15
 **Status:** Ready for planning
 **Source:** Derived from `HANDOFF.md` (post-bisection smoking gun) + `captured_staging_payload_hydrated.json` + `bisect_results.json` + `experiment_results.json` (deterministic ground truth). Non-roadmap perimeter (slug-based phase dir).

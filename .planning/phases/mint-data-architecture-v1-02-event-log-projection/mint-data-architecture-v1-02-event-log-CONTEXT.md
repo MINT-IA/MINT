@@ -2,6 +2,8 @@
 description: Phase mint-data-architecture-v1-02-event-log-projection — migrate user-facts storage from `SnapshotModel` (cached projection keyed on inputs_hash) to event-log (`fact_event` append-only) + projection (`fact_current` denormalised) + DEK envelope per-user (Railway-native KMS), extend `projection_audit_record` for D-MOB-03 mobile L1 sessions (anonymous-session buffer-and-link), wire DEK before first INSERT, big-bang 5-PR cut-over pre-launch with strict Postgres test harness. Locks 33 decisions across 4 areas: (1) 7 panel-debated Qs on latency / KMS / DEK / audit policy / migration / CI / retention ; (2) S12 consolidation + D-MOB design completion + 4 Phase 01 carry-over gaps ; (3) 4-plan wave structure (W0/W1/W2-W3/W4), app-side projector with `session.begin()`, W0 prereq bundle ; (4) `fact_event` schema concretes (typed `value_enc` JSONB + idempotency UNIQUE constraint + partition declaration in p98 + full `EnhancedConfidence` 4-axis), anonymous-session buffer mechanics (mobile SQLite, 30d TTL, UUID v7), D-12 parity-lint SOFT→HARD atomic with PR-3 read cut-over, 5-gate exit checklist with 6 new observability counters.
 ---
 
+> **Statut : CLOS 2026-07-29** — clos sur receipt SUMMARY « substrate-complete-on-dev » : le substrat event-log est sur dev ; la suite vit dans les campagnes dev (étalon fiscal #1060-#1100) et Journey OS. Réconciliation plans 2026-07-29.
+
 # Phase mint-data-architecture-v1-02-event-log-projection — Context
 
 **Gathered:** 2026-05-18

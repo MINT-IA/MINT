@@ -260,19 +260,60 @@ class TestHousingSaleRemploi:
         assert result.remploi_report == result.impot_plus_value
         assert result.impot_effectif == 0.0
 
-    def test_partial_remploi(self, service):
-        """Partial remploi: replacement price < sale price -> proportional deferral."""
+    def test_remploi_sous_couts_investissement_aucun_report(self, service):
+        """Remploi <= couts d'investissement : AUCUN report (methode absolue).
+
+        ATF 130 II 202 : le report ne porte que sur la part du
+        reinvestissement qui EXCEDE les couts d'investissement du bien
+        vendu. Achat 500k, vente 1M, remploi 500k : le reinvestissement ne
+        fait que re-employer le capital initial, le gain de 500k est
+        entierement realise -> report zero. L'ancienne methode
+        proportionnelle (ce test assertait « ratio 0.50 -> report 50k »)
+        gravait la methode ecartee par le Tribunal federal — ADR
+        2026-07-28-remplacements.
+        """
         inp = HousingSaleInput(
             prix_achat=500_000, prix_vente=1_000_000,
             annee_achat=2018, annee_vente=2025, canton="VD",
             projet_remploi=True, prix_remploi=500_000,
         )
         result = service.calculate(inp)
-        # Tax on 500k gain at 20% = 100k
-        # Ratio = 500k / 1M = 0.50 -> report = 50k
+        assert result.remploi_report == 0.0
+        assert result.impot_effectif == result.impot_plus_value
+
+    def test_remploi_partiel_methode_absolue(self, service):
+        """Remploi partiel : report sur la seule part au-dela des couts.
+
+        Achat 500k, vente 1M (gain 500k), remploi 750k : gain reinvesti =
+        750k - 500k = 250k -> la moitie de l'impot est reportee.
+        """
+        inp = HousingSaleInput(
+            prix_achat=500_000, prix_vente=1_000_000,
+            annee_achat=2018, annee_vente=2025, canton="VD",
+            projet_remploi=True, prix_remploi=750_000,
+        )
+        result = service.calculate(inp)
         expected_report = round(result.impot_plus_value * 0.50, 2)
         assert result.remploi_report == expected_report
-        assert result.impot_effectif == round(result.impot_plus_value - expected_report, 2)
+        assert result.impot_effectif == round(
+            result.impot_plus_value - expected_report, 2
+        )
+
+    def test_remploi_residence_secondaire_aucun_report(self, service):
+        """Le report de remploi est reserve a la residence principale.
+
+        LHID art. 12 al. 3 let. e : habitation ayant durablement servi au
+        propre usage. Le champ residence_principale existait mais n'etait
+        jamais teste par _compute_remploi.
+        """
+        inp = HousingSaleInput(
+            prix_achat=500_000, prix_vente=1_000_000,
+            annee_achat=2018, annee_vente=2025, canton="VD",
+            residence_principale=False,
+            projet_remploi=True, prix_remploi=1_000_000,
+        )
+        result = service.calculate(inp)
+        assert result.remploi_report == 0.0
 
     def test_remploi_with_zero_tax(self, service):
         """Remploi with zero tax (no gain): no deferral needed."""

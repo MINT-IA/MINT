@@ -78,24 +78,22 @@ class DivorceSimulator:
     Compliance: NEVER use "garanti", "assure", "certain".
     """
 
-    # Simplified marginal tax rates by canton (combined: federal + cantonal + communal)
-    # These are approximate effective rates for estimation purposes only
-    CANTON_TAX_RATES = {
-        "GE": {"married_rate": 0.30, "single_rate": 0.33, "single_child_rate": 0.28},
-        "VD": {"married_rate": 0.32, "single_rate": 0.35, "single_child_rate": 0.30},
-        "ZH": {"married_rate": 0.25, "single_rate": 0.28, "single_child_rate": 0.23},
-        "BE": {"married_rate": 0.30, "single_rate": 0.33, "single_child_rate": 0.28},
-        "BS": {"married_rate": 0.31, "single_rate": 0.34, "single_child_rate": 0.29},
-        "LU": {"married_rate": 0.24, "single_rate": 0.27, "single_child_rate": 0.22},
-        "TI": {"married_rate": 0.29, "single_rate": 0.32, "single_child_rate": 0.27},
-        "SG": {"married_rate": 0.27, "single_rate": 0.30, "single_child_rate": 0.25},
-        "AG": {"married_rate": 0.26, "single_rate": 0.29, "single_child_rate": 0.24},
-        "VS": {"married_rate": 0.28, "single_rate": 0.31, "single_child_rate": 0.26},
-        "FR": {"married_rate": 0.29, "single_rate": 0.32, "single_child_rate": 0.27},
-        "NE": {"married_rate": 0.32, "single_rate": 0.35, "single_child_rate": 0.30},
-    }
+    # La table `CANTON_TAX_RATES` (12/26 cantons, taux plats x revenu brut,
+    # fallback `DEFAULT_TAX_RATES` silencieux) a ete SUPPRIMEE le 2026-07-27.
+    # Ne pas la reintroduire : l'impot sur le revenu DERIVE du modele
+    # calibre (`fiscal.cantonal_comparator.estimate_income_tax`) — la table
+    # surestimait l'impot commun VS a 180k de ~10'000 CHF (50'400 contre
+    # 40'752 a l'etalon). Hand-off 2026-07-27 §3.4 : « fusionner, pas
+    # retirer ».
 
-    DEFAULT_TAX_RATES = {"married_rate": 0.28, "single_rate": 0.31, "single_child_rate": 0.26}
+    # Conversion brut -> imposable : MEME simplification documentee que
+    # CantonalComparator.estimate_tax (« imposable ~ 85 % du brut »). Le
+    # flux mobile envoie salaireBrutMensuel x 12
+    # (divorce_simulator_screen.dart:156) ; servir le brut a un modele
+    # calibre sur le revenu imposable surestimait l'impot et le delta
+    # (revue Codex P1 2026-07-27). Pas une nouvelle constante : la
+    # convention vit dans l'etalon.
+    TAUX_IMPOSABLE_DU_BRUT = 0.85
 
     # Pension alimentaire: simplified "method du minimum vital"
     # Rough estimate: ~1/3 of income gap for children, 10-20% for spouse (short marriages get less)
@@ -358,16 +356,19 @@ class DivorceSimulator:
         Returns:
             dict with impot_commun estimate
         """
-        rates = self.CANTON_TAX_RATES.get(data.canton, self.DEFAULT_TAX_RATES)
-        revenu_total = data.revenu_annuel_conjoint_1 + data.revenu_annuel_conjoint_2
+        from app.services.fiscal.cantonal_comparator import estimate_income_tax
 
-        # Simplified: apply married rate to combined income
-        impot_commun = revenu_total * rates["married_rate"]
+        revenu_total = data.revenu_annuel_conjoint_1 + data.revenu_annuel_conjoint_2
+        imposable = revenu_total * self.TAUX_IMPOSABLE_DU_BRUT
+
+        # Etalon : IFD progressif + interpolation ESTV, bareme marie.
+        impot_commun = estimate_income_tax(imposable, data.canton, is_married=True)
+        taux_effectif = round(impot_commun / imposable, 4) if imposable > 0 else 0.0
 
         return {
-            "revenu_impose_commun": round(revenu_total, 2),
+            "revenu_impose_commun": round(imposable, 2),
             "impot_commun": round(impot_commun, 2),
-            "taux_applique": rates["married_rate"],
+            "taux_applique": taux_effectif,
             "source": "LIFD art. 36",
         }
 
@@ -384,46 +385,56 @@ class DivorceSimulator:
         Returns:
             dict with impot_conjoint_1, impot_conjoint_2, delta_total
         """
-        rates = self.CANTON_TAX_RATES.get(data.canton, self.DEFAULT_TAX_RATES)
+        from app.services.fiscal.cantonal_comparator import estimate_income_tax
 
         # Determine who has higher income (used for pension alimentaire direction)
         pension_est = self._estimate_pension_alimentaire(data)
 
-        # Determine rates (single with children gets reduced rate)
-        # Simplified assumption: if children, the lower-income parent gets custody
+        # Bareme parental : le parent gardien (hypothese simplifiee : le
+        # revenu le plus bas) est impose au bareme MARIE — proxy du bareme
+        # parental de LIFD art. 36 al. 2bis. L'autre reste au bareme
+        # celibataire. L'ancienne table encodait ce relief en taux plat
+        # (single_child_rate) ; l'etalon n'a pas de mode monoparental
+        # dedie, le proxy marie est documente et teste.
         has_children = data.nombre_enfants > 0
 
         if has_children:
-            # Lower income conjoint gets child rate, higher income stays single
             if data.revenu_annuel_conjoint_1 <= data.revenu_annuel_conjoint_2:
-                rate_1 = rates["single_child_rate"]
-                rate_2 = rates["single_rate"]
+                married_1, married_2 = True, False
             else:
-                rate_1 = rates["single_rate"]
-                rate_2 = rates["single_child_rate"]
+                married_1, married_2 = False, True
         else:
-            rate_1 = rates["single_rate"]
-            rate_2 = rates["single_rate"]
+            married_1, married_2 = False, False
 
-        # Tax on individual income
-        # Pension alimentaire: payer deducts, receiver adds
+        # Base imposable (~85 % du brut, convention de l'etalon), puis
+        # pension alimentaire : deduite EN PLEIN du revenu imposable du
+        # debiteur (LIFD art. 33), ajoutee en plein chez le creancier
+        # (LIFD art. 23).
+        imposable_1 = data.revenu_annuel_conjoint_1 * self.TAUX_IMPOSABLE_DU_BRUT
+        imposable_2 = data.revenu_annuel_conjoint_2 * self.TAUX_IMPOSABLE_DU_BRUT
+
         if data.revenu_annuel_conjoint_1 > data.revenu_annuel_conjoint_2:
-            revenu_1_apres = data.revenu_annuel_conjoint_1 - pension_est
-            revenu_2_apres = data.revenu_annuel_conjoint_2 + pension_est
+            imposable_1_apres = imposable_1 - pension_est
+            imposable_2_apres = imposable_2 + pension_est
         elif data.revenu_annuel_conjoint_2 > data.revenu_annuel_conjoint_1:
-            revenu_1_apres = data.revenu_annuel_conjoint_1 + pension_est
-            revenu_2_apres = data.revenu_annuel_conjoint_2 - pension_est
+            imposable_1_apres = imposable_1 + pension_est
+            imposable_2_apres = imposable_2 - pension_est
         else:
-            revenu_1_apres = data.revenu_annuel_conjoint_1
-            revenu_2_apres = data.revenu_annuel_conjoint_2
+            imposable_1_apres = imposable_1
+            imposable_2_apres = imposable_2
 
-        impot_1 = max(0.0, revenu_1_apres) * rate_1
-        impot_2 = max(0.0, revenu_2_apres) * rate_2
+        impot_1 = estimate_income_tax(
+            max(0.0, imposable_1_apres), data.canton, is_married=married_1
+        )
+        impot_2 = estimate_income_tax(
+            max(0.0, imposable_2_apres), data.canton, is_married=married_2
+        )
         impot_total_apres = impot_1 + impot_2
 
-        impot_avant = (
-            (data.revenu_annuel_conjoint_1 + data.revenu_annuel_conjoint_2)
-            * rates["married_rate"]
+        impot_avant = estimate_income_tax(
+            imposable_1 + imposable_2,
+            data.canton,
+            is_married=True,
         )
         delta = impot_total_apres - impot_avant
 

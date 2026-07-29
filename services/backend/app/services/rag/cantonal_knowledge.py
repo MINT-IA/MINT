@@ -41,13 +41,15 @@ SOURCES = [
 # Tax specifics by canton
 # ---------------------------------------------------------------------------
 
-# Combined cantonal+communal marginal rate (approximate, main city, 2025)
-# Rates are effective marginal rates for a single person earning 100k CHF
+# NOTE: no `marginal_rate_pct` field here on purpose. A marginal rate depends on
+# income, so no per-canton scalar is correct — deriving one contradicts the
+# on-screen figure. Any marginal rate must come from the fiscal étalon
+# (fiscal.cantonal_comparator.estimate_marginal_rate). `rank_income_tax` below is
+# an ordinal AFC ranking (1 = lowest burden), not a rate.
 _TAX_SPECIFICS: dict[str, dict] = {
     "ZH": {
         "canton": "ZH",
         "name": "Zurich",
-        "marginal_rate_pct": 32.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.5,
         "inheritance_tax_direct_heirs": False,
@@ -59,7 +61,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "BE": {
         "canton": "BE",
         "name": "Berne",
-        "marginal_rate_pct": 41.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 4.5,
         "inheritance_tax_direct_heirs": False,
@@ -71,7 +72,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "VD": {
         "canton": "VD",
         "name": "Vaud",
-        "marginal_rate_pct": 41.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 3.5,
         "inheritance_tax_direct_heirs": False,
@@ -83,7 +83,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "GE": {
         "canton": "GE",
         "name": "Genève",
-        "marginal_rate_pct": 44.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 4.5,
         "inheritance_tax_direct_heirs": False,
@@ -95,7 +94,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "VS": {
         "canton": "VS",
         "name": "Valais",
-        "marginal_rate_pct": 36.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.5,
         "inheritance_tax_direct_heirs": False,
@@ -107,7 +105,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "TI": {
         "canton": "TI",
         "name": "Tessin",
-        "marginal_rate_pct": 33.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.0,
         "inheritance_tax_direct_heirs": False,
@@ -119,7 +116,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "ZG": {
         "canton": "ZG",
         "name": "Zoug",
-        "marginal_rate_pct": 22.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 0.75,
         "inheritance_tax_direct_heirs": False,
@@ -131,7 +127,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "BS": {
         "canton": "BS",
         "name": "Bâle-Ville",
-        "marginal_rate_pct": 36.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 3.5,
         "inheritance_tax_direct_heirs": False,
@@ -143,7 +138,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "LU": {
         "canton": "LU",
         "name": "Lucerne",
-        "marginal_rate_pct": 31.5,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.0,
         "inheritance_tax_direct_heirs": False,
@@ -155,7 +149,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "AG": {
         "canton": "AG",
         "name": "Argovie",
-        "marginal_rate_pct": 35.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.5,
         "inheritance_tax_direct_heirs": False,
@@ -167,7 +160,6 @@ _TAX_SPECIFICS: dict[str, dict] = {
     "SG": {
         "canton": "SG",
         "name": "Saint-Gall",
-        "marginal_rate_pct": 33.0,
         "capital_gains_tax": False,
         "wealth_tax_rate_permille": 2.0,
         "inheritance_tax_direct_heirs": False,
@@ -224,117 +216,145 @@ _PENSION_FUNDS: dict[str, list[str]] = {
 # ---------------------------------------------------------------------------
 # Housing market by canton
 # ---------------------------------------------------------------------------
+#
+# PROVENANCE & MILLÉSIME. Ces valeurs sont des ORDRES DE GRANDEUR éducatifs, PAS
+# des chiffres primaires cités : elles ne doivent jamais être présentées comme
+# exactes ni alimenter un calcul. Elles servent uniquement de contexte
+# qualitatif au coach (cf. guardrails.build_system_prompt, qui n'injecte que le
+# loyer médian, le prix au m² et la pression, tous encadrés par DISCLAIMER
+# « Données cantonales approximatives »).
+#
+# Source par famille de champ :
+#   - median_rent_4pce_chf        : ordre de grandeur ~2024, proche des loyers
+#     affichés (offre). Ce n'est PAS le loyer moyen du parc publié par l'OFS
+#     (Relevé structurel des loyers), qui est sensiblement plus bas. À
+#     revérifier avant tout usage chiffré.  # source à consolider
+#   - median_price_per_sqm_buy_chf : indices de marché privés (Wüest Partner /
+#     RealAdvisor) ~2024. L'OFS ne publie PAS de prix d'achat au m². Ordre de
+#     grandeur.  # source à consolider
+#   - rental_vacancy_rate_pct     : famille OFS « Dénombrement des logements
+#     vacants » (relevé au 1er juin ~2024).  # source à consolider
+#   - market_pressure / comment   : appréciation qualitative éditoriale.
+#
+# Millésime des chiffres : ~2024. Date de collecte d'origine : non tracée
+# (Sprint S67). Contre-vérification 2026-07 (échantillon ZH/GE) : les loyers du
+# dict dépassent le loyer moyen OFS du parc, et le prix au m² provient d'indices
+# de marché, pas de l'OFS — voir triage-tables-annassign.md #10.
+#
+# `avg_mortgage_rate_pct` RETIRÉ : un taux hypothécaire est un taux de marché
+# NATIONAL daté, pas un fait cantonal (il était identique — 1.8 — pour tous les
+# cantons). Aucune constante hypothécaire nationale canonique n'existe pour le
+# remplacer, et le coach ne l'injectait pas.
+
+_HOUSING_SOURCE = (
+    "Estimations éducatives ~2024 (ordres de grandeur, non des chiffres "
+    "primaires cités) : loyers proches de l'offre affichée (et non le loyer "
+    "moyen du parc OFS, plus bas) ; prix d'achat au m² issus d'indices de "
+    "marché privés (Wüest Partner / RealAdvisor), pas de l'OFS ; taux de "
+    "vacance famille OFS « logements vacants ». Millésime ~2024, date de "
+    "collecte non tracée. À revérifier avant tout usage chiffré — cf. "
+    "provenance en tête de module."
+)
 
 _HOUSING_MARKET: dict[str, dict] = {
     "ZH": {
         "canton": "ZH",
         "median_rent_4pce_chf": 2_400,
         "median_price_per_sqm_buy_chf": 12_500,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.8,
         "market_pressure": "très élevé",
         "comment": "Marché zurichois très tendu, surtout ville de Zurich et lac.",
-        "source": "OFS Statistique des loyers 2024, SNB Bulletin 2024",
+        "source": _HOUSING_SOURCE,
     },
     "BE": {
         "canton": "BE",
         "median_rent_4pce_chf": 1_650,
         "median_price_per_sqm_buy_chf": 7_200,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.5,
         "market_pressure": "modéré",
         "comment": "Berne plus abordable que ZH/GE. Disparités ville/campagne.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "VD": {
         "canton": "VD",
         "median_rent_4pce_chf": 2_100,
         "median_price_per_sqm_buy_chf": 10_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.9,
         "market_pressure": "élevé",
         "comment": "Lausanne et Riviera parmi les plus chers de Romandie.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "GE": {
         "canton": "GE",
         "median_rent_4pce_chf": 2_800,
         "median_price_per_sqm_buy_chf": 14_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.4,
         "market_pressure": "extrêmement élevé",
         "comment": "Genève = loyer médian le plus élevé de Suisse. Vacance quasi nulle.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "VS": {
         "canton": "VS",
         "median_rent_4pce_chf": 1_450,
         "median_price_per_sqm_buy_chf": 6_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 2.2,
         "market_pressure": "modéré",
         "comment": "Valais plus abordable, sauf stations ski (Verbier, Crans-Montana).",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "TI": {
         "canton": "TI",
         "median_rent_4pce_chf": 1_600,
         "median_price_per_sqm_buy_chf": 7_500,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.8,
         "market_pressure": "modéré",
         "comment": "Lugano plus tendu que le reste du canton.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "ZG": {
         "canton": "ZG",
         "median_rent_4pce_chf": 2_350,
         "median_price_per_sqm_buy_chf": 13_000,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 0.7,
         "market_pressure": "très élevé",
         "comment": "Zoug parmi les plus chers de Suisse centrale. Attractivité fiscale.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "BS": {
         "canton": "BS",
         "median_rent_4pce_chf": 1_900,
         "median_price_per_sqm_buy_chf": 9_500,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.1,
         "market_pressure": "élevé",
         "comment": "Bâle-Ville dense, pression immobilière forte.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "LU": {
         "canton": "LU",
         "median_rent_4pce_chf": 1_750,
         "median_price_per_sqm_buy_chf": 8_200,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 1.4,
         "market_pressure": "modéré",
         "comment": "Lucerne bien situé, légèrement sous la moyenne nationale.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "AG": {
         "canton": "AG",
         "median_rent_4pce_chf": 1_650,
         "median_price_per_sqm_buy_chf": 7_800,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 2.0,
         "market_pressure": "modéré",
         "comment": "Argovie relativement abordable, notamment hors zones ZH.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
     "SG": {
         "canton": "SG",
         "median_rent_4pce_chf": 1_600,
         "median_price_per_sqm_buy_chf": 7_200,
-        "avg_mortgage_rate_pct": 1.8,
         "rental_vacancy_rate_pct": 2.1,
         "market_pressure": "modéré",
         "comment": "Saint-Gall accessible, surtout hors ville.",
-        "source": "OFS Statistique des loyers 2024",
+        "source": _HOUSING_SOURCE,
     },
 }
 
@@ -393,8 +413,12 @@ class CantonalKnowledge:
 
     @staticmethod
     def lowest_tax_canton() -> str:
-        """Return the canton with the lowest income tax rate."""
-        return min(_TAX_SPECIFICS.items(), key=lambda x: x[1]["marginal_rate_pct"])[0]
+        """Return the canton with the lowest income-tax burden.
+
+        Derived from the ordinal AFC ranking (``rank_income_tax``, 1 = lowest),
+        never from a fabricated per-canton marginal rate.
+        """
+        return min(_TAX_SPECIFICS.items(), key=lambda x: x[1]["rank_income_tax"])[0]
 
     @staticmethod
     def highest_rent_canton() -> str:
@@ -407,7 +431,12 @@ class CantonalKnowledge:
     @staticmethod
     def compare_tax(canton_a: str, canton_b: str) -> Optional[dict]:
         """
-        Compare tax rates between two cantons.
+        Compare the income-tax burden of two cantons, ordinally.
+
+        Uses the AFC ordinal ranking (``rank_income_tax``, 1 = lowest burden),
+        never a per-canton marginal rate: a marginal rate depends on income, so
+        no cantonal scalar is correct. For an actual figure, call the fiscal
+        étalon (``fiscal.cantonal_comparator.estimate_marginal_rate``).
 
         Returns:
             Comparison dict, or None if either canton is missing.
@@ -416,12 +445,12 @@ class CantonalKnowledge:
         b = _TAX_SPECIFICS.get(canton_b.upper())
         if a is None or b is None:
             return None
-        diff = a["marginal_rate_pct"] - b["marginal_rate_pct"]
+        diff = a["rank_income_tax"] - b["rank_income_tax"]
         return {
             "canton_a": canton_a.upper(),
             "canton_b": canton_b.upper(),
-            "rate_a": a["marginal_rate_pct"],
-            "rate_b": b["marginal_rate_pct"],
-            "difference_pct": round(diff, 2),
+            "rank_a": a["rank_income_tax"],
+            "rank_b": b["rank_income_tax"],
+            "rank_difference": diff,
             "cheaper_canton": canton_a.upper() if diff < 0 else canton_b.upper(),
         }

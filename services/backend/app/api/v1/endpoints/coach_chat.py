@@ -186,14 +186,19 @@ class _NoRagOrchestrator:
         cursor_level: Optional[str] = None,
     ) -> dict:
         from app.services.rag.llm_client import LLMClient
-        from app.services.rag.guardrails import ComplianceGuardrails
+        from app.services.rag.guardrails import (
+            ComplianceGuardrails,
+            fiscal_marginal_tool_available,
+        )
 
         llm_client = LLMClient(provider=provider, api_key=api_key, model=model)
         guardrails = ComplianceGuardrails()
 
         if not system_prompt:
             system_prompt = guardrails.build_system_prompt(
-                language, profile_context=profile_context
+                language,
+                profile_context=profile_context,
+                fiscal_tools_available=fiscal_marginal_tool_available(tools),
             )
 
         raw_response = await llm_client.generate(

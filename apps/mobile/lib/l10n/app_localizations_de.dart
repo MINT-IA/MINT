@@ -2825,7 +2825,7 @@ class SDe extends S {
   String get firstJobActivityRate => 'Beschäftigungsgrad';
 
   @override
-  String get firstJob3aHeader => 'SÄULE 3A — JETZT ERÖFFNEN';
+  String get firstJob3aHeader => 'SÄULE 3A — ZU PRÜFEN';
 
   @override
   String get firstJob3aAnnualCap => 'Jährliche Obergrenze';
@@ -4530,7 +4530,7 @@ class SDe extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Todes-/Invaliditätsrisikoversicherung abschliessen';
+      'Deine Absicherung für Todes-/Invaliditätsrisiko prüfen';
 
   @override
   String get naissanceChecklistItem9Desc =>
@@ -7929,7 +7929,7 @@ class SDe extends S {
   String get firstSalaryBefore31Dec => 'Vor 31.12';
 
   @override
-  String get firstSalaryTask1 => 'Ein 3a-Konto eröffnen (Bank oder Fintech)';
+  String get firstSalaryTask1 => '3a-Konten vergleichen (Bank oder Fintech)';
 
   @override
   String get firstSalaryTask2 =>
@@ -11166,7 +11166,7 @@ class SDe extends S {
   String get pillar3aIndepBonASavoir => 'Gut zu wissen';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Mehrere 3a-Konten eröffnen';
+  String get pillar3aIndepEduComptesTitle => 'Mehrere 3a-Konten, gestaffelter Bezug';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -11838,11 +11838,11 @@ class SDe extends S {
   String get retroactive3aProchainesEtapes => 'Nächste Schritte';
 
   @override
-  String get retroactive3aOuvrirCompte => '3a-Konto eröffnen';
+  String get retroactive3aOuvrirCompte => 'Ein dediziertes 3a-Konto erwägen';
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Vergleiche Anbieter und eröffne ein dediziertes Nachholkonto.';
+      'Anbieter vergleichen (Gebühren, Konditionen) hilft; ein dediziertes Konto könnte die Nachverfolgung des Nachholens vereinfachen.';
 
   @override
   String get retroactive3aPrepDocuments => 'Dokumente vorbereiten';
@@ -17501,7 +17501,7 @@ class SDe extends S {
   String get indepPlanLaaConseq => 'Kein Berufsunfall-Schutz';
 
   @override
-  String get indepPlanOuvrir3a => '3a-Konto eröffnen (Abzug bis CHF 36\'288)';
+  String get indepPlanOuvrir3a => '3a-Konten vergleichen (Abzug bis CHF 36\'288)';
 
   @override
   String get indepProtApg => 'Entfällt — Elternurlaub';
