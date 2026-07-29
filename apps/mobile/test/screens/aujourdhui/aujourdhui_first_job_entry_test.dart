@@ -85,6 +85,8 @@ CoachProfile _firstJobProfile() {
     canton: 'ZH',
     salaireBrutMensuel: 6500,
     employmentStatus: 'salarie',
+    // firstJob requires a *provided* age (provenance gate).
+    userProvidedFields: const {'age'},
     goalA: GoalA(
       type: GoalAType.retraite,
       targetDate: DateTime(now.year + 40),

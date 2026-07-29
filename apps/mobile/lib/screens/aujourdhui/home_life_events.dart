@@ -14,27 +14,56 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 
+/// Sentinel civil status / employment that matches no suggestion gate — fed
+/// when the user has NOT provided the fact, so a constructor default never
+/// fabricates a phantom card.
+const _unknownCivilStatus = 'unknown';
+const _unknownEmploymentStatus = 'unknown';
+
 /// Builds the ordered life-event suggestions for /home from [profile].
 ///
-/// The firstJob card gates on `age <= 28` (see [buildLifeEventSuggestions]),
-/// so a 25-year-old salaried profile always yields a `/first-job` entry.
+/// Provenance-gated (CLAUDE.md NEVER #7, "unknown != default"): a suggestion
+/// may only read a fact the user actually provided ([CoachProfile.userProvidedFields]).
+/// Constructor defaults (`celibataire`, 0 children, `salarie`, canton `ZH`) are
+/// NOT declared facts and must not fabricate phantom cards; and a gross salary
+/// is NOT a net income (incomparable units), so income gates stay closed until
+/// the net itself is known. The firstJob card requires only a provided age, so
+/// a 25-year-old profile always yields a `/first-job` entry.
 List<LifeEventSuggestion> homeLifeEventSuggestions(CoachProfile profile, S s) {
+  final provided = profile.userProvidedFields;
+
+  // Age drives most life events (firstJob <= 28, retraite >= 55, succession
+  // >= 50, ...). Without a provided, valid age there is nothing to responsibly
+  // gate -> surface nothing (D4: caller renders no section).
   final age = profile.ageOrNull;
-  // Without a known age we cannot responsibly gate age-driven life events
-  // (firstJob <= 28, succession >= 50, retraite >= 55). Surface nothing
-  // rather than a wrong card — the caller then renders no section (D4).
-  if (age == null) return const [];
+  if (age == null || !provided.contains('age')) return const [];
+
+  // Civil status / employment: real value only when provided; otherwise a
+  // sentinel that fails every civil/employment gate.
+  final civilStatus = provided.contains('civilStatus')
+      ? _civilStatus(profile.etatCivil)
+      : _unknownCivilStatus;
+  final employmentStatus = provided.contains('employmentStatus')
+      ? _employmentStatus(profile.employmentStatus)
+      : _unknownEmploymentStatus;
+
+  // Net income: use the explicit net when known; NEVER substitute the gross
+  // salary (incomparable units). When the net is unknown, pass 0 — every income
+  // gate is a lower bound (>= 5000 / > 6000 / *12 > 100000), so 0 closes them
+  // all while leaving the children-driven branch of the invalidite gate intact.
+  final monthlyNetIncome = profile.explicitMonthlyNetIncome ?? 0.0;
+
+  // Canton drives the high-tax mobility suggestion; gate on its provenance so
+  // the default 'ZH' never fabricates one.
+  final canton = provided.contains('canton') ? profile.canton : '';
+
   return buildLifeEventSuggestions(
     age: age,
-    civilStatus: _civilStatus(profile.etatCivil),
+    civilStatus: civilStatus,
     childrenCount: profile.nombreEnfants,
-    employmentStatus: _employmentStatus(profile.employmentStatus),
-    // Internal gating input only (never rendered): prefer the declared net,
-    // fall back to gross when net is unknown so income-gated suggestions are
-    // not silently suppressed. Not a displayed financial figure.
-    monthlyNetIncome:
-        profile.explicitMonthlyNetIncome ?? profile.salaireBrutMensuel,
-    canton: profile.canton,
+    employmentStatus: employmentStatus,
+    monthlyNetIncome: monthlyNetIncome,
+    canton: canton,
     s: s,
   );
 }
