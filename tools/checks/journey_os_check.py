@@ -849,6 +849,17 @@ ALLOW = {
     "services/backend/tests/test_cantonal_knowledge.py",
     "services/backend/tests/test_rag_s67_wiring.py",
     "services/backend/app/api/v1/endpoints/rag.py",
+    # PR-B MoneyTruthReceipt v1 (tranche firstJob, SPEC TRANCHE-FIRSTJOB §4/§6) :
+    # contrat de vérité chiffrée backend + miroir Dart + fixtures de parité
+    # cross-language (py<->dart). Receipt INTERNE (portage API = PR-E).
+    "services/backend/app/models/lucidity/__init__.py",
+    "services/backend/app/models/lucidity/money_truth_receipt.py",
+    "services/backend/tests/test_money_truth_receipt.py",
+    "services/backend/tests/test_money_truth_receipt_parity.py",
+    "apps/mobile/lib/services/financial_core/money_truth_receipt.dart",
+    "apps/mobile/test/services/financial_core/money_truth_receipt_test.dart",
+    "apps/mobile/test/services/financial_core/money_truth_receipt_parity_test.dart",
+    "tools/fixtures/money_truth_receipt_v1.json",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

@@ -14,6 +14,12 @@ from app.models.lucidity._payload import (
     LucidityLevel,
     LucidityPayload,
 )
+from app.models.lucidity.money_truth_receipt import (
+    FIRST_JOB_NET_SALARY_CLAIM_ID,
+    MoneyTruthRange,
+    MoneyTruthReceipt,
+    MoneyTruthSource,
+)
 
 __all__ = [
     "L1ChiffrePayload",
@@ -22,4 +28,8 @@ __all__ = [
     "L4InvariantPayload",
     "LucidityLevel",
     "LucidityPayload",
+    "FIRST_JOB_NET_SALARY_CLAIM_ID",
+    "MoneyTruthReceipt",
+    "MoneyTruthRange",
+    "MoneyTruthSource",
 ]
