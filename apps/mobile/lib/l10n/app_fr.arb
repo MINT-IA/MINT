@@ -13260,5 +13260,57 @@
         "type": "String"
       }
     }
+  },
+  "firstJobLuciditeNetValue": "Net estimé {value} par mois",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Fourchette : {low} à {high} selon la classe de risque AANP",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · barèmes {year}",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "Pourquoi ce chiffre ?",
+  "firstJobLuciditeAssumptionsLabel": "Hypothèses de calcul",
+  "firstJobLuciditeAssumptionAanp": "Cotisation AANP entre 1,0 % et 1,5 % selon la classe de risque de l'employeur (défaut 1,3 %)",
+  "firstJobLuciditeAssumptionTaux": "Taux d'activité supposé : {taux} %, modifiable",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Impôt à la source non appliqué (résident·e imposé·e ordinairement)",
+  "firstJobLuciditeAssumptionPeriode": "Net mensuel, hors 13e salaire et hors bonus",
+  "firstJobLuciditeSourcesLabel": "Sources et millésimes",
+  "firstJobLuciditeEngineLabel": "Moteur de calcul : {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   }
 }

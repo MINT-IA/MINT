@@ -11721,5 +11721,57 @@
         "type": "String"
       }
     }
+  },
+  "firstJobLuciditeNetValue": "Netto geschätzt auf {value} pro Monat",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Spanne: {low} bis {high} je nach AANP-Risikoklasse",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · Ansätze {year}",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "Warum diese Zahl?",
+  "firstJobLuciditeAssumptionsLabel": "Berechnungsannahmen",
+  "firstJobLuciditeAssumptionAanp": "AANP-Beitrag zwischen 1,0 % und 1,5 % je nach Risikoklasse des Arbeitgebers (Standard 1,3 %)",
+  "firstJobLuciditeAssumptionTaux": "Angenommener Beschäftigungsgrad: {taux} %, anpassbar",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Quellensteuer nicht angewendet (ordentlich besteuerte ansässige Person)",
+  "firstJobLuciditeAssumptionPeriode": "Monatliches Netto, ohne 13. Monatslohn und Bonus",
+  "firstJobLuciditeSourcesLabel": "Quellen und Jahrgänge",
+  "firstJobLuciditeEngineLabel": "Berechnungs-Engine: {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   }
 }

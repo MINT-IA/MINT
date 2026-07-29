@@ -11724,5 +11724,57 @@
         "type": "String"
       }
     }
+  },
+  "firstJobLuciditeNetValue": "Netto stimato a {value} al mese",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Forbice: da {low} a {high} secondo la classe di rischio AANP",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · tariffe {year}",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "Perché questa cifra?",
+  "firstJobLuciditeAssumptionsLabel": "Ipotesi di calcolo",
+  "firstJobLuciditeAssumptionAanp": "Contributo AANP tra 1,0 % e 1,5 % secondo la classe di rischio del datore di lavoro (predefinito 1,3 %)",
+  "firstJobLuciditeAssumptionTaux": "Tasso di attività ipotizzato: {taux} %, modificabile",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Imposta alla fonte non applicata (residente con tassazione ordinaria)",
+  "firstJobLuciditeAssumptionPeriode": "Netto mensile, escluse la 13a e i bonus",
+  "firstJobLuciditeSourcesLabel": "Fonti e annate",
+  "firstJobLuciditeEngineLabel": "Motore di calcolo: {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   }
 }

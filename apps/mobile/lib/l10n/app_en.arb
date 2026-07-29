@@ -11741,5 +11741,57 @@
         "type": "String"
       }
     }
+  },
+  "firstJobLuciditeNetValue": "Net estimated at {value} per month",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Range: {low} to {high} depending on the AANP risk class",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · {year} rates",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "Why this figure?",
+  "firstJobLuciditeAssumptionsLabel": "Calculation assumptions",
+  "firstJobLuciditeAssumptionAanp": "AANP contribution between 1.0% and 1.5% depending on the employer's risk class (default 1.3%)",
+  "firstJobLuciditeAssumptionTaux": "Assumed activity rate: {taux}%, editable",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Withholding tax not applied (resident taxed under the ordinary regime)",
+  "firstJobLuciditeAssumptionPeriode": "Monthly net, excluding 13th salary and bonuses",
+  "firstJobLuciditeSourcesLabel": "Sources and vintages",
+  "firstJobLuciditeEngineLabel": "Calculation engine: {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   }
 }

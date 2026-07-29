@@ -24854,4 +24854,50 @@ class SEs extends S {
   String donationPlageJusqua(String pct) {
     return 'hasta ~$pct % (baremo cantonal, sin recargos municipales)';
   }
+
+  @override
+  String firstJobLuciditeNetValue(String value) {
+    return 'Neto estimado en $value al mes';
+  }
+
+  @override
+  String firstJobLuciditeNetRange(String low, String high) {
+    return 'Horquilla: de $low a $high según la clase de riesgo AANP';
+  }
+
+  @override
+  String firstJobLuciditeVintage(String sources, String year) {
+    return '$sources · baremos $year';
+  }
+
+  @override
+  String get firstJobLuciditeWhyTitle => '¿Por qué esta cifra?';
+
+  @override
+  String get firstJobLuciditeAssumptionsLabel => 'Supuestos de cálculo';
+
+  @override
+  String get firstJobLuciditeAssumptionAanp =>
+      'Cotización AANP entre 1,0 % y 1,5 % según la clase de riesgo del empleador (por defecto 1,3 %)';
+
+  @override
+  String firstJobLuciditeAssumptionTaux(String taux) {
+    return 'Tasa de actividad supuesta: $taux %, modificable';
+  }
+
+  @override
+  String get firstJobLuciditeAssumptionImpotSource =>
+      'Impuesto en la fuente no aplicado (residente con tributación ordinaria)';
+
+  @override
+  String get firstJobLuciditeAssumptionPeriode =>
+      'Neto mensual, sin 13.ª paga ni bonificaciones';
+
+  @override
+  String get firstJobLuciditeSourcesLabel => 'Fuentes y años';
+
+  @override
+  String firstJobLuciditeEngineLabel(String version) {
+    return 'Motor de cálculo: $version';
+  }
 }

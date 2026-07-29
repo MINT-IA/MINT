@@ -12,6 +12,11 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/services/financial_core/money_truth_receipt.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart'
+    show EnhancedConfidence;
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart'
+    show MintTrameConfiance, BloomStrategy;
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
@@ -52,6 +57,15 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   String _canton = 'ZH';
   double _tauxActivite = 100;
   FirstJobResult? _result;
+
+  // PR-C — appareil de lucidité sur la sortie chiffrée. Le receipt (PR-B)
+  // enveloppe le net L1 avec sa provenance (bande d'incertitude, confiance,
+  // sources datées). Émis symétriquement à `_result` : présent seulement quand
+  // le gate est complet, nul sinon (aucune provenance sur un chiffre gaté).
+  MoneyTruthReceipt? _receipt;
+
+  // Disclosure « pourquoi ce chiffre » : replié par défaut (détail progressif).
+  bool _whyNetExpanded = false;
 
   // ── P2 « gate dur » : provenance par fait, ré-évaluée à chaque notify ──
   // Un fait de SITUATION n'est CONFIRMÉ que s'il vient des données réelles :
@@ -348,12 +362,26 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   /// Sinon aucun chiffre : le slot résultat affiche la carte de situation à la
   /// place. Un résultat n'existe donc jamais sur un défaut fabriqué.
   void _computeResult() {
-    _result = _situationGate(context).complete
+    final complete = _situationGate(context).complete;
+    _result = complete
         ? FirstJobService.analyzeSalary(
             salaireBrutMensuel: _salaire,
             age: _age,
             canton: _canton,
             tauxActivite: _tauxActivite,
+          )
+        : null;
+    // Receipt émis dans les MÊMES conditions que `_result` : jamais de
+    // provenance sur un chiffre gaté. `etatCivil` vient du profil réel (défaut
+    // célibataire si absent — le gate peut se compléter par TOUCHE sans profil,
+    // `first_job_gate_test`), n'affecte pas le net mais garde le receipt fidèle.
+    _receipt = complete
+        ? FirstJobService.buildNetSalaryReceipt(
+            salaireBrutMensuel: _salaire,
+            age: _age,
+            canton: _canton,
+            tauxActivite: _tauxActivite,
+            etatCivil: _profileProvider?.profile?.etatCivil.name ?? 'celibataire',
           )
         : null;
   }
@@ -469,6 +497,12 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                             if (_result != null &&
                                 _situationGate(context).complete) ...[
                               _buildPremierEclairage(),
+                              const SizedBox(height: MintSpacing.md),
+                              // PR-C — appareil de lucidité sur le NET : ancre du
+                              // net + bande d'incertitude + confiance + millésime
+                              // + « pourquoi ce chiffre ». Rendu sous le MÊME gate
+                              // que le résultat : jamais de net sans l'appareil.
+                              _buildLuciditeAppareil(),
                               const SizedBox(height: MintSpacing.lg),
                               // Tranche firstJob PR-E (E2) — handoff coach : le
                               // CTA émet le MoneyTruthReceipt du net (MÊME
@@ -832,10 +866,18 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            FirstJobService.formatChf(r.cotisationsEmployeur),
-            style: MintTextStyles.displayMedium(color: MintColors.white)
-                .copyWith(fontWeight: FontWeight.w700),
+          // Premier chiffre (coût employeur invisible). `id` = ancre du flow
+          // d'acceptation (§3 : temps/taps jusqu'au premier chiffre). MergeSemantics
+          // pour que l'identifiant et la valeur ne forment qu'UN nœud a11y.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-premier-eclairage-value',
+              child: Text(
+                FirstJobService.formatChf(r.cotisationsEmployeur),
+                style: MintTextStyles.displayMedium(color: MintColors.white)
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -913,6 +955,189 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       },
     );
     context.go(uri.toString());
+  }
+
+  // ── PR-C : appareil de lucidité sur le net ──────────────────
+
+  void _toggleWhyNet() {
+    setState(() => _whyNetExpanded = !_whyNetExpanded);
+  }
+
+  /// Appareil complet (D10) sur la sortie chiffrée : ancre du net (que le
+  /// receipt POSSÈDE, pas un recalcul), bande d'incertitude, confiance réutilisée
+  /// (`MintTrameConfiance`, aucun nouveau scorer — NEVER #3), millésime visible
+  /// (D11) et « pourquoi ce chiffre ». Rendu sous le même gate que `_result`.
+  Widget _buildLuciditeAppareil() {
+    final receipt = _receipt!;
+    final l = S.of(context)!;
+    final net = FirstJobService.formatChf(receipt.value);
+    final range = receipt.range!;
+    final low = FirstJobService.formatChf(range.low);
+    final high = FirstJobService.formatChf(range.high);
+    final sources =
+        receipt.sources.map((s) => s.id.toUpperCase()).join(' · ');
+    final year = receipt.taxYear.toString();
+
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Ancre du net : l'appareil porte la valeur nette (== _result!.netEstime
+          // == receipt.value), pas un second net divergent.
+          Text(
+            l.firstJobLuciditeNetValue(net),
+            style: MintTextStyles.titleMedium(color: MintColors.primary)
+                .copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          // Bande d'incertitude (sobre) : bornes = net recalculé avec l'AANP
+          // basse/haute (classe de risque 1,0-1,5 %).
+          Text(
+            l.firstJobLuciditeNetRange(low, high),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondaryAaa),
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          // Confiance : infra existante EnhancedConfidence rendue par
+          // MintTrameConfiance (NEVER #3 : aucun nouveau scorer), peuplée depuis
+          // le receipt (forme fil identique). MergeSemantics : identifiant +
+          // libellé sur UN seul nœud a11y.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-confidence-chip',
+              child: MintTrameConfiance.inline(
+                confidence:
+                    EnhancedConfidence.fromJson(receipt.confidence!.toJson()),
+                bloomStrategy: BloomStrategy.firstAppearance,
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          // Millésime + sources visibles près du chiffre (D11), légende sobre.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-source-vintage',
+              child: Row(
+                children: [
+                  const Icon(Icons.verified_outlined,
+                      size: 14, color: MintColors.textSecondaryAaa),
+                  const SizedBox(width: MintSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      l.firstJobLuciditeVintage(sources, year),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondaryAaa),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          _buildWhyNetDisclosure(receipt),
+        ],
+      ),
+    );
+  }
+
+  /// « Pourquoi ce chiffre » : disclosure repliable listant les hypothèses, les
+  /// sources datées et la version du moteur du receipt. En-tête bouton exposant
+  /// son état déplié (a11y) ; corps retiré de l'arbre quand replié.
+  Widget _buildWhyNetDisclosure(MoneyTruthReceipt receipt) {
+    final l = S.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MergeSemantics(
+          child: Semantics(
+            identifier: 'firstjob-why-net',
+            button: true,
+            expanded: _whyNetExpanded,
+            child: InkWell(
+              onTap: _toggleWhyNet,
+              borderRadius: BorderRadius.circular(12),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l.firstJobLuciditeWhyTitle,
+                        style:
+                            MintTextStyles.labelMedium(color: MintColors.primary)
+                                .copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    Icon(
+                      _whyNetExpanded ? Icons.expand_less : Icons.expand_more,
+                      size: 20,
+                      color: MintColors.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (_whyNetExpanded) ...[
+          const SizedBox(height: MintSpacing.sm),
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-why-net-body',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.firstJobLuciditeAssumptionsLabel,
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textPrimary),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionAanp),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionTaux(
+                      _tauxActivite.toStringAsFixed(0))),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionImpotSource),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionPeriode),
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    l.firstJobLuciditeSourcesLabel,
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textPrimary),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  // Sources datées du receipt : chaque source porte son millésime
+                  // (les libellés sont des références légales, non traduisibles —
+                  // rendues comme donnée, motif `PayslipLine.legalRef`).
+                  for (final s in receipt.sources)
+                    _luciditeBullet('${s.label} · ${s.vintage}'),
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    l.firstJobLuciditeEngineLabel(receipt.engineVersion),
+                    style: MintTextStyles.labelSmall(
+                        color: MintColors.textSecondaryAaa),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _luciditeBullet(String text) {
+    final style = MintTextStyles.bodySmall(color: MintColors.textSecondaryAaa);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('•  ', style: style),
+          Expanded(child: Text(text, style: style)),
+        ],
+      ),
+    );
   }
 
   // ── 3a Recommendation ──────────────────────────────────────
