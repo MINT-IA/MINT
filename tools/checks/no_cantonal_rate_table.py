@@ -62,8 +62,6 @@ ALLOWED = {
     "services/backend/app/services/coaching_engine.py::CANTON_TAX_DEADLINES",
     # DETTE HÉRITÉE — à résorber, chacune retirée de cette liste par la PR qui
     # la supprime ou la recalibre. Ne rien ajouter ici.
-    "services/backend/app/services/coaching_engine.py::CANTON_MARGINAL_TAX_RATES",
-    "services/backend/app/services/lpp_deep/rachat_echelonne_service.py::TAUX_MARGINAUX_PAR_CANTON",
     "services/backend/app/services/fiscal/church_tax_service.py::CHURCH_TAX_RATES",
     "services/backend/app/services/fiscal/wealth_tax_service.py::EFFECTIVE_WEALTH_TAX_RATES_500K",
     "services/backend/app/services/fiscal/wealth_tax_service.py::WEALTH_TAX_EXEMPTIONS",
@@ -71,11 +69,19 @@ ALLOWED = {
     "services/backend/app/services/expat/expat_service.py::TAUX_IMPOSITION_CAPITAL_PREVOYANCE",
     "services/backend/app/services/expat/expat_service.py::FORFAIT_FISCAL_BASE_CANTONALE",
     "services/backend/app/services/expat/expat_service.py::FORFAIT_TAUX_ESTIMES",
-    "services/backend/app/services/first_job/onboarding_service.py::CANTONAL_TAX_RATE_ESTIMATES",
     "services/backend/app/services/mortgage/imputed_rental_service.py::TAUX_VALEUR_LOCATIVE",
-    "services/backend/app/services/onboarding/minimal_profile_service.py::effective_rates_100k",
     "services/backend/app/services/succession_simulator.py::CANTON_SUCCESSION_TAX",
-    "services/backend/app/services/divorce_simulator.py::CANTON_TAX_RATES",
+    # RÉVÉLÉES par l'extension AnnAssign du 2026-07-28 (les tables ANNOTÉES
+    # échappaient au visiteur) — DETTE HÉRITÉE gelée, à trier une à une :
+    # les 3 premières meurent déjà dans des PR ouvertes (#1087, #1072, P5).
+    "services/backend/app/services/donation_service.py::TAUX_DONATION_CANTONAL",
+    "services/backend/app/services/housing_sale_service.py::TAUX_PLUS_VALUE_IMMOBILIERE",
+    "services/backend/app/constants/social_insurance.py::MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON",
+    "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_ENFANT_PAR_CANTON",
+    "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_FORMATION_PAR_CANTON",
+    "services/backend/app/services/fiscal/commune_service.py::COMMUNE_DATA",
+    "services/backend/app/services/rag/cantonal_knowledge.py::_TAX_SPECIFICS",
+    "services/backend/app/services/rag/cantonal_knowledge.py::_HOUSING_MARKET",
 }
 
 
@@ -94,6 +100,24 @@ def _is_numeric_payload(node: ast.AST) -> bool:
     return False
 
 
+def _assigned_dict(node):
+    """(nom, ast.Dict) si le nœud affecte un dict littéral à un nom.
+
+    Couvre ast.Assign ET ast.AnnAssign : les tables ANNOTÉES
+    (`X: Dict[...] = {...}`) échappaient au garde — c'est ainsi que
+    `TAUX_DONATION_CANTONAL` et `_MARGINAL_RATES_BY_CANTON` vivaient
+    incognito (découverte revue adversariale 2026-07-28).
+    """
+    if isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict):
+        target = node.targets[0]
+        name = target.id if isinstance(target, ast.Name) else "<?>"
+        return name, node.value
+    if isinstance(node, ast.AnnAssign) and isinstance(node.value, ast.Dict):
+        name = node.target.id if isinstance(node.target, ast.Name) else "<?>"
+        return name, node.value
+    return None
+
+
 def find_tables(root: Path) -> list[tuple[str, int, str]]:
     """(chemin relatif, ligne, nom) de chaque table canton -> nombre."""
     out: list[tuple[str, int, str]] = []
@@ -104,21 +128,21 @@ def find_tables(root: Path) -> list[tuple[str, int, str]]:
             continue
         rel = path.relative_to(ROOT).as_posix()
         for node in ast.walk(tree):
-            if not isinstance(node, ast.Assign) or not isinstance(node.value, ast.Dict):
+            assigned = _assigned_dict(node)
+            if assigned is None:
                 continue
+            name, dict_node = assigned
             keys = [
                 k.value
-                for k in node.value.keys
+                for k in dict_node.keys
                 if isinstance(k, ast.Constant) and isinstance(k.value, str)
             ]
             # ≥ 3 clés, toutes cantonales : en dessous, c'est un cas
             # particulier nommé (« GE a un régime spécial »), pas un barème.
             if len(keys) < 3 or not set(keys) <= CANTONS:
                 continue
-            if not any(_is_numeric_payload(v) for v in node.value.values):
+            if not any(_is_numeric_payload(v) for v in dict_node.values):
                 continue
-            target = node.targets[0]
-            name = target.id if isinstance(target, ast.Name) else "<?>"
             out.append((rel, node.lineno, name))
     return out
 
@@ -130,6 +154,11 @@ def _self_test() -> int:
 
     cases = [
         ("table de taux -> détectée", 'X = {"ZH": 0.30, "GE": 0.41, "VD": 0.39}', True),
+        (
+            "table ANNOTÉE -> détectée (AnnAssign, angle mort 2026-07-28)",
+            'X: dict[str, float] = {"ZH": 0.30, "GE": 0.41, "VD": 0.39}',
+            True,
+        ),
         ("table de noms -> ignorée", 'X = {"ZH": "Zurich", "GE": "Genève", "VD": "Vaud"}', False),
         (
             "taux imbriqués -> détectés",
@@ -157,18 +186,18 @@ def _self_test() -> int:
             tree = ast.parse(f.read_text(encoding="utf-8"))
             found = False
             for node in ast.walk(tree):
-                if not isinstance(node, ast.Assign) or not isinstance(
-                    node.value, ast.Dict
-                ):
+                assigned = _assigned_dict(node)
+                if assigned is None:
                     continue
+                _, dict_node = assigned
                 keys = [
                     k.value
-                    for k in node.value.keys
+                    for k in dict_node.keys
                     if isinstance(k, ast.Constant) and isinstance(k.value, str)
                 ]
                 if len(keys) < 3 or not set(keys) <= CANTONS:
                     continue
-                if any(_is_numeric_payload(v) for v in node.value.values):
+                if any(_is_numeric_payload(v) for v in dict_node.values):
                     found = True
             if found != should_find:
                 print(
