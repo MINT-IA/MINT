@@ -6,7 +6,7 @@ Generated from Journey OS records and issues. Do not edit directly.
 
 | Issue | Severity | Status | Journey | Journey status | Journey priority | Owner | Evidence | Latest proof | Artifact | Next action |
 |---|---|---|---|---|---:|---|---|---|---|---|
-No red, missing, or baselined Journey OS issue is currently queued.
+| JOS-006 | P1 | proof_needed | coach_advice_turn | partial | 27 | mint-quality-gate | green | green / unit / 2026-07-29T05:32:10Z / 1ae9af4f | .planning/journeys/evidence/coach_advice_turn/20260729T053210Z/etalon-fiscal-campagne.md | Après la fusion des 5 vagues de la campagne étalon fiscal (#1063-#1100, plan de fusion #1100), rejouer bash tools/simulator/journey_os_runtime_replay.sh --set top pour re-prouver en runtime que le tour de conseil coach cite les chiffres post-étalon (ESTV v2) avec provenance et sans langage de certitude. |
 
 ## Operating Rule
 
