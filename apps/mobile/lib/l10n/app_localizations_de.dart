@@ -17162,13 +17162,15 @@ class SDe extends S {
   }
 
   @override
-  String get firstJobPayslipAanpExplanation => 'Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.';
+  String get firstJobPayslipAanpExplanation =>
+      'Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.';
 
   @override
   String get firstJobPayslipAanpLabel => 'Nichtberufsunfälle (NBU)';
 
   @override
-  String get firstJobPayslipAcExplanation => 'Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.';
+  String get firstJobPayslipAcExplanation =>
+      'Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.';
 
   @override
   String get firstJobPayslipAcLabel => 'Arbeitslosenversicherung (ALV)';
@@ -24903,5 +24905,51 @@ class SDe extends S {
   @override
   String donationPlageJusqua(String pct) {
     return 'bis ~$pct % (kantonaler Tarif, ohne Gemeindezuschläge)';
+  }
+
+  @override
+  String firstJobLuciditeNetValue(String value) {
+    return 'Netto geschätzt auf $value pro Monat';
+  }
+
+  @override
+  String firstJobLuciditeNetRange(String low, String high) {
+    return 'Spanne: $low bis $high je nach AANP-Risikoklasse';
+  }
+
+  @override
+  String firstJobLuciditeVintage(String sources, String year) {
+    return '$sources · Ansätze $year';
+  }
+
+  @override
+  String get firstJobLuciditeWhyTitle => 'Warum diese Zahl?';
+
+  @override
+  String get firstJobLuciditeAssumptionsLabel => 'Berechnungsannahmen';
+
+  @override
+  String get firstJobLuciditeAssumptionAanp =>
+      'AANP-Beitrag zwischen 1,0 % und 1,5 % je nach Risikoklasse des Arbeitgebers (Standard 1,3 %)';
+
+  @override
+  String firstJobLuciditeAssumptionTaux(String taux) {
+    return 'Angenommener Beschäftigungsgrad: $taux %, anpassbar';
+  }
+
+  @override
+  String get firstJobLuciditeAssumptionImpotSource =>
+      'Quellensteuer nicht angewendet (ordentlich besteuerte ansässige Person)';
+
+  @override
+  String get firstJobLuciditeAssumptionPeriode =>
+      'Monatliches Netto, ohne 13. Monatslohn und Bonus';
+
+  @override
+  String get firstJobLuciditeSourcesLabel => 'Quellen und Jahrgänge';
+
+  @override
+  String firstJobLuciditeEngineLabel(String version) {
+    return 'Berechnungs-Engine: $version';
   }
 }

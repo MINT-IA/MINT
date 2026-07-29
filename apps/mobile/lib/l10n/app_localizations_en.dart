@@ -17037,13 +17037,15 @@ class SEn extends S {
   }
 
   @override
-  String get firstJobPayslipAanpExplanation => 'Insurance for accidents outside work, deducted from your salary.';
+  String get firstJobPayslipAanpExplanation =>
+      'Insurance for accidents outside work, deducted from your salary.';
 
   @override
   String get firstJobPayslipAanpLabel => 'Non-occupational accidents (AANP)';
 
   @override
-  String get firstJobPayslipAcExplanation => 'Contribution to unemployment insurance (LACI). It protects you if you lose your job.';
+  String get firstJobPayslipAcExplanation =>
+      'Contribution to unemployment insurance (LACI). It protects you if you lose your job.';
 
   @override
   String get firstJobPayslipAcLabel => 'Unemployment insurance (AC)';
@@ -24714,5 +24716,51 @@ class SEn extends S {
   @override
   String donationPlageJusqua(String pct) {
     return 'up to ~$pct% (cantonal scale, excluding municipal surcharges)';
+  }
+
+  @override
+  String firstJobLuciditeNetValue(String value) {
+    return 'Net estimated at $value per month';
+  }
+
+  @override
+  String firstJobLuciditeNetRange(String low, String high) {
+    return 'Range: $low to $high depending on the AANP risk class';
+  }
+
+  @override
+  String firstJobLuciditeVintage(String sources, String year) {
+    return '$sources · $year rates';
+  }
+
+  @override
+  String get firstJobLuciditeWhyTitle => 'Why this figure?';
+
+  @override
+  String get firstJobLuciditeAssumptionsLabel => 'Calculation assumptions';
+
+  @override
+  String get firstJobLuciditeAssumptionAanp =>
+      'AANP contribution between 1.0% and 1.5% depending on the employer\'s risk class (default 1.3%)';
+
+  @override
+  String firstJobLuciditeAssumptionTaux(String taux) {
+    return 'Assumed activity rate: $taux%, editable';
+  }
+
+  @override
+  String get firstJobLuciditeAssumptionImpotSource =>
+      'Withholding tax not applied (resident taxed under the ordinary regime)';
+
+  @override
+  String get firstJobLuciditeAssumptionPeriode =>
+      'Monthly net, excluding 13th salary and bonuses';
+
+  @override
+  String get firstJobLuciditeSourcesLabel => 'Sources and vintages';
+
+  @override
+  String firstJobLuciditeEngineLabel(String version) {
+    return 'Calculation engine: $version';
   }
 }

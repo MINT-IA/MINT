@@ -52,6 +52,15 @@ PATTERNS: list[tuple[str, str]] = [
     (r"\bprogres\b", "progrès"),
 ]
 
+# Locators Semantics / Maestro (`identifier: '...'`) : jetons de CONTRAT, ASCII
+# par nécessité (pont AX iOS + matching Maestro `id:` exigent une clé stable
+# sans diacritique), MÊME classe que les chemins URL que ce lint exempte déjà
+# (cf. commentaire EXCLUDE /test/). Un identifiant nommé d'après un concept
+# français (« éclairage » -> `eclairage`) est inévitable et correct. On retire
+# le seul jeton locator AVANT le scan : la prose éventuelle du reste de la ligne
+# reste jugée (retrait chirurgical, pas exemption de ligne).
+_ASCII_LOCATOR = re.compile(r"""identifier:\s*(['"])[A-Za-z0-9_.\-]+\1""")
+
 TEXT_EXTS = {".dart", ".py", ".arb", ".md"}
 EXCLUDE_SUBSTRINGS = (
     "/.git/",
@@ -84,8 +93,11 @@ def scan_text(text: str) -> list[tuple[int, str, str]]:
     """
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
+        # Neutraliser les locators ASCII (identifiants Semantics / Maestro) avant
+        # le scan : ce sont des jetons de contrat, jamais de la prose française.
+        scan_line = _ASCII_LOCATOR.sub("", line)
         for pat, correct in PATTERNS:
-            if re.search(pat, line, re.IGNORECASE):
+            if re.search(pat, scan_line, re.IGNORECASE):
                 snippet = line.strip()[:140]
                 out.append((lineno, snippet, f"{pat} -> {correct}"))
     return out
@@ -154,6 +166,10 @@ def _self_test() -> int:
         ("consulte un specialiste agréé", True, "specialiste sans accent"),
         ("la recuperation du mot de passe", False, "recuperation : pas dans la liste, \\b protège recu"),
         ("plain ascii sentence with no french", False, "phrase neutre"),
+        ("identifier: 'firstjob-premier-eclairage-value',", False,
+         "locator Semantics ASCII : jeton de contrat exempté"),
+        ("Text('creer') // identifier: 'x-eclairage-value'", True,
+         "retrait chirurgical : le locator est exempté, la prose 'creer' reste jugée"),
     ]
     failures = 0
     with tempfile.TemporaryDirectory() as d:

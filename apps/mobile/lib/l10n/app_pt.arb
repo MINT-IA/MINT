@@ -11723,5 +11723,57 @@
         "type": "String"
       }
     }
+  },
+  "firstJobLuciditeNetValue": "Líquido estimado em {value} por mês",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Intervalo: {low} a {high} consoante a classe de risco AANP",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · tabelas {year}",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "Porquê este valor?",
+  "firstJobLuciditeAssumptionsLabel": "Pressupostos de cálculo",
+  "firstJobLuciditeAssumptionAanp": "Contribuição AANP entre 1,0 % e 1,5 % consoante a classe de risco do empregador (por omissão 1,3 %)",
+  "firstJobLuciditeAssumptionTaux": "Taxa de atividade presumida: {taux} %, editável",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Imposto na fonte não aplicado (residente com tributação ordinária)",
+  "firstJobLuciditeAssumptionPeriode": "Líquido mensal, sem 13.º e sem bónus",
+  "firstJobLuciditeSourcesLabel": "Fontes e anos",
+  "firstJobLuciditeEngineLabel": "Motor de cálculo: {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   }
 }

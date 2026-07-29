@@ -197,6 +197,7 @@ ALLOW = {
     "apps/mobile/test/screens/life_event_screens_v2_smoke_test.dart",
     "apps/mobile/lib/screens/first_job_screen.dart",
     "apps/mobile/test/screens/first_job_gate_test.dart",
+    "apps/mobile/test/screens/first_job_lucidite_test.dart",
     "apps/mobile/lib/screens/naissance_screen.dart",
     "apps/mobile/lib/screens/mariage_screen.dart",
     "apps/mobile/test/screens/mariage_gate_test.dart",
