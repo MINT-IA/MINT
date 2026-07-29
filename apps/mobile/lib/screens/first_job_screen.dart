@@ -86,6 +86,14 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   // Baseline pour l'annonce VoiceOver incomplet→complet.
   bool _lastGateComplete = false;
 
+  // PR-F (SPEC §2.3, D4) — état de CHARGEMENT du profil. `loadFromWizard()`
+  // hydrate de façon asynchrone : tant que le provider hydrate ET que rien
+  // n'est encore confirmé, on affiche un indicateur plutôt que de faire
+  // clignoter prématurément la carte de situation. Borné : `isLoading` /
+  // `isHydrating` retombent toujours à false en fin d'hydratation → jamais de
+  // spinner infini (le slot bascule alors sur la carte de situation).
+  bool _lastHydrating = false;
+
   // Anchors pour scroll-to-first-missing quand la situation est incomplète.
   final _salaireKey = GlobalKey();
   final _ageKey = GlobalKey();
@@ -227,7 +235,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         _cantonSeeded = false;
         changed = true;
       }
-      if (changed) _calculate();
+      _finishSeed(changed);
       return;
     }
 
@@ -288,7 +296,22 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       }
     }
 
-    if (changed) _calculate();
+    _finishSeed(changed);
+  }
+
+  /// Tail commun du seed : recalcule si un fait a bougé, sinon rebuild quand la
+  /// visibilité de l'indicateur d'hydratation change (fin d'hydratation sans
+  /// donnée) — sans quoi le spinner survivrait à un profil resté vide.
+  void _finishSeed(bool changed) {
+    final hydratingNow = (_profileProvider?.isLoading ?? false) ||
+        (_profileProvider?.isHydrating ?? false);
+    final hydratingChanged = hydratingNow != _lastHydrating;
+    _lastHydrating = hydratingNow;
+    if (changed) {
+      _calculate();
+    } else if (hydratingChanged && mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -438,6 +461,42 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     _seqRunId = runId;
     _seqStepId = stepId;
     _emitFinalReturn();
+  }
+
+  /// PR-F (SPEC §2.3) — le profil s'hydrate encore et rien n'est confirmé.
+  /// Seulement pertinent quand un provider existe (en prod / tests intégrés) ;
+  /// dans les tests unitaires isolés `_profileProvider` est nul → jamais de
+  /// spinner. Le net first-job est L1 (local, synchrone) : ce chargement porte
+  /// sur la RÉSOLUTION DU PROFIL, pas sur un appel réseau.
+  bool _isHydrating() =>
+      (_profileProvider?.isLoading ?? false) ||
+      (_profileProvider?.isHydrating ?? false);
+
+  /// Indicateur de chargement du slot résultat (motif spinner `success` de
+  /// `aujourdhui_screen`). Réutilise la chaîne existante `loadingPremierEclairage`.
+  Widget _buildHydratingIndicator() {
+    return MintEntrance(
+      child: Semantics(
+        identifier: 'firstjob-loading',
+        container: true,
+        label: S.of(context)!.loadingPremierEclairage,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.xl),
+          child: Column(
+            children: [
+              const CircularProgressIndicator(color: MintColors.success),
+              const SizedBox(height: MintSpacing.md),
+              Text(
+                S.of(context)!.loadingPremierEclairage,
+                style:
+                    MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -597,24 +656,43 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               Builder(
                                 builder: (ctx) {
                                   final l = S.of(ctx)!;
+                                  // Cohérence « premier » emploi (SPEC §2.3.4) :
+                                  // les items 1-2 (certificat LPP de l'employeur,
+                                  // transfert de l'ANCIEN avoir de libre passage)
+                                  // ne valent que pour qui a DÉJÀ eu un employeur.
+                                  // Un avoir LPP positif est la preuve d'un 2e
+                                  // pilier antérieur. Sans avoir antérieur (vrai
+                                  // premier emploi), afficher LFLP art. 2 /
+                                  // art. 4 al. 2 attacherait des références légales
+                                  // inapplicables au cas → on ne montre que
+                                  // LAMal art. 71 + OPP3 art. 7, qui valent pour
+                                  // tous. Reformulation du titre/sous-titre
+                                  // « changement de job » = copy → PR-G.
+                                  final avoirLppAnterieur = _profileProvider
+                                          ?.profile?.prevoyance.avoirLppTotal ??
+                                      0;
+                                  final hasPreviousEmployer =
+                                      avoirLppAnterieur > 0;
                                   return JobChangeChecklistWidget(
                                     items: [
-                                      ChecklistItem(
-                                        deadline: l.firstJobChecklistDeadline1,
-                                        emoji: '\u{1F4C4}',
-                                        action: l.firstJobChecklistAction1,
-                                        legalRef: 'LFLP art. 2',
-                                        consequence:
-                                            l.firstJobChecklistConsequence1,
-                                      ),
-                                      ChecklistItem(
-                                        deadline: l.firstJobChecklistDeadline2,
-                                        emoji: '\u{1F3E6}',
-                                        action: l.firstJobChecklistAction2,
-                                        legalRef: 'LFLP art. 4 al. 2',
-                                        consequence:
-                                            l.firstJobChecklistConsequence2,
-                                      ),
+                                      if (hasPreviousEmployer)
+                                        ChecklistItem(
+                                          deadline: l.firstJobChecklistDeadline1,
+                                          emoji: '\u{1F4C4}',
+                                          action: l.firstJobChecklistAction1,
+                                          legalRef: 'LFLP art. 2',
+                                          consequence:
+                                              l.firstJobChecklistConsequence1,
+                                        ),
+                                      if (hasPreviousEmployer)
+                                        ChecklistItem(
+                                          deadline: l.firstJobChecklistDeadline2,
+                                          emoji: '\u{1F3E6}',
+                                          action: l.firstJobChecklistAction2,
+                                          legalRef: 'LFLP art. 4 al. 2',
+                                          consequence:
+                                              l.firstJobChecklistConsequence2,
+                                        ),
                                       ChecklistItem(
                                         deadline: l.firstJobChecklistDeadline3,
                                         emoji: '\u{1F6E1}\u{FE0F}',
@@ -635,6 +713,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               _buildEducation(),
                               const SizedBox(height: MintSpacing.lg),
                               _buildMintAnalysisSection(),
+                              const SizedBox(height: MintSpacing.lg),
+                            ] else if (_isHydrating()) ...[
+                              // Slot résultat en CHARGEMENT : le profil s'hydrate
+                              // encore (PR-F). Indicateur borné plutôt qu'une
+                              // carte de situation clignotante — jamais un écran
+                              // vide, jamais un chiffre fabriqué.
+                              _buildHydratingIndicator(),
                               const SizedBox(height: MintSpacing.lg),
                             ] else ...[
                               // Slot résultat gaté : la carte de situation

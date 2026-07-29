@@ -875,6 +875,15 @@ ALLOW = {
     # PR-B addendum (revue Codex) : correction légale AC — le pour-cent de
     # solidarité (>148'200) a été aboli au 1.1.2023 ; test firstJob adapté.
     "apps/mobile/test/services/first_job_service_test.dart",
+    # PR-F états réseau/vide/offline + anti-critère (SPEC TRANCHE-FIRSTJOB
+    # §2.3/A4) : indicateur de chargement borné sur /first-job, dégradation
+    # coach NOMMÉE et re-tentable (`coach-offline-degradation`), cohérence
+    # checklist « premier » emploi (items libre passage gatés sur avoir LPP
+    # antérieur). ChatMessage porte l'ancre a11y transitoire ; SystemMessageBubble
+    # rend l'état + le retry. Le net first-job reste L1 (survit staging coupé).
+    "apps/mobile/lib/services/coach_llm_service.dart",
+    "apps/mobile/test/screens/first_job_states_test.dart",
+    "apps/mobile/test/widgets/coach/system_message_bubble_offline_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

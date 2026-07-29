@@ -214,6 +214,14 @@ class ChatMessage {
   /// before the chip surface shipped.
   final List<ToolCallCitationChip> citationChips;
 
+  /// Optional a11y/test identifier for the a11y tree node wrapping this
+  /// message when it renders. Used by the network anti-criterion (PR-F,
+  /// TRANCHE-FIRSTJOB-SPEC §2.3/A4) to expose the coach offline degradation
+  /// as `coach-offline-degradation` — an assertable, non-empty, retryable
+  /// state rather than a mute dead-end. Transient UI state: not serialized
+  /// by `ConversationStore` (an offline error need not survive a reload).
+  final String? semanticsIdentifier;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -229,6 +237,7 @@ class ChatMessage {
     this.sequencePayload,
     this.degraded = false,
     this.citationChips = const [],
+    this.semanticsIdentifier,
   });
 
   bool get isUser => role == 'user';
