@@ -43,9 +43,17 @@ Références
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional
+from types import MappingProxyType
+from typing import Any, Literal, Mapping, Optional, Tuple
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 from pydantic.alias_generators import to_camel
 
 from app.schemas.enhanced_confidence import EnhancedConfidence
@@ -110,21 +118,36 @@ class MoneyTruthReceipt(_MoneyTruthBase):
 
     claim_id: str = Field(..., min_length=1)
     receipt_id: str = Field(..., min_length=1)
-    inputs: Dict[str, Any]
+    # Immutabilité PROFONDE (frozen=True n'est que superficiel) : les
+    # collections sont gelées à la construction — `inputs` en MappingProxyType,
+    # `assumptions`/`sources` en tuples — pour que la valeur et sa provenance ne
+    # puissent pas être altérées après validation (tamper-evidence).
+    inputs: Mapping[str, Any]
     inputs_hash: str = Field(..., min_length=64, max_length=64)
     jurisdiction: str = Field(..., min_length=1)
     tax_year: int = Field(..., ge=1900, le=2100)
     base: Literal["brut", "net"]
     civil_status: str = Field(..., min_length=1)
-    assumptions: List[str]
+    assumptions: Tuple[str, ...]
     engine: str = Field(..., min_length=1)
     engine_version: str = Field(..., min_length=1)
     rounding: str = Field(..., min_length=1)
-    sources: List[MoneyTruthSource] = Field(..., min_length=1)
+    sources: Tuple[MoneyTruthSource, ...] = Field(..., min_length=1)
     value: float
     range: Optional[MoneyTruthRange] = None
     confidence: Optional[EnhancedConfidence] = None
     computed_at: str = Field(..., min_length=1)
+
+    @field_validator("inputs", mode="after")
+    @classmethod
+    def _freeze_inputs(cls, v: Mapping[str, Any]) -> Mapping[str, Any]:
+        """Gèle `inputs` en vue lecture-seule (mutation post-construction -> erreur)."""
+        return MappingProxyType(dict(v))
+
+    @field_serializer("inputs")
+    def _serialize_inputs(self, v: Mapping[str, Any], _info: Any) -> dict:
+        """Sérialise la MappingProxyType en dict JSON standard."""
+        return dict(v)
 
     @model_validator(mode="after")
     def _net_salary_requires_band_and_confidence(self) -> "MoneyTruthReceipt":

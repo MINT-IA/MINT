@@ -151,6 +151,25 @@ void main() {
       expect(full.confidence!.completeness, 1.0);
       expect(partial.confidence!.completeness < 1.0, isTrue);
     });
+
+    test('immutabilité profonde : inputs/assumptions/sources non modifiables',
+        () {
+      final r = FirstJobService.buildNetSalaryReceipt(
+        salaireBrutMensuel: 6500,
+        age: 30,
+        canton: 'VD',
+      );
+      // `final` ne gèle que la référence — les collections sont enveloppées en
+      // vues non modifiables : toute mutation post-construction lève.
+      expect(() => r.inputs['x'] = 1, throwsUnsupportedError);
+      expect(() => r.assumptions.add('x'), throwsUnsupportedError);
+      expect(
+        () => r.sources.add(
+          const MoneyTruthSource(id: 'x', label: 'y', vintage: 2026),
+        ),
+        throwsUnsupportedError,
+      );
+    });
   });
 }
 

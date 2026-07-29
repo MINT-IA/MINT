@@ -78,6 +78,37 @@ def test_frozen_rejects_mutation():
         r.value = 2000.0
 
 
+def test_deep_immutability_inputs_are_read_only():
+    # frozen=True n'est que superficiel : `inputs` est gelé en MappingProxyType.
+    r = MoneyTruthReceipt(**_valid_kwargs(inputs={"a": 1.0, "b": "x"}))
+    with pytest.raises((TypeError, AttributeError)):
+        r.inputs["a"] = 999  # mutation post-construction interdite
+
+
+def test_deep_immutability_collections_are_tuples():
+    r = MoneyTruthReceipt(
+        **_valid_kwargs(
+            assumptions=["h1", "h2"],
+            sources=[MoneyTruthSource(id="s", label="Source", vintage=2026)],
+        )
+    )
+    assert isinstance(r.assumptions, tuple)
+    assert isinstance(r.sources, tuple)
+    with pytest.raises(AttributeError):
+        r.assumptions.append("z")  # tuple : pas de append
+    with pytest.raises(AttributeError):
+        r.sources.append(MoneyTruthSource(id="z", label="Z", vintage=2026))
+
+
+def test_deep_immutability_survives_source_dict_json():
+    # La sérialisation reste standard (dict + listes) malgré le gel interne.
+    r = MoneyTruthReceipt(**_valid_kwargs(inputs={"a": 1.0}))
+    d = r.model_dump(mode="json", by_alias=True)
+    assert isinstance(d["inputs"], dict)
+    assert isinstance(d["assumptions"], list)
+    assert isinstance(d["sources"], list)
+
+
 def test_tax_year_out_of_bounds_rejected():
     with pytest.raises(ValidationError):
         MoneyTruthReceipt(**_valid_kwargs(tax_year=1899))
@@ -158,7 +189,9 @@ def test_producer_emits_net_salary_claim():
 
 def test_producer_inputs_hash_reuses_compute_inputs_hash():
     r = build_first_job_net_salary_receipt(6500, "ZH", 30, "celibataire", 100.0)
-    expected = compute_inputs_hash(r.inputs)
+    # `inputs` est gelé en MappingProxyType : on rematérialise un dict pour
+    # rejouer compute_inputs_hash (l'algorithme attend un dict standard).
+    expected = compute_inputs_hash(dict(r.inputs))
     assert r.inputs_hash == expected
     assert len(r.inputs_hash) == 64
 

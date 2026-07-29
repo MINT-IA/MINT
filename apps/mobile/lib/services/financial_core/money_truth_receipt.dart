@@ -181,25 +181,31 @@ class MoneyTruthReceipt {
   final MoneyTruthConfidence? confidence;
   final String computedAt;
 
-  const MoneyTruthReceipt({
+  // Immutabilité PROFONDE : `final` ne gèle que la référence. On enveloppe les
+  // collections en vues non modifiables à la construction pour que la valeur et
+  // sa provenance ne puissent pas être altérées ensuite (tamper-evidence, en
+  // miroir du MappingProxyType/tuples côté backend).
+  MoneyTruthReceipt({
     required this.claimId,
     required this.receiptId,
-    required this.inputs,
+    required Map<String, dynamic> inputs,
     required this.inputsHash,
     required this.jurisdiction,
     required this.taxYear,
     required this.base,
     required this.civilStatus,
-    required this.assumptions,
+    required List<String> assumptions,
     required this.engine,
     required this.engineVersion,
     required this.rounding,
-    required this.sources,
+    required List<MoneyTruthSource> sources,
     required this.value,
     required this.range,
     required this.confidence,
     required this.computedAt,
-  });
+  })  : inputs = Map.unmodifiable(inputs),
+        assumptions = List.unmodifiable(assumptions),
+        sources = List.unmodifiable(sources);
 
   Map<String, dynamic> toJson() => {
         'claimId': claimId,
