@@ -10,7 +10,10 @@ import logging
 from typing import Optional
 
 from app.services.rag.faq_service import FaqService
-from app.services.rag.guardrails import ComplianceGuardrails
+from app.services.rag.guardrails import (
+    ComplianceGuardrails,
+    fiscal_marginal_tool_available,
+)
 from app.services.rag.llm_client import LLMClient
 from app.services.rag.retriever import MintRetriever
 from app.services.rag.vector_store import MintVectorStore
@@ -122,7 +125,9 @@ class RAGOrchestrator:
         # guardrails prompt for other callers (e.g., RAG-only queries).
         if not system_prompt:
             system_prompt = self.guardrails.build_system_prompt(
-                language, profile_context=profile_context
+                language,
+                profile_context=profile_context,
+                fiscal_tools_available=fiscal_marginal_tool_available(tools),
             )
         raw_response = await llm_client.generate(
             system_prompt=system_prompt,

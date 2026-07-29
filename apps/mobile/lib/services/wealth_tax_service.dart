@@ -9,7 +9,8 @@ import 'package:mint_mobile/services/fiscal_service.dart';
 //   2. estimateChurchTax    — Church tax for one canton
 //   3. compareAllCantons    — Rank all 26 cantons by wealth tax
 //
-// Sources: OFS Charge Fiscale 2024, LIFD, lois fiscales cantonales.
+// Sources: modele simplifie MINT (recalibrage ESTV en cours,
+// ADR 2026-07-28-fortune-recalibrage-estv), LIFD, lois fiscales cantonales.
 // Rates at CHF 500'000, single, chef-lieu.
 // This is an educational estimate, NOT an exact tax calculation.
 // ────────────────────────────────────────────────────────────
@@ -19,7 +20,8 @@ class WealthTaxService {
 
   // ════════════════════════════════════════════════════════════
   //  EFFECTIVE WEALTH TAX RATES (per mille of net wealth)
-  //  At CHF 500'000, single, chef-lieu — Source: OFS Charge Fiscale 2024
+  //  At CHF 500'000, single, chef-lieu — modele simplifie MINT, NON calibre
+  //  sur une collecte fortune ; recalibrage : ADR 2026-07-28.
   // ════════════════════════════════════════════════════════════
 
   static const Map<String, double> effectiveWealthTaxRates500k = {

@@ -168,7 +168,9 @@ class HousingSaleService:
         )
 
         # Remploi (reinvestment deferral)
-        remploi_report = self._compute_remploi(input_data, impot_plus_value)
+        remploi_report = self._compute_remploi(
+            input_data, impot_plus_value, plus_value_imposable
+        )
         impot_effectif = round(impot_plus_value - remploi_report, 2)
 
         # EPL repayment (only for primary residence — LPP art. 30d, OPP2 art. 30e)
@@ -295,20 +297,28 @@ class HousingSaleService:
         return round(plus_value_imposable * taux, 2)
 
     def _compute_remploi(
-        self, data: HousingSaleInput, impot_plus_value: float
+        self,
+        data: HousingSaleInput,
+        impot_plus_value: float,
+        plus_value_imposable: float,
     ) -> float:
-        """Compute reinvestment deferral (remploi).
+        """Compute reinvestment deferral (remploi) — methode ABSOLUE.
 
-        LIFD art. 12 al. 3: If the seller buys a replacement property
-        in Switzerland within 2 years, the capital gains tax can be
-        deferred (fully or partially).
+        LHID art. 12 al. 3 let. e : report d'imposition en cas de remploi
+        du produit de la vente d'une habitation ayant durablement servi au
+        propre usage (residence principale), remplacee en Suisse dans le
+        delai cantonal (1-5 ans selon le canton ; le champ projet_remploi
+        modelise ce delai de facon simplifiee).
 
-        - Full deferral if prix_remploi >= prix_vente
-        - Partial deferral: report = impot * (prix_remploi / prix_vente)
+        Methode ABSOLUE (ATF 130 II 202) : le report ne porte que sur la
+        part du reinvestissement qui EXCEDE les couts d'investissement du
+        bien vendu (prix d'achat + impenses). L'ancienne methode
+        proportionnelle (report = impot x prix_remploi/prix_vente) a ete
+        ecartee par le Tribunal federal — elle reportait la moitie de
+        l'impot d'un vendeur qui ne reinvestissait que son capital initial.
 
-        Args:
-            data: HousingSaleInput with remploi data.
-            impot_plus_value: Computed capital gains tax.
+        couts d'investissement = prix_vente - plus_value_imposable
+        (par construction de l'assiette).
 
         Returns:
             Amount of tax deferred (0 if no remploi).
@@ -316,16 +326,24 @@ class HousingSaleService:
         if not data.projet_remploi or data.prix_remploi <= 0:
             return 0.0
 
-        if impot_plus_value <= 0:
+        # LHID art. 12 al. 3 let. e : reserve a la residence principale.
+        if not data.residence_principale:
             return 0.0
 
-        if data.prix_remploi >= data.prix_vente:
-            # Full deferral
-            return impot_plus_value
-        else:
-            # Partial deferral proportional to reinvestment
-            ratio = data.prix_remploi / data.prix_vente
-            return round(impot_plus_value * ratio, 2)
+        if impot_plus_value <= 0 or plus_value_imposable <= 0:
+            return 0.0
+
+        couts_investissement = data.prix_vente - plus_value_imposable
+        gain_reinvesti = min(
+            plus_value_imposable,
+            max(0.0, data.prix_remploi - couts_investissement),
+        )
+        if gain_reinvesti <= 0:
+            return 0.0
+
+        return round(
+            impot_plus_value * gain_reinvesti / plus_value_imposable, 2
+        )
 
     def _compute_produit_net(
         self,

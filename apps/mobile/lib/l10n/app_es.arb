@@ -277,20 +277,6 @@
   "successionEdu3aBody": "El 3er pilar se paga directamente segun la OPP3, no segun tu testamento.",
   "successionEduConcubinBody": "Los companeros no tienen derechos sucesorios legales. Sin testamento, no reciben nada.",
   "successionDisclaimer": "Información educativa, no asesoramiento jurídico (LSFin/CC).",
-  "coachingAge25Title": "25 anos: abrir el 3er pilar",
-  "coachingAge25Message": "A los 25 anos es el momento ideal para abrir un 3er pilar. Gracias al interes compuesto, cada ano cuenta.",
-  "coachingAge35Title": "35 anos: revision de prevision",
-  "coachingAge35Message": "A los 35 anos, verifica que tu prevision va por buen camino. ?Tienes un 3a? ?Tu LPP es suficiente?",
-  "coachingAge45Title": "45 anos: optimizar la estrategia",
-  "coachingAge45Message": "A los 45 anos, quedan 20 anos para la jubilacion. Es el momento de revisar tu margen 3a, posibles recompras LPP y tu trayectoria.",
-  "coachingAge50Title": "50 anos: preparar la jubilacion",
-  "coachingAge50Message": "A los 50 anos, la jubilacion se acerca. Verifica tu haber LPP y planifica los ultimos rescates.",
-  "coachingAge55Title": "55 anos: ultima recta",
-  "coachingAge55Message": "A los 55 anos, la planificacion fiscal del retiro se vuelve crucial. Escalonar los retiros 3a puede modificar el impacto fiscal.",
-  "coachingAge58Title": "58 anos: jubilacion anticipada posible",
-  "coachingAge58Message": "A partir de los 58 anos, un retiro anticipado del 2º pilar es posible. Atencion: la renta sera reducida.",
-  "coachingAge63Title": "63 anos: ultimos ajustes",
-  "coachingAge63Message": "A 2 anos de la jubilacion legal: finalizar la estrategia. Ultimo rescate LPP, eleccion renta/capital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Funcionalidad en preparacion — consulta regulatoria FINMA en curso",
   "openBankingAddBank": "Anadir un banco",
@@ -1262,7 +1248,7 @@
   "firstJobHeaderDesc": "¡Comprende tu nómina! Te mostramos a dónde van tus cotizaciones, lo que paga tu empleador además, y los primeros reflejos financieros a adoptar.",
   "firstJobSalaryTitle": "Salario bruto mensual",
   "firstJobActivityRate": "Tasa de actividad",
-  "firstJob3aHeader": "PILAR 3A — ABRIR AHORA",
+  "firstJob3aHeader": "PILAR 3A — A CONSIDERAR",
   "firstJob3aAnnualCap": "Tope anual",
   "firstJob3aMonthlySuggestion": "Sugerencia /mes",
   "firstJob3aWarningTitle": "ATENCIÓN — SEGURO DE VIDA 3A",
@@ -1945,7 +1931,7 @@
   "naissanceChecklistItem7Desc": "Si reduces tu jornada laboral, tus cotizaciones LPP disminuyen. Cada año a tiempo parcial significa menos capital en la jubilación. Considera compensar contribuyendo el máximo al 3er pilar (CHF 7'258/año).",
   "naissanceChecklistItem8Title": "Redactar o actualizar el testamento",
   "naissanceChecklistItem8Desc": "La llegada de un hijo modifica el orden sucesorio. Los hijos son herederos forzosos (CC art. 471). Si tienes un testamento, verifica que respete las reservas legales.",
-  "naissanceChecklistItem9Title": "Contratar un seguro de riesgo de fallecimiento/invalidez",
+  "naissanceChecklistItem9Title": "Revisar tu cobertura de riesgo de fallecimiento/invalidez",
   "naissanceChecklistItem9Desc": "Con un hijo a cargo, la protección financiera en caso de fallecimiento o invalidez se vuelve aún más importante. Verifica tu cobertura actual (LPP, seguro de vida) y completa si es necesario.",
   "naissanceBabyCostCreche": "Guardería / cuidado",
   "naissanceBabyCostCrecheNote": "Tarifa media subvencionada — varía mucho según el cantón",
@@ -3598,7 +3584,7 @@
   "firstSalaryWeek1": "Semana 1",
   "firstSalaryWeek2": "Semana 2",
   "firstSalaryBefore31Dec": "Antes del 31.12",
-  "firstSalaryTask1": "Abrir una cuenta 3a (banco o fintech)",
+  "firstSalaryTask1": "Comparar las cuentas 3a (banco o fintech)",
   "firstSalaryTask2": "Configurar una transferencia automática mensual",
   "firstSalaryTask3": "Comparar las franquicias LAMal con tus gastos de salud estimados",
   "firstSalaryTask4": "Verificar tu RC privada (aprox. CHF 100/año)",
@@ -5236,7 +5222,7 @@
     }
   },
   "pillar3aIndepBonASavoir": "Bueno saber",
-  "pillar3aIndepEduComptesTitle": "Abre varias cuentas 3a",
+  "pillar3aIndepEduComptesTitle": "Varias cuentas 3a, un retiro escalonado",
   "pillar3aIndepEduComptesBody": "La estrategia de cuentas múltiples (hasta 5) es recomendada para optimizar el retiro escalonado.",
   "pillar3aIndepEduConditionTitle": "Condición: sin LPP",
   "pillar3aIndepEduConditionBody": "El gran 3a solo está disponible sin LPP voluntaria. Con LPP, el tope baja a 7’258.",
@@ -5519,8 +5505,8 @@
   "retroactive3aAvecRattrapage": "Con recuperación",
   "retroactive3aEconomieFiscale": "de impacto fiscal",
   "retroactive3aProchainesEtapes": "Próximos pasos",
-  "retroactive3aOuvrirCompte": "Abrir una cuenta 3a",
-  "retroactive3aOuvrirCompteSubtitle": "Compara proveedores y abre una cuenta dedicada a la recuperación.",
+  "retroactive3aOuvrirCompte": "Considerar una cuenta 3a dedicada",
+  "retroactive3aOuvrirCompteSubtitle": "Comparar proveedores (comisiones, condiciones) ayuda; una cuenta dedicada podría simplificar el seguimiento de la recuperación.",
   "retroactive3aPrepDocuments": "Preparar documentos",
   "retroactive3aPrepDocumentsSubtitle": "Certificado de salario, certificado de cotizaciones AVS, justificante de ausencia de 3a por cada año.",
   "retroactive3aConsulterSpecialiste": "Consultar a un·a especialista",
@@ -5758,24 +5744,6 @@
   "reportRetirementTitle": "Tu Jubilación",
   "reportRetirementKeyLabel": "Ingreso estimado a los 65 años",
   "reportRetirementSource": "Fuentes: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Aún sin 3a — margen deducible a estimar según tu situación LPP",
-  "reportRetirement3aNoneWithRoom": "Aún sin 3a — margen deducible estimado: CHF {amount}/año",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 cuenta 3a — abre una 2.a para optimizar el retiro",
-  "reportRetirement3aMulti": "{count} cuentas 3a — buena diversificación",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Rescate LPP disponible: CHF {available} — impacto fiscal estimado: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
@@ -8703,7 +8671,7 @@
   "indepPlanInscriptionAvsConseq": "Multas retroactivas si se pasa el plazo",
   "indepPlanLaa": "Seguro de accidentes LAA (si no LPP)",
   "indepPlanLaaConseq": "Sin cobertura de accidente profesional",
-  "indepPlanOuvrir3a": "Abrir cuenta 3a (deducción hasta CHF 36'288)",
+  "indepPlanOuvrir3a": "Comparar las cuentas 3a (deducción hasta CHF 36'288)",
   "indepProtApg": "Desaparece — permiso parental",
   "indepProtAvs": "Duplica tu cotización",
   "indepProtIjm": "Desaparece — enfermedad CHF 0",

@@ -1,5 +1,7 @@
 # Phase mint-illogism-fixes — Context
 
+> **Statut : CLOS 2026-07-29** — supersedé par la campagne étalon fiscal (#1060-#1100, recalibrage ESTV). Le résidu VoiceOver est déjà tracké (bead `jx6`). Réconciliation plans 2026-07-29.
+
 **Gathered:** 2026-06-11
 **Status:** Ready for planning
 **Source:** Express path — input contract = `.planning/reports/MATRIX-illogismes-2026-06-09.md` (44 findings confirmés par agent adverse, 8 archétypes, classes DIVERGENT 27 / ILLOGICAL_FOR_ARCHETYPE 10 / SOURCED 5 / WRONG 2, + annexe device D1-D12). La matrice tient lieu de PRD : chaque ligne porte input → output MINT → attendu → source `file:line` → reproduction (oracle déterministe).

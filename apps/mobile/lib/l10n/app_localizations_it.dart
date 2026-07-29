@@ -826,56 +826,6 @@ class SIt extends S {
       'Informazione educativa, non consulenza legale (LSerFi/CC).';
 
   @override
-  String get coachingAge25Title => '25 anni: aprire il 3° pilastro';
-
-  @override
-  String get coachingAge25Message =>
-      'A 25 anni è il momento ideale per aprire un 3° pilastro. Grazie all\'interesse composto, ogni anno conta.';
-
-  @override
-  String get coachingAge35Title => '35 anni: verifica previdenziale';
-
-  @override
-  String get coachingAge35Message =>
-      'A 35 anni, verificate che la vostra previdenza sia sulla buona strada. Avete un 3a? Il vostro LPP è sufficiente?';
-
-  @override
-  String get coachingAge45Title => '45 anni: ottimizzare la strategia';
-
-  @override
-  String get coachingAge45Message =>
-      'A 45 anni restano 20 anni alla pensione. È il momento di verificare il margine 3a, eventuali riscatti LPP e la tua traiettoria.';
-
-  @override
-  String get coachingAge50Title => '50 anni: preparare la pensione';
-
-  @override
-  String get coachingAge50Message =>
-      'A 50 anni la pensione si avvicina. Verificate il vostro avere LPP e pianificate gli ultimi riscatti.';
-
-  @override
-  String get coachingAge55Title => '55 anni: ultimo tratto';
-
-  @override
-  String get coachingAge55Message =>
-      'A 55 anni la pianificazione fiscale del prelievo diventa cruciale. Scaglionare i prelievi 3a può modificare l\'impatto fiscale.';
-
-  @override
-  String get coachingAge58Title =>
-      '58 anni: pensionamento anticipato possibile';
-
-  @override
-  String get coachingAge58Message =>
-      'Dai 58 anni, un prelievo anticipato del 2° pilastro è possibile. Attenzione: la rendita sarà ridotta.';
-
-  @override
-  String get coachingAge63Title => '63 anni: ultimi aggiustamenti';
-
-  @override
-  String get coachingAge63Message =>
-      'A 2 anni dalla pensione legale: finalizzare la strategia. Ultimo riscatto LPP, scelta rendita/capitale.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -2862,7 +2812,7 @@ class SIt extends S {
   String get firstJobActivityRate => 'Tasso di attività';
 
   @override
-  String get firstJob3aHeader => 'PILASTRO 3A — DA APRIRE ORA';
+  String get firstJob3aHeader => 'PILASTRO 3A — DA VALUTARE';
 
   @override
   String get firstJob3aAnnualCap => 'Tetto annuale';
@@ -3750,7 +3700,10 @@ class SIt extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob vale $annualDelta/anno in più di rendita vitalizia, ovvero $monthlyDelta/mese A VITA dopo il pensionamento.';
   }
 
@@ -4585,7 +4538,7 @@ class SIt extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Sottoscrivere un\'assicurazione rischio decesso/invalidità';
+      'Verificare la tua copertura per il rischio decesso/invalidità';
 
   @override
   String get naissanceChecklistItem9Desc =>
@@ -5847,7 +5800,10 @@ class SIt extends S {
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulazione comprendente l\'interesse della cassa ($fundRate %) e l\'impatto fiscale indicativo distribuito su $staggeringYears anni per un reddito imponibile di CHF $taxableIncome. Il rendimento reale è calcolato sul tuo sforzo netto reale.';
   }
 
@@ -6041,7 +5997,10 @@ class SIt extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Perdi $amount/mese a vita. Ma guadagni $years ann$plural di libertà.';
   }
 
@@ -6118,7 +6077,10 @@ class SIt extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Confronto forfait fiscale. Imposizione ordinaria: $ordinary. Forfait fiscale: $forfait.';
   }
 
@@ -7147,24 +7109,21 @@ class SIt extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'gennaio',
-        '2': 'febbraio',
-        '3': 'marzo',
-        '4': 'aprile',
-        '5': 'maggio',
-        '6': 'giugno',
-        '7': 'luglio',
-        '8': 'agosto',
-        '9': 'settembre',
-        '10': 'ottobre',
-        '11': 'novembre',
-        '12': 'dicembre',
-        'other': 'mese',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'gennaio',
+      '2': 'febbraio',
+      '3': 'marzo',
+      '4': 'aprile',
+      '5': 'maggio',
+      '6': 'giugno',
+      '7': 'luglio',
+      '8': 'agosto',
+      '9': 'settembre',
+      '10': 'ottobre',
+      '11': 'novembre',
+      '12': 'dicembre',
+      'other': 'mese',
+    });
     return '$_temp0';
   }
 
@@ -7982,7 +7941,7 @@ class SIt extends S {
   String get firstSalaryBefore31Dec => 'Prima del 31.12';
 
   @override
-  String get firstSalaryTask1 => 'Aprire un conto 3a (banca o fintech)';
+  String get firstSalaryTask1 => 'Confrontare i conti 3a (banca o fintech)';
 
   @override
   String get firstSalaryTask2 => 'Impostare un bonifico automatico mensile';
@@ -8646,7 +8605,9 @@ class SIt extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Le banche svizzere calcolano con un tasso teorico del 5 % (direttiva ASB), anche se il tasso reale di mercato è molto più basso. È un test di resistenza: verificano che potresti sostenere gli oneri se i tassi salissero. I tuoi oneri teorici: $chargesTheoriques/mese. Al tasso di mercato (~1,5 %): $chargesReelles/mese.';
   }
 
@@ -11214,7 +11175,8 @@ class SIt extends S {
   String get pillar3aIndepBonASavoir => 'Buono a sapersi';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Apri più conti 3a';
+  String get pillar3aIndepEduComptesTitle =>
+      'Più conti 3a, un prelievo scaglionato';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -11887,11 +11849,11 @@ class SIt extends S {
   String get retroactive3aProchainesEtapes => 'Prossimi passi';
 
   @override
-  String get retroactive3aOuvrirCompte => 'Aprire un conto 3a';
+  String get retroactive3aOuvrirCompte => 'Valutare un conto 3a dedicato';
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Confronta i fornitori e apri un conto dedicato al recupero.';
+      'Confrontare i fornitori (costi, condizioni) aiuta; un conto dedicato potrebbe semplificare il monitoraggio del recupero.';
 
   @override
   String get retroactive3aPrepDocuments => 'Preparare i documenti';
@@ -12412,24 +12374,6 @@ class SIt extends S {
 
   @override
   String get reportRetirementSource => 'Fonti: LPP art. 14, OPP3, LAVS';
-
-  @override
-  String get reportRetirement3aNone =>
-      'Ancora nessun 3a — margine deducibile da stimare secondo il tuo stato LPP';
-
-  @override
-  String reportRetirement3aNoneWithRoom(String amount) {
-    return 'Ancora nessun 3a — margine deducibile stimato: CHF $amount/anno';
-  }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 conto 3a — apri un 2° per ottimizzare il prelievo';
-
-  @override
-  String reportRetirement3aMulti(int count) {
-    return '$count conti 3a — buona diversificazione';
-  }
 
   @override
   String reportRetirementLppText(String available, String savings) {
@@ -14076,15 +14020,16 @@ class SIt extends S {
 
   @override
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject) {
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  ) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nOggetto: $subject\n\nEgregio/a Signore/Signora,\n\nLa prego di volermi inviare un estratto del mio conto individuale AVS (CI) al fine di verificare lo stato dei miei contributi e identificare eventuali lacune.\n\nLa ringrazio anticipatamente per la Sua diligenza.\n\nDistinti saluti,\n\n$name';
   }
 
@@ -14113,30 +14058,32 @@ class SIt extends S {
 
   @override
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete) {
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nOggetto: $subject\n\nEgregio/a Signore/Signora,\n\nA seguito della cessazione del mio rapporto di lavoro / della mia partenza dalla Svizzera (depennare la voce non applicabile), La prego di procedere al trasferimento del mio avere di libero passaggio.\n\nImporto da trasferire: l\'intero avere di libero passaggio alla data di uscita.\n\nIstituto di destinazione:\nNome: $toComplete\nIBAN o numero di conto: $toComplete\nIndirizzo: $toComplete\n\nData di uscita: $toComplete\n\nLa ringrazio per la Sua diligenza e La prego di confermare la buona esecuzione di questo trasferimento.\n\nDistinti saluti,\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber) {
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nOggetto: $subject\n\nEgregio/a Signore/Signora,\n\nCon la presente, mi permetto di sottoporLe le seguenti richieste relative alla mia previdenza professionale:\n\n1. Certificato di previdenza aggiornato $year (avere di vecchiaia, prestazioni coperte, aliquota di conversione applicabile)\n\n2. Conferma della mia capacità di riscatto (importo massimo ai sensi dell\'art. 79b LPP)\n\n3. Simulazione di pensionamento anticipato (proiezione dell\'avere e della rendita a 63 e 64 anni, se applicabile)\n\nLa ringrazio anticipatamente per la Sua diligenza e rimango a disposizione per qualsiasi informazione aggiuntiva.\n\nDistinti saluti,\n\n$name\n$policeNumber';
   }
 
@@ -16141,7 +16088,10 @@ class SIt extends S {
 
   @override
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount) {
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  ) {
     return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mese';
   }
 
@@ -17575,7 +17525,7 @@ class SIt extends S {
 
   @override
   String get indepPlanOuvrir3a =>
-      'Aprire conto 3a (deduzione fino a CHF 36\'288)';
+      'Confrontare i conti 3a (deduzione fino a CHF 36\'288)';
 
   @override
   String get indepProtApg => 'Scompare — congedo parentale';
@@ -19987,7 +19937,9 @@ class SIt extends S {
 
   @override
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly) {
+    String totalMonthly,
+    String currentMonthly,
+  ) {
     return 'Reddito stimato alla pensione: $totalMonthly CHF/mese vs $currentMonthly CHF/mese attualmente';
   }
 
@@ -20222,7 +20174,10 @@ class SIt extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-      String legal, String monthly, String free) {
+    String legal,
+    String monthly,
+    String free,
+  ) {
     return 'Margine legale residuo: $legal/anno. Equivalente mensile: $monthly/mese. Budget libero attuale: $free/mese. Margine legale ≠ capacità mensile: mantieni una riserva prima di aumentare il 3a.';
   }
 
@@ -20457,8 +20412,13 @@ class SIt extends S {
   String get scoreGaugeSectionPrevoyance => 'Previdenza';
 
   @override
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine) {
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  ) {
     return 'Punteggio di forma finanziaria. $score su 100. Livello $level. Budget $budget, Previdenza $prevoyance, Patrimonio $patrimoine.';
   }
 
@@ -20547,7 +20507,11 @@ class SIt extends S {
 
   @override
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high) {
+    String label,
+    String status,
+    String low,
+    String high,
+  ) {
     return '$label: $status. Intervallo tipico da $low a $high';
   }
 
@@ -24915,7 +24879,10 @@ class SIt extends S {
 
   @override
   String genderGapProjectionAssumptions(
-      String rendement, String tauxMin, String annees) {
+    String rendement,
+    String tauxMin,
+    String annees,
+  ) {
     return 'Ipotesi di proiezione: il rendimento del $rendement %/anno sugli averi LPP è un\'ipotesi MINT, non un tasso legale — il tasso d\'interesse minimo LPP è del $tauxMin %/anno. La lacuna cumulata è la lacuna annua moltiplicata per $annees anni di pensionamento, senza attualizzazione né indicizzazione: un ordine di grandezza illustrativo, non una perdita già subita.';
   }
 

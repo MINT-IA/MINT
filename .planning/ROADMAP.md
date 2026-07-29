@@ -13,6 +13,19 @@ receipts; they are not the active router for new product work.
   `python3 tools/checks/journey_os_check.py`.
 - Next product phase: [`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/CONTEXT.md) — self-reference placeholder; no successor product phase is queued yet.
 
+## Soldage des gates legacy — 2026-07-29
+
+Note unique (réconciliation plans 2026-07-29, mandat Julien) : les gates
+legacy encore ouverts dans ce fichier sont soldés — ils ne seront pas courus
+tels quels. Concernés : **v2.7** « awaiting device gate », **v2.10** « pending
+operational gates » (les 7 gates différés de mint-calc-engine-v1), **v2.11**
+phases 02/03 « deferred ». Le réel est passé par Journey OS
+([`journeys/JOURNEYS.md`](journeys/JOURNEYS.md)) et par la campagne étalon
+fiscal 2026-07 (#1060-#1100) qui supersède la rigueur calcul pré-étalon. La
+suite est portée par le plan « rendre MINT utilisable »
+([`architecture/2026-07-27-PLAN-SUITE-v2.md`](architecture/2026-07-27-PLAN-SUITE-v2.md)).
+Les statuts historiques ci-dessous sont conservés tels quels comme receipts.
+
 ## Milestones
 
 - ✅ **v1.0 MVP** — Phases 1-8 (shipped 2026-03-20)

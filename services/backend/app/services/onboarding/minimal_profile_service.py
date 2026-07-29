@@ -311,49 +311,16 @@ def _estimate_lpp_from_age_25(
 
 
 def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
-    """Approximate marginal income tax rate using the mobile canonical curve.
+    """Taux marginal — PENTE du modele fiscal canonique, plus une table.
 
-    Mirrors apps/mobile/lib/services/financial_core/tax_calculator.dart:
-    effective AFC 2024 cantonal rates at 100k, income interpolation, then
-    ×1.3 to approximate a marginal deduction rate.
+    `effective_rates_100k` (courbe a 100k x ajustement de revenu x1.3,
+    clamp [0.05, 0.45]) donnait 0.1290 pour ZH la ou l'etalon donne
+    0.1323 a 100k, et son plancher de 5 % inventait un taux pour des
+    revenus quasi non imposes.
     """
-    effective_rates_100k = {
-        "ZG": 0.0823, "NW": 0.0891, "OW": 0.0934, "AI": 0.0956,
-        "AR": 0.1012, "SZ": 0.1034, "UR": 0.1067, "LU": 0.1089,
-        "GL": 0.1102, "TG": 0.1145, "SH": 0.1167, "AG": 0.1189,
-        "GR": 0.1203, "BL": 0.1256, "SG": 0.1278, "ZH": 0.1290,
-        "FR": 0.1312, "SO": 0.1334, "TI": 0.1356, "BE": 0.1389,
-        "NE": 0.1423, "VS": 0.1456, "VD": 0.1489, "JU": 0.1512,
-        "GE": 0.1545, "BS": 0.1578,
-    }
-    income_adjustment = {
-        50_000: 0.75,
-        80_000: 0.90,
-        100_000: 1.00,
-        150_000: 1.10,
-        200_000: 1.18,
-        300_000: 1.25,
-        500_000: 1.32,
-    }
+    from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
 
-    base_rate = effective_rates_100k.get(canton.upper(), 0.13)
-    brackets = sorted(income_adjustment)
-    if gross_salary <= brackets[0]:
-        income_adj = income_adjustment[brackets[0]]
-    elif gross_salary >= brackets[-1]:
-        income_adj = income_adjustment[brackets[-1]]
-    else:
-        income_adj = 1.0
-        for lower, upper in zip(brackets, brackets[1:]):
-            if lower <= gross_salary <= upper:
-                ratio = (gross_salary - lower) / (upper - lower)
-                lower_adj = income_adjustment[lower]
-                upper_adj = income_adjustment[upper]
-                income_adj = lower_adj + (upper_adj - lower_adj) * ratio
-                break
-
-    marginal_rate = base_rate * income_adj * 1.3
-    return min(max(marginal_rate, 0.05), 0.45)
+    return estimate_marginal_rate(gross_salary, canton.upper())
 
 
 def _estimate_tax_saving(
@@ -361,21 +328,11 @@ def _estimate_tax_saving(
     income: float,
     deduction: float,
     canton: str,
-    steps: int = 10,
 ) -> float:
-    """Estimate deduction value via the same 10-step integration as mobile."""
-    if deduction <= 0 or steps <= 0:
-        return 0.0
+    """Economie fiscale — DIFFERENCE d'impot de l'etalon, plus une integration en 10 pas."""
+    from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
-    step_size = deduction / steps
-    current_income = income
-    total_saved = 0.0
-    for _ in range(steps):
-        midpoint = current_income - step_size / 2
-        rate = _compute_marginal_tax_rate(midpoint, canton)
-        total_saved += step_size * rate
-        current_income -= step_size
-    return total_saved
+    return estimate_tax_saving(income, deduction, canton.upper())
 
 
 def _estimate_3a_tax_impact(

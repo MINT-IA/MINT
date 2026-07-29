@@ -2,6 +2,8 @@
 description: Phase mint-calc-engine-v1 — MINT Lucidité Engine. 20 D-CE-XX decisions LOCKED by 6 expert panels (11 overrides + 6 critical findings). Builds the L1/L2/L3/L4 lucidité layer on top of the 57 already-shipped Swiss financial calculators. Four axes — (A) LLM discoverability via Anthropic Tool Search + ToolRegistryAdapter, (B) real-profile grounding via _resolve_defaults + CoachToolIncomplete (hypothesis C confirmed 86%, 12 sev-3 endpoints SHIP WRONG NUMBERS today), (C) architecture consolidation via auto-registry + strangler-fig moves, (D) DAG action via cache + dep-driven pre-compute + GC. Wave 1c-A3 ships in parallel via Parallel Change pattern.
 ---
 
+> **Statut : CLOS 2026-07-29** — supersedé par la campagne étalon fiscal (#1060-#1100). La promesse « chiffres justes » (ROADMAP v2.10) est tenue par l'étalon ESTV, pas par les gates opérationnels de mai ; les 7 gates différés sont requalifiés — la plupart sont morts, le vivant a été refait par la campagne. Réconciliation plans 2026-07-29.
+
 # Phase mint-calc-engine-v1: Context (LOCKED)
 
 **Gathered:** 2026-05-16

@@ -892,7 +892,7 @@ COACH_TOOLS: list[dict[str, Any]] = [
                     "items": {"type": "string"},
                     "description": (
                         "List of milestone descriptions for the plan "
-                        "(e.g. ['Ouvrir un compte 3a', 'Premier versement', "
+                        "(e.g. ['Comparer les comptes 3a', 'Premier versement', "
                         "'Atteindre 7258 CHF/an'])."
                     ),
                 },

@@ -62,7 +62,7 @@ ACTIVE_CONTEXT_PATH = PLANNING_DIR / "ACTIVE_CONTEXT.json"
 
 # Files / dirs to exclude from lint scans (archives, raw exports).
 EXCLUDE_DIRS = {"archive", "archives", "archive-2026-04-10", "archive-pre-2026-04-19"}
-LEAF_DIRS = {"reports", "phases", "walker", "handoff", "handoffs"}  # not orphan-checked
+LEAF_DIRS = {"reports", "phases", "phases-archive", "walker", "handoff", "handoffs"}  # not orphan-checked
 
 
 def _is_excluded(p: Path) -> bool:

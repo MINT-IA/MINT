@@ -122,6 +122,11 @@ Instead:
 - archive later only through a dedicated cleanup dry-run, with a reviewable PR
   and redirect/index updates.
 
+Applied 2026-07-29 (réconciliation plans, PR dédiée) : 57 répertoires de
+phases morts + `PERIMETERS.md` déplacés vers `.planning/phases-archive/`,
+structure préservée. `mint-prod-ready-core-journey-truth-20260601` reste en
+place : des records Journey OS citent ses artefacts d'évidence par chemin.
+
 ## Promotion Rule
 
 When the next successor phase is queued, update these files in the same commit:

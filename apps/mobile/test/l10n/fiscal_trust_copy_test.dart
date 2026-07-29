@@ -6,8 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 const _locales = ['fr', 'en', 'de', 'es', 'it', 'pt'];
 
 const _trustSensitiveKeys = [
-  'coachingAge45Message',
-  'coachingAge55Message',
   'naissanceTaxSavings',
   'naissanceEstimatedTaxSaving',
   'naissanceNetFormula',
