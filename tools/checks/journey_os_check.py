@@ -884,6 +884,11 @@ ALLOW = {
     "apps/mobile/lib/services/coach_llm_service.dart",
     "apps/mobile/test/screens/first_job_states_test.dart",
     "apps/mobile/test/widgets/coach/system_message_bubble_offline_test.dart",
+    # PR-F addendum (revue Codex, P1) : la checklist conditionnelle change de
+    # taille (2↔4 items) pendant que le State persiste → RangeError sans
+    # `didUpdateWidget` qui re-dimensionne `_checked` en préservant les cochages
+    # par identité (`legalRef`).
+    "apps/mobile/lib/widgets/coach/job_change_checklist_widget.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

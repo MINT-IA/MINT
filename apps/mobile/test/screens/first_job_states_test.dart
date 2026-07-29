@@ -46,6 +46,19 @@ class _HydratingProvider extends CoachProfileProvider {
   }
 }
 
+/// Provider dont le profil (complet) mute par hydratation tardive — ex. l'avoir
+/// LPP antérieur arrive après le montage de l'écran → checklist 2 → 4 items.
+class _TransitionProvider extends CoachProfileProvider {
+  _TransitionProvider(this._p);
+  CoachProfile _p;
+  @override
+  CoachProfile? get profile => _p;
+  void update(CoachProfile p) {
+    _p = p;
+    notifyListeners();
+  }
+}
+
 CoachProfile _profile({
   int birthYear = 2001, // âge 25 au 2026 (fenêtre premier emploi)
   String canton = 'VD',
@@ -192,5 +205,59 @@ void main() {
         reason: 'avoir antérieur → certificat de libre passage pertinent');
     expect(refs, contains('LFLP art. 4 al. 2'),
         reason: 'avoir antérieur → transfert du libre passage pertinent');
+  });
+
+  // ── P1 (revue Codex) : l'hydratation tardive fait passer la checklist de 2 à
+  // 4 items pendant que le State persiste. Sans re-dimensionnement de `_checked`
+  // → RangeError. Le cochage préalable doit survivre PAR IDENTITÉ. ──
+  testWidgets(
+      'checklist : hydratation 2→4 items — zéro exception + cochage préservé par identité',
+      (tester) async {
+    // Surface haute : tout le slot résultat + la checklist s'inflatent sans
+    // scroll (les icônes de coche sont donc rendues et assertables).
+    final provider = _TransitionProvider(_profile()); // complet, sans avoir LPP
+    await _pump(tester, provider, surface: const Size(1200, 9000));
+
+    final finder = find.byType(JobChangeChecklistWidget);
+    expect(finder, findsOneWidget);
+    expect(tester.widget<JobChangeChecklistWidget>(finder).items.length, 2,
+        reason: 'sans avoir LPP antérieur → 2 items (LAMal + 3a)');
+
+    // Coche l'item LAMal (présent AVANT et APRÈS la transition).
+    final lamalAction = tester
+        .widget<JobChangeChecklistWidget>(finder)
+        .items
+        .firstWhere((i) => i.legalRef == 'LAMal art. 71')
+        .action;
+    await tester
+        .tap(find.descendant(of: finder, matching: find.text(lamalAction)));
+    await tester.pump();
+    expect(find.descendant(of: finder, matching: find.byIcon(Icons.check)),
+        findsOneWidget,
+        reason: 'un seul item coché avant la transition');
+
+    // Hydratation tardive : l'avoir LPP antérieur arrive → 4 items.
+    provider.update(_profile(avoirLppTotal: 50000));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    // Le rebuild à liste rallongée ne lève AUCUNE exception (pas de RangeError).
+    expect(tester.takeException(), isNull,
+        reason: 'le State re-dimensionne `_checked` au lieu de crasher');
+
+    expect(tester.widget<JobChangeChecklistWidget>(finder).items.length, 4,
+        reason: 'avoir antérieur → les 2 items libre passage réapparaissent');
+
+    // Le cochage a survécu, et sur le MÊME item (LAMal), pas décalé par index.
+    expect(find.descendant(of: finder, matching: find.byIcon(Icons.check)),
+        findsOneWidget,
+        reason: 'exactement un item reste coché après la transition');
+    final lamalRow = find.ancestor(
+      of: find.descendant(of: finder, matching: find.text(lamalAction)),
+      matching: find.byType(GestureDetector),
+    );
+    expect(find.descendant(of: lamalRow, matching: find.byIcon(Icons.check)),
+        findsOneWidget,
+        reason: 'c\'est bien LAMal qui reste coché (préservation par identité)');
   });
 }

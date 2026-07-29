@@ -86,14 +86,6 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   // Baseline pour l'annonce VoiceOver incomplet→complet.
   bool _lastGateComplete = false;
 
-  // PR-F (SPEC §2.3, D4) — état de CHARGEMENT du profil. `loadFromWizard()`
-  // hydrate de façon asynchrone : tant que le provider hydrate ET que rien
-  // n'est encore confirmé, on affiche un indicateur plutôt que de faire
-  // clignoter prématurément la carte de situation. Borné : `isLoading` /
-  // `isHydrating` retombent toujours à false en fin d'hydratation → jamais de
-  // spinner infini (le slot bascule alors sur la carte de situation).
-  bool _lastHydrating = false;
-
   // Anchors pour scroll-to-first-missing quand la situation est incomplète.
   final _salaireKey = GlobalKey();
   final _ageKey = GlobalKey();
@@ -299,17 +291,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     _finishSeed(changed);
   }
 
-  /// Tail commun du seed : recalcule si un fait a bougé, sinon rebuild quand la
-  /// visibilité de l'indicateur d'hydratation change (fin d'hydratation sans
-  /// donnée) — sans quoi le spinner survivrait à un profil resté vide.
+  /// Tail commun du seed. Rejoué à CHAQUE notify du provider : si un fait de
+  /// situation a bougé on recalcule le résultat, sinon on force quand même un
+  /// rebuild. Sans ce rebuild inconditionnel, les lectures faites au build qui
+  /// ne dépendent PAS des faits gatés — la fin d'hydratation (`_isHydrating`,
+  /// borne le spinner) et l'avoir LPP antérieur (`prevoyance.avoirLppTotal`,
+  /// cohérence checklist) — resteraient périmées jusqu'à la prochaine
+  /// interaction (un avoir LPP arrivé APRÈS le gate n'ajouterait pas ses items).
   void _finishSeed(bool changed) {
-    final hydratingNow = (_profileProvider?.isLoading ?? false) ||
-        (_profileProvider?.isHydrating ?? false);
-    final hydratingChanged = hydratingNow != _lastHydrating;
-    _lastHydrating = hydratingNow;
     if (changed) {
       _calculate();
-    } else if (hydratingChanged && mounted) {
+    } else if (mounted) {
       setState(() {});
     }
   }
