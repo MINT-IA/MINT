@@ -17037,6 +17037,18 @@ class SEn extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation => 'Insurance for accidents outside work, deducted from your salary.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Non-occupational accidents (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Contribution to unemployment insurance (LACI). It protects you if you lose your job.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Unemployment insurance (AC)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Employee contribution: 5.3% of gross salary. Your employer also pays 5.3% on top.';
 
@@ -17069,7 +17081,7 @@ class SEn extends S {
   String get firstJobScenarioDefault => 'Default';
 
   @override
-  String get firstJobScenarioMedianCH => 'CH median (all sectors)';
+  String get firstJobScenarioMedianCH => 'CH median (all sectors · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'My salary';

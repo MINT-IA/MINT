@@ -17133,6 +17133,18 @@ class SPt extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation => 'Seguro de acidentes fora do trabalho, descontado do teu salário.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Acidentes não profissionais (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Contribuição para o seguro-desemprego (LACI). Protege-te em caso de perda de emprego.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Seguro-desemprego (AC)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Contribuição do trabalhador: 5.3% do salário bruto. O teu empregador também paga 5.3% adicional.';
 
@@ -17165,7 +17177,7 @@ class SPt extends S {
   String get firstJobScenarioDefault => 'Padrão';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH (todos os setores)';
+  String get firstJobScenarioMedianCH => 'Mediana CH (todos os setores · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'O meu salário';

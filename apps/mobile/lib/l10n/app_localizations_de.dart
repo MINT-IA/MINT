@@ -17162,6 +17162,18 @@ class SDe extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation => 'Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Nichtberufsunfälle (NBU)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Arbeitslosenversicherung (ALV)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.';
 
@@ -17194,7 +17206,7 @@ class SDe extends S {
   String get firstJobScenarioDefault => 'Standard';
 
   @override
-  String get firstJobScenarioMedianCH => 'CH-Median (alle Branchen)';
+  String get firstJobScenarioMedianCH => 'CH-Median (alle Branchen · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mein Lohn';

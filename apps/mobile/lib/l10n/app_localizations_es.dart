@@ -17134,6 +17134,18 @@ class SEs extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation => 'Seguro de accidentes fuera del trabajo, deducido de tu salario.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Accidentes no laborales (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Cotización al seguro de desempleo (LACI). Te protege si pierdes el empleo.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Seguro de desempleo (AC)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Cotización del empleado: 5.3% del salario bruto. Tu empleador también paga 5.3% adicional.';
 
@@ -17166,7 +17178,7 @@ class SEs extends S {
   String get firstJobScenarioDefault => 'Por defecto';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH (todos los sectores)';
+  String get firstJobScenarioMedianCH => 'Mediana CH (todos los sectores · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mi salario';

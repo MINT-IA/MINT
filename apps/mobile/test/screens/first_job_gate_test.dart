@@ -138,6 +138,15 @@ double _renderedPayslipNet(WidgetTester tester) => tester
     .widget<PayslipXRayWidget>(find.byType(PayslipXRayWidget))
     .netSalary;
 
+/// The PayslipXRay rendered gross and the sum of its deduction lines — the
+/// radiograph must reconcile: gross − Σ(lines) == net (au franc près).
+PayslipXRayWidget _payslip(WidgetTester tester) =>
+    tester.widget<PayslipXRayWidget>(find.byType(PayslipXRayWidget));
+
+double _renderedPayslipDeductionsSum(WidgetTester tester) => _payslip(tester)
+    .deductions
+    .fold<double>(0, (sum, line) => sum + line.amount);
+
 /// The service output for the screen's CURRENT confirmed inputs.
 FirstJobResult _expectedFor(WidgetTester tester, {double? taux}) {
   final st = _state(tester);
@@ -240,6 +249,21 @@ void main() {
             'ratio fabriqué');
     expect(_renderedPayslipNet(tester), _renderedNet(tester),
         reason: 'un seul net sur l\'écran: payslip == breakdown');
+
+    // Réconciliation au franc près : la fiche de paie liste AVS + AC + AANP +
+    // LPP ; brut − Σ(lignes) DOIT égaler le net affiché (pas de déduction
+    // invisible qui casse l'arithmétique de l'écran).
+    final result = _expectedFor(tester);
+    expect(_payslip(tester).deductions.length, 4,
+        reason: 'AVS, AC, AANP, LPP — les 4 déductions qui composent netEstime');
+    expect(_renderedPayslipDeductionsSum(tester),
+        closeTo(result.avsAiApg + result.ac + result.aanp + result.lppEmploye,
+            0.01),
+        reason: 'Σ(lignes) == total des déductions du service');
+    expect(
+        _payslip(tester).grossSalary - _renderedPayslipDeductionsSum(tester),
+        closeTo(_renderedPayslipNet(tester), 0.01),
+        reason: 'brut − Σ(lignes) == net : la fiche se réconcilie au franc près');
   });
 
   // ── 3. No profile, user touches every control → breakdown shows ──

@@ -17125,6 +17125,18 @@ class SFr extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation => 'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Accidents non pro. (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Assurance-chômage (AC)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Cotisation salarié·e : 5.3 % du brut. Ton employeur paie aussi 5.3 % en plus.';
 
@@ -17157,7 +17169,7 @@ class SFr extends S {
   String get firstJobScenarioDefault => 'Défaut';
 
   @override
-  String get firstJobScenarioMedianCH => 'Médiane CH (tous secteurs)';
+  String get firstJobScenarioMedianCH => 'Médiane CH (tous secteurs · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mon salaire';

@@ -509,6 +509,33 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                   ),
                                   PayslipLine(
                                     label:
+                                        S.of(context)!.firstJobPayslipAcLabel,
+                                    emoji: '\u{1F4BC}',
+                                    amount: _result!.ac,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.ac / _result!.brut * 100
+                                        : 0,
+                                    explanation: S
+                                        .of(context)!
+                                        .firstJobPayslipAcExplanation,
+                                    legalRef: 'LACI art. 3',
+                                  ),
+                                  PayslipLine(
+                                    label: S
+                                        .of(context)!
+                                        .firstJobPayslipAanpLabel,
+                                    emoji: '\u{1FA79}',
+                                    amount: _result!.aanp,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.aanp / _result!.brut * 100
+                                        : 0,
+                                    explanation: S
+                                        .of(context)!
+                                        .firstJobPayslipAanpExplanation,
+                                    legalRef: 'LAA art. 91',
+                                  ),
+                                  PayslipLine(
+                                    label:
                                         S.of(context)!.firstJobPayslipLppLabel,
                                     emoji: '\u{1F3E6}',
                                     amount: _result!.lppEmploye,

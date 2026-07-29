@@ -17180,6 +17180,18 @@ class SIt extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation => 'Assicurazione per gli infortuni fuori dal lavoro, trattenuta dal salario.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Infortuni non professionali (AINP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Contributo all\'assicurazione contro la disoccupazione (LADI). Ti protegge in caso di perdita del lavoro.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Assicurazione contro la disoccupazione (AD)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Contributo del dipendente: 5.3% del lordo. Il datore di lavoro paga anche lui il 5.3%.';
 
@@ -17212,7 +17224,7 @@ class SIt extends S {
   String get firstJobScenarioDefault => 'Predefinito';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH (tutti i settori)';
+  String get firstJobScenarioMedianCH => 'Mediana CH (tutti i settori · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Il mio stipendio';
