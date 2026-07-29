@@ -38,7 +38,7 @@ void main() {
     // du scorer ne prouvent pas le wiring de l'écran.
     const path =
         'lib/screens/arbitrage/rente_vs_capital_screen.dart';
-    final src = File('$path').readAsStringSync();
+    final src = File(path).readAsStringSync();
     final bannerCall = src.substring(
       src.indexOf('IndicatifBanner('),
       src.indexOf(')', src.indexOf('topEnrichmentCategory')) + 1,
