@@ -1392,6 +1392,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         memoryBlock: memoryBlock,
         cashLevel: _cashLevel,
         isLoggedIn: isLoggedIn,
+        // firstJob PR-E (E2) — handoff coach : transmet receiptId + inputsHash
+        // + receiptInputs portés par l'entrée /first-job pour la résolution
+        // serveur du MoneyTruthReceipt (SPEC §4.3, double ceinture
+        // resolved/pending).
+        receiptId: widget.entryPayload?.receiptId,
+        inputsHash: widget.entryPayload?.inputsHash,
+        receiptInputs: widget.entryPayload?.receiptInputs,
       );
 
       final deterministicLocalStatutory =

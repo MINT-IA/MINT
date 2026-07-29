@@ -1,3 +1,4 @@
+import 'dart:convert' show jsonEncode;
 import 'dart:math' show pow;
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/services/coach/money_truth_receipt_api_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -40,7 +42,11 @@ import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 // ────────────────────────────────────────────────────────────
 
 class FirstJobScreen extends StatefulWidget {
-  const FirstJobScreen({super.key});
+  const FirstJobScreen({super.key, this.receiptApi});
+
+  /// PR-E (E2) — service de store du MoneyTruthReceipt, injectable pour les
+  /// tests (mock du POST). Null en prod -> instance par défaut.
+  final MoneyTruthReceiptApiService? receiptApi;
 
   @override
   State<FirstJobScreen> createState() => _FirstJobScreenState();
@@ -555,6 +561,12 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               // que le résultat : jamais de net sans l'appareil.
                               _buildLuciditeAppareil(),
                               const SizedBox(height: MintSpacing.lg),
+                              // Tranche firstJob PR-E (E2) — handoff coach : le
+                              // CTA émet le MoneyTruthReceipt du net (MÊME
+                              // chiffre que l'écran) et navigue vers /coach/chat
+                              // en portant receiptId + inputsHash (RED-2 / §1 T5).
+                              _buildAskCoachCta(),
+                              const SizedBox(height: MintSpacing.lg),
                               SalaryBreakdownWidget(
                                 brut: _result!.brut,
                                 netEstime: _result!.netEstime,
@@ -960,6 +972,84 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         ],
       ),
     );
+  }
+
+  // ── Handoff coach (PR-E, E2) ────────────────────────────────
+
+  /// CTA « Demander au coach » — porte le MoneyTruthReceipt du net firstJob
+  /// vers /coach/chat (SPEC §1 T5 / §4.3). N'est monté que dans la branche
+  /// gatée (`_result != null` + situation complète), donc le net et le receipt
+  /// existent quand ce bouton est visible.
+  Widget _buildAskCoachCta() {
+    final l10n = S.of(context)!;
+    return Semantics(
+      identifier: 'firstjob-ask-coach',
+      button: true,
+      label: l10n.firstJobAskCoach,
+      child: Material(
+        color: MintColors.primary,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _onAskCoachTapped,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: MintSpacing.md,
+              horizontal: MintSpacing.lg,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.forum_outlined,
+                    size: 18, color: MintColors.white),
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  l10n.firstJobAskCoach,
+                  style: MintTextStyles.bodyMedium(color: MintColors.white)
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Émet le receipt du net firstJob (MÊME chiffre que l'écran : le producteur
+  /// réutilise `FirstJobService.analyzeSalary`), le PERSISTE puis navigue vers
+  /// le coach. Double ceinture du contrat §4.3 pour que le coach grounde
+  /// vraiment sur la valeur affichée :
+  ///   1. store best-effort AVANT la nav -> le coach résout le MÊME receipt
+  ///      (chemin `resolved`, valeur exacte) ;
+  ///   2. `receiptInputs` porté dans l'URL -> si le store a échoué, le coach
+  ///      grounde via le chemin `pending` (jamais `not_found` muet).
+  /// Le gate étant complet, les trois faits de situation sont confirmés
+  /// (confidence completeness = 1.0).
+  Future<void> _onAskCoachTapped() async {
+    if (_result == null) return;
+    final receipt = FirstJobService.buildNetSalaryReceipt(
+      salaireBrutMensuel: _salaire,
+      age: _age,
+      canton: _canton,
+      tauxActivite: _tauxActivite,
+    );
+    // Ceinture 1 : persiste le receipt (best-effort, timeout court, jamais
+    // bloquant). Un échec dégrade proprement vers le chemin pending ci-dessous.
+    final api = widget.receiptApi ?? MoneyTruthReceiptApiService();
+    await api.store(receipt);
+    if (!mounted) return;
+    // Ceinture 2 : porte AUSSI les inputs normalisés du receipt.
+    final uri = Uri(
+      path: '/coach/chat',
+      queryParameters: <String, String>{
+        'topic': 'firstJobNet',
+        'receiptId': receipt.receiptId,
+        'inputsHash': receipt.inputsHash,
+        'receiptInputs': jsonEncode(receipt.inputs),
+      },
+    );
+    context.go(uri.toString());
   }
 
   // ── PR-C : appareil de lucidité sur le net ──────────────────

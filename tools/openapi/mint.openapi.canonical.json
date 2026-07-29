@@ -4210,6 +4210,19 @@
             "description": "Prior conversation messages for multi-turn context. Each item: {role: 'user'|'assistant', content: str}. Last 8 messages max. Sanitized client-side.",
             "title": "Conversationhistory"
           },
+          "inputsHash": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "firstJob PR-E — hash déterministe des inputs du receipt (compute_inputs_hash). Accompagne receiptId pour la résolution.",
+            "title": "Inputshash"
+          },
           "intent": {
             "anyOf": [
               {
@@ -4288,6 +4301,32 @@
             "description": "Fournisseur LLM: 'claude', 'openai', 'mistral'.",
             "title": "Provider",
             "type": "string"
+          },
+          "receiptId": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "firstJob PR-E — id du MoneyTruthReceipt à résoudre pour ce tour. Le backend résout le receipt scopé au propriétaire (SPEC §4.3) et ground le coach sur receipt.value. None sur le chemin chat classique.",
+            "title": "Receiptid"
+          },
+          "receiptInputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "firstJob PR-E — inputs normalisés portés par le payload d'entrée (cas pending : receipt pas encore synchronisé). Le coach répond depuis ces inputs quand la résolution serveur ne trouve pas le receipt du propriétaire.",
+            "title": "Receiptinputs"
           },
           "sourceCard": {
             "anyOf": [
@@ -9186,6 +9225,51 @@
         ],
         "title": "EmploymentStatusEnum",
         "type": "string"
+      },
+      "EnhancedConfidence": {
+        "description": "4-axis confidence wire payload (Plan 08a-01).\n\nWire shape::\n\n    {\n        \"completeness\": 0.8,\n        \"accuracy\": 0.9,\n        \"freshness\": 0.7,\n        \"understanding\": 0.6,\n        \"score\": 0.74\n    }",
+        "properties": {
+          "accuracy": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "completeness": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Completeness",
+            "type": "number"
+          },
+          "freshness": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Freshness",
+            "type": "number"
+          },
+          "score": {
+            "description": "Computed combined score (e.g. geometric mean of the 4 axes).",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "understanding": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Understanding",
+            "type": "number"
+          }
+        },
+        "required": [
+          "completeness",
+          "accuracy",
+          "freshness",
+          "understanding",
+          "score"
+        ],
+        "title": "EnhancedConfidence",
+        "type": "object"
       },
       "EnrichmentPromptSchema": {
         "description": "Action recommandee pour ameliorer le score de confiance.",
@@ -14881,6 +14965,184 @@
         "title": "MobileSessionLinkResponse",
         "type": "object"
       },
+      "MoneyTruthRange": {
+        "additionalProperties": false,
+        "description": "Bande d'incertitude {low, high} sur la valeur (SPEC §4.1 `range`).\n\nChaque borne est un RECALCUL du service avec une hypothèse bornante\nbasse / haute (PAS un pourcentage arbitraire) — SPEC §4.1 précision.",
+        "properties": {
+          "high": {
+            "title": "High",
+            "type": "number"
+          },
+          "low": {
+            "title": "Low",
+            "type": "number"
+          }
+        },
+        "required": [
+          "low",
+          "high"
+        ],
+        "title": "MoneyTruthRange",
+        "type": "object"
+      },
+      "MoneyTruthReceipt": {
+        "additionalProperties": false,
+        "description": "Contrat de vérité chiffrée v1 — enveloppe une valeur L1 + sa provenance.\n\nChamps (SPEC §4.1). `range` et `confidence` sont nullables EN GÉNÉRAL mais\nREQUIS pour `claim_id == firstjob.net_salary.v1` (validateur ci-dessous ;\nA3 les affiche).",
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "base": {
+            "enum": [
+              "brut",
+              "net"
+            ],
+            "title": "Base",
+            "type": "string"
+          },
+          "civilStatus": {
+            "minLength": 1,
+            "title": "Civilstatus",
+            "type": "string"
+          },
+          "claimId": {
+            "minLength": 1,
+            "title": "Claimid",
+            "type": "string"
+          },
+          "computedAt": {
+            "minLength": 1,
+            "title": "Computedat",
+            "type": "string"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnhancedConfidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "engine": {
+            "minLength": 1,
+            "title": "Engine",
+            "type": "string"
+          },
+          "engineVersion": {
+            "minLength": 1,
+            "title": "Engineversion",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "inputsHash": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Inputshash",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "minLength": 1,
+            "title": "Jurisdiction",
+            "type": "string"
+          },
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MoneyTruthRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receiptId": {
+            "minLength": 1,
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "rounding": {
+            "minLength": 1,
+            "title": "Rounding",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/MoneyTruthSource"
+            },
+            "minItems": 1,
+            "title": "Sources",
+            "type": "array"
+          },
+          "taxYear": {
+            "maximum": 2100.0,
+            "minimum": 1900.0,
+            "title": "Taxyear",
+            "type": "integer"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "claimId",
+          "receiptId",
+          "inputs",
+          "inputsHash",
+          "jurisdiction",
+          "taxYear",
+          "base",
+          "civilStatus",
+          "assumptions",
+          "engine",
+          "engineVersion",
+          "rounding",
+          "sources",
+          "value",
+          "computedAt"
+        ],
+        "title": "MoneyTruthReceipt",
+        "type": "object"
+      },
+      "MoneyTruthSource": {
+        "additionalProperties": false,
+        "description": "Une source datée derrière la valeur (SPEC §4.1 `sources[]`).\n\n`vintage` = millésime de la source (ex. 2026 pour les taux de cotisation,\n2022 pour une statistique OFS ESS). Ne JAMAIS confondre avec `tax_year`\n(millésime des règles de cotisation appliquées) — SPEC §4.1 précision.",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "vintage": {
+            "maximum": 2100.0,
+            "minimum": 1900.0,
+            "title": "Vintage",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "vintage"
+        ],
+        "title": "MoneyTruthSource",
+        "type": "object"
+      },
       "MonthlyEntryResponse": {
         "description": "A single month in the repayment plan.",
         "properties": {
@@ -20240,6 +20502,95 @@
         "title": "ResidenceCountry",
         "type": "string"
       },
+      "ResolveReceiptRequest": {
+        "description": "Résolution scopée propriétaire (SPEC §4.3 clauses 2-3).",
+        "properties": {
+          "anonymousSessionId": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Session anonyme propriétaire (résolution non authentifiée).",
+            "title": "Anonymoussessionid"
+          },
+          "inputsHash": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Inputshash",
+            "type": "string"
+          },
+          "receiptId": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "receiptInputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inputs normalisés portés par le payload d'entrée (cas pending : receipt pas encore synchronisé). Le coach répond depuis ces inputs quand la ligne n'est pas résolvable pour ce propriétaire.",
+            "title": "Receiptinputs"
+          }
+        },
+        "required": [
+          "receiptId",
+          "inputsHash"
+        ],
+        "title": "ResolveReceiptRequest",
+        "type": "object"
+      },
+      "ResolveReceiptResponse": {
+        "description": "Résultat de la résolution.",
+        "properties": {
+          "inputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inputs échos — présents quand status='pending'.",
+            "title": "Inputs"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MoneyTruthReceipt"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Receipt complet — présent SEULEMENT quand status='resolved'."
+          },
+          "status": {
+            "description": "'resolved' | 'pending' | 'not_found'.",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ResolveReceiptResponse",
+        "type": "object"
+      },
       "RetirementAssetSchema": {
         "description": "Un avoir de prevoyance eligible au retrait.",
         "properties": {
@@ -21976,6 +22327,58 @@
         ],
         "title": "StatutProfessionnel",
         "type": "string"
+      },
+      "StoreReceiptRequest": {
+        "description": "Écriture idempotente d'un receipt (SPEC §4.3 clause 1).",
+        "properties": {
+          "anonymousSessionId": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Session anonyme propriétaire quand la requête n'est pas authentifiée (store /first-job pré-auth). Ignoré si un JWT est présent (le scope propriétaire prend alors user.id).",
+            "title": "Anonymoussessionid"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/MoneyTruthReceipt"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "title": "StoreReceiptRequest",
+        "type": "object"
+      },
+      "StoreReceiptResponse": {
+        "description": "Résultat de l'écriture.",
+        "properties": {
+          "inputsHash": {
+            "title": "Inputshash",
+            "type": "string"
+          },
+          "receiptId": {
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "status": {
+            "description": "'stored' (nouveau) | 'duplicate' (no-op).",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "receiptId",
+          "inputsHash"
+        ],
+        "title": "StoreReceiptResponse",
+        "type": "object"
       },
       "StripeCheckoutRequest": {
         "properties": {
@@ -31518,6 +31921,102 @@
         "summary": "Lucidity Invariant Mortgage Cap",
         "tags": [
           "Lucidity L1-L4 (calc-engine-v1)"
+        ]
+      }
+    },
+    "/api/v1/lucidity/receipts": {
+      "post": {
+        "description": "Persiste un MoneyTruthReceipt de façon idempotente, scopé propriétaire.",
+        "operationId": "store_money_truth_receipt_api_v1_lucidity_receipts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreReceiptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreReceiptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Store Money Truth Receipt",
+        "tags": [
+          "Lucidity MoneyTruthReceipt store/resolve (firstJob PR-E)",
+          "lucidity-receipts"
+        ]
+      }
+    },
+    "/api/v1/lucidity/receipts/resolve": {
+      "post": {
+        "description": "Résout un receipt par (receiptId, inputsHash) scopé au propriétaire.",
+        "operationId": "resolve_money_truth_receipt_api_v1_lucidity_receipts_resolve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveReceiptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolveReceiptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Resolve Money Truth Receipt",
+        "tags": [
+          "Lucidity MoneyTruthReceipt store/resolve (firstJob PR-E)",
+          "lucidity-receipts"
         ]
       }
     },

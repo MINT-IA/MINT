@@ -186,6 +186,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         capturedCtx = ctx;
         return const CoachResponse(
@@ -273,6 +276,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         capturedCtx = ctx;
         return const CoachResponse(
@@ -318,6 +324,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         capturedCtx = ctx;
         return const CoachResponse(
@@ -394,6 +403,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         capturedCtx = ctx;
         return CoachOrchestrator.generateChat(
@@ -405,6 +417,9 @@ void main() {
           language: language,
           cashLevel: cashLevel,
           isLoggedIn: isLoggedIn,
+          receiptId: receiptId,
+          inputsHash: inputsHash,
+          receiptInputs: receiptInputs,
         );
       });
 

@@ -2805,6 +2805,9 @@ class SEs extends S {
   String get firstJobActivityRate => 'Tasa de actividad';
 
   @override
+  String get firstJobAskCoach => 'Preguntar al coach';
+
+  @override
   String get firstJob3aHeader => 'PILAR 3A — A CONSIDERAR';
 
   @override

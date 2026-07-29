@@ -889,6 +889,34 @@ ALLOW = {
     # `didUpdateWidget` qui re-dimensionne `_checked` en préservant les cochages
     # par identité (`legalRef`).
     "apps/mobile/lib/widgets/coach/job_change_checklist_widget.dart",
+    # PR-E (E1) handoff /first-job -> coach porteur du MoneyTruthReceipt
+    # (tranche firstJob, SPEC TRANCHE-FIRSTJOB §4.3) : store/resolve backend
+    # owner-scoped (idempotence + accès croisé + pending + TTL) + câblage
+    # coach (CoachChatRequest reçoit receiptId/inputsHash, résolution
+    # server-side). Portage API exposé => regen OpenAPI canonical + brut.
+    "services/backend/app/models/money_truth_receipt_record.py",
+    "services/backend/app/services/lucidity/__init__.py",
+    "services/backend/app/services/lucidity/receipt_store.py",
+    "services/backend/app/schemas/money_truth_receipt_api.py",
+    "services/backend/app/api/v1/endpoints/lucidity_receipts.py",
+    "services/backend/app/api/v1/router.py",
+    "services/backend/app/schemas/coach_chat.py",
+    "services/backend/tests/test_money_truth_receipt_store.py",
+    "services/backend/alembic/versions/p126_money_truth_receipts.py",
+    # PR-E (E2) mobile — CTA firstjob-ask-coach (RED-2) + propagation
+    # receiptId/inputsHash au backend via l'entrée coach (SPEC §1 T5 / §4.3).
+    "apps/mobile/lib/models/coach_entry_payload.dart",
+    "apps/mobile/lib/services/coach/e2e_coach_route_fixture.dart",
+    "apps/mobile/test/screens/first_job_ask_coach_cta_test.dart",
+    # PR-E (E2, revue Codex P1) — fermeture de la façade du handoff : store
+    # POST du receipt AVANT la nav (ceinture 1) + receiptInputs dans la requête
+    # coach (ceinture 2). Le coach grounde vraiment (resolved OU pending).
+    "apps/mobile/lib/services/coach/money_truth_receipt_api_service.dart",
+    "apps/mobile/test/services/money_truth_receipt_handoff_test.dart",
+    # PR-E (revue Codex CI) — mocks OrchestratorChatFn existants mis à jour à la
+    # signature étendue (receiptId/inputsHash/receiptInputs) + heads alembic
+    # attendus incluent p126.
+    "apps/mobile/test/services/coach_context_packet_payload_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

@@ -1115,6 +1115,12 @@ _PROFILE_SAFE_FIELDS = {
     "coach_context_packet",
 }
 
+# firstJob PR-E (E1) — clé de contexte INJECTÉE PAR LE SERVEUR après
+# résolution owner-scoped du MoneyTruthReceipt (jamais envoyée par le client,
+# donc HORS `_PROFILE_SAFE_FIELDS` — la whitelist gate l'INPUT client, pas les
+# valeurs de confiance résolues côté serveur ; garde la parité Concern C).
+_MONEY_TRUTH_RECEIPT_CONTEXT_KEY = "money_truth_receipt"
+
 
 def _sanitize_profile_value(value):
     """Recursively sanitize whitelisted profile_context values."""
@@ -5098,6 +5104,20 @@ async def coach_chat(
     )
 
     # ------------------------------------------------------------------
+    # Tranche firstJob PR-E (E1) — résolution du MoneyTruthReceipt du handoff.
+    # Quand le tour porte un receiptId (arrivée depuis /first-job), on résout
+    # le receipt server-side, SCOPÉ au propriétaire (user.id — le coach est
+    # toujours authentifié). Le résultat est fusionné dans `safe_profile` APRÈS
+    # l'hydratation profil (ci-dessous) pour ne pas court-circuiter celle-ci ;
+    # le coach ground alors sur la MÊME valeur (SPEC §4.3). Accès croisé / non
+    # synchronisé → pending/not_found, jamais la valeur d'autrui. receiptId
+    # absent = no-op (chemin coach classique inchangé).
+    # ------------------------------------------------------------------
+    from app.services.lucidity.receipt_store import resolve_receipt_context
+
+    _resolved_receipt = resolve_receipt_context(db, _user, body)
+
+    # ------------------------------------------------------------------
     # Step 0: Sanitize inputs (PII whitelist + memory scrubbing)
     # ------------------------------------------------------------------
     safe_profile = _sanitize_profile_context(body.profile_context)
@@ -5193,6 +5213,16 @@ async def coach_chat(
                 )
         except Exception as exc:
             logger.warning("coach_chat profile hydration failed: %s", exc)
+
+    # firstJob PR-E (E1) : fusionne le receipt RÉSOLU (owner-scoped) dans le
+    # contexte APRÈS hydratation ET APRÈS sanitisation — le coach ground sur
+    # receipt.value. Injection serveur post-sanitize : la valeur est de
+    # confiance (receipt du propriétaire re-validé), donc hors whitelist client.
+    if _resolved_receipt is not None:
+        safe_profile = {
+            **(safe_profile or {}),
+            _MONEY_TRUTH_RECEIPT_CONTEXT_KEY: _resolved_receipt,
+        }
 
     coach_ctx = _build_coach_context_from_profile(safe_profile)
 

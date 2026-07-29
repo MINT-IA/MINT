@@ -2825,6 +2825,9 @@ class SDe extends S {
   String get firstJobActivityRate => 'Beschäftigungsgrad';
 
   @override
+  String get firstJobAskCoach => 'Den Coach fragen';
+
+  @override
   String get firstJob3aHeader => 'SÄULE 3A — ZU PRÜFEN';
 
   @override
