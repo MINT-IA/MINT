@@ -15,8 +15,6 @@
 //  (mêmes tables, mêmes conventions d'interpolation).
 // ────────────────────────────────────────────────────────────
 
-import 'package:mint_mobile/constants/social_insurance.dart';
-
 /// Barème IFD 2026 (LIFD art. 36, célibataire) — (borne sup, taux tranche).
 const List<List<double>> incomeTaxFederalBrackets2026 = [
   [15200, 0.0000],
@@ -165,58 +163,142 @@ double estimateIncomeTaxV2(
 }
 
 
-/// Montants de la table capital (CHF).
+/// Montants de la table capital (CHF) — grille 7 noeuds (175k/350k ajoutés
+/// CAP-1 #1098). MIRROR backend CAPITAL_TAX_POINTS_AMOUNT.
 const List<double> capitalTaxPointsAmount = [
   100000,
+  175000,
   250000,
+  350000,
   500000,
   750000,
   1000000,
 ];
 
 /// Impôt cantonal+communal (chef-lieu) sur une PRESTATION EN CAPITAL de
-/// prévoyance — MIRROR backend CANTONAL_CAPITAL_TAX_CHF (beads -2i2,
-/// API ESTV API_calculateManyCapitalTaxes, 2026-07-23, célibataire
-/// homme 65 ans ; TI/VS sensibles âge/sexe, documenté). IFD art. 38
-/// (1/5 du barème revenu) NON incluse — calculée séparément.
+/// prévoyance — MIRROR backend CANTONAL_CAPITAL_TAX_CHF (API ESTV
+/// API_calculateManyCapitalTaxes, célibataire homme 65 ans ; TI/VS sensibles
+/// âge/sexe, documenté). Grille 7 noeuds : 175k/350k ajoutés 2026-07-28
+/// (CAP-1 #1098, l'interp 5 noeuds surestimait la part cantonale jusqu'à
+/// +22.9% sur les cantons convexes). IFD art. 38 NON incluse — séparée.
 const Map<String, List<double>> cantonalCapitalTaxChf = {
-  'AG': [4142, 13287, 29398, 45815, 62233],
-  'AI': [2774, 7600, 15200, 22800, 30400],
-  'AR': [7400, 18500, 39042, 63708, 88374],
-  'BE': [4091, 12422, 30758, 51708, 73154],
-  'BL': [3300, 8250, 23100, 47850, 72600],
-  'BS': [4750, 16750, 36750, 56750, 76750],
-  'FR': [2700, 13500, 36000, 58500, 81000],
-  'GE': [3588, 11650, 26550, 42203, 58069],
-  'GL': [4828, 12070, 24140, 36210, 48280],
-  'GR': [2700, 6750, 18000, 27000, 36000],
-  'JU': [5637, 17495, 37682, 57870, 78057],
-  'LU': [3016, 9106, 19256, 29406, 39556],
-  'NE': [5139, 15661, 31775, 48148, 64519],
-  'NW': [3035, 8520, 17045, 25570, 34095],
-  'OW': [5119, 12798, 25596, 38394, 51192],
-  'SG': [5346, 13365, 26730, 40095, 53460],
-  'SH': [2542, 7870, 15741, 23611, 31482],
-  'SO': [4489, 13799, 28350, 42525, 56700],
-  'SZ': [1389, 8140, 21375, 32063, 42750],
-  'TG': [6024, 15060, 30120, 45180, 60240],
-  'TI': [3860, 9650, 24841, 43425, 57900], // sensible âge/sexe (homme/65 retenu)
-  'UR': [3705, 9263, 18525, 27788, 37050],
-  'VD': [4052, 13460, 31446, 49542, 67638],
-  'VS': [4200, 11434, 33420, 60000, 80000], // sensible âge/sexe (homme/65 retenu)
-  'ZG': [2197, 7352, 17752, 28152, 38552],
-  'ZH': [4280, 10700, 24567, 52601, 86542],
+  'AG': [4142, 8590, 13287, 19555, 29398, 45815, 62233],
+  'AI': [2774, 5273, 7600, 10640, 15200, 22800, 30400],
+  'AR': [7400, 12950, 18500, 25900, 39042, 63708, 88374],
+  'BE': [4091, 8021, 12422, 19280, 30758, 51708, 73154],
+  'BL': [3300, 5775, 8250, 11550, 23100, 47850, 72600],
+  'BS': [4750, 10750, 16750, 24750, 36750, 56750, 76750],
+  'FR': [2700, 7200, 13500, 22500, 36000, 58500, 81000],
+  'GE': [3588, 7486, 11650, 17428, 26550, 42203, 58069],
+  'GL': [4828, 8449, 12070, 16898, 24140, 36210, 48280],
+  'GR': [2700, 4725, 6750, 9450, 18000, 27000, 36000],
+  'JU': [5637, 11438, 17495, 25570, 37682, 57870, 78057],
+  'LU': [3016, 6062, 9106, 13166, 19256, 29406, 39556],
+  'NE': [5139, 10538, 15661, 22024, 31775, 48148, 64519],
+  'NW': [3035, 5963, 8520, 11930, 17045, 25570, 34095],
+  'OW': [5119, 8959, 12798, 17917, 25596, 38394, 51192],
+  'SG': [5346, 9356, 13365, 18711, 26730, 40095, 53460],
+  'SH': [2542, 5274, 7870, 11017, 15741, 23611, 31482],
+  'SO': [4489, 9141, 13799, 19845, 28350, 42525, 56700],
+  'SZ': [1389, 4097, 8140, 14802, 21375, 32063, 42750],
+  'TG': [6024, 10542, 15060, 21084, 30120, 45180, 60240],
+  'TI': [3860, 6755, 9650, 13510, 24841, 43425, 57900], // sensible âge/sexe (homme/65 retenu)
+  'UR': [3705, 6484, 9263, 12968, 18525, 27788, 37050],
+  'VD': [4052, 8535, 13460, 20588, 31446, 49542, 67638],
+  'VS': [4200, 7350, 11434, 18761, 33420, 60000, 80000], // sensible âge/sexe (homme/65 retenu)
+  'ZG': [2197, 4810, 7352, 11512, 17752, 28152, 38552],
+  'ZH': [4280, 7490, 10700, 14980, 24567, 52601, 86542],
 };
 
-/// Impôt total sur un retrait en capital 2e/3e pilier — modèle v2 -2i2,
-/// MIRROR exact du backend estimate_capital_withdrawal_tax.
-double estimateCapitalWithdrawalTaxV2(
-  double amount,
-  String canton, {
-  bool isMarried = false,
-}) {
-  if (amount <= 0) return 0;
+/// Impôt cantonal+communal (chef-lieu) sur une PRESTATION EN CAPITAL, état
+/// civil MARIÉ — MIRROR backend CANTONAL_CAPITAL_TAX_MARRIED_CHF (API ESTV
+/// API_calculateManyCapitalTaxes, Relationship=2, collecte 2026-07-28, MÊME
+/// grille que le célibataire). Remplace le rabais forfaitaire par canton
+/// (inventé — supprimé, triage AnnAssign #1095) : le traitement marié est un
+/// effet de barème (splitting), pas un coefficient plat (ex. ZH sans réduction
+/// ≤ 250k puis 0.61 à 750k ; BS/BL/GL/LU/OW/UR sans réduction). IFD art. 38
+/// NON incluse — barème célibataire (approximation pré-existante).
+const Map<String, List<double>> cantonalCapitalTaxMarriedChf = {
+  'AG': [2846, 6866, 11208, 17178, 26573, 42377, 58795],
+  'AI': [2220, 4693, 7258, 10545, 15200, 22800, 30400],
+  'AR': [5550, 9712, 13876, 19426, 29282, 47782, 66282],
+  'BE': [3438, 7210, 11297, 17325, 27484, 47071, 67903],
+  'BL': [3300, 5775, 8250, 11550, 23100, 47850, 72600],
+  'BS': [4750, 10750, 16750, 24750, 36750, 56750, 76750],
+  'FR': [2340, 6480, 12600, 21600, 35100, 57600, 80100],
+  'GE': [2365, 5925, 9680, 14971, 23302, 37817, 53101],
+  'GL': [4828, 8449, 12070, 16898, 24140, 36210, 48280],
+  'GR': [2700, 4725, 6750, 9450, 13500, 27000, 36000],
+  'JU': [4687, 9190, 13822, 19997, 29259, 44697, 60134],
+  'LU': [3016, 6062, 9106, 13166, 19256, 29406, 39556],
+  'NE': [4725, 8714, 13931, 21281, 31333, 47302, 63625],
+  'NW': [2480, 5230, 8157, 11925, 17041, 25566, 34091],
+  'OW': [5119, 8959, 12798, 17917, 25596, 38394, 51192],
+  'SG': [4860, 8505, 12150, 17010, 24300, 36450, 48600],
+  'SH': [1810, 4306, 6929, 10688, 15741, 23611, 31482],
+  'SO': [3442, 7679, 12244, 18454, 27769, 42526, 56701], // 750k/1M: ESTV arrondit +1 CHF (pas de réduction à haut montant)
+  'SZ': [917, 2251, 4419, 8574, 16999, 32063, 42750],
+  'TG': [5020, 8785, 12550, 17570, 25100, 37650, 50200],
+  'TI': [3860, 6755, 9650, 13510, 19300, 28950, 54019], // sensible âge/sexe (homme/65 retenu)
+  'UR': [3705, 6484, 9263, 12968, 18525, 27788, 37050],
+  'VD': [3281, 7013, 11360, 17577, 27705, 45743, 63840],
+  'VS': [4116, 7203, 11206, 18386, 32751, 58800, 78400], // sensible âge/sexe (homme/65 retenu)
+  'ZG': [1558, 3534, 6546, 10965, 17205, 27605, 38005],
+  'ZH': [4280, 7490, 10700, 14980, 21400, 32100, 57652],
+};
 
+/// IFD (art. 38 = 1/5 du barème revenu) sur une prestation en capital, état
+/// civil MARIÉ — barème art. 36 al. 2 (splitting), CANTON-INDÉPENDANT, MÊME
+/// grille. MIRROR backend FEDERAL_CAPITAL_IFD_MARRIED_CHF (API ESTV
+/// API_calculateManyCapitalTaxes Relationship=2, 2026-07-28, triage AnnAssign
+/// #1095). Sans ça, appliquer le barème célibataire au marié surestime jusqu'à
+/// ~13.6 % (SZ 100k).
+const List<double> federalCapitalIfdMarriedChf = [
+  363,
+  1726,
+  3676,
+  6276,
+  10176,
+  16676,
+  23000,
+];
+
+/// Interpolation des tables capital 5 points (même mécanique partout) :
+/// <100k linéaire depuis (0, 0) ; entre points linéaire ; >1M extrapolation à
+/// la pente du dernier segment.
+double _interpolateCapitalPoints(List<double> pts, double amount) {
+  final amounts = capitalTaxPointsAmount;
+  if (amount <= amounts.first) {
+    return pts.first * (amount / amounts.first);
+  }
+  if (amount >= amounts.last) {
+    final slope = (pts[pts.length - 1] - pts[pts.length - 2]) /
+        (amounts[amounts.length - 1] - amounts[amounts.length - 2]);
+    return pts.last + slope * (amount - amounts.last);
+  }
+  for (var i = 0; i < amounts.length - 1; i++) {
+    if (amount >= amounts[i] && amount <= amounts[i + 1]) {
+      final ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i]);
+      return pts[i] + ratio * (pts[i + 1] - pts[i]);
+    }
+  }
+  return pts.last;
+}
+
+/// Points cantonaux du canton, ou moyenne des 26 si canton inconnu.
+List<double> _cantonalCapitalPts(
+    Map<String, List<double>> table, String canton) {
+  final pts = table[canton.toUpperCase()];
+  if (pts != null) return pts;
+  final all = table.values.toList();
+  return List<double>.generate(
+    capitalTaxPointsAmount.length,
+    (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
+  );
+}
+
+/// IFD art. 38 célibataire = 1/5 du barème revenu (exact via les tranches).
+double _ifdSingleCapital(double amount) {
   var ifdFull = 0.0;
   var prevBound = 0.0;
   for (final bracket in incomeTaxFederalBrackets2026) {
@@ -227,40 +309,38 @@ double estimateCapitalWithdrawalTaxV2(
     ifdFull += taxable * rate;
     prevBound = upper;
   }
-  final ifd = ifdFull / 5.0;
+  return ifdFull / 5.0;
+}
 
-  var pts = cantonalCapitalTaxChf[canton.toUpperCase()];
-  if (pts == null) {
-    final all = cantonalCapitalTaxChf.values.toList();
-    pts = List<double>.generate(
-      capitalTaxPointsAmount.length,
-      (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
-    );
-  }
-  final amounts = capitalTaxPointsAmount;
-  double cantonal;
-  if (amount <= amounts.first) {
-    cantonal = pts.first * (amount / amounts.first);
-  } else if (amount >= amounts.last) {
-    final slope = (pts[pts.length - 1] - pts[pts.length - 2]) /
-        (amounts[amounts.length - 1] - amounts[amounts.length - 2]);
-    cantonal = pts.last + slope * (amount - amounts.last);
-  } else {
-    cantonal = pts.last;
-    for (var i = 0; i < amounts.length - 1; i++) {
-      if (amount >= amounts[i] && amount <= amounts[i + 1]) {
-        final ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i]);
-        cantonal = pts[i] + ratio * (pts[i + 1] - pts[i]);
-        break;
-      }
-    }
-  }
+/// IFD art. 38 marié (barème al. 2, splitting), bornée par le célibataire :
+/// exact aux grilles, préserve le seuil non imposable sous 100k (l'interp
+/// depuis (0, 0) surestimerait), et borne l'extrapolation al. 2 <= al. 1
+/// au-delà d'1M.
+double _ifdMarriedCapital(double amount) {
+  final interp = _interpolateCapitalPoints(federalCapitalIfdMarriedChf, amount);
+  final single = _ifdSingleCapital(amount);
+  return interp < single ? interp : single;
+}
 
-  if (isMarried) {
-    // Coefficient par canton importé directement (review #990 : une
-    // dépendance injectable nullable permettait une divergence silencieuse
-    // marié == célibataire si le caller oubliait l'injection).
-    cantonal *= marriedCapitalTaxDiscountFor(canton.toUpperCase());
-  }
-  return ifd + cantonal;
+/// Impôt total sur un retrait en capital 2e/3e pilier — modèle v2 -2i2,
+/// MIRROR exact du backend estimate_capital_withdrawal_tax. Marié : part
+/// cantonale (cantonalCapitalTaxMarriedChf) ET IFD (art. 38 al. 2,
+/// federalCapitalIfdMarriedChf) sur l'étalon ESTV ; post-condition
+/// marié <= célibataire (croisement d'extrapolations, arrondi ESTV — #1095).
+double estimateCapitalWithdrawalTaxV2(
+  double amount,
+  String canton, {
+  bool isMarried = false,
+}) {
+  if (amount <= 0) return 0;
+
+  final single = _ifdSingleCapital(amount) +
+      _interpolateCapitalPoints(
+          _cantonalCapitalPts(cantonalCapitalTaxChf, canton), amount);
+  if (!isMarried) return single;
+
+  final married = _ifdMarriedCapital(amount) +
+      _interpolateCapitalPoints(
+          _cantonalCapitalPts(cantonalCapitalTaxMarriedChf, canton), amount);
+  return married < single ? married : single;
 }

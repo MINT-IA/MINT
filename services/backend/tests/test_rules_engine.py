@@ -387,15 +387,15 @@ class TestRenteVsCapital:
     def test_sophie_vd_married_250k(self):
         """Sophie: 64 ans, VD, married, 150k oblig + 100k surob, taux surob 4.5%.
 
-        Coefficient marié PAR CANTON (beads -ku6, audit swiss-brain Q5) :
-        VD base 0.08, splitting intégral LI VD art. 49 -> 0.08*0.78 = 0.0624.
-        Progressive: 100k*0.0624*1.0 + 100k*0.0624*1.15 + 50k*0.0624*1.30
-        = 6240 + 7176 + 4056 = 17472 (l'ancien 0.85 uniforme donnait 19040).
+        Étalon capital MARIÉ (triage AnnAssign #1095) : les DEUX parts sont
+        l'ESTV marié. Cantonal VD 250k = 11360 (grille) ; IFD art. 38 al. 2
+        marié 250k = 3676 (vs 3901 célibataire) -> impôt marié = 11360 + 3676
+        = 15036 (l'ancien rabais 0.78 + IFD célibataire donnait 14399/15261).
         """
         r = compute_rente_vs_capital(150_000, 100_000, 0.045, 64, "VD", "married")
         assert r["rente_annuelle"] == pytest.approx(14_700, abs=1)
-        assert r["impot_retrait"] == pytest.approx(14_399.49, abs=1)  # v2 : interp VD 250k x coeff marié 0.78
-        assert r["capital_net"] == pytest.approx(235_600.51, abs=1)
+        assert r["impot_retrait"] == pytest.approx(15_036.0, abs=1)  # ESTV : cantonal + IFD marié
+        assert r["capital_net"] == pytest.approx(234_964.0, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
         assert r["scenarios"]["central"]["break_even_age"] is not None
 
@@ -414,14 +414,16 @@ class TestRenteVsCapital:
     def test_anna_bs_married_100k(self):
         """Anna: 64 ans, BS, married, 80k oblig + 20k surob, taux surob 4.0%.
 
-        Coefficient marié PAR CANTON (beads -ku6) : BS non tabulé ->
-        fallback 0.82. Base 0.075 -> 0.075*0.82 = 0.0615.
-        Progressive: 100k*0.0615*1.0 = 6150 (ancien 0.85 uniforme : 6375).
+        Étalon capital MARIÉ (triage AnnAssign #1095) : BS n'a AUCUNE
+        réduction mariée CANTONALE d'après l'ESTV (BS 100k marié = 4750 =
+        célibataire), mais l'IFD art. 38 al. 2 marié réduit (363 vs 537) ->
+        impôt marié = 4750 + 363 = 5113 (le fédéral porte la réduction, pas
+        le cantonal ; l'ancien rabais 0.82 inventé donnait 4432).
         """
         r = compute_rente_vs_capital(80_000, 20_000, 0.04, 64, "BS", "married")
         assert r["rente_annuelle"] == pytest.approx(6_240, abs=1)
-        assert r["impot_retrait"] == pytest.approx(4_431.89, abs=1)  # v2 : BS 100k x fallback marié 0.82
-        assert r["capital_net"] == pytest.approx(95_568.11, abs=1)
+        assert r["impot_retrait"] == pytest.approx(5_113.0, abs=1)  # ESTV : BS cantonal + IFD marié
+        assert r["capital_net"] == pytest.approx(94_887.0, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
 
     def test_thomas_lu_single_500k(self):

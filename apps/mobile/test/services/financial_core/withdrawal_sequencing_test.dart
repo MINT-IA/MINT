@@ -114,14 +114,19 @@ void main() {
     //  4. Married couples get lower tax
     // ──────────────────────────────────────────────────────────
     test('married couples get lower tax than singles', () {
+      // Canton VD : réduction mariée cantonale ESTV réelle à ces montants
+      // (~80k/retrait). ZH (défaut) ne réduit pas ≤ 250k (fait ESTV, triage
+      // AnnAssign #1095) -> égalité marié==célibataire, pas une baisse.
       final single = _buildProfile(
         birthYear: 1970,
+        canton: 'VD',
         etatCivil: CoachCivilStatus.celibataire,
         nombre3a: 3,
         totalEpargne3a: 240000,
       );
       final married = _buildProfile(
         birthYear: 1970,
+        canton: 'VD',
         etatCivil: CoachCivilStatus.marie,
         nombre3a: 3,
         totalEpargne3a: 240000,

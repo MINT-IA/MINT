@@ -150,44 +150,156 @@ CANTONAL_COMMUNAL_TAX_CHF = {
 
 
 # Impôt cantonal+communal (chef-lieu) sur une PRESTATION EN CAPITAL de
-# prévoyance (retrait LPP/3a) en CHF — 26 cantons x 5 montants, API
-# officielle ESTV API_calculateManyCapitalTaxes (collecte 2026-07-23,
-# beads MINT_nosync-2i2). Profil : célibataire, sans enfant, sans
-# confession, homme 65 ans (TI/VS sensibles âge/sexe — documenté).
-# L'IFD (art. 38 LIFD) N'EST PAS incluse : elle vaut exactement 1/5 du
-# barème revenu (vérifié sur les 130 points : 537/3'901/10'501/17'101/
-# 23'000) et se calcule via les FEDERAL_BRACKETS.
-# Données brutes : .planning/.../constants-audit/capital_tax_2026/.
-CAPITAL_TAX_POINTS_AMOUNT = [100_000, 250_000, 500_000, 750_000, 1_000_000]
+# prévoyance (retrait LPP/3a) en CHF — 26 cantons x 7 montants, API officielle
+# ESTV API_calculateManyCapitalTaxes. Profil : célibataire, sans enfant, sans
+# confession, homme 65 ans (TI/VS sensibles âge/sexe — documenté). Collecte
+# initiale 2026-07-23 (5 noeuds) ; noeuds 175k et 350k AJOUTÉS 2026-07-28
+# (finding CAP-1 #1098 : entre 100k et 500k l'interpolation linéaire 5 noeuds
+# surestimait la part cantonale jusqu'à +22.9% sur les cantons à barème
+# convexe — BL 350k). L'IFD (art. 38 LIFD) N'EST PAS incluse : 1/5 du barème
+# revenu (célibataire via FEDERAL_BRACKETS, recoupé sur les noeuds : 537/1965/
+# 3901/6541/10501/17101/23000). Brut : capital_tax_2026/ + capital_marie_2026/.
+CAPITAL_TAX_POINTS_AMOUNT = [
+    100_000, 175_000, 250_000, 350_000, 500_000, 750_000, 1_000_000,
+]
 
 CANTONAL_CAPITAL_TAX_CHF = {
-    "AG": [4142, 13287, 29398, 45815, 62233],
-    "AI": [2774, 7600, 15200, 22800, 30400],
-    "AR": [7400, 18500, 39042, 63708, 88374],
-    "BE": [4091, 12422, 30758, 51708, 73154],
-    "BL": [3300, 8250, 23100, 47850, 72600],
-    "BS": [4750, 16750, 36750, 56750, 76750],
-    "FR": [2700, 13500, 36000, 58500, 81000],
-    "GE": [3588, 11650, 26550, 42203, 58069],
-    "GL": [4828, 12070, 24140, 36210, 48280],
-    "GR": [2700, 6750, 18000, 27000, 36000],
-    "JU": [5637, 17495, 37682, 57870, 78057],
-    "LU": [3016, 9106, 19256, 29406, 39556],
-    "NE": [5139, 15661, 31775, 48148, 64519],
-    "NW": [3035, 8520, 17045, 25570, 34095],
-    "OW": [5119, 12798, 25596, 38394, 51192],
-    "SG": [5346, 13365, 26730, 40095, 53460],
-    "SH": [2542, 7870, 15741, 23611, 31482],
-    "SO": [4489, 13799, 28350, 42525, 56700],
-    "SZ": [1389, 8140, 21375, 32063, 42750],
-    "TG": [6024, 15060, 30120, 45180, 60240],
-    "TI": [3860, 9650, 24841, 43425, 57900],  # sensible âge/sexe (homme/65 retenu)
-    "UR": [3705, 9263, 18525, 27788, 37050],
-    "VD": [4052, 13460, 31446, 49542, 67638],
-    "VS": [4200, 11434, 33420, 60000, 80000],  # sensible âge/sexe (homme/65 retenu)
-    "ZG": [2197, 7352, 17752, 28152, 38552],
-    "ZH": [4280, 10700, 24567, 52601, 86542],
+    "AG": [4142, 8590, 13287, 19555, 29398, 45815, 62233],
+    "AI": [2774, 5273, 7600, 10640, 15200, 22800, 30400],
+    "AR": [7400, 12950, 18500, 25900, 39042, 63708, 88374],
+    "BE": [4091, 8021, 12422, 19280, 30758, 51708, 73154],
+    "BL": [3300, 5775, 8250, 11550, 23100, 47850, 72600],
+    "BS": [4750, 10750, 16750, 24750, 36750, 56750, 76750],
+    "FR": [2700, 7200, 13500, 22500, 36000, 58500, 81000],
+    "GE": [3588, 7486, 11650, 17428, 26550, 42203, 58069],
+    "GL": [4828, 8449, 12070, 16898, 24140, 36210, 48280],
+    "GR": [2700, 4725, 6750, 9450, 18000, 27000, 36000],
+    "JU": [5637, 11438, 17495, 25570, 37682, 57870, 78057],
+    "LU": [3016, 6062, 9106, 13166, 19256, 29406, 39556],
+    "NE": [5139, 10538, 15661, 22024, 31775, 48148, 64519],
+    "NW": [3035, 5963, 8520, 11930, 17045, 25570, 34095],
+    "OW": [5119, 8959, 12798, 17917, 25596, 38394, 51192],
+    "SG": [5346, 9356, 13365, 18711, 26730, 40095, 53460],
+    "SH": [2542, 5274, 7870, 11017, 15741, 23611, 31482],
+    "SO": [4489, 9141, 13799, 19845, 28350, 42525, 56700],
+    "SZ": [1389, 4097, 8140, 14802, 21375, 32063, 42750],
+    "TG": [6024, 10542, 15060, 21084, 30120, 45180, 60240],
+    "TI": [3860, 6755, 9650, 13510, 24841, 43425, 57900],  # sensible âge/sexe (homme/65 retenu)
+    "UR": [3705, 6484, 9263, 12968, 18525, 27788, 37050],
+    "VD": [4052, 8535, 13460, 20588, 31446, 49542, 67638],
+    "VS": [4200, 7350, 11434, 18761, 33420, 60000, 80000],  # sensible âge/sexe (homme/65 retenu)
+    "ZG": [2197, 4810, 7352, 11512, 17752, 28152, 38552],
+    "ZH": [4280, 7490, 10700, 14980, 24567, 52601, 86542],
 }
+
+# Impôt cantonal+communal (chef-lieu) sur une prestation en capital, état civil
+# MARIÉ — MÊME grille/points que CANTONAL_CAPITAL_TAX_CHF, API officielle ESTV
+# API_calculateManyCapitalTaxes (Relationship=2, collecte 2026-07-28). Remplace
+# le rabais forfaitaire inventé MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON (8/26 +
+# FALLBACK 0.82) : le traitement marié est un effet de BARÈME (splitting), pas
+# un coefficient plat — ex. ZH sans réduction ≤ 250k puis 0.61 à 750k.
+# Vérification : le même pipeline reproduit EXACTEMENT les 130 points
+# célibataires committés (0 écart) -> collecte mariée aussi autoritaire.
+# Données brutes : .planning/audit-etat-des-lieux-2026-07/constants-audit/
+# capital_marie_2026/. L'IFD (art. 38) reste dérivée du barème célibataire
+# (FEDERAL_BRACKETS) — approximation pré-existante hors périmètre (cantonal).
+CANTONAL_CAPITAL_TAX_MARRIED_CHF = {
+    "AG": [2846, 6866, 11208, 17178, 26573, 42377, 58795],
+    "AI": [2220, 4693, 7258, 10545, 15200, 22800, 30400],
+    "AR": [5550, 9712, 13876, 19426, 29282, 47782, 66282],
+    "BE": [3438, 7210, 11297, 17325, 27484, 47071, 67903],
+    "BL": [3300, 5775, 8250, 11550, 23100, 47850, 72600],
+    "BS": [4750, 10750, 16750, 24750, 36750, 56750, 76750],
+    "FR": [2340, 6480, 12600, 21600, 35100, 57600, 80100],
+    "GE": [2365, 5925, 9680, 14971, 23302, 37817, 53101],
+    "GL": [4828, 8449, 12070, 16898, 24140, 36210, 48280],
+    "GR": [2700, 4725, 6750, 9450, 13500, 27000, 36000],
+    "JU": [4687, 9190, 13822, 19997, 29259, 44697, 60134],
+    "LU": [3016, 6062, 9106, 13166, 19256, 29406, 39556],
+    "NE": [4725, 8714, 13931, 21281, 31333, 47302, 63625],
+    "NW": [2480, 5230, 8157, 11925, 17041, 25566, 34091],
+    "OW": [5119, 8959, 12798, 17917, 25596, 38394, 51192],
+    "SG": [4860, 8505, 12150, 17010, 24300, 36450, 48600],
+    "SH": [1810, 4306, 6929, 10688, 15741, 23611, 31482],
+    "SO": [3442, 7679, 12244, 18454, 27769, 42526, 56701],  # 750k/1M : ESTV arrondit +1 CHF (pas de réduction à haut montant)
+    "SZ": [917, 2251, 4419, 8574, 16999, 32063, 42750],
+    "TG": [5020, 8785, 12550, 17570, 25100, 37650, 50200],
+    "TI": [3860, 6755, 9650, 13510, 19300, 28950, 54019],  # sensible âge/sexe (homme/65 retenu)
+    "UR": [3705, 6484, 9263, 12968, 18525, 27788, 37050],
+    "VD": [3281, 7013, 11360, 17577, 27705, 45743, 63840],
+    "VS": [4116, 7203, 11206, 18386, 32751, 58800, 78400],  # sensible âge/sexe (homme/65 retenu)
+    "ZG": [1558, 3534, 6546, 10965, 17205, 27605, 38005],
+    "ZH": [4280, 7490, 10700, 14980, 21400, 32100, 57652],
+}
+
+# IFD (art. 38 LIFD = 1/5 du barème revenu) sur une prestation en capital, état
+# civil MARIÉ — barème art. 36 al. 2 (splitting), CANTON-INDÉPENDANT, sur la
+# MÊME grille 7 noeuds que le cantonal. API ESTV API_calculateManyCapitalTaxes
+# (Relationship=2, collecte 2026-07-28 ; noeuds 175k/350k ajoutés CAP-1 #1098).
+# Le célibataire se calcule EXACTEMENT via FEDERAL_BRACKETS (barème al. 1) ; le
+# marié via interpolation (le barème al. 2 complet n'est pas re-tabulé). Écart
+# réel jusqu'à ~13.6 % (SZ 100k) si on appliquait le barème célibataire au
+# marié. Brut : capital_marie_2026/consolidated.json (ifd_marie_par_montant).
+FEDERAL_CAPITAL_IFD_MARRIED_CHF = [363, 1726, 3676, 6276, 10176, 16676, 23000]
+
+
+def _interpolate_capital_points(pts: list, amount: float) -> float:
+    """Interpolation des tables capital 5 points (même mécanique partout).
+
+    <100k : linéaire depuis (0, 0) ; entre points : linéaire ; >1M :
+    extrapolation à la pente du dernier segment.
+    """
+    amounts = CAPITAL_TAX_POINTS_AMOUNT
+    if amount <= amounts[0]:
+        return pts[0] * (amount / amounts[0])
+    if amount >= amounts[-1]:
+        slope = (pts[-1] - pts[-2]) / (amounts[-1] - amounts[-2])
+        return pts[-1] + slope * (amount - amounts[-1])
+    for i in range(len(amounts) - 1):
+        if amounts[i] <= amount <= amounts[i + 1]:
+            ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i])
+            return pts[i] + ratio * (pts[i + 1] - pts[i])
+    return pts[-1]
+
+
+def _cantonal_capital_pts(table: dict, canton: str) -> list:
+    """Points cantonaux du canton, ou moyenne des 26 si canton inconnu."""
+    pts = table.get(canton.upper())
+    if pts is None:
+        pts = [
+            sum(v[i] for v in table.values()) / len(table)
+            for i in range(len(CAPITAL_TAX_POINTS_AMOUNT))
+        ]
+    return pts
+
+
+def _ifd_single_capital(amount: float) -> float:
+    """IFD art. 38 célibataire = 1/5 du barème revenu (FEDERAL_BRACKETS, exact)."""
+    ifd_full = 0.0
+    prev_bound = 0.0
+    for upper, rate in FEDERAL_BRACKETS:
+        if amount <= prev_bound:
+            break
+        taxable = min(amount, upper) - prev_bound
+        ifd_full += taxable * rate
+        prev_bound = upper
+    return ifd_full / 5.0
+
+
+def _ifd_married_capital(amount: float) -> float:
+    """IFD art. 38 marié (barème al. 2, splitting), bornée par l'IFD célibataire.
+
+    Points ESTV interpolés (exact aux montants de grille) ; la borne
+    ``min(interp, célibataire)`` (a) préserve le seuil non imposable SOUS 100k
+    — l'interpolation linéaire depuis (0, 0) surestimerait l'IFD là où le
+    barème réel est nul — et (b) garantit al. 2 <= al. 1 au-delà d'1M, où les
+    pentes d'extrapolation divergent. Aux points de grille, l'IFD marié ESTV
+    < célibataire (sauf 1M égal) donc la borne ne mord pas.
+    """
+    return min(
+        _interpolate_capital_points(FEDERAL_CAPITAL_IFD_MARRIED_CHF, amount),
+        _ifd_single_capital(amount),
+    )
 
 
 def estimate_capital_withdrawal_tax(
@@ -200,55 +312,35 @@ def estimate_capital_withdrawal_tax(
     IFD art. 38 (1/5 du barème revenu progressif, plafond 11.5%/5) +
     impôt cantonal+communal INTERPOLÉ entre points calibrés ESTV.
     Remplace « taux de base cantonal x multiplicateurs par tranche »
-    (approximation à ±40% sur certains cantons). Marié : coefficient
-    par canton ``married_capital_tax_discount_for`` appliqué à la part
-    cantonale (approximation documentée — les points collectés sont
-    célibataire).
+    (approximation à ±40% sur certains cantons).
+
+    Marié : part cantonale interpolée sur ``CANTONAL_CAPITAL_TAX_MARRIED_CHF``
+    ET IFD interpolée sur ``FEDERAL_CAPITAL_IFD_MARRIED_CHF`` (barème al. 2,
+    splitting) — les DEUX parts sont l'étalon ESTV marié (plus de rabais
+    forfaitaire, plus d'IFD célibataire appliquée au marié).
 
     Interpolation : linéaire sur l'impôt ; <100k : linéaire depuis (0, 0) ;
     >1M : extrapolation à la pente du dernier segment. Estimation
     éducative, jamais un conseil fiscal (LSFin).
     """
-    from app.constants.social_insurance import married_capital_tax_discount_for
-
     if amount <= 0:
         return 0.0
 
-    # IFD art. 38 : 1/5 du barème revenu appliqué au montant.
-    ifd_full = 0.0
-    prev_bound = 0.0
-    for upper, rate in FEDERAL_BRACKETS:
-        if amount <= prev_bound:
-            break
-        taxable = min(amount, upper) - prev_bound
-        ifd_full += taxable * rate
-        prev_bound = upper
-    ifd = ifd_full / 5.0
+    single = _ifd_single_capital(amount) + _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_CHF, canton), amount
+    )
+    if not is_married:
+        return round(single, 2)
 
-    pts = CANTONAL_CAPITAL_TAX_CHF.get(canton.upper())
-    if pts is None:
-        pts = [
-            sum(v[i] for v in CANTONAL_CAPITAL_TAX_CHF.values())
-            / len(CANTONAL_CAPITAL_TAX_CHF)
-            for i in range(len(CAPITAL_TAX_POINTS_AMOUNT))
-        ]
-    amounts = CAPITAL_TAX_POINTS_AMOUNT
-    if amount <= amounts[0]:
-        cantonal = pts[0] * (amount / amounts[0])
-    elif amount >= amounts[-1]:
-        slope = (pts[-1] - pts[-2]) / (amounts[-1] - amounts[-2])
-        cantonal = pts[-1] + slope * (amount - amounts[-1])
-    else:
-        cantonal = pts[-1]
-        for i in range(len(amounts) - 1):
-            if amounts[i] <= amount <= amounts[i + 1]:
-                ratio = (amount - amounts[i]) / (amounts[i + 1] - amounts[i])
-                cantonal = pts[i] + ratio * (pts[i + 1] - pts[i])
-                break
-
-    if is_married:
-        cantonal *= married_capital_tax_discount_for(canton)
-    return round(ifd + cantonal, 2)
+    married = _ifd_married_capital(amount) + _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_MARRIED_CHF, canton), amount
+    )
+    # Post-condition : marié <= célibataire PARTOUT. Les tables 5 points
+    # extrapolent au-delà d'1M à la pente du dernier segment ; ces pentes
+    # peuvent DIVERGER (TI célibataire concave au sommet -> le marié croiserait
+    # le célibataire vers ~1.09M sans borne). min() garantit l'invariant et
+    # absorbe l'arrondi ESTV +1 CHF (SO 750k/1M).
+    return round(min(married, single), 2)
 
 
 def estimate_income_tax_parts(

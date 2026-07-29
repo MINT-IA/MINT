@@ -56,6 +56,13 @@ ALLOWED = {
     # vérification écrite (identité cantonal+communal+IFD sur 130 points).
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_COMMUNAL_TAX_CHF",
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_CAPITAL_TAX_CHF",
+    # Étalon capital MARIÉ — API ESTV API_calculateManyCapitalTaxes
+    # (Relationship=2, collecte 2026-07-28), MÊME grille que la table
+    # célibataire ; pipeline vérifié (reproduit les 130 points célibataires
+    # committés au CHF près). Remplace le rabais forfaitaire inventé
+    # MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON. Brut :
+    # .planning/audit-etat-des-lieux-2026-07/constants-audit/capital_marie_2026/.
+    "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_CAPITAL_TAX_MARRIED_CHF",
     # ÉTALON — socle succession/donation (ADR 2026-07-28 P4). Source primaire :
     # ESTV, dossier successions/donations, état 1.1.2025, archivé 2026-07-28
     # sous .planning/audit-etat-des-lieux-2026-07/constants-audit/
@@ -81,7 +88,6 @@ ALLOWED = {
     # RÉVÉLÉES par l'extension AnnAssign du 2026-07-28 (les tables ANNOTÉES
     # échappaient au visiteur) — DETTE HÉRITÉE gelée, à trier une à une :
     # les 3 premières meurent déjà dans des PR ouvertes (#1087, #1072, P5).
-    "services/backend/app/constants/social_insurance.py::MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON",
     "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_ENFANT_PAR_CANTON",
     "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_FORMATION_PAR_CANTON",
     "services/backend/app/services/fiscal/commune_service.py::COMMUNE_DATA",

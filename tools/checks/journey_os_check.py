@@ -506,6 +506,10 @@ ALLOW = {
     "services/backend/app/schemas/mortgage.py",
     "services/backend/app/schemas/retirement.py",
     "services/backend/tests/test_uwv_married_capital_apis.py",
+    # #1095 : recalibrage capital MARIÉ vers l'étalon ESTV (drain du rabais)
+    "services/backend/tests/test_capital_marie_calibration.py",
+    "services/backend/tests/test_capital_tax_property.py",
+    "apps/mobile/test/services/financial_core/withdrawal_sequencing_test.dart",
     # -337 : provenance des 39 clés fiscales du registre
     "services/backend/app/services/regulatory/registry.py",
     "services/backend/tests/test_337_fiscal_provenance.py",

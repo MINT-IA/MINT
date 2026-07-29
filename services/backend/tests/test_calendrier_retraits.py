@@ -151,6 +151,40 @@ class TestCantonImpact:
         assert "canton_impact_VD_vs_ZG" in result.sensitivity
         assert result.sensitivity["canton_impact_VD_vs_ZG"] > 0
 
+    def test_married_tornado_perturbs_married_curve(self):
+        """Le tornado « taux_impot_capital » perturbe la COURBE MARIÉE (#1095).
+
+        Avant : les variantes low/high passaient par ``base_rate_override``
+        (taux célibataire, chemin v1) -> les scénarios d'un couple marié
+        étaient IDENTIQUES à ceux d'un célibataire alors que leur base
+        canonique diffère (Codex P2). Après : la perturbation ±0.01 est un
+        facteur multiplicatif appliqué à l'impôt v2 (table mariée si marié).
+
+        Pour GE et ZH (réduction mariée cantonale ESTV réelle) :
+          - low/high/base mariés DIFFÈRENT du cas célibataire ;
+          - cohérence conservée : low <= base <= high.
+        """
+        for canton in ("GE", "ZH"):
+            single = compare_calendrier_retraits(
+                assets=TYPICAL_ASSETS, canton=canton, is_married=False
+            ).sensitivity
+            married = compare_calendrier_retraits(
+                assets=TYPICAL_ASSETS, canton=canton, is_married=True
+            ).sensitivity
+            for suffix in ("base", "low", "high"):
+                key = f"tornado_taux_impot_capital_{suffix}"
+                assert married[key] != single[key], (
+                    f"{canton} {suffix}: marié == célibataire — le tornado "
+                    f"contourne encore la table mariée"
+                )
+            low = married["tornado_taux_impot_capital_low"]
+            base = married["tornado_taux_impot_capital_base"]
+            high = married["tornado_taux_impot_capital_high"]
+            assert low <= base <= high, (
+                f"{canton}: incohérence marié low <= base <= high "
+                f"({low} <= {base} <= {high})"
+            )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Compliance tests

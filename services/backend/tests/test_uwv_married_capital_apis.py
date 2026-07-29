@@ -1,11 +1,12 @@
 """is_married exposé dans les 4 API de retrait capital (beads MINT_nosync-uwv).
 
 Depuis la bascule modèle v2 (-2i2 PR B), ces services appellent
-``estimate_capital_withdrawal_tax`` en célibataire systématique : le
-coefficient cantonal marié (audit swiss-brain 2026-04-18 Q5, ex. ZH 0.73)
-existe dans le moteur mais n'est branché nulle part — review Codex #991 r1
-finding 3. Ce module verrouille l'exposition bout-en-bout : paramètre
-service + champ requête Pydantic.
+``estimate_capital_withdrawal_tax`` avec ``is_married`` : la part cantonale
+mariée est interpolée sur l'étalon ESTV ``CANTONAL_CAPITAL_TAX_MARRIED_CHF``
+(triage AnnAssign #1095 — le rabais forfaitaire par canton, inventé, a été
+supprimé). Ce module verrouille l'exposition bout-en-bout : paramètre service
++ champ requête Pydantic. Cantons de démonstration : VD (réduction mariée
+cantonale réelle sur toute la grille) ; ZH ne réduit pas ≤ 250k (fait ESTV).
 
 Convention : ``is_married`` par défaut False/None — comportement historique
 inchangé pour tous les appelants existants.
@@ -25,7 +26,7 @@ from app.services.retirement.lpp_conversion_service import LppConversionService
 
 # ────────────────────────────────────────────────────────────
 # Services — le paramètre existe et produit un impôt marié < célibataire
-# (ZH : coefficient cantonal 0.73 sur la part cantonale/communale)
+# (VD : réduction mariée cantonale ESTV réelle sur la part cantonale/communale)
 # ────────────────────────────────────────────────────────────
 
 
@@ -37,7 +38,7 @@ def _allocation(is_married: bool):
         montant_disponible=7056,
         taux_marginal=0.30,
         annees_avant_retraite=20,
-        canton="ZH",
+        canton="VD",
         potentiel_rachat_lpp=100000,
         is_property_owner=True,
         is_married=is_married,
@@ -89,7 +90,7 @@ def test_epl_service_married_lowers_impot():
         avoir_surobligatoire=150000,
         age=45,
         montant_retrait_souhaite=200000,
-        canton="ZH",
+        canton="VD",
     )
     single = EPLService().simulate(**kwargs, is_married=False)
     married = EPLService().simulate(**kwargs, is_married=True)
@@ -104,7 +105,7 @@ def test_epl_combined_married_lowers_impot_3a():
         avoir_obligatoire=200000,
         avoir_surobligatoire=100000,
         age=40,
-        canton="ZH",
+        canton="VD",
     )
     single = EplCombinedService().calculate(**kwargs, is_married=False)
     married = EplCombinedService().calculate(**kwargs, is_married=True)
@@ -129,35 +130,47 @@ def test_lpp_conversion_married_coherent_both_sides():
     assert married.option_rente_nette_annuelle > single.option_rente_nette_annuelle
 
 
-def test_married_arithmetic_lock_zh():
-    """Verrou arithmétique (review #993 r1) : married < single ne suffit pas —
-    un coefficient faux (0.99) passerait. On fige :
+def test_married_arithmetic_lock_vd():
+    """Verrou arithmétique : on fige, à un point HORS grille (200k, VD), la
+    mécanique EXACTE des DEUX parts marié (cantonale ESTV + IFD art. 38 al. 2
+    ESTV), recomposées depuis les tables publiques :
 
-        impôt_marié = IFD inchangé + part_cantonale_célibataire × 0.73 (ZH)
+        impôt_marié = min( IFD_marié(interp, borné célibataire)
+                           + part_cantonale_MARIÉE(interp), célibataire )
 
-    en recomposant la part cantonale depuis les constantes publiques.
+    L'écart single−married = (IFD_cél − IFD_marié) + (cant_cél − cant_marié).
     """
-    from app.constants.social_insurance import married_capital_tax_discount_for
     from app.services.fiscal.cantonal_comparator import (
+        _cantonal_capital_pts,
+        _ifd_married_capital,
+        _ifd_single_capital,
+        _interpolate_capital_points,
         CANTONAL_CAPITAL_TAX_CHF,
-        CAPITAL_TAX_POINTS_AMOUNT,
+        CANTONAL_CAPITAL_TAX_MARRIED_CHF,
         estimate_capital_withdrawal_tax,
     )
 
-    discount = married_capital_tax_discount_for("ZH")
-    assert discount == pytest.approx(0.73), "coefficient ZH gelé (Q5 audit)"
+    amount = 200_000.0
+    cant_single = _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_CHF, "VD"), amount
+    )
+    cant_married = _interpolate_capital_points(
+        _cantonal_capital_pts(CANTONAL_CAPITAL_TAX_MARRIED_CHF, "VD"), amount
+    )
+    ifd_single = _ifd_single_capital(amount)
+    ifd_married = _ifd_married_capital(amount)
+    # Cantonal : réduction mariée VD réelle (verrou non trivial). IFD :
+    # marié <= célibataire toujours (borne), mais l'écart est faible en
+    # milieu de segment (interp linéaire vs barème courbe du célibataire).
+    assert cant_single - cant_married > 100
+    assert 0.0 <= ifd_single - ifd_married
 
-    amount = 200_000
-    pts = CANTONAL_CAPITAL_TAX_CHF["ZH"]
-    amts = CAPITAL_TAX_POINTS_AMOUNT
-    ratio = (amount - amts[0]) / (amts[1] - amts[0])
-    cantonal_single = pts[0] + ratio * (pts[1] - pts[0])
-
-    single = estimate_capital_withdrawal_tax(amount, "ZH")
-    married = estimate_capital_withdrawal_tax(amount, "ZH", is_married=True)
-    # IFD identique des deux côtés -> l'écart == part cantonale × (1-0.73).
+    single = estimate_capital_withdrawal_tax(amount, "VD")
+    married = estimate_capital_withdrawal_tax(amount, "VD", is_married=True)
+    assert single == pytest.approx(ifd_single + cant_single, abs=0.02)
+    assert married == pytest.approx(ifd_married + cant_married, abs=0.02)
     assert single - married == pytest.approx(
-        cantonal_single * (1 - discount), abs=0.02
+        (ifd_single - ifd_married) + (cant_single - cant_married), abs=0.02
     )
 
 

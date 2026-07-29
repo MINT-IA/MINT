@@ -605,18 +605,18 @@ void main() {
           reason: '677k CHF withdrawal in VS must incur positive tax');
     });
 
-    test('G6.3 Married couple discount reduces capital tax vs single', () {
-      // Audit 2026-04-18 Q5 : coefficient marié par canton (pas uniforme).
-      // VS = 0.81 (barème marié progressif LF VS art. 33b), pas 0.85.
-      const vsRate = 0.060;
-      final taxSingle = RetirementTaxCalculator.progressiveTax(
-          677847.0, vsRate);
-      final taxMarried = RetirementTaxCalculator.progressiveTax(
-          677847.0, vsRate * marriedCapitalTaxDiscountFor('VS'));
+    test('G6.3 Married couple reduces capital tax vs single (VS, ESTV)', () {
+      // Triage AnnAssign #1095 : le rabais forfaitaire par canton (inventé)
+      // a été supprimé ; la part cantonale mariée interpole l'étalon ESTV
+      // cantonalCapitalTaxMarriedChf. VS réduit réellement l'impôt marié.
+      final taxSingle = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: 677847.0, canton: 'VS', isMarried: false);
+      final taxMarried = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: 677847.0, canton: 'VS', isMarried: true);
       expect(
         taxMarried,
         lessThan(taxSingle),
-        reason: 'Married couple gets cantonal capital tax discount in VS (0.81)',
+        reason: 'VS réduit l\'impôt capital marié (étalon ESTV)',
       );
     });
 

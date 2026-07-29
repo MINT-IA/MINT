@@ -470,9 +470,9 @@ class FinancialReportService {
     if (nb3aAccounts == 1 && projections['fintech']! > 100000) {
       // Wave 7 fiscal audit P0-R6 : the previous 8 %/5 % flat was invented
       // AND the /2*2 algebraic split cancelled to `totalCapital × 0.05`.
-      // Delegate to RetirementTaxCalculator which implements LIFD art. 38
-      // progressive brackets (×1.0/×1.15/×1.30/×1.50/×1.70) + Wave 3
-      // cantonal married matrix (marriedCapitalTaxDiscountFor).
+      // Delegate to RetirementTaxCalculator (modèle v2 : IFD art. 38 +
+      // interpolation ESTV cantonal ; l'état civil marié interpole
+      // l'étalon cantonalCapitalTaxMarriedChf — triage AnnAssign #1095).
       final totalCapital = projections['fintech']!;
       taxSingle = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: totalCapital,
