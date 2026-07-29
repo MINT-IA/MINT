@@ -6,6 +6,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/first_job_screen.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/widgets/coach/payslip_xray_widget.dart';
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
@@ -131,6 +132,21 @@ double _renderedNet(WidgetTester tester) => tester
     .widget<SalaryBreakdownWidget>(find.byType(SalaryBreakdownWidget))
     .netEstime;
 
+/// The net the PayslipXRay radiograph renders — must be the SAME single net as
+/// the breakdown, both sourced from `_result!` (no fabricated ratio).
+double _renderedPayslipNet(WidgetTester tester) => tester
+    .widget<PayslipXRayWidget>(find.byType(PayslipXRayWidget))
+    .netSalary;
+
+/// The PayslipXRay rendered gross and the sum of its deduction lines — the
+/// radiograph must reconcile: gross − Σ(lines) == net (au franc près).
+PayslipXRayWidget _payslip(WidgetTester tester) =>
+    tester.widget<PayslipXRayWidget>(find.byType(PayslipXRayWidget));
+
+double _renderedPayslipDeductionsSum(WidgetTester tester) => _payslip(tester)
+    .deductions
+    .fold<double>(0, (sum, line) => sum + line.amount);
+
 /// The service output for the screen's CURRENT confirmed inputs.
 FirstJobResult _expectedFor(WidgetTester tester, {double? taux}) {
   final st = _state(tester);
@@ -203,6 +219,51 @@ void main() {
     expect(find.byType(SalaryBreakdownWidget), findsOneWidget);
     expect(_renderedNet(tester), _expectedFor(tester).netEstime,
         reason: 'the rendered breakdown carries the service-computed net');
+  });
+
+  // ── 2b. « Un seul net » — PayslipXRay == SalaryBreakdown == service ──
+  // A2 (divergence intra-écran = 0) : après le drain, la radiographie de fiche
+  // de paie ne porte plus `_salaire * 0.76` mais `_result!.netEstime`. Le net
+  // rendu par PayslipXRayWidget DOIT être byte-identique à celui de
+  // SalaryBreakdownWidget et à la sortie de FirstJobService.analyzeSalary.
+  // RED si un ratio fabriqué réapparaît (0.76/0.85) → deux nets divergents.
+  testWidgets('un seul net: PayslipXRay.netSalary == breakdown == service',
+      (tester) async {
+    await _pump(
+      tester,
+      _FakeProvider(_profile(
+        birthYear: 2001, // âge 25 → LPP salarié actif
+        canton: 'VD',
+        salaire: 6500,
+        provided: {'salary', 'age', 'canton'},
+      )),
+    );
+
+    expect(find.byType(SalaryBreakdownWidget), findsOneWidget);
+    expect(find.byType(PayslipXRayWidget), findsOneWidget,
+        reason: 'la radiographie de fiche de paie est montée dans le slot gaté');
+
+    final expected = _expectedFor(tester).netEstime;
+    expect(_renderedPayslipNet(tester), expected,
+        reason: 'le net du PayslipXRay vient de _result!.netEstime, pas d\'un '
+            'ratio fabriqué');
+    expect(_renderedPayslipNet(tester), _renderedNet(tester),
+        reason: 'un seul net sur l\'écran: payslip == breakdown');
+
+    // Réconciliation au franc près : la fiche de paie liste AVS + AC + AANP +
+    // LPP ; brut − Σ(lignes) DOIT égaler le net affiché (pas de déduction
+    // invisible qui casse l'arithmétique de l'écran).
+    final result = _expectedFor(tester);
+    expect(_payslip(tester).deductions.length, 4,
+        reason: 'AVS, AC, AANP, LPP — les 4 déductions qui composent netEstime');
+    expect(_renderedPayslipDeductionsSum(tester),
+        closeTo(result.avsAiApg + result.ac + result.aanp + result.lppEmploye,
+            0.01),
+        reason: 'Σ(lignes) == total des déductions du service');
+    expect(
+        _payslip(tester).grossSalary - _renderedPayslipDeductionsSum(tester),
+        closeTo(_renderedPayslipNet(tester), 0.01),
+        reason: 'brut − Σ(lignes) == net : la fiche se réconcilie au franc près');
   });
 
   // ── 3. No profile, user touches every control → breakdown shows ──
@@ -400,8 +461,13 @@ void main() {
       expect(find.byType(SalaryBreakdownWidget), findsOneWidget,
           reason: 'all facts seeded → result (and scenario chips) render');
 
-      // Choose the "Médian CH" salary scenario chip (changes salary by touch).
-      await tester.tap(find.textContaining('Médian CH'));
+      // Choose the "Médiane CH" salary scenario chip (changes salary by touch).
+      // The chip lives in a horizontal scroll view; its longer label can push
+      // the tap centre past the viewport, so bring it fully into view first.
+      final medianChip = find.textContaining('Médiane CH');
+      await tester.ensureVisible(medianChip);
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(medianChip);
       await tester.pumpAndSettle();
 
       expect(state.debugHasUserInteracted, isTrue,

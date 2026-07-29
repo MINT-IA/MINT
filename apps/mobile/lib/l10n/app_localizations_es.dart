@@ -17120,7 +17120,7 @@ class SEs extends S {
   String get firstJobChecklistDeadline1 => 'Antes de salir';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 días';
+  String get firstJobChecklistDeadline2 => 'Al incorporarte';
 
   @override
   String get firstJobChecklistDeadline3 => '1 mes';
@@ -17132,6 +17132,18 @@ class SEs extends S {
   String firstJobCoutMaxPerYear(String amount) {
     return 'Máx. $amount/año';
   }
+
+  @override
+  String get firstJobPayslipAanpExplanation => 'Seguro de accidentes fuera del trabajo, deducido de tu salario.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Accidentes no laborales (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Cotización al seguro de desempleo (LACI). Te protege si pierdes el empleo.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Seguro de desempleo (AC)';
 
   @override
   String get firstJobPayslipAvsExplanation =>
@@ -17166,7 +17178,7 @@ class SEs extends S {
   String get firstJobScenarioDefault => 'Por defecto';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH';
+  String get firstJobScenarioMedianCH => 'Mediana CH (todos los sectores · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mi salario';
@@ -18518,7 +18530,7 @@ class SEs extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Entre AVS (LAVS art. 5), LPP (art. 16), impuesto en la fuente y LAMal, tu neto representa alrededor del 75-80 % del bruto. Entender estas deducciones es el primer paso hacia una buena gestión.';
+      'Entre AVS (LAVS art. 5), LPP (art. 16) y LAMal, tu neto ronda el 88-90 % del bruto sin impuesto en la fuente; con impuesto en la fuente, se retiene más. Entender estas deducciones es el primer paso hacia una buena gestión.';
 
   @override
   String get narrativeFirstJobHeadline => 'Tu primer salario explicado';

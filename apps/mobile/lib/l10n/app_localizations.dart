@@ -30086,7 +30086,7 @@ abstract class S {
   /// No description provided for @firstJobChecklistDeadline2.
   ///
   /// In fr, this message translates to:
-  /// **'30 jours'**
+  /// **'Dès le nouvel emploi'**
   String get firstJobChecklistDeadline2;
 
   /// No description provided for @firstJobChecklistDeadline3.
@@ -30106,6 +30106,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Max {amount}/an'**
   String firstJobCoutMaxPerYear(String amount);
+
+  /// No description provided for @firstJobPayslipAanpExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.'**
+  String get firstJobPayslipAanpExplanation;
+
+  /// No description provided for @firstJobPayslipAanpLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accidents non pro. (AANP)'**
+  String get firstJobPayslipAanpLabel;
+
+  /// No description provided for @firstJobPayslipAcExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation à l'assurance-chômage (LACI). Elle te protège en cas de perte d'emploi.'**
+  String get firstJobPayslipAcExplanation;
+
+  /// No description provided for @firstJobPayslipAcLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance-chômage (AC)'**
+  String get firstJobPayslipAcLabel;
 
   /// No description provided for @firstJobPayslipAvsExplanation.
   ///
@@ -30164,7 +30188,7 @@ abstract class S {
   /// No description provided for @firstJobScenarioMedianCH.
   ///
   /// In fr, this message translates to:
-  /// **'Médian CH'**
+  /// **'Médiane CH (tous secteurs · ESS 2022)'**
   String get firstJobScenarioMedianCH;
 
   /// No description provided for @firstJobScenarioMySalary.
@@ -32492,7 +32516,7 @@ abstract class S {
   /// No description provided for @narrativeFirstJobBody.
   ///
   /// In fr, this message translates to:
-  /// **'Entre AVS (LAVS art. 5), LPP (art. 16), impôt à la source et LAMal, ton net représente environ 75-80 % du brut. Comprendre ces déductions, c’est le premier pas vers une bonne gestion.'**
+  /// **'Entre l'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c'est le premier pas vers une bonne gestion.'**
   String get narrativeFirstJobBody;
 
   /// No description provided for @narrativeFirstJobHeadline.

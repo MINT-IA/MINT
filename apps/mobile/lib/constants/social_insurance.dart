@@ -682,3 +682,14 @@ const double acGainAssureMensuelMax = acPlafondSalaireAssure / 12;
 /// Seuil de salaire mensuel pour le taux majoré d'indemnités chômage (LACI art. 22).
 /// En dessous de ce seuil, taux 80% au lieu de 70%.
 const double acSeuilSalaireMajore = 3797.0;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// OFS — Statistique suisse des salaires (ESS)
+// Repères descriptifs du marché du travail (PAS des valeurs fiscales/légales).
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Salaire mensuel brut médian suisse, équivalent plein temps, tous secteurs.
+/// Source: OFS/ESS 2022, publiée 2024, secteurs privé et public confondus.
+/// Repère descriptif de l'ensemble de la population active — ce n'est PAS un
+/// salaire d'entrée. À dater à l'écran (millésime visible, D11).
+const double ofsSalaireMedianMensuelBrut = 6788.0;

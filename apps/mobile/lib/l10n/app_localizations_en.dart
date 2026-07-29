@@ -17023,7 +17023,7 @@ class SEn extends S {
   String get firstJobChecklistDeadline1 => 'Before leaving';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 days';
+  String get firstJobChecklistDeadline2 => 'When you start';
 
   @override
   String get firstJobChecklistDeadline3 => '1 month';
@@ -17035,6 +17035,18 @@ class SEn extends S {
   String firstJobCoutMaxPerYear(String amount) {
     return 'Max $amount/year';
   }
+
+  @override
+  String get firstJobPayslipAanpExplanation => 'Insurance for accidents outside work, deducted from your salary.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Non-occupational accidents (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Contribution to unemployment insurance (LACI). It protects you if you lose your job.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Unemployment insurance (AC)';
 
   @override
   String get firstJobPayslipAvsExplanation =>
@@ -17069,7 +17081,7 @@ class SEn extends S {
   String get firstJobScenarioDefault => 'Default';
 
   @override
-  String get firstJobScenarioMedianCH => 'CH median';
+  String get firstJobScenarioMedianCH => 'CH median (all sectors · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'My salary';
@@ -18411,7 +18423,7 @@ class SEn extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Between AVS (LAVS art. 5), LPP (art. 16), withholding tax and LAMal, your net is about 75-80% of gross. Understanding these deductions is the first step to good financial management.';
+      'Between AVS (LAVS art. 5), LPP (art. 16) and LAMal, your net is typically around 88-90% of gross without withholding tax; with withholding tax, more is deducted. Understanding these deductions is the first step to good financial management.';
 
   @override
   String get narrativeFirstJobHeadline => 'Your first salary explained';

@@ -17111,7 +17111,7 @@ class SFr extends S {
   String get firstJobChecklistDeadline1 => 'Avant de quitter';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 jours';
+  String get firstJobChecklistDeadline2 => 'Dès le nouvel emploi';
 
   @override
   String get firstJobChecklistDeadline3 => '1 mois';
@@ -17123,6 +17123,18 @@ class SFr extends S {
   String firstJobCoutMaxPerYear(String amount) {
     return 'Max $amount/an';
   }
+
+  @override
+  String get firstJobPayslipAanpExplanation => 'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Accidents non pro. (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Assurance-chômage (AC)';
 
   @override
   String get firstJobPayslipAvsExplanation =>
@@ -17157,7 +17169,7 @@ class SFr extends S {
   String get firstJobScenarioDefault => 'Défaut';
 
   @override
-  String get firstJobScenarioMedianCH => 'Médian CH';
+  String get firstJobScenarioMedianCH => 'Médiane CH (tous secteurs · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mon salaire';
@@ -18504,7 +18516,7 @@ class SFr extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Entre AVS (LAVS art. 5), LPP (art. 16), impôt à la source et LAMal, ton net représente environ 75-80 % du brut. Comprendre ces déductions, c’est le premier pas vers une bonne gestion.';
+      'Entre l\'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c\'est le premier pas vers une bonne gestion.';
 
   @override
   String get narrativeFirstJobHeadline => 'Ton premier salaire expliqué';

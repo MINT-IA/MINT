@@ -17148,7 +17148,7 @@ class SDe extends S {
   String get firstJobChecklistDeadline1 => 'Vor dem Austritt';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 Tage';
+  String get firstJobChecklistDeadline2 => 'Ab Stellenantritt';
 
   @override
   String get firstJobChecklistDeadline3 => '1 Monat';
@@ -17160,6 +17160,18 @@ class SDe extends S {
   String firstJobCoutMaxPerYear(String amount) {
     return 'Max. $amount/Jahr';
   }
+
+  @override
+  String get firstJobPayslipAanpExplanation => 'Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Nichtberufsunfälle (NBU)';
+
+  @override
+  String get firstJobPayslipAcExplanation => 'Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Arbeitslosenversicherung (ALV)';
 
   @override
   String get firstJobPayslipAvsExplanation =>
@@ -17194,7 +17206,7 @@ class SDe extends S {
   String get firstJobScenarioDefault => 'Standard';
 
   @override
-  String get firstJobScenarioMedianCH => 'CH-Median';
+  String get firstJobScenarioMedianCH => 'CH-Median (alle Branchen · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mein Lohn';
@@ -18550,7 +18562,7 @@ class SDe extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Zwischen AHV (AHVG Art. 5), BVG (Art. 16), Quellensteuer und KVG macht dein Netto etwa 75–80 % des Brutto aus. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.';
+      'Zwischen AHV (AHVG Art. 5), BVG (Art. 16) und KVG liegt dein Netto ohne Quellensteuer typischerweise bei rund 88–90 % des Brutto; mit Quellensteuer wird mehr abgezogen. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.';
 
   @override
   String get narrativeFirstJobHeadline => 'Dein erster Lohn erklärt';
