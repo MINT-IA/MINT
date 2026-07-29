@@ -780,8 +780,8 @@ def _estimate_marginal_rate(salary: float, canton: str) -> float:
 
     Approximation assumee : l'entree est le salaire BRUT alors que
     l'etalon est calibre sur le revenu imposable — surestime pour qui a
-    des deductions. Meme convention que les surfaces jumelles deja
-    drainees ; en deriver un imposable inventerait une deduction.
+    des déductions. Même convention que les surfaces jumelles déjà
+    drainées ; en dériver un imposable inventerait une déduction.
     """
     from app.services.fiscal.cantonal_comparator import (
         CANTONAL_COMMUNAL_TAX_CHF,
