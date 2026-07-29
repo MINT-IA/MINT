@@ -13,7 +13,7 @@ Sources:
     - Accords bilateraux CH-UE (ALCP art. 21)
     - Accord CH-FR du 11.04.1983 (regime special frontaliers FR-GE)
     - Accord CH-IT du 03.10.1974 (exception Tessin-Italie)
-    - Reglement CE 883/2004 art. 11 (securite sociale dans le pays d'emploi)
+    - Reglement CE 883/2004 art. 11 (sécurité sociale dans le pays d'emploi)
     - LAVS art. 5 (cotisations AVS/AI/APG)
     - LACI art. 3 (cotisations assurance-chomage)
     - LPP art. 2, 7, 8 (prevoyance professionnelle obligatoire)
@@ -42,7 +42,7 @@ DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
     "ton canton de travail, de ta situation personnelle et des accords "
     "bilateraux en vigueur. Ne constitue pas un conseil fiscal ou juridique "
-    "(LSFin/LLCA). Consulte un ou une specialiste."
+    "(LSFin/LLCA). Consulte un ou une spécialiste."
 )
 
 # ---------------------------------------------------------------------------
@@ -188,7 +188,7 @@ AANP_TAUX = 0.014  # ~1.4% (LAA art. 91, moyenne)
 
 # ---------------------------------------------------------------------------
 # Charges sociales pays voisins (estimations simplifiees 2025)
-# Source: securite sociale respective de chaque pays
+# Source: sécurité sociale respective de chaque pays
 # ---------------------------------------------------------------------------
 
 CHARGES_SOCIALES_PAYS = {
@@ -196,7 +196,7 @@ CHARGES_SOCIALES_PAYS = {
         "label": "France",
         "taux_employe_total": 0.225,  # ~22.5% (CSG 9.2% + CRDS 0.5% + secu ~13%)
         "taux_employeur_total": 0.45,  # ~45%
-        # Source: Code de la securite sociale (CSS), CGI art. 1600-0S
+        # Source: Code de la sécurité sociale (CSS), CGI art. 1600-0S
         "source": "CSS art. L241-1, CGI art. 1600-0S (CSG/CRDS)",
     },
     "DE": {
@@ -317,7 +317,7 @@ LAMAL_FRONTALIER_PRIMES = {
 # dans gesamtbericht_eu) — TOUJOURS nommé explicitement dans le texte rendu.
 _LAMAL_PAYS_REFERENCE = "FR"
 
-# Primes mensuelles estimees dans les pays voisins (securite sociale + complementaire)
+# Primes mensuelles estimees dans les pays voisins (sécurité sociale + complementaire)
 # Source: estimations basees sur les systemes de sante respectifs
 ASSURANCE_RESIDENCE_PRIMES = {
     "FR": {"prime_mensuelle": 0.0, "cotisation_pct": 0.131,
@@ -675,7 +675,7 @@ class FrontalierSegmentService:
             recommandation = (
                 f"Avec {home_office_days} jours de teletravail a l'etranger, "
                 f"tu es largement en dessous du seuil de 90 jours. "
-                f"L'imposition reste integralement en Suisse. Marge de securite: "
+                f"L'imposition reste integralement en Suisse. Marge de sécurité: "
                 f"{REGLE_90_JOURS_SEUIL - home_office_days} jours."
             )
         elif home_office_days <= REGLE_90_JOURS_SEUIL:

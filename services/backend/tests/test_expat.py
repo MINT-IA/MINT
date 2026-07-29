@@ -812,7 +812,7 @@ class TestCompliance:
 
     def test_disclaimers_mention_specialist(self):
         """Both disclaimers should recommend consulting a specialist."""
-        assert "specialiste" in FRONTALIER_DISCLAIMER.lower()
+        assert "spécialiste" in FRONTALIER_DISCLAIMER.lower()
         assert "specialiste" in EXPAT_DISCLAIMER.lower()
 
 

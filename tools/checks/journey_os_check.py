@@ -438,6 +438,11 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # Fix remploi méthode absolue (ADR 2026-07-28-remplacements P2)
+    "services/backend/app/services/housing_sale_service.py",
+    "services/backend/tests/test_housing_sale.py",
+    "apps/mobile/lib/services/housing_sale_service.dart",
+    "apps/mobile/test/services/housing_sale_service_test.dart",
     # LAMal frontalier par pays de résidence (ADR 2026-07-28-remplacements P3)
     # + suppression du champ base_rate mort (ADR 2026-07-28-remplacements P1)
     "services/backend/app/services/expat/frontalier_service.py",
