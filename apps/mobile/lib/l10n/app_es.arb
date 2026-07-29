@@ -4839,7 +4839,7 @@
       }
     }
   },
-  "firstJobTopBadge": "TOP",
+  "firstJobTopBadge": "Común",
   "authLoginSubtitle": "Accede a tu espacio financiero personal",
   "authPasswordRequired": "Contraseña requerida",
   "authForgotPasswordLink": "¿Olvidaste tu contraseña?",
@@ -8557,8 +8557,6 @@
   "firstJobPayslipAcLabel": "Seguro de desempleo (AC)",
   "firstJobPayslipAvsExplanation": "Cotización del empleado: 5.3% del salario bruto. Tu empleador también paga 5.3% adicional.",
   "firstJobPayslipAvsLabel": "AVS/AI/APG",
-  "firstJobPayslipImpotExplanation": "Deducido directamente del salario si pagas impuestos en la fuente. La tasa varía según cantón, estado civil e ingresos.",
-  "firstJobPayslipImpotLabel": "Impuesto en la fuente (estimación)",
   "firstJobPayslipLppExplanation": "Ahorro para la jubilación obligatorio desde los 25 años. La tasa exacta depende de tu fondo y edad.",
   "firstJobPayslipLppLabel": "LPP (2.° pilar)",
   "firstJobPrimePerMonth": "{amount}/mes",

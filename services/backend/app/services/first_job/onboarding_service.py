@@ -473,9 +473,9 @@ class FirstJobOnboardingService:
         )
 
         alerte_assurance_vie = (
-            "Attention: evite les produits 3a lies a une assurance-vie. "
-            "Ils combinent epargne et assurance avec des frais eleves et peu de flexibilite. "
-            "Prefere un compte 3a bancaire ou fintech (Finpension, VIAC, frankly, etc.)."
+            "Les produits 3a lies a une assurance-vie combinent epargne et assurance : "
+            "les frais sont souvent plus eleves et la flexibilite plus limitee. "
+            "Un compte 3a bancaire ou fintech a frais bas est une autre option a comparer selon ta situation."
         )
 
         return {

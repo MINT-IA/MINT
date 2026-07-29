@@ -18405,7 +18405,7 @@ abstract class S {
   /// No description provided for @firstJobTopBadge.
   ///
   /// In fr, this message translates to:
-  /// **'TOP'**
+  /// **'Fréquent'**
   String get firstJobTopBadge;
 
   /// No description provided for @authLoginSubtitle.
@@ -30148,18 +30148,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'AVS/AI/APG'**
   String get firstJobPayslipAvsLabel;
-
-  /// No description provided for @firstJobPayslipImpotExplanation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.'**
-  String get firstJobPayslipImpotExplanation;
-
-  /// No description provided for @firstJobPayslipImpotLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impôt à la source (estimation)'**
-  String get firstJobPayslipImpotLabel;
 
   /// No description provided for @firstJobPayslipLppExplanation.
   ///

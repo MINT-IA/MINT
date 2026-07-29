@@ -4839,7 +4839,7 @@
       }
     }
   },
-  "firstJobTopBadge": "TOP",
+  "firstJobTopBadge": "Comune",
   "authLoginSubtitle": "Accedi al tuo spazio finanziario personale",
   "authPasswordRequired": "Password richiesta",
   "authForgotPasswordLink": "Password dimenticata?",
@@ -8557,8 +8557,6 @@
   "firstJobPayslipAcLabel": "Assicurazione contro la disoccupazione (AD)",
   "firstJobPayslipAvsExplanation": "Contributo del dipendente: 5.3% del lordo. Il datore di lavoro paga anche lui il 5.3%.",
   "firstJobPayslipAvsLabel": "AVS/AI/APG",
-  "firstJobPayslipImpotExplanation": "Trattenuta direttamente dallo stipendio se sei tassato alla fonte. Il tasso varia per cantone, stato civile e reddito.",
-  "firstJobPayslipImpotLabel": "Imposta alla fonte (stima)",
   "firstJobPayslipLppExplanation": "Risparmio previdenziale obbligatorio dai 25 anni. Il tasso esatto dipende dalla cassa e dall'età.",
   "firstJobPayslipLppLabel": "LPP (2° pilastro)",
   "firstJobPrimePerMonth": "{amount}/mese",

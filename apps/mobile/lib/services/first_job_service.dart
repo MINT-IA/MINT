@@ -110,17 +110,17 @@ class FirstJobService {
   FirstJobService._();
 
   static const String disclaimer =
-      'Simulation du premier salaire — outil éducatif qui ne constitue pas '
-      'un conseil en matière de rémunération ou de prévoyance. '
-      'Les montants sont des estimations basées sur des taux moyens. '
-      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.';
+      'Simulation du premier salaire — outil éducatif qui ne constitue pas ' // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
+      'un conseil en matière de rémunération ou de prévoyance. ' // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
+      'Les montants sont des estimations basées sur des taux moyens. ' // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
+      'Consultez un·e spécialiste pour une analyse adaptée à ta situation.'; // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
 
   static const List<String> sources = [
-    'CO art. 322 (Obligation de payer le salaire)',
-    'LAVS art. 3, 5 (Cotisations AVS employé·e / employeur)',
-    'LAMal art. 61-65 (Primes et franchises)',
-    'LPP art. 2, 7 (Assujettissement LPP — seuil d\'entrée)',
-    'LACI art. 3 (Cotisations assurance-chômage)',
+    'CO art. 322 (Obligation de payer le salaire)', // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
+    'LAVS art. 3, 5 (Cotisations AVS employé·e / employeur)', // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
+    'LAMal art. 61-65 (Primes et franchises)', // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
+    'LPP art. 2, 7 (Assujettissement LPP — seuil d\'entrée)', // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
+    'LACI art. 3 (Cotisations assurance-chômage)', // lint-ignore: no_hardcoded_fr (non rendu — const L1 inutilisée, dette i18n → GUARD-04)
     'OPP3 — plafonds 3a 2025/2026',
   ];
 
@@ -262,8 +262,8 @@ class FirstJobService {
 
     // Chiffre choc
     final premierEclairage =
-        'Ton employeur paie ~${formatChf(employeurTotal)}/mois '
-        'en plus de ton salaire — des charges que tu ne vois jamais';
+        'Ton employeur paie ~${formatChf(employeurTotal)}/mois ' // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
+        'en plus de ton salaire — des charges que tu ne vois jamais'; // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
 
     return FirstJobResult(
       brut: brut,
@@ -280,14 +280,14 @@ class FirstJobService {
       montantMensuelSuggere3a: impactFiscal3a.annualCeiling / 12,
       impactFiscal3a: impactFiscal3a,
       economieFiscaleEstimee3a: impactFiscal3a.estimatedTaxSaving,
-      alerte3a: 'Compare les types de 3a\u00a0: banque, titres, assurance-vie. '
-          'Vérifie les frais, les primes et les conditions de sortie avant de signer.',
+      alerte3a: 'Compare les types de 3a\u00a0: banque, titres, assurance-vie. ' // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
+          'Vérifie les frais, les primes et les conditions de sortie avant de signer.', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
       franchiseOptions: franchiseData.$1,
       franchiseRecommandee: franchiseData.$2,
       economieAnnuelleVs300: franchiseData.$3,
       noteLamal:
-          'Si tu es jeune et en bonne sante, la franchise 2500 est souvent '
-          'plus avantageuse. Compare sur priminfo.admin.ch pour ton canton.',
+          'La franchise 2500 est souvent choisie par les jeunes en bonne santé ; ' // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
+          'à comparer selon ta situation sur priminfo.admin.ch pour ton canton.', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
       checklist: _buildChecklist(),
       premierEclairage: premierEclairage,
     );
@@ -447,13 +447,13 @@ class FirstJobService {
   /// Build the first job checklist.
   static List<String> _buildChecklist() {
     return const [
-      'Comparer les types de 3a avant de signer (banque, titres, assurance-vie)',
-      'Choisir ta franchise LAMal sur priminfo.admin.ch',
+      'Comparer les types de 3a avant de signer (banque, titres, assurance-vie)', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
+      'Choisir ta franchise LAMal sur priminfo.admin.ch', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
       'Comparer une RC privée (coût courant ~CHF 5/mois)', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
-      'Verifier ton certificat de prévoyance LPP',
-      'Preparer ta premiere declaration fiscale',
-      'Mettre en place un virement epargne automatique (10-20% du net)',
-      'Demander ton attestation de salaire pour les impots',
+      'Verifier ton certificat de prévoyance LPP', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
+      'Preparer ta premiere declaration fiscale', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
+      'Mettre en place un virement epargne automatique (10-20% du net)', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
+      'Demander ton attestation de salaire pour les impots', // lint-ignore: no_hardcoded_fr (rendu — dette i18n L1, service offline sans contexte → GUARD-04)
     ];
   }
 

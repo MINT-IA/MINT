@@ -10488,7 +10488,7 @@ class SDe extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'Häufig';
 
   @override
   String get authLoginSubtitle => 'Zugang zu deinem persönlichen Finanzbereich';
@@ -17184,13 +17184,6 @@ class SDe extends S {
 
   @override
   String get firstJobPayslipAvsLabel => 'AHV/IV/EO';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Direkt vom Lohn abgezogen, wenn du quellensteuerpflichtig bist. Satz variiert je nach Kanton, Status und Einkommen.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Quellensteuer (Schätzung)';
 
   @override
   String get firstJobPayslipLppExplanation =>

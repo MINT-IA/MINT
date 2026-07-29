@@ -10491,7 +10491,7 @@ class SIt extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'Comune';
 
   @override
   String get authLoginSubtitle => 'Accedi al tuo spazio finanziario personale';
@@ -17203,13 +17203,6 @@ class SIt extends S {
 
   @override
   String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Trattenuta direttamente dallo stipendio se sei tassato alla fonte. Il tasso varia per cantone, stato civile e reddito.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Imposta alla fonte (stima)';
 
   @override
   String get firstJobPayslipLppExplanation =>

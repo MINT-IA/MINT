@@ -10405,7 +10405,7 @@ class SEn extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'Common';
 
   @override
   String get authLoginSubtitle => 'Access your personal financial space';
@@ -17059,13 +17059,6 @@ class SEn extends S {
 
   @override
   String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Deducted directly from salary if you are taxed at source. Rate varies by canton, status and income.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Withholding tax (estimate)';
 
   @override
   String get firstJobPayslipLppExplanation =>
