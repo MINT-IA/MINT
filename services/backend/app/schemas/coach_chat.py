@@ -166,6 +166,41 @@ class CoachChatRequest(CoachChatBaseModel):
         ),
     )
 
+    # ------------------------------------------------------------------
+    # Tranche firstJob PR-E (E1) — handoff /first-job → coach porteur du
+    # MoneyTruthReceipt. Le coach REÇOIT receiptId + inputsHash (SPEC §4.3) et
+    # résout server-side le MÊME receipt (owner-scoped) pour grounder sur la
+    # MÊME valeur. Tous optionnels + additifs (aucun impact sur le chemin
+    # coach classique — receiptId absent = comportement inchangé).
+    # ------------------------------------------------------------------
+    receipt_id: Optional[str] = Field(
+        default=None,
+        max_length=64,
+        description=(
+            "firstJob PR-E — id du MoneyTruthReceipt à résoudre pour ce tour. "
+            "Le backend résout le receipt scopé au propriétaire (SPEC §4.3) et "
+            "ground le coach sur receipt.value. None sur le chemin chat "
+            "classique."
+        ),
+    )
+    inputs_hash: Optional[str] = Field(
+        default=None,
+        max_length=64,
+        description=(
+            "firstJob PR-E — hash déterministe des inputs du receipt "
+            "(compute_inputs_hash). Accompagne receiptId pour la résolution."
+        ),
+    )
+    receipt_inputs: Optional[dict[str, Any]] = Field(
+        default=None,
+        description=(
+            "firstJob PR-E — inputs normalisés portés par le payload d'entrée "
+            "(cas pending : receipt pas encore synchronisé). Le coach répond "
+            "depuis ces inputs quand la résolution serveur ne trouve pas le "
+            "receipt du propriétaire."
+        ),
+    )
+
 
 # ===========================================================================
 # Response schema

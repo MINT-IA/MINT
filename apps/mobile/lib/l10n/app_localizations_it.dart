@@ -2812,6 +2812,9 @@ class SIt extends S {
   String get firstJobActivityRate => 'Tasso di attività';
 
   @override
+  String get firstJobAskCoach => 'Chiedi al coach';
+
+  @override
   String get firstJob3aHeader => 'PILASTRO 3A — DA VALUTARE';
 
   @override

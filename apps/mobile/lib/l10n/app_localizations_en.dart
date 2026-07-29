@@ -2795,6 +2795,9 @@ class SEn extends S {
   String get firstJobActivityRate => 'Activity rate';
 
   @override
+  String get firstJobAskCoach => 'Ask the coach';
+
+  @override
   String get firstJob3aHeader => 'PILLAR 3A — TO CONSIDER';
 
   @override

@@ -33,6 +33,9 @@ abstract final class E2eCoachRouteFixture {
       language = 'fr',
       cashLevel = 3,
       isLoggedIn = false,
+      receiptId,
+      inputsHash,
+      receiptInputs,
     }) async {
       return const CoachResponse(
         message: 'Ouvre le bon outil pour comparer.',

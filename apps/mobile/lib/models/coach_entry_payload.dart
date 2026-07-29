@@ -80,11 +80,32 @@ class CoachEntryPayload {
   /// When absent and topic is set, a contextual prompt is auto-generated.
   final String? userMessage;
 
+  /// Tranche firstJob PR-E (E2) — handoff /first-job -> coach.
+  ///
+  /// Id du [MoneyTruthReceipt] émis sur /first-job. Transmis au backend qui
+  /// résout le MÊME receipt (scopé propriétaire) pour grounder le coach sur la
+  /// MÊME valeur nette (SPEC §4.3). Null hors handoff firstJob.
+  final String? receiptId;
+
+  /// Tranche firstJob PR-E (E2) — hash déterministe des inputs du receipt
+  /// (compute_inputs_hash / computeInputsHash). Accompagne [receiptId] pour la
+  /// résolution serveur. Null hors handoff firstJob.
+  final String? inputsHash;
+
+  /// Tranche firstJob PR-E (E2) — inputs normalisés du receipt (double ceinture
+  /// du contrat §4.3) : transmis à la requête coach comme `receiptInputs` pour
+  /// que le chemin `pending` grounde même si le store a échoué (aucune ligne
+  /// résolvable côté serveur). Null hors handoff firstJob.
+  final Map<String, dynamic>? receiptInputs;
+
   const CoachEntryPayload({
     required this.source,
     this.topic,
     this.data,
     this.userMessage,
+    this.receiptId,
+    this.inputsHash,
+    this.receiptInputs,
   });
 
   /// Build a system prompt injection describing this entry context.

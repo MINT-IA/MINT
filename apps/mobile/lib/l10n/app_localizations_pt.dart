@@ -2805,6 +2805,9 @@ class SPt extends S {
   String get firstJobActivityRate => 'Taxa de atividade';
 
   @override
+  String get firstJobAskCoach => 'Perguntar ao coach';
+
+  @override
   String get firstJob3aHeader => 'PILAR 3A — A CONSIDERAR';
 
   @override

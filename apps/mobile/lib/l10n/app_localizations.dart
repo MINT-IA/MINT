@@ -5187,6 +5187,12 @@ abstract class S {
   /// **'Taux d\'activité'**
   String get firstJobActivityRate;
 
+  /// No description provided for @firstJobAskCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander au coach'**
+  String get firstJobAskCoach;
+
   /// No description provided for @firstJob3aHeader.
   ///
   /// In fr, this message translates to:
