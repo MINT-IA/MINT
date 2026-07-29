@@ -62,7 +62,6 @@ ALLOWED = {
     "services/backend/app/services/coaching_engine.py::CANTON_TAX_DEADLINES",
     # DETTE HÉRITÉE — à résorber, chacune retirée de cette liste par la PR qui
     # la supprime ou la recalibre. Ne rien ajouter ici.
-    "services/backend/app/services/coaching_engine.py::CANTON_MARGINAL_TAX_RATES",
     "services/backend/app/services/lpp_deep/rachat_echelonne_service.py::TAUX_MARGINAUX_PAR_CANTON",
     "services/backend/app/services/fiscal/church_tax_service.py::CHURCH_TAX_RATES",
     "services/backend/app/services/fiscal/wealth_tax_service.py::EFFECTIVE_WEALTH_TAX_RATES_500K",
@@ -72,7 +71,6 @@ ALLOWED = {
     "services/backend/app/services/expat/expat_service.py::TAUX_IMPOSITION_CAPITAL_PREVOYANCE",
     "services/backend/app/services/expat/expat_service.py::FORFAIT_FISCAL_BASE_CANTONALE",
     "services/backend/app/services/expat/expat_service.py::FORFAIT_TAUX_ESTIMES",
-    "services/backend/app/services/first_job/onboarding_service.py::CANTONAL_TAX_RATE_ESTIMATES",
     "services/backend/app/services/mortgage/imputed_rental_service.py::TAUX_VALEUR_LOCATIVE",
     "services/backend/app/services/onboarding/minimal_profile_service.py::effective_rates_100k",
     "services/backend/app/services/succession_simulator.py::CANTON_SUCCESSION_TAX",
