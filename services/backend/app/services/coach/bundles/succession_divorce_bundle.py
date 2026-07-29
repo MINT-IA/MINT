@@ -8,7 +8,7 @@ calculators (`divorce_simulator.py`, `succession_simulator.py`,
 `concubinage_succession.py`). What was missing was the narrator prompt
 scaffolding — this bundle adds the citation grammar so the coach can
 surface CC art. 122-124 (partage LPP), CC art. 462 (droit du conjoint
-survivant), CC art. 467-469 (réserves héréditaires) and LAVS art. 29sexies
+survivant), CC art. 470-471 (réserves héréditaires) and LAVS art. 29sexies
 (splitting AVS) when the user describes a divorce, séparation, décès or
 succession scenario.
 
@@ -26,7 +26,7 @@ Legal article references verified against `docs/AGENTS/swiss-brain.md`
 line 121-122 (LAVS art. 29sexies splitting confirmed) and standard
 Swiss legal-reference conventions (CC art. 122-124 = LPP partage at
 divorce ; CC art. 462 = conjoint survivant ordre de successibles ;
-CC art. 467-469 = réserves héréditaires).
+CC art. 470-471 = réserves héréditaires).
 """
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ défaut, CC art. 196 et suivants) et l'ordre des autres successibles
 légaux (descendants, parents, fratrie). Concubinage = AUCUNE protection
 successorale par défaut — il faut un testament ou un pacte successoral.
 
-**Réserves héréditaires (CC art. 467-469)** : la liberté de disposer par
+**Réserves héréditaires (CC art. 470-471)** : la liberté de disposer par
 testament est encadrée par les réserves héréditaires en faveur des
 descendants et du conjoint survivant. La réserve descendante = 1/2 de
 la part légale depuis la réforme du droit des successions entrée en
