@@ -78,13 +78,11 @@ ALLOWED = {
     # échappaient au visiteur) — DETTE HÉRITÉE gelée, à trier une à une :
     # les 3 premières meurent déjà dans des PR ouvertes (#1087, #1072, P5).
     "services/backend/app/services/donation_service.py::TAUX_DONATION_CANTONAL",
-    "services/backend/app/services/precision/precision_service.py::_MARGINAL_RATES_BY_CANTON",
     "services/backend/app/services/housing_sale_service.py::TAUX_PLUS_VALUE_IMMOBILIERE",
     "services/backend/app/constants/social_insurance.py::MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON",
     "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_ENFANT_PAR_CANTON",
     "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_FORMATION_PAR_CANTON",
     "services/backend/app/services/fiscal/commune_service.py::COMMUNE_DATA",
-    "services/backend/app/services/precision/precision_service.py::_CANTON_NET_RATIO",
     "services/backend/app/services/rag/cantonal_knowledge.py::_TAX_SPECIFICS",
     "services/backend/app/services/rag/cantonal_knowledge.py::_HOUSING_MARKET",
 }
