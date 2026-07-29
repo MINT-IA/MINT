@@ -1634,6 +1634,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           content: S.of(context)!.coachErrorConnection,
           timestamp: DateTime.now(),
           suggestedActions: retryActions,
+          // Anti-critère réseau (PR-F, SPEC §2.3/A4) : la perte de connexion
+          // dégrade proprement — un état NOMMÉ et re-tentable, jamais un
+          // écran vide « Aucune donnée pour l'instant » (régression
+          // 2026-05-07). Les chiffres L1 restent calculés hors ligne ; seul
+          // le coach exige le réseau.
+          semanticsIdentifier: 'coach-offline-degradation',
         ));
         _isLoading = false;
       });
@@ -2621,7 +2627,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           final msg = _messages[index];
           final Widget child;
           if (msg.isSystem) {
-            child = SystemMessageBubble(message: msg);
+            // Offline degradation (SPEC §2.3/A4) surfaces a visible retry that
+            // re-sends the last user message — never a silent dead-end.
+            final canRetry =
+                msg.semanticsIdentifier == 'coach-offline-degradation' &&
+                    (msg.suggestedActions?.isNotEmpty ?? false);
+            child = SystemMessageBubble(
+              message: msg,
+              onRetry: canRetry
+                  ? () => _handleActionTap(msg.suggestedActions!.first)
+                  : null,
+              retryLabel: canRetry ? S.of(context)!.commonRetry : null,
+            );
           } else if (msg.isUser) {
             final userOrdinal =
                 _messages.take(index + 1).where((m) => m.isUser).length - 1;

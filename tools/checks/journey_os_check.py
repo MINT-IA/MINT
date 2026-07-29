@@ -875,6 +875,20 @@ ALLOW = {
     # PR-B addendum (revue Codex) : correction légale AC — le pour-cent de
     # solidarité (>148'200) a été aboli au 1.1.2023 ; test firstJob adapté.
     "apps/mobile/test/services/first_job_service_test.dart",
+    # PR-F états réseau/vide/offline + anti-critère (SPEC TRANCHE-FIRSTJOB
+    # §2.3/A4) : indicateur de chargement borné sur /first-job, dégradation
+    # coach NOMMÉE et re-tentable (`coach-offline-degradation`), cohérence
+    # checklist « premier » emploi (items libre passage gatés sur avoir LPP
+    # antérieur). ChatMessage porte l'ancre a11y transitoire ; SystemMessageBubble
+    # rend l'état + le retry. Le net first-job reste L1 (survit staging coupé).
+    "apps/mobile/lib/services/coach_llm_service.dart",
+    "apps/mobile/test/screens/first_job_states_test.dart",
+    "apps/mobile/test/widgets/coach/system_message_bubble_offline_test.dart",
+    # PR-F addendum (revue Codex, P1) : la checklist conditionnelle change de
+    # taille (2↔4 items) pendant que le State persiste → RangeError sans
+    # `didUpdateWidget` qui re-dimensionne `_checked` en préservant les cochages
+    # par identité (`legalRef`).
+    "apps/mobile/lib/widgets/coach/job_change_checklist_widget.dart",
     # PR-E (E1) handoff /first-job -> coach porteur du MoneyTruthReceipt
     # (tranche firstJob, SPEC TRANCHE-FIRSTJOB §4.3) : store/resolve backend
     # owner-scoped (idempotence + accès croisé + pending + TTL) + câblage
@@ -892,7 +906,6 @@ ALLOW = {
     # PR-E (E2) mobile — CTA firstjob-ask-coach (RED-2) + propagation
     # receiptId/inputsHash au backend via l'entrée coach (SPEC §1 T5 / §4.3).
     "apps/mobile/lib/models/coach_entry_payload.dart",
-    "apps/mobile/lib/services/coach_llm_service.dart",
     "apps/mobile/lib/services/coach/e2e_coach_route_fixture.dart",
     "apps/mobile/test/screens/first_job_ask_coach_cta_test.dart",
     # PR-E (E2, revue Codex P1) — fermeture de la façade du handoff : store

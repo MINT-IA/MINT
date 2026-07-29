@@ -233,7 +233,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         _cantonSeeded = false;
         changed = true;
       }
-      if (changed) _calculate();
+      _finishSeed(changed);
       return;
     }
 
@@ -294,7 +294,22 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       }
     }
 
-    if (changed) _calculate();
+    _finishSeed(changed);
+  }
+
+  /// Tail commun du seed. Rejoué à CHAQUE notify du provider : si un fait de
+  /// situation a bougé on recalcule le résultat, sinon on force quand même un
+  /// rebuild. Sans ce rebuild inconditionnel, les lectures faites au build qui
+  /// ne dépendent PAS des faits gatés — la fin d'hydratation (`_isHydrating`,
+  /// borne le spinner) et l'avoir LPP antérieur (`prevoyance.avoirLppTotal`,
+  /// cohérence checklist) — resteraient périmées jusqu'à la prochaine
+  /// interaction (un avoir LPP arrivé APRÈS le gate n'ajouterait pas ses items).
+  void _finishSeed(bool changed) {
+    if (changed) {
+      _calculate();
+    } else if (mounted) {
+      setState(() {});
+    }
   }
 
   @override
@@ -444,6 +459,42 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     _seqRunId = runId;
     _seqStepId = stepId;
     _emitFinalReturn();
+  }
+
+  /// PR-F (SPEC §2.3) — le profil s'hydrate encore et rien n'est confirmé.
+  /// Seulement pertinent quand un provider existe (en prod / tests intégrés) ;
+  /// dans les tests unitaires isolés `_profileProvider` est nul → jamais de
+  /// spinner. Le net first-job est L1 (local, synchrone) : ce chargement porte
+  /// sur la RÉSOLUTION DU PROFIL, pas sur un appel réseau.
+  bool _isHydrating() =>
+      (_profileProvider?.isLoading ?? false) ||
+      (_profileProvider?.isHydrating ?? false);
+
+  /// Indicateur de chargement du slot résultat (motif spinner `success` de
+  /// `aujourdhui_screen`). Réutilise la chaîne existante `loadingPremierEclairage`.
+  Widget _buildHydratingIndicator() {
+    return MintEntrance(
+      child: Semantics(
+        identifier: 'firstjob-loading',
+        container: true,
+        label: S.of(context)!.loadingPremierEclairage,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.xl),
+          child: Column(
+            children: [
+              const CircularProgressIndicator(color: MintColors.success),
+              const SizedBox(height: MintSpacing.md),
+              Text(
+                S.of(context)!.loadingPremierEclairage,
+                style:
+                    MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -609,24 +660,43 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               Builder(
                                 builder: (ctx) {
                                   final l = S.of(ctx)!;
+                                  // Cohérence « premier » emploi (SPEC §2.3.4) :
+                                  // les items 1-2 (certificat LPP de l'employeur,
+                                  // transfert de l'ANCIEN avoir de libre passage)
+                                  // ne valent que pour qui a DÉJÀ eu un employeur.
+                                  // Un avoir LPP positif est la preuve d'un 2e
+                                  // pilier antérieur. Sans avoir antérieur (vrai
+                                  // premier emploi), afficher LFLP art. 2 /
+                                  // art. 4 al. 2 attacherait des références légales
+                                  // inapplicables au cas → on ne montre que
+                                  // LAMal art. 71 + OPP3 art. 7, qui valent pour
+                                  // tous. Reformulation du titre/sous-titre
+                                  // « changement de job » = copy → PR-G.
+                                  final avoirLppAnterieur = _profileProvider
+                                          ?.profile?.prevoyance.avoirLppTotal ??
+                                      0;
+                                  final hasPreviousEmployer =
+                                      avoirLppAnterieur > 0;
                                   return JobChangeChecklistWidget(
                                     items: [
-                                      ChecklistItem(
-                                        deadline: l.firstJobChecklistDeadline1,
-                                        emoji: '\u{1F4C4}',
-                                        action: l.firstJobChecklistAction1,
-                                        legalRef: 'LFLP art. 2',
-                                        consequence:
-                                            l.firstJobChecklistConsequence1,
-                                      ),
-                                      ChecklistItem(
-                                        deadline: l.firstJobChecklistDeadline2,
-                                        emoji: '\u{1F3E6}',
-                                        action: l.firstJobChecklistAction2,
-                                        legalRef: 'LFLP art. 4 al. 2',
-                                        consequence:
-                                            l.firstJobChecklistConsequence2,
-                                      ),
+                                      if (hasPreviousEmployer)
+                                        ChecklistItem(
+                                          deadline: l.firstJobChecklistDeadline1,
+                                          emoji: '\u{1F4C4}',
+                                          action: l.firstJobChecklistAction1,
+                                          legalRef: 'LFLP art. 2',
+                                          consequence:
+                                              l.firstJobChecklistConsequence1,
+                                        ),
+                                      if (hasPreviousEmployer)
+                                        ChecklistItem(
+                                          deadline: l.firstJobChecklistDeadline2,
+                                          emoji: '\u{1F3E6}',
+                                          action: l.firstJobChecklistAction2,
+                                          legalRef: 'LFLP art. 4 al. 2',
+                                          consequence:
+                                              l.firstJobChecklistConsequence2,
+                                        ),
                                       ChecklistItem(
                                         deadline: l.firstJobChecklistDeadline3,
                                         emoji: '\u{1F6E1}\u{FE0F}',
@@ -647,6 +717,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               _buildEducation(),
                               const SizedBox(height: MintSpacing.lg),
                               _buildMintAnalysisSection(),
+                              const SizedBox(height: MintSpacing.lg),
+                            ] else if (_isHydrating()) ...[
+                              // Slot résultat en CHARGEMENT : le profil s'hydrate
+                              // encore (PR-F). Indicateur borné plutôt qu'une
+                              // carte de situation clignotante — jamais un écran
+                              // vide, jamais un chiffre fabriqué.
+                              _buildHydratingIndicator(),
                               const SizedBox(height: MintSpacing.lg),
                             ] else ...[
                               // Slot résultat gaté : la carte de situation
