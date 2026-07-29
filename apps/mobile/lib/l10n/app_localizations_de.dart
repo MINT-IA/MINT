@@ -3699,7 +3699,10 @@ class SDe extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob bringt $annualDelta/Jahr mehr Leibrente, also $monthlyDelta/Monat LEBENSLANG nach der Pensionierung.';
   }
 
@@ -5795,7 +5798,10 @@ class SDe extends S {
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulation inklusive Kassenzins ($fundRate %) und indikativem Steuereffekt, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
   }
 
@@ -5987,7 +5993,10 @@ class SDe extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Du verlierst $amount/Monat lebenslang. Aber du gewinnst $years Jahr$plural Freiheit.';
   }
 
@@ -6064,7 +6073,10 @@ class SDe extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Vergleich Pauschalbesteuerung. Ordentliche Besteuerung: $ordinary. Pauschalbesteuerung: $forfait. Ersparnis: $savings.';
   }
 
@@ -7093,24 +7105,21 @@ class SDe extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'Januar',
-        '2': 'Februar',
-        '3': 'März',
-        '4': 'April',
-        '5': 'Mai',
-        '6': 'Juni',
-        '7': 'Juli',
-        '8': 'August',
-        '9': 'September',
-        '10': 'Oktober',
-        '11': 'November',
-        '12': 'Dezember',
-        'other': 'Monat',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'Januar',
+      '2': 'Februar',
+      '3': 'März',
+      '4': 'April',
+      '5': 'Mai',
+      '6': 'Juni',
+      '7': 'Juli',
+      '8': 'August',
+      '9': 'September',
+      '10': 'Oktober',
+      '11': 'November',
+      '12': 'Dezember',
+      'other': 'Monat',
+    });
     return '$_temp0';
   }
 
@@ -8598,7 +8607,9 @@ class SDe extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Schweizer Banken rechnen mit einem theoretischen Zinssatz von 5 % (ASB-Richtlinie), auch wenn der aktuelle Marktzins deutlich tiefer ist. Es ist ein Belastungstest: Sie prüfen, ob du die Kosten tragen könntest, falls die Zinsen steigen. Deine theoretischen Kosten: $chargesTheoriques/Mt. Zum Marktzins (~1,5 %): $chargesReelles/Mt.';
   }
 
@@ -11166,7 +11177,8 @@ class SDe extends S {
   String get pillar3aIndepBonASavoir => 'Gut zu wissen';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Mehrere 3a-Konten, gestaffelter Bezug';
+  String get pillar3aIndepEduComptesTitle =>
+      'Mehrere 3a-Konten, gestaffelter Bezug';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -12360,16 +12372,6 @@ class SDe extends S {
 
   @override
   String get reportRetirementSource => 'Quellen: BVG Art. 14, BVV3, AHVG';
-
-  @override
-  String reportRetirement3aNoneWithRoom(String amount) {
-    return 'Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF $amount/Jahr';
-  }
-
-  @override
-  String reportRetirement3aMulti(int count) {
-    return '$count Säule-3a-Konten — gute Diversifikation';
-  }
 
   @override
   String reportRetirementLppText(String available, String savings) {
@@ -14014,15 +14016,16 @@ class SDe extends S {
 
   @override
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject) {
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  ) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nbitte senden Sie mir einen Auszug meines individuellen AHV-Kontos (IK), um den Stand meiner Beiträge zu prüfen und eventuelle Lücken zu identifizieren.\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
@@ -14050,30 +14053,32 @@ class SDe extends S {
 
   @override
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete) {
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\naufgrund der Beendigung meines Arbeitsverhältnisses / meines Wegzugs aus der Schweiz (Nichtzutreffendes streichen) bitte ich Sie, mein Freizügigkeitsguthaben zu übertragen.\n\nZu übertragender Betrag: das gesamte Freizügigkeitsguthaben per Austrittsdatum.\n\nZielinstitution:\nName: $toComplete\nIBAN oder Kontonummer: $toComplete\nAdresse: $toComplete\n\nAustrittsdatum: $toComplete\n\nIch danke Ihnen für Ihre Sorgfalt und bitte um eine Bestätigung der Ausführung.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber) {
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nhiermit erlaube ich mir, folgende Anfragen bezüglich meiner beruflichen Vorsorge zu stellen:\n\n1. Aktualisierter Vorsorgeausweis $year (Altersguthaben, gedeckte Leistungen, anwendbarer Umwandlungssatz)\n\n2. Bestätigung meiner Einkaufskapazität (Maximalbetrag gemäss Art. 79b BVG)\n\n3. Simulation Frühpensionierung (Projektion des Guthabens und der Rente mit 63 und 64 Jahren, falls zutreffend)\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt und stehe Ihnen für Rückfragen gerne zur Verfügung.\n\nMit freundlichen Grüssen\n\n$name\n$policeNumber';
   }
 
@@ -16067,7 +16072,10 @@ class SDe extends S {
 
   @override
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount) {
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  ) {
     return 'IV $aiAmount + BVG $lppAmount = $totalAmount CHF/Monat';
   }
 
@@ -17501,7 +17509,8 @@ class SDe extends S {
   String get indepPlanLaaConseq => 'Kein Berufsunfall-Schutz';
 
   @override
-  String get indepPlanOuvrir3a => '3a-Konten vergleichen (Abzug bis CHF 36\'288)';
+  String get indepPlanOuvrir3a =>
+      '3a-Konten vergleichen (Abzug bis CHF 36\'288)';
 
   @override
   String get indepProtApg => 'Entfällt — Elternurlaub';
@@ -19914,7 +19923,9 @@ class SDe extends S {
 
   @override
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly) {
+    String totalMonthly,
+    String currentMonthly,
+  ) {
     return 'Geschätztes Renteneinkommen: $totalMonthly CHF/Monat vs $currentMonthly CHF/Monat heute';
   }
 
@@ -20148,7 +20159,10 @@ class SDe extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-      String legal, String monthly, String free) {
+    String legal,
+    String monthly,
+    String free,
+  ) {
     return 'Verbleibender rechtlicher Spielraum: $legal/Jahr. Monatliches Äquivalent: $monthly/Monat. Aktuell freies Budget: $free/Monat. Rechtlicher Spielraum ≠ monatliche Kapazität: Behalte eine Reserve, bevor du 3a erhöhst.';
   }
 
@@ -20381,8 +20395,13 @@ class SDe extends S {
   String get scoreGaugeSectionPrevoyance => 'Vorsorge';
 
   @override
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine) {
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  ) {
     return 'Finanzielle Fitness. $score von 100. Stufe $level. Budget $budget, Vorsorge $prevoyance, Vermögen $patrimoine.';
   }
 
@@ -20471,7 +20490,11 @@ class SDe extends S {
 
   @override
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high) {
+    String label,
+    String status,
+    String low,
+    String high,
+  ) {
     return '$label: $status. Typische Spanne $low bis $high';
   }
 
@@ -24849,7 +24872,10 @@ class SDe extends S {
 
   @override
   String genderGapProjectionAssumptions(
-      String rendement, String tauxMin, String annees) {
+    String rendement,
+    String tauxMin,
+    String annees,
+  ) {
     return 'Projektionsannahmen: Die Rendite von $rendement %/Jahr auf den BVG-Guthaben ist eine MINT-Annahme, kein gesetzlicher Satz — der BVG-Mindestzinssatz beträgt $tauxMin %/Jahr. Die kumulierte Lücke ist die jährliche Lücke multipliziert mit $annees Rentenjahren, ohne Diskontierung und ohne Indexierung: eine illustrative Grössenordnung, kein bereits erlittener Verlust.';
   }
 
