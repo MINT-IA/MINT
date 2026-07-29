@@ -115,7 +115,7 @@ const Map<String, List<double>> cantonalCommunalTaxChf = {
       (i) => all.fold<double>(0, (s, v) => s + v[i]) / all.length,
     );
   }
-  final incomes = cantonalTaxPointsIncome;
+  const incomes = cantonalTaxPointsIncome;
   double impotCantonal;
   if (taxableIncome <= 0) {
     impotCantonal = 0;
@@ -267,7 +267,7 @@ const List<double> federalCapitalIfdMarriedChf = [
 /// <100k linéaire depuis (0, 0) ; entre points linéaire ; >1M extrapolation à
 /// la pente du dernier segment.
 double _interpolateCapitalPoints(List<double> pts, double amount) {
-  final amounts = capitalTaxPointsAmount;
+  const amounts = capitalTaxPointsAmount;
   if (amount <= amounts.first) {
     return pts.first * (amount / amounts.first);
   }
