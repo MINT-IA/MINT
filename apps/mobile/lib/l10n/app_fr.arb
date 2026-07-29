@@ -302,20 +302,6 @@
   "successionEdu3aBody": "Le 3e pilier est versé directement selon l'OPP3, pas selon ton testament.",
   "successionEduConcubinBody": "Les concubins n'ont aucun droit successoral légal. Sans testament, ils ne reçoivent rien.",
   "successionDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.",
-  "coachingAge25Title": "25 ans : démarrer son 3e pilier",
-  "coachingAge25Message": "À 25 ans, c'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.",
-  "coachingAge35Title": "35 ans : faire le point prévoyance",
-  "coachingAge35Message": "À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?",
-  "coachingAge45Title": "45 ans : optimiser sa stratégie",
-  "coachingAge45Message": "À 45 ans, il reste 20 ans avant la retraite. C'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.",
-  "coachingAge50Title": "50 ans : préparer sa retraite",
-  "coachingAge50Message": "À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.",
-  "coachingAge55Title": "55 ans : dernière ligne droite",
-  "coachingAge55Message": "À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l'impact fiscal.",
-  "coachingAge58Title": "58 ans : retraite anticipée possible",
-  "coachingAge58Message": "Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.",
-  "coachingAge63Title": "63 ans : derniers ajustements",
-  "coachingAge63Message": "À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Fonctionnalité en préparation — consultation réglementaire FINMA en cours",
   "openBankingAddBank": "Ajouter une banque",
@@ -6231,24 +6217,6 @@
   "reportRetirementTitle": "Ta Retraite",
   "reportRetirementKeyLabel": "Revenu estimé à 65 ans",
   "reportRetirementSource": "Sources : LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Pas encore de 3a — marge déductible à estimer selon ton statut LPP",
-  "reportRetirement3aNoneWithRoom": "Pas encore de 3a — marge déductible estimée : CHF {amount}/an",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 compte 3a — ouvre un 2e pour optimiser le retrait",
-  "reportRetirement3aMulti": "{count} comptes 3a — bonne diversification",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Rachat LPP disponible : CHF {available} — impact fiscal estimé : CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {

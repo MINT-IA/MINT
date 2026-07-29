@@ -277,20 +277,6 @@
   "successionEdu3aBody": "O 3º pilar é pago diretamente segundo a OPP3, não segundo o teu testamento.",
   "successionEduConcubinBody": "Os companheiros não tem direitos sucessórios legais. Sem testamento, não recebem nada.",
   "successionDisclaimer": "Informação educativa, não aconselhamento jurídico (LSFin/CC).",
-  "coachingAge25Title": "25 anos: abrir o 3º pilar",
-  "coachingAge25Message": "Aos 25 anos e o momento ideal para abrir um 3º pilar. Gracas aos juros compostos, cada ano conta.",
-  "coachingAge35Title": "35 anos: ponto de situação de previdência",
-  "coachingAge35Message": "Aos 35 anos, verifica que a tua previdência está no bom caminho. Tens um 3a? A tua LPP é suficiente?",
-  "coachingAge45Title": "45 anos: otimizar a estrategia",
-  "coachingAge45Message": "Aos 45 anos, faltam 20 anos para a reforma. É o momento de verificar a tua margem 3a, possíveis recompras LPP e a tua trajetória.",
-  "coachingAge50Title": "50 anos: preparar a reforma",
-  "coachingAge50Message": "Aos 50 anos, a reforma aproxima-se. Verifica o teu haver LPP e planeia os ultimos resgates.",
-  "coachingAge55Title": "55 anos: ultima reta",
-  "coachingAge55Message": "Aos 55 anos, o planeamento fiscal do levantamento torna-se crucial. Escalonar os levantamentos 3a pode alterar o impacto fiscal.",
-  "coachingAge58Title": "58 anos: reforma antecipada possível",
-  "coachingAge58Message": "A partir dos 58 anos, um levantamento antecipado do 2º pilar é possível. Atenção: a renda será reduzida.",
-  "coachingAge63Title": "63 anos: ultimos ajustes",
-  "coachingAge63Message": "A 2 anos da reforma legal: finalizar a estrategia. Ultimo resgate LPP, escolha renda/capital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Funcionalidade em preparacao — consulta regulamentar FINMA em curso",
   "openBankingAddBank": "Adicionar um banco",
@@ -5753,24 +5739,6 @@
   "reportRetirementTitle": "A tua Reforma",
   "reportRetirementKeyLabel": "Rendimento estimado aos 65 anos",
   "reportRetirementSource": "Fontes: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Ainda sem 3a — margem dedutível a estimar segundo o teu estatuto LPP",
-  "reportRetirement3aNoneWithRoom": "Ainda sem 3a — margem dedutível estimada: CHF {amount}/ano",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 conta 3a — abre uma 2.ª para otimizar o levantamento",
-  "reportRetirement3aMulti": "{count} contas 3a — boa diversificação",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Resgate LPP disponível: CHF {available} — impacto fiscal estimado: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {

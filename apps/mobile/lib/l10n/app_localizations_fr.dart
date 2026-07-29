@@ -824,55 +824,6 @@ class SFr extends S {
       'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.';
 
   @override
-  String get coachingAge25Title => '25 ans : démarrer son 3e pilier';
-
-  @override
-  String get coachingAge25Message =>
-      'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.';
-
-  @override
-  String get coachingAge35Title => '35 ans : faire le point prévoyance';
-
-  @override
-  String get coachingAge35Message =>
-      'À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?';
-
-  @override
-  String get coachingAge45Title => '45 ans : optimiser sa stratégie';
-
-  @override
-  String get coachingAge45Message =>
-      'À 45 ans, il reste 20 ans avant la retraite. C\'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.';
-
-  @override
-  String get coachingAge50Title => '50 ans : préparer sa retraite';
-
-  @override
-  String get coachingAge50Message =>
-      'À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.';
-
-  @override
-  String get coachingAge55Title => '55 ans : dernière ligne droite';
-
-  @override
-  String get coachingAge55Message =>
-      'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l\'impact fiscal.';
-
-  @override
-  String get coachingAge58Title => '58 ans : retraite anticipée possible';
-
-  @override
-  String get coachingAge58Message =>
-      'Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.';
-
-  @override
-  String get coachingAge63Title => '63 ans : derniers ajustements';
-
-  @override
-  String get coachingAge63Message =>
-      'À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.';
-
-  @override
   String get openBankingTitle => 'Open Banking';
 
   @override
@@ -3739,7 +3690,10 @@ class SFr extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob vaut $annualDelta/an de plus en rente viagère, soit $monthlyDelta/mois À VIE après la retraite.';
   }
 
@@ -5842,7 +5796,10 @@ class SFr extends S {
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulation incluant l\'intérêt de la caisse ($fundRate %) et l\'impact fiscal indicatif lissé sur $staggeringYears ans pour un revenu imposable de CHF $taxableIncome. Le rendement réel est calculé sur ton effort net réel.';
   }
 
@@ -6036,7 +5993,10 @@ class SFr extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Tu perds $amount/mois à vie. Mais tu gagnes $years an$plural de liberté.';
   }
 
@@ -6113,7 +6073,10 @@ class SFr extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Comparaison forfait fiscal. Imposition ordinaire : $ordinary. Forfait fiscal : $forfait. Économie : $savings.';
   }
 
@@ -7133,24 +7096,21 @@ class SFr extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'janvier',
-        '2': 'février',
-        '3': 'mars',
-        '4': 'avril',
-        '5': 'mai',
-        '6': 'juin',
-        '7': 'juillet',
-        '8': 'août',
-        '9': 'septembre',
-        '10': 'octobre',
-        '11': 'novembre',
-        '12': 'décembre',
-        'other': 'mois',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'janvier',
+      '2': 'février',
+      '3': 'mars',
+      '4': 'avril',
+      '5': 'mai',
+      '6': 'juin',
+      '7': 'juillet',
+      '8': 'août',
+      '9': 'septembre',
+      '10': 'octobre',
+      '11': 'novembre',
+      '12': 'décembre',
+      'other': 'mois',
+    });
     return '$_temp0';
   }
 
@@ -8629,7 +8589,9 @@ class SFr extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : $chargesTheoriques/mois. Au taux réel (~1,5 %) : $chargesReelles/mois.';
   }
 
@@ -11196,7 +11158,8 @@ class SFr extends S {
   String get pillar3aIndepBonASavoir => 'Bon à savoir';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Plusieurs comptes 3a, un retrait échelonné';
+  String get pillar3aIndepEduComptesTitle =>
+      'Plusieurs comptes 3a, un retrait échelonné';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -12388,24 +12351,6 @@ class SFr extends S {
 
   @override
   String get reportRetirementSource => 'Sources : LPP art. 14, OPP3, LAVS';
-
-  @override
-  String get reportRetirement3aNone =>
-      'Pas encore de 3a — marge déductible à estimer selon ton statut LPP';
-
-  @override
-  String reportRetirement3aNoneWithRoom(String amount) {
-    return 'Pas encore de 3a — marge déductible estimée : CHF $amount/an';
-  }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 compte 3a — ouvre un 2e pour optimiser le retrait';
-
-  @override
-  String reportRetirement3aMulti(int count) {
-    return '$count comptes 3a — bonne diversification';
-  }
 
   @override
   String reportRetirementLppText(String available, String savings) {
@@ -14045,15 +13990,16 @@ class SFr extends S {
 
   @override
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject) {
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  ) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, le $dateFormatted\n\nObjet : $subject\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n$name';
   }
 
@@ -14082,30 +14028,32 @@ class SFr extends S {
 
   @override
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete) {
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, le $dateFormatted\n\nObjet : $subject\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : $toComplete\nIBAN ou numéro de compte : $toComplete\nAdresse : $toComplete\n\nDate de sortie : $toComplete\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber) {
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, le $dateFormatted\n\nObjet : $subject\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé $year (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n$name\n$policeNumber';
   }
 
@@ -16090,7 +16038,10 @@ class SFr extends S {
 
   @override
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount) {
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  ) {
     return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mois';
   }
 
@@ -19923,7 +19874,9 @@ class SFr extends S {
 
   @override
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly) {
+    String totalMonthly,
+    String currentMonthly,
+  ) {
     return 'Revenu estimé à la retraite : $totalMonthly CHF/mois vs $currentMonthly CHF/mois actuellement';
   }
 
@@ -20160,7 +20113,10 @@ class SFr extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-      String legal, String monthly, String free) {
+    String legal,
+    String monthly,
+    String free,
+  ) {
     return 'Marge légale restante : $legal/an. Équivalent mensuel : $monthly/mois. Budget libre actuel : $free/mois. Marge légale ≠ capacité mensuelle : garde une réserve avant d’augmenter le 3a.';
   }
 
@@ -20394,8 +20350,13 @@ class SFr extends S {
   String get scoreGaugeSectionPrevoyance => 'Prévoyance';
 
   @override
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine) {
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  ) {
     return 'Score de forme financière. $score sur 100. Niveau $level. Budget $budget, Prévoyance $prevoyance, Patrimoine $patrimoine.';
   }
 
@@ -20484,7 +20445,11 @@ class SFr extends S {
 
   @override
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high) {
+    String label,
+    String status,
+    String low,
+    String high,
+  ) {
     return '$label : $status. Fourchette typique $low à $high';
   }
 
@@ -24850,7 +24815,10 @@ class SFr extends S {
 
   @override
   String genderGapProjectionAssumptions(
-      String rendement, String tauxMin, String annees) {
+    String rendement,
+    String tauxMin,
+    String annees,
+  ) {
     return 'Hypothèses de projection : le rendement de $rendement %/an sur les avoirs LPP est une hypothèse MINT, pas un taux légal — le taux d\'intérêt minimal LPP est de $tauxMin %/an. La lacune cumulée est la lacune annuelle multipliée par $annees ans de retraite, sans actualisation ni indexation : un ordre de grandeur illustratif, pas une perte déjà subie.';
   }
 

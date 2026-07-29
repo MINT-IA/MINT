@@ -277,20 +277,6 @@
   "successionEdu3aBody": "Pillar 3a is paid directly according to OPO3, not according to your will.",
   "successionEduConcubinBody": "Cohabiting partners have no legal inheritance rights. Without a will, they receive nothing.",
   "successionDisclaimer": "Educational information, not legal advice (FinSA/CC). Consult a specialist for your situation.",
-  "coachingAge25Title": "25: Start your pillar 3a",
-  "coachingAge25Message": "At 25, it's the ideal time to open a pillar 3a. Thanks to compound interest, every year counts.",
-  "coachingAge35Title": "35: Pension check-up",
-  "coachingAge35Message": "At 35, verify your pension is on track. Do you have a 3a? Is your pension fund sufficient?",
-  "coachingAge45Title": "45: Optimise your strategy",
-  "coachingAge45Message": "At 45, there are 20 years until retirement. Time to check your 3a room, possible pension fund buybacks and trajectory.",
-  "coachingAge50Title": "50: Prepare for retirement",
-  "coachingAge50Message": "At 50, retirement is approaching. Check your pension fund balance and plan your final buybacks.",
-  "coachingAge55Title": "55: The final stretch",
-  "coachingAge55Message": "At 55, tax planning for withdrawals becomes crucial. Staggering 3a withdrawals can change the tax impact.",
-  "coachingAge58Title": "58: Early retirement possible",
-  "coachingAge58Message": "From 58, early withdrawal of your 2nd pillar is possible. Note: the pension will be reduced.",
-  "coachingAge63Title": "63: Final adjustments",
-  "coachingAge63Message": "2 years from retirement: finalise your strategy. Last pension buyback, annuity vs lump sum choice.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Feature in preparation — FINMA regulatory consultation in progress",
   "openBankingAddBank": "Add a bank",
@@ -5758,24 +5744,6 @@
   "reportRetirementTitle": "Your Retirement",
   "reportRetirementKeyLabel": "Estimated income at 65",
   "reportRetirementSource": "Sources: LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "No 3a yet — deductible room to estimate from your LPP status",
-  "reportRetirement3aNoneWithRoom": "No 3a yet — estimated deductible room: CHF {amount}/year",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 pillar 3a account — open a 2nd to optimise withdrawal",
-  "reportRetirement3aMulti": "{count} pillar 3a accounts — good diversification",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "LPP buyback available: CHF {available} — estimated tax impact: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
