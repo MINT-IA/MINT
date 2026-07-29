@@ -162,10 +162,17 @@ class TestCrossValidation:
         assert "ecart" in salary_alerts[0].message.lower() or "bas" in salary_alerts[0].message.lower()
 
     def test_salary_gross_net_ratio_too_high(self):
-        """Net too high vs gross triggers salary alert."""
+        """Net too high vs gross triggers salary alert.
+
+        99% net/brut depasse le plafond physique des deductions minimales
+        (AVS/AI/APG + AC = 6.4%, donc net <= ~93.6% du brut meme sans impot a
+        la source) + la tolerance 0.05 -> alerte « eleve ». Ancienne assertion
+        a 98% : desormais dans la bande + tolerance (0.936 + 0.05 = 0.986),
+        car la bande derivee ne colle plus a un scalaire cantonal unique.
+        """
         alerts = cross_validate({
             "salaire_brut": 100_000,
-            "salaire_net": 98_000,  # 98% ratio — too high
+            "salaire_net": 99_000,  # 99% ratio — au-dela du plafond social
             "canton": "ZH",
         })
         salary_alerts = [a for a in alerts if a.field_name == "salaire_net"]
@@ -248,6 +255,192 @@ class TestCrossValidation:
         rate_alerts = [a for a in alerts if a.field_name == "taux_marginal"]
         assert len(rate_alerts) >= 1
         assert rate_alerts[0].severity == "warning"
+
+
+class TestDelegueALEtalon:
+    """Le taux marginal de precision_service DERIVE de l'etalon, plus d'une table.
+
+    Constat 2026-07-27 (.planning/architecture/2026-07-27-constat-precision-
+    service-taux-marginaux.md) : _MARGINAL_RATES_BY_CANTON servait l'alerte
+    Check 6 ET le SmartDefault taux_marginal (fallback 0.25 sans source),
+    avec des ecarts mesures jusqu'a +5,3 points contre l'etalon (GE high).
+    """
+
+    def test_taux_marginal_delegue_a_l_etalon_sur_26_cantons(self):
+        from app.services.fiscal.cantonal_comparator import (
+            CANTONAL_COMMUNAL_TAX_CHF,
+            estimate_marginal_rate,
+        )
+        from app.services.precision.precision_service import (
+            _estimate_marginal_rate,
+        )
+
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
+            for revenu in (45_000, 90_000, 150_000):
+                attendu = estimate_marginal_rate(revenu, canton)
+                obtenu = _estimate_marginal_rate(revenu, canton)
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
+
+    def test_alerte_bord_de_bande_derive_de_l_etalon(self):
+        """GE 150k, saisie 0.60 : 0.60 > 1.6 x etalon (~0.587) -> « semble eleve ».
+
+        Avec la table (0.42, borne 0.672) l'alerte restait muette — cas de
+        bascule mesure du constat. La bande [0.5x ; 1.6x] est conservee ;
+        seule la valeur de reference change de source.
+        """
+        alerts = cross_validate({
+            "salaire_brut": 150_000,
+            "taux_marginal": 0.60,
+            "canton": "GE",
+        })
+        rate_alerts = [a for a in alerts if a.field_name == "taux_marginal"]
+        assert len(rate_alerts) >= 1
+        assert "eleve" in rate_alerts[0].message.lower()
+
+    def test_canton_inconnu_ne_fabrique_ni_alerte_ni_default(self):
+        """« CH » passe le schema (2 lettres) mais n'est pas un canton.
+
+        Servir la moyenne de l'etalon sous l'etiquette « dans le canton
+        CH » fabriquerait un chiffre local (revue Codex 2026-07-27) :
+        Check 6 se tait (comportement d'avant conserve) et aucun
+        SmartDefault taux_marginal n'est emis (avant : taux de ZH
+        etiquetes du canton inconnu).
+        """
+        alerts = cross_validate({
+            "salaire_brut": 150_000,
+            "taux_marginal": 0.60,
+            "canton": "CH",
+        })
+        assert [a for a in alerts if a.field_name == "taux_marginal"] == []
+
+        defaults = compute_smart_defaults(
+            archetype="swiss_native", age=35, salary=80_000, canton="CH",
+        )
+        assert "taux_marginal" not in [d.field_name for d in defaults]
+
+
+class TestNetGrossPlausibilityBand:
+    """Check 2 (salaire net/brut) DERIVE une bande de plausibilite du revenu reel.
+
+    Constat #1095 : `_CANTON_NET_RATIO` etait une table de 26 ratios net/brut
+    « moyens » (0.74-0.83) SANS source, ecrite en AnnAssign donc invisible au
+    garde `no_cantonal_rate_table.py`. Elle confondait deux regimes :
+      - net de FICHE DE PAIE (impot paye separement) ≈ 1 - charges sociales,
+        ~0.82-0.90 selon l'age (LPP) — PAS cantonal ;
+      - net APRES IMPOT A LA SOURCE (permis B) — cantonal ET fonction du revenu.
+    On la remplace par une bande [ratio_min, ratio_max] derivee des constantes
+    d'assurances sociales et de l'etalon fiscal ESTV, au revenu de l'utilisateur.
+    """
+
+    def test_ac_plafonnee_au_salaire_assure(self):
+        """Revue Codex P2 : l'AC (1.1%) est plafonnee au salaire assure
+        (LACI) — au-dela, le taux de charges DIMINUE avec le salaire."""
+        from app.services.precision.precision_service import (
+            _employee_social_charge_rate,
+        )
+        from app.constants.social_insurance import (
+            AC_PLAFOND_SALAIRE_ASSURE,
+            AVS_COTISATION_SALARIE,
+            AC_COTISATION_SALARIE,
+        )
+
+        sous_plafond = _employee_social_charge_rate(100000, 0.0)
+        assert sous_plafond == pytest.approx(
+            AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE
+        )
+        au_dessus = _employee_social_charge_rate(300000, 0.0)
+        attendu = AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE * (
+            AC_PLAFOND_SALAIRE_ASSURE / 300000
+        )
+        assert au_dessus == pytest.approx(attendu)
+        assert au_dessus < sous_plafond
+
+    def test_aucune_table_canton_net_ratio_dans_le_module(self):
+        """Le residu `_CANTON_NET_RATIO` a ete draine — plus de constante."""
+        import inspect
+
+        import app.services.precision.precision_service as mod
+
+        assert not hasattr(mod, "_CANTON_NET_RATIO"), (
+            "_CANTON_NET_RATIO doit avoir disparu du module"
+        )
+        assert "_CANTON_NET_RATIO" not in inspect.getsource(mod), (
+            "aucune reference textuelle a _CANTON_NET_RATIO ne doit subsister"
+        )
+
+    def test_dans_la_bande_pas_d_alerte_fiche_de_paie_sans_impot(self):
+        """ZH 100k brut, net 85k = fiche de paie typique SANS impot a la source."""
+        alerts = cross_validate({
+            "salaire_brut": 100_000,
+            "salaire_net": 85_000,
+            "canton": "ZH",
+        })
+        assert [a for a in alerts if a.field_name == "salaire_net"] == []
+
+    def test_sous_la_bande_alerte(self):
+        """ZH 100k brut, net 55k : sous le plancher derive -> alerte."""
+        alerts = cross_validate({
+            "salaire_brut": 100_000,
+            "salaire_net": 55_000,
+            "canton": "ZH",
+        })
+        salary_alerts = [a for a in alerts if a.field_name == "salaire_net"]
+        assert len(salary_alerts) >= 1
+        assert salary_alerts[0].severity == "warning"
+        assert "ecart" in salary_alerts[0].message.lower()
+
+    def test_net_au_dessus_du_brut_comportement_raisonnable(self):
+        """Net > brut (saisie erronee) : au-dela du plafond social -> alerte eleve."""
+        alerts = cross_validate({
+            "salaire_brut": 100_000,
+            "salaire_net": 110_000,
+            "canton": "ZH",
+        })
+        salary_alerts = [a for a in alerts if a.field_name == "salaire_net"]
+        assert len(salary_alerts) >= 1
+        assert "eleve" in salary_alerts[0].message.lower()
+
+    def test_source_taxe_plausible_pas_d_alerte(self):
+        """GE 100k brut, net 72k (impose a la source, permis B) : dans la bande.
+
+        L'ancienne table a 0.74 (borne basse 0.66 avec tolerance 0.08) ne
+        tolerait ce cas qu'a peine ; la bande derivee lui donne de la marge.
+        """
+        alerts = cross_validate({
+            "salaire_brut": 100_000,
+            "salaire_net": 72_000,
+            "canton": "GE",
+        })
+        assert [a for a in alerts if a.field_name == "salaire_net"] == []
+
+    def test_meme_canton_tolere_net_source_et_net_fiche(self):
+        """GE tolere a la fois 72k (source) et 87k (fiche sans impot source).
+
+        Un scalaire cantonal unique (0.74) ne pouvait pas : sous l'ancienne
+        table, 87k/100k = 0.87 depassait 0.74 + 0.08 = 0.82 et declenchait un
+        faux positif « net eleve ». La bande derivee couvre les deux regimes.
+        """
+        alerts = cross_validate({
+            "salaire_brut": 100_000,
+            "salaire_net": 87_000,
+            "canton": "GE",
+        })
+        assert [a for a in alerts if a.field_name == "salaire_net"] == []
+
+    def test_canton_hors_des_26_ni_bande_ni_alerte(self):
+        """« CH » passe le schema (2 lettres) mais n'est pas un canton -> pas d'alerte.
+
+        Meme doctrine que Check 6 / `_estimate_marginal_rate` : sans etalon
+        cantonal, on ne fabrique ni bande ni alerte (revue Codex 2026-07-27).
+        """
+        alerts = cross_validate({
+            "salaire_brut": 100_000,
+            "salaire_net": 40_000,  # ratio 0.40, alerterait dans n'importe quel canton
+            "canton": "CH",
+        })
+        assert [a for a in alerts if a.field_name == "salaire_net"] == []
 
 
 # ===================================================================

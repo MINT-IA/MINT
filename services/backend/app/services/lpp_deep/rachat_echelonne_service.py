@@ -30,41 +30,14 @@ DISCLAIMER = (
 
 
 # ---------------------------------------------------------------------------
-# Simplified marginal tax rates by canton (federal + cantonal + communal)
-# These are approximations for educational purposes.
+# La table `TAUX_MARGINAUX_PAR_CANTON` (26 cantons x 4 paliers) et son
+# fallback `_DEFAULT_RATES` ont ete SUPPRIMES le 2026-07-27. Ne pas les
+# reintroduire : depuis Beads -81n/-97h le calcul vivant passe par la
+# DIFFERENCE d'impot du modele v2 (`estimate_income_tax`, ci-dessous), et
+# leur seul lecteur restant etait la methode morte `_get_marginal_rate`
+# (zero appelant, prouve par rejeu). Constat (livre par la PR #1065) :
+# .planning/architecture/2026-07-27-constat-rachat-echelonne-taux-marginaux.md
 # ---------------------------------------------------------------------------
-
-TAUX_MARGINAUX_PAR_CANTON = {
-    "ZH": {100000: 0.28, 150000: 0.33, 200000: 0.36, 300000: 0.39},
-    "BE": {100000: 0.30, 150000: 0.35, 200000: 0.38, 300000: 0.41},
-    "VD": {100000: 0.32, 150000: 0.37, 200000: 0.40, 300000: 0.42},
-    "GE": {100000: 0.33, 150000: 0.38, 200000: 0.41, 300000: 0.44},
-    "LU": {100000: 0.24, 150000: 0.28, 200000: 0.31, 300000: 0.34},
-    "AG": {100000: 0.27, 150000: 0.32, 200000: 0.35, 300000: 0.38},
-    "SG": {100000: 0.28, 150000: 0.33, 200000: 0.36, 300000: 0.39},
-    "BS": {100000: 0.30, 150000: 0.35, 200000: 0.38, 300000: 0.40},
-    "TI": {100000: 0.29, 150000: 0.34, 200000: 0.37, 300000: 0.40},
-    "VS": {100000: 0.26, 150000: 0.31, 200000: 0.34, 300000: 0.37},
-    "FR": {100000: 0.30, 150000: 0.35, 200000: 0.38, 300000: 0.41},
-    "NE": {100000: 0.32, 150000: 0.37, 200000: 0.40, 300000: 0.43},
-    "JU": {100000: 0.32, 150000: 0.37, 200000: 0.40, 300000: 0.43},
-    "SO": {100000: 0.28, 150000: 0.33, 200000: 0.36, 300000: 0.39},
-    "BL": {100000: 0.28, 150000: 0.33, 200000: 0.36, 300000: 0.39},
-    "GR": {100000: 0.27, 150000: 0.32, 200000: 0.35, 300000: 0.38},
-    "TG": {100000: 0.26, 150000: 0.31, 200000: 0.34, 300000: 0.37},
-    "SZ": {100000: 0.20, 150000: 0.24, 200000: 0.27, 300000: 0.30},
-    "ZG": {100000: 0.18, 150000: 0.22, 200000: 0.25, 300000: 0.28},
-    "NW": {100000: 0.20, 150000: 0.24, 200000: 0.27, 300000: 0.30},
-    "OW": {100000: 0.21, 150000: 0.25, 200000: 0.28, 300000: 0.31},
-    "UR": {100000: 0.22, 150000: 0.26, 200000: 0.29, 300000: 0.32},
-    "SH": {100000: 0.27, 150000: 0.32, 200000: 0.35, 300000: 0.38},
-    "AR": {100000: 0.26, 150000: 0.31, 200000: 0.34, 300000: 0.37},
-    "AI": {100000: 0.22, 150000: 0.26, 200000: 0.29, 300000: 0.32},
-    "GL": {100000: 0.26, 150000: 0.31, 200000: 0.34, 300000: 0.37},
-}
-
-# Default for unknown cantons
-_DEFAULT_RATES = {100000: 0.28, 150000: 0.33, 200000: 0.36, 300000: 0.39}
 
 
 @dataclass
@@ -269,40 +242,6 @@ class RachatEchelonneService:
             sources=sources,
             disclaimer=DISCLAIMER,
         )
-
-    def _get_marginal_rate(
-        self,
-        revenu: float,
-        canton: str,
-        override: Optional[float] = None,
-    ) -> float:
-        """Get the marginal tax rate for a given income and canton.
-
-        If an override is provided, use it directly. Otherwise, look up
-        the canton's rate table (simplified for educational purposes).
-
-        Args:
-            revenu: Taxable income (CHF).
-            canton: Canton code (uppercase).
-            override: If provided, use this rate directly (0-1).
-
-        Returns:
-            Marginal tax rate as a float (0-1).
-        """
-        if override is not None:
-            return max(0.0, min(1.0, override))
-
-        rates = TAUX_MARGINAUX_PAR_CANTON.get(canton, _DEFAULT_RATES)
-
-        # Find the appropriate bracket
-        applicable_rate = 0.15  # Base rate for low incomes
-        for threshold, rate in sorted(rates.items()):
-            if revenu >= threshold:
-                applicable_rate = rate
-            else:
-                break
-
-        return applicable_rate
 
     def _generate_alerts(
         self,

@@ -211,8 +211,12 @@ ALLOW = {
     "apps/mobile/lib/widgets/visualizations/marriage_penalty_gauge.dart",
     "apps/mobile/lib/widgets/visualizations/marriage_tax_comparison.dart",
     "tools/checks/no_hardcoded_fr.py",
+    "tools/collect_estv.py",
+    "tools/checks/accent_lint_fr.py",
     "tools/checks/_baseline_diff.py",
     "tools/checks/no_cantonal_rate_table.py",
+    "services/backend/app/services/coaching_engine.py",
+    "services/backend/app/services/first_job/onboarding_service.py",
     "tools/checks/prefer_mint_cta.py",
     "tools/checks/prefer_mint_text_style.py",
     "tools/checks/prefer_mint_fonts.py",
@@ -438,6 +442,29 @@ ALLOW = {
     "services/backend/app/services/fiscal/wealth_tax_service.py",
     "apps/mobile/lib/services/wealth_tax_service.dart",
     "services/backend/app/api/v1/endpoints/wealth_tax.py",
+    # Fix remploi méthode absolue (ADR 2026-07-28-remplacements P2)
+    "services/backend/app/services/housing_sale_service.py",
+    "services/backend/tests/test_housing_sale.py",
+    "apps/mobile/lib/services/housing_sale_service.dart",
+    "apps/mobile/test/services/housing_sale_service_test.dart",
+    # LAMal frontalier par pays de résidence (ADR 2026-07-28-remplacements P3)
+    # + suppression du champ base_rate mort (ADR 2026-07-28-remplacements P1)
+    "services/backend/app/services/expat/frontalier_service.py",
+    "services/backend/tests/test_expat.py",
+    # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
+    "services/backend/app/services/divorce_simulator.py",
+    "services/backend/tests/test_divorce_simulator.py",
+    "services/backend/tests/test_life_events.py",
+    # Citation CC des réserves héréditaires (hand-off 2026-07-27 §3.5)
+    "services/backend/app/services/coach/bundles/succession_divorce_bundle.py",
+    "services/backend/tests/bundles/test_succession_divorce_bundle.py",
+    # Drain des taux marginaux vers l'étalon (hand-off 2026-07-27 §3.1b)
+    "services/backend/app/services/precision/precision_service.py",
+    "services/backend/tests/test_precision.py",
+    # ADR des décisions déléguées (panels 2026-07-28)
+    ".planning/decisions/2026-07-28-fortune-recalibrage-estv.md",
+    ".planning/decisions/2026-07-28-prescriptions-ligne-et-mecanisme.md",
+    ".planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
