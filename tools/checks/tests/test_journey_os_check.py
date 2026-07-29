@@ -205,6 +205,25 @@ def test_active_context_branch_authorization_is_in_scope(tmp_path: Path) -> None
 
     assert not any("outside Journey OS whitelist" in error for error in errors)
 
+def test_diagnostic_entry_files_are_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/screens/auth/login_screen.dart",
+            "apps/mobile/lib/widgets/onboarding/premier_eclairage_card.dart",
+            "apps/mobile/test/screens/auth_magic_link_verify_handoff_test.dart",
+            "apps/mobile/test/widgets/onboarding/premier_eclairage_card_test.dart",
+            "tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
 def test_journey_os_workflow_files_are_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)
@@ -371,6 +390,7 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
             "apps/mobile/lib/app.dart",
             "apps/mobile/lib/providers/auth_provider.dart",
             "apps/mobile/lib/routes/route_metadata.dart",
+            "apps/mobile/lib/screens/landing_screen.dart",
             "apps/mobile/lib/screens/debug/debug_mint2_account_claim_screen.dart",
             "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart",
             "apps/mobile/lib/services/coach/_valid_routes_generated.dart",
@@ -381,10 +401,12 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
             "apps/mobile/test/architecture/route_guard_snapshot_test.dart",
             "apps/mobile/test/navigation/account_lifecycle_public_entry_redirect_test.dart",
             "apps/mobile/test/navigation/goroute_health_test.dart",
+            "apps/mobile/test/navigation/rvc_real_route_public_test.dart",
             "apps/mobile/test/providers/auth_provider_test.dart",
             "apps/mobile/test/screens/debug/debug_mint2_account_claim_screen_test.dart",
             "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_route_scope_test.dart",
             "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_signal_axes_test.dart",
+            "apps/mobile/test/screens/onboarding/mvp_wedge_storyboard_test.dart",
             "apps/mobile/test/services/coach/chat_tool_dispatcher_test.dart",
             "apps/mobile/test/services/navigation/route_planner_test.dart",
             "apps/mobile/test/services/navigation/screen_registry_test.dart",
@@ -402,6 +424,35 @@ def test_jos005_first_value_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
             "tools/contracts/screen_registry.json",
             "tools/simulator/mint2_quality_gate.sh",
             "tools/simulator/test_mint2_quality_gate.py",
+        ],
+    )
+
+    assert not any("outside Journey OS whitelist" in error for error in errors)
+
+
+def test_auth_l10n_hotfix_scope_is_in_scope(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+
+    errors = _errors(
+        root,
+        [
+            "apps/mobile/lib/providers/auth_provider.dart",
+            "apps/mobile/lib/l10n/app_de.arb",
+            "apps/mobile/lib/l10n/app_en.arb",
+            "apps/mobile/lib/l10n/app_es.arb",
+            "apps/mobile/lib/l10n/app_fr.arb",
+            "apps/mobile/lib/l10n/app_it.arb",
+            "apps/mobile/lib/l10n/app_pt.arb",
+            "apps/mobile/lib/l10n/app_localizations.dart",
+            "apps/mobile/lib/l10n/app_localizations_de.dart",
+            "apps/mobile/lib/l10n/app_localizations_en.dart",
+            "apps/mobile/lib/l10n/app_localizations_es.dart",
+            "apps/mobile/lib/l10n/app_localizations_fr.dart",
+            "apps/mobile/lib/l10n/app_localizations_it.dart",
+            "apps/mobile/lib/l10n/app_localizations_pt.dart",
         ],
     )
 

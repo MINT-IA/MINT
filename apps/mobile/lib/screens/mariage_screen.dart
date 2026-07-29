@@ -1,23 +1,23 @@
 import 'dart:math';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
-import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
-import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
+import 'package:mint_mobile/widgets/visualizations/marriage_tax_comparison.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
@@ -27,7 +27,7 @@ import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 // ────────────────────────────────────────────────────────────
 //
 // Four-tab interactive screen:
-//   Tab 1: "Impots"     — Marriage penalty/bonus calculator
+//   Tab 1: "Impots"     — household tax, married vs two single people
 //   Tab 2: "Regime"     — Matrimonial regime comparison
 //   Tab 3: "Protection" — Survivor benefits (married vs not)
 //   Tab 4: "Checklist"  — Essential steps before/after marriage
@@ -35,6 +35,14 @@ import 'package:mint_mobile/widgets/coach/couple_narrative_timeline.dart';
 // Design System: MintTextStyles + MintSpacing tokens.
 // AppBar: white standard (Life Event screen).
 // Ne constitue pas un conseil fiscal ou juridique (LSFin).
+//
+// P2 « gate dur » : chaque sortie calculée (impôt du couple / partage du régime
+// / histoire à deux / rente de survivant) est gatée derrière les faits de
+// situation qu'ELLE consomme. Un fait n'est CONFIRMÉ que s'il vient des données
+// réelles de l'utilisateur (provenance = `userProvidedFields` / conjoint réel,
+// ou champ touché). Une valeur égale à un défaut fabriqué reste ASSUMED (jamais
+// confirmée). Aucun chiffre ne se calcule sur un défaut inventé.
+// Réf : .planning/decisions/2026-07-25-p2-simulator-result-gating.md
 // ────────────────────────────────────────────────────────────
 
 class MariageScreen extends StatefulWidget {
@@ -48,92 +56,452 @@ class _MariageScreenState extends State<MariageScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
-  // ── Tab 1: Impots inputs ──────────────────────────────
+  // ── Tab 1: Impôts inputs ──────────────────────────────
   double _revenu1 = 80000;
   double _revenu2 = 60000;
-  // D9 — what-if honnête : tant qu'aucun conjoint réel n'est connu, le
-  // « Revenu 2 » est une HYPOTHÈSE modifiable de l'outil de scénario, pas un
-  // fait du profil. Devient false uniquement si un conjoint réel hydrate la
-  // valeur (prefill ci-dessous).
-  bool _revenu2IsHypothesis = true;
   String _canton = 'VD';
   int _nbEnfants = 0;
   Map<String, dynamic>? _fiscalResult;
 
-  // ── Tab 2: Regime inputs ──────────────────────────────
-  int _selectedRegime = 0; // 0=participation, 1=separation, 2=communaute
+  // ── Tab 2: Régime inputs ──────────────────────────────
+  int _selectedRegime = 0; // 0=participation (défaut légal CC art. 181)
   double _patrimoine1 = 200000;
   double _patrimoine2 = 100000;
 
   // ── Tab 3: Protection ─────────────────────────────────
   double _renteLpp = 2500;
+  // Solde 3a RÉEL du profil — champ d'état (jamais une lecture live en build,
+  // jamais estimé depuis le revenu). Un clear le remet à 0 et retire la clause.
+  double _totalEpargne3a = 0.0;
 
   // ── Tab 4: Checklist ──────────────────────────────────
   final Set<int> _checkedItems = {};
   final Map<int, bool> _expandedItems = {};
 
-  bool _prefilled = false;
+  // ── P2 « gate dur » : provenance PAR FAIT, ré-évaluée à chaque notify ──
+  // Aucun latch `_prefilled` : `loadFromWizard` notifie plusieurs fois
+  // (cache→frais→fusionné) ; un latch au 1er notify échouerait un champ dont la
+  // donnée arrive au notify suivant. Chaque fait garde `_xSeeded`/`_xTouched`.
+  CoachProfileProvider? _profileProvider;
+
+  // Impôts : revenu1 (clé 'salary'), revenu2 (conjoint réel), canton (clé
+  // 'canton'), nombre d'enfants (aucune clé → touch seul).
+  bool _revenu1Touched = false;
+  bool _revenu1Seeded = false; // provenance = userProvidedFields('salary').
+  bool _revenu2Touched = false;
+  bool _revenu2Seeded = false; // provenance = conjoint réel (salaire > 0).
+  bool _cantonTouched = false;
+  bool _cantonSeeded = false; // provenance = userProvidedFields('canton').
+  bool _nbEnfantsTouched = false; // pas de clé → confirmable au touch seul.
+
+  // Régime : patrimoines des deux conjoints (aucune clé → touch seul).
+  bool _patrimoine1Touched = false;
+  bool _patrimoine2Touched = false;
+
+  // Protection : rente LPP mensuelle (clé 'avoirLpp' → rente via LppCalculator).
+  bool _renteLppTouched = false;
+  bool _renteLppSeeded = false;
+
+  // Baselines pour l'annonce VoiceOver incomplet→complet (par sortie).
+  bool _fiscalGateComplete = false;
+  bool _regimeGateComplete = false;
+  bool _timelineGateComplete = false;
+  bool _protectionGateComplete = false;
+
+  // Ancres pour scroll-to-first-missing quand une situation est incomplète.
+  final _revenu1Key = GlobalKey();
+  final _revenu2Key = GlobalKey();
+  final _cantonKey = GlobalKey();
+  final _nbEnfantsKey = GlobalKey();
+  final _patrimoine1Key = GlobalKey();
+  final _patrimoine2Key = GlobalKey();
+  final _renteLppKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    // Gate dur : au 1er frame rien n'est confirmé → aucun résultat fabriqué.
     _recalculate();
   }
 
+  /// P2 (zéro donnée inventée) : on s'abonne au provider car `loadFromWizard()`
+  /// hydrate le profil de façon asynchrone (l'écran peut être monté avant
+  /// l'arrivée des données). Un champ édité (touched) n'est jamais réécrasé par
+  /// une hydratation tardive ; un champ absent garde son défaut éditable mais
+  /// reste non confirmé → gaté.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_prefilled) {
-      _prefilled = true;
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile != null) {
-        final gross = profile.salaireBrutMensuel * 12;
-        if (gross > 0) _revenu1 = gross;
-        if (profile.canton.isNotEmpty && profile.canton != 'unknown') {
-          _canton = profile.canton;
-        }
-        if (profile.nombreEnfants > 0) _nbEnfants = profile.nombreEnfants;
-        // D9 — Revenu 2 : n'utiliser une vraie valeur que si un conjoint réel
-        // existe. Sinon, le défaut reste une hypothèse explicitement étiquetée.
-        final conjoint = profile.conjoint;
-        final conjointGross = conjoint?.salaireBrutMensuel;
-        if (conjointGross != null && conjointGross > 0) {
-          _revenu2 = conjointGross * conjoint!.nombreDeMois;
-          _revenu2IsHypothesis = false;
-        }
-        final lppRente = profile.prevoyance.avoirLppTotal;
-        if (lppRente != null && lppRente > 0) {
-          // Rente mensuelle via la source canonique (financial_core L1) :
-          // un seul taux de conversion par cas (LppCalculator), réduction
-          // retraite anticipée (LPP art. 13 al. 2) appliquée partout.
-          _renteLpp = LppCalculator.monthlyRenteFromAvoir(
-            avoir: lppRente,
-            baseRate: profile.prevoyance.tauxConversion,
-            retirementAge: profile.effectiveRetirementAge,
-          ).roundToDouble();
-        }
-        _recalculate();
-      }
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
     }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+    // Baseline APRÈS le seed : pas d'annonce parasite si le profil confirme
+    // déjà tout au premier build.
+    _refreshGateBaselines();
   }
 
   @override
   void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
     _tabController.dispose();
     super.dispose();
   }
 
-  void _recalculate() {
-    setState(() {
-      _fiscalResult = FamilyService.compareFiscalMariage(
-        revenu1: _revenu1,
-        revenu2: _revenu2,
-        canton: _canton,
-        nbEnfants: _nbEnfants,
-      );
-    });
+  /// Seed provenance-gaté, rejoué à CHAQUE notify (aucun latch global). Un champ
+  /// n'est amorcé — et donc confirmé — que si sa provenance est réelle : une clé
+  /// `userProvidedFields`, un conjoint réel, jamais valeur≠défaut.
+  void _seedFromProfile() {
+    final profile = _profileProvider?.profile;
+    var changed = false;
+
+    if (profile == null) {
+      // Profil absent : pas encore hydraté (le listener rejouera) ou effacé
+      // (logout / reset) pendant que l'écran est monté. La provenance issue du
+      // profil disparaît : les faits seededFromProfile retombent à non
+      // confirmés (un fait TOUCHÉ reste une donnée user et survit). Tout
+      // résultat qui reposait sur un fait seedé est invalidé.
+      if (_revenu1Seeded) {
+        _revenu1Seeded = false;
+        changed = true;
+      }
+      if (_revenu2Seeded) {
+        _revenu2Seeded = false;
+        changed = true;
+      }
+      if (_cantonSeeded) {
+        _cantonSeeded = false;
+        changed = true;
+      }
+      if (_renteLppSeeded) {
+        _renteLppSeeded = false;
+        changed = true;
+      }
+      // Le solde 3a affiché (clause OPP3) est une donnée profil live : sur un
+      // clear il doit disparaître, sinon un ancien solde CHF resterait rendu.
+      if (_totalEpargne3a != 0.0) {
+        _totalEpargne3a = 0.0;
+        changed = true;
+      }
+      if (changed) {
+        _recalculate();
+        _refreshGateBaselines();
+        if (mounted) setState(() {});
+      }
+      return;
+    }
+
+    // Solde 3a réel (clause bénéficiaire OPP3) — ré-évalué à chaque notify,
+    // jamais estimé. Champ d'état (pas de lecture live en build) pour qu'un
+    // clear le remette à 0 et retire la carte.
+    {
+      final e3a = profile.prevoyance.totalEpargne3a;
+      if (e3a != _totalEpargne3a) {
+        _totalEpargne3a = e3a;
+        changed = true;
+      }
+    }
+
+    // Revenu 1 — clé 'salary' ET revenu annuel DANS la plage [>0, 300000] du
+    // champ. Hors plage → NON confirmé (un clamp fabriquerait un revenu ≠ vrai).
+    if (!_revenu1Touched) {
+      final annual = profile.salaireBrutMensuel * 12;
+      final valid = profile.userProvidedFields.contains('salary') &&
+          annual > 0 &&
+          annual <= 300000.0;
+      if (_revenu1Seeded != valid) {
+        _revenu1Seeded = valid;
+        changed = true;
+      }
+      if (valid && annual != _revenu1) {
+        _revenu1 = annual;
+        changed = true;
+      }
+    }
+
+    // Revenu 2 — conjoint RÉEL (salaire > 0). Aucune clé : un conjoint réel ==
+    // donnée user (comme `gender` pour naissance). Sans conjoint, le défaut
+    // 60000 reste ASSUMED — une hypothèse what-if étiquetée, jamais un fait.
+    if (!_revenu2Touched) {
+      final conjoint = profile.conjoint;
+      final cGross = conjoint?.salaireBrutMensuel;
+      final hasConjoint = cGross != null && cGross > 0;
+      final annual = hasConjoint ? cGross * conjoint!.nombreDeMois : 0.0;
+      final valid = hasConjoint && annual > 0 && annual <= 300000.0;
+      if (_revenu2Seeded != valid) {
+        _revenu2Seeded = valid;
+        changed = true;
+      }
+      if (valid && annual != _revenu2) {
+        _revenu2 = annual;
+        changed = true;
+      }
+    }
+
+    // Canton — clé 'canton'.
+    if (!_cantonTouched) {
+      final c = profile.canton;
+      final valid = profile.userProvidedFields.contains('canton') &&
+          c.isNotEmpty &&
+          c != 'unknown' &&
+          FamilyService.cantonNames.containsKey(c);
+      if (_cantonSeeded != valid) {
+        _cantonSeeded = valid;
+        changed = true;
+      }
+      if (valid && c != _canton) {
+        _canton = c;
+        changed = true;
+      }
+    }
+
+    // Nombre d'enfants — AUCUNE clé → confirmable au touch seul. On amorce la
+    // VALEUR (confort) quand > 0 ; ne confirme jamais le fait.
+    if (!_nbEnfantsTouched && profile.nombreEnfants > 0) {
+      final v = profile.nombreEnfants.clamp(0, 5);
+      if (v != _nbEnfants) {
+        _nbEnfants = v;
+        changed = true;
+      }
+    }
+
+    // Rente LPP — clé 'avoirLpp' + avoir > 0 → rente mensuelle via la source
+    // canonique (financial_core L1, LppCalculator ; réduction retraite anticipée
+    // LPP art. 13 al. 2), DANS la plage [>0, 8000] du champ. Sans clé / hors
+    // plage → NON confirmé (le défaut 2500 reste ASSUMED, jamais un clamp).
+    if (!_renteLppTouched) {
+      final avoir = profile.prevoyance.avoirLppTotal;
+      final hasKey = profile.userProvidedFields.contains('avoirLpp');
+      var rente = 0.0;
+      if (hasKey && avoir != null && avoir > 0) {
+        rente = LppCalculator.monthlyRenteFromAvoir(
+          avoir: avoir,
+          baseRate: profile.prevoyance.tauxConversion,
+          retirementAge: profile.effectiveRetirementAge,
+        ).roundToDouble();
+      }
+      final valid = rente > 0 && rente <= 8000.0;
+      if (_renteLppSeeded != valid) {
+        _renteLppSeeded = valid;
+        changed = true;
+      }
+      if (valid && rente != _renteLpp) {
+        _renteLpp = rente;
+        changed = true;
+      }
+    }
+
+    // Patrimoines : aucune source profil fiable par conjoint → jamais amorcés
+    // (les défauts 200000/100000 restent ASSUMED jusqu'au touch de l'utilisateur).
+
+    if (changed) {
+      _recalculate();
+      _refreshGateBaselines();
+      if (mounted) setState(() {});
+    }
   }
+
+  // ── P2 provenance getters (live, non-latching) ──
+  FactProvenance get _revenu1Provenance => _revenu1Touched
+      ? FactProvenance.touched
+      : (_revenu1Seeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _revenu2Provenance => _revenu2Touched
+      ? FactProvenance.touched
+      : (_revenu2Seeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _cantonProvenance => _cantonTouched
+      ? FactProvenance.touched
+      : (_cantonSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _nbEnfantsProvenance =>
+      _nbEnfantsTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _patrimoine1Provenance =>
+      _patrimoine1Touched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _patrimoine2Provenance =>
+      _patrimoine2Touched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _renteLppProvenance => _renteLppTouched
+      ? FactProvenance.touched
+      : (_renteLppSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  // ── Per-output gates (determinative facts only) ──
+  // Impôt du couple : revenu1 + revenu2 + canton (barème) + nombre d'enfants.
+  SituationGate _fiscalGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'revenu1',
+          label: (c) => S.of(c)!.mariageGateFactRevenu1,
+          why: (c) => S.of(c)!.mariageGateWhyRevenu1,
+          provenance: _revenu1Provenance,
+          onComplete: () => _scrollToKey(_revenu1Key),
+        ),
+        SituationFact(
+          key: 'revenu2',
+          label: (c) => S.of(c)!.mariageGateFactRevenu2,
+          why: (c) => S.of(c)!.mariageGateWhyRevenu2,
+          provenance: _revenu2Provenance,
+          onComplete: () => _scrollToKey(_revenu2Key),
+        ),
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.mariageGateFactCanton,
+          why: (c) => S.of(c)!.mariageGateWhyCanton,
+          provenance: _cantonProvenance,
+          onComplete: () => _scrollToKey(_cantonKey),
+        ),
+        SituationFact(
+          key: 'nbEnfants',
+          label: (c) => S.of(c)!.mariageGateFactEnfants,
+          why: (c) => S.of(c)!.mariageGateWhyEnfants,
+          provenance: _nbEnfantsProvenance,
+          onComplete: () => _scrollToKey(_nbEnfantsKey),
+        ),
+      ]);
+
+  // Partage du régime : patrimoine de chaque conjoint (le partage se calcule
+  // dessus). Le RÉGIME choisi a un défaut légal (participation) — surface
+  // éditable documentée, PAS un fait gaté.
+  SituationGate _regimeGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'patrimoine1',
+          label: (c) => S.of(c)!.mariageGateFactPatrimoine1,
+          why: (c) => S.of(c)!.mariageGateWhyPatrimoine1,
+          provenance: _patrimoine1Provenance,
+          onComplete: () => _scrollToKey(_patrimoine1Key),
+        ),
+        SituationFact(
+          key: 'patrimoine2',
+          label: (c) => S.of(c)!.mariageGateFactPatrimoine2,
+          why: (c) => S.of(c)!.mariageGateWhyPatrimoine2,
+          provenance: _patrimoine2Provenance,
+          onComplete: () => _scrollToKey(_patrimoine2Key),
+        ),
+      ]);
+
+  // Histoire à deux : la timeline affiche le revenu mensuel du couple — elle
+  // consomme revenu1 + revenu2 (mêmes faits que l'impôt). Sur les défauts
+  // 80000/60000 ce serait un revenu fabriqué → gatée sur ses deux revenus.
+  SituationGate _timelineGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'revenu1',
+          label: (c) => S.of(c)!.mariageGateFactRevenu1,
+          why: (c) => S.of(c)!.mariageGateWhyRevenu1,
+          provenance: _revenu1Provenance,
+          onComplete: () => _scrollToKey(_revenu1Key),
+        ),
+        SituationFact(
+          key: 'revenu2',
+          label: (c) => S.of(c)!.mariageGateFactRevenu2,
+          why: (c) => S.of(c)!.mariageGateWhyRevenu2,
+          provenance: _revenu2Provenance,
+          onComplete: () => _scrollToKey(_revenu2Key),
+        ),
+      ]);
+
+  // Rente de survivant : rente LPP mensuelle du défunt (part LPP personnelle).
+  SituationGate _protectionGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'renteLpp',
+          label: (c) => S.of(c)!.mariageGateFactRenteLpp,
+          why: (c) => S.of(c)!.mariageGateWhyRenteLpp,
+          provenance: _renteLppProvenance,
+          onComplete: () => _scrollToKey(_renteLppKey),
+        ),
+      ]);
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
+      );
+    }
+  }
+
+  /// Gate dur au compute : l'impôt du couple n'est calculé que si revenu1,
+  /// revenu2, canton et nombre d'enfants sont confirmés. Sinon `null` → le slot
+  /// résultat affiche la carte de situation (jamais un chiffre fabriqué).
+  void _recalculate() {
+    _fiscalResult = _fiscalGate(context).complete
+        ? FamilyService.compareFiscalMariage(
+            revenu1: _revenu1,
+            revenu2: _revenu2,
+            canton: _canton,
+            nbEnfants: _nbEnfants,
+          )
+        : null;
+  }
+
+  void _refreshGateBaselines() {
+    _fiscalGateComplete = _fiscalGate(context).complete;
+    _regimeGateComplete = _regimeGate(context).complete;
+    _timelineGateComplete = _timelineGate(context).complete;
+    _protectionGateComplete = _protectionGate(context).complete;
+  }
+
+  void _announceComplete() {
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      S.of(context)!.situationGateAnnounceComplete,
+      Directionality.of(context),
+    );
+  }
+
+  /// L'utilisateur a édité un fait de situation : recalcule l'impôt (stale-result
+  /// invalidation), rebuild (régime / timeline / protection recalculés inline
+  /// dans leur branche `complete`) et annonce le passage incomplet→complet d'une
+  /// sortie pour VoiceOver (le scroll ≠ déplacement de focus).
+  void _afterFactChanged() {
+    final wasFiscal = _fiscalGateComplete;
+    final wasRegime = _regimeGateComplete;
+    final wasTimeline = _timelineGateComplete;
+    final wasProtection = _protectionGateComplete;
+    setState(_recalculate);
+    _refreshGateBaselines();
+    final newlyComplete = (_fiscalGateComplete && !wasFiscal) ||
+        (_regimeGateComplete && !wasRegime) ||
+        (_timelineGateComplete && !wasTimeline) ||
+        (_protectionGateComplete && !wasProtection);
+    if (newlyComplete) _announceComplete();
+  }
+
+  /// @visibleForTesting : entrées consommées par les services (preuve P2).
+  @visibleForTesting
+  double get debugRevenu1 => _revenu1;
+  @visibleForTesting
+  double get debugRevenu2 => _revenu2;
+  @visibleForTesting
+  String get debugCanton => _canton;
+  @visibleForTesting
+  int get debugNbEnfants => _nbEnfants;
+  @visibleForTesting
+  double get debugRenteLpp => _renteLpp;
+  @visibleForTesting
+  double get debugPatrimoine1 => _patrimoine1;
+  @visibleForTesting
+  double get debugPatrimoine2 => _patrimoine2;
 
   // ════════════════════════════════════════════════════════════
   //  BUILD
@@ -141,20 +509,27 @@ class _MariageScreenState extends State<MariageScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MintColors.porcelaine,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          _buildAppBar(context, innerBoxIsScrolled),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildTab1Impots(),
-            _buildTab2Regime(),
-            _buildTab3Protection(),
-            _buildTab4Checklist(),
+    // ILLOG-02 : conteneur Semantics racine (motif rente_vs_capital) sinon le
+    // pont AX iOS effondre toute la route en un seul nœud (« 1 element »).
+    return Semantics(
+      identifier: 'mariage_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        backgroundColor: MintColors.porcelaine,
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            _buildAppBar(context, innerBoxIsScrolled),
           ],
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildTab1Impots(),
+              _buildTab2Regime(),
+              _buildTab3Protection(),
+              _buildTab4Checklist(),
+            ],
+          ),
         ),
       ),
     );
@@ -207,6 +582,10 @@ class _MariageScreenState extends State<MariageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab1Impots() {
+    // Render-time gate : la comparaison fiscale ne s'affiche que si son résultat
+    // existe ET que ses faits déterminants sont confirmés (données réelles).
+    final fiscalReady = _fiscalResult != null && _fiscalGate(context).complete;
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
@@ -220,17 +599,27 @@ class _MariageScreenState extends State<MariageScreen>
         ),
         const SizedBox(height: MintSpacing.xl),
 
-        // Hero: impact fiscal couple (always visible)
-        if (_fiscalResult != null) ...[
+        // Result slot : hero comparaison OU carte de situation gatée.
+        if (fiscalReady) ...[
           _buildFiscalHeroCard(),
           const SizedBox(height: MintSpacing.xl),
+        ] else ...[
+          SituationGateCard(
+            title: S.of(context)!.donationGateTitle,
+            gate: _fiscalGate(context),
+          ),
+          const SizedBox(height: MintSpacing.xl),
         ],
+
         _buildImpotsInputsCard(),
         const SizedBox(height: MintSpacing.xl),
-        if (_fiscalResult != null) ...[
-          MarriagePenaltyGauge(
+
+        if (fiscalReady) ...[
+          MarriageTaxComparison(
             taxSingles: (_fiscalResult!['totalCelibataires'] as double),
             taxMarried: (_fiscalResult!['totalMarie'] as double),
+            revenu1: (_fiscalResult!['revenu1'] as double),
+            revenu2: (_fiscalResult!['revenu2'] as double),
           ),
           const SizedBox(height: MintSpacing.xl),
           _buildDeductionsBreakdown(),
@@ -245,30 +634,58 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 
+  // Hero fiscal : le SENS de l'écart, jamais un verdict.
+  //
+  // Il portait « Pénalité +X/an » en rouge ou « Bonus -X/an » en vert, sur une
+  // estimation forfaitaire (barème marié forfaitaire, ni déductions réelles, ni
+  // commune, ni barème cantonal détaillé) — trop grossière pour qualifier un
+  // régime. Même correctif que sur concubinage : montant sans signe, libellé
+  // qui décrit le sens, accent neutre, limite du modèle attachée au chiffre.
+  //
+  // Le récit énonce le MÉCANISME de l'imposition commune, qui est vrai dans les
+  // deux sens. Il tenait auparavant dans un ternaire dont les DEUX branches
+  // renvoyaient `mariageEducationalPenalty` : un couple dont l'impôt baissait
+  // lisait « Bonus » accompagné d'un texte sur la pénalité du mariage.
+  // Ce fait de société garde sa place dans l'encart éducatif en bas d'onglet,
+  // où il est un fait et non le verdict rendu sur ce couple-ci.
   Widget _buildFiscalHeroCard() {
     final result = _fiscalResult!;
     final difference = result['difference'] as double;
-    final isPenalite = result['isPenalite'] as bool;
+    final impotMenagePlusEleveMarie = result['isPenalite'] as bool;
     final totalMarie = result['totalMarie'] as double;
 
-    return MintResultHeroCard(
-      eyebrow: S.of(context)!.mariageFiscalComparison,
-      primaryValue:
-          '${isPenalite ? "+" : "-"}${FamilyService.formatChf(difference.abs())}',
-      primaryLabel: isPenalite
-          ? S
-              .of(context)!
-              .mariagePenaltyAmount(FamilyService.formatChf(difference.abs()))
-          : S
-              .of(context)!
-              .mariageBonusAmount(FamilyService.formatChf(difference.abs())),
-      secondaryValue: FamilyService.formatChf(totalMarie),
-      secondaryLabel: S.of(context)!.mariageMaries,
-      narrative: isPenalite
-          ? S.of(context)!.mariageEducationalPenalty
-          : S.of(context)!.mariageEducationalPenalty,
-      accentColor: isPenalite ? MintColors.error : MintColors.success,
-      tone: MintSurfaceTone.porcelaine,
+    return Column(
+      children: [
+        MintResultHeroCard(
+          key: const Key('mariageFiscalHero'),
+          eyebrow: S.of(context)!.mariageFiscalComparison,
+          primaryValue: FamilyService.formatChf(difference.abs()),
+          primaryLabel: impotMenagePlusEleveMarie
+              ? S.of(context)!.mariageEcartAnnuelImpotPlusEleveMarie
+              : S.of(context)!.mariageEcartAnnuelImpotPlusEleveCelibataires,
+          secondaryValue: FamilyService.formatChf(totalMarie),
+          secondaryLabel: S.of(context)!.mariageMaries,
+          narrative: S.of(context)!.impositionCommuneMecanique,
+          accentColor: MintColors.textPrimary,
+          tone: MintSurfaceTone.porcelaine,
+        ),
+        const SizedBox(height: MintSpacing.md),
+        // Limite du modèle, attachée au chiffre — mêmes tokens que sur la
+        // carte fiscale de concubinage.
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: MintColors.info.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
+          ),
+          child: Text(
+            S.of(context)!.fiscalEstimationModelLimit,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                .copyWith(height: 1.4),
+          ),
+        ),
+      ],
     );
   }
 
@@ -281,36 +698,43 @@ class _MariageScreenState extends State<MariageScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           MintAmountField(
+            key: _revenu1Key,
             label: S.of(context)!.mariageRevenu1,
             value: _revenu1,
             formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
-              setState(() {
-                _revenu1 = v;
-                _recalculate();
-              });
+              // Touch = donnée user ; touched supersede le seed (immunisé au clear).
+              _revenu1Touched = true;
+              _revenu1Seeded = false;
+              _revenu1 = v;
+              _afterFactChanged();
             },
             min: 0,
             max: 300000,
           ),
           const SizedBox(height: MintSpacing.lg),
-          MintAmountField(
-            key: const Key('mariage_revenu2_field'),
-            label: S.of(context)!.mariageRevenu2,
-            value: _revenu2,
-            formatValue: (v) => FamilyService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
+          KeyedSubtree(
+            key: _revenu2Key,
+            child: MintAmountField(
+              key: const Key('mariage_revenu2_field'),
+              label: S.of(context)!.mariageRevenu2,
+              value: _revenu2,
+              formatValue: (v) => FamilyService.formatChf(v),
+              onChanged: (v) {
+                _revenu2Touched = true;
+                _revenu2Seeded = false;
                 _revenu2 = v;
-                _recalculate();
-              });
-            },
-            min: 0,
-            max: 300000,
+                _afterFactChanged();
+              },
+              min: 0,
+              max: 300000,
+            ),
           ),
-          // D9 — étiquette hypothèse : sans conjoint réel connu, le Revenu 2
-          // est une valeur de scénario modifiable, pas un fait du profil.
-          if (_revenu2IsHypothesis) ...[
+          // D9 — étiquette hypothèse : sans conjoint réel connu (revenu2 non
+          // confirmé), le Revenu 2 est une valeur de scénario modifiable, pas un
+          // fait du profil. Provenance == assumed → hypothèse ; seedé (conjoint)
+          // ou touché → fait de l'utilisateur, plus d'étiquette.
+          if (_revenu2Provenance == FactProvenance.assumed) ...[
             const SizedBox(height: MintSpacing.xs),
             Row(
               key: const Key('mariage_revenu2_hypothesis_note'),
@@ -336,6 +760,7 @@ class _MariageScreenState extends State<MariageScreen>
 
           // Canton dropdown
           Row(
+            key: _cantonKey,
             children: [
               Expanded(
                 child: Text(
@@ -364,8 +789,11 @@ class _MariageScreenState extends State<MariageScreen>
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) {
+                        // Touch = donnée user ; touched supersede le seed.
+                        _cantonTouched = true;
+                        _cantonSeeded = false;
                         _canton = v;
-                        _recalculate();
+                        _afterFactChanged();
                       }
                     },
                   ),
@@ -377,6 +805,7 @@ class _MariageScreenState extends State<MariageScreen>
 
           // Children counter
           Row(
+            key: _nbEnfantsKey,
             children: [
               Expanded(
                 child: Text(
@@ -390,8 +819,11 @@ class _MariageScreenState extends State<MariageScreen>
                 minVal: 0,
                 maxVal: 5,
                 onChanged: (v) {
+                  // Sélectionner (même 0) = fournir la donnée (touch seul, pas
+                  // de clé userProvidedFields pour le nombre d'enfants).
+                  _nbEnfantsTouched = true;
                   _nbEnfants = v;
-                  _recalculate();
+                  _afterFactChanged();
                 },
               ),
             ],
@@ -463,6 +895,11 @@ class _MariageScreenState extends State<MariageScreen>
   }
 
   Widget _buildTab2Regime() {
+    // Le partage (pie + chiffre-choc) se calcule sur les patrimoines ; la
+    // timeline sur les revenus. Chaque sortie gate sur SES faits déterminants.
+    final regimeReady = _regimeGate(context).complete;
+    final timelineReady = _timelineGate(context).complete;
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
@@ -504,33 +941,35 @@ class _MariageScreenState extends State<MariageScreen>
         ),
         const SizedBox(height: MintSpacing.lg),
 
-        // Patrimoine sliders
+        // Patrimoine sliders (inputs) — toujours visibles, ancres scroll.
         MintSurface(
           tone: MintSurfaceTone.blanc,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               MintAmountField(
+                key: _patrimoine1Key,
                 label: S.of(context)!.mariagePatrimoine1,
                 value: _patrimoine1,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
-                  setState(() {
-                    _patrimoine1 = v;
-                  });
+                  _patrimoine1Touched = true;
+                  _patrimoine1 = v;
+                  _afterFactChanged();
                 },
                 min: 0,
                 max: 1000000,
               ),
               const SizedBox(height: MintSpacing.lg),
               MintAmountField(
+                key: _patrimoine2Key,
                 label: S.of(context)!.mariagePatrimoine2,
                 value: _patrimoine2,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
-                  setState(() {
-                    _patrimoine2 = v;
-                  });
+                  _patrimoine2Touched = true;
+                  _patrimoine2 = v;
+                  _afterFactChanged();
                 },
                 min: 0,
                 max: 1000000,
@@ -540,52 +979,74 @@ class _MariageScreenState extends State<MariageScreen>
         ),
         const SizedBox(height: MintSpacing.xl),
 
-        // Pie chart visualization — animated donut per regime
-        RegimeMatrimonialPie(
-          assetsPersonne1: _patrimoine1,
-          assetsPersonne2: _patrimoine2,
-          regime: _regimeFromIndex(_selectedRegime),
-          onRegimeChanged: (r) => setState(() => _selectedRegime = r.index),
-        ),
-        const SizedBox(height: MintSpacing.lg),
+        // Partage du régime (pie + chiffre-choc) OU carte de situation gatée :
+        // sur les défauts 200000/100000 le partage serait fabriqué.
+        if (regimeReady) ...[
+          RegimeMatrimonialPie(
+            assetsPersonne1: _patrimoine1,
+            assetsPersonne2: _patrimoine2,
+            regime: _regimeFromIndex(_selectedRegime),
+            onRegimeChanged: (r) => setState(() => _selectedRegime = r.index),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          _buildPremierEclairageRegime(),
+          const SizedBox(height: MintSpacing.lg),
+        ] else ...[
+          SituationGateCard(
+            title: S.of(context)!.donationGateTitle,
+            gate: _regimeGate(context),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+        ],
 
-        // Chiffre choc
-        _buildPremierEclairageRegime(),
-        const SizedBox(height: MintSpacing.lg),
-
-        // ── Couple Narrative Timeline ─────────────────────────
-        CoupleNarrativeTimeline(
-          partner1Name: S.of(context)!.mariageTimelinePartner1,
-          partner2Name: S.of(context)!.mariageTimelinePartner2,
-          coachTip: S.of(context)!.mariageTimelineCoachTip,
-          acts: [
-            CoupleAct(
-              number: 1,
-              title: S.of(context)!.mariageTimelineAct1Title,
-              period: S.of(context)!.mariageTimelineAct1Period,
-              monthlyIncome: (_revenu1 + _revenu2) / 12,
-              insight: S.of(context)!.mariageTimelineAct1Insight,
-            ),
-            CoupleAct(
-              number: 2,
-              title: S.of(context)!.mariageTimelineAct2Title,
-              period: S.of(context)!.mariageTimelineAct2Period,
-              monthlyIncome: (_revenu1 + _revenu2) / 12 * 1.15,
-              deltaPercent: 15,
-              insight: S.of(context)!.mariageTimelineAct2Insight,
-            ),
-            CoupleAct(
-              number: 3,
-              title: S.of(context)!.mariageTimelineAct3Title,
-              period: S.of(context)!.mariageTimelineAct3Period,
-              monthlyIncome: (_revenu1 + _revenu2) / 12 * 0.65,
-              deltaPercent: -35,
-              isDip: true,
-              insight: S.of(context)!.mariageTimelineAct3Insight,
-            ),
-          ],
-        ),
-        const SizedBox(height: MintSpacing.lg),
+        // Histoire à deux (revenu mensuel du couple) OU carte gatée : sur les
+        // défauts 80000/60000 le revenu affiché serait fabriqué.
+        if (timelineReady) ...[
+          CoupleNarrativeTimeline(
+            partner1Name: S.of(context)!.mariageTimelinePartner1,
+            partner2Name: S.of(context)!.mariageTimelinePartner2,
+            coachTip: S.of(context)!.mariageTimelineCoachTip,
+            // Actes 2-3 = parcours-type illustratif : les +15 %/−35 % sont des
+            // hypothèses de trajectoire (carrière, temps partiel), PAS une
+            // projection des revenus de CE couple. Le caption le dit, et aucun
+            // CHF futur fabriqué n'est présenté comme une projection personnelle.
+            illustrativeCaption: S.of(context)!.mariageTimelineIllustrativeCaption,
+            acts: [
+              // Acte 1 = revenu mensuel RÉEL confirmé du couple (donnée gatée).
+              CoupleAct(
+                number: 1,
+                title: S.of(context)!.mariageTimelineAct1Title,
+                period: S.of(context)!.mariageTimelineAct1Period,
+                monthlyIncome: (_revenu1 + _revenu2) / 12,
+                insight: S.of(context)!.mariageTimelineAct1Insight,
+              ),
+              // Actes 2-3 = illustratifs : delta % + insight, AUCUN CHF (le
+              // multiplicateur 1.15 / 0.65 n'est étayé par rien pour ce couple).
+              CoupleAct(
+                number: 2,
+                title: S.of(context)!.mariageTimelineAct2Title,
+                period: S.of(context)!.mariageTimelineAct2Period,
+                deltaPercent: 15,
+                insight: S.of(context)!.mariageTimelineAct2Insight,
+              ),
+              CoupleAct(
+                number: 3,
+                title: S.of(context)!.mariageTimelineAct3Title,
+                period: S.of(context)!.mariageTimelineAct3Period,
+                deltaPercent: -35,
+                isDip: true,
+                insight: S.of(context)!.mariageTimelineAct3Insight,
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.lg),
+        ] else ...[
+          SituationGateCard(
+            title: S.of(context)!.donationGateTitle,
+            gate: _timelineGate(context),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+        ],
 
         _buildDisclaimer(),
       ],
@@ -717,36 +1178,28 @@ class _MariageScreenState extends State<MariageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab3Protection() {
-    const avsSurvivor = avsRenteMaxMensuelle * FamilyService.avsSurvivorFactor;
-    final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
-    final totalSurvivor = avsSurvivor + lppSurvivor;
+    // La rente de survivant (hero + cartes + widget) dérive de la rente LPP
+    // mensuelle du défunt. Sur le défaut 2500 ce serait une rente fabriquée →
+    // gate sur `renteLpp` (clé 'avoirLpp' ou champ touché).
+    final protectionReady = _protectionGate(context).complete;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        // Hero: total survivor monthly
-        MintResultHeroCard(
-          eyebrow: S.of(context)!.mariageTabProtection,
-          primaryValue: '${FamilyService.formatChf(totalSurvivor)}/mois',
-          primaryLabel: S.of(context)!.mariageSurvivorMonthly,
-          narrative: S.of(context)!.mariageProtectionIntro,
-          accentColor: MintColors.success,
-          tone: MintSurfaceTone.sauge,
-        ),
-        const SizedBox(height: MintSpacing.xl),
-
-        // LPP slider
+        // LPP slider (input) — toujours visible, ancre scroll.
         MintSurface(
+          key: _renteLppKey,
           tone: MintSurfaceTone.blanc,
           child: MintAmountField(
             label: S.of(context)!.mariageLppRenteLabel,
             value: _renteLpp,
             formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
-              setState(() {
-                _renteLpp = v;
-              });
+              _renteLppTouched = true;
+              _renteLppSeeded = false;
+              _renteLpp = v;
+              _afterFactChanged();
             },
             min: 0,
             max: 8000,
@@ -754,55 +1207,73 @@ class _MariageScreenState extends State<MariageScreen>
         ),
         const SizedBox(height: MintSpacing.xl),
 
-        // AVS survivor
-        _buildSurvivorCard(
-          icon: Icons.account_balance_outlined,
-          label: S.of(context)!.mariageAvsSurvivor,
-          subtitle: S.of(context)!.mariageAvsSurvivorSub,
-          value: avsSurvivor,
-          footnote: S.of(context)!.mariageAvsSurvivorFootnote,
-        ),
-        const SizedBox(height: MintSpacing.sm + 4),
+        // Sortie survivant OU carte de situation gatée.
+        if (protectionReady) ...[
+          ..._buildProtectionResults(),
+        ] else ...[
+          SituationGateCard(
+            title: S.of(context)!.donationGateTitle,
+            gate: _protectionGate(context),
+          ),
+          const SizedBox(height: MintSpacing.xl),
+        ],
 
-        // LPP survivor
-        _buildSurvivorCard(
-          icon: Icons.savings_outlined,
-          label: S.of(context)!.mariageLppSurvivor,
-          subtitle: S.of(context)!.mariageLppSurvivorSub,
-          value: lppSurvivor,
-          footnote: S.of(context)!.mariageLppSurvivorFootnote,
-        ),
-        const SizedBox(height: MintSpacing.xl),
-
-        // Married vs unmarried comparison
+        // Comparaison mariés vs concubins (éducatif, aucun CHF) — toujours.
         _buildProtectionComparison(),
         const SizedBox(height: MintSpacing.lg),
 
-        // Protection checklist
+        // Checklist protections (éducatif) — toujours.
         _buildProtectionChecklist(),
         const SizedBox(height: MintSpacing.lg),
 
-        _buildClause3aSection(),
-        const SizedBox(height: MintSpacing.lg),
-        SurvivorPensionWidget(
-          partnerAvsRente: avsRenteMaxMensuelle,
-          partnerLppMonthly: _renteLpp,
-          isConcubin: false,
-        ),
-        const SizedBox(height: MintSpacing.lg),
+        // Clause 3a — solde RÉEL du profil UNIQUEMENT (jamais estimé « % du
+        // revenu »). Solde inconnu / nul → widget omis (pas de 3a fabriqué).
+        if (_totalEpargne3a > 0) ...[
+          Clause3aWidget(balance3a: _totalEpargne3a),
+          const SizedBox(height: MintSpacing.lg),
+        ],
+
         _buildDisclaimer(),
       ],
     );
   }
 
-  Widget _buildClause3aSection() {
-    final profile = context.read<CoachProfileProvider>().profile;
-    final balance = profile?.prevoyance.totalEpargne3a ?? 0;
-    // Estimation si pas de donnee : revenu moyen du couple x 5% x 10 ans
-    final estimated = balance > 0 ? balance : (_revenu1 + _revenu2) * 0.05 * 10;
-    return Clause3aWidget(
-      balance3a: estimated,
-    );
+  /// Sortie « rente de survivant » — rendue seulement via le render-gate
+  /// (`protectionReady`). La figure affichée est fondée sur la SEULE donnée
+  /// confirmée : la rente LPP de survivant (60 % de la rente LPP du défunt, LPP
+  /// art. 19). La rente AVS de survivant n'est PAS chiffrée — son montant dépend
+  /// de la carrière de cotisation (non confirmée) ; l'afficher au maximum légal
+  /// serait un chiffre personnel fabriqué. Elle est énoncée qualitativement
+  /// (aucun CHF, LAVS art. 23), à l'image de concubinage_screen.
+  List<Widget> _buildProtectionResults() {
+    final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
+
+    return [
+      MintResultHeroCard(
+        key: const Key('mariageSurvivorHero'),
+        eyebrow: S.of(context)!.mariageTabProtection,
+        primaryValue: '${FamilyService.formatChf(lppSurvivor)}/mois',
+        primaryLabel: S.of(context)!.mariageSurvivorMonthly,
+        narrative: S.of(context)!.mariageProtectionIntro,
+        accentColor: MintColors.success,
+        tone: MintSurfaceTone.sauge,
+      ),
+      const SizedBox(height: MintSpacing.xl),
+      // Rente LPP de survivant — donnée confirmée (rente LPP du défunt × 60 %).
+      // Le footnote porte le caveat d'éligibilité LPP art. 19.
+      _buildSurvivorCard(
+        icon: Icons.savings_outlined,
+        label: S.of(context)!.mariageLppSurvivor,
+        subtitle: S.of(context)!.mariageLppSurvivorSub,
+        value: lppSurvivor,
+        footnote: S.of(context)!.mariageLppSurvivorFootnote,
+      ),
+      const SizedBox(height: MintSpacing.xl),
+      // Avantage AVS énoncé QUALITATIVEMENT (aucun CHF : la rente AVS de survivant
+      // dépend de la carrière de cotisation, non confirmée ; LAVS art. 23).
+      _buildEducationalInsert(S.of(context)!.mariageSurvivorAvsNote),
+      const SizedBox(height: MintSpacing.lg),
+    ];
   }
 
   Widget _buildSurvivorCard({
@@ -886,6 +1357,15 @@ class _MariageScreenState extends State<MariageScreen>
               S.of(context)!.mariageHeritageExonere, true, false),
           _buildComparisonRow(
               S.of(context)!.mariagePensionAlimentaire, true, false),
+          const SizedBox(height: MintSpacing.sm),
+          // Les ✓ du mariage sont un accès légal SOUS CONDITIONS d'éligibilité
+          // (rente de survivant LPP art. 19, rente AVS LAVS art. 23) — pas une
+          // réception automatique. Énoncé sous le tableau (motif concubinage
+          // `concubinageProtectionConditionsNote`).
+          Text(
+            S.of(context)!.mariageProtectionConditionsNote,
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+          ),
           const SizedBox(height: MintSpacing.sm),
           Container(
             padding: const EdgeInsets.all(MintSpacing.sm + 4),
@@ -1277,11 +1757,7 @@ class _MariageScreenState extends State<MariageScreen>
           label: S.of(context)!.mariageEnfants,
           button: true,
           child: IconButton(
-            onPressed: value > minVal
-                ? () {
-                    setState(() => onChanged(value - 1));
-                  }
-                : null,
+            onPressed: value > minVal ? () => onChanged(value - 1) : null,
             icon: const Icon(Icons.remove_circle_outline, size: 24),
             color: MintColors.primary,
           ),
@@ -1299,11 +1775,7 @@ class _MariageScreenState extends State<MariageScreen>
           label: S.of(context)!.mariageEnfants,
           button: true,
           child: IconButton(
-            onPressed: value < maxVal
-                ? () {
-                    setState(() => onChanged(value + 1));
-                  }
-                : null,
+            onPressed: value < maxVal ? () => onChanged(value + 1) : null,
             icon: const Icon(Icons.add_circle_outline, size: 24),
             color: MintColors.primary,
           ),

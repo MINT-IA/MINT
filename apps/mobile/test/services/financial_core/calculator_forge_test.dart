@@ -461,22 +461,21 @@ void main() {
     });
 
     test('S10.3 — Lauren AVS rente: salary 67000 → Echelle 44 concave interpolation', () {
-      // LAVS art. 34: RAMD 67000 via Echelle 44 concave table (OFAS 2025)
-      // 67000 is between 64680 (rente 2142) and 67620 (rente 2199)
-      // ratio = (67000 - 64680) / (67620 - 64680) = 2320/2940 ≈ 0.789
-      // rente = 2142 + (2199 - 2142) × 0.789 = 2142 + 44.98 ≈ 2187
+      // LAVS art. 34: RAMD 67000 via table officielle OFAS 318.117.011
+      // 67000 est entre 66528 (rente 2197) et 68040 (rente 2218)
+      // ratio = (67000 - 66528) / 1512 ≈ 0.312
+      // rente = 2197 + 21 × 0.312 ≈ 2203.6
       final rente = AvsCalculator.renteFromRAMD(67000);
-      expect(rente, closeTo(2187, 2.0));
+      expect(rente, closeTo(2203.6, 2.0));
     });
 
-    test('S10.4 — Lauren capital withdrawal tax VS: 19620 → first bracket only', () {
-      // Capital 19620, VS rate = 6.0%
-      // Tax = 19620 × 0.060 × 1.0 = 1177.20
+    test('S10.4 — Lauren capital withdrawal tax VS: 19620 (modèle v2)', () {
+      // v2 -2i2 : VS 19620 — IFD art. 38 (1/5) + cantonal ESTV interpolé
       final tax = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: 19620,
         canton: 'VS',
       );
-      expect(tax, closeTo(1177.20, 1.0));
+      expect(tax, closeTo(830.8468, 1.0));
     });
 
     test('S10.5 — Lauren 3a = 14000, consistent with OPP3 plafond salarie avec LPP', () {

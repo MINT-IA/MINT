@@ -109,9 +109,21 @@ class Settings(BaseSettings):
     # `soft_block` (v2.10 stage 2) : same + non-blocking warning header.
     # `hard_block` (v2.10 stage 3) : raises HTTPException(403, pointer).
     # Per .planning/phases/97.5-product-completeness-for-ship/97.5-PLAN.md §D.1.
-    # v2.9 ships log_only by default — LSFin Art 8 « ability to demonstrer
-    # la conformité » minimum. Promotion ladder lives in v2.10 (W3-T3 + W4-T2).
-    CONSENT_GATE_ENFORCEMENT_MODE: Literal["log_only", "soft_block", "hard_block"] = "log_only"
+    # beads MINT_nosync-tcr : promu log_only -> hard_block une fois le flux
+    # mobile consent-avant-coach livré (403 deny_pointer -> ConsentSheet ->
+    # POST /consents/grant -> retry, coach_chat_screen). Un utilisateur sans
+    # grant TRANSFER_US_ANTHROPIC reçoit la sheet à son premier message et
+    # le coach répond après consentement — plus aucun envoi US sans grant.
+    #
+    # Décision rollout (review PR #972) : PAS de gating par version client.
+    # Un client antérieur au flux (sans parsing du deny_pointer) voit une
+    # erreur générique jusqu'à sa mise à jour — fail-CLOSED délibéré : un
+    # client incapable de recueillir le consentement ne doit pas continuer
+    # à envoyer les messages aux US sans grant (nLPD > confort). Population
+    # affectée : testeurs TestFlight internes pré-launch uniquement. Les
+    # requêtes coach portent désormais X-App-Version si un gating serveur
+    # devient nécessaire post-launch.
+    CONSENT_GATE_ENFORCEMENT_MODE: Literal["log_only", "soft_block", "hard_block"] = "hard_block"
 
     # Apple IAP / StoreKit
     APPLE_SIGN_IN_AUDIENCE: str = "ch.mint.app"

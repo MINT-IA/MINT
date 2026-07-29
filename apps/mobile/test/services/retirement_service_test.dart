@@ -33,32 +33,30 @@ void main() {
       expect(r['renteMensuelle'] as double, closeTo(34000 / 12, 1));
     });
 
-    test('impot progressif sur capital ZH (6.5% base)', () {
+    test('impot capital ZH — modèle v2 (IFD art. 38 + ESTV)', () {
       final r = RetirementService.compareLpp(
         capitalLpp: 500000,
         canton: 'ZH',
       );
 
-      // Impot progressif :
-      // 0-100k: 100000 * 0.065 * 1.0 = 6500
-      // 100k-200k: 100000 * 0.065 * 1.15 = 7475
-      // 200k-500k: 300000 * 0.065 * 1.30 = 25350
-      // Total: 39325
-      expect(r['capitalImpot'] as double, closeTo(39325, 1));
-      expect(r['capitalNet'] as double, closeTo(500000 - 39325, 1));
+      // v2 -2i2 : IFD art. 38 (1/5 du barème revenu) + interpolation
+      // cantonale sur points ESTV officiels.
+      // Sanity backend : estimate_capital_withdrawal_tax(500000, 'ZH')
+      // = 35067.69.
+      expect(r['capitalImpot'] as double, closeTo(35067.69, 1)); // v2 -2i2
+      expect(r['capitalNet'] as double, closeTo(500000 - 35067.69, 1));
     });
 
-    test('impot progressif VD (8.0% base) — capital 300k', () {
+    test('impot capital VD — capital 300k (modèle v2)', () {
       final r = RetirementService.compareLpp(
         capitalLpp: 300000,
         canton: 'VD',
       );
 
-      // 0-100k: 100000 * 0.08 * 1.0 = 8000
-      // 100k-200k: 100000 * 0.08 * 1.15 = 9200
-      // 200k-300k: 100000 * 0.08 * 1.30 = 10400
-      // Total: 27600
-      expect(r['capitalImpot'] as double, closeTo(27600, 1));
+      // CAP-1 #1098 : grille 7 noeuds (350k ajouté) -> VD 300k interpole
+      // désormais 250k->350k. estimate_capital_withdrawal_tax(300000, 'VD')
+      // = 22244.69 (était 22277.89 avec l'interp 250k->500k).
+      expect(r['capitalImpot'] as double, closeTo(22244.69, 1)); // v2, CAP-1
     });
 
     test('breakeven age — point ou rente cumule depasse capital net', () {
@@ -75,14 +73,15 @@ void main() {
       expect(breakevenAge, lessThanOrEqualTo(87));
     });
 
-    test('canton inconnu — taux par defaut 6.5%', () {
+    test('canton inconnu — repli ZH (resolveCanton)', () {
       final r = RetirementService.compareLpp(
         capitalLpp: 100000,
         canton: 'XX',
       );
 
-      // Impot = 100000 * 0.065 * 1.0 = 6500
-      expect(r['capitalImpot'] as double, closeTo(6500, 1));
+      // v2 -2i2 : 'XX' → repli ZH (resolveCanton) ; sanity backend
+      // estimate_capital_withdrawal_tax(100000, 'ZH') = 4816.89.
+      expect(r['capitalImpot'] as double, closeTo(4816.89, 1)); // v2 -2i2
     });
 
     test('capital zero — pas d impot, pas de rente', () {

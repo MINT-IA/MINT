@@ -688,7 +688,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             Expanded(
               child: _buildComparisonCard(
                 title: S.of(context)!.retroactive3aAvecRattrapage,
-                subtitle: '+ $_gapYears an${_gapYears > 1 ? "s" : ""} r\u00e9troactifs',
+                // Years actually filled (OPP3 art. 7a annual cap), not the
+                // requested gap years - Codex review MINT_nosync-i0v.
+                subtitle:
+                    '+ ${result.gapYears} an${result.gapYears > 1 ? "s" : ""} r\u00e9troactifs',
                 amount: avecRattrapage,
                 color: MintColors.success,
                 isHighlighted: true,
@@ -838,11 +841,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            size: 20,
-            color: MintColors.textMuted,
-          ),
+          // W0 (façade honesty) : pas de chevron — ces « prochaines étapes »
+          // sont une orientation externe (ouvrir un compte, préparer les
+          // documents, consulter un ou une spécialiste) sans navigation
+          // in-app. Un chevron impliquerait une action qui n'existe pas.
         ],
       ),
     );

@@ -93,14 +93,14 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
   }
 
   double get _minAllocation {
-    if (widget.cantons.isEmpty) return 200;
+    if (widget.cantons.isEmpty) return 215;
     return widget.cantons
         .map((c) => c.allocationPerChild)
         .reduce(min);
   }
 
   double get _maxAllocation {
-    if (widget.cantons.isEmpty) return 305;
+    if (widget.cantons.isEmpty) return 330;
     return widget.cantons
         .map((c) => c.allocationPerChild)
         .reduce(max);

@@ -42,9 +42,9 @@ lifeEvent: "birth"
 - **Flexibilite** : tu peux les prendre en bloc ou par jours isoles.
 
 ### Allocations familiales (LAFam art. 3)
-- **Minimum legal** : CHF 200/mois par enfant (LAFam art. 5).
-- **Variation cantonale** : de CHF 200 (ZH, AG, TG...) a CHF 305 (VS). Geneve et Vaud versent CHF 300.
-- **Allocation de formation** : des 16 ans, le montant augmente (min. CHF 250/mois).
+- **Minimum legal** : CHF 215/mois par enfant (LAFam art. 5, releve au 1.1.2025).
+- **Variation cantonale** : de CHF 215 (ZH, GL, TI...) a CHF 330 (ZG). Geneve 311, Vaud 322, Valais 327 (OFAS 2026).
+- **Allocation de formation** : des 16 ans, le montant augmente (min. CHF 268/mois).
 - **Qui verse** : c'est l'employeur qui avance le montant (via la caisse d'allocations familiales).
 - **Delai** : tu as 3 mois apres la naissance pour deposer ta demande.
 
@@ -54,8 +54,8 @@ lifeEvent: "birth"
 - Astuce : compare les primes enfants entre caisses, les ecarts peuvent etre importants.
 
 ### Impact fiscal des enfants (LIFD art. 35)
-- **Deduction par enfant** : CHF 6'700 par an (LIFD art. 35 al. 1 let. a).
-- **Deduction frais de garde** : jusqu'a CHF 25'500 par enfant et par an (LIFD art. 33 al. 3).
+- **Deduction par enfant** : CHF 6'800 par an (LIFD art. 35 al. 1 let. a).
+- **Deduction frais de garde** : jusqu'a CHF 25'800 par enfant et par an (LIFD art. 33 al. 3).
 - **Economie reelle** : depend de ton taux marginal d'imposition. A 20% de taux marginal, un enfant represente environ CHF 1'340/an d'economie fiscale.
 
 ### Impact sur la carriere et la retraite

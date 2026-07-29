@@ -29,6 +29,9 @@ ROUTE_CONTRACTS = Path(".planning/phases/mint-2-0-first-experience-rente-capital
 ALLOW = {
     str(SCHEMA),
     str(ISSUE_SCHEMA),
+    # Suppression clés mortes l10n — purge de la liste d'audit statique.
+    "apps/mobile/test/l10n/fiscal_trust_copy_test.dart",
+    "apps/mobile/test/services/coach/de_it_terminology_test.dart",
     str(JOURNEYS / "README.md"),
     str(JOURNEYS / "PRIORITY_RUBRIC.md"),
     str(journey_os_generate.SUMMARY),
@@ -55,17 +58,529 @@ ALLOW = {
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",
     "rules.md",
+    # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
+    "tools/checks/journey_os_check.py",
+    "tools/checks/no_false_privacy_attestation.py",
+    "PRIVACY.md",
+    "LEGAL_RELEASE_CHECK.md",
+    "docs/DATA_ACQUISITION_STRATEGY.md",
+    "legal/PRIVACY.md",
+    "docs/legal/privacy_policy_v2.3.0.md",
+    "docs/legal/privacy_policy_v2.4.0.md",
+    "decisions/ADR-20260223-simulator-enrichment.md",
+    "decisions/ADR-20260111-wizard-progression-clarte.md",
+    "docs/AGENTS/flutter.md",
+    "apps/mobile/lib/services/consent/consent_service.dart",
+    "services/backend/app/schemas/consent_receipt.py",
+    "services/backend/tests/test_purpose_label_coverage.py",
+    "services/backend/app/services/coach/claude_coach_service.py",
+    "services/backend/tests/test_claude_coach.py",
+    "apps/mobile/lib/services/financial_core/arbitrage_engine.dart",
+    "apps/mobile/lib/services/financial_core/withdrawal_sequencing_service.dart",
+    "apps/mobile/lib/services/financial_core/monte_carlo_service.dart",
+    "apps/mobile/lib/services/financial_core/mortality_ofs.dart",
+    "apps/mobile/test/services/financial_core/mortality_ofs_test.dart",
+    "docs/calculator-graph.md",
+    "apps/mobile/lib/services/api_service.dart",
+    "apps/mobile/test/services/api_service_capital_epuise_test.dart",
+    "apps/mobile/test/simulators/rente_vs_capital_test.dart",
+    # -a6e : chaîne morte lpp_buyback_advanced (façade jamais montée ; la
+    # logique 79b -okl vit désormais dans le flux live RachatEchelonne)
+    "apps/mobile/lib/widgets/simulators/lpp_buyback_advanced_widget.dart",
+    "apps/mobile/lib/services/simulators/lpp_buyback_advanced_simulator.dart",
+    "apps/mobile/test/simulators/lpp_buyback_advanced_simulator_test.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_mixed_deflation_test.dart",
+    "services/backend/app/services/pillar_3a_deep/retroactive_3a_service.py",
+    "services/backend/tests/test_pillar_3a_retroactive.py",
+    "services/backend/app/services/coach/tool_registry/anthropic_defer_loading_adapter.py",
+    "apps/mobile/lib/services/retroactive_3a_calculator.dart",
+    "apps/mobile/test/services/retroactive_3a_calculator_test.dart",
+    "apps/mobile/test/services/phase5_production_bugs_test.dart",
+    ".github/workflows/ci.yml",
+    # -dj3 : évolution doctrine 6 fichiers (UI Kit réel + fiscal v2)
+    "CLAUDE.md",
+    "docs/AGENTS/flutter.md",
+    "docs/AGENTS/backend.md",
+    ".claude/skills/mint-flutter-dev/SKILL.md",
+    ".claude/skills/mint-backend-dev/SKILL.md",
+    ".planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md",
+    "tools/checks/create_or_update_mint_skills.py",
+    # -dwr : posture LSFin du tip rachat échelonné (copie x6 + garde)
+    "apps/mobile/test/l10n/rachat_echelonne_posture_test.dart",
+    # campagne-A privacy server geo (2026-07-24)
+    "tools/checks/no_false_privacy_attestation.py",
+    "lefthook.yml",
+    ".github/workflows/ai-workflow-guards.yml",
+    ".planning/decisions/2026-07-24-campagne-contenu-officiel-garanti.md",
+    # -b6k : littéral lppReturn -> reg() avec fallback
+    "apps/mobile/test/screens/arbitrage/rvc_lpp_return_registry_test.dart",
+    "tools/checks/ci_gate_aggregation_check.py",
+    "services/backend/app/constants/social_insurance.py",
+    "services/backend/app/services/independants/avs_cotisations_service.py",
+    "services/backend/app/services/independant_service.py",
+    "services/backend/tests/test_independants.py",
+    "services/backend/tests/test_independant_service.py",
+    "services/backend/tests/test_segments.py",
+    "apps/mobile/lib/services/independants_service.dart",
+    "apps/mobile/lib/constants/social_insurance.dart",
+    # -b9c : sémantique taux AVS combinés + provenance taux min LPP
+    "services/backend/tests/test_b9c_avs_combined_semantics.py",
+    # -dy0 : contraste AA — sites texte greenDark -> greenForest
+    "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+    "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
+    "apps/mobile/lib/screens/household/household_screen.dart",
+    "apps/mobile/lib/widgets/educational/leasing_cost_insert_widget.dart",
+    "apps/mobile/lib/theme/colors.dart",
+    "apps/mobile/test/accessibility/green_dark_text_contrast_test.dart",
+    "apps/mobile/lib/screens/open_banking/open_banking_hub_screen.dart",
+    # -5up PR A : couple_optimizer backend -> modèle fiscal v2
+    "services/backend/app/services/couple_optimizer/couple_optimizer.py",
+    "services/backend/tests/test_5up_couple_v2_identity.py",
+    # journey-os AVS échelle 44 : couple_optimizer délègue à rente_from_ramd canonique
+    "services/backend/tests/test_couple_optimizer.py",
+    # campagne-A : mariage_service -> moteur fiscal canonique + double-activité LIFD 33 al.2
+    "services/backend/app/services/family/mariage_service.py",
+    "services/backend/tests/test_family.py",
+    # campagne-A : naissance_service -> déductions IFD 2026 enfant/garde + article 33 al.3
+    "services/backend/app/services/family/naissance_service.py",
+    "services/backend/app/api/v1/endpoints/family.py",
+    # succession concubinage : retrait du montant ET du taux d'impôt successoral
+    # (base fausse depuis la révision du droit successoral au 1.1.2023 ; taux plat
+    # par canton démenti sur au moins deux cantons) + citation CC 462 corrigée
+    "services/backend/app/services/family/concubinage_service.py",
+    "services/backend/app/schemas/family.py",
+    "services/backend/tests/test_anthropic_defer_loading_adapter.py",
+    "services/backend/tests/test_tool_search_round_trip.py",
+    "services/backend/tests/test_canton_required_grounding.py",
+    "services/backend/tests/test_blank_profile_422_contract.py",
+    # campagne-A : déduction enfant/garde 2026 servie partout (mobile + corpus)
+    "apps/mobile/lib/services/family_service.dart",
+    "apps/mobile/lib/widgets/coach/fiscal_superpower_widget.dart",
+    "apps/mobile/test/services/family_service_test.dart",
+    "apps/mobile/test/services/financial_report_service_test.dart",
+    "apps/mobile/test/widgets/coach/fiscal_superpower_widget_test.dart",
+    "education/inserts/q_naissance.md",
+    "education/inserts/q_mariage.md",
+    "education/inserts/concepts/naissance_impact_financier.md",
+    "education/inserts/concepts/fiscal_deductions_courantes.md",
+    "services/backend/education_inserts/q_naissance.md",
+    "services/backend/education_inserts/q_mariage.md",
+    "services/backend/education_inserts/concepts/naissance_impact_financier.md",
+    "services/backend/education_inserts/concepts/fiscal_deductions_courantes.md",
+    # campagne-A : allocations familiales LAFam 2026 (table OFAS/BSV, 26 cantons)
+    "apps/mobile/lib/widgets/visualizations/canton_allocation_map.dart",
+    "education/inserts/q_canton_move.md",
+    "services/backend/education_inserts/q_canton_move.md",
+    # -8p4 : tax_calculator.dart chemin revenu -> modèle v2 (PR B)
+    "apps/mobile/lib/services/financial_core/tax_calculator.dart",
+    "apps/mobile/test/services/financial_core/tax_calculator_v2_identity_test.dart",
+    "apps/mobile/test/services/tax_calculator_extended_test.dart",
+    "apps/mobile/test/golden/golden_couple_validation_test.dart",
+    "apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart",
+    "apps/mobile/test/services/life_events_service_test.dart",
+    "apps/mobile/test/services/coaching_service_test.dart",
+    "apps/mobile/test/services/financial_parity_test.dart",
+    # -2b7 : FiscalService mobile -> modèle v2 (dernier vestige v1)
+    "apps/mobile/lib/services/fiscal_service.dart",
+    "apps/mobile/lib/services/financial_core/income_tax_model_v2.dart",
+    "apps/mobile/lib/screens/expat_screen.dart",
+    "apps/mobile/test/services/fiscal_service_test.dart",
+    # -7vv : IndicatifBanner — trame réelle, CTA audible, fiscalite routable
+    "apps/mobile/test/services/independants_service_test.dart",
+    "apps/mobile/lib/services/segments_service.dart",
+    "apps/mobile/test/services/segments_service_test.dart",
+    "apps/mobile/lib/screens/independants/avs_cotisations_screen.dart",
+    "apps/mobile/lib/screens/donation_screen.dart",
+    "apps/mobile/test/screens/donation_profile_seed_test.dart",
+    "apps/mobile/lib/widgets/situation/situation_gate.dart",
+    "apps/mobile/test/screens/donation_gate_test.dart",
+    "apps/mobile/test/screens/life_event_screens_v2_smoke_test.dart",
+    "apps/mobile/lib/screens/first_job_screen.dart",
+    "apps/mobile/test/screens/first_job_gate_test.dart",
+    "apps/mobile/test/screens/first_job_lucidite_test.dart",
+    "apps/mobile/test/screens/first_job_badge_overflow_test.dart",
+    "apps/mobile/lib/screens/naissance_screen.dart",
+    "apps/mobile/lib/screens/mariage_screen.dart",
+    "apps/mobile/test/screens/mariage_gate_test.dart",
+    "apps/mobile/lib/widgets/coach/couple_narrative_timeline.dart",
+    "apps/mobile/test/screens/naissance_gate_test.dart",
+    "apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart",
+    "apps/mobile/lib/screens/divorce_simulator_screen.dart",
+    "apps/mobile/test/screens/divorce_gate_test.dart",
+    "apps/mobile/lib/screens/concubinage_screen.dart",
+    "apps/mobile/test/screens/concubinage_gate_test.dart",
+    "apps/mobile/lib/widgets/visualizations/concubinage_decision_matrix.dart",
+    # Renommage : la jauge « pénalité du mariage » devient une comparaison
+    # d'impôt du ménage. Les deux chemins sont listés le temps que le
+    # renommage soit derrière nous.
+    "apps/mobile/lib/widgets/visualizations/marriage_penalty_gauge.dart",
+    "apps/mobile/lib/widgets/visualizations/marriage_tax_comparison.dart",
+    "tools/checks/no_hardcoded_fr.py",
+    "tools/collect_estv.py",
+    "tools/checks/accent_lint_fr.py",
+    "tools/checks/_baseline_diff.py",
+    "tools/checks/no_cantonal_rate_table.py",
+    "services/backend/app/services/coaching_engine.py",
+    "services/backend/app/services/first_job/onboarding_service.py",
+    "tools/checks/prefer_mint_cta.py",
+    "tools/checks/prefer_mint_text_style.py",
+    "tools/checks/prefer_mint_fonts.py",
+    "tools/checks/prefer_mint_radius.py",
+    "tools/checks/prefer_mint_color_token.py",
+    ".github/workflows/design-lints.yml",
+    "apps/mobile/lib/widgets/premium/mint_amount_field.dart",
+    "apps/mobile/test/widgets/premium/mint_amount_field_test.dart",
+    "lefthook.yml",
+    "tools/checks/baselines/prefer_mint_text_style.baseline.txt",
+    "apps/mobile/lib/screens/gender_gap_screen.dart",
+    "apps/mobile/test/screens/gender_gap_gate_test.dart",
+    ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
+    ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
+    ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
+    ".planning/reports/SESSION-2026-07-28-plan-de-fusion.md",
+    ".planning/audit/2026-07-26-advisor-lens-simulators.md",
+    "tools/checks/generate_theme_maps.py",
+    "tools/checks/nav_graph.py",
+    "apps/mobile/test/screens/simulator_screens_smoke_test.dart",
+    "apps/mobile/lib/services/life_events_service.dart",
+    "apps/mobile/test/services/life_events_divorce_test.dart",
+    "apps/mobile/lib/widgets/coach/divorce_film_widget.dart",
+    "apps/mobile/test/widgets/coach/divorce_film_widget_test.dart",
+    ".planning/decisions/2026-07-25-p2-simulator-result-gating.md",
+    ".planning/reports/SESSION-2026-07-25-p2-gate-dur.html",
+    "apps/mobile/lib/screens/independants/pillar_3a_indep_screen.dart",
+    "apps/mobile/lib/screens/independants/lpp_volontaire_screen.dart",
+    "apps/mobile/test/screens/indep_profile_seed_test.dart",
+    "apps/mobile/lib/services/simulators/lpp_buyback_advanced_simulator.dart",
+    "apps/mobile/test/simulators/lpp_buyback_advanced_simulator_test.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_blocage_lpp_test.dart",
+    "services/backend/app/services/arbitrage/allocation_annuelle.py",
+    "services/backend/app/services/arbitrage/rachat_vs_marche.py",
+    "services/backend/app/services/pillar_3a_deep/multi_account_service.py",
+    "services/backend/app/schemas/pillar_3a_deep.py",
+    "services/backend/app/api/v1/endpoints/pillar_3a_deep.py",
+    "services/backend/tests/test_pillar_3a_deep.py",
+    "tools/openapi/openapi.json",
+    "services/backend/app/services/consent/consent_service.py",
+    "services/backend/app/models/consent.py",
+    "services/backend/alembic/versions/p125_consent_shred_pending.py",
+    "services/backend/tests/services/consent/test_consent_service.py",
+    "services/backend/tests/fixtures/test_pg_fixture_self.py",
+    "services/backend/app/services/consent/shred_sweep.py",
+    "services/backend/app/main.py",
+    "services/backend/app/services/document_memory_service.py",
+    "services/backend/app/services/document_vision_service.py",
+    "services/backend/app/api/v1/endpoints/documents.py",
+    "services/backend/tests/services/document/test_nlpd_gates_enforce.py",
+    "services/backend/tests/services/consent/test_consent_service_extensions.py",
+    "apps/mobile/lib/screens/profile/privacy_control_screen.dart",
+    "apps/mobile/test/screens/profile/privacy_control_screen_test.dart",
+    "apps/mobile/test/golden_screenshots/goldens/privacy_15_fr.png",
+    "apps/mobile/test/golden_screenshots/goldens/privacy_se_fr.png",
+    "apps/mobile/lib/screens/expat_screen.dart",
+    "apps/mobile/lib/widgets/coach/top_cantons_widget.dart",
+    "apps/mobile/test/screens/expat_top_cantons_real_test.dart",
+    "apps/mobile/test/screens/arbitrage/rvc_layer4_prompts_test.dart",
+    "apps/mobile/test/widgets/coach/smart_default_indicatif_test.dart",
+    # -4ip : scan PII réel armé sur logs staging
+    "scripts/check_pii_in_logs.py",
+    ".github/workflows/ci.yml",
+    "services/backend/tests/test_allocation_annuelle.py",
+    "services/backend/tests/test_arbitrage_allocation_annuelle_grounding.py",
+    "services/backend/education_inserts/concepts/avs_cotisations_independants.md",
+    "education/inserts/concepts/avs_cotisations_independants.md",
+    "services/backend/education_inserts/concepts/lpp_salaire_coordonne.md",
+    "education/inserts/concepts/lpp_salaire_coordonne.md",
+    "services/backend/education_inserts/concepts/donation_entre_vifs.md",
+    "education/inserts/concepts/donation_entre_vifs.md",
+    "services/backend/tests/test_education_inserts_truth.py",
+    # campagne-A bead A2 : montants LPP/AVS périmés alignés sur registry (2026-07-24)
+    "education/inserts/concepts/avs_bonifications_educatives.md",
+    "services/backend/education_inserts/concepts/avs_bonifications_educatives.md",
+    "education/inserts/concepts/avs_rente_calcul.md",
+    "education/inserts/concepts/deduction_coordination.md",
+    "education/inserts/concepts/lpp_1e_plans.md",
+    "education/inserts/concepts/lpp_bonifications_age.md",
+    "education/inserts/concepts/lpp_surobligatoire_role.md",
+    "education/inserts/concepts/retraite_taux_remplacement.md",
+    "education/inserts/concepts/surobligatoire_vs_obligatoire.md",
+    "education/inserts/concepts/taux_conversion_lpp.md",
+    "education/inserts/q_avs_gaps.md",
+    "education/inserts/q_avs_gaps_de.md",
+    "education/inserts/q_has_pension_fund.md",
+    "education/inserts/q_has_pension_fund_de.md",
+    "services/backend/education_inserts/concepts/avs_rente_calcul.md",
+    "services/backend/education_inserts/concepts/deduction_coordination.md",
+    "services/backend/education_inserts/concepts/lpp_1e_plans.md",
+    "services/backend/education_inserts/concepts/lpp_bonifications_age.md",
+    "services/backend/education_inserts/concepts/lpp_surobligatoire_role.md",
+    "services/backend/education_inserts/concepts/retraite_taux_remplacement.md",
+    "services/backend/education_inserts/concepts/surobligatoire_vs_obligatoire.md",
+    "services/backend/education_inserts/concepts/taux_conversion_lpp.md",
+    "services/backend/education_inserts/q_avs_gaps.md",
+    "services/backend/education_inserts/q_avs_gaps_de.md",
+    "services/backend/education_inserts/q_has_pension_fund.md",
+    "services/backend/education_inserts/q_has_pension_fund_de.md",
+    "services/backend/tests/test_coach_eu_routing.py",
+    "services/backend/tests/test_rvc_certificate_receipt.py",
+    "services/backend/tests/test_rente_vs_capital.py",
+    "services/backend/tests/test_rvc_premier_eclairage_totals.py",
+    "services/backend/tests/documents/test_sse_third_party_gate.py",
+    "services/backend/app/services/document_memory_service.py",
+    "services/backend/app/services/document_vision_service.py",
+    "services/backend/app/services/document_stream.py",
+    "services/backend/app/core/config.py",
+    "services/backend/tests/conftest.py",
+    "services/backend/tests/test_consent_gate_default_hard_block.py",
+    "services/backend/tests/test_consent_guards.py",
+    "services/backend/tests/test_coach_chat_endpoint.py",
+    "services/backend/tests/test_retrieve_memories.py",
+    "services/backend/tests/test_narrator_refuses_uncited_numbers.py",
+    "apps/mobile/lib/services/coach/coach_chat_api_service.dart",
+    "apps/mobile/lib/screens/coach/coach_chat_screen.dart",
+    "apps/mobile/test/services/coach_chat_api_service_consent_gate_test.dart",
+    "apps/mobile/lib/services/consent/consent_service.dart",
+    "apps/mobile/test/screens/coach/coach_consent_gate_flow_test.dart",
+    "apps/mobile/lib/screens/debt_prevention/repayment_screen.dart",
+    "apps/mobile/test/screens/debt_prevention/repayment_hydration_test.dart",
+    "apps/mobile/lib/screens/debt_prevention/debt_ratio_screen.dart",
+    "apps/mobile/test/screens/debt_prevention/debt_ratio_hydration_test.dart",
+    "apps/mobile/lib/widgets/couple/conjoint_missing_hint.dart",
+    "apps/mobile/test/widgets/couple/conjoint_missing_hint_test.dart",
+    # PR constants-truth (bead -zaw) : audit factuel variables métier 2026
+    "apps/mobile/lib/services/coach/hallucination_detector.dart",
+    "apps/mobile/lib/services/financial_core/generated/regulatory_constants.g.dart",
+    "apps/mobile/test/retirement_projection_service_test.dart",
+    "apps/mobile/test/services/avs_logic_test.dart",
+    "apps/mobile/test/services/financial_core/avs_calculator_test.dart",
+    "apps/mobile/test/services/financial_core/calculator_forge_test.dart",
+    "apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart",
+    "apps/mobile/test/services/regulatory_sync_integration_test.dart",
+    "services/backend/app/services/fiscal/cantonal_comparator.py",
+    "services/backend/tests/test_fiscal_low_nodes.py",
+    "services/backend/app/services/regulatory/registry.py",
+    "services/backend/tests/fixtures/coach_tools_parity_v1.jsonl",
+    "services/backend/tests/test_minimal_profile.py",
+    "apps/mobile/lib/services/document_parser/avs_extract_parser.dart",
+    "apps/mobile/lib/services/financial_core/avs_calculator.dart",
+    "apps/mobile/test/golden/golden_couple_validation_test.dart",
+    "services/backend/app/services/couple_optimizer/couple_optimizer.py",
+    "services/backend/app/services/document_parser/avs_extract_parser.py",
+    "services/backend/app/services/onboarding/minimal_profile_service.py",
+    "services/backend/app/services/retirement/avs_estimation_service.py",
+    "services/backend/tests/test_golden_julien_lauren.py",
+    "services/backend/tests/test_fiscal.py",
+    # -jzk : couche-4 top-prompt étendue (helper central IndicatifBanner)
+    "apps/mobile/lib/screens/arbitrage/location_vs_propriete_screen.dart",
+    "apps/mobile/lib/screens/arbitrage/allocation_annuelle_screen.dart",
+    "apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart",
+    "apps/mobile/lib/widgets/coach/indicatif_banner.dart",
+    "apps/mobile/test/screens/arbitrage/layer4_prompts_extension_test.dart",
+    "apps/mobile/test/screens/arbitrage/rvc_layer4_prompts_test.dart",
+    "services/backend/tests/test_regulatory_registry.py",
+    # PR rvc-single-truth (bead -axj) : parité croisée RvC
+    "apps/mobile/test/services/financial_core/rvc_parity_fixture_test.dart",
+    "services/backend/tests/test_rvc_parity_fixture.py",
+    "tools/fixtures/rvc_parity_v1.json",
+    # PR tax-model-v2 (beads -97h/-81n) : modèle fiscal v2 partagé
+    "apps/mobile/lib/services/financial_core/income_tax_model_v2.dart",
+    "apps/mobile/test/services/rachat_parity_fixture_test.dart",
+    "services/backend/app/services/lpp_deep/rachat_echelonne_service.py",
+    "services/backend/tests/test_rachat_parity_fixture.py",
+    # PR lpp-conversion-canonical (bead -amq) : 4e moteur RvC au modèle v2
+    "services/backend/app/services/retirement/lpp_conversion_service.py",
+    "services/backend/tests/test_retirement.py",
+    "services/backend/app/services/retirement/retirement_projection_service.py",
+    "services/backend/tests/fixtures/coach_tools_parity_v1.jsonl",
+    "services/backend/tests/test_coach_tools_parity.py",
+    "tools/fixtures/rachat_parity_v1.json",
+    # PR capital-tax-v2-model (bead -2i2) : modèle capital v2 disponible
+    "apps/mobile/test/services/financial_core/capital_tax_parity_fixture_test.dart",
+    "services/backend/tests/test_capital_tax_parity_fixture.py",
+    "tools/fixtures/capital_tax_parity_v1.json",
+    # PR capital-v2-switch (bead -2i2 PR B) : bascule des consommateurs
+    "apps/mobile/lib/services/financial_core/tax_calculator.dart",
+    "services/backend/app/services/lpp_deep/epl_service.py",
+    "services/backend/app/services/mortgage/epl_combined_service.py",
+    "apps/mobile/lib/services/financial_core/lpp_calculator.dart",
+    "apps/mobile/lib/services/mortgage_service.dart",
+    "apps/mobile/lib/services/pillar_3a_deep_service.dart",
+    "apps/mobile/lib/services/retirement_service.dart",
+    "apps/mobile/test/services/pillar_3a_deep_service_test.dart",
+    "apps/mobile/test/services/retirement_service_test.dart",
+    "apps/mobile/test/screens/debt_prevention/repayment_g5v_test.dart",
+    "apps/mobile/test/services/financial_core/golden_couple_lauren_test.dart",
+    "apps/mobile/test/services/financial_core/tax_calculator_test.dart",
+    "apps/mobile/test/services/lpp_deep_service_test.dart",
+    "apps/mobile/test/services/tax_calculator_extended_test.dart",
+    "services/backend/tests/test_calendrier_retraits.py",
+    "services/backend/tests/test_lpp_deep.py",
+    # PR rachat-79b-window (bead -a6e) : fenêtre art. 79b al. 3 flux live
+    "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+    "apps/mobile/lib/services/lpp_deep_service.dart",
+    "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
+    "apps/mobile/test/services/rachat_echelonne_fenetre_79b_test.dart",
+    "apps/mobile/test/test_gaps.json",
+    # PR report-honest-spouse (bead -pd4) : fin de la substitution conjoint
+    "apps/mobile/lib/services/financial_report_service.dart",
+    # PR mortgage-alert-honest (bead -irm) : alerte Tragbarkeit honnête
+    "apps/mobile/lib/services/cross_validation_service.dart",
+    "apps/mobile/test/services/cross_validation_service_test.dart",
+    # PR ac-bareme-officiel (bead -4za) : barème LACI art. 27 corrigé
+    "apps/mobile/lib/screens/unemployment_screen.dart",
+    "apps/mobile/lib/services/unemployment_service.dart",
+    "apps/mobile/lib/widgets/coach/unemployment_counter_widget.dart",
+    "apps/mobile/test/services/unemployment_service_test.dart",
+    # campagne-B W1 : preuve runtime rendu-calculé triade Travail (job_comparison leg)
+    "apps/mobile/test/screens/life_event_screens_additional_smoke_test.dart",
+    ".planning/audit/2026-07-w1-travail-triade-runtime-proof.md",
+    "tools/checks/mint_variable_contract_extract.py",
+    "tools/checks/tests/test_mint_variable_contract_extract.py",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02c-variable-contract-lints-implementation-PLAN.md",
+    # Tranche verticale firstJob (Phase 1') : spec 12D + flow d'acceptation
+    # ROUGE par construction (voir header du flow — hors runners verts).
+    ".planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md",
+    # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
+    "services/backend/app/calculators/_registry.py",
+    "services/backend/tests/test_calc_registry.py",
+    # PR married-discount-canton (bead -ku6) : fin du 0.85 uniforme
+    "services/backend/app/services/rules_engine.py",
+    "services/backend/app/services/arbitrage/rachat_vs_marche.py",
+    "services/backend/app/services/arbitrage/calendrier_retraits.py",
+    "services/backend/tests/test_rules_engine.py",
+    # Lint prescriptions (ADR 2026-07-28-prescriptions U1-U4)
+    "services/backend/app/services/coach/prescription_vocab.py",
+    "services/backend/tests/test_prescription_vocab.py",
+    "tools/checks/product_prescription_lint.py",
+    "tools/checks/_baseline_prescription_sites.txt",
+    # Purge attribution fortune (ADR 2026-07-28-fortune U1)
+    "services/backend/app/services/fiscal/wealth_tax_service.py",
+    "apps/mobile/lib/services/wealth_tax_service.dart",
+    "services/backend/app/api/v1/endpoints/wealth_tax.py",
+    # Fix remploi méthode absolue (ADR 2026-07-28-remplacements P2)
+    "services/backend/app/services/housing_sale_service.py",
+    "services/backend/tests/test_housing_sale.py",
+    "apps/mobile/lib/services/housing_sale_service.dart",
+    "apps/mobile/test/services/housing_sale_service_test.dart",
+    # LAMal frontalier par pays de résidence (ADR 2026-07-28-remplacements P3)
+    # + suppression du champ base_rate mort (ADR 2026-07-28-remplacements P1)
+    "services/backend/app/services/expat/frontalier_service.py",
+    "services/backend/tests/test_expat.py",
+    # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
+    "services/backend/app/services/divorce_simulator.py",
+    "services/backend/tests/test_divorce_simulator.py",
+    "services/backend/tests/test_life_events.py",
+    # Citation CC des réserves héréditaires (hand-off 2026-07-27 §3.5)
+    "services/backend/app/services/coach/bundles/succession_divorce_bundle.py",
+    "services/backend/tests/bundles/test_succession_divorce_bundle.py",
+    # Drain des taux marginaux vers l'étalon (hand-off 2026-07-27 §3.1b)
+    "services/backend/app/services/precision/precision_service.py",
+    "services/backend/tests/test_precision.py",
+    # ADR des décisions déléguées (panels 2026-07-28)
+    ".planning/decisions/2026-07-28-fortune-recalibrage-estv.md",
+    ".planning/decisions/2026-07-28-prescriptions-ligne-et-mecanisme.md",
+    ".planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md",
+    "services/backend/tests/test_calc_diff_harness.py",
+    "services/backend/tests/test_cross_platform.py",
+    "services/backend/tests/test_estv_oracle.py",
+    ".github/workflows/calc-rigor-failure-comment.md",
+    "services/backend/tests/fixtures/estv_oracle.SCHEMA.md",
+    # Réveil de l'oracle ESTV (capture hors-nœuds + garde anti-partiel).
+    "services/backend/tests/fixtures/estv_oracle_2025.jsonl",
+    "services/backend/tests/scripts/capture_estv_oracle.py",
+    "services/backend/tests/scripts/README.md",
+    "services/backend/pyproject.toml",
+    # -ku6 : addenda de résolution datés sur les archives de phase 92.5
+    # (répertoire déplacé vers phases-archive/ le 2026-07-29)
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-PLAN.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-SUMMARY.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-04-g6-gate-wiring-PLAN.md",
+    "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
+    "apps/mobile/lib/screens/expat_screen.dart",
+    "apps/mobile/lib/screens/household/household_screen.dart",
+    "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+    "apps/mobile/lib/models/coach_profile.dart",
+    "apps/mobile/test/screens/debt_prevention_screens_smoke_test.dart",
+    "services/backend/app/services/arbitrage/rente_vs_capital.py",
+    "services/backend/app/api/v1/endpoints/arbitrage.py",
+    # -uwv : is_married exposé dans les 4 API retrait capital
+    "services/backend/app/api/v1/endpoints/lpp_deep.py",
+    "services/backend/app/api/v1/endpoints/mortgage.py",
+    "services/backend/app/api/v1/endpoints/retirement.py",
+    "services/backend/app/schemas/lpp_deep.py",
+    "services/backend/app/schemas/mortgage.py",
+    "services/backend/app/schemas/retirement.py",
+    "services/backend/tests/test_uwv_married_capital_apis.py",
+    # #1095 : recalibrage capital MARIÉ vers l'étalon ESTV (drain du rabais)
+    "services/backend/tests/test_capital_marie_calibration.py",
+    "services/backend/tests/test_capital_tax_property.py",
+    "apps/mobile/test/services/financial_core/withdrawal_sequencing_test.dart",
+    # -337 : provenance des 39 clés fiscales du registre
+    "services/backend/app/services/regulatory/registry.py",
+    "services/backend/tests/test_337_fiscal_provenance.py",
+    # -cm4 : migration des 2 proxys heuristiques fiscaux vers v2
+    "services/backend/app/services/arbitrage/location_vs_propriete.py",
+    "services/backend/tests/test_cm4_proxy_migrations.py",
+    # -glq : gardes mécaniques câblées (sentry privacy) + ADR amendé
+    "lefthook.yml",
+    ".github/workflows/ai-workflow-guards.yml",
+    "decisions/ADR-20260419-v2.8-kill-policy.md",
+    # compare-v2 : écran comparaison cantonale migré sur le modèle v2
+    "services/backend/app/services/fiscal/__init__.py",
+    "services/backend/tests/test_compare_v2_identity.py",
+    "services/backend/tests/test_fiscal.py",
+    "services/backend/app/schemas/arbitrage.py",
+    "tools/openapi/mint.openapi.canonical.json",
+    "tools/openapi/openapi.json",
+    "apps/mobile/lib/services/financial_core/arbitrage_models.dart",
+    "apps/mobile/test/services/financial_core/rvc_certificate_receipt_test.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_rvc_boundary_test.dart",
+    "services/backend/app/services/rag/llm_client.py",
+    "services/backend/app/api/v1/endpoints/anonymous_chat.py",
+    "services/backend/app/api/v1/endpoints/coach_chat.py",
+    "services/backend/app/services/rag/orchestrator.py",
+    "services/backend/app/services/llm/bedrock_client.py",
+    "apps/mobile/test/services/financial_core/arbitrage_capital_epuise_age_test.dart",
+    "apps/mobile/test/services/financial_core/withdrawal_sequencing_gendered_refage_test.dart",
+    ".gitignore",
+    ".planning/phases/remediation-audit-2026-07/CONTEXT.md",
+    ".planning/phases/remediation-audit-2026-07/AUTHORIZED_FILES.md",
+    ".planning/phases/remediation-audit-2026-07/BACKLOG-DEV-VERIFIED.html",
+    # --- end remediation audit 2026-07 ---
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",
     "apps/mobile/lib/providers/auth_provider.dart",
+    "apps/mobile/lib/l10n/app_de.arb",
+    "apps/mobile/lib/l10n/app_en.arb",
+    "apps/mobile/lib/l10n/app_es.arb",
+    "apps/mobile/lib/l10n/app_fr.arb",
+    "apps/mobile/lib/l10n/app_it.arb",
+    "apps/mobile/lib/l10n/app_pt.arb",
+    "apps/mobile/lib/l10n/app_localizations.dart",
+    "apps/mobile/lib/l10n/app_localizations_de.dart",
+    "apps/mobile/lib/l10n/app_localizations_en.dart",
+    "apps/mobile/lib/l10n/app_localizations_es.dart",
+    "apps/mobile/lib/l10n/app_localizations_fr.dart",
+    "apps/mobile/lib/l10n/app_localizations_it.dart",
+    "apps/mobile/lib/l10n/app_localizations_pt.dart",
     "apps/mobile/lib/screens/auth/auth_redirect.dart",
+    "apps/mobile/lib/screens/auth/login_screen.dart",
     "apps/mobile/lib/routes/coach_chat_entry_payload.dart",
     "apps/mobile/lib/routes/route_metadata.dart",
     "apps/mobile/lib/screens/auth/register_screen.dart",
+    "apps/mobile/lib/screens/landing_screen.dart",
     "apps/mobile/lib/screens/profile/financial_summary_screen.dart",
     "apps/mobile/lib/screens/advisor/financial_report_screen_v2.dart",
     "apps/mobile/lib/screens/arbitrage/rente_vs_capital_screen.dart",
     "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
+    # --- Tranche firstJob PR-D: /home -> /first-job life-event entry ---
+    "apps/mobile/lib/screens/aujourdhui/home_life_events.dart",
+    "apps/mobile/lib/widgets/life_event_suggestions.dart",
+    "apps/mobile/test/screens/aujourdhui/home_life_events_test.dart",
+    "apps/mobile/test/screens/aujourdhui/aujourdhui_first_job_entry_test.dart",
+    "apps/mobile/test/widgets/life_event_suggestions_home_entry_test.dart",
     "apps/mobile/lib/screens/budget/budget_setup_screen.dart",
     "apps/mobile/test/screens/budget_setup_screen_test.dart",
     "apps/mobile/lib/screens/debug/debug_mint2_account_claim_screen.dart",
@@ -107,6 +622,7 @@ ALLOW = {
     "apps/mobile/lib/widgets/coach/smart_shortcuts.dart",
     "apps/mobile/lib/widgets/coach/trajectory_card.dart",
     "apps/mobile/lib/widgets/coach/widget_renderer.dart",
+    "apps/mobile/lib/widgets/onboarding/premier_eclairage_card.dart",
     "apps/mobile/lib/widgets/fullscreen_chart_wrapper.dart",
     "apps/mobile/lib/widgets/dashboard/couple_action_plan.dart",
     "apps/mobile/lib/widgets/dashboard/retirement_checklist_card.dart",
@@ -125,10 +641,13 @@ ALLOW = {
     "apps/mobile/test/screens/login_apple_recreate_opt_in_test.dart",
     "apps/mobile/test/routes/route_metadata_test.dart",
     "apps/mobile/test/routes/coach_chat_entry_payload_test.dart",
+    "apps/mobile/test/navigation/rvc_real_route_public_test.dart",
     "apps/mobile/test/screens/auth_screens_smoke_test.dart",
+    "apps/mobile/test/screens/auth_magic_link_verify_handoff_test.dart",
     "apps/mobile/test/screens/login_redirect_resolver_test.dart",
     "apps/mobile/test/screens/register_account_entry_test.dart",
     "apps/mobile/test/screens/profile/financial_summary_screen_test.dart",
+    "apps/mobile/test/widgets/onboarding/premier_eclairage_card_test.dart",
     "apps/mobile/test/screens/admin/routes_registry_screen_test.dart",
     "apps/mobile/test/screens/arbitrage/rente_vs_capital_receipt_gate_test.dart",
     "apps/mobile/test/screens/arbitrage/rente_vs_capital_route_state_anchor_test.dart",
@@ -138,6 +657,7 @@ ALLOW = {
     "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_route_scope_test.dart",
     "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_chat_navigation_guard_test.dart",
     "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_signal_axes_test.dart",
+    "apps/mobile/test/screens/onboarding/mvp_wedge_storyboard_test.dart",
     "apps/mobile/test/screens/rente_vs_capital_prefill_test.dart",
     "apps/mobile/test/services/api_service_test.dart",
     "apps/mobile/test/services/check_in_notification_test.dart",
@@ -160,6 +680,8 @@ ALLOW = {
     "apps/mobile/test/widgets/pulse/pulse_widgets_test.dart",
     "docs/ROUTE_POLICY.md",
     "services/backend/app/api/v1/endpoints/coach_chat.py",
+    "services/backend/app/services/coach/hallucination_detector.py",
+    "services/backend/tests/test_hallucination_guard_wired.py",
     "services/backend/app/api/v1/endpoints/auth.py",
     "services/backend/app/schemas/auth.py",
     "services/backend/app/services/coach/compliance_guard.py",
@@ -170,6 +692,7 @@ ALLOW = {
     "services/backend/app/services/rag/hybrid_search_service.py",
     "services/backend/app/services/rag/llm_client.py",
     "services/backend/app/services/rag/orchestrator.py",
+    "services/backend/app/services/llm/bedrock_client.py",
     "services/backend/app/services/rag/retriever.py",
     "services/backend/app/services/rag/vector_store.py",
     "services/backend/tests/fixtures/narrator_legacy_snapshots/_load.py",
@@ -193,9 +716,24 @@ ALLOW = {
     "tools/simulator/mint2_quality_gate.sh",
     "tools/simulator/test_mint2_quality_gate.py",
     "tools/contracts/screen_registry.json",
+    "tools/simulator/flows/travail_triad.yaml",
+    "tools/simulator/flows/famille_parcours.yaml",
+    "tools/simulator/flows/logement_succession_parcours.yaml",
+    "tools/simulator/flows/parcours_secondaires.yaml",
+    ".planning/audit/2026-07-life-event-screens-a11y-gap.md",
+    # a11y ILLOG-02 contract : screen-root Semantics sur 3 écrans life-event premium
+    "apps/mobile/lib/screens/disability/disability_gap_screen.dart",
+    "apps/mobile/lib/screens/deces_proche_screen.dart",
+    "apps/mobile/test/screens/deces_gate_test.dart",
+    "apps/mobile/lib/screens/demenagement_cantonal_screen.dart",
+    "apps/mobile/test/screens/demenagement_gate_test.dart",
+    "apps/mobile/test/screens/expat_gate_test.dart",
+    "apps/mobile/test/screens/life_event_premium_a11y_test.dart",
+    "tools/checks/baselines/prefer_mint_cta.baseline.txt",
     "tools/simulator/flows/maestro-perfect-set/flow_row24_privacy_control_runtime.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos001_account_lifecycle_seeded_delete.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_landing_to_diagnostic_onboarding.yaml",
     "tools/simulator/flows/maestro-perfect-set/_fragment_cold_launch_to_aujourdhui.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_hardgate_expat_us.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
@@ -204,10 +742,22 @@ ALLOW = {
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
+    # Tranche firstJob : flow d'acceptation RED (skip locator-audit, hors sweep)
+    "tools/simulator/flows/firstjob_tranche_acceptance_red.yaml",
+    # Tranche firstJob : variante SEEDED (diagnostic PR-I) — atterrit /home via
+    # seed archetype, hors sweep vert (bloquée par l'effondrement AX iOS 26.2).
+    "tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml",
     "tools/simulator/journey_os_runtime_replay.sh",
     "tools/claude_review.py",
     "tools/claude_review.sh",
     "tools/checks/active_context_guard.py",
+    "tools/checks/education_facts_check.py",
+    "legal/APP_STORE_PRIVACY_LABELS.md",
+    # cluster B W0 : Retroactive3a — retrait du faux chevron (façade sans câblage)
+    "apps/mobile/test/screens/pillar_3a_deep/retroactive_3a_screen_test.dart",
+    # cluster B W0 : TransactionList — filtre période mort câblé (façade contrôle)
+    "apps/mobile/lib/screens/open_banking/transaction_list_screen.dart",
+    "apps/mobile/test/screens/open_banking/transaction_list_screen_test.dart",
     "tools/checks/journey_os_check.py",
     "tools/checks/journey_os_generate.py",
     "tools/checks/maestro_locator_audit.py",
@@ -229,12 +779,166 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # P5 gains immobiliers calibres (ADR 2026-07-28, branche
+    # codex/journey-os-gains-immo-calibres) : drainage de la table fabriquee
+    # TAUX_PLUS_VALUE_IMMOBILIERE vers l'etalon ZH/VD/GE.
+    "services/backend/app/services/fiscal/gains_immobiliers_calibres.py",
+    "services/backend/tests/test_gains_immobiliers_calibres.py",
+    "services/backend/app/services/housing_sale_service.py",
+    "services/backend/app/schemas/life_events.py",
+    "services/backend/app/api/v1/endpoints/life_events.py",
+    "services/backend/tests/test_housing_sale.py",
+    "apps/mobile/lib/services/housing_sale_service.dart",
+    "apps/mobile/test/services/housing_sale_service_test.dart",
+    "apps/mobile/lib/screens/housing_sale_screen.dart",
+    # Socle succession/donation (ADR 2026-07-28 P4) : drain des tables de
+    # taux plats succession+donation vers le socle 3-champs ESTV 1.1.2025
+    # (statut / plage sourcée / mécanismes), backend + miroirs Dart.
+    "services/backend/app/services/fiscal/succession_donation_socle.py",
+    "services/backend/tests/test_succession_donation_socle.py",
+    "services/backend/app/services/succession_simulator.py",
+    "services/backend/tests/test_succession_simulator.py",
+    "services/backend/app/services/donation_service.py",
+    "services/backend/tests/test_donation.py",
+    "services/backend/tests/test_donation_service.py",
+    "services/backend/tests/test_life_events.py",
+    "services/backend/app/schemas/life_events.py",
+    "services/backend/app/api/v1/endpoints/life_events.py",
+    "apps/mobile/lib/services/succession_donation_socle.dart",
+    "apps/mobile/test/services/succession_donation_socle_test.dart",
+    "apps/mobile/lib/services/donation_service.dart",
+    "apps/mobile/test/services/donation_service_test.dart",
+    # --- LOT-3 réécriture prescriptions produit DART (ADR 2026-07-28-prescriptions) ---
+    "apps/mobile/lib/models/age_band_policy.dart",
+    "apps/mobile/lib/models/clarity_state.dart",
+    "apps/mobile/lib/services/coaching_service.dart",
+    "apps/mobile/lib/services/first_job_service.dart",
+    "apps/mobile/lib/services/report/report_builder.dart",
+    "apps/mobile/lib/widgets/coach/disability_countdown_widget.dart",
+    # LOT-2 réécriture prescriptions produit BACKEND (ADR 2026-07-28-prescriptions)
+    "services/backend/app/routes/wizard.py",
+    "services/backend/app/services/coach/coach_tools.py",
+    "services/backend/app/services/coaching_engine.py",
+    "services/backend/app/services/coverage_checklist_service.py",
+    "services/backend/app/services/educational_content_service.py",
+    "services/backend/app/services/first_job/onboarding_service.py",
+    "services/backend/app/services/gender_gap_service.py",
+    "services/backend/app/services/job_comparator.py",
+    "services/backend/app/services/pillar_3a_deep/provider_comparator_service.py",
+    "services/backend/app/services/precision/precision_service.py",
+    # LOT-1 réécriture prescriptions produit ARB (ADR 2026-07-28-prescriptions)
+    # — impératifs d'achat 3a/assurance drainés vers des actes de lucidité.
+    "apps/mobile/lib/l10n/app_fr.arb",
+    "apps/mobile/lib/l10n/app_en.arb",
+    "apps/mobile/lib/l10n/app_de.arb",
+    "apps/mobile/lib/l10n/app_es.arb",
+    "apps/mobile/lib/l10n/app_it.arb",
+    "apps/mobile/lib/l10n/app_pt.arb",
+    "apps/mobile/lib/l10n_regional/app_regional_vs.arb",
+    "apps/mobile/lib/l10n/app_localizations.dart",
+    "apps/mobile/lib/l10n/app_localizations_fr.dart",
+    "apps/mobile/lib/l10n/app_localizations_en.dart",
+    "apps/mobile/lib/l10n/app_localizations_de.dart",
+    "apps/mobile/lib/l10n/app_localizations_es.dart",
+    "apps/mobile/lib/l10n/app_localizations_it.dart",
+    "apps/mobile/lib/l10n/app_localizations_pt.dart",
+    # Réconciliation plans 2026-07-29 : blocs de clôture datés sur les
+    # artefacts principaux des 8 phases de-facto closes + wiki lint/INDEX.
+    ".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-CONTEXT.md",
+    ".planning/phases/mint-data-spine-plan-vivant-v1/CONTEXT.md",
+    ".planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-CONTEXT.md",
+    ".planning/phases/mint-grounded-coach-m1/mint-grounded-coach-m1-CONTEXT.md",
+    ".planning/phases/mint-illogism-fixes/mint-illogism-fixes-CONTEXT.md",
+    ".planning/phases/01.5-archetype-hard-gate-fatca/01.5-CONTEXT.md",
+    ".planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-CONTEXT.md",
+    ".planning/phases/97-mvp-parfait-maestro-full-power-maestro-driven-on-device-grou/97-CONTEXT.md",
+    "tools/checks/wiki_lint.py",
+    ".planning/INDEX.md",
+    # P1 triage AnnAssign (#1095) : purge du taux marginal cantonal fabriqué
+    # injecté au coach par le RAG. Le taux dépend du revenu — le coach est
+    # dirigé vers l'étalon fiscal (cantonal_comparator.estimate_marginal_rate)
+    # plutôt que de recevoir un scalaire cantonal démenti par l'écran.
+    # Second volet : la directive n'est mandatée que si l'outil fiscal est
+    # réellement atteignable dans la requête (rag.py ne relaie que les tools
+    # annoncés par le client) — sinon variante sans outil + renvoi simulation.
+    "services/backend/app/services/rag/cantonal_knowledge.py",
+    "services/backend/tests/test_cantonal_knowledge.py",
+    "services/backend/tests/test_rag_s67_wiring.py",
+    "services/backend/app/api/v1/endpoints/rag.py",
+    # PR-B MoneyTruthReceipt v1 (tranche firstJob, SPEC TRANCHE-FIRSTJOB §4/§6) :
+    # contrat de vérité chiffrée backend + miroir Dart + fixtures de parité
+    # cross-language (py<->dart). Receipt INTERNE (portage API = PR-E).
+    "services/backend/app/models/lucidity/__init__.py",
+    "services/backend/app/models/lucidity/money_truth_receipt.py",
+    "services/backend/tests/test_money_truth_receipt.py",
+    "services/backend/tests/test_money_truth_receipt_parity.py",
+    "apps/mobile/lib/services/financial_core/money_truth_receipt.dart",
+    "apps/mobile/test/services/financial_core/money_truth_receipt_test.dart",
+    "apps/mobile/test/services/financial_core/money_truth_receipt_parity_test.dart",
+    "tools/fixtures/money_truth_receipt_v1.json",
+    # PR-B addendum (revue Codex) : correction légale AC — le pour-cent de
+    # solidarité (>148'200) a été aboli au 1.1.2023 ; test firstJob adapté.
+    "apps/mobile/test/services/first_job_service_test.dart",
+    # PR-F états réseau/vide/offline + anti-critère (SPEC TRANCHE-FIRSTJOB
+    # §2.3/A4) : indicateur de chargement borné sur /first-job, dégradation
+    # coach NOMMÉE et re-tentable (`coach-offline-degradation`), cohérence
+    # checklist « premier » emploi (items libre passage gatés sur avoir LPP
+    # antérieur). ChatMessage porte l'ancre a11y transitoire ; SystemMessageBubble
+    # rend l'état + le retry. Le net first-job reste L1 (survit staging coupé).
+    "apps/mobile/lib/services/coach_llm_service.dart",
+    "apps/mobile/test/screens/first_job_states_test.dart",
+    "apps/mobile/test/widgets/coach/system_message_bubble_offline_test.dart",
+    # PR-F addendum (revue Codex, P1) : la checklist conditionnelle change de
+    # taille (2↔4 items) pendant que le State persiste → RangeError sans
+    # `didUpdateWidget` qui re-dimensionne `_checked` en préservant les cochages
+    # par identité (`legalRef`).
+    "apps/mobile/lib/widgets/coach/job_change_checklist_widget.dart",
+    # PR-E (E1) handoff /first-job -> coach porteur du MoneyTruthReceipt
+    # (tranche firstJob, SPEC TRANCHE-FIRSTJOB §4.3) : store/resolve backend
+    # owner-scoped (idempotence + accès croisé + pending + TTL) + câblage
+    # coach (CoachChatRequest reçoit receiptId/inputsHash, résolution
+    # server-side). Portage API exposé => regen OpenAPI canonical + brut.
+    "services/backend/app/models/money_truth_receipt_record.py",
+    "services/backend/app/services/lucidity/__init__.py",
+    "services/backend/app/services/lucidity/receipt_store.py",
+    "services/backend/app/schemas/money_truth_receipt_api.py",
+    "services/backend/app/api/v1/endpoints/lucidity_receipts.py",
+    "services/backend/app/api/v1/router.py",
+    "services/backend/app/schemas/coach_chat.py",
+    "services/backend/tests/test_money_truth_receipt_store.py",
+    "services/backend/alembic/versions/p126_money_truth_receipts.py",
+    # PR-E (E2) mobile — CTA firstjob-ask-coach (RED-2) + propagation
+    # receiptId/inputsHash au backend via l'entrée coach (SPEC §1 T5 / §4.3).
+    "apps/mobile/lib/models/coach_entry_payload.dart",
+    "apps/mobile/lib/services/coach/e2e_coach_route_fixture.dart",
+    "apps/mobile/test/screens/first_job_ask_coach_cta_test.dart",
+    # PR-E (E2, revue Codex P1) — fermeture de la façade du handoff : store
+    # POST du receipt AVANT la nav (ceinture 1) + receiptInputs dans la requête
+    # coach (ceinture 2). Le coach grounde vraiment (resolved OU pending).
+    "apps/mobile/lib/services/coach/money_truth_receipt_api_service.dart",
+    "apps/mobile/test/services/money_truth_receipt_handoff_test.dart",
+    # PR-E (revue Codex CI) — mocks OrchestratorChatFn existants mis à jour à la
+    # signature étendue (receiptId/inputsHash/receiptInputs) + heads alembic
+    # attendus incluent p126.
+    "apps/mobile/test/services/coach_context_packet_payload_test.dart",
 }
 DELETION_ALLOW = {
+    # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
+    # boundary conservée contre la réintroduction)
+    "apps/mobile/lib/domain/rente_vs_capital_calculator.dart",
+    "apps/mobile/test/simulators/rente_vs_capital_test.dart",
+    # -a6e : chaîne morte lpp_buyback_advanced (façade jamais montée ; la
+    # logique 79b -okl vit désormais dans le flux live RachatEchelonne)
+    "apps/mobile/lib/widgets/simulators/lpp_buyback_advanced_widget.dart",
+    "apps/mobile/lib/services/simulators/lpp_buyback_advanced_simulator.dart",
+    "apps/mobile/test/simulators/lpp_buyback_advanced_simulator_test.dart",
     "apps/mobile/test/services/coach/chat_drawer_summon_test.dart",
 }
 IGNORED_GENERATED_PREFIXES = (
     "services/backend/mint_backend.egg-info/",
+    # Cartographie navigation (audit 2026-07, demande Julien 2026-07-23) :
+    # artefacts d'analyse .planning, pas du code Journey OS.
+    ".planning/audit-etat-des-lieux-2026-07/",
 )
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
@@ -270,6 +974,24 @@ EVIDENCE_SECRET_PATTERNS = (
 def _is_ignored_generated(path: str) -> bool:
     return any(path.startswith(prefix) for prefix in IGNORED_GENERATED_PREFIXES)
 
+def _unquote_git_path(line: str) -> str:
+    """git (core.quotePath) cite en C-style les chemins non-ASCII :
+    `"...\\342\\235\\214..."`. Sans dé-quotage, ces chemins ne matchent
+    jamais les préfixes du whitelist (bug latent révélé par l'archivage
+    2026-07-29 d'un screenshot Maestro nommé avec un emoji)."""
+    if not (line.startswith('"') and line.endswith('"') and len(line) >= 2):
+        return line
+    try:
+        return (
+            line[1:-1]
+            .encode("ascii")
+            .decode("unicode_escape")
+            .encode("latin-1")
+            .decode("utf-8")
+        )
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        return line
+
 def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=root, text=True, capture_output=True)
     if proc.returncode:
@@ -286,22 +1008,42 @@ def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
         outputs.append(extra.stdout)
     return sorted(
         {
-            line
+            _unquote_git_path(line)
             for output in outputs
             for line in output.splitlines()
-            if line and not _is_ignored_generated(line)
+            if line and not _is_ignored_generated(_unquote_git_path(line))
         }
     ), []
+
+def _archive_counterpart(path: str) -> str | None:
+    """Réconciliation plans 2026-07-29 : chemin archivé équivalent d'un
+    receipt de phase (ou de PERIMETERS.md) déplacé vers phases-archive/."""
+    if path.startswith(".planning/phases/"):
+        return ".planning/phases-archive/" + path[len(".planning/phases/"):]
+    if path == ".planning/PERIMETERS.md":
+        return ".planning/phases-archive/PERIMETERS.md"
+    return None
+
 
 def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
     for path in changed:
         if path in DELETION_ALLOW and not (root / path).exists():
             continue
+        # Réconciliation plans 2026-07-29 : un déplacement git mv vers
+        # .planning/phases-archive/ n'est pas une suppression — l'ancien
+        # chemin est autorisé si (et seulement si) la copie archivée existe.
+        counterpart = _archive_counterpart(path)
+        if counterpart is not None and not (root / path).exists() and (root / counterpart).exists():
+            continue
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
         allowed_diagram = path.startswith(str(journey_os_generate.DIAGRAMS) + "/") and path.endswith(".mmd") and "/" not in path[len(str(journey_os_generate.DIAGRAMS)) + 1 :]
         allowed_route_contract = path.startswith(str(ROUTE_CONTRACTS) + "/") and path.endswith(".json") and "/" not in path[len(str(ROUTE_CONTRACTS)) + 1 :]
+        # Cartes de navigation par thème : générées par
+        # tools/checks/generate_theme_maps.py (mécanique, régénérable) — on
+        # autorise le répertoire plutôt que de figer chaque thème.
+        allowed_architecture = path.startswith(".planning/architecture/") and path.endswith(".md")
         evidence_path = Path(path)
         runtime_replay_evidence = path.startswith(str(JOURNEYS / "evidence" / "runtime_replay") + "/")
         allowed_evidence = path.startswith(str(JOURNEYS / "evidence") + "/") and ".." not in evidence_path.parts and (
@@ -315,7 +1057,11 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
                 and evidence_path.suffix in {".md", ".txt", ".xml", ".json"}
             )
         )
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract):
+        # Réconciliation plans 2026-07-29 : les receipts archivés sous
+        # .planning/phases-archive/ sont des feuilles mortes hors routing —
+        # leur maintenance (bannières datées, index) reste autorisée.
+        allowed_archive = path.startswith(".planning/phases-archive/")
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):

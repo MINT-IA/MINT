@@ -240,15 +240,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // can pre-fill and CoachProfile gets the firstName + birthYear.
         final firstName = _displayNameController.text.trim();
         if (firstName.isNotEmpty || _dateOfBirth != null) {
-          final answers = await ReportPersistenceService.loadAnswers();
-          if (firstName.isNotEmpty) answers['q_firstname'] = firstName;
+          final answers = <String, dynamic>{};
+          if (firstName.isNotEmpty) {
+            answers['q_firstname'] = firstName;
+          }
           if (_dateOfBirth != null) {
             // Store both for backward compatibility
             answers['q_birth_year'] = _dateOfBirth!.year;
             answers['q_date_of_birth'] =
                 _dateOfBirth!.toIso8601String().split('T').first;
           }
-          await ReportPersistenceService.saveAnswers(answers);
+          await context.read<CoachProfileProvider>().mergeAnswers(answers);
         }
 
         await _persistConsentPreferences();

@@ -19,7 +19,6 @@ import pytest
 from app.services.lpp_deep.rachat_echelonne_service import (
     RachatEchelonneService,
     DISCLAIMER as RACHAT_DISCLAIMER,
-    TAUX_MARGINAUX_PAR_CANTON,
 )
 from app.services.lpp_deep.libre_passage_service import (
     LibrePassageService,
@@ -28,7 +27,6 @@ from app.services.lpp_deep.libre_passage_service import (
 from app.services.lpp_deep.epl_service import (
     EPLService,
     DISCLAIMER as EPL_DISCLAIMER,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
 )
 
 
@@ -263,9 +261,27 @@ class TestRachatEchelonne:
         for entry in result.plan:
             assert entry.revenu_imposable_apres < entry.revenu_imposable_avant
 
-    def test_all_26_cantons_supported(self, rachat_service):
-        """All 26 cantons should be in the rate table."""
-        assert len(TAUX_MARGINAUX_PAR_CANTON) == 26
+    def test_all_26_cantons_produce_savings(self, rachat_service):
+        """Le chemin vivant (difference d'impot v2) couvre les 26 cantons.
+
+        Remplace l'assertion `len(TAUX_MARGINAUX_PAR_CANTON) == 26` : une
+        assertion de presence sur une table morte prouvait la table, pas le
+        service (regle 3 du hand-off 2026-07-27).
+        """
+        from app.services.fiscal.cantonal_comparator import (
+            CANTONAL_COMMUNAL_TAX_CHF,
+        )
+
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
+            result = rachat_service.simulate(
+                avoir_actuel=200_000,
+                rachat_max=30_000,
+                revenu_imposable=120_000,
+                taux_marginal_estime=None,
+                canton=canton,
+                horizon_rachat_annees=3,
+            )
+            assert result.total_economie_fiscale > 0, canton
 
 
 # ===========================================================================
@@ -518,9 +534,10 @@ class TestEPL:
             canton="VD",
         )
         assert result.impot_retrait_estime > 0
-        assert result.taux_impot_retrait == TAUX_IMPOT_RETRAIT_CAPITAL["VD"]
-        # 100000 * 0.08 = 8000
-        assert result.impot_retrait_estime == 8000.0
+        # v2 -2i2 : VD 100000 — taux effectif dérivé (impôt / montant)
+        assert result.taux_impot_retrait == 0.0459
+        # v2 -2i2 : VD 100000 (IFD art. 38 + interpolation ESTV)
+        assert result.impot_retrait_estime == 4588.89
 
     def test_impact_prestations_calculated(self, epl_service):
         """Impact on death and disability benefits should be calculated."""

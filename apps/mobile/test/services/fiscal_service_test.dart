@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 void main() {
   // =========================================================================
@@ -88,7 +89,7 @@ void main() {
     });
 
     test('all charges are positive for 100k income', () {
-      for (final canton in FiscalService.effectiveRates100kSingle.keys) {
+      for (final canton in cantonalCommunalTaxChf.keys) {
         final result = FiscalService.estimateTax(
           revenuBrut: 100000,
           canton: canton,
@@ -273,7 +274,9 @@ void main() {
 
       // National average at 100k is 12.5%, so in percentage = 12.5
       // incomeAdj for 100k = 1.0, familyAdj for celibataire_0 = 1.0
-      expect(rate, closeTo(12.5, 0.1));
+      // beads -2b7 : moyenne RÉELLE des 26 charges v2 à 100k brut
+      // (imposable 85k) ≈ 14.21% — remplace la constante 12.5% heuristique.
+      expect(rate, closeTo(14.21, 0.1));
     });
 
     test('returns positive value', () {
@@ -396,8 +399,8 @@ void main() {
   });
 
   group('Constantes et donnees de reference', () {
-    test('effectiveRates100kSingle has 26 entries', () {
-      expect(FiscalService.effectiveRates100kSingle.length, 26);
+    test('grille v2 cantonalCommunalTaxChf has 26 entries (beads -2b7)', () {
+      expect(cantonalCommunalTaxChf.length, 26);
     });
 
     test('cantonNames has 26 entries', () {
@@ -405,7 +408,7 @@ void main() {
     });
 
     test('every rate canton has a name', () {
-      for (final code in FiscalService.effectiveRates100kSingle.keys) {
+      for (final code in cantonalCommunalTaxChf.keys) {
         expect(
           FiscalService.cantonNames.containsKey(code),
           true,
@@ -427,13 +430,19 @@ void main() {
       }
     });
 
-    test('nationalAverageRate100k is between min and max canton rates', () {
-      final rates = FiscalService.effectiveRates100kSingle.values;
-      final minRate = rates.reduce((a, b) => a < b ? a : b);
-      final maxRate = rates.reduce((a, b) => a > b ? a : b);
-
-      expect(FiscalService.nationalAverageRate100k, greaterThan(minRate));
-      expect(FiscalService.nationalAverageRate100k, lessThan(maxRate));
+    test('moyenne nationale v2 entre le min et le max cantonal (beads -2b7)',
+        () {
+      // La moyenne RÉELLE des 26 charges v2 doit être bornée par les
+      // taux effectifs extrêmes au même profil.
+      final charges = FiscalService.compareAllCantons(revenuBrut: 100000)
+          .map((r) => r['tauxEffectif'] as double)
+          .toList();
+      final minRate = charges.reduce((a, b) => a < b ? a : b);
+      final maxRate = charges.reduce((a, b) => a > b ? a : b);
+      final avg =
+          FiscalService.estimateNationalAverageRate(revenuBrut: 100000);
+      expect(avg, greaterThan(minRate));
+      expect(avg, lessThan(maxRate));
     });
   });
 }

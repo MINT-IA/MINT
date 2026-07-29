@@ -1,16 +1,21 @@
 import 'dart:math';
 
+import 'package:mint_mobile/services/succession_donation_socle.dart';
+
 // ────────────────────────────────────────────────────────────
 //  DONATION SERVICE — Sprint S24
-//  Calcul de l'impot sur les donations + impact successoral
+//  Verdict fiscal donation (socle ESTV) + impact successoral
 //  CC art. 471 (nouveau droit 2023), lois fiscales cantonales
 // ────────────────────────────────────────────────────────────
 
 /// Result model for donation calculation.
 class DonationResult {
   final double montantDonation;
-  final double tauxImposition;
-  final double impotDonation;
+
+  /// Verdict fiscal directionnel du socle ESTV 1.1.2025 — remplace
+  /// l'ancien couple tauxImposition/impotDonation en montant × taux plat
+  /// (ADR 2026-07-28 P4).
+  final SuccessionDonationVerdict verdictFiscal;
   final double reserveHereditaireTotale;
   final double quotiteDisponible;
   final bool donationDepasseQuotite;
@@ -24,8 +29,7 @@ class DonationResult {
 
   const DonationResult({
     required this.montantDonation,
-    required this.tauxImposition,
-    required this.impotDonation,
+    required this.verdictFiscal,
     required this.reserveHereditaireTotale,
     required this.quotiteDisponible,
     required this.donationDepasseQuotite,
@@ -44,66 +48,18 @@ class DonationResult {
 /// Covers cantonal donation tax rates, reserve hereditaire (2023 law),
 /// quotite disponible, and impact on future succession.
 class DonationService {
-  // ── Cantonal donation tax rates by relationship ──
-  // Source: cantonal tax laws on donations
-  static const Map<String, Map<String, double>> tauxDonationCantonal = {
-    'ZH': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.18,
-      'tiers': 0.24,
-    },
-    'BE': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.18,
-      'tiers': 0.24,
-    },
-    'VD': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.05,
-      'fratrie': 0.07,
-      'concubin': 0.25,
-      'tiers': 0.25,
-    },
-    'GE': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.10,
-      'concubin': 0.24,
-      'tiers': 0.30,
-    },
-    'LU': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.08,
-      'concubin': 0.20,
-      'tiers': 0.25,
-    },
-    'BS': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.08,
-      'concubin': 0.22,
-      'tiers': 0.28,
-    },
-    'SZ': {
-      'conjoint': 0.0,
-      'descendant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.0,
-      'concubin': 0.0,
-      'tiers': 0.0,
-    },
-  };
+  // --------------------------------------------------------------------
+  // Pas de table de taux de donation par canton — NE PAS EN RECRÉER UNE.
+  //
+  // tauxDonationCantonal (7 cantons + fallback VD) vivait ici : des taux
+  // plats non sourcés, démentis par le socle ESTV 1.1.2025 — LU y
+  // figurait à fratrie 8 %/tiers 25 % alors que Lucerne ne prélève AUCUN
+  // impôt sur les donations ; « GE tiers 30 % » contre un barème
+  // progressif 24-26 % + centimes additionnels. La source de vérité
+  // mobile est lib/services/succession_donation_socle.dart (mini-socle
+  // généré, parité verrouillée sur l'archive ESTV). ADR :
+  // .planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md
+  // --------------------------------------------------------------------
 
   // ── Reserve hereditaire (CC art. 471, nouveau droit 2023) ──
   // Fraction of legal share that is protected
@@ -153,13 +109,17 @@ class DonationService {
             ? valeurImmobiliere
             : montant;
 
-    // ── Tax rate lookup ──
-    final cantonRates =
-        tauxDonationCantonal[canton] ?? tauxDonationCantonal['VD']!;
-    final tauxImposition = cantonRates[lienParente] ?? cantonRates['tiers']!;
-
-    // ── Tax calculation ──
-    final impotDonation = montantDonation * tauxImposition;
+    // ── Verdict fiscal (socle ESTV — pas de montant × taux) ──
+    // Lien hors nomenclature -> classe « tiers » (comme l'ancien
+    // fallback), sans fabriquer de chiffre.
+    final categorie = SuccessionDonationSocle.categories.contains(lienParente)
+        ? lienParente
+        : 'tiers';
+    final verdictFiscal = SuccessionDonationSocle.verdict(
+      canton: canton,
+      categorie: categorie,
+      typeTransmission: 'donation',
+    );
 
     // ── Reserve hereditaire calculation ──
     // Fortune base adjusted by matrimonial regime (CC art. 196ss)
@@ -250,11 +210,17 @@ class DonationService {
       );
     }
 
-    if (lienParente == 'concubin' && tauxImposition > 0.15) {
+    // Concubin : message conservé, chiffre plat retiré, bascule ajoutée
+    // (ADR 2026-07-28 P4).
+    if (lienParente == 'concubin' &&
+        (verdictFiscal.statut == 'taxe' ||
+            verdictFiscal.statut == 'taxe_lourd')) {
+      final bascule =
+          verdictFiscal.bascule == null ? '' : ' ${verdictFiscal.bascule}';
       alerts.add(
-        'Attention : le taux d\'imposition pour un·e concubin·e est '
-        'eleve ($canton : ${(tauxImposition * 100).toStringAsFixed(0)}%). '
-        'Un pacte successoral ou un testament pourrait etre plus avantageux.',
+        'Attention : une donation à un·e concubin·e est imposée dans ' // lint-ignore
+        'le canton de $canton (souvent la classe la plus chargée du ' // lint-ignore
+        'barème cantonal).$bascule', // lint-ignore
       );
     }
 
@@ -307,12 +273,30 @@ class DonationService {
       );
     }
 
-    // ── Chiffre choc ──
-    final premierEclairage = impotDonation > 0
-        ? 'Impot sur la donation : CHF ${impotDonation.round()} '
-            '(${(tauxImposition * 100).toStringAsFixed(0)}%)'
-        : 'Bonne nouvelle : cette donation est exoneree d\'impot '
-            'dans le canton $canton';
+    // ── Premier éclairage : verdict directionnel, jamais impot × taux ──
+    String premierEclairage;
+    if (verdictFiscal.statut == 'exonere') {
+      // LU donation : le message dédié du socle prime (pas de 0 muet).
+      final lucerne = verdictFiscal.mecanismes
+          .where((m) => m.contains('Lucerne'))
+          .toList();
+      premierEclairage = lucerne.isNotEmpty
+          ? lucerne.first
+          : 'Bonne nouvelle : cette donation est exonérée d\'impôt ' // lint-ignore
+              'dans le canton $canton'; // lint-ignore
+    } else if (verdictFiscal.statut == 'inconnu') {
+      premierEclairage =
+          'Canton non couvert par le socle ESTV — consulte ' // lint-ignore
+          'l\'administration fiscale cantonale.'; // lint-ignore
+    } else {
+      final plage = verdictFiscal.plageMaxPct;
+      final plageTxt = plage == null
+          ? ' selon le barème cantonal' // lint-ignore
+          : ' — jusqu\'à ~${plage.toStringAsFixed(0)} % selon le barème ' // lint-ignore
+              'cantonal (hors mécanismes communaux)'; // lint-ignore
+      premierEclairage =
+          'Donation imposable dans le canton $canton$plageTxt'; // lint-ignore
+    }
 
     // ── Disclaimer ──
     const disclaimer =
@@ -334,8 +318,7 @@ class DonationService {
 
     return DonationResult(
       montantDonation: montantDonation,
-      tauxImposition: tauxImposition,
-      impotDonation: impotDonation,
+      verdictFiscal: verdictFiscal,
       reserveHereditaireTotale: reserveHereditaireTotale,
       quotiteDisponible: quotiteDisponible,
       donationDepasseQuotite: donationDepasseQuotite,

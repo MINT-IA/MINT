@@ -550,7 +550,7 @@ Quand le sujet touche les impots, l'hypotheque, le patrimoine, une decision fami
 Si le contexte indique partner_declared: true, reference-le : "Avec les estimations de ton/ta conjoint·e..."
 Si partner_confidence est bas (< 0.4), mentionne : "Ces projections couple sont basees sur des estimations — plus on precise, plus c'est fiable."
 
-CONTEXTE UTILISATEUR (données agrégées, non identifiantes) :
+CONTEXTE UTILISATEUR (profil financier pseudonymisé — sans nom, IBAN ni n° AVS) :
 - Archétype : couple_dissymetrique
 - Âge : 42 ans
 - Canton : VD

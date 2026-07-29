@@ -1,0 +1,459 @@
+{
+  "meta": {
+    "collected_at": "2026-07-23",
+    "profile": "célibataire, sans enfant, sans confession, sans fortune, chef-lieu",
+    "année_fiscale": "2026",
+    "méthode": "API officielle du simulateur ESTV (swisstaxcalculator.estv.admin.ch), endpoint API_calculateSimpleTaxes, TaxYear=2026, Relationship=1 (célibataire), Confession1=5 (sans confession — impôt d'église retourné = 0 sur les 35 points), fortune imposable = 0, revenu saisi = revenu IMPOSABLE (cantonal et fédéral identiques). 35/35 points vérifiés : cantonal+communal+taxe personnelle+église+IFD == total retourné par l'API.",
+    "convention": "cantonal_communal = impôt cantonal + impôt communal (chef-lieu) + taxe personnelle fixe éventuelle (ZH 24, LU 50, UR 70, NW 50 CHF) ; ifd = impôt fédéral direct ; total = cantonal_communal + ifd (impôt d'église = 0, profil sans confession)."
+  },
+  "cantons": {
+    "ZH": {
+      "chef_lieu": "Zurich",
+      "bfs_id": 261,
+      "estv_tax_location_id": 800000000,
+      "points": {
+        "40000": {
+          "cantonal_communal": 2975,
+          "ifd": 198,
+          "total": 3173,
+          "détail": {
+            "cantonal": 1310,
+            "communal": 1641,
+            "taxe_personnelle": 24,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 7586,
+          "ifd": 968,
+          "total": 8554,
+          "détail": {
+            "cantonal": 3357,
+            "communal": 4205,
+            "taxe_personnelle": 24,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 13228,
+          "ifd": 2684,
+          "total": 15912,
+          "détail": {
+            "cantonal": 5862,
+            "communal": 7342,
+            "taxe_personnelle": 24,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 23832,
+          "ifd": 7076,
+          "total": 30908,
+          "détail": {
+            "cantonal": 10569,
+            "communal": 13239,
+            "taxe_personnelle": 24,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 48497,
+          "ifd": 19503,
+          "total": 68000,
+          "détail": {
+            "cantonal": 21518,
+            "communal": 26955,
+            "taxe_personnelle": 24,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Zurich (BFS 261). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Taxe personnelle fixe incluse dans cantonal_communal: 24 CHF. Cross-check indépendant : multiplicateur cantonal ZH 2026 = 95% (baisse 98%→95% votée au Kantonsrat, SRF/Watson/20min) — cohérent avec le ratio impôt cantonal / impôt simple retourné par l'ESTV (0.95 exact)."
+    },
+    "LU": {
+      "chef_lieu": "Lucerne",
+      "bfs_id": 1061,
+      "estv_tax_location_id": 600000000,
+      "points": {
+        "40000": {
+          "cantonal_communal": 3410,
+          "ifd": 198,
+          "total": 3608,
+          "détail": {
+            "cantonal": 1680,
+            "communal": 1680,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 7760,
+          "ifd": 968,
+          "total": 8728,
+          "détail": {
+            "cantonal": 3855,
+            "communal": 3855,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 12110,
+          "ifd": 2684,
+          "total": 14794,
+          "détail": {
+            "cantonal": 6030,
+            "communal": 6030,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 19648,
+          "ifd": 7076,
+          "total": 26724,
+          "détail": {
+            "cantonal": 9799,
+            "communal": 9799,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 36020,
+          "ifd": 19503,
+          "total": 55523,
+          "détail": {
+            "cantonal": 17985,
+            "communal": 17985,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Lucerne (BFS 1061). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Taxe personnelle fixe incluse dans cantonal_communal: 50 CHF."
+    },
+    "UR": {
+      "chef_lieu": "Altdorf",
+      "bfs_id": 1201,
+      "estv_tax_location_id": 646000000,
+      "points": {
+        "40000": {
+          "cantonal_communal": 5608,
+          "ifd": 198,
+          "total": 5806,
+          "détail": {
+            "cantonal": 2840,
+            "communal": 2698,
+            "taxe_personnelle": 70,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 9762,
+          "ifd": 968,
+          "total": 10730,
+          "détail": {
+            "cantonal": 4970,
+            "communal": 4722,
+            "taxe_personnelle": 70,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 13915,
+          "ifd": 2684,
+          "total": 16599,
+          "détail": {
+            "cantonal": 7100,
+            "communal": 6745,
+            "taxe_personnelle": 70,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 20838,
+          "ifd": 7076,
+          "total": 27914,
+          "détail": {
+            "cantonal": 10650,
+            "communal": 10118,
+            "taxe_personnelle": 70,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 34683,
+          "ifd": 19503,
+          "total": 54186,
+          "détail": {
+            "cantonal": 17750,
+            "communal": 16863,
+            "taxe_personnelle": 70,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Altdorf (BFS 1201). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Taxe personnelle fixe incluse dans cantonal_communal: 70 CHF."
+    },
+    "SZ": {
+      "chef_lieu": "Schwyz",
+      "bfs_id": 1372,
+      "estv_tax_location_id": 643000000,
+      "points": {
+        "40000": {
+          "cantonal_communal": 2813,
+          "ifd": 198,
+          "total": 3011,
+          "détail": {
+            "cantonal": 1086,
+            "communal": 1727,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 5936,
+          "ifd": 968,
+          "total": 6904,
+          "détail": {
+            "cantonal": 2291,
+            "communal": 3645,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 9270,
+          "ifd": 2684,
+          "total": 11954,
+          "détail": {
+            "cantonal": 3578,
+            "communal": 5692,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 14828,
+          "ifd": 7076,
+          "total": 21904,
+          "détail": {
+            "cantonal": 5723,
+            "communal": 9105,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 25943,
+          "ifd": 19503,
+          "total": 45446,
+          "détail": {
+            "cantonal": 10013,
+            "communal": 15930,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Schwyz (BFS 1372). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Taxe personnelle fixe incluse dans cantonal_communal: 0 CHF."
+    },
+    "OW": {
+      "chef_lieu": "Sarnen",
+      "bfs_id": 1407,
+      "estv_tax_location_id": 606000000,
+      "points": {
+        "40000": {
+          "cantonal_communal": 5119,
+          "ifd": 198,
+          "total": 5317,
+          "détail": {
+            "cantonal": 2340,
+            "communal": 2779,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 8959,
+          "ifd": 968,
+          "total": 9927,
+          "détail": {
+            "cantonal": 4095,
+            "communal": 4864,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 12798,
+          "ifd": 2684,
+          "total": 15482,
+          "détail": {
+            "cantonal": 5850,
+            "communal": 6948,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 19197,
+          "ifd": 7076,
+          "total": 26273,
+          "détail": {
+            "cantonal": 8775,
+            "communal": 10422,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 31995,
+          "ifd": 19503,
+          "total": 51498,
+          "détail": {
+            "cantonal": 14625,
+            "communal": 17370,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Sarnen (BFS 1407). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Taxe personnelle fixe incluse dans cantonal_communal: 0 CHF."
+    },
+    "NW": {
+      "chef_lieu": "Stans",
+      "bfs_id": 1509,
+      "estv_tax_location_id": 637000000,
+      "points": {
+        "40000": {
+          "cantonal_communal": 3220,
+          "ifd": 198,
+          "total": 3418,
+          "détail": {
+            "cantonal": 1668,
+            "communal": 1502,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 7634,
+          "ifd": 968,
+          "total": 8602,
+          "détail": {
+            "cantonal": 3991,
+            "communal": 3593,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 12191,
+          "ifd": 2684,
+          "total": 14875,
+          "détail": {
+            "cantonal": 6389,
+            "communal": 5752,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 20054,
+          "ifd": 7076,
+          "total": 27130,
+          "détail": {
+            "cantonal": 10526,
+            "communal": 9478,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 34130,
+          "ifd": 19503,
+          "total": 53633,
+          "détail": {
+            "cantonal": 17933,
+            "communal": 16147,
+            "taxe_personnelle": 50,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Stans (BFS 1509). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Taxe personnelle fixe incluse dans cantonal_communal: 50 CHF."
+    },
+    "GL": {
+      "chef_lieu": "Glaris",
+      "bfs_id": 1632,
+      "estv_tax_location_id": 875000000,
+      "points": {
+        "40000": {
+          "cantonal_communal": 3790,
+          "ifd": 198,
+          "total": 3988,
+          "détail": {
+            "cantonal": 1875,
+            "communal": 1915,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "70000": {
+          "cantonal_communal": 8942,
+          "ifd": 968,
+          "total": 9910,
+          "détail": {
+            "cantonal": 4423,
+            "communal": 4519,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "100000": {
+          "cantonal_communal": 14373,
+          "ifd": 2684,
+          "total": 17057,
+          "détail": {
+            "cantonal": 7109,
+            "communal": 7264,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "150000": {
+          "cantonal_communal": 23990,
+          "ifd": 7076,
+          "total": 31066,
+          "détail": {
+            "cantonal": 11866,
+            "communal": 12124,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        },
+        "250000": {
+          "cantonal_communal": 45027,
+          "ifd": 19503,
+          "total": 64530,
+          "détail": {
+            "cantonal": 22271,
+            "communal": 22756,
+            "taxe_personnelle": 0,
+            "église": 0
+          }
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "Simulateur fiscal officiel ESTV, année fiscale 2026, commune Glaris (BFS 1632). Valeurs collectées le 2026-07-23 via l'API du simulateur (35 requêtes brutes archivées). Taxe personnelle fixe incluse dans cantonal_communal: 0 CHF."
+    }
+  }
+}

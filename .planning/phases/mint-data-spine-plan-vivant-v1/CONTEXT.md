@@ -1,5 +1,7 @@
 # Phase mint-data-spine-plan-vivant-v1: Context
 
+> **Statut : CLOS 2026-07-29** — supersedé par la décision spine 2026-07-21 (dev = spine produit) : `data_spine_snapshot.dart` tourne sur dev. Réconciliation plans 2026-07-29.
+
 **Gathered:** 2026-05-23
 **Status:** Ready for planning and execution
 

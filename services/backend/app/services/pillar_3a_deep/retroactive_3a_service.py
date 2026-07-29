@@ -1,16 +1,24 @@
 """
-Retroactive 3a catch-up calculator (NEW 2026 law).
+Retroactive 3a catch-up calculator (réforme OPP3 art. 7a, en vigueur 2025-01-01).
 
-Starting 2026, individuals can contribute retroactively to Pillar 3a
-for up to 10 years of missed contributions (OPP3 art. 7 amendment).
-All retroactive amounts are tax-deductible in the year of contribution.
+Depuis le 01.01.2025, on peut combler rétroactivement les lacunes de cotisation
+au pilier 3a, mais uniquement pour les années >= 2025 (les lacunes antérieures
+sont définitivement perdues), dans une fenêtre de 10 ans. Le premier rachat est
+possible en 2026 (pour l'année 2025). Le montant du rachat rétroactif payable au
+cours d'UNE année civile est plafonné au « petit » maximum 3a (CHF 7'258 en
+2025/2026), identique que l'on soit affilié LPP ou indépendant sans LPP
+(asymétrie documentée de la réforme). Le rachat suppose un revenu soumis AVS
+l'année de la lacune et que le maximum 3a ordinaire de l'année courante soit déjà
+versé.
 
 Sources:
-    - OPP3 art. 7 (2026 amendment) — retroactive catch-up rules
-    - LIFD art. 33 al. 1 let. e — tax deductibility of 3a contributions
-    - OFAS annual publications — historical 3a limits
+    - OPP3 art. 7a (en vigueur 2025-01-01) — rachat rétroactif
+    - LIFD art. 33 al. 1 let. e — déductibilité fiscale des cotisations 3a
+    - BSV/OFAS, publications annuelles — plafonds 3a historiques
 
-Sprint S52 — 3a Retroactif.
+Sprint S52 — 3a Retroactif. Doctrine corrigée : MINT_nosync-cli (audit 2026-07).
+Avant correction, le service sommait 10 plafonds 2016-2025 (~68'863 CHF pour un
+profil 10 ans), sur-estimant d'un facteur ~9.5.
 """
 
 from dataclasses import dataclass, field
@@ -21,34 +29,41 @@ from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_SANS_LPP,
 )
 
-# ── Historical 3a limits (CHF) by year ──────────────────────────────
-# Source: OFAS annual publications, OPP3 art. 7
+# ── Plafonds « petit » 3a (CHF) par année ───────────────────────────
+# Source: BSV/OFAS, publications annuelles.
+# Audit -zaw 2026-07-23 : années de bascule corrigées sur table croisée
+# (finpension / Canton de Berne / CS) — l'ancienne table décalait les
+# bascules (2023 portait 6'883 au lieu de 7'056, 2021/22 portaient 6'826
+# au lieu de 6'883, 2018 portait 6'826 au lieu de 6'768).
 HISTORICAL_3A_LIMITS: dict[int, float] = {
     2026: 7_258.0,
     2025: 7_258.0,
     2024: 7_056.0,
-    2023: 6_883.0,
-    2022: 6_826.0,
-    2021: 6_826.0,
+    2023: 7_056.0,
+    2022: 6_883.0,
+    2021: 6_883.0,
     2020: 6_826.0,
     2019: 6_826.0,
-    2018: 6_826.0,
+    2018: 6_768.0,
     2017: 6_768.0,
     2016: 6_768.0,
 }
 
 MAX_RETROACTIVE_YEARS = 10
+# Réforme OPP3 art. 7a : seules les lacunes >= 2025 sont rachetables.
+RETRO_3A_FIRST_ELIGIBLE_GAP_YEAR = 2025
 
 DISCLAIMER = (
-    "Outil \u00e9ducatif\u00a0\u2014 ne constitue pas un conseil fiscal (LSFin). "
-    "Le rattrapage 3a est disponible d\u00e8s 2026 (OPP3 art. 7). "
-    "L'\u00e9conomie fiscale d\u00e9pend de ton taux marginal r\u00e9el."
+    "Outil éducatif — ne constitue pas un conseil fiscal (LSFin). "
+    "Le rachat 3a rétroactif (OPP3 art. 7a, en vigueur depuis 2025) comble "
+    "les lacunes dès 2025, plafonné au petit maximum 3a par année "
+    "civile. L'économie fiscale dépend de ton taux marginal réel."
 )
 
 SOURCES = [
-    "OPP3 art. 7 (amendement 2026)",
+    "OPP3 art. 7a (en vigueur 2025-01-01)",
     "LIFD art. 33 al. 1 let. e",
-    "Plafonds annuels OFAS",
+    "Plafonds annuels BSV/OFAS",
 ]
 
 
@@ -74,6 +89,12 @@ class Retroactive3aResult:
     sources: List[str] = field(default_factory=lambda: list(SOURCES))
 
 
+def _petit_max_for_year(year: int) -> float:
+    """Petit plafond 3a (avec LPP) de l'année — plafond légal du rachat
+    rétroactif payable en une année civile, identique avec ou sans LPP."""
+    return HISTORICAL_3A_LIMITS.get(year, PILIER_3A_PLAFOND_AVEC_LPP)
+
+
 def calculate_retroactive_3a(
     gap_years: int,
     taux_marginal: float,
@@ -83,74 +104,85 @@ def calculate_retroactive_3a(
 ) -> Retroactive3aResult:
     """Calculate retroactive 3a catch-up contribution impact.
 
+    Doctrine (OPP3 art. 7a) : seules les lacunes >= 2025 sont rachetables, dans
+    une fenêtre de 10 ans ; le total rétroactif payable en ``reference_year`` est
+    plafonné à un « petit » maximum 3a, avec ou sans LPP.
+
     Args:
-        gap_years: Number of years to catch up (1-10).
-        taux_marginal: Marginal tax rate (0.0-1.0).
-        has_lpp: Whether the user is affiliated with LPP (affects limits).
-        revenu_net_annuel: Only used when has_lpp is False (20% income cap).
-        reference_year: Year of retroactive contribution (default 2026).
+        gap_years: Nombre d'années de lacune demandées (borné aux années éligibles).
+        taux_marginal: Taux marginal (0.0-1.0), clampé à 0.60.
+        has_lpp: Affiliation LPP — n'affecte QUE la cotisation courante, pas le rachat.
+        revenu_net_annuel: Utilisé seulement sans LPP (cap 20% sur l'année courante).
+        reference_year: Année du rachat (défaut 2026).
 
     Returns:
-        Retroactive3aResult with full breakdown and premier éclairage.
+        Retroactive3aResult avec le breakdown et le premier éclairage.
     """
-    effective_gap = max(1, min(gap_years, MAX_RETROACTIVE_YEARS))
-    # Clamp taux marginal to valid range to prevent absurd results.
     effective_taux = max(0.0, min(taux_marginal, 0.60))
 
-    breakdown: list[YearlyRetroactiveEntry] = []
-    total_retroactive = 0.0
-
-    taux_revenu_sans_lpp = 0.20  # 20% of net income (OPP3)
-
-    for i in range(1, effective_gap + 1):
-        year = reference_year - i
-        base_limit = HISTORICAL_3A_LIMITS.get(year, 6_768.0)
-
-        if has_lpp:
-            limit = base_limit
-        else:
-            # Grand 3a (sans LPP): scale to grand equivalent for that year.
-            ratio = PILIER_3A_PLAFOND_SANS_LPP / PILIER_3A_PLAFOND_AVEC_LPP
-            grand_limit_for_year = base_limit * ratio
-            if revenu_net_annuel is not None:
-                # Apply the 20% income rule: min(20% income, grand limit).
-                limit = min(
-                    max(0.0, revenu_net_annuel * taux_revenu_sans_lpp),
-                    grand_limit_for_year,
-                )
-            else:
-                # No income provided — use the max grand limit (conservative).
-                limit = grand_limit_for_year
-
-        total_retroactive += limit
-        breakdown.append(YearlyRetroactiveEntry(year=year, limit=limit))
-
-    # Current year contribution (separate from retroactive)
+    # ── Cotisation ordinaire de l'année courante (séparée du rachat) ──
     if has_lpp:
         current_year_limit = PILIER_3A_PLAFOND_AVEC_LPP
     elif revenu_net_annuel is not None:
         current_year_limit = min(
-            max(0.0, revenu_net_annuel * taux_revenu_sans_lpp),
+            max(0.0, revenu_net_annuel * 0.20),
             PILIER_3A_PLAFOND_SANS_LPP,
         )
     else:
         current_year_limit = PILIER_3A_PLAFOND_SANS_LPP
-    total_contribution = total_retroactive + current_year_limit
 
-    # Tax savings: all retroactive amounts deductible in reference year
+    # ── Années de lacune ÉLIGIBLES pour un rachat effectué en reference_year ──
+    # Seulement >= 2025 (réforme) et dans la fenêtre de 10 ans.
+    earliest = max(
+        RETRO_3A_FIRST_ELIGIBLE_GAP_YEAR, reference_year - MAX_RETROACTIVE_YEARS
+    )
+    # gap_years <= 0 = aucune lacune déclarée -> aucun rachat (ne pas fabriquer
+    # une lacune ; défaut hérité de S52, relevé par la review Codex de la parité
+    # Dart, MINT_nosync-i0v).
+    requested = [reference_year - i for i in range(1, gap_years + 1)]
+    eligible = sorted(
+        {y for y in requested if earliest <= y <= reference_year - 1}
+    )  # ascendant = lacunes les plus anciennes d'abord (fenêtre 10 ans)
+
+    # ── Rachat rétroactif : plafonné au petit max TOTAL sur l'année civile ──
+    annual_cap = _petit_max_for_year(reference_year)
+    # Sans LPP à revenu nul : aucune capacité de rachat (pas de revenu à cotiser).
+    if not has_lpp and revenu_net_annuel is not None and current_year_limit <= 0:
+        annual_cap = 0.0
+
+    breakdown: list[YearlyRetroactiveEntry] = []
+    total_retroactive = 0.0
+    for year in eligible:  # plus anciennes d'abord (proches de sortir de la fenêtre)
+        if total_retroactive >= annual_cap:
+            break
+        room = annual_cap - total_retroactive
+        amount = min(_petit_max_for_year(year), room)
+        if amount <= 0:
+            continue
+        total_retroactive += amount
+        breakdown.append(YearlyRetroactiveEntry(year=year, limit=round(amount, 2)))
+    breakdown = list(reversed(breakdown))  # affichage : plus récentes d'abord
+
+    total_contribution = total_retroactive + current_year_limit
     economies_fiscales = total_retroactive * effective_taux
 
-    # Chiffre choc
+    n = len(breakdown)
     savings_formatted = _format_chf(economies_fiscales)
-    plural = "s" if effective_gap > 1 else ""
-    premier_eclairage = (
-        f"Tu peux rattraper {effective_gap}\u00a0an{plural} "
-        f"d'\u00e9pargne 3a et \u00e9conomiser {savings_formatted} "
-        f"d'imp\u00f4ts en {reference_year}."
-    )
+    if n == 0:
+        premier_eclairage = (
+            f"En {reference_year}, aucune année de lacune 3a n'est encore "
+            f"rachetable (le rachat rétroactif s'applique aux lacunes dès "
+            f"2025)."
+        )
+    else:
+        plural = "s" if n > 1 else ""
+        premier_eclairage = (
+            f"Tu peux rattraper {n} an{plural} d'épargne 3a et "
+            f"économiser {savings_formatted} d'impôts en {reference_year}."
+        )
 
     return Retroactive3aResult(
-        gap_years=effective_gap,
+        gap_years=n,
         total_retroactive=round(total_retroactive, 2),
         total_current_year=round(current_year_limit, 2),
         total_contribution=round(total_contribution, 2),
@@ -163,5 +195,5 @@ def calculate_retroactive_3a(
 def _format_chf(amount: float) -> str:
     """Format CHF amount with Swiss apostrophe thousands separator."""
     rounded = round(amount)
-    formatted = f"{rounded:,}".replace(",", "\u2019")
-    return f"CHF\u00a0{formatted}"
+    formatted = f"{rounded:,}".replace(",", "’")
+    return f"CHF {formatted}"

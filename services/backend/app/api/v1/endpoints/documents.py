@@ -1259,6 +1259,24 @@ async def extract_with_claude_vision(
                         "declarationEndpoint": "/api/v1/consents/grant-nominative",
                     },
                 )
+            # Gate passe (doc declare ou non-tiers). Les docs flagges tiers ne
+            # sont persistes qu'ICI, apres validation de la declaration —
+            # plus jamais avant le gate (audit T06-F10, MINT_nosync-tih).
+            if result.third_party_detected:
+                from app.services.document_vision_service import (
+                    persist_document_memory,
+                )
+                # Review Codex PR #975 : endpoint ASYNC — flag résolu en
+                # await via le helper partagé (pont sync inutilisable).
+                from app.services.document_vision_service import (
+                    resolve_privacy_encryption_flag,
+                )
+                persist_document_memory(
+                    db, str(current_user.id), result,
+                    use_encryption=await resolve_privacy_encryption_flag(
+                        str(current_user.id)
+                    ),
+                )
             return result
         except HTTPException:
             raise

@@ -1,6 +1,8 @@
+import 'dart:convert' show jsonEncode;
 import 'dart:math' show pow;
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +13,11 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/services/financial_core/money_truth_receipt.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart'
+    show EnhancedConfidence;
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart'
+    show MintTrameConfiance, BloomStrategy;
 import 'package:mint_mobile/widgets/educational/salary_breakdown_widget.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/coach/first_salary_film_widget.dart';
@@ -23,6 +30,8 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/services/coach/money_truth_receipt_api_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -33,7 +42,11 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 // ────────────────────────────────────────────────────────────
 
 class FirstJobScreen extends StatefulWidget {
-  const FirstJobScreen({super.key});
+  const FirstJobScreen({super.key, this.receiptApi});
+
+  /// PR-E (E2) — service de store du MoneyTruthReceipt, injectable pour les
+  /// tests (mock du POST). Null en prod -> instance par défaut.
+  final MoneyTruthReceiptApiService? receiptApi;
 
   @override
   State<FirstJobScreen> createState() => _FirstJobScreenState();
@@ -50,7 +63,39 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   String _canton = 'ZH';
   double _tauxActivite = 100;
   FirstJobResult? _result;
-  bool _seededFromProfile = false;
+
+  // PR-C — appareil de lucidité sur la sortie chiffrée. Le receipt (PR-B)
+  // enveloppe le net L1 avec sa provenance (bande d'incertitude, confiance,
+  // sources datées). Émis symétriquement à `_result` : présent seulement quand
+  // le gate est complet, nul sinon (aucune provenance sur un chiffre gaté).
+  MoneyTruthReceipt? _receipt;
+
+  // Disclosure « pourquoi ce chiffre » : replié par défaut (détail progressif).
+  bool _whyNetExpanded = false;
+
+  // ── P2 « gate dur » : provenance par fait, ré-évaluée à chaque notify ──
+  // Un fait de SITUATION n'est CONFIRMÉ que s'il vient des données réelles :
+  // soit amorcé depuis un champ profil réellement fourni
+  // (`userProvidedFields`), soit touché par l'utilisateur. Une valeur égale à
+  // un défaut fabriqué reste ASSUMED (jamais confirmée). Pas de latch global
+  // `_seededFromProfile` : `loadFromWizard` notifie plusieurs fois
+  // (cache→frais→fusionné) ; un latch au 1er notify échouerait un champ dont la
+  // donnée arrive au notify suivant.
+  CoachProfileProvider? _profileProvider;
+  bool _salaireTouched = false;
+  bool _salaireSeeded = false; // provenance = userProvidedFields('salary').
+  bool _ageTouched = false;
+  bool _ageSeeded = false; // provenance = userProvidedFields('age'), 18-30 only.
+  bool _cantonTouched = false;
+  bool _cantonSeeded = false; // provenance = userProvidedFields('canton').
+
+  // Baseline pour l'annonce VoiceOver incomplet→complet.
+  bool _lastGateComplete = false;
+
+  // Anchors pour scroll-to-first-missing quand la situation est incomplète.
+  final _salaireKey = GlobalKey();
+  final _ageKey = GlobalKey();
+  final _cantonKey = GlobalKey();
 
   // Checklist tracking
   final Set<int> _checkedItems = {};
@@ -88,7 +133,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   @override
   void initState() {
     super.initState();
-    _calculate();
+    // Gate dur : au 1er frame rien n'est confirmé → aucun résultat fabriqué.
+    _computeResult();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
     });
@@ -133,32 +179,322 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
   }
 
+  /// P2 (zéro donnée inventée) : on s'abonne au provider car `loadFromWizard()`
+  /// hydrate le profil de façon asynchrone (l'écran peut être monté avant
+  /// l'arrivée des données). Un champ édité (touched) n'est jamais réécrasé par
+  /// une hydratation tardive ; un champ absent garde son défaut éditable mais
+  /// reste non confirmé → gaté.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_seededFromProfile) return;
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
-    final age = profile.ageOrNull;
-    if (age == null || age > 30) return;
-    _seededFromProfile = true;
-    setState(() {
-      _salaire = profile.salaireBrutMensuel.clamp(2000, 15000);
-      _age = age.clamp(18, 30);
-      if (profile.canton.isNotEmpty) _canton = profile.canton;
-    });
-    _calculate();
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
+    }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+    // Baseline APRÈS le seed : pas d'annonce parasite si le profil confirme
+    // déjà tout au premier build.
+    _lastGateComplete = _situationGate(context).complete;
   }
 
-  void _calculate() {
-    setState(() {
-      _result = FirstJobService.analyzeSalary(
-        salaireBrutMensuel: _salaire,
-        age: _age,
-        canton: _canton,
-        tauxActivite: _tauxActivite,
+  /// Seed provenance-gaté, rejoué à CHAQUE notify (aucun latch global).
+  /// Un champ n'est amorcé — et donc confirmé — que si sa provenance est réelle :
+  /// une clé `userProvidedFields`, jamais valeur≠défaut. L'âge n'est amorcé que
+  /// dans la plage du slider (18-30, intention premier emploi) ; hors plage il
+  /// reste non confirmé → gaté, et sa valeur ne sort jamais des bornes du slider
+  /// (pas d'assert).
+  void _seedFromProfile() {
+    final profile = _profileProvider?.profile;
+    var changed = false;
+
+    if (profile == null) {
+      // Profil absent : pas encore hydraté (le listener rejouera) ou effacé
+      // (logout / reset) pendant que l'écran est monté. La provenance issue du
+      // profil disparaît : les faits seededFromProfile retombent à non
+      // confirmés (un fait TOUCHÉ reste une donnée user et survit). Tout
+      // résultat qui reposait sur un fait seedé est invalidé — aucun chiffre ne
+      // survit à sa source.
+      if (_salaireSeeded) {
+        _salaireSeeded = false;
+        changed = true;
+      }
+      if (_ageSeeded) {
+        _ageSeeded = false;
+        changed = true;
+      }
+      if (_cantonSeeded) {
+        _cantonSeeded = false;
+        changed = true;
+      }
+      _finishSeed(changed);
+      return;
+    }
+
+    // Salaire : clé 'salary'.
+    if (!_salaireTouched) {
+      // La clé seule ne suffit PAS : il faut aussi que la valeur tienne dans la
+      // plage du contrôle. Sans ce second test, un salaire à 0 portant la clé
+      // passait par `clamp(2000, 15000)` et ressortait à CHF 2'000 — un montant
+      // que l'utilisateur n'a jamais saisi, déclaré « confirmé », et sur lequel
+      // la décomposition du salaire se calculait.
+      //
+      // Le clamp EST la fabrication : borner une valeur hors plage produit un
+      // chiffre inventé, en bas comme en haut. Un salaire réel de 20'000
+      // afficherait 15'000, ce qui n'est pas davantage défendable. Hors plage
+      // ⇒ non amorcé ⇒ le gate demande la saisie.
+      final raw = profile.salaireBrutMensuel;
+      final inRange = raw >= 2000.0 && raw <= 15000.0;
+      final seeded = profile.userProvidedFields.contains('salary') && inRange;
+      if (_salaireSeeded != seeded) {
+        _salaireSeeded = seeded;
+        changed = true;
+      }
+      if (seeded && raw != _salaire) {
+        _salaire = raw;
+        changed = true;
+      }
+    }
+
+    // Âge : clé 'age', amorcé seulement dans la plage du slider (18-30).
+    if (!_ageTouched) {
+      final age = profile.ageOrNull;
+      final inRange = age != null && age >= 18 && age <= 30;
+      final valid = profile.userProvidedFields.contains('age') && inRange;
+      if (_ageSeeded != valid) {
+        _ageSeeded = valid;
+        changed = true;
+      }
+      if (valid && age != _age) {
+        _age = age;
+        changed = true;
+      }
+    }
+
+    // Canton : clé 'canton'.
+    if (!_cantonTouched) {
+      final c = profile.canton;
+      final valid = profile.userProvidedFields.contains('canton') &&
+          c.isNotEmpty &&
+          c != 'unknown' &&
+          _cantons.contains(c);
+      if (_cantonSeeded != valid) {
+        _cantonSeeded = valid;
+        changed = true;
+      }
+      if (valid && c != _canton) {
+        _canton = c;
+        changed = true;
+      }
+    }
+
+    _finishSeed(changed);
+  }
+
+  /// Tail commun du seed. Rejoué à CHAQUE notify du provider : si un fait de
+  /// situation a bougé on recalcule le résultat, sinon on force quand même un
+  /// rebuild. Sans ce rebuild inconditionnel, les lectures faites au build qui
+  /// ne dépendent PAS des faits gatés — la fin d'hydratation (`_isHydrating`,
+  /// borne le spinner) et l'avoir LPP antérieur (`prevoyance.avoirLppTotal`,
+  /// cohérence checklist) — resteraient périmées jusqu'à la prochaine
+  /// interaction (un avoir LPP arrivé APRÈS le gate n'ajouterait pas ses items).
+  void _finishSeed(bool changed) {
+    if (changed) {
+      _calculate();
+    } else if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
+    super.dispose();
+  }
+
+  // ── P2 provenance getters (live, non-latching) ──
+  FactProvenance get _salaireProvenance => _salaireTouched
+      ? FactProvenance.touched
+      : (_salaireSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _ageProvenance => _ageTouched
+      ? FactProvenance.touched
+      : (_ageSeeded ? FactProvenance.seededFromProfile : FactProvenance.assumed);
+
+  FactProvenance get _cantonProvenance => _cantonTouched
+      ? FactProvenance.touched
+      : (_cantonSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  /// Le badge « profil » s'affiche dès qu'un fait vient réellement du profil.
+  bool get _seededFromProfile =>
+      _salaireSeeded || _ageSeeded || _cantonSeeded;
+
+  // ── Gate (sortie unique = la décomposition du salaire) ──
+  // Faits déterminants : salaire (le chiffre), âge (seuil LPP obligatoire à
+  // 25 ans), canton (fiscalité / déductions cantonales). Le taux d'activité est
+  // un paramètre de SCÉNARIO → non gaté, mais l'éditer invalide le résultat.
+  SituationGate _situationGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'salary',
+          label: (c) => S.of(c)!.firstJobGateFactSalaire,
+          why: (c) => S.of(c)!.firstJobGateWhySalaire,
+          provenance: _salaireProvenance,
+          onComplete: () => _scrollToKey(_salaireKey),
+        ),
+        SituationFact(
+          key: 'age',
+          label: (c) => S.of(c)!.firstJobGateFactAge,
+          why: (c) => S.of(c)!.firstJobGateWhyAge,
+          provenance: _ageProvenance,
+          onComplete: () => _scrollToKey(_ageKey),
+        ),
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.firstJobGateFactCanton,
+          why: (c) => S.of(c)!.firstJobGateWhyCanton,
+          provenance: _cantonProvenance,
+          onComplete: () => _scrollToKey(_cantonKey),
+        ),
+      ]);
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
       );
-    });
+    }
+  }
+
+  /// Calcule le résultat SEULEMENT si le gate est complet (compute-time gate).
+  /// Sinon aucun chiffre : le slot résultat affiche la carte de situation à la
+  /// place. Un résultat n'existe donc jamais sur un défaut fabriqué.
+  void _computeResult() {
+    final complete = _situationGate(context).complete;
+    _result = complete
+        ? FirstJobService.analyzeSalary(
+            salaireBrutMensuel: _salaire,
+            age: _age,
+            canton: _canton,
+            tauxActivite: _tauxActivite,
+          )
+        : null;
+    // Receipt émis dans les MÊMES conditions que `_result` : jamais de
+    // provenance sur un chiffre gaté. `etatCivil` vient du profil réel (défaut
+    // célibataire si absent — le gate peut se compléter par TOUCHE sans profil,
+    // `first_job_gate_test`), n'affecte pas le net mais garde le receipt fidèle.
+    _receipt = complete
+        ? FirstJobService.buildNetSalaryReceipt(
+            salaireBrutMensuel: _salaire,
+            age: _age,
+            canton: _canton,
+            tauxActivite: _tauxActivite,
+            etatCivil: _profileProvider?.profile?.etatCivil.name ?? 'celibataire',
+          )
+        : null;
+  }
+
+  /// Recalcule + rebuild, SANS annonce (seed profil, ou édition d'un paramètre
+  /// de scénario comme le taux d'activité). Toute entrée qui bouge invalide
+  /// d'abord le résultat : aucun chiffre périmé ne survit à une entrée modifiée.
+  void _calculate() {
+    _computeResult();
+    _lastGateComplete = _situationGate(context).complete;
+    if (mounted) setState(() {});
+  }
+
+  /// L'utilisateur a édité un fait de SITUATION déterminant (salaire, âge,
+  /// canton) : recalcule et annonce le passage incomplet→complet pour VoiceOver
+  /// (le scroll ≠ déplacement de focus).
+  void _afterSituationFactChanged() {
+    final wasComplete = _lastGateComplete;
+    _computeResult();
+    final nowComplete = _situationGate(context).complete;
+    if (nowComplete && !wasComplete) {
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        S.of(context)!.firstJobGateAnnounceComplete,
+        Directionality.of(context),
+      );
+    }
+    _lastGateComplete = nowComplete;
+    if (mounted) setState(() {});
+  }
+
+  /// @visibleForTesting : entrées consommées par analyzeSalary (preuve P2).
+  @visibleForTesting
+  double get debugSalaire => _salaire;
+  @visibleForTesting
+  int get debugAge => _age;
+  @visibleForTesting
+  String get debugCanton => _canton;
+  @visibleForTesting
+  double get debugTaux => _tauxActivite;
+
+  /// @visibleForTesting : contrat de retour — une vraie interaction utilisateur
+  /// doit émettre `completed`, jamais `abandoned`. Une régression du seul
+  /// « le scénario de salaire ne pose pas ce drapeau » suffit à casser le
+  /// contrat même quand le résultat s'affiche.
+  @visibleForTesting
+  bool get debugHasUserInteracted => _hasUserInteracted;
+
+  /// @visibleForTesting : émet le retour final avec un contexte de séquence
+  /// injecté (sans passer par GoRouter), pour prouver `completed` vs
+  /// `abandoned` selon l'interaction réelle.
+  @visibleForTesting
+  void debugEmitFinalReturn({required String runId, required String stepId}) {
+    _seqRunId = runId;
+    _seqStepId = stepId;
+    _emitFinalReturn();
+  }
+
+  /// PR-F (SPEC §2.3) — le profil s'hydrate encore et rien n'est confirmé.
+  /// Seulement pertinent quand un provider existe (en prod / tests intégrés) ;
+  /// dans les tests unitaires isolés `_profileProvider` est nul → jamais de
+  /// spinner. Le net first-job est L1 (local, synchrone) : ce chargement porte
+  /// sur la RÉSOLUTION DU PROFIL, pas sur un appel réseau.
+  bool _isHydrating() =>
+      (_profileProvider?.isLoading ?? false) ||
+      (_profileProvider?.isHydrating ?? false);
+
+  /// Indicateur de chargement du slot résultat (motif spinner `success` de
+  /// `aujourdhui_screen`). Réutilise la chaîne existante `loadingPremierEclairage`.
+  Widget _buildHydratingIndicator() {
+    return MintEntrance(
+      child: Semantics(
+        identifier: 'firstjob-loading',
+        container: true,
+        label: S.of(context)!.loadingPremierEclairage,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: MintSpacing.xl),
+          child: Column(
+            children: [
+              const CircularProgressIndicator(color: MintColors.success),
+              const SizedBox(height: MintSpacing.md),
+              Text(
+                S.of(context)!.loadingPremierEclairage,
+                style:
+                    MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -167,7 +503,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturn();
       },
-      child: Scaffold(
+      // ILLOG-02 : conteneur Semantics racine (motif rente_vs_capital) sinon le
+      // pont AX iOS effondre toute la route en un seul nœud (« 1 element »).
+      child: Semantics(
+        identifier: 'first_job_screen',
+        container: true,
+        explicitChildNodes: true,
+        child: Scaffold(
           backgroundColor: MintColors.background,
           body: Center(
               child: ConstrainedBox(
@@ -205,8 +547,25 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                 delay: const Duration(milliseconds: 400),
                                 child: _buildCantonAndActivity()),
                             const SizedBox(height: MintSpacing.lg),
-                            if (_result != null) ...[
+                            // Gate dur : la décomposition (et tous les chiffres
+                            // qui en dérivent) ne s'affiche que si les faits
+                            // déterminants sont confirmés. Sinon la carte de
+                            // situation prend sa place dans le slot résultat.
+                            if (_result != null &&
+                                _situationGate(context).complete) ...[
                               _buildPremierEclairage(),
+                              const SizedBox(height: MintSpacing.md),
+                              // PR-C — appareil de lucidité sur le NET : ancre du
+                              // net + bande d'incertitude + confiance + millésime
+                              // + « pourquoi ce chiffre ». Rendu sous le MÊME gate
+                              // que le résultat : jamais de net sans l'appareil.
+                              _buildLuciditeAppareil(),
+                              const SizedBox(height: MintSpacing.lg),
+                              // Tranche firstJob PR-E (E2) — handoff coach : le
+                              // CTA émet le MoneyTruthReceipt du net (MÊME
+                              // chiffre que l'écran) et navigue vers /coach/chat
+                              // en portant receiptId + inputsHash (RED-2 / §1 T5).
+                              _buildAskCoachCta(),
                               const SizedBox(height: MintSpacing.lg),
                               SalaryBreakdownWidget(
                                 brut: _result!.brut,
@@ -217,43 +576,75 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               ),
                               const SizedBox(height: MintSpacing.lg),
                               PayslipXRayWidget(
-                                grossSalary: _salaire,
-                                netSalary: _salaire * 0.76,
-                                employerHiddenCost: _salaire * 1.13,
+                                // Toutes les valeurs proviennent de `_result!`
+                                // (étalon `FirstJobService.analyzeSalary`) : un
+                                // seul net sur l'écran, aucun ratio fabriqué.
+                                grossSalary: _result!.brut,
+                                netSalary: _result!.netEstime,
+                                // `cotisationsEmployeur` = charges employeur EN
+                                // PLUS du brut ; le widget affiche « ton vrai
+                                // salaire » = coût total employeur = brut +
+                                // charges.
+                                employerHiddenCost: _result!.brut +
+                                    _result!.cotisationsEmployeur,
                                 deductions: [
                                   PayslipLine(
                                     label:
                                         S.of(context)!.firstJobPayslipAvsLabel,
                                     emoji: '\u{1F6E1}\u{FE0F}',
-                                    amount: _salaire * 0.053,
-                                    percentage: 5.3,
+                                    amount: _result!.avsAiApg,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.avsAiApg /
+                                            _result!.brut *
+                                            100
+                                        : 0,
                                     explanation: S
                                         .of(context)!
                                         .firstJobPayslipAvsExplanation,
-                                    legalRef: 'LAVS art. 5',
+                                    legalRef:
+                                        'LAVS art. 5 · LAI art. 3 · LAPG art. 27',
+                                  ),
+                                  PayslipLine(
+                                    label:
+                                        S.of(context)!.firstJobPayslipAcLabel,
+                                    emoji: '\u{1F4BC}',
+                                    amount: _result!.ac,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.ac / _result!.brut * 100
+                                        : 0,
+                                    explanation: S
+                                        .of(context)!
+                                        .firstJobPayslipAcExplanation,
+                                    legalRef: 'LACI art. 3',
+                                  ),
+                                  PayslipLine(
+                                    label: S
+                                        .of(context)!
+                                        .firstJobPayslipAanpLabel,
+                                    emoji: '\u{1FA79}',
+                                    amount: _result!.aanp,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.aanp / _result!.brut * 100
+                                        : 0,
+                                    explanation: S
+                                        .of(context)!
+                                        .firstJobPayslipAanpExplanation,
+                                    legalRef: 'LAA art. 91',
                                   ),
                                   PayslipLine(
                                     label:
                                         S.of(context)!.firstJobPayslipLppLabel,
                                     emoji: '\u{1F3E6}',
-                                    amount: _salaire * 0.08,
-                                    percentage: 8.0,
+                                    amount: _result!.lppEmploye,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.lppEmploye /
+                                            _result!.brut *
+                                            100
+                                        : 0,
                                     explanation: S
                                         .of(context)!
                                         .firstJobPayslipLppExplanation,
                                     legalRef: 'LPP art. 16',
-                                  ),
-                                  PayslipLine(
-                                    label: S
-                                        .of(context)!
-                                        .firstJobPayslipImpotLabel,
-                                    emoji: '\u{1F3DB}\u{FE0F}',
-                                    amount: _salaire * 0.09,
-                                    percentage: 9.0,
-                                    explanation: S
-                                        .of(context)!
-                                        .firstJobPayslipImpotExplanation,
-                                    legalRef: 'LIFD art. 83',
                                   ),
                                 ],
                               ),
@@ -269,36 +660,54 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               Builder(
                                 builder: (ctx) {
                                   final l = S.of(ctx)!;
+                                  // Cohérence « premier » emploi (SPEC §2.3.4) :
+                                  // les items 1-2 (certificat LPP de l'employeur,
+                                  // transfert de l'ANCIEN avoir de libre passage)
+                                  // ne valent que pour qui a DÉJÀ eu un employeur.
+                                  // Un avoir LPP positif est la preuve d'un 2e
+                                  // pilier antérieur. Sans avoir antérieur (vrai
+                                  // premier emploi), afficher LFLP art. 2 /
+                                  // art. 4 al. 2 attacherait des références légales
+                                  // inapplicables au cas → on ne montre que
+                                  // LAMal art. 71 + OPP3 art. 7, qui valent pour
+                                  // tous. Reformulation du titre/sous-titre
+                                  // « changement de job » = copy → PR-G.
+                                  final avoirLppAnterieur = _profileProvider
+                                          ?.profile?.prevoyance.avoirLppTotal ??
+                                      0;
+                                  final hasPreviousEmployer =
+                                      avoirLppAnterieur > 0;
                                   return JobChangeChecklistWidget(
                                     items: [
-                                      ChecklistItem(
-                                        deadline: l.firstJobChecklistDeadline1,
-                                        emoji: '\u{1F4C4}',
-                                        action: l.firstJobChecklistAction1,
-                                        legalRef: 'LPP art. 3 — libre passage',
-                                        consequence:
-                                            l.firstJobChecklistConsequence1,
-                                      ),
-                                      ChecklistItem(
-                                        deadline: l.firstJobChecklistDeadline2,
-                                        emoji: '\u{1F3E6}',
-                                        action: l.firstJobChecklistAction2,
-                                        legalRef:
-                                            'OLP art. 3 — d\u00e9lai de transfert',
-                                        consequence:
-                                            l.firstJobChecklistConsequence2,
-                                      ),
+                                      if (hasPreviousEmployer)
+                                        ChecklistItem(
+                                          deadline: l.firstJobChecklistDeadline1,
+                                          emoji: '\u{1F4C4}',
+                                          action: l.firstJobChecklistAction1,
+                                          legalRef: 'LFLP art. 2',
+                                          consequence:
+                                              l.firstJobChecklistConsequence1,
+                                        ),
+                                      if (hasPreviousEmployer)
+                                        ChecklistItem(
+                                          deadline: l.firstJobChecklistDeadline2,
+                                          emoji: '\u{1F3E6}',
+                                          action: l.firstJobChecklistAction2,
+                                          legalRef: 'LFLP art. 4 al. 2',
+                                          consequence:
+                                              l.firstJobChecklistConsequence2,
+                                        ),
                                       ChecklistItem(
                                         deadline: l.firstJobChecklistDeadline3,
                                         emoji: '\u{1F6E1}\u{FE0F}',
                                         action: l.firstJobChecklistAction3,
-                                        legalRef: 'LAMal art. 3',
+                                        legalRef: 'LAMal art. 71',
                                       ),
                                       ChecklistItem(
                                         deadline: l.firstJobChecklistDeadline4,
                                         emoji: '\u{1F3E6}',
                                         action: l.firstJobChecklistAction4,
-                                        legalRef: 'OPP3 art. 1',
+                                        legalRef: 'OPP3 art. 7',
                                       ),
                                     ],
                                   );
@@ -309,6 +718,24 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               const SizedBox(height: MintSpacing.lg),
                               _buildMintAnalysisSection(),
                               const SizedBox(height: MintSpacing.lg),
+                            ] else if (_isHydrating()) ...[
+                              // Slot résultat en CHARGEMENT : le profil s'hydrate
+                              // encore (PR-F). Indicateur borné plutôt qu'une
+                              // carte de situation clignotante — jamais un écran
+                              // vide, jamais un chiffre fabriqué.
+                              _buildHydratingIndicator(),
+                              const SizedBox(height: MintSpacing.lg),
+                            ] else ...[
+                              // Slot résultat gaté : la carte de situation
+                              // remplace la décomposition tant que salaire, âge
+                              // et canton ne sont pas confirmés (données réelles).
+                              MintEntrance(
+                                child: SituationGateCard(
+                                  title: S.of(context)!.donationGateTitle,
+                                  gate: _situationGate(context),
+                                ),
+                              ),
+                              const SizedBox(height: MintSpacing.lg),
                             ],
                             MintEntrance(
                                 delay: const Duration(milliseconds: 400),
@@ -318,7 +745,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                         ),
                       ),
                     ],
-                  )))),
+                  ))))),
     );
   }
 
@@ -373,6 +800,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildSalaireSlider() {
     return _buildSliderCard(
+      cardKey: _salaireKey,
       title: S.of(context)!.firstJobSalaryTitle,
       valueLabel: FirstJobService.formatChf(_salaire),
       minLabel: S.of(context)!.firstJobSalaryMin,
@@ -383,14 +811,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       divisions: 260,
       onChanged: (v) {
         _hasUserInteracted = true;
+        _salaireTouched = true;
+        _salaireSeeded = false; // touched supersede le seed (donnée user).
         _salaire = v;
-        _calculate();
+        _afterSituationFactChanged();
       },
     );
   }
 
   Widget _buildAgeSlider() {
     return _buildSliderCard(
+      cardKey: _ageKey,
       title: S.of(context)!.unemploymentAgeSliderTitle,
       valueLabel: S.of(context)!.unemploymentAgeValue(_age),
       minLabel: S.of(context)!.unemploymentAgeMin,
@@ -401,13 +832,16 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       divisions: 12,
       onChanged: (v) {
         _hasUserInteracted = true;
+        _ageTouched = true;
+        _ageSeeded = false; // touched supersede le seed (donnée user).
         _age = v.toInt();
-        _calculate();
+        _afterSituationFactChanged();
       },
     );
   }
 
   Widget _buildSliderCard({
+    Key? cardKey,
     required String title,
     required String valueLabel,
     required String minLabel,
@@ -419,6 +853,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     required ValueChanged<double> onChanged,
   }) {
     return MintSurface(
+      key: cardKey,
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
       child: MintPremiumSlider(
@@ -444,6 +879,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
         children: [
           // Canton dropdown
           Row(
+            key: _cantonKey,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -470,8 +906,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     onChanged: (v) {
                       if (v != null) {
                         _hasUserInteracted = true;
+                        _cantonTouched = true;
+                        _cantonSeeded = false; // touched supersede le seed.
                         _canton = v;
-                        _calculate();
+                        _afterSituationFactChanged();
                       }
                     },
                   ),
@@ -511,10 +949,18 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       ),
       child: Column(
         children: [
-          Text(
-            FirstJobService.formatChf(r.cotisationsEmployeur),
-            style: MintTextStyles.displayMedium(color: MintColors.white)
-                .copyWith(fontWeight: FontWeight.w700),
+          // Premier chiffre (coût employeur invisible). `id` = ancre du flow
+          // d'acceptation (§3 : temps/taps jusqu'au premier chiffre). MergeSemantics
+          // pour que l'identifiant et la valeur ne forment qu'UN nœud a11y.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-premier-eclairage-value',
+              child: Text(
+                FirstJobService.formatChf(r.cotisationsEmployeur),
+                style: MintTextStyles.displayMedium(color: MintColors.white)
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -523,6 +969,275 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
           ),
+        ],
+      ),
+    );
+  }
+
+  // ── Handoff coach (PR-E, E2) ────────────────────────────────
+
+  /// CTA « Demander au coach » — porte le MoneyTruthReceipt du net firstJob
+  /// vers /coach/chat (SPEC §1 T5 / §4.3). N'est monté que dans la branche
+  /// gatée (`_result != null` + situation complète), donc le net et le receipt
+  /// existent quand ce bouton est visible.
+  Widget _buildAskCoachCta() {
+    final l10n = S.of(context)!;
+    return Semantics(
+      identifier: 'firstjob-ask-coach',
+      button: true,
+      label: l10n.firstJobAskCoach,
+      child: Material(
+        color: MintColors.primary,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _onAskCoachTapped,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: MintSpacing.md,
+              horizontal: MintSpacing.lg,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.forum_outlined,
+                    size: 18, color: MintColors.white),
+                const SizedBox(width: MintSpacing.sm),
+                Text(
+                  l10n.firstJobAskCoach,
+                  style: MintTextStyles.bodyMedium(color: MintColors.white)
+                      .copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Émet le receipt du net firstJob (MÊME chiffre que l'écran : le producteur
+  /// réutilise `FirstJobService.analyzeSalary`), le PERSISTE puis navigue vers
+  /// le coach. Double ceinture du contrat §4.3 pour que le coach grounde
+  /// vraiment sur la valeur affichée :
+  ///   1. store best-effort AVANT la nav -> le coach résout le MÊME receipt
+  ///      (chemin `resolved`, valeur exacte) ;
+  ///   2. `receiptInputs` porté dans l'URL -> si le store a échoué, le coach
+  ///      grounde via le chemin `pending` (jamais `not_found` muet).
+  /// Le gate étant complet, les trois faits de situation sont confirmés
+  /// (confidence completeness = 1.0).
+  Future<void> _onAskCoachTapped() async {
+    if (_result == null) return;
+    final receipt = FirstJobService.buildNetSalaryReceipt(
+      salaireBrutMensuel: _salaire,
+      age: _age,
+      canton: _canton,
+      tauxActivite: _tauxActivite,
+    );
+    // Ceinture 1 : persiste le receipt (best-effort, timeout court, jamais
+    // bloquant). Un échec dégrade proprement vers le chemin pending ci-dessous.
+    final api = widget.receiptApi ?? MoneyTruthReceiptApiService();
+    await api.store(receipt);
+    if (!mounted) return;
+    // Ceinture 2 : porte AUSSI les inputs normalisés du receipt.
+    final uri = Uri(
+      path: '/coach/chat',
+      queryParameters: <String, String>{
+        'topic': 'firstJobNet',
+        'receiptId': receipt.receiptId,
+        'inputsHash': receipt.inputsHash,
+        'receiptInputs': jsonEncode(receipt.inputs),
+      },
+    );
+    context.go(uri.toString());
+  }
+
+  // ── PR-C : appareil de lucidité sur le net ──────────────────
+
+  void _toggleWhyNet() {
+    setState(() => _whyNetExpanded = !_whyNetExpanded);
+  }
+
+  /// Appareil complet (D10) sur la sortie chiffrée : ancre du net (que le
+  /// receipt POSSÈDE, pas un recalcul), bande d'incertitude, confiance réutilisée
+  /// (`MintTrameConfiance`, aucun nouveau scorer — NEVER #3), millésime visible
+  /// (D11) et « pourquoi ce chiffre ». Rendu sous le même gate que `_result`.
+  Widget _buildLuciditeAppareil() {
+    final receipt = _receipt!;
+    final l = S.of(context)!;
+    final net = FirstJobService.formatChf(receipt.value);
+    final range = receipt.range!;
+    final low = FirstJobService.formatChf(range.low);
+    final high = FirstJobService.formatChf(range.high);
+    final sources =
+        receipt.sources.map((s) => s.id.toUpperCase()).join(' · ');
+    final year = receipt.taxYear.toString();
+
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(MintSpacing.md + 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Ancre du net : l'appareil porte la valeur nette (== _result!.netEstime
+          // == receipt.value), pas un second net divergent. `id` = source UNIQUE
+          // du net (SPEC §2.1 A2 / §3.1 `firstjob-net-value`), consommée par le
+          // flow d'acceptation (assertVisible + copyTextFrom pour la parité
+          // dashboard↔coach). MergeSemantics : identifiant + valeur = UN nœud a11y.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-net-value',
+              child: Text(
+                l.firstJobLuciditeNetValue(net),
+                style: MintTextStyles.titleMedium(color: MintColors.primary)
+                    .copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.xs),
+          // Bande d'incertitude (sobre) : bornes = net recalculé avec l'AANP
+          // basse/haute (classe de risque 1,0-1,5 %).
+          Text(
+            l.firstJobLuciditeNetRange(low, high),
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondaryAaa),
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          // Confiance : infra existante EnhancedConfidence rendue par
+          // MintTrameConfiance (NEVER #3 : aucun nouveau scorer), peuplée depuis
+          // le receipt (forme fil identique). MergeSemantics : identifiant +
+          // libellé sur UN seul nœud a11y.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-confidence-chip',
+              child: MintTrameConfiance.inline(
+                confidence:
+                    EnhancedConfidence.fromJson(receipt.confidence!.toJson()),
+                bloomStrategy: BloomStrategy.firstAppearance,
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm + 4),
+          // Millésime + sources visibles près du chiffre (D11), légende sobre.
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-source-vintage',
+              child: Row(
+                children: [
+                  const Icon(Icons.verified_outlined,
+                      size: 14, color: MintColors.textSecondaryAaa),
+                  const SizedBox(width: MintSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      l.firstJobLuciditeVintage(sources, year),
+                      style: MintTextStyles.labelSmall(
+                          color: MintColors.textSecondaryAaa),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          _buildWhyNetDisclosure(receipt),
+        ],
+      ),
+    );
+  }
+
+  /// « Pourquoi ce chiffre » : disclosure repliable listant les hypothèses, les
+  /// sources datées et la version du moteur du receipt. En-tête bouton exposant
+  /// son état déplié (a11y) ; corps retiré de l'arbre quand replié.
+  Widget _buildWhyNetDisclosure(MoneyTruthReceipt receipt) {
+    final l = S.of(context)!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MergeSemantics(
+          child: Semantics(
+            identifier: 'firstjob-why-net',
+            button: true,
+            expanded: _whyNetExpanded,
+            child: InkWell(
+              onTap: _toggleWhyNet,
+              borderRadius: BorderRadius.circular(12),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 44),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l.firstJobLuciditeWhyTitle,
+                        style:
+                            MintTextStyles.labelMedium(color: MintColors.primary)
+                                .copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    Icon(
+                      _whyNetExpanded ? Icons.expand_less : Icons.expand_more,
+                      size: 20,
+                      color: MintColors.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (_whyNetExpanded) ...[
+          const SizedBox(height: MintSpacing.sm),
+          MergeSemantics(
+            child: Semantics(
+              identifier: 'firstjob-why-net-body',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l.firstJobLuciditeAssumptionsLabel,
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textPrimary),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionAanp),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionTaux(
+                      _tauxActivite.toStringAsFixed(0))),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionImpotSource),
+                  _luciditeBullet(l.firstJobLuciditeAssumptionPeriode),
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    l.firstJobLuciditeSourcesLabel,
+                    style:
+                        MintTextStyles.labelSmall(color: MintColors.textPrimary),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  // Sources datées du receipt : chaque source porte son millésime
+                  // (les libellés sont des références légales, non traduisibles —
+                  // rendues comme donnée, motif `PayslipLine.legalRef`).
+                  for (final s in receipt.sources)
+                    _luciditeBullet('${s.label} · ${s.vintage}'),
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    l.firstJobLuciditeEngineLabel(receipt.engineVersion),
+                    style: MintTextStyles.labelSmall(
+                        color: MintColors.textSecondaryAaa),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _luciditeBullet(String text) {
+    final style = MintTextStyles.bodySmall(color: MintColors.textSecondaryAaa);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('•  ', style: style),
+          Expanded(child: Text(text, style: style)),
         ],
       ),
     );
@@ -702,19 +1417,29 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               child: Row(
                 children: [
                   if (isRecommended)
-                    Container(
-                      margin: const EdgeInsets.only(right: MintSpacing.sm),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: MintSpacing.xs + 2, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: MintColors.success,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        S.of(context)!.firstJobTopBadge,
-                        style:
-                            MintTextStyles.labelSmall(color: MintColors.white)
-                                .copyWith(fontWeight: FontWeight.w700),
+                    // Badge multi-mots (i18n ×6) : Flexible + ellipsis pour que
+                    // le badge n'ajoute JAMAIS sa largeur naturelle à la Row
+                    // (a11y — largeur étroite / gros texte). flex:3 garde le
+                    // label entier visible sur téléphone standard et ne tronque
+                    // proprement qu'à l'extrême (320 px × textScale élevé).
+                    Flexible(
+                      flex: 3,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: MintSpacing.sm),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.xs + 2, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: MintColors.success,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          S.of(context)!.firstJobTopBadge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MintTextStyles.labelSmall(
+                                  color: MintColors.white)
+                              .copyWith(fontWeight: FontWeight.w700),
+                        ),
                       ),
                     ),
                   Expanded(
@@ -989,7 +1714,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildBudget503020() {
     final l10n = S.of(context)!;
-    final net = _result?.netEstime ?? _salaire * 0.85;
+    // Ce bloc n'est monté que dans la branche gatée (_result != null) : un seul
+    // net sur l'écran, celui de l'étalon — aucun ratio de repli fabriqué.
+    final net = _result!.netEstime;
     final annualSavings = net * 0.20 * 12;
     final years = (avsAgeReferenceHomme - _age).clamp(0, 45);
     final fv = _fvAnnuity(annualSavings, years);
@@ -1100,7 +1827,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildScenarioChips() {
     final l10n = S.of(context)!;
-    const median = 6500.0;
+    // Repère OFS daté (millésime visible via le label), pas un littéral en dur.
+    const median = ofsSalaireMedianMensuelBrut;
     final profileVal = _seededFromProfile
         ? context.read<CoachProfileProvider>().profile?.salaireBrutMensuel ??
             5000.0
@@ -1139,8 +1867,15 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               child: GestureDetector(
                 onTap: () {
                   HapticFeedback.lightImpact();
-                  setState(() => _salaire = s.value);
-                  _calculate();
+                  // Choisir un scénario de salaire = fournir un salaire (touch).
+                  // Compte comme interaction pour le contrat de retour (sinon
+                  // PopScope émet ScreenReturn.abandoned alors que l'utilisateur
+                  // a bien agi).
+                  _hasUserInteracted = true;
+                  _salaireTouched = true;
+                  _salaireSeeded = false;
+                  _salaire = s.value;
+                  _afterSituationFactChanged();
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),

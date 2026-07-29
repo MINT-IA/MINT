@@ -154,3 +154,15 @@ apps/mobile/test/golden/failures/
 
 # Flutter build output (symlinked to /tmp for .nosync codesign workaround)
 apps/mobile/build
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+
+# Beads local DB (syncs via Dolt remote, not git)
+.beads/
+
+# Transient Codex review outputs (remediation phase) — keep local, do not commit
+.planning/phases/remediation-audit-2026-07/codex-reviews/

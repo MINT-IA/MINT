@@ -6,7 +6,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 // ────────────────────────────────────────────────────────────
 //  P9-C  Le Super-pouvoir fiscal enfant
 //  Charte : L6 (Chiffre-choc) + L1 (CHF/mois)
-//  Source : LIFD art. 213 (déduction 6'700/enfant)
+//  Source : LIFD art. 35 al. 1 let. a (déduction 6'800/enfant)
 //           OPP3 art. 1 (3a lié à l'enfant)
 // ────────────────────────────────────────────────────────────
 
@@ -270,7 +270,7 @@ class _FiscalSuperpowerWidgetState extends State<FiscalSuperpowerWidget> {
   Widget _buildDisclaimer() {
     return Text(
       'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
-      'Source : LIFD art. 213 (déductions enfants), OPP3 art. 1. '
+      'Source : LIFD art. 35 al. 1 let. a (déductions enfants), OPP3 art. 1. '
       'Taux simulé à ${(widget.taxRate * 100).round()}% — varie selon commune et revenu.',
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );

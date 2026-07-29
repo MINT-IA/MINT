@@ -11,10 +11,11 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 
-CoachProfile _profileWithLpp() {
+CoachProfile _profileWithLpp({bool includeDateOfBirth = true}) {
   return CoachProfile(
     firstName: 'Marc',
     birthYear: 1980,
+    dateOfBirth: includeDateOfBirth ? DateTime(1980, 7, 15) : null,
     canton: 'VD',
     etatCivil: CoachCivilStatus.celibataire,
     salaireBrutMensuel: 9000,
@@ -27,6 +28,16 @@ CoachProfile _profileWithLpp() {
       label: 'Retraite',
     ),
   );
+}
+
+int _preciseAge(DateTime dateOfBirth) {
+  final now = DateTime.now();
+  var age = now.year - dateOfBirth.year;
+  if (now.month < dateOfBirth.month ||
+      (now.month == dateOfBirth.month && now.day < dateOfBirth.day)) {
+    age--;
+  }
+  return age;
 }
 
 Widget _wrap(CoachProfileProvider provider) {
@@ -67,11 +78,34 @@ void main() {
   testWidgets('proof anchor exposes the current GoRouter RvC location',
       (tester) async {
     final provider = CoachProfileProvider()..updateProfile(_profileWithLpp());
+    final expectedAge = _preciseAge(DateTime(1980, 7, 15));
 
     await tester.pumpWidget(_wrap(provider));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('rvc_route_state')), findsOneWidget);
+    expect(find.byKey(const Key('rvc_age_state')), findsOneWidget);
+    expect(
+      find.text('route=/retraite/rente-vs-capital'),
+      findsOneWidget,
+    );
+    expect(find.text('rvc_age=$expectedAge'), findsOneWidget);
+    expect(find.text('rvc_age=2026'), findsNothing);
+  });
+
+  testWidgets('proof anchor handles birthYear-only profiles without sentinel',
+      (tester) async {
+    final provider = CoachProfileProvider()
+      ..updateProfile(_profileWithLpp(includeDateOfBirth: false));
+    final expectedAge = DateTime.now().year - 1980;
+
+    await tester.pumpWidget(_wrap(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('rvc_route_state')), findsOneWidget);
+    expect(find.byKey(const Key('rvc_age_state')), findsOneWidget);
     expect(find.text('route=/retraite/rente-vs-capital'), findsOneWidget);
+    expect(find.text('rvc_age=$expectedAge'), findsOneWidget);
+    expect(find.text('rvc_age=2026'), findsNothing);
   });
 }

@@ -257,7 +257,10 @@ def test_apple_verify_after_account_delete_returns_recreate_required_without_tok
 
     assert second.status_code == 409
     second_body = second.json()
-    assert second_body["detail"] == "recreate_required"
+    assert second_body["detail"] == {
+        "code": "recreate_required",
+        "message": "Apple account was deleted. Recreate it explicitly to continue.",
+    }
     assert "accessToken" not in second_body
     assert "access_token" not in second_body
 

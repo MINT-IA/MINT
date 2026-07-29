@@ -24,11 +24,11 @@ from app.constants.social_insurance import (
     AVS_REDUCTION_ANTICIPATION as AVS_ANTICIPATION_PENALTY_PER_YEAR,
     AVS_SUPPLEMENT_AJOURNEMENT as AVS_DEFERRAL_BONUS,
     AVS_DUREE_COTISATION_COMPLETE as AVS_FULL_CONTRIBUTION_YEARS,
+    rente_from_ramd,
 )
 from app.services.retirement.lpp_conversion_service import (
     LppConversionService,
     LPP_CONVERSION_RATE,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
 )
 from app.services.retirement.retirement_budget_service import (
     RetirementBudgetService,
@@ -69,6 +69,27 @@ class TestAvsEstimation:
         assert result.facteur_ajustement == 1.0
         assert result.penalite_ou_bonus_pct == 0.0
         assert result.rente_mensuelle == AVS_MAX_RENTE_MENSUELLE
+
+    def test_ramd_uses_official_echelle44_not_naive_interpolation(self, avs_service):
+        """Anti-façade : la rente basée sur le RAMD passe par l'échelle 44
+        officielle (table du registre) et non plus par une interpolation naïve
+        min→max locale (la fonction canonique social_insurance.rente_from_ramd
+        impose : « ALL backend services MUST use this single function »).
+
+        RAMD 52'920 → 2'016/mois (échelle 44 officielle, OFAS 318.117.011).
+        L'ancienne interpolation min→max donnait 1'890 (écart 126 CHF/mois) →
+        ce test est ROUGE avec le code d'avant, VERT après délégation.
+        """
+        result = avs_service.estimate(
+            current_age=50,
+            retirement_age=65,
+            annees_lacunes=0,
+            gross_salary=52_920,
+        )
+        # 44 années cotisées (gap_factor=1), retraite normale (factor=1) →
+        # rente_mensuelle == rente_from_ramd(52'920) == 2'016 (pas 1'890).
+        assert result.rente_mensuelle == 2016.0
+        assert result.rente_mensuelle == rente_from_ramd(52_920)
 
     def test_anticipation_63(self, avs_service):
         """Anticipation at 63 (2 years early) = -13.6% penalty."""
@@ -227,10 +248,10 @@ class TestLppConversion:
         assert result.option_rente_nette_mensuelle < result.option_rente_brute_mensuelle
 
     def test_capital_tax_zurich(self, lpp_service):
-        """ZH capital tax should use the correct base rate."""
+        """ZH capital tax should match the v2 model (IFD art. 38 + ESTV)."""
         result = lpp_service.compare(capital_lpp=100_000, canton="ZH")
-        # For 100k: first bracket only (multiplier 1.0)
-        expected_tax = round(100_000 * TAUX_IMPOT_RETRAIT_CAPITAL["ZH"] * 1.0, 2)
+        # v2 -2i2 : ZH 100000
+        expected_tax = 4816.89
         assert result.option_capital_impot == expected_tax
         assert result.option_capital_net == round(100_000 - expected_tax, 2)
 
@@ -251,32 +272,25 @@ class TestLppConversion:
         assert result_vd.option_capital_impot > result_zg.option_capital_impot
 
     def test_progressive_brackets_100k(self, lpp_service):
-        """100k should only use the first bracket (multiplier 1.0)."""
+        """100k is a calibrated ESTV point (no interpolation needed)."""
         result = lpp_service.compare(capital_lpp=100_000, canton="ZH")
-        expected_tax = round(100_000 * TAUX_IMPOT_RETRAIT_CAPITAL["ZH"] * 1.0, 2)
+        # v2 -2i2 : ZH 100000
+        expected_tax = 4816.89
         assert result.option_capital_impot == expected_tax
 
     def test_progressive_brackets_300k(self, lpp_service):
-        """300k should use brackets 1-3 with increasing multipliers."""
+        """300k interpolates between calibrated ESTV points."""
         result = lpp_service.compare(capital_lpp=300_000, canton="ZH")
-        rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        expected = (
-            100_000 * rate * 1.0 +     # 0-100k
-            100_000 * rate * 1.15 +     # 100k-200k
-            100_000 * rate * 1.30       # 200k-300k
-        )
+        # CAP-1 #1098 : ZH 300000 interpole désormais 250k->350k (noeud ajouté)
+        # au lieu de 250k->500k — moins de surestimation sur ZH convexe.
+        expected = 18060.69
         assert result.option_capital_impot == round(expected, 2)
 
     def test_progressive_brackets_1m(self, lpp_service):
-        """1M should use all brackets including the last multiplier."""
+        """1M hits the last calibrated ESTV point."""
         result = lpp_service.compare(capital_lpp=1_000_000, canton="ZH")
-        rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        expected = (
-            100_000 * rate * 1.0 +      # 0-100k
-            100_000 * rate * 1.15 +      # 100k-200k
-            300_000 * rate * 1.30 +      # 200k-500k
-            500_000 * rate * 1.50        # 500k-1M
-        )
+        # v2 -2i2 : ZH 1000000 (taux effectif 10.95%)
+        expected = 109542.29
         assert result.option_capital_impot == round(expected, 2)
 
     def test_capital_net_positive(self, lpp_service):
@@ -324,24 +338,18 @@ class TestLppConversion:
         assert tax == 0.0
 
     def test_high_capital_2m(self, lpp_service):
-        """2M capital should use the last multiplier bracket for amounts > 1M."""
+        """2M capital extrapolates at the slope of the last ESTV segment."""
         result = lpp_service.compare(capital_lpp=2_000_000, canton="ZH")
-        rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        expected = (
-            100_000 * rate * 1.0 +       # 0-100k
-            100_000 * rate * 1.15 +       # 100k-200k
-            300_000 * rate * 1.30 +       # 200k-500k
-            500_000 * rate * 1.50 +       # 500k-1M
-            1_000_000 * rate * 1.70       # >1M
-        )
+        # v2 -2i2 : ZH 2000000 (extrapolation > 1M, taux effectif 13.4%)
+        expected = 268306.29
         assert result.option_capital_impot == round(expected, 2)
         assert result.option_capital_net > 0
 
     def test_canton_invalid_default(self, lpp_service):
-        """Unknown canton should use the default rate (0.065)."""
+        """Unknown canton should fall back to the cantonal average curve."""
         result = lpp_service.compare(capital_lpp=100_000, canton="XX")
-        # Default rate = 0.065 (same as ZH)
-        expected_tax = round(100_000 * 0.065, 2)
+        # v2 -2i2 : XX 100000 (moyenne des points cantonaux + IFD art. 38)
+        expected_tax = 4548.54
         assert result.option_capital_impot == expected_tax
 
 
@@ -596,3 +604,53 @@ class TestRetirementEndpoints:
         assert "penaliteOuBonusPct" in data
         assert "renteCoupleeMensuelle" in data or "renteCoupleeMensuelle" not in data
         assert data["scenario"] == "anticipation"
+
+
+class TestLppConversionCanonicalTax:
+    """Beads MINT_nosync-amq : sans override, l'impôt rente vient du modèle
+    v2 canonique (fin du flat 25% qui surestimait ~2x)."""
+
+    def test_default_uses_canonical_model(self):
+        from app.services.fiscal.cantonal_comparator import (
+            estimate_income_tax_on_rente,
+        )
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(capital_lpp=500_000, canton="ZH")
+        rente_brute = result.option_rente_annuelle
+        assert result.rente_impot_annuel == estimate_income_tax_on_rente(
+            rente_brute, "ZH"
+        ), "défaut (None) -> convention canonique partagée, pas un flat"
+        # Le flat 25% donnait 8'500 sur 34'000 de rente — le modèle v2 est
+        # nettement plus bas pour une rente typique.
+        assert result.rente_impot_annuel < rente_brute * 0.25
+
+    def test_explicit_override_still_flat(self):
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(
+            capital_lpp=500_000, taux_marginal_revenu=0.25
+        )
+        assert result.rente_impot_annuel == round(
+            result.option_rente_annuelle * 0.25, 2
+        )
+
+    def test_no_crossover_is_said_not_fabricated(self):
+        """Review #989 r2 : horizon court -> le cumul de rente ne rattrape
+        jamais le capital ; les DEUX chaînes user-facing doivent le dire au
+        lieu d'afficher un breakeven fabriqué à life_expectancy."""
+        from app.services.retirement.lpp_conversion_service import (
+            LppConversionService,
+        )
+
+        result = LppConversionService().compare(
+            capital_lpp=500_000, canton="ZH", retirement_age=65,
+            life_expectancy=70,
+        )
+        assert "pas de croisement" in result.premier_eclairage
+        assert "ne rattrape pas" in result.recommandation_neutre
+        assert f"breakeven à" not in result.premier_eclairage

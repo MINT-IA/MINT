@@ -67,7 +67,7 @@ import 'app_localizations_pt.dart';
 /// property.
 abstract class S {
   S(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -89,11 +89,11 @@ abstract class S {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -102,7 +102,7 @@ abstract class S {
     Locale('en'),
     Locale('es'),
     Locale('it'),
-    Locale('pt')
+    Locale('pt'),
   ];
 
   /// No description provided for @landingFeature1Title.
@@ -1458,7 +1458,7 @@ abstract class S {
   /// No description provided for @divorcePatrimoineSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Fortune et dettes communes'**
+  /// **'Repères indicatifs — aucune part n\'est calculée'**
   String get divorcePatrimoineSubtitle;
 
   /// No description provided for @divorceSimuler.
@@ -1482,13 +1482,13 @@ abstract class S {
   /// No description provided for @divorcePartConjoint1.
   ///
   /// In fr, this message translates to:
-  /// **'Part Conjoint 1'**
+  /// **'Avoir de Conjoint 1 après partage'**
   String get divorcePartConjoint1;
 
   /// No description provided for @divorcePartConjoint2.
   ///
   /// In fr, this message translates to:
-  /// **'Part Conjoint 2'**
+  /// **'Avoir de Conjoint 2 après partage'**
   String get divorcePartConjoint2;
 
   /// No description provided for @divorceTransfert.
@@ -1530,19 +1530,13 @@ abstract class S {
   /// No description provided for @divorcePartagePatrimoine.
   ///
   /// In fr, this message translates to:
-  /// **'PARTAGE DU PATRIMOINE'**
+  /// **'LIQUIDATION DU RÉGIME MATRIMONIAL'**
   String get divorcePartagePatrimoine;
-
-  /// No description provided for @divorceFortuneNette.
-  ///
-  /// In fr, this message translates to:
-  /// **'Fortune nette'**
-  String get divorceFortuneNette;
 
   /// No description provided for @divorcePensionAlimentaire.
   ///
   /// In fr, this message translates to:
-  /// **'PENSION ALIMENTAIRE (ESTIMATION)'**
+  /// **'CONTRIBUTION D\'ENTRETIEN'**
   String get divorcePensionAlimentaire;
 
   /// No description provided for @divorcePointsAttention.
@@ -1634,90 +1628,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.'**
   String get successionDisclaimer;
-
-  /// No description provided for @coachingAge25Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'25 ans : démarrer son 3e pilier'**
-  String get coachingAge25Title;
-
-  /// No description provided for @coachingAge25Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 25 ans, c\'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.'**
-  String get coachingAge25Message;
-
-  /// No description provided for @coachingAge35Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'35 ans : faire le point prévoyance'**
-  String get coachingAge35Title;
-
-  /// No description provided for @coachingAge35Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?'**
-  String get coachingAge35Message;
-
-  /// No description provided for @coachingAge45Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'45 ans : optimiser sa stratégie'**
-  String get coachingAge45Title;
-
-  /// No description provided for @coachingAge45Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 45 ans, il reste 20 ans avant la retraite. C\'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.'**
-  String get coachingAge45Message;
-
-  /// No description provided for @coachingAge50Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'50 ans : préparer sa retraite'**
-  String get coachingAge50Title;
-
-  /// No description provided for @coachingAge50Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.'**
-  String get coachingAge50Message;
-
-  /// No description provided for @coachingAge55Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'55 ans : dernière ligne droite'**
-  String get coachingAge55Title;
-
-  /// No description provided for @coachingAge55Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l\'impact fiscal.'**
-  String get coachingAge55Message;
-
-  /// No description provided for @coachingAge58Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'58 ans : retraite anticipée possible'**
-  String get coachingAge58Title;
-
-  /// No description provided for @coachingAge58Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.'**
-  String get coachingAge58Message;
-
-  /// No description provided for @coachingAge63Title.
-  ///
-  /// In fr, this message translates to:
-  /// **'63 ans : derniers ajustements'**
-  String get coachingAge63Title;
-
-  /// No description provided for @coachingAge63Message.
-  ///
-  /// In fr, this message translates to:
-  /// **'À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.'**
-  String get coachingAge63Message;
 
   /// No description provided for @openBankingTitle.
   ///
@@ -4515,17 +4425,59 @@ abstract class S {
   /// **'Mariés'**
   String get mariageMaries;
 
-  /// No description provided for @mariagePenaltyAmount.
+  /// No description provided for @mariageTaxComparisonTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pénalité +{amount}/an'**
-  String mariagePenaltyAmount(String amount);
+  /// **'Impôt du ménage : deux célibataires ou marié·e·s'**
+  String get mariageTaxComparisonTitle;
 
-  /// No description provided for @mariageBonusAmount.
+  /// No description provided for @mariageDeuxCelibataires.
   ///
   /// In fr, this message translates to:
-  /// **'Bonus -{amount}/an'**
-  String mariageBonusAmount(String amount);
+  /// **'2 célibataires'**
+  String get mariageDeuxCelibataires;
+
+  /// No description provided for @mariageEcartAnnuelImpotPlusEleveMarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart annuel : impôt du ménage plus élevé marié·e·s'**
+  String get mariageEcartAnnuelImpotPlusEleveMarie;
+
+  /// No description provided for @mariageEcartAnnuelImpotPlusEleveCelibataires.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart annuel : impôt du ménage plus élevé à deux célibataires'**
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires;
+
+  /// No description provided for @mariageEcartAnnuelImpotIdentique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écart annuel : impôt du ménage identique dans les deux cas'**
+  String get mariageEcartAnnuelImpotIdentique;
+
+  /// No description provided for @mariageParAn.
+  ///
+  /// In fr, this message translates to:
+  /// **'par an'**
+  String get mariageParAn;
+
+  /// No description provided for @mariageRepartitionCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le sens de l’écart se joue sur la répartition de tes deux revenus : leur addition tire l’impôt du ménage vers le haut, le barème réduit des couples le tire vers le bas.'**
+  String get mariageRepartitionCaption;
+
+  /// No description provided for @mariageRepartitionRevenusProches.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus proches'**
+  String get mariageRepartitionRevenusProches;
+
+  /// No description provided for @mariageRepartitionRevenuDomine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un revenu domine'**
+  String get mariageRepartitionRevenuDomine;
 
   /// No description provided for @mariageDeductions.
   ///
@@ -4698,14 +4650,20 @@ abstract class S {
   /// No description provided for @mariageLppSurvivorFootnote.
   ///
   /// In fr, this message translates to:
-  /// **'LPP art. 19 — mariés (concubins : clause nécessaire)'**
+  /// **'Sous conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage'**
   String get mariageLppSurvivorFootnote;
 
   /// No description provided for @mariageSurvivorMonthly.
   ///
   /// In fr, this message translates to:
-  /// **'Revenu mensuel du survivant marié'**
+  /// **'Rente LPP de survivant, par mois'**
   String get mariageSurvivorMonthly;
+
+  /// No description provided for @mariageSurvivorAvsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'En tant que conjoint·e survivant·e, tu peux toucher en plus une rente AVS de survivant, sous conditions (LAVS art. 23). Son montant dépend de la carrière de cotisation du défunt et n\'est pas chiffré ici.'**
+  String get mariageSurvivorAvsNote;
 
   /// No description provided for @mariageVsConcubin.
   ///
@@ -4743,6 +4701,12 @@ abstract class S {
   /// **'En concubinage, le partenaire survivant n\'a droit à rien par défaut — ni rente AVS, ni héritage exonéré. Il faut tout prévoir par contrat.'**
   String get mariageConcubinWarning;
 
+  /// No description provided for @mariageProtectionConditionsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les protections du mariage (rentes de survivant AVS et LPP) sont un accès légal soumis à conditions d\'éligibilité (LPP art. 19, LAVS art. 23), pas une réception automatique.'**
+  String get mariageProtectionConditionsNote;
+
   /// No description provided for @mariageProtectionsEssentielles.
   ///
   /// In fr, this message translates to:
@@ -4776,7 +4740,7 @@ abstract class S {
   /// No description provided for @divorceIntroText.
   ///
   /// In fr, this message translates to:
-  /// **'Un divorce a des conséquences financières souvent sous-estimées : partage du patrimoine, de la prévoyance (LPP/3a), impact fiscal et pension alimentaire. Cet outil vous aide à y voir plus clair.'**
+  /// **'Un divorce a des conséquences financières souvent sous-estimées : liquidation du régime matrimonial, partage de la prévoyance (LPP/3a), impact fiscal et contribution d\'entretien. Cet outil t\'aide à y voir plus clair.'**
   String get divorceIntroText;
 
   /// No description provided for @divorceYears.
@@ -4812,20 +4776,14 @@ abstract class S {
   /// No description provided for @divorceFortune.
   ///
   /// In fr, this message translates to:
-  /// **'Fortune commune'**
+  /// **'Patrimoine du ménage (indicatif)'**
   String get divorceFortune;
 
   /// No description provided for @divorceDettes.
   ///
   /// In fr, this message translates to:
-  /// **'Dettes communes'**
+  /// **'Dettes du ménage (indicatif)'**
   String get divorceDettes;
-
-  /// No description provided for @divorcePensionDescription.
-  ///
-  /// In fr, this message translates to:
-  /// **'Estimation basée sur l\'écart de revenus et le nombre d\'enfants. Le montant réel dépend de nombreux facteurs (garde, besoins, train de vie).'**
-  String get divorcePensionDescription;
 
   /// No description provided for @divorceActionsTitle.
   ///
@@ -4848,7 +4806,7 @@ abstract class S {
   /// No description provided for @divorceEduParticipationContent.
   ///
   /// In fr, this message translates to:
-  /// **'La participation aux acquêts est le régime matrimonial par défaut en Suisse (CC art. 181 ss). Chaque conjoint conserve ses biens propres (ceux acquis avant le mariage ou par succession/donation). Les acquêts (biens acquis pendant le mariage) sont partagés à parts égales en cas de divorce. C\'est le régime le plus courant en Suisse.'**
+  /// **'La participation aux acquêts est le régime matrimonial par défaut en Suisse (CC art. 181 ss). Chacun conserve ses biens propres (acquis avant le mariage ou reçus par succession ou donation). En cas de divorce, chacun a droit à la moitié du bénéfice de l\'autre (CC art. 215) et les deux créances se compensent. Le calcul se fait sur le compte d\'acquêts de chaque époux, après réunions aux acquêts, récompenses entre masses et attribution des dettes — pas sur un patrimoine commun unique.'**
   String get divorceEduParticipationContent;
 
   /// No description provided for @divorceEduLppTitle.
@@ -5229,10 +5187,16 @@ abstract class S {
   /// **'Taux d\'activité'**
   String get firstJobActivityRate;
 
+  /// No description provided for @firstJobAskCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander au coach'**
+  String get firstJobAskCoach;
+
   /// No description provided for @firstJob3aHeader.
   ///
   /// In fr, this message translates to:
-  /// **'PILIER 3A — À OUVRIR MAINTENANT'**
+  /// **'PILIER 3A — À ENVISAGER'**
   String get firstJob3aHeader;
 
   /// No description provided for @firstJob3aAnnualCap.
@@ -5706,7 +5670,7 @@ abstract class S {
   /// No description provided for @mariageChecklistItem3Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Le mariage change l\'ordre des bénéficiaires. Ton conjoint devient automatiquement bénéficiaire de la rente de survivant LPP (LPP art. 19). Vérifie aussi les bénéficiaires de ton 3e pilier.'**
+  /// **'Le mariage change l\'ordre des bénéficiaires. Ton conjoint peut alors bénéficier de la rente de survivant LPP, sous conditions (LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage). Vérifie aussi les bénéficiaires de ton 3e pilier.'**
   String get mariageChecklistItem3Desc;
 
   /// No description provided for @mariageChecklistItem4Title.
@@ -5925,12 +5889,6 @@ abstract class S {
   /// **'Exonérée'**
   String get donationExoneree;
 
-  /// No description provided for @donationTauxCanton.
-  ///
-  /// In fr, this message translates to:
-  /// **'Taux : {taux} % (canton {canton})'**
-  String donationTauxCanton(String taux, String canton);
-
   /// No description provided for @donationMontantRow.
   ///
   /// In fr, this message translates to:
@@ -6039,6 +5997,444 @@ abstract class S {
   /// **'Canton'**
   String get donationCanton;
 
+  /// No description provided for @situationGateProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{confirmed}/{total} complété{confirmed, plural, =0{} =1{} other{s}}'**
+  String situationGateProgress(int confirmed, int total);
+
+  /// No description provided for @situationGateCompleterAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter'**
+  String get situationGateCompleterAction;
+
+  /// No description provided for @situationGateAnnounceComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation complète, tu peux lancer le calcul.'**
+  String get situationGateAnnounceComplete;
+
+  /// No description provided for @donationGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour un calcul fondé sur tes données'**
+  String get donationGateTitle;
+
+  /// No description provided for @expatForfaitGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour un forfait fondé sur tes données'**
+  String get expatForfaitGateTitle;
+
+  /// No description provided for @expatTopCantonsGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour un classement cantonal personnalisé'**
+  String get expatTopCantonsGateTitle;
+
+  /// No description provided for @expatDepartGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour chiffrer ton capital de prévoyance'**
+  String get expatDepartGateTitle;
+
+  /// No description provided for @expatAvsGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour estimer ta lacune AVS'**
+  String get expatAvsGateTitle;
+
+  /// No description provided for @expatAvsProjectionGateTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour projeter ta rente AVS'**
+  String get expatAvsProjectionGateTitle;
+
+  /// No description provided for @expatGateFactForfaitCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton du forfait'**
+  String get expatGateFactForfaitCanton;
+
+  /// No description provided for @expatGateWhyForfaitCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le minimum imposable dépend du canton choisi.'**
+  String get expatGateWhyForfaitCanton;
+
+  /// No description provided for @expatGateFactLivingExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses de vie mondiales'**
+  String get expatGateFactLivingExpenses;
+
+  /// No description provided for @expatGateWhyLivingExpenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le forfait se calcule sur tes dépenses de vie annuelles.'**
+  String get expatGateWhyLivingExpenses;
+
+  /// No description provided for @expatGateFactActualIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu mondial réel'**
+  String get expatGateFactActualIncome;
+
+  /// No description provided for @expatGateWhyActualIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'La comparaison utilise ton revenu mondial, pas ton salaire suisse.'**
+  String get expatGateWhyActualIncome;
+
+  /// No description provided for @expatGateFactIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu imposable'**
+  String get expatGateFactIncome;
+
+  /// No description provided for @expatGateWhyIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'écart fiscal entre cantons se calcule sur ton revenu réel.'**
+  String get expatGateWhyIncome;
+
+  /// No description provided for @expatGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de résidence'**
+  String get expatGateFactCanton;
+
+  /// No description provided for @expatGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le classement compare les cantons à ta charge fiscale actuelle.'**
+  String get expatGateWhyCanton;
+
+  /// No description provided for @expatGateFactPillar3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde du 3e pilier'**
+  String get expatGateFactPillar3a;
+
+  /// No description provided for @expatGateWhyPillar3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton capital de prévoyance en jeu inclut ton 3a.'**
+  String get expatGateWhyPillar3a;
+
+  /// No description provided for @expatGateFactLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get expatGateFactLpp;
+
+  /// No description provided for @expatGateWhyLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton capital de prévoyance en jeu inclut ton avoir LPP.'**
+  String get expatGateWhyLpp;
+
+  /// No description provided for @expatGateFactYearsInCh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années de cotisation en Suisse'**
+  String get expatGateFactYearsInCh;
+
+  /// No description provided for @expatGateWhyYearsInCh.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente AVS dépend de tes années de cotisation.'**
+  String get expatGateWhyYearsInCh;
+
+  /// No description provided for @expatGateFactYearsAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années passées à l\'étranger'**
+  String get expatGateFactYearsAbroad;
+
+  /// No description provided for @expatGateWhyYearsAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les années hors de Suisse creusent la lacune de cotisation.'**
+  String get expatGateWhyYearsAbroad;
+
+  /// No description provided for @expatGateFactAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get expatGateFactAge;
+
+  /// No description provided for @expatGateWhyAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'La projection de rente dépend des années qu\'il te reste à cotiser.'**
+  String get expatGateWhyAge;
+
+  /// No description provided for @donationCompleterSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter ma situation ({confirmed}/{total})'**
+  String donationCompleterSituation(int confirmed, int total);
+
+  /// No description provided for @donationGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de la donation'**
+  String get donationGateFactCanton;
+
+  /// No description provided for @donationGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impôt sur les donations est cantonal.'**
+  String get donationGateWhyCanton;
+
+  /// No description provided for @donationGateFactEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get donationGateFactEnfants;
+
+  /// No description provided for @donationGateWhyEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réserve héréditaire dépend du nombre d\'enfants.'**
+  String get donationGateWhyEnfants;
+
+  /// No description provided for @donationGateFactFortune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fortune nette'**
+  String get donationGateFactFortune;
+
+  /// No description provided for @donationGateWhyFortune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant de la réserve se calcule sur ta fortune nette.'**
+  String get donationGateWhyFortune;
+
+  /// No description provided for @donationGateFactRegime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Régime matrimonial'**
+  String get donationGateFactRegime;
+
+  /// No description provided for @donationGateWhyRegime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton régime matrimonial modifie la masse successorale.'**
+  String get donationGateWhyRegime;
+
+  /// No description provided for @firstJobGateFactSalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire brut mensuel'**
+  String get firstJobGateFactSalaire;
+
+  /// No description provided for @firstJobGateWhySalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est le montant de départ de ton analyse de salaire.'**
+  String get firstJobGateWhySalaire;
+
+  /// No description provided for @firstJobGateFactAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge'**
+  String get firstJobGateFactAge;
+
+  /// No description provided for @firstJobGateWhyAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'La LPP (2e pilier) devient obligatoire dès 25 ans.'**
+  String get firstJobGateWhyAge;
+
+  /// No description provided for @firstJobGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get firstJobGateFactCanton;
+
+  /// No description provided for @firstJobGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les impôts et déductions varient selon ton canton.'**
+  String get firstJobGateWhyCanton;
+
+  /// No description provided for @firstJobGateAnnounceComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Situation complète, ton analyse de salaire est prête.'**
+  String get firstJobGateAnnounceComplete;
+
+  /// No description provided for @naissanceGateFactSalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salaire mensuel brut'**
+  String get naissanceGateFactSalaire;
+
+  /// No description provided for @naissanceGateWhySalaire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton congé APG se calcule sur ton salaire.'**
+  String get naissanceGateWhySalaire;
+
+  /// No description provided for @naissanceGateFactParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parent concerné'**
+  String get naissanceGateFactParent;
+
+  /// No description provided for @naissanceGateWhyParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'La durée du congé diffère entre maternité et paternité.'**
+  String get naissanceGateWhyParent;
+
+  /// No description provided for @naissanceGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get naissanceGateFactCanton;
+
+  /// No description provided for @naissanceGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les allocations familiales varient selon ton canton.'**
+  String get naissanceGateWhyCanton;
+
+  /// No description provided for @naissanceGateFactEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get naissanceGateFactEnfants;
+
+  /// No description provided for @naissanceGateWhyEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le total des allocations dépend du nombre d\'enfants.'**
+  String get naissanceGateWhyEnfants;
+
+  /// No description provided for @naissanceGateFactRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu annuel brut'**
+  String get naissanceGateFactRevenu;
+
+  /// No description provided for @naissanceGateWhyRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impact fiscal se calcule sur ton revenu imposable.'**
+  String get naissanceGateWhyRevenu;
+
+  /// No description provided for @naissanceGateFactFraisGarde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais de garde'**
+  String get naissanceGateFactFraisGarde;
+
+  /// No description provided for @naissanceGateWhyFraisGarde.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes frais de garde réels déterminent la déduction.'**
+  String get naissanceGateWhyFraisGarde;
+
+  /// No description provided for @naissanceGateWhyEnfantsImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nombre d\'enfants modifie les déductions et les coûts.'**
+  String get naissanceGateWhyEnfantsImpact;
+
+  /// No description provided for @naissanceCostGenericExampleLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemple — coûts moyens en Suisse, pas ta situation'**
+  String get naissanceCostGenericExampleLabel;
+
+  /// No description provided for @mariageGateFactRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get mariageGateFactRevenu1;
+
+  /// No description provided for @mariageGateWhyRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'écart d\'impôt du couple se calcule sur ton revenu.'**
+  String get mariageGateWhyRevenu1;
+
+  /// No description provided for @mariageGateFactRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu du conjoint'**
+  String get mariageGateFactRevenu2;
+
+  /// No description provided for @mariageGateWhyRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'imposition commune dépend du revenu de ton conjoint.'**
+  String get mariageGateWhyRevenu2;
+
+  /// No description provided for @mariageGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de résidence'**
+  String get mariageGateFactCanton;
+
+  /// No description provided for @mariageGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le barème d\'impôt varie selon ton canton.'**
+  String get mariageGateWhyCanton;
+
+  /// No description provided for @mariageGateFactEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre d\'enfants'**
+  String get mariageGateFactEnfants;
+
+  /// No description provided for @mariageGateWhyEnfants.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les déductions pour enfants modifient l\'impôt du couple.'**
+  String get mariageGateWhyEnfants;
+
+  /// No description provided for @mariageGateFactPatrimoine1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton patrimoine'**
+  String get mariageGateFactPatrimoine1;
+
+  /// No description provided for @mariageGateWhyPatrimoine1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage du régime se calcule sur vos patrimoines.'**
+  String get mariageGateWhyPatrimoine1;
+
+  /// No description provided for @mariageGateFactPatrimoine2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine du conjoint'**
+  String get mariageGateFactPatrimoine2;
+
+  /// No description provided for @mariageGateWhyPatrimoine2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage compare vos deux patrimoines.'**
+  String get mariageGateWhyPatrimoine2;
+
+  /// No description provided for @mariageGateFactRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente LPP mensuelle'**
+  String get mariageGateFactRenteLpp;
+
+  /// No description provided for @mariageGateWhyRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente de survivant se calcule sur la rente LPP du défunt.'**
+  String get mariageGateWhyRenteLpp;
+
   /// No description provided for @housingSaleIntroText.
   ///
   /// In fr, this message translates to:
@@ -6092,6 +6488,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Résidence principale'**
   String get housingSaleResidencePrincipale;
+
+  /// No description provided for @housingSaleAnneesOccupation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Années d\'occupation comme résidence principale'**
+  String get housingSaleAnneesOccupation;
 
   /// No description provided for @housingSaleFinancementTitle.
   ///
@@ -6338,7 +6740,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{betterJob} vaut {annualDelta}/an de plus en rente viagère, soit {monthlyDelta}/mois À VIE après la retraite.'**
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta);
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  );
 
   /// No description provided for @jobCompareLifetime20Years.
   ///
@@ -6433,7 +6838,7 @@ abstract class S {
   /// No description provided for @independantAvsBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).'**
+  /// **'Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 60’500, puis 10.0 % au-dessus).'**
   String independantAvsBody(String amount);
 
   /// No description provided for @independantAvsSource.
@@ -7510,6 +7915,12 @@ abstract class S {
   /// **'Canton actuel'**
   String get expatCurrentCanton;
 
+  /// No description provided for @expatNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get expatNonRenseigne;
+
   /// No description provided for @expatPillar3aBalance.
   ///
   /// In fr, this message translates to:
@@ -7672,6 +8083,12 @@ abstract class S {
   /// **'Chaque phase de vie demande d\'adapter ton contrat de mariage et ta prévoyance.'**
   String get mariageTimelineCoachTip;
 
+  /// No description provided for @mariageTimelineIllustrativeCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parcours illustratif : les actes 2 et 3 montrent des exemples de trajectoires de vie (évolution de carrière, temps partiel). Les variations en pourcentage ne sont pas une projection de tes revenus.'**
+  String get mariageTimelineIllustrativeCaption;
+
   /// No description provided for @mariageTimelineAct1Title.
   ///
   /// In fr, this message translates to:
@@ -7747,7 +8164,7 @@ abstract class S {
   /// No description provided for @naissanceChecklistItem2Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Fais la demande auprès de ton employeur (ou de ta caisse d\'allocations si tu es indépendant·e). Les allocations sont versées dès le mois de naissance. Le montant dépend du canton (CHF 200 à CHF 305/mois par enfant).'**
+  /// **'Fais la demande auprès de ton employeur (ou de ta caisse d\'allocations si tu es indépendant·e). Les allocations sont versées dès le mois de naissance. Le montant dépend du canton (CHF 215 à CHF 330/mois par enfant).'**
   String get naissanceChecklistItem2Desc;
 
   /// No description provided for @naissanceChecklistItem3Title.
@@ -7783,7 +8200,7 @@ abstract class S {
   /// No description provided for @naissanceChecklistItem5Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6\'700/an (LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu\'à CHF 25\'500/an. Pense à adapter tes acomptes d\'impôts pour l\'année en cours.'**
+  /// **'Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6\'800/an (LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu\'à CHF 25\'800/an. Pense à adapter tes acomptes d\'impôts pour l\'année en cours.'**
   String get naissanceChecklistItem5Desc;
 
   /// No description provided for @naissanceChecklistItem6Title.
@@ -7825,7 +8242,7 @@ abstract class S {
   /// No description provided for @naissanceChecklistItem9Title.
   ///
   /// In fr, this message translates to:
-  /// **'Souscrire une assurance risque décès/invalidité'**
+  /// **'Vérifier ta couverture risque décès/invalidité'**
   String get naissanceChecklistItem9Title;
 
   /// No description provided for @naissanceChecklistItem9Desc.
@@ -10027,7 +10444,7 @@ abstract class S {
   /// No description provided for @simLppBuybackBonASavoirItem3.
   ///
   /// In fr, this message translates to:
-  /// **'Attention : tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art. 79b al. 3).'**
+  /// **'Attention : pendant les 3 ans qui suivent un rachat, aucun retrait en capital (retraite ou EPL) n’est possible sur ce montant — un retrait dans ce délai entraîne la reprise de la déduction (LPP art. 79b al. 3).'**
   String get simLppBuybackBonASavoirItem3;
 
   /// No description provided for @simLppBuybackDisclaimer.
@@ -10035,7 +10452,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Simulation incluant l\'intérêt de la caisse ({fundRate} %) et l\'impact fiscal indicatif lissé sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.'**
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome);
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  );
 
   /// No description provided for @simRealInterestTitle.
   ///
@@ -10480,7 +10900,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Comparaison forfait fiscal. Imposition ordinaire : {ordinary}. Forfait fiscal : {forfait}. Économie : {savings}.'**
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings);
+    String ordinary,
+    String forfait,
+    String savings,
+  );
 
   /// No description provided for @forfaitFiscalOrdinaryLabel.
   ///
@@ -11565,7 +11988,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalEplTooltip.
   ///
   /// In fr, this message translates to:
-  /// **'Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20\'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.'**
+  /// **'Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20\'000 (OPP2 art. 5). Attention : après un rachat LPP volontaire, un retrait en capital dans les 3 ans fait perdre la déduction fiscale du rachat (art. 79b al. 3).'**
   String get renteVsCapitalEplTooltip;
 
   /// No description provided for @renteVsCapitalEplLegalRef.
@@ -11868,24 +12291,6 @@ abstract class S {
   /// **'Canton'**
   String get concubinageCanton;
 
-  /// No description provided for @concubinageAvantages.
-  ///
-  /// In fr, this message translates to:
-  /// **'avantages'**
-  String get concubinageAvantages;
-
-  /// No description provided for @concubinageMariage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Mariage'**
-  String get concubinageMariage;
-
-  /// No description provided for @concubinageConcubinage.
-  ///
-  /// In fr, this message translates to:
-  /// **'Concubinage'**
-  String get concubinageConcubinage;
-
   /// No description provided for @concubinageDetailFiscal.
   ///
   /// In fr, this message translates to:
@@ -11904,17 +12309,29 @@ abstract class S {
   /// **'Impôts mariés'**
   String get concubinageImpotsMaries;
 
-  /// No description provided for @concubinagePenaliteMariage.
+  /// No description provided for @concubinageEcartImpotMariePlusEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Pénalité mariage'**
-  String get concubinagePenaliteMariage;
+  /// **'Impôt du ménage plus élevé marié'**
+  String get concubinageEcartImpotMariePlusEleve;
 
-  /// No description provided for @concubinageBonusMariage.
+  /// No description provided for @concubinageEcartImpotConcubinagePlusEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Bonus mariage'**
-  String get concubinageBonusMariage;
+  /// **'Impôt du ménage plus élevé en concubinage'**
+  String get concubinageEcartImpotConcubinagePlusEleve;
+
+  /// No description provided for @impositionCommuneMecanique.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e·s, les deux revenus sont additionnés et imposés ensemble, avec un barème réduit réservé aux couples. Le sens de l’écart dépend de la répartition des revenus : quand ils sont proches, l’addition fait monter le revenu imposable plus vite que le barème réduit ne l’abaisse — c’est l’effet dit « Heiratsstrafe ». Quand un revenu domine largement, ce même barème abaisse l’impôt du ménage sous celui de deux célibataires.'**
+  String get impositionCommuneMecanique;
+
+  /// No description provided for @fiscalEstimationModelLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation simplifiée : elle ne tient compte ni de tes déductions réelles, ni de ta commune, ni du barème cantonal détaillé. L’écart réel peut donc différer, y compris dans son sens.'**
+  String get fiscalEstimationModelLimit;
 
   /// No description provided for @concubinageImpotSuccession.
   ///
@@ -11922,29 +12339,23 @@ abstract class S {
   /// **'IMPÔT SUR LA SUCCESSION'**
   String get concubinageImpotSuccession;
 
-  /// No description provided for @concubinagePatrimoineTransmis.
-  ///
-  /// In fr, this message translates to:
-  /// **'Patrimoine transmis'**
-  String get concubinagePatrimoineTransmis;
-
   /// No description provided for @concubinageMarieExonere.
   ///
   /// In fr, this message translates to:
-  /// **'CHF 0 (exonéré)'**
+  /// **'0 % (exonéré·e)'**
   String get concubinageMarieExonere;
+
+  /// No description provided for @concubinageConcubinLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubin·e'**
+  String get concubinageConcubinLabel;
 
   /// No description provided for @concubinageConcubinTaux.
   ///
   /// In fr, this message translates to:
-  /// **'Concubin-e (~{taux} %)'**
-  String concubinageConcubinTaux(String taux);
-
-  /// No description provided for @concubinageWarningSuccession.
-  ///
-  /// In fr, this message translates to:
-  /// **'En concubinage, ton partenaire paierait {impot} d\'impôt successoral sur un patrimoine de {patrimoine}. Marié-e, il/elle serait totalement exonéré-e.'**
-  String concubinageWarningSuccession(String impot, String patrimoine);
+  /// **'Imposé·e au taux des « tiers »'**
+  String get concubinageConcubinTaux;
 
   /// No description provided for @concubinageNeutralTitle.
   ///
@@ -11979,7 +12390,7 @@ abstract class S {
   /// No description provided for @concubinageChecklist1Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Sans testament, ton partenaire n\'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.'**
+  /// **'Sans testament, ton partenaire n\'hérite de rien — ta succession suit l\'ordre légal (d\'abord tes descendants, sinon tes parents, puis tes frères et sœurs). Un testament olographe (écrit à la main, daté, signé) suffit ; tu peux léguer la quotité disponible à ton/ta partenaire.'**
   String get concubinageChecklist1Desc;
 
   /// No description provided for @concubinageChecklist2Title.
@@ -12078,29 +12489,17 @@ abstract class S {
   /// **'Impôts'**
   String get concubinageCriteriaImpots;
 
-  /// No description provided for @concubinageCriteriaPenaliteFiscale.
+  /// No description provided for @concubinageCriteriaImpotPlusEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Pénalité fiscale'**
-  String get concubinageCriteriaPenaliteFiscale;
+  /// **'Impôt du ménage plus élevé'**
+  String get concubinageCriteriaImpotPlusEleve;
 
-  /// No description provided for @concubinageCriteriaBonusFiscal.
+  /// No description provided for @concubinageCriteriaImpotMoinsEleve.
   ///
   /// In fr, this message translates to:
-  /// **'Bonus fiscal'**
-  String get concubinageCriteriaBonusFiscal;
-
-  /// No description provided for @concubinageCriteriaAvantageux.
-  ///
-  /// In fr, this message translates to:
-  /// **'Avantageux'**
-  String get concubinageCriteriaAvantageux;
-
-  /// No description provided for @concubinageCriteriaDesavantageux.
-  ///
-  /// In fr, this message translates to:
-  /// **'Désavantageux'**
-  String get concubinageCriteriaDesavantageux;
+  /// **'Impôt du ménage moins élevé'**
+  String get concubinageCriteriaImpotMoinsEleve;
 
   /// No description provided for @concubinageCriteriaHeritage.
   ///
@@ -12111,7 +12510,7 @@ abstract class S {
   /// No description provided for @concubinageCriteriaHeritageMarriage.
   ///
   /// In fr, this message translates to:
-  /// **'Exonéré (CC art. 462)'**
+  /// **'Exonéré (loi fiscale cantonale)'**
   String get concubinageCriteriaHeritageMarriage;
 
   /// No description provided for @concubinageCriteriaHeritageConcubinage.
@@ -12749,6 +13148,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'L\'ordre des bénéficiaires LPP est fixé par le règlement de la caisse (OPP2 art. 48). Le 3a suit l\'OPP3 art. 2.'**
   String get decesProchebeneficiairesNote;
+
+  /// No description provided for @decesGateFactLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital LPP du défunt'**
+  String get decesGateFactLpp;
+
+  /// No description provided for @decesGateWhyLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le capital LPP transmis aux bénéficiaires dépend de l\'avoir de prévoyance du défunt.'**
+  String get decesGateWhyLpp;
+
+  /// No description provided for @decesGateFact3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital 3a du défunt'**
+  String get decesGateFact3a;
+
+  /// No description provided for @decesGateWhy3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le capital 3a versé aux bénéficiaires dépend de l\'épargne 3a du défunt.'**
+  String get decesGateWhy3a;
+
+  /// No description provided for @decesGateFactLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton lien avec le défunt'**
+  String get decesGateFactLien;
+
+  /// No description provided for @decesGateWhyLien.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'exonération de l\'impôt de succession dépend de ton lien de parenté.'**
+  String get decesGateWhyLien;
+
+  /// No description provided for @decesGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton de la succession'**
+  String get decesGateFactCanton;
+
+  /// No description provided for @decesGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impôt de succession est cantonal ; il dépend du domicile du défunt.'**
+  String get decesGateWhyCanton;
 
   /// No description provided for @decesProchImpactFiscalTitre.
   ///
@@ -13605,7 +14052,7 @@ abstract class S {
   /// No description provided for @firstSalaryTask1.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir un compte 3a (banque ou fintech)'**
+  /// **'Comparer les comptes 3a (banque ou fintech)'**
   String get firstSalaryTask1;
 
   /// No description provided for @firstSalaryTask2.
@@ -14687,7 +15134,9 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : {chargesTheoriques}/mois. Au taux réel (~1,5 %) : {chargesReelles}/mois.'**
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles);
+    String chargesTheoriques,
+    String chargesReelles,
+  );
 
   /// No description provided for @affordabilityInsightEquityTitle.
   ///
@@ -15898,7 +16347,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneImpactBlocExplain.
   ///
   /// In fr, this message translates to:
-  /// **'En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, chaque déduction reste dans la tranche la plus haute.'**
+  /// **'En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, une part plus grande de chaque déduction peut rester dans des tranches élevées, à revenu comparable.'**
   String get rachatEchelonneImpactBlocExplain;
 
   /// No description provided for @rachatEchelonneBloc.
@@ -15943,6 +16392,36 @@ abstract class S {
   /// **'Après chaque rachat, tout retrait EPL (encouragement à la propriété du logement) est bloqué pendant 3 ans. Planifie en conséquence si un achat immobilier est prévu.'**
   String get rachatEchelonneBlockageBody;
 
+  /// No description provided for @rachatEchelonneFenetre79bBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avantage fiscal annulé si capital'**
+  String get rachatEchelonneFenetre79bBadge;
+
+  /// No description provided for @rachatEchelonneSiCapitalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact fiscal si retrait en capital à 65 ans : CHF {montant}'**
+  String rachatEchelonneSiCapitalLabel(String montant);
+
+  /// No description provided for @rachatEchelonneFenetre79bNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tranches versées à moins de 3 ans d\'un retrait en capital : la déduction serait annulée et reprise par l\'administration fiscale (art. 79b al. 3 LPP). Hypothèse : retrait intégral à 65 ans — une retraite anticipée décale la fenêtre d\'autant. Le blocage EPL de 3 ans (carte dédiée ci-dessous) est un effet distinct du même article. Deux scénarios présentés — le choix rente ou capital reste le tien.'**
+  String get rachatEchelonneFenetre79bNote;
+
+  /// No description provided for @rachatEchelonneHeroSiCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si retrait en capital à 65 ans, l\'écart devient CHF {montant} (économies reprises par le fisc sur les tranches récentes).'**
+  String rachatEchelonneHeroSiCapital(String montant);
+
+  /// No description provided for @rachatEchelonneSiCapitalShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si capital : CHF {montant}'**
+  String rachatEchelonneSiCapitalShort(String montant);
+
   /// No description provided for @rachatEchelonneTauxMarginalTitle.
   ///
   /// In fr, this message translates to:
@@ -15958,7 +16437,7 @@ abstract class S {
   /// No description provided for @rachatEchelonneTauxMarginalTip.
   ///
   /// In fr, this message translates to:
-  /// **'C\'est pour ça qu\'échelonner tes rachats est malin : chaque tranche reste dans un taux marginal élevé.'**
+  /// **'Pourquoi les chiffres diffèrent : à revenu comparable, une tranche échelonnée peut être déduite à un taux marginal plus élevé, alors qu\'un rachat en bloc fait glisser une partie de la déduction vers des taux plus bas.'**
   String get rachatEchelonneTauxMarginalTip;
 
   /// No description provided for @rachatEchelonneTauxMarginalSemantics.
@@ -16567,6 +17046,60 @@ abstract class S {
   /// **'Bilan total (impôts + LAMal)'**
   String get demenagementBilanTotal;
 
+  /// No description provided for @demenagementGateFactRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get demenagementGateFactRevenu;
+
+  /// No description provided for @demenagementGateWhyRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il fixe l\'impôt sur le revenu comparé entre les deux cantons.'**
+  String get demenagementGateWhyRevenu;
+
+  /// No description provided for @demenagementGateFactCantonDepart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton actuel'**
+  String get demenagementGateFactCantonDepart;
+
+  /// No description provided for @demenagementGateWhyCantonDepart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son barème fiscal et ses primes servent de point de départ.'**
+  String get demenagementGateWhyCantonDepart;
+
+  /// No description provided for @demenagementGateFactCantonArrivee.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le canton d\'arrivée'**
+  String get demenagementGateFactCantonArrivee;
+
+  /// No description provided for @demenagementGateWhyCantonArrivee.
+  ///
+  /// In fr, this message translates to:
+  /// **'La destination envisagée fixe le nouveau barème à comparer.'**
+  String get demenagementGateWhyCantonArrivee;
+
+  /// No description provided for @demenagementGateFactSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation familiale'**
+  String get demenagementGateFactSituation;
+
+  /// No description provided for @demenagementGateWhySituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nombre de primes LAMal du ménage en dépend.'**
+  String get demenagementGateWhySituation;
+
+  /// No description provided for @demenagementReferenceCaption.
+  ///
+  /// In fr, this message translates to:
+  /// **'Primes LAMal moyennes (adulte, franchise 300) et indices fiscaux relatifs : repères cantonaux indicatifs, pas ta prime réelle.'**
+  String get demenagementReferenceCaption;
+
   /// No description provided for @divorceTransfertAmount.
   ///
   /// In fr, this message translates to:
@@ -16576,44 +17109,8 @@ abstract class S {
   /// No description provided for @divorceFiscalDelta.
   ///
   /// In fr, this message translates to:
-  /// **'Différence : {sign}{amount}/an'**
+  /// **'Écart d\'impôt du ménage : {sign}{amount}/an (fin du splitting marié)'**
   String divorceFiscalDelta(String sign, String amount);
-
-  /// No description provided for @divorcePensionMois.
-  ///
-  /// In fr, this message translates to:
-  /// **'{amount}/mois'**
-  String divorcePensionMois(String amount);
-
-  /// No description provided for @divorcePensionAnnuel.
-  ///
-  /// In fr, this message translates to:
-  /// **'soit {amount}/an'**
-  String divorcePensionAnnuel(String amount);
-
-  /// No description provided for @divorceConjoint1Label.
-  ///
-  /// In fr, this message translates to:
-  /// **'Conjoint 1'**
-  String get divorceConjoint1Label;
-
-  /// No description provided for @divorceConjoint2Label.
-  ///
-  /// In fr, this message translates to:
-  /// **'Conjoint 2'**
-  String get divorceConjoint2Label;
-
-  /// No description provided for @divorceSplitC1.
-  ///
-  /// In fr, this message translates to:
-  /// **'C1'**
-  String get divorceSplitC1;
-
-  /// No description provided for @divorceSplitC2.
-  ///
-  /// In fr, this message translates to:
-  /// **'C2'**
-  String get divorceSplitC2;
 
   /// No description provided for @unemploymentVague1Label.
   ///
@@ -16702,7 +17199,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket1Value.
   ///
   /// In fr, this message translates to:
-  /// **'200 indemnités'**
+  /// **'260 indemnités'**
   String get unemploymentBracket1Value;
 
   /// No description provided for @unemploymentBracket2.
@@ -16714,7 +17211,7 @@ abstract class S {
   /// No description provided for @unemploymentBracket2Value.
   ///
   /// In fr, this message translates to:
-  /// **'260 indemnités'**
+  /// **'400 indemnités'**
   String get unemploymentBracket2Value;
 
   /// No description provided for @unemploymentBracket3.
@@ -17641,6 +18138,42 @@ abstract class S {
   /// **'LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)'**
   String get genderGapSourcesBody;
 
+  /// No description provided for @genderGapNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get genderGapNonRenseigne;
+
+  /// No description provided for @genderGapGatePensionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour estimer ta rente'**
+  String get genderGapGatePensionTitle;
+
+  /// No description provided for @genderGapGateCoordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ta situation pour ce détail de coordination'**
+  String get genderGapGateCoordTitle;
+
+  /// No description provided for @genderGapGateWhyRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel sert de base à la projection de rente LPP.'**
+  String get genderGapGateWhyRevenu;
+
+  /// No description provided for @genderGapGateWhyAvoirLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avoir LPP actuel est le point de départ de la projection (il figure sur ton certificat de prévoyance).'**
+  String get genderGapGateWhyAvoirLpp;
+
+  /// No description provided for @genderGapGateWhyAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton âge détermine le nombre d\'années qu\'il te reste à cotiser.'**
+  String get genderGapGateWhyAge;
+
   /// No description provided for @achievementsErrorMessage.
   ///
   /// In fr, this message translates to:
@@ -17872,7 +18405,7 @@ abstract class S {
   /// No description provided for @firstJobTopBadge.
   ///
   /// In fr, this message translates to:
-  /// **'TOP'**
+  /// **'Fréquent'**
   String get firstJobTopBadge;
 
   /// No description provided for @authLoginSubtitle.
@@ -18712,7 +19245,7 @@ abstract class S {
   /// No description provided for @avsCotisationsEduDegressifBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.6 % s’applique.'**
+  /// **'Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.0 % s’applique.'**
   String get avsCotisationsEduDegressifBody;
 
   /// No description provided for @avsCotisationsEduDoubleChargeTitle.
@@ -19084,7 +19617,7 @@ abstract class S {
   /// No description provided for @pillar3aIndepEduComptesTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvre plusieurs comptes 3a'**
+  /// **'Plusieurs comptes 3a, un retrait échelonné'**
   String get pillar3aIndepEduComptesTitle;
 
   /// No description provided for @pillar3aIndepEduComptesBody.
@@ -20326,13 +20859,13 @@ abstract class S {
   /// No description provided for @retroactive3aOuvrirCompte.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir un compte 3a'**
+  /// **'Envisager un compte 3a dédié'**
   String get retroactive3aOuvrirCompte;
 
   /// No description provided for @retroactive3aOuvrirCompteSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Compare les prestataires et ouvre un compte dédié au rattrapage.'**
+  /// **'Comparer les prestataires (frais, conditions) ; un compte dédié pourrait simplifier le suivi du rattrapage.'**
   String get retroactive3aOuvrirCompteSubtitle;
 
   /// No description provided for @retroactive3aPrepDocuments.
@@ -21258,30 +21791,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sources : LPP art. 14, OPP3, LAVS'**
   String get reportRetirementSource;
-
-  /// No description provided for @reportRetirement3aNone.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore de 3a — marge déductible à estimer selon ton statut LPP'**
-  String get reportRetirement3aNone;
-
-  /// No description provided for @reportRetirement3aNoneWithRoom.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pas encore de 3a — marge déductible estimée : CHF {amount}/an'**
-  String reportRetirement3aNoneWithRoom(String amount);
-
-  /// No description provided for @reportRetirement3aOne.
-  ///
-  /// In fr, this message translates to:
-  /// **'1 compte 3a — ouvre un 2e pour optimiser le retrait'**
-  String get reportRetirement3aOne;
-
-  /// No description provided for @reportRetirement3aMulti.
-  ///
-  /// In fr, this message translates to:
-  /// **'{count} comptes 3a — bonne diversification'**
-  String reportRetirement3aMulti(int count);
 
   /// No description provided for @reportRetirementLppText.
   ///
@@ -22996,7 +23505,7 @@ abstract class S {
   /// No description provided for @concubinageEducationalSuccession.
   ///
   /// In fr, this message translates to:
-  /// **'Un conjoint marié est exonéré d’impôt successoral dans la plupart des cantons (CC art. 462). Un concubin paie l’impôt au taux des tiers, souvent entre 20 % et 40 %.'**
+  /// **'L\'exonération du·de la conjoint·e survivant·e ne vient pas du Code civil : elle est inscrite dans les lois fiscales cantonales, et elle vaut dans les 26 cantons. Un·e concubin·e, lui·elle, relève du taux des « tiers » — et l\'écart entre cantons est très large : certains ne prélèvent aucun impôt de succession, d\'autres imposent lourdement les tiers. Ici, le canton pèse autant que le lien.'**
   String get concubinageEducationalSuccession;
 
   /// No description provided for @concubinageProtectionIntro.
@@ -23053,6 +23562,12 @@ abstract class S {
   /// **'En concubinage, si ton partenaire décède, tu ne reçois ni rente AVS, ni rente LPP automatique, et tu n’es pas héritier légal. Chaque protection doit être anticipée.'**
   String get concubinageProtectionWarning;
 
+  /// No description provided for @concubinageProtectionConditionsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les protections du mariage (rentes de survivant AVS et LPP) dépendent de conditions d\'éligibilité ; le concubinage n\'y donne aucun accès, quelles que soient les conditions.'**
+  String get concubinageProtectionConditionsNote;
+
   /// No description provided for @concubinageProtectionLppSlider.
   ///
   /// In fr, this message translates to:
@@ -23064,6 +23579,120 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'CHF 0/mois pour le concubin survivant sans démarche'**
   String get concubinageProtectionSurvivorZero;
+
+  /// No description provided for @concubinageInheritanceConditional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans testament, ton·ta partenaire n\'hérite de rien : ta succession revient à tes héritiers légaux. Avec un testament, ce que tu peux lui léguer dépend de tes descendant·e·s : si tu en as, leur réserve représente la moitié de la succession et la quotité disponible plafonne donc à l\'autre moitié ; si tu n\'en as pas, la réserve des parents a été supprimée le 1er janvier 2023 et tu peux disposer de la totalité (CC art. 470-471). Ce qui entre dans la succession, c\'est ta part : un bien détenu en copropriété n\'y figure qu\'à hauteur de ta quote-part.'**
+  String get concubinageInheritanceConditional;
+
+  /// No description provided for @concubinageInheritanceRateLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun taux n’est affiché ici, et c’est délibéré : la charge va de zéro dans certains cantons à près de la moitié de la part reçue dans les plus lourds, avec des barèmes progressifs, des franchises et parfois un impôt communal. Quatre éléments la déterminent : ton canton et ta commune, la part réellement reçue, le lien de parenté, et la durée de votre vie commune.'**
+  String get concubinageInheritanceRateLimit;
+
+  /// No description provided for @concubinageSurvivorLppDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente de survivant possible (60 %) — conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage.'**
+  String get concubinageSurvivorLppDetail;
+
+  /// No description provided for @concubinageSurvivorAvsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un·e conjoint·e survivant·e peut toucher en plus une rente AVS de survivant (LAVS art. 23, sous conditions) ; un·e concubin·e n\'y a jamais droit.'**
+  String get concubinageSurvivorAvsNote;
+
+  /// No description provided for @concubinage3aClauseEducational.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans clause bénéficiaire désignant ton·ta partenaire, ton 3a suit l\'ordre légal des bénéficiaires (OPP3 art. 2) et ton·ta partenaire n\'en est pas bénéficiaire par défaut. Avec une clause déposée auprès de ta fondation 3a, tu peux l\'y désigner.'**
+  String get concubinage3aClauseEducational;
+
+  /// No description provided for @concubinageGateFactRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get concubinageGateFactRevenu1;
+
+  /// No description provided for @concubinageGateWhyRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le revenu des deux partenaires détermine l\'écart d\'impôt entre mariage et concubinage.'**
+  String get concubinageGateWhyRevenu1;
+
+  /// No description provided for @concubinageGateFactRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le revenu annuel brut de ton partenaire'**
+  String get concubinageGateFactRevenu2;
+
+  /// No description provided for @concubinageGateWhyRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans le revenu de ton partenaire, l\'écart d\'impôt du couple ne peut pas être estimé.'**
+  String get concubinageGateWhyRevenu2;
+
+  /// No description provided for @concubinageGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton de résidence'**
+  String get concubinageGateFactCanton;
+
+  /// No description provided for @concubinageGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le barème d\'impôt et le taux de succession dépendent de ton canton.'**
+  String get concubinageGateWhyCanton;
+
+  /// No description provided for @concubinageGateFactPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton patrimoine total'**
+  String get concubinageGateFactPatrimoine;
+
+  /// No description provided for @concubinageGateWhyPatrimoine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le patrimoine transmis fixe le montant soumis à l\'impôt de succession.'**
+  String get concubinageGateWhyPatrimoine;
+
+  /// No description provided for @concubinageGateFactRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente LPP mensuelle de ton partenaire'**
+  String get concubinageGateFactRenteLpp;
+
+  /// No description provided for @concubinageGateWhyRenteLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'La rente LPP du partenaire sert à estimer la rente de survivant.'**
+  String get concubinageGateWhyRenteLpp;
+
+  /// No description provided for @concubinageGateFiscalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comparaison fiscale'**
+  String get concubinageGateFiscalTitle;
+
+  /// No description provided for @concubinageGateInheritanceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt de succession'**
+  String get concubinageGateInheritanceTitle;
+
+  /// No description provided for @concubinageGateSurvivorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente de survivant'**
+  String get concubinageGateSurvivorTitle;
+
+  /// No description provided for @concubinageNonRenseigne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non renseigné'**
+  String get concubinageNonRenseigne;
 
   /// No description provided for @concubinageDecisionMatrixTitle.
   ///
@@ -24096,15 +24725,16 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{ssn}\n{address}\n{postalCity}\n\n{avsOrg}\n{avsAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nJe vous prie de bien vouloir m\'adresser un extrait de mon compte individuel AVS (CI) afin de vérifier l\'état de mes cotisations et d\'identifier d\'éventuelles lacunes.\n\nJe vous remercie par avance de votre diligence.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject);
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  );
 
   /// No description provided for @agentLetterAvsOrg.
   ///
@@ -24153,31 +24783,33 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisseSource}\n{caisseCurrentAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nEn raison de la cessation de mes rapports de travail / de mon départ de Suisse (biffer la mention inutile), je vous prie de bien vouloir procéder au transfert de mon avoir de libre passage.\n\nMontant à transférer : la totalité de mon avoir de libre passage à la date de sortie.\n\nEtablissement de destination :\nNom : {toComplete}\nIBAN ou numéro de compte : {toComplete}\nAdresse : {toComplete}\n\nDate de sortie : {toComplete}\n\nJe vous remercie de votre diligence et de me confirmer la bonne exécution de ce transfert.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}'**
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete);
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  );
 
   /// No description provided for @agentLetterPensionFundBody.
   ///
   /// In fr, this message translates to:
   /// **'{name}\n{address}\n{postalCity}\n\n{caisse}\n{caisseAddress}\n{postalCity}\n\n{date}, le {dateFormatted}\n\nObjet : {subject}\n\nMadame, Monsieur,\n\nPar la présente, je me permets de vous adresser les demandes suivantes concernant mon dossier de prévoyance professionnelle :\n\n1. Certificat de prévoyance actualisé {year} (avoir de vieillesse, prestations couvertes, taux de conversion applicable)\n\n2. Confirmation de ma capacité de rachat (montant maximal selon l\'art. 79b LPP)\n\n3. Simulation de retraite anticipée (projection de l\'avoir et de la rente à 63 et 64 ans, le cas échéant)\n\nJe vous remercie par avance de votre diligence et reste à votre disposition pour tout complément d\'information.\n\nVeuillez agréer, Madame, Monsieur, mes salutations distinguées.\n\n{name}\n{policeNumber}'**
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber);
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  );
 
   /// No description provided for @agentLetterPensionSubject.
   ///
@@ -24610,6 +25242,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.'**
   String get authErrorRegistration;
+
+  /// No description provided for @authErrorAccountDeletedRecreate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.'**
+  String get authErrorAccountDeletedRecreate;
 
   /// No description provided for @authErrorService.
   ///
@@ -27194,7 +27832,7 @@ abstract class S {
   /// No description provided for @communityChallenge03Desc.
   ///
   /// In fr, this message translates to:
-  /// **'Certains cantons permettent de compléter le versement 3a de l’année précédente jusqu’en mars. Vérifie les règles de ton canton.'**
+  /// **'Pour être déduit de cette année, ton versement 3a doit être crédité sur ton compte au plus tard le 31 décembre. Un ordre passé trop tard peut n\'être crédité qu\'en janvier — et compter alors pour l\'année suivante. Ne t\'y prends pas trop tard.'**
   String get communityChallenge03Desc;
 
   /// No description provided for @communityChallenge03Title.
@@ -27526,7 +28164,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois'**
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount);
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  );
 
   /// No description provided for @disabilityGapAct3Duration.
   ///
@@ -29451,7 +30092,7 @@ abstract class S {
   /// No description provided for @firstJobChecklistDeadline2.
   ///
   /// In fr, this message translates to:
-  /// **'30 jours'**
+  /// **'Dès le nouvel emploi'**
   String get firstJobChecklistDeadline2;
 
   /// No description provided for @firstJobChecklistDeadline3.
@@ -29472,6 +30113,30 @@ abstract class S {
   /// **'Max {amount}/an'**
   String firstJobCoutMaxPerYear(String amount);
 
+  /// No description provided for @firstJobPayslipAanpExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance des accidents survenus hors du travail, prélevée sur ton salaire.'**
+  String get firstJobPayslipAanpExplanation;
+
+  /// No description provided for @firstJobPayslipAanpLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accidents non pro. (AANP)'**
+  String get firstJobPayslipAanpLabel;
+
+  /// No description provided for @firstJobPayslipAcExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation à l\'assurance-chômage (LACI). Elle te protège en cas de perte d\'emploi.'**
+  String get firstJobPayslipAcExplanation;
+
+  /// No description provided for @firstJobPayslipAcLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance-chômage (AC)'**
+  String get firstJobPayslipAcLabel;
+
   /// No description provided for @firstJobPayslipAvsExplanation.
   ///
   /// In fr, this message translates to:
@@ -29483,18 +30148,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'AVS/AI/APG'**
   String get firstJobPayslipAvsLabel;
-
-  /// No description provided for @firstJobPayslipImpotExplanation.
-  ///
-  /// In fr, this message translates to:
-  /// **'Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.'**
-  String get firstJobPayslipImpotExplanation;
-
-  /// No description provided for @firstJobPayslipImpotLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Impôt à la source (estimation)'**
-  String get firstJobPayslipImpotLabel;
 
   /// No description provided for @firstJobPayslipLppExplanation.
   ///
@@ -29529,7 +30182,7 @@ abstract class S {
   /// No description provided for @firstJobScenarioMedianCH.
   ///
   /// In fr, this message translates to:
-  /// **'Médian CH'**
+  /// **'Médiane CH (tous secteurs · ESS 2022)'**
   String get firstJobScenarioMedianCH;
 
   /// No description provided for @firstJobScenarioMySalary.
@@ -30105,7 +30758,7 @@ abstract class S {
   /// No description provided for @indepPlanOuvrir3a.
   ///
   /// In fr, this message translates to:
-  /// **'Ouvrir compte 3a (déduction jusqu\'à CHF 36\'288)'**
+  /// **'Comparer les comptes 3a (déduction jusqu\'à CHF 36\'288)'**
   String get indepPlanOuvrir3a;
 
   /// No description provided for @indepProtApg.
@@ -31857,7 +32510,7 @@ abstract class S {
   /// No description provided for @narrativeFirstJobBody.
   ///
   /// In fr, this message translates to:
-  /// **'Entre AVS (LAVS art. 5), LPP (art. 16), impôt à la source et LAMal, ton net représente environ 75-80 % du brut. Comprendre ces déductions, c’est le premier pas vers une bonne gestion.'**
+  /// **'Entre l\'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c\'est le premier pas vers une bonne gestion.'**
   String get narrativeFirstJobBody;
 
   /// No description provided for @narrativeFirstJobHeadline.
@@ -31893,7 +32546,7 @@ abstract class S {
   /// No description provided for @narrativeMarriageBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon vos revenus respectifs, l’impact fiscal pourrait être positif ou négatif.'**
+  /// **'Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon la répartition de vos deux revenus, l’impôt du ménage peut aller dans un sens comme dans l’autre.'**
   String get narrativeMarriageBody;
 
   /// No description provided for @narrativeMarriageHeadline.
@@ -34211,7 +34864,9 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Revenu estimé à la retraite : {totalMonthly} CHF/mois vs {currentMonthly} CHF/mois actuellement'**
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly);
+    String totalMonthly,
+    String currentMonthly,
+  );
 
   /// No description provided for @rcReplacementRateSubtitle.
   ///
@@ -34608,7 +35263,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marge légale restante : {legal}/an. Équivalent mensuel : {monthly}/mois. Budget libre actuel : {free}/mois. Marge légale ≠ capacité mensuelle : garde une réserve avant d’augmenter le 3a.'**
   String budgetIndependentNoLppDecisionSummary(
-      String legal, String monthly, String free);
+    String legal,
+    String monthly,
+    String free,
+  );
 
   /// No description provided for @budgetIndependentNoLppMonthlyCapacityShortfall.
   ///
@@ -35016,8 +35674,13 @@ abstract class S {
   ///
   /// In fr, this message translates to:
   /// **'Score de forme financière. {score} sur 100. Niveau {level}. Budget {budget}, Prévoyance {prevoyance}, Patrimoine {patrimoine}.'**
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine);
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  );
 
   /// No description provided for @scoreGaugeSubtitle.
   ///
@@ -35162,7 +35825,11 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{label} : {status}. Fourchette typique {low} à {high}'**
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high);
+    String label,
+    String status,
+    String low,
+    String high,
+  );
 
   /// No description provided for @semanticsBenchmarkToggle.
   ///
@@ -38173,7 +38840,7 @@ abstract class S {
   /// No description provided for @bankImportTransparency.
   ///
   /// In fr, this message translates to:
-  /// **'Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.'**
+  /// **'Ton relevé est envoyé chiffré à notre serveur pour analyse (traitement automatique, sans IA). Le fichier brut est supprimé après traitement ; seuls les résumés par catégorie sont conservés dans ton profil.'**
   String get bankImportTransparency;
 
   /// No description provided for @coachTransparencySLM.
@@ -38185,7 +38852,7 @@ abstract class S {
   /// No description provided for @coachTransparencyBYOK.
   ///
   /// In fr, this message translates to:
-  /// **'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.'**
+  /// **'Réponse via ton API Claude. Ton profil financier pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et ton message sont partagés pour personnaliser la réponse.'**
   String get coachTransparencyBYOK;
 
   /// No description provided for @coachTransparencyServer.
@@ -38209,7 +38876,7 @@ abstract class S {
   /// No description provided for @dataTransparencySalaryDetail.
   ///
   /// In fr, this message translates to:
-  /// **'Stocké uniquement sur ton téléphone. Jamais envoyé.'**
+  /// **'Enregistré dans ton profil chiffré. Partagé avec le coach AI uniquement quand tu l\'utilises.'**
   String get dataTransparencySalaryDetail;
 
   /// No description provided for @dataTransparencyScan.
@@ -38221,7 +38888,7 @@ abstract class S {
   /// No description provided for @dataTransparencyScanDetail.
   ///
   /// In fr, this message translates to:
-  /// **'Envoyé chiffré à notre serveur suisse. Parsé et supprimé. Seul le résultat est conservé.'**
+  /// **'Envoyé chiffré à notre serveur, puis lu par l\'API Claude (Anthropic, États-Unis) avec ton consentement pour en extraire les chiffres. Le fichier brut est supprimé ; seul le résultat est conservé.'**
   String get dataTransparencyScanDetail;
 
   /// No description provided for @dataTransparencyCoach.
@@ -38233,7 +38900,7 @@ abstract class S {
   /// No description provided for @dataTransparencyCoachDetail.
   ///
   /// In fr, this message translates to:
-  /// **'SLM local (rien envoyé) ou API Claude (ton choix). Ton salaire exact n\'est jamais partagé.'**
+  /// **'SLM local (rien n\'est envoyé) ou API Claude : ton profil pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et tes messages sont partagés.'**
   String get dataTransparencyCoachDetail;
 
   /// No description provided for @dataTransparencyImport.
@@ -40861,7 +41528,7 @@ abstract class S {
   /// No description provided for @consentPurposeTransferUsAnthropicWhy.
   ///
   /// In fr, this message translates to:
-  /// **'Les documents passent par l\'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.'**
+  /// **'Tes documents (Zero Data Retention) et — quand tu utilises le coach — ton profil financier pseudonymisé (montants exacts inclus, jamais ton nom, ton IBAN ni ton n° AVS) et tes messages passent par l\'API Claude (Anthropic, États-Unis).'**
   String get consentPurposeTransferUsAnthropicWhy;
 
   /// No description provided for @consentPurposeCoupleProjection.
@@ -42345,6 +43012,388 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.'**
   String get eclairageCompoundGrowthEdgeBody;
+
+  /// No description provided for @privacyControlConsentCenterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Consentements et retrait'**
+  String get privacyControlConsentCenterTitle;
+
+  /// No description provided for @privacyControlConsentCenterSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir tes autorisations et en retirer une'**
+  String get privacyControlConsentCenterSubtitle;
+
+  /// No description provided for @expatTopCantonsEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton ({canton}) figure déjà parmi les moins imposés du modèle — aucun écart favorable à afficher.'**
+  String expatTopCantonsEmpty(Object canton);
+
+  /// No description provided for @expatTopCantonsDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Impôts estimés via le modèle simplifié MINT par canton (barèmes cantonaux, chef-lieu) — ce ne sont pas des calculs fiscaux exacts. Écart calculé sur le revenu seul — varie selon le patrimoine et la situation familiale.'**
+  String get expatTopCantonsDisclaimer;
+
+  /// Message systeme du chat coach quand l'utilisateur refuse le consentement transfer_us_anthropic (beads MINT_nosync-tcr). Panel: la voie de reprise citee doit etre VRAIE — renvoyer le message re-declenche la sheet ; Profil->Confidentialite n'offre PAS de grant (dead-end interdit).
+  ///
+  /// In fr, this message translates to:
+  /// **'Le coach a besoin de ton accord pour transmettre tes messages au service d\'IA (serveurs aux États-Unis). Sans cet accord, il ne peut pas répondre. Renvoie ton message quand tu veux : la demande d\'accord te sera proposée à nouveau.'**
+  String get coachConsentDeclined;
+
+  /// Nom de dette hydratée depuis profile.dettes.creditConsommation (beads MINT_nosync-64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédit conso'**
+  String get repaymentDebtCreditConso;
+
+  /// Nom de dette hydratée depuis profile.dettes.leasing
+  ///
+  /// In fr, this message translates to:
+  /// **'Leasing'**
+  String get repaymentDebtLeasing;
+
+  /// Nom de dette hydratée depuis profile.dettes.autresDettes
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres dettes'**
+  String get repaymentDebtAutres;
+
+  /// Label du champ taux quand la valeur est une hypothèse MINT (absente du profil) — provenance visible (review -64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux (estimé)'**
+  String get repaymentFieldRateEstimated;
+
+  /// Label du champ mensualité quand la valeur est une hypothèse MINT — provenance visible (review -64r)
+  ///
+  /// In fr, this message translates to:
+  /// **'Mensualité (estimée)'**
+  String get repaymentFieldInstallmentEstimated;
+
+  /// Bandeau honnetete mono-revenu (beads MINT_nosync-mla volet C) : couple declare mais profil financier conjoint absent — le calcul couple est en realite mono-revenu
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce calcul repose sur ton seul revenu : celui de ton/ta partenaire n\'est pas encore renseigné.'**
+  String get coupleMonoIncomeHint;
+
+  /// CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter son revenu avec le coach'**
+  String get coupleMonoIncomeCta;
+
+  /// No description provided for @reportSpouseIncomeMissingPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne le revenu de ton/ta conjoint·e : sa rente AVS est estimée au minimum légal en attendant.'**
+  String get reportSpouseIncomeMissingPrompt;
+
+  /// No description provided for @reportSpouseDataMissingPrompt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.'**
+  String get reportSpouseDataMissingPrompt;
+
+  /// No description provided for @repaymentBudgetEffectiveNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes mensualités minimales totalisent CHF {montant} — le plan se base sur ce montant'**
+  String repaymentBudgetEffectiveNote(String montant);
+
+  /// No description provided for @semanticsRepaymentBudgetEffective.
+  ///
+  /// In fr, this message translates to:
+  /// **'Budget saisi CHF {saisi}, le plan se base sur CHF {effectif} (mensualités minimales). Bouton, modifie le budget.'**
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif);
+
+  /// No description provided for @indicativeBannerCtaSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préciser tes données — bloc {bloc}'**
+  String indicativeBannerCtaSemantics(String bloc);
+
+  /// No description provided for @divorceGateFactRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu annuel brut'**
+  String get divorceGateFactRevenu1;
+
+  /// No description provided for @divorceGateWhyRevenu1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il sert à estimer l\'impôt du ménage avant et après le divorce.'**
+  String get divorceGateWhyRevenu1;
+
+  /// No description provided for @divorceGateFactRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu annuel de ton ex-conjoint'**
+  String get divorceGateFactRevenu2;
+
+  /// No description provided for @divorceGateWhyRevenu2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il permet de comparer l\'impôt du ménage marié et celui de deux foyers séparés.'**
+  String get divorceGateWhyRevenu2;
+
+  /// No description provided for @divorcePensionEnfantTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entretien de l\'enfant (CC art. 276, 285, 285a)'**
+  String get divorcePensionEnfantTitre;
+
+  /// No description provided for @divorcePensionEnfantFacteurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il suit les besoins de l\'enfant et son âge, les frais de garde et de formation, et il tient compte des allocations familiales. Le parent qui s\'occupe de l\'enfant au quotidien apporte déjà une contribution en nature : elle réduit d\'autant ce qu\'on lui demande en argent. Une part d\'épargne peut s\'ajouter si les moyens le permettent.'**
+  String get divorcePensionEnfantFacteurs;
+
+  /// No description provided for @divorcePensionConjointTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entretien du conjoint (CC art. 125)'**
+  String get divorcePensionConjointTitre;
+
+  /// No description provided for @divorcePensionConjointFacteurs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il ne va pas de soi. On regarde d\'abord si chacun peut subvenir seul à ses besoins. Si ce n\'est pas le cas, ce qui compte, c\'est la répartition des tâches pendant le mariage, sa durée, le train de vie que vous aviez, l\'âge et l\'état de santé, les revenus et la fortune, les perspectives de formation et de gain, et la prévoyance. Une longue durée de mariage ne crée aucun droit automatique.'**
+  String get divorcePensionConjointFacteurs;
+
+  /// No description provided for @divorcePensionMethode.
+  ///
+  /// In fr, this message translates to:
+  /// **'La méthode de référence se fait en deux étapes (ATF 147 III 265). D\'abord, on établit le minimum vital de chaque personne : logement, assurance maladie, alimentation, frais professionnels, frais de garde. Ces charges passent avant tout le reste. Ensuite, ce qui reste — l\'excédent — se répartit entre les ménages. On raisonne sur les revenus disponibles nets, jamais sur les salaires bruts. L\'excédent ne se coupe pas en deux au hasard : il se répartit par « grandes et petites têtes » (une part pleine par adulte, une demi-part par enfant), avec des ajustements selon le cas.'**
+  String get divorcePensionMethode;
+
+  /// No description provided for @divorcePensionLeviers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui fait monter ou descendre le montant : le taux de garde d\'abord — plus tu gardes l\'enfant, moins tu verses en argent. Puis ta capacité de gain : si tu peux travailler davantage, un revenu hypothétique peut t\'être imputé. Le train de vie du mariage sert de plafond. Et le principe du clean-break pousse chacun vers son autonomie financière avec le temps. Attention : garder davantage ne dispense pas toujours de verser — la capacité contributive de chacun compte aussi, et le parent le plus solide financièrement peut verser malgré une garde importante.'**
+  String get divorcePensionLeviers;
+
+  /// No description provided for @divorceRegimeAcquets.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui compte, c\'est ce qui a été acquis pendant le mariage. Ce que chacun possédait avant, et ce qu\'il a reçu par héritage ou donation, lui reste : ce sont les biens propres. Sur le reste, chacun a droit à la moitié du bénéfice de l\'autre (CC art. 215). C\'est donc la comparaison de vos deux comptes qui décide, pas une cagnotte commune : celui qui a le plus accumulé verse à l\'autre la MOITIÉ de la différence entre les deux bénéfices. Avant de comparer, on remet dans les acquêts ce qui en est sorti (art. 208), on règle les récompenses entre biens propres et acquêts (art. 206 et 209), et on rattache chaque dette à la masse qu\'elle concerne.'**
+  String get divorceRegimeAcquets;
+
+  /// No description provided for @divorceLppTransferCaveat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce montant se calcule sur les avoirs que tu as saisis (avoir actuel moins avoir au mariage). Deux éléments légaux ne sont pas repris ici : l\'intérêt qui court sur la prestation de sortie existant au moment du mariage, et la date de valorisation retenue par la loi (l\'introduction de la procédure de divorce). Ta caisse de pension établit le décompte exact.'**
+  String get divorceLppTransferCaveat;
+
+  /// No description provided for @divorceRegimeCommunaute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pendant le mariage, l\'essentiel de ce que vous possédez forme une masse commune. Mais au divorce, on ne coupe pas cette masse en deux d\'emblée : chacun reprend d\'abord ce qui aurait été ses biens propres sous la participation aux acquêts — ce qu\'il avait avant le mariage, ses héritages, ses donations (CC art. 242 al. 1). Seul le solde qui reste après ces reprises se partage par moitié (art. 242 al. 2). L\'article 241, souvent cité, ne concerne que la dissolution par décès ou par changement de régime.'**
+  String get divorceRegimeCommunaute;
+
+  /// No description provided for @divorceRegimeSeparation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il n\'y a rien à partager : chacun garde ce qui lui appartient. Ce qui décide, c\'est donc la preuve de la propriété. Qui revendique un bien doit montrer qu\'il est à lui — facture, contrat, inscription au registre foncier. À défaut de preuve, le bien est présumé appartenir aux deux en copropriété (CC art. 248). Avoir financé un bien ne le rend pas automatiquement tien : cela peut fonder une créance ou une part de copropriété, sans remplacer le titre. Et un bien en copropriété peut être attribué à l\'un de vous contre indemnité s\'il justifie d\'un intérêt prépondérant (art. 251).'**
+  String get divorceRegimeSeparation;
+
+  /// No description provided for @divorcePatrimoineNoShare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour appliquer cette règle à ton cas, il te faut deux inventaires séparés — le tien et celui de ton conjoint — avec, pour chaque bien, sa date d\'acquisition et son origine. C\'est ce document, et non un total de ménage, qui détermine qui doit quoi. Le montant définitif se fixe ensuite par convention ou par le tribunal.'**
+  String get divorcePatrimoineNoShare;
+
+  /// No description provided for @divorcePatrimoineIndicatifHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces deux montants ne servent à calculer aucune part : ce sont des repères pour préparer ta discussion. Ce qui décide, c\'est l\'inventaire de chacun — date d\'acquisition, origine du bien, dettes rattachées.'**
+  String get divorcePatrimoineIndicatifHint;
+
+  /// No description provided for @divorceGateFactLpp1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avoir LPP actuel'**
+  String get divorceGateFactLpp1;
+
+  /// No description provided for @divorceGateWhyLpp1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage porte sur la LPP acquise pendant le mariage.'**
+  String get divorceGateWhyLpp1;
+
+  /// No description provided for @divorceGateFactLpp2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP actuel de ton ex-conjoint'**
+  String get divorceGateFactLpp2;
+
+  /// No description provided for @divorceGateWhyLpp2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage compare les avoirs LPP des deux conjoints.'**
+  String get divorceGateWhyLpp2;
+
+  /// No description provided for @divorceGateFactAvoir1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avoir LPP au mariage'**
+  String get divorceGateFactAvoir1;
+
+  /// No description provided for @divorceGateWhyAvoir1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seule la part acquise après le mariage est partagée (CC art. 122).'**
+  String get divorceGateWhyAvoir1;
+
+  /// No description provided for @divorceGateFactAvoir2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP de ton ex-conjoint au mariage'**
+  String get divorceGateFactAvoir2;
+
+  /// No description provided for @divorceGateWhyAvoir2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seule la part acquise après le mariage est partagée (CC art. 122).'**
+  String get divorceGateWhyAvoir2;
+
+  /// No description provided for @divorcePensionNoEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il n\'existe pas de barème : le montant ne se déduit pas des revenus et du nombre d\'enfants. Il se construit à partir des budgets réels des deux ménages. Voici la mécanique, pour que tu puisses raisonner sur ta situation.'**
+  String get divorcePensionNoEstimate;
+
+  /// No description provided for @divorcePensionFacteursTitre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment le montant se construit'**
+  String get divorcePensionFacteursTitre;
+
+  /// No description provided for @divorcePensionSpecialiste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant exact se fixe par convention entre vous ou, faute d\'accord, par le tribunal. Un·e spécialiste chiffre le cas concret sur la base de ces éléments.'**
+  String get divorcePensionSpecialiste;
+
+  /// No description provided for @divorceGateFactCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton de résidence'**
+  String get divorceGateFactCanton;
+
+  /// No description provided for @divorceGateWhyCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le barème de l\'impôt sur le revenu dépend de ton canton de domicile.'**
+  String get divorceGateWhyCanton;
+
+  /// No description provided for @divorceImpactFiscalCantonNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l\'autre n\'est pas connu.'**
+  String get divorceImpactFiscalCantonNote;
+
+  /// No description provided for @genderGapProjectionAssumptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses de projection : le rendement de {rendement} %/an sur les avoirs LPP est une hypothèse MINT, pas un taux légal — le taux d\'intérêt minimal LPP est de {tauxMin} %/an. La lacune cumulée est la lacune annuelle multipliée par {annees} ans de retraite, sans actualisation ni indexation : un ordre de grandeur illustratif, pas une perte déjà subie.'**
+  String genderGapProjectionAssumptions(
+    String rendement,
+    String tauxMin,
+    String annees,
+  );
+
+  /// No description provided for @genderGapModelLegalMinimum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modèle employé : le régime LPP obligatoire minimal — salaire coordonné légal et taux de conversion minimal de {tauxConversion} %. Ce n\'est pas le règlement de ta caisse. Avec un plan surobligatoire, fréquent au-delà du plafond du salaire assuré obligatoire, les rentes réelles s\'écartent de cette illustration dans un sens comme dans l\'autre : appliquer {tauxConversion} % à la totalité du capital peut aussi surestimer, car les caisses enveloppantes retiennent souvent un taux plus bas sur l\'ensemble de l\'avoir.'**
+  String genderGapModelLegalMinimum(String tauxConversion);
+
+  /// No description provided for @donationVerdictImposable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Imposable'**
+  String get donationVerdictImposable;
+
+  /// No description provided for @donationVerdictInconnu.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get donationVerdictInconnu;
+
+  /// No description provided for @donationPlageJusqua.
+  ///
+  /// In fr, this message translates to:
+  /// **'jusqu\'à ~{pct} % (barème cantonal, hors part communale)'**
+  String donationPlageJusqua(String pct);
+
+  /// No description provided for @firstJobLuciditeNetValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net estimé {value} par mois'**
+  String firstJobLuciditeNetValue(String value);
+
+  /// No description provided for @firstJobLuciditeNetRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fourchette : {low} à {high} selon la classe de risque AANP'**
+  String firstJobLuciditeNetRange(String low, String high);
+
+  /// No description provided for @firstJobLuciditeVintage.
+  ///
+  /// In fr, this message translates to:
+  /// **'{sources} · barèmes {year}'**
+  String firstJobLuciditeVintage(String sources, String year);
+
+  /// No description provided for @firstJobLuciditeWhyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi ce chiffre ?'**
+  String get firstJobLuciditeWhyTitle;
+
+  /// No description provided for @firstJobLuciditeAssumptionsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses de calcul'**
+  String get firstJobLuciditeAssumptionsLabel;
+
+  /// No description provided for @firstJobLuciditeAssumptionAanp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation AANP entre 1,0 % et 1,5 % selon la classe de risque de l\'employeur (défaut 1,3 %)'**
+  String get firstJobLuciditeAssumptionAanp;
+
+  /// No description provided for @firstJobLuciditeAssumptionTaux.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux d\'activité supposé : {taux} %, modifiable'**
+  String firstJobLuciditeAssumptionTaux(String taux);
+
+  /// No description provided for @firstJobLuciditeAssumptionImpotSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt à la source non appliqué (résident·e imposé·e ordinairement)'**
+  String get firstJobLuciditeAssumptionImpotSource;
+
+  /// No description provided for @firstJobLuciditeAssumptionPeriode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Net mensuel, hors 13e salaire et hors bonus'**
+  String get firstJobLuciditeAssumptionPeriode;
+
+  /// No description provided for @firstJobLuciditeSourcesLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources et millésimes'**
+  String get firstJobLuciditeSourcesLabel;
+
+  /// No description provided for @firstJobLuciditeEngineLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moteur de calcul : {version}'**
+  String firstJobLuciditeEngineLabel(String version);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
@@ -42357,13 +43406,13 @@ class _SDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => <String>[
-        'de',
-        'en',
-        'es',
-        'fr',
-        'it',
-        'pt'
-      ].contains(locale.languageCode);
+    'de',
+    'en',
+    'es',
+    'fr',
+    'it',
+    'pt',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_SDelegate old) => false;
@@ -42387,8 +43436,9 @@ S lookupS(Locale locale) {
   }
 
   throw FlutterError(
-      'S.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'S.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

@@ -12,7 +12,6 @@ import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
-import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
 
@@ -64,6 +63,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   double _prixRemploi = 900000;
   double _eplLppUtilise = 0;
   double _epl3aUtilise = 0;
+  int _anneesOccupation = 0; // VD : occupation personnelle prouvee (art. 72 al. 4)
 
   // Result
   HousingSaleResult? _result;
@@ -95,6 +95,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
         hypothequeRestante: _hypothequeRestante,
         projetRemploi: _projetRemploi,
         prixRemploi: _prixRemploi,
+        anneesOccupation: _canton == 'VD' ? _anneesOccupation : 0,
       );
       _checklistState = List.filled(_result!.checklist.length, false);
     });
@@ -142,9 +143,13 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               Container(key: _resultsKey),
               MintEntrance(child: _buildPlusValueCard()),
               const SizedBox(height: 24),
-              MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTaxCard()),
-              const SizedBox(height: 24),
-              if (_result!.remploiReport > 0) ...[
+              // Carte impot : uniquement quand le gain est chiffre (canton calibre).
+              // Sinon le mecanisme + renvoi passent par la section alertes.
+              if (_result!.impotPlusValue != null) ...[
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTaxCard()),
+                const SizedBox(height: 24),
+              ],
+              if ((_result!.remploiReport ?? 0) > 0) ...[
                 MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRemploiResultCard()),
                 const SizedBox(height: 24),
               ],
@@ -153,8 +158,10 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
                 MintEntrance(delay: const Duration(milliseconds: 150), child: _buildEplRepaymentCard()),
                 const SizedBox(height: 24),
               ],
-              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildProduitNetCard()),
-              const SizedBox(height: 24),
+              if (_result!.produitNet != null) ...[
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildProduitNetCard()),
+                const SizedBox(height: 24),
+              ],
               if (_result!.alerts.isNotEmpty) ...[
                 _buildAlertsSection(),
                 const SizedBox(height: 24),
@@ -165,20 +172,18 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             _buildEducationalFooter(),
             const SizedBox(height: 24),
             // ── P15-A : Les 3 surprises de la vente ──────────
-            SaleSurprisesWidget(
-              salePrice: _prixVente,
-              purchasePrice: _prixAchat,
-              eplWithdrawn: _eplLppUtilise + _epl3aUtilise,
-              holdingYears: 2025 - _anneeAchat,
-              canton: _canton,
-            ),
-            const SizedBox(height: 24),
+            // SaleSurprisesWidget calcule l'impot avec un taux forfaitaire
+            // interne (constantes enfouies, pas d'entree montant) : sur un
+            // canton calibre il contredirait la carte impot officielle sur le
+            // meme ecran. Retire du rendu tant qu'il n'est pas cable sur le
+            // verdict calibre. TODO(P5-suivi) : cabler ou supprimer le widget.
             // ── P15-B : Net réel calculateur ─────────────────────
-            if (_result != null) ...[
+            // Uniquement quand l'impot est chiffre (canton calibre).
+            if (_result != null && _result!.impotEffectif != null) ...[
               NetProceedsWidget(
                 salePrice: _prixVente,
                 mortgageBalance: _hypothequeRestante,
-                capitalGainTax: _result!.impotEffectif,
+                capitalGainTax: _result!.impotEffectif!,
                 eplReimbursement:
                     _result!.remboursementEplLpp + _result!.remboursementEpl3a,
               ),
@@ -186,12 +191,15 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             ],
 
             // ── P15-C : Chrono du remploi ─────────────────────
-            if (_residencePrincipale) ...[
+            // Alimente le montant reportable depuis le resultat calibre (impot
+            // sur le gain) ; gate sur canton calibre pour ne jamais exposer un
+            // taux forfaitaire sur un canton non calibre.
+            if (_result != null &&
+                _result!.modeleGain == 'calibre' &&
+                _residencePrincipale) ...[
               RemploiCountdownWidget(
                 saleDate: DateTime(2025, 1, 1),
-                deferredTax: (_prixVente - _prixAchat - _investissementsValorisants)
-                        .clamp(0, double.infinity) *
-                    0.20,
+                deferredTax: _result!.impotPlusValue ?? 0,
               ),
               const SizedBox(height: 24),
             ],
@@ -334,6 +342,19 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             value: _residencePrincipale,
             onChanged: (v) => setState(() => _residencePrincipale = v),
           ),
+          // VD : les annees d'occupation personnelle prouvees comptent double
+          // (art. 72 al. 4 LI). Champ affiche seulement pour Vaud.
+          if (_canton == 'VD') ...[
+            const SizedBox(height: 16),
+            MintPickerTile(
+              label: S.of(context)!.housingSaleAnneesOccupation,
+              value: _anneesOccupation.clamp(0, 2025 - _anneeAchat),
+              minValue: 0,
+              maxValue: 2025 - _anneeAchat,
+              formatValue: (v) => '$v',
+              onChanged: (v) => setState(() => _anneesOccupation = v),
+            ),
+          ],
         ],
       ),
     );
@@ -526,22 +547,22 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           const SizedBox(height: 16),
           _buildResultRow(
             S.of(context)!.housingSaleTauxImposition,
-            '${(r.tauxImpositionPlusValue * 100).toStringAsFixed(0)}%',
+            '${((r.tauxImpositionPlusValue ?? 0) * 100).toStringAsFixed(0)}%',
           ),
           const SizedBox(height: 8),
           _buildResultRow(
             S.of(context)!.housingSaleImpotGains,
-            _chfFmt(r.impotPlusValue),
+            _chfFmt(r.impotPlusValue ?? 0),
           ),
-          if (r.remploiReport > 0) ...[
+          if ((r.remploiReport ?? 0) > 0) ...[
             const SizedBox(height: 8),
             _buildResultRow(
               S.of(context)!.housingSaleReportRemploi,
-              '- ${_chfFmt(r.remploiReport)}',
+              '- ${_chfFmt(r.remploiReport!)}',
             ),
             _buildResultRow(
               S.of(context)!.housingSaleImpotEffectif,
-              _chfFmt(r.impotEffectif),
+              _chfFmt(r.impotEffectif ?? 0),
             ),
           ],
         ],
@@ -574,7 +595,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            _chfFmt(r.remploiReport),
+            _chfFmt(r.remploiReport ?? 0),
             style: MintTextStyles.headlineMedium(color: MintColors.success),
           ),
           const SizedBox(height: 4),
@@ -642,14 +663,15 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   // ── Produit Net Card (premier éclairage) ──
   Widget _buildProduitNetCard() {
     final r = _result!;
-    final isPositive = r.produitNet >= 0;
+    final produitNet = r.produitNet ?? 0;
+    final isPositive = produitNet >= 0;
     return MintSurface(
       tone: isPositive ? MintSurfaceTone.porcelaine : MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
           MintCountUp(
-            value: r.produitNet,
+            value: produitNet,
             prefix: 'CHF\u00a0',
             color: isPositive ? MintColors.primary : MintColors.error,
             showLigne: false,
@@ -663,7 +685,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               S.of(context)!.housingSaleHypotheque, '- ${_chfFmt(r.soldeHypotheque)}'),
           const SizedBox(height: 4),
           _buildResultRow(
-              S.of(context)!.housingSaleImpotPlusValue, '- ${_chfFmt(r.impotEffectif)}'),
+              S.of(context)!.housingSaleImpotPlusValue, '- ${_chfFmt(r.impotEffectif ?? 0)}'),
           if (r.remboursementEplLpp > 0) ...[
             const SizedBox(height: 4),
             _buildResultRow(

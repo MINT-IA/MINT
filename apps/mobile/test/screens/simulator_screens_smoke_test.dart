@@ -509,28 +509,36 @@ void main() {
       expect(find.textContaining('aram'), findsWidgets);
     });
 
-    testWidgets('displays pension comparison results after scrolling',
+    // P2 « gate dur » (.planning/decisions/2026-07-25-p2-simulator-result-gating.md):
+    // this harness pumps the screen with NO CoachProfileProvider → no confirmed
+    // situation facts → the two computed cards GATE instead of computing on the
+    // old fabricated defaults (85000/120000/40). These smoke tests now assert the
+    // gate behaviour; the seed→compute path is covered by gender_gap_gate_test.dart.
+    testWidgets('gates the pension comparison until the situation is complete',
         (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       await tester.scrollUntilVisible(
-        find.textContaining('Rente LPP'),
+        find.textContaining('estimer ta rente'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.textContaining('Rente LPP'), findsOneWidget);
+      // The gate card is shown; the computed rente heading is NOT.
+      expect(find.textContaining('estimer ta rente'), findsWidgets);
+      expect(find.textContaining('Rente LPP'), findsNothing);
     });
 
-    testWidgets('displays coordination explanation after scrolling',
+    testWidgets('gates the coordination detail until the situation is complete',
         (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       await tester.scrollUntilVisible(
-        find.textContaining('omprendre la d'),
+        find.textContaining('ce détail de coordination'),
         200,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.textContaining('omprendre la d'), findsOneWidget);
+      expect(find.textContaining('ce détail de coordination'), findsWidgets);
+      expect(find.textContaining('omprendre la d'), findsNothing);
     });
 
     testWidgets('displays OFS statistic after scrolling', (tester) async {

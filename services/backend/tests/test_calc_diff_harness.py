@@ -28,12 +28,12 @@ from pathlib import Path
 import pytest
 
 from app.constants.social_insurance import (
-    MARRIED_CAPITAL_TAX_DISCOUNT,
-    TAUX_IMPOT_RETRAIT_CAPITAL,
-    calculate_progressive_capital_tax,
     get_ai_rente_monthly,
     get_lpp_bonification_rate,
     rente_from_ramd,
+)
+from app.services.fiscal.cantonal_comparator import (
+    estimate_capital_withdrawal_tax,
 )
 
 # ──────────────────────────────────────────────────────────────────────
@@ -43,11 +43,6 @@ from app.constants.social_insurance import (
 TOL_RENTE_CHF = 1.0           # AVS / AI / LPP rentes — D-06 : rentes ±1 CHF.
 TOL_CANTON_TAX_CHF = 5.0      # Canton tax — D-06 : canton tax ±5 CHF.
 TOL_RATIO = 0.05              # Small ratios (LPP bonification rate) — D-06 : ±0.05.
-
-# Fallback when a canton key is missing from the registry (matches the Dart
-# `tauxImpotRetraitCapital[cantonCode] ?? 0.065` default at
-# apps/mobile/lib/services/financial_core/tax_calculator.dart:235).
-DEFAULT_CAPITAL_TAX_RATE = 0.065
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FIXTURE_PATH = (
@@ -62,24 +57,14 @@ DART_BIN = Path(os.environ.get("CALC_HARNESS_BIN", str(DART_BIN_DEFAULT)))
 def _python_capital_tax(canton: str, amount: float, married: bool) -> float:
     """Python-side computation matching Dart RetirementTaxCalculator.capitalWithdrawalTax.
 
-    Pulls `base_rate` from `TAUX_IMPOT_RETRAIT_CAPITAL[canton]` (fallback
-    `DEFAULT_CAPITAL_TAX_RATE` per Dart parity). Applies the global
-    `MARRIED_CAPITAL_TAX_DISCOUNT` scalar if married. Calls the canonical
-    progressive helper. NEVER re-implements brackets here (CLAUDE.md §4
-    NEVER #3, ADR-20260223).
-
-    Known asymmetry vs. Dart : `tax_calculator.dart:238` uses a per-canton
-    `marriedCapitalTaxDiscountFor(cantonCode)` while the Python side uses a
-    single `MARRIED_CAPITAL_TAX_DISCOUNT` scalar. Expected divergence on
-    married rows at non-ZH/ZG cantons may exceed `TOL_CANTON_TAX_CHF` ; the
-    failure mode is the gate working correctly — fix path is to port the
-    per-canton discount table to Python (deferred to backlog 999.4 per
-    CONTEXT D-03) OR tighten the fixture matrix to skip married × non-
-    ZH/ZG until then. See SUMMARY.md.
+    Modèle canonique v2 ``estimate_capital_withdrawal_tax`` (IFD art. 38 +
+    interpolation ESTV cantonal ; état civil marié interpole
+    ``CANTONAL_CAPITAL_TAX_MARRIED_CHF``) — miroir exact du Dart
+    ``estimateCapitalWithdrawalTaxV2``. Le rabais forfaitaire par canton a
+    été supprimé (triage AnnAssign #1095). NEVER re-implements brackets here
+    (CLAUDE.md §4 NEVER #3, ADR-20260223).
     """
-    base = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton, DEFAULT_CAPITAL_TAX_RATE)
-    rate = base * (MARRIED_CAPITAL_TAX_DISCOUNT if married else 1.0)
-    return calculate_progressive_capital_tax(amount, rate)
+    return estimate_capital_withdrawal_tax(amount, canton, is_married=married)
 
 
 @pytest.fixture(scope="session")

@@ -1,7 +1,10 @@
 # ADR-20260111 : Progression de Clarté (Wizard Éducatif)
 
 **Date** : 2026-01-11  
-**Statut** : Accepté  
+**Statut** : Superseded — mécanique en dead code (audit 2026-07, T16-F06 / beads MINT_nosync-a2h) :
+`WizardService.calculateClarityState` (0 consommateur), `WizardQuestionWidget` (self-only) et
+`ReportPreviewWidget` (0 occurrence) ne sont câblés nulle part. Supprimer le dead code ou
+re-câbler exige une décision produit — en attendant, cet ADR ne décrit PAS l'app réelle.  
 **Contexte** : Refonte du wizard onboarding pour améliorer la pédagogie sans créer de biais ou de risques de compliance
 
 ---

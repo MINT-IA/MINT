@@ -196,7 +196,21 @@ class RenteVsCapitalRequest(ArbitrageBaseModel):
     )
     current_age: Optional[int] = Field(
         default=None, ge=1, le=119,
-        description="Age actuel, requis pour un receipt RvC complet",
+        description=(
+            "Age actuel — requis pour le receipt seulement en mode "
+            "estimation (input_mode='estimate')"
+        ),
+    )
+    input_mode: Optional[str] = Field(
+        default=None,
+        pattern="^(certificate|estimate)$",
+        description=(
+            "Mode de saisie mobile : 'certificate' (valeurs reelles du "
+            "certificat LPP, pas de projection — current_age inutile) ou "
+            "'estimate' (projection cote mobile — current_age requis pour "
+            "un receipt complet). Absent = appel hors ecran RvC, traite "
+            "comme certificate (le backend ne projette jamais)."
+        ),
     )
     is_married: Optional[bool] = Field(
         default=None,
@@ -234,6 +248,10 @@ class AllocationAnnuelleRequest(ArbitrageBaseModel):
     potentiel_rachat_lpp: Optional[float] = Field(
         default=None, ge=0,
         description="Potentiel de rachat LPP disponible (CHF, defaut: 0)",
+    )
+    is_married: Optional[bool] = Field(
+        default=None,
+        description="Marie·e (coefficient cantonal retrait capital, defaut: False)",
     )
     is_property_owner: Optional[bool] = Field(
         default=None,

@@ -320,7 +320,9 @@ class OpenBankingHubScreen extends StatelessWidget {
       case 'credit_suisse':
         return MintColors.blueMaterial900;
       case 'bcv':
-        return MintColors.greenDark;
+        // -dy0 review #1004 : l'avatar rend des INITIALES en Text sur le
+        // fond teinté à 15% — le vert clair rendait 3.44:1 (< AA 4.5).
+        return MintColors.greenForest;
       case 'bcge':
         return MintColors.tealLight;
       case 'zkb':

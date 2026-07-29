@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -15,8 +16,8 @@ class CantonRanking {
     required this.canton,
     required this.shortCode,
     required this.annualTaxSaving,
-    required this.monthlyLamal,
-    required this.monthlyRent,
+    this.monthlyLamal,
+    this.monthlyRent,
     this.highlight,
   });
 
@@ -24,8 +25,10 @@ class CantonRanking {
   final String canton;
   final String shortCode;
   final double annualTaxSaving; // vs current canton
-  final double monthlyLamal;
-  final double monthlyRent;
+  // Nullables depuis MINT_nosync-9f8 : les anciennes valeurs LaMal/loyer
+  // etaient inventees (aucune source) — masquees quand absentes.
+  final double? monthlyLamal;
+  final double? monthlyRent;
   final String? highlight;
 }
 
@@ -104,12 +107,12 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
         children: [
           Row(
             children: [
-              const Text('🏆', style: TextStyle(fontSize: 22)),
+              Text('🏆', style: MintTextStyles.headlineSmall()),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Cantons à simuler',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
             ],
@@ -146,6 +149,18 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
   }
 
   Widget _buildRankingList() {
+    if (widget.rankings.isEmpty) {
+      // Etat vide honnete (MINT_nosync-9f8) : le canton actuel est deja
+      // parmi les moins imposes — aucun ecart favorable a fabriquer.
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          S.of(context)!.expatTopCantonsEmpty(widget.currentCanton),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+              .copyWith(height: 1.4),
+        ),
+      );
+    }
     return Column(
       children: widget.rankings.asMap().entries.map((e) {
         final r = e.value;
@@ -203,10 +218,11 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
                       'Écart estimé ${formatChfWithPrefix(r.annualTaxSaving)}/an',
                       style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                     ),
-                    Text(
-                      'LAMal ${formatChf(r.monthlyLamal)}/m · loyer ~${formatChf(r.monthlyRent)}/m',
-                      style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
-                    ),
+                    if (r.monthlyLamal != null && r.monthlyRent != null)
+                      Text(
+                        'LAMal ${formatChf(r.monthlyLamal!)}/m · loyer ~${formatChf(r.monthlyRent!)}/m',
+                        style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
+                      ),
                   ],
                 ),
               ],
@@ -228,7 +244,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('💡', style: TextStyle(fontSize: 18)),
+          Text('💡', style: MintTextStyles.titleLarge()),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -243,10 +259,10 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
   }
 
   Widget _buildDisclaimer() {
+    // MINT_nosync-9f8 : l'ancienne attribution « Source : AFC » etait fausse
+    // (les taux vivent dans FiscalService, modele simplifie MINT).
     return Text(
-      'Outil éducatif · ne constitue pas un conseil fiscal au sens de la LSFin. '
-      'Source : AFC, taux d\'imposition cantonaux. '
-      'Classement basé sur revenu seul — varie selon patrimoine et situation familiale.',
+      S.of(context)!.expatTopCantonsDisclaimer,
       style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
     );
   }

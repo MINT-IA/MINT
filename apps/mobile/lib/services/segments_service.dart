@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/independants_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SEGMENTS SOCIOLOGIQUES SERVICE — Sprint S12 / Chantier 6
@@ -167,11 +168,13 @@ class GenderGapService {
     );
 
     // Convert capital to annual pension
-    final convRateMin = reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
+    final convRateMin = tauxConversionApplique;
     final renteAt100 = capital100 * convRateMin;
     final renteAtCurrentTaux = capitalActuel * convRateMin;
     final lacuneAnnuelle = renteAt100 - renteAtCurrentTaux;
-    final lacuneTotale = lacuneAnnuelle * 20; // approx 20 years of retirement
+    // Multiplication ILLUSTRATIVE : ni actualisation, ni indexation, et ce n'est
+    // pas une perte acquise. L'écran l'énonce (`genderGapProjectionAssumptions`).
+    final lacuneTotale = lacuneAnnuelle * dureeRetraiteAnnees;
 
     // Build recommendations
     final recommendations = _buildRecommendations(
@@ -195,10 +198,28 @@ class GenderGapService {
     );
   }
 
-  // ── Private helpers ────────────────────────────────────────
+  // ── Paramètres du MODÈLE, exposés pour être divulgués à l'écran ──────
+  //
+  // Le calcul emploie le régime LPP obligatoire MINIMAL (salaire coordonné légal
+  // + taux de conversion minimal légal) : ce n'est pas le règlement de la caisse
+  // de l'utilisateur·rice. Ces accesseurs existent pour que la copie affichée ne
+  // puisse pas diverger des valeurs réellement employées par `analyse()`.
 
-  /// Projected annual return on LPP capital (conservative estimate).
+  /// Rendement annuel projeté sur le capital LPP. HYPOTHÈSE MINT, pas une valeur
+  /// légale : le taux d'intérêt minimal LPP est servi par [tauxInteretMinimalLpp].
   static const double projectedReturn = 0.015;
+
+  /// Durée de retraite retenue pour cumuler la lacune annuelle (illustratif).
+  static const int dureeRetraiteAnnees = 20;
+
+  /// Taux de conversion appliqué au capital projeté : le MINIMUM légal.
+  static double get tauxConversionApplique =>
+      reg('lpp.conversion_rate', lppTauxConversionMinDecimal);
+
+  /// Taux d'intérêt minimal LPP (valeur légale), pour situer [projectedReturn].
+  static double get tauxInteretMinimalLpp => lppMinInterestRatio();
+
+  // ── Private helpers ────────────────────────────────────────
 
   /// Build personalised recommendations.
   static List<GenderGapRecommendation> _buildRecommendations({
@@ -706,25 +727,11 @@ class IndependantResult {
 /// Key risks: no mandatory LPP, no mandatory IJM (CRITICAL),
 /// no mandatory LAA.
 class IndependantService {
-  // ── Constants (delegated to social_insurance.dart) ─────────
-
-  /// Simplified degressive AVS rates for low incomes.
-  /// Key: income threshold, Value: effective rate.
-  static const List<_AvsDegressifBracket> _avsDegressifBrackets = [
-    _AvsDegressifBracket(threshold: 9800, rate: 0.0),
-    _AvsDegressifBracket(threshold: 17400, rate: 0.043),
-    _AvsDegressifBracket(threshold: 21100, rate: 0.046),
-    _AvsDegressifBracket(threshold: 24900, rate: 0.049),
-    _AvsDegressifBracket(threshold: 28600, rate: 0.052),
-    _AvsDegressifBracket(threshold: 32400, rate: 0.056),
-    _AvsDegressifBracket(threshold: 36100, rate: 0.060),
-    _AvsDegressifBracket(threshold: 39900, rate: 0.064),
-    _AvsDegressifBracket(threshold: 43600, rate: 0.069),
-    _AvsDegressifBracket(threshold: 47400, rate: 0.074),
-    _AvsDegressifBracket(threshold: 51100, rate: 0.079),
-    _AvsDegressifBracket(threshold: 54900, rate: 0.085),
-    _AvsDegressifBracket(threshold: 58800, rate: 0.092),
-  ];
+  // AVS: the local simplified bracket table (audit T02-F17, MINT_nosync-iy5,
+  // Codex review finding 1) was a stale scale — zero below 9'800 (the law
+  // prescribes the fixed minimum), paritaire 10.6% above 58'800 (independent
+  // full rate = 10.0% from 60'500). _computeAvsContribution now delegates to
+  // the single Dart source IndependantsService.calculateAvsCotisations.
 
   // ── Public API ─────────────────────────────────────────────
 
@@ -806,9 +813,9 @@ class IndependantService {
         recommendation: input.hasIjm
             ? 'Ta couverture IJM est en place. Vérifie le délai de carence '
                 'et le niveau d\u2019indemnisation journalière.'
-            : 'URGENT : sans IJM, tu n\'as aucun revenu en cas de maladie. '
-                'Souscrivez une assurance IJM individuelle (indemnité journalière '
-                'en cas de maladie).',
+            : 'Sans IJM, une maladie prolongée peut interrompre ton revenu. ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'Une assurance IJM individuelle (indemnité journalière en cas ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'de maladie) est à comparer selon ta situation.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         source: 'LAMal / Pratique indépendants',
       ),
       CoverageGapItem(
@@ -818,9 +825,9 @@ class IndependantService {
         urgency: input.hasLaa ? 'basse' : 'haute',
         recommendation: input.hasLaa
             ? 'Ta couverture accident est en place.'
-            : 'Souscrivez une assurance accident individuelle. '
-                'Sans LAA, les frais médicaux et la perte de gain '
-                'en cas d\'accident ne sont pas couverts.',
+            : 'Sans LAA, les frais médicaux et la perte de gain en cas ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'd\'accident ne sont pas couverts. Une assurance accident ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'individuelle est à comparer selon ta situation.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         source: 'LAA art. 4',
       ),
       CoverageGapItem(
@@ -831,30 +838,25 @@ class IndependantService {
         recommendation: input.has3a
             ? 'Vérifie que tu verses le plafond '
                 '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}).'
-            : 'Ouvrez un 3e pilier et versez le maximum '
-                '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}). '
-                'Sans LPP, le 3a est ton principal outil de prévoyance.',
+            : 'Sans LPP, le 3a devient ton principal outil de prévoyance. ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+                'Cotiser jusqu\'au plafond '
+                '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}) '
+                'est une option à comparer avec d\'autres usages de cette épargne.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         source: 'OPP3 art. 7',
       ),
     ];
   }
 
-  /// Compute AVS contribution for self-employed (degressive scale).
+  /// Compute AVS contribution for self-employed (official RAVS art. 21 scale).
+  ///
+  /// Delegates to the single Dart source (rule-4 single-source) — no local
+  /// duplicate table. Below the threshold the fixed minimum applies.
   static double _computeAvsContribution(double revenuNet) {
     if (revenuNet <= 0) {
       return 0;
     }
-    if (revenuNet >= 58800) {
-      return revenuNet * reg('avs.contribution_rate_total', avsCotisationTotal);
-    }
-
-    // Find applicable bracket
-    for (int i = _avsDegressifBrackets.length - 1; i >= 0; i--) {
-      if (revenuNet >= _avsDegressifBrackets[i].threshold) {
-        return revenuNet * _avsDegressifBrackets[i].rate;
-      }
-    }
-    return 0; // below minimum threshold
+    return IndependantsService.calculateAvsCotisations(revenuNet)
+        .cotisationAnnuelle;
   }
 
   /// Compute estimated monthly protection costs.
@@ -938,15 +940,15 @@ class IndependantService {
 
     if (!input.hasIjm) {
       recs.add(
-        'Souscrire une assurance IJM individuelle : '
-        'comparer les offres (délai de carence 30, 60 ou 90 jours, '
-        'couverture 80% du revenu).',
+        'Comparer une assurance IJM individuelle : ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+        'délai de carence 30, 60 ou 90 jours, ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
+        'couverture jusqu\'à 80% du revenu.', // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
       );
     }
 
     if (!input.hasLaa) {
       recs.add(
-        'Souscrire une assurance accident individuelle (LAA) : '
+        'Comparer une assurance accident individuelle (LAA) : ' // lint-ignore: no_hardcoded_fr (dette i18n préexistante, LOT 3)
         'vérifier que la couverture inclut l\'accident professionnel '
         'et non-professionnel.',
       );
@@ -982,15 +984,4 @@ class IndependantService {
 
     return recs;
   }
-}
-
-/// Internal helper for AVS degressive brackets.
-class _AvsDegressifBracket {
-  final double threshold;
-  final double rate;
-
-  const _AvsDegressifBracket({
-    required this.threshold,
-    required this.rate,
-  });
 }

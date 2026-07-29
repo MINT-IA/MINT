@@ -9,7 +9,7 @@ tags: [avs, bonification, educative, assistance, enfants, proche_aidant, lavs]
 L'utilisateur a des enfants, a réduit son taux d'activité pour s'occuper de sa famille, ou aide un·e proche dépendant·e. Il se demande si cela compte pour sa rente AVS.
 
 ## Premier Éclairage
-Les bonifications éducatives ajoutent fictivement CHF 44'100/an (3× la rente minimale 2025) à ton RAMD pour chaque année où tu as eu un enfant de moins de 16 ans. Sur 16 ans d'éducation, cela peut augmenter ta rente AVS de CHF 200 à 400/mois.
+Les bonifications éducatives ajoutent fictivement CHF 45'360/an (3× la rente minimale 2025) à ton RAMD pour chaque année où tu as eu un enfant de moins de 16 ans. Sur 16 ans d'éducation, cela peut augmenter ta rente AVS de CHF 200 à 400/mois.
 
 ## Niveau 0
 L'AVS reconnaît que s'occuper de ses enfants ou d'un·e proche malade, c'est du vrai travail — même si personne ne te paie pour ça. Pour compenser les années où tu as moins gagné (ou pas du tout), l'AVS ajoute un "bonus virtuel" à tes revenus. Ce bonus s'appelle la bonification éducative (pour les enfants) ou la bonification d'assistance (pour les proches).
@@ -21,7 +21,7 @@ Limite de l'analogie : les bonifications ne sont pas cumulables entre elles. Si 
 ## Niveau 1
 **Bonifications pour tâches éducatives** (LAVS art. 29sexies) :
 - Créditées pour chaque année où tu as l'autorité parentale sur un enfant de moins de 16 ans.
-- Montant : 3× la rente AVS minimale annuelle = CHF 44'100/an (base 2025).
+- Montant : 3× la rente AVS minimale annuelle = CHF 45'360/an (base 2025).
 - Couples mariés : partagées par moitié entre les conjoints (splitting).
 - Parents divorcés/non mariés : attribuées au parent qui a la garde principale, sauf accord contraire.
 

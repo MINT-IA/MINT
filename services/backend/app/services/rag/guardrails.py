@@ -38,6 +38,31 @@ from app.services.coach.context_packet_sanitizer import summarize_coach_context_
 
 logger = logging.getLogger(__name__)
 
+# Coach fiscal tool that yields an income-dependent marginal rate. The cantonal
+# system-prompt block only mandates it when it is actually reachable in the
+# current request (see `fiscal_marginal_tool_available` / `build_system_prompt`).
+_FISCAL_MARGINAL_TOOL = "cantonal_comparator__estimate_marginal_rate"
+
+
+def fiscal_marginal_tool_available(tools: Optional[list]) -> bool:
+    """Return True when the request's tool list exposes the fiscal marginal tool.
+
+    A marginal rate depends on income, so the cantonal enrichment must never hand
+    the coach a static number. When the fiscal tool is reachable the prompt
+    mandates it; otherwise it forbids any figure and redirects to the in-app
+    simulation. Detection compares each tool's ``name`` (Anthropic
+    tool-definition format) EXACTLY to the canonical registry name — a
+    substring match could mandate the canonical tool while only a
+    differently-named lookalike was supplied (revue Codex P2).
+    """
+    if not tools:
+        return False
+    for tool in tools:
+        name = tool.get("name", "") if isinstance(tool, dict) else tool
+        if str(name) == _FISCAL_MARGINAL_TOOL:
+            return True
+    return False
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Post-filter regexes (2026-04-15 — PR A prompt hardening)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -279,6 +304,8 @@ class ComplianceGuardrails:
         response: str,
         language: str = "fr",
         cursor_level: Optional[str] = None,
+        profile_context: Optional[dict] = None,
+        user_message: Optional[str] = None,
     ) -> dict:
         """
         Apply compliance filters to a generated response.
@@ -308,7 +335,32 @@ class ComplianceGuardrails:
                 from app.services.coach.compliance_guard import ComplianceGuard
 
                 guard = ComplianceGuard()
-                result = guard.validate(response, cursor_level=cursor_level)
+                # Audit T07-F02 (MINT_nosync-3vi) : la couche L3 anti-
+                # hallucination (cross-check CHF/% vs financial_core) était
+                # MORTE en prod — validate() n'a jamais reçu de context. On
+                # threade les known_values du profil (mêmes champs safe que le
+                # prompt) pour que le détecteur compare les chiffres émis.
+                guard_context = None
+                if profile_context:
+                    from app.services.coach.coach_models import CoachContext
+
+                    # Contrat numérique typé (review Codex) : le profil brut
+                    # contient des strings/bools (archetype, canton,
+                    # data_source...) — les passer au détecteur provoquait un
+                    # TypeError (HTTP 502) ; les bools compteraient comme 0/1.
+                    numeric_values = {
+                        k: float(v)
+                        for k, v in profile_context.items()
+                        if isinstance(v, (int, float)) and not isinstance(v, bool)
+                    }
+                    if numeric_values:
+                        guard_context = CoachContext(known_values=numeric_values)
+                result = guard.validate(
+                    response,
+                    cursor_level=cursor_level,
+                    context=guard_context,
+                    user_message=user_message,
+                )
                 filter_warnings.extend(result.violations)
                 if result.use_fallback:
                     # CRIT #3 fix: when ComplianceGuard rejects (prescriptive,
@@ -602,6 +654,7 @@ class ComplianceGuardrails:
         self,
         language: str = "fr",
         profile_context: Optional[dict] = None,
+        fiscal_tools_available: bool = False,
     ) -> str:
         """Return the MINT compliance system prompt for the given language.
 
@@ -610,6 +663,14 @@ class ComplianceGuardrails:
 
         If profile_context contains a canton field, canton-specific tax
         and housing data are injected so Claude is canton-aware.
+
+        ``fiscal_tools_available`` gates the marginal-rate directive. Both
+        variants stay figure-free (a marginal rate depends on income), but the
+        wording differs: when the fiscal tool is reachable in this request it is
+        mandated; otherwise the prompt forbids any figure and redirects to the
+        in-app simulation. Callers must pass this from their actual tool list
+        (defaults to the safe, tool-less variant) — never mandate a tool the
+        request cannot reach.
         """
         base = self.SYSTEM_PROMPTS.get(language, self.SYSTEM_PROMPTS["fr"])
 
@@ -630,9 +691,20 @@ class ComplianceGuardrails:
                 canton_lines: list[str] = [f"Canton de l'utilisateur: {canton.upper()}"]
 
                 if tax:
-                    canton_lines.append(
-                        f"Taux marginal cantonal+communal (approx.): {tax['marginal_rate_pct']}%"
-                    )
+                    if fiscal_tools_available:
+                        canton_lines.append(
+                            "Taux marginal cantonal+communal: dépend du revenu — "
+                            "utilise l'outil fiscal "
+                            f"({_FISCAL_MARGINAL_TOOL}) pour tout chiffre; "
+                            "ne jamais avancer un taux marginal sans cet appel."
+                        )
+                    else:
+                        canton_lines.append(
+                            "Taux marginal cantonal+communal: dépend du revenu — "
+                            "n'avance JAMAIS de taux marginal chiffré; renvoie "
+                            "vers la simulation fiscale de l'app pour un chiffre "
+                            "personnalisé."
+                        )
                     canton_lines.append(
                         f"Impôt sur la fortune (‰): {tax['wealth_tax_rate_permille']}"
                     )

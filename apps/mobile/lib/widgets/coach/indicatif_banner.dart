@@ -37,6 +37,25 @@ class IndicatifBanner extends StatelessWidget {
   });
 
   /// Maps enrichment categories to data block route types.
+  /// Catégorie d'enrichissement au plus fort impact d'un profil réel —
+  /// SOURCE UNIQUE du pattern couche 4 (beads -84r/-jzk, panel #jzk).
+  ///
+  /// Lit `baseResult.prompts` (catégories income/lpp/3a/patrimoine/...,
+  /// triées EVI décroissant, scorer:411-416) — PAS `axisPrompts`, qui
+  /// n'émet que freshness/accuracy/understanding : aucune n'est routable
+  /// et le fallback 'lpp' se déclenchait systématiquement (les 3 écrans
+  /// dupliquaient ce bug, latent sur RvC dont le hardcode était 'lpp').
+  /// Prend le premier prompt dont la catégorie est ROUTABLE : fiscalite,
+  /// foreign_pension, retirement_urgency, couple n'ont pas de data-block.
+  static String? topEnrichmentCategoryFrom(EnhancedConfidence? enhanced) {
+    final prompts = enhanced?.baseResult.prompts;
+    if (prompts == null) return null;
+    for (final p in prompts) {
+      if (_categoryToRoute.containsKey(p.category)) return p.category;
+    }
+    return null;
+  }
+
   static const _categoryToRoute = {
     'income': 'revenu',
     'lpp': 'lpp',
@@ -45,13 +64,38 @@ class IndicatifBanner extends StatelessWidget {
     'patrimoine': 'patrimoine',
     'objectif_retraite': 'objectifRetraite',
     'menage': 'compositionMenage',
+    // -7vv : le bloc fiscalite EXISTE (data_block_enrichment
+    // _supportedBlockTypes) — la catégorie émise par le scorer est donc
+    // routable. foreign_pension / retirement_urgency / couple n'ont
+    // toujours pas de bloc : filtrées par topEnrichmentCategoryFrom.
+    'fiscalite': 'fiscalite',
   };
+
+  /// Titre localisé du bloc cible — rend la couche 4 AUDIBLE (VoiceOver
+  /// annonce vers quoi le CTA emmène, suivi panel -jzk / beads -7vv).
+  static String blockTitleFor(BuildContext context, String route) {
+    final l = S.of(context)!;
+    return switch (route) {
+      'revenu' => l.dataBlockRevenuTitle,
+      'lpp' => l.dataBlockLppTitle,
+      'avs' => l.dataBlockAvsTitle,
+      '3a' => l.dataBlock3aTitle,
+      'patrimoine' => l.dataBlockPatrimoineTitle,
+      'fiscalite' => l.dataBlockFiscaliteTitle,
+      'objectifRetraite' => l.dataBlockObjectifTitle,
+      'compositionMenage' => l.dataBlockMenageTitle,
+      _ => l.dataBlockUnknownTitle,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     if (confidenceScore >= 70) return const SizedBox.shrink();
 
-    final route = _categoryToRoute[topEnrichmentCategory] ?? 'lpp';
+    // Review #998 : pas de fallback arbitraire — si aucune catégorie
+    // routable (données complètes mais freshness/accuracy basses), le CTA
+    // est masqué plutôt que d'envoyer à tort vers LPP.
+    final route = _categoryToRoute[topEnrichmentCategory];
     final pct = confidenceScore.round();
 
     return Container(
@@ -92,10 +136,18 @@ class IndicatifBanner extends StatelessWidget {
             S.of(context)!.indicativeBannerBody,
             style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
+          if (route != null) ...[
           const SizedBox(height: 8),
           Align(
             alignment: Alignment.centerRight,
-            child: TextButton.icon(
+            child: Semantics(
+              button: true,
+              // Review #1008 : excludeSemantics évite le doublon avec le
+              // libellé enfant « Préciser » — un seul label annoncé.
+              excludeSemantics: true,
+              label: S.of(context)!.indicativeBannerCtaSemantics(
+                  blockTitleFor(context, route)),
+              child: TextButton.icon(
               onPressed: () => context.push('/data-block/$route'),
               icon: const Icon(Icons.arrow_forward, size: 16),
               label: Text(
@@ -107,8 +159,10 @@ class IndicatifBanner extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               ),
+              ),
             ),
           ),
+          ],
         ],
       ),
     );

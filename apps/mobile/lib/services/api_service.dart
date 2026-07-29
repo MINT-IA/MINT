@@ -221,6 +221,10 @@ class ApiService {
   /// app bundle, etc.) — backend treats 1.0.0 as "unknown legacy" client.
   static String _appVersion = '1.0.0';
 
+  /// Valeur du header `X-App-Version` pour les services qui construisent
+  /// leurs propres requêtes (ex. CoachChatApiService — review PR #972).
+  static String get appVersionHeaderValue => _appVersion;
+
   /// One-shot boot init for [_appVersion]. Must be awaited in main.dart
   /// before runApp so the FIRST request already carries the real version.
   /// Idempotent: subsequent calls re-fetch but the result is stable.
@@ -1130,9 +1134,11 @@ class ApiService {
     double tauxRetrait = 0.04,
     double rendementCapital = 0.03,
     double inflation = 0.02,
-    int horizon = 25,
+    // Défaut unifié 30 (beads -axj) — aligné backend + moteur local.
+    int horizon = 30,
     bool isMarried = false,
     int? currentAge,
+    String? inputMode,
   }) async {
     final payload = {
       'capital_lpp_total': capitalLppTotal,
@@ -1149,6 +1155,11 @@ class ApiService {
       'horizon': horizon,
       'is_married': isMarried,
       if (currentAge != null) 'current_age': currentAge,
+      // beads MINT_nosync-8wy : le backend ne peut pas déduire l'intention
+      // (certificat = valeurs réelles sans âge vs estimation incomplète) —
+      // le mode est annoncé explicitement pour que le receipt exige
+      // current_age seulement en mode estimation.
+      if (inputMode != null) 'input_mode': inputMode,
     };
     final response = await post('/arbitrage/rente-vs-capital', payload);
 
@@ -1206,16 +1217,7 @@ class ApiService {
     }
 
     // Capital exhaustion age
-    int? capitalEpuiseAge;
-    if (capitalOption != null && capitalOption.trajectory.length > 1) {
-      final firstCashflow = capitalOption.trajectory.first.annualCashflow;
-      for (int i = 1; i < capitalOption.trajectory.length; i++) {
-        if (capitalOption.trajectory[i].annualCashflow < firstCashflow * 0.1) {
-          capitalEpuiseAge = capitalOption.trajectory[i].year;
-          break;
-        }
-      }
-    }
+    final capitalEpuiseAge = capitalEpuiseAgeFromTrajectory(capitalOption);
 
     return ArbitrageResult(
       options: options,
@@ -1253,6 +1255,23 @@ class ApiService {
       renteReelleAn20: renteReelleAn20,
       calculationReceipt: calculationReceipt,
     );
+  }
+
+  /// Âge d'épuisement du capital — lecture déterministe de la trajectoire.
+  ///
+  /// Le backend plafonne chaque retrait au capital restant, donc
+  /// `netPatrimony` (capital réel restant, arrondi à 2 décimales côté
+  /// serveur) touche 0 l'année de l'épuisement. Remplace l'heuristique
+  /// « cashflow < 10 % de l'an 1 » (off-by-one + faux négatifs, même défaut
+  /// que arbitrage_engine — beads MINT_nosync-t5r). Le champ `year` de la
+  /// trajectoire backend porte l'âge (age_retraite + i).
+  @visibleForTesting
+  static int? capitalEpuiseAgeFromTrajectory(TrajectoireOption? capitalOption) {
+    if (capitalOption == null) return null;
+    for (final snap in capitalOption.trajectory) {
+      if (snap.netPatrimony <= 0.005) return snap.year;
+    }
+    return null;
   }
 
   static ArbitrageCalculationReceipt? _parseArbitrageCalculationReceipt(

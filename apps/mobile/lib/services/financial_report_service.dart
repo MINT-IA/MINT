@@ -80,6 +80,24 @@ class FinancialReportService {
       // Fallback: confidence remains 0 if profile cannot be built
     }
 
+    // -pd4 : la borne prudente conjoint (revenu inconnu) doit être DITE.
+    if (profile.isMarried && profile.spouseMonthlyNetIncome == null) {
+      final hasSpouseCareerData = profile.spouseContributionYears != null ||
+          profile.spouseAvsGapYears != null;
+      enrichmentPrompts = [
+        ...enrichmentPrompts,
+        if (hasSpouseCareerData)
+          l?.reportSpouseIncomeMissingPrompt ??
+              'Renseigne le revenu de ton/ta conjoint\u00b7e\u00a0: sa rente AVS '
+                  'est estimée au minimum légal en attendant.'
+        else
+          l?.reportSpouseDataMissingPrompt ??
+              'Renseigne le revenu et les années de cotisation de ton/ta '
+                  'conjoint\u00b7e\u00a0: sa rente AVS n\u2019est pas estimée en '
+                  'attendant.',
+      ];
+    }
+
     final pillar3aHasLpp = _hasPillar3aLppAffiliation(profile);
     final pillar3aMaxApplicable = _applicablePillar3aMax(
       profile,
@@ -299,8 +317,8 @@ class FinancialReportService {
       deductions['Rachat LPP'] = lppBuyback;
     }
 
-    // Enfants — déduction fédérale LIFD art. 35 al. 1 let. a (6'700 CHF
-    // en 2025) + déduction cantonale LHID art. 9 al. 2 let. c (7'000-13'000
+    // Enfants — déduction fédérale LIFD art. 35 al. 1 let. a (6'800 CHF
+    // en 2026) + déduction cantonale LHID art. 9 al. 2 let. c (7'000-13'000
     // CHF selon canton). Wave 7 fiscal audit P0-R4 : le flat 6'500 ignorait
     // toute la couche cantonale (sous-estimation ~55 % pour VS/VD/GE).
     if (profile.hasChildren) {
@@ -452,9 +470,9 @@ class FinancialReportService {
     if (nb3aAccounts == 1 && projections['fintech']! > 100000) {
       // Wave 7 fiscal audit P0-R6 : the previous 8 %/5 % flat was invented
       // AND the /2*2 algebraic split cancelled to `totalCapital × 0.05`.
-      // Delegate to RetirementTaxCalculator which implements LIFD art. 38
-      // progressive brackets (×1.0/×1.15/×1.30/×1.50/×1.70) + Wave 3
-      // cantonal married matrix (marriedCapitalTaxDiscountFor).
+      // Delegate to RetirementTaxCalculator (modèle v2 : IFD art. 38 +
+      // interpolation ESTV cantonal ; l'état civil marié interpole
+      // l'étalon cantonalCapitalTaxMarriedChf — triage AnnAssign #1095).
       final totalCapital = projections['fintech']!;
       taxSingle = RetirementTaxCalculator.capitalWithdrawalTax(
         capitalBrut: totalCapital,
@@ -976,22 +994,38 @@ class FinancialReportService {
               birthYear: spouseBirthYear, isFemale: spouseIsFemale)
           : reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble())
               .toInt();
-      // Use spouse's income when available; fall back to user's salary
+      // Beads MINT_nosync-pd4 (Codex review PR #976) : l'ancien fallback
+      // clonait le salaire de l'UTILISATEUR sur le conjoint sans revenu
+      // renseigné — fabrication de données qui gonflait la rente couple.
+      // Honnête : revenu inconnu -> borne PRUDENTE = rente minimale légale
+      // (RAMD <= minimum -> 1'260/mois) x gapFactor conjoint. La limite est
+      // dite via un prompt d'enrichissement au call site — jamais une
+      // estimation basse silencieuse.
       final spouseGrossAnnual = profile.spouseMonthlyNetIncome != null
           ? NetIncomeBreakdown.estimateBrutFromNet(
               profile.spouseMonthlyNetIncome! * 12,
               age: spouseAge,
             )
-          : grossAnnualSalary;
-      final spouseRente = AvsCalculator.computeMonthlyRente(
-        currentAge: spouseAge,
-        retirementAge: spouseRefAge,
-        lacunes: profile.spouseAvsGapYears ?? 0,
-        anneesContribuees: profile.spouseContributionYears,
-        grossAnnualSalary: spouseGrossAnnual,
-        isFemale: hasSpouseGender ? spouseIsFemale : null,
-        birthYear: hasSpouseGender ? spouseBirthYear : null,
-      );
+          : avsRAMDMin;
+      // Review Codex PR #980 : sans années de cotisation conjoint,
+      // computeMonthlyRente suppose une carrière complète (44 ans depuis
+      // 20) — la « borne prudente » 1'260 surestimait alors un conjoint
+      // arrivé tardivement. AUCUNE donnée conjoint (ni revenu, ni années,
+      // ni lacunes) -> rien n'est estimé (0), et la limite est dite.
+      final hasSpouseCareerData = profile.spouseContributionYears != null ||
+          profile.spouseAvsGapYears != null;
+      final spouseRente =
+          (profile.spouseMonthlyNetIncome == null && !hasSpouseCareerData)
+              ? 0.0
+              : AvsCalculator.computeMonthlyRente(
+                  currentAge: spouseAge,
+                  retirementAge: spouseRefAge,
+                  lacunes: profile.spouseAvsGapYears ?? 0,
+                  anneesContribuees: profile.spouseContributionYears,
+                  grossAnnualSalary: spouseGrossAnnual,
+                  isFemale: hasSpouseGender ? spouseIsFemale : null,
+                  birthYear: hasSpouseGender ? spouseBirthYear : null,
+                );
 
       // Apply married couple cap (LAVS art. 35 — 150% of individual max)
       final couple = AvsCalculator.computeCouple(

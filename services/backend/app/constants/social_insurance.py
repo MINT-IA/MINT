@@ -186,6 +186,28 @@ AVS_AGE_REFERENCE_HOMME: int = int(_get("avs.reference_age_men"))
 """Age de reference AVS pour les hommes."""
 
 AVS_AGE_REFERENCE_FEMME: int = int(_get("avs.reference_age_women"))
+"""DÉPRÉCIÉ pour les moteurs — int(64.5) = 64, faux pour les cohortes 1963+
+(65 depuis la réforme). Le scalaire registre est transitoire ; utiliser
+``avs_reference_age(birth_year, is_female)`` ci-dessous (beads -xx9)."""
+
+
+def avs_reference_age(birth_year: int, is_female: bool) -> int:
+    """Âge de référence AVS par cohorte (AVS 21, LAVS art. 21 al. 1).
+
+    MIRROR apps/mobile/lib/constants/social_insurance.dart
+    (``avsReferenceAge``, lignes ~150-157) et
+    couple_optimizer._analyze_avs_cap (bloc inline remplacé, beads -xx9).
+    Transition officielle femmes : <=1960 -> 64 ; 1961 -> 64+3 mois ;
+    1962 -> 64+6 mois ; 1963 -> 64+9 mois ; 1964+ -> 65. Les moteurs
+    travaillent en années entières : 1961/1962 simplifiés à 64,
+    1963 à 65 — même convention que le Dart (jamais divergent).
+    """
+    if not is_female:
+        return AVS_AGE_REFERENCE_HOMME
+    if birth_year <= 1962:
+        return 64
+    return 65
+
 """Age de reference AVS pour les femmes (depuis reforme AVS 21)."""
 
 AVS_REDUCTION_ANTICIPATION: float = _get("avs.anticipation_reduction")
@@ -358,7 +380,17 @@ RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = _get_capital_tranch
 """Tranches progressives pour l'impot sur retrait de capital (multiplicateur)."""
 
 MARRIED_CAPITAL_TAX_DISCOUNT: float = _get("capital_tax.married_discount")
-"""Reduction d'impot pour les couples maries (splitting cantonal ~15%)."""
+"""DÉPRÉCIÉ — scalaire historique uniforme (0.85), faux pour les cantons à
+splitting intégral. Plus AUCUN consommateur actif. Conservé uniquement comme
+valeur registre ``capital_tax.married_discount``.
+
+Le rabais marié forfaitaire par canton (inventé — 8/26 cantons tabulés + un
+repli 0.82) a été SUPPRIMÉ : l'impôt capital marié canonique est désormais
+dérivé de l'étalon ESTV ``CANTONAL_CAPITAL_TAX_MARRIED_CHF`` par interpolation
+(comme le célibataire) dans
+``fiscal.cantonal_comparator.estimate_capital_withdrawal_tax`` (triage AnnAssign
+#1095). Le traitement marié est un effet de barème (splitting), pas un
+coefficient plat."""
 
 
 def calculate_progressive_capital_tax(montant: float, base_rate: float) -> float:
@@ -396,7 +428,7 @@ EPL_MONTANT_MINIMUM: float = _get("lpp.epl_minimum")
 """Montant minimum pour un retrait EPL (OPP2 art. 5)."""
 
 EPL_BLOCAGE_RACHAT_ANNEES: int = int(_get("lpp.epl_buyback_lock_years"))
-"""Delai de blocage des rachats LPP apres un retrait EPL (LPP art. 79b al. 3)."""
+"""Delai de 3 ans (art. 79b al. 3) : un retrait en capital dans les 3 ans suivant un rachat LPP fait perdre la deduction fiscale du rachat. Le nom historique EPL_BLOCAGE_RACHAT est trompeur (c'est le retrait apres rachat qui est concerne)."""
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Hypotheque — Pratique bancaire suisse (ASB / FINMA)
@@ -453,31 +485,44 @@ AVS_SEUIL_REVENU_MIN_INDEPENDANT: float = _get("avs.independent_min_income_thres
 """Seuil de revenu en dessous duquel la cotisation minimale s'applique (LAVS art. 8).
 En dessous de ce seuil, l'independant paie la cotisation minimale forfaitaire."""
 
-AVS_BAREME_DEGRESSIF_PLAFOND: float = 58_800.0
-"""Plafond du bareme degressif AVS independants (LAVS art. 8).
-Au-dessus de ce montant, le taux plein de 10.6% s'applique.
-Note: le bareme detaille AVS_BAREME_INDEPENDANT utilise 60'500 comme seuil
-du taux plein. Cette constante est conservee pour compatibilite."""
-
 # AVS_RENTE_MAX_ANNUELLE already defined above as _get("avs.max_annual_pension")
 
 AVS_BAREME_INDEPENDANT: List[Tuple[float, float, float]] = [
-    (0,       10_100,  0.05371),
-    (10_100,  17_600,  0.05828),
-    (17_600,  22_200,  0.06542),
-    (22_200,  27_200,  0.07158),
-    (27_200,  32_300,  0.07773),
-    (32_300,  37_800,  0.08386),
-    (37_800,  43_200,  0.09002),
-    (43_200,  48_800,  0.09610),
-    (48_800,  54_300,  0.10222),
-    (54_300,  60_500,  0.10413),
-    (60_500,  float('inf'), 0.10600),
+    (10_100,  17_600,  0.05371),
+    (17_600,  23_000,  0.05494),
+    (23_000,  25_500,  0.05617),
+    (25_500,  28_000,  0.05741),
+    (28_000,  30_500,  0.05864),
+    (30_500,  33_000,  0.05987),
+    (33_000,  35_500,  0.06235),
+    (35_500,  38_000,  0.06481),
+    (38_000,  40_500,  0.06728),
+    (40_500,  43_000,  0.06976),
+    (43_000,  45_500,  0.07222),
+    (45_500,  48_000,  0.07469),
+    (48_000,  50_500,  0.07840),
+    (50_500,  53_000,  0.08209),
+    (53_000,  55_500,  0.08580),
+    (55_500,  58_000,  0.08951),
+    (58_000,  60_500,  0.09321),
+    (60_500,  float('inf'), 0.10000),
 ]
-"""Bareme degressif AVS/AI/APG pour independants (LAVS art. 8, RAVS art. 21-23).
+"""Bareme degressif AVS/AI/APG pour independants (RAVS art. 21, LAVS art. 8).
 
-Chaque tranche applique un taux unique sur la totalite du revenu (pas marginal).
-Valeurs 2025/2026. Le taux final (10.6%) correspond au taux plein AVS/AI/APG.
+Barème officiel 2025 = 2026 (adaptation biennale des rentes ; prochaine au
+1.1.2027). Sources : Mémento AVS 2.02 + Caisse cantonale vaudoise de
+compensation + node1922 (pages 2025 et 2026 identiques).
+
+Chaque tranche applique un taux unique sur la totalité du revenu (non
+marginal, borne inférieure incluse). Taux plein indépendant dès CHF 60'500 :
+10.0% (AVS 8.1 + AI 1.4 + APG 0.5) — PAS 10.6%, qui est le taux
+salarié+employeur. Sous CHF 10'100 (AVS_SEUIL_REVENU_MIN_INDEPENDANT) :
+cotisation minimale FIXE (AVS_COTISATION_MIN_INDEPENDANT, CHF 530), pas un
+taux — le barème commence donc à 10'100. Les frais d'administration de la
+caisse (OAVS art. 69, max 5%) s'ajoutent et ne sont pas inclus ici.
+
+Correction audit T02-F17 (beads MINT_nosync-iy5) : l'ancienne table avait des
+bornes et des taux erronés (10.222%/10.413% impossibles, taux plein 10.6%).
 """
 
 
@@ -502,36 +547,11 @@ disability-gap and APG-specific calculations, but must NOT be added again here.
 # ══════════════════════════════════════════════════════════════════════════════
 
 AVS_ECHELLE_44: List[Tuple[float, float]] = [
-    (14_700, 1_260),
-    (17_640, 1_299),
-    (20_580, 1_338),
-    (23_520, 1_377),
-    (26_460, 1_416),
-    (29_400, 1_470),
-    (32_340, 1_524),
-    (35_280, 1_578),
-    (38_220, 1_632),
-    (41_160, 1_686),
-    (44_100, 1_743),
-    (47_040, 1_800),
-    (49_980, 1_857),
-    (52_920, 1_914),
-    (55_860, 1_971),
-    (58_800, 2_028),
-    (61_740, 2_085),
-    (64_680, 2_142),
-    (67_620, 2_199),
-    (70_560, 2_256),
-    (73_500, 2_313),
-    (76_440, 2_370),
-    (79_380, 2_427),
-    (82_320, 2_462),
-    (85_260, 2_491),
-    (88_200, 2_520),
+    tuple(row) for row in _get("avs.echelle44")  # type: ignore[arg-type]
 ]
 """Echelle 44 — table officielle OFAS (rentes mensuelles AVS, 44 ans de cotisation).
-Source : Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
-Format: (RAMD CHF/an, rente mensuelle CHF/mois)."""
+Alimentée par le registre (avs.echelle44 — doc OFAS 318.117.011 p. 20, 51 paliers).
+Format: (RAMD CHF/an « jusqu'à », rente mensuelle CHF/mois)."""
 
 
 def rente_from_ramd(gross_annual_salary: float) -> float:

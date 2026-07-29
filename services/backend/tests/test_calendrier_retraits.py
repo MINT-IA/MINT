@@ -23,10 +23,6 @@ from app.services.arbitrage.calendrier_retraits import (
     compare_calendrier_retraits,
     RetirementAsset,
 )
-from app.constants.social_insurance import (
-    TAUX_IMPOT_RETRAIT_CAPITAL,
-    calculate_progressive_capital_tax,
-)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -86,11 +82,11 @@ class TestCalendrierRetraitsCore:
         assert savings > 5_000
 
     def test_progressive_brackets_applied_correctly(self):
-        """Same-year tax must match calculate_progressive_capital_tax."""
+        """Same-year tax must match the v2 capital withdrawal model."""
         assets = TYPICAL_ASSETS
         total = sum(a.amount for a in assets)  # 650'000
-        base_rate = TAUX_IMPOT_RETRAIT_CAPITAL["VD"]
-        expected_tax = calculate_progressive_capital_tax(total, base_rate)
+        # v2 -2i2 : VD 650000 (IFD art. 38 + interpolation ESTV)
+        expected_tax = 56764.29
 
         result = compare_calendrier_retraits(assets=assets, canton="VD")
         actual_tax = result.options[0].cumulative_tax_impact
@@ -154,6 +150,40 @@ class TestCantonImpact:
         result = compare_calendrier_retraits(assets=TYPICAL_ASSETS)
         assert "canton_impact_VD_vs_ZG" in result.sensitivity
         assert result.sensitivity["canton_impact_VD_vs_ZG"] > 0
+
+    def test_married_tornado_perturbs_married_curve(self):
+        """Le tornado « taux_impot_capital » perturbe la COURBE MARIÉE (#1095).
+
+        Avant : les variantes low/high passaient par ``base_rate_override``
+        (taux célibataire, chemin v1) -> les scénarios d'un couple marié
+        étaient IDENTIQUES à ceux d'un célibataire alors que leur base
+        canonique diffère (Codex P2). Après : la perturbation ±0.01 est un
+        facteur multiplicatif appliqué à l'impôt v2 (table mariée si marié).
+
+        Pour GE et ZH (réduction mariée cantonale ESTV réelle) :
+          - low/high/base mariés DIFFÈRENT du cas célibataire ;
+          - cohérence conservée : low <= base <= high.
+        """
+        for canton in ("GE", "ZH"):
+            single = compare_calendrier_retraits(
+                assets=TYPICAL_ASSETS, canton=canton, is_married=False
+            ).sensitivity
+            married = compare_calendrier_retraits(
+                assets=TYPICAL_ASSETS, canton=canton, is_married=True
+            ).sensitivity
+            for suffix in ("base", "low", "high"):
+                key = f"tornado_taux_impot_capital_{suffix}"
+                assert married[key] != single[key], (
+                    f"{canton} {suffix}: marié == célibataire — le tornado "
+                    f"contourne encore la table mariée"
+                )
+            low = married["tornado_taux_impot_capital_low"]
+            base = married["tornado_taux_impot_capital_base"]
+            high = married["tornado_taux_impot_capital_high"]
+            assert low <= base <= high, (
+                f"{canton}: incohérence marié low <= base <= high "
+                f"({low} <= {base} <= {high})"
+            )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

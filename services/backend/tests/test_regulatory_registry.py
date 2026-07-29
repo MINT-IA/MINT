@@ -814,3 +814,34 @@ class TestFreshness90DaysWarning:
             print("\n[OK] All parameters reviewed within 90 days.")
         # This test always passes — it's informational only
         assert True
+
+
+class TestProjectionAssumptions:
+    """Beads MINT_nosync-7vx : les 4 hypothèses de projection sont ENREGISTRÉES.
+
+    L'audit -zaw (lot1_diff.json) listait projection.* parmi les 9 clés
+    absentes du registre : les fallbacks Dart vivaient sans provenance datée.
+    Les valeurs doivent rester IDENTIQUES aux fallbacks de
+    apps/mobile/lib/constants/social_insurance.dart (avsIndexationRate,
+    defaultInflationRate, defaultLifeExpectancy, defaultSafeWithdrawalRate) —
+    toute recalibration touche les deux côtés + regénère le snapshot.
+    """
+
+    EXPECTED = {
+        "projection.avs_indexation_rate": 0.01,
+        "projection.inflation_rate": 0.015,
+        "projection.life_expectancy": 87.0,
+        "projection.safe_withdrawal_rate": 0.04,
+    }
+
+    def test_projection_keys_registered_with_provenance(self, registry):
+        for key, expected in self.EXPECTED.items():
+            param = registry.get(key)
+            assert param is not None, f"{key} absent du registre (-7vx)"
+            assert param.value == expected, f"{key}: {param.value} != {expected}"
+            assert param.source_type == "estimate", (
+                f"{key} est une HYPOTHÈSE PRODUIT, pas une valeur légale"
+            )
+            assert param.source_url and param.description, (
+                f"{key} doit porter provenance + justification datée"
+            )

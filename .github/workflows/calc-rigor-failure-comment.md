@@ -48,7 +48,7 @@ python3 -m pytest tests/test_estv_oracle.py -v
 ### Causes probables / likely root causes
 
 1. **Constante Backend obsolète** dans `services/backend/app/constants/social_insurance.py` (le plus fréquent — mises à jour fédérales/cantonales annuelles).
-2. **Décote couple par canton** — Dart `marriedCapitalTaxDiscountFor()` est par-canton, Python `MARRIED_CAPITAL_TAX_DISCOUNT` est scalaire. Si la fixture en échec est `couple_dual_earner` × canton non-ZH, cette asymétrie en est la cause. Soit on resserre l'ensemble des fixtures, soit on ouvre un item backlog pour porter `marriedCapitalTaxDiscountFor` en Python (voir backlog 999.4 / Phase 92.6).
+2. **Décote couple par canton** — les deux côtés utilisent la table par canton (Dart `marriedCapitalTaxDiscountFor()` ⟷ Python `married_capital_tax_discount_for()`, miroir depuis beads -axj/-ku6). Si une fixture `couple_dual_earner` diverge, vérifier que les DEUX tables (Dart `marriedCapitalTaxDiscountByCanton` / Python `MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON`) sont restées identiques — toute mise à jour doit toucher les deux.
 3. **Dérive dans `app/services/`** appelant les helpers avec de mauvais arguments — re-grep les callers de la fonction défaillante par mémoire `feedback_pre_push_checklist`.
 
 ### Garde-fous doctrine (à NE PAS contourner)

@@ -46,6 +46,37 @@ class _JobChangeChecklistWidgetState extends State<JobChangeChecklistWidget> {
     _checked = List.filled(widget.items.length, false);
   }
 
+  @override
+  void didUpdateWidget(JobChangeChecklistWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // La liste d'items peut changer pendant que le State persiste — ex.
+    // cohérence « premier » emploi : 2 items → 4 quand un avoir LPP antérieur
+    // arrive par hydratation tardive du profil (l'écran est déjà monté). Sans
+    // re-dimensionner `_checked`, le build/onTap indexe hors bornes →
+    // RangeError. On préserve les cochages PAR IDENTITÉ (`legalRef`) et non par
+    // index : un item coché ne se décoche pas parce qu'un autre item apparaît
+    // ou disparaît en tête de liste.
+    var sameRefs = oldWidget.items.length == widget.items.length;
+    if (sameRefs) {
+      for (var i = 0; i < widget.items.length; i++) {
+        if (oldWidget.items[i].legalRef != widget.items[i].legalRef) {
+          sameRefs = false;
+          break;
+        }
+      }
+    }
+    if (!sameRefs) {
+      final checkedRefs = <String>{
+        for (var i = 0; i < oldWidget.items.length && i < _checked.length; i++)
+          if (_checked[i]) oldWidget.items[i].legalRef,
+      };
+      _checked = List<bool>.generate(
+        widget.items.length,
+        (i) => checkedRefs.contains(widget.items[i].legalRef),
+      );
+    }
+  }
+
   int get _completedCount => _checked.where((c) => c).length;
   double get _progress => widget.items.isEmpty ? 0 : _completedCount / widget.items.length;
 

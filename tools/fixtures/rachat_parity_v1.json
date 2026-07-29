@@ -1,0 +1,22 @@
+{
+  "_doc": "Goldens de parité croisée RACHAT ÉCHELONNÉ (beads MINT_nosync-81n/-97h). Backend rachat_echelonne_service (servi au coach) et mobile RachatEchelonneSimulator (servi à l'écran /rachat-lpp) partagent le modèle fiscal v2 (interpolation 130 points ESTV). Avant : conclusions bloc/étalé INVERSÉES selon la surface. Les DEUX suites pinnent ces valeurs.",
+  "_provenance": "Générés 2026-07-23 après unification v2 — sondes croisées identiques au centime.",
+  "tolerance_chf": 0.05,
+  "cases": [
+    {
+      "id": "vd_single_100k_rachat_140k_revenu_5ans",
+      "inputs": {
+        "rachat_max": 100000,
+        "revenu_imposable": 140000,
+        "canton": "VD",
+        "horizon": 5,
+        "civil_status": "single"
+      },
+      "expected": {
+        "economie_bloc": 31082.60,
+        "economie_echelonnee": 37176.00,
+        "delta_positif_etale_gagne": true
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@ POST /api/v1/family/naissance/impact-fiscal — Impact fiscal des enfants
 POST /api/v1/family/naissance/career-gap  — Impact interruption de carriere
 POST /api/v1/family/naissance/checklist   — Checklist naissance personnalisee
 POST /api/v1/family/concubinage/compare   — Comparaison mariage vs concubinage
-POST /api/v1/family/concubinage/succession — Impot de succession compare
+POST /api/v1/family/concubinage/succession — Mecanisme successoral (non chiffre)
 GET  /api/v1/family/concubinage/checklist — Checklist concubinage
 
 All endpoints are stateless (no data storage). Pure computation on the fly.
@@ -61,9 +61,9 @@ from app.services.family.concubinage_service import ConcubinageService
 
 
 _CONCUBINAGE_SUCCESSION_HINT_FR = (
-    "Pour estimer la succession en concubinage, j'ai besoin de ton canton — "
-    "les règles successorales varient considérablement entre cantons. "
-    "Tu peux me le partager ?"
+    "Pour situer ta succession en concubinage, j'ai besoin de ton canton — "
+    "le traitement fiscal d'un·e concubin·e varie considérablement d'un "
+    "canton à l'autre. Tu peux me le partager ?"
 )
 
 
@@ -297,7 +297,7 @@ def estimate_allocations(
 ) -> AllocationsFamilialesResponse:
     """Estime les allocations familiales cantonales.
 
-    Allocation enfant: CHF 200-300/mois, allocation formation: +CHF 50/mois.
+    Allocation enfant: CHF 215-330/mois, formation par canton (OFAS/BSV 2026).
 
     Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
     when not supplied in the body (W0 audit row 18 sev-2 — canton-indexed
@@ -348,9 +348,9 @@ def estimate_allocations(
 def impact_fiscal_enfant(request: Request, body: ImpactFiscalEnfantRequest) -> ImpactFiscalEnfantResponse:
     """Calcule l'economie fiscale liee aux enfants.
 
-    Deduction par enfant: CHF 6'700. Frais de garde: max CHF 25'500.
+    Deduction par enfant: CHF 6'800. Frais de garde: max CHF 25'800.
 
-    Sources: LIFD art. 35, 33.
+    Sources: LIFD art. 35 al. 1 let. a, art. 33 al. 3.
     """
     service = NaissanceService()
     result = service.calculate_impact_fiscal_enfant(
@@ -480,7 +480,6 @@ def compare_concubinage(
         revenu_2=resolved["revenu_2"],
         canton=str(resolved["canton"]),
         enfants=resolved["enfants"],
-        patrimoine=resolved["patrimoine"],
     )
     comparaisons_schema = [
         ComparisonItemSchema(
@@ -498,8 +497,6 @@ def compare_concubinage(
         impot_celibataires_total=result.impot_celibataires_total,
         impot_maries_total=result.impot_maries_total,
         difference_fiscale=result.difference_fiscale,
-        impot_succession_conjoint=result.impot_succession_conjoint,
-        impot_succession_concubin=result.impot_succession_concubin,
         synthese=result.synthese,
         premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
@@ -519,20 +516,25 @@ def compare_succession(
     _user: User = Depends(require_current_user),
     profile_data: dict = Depends(get_profile_filled),
 ) -> SuccessionResponse:
-    """Compare l'impot de succession conjoint vs concubin.
+    """Enonce le mecanisme successoral du concubinage, sans le chiffrer.
 
-    Le conjoint est exonere dans la plupart des cantons. Le concubin
-    est impose au taux 'tiers' (10-25% selon le canton).
+    Le conjoint survivant est exonere d'impot successoral dans TOUS les
+    cantons — par la loi fiscale cantonale, pas par le Code civil. Le concubin
+    releve du taux dit 'des tiers'. Ni ce taux ni le montant ne sont rendus :
+    ils dependent de la commune, de la franchise, de la part reellement recue
+    et de la duree de vie commune, qu'aucun taux plat ne represente.
+
+    Le `patrimoine` n'est plus demande : il alimentait un `patrimoine x taux`
+    qui supposait que 100 % du patrimoine pouvait revenir au ou a la
+    partenaire, ce que la revision du droit successoral au 1.1.2023 dement.
 
     Grounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`
-    when not supplied in the body (W0 audit row 23 sev-3 fix — legacy default
-    "ZH" silently returned wrong concubin tax rates for non-ZH users).
-    Missing profile.canton triggers a 422 with the D-CE-08
-    `CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;
-    otherwise a warning is logged and the legacy hardcoded-default branch
-    resumes (non-strict graceful Flutter rollout).
+    when not supplied in the body. Missing profile.canton triggers a 422 with
+    the D-CE-08 `CoachToolIncomplete` envelope when
+    `PROFILE_GROUNDING_STRICT_MODE=true`.
 
-    Sources: Lois cantonales successions, CC art. 457-466.
+    Sources: lois fiscales cantonales sur les successions, CC art. 457 ss,
+    CC art. 470-471.
     """
     resolved = _resolve_defaults(profile_data, body, SuccessionRequest)
     missing = _required_profile_fields_missing(resolved, SuccessionRequest)
@@ -550,19 +552,14 @@ def compare_succession(
     )
 
     service = ConcubinageService()
-    result = service.estimate_inheritance_tax(
-        patrimoine=resolved["patrimoine"],
-        canton=resolved["canton"],
-        is_married=resolved["is_married"],
+    result = service.compare_succession_concubin_vs_conjoint(
+        canton=str(resolved["canton"]),
     )
     return SuccessionResponse(
         canton=result.canton,
-        patrimoine=result.patrimoine,
-        impot_conjoint=result.impot_conjoint,
-        impot_concubin=result.impot_concubin,
-        difference=result.difference,
-        taux_conjoint=result.taux_conjoint,
-        taux_concubin=result.taux_concubin,
+        regle_transmission=result.regle_transmission,
+        charge_concubin=result.charge_concubin,
+        facteurs_determinants=result.facteurs_determinants,
         premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,

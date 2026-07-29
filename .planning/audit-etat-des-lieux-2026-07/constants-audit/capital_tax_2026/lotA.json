@@ -1,0 +1,778 @@
+{
+ "meta": {
+  "collected_at": "2026-07-23",
+  "profile": "célibataire, sans enfant, sans confession, chef-lieu",
+  "année": "2026 (13/13 cantons — TaxYear 2026 accepté par l'API pour tous)",
+  "methode": "API officielle du simulateur ESTV (swisstaxcalculator.estv.admin.ch), endpoint POST /delegate/ost-integration/v1/lg-proxy/operation/c3b67379_ESTV/API_calculateManyCapitalTaxes, payload {TaxYear:2026, TaxGroupID:<TaxLocationID chef-lieu>, Relationship:1 (célibataire), Confession1:4 (sans confession), Confession2:0, NumberOfChildren:0, Gender:1, AgeAtPayment:65, Capital:<montant>}. TaxLocationIDs résolus via API_searchLocation et vérifiés par l'écho Location (City/BfsID/Canton) de chaque réponse. Impôt d'église = 0 sur les 65 points (profil sans confession). Probe de sensibilité : AgeAtPayment 45 + Gender femme à 500 kCHF → résultats STRICTEMENT identiques dans les 13 cantons (l'âge/sexe n'influence pas l'impôt sur la prestation en capital dans ces cantons/chef-lieux). Cross-checks déterministes : IFD identique inter-cantons à chaque montant ; IFD(100k)=537≈2684/5 et IFD(250k)=3901≈19503/5 (1/5 du barème IFD revenu collecté dans effective_rates_2026, art. 38 LIFD) ; IFD(1M)=23000=1'000'000×11.5%/5 (taux maximal). Réponses brutes (requête+réponse, 65 calc + 13 sensibilité + 6 searchLocation) archivées dans le scratchpad de session sous estv_capital_lotA/.",
+  "convention": "cantonal_communal = TaxCanton + TaxCity (impôt d'église = 0, pas de taxe personnelle dans la réponse capital) ; ifd = TaxFed (art. 38 LIFD, 1/5 du barème) ; total = cantonal_communal + ifd."
+ },
+ "cantons": {
+  "ZH": {
+   "chef_lieu": "Zurich",
+   "bfs_id": 261,
+   "estv_tax_location_id": 800000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4280,
+     "ifd": 537,
+     "total": 4817,
+     "détail": {
+      "cantonal": 1900,
+      "communal": 2380,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 10700,
+     "ifd": 3901,
+     "total": 14601,
+     "détail": {
+      "cantonal": 4750,
+      "communal": 5950,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 24567,
+     "ifd": 10501,
+     "total": 35068,
+     "détail": {
+      "cantonal": 10906,
+      "communal": 13661,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 52601,
+     "ifd": 17101,
+     "total": 69702,
+     "détail": {
+      "cantonal": 23351,
+      "communal": 29250,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 86542,
+     "ifd": 23000,
+     "total": 109542,
+     "détail": {
+      "cantonal": 38418,
+      "communal": 48124,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Zürich (BFS 261). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "BE": {
+   "chef_lieu": "Berne",
+   "bfs_id": 351,
+   "estv_tax_location_id": 300000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4091,
+     "ifd": 537,
+     "total": 4628,
+     "détail": {
+      "cantonal": 2696,
+      "communal": 1395,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 12422,
+     "ifd": 3901,
+     "total": 16323,
+     "détail": {
+      "cantonal": 8185,
+      "communal": 4237,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 30758,
+     "ifd": 10501,
+     "total": 41259,
+     "détail": {
+      "cantonal": 20267,
+      "communal": 10491,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 51708,
+     "ifd": 17101,
+     "total": 68809,
+     "détail": {
+      "cantonal": 34071,
+      "communal": 17637,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 73154,
+     "ifd": 23000,
+     "total": 96154,
+     "détail": {
+      "cantonal": 48202,
+      "communal": 24952,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Bern (BFS 351). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "LU": {
+   "chef_lieu": "Lucerne",
+   "bfs_id": 1061,
+   "estv_tax_location_id": 600000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 3016,
+     "ifd": 537,
+     "total": 3553,
+     "détail": {
+      "cantonal": 1508,
+      "communal": 1508,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 9106,
+     "ifd": 3901,
+     "total": 13007,
+     "détail": {
+      "cantonal": 4553,
+      "communal": 4553,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 19256,
+     "ifd": 10501,
+     "total": 29757,
+     "détail": {
+      "cantonal": 9628,
+      "communal": 9628,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 29406,
+     "ifd": 17101,
+     "total": 46507,
+     "détail": {
+      "cantonal": 14703,
+      "communal": 14703,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 39556,
+     "ifd": 23000,
+     "total": 62556,
+     "détail": {
+      "cantonal": 19778,
+      "communal": 19778,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Luzern (BFS 1061). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "UR": {
+   "chef_lieu": "Altdorf",
+   "bfs_id": 1201,
+   "estv_tax_location_id": 646000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 3705,
+     "ifd": 537,
+     "total": 4242,
+     "détail": {
+      "cantonal": 1900,
+      "communal": 1805,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 9263,
+     "ifd": 3901,
+     "total": 13164,
+     "détail": {
+      "cantonal": 4750,
+      "communal": 4513,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 18525,
+     "ifd": 10501,
+     "total": 29026,
+     "détail": {
+      "cantonal": 9500,
+      "communal": 9025,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 27788,
+     "ifd": 17101,
+     "total": 44889,
+     "détail": {
+      "cantonal": 14250,
+      "communal": 13538,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 37050,
+     "ifd": 23000,
+     "total": 60050,
+     "détail": {
+      "cantonal": 19000,
+      "communal": 18050,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Altdorf UR (BFS 1201). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "SZ": {
+   "chef_lieu": "Schwyz",
+   "bfs_id": 1372,
+   "estv_tax_location_id": 643000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 1389,
+     "ifd": 537,
+     "total": 1926,
+     "détail": {
+      "cantonal": 536,
+      "communal": 853,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 8140,
+     "ifd": 3901,
+     "total": 12041,
+     "détail": {
+      "cantonal": 3142,
+      "communal": 4998,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 21375,
+     "ifd": 10501,
+     "total": 31876,
+     "détail": {
+      "cantonal": 8250,
+      "communal": 13125,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 32063,
+     "ifd": 17101,
+     "total": 49164,
+     "détail": {
+      "cantonal": 12375,
+      "communal": 19688,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 42750,
+     "ifd": 23000,
+     "total": 65750,
+     "détail": {
+      "cantonal": 16500,
+      "communal": 26250,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Schwyz (BFS 1372). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "OW": {
+   "chef_lieu": "Sarnen",
+   "bfs_id": 1407,
+   "estv_tax_location_id": 606000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 5119,
+     "ifd": 537,
+     "total": 5656,
+     "détail": {
+      "cantonal": 2340,
+      "communal": 2779,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 12798,
+     "ifd": 3901,
+     "total": 16699,
+     "détail": {
+      "cantonal": 5850,
+      "communal": 6948,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 25596,
+     "ifd": 10501,
+     "total": 36097,
+     "détail": {
+      "cantonal": 11700,
+      "communal": 13896,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 38394,
+     "ifd": 17101,
+     "total": 55495,
+     "détail": {
+      "cantonal": 17550,
+      "communal": 20844,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 51192,
+     "ifd": 23000,
+     "total": 74192,
+     "détail": {
+      "cantonal": 23400,
+      "communal": 27792,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Sarnen (BFS 1407). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "NW": {
+   "chef_lieu": "Stans",
+   "bfs_id": 1509,
+   "estv_tax_location_id": 637000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 3035,
+     "ifd": 537,
+     "total": 3572,
+     "détail": {
+      "cantonal": 1597,
+      "communal": 1438,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 8520,
+     "ifd": 3901,
+     "total": 12421,
+     "détail": {
+      "cantonal": 4483,
+      "communal": 4037,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 17045,
+     "ifd": 10501,
+     "total": 27546,
+     "détail": {
+      "cantonal": 8969,
+      "communal": 8076,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 25570,
+     "ifd": 17101,
+     "total": 42671,
+     "détail": {
+      "cantonal": 13455,
+      "communal": 12115,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 34095,
+     "ifd": 23000,
+     "total": 57095,
+     "détail": {
+      "cantonal": 17941,
+      "communal": 16154,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Stans (BFS 1509). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "GL": {
+   "chef_lieu": "Glaris",
+   "bfs_id": 1632,
+   "estv_tax_location_id": 875000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4828,
+     "ifd": 537,
+     "total": 5365,
+     "détail": {
+      "cantonal": 2388,
+      "communal": 2440,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 12070,
+     "ifd": 3901,
+     "total": 15971,
+     "détail": {
+      "cantonal": 5970,
+      "communal": 6100,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 24140,
+     "ifd": 10501,
+     "total": 34641,
+     "détail": {
+      "cantonal": 11940,
+      "communal": 12200,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 36210,
+     "ifd": 17101,
+     "total": 53311,
+     "détail": {
+      "cantonal": 17910,
+      "communal": 18300,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 48280,
+     "ifd": 23000,
+     "total": 71280,
+     "détail": {
+      "cantonal": 23880,
+      "communal": 24400,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Glarus (BFS 1632). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "ZG": {
+   "chef_lieu": "Zoug",
+   "bfs_id": 1711,
+   "estv_tax_location_id": 630000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 2197,
+     "ifd": 537,
+     "total": 2734,
+     "détail": {
+      "cantonal": 1318,
+      "communal": 879,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 7352,
+     "ifd": 3901,
+     "total": 11253,
+     "détail": {
+      "cantonal": 4411,
+      "communal": 2941,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 17752,
+     "ifd": 10501,
+     "total": 28253,
+     "détail": {
+      "cantonal": 10651,
+      "communal": 7101,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 28152,
+     "ifd": 17101,
+     "total": 45253,
+     "détail": {
+      "cantonal": 16891,
+      "communal": 11261,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 38552,
+     "ifd": 23000,
+     "total": 61552,
+     "détail": {
+      "cantonal": 23131,
+      "communal": 15421,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Zug (BFS 1711). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "FR": {
+   "chef_lieu": "Fribourg",
+   "bfs_id": 2196,
+   "estv_tax_location_id": 170000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 2700,
+     "ifd": 537,
+     "total": 3237,
+     "détail": {
+      "cantonal": 1500,
+      "communal": 1200,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 13500,
+     "ifd": 3901,
+     "total": 17401,
+     "détail": {
+      "cantonal": 7500,
+      "communal": 6000,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 36000,
+     "ifd": 10501,
+     "total": 46501,
+     "détail": {
+      "cantonal": 20000,
+      "communal": 16000,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 58500,
+     "ifd": 17101,
+     "total": 75601,
+     "détail": {
+      "cantonal": 32500,
+      "communal": 26000,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 81000,
+     "ifd": 23000,
+     "total": 104000,
+     "détail": {
+      "cantonal": 45000,
+      "communal": 36000,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Fribourg (BFS 2196). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "SO": {
+   "chef_lieu": "Soleure",
+   "bfs_id": 2601,
+   "estv_tax_location_id": 450000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4489,
+     "ifd": 537,
+     "total": 5026,
+     "détail": {
+      "cantonal": 2161,
+      "communal": 2328,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 13799,
+     "ifd": 3901,
+     "total": 17700,
+     "détail": {
+      "cantonal": 6644,
+      "communal": 7155,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 28350,
+     "ifd": 10501,
+     "total": 38851,
+     "détail": {
+      "cantonal": 13650,
+      "communal": 14700,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 42525,
+     "ifd": 17101,
+     "total": 59626,
+     "détail": {
+      "cantonal": 20475,
+      "communal": 22050,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 56700,
+     "ifd": 23000,
+     "total": 79700,
+     "détail": {
+      "cantonal": 27300,
+      "communal": 29400,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Solothurn (BFS 2601). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "BS": {
+   "chef_lieu": "Bâle",
+   "bfs_id": 2701,
+   "estv_tax_location_id": 400000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 4750,
+     "ifd": 537,
+     "total": 5287,
+     "détail": {
+      "cantonal": 2375,
+      "communal": 2375,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 16750,
+     "ifd": 3901,
+     "total": 20651,
+     "détail": {
+      "cantonal": 8375,
+      "communal": 8375,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 36750,
+     "ifd": 10501,
+     "total": 47251,
+     "détail": {
+      "cantonal": 18375,
+      "communal": 18375,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 56750,
+     "ifd": 17101,
+     "total": 73851,
+     "détail": {
+      "cantonal": 28375,
+      "communal": 28375,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 76750,
+     "ifd": 23000,
+     "total": 99750,
+     "détail": {
+      "cantonal": 38375,
+      "communal": 38375,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Basel (BFS 2701). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  },
+  "BL": {
+   "chef_lieu": "Liestal",
+   "bfs_id": 2829,
+   "estv_tax_location_id": 441000000,
+   "points": {
+    "100000": {
+     "cantonal_communal": 3300,
+     "ifd": 537,
+     "total": 3837,
+     "détail": {
+      "cantonal": 2000,
+      "communal": 1300,
+      "église": 0
+     }
+    },
+    "250000": {
+     "cantonal_communal": 8250,
+     "ifd": 3901,
+     "total": 12151,
+     "détail": {
+      "cantonal": 5000,
+      "communal": 3250,
+      "église": 0
+     }
+    },
+    "500000": {
+     "cantonal_communal": 23100,
+     "ifd": 10501,
+     "total": 33601,
+     "détail": {
+      "cantonal": 14000,
+      "communal": 9100,
+      "église": 0
+     }
+    },
+    "750000": {
+     "cantonal_communal": 47850,
+     "ifd": 17101,
+     "total": 64951,
+     "détail": {
+      "cantonal": 29000,
+      "communal": 18850,
+      "église": 0
+     }
+    },
+    "1000000": {
+     "cantonal_communal": 72600,
+     "ifd": 23000,
+     "total": 95600,
+     "détail": {
+      "cantonal": 44000,
+      "communal": 28600,
+      "église": 0
+     }
+    }
+   },
+   "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-payment-tax",
+   "source_note": "Simulateur fiscal officiel ESTV, calculateur « prestations en capital de la prévoyance », année fiscale 2026, commune Liestal (BFS 2829). Collecté le 2026-07-23 via l'API du simulateur (réponses brutes archivées). Profil : célibataire, sans enfant, sans confession, Gender=1/AgeAtPayment=65 (sans influence — vérifié par probe 45 ans/femme, valeurs identiques)."
+  }
+ }
+}

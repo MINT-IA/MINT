@@ -1,9 +1,9 @@
 import 'dart:math';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
-import 'package:mint_mobile/services/tax_estimator_service.dart';
 
 // ============================================================================
 // LPP Deep Service — Sprint S15 (Chantier 4)
@@ -27,11 +27,18 @@ class RachatYearPlan {
   final double economieFiscale;
   final double coutNet;
 
+  /// Tranche versée à moins de 3 ans d'un retrait CAPITAL à
+  /// [RachatEchelonneSimulator.ageRetraitCapitalDefaut] : la déduction
+  /// serait reprise par l'AFC (LPP art. 79b al. 3, ATF 142 II 399).
+  /// Beads MINT_nosync-a6e — même convention temporelle que le fix -okl.
+  final bool fenetre79b;
+
   const RachatYearPlan({
     required this.annee,
     required this.montantRachat,
     required this.economieFiscale,
     required this.coutNet,
+    this.fenetre79b = false,
   });
 }
 
@@ -43,16 +50,46 @@ class RachatEchelonneResult {
   final List<RachatYearPlan> yearlyPlan;
   final String disclaimer;
 
+  /// Économie totale du plan étalé dans le SCÉNARIO retrait capital à
+  /// 65 ans : les tranches en fenêtre 79b al. 3 ne créditent rien
+  /// (reprise AFC). Égale à [economieEchelonneTotal] si aucune tranche
+  /// n'est en fenêtre. Deux scénarios présentés, pas de recommandation
+  /// (compliance éducation).
+  final double economieEchelonneSiCapital;
+
+  /// Nombre de tranches du plan dont l'économie serait reprise en cas de
+  /// retrait capital (fenêtre art. 79b al. 3).
+  final int tranchesEnFenetre;
+
+  /// Économie du rachat en BLOC dans le scénario retrait capital à 65 ans :
+  /// 0 si le bloc (versé année 1) est lui-même en fenêtre 79b. Symétrie
+  /// bloc/étalé — sans elle la comparaison oriente de fait.
+  final double economieBlocSiCapital;
+
+  /// Le rachat en bloc tombe dans la fenêtre art. 79b al. 3.
+  final bool blocEnFenetre;
+
   const RachatEchelonneResult({
     required this.economieBlocTotal,
     required this.economieEchelonneTotal,
     required this.delta,
     required this.yearlyPlan,
     required this.disclaimer,
+    this.economieEchelonneSiCapital = 0,
+    this.tranchesEnFenetre = 0,
+    this.economieBlocSiCapital = 0,
+    this.blocEnFenetre = false,
   });
 }
 
 class RachatEchelonneSimulator {
+  /// Âge de référence du scénario « retrait capital » pour la fenêtre
+  /// art. 79b al. 3 (âge de référence AVS/LPP). Le simulateur ne connaît
+  /// ni l'intention de retrait ni l'âge de retraite réel : il présente le
+  /// scénario à 65 ans en regard du scénario rente (deux chiffres, pas de
+  /// recommandation).
+  static const int ageRetraitCapitalDefaut = 65;
+
   /// Compare le rachat en bloc (1 an) vs echelonne sur [horizon] annees.
   ///
   /// Utilise TaxEstimatorService.estimateAnnualTax() pour un calcul réel :
@@ -98,35 +135,25 @@ class RachatEchelonneSimulator {
 
     // --- Impôt de base (sans rachat) ---
     // Use NetIncomeBreakdown to convert gross → net (replaces hardcoded * 0.87)
-    final baseBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: revenuImposable,
-      canton: canton,
-      age: clampedAge,
-    );
-    final netMensuel = baseBreakdown.monthlyNetPayslip;
-    final impotSansRachat = TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: netMensuel,
-      cantonCode: canton,
-      civilStatus: civilStatus,
-      childrenCount: 0,
-      age: clampedAge,
+    // Beads -81n/-97h : l'ancien chemin imposable -> net (Newton-Raphson)
+    // -> impôt sur le net rendait le modèle NON CONVEXE (l'étalé sortait
+    // PIRE que le bloc — impossible avec un impôt progressif) et inversait
+    // la conclusion vs le coach. Le modèle v2 partagé taxe le revenu
+    // IMPOSABLE directement (miroir backend, 130 points ESTV).
+    final isMarriedCivil = civilStatus == 'married';
+    final impotSansRachat = estimateIncomeTaxV2(
+      revenuImposable,
+      canton,
+      isMarried: isMarriedCivil,
     );
 
     // --- Bloc (1 an) ---
     // On ne peut déduire que min(rachat, revenu) en 1 an (LIFD art. 33).
     final blocDeductible = clampedRachat.clamp(0.0, revenuImposable);
-    final blocBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: revenuImposable - blocDeductible,
-      canton: canton,
-      age: clampedAge,
-    );
-    final netMensuelApresBloc = blocBreakdown.monthlyNetPayslip;
-    final impotApresBloc = TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: netMensuelApresBloc,
-      cantonCode: canton,
-      civilStatus: civilStatus,
-      childrenCount: 0,
-      age: clampedAge,
+    final impotApresBloc = estimateIncomeTaxV2(
+      revenuImposable - blocDeductible,
+      canton,
+      isMarried: isMarriedCivil,
     );
     final economieBlocTotal =
         (impotSansRachat - impotApresBloc).clamp(0.0, impotSansRachat);
@@ -170,30 +197,57 @@ class RachatEchelonneSimulator {
         .toDouble();
     final List<RachatYearPlan> plan = [];
     double totalEconomieEchelonne = 0;
+    double totalEconomieSiCapital = 0;
+    int tranchesEnFenetre = 0;
 
-    final echelonBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: revenuImposable - rachatAnnuelEffectif,
-      canton: canton,
-      age: clampedAge,
-    );
-    final netMensuelApresEchelon = echelonBreakdown.monthlyNetPayslip;
-    final impotApresEchelon = TaxEstimatorService.estimateAnnualTax(
-      netMonthlyIncome: netMensuelApresEchelon,
-      cantonCode: canton,
-      civilStatus: civilStatus,
-      childrenCount: 0,
-      age: clampedAge,
+    final impotApresEchelon = estimateIncomeTaxV2(
+      revenuImposable - rachatAnnuelEffectif,
+      canton,
+      isMarried: isMarriedCivil,
     );
     final economieAnnuelle =
         (impotSansRachat - impotApresEchelon).clamp(0.0, impotSansRachat);
 
+    // Scénario « retrait capital à 65 ans » sans objet pour un utilisateur
+    // déjà à l'âge de référence ou au-delà : aucun marquage (l'écran ne
+    // montre alors qu'un scénario, le sien) — panel -a6e point 3.
+    final scenarioCapitalApplicable = clampedAge < ageRetraitCapitalDefaut;
+
     for (int i = 0; i < clampedHorizon; i++) {
+      // Fenêtre art. 79b al. 3 (ATF 142 II 399) : un retrait en CAPITAL
+      // dans les 3 ans qui suivent un rachat entraîne la reprise de la
+      // déduction par l'AFC. Convention temporelle IDENTIQUE au fix -okl
+      // (lpp_buyback_advanced_simulator.dart : délai effectif
+      // ``yearsUntilRetirement - y + 1`` avec yearsUntilRetirement =
+      // 65 - age, soit 65 - ageTranche) : tranche versée à l'âge
+      // clampedAge + i, retrait au 65e anniversaire -> délai =
+      // 65 - ageTranche ; reprise ssi délai < 3 (« avant l'échéance d'un
+      // délai de trois ans », art. 79b al. 3 : à exactement 3 ans c'est
+      // autorisé). Panel -a6e : la version initiale ajoutait +1 (retrait
+      // en fin d'année des 65 ans) et sous-avertissait la tranche la plus
+      // risquée. Couvre aussi les tranches planifiées APRÈS le retrait
+      // (délai <= 0). Hypothèse conservatrice : capital INTÉGRAL retiré
+      // (un retrait partiel ne reprend que le montant retiré — ATF 142 II
+      // 399) ; une retraite anticipée décale la fenêtre d'autant (clause
+      // dans la note user-facing).
+      final ageTranche = clampedAge + i;
+      final delaiAvantRetrait = ageRetraitCapitalDefaut - ageTranche;
+      final fenetre79b = scenarioCapitalApplicable && delaiAvantRetrait < 3;
+
       totalEconomieEchelonne += economieAnnuelle;
+      if (fenetre79b) {
+        tranchesEnFenetre++;
+      } else {
+        totalEconomieSiCapital += economieAnnuelle;
+      }
+      // scenarioCapitalApplicable == false -> fenetre79b false partout,
+      // donc totalEconomieSiCapital == totalEconomieEchelonne (invariant).
       plan.add(RachatYearPlan(
         annee: i + 1,
         montantRachat: rachatAnnuelEffectif,
         economieFiscale: economieAnnuelle,
         coutNet: rachatAnnuelEffectif - economieAnnuelle,
+        fenetre79b: fenetre79b,
       ));
     }
 
@@ -212,11 +266,23 @@ class RachatEchelonneSimulator {
           '(${totalEffectifRachat.round()}\u00a0CHF sur ${clampedRachat.round()}). ';
     }
 
+    // Symétrie bloc/échelonné (panel -a6e point 2) : le rachat en BLOC est
+    // versé année 1 (âge clampedAge) — à 63-64 ans il est lui-même
+    // intégralement en fenêtre 79b. Sans ce champ, la carte bloc gardait
+    // son économie pleine pendant que l'étalé était marqué : présentation
+    // incomplète = orientation de fait.
+    final blocEnFenetre = scenarioCapitalApplicable &&
+        (ageRetraitCapitalDefaut - clampedAge) < 3;
+
     return RachatEchelonneResult(
       economieBlocTotal: economieBlocTotal,
       economieEchelonneTotal: totalEconomieEchelonne,
       delta: totalEconomieEchelonne - economieBlocTotal,
       yearlyPlan: plan,
+      economieEchelonneSiCapital: totalEconomieSiCapital,
+      tranchesEnFenetre: tranchesEnFenetre,
+      economieBlocSiCapital: blocEnFenetre ? 0.0 : economieBlocTotal,
+      blocEnFenetre: blocEnFenetre,
       disclaimer: cashflowNote + (l?.lppRachatDisclaimerEchelonne ??
           'Simulation pédagogique basée sur les barèmes cantonaux estimés. '
           'Le rachat LPP est soumis à acceptation par la caisse de pension. '

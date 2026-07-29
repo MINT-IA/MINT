@@ -38,7 +38,7 @@ Le taux de remplacement est au cœur du système de prévoyance suisse (Constitu
 | 3a (capital accumulé) | variable | variable |
 
 **Facteurs qui réduisent le taux** :
-- Salaire élevé (> CHF 88'200 — max LPP) : la part non couverte par le 2e pilier augmente.
+- Salaire élevé (> CHF 90'720 — max LPP) : la part non couverte par le 2e pilier augmente.
 - Lacunes de cotisation AVS (années à l'étranger, temps partiel).
 - Changements fréquents d'employeur (pertes de libre passage non réinvesties).
 - Divorce (partage de la prévoyance).

@@ -195,12 +195,17 @@ class TestTaxSaving:
         assert abs(option.trajectory[0].cumulative_tax_delta + expected_saving) < 0.01
 
     def test_rachat_lpp_tax_saving_correct(self):
-        """Rachat LPP tax saving = buyback * taux_marginal."""
+        """Rachat LPP tax saving = buyback * taux_marginal (hors fenêtre 79b).
+
+        L'ancien scénario (annees=1) plaçait le rachat à 1 an du retrait
+        capital — déduction reprise par l'AFC (art. 79b al. 3, MINT_nosync-okl).
+        Horizon 5 : l'année 1 est hors fenêtre et crédite l'économie.
+        """
         option = _build_rachat_lpp_option(
             montant=5_000,
             potentiel_rachat=100_000,
             taux_marginal=0.30,
-            annees=1,
+            annees=5,
             rendement_lpp=0.0,
             canton="VD",
         )

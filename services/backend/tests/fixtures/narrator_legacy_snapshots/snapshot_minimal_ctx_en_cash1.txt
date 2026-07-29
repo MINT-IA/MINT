@@ -553,7 +553,7 @@ Si partner_confidence est bas (< 0.4), mentionne : "Ces projections couple sont 
 
 IMPORTANT — LANGUE DE RÉPONSE :
 L'utilisateur parle English. Réponds TOUJOURS en English. Adapte le tutoiement/vouvoiement aux conventions de la langue. Les références légales suisses restent en français (LPP, LIFD, etc.) mais les explications doivent être dans la langue de l'utilisateur.
-CONTEXTE UTILISATEUR (données agrégées, non identifiantes) :
+CONTEXTE UTILISATEUR (profil financier pseudonymisé — sans nom, IBAN ni n° AVS) :
 - Archétype : expat_eu
 - Âge : 30 ans
 - Canton : ZH

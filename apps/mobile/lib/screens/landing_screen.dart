@@ -90,7 +90,7 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
-    void openOnboarding() => context.go('/onb');
+    void openOnboarding() => context.go('/start');
 
     Widget ctaReveal(Widget child) {
       return AnimatedBuilder(

@@ -57,6 +57,13 @@ class CoachChatApiService {
     String? memoryBlock,
     String language = 'fr',
     int cashLevel = 3,
+    // Tranche firstJob PR-E (E2) — handoff /first-job -> coach : receiptId +
+    // inputsHash transmis au backend (CoachChatRequest), qui résout le MÊME
+    // MoneyTruthReceipt scopé au propriétaire (SPEC §4.3). `receiptInputs` =
+    // double ceinture (chemin pending) si le store a échoué.
+    String? receiptId,
+    String? inputsHash,
+    Map<String, dynamic>? receiptInputs,
   }) async {
     final uri = Uri.parse('$baseUrl/coach/chat');
 
@@ -106,6 +113,17 @@ class CoachChatApiService {
     if (memoryBlock != null && memoryBlock.isNotEmpty) {
       body['memory_block'] = memoryBlock;
     }
+    // firstJob PR-E (E2) — handoff coach : le backend reçoit receiptId +
+    // inputsHash et résout le MoneyTruthReceipt (SPEC §4.3).
+    if (receiptId != null && receiptId.isNotEmpty) {
+      body['receipt_id'] = receiptId;
+      if (inputsHash != null && inputsHash.isNotEmpty) {
+        body['inputs_hash'] = inputsHash;
+      }
+      if (receiptInputs != null && receiptInputs.isNotEmpty) {
+        body['receipt_inputs'] = receiptInputs;
+      }
+    }
     // No api_key — backend fills in server-side ANTHROPIC_API_KEY
 
     var response = await _post(uri, token, body);
@@ -132,6 +150,19 @@ class CoachChatApiService {
         message: 'Authentication failed.',
       );
     } else if (response.statusCode == 403) {
+      // beads MINT_nosync-tcr : le consent gate backend (hard_block) répond
+      // 403 avec detail = deny_pointer {action, purpose, modal_copy_key}.
+      // Ce signal déclenche la ConsentSheet côté écran (grant puis retry) —
+      // il ne doit JAMAIS être confondu avec le gate entitlement.
+      final pointer = _tryDecodeDenyPointer(response.body);
+      if (pointer != null) {
+        debugPrint('[CoachChatApi] 403 consent gate — ${pointer['purpose']}');
+        throw CoachChatApiException(
+          code: 'consent_required',
+          message: 'Consentement requis avant l\'envoi au coach.',
+          consentPurpose: pointer['purpose'] as String?,
+        );
+      }
       debugPrint('[CoachChatApi] 403 — entitlement gate or permission denied');
       throw const CoachChatApiException(
         code: 'entitlement',
@@ -173,6 +204,10 @@ class CoachChatApiService {
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
+      // Review Codex PR #972 : les autres services envoient déjà
+      // X-App-Version ; le coach l'omettait, privant le backend de tout
+      // levier de compatibilité par version (ex. gating du consent gate).
+      'X-App-Version': ApiService.appVersionHeaderValue,
     };
     final encoded = jsonEncode(body);
     if (testClient != null) {
@@ -296,6 +331,27 @@ class CoachChatApiService {
       return null;
     }
   }
+
+  /// Décode un deny_pointer de consentement depuis un corps 403.
+  ///
+  /// Forme backend (consent_service.check_or_log, mode hard_block) :
+  /// {"detail": {"action": ..., "purpose": ..., "modal_copy_key": ...}}.
+  /// Retourne null si le detail n'est pas un pointer structuré (403
+  /// entitlement classique dont detail est une string).
+  static Map<String, dynamic>? _tryDecodeDenyPointer(String body) {
+    try {
+      final json = jsonDecode(body) as Map<String, dynamic>;
+      final detail = json['detail'];
+      if (detail is Map<String, dynamic> &&
+          detail.containsKey('purpose') &&
+          detail.containsKey('modal_copy_key')) {
+        return detail;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Response from /coach/chat endpoint.
@@ -380,7 +436,16 @@ class CoachChatApiException implements Exception {
   final String code;
   final String message;
 
-  const CoachChatApiException({required this.code, required this.message});
+  /// Purpose de consentement manquant quand [code] == 'consent_required'
+  /// (beads MINT_nosync-tcr) — valeur wire du deny_pointer backend
+  /// (ex. 'transfer_us_anthropic').
+  final String? consentPurpose;
+
+  const CoachChatApiException({
+    required this.code,
+    required this.message,
+    this.consentPurpose,
+  });
 
   @override
   String toString() => 'CoachChatApiException($code): $message';

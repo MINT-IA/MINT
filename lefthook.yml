@@ -2,8 +2,9 @@
 # Phase 30.5 CTX-01 D-04 originally scoped this skeleton to memory_retention only.
 # 2026-05-10: replay on last 50 commits of `dev` measured 0/50 commits blocked by
 # banned_terms_arb and 0/50 by arb_parity → activated as HARD gates.
-# Remaining GUARD-* lints (accent_lint_fr 26/50, no_hardcoded_fr 23/50, no_bare_catch
-# script absent) deferred until --diff/baseline mode lands — see ROADMAP_V2 Phase 34.
+# Remaining GUARD-* lints (no_bare_catch script absent) deferred until
+# --diff/baseline mode lands — see ROADMAP_V2 Phase 34. accent_lint_fr et
+# no_hardcoded_fr sont câblés en mode --added-only (2026-07-27 / 2026-07-26).
 
 min_version: 2.1.5
 
@@ -58,6 +59,13 @@ pre-commit:
       # active context router.
       run: python3 tools/checks/mint_rules_guard.py
       tags: [agents, planning, rules]
+    sentry-privacy-guard:
+      # nLPD A1 — masquage PII Sentry Replay (maskAllText/maskAllImages/
+      # sendDefaultPii/allowlist) verrouille main.dart. Beads -glq : le
+      # script existait (8 invariants) mais aucun runner ne l'exécutait.
+      run: python3 tools/checks/verify_sentry_init.py
+      glob: "apps/mobile/{lib/main.dart,pubspec.yaml}"
+      tags: [sentry, privacy]
     journey-os-guard:
       # Journey OS — records, issues, generated board, durable evidence, and
       # branch authorization stay mechanically coherent before commits.
@@ -122,6 +130,89 @@ pre-commit:
       glob: "apps/mobile/lib/l10n/*.arb"
       tags: [compliance, lsfin, phase-34-guard-01]
       fail_text: "LSFin banned terms detected in ARB. Rewrite using permitted vocabulary (« vise à fournir », « est conçue pour », …) — CLAUDE.md TOP rule #1."
+    no-cantonal-rate-table-gate:
+      # Le 2026-07-27, l'écran de recommandations affichait « Économisez CHF X/an
+      # d'impôts » sur un chiffre surestimé de 25 à 77 %. La cause : une table de
+      # taux marginaux par canton dont la source déclarée était « swiss-brain
+      # estimates », c'est-à-dire nous-mêmes. Le dépôt en portait HUIT, donnant
+      # pour Zurich 0.30, 0.28, 0.28, 0.34, 0.25 et 0.129 — deux surfaces du même
+      # produit pouvaient répondre différemment à la même question.
+      #
+      # La leçon n'est pas « corriger les huit » : c'est que rien n'empêchait
+      # d'en écrire une neuvième. Ce gate refuse toute NOUVELLE table de taux
+      # indexée par canton. Sa liste d'autorisation ne peut que rétrécir.
+      run: python3 tools/checks/no_cantonal_rate_table.py --self-test && python3 tools/checks/no_cantonal_rate_table.py
+      glob: "services/backend/app/**/*.py"
+      tags: [fiscal, provenance]
+      fail_text: "Nouvelle table de taux par canton. Un taux n'est pas une donnée, c'est une DÉRIVÉE du modèle calibré — emploie `fiscal.cantonal_comparator.estimate_marginal_rate` ou `estimate_tax_saving`. Un vrai barème exige une source primaire, sa date de collecte et sa méthode de vérification."
+    no-hardcoded-fr-added-lines-gate:
+      # CLAUDE.md TOP rule #5 (i18n). MINT expose 6 langues et un sélecteur de
+      # langue (`lib/screens/settings/langue_settings_screen.dart`), mais 151
+      # libellés user-facing sont écrits en français dur dans des services rendus
+      # tels quels par des écrans — un utilisateur germanophone les voit en
+      # français. Le lint existait depuis « Phase 34 GUARD-04 » sans jamais être
+      # câblé : en fichier entier il compte 4922 violations héritées et bloquerait
+      # tout commit, donc il restait décoratif et la dette grossissait. Ce gate ne
+      # juge que les lignes AJOUTÉES : l'existant passe, le neuf est arrêté.
+      # Échappatoire explicite et grep-able : `// lint-ignore` sur la ligne.
+      run: python3 tools/checks/no_hardcoded_fr.py --self-test && python3 tools/checks/no_hardcoded_fr.py --added-only
+      glob: "apps/mobile/lib/**/*.dart"
+      tags: [i18n, phase-34-guard-04]
+      fail_text: "Nouveau littéral français en dur. Passe par AppLocalizations (clé ARB dans les 6 langues, puis `flutter gen-l10n`) — CLAUDE.md TOP rule #5. Si la chaîne n'est pas rendue à l'utilisateur, marque la ligne `// lint-ignore`."
+    product-prescription-gate:
+      # ADR 2026-07-28-prescriptions : l'impératif d'achat (« Souscris… »,
+      # « Ouvrez un compte… », « Versez le maximum ») est à réécrire en
+      # description conditionnelle sourcée. Baseline-CLIQUET : 36 sites
+      # hérités tolérés en attente de réécriture ; tout NOUVEAU site est
+      # refusé ; une entrée réécrite doit quitter la baseline dans le même
+      # commit. Vocabulaire canonique côté backend (prescription_vocab.py),
+      # chargé par le lint. Échappatoire : `lint-ignore: prescription`.
+      run: python3 tools/checks/product_prescription_lint.py --self-test && python3 tools/checks/product_prescription_lint.py
+      glob: "{apps/mobile/lib/**/*.{dart,arb},services/backend/app/**/*.py,tools/checks/_baseline_prescription_sites.txt}"
+      tags: [compliance, prescriptions, adr-2026-07-28]
+      fail_text: "Nouvel impératif d'achat de produit (ADR 2026-07-28-prescriptions). Réécris en description conditionnelle sourcée (constat -> conséquence -> options, prix en info datée), ou marque `lint-ignore: prescription` si la ligne n'est pas rendue."
+    accent-fr-added-lines-gate:
+      # CLAUDE.md TOP rule #2 (accents 100% FR). Le lint existait depuis Phase
+      # 30.5 sans être câblé : en fichier entier il compte ~263 violations
+      # héritées et bloquerait tout commit touchant un fichier en dette — donc
+      # il restait décoratif. Même patron que no_hardcoded_fr : ce gate ne juge
+      # que les lignes AJOUTÉES par le diff indexé ; l'existant passe, le neuf
+      # est arrêté. Hand-off 2026-07-27 §3.5.
+      run: python3 tools/checks/accent_lint_fr.py --self-test && python3 tools/checks/accent_lint_fr.py --added-only
+      glob: "{apps/mobile/lib/**/*.{dart,arb,md},services/backend/app/**/*.{py,md},tools/**/*.{py,md}}"
+      tags: [i18n, accents, phase-34-guard-04]
+      fail_text: "Nouveau mot français aplati en ASCII (`creer` au lieu de `créer`) — CLAUDE.md TOP rule #2. Corrige l'accent ; la dette héritée n'est pas jugée, seules les lignes ajoutées le sont."
+    no-false-privacy-attestation-gate:
+      # Audit 2026-07 (T16-F02/F34/F36): forbids "document never leaves phone" /
+      # "on-device OCR by default" / "toutes tes données restent sur ton appareil"
+      # attestations while privacy_policy_v2.3.0 §3.3 discloses the real Anthropic
+      # Vision (US) transfer. Keeps public/compliance docs truthful (nLPD). Bypass
+      # via LEFTHOOK_BYPASS=1 is grep-able per CLAUDE.md §5 dev rules.
+      run: python3 tools/checks/no_false_privacy_attestation.py --self-test && python3 tools/checks/no_false_privacy_attestation.py
+      glob: "{PRIVACY.md,legal/PRIVACY.md,legal/APP_STORE_PRIVACY_LABELS.md,LEGAL_RELEASE_CHECK.md,docs/DATA_ACQUISITION_STRATEGY.md,apps/mobile/lib/l10n/app_fr.arb,tools/checks/no_false_privacy_attestation.py}"
+      tags: [compliance, nlpd, privacy, audit-2026-07]
+      fail_text: "False on-device privacy attestation vs privacy_policy_v2.3.0 §3.3 (real Anthropic Vision US transfer). Align the doc with reality or remove the claim."
+    ci-gate-aggregation-check:
+      # Audit 2026-07 (T15-F01/F02, beads MINT_nosync-aoa): "CI Gate" is the sole
+      # required status check; its needs list once omitted contracts-drift and
+      # pii-log-gate, and skipped->success collapsing let a red contracts-drift
+      # produce a green gate. This lint keeps the compliance jobs mechanically
+      # wired into the aggregator so the regression cannot come back silently.
+      run: python3 tools/checks/ci_gate_aggregation_check.py
+      glob: "{.github/workflows/ci.yml,tools/checks/ci_gate_aggregation_check.py}"
+      tags: [compliance, ci, audit-2026-07]
+      fail_text: "ci-gate no longer gates the compliance jobs (contracts-drift / pii-log-gate). Re-wire needs + aggregation — audit T15-F01/F02."
+    education-facts-gate:
+      # Campagne-A cluster C: forbid re-introducing superseded fiscal/social
+      # values (IFD deductions, LIFD article numbers, cantonal family allowances,
+      # LPP/AVS millésimes) into the SERVED content (RAG corpus + ARB), which no
+      # unit test covers. --self-test proves the checker has teeth; the scan runs
+      # on the full served corpus (fast, stdlib). Also wired as a required
+      # ci-gate job so a hooks-bypassed push cannot regress the 2026 truth.
+      run: python3 tools/checks/education_facts_check.py --self-test && python3 tools/checks/education_facts_check.py
+      glob: "{education/inserts/**/*.md,services/backend/education_inserts/**/*.md,legal/**/*.md,apps/mobile/lib/l10n/app_*.arb,tools/checks/education_facts_check.py}"
+      tags: [compliance, content, campagne-a]
+      fail_text: "Superseded fiscal/social value re-introduced in served content — use the official 2026 value (ESTV/AFC, OFAS/BSV). See tools/checks/education_facts_check.py."
     no-3a-ceiling-as-tax-saving-gate:
       # Trust rule: CHF 7'258 / CHF 36'288 are 3a deductible contribution
       # ceilings, not the user's tax saving. Tax impact requires a separate

@@ -17,6 +17,7 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -94,11 +95,14 @@ void main() {
       expect(find.textContaining('ne constitue pas'), findsWidgets);
     });
 
-    testWidgets('Tab 1 (Impots) shows fiscal comparison card',
+    testWidgets('Tab 1 (Impots) gates the fiscal figure without a profile',
         (tester) async {
       await tester.pumpWidget(buildMariageScreen());
       await tester.pumpAndSettle();
-      expect(find.text('COMPARAISON FISCALE'), findsOneWidget);
+      // P2 gate dur : sans profil, aucun chiffre marié/célibataire fabriqué —
+      // le slot résultat porte la carte de situation, pas la comparaison.
+      expect(find.text('COMPARAISON FISCALE'), findsNothing);
+      expect(find.byType(SituationGateCard), findsWidgets);
     });
 
     testWidgets('Tab 2 (Regime) renders without crash', (tester) async {
@@ -119,9 +123,12 @@ void main() {
       // Tap Protection tab
       await tester.tap(find.text('Protection'));
       await tester.pumpAndSettle();
-      // Check for content that should be visible at the top of the tab
+      // P2 gate dur : sans profil, la rente de survivant est gatée (défaut LPP
+      // 2500 fabriqué) — la carte de situation s'affiche et l'input LPP reste
+      // visible ; le narratif « Que se passe-t-il » est derrière le gate.
+      expect(find.byType(SituationGateCard), findsWidgets);
       expect(
-        find.textContaining('Que se passe-t-il', skipOffstage: false),
+        find.text('Rente LPP mensuelle du défunt', skipOffstage: false),
         findsWidgets,
       );
     });
@@ -187,7 +194,10 @@ void main() {
       await tester.pump();
       // Default tab is Conge — should show salary slider and type toggle
       expect(find.text('Type de congé'), findsOneWidget);
-      expect(find.text('Salaire mensuel brut'), findsOneWidget);
+      // P2 gate dur: with no profile the congé output is gated, so the salary
+      // fact label surfaces both on its input control AND in the situation-gate
+      // card's missing-fact list — hence findsWidgets, not findsOneWidget.
+      expect(find.text('Salaire mensuel brut'), findsWidgets);
     });
 
     testWidgets('Tab 1 (Conge) shows Mere/Pere toggle', (tester) async {
@@ -291,19 +301,16 @@ void main() {
       expect(find.text('Checklist'), findsOneWidget);
     });
 
-    testWidgets('Tab 1 (Comparateur) shows decision matrix', (tester) async {
+    testWidgets('Tab 1 (Comparateur) gates the comparison until data entered',
+        (tester) async {
       await tester.pumpWidget(buildConcubinageScreen());
       await tester.pumpAndSettle();
-      // Decision matrix may be below fold due to hero chiffre-choc — scroll
-      final listFinder = find.byType(Scrollable).last;
-      await tester.scrollUntilVisible(
-        find.textContaining('Comparaison des droits'),
-        200,
-        scrollable: listFinder,
-      );
-      await tester.pumpAndSettle();
-      expect(
-          find.textContaining('Comparaison des droits'), findsOneWidget);
+      // Gate-dur (P2) : à l'ouverture sans données, la comparaison fiscale ne
+      // calcule AUCUN chiffre fabriqué — une SituationGateCard remplace la
+      // matrice « Comparaison des droits » jusqu'à ce que revenus + canton
+      // soient confirmés.
+      expect(find.byType(SituationGateCard), findsWidgets);
+      expect(find.textContaining('Comparaison des droits'), findsNothing);
     });
 
     testWidgets('Tab 1 (Comparateur) shows input sliders', (tester) async {
@@ -431,11 +438,14 @@ void main() {
       );
     });
 
-    testWidgets('has Calculer button in widget tree', (tester) async {
+    testWidgets('has primary CTA button in widget tree', (tester) async {
       await tester.pumpWidget(buildDonationScreen());
       await tester.pumpAndSettle();
+      // P2 gate dur: with no profile every situation fact is unconfirmed, so
+      // the CTA morphs to the "compléter" label; the button itself stays.
+      expect(find.byType(FilledButton), findsWidgets);
       expect(
-        find.text('Calculer', skipOffstage: false),
+        find.textContaining('Compléter ma situation', skipOffstage: false),
         findsOneWidget,
       );
     });
@@ -469,37 +479,27 @@ void main() {
       expect(find.text('Enfant / Descendant(e)'), findsOneWidget);
     });
 
-    testWidgets('tapping Calculer produces results without crash',
+    testWidgets('tapping the CTA with an incomplete situation gates, no crash',
         (tester) async {
       await tester.pumpWidget(buildDonationScreen());
       await tester.pumpAndSettle();
 
-      // Scroll down to make Calculer button visible, then tap
-      await tester.scrollUntilVisible(
-        find.text('Calculer'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
+      // No profile → all situation facts assumed. Tapping the CTA must NOT
+      // fabricate a figure (P2 gate dur): it surfaces the situation gate and
+      // does not crash. The full compute path is covered by
+      // donation_gate_test.dart.
+      final cta = find.byType(FilledButton).first;
+      await tester.ensureVisible(cta);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Calculer'));
+      await tester.tap(cta);
       await tester.pumpAndSettle();
 
-      // After calculation, result cards should appear in widget tree
+      expect(find.byType(SituationGateCard), findsWidgets,
+          reason: 'incomplete situation → gate cards, not a fabricated figure');
       expect(
         find.text('IMPÔT SUR LA DONATION', skipOffstage: false),
-        findsOneWidget,
-      );
-      expect(
-        find.textContaining('RÉSERVE HÉRÉDITAIRE', skipOffstage: false),
-        findsOneWidget,
-      );
-      expect(
-        find.text('QUOTITÉ DISPONIBLE', skipOffstage: false),
-        findsOneWidget,
-      );
-      expect(
-        find.text('IMPACT SUR LA SUCCESSION', skipOffstage: false),
-        findsOneWidget,
+        findsNothing,
+        reason: 'no tax figure while canton is an assumed default',
       );
     });
   });

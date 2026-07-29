@@ -30,8 +30,12 @@ from app.constants.social_insurance import (
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
+    LPP_SALAIRE_COORDONNE_MAX,
     LPP_TAUX_INTERET_MIN,
+    AVS_COTISATION_SALARIE,
     AVS_DUREE_COTISATION_COMPLETE,
+    AC_COTISATION_SALARIE,
+    AC_PLAFOND_SALAIRE_ASSURE,
     PILIER_3A_PLAFOND_AVEC_LPP,
     get_lpp_bonification_rate,
 )
@@ -227,52 +231,56 @@ _FIELD_HELP_REGISTRY: Dict[str, FieldHelp] = {
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Estimated net-to-gross ratios by canton (approximate)
+# Plausibilite salaire net/brut — BANDE derivee, plus une table par canton
 # ═══════════════════════════════════════════════════════════════════════════════
+# La table cantonale des ratios net/brut « moyens » (26 valeurs de 0.74 a 0.83,
+# sans source) a ete SUPPRIMEE le 2026-07-28. Elle confondait deux regimes
+# distincts :
+#   - un net de FICHE DE PAIE (impot paye separement) ≈ 1 - charges sociales,
+#     ~0.82-0.90 selon l'age (LPP) et le salaire — PAS cantonal ;
+#   - un net APRES IMPOT A LA SOURCE (permis B) qui, lui, est cantonal ET
+#     depend du revenu.
+# Un scalaire cantonal unique melangeait les deux. On la remplace par une
+# BANDE de plausibilite (`_net_gross_ratio_band`) derivee du revenu reel,
+# calibree sur les constantes d'assurances sociales et l'etalon fiscal ESTV
+# (`fiscal.cantonal_comparator`).
+#
+# Triage AnnAssign #1095 : la table avait survecu au garde
+# `no_cantonal_rate_table.py` parce qu'elle etait declaree en assignation
+# annotee (AnnAssign), invisible au scan `ast.Assign` du garde. Le test
+# `test_aucune_table_canton_net_ratio_dans_le_module` verrouille sa disparition.
 
-_CANTON_NET_RATIO: Dict[str, float] = {
-    "ZH": 0.78, "BE": 0.76, "LU": 0.79, "UR": 0.80,
-    "SZ": 0.82, "OW": 0.81, "NW": 0.82, "GL": 0.80,
-    "ZG": 0.83, "FR": 0.77, "SO": 0.78, "BS": 0.76,
-    "BL": 0.77, "SH": 0.79, "AR": 0.80, "AI": 0.81,
-    "SG": 0.79, "GR": 0.79, "AG": 0.79, "TG": 0.80,
-    "TI": 0.78, "VD": 0.75, "VS": 0.78, "NE": 0.76,
-    "GE": 0.74, "JU": 0.76,
-}
+# Age (LPP art. 16) a partir duquel la bonification de vieillesse est maximale
+# (tranche 55-65 = 18%). Sert a majorer la part LPP du salarie pour la borne
+# basse de la bande de plausibilite (charges maximales).
+_LPP_BONIFICATION_AGE_MAX: int = 55
+
+# ANP (accident non professionnel) : prime legalement a la charge du salarie
+# (LAA art. 91 al. 2). IJM (indemnites journalieres maladie) : couverture
+# contractuelle (LCA), non obligatoire. Aucun taux n'est fixe par la loi — il
+# depend de l'assureur et de la classe de risque ; borne haute empirique
+# retenue ~2.0% du brut (ANP SUVA ~1.0-1.6% + IJM ~0.5%). Sert UNIQUEMENT a
+# elargir le plancher de plausibilite (ratio_min), jamais un calcul de fiche.
+_ANP_IJM_RATE_MAX: float = 0.02
+
+# Convention de l'etalon fiscal : le revenu imposable ≈ 85% du brut (deductions
+# forfaitaires LIFD art. 33). Meme facteur 0.85 que `estimate_income_tax_on_rente`
+# et `CantonalComparator.estimate_tax` — a appliquer avant d'appeler l'etalon.
+_TAXABLE_INCOME_RATIO: float = 0.85
+
+# Tolerance appliquee de part et d'autre de la bande. Resserree a 0.05 (contre
+# 0.08 pour l'ancienne table) : la bande derivee est suffisamment large.
+_NET_RATIO_BAND_TOLERANCE: float = 0.05
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Estimated marginal tax rates by canton and income bracket
+# Marginal tax rate — DERIVE de l'etalon, plus une table
 # ═══════════════════════════════════════════════════════════════════════════════
-
-_MARGINAL_RATES_BY_CANTON: Dict[str, Dict[str, float]] = {
-    # For each canton: low (<60k), mid (60k-120k), high (>120k)
-    "ZH": {"low": 0.18, "mid": 0.28, "high": 0.35},
-    "BE": {"low": 0.20, "mid": 0.30, "high": 0.38},
-    "LU": {"low": 0.16, "mid": 0.25, "high": 0.32},
-    "UR": {"low": 0.14, "mid": 0.22, "high": 0.28},
-    "SZ": {"low": 0.12, "mid": 0.20, "high": 0.26},
-    "OW": {"low": 0.13, "mid": 0.21, "high": 0.27},
-    "NW": {"low": 0.12, "mid": 0.20, "high": 0.26},
-    "GL": {"low": 0.16, "mid": 0.25, "high": 0.31},
-    "ZG": {"low": 0.10, "mid": 0.18, "high": 0.23},
-    "FR": {"low": 0.19, "mid": 0.29, "high": 0.36},
-    "SO": {"low": 0.18, "mid": 0.28, "high": 0.35},
-    "BS": {"low": 0.21, "mid": 0.31, "high": 0.38},
-    "BL": {"low": 0.19, "mid": 0.29, "high": 0.36},
-    "SH": {"low": 0.17, "mid": 0.26, "high": 0.33},
-    "AR": {"low": 0.16, "mid": 0.25, "high": 0.31},
-    "AI": {"low": 0.13, "mid": 0.21, "high": 0.27},
-    "SG": {"low": 0.17, "mid": 0.26, "high": 0.33},
-    "GR": {"low": 0.16, "mid": 0.25, "high": 0.32},
-    "AG": {"low": 0.17, "mid": 0.26, "high": 0.33},
-    "TG": {"low": 0.16, "mid": 0.24, "high": 0.31},
-    "TI": {"low": 0.18, "mid": 0.28, "high": 0.35},
-    "VD": {"low": 0.22, "mid": 0.32, "high": 0.40},
-    "VS": {"low": 0.17, "mid": 0.27, "high": 0.34},
-    "NE": {"low": 0.20, "mid": 0.30, "high": 0.37},
-    "GE": {"low": 0.22, "mid": 0.33, "high": 0.42},
-    "JU": {"low": 0.20, "mid": 0.30, "high": 0.37},
-}
+# La table `_MARGINAL_RATES_BY_CANTON` (26 cantons x 3 tranches) a ete
+# SUPPRIMEE le 2026-07-27. Ne pas la reintroduire : un taux marginal est une
+# DERIVEE du modele calibre (`fiscal.cantonal_comparator`), pas une donnee.
+# Elle divergeait de l'etalon jusqu'a +5,3 points (GE, tranche high) et son
+# fallback 0.25 n'avait aucune source. Constat :
+# .planning/architecture/2026-07-27-constat-precision-service-taux-marginaux.md
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -373,34 +381,43 @@ def cross_validate(profile: dict) -> List[CrossValidationAlert]:
             ))
 
     # ── Check 2: Salary gross vs net ratio ──────────────────────────────
-    if salary > 0 and net_salary > 0:
+    # Bande de plausibilite derivee du revenu reel (charges sociales + impot a
+    # la source de l'etalon), plus un scalaire cantonal. Canton hors des 26 ->
+    # pas de bande, pas d'alerte (ni reference fabriquee).
+    band = _net_gross_ratio_band(salary, canton) if net_salary > 0 else None
+    if band is not None:
+        ratio_min, ratio_max = band
         actual_ratio = net_salary / salary
-        expected_ratio = _CANTON_NET_RATIO.get(canton, 0.78)
-        tolerance = 0.08
+        tolerance = _NET_RATIO_BAND_TOLERANCE
+        band_low = f"{max(0.0, ratio_min) * 100:.0f}"
+        band_high = f"{ratio_max * 100:.0f}"
 
-        if actual_ratio < expected_ratio - tolerance:
+        if actual_ratio < ratio_min - tolerance:
             alerts.append(CrossValidationAlert(
                 field_name="salaire_net",
                 severity="warning",
                 message=(
                     f"L'ecart entre ton brut ({_format_chf(salary)}/an) et "
-                    f"ton net ({_format_chf(net_salary)}/an) est plus grand que "
-                    f"la moyenne pour le canton {canton}. "
-                    f"As-tu un impot a la source ou des deductions inhabituelles?"
+                    f"ton net ({_format_chf(net_salary)}/an) est plus grand "
+                    f"que prevu : pour {canton}, un net entre {band_low}% et "
+                    f"{band_high}% du brut couvre les cas courants (charges "
+                    f"sociales, LPP, impot a la source). "
+                    f"As-tu des deductions inhabituelles?"
                 ),
                 suggestion=(
                     "Verifie que le brut inclut le 13e salaire si applicable, "
                     "et que le net est bien apres toutes les deductions."
                 ),
             ))
-        elif actual_ratio > expected_ratio + tolerance:
+        elif actual_ratio > ratio_max + tolerance:
             alerts.append(CrossValidationAlert(
                 field_name="salaire_net",
                 severity="warning",
                 message=(
-                    f"Ton net ({_format_chf(net_salary)}/an) semble eleve "
-                    f"par rapport au brut ({_format_chf(salary)}/an) "
-                    f"pour le canton {canton}."
+                    f"Ton net ({_format_chf(net_salary)}/an) semble eleve par "
+                    f"rapport au brut ({_format_chf(salary)}/an) : au-dela de "
+                    f"~{band_high}% du brut, meme sans impot a la source, les "
+                    f"charges sociales minimales ne sont plus couvertes."
                 ),
                 suggestion=(
                     "Verifie que tu n'as pas indique le brut mensuel et "
@@ -414,7 +431,7 @@ def cross_validate(profile: dict) -> List[CrossValidationAlert]:
             field_name="pillar_3a_balance",
             severity="error",
             message=(
-                "Tu ne peux ouvrir un 3e pilier qu'a partir de 18 ans "
+                "Un 3e pilier n'est accessible qu'à partir de 18 ans "
                 "avec un revenu soumis a l'AVS (OPP3 art. 7)."
             ),
             suggestion=(
@@ -476,9 +493,7 @@ def cross_validate(profile: dict) -> List[CrossValidationAlert]:
 
     # ── Check 6: Marginal rate vs income coherence ─────────────────────
     if taux_marginal > 0 and salary > 0 and canton:
-        expected_bracket = _get_income_bracket(salary)
-        rates = _MARGINAL_RATES_BY_CANTON.get(canton, {})
-        expected_rate = rates.get(expected_bracket, 0)
+        expected_rate = _estimate_marginal_rate(salary, canton)
 
         if expected_rate > 0:
             if taux_marginal < expected_rate * 0.5:
@@ -560,20 +575,29 @@ def compute_smart_defaults(
     ))
 
     # ── Marginal tax rate estimation ────────────────────────────────────
+    # Canton hors des 26 -> pas de default : l'ancien fallback servait les
+    # taux de ZH etiquetes « dans le canton XX » (chiffre fabrique).
     marginal_rate = _estimate_marginal_rate(salary, canton)
-    defaults.append(SmartDefault(
-        field_name="taux_marginal",
-        value=round(marginal_rate, 4),
-        source=(
-            f"Estimation basee sur un revenu de {_format_chf(salary)}/an "
-            f"dans le canton {canton}. Baremes cantonaux approximatifs "
-            f"(LIFD + impot cantonal + communal)."
-        ),
-        confidence=0.55,
-    ))
+    if marginal_rate > 0:
+        defaults.append(SmartDefault(
+            field_name="taux_marginal",
+            value=round(marginal_rate, 4),
+            source=(
+                f"Estimation basee sur un revenu de {_format_chf(salary)}/an "
+                f"dans le canton {canton}. Pente du modele fiscal calibre sur "
+                f"l'API ESTV (IFD + impot cantonal + communal)."
+            ),
+            confidence=0.55,
+        ))
 
     # ── Liquidity reserve estimation ────────────────────────────────────
-    net_ratio = _CANTON_NET_RATIO.get(canton, 0.78)
+    # Net « fiche de paie » derive des charges sociales du salarie a son age
+    # (part employe AVS/AI/APG + AC + LPP), sans table cantonale : la reserve
+    # de liquidite est un repere, pas un calcul fiscal cantonal. L'impot
+    # cantonal n'entre pas ici (il ne fabrique aucun scalaire par canton).
+    net_ratio = 1.0 - _employee_social_charge_rate(
+        salary, get_lpp_bonification_rate(age)
+    )
     monthly_net = (salary * net_ratio) / 12
     # Recommended: 3-6 months of expenses. Estimate expenses at 70% of net.
     monthly_expenses = monthly_net * 0.70
@@ -742,19 +766,103 @@ def _lpp_confidence(archetype: str) -> float:
 
 
 def _estimate_marginal_rate(salary: float, canton: str) -> float:
-    """Estime le taux marginal d'imposition."""
-    bracket = _get_income_bracket(salary)
-    rates = _MARGINAL_RATES_BY_CANTON.get(canton, _MARGINAL_RATES_BY_CANTON.get("ZH", {}))
-    return rates.get(bracket, 0.25)
+    """Taux marginal — PENTE du modele fiscal canonique, plus une table.
+
+    L'ancienne table 3-tranches divergeait de l'etalon jusqu'a +5,3 points
+    (GE, tranche high) et retombait sur 0.25 sans source pour un canton ou
+    une tranche inconnus.
+
+    Canton hors des 26 -> 0.0 : le schema ne valide que la longueur (2
+    lettres), et servir la moyenne de l'etalon sous l'etiquette « dans le
+    canton XX » fabriquerait un chiffre local (revue Codex 2026-07-27).
+    Les appelants traitent 0.0 comme « pas de reference » : Check 6 se
+    tait, aucun SmartDefault n'est emis.
+
+    Approximation assumee : l'entree est le salaire BRUT alors que
+    l'etalon est calibre sur le revenu imposable — surestime pour qui a
+    des déductions. Même convention que les surfaces jumelles déjà
+    drainées ; en dériver un imposable inventerait une déduction.
+    """
+    from app.services.fiscal.cantonal_comparator import (
+        CANTONAL_COMMUNAL_TAX_CHF,
+        estimate_marginal_rate,
+    )
+
+    canton_code = (canton or "").upper()
+    if canton_code not in CANTONAL_COMMUNAL_TAX_CHF:
+        return 0.0
+    return estimate_marginal_rate(salary, canton_code)
 
 
-def _get_income_bracket(salary: float) -> str:
-    """Determine la tranche de revenu."""
-    if salary < 60_000:
-        return "low"
-    elif salary <= 120_000:
-        return "mid"
-    return "high"
+def _employee_social_charge_rate(salary: float, lpp_bonification_rate: float) -> float:
+    """Charges sociales du salarie (part employe) en fraction du salaire BRUT.
+
+    Composantes :
+    - AVS/AI/APG = ``AVS_COTISATION_SALARIE`` (5.3%, regroupe AI et APG,
+      cf. social_insurance.py) sur TOUT le salaire ; AC (1.1%) plafonnee au
+      salaire assure ``AC_PLAFOND_SALAIRE_ASSURE`` (LACI — revue Codex :
+      appliquer l'AC au-dela du plafond sous-estimait le net des hauts
+      revenus). L'AC solidaire au-dela du plafond est ignoree : elle
+      n'abaisse les charges que des tres hauts revenus, jamais la borne
+      pertinente de la bande.
+    - LPP : la part du salarie vaut au plus la moitie de la bonification de
+      vieillesse (l'employeur cotise au moins autant que le salarie, LPP art. 66
+      al. 1), appliquee au salaire coordonne. Sous le seuil d'entree (LPP art. 7)
+      ou pour une bonification nulle (avant 25 ans), la LPP ne s'applique pas.
+
+    ANP/IJM ne sont PAS inclus ici : ils sont ajoutes separement (``_ANP_IJM_RATE_MAX``)
+    pour la seule borne basse de plausibilite.
+    """
+    if salary <= 0:
+        return 0.0
+    ac_assiette = min(salary, AC_PLAFOND_SALAIRE_ASSURE)
+    rate = AVS_COTISATION_SALARIE + AC_COTISATION_SALARIE * (ac_assiette / salary)
+    if salary >= LPP_SEUIL_ENTREE and lpp_bonification_rate > 0:
+        coordonne = max(salary - LPP_DEDUCTION_COORDINATION, LPP_SALAIRE_COORDONNE_MIN)
+        coordonne = min(coordonne, LPP_SALAIRE_COORDONNE_MAX)
+        rate += (lpp_bonification_rate / 2.0) * (coordonne / salary)
+    return rate
+
+
+def _net_gross_ratio_band(salary: float, canton: str):
+    """Bande de plausibilite du ratio net/brut, derivee du revenu reel.
+
+    Retourne ``(ratio_min, ratio_max)`` ou ``None`` si le canton n'est pas l'un
+    des 26 (ni bande ni alerte fabriquees — meme doctrine que
+    ``_estimate_marginal_rate`` et le Check 6, revue Codex 2026-07-27).
+
+    ratio_max = 1 - charges_sociales_min : salarie aux deductions minimales
+        (AVS/AI/APG + AC ; LPP faible ou exoneree, pas d'ANP/IJM). C'est le cas
+        d'une fiche de paie ou l'impot est paye separement (pas a la source) —
+        plafond physique du net/brut d'un salarie.
+
+    ratio_min = 1 - charges_sociales_max - taux_moyen_impot : salarie impose a
+        la source, deductions LPP maximales (bonification 18% a 55-65, part
+        employe) + ANP/IJM, impot moyen retenu sur la fiche. Le taux moyen vient
+        de l'etalon ``estimate_income_tax`` en respectant sa convention
+        « imposable ≈ 85% du brut » (``_TAXABLE_INCOME_RATIO``) ; il est rapporte
+        au BRUT (l'impot ampute la fiche a partir du brut).
+    """
+    from app.services.fiscal.cantonal_comparator import (
+        CANTONAL_COMMUNAL_TAX_CHF,
+        estimate_income_tax,
+    )
+
+    canton_code = (canton or "").upper()
+    if salary <= 0 or canton_code not in CANTONAL_COMMUNAL_TAX_CHF:
+        return None
+
+    # Charges minimales au salaire reel : AVS pleine + AC plafonnee, LPP nulle.
+    ratio_max = 1.0 - _employee_social_charge_rate(salary, 0.0)
+
+    lpp_bonif_max = get_lpp_bonification_rate(_LPP_BONIFICATION_AGE_MAX)
+    charges_max = _employee_social_charge_rate(salary, lpp_bonif_max) + _ANP_IJM_RATE_MAX
+    avg_tax_rate = (
+        estimate_income_tax(salary * _TAXABLE_INCOME_RATIO, canton_code) / salary
+    )
+    ratio_min = 1.0 - charges_max - avg_tax_rate
+
+    return ratio_min, ratio_max
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -116,6 +116,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // a l'auto-fill et passee au fallback local pour qu'un profil = un score sur
   // toutes les surfaces (plus de moteur de confiance d'arbitrage divergent).
   double? _canonicalConfidence;
+  // Couche 4 (audit T05-F03, MINT_nosync-84r) : on garde l'EnhancedConfidence
+  // COMPLET — ses axisPrompts alimentent le CTA d'enrichissement de la
+  // banniere (avant : categorie 'lpp' codee en dur, la couche 4 etait jetee).
+  EnhancedConfidence? _canonicalEnhanced;
 
   // ── GoRouter prefill from coach suggestion ──
   // The prefill map is read from GoRouterState.extra in the postFrameCallback
@@ -210,7 +214,8 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (profile == null) return;
 
     // D12 : score canonique unique, calcule sur ce profil.
-    _canonicalConfidence = ConfidenceScorer.scoreEnhanced(profile).combined;
+    _canonicalEnhanced = ConfidenceScorer.scoreEnhanced(profile);
+    _canonicalConfidence = _canonicalEnhanced!.combined;
 
     final sources = profile.dataSources;
     bool changed = false;
@@ -513,7 +518,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         double.tryParse(_rachatAnnuelCtrl.text.replaceAll("'", '')) ?? 0;
     if (rachatAnnuel > 0 && currentAge != null) {
       final yearsToRetirement = math.max(0, _ageRetraite - currentAge);
-      const lppReturn = 0.0125;
+      // -b6k : taux d'intérêt minimal LPP (OPP2, décision annuelle du
+      // Conseil fédéral) — registre + fallback via le helper ratio.
+      final lppReturn = lppMinInterestRatio();
       final fvRachat = yearsToRetirement > 0
           ? rachatAnnuel *
               (math.pow(1 + lppReturn, yearsToRetirement) - 1) /
@@ -557,6 +564,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         horizon: horizon,
         isMarried: _isMarried,
         currentAge: currentAge,
+        inputMode: _inputMode == _InputMode.certificate
+            ? 'certificate'
+            : 'estimate',
       );
       if (!mounted || requestId != _requestCounter) return;
       setState(() => _result = result);
@@ -651,6 +661,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   //  BUILD — 4 BLOCS
   // ═══════════════════════════════════════════════════════════════
 
+
   @override
   Widget build(BuildContext context) {
     final chartOptions = _result == null
@@ -680,7 +691,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     child: CustomScrollView(
                       slivers: [
                         SliverToBoxAdapter(
-                          child: _buildRouteProofAnchor(context),
+                          child: _buildRouteProofAnchors(context),
                         ),
                         // ── SliverAppBar (white standard — Simulator screen) ──
                         SliverAppBar(
@@ -754,8 +765,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
                                 // ── Confidence banner ──
                                 IndicatifBanner(
+                                  // -7vv : contrat MUST de fromBareScore — trame 4 axes RÉELLE
+                                  // (le score de visibilité reste _result.confidenceScore).
+                                  confidence: _canonicalEnhanced,
                                   confidenceScore: _result!.confidenceScore,
-                                  topEnrichmentCategory: 'lpp',
+                                  // Couche 4 : categorie du prompt au plus
+                                  // FORT impact du profil reel — axisPrompts
+                                  // n'est PAS trie (ordre d'emission, cf.
+                                  // confidence_scorer.dart:425), on prend le
+                                  // max. Plus de 'lpp' code en dur
+                                  // (MINT_nosync-84r).
+                                  topEnrichmentCategory: IndicatifBanner.topEnrichmentCategoryFrom(
+                                      _canonicalEnhanced),
                                 ),
 
                                 if (_hasEstimatedValues &&
@@ -1282,9 +1303,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     // Maestro `assertVisible`) rather than being merged into one big blob
     // with every other label in the input section. The inner visual label
     // `Text` is `ExcludeSemantics`-wrapped to avoid duplicating the name.
+    final semanticsValue = controller.text.trim();
     return Semantics(
       container: true,
       label: label,
+      value: semanticsValue,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -2186,19 +2209,43 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   //  RECEIPT GATE
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildRouteProofAnchor(BuildContext context) {
+  Widget _buildRouteProofAnchors(BuildContext context) {
     if (!E2eRuntimeFlags.proofAnchors) return const SizedBox.shrink();
 
     final route = GoRouterState.of(context).uri.path;
-    final label = 'route=$route';
+    final routeLabel = 'route=$route';
+    final ageProof = _ageCtrl.text.trim();
     if (!_routeProofLogged) {
       _routeProofLogged = true;
-      debugPrint('[MINT_E2E_ROUTE_STATE] $label');
+      debugPrint('[MINT_E2E_ROUTE_STATE] $routeLabel');
     }
 
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildProofAnchor(
+          key: const Key('rvc_route_state'),
+          identifier: 'rvc_route_state',
+          label: routeLabel,
+        ),
+        if (ageProof.isNotEmpty)
+          _buildProofAnchor(
+            key: const Key('rvc_age_state'),
+            identifier: 'rvc_age_state_$ageProof',
+            label: 'rvc_age=$ageProof',
+          ),
+      ],
+    );
+  }
+
+  Widget _buildProofAnchor({
+    required Key key,
+    required String identifier,
+    required String label,
+  }) {
     return Semantics(
-      key: const Key('rvc_route_state'),
-      identifier: 'rvc_route_state',
+      key: key,
+      identifier: identifier,
       container: true,
       label: label,
       child: Text(

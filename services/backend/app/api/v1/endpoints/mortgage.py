@@ -444,6 +444,7 @@ def calculate_epl_combined(
         a_rachete_recemment=resolved["aRacheteRecemment"],
         annees_depuis_dernier_rachat=resolved["anneesDernierRachat"],
         avoir_lpp_a_50_ans=resolved["avoirLppA50Ans"],
+        is_married=bool(resolved["is_married"]),
     )
 
     return EplCombinedResponse(

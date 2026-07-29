@@ -1,0 +1,137 @@
+<title>MINT — Backlog dev-vérifié (audit état-des-lieux 2026-07)</title>
+<style>
+  :root{
+    --bg:#FAF8F5; --fg:#1c211e; --muted:#5c675f; --line:#e2ddd4; --card:#fff;
+    --forest:#2F5F3F; --forestbg:#eaf1ec; --p0:#8a1c1c; --p0bg:#f7e6e6;
+    --p1:#8a5a00; --p1bg:#f8efdd; --p2:#3a5566; --p2bg:#e7eef2; --p3:#5c675f; --p3bg:#eeece7;
+    --ok:#2F5F3F; --okbg:#e7f1ea; --sev:#8a1c1c;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#14period1712;--bg:#141712;--fg:#eae7df;--muted:#a3aaa0;--line:#2c332c;--card:#1b1f1a;
+      --forest:#7fc79b;--forestbg:#1d2a22;--p0:#f19a9a;--p0bg:#31201f;--p1:#e6c179;--p1bg:#2c2617;
+      --p2:#9fc2d6;--p2bg:#1c262c;--p3:#a3aaa0;--p3bg:#232620;--ok:#7fc79b;--okbg:#1d2a22;--sev:#f19a9a;}
+  }
+  :root[data-theme="dark"]{--bg:#141712;--fg:#eae7df;--muted:#a3aaa0;--line:#2c332c;--card:#1b1f1a;
+    --forest:#7fc79b;--forestbg:#1d2a22;--p0:#f19a9a;--p0bg:#31201f;--p1:#e6c179;--p1bg:#2c2617;
+    --p2:#9fc2d6;--p2bg:#1c262c;--p3:#a3aaa0;--p3bg:#232620;--ok:#7fc79b;--okbg:#1d2a22;--sev:#f19a9a;}
+  :root[data-theme="light"]{--bg:#FAF8F5;--fg:#1c211e;--muted:#5c675f;--line:#e2ddd4;--card:#fff;
+    --forest:#2F5F3F;--forestbg:#eaf1ec;--p0:#8a1c1c;--p0bg:#f7e6e6;--p1:#8a5a00;--p1bg:#f8efdd;
+    --p2:#3a5566;--p2bg:#e7eef2;--p3:#5c675f;--p3bg:#eeece7;--ok:#2F5F3F;--okbg:#e7f1ea;--sev:#8a1c1c;}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;padding:32px 20px 80px}
+  .wrap{max-width:1080px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:14px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:0 0 28px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .stat .n{font-size:26px;font-weight:700;line-height:1}
+  .stat .l{color:var(--muted);font-size:12px;margin-top:4px}
+  h2{font-size:15px;text-transform:uppercase;letter-spacing:.06em;color:var(--forest);margin:34px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .wave{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--forest);border-radius:10px;padding:14px 16px;margin:0 0 12px}
+  .wave h3{margin:0 0 4px;font-size:15px}
+  .wave p{margin:0;color:var(--muted);font-size:13.5px}
+  .wave code{background:var(--forestbg);color:var(--forest);border-radius:5px;padding:1px 6px;font-size:12.5px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th{text-align:left;background:var(--forestbg);color:var(--forest);font-weight:600;padding:9px 10px;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  td{padding:9px 10px;border-top:1px solid var(--line);vertical-align:top}
+  .tw{overflow-x:auto}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .P0{background:var(--p0bg);color:var(--p0)} .P1{background:var(--p1bg);color:var(--p1)}
+  .P2{background:var(--p2bg);color:var(--p2)} .P3{background:var(--p3bg);color:var(--p3)}
+  .id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);white-space:nowrap}
+  .st{font-size:11.5px;font-weight:600}
+  .st.conf{color:var(--ok)} .st.pend{color:var(--p1)} .st.sev{color:var(--sev)}
+  .note{background:var(--okbg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;font-size:13.5px;color:var(--muted)}
+  .note b{color:var(--fg)}
+  .contract{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0}
+  .porte{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:12.5px}
+  .porte b{color:var(--forest)}
+  footer{color:var(--muted);font-size:12px;margin-top:32px;border-top:1px solid var(--line);padding-top:12px}
+</style>
+
+<div class="wrap">
+  <h1>MINT — Backlog dev-vérifié</h1>
+  <p class="sub">Audit état-des-lieux 2026-07 (FROZEN <span class="id">8d059e502</span>, G1) → re-validé sur la ligne <b>dev</b> (spine d'expédition). Tracker : beads <span class="id">MINT_nosync-*</span>. Généré 2026-07-22.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n">641</div><div class="l">findings uniques (audit brut, G1)</div></div>
+    <div class="stat"><div class="n">24</div><div class="l">clusters dev-vérifiés ouverts</div></div>
+    <div class="stat"><div class="n" style="color:var(--p0)">1</div><div class="l">P0 · <span style="color:var(--p1)">18 P1</span> · 4 P2 · 1 P3</div></div>
+    <div class="stat"><div class="n" style="color:var(--ok)">8</div><div class="l">fermés : fixed-on-dev / faux-positif</div></div>
+  </div>
+
+  <div class="note">
+    <b>Hygiène audit (anti-façade).</b> L'audit brut a tourné sur G1 (branche qualité archivée <span class="id">archive/g1-ledger-baseline-20260721</span>). 4 agents ont re-confronté chaque finding P0/P1 à <b>dev</b>. Résultat : plusieurs findings <b>déjà corrigés sur dev</b> (RvC survivant, rachat échelonné T05-F05 <i>ex-P0</i>, CTA landing, ORM) et plusieurs <b>faux-positifs</b> écartés (T01-F01 RAMD <i>ex-P0</i>, T16-F01 <code>computeMonthlyRente</code> existe, T16-F03 test existe, T09/T11 JWT). Aucun dump aveugle : chaque bug ci-dessous existe sur la ligne qui expédie.
+    <div class="contract">
+      <span class="porte"><b>Contrat de clôture — 4 portes :</b></span>
+      <span class="porte"><b>1. RED</b> test échoue sur le code cassé</span>
+      <span class="porte"><b>2. GREEN</b> après fix</span>
+      <span class="porte"><b>3. WIRED</b> gate ci/lefthook qui bloque vraiment</span>
+      <span class="porte"><b>4. DUAL-SIGN</b> Claude + Codex</span>
+    </div>
+  </div>
+
+  <h2>Ordre d'attaque</h2>
+
+  <div class="wave"><h3>Vague 0 — Close flagship (prouver la machine)</h3>
+    <p><code>-1px</code> double-déflation RvC. Dev-confirmé (<span class="id">arbitrage_engine.dart:2005-2013</span>), diagnostic déjà signé Codex, zéro recherche. Démontre le contrat complet en une PR : RED Dart → fix → preuve valeur sim/Patrol → Codex → merge → <code>bd close</code>.</p></div>
+
+  <div class="wave"><h3>Vague 1 — Rendre les gates réels (enabler anti-façade)</h3>
+    <p><code>-aoa</code> ci-gate n'agrège pas les jobs compliance → aujourd'hui la porte « WIRED » ne bloque rien. À faire tôt, isolé, pour que <b>chaque</b> clôture suivante s'appuie sur un gate qui bloque vraiment. Risque : peut passer le board au rouge → isoler + traiter les retombées.</p></div>
+
+  <div class="wave"><h3>Vague 2 — Chiffres faux servis à l'user (dégât max)</h3>
+    <p><code>-cli</code> (P0, doctrine 3a en recherche), <code>-iy5</code> AVS 2 tables divergentes, <code>-5ba</code> RAG faits suisses faux, <code>-okl</code> LPP 3 ans, <code>-eml</code> optimal_accounts, <code>-t5r</code> heuristiques. Exactitude suisse = cœur de la confiance.</p></div>
+
+  <div class="wave"><h3>Vague 3 — Spine nLPD / privacy (légal + confiance)</h3>
+    <p><code>-tih</code> gates non-contraignants sur écritures durables (<b>le + sévère</b>), <code>-tqj</code> révocation fail-open, <code>-27m</code> PRIVACY.md contredit le code, <code>-2vh</code> centre révocation orphelin, <code>-4lj</code> coach US direct. Racine commune : gates advisory/aval — corriger le mode d'enforcement une fois.</p></div>
+
+  <div class="wave"><h3>Vague 4 — Coach + façade parcours (mandat « pas de façade »)</h3>
+    <p><code>-3vi</code> garde anti-hallucination morte sur chat prod, <code>-9f8</code> valeurs fabriquées expat/repayment, <code>-mla</code> write-back conjoint (bloque affordability F53), <code>-84r</code> couche-4 absente des parcours.</p></div>
+
+  <div class="wave"><h3>Vague 5 — Drift docs/gates · Vague 6 — Design (parallèle/plus tard)</h3>
+    <p>V5 : <code>-glq</code> gardes promises jamais câblées, <code>-a2h</code> ADR/docs drift. V6 : <code>-nh0</code> icône app, <code>-e05</code> redesign (cible = <i>MINT Design System (10).zip</i>) — timing au choix, non-bloquant.</p></div>
+
+  <h2>Backlog complet par domaine</h2>
+  <div class="tw"><table>
+    <tr><th>ID</th><th>P</th><th>Bug</th><th>Domaine</th><th>Statut dev</th></tr>
+
+    <tr><td class="id">-cli</td><td><span class="tag P0">P0</span></td><td>Backend rachat 3a rétroactif : doctrine pré-correction (~10× sur-estimation, user-reachable)</td><td>Calc suisse</td><td class="st sev">présent dev · doctrine en recherche</td></tr>
+
+    <tr><td class="id">-1px</td><td><span class="tag P1">P1</span></td><td>RvC : impôt rente double-déflaté dans l'Option C mixte</td><td>Moteur RvC</td><td class="st conf">CONFIRMÉ dev (2005-2013)</td></tr>
+    <tr><td class="id">-iy5</td><td><span class="tag P1">P1</span></td><td>2 tables AVS cotisation indépendant divergentes (+21.4%)</td><td>Calc suisse</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-5ba</td><td><span class="tag P1">P1</span></td><td>Contenu éducatif servi (RAG) : faits suisses faux + contradictions (LPP/donation/AVS indep)</td><td>Calc suisse</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-okl</td><td><span class="tag P1">P1</span></td><td>Blocage LPP 3 ans (art. 79b al.3) non enforcé dans les moteurs de rachat mobile</td><td>Calc suisse</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-eml</td><td><span class="tag P1">P1</span></td><td>optimal_accounts 3a : ignore frais provider + terme « optimal »</td><td>Calc suisse</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-t5r</td><td><span class="tag P1">P1</span></td><td>financial_core : 3 heuristiques douteuses (capitalEpuisé, mortalité uniforme, âge)</td><td>Calc suisse</td><td class="st conf">dev-vérifié</td></tr>
+
+    <tr><td class="id">-tih</td><td><span class="tag P1">P1</span></td><td>nLPD : gates non-contraignants autour des écritures durables (doc vision persiste montants tiers en clair avant gate)</td><td>Privacy / nLPD</td><td class="st sev">dev-vérifié · LE + SÉVÈRE</td></tr>
+    <tr><td class="id">-tqj</td><td><span class="tag P1">P1</span></td><td>Révocation consent fail-open : garantie d'effacement nLPD cassée sur échec (+ T10-F03)</td><td>Privacy / nLPD</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-27m</td><td><span class="tag P1">P1</span></td><td>PRIVACY.md contredit le code : salaire/LPP/3a exacts envoyés à Anthropic US</td><td>Privacy / nLPD</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-2vh</td><td><span class="tag P1">P1</span></td><td>Centre de révocation de consentement orphelin (atteignable qu'en deeplink)</td><td>Privacy / nLPD</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-4lj</td><td><span class="tag P2">P2</span></td><td>Coach principal route vers Anthropic US direct par défaut (rag/llm_client.py)</td><td>Privacy / nLPD</td><td class="st conf">dev-vérifié</td></tr>
+
+    <tr><td class="id">-8wy</td><td><span class="tag P1">P1</span></td><td>RvC : mode Certificat ne rend jamais de résultat sans âge de profil</td><td>Moteur RvC</td><td class="st pend">dev-reval à faire</td></tr>
+    <tr><td class="id">-axj</td><td><span class="tag P1">P1</span></td><td>RvC : calcul dupliqué backend(Python) vs mobile(Dart) aux résultats divergents (viole règle-4)</td><td>Moteur RvC</td><td class="st pend">dev-reval à faire</td></tr>
+    <tr><td class="id">-h5i</td><td><span class="tag P1">P1</span></td><td>RvC : backend premier_eclairage compare revenus rente cumulés vs capital résiduel seul (pommes/oranges)</td><td>Moteur RvC</td><td class="st pend">dev-reval à faire</td></tr>
+
+    <tr><td class="id">-3vi</td><td><span class="tag P1">P1</span></td><td>Garde numérique anti-hallucination morte sur le chemin chat de PROD</td><td>Coach</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-9f8</td><td><span class="tag P1">P1</span></td><td>Façade valeurs fabriquées : expat (top cantons AFC-mensonger) + repayment (dettes mockées)</td><td>Parcours / façade</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-mla</td><td><span class="tag P1">P1</span></td><td>Couple : write-back conjoint manquant (household invite n'alimente aucun calcul)</td><td>Parcours / wiring</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-84r</td><td><span class="tag P1">P1</span></td><td>Couche 4 (enrichmentPrompts) absente des parcours-vie (viole NEVER #9)</td><td>Parcours / archi</td><td class="st conf">dev-vérifié</td></tr>
+
+    <tr><td class="id">-aoa</td><td><span class="tag P1">P1</span></td><td>ci-gate n'agrège pas les jobs compliance (contracts-drift + pii-log-gate morts, skipped→success)</td><td>CI / gates</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-glq</td><td><span class="tag P2">P2</span></td><td>Gardes mécaniques promises jamais câblées (sentry masking, milestone_discipline absent)</td><td>CI / gates</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-a2h</td><td><span class="tag P2">P2</span></td><td>Docs/ADR de commandement affirment un état construit inexistant (drift)</td><td>Doc integrity</td><td class="st conf">dev-vérifié</td></tr>
+
+    <tr><td class="id">-nh0</td><td><span class="tag P2">P2</span></td><td>Icône app non appliquée sur le build sim (launcher icons non régénérés)</td><td>Design / build</td><td class="st conf">dev-vérifié</td></tr>
+    <tr><td class="id">-e05</td><td><span class="tag P3">P3</span></td><td>Design perçu « ancien » sur dev — cible de redesign = MINT Design System (10).zip</td><td>Design</td><td class="st conf">dev-vérifié</td></tr>
+  </table></div>
+
+  <h2>Fermés à la re-validation (8)</h2>
+  <div class="note" style="background:var(--card)">
+    <b>Fixed-on-dev :</b> <span class="id">-w2z</span> survivant 60% (arbitrage:407) · T05-F05 rachat échelonné write-back (<i>ex-P0</i>) · T05-F25 CTA landing · T11-F32/33/34 ORM · T01-F30 (dup -1px).<br>
+    <b>Faux-positifs :</b> T01-F01 RAMD (<i>ex-P0</i>) · T16-F01 <code>AvsCalculator.computeMonthlyRente</code> existe + câblé · T16-F03 test onboarding contract existe · T11-F31 JWT · T09-F01/F25/F54.
+  </div>
+
+  <footer>Source findings : <span class="id">~/MINT-remediation-artifacts/audit-etat-des-lieux-2026-07/themes/T*/findings-*.jsonl</span> · Phase GSD : <span class="id">.planning/phases/remediation-audit-2026-07/</span> · Contrat : dev = spine produit, G1 = couche qualité (archivée). Merge infaisable → consolidation par ports verticaux ciblés, chacun sous les 4 portes.</footer>
+</div>

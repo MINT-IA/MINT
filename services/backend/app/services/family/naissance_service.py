@@ -7,9 +7,9 @@ deductions fiscales enfants et impact sur la carriere (lacunes LPP + 3a).
 Sources:
     - LAPG art. 16d-16h (allocation maternite: 14 sem., 80%, max CHF 220/j)
     - LAPG art. 16i-16l (allocation paternite: 2 sem., 80%, max CHF 220/j)
-    - LAFam art. 3 (allocations familiales: CHF 200-300/mois selon canton)
-    - LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'700)
-    - LIFD art. 33 al. 1 let. hbis (frais de garde: max CHF 25'500)
+    - LAFam art. 3, 5 (allocations familiales: CHF 215-330/mois selon canton, OFAS 2026)
+    - LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'800)
+    - LIFD art. 33 al. 3 (frais de garde par des tiers: max CHF 25'800)
     - LPP art. 7-8 (salaire coordonne, bonifications de vieillesse)
     - OPP 2 (ordonnance LPP, salaire minimum / seuil d'entree)
 
@@ -50,20 +50,40 @@ APG_PATERNITE_JOURS_OUVRABLES = 10  # 10 jours ouvrables
 APG_PATERNITE_JOURS_CALENDAIRES = 14  # 14 jours calendaires pour le calcul APG
 
 # ---------------------------------------------------------------------------
-# Allocations familiales par canton (LAFam art. 3, CHF/mois, 2025)
+# Allocations familiales par canton — montants cantonaux reels 2026
+# Source : OFAS/BSV « Genres et montants des allocations familiales 2026 »
+# (Stand 12.12.2025, donnees au 1.1.2026). Minimums federaux LAFam art. 5 :
+# enfant 215, formation 268 ; chaque canton verse au moins ce minimum.
+# Montant de BASE (2 premiers enfants, taux standard). Les modulations par age
+# (ZH, LU, ZG) et par rang (FR, VD, VS, NE, GE) ne sont PAS modelisees : le
+# montant exact depend du canton de la caisse de l'employeur, de l'age et du
+# rang de l'enfant (simplification educative documentee).
 # ---------------------------------------------------------------------------
 
 ALLOCATIONS_ENFANT_PAR_CANTON: Dict[str, float] = {
-    "GE": 300.0, "VD": 300.0, "VS": 305.0, "NE": 220.0, "FR": 265.0,
-    "BE": 230.0, "ZH": 200.0, "BS": 200.0, "LU": 210.0, "AG": 200.0,
-    "SG": 200.0, "TI": 200.0, "GR": 220.0, "SO": 200.0, "TG": 200.0,
-    "BL": 200.0, "AR": 200.0, "AI": 200.0, "GL": 200.0, "SH": 200.0,
-    "ZG": 300.0, "SZ": 200.0, "OW": 200.0, "NW": 200.0, "UR": 200.0,
+    "ZH": 215.0, "BE": 250.0, "LU": 215.0, "UR": 240.0, "SZ": 230.0,
+    "OW": 220.0, "NW": 258.0, "GL": 215.0, "ZG": 330.0, "FR": 265.0,
+    "SO": 215.0, "BS": 275.0, "BL": 215.0, "SH": 230.0, "AR": 230.0,
+    "AI": 245.0, "SG": 245.0, "GR": 240.0, "AG": 225.0, "TG": 215.0,
+    "TI": 215.0, "VD": 322.0, "VS": 327.0, "NE": 240.0, "GE": 311.0,
     "JU": 275.0,
 }
 
-# Allocation de formation: montant supplementaire (LAFam art. 3 al. 1 let. b)
-ALLOCATION_FORMATION_SUPPLEMENT = 50.0  # CHF de plus que l'allocation enfant en general
+# Allocation de formation par canton (LAFam art. 3 al. 1 let. b), montant de
+# base 2026. Remplace l'ancien modele « enfant + 50 » : le delta reel
+# formation - enfant varie de 0 (ZG) a 150 (VS) — le « +50 » etait faux.
+ALLOCATIONS_FORMATION_PAR_CANTON: Dict[str, float] = {
+    "ZH": 268.0, "BE": 310.0, "LU": 268.0, "UR": 290.0, "SZ": 280.0,
+    "OW": 270.0, "NW": 311.0, "GL": 268.0, "ZG": 330.0, "FR": 325.0,
+    "SO": 268.0, "BS": 325.0, "BL": 268.0, "SH": 290.0, "AR": 280.0,
+    "AI": 298.0, "SG": 298.0, "GR": 290.0, "AG": 278.0, "TG": 280.0,
+    "TI": 268.0, "VD": 425.0, "VS": 477.0, "NE": 320.0, "GE": 415.0,
+    "JU": 325.0,
+}
+
+# Minimums federaux LAFam art. 5 (2026) — fallback si canton inconnu.
+ALLOCATION_ENFANT_MIN_FEDERAL = 215.0  # CHF/mois
+ALLOCATION_FORMATION_MIN_FEDERAL = 268.0  # CHF/mois
 
 # Ages limites
 AGE_LIMITE_ENFANT = 16       # Allocation pour enfant: 0-16 ans
@@ -74,10 +94,10 @@ AGE_LIMITE_FORMATION = 25    # Allocation de formation: 16-25 ans
 # ---------------------------------------------------------------------------
 
 # Deduction par enfant (LIFD art. 35 al. 1 let. a)
-DEDUCTION_PAR_ENFANT = 6_700.0  # CHF
+DEDUCTION_PAR_ENFANT = 6_800.0  # CHF (ESTV 2026 ; 6'700 = valeur perimee 2023-2024)
 
-# Deduction frais de garde (LIFD art. 33 al. 1 let. hbis)
-DEDUCTION_FRAIS_GARDE_MAX = 25_500.0  # CHF
+# Deduction frais de garde par des tiers (LIFD art. 33 al. 3)
+DEDUCTION_FRAIS_GARDE_MAX = 25_800.0  # CHF (ESTV 2026 ; 25'500 = valeur perimee)
 
 # ---------------------------------------------------------------------------
 # Impact LPP (LPP art. 7-8, OPP2)
@@ -165,9 +185,9 @@ class NaissanceService:
     Regles cles:
     - APG maternite: 14 semaines, 80% du salaire, max CHF 220/jour (LAPG art. 16d-16h)
     - APG paternite: 2 semaines, 80% du salaire, max CHF 220/jour (LAPG art. 16i-16l)
-    - Allocations familiales: CHF 200-300/mois selon canton (LAFam art. 3)
-    - Deduction fiscale par enfant: CHF 6'700 (LIFD art. 35 al. 1 let. a)
-    - Deduction frais de garde: max CHF 25'500 (LIFD art. 33 al. 1 let. hbis)
+    - Allocations familiales: CHF 215-330/mois selon canton (LAFam art. 3, OFAS 2026)
+    - Deduction fiscale par enfant: CHF 6'800 (LIFD art. 35 al. 1 let. a)
+    - Deduction frais de garde: max CHF 25'800 (LIFD art. 33 al. 3)
     - Interruption de carriere = lacunes LPP + perte de capacite 3a
     """
 
@@ -253,8 +273,10 @@ class NaissanceService:
         Returns:
             AllocationsFamiliales avec le detail.
         """
-        alloc_base = ALLOCATIONS_ENFANT_PAR_CANTON.get(canton, 200.0)
-        alloc_formation = alloc_base + ALLOCATION_FORMATION_SUPPLEMENT
+        alloc_base = ALLOCATIONS_ENFANT_PAR_CANTON.get(
+            canton, ALLOCATION_ENFANT_MIN_FEDERAL)
+        alloc_formation = ALLOCATIONS_FORMATION_PAR_CANTON.get(
+            canton, ALLOCATION_FORMATION_MIN_FEDERAL)
 
         allocation_par_enfant: Dict[int, float] = {}
         detail: List[str] = []
@@ -281,7 +303,8 @@ class NaissanceService:
         total_mensuel = round(total_mensuel, 2)
 
         sources = [
-            "LAFam art. 3 (allocations familiales: CHF 200-300/mois selon canton)",
+            "LAFam art. 3, 5 (allocations familiales: CHF 215-330/mois selon canton, "
+            "minimum federal 215 enfant / 268 formation) — OFAS/BSV 2026",
             f"Canton {canton}: CHF {alloc_base:,.0f}/mois (enfant), CHF {alloc_formation:,.0f}/mois (formation)",
         ]
 
@@ -327,8 +350,8 @@ class NaissanceService:
         )
 
         sources = [
-            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'700)",
-            "LIFD art. 33 al. 1 let. hbis (frais de garde: max CHF 25'500)",
+            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'800)",
+            "LIFD art. 33 al. 3 (frais de garde par des tiers: max CHF 25'800)",
         ]
 
         return ImpactFiscalEnfant(
@@ -421,7 +444,8 @@ class NaissanceService:
         Returns:
             ChecklistNaissance avec les actions recommandees par priorite.
         """
-        alloc_base = ALLOCATIONS_ENFANT_PAR_CANTON.get(canton, 200.0)
+        alloc_base = ALLOCATIONS_ENFANT_PAR_CANTON.get(
+            canton, ALLOCATION_ENFANT_MIN_FEDERAL)
 
         # --- Priorite haute : delais legaux stricts ---
         priorite_haute = [
@@ -475,9 +499,9 @@ class NaissanceService:
 
         # --- Priorite basse : optimisation ---
         priorite_basse = [
-            "Calculer l'impact fiscal de l'enfant — deduction de CHF 6'700 par enfant "
-            "(LIFD art. 35 al. 1 let. a) + frais de garde max CHF 25'500 "
-            "(LIFD art. 33 al. 1 let. hbis)",
+            "Calculer l'impact fiscal de l'enfant — deduction de CHF 6'800 par enfant "
+            "(LIFD art. 35 al. 1 let. a) + frais de garde max CHF 25'800 "
+            "(LIFD art. 33 al. 3)",
         ]
 
         if civil_status == "marie" and has_3a:
@@ -521,7 +545,8 @@ class NaissanceService:
             "LAPG art. 16i-16l (conge paternite: 2 sem., 80%, max CHF 220/j)",
             "LAFam art. 3 (allocations familiales cantonales)",
             "LAMal art. 3 (obligation d'assurance — inscription bebe dans les 3 mois)",
-            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'700)",
+            "LIFD art. 35 al. 1 let. a (deduction par enfant: CHF 6'800)",
+            "LIFD art. 33 al. 3 (frais de garde par des tiers: max CHF 25'800)",
         ]
 
         return ChecklistNaissance(

@@ -38,7 +38,7 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
     "allocation_annuelle__compare_allocation_annuelle": {
         "name": "allocation_annuelle__compare_allocation_annuelle",
         "file": "app/services/arbitrage/allocation_annuelle.py",
-        "profile_fields_needed": ["montant_disponible", "taux_marginal", "a3a_maxed", "potentiel_rachat_lpp", "is_property_owner", "taux_hypothecaire", "annees_avant_retraite", "rendement_3a", "rendement_lpp", "rendement_marche", "canton"],
+        "profile_fields_needed": ["montant_disponible", "taux_marginal", "a3a_maxed", "potentiel_rachat_lpp", "is_property_owner", "taux_hypothecaire", "annees_avant_retraite", "rendement_3a", "rendement_lpp", "rendement_marche", "canton", "is_married"],
         "life_events_served": ["cross_cutting"],
         "output_type": "L1",
     },
@@ -91,6 +91,48 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
         "life_events_served": ["taxes"],
         "output_type": "L1",
     },
+    "cantonal_comparator__estimate_capital_withdrawal_tax": {
+        "name": "cantonal_comparator__estimate_capital_withdrawal_tax",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["amount", "canton", "is_married"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
+    "cantonal_comparator__estimate_income_tax": {
+        "name": "cantonal_comparator__estimate_income_tax",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["taxable_income", "canton", "is_married", "income_factor_base"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
+    "cantonal_comparator__estimate_income_tax_on_rente": {
+        "name": "cantonal_comparator__estimate_income_tax_on_rente",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["rente_annuelle", "canton", "is_married"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
+    "cantonal_comparator__estimate_income_tax_parts": {
+        "name": "cantonal_comparator__estimate_income_tax_parts",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["taxable_income", "canton", "is_married"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
+    "cantonal_comparator__estimate_marginal_rate": {
+        "name": "cantonal_comparator__estimate_marginal_rate",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["taxable_income", "canton", "is_married"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
+    "cantonal_comparator__estimate_tax_saving": {
+        "name": "cantonal_comparator__estimate_tax_saving",
+        "file": "app/services/fiscal/cantonal_comparator.py",
+        "profile_fields_needed": ["taxable_income", "deduction", "canton", "is_married"],
+        "life_events_served": ["taxes"],
+        "output_type": "L1",
+    },
     "church_tax_service__ChurchTaxService_compare_church_tax_all_cantons": {
         "name": "church_tax_service__ChurchTaxService_compare_church_tax_all_cantons",
         "file": "app/services/fiscal/church_tax_service.py",
@@ -108,14 +150,14 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
     "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage": {
         "name": "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
         "file": "app/services/family/concubinage_service.py",
-        "profile_fields_needed": ["revenu_1", "revenu_2", "canton", "enfants", "patrimoine"],
+        "profile_fields_needed": ["revenu_1", "revenu_2", "canton", "enfants"],
         "life_events_served": ["family", "marriage"],
         "output_type": "L1",
     },
-    "concubinage_service__ConcubinageService_estimate_inheritance_tax": {
-        "name": "concubinage_service__ConcubinageService_estimate_inheritance_tax",
+    "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint": {
+        "name": "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint",
         "file": "app/services/family/concubinage_service.py",
-        "profile_fields_needed": ["patrimoine", "canton", "is_married"],
+        "profile_fields_needed": ["canton"],
         "life_events_served": ["family", "marriage"],
         "output_type": "L1",
     },
@@ -150,14 +192,14 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
     "epl_combined_service__EplCombinedService_calculate": {
         "name": "epl_combined_service__EplCombinedService_calculate",
         "file": "app/services/mortgage/epl_combined_service.py",
-        "profile_fields_needed": ["avoir_3a", "avoir_lpp_total", "avoir_obligatoire", "avoir_surobligatoire", "age", "canton", "epargne_cash", "prix_cible", "a_rachete_recemment", "annees_depuis_dernier_rachat", "avoir_lpp_a_50_ans"],
+        "profile_fields_needed": ["avoir_3a", "avoir_lpp_total", "avoir_obligatoire", "avoir_surobligatoire", "age", "canton", "epargne_cash", "prix_cible", "a_rachete_recemment", "annees_depuis_dernier_rachat", "avoir_lpp_a_50_ans", "is_married"],
         "life_events_served": ["housing"],
         "output_type": "L1",
     },
     "epl_service__EPLService_simulate": {
         "name": "epl_service__EPLService_simulate",
         "file": "app/services/lpp_deep/epl_service.py",
-        "profile_fields_needed": ["avoir_lpp_total", "avoir_obligatoire", "avoir_surobligatoire", "age", "montant_retrait_souhaite", "a_rachete_recemment", "annees_depuis_dernier_rachat", "avoir_a_50_ans", "canton"],
+        "profile_fields_needed": ["avoir_lpp_total", "avoir_obligatoire", "avoir_surobligatoire", "age", "montant_retrait_souhaite", "a_rachete_recemment", "annees_depuis_dernier_rachat", "avoir_a_50_ans", "canton", "is_married"],
         "life_events_served": ["retirement", "buyback"],
         "output_type": "L1",
     },
@@ -318,7 +360,7 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
     "lpp_conversion_service__LppConversionService_compare": {
         "name": "lpp_conversion_service__LppConversionService_compare",
         "file": "app/services/retirement/lpp_conversion_service.py",
-        "profile_fields_needed": ["capital_lpp", "canton", "retirement_age", "life_expectancy", "taux_marginal_revenu"],
+        "profile_fields_needed": ["capital_lpp", "canton", "retirement_age", "life_expectancy", "taux_marginal_revenu", "is_married"],
         "life_events_served": ["retirement"],
         "output_type": "L1",
     },
@@ -346,7 +388,7 @@ REGISTRY: Dict[str, CalculatorMetadata] = {
     "multi_account_service__MultiAccountService_simulate_staggered_withdrawal": {
         "name": "multi_account_service__MultiAccountService_simulate_staggered_withdrawal",
         "file": "app/services/pillar_3a_deep/multi_account_service.py",
-        "profile_fields_needed": ["avoir_total", "nb_comptes", "canton", "revenu_imposable", "age_retrait_debut", "age_retrait_fin"],
+        "profile_fields_needed": ["avoir_total", "nb_comptes", "canton", "revenu_imposable", "age_retrait_debut", "age_retrait_fin", "frais_annuels_par_compte"],
         "life_events_served": ["retirement"],
         "output_type": "L1",
     },
@@ -510,6 +552,9 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     "ages_enfants": {
         "naissance_service__NaissanceService_estimate_allocations",
     },
+    "amount": {
+        "cantonal_comparator__estimate_capital_withdrawal_tax",
+    },
     "annees_avant_retraite": {
         "allocation_annuelle__compare_allocation_annuelle",
         "rachat_vs_marche__compare_rachat_vs_marche",
@@ -574,9 +619,15 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "calculator__UnemploymentCalculator_calculate",
         "calendrier_retraits__compare_calendrier_retraits",
         "cantonal_comparator__CantonalComparator_estimate_tax",
+        "cantonal_comparator__estimate_capital_withdrawal_tax",
+        "cantonal_comparator__estimate_income_tax",
+        "cantonal_comparator__estimate_income_tax_on_rente",
+        "cantonal_comparator__estimate_income_tax_parts",
+        "cantonal_comparator__estimate_marginal_rate",
+        "cantonal_comparator__estimate_tax_saving",
         "church_tax_service__ChurchTaxService_estimate_church_tax",
         "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
-        "concubinage_service__ConcubinageService_estimate_inheritance_tax",
+        "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint",
         "epl_combined_service__EplCombinedService_calculate",
         "epl_service__EPLService_simulate",
         "expat_service__ExpatService_compare_tax_burden",
@@ -661,6 +712,9 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     "date_licenciement": {
         "calculator__UnemploymentCalculator_calculate",
     },
+    "deduction": {
+        "cantonal_comparator__estimate_tax_saving",
+    },
     "dettes": {
         "repayment_service__RepaymentService_compare_strategies",
     },
@@ -691,6 +745,9 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "wealth_tax_service__WealthTaxService_compare_all_cantons",
         "wealth_tax_service__WealthTaxService_estimate_wealth_tax",
         "wealth_tax_service__WealthTaxService_simulate_move_wealth",
+    },
+    "frais_annuels_par_compte": {
+        "multi_account_service__MultiAccountService_simulate_staggered_withdrawal",
     },
     "frais_entretien_annuels": {
         "imputed_rental_service__ImputedRentalService_calculate",
@@ -736,6 +793,9 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "cantonal_comparator__CantonalComparator_estimate_tax",
         "cantonal_comparator__CantonalComparator_simulate_move",
     },
+    "income_factor_base": {
+        "cantonal_comparator__estimate_income_tax",
+    },
     "inflation": {
         "real_return_service__RealReturnService_calculate_real_return",
         "rente_vs_capital__compare_rente_vs_capital",
@@ -763,9 +823,18 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "avs_estimation_service__AvsEstimationService_estimate",
     },
     "is_married": {
+        "allocation_annuelle__compare_allocation_annuelle",
         "calendrier_retraits__compare_calendrier_retraits",
-        "concubinage_service__ConcubinageService_estimate_inheritance_tax",
+        "cantonal_comparator__estimate_capital_withdrawal_tax",
+        "cantonal_comparator__estimate_income_tax",
+        "cantonal_comparator__estimate_income_tax_on_rente",
+        "cantonal_comparator__estimate_income_tax_parts",
+        "cantonal_comparator__estimate_marginal_rate",
+        "cantonal_comparator__estimate_tax_saving",
+        "epl_combined_service__EplCombinedService_calculate",
+        "epl_service__EPLService_simulate",
         "location_vs_propriete__compare_location_vs_propriete",
+        "lpp_conversion_service__LppConversionService_compare",
         "rachat_vs_marche__compare_rachat_vs_marche",
         "rente_vs_capital__compare_rente_vs_capital",
     },
@@ -817,10 +886,6 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     },
     "new": {
         "job_comparator__JobComparator_compare",
-    },
-    "patrimoine": {
-        "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage",
-        "concubinage_service__ConcubinageService_estimate_inheritance_tax",
     },
     "patrimoine_1": {
         "mariage_service__MariageService_simulate_regime_matrimonial",
@@ -880,6 +945,9 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
         "allocation_annuelle__compare_allocation_annuelle",
         "location_vs_propriete__compare_location_vs_propriete",
         "rachat_vs_marche__compare_rachat_vs_marche",
+    },
+    "rente_annuelle": {
+        "cantonal_comparator__estimate_income_tax_on_rente",
     },
     "rente_annuelle_proposee": {
         "rente_vs_capital__compare_rente_vs_capital",
@@ -988,6 +1056,12 @@ REVERSE_DEP_MAP: Dict[str, Set[str]] = {
     },
     "taux_saron_actuel": {
         "saron_vs_fixed_service__SaronVsFixedService_compare",
+    },
+    "taxable_income": {
+        "cantonal_comparator__estimate_income_tax",
+        "cantonal_comparator__estimate_income_tax_parts",
+        "cantonal_comparator__estimate_marginal_rate",
+        "cantonal_comparator__estimate_tax_saving",
     },
     "valeur_venale": {
         "imputed_rental_service__ImputedRentalService_calculate",

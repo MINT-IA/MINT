@@ -91,6 +91,13 @@ const double lppEarlyRetirementRateReduction = 0.002;
 /// Taux d'interet minimum LPP en % (fixe par le Conseil federal).
 const double lppTauxInteretMin = 1.25;
 
+/// Taux d'intérêt minimal LPP en RATIO (beads -b6k) — la clé registre
+/// `lpp.min_interest_rate` et le fallback [lppTauxInteretMin] sont en
+/// POURCENT (1.25) : la conversion /100 vit ici, une seule fois, pour
+/// que cache et fallback rendent le même 0.0125.
+double lppMinInterestRatio() =>
+    reg('lpp.min_interest_rate', lppTauxInteretMin) / 100;
+
 /// Taux de bonification de vieillesse par tranche d'age (LPP art. 16).
 const Map<String, double> lppBonificationsVieillesse = {
   '25-34': 0.07,
@@ -188,52 +195,84 @@ double avsMaxAnnualRenteForYear(int year) {
 /// Cotisation AVS minimale annuelle pour independants (LAVS art. 8).
 const double avsCotisationMinIndependant = 530.0;
 
+/// Seuil de revenu sous lequel la cotisation minimale FIXE s'applique
+/// (LAVS art. 8 al. 2). Le bareme degressif RAVS art. 21 commence ici.
+const double avsSeuilRevenuMinIndependant = 10100.0;
+
 /// Bonus par annee d'ajournement de la rente AVS (LAVS art. 39).
+// Mémento OFAS 3.04 « Flexibilisation de la retraite » (audit -zaw).
 const Map<int, double> avsDeferralBonus = {
   1: 0.052, // +5.2%
-  2: 0.106, // +10.6%
-  3: 0.164, // +16.4%
-  4: 0.227, // +22.7%
+  2: 0.108, // +10.8%
+  3: 0.171, // +17.1%
+  4: 0.240, // +24.0%
   5: 0.315, // +31.5%
 };
 
 /// RAMD minimum pour rente minimale (LAVS art. 34, echelle 44).
-const double avsRAMDMin = 14700.0;
+const double avsRAMDMin = 15120.0;
 
 /// RAMD maximum pour rente maximale (LAVS art. 34, echelle 44).
-const double avsRAMDMax = 88200.0;
+const double avsRAMDMax = 90720.0;
 
-/// Echelle 44 complete (OFAS 2025) — fallback when backend is unreachable.
-/// Format: [[RAMD, rente_mensuelle], ...].
-/// Updated every 2 years by Federal Council (mixed index).
-/// Source: LAVS art. 34, OFAS tables de rentes 2023/2025.
+/// Échelle 44 complète — fallback quand le backend est injoignable.
+/// Format : [[RAMD « jusqu'à », rente mensuelle], ...]. 51 paliers, pas 1'512.
+/// Source : OFAS doc 318.117.011 « Tables des rentes 2025 » p. 20, valable dès
+/// 1.1.2025 et inchangé en 2026 (audit -zaw 2026-07-23 : l'ancienne table
+/// mélangeait des bornes RAMD 2023/24 avec les rentes 2025 — écarts jusqu'à
+/// 102 fr./mois, ex. RAMD 52'920 rendait 1'914 au lieu de 2'016).
 const List<List<double>> avsEchelle44 = [
-  [14700, 1260],
-  [17640, 1299],
-  [20580, 1338],
-  [23520, 1377],
-  [26460, 1416],
-  [29400, 1470],
-  [32340, 1524],
-  [35280, 1578],
-  [38220, 1632],
-  [41160, 1686],
-  [44100, 1743],
-  [47040, 1800],
-  [49980, 1857],
-  [52920, 1914],
-  [55860, 1971],
-  [58800, 2028],
-  [61740, 2085],
-  [64680, 2142],
-  [67620, 2199],
-  [70560, 2256],
-  [73500, 2313],
-  [76440, 2370],
-  [79380, 2427],
-  [82320, 2462],
-  [85260, 2491],
-  [88200, 2520],
+  [15120, 1260],
+  [16632, 1293],
+  [18144, 1326],
+  [19656, 1358],
+  [21168, 1391],
+  [22680, 1424],
+  [24192, 1457],
+  [25704, 1489],
+  [27216, 1522],
+  [28728, 1555],
+  [30240, 1588],
+  [31752, 1620],
+  [33264, 1653],
+  [34776, 1686],
+  [36288, 1719],
+  [37800, 1751],
+  [39312, 1784],
+  [40824, 1817],
+  [42336, 1850],
+  [43848, 1882],
+  [45360, 1915],
+  [46872, 1935],
+  [48384, 1956],
+  [49896, 1976],
+  [51408, 1996],
+  [52920, 2016],
+  [54432, 2036],
+  [55944, 2056],
+  [57456, 2076],
+  [58968, 2097],
+  [60480, 2117],
+  [61992, 2137],
+  [63504, 2157],
+  [65016, 2177],
+  [66528, 2197],
+  [68040, 2218],
+  [69552, 2238],
+  [71064, 2258],
+  [72576, 2278],
+  [74088, 2298],
+  [75600, 2318],
+  [77112, 2339],
+  [78624, 2359],
+  [80136, 2379],
+  [81648, 2399],
+  [83160, 2419],
+  [84672, 2439],
+  [86184, 2460],
+  [87696, 2480],
+  [89208, 2500],
+  [90720, 2520],
 ];
 
 /// Franchise AVS pour retraites actifs, mensuelle.
@@ -263,10 +302,10 @@ const int avsNombreRentesParAn = 13;
 const double avs13emeRenteFactor = 13.0 / 12.0;
 
 /// Cotisation annuelle minimale AVS volontaire (expatries).
-const double avsVolontaireCotisationMin = 514.0;
+const double avsVolontaireCotisationMin = 530.0;
 
 /// Cotisation annuelle maximale AVS volontaire.
-const double avsVolontaireCotisationMax = 25700.0;
+const double avsVolontaireCotisationMax = 26500.0;
 
 // ══════════════════════════════════════════════════════════════════════════════
 // AI — Assurance-invalidite
@@ -321,25 +360,32 @@ const double acIndemniteTaux = 0.70;
 /// Taux d'indemnite chomage avec charges de famille: 80%.
 const double acIndemniteTauxChargeFamille = 0.80;
 
-/// Duree maximale des indemnites de chomage (LACI art. 27 al. 2).
+/// Durée maximale des indemnités de chômage — barème OFFICIEL LACI art. 27.
 ///
-/// La duree depend de la periode de cotisation ET de l'age.
-/// Les valeurs ci-dessous correspondent au cas standard (>= 22 mois de cotisation).
-/// Pour des periodes courtes (12-17 mois → 200j, 18-21 mois → 260j).
+/// Audit -zaw / beads MINT_nosync-4za : l'ancien bloc était sémantiquement
+/// faux de bout en bout (200 attribué à « < 22 mois », 260 à « 18-21 mois »,
+/// 400 à « >= 22 mois ») et avait induit un mapping mois→jours erroné dans
+/// unemployment_service (18 mois servaient 260 jours au lieu de 400).
+/// Barème réel (LACI art. 27, Directive LACI IC SECO) :
+///   12 mois de cotisation  → 260 jours (al. 2 let. a)
+///   18 mois de cotisation  → 400 jours (al. 2 let. b)
+///   22 mois ET (âge >= 55 OU invalidité >= 40 %) → 520 jours (al. 2 let. c)
+///   < 25 ans SANS obligation d'entretien → plafond 200 jours (al. 5bis)
 
-/// < 22 mois de cotisation (typiquement < 25 ans en debut de carriere).
-const int acJoursMinCotisation = 200;
+/// Plafond jeunes : < 25 ans sans obligation d'entretien (LACI art. 27).
+const int acJoursPlafondJeunes = 200;
 
-/// 18-21 mois de cotisation (cas intermediaire).
-const int acJoursIntermediaireCotisation = 260;
+/// 12 mois de cotisation → 260 jours (LACI art. 27 al. 2 let. a).
+const int acJours12MoisCotisation = 260;
 
-/// >= 22 mois de cotisation, age < 55 ans (LACI art. 27 al. 2 lit. c).
-const int acJoursStandard = 400;
+/// 18 mois de cotisation → 400 jours (LACI art. 27 al. 2 let. b).
+const int acJours18MoisCotisation = 400;
 
-/// >= 22 mois de cotisation, age >= 55 ans (LACI art. 27 al. 2 lit. d).
-const int acJoursSenior = 520;
+/// 22 mois de cotisation ET (âge >= 55 OU invalidité >= 40 %) → 520 jours
+/// (LACI art. 27 al. 2 let. c).
+const int acJours22MoisSenior = 520;
 
-/// Age de reference pour le taux senior AC: 55 ans (LACI art. 27 al. 2 lit. d).
+/// Âge charnière pour les 520 jours : 55 ans (LACI art. 27 al. 2 let. c).
 const int acAgeSeuillSenior = 55;
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -397,47 +443,12 @@ const List<List<double>> retraitCapitalTranches = [
   [1000000, double.infinity, 1.70],
 ];
 
-/// Coefficient appliqué à l'impôt capital célibataire quand le contribuable
-/// est marié — fonction du canton. Audit swiss-brain 2026-04-18 Q5 : le
-/// scalaire 0.85 uniforme était **faux** (cantons à splitting complet
-/// comme ZH/ZG descendent à 0.70). Chaque canton légifère son propre
-/// tarif couple (LHID art. 11 al. 1 autorise tarif marié ≤ 85% du tarif
-/// célibataire pour le revenu ; pour le capital, chaque canton fixe).
-///
-/// Valeurs 2026 pour un cumul capital ~250k (retrait médian LPP+3a) :
-///   ZH : splitting intégral, barème séparé → 0.73 (LF ZH §37)
-///   BE : barème couple dédié + splitting → 0.80 (LF BE art. 44)
-///   LU : tarif spécial marié → 0.82 (LF LU §58)
-///   ZG : splitting intégral (canton le plus bas CH) → 0.70 (LF ZG §36)
-///   VD : splitting intégral → 0.78 (LI VD art. 49)
-///   GE : quotient familial + splitting → 0.73 (LIPP art. 41)
-///   VS : barème marié progressif → 0.81 (LF VS art. 33b)
-///   TI : splitting intégral → 0.80 (LT TI art. 38)
-///
-/// Les 18 autres cantons (AG/AI/AR/BL/BS/FR/GL/GR/JU/NE/NW/OW/SG/SH/SO/
-/// SZ/TG/UR) utilisent le fallback — `marriedCapitalTaxDiscountFallback`.
-/// Approximation à ±5 points ; ADR-20260418-cantonal-capital-tax-married
-/// prévu pour la table exhaustive tabulée par tranche de montant.
-const Map<String, double> marriedCapitalTaxDiscountByCanton = {
-  'ZH': 0.73,
-  'BE': 0.80,
-  'LU': 0.82,
-  'ZG': 0.70,
-  'VD': 0.78,
-  'GE': 0.73,
-  'VS': 0.81,
-  'TI': 0.80,
-};
-
-/// Fallback pour les 18 cantons non tabulés (moyenne empirique). À
-/// remplacer par la matrice complète une fois l'ADR résolu. La UI DOIT
-/// signaler à l'utilisateur quand ce fallback s'applique.
-const double marriedCapitalTaxDiscountFallback = 0.82;
-
-/// Helper : retourne le coefficient du canton demandé ou le fallback.
-double marriedCapitalTaxDiscountFor(String canton) =>
-    marriedCapitalTaxDiscountByCanton[canton.toUpperCase()] ??
-    marriedCapitalTaxDiscountFallback;
+/// Impôt capital MARIÉ : le rabais forfaitaire par canton (inventé) a été
+/// SUPPRIMÉ (triage AnnAssign #1095). La part cantonale mariée est désormais
+/// interpolée sur l'étalon ESTV `cantonalCapitalTaxMarriedChf`
+/// (financial_core/income_tax_model_v2.dart), miroir du backend
+/// `CANTONAL_CAPITAL_TAX_MARRIED_CHF` — comme le célibataire, plus de
+/// coefficient plat.
 
 /// Noms complets des 26 cantons suisses en francais.
 const Map<String, String> cantonFullNames = {
@@ -671,3 +682,14 @@ const double acGainAssureMensuelMax = acPlafondSalaireAssure / 12;
 /// Seuil de salaire mensuel pour le taux majoré d'indemnités chômage (LACI art. 22).
 /// En dessous de ce seuil, taux 80% au lieu de 70%.
 const double acSeuilSalaireMajore = 3797.0;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// OFS — Statistique suisse des salaires (ESS)
+// Repères descriptifs du marché du travail (PAS des valeurs fiscales/légales).
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Salaire mensuel brut médian suisse, équivalent plein temps, tous secteurs.
+/// Source: OFS/ESS 2022, publiée 2024, secteurs privé et public confondus.
+/// Repère descriptif de l'ensemble de la population active — ce n'est PAS un
+/// salaire d'entrée. À dater à l'écran (millésime visible, D11).
+const double ofsSalaireMedianMensuelBrut = 6788.0;

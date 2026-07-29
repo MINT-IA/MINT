@@ -6,10 +6,10 @@ matrimoniaux et estime les rentes de survivant.
 
 Sources:
     - LIFD art. 9 al. 1 (imposition commune des epoux)
-    - LIFD art. 33 al. 2 (deduction double activite: CHF 2'800)
-    - LIFD art. 35 al. 1 let. c (deduction personnes mariees: CHF 2'700)
-    - LIFD art. 33 al. 1 let. d (deduction assurances maries: CHF 3'600)
-    - LIFD art. 36 (baremes IFD)
+    - LIFD art. 33 al. 2 (deduction double activite: 50% du revenu le plus bas, borne)
+    - LIFD art. 35 al. 1 let. c (deduction personnes mariees: CHF 2'800)
+    - LIFD art. 33 al. 1 let. g (deduction assurances maries: CHF 3'700)
+    - LIFD art. 36 (baremes IFD, appliques via le moteur canonique)
     - LAVS art. 29sexies (bonifications pour taches educatives / splitting)
     - LPP art. 19 (rente de veuve/veuf = 60% de la rente assuree)
     - LAVS art. 24 (rente de survivant AVS = 80% de la rente du defunt)
@@ -23,6 +23,8 @@ Sprint S22 — Evenements de vie : Famille.
 from dataclasses import dataclass, field
 from typing import List
 
+from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
 
 DISCLAIMER = (
     "Estimations educatives simplifiees. Les montants reels dependent de "
@@ -32,53 +34,56 @@ DISCLAIMER = (
 )
 
 # ---------------------------------------------------------------------------
-# Constantes fiscales mariage (2025/2026)
+# Constantes fiscales mariage — IFD, periode fiscale 2026
+# Les baremes et l'impot cantonal/communal ne sont PLUS calcules ici : la
+# charge fiscale passe par le moteur canonique estimate_income_tax()
+# (IFD 2026 + points ESTV, marie x0.80). Ce service ne detient plus que les
+# DEDUCTIONS specifiques au couple, appliquees avant l'appel au moteur.
 # ---------------------------------------------------------------------------
 
-# Deduction double activite (LIFD art. 33 al. 2)
-DEDUCTION_DOUBLE_ACTIVITE = 2_800.0  # CHF
+# Montants IFD 2026 verifies sur sources officielles ESTV/AFC (« Bases de calcul
+# des baremes federaux de l'impot a la source — annee fiscale 2026 » +
+# « Familienbesteuerung », etat au 1.1.2026). Renchérissement 2026 = 0,1% : les
+# montants francs 2025 sont reconduits pour 2026.
+
+# Deduction pour double activite des epoux (LIFD art. 33 al. 2) : ce n'est PAS
+# un montant fixe mais 50% du revenu du travail le plus bas des deux conjoints,
+# borne par un plancher et un plafond, et jamais superieur au revenu concerne.
+DEDUCTION_DOUBLE_ACTIVITE_TAUX = 0.50
+DEDUCTION_DOUBLE_ACTIVITE_PLANCHER = 8_600.0  # CHF (ESTV 2026)
+DEDUCTION_DOUBLE_ACTIVITE_PLAFOND = 14_100.0  # CHF (ESTV 2026)
 
 # Deduction personnes mariees (LIFD art. 35 al. 1 let. c)
-DEDUCTION_MARIES = 2_700.0  # CHF
+DEDUCTION_MARIES = 2_800.0  # CHF (ESTV 2026 ; 2'700 = valeur perimee 2023-2024)
 
-# Deduction assurances — maries (LIFD art. 33 al. 1 let. d)
-DEDUCTION_ASSURANCES_MARIES = 3_600.0  # CHF
-# Deduction assurances — celibataires (LIFD art. 33 al. 1 let. d)
-DEDUCTION_ASSURANCES_CELIBATAIRE = 1_800.0  # CHF
+# Deduction assurances-vie / interets d'epargne — maries (LIFD art. 33 al. 1 let. g).
+# Montant de base ; les majorations (+700/enfant art. 33 al. 1bis let. b,
+# +50% sans cotisation 2e/3e pilier art. 33 al. 1bis let. a) ne sont pas
+# modelisees (simplification educative, faute d'input pilier ; dans une
+# comparaison marie/celibataire ces majorations se compensent largement).
+DEDUCTION_ASSURANCES_MARIES = 3_700.0  # CHF (ESTV 2026 ; 3'600 = valeur perimee 2023-2024)
+# Deduction assurances-vie / interets d'epargne — celibataires (LIFD art. 33 al. 1 let. g)
+DEDUCTION_ASSURANCES_CELIBATAIRE = 1_800.0  # CHF (ESTV 2026)
 
 # Deduction par enfant (LIFD art. 35 al. 1 let. a)
-DEDUCTION_PAR_ENFANT = 6_700.0  # CHF
+DEDUCTION_PAR_ENFANT = 6_800.0  # CHF (ESTV 2026 ; 6'700 = valeur perimee 2023-2024)
 
-# ---------------------------------------------------------------------------
-# Baremes IFD simplifies (LIFD art. 36, 2024)
-# Format: [(seuil_cumulatif_CHF, taux_marginal_pourcent)]
-# ---------------------------------------------------------------------------
 
-IFD_BRACKETS_SINGLE = [
-    (14_500, 0.0), (31_600, 0.77), (41_400, 0.88), (55_200, 2.64),
-    (72_500, 2.97), (78_100, 5.94), (103_600, 6.60), (134_600, 8.80),
-    (176_000, 11.00), (755_200, 13.20), (float("inf"), 11.50),
-]
+def deduction_double_activite(revenu_1: float, revenu_2: float) -> float:
+    """Deduction pour double activite (LIFD art. 33 al. 2).
 
-IFD_BRACKETS_MARRIED = [
-    (28_300, 0.0), (50_900, 1.0), (58_400, 2.0), (75_300, 3.0),
-    (90_300, 4.0), (103_400, 5.0), (114_700, 6.0), (124_200, 7.0),
-    (131_700, 8.0), (137_300, 9.0), (141_200, 10.0), (143_100, 11.0),
-    (145_000, 12.0), (895_900, 13.0), (float("inf"), 11.50),
-]
+    50% du revenu du travail le plus bas, avec un plancher et un plafond ;
+    plafonnee au revenu concerne (on ne deduit pas plus que ce qui est gagne).
+    Nulle si un seul des conjoints a un revenu.
+    """
+    if revenu_1 <= 0 or revenu_2 <= 0:
+        return 0.0
+    revenu_bas = min(revenu_1, revenu_2)
+    montant = DEDUCTION_DOUBLE_ACTIVITE_TAUX * revenu_bas
+    montant = max(DEDUCTION_DOUBLE_ACTIVITE_PLANCHER,
+                  min(montant, DEDUCTION_DOUBLE_ACTIVITE_PLAFOND))
+    return round(min(montant, revenu_bas), 2)
 
-# Multiplicateur cantonal estime (canton -> addon rate)
-# Source: estimations swiss-brain basees sur les taux des chefs-lieux, 2024
-CANTON_MULTIPLIERS = {
-    "ZH": 1.30, "BE": 1.36, "LU": 1.25, "BS": 1.33,
-    "VD": 1.38, "GE": 1.41, "ZG": 1.22, "FR": 1.37,
-    "VS": 1.34, "NE": 1.39, "JU": 1.40, "SZ": 1.24,
-    "AG": 1.30, "SG": 1.30, "TI": 1.35, "GR": 1.32,
-    "TG": 1.28, "BL": 1.33, "AR": 1.28, "AI": 1.26,
-    "GL": 1.30, "SH": 1.32, "OW": 1.25, "NW": 1.24,
-    "UR": 1.28, "SO": 1.32,
-}
-_DEFAULT_CANTON_MULTIPLIER = 1.32
 
 # ---------------------------------------------------------------------------
 # Rente de survivant (LAVS art. 24, LPP art. 19)
@@ -89,35 +94,6 @@ AVS_SURVIVOR_FACTOR = 0.80
 
 # LPP: rente de veuve/veuf = 60% de la rente assuree (LPP art. 19)
 LPP_SURVIVOR_FACTOR = 0.60
-
-
-def _calculate_ifd_tax(revenu_imposable: float, brackets: list) -> float:
-    """Calcule l'impot federal direct (IFD) par tranches progressives.
-
-    Source: LIFD art. 36.
-    """
-    if revenu_imposable <= 0:
-        return 0.0
-    tax = 0.0
-    prev_threshold = 0.0
-    for threshold, rate_pct in brackets:
-        if revenu_imposable <= prev_threshold:
-            break
-        taxable_in_bracket = min(revenu_imposable, threshold) - prev_threshold
-        if taxable_in_bracket > 0:
-            tax += taxable_in_bracket * (rate_pct / 100)
-        prev_threshold = threshold
-    return round(tax, 2)
-
-
-def _estimate_total_tax(revenu_imposable: float, brackets: list, canton: str) -> float:
-    """Estime l'impot total (IFD + cantonal + communal).
-
-    Utilise le multiplicateur cantonal comme approximation.
-    """
-    ifd = _calculate_ifd_tax(revenu_imposable, brackets)
-    multiplier = CANTON_MULTIPLIERS.get(canton, _DEFAULT_CANTON_MULTIPLIER)
-    return round(ifd * multiplier, 2)
 
 
 @dataclass
@@ -177,12 +153,16 @@ class MariageService:
 
     Regles cles:
     - Imposition commune obligatoire pour les couples maries (LIFD art. 9 al. 1)
-    - Deduction double activite: CHF 2'800 (LIFD art. 33 al. 2)
-    - Deduction maries: CHF 2'700 (LIFD art. 35 al. 1 let. c)
-    - Deduction assurances maries: CHF 3'600 vs CHF 1'800 celibataire (LIFD art. 33 al. 1 let. d)
+    - Deduction double activite: 50% du revenu le plus bas, borne (LIFD art. 33 al. 2)
+    - Deduction maries: CHF 2'800 (LIFD art. 35 al. 1 let. c)
+    - Deduction assurances maries: CHF 3'700 vs CHF 1'800 celibataire (LIFD art. 33 al. 1 let. g)
     - Penalite du mariage: quand 2 revenus combines = taux marginal plus eleve
     - AVS splitting 50/50 des annees de cotisation (LAVS art. 29sexies)
     - LPP rente de survivant = 60% (LPP art. 19)
+
+    La charge fiscale (federal + cantonal + communal) est calculee par le
+    moteur canonique estimate_income_tax() (IFD 2026 + points ESTV, marie
+    x0.80) — ce service ne reimplemente plus de bareme ni de multiplicateur.
     """
 
     def compare_fiscal_impact(
@@ -211,19 +191,18 @@ class MariageService:
         ri_1_single = max(0, revenu_1 - DEDUCTION_ASSURANCES_CELIBATAIRE - deduction_enfant_chacun)
         ri_2_single = max(0, revenu_2 - DEDUCTION_ASSURANCES_CELIBATAIRE - deduction_enfant_chacun)
 
-        impot_1 = _estimate_total_tax(ri_1_single, IFD_BRACKETS_SINGLE, canton)
-        impot_2 = _estimate_total_tax(ri_2_single, IFD_BRACKETS_SINGLE, canton)
+        impot_1 = estimate_income_tax(ri_1_single, canton, is_married=False)
+        impot_2 = estimate_income_tax(ri_2_single, canton, is_married=False)
         total_celibataires = round(impot_1 + impot_2, 2)
 
         # --- Maries ---
         revenu_combine = revenu_1 + revenu_2
         deductions_mariage = DEDUCTION_MARIES + DEDUCTION_ASSURANCES_MARIES
-        if revenu_1 > 0 and revenu_2 > 0:
-            deductions_mariage += DEDUCTION_DOUBLE_ACTIVITE  # double activite
+        deductions_mariage += deduction_double_activite(revenu_1, revenu_2)
         deductions_mariage += DEDUCTION_PAR_ENFANT * enfants
 
         ri_marie = max(0, revenu_combine - deductions_mariage)
-        total_maries = _estimate_total_tax(ri_marie, IFD_BRACKETS_MARRIED, canton)
+        total_maries = estimate_income_tax(ri_marie, canton, is_married=True)
 
         difference = round(total_maries - total_celibataires, 2)
         est_penalite = difference > 0
@@ -241,10 +220,10 @@ class MariageService:
 
         sources = [
             "LIFD art. 9 al. 1 (imposition commune des epoux)",
-            "LIFD art. 33 al. 2 (deduction double activite: CHF 2'800)",
-            "LIFD art. 35 al. 1 let. c (deduction maries: CHF 2'700)",
-            "LIFD art. 33 al. 1 let. d (deduction assurances: CHF 3'600 maries)",
-            "LIFD art. 36 (baremes IFD celibataire/marie)",
+            "LIFD art. 33 al. 2 (deduction double activite: 50% du revenu le plus bas, borne)",
+            "LIFD art. 35 al. 1 let. c (deduction personnes mariees: CHF 2'800)",
+            "LIFD art. 33 al. 1 let. g (deduction assurances-vie / interets epargne)",
+            "LIFD art. 36 (bareme IFD federal, applique via le moteur canonique)",
         ]
 
         return FiscalComparison(

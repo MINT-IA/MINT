@@ -156,6 +156,61 @@ async def stream_understanding(
         }
         return
 
+    # ── Gate déclaration tiers (beads MINT_nosync-cbk, PRIV-02) ────────
+    # Miroir du chemin unaire (documents.py -> require_declaration_or_block
+    # -> 428) : la réponse SSE est déjà 200, le blocage est donc porté par
+    # un événement dédié AVANT tout field event. Un doc tiers DÉCLARÉ est
+    # persisté ici (le persist interne d'understand_document ne couvre que
+    # les docs non flagués), avec le flag PRIVACY_V2 résolu en async.
+    third_party_gate_payload = None
+    if result.third_party_detected and db is not None and file_sha:
+        from app.services.document_third_party import (
+            ThirdPartyDeclarationRequired,
+            require_declaration_or_block,
+        )
+        try:
+            require_declaration_or_block(
+                db, user_id=user_id, understanding=result, doc_hash=file_sha,
+            )
+            # Déclaration valide -> persistance mémoire + diff (flag
+            # résolu en await via le helper partagé).
+            from app.services.document_vision_service import (
+                persist_document_memory,
+                resolve_privacy_encryption_flag,
+            )
+            persist_document_memory(
+                db, user_id, result,
+                use_encryption=await resolve_privacy_encryption_flag(user_id),
+            )
+        except ThirdPartyDeclarationRequired as gate:
+            # Review Codex PR #975 : miroir STRICT du 428 unaire — un doc
+            # tiers NON déclaré ne divulgue RIEN d'autre que le pointer de
+            # déclaration. Court-circuit immédiat : pas de classify, pas de
+            # field events (montants du tiers), pas de narrative, done
+            # minimal sans résumé ni nom.
+            third_party_gate_payload = {
+                "code": "third_party_declaration_required",
+                "subjectNames": gate.subject_names,
+                "docHash": gate.doc_hash,
+                "declarationEndpoint": "/api/v1/consents/grant-nominative",
+            }
+            yield {
+                "event": "third_party_declaration_required",
+                "data": third_party_gate_payload,
+            }
+            yield {
+                "event": "done",
+                "data": {
+                    "render_mode": "reject",
+                    "overall_confidence": 0.0,
+                    "extraction_status": result.extraction_status.value,
+                    "third_party_declaration_required": (
+                        third_party_gate_payload
+                    ),
+                },
+            }
+            return
+
     # Classify confirmed — single coalesced event with the human-readable summary.
     yield {
         "event": "stage",
@@ -223,6 +278,7 @@ async def stream_understanding(
             "diff_from_previous": diff_payload,
             "third_party_detected": result.third_party_detected,
             "third_party_name": result.third_party_name,
+            "third_party_declaration_required": third_party_gate_payload,
             "fingerprint": result.fingerprint,
             "questions_for_user": result.questions_for_user,
         },

@@ -7,15 +7,24 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 //  CONCUBINAGE vs MARRIAGE DECISION MATRIX
 // ────────────────────────────────────────────────────────────
 //
-//  Stunning comparison grid with animated indicators:
+//  Comparison grid with animated indicators:
 //    - Two columns: Mariage vs Concubinage
 //    - Each row: animated advantage indicator
 //    - Staggered entry animation (100ms per row)
-//    - Bottom: animated score counter
 //    - Neutral conclusion with balanced scale icon
+//
+//  AUCUN compteur de score agrégé : additionner des critères hétérogènes
+//  (protection, impôt, héritage) à poids égal et en tirer un gagnant est du
+//  pseudo-conseil — leur importance dépend de la situation de chacun·e.
+//  La comparaison reste critère par critère ; l'arbitrage revient à
+//  l'utilisateur·rice. Ne pas ré-introduire de « X vs Y » chiffré ici.
 // ────────────────────────────────────────────────────────────
 
 /// Which side has the advantage for a given criteria.
+///
+/// `neutral` = le modèle ne permet pas de départager les deux côtés (p. ex. un
+/// écart d'impôt issu d'une estimation simplifiée) : les deux libellés sont
+/// affichés sans coche ni croix.
 enum Advantage { marriage, concubinage, neutral }
 
 /// A single comparison criteria row.
@@ -87,19 +96,13 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
     super.dispose();
   }
 
-  int get _marriageWins =>
-      widget.criteria.where((c) => c.advantage == Advantage.marriage).length;
-
-  int get _concubinageWins =>
-      widget.criteria
-          .where((c) => c.advantage == Advantage.concubinage)
-          .length;
-
   @override
   Widget build(BuildContext context) {
     return Semantics(
+      // Titre + sous-titre uniquement : le résumé vocal ne récite AUCUN score
+      // agrégé (« Mariage: 4, Concubinage: 1 » était un verdict).
       label:
-          '${S.of(context)!.concubinageDecisionMatrixTitle}. ${S.of(context)!.concubinageDecisionMatrixColumnMarriage}: $_marriageWins, ${S.of(context)!.concubinageDecisionMatrixColumnConcubinage}: $_concubinageWins.',
+          '${S.of(context)!.concubinageDecisionMatrixTitle}. ${S.of(context)!.concubinageDecisionMatrixSubtitle}.',
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
@@ -122,7 +125,6 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                 _buildHeader(),
                 _buildColumnLabels(),
                 ..._buildCriteriaRows(),
-                _buildScoreCounter(),
                 _buildConclusion(),
               ],
             ),
@@ -288,6 +290,8 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                             label: criteria.marriageLabel,
                             isAdvantage:
                                 criteria.advantage == Advantage.marriage,
+                            isNeutral:
+                                criteria.advantage == Advantage.neutral,
                             score: criteria.marriageScore,
                             color: MintColors.info,
                             progress: rowProgress,
@@ -303,6 +307,8 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                             label: criteria.concubinageLabel,
                             isAdvantage:
                                 criteria.advantage == Advantage.concubinage,
+                            isNeutral:
+                                criteria.advantage == Advantage.neutral,
                             score: criteria.concubinageScore,
                             color: MintColors.warning,
                             progress: rowProgress,
@@ -323,6 +329,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
   Widget _buildIndicator({
     required String label,
     required bool isAdvantage,
+    required bool isNeutral,
     required double? score,
     required Color color,
     required double progress,
@@ -341,21 +348,33 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
             ),
           )
         else
-          // Check / cross indicator
+          // Check / cross indicator — ou trait neutre quand le modèle ne
+          // départage pas les deux côtés (mêmes tokens que l'icône centrale
+          // `Advantage.neutral`).
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: isAdvantage
-                  ? MintColors.success.withValues(alpha: 0.15)
-                  : MintColors.error.withValues(alpha: 0.1),
+              color: isNeutral
+                  ? MintColors.textMuted.withValues(alpha: 0.12)
+                  : isAdvantage
+                      ? MintColors.success.withValues(alpha: 0.15)
+                      : MintColors.error.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              isAdvantage ? Icons.check : Icons.close,
+              isNeutral
+                  ? Icons.drag_handle
+                  : isAdvantage
+                      ? Icons.check
+                      : Icons.close,
               size: 16,
-              color: isAdvantage ? MintColors.success : MintColors.error,
+              color: isNeutral
+                  ? MintColors.textMuted
+                  : isAdvantage
+                      ? MintColors.success
+                      : MintColors.error,
             ),
           ),
         const SizedBox(height: 6),
@@ -365,8 +384,11 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
           style: MintTextStyles.micro().copyWith(
             fontStyle: FontStyle.normal,
             fontWeight: isAdvantage ? FontWeight.w600 : FontWeight.w400,
-            color:
-                isAdvantage ? MintColors.textPrimary : MintColors.textMuted,
+            // Ligne neutre : les deux libellés portent l'information (le sens de
+            // l'écart) — aucun des deux n'est estompé comme un « perdant ».
+            color: isAdvantage || isNeutral
+                ? MintColors.textPrimary
+                : MintColors.textMuted,
           ),
         ),
       ],
@@ -397,72 +419,6 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
         shape: BoxShape.circle,
       ),
       child: Icon(iconData, size: 12, color: bgColor),
-    );
-  }
-
-  Widget _buildScoreCounter() {
-    return AnimatedBuilder(
-      animation: _staggerAnimation,
-      builder: (context, _) {
-        final progress = _staggerAnimation.value;
-        final mScore = (_marriageWins * progress).round();
-        final cScore = (_concubinageWins * progress).round();
-
-        return Container(
-          margin: const EdgeInsets.fromLTRB(20, 12, 20, 4),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          decoration: BoxDecoration(
-            color: MintColors.primary,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Row(
-            children: [
-              // Marriage score
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      '$mScore',
-                      style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      S.of(context)!.concubinageDecisionMatrixColumnMarriage,
-                      style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)),
-                    ),
-                  ],
-                ),
-              ),
-              // Divider
-              Container(
-                width: 1,
-                height: 40,
-                color: MintColors.white.withValues(alpha: 0.2),
-              ),
-              // Concubinage score
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      '$cScore',
-                      style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      S.of(context)!.concubinageDecisionMatrixColumnConcubinage,
-                      style: MintTextStyles.labelSmall(color: MintColors.white.withValues(alpha: 0.7)),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
@@ -12,9 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/visualizations/concubinage_decision_matrix.dart';
-import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
-import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
-import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -31,6 +29,35 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 // Ne constitue pas un conseil juridique ou fiscal (LSFin).
 // ────────────────────────────────────────────────────────────
 
+/// Les 26 codes cantonaux suisses — la « plage valide » du fait `canton`.
+/// Le barème d'impôt et le taux de succession ne sont confirmés que pour un de
+/// ces codes ; une chaîne vide, 'unknown', un blanc ou une valeur parasite ne
+/// confirment jamais (ferme le défaut `fromJson canton ?? 'ZH'`).
+const Set<String> _kSwissCantons = {
+  'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR', 'JU', 'LU', 'NE',
+  'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG', 'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+};
+
+bool _isValidCanton(String c) => _kSwissCantons.contains(c.trim().toUpperCase());
+
+/// Comparateur mariage / concubinage (dual-party : partenaire 1 = l'utilisateur,
+/// partenaire 2 = son concubin).
+///
+/// P2 « gate dur » (.planning/decisions/2026-07-25-p2-simulator-result-gating.md):
+/// aucun chiffre « ta situation » n'est affiché sur un défaut fabriqué. Chaque
+/// carte-résultat est gatée derrière les faits qu'ELLE consomme ; un fait n'est
+/// CONFIRMÉ que s'il vient de données réelles — amorcé depuis le profil (clé
+/// userProvidedFields + valeur dans la plage) OU saisi (valeur non nulle).
+///
+/// Provenance :
+///   • revenu 1 = l'UTILISATEUR → amorcé depuis `salary` réel dans la plage ;
+///   • revenu 2 = le PARTENAIRE → amorcé UNIQUEMENT depuis `conjoint` réel,
+///     JAMAIS depuis le salaire de l'utilisateur (cross-contamination) ;
+///   • canton → amorcé depuis `canton` réel (clé + code valide), sinon touch
+///     via le sélecteur à l'écran ;
+///   • patrimoine / rente LPP du partenaire → touch-only (aucune clé de
+///     provenance ne couvre le patrimoine total ni la rente du partenaire) ;
+///   • épargne 3a → seulement un solde réel du profil, jamais une estimation.
 class ConcubinageScreen extends StatefulWidget {
   const ConcubinageScreen({super.key});
 
@@ -43,24 +70,88 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   late TabController _tabController;
 
   // ── Tab 1: Comparateur inputs ─────────────────────────
-  double _revenu1 = 80000;
-  double _revenu2 = 60000;
-  double _patrimoine = 300000;
+  // Un fait consommé par un résultat est NULLABLE, défaut null : la valeur non
+  // nulle EST le signal « donnée réelle » (saisie OU seed profil). Un défaut =
+  // null « Non renseigné », jamais un nombre inventé (80000 / 60000 / 300000).
+  double? _revenu1; // = l'UTILISATEUR (seedable depuis `salary`)
+  double? _revenu2; // = le PARTENAIRE (seedable depuis `conjoint`, jamais soi)
+  double? _patrimoine; // touch-only
+  // Le sélecteur de canton a besoin d'une valeur affichable → `_canton` reste
+  // non nul, mais le GATE ne le considère confirmé que via `_cantonConfirmed`
+  // (touché à l'écran OU seedé depuis un canton réel). 'VD' non touché = non
+  // confirmé → gaté.
   String _canton = 'VD';
+  bool _cantonConfirmed = false;
   Map<String, dynamic>? _comparisonResult;
 
   // ── Tab 2: Protection ─────────────────────────────────
-  double _renteLpp = 2500;
+  double? _renteLpp; // rente LPP mensuelle du PARTENAIRE (touch-only)
 
   // ── Tab 3: Checklist state ────────────────────────────
   final Set<int> _checkedItems = {};
   final Map<int, bool> _expandedItems = {};
 
+  bool _seeded = false;
+
+  // Baseline pour l'annonce VoiceOver au passage incomplet→complet.
+  bool _lastAllComplete = false;
+
+  // ── Ancres de scroll (« Compléter » depuis une carte de situation) ──
+  final _revenu1Key = GlobalKey();
+  final _revenu2Key = GlobalKey();
+  final _patrimoineKey = GlobalKey();
+  final _cantonKey = GlobalKey();
+  final _renteLppKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _recalculate();
+    // Pas de calcul ici : `_recompute()` n'a lieu qu'après le seed (données
+    // réelles) — aucun chiffre fabriqué n'est produit à l'ouverture.
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_seeded) {
+      _seeded = true;
+      final profile = context.coachProfileOrNull;
+      if (profile != null) {
+        final provided = profile.userProvidedFields;
+        // ── revenu 1 = l'UTILISATEUR ──
+        // Confirmé seulement depuis une donnée RÉELLE : clé `salary` ET valeur
+        // dans la plage du champ. Hors plage → NON amorcé (jamais un clamp qui
+        // fabriquerait une valeur ≠ la vraie).
+        final gross = profile.salaireBrutMensuel * 12;
+        if (provided.contains('salary') && gross >= 20000 && gross <= 300000) {
+          _revenu1 = gross;
+        }
+        // ── revenu 2 = le PARTENAIRE ──
+        // Amorcé UNIQUEMENT depuis un revenu de conjoint réellement déclaré
+        // (jamais depuis le salaire de l'utilisateur = cross-contamination,
+        // leçon deces_proche / divorce). null → touch-only.
+        final partnerMonthly = profile.conjoint?.salaireBrutMensuel;
+        if (partnerMonthly != null) {
+          final partnerAnnual = partnerMonthly * 12;
+          if (partnerAnnual >= 20000 && partnerAnnual <= 300000) {
+            _revenu2 = partnerAnnual;
+          }
+        }
+        // ── canton ──
+        // Provenance canonique = clé 'canton' RÉELLEMENT fournie ET code valide.
+        // La clé seule ne suffit pas ('' / 'XX' keyed passeraient) ; la validité
+        // seule non plus (`fromJson` met `canton ?? 'ZH'` → 'ZH' legacy sans
+        // saisie). Les deux ensemble ferment le trou.
+        if (provided.contains('canton') && _isValidCanton(profile.canton)) {
+          _canton = profile.canton.trim().toUpperCase();
+          _cantonConfirmed = true;
+        }
+        // patrimoine / rente LPP : touch-only, jamais amorcés.
+      }
+      _recompute();
+      _lastAllComplete = _allInputGatesComplete(context);
+    }
   }
 
   @override
@@ -69,15 +160,143 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     super.dispose();
   }
 
-  void _recalculate() {
-    setState(() {
-      _comparisonResult = FamilyService.compareMariageVsConcubinage(
-        revenu1: _revenu1,
-        revenu2: _revenu2,
-        canton: _canton,
-        patrimoine: _patrimoine,
+  // Recalcule avec des sentinelles (0 / '') pour tout fait non renseigné : le
+  // service peut calculer, mais le GATE au rendu garantit qu'aucun chiffre dérivé
+  // d'un 0/''-fabriqué n'est affiché (défense en profondeur, motif divorce).
+  void _recompute() {
+    _comparisonResult = FamilyService.compareMariageVsConcubinage(
+      revenu1: _revenu1 ?? 0,
+      revenu2: _revenu2 ?? 0,
+      canton: _cantonConfirmed ? _canton : '',
+    );
+  }
+
+  // ── Debug getters (@visibleForTesting) : les tests anti-façade assertent sur
+  //    l'état confirmé (null == non renseigné) et sur le CHF rendu. ──
+  @visibleForTesting
+  double? get debugRevenu1 => _revenu1;
+  @visibleForTesting
+  double? get debugRevenu2 => _revenu2;
+  @visibleForTesting
+  double? get debugPatrimoine => _patrimoine;
+  @visibleForTesting
+  double? get debugRenteLpp => _renteLpp;
+  @visibleForTesting
+  bool get debugCantonConfirmed => _cantonConfirmed;
+  @visibleForTesting
+  String get debugCanton => _canton;
+  @visibleForTesting
+  TabController get debugTabController => _tabController;
+
+  // ── Provenance : confirmé (saisi OU seedé depuis une donnée réelle) vs
+  //    assumed (défaut null → gate fermé). ──
+  FactProvenance _prov(bool confirmed) =>
+      confirmed ? FactProvenance.touched : FactProvenance.assumed;
+
+  // Comparaison fiscale (impôt du couple + score + matrice) : écart d'impôt
+  // → revenu des deux partenaires + canton réel (le barème dépend du canton).
+  SituationGate _fiscalGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'revenu1',
+          label: (c) => S.of(c)!.concubinageGateFactRevenu1,
+          why: (c) => S.of(c)!.concubinageGateWhyRevenu1,
+          provenance: _prov(_revenu1 != null),
+          onComplete: () => _scrollToKey(_revenu1Key),
+        ),
+        SituationFact(
+          key: 'revenu2',
+          label: (c) => S.of(c)!.concubinageGateFactRevenu2,
+          why: (c) => S.of(c)!.concubinageGateWhyRevenu2,
+          provenance: _prov(_revenu2 != null),
+          onComplete: () => _scrollToKey(_revenu2Key),
+        ),
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.concubinageGateFactCanton,
+          why: (c) => S.of(c)!.concubinageGateWhyCanton,
+          provenance: _prov(_cantonConfirmed),
+          onComplete: () => _scrollToKey(_cantonKey),
+        ),
+      ]);
+
+  // Impôt de succession : patrimoine transmis + canton (le taux « tiers » est
+  // cantonal — un impôt sur un canton fabriqué serait faux).
+  // Le patrimoine ne gate PLUS cette carte. Il la gatait tant qu'elle affichait
+  // un montant d'impôt ; ce montant est retiré (il supposait que 100 % du
+  // patrimoine revenait au partenaire, ce que la réserve des descendants
+  // interdit — CC art. 470-471). Ce qui reste — le taux applicable et la règle
+  // de la quotité disponible — ne dépend que du canton.
+  //
+  // Continuer à l'exiger violerait la règle ADR §2, citée dans
+  // `gender_gap_gate_test.dart` : un fait qui ne change AUCUNE sortie ne doit
+  // pas gater un chiffre qu'il ne peut pas modifier. Le coût aurait été réel —
+  // demander un montant de patrimoine pour lire une information qui n'en dépend
+  // pas est exactement le formulaire à vingt champs qu'on refuse.
+  SituationGate _inheritanceGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.concubinageGateFactCanton,
+          why: (c) => S.of(c)!.concubinageGateWhyCanton,
+          provenance: _prov(_cantonConfirmed),
+          onComplete: () => _scrollToKey(_cantonKey),
+        ),
+      ]);
+
+  // Rente de survivant (comparaison marié vs concubin) : dépend de la rente LPP
+  // mensuelle du partenaire.
+  SituationGate _survivorGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'renteLpp',
+          label: (c) => S.of(c)!.concubinageGateFactRenteLpp,
+          why: (c) => S.of(c)!.concubinageGateWhyRenteLpp,
+          provenance: _prov(_renteLpp != null),
+          onComplete: () => _scrollToKey(_renteLppKey),
+        ),
+      ]);
+
+  // NB : pas de gate 3a. Le solde 3a (`prevoyance.totalEpargne3a`) n'a AUCUNE
+  // provenance fiable côté profil (pas de clé `userProvidedFields`, pas d'entrée
+  // `dataSources`) et peut être ESTIMÉ (`coach_profile.dart` ~2955) — un chiffre
+  // « ton 3a = CHF X » serait donc potentiellement fabriqué. Sans contrôle à
+  // l'écran, un gate keyed serait une impasse permanente. On remplace la carte
+  // chiffrée par un encart ÉDUCATIF conditionnel (aucun montant, cf. Tab2).
+
+  // Gates pilotés par des saisies à l'écran (pour l'annonce VoiceOver au passage
+  // incomplet→complet). Le gate 3a est piloté par le profil (hors écran) → exclu.
+  bool _allInputGatesComplete(BuildContext context) =>
+      _fiscalGate(context).complete &&
+      _inheritanceGate(context).complete &&
+      _survivorGate(context).complete;
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
       );
+    }
+  }
+
+  /// Un fait déterminant a bougé : recalcule (un chiffre affiché ne survit jamais
+  /// à un changement d'entrée) et annonce le passage incomplet→complet pour
+  /// VoiceOver (le scroll ≠ déplacement de focus).
+  void _onFactChanged(VoidCallback apply) {
+    setState(() {
+      apply();
+      _recompute();
     });
+    final nowComplete = _allInputGatesComplete(context);
+    if (nowComplete && !_lastAllComplete) {
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        S.of(context)!.situationGateAnnounceComplete,
+        Directionality.of(context),
+      );
+    }
+    _lastAllComplete = nowComplete;
   }
 
   // ════════════════════════════════════════════════════════════
@@ -86,19 +305,26 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MintColors.background,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          _buildAppBar(context, innerBoxIsScrolled),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildTab1Comparateur(),
-            _buildTab2Protection(),
-            _buildTab3Checklist(),
+    // ILLOG-02 : conteneur Semantics racine (motif rente_vs_capital) sinon le
+    // pont AX iOS effondre toute la route en un seul nœud.
+    return Semantics(
+      identifier: 'concubinage_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        backgroundColor: MintColors.background,
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            _buildAppBar(context, innerBoxIsScrolled),
           ],
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildTab1Comparateur(),
+              _buildTab2Protection(),
+              _buildTab3Checklist(),
+            ],
+          ),
         ),
       ),
     );
@@ -150,8 +376,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        // Hero chiffre-choc — patrimoine exposed
-        if (_patrimoine > 0) ...[
+        // Hero chiffre-choc — patrimoine exposé. Gaté par affichage : masqué tant
+        // que le patrimoine n'est pas confirmé (jamais un 300000 fabriqué).
+        if (_patrimoine != null) ...[
           MintEntrance(child: _buildHeroPremierEclairage()),
           const SizedBox(height: MintSpacing.lg),
         ],
@@ -163,37 +390,20 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ),
         const SizedBox(height: MintSpacing.lg),
 
-        if (_comparisonResult != null) ...[
-          // Decision matrix — animated comparison visualization
-          MintEntrance(
-            delay: const Duration(milliseconds: 150),
-            child: ConcubinageDecisionMatrix(
-              criteria: _matrixCriteria,
-            ),
-          ),
-          const SizedBox(height: MintSpacing.lg),
+        // Cluster fiscal (matrice + mécanique + détail) — gaté sur revenu1 +
+        // revenu2 + canton (l'écart d'impôt en dépend).
+        MintEntrance(
+          delay: const Duration(milliseconds: 200),
+          child: _buildFiscalCluster(),
+        ),
+        const SizedBox(height: MintSpacing.lg),
 
-          // Score summary
-          MintEntrance(
-            delay: const Duration(milliseconds: 200),
-            child: _buildScoreSummary(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-
-          // Fiscal detail
-          MintEntrance(
-            delay: const Duration(milliseconds: 250),
-            child: _buildFiscalDetailCard(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-
-          // Inheritance detail
-          MintEntrance(
-            delay: const Duration(milliseconds: 300),
-            child: _buildInheritanceCard(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-        ],
+        // Impôt de succession — gaté sur patrimoine + canton.
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildInheritanceSection(),
+        ),
+        const SizedBox(height: MintSpacing.lg),
 
         // Educational insert — AVS cap 150% (LAVS art. 35)
         MintEntrance(
@@ -225,10 +435,11 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
+  // Rendu uniquement quand `_patrimoine` est confirmé (voir `_buildTab1`).
   Widget _buildHeroPremierEclairage() {
     return Semantics(
       label: S.of(context)!.concubinageHeroPremierEclairage(
-        FamilyService.formatChf(_patrimoine),
+        FamilyService.formatChf(_patrimoine!),
       ),
       child: Container(
         padding: const EdgeInsets.all(MintSpacing.lg),
@@ -239,7 +450,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         child: Column(
           children: [
             MintHeroNumber(
-              value: FamilyService.formatChf(_patrimoine),
+              value: FamilyService.formatChf(_patrimoine!),
               caption: S.of(context)!.concubinageHeroPremierEclairageDesc,
               color: MintColors.white,
             ),
@@ -247,6 +458,52 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ),
       ),
     );
+  }
+
+  // Cluster fiscal : matrice + mécanique + détail fiscal partagent les mêmes
+  // faits (revenu1, revenu2, canton) → un seul gate en tête. Tant qu'il est
+  // incomplet, aucun chiffre fiscal (écart CHF) n'est calculé.
+  //
+  // AUCUN score agrégé : l'ancienne carte « X avantages vs Y avantages » pesait
+  // des critères hétérogènes à poids égal pour désigner un gagnant — c'est
+  // l'arbitrage de l'utilisateur·rice, pas celui de l'app. La comparaison reste
+  // critère par critère (matrice), et `_buildNeutralConclusion()` en bas d'onglet
+  // porte le cadrage « aucune option n'est universellement adaptée ».
+  Widget _buildFiscalCluster() {
+    final gate = _fiscalGate(context);
+    if (!gate.complete) {
+      return SituationGateCard(
+        title: S.of(context)!.concubinageGateFiscalTitle,
+        gate: gate,
+      );
+    }
+    return Column(
+      children: [
+        ConcubinageDecisionMatrix(criteria: _matrixCriteria),
+        const SizedBox(height: MintSpacing.lg),
+        // Le mécanisme réel derrière l'écart d'impôt (cumul des revenus +
+        // barème réduit, sens dicté par la répartition) — expliqué avant le
+        // chiffre pour qu'il se lise comme une mécanique, pas comme un verdict.
+        _buildEducationalInsert(
+          S.of(context)!.impositionCommuneMecanique,
+        ),
+        const SizedBox(height: MintSpacing.lg),
+        _buildFiscalDetailCard(),
+      ],
+    );
+  }
+
+  // Impôt de succession — gate sur le canton seul : c'est le seul fait dont
+  // dépend ce qui est encore affiché.
+  Widget _buildInheritanceSection() {
+    final gate = _inheritanceGate(context);
+    if (!gate.complete) {
+      return SituationGateCard(
+        title: S.of(context)!.concubinageGateInheritanceTitle,
+        gate: gate,
+      );
+    }
+    return _buildInheritanceCard();
   }
 
   Widget _buildComparateurInputs() {
@@ -259,43 +516,37 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           MintAmountField(
+            key: _revenu1Key,
             label: S.of(context)!.concubinageRevenu1,
-            value: _revenu1,
-            formatValue: (v) => FamilyService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
-                _revenu1 = v;
-                _recalculate();
-              });
-            },
+            value: _revenu1 ?? 0,
+            formatValue: (v) => _revenu1 == null
+                ? S.of(context)!.concubinageNonRenseigne
+                : FamilyService.formatChf(v),
+            onChanged: (v) => _onFactChanged(() => _revenu1 = v),
             min: 0,
             max: 300000,
           ),
           const SizedBox(height: MintSpacing.md),
           MintAmountField(
+            key: _revenu2Key,
             label: S.of(context)!.concubinageRevenu2,
-            value: _revenu2,
-            formatValue: (v) => FamilyService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
-                _revenu2 = v;
-                _recalculate();
-              });
-            },
+            value: _revenu2 ?? 0,
+            formatValue: (v) => _revenu2 == null
+                ? S.of(context)!.concubinageNonRenseigne
+                : FamilyService.formatChf(v),
+            onChanged: (v) => _onFactChanged(() => _revenu2 = v),
             min: 0,
             max: 300000,
           ),
           const SizedBox(height: MintSpacing.md),
           MintAmountField(
+            key: _patrimoineKey,
             label: S.of(context)!.concubinagePatrimoineTotal,
-            value: _patrimoine,
-            formatValue: (v) => FamilyService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
-                _patrimoine = v;
-                _recalculate();
-              });
-            },
+            value: _patrimoine ?? 0,
+            formatValue: (v) => _patrimoine == null
+                ? S.of(context)!.concubinageNonRenseigne
+                : FamilyService.formatChf(v),
+            onChanged: (v) => _onFactChanged(() => _patrimoine = v),
             min: 0,
             max: 2000000,
           ),
@@ -303,6 +554,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
           // Canton dropdown
           Row(
+            key: _cantonKey,
             children: [
               Expanded(
                 child: Text(
@@ -329,8 +581,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) {
-                        _canton = v;
-                        _recalculate();
+                        _onFactChanged(() {
+                          _canton = v;
+                          _cantonConfirmed = true;
+                        });
                       }
                     },
                   ),
@@ -344,17 +598,27 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   }
 
   List<ComparisonCriteria> get _matrixCriteria {
-    final isPenalite = _comparisonResult != null
+    // `isPenalite` = signe de l'écart (impôt marié > impôt de 2 célibataires),
+    // PAS un jugement : le modèle est une estimation simplifiée (barème marié
+    // forfaitaire, ni déductions réelles, ni commune, ni barème cantonal
+    // détaillé) — trop grossier pour qualifier un régime de « pénalité », de
+    // « bonus » ou d'« avantageux ». Les libellés DÉCRIVENT donc le sens de
+    // l'écart, et la ligne est `neutral` : la matrice ne désigne pas de côté
+    // gagnant sur un chiffre dont le sens lui-même peut basculer.
+    final impotMenagePlusEleveMarie = _comparisonResult != null
         ? (_comparisonResult!['fiscal'] as Map<String, dynamic>)['isPenalite']
             as bool
         : false;
     return [
       ComparisonCriteria(
         label: S.of(context)!.concubinageCriteriaImpots,
-        marriageLabel: isPenalite ? S.of(context)!.concubinageCriteriaPenaliteFiscale : S.of(context)!.concubinageCriteriaBonusFiscal,
-        concubinageLabel: isPenalite ? S.of(context)!.concubinageCriteriaAvantageux : S.of(context)!.concubinageCriteriaDesavantageux,
-        advantage:
-            isPenalite ? Advantage.concubinage : Advantage.marriage,
+        marriageLabel: impotMenagePlusEleveMarie
+            ? S.of(context)!.concubinageCriteriaImpotPlusEleve
+            : S.of(context)!.concubinageCriteriaImpotMoinsEleve,
+        concubinageLabel: impotMenagePlusEleveMarie
+            ? S.of(context)!.concubinageCriteriaImpotMoinsEleve
+            : S.of(context)!.concubinageCriteriaImpotPlusEleve,
+        advantage: Advantage.neutral,
         icon: Icons.account_balance_outlined,
       ),
       ComparisonCriteria(
@@ -388,79 +652,16 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     ];
   }
 
-  Widget _buildScoreSummary() {
-    final result = _comparisonResult!;
-    final scoreMariage = result['scoreMariage'] as int;
-    final scoreConcubinage = result['scoreConcubinage'] as int;
-
-    return Semantics(
-      label: '${S.of(context)!.concubinageMariage}: $scoreMariage ${S.of(context)!.concubinageAvantages}, ${S.of(context)!.concubinageConcubinage}: $scoreConcubinage ${S.of(context)!.concubinageAvantages}',
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.primary,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    '$scoreMariage',
-                    style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: MintSpacing.xs),
-                  Text(
-                    S.of(context)!.concubinageAvantages,
-                    style: MintTextStyles.labelSmall(color: MintColors.white60),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    S.of(context)!.concubinageMariage,
-                    style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              width: 1,
-              height: 60,
-              color: MintColors.white24,
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  Text(
-                    '$scoreConcubinage',
-                    style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: MintSpacing.xs),
-                  Text(
-                    S.of(context)!.concubinageAvantages,
-                    style: MintTextStyles.labelSmall(color: MintColors.white60),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    S.of(context)!.concubinageConcubinage,
-                    style: MintTextStyles.bodyMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildFiscalDetailCard() {
     final result = _comparisonResult!;
     final fiscal = result['fiscal'] as Map<String, dynamic>;
     final totalCelib = fiscal['totalCelibataires'] as double;
     final totalMarie = fiscal['totalMarie'] as double;
     final difference = fiscal['difference'] as double;
-    final isPenalite = fiscal['isPenalite'] as bool;
+    // Sens de l'écart, jamais un verdict : « plus élevé » d'un côté est un fait
+    // descriptif, « pénalité »/« bonus » serait un jugement que ce modèle
+    // simplifié ne peut pas porter (cf. l'encart de limite ci-dessous).
+    final impotMenagePlusEleveMarie = fiscal['isPenalite'] as bool;
 
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
@@ -495,28 +696,61 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                isPenalite ? S.of(context)!.concubinagePenaliteMariage : S.of(context)!.concubinageBonusMariage,
-                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  impotMenagePlusEleveMarie
+                      ? S.of(context)!.concubinageEcartImpotMariePlusEleve
+                      : S.of(context)!.concubinageEcartImpotConcubinagePlusEleve,
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                ),
               ),
+              const SizedBox(width: MintSpacing.sm),
+              // Montant de l'écart, sans signe ni couleur de valeur : le libellé
+              // porte déjà le sens, et rouge/vert re-poserait le verdict
+              // « pénalité »/« bonus » que ce modèle ne peut pas soutenir.
               Text(
-                '${isPenalite ? "+" : "-"}${FamilyService.formatChf(difference.abs())}',
-                style: MintTextStyles.titleLarge(color: isPenalite ? MintColors.error : MintColors.success).copyWith(fontWeight: FontWeight.w700),
+                FamilyService.formatChf(difference.abs()),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          // Limite du modèle, attachée au chiffre (même motif que l'encart
+          // conditionnel de la carte succession, mêmes tokens).
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
+            ),
+            child: Text(
+              S.of(context)!.fiscalEstimationModelLimit,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+            ),
           ),
         ],
       ),
     );
   }
 
+  // Carte succession : le TAUX cantonal, jamais un montant en francs.
+  //
+  // L'ancienne carte affichait `patrimoine × taux` (+ le patrimoine « transmis »
+  // et un encart d'alerte reprenant les deux). Cette base est fausse : depuis la
+  // révision du droit successoral en vigueur au 1.1.2023, sans testament le·la
+  // concubin·e n'hérite de RIEN, et avec testament la réserve des descendant·e·s
+  // plafonne le legs à la moitié de la succession (CC art. 470-471) ; un bien en
+  // copropriété n'entre par ailleurs dans la succession que pour la quote-part
+  // du·de la défunt·e. Un chiffre bâti là-dessus est indéfendable : il est
+  // retiré, et on énonce à la place le mécanisme + la règle qui décide.
+  //
+  // Le taux, lui, reste : c'est une information réelle et personnalisée (le
+  // canton est un fait confirmé), encadrée d'une limite de modèle — même motif
+  // et mêmes tokens que `fiscalEstimationModelLimit` sur la carte fiscale.
+  // La carte est rendue même à 0 % (SZ/OW/NW) : « aucun impôt de succession dans
+  // ton canton » est précisément l'information utile.
   Widget _buildInheritanceCard() {
-    final result = _comparisonResult!;
-    final inheritance = result['inheritance'] as Map<String, dynamic>;
-    final impot = inheritance['impot'] as double;
-    final taux = inheritance['taux'] as double;
-
-    if (impot <= 0) return const SizedBox.shrink();
 
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
@@ -535,50 +769,62 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          _buildResultRow(
-            S.of(context)!.concubinagePatrimoineTransmis,
-            FamilyService.formatChf(_patrimoine),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildResultRow(S.of(context)!.concubinageMarieExonereLabel, S.of(context)!.concubinageMarieExonere),
-                    const SizedBox(height: 8),
-                    _buildResultRow(
-                      S.of(context)!.concubinageConcubinTaux((taux * 100).toStringAsFixed(0)),
-                      FamilyService.formatChf(impot),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 12),
+          // La règle qui décide vraiment l'arbitrage : sans testament le·la
+          // partenaire n'hérite en principe de rien ; avec des descendant·e·s on
+          // ne peut lui attribuer au maximum que la moitié de la succession nette
+          // sans entamer leur réserve. Aucune présomption d'héritage.
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: MintColors.error.withValues(alpha: 0.08),
+              color: MintColors.info.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(Icons.warning_amber,
-                    size: 18, color: MintColors.error),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    S.of(context)!.concubinageWarningSuccession(FamilyService.formatChf(impot), FamilyService.formatChf(_patrimoine)),
-                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(height: 1.4),
-                  ),
-                ),
-              ],
+            child: Text(
+              S.of(context)!.concubinageInheritanceConditional,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Comparaison QUALITATIVE, sans aucun chiffre : le conjoint survivant
+          // est exonéré dans les 26 cantons (lois fiscales cantonales), le·la
+          // concubin·e relève du barème des « tiers ».
+          //
+          // Le taux cantonal était affiché ici jusqu'au 2026-07-26. Il a été
+          // retiré : la table `_inheritanceTaxRatesNonMarie` s'est révélée
+          // invérifiable — deux écarts indépendants constatés (NW donné à 0 %
+          // alors que Nidwald impose les non-parents ; NE très sous-estimé), et
+          // deux sources sérieuses se contredisant sur les détails d'un même
+          // canton. Un taux plat par canton ne peut pas rendre des barèmes
+          // progressifs, des franchises et des impôts communaux.
+          //
+          // Ce qui remplace le chiffre n'est pas un vide : c'est l'énoncé des
+          // quatre éléments qui le déterminent. L'utilisateur comprend pourquoi
+          // aucun montant ne lui est donné, et ce qu'il faudrait pour en obtenir
+          // un — c'est de la lucidité, pas une dérobade.
+          _buildResultRow(
+            S.of(context)!.concubinageMarieExonereLabel,
+            S.of(context)!.concubinageMarieExonere,
+          ),
+          const SizedBox(height: 8),
+          _buildResultRow(
+            S.of(context)!.concubinageConcubinLabel,
+            S.of(context)!.concubinageConcubinTaux,
+          ),
+          const SizedBox(height: 12),
+          // Limite du modèle, attachée au taux (même motif que la carte fiscale).
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: MintColors.info.withValues(alpha: 0.18)),
+            ),
+            child: Text(
+              S.of(context)!.concubinageInheritanceRateLimit,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                  .copyWith(height: 1.4),
             ),
           ),
         ],
@@ -631,10 +877,6 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
   // ════════════════════════════════════════════════════════════
 
   Widget _buildTab2Protection() {
-    const avsSurvivor = avsRenteMaxMensuelle * FamilyService.avsSurvivorFactor;
-    final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
-    final totalSurvivorMarried = avsSurvivor + lppSurvivor;
-
     return ListView(
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
@@ -664,21 +906,20 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ),
         const SizedBox(height: MintSpacing.lg),
 
-        // LPP slider
+        // LPP slider \u2014 rente LPP mensuelle du PARTENAIRE (touch-only).
         MintEntrance(
           delay: const Duration(milliseconds: 100),
           child: MintSurface(
           tone: MintSurfaceTone.blanc,
           elevated: true,
           child: MintAmountField(
+            key: _renteLppKey,
             label: S.of(context)!.concubinageProtectionLppSlider,
-            value: _renteLpp,
-            formatValue: (v) => FamilyService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
-                _renteLpp = v;
-              });
-            },
+            value: _renteLpp ?? 0,
+            formatValue: (v) => _renteLpp == null
+                ? S.of(context)!.concubinageNonRenseigne
+                : FamilyService.formatChf(v),
+            onChanged: (v) => _onFactChanged(() => _renteLpp = v),
             min: 0,
             max: 8000,
           ),
@@ -686,70 +927,10 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ),
         const SizedBox(height: MintSpacing.lg),
 
-        // Side-by-side chiffre-choc: Married vs Concubin survivor total
+        // Rente de survivant (mari\u00e9 vs concubin) \u2014 gat\u00e9e sur la rente LPP.
         MintEntrance(
           delay: const Duration(milliseconds: 150),
-          child: Row(
-          children: [
-            // Married survivor
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(MintSpacing.md),
-                decoration: BoxDecoration(
-                  color: MintColors.success.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      FamilyService.formatChf(totalSurvivorMarried),
-                      style: MintTextStyles.headlineSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: MintSpacing.xs),
-                    Text(
-                      S.of(context)!.concubinageProtectionMaried,
-                      style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: MintSpacing.sm + 4),
-            // Concubin survivor
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.all(MintSpacing.md),
-                decoration: BoxDecoration(
-                  color: MintColors.error.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'CHF\u00a00',
-                      style: MintTextStyles.headlineSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: MintSpacing.xs),
-                    Text(
-                      S.of(context)!.concubinageProtectionConcubinLabel,
-                      style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-        ),
-        const SizedBox(height: MintSpacing.sm),
-        Text(
-          S.of(context)!.concubinageProtectionSurvivorZero,
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
-          textAlign: TextAlign.center,
+          child: _buildSurvivorSection(),
         ),
         const SizedBox(height: MintSpacing.lg),
 
@@ -769,21 +950,15 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         ),
         const SizedBox(height: MintSpacing.lg),
 
-        // Clause 3a widget
+        // Clause bénéficiaire 3a — encart ÉDUCATIF conditionnel (aucun montant :
+        // le solde 3a n'a pas de provenance fiable et la destination dépend de la
+        // clause, inconnue ici). Remplace l'ancien Clause3aWidget (qui affichait
+        // un solde potentiellement estimé + « va à tes parents » présumé).
         MintEntrance(
           delay: const Duration(milliseconds: 300),
-          child: _buildClause3aSection(),
-        ),
-        const SizedBox(height: MintSpacing.lg),
-
-        // Survivor pension widget (concubin mode)
-        MintEntrance(
-          delay: const Duration(milliseconds: 350),
-          child: SurvivorPensionWidget(
-          partnerAvsRente: avsRenteMaxMensuelle,
-          partnerLppMonthly: _renteLpp,
-          isConcubin: true,
-        ),
+          child: _buildEducationalInsert(
+            S.of(context)!.concubinage3aClauseEducational,
+          ),
         ),
         const SizedBox(height: MintSpacing.lg),
 
@@ -792,14 +967,101 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
-  Widget _buildClause3aSection() {
-    final profile = context.read<CoachProfileProvider>().profile;
-    final balance = profile?.prevoyance.totalEpargne3a ?? 0;
-    final estimated = balance > 0
-        ? balance
-        : (_revenu1 + _revenu2) * 0.05 * 10;
-    return Clause3aWidget(
-      balance3a: estimated,
+  // Rente de survivant (conjoint·e marié·e vs concubin·e). Gaté sur la rente LPP
+  // du partenaire. La figure MARIÉE est fondée sur la seule donnée CONFIRMÉE — la
+  // rente LPP de survivant (60 % de la rente du partenaire, LPP art. 19). La rente
+  // AVS de survivant N'EST PAS chiffrée ici : son montant dépend de la carrière de
+  // cotisation (non confirmée) ; l'afficher au maximum légal serait fabriqué. Elle
+  // est mentionnée qualitativement sous la comparaison (aucun CHF). Le côté
+  // concubin est CHF 0 — vérité légale (aucune rente automatique).
+  Widget _buildSurvivorSection() {
+    final gate = _survivorGate(context);
+    if (!gate.complete) {
+      return SituationGateCard(
+        title: S.of(context)!.concubinageGateSurvivorTitle,
+        gate: gate,
+      );
+    }
+    final lppSurvivorMarried = _renteLpp! * FamilyService.lppSurvivorFactor;
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            // Conjoint·e survivant·e — rente LPP de survivant (donnée confirmée).
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(MintSpacing.md),
+                decoration: BoxDecoration(
+                  color: MintColors.success.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: MintColors.success.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      FamilyService.formatChf(lppSurvivorMarried),
+                      style: MintTextStyles.headlineSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      S.of(context)!.concubinageProtectionMaried,
+                      style: MintTextStyles.labelSmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      S.of(context)!.concubinageSurvivorLppDetail,
+                      style: MintTextStyles.micro(color: MintColors.textSecondary),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: MintSpacing.sm + 4),
+            // Concubin survivor
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(MintSpacing.md),
+                decoration: BoxDecoration(
+                  color: MintColors.error.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'CHF 0',
+                      style: MintTextStyles.headlineSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      S.of(context)!.concubinageProtectionConcubinLabel,
+                      style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: MintSpacing.sm),
+        Text(
+          S.of(context)!.concubinageProtectionSurvivorZero,
+          style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        // Avantage AVS énoncé QUALITATIVEMENT (aucun CHF : la rente AVS de
+        // survivant dépend de la carrière de cotisation, non confirmée).
+        Text(
+          S.of(context)!.concubinageSurvivorAvsNote,
+          style: MintTextStyles.micro(color: MintColors.textSecondary),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 
@@ -822,7 +1084,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 child: Center(
                   child: Text(
                     S.of(context)!.concubinageProtectionMaried,
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, fontSize: 11),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, fontSize: 11), // lint-ignore: prefer_mint_text_style
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -831,7 +1093,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                 child: Center(
                   child: Text(
                     S.of(context)!.concubinageProtectionConcubinLabel,
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, fontSize: 11),
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, fontSize: 11), // lint-ignore: prefer_mint_text_style
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -844,6 +1106,15 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           _buildComparisonRow(S.of(context)!.concubinageProtectionHeritage, true, false),
           _buildComparisonRow(S.of(context)!.concubinageProtectionPension, true, false),
           _buildComparisonRow(S.of(context)!.concubinageProtectionAvsPlafond, false, true),
+          const SizedBox(height: MintSpacing.sm),
+          // Les ✓ du mariage sont un ACCÈS LÉGAL soumis à conditions (art. 19 LPP,
+          // conditions LAVS) — pas une réception garantie. Le concubin n'a aucun
+          // accès quelles que soient les conditions. On l'énonce sous le tableau.
+          Text(
+            S.of(context)!.concubinageProtectionConditionsNote,
+            style: MintTextStyles.micro(color: MintColors.textMuted),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: MintSpacing.sm),
           Container(
             padding: const EdgeInsets.all(MintSpacing.sm + 4),
@@ -1068,7 +1339,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
                               color: isChecked
                                   ? MintColors.success
                                   : MintColors.transparent,
-                              borderRadius: BorderRadius.circular(7),
+                              borderRadius: BorderRadius.circular(7), // lint-ignore: prefer_mint_radius — case à cocher pré-existante, hors périmètre gate-dur
                               border: Border.all(
                                 color: isChecked
                                     ? MintColors.success

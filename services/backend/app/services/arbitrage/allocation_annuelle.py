@@ -71,6 +71,7 @@ def _build_3a_option(
     annees: int,
     rendement_3a: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 1: Pillar 3a contribution trajectory.
 
@@ -102,8 +103,12 @@ def _build_3a_option(
         ))
 
     # Tax at withdrawal
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    withdrawal_tax = calculate_progressive_capital_tax(capital_3a, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton, is_married=is_married)
     net_capital = capital_3a - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving  # net tax effect
@@ -124,6 +129,7 @@ def _build_rachat_lpp_option(
     annees: int,
     rendement_lpp: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 2: Rachat LPP (voluntary buyback) trajectory.
 
@@ -149,8 +155,17 @@ def _build_rachat_lpp_option(
         # Growth on total
         growth = capital_lpp * rendement_lpp
         capital_lpp += growth
-        # Tax saving
-        annual_tax_saving = this_year_buyback * taux_marginal
+        # Tax saving — art. 79b al. 3 LPP (ATF 142 II 399) : le retrait en
+        # capital (modélisé à la retraite ci-dessous) dans les 3 ans d'un
+        # rachat entraîne la reprise de la déduction par l'AFC. Convention
+        # start-of-year (le rachat produit le rendement de sa propre année,
+        # ci-dessus) : délai écoulé = annees - i ; bloqué ssi < 3.
+        # Fix beads MINT_nosync-okl (review Codex) — le docstring citait déjà
+        # l'art. 79b sans l'implémenter.
+        within_blocage = (annees - i) < 3
+        annual_tax_saving = (
+            0.0 if within_blocage else this_year_buyback * taux_marginal
+        )
         cumulative_tax_saving += annual_tax_saving
 
         trajectory.append(YearlySnapshot(
@@ -162,8 +177,12 @@ def _build_rachat_lpp_option(
 
     # At retirement: capital can be converted to rente or withdrawn
     # For comparison: assume capital withdrawal (like 3a)
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    withdrawal_tax = calculate_progressive_capital_tax(capital_lpp, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_lpp, canton, is_married=is_married)
     net_capital = capital_lpp - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving
@@ -184,6 +203,7 @@ def _build_amortissement_indirect_option(
     taux_hypothecaire: float,
     rendement_3a: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 3: Amortissement indirect (indirect mortgage amortization).
 
@@ -218,8 +238,12 @@ def _build_amortissement_indirect_option(
         ))
 
     # At retirement: 3a used to repay mortgage (capital withdrawal tax applies)
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    withdrawal_tax = calculate_progressive_capital_tax(capital_3a, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    withdrawal_tax = estimate_capital_withdrawal_tax(capital_3a, canton, is_married=is_married)
     net_capital = capital_3a - withdrawal_tax
     terminal_value = net_capital + cumulative_tax_saving
     total_tax_impact = withdrawal_tax - cumulative_tax_saving
@@ -238,16 +262,20 @@ def _build_investissement_libre_option(
     annees: int,
     rendement_marche: float,
     canton: str,
+    is_married: bool = False,
 ) -> TrajectoireOption:
     """Build Option 4: Investissement libre (free investment).
 
     No tax deduction. Full liquidity. Growth at market return.
-    Wealth tax applies annually (~0.3-0.5%).
+    Impôt fortune annuel : WealthTaxService (beads -cm4) — exonération
+    cantonale (ZH 77k, doublée marié) + barème effectif, à la place du
+    proxy plat « 5% du taux de retrait capital » qui taxait dès le
+    premier franc.
     """
-    # Approximate wealth tax rate
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), 0.065)
-    wealth_tax_rate = base_rate * 0.05  # Very rough proxy: ~0.2-0.4%
-    wealth_tax_rate = max(0.002, min(wealth_tax_rate, 0.005))
+    from app.services.fiscal.wealth_tax_service import WealthTaxService
+
+    wealth_svc = WealthTaxService()
+    civil_status = "marie" if is_married else "celibataire"
 
     trajectory: List[YearlySnapshot] = []
     capital = 0.0
@@ -257,8 +285,10 @@ def _build_investissement_libre_option(
         capital += montant
         growth = capital * rendement_marche
         capital += growth
-        # Annual wealth tax
-        annual_wealth_tax = capital * wealth_tax_rate
+        # Annual wealth tax — modèle canonique (exonération + barème)
+        annual_wealth_tax = wealth_svc.estimate_wealth_tax(
+            capital, canton.upper(), civil_status
+        ).impot_fortune
         capital -= annual_wealth_tax
         cumulative_tax += annual_wealth_tax
 
@@ -333,6 +363,7 @@ def compare_allocation_annuelle(
     rendement_lpp: float = 0.0125,
     rendement_marche: float = 0.04,
     canton: str = "VD",
+    is_married: bool = False,
 ) -> ArbitrageResult:
     """Compare allocation strategies for available annual savings.
 
@@ -356,6 +387,8 @@ def compare_allocation_annuelle(
         rendement_lpp: Expected LPP caisse return (default 1.25%).
         rendement_marche: Expected free market return (default 4%).
         canton: Canton code for tax estimation (default VD).
+        is_married: Marié·e — coefficient cantonal réduit sur l'impôt de
+            retrait capital (beads MINT_nosync-uwv, défaut False).
 
     Returns:
         ArbitrageResult with eligible options, sensitivity, and compliance.
@@ -375,6 +408,7 @@ def compare_allocation_annuelle(
             annees=annees_avant_retraite,
             rendement_3a=rendement_3a,
             canton=canton,
+            is_married=is_married,
         ))
 
     # Option 2: Rachat LPP (only if potential > 0)
@@ -386,6 +420,7 @@ def compare_allocation_annuelle(
             annees=annees_avant_retraite,
             rendement_lpp=rendement_lpp,
             canton=canton,
+            is_married=is_married,
         ))
 
     # Option 3: Amortissement indirect (only if property owner)
@@ -397,6 +432,7 @@ def compare_allocation_annuelle(
             taux_hypothecaire=taux_hypothecaire,
             rendement_3a=rendement_3a,
             canton=canton,
+            is_married=is_married,
         ))
 
     # Option 4: Investissement libre (always available)
@@ -405,6 +441,7 @@ def compare_allocation_annuelle(
         annees=annees_avant_retraite,
         rendement_marche=rendement_marche,
         canton=canton,
+        is_married=is_married,
     ))
 
     # Breakeven: compare 3a vs invest libre if both present
@@ -487,6 +524,7 @@ def compare_allocation_annuelle(
                 annees=annees_avant_retraite,
                 rendement_3a=variant_rendement_3a,
                 canton=canton,
+                is_married=is_married,
             ))
 
         if potentiel_rachat_lpp > 0 and montant_disponible > 0:
@@ -497,6 +535,7 @@ def compare_allocation_annuelle(
                 annees=annees_avant_retraite,
                 rendement_lpp=variant_rendement_lpp,
                 canton=canton,
+                is_married=is_married,
             ))
 
         if is_property_owner and montant_disponible > 0:
@@ -507,6 +546,7 @@ def compare_allocation_annuelle(
                 taux_hypothecaire=variant_taux_hypothecaire,
                 rendement_3a=variant_rendement_3a,
                 canton=canton,
+                is_married=is_married,
             ))
 
         variant_options.append(_build_investissement_libre_option(
@@ -514,6 +554,7 @@ def compare_allocation_annuelle(
             annees=annees_avant_retraite,
             rendement_marche=variant_rendement_marche,
             canton=canton,
+            is_married=is_married,
         ))
 
         return variant_options

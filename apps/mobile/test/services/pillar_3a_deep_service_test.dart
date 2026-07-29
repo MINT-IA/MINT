@@ -15,11 +15,11 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('StaggeredWithdrawalSimulator - impot progressif', () {
-    test('impot retrait en bloc applique brackets progressifs', () {
-      // 200'000 CHF a ZH (taux base 6.5%)
-      // Tranche 0-100k : 100000 * 0.065 * 1.0 = 6500
-      // Tranche 100k-200k : 100000 * 0.065 * 1.15 = 7475
-      // Total = 13975
+    test('impot retrait en bloc suit le modèle v2 (IFD art. 38 + ESTV)', () {
+      // 200'000 CHF a ZH — v2 -2i2 : IFD art. 38 (1/5 du barème revenu)
+      // + interpolation cantonale sur points ESTV officiels.
+      // Sanity backend : estimate_capital_withdrawal_tax(200000, 'ZH')
+      // = 11140.69.
       final result = StaggeredWithdrawalSimulator.simulate(
         avoirTotal: 200000,
         nbComptes: 1,
@@ -28,7 +28,7 @@ void main() {
         ageRetraitDebut: 64,
         ageRetraitFin: 65,
       );
-      expect(result.impotBloc, closeTo(13975, 1.0));
+      expect(result.impotBloc, closeTo(11140.69, 1.0)); // v2 -2i2
     });
 
     test('retrait echelonne reduit l impot total', () {
@@ -148,13 +148,12 @@ void main() {
   });
 
   group('StaggeredWithdrawalSimulator - brackets progressifs detailles', () {
-    test('montant > 500k applique bracket 500k-1M (mult 1.50)', () {
-      // 600000 CHF a ZH (6.5%)
-      // 0-100k : 100000 * 0.065 * 1.0  = 6500
-      // 100k-200k: 100000 * 0.065 * 1.15 = 7475
-      // 200k-500k: 300000 * 0.065 * 1.30 = 25350
-      // 500k-600k: 100000 * 0.065 * 1.50 = 9750
-      // Total = 49075
+    test('montant > 500k interpole entre les points ESTV 500k et 750k (v2)',
+        () {
+      // 600000 CHF a ZH — v2 -2i2 : IFD art. 38 + interpolation cantonale
+      // entre les points ESTV 500k et 750k.
+      // Sanity backend : estimate_capital_withdrawal_tax(600000, 'ZH')
+      // = 48921.29.
       final result = StaggeredWithdrawalSimulator.simulate(
         avoirTotal: 600000,
         nbComptes: 1,
@@ -163,7 +162,7 @@ void main() {
         ageRetraitDebut: 65,
         ageRetraitFin: 65,
       );
-      expect(result.impotBloc, closeTo(49075, 1.0));
+      expect(result.impotBloc, closeTo(48921.29, 1.0)); // v2 -2i2
     });
 
     test('montant net = montant retire - impot estime', () {

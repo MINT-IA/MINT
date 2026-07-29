@@ -393,9 +393,9 @@ void main() {
       expect(result.montantSouhaiteApplicable, closeTo(50000, 0.01));
     });
 
-    test('impot progressif via RetirementTaxCalculator (ZH base rate 6.5%)', () {
+    test('impot progressif via RetirementTaxCalculator (v2, canton ZH)', () {
       // EPL uses RetirementTaxCalculator.capitalWithdrawalTax with canton ZH (default)
-      // ZH base rate = 0.065, progressive brackets: 0-100k (1.0x), 100k-200k (1.15x), etc.
+      // v2 : IFD art. 38 (1/5 du barème revenu) + cantonal ESTV interpolé.
       final result30k = EplSimulator.simulate(
         avoirTotal: 200000,
         avoirObligatoire: 140000,
@@ -404,8 +404,8 @@ void main() {
         montantSouhaite: 30000,
         aRachete: false,
       );
-      // 30000 * 0.065 * 1.0 = 1950
-      expect(result30k.impotEstime, closeTo(1950, 1.0));
+      // v2 -2i2 : ZH 30000
+      expect(result30k.impotEstime, closeTo(1306.792, 1.0));
 
       final result80k = EplSimulator.simulate(
         avoirTotal: 200000,
@@ -415,8 +415,8 @@ void main() {
         montantSouhaite: 80000,
         aRachete: false,
       );
-      // 80000 * 0.065 * 1.0 = 5200
-      expect(result80k.impotEstime, closeTo(5200, 1.0));
+      // v2 -2i2 : ZH 80000
+      expect(result80k.impotEstime, closeTo(3699.66, 1.0));
     });
 
     test('impot progressif sur montants > 100k', () {
@@ -428,11 +428,8 @@ void main() {
         montantSouhaite: 150000,
         aRachete: false,
       );
-      // ZH base rate = 0.065
-      // First 100k: 100000 * 0.065 * 1.0 = 6500
-      // Next 50k: 50000 * 0.065 * 1.15 = 3737.5
-      // Total = 10237.5
-      expect(result150k.impotEstime, closeTo(10237.5, 1.0));
+      // v2 -2i2 : ZH 150000
+      expect(result150k.impotEstime, closeTo(7835.128, 1.0));
     });
 
     test('reduction prestations risque : null + alerte qualitative', () {

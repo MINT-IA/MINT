@@ -23,6 +23,9 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from _baseline_diff import new_violations  # noqa: E402
+
 LINT_NAME = "prefer_mint_fonts"
 REPO = Path(__file__).resolve().parents[2]
 DEFAULT_SCOPE = REPO / "apps" / "mobile" / "lib"
@@ -136,7 +139,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     baseline = _load_baseline(args.baseline)
-    new = sorted(set(current) - baseline)
+    new = new_violations(current, baseline)
     if new:
         print(f"::error::{LINT_NAME}: {len(new)} new violation(s):")
         for v in new:

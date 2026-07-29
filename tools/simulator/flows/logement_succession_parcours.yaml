@@ -1,0 +1,65 @@
+# tools/simulator/flows/logement_succession_parcours.yaml
+#
+# campagne-B — end-to-end sim proof of the Logement + Succession parcours.
+# Same harness as travail_triad.yaml / famille_parcours.yaml: a seeded build
+# (--dart-define=MINT_E2E_ARCHETYPE=swiss_native) boots into a navigable guest
+# shell via the kReleaseMode-guarded hook in auth_provider.dart. These routes
+# are not _isMainShellPath, so deeplinks render directly. Semantic locators
+# only; ASCII-safe title regexes (accents rendered but not required in match).
+
+appId: ch.mint.app
+tags:
+  - campagne-b
+  - logement-succession-parcours
+  - runtime-proof
+  - feature:life-events
+---
+
+# ── Cold launch → navigable guest shell (via E2E hook) ────────────────
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- waitForAnimationToEnd:
+    timeout: 8000
+
+# ── hypotheque — Capacité d'achat (computes on load) ──────────────────
+- openLink: "mintapp:///hypotheque"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*Capacit.*"
+    timeout: 12000
+- assertVisible:
+    text: ".*CHF.*"
+
+# ── amortization — Direct vs indirect (computes on load) ──────────────
+- openLink: "mintapp:///mortgage/amortization"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*Direct.*"
+    timeout: 12000
+- assertVisible:
+    text: ".*CHF.*"
+
+# ── succession — Succession et transmission (computes on load) ────────
+- openLink: "mintapp:///succession"
+- waitForAnimationToEnd:
+    timeout: 8000
+- extendedWaitUntil:
+    visible:
+      text: ".*Succession.*"
+    timeout: 12000
+# The testament comparison content renders (the screen computes the heritage
+# distribution — e.g. "Sans testament" vs "Avec testament" with CHF figures).
+- assertVisible:
+    text: ".*testament.*"
+- assertVisible:
+    text: ".*CHF.*"

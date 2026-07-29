@@ -24,6 +24,7 @@ void main() {
       // transfert = (216250 − 80000)/2 = 68125 (et NON |416250−80000|/2 = 168125).
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 12,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -58,6 +59,7 @@ void main() {
         'parts acquises pendant le mariage égales → transfert nul', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -88,6 +90,7 @@ void main() {
         '(jamais négative)', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 5,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -117,6 +120,7 @@ void main() {
         'pas de split silencieux sur le total', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 10,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -150,6 +154,7 @@ void main() {
         'les deux avoirAuMariage null → résultat incomplet', () {
       final result = DivorceService.simulate(
         input: const DivorceInput(
+          canton: 'ZH',
           marriageDurationYears: 8,
           numberOfChildren: 0,
           regime: MatrimonialRegime.participationAuxAcquets,
@@ -167,5 +172,40 @@ void main() {
       expect(result.lppSplit.isIncomplete, isTrue);
       expect(result.lppSplit.transferAmount, 0);
     });
+  });
+
+  test('post-split balances reconcile with the total (asymmetric case)', () {
+    // Audit conseiller : « la moitié du pool acquis » n'est l'avoir de personne
+    // et ne se réconcilie pas avec le total affiché. Les soldes rendus sont
+    // désormais avoir actuel ∓ transfert — leur somme DOIT valoir totalLpp.
+    final r = DivorceService.simulate(
+      input: const DivorceInput(
+        marriageDurationYears: 10,
+        numberOfChildren: 0,
+        regime: MatrimonialRegime.participationAuxAcquets,
+        canton: 'ZH',
+        incomeConjoint1: 90000,
+        incomeConjoint2: 50000,
+        lppConjoint1: 180000,
+        lppConjoint2: 80000,
+        avoirAuMariage1: 160000,
+        avoirAuMariage2: 20000,
+        pillar3aConjoint1: 0,
+        pillar3aConjoint2: 0,
+        fortuneCommune: 0,
+        dettesCommunes: 0,
+      ),
+    );
+    // acquis1 = 20'000, acquis2 = 60'000 → transfert = 20'000, sens 2 → 1.
+    expect(r.lppSplit.transferAmount, 20000);
+    expect(r.lppSplit.transferDirection, '2 → 1');
+    // Conjoint 1 REÇOIT : 180'000 + 20'000 ; conjoint 2 verse : 80'000 − 20'000.
+    expect(r.lppSplit.shareConjoint1, 200000);
+    expect(r.lppSplit.shareConjoint2, 60000);
+    expect(r.lppSplit.shareConjoint1 + r.lppSplit.shareConjoint2,
+        r.lppSplit.totalLpp,
+        reason: 'the two post-split balances must reconcile with the total');
+    // Et surtout : ce ne sont PAS deux moitiés égales du pool acquis (40'000).
+    expect(r.lppSplit.shareConjoint1, isNot(40000));
   });
 }

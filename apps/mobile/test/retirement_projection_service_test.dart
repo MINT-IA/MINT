@@ -966,9 +966,9 @@ void main() {
       // 48k RAMD → rente between 1260 and 2520 (with 13th rente: * 13/12)
       expect(avs, lessThan(avsRenteMaxMensuelle * avs13emeRenteFactor));
       expect(avs, greaterThan(avsRenteMinMensuelle * avs13emeRenteFactor));
-      // Linear interpolation: (48k-14.7k)/(88.2k-14.7k) * 1260 + 1260 ≈ 1831
-      // With 13th rente: 1831 * 13/12 ≈ 1983
-      expect(avs, closeTo(1831 * avs13emeRenteFactor, 55));
+      // Table officielle OFAS 318.117.011 (audit -zaw) : 48000 entre
+      // 46872 (1935) et 48384 (1956) → ≈ 1950.7 ; ×13/12 avec 13e rente.
+      expect(avs, closeTo(1950.7 * avs13emeRenteFactor, 55));
     });
   });
 

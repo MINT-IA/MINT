@@ -901,10 +901,10 @@ void main() {
       final answers = minimalAnswers(); // q_canton = 'VD'
       answers['q_children'] = '2';
       final report = service.generateReport(answers);
-      // Wave 7 fiscal audit P0-R4 : 2 enfants × (6'700 féd. + 11'000 VD) = 35'400 CHF.
+      // Wave 7 fiscal audit P0-R4 : 2 enfants × (6'800 féd. + 11'000 VD) = 35'600 CHF.
       // Previously the code applied a flat 6'500 × n that ignored the cantonal
       // layer entirely; the test now pins the corrected value.
-      const expected = 2 * (6700.0 + 11000.0); // 35'400
+      const expected = 2 * (6800.0 + 11000.0); // 35'600
       expect(report.taxSimulation.deductions['D\u00e9duction enfants'],
           equals(expected));
     });

@@ -218,9 +218,9 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
         "Mots-clés : 3a, retrait, étalement, fiscal, canton, capital."
     ),
     "retroactive_3a_service__calculate_retroactive_3a": (
-        "Calcule la possibilité de versement rétroactif 3a (LIFD art. 33 al. 1 "
-        "let. e, jusqu'à 10 ans en arrière selon réforme 2025) selon années "
-        "manquantes et capacité de versement. Estime l'économie fiscale CHF. "
+        "Calcule le rachat rétroactif 3a (OPP3 art. 7a / LIFD art. 33 al. 1 "
+        "let. e) : comble les lacunes dès 2025 (fenêtre 10 ans), plafonné au "
+        "petit maximum 3a par année civile. Estime l'économie fiscale CHF. "
         "Mots-clés : 3a, rétroactif, déduction, fiscal, prévoyance."
     ),
     "cross_pillar_service__CrossPillarService_compute": (
@@ -286,11 +286,16 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
         "matrimonial."
     ),
     "succession_simulator__SuccessionSimulator_simulate": (
-        "Estime les frais de succession cantonaux selon CC art. 462 (conjoint "
-        "survivant) et CC art. 467-469 (réserves héréditaires, réforme 2023 "
-        "1/2 vs 3/4). Produit l'impôt CHF par héritier et la part nette. "
+        "Estime la répartition successorale et les frais de succession "
+        "cantonaux. La part successorale CIVILE du·de la conjoint·e "
+        "survivant·e relève de CC art. 462 ; la réserve héréditaire et la "
+        "quotité disponible relèvent de CC art. 470-471 (réforme entrée en "
+        "vigueur au 1.1.2023 : réserve des descendant·e·s ramenée de 3/4 à "
+        "1/2 de leur part légale, réserve des parents supprimée). L'impôt, "
+        "lui, est cantonal — il n'existe pas d'impôt successoral fédéral "
+        "ordinaire. Produit par héritier·ère un VERDICT fiscal sourcé ESTV (statut exonéré/taxé, plafond « jusqu'à X % » quand la source le donne, franchises et bascules — PAS de montant d'impôt en CHF). "
         "Mots-clés : succession, héritage, conjoint, réserve héréditaire, "
-        "canton, impôt."
+        "quotité disponible, canton, impôt."
     ),
     "concubinage_service__ConcubinageService_compare_mariage_vs_concubinage": (
         "Compare la situation fiscale d'un couple marié (CC art. 159) vs "
@@ -299,11 +304,16 @@ _TOOL_DESCRIPTIONS_FR: dict[str, str] = {
         "Mots-clés : mariage, concubinage, couple, impôt, canton, AVS, "
         "splitting fiscal."
     ),
-    "concubinage_service__ConcubinageService_estimate_inheritance_tax": (
-        "Estime l'impôt de succession entre concubins (CC art. 462 inappli- "
-        "cable, fiscalité cantonale durcie) selon canton et patrimoine. "
-        "Produit l'impôt CHF + la part nette. Mots-clés : concubinage, "
-        "succession, héritage, canton, impôt, conjoint."
+    "concubinage_service__ConcubinageService_compare_succession_concubin_vs_conjoint": (
+        "Compare la situation successorale d'un·e concubin·e et d'un·e "
+        "conjoint·e survivant·e, sans la chiffrer : un·e concubin·e n'hérite "
+        "de rien sans testament, et avec testament la quotité disponible "
+        "plafonne à la moitié de la succession nette en présence de "
+        "descendant·e·s (CC art. 470-471). Ne produit AUCUN montant et AUCUN "
+        "taux : la charge dépend du canton et de la commune, de la part "
+        "réellement reçue, du lien de parenté et de la durée de vie commune. "
+        "Mots-clés : concubinage, succession, héritage, testament, quotité "
+        "disponible, réserve héréditaire, canton, conjoint."
     ),
     "mariage_service__MariageService_compare_fiscal_impact": (
         "Compare l'impact fiscal d'un mariage (CC art. 159) selon canton et "

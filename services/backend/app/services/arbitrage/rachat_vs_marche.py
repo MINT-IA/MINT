@@ -28,7 +28,6 @@ from typing import List, Dict
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
     TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
-    MARRIED_CAPITAL_TAX_DISCOUNT,
     calculate_progressive_capital_tax,
 )
 
@@ -72,10 +71,12 @@ def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:
 
     Uses the centralized calculate_progressive_capital_tax from constants.
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
-    if is_married:
-        base_rate *= MARRIED_CAPITAL_TAX_DISCOUNT
-    return calculate_progressive_capital_tax(capital, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 + interpolation ESTV).
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    return estimate_capital_withdrawal_tax(capital, canton, is_married=is_married)
 
 
 def _build_rachat_option(
@@ -95,8 +96,11 @@ def _build_rachat_option(
     """
     trajectory: List[YearlySnapshot] = []
 
-    # Immediate tax saving from buyback
-    tax_saving = montant * taux_marginal
+    # Immediate tax saving from buyback — art. 79b al. 3 LPP (ATF 142 II 399):
+    # le retrait en capital modélisé à la retraite (dernière année) dans les
+    # 3 ans du rachat (versé en t=0) entraîne la reprise de la déduction.
+    # Fix beads MINT_nosync-okl (review Codex).
+    tax_saving = montant * taux_marginal if annees_avant_retraite >= 3 else 0.0
 
     # Capital grows in LPP at caisse rate
     capital = montant

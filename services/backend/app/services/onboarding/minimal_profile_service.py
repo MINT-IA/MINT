@@ -30,13 +30,10 @@ Rules:
 from typing import List, Optional
 
 from app.constants.social_insurance import (
-    AVS_RAMD_MIN,
-    AVS_RAMD_MAX,
-    AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_AGE_REFERENCE_HOMME,
-    AVS_AGE_REFERENCE_FEMME,
+    avs_reference_age,
+    rente_from_ramd,
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
@@ -131,10 +128,6 @@ def _detect_archetype(input: MinimalProfileInput) -> str:
 # Constants — derived from social_insurance.py
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# AVS linear interpolation boundaries (RAMD) — from social_insurance.py
-_AVS_RAMD_LOW: float = AVS_RAMD_MIN
-_AVS_RAMD_HIGH: float = AVS_RAMD_MAX
-
 # Approximate net salary factor (Swiss average: ~87% of gross after social deductions)
 _NET_SALARY_FACTOR: float = 0.87
 
@@ -146,23 +139,24 @@ _EXPENSES_FACTOR: float = 0.85
 _RETIREMENT_AGE_DEFAULT: int = AVS_AGE_REFERENCE_HOMME  # 65
 
 
-def _get_retirement_age(gender: Optional[str]) -> int:
-    """Return retirement reference age based on gender (AVS21).
+def _get_retirement_age(gender: Optional[str], birth_year: int) -> int:
+    """Return retirement reference age based on gender AND cohort (AVS21).
 
-    - Men: 65 (LAVS art. 21 al. 1)
-    - Women: 64 (AVS21 reform, transitional from 64→65 for births 1961-1963)
-    - Unknown: 65 (conservative default — overestimates contribution years slightly)
+    Beads MINT_nosync-xx9 : l'ancienne version servait
+    ``AVS_AGE_REFERENCE_FEMME`` = int(64.5) = 64 à TOUTES les femmes —
+    faux pour les cohortes 1963+ (65 depuis la réforme AVS 21). L'âge de
+    référence dépend de la cohorte, pas d'un scalaire.
 
     Args:
         gender: "male", "female", or None if unknown.
+        birth_year: année de naissance (dérivée de input.age si besoin —
+            précision ±1 an sans birth_date, suffisante : seules les
+            cohortes 1961-1963 sont sensibles).
 
     Returns:
         Retirement reference age.
     """
-    if gender == "female":
-        return AVS_AGE_REFERENCE_FEMME  # 64 (AVS21 transitional)
-    # Male or unknown → 65
-    return AVS_AGE_REFERENCE_HOMME
+    return avs_reference_age(birth_year, gender == "female")
 
 # Default marginal tax rate for middle incomes (proxy)
 _DEFAULT_MARGINAL_TAX_RATE: float = 0.25
@@ -210,12 +204,10 @@ _SOURCES = [
 def _estimate_avs_monthly(gross_salary: float, contribution_years: int) -> float:
     """Estimate monthly AVS rente based on RAMD and contribution years.
 
-    Uses LAVS art. 34 formula:
-    - If RAMD <= 14'700 CHF: minimum rente (1'260 CHF/month)
-    - If RAMD >= 88'200 CHF: maximum rente (2'520 CHF/month)
-    - Between: linear interpolation
-
-    Then apply reduction for incomplete contribution years (< 44).
+    Uses LAVS art. 34 via the canonical echelle 44 lookup
+    (``social_insurance.rente_from_ramd``) — official OFAS table,
+    NOT a naive min->max interpolation. Then applies the reduction
+    for incomplete contribution years (< 44).
 
     Args:
         gross_salary: Annual gross salary (used as proxy for RAMD).
@@ -227,17 +219,9 @@ def _estimate_avs_monthly(gross_salary: float, contribution_years: int) -> float
     if gross_salary <= 0:
         return 0.0
 
-    # Determine full rente from RAMD (linear interpolation)
-    if gross_salary <= _AVS_RAMD_LOW:
-        full_rente = AVS_RENTE_MIN_MENSUELLE
-    elif gross_salary >= _AVS_RAMD_HIGH:
-        full_rente = AVS_RENTE_MAX_MENSUELLE
-    else:
-        # Linear interpolation between min and max
-        ratio = (gross_salary - _AVS_RAMD_LOW) / (_AVS_RAMD_HIGH - _AVS_RAMD_LOW)
-        full_rente = AVS_RENTE_MIN_MENSUELLE + ratio * (
-            AVS_RENTE_MAX_MENSUELLE - AVS_RENTE_MIN_MENSUELLE
-        )
+    # Full rente from RAMD via the single canonical echelle 44 function
+    # (règle 4 / NEVER #3 — one source of truth per layer, no local copies).
+    full_rente = rente_from_ramd(gross_salary)
 
     # Apply reduction for incomplete contribution years
     complete_years = AVS_DUREE_COTISATION_COMPLETE  # 44
@@ -327,49 +311,16 @@ def _estimate_lpp_from_age_25(
 
 
 def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
-    """Approximate marginal income tax rate using the mobile canonical curve.
+    """Taux marginal — PENTE du modele fiscal canonique, plus une table.
 
-    Mirrors apps/mobile/lib/services/financial_core/tax_calculator.dart:
-    effective AFC 2024 cantonal rates at 100k, income interpolation, then
-    ×1.3 to approximate a marginal deduction rate.
+    `effective_rates_100k` (courbe a 100k x ajustement de revenu x1.3,
+    clamp [0.05, 0.45]) donnait 0.1290 pour ZH la ou l'etalon donne
+    0.1323 a 100k, et son plancher de 5 % inventait un taux pour des
+    revenus quasi non imposes.
     """
-    effective_rates_100k = {
-        "ZG": 0.0823, "NW": 0.0891, "OW": 0.0934, "AI": 0.0956,
-        "AR": 0.1012, "SZ": 0.1034, "UR": 0.1067, "LU": 0.1089,
-        "GL": 0.1102, "TG": 0.1145, "SH": 0.1167, "AG": 0.1189,
-        "GR": 0.1203, "BL": 0.1256, "SG": 0.1278, "ZH": 0.1290,
-        "FR": 0.1312, "SO": 0.1334, "TI": 0.1356, "BE": 0.1389,
-        "NE": 0.1423, "VS": 0.1456, "VD": 0.1489, "JU": 0.1512,
-        "GE": 0.1545, "BS": 0.1578,
-    }
-    income_adjustment = {
-        50_000: 0.75,
-        80_000: 0.90,
-        100_000: 1.00,
-        150_000: 1.10,
-        200_000: 1.18,
-        300_000: 1.25,
-        500_000: 1.32,
-    }
+    from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
 
-    base_rate = effective_rates_100k.get(canton.upper(), 0.13)
-    brackets = sorted(income_adjustment)
-    if gross_salary <= brackets[0]:
-        income_adj = income_adjustment[brackets[0]]
-    elif gross_salary >= brackets[-1]:
-        income_adj = income_adjustment[brackets[-1]]
-    else:
-        income_adj = 1.0
-        for lower, upper in zip(brackets, brackets[1:]):
-            if lower <= gross_salary <= upper:
-                ratio = (gross_salary - lower) / (upper - lower)
-                lower_adj = income_adjustment[lower]
-                upper_adj = income_adjustment[upper]
-                income_adj = lower_adj + (upper_adj - lower_adj) * ratio
-                break
-
-    marginal_rate = base_rate * income_adj * 1.3
-    return min(max(marginal_rate, 0.05), 0.45)
+    return estimate_marginal_rate(gross_salary, canton.upper())
 
 
 def _estimate_tax_saving(
@@ -377,21 +328,11 @@ def _estimate_tax_saving(
     income: float,
     deduction: float,
     canton: str,
-    steps: int = 10,
 ) -> float:
-    """Estimate deduction value via the same 10-step integration as mobile."""
-    if deduction <= 0 or steps <= 0:
-        return 0.0
+    """Economie fiscale — DIFFERENCE d'impot de l'etalon, plus une integration en 10 pas."""
+    from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
-    step_size = deduction / steps
-    current_income = income
-    total_saved = 0.0
-    for _ in range(steps):
-        midpoint = current_income - step_size / 2
-        rate = _compute_marginal_tax_rate(midpoint, canton)
-        total_saved += step_size * rate
-        current_income -= step_size
-    return total_saved
+    return estimate_tax_saving(income, deduction, canton.upper())
 
 
 def _estimate_3a_tax_impact(
@@ -536,10 +477,15 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         ValueError: If age, salary, or canton are invalid.
     """
     # ── Resolve age from birth_date when provided ────────────────────────────
+    # Review Codex PR #985 : quand birth_date existe, bd.year est LA cohorte
+    # exacte — la re-dériver de l'âge bascule la frontière (une femme née le
+    # 31.12.1962 a 63 ans mi-2026 -> dérivation 1963 -> 65 ans au lieu de 64).
+    birth_year_exact: int | None = None
     if input.birth_date:
         from datetime import date
         try:
             bd = date.fromisoformat(input.birth_date[:10])
+            birth_year_exact = bd.year
             today = date.today()
             computed_age = today.year - bd.year - (
                 (today.month, today.day) < (bd.month, bd.day)
@@ -617,7 +563,15 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         estimated_fields.append("monthly_debt_service")
 
     # ── P2-26: Gender-aware retirement age (AVS21) ─────────────────────────
-    retirement_age = _get_retirement_age(getattr(input, "gender", None))
+    from datetime import date as _date
+    retirement_age = _get_retirement_age(
+        getattr(input, "gender", None),
+        # Cohorte exacte si birth_date fourni ; sinon dérivation par l'âge
+        # (±1 an, documenté dans _get_retirement_age).
+        birth_year_exact
+        if birth_year_exact is not None
+        else _date.today().year - input.age,
+    )
 
     # ── AVS projection ──────────────────────────────────────────────────────
     # FIX-092: Contribution years account for arrival age (expats).

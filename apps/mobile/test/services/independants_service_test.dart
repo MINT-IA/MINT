@@ -40,22 +40,39 @@ void main() {
       expect(result.cotisationMensuelle, closeTo(530.0 / 12, 0.01));
     });
 
-    test('premiere tranche (0-10100) applique taux 5.371%', () {
+    test('sous le seuil 10\'100 : cotisation minimale FIXE (pas un taux)', () {
+      // LAVS art. 8 al. 2 : sous 10'100 le montant est fixe (530), le bareme
+      // RAVS art. 21 ne commence qu'a 10'100 (audit T02-F17).
       final result = IndependantsService.calculateAvsCotisations(10000);
-      // 10000 * 5.371% = 537.10 > 530 minimum
-      expect(result.cotisationAnnuelle, closeTo(10000 * 0.05371, 0.01));
+      expect(result.cotisationAnnuelle, 530.0);
       expect(result.tranchLabel, contains('10\'100'));
     });
 
-    test('tranche haute (60500+) applique taux plein 10.6%', () {
-      final result = IndependantsService.calculateAvsCotisations(100000);
-      expect(result.cotisationAnnuelle, closeTo(100000 * 0.106, 0.01));
-      expect(result.tauxEffectif, closeTo(10.6, 0.1));
+    test('entree du bareme (10\'100) : taux 5.371%', () {
+      final result = IndependantsService.calculateAvsCotisations(10100);
+      expect(result.cotisationAnnuelle, closeTo(10100 * 0.05371, 0.01));
     });
 
-    test('tranche intermediaire (37800-43200) applique taux 9.002%', () {
+    test('golden officiel 15\'000 -> CHF 805.65 (Memento 2.02)', () {
+      final result = IndependantsService.calculateAvsCotisations(15000);
+      expect(result.cotisationAnnuelle, closeTo(805.65, 0.01));
+    });
+
+    test('tranche haute (60500+) applique le taux plein INDEPENDANT 10.0%', () {
+      // 10.0% = AVS 8.1 + AI 1.4 + APG 0.5 — pas 10.6% (taux salarie+employeur).
+      final result = IndependantsService.calculateAvsCotisations(100000);
+      expect(result.cotisationAnnuelle, closeTo(100000 * 0.10, 0.01));
+      expect(result.tauxEffectif, closeTo(10.0, 0.1));
+    });
+
+    test('golden officiel 70\'000 -> CHF 7\'000 (taux plein 10.0%)', () {
+      final result = IndependantsService.calculateAvsCotisations(70000);
+      expect(result.cotisationAnnuelle, closeTo(7000.0, 0.01));
+    });
+
+    test('tranche intermediaire (38000-40500) applique taux officiel 6.728%', () {
       final result = IndependantsService.calculateAvsCotisations(40000);
-      expect(result.cotisationAnnuelle, closeTo(40000 * 0.09002, 0.01));
+      expect(result.cotisationAnnuelle, closeTo(2691.20, 0.01));
     });
 
     test('cotisation salarie est toujours 5.3% du revenu', () {

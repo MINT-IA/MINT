@@ -202,7 +202,7 @@ void main() {
       }
     });
 
-    test('Rente vs capital first-value routes stay before account creation',
+    test('first-value tool routes stay before account creation',
         () {
       final scopes = Map<String, String>.fromEntries(routeScopes);
 
@@ -210,6 +210,8 @@ void main() {
       expect(scopes['/rente-vs-capital'], 'onboarding');
       expect(scopes['/arbitrage/rente-vs-capital'], 'onboarding');
       expect(scopes['/simulator/rente-capital'], 'onboarding');
+      expect(scopes['/hypotheque'], 'onboarding');
+      expect(scopes['/pilier-3a'], 'onboarding');
     });
 
     test('onboarding fallback route is registered in production router', () {

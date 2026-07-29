@@ -37,8 +37,8 @@ class FamilyService {
   /// Insurance deduction — single person.
   static const double deductionAssuranceCelibataire = 1800.0;
 
-  /// Deduction per child — federal (LIFD art. 35 al. 1 let. a, 2025 value).
-  static const double deductionParEnfant = 6700.0;
+  /// Deduction per child — federal (LIFD art. 35 al. 1 let. a, ESTV 2026).
+  static const double deductionParEnfant = 6800.0;
 
   /// Deduction per child — cantonal (LHID art. 9 al. 2 let. c).
   /// AFC "Charge fiscale en Suisse 2024" tables, rounded to CHF 100.
@@ -82,8 +82,8 @@ class FamilyService {
     return deductionParEnfant + cantonal;
   }
 
-  /// Maximum childcare deduction (LIFD art. 33 al. 3).
-  static const double deductionGardeMax = 25500.0;
+  /// Maximum childcare deduction (LIFD art. 33 al. 3, ESTV 2026).
+  static const double deductionGardeMax = 25800.0;
 
   // ════════════════════════════════════════════════════════════
   //  SURVIVOR BENEFITS CONSTANTS
@@ -123,32 +123,36 @@ class FamilyService {
   //  CANTONAL FAMILY ALLOCATIONS (CHF/month per child)
   // ════════════════════════════════════════════════════════════
 
+  // Montant de base « allocation pour enfant » (CHF/mois), taux standard 2026.
+  // Source : OFAS/BSV « Genres et montants des allocations familiales 2026 »
+  // (Stand 12.12.2025). Minimum fédéral LAFam art. 5 = 215. Modulations âge
+  // (ZH/LU/ZG) et rang (FR/VD/VS/NE/GE) non modélisées (montant de base).
   static const Map<String, double> allocationsMensuelles = {
-    'GE': 300.0,
-    'VD': 300.0,
-    'VS': 305.0,
-    'NE': 220.0,
+    'ZH': 215.0,
+    'BE': 250.0,
+    'LU': 215.0,
+    'UR': 240.0,
+    'SZ': 230.0,
+    'OW': 220.0,
+    'NW': 258.0,
+    'GL': 215.0,
+    'ZG': 330.0,
     'FR': 265.0,
-    'BE': 230.0,
-    'ZH': 200.0,
-    'BS': 200.0,
-    'LU': 210.0,
-    'AG': 200.0,
-    'SG': 200.0,
-    'TI': 200.0,
-    'GR': 220.0,
-    'SO': 200.0,
-    'TG': 200.0,
-    'BL': 200.0,
-    'AR': 200.0,
-    'AI': 200.0,
-    'GL': 200.0,
-    'SH': 200.0,
-    'ZG': 300.0,
-    'SZ': 200.0,
-    'OW': 200.0,
-    'NW': 200.0,
-    'UR': 200.0,
+    'SO': 215.0,
+    'BS': 275.0,
+    'BL': 215.0,
+    'SH': 230.0,
+    'AR': 230.0,
+    'AI': 245.0,
+    'SG': 245.0,
+    'GR': 240.0,
+    'AG': 225.0,
+    'TG': 215.0,
+    'TI': 215.0,
+    'VD': 322.0,
+    'VS': 327.0,
+    'NE': 240.0,
+    'GE': 311.0,
     'JU': 275.0,
   };
 
@@ -227,34 +231,22 @@ class FamilyService {
   /// Inheritance tax rates for non-married partners by canton (taux "tiers").
   /// Married partners are tax-exempt in all cantons.
   /// Source: Lois cantonales sur les droits de succession, 2024.
-  static const Map<String, double> _inheritanceTaxRatesNonMarie = {
-    'ZH': 0.18,
-    'BE': 0.15,
-    'LU': 0.20,
-    'UR': 0.15,
-    'SZ': 0.00,   // SZ: pas d'impot succession
-    'OW': 0.00,   // OW: pas d'impot succession
-    'NW': 0.00,   // NW: pas d'impot succession
-    'GL': 0.15,
-    'ZG': 0.10,
-    'FR': 0.25,
-    'SO': 0.15,
-    'BS': 0.20,
-    'BL': 0.20,
-    'SH': 0.20,
-    'AR': 0.15,
-    'AI': 0.12,
-    'SG': 0.15,
-    'GR': 0.20,
-    'AG': 0.15,
-    'TG': 0.15,
-    'TI': 0.20,
-    'VD': 0.25,
-    'VS': 0.25,
-    'NE': 0.20,
-    'GE': 0.24,
-    'JU': 0.20,
-  };
+  // ⚠️ La table `_inheritanceTaxRatesNonMarie` (un taux plat par canton pour un
+  // héritier non parent) a été SUPPRIMÉE le 2026-07-26. Ne pas la réintroduire.
+  //
+  // Elle était invérifiable. Deux écarts indépendants constatés contre des
+  // sources fiscales : `NW` y valait 0.00 alors que Nidwald impose les
+  // non-parents, et `NE` y valait 0.20 pour une réalité bien plus élevée. Et
+  // deux sources sérieuses se contredisaient sur les détails d'un même canton —
+  // ce qui prouve que le domaine est trop fin pour un taux plat : les barèmes
+  // sont tantôt progressifs, comportent des franchises variables, et plusieurs
+  // cantons (VD, FR, GR) y ajoutent un impôt communal qui peut presque doubler
+  // la charge.
+  //
+  // Retirer un chiffre invérifiable est juste que la source ait raison ou tort
+  // sur tel canton : c'est ce qui a permis de trancher sans résoudre chaque cas.
+  // Le jumeau backend (`TAUX_SUCCESSION_PAR_CANTON`) a été retiré en même temps
+  // — PR #1058.
 
   // ════════════════════════════════════════════════════════════
   //  1. COMPARE FISCAL MARIAGE
@@ -405,7 +397,7 @@ class FamilyService {
     required String canton,
     int nbEnfants = 1,
   }) {
-    final mensuelParEnfant = allocationsMensuelles[canton] ?? 200.0;
+    final mensuelParEnfant = allocationsMensuelles[canton] ?? 215.0;
     final mensuelTotal = mensuelParEnfant * nbEnfants;
     final annuelTotal = mensuelTotal * 12;
 
@@ -498,12 +490,15 @@ class FamilyService {
   // ════════════════════════════════════════════════════════════
 
   /// Full comparison: marriage vs cohabitation.
+  ///
+  /// NB : plus de paramètre `patrimoine`. La succession n'expose plus qu'un
+  /// TAUX cantonal (voir [estimateInheritanceTax]) : accepter un patrimoine qui
+  /// ne change plus aucune sortie laisserait croire qu'il est pris en compte.
   static Map<String, dynamic> compareMariageVsConcubinage({
     required double revenu1,
     required double revenu2,
     required String canton,
     int nbEnfants = 0,
-    double patrimoine = 0,
   }) {
     // Fiscal comparison
     final fiscal = compareFiscalMariage(
@@ -513,14 +508,12 @@ class FamilyService {
       nbEnfants: nbEnfants,
     );
 
-    // Inheritance comparison
+    // Inheritance comparison — cantonal RATE only, never an amount.
     final inheritance = estimateInheritanceTax(
-      patrimoine: patrimoine,
       canton: canton,
       isMarried: false,
     );
     final inheritanceMarried = estimateInheritanceTax(
-      patrimoine: patrimoine,
       canton: canton,
       isMarried: true,
     );
@@ -528,41 +521,20 @@ class FamilyService {
     // AVS survivor
     final avsSurvivorRente = reg('avs.max_monthly_pension', avsRenteMaxMensuelle) * avsSurvivorFactor;
 
-    // Score comparison
-    int scoreMariage = 0;
-    int scoreConcubinage = 0;
-
-    // Tax advantage
-    if ((fiscal['difference'] as double) < 0) {
-      scoreMariage++;
-    } else if ((fiscal['difference'] as double) > 0) {
-      scoreConcubinage++;
-    }
-
-    // AVS survivor: married always wins
-    scoreMariage++;
-
-    // LPP survivor: married = automatic, concubinage = requires clause
-    scoreMariage++;
-
-    // Inheritance: married = exonerated
-    scoreMariage++;
-
-    // Pension alimentaire: married = protected
-    scoreMariage++;
-
-    // Simplicity of separation: concubinage wins
-    scoreConcubinage++;
-
+    // NB : AUCUN score agrégé ni gagnant n'est renvoyé (`scoreMariage`,
+    // `scoreConcubinage`, `fiscalAdvantage` — retirés). Compter des critères
+    // hétérogènes (protection du·de la survivant·e, impôt annuel, héritage) à
+    // poids égal et en tirer un gagnant est du pseudo-conseil : leur importance
+    // relative dépend de la situation de chacun·e, et c'est précisément
+    // l'arbitrage qui appartient à l'utilisateur·rice. La comparaison est rendue
+    // critère par critère (matrice), sans agrégation. Ne pas ré-introduire :
+    // un verdict qui dort dans le résultat finit par être affiché.
     return {
       'fiscal': fiscal,
       'inheritance': inheritance,
       'inheritanceMarried': inheritanceMarried,
       'avsSurvivorRente': avsSurvivorRente,
       'lppSurvivorFactor': lppSurvivorFactor,
-      'scoreMariage': scoreMariage,
-      'scoreConcubinage': scoreConcubinage,
-      'fiscalAdvantage': (fiscal['difference'] as double) < 0 ? 'mariage' : 'concubinage',
     };
   }
 
@@ -570,35 +542,40 @@ class FamilyService {
   //  6. ESTIMATE INHERITANCE TAX
   // ════════════════════════════════════════════════════════════
 
-  /// Estimate inheritance tax for married vs non-married.
+  /// Cantonal inheritance-tax RATE for a married vs a non-married partner.
+  ///
+  /// Returns the rate only — NEVER an amount in francs. `patrimoine × taux`
+  /// assumed that 100 % of the estate could go to the partner, which the Swiss
+  /// succession law revision in force since 1.1.2023 contradicts: with no will
+  /// a cohabiting partner inherits NOTHING; with a will, the descendants'
+  /// statutory share is half of the estate (CC art. 470-471), so the disposable
+  /// portion is capped at 1/2 in their presence (the parents' statutory share
+  /// was abolished, so with no descendant it is 100 %). A co-owned asset also
+  /// enters the estate only up to the deceased's own share — `patrimoine` is
+  /// not the right base. The amount was therefore removed rather than shown on
+  /// an unverifiable assumption.
+  ///
+  /// The rate itself is real, cantonal and personalised (the canton is a
+  /// confirmed fact), but it stays an order of magnitude: cantonal scales are
+  /// progressive, carry allowances and sometimes a communal tax — the screen
+  /// renders it with `concubinageInheritanceRateLimit` attached.
+  ///
+  /// The married exemption does NOT come from CC art. 462 (that article governs
+  /// the CIVIL share of the surviving spouse): there is no ordinary federal
+  /// inheritance tax, and the exemption is granted by the CANTONAL tax laws —
+  /// in all 26 of them.
   static Map<String, dynamic> estimateInheritanceTax({
-    required double patrimoine,
     required String canton,
     required bool isMarried,
   }) {
-    if (isMarried) {
-      // Married partners are tax-exempt in all cantons
-      return {
-        'patrimoine': patrimoine,
-        'canton': canton,
-        'isMarried': true,
-        'taux': 0.0,
-        'impot': 0.0,
-        'netHerite': patrimoine,
-      };
-    }
-
-    final taux = _inheritanceTaxRatesNonMarie[canton] ?? 0.08;
-    final impot = patrimoine * taux;
-    final netHerite = patrimoine - impot;
-
+    // Aucun taux n'est renvoyé. La table cantonale qui le fournissait a été
+    // retirée : elle s'est révélée invérifiable (voir le commentaire à sa
+    // place). Ce qui reste est qualitatif et solide — le conjoint survivant est
+    // exonéré dans les 26 cantons, le·la concubin·e relève du barème des
+    // « tiers ».
     return {
-      'patrimoine': patrimoine,
       'canton': canton,
-      'isMarried': false,
-      'taux': taux,
-      'impot': impot,
-      'netHerite': netHerite,
+      'isMarried': isMarried,
     };
   }
 

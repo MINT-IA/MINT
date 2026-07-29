@@ -956,6 +956,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         capturedMemoryBlock = memoryBlock;
         return const CoachResponse(
@@ -1036,6 +1039,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         return const CoachResponse(
           message: 'Ouvre le bon outil pour comparer.',
@@ -1115,6 +1121,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         capturedMemoryBlock = memoryBlock;
         return const CoachResponse(
@@ -1191,6 +1200,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         if (userMessage == 'Rente ou capital ?') {
           return const CoachResponse(
@@ -1377,6 +1389,9 @@ void main() {
         language = 'fr',
         cashLevel = 3,
         isLoggedIn = false,
+        receiptId,
+        inputsHash,
+        receiptInputs,
       }) async {
         capturedHistory = List<ChatMessage>.from(history);
         return const CoachResponse(

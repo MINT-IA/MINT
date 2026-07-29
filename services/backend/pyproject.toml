@@ -121,15 +121,10 @@ privacy = [
     "pytesseract>=0.3.10",
     "Pillow>=10.2",
 ]
-oracle = [
-    # Phase 92.5 CALC-03 — ESTV oracle Playwright scraper (manual annual run).
-    # NOT installed by default (extra) to keep dev install lean. Install with:
-    #   pip install ".[oracle]" && playwright install chromium
-    # Cadence: Julien runs once per ESTV publication cycle (Nov-Dec when new
-    # tarifs publish). Output → services/backend/tests/fixtures/estv_oracle_2025.jsonl.
-    "playwright>=1.40,<2.0",
-    "playwright-stealth>=1.0.6,<2.0",
-]
+# ESTV oracle capture (services/backend/tests/scripts/capture_estv_oracle.py)
+# uses the official ESTV JSON API via urllib (stdlib) — no Playwright extra
+# needed. Manual annual cadence (Nov-Dec ESTV publication cycle). Output →
+# services/backend/tests/fixtures/estv_oracle_2025.jsonl. See tests/scripts/README.md.
 
 [tool.setuptools.packages.find]
 where = ["."]

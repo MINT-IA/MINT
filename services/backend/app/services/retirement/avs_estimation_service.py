@@ -24,13 +24,11 @@ from app.constants.social_insurance import (
     AVS_13EME_RENTE_ACTIVE,
     AVS_NOMBRE_RENTES_PAR_AN,
     AVS_RENTE_MAX_MENSUELLE,
-    AVS_RENTE_MIN_MENSUELLE,
     AVS_RENTE_COUPLE_MAX_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_REDUCTION_ANTICIPATION,
     AVS_SUPPLEMENT_AJOURNEMENT,
-    AVS_RAMD_MIN,
-    AVS_RAMD_MAX,
+    rente_from_ramd,
 )
 
 
@@ -78,34 +76,6 @@ class AvsEstimationService:
     - Gaps in contributions reduce rente proportionally (LAVS art. 29)
     """
 
-    @staticmethod
-    def _rente_from_ramd(gross_salary: float) -> float:
-        """Compute full AVS rente from RAMD using linear interpolation.
-
-        LAVS art. 34: rente is linearly interpolated between min and max
-        based on Revenu Annuel Moyen Déterminant (RAMD).
-
-        - RAMD <= 14'700 CHF → minimum rente (1'260 CHF/month)
-        - RAMD >= 88'200 CHF → maximum rente (2'520 CHF/month)
-        - Between: linear interpolation
-
-        Args:
-            gross_salary: Annual gross salary used as proxy for RAMD.
-
-        Returns:
-            Full monthly rente before gap reduction (CHF).
-        """
-        if gross_salary <= 0:
-            return 0.0
-        if gross_salary <= AVS_RAMD_MIN:
-            return AVS_RENTE_MIN_MENSUELLE
-        if gross_salary >= AVS_RAMD_MAX:
-            return AVS_RENTE_MAX_MENSUELLE
-        ratio = (gross_salary - AVS_RAMD_MIN) / (AVS_RAMD_MAX - AVS_RAMD_MIN)
-        return AVS_RENTE_MIN_MENSUELLE + ratio * (
-            AVS_RENTE_MAX_MENSUELLE - AVS_RENTE_MIN_MENSUELLE
-        )
-
     def estimate(
         self,
         current_age: int,
@@ -152,7 +122,7 @@ class AvsEstimationService:
         # 3. Calculate rente using RAMD-based interpolation (LAVS art. 34)
         # If gross_salary is provided and > 0, use RAMD lookup; otherwise max rente
         if gross_salary > 0:
-            full_rente = self._rente_from_ramd(gross_salary)
+            full_rente = rente_from_ramd(gross_salary)
         else:
             full_rente = AVS_RENTE_MAX_MENSUELLE
         base_rente = full_rente * gap_factor
@@ -267,7 +237,7 @@ class AvsEstimationService:
 
         # Use RAMD-based rente for the normal scenario baseline
         if gross_salary > 0:
-            full_rente = self._rente_from_ramd(gross_salary)
+            full_rente = rente_from_ramd(gross_salary)
         else:
             full_rente = AVS_RENTE_MAX_MENSUELLE
         normal_rente_mensuelle = full_rente * gap_factor

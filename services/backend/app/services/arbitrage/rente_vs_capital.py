@@ -31,7 +31,6 @@ from typing import List, Dict
 from app.constants.social_insurance import (
     TAUX_IMPOT_RETRAIT_CAPITAL,
     TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
-    MARRIED_CAPITAL_TAX_DISCOUNT,
     LPP_TAUX_CONVERSION_MIN,
     calculate_progressive_capital_tax,
 )
@@ -40,7 +39,6 @@ from app.services.arbitrage.arbitrage_models import (
     YearlySnapshot,
     TrajectoireOption,
     ArbitrageResult,
-    compute_terminal_spread,
     add_tornado_sensitivity,
 )
 
@@ -69,49 +67,11 @@ _SOURCES = [
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _estimate_income_tax_on_rente(rente_annuelle: float, canton: str, is_married: bool) -> float:
-    """Estimate annual income tax on rente income.
+    """Wrapper de compat interne — la convention canonique vit dans
+    fiscal.cantonal_comparator.estimate_income_tax_on_rente (beads -amq)."""
+    from app.services.fiscal.cantonal_comparator import estimate_income_tax_on_rente
 
-    Uses federal progressive brackets (LIFD art. 36) + cantonal effective rates
-    from CantonalComparator for a realistic estimation instead of multiplier hack.
-
-    Args:
-        rente_annuelle: Annual rente income (CHF).
-        canton: Canton code.
-        is_married: Whether the person is married (splitting benefit).
-
-    Returns:
-        Estimated annual income tax (CHF).
-    """
-    from app.services.fiscal.cantonal_comparator import (
-        EFFECTIVE_RATES_100K_SINGLE,
-        FEDERAL_BRACKETS,
-    )
-
-    # Revenu imposable: ~85% of rente after standard deductions
-    # (assurance maladie, frais médicaux, déduction forfaitaire — LIFD art. 33)
-    # This is a simplification; actual deductions depend on personal situation.
-    revenu_imposable = rente_annuelle * 0.85
-
-    # Federal tax via progressive brackets (LIFD art. 36)
-    impot_federal = 0.0
-    prev_bound = 0.0
-    for upper, rate in FEDERAL_BRACKETS:
-        if revenu_imposable <= prev_bound:
-            break
-        taxable = min(revenu_imposable, upper) - prev_bound
-        impot_federal += taxable * rate
-        prev_bound = upper
-
-    # Cantonal+communal tax via effective rate scaled by income
-    cantonal_rate = EFFECTIVE_RATES_100K_SINGLE.get(canton.upper(), 0.13)
-    # Scale rate for income level (rates calibrated at 100k)
-    income_factor = max(0.6, min(1.5, rente_annuelle / 100_000))
-    impot_cantonal = revenu_imposable * cantonal_rate * income_factor
-
-    total = impot_federal + impot_cantonal
-    if is_married:
-        total *= 0.80  # Splitting benefit
-    return round(total, 2)
+    return estimate_income_tax_on_rente(rente_annuelle, canton, is_married=is_married)
 
 
 def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:
@@ -127,10 +87,13 @@ def _get_capital_tax(capital: float, canton: str, is_married: bool) -> float:
     Returns:
         Tax amount (CHF).
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
-    if is_married:
-        base_rate *= MARRIED_CAPITAL_TAX_DISCOUNT
-    return calculate_progressive_capital_tax(capital, base_rate)
+    # Beads -2i2 PR B : modèle v2 (IFD art. 38 exacte + interpolation
+    # 130 points ESTV) — remplace taux de base x multiplicateurs.
+    from app.services.fiscal.cantonal_comparator import (
+        estimate_capital_withdrawal_tax,
+    )
+
+    return estimate_capital_withdrawal_tax(capital, canton, is_married=is_married)
 
 
 def _build_full_rente_option(
@@ -170,7 +133,7 @@ def _build_full_rente_option(
 
     return TrajectoireOption(
         id="full_rente",
-        label="Rente viagere integrale",
+        label="Rente viagère intégrale",
         trajectory=trajectory,
         terminal_value=round(cumulative_net, 2),
         cumulative_tax_impact=round(cumulative_tax, 2),
@@ -234,7 +197,7 @@ def _build_full_capital_option(
     final_real = trajectory[-1].net_patrimony if trajectory else 0.0
     return TrajectoireOption(
         id="full_capital",
-        label="Retrait en capital integral",
+        label="Retrait en capital intégral",
         trajectory=trajectory,
         terminal_value=round(final_real, 2),
         cumulative_tax_impact=round(withdrawal_tax, 2),
@@ -322,7 +285,14 @@ def _calculate_breakeven(option_a: TrajectoireOption, option_b: TrajectoireOptio
     """Find the year when option B overtakes option A (or vice versa).
 
     Compares net patrimony year by year.
-    Returns the crossover year, or -1 if curves never cross.
+    Returns the crossover expressed in YEARS AFTER RETIREMENT (relative),
+    or -1 if curves never cross.
+
+    Sémantique unifiée (beads MINT_nosync-axj) : le moteur mobile et le widget
+    (`breakeven_indicator_widget.dart` : ``crossoverAge = ageRetraite +
+    breakevenYear``) attendent un relatif. L'ancien retour ``trajectory[i].year``
+    était un ÂGE absolu → l'écran affichait « 141 ans » (65 + 76) quand le
+    backend répondait.
     """
     if not option_a.trajectory or not option_b.trajectory:
         return -1
@@ -334,35 +304,73 @@ def _calculate_breakeven(option_a: TrajectoireOption, option_b: TrajectoireOptio
         curr_diff = option_a.trajectory[i].net_patrimony - option_b.trajectory[i].net_patrimony
         # Check for sign change (crossover)
         if prev_diff * curr_diff < 0:
-            return option_a.trajectory[i].year
+            # trajectory[i] couvre la (i+1)-ème année de retraite (l'an 1 est
+            # à l'index 0) -> croisement après i+1 années. Aligné sur le
+            # moteur mobile dont l'index y EST l'année de retraite.
+            return i + 1
         prev_diff = curr_diff
 
     return -1
 
 
+def _total_economic_value(option: TrajectoireOption) -> float:
+    """Valeur économique totale d'une option RvC (beads MINT_nosync-h5i).
+
+    Les `terminal_value` des trois options n'ont PAS la même sémantique :
+    - full_rente : revenus nets cumulés (déjà une valeur totale) ;
+    - mixed : capital surob résiduel + revenus cumulés (déjà totale) ;
+    - full_capital : capital RÉSIDUEL seul — les retraits SWR déjà consommés
+      (annual_cashflow) doivent être ré-additionnés, sinon on compare des
+      revenus cumulés à un solde résiduel (pommes/oranges). Miroir du moteur
+      mobile (arbitrage_engine.dart : capitalTotalValue = cumWithdrawals +
+      residual).
+    """
+    if option.id == "full_capital":
+        return (
+            sum(snap.annual_cashflow for snap in option.trajectory)
+            + option.terminal_value
+        )
+    return option.terminal_value
+
+
+def _rvc_total_value_spread(options: List[TrajectoireOption]) -> float:
+    """Spread Tornado sur les valeurs économiques TOTALES.
+
+    Remplace `compute_terminal_spread` pour RvC (review Codex PR #971) : le
+    spread générique compare des terminal_value bruts, ce qui ré-introduit
+    l'asymétrie résiduel-vs-cumulé corrigée dans le premier éclairage.
+    """
+    if len(options) < 2:
+        return 0.0
+    totals = [_total_economic_value(o) for o in options]
+    return max(totals) - min(totals)
+
+
 def _build_premier_eclairage(options: List[TrajectoireOption], horizon: int) -> str:
     """Build the most striking delta as premier éclairage.
 
-    Compares terminal values between options A and B.
+    Compare la valeur économique TOTALE des deux options (voir
+    `_total_economic_value`, beads MINT_nosync-h5i).
     """
     if len(options) < 2:
-        return "Simulation incomplete."
+        return "Simulation incomplète."
 
-    rente_terminal = options[0].terminal_value
-    capital_terminal = options[1].terminal_value
-    delta = abs(capital_terminal - rente_terminal)
+    rente_total = _total_economic_value(options[0])
+    capital_total_value = _total_economic_value(options[1])
+    delta = abs(capital_total_value - rente_total)
 
-    if capital_terminal > rente_terminal:
+    if capital_total_value > rente_total:
         return (
-            f"Dans ce scenario simule sur {horizon} ans, le retrait en capital "
-            f"pourrait representer {delta:,.0f} CHF de plus en patrimoine cumule "
-            f"que la rente — mais sans revenu a vie."
+            f"Dans ce scénario simulé sur {horizon} ans, le retrait en capital "
+            f"pourrait représenter {delta:,.0f} CHF de plus en valeur "
+            f"économique totale (retraits cumulés + capital résiduel) "
+            f"que la rente — mais sans revenu à vie."
         )
     else:
         return (
-            f"Dans ce scenario simule sur {horizon} ans, la rente pourrait "
-            f"representer {delta:,.0f} CHF de plus en revenus cumules "
-            f"que le capital — avec un revenu a vie."
+            f"Dans ce scénario simulé sur {horizon} ans, la rente pourrait "
+            f"représenter {delta:,.0f} CHF de plus en valeur économique "
+            f"totale que le retrait en capital — avec un revenu à vie."
         )
 
 
@@ -379,17 +387,17 @@ def _build_hypotheses(
     """Build the complete list of hypotheses used in the simulation."""
     situation = "marie\u00b7e" if is_married else "celibataire"
     return [
-        f"Taux de retrait (SWR) sur le capital: {taux_retrait * 100:.1f}%/an",
-        f"Rendement net du capital apres retraite: {rendement_capital * 100:.1f}%/an",
-        f"Inflation estimee: {inflation * 100:.1f}%/an (toutes les valeurs en francs d'aujourd'hui)",
-        f"Taux de conversion obligatoire LPP: {taux_conversion_obligatoire * 100:.1f}%",
-        f"Taux de conversion surobligatoire: {taux_conversion_surobligatoire * 100:.1f}%",
-        f"Horizon de simulation: {horizon} ans apres la retraite",
-        f"Canton de domicile fiscal: {canton}",
-        f"Situation familiale: {situation}",
-        "Les rentes ne sont pas indexees a l'inflation dans cette simulation",
-        "L'impot sur le revenu est estime a partir du taux cantonal de base",
-        "Pas de prise en compte d'autres revenus a la retraite (AVS, 3a, etc.)",
+        f"Taux de retrait (SWR) sur le capital : {taux_retrait * 100:.1f}%/an",
+        f"Rendement net du capital après retraite : {rendement_capital * 100:.1f}%/an",
+        f"Inflation estimée : {inflation * 100:.1f}%/an (toutes les valeurs en francs d'aujourd'hui)",
+        f"Taux de conversion obligatoire LPP : {taux_conversion_obligatoire * 100:.1f}%",
+        f"Taux de conversion surobligatoire : {taux_conversion_surobligatoire * 100:.1f}%",
+        f"Horizon de simulation : {horizon} ans après la retraite",
+        f"Canton de domicile fiscal : {canton}",
+        f"Situation familiale : {situation}",
+        "Les rentes ne sont pas indexées à l'inflation dans cette simulation",
+        "L'impôt sur le revenu est estimé depuis le barème IFD et le taux cantonal effectif",
+        "Pas de prise en compte d'autres revenus à la retraite (AVS, 3a, etc.)",
     ]
 
 
@@ -412,7 +420,9 @@ def compare_rente_vs_capital(
     # because post-retirement capital is invested in a different allocation.
     # 3%: balanced ETF portfolio. 1.25%: LPP minimum legal rate. 2%: 3a securities.
     inflation: float = 0.02,          # Swiss average
-    horizon: int = 25,                # years in retirement (to age 90)
+    horizon: int = 30,                # years in retirement (to age 95) — unifié
+    # avec le moteur mobile (arbitrage_engine.dart, beads MINT_nosync-axj) :
+    # le chiffre servi ne doit pas dépendre de la surface.
     is_married: bool = False,
 ) -> ArbitrageResult:
     """Compare rente vs capital vs mixed for LPP retirement.
@@ -492,8 +502,8 @@ def compare_rente_vs_capital(
 
     # Display summary
     display_summary = (
-        f"Dans ce scenario simule, sur {horizon} ans de retraite, "
-        f"les 3 options presentent des profils differents en termes de "
+        f"Dans ce scénario simulé, sur {horizon} ans de retraite, "
+        f"les 3 options présentent des profils différents en termes de "
         f"revenu, fiscalite et patrimoine transmissible."
     )
 
@@ -509,7 +519,9 @@ def compare_rente_vs_capital(
         is_married=is_married,
     )
 
-    base_spread = compute_terminal_spread(options)
+    # Review Codex PR #971 : spread sur les valeurs TOTALES, pas sur les
+    # terminal_value bruts (asymétrie résiduel-vs-cumulé).
+    base_spread = _rvc_total_value_spread(options)
     sensitivity: Dict[str, float] = {}
 
     def _spread_variant(
@@ -542,7 +554,7 @@ def compare_rente_vs_capital(
             age_retraite=age_retraite,
             inflation=inflation,
         )
-        return compute_terminal_spread([option_a, variant_b, variant_c])
+        return _rvc_total_value_spread([option_a, variant_b, variant_c])
 
     # ── Tornado variables ──────────────────────────────────────────────
     rendement_low = max(0.0, rendement_capital - 0.01)

@@ -13,6 +13,9 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -38,7 +41,30 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _readSequenceContext();
+      _hydrateFromProfile();
+      // Beads -g5v (4) : si le profil charge APRÈS la première frame
+      // (hydratation async), ré-hydrater tant que l'utilisateur n'a pas
+      // commencé à éditer — sinon l'écran reste sur l'état vide/défauts.
+      try {
+        _profileProvider = context.read<CoachProfileProvider>();
+        _profileProvider!.addListener(_onProfileChanged);
+      } catch (_) {
+        // Pas de provider (harnais isolé) : hydratation one-shot.
+      }
     });
+  }
+
+  CoachProfileProvider? _profileProvider;
+
+  void _onProfileChanged() {
+    if (!mounted || _hasUserInteracted) return;
+    _hydrateFromProfile();
+  }
+
+  @override
+  void dispose() {
+    _profileProvider?.removeListener(_onProfileChanged);
+    super.dispose();
   }
 
   void _readSequenceContext() {
@@ -83,22 +109,83 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     ScreenCompletionTracker.markCompletedWithReturn('repayment', screenReturn);
   }
 
-  final List<_DebtInput> _dettes = [
-    _DebtInput(
-      nom: 'Credit conso',
-      montant: 15000,
-      tauxAnnuel: 9.9,
-      mensualiteMin: 300,
-    ),
-    _DebtInput(
-      nom: 'Leasing auto',
-      montant: 8000,
-      tauxAnnuel: 4.5,
-      mensualiteMin: 250,
-    ),
-  ];
+  // beads MINT_nosync-64r (ILLOG-01) : plus AUCUNE dette fictive par défaut.
+  // La liste est hydratée depuis profile.dettes ; sans dette connue, l'écran
+  // affiche un état vide explicite — jamais du fictif indiscernable du réel.
+  final List<_DebtInput> _dettes = [];
 
   double _budgetMensuel = 800;
+  // -g5v r2 : le déficit réel exige que le BUDGET ait été saisi — éditer
+  // un taux ne fait pas du 800 par défaut un budget voulu.
+  bool _budgetTouched = false;
+  double _monthlyIncome = 0;
+
+  void _hydrateFromProfile() {
+    if (!mounted) return;
+    final CoachProfile? profile;
+    try {
+      profile = context.read<CoachProfileProvider>().profile;
+    } catch (_) {
+      // Pas de provider au-dessus (harnais de test isolé, deeplink froid) :
+      // l'écran reste utilisable avec sa liste vide — jamais de fiction.
+      return;
+    }
+    if (profile == null) return;
+    final CoachProfile p = profile;
+    final s = S.of(context)!;
+    final d = p.dettes;
+    setState(() {
+      _monthlyIncome = p.salaireBrutMensuel * p.nombreDeMois / 12;
+      // Panel -g5v : hydratation IDEMPOTENTE — le listener re-déclenche à
+      // chaque notify du provider ; sans clear, les dettes se dupliquaient
+      // (Σmin doublée -> tous les chiffres faux).
+      _dettes.clear();
+      if ((d.creditConsommation ?? 0) > 0) {
+        _dettes.add(_DebtInput(
+          nom: s.repaymentDebtCreditConso,
+          montant: d.creditConsommation!,
+          // Taux inconnu -> hypothèse visible ET éditable dans le champ
+          // (taux conso suisse typique), pas une valeur cachée.
+          tauxAnnuel: d.tauxCreditConso ?? 9.9,
+          mensualiteMin: d.mensualiteCreditConso ??
+              (d.creditConsommation! * 0.02).roundToDouble(),
+          tauxEstime: d.tauxCreditConso == null,
+          mensualiteEstimee: d.mensualiteCreditConso == null,
+        ));
+      }
+      if ((d.leasing ?? 0) > 0) {
+        _dettes.add(_DebtInput(
+          nom: s.repaymentDebtLeasing,
+          montant: d.leasing!,
+          tauxAnnuel: d.tauxLeasing ?? 4.9,
+          mensualiteMin:
+              d.mensualiteLeasing ?? (d.leasing! * 0.03).roundToDouble(),
+          tauxEstime: d.tauxLeasing == null,
+          mensualiteEstimee: d.mensualiteLeasing == null,
+        ));
+      }
+      if ((d.autresDettes ?? 0) > 0) {
+        _dettes.add(_DebtInput(
+          nom: s.repaymentDebtAutres,
+          montant: d.autresDettes!,
+          tauxAnnuel: 5.0,
+          mensualiteMin: (d.autresDettes! * 0.02).roundToDouble(),
+          tauxEstime: true,
+          mensualiteEstimee: true,
+        ));
+      }
+    });
+  }
+
+  double get _sumMensualitesMin =>
+      _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin);
+
+  /// Budget réellement utilisé par le planner : jamais sous les minimums
+  /// contractuels (miroir de RepaymentPlanner max(budget, sumMin)) —
+  /// beads -g5v, l'UI doit montrer CE montant quand il diffère du saisi.
+  double get _budgetEffectif => _budgetMensuel > _sumMensualitesMin
+      ? _budgetMensuel
+      : _sumMensualitesMin;
 
   RepaymentComparisonResult? get _result {
     if (_dettes.isEmpty) return null;
@@ -151,14 +238,27 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── P10-F : Mode survie MINT ──────────────────────
-                MintEntrance(child: DebtSurvivalWidget(
-                  totalDebt: _dettes.fold<double>(0, (s, d) => s + d.montant),
-                  monthlyMargin: _budgetMensuel -
-                      _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin),
-                  daysSinceLastLate: 0,
-                  monthlyIncome: 6000,
-                )),
-                const SizedBox(height: MintSpacing.lg),
+                // Rendu UNIQUEMENT sur des dettes réelles (profil ou
+                // saisies) — jamais « libéré/critique » sur du fictif.
+                if (_dettes.isNotEmpty) ...[
+                  // Beads -g5v : marge basée sur le budget EFFECTIF du
+                  // planner (max(budget, Σminimums)) — l'ancien calcul
+                  // « budget saisi − minimums » devenait négatif sur le
+                  // placeholder 800 et pilotait un état « critique » fictif.
+                  MintEntrance(child: DebtSurvivalWidget(
+                    totalDebt:
+                        _dettes.fold<double>(0, (s, d) => s + d.montant),
+                    // Budget SAISI insuffisant -> déficit RÉEL (négatif
+                    // légitime, mode critique mérité). Placeholder jamais
+                    // touché -> budget effectif (pas de critique fictif).
+                    monthlyMargin: _budgetTouched
+                        ? _budgetMensuel - _sumMensualitesMin
+                        : _budgetEffectif - _sumMensualitesMin,
+                    daysSinceLastLate: 0,
+                    monthlyIncome: _monthlyIncome,
+                  )),
+                  const SizedBox(height: MintSpacing.lg),
+                ],
 
                 // Chiffre choc
                 if (result != null) ...[
@@ -244,10 +344,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             if (result.economieInterets > 0)
               Text(
                 S.of(context)!.repaymentDiffStrategies(formatChf(result.economieInterets)),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: color,
-                ),
+                style: MintTextStyles.labelMedium(color: color),
               ),
           ],
         ),
@@ -288,20 +385,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             if (i < _dettes.length - 1) const SizedBox(height: 12),
           ],
 
-          if (_dettes.isEmpty)
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Text(
-                  S.of(context)!.repaymentAddDebtHint,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: MintColors.textMuted,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
+          // Cardinalité état vide (panel + review -64r) : quand la liste est
+          // vide, l'UNIQUE invite est repaymentEmptyState en bas d'écran —
+          // pas de hint dupliqué ici.
         ],
       ),
     );
@@ -325,6 +411,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               Expanded(
                 child: TextFormField(
                   initialValue: dette.nom,
+                  // Review #992 r2 : armer le gel dès la PRISE DE FOCUS —
+                  // un notify pendant la frappe du nom réhydratait la liste
+                  // (clear+rebuild) et orphelinait ce champ.
+                  onTap: () => _hasUserInteracted = true,
                   onTapOutside: (_) => FocusScope.of(context).unfocus(),
                   style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
                       .copyWith(fontWeight: FontWeight.w700),
@@ -344,7 +434,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 button: true,
                 label: S.of(context)!.semanticsRepaymentDeleteDebt(dette.nom),
                 child: GestureDetector(
-                  onTap: () => setState(() => _dettes.removeAt(index)),
+                  // -g5v : la suppression est une INTERACTION — sans le
+                  // flag, la dette ressuscitait au prochain notify.
+                  onTap: () => setState(() {
+                    _hasUserInteracted = true;
+                    _dettes.removeAt(index);
+                  }),
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
@@ -382,7 +477,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               Expanded(
                 flex: 2,
                 child: _buildInlineValue(
-                  label: S.of(context)!.repaymentFieldRate,
+                  label: dette.tauxEstime
+                      ? S.of(context)!.repaymentFieldRateEstimated
+                      : S.of(context)!.repaymentFieldRate,
                   display: '${dette.tauxAnnuel.toStringAsFixed(1)}\u00a0%',
                   onTap: () => _showValueEditor(
                     label: S.of(context)!.repaymentFieldRateLabel,
@@ -392,7 +489,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     prefix: '',
                     suffix: '%',
                     decimals: true,
-                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.tauxAnnuel = v; }),
+                    onChanged: (v) => setState(() {
+                      _hasUserInteracted = true;
+                      dette.tauxAnnuel = v;
+                      dette.tauxEstime = false;
+                    }),
                   ),
                 ),
               ),
@@ -400,7 +501,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
               Expanded(
                 flex: 3,
                 child: _buildInlineValue(
-                  label: S.of(context)!.repaymentFieldInstallment,
+                  label: dette.mensualiteEstimee
+                      ? S.of(context)!.repaymentFieldInstallmentEstimated
+                      : S.of(context)!.repaymentFieldInstallment,
                   display: 'CHF\u00a0${formatChf(dette.mensualiteMin)}',
                   onTap: () => _showValueEditor(
                     label: S.of(context)!.repaymentFieldInstallmentLabel,
@@ -408,8 +511,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     min: 50,
                     max: 3000,
                     prefix: 'CHF',
-                    onChanged: (v) =>
-                        setState(() { _hasUserInteracted = true; dette.mensualiteMin = v; }),
+                    onChanged: (v) => setState(() {
+                      _hasUserInteracted = true;
+                      dette.mensualiteMin = v;
+                      dette.mensualiteEstimee = false;
+                    }),
                   ),
                 ),
               ),
@@ -440,12 +546,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
+              style: MintTextStyles.labelSmall(
                 color: MintColors.textMuted,
-                letterSpacing: 0.5,
-              ),
+              ).copyWith(letterSpacing: 0.5),
             ),
             const SizedBox(height: 3),
             Text(
@@ -470,6 +573,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     bool decimals = false,
     required ValueChanged<double> onChanged,
   }) {
+    // -g5v r2 : dès l'ouverture d'un éditeur, geler l'hydratation — un
+    // notify pendant la saisie reconstruisait la liste et orphelinait
+    // l'objet dette capturé (la saisie disparaissait).
+    _hasUserInteracted = true;
     final controller = TextEditingController(
       text: decimals
           ? currentValue.toStringAsFixed(1)
@@ -551,10 +658,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   decimals ? min.toStringAsFixed(1) : formatChf(min),
                   decimals ? max.toStringAsFixed(1) : formatChf(max),
                 ),
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: MintColors.textMuted,
-                ),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
               ),
               const SizedBox(height: 20),
               Semantics(
@@ -562,7 +666,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 label: S.of(context)!.semanticsRepaymentValidate,
                 child: SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                // Bouton pré-existant déplacé par ce diff — MintCTA arrive en
+                // Phase MVP-CTA-UNIFICATION-V1.
+                child: FilledButton( // lint-ignore: prefer_mint_cta
                   onPressed: () {
                     HapticFeedback.lightImpact();
                     final parsed = double.tryParse(
@@ -585,10 +691,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   ),
                   child: Text(
                     S.of(context)!.repaymentValidate,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: MintTextStyles.labelLarge(),
                   ),
                 ),
               )),
@@ -601,6 +704,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   }
 
   void _addDebt() {
+    _hasUserInteracted = true;
     setState(() {
       _dettes.add(_DebtInput(
         nom: S.of(context)!.repaymentNewDebt,
@@ -619,11 +723,15 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         min: 200,
         max: 5000,
         prefix: 'CHF',
-        onChanged: (v) => setState(() { _hasUserInteracted = true; _budgetMensuel = v; }),
+        onChanged: (v) => setState(() { _hasUserInteracted = true; _budgetTouched = true; _budgetMensuel = v; }),
       ),
       child: Semantics(
         button: true,
-        label: S.of(context)!.semanticsRepaymentBudget(formatChf(_budgetMensuel)),
+        label: _dettes.isNotEmpty && _budgetEffectif > _budgetMensuel
+            ? S.of(context)!.semanticsRepaymentBudgetEffective(
+                formatChf(_budgetMensuel), formatChf(_budgetEffectif))
+            : S.of(context)!.semanticsRepaymentBudget(
+                formatChf(_budgetMensuel)),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -656,6 +764,18 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                       S.of(context)!.repaymentBudgetDisplay(formatChf(_budgetMensuel)),
                       style: MintTextStyles.headlineMedium(color: MintColors.primary),
                     ),
+                    if (_dettes.isNotEmpty &&
+                        _budgetEffectif > _budgetMensuel) ...[
+                      const SizedBox(height: 2),
+                      // -g5v : les minimums contractuels dépassent le budget
+                      // saisi — le plan calcule sur ce montant, le dire.
+                      Text(
+                        S.of(context)!.repaymentBudgetEffectiveNote(
+                            formatChf(_budgetEffectif)),
+                        style: MintTextStyles.labelSmall(
+                            color: MintColors.warningAaa),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -726,10 +846,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 const Divider(height: 16),
                 Text(
                   S.of(context)!.repaymentDifference(formatChf(result.economieInterets)),
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.bodySmall(
                     color: MintColors.success,
+                  ).copyWith(
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -787,18 +907,12 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 4),
           Text(
             S.of(context)!.repaymentInteretsDisplay(formatChf(interets)),
-            style: const TextStyle(
-              fontSize: 11,
-              color: MintColors.redDeep,
-            ),
+            style: MintTextStyles.labelSmall(color: MintColors.redDeep),
           ),
           const SizedBox(height: 8),
           Text(
             '✓ $pro',
-            style: const TextStyle(
-              fontSize: 10,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.micro(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -969,10 +1083,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           const SizedBox(height: 16),
           Text(
             S.of(context)!.repaymentEmptyState,
-            style: const TextStyle(
-              fontSize: 14,
-              color: MintColors.textSecondary,
-            ),
+            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -1012,10 +1123,18 @@ class _DebtInput {
   double tauxAnnuel; // en % (ex: 9.9)
   double mensualiteMin;
 
+  /// Provenance (review -64r) : true quand la valeur est une hypothèse MINT
+  /// (taux/mensualité absents du profil) et non une donnée de l'utilisateur.
+  /// Remise à false dès que l'utilisateur édite la valeur.
+  bool tauxEstime;
+  bool mensualiteEstimee;
+
   _DebtInput({
     required this.nom,
     required this.montant,
     required this.tauxAnnuel,
     required this.mensualiteMin,
+    this.tauxEstime = false,
+    this.mensualiteEstimee = false,
   });
 }

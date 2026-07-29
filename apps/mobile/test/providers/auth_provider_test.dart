@@ -718,12 +718,18 @@ void main() {
       final l10n = await S.delegate.load(const Locale('fr'));
 
       final message = localizeAuthException(
-        const ApiException('recreate_required', statusCode: 409),
+        const ApiException(
+          'Compte Apple supprimé',
+          statusCode: 409,
+          backendCode: 'recreate_required',
+        ),
         l10n,
+        appleContext: true,
       );
 
-      expect(message, l10n.authErrorRegistration);
+      expect(message, l10n.authErrorAccountDeletedRecreate);
       expect(message, isNot(l10n.authErrorGeneric));
+      expect(message, isNot(l10n.authErrorRegistration));
     });
 
     test('localizeAuthException maps Apple 409 conflicts to actionable copy',
@@ -989,6 +995,27 @@ void main() {
       expect(provider.email, 'current@example.ch');
       expect(secureStorage['jwt_token'], 'current-jwt');
       expect(deleteAllCalls, 0);
+    });
+
+    test(
+        'E2E seeded guest boots navigable local-only, persisting the override '
+        'over a stale auth_local_mode=false (Codex #1024)', () async {
+      // Stale pref from a prior run where cloud sync had been toggled on.
+      SharedPreferences.setMockInitialValues({'auth_local_mode': false});
+      AuthProvider.debugE2eArchetypeOverride = 'swiss_native';
+      addTearDown(() => AuthProvider.debugE2eArchetypeOverride = null);
+
+      await provider.checkAuth();
+
+      // Navigable guest shell (guestEmpty ⇒ allowsMainNavigation).
+      expect(provider.authLifecycle.allowsMainNavigation, isTrue);
+      // Local-only contract upheld consistently — cloud sync stays OFF.
+      expect(provider.isCloudSyncEnabled, isFalse);
+      // The override is PERSISTED so SharedPreferences-readers agree with the
+      // guestLocal/localOnly lifecycle — closes the contradiction Codex #1024
+      // flagged (memory-only _isLocalMode vs stale prefs).
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('auth_local_mode'), isTrue);
     });
 
     test(

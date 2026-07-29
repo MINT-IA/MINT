@@ -1916,6 +1916,13 @@ class CoachProfile {
   /// Consumers should show a warning and avoid assuming spouse income/AVS rights.
   bool get isMissingConjointData => isCouple && conjoint == null;
 
+  /// Volet C -mla (review PR #976) : signal PRÉCIS pour les bandeaux
+  /// d'honnêteté mono-revenu — un ConjointProfile peut exister SANS revenu
+  /// (salaireBrutMensuel null -> contribue 0 au revenu du couple). Le calcul
+  /// est alors réellement mono-revenu même si `conjoint != null`.
+  bool get isMissingConjointIncome =>
+      isCouple && ((conjoint?.salaireBrutMensuel ?? 0) <= 0);
+
   /// True when the profile contains material financial data.
   ///
   /// `CoachProfile.fromWizardAnswers({})` still carries conservative defaults

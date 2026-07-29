@@ -766,13 +766,15 @@ class EplCombinedCalculator {
     // 2) 3a (impot sur retrait)
     final a3aUtilise = min(a3a, restant);
     restant -= a3aUtilise;
-    final impot3a = _calculerImpotRetrait(a3aUtilise, tauxBase);
+    final impot3a =
+        _calculerImpotRetrait(a3aUtilise, tauxBase, canton: canton);
 
     // 3) LPP (impot sur retrait, max 10% du prix)
     final lppUtilisable = min(lpp, lppMax);
     final lppUtilise = min(lppUtilisable, restant);
     restant -= lppUtilise;
-    final impotLpp = _calculerImpotRetrait(lppUtilise, tauxBase);
+    final impotLpp =
+        _calculerImpotRetrait(lppUtilise, tauxBase, canton: canton);
 
     final fondsPropresTotal = cashUtilise + a3aUtilise + lppUtilise;
     final totalImpots = impot3a + impotLpp;
@@ -868,8 +870,10 @@ class EplCombinedCalculator {
     );
   }
 
-  /// Impot sur le retrait en capital (progressif marginal).
-  /// Delegue a RetirementTaxCalculator.progressiveTax (financial_core).
-  static double _calculerImpotRetrait(double montant, double tauxBase) =>
-      RetirementTaxCalculator.progressiveTax(montant, tauxBase);
+  /// Impôt sur le retrait en capital — façade v2 -2i2 (IFD art. 38 +
+  /// interpolation ESTV) ; le paramètre historique tauxBase est ignoré.
+  static double _calculerImpotRetrait(double montant, double tauxBase,
+          {String canton = 'ZH'}) =>
+      RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: montant, canton: canton);
 }

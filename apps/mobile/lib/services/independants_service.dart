@@ -177,20 +177,33 @@ class IndependantsService {
   //  CONSTANTS
   // ════════════════════════════════════════════════════════════
 
-  /// AVS/AI/APG barème progressif for self-employed.
-  /// (lowerBound, upperBound, rate) — find bracket, apply single rate.
+  /// AVS/AI/APG barème dégressif for self-employed (RAVS art. 21).
+  /// (lowerBound, upperBound, rate) — find bracket, apply single rate to the
+  /// WHOLE income (non-marginal). Official 2025 = 2026 scale (Mémento 2.02,
+  /// caisse cantonale VD). Full independent rate from 60'500: 10.0%
+  /// (AVS 8.1 + AI 1.4 + APG 0.5) — NOT 10.6% (employee+employer scale).
+  /// Below 10'100: fixed minimum contribution, handled before the scale.
+  /// Parity with backend AVS_BAREME_INDEPENDANT (audit T02-F17,
+  /// beads MINT_nosync-iy5 — the previous table had wrong bounds and rates).
   static const List<(double, double, double)> _avsBareme = [
-    (0, 10100, 0.05371),
-    (10100, 17600, 0.05828),
-    (17600, 22200, 0.06542),
-    (22200, 27200, 0.07158),
-    (27200, 32300, 0.07773),
-    (32300, 37800, 0.08386),
-    (37800, 43200, 0.09002),
-    (43200, 48800, 0.09610),
-    (48800, 54300, 0.10222),
-    (54300, 60500, 0.10413),
-    (60500, double.infinity, 0.10600),
+    (10100, 17600, 0.05371),
+    (17600, 23000, 0.05494),
+    (23000, 25500, 0.05617),
+    (25500, 28000, 0.05741),
+    (28000, 30500, 0.05864),
+    (30500, 33000, 0.05987),
+    (33000, 35500, 0.06235),
+    (35500, 38000, 0.06481),
+    (38000, 40500, 0.06728),
+    (40500, 43000, 0.06976),
+    (43000, 45500, 0.07222),
+    (45500, 48000, 0.07469),
+    (48000, 50500, 0.07840),
+    (50500, 53000, 0.08209),
+    (53000, 55500, 0.08580),
+    (55500, 58000, 0.08951),
+    (58000, 60500, 0.09321),
+    (60500, double.infinity, 0.10000),
   ];
 
   /// Cotisation minimale AVS/AI/APG for self-employed — use centralized constant.
@@ -273,6 +286,24 @@ class IndependantsService {
         cotisationSalarie: 0,
         differenceAnnuelle: 0,
         tranchLabel: '-',
+      );
+    }
+
+    // Below the legal threshold (10'100): fixed minimum contribution
+    // (LAVS art. 8 al. 2) — a flat amount, not a rate on income.
+    final seuil =
+        reg('avs.independent_min_income_threshold', avsSeuilRevenuMinIndependant);
+    if (revenuNet < seuil) {
+      final cotisationMin = _cotisationMinimale;
+      final salarie = revenuNet * _tauxAvsSalarie;
+      return AvsCotisationResult(
+        revenuNet: revenuNet,
+        tauxEffectif: (cotisationMin / revenuNet * 100),
+        cotisationAnnuelle: cotisationMin,
+        cotisationMensuelle: cotisationMin / 12,
+        cotisationSalarie: salarie,
+        differenceAnnuelle: cotisationMin - salarie,
+        tranchLabel: '< CHF ${_formatNumber(seuil)}',
       );
     }
 

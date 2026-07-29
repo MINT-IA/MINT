@@ -730,7 +730,8 @@ class SPt extends S {
   String get divorcePatrimoine => 'PATRIMÓNIO';
 
   @override
-  String get divorcePatrimoineSubtitle => 'Fortuna e dívidas comuns';
+  String get divorcePatrimoineSubtitle =>
+      'Referências indicativas — nenhuma parte é calculada';
 
   @override
   String get divorceSimuler => 'Simular';
@@ -742,10 +743,10 @@ class SPt extends S {
   String get divorceTotalLpp => 'Haver LPP total (atual)';
 
   @override
-  String get divorcePartConjoint1 => 'Parte Cônjuge 1';
+  String get divorcePartConjoint1 => 'Haver do cônjuge 1 após a partilha';
 
   @override
-  String get divorcePartConjoint2 => 'Parte Cônjuge 2';
+  String get divorcePartConjoint2 => 'Haver do cônjuge 2 após a partilha';
 
   @override
   String get divorceTransfert => 'Transferencia';
@@ -766,13 +767,10 @@ class SPt extends S {
   String get divorceTotalApresDivorce => 'Total após divórcio';
 
   @override
-  String get divorcePartagePatrimoine => 'PARTILHA DO PATRIMÓNIO';
+  String get divorcePartagePatrimoine => 'LIQUIDAÇÃO DO REGIME MATRIMONIAL';
 
   @override
-  String get divorceFortuneNette => 'Fortuna líquida';
-
-  @override
-  String get divorcePensionAlimentaire => 'PENSÃO ALIMENTAR (ESTIMAÇÃO)';
+  String get divorcePensionAlimentaire => 'CONTRIBUIÇÃO DE ALIMENTOS';
 
   @override
   String get divorcePointsAttention => 'PONTOS DE ATENÇÃO';
@@ -823,55 +821,6 @@ class SPt extends S {
   @override
   String get successionDisclaimer =>
       'Informação educativa, não aconselhamento jurídico (LSFin/CC).';
-
-  @override
-  String get coachingAge25Title => '25 anos: abrir o 3º pilar';
-
-  @override
-  String get coachingAge25Message =>
-      'Aos 25 anos e o momento ideal para abrir um 3º pilar. Gracas aos juros compostos, cada ano conta.';
-
-  @override
-  String get coachingAge35Title => '35 anos: ponto de situação de previdência';
-
-  @override
-  String get coachingAge35Message =>
-      'Aos 35 anos, verifica que a tua previdência está no bom caminho. Tens um 3a? A tua LPP é suficiente?';
-
-  @override
-  String get coachingAge45Title => '45 anos: otimizar a estrategia';
-
-  @override
-  String get coachingAge45Message =>
-      'Aos 45 anos, faltam 20 anos para a reforma. É o momento de verificar a tua margem 3a, possíveis recompras LPP e a tua trajetória.';
-
-  @override
-  String get coachingAge50Title => '50 anos: preparar a reforma';
-
-  @override
-  String get coachingAge50Message =>
-      'Aos 50 anos, a reforma aproxima-se. Verifica o teu haver LPP e planeia os ultimos resgates.';
-
-  @override
-  String get coachingAge55Title => '55 anos: ultima reta';
-
-  @override
-  String get coachingAge55Message =>
-      'Aos 55 anos, o planeamento fiscal do levantamento torna-se crucial. Escalonar os levantamentos 3a pode alterar o impacto fiscal.';
-
-  @override
-  String get coachingAge58Title => '58 anos: reforma antecipada possível';
-
-  @override
-  String get coachingAge58Message =>
-      'A partir dos 58 anos, um levantamento antecipado do 2º pilar é possível. Atenção: a renda será reduzida.';
-
-  @override
-  String get coachingAge63Title => '63 anos: ultimos ajustes';
-
-  @override
-  String get coachingAge63Message =>
-      'A 2 anos da reforma legal: finalizar a estrategia. Ultimo resgate LPP, escolha renda/capital.';
 
   @override
   String get openBankingTitle => 'Open Banking';
@@ -2426,14 +2375,36 @@ class SPt extends S {
   String get mariageMaries => 'Casados';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Penalização +$amount/ano';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Imposto do agregado: dois solteiros ou casados';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bónus -$amount/ano';
-  }
+  String get mariageDeuxCelibataires => '2 solteiros';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Diferença anual: imposto do agregado mais alto casados';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Diferença anual: imposto do agregado mais alto como dois solteiros';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Diferença anual: imposto do agregado idêntico nos dois casos';
+
+  @override
+  String get mariageParAn => 'por ano';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'O sentido da diferença joga-se na repartição dos teus dois rendimentos: a sua soma puxa o imposto do agregado para cima, a tabela reduzida reservada aos casais puxa-o para baixo.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Rendimentos próximos';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'Um rendimento domina';
 
   @override
   String get mariageDeductions => 'DEDUÇÕES CASAMENTO';
@@ -2528,11 +2499,14 @@ class SPt extends S {
 
   @override
   String get mariageLppSurvivorFootnote =>
-      'LPP art. 19 — casados (concubinos: cláusula necessária)';
+      'Sob condições LPP art. 19: filho dependente, ou 45 anos e 5 anos de casamento';
 
   @override
-  String get mariageSurvivorMonthly =>
-      'Rendimento mensal do sobrevivente casado';
+  String get mariageSurvivorMonthly => 'Renda LPP de sobrevivente, por mês';
+
+  @override
+  String get mariageSurvivorAvsNote =>
+      'Como cônjuge sobrevivente, podes receber ainda uma pensão AVS de sobrevivência, sob condições (LAVS art. 23). O seu montante depende da carreira contributiva do falecido e não é quantificado aqui.';
 
   @override
   String get mariageVsConcubin => 'CASADO VS CONCUBINO';
@@ -2554,6 +2528,10 @@ class SPt extends S {
       'Em concubinato, o parceiro sobrevivente não tem direitos por defeito — nem renda AVS, nem herança isenta. Tudo deve ser previsto por contrato.';
 
   @override
+  String get mariageProtectionConditionsNote =>
+      'As proteções do casamento (pensões de sobrevivência AVS e LPP) são um acesso legal sujeito a condições de elegibilidade (LPP art. 19, LAVS art. 23), não um pagamento automático.';
+
+  @override
   String get mariageProtectionsEssentielles => 'PROTEÇÕES ESSENCIAIS';
 
   @override
@@ -2572,7 +2550,7 @@ class SPt extends S {
 
   @override
   String get divorceIntroText =>
-      'Um divórcio tem consequências financeiras muitas vezes subestimadas: partilha do património, da previdência (LPP/3a), impacto fiscal e pensão alimentar. Esta ferramenta ajuda-te a ver com mais clareza.';
+      'Um divórcio tem consequências financeiras muitas vezes subestimadas: liquidação do regime matrimonial, partilha da previdência (LPP/3a), impacto fiscal e contribuições de alimentos. Esta ferramenta ajuda-te a ver com mais clareza.';
 
   @override
   String divorceYears(int count) {
@@ -2593,14 +2571,10 @@ class SPt extends S {
   String get divorceSeparation => 'Separação de bens';
 
   @override
-  String get divorceFortune => 'Fortuna comum';
+  String get divorceFortune => 'Património do agregado (indicativo)';
 
   @override
-  String get divorceDettes => 'Dívidas comuns';
-
-  @override
-  String get divorcePensionDescription =>
-      'Estimativa baseada na diferença de rendimentos e no número de filhos. O montante real depende de muitos fatores (guarda, necessidades, nível de vida).';
+  String get divorceDettes => 'Dívidas do agregado (indicativo)';
 
   @override
   String get divorceActionsTitle => 'Ações a tomar';
@@ -2614,7 +2588,7 @@ class SPt extends S {
 
   @override
   String get divorceEduParticipationContent =>
-      'A participação nos adquiridos é o regime matrimonial por defeito na Suíça (CC art. 181 ss). Cada cônjuge mantém os seus bens próprios (adquiridos antes do casamento ou por sucessão/doação). Os adquiridos (bens adquiridos durante o casamento) são partilhados em partes iguais em caso de divórcio. É o regime mais comum na Suíça.';
+      'A participação nos adquiridos é o regime matrimonial supletivo na Suíça (CC art. 181 e seguintes). Cada pessoa conserva os seus bens próprios (adquiridos antes do casamento ou recebidos por herança ou doação). Em caso de divórcio, cada uma tem direito a metade do benefício da OUTRA (CC art. 215) e os dois créditos compensam-se. O cálculo faz-se sobre a conta de adquiridos de cada cônjuge, após as reuniões, as compensações entre massas e a atribuição das dívidas — não sobre um património comum único.';
 
   @override
   String get divorceEduLppTitle => 'Como funciona a partilha LPP?';
@@ -2831,7 +2805,10 @@ class SPt extends S {
   String get firstJobActivityRate => 'Taxa de atividade';
 
   @override
-  String get firstJob3aHeader => 'PILAR 3A — ABRIR AGORA';
+  String get firstJobAskCoach => 'Perguntar ao coach';
+
+  @override
+  String get firstJob3aHeader => 'PILAR 3A — A CONSIDERAR';
 
   @override
   String get firstJob3aAnnualCap => 'Teto anual';
@@ -3092,7 +3069,7 @@ class SPt extends S {
 
   @override
   String get mariageChecklistItem3Desc =>
-      'O casamento muda a ordem dos beneficiários. O cônjuge torna-se automaticamente beneficiário da pensão de sobrevivência LPP (LPP art. 19). Verifica também os beneficiários do 3.º pilar.';
+      'O casamento muda a ordem dos beneficiários. O cônjuge pode então receber a pensão de sobrevivência LPP, sob condições (LPP art. 19: filho dependente, ou 45 anos e 5 anos de casamento). Verifica também os beneficiários do 3.º pilar.';
 
   @override
   String get mariageChecklistItem4Title =>
@@ -3216,11 +3193,6 @@ class SPt extends S {
   String get donationExoneree => 'Isenta';
 
   @override
-  String donationTauxCanton(String taux, String canton) {
-    return 'Taxa: $taux% (cantão $canton)';
-  }
-
-  @override
   String get donationMontantRow => 'Montante da doação';
 
   @override
@@ -3284,6 +3256,274 @@ class SPt extends S {
   String get donationCanton => 'Cantão';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      confirmed,
+      locale: localeName,
+      other: '$confirmed/$total concluídos',
+      one: '$confirmed/$total concluído',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Completar';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'A tua situação está completa, podes executar o cálculo.';
+
+  @override
+  String get donationGateTitle =>
+      'Completa a tua situação para um cálculo baseado nos teus dados';
+
+  @override
+  String get expatForfaitGateTitle =>
+      'Completa a tua situação para um forfait baseado nos teus dados';
+
+  @override
+  String get expatTopCantonsGateTitle =>
+      'Completa o teu perfil para uma classificação cantonal personalizada';
+
+  @override
+  String get expatDepartGateTitle =>
+      'Completa a tua situação para quantificar o teu capital de previdência';
+
+  @override
+  String get expatAvsGateTitle =>
+      'Completa a tua situação para estimar a tua lacuna AVS';
+
+  @override
+  String get expatAvsProjectionGateTitle =>
+      'Completa a tua situação para projetar a tua pensão AVS';
+
+  @override
+  String get expatGateFactForfaitCanton => 'Cantão do forfait';
+
+  @override
+  String get expatGateWhyForfaitCanton =>
+      'O mínimo tributável depende do cantão escolhido.';
+
+  @override
+  String get expatGateFactLivingExpenses => 'Despesas de vida mundiais';
+
+  @override
+  String get expatGateWhyLivingExpenses =>
+      'O forfait calcula-se sobre as tuas despesas de vida anuais.';
+
+  @override
+  String get expatGateFactActualIncome => 'Rendimento mundial real';
+
+  @override
+  String get expatGateWhyActualIncome =>
+      'A comparação usa o teu rendimento mundial, não o teu salário suíço.';
+
+  @override
+  String get expatGateFactIncome => 'Rendimento tributável';
+
+  @override
+  String get expatGateWhyIncome =>
+      'A diferença fiscal entre cantões calcula-se sobre o teu rendimento real.';
+
+  @override
+  String get expatGateFactCanton => 'Cantão de residência';
+
+  @override
+  String get expatGateWhyCanton =>
+      'A classificação compara os cantões com a tua carga fiscal atual.';
+
+  @override
+  String get expatGateFactPillar3a => 'Saldo do pilar 3a';
+
+  @override
+  String get expatGateWhyPillar3a =>
+      'O teu capital de previdência em jogo inclui o teu 3a.';
+
+  @override
+  String get expatGateFactLpp => 'Haveres LPP';
+
+  @override
+  String get expatGateWhyLpp =>
+      'O teu capital de previdência em jogo inclui os teus haveres LPP.';
+
+  @override
+  String get expatGateFactYearsInCh => 'Anos de contribuição na Suíça';
+
+  @override
+  String get expatGateWhyYearsInCh =>
+      'A pensão AVS depende dos teus anos de contribuição.';
+
+  @override
+  String get expatGateFactYearsAbroad => 'Anos no estrangeiro';
+
+  @override
+  String get expatGateWhyYearsAbroad =>
+      'Os anos fora da Suíça aumentam a lacuna de contribuição.';
+
+  @override
+  String get expatGateFactAge => 'Idade';
+
+  @override
+  String get expatGateWhyAge =>
+      'A projeção da pensão depende dos anos que te restam para contribuir.';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Completar a minha situação ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Cantão da doação';
+
+  @override
+  String get donationGateWhyCanton => 'O imposto sobre doações é cantonal.';
+
+  @override
+  String get donationGateFactEnfants => 'Número de filhos';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'A tua reserva hereditária depende do número de filhos.';
+
+  @override
+  String get donationGateFactFortune => 'Património líquido';
+
+  @override
+  String get donationGateWhyFortune =>
+      'O montante da reserva calcula-se sobre o teu património líquido.';
+
+  @override
+  String get donationGateFactRegime => 'Regime matrimonial';
+
+  @override
+  String get donationGateWhyRegime =>
+      'O teu regime matrimonial altera a massa sucessória.';
+
+  @override
+  String get firstJobGateFactSalaire => 'Salário bruto mensal';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'É o valor inicial da tua análise salarial.';
+
+  @override
+  String get firstJobGateFactAge => 'Idade';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'A LPP (2.º pilar) torna-se obrigatória a partir dos 25 anos.';
+
+  @override
+  String get firstJobGateFactCanton => 'Cantão';
+
+  @override
+  String get firstJobGateWhyCanton =>
+      'Os impostos e as deduções variam consoante o cantão.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'A tua situação está completa, a tua análise salarial está pronta.';
+
+  @override
+  String get naissanceGateFactSalaire => 'Salário mensal bruto';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'A tua licença APG é calculada com base no teu salário.';
+
+  @override
+  String get naissanceGateFactParent => 'Progenitor em causa';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'A duração da licença difere entre maternidade e paternidade.';
+
+  @override
+  String get naissanceGateFactCanton => 'Cantão';
+
+  @override
+  String get naissanceGateWhyCanton =>
+      'Os abonos de família variam consoante o teu cantão.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Número de filhos';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'O total dos abonos depende do número de filhos.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Rendimento anual bruto';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'O impacto fiscal é calculado sobre o teu rendimento tributável.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Despesas de guarda';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'As tuas despesas reais de guarda determinam a dedução.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'O número de filhos altera as deduções e os custos.';
+
+  @override
+  String get naissanceCostGenericExampleLabel =>
+      'Exemplo — custos médios na Suíça, não a tua situação';
+
+  @override
+  String get mariageGateFactRevenu1 => 'O teu rendimento bruto anual';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'A diferença fiscal do casal calcula-se sobre o teu rendimento.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Rendimento do cônjuge';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'A tributação conjunta depende do rendimento do teu cônjuge.';
+
+  @override
+  String get mariageGateFactCanton => 'Cantão de residência';
+
+  @override
+  String get mariageGateWhyCanton =>
+      'A tabela fiscal varia consoante o teu cantão.';
+
+  @override
+  String get mariageGateFactEnfants => 'Número de filhos';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'As deduções por filhos alteram o imposto do casal.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'O teu património';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'A partilha do regime calcula-se sobre os vossos patrimónios.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Património do cônjuge';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'A partilha compara os vossos dois patrimónios.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Pensão LPP mensal';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'A pensão de sobrevivência calcula-se sobre a pensão LPP do falecido.';
+
+  @override
   String get housingSaleIntroText =>
       'Vender um imóvel na Suíça implica um imposto sobre as mais-valias imobiliárias (LHID art. 12), o eventual reembolso dos fundos de previdência utilizados (EPL) e custos de transação. Esta ferramenta ajuda-te a estimar o produto líquido da venda.';
 
@@ -3311,6 +3551,10 @@ class SPt extends S {
 
   @override
   String get housingSaleResidencePrincipale => 'Residência principal';
+
+  @override
+  String get housingSaleAnneesOccupation =>
+      'Anos ocupada como residência principal';
 
   @override
   String get housingSaleFinancementTitle => 'FINANCIAMENTO';
@@ -3446,7 +3690,10 @@ class SPt extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob vale mais $annualDelta/ano em renda vitalícia, ou seja, $monthlyDelta/mês PARA A VIDA após a reforma.';
   }
 
@@ -3504,7 +3751,7 @@ class SPt extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'A tua contribuição AVS estimada: $amount/ano (taxa degressiva para rendimentos inferiores a CHF 58’800, depois ~10.6% acima).';
+    return 'A tua contribuição AVS estimada: $amount/ano (taxa degressiva para rendimentos inferiores a CHF 60’500, depois 10.0% acima).';
   }
 
   @override
@@ -4098,6 +4345,9 @@ class SPt extends S {
   String get expatCurrentCanton => 'Cantão atual';
 
   @override
+  String get expatNonRenseigne => 'Não indicado';
+
+  @override
   String get expatPillar3aBalance => 'Saldo pilar 3a';
 
   @override
@@ -4183,6 +4433,10 @@ class SPt extends S {
       'Cada fase da vida requer adaptar o contrato de casamento e a previdência.';
 
   @override
+  String get mariageTimelineIllustrativeCaption =>
+      'Percurso ilustrativo: os atos 2 e 3 mostram exemplos de trajetórias de vida (evolução de carreira, tempo parcial). As variações percentuais não são uma projeção dos teus rendimentos.';
+
+  @override
   String get mariageTimelineAct1Title => 'Vocês dois trabalham';
 
   @override
@@ -4225,7 +4479,7 @@ class SPt extends S {
 
   @override
   String get naissanceChecklistItem2Desc =>
-      'Solicita através do teu empregador (ou da tua caixa de abonos se fores independente). Os abonos são pagos a partir do mês de nascimento. O montante depende do cantão (CHF 200 a CHF 305/mês por filho).';
+      'Solicita através do teu empregador (ou da tua caixa de abonos se fores independente). Os abonos são pagos a partir do mês de nascimento. O montante depende do cantão (CHF 215 a CHF 330/mês por filho).';
 
   @override
   String get naissanceChecklistItem3Title =>
@@ -4248,7 +4502,7 @@ class SPt extends S {
 
   @override
   String get naissanceChecklistItem5Desc =>
-      'Um filho adicional dá-te direito a uma dedução fiscal de CHF 6\'700/ano (LIFD art. 35). Se tiveres despesas de guarda, podes deduzir até CHF 25\'500/ano. Lembra-te de adaptar os teus pagamentos por conta para o ano em curso.';
+      'Um filho adicional dá-te direito a uma dedução fiscal de CHF 6\'800/ano (LIFD art. 35). Se tiveres despesas de guarda, podes deduzir até CHF 25\'800/ano. Lembra-te de adaptar os teus pagamentos por conta para o ano em curso.';
 
   @override
   String get naissanceChecklistItem6Title => 'Adaptar o orçamento familiar';
@@ -4275,7 +4529,7 @@ class SPt extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Subscrever um seguro de risco de morte/invalidez';
+      'Rever a tua cobertura de risco de morte/invalidez';
 
   @override
   String get naissanceChecklistItem9Desc =>
@@ -5530,11 +5784,14 @@ class SPt extends S {
 
   @override
   String get simLppBuybackBonASavoirItem3 =>
-      'Atenção: qualquer levantamento EPL fica bloqueado durante 3 anos após um resgate (LPP art. 79b al. 3). Planeia os teus resgates em conformidade.';
+      'Atenção: durante os 3 anos após um resgate, nenhum levantamento em capital (reforma ou habitação) é possível sobre esse montante — um levantamento nesse prazo anula a dedução fiscal (LPP art. 79b al. 3).';
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulação incluindo o juro da caixa ($fundRate %) e o impacto fiscal indicativo distribuído ao longo de $staggeringYears anos para um rendimento tributável de CHF $taxableIncome. O rendimento real é calculado sobre o teu esforço líquido real.';
   }
 
@@ -5727,7 +5984,10 @@ class SPt extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Perdes $amount/mês para a vida. Mas ganhas $years ano$plural de liberdade.';
   }
 
@@ -5804,7 +6064,10 @@ class SPt extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Comparação forfait fiscal. Tributação ordinária: $ordinary. Forfait fiscal: $forfait.';
   }
 
@@ -6429,7 +6692,7 @@ class SPt extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'O levantamento EPL reduz o teu capital LPP e portanto o teu capital ou pensão na reforma. Mínimo CHF 20\'000 (OPP2 art. 5). Bloqueia a recompra LPP durante 3 anos.';
+      'O levantamento EPL reduz o teu haver LPP e, portanto, o teu capital ou pensão na reforma. Mínimo CHF 20\'000 (OPP2 art. 5). Atenção: após um resgate LPP voluntário, um levantamento de capital nos 3 anos seguintes faz perder a dedução fiscal desse resgate (art. 79b n.º 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>
@@ -6600,15 +6863,6 @@ class SPt extends S {
   String get concubinageCanton => 'Canton';
 
   @override
-  String get concubinageAvantages => 'avantages';
-
-  @override
-  String get concubinageMariage => 'Mariage';
-
-  @override
-  String get concubinageConcubinage => 'Concubinage';
-
-  @override
   String get concubinageDetailFiscal => 'DÉTAIL FISCAL';
 
   @override
@@ -6618,29 +6872,32 @@ class SPt extends S {
   String get concubinageImpotsMaries => 'Impôts mariés';
 
   @override
-  String get concubinagePenaliteMariage => 'Penalização por casamento';
+  String get concubinageEcartImpotMariePlusEleve =>
+      'Imposto do agregado mais elevado se casados';
 
   @override
-  String get concubinageBonusMariage => 'Bonus mariage';
+  String get concubinageEcartImpotConcubinagePlusEleve =>
+      'Imposto do agregado mais elevado em união de facto';
+
+  @override
+  String get impositionCommuneMecanique =>
+      'Casados, os dois rendimentos são somados e tributados em conjunto, com uma tabela reduzida reservada aos casais. O sentido da diferença depende da repartição dos rendimentos: quando são próximos, a soma faz subir o rendimento tributável mais depressa do que a tabela reduzida o baixa — é o efeito conhecido por « Heiratsstrafe ». Quando um rendimento domina claramente, essa mesma tabela coloca o imposto do agregado abaixo do de dois solteiros.';
+
+  @override
+  String get fiscalEstimationModelLimit =>
+      'Estimativa simplificada: não tem em conta as tuas deduções reais, nem o teu município, nem a tabela cantonal detalhada. A diferença real pode assim variar, incluindo no seu sentido.';
 
   @override
   String get concubinageImpotSuccession => 'IMPOSTO SOBRE SUCESSÕES';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Património transmitido';
+  String get concubinageMarieExonere => '0% (isento)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (isento)';
+  String get concubinageConcubinLabel => 'Parceiro/a';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return 'Parceiro/a (~$taux%)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Em união de facto, o teu parceiro pagaria $impot de imposto sucessório sobre um património de $patrimoine. Casado/a, estaria totalmente isento/a.';
-  }
+  String get concubinageConcubinTaux => 'Tributado·a à taxa de «terceiros»';
 
   @override
   String get concubinageNeutralTitle =>
@@ -6664,7 +6921,7 @@ class SPt extends S {
 
   @override
   String get concubinageChecklist1Desc =>
-      'Sem testamento, o/a teu/tua parceiro/a não herda nada — tudo vai para os teus pais ou irmãos. Um testamento manuscrito (escrito à mão, datado, assinado) é suficiente. Podes legar a quota disponível ao/à teu/tua parceiro/a.';
+      'Sem testamento, o·a teu·tua parceiro·a não herda nada — a tua sucessão segue a ordem legal (primeiro os teus descendentes, senão os teus pais, depois os teus irmãos). Um testamento hológrafo (escrito à mão, datado, assinado) basta; podes legar a quota disponível ao·à teu·tua parceiro·a.';
 
   @override
   String get concubinageChecklist2Title => 'Cláusula de beneficiário LPP';
@@ -6725,22 +6982,19 @@ class SPt extends S {
   String get concubinageCriteriaImpots => 'Impôts';
 
   @override
-  String get concubinageCriteriaPenaliteFiscale => 'Penalização fiscal';
+  String get concubinageCriteriaImpotPlusEleve =>
+      'Imposto do agregado mais elevado';
 
   @override
-  String get concubinageCriteriaBonusFiscal => 'Bonus fiscal';
-
-  @override
-  String get concubinageCriteriaAvantageux => 'Avantageux';
-
-  @override
-  String get concubinageCriteriaDesavantageux => 'Désavantageux';
+  String get concubinageCriteriaImpotMoinsEleve =>
+      'Imposto do agregado mais baixo';
 
   @override
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Isento (CC art. 462)';
+  String get concubinageCriteriaHeritageMarriage =>
+      'Isento (lei fiscal cantonal)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -6840,24 +7094,21 @@ class SPt extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'janeiro',
-        '2': 'fevereiro',
-        '3': 'março',
-        '4': 'abril',
-        '5': 'maio',
-        '6': 'junho',
-        '7': 'julho',
-        '8': 'agosto',
-        '9': 'setembro',
-        '10': 'outubro',
-        '11': 'novembro',
-        '12': 'dezembro',
-        'other': 'mês',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'janeiro',
+      '2': 'fevereiro',
+      '3': 'março',
+      '4': 'abril',
+      '5': 'maio',
+      '6': 'junho',
+      '7': 'julho',
+      '8': 'agosto',
+      '9': 'setembro',
+      '10': 'outubro',
+      '11': 'novembro',
+      '12': 'dezembro',
+      'other': 'mês',
+    });
     return '$_temp0';
   }
 
@@ -7115,6 +7366,34 @@ class SPt extends S {
   @override
   String get decesProchebeneficiairesNote =>
       'A ordem dos beneficiários LPP é definida pelo regulamento da caixa (OPP2 art. 48). O 3a segue a OPP3 art. 2.';
+
+  @override
+  String get decesGateFactLpp => 'Capital LPP da pessoa falecida';
+
+  @override
+  String get decesGateWhyLpp =>
+      'O capital LPP transmitido aos beneficiários depende dos ativos de previdência da pessoa falecida.';
+
+  @override
+  String get decesGateFact3a => 'Capital do pilar 3a da pessoa falecida';
+
+  @override
+  String get decesGateWhy3a =>
+      'O capital do pilar 3a pago aos beneficiários depende das poupanças 3a da pessoa falecida.';
+
+  @override
+  String get decesGateFactLien => 'A tua relação com a pessoa falecida';
+
+  @override
+  String get decesGateWhyLien =>
+      'A isenção do imposto sucessório depende do teu grau de parentesco.';
+
+  @override
+  String get decesGateFactCanton => 'Cantão da sucessão';
+
+  @override
+  String get decesGateWhyCanton =>
+      'O imposto sucessório é cantonal; depende do cantão de domicílio da pessoa falecida.';
 
   @override
   String get decesProchImpactFiscalTitre => 'Impacto fiscal';
@@ -7644,7 +7923,7 @@ class SPt extends S {
   String get firstSalaryBefore31Dec => 'Antes de 31.12';
 
   @override
-  String get firstSalaryTask1 => 'Abrir uma conta 3a (banco ou fintech)';
+  String get firstSalaryTask1 => 'Comparar as contas 3a (banco ou fintech)';
 
   @override
   String get firstSalaryTask2 =>
@@ -8306,7 +8585,9 @@ class SPt extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Os bancos suíços calculam com uma taxa teórica de 5 % (diretiva ASB), mesmo que a taxa real do mercado seja muito mais baixa. É um teste de resistência: verificam que poderias assumir os encargos se as taxas subissem. Os teus encargos teóricos: $chargesTheoriques/mês. À taxa de mercado (~1,5 %): $chargesReelles/mês.';
   }
 
@@ -8996,7 +9277,7 @@ class SPt extends S {
 
   @override
   String get rachatEchelonneImpactBlocExplain =>
-      'Em bloco, a dedução atravessa vários escalões. Escalonando, cada dedução fica no escalão mais alto.';
+      'Em bloco, a dedução atravessa vários escalões (taxa média mais baixa). Escalonando, uma parte maior de cada dedução pode permanecer em escalões altos, com rendimentos comparáveis.';
 
   @override
   String get rachatEchelonneBloc => 'Bloco';
@@ -9022,6 +9303,29 @@ class SPt extends S {
       'Após cada resgate, qualquer levantamento EPL fica bloqueado durante 3 anos.';
 
   @override
+  String get rachatEchelonneFenetre79bBadge =>
+      'Vantagem fiscal anulada se capital';
+
+  @override
+  String rachatEchelonneSiCapitalLabel(String montant) {
+    return 'Impacto fiscal se levantares o capital aos 65: CHF $montant';
+  }
+
+  @override
+  String get rachatEchelonneFenetre79bNote =>
+      'Parcelas pagas menos de 3 anos antes de um levantamento de capital: a dedução seria anulada e revogada pela autoridade fiscal (art. 79b n.º 3 LPP). Hipótese: levantamento integral aos 65 — uma reforma antecipada desloca a janela. O bloqueio EPL de 3 anos (cartão dedicado abaixo) é um efeito distinto do mesmo artigo. Dois cenários — a escolha entre renda ou capital continua a ser tua.';
+
+  @override
+  String rachatEchelonneHeroSiCapital(String montant) {
+    return 'Se levantares o capital aos 65, a diferença passa a CHF $montant (poupanças das parcelas recentes revogadas pelo fisco).';
+  }
+
+  @override
+  String rachatEchelonneSiCapitalShort(String montant) {
+    return 'Se capital: CHF $montant';
+  }
+
+  @override
   String get rachatEchelonneTauxMarginalTitle => 'Taxa marginal de impostos';
 
   @override
@@ -9030,7 +9334,7 @@ class SPt extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'É por isso que escalonar os resgates é inteligente.';
+      'Porque é que os números diferem: com rendimentos comparáveis, uma tranche escalonada pode ser deduzida a uma taxa marginal mais alta, enquanto um resgate único desloca parte da dedução para taxas mais baixas.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>
@@ -9374,36 +9678,46 @@ class SPt extends S {
       'Balanço total (impostos + seguro de saúde)';
 
   @override
+  String get demenagementGateFactRevenu => 'O teu rendimento bruto anual';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'Determina o imposto sobre o rendimento comparado entre os dois cantões.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'O teu cantão atual';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'A sua tabela fiscal e os seus prémios são o ponto de partida.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'O cantão de destino';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'O cantão que estás a considerar define a nova tabela a comparar.';
+
+  @override
+  String get demenagementGateFactSituation => 'A tua situação familiar';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'O número de prémios LAMal do agregado depende disso.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Prémios LAMal médios (adulto, franquia 300) e índices fiscais relativos: referências cantonais indicativas, não o teu prémio real.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Transferência de $amount ($direction)';
   }
 
   @override
   String divorceFiscalDelta(String sign, String amount) {
-    return 'Diferença: $sign$amount/ano';
+    return 'Diferença de imposto do agregado: $sign$amount/ano (fim do splitting conjugal)';
   }
-
-  @override
-  String divorcePensionMois(String amount) {
-    return '$amount/mês';
-  }
-
-  @override
-  String divorcePensionAnnuel(String amount) {
-    return 'ou seja $amount/ano';
-  }
-
-  @override
-  String get divorceConjoint1Label => 'Cônjuge 1';
-
-  @override
-  String get divorceConjoint2Label => 'Cônjuge 2';
-
-  @override
-  String get divorceSplitC1 => 'C1';
-
-  @override
-  String get divorceSplitC2 => 'C2';
 
   @override
   String get unemploymentVague1Label => 'Onda 1 — Urgência administrativa';
@@ -9451,13 +9765,13 @@ class SPt extends S {
   String get unemploymentBracket1 => '12–17 meses contrib.';
 
   @override
-  String get unemploymentBracket1Value => '200 subsídios';
+  String get unemploymentBracket1Value => '260 indemnizações';
 
   @override
   String get unemploymentBracket2 => '18–21 meses contrib.';
 
   @override
-  String get unemploymentBracket2Value => '260 subsídios';
+  String get unemploymentBracket2Value => '400 indemnizações';
 
   @override
   String unemploymentBracket3(int age) {
@@ -9996,6 +10310,29 @@ class SPt extends S {
       'LPP art. 8 (dedução de coordenação) / LPP art. 14 (taxa de conversão 6.8%) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (resgate voluntário) / OFS 2024 (estatísticas gender gap)';
 
   @override
+  String get genderGapNonRenseigne => 'Não indicado';
+
+  @override
+  String get genderGapGatePensionTitle =>
+      'Completa a tua situação para estimar a tua pensão';
+
+  @override
+  String get genderGapGateCoordTitle =>
+      'Completa a tua situação para este detalhe de coordenação';
+
+  @override
+  String get genderGapGateWhyRevenu =>
+      'O teu rendimento anual serve de base à projeção de pensão LPP.';
+
+  @override
+  String get genderGapGateWhyAvoirLpp =>
+      'O teu haver LPP atual é o ponto de partida da projeção (consta do teu certificado de previdência).';
+
+  @override
+  String get genderGapGateWhyAge =>
+      'A tua idade determina quantos anos de contribuição te restam.';
+
+  @override
   String get achievementsErrorMessage =>
       'O carregamento falhou. Tentar novamente?';
 
@@ -10128,7 +10465,7 @@ class SPt extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'Comum';
 
   @override
   String get authLoginSubtitle => 'Acede ao teu espaço financeiro pessoal';
@@ -10605,7 +10942,7 @@ class SPt extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'A taxa diminui para rendimentos baixos (entre CHF 10’100 e CHF 60’500). Acima, aplica-se a taxa plena de 10.6%.';
+      'A taxa diminui para rendimentos baixos (entre CHF 10’100 e CHF 60’500). Acima, aplica-se a taxa plena de 10.0%.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Duplo encargo';
@@ -10815,7 +11152,8 @@ class SPt extends S {
   String get pillar3aIndepBonASavoir => 'Bom saber';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Abre várias contas 3a';
+  String get pillar3aIndepEduComptesTitle =>
+      'Várias contas 3a, um levantamento escalonado';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -11485,11 +11823,11 @@ class SPt extends S {
   String get retroactive3aProchainesEtapes => 'Próximos passos';
 
   @override
-  String get retroactive3aOuvrirCompte => 'Abrir uma conta 3a';
+  String get retroactive3aOuvrirCompte => 'Ponderar uma conta 3a dedicada';
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Compara fornecedores e abre uma conta dedicada à recuperação.';
+      'Comparar fornecedores (custos, condições) ajuda; uma conta dedicada poderia simplificar o acompanhamento da recuperação.';
 
   @override
   String get retroactive3aPrepDocuments => 'Preparar documentos';
@@ -12009,24 +12347,6 @@ class SPt extends S {
 
   @override
   String get reportRetirementSource => 'Fontes: LPP art. 14, OPP3, LAVS';
-
-  @override
-  String get reportRetirement3aNone =>
-      'Ainda sem 3a — margem dedutível a estimar segundo o teu estatuto LPP';
-
-  @override
-  String reportRetirement3aNoneWithRoom(String amount) {
-    return 'Ainda sem 3a — margem dedutível estimada: CHF $amount/ano';
-  }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 conta 3a — abre uma 2.ª para otimizar o levantamento';
-
-  @override
-  String reportRetirement3aMulti(int count) {
-    return '$count contas 3a — boa diversificação';
-  }
 
   @override
   String reportRetirementLppText(String available, String savings) {
@@ -13002,7 +13322,7 @@ class SPt extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'Um cônjuge casado está isento do imposto de sucessão na maioria dos cantões (CC art. 462). Um concubino paga imposto à taxa de terceiros, frequentemente entre 20 % e 40 %.';
+      'A isenção do·a cônjuge sobrevivo·a não vem do Código Civil: está inscrita nas leis fiscais cantonais e vale nos 26 cantões. Um·a parceiro·a em união de facto fica sujeito·a à taxa de « terceiros » — e a diferença entre cantões é muito ampla: alguns não cobram qualquer imposto de sucessão, outros tributam pesadamente os terceiros. Aqui o cantão pesa tanto como o vínculo.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13034,11 +13354,84 @@ class SPt extends S {
       'Em concubinato, se o teu parceiro falecer, não recebes pensão AVS, nem pensão LPP automática, e não és herdeiro legal. Cada proteção deve ser antecipada.';
 
   @override
+  String get concubinageProtectionConditionsNote =>
+      'As proteções do casamento (pensões de sobrevivência AVS e LPP) dependem de condições de elegibilidade; a união de facto não dá acesso a elas, quaisquer que sejam as condições.';
+
+  @override
   String get concubinageProtectionLppSlider => 'Pensão LPP mensal do parceiro';
 
   @override
   String get concubinageProtectionSurvivorZero =>
       'CHF 0/mês para o concubino sobrevivente sem diligências';
+
+  @override
+  String get concubinageInheritanceConditional =>
+      'Sem testamento, o·a teu·tua parceiro·a não herda nada: a sucessão vai para os teus herdeiros legais. Com testamento, o que lhe podes deixar depende dos teus descendentes: se os tiveres, a legítima deles corresponde a metade da sucessão e a quota disponível fica limitada à outra metade; se não os tiveres, a legítima dos pais foi suprimida a 1 de janeiro de 2023 e podes dispor da totalidade (CC art. 470-471). O que entra na sucessão é a tua parte: um bem em compropriedade só conta até à tua quota-parte.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'Aqui não é mostrada nenhuma taxa, e é deliberado: a carga vai de zero em alguns cantões a quase metade da parte recebida nos mais pesados, com tabelas progressivas, franquias e por vezes um imposto comunal. Quatro elementos a determinam: o teu cantão e o teu município, a parte realmente recebida, o vínculo de parentesco e a duração da vossa vida em comum.';
+
+  @override
+  String get concubinageSurvivorLppDetail =>
+      'Possível pensão de sobrevivência (60 %) — condições LPP art. 19: filho dependente, ou 45 anos e 5 anos de casamento.';
+
+  @override
+  String get concubinageSurvivorAvsNote =>
+      'Um·a cônjuge sobrevivente pode receber ainda uma pensão AVS de sobrevivência (LAVS art. 23, sob condições); um·a companheiro·a nunca tem direito a ela.';
+
+  @override
+  String get concubinage3aClauseEducational =>
+      'Sem uma cláusula de beneficiário que designe o·a teu·tua parceiro·a, o teu pilar 3a segue a ordem legal dos beneficiários (OPP3 art. 2) e o·a teu·tua parceiro·a não é beneficiário·a por defeito. Com uma cláusula entregue à tua fundação 3a, podes designá-lo·a.';
+
+  @override
+  String get concubinageGateFactRevenu1 => 'O teu rendimento anual bruto';
+
+  @override
+  String get concubinageGateWhyRevenu1 =>
+      'O rendimento de ambos os parceiros determina a diferença fiscal entre casamento e união de facto.';
+
+  @override
+  String get concubinageGateFactRevenu2 =>
+      'O rendimento anual bruto do teu parceiro';
+
+  @override
+  String get concubinageGateWhyRevenu2 =>
+      'Sem o rendimento do teu parceiro, a diferença fiscal do casal não pode ser estimada.';
+
+  @override
+  String get concubinageGateFactCanton => 'O teu cantão de residência';
+
+  @override
+  String get concubinageGateWhyCanton =>
+      'A tabela fiscal e a taxa de sucessão dependem do teu cantão.';
+
+  @override
+  String get concubinageGateFactPatrimoine => 'O teu património total';
+
+  @override
+  String get concubinageGateWhyPatrimoine =>
+      'O património transmitido fixa o montante sujeito ao imposto de sucessão.';
+
+  @override
+  String get concubinageGateFactRenteLpp =>
+      'A pensão LPP mensal do teu parceiro';
+
+  @override
+  String get concubinageGateWhyRenteLpp =>
+      'A pensão LPP do parceiro serve para estimar a pensão de sobrevivência.';
+
+  @override
+  String get concubinageGateFiscalTitle => 'Comparação fiscal';
+
+  @override
+  String get concubinageGateInheritanceTitle => 'Imposto de sucessão';
+
+  @override
+  String get concubinageGateSurvivorTitle => 'Pensão de sobrevivência';
+
+  @override
+  String get concubinageNonRenseigne => 'Não indicado';
 
   @override
   String get concubinageDecisionMatrixTitle => 'Casamento vs Concubinato';
@@ -13593,15 +13986,16 @@ class SPt extends S {
 
   @override
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject) {
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  ) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nSolicito que me enviem um extrato da minha conta individual AVS (CI) para verificar o estado das minhas contribuições e identificar eventuais lacunas.\n\nAgradeço antecipadamente a vossa diligência.\n\nCom os melhores cumprimentos,\n\n$name';
   }
 
@@ -13629,30 +14023,32 @@ class SPt extends S {
 
   @override
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete) {
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nEm virtude da cessação do meu contrato de trabalho / da minha saída da Suíça (riscar o que não se aplica), solicito que procedam à transferência do meu ter de livre passagem.\n\nMontante a transferir: a totalidade do ter de livre passagem à data de saída.\n\nInstituição de destino:\nNome: $toComplete\nIBAN ou número de conta: $toComplete\nEndereço: $toComplete\n\nData de saída: $toComplete\n\nAgradeço a vossa diligência e solicito confirmação da boa execução desta transferência.\n\nCom os melhores cumprimentos,\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber) {
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nAssunto: $subject\n\nExmo./Exma. Senhor/a,\n\nVenho por este meio submeter os seguintes pedidos relativos ao meu processo de previdência profissional:\n\n1. Certificado de previdência atualizado $year (ter de velhice, prestações cobertas, taxa de conversão aplicável)\n\n2. Confirmação da minha capacidade de resgate (montante máximo nos termos do art. 79b LPP)\n\n3. Simulação de reforma antecipada (projeção do ter e da renda aos 63 e 64 anos, se aplicável)\n\nAgradeço antecipadamente a vossa diligência e fico à disposição para qualquer informação adicional.\n\nCom os melhores cumprimentos,\n\n$name\n$policeNumber';
   }
 
@@ -13904,6 +14300,10 @@ class SPt extends S {
   @override
   String get authErrorRegistration =>
       'Registo indisponível. Usa o modo local e tenta mais tarde.';
+
+  @override
+  String get authErrorAccountDeletedRecreate =>
+      'Esta conta Apple foi eliminada. Recria a tua conta com Apple para continuar.';
 
   @override
   String get authErrorService =>
@@ -15441,7 +15841,7 @@ class SPt extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Alguns cantões permitem completar a contribuição do ano anterior para o pilar 3a até março. Verifica as regras do teu cantão.';
+      'Para ser dedutível este ano, a tua contribuição 3a deve estar creditada na conta até 31 de dezembro. Uma ordem dada demasiado tarde pode só ser creditada em janeiro — e contar então para o ano seguinte. Não deixes para a última hora.';
 
   @override
   String get communityChallenge03Title =>
@@ -15645,7 +16045,10 @@ class SPt extends S {
 
   @override
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount) {
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  ) {
     return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mês';
   }
 
@@ -16719,7 +17122,7 @@ class SPt extends S {
   String get firstJobChecklistDeadline1 => 'Antes de sair';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 dias';
+  String get firstJobChecklistDeadline2 => 'Ao começar';
 
   @override
   String get firstJobChecklistDeadline3 => '1 mês';
@@ -16733,18 +17136,25 @@ class SPt extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Seguro de acidentes fora do trabalho, descontado do teu salário.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Acidentes não profissionais (AANP)';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Contribuição para o seguro-desemprego (LACI). Protege-te em caso de perda de emprego.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Seguro-desemprego (AC)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Contribuição do trabalhador: 5.3% do salário bruto. O teu empregador também paga 5.3% adicional.';
 
   @override
   String get firstJobPayslipAvsLabel => 'AVS/AI/APG';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Deduzido diretamente do salário se fores tributado na fonte. A taxa varia por cantão, estado civil e rendimento.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Imposto na fonte (estimativa)';
 
   @override
   String get firstJobPayslipLppExplanation =>
@@ -16765,7 +17175,8 @@ class SPt extends S {
   String get firstJobScenarioDefault => 'Padrão';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH';
+  String get firstJobScenarioMedianCH =>
+      'Mediana CH (todos os setores · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'O meu salário';
@@ -17076,7 +17487,8 @@ class SPt extends S {
   String get indepPlanLaaConseq => 'Sem cobertura acidente profissional';
 
   @override
-  String get indepPlanOuvrir3a => 'Abrir conta 3a (dedução até CHF 36\'288)';
+  String get indepPlanOuvrir3a =>
+      'Comparar as contas 3a (dedução até CHF 36\'288)';
 
   @override
   String get indepProtApg => 'Desaparece — licença parental';
@@ -18116,7 +18528,7 @@ class SPt extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Entre AVS (LAVS art. 5), LPP (art. 16), imposto na fonte e LAMal, o teu líquido representa cerca de 75-80 % do bruto. Compreender estas deduções é o primeiro passo para uma boa gestão.';
+      'Entre AVS (LAVS art. 5), LPP (art. 16) e LAMal, o teu líquido fica tipicamente à volta de 88-90 % do bruto sem imposto na fonte; com imposto na fonte, é retido mais. Compreender estas deduções é o primeiro passo para uma boa gestão.';
 
   @override
   String get narrativeFirstJobHeadline => 'O teu primeiro salário explicado';
@@ -18137,7 +18549,7 @@ class SPt extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'O casamento modifica a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Dependendo dos vossos rendimentos respetivos, o impacto fiscal pode ser positivo ou negativo.';
+      'O casamento altera a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Consoante a repartição dos vossos dois rendimentos, o imposto do agregado pode ir num sentido ou no outro.';
 
   @override
   String get narrativeMarriageHeadline => 'Impacto financeiro do casamento';
@@ -19484,7 +19896,9 @@ class SPt extends S {
 
   @override
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly) {
+    String totalMonthly,
+    String currentMonthly,
+  ) {
     return 'Rendimento estimado na reforma: $totalMonthly CHF/mês vs $currentMonthly CHF/mês atualmente';
   }
 
@@ -19719,7 +20133,10 @@ class SPt extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-      String legal, String monthly, String free) {
+    String legal,
+    String monthly,
+    String free,
+  ) {
     return 'Margem legal restante: $legal/ano. Equivalente mensal: $monthly/mês. Orçamento livre atual: $free/mês. Margem legal ≠ capacidade mensal: mantém uma reserva antes de aumentar o 3a.';
   }
 
@@ -19953,8 +20370,13 @@ class SPt extends S {
   String get scoreGaugeSectionPrevoyance => 'Previdência';
 
   @override
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine) {
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  ) {
     return 'Pontuação de forma financeira. $score de 100. Nível $level. Orçamento $budget, Previdência $prevoyance, Património $patrimoine.';
   }
 
@@ -20043,7 +20465,11 @@ class SPt extends S {
 
   @override
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high) {
+    String label,
+    String status,
+    String low,
+    String high,
+  ) {
     return '$label: $status. Intervalo típico de $low a $high';
   }
 
@@ -21790,7 +22216,7 @@ class SPt extends S {
 
   @override
   String get bankImportTransparency =>
-      'O teu extrato é enviado encriptado para o nosso servidor suíço para análise. As transações são categorizadas e depois o ficheiro original é eliminado. Apenas os resumos por categoria são mantidos no teu perfil.';
+      'O teu extrato é enviado cifrado ao nosso servidor para análise (processamento automático, sem IA). O ficheiro original é eliminado após o processamento; só os resumos por categoria são conservados no teu perfil.';
 
   @override
   String get coachTransparencySLM =>
@@ -21798,7 +22224,7 @@ class SPt extends S {
 
   @override
   String get coachTransparencyBYOK =>
-      'Resposta via a tua API Claude. O teu salário exato NÃO é enviado — apenas a tua idade, cantão e arquétipo são partilhados.';
+      'Resposta via a tua API Claude. O teu perfil financeiro pseudonimizado (montantes incluídos, nunca o teu nome ou IBAN) e a tua mensagem são partilhados para personalizar a resposta.';
 
   @override
   String get coachTransparencyServer =>
@@ -21812,21 +22238,21 @@ class SPt extends S {
 
   @override
   String get dataTransparencySalaryDetail =>
-      'Guardado apenas no teu telemóvel. Nunca enviado.';
+      'Guardado no teu perfil cifrado. Partilhado com o coach AI apenas quando o usas.';
 
   @override
   String get dataTransparencyScan => 'Quando digitalizas um documento';
 
   @override
   String get dataTransparencyScanDetail =>
-      'Enviado encriptado para o nosso servidor suíço. Analisado e eliminado. Apenas o resultado é mantido.';
+      'Enviado cifrado ao nosso servidor e lido pela API Claude (Anthropic, Estados Unidos) com o teu consentimento para extrair os números. O ficheiro original é eliminado; só o resultado é conservado.';
 
   @override
   String get dataTransparencyCoach => 'Quando falas com o coach';
 
   @override
   String get dataTransparencyCoachDetail =>
-      'SLM local (nada enviado) ou API Claude (a tua escolha). O teu salário exato nunca é partilhado.';
+      'SLM local (nada enviado) ou API Claude: o teu perfil pseudonimizado (montantes incluídos, nunca o teu nome ou IBAN) e as tuas mensagens são partilhados.';
 
   @override
   String get dataTransparencyImport => 'Quando importas um extrato';
@@ -23367,7 +23793,7 @@ class SPt extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'Os documentos passam pela API Claude (Anthropic, Estados Unidos) em modo Zero Data Retention. Esta transferência desaparecerá após a migração para AWS Frankfurt.';
+      'Os teus documentos (Zero Data Retention) e — quando usas o coach — o teu perfil financeiro pseudonimizado (montantes exatos incluídos, nunca o teu nome, o teu IBAN nem o teu n.º AVS) e as tuas mensagens passam pela API Claude (Anthropic, EUA).';
 
   @override
   String get consentPurposeCoupleProjection => 'Projeções de casal';
@@ -24229,4 +24655,253 @@ class SPt extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Começar a investir cedo em vez de mais tarde poderia fazer a diferença a longo prazo, para um esforço mensal modesto. A capitalização recompensa a duração.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Consentimentos e retirada';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'Ver as tuas autorizações e retirar uma';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'O teu cantão ($canton) já está entre os menos tributados do modelo — nenhuma diferença favorável a mostrar.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento fiscal segundo a LSFin. Impostos estimados com o modelo simplificado MINT por cantão (tabelas cantonais, capital) — não são cálculos fiscais exatos. Diferença baseada apenas no rendimento — varia com o património e a situação familiar.';
+
+  @override
+  String get coachConsentDeclined =>
+      'O coach precisa do teu consentimento para enviar as tuas mensagens ao serviço de IA (servidores nos Estados Unidos). Sem ele, o coach não pode responder. Reenvia a tua mensagem quando quiseres: o pedido de consentimento será apresentado novamente.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Crédito ao consumo';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Outras dívidas';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Taxa (estimada)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Prestação (estimada)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'Este cálculo baseia-se apenas no teu rendimento: o do teu par ainda não foi adicionado.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Adicionar o rendimento com o coach';
+
+  @override
+  String get reportSpouseIncomeMissingPrompt =>
+      'Adiciona o rendimento do teu cônjuge: a sua renda AVS é estimada no mínimo legal até lá.';
+
+  @override
+  String get reportSpouseDataMissingPrompt =>
+      'Adiciona o rendimento e os anos de contribuição do teu cônjuge: a sua renda AVS não é estimada até lá.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'As tuas prestações mínimas totalizam CHF $montant — o plano baseia-se neste montante';
+  }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Orçamento inserido CHF $saisi, o plano usa CHF $effectif (prestações mínimas). Botão, edita o orçamento.';
+  }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Precisar os teus dados — bloco $bloc';
+  }
+
+  @override
+  String get divorceGateFactRevenu1 => 'O teu rendimento anual bruto';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'Serve para estimar o imposto do agregado antes e depois do divórcio.';
+
+  @override
+  String get divorceGateFactRevenu2 => 'Rendimento anual do teu ex-cônjuge';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'Permite comparar o imposto do agregado casado com o de dois agregados separados.';
+
+  @override
+  String get divorcePensionEnfantTitre =>
+      'Alimentos do filho (CC art. 276, 285, 285a)';
+
+  @override
+  String get divorcePensionEnfantFacteurs =>
+      'Segue as necessidades do filho e a sua idade, os custos de guarda e de formação, e tem em conta os abonos de família. O progenitor que cuida do filho no dia a dia já presta uma contribuição em espécie: reduz na mesma medida o que lhe é pedido em dinheiro. Uma parte de poupança pode acrescentar-se se os meios o permitirem.';
+
+  @override
+  String get divorcePensionConjointTitre =>
+      'Alimentos do cônjuge (CC art. 125)';
+
+  @override
+  String get divorcePensionConjointFacteurs =>
+      'Não é automático. Olha-se primeiro se cada pessoa consegue prover sozinha às suas necessidades. Se não for o caso, o que conta é a repartição das tarefas durante o casamento, a sua duração, o nível de vida que tinham, a idade e o estado de saúde, os rendimentos e o património, as perspetivas de formação e de ganho, e a previdência. Uma longa duração do casamento não cria nenhum direito automático.';
+
+  @override
+  String get divorcePensionMethode =>
+      'O método de referência tem duas etapas (ATF 147 III 265). Primeiro, estabelece-se o mínimo vital de cada pessoa: habitação, seguro de doença, alimentação, despesas profissionais, despesas de guarda. Estes encargos vêm antes de tudo o resto. Depois, o que sobra — o excedente — reparte-se entre os agregados. Raciocina-se sobre os rendimentos disponíveis líquidos, nunca sobre os salários brutos. O excedente não se reparte ao acaso: distribui-se por « cabeças grandes e pequenas » (uma parte inteira por adulto, meia por filho), com ajustes conforme o caso.';
+
+  @override
+  String get divorcePensionLeviers =>
+      'O que faz subir ou descer o montante: a percentagem de guarda em primeiro lugar — quanto mais cuidas do filho, menos pagas em dinheiro. Depois a tua capacidade de ganho: se podes trabalhar mais, pode ser-te imputado um rendimento hipotético. O nível de vida do casamento funciona como teto. E o princípio do clean-break empurra cada um para a sua autonomia financeira com o tempo. Atenção: cuidar mais nem sempre dispensa de pagar — a capacidade contributiva de cada um também conta, e o progenitor financeiramente mais forte pode pagar apesar de uma guarda alargada.';
+
+  @override
+  String get divorceRegimeAcquets =>
+      'O que conta é o que foi adquirido durante o casamento. O que cada pessoa possuía antes, e o que recebeu por herança ou doação, continua a ser seu: são os bens próprios. Sobre o resto, cada uma tem direito a metade do benefício da outra (CC art. 215). É portanto a comparação das vossas duas contas que decide, não um fundo comum: quem mais acumulou paga à outra pessoa METADE da diferença entre os dois benefícios. Antes de comparar, reintegra-se nos adquiridos o que deles saiu (art. 208), saldam-se as compensações entre bens próprios e adquiridos (art. 206 e 209), e liga-se cada dívida à massa que lhe respeita.';
+
+  @override
+  String get divorceLppTransferCaveat =>
+      'Este montante calcula-se sobre os haveres que indicaste (haver atual menos haver no casamento). Dois elementos legais não estão aqui incluídos: o juro que corre sobre a prestação de saída existente no momento do casamento e a data de avaliação prevista na lei (o início do processo de divórcio). O teu fundo de pensões emite o cálculo exato.';
+
+  @override
+  String get divorceRegimeCommunaute =>
+      'Durante o casamento, o essencial do que possuem forma uma massa comum. Mas no divórcio essa massa não se corta em dois de imediato: cada pessoa retoma primeiro o que teriam sido os seus bens próprios sob a participação nos adquiridos — o que tinha antes do casamento, as suas heranças, as suas doações (CC art. 242 n.º 1). Só o remanescente que fica após essas retomas se reparte por metade (art. 242 n.º 2). O artigo 241, muitas vezes citado, só abrange a dissolução por morte ou por mudança de regime.';
+
+  @override
+  String get divorceRegimeSeparation =>
+      'Não há nada a partilhar: cada pessoa fica com o que lhe pertence. O que decide é, por isso, a prova da propriedade. Quem reivindica um bem deve mostrar que é seu — fatura, contrato, inscrição no registo predial. Na falta de prova, presume-se que o bem pertence a ambos em compropriedade (CC art. 248). Ter financiado um bem não o torna automaticamente teu: pode fundar um crédito ou uma quota de compropriedade, sem substituir o título. E um bem em compropriedade pode ser atribuído a um de vocês mediante indemnização se justificar um interesse preponderante (art. 251).';
+
+  @override
+  String get divorcePatrimoineNoShare =>
+      'Para aplicar esta regra ao teu caso precisas de dois inventários separados — o teu e o do teu cônjuge — com, para cada bem, a data de aquisição e a origem. É esse documento, e não um total do agregado, que determina quem deve o quê. O montante definitivo fixa-se depois por acordo ou pelo tribunal.';
+
+  @override
+  String get divorcePatrimoineIndicatifHint =>
+      'Estes dois montantes não servem para calcular nenhuma parte: são referências para preparar a tua conversa. O que decide é o inventário de cada um — data de aquisição, origem do bem, dívidas associadas.';
+
+  @override
+  String get divorceGateFactLpp1 => 'O teu património LPP atual';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'A partilha abrange a LPP acumulada durante o casamento.';
+
+  @override
+  String get divorceGateFactLpp2 => 'Património LPP atual do teu ex-cônjuge';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'A partilha compara os patrimónios LPP dos dois cônjuges.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'O teu património LPP no casamento';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Só se partilha a parte adquirida após o casamento (CC art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 =>
+      'Património LPP do teu ex-cônjuge no casamento';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Só se partilha a parte adquirida após o casamento (CC art. 122).';
+
+  @override
+  String get divorcePensionNoEstimate =>
+      'Não existe uma tabela: o montante não se deduz dos rendimentos e do número de filhos. Constrói-se a partir dos orçamentos reais dos dois agregados. Eis o mecanismo, para que possas raciocinar sobre a tua situação.';
+
+  @override
+  String get divorcePensionFacteursTitre => 'Como se constrói o montante';
+
+  @override
+  String get divorcePensionSpecialiste =>
+      'O montante exato fixa-se por acordo entre vocês ou, na falta de acordo, pelo tribunal. Uma pessoa especialista quantifica o caso concreto com base nestes elementos.';
+
+  @override
+  String get divorceGateFactCanton => 'O teu cantão de residência';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'A tabela do imposto sobre o rendimento depende do teu cantão de domicílio.';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Estimativa no cantão atual do agregado para ambos os cônjuges — o cantão futuro da outra pessoa é desconhecido.';
+
+  @override
+  String genderGapProjectionAssumptions(
+    String rendement,
+    String tauxMin,
+    String annees,
+  ) {
+    return 'Pressupostos de projeção: o rendimento de $rendement %/ano sobre os haveres LPP é um pressuposto MINT, não uma taxa legal — a taxa de juro mínima LPP é de $tauxMin %/ano. A lacuna acumulada é a lacuna anual multiplicada por $annees anos de reforma, sem atualização nem indexação: uma ordem de grandeza ilustrativa, não uma perda já sofrida.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Modelo utilizado: o regime LPP obrigatório mínimo — salário coordenado legal e taxa de conversão mínima de $tauxConversion %. Não é o regulamento da tua caixa de pensões. Com um plano sobreobrigatório, frequente acima do limite do salário segurado obrigatório, as rendas reais afastam-se desta ilustração em ambos os sentidos: aplicar $tauxConversion % à totalidade do capital também pode sobrestimar, porque as caixas envolventes aplicam muitas vezes uma taxa mais baixa sobre o conjunto do haver.';
+  }
+
+  @override
+  String get donationVerdictImposable => 'Tributável';
+
+  @override
+  String get donationVerdictInconnu => 'A verificar';
+
+  @override
+  String donationPlageJusqua(String pct) {
+    return 'até ~$pct % (tabela cantonal, sem sobretaxas municipais)';
+  }
+
+  @override
+  String firstJobLuciditeNetValue(String value) {
+    return 'Líquido estimado em $value por mês';
+  }
+
+  @override
+  String firstJobLuciditeNetRange(String low, String high) {
+    return 'Intervalo: $low a $high consoante a classe de risco AANP';
+  }
+
+  @override
+  String firstJobLuciditeVintage(String sources, String year) {
+    return '$sources · tabelas $year';
+  }
+
+  @override
+  String get firstJobLuciditeWhyTitle => 'Porquê este valor?';
+
+  @override
+  String get firstJobLuciditeAssumptionsLabel => 'Pressupostos de cálculo';
+
+  @override
+  String get firstJobLuciditeAssumptionAanp =>
+      'Contribuição AANP entre 1,0 % e 1,5 % consoante a classe de risco do empregador (por omissão 1,3 %)';
+
+  @override
+  String firstJobLuciditeAssumptionTaux(String taux) {
+    return 'Taxa de atividade presumida: $taux %, editável';
+  }
+
+  @override
+  String get firstJobLuciditeAssumptionImpotSource =>
+      'Imposto na fonte não aplicado (residente com tributação ordinária)';
+
+  @override
+  String get firstJobLuciditeAssumptionPeriode =>
+      'Líquido mensal, sem 13.º e sem bónus';
+
+  @override
+  String get firstJobLuciditeSourcesLabel => 'Fontes e anos';
+
+  @override
+  String firstJobLuciditeEngineLabel(String version) {
+    return 'Motor de cálculo: $version';
+  }
 }

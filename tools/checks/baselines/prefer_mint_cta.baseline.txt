@@ -32,7 +32,7 @@ lib/screens/debt_prevention/repayment_screen.dart:565: FilledButton(
 lib/screens/debt_risk_check_screen.dart:126: FilledButton(
 lib/screens/debt_risk_check_screen.dart:292: OutlinedButton(
 lib/screens/debt_risk_check_screen.dart:347: OutlinedButton(
-lib/screens/disability/disability_gap_screen.dart:462: OutlinedButton(
+lib/screens/disability/disability_gap_screen.dart:466: OutlinedButton(
 lib/screens/document_detail_screen.dart:275: FilledButton(
 lib/screens/document_detail_screen.dart:510: TextButton(
 lib/screens/document_detail_screen.dart:514: FilledButton(
@@ -128,7 +128,7 @@ lib/widgets/onboarding/onboarding_widgets.dart:413: FilledButton(
 lib/widgets/onboarding/premier_eclairage_card.dart:321: FilledButton(
 lib/widgets/precision/field_help_tooltip.dart:157: OutlinedButton(
 lib/widgets/precision/precision_prompt_card.dart:156: OutlinedButton(
-lib/widgets/premium/mint_amount_field.dart:109: FilledButton(
+lib/widgets/premium/mint_amount_field.dart:253: FilledButton(
 lib/widgets/premium/mint_dialog.dart:83: TextButton(
 lib/widgets/premium/mint_dialog.dart:91: ElevatedButton(
 lib/widgets/premium/mint_picker_tile.dart:60: TextButton(

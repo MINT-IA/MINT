@@ -67,8 +67,8 @@ Pour assurer le bon fonctionnement de l'application, nous pouvons collecter :
 
 Dans une phase ulterieure, MINT permettra l'upload de documents tels que des certificats de prevoyance LPP ou des releves bancaires. Voici comment ces documents seront traites :
 
-- Les documents seront traites **exclusivement en memoire** pour en extraire les donnees pertinentes
-- **Aucun document ne sera stocke sur un serveur** — le traitement se fait integralement sur ton appareil ou en memoire volatile
+- Le document est envoyé (masqué des PII lorsque possible) à l'API Claude Vision d'Anthropic (États-Unis, Zero Data Retention, base Swiss-US Data Privacy Framework) le temps de l'extraction
+- **Le document n'est pas conservé côté serveur** après l'appel (voir privacy_policy_v2.4.0 §3.3) ; une migration vers AWS Bedrock (Francfort) est prévue pour réduire le volet documents de ce transfert — tant qu'elle n'est pas achevée, Anthropic US reste utilisé, y compris comme repli
 - Les donnees extraites sont immediatement anonymisees et les documents sources sont **supprimes apres extraction**
 - Tu seras informe·e et devras donner ton consentement explicite avant chaque upload
 
@@ -98,7 +98,7 @@ Nous ne traitons **jamais** tes donnees a des fins de :
 
 ### 5.1 Stockage local (Phase 1 — actuel)
 
-En Phase 1, **toutes tes donnees personnelles restent sur ton appareil**. Concretement :
+En Phase 1, une partie de tes données reste sur ton appareil ; **les données de profil sont toutefois synchronisées avec notre backend** (détaillé plus bas dans cette même section). Concrètement :
 
 - Les preferences et parametres de profil sont stockes via **SharedPreferences** (stockage cle-valeur local)
 - Les donnees sensibles (resultats de simulation, donnees financieres detaillees) sont chiffrees via **FlutterSecureStorage**, qui utilise :
@@ -168,11 +168,11 @@ En Phase 1, nous utilisons les sous-traitants suivants :
 - Base légale : exécution du contrat
 - Garanties : Standard Contractual Clauses (SCC)
 
-**Anthropic / OpenAI** (États-Unis) — uniquement si tu actives BYOK
-- Données : contexte coaching anonymisé (âge, canton, archetype, score FRI — jamais ton salaire exact — voir CoachContext)
+**Anthropic** (États-Unis) — quand tu utilises le coach AI (clé serveur MINT par défaut, ou ta propre clé si tu actives BYOK)
+- Données : profil coaching pseudonymisé (âge, canton, archetype, score FRI et montants exacts du profil financier — revenus, LPP, 3a) et le contenu de tes messages, transmis tels quels. Le contexte préparé par MINT ne contient ni ton nom, ni ton IBAN, ni ton n° AVS — voir CoachContext
 - Durée : aucune rétention (mode API, pas d'entraînement — pas stocké par MINT)
-- Base légale : consentement explicite (byokDataSharing / activation explicite du coach AI)
-- Tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
+- Base légale : exécution du contrat (utilisation du coach) ; finalité `transfer_us_anthropic`, retrait possible dans Profil → Consentements et retrait
+- En mode BYOK, tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
 
 **Apple / Google** — uniquement si tu utilises la reconnaissance vocale
 - Données : signal vocal pour la saisie vocale (speech-to-text), traité sur l'appareil
@@ -298,7 +298,7 @@ Certains sous-traitants techniques (voir section 7.3) sont hébergés aux États
 
 - **Railway** (hébergement backend) : serveurs US. Les données transmises sont des calculs génériques (barèmes, taux légaux) sans données personnelles identifiables. Garanties : Standard Contractual Clauses (SCC) conformément à l'art. 16 al. 2 let. d nLPD.
 - **Sentry** (monitoring) : serveurs US. Uniquement des logs d'erreurs anonymisés. Garanties : SCC.
-- **Anthropic / OpenAI** (coach AI) : serveurs US. Contexte anonymisé uniquement. Garanties : SCC + mode API sans rétention.
+- **Anthropic** (coach AI) : serveurs US. Profil pseudonymisé (montants exacts inclus, jamais nom/IBAN/n° AVS) et messages transmis tels quels. Garanties : SCC + mode API sans rétention.
 - **Google Fonts** : serveurs US. Adresse IP uniquement au premier chargement. Garanties : SCC.
 
 **Hébergement suisse prévu en Phase 2** : la migration vers un hébergeur suisse (Infomaniak, Exoscale ou équivalent) est planifiée pour la Phase 2 afin de supprimer tout transfert transfrontalier de données.

@@ -273,21 +273,20 @@
   "divorce3aConjoint1": "3a Conjoint 1",
   "divorce3aConjoint2": "3a Conjoint 2",
   "divorcePatrimoine": "PATRIMOINE",
-  "divorcePatrimoineSubtitle": "Fortune et dettes communes",
+  "divorcePatrimoineSubtitle": "Repères indicatifs — aucune part n'est calculée",
   "divorceSimuler": "Simuler",
   "divorcePartageLpp": "PARTAGE LPP",
   "divorceTotalLpp": "Avoir LPP total (actuel)",
-  "divorcePartConjoint1": "Part Conjoint 1",
-  "divorcePartConjoint2": "Part Conjoint 2",
+  "divorcePartConjoint1": "Avoir de Conjoint 1 après partage",
+  "divorcePartConjoint2": "Avoir de Conjoint 2 après partage",
   "divorceTransfert": "Transfert",
   "divorceImpactFiscal": "IMPACT FISCAL",
   "divorceImpotMarie": "Impôt estimé (marié)",
   "divorceImpotConjoint1": "Impôt Conjoint 1 (individuel)",
   "divorceImpotConjoint2": "Impôt Conjoint 2 (individuel)",
   "divorceTotalApresDivorce": "Total après divorce",
-  "divorcePartagePatrimoine": "PARTAGE DU PATRIMOINE",
-  "divorceFortuneNette": "Fortune nette",
-  "divorcePensionAlimentaire": "PENSION ALIMENTAIRE (ESTIMATION)",
+  "divorcePartagePatrimoine": "LIQUIDATION DU RÉGIME MATRIMONIAL",
+  "divorcePensionAlimentaire": "CONTRIBUTION D'ENTRETIEN",
   "divorcePointsAttention": "POINTS D'ATTENTION",
   "divorceActions": "Actions à entreprendre",
   "divorceActionsSubtitle": "Checklist de préparation",
@@ -303,20 +302,6 @@
   "successionEdu3aBody": "Le 3e pilier est versé directement selon l'OPP3, pas selon ton testament.",
   "successionEduConcubinBody": "Les concubins n'ont aucun droit successoral légal. Sans testament, ils ne reçoivent rien.",
   "successionDisclaimer": "Information à caractère éducatif, ne constitue pas un conseil juridique (LSFin/CC). Consulte un·e spécialiste pour ta situation.",
-  "coachingAge25Title": "25 ans : démarrer son 3e pilier",
-  "coachingAge25Message": "À 25 ans, c'est le moment idéal pour ouvrir un 3e pilier. Grâce aux intérêts composés, chaque année compte.",
-  "coachingAge35Title": "35 ans : faire le point prévoyance",
-  "coachingAge35Message": "À 35 ans, vérifie que ta prévoyance est sur la bonne trajectoire. As-tu un 3a ? Ta LPP est-elle suffisante ?",
-  "coachingAge45Title": "45 ans : optimiser sa stratégie",
-  "coachingAge45Message": "À 45 ans, il reste 20 ans avant la retraite. C'est le moment de vérifier tes marges 3a, tes éventuels rachats LPP et ta trajectoire.",
-  "coachingAge50Title": "50 ans : préparer sa retraite",
-  "coachingAge50Message": "À 50 ans, la retraite se rapproche. Vérifie ton avoir LPP, planifie tes derniers rachats.",
-  "coachingAge55Title": "55 ans : dernière ligne droite",
-  "coachingAge55Message": "À 55 ans, la planification fiscale du retrait devient cruciale. Échelonner les retraits 3a peut modifier l'impact fiscal.",
-  "coachingAge58Title": "58 ans : retraite anticipée possible",
-  "coachingAge58Message": "Dès 58 ans, un retrait anticipé de ton 2e pilier est envisageable. Attention : la rente sera réduite.",
-  "coachingAge63Title": "63 ans : derniers ajustements",
-  "coachingAge63Message": "À 2 ans de la retraite légale, finalise ta stratégie. Dernier rachat LPP, choix rente/capital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Fonctionnalité en préparation — consultation réglementaire FINMA en cours",
   "openBankingAddBank": "Ajouter une banque",
@@ -1126,22 +1111,15 @@
   "mariageEnfants": "Enfants",
   "mariageFiscalComparison": "COMPARAISON FISCALE",
   "mariageMaries": "Mariés",
-  "mariagePenaltyAmount": "Pénalité +{amount}/an",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonus -{amount}/an",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Impôt du ménage : deux célibataires ou marié·e·s",
+  "mariageDeuxCelibataires": "2 célibataires",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Écart annuel : impôt du ménage plus élevé marié·e·s",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Écart annuel : impôt du ménage plus élevé à deux célibataires",
+  "mariageEcartAnnuelImpotIdentique": "Écart annuel : impôt du ménage identique dans les deux cas",
+  "mariageParAn": "par an",
+  "mariageRepartitionCaption": "Le sens de l’écart se joue sur la répartition de tes deux revenus : leur addition tire l’impôt du ménage vers le haut, le barème réduit des couples le tire vers le bas.",
+  "mariageRepartitionRevenusProches": "Revenus proches",
+  "mariageRepartitionRevenuDomine": "Un revenu domine",
   "mariageDeductions": "DÉDUCTIONS MARIAGE",
   "mariageDeductionCouple": "Déduction couple marié",
   "mariageDeductionInsurance": "Déduction assurance (mariée)",
@@ -1170,20 +1148,22 @@
   "mariageAvsSurvivorFootnote": "LAVS art. 35 — uniquement pour les mariés",
   "mariageLppSurvivor": "Rente LPP de survivant",
   "mariageLppSurvivorSub": "60 % de la rente assurée du défunt",
-  "mariageLppSurvivorFootnote": "LPP art. 19 — mariés (concubins : clause nécessaire)",
-  "mariageSurvivorMonthly": "Revenu mensuel du survivant marié",
+  "mariageLppSurvivorFootnote": "Sous conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage",
+  "mariageSurvivorMonthly": "Rente LPP de survivant, par mois",
+  "mariageSurvivorAvsNote": "En tant que conjoint·e survivant·e, tu peux toucher en plus une rente AVS de survivant, sous conditions (LAVS art. 23). Son montant dépend de la carrière de cotisation du défunt et n'est pas chiffré ici.",
   "mariageVsConcubin": "MARIÉ VS CONCUBIN",
   "mariageRenteAvsSurvivor": "Rente AVS survivant",
   "mariageRenteLppSurvivor": "Rente LPP survivant",
   "mariageHeritageExonere": "Héritage exonéré",
   "mariagePensionAlimentaire": "Pension alimentaire",
   "mariageConcubinWarning": "En concubinage, le partenaire survivant n'a droit à rien par défaut — ni rente AVS, ni héritage exonéré. Il faut tout prévoir par contrat.",
+  "mariageProtectionConditionsNote": "Les protections du mariage (rentes de survivant AVS et LPP) sont un accès légal soumis à conditions d'éligibilité (LPP art. 19, LAVS art. 23), pas une réception automatique.",
   "mariageProtectionsEssentielles": "PROTECTIONS ESSENTIELLES",
   "mariageChecklistIntro": "Le mariage a des conséquences financières et juridiques. Voici les démarches essentielles à anticiper pour bien te préparer.",
   "mariageDisclaimer": "Estimations simplifiées à but éducatif — ne constitue pas un conseil fiscal ou juridique. Les montants dépendent de nombreux facteurs (déductions, commune, fortune, etc.). Consulte un·e spécialiste fiscal·e pour un calcul personnalisé.",
   "divorceAppBarTitle": "Divorce — Impact financier",
   "divorceHeaderSubtitle": "Anticipez les conséquences financières",
-  "divorceIntroText": "Un divorce a des conséquences financières souvent sous-estimées : partage du patrimoine, de la prévoyance (LPP/3a), impact fiscal et pension alimentaire. Cet outil vous aide à y voir plus clair.",
+  "divorceIntroText": "Un divorce a des conséquences financières souvent sous-estimées : liquidation du régime matrimonial, partage de la prévoyance (LPP/3a), impact fiscal et contribution d'entretien. Cet outil t'aide à y voir plus clair.",
   "divorceYears": "{count} ans",
   "@divorceYears": {
     "placeholders": {
@@ -1196,13 +1176,12 @@
   "divorceParticipationDefault": "Participation aux acquêts (défaut)",
   "divorceCommunaute": "Communauté de biens",
   "divorceSeparation": "Séparation de biens",
-  "divorceFortune": "Fortune commune",
-  "divorceDettes": "Dettes communes",
-  "divorcePensionDescription": "Estimation basée sur l'écart de revenus et le nombre d'enfants. Le montant réel dépend de nombreux facteurs (garde, besoins, train de vie).",
+  "divorceFortune": "Patrimoine du ménage (indicatif)",
+  "divorceDettes": "Dettes du ménage (indicatif)",
   "divorceActionsTitle": "Actions à entreprendre",
   "divorceComprendre": "COMPRENDRE",
   "divorceEduParticipationTitle": "Qu'est-ce que la participation aux acquêts ?",
-  "divorceEduParticipationContent": "La participation aux acquêts est le régime matrimonial par défaut en Suisse (CC art. 181 ss). Chaque conjoint conserve ses biens propres (ceux acquis avant le mariage ou par succession/donation). Les acquêts (biens acquis pendant le mariage) sont partagés à parts égales en cas de divorce. C'est le régime le plus courant en Suisse.",
+  "divorceEduParticipationContent": "La participation aux acquêts est le régime matrimonial par défaut en Suisse (CC art. 181 ss). Chacun conserve ses biens propres (acquis avant le mariage ou reçus par succession ou donation). En cas de divorce, chacun a droit à la moitié du bénéfice de l'autre (CC art. 215) et les deux créances se compensent. Le calcul se fait sur le compte d'acquêts de chaque époux, après réunions aux acquêts, récompenses entre masses et attribution des dettes — pas sur un patrimoine commun unique.",
   "divorceEduLppTitle": "Comment fonctionne le partage LPP ?",
   "divorceEduLppContent": "Depuis le 1er janvier 2017 (CC art. 122), les avoirs de prévoyance professionnelle (2e pilier) accumulés pendant le mariage sont partagés à parts égales en cas de divorce. Le partage se fait directement entre les deux caisses de pension, sans passage par le compte personnel des conjoints. C'est un droit impérieux auquel les conjoints ne peuvent renoncer que dans des conditions strictes.",
   "donationAppBarTitle": "Donation — Simulateur",
@@ -1287,7 +1266,8 @@
   "firstJobHeaderDesc": "Comprends ta fiche de salaire ! On te montre où vont tes cotisations, ce que ton employeur paie en plus, et les premiers réflexes financiers à adopter.",
   "firstJobSalaryTitle": "Salaire brut mensuel",
   "firstJobActivityRate": "Taux d'activité",
-  "firstJob3aHeader": "PILIER 3A — À OUVRIR MAINTENANT",
+  "firstJobAskCoach": "Demander au coach",
+  "firstJob3aHeader": "PILIER 3A — À ENVISAGER",
   "firstJob3aAnnualCap": "Plafond annuel",
   "firstJob3aMonthlySuggestion": "Suggestion /mois",
   "firstJob3aWarningTitle": "ATTENTION — ASSURANCE-VIE 3A",
@@ -1373,7 +1353,7 @@
   "mariageChecklistItem2Title": "Choisir le régime matrimonial",
   "mariageChecklistItem2Desc": "Par défaut, c'est la participation aux acquêts (CC art. 181). Si tu veux un autre régime (séparation de biens, communauté de biens), il est nécessaire de signer un contrat de mariage chez le notaire AVANT ou pendant le mariage.",
   "mariageChecklistItem3Title": "Mettre à jour les clauses bénéficiaires LPP et 3a",
-  "mariageChecklistItem3Desc": "Le mariage change l'ordre des bénéficiaires. Ton conjoint devient automatiquement bénéficiaire de la rente de survivant LPP (LPP art. 19). Vérifie aussi les bénéficiaires de ton 3e pilier.",
+  "mariageChecklistItem3Desc": "Le mariage change l'ordre des bénéficiaires. Ton conjoint peut alors bénéficier de la rente de survivant LPP, sous conditions (LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage). Vérifie aussi les bénéficiaires de ton 3e pilier.",
   "mariageChecklistItem4Title": "Informer ton employeur et ta caisse maladie",
   "mariageChecklistItem4Desc": "Ton employeur doit mettre à jour tes données (état civil, déductions). Ta caisse maladie doit être informée — les primes ne changent pas, mais les subsides éventuels sont recalculés sur le revenu du ménage.",
   "mariageChecklistItem5Title": "Préparer la première déclaration commune",
@@ -1420,17 +1400,6 @@
   "donationCalculer": "Calculer",
   "donationImpotTitle": "IMPÔT SUR LA DONATION",
   "donationExoneree": "Exonérée",
-  "donationTauxCanton": "Taux : {taux} % (canton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Montant de la donation",
   "donationLienRow": "Lien de parenté",
   "donationReserveTitle": "RÉSERVE HÉRÉDITAIRE (2023)",
@@ -1456,6 +1425,99 @@
   "donationEduConcubinTitle": "Donations et concubins",
   "donationEduConcubinBody": "Les concubins n'ont aucun droit successoral légal en Suisse. Une donation est le moyen le plus direct de les avantager. Cependant, l'impôt cantonal sur les donations entre concubins est généralement élevé (18-25 % selon les cantons). Schwyz fait exception : aucun impôt sur les donations quel que soit le lien. Envisager un testament en complément pour une protection complète.",
   "donationCanton": "Canton",
+  "situationGateProgress": "{confirmed}/{total} complété{confirmed, plural, =0{} =1{} other{s}}",
+  "@situationGateProgress": {
+    "placeholders": {
+      "confirmed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "situationGateCompleterAction": "Compléter",
+  "situationGateAnnounceComplete": "Situation complète, tu peux lancer le calcul.",
+  "donationGateTitle": "Complète ta situation pour un calcul fondé sur tes données",
+  "expatForfaitGateTitle": "Complète ta situation pour un forfait fondé sur tes données",
+  "expatTopCantonsGateTitle": "Complète ton profil pour un classement cantonal personnalisé",
+  "expatDepartGateTitle": "Complète ta situation pour chiffrer ton capital de prévoyance",
+  "expatAvsGateTitle": "Complète ta situation pour estimer ta lacune AVS",
+  "expatAvsProjectionGateTitle": "Complète ta situation pour projeter ta rente AVS",
+  "expatGateFactForfaitCanton": "Canton du forfait",
+  "expatGateWhyForfaitCanton": "Le minimum imposable dépend du canton choisi.",
+  "expatGateFactLivingExpenses": "Dépenses de vie mondiales",
+  "expatGateWhyLivingExpenses": "Le forfait se calcule sur tes dépenses de vie annuelles.",
+  "expatGateFactActualIncome": "Revenu mondial réel",
+  "expatGateWhyActualIncome": "La comparaison utilise ton revenu mondial, pas ton salaire suisse.",
+  "expatGateFactIncome": "Revenu imposable",
+  "expatGateWhyIncome": "L'écart fiscal entre cantons se calcule sur ton revenu réel.",
+  "expatGateFactCanton": "Canton de résidence",
+  "expatGateWhyCanton": "Le classement compare les cantons à ta charge fiscale actuelle.",
+  "expatGateFactPillar3a": "Solde du 3e pilier",
+  "expatGateWhyPillar3a": "Ton capital de prévoyance en jeu inclut ton 3a.",
+  "expatGateFactLpp": "Avoir LPP",
+  "expatGateWhyLpp": "Ton capital de prévoyance en jeu inclut ton avoir LPP.",
+  "expatGateFactYearsInCh": "Années de cotisation en Suisse",
+  "expatGateWhyYearsInCh": "La rente AVS dépend de tes années de cotisation.",
+  "expatGateFactYearsAbroad": "Années passées à l'étranger",
+  "expatGateWhyYearsAbroad": "Les années hors de Suisse creusent la lacune de cotisation.",
+  "expatGateFactAge": "Âge",
+  "expatGateWhyAge": "La projection de rente dépend des années qu'il te reste à cotiser.",
+  "donationCompleterSituation": "Compléter ma situation ({confirmed}/{total})",
+  "@donationCompleterSituation": {
+    "placeholders": {
+      "confirmed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "donationGateFactCanton": "Canton de la donation",
+  "donationGateWhyCanton": "L'impôt sur les donations est cantonal.",
+  "donationGateFactEnfants": "Nombre d'enfants",
+  "donationGateWhyEnfants": "Ta réserve héréditaire dépend du nombre d'enfants.",
+  "donationGateFactFortune": "Fortune nette",
+  "donationGateWhyFortune": "Le montant de la réserve se calcule sur ta fortune nette.",
+  "donationGateFactRegime": "Régime matrimonial",
+  "donationGateWhyRegime": "Ton régime matrimonial modifie la masse successorale.",
+  "firstJobGateFactSalaire": "Salaire brut mensuel",
+  "firstJobGateWhySalaire": "C'est le montant de départ de ton analyse de salaire.",
+  "firstJobGateFactAge": "Âge",
+  "firstJobGateWhyAge": "La LPP (2e pilier) devient obligatoire dès 25 ans.",
+  "firstJobGateFactCanton": "Canton",
+  "firstJobGateWhyCanton": "Les impôts et déductions varient selon ton canton.",
+  "firstJobGateAnnounceComplete": "Situation complète, ton analyse de salaire est prête.",
+  "naissanceGateFactSalaire": "Salaire mensuel brut",
+  "naissanceGateWhySalaire": "Ton congé APG se calcule sur ton salaire.",
+  "naissanceGateFactParent": "Parent concerné",
+  "naissanceGateWhyParent": "La durée du congé diffère entre maternité et paternité.",
+  "naissanceGateFactCanton": "Canton",
+  "naissanceGateWhyCanton": "Les allocations familiales varient selon ton canton.",
+  "naissanceGateFactEnfants": "Nombre d'enfants",
+  "naissanceGateWhyEnfants": "Le total des allocations dépend du nombre d'enfants.",
+  "naissanceGateFactRevenu": "Revenu annuel brut",
+  "naissanceGateWhyRevenu": "L'impact fiscal se calcule sur ton revenu imposable.",
+  "naissanceGateFactFraisGarde": "Frais de garde",
+  "naissanceGateWhyFraisGarde": "Tes frais de garde réels déterminent la déduction.",
+  "naissanceGateWhyEnfantsImpact": "Le nombre d'enfants modifie les déductions et les coûts.",
+  "naissanceCostGenericExampleLabel": "Exemple — coûts moyens en Suisse, pas ta situation",
+  "mariageGateFactRevenu1": "Ton revenu annuel brut",
+  "mariageGateWhyRevenu1": "L'écart d'impôt du couple se calcule sur ton revenu.",
+  "mariageGateFactRevenu2": "Revenu du conjoint",
+  "mariageGateWhyRevenu2": "L'imposition commune dépend du revenu de ton conjoint.",
+  "mariageGateFactCanton": "Canton de résidence",
+  "mariageGateWhyCanton": "Le barème d'impôt varie selon ton canton.",
+  "mariageGateFactEnfants": "Nombre d'enfants",
+  "mariageGateWhyEnfants": "Les déductions pour enfants modifient l'impôt du couple.",
+  "mariageGateFactPatrimoine1": "Ton patrimoine",
+  "mariageGateWhyPatrimoine1": "Le partage du régime se calcule sur vos patrimoines.",
+  "mariageGateFactPatrimoine2": "Patrimoine du conjoint",
+  "mariageGateWhyPatrimoine2": "Le partage compare vos deux patrimoines.",
+  "mariageGateFactRenteLpp": "Rente LPP mensuelle",
+  "mariageGateWhyRenteLpp": "La rente de survivant se calcule sur la rente LPP du défunt.",
   "housingSaleIntroText": "Vendre un bien immobilier en Suisse implique un impôt sur les gains immobiliers (LHID art. 12), le remboursement éventuel des fonds de prévoyance utilisés (EPL) et des frais de transaction. Cet outil t'aide à estimer le produit net de ta vente.",
   "housingSaleBienTitle": "BIEN IMMOBILIER",
   "housingSaleBienSubtitle": "Prix d'achat, vente, investissements",
@@ -1465,6 +1527,7 @@
   "housingSaleInvestissements": "Investissements valorisants",
   "housingSaleFraisAcquisition": "Frais d'acquisition (notaire, etc.)",
   "housingSaleResidencePrincipale": "Résidence principale",
+  "housingSaleAnneesOccupation": "Années d'occupation comme résidence principale",
   "housingSaleFinancementTitle": "FINANCEMENT",
   "housingSaleFinancementSubtitle": "Hypothèque restante",
   "housingSaleHypotheque": "Hypothèque restante",
@@ -1572,7 +1635,7 @@
       }
     }
   },
-  "independantAvsBody": "Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 58’800, puis ~10.6 % au-dessus).",
+  "independantAvsBody": "Ta cotisation AVS estimée : {amount}/an (taux dégressif pour les revenus inférieurs à CHF 60’500, puis 10.0 % au-dessus).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -1843,6 +1906,7 @@
   },
   "expatDepartureDate": "Date de départ",
   "expatCurrentCanton": "Canton actuel",
+  "expatNonRenseigne": "Non renseigné",
   "expatPillar3aBalance": "Solde pilier 3a",
   "expatLppBalance": "Solde LPP (avoir de vieillesse)",
   "expatNoExitTax": "Pas de taxe de sortie en Suisse",
@@ -1870,6 +1934,7 @@
   "mariageTimelinePartner1": "Personne 1",
   "mariageTimelinePartner2": "Personne 2",
   "mariageTimelineCoachTip": "Chaque phase de vie demande d'adapter ton contrat de mariage et ta prévoyance.",
+  "mariageTimelineIllustrativeCaption": "Parcours illustratif : les actes 2 et 3 montrent des exemples de trajectoires de vie (évolution de carrière, temps partiel). Les variations en pourcentage ne sont pas une projection de tes revenus.",
   "mariageTimelineAct1Title": "Vous travaillez tous les deux",
   "mariageTimelineAct1Period": "0-10 ans de vie commune",
   "mariageTimelineAct1Insight": "Phase de construction : 3a, LPP, épargne commune. Profite des deux revenus.",
@@ -1882,20 +1947,20 @@
   "naissanceChecklistItem1Title": "Inscrire bébé à l'assurance maladie (3 mois)",
   "naissanceChecklistItem1Desc": "Tu as 3 mois après la naissance pour inscrire ton enfant auprès d'une caisse maladie. Si tu le fais dans ce délai, la couverture est rétroactive dès la naissance. Passé ce délai, l'enfant risque une interruption de couverture. Compare les primes enfants entre caisses — les écarts peuvent être significatifs.",
   "naissanceChecklistItem2Title": "Demander les allocations familiales",
-  "naissanceChecklistItem2Desc": "Fais la demande auprès de ton employeur (ou de ta caisse d'allocations si tu es indépendant·e). Les allocations sont versées dès le mois de naissance. Le montant dépend du canton (CHF 200 à CHF 305/mois par enfant).",
+  "naissanceChecklistItem2Desc": "Fais la demande auprès de ton employeur (ou de ta caisse d'allocations si tu es indépendant·e). Les allocations sont versées dès le mois de naissance. Le montant dépend du canton (CHF 215 à CHF 330/mois par enfant).",
   "naissanceChecklistItem3Title": "Annoncer la naissance à l'état civil",
   "naissanceChecklistItem3Desc": "L'hôpital transmet généralement l'annonce à l'office de l'état civil. Vérifie que l'acte de naissance est bien établi. Tu en auras besoin pour toutes les démarches administratives.",
   "naissanceChecklistItem4Title": "Organiser le congé parental (APG)",
   "naissanceChecklistItem4Desc": "Congé maternité : 14 semaines à 80 % du salaire (max CHF 220/jour). Congé paternité : 2 semaines (10 jours), à prendre dans les 6 mois. L'inscription APG se fait via ton employeur ou directement auprès de la caisse de compensation.",
   "naissanceChecklistItem5Title": "Mettre à jour la déclaration fiscale",
-  "naissanceChecklistItem5Desc": "Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6'700/an (LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu'à CHF 25'500/an. Pense à adapter tes acomptes d'impôts pour l'année en cours.",
+  "naissanceChecklistItem5Desc": "Un enfant supplémentaire te donne droit à une déduction fiscale de CHF 6'800/an (LIFD art. 35). Si tu as des frais de garde, tu peux déduire jusqu'à CHF 25'800/an. Pense à adapter tes acomptes d'impôts pour l'année en cours.",
   "naissanceChecklistItem6Title": "Adapter le budget familial",
   "naissanceChecklistItem6Desc": "Un enfant coûte en moyenne CHF 1'200 à CHF 1'500/mois en Suisse (alimentation, vêtements, activités, assurance, couches, etc.). Réévalue ton budget avec le module Budget de MINT.",
   "naissanceChecklistItem7Title": "Vérifier la prévoyance (LPP et 3a)",
   "naissanceChecklistItem7Desc": "Si tu réduis ton taux d'activité, tes cotisations LPP baissent. Chaque année à temps partiel représente moins de capital à la retraite. Envisage de compenser en versant le maximum au 3e pilier (CHF 7'258/an).",
   "naissanceChecklistItem8Title": "Rédiger ou mettre à jour le testament",
   "naissanceChecklistItem8Desc": "L'arrivée d'un enfant modifie l'ordre successoral. Les enfants sont des héritiers réservataires (CC art. 471). Si tu as un testament, vérifie qu'il respecte les réserves légales.",
-  "naissanceChecklistItem9Title": "Souscrire une assurance risque décès/invalidité",
+  "naissanceChecklistItem9Title": "Vérifier ta couverture risque décès/invalidité",
   "naissanceChecklistItem9Desc": "Avec un enfant à charge, la protection financière en cas de décès ou d'invalidité devient encore plus importante. Vérifie ta couverture actuelle (LPP, assurance-vie) et complète si nécessaire.",
   "naissanceBabyCostCreche": "Crèche / garde",
   "naissanceBabyCostCrecheNote": "Tarif moyen subventionné — varie fortement selon canton",
@@ -2629,7 +2694,7 @@
   "simLppBuybackBonASavoir": "Bon à savoir",
   "simLppBuybackBonASavoirItem1": "Le rachat LPP est l'un des rares outils de planification fiscale accessibles à tous les salarié·e·s en Suisse.",
   "simLppBuybackBonASavoirItem2": "Chaque franc racheté est déductible de ton revenu imposable (LIFD art. 33 al. 1 let. d).",
-  "simLppBuybackBonASavoirItem3": "Attention : tout retrait EPL est bloqué pendant 3 ans après un rachat (LPP art. 79b al. 3).",
+  "simLppBuybackBonASavoirItem3": "Attention : pendant les 3 ans qui suivent un rachat, aucun retrait en capital (retraite ou EPL) n’est possible sur ce montant — un retrait dans ce délai entraîne la reprise de la déduction (LPP art. 79b al. 3).",
   "simLppBuybackDisclaimer": "Simulation incluant l'intérêt de la caisse ({fundRate} %) et l'impact fiscal indicatif lissé sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.",
   "@simLppBuybackDisclaimer": {
     "placeholders": {
@@ -3131,7 +3196,7 @@
   "renteVsCapitalRachatTooltip": "Si tu fais des rachats LPP chaque année, leur valeur futur est ajoutée au capital à la retraite. Blocage 3 ans avant EPL (LPP art. 79b).",
   "renteVsCapitalEplLabel": "Retrait EPL pour achat immobilier",
   "renteVsCapitalEplHint": "Montant retiré (min 20'000)",
-  "renteVsCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Bloque le rachat LPP pendant 3 ans.",
+  "renteVsCapitalEplTooltip": "Le retrait EPL réduit ton avoir LPP et donc ton capital ou ta rente à la retraite. Minimum CHF 20'000 (OPP2 art. 5). Attention : après un rachat LPP volontaire, un retrait en capital dans les 3 ans fait perdre la déduction fiscale du rachat (art. 79b al. 3).",
   "renteVsCapitalEplLegalRef": "LPP art. 30c — OPP2 art. 5 (min CHF 20'000)",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",
@@ -3217,36 +3282,17 @@
   "concubinageRevenu2": "Revenu 2",
   "concubinagePatrimoineTotal": "Patrimoine total",
   "concubinageCanton": "Canton",
-  "concubinageAvantages": "avantages",
-  "concubinageMariage": "Mariage",
-  "concubinageConcubinage": "Concubinage",
   "concubinageDetailFiscal": "DÉTAIL FISCAL",
   "concubinageImpots2Celibataires": "Impôts 2 célibataires",
   "concubinageImpotsMaries": "Impôts mariés",
-  "concubinagePenaliteMariage": "Pénalité mariage",
-  "concubinageBonusMariage": "Bonus mariage",
+  "concubinageEcartImpotMariePlusEleve": "Impôt du ménage plus élevé marié",
+  "concubinageEcartImpotConcubinagePlusEleve": "Impôt du ménage plus élevé en concubinage",
+  "impositionCommuneMecanique": "Marié·e·s, les deux revenus sont additionnés et imposés ensemble, avec un barème réduit réservé aux couples. Le sens de l’écart dépend de la répartition des revenus : quand ils sont proches, l’addition fait monter le revenu imposable plus vite que le barème réduit ne l’abaisse — c’est l’effet dit « Heiratsstrafe ». Quand un revenu domine largement, ce même barème abaisse l’impôt du ménage sous celui de deux célibataires.",
+  "fiscalEstimationModelLimit": "Estimation simplifiée : elle ne tient compte ni de tes déductions réelles, ni de ta commune, ni du barème cantonal détaillé. L’écart réel peut donc différer, y compris dans son sens.",
   "concubinageImpotSuccession": "IMPÔT SUR LA SUCCESSION",
-  "concubinagePatrimoineTransmis": "Patrimoine transmis",
-  "concubinageMarieExonere": "CHF 0 (exonéré)",
-  "concubinageConcubinTaux": "Concubin-e (~{taux} %)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
-  "concubinageWarningSuccession": "En concubinage, ton partenaire paierait {impot} d'impôt successoral sur un patrimoine de {patrimoine}. Marié-e, il/elle serait totalement exonéré-e.",
-  "@concubinageWarningSuccession": {
-    "placeholders": {
-      "impot": {
-        "type": "String"
-      },
-      "patrimoine": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageMarieExonere": "0 % (exonéré·e)",
+  "concubinageConcubinLabel": "Concubin·e",
+  "concubinageConcubinTaux": "Imposé·e au taux des « tiers »",
   "concubinageNeutralTitle": "Aucune option n'est universellement adaptée",
   "concubinageNeutralDesc": "Le choix entre mariage et concubinage dépend de ta situation : revenus, patrimoine, enfants, canton, projet de vie. Le mariage offre plus de protections légales automatiques, le concubinage plus de flexibilité. Un·e spécialiste peut t'aider à y voir plus clair.",
   "concubinageChecklistIntro": "En concubinage, rien n'est automatique. Voici les protections essentielles à mettre en place pour protéger ton/ta partenaire.",
@@ -3262,7 +3308,7 @@
     }
   },
   "concubinageChecklist1Title": "Rédiger un testament",
-  "concubinageChecklist1Desc": "Sans testament, ton partenaire n'hérite de rien — tout va à tes parents ou à tes frères et sœurs. Un testament olographe (écrit à la main, daté, signé) suffit. Tu peux léguer la quotité disponible à ton/ta partenaire.",
+  "concubinageChecklist1Desc": "Sans testament, ton partenaire n'hérite de rien — ta succession suit l'ordre légal (d'abord tes descendants, sinon tes parents, puis tes frères et sœurs). Un testament olographe (écrit à la main, daté, signé) suffit ; tu peux léguer la quotité disponible à ton/ta partenaire.",
   "concubinageChecklist2Title": "Clause bénéficiaire LPP",
   "concubinageChecklist2Desc": "Contacte ta caisse de pension pour inscrire ton/ta partenaire comme bénéficiaire. Sans cette clause, le capital décès LPP ne lui revient pas. La plupart des caisses acceptent le concubin sous conditions (ménage commun, etc.).",
   "concubinageChecklist3Title": "Convention de concubinage",
@@ -3279,12 +3325,10 @@
   "concubinageChecklist8Desc": "Si tu es sur le bail avec ton/ta partenaire, vous êtes solidairement responsables. En cas de séparation, les deux doivent donner congé. Si un seul est titulaire, l'autre n'a aucun droit sur le logement.",
   "concubinageDisclaimer": "Informations simplifiées à but éducatif — ne constitue pas un conseil juridique ou fiscal. Les règles dépendent du canton, de la commune et de ta situation personnelle. Consulte un·e spécialiste juridique pour un avis personnalisé.",
   "concubinageCriteriaImpots": "Impôts",
-  "concubinageCriteriaPenaliteFiscale": "Pénalité fiscale",
-  "concubinageCriteriaBonusFiscal": "Bonus fiscal",
-  "concubinageCriteriaAvantageux": "Avantageux",
-  "concubinageCriteriaDesavantageux": "Désavantageux",
+  "concubinageCriteriaImpotPlusEleve": "Impôt du ménage plus élevé",
+  "concubinageCriteriaImpotMoinsEleve": "Impôt du ménage moins élevé",
   "concubinageCriteriaHeritage": "Héritage",
-  "concubinageCriteriaHeritageMarriage": "Exonéré (CC art. 462)",
+  "concubinageCriteriaHeritageMarriage": "Exonéré (loi fiscale cantonale)",
   "concubinageCriteriaHeritageConcubinage": "Impôt cantonal",
   "concubinageCriteriaProtection": "Protection décès",
   "concubinageCriteriaProtectionMarriage": "AVS + LPP survivant",
@@ -3443,6 +3487,14 @@
   "decesProchebeneficiairesLpp": "Capital LPP du défunt",
   "decesProchebeneficiaires3a": "Capital 3a du défunt",
   "decesProchebeneficiairesNote": "L'ordre des bénéficiaires LPP est fixé par le règlement de la caisse (OPP2 art. 48). Le 3a suit l'OPP3 art. 2.",
+  "decesGateFactLpp": "Capital LPP du défunt",
+  "decesGateWhyLpp": "Le capital LPP transmis aux bénéficiaires dépend de l'avoir de prévoyance du défunt.",
+  "decesGateFact3a": "Capital 3a du défunt",
+  "decesGateWhy3a": "Le capital 3a versé aux bénéficiaires dépend de l'épargne 3a du défunt.",
+  "decesGateFactLien": "Ton lien avec le défunt",
+  "decesGateWhyLien": "L'exonération de l'impôt de succession dépend de ton lien de parenté.",
+  "decesGateFactCanton": "Canton de la succession",
+  "decesGateWhyCanton": "L'impôt de succession est cantonal ; il dépend du domicile du défunt.",
   "decesProchImpactFiscalTitre": "Impact fiscal",
   "decesProchImpactFiscalExempt": "En {canton}, le conjoint survivant est exonéré de l'impôt de succession.",
   "@decesProchImpactFiscalExempt": {
@@ -3817,7 +3869,7 @@
   "firstSalaryWeek1": "Semaine 1",
   "firstSalaryWeek2": "Semaine 2",
   "firstSalaryBefore31Dec": "Avant 31.12",
-  "firstSalaryTask1": "Ouvrir un compte 3a (banque ou fintech)",
+  "firstSalaryTask1": "Comparer les comptes 3a (banque ou fintech)",
   "firstSalaryTask2": "Mettre en place un virement automatique mensuel",
   "firstSalaryTask3": "Comparer les franchises LAMal avec tes dépenses de santé estimées",
   "firstSalaryTask4": "Vérifier ta RC privée (env. CHF 100/an)",
@@ -4097,91 +4149,149 @@
   "coachCitationChipsHeader": "Calculs serveur",
   "@coachCitationChipsHeader": {
     "description": "Header text for the Wave 1b citation-chip section under coach messages. Rendered above the list of tool-call chips.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationChipLabel": "{toolDisplayName} — calculé",
   "@coachCitationChipLabel": {
     "description": "Label rendered on each citation chip. toolDisplayName interpolates a localized name (e.g. 'Budget actuel').",
     "placeholders": {
-      "toolDisplayName": { "type": "String" }
+      "toolDisplayName": {
+        "type": "String"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationModalTitle": "Source du calcul : {toolDisplayName}",
   "@coachCitationModalTitle": {
     "description": "Title of the citation-chip modal (bottom sheet). Identifies which tool computed the values.",
     "placeholders": {
-      "toolDisplayName": { "type": "String" }
+      "toolDisplayName": {
+        "type": "String"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationJsonViewerLabel": "Voir le détail du calcul (JSON)",
   "@coachCitationJsonViewerLabel": {
     "description": "Label on the ExpansionTile that wraps the pretty-printed JSON viewer in the citation modal.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRememberCta": "Souviens-toi de cette source",
   "@coachCitationRememberCta": {
     "description": "Call-to-action button at the bottom of the citation modal. Wires (in a future wave) to save_insight tool persistence.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolBudgetSnapshot": "Budget actuel",
   "@coachToolBudgetSnapshot": {
     "description": "Display name for the get_budget_status server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolRetirementProjection": "Projection de retraite",
   "@coachToolRetirementProjection": {
     "description": "Display name for the get_retirement_projection server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolCrossPillarAnalysis": "Analyse inter-piliers",
   "@coachToolCrossPillarAnalysis": {
     "description": "Display name for the get_cross_pillar_analysis server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolCoupleOptimization": "Optimisation couple",
   "@coachToolCoupleOptimization": {
     "description": "Display name for the get_couple_optimization server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolCapStatus": "Cap du jour",
   "@coachToolCapStatus": {
     "description": "Display name for the get_cap_status server-side tool (daily cap validation).",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachToolRetrieveMemories": "Souvenirs",
   "@coachToolRetrieveMemories": {
     "description": "Display name for the retrieve_memories BM25 server-side tool.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeJustNow": "à l'instant",
   "@coachCitationRelativeJustNow": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 minute. Replaces Dart literal in coach_citation_modal.dart.",
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeMinutes": "{count, plural, =1{il y a {count} min} other{il y a {count} min}}",
   "@coachCitationRelativeMinutes": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 hour. FR doesn't pluralize 'min'; ICU branches are identical.",
     "placeholders": {
-      "count": { "type": "int", "format": "compact" }
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeHours": "{count, plural, =1{il y a {count} h} other{il y a {count} h}}",
   "@coachCitationRelativeHours": {
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta < 1 day.",
     "placeholders": {
-      "count": { "type": "int", "format": "compact" }
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
     },
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    }
   },
   "coachCitationRelativeDays": "{count, plural, =1{il y a {count} j} other{il y a {count} j}}",
   "@coachCitationRelativeDays": {
-    "x-mint-meta": { "level": "N3", "phase": "wave-1b" },
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "wave-1b"
+    },
     "description": "Q8_DECISION — relative-time string for citation modal's computed_at row when delta ≥ 1 day.",
     "placeholders": {
-      "count": { "type": "int", "format": "compact" }
+      "count": {
+        "type": "int",
+        "format": "compact"
+      }
     }
   },
   "profileDefaultName": "Utilisateur",
@@ -4543,7 +4653,7 @@
   "rachatEchelonnePlusAdapte": "Le plus adapté",
   "rachatEchelonneEconomieFiscale": "Impact fiscal",
   "rachatEchelonneImpactTranche": "Impact par tranche fiscale",
-  "rachatEchelonneImpactBlocExplain": "En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, chaque déduction reste dans la tranche la plus haute.",
+  "rachatEchelonneImpactBlocExplain": "En bloc, la déduction traverse plusieurs tranches (taux moyen plus bas). En échelonnant, une part plus grande de chaque déduction peut rester dans des tranches élevées, à revenu comparable.",
   "rachatEchelonneBloc": "Bloc",
   "rachatEchelonneEchelonne": "Échelonné",
   "rachatEchelonnePlanAnnuel": "Plan annuel",
@@ -4551,9 +4661,35 @@
   "rachatEchelonneRachat": "Rachat",
   "rachatEchelonneBlockageTitle": "LPP art. 79b al. 3 — Blocage EPL",
   "rachatEchelonneBlockageBody": "Après chaque rachat, tout retrait EPL (encouragement à la propriété du logement) est bloqué pendant 3 ans. Planifie en conséquence si un achat immobilier est prévu.",
+  "rachatEchelonneFenetre79bBadge": "Avantage fiscal annulé si capital",
+  "rachatEchelonneSiCapitalLabel": "Impact fiscal si retrait en capital à 65 ans : CHF {montant}",
+  "@rachatEchelonneSiCapitalLabel": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneFenetre79bNote": "Tranches versées à moins de 3 ans d'un retrait en capital : la déduction serait annulée et reprise par l'administration fiscale (art. 79b al. 3 LPP). Hypothèse : retrait intégral à 65 ans — une retraite anticipée décale la fenêtre d'autant. Le blocage EPL de 3 ans (carte dédiée ci-dessous) est un effet distinct du même article. Deux scénarios présentés — le choix rente ou capital reste le tien.",
+  "rachatEchelonneHeroSiCapital": "Si retrait en capital à 65 ans, l'écart devient CHF {montant} (économies reprises par le fisc sur les tranches récentes).",
+  "@rachatEchelonneHeroSiCapital": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneSiCapitalShort": "Si capital : CHF {montant}",
+  "@rachatEchelonneSiCapitalShort": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "rachatEchelonneTauxMarginalTitle": "Taux marginal d'imposition",
   "rachatEchelonneTauxMarginalBody": "Le taux marginal est le pourcentage d'impôt sur ton dernier franc gagné. Avec un taux de 32 %, une déduction de CHF 1'000 correspond à un impact fiscal indicatif de CHF 320. Plus ton revenu est élevé, plus ce taux peut augmenter.",
-  "rachatEchelonneTauxMarginalTip": "C'est pour ça qu'échelonner tes rachats est malin : chaque tranche reste dans un taux marginal élevé.",
+  "rachatEchelonneTauxMarginalTip": "Pourquoi les chiffres diffèrent : à revenu comparable, une tranche échelonnée peut être déduite à un taux marginal plus élevé, alors qu'un rachat en bloc fait glisser une partie de la déduction vers des taux plus bas.",
   "rachatEchelonneTauxMarginalSemantics": "Information sur le taux marginal",
   "staggered3aTitle": "Retrait 3a échelonné",
   "staggered3aEconomie": "Économie estimée",
@@ -4688,6 +4824,15 @@
   },
   "demenagementInsightNegatif": "Ce déménagement te coûte. Vérifie que le cadre de vie compense la différence.",
   "demenagementBilanTotal": "Bilan total (impôts + LAMal)",
+  "demenagementGateFactRevenu": "Ton revenu annuel brut",
+  "demenagementGateWhyRevenu": "Il fixe l'impôt sur le revenu comparé entre les deux cantons.",
+  "demenagementGateFactCantonDepart": "Ton canton actuel",
+  "demenagementGateWhyCantonDepart": "Son barème fiscal et ses primes servent de point de départ.",
+  "demenagementGateFactCantonArrivee": "Le canton d'arrivée",
+  "demenagementGateWhyCantonArrivee": "La destination envisagée fixe le nouveau barème à comparer.",
+  "demenagementGateFactSituation": "Ta situation familiale",
+  "demenagementGateWhySituation": "Le nombre de primes LAMal du ménage en dépend.",
+  "demenagementReferenceCaption": "Primes LAMal moyennes (adulte, franchise 300) et indices fiscaux relatifs : repères cantonaux indicatifs, pas ta prime réelle.",
   "divorceTransfertAmount": "Transfert de {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {
@@ -4699,7 +4844,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Différence : {sign}{amount}/an",
+  "divorceFiscalDelta": "Écart d'impôt du ménage : {sign}{amount}/an (fin du splitting marié)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {
@@ -4710,26 +4855,6 @@
       }
     }
   },
-  "divorcePensionMois": "{amount}/mois",
-  "@divorcePensionMois": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorcePensionAnnuel": "soit {amount}/an",
-  "@divorcePensionAnnuel": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorceConjoint1Label": "Conjoint 1",
-  "divorceConjoint2Label": "Conjoint 2",
-  "divorceSplitC1": "C1",
-  "divorceSplitC2": "C2",
   "unemploymentVague1Label": "Vague 1 · L'urgence administrative",
   "unemploymentVague1Text": "Inscription ORP dans les 5 premiers jours. Sinon : perte d'indemnités. Chaque jour de retard = indemnité perdue.",
   "unemploymentVague2Label": "Vague 2 · Le budget à ajuster",
@@ -4744,9 +4869,9 @@
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
   "unemploymentBracket1": "12–17 mois cotis.",
-  "unemploymentBracket1Value": "200 indemnités",
+  "unemploymentBracket1Value": "260 indemnités",
   "unemploymentBracket2": "18–21 mois cotis.",
-  "unemploymentBracket2Value": "260 indemnités",
+  "unemploymentBracket2Value": "400 indemnités",
   "unemploymentBracket3": ">= 22 mois, < {age} ans",
   "@unemploymentBracket3": {
     "placeholders": {
@@ -5099,6 +5224,12 @@
   "genderGapDisclaimer": "Les résultats présentés sont des estimations simplifiées à titre indicatif. Ils ne constituent pas un conseil financier personnalisé. Consulte ta caisse de pension et un·e spécialiste qualifié·e avant toute décision.",
   "genderGapSources": "Sources",
   "genderGapSourcesBody": "LPP art. 8 (déduction de coordination) / LPP art. 14 (taux de conversion 6.8 %) / OPP2 art. 5 / OPP3 art. 7 / LPP art. 79b (rachat volontaire) / OFS 2024 (statistiques gender gap)",
+  "genderGapNonRenseigne": "Non renseigné",
+  "genderGapGatePensionTitle": "Complète ta situation pour estimer ta rente",
+  "genderGapGateCoordTitle": "Complète ta situation pour ce détail de coordination",
+  "genderGapGateWhyRevenu": "Ton revenu annuel sert de base à la projection de rente LPP.",
+  "genderGapGateWhyAvoirLpp": "Ton avoir LPP actuel est le point de départ de la projection (il figure sur ton certificat de prévoyance).",
+  "genderGapGateWhyAge": "Ton âge détermine le nombre d'années qu'il te reste à cotiser.",
   "achievementsErrorMessage": "Le chargement a buté. On réessaie ?",
   "documentsEmptyVoice": "C'est vide pour l'instant. Un scan de certificat, et tout s'éclaire.",
   "documentsConfidenceChoc": "{count} documents = {pct} % de confiance",
@@ -5181,7 +5312,7 @@
       }
     }
   },
-  "firstJobTopBadge": "TOP",
+  "firstJobTopBadge": "Fréquent",
   "authLoginSubtitle": "Accède à ton espace financier personnel",
   "authPasswordRequired": "Mot de passe requis",
   "authForgotPasswordLink": "Mot de passe oublié ?",
@@ -5445,7 +5576,7 @@
   },
   "avsCotisationsBonASavoir": "Bon à savoir",
   "avsCotisationsEduDegressifTitle": "Barème dégressif",
-  "avsCotisationsEduDegressifBody": "Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.6 % s’applique.",
+  "avsCotisationsEduDegressifBody": "Le taux diminue pour les bas revenus (entre CHF 10’100 et CHF 60’500). Au-dessus de CHF 60’500, le taux plein de 10.0 % s’applique.",
   "avsCotisationsEduDoubleChargeTitle": "Double charge",
   "avsCotisationsEduDoubleChargeBody": "Un·e salarié·e ne paie que 5.3 % ; l’employeur prend en charge l’autre moitié. En tant qu’indépendant·e, tu assumes la totalité.",
   "avsCotisationsEduMinTitle": "Cotisation minimale",
@@ -5555,7 +5686,7 @@
     }
   },
   "pillar3aIndepBonASavoir": "Bon à savoir",
-  "pillar3aIndepEduComptesTitle": "Ouvre plusieurs comptes 3a",
+  "pillar3aIndepEduComptesTitle": "Plusieurs comptes 3a, un retrait échelonné",
   "pillar3aIndepEduComptesBody": "Même avec le grand 3a, la stratégie des comptes multiples (jusqu’à 5) est recommandée pour optimiser le retrait échelonné à la retraite.",
   "pillar3aIndepEduConditionTitle": "Condition : pas de LPP",
   "pillar3aIndepEduConditionBody": "Le grand 3a (20 % du revenu, max 36’288) n’est accessible que si tu n’es pas affilié·e à une LPP volontaire. Avec LPP, le plafond tombe à 7’258.",
@@ -5838,8 +5969,8 @@
   "retroactive3aAvecRattrapage": "Avec rattrapage",
   "retroactive3aEconomieFiscale": "d’impact fiscal",
   "retroactive3aProchainesEtapes": "Prochaines étapes",
-  "retroactive3aOuvrirCompte": "Ouvrir un compte 3a",
-  "retroactive3aOuvrirCompteSubtitle": "Compare les prestataires et ouvre un compte dédié au rattrapage.",
+  "retroactive3aOuvrirCompte": "Envisager un compte 3a dédié",
+  "retroactive3aOuvrirCompteSubtitle": "Comparer les prestataires (frais, conditions) ; un compte dédié pourrait simplifier le suivi du rattrapage.",
   "retroactive3aPrepDocuments": "Préparer les documents",
   "retroactive3aPrepDocumentsSubtitle": "Certificat de salaire, attestation de cotisations AVS, justificatif d’absence de 3a pour chaque année.",
   "retroactive3aConsulterSpecialiste": "Consulter un·e spécialiste",
@@ -6077,24 +6208,6 @@
   "reportRetirementTitle": "Ta Retraite",
   "reportRetirementKeyLabel": "Revenu estimé à 65 ans",
   "reportRetirementSource": "Sources : LPP art. 14, OPP3, LAVS",
-  "reportRetirement3aNone": "Pas encore de 3a — marge déductible à estimer selon ton statut LPP",
-  "reportRetirement3aNoneWithRoom": "Pas encore de 3a — marge déductible estimée : CHF {amount}/an",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 compte 3a — ouvre un 2e pour optimiser le retrait",
-  "reportRetirement3aMulti": "{count} comptes 3a — bonne diversification",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "Rachat LPP disponible : CHF {available} — impact fiscal estimé : CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
@@ -6603,7 +6716,7 @@
   "concubinageHeroPremierEclairageDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
   "concubinageEducationalAvs": "En Suisse, le plafond de 150 % sur les rentes AVS de couple (LAVS art. 35) ne s’applique qu’aux mariés. Les concubins touchent chacun leur rente individuelle complète — un avantage réel quand les deux ont cotisé au maximum.",
   "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d'en faire la demande.",
-  "concubinageEducationalSuccession": "Un conjoint marié est exonéré d’impôt successoral dans la plupart des cantons (CC art. 462). Un concubin paie l’impôt au taux des tiers, souvent entre 20 % et 40 %.",
+  "concubinageEducationalSuccession": "L'exonération du·de la conjoint·e survivant·e ne vient pas du Code civil : elle est inscrite dans les lois fiscales cantonales, et elle vaut dans les 26 cantons. Un·e concubin·e, lui·elle, relève du taux des « tiers » — et l'écart entre cantons est très large : certains ne prélèvent aucun impôt de succession, d'autres imposent lourdement les tiers. Ici, le canton pèse autant que le lien.",
   "concubinageProtectionIntro": "En concubinage, la Suisse ne protège pas comme le mariage. Voici ce qui change et ce que tu peux anticiper.",
   "concubinageProtectionAvsSurvivor": "Rente AVS de survivant",
   "concubinageProtectionLppSurvivor": "Rente LPP de survivant",
@@ -6613,8 +6726,28 @@
   "concubinageProtectionMaried": "Marié",
   "concubinageProtectionConcubinLabel": "Concubin",
   "concubinageProtectionWarning": "En concubinage, si ton partenaire décède, tu ne reçois ni rente AVS, ni rente LPP automatique, et tu n’es pas héritier légal. Chaque protection doit être anticipée.",
+  "concubinageProtectionConditionsNote": "Les protections du mariage (rentes de survivant AVS et LPP) dépendent de conditions d'éligibilité ; le concubinage n'y donne aucun accès, quelles que soient les conditions.",
   "concubinageProtectionLppSlider": "Rente LPP mensuelle du partenaire",
   "concubinageProtectionSurvivorZero": "CHF 0/mois pour le concubin survivant sans démarche",
+  "concubinageInheritanceConditional": "Sans testament, ton·ta partenaire n'hérite de rien : ta succession revient à tes héritiers légaux. Avec un testament, ce que tu peux lui léguer dépend de tes descendant·e·s : si tu en as, leur réserve représente la moitié de la succession et la quotité disponible plafonne donc à l'autre moitié ; si tu n'en as pas, la réserve des parents a été supprimée le 1er janvier 2023 et tu peux disposer de la totalité (CC art. 470-471). Ce qui entre dans la succession, c'est ta part : un bien détenu en copropriété n'y figure qu'à hauteur de ta quote-part.",
+  "concubinageInheritanceRateLimit": "Aucun taux n’est affiché ici, et c’est délibéré : la charge va de zéro dans certains cantons à près de la moitié de la part reçue dans les plus lourds, avec des barèmes progressifs, des franchises et parfois un impôt communal. Quatre éléments la déterminent : ton canton et ta commune, la part réellement reçue, le lien de parenté, et la durée de votre vie commune.",
+  "concubinageSurvivorLppDetail": "Rente de survivant possible (60 %) — conditions LPP art. 19 : enfant à charge, ou 45 ans et 5 ans de mariage.",
+  "concubinageSurvivorAvsNote": "Un·e conjoint·e survivant·e peut toucher en plus une rente AVS de survivant (LAVS art. 23, sous conditions) ; un·e concubin·e n'y a jamais droit.",
+  "concubinage3aClauseEducational": "Sans clause bénéficiaire désignant ton·ta partenaire, ton 3a suit l'ordre légal des bénéficiaires (OPP3 art. 2) et ton·ta partenaire n'en est pas bénéficiaire par défaut. Avec une clause déposée auprès de ta fondation 3a, tu peux l'y désigner.",
+  "concubinageGateFactRevenu1": "Ton revenu annuel brut",
+  "concubinageGateWhyRevenu1": "Le revenu des deux partenaires détermine l'écart d'impôt entre mariage et concubinage.",
+  "concubinageGateFactRevenu2": "Le revenu annuel brut de ton partenaire",
+  "concubinageGateWhyRevenu2": "Sans le revenu de ton partenaire, l'écart d'impôt du couple ne peut pas être estimé.",
+  "concubinageGateFactCanton": "Ton canton de résidence",
+  "concubinageGateWhyCanton": "Le barème d'impôt et le taux de succession dépendent de ton canton.",
+  "concubinageGateFactPatrimoine": "Ton patrimoine total",
+  "concubinageGateWhyPatrimoine": "Le patrimoine transmis fixe le montant soumis à l'impôt de succession.",
+  "concubinageGateFactRenteLpp": "La rente LPP mensuelle de ton partenaire",
+  "concubinageGateWhyRenteLpp": "La rente LPP du partenaire sert à estimer la rente de survivant.",
+  "concubinageGateFiscalTitle": "Comparaison fiscale",
+  "concubinageGateInheritanceTitle": "Impôt de succession",
+  "concubinageGateSurvivorTitle": "Rente de survivant",
+  "concubinageNonRenseigne": "Non renseigné",
   "concubinageDecisionMatrixTitle": "Mariage vs Concubinage",
   "concubinageDecisionMatrixSubtitle": "Comparaison des droits et obligations",
   "concubinageDecisionMatrixColumnMarriage": "Mariage",
@@ -8364,6 +8497,7 @@
   "authErrorNetwork": "Connexion au service indisponible. Vérifie ton réseau et réessaie.",
   "authErrorNotVerified": "Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.",
   "authErrorRegistration": "Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.",
+  "authErrorAccountDeletedRecreate": "Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.",
   "authErrorService": "Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.",
   "authHidePassword": "Masquer le mot de passe",
   "authShowPassword": "Afficher le mot de passe",
@@ -8818,7 +8952,7 @@
   "communityChallenge01Title": "Prépare ta déclaration d’impôts",
   "communityChallenge02Desc": "Frais professionnels, intérêts hypothécaires, dons : répertorie toutes les déductions auxquelles tu as droit avant de soumettre ta déclaration.",
   "communityChallenge02Title": "Identifie tes déductions fiscales",
-  "communityChallenge03Desc": "Certains cantons permettent de compléter le versement 3a de l’année précédente jusqu’en mars. Vérifie les règles de ton canton.",
+  "communityChallenge03Desc": "Pour être déduit de cette année, ton versement 3a doit être crédité sur ton compte au plus tard le 31 décembre. Un ordre passé trop tard peut n'être crédité qu'en janvier — et compter alors pour l'année suivante. Ne t'y prends pas trop tard.",
   "communityChallenge03Title": "Vérifie ton versement 3a avant la deadline",
   "communityChallenge04Desc": "Ton certificat annuel LPP est arrivé. Prends 10 minutes pour comprendre ton avoir, ton taux de conversion et ton potentiel de rachat.",
   "communityChallenge04Title": "Consulte ton certificat de prévoyance LPP",
@@ -9194,20 +9328,22 @@
   "firstJobChecklistConsequence1": "Sans certificat, tu ne peux pas vérifier que le montant transféré est correct.",
   "firstJobChecklistConsequence2": "Sans transfert, ton capital va à la Fondation supplétive à un taux de 0.05 %.",
   "firstJobChecklistDeadline1": "Avant de quitter",
-  "firstJobChecklistDeadline2": "30 jours",
+  "firstJobChecklistDeadline2": "Dès le nouvel emploi",
   "firstJobChecklistDeadline3": "1 mois",
   "firstJobChecklistDeadline4": "Dès le premier salaire",
   "firstJobCoutMaxPerYear": "Max {amount}/an",
+  "firstJobPayslipAanpExplanation": "Assurance des accidents survenus hors du travail, prélevée sur ton salaire.",
+  "firstJobPayslipAanpLabel": "Accidents non pro. (AANP)",
+  "firstJobPayslipAcExplanation": "Cotisation à l'assurance-chômage (LACI). Elle te protège en cas de perte d'emploi.",
+  "firstJobPayslipAcLabel": "Assurance-chômage (AC)",
   "firstJobPayslipAvsExplanation": "Cotisation salarié·e : 5.3 % du brut. Ton employeur paie aussi 5.3 % en plus.",
   "firstJobPayslipAvsLabel": "AVS/AI/APG",
-  "firstJobPayslipImpotExplanation": "Retenu directement sur le salaire si tu es imposé·e à la source. Le taux varie selon canton, statut et revenu.",
-  "firstJobPayslipImpotLabel": "Impôt à la source (estimation)",
   "firstJobPayslipLppExplanation": "Épargne vieillesse obligatoire dès 25 ans. Le taux exact dépend de ta caisse et ton âge.",
   "firstJobPayslipLppLabel": "LPP (2e pilier)",
   "firstJobPrimePerMonth": "{amount}/mois",
   "firstJobScenarioBoosted": "+20 %",
   "firstJobScenarioDefault": "Défaut",
-  "firstJobScenarioMedianCH": "Médian CH",
+  "firstJobScenarioMedianCH": "Médiane CH (tous secteurs · ESS 2022)",
   "firstJobScenarioMySalary": "Mon salaire",
   "firstJobScenarioSemantics": "Scénario salaire : {label}",
   "fiscalSuperpowerSubtitle": "L’État te rend de l’argent pour avoir un enfant.",
@@ -9309,7 +9445,7 @@
   "indepPlanInscriptionAvsConseq": "Amendes rétroactives si délai dépassé",
   "indepPlanLaa": "Assurance accidents LAA (si pas LPP)",
   "indepPlanLaaConseq": "Pas de couverture accident professionnel",
-  "indepPlanOuvrir3a": "Ouvrir compte 3a (déduction jusqu'à CHF 36'288)",
+  "indepPlanOuvrir3a": "Comparer les comptes 3a (déduction jusqu'à CHF 36'288)",
   "indepProtApg": "Disparaît — congé parental",
   "indepProtAvs": "Double ta cotisation",
   "indepProtIjm": "Disparaît — maladie 0 CHF",
@@ -9601,13 +9737,13 @@
   "narrativeEplBody": "L’art. 30c LPP permet de retirer ton 2e pilier pour financer un logement en propriété. Attention : si tu as effectué des rachats, un délai de blocage de 3 ans s’applique (LPP art. 79b al. 3).",
   "narrativeEplHeadline": "Retrait EPL : avantages et blocage 3 ans",
   "narrativeFirstJobBadge": "Premier emploi",
-  "narrativeFirstJobBody": "Entre AVS (LAVS art. 5), LPP (art. 16), impôt à la source et LAMal, ton net représente environ 75-80 % du brut. Comprendre ces déductions, c’est le premier pas vers une bonne gestion.",
+  "narrativeFirstJobBody": "Entre l'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c'est le premier pas vers une bonne gestion.",
   "narrativeFirstJobHeadline": "Ton premier salaire expliqué",
   "narrativeLibrePassageBadge": "Libre passage",
   "narrativeLibrePassageBody": "Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 3). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.",
   "narrativeLibrePassageHeadline": "Libre passage : 6 mois pour agir",
   "narrativeMarriageBadge": "Mariage",
-  "narrativeMarriageBody": "Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon vos revenus respectifs, l’impact fiscal pourrait être positif ou négatif.",
+  "narrativeMarriageBody": "Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon la répartition de vos deux revenus, l’impôt du ménage peut aller dans un sens comme dans l’autre.",
   "narrativeMarriageHeadline": "Impact financier du mariage",
   "narrativeRachatBadge": "2e pilier",
   "narrativeRachatBody": "Répartir un rachat LPP sur plusieurs années permet de déduire chaque tranche du revenu imposable (LPP art. 79b). La progressivité fiscale rend cette stratégie souvent plus avantageuse qu’un versement unique.",
@@ -10916,9 +11052,9 @@
   "landingCoupleAction": "Voir le mode couple",
   "landingCoupleGeneric": "Certaines décisions de couple peuvent modifier l’impôt, l’AVS et les retraits. MINT aide à comparer les scénarios.",
   "landingTransparency": "Ce qui se passe quand tu tapes ton salaire : le calcul est fait sur ton téléphone. Rien n'est envoyé. Rien n'est stocké. Quand tu fermes cette page, les chiffres disparaissent.",
-  "bankImportTransparency": "Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.",
+  "bankImportTransparency": "Ton relevé est envoyé chiffré à notre serveur pour analyse (traitement automatique, sans IA). Le fichier brut est supprimé après traitement ; seuls les résumés par catégorie sont conservés dans ton profil.",
   "coachTransparencySLM": "Réponse générée sur ton téléphone. Rien n'est envoyé à un serveur.",
-  "coachTransparencyBYOK": "Réponse via ton API Claude. Ton salaire exact n'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.",
+  "coachTransparencyBYOK": "Réponse via ton API Claude. Ton profil financier pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et ton message sont partagés pour personnaliser la réponse.",
   "coachTransparencyServer": "Réponse via l'API Claude (clé serveur MINT). Ton message est partagé tel quel pour personnaliser la réponse.",
   "@coachTransparencyServer": {
     "x-mint-meta": {
@@ -10927,11 +11063,11 @@
   },
   "dataTransparencyTitle": "Comment MINT utilise tes données",
   "dataTransparencySalary": "Quand tu entres ton salaire",
-  "dataTransparencySalaryDetail": "Stocké uniquement sur ton téléphone. Jamais envoyé.",
+  "dataTransparencySalaryDetail": "Enregistré dans ton profil chiffré. Partagé avec le coach AI uniquement quand tu l'utilises.",
   "dataTransparencyScan": "Quand tu scannes un document",
-  "dataTransparencyScanDetail": "Envoyé chiffré à notre serveur suisse. Parsé et supprimé. Seul le résultat est conservé.",
+  "dataTransparencyScanDetail": "Envoyé chiffré à notre serveur, puis lu par l'API Claude (Anthropic, États-Unis) avec ton consentement pour en extraire les chiffres. Le fichier brut est supprimé ; seul le résultat est conservé.",
   "dataTransparencyCoach": "Quand tu parles au coach",
-  "dataTransparencyCoachDetail": "SLM local (rien envoyé) ou API Claude (ton choix). Ton salaire exact n'est jamais partagé.",
+  "dataTransparencyCoachDetail": "SLM local (rien n'est envoyé) ou API Claude : ton profil pseudonymisé (montants inclus, jamais ton nom ni ton IBAN) et tes messages sont partagés.",
   "dataTransparencyImport": "Quand tu importes un relevé",
   "dataTransparencyImportDetail": "Envoyé chiffré. Catégorisé. Fichier brut supprimé. Seuls les résumés sont conservés.",
   "dataTransparencyDelete": "Quand tu supprimes ton compte",
@@ -12225,7 +12361,7 @@
   "consentPurposePersistence365d": "Mémoire chiffrée 365 jours",
   "consentPurposePersistence365dWhy": "Les données extraites sont conservées chiffrées (AES-256) pendant 365 jours, puis purgées. Révocation : suppression cryptographique sous 30 jours.",
   "consentPurposeTransferUsAnthropic": "Traitement IA (Anthropic, US)",
-  "consentPurposeTransferUsAnthropicWhy": "Les documents passent par l'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.",
+  "consentPurposeTransferUsAnthropicWhy": "Tes documents (Zero Data Retention) et — quand tu utilises le coach — ton profil financier pseudonymisé (montants exacts inclus, jamais ton nom, ton IBAN ni ton n° AVS) et tes messages passent par l'API Claude (Anthropic, États-Unis).",
   "consentPurposeCoupleProjection": "Projections de couple",
   "consentPurposeCoupleProjectionWhy": "MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.",
   "consentRevoke": "Révoquer",
@@ -12664,17 +12800,27 @@
   "aujourdhuiCompleteCommitment": "Marquer comme terminé",
   "coachSequenceNextStepLabel": "Étape suivante : {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}},
-    "x-mint-meta": {"level": "N3"}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSequenceCompletedMessage": "Tu as terminé cette séquence guidée.",
   "@coachSequenceCompletedMessage": {
-    "x-mint-meta": {"level": "N3"}
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "betaDisclosureEyebrow": "MINT en test",
   "@betaDisclosureEyebrow": {
     "description": "Beta disclosure sheet — uppercase eyebrow.",
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlinePrefix": "Tu testes une version qui",
   "@betaDisclosureHeadlinePrefix": {
@@ -12730,22 +12876,30 @@
   "chatInputHint": "Tape ton message...",
   "@chatInputHint": {
     "description": "Phase 97 W7 F001 — MintChatOverlay ChatInputBar TextField hint. Accent-clean FR, generic (no archetype assumption). Closes Phase 96 W1 scaffold debt.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "chatIntentExplainLabel": "Explique-moi",
   "@chatIntentExplainLabel": {
     "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=explain. Replaces raw enum 'explain'. Accent-clean FR, imperative reflexive. LSFin-clean.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "chatIntentReassureLabel": "Rassure-moi",
   "@chatIntentReassureLabel": {
     "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=reassure. Replaces raw enum 'reassure'. Accent-clean FR, imperative reflexive. LSFin-clean.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "chatIntentSimulateLabel": "Simule",
   "@chatIntentSimulateLabel": {
     "description": "Phase 97.5 W2-T3 (D2 fix) — MintChatOverlay header label when intent=simulate. Reserved for forward compat ; today simulate deep-links to Explorer and does not open the overlay.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "narrativeSleeveNextStepExplain": "Tape une question pour creuser.",
   "@narrativeSleeveNextStepExplain": {
@@ -12969,5 +13123,192 @@
   "eclairageCompoundGrowthEdgeBody": "Commencer à investir tôt plutôt que plus tard pourrait faire une différence à long terme, pour un effort mensuel modeste. La capitalisation récompense la durée.",
   "@eclairageCompoundGrowthEdgeBody": {
     "description": "Body for the compound growth advantage éclairage card."
+  },
+  "privacyControlConsentCenterTitle": "Consentements et retrait",
+  "privacyControlConsentCenterSubtitle": "Voir tes autorisations et en retirer une",
+  "expatTopCantonsEmpty": "Ton canton ({canton}) figure déjà parmi les moins imposés du modèle — aucun écart favorable à afficher.",
+  "@expatTopCantonsEmpty": {
+    "placeholders": {
+      "canton": {}
+    }
+  },
+  "expatTopCantonsDisclaimer": "Outil éducatif — ne constitue pas un conseil fiscal au sens de la LSFin. Impôts estimés via le modèle simplifié MINT par canton (barèmes cantonaux, chef-lieu) — ce ne sont pas des calculs fiscaux exacts. Écart calculé sur le revenu seul — varie selon le patrimoine et la situation familiale.",
+  "coachConsentDeclined": "Le coach a besoin de ton accord pour transmettre tes messages au service d'IA (serveurs aux États-Unis). Sans cet accord, il ne peut pas répondre. Renvoie ton message quand tu veux : la demande d'accord te sera proposée à nouveau.",
+  "@coachConsentDeclined": {
+    "description": "Message systeme du chat coach quand l'utilisateur refuse le consentement transfer_us_anthropic (beads MINT_nosync-tcr). Panel: la voie de reprise citee doit etre VRAIE — renvoyer le message re-declenche la sheet ; Profil->Confidentialite n'offre PAS de grant (dead-end interdit).",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "repaymentDebtCreditConso": "Crédit conso",
+  "@repaymentDebtCreditConso": {
+    "description": "Nom de dette hydratée depuis profile.dettes.creditConsommation (beads MINT_nosync-64r)"
+  },
+  "repaymentDebtLeasing": "Leasing",
+  "@repaymentDebtLeasing": {
+    "description": "Nom de dette hydratée depuis profile.dettes.leasing"
+  },
+  "repaymentDebtAutres": "Autres dettes",
+  "@repaymentDebtAutres": {
+    "description": "Nom de dette hydratée depuis profile.dettes.autresDettes"
+  },
+  "repaymentFieldRateEstimated": "Taux (estimé)",
+  "@repaymentFieldRateEstimated": {
+    "description": "Label du champ taux quand la valeur est une hypothèse MINT (absente du profil) — provenance visible (review -64r)"
+  },
+  "repaymentFieldInstallmentEstimated": "Mensualité (estimée)",
+  "@repaymentFieldInstallmentEstimated": {
+    "description": "Label du champ mensualité quand la valeur est une hypothèse MINT — provenance visible (review -64r)"
+  },
+  "coupleMonoIncomeHint": "Ce calcul repose sur ton seul revenu : celui de ton/ta partenaire n'est pas encore renseigné.",
+  "@coupleMonoIncomeHint": {
+    "description": "Bandeau honnetete mono-revenu (beads MINT_nosync-mla volet C) : couple declare mais profil financier conjoint absent — le calcul couple est en realite mono-revenu"
+  },
+  "coupleMonoIncomeCta": "Ajouter son revenu avec le coach",
+  "@coupleMonoIncomeCta": {
+    "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
+  },
+  "reportSpouseIncomeMissingPrompt": "Renseigne le revenu de ton/ta conjoint·e : sa rente AVS est estimée au minimum légal en attendant.",
+  "reportSpouseDataMissingPrompt": "Renseigne le revenu et les années de cotisation de ton/ta conjoint·e : sa rente AVS n’est pas estimée en attendant.",
+  "repaymentBudgetEffectiveNote": "Tes mensualités minimales totalisent CHF {montant} — le plan se base sur ce montant",
+  "@repaymentBudgetEffectiveNote": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "semanticsRepaymentBudgetEffective": "Budget saisi CHF {saisi}, le plan se base sur CHF {effectif} (mensualités minimales). Bouton, modifie le budget.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
+  },
+  "indicativeBannerCtaSemantics": "Préciser tes données — bloc {bloc}",
+  "@indicativeBannerCtaSemantics": {
+    "placeholders": {
+      "bloc": {
+        "type": "String"
+      }
+    }
+  },
+  "divorceGateFactRevenu1": "Ton revenu annuel brut",
+  "divorceGateWhyRevenu1": "Il sert à estimer l'impôt du ménage avant et après le divorce.",
+  "divorceGateFactRevenu2": "Revenu annuel de ton ex-conjoint",
+  "divorceGateWhyRevenu2": "Il permet de comparer l'impôt du ménage marié et celui de deux foyers séparés.",
+  "divorcePensionEnfantTitre": "Entretien de l'enfant (CC art. 276, 285, 285a)",
+  "divorcePensionEnfantFacteurs": "Il suit les besoins de l'enfant et son âge, les frais de garde et de formation, et il tient compte des allocations familiales. Le parent qui s'occupe de l'enfant au quotidien apporte déjà une contribution en nature : elle réduit d'autant ce qu'on lui demande en argent. Une part d'épargne peut s'ajouter si les moyens le permettent.",
+  "divorcePensionConjointTitre": "Entretien du conjoint (CC art. 125)",
+  "divorcePensionConjointFacteurs": "Il ne va pas de soi. On regarde d'abord si chacun peut subvenir seul à ses besoins. Si ce n'est pas le cas, ce qui compte, c'est la répartition des tâches pendant le mariage, sa durée, le train de vie que vous aviez, l'âge et l'état de santé, les revenus et la fortune, les perspectives de formation et de gain, et la prévoyance. Une longue durée de mariage ne crée aucun droit automatique.",
+  "divorcePensionMethode": "La méthode de référence se fait en deux étapes (ATF 147 III 265). D'abord, on établit le minimum vital de chaque personne : logement, assurance maladie, alimentation, frais professionnels, frais de garde. Ces charges passent avant tout le reste. Ensuite, ce qui reste — l'excédent — se répartit entre les ménages. On raisonne sur les revenus disponibles nets, jamais sur les salaires bruts. L'excédent ne se coupe pas en deux au hasard : il se répartit par « grandes et petites têtes » (une part pleine par adulte, une demi-part par enfant), avec des ajustements selon le cas.",
+  "divorcePensionLeviers": "Ce qui fait monter ou descendre le montant : le taux de garde d'abord — plus tu gardes l'enfant, moins tu verses en argent. Puis ta capacité de gain : si tu peux travailler davantage, un revenu hypothétique peut t'être imputé. Le train de vie du mariage sert de plafond. Et le principe du clean-break pousse chacun vers son autonomie financière avec le temps. Attention : garder davantage ne dispense pas toujours de verser — la capacité contributive de chacun compte aussi, et le parent le plus solide financièrement peut verser malgré une garde importante.",
+  "divorceRegimeAcquets": "Ce qui compte, c'est ce qui a été acquis pendant le mariage. Ce que chacun possédait avant, et ce qu'il a reçu par héritage ou donation, lui reste : ce sont les biens propres. Sur le reste, chacun a droit à la moitié du bénéfice de l'autre (CC art. 215). C'est donc la comparaison de vos deux comptes qui décide, pas une cagnotte commune : celui qui a le plus accumulé verse à l'autre la MOITIÉ de la différence entre les deux bénéfices. Avant de comparer, on remet dans les acquêts ce qui en est sorti (art. 208), on règle les récompenses entre biens propres et acquêts (art. 206 et 209), et on rattache chaque dette à la masse qu'elle concerne.",
+  "divorceLppTransferCaveat": "Ce montant se calcule sur les avoirs que tu as saisis (avoir actuel moins avoir au mariage). Deux éléments légaux ne sont pas repris ici : l'intérêt qui court sur la prestation de sortie existant au moment du mariage, et la date de valorisation retenue par la loi (l'introduction de la procédure de divorce). Ta caisse de pension établit le décompte exact.",
+  "divorceRegimeCommunaute": "Pendant le mariage, l'essentiel de ce que vous possédez forme une masse commune. Mais au divorce, on ne coupe pas cette masse en deux d'emblée : chacun reprend d'abord ce qui aurait été ses biens propres sous la participation aux acquêts — ce qu'il avait avant le mariage, ses héritages, ses donations (CC art. 242 al. 1). Seul le solde qui reste après ces reprises se partage par moitié (art. 242 al. 2). L'article 241, souvent cité, ne concerne que la dissolution par décès ou par changement de régime.",
+  "divorceRegimeSeparation": "Il n'y a rien à partager : chacun garde ce qui lui appartient. Ce qui décide, c'est donc la preuve de la propriété. Qui revendique un bien doit montrer qu'il est à lui — facture, contrat, inscription au registre foncier. À défaut de preuve, le bien est présumé appartenir aux deux en copropriété (CC art. 248). Avoir financé un bien ne le rend pas automatiquement tien : cela peut fonder une créance ou une part de copropriété, sans remplacer le titre. Et un bien en copropriété peut être attribué à l'un de vous contre indemnité s'il justifie d'un intérêt prépondérant (art. 251).",
+  "divorcePatrimoineNoShare": "Pour appliquer cette règle à ton cas, il te faut deux inventaires séparés — le tien et celui de ton conjoint — avec, pour chaque bien, sa date d'acquisition et son origine. C'est ce document, et non un total de ménage, qui détermine qui doit quoi. Le montant définitif se fixe ensuite par convention ou par le tribunal.",
+  "divorcePatrimoineIndicatifHint": "Ces deux montants ne servent à calculer aucune part : ce sont des repères pour préparer ta discussion. Ce qui décide, c'est l'inventaire de chacun — date d'acquisition, origine du bien, dettes rattachées.",
+  "divorceGateFactLpp1": "Ton avoir LPP actuel",
+  "divorceGateWhyLpp1": "Le partage porte sur la LPP acquise pendant le mariage.",
+  "divorceGateFactLpp2": "Avoir LPP actuel de ton ex-conjoint",
+  "divorceGateWhyLpp2": "Le partage compare les avoirs LPP des deux conjoints.",
+  "divorceGateFactAvoir1": "Ton avoir LPP au mariage",
+  "divorceGateWhyAvoir1": "Seule la part acquise après le mariage est partagée (CC art. 122).",
+  "divorceGateFactAvoir2": "Avoir LPP de ton ex-conjoint au mariage",
+  "divorceGateWhyAvoir2": "Seule la part acquise après le mariage est partagée (CC art. 122).",
+  "divorcePensionNoEstimate": "Il n'existe pas de barème : le montant ne se déduit pas des revenus et du nombre d'enfants. Il se construit à partir des budgets réels des deux ménages. Voici la mécanique, pour que tu puisses raisonner sur ta situation.",
+  "divorcePensionFacteursTitre": "Comment le montant se construit",
+  "divorcePensionSpecialiste": "Le montant exact se fixe par convention entre vous ou, faute d'accord, par le tribunal. Un·e spécialiste chiffre le cas concret sur la base de ces éléments.",
+  "divorceGateFactCanton": "Ton canton de résidence",
+  "divorceGateWhyCanton": "Le barème de l'impôt sur le revenu dépend de ton canton de domicile.",
+  "divorceImpactFiscalCantonNote": "Estimation au canton actuel du ménage pour les deux conjoints — le canton futur de l'autre n'est pas connu.",
+  "genderGapProjectionAssumptions": "Hypothèses de projection : le rendement de {rendement} %/an sur les avoirs LPP est une hypothèse MINT, pas un taux légal — le taux d'intérêt minimal LPP est de {tauxMin} %/an. La lacune cumulée est la lacune annuelle multipliée par {annees} ans de retraite, sans actualisation ni indexation : un ordre de grandeur illustratif, pas une perte déjà subie.",
+  "@genderGapProjectionAssumptions": {
+    "placeholders": {
+      "rendement": {
+        "type": "String"
+      },
+      "tauxMin": {
+        "type": "String"
+      },
+      "annees": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapModelLegalMinimum": "Modèle employé : le régime LPP obligatoire minimal — salaire coordonné légal et taux de conversion minimal de {tauxConversion} %. Ce n'est pas le règlement de ta caisse. Avec un plan surobligatoire, fréquent au-delà du plafond du salaire assuré obligatoire, les rentes réelles s'écartent de cette illustration dans un sens comme dans l'autre : appliquer {tauxConversion} % à la totalité du capital peut aussi surestimer, car les caisses enveloppantes retiennent souvent un taux plus bas sur l'ensemble de l'avoir.",
+  "@genderGapModelLegalMinimum": {
+    "placeholders": {
+      "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Imposable",
+  "donationVerdictInconnu": "À vérifier",
+  "donationPlageJusqua": "jusqu'à ~{pct} % (barème cantonal, hors part communale)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetValue": "Net estimé {value} par mois",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Fourchette : {low} à {high} selon la classe de risque AANP",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · barèmes {year}",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "Pourquoi ce chiffre ?",
+  "firstJobLuciditeAssumptionsLabel": "Hypothèses de calcul",
+  "firstJobLuciditeAssumptionAanp": "Cotisation AANP entre 1,0 % et 1,5 % selon la classe de risque de l'employeur (défaut 1,3 %)",
+  "firstJobLuciditeAssumptionTaux": "Taux d'activité supposé : {taux} %, modifiable",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Impôt à la source non appliqué (résident·e imposé·e ordinairement)",
+  "firstJobLuciditeAssumptionPeriode": "Net mensuel, hors 13e salaire et hors bonus",
+  "firstJobLuciditeSourcesLabel": "Sources et millésimes",
+  "firstJobLuciditeEngineLabel": "Moteur de calcul : {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
   }
 }

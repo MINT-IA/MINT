@@ -99,7 +99,6 @@ class RetirementProjectionService:
     # become user-editable in Wave 2). All defaults match overview.py canon.
     DEFAULT_RETIREMENT_AGE = 65
     DEFAULT_LIFE_EXPECTANCY = 87
-    DEFAULT_TAUX_MARGINAL_LPP = 0.25
     # Expense fallback: when profile.monthlyExpenses is missing, assume
     # 70% of pre-retirement income (canonical replacement-rate target).
     DEFAULT_EXPENSE_RATIO = 0.70
@@ -163,7 +162,9 @@ class RetirementProjectionService:
                 canton=canton,
                 retirement_age=desired_retirement_age,
                 life_expectancy=RetirementProjectionService.DEFAULT_LIFE_EXPECTANCY,
-                taux_marginal_revenu=RetirementProjectionService.DEFAULT_TAUX_MARGINAL_LPP,
+                # Review #989 : ne PAS injecter le flat 0.25 — None laisse la
+                # convention canonique (modèle v2) taxer la rente ; le flat
+                # neutralisait le fix -amq sur le parcours coach/projection.
             )
             lpp_capital_net = _q(lpp.option_capital_net)
             lpp_rente_mensuelle_net = lpp.option_rente_nette_mensuelle

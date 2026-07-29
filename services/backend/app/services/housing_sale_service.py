@@ -5,9 +5,14 @@ Simulates the financial outcome of selling a property in Switzerland,
 including capital gains tax (impot sur les gains immobiliers), EPL repayment
 obligations, mortgage payoff, and reinvestment deferral (remploi).
 
+L'impot sur les gains immobiliers est delegue au modele calibre
+``fiscal.gains_immobiliers_calibres`` : ZH / VD / GE sont chiffres depuis des
+sources primaires, les autres cantons ne portent AUCUN chiffre fabrique (impot
+None + renvoi au calculateur cantonal). Voir ADR 2026-07-28 (P5).
+
 Sources:
     - LIFD art. 12 (impot sur les gains immobiliers au niveau federal)
-    - Lois cantonales sur l'impot sur les gains immobiliers
+    - Lois cantonales sur l'impot sur les gains immobiliers (voir verdict)
     - OPP2 art. 30d (remboursement EPL LPP lors de la vente)
     - LPP art. 30d (obligation de remboursement de l'EPL)
     - CO art. 216 ss (contrat de vente immobiliere)
@@ -21,7 +26,9 @@ Ethical requirements:
 """
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from typing import List, Optional
+
+from app.services.fiscal.gains_immobiliers_calibres import verdict_gain_immobilier
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -32,7 +39,7 @@ DISCLAIMER: str = (
     "Cet outil educatif fournit une estimation indicative et ne constitue "
     "pas un conseil financier, fiscal ou juridique au sens de la LSFin. "
     "Les taux d'imposition sur les gains immobiliers varient selon le canton, "
-    "la commune et la situation personnelle. Consulte un·e specialiste "
+    "la commune et la situation personnelle. Consulte un·e spécialiste "
     "(notaire, fiduciaire) pour ta situation concrete."
 )
 
@@ -44,44 +51,6 @@ SOURCES: List[str] = [
     "CO art. 216 ss (contrat de vente immobiliere)",
     "CC art. 655 (transfert de propriete au registre foncier)",
     "Lois cantonales sur l'impot sur les gains immobiliers",
-]
-
-# Capital gains tax rates by canton and duration of ownership (years).
-# Each entry is (min_years, max_years_exclusive, rate).
-# The rate is degressive: longer ownership = lower tax rate.
-TAUX_PLUS_VALUE_IMMOBILIERE: Dict[str, List[Tuple[int, int, float]]] = {
-    "ZH": [
-        (0, 2, 0.50), (2, 5, 0.40), (5, 10, 0.30),
-        (10, 15, 0.20), (15, 20, 0.15), (20, 999, 0.0),
-    ],
-    "BE": [
-        (0, 1, 0.45), (1, 4, 0.35), (4, 10, 0.25),
-        (10, 15, 0.18), (15, 25, 0.10), (25, 999, 0.0),
-    ],
-    "VD": [
-        (0, 1, 0.30), (1, 5, 0.25), (5, 10, 0.20),
-        (10, 25, 0.15), (25, 999, 0.07),
-    ],
-    "GE": [
-        (0, 2, 0.50), (2, 4, 0.40), (4, 6, 0.30),
-        (6, 8, 0.25), (8, 10, 0.20), (10, 25, 0.10),
-        (25, 999, 0.0),
-    ],
-    "LU": [
-        (0, 1, 0.36), (1, 2, 0.33), (2, 5, 0.27),
-        (5, 10, 0.21), (10, 15, 0.15), (15, 20, 0.09),
-        (20, 999, 0.0),
-    ],
-    "BS": [
-        (0, 5, 0.32), (5, 10, 0.25), (10, 15, 0.20),
-        (15, 20, 0.15), (20, 999, 0.10),
-    ],
-}
-
-# Default average rates for cantons not explicitly listed
-TAUX_PLUS_VALUE_DEFAULT: List[Tuple[int, int, float]] = [
-    (0, 2, 0.40), (2, 5, 0.30), (5, 10, 0.22),
-    (10, 15, 0.16), (15, 25, 0.10), (25, 999, 0.05),
 ]
 
 
@@ -105,26 +74,36 @@ class HousingSaleInput:
     hypotheque_restante: float = 0.0                  # Remaining mortgage balance
     projet_remploi: bool = False                      # Plans to buy new property within 2 years?
     prix_remploi: float = 0.0                         # Price of replacement property
+    annees_occupation: int = 0                        # Proven owner-occupation years (VD double-count)
 
 
 @dataclass
 class HousingSaleResult:
-    """Result of housing sale simulation."""
-    plus_value_brute: float                           # prix_vente - prix_achat
-    plus_value_imposable: float                       # After deductions
-    duree_detention: int                              # Years of ownership
-    taux_imposition_plus_value: float                 # Tax rate (degressive)
-    impot_plus_value: float                           # Tax amount on capital gain
-    remploi_report: float                             # Tax deferred if reinvesting
-    impot_effectif: float                             # Actual tax due (after remploi)
-    remboursement_epl_lpp: float                      # EPL LPP to repay
-    remboursement_epl_3a: float                       # EPL 3a to repay
-    solde_hypotheque: float                           # Mortgage payoff
-    produit_net: float                                # Net proceeds
-    checklist: List[str]                              # Action items
-    alerts: List[str]                                 # Warning messages
-    disclaimer: str                                   # Legal disclaimer
-    sources: List[str]                                # Legal references
+    """Result of housing sale simulation.
+
+    Pour un canton non calibre (hors ZH / VD / GE), l'impot sur les gains
+    immobiliers n'est pas chiffre : ``taux_imposition_plus_value``,
+    ``impot_plus_value``, ``remploi_report``, ``impot_effectif`` et
+    ``produit_net`` valent alors ``None`` et ``gain_immobilier`` porte le
+    mecanisme + le renvoi au calculateur cantonal officiel.
+    """
+    plus_value_brute: float                                # prix_vente - prix_achat
+    plus_value_imposable: float                            # After deductions
+    duree_detention: int                                   # Years of ownership
+    modele_gain: str                                       # "calibre" | "mecanisme" | "inconnu"
+    taux_imposition_plus_value: Optional[float]            # Effective rate (None si non calibre)
+    impot_plus_value: Optional[float]                      # Tax on capital gain (None si non calibre)
+    remploi_report: Optional[float]                        # Tax deferred if reinvesting (None si non calibre)
+    impot_effectif: Optional[float]                        # Actual tax due (None si non calibre)
+    remboursement_epl_lpp: float                           # EPL LPP to repay
+    remboursement_epl_3a: float                            # EPL 3a to repay
+    solde_hypotheque: float                                # Mortgage payoff
+    produit_net: Optional[float]                           # Net proceeds (None si impot inconnu)
+    gain_immobilier: dict                                  # Verdict calibre / mecanisme / inconnu
+    checklist: List[str]                                   # Action items
+    alerts: List[str]                                      # Warning messages
+    disclaimer: str                                        # Legal disclaimer
+    sources: List[str]                                     # Legal references
     premier_eclairage: dict                                # Impact number
 
 
@@ -136,7 +115,8 @@ class HousingSaleService:
     """Simulate the financial outcome of selling a property in Switzerland.
 
     Covers:
-    - Capital gains tax (impot sur les gains immobiliers), degressive by duration
+    - Capital gains tax (impot sur les gains immobiliers), delegue au modele
+      calibre (ZH / VD / GE chiffres, autres cantons = mecanisme sans chiffre)
     - Remploi (reinvestment deferral, LIFD art. 12 al. 3)
     - EPL repayment obligation (OPP2 art. 30d / LPP art. 30d)
     - Mortgage payoff
@@ -161,58 +141,104 @@ class HousingSaleService:
         plus_value_brute = self._compute_plus_value_brute(input_data)
         plus_value_imposable = self._compute_plus_value_imposable(input_data)
 
-        # Tax rate and amount
-        taux = self._get_tax_rate(input_data.canton, duree_detention)
-        impot_plus_value = self._compute_impot_plus_value(
-            plus_value_imposable, taux
+        # Capital gains tax — delegated to the calibrated canton model.
+        verdict = verdict_gain_immobilier(
+            input_data.canton,
+            plus_value_imposable,
+            duree_detention,
+            input_data.annees_occupation,
         )
-
-        # Remploi (reinvestment deferral)
-        remploi_report = self._compute_remploi(input_data, impot_plus_value)
-        impot_effectif = round(impot_plus_value - remploi_report, 2)
+        modele_gain = str(verdict["modele"])
+        impot_chf = verdict["impot_chf"]
+        gain_immobilier = dict(verdict)
 
         # EPL repayment (only for primary residence — LPP art. 30d, OPP2 art. 30e)
         remboursement_epl_lpp = input_data.epl_lpp_utilise if input_data.residence_principale else 0.0
         remboursement_epl_3a = input_data.epl_3a_utilise if input_data.residence_principale else 0.0
 
+        taux_imposition: Optional[float]
+        impot_plus_value: Optional[float]
+        remploi_report: Optional[float]
+        impot_effectif: Optional[float]
+        produit_net: Optional[float]
+
+        if plus_value_imposable <= 0:
+            # Gain nul ou negatif : l'impot sur le gain est 0 de facon
+            # deterministe, quel que soit le canton (rien a imposer). On garde
+            # le modele du canton mais on ne nullifie pas le produit net.
+            impot_plus_value = 0.0
+            taux_imposition = 0.0
+            remploi_report = 0.0
+            impot_effectif = 0.0
+            produit_net = self._compute_produit_net(
+                input_data.prix_vente,
+                0.0,
+                remboursement_epl_lpp,
+                remboursement_epl_3a,
+                input_data.hypotheque_restante,
+            )
+            gain_immobilier["impot_chf"] = 0.0
+            gain_immobilier["taux_effectif_pct"] = 0.0
+        elif impot_chf is None:
+            # Canton non calibre : aucun impot fabrique.
+            taux_imposition = None
+            impot_plus_value = None
+            remploi_report = None
+            impot_effectif = None
+            produit_net = None
+        else:
+            impot_plus_value = round(float(impot_chf), 2)
+            taux_imposition = round(impot_plus_value / plus_value_imposable, 4)
+            remploi_report = self._compute_remploi(
+                input_data, impot_plus_value, plus_value_imposable
+            )
+            impot_effectif = round(impot_plus_value - remploi_report, 2)
+            produit_net = self._compute_produit_net(
+                input_data.prix_vente,
+                impot_effectif,
+                remboursement_epl_lpp,
+                remboursement_epl_3a,
+                input_data.hypotheque_restante,
+            )
+
         # Mortgage payoff
         solde_hypotheque = input_data.hypotheque_restante
 
-        # Net proceeds
-        produit_net = self._compute_produit_net(
-            input_data.prix_vente,
-            impot_effectif,
-            remboursement_epl_lpp,
-            remboursement_epl_3a,
-            solde_hypotheque,
-        )
+        # Sources — cite the exact cantonal source used by the verdict.
+        sources = list(SOURCES)
+        verdict_source = str(verdict.get("source", ""))
+        if verdict_source and verdict_source not in sources:
+            sources.append(verdict_source)
 
         # Compliance outputs
         checklist = self._generate_checklist(input_data)
         alerts = self._generate_alerts(
             input_data, plus_value_imposable, duree_detention,
             produit_net, remboursement_epl_lpp + remboursement_epl_3a,
+            verdict, impot_plus_value is None,
         )
         premier_eclairage = self._generate_premier_eclairage(
-            produit_net, impot_effectif, input_data.prix_vente,
+            produit_net, impot_effectif, input_data.prix_vente, verdict,
         )
 
         return HousingSaleResult(
             plus_value_brute=round(plus_value_brute, 2),
             plus_value_imposable=round(plus_value_imposable, 2),
             duree_detention=duree_detention,
-            taux_imposition_plus_value=taux,
-            impot_plus_value=round(impot_plus_value, 2),
-            remploi_report=round(remploi_report, 2),
+            modele_gain=modele_gain,
+            taux_imposition_plus_value=taux_imposition,
+            impot_plus_value=impot_plus_value,
+            remploi_report=remploi_report,
             impot_effectif=impot_effectif,
             remboursement_epl_lpp=round(remboursement_epl_lpp, 2),
             remboursement_epl_3a=round(remboursement_epl_3a, 2),
             solde_hypotheque=round(solde_hypotheque, 2),
-            produit_net=round(produit_net, 2),
+            produit_net=round(produit_net, 2) if produit_net is not None else None,
+            gain_immobilier=gain_immobilier,
             checklist=checklist,
             alerts=alerts,
             disclaimer=DISCLAIMER,
-            sources=SOURCES,
+            sources=sources,
             premier_eclairage=premier_eclairage,
         )
 
@@ -258,57 +284,29 @@ class HousingSaleService:
         )
         return max(0.0, pv)
 
-    def _get_tax_rate(self, canton: str, duree_detention: int) -> float:
-        """Get the capital gains tax rate for a given canton and duration.
-
-        The rate is degressive: the longer you hold the property,
-        the lower the tax rate. Each canton has its own schedule.
-
-        Args:
-            canton: Canton code (e.g. "GE", "VD", "ZH").
-            duree_detention: Years of ownership.
-
-        Returns:
-            Tax rate as decimal (e.g. 0.30 for 30%).
-        """
-        brackets = TAUX_PLUS_VALUE_IMMOBILIERE.get(
-            canton, TAUX_PLUS_VALUE_DEFAULT
-        )
-        for min_years, max_years, rate in brackets:
-            if min_years <= duree_detention < max_years:
-                return rate
-        # Fallback (should not happen with 999 upper bound)
-        return 0.0
-
-    def _compute_impot_plus_value(
-        self, plus_value_imposable: float, taux: float
-    ) -> float:
-        """Compute capital gains tax amount.
-
-        impot = plus_value_imposable * taux
-
-        Returns:
-            Tax amount (>= 0).
-        """
-        if plus_value_imposable <= 0:
-            return 0.0
-        return round(plus_value_imposable * taux, 2)
-
     def _compute_remploi(
-        self, data: HousingSaleInput, impot_plus_value: float
+        self,
+        data: HousingSaleInput,
+        impot_plus_value: float,
+        plus_value_imposable: float,
     ) -> float:
-        """Compute reinvestment deferral (remploi).
+        """Compute reinvestment deferral (remploi) — methode ABSOLUE.
 
-        LIFD art. 12 al. 3: If the seller buys a replacement property
-        in Switzerland within 2 years, the capital gains tax can be
-        deferred (fully or partially).
+        LHID art. 12 al. 3 let. e : report d'imposition en cas de remploi
+        du produit de la vente d'une habitation ayant durablement servi au
+        propre usage (residence principale), remplacee en Suisse dans le
+        delai cantonal (1-5 ans selon le canton ; le champ projet_remploi
+        modelise ce delai de facon simplifiee).
 
-        - Full deferral if prix_remploi >= prix_vente
-        - Partial deferral: report = impot * (prix_remploi / prix_vente)
+        Methode ABSOLUE (ATF 130 II 202) : le report ne porte que sur la
+        part du reinvestissement qui EXCEDE les couts d'investissement du
+        bien vendu (prix d'achat + impenses). L'ancienne methode
+        proportionnelle (report = impot x prix_remploi/prix_vente) a ete
+        ecartee par le Tribunal federal — elle reportait la moitie de
+        l'impot d'un vendeur qui ne reinvestissait que son capital initial.
 
-        Args:
-            data: HousingSaleInput with remploi data.
-            impot_plus_value: Computed capital gains tax.
+        couts d'investissement = prix_vente - plus_value_imposable
+        (par construction de l'assiette).
 
         Returns:
             Amount of tax deferred (0 if no remploi).
@@ -316,16 +314,24 @@ class HousingSaleService:
         if not data.projet_remploi or data.prix_remploi <= 0:
             return 0.0
 
-        if impot_plus_value <= 0:
+        # LHID art. 12 al. 3 let. e : reserve a la residence principale.
+        if not data.residence_principale:
             return 0.0
 
-        if data.prix_remploi >= data.prix_vente:
-            # Full deferral
-            return impot_plus_value
-        else:
-            # Partial deferral proportional to reinvestment
-            ratio = data.prix_remploi / data.prix_vente
-            return round(impot_plus_value * ratio, 2)
+        if impot_plus_value <= 0 or plus_value_imposable <= 0:
+            return 0.0
+
+        couts_investissement = data.prix_vente - plus_value_imposable
+        gain_reinvesti = min(
+            plus_value_imposable,
+            max(0.0, data.prix_remploi - couts_investissement),
+        )
+        if gain_reinvesti <= 0:
+            return 0.0
+
+        return round(
+            impot_plus_value * gain_reinvesti / plus_value_imposable, 2
+        )
 
     def _compute_produit_net(
         self,
@@ -401,8 +407,10 @@ class HousingSaleService:
         data: HousingSaleInput,
         plus_value_imposable: float,
         duree_detention: int,
-        produit_net: float,
+        produit_net: Optional[float],
         epl_total: float,
+        verdict: dict,
+        impot_indisponible: bool,
     ) -> List[str]:
         """Generate warning alerts.
 
@@ -410,6 +418,14 @@ class HousingSaleService:
             List of alert strings in French.
         """
         alerts: List[str] = []
+
+        # Canton non calibre AVEC un gain positif : dire honnetement qu'aucun
+        # impot n'est chiffre. (Sur une perte, l'impot est 0 partout : pas de
+        # renvoi mecanisme.)
+        if impot_indisponible:
+            mecanismes = verdict.get("mecanismes") or []
+            if mecanismes:
+                alerts.append(str(mecanismes[0]))
 
         if plus_value_imposable > 100_000:
             alerts.append(
@@ -421,7 +437,7 @@ class HousingSaleService:
                 "Duree de detention courte : taux d'imposition majore"
             )
 
-        if produit_net < 0:
+        if produit_net is not None and produit_net < 0:
             alerts.append(
                 "ATTENTION : le produit net est negatif"
             )
@@ -441,16 +457,27 @@ class HousingSaleService:
 
     def _generate_premier_eclairage(
         self,
-        produit_net: float,
-        impot_effectif: float,
+        produit_net: Optional[float],
+        impot_effectif: Optional[float],
         prix_vente: float,
+        verdict: dict,
     ) -> dict:
         """Generate the impact number (premier éclairage).
 
         Returns:
             dict with montant and texte.
         """
-        if prix_vente > 0 and impot_effectif > 0:
+        if produit_net is None:
+            # Canton non calibre : pas de montant chiffre, on renvoie le mecanisme.
+            mecanismes = verdict.get("mecanismes") or []
+            texte = (
+                str(mecanismes[0])
+                if mecanismes
+                else "Impot sur le gain a estimer aupres de l'administration cantonale."
+            )
+            return {"montant": None, "texte": texte}
+
+        if prix_vente > 0 and impot_effectif is not None and impot_effectif > 0:
             pct = round(impot_effectif / prix_vente * 100, 1)
             return {
                 "montant": round(produit_net, 2),

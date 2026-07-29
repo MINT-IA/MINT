@@ -267,7 +267,7 @@ apps/mobile/lib/screens/document_scan/
 ```
 
 **Privacy rules (non-negotiable):**
-- On-device OCR by default (document never leaves phone)
+- OCR runs server-side via Anthropic Claude Vision (US), PII-masked when possible, Zero Data Retention (Swiss-US DPF); on-device OCR removed 2026-04-17 (see privacy_policy_v2.3.0 §3.3)
 - If cloud OCR used: explicit consent + data deleted after extraction
 - If BYOK LLM used: user's own API key, their responsibility
 - Extracted values stored locally, encrypted at rest

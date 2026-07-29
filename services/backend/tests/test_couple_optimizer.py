@@ -333,6 +333,68 @@ def test_avs_cap_low_incomes_no_cap() -> None:
     assert result.monthly_reduction == pytest.approx(0.0, abs=0.01)
 
 
+def test_avs_rente_delegates_to_canonical_echelle44_no_local_copy() -> None:
+    """Anti-façade : la rente AVS couple délègue à la fonction canonique unique.
+
+    Le couple_optimizer NE doit PAS redéfinir sa propre table échelle 44
+    ni son propre ``_rente_from_ramd`` (règle 4 / NEVER #3). La rente pleine
+    (carrière complète 44 ans, sans ajustement) doit égaler exactement
+    ``social_insurance.rente_from_ramd``.
+    """
+    from app.services.couple_optimizer import couple_optimizer as _mod
+    from app.constants.social_insurance import rente_from_ramd
+
+    # Full career (arrival 20, current 65, retire 65) → gap_factor 1.0, no adj.
+    rente = _mod._avs_compute_monthly_rente(
+        current_age=65, retirement_age=65, gross_annual_salary=52_920.0
+    )
+    assert rente == pytest.approx(rente_from_ramd(52_920.0), abs=0.01)
+    assert rente == pytest.approx(2016.0, abs=0.01)  # palier officiel exact
+
+    # Aucune copie locale de la table ou du lookup ne subsiste.
+    assert not hasattr(_mod, "_AVS_ECHELLE_44"), "Table échelle 44 dupliquée détectée"
+    assert not hasattr(_mod, "_rente_from_ramd"), "Copie locale de rente_from_ramd détectée"
+
+
+def test_pilier3a_ceiling_sourced_from_registry_no_local_copy(monkeypatch) -> None:
+    """Anti-façade (P1) : le plafond 3a trace RÉELLEMENT au registre unique.
+
+    Le couple_optimizer servait une copie locale hardcodée
+    ``_PILIER_3A_PLAFOND_AVEC_LPP = 7258.0`` dans l'analyse 3a (dérive
+    silencieuse si le registre ``pillar3a.max_with_lpp`` change). Le fix doit
+    la SOURCER du registre — pas la re-hardcoder. On le prouve en patchant la
+    constante registre vers une sentinelle et en vérifiant qu'elle se propage
+    au calcul (un `ceiling = 7258.0` re-hardcodé échouerait ce test).
+    """
+    import app.constants.social_insurance as _si
+    from app.services.couple_optimizer import couple_optimizer as _mod
+
+    # 1. Plus aucune copie locale hardcodée.
+    assert not hasattr(_mod, "_PILIER_3A_PLAFOND_AVEC_LPP"), (
+        "Copie locale hardcodée du plafond 3a détectée"
+    )
+    assert _si.PILIER_3A_PLAFOND_AVEC_LPP == 7258.0  # valeur 2026 vérifiée -zaw
+
+    # 2. Baseline avec le plafond registre réel (revenus asymétriques → delta net).
+    base = CoupleOptimizer._analyze_3a_contribution_order(
+        _PROFILE_USER_HIGH_TAX, _PROFILE_USER_HIGH_TAX["conjoint"]
+    )
+    assert base is not None
+
+    # 3. Patch la constante REGISTRE vers une sentinelle nettement plus haute.
+    #    L'import inline dans _analyze_3a_contribution_order doit la re-lire →
+    #    la déduction 3a change → l'économie fiscale (et le delta) change.
+    monkeypatch.setattr(_si, "PILIER_3A_PLAFOND_AVEC_LPP", 20_000.0)
+    patched = CoupleOptimizer._analyze_3a_contribution_order(
+        _PROFILE_USER_HIGH_TAX, _PROFILE_USER_HIGH_TAX["conjoint"]
+    )
+    assert patched is not None
+    assert patched.saving_delta != base.saving_delta, (
+        "Le plafond 3a n'est pas réellement sourcé du registre "
+        "(la sentinelle ne se propage pas au calcul)"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Marriage penalty (Tests 13-16) — Dart couple_optimizer.dart:373-422
 # ---------------------------------------------------------------------------

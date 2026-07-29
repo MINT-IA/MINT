@@ -949,7 +949,12 @@ void main() {
       // 1405 (single) vs 1194 (married). Tolérance 0.01 : estimate3aTaxImpact
       // évalue le taux à (gross - déduction/2), response_card au gross plein ;
       // les deux partagent l'ajustement familial 0.85, c'est le point clé.
-      expect(onboarding.marginalTaxRate, closeTo(marginalMarie, 0.01),
+      // beads -8p4 : le point 100k VD est un PLI de la grille v2 —
+      // l'onboarding évalue à (gross - déduction/2) = 98'371 (pente
+      // 0.254, segment 70-100k) et response_card à 102'000 (0.280,
+      // segment 100-150k) : écart 0.026 structurel au pli, tolérance
+      // élargie en conséquence. L'invariant clé reste l'assert suivant.
+      expect(onboarding.marginalTaxRate, closeTo(marginalMarie, 0.03),
           reason: 'onboarding doit utiliser le barème marié comme response_card');
       expect((onboarding.marginalTaxRate - marginalMarie).abs(),
           lessThan((onboarding.marginalTaxRate - marginalCelibataire).abs()),

@@ -61,6 +61,9 @@ def test_pg_fixture_spins_postgres_and_alembic_upgrade_head_idempotent(pg_engine
     #   (h) Apple subject binding applied :
     #       {p124_user_apple_sub} (canonical post-2026-06 account lifecycle
     #       integration).
+    #   (i) MoneyTruthReceipt store applied :
+    #       {p126_money_truth_receipts} (canonical post-2026-07 tranche
+    #       firstJob handoff store/resolve, PR-E).
     expected_heads = {
         "p112_audit_event_user_hash",
         "p86_eclairage_delivered",
@@ -70,6 +73,8 @@ def test_pg_fixture_spins_postgres_and_alembic_upgrade_head_idempotent(pg_engine
         "p123_waitlist_entry",
         "p120_fact_event_idempotency",
         "p124_user_apple_sub",
+        "p125_consent_shred_pending",
+        "p126_money_truth_receipts",
     }
     assert heads_in_db & expected_heads, (
         f"alembic_version table missing expected heads. "

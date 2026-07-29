@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan de fusion — campagne étalon fiscal (2026-07-28)</title>
+<style>
+  :root { --ink:#1c2b26; --muted:#5f6f68; --line:#d8e0dc; --bg:#fafcfb; --card:#ffffff;
+          --green:#1c7a4d; --red:#b03030; --amber:#9a6b00; --accent:#003b2f; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2rem 1rem; background:var(--bg); color:var(--ink);
+         font:15px/1.55 "Helvetica Neue", Arial, sans-serif; }
+  main { max-width:1080px; margin:0 auto; }
+  h1 { font-size:1.5rem; color:var(--accent); margin:0 0 .25rem; }
+  h2 { font-size:1.15rem; color:var(--accent); margin:2.2rem 0 .6rem; border-bottom:2px solid var(--line); padding-bottom:.3rem; }
+  h3 { font-size:1rem; margin:1.4rem 0 .4rem; }
+  p.lead { color:var(--muted); margin:.2rem 0 1rem; }
+  table { border-collapse:collapse; width:100%; background:var(--card); font-size:.88rem; }
+  th, td { border:1px solid var(--line); padding:.35rem .55rem; text-align:left; vertical-align:top; }
+  th { background:#eef4f1; font-weight:600; }
+  .tablewrap { overflow-x:auto; margin:.6rem 0 1rem; }
+  code { background:#eef2f0; padding:.05rem .3rem; border-radius:3px; font-size:.85em; }
+  .ok { color:var(--green); font-weight:600; }
+  .ko { color:var(--red); font-weight:600; }
+  .warn { color:var(--amber); font-weight:600; }
+  .pill { display:inline-block; border-radius:10px; padding:0 .5rem; font-size:.8rem; font-weight:600; }
+  .pill.v1 { background:#e3efe8; color:#1c5c3d; }
+  .pill.v2 { background:#e3ebf5; color:#1f4d7a; }
+  .pill.v3 { background:#f5eee0; color:#7a5a1f; }
+  .pill.v4 { background:#f0e5f2; color:#6b2f7a; }
+  .pill.v5 { background:#f5e3e3; color:#8a2a2a; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:1rem 1.2rem; margin:.8rem 0; }
+  .note { color:var(--muted); font-size:.85rem; }
+  ul { margin:.4rem 0 .8rem 1.2rem; padding:0; }
+  li { margin:.25rem 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Plan de fusion — campagne étalon fiscal</h1>
+<p class="lead">37 PR ouvertes (#1063–#1099, branches <code>codex/journey-os-*</code>) · base <code>origin/dev = 204b31e8b</code> · sondage CI et diffs du 2026-07-28 (soirée). Fusion réservée à Julien. Source de vérité git-diffable : <code>SESSION-2026-07-28-plan-de-fusion.md</code>.</p>
+
+<h2>1. Décompte CI</h2>
+<div class="card">
+  <p><span class="ok">34 vertes</span> (MERGEABLE / CLEAN au sondage) · <span class="ko">3 rouges</span> · 0 pending (#1099 passée au vert pendant la collecte).</p>
+  <ul>
+    <li><span class="ko">#1084</span> — job « Backend tests » : pytest <b>7979 passed</b>, mais l'étape diff-coverage sort en exit 1 — <code>prescription_vocab.py</code> à 0 % (lignes 25, 29, 98 non couvertes). « CI Gate » rouge par cascade. Correctif : un test unitaire du module.</li>
+    <li><span class="ko">#1094</span> — job « Flutter services » : 1 test rouge, <code>test/services/coach/de_it_terminology_test.dart</code> (« IT ARB contains pensionamento or previdenza for retirement ») — le test asserte sur des clés que la PR supprime. Correctif : ajuster le test dans la branche.</li>
+    <li><span class="ko">#1097</span> — « Backend tests » : <code>test_coach_tools_parity.py::test_retirement_projection_parity[edge_age_65__get_retirement_projection]</code> · « Flutter services » : <code>retirement_service_test.dart</code> (« compareLpp — capital vs rente impot capital VD — capital 300k (modèle v2) »). Deux tests de parité figés sur l'ancien rabais forfaitaire, à refixer avec les montants calibrés.</li>
+  </ul>
+  <p class="note">États périmables : re-sonder <code>gh pr checks</code> avant chaque fusion. Le statut MERGEABLE vaut contre le dev du sondage et se dégrade à chaque fusion (unions triviales attendues).</p>
+</div>
+
+<h2>2. Tableau des PR</h2>
+<div class="tablewrap">
+<table>
+<tr><th>PR</th><th>Branche (codex/journey-os-…)</th><th>CI</th><th>Vague</th><th>Note d'ordre</th></tr>
+<tr><td>#1065</td><td>constat-rachat-echelonne</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1066</td><td>constat-precision-service</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1067</td><td>constat-family-service</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1070</td><td>inventaire-prescriptions</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1074</td><td>constats-triade-3-5</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1077</td><td>constat-frontalier</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1078</td><td>constat-succession-tax</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1079</td><td>constats-donation-housing</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1086</td><td>socle-succession-donnees</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1089</td><td>gains-immo-donnees</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1095</td><td>triage-tables-annassign</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td>ordre libre</td></tr>
+<tr><td>#1080</td><td>adr-decisions-deleguees</td><td class="ok">verte</td><td><span class="pill v1">1</span></td><td><b>dernière</b> de la vague (touche journey_os_check)</td></tr>
+<tr><td>#1088</td><td>garde-annassign</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td><b>première</b> de la vague (fige l'allowlist)</td></tr>
+<tr><td>#1068</td><td>accent-lint-added-only</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>—</td></tr>
+<tr><td>#1069</td><td>collect-estv-dry-run</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>—</td></tr>
+<tr><td>#1071</td><td>no-hardcoded-fr-staged-blob</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>—</td></tr>
+<tr><td>#1063</td><td>drain-taux-marginaux</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>avant #1092 (mêmes fichiers backend)</td></tr>
+<tr><td>#1064</td><td>drain-minimal-profile</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>avant #1097 (test_rules_engine)</td></tr>
+<tr><td>#1072</td><td>drain-precision-service</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>avant #1092 (precision_service)</td></tr>
+<tr><td>#1073</td><td>rachat-echelonne-code-mort</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>—</td></tr>
+<tr><td>#1075</td><td>fix-citation-cc-reserves</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>—</td></tr>
+<tr><td>#1076</td><td>drain-divorce-simulator</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>avant #1087 (test_life_events en LF)</td></tr>
+<tr><td>#1082</td><td>suppression-base-rate-mort</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td><b>avant #1085</b> (même frontalier_service.py)</td></tr>
+<tr><td>#1085</td><td>lamal-pays-residence</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td><b>après #1082</b></td></tr>
+<tr><td>#1081</td><td>fix-remploi-methode-absolue</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>avant #1090 (housing_sale)</td></tr>
+<tr><td>#1083</td><td>purge-attribution-fortune</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>avant #1087/#1090 (OpenAPI)</td></tr>
+<tr><td>#1096</td><td>drain-rag-tax-specifics</td><td class="ok">verte</td><td><span class="pill v2">2</span></td><td>—</td></tr>
+<tr><td>#1091</td><td>reecriture-arb</td><td class="ok">verte</td><td><span class="pill v3">3</span></td><td>ordre 1</td></tr>
+<tr><td>#1092</td><td>reecriture-backend</td><td class="ok">verte</td><td><span class="pill v3">3</span></td><td>ordre 2 (rebase post-drains)</td></tr>
+<tr><td>#1093</td><td>reecriture-dart</td><td class="ok">verte</td><td><span class="pill v3">3</span></td><td>ordre 3</td></tr>
+<tr><td>#1094</td><td>suppression-cles-mortes</td><td class="ko">rouge — Flutter services</td><td><span class="pill v3">3</span></td><td>ordre 4, après correctif du test</td></tr>
+<tr><td>#1084</td><td>lint-prescriptions</td><td class="ko">rouge — diff-coverage</td><td><span class="pill v3">3</span></td><td>ordre 5, après correctif + élagage baseline</td></tr>
+<tr><td>#1087</td><td>socle-succession-code-impl</td><td class="ok">verte</td><td><span class="pill v4">4</span></td><td>ordre 1 (36 fichiers, gros rebase)</td></tr>
+<tr><td>#1090</td><td>gains-immo-calibres</td><td class="ok">verte</td><td><span class="pill v4">4</span></td><td>ordre 2 (30 fichiers)</td></tr>
+<tr><td>#1098</td><td>oracle-estv-reveil</td><td class="ok">verte</td><td><span class="pill v5">5</span></td><td>ordre 1</td></tr>
+<tr><td>#1099</td><td>etalon-noeuds-bas</td><td class="ok">verte</td><td><span class="pill v5">5</span></td><td>ordre 2</td></tr>
+<tr><td>#1097</td><td>recalibrage-capital-marie</td><td class="ko">rouge — parité ×2</td><td><span class="pill v5">5</span></td><td>ordre 3, après correctif + rebase sur #1098/#1099</td></tr>
+</table>
+</div>
+
+<h2>3. Carte des chevauchements</h2>
+<div class="card">
+<p>251 paires partagent au moins un fichier ; l'écrasante majorité ne partagent que les deux fichiers de garde :</p>
+<ul>
+  <li><code>tools/checks/journey_os_check.py</code> (liste ALLOW) — <b>22 branches</b> : 1063, 1068, 1069, 1072, 1075, 1076, 1080, 1081, 1082, 1083, 1084, 1085, 1087, 1090, 1091, 1092, 1093, 1094, 1096, 1097, 1098, 1099. Conflit trivial d'union, 1 ligne par entrée.</li>
+  <li><code>tools/checks/no_cantonal_rate_table.py</code> (allowlist) — <b>8 branches</b> : 1063, 1064, 1073, 1076, 1085, 1087, 1088, 1097. <span class="warn">Écart vs la liste déclarée</span> : #1072 et #1090 ne touchent pas ce fichier ; #1063, #1076 et #1085 le touchent en plus.</li>
+</ul>
+</div>
+<h3>Chevauchements non triviaux (hors fichiers de garde)</h3>
+<div class="tablewrap">
+<table>
+<tr><th>Paire</th><th>Fichiers partagés</th><th>Statut</th><th>Résolution mécanique</th></tr>
+<tr><td>#1086 ↔ #1087</td><td>socle_extraction.json</td><td>déclaré</td><td>copie identique — no-op, ordre libre</td></tr>
+<tr><td>#1089 ↔ #1090</td><td>5 fichiers archive gains immo</td><td>déclaré (corps #1090)</td><td>copie identique — no-op</td></tr>
+<tr><td>#1081 ↔ #1090</td><td>housing_sale py + dart + 2 tests</td><td>déclaré</td><td>#1081 d'abord ; py identique = no-op, dart → version verdict de #1090</td></tr>
+<tr><td>#1091 ↔ #1094</td><td>12 ARB + dart générés</td><td>déclaré</td><td>zones disjointes par clé ; <code>flutter gen-l10n</code> après rebase</td></tr>
+<tr><td>#1097 ↔ #1098</td><td>test_estv_oracle.py + SCHEMA</td><td>déclaré</td><td>#1098 d'abord ; #1097 rebase sur l'oracle réveillé</td></tr>
+<tr><td>#1063 ↔ #1092</td><td>coaching_engine.py, first_job/onboarding_service.py</td><td class="warn">non déclaré</td><td>#1063 (drain) d'abord ; hunks wording a priori disjoints</td></tr>
+<tr><td>#1072 ↔ #1092</td><td>precision_service.py</td><td class="warn">non déclaré</td><td>#1072 (drain) d'abord</td></tr>
+<tr><td>#1064 ↔ #1097</td><td>test_rules_engine.py</td><td class="warn">non déclaré</td><td>#1064 d'abord ; #1097 rebase</td></tr>
+<tr><td>#1076 ↔ #1087</td><td>test_life_events.py</td><td class="warn">non déclaré</td><td>#1076 a normalisé CRLF→LF ; #1076 d'abord, rebase #1087 sur la version LF</td></tr>
+<tr><td>#1082 ↔ #1085</td><td>frontalier_service.py</td><td class="warn">non déclaré</td><td>#1082 (champ mort) d'abord ; zones distinctes</td></tr>
+<tr><td>#1083 ↔ #1087 / #1090</td><td>tools/openapi/*.json</td><td class="warn">non déclaré</td><td>regen OpenAPI canonique après rebase</td></tr>
+<tr><td>#1068 ↔ #1084</td><td>lefthook.yml</td><td class="warn">non déclaré</td><td>union de deux hooks</td></tr>
+<tr><td>#1087 ↔ #1090/#1091/#1094</td><td>12-13 fichiers ARB + gen (+ life_events/schemas/openapi pour #1090)</td><td>partiellement déclaré</td><td>ordre vague 3 → vague 4 ; gen-l10n + regen OpenAPI par rebase</td></tr>
+<tr><td>#1097 ↔ #1099</td><td>income_tax_model_v2.dart, cantonal_comparator.py, rvc_parity_v1.json</td><td class="warn">non déclaré</td><td>vrai couplage étalon — #1099 d'abord, #1097 refixe la parité sur l'état fusionné</td></tr>
+</table>
+</div>
+<div class="card">
+<p><b>Couplages sémantiques sans chevauchement de fichier</b> :</p>
+<ul>
+  <li>La baseline cliquet de #1084 (<code>_baseline_prescription_sites.txt</code>) référence les sites réécrits par #1091/#1092/#1093 et supprimés par #1094 — élagage obligatoire dans #1084 après leurs fusions (comportement voulu).</li>
+  <li>L'allowlist gelée par #1088 contient des tables tuées par #1072/#1087/#1090 — retrait des entrées lors de leurs rebases (rétrécissement forcé).</li>
+  <li>Le correctif de parité de #1097 touchera vraisemblablement <code>coach_tools_parity_v1.jsonl</code>, que #1099 modifie aussi — refixer après la fusion de #1099.</li>
+</ul>
+</div>
+
+<h2>4. Ordre de fusion recommandé</h2>
+<div class="card">
+<h3><span class="pill v1">Vague 1</span> — docs, constats, ADR, données (12 PR vertes)</h3>
+<p>#1065, #1066, #1067, #1070, #1074, #1077, #1078, #1079, #1086, #1089, #1095, puis <b>#1080 en dernier</b>. Zéro chevauchement entre elles, zéro code exécutable (sauf la ligne ALLOW de #1080).</p>
+<p class="note">Rebases après vague 1 : les 21 branches code touchant <code>journey_os_check.py</code> (1 ligne d'union chacune).</p>
+</div>
+<div class="card">
+<h3><span class="pill v2">Vague 2</span> — lint/infra + drains backend indépendants (15 PR vertes)</h3>
+<p><b>#1088 d'abord</b> → #1068, #1069, #1071 → #1063, #1064, #1072, #1073, #1075, #1076 → <b>#1082 puis #1085</b> → #1081, #1083, #1096. Chaque PR est autonome ; seuls conflits internes : unions ALLOW/allowlist et la paire #1082→#1085.</p>
+<p class="note">Rebases après vague 2 : #1084, #1087, #1090, #1091, #1092, #1093, #1094, #1097, #1098, #1099. #1092 rejoue ses hunks sur les fichiers drainés (#1063/#1072) ; #1087 reprend test_life_events en LF (#1076), retire l'entrée donation de l'allowlist (#1088), regen OpenAPI (#1083) ; #1090 idem OpenAPI + allowlist.</p>
+</div>
+<div class="card">
+<h3><span class="pill v3">Vague 3</span> — campagne prescriptions (5 PR, ordre imposé)</h3>
+<p><b>#1091 → #1092 → #1093 → #1094 → #1084.</b> #1094 : corriger d'abord <code>de_it_terminology_test.dart</code>. #1084 : couvrir <code>prescription_vocab.py</code> (25/29/98), élaguer la baseline (56 sites réécrits + 8 supprimés), union lefthook avec #1068. Fusionner le lint en dernier évite quatre retraits successifs de baseline — un seul élagage final.</p>
+<p class="note">Rebases après vague 3 : #1087, #1090 (ARB + gen-l10n), #1097, #1098, #1099 (ALLOW).</p>
+</div>
+<div class="card">
+<h3><span class="pill v4">Vague 4</span> — grosses unités fiscales (2 PR vertes)</h3>
+<p><b>#1087 → #1090.</b> Résolutions : archives déjà sur dev (no-op), ARB → gen-l10n, OpenAPI → regen, test_life_events LF, allowlist AnnAssign à rétrécir, housing_sale → py no-op + dart version verdict.</p>
+<p class="note">Rebases après vague 4 : #1097, #1098, #1099 (ALLOW).</p>
+</div>
+<div class="card">
+<h3><span class="pill v5">Vague 5</span> — étalon et oracle (3 PR, ordre imposé)</h3>
+<p><b>#1098 → #1099 → #1097.</b> #1097 : refixer les 2 tests de parité avec les montants calibrés, puis rebase sur #1098 (oracle) et #1099 (income_tax_model_v2, cantonal_comparator, rvc_parity, parité coach_tools).</p>
+<p class="note">Après la vague : refresh de la fixture oracle (script versionné #1069/#1098) — zone sous-40k et capital marié calibré, tolérances documentées.</p>
+</div>
+
+<h2>5. Ce qui reste après les fusions</h2>
+<div class="card">
+<ul>
+  <li><b>Élagage baseline #1084</b> — effectué à sa fusion (fin de vague 3) ; le cliquet interdit la ré-expansion.</li>
+  <li><b>Refresh oracle ESTV</b> post-#1097/#1098/#1099 — recapture de la fixture, vecteurs sous-40k admis, tolérances honnêtes.</li>
+  <li><b>Rebases résiduels</b> — aucune branche ne doit rester en CONFLICTING en fin de campagne.</li>
+  <li><b>Suivis déclarés hors périmètre</b> : SaleSurprisesWidget à câbler ou supprimer (#1090) ; ResidenceCountry sans LI + paramètre canton superflu sur l'endpoint frontalier (#1085) ; divergence préexistante plus_value_brute py↔dart (#1090) ; 7 tables AnnAssign restantes à trier (#1095).</li>
+</ul>
+</div>
+
+<p class="note">Méthode : <code>gh pr view --json mergeable,mergeStateStatus,statusCheckRollup,body</code> pour les 37 PR · <code>git diff --name-only origin/dev...origin/&lt;branche&gt;</code> · intersections par script · logs des jobs rouges lus via <code>gh run view --log-failed</code>. Aucun déclenchement de CI, lecture seule.</p>
+</main>
+</body>
+</html>

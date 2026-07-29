@@ -159,9 +159,8 @@ void main() {
       );
     });
 
-    testWidgets('error state personalise CTA calls onNavigate with coach chat',
+    testWidgets('error state personalise CTA opens structured diagnostic',
         (tester) async {
-      // P10-02b: QuickStartScreen deleted → CTA now routes to /coach/chat.
       String? capturedRoute;
       final widget = await _buildCard(
         snapshot: null,
@@ -173,7 +172,7 @@ void main() {
       await tester.tap(find.text('Personnaliser'));
       await tester.pump();
 
-      expect(capturedRoute, '/coach/chat');
+      expect(capturedRoute, '/onb');
     });
   });
 }

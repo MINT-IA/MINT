@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 import 'package:mint_mobile/services/financial_core/generated/regulatory_constants.g.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
@@ -76,6 +77,66 @@ class ArbitrageEngine {
   //  1. RENTE VS CAPITAL
   // ════════════════════════════════════════════════════════════
 
+  // ── Impôt revenu sur la rente — MIROIR EXACT du backend canonique ──
+  // MIRROR services/backend/app/services/arbitrage/rente_vs_capital.py
+  // (`_estimate_income_tax_on_rente`) + fiscal/cantonal_comparator.py
+  // (FEDERAL_BRACKETS 2026, CANTONAL_COMMUNAL_TAX_CHF interpolée v2 -97h).
+  // Beads MINT_nosync-axj : RvC est L2 « comparer » -> backend canonique ;
+  // ce fallback offline doit produire LE MÊME chiffre, pas un chiffre
+  // « plus riche » — l'utilisateur ne doit jamais voir un montant qui
+  // dépend de la surface qui a répondu. Toute recalibration passe par le
+  // backend d'abord, puis ce miroir (goldens croisés rvc_parity_v1.json).
+
+  /// Impôt annuel estimé sur une rente LPP (miroir backend, voir bloc
+  /// MIRROR ci-dessus). Public : les tests de propriété (ex. non-double-
+  /// déflation) reconstruisent l'attendu avec LA formule du moteur.
+  static double estimateIncomeTaxOnRenteRvc(
+    double renteAnnuelle,
+    String canton,
+    bool isMarried,
+  ) {
+    // Revenu imposable ≈ 85% de la rente après déductions forfaitaires
+    // (LIFD art. 33) — même simplification que le backend. Modèle v2
+    // partagé (income_tax_model_v2.dart, miroir backend -97h).
+    return _roundPyMirror2(
+      estimateIncomeTaxV2(renteAnnuelle * 0.85, canton, isMarried: isMarried),
+    );
+  }
+
+
+  /// Arrondi à 2 décimales — miroir exact de ``round(x, 2)`` Python
+  /// (review Codex PR #978, rounds 2-3).
+  ///
+  /// Cas général : ``toStringAsFixed(2)`` opère sur la représentation
+  /// décimale du double, comme Python (379.694999… -> 379.69 là où
+  /// ``(x*100).roundToDouble()`` donnait 379.70).
+  ///
+  /// Tie exact : Python arrondit half-even quand la valeur RATIONNELLE du
+  /// double vaut exactement k.5 centimes (0.125 -> 0.12, atteignable via
+  /// rente 1.6460580202530979 VD) alors que ``toStringAsFixed`` fait
+  /// half-away (-> 0.13). Un tel tie ((2k+1)/200 représentable en binaire)
+  /// impose 25 | (2k+1), donc valeur = entier + impair/8 : sa décimale
+  /// exacte est FINIE en x.xx5. ``toStringAsFixed(20)`` (correctly
+  /// rounded) la rend donc comme « …5 » suivi de zéros — signature
+  /// détectable sans arithmétique flottante intermédiaire (le détecteur
+  /// précédent multipliait par 200 et fabriquait de faux ties).
+  static double _roundPyMirror2(double value) {
+    final s = value.toStringAsFixed(20);
+    final dot = s.indexOf('.');
+    final frac = s.substring(dot + 1);
+    final isExactTie = frac.length >= 3 &&
+        frac[2] == '5' &&
+        frac.substring(3).replaceAll('0', '').isEmpty;
+    if (isExactTie) {
+      final whole = int.parse(s.substring(0, dot).replaceAll('-', ''));
+      final cents = whole * 100 + int.parse(frac.substring(0, 2));
+      final even = cents.isEven ? cents : cents + 1;
+      final result = even / 100;
+      return value.isNegative ? -result : result;
+    }
+    return double.parse(value.toStringAsFixed(2));
+  }
+
   /// Compare full rente, full capital, and mixed (obligatoire rente +
   /// surobligatoire capital) strategies over [horizon] years.
   ///
@@ -87,7 +148,7 @@ class ArbitrageEngine {
   /// [tauxRetrait] Safe withdrawal rate (default 4%).
   /// [rendementCapital] Expected return on invested capital (default 3%).
   /// [inflation] Expected inflation rate (default 2%).
-  /// [horizon] Projection horizon in years (default 25).
+  /// [horizon] Projection horizon in years (default 30, unifié backend -axj).
   static ArbitrageResult compareRenteVsCapital({
     required double capitalLppTotal,
     required double capitalObligatoire,
@@ -358,12 +419,8 @@ class ArbitrageEngine {
     // ── Compute hero + educational card data ──
 
     // Rente net mensuelle (year 1, nominal)
-    final renteAnnualTaxY1 = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-          revenuAnnuelImposable: effectiveRente,
-          canton: canton,
-          etatCivil: isMarried ? 'marie' : 'celibataire',
-        ) *
-        12;
+    final renteAnnualTaxY1 =
+        estimateIncomeTaxOnRenteRvc(effectiveRente, canton, isMarried);
     final renteNetAnnuelleY1 = effectiveRente - renteAnnualTaxY1;
     final renteNetMensuelle = renteNetAnnuelleY1 / 12;
 
@@ -379,19 +436,13 @@ class ArbitrageEngine {
     final initialWithdrawal = capitalAfterReturn * tauxRetrait;
     final capitalRetraitMensuel = initialWithdrawal / 12;
 
-    // Capital exhaustion age
+    // Capital exhaustion age — deterministic read of the trajectory.
+    // _buildCapitalTrajectory caps each withdrawal to the remaining capital,
+    // so netPatrimony (real remaining capital, no cashflow mixed in) hits
+    // exactly 0 the year the capital is drained.
     int? capitalEpuiseAge;
     for (int i = 1; i < capitalTrajectory.length; i++) {
-      // Capital trajectory netPatrimony includes cumulative cashflow,
-      // so check if the remaining capital portion is <= 0.
-      // We detect exhaustion when annual cashflow drops to near-zero
-      // (the capital portion is drained).
-      final snap = capitalTrajectory[i];
-      // Extract remaining capital: netPatrimony - cumulativeCashflow
-      // Since we don't track separately, use the trajectory's design:
-      // when the withdrawal is capped to remaining capital and capital is 0
-      if (i > 1 &&
-          snap.annualCashflow < capitalTrajectory[1].annualCashflow * 0.1) {
+      if (capitalTrajectory[i].netPatrimony <= 1e-9) {
         capitalEpuiseAge = ageRetraite + i;
         break;
       }
@@ -482,7 +533,13 @@ class ArbitrageEngine {
       if (capitalLppTotal <= 0) 'capital_lpp_total',
       if (renteAnnuelleProposee <= 0) 'rente_annuelle_proposee',
       if (canton.trim().isEmpty) 'canton',
-      if (currentAge == null) 'current_age',
+      // current_age n'est requis que si une projection est demandée
+      // (salaire fourni). Le mode certificat calcule sur les valeurs
+      // réelles sans projection (beads MINT_nosync-8wy).
+      if (currentAge == null &&
+          grossAnnualSalary != null &&
+          grossAnnualSalary > 0)
+        'current_age',
       if (horizon <= 0) 'horizon_years',
       if (capitalLppTotal > 0 && tauxRetrait <= 0) 'safe_withdrawal_rate',
       if (capitalObligatoire > 0 && tauxConversionObligatoire <= 0)
@@ -930,6 +987,10 @@ class ArbitrageEngine {
           'Taux hypothecaire : ${(tauxHypothecaire * 100).toStringAsFixed(2)} %',
         if (potentielRachatLpp > 0)
           'Potentiel de rachat LPP : ${chf.formatChfWithPrefix(potentielRachatLpp)}',
+        if (potentielRachatLpp > 0)
+          'Blocage rachat LPP (art. 79b al. 3) modélisé comme reprise de la '
+              'déduction sur les 3 dernières années ; le capital racheté '
+              'reste compté disponible à l\'horizon (simplification).',
       ],
       disclaimer:
           'Outil éducatif — ne constitue pas un conseil financier (LSFin). '
@@ -1855,12 +1916,8 @@ class ArbitrageEngine {
       }
       // Rente LPP is NOT indexed — real value decreases with inflation
       final realRente = renteAnnuelle / math.pow(1 + inflation, y);
-      final annualTax = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-            revenuAnnuelImposable: realRente,
-            canton: canton,
-            etatCivil: isMarried ? 'marie' : 'celibataire',
-          ) *
-          12;
+      final annualTax =
+          estimateIncomeTaxOnRenteRvc(realRente, canton, isMarried);
       final netAnnual = realRente - annualTax;
       cumulativeCashflow += netAnnual;
       cumulativeTax += annualTax;
@@ -1985,12 +2042,8 @@ class ArbitrageEngine {
       }
       // Rente part: NOT indexed, deflated by inflation
       final realRente = renteObligatoire / math.pow(1 + inflation, y);
-      final renteTax = RetirementTaxCalculator.estimateMonthlyIncomeTax(
-            revenuAnnuelImposable: realRente,
-            canton: canton,
-            etatCivil: isMarried ? 'marie' : 'celibataire',
-          ) *
-          12;
+      final renteTax =
+          estimateIncomeTaxOnRenteRvc(realRente, canton, isMarried);
       // Capital part: nominal growth + Trinity SWR
       capitalNet *= (1 + rendement);
       if (y == 1) {
@@ -2002,15 +2055,25 @@ class ArbitrageEngine {
           math.min(nominalWithdrawal, math.max(0, capitalNet));
       capitalNet -= capitalWithdrawal;
 
-      final totalNominalCashflow =
-          renteObligatoire - renteTax + capitalWithdrawal;
-      cumulativeCashflow += totalNominalCashflow;
+      // Cashflow réel de l'année, cohérent avec l'option Rente pure
+      // (_buildRenteTrajectory) : l'impôt est déjà calculé sur la rente RÉELLE
+      // (realRente), on ne le re-déflate donc pas une seconde fois. Le retrait
+      // de capital, lui, est nominal (indexé inflation) -> déflaté à l'année y.
+      // Fix beads MINT_nosync-1px : l'ancien code re-déflatait tout le
+      // totalNominalCashflow (impôt compris) -> impôt déflaté deux fois ->
+      // cashflow mixte sur-estimé, biais d'arbitrage vers le capital.
+      final realNetRente = realRente - renteTax;
+      final realCapitalWithdrawal =
+          capitalWithdrawal / math.pow(1 + inflation, y);
+      final realCashflow = realNetRente + realCapitalWithdrawal;
+
+      cumulativeCashflow += realCashflow;
       cumulativeTax += renteTax;
 
-      // Express in real terms
+      // capitalNet est nominal -> déflaté à l'année y ; cumulativeCashflow est
+      // déjà en francs réels (chaque année déflatée à son propre millésime).
       final realPatrimony =
-          (capitalNet + cumulativeCashflow) / math.pow(1 + inflation, y);
-      final realCashflow = totalNominalCashflow / math.pow(1 + inflation, y);
+          capitalNet / math.pow(1 + inflation, y) + cumulativeCashflow;
 
       snapshots.add(YearlySnapshot(
         year: startYear + y,
@@ -2054,8 +2117,15 @@ class ArbitrageEngine {
       // Then add this year's contribution
       balance += montantAnnuel;
 
-      // Tax saving from deduction
-      final taxSaving = deductible ? montantAnnuel * tauxMarginal : 0.0;
+      // Tax saving from deduction. Art. 79b al. 3 LPP (ATF 142 II 399) : un
+      // retrait en capital dans les [blocageYears] ans qui suivent un rachat
+      // entraîne la reprise de la déduction par l'AFC — les versements des
+      // dernières années avant l'horizon (retrait capital) ne créditent donc
+      // aucune économie. Fix beads MINT_nosync-okl : le paramètre était reçu
+      // mais jamais lu (le label UI annonçait déjà « blocage 3 ans »).
+      final withinBlocage = (horizon - y) < blocageYears;
+      final taxSaving =
+          (deductible && !withinBlocage) ? montantAnnuel * tauxMarginal : 0.0;
       cumulativeTaxSaving += taxSaving;
 
       snapshots.add(YearlySnapshot(

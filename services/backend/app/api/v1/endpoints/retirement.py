@@ -131,6 +131,7 @@ def compare_lpp(
         canton=str(resolved["canton"]),
         retirement_age=resolved["age_retraite"],
         life_expectancy=resolved["esperance_vie"],
+        is_married=bool(resolved["is_married"]),
     )
     return LppConversionResponse(
         capital_total=result.capital_total,

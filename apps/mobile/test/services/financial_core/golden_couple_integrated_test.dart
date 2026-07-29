@@ -59,7 +59,7 @@ const double kCombinedSalary = 189207.0;
 // ══════════════════════════════════════════════════════════════════════════════
 //  AVS DERIVATION (reference, not from law lookup at runtime)
 //
-//  Julien: salary > avsRAMDMax (88'200) → renteFromRAMD = 2520 CHF/mois
+//  Julien: salary > avsRAMDMax (90'720) → renteFromRAMD = 2520 CHF/mois
 //          currentYears = 49-20 = 29, futureYears = 65-49 = 16 → total 45,
 //          capped at 44 → gapFactor = 1.0 → rente = 2520 CHF/mois
 //
@@ -67,9 +67,9 @@ const double kCombinedSalary = 189207.0;
 //          Échelle 44 concave lookup: 67'000 falls in bracket [57'600→2'098, 68'400→2'194]
 //          interpolation → renteFromRAMD ≈ 2'187.0 CHF/mois
 //          currentYears = 43-20 = 23, futureYears = 65-43 = 22 → total 45,
-//          capped at 44 → gapFactor = 1.0 → rente ≈ 2'187.0 CHF/mois
+//          capped at 44 → gapFactor = 1.0 → rente ≈ 2'203.6 CHF/mois
 //
-//  Couple sum = 2520 + 2187.0 = 4707.0 > cap 3780
+//  Couple sum = 2520 + 2203.6 = 4723.6 > cap 3780
 //          → cap applies (LAVS art. 35)
 //          → total = 3780 CHF/mois (= 45'360 CHF/an with 13th rente)
 //
@@ -88,7 +88,7 @@ void main() {
 
   group('AvsCalculator — individual rentes (LAVS art. 34)', () {
     test('G1.1 Julien renteFromRAMD returns max (salary > avsRAMDMax)', () {
-      // Salary 122'207 exceeds avsRAMDMax (88'200) → must return max rente.
+      // Salary 122'207 exceeds avsRAMDMax (90'720) → must return max rente.
       final rente = AvsCalculator.renteFromRAMD(kJulienSalary);
       expect(
         rente,
@@ -101,11 +101,11 @@ void main() {
       // salary 67'000 → Échelle 44 concave lookup in bracket [57'600→2'098, 68'400→2'194]
       // → interpolation yields ≈ 2'187.0 CHF/mois
       final rente = AvsCalculator.renteFromRAMD(kLaurenSalary);
-      const expectedApprox = 2187.0;
+      const expectedApprox = 2203.6;
       expect(
         rente,
         closeTo(expectedApprox, 5.0),
-        reason: 'Lauren RAMD interpolation should yield ~2187 CHF/mois',
+        reason: 'Lauren RAMD interpolation should yield ~2203.6 CHF/mois',
       );
       expect(rente, greaterThan(avsRenteMinMensuelle),
           reason: 'Lauren rente must be above minimum (1260)');
@@ -132,7 +132,7 @@ void main() {
 
     test('G1.4 Lauren computeMonthlyRente — expat_us, arrivalAge 20, retirement 65', () {
       // Lauren: arrived at 20, currentYears = 43-20 = 23, future = 22 → 45, capped 44
-      // gapFactor = 1.0 → full RAMD-based rente ≈ 2187.0 (Échelle 44)
+      // gapFactor = 1.0 → full RAMD-based rente ≈ 2203.6 (Échelle 44)
       final rente = AvsCalculator.computeMonthlyRente(
         currentAge: kLaurenAge,
         retirementAge: kLaurenRetirementAge,
@@ -142,8 +142,8 @@ void main() {
       );
       expect(
         rente,
-        closeTo(2187.0, 5.0),
-        reason: 'Lauren full contribution + 67k salary → ~2187 CHF/mois',
+        closeTo(2203.6, 5.0),
+        reason: 'Lauren full contribution + 67k salary → ~2203.6 CHF/mois',
       );
     });
 
@@ -210,7 +210,7 @@ void main() {
       expect(
         sum,
         greaterThan(avsRenteCoupleMaxMensuelle),
-        reason: '2520 + ~2187 = ~4707 > 3780 — cap must trigger',
+        reason: '2520 + ~2203.6 = ~4723.6 > 3780 — cap must trigger',
       );
     });
 
@@ -605,18 +605,18 @@ void main() {
           reason: '677k CHF withdrawal in VS must incur positive tax');
     });
 
-    test('G6.3 Married couple discount reduces capital tax vs single', () {
-      // Audit 2026-04-18 Q5 : coefficient marié par canton (pas uniforme).
-      // VS = 0.81 (barème marié progressif LF VS art. 33b), pas 0.85.
-      const vsRate = 0.060;
-      final taxSingle = RetirementTaxCalculator.progressiveTax(
-          677847.0, vsRate);
-      final taxMarried = RetirementTaxCalculator.progressiveTax(
-          677847.0, vsRate * marriedCapitalTaxDiscountFor('VS'));
+    test('G6.3 Married couple reduces capital tax vs single (VS, ESTV)', () {
+      // Triage AnnAssign #1095 : le rabais forfaitaire par canton (inventé)
+      // a été supprimé ; la part cantonale mariée interpole l'étalon ESTV
+      // cantonalCapitalTaxMarriedChf. VS réduit réellement l'impôt marié.
+      final taxSingle = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: 677847.0, canton: 'VS', isMarried: false);
+      final taxMarried = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: 677847.0, canton: 'VS', isMarried: true);
       expect(
         taxMarried,
         lessThan(taxSingle),
-        reason: 'Married couple gets cantonal capital tax discount in VS (0.81)',
+        reason: 'VS réduit l\'impôt capital marié (étalon ESTV)',
       );
     });
 

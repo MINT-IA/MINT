@@ -24,8 +24,7 @@ from app.services.fiscal.cantonal_comparator import (
     DISCLAIMER,
     SOURCES,
     CANTON_NAMES,
-    EFFECTIVE_RATES_100K_SINGLE,
-    INCOME_ADJUSTMENT,
+    estimate_income_tax_parts,
     FAMILY_ADJUSTMENTS,
 )
 
@@ -64,8 +63,7 @@ __all__ = [
     "DISCLAIMER",
     "SOURCES",
     "CANTON_NAMES",
-    "EFFECTIVE_RATES_100K_SINGLE",
-    "INCOME_ADJUSTMENT",
+    "estimate_income_tax_parts",
     "FAMILY_ADJUSTMENTS",
     # Commune service
     "search_communes",

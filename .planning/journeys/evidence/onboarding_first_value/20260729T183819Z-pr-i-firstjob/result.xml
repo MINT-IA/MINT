@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="iPhone 16e - iOS 26.2 - 9C9E9AAE-C3CF-49B8-B06D-625004880A9B" tests="1" failures="1" time="22.0">
+    <testcase id="firstjob_tranche_acceptance_seeded" name="firstjob_tranche_acceptance_seeded" classname="firstjob_tranche_acceptance_seeded" time="22.0" status="ERROR">
+      <properties>
+        <property name="tags" value="phase-1prime, tranche-firstjob, acceptance, seeded, feature:first-job"/>
+      </properties>
+      <failure>Assertion is false: id: first_job_screen is visible</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

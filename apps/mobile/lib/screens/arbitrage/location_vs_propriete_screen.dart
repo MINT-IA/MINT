@@ -61,6 +61,8 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   Map<String, ProfileDataSource> _dataSources = {};
   // Codex W3 : confiance canonique du profil (un profil = un score). Null en
   // usage standalone → la banniere indicative est masquee plutot que 0%.
+  /// -jzk : EnhancedConfidence COMPLET conservé (couche 4).
+  EnhancedConfidence? _canonicalEnhanced;
   double? _canonicalConfidence;
 
   @override
@@ -83,7 +85,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
     if (profile == null) return;
 
     // Codex W3 : score canonique unique, calcule sur ce profil.
-    _canonicalConfidence = ConfidenceScorer.scoreEnhanced(profile).combined;
+    // -jzk : garder l'EnhancedConfidence COMPLET (axisPrompts pour la
+    // couche 4), pas seulement .combined.
+    _canonicalEnhanced = ConfidenceScorer.scoreEnhanced(profile);
+    _canonicalConfidence = _canonicalEnhanced!.combined;
 
     final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
@@ -154,6 +159,8 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
     setState(() => _result = result);
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,8 +211,14 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                           if (_canonicalConfidence != null ||
                               _dataSources.isNotEmpty)
                             IndicatifBanner(
+                              // -7vv : contrat MUST de fromBareScore — trame 4 axes RÉELLE
+                              // (le score de visibilité reste _result.confidenceScore).
+                              confidence: _canonicalEnhanced,
                               confidenceScore: _result!.confidenceScore,
-                              topEnrichmentCategory: 'patrimoine',
+                              // -jzk : catégorie au plus FORT impact du profil réel —
+                              // plus de 'patrimoine' codé en dur.
+                              topEnrichmentCategory: IndicatifBanner.topEnrichmentCategoryFrom(
+                                      _canonicalEnhanced),
                             ),
                           if (_hasEstimatedValues)
                             Padding(

@@ -136,33 +136,39 @@ def test_get_calculator_unknown_name_raises_keyerror():
 
 
 def test_registry_idempotent_regeneration():
-    """Test 8 : ``--check`` exits 0 immediately after a fresh generation.
+    """Test 8 : two in-memory generations are byte-identical (determinism).
 
-    Proves the generator is deterministic (stable ordering) — running it
-    twice produces byte-identical output.
+    Beads MINT_nosync-5u4 : l'ancienne version ÉCRIVAIT ``_registry.py`` sur
+    le disque à chaque run pytest — le side effect régénérait le fichier et
+    MASQUAIT tout drift du registre committé (la suite restait verte avec un
+    registre stale ; frais_annuels_par_compte de PR #957 manquait depuis des
+    semaines). L'idempotence se prouve en mémoire, sans toucher au worktree.
     """
-    # Step 1 : write current registry to disk.
-    write_result = subprocess.run(
-        [sys.executable, str(GENERATOR_PATH)],
-        cwd=str(PROJECT_ROOT),
-        capture_output=True,
-        text=True,
-    )
-    assert write_result.returncode == 0, (
-        f"Generator write failed : stdout={write_result.stdout!r} "
-        f"stderr={write_result.stderr!r}"
-    )
-    # Step 2 : --check must immediately exit 0.
-    check_result = subprocess.run(
-        [sys.executable, str(GENERATOR_PATH), "--check"],
-        cwd=str(PROJECT_ROOT),
-        capture_output=True,
-        text=True,
-    )
-    assert check_result.returncode == 0, (
-        "Generator --check failed immediately after generation : "
-        f"stdout={check_result.stdout!r} stderr={check_result.stderr!r} . "
+    from generate_calc_registry import generate_registry, render_module
+
+    first = render_module(generate_registry())
+    second = render_module(generate_registry())
+    assert first == second, (
         "Regeneration is not idempotent — check sort ordering / json.dumps usage."
+    )
+
+
+def test_registry_committed_file_is_fresh():
+    """Test 9 : le fichier COMMITTÉ == la sortie du générateur (gate fraîcheur).
+
+    Beads MINT_nosync-5u4 : ``--check`` n'était câblé ni en CI ni en
+    lefthook — un calculateur ajouté sans régénération driftait en silence.
+    Ce test vit dans la suite pytest (exécutée en CI backend) : tout drift
+    casse le build avec l'instruction de régénération.
+    """
+    from generate_calc_registry import generate_registry, render_module
+
+    expected = render_module(generate_registry())
+    actual = REGISTRY_PATH.read_text(encoding="utf-8")
+    assert actual == expected, (
+        "services/backend/app/calculators/_registry.py est STALE vs le scan "
+        "AST des services. Re-run : python3 tools/generate_calc_registry.py "
+        "puis committer le fichier régénéré."
     )
 
 

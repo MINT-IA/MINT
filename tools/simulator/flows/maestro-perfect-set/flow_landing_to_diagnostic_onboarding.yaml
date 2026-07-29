@@ -49,7 +49,7 @@ tags:
     text: "Parle à Mint"
 - extendedWaitUntil:
     visible:
-      id: "onboarding-entry-open"
+      text: "Un premier aperçu suisse."
     timeout: 8000
 - assertVisible:
     text: "Un premier aperçu suisse."
@@ -58,12 +58,17 @@ tags:
 - takeScreenshot: "02-diagnostic-entry"
 
 # 03 — prove the diagnostic shell is actionable, not a route dead end.
+# Maestro/iOS omits this CTA from its hierarchy on iPhone 13 mini; the
+# calibrated tap center matches the existing Mint 2 first-experience gate.
 - tapOn:
-    id: "onboarding-entry-open"
+    point: "200, 620"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "onboarding-intent-explorer"
+      text: "Qu’est-ce que tu veux éclairer d’abord ?"
     timeout: 5000
 - assertVisible:
-    text: "Qu’est-ce que tu veux éclairer d’abord ?"
+    id: "onboarding-intent-achat"
+- assertVisible:
+    id: "onboarding-intent-impots"
 - takeScreenshot: "03-diagnostic-intents"

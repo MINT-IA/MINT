@@ -223,23 +223,23 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FamilyService - Family Allocations', () {
-    test('Valais has highest allocations at CHF 305/month', () {
+    test('Zug has highest allocations at CHF 330/month (OFAS 2026)', () {
       final result = FamilyService.estimateAllocations(
-        canton: 'VS',
+        canton: 'ZG',
         nbEnfants: 1,
       );
 
-      expect(result['mensuelParEnfant'], 305.0);
+      expect(result['mensuelParEnfant'], 330.0);
       expect(result['rank'], 1);
     });
 
-    test('Zurich has minimum allocations at CHF 200/month', () {
+    test('Zurich has minimum allocations at CHF 215/month (OFAS 2026)', () {
       final result = FamilyService.estimateAllocations(
         canton: 'ZH',
         nbEnfants: 1,
       );
 
-      expect(result['mensuelParEnfant'], 200.0);
+      expect(result['mensuelParEnfant'], 215.0);
     });
 
     test('annual total is 12x monthly for multiple children', () {
@@ -248,8 +248,8 @@ void main() {
         nbEnfants: 3,
       );
 
-      expect(result['mensuelTotal'], 300.0 * 3);
-      expect(result['annuelTotal'], 300.0 * 3 * 12);
+      expect(result['mensuelTotal'], 311.0 * 3);
+      expect(result['annuelTotal'], 311.0 * 3 * 12);
     });
 
     test('ranking returns 26 cantons sorted descending', () {
@@ -265,13 +265,13 @@ void main() {
       expect(firstAmount, greaterThanOrEqualTo(lastAmount));
     });
 
-    test('unknown canton defaults to CHF 200', () {
+    test('unknown canton defaults to CHF 215 (federal minimum)', () {
       final result = FamilyService.estimateAllocations(
         canton: 'XX',
         nbEnfants: 1,
       );
 
-      expect(result['mensuelParEnfant'], 200.0);
+      expect(result['mensuelParEnfant'], 215.0);
     });
   });
 
@@ -280,7 +280,7 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FamilyService - Fiscal Impact of Children', () {
-    test('deduction per child is CHF 6700', () {
+    test('deduction per child is CHF 6800', () {
       final result = FamilyService.calculateImpactFiscalEnfant(
         revenuImposable: 80000,
         tauxMarginal: 0.20,
@@ -290,7 +290,7 @@ void main() {
       expect(result['deductionEnfants'], FamilyService.deductionParEnfant);
     });
 
-    test('childcare deduction is capped at CHF 25500', () {
+    test('childcare deduction is capped at CHF 25800', () {
       final result = FamilyService.calculateImpactFiscalEnfant(
         revenuImposable: 100000,
         tauxMarginal: 0.20,
@@ -340,41 +340,55 @@ void main() {
         revenu1: 80000,
         revenu2: 60000,
         canton: 'VD',
-        patrimoine: 500000,
       );
 
       expect(result, containsPair('fiscal', isA<Map<String, dynamic>>()));
       expect(result, containsPair('inheritance', isA<Map<String, dynamic>>()));
       expect(result, containsPair('inheritanceMarried', isA<Map<String, dynamic>>()));
-      expect(result, containsPair('scoreMariage', isA<int>()));
-      expect(result, containsPair('scoreConcubinage', isA<int>()));
+      expect(result, containsPair('avsSurvivorRente', isA<double>()));
     });
 
-    test('marriage always scores higher on protection (AVS/LPP/heritage)', () {
+    test('no aggregated score, no winner — the arbitration is the user\'s', () {
+      // Constat B (audit conseiller) : compter des critères hétérogènes
+      // (protection du·de la survivant·e, impôt annuel, héritage) à poids égal
+      // et en tirer un gagnant est du pseudo-conseil — leur importance dépend
+      // de la situation de chacun·e. Ce test est la garde anti-résurrection :
+      // un verdict qui dort dans le résultat finit par être affiché.
       final result = FamilyService.compareMariageVsConcubinage(
         revenu1: 80000,
         revenu2: 60000,
         canton: 'VD',
-        patrimoine: 300000,
       );
 
-      final scoreMariage = result['scoreMariage'] as int;
-      final scoreConcubinage = result['scoreConcubinage'] as int;
-
-      // Marriage should always have more structural advantages
-      expect(scoreMariage, greaterThan(scoreConcubinage));
+      expect(result.containsKey('scoreMariage'), isFalse);
+      expect(result.containsKey('scoreConcubinage'), isFalse);
+      expect(result.containsKey('fiscalAdvantage'), isFalse);
+      // Les faits par critère restent disponibles — c'est la comparaison
+      // critère par critère qui est rendue, pas un agrégat.
+      expect(result['fiscal'], isA<Map<String, dynamic>>());
+      expect(result['inheritance'], isA<Map<String, dynamic>>());
+      expect(result['lppSurvivorFactor'], FamilyService.lppSurvivorFactor);
     });
 
-    test('zero patrimoine produces zero inheritance tax', () {
+    test('la comparaison n\'expose aucun montant d\'impôt successoral', () {
+      // `patrimoine × taux` supposait que 100 % du patrimoine peut aller au·à la
+      // partenaire — faux depuis la révision du 1.1.2023 (réserve des
+      // descendant·e·s = 1/2, CC art. 470-471) et faux pour un bien en
+      // copropriété (seule la quote-part du·de la défunt·e entre en succession).
+      // Seul le TAUX cantonal survit. Garde anti-résurrection : un montant
+      // dormant dans le résultat finit toujours par être affiché.
       final result = FamilyService.compareMariageVsConcubinage(
         revenu1: 80000,
         revenu2: 60000,
         canton: 'VD',
-        patrimoine: 0,
       );
 
       final inheritance = result['inheritance'] as Map<String, dynamic>;
-      expect(inheritance['impot'], 0.0);
+      expect(inheritance.containsKey('impot'), isFalse);
+      expect(inheritance.containsKey('netHerite'), isFalse);
+      expect(inheritance.containsKey('patrimoine'), isFalse);
+      expect(inheritance.containsKey('taux'), isFalse,
+          reason: 'la table cantonale invérifiable a été retirée');
     });
   });
 
@@ -383,53 +397,43 @@ void main() {
   // ════════════════════════════════════════════════════════════
 
   group('FamilyService - Inheritance Tax', () {
-    test('married partner is always exempt (all cantons)', () {
+    test('aucun taux cantonal n\'est plus servi, quel que soit le canton', () {
+      // Le taux a suivi le montant. La table `_inheritanceTaxRatesNonMarie` qui
+      // le fournissait était INVÉRIFIABLE : deux écarts indépendants constatés
+      // contre des sources fiscales (`NW` y valait 0.00 alors que Nidwald impose
+      // les non-parents ; `NE` y valait 0.20 pour une réalité bien plus élevée),
+      // et deux sources sérieuses se contredisant sur les détails d'un même
+      // canton — preuve que le domaine est trop fin pour un taux plat.
+      //
+      // Un test de ce fichier affirmait d'ailleurs « no inheritance tax in
+      // SZ/OW/NW even for non-married » et passait au vert : il gravait la
+      // donnée fausse. Un test vert ne prouve pas un fait, il prouve que le code
+      // fait ce que le test attend — y compris quand les deux se trompent
+      // ensemble.
       for (final canton in FamilyService.cantonNames.keys) {
-        final result = FamilyService.estimateInheritanceTax(
-          patrimoine: 500000,
-          canton: canton,
-          isMarried: true,
-        );
-        expect(result['impot'], 0.0,
-            reason: 'Married partner should be tax-exempt in $canton');
-        expect(result['netHerite'], 500000.0);
+        for (final married in [true, false]) {
+          final result = FamilyService.estimateInheritanceTax(
+            canton: canton,
+            isMarried: married,
+          );
+          expect(result.containsKey('taux'), isFalse,
+              reason: 'aucun taux ne doit être servi ($canton, marié=$married)');
+        }
       }
     });
 
-    test('non-married partner pays inheritance tax in most cantons', () {
-      final result = FamilyService.estimateInheritanceTax(
-        patrimoine: 500000,
-        canton: 'VD', // 25%
-        isMarried: false,
-      );
-
-      expect(result['taux'], 0.25);
-      expect(result['impot'], 125000.0);
-      expect(result['netHerite'], 375000.0);
-    });
-
-    test('no inheritance tax in SZ/OW/NW even for non-married', () {
-      for (final canton in ['SZ', 'OW', 'NW']) {
+    test('aucun montant en francs n\'est produit, quel que soit le canton', () {
+      // Le service ne renvoie plus que le canton et l'état civil. Ni `impot`
+      // (la base « 100 % du patrimoine peut aller au·à la partenaire » est
+      // invérifiable), ni `netHerite`, ni `patrimoine`, ni `taux`.
+      for (final canton in FamilyService.cantonNames.keys) {
         final result = FamilyService.estimateInheritanceTax(
-          patrimoine: 500000,
           canton: canton,
           isMarried: false,
         );
-
-        expect(result['impot'], 0.0,
-            reason: '$canton should have no inheritance tax');
+        expect(result.keys.toSet(), {'canton', 'isMarried'},
+            reason: 'un montant dormant finit toujours par être rebranché');
       }
-    });
-
-    test('high patrimoine produces proportional tax', () {
-      final result = FamilyService.estimateInheritanceTax(
-        patrimoine: 1000000,
-        canton: 'GE', // 24%
-        isMarried: false,
-      );
-
-      expect(result['impot'], 240000.0);
-      expect(result['netHerite'], 760000.0);
     });
   });
 
@@ -492,8 +496,8 @@ void main() {
 
   group('FamilyService - Compliance', () {
     test('constants match CLAUDE.md source of truth', () {
-      // Deduction per child: CHF 6700 (LIFD art. 35)
-      expect(FamilyService.deductionParEnfant, 6700.0);
+      // Deduction per child: CHF 6800 (LIFD art. 35 al. 1 let. a, ESTV 2026)
+      expect(FamilyService.deductionParEnfant, 6800.0);
 
       // APG daily max: CHF 220 (LAPG art. 16e)
       expect(FamilyService.apgDailyMax, 220.0);
@@ -523,24 +527,32 @@ void main() {
     test('all 26 cantons have allocations defined', () {
       expect(FamilyService.allocationsMensuelles.length, 26);
 
-      // Minimum allocation should be at least CHF 200 (LAFam art. 5)
+      // Minimum allocation should be at least CHF 215 (LAFam art. 5, 2025)
       for (final entry in FamilyService.allocationsMensuelles.entries) {
-        expect(entry.value, greaterThanOrEqualTo(200.0),
-            reason: '${entry.key} allocation should be >= CHF 200 (LAFam art. 5)');
+        expect(entry.value, greaterThanOrEqualTo(215.0),
+            reason: '${entry.key} allocation should be >= CHF 215 (LAFam art. 5)');
       }
     });
 
-    test('all 26 cantons have inheritance tax rates defined', () {
-      // Accessed via estimateInheritanceTax for each canton
+    test('aucun canton ne porte plus de taux successoral', () {
+      // Ce test garantissait l'inverse : que les 26 cantons aient un taux
+      // défini. C'était un garde de COUVERTURE d'une table dont personne
+      // n'avait vérifié le CONTENU — et il passait au vert en gravant des
+      // valeurs fausses (`NW` à 0 % alors que Nidwald impose les non-parents,
+      // `NE` très sous-estimé).
+      //
+      // La leçon vaut au-delà de ce cas : une table de constantes qui « a l'air
+      // de données » n'est pas vérifiée du seul fait qu'elle existe, compile et
+      // qu'un test en compte les entrées. Compter n'est pas vérifier.
       for (final canton in FamilyService.cantonNames.keys) {
-        final result = FamilyService.estimateInheritanceTax(
-          patrimoine: 100000,
-          canton: canton,
-          isMarried: false,
-        );
-        expect(result['taux'], isA<double>());
-        expect(result['taux'] as double, greaterThanOrEqualTo(0.0));
-        expect(result['taux'] as double, lessThanOrEqualTo(1.0));
+        for (final married in [true, false]) {
+          final result = FamilyService.estimateInheritanceTax(
+            canton: canton,
+            isMarried: married,
+          );
+          expect(result.containsKey('taux'), isFalse,
+              reason: 'aucun taux ne doit réapparaître ($canton)');
+        }
       }
     });
 

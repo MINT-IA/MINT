@@ -196,3 +196,57 @@ def test_body_canton_overrides_profile_canton(client):
     assert "VD" in hypos_joined, (
         f"Expected canton VD (body override) in hypotheses, got: {hypos_joined!r}"
     )
+
+
+class TestBlocageLpp79bAl3:
+    """Art. 79b al. 3 : rachats à <3 ans du retrait capital -> déduction reprise.
+
+    beads MINT_nosync-okl (review Codex) : les miroirs backend créditaient
+    l'économie de toutes les années malgré le retrait capital modélisé.
+    """
+
+    def test_allocation_rachat_blocked_years_credit_no_saving(self):
+        from app.services.arbitrage.allocation_annuelle import (
+            _build_rachat_lpp_option,
+        )
+        option = _build_rachat_lpp_option(
+            montant=10_000.0,
+            potentiel_rachat=1_000_000.0,
+            taux_marginal=0.30,
+            annees=10,
+            rendement_lpp=0.0,
+            canton="ZH",
+        )
+        # Convention start-of-year : délai = annees - i ; bloqué ssi < 3
+        # -> i=8,9 bloqués, 8 années créditées : 8 x 3'000 = 24'000.
+        assert option.trajectory[-2].cumulative_tax_delta == -24_000.0
+
+    def test_allocation_rachat_short_horizon_all_blocked(self):
+        from app.services.arbitrage.allocation_annuelle import (
+            _build_rachat_lpp_option,
+        )
+        option = _build_rachat_lpp_option(
+            montant=10_000.0,
+            potentiel_rachat=1_000_000.0,
+            taux_marginal=0.30,
+            annees=2,
+            rendement_lpp=0.0,
+            canton="ZH",
+        )
+        assert all(s.cumulative_tax_delta == 0.0 for s in option.trajectory)
+
+    def test_rachat_vs_marche_short_horizon_no_saving(self):
+        from app.services.arbitrage.rachat_vs_marche import (
+            _build_rachat_option,
+        )
+        option = _build_rachat_option(
+            montant=50_000.0,
+            taux_marginal=0.35,
+            annees_avant_retraite=2,
+            rendement_lpp=0.0,
+            taux_conversion=0.068,
+            canton="ZH",
+            is_married=False,
+        )
+        # Rachat en t=0, retrait à 2 ans -> déduction reprise (0 crédité).
+        assert option.trajectory[0].cumulative_tax_delta == 0.0

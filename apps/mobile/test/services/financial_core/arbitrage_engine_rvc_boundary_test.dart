@@ -168,8 +168,15 @@ void main() {
           'capital_lpp_total',
           'rente_annuelle_proposee',
           'canton',
-          'current_age',
         ]),
+      );
+      // beads MINT_nosync-8wy : current_age n'est requis que si une
+      // projection est demandée (salaire fourni) — le mode certificat
+      // calcule sur valeurs réelles sans âge. Sans salaire, il ne doit
+      // plus être flagué.
+      expect(
+        _receiptValue(receipt, 'missingRequiredInputs'),
+        isNot(contains('current_age')),
       );
     });
 
@@ -246,16 +253,28 @@ void main() {
       expect(receipt!.isComplete, isFalse);
     });
 
-    test('backend receipt without current age assumption is incomplete', () {
+    test(
+        'backend receipt without current age assumption stays complete '
+        '(certificate mode) but an aberrant value fails closed', () {
+      // beads MINT_nosync-8wy : current_age est optionnel (mode certificat
+      // = valeurs réelles, aucune projection ne le consomme) — mais s'il
+      // est fourni, il reste validé en domaine.
       final assumptions = Map<String, Object?>.from(
         _completeBackendReceiptMap()['assumptions'] as Map,
       )..remove('current_age');
       final receipt = ArbitrageCalculationReceipt.fromMap(
         _completeBackendReceiptMap(assumptions: assumptions),
       );
-
       expect(receipt, isNotNull);
-      expect(receipt!.isComplete, isFalse);
+      expect(receipt!.isComplete, isTrue);
+
+      final aberrant = Map<String, Object?>.from(
+        _completeBackendReceiptMap()['assumptions'] as Map,
+      )..['current_age'] = 130;
+      final aberrantReceipt = ArbitrageCalculationReceipt.fromMap(
+        _completeBackendReceiptMap(assumptions: aberrant),
+      );
+      expect(aberrantReceipt!.isComplete, isFalse);
     });
 
     test('backend receipt with malformed missing-inputs metadata is incomplete',

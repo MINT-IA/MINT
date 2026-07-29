@@ -48,7 +48,7 @@ class ConsentGrantNominativeRequest(_Base):
         default="declared_other",
         pattern=r"^(declared_partner|declared_other)$",
     )
-    policy_version: str = Field(default="v2.3.0")
+    policy_version: str = Field(default="v2.4.0")
 
 
 class ConsentReceiptOut(_Base):

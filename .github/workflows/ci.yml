@@ -23,6 +23,7 @@ jobs:
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
       flutter: ${{ steps.filter.outputs.flutter }}
+      pii_gate: ${{ steps.filter.outputs.pii_gate }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36  # v3
@@ -32,9 +33,19 @@ jobs:
             backend:
               - 'services/backend/**'
               - 'tools/openapi/**'
+              # -5u4 : le gate test_calc_registry compare le registre committé
+              # à la sortie du générateur — une PR ne touchant QUE le
+              # générateur doit exécuter la suite backend (review Codex #981).
+              - 'tools/generate_calc_registry.py'
               - 'tools/checks/regulatory_freshness_monitor.py'
               - 'tools/checks/tests/test_regulatory_freshness_monitor.py'
               - '.github/workflows/regulatory-freshness-monitor.yml'
+            pii_gate:
+              # -4ip r2 : une PR qui touche le gate lui-même doit
+              # l'exécuter (path-filter blind spot — le job avait été
+              # skipped sur la PR d'armement).
+              - 'scripts/check_pii_in_logs.py'
+              - '.github/workflows/ci.yml'
             flutter:
               - 'apps/mobile/**'
               - '.github/workflows/ci.yml'
@@ -367,24 +378,70 @@ jobs:
   pii-log-gate:
     name: PII log gate (PRIV-03)
     needs: [changes]
-    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.pii_gate == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Scan staging logs (or fall back to clean fixture)
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Install railway CLI
+        # Épinglé : version testée localement (review #999 — un
+        # breaking change amont déclencherait sinon le chemin d'échec).
+        run: npm install -g @railway/cli@4.59.0
+      - name: Scan staging logs (real scan armed — beads MINT_nosync-4ip)
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # PROJECT_STAGING_TOKEN : token projet scopé staging — le
+          # RAILWAY_TOKEN générique ne résolvait pas l'environnement par
+          # nom en CI (« Environment staging not found », run 30065175408).
+          # IDs par secrets (repo public : pas d'UUID en clair).
+          RAILWAY_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN }}
+          RAILWAY_PII_SERVICE: ${{ secrets.RAILWAY_STAGING_SERVICE_ID }}
+          RAILWAY_PII_ENVIRONMENT: ${{ secrets.RAILWAY_STAGING_ENVIRONMENT_ID }}
         run: |
-          if [[ -n "${RAILWAY_TOKEN:-}" ]] && command -v railway >/dev/null 2>&1; then
-            python3 scripts/check_pii_in_logs.py --railway
-          else
-            echo "RAILWAY_TOKEN absent; scanning test fixture instead."
+          # Scan RÉEL armé (audit T15-F02 follow-up). Invocation vérifiée
+          # localement le 2026-07-24 : `railway logs --service MINT
+          # --environment staging --json --lines 5000` -> exit 0, 5000
+          # lignes, scan « OK: no raw PII patterns detected ». NB : l'API
+          # rejette lines > 5000.
+          #
+          # Triage des exit codes — le gate reste BLOQUANT sur du PII :
+          #   1 = PII détecté          -> FAIL (nLPD / GDPR art. 5)
+          #   2 = fetch/infra en panne -> warning BRUYANT + fixture, pour
+          #       qu'une panne Railway ne bloque pas tous les PRs backend
+          #       sans pour autant passer sous silence l'absence de scan.
+          if [[ -z "${RAILWAY_TOKEN:-}" ]]; then
+            echo "::warning title=PII log gate ran on FIXTURE::RAILWAY_TOKEN absent — staging logs were NOT scanned (PRIV-03)."
             mkdir -p /tmp/pii_fixture
             printf 'INFO document fingerprint computed count=5\nINFO consent receipt issued purpose=projection\n' > /tmp/pii_fixture/clean.log
             python3 scripts/check_pii_in_logs.py --fixture /tmp/pii_fixture/clean.log
+            exit $?
+          fi
+          # Review #999 : pas de fail-open — pour l'unique required check
+          # sécurité, une panne de fetch BLOQUE (après 2 retries pour
+          # absorber les transitoires). Un warning non bloquant pouvait
+          # désarmer le scan indéfiniment (token expiré, CLI cassé...).
+          rc=2
+          for attempt in 1 2 3; do
+            set +e
+            python3 scripts/check_pii_in_logs.py --railway
+            rc=$?
+            set -e
+            [[ $rc -eq 0 || $rc -eq 1 ]] && break
+            echo "fetch attempt ${attempt} failed (exit ${rc}) — retrying in 20s"
+            sleep 20
+          done
+          if [[ $rc -eq 0 ]]; then
+            echo "PII log gate: staging scan clean."
+          elif [[ $rc -eq 1 ]]; then
+            echo "::error title=PII detected in staging logs::PRIV-03 — raw PII pattern(s) in staging logs. Blocking."
+            exit 1
+          else
+            echo "::error title=PII log gate fetch FAILED::railway logs exit ${rc} after 3 attempts — staging logs could NOT be scanned (PRIV-03). Blocking: fix the fetch (token/CLI/service), do not merge blind."
+            exit 1
           fi
 
   # ─── Flutter Analysis & Tests (3-shard parallel) ────────────
@@ -568,6 +625,47 @@ jobs:
       - name: Run no-E2EE-overclaim lint
         run: python3 tools/checks/no_e2ee_overclaim.py
 
+  # ─── Compliance — no false on-device / store privacy attestation ─────────
+  # « CI Gate » est le seul check requis ; ce gate tournait dans ai-workflow-
+  # guards (workflow séparé, non requis) donc décoratif au merge. Un « Data Not
+  # Collected » / « tout reste sur l'appareil » faux (App Store, PRIVACY.md, ARB)
+  # alors que le profil financier est synchronisé serveur + envoyé au coach
+  # Anthropic (US) est une fausse déclaration opposable. Câblé requis ici.
+  privacy-attestation:
+    name: Privacy attestation (no false on-device claim)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Self-test (verify the gate has teeth)
+        run: python3 tools/checks/no_false_privacy_attestation.py --self-test
+      - name: Run no-false-privacy-attestation gate
+        run: python3 tools/checks/no_false_privacy_attestation.py
+
+  # ─── Campagne-A cluster C — served-content fiscal fact regression gate ───
+  # Guards the RAG education corpus (.md) and localized ARB strings against
+  # re-introducing superseded fiscal/social values (IFD deductions, LIFD article
+  # numbers, cantonal family allowances, LPP/AVS millésimes) that the campagne-A
+  # beads (#1010/#1013/#1014/#1015) corrected to official 2026 sources
+  # (ESTV/AFC, OFAS/BSV). Backend/mobile CONSTANTS are covered by unit tests;
+  # these TEXT surfaces are not. Runs on every PR (stdlib scan, ~ms). --self-test
+  # proves the checker catches superseded values (teeth) independent of corpus
+  # state. Wired into ci-gate.needs (not decorative — audit T15-F03).
+  education-facts:
+    name: Education facts (served-content 2026)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Self-test (verify the checker has teeth)
+        run: python3 tools/checks/education_facts_check.py --self-test
+      - name: Scan served content for superseded fiscal values
+        run: python3 tools/checks/education_facts_check.py
+
   # ─── Phase 53-01 — ScreenRegistry × app.dart parity gate ─────────
   # Mirrors the route-registry-parity job pattern. Compares 153 path:
   # literals in app.dart against ScreenEntry route: literals in
@@ -709,10 +807,16 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check, contracts-drift, pii-log-gate, pg-integration, truth-in-crypto, screen-registry-parity, screen-registry-three-way-parity, education-facts, privacy-attestation]
     if: always()
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - name: Self-verify gate wiring (audit T15-F01/F02)
+        # Remote counterpart of the lefthook ci-gate-aggregation-check gate:
+        # a commit pushed with hooks bypassed cannot silently disconnect the
+        # compliance jobs from the sole required check (Codex review -aoa).
+        run: python3 tools/checks/ci_gate_aggregation_check.py
       - name: Check results
         run: |
           # Skip check if job was skipped (no relevant changes)
@@ -724,6 +828,14 @@ jobs:
           cli_tests="${{ needs.mint-routes-tests.result }}"
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
+          contracts_drift="${{ needs.contracts-drift.result }}"
+          pii_log="${{ needs.pii-log-gate.result }}"
+          pg_integration="${{ needs.pg-integration.result }}"
+          truth_in_crypto="${{ needs.truth-in-crypto.result }}"
+          screen_registry_parity="${{ needs.screen-registry-parity.result }}"
+          screen_registry_three_way="${{ needs.screen-registry-three-way-parity.result }}"
+          education_facts="${{ needs.education-facts.result }}"
+          privacy_attestation="${{ needs.privacy-attestation.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
@@ -732,8 +844,23 @@ jobs:
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          # pii-log-gate has a path-filter `if` (backend changes || push):
+          # a skip is legitimate on mobile-only PRs.
+          [[ "$pii_log" == "skipped" ]] && pii_log="success"
+          # pg-integration has a path-filter `if` (backend changes || push):
+          # a skip is legitimate on mobile/docs-only PRs.
+          [[ "$pg_integration" == "skipped" ]] && pg_integration="success"
+          # truth-in-crypto + screen-registry-parity + screen-registry-three-way
+          # + education-facts have NO path-filter `if:` (they run unconditionally)
+          # — a skip is never legitimate (cancellation / dependency failure), do
+          # NOT collapse it (audit T15-F03: these compliance jobs were decorative
+          # at merge).
+          # contracts-drift has NO path filter: a skip is never legitimate
+          # (cancellation or infra failure) — do NOT collapse it to success.
+          # Audit T15-F01/F02 (MINT_nosync-aoa): its red previously skipped
+          # backend/flutter, which collapsed to success -> gate stayed green.
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]] || [[ "$contracts_drift" != "success" ]] || [[ "$pii_log" != "success" ]] || [[ "$pg_integration" != "success" ]] || [[ "$truth_in_crypto" != "success" ]] || [[ "$screen_registry_parity" != "success" ]] || [[ "$screen_registry_three_way" != "success" ]] || [[ "$education_facts" != "success" ]] || [[ "$privacy_attestation" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi contracts_drift=$contracts_drift pii_log=$pii_log pg_integration=$pg_integration truth_in_crypto=$truth_in_crypto screen_registry_parity=$screen_registry_parity screen_registry_three_way=$screen_registry_three_way education_facts=$education_facts privacy_attestation=$privacy_attestation"
             exit 1
           fi
           echo "All checks passed"

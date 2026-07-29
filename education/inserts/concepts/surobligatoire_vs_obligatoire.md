@@ -1,12 +1,12 @@
 ---
 id: surobligatoire_vs_obligatoire
 title: Surobligatoire vs obligatoire LPP — deux étages, deux règles
-trigger: consultation certificat de prévoyance, taux de conversion effectif, salaire > CHF 88'200
+trigger: consultation certificat de prévoyance, taux de conversion effectif, salaire > CHF 90'720
 tags: [lpp, surobligatoire, obligatoire, taux_conversion, certificat_prevoyance]
 ---
 
 ## Trigger
-L'utilisateur consulte son certificat de prévoyance et voit deux colonnes (obligatoire / total), le coach explique le taux de conversion effectif, ou l'utilisateur gagne plus de CHF 88'200/an.
+L'utilisateur consulte son certificat de prévoyance et voit deux colonnes (obligatoire / total), le coach explique le taux de conversion effectif, ou l'utilisateur gagne plus de CHF 90'720/an.
 
 ## Premier Éclairage
 Pour un avoir de CHF 500'000 dont CHF 300'000 en partie surobligatoire, un taux de conversion de 5.5% au lieu de 6.8% représente CHF 325/mois de rente en moins — CHF 3'900/an à vie.
@@ -21,12 +21,12 @@ Limite de l'analogie : contrairement à un immeuble, tu ne choisis pas dans quel
 ## Niveau 1
 Le régime LPP est divisé en deux enveloppes :
 
-**Part obligatoire** : couvre les salaires coordonnés jusqu'au plafond légal (CHF 61'740 en 2025). La loi fixe les bonifications minimales (LPP art. 16), le taux de conversion minimum (**6.8%**, LPP art. 14) et l'intérêt minimum (1.25% en 2025).
+**Part obligatoire** : couvre les salaires coordonnés jusqu'au plafond légal (CHF 64'260 en 2025). La loi fixe les bonifications minimales (LPP art. 16), le taux de conversion minimum (**6.8%**, LPP art. 14) et l'intérêt minimum (1.25% en 2025).
 
 **Part surobligatoire** : couvre les salaires au-delà du plafond légal, ou les cotisations volontaires supérieures au minimum légal. La caisse fixe librement les taux de bonification, d'intérêt et de conversion — sous réserve que le plan global respecte l'enveloppement (test de l'avoir total vs avoir minimum légal).
 
 Conséquences pratiques :
-- Pour les hauts salaires (> CHF 88'200), la majorité de l'avoir est surobligatoire.
+- Pour les hauts salaires (> CHF 90'720), la majorité de l'avoir est surobligatoire.
 - Le taux de conversion effectif du plan peut être de 5.0% à 5.5% — bien en dessous de 6.8%.
 - La rente réelle peut être significativement inférieure à ce que le taux légal laisserait espérer.
 

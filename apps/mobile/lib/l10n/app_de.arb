@@ -248,21 +248,20 @@
   "divorce3aConjoint1": "3a Ehepartner 1",
   "divorce3aConjoint2": "3a Ehepartner 2",
   "divorcePatrimoine": "VERMÖGEN",
-  "divorcePatrimoineSubtitle": "Gemeinsames Vermögen und Schulden",
+  "divorcePatrimoineSubtitle": "Richtwerte — es wird kein Anteil berechnet",
   "divorceSimuler": "Simulieren",
   "divorcePartageLpp": "BVG-TEILUNG",
   "divorceTotalLpp": "Gesamtes BVG-Guthaben (aktuell)",
-  "divorcePartConjoint1": "Anteil Ehepartner 1",
-  "divorcePartConjoint2": "Anteil Ehepartner 2",
+  "divorcePartConjoint1": "Guthaben Ehepartner 1 nach der Teilung",
+  "divorcePartConjoint2": "Guthaben Ehepartner 2 nach der Teilung",
   "divorceTransfert": "Übertragung",
   "divorceImpactFiscal": "STEUERLICHE AUSWIRKUNG",
   "divorceImpotMarie": "Geschätzte Steuer (verheiratet)",
   "divorceImpotConjoint1": "Steuer Ehepartner 1 (individuell)",
   "divorceImpotConjoint2": "Steuer Ehepartner 2 (individuell)",
   "divorceTotalApresDivorce": "Total nach Scheidung",
-  "divorcePartagePatrimoine": "VERMÖGENSTEILUNG",
-  "divorceFortuneNette": "Nettovermögen",
-  "divorcePensionAlimentaire": "UNTERHALTSBEITRÄGE (SCHÄTZUNG)",
+  "divorcePartagePatrimoine": "AUFLÖSUNG DES GÜTERSTANDS",
+  "divorcePensionAlimentaire": "UNTERHALTSBEITRAG",
   "divorcePointsAttention": "AUFMERKSAMKEITSPUNKTE",
   "divorceActions": "Massnahmen ergreifen",
   "divorceActionsSubtitle": "Vorbereitungscheckliste",
@@ -278,20 +277,6 @@
   "successionEdu3aBody": "Die Säule 3a wird direkt gemäss BVV3 ausbezahlt, nicht gemäss Ihrem Testament.",
   "successionEduConcubinBody": "Konkubinatspartner haben kein gesetzliches Erbrecht. Ohne Testament erhalten sie nichts.",
   "successionDisclaimer": "Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).",
-  "coachingAge25Title": "25 Jahre: Säule 3a eröffnen",
-  "coachingAge25Message": "Mit 25 ist der ideale Zeitpunkt, eine Säule 3a zu eröffnen. Dank Zinseszins zählt jedes Jahr.",
-  "coachingAge35Title": "35 Jahre: Vorsorge-Check",
-  "coachingAge35Message": "Mit 35 sollten Sie prüfen, ob Ihre Vorsorge auf Kurs ist. Haben Sie eine 3a? Reicht Ihre BVG?",
-  "coachingAge45Title": "45 Jahre: Strategie optimieren",
-  "coachingAge45Message": "Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt ist der Moment, deinen 3a-Spielraum, mögliche BVG-Einkäufe und deine Trajektorie zu prüfen.",
-  "coachingAge50Title": "50 Jahre: Rente vorbereiten",
-  "coachingAge50Message": "Mit 50 rückt die Rente näher. Prüfen Sie Ihr BVG-Guthaben und planen Sie letzte Einkäufe.",
-  "coachingAge55Title": "55 Jahre: Letzte Etappe",
-  "coachingAge55Message": "Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Gestaffelte 3a-Bezüge können den Steuereffekt verändern.",
-  "coachingAge58Title": "58 Jahre: Frühpensionierung möglich",
-  "coachingAge58Message": "Ab 58 können Sie einen vorzeitigen Bezug Ihrer 2. Säule in Betracht ziehen. Achtung: Die Rente wird gekürzt.",
-  "coachingAge63Title": "63 Jahre: Letzte Anpassungen",
-  "coachingAge63Message": "2 Jahre vor der Rente: Strategie finalisieren. Letzter BVG-Einkauf, Wahl Rente/Kapital.",
   "openBankingTitle": "Open Banking",
   "openBankingFinmaGate": "Funktion in Vorbereitung — regulatorische Konsultation FINMA lauft",
   "openBankingAddBank": "Bank hinzufugen",
@@ -1108,22 +1093,15 @@
   "mariageEnfants": "Kinder",
   "mariageFiscalComparison": "STEUERVERGLEICH",
   "mariageMaries": "Verheiratet",
-  "mariagePenaltyAmount": "Strafe +{amount}/Jahr",
-  "@mariagePenaltyAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "mariageBonusAmount": "Bonus -{amount}/Jahr",
-  "@mariageBonusAmount": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
+  "mariageTaxComparisonTitle": "Haushaltssteuer: zwei Alleinstehende oder verheiratet",
+  "mariageDeuxCelibataires": "2 Alleinstehende",
+  "mariageEcartAnnuelImpotPlusEleveMarie": "Jährliche Differenz: Haushaltssteuer höher als Ehepaar",
+  "mariageEcartAnnuelImpotPlusEleveCelibataires": "Jährliche Differenz: Haushaltssteuer höher als zwei Alleinstehende",
+  "mariageEcartAnnuelImpotIdentique": "Jährliche Differenz: Haushaltssteuer in beiden Fällen gleich",
+  "mariageParAn": "pro Jahr",
+  "mariageRepartitionCaption": "Die Richtung der Differenz entscheidet sich an der Verteilung deiner beiden Einkommen: ihre Addition zieht die Haushaltssteuer nach oben, der für Paare reservierte reduzierte Tarif zieht sie nach unten.",
+  "mariageRepartitionRevenusProches": "Ähnliche Einkommen",
+  "mariageRepartitionRevenuDomine": "Ein Einkommen dominiert",
   "mariageDeductions": "EHEABZÜGE",
   "mariageDeductionCouple": "Abzug Ehepaar",
   "mariageDeductionInsurance": "Versicherungsabzug (verheiratet)",
@@ -1152,20 +1130,22 @@
   "mariageAvsSurvivorFootnote": "AHVG Art. 35 — nur für Verheiratete",
   "mariageLppSurvivor": "BVG-Hinterlassenenrente",
   "mariageLppSurvivorSub": "60% der versicherten Rente des Verstorbenen",
-  "mariageLppSurvivorFootnote": "BVG Art. 19 — Verheiratete (Konkubinat: Klausel erforderlich)",
-  "mariageSurvivorMonthly": "Monatliches Einkommen des verheirateten Hinterbliebenen",
+  "mariageLppSurvivorFootnote": "Unter Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre",
+  "mariageSurvivorMonthly": "BVG-Hinterlassenenrente, pro Monat",
+  "mariageSurvivorAvsNote": "Als überlebende·r Ehepartner·in kannst du zusätzlich eine AHV-Hinterlassenenrente erhalten, unter Bedingungen (AHVG Art. 23). Ihr Betrag hängt von der Beitragslaufbahn der verstorbenen Person ab und wird hier nicht beziffert.",
   "mariageVsConcubin": "VERHEIRATET VS KONKUBINAT",
   "mariageRenteAvsSurvivor": "AHV-Hinterlassenenrente",
   "mariageRenteLppSurvivor": "BVG-Hinterlassenenrente",
   "mariageHeritageExonere": "Steuerbefreites Erbe",
   "mariagePensionAlimentaire": "Unterhaltsbeiträge",
   "mariageConcubinWarning": "Im Konkubinat hat der überlebende Partner standardmässig keine Rechte — keine AHV-Rente, kein steuerbefreites Erbe. Alles muss vertraglich geregelt werden.",
+  "mariageProtectionConditionsNote": "Die Schutzwirkungen der Ehe (AHV- und BVG-Hinterlassenenrenten) sind ein rechtlicher Zugang unter Anspruchsbedingungen (BVG Art. 19, AHVG Art. 23), keine automatische Auszahlung.",
   "mariageProtectionsEssentielles": "WESENTLICHE SCHUTZMASSNAHMEN",
   "mariageChecklistIntro": "Die Ehe hat finanzielle und rechtliche Folgen. Hier sind die wesentlichen Schritte, die du vorausplanen solltest.",
   "mariageDisclaimer": "Vereinfachte Schätzungen zu Bildungszwecken — keine Steuer- oder Rechtsberatung. Die Beträge hängen von vielen Faktoren ab (Abzüge, Gemeinde, Vermögen usw.). Konsultiere eine·n Steuerberater·in für eine persönliche Berechnung.",
   "divorceAppBarTitle": "Scheidung — Finanzielle Auswirkung",
   "divorceHeaderSubtitle": "Antizipieren Sie die finanziellen Folgen",
-  "divorceIntroText": "Eine Scheidung hat oft unterschätzte finanzielle Folgen: Vermögensaufteilung, Vorsorgeteilung (BVG/3a), steuerliche Auswirkungen und Unterhaltsbeiträge. Dieses Tool hilft dir, klarer zu sehen.",
+  "divorceIntroText": "Eine Scheidung hat oft unterschätzte finanzielle Folgen: Auflösung des Güterstands, Teilung der Vorsorge (BVG/Säule 3a), Steuerfolgen und Unterhaltsbeiträge. Dieses Werkzeug hilft dir, klarer zu sehen.",
   "divorceYears": "{count} Jahre",
   "@divorceYears": {
     "placeholders": {
@@ -1178,13 +1158,12 @@
   "divorceParticipationDefault": "Errungenschaftsbeteiligung (Standard)",
   "divorceCommunaute": "Gütergemeinschaft",
   "divorceSeparation": "Gütertrennung",
-  "divorceFortune": "Gemeinsames Vermögen",
-  "divorceDettes": "Gemeinsame Schulden",
-  "divorcePensionDescription": "Schätzung basierend auf Einkommensunterschied und Kinderzahl. Der tatsächliche Betrag hängt von vielen Faktoren ab (Sorgerecht, Bedürfnisse, Lebensstandard).",
+  "divorceFortune": "Vermögen des Haushalts (Richtwert)",
+  "divorceDettes": "Schulden des Haushalts (Richtwert)",
   "divorceActionsTitle": "Zu ergreifende Massnahmen",
   "divorceComprendre": "VERSTEHEN",
   "divorceEduParticipationTitle": "Was ist die Errungenschaftsbeteiligung?",
-  "divorceEduParticipationContent": "Die Errungenschaftsbeteiligung ist der standardmässige Güterstand in der Schweiz (ZGB Art. 181 ff). Jeder Ehepartner behält sein Eigengut (vor der Ehe oder durch Erbschaft/Schenkung erworben). Die Errungenschaften (während der Ehe erworbenes Vermögen) werden bei einer Scheidung hälftig geteilt. Es ist der häufigste Güterstand in der Schweiz.",
+  "divorceEduParticipationContent": "Die Errungenschaftsbeteiligung ist der ordentliche Güterstand in der Schweiz (ZGB Art. 181 ff.). Jede Person behält ihr Eigengut (vor der Ehe erworben oder durch Erbschaft oder Schenkung erhalten). Bei Scheidung hat jede Person Anspruch auf die Hälfte des Vorschlags der ANDEREN (ZGB Art. 215); die beiden Forderungen werden verrechnet. Die Berechnung erfolgt auf der Errungenschaftsrechnung jedes Ehegatten, nach Hinzurechnungen, Ersatzforderungen und Schuldenzuordnung — nicht auf einem einzigen gemeinsamen Topf.",
   "divorceEduLppTitle": "Wie funktioniert die BVG-Teilung?",
   "divorceEduLppContent": "Seit dem 1. Januar 2017 (ZGB Art. 122) werden die während der Ehe angesammelten Guthaben der beruflichen Vorsorge (2. Säule) bei einer Scheidung hälftig geteilt. Die Teilung erfolgt direkt zwischen den beiden Pensionskassen, ohne über die persönlichen Konten der Ehepartner zu gehen. Es handelt sich um ein zwingendes Recht, auf das die Ehepartner nur unter strengen Bedingungen verzichten können.",
   "donationAppBarTitle": "Schenkung — Simulator",
@@ -1269,7 +1248,8 @@
   "firstJobHeaderDesc": "Verstehe deine Gehaltsabrechnung! Wir zeigen dir, wohin deine Beiträge fliessen, was dein Arbeitgeber zusätzlich zahlt und die ersten finanziellen Reflexe.",
   "firstJobSalaryTitle": "Monatlicher Bruttolohn",
   "firstJobActivityRate": "Beschäftigungsgrad",
-  "firstJob3aHeader": "SÄULE 3A — JETZT ERÖFFNEN",
+  "firstJobAskCoach": "Den Coach fragen",
+  "firstJob3aHeader": "SÄULE 3A — ZU PRÜFEN",
   "firstJob3aAnnualCap": "Jährliche Obergrenze",
   "firstJob3aMonthlySuggestion": "Vorschlag /Monat",
   "firstJob3aWarningTitle": "ACHTUNG — LEBENSVERSICHERUNG 3A",
@@ -1355,7 +1335,7 @@
   "mariageChecklistItem2Title": "Güterstand wählen",
   "mariageChecklistItem2Desc": "Standardmässig gilt die Errungenschaftsbeteiligung (ZGB Art. 181). Für einen anderen Güterstand (Gütertrennung, Gütergemeinschaft) muss ein Ehevertrag beim Notar VOR oder während der Ehe unterzeichnet werden.",
   "mariageChecklistItem3Title": "BVG- und 3a-Begünstigtenklauseln aktualisieren",
-  "mariageChecklistItem3Desc": "Die Heirat ändert die Begünstigtenreihenfolge. Dein Ehepartner wird automatisch Begünstigter der BVG-Hinterlassenenrente (BVG Art. 19). Prüfe auch die Begünstigten deiner 3. Säule.",
+  "mariageChecklistItem3Desc": "Die Heirat ändert die Begünstigtenreihenfolge. Dein Ehepartner kann dann die BVG-Hinterlassenenrente erhalten, unter Bedingungen (BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre). Prüfe auch die Begünstigten deiner 3. Säule.",
   "mariageChecklistItem4Title": "Arbeitgeber und Krankenkasse informieren",
   "mariageChecklistItem4Desc": "Dein Arbeitgeber muss deine Daten aktualisieren (Zivilstand, Abzüge). Die Krankenkasse muss informiert werden — die Prämien ändern sich nicht, aber allfällige Prämienverbilligungen werden anhand des Haushaltseinkommens neu berechnet.",
   "mariageChecklistItem5Title": "Die erste gemeinsame Steuererklärung vorbereiten",
@@ -1402,17 +1382,6 @@
   "donationCalculer": "Berechnen",
   "donationImpotTitle": "SCHENKUNGSSTEUER",
   "donationExoneree": "Befreit",
-  "donationTauxCanton": "Satz: {taux}% (Kanton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Schenkungsbetrag",
   "donationLienRow": "Verwandtschaftsgrad",
   "donationReserveTitle": "PFLICHTTEIL (2023)",
@@ -1438,6 +1407,79 @@
   "donationEduConcubinTitle": "Schenkungen und Konkubinatspartner",
   "donationEduConcubinBody": "Konkubinatspartner haben in der Schweiz keine gesetzlichen Erbrechte. Eine Schenkung ist der direkteste Weg, sie zu begünstigen. Die kantonale Schenkungssteuer zwischen Konkubinatspartnern ist jedoch in der Regel hoch (18-25% je nach Kanton). Schwyz ist die Ausnahme: keine Schenkungssteuer unabhängig von der Beziehung. Ein Testament als Ergänzung für vollständigen Schutz in Betracht ziehen.",
   "donationCanton": "Kanton",
+  "situationGateProgress": "{confirmed}/{total} ausgefüllt",
+  "situationGateCompleterAction": "Ergänzen",
+  "situationGateAnnounceComplete": "Deine Situation ist vollständig, du kannst die Berechnung starten.",
+  "donationGateTitle": "Vervollständige deine Situation für eine Berechnung auf Basis deiner Daten",
+  "expatForfaitGateTitle": "Vervollständige deine Situation für eine Pauschale auf Basis deiner Daten",
+  "expatTopCantonsGateTitle": "Vervollständige dein Profil für ein personalisiertes Kantonsranking",
+  "expatDepartGateTitle": "Vervollständige deine Situation, um dein Vorsorgekapital zu beziffern",
+  "expatAvsGateTitle": "Vervollständige deine Situation, um deine AHV-Lücke zu schätzen",
+  "expatAvsProjectionGateTitle": "Vervollständige deine Situation, um deine AHV-Rente zu projizieren",
+  "expatGateFactForfaitCanton": "Kanton der Pauschale",
+  "expatGateWhyForfaitCanton": "Das steuerbare Minimum hängt vom gewählten Kanton ab.",
+  "expatGateFactLivingExpenses": "Weltweite Lebenshaltungskosten",
+  "expatGateWhyLivingExpenses": "Die Pauschale basiert auf deinen jährlichen Lebenshaltungskosten.",
+  "expatGateFactActualIncome": "Tatsächliches weltweites Einkommen",
+  "expatGateWhyActualIncome": "Der Vergleich nutzt dein weltweites Einkommen, nicht deinen Schweizer Lohn.",
+  "expatGateFactIncome": "Steuerbares Einkommen",
+  "expatGateWhyIncome": "Die Steuerdifferenz zwischen Kantonen basiert auf deinem realen Einkommen.",
+  "expatGateFactCanton": "Wohnkanton",
+  "expatGateWhyCanton": "Das Ranking vergleicht die Kantone mit deiner aktuellen Steuerlast.",
+  "expatGateFactPillar3a": "Guthaben Säule 3a",
+  "expatGateWhyPillar3a": "Dein betroffenes Vorsorgekapital umfasst deine Säule 3a.",
+  "expatGateFactLpp": "BVG-Guthaben",
+  "expatGateWhyLpp": "Dein betroffenes Vorsorgekapital umfasst dein BVG-Guthaben.",
+  "expatGateFactYearsInCh": "Beitragsjahre in der Schweiz",
+  "expatGateWhyYearsInCh": "Die AHV-Rente hängt von deinen Beitragsjahren ab.",
+  "expatGateFactYearsAbroad": "Jahre im Ausland",
+  "expatGateWhyYearsAbroad": "Jahre ausserhalb der Schweiz vergrössern die Beitragslücke.",
+  "expatGateFactAge": "Alter",
+  "expatGateWhyAge": "Die Rentenprojektion hängt von den verbleibenden Beitragsjahren ab.",
+  "donationCompleterSituation": "Meine Situation vervollständigen ({confirmed}/{total})",
+  "donationGateFactCanton": "Kanton der Schenkung",
+  "donationGateWhyCanton": "Die Schenkungssteuer wird auf kantonaler Ebene erhoben.",
+  "donationGateFactEnfants": "Anzahl der Kinder",
+  "donationGateWhyEnfants": "Dein Pflichtteil hängt von der Anzahl der Kinder ab.",
+  "donationGateFactFortune": "Nettovermögen",
+  "donationGateWhyFortune": "Der Pflichtteilsbetrag wird auf deinem Nettovermögen berechnet.",
+  "donationGateFactRegime": "Güterstand",
+  "donationGateWhyRegime": "Dein Güterstand verändert die Erbmasse.",
+  "firstJobGateFactSalaire": "Bruttomonatslohn",
+  "firstJobGateWhySalaire": "Das ist der Ausgangsbetrag deiner Lohnanalyse.",
+  "firstJobGateFactAge": "Alter",
+  "firstJobGateWhyAge": "Die BVG (2. Säule) wird ab 25 Jahren obligatorisch.",
+  "firstJobGateFactCanton": "Kanton",
+  "firstJobGateWhyCanton": "Steuern und Abzüge variieren je nach Kanton.",
+  "firstJobGateAnnounceComplete": "Deine Situation ist vollständig, deine Lohnanalyse ist bereit.",
+  "naissanceGateFactSalaire": "Brutto-Monatslohn",
+  "naissanceGateWhySalaire": "Dein EO-Urlaub wird auf Basis deines Lohns berechnet.",
+  "naissanceGateFactParent": "Betroffenes Elternteil",
+  "naissanceGateWhyParent": "Die Urlaubsdauer unterscheidet sich zwischen Mutterschaft und Vaterschaft.",
+  "naissanceGateFactCanton": "Kanton",
+  "naissanceGateWhyCanton": "Familienzulagen variieren je nach Kanton.",
+  "naissanceGateFactEnfants": "Anzahl Kinder",
+  "naissanceGateWhyEnfants": "Die Gesamtzulagen hängen von der Anzahl der Kinder ab.",
+  "naissanceGateFactRevenu": "Brutto-Jahreseinkommen",
+  "naissanceGateWhyRevenu": "Die steuerliche Auswirkung wird auf deinem steuerbaren Einkommen berechnet.",
+  "naissanceGateFactFraisGarde": "Betreuungskosten",
+  "naissanceGateWhyFraisGarde": "Deine tatsächlichen Betreuungskosten bestimmen den Abzug.",
+  "naissanceGateWhyEnfantsImpact": "Die Anzahl der Kinder verändert Abzüge und Kosten.",
+  "naissanceCostGenericExampleLabel": "Beispiel — Durchschnittskosten in der Schweiz, nicht deine Situation",
+  "mariageGateFactRevenu1": "Dein jährliches Bruttoeinkommen",
+  "mariageGateWhyRevenu1": "Die Steuerdifferenz des Paares beruht auf deinem Einkommen.",
+  "mariageGateFactRevenu2": "Einkommen des Partners",
+  "mariageGateWhyRevenu2": "Die gemeinsame Besteuerung hängt vom Einkommen deines Partners ab.",
+  "mariageGateFactCanton": "Wohnkanton",
+  "mariageGateWhyCanton": "Der Steuertarif variiert je nach Kanton.",
+  "mariageGateFactEnfants": "Anzahl Kinder",
+  "mariageGateWhyEnfants": "Kinderabzüge verändern die Steuer des Paares.",
+  "mariageGateFactPatrimoine1": "Dein Vermögen",
+  "mariageGateWhyPatrimoine1": "Die Aufteilung des Güterstands beruht auf euren Vermögen.",
+  "mariageGateFactPatrimoine2": "Vermögen des Partners",
+  "mariageGateWhyPatrimoine2": "Die Aufteilung vergleicht eure beiden Vermögen.",
+  "mariageGateFactRenteLpp": "Monatliche BVG-Rente",
+  "mariageGateWhyRenteLpp": "Die Hinterlassenenrente beruht auf der BVG-Rente der verstorbenen Person.",
   "housingSaleIntroText": "Der Verkauf einer Immobilie in der Schweiz beinhaltet eine Grundstückgewinnsteuer (StHG Art. 12), eine mögliche Rückzahlung der verwendeten Vorsorgegelder (WEF) und Transaktionskosten. Dieses Tool hilft dir, den Nettoerlös deines Verkaufs zu schätzen.",
   "housingSaleBienTitle": "IMMOBILIE",
   "housingSaleBienSubtitle": "Kaufpreis, Verkauf, Investitionen",
@@ -1447,6 +1489,7 @@
   "housingSaleInvestissements": "Wertvermehrende Investitionen",
   "housingSaleFraisAcquisition": "Erwerbskosten (Notar, etc.)",
   "housingSaleResidencePrincipale": "Hauptwohnsitz",
+  "housingSaleAnneesOccupation": "Jahre als Hauptwohnsitz bewohnt",
   "housingSaleFinancementTitle": "FINANZIERUNG",
   "housingSaleFinancementSubtitle": "Restliche Hypothek",
   "housingSaleHypotheque": "Restliche Hypothek",
@@ -1554,7 +1597,7 @@
       }
     }
   },
-  "independantAvsBody": "Dein geschätzter AHV-Beitrag: {amount}/Jahr (degressiver Satz für Einkommen unter CHF 58’800, dann ~10.6% darüber).",
+  "independantAvsBody": "Dein geschätzter AHV-Beitrag: {amount}/Jahr (degressiver Satz für Einkommen unter CHF 60’500, dann 10.0% darüber).",
   "@independantAvsBody": {
     "placeholders": {
       "amount": {
@@ -1825,6 +1868,7 @@
   },
   "expatDepartureDate": "Abreisedatum",
   "expatCurrentCanton": "Aktueller Kanton",
+  "expatNonRenseigne": "Nicht angegeben",
   "expatPillar3aBalance": "Säule 3a Guthaben",
   "expatLppBalance": "BVG-Guthaben (Altersguthaben)",
   "expatNoExitTax": "Keine Wegzugssteuer in der Schweiz",
@@ -1852,6 +1896,7 @@
   "mariageTimelinePartner1": "Person 1",
   "mariageTimelinePartner2": "Person 2",
   "mariageTimelineCoachTip": "Jede Lebensphase erfordert eine Anpassung Ihres Ehevertrags und Ihrer Vorsorge.",
+  "mariageTimelineIllustrativeCaption": "Illustrativer Verlauf: Akt 2 und 3 zeigen beispielhafte Lebenswege (Karriereentwicklung, Teilzeit). Die prozentualen Veränderungen sind keine Projektion deines Einkommens.",
   "mariageTimelineAct1Title": "Ihr arbeitet beide",
   "mariageTimelineAct1Period": "0-10 Jahre Zusammenleben",
   "mariageTimelineAct1Insight": "Aufbauphase: 3a, BVG, gemeinsames Sparen. Nutzen Sie beide Einkommen.",
@@ -1864,20 +1909,20 @@
   "naissanceChecklistItem1Title": "Baby bei der Krankenkasse anmelden (3 Monate)",
   "naissanceChecklistItem1Desc": "Du hast 3 Monate nach der Geburt, um dein Kind bei einer Krankenkasse anzumelden. Erfolgt dies innerhalb dieser Frist, gilt die Deckung rückwirkend ab Geburt. Danach droht eine Deckungslücke. Vergleiche die Kinderprämien zwischen den Kassen — die Unterschiede können erheblich sein.",
   "naissanceChecklistItem2Title": "Familienzulagen beantragen",
-  "naissanceChecklistItem2Desc": "Stelle den Antrag über deinen Arbeitgeber (oder deine Ausgleichskasse bei Selbständigkeit). Die Zulagen werden ab dem Geburtsmonat ausbezahlt. Der Betrag hängt vom Kanton ab (CHF 200 bis CHF 305/Monat pro Kind).",
+  "naissanceChecklistItem2Desc": "Stelle den Antrag über deinen Arbeitgeber (oder deine Ausgleichskasse bei Selbständigkeit). Die Zulagen werden ab dem Geburtsmonat ausbezahlt. Der Betrag hängt vom Kanton ab (CHF 215 bis CHF 330/Monat pro Kind).",
   "naissanceChecklistItem3Title": "Die Geburt beim Zivilstandsamt melden",
   "naissanceChecklistItem3Desc": "Das Spital übermittelt die Meldung normalerweise an das Zivilstandsamt. Überprüfe, dass die Geburtsurkunde korrekt ausgestellt wurde. Du brauchst sie für alle administrativen Schritte.",
   "naissanceChecklistItem4Title": "Elternurlaub organisieren (EO)",
   "naissanceChecklistItem4Desc": "Mutterschaftsurlaub: 14 Wochen zu 80% des Lohns (max. CHF 220/Tag). Vaterschaftsurlaub: 2 Wochen (10 Tage), innerhalb von 6 Monaten zu beziehen. Die EO-Anmeldung erfolgt über den Arbeitgeber oder direkt bei der Ausgleichskasse.",
   "naissanceChecklistItem5Title": "Steuererklärung aktualisieren",
-  "naissanceChecklistItem5Desc": "Ein zusätzliches Kind gibt dir Anspruch auf einen Steuerabzug von CHF 6'700/Jahr (DBG Art. 35). Bei Betreuungskosten kannst du bis CHF 25'500/Jahr abziehen. Denke daran, deine Steuervorauszahlungen für das laufende Jahr anzupassen.",
+  "naissanceChecklistItem5Desc": "Ein zusätzliches Kind gibt dir Anspruch auf einen Steuerabzug von CHF 6'800/Jahr (DBG Art. 35). Bei Betreuungskosten kannst du bis CHF 25'800/Jahr abziehen. Denke daran, deine Steuervorauszahlungen für das laufende Jahr anzupassen.",
   "naissanceChecklistItem6Title": "Familienbudget anpassen",
   "naissanceChecklistItem6Desc": "Ein Kind kostet durchschnittlich CHF 1'200 bis CHF 1'500/Monat in der Schweiz (Ernährung, Kleidung, Aktivitäten, Versicherung, Windeln, etc.). Überprüfe dein Budget mit dem MINT Budget-Modul.",
   "naissanceChecklistItem7Title": "Vorsorge prüfen (BVG und 3a)",
   "naissanceChecklistItem7Desc": "Wenn du dein Arbeitspensum reduzierst, sinken deine BVG-Beiträge. Jedes Teilzeitjahr bedeutet weniger Kapital bei der Pensionierung. Erwäge, den Maximalbetrag in die 3. Säule einzuzahlen (CHF 7'258/Jahr).",
   "naissanceChecklistItem8Title": "Testament verfassen oder aktualisieren",
   "naissanceChecklistItem8Desc": "Die Ankunft eines Kindes ändert die Erbfolge. Kinder sind Pflichtteilsberechtigte (ZGB Art. 471). Falls du ein Testament hast, überprüfe, ob es die gesetzlichen Pflichtteile einhält.",
-  "naissanceChecklistItem9Title": "Todes-/Invaliditätsrisikoversicherung abschliessen",
+  "naissanceChecklistItem9Title": "Deine Absicherung für Todes-/Invaliditätsrisiko prüfen",
   "naissanceChecklistItem9Desc": "Mit einem unterhaltsberechtigten Kind wird der finanzielle Schutz bei Tod oder Invalidität noch wichtiger. Überprüfe deine aktuelle Deckung (BVG, Lebensversicherung) und ergänze sie bei Bedarf.",
   "naissanceBabyCostCreche": "Krippe / Betreuung",
   "naissanceBabyCostCrecheNote": "Durchschnittlicher subventionierter Tarif — variiert stark nach Kanton",
@@ -2604,7 +2649,7 @@
   "simLppBuybackBonASavoir": "Bon à savoir",
   "simLppBuybackBonASavoirItem1": "Der BVG-Einkauf ist eines der wenigen Steuerplanungsinstrumente, die allen zugänglich sind. Jeder eingekaufte Franken reduziert dein steuerbares Einkommen direkt.",
   "simLppBuybackBonASavoirItem2": "Jeder eingekaufte Franken ist von deinem steuerbaren Einkommen abzugsfähig (DBG Art. 33 Abs. 1 Bst. d). Je höher dein Grenzsteuersatz, desto grösser der Hebeleffekt.",
-  "simLppBuybackBonASavoirItem3": "Achtung: Jeder WEF-Bezug ist 3 Jahre nach einem Einkauf gesperrt (BVG Art. 79b Abs. 3). Plane deine Einkäufe entsprechend.",
+  "simLppBuybackBonASavoirItem3": "Achtung: Während 3 Jahren nach einem Einkauf ist kein Kapitalbezug (Pensionierung oder WEF) auf diesem Betrag möglich — ein Bezug innerhalb dieser Frist führt zur Aufrechnung des Steuerabzugs (BVG Art. 79b Abs. 3).",
   "simLppBuybackDisclaimer": "Simulation inklusive Kassenzins ({fundRate} %) und indikativem Steuereffekt, geglättet über {staggeringYears} Jahre für ein steuerbares Einkommen von CHF {taxableIncome}. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.",
   "simRealInterestTitle": "Realzins-Simulator",
   "simRealInterestSubtitle": "Kapital + reinvestierter Steuereffekt (virtuell)",
@@ -3065,7 +3110,7 @@
   "renteVsCapitalRachatTooltip": "Wenn du jedes Jahr BVG-Einkäufe tätigst, wird deren zukünftiger Wert dem Kapital bei der Pensionierung hinzugefügt. 3-Jahres-Sperre vor WEF (BVG Art. 79b).",
   "renteVsCapitalEplLabel": "WEF-Bezug für Wohneigentum",
   "renteVsCapitalEplHint": "Bezogener Betrag (min. 20'000)",
-  "renteVsCapitalEplTooltip": "Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20'000 (BVV2 Art. 5). Blockiert den BVG-Einkauf für 3 Jahre.",
+  "renteVsCapitalEplTooltip": "Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20'000 (BVV2 Art. 5). Achtung: Nach einem freiwilligen BVG-Einkauf lässt ein Kapitalbezug innerhalb von 3 Jahren den Steuerabzug dieses Einkaufs entfallen (Art. 79b Abs. 3).",
   "renteVsCapitalEplLegalRef": "BVG Art. 30c — BVV2 Art. 5 (min. CHF 20'000)",
   "frontalierAppBarTitle": "Frontalier",
   "frontalierTabImpots": "Impôts",
@@ -3151,36 +3196,17 @@
   "concubinageRevenu2": "Einkommen 2",
   "concubinagePatrimoineTotal": "Gesamtvermögen",
   "concubinageCanton": "Canton",
-  "concubinageAvantages": "avantages",
-  "concubinageMariage": "Mariage",
-  "concubinageConcubinage": "Concubinage",
   "concubinageDetailFiscal": "DÉTAIL FISCAL",
   "concubinageImpots2Celibataires": "Steuern als 2 Alleinstehende",
   "concubinageImpotsMaries": "Impôts mariés",
-  "concubinagePenaliteMariage": "Heiratsstrafe",
-  "concubinageBonusMariage": "Bonus mariage",
+  "concubinageEcartImpotMariePlusEleve": "Haushaltssteuer höher als Ehepaar",
+  "concubinageEcartImpotConcubinagePlusEleve": "Haushaltssteuer höher im Konkubinat",
+  "impositionCommuneMecanique": "Als Ehepaar werden beide Einkommen zusammengezählt und gemeinsam besteuert, mit einem für Paare reservierten reduzierten Tarif. Die Richtung der Differenz hängt von der Verteilung der Einkommen ab: Liegen sie nahe beieinander, hebt die Addition das steuerbare Einkommen stärker an, als der reduzierte Tarif es senkt — das ist der sogenannte Effekt « Heiratsstrafe ». Dominiert ein Einkommen deutlich, senkt derselbe Tarif die Haushaltssteuer unter jene von zwei Alleinstehenden.",
+  "fiscalEstimationModelLimit": "Vereinfachte Schätzung: Sie berücksichtigt weder deine tatsächlichen Abzüge noch deine Gemeinde noch den detaillierten kantonalen Tarif. Die tatsächliche Differenz kann daher abweichen, auch in ihrer Richtung.",
   "concubinageImpotSuccession": "ERBSCHAFTSSTEUER",
-  "concubinagePatrimoineTransmis": "Übertragenes Vermögen",
-  "concubinageMarieExonere": "CHF 0 (befreit)",
-  "concubinageConcubinTaux": "Partner·in (~{taux}%)",
-  "@concubinageConcubinTaux": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      }
-    }
-  },
-  "concubinageWarningSuccession": "Im Konkubinat würde dein·e Partner·in {impot} Erbschaftssteuer auf ein Vermögen von {patrimoine} zahlen. Verheiratet wäre er/sie vollständig befreit.",
-  "@concubinageWarningSuccession": {
-    "placeholders": {
-      "impot": {
-        "type": "String"
-      },
-      "patrimoine": {
-        "type": "String"
-      }
-    }
-  },
+  "concubinageMarieExonere": "0% (befreit)",
+  "concubinageConcubinLabel": "Konkubinatspartner·in",
+  "concubinageConcubinTaux": "Zum Satz für „Dritte“ besteuert",
   "concubinageNeutralTitle": "Keine Option passt für alle",
   "concubinageNeutralDesc": "Die Wahl zwischen Heirat und Konkubinat hängt von deiner Situation ab: Einkommen, Vermögen, Kinder, Kanton, Lebensentwurf. Die Ehe bietet mehr automatischen Rechtsschutz, das Konkubinat mehr Flexibilität. Ein·e Spezialist·in kann dir helfen, klarer zu sehen.",
   "concubinageChecklistIntro": "Im Konkubinat ist nichts automatisch. Hier sind die wichtigsten Schutzmassnahmen, um deine·n Partner·in abzusichern.",
@@ -3196,7 +3222,7 @@
     }
   },
   "concubinageChecklist1Title": "Testament verfassen",
-  "concubinageChecklist1Desc": "Ohne Testament erbt dein·e Partner·in nichts — alles geht an deine Eltern oder Geschwister. Ein handschriftliches Testament (handgeschrieben, datiert, unterschrieben) genügt. Du kannst die frei verfügbare Quote deinem/deiner Partner·in vermachen.",
+  "concubinageChecklist1Desc": "Ohne Testament erbt dein·e Partner·in nichts — dein Nachlass folgt der gesetzlichen Erbfolge (zuerst deine Nachkommen, sonst deine Eltern, dann deine Geschwister). Ein eigenhändiges Testament (handschriftlich, datiert, unterschrieben) genügt; du kannst deinem·r Partner·in die verfügbare Quote vermachen.",
   "concubinageChecklist2Title": "BVG-Begünstigungsklausel",
   "concubinageChecklist2Desc": "Kontaktiere deine Pensionskasse, um deine·n Partner·in als Begünstigte·n einzutragen. Ohne diese Klausel geht das BVG-Todesfallkapital nicht an sie/ihn. Die meisten Kassen akzeptieren den Konkubinatspartner unter Bedingungen (gemeinsamer Haushalt etc.).",
   "concubinageChecklist3Title": "Konkubinatsvertrag",
@@ -3213,12 +3239,10 @@
   "concubinageChecklist8Desc": "Wenn du mit deinem/deiner Partner·in im Mietvertrag stehst, haftet ihr solidarisch. Bei Trennung müssen beide kündigen. Ist nur eine·r Mieter·in, hat der/die andere keine Rechte an der Wohnung.",
   "concubinageDisclaimer": "Vereinfachte Informationen zu Bildungszwecken — stellt keine Rechts- oder Steuerberatung dar. Die Regeln hängen vom Kanton, der Gemeinde und deiner persönlichen Situation ab. Konsultiere eine·n Rechtsspezialist·in für eine persönliche Beratung.",
   "concubinageCriteriaImpots": "Impôts",
-  "concubinageCriteriaPenaliteFiscale": "Heiratsstrafe",
-  "concubinageCriteriaBonusFiscal": "Bonus fiscal",
-  "concubinageCriteriaAvantageux": "Avantageux",
-  "concubinageCriteriaDesavantageux": "Désavantageux",
+  "concubinageCriteriaImpotPlusEleve": "Höhere Haushaltssteuer",
+  "concubinageCriteriaImpotMoinsEleve": "Niedrigere Haushaltssteuer",
   "concubinageCriteriaHeritage": "Héritage",
-  "concubinageCriteriaHeritageMarriage": "Befreit (ZGB Art. 462)",
+  "concubinageCriteriaHeritageMarriage": "Befreit (kantonales Steuerrecht)",
   "concubinageCriteriaHeritageConcubinage": "Impôt cantonal",
   "concubinageCriteriaProtection": "Todesfallschutz",
   "concubinageCriteriaProtectionMarriage": "AHV + BVG Hinterlassenenleistungen",
@@ -3377,6 +3401,14 @@
   "decesProchebeneficiairesLpp": "BVG-Kapital des Verstorbenen",
   "decesProchebeneficiaires3a": "3a-Kapital des Verstorbenen",
   "decesProchebeneficiairesNote": "Die Reihenfolge der BVG-Begünstigten wird durch das Reglement der Pensionskasse festgelegt (BVV2 Art. 48). Die Säule 3a folgt BVV3 Art. 2.",
+  "decesGateFactLpp": "BVG-Kapital der verstorbenen Person",
+  "decesGateWhyLpp": "Das an die Begünstigten übertragene BVG-Kapital hängt vom Vorsorgeguthaben der verstorbenen Person ab.",
+  "decesGateFact3a": "Säule-3a-Kapital der verstorbenen Person",
+  "decesGateWhy3a": "Das an die Begünstigten ausgezahlte Säule-3a-Kapital hängt vom 3a-Guthaben der verstorbenen Person ab.",
+  "decesGateFactLien": "Dein Verhältnis zur verstorbenen Person",
+  "decesGateWhyLien": "Die Befreiung von der Erbschaftssteuer hängt von deinem Verwandtschaftsverhältnis ab.",
+  "decesGateFactCanton": "Kanton des Nachlasses",
+  "decesGateWhyCanton": "Die Erbschaftssteuer ist kantonal; sie hängt vom Wohnsitzkanton der verstorbenen Person ab.",
   "decesProchImpactFiscalTitre": "Steuerliche Auswirkungen",
   "decesProchImpactFiscalExempt": "Im Kanton {canton} ist der überlebende Ehegatte von der Erbschaftssteuer befreit.",
   "@decesProchImpactFiscalExempt": {
@@ -3543,7 +3575,7 @@
   "firstSalaryWeek1": "Woche 1",
   "firstSalaryWeek2": "Woche 2",
   "firstSalaryBefore31Dec": "Vor 31.12",
-  "firstSalaryTask1": "Ein 3a-Konto eröffnen (Bank oder Fintech)",
+  "firstSalaryTask1": "3a-Konten vergleichen (Bank oder Fintech)",
   "firstSalaryTask2": "Einen automatischen monatlichen Dauerauftrag einrichten",
   "firstSalaryTask3": "KVG-Franchisen mit deinen geschätzten Gesundheitskosten vergleichen",
   "firstSalaryTask4": "Private Haftpflicht prüfen (ca. CHF 100/Jahr)",
@@ -4148,7 +4180,7 @@
   "rachatEchelonnePlusAdapte": "Am besten geeignet",
   "rachatEchelonneEconomieFiscale": "Steuereffekt",
   "rachatEchelonneImpactTranche": "Auswirkung pro Steuerstufe",
-  "rachatEchelonneImpactBlocExplain": "Bei Einmalzahlung durchquert der Abzug mehrere Stufen. Gestaffelt bleibt jeder Abzug in der höchsten Stufe.",
+  "rachatEchelonneImpactBlocExplain": "Bei Einmalzahlung durchquert der Abzug mehrere Stufen (tieferer Durchschnittssatz). Gestaffelt kann bei vergleichbarem Einkommen ein grösserer Teil jedes Abzugs in höheren Stufen bleiben.",
   "rachatEchelonneBloc": "Einmal",
   "rachatEchelonneEchelonne": "Gestaffelt",
   "rachatEchelonnePlanAnnuel": "Jahresplan",
@@ -4156,9 +4188,35 @@
   "rachatEchelonneRachat": "Einkauf",
   "rachatEchelonneBlockageTitle": "BVG Art. 79b Abs. 3 — WEF-Sperre",
   "rachatEchelonneBlockageBody": "Nach jedem Einkauf ist jeder WEF-Bezug für 3 Jahre gesperrt.",
+  "rachatEchelonneFenetre79bBadge": "Steuervorteil entfällt bei Kapital",
+  "rachatEchelonneSiCapitalLabel": "Steuereffekt bei Kapitalbezug mit 65: CHF {montant}",
+  "@rachatEchelonneSiCapitalLabel": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneFenetre79bNote": "Einkäufe weniger als 3 Jahre vor einem Kapitalbezug: Der Abzug würde annulliert und von der Steuerbehörde zurückgefordert (Art. 79b Abs. 3 BVG). Annahme: vollständiger Bezug mit 65 — eine Frühpensionierung verschiebt das Fenster entsprechend. Die 3-jährige WEF-Sperre (eigene Karte unten) ist eine andere Wirkung desselben Artikels. Zwei Szenarien — die Wahl Rente oder Kapital bleibt bei dir.",
+  "rachatEchelonneHeroSiCapital": "Bei Kapitalbezug mit 65 wird die Differenz CHF {montant} (Ersparnisse der letzten Tranchen werden zurückgefordert).",
+  "@rachatEchelonneHeroSiCapital": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "rachatEchelonneSiCapitalShort": "Bei Kapital: CHF {montant}",
+  "@rachatEchelonneSiCapitalShort": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
   "rachatEchelonneTauxMarginalTitle": "Grenzsteuersatz",
   "rachatEchelonneTauxMarginalBody": "Der Grenzsteuersatz ist der Steuerprozentsatz auf deinen letzten verdienten Franken. Bei 32 % entspricht ein Abzug von CHF 1'000 einem indikativen Steuereffekt von CHF 320. Je höher dein Einkommen, desto stärker kann dieser Satz steigen.",
-  "rachatEchelonneTauxMarginalTip": "Deshalb ist es klug, Einkäufe zu staffeln.",
+  "rachatEchelonneTauxMarginalTip": "Warum sich die Zahlen unterscheiden: Bei vergleichbarem Einkommen kann eine gestaffelte Tranche zu einem höheren Grenzsteuersatz abgezogen werden, während ein Einmaleinkauf einen Teil des Abzugs in tiefere Sätze verschiebt.",
   "rachatEchelonneTauxMarginalSemantics": "Information zum Grenzsteuersatz",
   "staggered3aTitle": "Gestaffelter 3a-Bezug",
   "staggered3aEconomie": "Geschätzte Ersparnis",
@@ -4293,6 +4351,15 @@
   },
   "demenagementInsightNegatif": "Dieser Umzug kostet mehr. Prüfe, ob die Lebensqualität den Unterschied ausgleicht.",
   "demenagementBilanTotal": "Gesamtbilanz (Steuern + Krankenkasse)",
+  "demenagementGateFactRevenu": "Dein Bruttojahreseinkommen",
+  "demenagementGateWhyRevenu": "Es bestimmt die verglichene Einkommenssteuer zwischen den beiden Kantonen.",
+  "demenagementGateFactCantonDepart": "Dein aktueller Kanton",
+  "demenagementGateWhyCantonDepart": "Sein Steuertarif und seine Prämien sind der Ausgangspunkt.",
+  "demenagementGateFactCantonArrivee": "Der Zielkanton",
+  "demenagementGateWhyCantonArrivee": "Der ins Auge gefasste Kanton bestimmt den neuen Vergleichstarif.",
+  "demenagementGateFactSituation": "Deine Familiensituation",
+  "demenagementGateWhySituation": "Die Anzahl der KVG-Prämien des Haushalts hängt davon ab.",
+  "demenagementReferenceCaption": "Durchschnittliche KVG-Prämien (Erwachsene, Franchise 300) und relative Steuerindizes: indikative kantonale Richtwerte, nicht deine tatsächliche Prämie.",
   "divorceTransfertAmount": "Übertragung von {amount} ({direction})",
   "@divorceTransfertAmount": {
     "placeholders": {
@@ -4304,7 +4371,7 @@
       }
     }
   },
-  "divorceFiscalDelta": "Differenz: {sign}{amount}/Jahr",
+  "divorceFiscalDelta": "Steuerdifferenz des Haushalts: {sign}{amount}/Jahr (Ende des Ehegatten-Splittings)",
   "@divorceFiscalDelta": {
     "placeholders": {
       "sign": {
@@ -4315,26 +4382,6 @@
       }
     }
   },
-  "divorcePensionMois": "{amount}/Monat",
-  "@divorcePensionMois": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorcePensionAnnuel": "d.h. {amount}/Jahr",
-  "@divorcePensionAnnuel": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "divorceConjoint1Label": "Ehepartner 1",
-  "divorceConjoint2Label": "Ehepartner 2",
-  "divorceSplitC1": "E1",
-  "divorceSplitC2": "E2",
   "unemploymentVague1Label": "Welle 1 — Administrative Dringlichkeit",
   "unemploymentVague1Text": "Innerhalb der ersten 5 Tage beim RAV anmelden. Sonst: Verlust von Taggeldern. Jeder Tag Verzögerung = verlorenes Taggeld.",
   "unemploymentVague2Label": "Welle 2 — Budget anpassen",
@@ -4349,9 +4396,9 @@
   "unemploymentGainMin": "CHF 0",
   "unemploymentGainMax": "CHF 12'350",
   "unemploymentBracket1": "12–17 Monate Beitrag",
-  "unemploymentBracket1Value": "200 Taggelder",
+  "unemploymentBracket1Value": "260 Taggelder",
   "unemploymentBracket2": "18–21 Monate Beitrag",
-  "unemploymentBracket2Value": "260 Taggelder",
+  "unemploymentBracket2Value": "400 Taggelder",
   "unemploymentBracket3": ">= 22 Monate, < {age} J.",
   "@unemploymentBracket3": {
     "placeholders": {
@@ -4704,6 +4751,12 @@
   "genderGapDisclaimer": "Die dargestellten Ergebnisse sind vereinfachte Schätzungen zu Informationszwecken. Sie stellen keine persönliche Finanzberatung dar. Konsultiere deine Pensionskasse und eine qualifizierte Fachperson vor Entscheidungen.",
   "genderGapSources": "Quellen",
   "genderGapSourcesBody": "BVG Art. 8 (Koordinationsabzug) / BVG Art. 14 (Umwandlungssatz 6.8%) / BVV2 Art. 5 / BVV3 Art. 7 / BVG Art. 79b (freiwilliger Einkauf) / BFS 2024 (Gender-Gap-Statistik)",
+  "genderGapNonRenseigne": "Nicht angegeben",
+  "genderGapGatePensionTitle": "Vervollständige deine Angaben, um deine Rente zu schätzen",
+  "genderGapGateCoordTitle": "Vervollständige deine Angaben für dieses Koordinationsdetail",
+  "genderGapGateWhyRevenu": "Dein Jahreseinkommen ist die Grundlage der BVG-Rentenprojektion.",
+  "genderGapGateWhyAvoirLpp": "Dein aktuelles BVG-Guthaben ist der Ausgangspunkt der Projektion (steht auf deinem Vorsorgeausweis).",
+  "genderGapGateWhyAge": "Dein Alter bestimmt, wie viele Beitragsjahre dir bleiben.",
   "achievementsErrorMessage": "Laden fehlgeschlagen. Nochmal versuchen?",
   "documentsEmptyVoice": "Noch nichts hier. Scanne ein Zertifikat und alles wird klarer.",
   "documentsConfidenceChoc": "{count} Dokumente = {pct}% Vertrauen",
@@ -4786,7 +4839,7 @@
       }
     }
   },
-  "firstJobTopBadge": "TOP",
+  "firstJobTopBadge": "Häufig",
   "authLoginSubtitle": "Zugang zu deinem persönlichen Finanzbereich",
   "authPasswordRequired": "Passwort erforderlich",
   "authForgotPasswordLink": "Passwort vergessen?",
@@ -5050,7 +5103,7 @@
   },
   "avsCotisationsBonASavoir": "Gut zu wissen",
   "avsCotisationsEduDegressifTitle": "Degressive Skala",
-  "avsCotisationsEduDegressifBody": "Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.6 %.",
+  "avsCotisationsEduDegressifBody": "Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.0 %.",
   "avsCotisationsEduDoubleChargeTitle": "Doppelbelastung",
   "avsCotisationsEduDoubleChargeBody": "Angestellte zahlen nur 5.3 %; der Arbeitgeber übernimmt die andere Hälfte. Als Selbstständige·r trägst du die volle Last.",
   "avsCotisationsEduMinTitle": "Mindestbeitrag",
@@ -5160,7 +5213,7 @@
     }
   },
   "pillar3aIndepBonASavoir": "Gut zu wissen",
-  "pillar3aIndepEduComptesTitle": "Mehrere 3a-Konten eröffnen",
+  "pillar3aIndepEduComptesTitle": "Mehrere 3a-Konten, gestaffelter Bezug",
   "pillar3aIndepEduComptesBody": "Auch mit der grossen 3a wird die Mehrkonten-Strategie (bis 5) empfohlen, um den gestaffelten Bezug bei der Pensionierung zu optimieren.",
   "pillar3aIndepEduConditionTitle": "Bedingung: kein BVG",
   "pillar3aIndepEduConditionBody": "Die grosse 3a (20 % des Einkommens, max 36’288) ist nur verfügbar, wenn du nicht freiwillig BVG-versichert bist. Mit BVG sinkt die Obergrenze auf 7’258.",
@@ -5443,8 +5496,8 @@
   "retroactive3aAvecRattrapage": "Mit Nachholung",
   "retroactive3aEconomieFiscale": "Steuereffekt",
   "retroactive3aProchainesEtapes": "Nächste Schritte",
-  "retroactive3aOuvrirCompte": "3a-Konto eröffnen",
-  "retroactive3aOuvrirCompteSubtitle": "Vergleiche Anbieter und eröffne ein dediziertes Nachholkonto.",
+  "retroactive3aOuvrirCompte": "Ein dediziertes 3a-Konto erwägen",
+  "retroactive3aOuvrirCompteSubtitle": "Anbieter vergleichen (Gebühren, Konditionen) hilft; ein dediziertes Konto könnte die Nachverfolgung des Nachholens vereinfachen.",
   "retroactive3aPrepDocuments": "Dokumente vorbereiten",
   "retroactive3aPrepDocumentsSubtitle": "Lohnausweis, AHV-Beitragsnachweis, Nachweis fehlender 3a-Beiträge für jedes Jahr.",
   "retroactive3aConsulterSpecialiste": "Fachperson konsultieren",
@@ -5682,24 +5735,6 @@
   "reportRetirementTitle": "Deine Rente",
   "reportRetirementKeyLabel": "Geschätztes Einkommen mit 65",
   "reportRetirementSource": "Quellen: BVG Art. 14, BVV3, AHVG",
-  "reportRetirement3aNone": "Noch kein 3a — abzugsfähiger Spielraum anhand deines LPP-Status zu schätzen",
-  "reportRetirement3aNoneWithRoom": "Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF {amount}/Jahr",
-  "@reportRetirement3aNoneWithRoom": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
-  "reportRetirement3aOne": "1 Säule-3a-Konto — öffne ein 2. zur Auszahlungsoptimierung",
-  "reportRetirement3aMulti": "{count} Säule-3a-Konten — gute Diversifikation",
-  "@reportRetirement3aMulti": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "reportRetirementLppText": "BVG-Einkauf verfügbar: CHF {available} — geschätzte Steuerwirkung: CHF {savings}",
   "@reportRetirementLppText": {
     "placeholders": {
@@ -6187,7 +6222,7 @@
   "concubinageHeroPremierEclairageDesc": "Im Konkubinat ist dein Partner kein gesetzlicher Erbe. Ohne Testament geht dieser Betrag vollständig an andere.",
   "concubinageEducationalAvs": "In der Schweiz gilt die 150 %-Plafonierung der AHV-Ehepaarrenten (AHVG Art. 35) nur für Verheiratete. Konkubinatspartner erhalten je ihre volle Einzelrente — ein echter Vorteil, wenn beide maximal eingezahlt haben.",
   "concubinageEducationalLpp": "Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 19) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen — und es muss beantragt werden.",
-  "concubinageEducationalSuccession": "Ein verheirateter Ehegatte ist in den meisten Kantonen von der Erbschaftssteuer befreit (ZGB Art. 462). Ein Konkubinatspartner zahlt Steuern zum Drittsatz, oft zwischen 20 % und 40 %.",
+  "concubinageEducationalSuccession": "Die Befreiung des·der überlebenden Ehegatt·in stammt nicht aus dem Zivilgesetzbuch: Sie steht in den kantonalen Steuergesetzen und gilt in allen 26 Kantonen. Ein·e Konkubinatspartner·in fällt unter den Satz für « Nichtverwandte » — und die Unterschiede zwischen den Kantonen sind sehr gross: Einige erheben gar keine Erbschaftssteuer, andere besteuern Nichtverwandte hoch. Hier wiegt der Kanton so schwer wie die Beziehung.",
   "concubinageProtectionIntro": "Im Konkubinat schützt die Schweiz nicht wie bei der Ehe. Hier siehst du, was sich ändert und was du vorausplanen kannst.",
   "concubinageProtectionAvsSurvivor": "AHV-Hinterlassenenrente",
   "concubinageProtectionLppSurvivor": "BVG-Hinterlassenenrente",
@@ -6197,8 +6232,28 @@
   "concubinageProtectionMaried": "Verheiratet",
   "concubinageProtectionConcubinLabel": "Konkubinat",
   "concubinageProtectionWarning": "Im Konkubinat erhältst du bei Tod des Partners keine AHV-Rente, keine automatische BVG-Rente und bist kein gesetzlicher Erbe. Jeder Schutz muss vorausgeplant werden.",
+  "concubinageProtectionConditionsNote": "Der Schutz der Ehe (AHV- und BVG-Hinterlassenenrenten) hängt von Anspruchsvoraussetzungen ab; das Konkubinat gewährt darauf keinen Zugang, unabhängig von den Bedingungen.",
   "concubinageProtectionLppSlider": "Monatliche BVG-Rente des Partners",
   "concubinageProtectionSurvivorZero": "CHF 0/Monat für den überlebenden Konkubinatspartner ohne Massnahmen",
+  "concubinageInheritanceConditional": "Ohne Testament erbt dein·e Partner·in nichts: Dein Nachlass geht an deine gesetzlichen Erben. Mit einem Testament hängt der Anteil, den du ihm·ihr zuwenden kannst, von deinen Nachkommen ab: Sind welche vorhanden, beträgt ihr Pflichtteil die Hälfte des Nachlasses, die verfügbare Quote ist damit auf die andere Hälfte begrenzt; sind keine vorhanden, wurde der Pflichtteil der Eltern am 1. Januar 2023 aufgehoben und du kannst über den ganzen Nachlass verfügen (ZGB Art. 470-471). In den Nachlass fällt nur dein Anteil: Ein in Miteigentum gehaltenes Objekt zählt nur im Umfang deiner Quote.",
+  "concubinageInheritanceRateLimit": "Hier wird bewusst kein Satz angezeigt: die Belastung reicht von null in einigen Kantonen bis zu fast der Hälfte des erhaltenen Anteils in den schwersten, mit progressiven Tarifen, Freibeträgen und teils einer Gemeindesteuer. Vier Dinge bestimmen sie: dein Kanton und deine Gemeinde, der tatsächlich erhaltene Anteil, der Verwandtschaftsgrad und die Dauer eures gemeinsamen Haushalts.",
+  "concubinageSurvivorLppDetail": "Mögliche Hinterlassenenrente (60 %) — Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre.",
+  "concubinageSurvivorAvsNote": "Ein·e überlebende·r Ehepartner·in kann zusätzlich eine AHV-Hinterlassenenrente erhalten (AHVG Art. 23, unter Bedingungen); ein·e Konkubinatspartner·in hat nie Anspruch darauf.",
+  "concubinage3aClauseEducational": "Ohne Begünstigtenklausel für deine·n Partner·in folgt deine Säule 3a der gesetzlichen Begünstigtenordnung (BVV3 Art. 2), und dein·e Partner·in ist nicht automatisch begünstigt. Mit einer bei deiner 3a-Stiftung hinterlegten Klausel kannst du ihn·sie dort einsetzen.",
+  "concubinageGateFactRevenu1": "Dein jährliches Bruttoeinkommen",
+  "concubinageGateWhyRevenu1": "Das Einkommen beider Partner bestimmt die Steuerdifferenz zwischen Ehe und Konkubinat.",
+  "concubinageGateFactRevenu2": "Das jährliche Bruttoeinkommen deines Partners",
+  "concubinageGateWhyRevenu2": "Ohne das Einkommen deines Partners lässt sich die Steuerdifferenz des Paares nicht schätzen.",
+  "concubinageGateFactCanton": "Dein Wohnkanton",
+  "concubinageGateWhyCanton": "Der Steuertarif und der Erbschaftssteuersatz hängen von deinem Kanton ab.",
+  "concubinageGateFactPatrimoine": "Dein Gesamtvermögen",
+  "concubinageGateWhyPatrimoine": "Das übertragene Vermögen bestimmt den erbschaftssteuerpflichtigen Betrag.",
+  "concubinageGateFactRenteLpp": "Die monatliche BVG-Rente deines Partners",
+  "concubinageGateWhyRenteLpp": "Die BVG-Rente des Partners dient zur Schätzung der Hinterlassenenrente.",
+  "concubinageGateFiscalTitle": "Steuervergleich",
+  "concubinageGateInheritanceTitle": "Erbschaftssteuer",
+  "concubinageGateSurvivorTitle": "Hinterlassenenrente",
+  "concubinageNonRenseigne": "Nicht angegeben",
   "concubinageDecisionMatrixTitle": "Ehe vs Konkubinat",
   "concubinageDecisionMatrixSubtitle": "Vergleich der Rechte und Pflichten",
   "concubinageDecisionMatrixColumnMarriage": "Ehe",
@@ -7661,6 +7716,7 @@
   "authErrorNetwork": "Service nicht erreichbar. Prüfe dein Netzwerk und versuche es erneut.",
   "authErrorNotVerified": "Deine E-Mail ist noch nicht bestätigt. Bestätige deine E-Mail und versuche es erneut.",
   "authErrorRegistration": "Registrierung derzeit nicht verfügbar. Nutze den lokalen Modus.",
+  "authErrorAccountDeletedRecreate": "Dieses Apple-Konto wurde gelöscht. Erstelle dein Konto mit Apple erneut, um fortzufahren.",
   "authErrorService": "Kontodienst in dieser Umgebung nicht verfügbar. Nutze den lokalen Modus.",
   "authHidePassword": "Passwort verbergen",
   "authShowPassword": "Passwort anzeigen",
@@ -8115,7 +8171,7 @@
   "communityChallenge01Title": "Bereite deine Steuererklärung vor",
   "communityChallenge02Desc": "Berufskosten, Hypothekarzinsen, Spenden : liste alle Abzüge auf, auf die du Anspruch hast, bevor du deine Erklärung einreichst.",
   "communityChallenge02Title": "Identifiziere deine Steuerabzüge",
-  "communityChallenge03Desc": "Einige Kantone erlauben es, die 3a-Einzahlung des Vorjahres bis März zu ergänzen. Prüfe die Regeln deines Kantons.",
+  "communityChallenge03Desc": "Damit dein 3a-Beitrag dieses Jahr abziehbar ist, muss er spätestens am 31. Dezember deinem Konto gutgeschrieben sein. Ein zu spät erteilter Auftrag wird womöglich erst im Januar gutgeschrieben — und zählt dann fürs nächste Jahr. Warte nicht zu lange.",
   "communityChallenge03Title": "Prüfe deine 3a-Einzahlung vor der Frist",
   "communityChallenge04Desc": "Dein jährlicher BVG-Ausweis ist da. Nimm dir 10 Minuten, um dein Guthaben, den Umwandlungssatz und das Einkaufspotenzial zu verstehen.",
   "communityChallenge04Title": "Schau dir deinen BVG-Vorsorgeausweis an",
@@ -8491,20 +8547,22 @@
   "firstJobChecklistConsequence1": "Ohne Zertifikat kannst du nicht prüfen, ob der übertragene Betrag korrekt ist.",
   "firstJobChecklistConsequence2": "Ohne Übertrag geht dein Kapital zu einem Satz von 0.05% an die Auffangeinrichtung.",
   "firstJobChecklistDeadline1": "Vor dem Austritt",
-  "firstJobChecklistDeadline2": "30 Tage",
+  "firstJobChecklistDeadline2": "Ab Stellenantritt",
   "firstJobChecklistDeadline3": "1 Monat",
   "firstJobChecklistDeadline4": "Ab erstem Lohn",
   "firstJobCoutMaxPerYear": "Max. {amount}/Jahr",
+  "firstJobPayslipAanpExplanation": "Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.",
+  "firstJobPayslipAanpLabel": "Nichtberufsunfälle (NBU)",
+  "firstJobPayslipAcExplanation": "Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.",
+  "firstJobPayslipAcLabel": "Arbeitslosenversicherung (ALV)",
   "firstJobPayslipAvsExplanation": "Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.",
   "firstJobPayslipAvsLabel": "AHV/IV/EO",
-  "firstJobPayslipImpotExplanation": "Direkt vom Lohn abgezogen, wenn du quellensteuerpflichtig bist. Satz variiert je nach Kanton, Status und Einkommen.",
-  "firstJobPayslipImpotLabel": "Quellensteuer (Schätzung)",
   "firstJobPayslipLppExplanation": "Obligatorische Altersvorsorge ab 25 Jahren. Der genaue Satz hängt von deiner Kasse und deinem Alter ab.",
   "firstJobPayslipLppLabel": "BVG (2. Säule)",
   "firstJobPrimePerMonth": "{amount}/Monat",
   "firstJobScenarioBoosted": "+20%",
   "firstJobScenarioDefault": "Standard",
-  "firstJobScenarioMedianCH": "CH-Median",
+  "firstJobScenarioMedianCH": "CH-Median (alle Branchen · ESS 2022)",
   "firstJobScenarioMySalary": "Mein Lohn",
   "firstJobScenarioSemantics": "Lohnszenario: {label}",
   "fiscalSuperpowerSubtitle": "Der Staat gibt dir Geld zurück, wenn du ein Kind hast.",
@@ -8606,7 +8664,7 @@
   "indepPlanInscriptionAvsConseq": "Rückwirkende Bussen bei Fristüberschreitung",
   "indepPlanLaa": "Unfallversicherung UVG (wenn kein BVG)",
   "indepPlanLaaConseq": "Kein Berufsunfall-Schutz",
-  "indepPlanOuvrir3a": "3a-Konto eröffnen (Abzug bis CHF 36'288)",
+  "indepPlanOuvrir3a": "3a-Konten vergleichen (Abzug bis CHF 36'288)",
   "indepProtApg": "Entfällt — Elternurlaub",
   "indepProtAvs": "Verdopple deinen Beitrag",
   "indepProtIjm": "Entfällt — Krankheit CHF 0",
@@ -8898,13 +8956,13 @@
   "narrativeEplBody": "Art. 30c BVG erlaubt den Bezug der 2. Säule zur Finanzierung von Wohneigentum. Achtung: Bei getätigten Einkäufen gilt eine 3-jährige Sperrfrist (BVG Art. 79b Abs. 3).",
   "narrativeEplHeadline": "EPL-Bezug: Vorteile und 3-Jahres-Sperre",
   "narrativeFirstJobBadge": "Erste Stelle",
-  "narrativeFirstJobBody": "Zwischen AHV (AHVG Art. 5), BVG (Art. 16), Quellensteuer und KVG macht dein Netto etwa 75–80 % des Brutto aus. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.",
+  "narrativeFirstJobBody": "Zwischen AHV (AHVG Art. 5), BVG (Art. 16) und KVG liegt dein Netto ohne Quellensteuer typischerweise bei rund 88–90 % des Brutto; mit Quellensteuer wird mehr abgezogen. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.",
   "narrativeFirstJobHeadline": "Dein erster Lohn erklärt",
   "narrativeLibrePassageBadge": "Freizügigkeit",
   "narrativeLibrePassageBody": "Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.",
   "narrativeLibrePassageHeadline": "Freizügigkeit: 6 Monate zum Handeln",
   "narrativeMarriageBadge": "Ehe",
-  "narrativeMarriageBody": "Die Ehe verändert deine Besteuerung (DBG Art. 9), dein Güterrecht (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nach euren jeweiligen Einkommen könnte die steuerliche Auswirkung positiv oder negativ sein.",
+  "narrativeMarriageBody": "Die Heirat ändert deine Besteuerung (DBG Art. 9), deinen Güterstand (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nachdem, wie sich eure beiden Einkommen verteilen, kann die Haushaltssteuer in beide Richtungen gehen.",
   "narrativeMarriageHeadline": "Finanzielle Auswirkungen der Ehe",
   "narrativeRachatBadge": "2. Säule",
   "narrativeRachatBody": "Einen BVG-Einkauf über mehrere Jahre zu verteilen, erlaubt den Abzug jeder Tranche vom steuerbaren Einkommen (BVG Art. 79b). Die Steuerprogression macht diese Strategie oft vorteilhafter als eine Einmalzahlung.",
@@ -10145,17 +10203,17 @@
   "landingCoupleAction": "Paar-Modus entdecken",
   "landingCoupleGeneric": "Manche Paar-Entscheidungen können Steuern, AHV und Bezüge verändern. MINT hilft, Szenarien zu vergleichen.",
   "landingTransparency": "Was passiert, wenn du dein Gehalt eingibst: Die Berechnung läuft auf deinem Telefon. Nichts wird gesendet. Nichts wird gespeichert. Wenn du diese Seite schliesst, verschwinden die Zahlen.",
-  "bankImportTransparency": "Dein Kontoauszug wird verschlüsselt an unseren Schweizer Server zur Analyse gesendet. Transaktionen werden kategorisiert, dann wird die Rohdatei gelöscht. Nur Kategorie-Zusammenfassungen bleiben in deinem Profil.",
+  "bankImportTransparency": "Dein Kontoauszug wird verschlüsselt zur Analyse an unseren Server gesendet (automatische Verarbeitung, ohne KI). Die Originaldatei wird nach der Verarbeitung gelöscht; nur die Zusammenfassungen pro Kategorie werden in deinem Profil gespeichert.",
   "coachTransparencySLM": "Antwort auf deinem Telefon generiert. Nichts an einen Server gesendet.",
-  "coachTransparencyBYOK": "Antwort über deine Claude-API. Dein genaues Gehalt wird NICHT gesendet — nur Alter, Kanton und Archetyp werden geteilt.",
+  "coachTransparencyBYOK": "Antwort über deine Claude-API. Dein pseudonymisiertes Finanzprofil (inkl. Beträge, nie dein Name oder IBAN) und deine Nachricht werden zur Personalisierung geteilt.",
   "coachTransparencyServer": "Antwort über die Claude-API (MINT-Serverschlüssel). Deine Nachricht wird wie eingegeben geteilt, um die Antwort zu personalisieren.",
   "dataTransparencyTitle": "Wie MINT deine Daten verwendet",
   "dataTransparencySalary": "Wenn du dein Gehalt eingibst",
-  "dataTransparencySalaryDetail": "Nur auf deinem Telefon gespeichert. Nie gesendet.",
+  "dataTransparencySalaryDetail": "In deinem verschlüsselten Profil gespeichert. Nur beim Nutzen des AI-Coachs geteilt.",
   "dataTransparencyScan": "Wenn du ein Dokument scannst",
-  "dataTransparencyScanDetail": "Verschlüsselt an unseren Schweizer Server gesendet. Analysiert und gelöscht. Nur das Ergebnis wird gespeichert.",
+  "dataTransparencyScanDetail": "Verschlüsselt an unseren Server gesendet und mit deiner Einwilligung von der Claude-API (Anthropic, USA) ausgelesen, um die Zahlen zu extrahieren. Die Originaldatei wird gelöscht; nur das Ergebnis wird gespeichert.",
   "dataTransparencyCoach": "Wenn du mit dem Coach sprichst",
-  "dataTransparencyCoachDetail": "Lokales SLM (nichts gesendet) oder Claude-API (deine Wahl). Dein genaues Gehalt wird nie geteilt.",
+  "dataTransparencyCoachDetail": "Lokales SLM (nichts gesendet) oder Claude-API: dein pseudonymisiertes Profil (inkl. Beträge, nie dein Name oder IBAN) und deine Nachrichten werden geteilt.",
   "dataTransparencyImport": "Wenn du einen Kontoauszug importierst",
   "dataTransparencyImportDetail": "Verschlüsselt gesendet. Kategorisiert. Rohdatei gelöscht. Nur Zusammenfassungen bleiben.",
   "dataTransparencyDelete": "Wenn du dein Konto löschst",
@@ -11198,7 +11256,7 @@
   "consentPurposePersistence365d": "Verschlüsselter Speicher 365 Tage",
   "consentPurposePersistence365dWhy": "Extrahierte Daten werden verschlüsselt (AES-256) 365 Tage lang gespeichert, danach gelöscht. Widerruf: kryptografische Löschung innerhalb von 30 Tagen.",
   "consentPurposeTransferUsAnthropic": "KI-Verarbeitung (Anthropic, USA)",
-  "consentPurposeTransferUsAnthropicWhy": "Dokumente laufen über die Claude-API (Anthropic, USA) im Zero-Data-Retention-Modus. Dieser Transfer entfällt nach der AWS-Frankfurt-Migration.",
+  "consentPurposeTransferUsAnthropicWhy": "Deine Dokumente (Zero Data Retention) und — wenn du den Coach nutzt — dein pseudonymisiertes Finanzprofil (exakte Beträge enthalten, niemals dein Name, deine IBAN oder deine AHV-Nummer) sowie deine Nachrichten laufen über die Claude-API (Anthropic, USA).",
   "consentPurposeCoupleProjection": "Paar-Projektionen",
   "consentPurposeCoupleProjectionWhy": "MINT nutzt die Daten deines Partners / deiner Partnerin für Paar-Szenarien. Du bestätigst, dass du deren Einwilligung eingeholt hast.",
   "consentRevoke": "Widerrufen",
@@ -11349,44 +11407,68 @@
   "aujourdhuiCompleteCommitment": "Als erledigt markieren",
   "coachSequenceNextStepLabel": "Nächster Schritt: {label}.",
   "@coachSequenceNextStepLabel": {
-    "placeholders": {"label": {"type": "String"}},
-    "x-mint-meta": {"level": "N3"}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    },
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSequenceCompletedMessage": "Du hast diese geführte Sequenz abgeschlossen.",
   "@coachSequenceCompletedMessage": {
-    "x-mint-meta": {"level": "N3"}
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "betaDisclosureEyebrow": "MINT in der Beta",
   "@betaDisclosureEyebrow": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlinePrefix": "Du testest eine Version, die",
   "@betaDisclosureHeadlinePrefix": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlineEm": "mit dir lernt",
   "@betaDisclosureHeadlineEm": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureHeadlineSuffix": ".",
   "@betaDisclosureHeadlineSuffix": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletNoAdvice": "MINT ist keine Finanzberatung im Sinne des FIDLEG — es ist nur ein Bildungswerkzeug.",
   "@betaDisclosureBulletNoAdvice": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletNoBank": "Keine Bankdaten werden bei uns gespeichert. Deine Daten bleiben auf deinem Gerät, ausser du stimmst ausdrücklich zu.",
   "@betaDisclosureBulletNoBank": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureBulletDataLocal": "Dein Feedback während der Beta hilft uns, MINT zu verbessern. Wir lesen alles.",
   "@betaDisclosureBulletDataLocal": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureCta": "Verstanden, los geht's",
   "@betaDisclosureCta": {
-    "x-mint-meta": {"level": "N1"}
+    "x-mint-meta": {
+      "level": "N1"
+    }
   },
   "betaDisclosureSemanticsLabel": "Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.",
   "coachOnboardingFirstAssistantGreeting": "Willkommen bei MINT. Bevor wir starten — was bringt dich heute hierher?",
@@ -11505,5 +11587,189 @@
   "eclairageLiquidityRunwayHeadline": "Deine Liquiditätsreserve",
   "eclairageLiquidityRunwayBody": "Nimmt man deine laufenden Ausgaben als Richtwert, wird von unabhängigen Beratern oft eine Reserve von 3 bis 6 Monaten genannt, um Unerwartetes abzufedern.",
   "eclairageCompoundGrowthEdgeHeadline": "Dein Zeitvorteil",
-  "eclairageCompoundGrowthEdgeBody": "Früh statt spät mit dem Investieren zu beginnen, könnte langfristig einen Unterschied machen, bei moderatem monatlichem Aufwand. Der Zinseszins belohnt die Dauer."
+  "eclairageCompoundGrowthEdgeBody": "Früh statt spät mit dem Investieren zu beginnen, könnte langfristig einen Unterschied machen, bei moderatem monatlichem Aufwand. Der Zinseszins belohnt die Dauer.",
+  "privacyControlConsentCenterTitle": "Einwilligungen und Widerruf",
+  "privacyControlConsentCenterSubtitle": "Deine Freigaben ansehen und eine widerrufen",
+  "expatTopCantonsEmpty": "Dein Kanton ({canton}) gehört im Modell bereits zu den steuergünstigsten — kein vorteilhafter Unterschied anzuzeigen.",
+  "@expatTopCantonsEmpty": {
+    "placeholders": {
+      "canton": {}
+    }
+  },
+  "expatTopCantonsDisclaimer": "Bildungstool — keine Steuerberatung im Sinne des FIDLEG. Steuern geschätzt mit dem vereinfachten MINT-Kantonsmodell (kantonale Tarife, Hauptort) — keine exakten Steuerberechnungen. Differenz nur auf dem Einkommen — variiert mit Vermögen und Familiensituation.",
+  "coachConsentDeclined": "Der Coach benötigt deine Einwilligung, um deine Nachrichten an den KI-Dienst zu übermitteln (Server in den USA). Ohne sie kann der Coach nicht antworten. Sende deine Nachricht jederzeit erneut: Die Einwilligung wird dir dann wieder angeboten.",
+  "@coachConsentDeclined": {
+    "description": "Message systeme du chat coach quand l'utilisateur refuse le consentement transfer_us_anthropic (beads MINT_nosync-tcr). Panel: la voie de reprise citee doit etre VRAIE — renvoyer le message re-declenche la sheet ; Profil->Confidentialite n'offre PAS de grant (dead-end interdit)."
+  },
+  "repaymentDebtCreditConso": "Konsumkredit",
+  "@repaymentDebtCreditConso": {
+    "description": "Nom de dette hydratée depuis profile.dettes.creditConsommation (beads MINT_nosync-64r)"
+  },
+  "repaymentDebtLeasing": "Leasing",
+  "@repaymentDebtLeasing": {
+    "description": "Nom de dette hydratée depuis profile.dettes.leasing"
+  },
+  "repaymentDebtAutres": "Andere Schulden",
+  "@repaymentDebtAutres": {
+    "description": "Nom de dette hydratée depuis profile.dettes.autresDettes"
+  },
+  "repaymentFieldRateEstimated": "Zins (geschätzt)",
+  "@repaymentFieldRateEstimated": {
+    "description": "Label du champ taux quand la valeur est une hypothèse MINT (absente du profil) — provenance visible (review -64r)"
+  },
+  "repaymentFieldInstallmentEstimated": "Rate (geschätzt)",
+  "@repaymentFieldInstallmentEstimated": {
+    "description": "Label du champ mensualité quand la valeur est une hypothèse MINT — provenance visible (review -64r)"
+  },
+  "coupleMonoIncomeHint": "Diese Berechnung stützt sich nur auf dein Einkommen: Das Einkommen deiner Partnerin oder deines Partners fehlt noch.",
+  "@coupleMonoIncomeHint": {
+    "description": "Bandeau honnetete mono-revenu (beads MINT_nosync-mla volet C) : couple declare mais profil financier conjoint absent — le calcul couple est en realite mono-revenu"
+  },
+  "coupleMonoIncomeCta": "Einkommen mit dem Coach hinzufügen",
+  "@coupleMonoIncomeCta": {
+    "description": "CTA du bandeau mono-revenu -> coach (capture spouseIncomeNetMonthly)"
+  },
+  "reportSpouseIncomeMissingPrompt": "Erfasse das Einkommen deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin auf dem gesetzlichen Minimum geschätzt.",
+  "reportSpouseDataMissingPrompt": "Erfasse Einkommen und Beitragsjahre deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin nicht geschätzt.",
+  "repaymentBudgetEffectiveNote": "Deine Mindestraten betragen insgesamt CHF {montant} — der Plan rechnet damit",
+  "@repaymentBudgetEffectiveNote": {
+    "placeholders": {
+      "montant": {
+        "type": "String"
+      }
+    }
+  },
+  "semanticsRepaymentBudgetEffective": "Eingegebenes Budget CHF {saisi}, der Plan rechnet mit CHF {effectif} (Mindestraten). Schaltfläche, ändert das Budget.",
+  "@semanticsRepaymentBudgetEffective": {
+    "placeholders": {
+      "saisi": {
+        "type": "String"
+      },
+      "effectif": {
+        "type": "String"
+      }
+    }
+  },
+  "indicativeBannerCtaSemantics": "Deine Daten präzisieren — Block {bloc}",
+  "@indicativeBannerCtaSemantics": {
+    "placeholders": {
+      "bloc": {
+        "type": "String"
+      }
+    }
+  },
+  "divorceGateFactRevenu1": "Dein jährliches Bruttoeinkommen",
+  "divorceGateWhyRevenu1": "Es dient der Schätzung der Haushaltssteuer vor und nach der Scheidung.",
+  "divorceGateFactRevenu2": "Jährliches Einkommen deiner Ex-Partnerin oder deines Ex-Partners",
+  "divorceGateWhyRevenu2": "Er erlaubt den Vergleich der Steuer des Ehepaars mit jener zweier getrennter Haushalte.",
+  "divorcePensionEnfantTitre": "Kindesunterhalt (ZGB Art. 276, 285, 285a)",
+  "divorcePensionEnfantFacteurs": "Er richtet sich nach den Bedürfnissen und dem Alter des Kindes, nach Betreuungs- und Ausbildungskosten, und berücksichtigt die Familienzulagen. Wer das Kind im Alltag betreut, leistet bereits einen Naturalunterhalt: Er senkt entsprechend, was in Geld verlangt wird. Ein Sparanteil kann hinzukommen, wenn es die Mittel erlauben.",
+  "divorcePensionConjointTitre": "Nachehelicher Unterhalt (ZGB Art. 125)",
+  "divorcePensionConjointFacteurs": "Er versteht sich nicht von selbst. Zuerst wird geprüft, ob jede Person selbst für ihren Unterhalt aufkommen kann. Wenn nicht, zählen die Aufgabenteilung während der Ehe, ihre Dauer, der Lebensstandard, den ihr hattet, Alter und Gesundheit, Einkommen und Vermögen, Ausbildungs- und Erwerbsaussichten sowie die Vorsorge. Eine lange Ehedauer begründet keinen automatischen Anspruch.",
+  "divorcePensionMethode": "Die Referenzmethode verläuft in zwei Schritten (BGE 147 III 265). Zuerst wird das Existenzminimum jeder Person bestimmt: Wohnen, Krankenversicherung, Ernährung, Berufsauslagen, Betreuungskosten. Diese Lasten gehen allem anderen vor. Danach wird der verbleibende Überschuss zwischen den Haushalten verteilt. Gerechnet wird mit den verfügbaren Nettoeinkommen, nie mit Bruttolöhnen. Der Überschuss wird nicht willkürlich geteilt: Er wird nach « grossen und kleinen Köpfen » verteilt (ein voller Anteil pro erwachsene Person, ein halber pro Kind), mit fallweisen Anpassungen.",
+  "divorcePensionLeviers": "Was den Betrag steigen oder sinken lässt: zuerst der Betreuungsanteil — je mehr du das Kind betreust, desto weniger zahlst du in Geld. Dann deine Erwerbsfähigkeit: Kannst du mehr arbeiten, kann dir ein hypothetisches Einkommen angerechnet werden. Der Lebensstandard während der Ehe wirkt als Obergrenze. Und der Clean-Break-Grundsatz drängt jede Person mit der Zeit zur finanziellen Eigenständigkeit. Achtung: Mehr Betreuung befreit nicht immer von Zahlungen — auch die Leistungsfähigkeit zählt, und der finanziell stärkere Elternteil kann trotz erheblicher Betreuung zahlen.",
+  "divorceRegimeAcquets": "Massgebend ist, was während der Ehe erworben wurde. Was jede Person vorher besass und was sie durch Erbschaft oder Schenkung erhielt, bleibt ihr: das ist das Eigengut. Am Rest hat jede Person Anspruch auf die Hälfte des Vorschlags der anderen (ZGB Art. 215). Es entscheidet also der Vergleich eurer beiden Rechnungen, nicht ein gemeinsamer Topf: Wer mehr angesammelt hat, zahlt der anderen Person die HÄLFTE der Differenz zwischen den beiden Vorschlägen. Vor dem Vergleich wird der Errungenschaft hinzugerechnet, was ihr entzogen wurde (Art. 208), werden die Ersatzforderungen zwischen Eigengut und Errungenschaft geregelt (Art. 206 und 209) und jede Schuld der Masse zugeordnet, die sie betrifft.",
+  "divorceLppTransferCaveat": "Dieser Betrag wird auf den von dir erfassten Guthaben berechnet (aktuelles Guthaben minus Guthaben bei Heirat). Zwei rechtliche Elemente fehlen hier: der Zins auf der bei der Heirat bestehenden Austrittsleistung und das gesetzliche Bewertungsdatum (Einleitung des Scheidungsverfahrens). Deine Pensionskasse erstellt die genaue Abrechnung.",
+  "divorceRegimeCommunaute": "Während der Ehe bildet das meiste, was ihr besitzt, ein Gesamtgut. Bei der Scheidung wird dieses Gut aber nicht sofort halbiert: Jede Person nimmt zuerst zurück, was unter der Errungenschaftsbeteiligung ihr Eigengut gewesen wäre — was sie vor der Ehe hatte, ihre Erbschaften, ihre Schenkungen (ZGB Art. 242 Abs. 1). Nur der nach diesen Rücknahmen verbleibende Rest wird hälftig geteilt (Art. 242 Abs. 2). Der oft zitierte Artikel 241 betrifft nur die Auflösung durch Tod oder durch Güterstandswechsel.",
+  "divorceRegimeSeparation": "Es gibt nichts zu teilen: Jede Person behält, was ihr gehört. Entscheidend ist deshalb der Eigentumsbeweis. Wer einen Vermögenswert beansprucht, muss zeigen, dass er ihm gehört — Rechnung, Vertrag, Grundbucheintrag. Fehlt der Beweis, wird vermutet, dass der Wert beiden zu Miteigentum gehört (ZGB Art. 248). Etwas finanziert zu haben, macht es nicht automatisch zu deinem: Es kann eine Forderung oder einen Miteigentumsanteil begründen, ersetzt aber den Titel nicht. Und ein Wert in Miteigentum kann einer Person gegen Entschädigung zugewiesen werden, wenn sie ein überwiegendes Interesse nachweist (Art. 251).",
+  "divorcePatrimoineNoShare": "Um diese Regel auf deinen Fall anzuwenden, brauchst du zwei getrennte Inventare — deines und jenes deines Ehegatten — mit Erwerbsdatum und Herkunft jedes Vermögenswerts. Dieses Dokument, nicht eine Haushaltssumme, bestimmt, wer was schuldet. Der endgültige Betrag wird danach durch Vereinbarung oder durch das Gericht festgelegt.",
+  "divorcePatrimoineIndicatifHint": "Diese beiden Beträge dienen nicht der Berechnung eines Anteils: Sie sind Anhaltspunkte zur Vorbereitung deines Gesprächs. Entscheidend ist das Inventar jeder Person — Erwerbsdatum, Herkunft des Werts, zugehörige Schulden.",
+  "divorceGateFactLpp1": "Dein aktuelles BVG-Guthaben",
+  "divorceGateWhyLpp1": "Geteilt wird das während der Ehe aufgebaute BVG-Guthaben.",
+  "divorceGateFactLpp2": "Aktuelles BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners",
+  "divorceGateWhyLpp2": "Der Ausgleich vergleicht die BVG-Guthaben beider Ehegatten.",
+  "divorceGateFactAvoir1": "Dein BVG-Guthaben bei der Heirat",
+  "divorceGateWhyAvoir1": "Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).",
+  "divorceGateFactAvoir2": "BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners bei der Heirat",
+  "divorceGateWhyAvoir2": "Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).",
+  "divorcePensionNoEstimate": "Es gibt keinen Tarif: Der Betrag lässt sich nicht aus dem Einkommen und der Anzahl Kinder ableiten. Er wird aus den tatsächlichen Budgets beider Haushalte aufgebaut. Hier ist der Mechanismus, damit du deine eigene Lage einschätzen kannst.",
+  "divorcePensionFacteursTitre": "Wie der Betrag zustande kommt",
+  "divorcePensionSpecialiste": "Der genaue Betrag wird durch eure Vereinbarung oder, mangels Einigung, durch das Gericht festgelegt. Eine Fachperson beziffert den konkreten Fall anhand dieser Elemente.",
+  "divorceGateFactCanton": "Dein Wohnkanton",
+  "divorceGateWhyCanton": "Der Einkommenssteuertarif hängt von deinem Wohnkanton ab.",
+  "divorceImpactFiscalCantonNote": "Schätzung im aktuellen Kanton des Haushalts für beide Ehepartner — der künftige Kanton der anderen Person ist unbekannt.",
+  "genderGapProjectionAssumptions": "Projektionsannahmen: Die Rendite von {rendement} %/Jahr auf den BVG-Guthaben ist eine MINT-Annahme, kein gesetzlicher Satz — der BVG-Mindestzinssatz beträgt {tauxMin} %/Jahr. Die kumulierte Lücke ist die jährliche Lücke multipliziert mit {annees} Rentenjahren, ohne Diskontierung und ohne Indexierung: eine illustrative Grössenordnung, kein bereits erlittener Verlust.",
+  "@genderGapProjectionAssumptions": {
+    "placeholders": {
+      "rendement": {
+        "type": "String"
+      },
+      "tauxMin": {
+        "type": "String"
+      },
+      "annees": {
+        "type": "String"
+      }
+    }
+  },
+  "genderGapModelLegalMinimum": "Verwendetes Modell: das gesetzliche BVG-Obligatorium — koordinierter Lohn nach Gesetz und Mindestumwandlungssatz von {tauxConversion} %. Das ist nicht das Reglement deiner Pensionskasse. Bei einem überobligatorischen Plan, häufig oberhalb der Obergrenze des obligatorisch versicherten Lohns, weichen die tatsächlichen Renten in beide Richtungen von dieser Illustration ab: {tauxConversion} % auf das gesamte Kapital anzuwenden kann auch zu hoch greifen, denn umhüllende Kassen wenden oft einen tieferen Satz auf das ganze Guthaben an.",
+  "@genderGapModelLegalMinimum": {
+    "placeholders": {
+      "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Steuerpflichtig",
+  "donationVerdictInconnu": "Zu prüfen",
+  "donationPlageJusqua": "bis ~{pct} % (kantonaler Tarif, ohne Gemeindezuschläge)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetValue": "Netto geschätzt auf {value} pro Monat",
+  "@firstJobLuciditeNetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeNetRange": "Spanne: {low} bis {high} je nach AANP-Risikoklasse",
+  "@firstJobLuciditeNetRange": {
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeVintage": "{sources} · Ansätze {year}",
+  "@firstJobLuciditeVintage": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeWhyTitle": "Warum diese Zahl?",
+  "firstJobLuciditeAssumptionsLabel": "Berechnungsannahmen",
+  "firstJobLuciditeAssumptionAanp": "AANP-Beitrag zwischen 1,0 % und 1,5 % je nach Risikoklasse des Arbeitgebers (Standard 1,3 %)",
+  "firstJobLuciditeAssumptionTaux": "Angenommener Beschäftigungsgrad: {taux} %, anpassbar",
+  "@firstJobLuciditeAssumptionTaux": {
+    "placeholders": {
+      "taux": {
+        "type": "String"
+      }
+    }
+  },
+  "firstJobLuciditeAssumptionImpotSource": "Quellensteuer nicht angewendet (ordentlich besteuerte ansässige Person)",
+  "firstJobLuciditeAssumptionPeriode": "Monatliches Netto, ohne 13. Monatslohn und Bonus",
+  "firstJobLuciditeSourcesLabel": "Quellen und Jahrgänge",
+  "firstJobLuciditeEngineLabel": "Berechnungs-Engine: {version}",
+  "@firstJobLuciditeEngineLabel": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
 }

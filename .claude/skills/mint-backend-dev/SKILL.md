@@ -40,4 +40,8 @@ Order : Monte Carlo + tornado sensitivity migrate FIRST (D-11 — highest LSFin 
 
 All migrated L2-L4 calcs land in `services/backend/app/api/v1/endpoints/` with `Depends(get_profile_filled)` — the server is the PRIMARY enforcement layer for LSFin banned-terms + nLPD scrubbing ; mobile thin clients are presentation only, never re-implement calculator logic across the L1/L2 boundary.
 
+### Modèles fiscaux canoniques (v2, calibrés ESTV — 2026-07)
+
+`app/services/fiscal/cantonal_comparator.py` : estimate_income_tax(_parts), estimate_income_tax_on_rente, estimate_capital_withdrawal_tax (IFD exact + interpolation ESTV, marié par canton) ; fortune : wealth_tax_service (modèle simplifié OFS, PAS calibré ESTV). Ne jamais recomposer un taux plat ni un proxy heuristique — parités croisées gelées au centime (tools/fixtures/*.json). Modèle v1 supprimé.
+
 <!-- mint-data-architecture-v1-01-canonical:end -->

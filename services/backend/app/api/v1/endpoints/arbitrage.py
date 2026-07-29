@@ -104,8 +104,25 @@ def _rvc_calculation_receipt(
 ) -> ArbitrageCalculationReceiptSchema:
     """Build the receipt mobile requires before displaying RvC figures."""
     current_age = resolved.get("current_age")
-    missing_inputs = []
-    if current_age is None:
+    # beads MINT_nosync-8wy (+ review Codex PR #970) :
+    # - current_age n'est PAS un intrant du calcul backend
+    #   (compare_rente_vs_capital ne le consomme jamais — aucune projection
+    #   serveur). L'exiger inconditionnellement bloquait tout résultat du
+    #   mode certificat (receipt mobile fail-closed).
+    # - Il reste requis quand le mobile annonce input_mode='estimate' (la
+    #   projection a lieu côté mobile et l'âge en est un intrant réel).
+    # - Les intrants poubelle restent flagués : miroir de la liste
+    #   missingRequiredInputs du moteur mobile (arbitrage_engine.dart).
+    missing_inputs: list[str] = []
+    capital_total = resolved.get("capital_lpp_total")
+    rente = resolved.get("rente_annuelle_proposee")
+    if capital_total is None or capital_total <= 0:
+        missing_inputs.append("capital_lpp_total")
+    if rente is None or rente <= 0:
+        missing_inputs.append("rente_annuelle_proposee")
+    if not str(resolved.get("canton") or "").strip():
+        missing_inputs.append("canton")
+    if resolved.get("input_mode") == "estimate" and current_age is None:
         missing_inputs.append("current_age")
 
     taux_conversion_obligatoire = (
@@ -134,12 +151,27 @@ def _rvc_calculation_receipt(
         else 0.03
     )
     inflation = resolved["inflation"] if resolved["inflation"] is not None else 0.02
-    horizon = resolved["horizon"] if resolved["horizon"] is not None else 25
+    # Défaut unifié avec le moteur mobile (beads MINT_nosync-axj).
+    horizon = resolved["horizon"] if resolved["horizon"] is not None else 30
     is_married = (
         resolved["is_married"]
         if resolved["is_married"] is not None
         else False
     )
+
+    # Suite du miroir moteur mobile (valeurs après défauts serveur).
+    if capital_total is not None and capital_total > 0 and taux_retrait <= 0:
+        missing_inputs.append("safe_withdrawal_rate")
+    if (resolved.get("capital_obligatoire") or 0) > 0 and (
+        taux_conversion_obligatoire <= 0
+    ):
+        missing_inputs.append("conversion_rate_obligatory")
+    if (resolved.get("capital_surobligatoire") or 0) > 0 and (
+        taux_conversion_surobligatoire <= 0
+    ):
+        missing_inputs.append("conversion_rate_surobligatory")
+    if horizon <= 0:
+        missing_inputs.append("horizon_years")
 
     return ArbitrageCalculationReceiptSchema(
         calculation_origin="backend_l2_arbitrage_engine",
@@ -380,6 +412,11 @@ def arbitrage_allocation_annuelle(
                 else 0.04
             ),
             canton=str(resolved["canton"]).upper(),
+            is_married=(
+                resolved["is_married"]
+                if resolved["is_married"] is not None
+                else False
+            ),
         )
 
         return _result_to_response(result, AllocationAnnuelleResponse)

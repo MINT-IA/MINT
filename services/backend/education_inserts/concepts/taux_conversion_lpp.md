@@ -21,7 +21,7 @@ Limite de l'analogie : avec une rente, le lac appartient à la caisse — tu ne 
 ## Niveau 1
 Le taux de conversion transforme l'avoir de vieillesse LPP accumulé en rente annuelle. La formule : `rente annuelle = avoir × taux de conversion`, divisée par 12 pour la mensuelle.
 
-La loi fixe un minimum de **6.8%** sur la part obligatoire (LPP art. 14). Mais les caisses appliquent souvent un taux inférieur sur la part **surobligatoire** — fréquemment entre 5.0% et 5.5%. Comme beaucoup de travailleurs·euses suisses ont un avoir majoritairement surobligatoire (salaires > CHF 88'200), le taux effectif réel peut être bien en dessous de 6.8%.
+La loi fixe un minimum de **6.8%** sur la part obligatoire (LPP art. 14). Mais les caisses appliquent souvent un taux inférieur sur la part **surobligatoire** — fréquemment entre 5.0% et 5.5%. Comme beaucoup de travailleurs·euses suisses ont un avoir majoritairement surobligatoire (salaires > CHF 90'720), le taux effectif réel peut être bien en dessous de 6.8%.
 
 Exemple chiffré :
 - Avoir total : CHF 400'000 (dont CHF 100'000 obligatoire, CHF 300'000 surobligatoire)

@@ -736,7 +736,8 @@ class SDe extends S {
   String get divorcePatrimoine => 'VERMÖGEN';
 
   @override
-  String get divorcePatrimoineSubtitle => 'Gemeinsames Vermögen und Schulden';
+  String get divorcePatrimoineSubtitle =>
+      'Richtwerte — es wird kein Anteil berechnet';
 
   @override
   String get divorceSimuler => 'Simulieren';
@@ -748,10 +749,10 @@ class SDe extends S {
   String get divorceTotalLpp => 'Gesamtes BVG-Guthaben (aktuell)';
 
   @override
-  String get divorcePartConjoint1 => 'Anteil Ehepartner 1';
+  String get divorcePartConjoint1 => 'Guthaben Ehepartner 1 nach der Teilung';
 
   @override
-  String get divorcePartConjoint2 => 'Anteil Ehepartner 2';
+  String get divorcePartConjoint2 => 'Guthaben Ehepartner 2 nach der Teilung';
 
   @override
   String get divorceTransfert => 'Übertragung';
@@ -772,13 +773,10 @@ class SDe extends S {
   String get divorceTotalApresDivorce => 'Total nach Scheidung';
 
   @override
-  String get divorcePartagePatrimoine => 'VERMÖGENSTEILUNG';
+  String get divorcePartagePatrimoine => 'AUFLÖSUNG DES GÜTERSTANDS';
 
   @override
-  String get divorceFortuneNette => 'Nettovermögen';
-
-  @override
-  String get divorcePensionAlimentaire => 'UNTERHALTSBEITRÄGE (SCHÄTZUNG)';
+  String get divorcePensionAlimentaire => 'UNTERHALTSBEITRAG';
 
   @override
   String get divorcePointsAttention => 'AUFMERKSAMKEITSPUNKTE';
@@ -829,55 +827,6 @@ class SDe extends S {
   @override
   String get successionDisclaimer =>
       'Bildungsinformation, keine Rechtsberatung (FIDLEG/ZGB).';
-
-  @override
-  String get coachingAge25Title => '25 Jahre: Säule 3a eröffnen';
-
-  @override
-  String get coachingAge25Message =>
-      'Mit 25 ist der ideale Zeitpunkt, eine Säule 3a zu eröffnen. Dank Zinseszins zählt jedes Jahr.';
-
-  @override
-  String get coachingAge35Title => '35 Jahre: Vorsorge-Check';
-
-  @override
-  String get coachingAge35Message =>
-      'Mit 35 sollten Sie prüfen, ob Ihre Vorsorge auf Kurs ist. Haben Sie eine 3a? Reicht Ihre BVG?';
-
-  @override
-  String get coachingAge45Title => '45 Jahre: Strategie optimieren';
-
-  @override
-  String get coachingAge45Message =>
-      'Mit 45 bleiben 20 Jahre bis zur Rente. Jetzt ist der Moment, deinen 3a-Spielraum, mögliche BVG-Einkäufe und deine Trajektorie zu prüfen.';
-
-  @override
-  String get coachingAge50Title => '50 Jahre: Rente vorbereiten';
-
-  @override
-  String get coachingAge50Message =>
-      'Mit 50 rückt die Rente näher. Prüfen Sie Ihr BVG-Guthaben und planen Sie letzte Einkäufe.';
-
-  @override
-  String get coachingAge55Title => '55 Jahre: Letzte Etappe';
-
-  @override
-  String get coachingAge55Message =>
-      'Mit 55 wird die steuerliche Planung des Bezugs entscheidend. Gestaffelte 3a-Bezüge können den Steuereffekt verändern.';
-
-  @override
-  String get coachingAge58Title => '58 Jahre: Frühpensionierung möglich';
-
-  @override
-  String get coachingAge58Message =>
-      'Ab 58 können Sie einen vorzeitigen Bezug Ihrer 2. Säule in Betracht ziehen. Achtung: Die Rente wird gekürzt.';
-
-  @override
-  String get coachingAge63Title => '63 Jahre: Letzte Anpassungen';
-
-  @override
-  String get coachingAge63Message =>
-      '2 Jahre vor der Rente: Strategie finalisieren. Letzter BVG-Einkauf, Wahl Rente/Kapital.';
 
   @override
   String get openBankingTitle => 'Open Banking';
@@ -2443,14 +2392,36 @@ class SDe extends S {
   String get mariageMaries => 'Verheiratet';
 
   @override
-  String mariagePenaltyAmount(String amount) {
-    return 'Strafe +$amount/Jahr';
-  }
+  String get mariageTaxComparisonTitle =>
+      'Haushaltssteuer: zwei Alleinstehende oder verheiratet';
 
   @override
-  String mariageBonusAmount(String amount) {
-    return 'Bonus -$amount/Jahr';
-  }
+  String get mariageDeuxCelibataires => '2 Alleinstehende';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveMarie =>
+      'Jährliche Differenz: Haushaltssteuer höher als Ehepaar';
+
+  @override
+  String get mariageEcartAnnuelImpotPlusEleveCelibataires =>
+      'Jährliche Differenz: Haushaltssteuer höher als zwei Alleinstehende';
+
+  @override
+  String get mariageEcartAnnuelImpotIdentique =>
+      'Jährliche Differenz: Haushaltssteuer in beiden Fällen gleich';
+
+  @override
+  String get mariageParAn => 'pro Jahr';
+
+  @override
+  String get mariageRepartitionCaption =>
+      'Die Richtung der Differenz entscheidet sich an der Verteilung deiner beiden Einkommen: ihre Addition zieht die Haushaltssteuer nach oben, der für Paare reservierte reduzierte Tarif zieht sie nach unten.';
+
+  @override
+  String get mariageRepartitionRevenusProches => 'Ähnliche Einkommen';
+
+  @override
+  String get mariageRepartitionRevenuDomine => 'Ein Einkommen dominiert';
 
   @override
   String get mariageDeductions => 'EHEABZÜGE';
@@ -2547,11 +2518,14 @@ class SDe extends S {
 
   @override
   String get mariageLppSurvivorFootnote =>
-      'BVG Art. 19 — Verheiratete (Konkubinat: Klausel erforderlich)';
+      'Unter Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre';
 
   @override
-  String get mariageSurvivorMonthly =>
-      'Monatliches Einkommen des verheirateten Hinterbliebenen';
+  String get mariageSurvivorMonthly => 'BVG-Hinterlassenenrente, pro Monat';
+
+  @override
+  String get mariageSurvivorAvsNote =>
+      'Als überlebende·r Ehepartner·in kannst du zusätzlich eine AHV-Hinterlassenenrente erhalten, unter Bedingungen (AHVG Art. 23). Ihr Betrag hängt von der Beitragslaufbahn der verstorbenen Person ab und wird hier nicht beziffert.';
 
   @override
   String get mariageVsConcubin => 'VERHEIRATET VS KONKUBINAT';
@@ -2573,6 +2547,10 @@ class SDe extends S {
       'Im Konkubinat hat der überlebende Partner standardmässig keine Rechte — keine AHV-Rente, kein steuerbefreites Erbe. Alles muss vertraglich geregelt werden.';
 
   @override
+  String get mariageProtectionConditionsNote =>
+      'Die Schutzwirkungen der Ehe (AHV- und BVG-Hinterlassenenrenten) sind ein rechtlicher Zugang unter Anspruchsbedingungen (BVG Art. 19, AHVG Art. 23), keine automatische Auszahlung.';
+
+  @override
   String get mariageProtectionsEssentielles => 'WESENTLICHE SCHUTZMASSNAHMEN';
 
   @override
@@ -2592,7 +2570,7 @@ class SDe extends S {
 
   @override
   String get divorceIntroText =>
-      'Eine Scheidung hat oft unterschätzte finanzielle Folgen: Vermögensaufteilung, Vorsorgeteilung (BVG/3a), steuerliche Auswirkungen und Unterhaltsbeiträge. Dieses Tool hilft dir, klarer zu sehen.';
+      'Eine Scheidung hat oft unterschätzte finanzielle Folgen: Auflösung des Güterstands, Teilung der Vorsorge (BVG/Säule 3a), Steuerfolgen und Unterhaltsbeiträge. Dieses Werkzeug hilft dir, klarer zu sehen.';
 
   @override
   String divorceYears(int count) {
@@ -2613,14 +2591,10 @@ class SDe extends S {
   String get divorceSeparation => 'Gütertrennung';
 
   @override
-  String get divorceFortune => 'Gemeinsames Vermögen';
+  String get divorceFortune => 'Vermögen des Haushalts (Richtwert)';
 
   @override
-  String get divorceDettes => 'Gemeinsame Schulden';
-
-  @override
-  String get divorcePensionDescription =>
-      'Schätzung basierend auf Einkommensunterschied und Kinderzahl. Der tatsächliche Betrag hängt von vielen Faktoren ab (Sorgerecht, Bedürfnisse, Lebensstandard).';
+  String get divorceDettes => 'Schulden des Haushalts (Richtwert)';
 
   @override
   String get divorceActionsTitle => 'Zu ergreifende Massnahmen';
@@ -2634,7 +2608,7 @@ class SDe extends S {
 
   @override
   String get divorceEduParticipationContent =>
-      'Die Errungenschaftsbeteiligung ist der standardmässige Güterstand in der Schweiz (ZGB Art. 181 ff). Jeder Ehepartner behält sein Eigengut (vor der Ehe oder durch Erbschaft/Schenkung erworben). Die Errungenschaften (während der Ehe erworbenes Vermögen) werden bei einer Scheidung hälftig geteilt. Es ist der häufigste Güterstand in der Schweiz.';
+      'Die Errungenschaftsbeteiligung ist der ordentliche Güterstand in der Schweiz (ZGB Art. 181 ff.). Jede Person behält ihr Eigengut (vor der Ehe erworben oder durch Erbschaft oder Schenkung erhalten). Bei Scheidung hat jede Person Anspruch auf die Hälfte des Vorschlags der ANDEREN (ZGB Art. 215); die beiden Forderungen werden verrechnet. Die Berechnung erfolgt auf der Errungenschaftsrechnung jedes Ehegatten, nach Hinzurechnungen, Ersatzforderungen und Schuldenzuordnung — nicht auf einem einzigen gemeinsamen Topf.';
 
   @override
   String get divorceEduLppTitle => 'Wie funktioniert die BVG-Teilung?';
@@ -2851,7 +2825,10 @@ class SDe extends S {
   String get firstJobActivityRate => 'Beschäftigungsgrad';
 
   @override
-  String get firstJob3aHeader => 'SÄULE 3A — JETZT ERÖFFNEN';
+  String get firstJobAskCoach => 'Den Coach fragen';
+
+  @override
+  String get firstJob3aHeader => 'SÄULE 3A — ZU PRÜFEN';
 
   @override
   String get firstJob3aAnnualCap => 'Jährliche Obergrenze';
@@ -3111,7 +3088,7 @@ class SDe extends S {
 
   @override
   String get mariageChecklistItem3Desc =>
-      'Die Heirat ändert die Begünstigtenreihenfolge. Dein Ehepartner wird automatisch Begünstigter der BVG-Hinterlassenenrente (BVG Art. 19). Prüfe auch die Begünstigten deiner 3. Säule.';
+      'Die Heirat ändert die Begünstigtenreihenfolge. Dein Ehepartner kann dann die BVG-Hinterlassenenrente erhalten, unter Bedingungen (BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre). Prüfe auch die Begünstigten deiner 3. Säule.';
 
   @override
   String get mariageChecklistItem4Title =>
@@ -3234,11 +3211,6 @@ class SDe extends S {
   String get donationExoneree => 'Befreit';
 
   @override
-  String donationTauxCanton(String taux, String canton) {
-    return 'Satz: $taux% (Kanton $canton)';
-  }
-
-  @override
   String get donationMontantRow => 'Schenkungsbetrag';
 
   @override
@@ -3303,6 +3275,267 @@ class SDe extends S {
   String get donationCanton => 'Kanton';
 
   @override
+  String situationGateProgress(int confirmed, int total) {
+    return '$confirmed/$total ausgefüllt';
+  }
+
+  @override
+  String get situationGateCompleterAction => 'Ergänzen';
+
+  @override
+  String get situationGateAnnounceComplete =>
+      'Deine Situation ist vollständig, du kannst die Berechnung starten.';
+
+  @override
+  String get donationGateTitle =>
+      'Vervollständige deine Situation für eine Berechnung auf Basis deiner Daten';
+
+  @override
+  String get expatForfaitGateTitle =>
+      'Vervollständige deine Situation für eine Pauschale auf Basis deiner Daten';
+
+  @override
+  String get expatTopCantonsGateTitle =>
+      'Vervollständige dein Profil für ein personalisiertes Kantonsranking';
+
+  @override
+  String get expatDepartGateTitle =>
+      'Vervollständige deine Situation, um dein Vorsorgekapital zu beziffern';
+
+  @override
+  String get expatAvsGateTitle =>
+      'Vervollständige deine Situation, um deine AHV-Lücke zu schätzen';
+
+  @override
+  String get expatAvsProjectionGateTitle =>
+      'Vervollständige deine Situation, um deine AHV-Rente zu projizieren';
+
+  @override
+  String get expatGateFactForfaitCanton => 'Kanton der Pauschale';
+
+  @override
+  String get expatGateWhyForfaitCanton =>
+      'Das steuerbare Minimum hängt vom gewählten Kanton ab.';
+
+  @override
+  String get expatGateFactLivingExpenses => 'Weltweite Lebenshaltungskosten';
+
+  @override
+  String get expatGateWhyLivingExpenses =>
+      'Die Pauschale basiert auf deinen jährlichen Lebenshaltungskosten.';
+
+  @override
+  String get expatGateFactActualIncome => 'Tatsächliches weltweites Einkommen';
+
+  @override
+  String get expatGateWhyActualIncome =>
+      'Der Vergleich nutzt dein weltweites Einkommen, nicht deinen Schweizer Lohn.';
+
+  @override
+  String get expatGateFactIncome => 'Steuerbares Einkommen';
+
+  @override
+  String get expatGateWhyIncome =>
+      'Die Steuerdifferenz zwischen Kantonen basiert auf deinem realen Einkommen.';
+
+  @override
+  String get expatGateFactCanton => 'Wohnkanton';
+
+  @override
+  String get expatGateWhyCanton =>
+      'Das Ranking vergleicht die Kantone mit deiner aktuellen Steuerlast.';
+
+  @override
+  String get expatGateFactPillar3a => 'Guthaben Säule 3a';
+
+  @override
+  String get expatGateWhyPillar3a =>
+      'Dein betroffenes Vorsorgekapital umfasst deine Säule 3a.';
+
+  @override
+  String get expatGateFactLpp => 'BVG-Guthaben';
+
+  @override
+  String get expatGateWhyLpp =>
+      'Dein betroffenes Vorsorgekapital umfasst dein BVG-Guthaben.';
+
+  @override
+  String get expatGateFactYearsInCh => 'Beitragsjahre in der Schweiz';
+
+  @override
+  String get expatGateWhyYearsInCh =>
+      'Die AHV-Rente hängt von deinen Beitragsjahren ab.';
+
+  @override
+  String get expatGateFactYearsAbroad => 'Jahre im Ausland';
+
+  @override
+  String get expatGateWhyYearsAbroad =>
+      'Jahre ausserhalb der Schweiz vergrössern die Beitragslücke.';
+
+  @override
+  String get expatGateFactAge => 'Alter';
+
+  @override
+  String get expatGateWhyAge =>
+      'Die Rentenprojektion hängt von den verbleibenden Beitragsjahren ab.';
+
+  @override
+  String donationCompleterSituation(int confirmed, int total) {
+    return 'Meine Situation vervollständigen ($confirmed/$total)';
+  }
+
+  @override
+  String get donationGateFactCanton => 'Kanton der Schenkung';
+
+  @override
+  String get donationGateWhyCanton =>
+      'Die Schenkungssteuer wird auf kantonaler Ebene erhoben.';
+
+  @override
+  String get donationGateFactEnfants => 'Anzahl der Kinder';
+
+  @override
+  String get donationGateWhyEnfants =>
+      'Dein Pflichtteil hängt von der Anzahl der Kinder ab.';
+
+  @override
+  String get donationGateFactFortune => 'Nettovermögen';
+
+  @override
+  String get donationGateWhyFortune =>
+      'Der Pflichtteilsbetrag wird auf deinem Nettovermögen berechnet.';
+
+  @override
+  String get donationGateFactRegime => 'Güterstand';
+
+  @override
+  String get donationGateWhyRegime => 'Dein Güterstand verändert die Erbmasse.';
+
+  @override
+  String get firstJobGateFactSalaire => 'Bruttomonatslohn';
+
+  @override
+  String get firstJobGateWhySalaire =>
+      'Das ist der Ausgangsbetrag deiner Lohnanalyse.';
+
+  @override
+  String get firstJobGateFactAge => 'Alter';
+
+  @override
+  String get firstJobGateWhyAge =>
+      'Die BVG (2. Säule) wird ab 25 Jahren obligatorisch.';
+
+  @override
+  String get firstJobGateFactCanton => 'Kanton';
+
+  @override
+  String get firstJobGateWhyCanton =>
+      'Steuern und Abzüge variieren je nach Kanton.';
+
+  @override
+  String get firstJobGateAnnounceComplete =>
+      'Deine Situation ist vollständig, deine Lohnanalyse ist bereit.';
+
+  @override
+  String get naissanceGateFactSalaire => 'Brutto-Monatslohn';
+
+  @override
+  String get naissanceGateWhySalaire =>
+      'Dein EO-Urlaub wird auf Basis deines Lohns berechnet.';
+
+  @override
+  String get naissanceGateFactParent => 'Betroffenes Elternteil';
+
+  @override
+  String get naissanceGateWhyParent =>
+      'Die Urlaubsdauer unterscheidet sich zwischen Mutterschaft und Vaterschaft.';
+
+  @override
+  String get naissanceGateFactCanton => 'Kanton';
+
+  @override
+  String get naissanceGateWhyCanton =>
+      'Familienzulagen variieren je nach Kanton.';
+
+  @override
+  String get naissanceGateFactEnfants => 'Anzahl Kinder';
+
+  @override
+  String get naissanceGateWhyEnfants =>
+      'Die Gesamtzulagen hängen von der Anzahl der Kinder ab.';
+
+  @override
+  String get naissanceGateFactRevenu => 'Brutto-Jahreseinkommen';
+
+  @override
+  String get naissanceGateWhyRevenu =>
+      'Die steuerliche Auswirkung wird auf deinem steuerbaren Einkommen berechnet.';
+
+  @override
+  String get naissanceGateFactFraisGarde => 'Betreuungskosten';
+
+  @override
+  String get naissanceGateWhyFraisGarde =>
+      'Deine tatsächlichen Betreuungskosten bestimmen den Abzug.';
+
+  @override
+  String get naissanceGateWhyEnfantsImpact =>
+      'Die Anzahl der Kinder verändert Abzüge und Kosten.';
+
+  @override
+  String get naissanceCostGenericExampleLabel =>
+      'Beispiel — Durchschnittskosten in der Schweiz, nicht deine Situation';
+
+  @override
+  String get mariageGateFactRevenu1 => 'Dein jährliches Bruttoeinkommen';
+
+  @override
+  String get mariageGateWhyRevenu1 =>
+      'Die Steuerdifferenz des Paares beruht auf deinem Einkommen.';
+
+  @override
+  String get mariageGateFactRevenu2 => 'Einkommen des Partners';
+
+  @override
+  String get mariageGateWhyRevenu2 =>
+      'Die gemeinsame Besteuerung hängt vom Einkommen deines Partners ab.';
+
+  @override
+  String get mariageGateFactCanton => 'Wohnkanton';
+
+  @override
+  String get mariageGateWhyCanton => 'Der Steuertarif variiert je nach Kanton.';
+
+  @override
+  String get mariageGateFactEnfants => 'Anzahl Kinder';
+
+  @override
+  String get mariageGateWhyEnfants =>
+      'Kinderabzüge verändern die Steuer des Paares.';
+
+  @override
+  String get mariageGateFactPatrimoine1 => 'Dein Vermögen';
+
+  @override
+  String get mariageGateWhyPatrimoine1 =>
+      'Die Aufteilung des Güterstands beruht auf euren Vermögen.';
+
+  @override
+  String get mariageGateFactPatrimoine2 => 'Vermögen des Partners';
+
+  @override
+  String get mariageGateWhyPatrimoine2 =>
+      'Die Aufteilung vergleicht eure beiden Vermögen.';
+
+  @override
+  String get mariageGateFactRenteLpp => 'Monatliche BVG-Rente';
+
+  @override
+  String get mariageGateWhyRenteLpp =>
+      'Die Hinterlassenenrente beruht auf der BVG-Rente der verstorbenen Person.';
+
+  @override
   String get housingSaleIntroText =>
       'Der Verkauf einer Immobilie in der Schweiz beinhaltet eine Grundstückgewinnsteuer (StHG Art. 12), eine mögliche Rückzahlung der verwendeten Vorsorgegelder (WEF) und Transaktionskosten. Dieses Tool hilft dir, den Nettoerlös deines Verkaufs zu schätzen.';
 
@@ -3329,6 +3562,9 @@ class SDe extends S {
 
   @override
   String get housingSaleResidencePrincipale => 'Hauptwohnsitz';
+
+  @override
+  String get housingSaleAnneesOccupation => 'Jahre als Hauptwohnsitz bewohnt';
 
   @override
   String get housingSaleFinancementTitle => 'FINANZIERUNG';
@@ -3464,7 +3700,10 @@ class SDe extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob bringt $annualDelta/Jahr mehr Leibrente, also $monthlyDelta/Monat LEBENSLANG nach der Pensionierung.';
   }
 
@@ -3522,7 +3761,7 @@ class SDe extends S {
 
   @override
   String independantAvsBody(String amount) {
-    return 'Dein geschätzter AHV-Beitrag: $amount/Jahr (degressiver Satz für Einkommen unter CHF 58’800, dann ~10.6% darüber).';
+    return 'Dein geschätzter AHV-Beitrag: $amount/Jahr (degressiver Satz für Einkommen unter CHF 60’500, dann 10.0% darüber).';
   }
 
   @override
@@ -4113,6 +4352,9 @@ class SDe extends S {
   String get expatCurrentCanton => 'Aktueller Kanton';
 
   @override
+  String get expatNonRenseigne => 'Nicht angegeben';
+
+  @override
   String get expatPillar3aBalance => 'Säule 3a Guthaben';
 
   @override
@@ -4198,6 +4440,10 @@ class SDe extends S {
       'Jede Lebensphase erfordert eine Anpassung Ihres Ehevertrags und Ihrer Vorsorge.';
 
   @override
+  String get mariageTimelineIllustrativeCaption =>
+      'Illustrativer Verlauf: Akt 2 und 3 zeigen beispielhafte Lebenswege (Karriereentwicklung, Teilzeit). Die prozentualen Veränderungen sind keine Projektion deines Einkommens.';
+
+  @override
   String get mariageTimelineAct1Title => 'Ihr arbeitet beide';
 
   @override
@@ -4240,7 +4486,7 @@ class SDe extends S {
 
   @override
   String get naissanceChecklistItem2Desc =>
-      'Stelle den Antrag über deinen Arbeitgeber (oder deine Ausgleichskasse bei Selbständigkeit). Die Zulagen werden ab dem Geburtsmonat ausbezahlt. Der Betrag hängt vom Kanton ab (CHF 200 bis CHF 305/Monat pro Kind).';
+      'Stelle den Antrag über deinen Arbeitgeber (oder deine Ausgleichskasse bei Selbständigkeit). Die Zulagen werden ab dem Geburtsmonat ausbezahlt. Der Betrag hängt vom Kanton ab (CHF 215 bis CHF 330/Monat pro Kind).';
 
   @override
   String get naissanceChecklistItem3Title =>
@@ -4262,7 +4508,7 @@ class SDe extends S {
 
   @override
   String get naissanceChecklistItem5Desc =>
-      'Ein zusätzliches Kind gibt dir Anspruch auf einen Steuerabzug von CHF 6\'700/Jahr (DBG Art. 35). Bei Betreuungskosten kannst du bis CHF 25\'500/Jahr abziehen. Denke daran, deine Steuervorauszahlungen für das laufende Jahr anzupassen.';
+      'Ein zusätzliches Kind gibt dir Anspruch auf einen Steuerabzug von CHF 6\'800/Jahr (DBG Art. 35). Bei Betreuungskosten kannst du bis CHF 25\'800/Jahr abziehen. Denke daran, deine Steuervorauszahlungen für das laufende Jahr anzupassen.';
 
   @override
   String get naissanceChecklistItem6Title => 'Familienbudget anpassen';
@@ -4288,7 +4534,7 @@ class SDe extends S {
 
   @override
   String get naissanceChecklistItem9Title =>
-      'Todes-/Invaliditätsrisikoversicherung abschliessen';
+      'Deine Absicherung für Todes-/Invaliditätsrisiko prüfen';
 
   @override
   String get naissanceChecklistItem9Desc =>
@@ -5549,11 +5795,14 @@ class SDe extends S {
 
   @override
   String get simLppBuybackBonASavoirItem3 =>
-      'Achtung: Jeder WEF-Bezug ist 3 Jahre nach einem Einkauf gesperrt (BVG Art. 79b Abs. 3). Plane deine Einkäufe entsprechend.';
+      'Achtung: Während 3 Jahren nach einem Einkauf ist kein Kapitalbezug (Pensionierung oder WEF) auf diesem Betrag möglich — ein Bezug innerhalb dieser Frist führt zur Aufrechnung des Steuerabzugs (BVG Art. 79b Abs. 3).';
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulation inklusive Kassenzins ($fundRate %) und indikativem Steuereffekt, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
   }
 
@@ -5745,7 +5994,10 @@ class SDe extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Du verlierst $amount/Monat lebenslang. Aber du gewinnst $years Jahr$plural Freiheit.';
   }
 
@@ -5822,7 +6074,10 @@ class SDe extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Vergleich Pauschalbesteuerung. Ordentliche Besteuerung: $ordinary. Pauschalbesteuerung: $forfait. Ersparnis: $savings.';
   }
 
@@ -6449,7 +6704,7 @@ class SDe extends S {
 
   @override
   String get renteVsCapitalEplTooltip =>
-      'Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20\'000 (BVV2 Art. 5). Blockiert den BVG-Einkauf für 3 Jahre.';
+      'Der WEF-Bezug reduziert dein BVG-Guthaben und damit dein Kapital oder deine Rente bei Pensionierung. Minimum CHF 20\'000 (BVV2 Art. 5). Achtung: Nach einem freiwilligen BVG-Einkauf lässt ein Kapitalbezug innerhalb von 3 Jahren den Steuerabzug dieses Einkaufs entfallen (Art. 79b Abs. 3).';
 
   @override
   String get renteVsCapitalEplLegalRef =>
@@ -6620,15 +6875,6 @@ class SDe extends S {
   String get concubinageCanton => 'Canton';
 
   @override
-  String get concubinageAvantages => 'avantages';
-
-  @override
-  String get concubinageMariage => 'Mariage';
-
-  @override
-  String get concubinageConcubinage => 'Concubinage';
-
-  @override
   String get concubinageDetailFiscal => 'DÉTAIL FISCAL';
 
   @override
@@ -6638,29 +6884,32 @@ class SDe extends S {
   String get concubinageImpotsMaries => 'Impôts mariés';
 
   @override
-  String get concubinagePenaliteMariage => 'Heiratsstrafe';
+  String get concubinageEcartImpotMariePlusEleve =>
+      'Haushaltssteuer höher als Ehepaar';
 
   @override
-  String get concubinageBonusMariage => 'Bonus mariage';
+  String get concubinageEcartImpotConcubinagePlusEleve =>
+      'Haushaltssteuer höher im Konkubinat';
+
+  @override
+  String get impositionCommuneMecanique =>
+      'Als Ehepaar werden beide Einkommen zusammengezählt und gemeinsam besteuert, mit einem für Paare reservierten reduzierten Tarif. Die Richtung der Differenz hängt von der Verteilung der Einkommen ab: Liegen sie nahe beieinander, hebt die Addition das steuerbare Einkommen stärker an, als der reduzierte Tarif es senkt — das ist der sogenannte Effekt « Heiratsstrafe ». Dominiert ein Einkommen deutlich, senkt derselbe Tarif die Haushaltssteuer unter jene von zwei Alleinstehenden.';
+
+  @override
+  String get fiscalEstimationModelLimit =>
+      'Vereinfachte Schätzung: Sie berücksichtigt weder deine tatsächlichen Abzüge noch deine Gemeinde noch den detaillierten kantonalen Tarif. Die tatsächliche Differenz kann daher abweichen, auch in ihrer Richtung.';
 
   @override
   String get concubinageImpotSuccession => 'ERBSCHAFTSSTEUER';
 
   @override
-  String get concubinagePatrimoineTransmis => 'Übertragenes Vermögen';
+  String get concubinageMarieExonere => '0% (befreit)';
 
   @override
-  String get concubinageMarieExonere => 'CHF 0 (befreit)';
+  String get concubinageConcubinLabel => 'Konkubinatspartner·in';
 
   @override
-  String concubinageConcubinTaux(String taux) {
-    return 'Partner·in (~$taux%)';
-  }
-
-  @override
-  String concubinageWarningSuccession(String impot, String patrimoine) {
-    return 'Im Konkubinat würde dein·e Partner·in $impot Erbschaftssteuer auf ein Vermögen von $patrimoine zahlen. Verheiratet wäre er/sie vollständig befreit.';
-  }
+  String get concubinageConcubinTaux => 'Zum Satz für „Dritte“ besteuert';
 
   @override
   String get concubinageNeutralTitle => 'Keine Option passt für alle';
@@ -6683,7 +6932,7 @@ class SDe extends S {
 
   @override
   String get concubinageChecklist1Desc =>
-      'Ohne Testament erbt dein·e Partner·in nichts — alles geht an deine Eltern oder Geschwister. Ein handschriftliches Testament (handgeschrieben, datiert, unterschrieben) genügt. Du kannst die frei verfügbare Quote deinem/deiner Partner·in vermachen.';
+      'Ohne Testament erbt dein·e Partner·in nichts — dein Nachlass folgt der gesetzlichen Erbfolge (zuerst deine Nachkommen, sonst deine Eltern, dann deine Geschwister). Ein eigenhändiges Testament (handschriftlich, datiert, unterschrieben) genügt; du kannst deinem·r Partner·in die verfügbare Quote vermachen.';
 
   @override
   String get concubinageChecklist2Title => 'BVG-Begünstigungsklausel';
@@ -6745,22 +6994,17 @@ class SDe extends S {
   String get concubinageCriteriaImpots => 'Impôts';
 
   @override
-  String get concubinageCriteriaPenaliteFiscale => 'Heiratsstrafe';
+  String get concubinageCriteriaImpotPlusEleve => 'Höhere Haushaltssteuer';
 
   @override
-  String get concubinageCriteriaBonusFiscal => 'Bonus fiscal';
-
-  @override
-  String get concubinageCriteriaAvantageux => 'Avantageux';
-
-  @override
-  String get concubinageCriteriaDesavantageux => 'Désavantageux';
+  String get concubinageCriteriaImpotMoinsEleve => 'Niedrigere Haushaltssteuer';
 
   @override
   String get concubinageCriteriaHeritage => 'Héritage';
 
   @override
-  String get concubinageCriteriaHeritageMarriage => 'Befreit (ZGB Art. 462)';
+  String get concubinageCriteriaHeritageMarriage =>
+      'Befreit (kantonales Steuerrecht)';
 
   @override
   String get concubinageCriteriaHeritageConcubinage => 'Impôt cantonal';
@@ -6862,24 +7106,21 @@ class SDe extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'Januar',
-        '2': 'Februar',
-        '3': 'März',
-        '4': 'April',
-        '5': 'Mai',
-        '6': 'Juni',
-        '7': 'Juli',
-        '8': 'August',
-        '9': 'September',
-        '10': 'Oktober',
-        '11': 'November',
-        '12': 'Dezember',
-        'other': 'Monat',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'Januar',
+      '2': 'Februar',
+      '3': 'März',
+      '4': 'April',
+      '5': 'Mai',
+      '6': 'Juni',
+      '7': 'Juli',
+      '8': 'August',
+      '9': 'September',
+      '10': 'Oktober',
+      '11': 'November',
+      '12': 'Dezember',
+      'other': 'Monat',
+    });
     return '$_temp0';
   }
 
@@ -7140,6 +7381,34 @@ class SDe extends S {
   @override
   String get decesProchebeneficiairesNote =>
       'Die Reihenfolge der BVG-Begünstigten wird durch das Reglement der Pensionskasse festgelegt (BVV2 Art. 48). Die Säule 3a folgt BVV3 Art. 2.';
+
+  @override
+  String get decesGateFactLpp => 'BVG-Kapital der verstorbenen Person';
+
+  @override
+  String get decesGateWhyLpp =>
+      'Das an die Begünstigten übertragene BVG-Kapital hängt vom Vorsorgeguthaben der verstorbenen Person ab.';
+
+  @override
+  String get decesGateFact3a => 'Säule-3a-Kapital der verstorbenen Person';
+
+  @override
+  String get decesGateWhy3a =>
+      'Das an die Begünstigten ausgezahlte Säule-3a-Kapital hängt vom 3a-Guthaben der verstorbenen Person ab.';
+
+  @override
+  String get decesGateFactLien => 'Dein Verhältnis zur verstorbenen Person';
+
+  @override
+  String get decesGateWhyLien =>
+      'Die Befreiung von der Erbschaftssteuer hängt von deinem Verwandtschaftsverhältnis ab.';
+
+  @override
+  String get decesGateFactCanton => 'Kanton des Nachlasses';
+
+  @override
+  String get decesGateWhyCanton =>
+      'Die Erbschaftssteuer ist kantonal; sie hängt vom Wohnsitzkanton der verstorbenen Person ab.';
 
   @override
   String get decesProchImpactFiscalTitre => 'Steuerliche Auswirkungen';
@@ -7670,7 +7939,7 @@ class SDe extends S {
   String get firstSalaryBefore31Dec => 'Vor 31.12';
 
   @override
-  String get firstSalaryTask1 => 'Ein 3a-Konto eröffnen (Bank oder Fintech)';
+  String get firstSalaryTask1 => '3a-Konten vergleichen (Bank oder Fintech)';
 
   @override
   String get firstSalaryTask2 =>
@@ -8339,7 +8608,9 @@ class SDe extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Schweizer Banken rechnen mit einem theoretischen Zinssatz von 5 % (ASB-Richtlinie), auch wenn der aktuelle Marktzins deutlich tiefer ist. Es ist ein Belastungstest: Sie prüfen, ob du die Kosten tragen könntest, falls die Zinsen steigen. Deine theoretischen Kosten: $chargesTheoriques/Mt. Zum Marktzins (~1,5 %): $chargesReelles/Mt.';
   }
 
@@ -9029,7 +9300,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneImpactBlocExplain =>
-      'Bei Einmalzahlung durchquert der Abzug mehrere Stufen. Gestaffelt bleibt jeder Abzug in der höchsten Stufe.';
+      'Bei Einmalzahlung durchquert der Abzug mehrere Stufen (tieferer Durchschnittssatz). Gestaffelt kann bei vergleichbarem Einkommen ein grösserer Teil jedes Abzugs in höheren Stufen bleiben.';
 
   @override
   String get rachatEchelonneBloc => 'Einmal';
@@ -9054,6 +9325,29 @@ class SDe extends S {
       'Nach jedem Einkauf ist jeder WEF-Bezug für 3 Jahre gesperrt.';
 
   @override
+  String get rachatEchelonneFenetre79bBadge =>
+      'Steuervorteil entfällt bei Kapital';
+
+  @override
+  String rachatEchelonneSiCapitalLabel(String montant) {
+    return 'Steuereffekt bei Kapitalbezug mit 65: CHF $montant';
+  }
+
+  @override
+  String get rachatEchelonneFenetre79bNote =>
+      'Einkäufe weniger als 3 Jahre vor einem Kapitalbezug: Der Abzug würde annulliert und von der Steuerbehörde zurückgefordert (Art. 79b Abs. 3 BVG). Annahme: vollständiger Bezug mit 65 — eine Frühpensionierung verschiebt das Fenster entsprechend. Die 3-jährige WEF-Sperre (eigene Karte unten) ist eine andere Wirkung desselben Artikels. Zwei Szenarien — die Wahl Rente oder Kapital bleibt bei dir.';
+
+  @override
+  String rachatEchelonneHeroSiCapital(String montant) {
+    return 'Bei Kapitalbezug mit 65 wird die Differenz CHF $montant (Ersparnisse der letzten Tranchen werden zurückgefordert).';
+  }
+
+  @override
+  String rachatEchelonneSiCapitalShort(String montant) {
+    return 'Bei Kapital: CHF $montant';
+  }
+
+  @override
   String get rachatEchelonneTauxMarginalTitle => 'Grenzsteuersatz';
 
   @override
@@ -9062,7 +9356,7 @@ class SDe extends S {
 
   @override
   String get rachatEchelonneTauxMarginalTip =>
-      'Deshalb ist es klug, Einkäufe zu staffeln.';
+      'Warum sich die Zahlen unterscheiden: Bei vergleichbarem Einkommen kann eine gestaffelte Tranche zu einem höheren Grenzsteuersatz abgezogen werden, während ein Einmaleinkauf einen Teil des Abzugs in tiefere Sätze verschiebt.';
 
   @override
   String get rachatEchelonneTauxMarginalSemantics =>
@@ -9405,36 +9699,46 @@ class SDe extends S {
   String get demenagementBilanTotal => 'Gesamtbilanz (Steuern + Krankenkasse)';
 
   @override
+  String get demenagementGateFactRevenu => 'Dein Bruttojahreseinkommen';
+
+  @override
+  String get demenagementGateWhyRevenu =>
+      'Es bestimmt die verglichene Einkommenssteuer zwischen den beiden Kantonen.';
+
+  @override
+  String get demenagementGateFactCantonDepart => 'Dein aktueller Kanton';
+
+  @override
+  String get demenagementGateWhyCantonDepart =>
+      'Sein Steuertarif und seine Prämien sind der Ausgangspunkt.';
+
+  @override
+  String get demenagementGateFactCantonArrivee => 'Der Zielkanton';
+
+  @override
+  String get demenagementGateWhyCantonArrivee =>
+      'Der ins Auge gefasste Kanton bestimmt den neuen Vergleichstarif.';
+
+  @override
+  String get demenagementGateFactSituation => 'Deine Familiensituation';
+
+  @override
+  String get demenagementGateWhySituation =>
+      'Die Anzahl der KVG-Prämien des Haushalts hängt davon ab.';
+
+  @override
+  String get demenagementReferenceCaption =>
+      'Durchschnittliche KVG-Prämien (Erwachsene, Franchise 300) und relative Steuerindizes: indikative kantonale Richtwerte, nicht deine tatsächliche Prämie.';
+
+  @override
   String divorceTransfertAmount(String amount, String direction) {
     return 'Übertragung von $amount ($direction)';
   }
 
   @override
   String divorceFiscalDelta(String sign, String amount) {
-    return 'Differenz: $sign$amount/Jahr';
+    return 'Steuerdifferenz des Haushalts: $sign$amount/Jahr (Ende des Ehegatten-Splittings)';
   }
-
-  @override
-  String divorcePensionMois(String amount) {
-    return '$amount/Monat';
-  }
-
-  @override
-  String divorcePensionAnnuel(String amount) {
-    return 'd.h. $amount/Jahr';
-  }
-
-  @override
-  String get divorceConjoint1Label => 'Ehepartner 1';
-
-  @override
-  String get divorceConjoint2Label => 'Ehepartner 2';
-
-  @override
-  String get divorceSplitC1 => 'E1';
-
-  @override
-  String get divorceSplitC2 => 'E2';
 
   @override
   String get unemploymentVague1Label =>
@@ -9483,13 +9787,13 @@ class SDe extends S {
   String get unemploymentBracket1 => '12–17 Monate Beitrag';
 
   @override
-  String get unemploymentBracket1Value => '200 Taggelder';
+  String get unemploymentBracket1Value => '260 Taggelder';
 
   @override
   String get unemploymentBracket2 => '18–21 Monate Beitrag';
 
   @override
-  String get unemploymentBracket2Value => '260 Taggelder';
+  String get unemploymentBracket2Value => '400 Taggelder';
 
   @override
   String unemploymentBracket3(int age) {
@@ -10029,6 +10333,29 @@ class SDe extends S {
       'BVG Art. 8 (Koordinationsabzug) / BVG Art. 14 (Umwandlungssatz 6.8%) / BVV2 Art. 5 / BVV3 Art. 7 / BVG Art. 79b (freiwilliger Einkauf) / BFS 2024 (Gender-Gap-Statistik)';
 
   @override
+  String get genderGapNonRenseigne => 'Nicht angegeben';
+
+  @override
+  String get genderGapGatePensionTitle =>
+      'Vervollständige deine Angaben, um deine Rente zu schätzen';
+
+  @override
+  String get genderGapGateCoordTitle =>
+      'Vervollständige deine Angaben für dieses Koordinationsdetail';
+
+  @override
+  String get genderGapGateWhyRevenu =>
+      'Dein Jahreseinkommen ist die Grundlage der BVG-Rentenprojektion.';
+
+  @override
+  String get genderGapGateWhyAvoirLpp =>
+      'Dein aktuelles BVG-Guthaben ist der Ausgangspunkt der Projektion (steht auf deinem Vorsorgeausweis).';
+
+  @override
+  String get genderGapGateWhyAge =>
+      'Dein Alter bestimmt, wie viele Beitragsjahre dir bleiben.';
+
+  @override
   String get achievementsErrorMessage =>
       'Laden fehlgeschlagen. Nochmal versuchen?';
 
@@ -10161,7 +10488,7 @@ class SDe extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'TOP';
+  String get firstJobTopBadge => 'Häufig';
 
   @override
   String get authLoginSubtitle => 'Zugang zu deinem persönlichen Finanzbereich';
@@ -10640,7 +10967,7 @@ class SDe extends S {
 
   @override
   String get avsCotisationsEduDegressifBody =>
-      'Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.6 %.';
+      'Der Satz sinkt bei niedrigen Einkommen (zwischen CHF 10’100 und CHF 60’500). Über CHF 60’500 gilt der volle Satz von 10.0 %.';
 
   @override
   String get avsCotisationsEduDoubleChargeTitle => 'Doppelbelastung';
@@ -10851,7 +11178,8 @@ class SDe extends S {
   String get pillar3aIndepBonASavoir => 'Gut zu wissen';
 
   @override
-  String get pillar3aIndepEduComptesTitle => 'Mehrere 3a-Konten eröffnen';
+  String get pillar3aIndepEduComptesTitle =>
+      'Mehrere 3a-Konten, gestaffelter Bezug';
 
   @override
   String get pillar3aIndepEduComptesBody =>
@@ -11523,11 +11851,11 @@ class SDe extends S {
   String get retroactive3aProchainesEtapes => 'Nächste Schritte';
 
   @override
-  String get retroactive3aOuvrirCompte => '3a-Konto eröffnen';
+  String get retroactive3aOuvrirCompte => 'Ein dediziertes 3a-Konto erwägen';
 
   @override
   String get retroactive3aOuvrirCompteSubtitle =>
-      'Vergleiche Anbieter und eröffne ein dediziertes Nachholkonto.';
+      'Anbieter vergleichen (Gebühren, Konditionen) hilft; ein dediziertes Konto könnte die Nachverfolgung des Nachholens vereinfachen.';
 
   @override
   String get retroactive3aPrepDocuments => 'Dokumente vorbereiten';
@@ -12045,24 +12373,6 @@ class SDe extends S {
 
   @override
   String get reportRetirementSource => 'Quellen: BVG Art. 14, BVV3, AHVG';
-
-  @override
-  String get reportRetirement3aNone =>
-      'Noch kein 3a — abzugsfähiger Spielraum anhand deines LPP-Status zu schätzen';
-
-  @override
-  String reportRetirement3aNoneWithRoom(String amount) {
-    return 'Noch kein 3a — geschätzter abzugsfähiger Spielraum: CHF $amount/Jahr';
-  }
-
-  @override
-  String get reportRetirement3aOne =>
-      '1 Säule-3a-Konto — öffne ein 2. zur Auszahlungsoptimierung';
-
-  @override
-  String reportRetirement3aMulti(int count) {
-    return '$count Säule-3a-Konten — gute Diversifikation';
-  }
 
   @override
   String reportRetirementLppText(String available, String savings) {
@@ -13038,7 +13348,7 @@ class SDe extends S {
 
   @override
   String get concubinageEducationalSuccession =>
-      'Ein verheirateter Ehegatte ist in den meisten Kantonen von der Erbschaftssteuer befreit (ZGB Art. 462). Ein Konkubinatspartner zahlt Steuern zum Drittsatz, oft zwischen 20 % und 40 %.';
+      'Die Befreiung des·der überlebenden Ehegatt·in stammt nicht aus dem Zivilgesetzbuch: Sie steht in den kantonalen Steuergesetzen und gilt in allen 26 Kantonen. Ein·e Konkubinatspartner·in fällt unter den Satz für « Nichtverwandte » — und die Unterschiede zwischen den Kantonen sind sehr gross: Einige erheben gar keine Erbschaftssteuer, andere besteuern Nichtverwandte hoch. Hier wiegt der Kanton so schwer wie die Beziehung.';
 
   @override
   String get concubinageProtectionIntro =>
@@ -13070,12 +13380,85 @@ class SDe extends S {
       'Im Konkubinat erhältst du bei Tod des Partners keine AHV-Rente, keine automatische BVG-Rente und bist kein gesetzlicher Erbe. Jeder Schutz muss vorausgeplant werden.';
 
   @override
+  String get concubinageProtectionConditionsNote =>
+      'Der Schutz der Ehe (AHV- und BVG-Hinterlassenenrenten) hängt von Anspruchsvoraussetzungen ab; das Konkubinat gewährt darauf keinen Zugang, unabhängig von den Bedingungen.';
+
+  @override
   String get concubinageProtectionLppSlider =>
       'Monatliche BVG-Rente des Partners';
 
   @override
   String get concubinageProtectionSurvivorZero =>
       'CHF 0/Monat für den überlebenden Konkubinatspartner ohne Massnahmen';
+
+  @override
+  String get concubinageInheritanceConditional =>
+      'Ohne Testament erbt dein·e Partner·in nichts: Dein Nachlass geht an deine gesetzlichen Erben. Mit einem Testament hängt der Anteil, den du ihm·ihr zuwenden kannst, von deinen Nachkommen ab: Sind welche vorhanden, beträgt ihr Pflichtteil die Hälfte des Nachlasses, die verfügbare Quote ist damit auf die andere Hälfte begrenzt; sind keine vorhanden, wurde der Pflichtteil der Eltern am 1. Januar 2023 aufgehoben und du kannst über den ganzen Nachlass verfügen (ZGB Art. 470-471). In den Nachlass fällt nur dein Anteil: Ein in Miteigentum gehaltenes Objekt zählt nur im Umfang deiner Quote.';
+
+  @override
+  String get concubinageInheritanceRateLimit =>
+      'Hier wird bewusst kein Satz angezeigt: die Belastung reicht von null in einigen Kantonen bis zu fast der Hälfte des erhaltenen Anteils in den schwersten, mit progressiven Tarifen, Freibeträgen und teils einer Gemeindesteuer. Vier Dinge bestimmen sie: dein Kanton und deine Gemeinde, der tatsächlich erhaltene Anteil, der Verwandtschaftsgrad und die Dauer eures gemeinsamen Haushalts.';
+
+  @override
+  String get concubinageSurvivorLppDetail =>
+      'Mögliche Hinterlassenenrente (60 %) — Bedingungen BVG Art. 19: unterhaltspflichtiges Kind, oder 45 Jahre und 5 Ehejahre.';
+
+  @override
+  String get concubinageSurvivorAvsNote =>
+      'Ein·e überlebende·r Ehepartner·in kann zusätzlich eine AHV-Hinterlassenenrente erhalten (AHVG Art. 23, unter Bedingungen); ein·e Konkubinatspartner·in hat nie Anspruch darauf.';
+
+  @override
+  String get concubinage3aClauseEducational =>
+      'Ohne Begünstigtenklausel für deine·n Partner·in folgt deine Säule 3a der gesetzlichen Begünstigtenordnung (BVV3 Art. 2), und dein·e Partner·in ist nicht automatisch begünstigt. Mit einer bei deiner 3a-Stiftung hinterlegten Klausel kannst du ihn·sie dort einsetzen.';
+
+  @override
+  String get concubinageGateFactRevenu1 => 'Dein jährliches Bruttoeinkommen';
+
+  @override
+  String get concubinageGateWhyRevenu1 =>
+      'Das Einkommen beider Partner bestimmt die Steuerdifferenz zwischen Ehe und Konkubinat.';
+
+  @override
+  String get concubinageGateFactRevenu2 =>
+      'Das jährliche Bruttoeinkommen deines Partners';
+
+  @override
+  String get concubinageGateWhyRevenu2 =>
+      'Ohne das Einkommen deines Partners lässt sich die Steuerdifferenz des Paares nicht schätzen.';
+
+  @override
+  String get concubinageGateFactCanton => 'Dein Wohnkanton';
+
+  @override
+  String get concubinageGateWhyCanton =>
+      'Der Steuertarif und der Erbschaftssteuersatz hängen von deinem Kanton ab.';
+
+  @override
+  String get concubinageGateFactPatrimoine => 'Dein Gesamtvermögen';
+
+  @override
+  String get concubinageGateWhyPatrimoine =>
+      'Das übertragene Vermögen bestimmt den erbschaftssteuerpflichtigen Betrag.';
+
+  @override
+  String get concubinageGateFactRenteLpp =>
+      'Die monatliche BVG-Rente deines Partners';
+
+  @override
+  String get concubinageGateWhyRenteLpp =>
+      'Die BVG-Rente des Partners dient zur Schätzung der Hinterlassenenrente.';
+
+  @override
+  String get concubinageGateFiscalTitle => 'Steuervergleich';
+
+  @override
+  String get concubinageGateInheritanceTitle => 'Erbschaftssteuer';
+
+  @override
+  String get concubinageGateSurvivorTitle => 'Hinterlassenenrente';
+
+  @override
+  String get concubinageNonRenseigne => 'Nicht angegeben';
 
   @override
   String get concubinageDecisionMatrixTitle => 'Ehe vs Konkubinat';
@@ -13634,15 +14017,16 @@ class SDe extends S {
 
   @override
   String agentLetterAvsExtractBody(
-      String name,
-      String ssn,
-      String address,
-      String postalCity,
-      String avsOrg,
-      String avsAddress,
-      String date,
-      String dateFormatted,
-      String subject) {
+    String name,
+    String ssn,
+    String address,
+    String postalCity,
+    String avsOrg,
+    String avsAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+  ) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nbitte senden Sie mir einen Auszug meines individuellen AHV-Kontos (IK), um den Stand meiner Beiträge zu prüfen und eventuelle Lücken zu identifizieren.\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
@@ -13670,30 +14054,32 @@ class SDe extends S {
 
   @override
   String agentLetterLppTransferBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisseSource,
-      String caisseCurrentAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String toComplete) {
+    String name,
+    String address,
+    String postalCity,
+    String caisseSource,
+    String caisseCurrentAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String toComplete,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\naufgrund der Beendigung meines Arbeitsverhältnisses / meines Wegzugs aus der Schweiz (Nichtzutreffendes streichen) bitte ich Sie, mein Freizügigkeitsguthaben zu übertragen.\n\nZu übertragender Betrag: das gesamte Freizügigkeitsguthaben per Austrittsdatum.\n\nZielinstitution:\nName: $toComplete\nIBAN oder Kontonummer: $toComplete\nAdresse: $toComplete\n\nAustrittsdatum: $toComplete\n\nIch danke Ihnen für Ihre Sorgfalt und bitte um eine Bestätigung der Ausführung.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-      String name,
-      String address,
-      String postalCity,
-      String caisse,
-      String caisseAddress,
-      String date,
-      String dateFormatted,
-      String subject,
-      String year,
-      String policeNumber) {
+    String name,
+    String address,
+    String postalCity,
+    String caisse,
+    String caisseAddress,
+    String date,
+    String dateFormatted,
+    String subject,
+    String year,
+    String policeNumber,
+  ) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nhiermit erlaube ich mir, folgende Anfragen bezüglich meiner beruflichen Vorsorge zu stellen:\n\n1. Aktualisierter Vorsorgeausweis $year (Altersguthaben, gedeckte Leistungen, anwendbarer Umwandlungssatz)\n\n2. Bestätigung meiner Einkaufskapazität (Maximalbetrag gemäss Art. 79b BVG)\n\n3. Simulation Frühpensionierung (Projektion des Guthabens und der Rente mit 63 und 64 Jahren, falls zutreffend)\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt und stehe Ihnen für Rückfragen gerne zur Verfügung.\n\nMit freundlichen Grüssen\n\n$name\n$policeNumber';
   }
 
@@ -13946,6 +14332,10 @@ class SDe extends S {
   @override
   String get authErrorRegistration =>
       'Registrierung derzeit nicht verfügbar. Nutze den lokalen Modus.';
+
+  @override
+  String get authErrorAccountDeletedRecreate =>
+      'Dieses Apple-Konto wurde gelöscht. Erstelle dein Konto mit Apple erneut, um fortzufahren.';
 
   @override
   String get authErrorService =>
@@ -15483,7 +15873,7 @@ class SDe extends S {
 
   @override
   String get communityChallenge03Desc =>
-      'Einige Kantone erlauben es, die 3a-Einzahlung des Vorjahres bis März zu ergänzen. Prüfe die Regeln deines Kantons.';
+      'Damit dein 3a-Beitrag dieses Jahr abziehbar ist, muss er spätestens am 31. Dezember deinem Konto gutgeschrieben sein. Ein zu spät erteilter Auftrag wird womöglich erst im Januar gutgeschrieben — und zählt dann fürs nächste Jahr. Warte nicht zu lange.';
 
   @override
   String get communityChallenge03Title =>
@@ -15683,7 +16073,10 @@ class SDe extends S {
 
   @override
   String disabilityGapAct3Detail(
-      String aiAmount, String lppAmount, String totalAmount) {
+    String aiAmount,
+    String lppAmount,
+    String totalAmount,
+  ) {
     return 'IV $aiAmount + BVG $lppAmount = $totalAmount CHF/Monat';
   }
 
@@ -16758,7 +17151,7 @@ class SDe extends S {
   String get firstJobChecklistDeadline1 => 'Vor dem Austritt';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 Tage';
+  String get firstJobChecklistDeadline2 => 'Ab Stellenantritt';
 
   @override
   String get firstJobChecklistDeadline3 => '1 Monat';
@@ -16772,18 +17165,25 @@ class SDe extends S {
   }
 
   @override
+  String get firstJobPayslipAanpExplanation =>
+      'Versicherung für Unfälle ausserhalb der Arbeit, vom Lohn abgezogen.';
+
+  @override
+  String get firstJobPayslipAanpLabel => 'Nichtberufsunfälle (NBU)';
+
+  @override
+  String get firstJobPayslipAcExplanation =>
+      'Beitrag an die Arbeitslosenversicherung (AVIG). Sie schützt dich bei Stellenverlust.';
+
+  @override
+  String get firstJobPayslipAcLabel => 'Arbeitslosenversicherung (ALV)';
+
+  @override
   String get firstJobPayslipAvsExplanation =>
       'Arbeitnehmerbeitrag: 5.3% des Bruttolohns. Dein Arbeitgeber zahlt ebenfalls 5.3% dazu.';
 
   @override
   String get firstJobPayslipAvsLabel => 'AHV/IV/EO';
-
-  @override
-  String get firstJobPayslipImpotExplanation =>
-      'Direkt vom Lohn abgezogen, wenn du quellensteuerpflichtig bist. Satz variiert je nach Kanton, Status und Einkommen.';
-
-  @override
-  String get firstJobPayslipImpotLabel => 'Quellensteuer (Schätzung)';
 
   @override
   String get firstJobPayslipLppExplanation =>
@@ -16804,7 +17204,7 @@ class SDe extends S {
   String get firstJobScenarioDefault => 'Standard';
 
   @override
-  String get firstJobScenarioMedianCH => 'CH-Median';
+  String get firstJobScenarioMedianCH => 'CH-Median (alle Branchen · ESS 2022)';
 
   @override
   String get firstJobScenarioMySalary => 'Mein Lohn';
@@ -17117,7 +17517,8 @@ class SDe extends S {
   String get indepPlanLaaConseq => 'Kein Berufsunfall-Schutz';
 
   @override
-  String get indepPlanOuvrir3a => '3a-Konto eröffnen (Abzug bis CHF 36\'288)';
+  String get indepPlanOuvrir3a =>
+      '3a-Konten vergleichen (Abzug bis CHF 36\'288)';
 
   @override
   String get indepProtApg => 'Entfällt — Elternurlaub';
@@ -18159,7 +18560,7 @@ class SDe extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Zwischen AHV (AHVG Art. 5), BVG (Art. 16), Quellensteuer und KVG macht dein Netto etwa 75–80 % des Brutto aus. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.';
+      'Zwischen AHV (AHVG Art. 5), BVG (Art. 16) und KVG liegt dein Netto ohne Quellensteuer typischerweise bei rund 88–90 % des Brutto; mit Quellensteuer wird mehr abgezogen. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.';
 
   @override
   String get narrativeFirstJobHeadline => 'Dein erster Lohn erklärt';
@@ -18180,7 +18581,7 @@ class SDe extends S {
 
   @override
   String get narrativeMarriageBody =>
-      'Die Ehe verändert deine Besteuerung (DBG Art. 9), dein Güterrecht (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nach euren jeweiligen Einkommen könnte die steuerliche Auswirkung positiv oder negativ sein.';
+      'Die Heirat ändert deine Besteuerung (DBG Art. 9), deinen Güterstand (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nachdem, wie sich eure beiden Einkommen verteilen, kann die Haushaltssteuer in beide Richtungen gehen.';
 
   @override
   String get narrativeMarriageHeadline => 'Finanzielle Auswirkungen der Ehe';
@@ -19530,7 +19931,9 @@ class SDe extends S {
 
   @override
   String rcReplacementRateExplanation(
-      String totalMonthly, String currentMonthly) {
+    String totalMonthly,
+    String currentMonthly,
+  ) {
     return 'Geschätztes Renteneinkommen: $totalMonthly CHF/Monat vs $currentMonthly CHF/Monat heute';
   }
 
@@ -19764,7 +20167,10 @@ class SDe extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-      String legal, String monthly, String free) {
+    String legal,
+    String monthly,
+    String free,
+  ) {
     return 'Verbleibender rechtlicher Spielraum: $legal/Jahr. Monatliches Äquivalent: $monthly/Monat. Aktuell freies Budget: $free/Monat. Rechtlicher Spielraum ≠ monatliche Kapazität: Behalte eine Reserve, bevor du 3a erhöhst.';
   }
 
@@ -19997,8 +20403,13 @@ class SDe extends S {
   String get scoreGaugeSectionPrevoyance => 'Vorsorge';
 
   @override
-  String scoreGaugeSemanticsLabel(String score, String level, String budget,
-      String prevoyance, String patrimoine) {
+  String scoreGaugeSemanticsLabel(
+    String score,
+    String level,
+    String budget,
+    String prevoyance,
+    String patrimoine,
+  ) {
     return 'Finanzielle Fitness. $score von 100. Stufe $level. Budget $budget, Vorsorge $prevoyance, Vermögen $patrimoine.';
   }
 
@@ -20087,7 +20498,11 @@ class SDe extends S {
 
   @override
   String semanticsBenchmarkMetric(
-      String label, String status, String low, String high) {
+    String label,
+    String status,
+    String low,
+    String high,
+  ) {
     return '$label: $status. Typische Spanne $low bis $high';
   }
 
@@ -21836,7 +22251,7 @@ class SDe extends S {
 
   @override
   String get bankImportTransparency =>
-      'Dein Kontoauszug wird verschlüsselt an unseren Schweizer Server zur Analyse gesendet. Transaktionen werden kategorisiert, dann wird die Rohdatei gelöscht. Nur Kategorie-Zusammenfassungen bleiben in deinem Profil.';
+      'Dein Kontoauszug wird verschlüsselt zur Analyse an unseren Server gesendet (automatische Verarbeitung, ohne KI). Die Originaldatei wird nach der Verarbeitung gelöscht; nur die Zusammenfassungen pro Kategorie werden in deinem Profil gespeichert.';
 
   @override
   String get coachTransparencySLM =>
@@ -21844,7 +22259,7 @@ class SDe extends S {
 
   @override
   String get coachTransparencyBYOK =>
-      'Antwort über deine Claude-API. Dein genaues Gehalt wird NICHT gesendet — nur Alter, Kanton und Archetyp werden geteilt.';
+      'Antwort über deine Claude-API. Dein pseudonymisiertes Finanzprofil (inkl. Beträge, nie dein Name oder IBAN) und deine Nachricht werden zur Personalisierung geteilt.';
 
   @override
   String get coachTransparencyServer =>
@@ -21858,21 +22273,21 @@ class SDe extends S {
 
   @override
   String get dataTransparencySalaryDetail =>
-      'Nur auf deinem Telefon gespeichert. Nie gesendet.';
+      'In deinem verschlüsselten Profil gespeichert. Nur beim Nutzen des AI-Coachs geteilt.';
 
   @override
   String get dataTransparencyScan => 'Wenn du ein Dokument scannst';
 
   @override
   String get dataTransparencyScanDetail =>
-      'Verschlüsselt an unseren Schweizer Server gesendet. Analysiert und gelöscht. Nur das Ergebnis wird gespeichert.';
+      'Verschlüsselt an unseren Server gesendet und mit deiner Einwilligung von der Claude-API (Anthropic, USA) ausgelesen, um die Zahlen zu extrahieren. Die Originaldatei wird gelöscht; nur das Ergebnis wird gespeichert.';
 
   @override
   String get dataTransparencyCoach => 'Wenn du mit dem Coach sprichst';
 
   @override
   String get dataTransparencyCoachDetail =>
-      'Lokales SLM (nichts gesendet) oder Claude-API (deine Wahl). Dein genaues Gehalt wird nie geteilt.';
+      'Lokales SLM (nichts gesendet) oder Claude-API: dein pseudonymisiertes Profil (inkl. Beträge, nie dein Name oder IBAN) und deine Nachrichten werden geteilt.';
 
   @override
   String get dataTransparencyImport => 'Wenn du einen Kontoauszug importierst';
@@ -23418,7 +23833,7 @@ class SDe extends S {
 
   @override
   String get consentPurposeTransferUsAnthropicWhy =>
-      'Dokumente laufen über die Claude-API (Anthropic, USA) im Zero-Data-Retention-Modus. Dieser Transfer entfällt nach der AWS-Frankfurt-Migration.';
+      'Deine Dokumente (Zero Data Retention) und — wenn du den Coach nutzt — dein pseudonymisiertes Finanzprofil (exakte Beträge enthalten, niemals dein Name, deine IBAN oder deine AHV-Nummer) sowie deine Nachrichten laufen über die Claude-API (Anthropic, USA).';
 
   @override
   String get consentPurposeCoupleProjection => 'Paar-Projektionen';
@@ -24282,4 +24697,255 @@ class SDe extends S {
   @override
   String get eclairageCompoundGrowthEdgeBody =>
       'Früh statt spät mit dem Investieren zu beginnen, könnte langfristig einen Unterschied machen, bei moderatem monatlichem Aufwand. Der Zinseszins belohnt die Dauer.';
+
+  @override
+  String get privacyControlConsentCenterTitle => 'Einwilligungen und Widerruf';
+
+  @override
+  String get privacyControlConsentCenterSubtitle =>
+      'Deine Freigaben ansehen und eine widerrufen';
+
+  @override
+  String expatTopCantonsEmpty(Object canton) {
+    return 'Dein Kanton ($canton) gehört im Modell bereits zu den steuergünstigsten — kein vorteilhafter Unterschied anzuzeigen.';
+  }
+
+  @override
+  String get expatTopCantonsDisclaimer =>
+      'Bildungstool — keine Steuerberatung im Sinne des FIDLEG. Steuern geschätzt mit dem vereinfachten MINT-Kantonsmodell (kantonale Tarife, Hauptort) — keine exakten Steuerberechnungen. Differenz nur auf dem Einkommen — variiert mit Vermögen und Familiensituation.';
+
+  @override
+  String get coachConsentDeclined =>
+      'Der Coach benötigt deine Einwilligung, um deine Nachrichten an den KI-Dienst zu übermitteln (Server in den USA). Ohne sie kann der Coach nicht antworten. Sende deine Nachricht jederzeit erneut: Die Einwilligung wird dir dann wieder angeboten.';
+
+  @override
+  String get repaymentDebtCreditConso => 'Konsumkredit';
+
+  @override
+  String get repaymentDebtLeasing => 'Leasing';
+
+  @override
+  String get repaymentDebtAutres => 'Andere Schulden';
+
+  @override
+  String get repaymentFieldRateEstimated => 'Zins (geschätzt)';
+
+  @override
+  String get repaymentFieldInstallmentEstimated => 'Rate (geschätzt)';
+
+  @override
+  String get coupleMonoIncomeHint =>
+      'Diese Berechnung stützt sich nur auf dein Einkommen: Das Einkommen deiner Partnerin oder deines Partners fehlt noch.';
+
+  @override
+  String get coupleMonoIncomeCta => 'Einkommen mit dem Coach hinzufügen';
+
+  @override
+  String get reportSpouseIncomeMissingPrompt =>
+      'Erfasse das Einkommen deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin auf dem gesetzlichen Minimum geschätzt.';
+
+  @override
+  String get reportSpouseDataMissingPrompt =>
+      'Erfasse Einkommen und Beitragsjahre deines Ehepartners bzw. deiner Ehepartnerin: seine/ihre AHV-Rente wird bis dahin nicht geschätzt.';
+
+  @override
+  String repaymentBudgetEffectiveNote(String montant) {
+    return 'Deine Mindestraten betragen insgesamt CHF $montant — der Plan rechnet damit';
+  }
+
+  @override
+  String semanticsRepaymentBudgetEffective(String saisi, String effectif) {
+    return 'Eingegebenes Budget CHF $saisi, der Plan rechnet mit CHF $effectif (Mindestraten). Schaltfläche, ändert das Budget.';
+  }
+
+  @override
+  String indicativeBannerCtaSemantics(String bloc) {
+    return 'Deine Daten präzisieren — Block $bloc';
+  }
+
+  @override
+  String get divorceGateFactRevenu1 => 'Dein jährliches Bruttoeinkommen';
+
+  @override
+  String get divorceGateWhyRevenu1 =>
+      'Es dient der Schätzung der Haushaltssteuer vor und nach der Scheidung.';
+
+  @override
+  String get divorceGateFactRevenu2 =>
+      'Jährliches Einkommen deiner Ex-Partnerin oder deines Ex-Partners';
+
+  @override
+  String get divorceGateWhyRevenu2 =>
+      'Er erlaubt den Vergleich der Steuer des Ehepaars mit jener zweier getrennter Haushalte.';
+
+  @override
+  String get divorcePensionEnfantTitre =>
+      'Kindesunterhalt (ZGB Art. 276, 285, 285a)';
+
+  @override
+  String get divorcePensionEnfantFacteurs =>
+      'Er richtet sich nach den Bedürfnissen und dem Alter des Kindes, nach Betreuungs- und Ausbildungskosten, und berücksichtigt die Familienzulagen. Wer das Kind im Alltag betreut, leistet bereits einen Naturalunterhalt: Er senkt entsprechend, was in Geld verlangt wird. Ein Sparanteil kann hinzukommen, wenn es die Mittel erlauben.';
+
+  @override
+  String get divorcePensionConjointTitre =>
+      'Nachehelicher Unterhalt (ZGB Art. 125)';
+
+  @override
+  String get divorcePensionConjointFacteurs =>
+      'Er versteht sich nicht von selbst. Zuerst wird geprüft, ob jede Person selbst für ihren Unterhalt aufkommen kann. Wenn nicht, zählen die Aufgabenteilung während der Ehe, ihre Dauer, der Lebensstandard, den ihr hattet, Alter und Gesundheit, Einkommen und Vermögen, Ausbildungs- und Erwerbsaussichten sowie die Vorsorge. Eine lange Ehedauer begründet keinen automatischen Anspruch.';
+
+  @override
+  String get divorcePensionMethode =>
+      'Die Referenzmethode verläuft in zwei Schritten (BGE 147 III 265). Zuerst wird das Existenzminimum jeder Person bestimmt: Wohnen, Krankenversicherung, Ernährung, Berufsauslagen, Betreuungskosten. Diese Lasten gehen allem anderen vor. Danach wird der verbleibende Überschuss zwischen den Haushalten verteilt. Gerechnet wird mit den verfügbaren Nettoeinkommen, nie mit Bruttolöhnen. Der Überschuss wird nicht willkürlich geteilt: Er wird nach « grossen und kleinen Köpfen » verteilt (ein voller Anteil pro erwachsene Person, ein halber pro Kind), mit fallweisen Anpassungen.';
+
+  @override
+  String get divorcePensionLeviers =>
+      'Was den Betrag steigen oder sinken lässt: zuerst der Betreuungsanteil — je mehr du das Kind betreust, desto weniger zahlst du in Geld. Dann deine Erwerbsfähigkeit: Kannst du mehr arbeiten, kann dir ein hypothetisches Einkommen angerechnet werden. Der Lebensstandard während der Ehe wirkt als Obergrenze. Und der Clean-Break-Grundsatz drängt jede Person mit der Zeit zur finanziellen Eigenständigkeit. Achtung: Mehr Betreuung befreit nicht immer von Zahlungen — auch die Leistungsfähigkeit zählt, und der finanziell stärkere Elternteil kann trotz erheblicher Betreuung zahlen.';
+
+  @override
+  String get divorceRegimeAcquets =>
+      'Massgebend ist, was während der Ehe erworben wurde. Was jede Person vorher besass und was sie durch Erbschaft oder Schenkung erhielt, bleibt ihr: das ist das Eigengut. Am Rest hat jede Person Anspruch auf die Hälfte des Vorschlags der anderen (ZGB Art. 215). Es entscheidet also der Vergleich eurer beiden Rechnungen, nicht ein gemeinsamer Topf: Wer mehr angesammelt hat, zahlt der anderen Person die HÄLFTE der Differenz zwischen den beiden Vorschlägen. Vor dem Vergleich wird der Errungenschaft hinzugerechnet, was ihr entzogen wurde (Art. 208), werden die Ersatzforderungen zwischen Eigengut und Errungenschaft geregelt (Art. 206 und 209) und jede Schuld der Masse zugeordnet, die sie betrifft.';
+
+  @override
+  String get divorceLppTransferCaveat =>
+      'Dieser Betrag wird auf den von dir erfassten Guthaben berechnet (aktuelles Guthaben minus Guthaben bei Heirat). Zwei rechtliche Elemente fehlen hier: der Zins auf der bei der Heirat bestehenden Austrittsleistung und das gesetzliche Bewertungsdatum (Einleitung des Scheidungsverfahrens). Deine Pensionskasse erstellt die genaue Abrechnung.';
+
+  @override
+  String get divorceRegimeCommunaute =>
+      'Während der Ehe bildet das meiste, was ihr besitzt, ein Gesamtgut. Bei der Scheidung wird dieses Gut aber nicht sofort halbiert: Jede Person nimmt zuerst zurück, was unter der Errungenschaftsbeteiligung ihr Eigengut gewesen wäre — was sie vor der Ehe hatte, ihre Erbschaften, ihre Schenkungen (ZGB Art. 242 Abs. 1). Nur der nach diesen Rücknahmen verbleibende Rest wird hälftig geteilt (Art. 242 Abs. 2). Der oft zitierte Artikel 241 betrifft nur die Auflösung durch Tod oder durch Güterstandswechsel.';
+
+  @override
+  String get divorceRegimeSeparation =>
+      'Es gibt nichts zu teilen: Jede Person behält, was ihr gehört. Entscheidend ist deshalb der Eigentumsbeweis. Wer einen Vermögenswert beansprucht, muss zeigen, dass er ihm gehört — Rechnung, Vertrag, Grundbucheintrag. Fehlt der Beweis, wird vermutet, dass der Wert beiden zu Miteigentum gehört (ZGB Art. 248). Etwas finanziert zu haben, macht es nicht automatisch zu deinem: Es kann eine Forderung oder einen Miteigentumsanteil begründen, ersetzt aber den Titel nicht. Und ein Wert in Miteigentum kann einer Person gegen Entschädigung zugewiesen werden, wenn sie ein überwiegendes Interesse nachweist (Art. 251).';
+
+  @override
+  String get divorcePatrimoineNoShare =>
+      'Um diese Regel auf deinen Fall anzuwenden, brauchst du zwei getrennte Inventare — deines und jenes deines Ehegatten — mit Erwerbsdatum und Herkunft jedes Vermögenswerts. Dieses Dokument, nicht eine Haushaltssumme, bestimmt, wer was schuldet. Der endgültige Betrag wird danach durch Vereinbarung oder durch das Gericht festgelegt.';
+
+  @override
+  String get divorcePatrimoineIndicatifHint =>
+      'Diese beiden Beträge dienen nicht der Berechnung eines Anteils: Sie sind Anhaltspunkte zur Vorbereitung deines Gesprächs. Entscheidend ist das Inventar jeder Person — Erwerbsdatum, Herkunft des Werts, zugehörige Schulden.';
+
+  @override
+  String get divorceGateFactLpp1 => 'Dein aktuelles BVG-Guthaben';
+
+  @override
+  String get divorceGateWhyLpp1 =>
+      'Geteilt wird das während der Ehe aufgebaute BVG-Guthaben.';
+
+  @override
+  String get divorceGateFactLpp2 =>
+      'Aktuelles BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners';
+
+  @override
+  String get divorceGateWhyLpp2 =>
+      'Der Ausgleich vergleicht die BVG-Guthaben beider Ehegatten.';
+
+  @override
+  String get divorceGateFactAvoir1 => 'Dein BVG-Guthaben bei der Heirat';
+
+  @override
+  String get divorceGateWhyAvoir1 =>
+      'Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).';
+
+  @override
+  String get divorceGateFactAvoir2 =>
+      'BVG-Guthaben deiner Ex-Partnerin oder deines Ex-Partners bei der Heirat';
+
+  @override
+  String get divorceGateWhyAvoir2 =>
+      'Geteilt wird nur der nach der Heirat erworbene Anteil (ZGB Art. 122).';
+
+  @override
+  String get divorcePensionNoEstimate =>
+      'Es gibt keinen Tarif: Der Betrag lässt sich nicht aus dem Einkommen und der Anzahl Kinder ableiten. Er wird aus den tatsächlichen Budgets beider Haushalte aufgebaut. Hier ist der Mechanismus, damit du deine eigene Lage einschätzen kannst.';
+
+  @override
+  String get divorcePensionFacteursTitre => 'Wie der Betrag zustande kommt';
+
+  @override
+  String get divorcePensionSpecialiste =>
+      'Der genaue Betrag wird durch eure Vereinbarung oder, mangels Einigung, durch das Gericht festgelegt. Eine Fachperson beziffert den konkreten Fall anhand dieser Elemente.';
+
+  @override
+  String get divorceGateFactCanton => 'Dein Wohnkanton';
+
+  @override
+  String get divorceGateWhyCanton =>
+      'Der Einkommenssteuertarif hängt von deinem Wohnkanton ab.';
+
+  @override
+  String get divorceImpactFiscalCantonNote =>
+      'Schätzung im aktuellen Kanton des Haushalts für beide Ehepartner — der künftige Kanton der anderen Person ist unbekannt.';
+
+  @override
+  String genderGapProjectionAssumptions(
+    String rendement,
+    String tauxMin,
+    String annees,
+  ) {
+    return 'Projektionsannahmen: Die Rendite von $rendement %/Jahr auf den BVG-Guthaben ist eine MINT-Annahme, kein gesetzlicher Satz — der BVG-Mindestzinssatz beträgt $tauxMin %/Jahr. Die kumulierte Lücke ist die jährliche Lücke multipliziert mit $annees Rentenjahren, ohne Diskontierung und ohne Indexierung: eine illustrative Grössenordnung, kein bereits erlittener Verlust.';
+  }
+
+  @override
+  String genderGapModelLegalMinimum(String tauxConversion) {
+    return 'Verwendetes Modell: das gesetzliche BVG-Obligatorium — koordinierter Lohn nach Gesetz und Mindestumwandlungssatz von $tauxConversion %. Das ist nicht das Reglement deiner Pensionskasse. Bei einem überobligatorischen Plan, häufig oberhalb der Obergrenze des obligatorisch versicherten Lohns, weichen die tatsächlichen Renten in beide Richtungen von dieser Illustration ab: $tauxConversion % auf das gesamte Kapital anzuwenden kann auch zu hoch greifen, denn umhüllende Kassen wenden oft einen tieferen Satz auf das ganze Guthaben an.';
+  }
+
+  @override
+  String get donationVerdictImposable => 'Steuerpflichtig';
+
+  @override
+  String get donationVerdictInconnu => 'Zu prüfen';
+
+  @override
+  String donationPlageJusqua(String pct) {
+    return 'bis ~$pct % (kantonaler Tarif, ohne Gemeindezuschläge)';
+  }
+
+  @override
+  String firstJobLuciditeNetValue(String value) {
+    return 'Netto geschätzt auf $value pro Monat';
+  }
+
+  @override
+  String firstJobLuciditeNetRange(String low, String high) {
+    return 'Spanne: $low bis $high je nach AANP-Risikoklasse';
+  }
+
+  @override
+  String firstJobLuciditeVintage(String sources, String year) {
+    return '$sources · Ansätze $year';
+  }
+
+  @override
+  String get firstJobLuciditeWhyTitle => 'Warum diese Zahl?';
+
+  @override
+  String get firstJobLuciditeAssumptionsLabel => 'Berechnungsannahmen';
+
+  @override
+  String get firstJobLuciditeAssumptionAanp =>
+      'AANP-Beitrag zwischen 1,0 % und 1,5 % je nach Risikoklasse des Arbeitgebers (Standard 1,3 %)';
+
+  @override
+  String firstJobLuciditeAssumptionTaux(String taux) {
+    return 'Angenommener Beschäftigungsgrad: $taux %, anpassbar';
+  }
+
+  @override
+  String get firstJobLuciditeAssumptionImpotSource =>
+      'Quellensteuer nicht angewendet (ordentlich besteuerte ansässige Person)';
+
+  @override
+  String get firstJobLuciditeAssumptionPeriode =>
+      'Monatliches Netto, ohne 13. Monatslohn und Bonus';
+
+  @override
+  String get firstJobLuciditeSourcesLabel => 'Quellen und Jahrgänge';
+
+  @override
+  String firstJobLuciditeEngineLabel(String version) {
+    return 'Berechnungs-Engine: $version';
+  }
 }

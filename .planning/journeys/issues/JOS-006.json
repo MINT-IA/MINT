@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "id": "JOS-006",
+  "title": "Re-prove coach advice turn on post-etalon-fiscal dev",
+  "journey_id": "coach_advice_turn",
+  "status": "proof_needed",
+  "owner": "mint-quality-gate",
+  "severity": "P1",
+  "evidence_status": "green",
+  "next_action": "Après la fusion des 5 vagues de la campagne étalon fiscal (#1063-#1100, plan de fusion #1100), rejouer bash tools/simulator/journey_os_runtime_replay.sh --set top pour re-prouver en runtime que le tour de conseil coach cite les chiffres post-étalon (ESTV v2) avec provenance et sans langage de certitude.",
+  "source": "Réconciliation plans 2026-07-29 (mandat Julien) ; campagne étalon fiscal #1024-#1100 ; évidence .planning/journeys/evidence/coach_advice_turn/20260729T053210Z/etalon-fiscal-campagne.md"
+}

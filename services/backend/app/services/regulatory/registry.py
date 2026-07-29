@@ -37,8 +37,50 @@ _OFAS_LPP_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/don
 _OFAS_AVS_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/ahv/donnees-de-base-et-parametres/rentes.html"
 _OFAS_CONTRIBUTIONS_URL = "https://www.bsv.admin.ch/fr/cotisations-apercu"
 _OFAS_3A_URL = "https://www.bsv.admin.ch/bsv/fr/home/assurances-sociales/bv/donnees-de-base-et-parametres/pilier-3a.html"
-_FINMA_URL = "https://www.finma.ch/fr/"
-_REVIEWED = date(2026, 6, 26)
+# Audit factuel -zaw (2026-07-23) : 132 constantes vérifiées sur sources
+# officielles par 4 agents WebSearch — 12 valeurs corrigées (échelle 44,
+# RAMD, ajournement 2/3/4 ans, cotisation volontaire, limites 3a
+# historiques), provenance précisée (OAMal 103, OEPL 5, doc 318.117.011).
+# Verdicts complets : .planning/audit-etat-des-lieux-2026-07/constants-audit/.
+_REVIEWED = date(2026, 7, 23)
+
+# Sources précises — campagne provenance beads MINT_nosync-337 (verdict C).
+# URLs vérifiées par l'audit factuel -zaw du 2026-07-23 (WebSearch/WebFetch).
+_ASB_HYPO_URL = (
+    "https://www.finma.ch/fr/~/media/finma/dokumente/dokumentencenter/"
+    "myfinma/4dokumentation/selbstregulierung/"
+    "sbvg_rl_hypofinanzierungen_20231213.pdf"
+)
+_LIFD_ART38_URL = (
+    "https://www.fedlex.admin.ch/eli/cc/1991/1184_1184_1184/fr#art_38"
+)
+_ESTV_CAPITAL_SIM_URL = (
+    "https://swisstaxcalculator.estv.admin.ch/#/calculator/capital-benefit-tax"
+)
+_LEGACY_CAPITAL_NOTE = (
+    "Approximation v1 (taux plat) — le calcul canonique de l'impôt de "
+    "retrait est le modèle v2 estimate_capital_withdrawal_tax (IFD "
+    "art. 38 exact + interpolation ESTV 130 points, beads -2i2). Usages "
+    "restants : validation canton et chemin override explicite "
+    "(calculate_progressive_capital_tax). Les deux anciens proxys "
+    "heuristiques (location_vs_propriete impôt revenu, allocation "
+    "invest libre impôt fortune) ont été migrés vers les modèles v2 "
+    "(beads -cm4)."
+)
+
+# Pratique bancaire de place (test de tenue) — non normée par la
+# directive ASB : celle-ci ne fixe que la part min. hors 2e pilier et
+# l'amortissement aux 2/3 en 15 ans (vérifié sur le PDF, review #994).
+_VZ_TENUE_URL = (
+    "https://www.vermoegenszentrum.ch/fr/competences/"
+    "un-bien-foncier-doit-etre-financierement-supportable"
+)
+_PRATIQUE_TENUE_NOTE = (
+    "Convention de place appliquée par les banques dans le test de tenue "
+    "des charges — non normée par la directive ASB exigences minimales "
+    "(qui ne fixe que la part min. 10% hors 2e pilier et l'amortissement "
+    "aux 2/3 de la valeur de nantissement en 15 ans)."
+)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # All regulatory parameters — seeded from social_insurance.py
@@ -124,7 +166,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2023",
-        value=6_883.0,
+        value=7_056.0,
         unit="CHF",
         tax_year=2023,
         effective_from=date(2023, 1, 1),
@@ -137,7 +179,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2022",
-        value=6_826.0,
+        value=6_883.0,
         unit="CHF",
         tax_year=2022,
         effective_from=date(2022, 1, 1),
@@ -150,7 +192,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2021",
-        value=6_826.0,
+        value=6_883.0,
         unit="CHF",
         tax_year=2021,
         effective_from=date(2021, 1, 1),
@@ -189,7 +231,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="pillar3a.historical_limits.2018",
-        value=6_826.0,
+        value=6_768.0,
         unit="CHF",
         tax_year=2018,
         effective_from=date(2018, 1, 1),
@@ -306,6 +348,14 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="ordinance",
         description="Taux d'intérêt minimum LPP (fixé par le Conseil fédéral).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Maintenu à 1.25% pour 2026 par décision du Conseil fédéral "
+            "du 2025-11-05 (recommandation Commission LPP 10 voix contre "
+            "6) — vérifié admin.ch le 2026-07-24. Le Conseil fédéral "
+            "réexamine le taux au moins tous les deux ans (LPP art. 15 "
+            "al. 3) — re-vérifier avant toute utilisation pour une "
+            "année ultérieure."
+        ),
     ),
     RegulatoryParameter(
         key="lpp.bonification.25_34",
@@ -359,7 +409,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_LPP_URL,
         source_title="Pratique caisses complémentaires",
         source_type="estimate",
-        description="Taux de conversion blended pour caisses complémentaires (~60% oblig. 6.8% + ~40% suroblig. ~4.3%).",
+        description="Taux de conversion surobligatoire INDICATIF : fixé librement par chaque caisse (aucune valeur légale). Hypothèse éditable, jamais à présenter comme réglementaire (audit -zaw 2026-07-23).",
         reviewed_at=_REVIEWED,
     ),
 
@@ -372,7 +422,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_LPP_URL,
-        source_title="OPP2 art. 5",
+        source_title="OEPL art. 5 (retrait EPL minimum)",
         source_type="ordinance",
         description="Montant minimum pour un retrait EPL.",
         reviewed_at=_REVIEWED,
@@ -385,7 +435,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_url=_OFAS_LPP_URL,
         source_title="LPP art. 79b al. 3",
         source_type="law",
-        description="Délai de blocage des rachats LPP après un retrait EPL.",
+        description="Délai de 3 ans de l'art. 79b al. 3 : un retrait en capital dans les 3 ans suivant un rachat LPP volontaire fait perdre la déduction fiscale du rachat (reprise AFC). Distinct du blocage des rachats tant qu'un versement EPL n'est pas remboursé.",
         reviewed_at=_REVIEWED,
     ),
 
@@ -428,18 +478,28 @@ _PARAMETERS: list[RegulatoryParameter] = [
     RegulatoryParameter(
         key="avs.echelle44",
         value=[
-            [14700, 1260], [17640, 1299], [20580, 1338], [23520, 1377],
-            [26460, 1416], [29400, 1470], [32340, 1524], [35280, 1578],
-            [38220, 1632], [41160, 1686], [44100, 1743], [47040, 1800],
-            [49980, 1857], [52920, 1914], [55860, 1971], [58800, 2028],
-            [61740, 2085], [64680, 2142], [67620, 2199], [70560, 2256],
-            [73500, 2313], [76440, 2370], [79380, 2427], [82320, 2462],
-            [85260, 2491], [88200, 2520],
+            # Doc OFAS 318.117.011 « Tables des rentes 2025 » p. 20
+            # (échelle 44, rente vieillesse 1/1), valable dès 1.1.2025 et
+            # inchangé en 2026 (OFAS « Montants dès le 1.1.2026 »).
+            # 51 paliers, pas RAMD 1'512 ; borne = « jusqu'à ».
+            [15120, 1260], [16632, 1293], [18144, 1326], [19656, 1358],
+            [21168, 1391], [22680, 1424], [24192, 1457], [25704, 1489],
+            [27216, 1522], [28728, 1555], [30240, 1588], [31752, 1620],
+            [33264, 1653], [34776, 1686], [36288, 1719], [37800, 1751],
+            [39312, 1784], [40824, 1817], [42336, 1850], [43848, 1882],
+            [45360, 1915], [46872, 1935], [48384, 1956], [49896, 1976],
+            [51408, 1996], [52920, 2016], [54432, 2036], [55944, 2056],
+            [57456, 2076], [58968, 2097], [60480, 2117], [61992, 2137],
+            [63504, 2157], [65016, 2177], [66528, 2197], [68040, 2218],
+            [69552, 2238], [71064, 2258], [72576, 2278], [74088, 2298],
+            [75600, 2318], [77112, 2339], [78624, 2359], [80136, 2379],
+            [81648, 2399], [83160, 2419], [84672, 2439], [86184, 2460],
+            [87696, 2480], [89208, 2500], [90720, 2520],
         ],
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
-        source_title="Mémento 6.01 — Tables des rentes AVS/AI (OFAS 2025)",
+        source_title="OFAS doc 318.117.011 Tables des rentes 2025 p.20 (échelle 44) — valable 2026",
         source_type="law",
         description="Échelle 44 — table de correspondance RAMD annuel → rente mensuelle AVS. "
         "Mise à jour tous les 2 ans par le Conseil fédéral (indice mixte).",
@@ -466,6 +526,12 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation AVS/AI/APG part salarié : 5.3% (total 10.6%).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "COMBINÉ AVS+AI+APG (AVS pur 8.7% + AI 1.4% + APG 0.5% = "
+            "10.6% paritaire). Ne JAMAIS additionner avec "
+            "ai.contribution_rate_* ni apg.contribution_rate_* — ils y "
+            "sont déjà inclus (beads MINT_nosync-b9c, verdict A -zaw)."
+        ),
     ),
     RegulatoryParameter(
         key="avs.contribution_rate_total",
@@ -477,6 +543,12 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation AVS/AI/APG total (salarié + employeur) : 10.6%.",
         reviewed_at=_REVIEWED,
+        notes=(
+            "COMBINÉ AVS+AI+APG (AVS pur 8.7% + AI 1.4% + APG 0.5% = "
+            "10.6% paritaire). Ne JAMAIS additionner avec "
+            "ai.contribution_rate_* ni apg.contribution_rate_* — ils y "
+            "sont déjà inclus (beads MINT_nosync-b9c, verdict A -zaw)."
+        ),
     ),
     RegulatoryParameter(
         key="avs.full_contribution_years",
@@ -509,10 +581,13 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_title="LAVS art. 21 (réforme AVS 21)",
         source_type="law",
         description=(
-            "Âge de référence AVS pour les femmes : valeur transitoire 64.5 "
-            "en 2026 (cohorte née en 1962). La réforme AVS 21 relève l'âge "
-            "progressivement de 64 à 65 ans pour les naissances 1961-1963 ; "
-            "il atteint 65 ans en 2028."
+            "Âge de référence AVS pour les femmes : SCALAIRE TRANSITOIRE "
+            "64.5 (cohorte 1962, retraites prises en 2026). NE PAS consommer "
+            "dans un moteur — l'âge "
+            "dépend de la COHORTE (réforme AVS 21 : <=1960 64 ; 1961 "
+            "64+3 mois ; 1962 64+6 mois ; 1963 64+9 mois ; 1964+ 65). "
+            "Utiliser avs_reference_age(birth_year, is_female) backend / "
+            "avsReferenceAge(birthYear, isFemale) Dart (beads -xx9)."
         ),
         reviewed_at=_REVIEWED,
     ),
@@ -540,35 +615,35 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.deferral_supplement.2",
-        value=0.106,
+        value=0.108,
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 39",
         source_type="law",
-        description="Supplément de rente pour 2 ans d'ajournement : +10.6%.",
+        description="Supplément de rente pour 2 ans d'ajournement : +10.8%.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
         key="avs.deferral_supplement.3",
-        value=0.164,
+        value=0.171,
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 39",
         source_type="law",
-        description="Supplément de rente pour 3 ans d'ajournement : +16.4%.",
+        description="Supplément de rente pour 3 ans d'ajournement : +17.1%.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
         key="avs.deferral_supplement.4",
-        value=0.227,
+        value=0.240,
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 39",
         source_type="law",
-        description="Supplément de rente pour 4 ans d'ajournement : +22.7%.",
+        description="Supplément de rente pour 4 ans d'ajournement : +24.0%.",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
@@ -617,7 +692,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.ramd_min",
-        value=14_700.0,
+        value=15_120.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
@@ -628,7 +703,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
     ),
     RegulatoryParameter(
         key="avs.ramd_max",
-        value=88_200.0,
+        value=90_720.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
@@ -674,24 +749,24 @@ _PARAMETERS: list[RegulatoryParameter] = [
     # AVS volontaire (expatriés)
     RegulatoryParameter(
         key="avs.voluntary_contribution_min",
-        value=514.0,
+        value=530.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 2",
         source_type="law",
-        description="Cotisation annuelle minimale AVS volontaire.",
+        description="Cotisation AVS/AI/APG annuelle minimale des personnes sans activité lucrative (Mémento 2.03, 2025/2026).",
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
         key="avs.voluntary_contribution_max",
-        value=25_700.0,
+        value=26_500.0,
         unit="CHF",
         effective_from=date(2025, 1, 1),
         source_url=_OFAS_AVS_URL,
         source_title="LAVS art. 2",
         source_type="law",
-        description="Cotisation annuelle maximale AVS volontaire.",
+        description="Cotisation AVS/AI/APG annuelle maximale des personnes sans activité lucrative (50 x 530, Mémento 2.03, 2025/2026).",
         reviewed_at=_REVIEWED,
     ),
     # AVS indépendants
@@ -731,6 +806,11 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation AI part salarié : 0.7% (total 1.4%).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Déjà INCLUS dans avs.contribution_rate_* (taux combiné "
+            "AVS+AI+APG) — clé séparée pour référence/affichage "
+            "uniquement, ne pas additionner (beads MINT_nosync-b9c)."
+        ),
     ),
     RegulatoryParameter(
         key="ai.contribution_rate_total",
@@ -768,6 +848,11 @@ _PARAMETERS: list[RegulatoryParameter] = [
         source_type="law",
         description="Taux de cotisation APG part salarié : 0.25% (total 0.5%).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Déjà INCLUS dans avs.contribution_rate_* (taux combiné "
+            "AVS+AI+APG) — clé séparée pour référence/affichage "
+            "uniquement, ne pas additionner (beads MINT_nosync-b9c)."
+        ),
     ),
     RegulatoryParameter(
         key="apg.contribution_rate_total",
@@ -904,7 +989,7 @@ _PARAMETERS: list[RegulatoryParameter] = [
         unit="ratio",
         effective_from=date(2025, 1, 1),
         source_url="https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
-        source_title="LAMal art. 64",
+        source_title="OAMal art. 103 (participation aux coûts)",
         source_type="law",
         description="Quote-part : 10% des frais au-dessus de la franchise.",
         reviewed_at=_REVIEWED,
@@ -940,63 +1025,73 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.05,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_FINMA_URL,
-        source_title="FINMA/ASB — Directives en matière d'hypothèques",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Taux d'intérêt théorique pour le calcul de capacité (5%).",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.amortization_rate",
         value=0.01,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_FINMA_URL,
-        source_title="FINMA/ASB — Directives en matière d'hypothèques",
-        source_type="circular",
-        description="Taux d'amortissement annuel minimum (1%).",
+        source_url=_ASB_HYPO_URL,
+        source_title="ASB — Directives exigences minimales financements hypothécaires (rév. 2023, en vigueur 01.01.2025)",
+        source_type="estimate",
+        description="Taux d'amortissement annuel — approximation pratique (1%).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "La règle ASB réelle n'est pas 1 %/an : amortir la dette "
+            "jusqu'à 2/3 de la valeur de nantissement en 15 ans au plus "
+            "(linéaire). 1 %/an approxime le cas 80 % -> 2/3 "
+            "(13,4 points / 15 ans)."
+        ),
     ),
     RegulatoryParameter(
         key="mortgage.maintenance_rate",
         value=0.01,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_FINMA_URL,
-        source_title="FINMA/ASB — Directives en matière d'hypothèques",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Taux de frais accessoires annuels (entretien, assurance) : 1%.",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.max_charge_ratio",
         value=1.0 / 3.0,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_FINMA_URL,
-        source_title="FINMA/ASB — Règle du 1/3",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Ratio maximal des charges par rapport au revenu brut (règle du 1/3).",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.min_equity",
         value=0.20,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_FINMA_URL,
-        source_title="FINMA/ASB — Fonds propres",
-        source_type="circular",
+        source_url=_VZ_TENUE_URL,
+        source_title="Pratique bancaire suisse — test de tenue des charges (convention de place)",
+        source_type="estimate",
         description="Part minimale de fonds propres (20% du prix d'achat).",
         reviewed_at=_REVIEWED,
+        notes=_PRATIQUE_TENUE_NOTE,
     ),
     RegulatoryParameter(
         key="mortgage.max_2nd_pillar",
         value=0.10,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url=_FINMA_URL,
-        source_title="FINMA/ASB — Fonds propres 2e pilier",
+        source_url=_ASB_HYPO_URL,
+        source_title="ASB — Directives exigences minimales (fonds propres hors 2e pilier, rév. 2023)",
         source_type="circular",
         description="Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat).",
         reviewed_at=_REVIEWED,
@@ -1010,77 +1105,92 @@ _PARAMETERS: list[RegulatoryParameter] = [
         value=0.065,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 — taux par défaut",
-        source_type="law",
+        source_url=_LIFD_ART38_URL,
+        source_title="Fallback effectif médian — approximation (LIFD art. 38 = 1/5 du barème art. 36, pas un taux plat)",
+        source_type="estimate",
         description="Taux par défaut de l'impôt sur le retrait de capital (fallback canton inconnu).",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.married_discount",
         value=0.85,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url="https://www.estv.admin.ch/",
-        source_title="LIFD — splitting cantonal",
-        source_type="law",
-        description="Réduction d'impôt pour les couples mariés (splitting cantonal ~15%).",
+        source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Facteur uniforme legacy — approximation (le traitement marié varie par canton)",
+        source_type="estimate",
+        description="Réduction d'impôt pour les couples mariés (facteur uniforme legacy).",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Aucun rabais marié uniforme n'existe en droit fédéral — le "
+            "calcul canonique dérive l'impôt capital marié de l'étalon ESTV "
+            "CANTONAL_CAPITAL_TAX_MARRIED_CHF par interpolation (comme le "
+            "célibataire) via estimate_capital_withdrawal_tax. Le rabais "
+            "forfaitaire par canton (MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON "
+            "+ FALLBACK 0.82) a été supprimé (triage AnnAssign #1095). Clé "
+            "scalaire conservée pour compat registre."
+        ),
     ),
     RegulatoryParameter(
         key="capital_tax.bracket.0_100k",
         value=1.00,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38",
-        source_type="law",
+        source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Multiplicateur forfaitaire legacy — approximation (art. 38 LIFD = 1/5 du barème progressif, pas une échelle plate)",
+        source_type="estimate",
         description="Multiplicateur tranche 0-100k CHF pour impôt sur retrait de capital.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.bracket.100k_200k",
         value=1.15,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38",
-        source_type="law",
+        source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Multiplicateur forfaitaire legacy — approximation (art. 38 LIFD = 1/5 du barème progressif, pas une échelle plate)",
+        source_type="estimate",
         description="Multiplicateur tranche 100-200k CHF pour impôt sur retrait de capital.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.bracket.200k_500k",
         value=1.30,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38",
-        source_type="law",
+        source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Multiplicateur forfaitaire legacy — approximation (art. 38 LIFD = 1/5 du barème progressif, pas une échelle plate)",
+        source_type="estimate",
         description="Multiplicateur tranche 200-500k CHF pour impôt sur retrait de capital.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.bracket.500k_1m",
         value=1.50,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38",
-        source_type="law",
+        source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Multiplicateur forfaitaire legacy — approximation (art. 38 LIFD = 1/5 du barème progressif, pas une échelle plate)",
+        source_type="estimate",
         description="Multiplicateur tranche 500k-1M CHF pour impôt sur retrait de capital.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.bracket.1m_plus",
         value=1.70,
         unit="ratio",
         effective_from=date(2025, 1, 1),
-        source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38",
-        source_type="law",
+        source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Multiplicateur forfaitaire legacy — approximation (art. 38 LIFD = 1/5 du barème progressif, pas une échelle plate)",
+        source_type="estimate",
         description="Multiplicateur tranche 1M+ CHF pour impôt sur retrait de capital.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
 
     # ─────────────────────────────────────────────────────────────────
@@ -1088,184 +1198,329 @@ _PARAMETERS: list[RegulatoryParameter] = [
     # ─────────────────────────────────────────────────────────────────
     RegulatoryParameter(
         key="capital_tax.cantonal.ZH", value=0.065, unit="ratio", jurisdiction="ZH",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG ZH", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy ZH — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Zürich.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.BE", value=0.075, unit="ratio", jurisdiction="BE",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG BE", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy BE — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Bern.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.LU", value=0.055, unit="ratio", jurisdiction="LU",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG LU", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy LU — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Luzern.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.UR", value=0.050, unit="ratio", jurisdiction="UR",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG UR", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy UR — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Uri.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.SZ", value=0.040, unit="ratio", jurisdiction="SZ",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG SZ", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy SZ — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Schwyz.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.OW", value=0.045, unit="ratio", jurisdiction="OW",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG OW", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy OW — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Obwalden.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.NW", value=0.040, unit="ratio", jurisdiction="NW",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG NW", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy NW — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Nidwalden.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.GL", value=0.055, unit="ratio", jurisdiction="GL",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG GL", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy GL — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Glarus.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.ZG", value=0.035, unit="ratio", jurisdiction="ZG",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG ZG", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy ZG — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Zug.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.FR", value=0.070, unit="ratio", jurisdiction="FR",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + LICD FR", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="LIFD art. 38 + LICD FR", source_type="estimate",
         description="Taux de base impôt retrait capital — Fribourg.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.SO", value=0.065, unit="ratio", jurisdiction="SO",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG SO", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy SO — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Solothurn.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.BS", value=0.075, unit="ratio", jurisdiction="BS",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG BS", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy BS — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Basel-Stadt.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.BL", value=0.065, unit="ratio", jurisdiction="BL",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG BL", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy BL — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Basel-Landschaft.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.SH", value=0.060, unit="ratio", jurisdiction="SH",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG SH", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy SH — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Schaffhausen.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.AR", value=0.055, unit="ratio", jurisdiction="AR",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG AR", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy AR — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Appenzell Ausserrhoden.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.AI", value=0.045, unit="ratio", jurisdiction="AI",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG AI", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy AI — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Appenzell Innerrhoden.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.SG", value=0.060, unit="ratio", jurisdiction="SG",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG SG", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy SG — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — St. Gallen.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.GR", value=0.055, unit="ratio", jurisdiction="GR",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG GR", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy GR — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Graubünden.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.AG", value=0.060, unit="ratio", jurisdiction="AG",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG AG", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy AG — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Aargau.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.TG", value=0.055, unit="ratio", jurisdiction="TG",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + StG TG", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="Taux plat legacy TG — approximation (barème cantonal réel progressif)", source_type="estimate",
         description="Taux de base impôt retrait capital — Thurgau.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.TI", value=0.065, unit="ratio", jurisdiction="TI",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + LT TI", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="LIFD art. 38 + LT TI", source_type="estimate",
         description="Taux de base impôt retrait capital — Ticino.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.VD", value=0.080, unit="ratio", jurisdiction="VD",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + LI VD", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="LIFD art. 38 + LI VD", source_type="estimate",
         description="Taux de base impôt retrait capital — Vaud.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.VS", value=0.060, unit="ratio", jurisdiction="VS",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + LF VS", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="LIFD art. 38 + LF VS", source_type="estimate",
         description="Taux de base impôt retrait capital — Valais.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.NE", value=0.070, unit="ratio", jurisdiction="NE",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + LCdir NE", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="LIFD art. 38 + LCdir NE", source_type="estimate",
         description="Taux de base impôt retrait capital — Neuchâtel.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.GE", value=0.075, unit="ratio", jurisdiction="GE",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + LIPP GE", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="LIFD art. 38 + LIPP GE", source_type="estimate",
         description="Taux de base impôt retrait capital — Genève.",
         reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
     ),
     RegulatoryParameter(
         key="capital_tax.cantonal.JU", value=0.065, unit="ratio", jurisdiction="JU",
-        effective_from=date(2025, 1, 1), source_url="https://www.estv.admin.ch/",
-        source_title="LIFD art. 38 + LI JU", source_type="law",
+        effective_from=date(2025, 1, 1), source_url=_ESTV_CAPITAL_SIM_URL,
+        source_title="LIFD art. 38 + LI JU", source_type="estimate",
         description="Taux de base impôt retrait capital — Jura.",
+        reviewed_at=_REVIEWED,
+        notes=_LEGACY_CAPITAL_NOTE,
+    ),
+    # ── AC durée des indemnités — barème LACI art. 27 (beads -4za) ──
+    # L'audit -zaw a trouvé le mapping mois→jours FAUX côté mobile (18 mois
+    # servaient 260 au lieu de 400) : les descriptions ci-dessous portent le
+    # barème officiel exact, verrouillé des deux côtés.
+    RegulatoryParameter(
+        key="ac.days_12_months",
+        value=260.0,
+        unit="days",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.arbeit.swiss/secoalv/fr/home/menue/stellensuchende/arbeitslos-was-tun/taggelder.html",
+        source_title="LACI art. 27 al. 2 let. a",
+        source_type="law",
+        description="Indemnités de chômage : 12 mois de cotisation donnent droit à 260 indemnités journalières.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="ac.days_18_months",
+        value=400.0,
+        unit="days",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.arbeit.swiss/secoalv/fr/home/menue/stellensuchende/arbeitslos-was-tun/taggelder.html",
+        source_title="LACI art. 27 al. 2 let. b",
+        source_type="law",
+        description="Indemnités de chômage : 18 mois de cotisation donnent droit à 400 indemnités journalières.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="ac.days_22_months_senior",
+        value=520.0,
+        unit="days",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.arbeit.swiss/secoalv/fr/home/menue/stellensuchende/arbeitslos-was-tun/taggelder.html",
+        source_title="LACI art. 27 al. 2 let. c",
+        source_type="law",
+        description="Indemnités de chômage : 22 mois de cotisation ET (âge >= 55 ans OU invalidité >= 40%) donnent droit à 520 indemnités journalières.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="ac.days_under25_cap",
+        value=200.0,
+        unit="days",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.arbeit.swiss/secoalv/fr/home/menue/stellensuchende/arbeitslos-was-tun/taggelder.html",
+        source_title="LACI art. 27 (plafond jeunes)",
+        source_type="law",
+        description="Plafond jeunes : les assurés de moins de 25 ans SANS obligation d'entretien sont limités à 200 indemnités journalières.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="ac.senior_age_threshold",
+        value=55.0,
+        unit="years",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.arbeit.swiss/secoalv/fr/home/menue/stellensuchende/arbeitslos-was-tun/taggelder.html",
+        source_title="LACI art. 27 al. 2 let. c",
+        source_type="law",
+        description="Âge charnière pour les 520 indemnités : 55 ans (combiné à 22 mois de cotisation).",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="ac.enhanced_rate_threshold",
+        value=3797.0,
+        unit="CHF",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.fedlex.admin.ch/eli/cc/1983/1205_1205_1205/fr",
+        source_title="OACI art. 33 (seuil 70%/80%)",
+        source_type="ordinance",
+        description="Gain assuré mensuel sous lequel l'indemnité passe à 80% (au lieu de 70%). Le 80% s'applique AUSSI avec obligation d'entretien ou invalidité >= 40%, indépendamment du salaire.",
+        reviewed_at=_REVIEWED,
+    ),
+    # ── Hypothèses de projection (beads MINT_nosync-7vx, verdict D -zaw) ──
+    # HYPOTHÈSES PRODUIT, pas des paramètres légaux (source_type="estimate").
+    # Enregistrées pour la provenance datée + la cohérence mobile (les
+    # fallbacks Dart reg('projection.*') de social_insurance.dart doivent
+    # rester identiques — verrou test_regulatory_registry).
+    RegulatoryParameter(
+        key="projection.avs_indexation_rate",
+        value=0.01,
+        unit="ratio",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.eak.admin.ch/fr/augmentation-des-rentes-avsai-de-29-pourcent-au-1er-janvier-2025",
+        source_title="LAVS art. 33ter (indice mixte) — lissage produit",
+        source_type="estimate",
+        description="Indexation AVS supposée : 1%/an. Lissage long terme de l'indice mixte (dernière adaptation +2.9% au 1.1.2025, ≈1.45%/an lissé — cadence récente supérieure, à surveiller). Hypothèse produit DÉFENDABLE, pas une valeur légale.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="projection.inflation_rate",
+        value=0.015,
+        unit="ratio",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.snb.ch/en/snb-explained/price-stability",
+        source_title="Cible BNS stabilité des prix 0-2% — hypothèse prudente-haute",
+        source_type="estimate",
+        description="Inflation supposée : 1.5%/an. Dans la bande BNS 0-2% ; ~2.5x la moyenne CH 1994-2024 (≈0.6%) — prudent-haut (surestimer l'inflation protège l'adéquation de la projection). Hypothèse produit, réviser annuellement.",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="projection.life_expectancy",
+        value=87.0,
+        unit="years",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.bfs.admin.ch/bfs/fr/home/statistiques/population/naissances-deces/esperance-vie.html",
+        source_title="Tables de mortalité OFS — espérance de vie à 65 ans",
+        source_type="estimate",
+        description="Espérance de vie de planification : 87 ans. Espérance à 65 ans ≈ 85-89 ans (OFS) ; 87 = médiane prudente. Validée PR #968 (reference_ofs_mortality_table_2023.md).",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
+        key="projection.safe_withdrawal_rate",
+        value=0.04,
+        unit="ratio",
+        effective_from=date(2025, 1, 1),
+        source_url="https://www.aaii.com/journal/199802/feature.pdf",
+        source_title="Règle des 4% — Bengen 1994 / Trinity Study 1998",
+        source_type="estimate",
+        description="Taux de retrait supposé : 4%/an. Benchmark reconnu mais US-centré (horizon 30 ans) ; en contexte suisse 3-3.5% serait plus prudent — hypothèse ÉDITABLE par l'utilisateur, présentée en scénarios (NEVER #8), jamais comme garantie de durabilité.",
         reviewed_at=_REVIEWED,
     ),
 ]

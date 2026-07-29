@@ -182,27 +182,6 @@ class CoupleOptimizationResult:
 #  Constants (mirrored verbatim from Dart sources)
 # ────────────────────────────────────────────────────────────
 
-# MIRROR Dart tax_calculator.dart:276-284
-_EFFECTIVE_RATES_100K: Dict[str, float] = {
-    "ZG": 0.0823, "NW": 0.0891, "OW": 0.0934, "AI": 0.0956,
-    "AR": 0.1012, "SZ": 0.1034, "UR": 0.1067, "LU": 0.1089,
-    "GL": 0.1102, "TG": 0.1145, "SH": 0.1167, "AG": 0.1189,
-    "GR": 0.1203, "BL": 0.1256, "SG": 0.1278, "ZH": 0.1290,
-    "FR": 0.1312, "SO": 0.1334, "TI": 0.1356, "BE": 0.1389,
-    "NE": 0.1423, "VS": 0.1456, "VD": 0.1489, "JU": 0.1512,
-    "GE": 0.1545, "BS": 0.1578,
-}
-
-# MIRROR Dart tax_calculator.dart:290-293
-_INCOME_ADJUSTMENT: Dict[int, float] = {
-    50_000: 0.75,
-    80_000: 0.90,
-    100_000: 1.00,
-    150_000: 1.10,
-    200_000: 1.18,
-    300_000: 1.25,
-    500_000: 1.32,
-}
 
 # MIRROR Dart tax_calculator.dart:299-305
 _FAMILY_ADJUSTMENT: Dict[str, float] = {
@@ -216,10 +195,9 @@ _FAMILY_ADJUSTMENT: Dict[str, float] = {
 # MIRROR Dart couple_optimizer.dart:146
 _MIN_DELTA: float = 100.0
 
-# MIRROR Dart social_insurance.dart:351 — `const double pilier3aPlafondAvecLpp = 7258.0`
-# Also matches backend constant PILIER_3A_PLAFOND_AVEC_LPP at
-# `services/backend/app/constants/social_insurance.py:339`.
-_PILIER_3A_PLAFOND_AVEC_LPP: float = 7258.0
+# Plafond 3a : source unique = registre (PILIER_3A_PLAFOND_AVEC_LPP,
+# social_insurance.py, alimenté par pillar3a.max_with_lpp). Importé au point
+# d'usage — plus de copie locale hardcodée (règle 4 / NEVER #3).
 
 # AVS constants — MIRROR Dart social_insurance.dart:
 _AVS_RENTE_MAX_MENSUELLE: float = 2520.0  # line 118
@@ -228,74 +206,30 @@ _AVS_RENTE_COUPLE_MAX_MENSUELLE: float = 3780.0  # line 124 — LAVS art. 35 cap
 _AVS_DUREE_COTISATION_COMPLETE: int = 44  # line 133
 _AVS_AGE_REFERENCE_HOMME: int = 65  # line 136
 _AVS_REDUCTION_ANTICIPATION: float = 0.068  # line 160
-_AVS_RAMD_MAX: float = 88_200.0  # line 204
+_AVS_RAMD_MAX: float = 90_720.0  # line 204 — OFAS 318.117.011 (audit -zaw)
 _AVS_13EME_ACTIVE: bool = True  # line 252
 _AVS_NOMBRE_RENTES_PAR_AN: int = 13  # line 258
 
 # MIRROR Dart social_insurance.dart:192-198 — late retirement bonus.
+# Mémento OFAS 3.04 (audit -zaw) : 5.2 / 10.8 / 17.1 / 24.0 / 31.5 %.
 _AVS_DEFERRAL_BONUS: Dict[int, float] = {
     1: 0.052,
-    2: 0.106,
-    3: 0.164,
-    4: 0.227,
+    2: 0.108,
+    3: 0.171,
+    4: 0.240,
     5: 0.315,
 }
 
-# MIRROR Dart social_insurance.dart:210-237 — Echelle 44 (LAVS art. 34, OFAS 2023/2025).
-# Format: list of (RAMD_annual, rente_mensuelle).
-_AVS_ECHELLE_44: list = [
-    (14_700.0, 1_260.0),
-    (17_640.0, 1_299.0),
-    (20_580.0, 1_338.0),
-    (23_520.0, 1_377.0),
-    (26_460.0, 1_416.0),
-    (29_400.0, 1_470.0),
-    (32_340.0, 1_524.0),
-    (35_280.0, 1_578.0),
-    (38_220.0, 1_632.0),
-    (41_160.0, 1_686.0),
-    (44_100.0, 1_743.0),
-    (47_040.0, 1_800.0),
-    (49_980.0, 1_857.0),
-    (52_920.0, 1_914.0),
-    (55_860.0, 1_971.0),
-    (58_800.0, 2_028.0),
-    (61_740.0, 2_085.0),
-    (64_680.0, 2_142.0),
-    (67_620.0, 2_199.0),
-    (70_560.0, 2_256.0),
-    (73_500.0, 2_313.0),
-    (76_440.0, 2_370.0),
-    (79_380.0, 2_427.0),
-    (82_320.0, 2_462.0),
-    (85_260.0, 2_491.0),
-    (88_200.0, 2_520.0),
-]
+# Echelle 44 (rente AVS depuis RAMD) : PAS de copie locale. La table + le
+# lookup canoniques vivent dans app.constants.social_insurance.rente_from_ramd
+# (règle 4 / NEVER #3 — une seule source de vérité backend, alimentée par le
+# registre avs.echelle44). Voir _avs_compute_monthly_rente ci-dessous.
 
 
 # ────────────────────────────────────────────────────────────
 #  Tax helpers (mirrored INLINE from RetirementTaxCalculator)
 # ────────────────────────────────────────────────────────────
 
-
-def _interpolate_income_adjustment(income: float) -> float:
-    """Linear interpolation between income adjustment brackets.
-
-    # MIRROR Dart tax_calculator.dart:365-383.
-    """
-    keys = sorted(_INCOME_ADJUSTMENT.keys())
-    if income <= keys[0]:
-        return _INCOME_ADJUSTMENT[keys[0]]
-    if income >= keys[-1]:
-        return _INCOME_ADJUSTMENT[keys[-1]]
-    for i in range(len(keys) - 1):
-        lower, upper = keys[i], keys[i + 1]
-        if lower <= income <= upper:
-            ratio = (income - lower) / (upper - lower)
-            lower_adj = _INCOME_ADJUSTMENT[lower]
-            upper_adj = _INCOME_ADJUSTMENT[upper]
-            return lower_adj + (upper_adj - lower_adj) * ratio
-    return 1.0  # fallback
 
 
 def _family_key(*, is_married: bool, children: int) -> str:
@@ -314,6 +248,20 @@ def _family_key(*, is_married: bool, children: int) -> str:
     return "marie_sans_enfant"
 
 
+def _child_factor(*, is_married: bool, children: int) -> float:
+    """Réduction supplémentaire enfants RELATIVE à marié sans enfant.
+
+    Ratios de la grille _FAMILY_ADJUSTMENT (approximation des déductions
+    par enfant) — même convention que CantonalComparator.estimate_tax
+    (PR #997). Célibataire avec enfants : inchangé (limite dite).
+    """
+    if not is_married or children <= 0:
+        return 1.0
+    return _FAMILY_ADJUSTMENT[
+        _family_key(is_married=True, children=children)
+    ] / _FAMILY_ADJUSTMENT["marie_sans_enfant"]
+
+
 def _estimate_marginal_rate(
     revenu_brut_annuel: float,
     canton: str,
@@ -321,24 +269,27 @@ def _estimate_marginal_rate(
     is_married: bool = False,
     children: int = 0,
 ) -> float:
-    """Marginal tax rate by canton, income, family situation.
+    """Taux marginal par différence sur le modèle v2 (beads -5up).
 
-    # MIRROR Dart tax_calculator.dart:316-360.
-
-    Returns marginal = effective * 1.3, clamped to [0.05, 0.45].
-    No ``actualRate`` override here (the Python port operates on raw
-    profile data; future enhancement may add the scan-derived override).
+    Remplace « effectif(100k) x facteur revenu x 1.3 » (copie privée du
+    modèle v1 supprimé de cantonal_comparator par PR #997) par la pente
+    locale du modèle canonique : (impôt(r) - impôt(r - 1000)) / 1000.
+    Enfants : ratio relatif marié (_child_factor). Borné à [0.0, 0.50]
+    (convention lpp_conversion) — l'ancien plancher 5% inventait une
+    économie pour des revenus non imposés.
     """
-    canton_code = (canton or "ZH").upper()
-    base_rate = _EFFECTIVE_RATES_100K.get(canton_code, 0.13)  # MIRROR Dart line 333
-    income_adj = _interpolate_income_adjustment(revenu_brut_annuel)
-    family_adj = _FAMILY_ADJUSTMENT.get(
-        _family_key(is_married=is_married, children=children),
-        1.0,
+    from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
+    if revenu_brut_annuel <= 0:
+        return 0.0
+    delta = min(1000.0, revenu_brut_annuel)
+    cf = _child_factor(is_married=is_married, children=children)
+    hi = estimate_income_tax(revenu_brut_annuel, canton, is_married=is_married)
+    lo = estimate_income_tax(
+        revenu_brut_annuel - delta, canton, is_married=is_married
     )
-    effective = base_rate * income_adj * family_adj
-    marginal = effective * 1.3  # MIRROR Dart line 357
-    return max(0.05, min(0.45, marginal))
+    marginal = cf * (hi - lo) / delta
+    return max(0.0, min(0.50, marginal))
 
 
 def _estimate_tax_saving(
@@ -350,27 +301,24 @@ def _estimate_tax_saving(
     children: int = 0,
     steps: int = 10,
 ) -> float:
-    """Estimate tax saving from a deduction via 10-step integration.
+    """Économie fiscale d'une déduction — différence EXACTE du modèle v2.
 
-    # MIRROR Dart tax_calculator.dart:390-419.
-
-    Sums ``stepSize * marginalRate(midPoint)`` over ``steps`` slices as
-    income decreases. Used by the LPP buyback and 3a contribution
-    analyses to estimate fiscal benefit.
+    L'intégration en 10 pas du miroir v1 approximait l'aire sous la
+    marginale ; le modèle v2 se calcule directement :
+    impôt(revenu) - impôt(revenu - déduction). ``steps`` est conservé
+    pour compat de signature (ignoré). Enfants : ratio relatif marié.
     """
-    if deduction <= 0 or steps <= 0:
+    from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
+    if deduction <= 0 or income <= 0:
         return 0.0
-    step_size = deduction / steps
-    current_income = income
-    total_saved = 0.0
-    for _ in range(steps):
-        midpoint = current_income - (step_size / 2)
-        rate = _estimate_marginal_rate(
-            midpoint, canton, is_married=is_married, children=children
-        )
-        total_saved += step_size * rate
-        current_income -= step_size
-    return total_saved
+    cf = _child_factor(is_married=is_married, children=children)
+    saving = estimate_income_tax(
+        income, canton, is_married=is_married
+    ) - estimate_income_tax(
+        max(0.0, income - deduction), canton, is_married=is_married
+    )
+    return max(0.0, cf * saving)
 
 
 def _estimate_monthly_income_tax(
@@ -380,56 +328,27 @@ def _estimate_monthly_income_tax(
     etat_civil: str = "celibataire",
     nombre_enfants: int = 0,
 ) -> float:
-    """Estimate monthly income tax (annual divided by 12).
+    """Impôt revenu mensuel — modèle v2 / 12 (beads -5up).
 
-    # MIRROR Dart tax_calculator.dart:476-490 (simplified).
-
-    Dart's fiscal-service tax estimator is more nuanced (canton-specific
-    bareme + multipliers). For Wave 1a parity on the fixture set we
-    approximate ``chargeTotale = revenu × effective_rate(...)``. The
-    plan-07 parity test will assert ±0.01 CHF on Julien/Lauren fixtures.
+    Remplace « revenu x taux effectif recomposé » par le modèle canonique
+    estimate_income_tax (IFD 2026 + interpolation ESTV). Enfants : ratio
+    relatif marié.
     """
+    from app.services.fiscal.cantonal_comparator import estimate_income_tax
+
     if revenu_annuel_imposable <= 0:
         return 0.0
-    canton_code = (canton or "ZH").upper()
-    base_rate = _EFFECTIVE_RATES_100K.get(canton_code, 0.13)
-    income_adj = _interpolate_income_adjustment(revenu_annuel_imposable)
     is_married = etat_civil == "marie"
-    family_adj = _FAMILY_ADJUSTMENT.get(
-        _family_key(is_married=is_married, children=nombre_enfants),
-        1.0,
+    cf = _child_factor(is_married=is_married, children=nombre_enfants)
+    charge_totale = cf * estimate_income_tax(
+        revenu_annuel_imposable, canton, is_married=is_married
     )
-    effective_rate = base_rate * income_adj * family_adj
-    charge_totale = revenu_annuel_imposable * effective_rate
     return charge_totale / 12.0
 
 
 # ────────────────────────────────────────────────────────────
 #  AVS helpers (mirrored INLINE from AvsCalculator)
 # ────────────────────────────────────────────────────────────
-
-
-def _rente_from_ramd(gross_annual_salary: float) -> float:
-    """AVS rente based on RAMD using Echelle 44 (LAVS art. 34).
-
-    # MIRROR Dart avs_calculator.dart:136-150 (renteFromRAMD).
-
-    Concave lookup + linear interpolation between table points.
-    """
-    if gross_annual_salary <= 0:
-        return 0.0
-    table = _AVS_ECHELLE_44
-    if gross_annual_salary <= table[0][0]:
-        return table[0][1]
-    if gross_annual_salary >= table[-1][0]:
-        return table[-1][1]
-    for i in range(len(table) - 1):
-        lower = table[i]
-        upper = table[i + 1]
-        if lower[0] <= gross_annual_salary <= upper[0]:
-            ratio = (gross_annual_salary - lower[0]) / (upper[0] - lower[0])
-            return lower[1] + ratio * (upper[1] - lower[1])
-    return table[-1][1]  # fallback
 
 
 def _avs_compute_monthly_rente(
@@ -454,19 +373,12 @@ def _avs_compute_monthly_rente(
     # Gender-aware reference age (AVS21, LAVS art. 21 al. 1).
     # MIRROR Dart avs_calculator.dart:44-47 — refAge resolution.
     if is_female is not None and birth_year is not None:
-        # MIRROR Dart social_insurance.dart:150-157 (avsReferenceAge).
-        if not is_female:
-            ref_age = _AVS_AGE_REFERENCE_HOMME
-        elif birth_year <= 1960:
-            ref_age = 64
-        elif birth_year == 1961:
-            ref_age = 64
-        elif birth_year == 1962:
-            ref_age = 64
-        elif birth_year == 1963:
-            ref_age = 65
-        else:
-            ref_age = 65
+        # Fonction partagée par cohorte (beads -xx9) — miroir Dart
+        # social_insurance.dart avsReferenceAge, une seule implémentation
+        # backend (règle 4).
+        from app.constants.social_insurance import avs_reference_age
+
+        ref_age = avs_reference_age(birth_year, is_female)
     else:
         ref_age = _AVS_AGE_REFERENCE_HOMME  # 65 — male/unknown default.
 
@@ -483,8 +395,11 @@ def _avs_compute_monthly_rente(
     gap_factor = effective_years / full_years if full_years > 0 else 0.0
 
     # MIRROR Dart avs_calculator.dart:69-102 — RAMD-based rente.
+    # Fonction canonique unique (règle 4 / NEVER #3) — pas de copie locale.
+    from app.constants.social_insurance import rente_from_ramd
+
     effective_salary = gross_annual_salary
-    base_rente = _rente_from_ramd(effective_salary)
+    base_rente = rente_from_ramd(effective_salary)
     rente = base_rente * gap_factor
 
     # MIRROR Dart avs_calculator.dart:104-115 — early/late retirement adjustments.
@@ -796,7 +711,11 @@ class CoupleOptimizer:
             )
 
         canton = user.get("canton") or "ZH"
-        ceiling = _PILIER_3A_PLAFOND_AVEC_LPP
+        # Registry-sourced (règle 4 / NEVER #3) — pas de copie locale hardcodée
+        # du plafond 3a, qui dériverait silencieusement si le registre change.
+        from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
+        ceiling = PILIER_3A_PLAFOND_AVEC_LPP
         children = _i(user.get("nombreEnfants"), default=0) or 0
         is_married = user.get("etatCivil") == "marie"
 

@@ -523,6 +523,37 @@ def test_navigation_spine_guard_fails_when_registry_uses_stale_onboarding_fallba
     )
 
 
+def test_navigation_spine_guard_fails_when_blocked_decision_falls_back_to_coach(
+    tmp_path: Path,
+) -> None:
+    _write_fixture(tmp_path)
+    registry = tmp_path / "apps/mobile/lib/services/navigation/screen_registry.dart"
+    registry.write_text(
+        registry.read_text(encoding="utf-8").replace(
+            "  static const ScreenEntry _onboardingQuick = ScreenEntry(",
+            """
+  static const ScreenEntry _retirementChoice = ScreenEntry(
+    route: '/retraite/rente-vs-capital',
+    intentTag: 'retirement_choice',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['salaireBrut'],
+    fallbackRoute: '/coach/chat?topic=retraite',
+    preferFromChat: true,
+  );
+  static const ScreenEntry _onboardingQuick = ScreenEntry(""",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = mint2_navigation_spine_guard.check(tmp_path)
+
+    assert any(
+        "retirement_choice (/retraite/rente-vs-capital) must not fallback to /coach/chat"
+        in error
+        for error in errors
+    )
+
+
 def test_navigation_spine_guard_fails_when_onboarding_quick_entry_uses_legacy_alias(
     tmp_path: Path,
 ) -> None:

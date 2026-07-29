@@ -262,7 +262,11 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Semantics(
+      identifier: 'disability_gap_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
       backgroundColor: MintColors.background,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -322,7 +326,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
           ),
         ],
       ))),
-    );
+    ));
   }
 
   Widget _buildAppBar() {

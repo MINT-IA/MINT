@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>État des lieux — session 2026-07-26</title>
+<style>
+  :root { --bg:#faf8f4; --fg:#1a1a1a; --muted:#666; --accent:#003b2f; --ok:#1a7f52; --warn:#b45309; --bad:#b91c1c; --line:#e5e1d8; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--fg); line-height:1.55; }
+  .wrap { max-width:1000px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+  h1 { font-size:1.9rem; margin:0 0 .25rem; }
+  h2 { font-size:1.25rem; margin:2.4rem 0 .7rem; border-bottom:2px solid var(--accent); padding-bottom:.3rem; }
+  h3 { font-size:1.02rem; margin:1.4rem 0 .4rem; }
+  .sub { color:var(--muted); margin:0 0 1.5rem; }
+  .banner { background:var(--accent); color:#fff; padding:1rem 1.25rem; border-radius:12px; font-weight:600; }
+  table { width:100%; border-collapse:collapse; margin:.9rem 0; font-size:.9rem; }
+  th,td { text-align:left; padding:.5rem .55rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:#f0ece3; font-weight:700; }
+  code { background:#f0ece3; padding:.1rem .3rem; border-radius:4px; font-size:.85em; }
+  .ok { color:var(--ok); font-weight:700; }
+  .warn { color:var(--warn); font-weight:700; }
+  .bad { color:var(--bad); font-weight:700; }
+  ul { margin:.4rem 0 1rem; padding-left:1.2rem; }
+  li { margin:.25rem 0; }
+  .cite { font-size:.84rem; color:var(--muted); }
+  .lesson { background:#fff; border:1px solid var(--line); border-left:4px solid var(--warn); border-radius:8px; padding:.8rem 1rem; margin:.7rem 0; }
+  .num { font-size:1.6rem; font-weight:800; color:var(--accent); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.9rem; margin:1rem 0; }
+  .kpi { background:#fff; border:1px solid var(--line); border-radius:10px; padding:.8rem 1rem; }
+  .kpi div:last-child { font-size:.82rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>MINT — état des lieux</h1>
+<p class="sub">Session 2026-07-26 · audit de fin de session · tout chiffre ci-dessous est mesuré depuis le code, pas estimé</p>
+
+<div class="banner">
+Mission : faire de MINT l'application de lucidité financière suisse — toutes les questions d'une vie sous un même toit, et à la fin l'utilisateur comprend assez pour arbitrer lui-même. MINT ne conseille pas : MINT rend lucide.
+</div>
+
+<div class="grid">
+  <div class="kpi"><div class="num">17</div><div>PR mergées (#1031→#1048)</div></div>
+  <div class="kpi"><div class="num">10/10</div><div>simulateurs gatés</div></div>
+  <div class="kpi"><div class="num">53 %</div><div>routes produit cliquables (71/134)</div></div>
+  <div class="kpi"><div class="num">13/295</div><div>widgets rendables par le coach</div></div>
+  <div class="kpi"><div class="num">1341</div><div>tests écrans verts</div></div>
+  <div class="kpi"><div class="num">12</div><div>dettes assumées (beads)</div></div>
+</div>
+
+<h2>1. Vérité métier — le chantier le plus avancé</h2>
+
+<p>Deux couches ont été traitées, dans cet ordre :</p>
+
+<h3>Couche 1 — « d'où vient ce chiffre ? » (gate dur)</h3>
+<p>Aucun simulateur n'affiche plus de résultat construit sur un défaut fabriqué. Un fait manquant ⇒ résultat <strong>gaté</strong>, jamais un nombre inventé. Les 10 simulateurs de vie sont couverts (#1032–1041), chacun validé par revue adversariale Codex jusqu'à <code>PASS</code> et CI verte. Preuve device sur 4 écrans représentatifs (iPhone 16e, état anonyme).</p>
+
+<h3>Couche 2 — « la règle appliquée est-elle juste ? » (lentille conseiller)</h3>
+<p>Codex en rôle de conseiller patrimonial suisse (niveau VZ / private banking 2026) a trouvé une classe de défaut plus grave : des <strong>règles qui n'existent pas en droit suisse</strong>. Corrigées (#1043, #1044, #1047) :</p>
+<ul>
+<li><strong>Entretien après divorce</strong> — forfait CHF 600/enfant + 8-15 % de l'écart de revenus + seuils à 5/10 ans. Aucune règle suisse ne fonctionne ainsi. Formule, champ et tests <em>supprimés</em> ; remplacés par l'enseignement de la mécanique réelle (minimum vital puis excédent par « grandes et petites têtes », ATF 147 III 265 ; enfant CC 276/285/285a vs conjoint CC 125).</li>
+<li><strong>Liquidation du régime matrimonial</strong> — répartition au prorata des <em>revenus</em> sous séparation de biens. <code>PatrimoineSplitResult</code> supprimée ; chaque régime énonce sa mécanique (CC 215 moitié du bénéfice de l'AUTRE ; CC 242 au divorce, pas 241 qui vise le décès ; CC 247-251).</li>
+<li><strong>Modèle fiscal du divorce</strong> — l'impôt marié utilisait le taux <em>marginal</em> (surestimation ~54 %) contre marginal×0.65 pour les individus. Les deux côtés utilisent désormais l'impôt effectif canonique. Validé par mint-swiss-brain <em>avant</em> implémentation.</li>
+<li><strong>Cadrage LSFin</strong> — un delta fiscal négatif (le divorce baisse l'impôt du ménage : la vraie Heiratsstrafe) était coloré en vert « gain ». Neutralisé partout.</li>
+</ul>
+<p class="cite">La revue conseiller a tenu 9 rounds sur le divorce avant de conclure PASS ; chaque round a trouvé un défaut réel, le dernier étant une référence légale erronée en pied de page (frais de garde attribués à LIFD art. 35 au lieu de l'art. 33 al. 3).</p>
+
+<h2>2. Navigation — la photo réelle, après deux auto-corrections</h2>
+
+<p>Un générateur produit désormais une carte <strong>par thème</strong> depuis le code (<code>tools/checks/generate_theme_maps.py</code>, <code>--check</code> pour CI). Il a fallu le corriger deux fois avant qu'il dise vrai :</p>
+
+<div class="lesson">
+<strong>Auto-correction 1 — les hubs sont des portes.</strong> <code>ExploreHubScreen</code> et les cartes de l'écran Explorer naviguent via <code>context.push(entry.route)</code> — une variable, invisible au grep littéral. Premier verdict : « logement 0 porte sur 8 ». Réalité : <code>/explore/logement</code> liste bien ses 7 outils. <em>J'allais construire une porte qui existait déjà.</em>
+</div>
+<div class="lesson">
+<strong>Auto-correction 2 — toutes les routes ne doivent pas être cliquables.</strong> Les <code>/__e2e/*</code>, <code>/admin/*</code>, <code>/debug/*</code>, <code>/auth/verify</code> et les variantes <code>/onboarding/*</code> sont des îles <em>légitimes</em>. Les compter fabriquait un problème à 24 îles. Le verdict ne porte plus que sur le périmètre produit.
+</div>
+
+<table>
+<thead><tr><th>Thème</th><th>Routes produit</th><th>🟢 cliquables</th><th>🟡 séquence</th><th>🔴 îles</th><th>Verdict</th></tr></thead>
+<tbody>
+<tr><td>lifeevents</td><td>33</td><td>24</td><td>9</td><td>0</td><td class="ok">parcourable</td></tr>
+<tr><td>pilier3a</td><td>13</td><td>8</td><td>5</td><td>0</td><td class="ok">parcourable</td></tr>
+<tr><td>logement</td><td>8</td><td>7</td><td>1</td><td>0</td><td class="ok">parcourable</td></tr>
+<tr><td>home / documents / profil / onboarding / auth</td><td>33</td><td>20</td><td>13</td><td>0</td><td class="ok">parcourables</td></tr>
+<tr><td><strong>retraite</strong></td><td>21</td><td>8</td><td>11</td><td>2</td><td class="warn">partielle</td></tr>
+<tr><td><strong>coach</strong></td><td>16</td><td>2</td><td>13</td><td>1</td><td class="bad">porte unique</td></tr>
+<tr><td><strong>insights</strong></td><td>7</td><td>1</td><td>6</td><td>0</td><td class="bad">porte unique</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>134</strong></td><td><strong>71 (53 %)</strong></td><td><strong>60</strong></td><td><strong>3</strong></td><td></td></tr>
+</tbody>
+</table>
+
+<p>La colonne vertébrale existe (Explorer → 7 hubs thématiques → outils). Ce qui manque n'est pas « des portes partout » : ce sont les <strong>trois cœurs du produit</strong> — retraite, coach, insights — qui sont les moins parcourables. Et 60 routes ne s'ouvrent que si le coach le décide.</p>
+<p class="cite">3 îles réelles : <code>/rente-vs-capital</code> et <code>/simulator/rente-capital</code> (doublons probables), <code>/anonymous/chat</code> (orphelin déjà signalé par l'audit du 23/07).</p>
+
+<h2>3. Coach — il sait collecter, il ne sait pas montrer</h2>
+<table>
+<thead><tr><th>Capacité</th><th>Mesure</th></tr></thead>
+<tbody>
+<tr><td>Outils du <code>widget_renderer</code></td><td>26</td></tr>
+<tr><td>… dont <strong>collecte de données</strong> (âge, canton, salaire, LPP, état civil…)</td><td>22</td></tr>
+<tr><td>… dont <strong>visualisations</strong> (<code>show_budget_snapshot</code>, <code>show_commitment_card</code>, <code>show_fact_card</code>, <code>show_score_gauge</code>)</td><td class="bad">4</td></tr>
+<tr><td>Types de cartes réponse (<code>ResponseCardWidget</code>)</td><td>9</td></tr>
+<tr><td><strong>Total sorties visuelles depuis le coach</strong></td><td class="bad">13</td></tr>
+<tr><td>Widgets existant dans l'app</td><td>295</td></tr>
+<tr><td>… dont construits <em>pour</em> le coach (<code>lib/widgets/coach/</code>)</td><td>114</td></tr>
+</tbody>
+</table>
+<p>C'est le déséquilibre central : le coach est la porte principale (60 routes ne passent que par lui) mais il ne peut afficher que <strong>13 choses</strong>. Il pose des questions bien mieux qu'il ne montre.</p>
+
+<h2>4. Santé technique</h2>
+<table>
+<tbody>
+<tr><td>Fichiers de test</td><td>673</td></tr>
+<tr><td>Shard <code>test/screens/</code></td><td class="ok">1341 verts, 0 échec (9 skip pré-existants)</td></tr>
+<tr><td><code>flutter analyze</code></td><td class="ok">3 infos pré-existantes, aucune introduite</td></tr>
+<tr><td>Cartes de navigation</td><td class="ok">à jour (<code>--check</code> exit 0)</td></tr>
+<tr><td>Gates pre-commit</td><td class="ok">tous verts sur les 17 PR (ARB parité 6 langues, termes bannis LSFin, accents FR, design lints, journey_os, wiki lint)</td></tr>
+</tbody>
+</table>
+
+<h2>5. Dette assumée — 12 beads (aucun P0)</h2>
+<p>Le tracker était désynchronisé : 7 beads décrivaient un travail déjà mergé. Fermés avec preuve mécanique (grep = 0 référence, PR citée). Restent 12, dont 2 P1 :</p>
+<ul>
+<li><strong>P1</strong> — suite de l'audit conseiller : 9 constats non-divorce (labels « pénalité/bonus » fiscaux, succession forfaitaire, gender_gap qui modélise le minimum LPP et non le plan réel, plafond 3a périmé, partage LPP sans intérêts ni date de valorisation…).</li>
+<li><strong>P1</strong> — couple : le write-back du conjoint manquant (l'invitation ménage n'alimente aucun calcul).</li>
+<li><strong>P2/P3</strong> — modèle marié trop grossier (facteur 0.92 sur un taux de base ajusté, sans barème réel ni commune — j'ai longtemps écrit ×0.80 par confusion avec <code>avsSurvivorFactor</code>, voir <code>family_service.dart:341</code>), backend <code>divorce_simulator.py</code> à taux plats, preuve VoiceOver des cartes de gate, bande d'incertitude (NEVER #9), clés <code>userProvidedFields</code> manquantes, sémantique de l'échelle 44, cible de redesign à localiser.</li>
+</ul>
+
+<h2>6. La leçon de méthode de cette session</h2>
+<div class="lesson">
+<strong>Un signal de grep est une hypothèse, jamais un constat.</strong> Elle a mordu trois fois aujourd'hui : le défaut <code>canton='ZH'</code> (faux positif — le canton était déjà gaté), les hubs invisibles au grep, les îles légitimes. Sans vérification, trois chantiers auraient consisté à réparer du sain pendant que les vrais trous restaient. Le correctif n'est pas « grep moins » : c'est <em>toujours</em> vérifier (a) les appels dynamiques qu'un grep littéral rate, (b) si l'élément doit vraiment satisfaire le critère.
+</div>
+
+<h2>7. Ordre décidé pour la suite</h2>
+<ol>
+<li><strong>insights</strong> (1/7 cliquables) — puis <strong>coach</strong> (2/16), puis <strong>retraite</strong> (8/21). Vérifier d'abord que la pauvreté est réelle et non un artefact.</li>
+<li><strong>Capacité de rendu du coach</strong> — 13/295 est le plus gros écart entre ce qui est construit et ce qui est atteignable. C'est le levier « voyage sous le même toit » le plus fort.</li>
+<li><strong>Les 3 îles réelles</strong> — dédoublonner rente-vs-capital, retirer l'orphelin.</li>
+<li><strong>Suite de l'audit conseiller</strong> (9 constats) sur mariage / concubinage / gender_gap.</li>
+</ol>
+
+<p class="cite">Instrument anti-dérive : <code>python3 tools/checks/generate_theme_maps.py --check</code>. Le % de routes produit cliquables se régénère depuis le code, ne peut pas être enjolivé, et rend visible en une commande toute dérive — y compris la mienne.</p>
+
+</div>
+</body>
+</html>

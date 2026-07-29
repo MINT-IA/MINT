@@ -29,7 +29,11 @@ from app.services.onboarding.minimal_profile_service import (
     _estimate_3a_tax_impact,
 )
 from app.services.onboarding.onboarding_models import MinimalProfileInput
-from app.constants.social_insurance import AVS_RENTE_MAX_MENSUELLE, AVS_RENTE_MIN_MENSUELLE
+from app.constants.social_insurance import (
+    AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_MIN_MENSUELLE,
+    rente_from_ramd,
+)
 
 
 # Banned terms that must NEVER appear in user-facing text
@@ -263,23 +267,44 @@ class TestAvsProjection:
         assert abs(partial - full * 0.5) < 1.0  # ~50% of full
 
     def test_avs_ramd_lauren_67k_full_years(self):
-        """Golden couple: Lauren (67k, full 44 years) uses RAMD interpolation.
+        """Golden couple: Lauren (67k, full 44 years) uses the official echelle 44.
 
-        RAMD = 67'000: ratio = (67000-14700)/(88200-14700) ≈ 0.7116
-        full_rente = 1260 + 0.7116 * 1260 ≈ 2156.6 CHF/mois (full years).
-        With 40 contribution years: 2156.6 * 40/44 ≈ 1960.5 CHF/mois.
-        This verifies RAMD interpolation works, NOT flat max.
+        La rente pleine délègue à la fonction canonique unique
+        ``social_insurance.rente_from_ramd`` (table officielle OFAS
+        318.117.011, alimentée par le registre avs.echelle44) — PLUS
+        d'interpolation naïve min->max locale (règle 4 / NEVER #3).
+        RAMD = 67'000 tombe entre les paliers « jusqu'à 66'528 » (2'197)
+        et « jusqu'à 68'040 » (2'218) :
+        ratio = (67000-66528)/(68040-66528) ≈ 0.3122
+        full_rente = 2197 + 0.3122 * (2218-2197) ≈ 2'203.56 CHF/mois.
         """
         full_rente = _estimate_avs_monthly(67_000.0, 44)
-        # RAMD interpolation: must be between min and max
+        # Délégation à la fonction canonique (anti-façade) — le service arrondit
+        # à 2 décimales, d'où la tolérance stricte plutôt qu'un == exact.
+        assert abs(full_rente - rente_from_ramd(67_000.0)) < 0.01
+        # Valeur officielle échelle 44 (~2'203.56), PAS le proxy naïf 2'124.7.
+        assert abs(full_rente - 2203.56) < 0.1, f"Expected ~2203.56, got {full_rente}"
+        assert full_rente > 2150.0, "Doit refléter l'échelle 44, pas l'ancien proxy naïf"
         assert AVS_RENTE_MIN_MENSUELLE < full_rente < AVS_RENTE_MAX_MENSUELLE
-        # Expected: ~2156.6 CHF for full years (linear interpolation)
-        assert abs(full_rente - 2156.6) < 5.0, f"Expected ~2156.6, got {full_rente}"
 
         # With 40 contribution years (~expat with partial gap)
         partial_rente = _estimate_avs_monthly(67_000.0, 40)
         expected_partial = full_rente * (40 / 44)
         assert abs(partial_rente - expected_partial) < 1.0
+
+    def test_avs_uses_official_echelle44_not_naive_interpolation(self):
+        """RAMD 52'920 (palier exact échelle 44) doit rendre 2'016, pas ~1'890.
+
+        Garde anti-régression : l'ancienne interpolation naïve min->max
+        rendait ~1'890 pour ce RAMD ; la table officielle OFAS (palier
+        « jusqu'à 52'920 ») rend exactement 2'016. Le service onboarding
+        doit servir la valeur canonique (règle 4 / NEVER #3).
+        """
+        rente = _estimate_avs_monthly(52_920.0, 44)
+        assert rente == 2016.0, f"Échelle 44 officielle attend 2016.0, obtenu {rente}"
+        assert rente == rente_from_ramd(52_920.0)
+        # L'ancien proxy naïf (~1'890) est explicitement rejeté.
+        assert rente > 1950.0, "Régression : interpolation naïve détectée"
 
 
 # ===========================================================================
@@ -453,3 +478,68 @@ def test_minimal_profile_archetype_signals_default_none():
         "None to False — that breaks the FATCA hard gate."
     )
     assert u.nationality is None
+
+
+class TestReferenceAgeCohort:
+    """Beads MINT_nosync-xx9 : l'âge de référence femmes dépend de la COHORTE.
+
+    L'ancien _get_retirement_age servait int(64.5) = 64 à TOUTES les femmes —
+    faux pour les cohortes 1963+ (65 depuis la réforme AVS 21). Miroir exact
+    du Dart avsReferenceAge (social_insurance.dart).
+    """
+
+    def test_woman_born_1990_gets_65(self):
+        from app.services.onboarding.minimal_profile_service import (
+            _get_retirement_age,
+        )
+
+        assert _get_retirement_age("female", 1990) == 65, (
+            "cohorte 1964+ : 65 ans — l'ancien scalaire 64 sous-estimait "
+            "l'âge de référence de la quasi-totalité des utilisatrices"
+        )
+
+    def test_transitional_cohorts_match_dart_convention(self):
+        from app.constants.social_insurance import avs_reference_age
+
+        # Convention années entières partagée avec le Dart : 1961/1962 -> 64,
+        # 1963 -> 65 (officiel : +3/+6/+9 mois).
+        assert avs_reference_age(1960, True) == 64
+        assert avs_reference_age(1961, True) == 64
+        assert avs_reference_age(1962, True) == 64
+        assert avs_reference_age(1963, True) == 65
+        assert avs_reference_age(1964, True) == 65
+        # Hommes : 65 toutes cohortes.
+        assert avs_reference_age(1961, False) == 65
+
+    def test_birth_date_end_of_1962_keeps_cohort_64(self, monkeypatch):
+        """Régression review #985 : née le 31.12.1962 (63 ans mi-2026) —
+        la dérivation par l'âge donnait cohorte 1963 -> 65 ; bd.year doit
+        primer. On espionne l'argument transmis à _get_retirement_age
+        (retirement_age n'est pas exposé dans le résultat)."""
+        import app.services.onboarding.minimal_profile_service as mps
+        from app.services.onboarding.onboarding_models import (
+            MinimalProfileInput,
+        )
+
+        captured = {}
+        orig = mps._get_retirement_age
+
+        def spy(gender, birth_year):
+            captured["birth_year"] = birth_year
+            return orig(gender, birth_year)
+
+        monkeypatch.setattr(mps, "_get_retirement_age", spy)
+        mps.compute_minimal_profile(
+            MinimalProfileInput(
+                age=40,  # volontairement faux : birth_date doit primer
+                gross_salary=90_000,
+                canton="VD",
+                birth_date="1962-12-31",
+                gender="female",
+            )
+        )
+        assert captured["birth_year"] == 1962, (
+            "bd.year doit primer sur la dérivation par l'âge — une femme "
+            "née le 31.12.1962 reste cohorte 1962 (64 ans, AVS 21)"
+        )
+        assert orig("female", 1962) == 64

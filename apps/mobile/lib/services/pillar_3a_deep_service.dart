@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -106,7 +107,8 @@ class StaggeredWithdrawalSimulator {
     final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
 
     // --- Retrait en bloc ---
-    final impotBloc = _calculerImpotRetrait(clampedAvoir, tauxBase);
+    final impotBloc =
+        _calculerImpotRetrait(clampedAvoir, tauxBase, canton: canton);
 
     // --- Retrait echelonne ---
     // Fenêtre légale OPP3 art. 3 al. 1 : 5 ans avant → 5 ans après âge
@@ -121,7 +123,8 @@ class StaggeredWithdrawalSimulator {
     final List<WithdrawalYearPlan> plan = [];
 
     for (int i = 0; i < comptesEffectifs; i++) {
-      final impot = _calculerImpotRetrait(montantParRetrait, tauxBase);
+      final impot =
+          _calculerImpotRetrait(montantParRetrait, tauxBase, canton: canton);
       totalImpotEchelonne += impot;
 
       plan.add(WithdrawalYearPlan(
@@ -153,7 +156,7 @@ class StaggeredWithdrawalSimulator {
       final montant = clampedAvoir / n;
       double impotN = 0;
       for (int j = 0; j < n; j++) {
-        impotN += _calculerImpotRetrait(montant, tauxBase);
+        impotN += _calculerImpotRetrait(montant, tauxBase, canton: canton);
       }
       final ecoN = impotBloc - impotN;
       if (ecoN > meilleurEconomie) {
@@ -187,36 +190,11 @@ class StaggeredWithdrawalSimulator {
   /// Impot sur le retrait en capital (progressif marginal).
   /// Chaque tranche du montant est taxee a un taux different.
   /// Identique au backend (multi_account_service.py).
-  static double _calculerImpotRetrait(double montant, double tauxBase) {
-    if (montant <= 0) return 0;
-    // Brackets marginaux : [seuil_bas, seuil_haut, multiplicateur]
-    const brackets = [
-      [0, 100000, 1.0], // 0-100k : taux de base
-      [100000, 200000, 1.15], // 100k-200k : +15%
-      [200000, 500000, 1.30], // 200k-500k : +30%
-      [500000, 1000000, 1.50], // 500k-1M : +50%
-    ];
-    const lastMultiplier = 1.70; // >1M : +70%
-
-    double impot = 0;
-    double remaining = montant;
-
-    for (final bracket in brackets) {
-      final low = bracket[0];
-      final high = bracket[1];
-      final mult = bracket[2];
-      final trancheSize = high - low;
-      final taxable = remaining.clamp(0.0, trancheSize);
-      impot += taxable * tauxBase * mult;
-      remaining -= taxable;
-      if (remaining <= 0) break;
-    }
-    // Remaining above 1M
-    if (remaining > 0) {
-      impot += remaining * tauxBase * lastMultiplier;
-    }
-    return impot;
-  }
+  /// Façade v2 -2i2 (IFD art. 38 + interpolation ESTV) ; tauxBase ignoré.
+  static double _calculerImpotRetrait(double montant, double tauxBase,
+          {String canton = 'ZH'}) =>
+      RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: montant, canton: canton);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

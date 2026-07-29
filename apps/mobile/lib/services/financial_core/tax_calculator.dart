@@ -1,4 +1,5 @@
 import 'dart:math' show max;
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/fiscal_service.dart';
@@ -273,19 +274,18 @@ class RetirementTaxCalculator {
     bool isMarried = false,
   }) {
     if (capitalBrut <= 0) return 0;
-    // Wave 7 edge-case audit C1 (2026-04-18) : normalise + valide le
-    // canton via resolveCanton() plutôt que le direct ?? 'ZH'. En debug
-    // mode, un canton invalide/vide affiche un warning sur stdout pour
-    // faire remonter le caller. La valeur de repli reste ZH en prod
-    // pour ne pas casser les écrans legacy, mais la provenance est
-    // traçable si le caller consomme ResolvedCanton directement.
+    // Beads MINT_nosync-2i2 PR B : délégation au modèle v2 (IFD art. 38
+    // exacte + interpolation sur 130 points ESTV officiels — l'ancien
+    // « taux de base x multiplicateurs par tranche » approximait à ±40%
+    // sur certains cantons). resolveCanton conservé (Wave 7 C1 : canton
+    // invalide -> warning debug + repli ZH traçable). Le point de bascule
+    // est ICI : les 11 consommateurs suivent automatiquement.
     final cantonCode = resolveCanton(canton).code;
-    final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    // Audit 2026-04-18 Q5 : coefficient marié par CANTON, plus un scalaire
-    // uniforme 0.85. ZH/ZG (splitting intégral) → ~0.70 ; VS → 0.81 ; etc.
-    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
-    final effectiveRate = baseRate * discount;
-    return progressiveTax(capitalBrut, effectiveRate);
+    return estimateCapitalWithdrawalTaxV2(
+      capitalBrut,
+      cantonCode,
+      isMarried: isMarried,
+    );
   }
 
   /// Progressive tax on a given amount (LIFD art. 38).
@@ -317,52 +317,6 @@ class RetirementTaxCalculator {
     return totalTax;
   }
 
-  /// Effective tax rates by canton (single, 100k income, chef-lieu).
-  ///
-  /// Source: AFC — Charge fiscale en Suisse 2024.
-  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
-  static const Map<String, double> _effectiveRates100k = {
-    'ZG': 0.0823,
-    'NW': 0.0891,
-    'OW': 0.0934,
-    'AI': 0.0956,
-    'AR': 0.1012,
-    'SZ': 0.1034,
-    'UR': 0.1067,
-    'LU': 0.1089,
-    'GL': 0.1102,
-    'TG': 0.1145,
-    'SH': 0.1167,
-    'AG': 0.1189,
-    'GR': 0.1203,
-    'BL': 0.1256,
-    'SG': 0.1278,
-    'ZH': 0.1290,
-    'FR': 0.1312,
-    'SO': 0.1334,
-    'TI': 0.1356,
-    'BE': 0.1389,
-    'NE': 0.1423,
-    'VS': 0.1456,
-    'VD': 0.1489,
-    'JU': 0.1512,
-    'GE': 0.1545,
-    'BS': 0.1578,
-  };
-
-  /// Income level adjustment factors (relative to 100k baseline).
-  ///
-  /// Source: AFC — Charge fiscale en Suisse 2024.
-  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
-  static const Map<int, double> _incomeAdjustment = {
-    50000: 0.75,
-    80000: 0.90,
-    100000: 1.00,
-    150000: 1.10,
-    200000: 1.18,
-    300000: 1.25,
-    500000: 1.32,
-  };
 
   /// Family situation adjustment (splitting + deductions).
   ///
@@ -398,61 +352,36 @@ class RetirementTaxCalculator {
       return actualRate;
     }
 
-    // Wave 7 C1 — resolve via helper so invalid codes surface in debug.
+    // Beads -8p4 (PR B de -5up) : pente locale du modèle v2 — miroir de
+    // couple_optimizer.py backend (PR #1005). Remplace « effectif(100k)
+    // x facteur revenu x 1.3 » ; clamp [0.0, 0.50] (le plancher 5%
+    // inventait une économie sous le seuil d'imposition). NB : la
+    // marginale bas revenu hérite du segment linéaire documenté du v2.
     final cantonCode = resolveCanton(canton).code;
-
-    // Base rate from real cantonal data (fallback = Swiss average ~13%)
-    final baseRate = _effectiveRates100k[cantonCode] ?? 0.13;
-
-    // Income adjustment via linear interpolation
-    final incomeAdj = _interpolateIncomeAdjustment(revenuBrutAnnuel);
-
-    // Family adjustment
-    String familyKey;
-    if (!isMarried) {
-      familyKey = 'celibataire';
-    } else if (children >= 3) {
-      familyKey = 'marie_3_enfants';
-    } else if (children == 2) {
-      familyKey = 'marie_2_enfants';
-    } else if (children == 1) {
-      familyKey = 'marie_1_enfant';
-    } else {
-      familyKey = 'marie_sans_enfant';
-    }
-    final familyAdj = _familyAdjustment[familyKey] ?? 1.0;
-
-    // Marginal rate ~ effective rate × 1.3 (marginal > effective for
-    // progressive taxes). This factor converts the effective rate into
-    // a marginal rate approximation suitable for deduction impact.
-    final effectiveRate = baseRate * incomeAdj * familyAdj;
-    final marginalRate = effectiveRate * 1.3;
-
-    return marginalRate.clamp(0.05, 0.45);
+    if (revenuBrutAnnuel <= 0) return 0.0;
+    final delta = revenuBrutAnnuel < 1000.0 ? revenuBrutAnnuel : 1000.0;
+    final cf = _childFactor(isMarried: isMarried, children: children);
+    final hi = estimateIncomeTaxV2(revenuBrutAnnuel, cantonCode,
+        isMarried: isMarried);
+    final lo = estimateIncomeTaxV2(revenuBrutAnnuel - delta, cantonCode,
+        isMarried: isMarried);
+    final marginalRate = cf * (hi - lo) / delta;
+    return marginalRate.clamp(0.0, 0.50);
   }
 
-  /// Linear interpolation between income adjustment brackets.
-  ///
-  /// Clamps to boundary values for incomes below 50k or above 500k.
-  static double _interpolateIncomeAdjustment(double income) {
-    final sortedKeys = _incomeAdjustment.keys.toList()..sort();
-
-    if (income <= sortedKeys.first) return _incomeAdjustment[sortedKeys.first]!;
-    if (income >= sortedKeys.last) return _incomeAdjustment[sortedKeys.last]!;
-
-    // Find the two bracket bounds and interpolate
-    for (int i = 0; i < sortedKeys.length - 1; i++) {
-      final lower = sortedKeys[i];
-      final upper = sortedKeys[i + 1];
-      if (income >= lower && income <= upper) {
-        final ratio = (income - lower) / (upper - lower);
-        final lowerAdj = _incomeAdjustment[lower]!;
-        final upperAdj = _incomeAdjustment[upper]!;
-        return lowerAdj + (upperAdj - lowerAdj) * ratio;
-      }
-    }
-    return 1.0; // fallback
+  /// Réduction supplémentaire enfants RELATIVE à marié sans enfant —
+  /// ratios de la grille _familyAdjustment (convention backend PR #997 /
+  /// #1005). Célibataire avec enfants : inchangé (limite dite).
+  static double _childFactor({required bool isMarried, required int children}) {
+    if (!isMarried || children <= 0) return 1.0;
+    final key = children >= 3
+        ? 'marie_3_enfants'
+        : children == 2
+            ? 'marie_2_enfants'
+            : 'marie_1_enfant';
+    return _familyAdjustment[key]! / _familyAdjustment['marie_sans_enfant']!;
   }
+
 
   /// Estimate tax saving from a deduction using numerical integration
   /// over canton-aware marginal rates.
@@ -469,27 +398,25 @@ class RetirementTaxCalculator {
     int steps = 10,
   }) {
     if (deduction <= 0) return 0.0;
-    // CHAOS-NaN: Guard against division by zero when steps=0.
     if (steps <= 0) return 0.0;
-
-    final double stepSize = deduction / steps;
-    double currentIncome = income;
-    double totallySaved = 0.0;
-
-    for (int i = 0; i < steps; i++) {
-      final double midPoint = currentIncome - (stepSize / 2);
-      final double rate = estimateMarginalRate(
-        midPoint,
-        canton,
-        isMarried: isMarried,
-        children: children,
-        actualRate: actualMarginalRate,
-      );
-      totallySaved += stepSize * rate;
-      currentIncome -= stepSize;
+    // Scan de déclaration : taux réel -> économie flat (comportement
+    // conservé — la source certificat prime sur le modèle).
+    if (actualMarginalRate != null &&
+        actualMarginalRate > 0 &&
+        actualMarginalRate < 0.5) {
+      return deduction * actualMarginalRate;
     }
-
-    return totallySaved;
+    // Beads -8p4 : différence EXACTE du modèle v2 (l'intégration en
+    // 10 pas approximait l'aire sous la marginale que le modèle calcule
+    // directement). `steps` conservé pour compat de signature (ignoré).
+    final cantonCode = resolveCanton(canton).code;
+    if (income <= 0) return 0.0;
+    final cf = _childFactor(isMarried: isMarried, children: children);
+    final saving = estimateIncomeTaxV2(income, cantonCode,
+            isMarried: isMarried) -
+        estimateIncomeTaxV2(max(0.0, income - deduction), cantonCode,
+            isMarried: isMarried);
+    return max(0.0, cf * saving);
   }
 
   /// Estimate 3a tax saving from annual contribution (OPP3, LIFD art. 33).
@@ -617,12 +544,17 @@ class RetirementTaxCalculator {
     int nombreEnfants = 0,
   }) {
     if (revenuAnnuelImposable <= 0) return 0;
-    final result = FiscalService.estimateTax(
-      revenuBrut: revenuAnnuelImposable,
-      canton: canton,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-    );
-    return ((result['chargeTotale'] as double?) ?? 0) / 12;
+    // Beads -8p4 review #1006 : miroir EXACT du backend #1005
+    // (estimate_income_tax v2 / 12, enfants en ratio) — l'ancienne
+    // délégation à FiscalService.estimateTax laissait ce chemin sur un
+    // autre modèle que la marginale/économie v2 du même fichier.
+    final cantonCode = resolveCanton(canton).code;
+    final isMarried = etatCivil == 'marie';
+    final cf = _childFactor(
+        isMarried: isMarried, children: nombreEnfants);
+    return cf *
+        estimateIncomeTaxV2(revenuAnnuelImposable, cantonCode,
+            isMarried: isMarried) /
+        12;
   }
 }

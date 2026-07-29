@@ -64,7 +64,7 @@ void main() {
 
     test('1a. AVS Julien — individual monthly rente', () {
       // Julien: born 1977, age 49, contributing since 20 → 29 years so far
-      // Salary 122'207/an > 88'200 → max RAMD → should get near-max rente
+      // Salary 122'207/an > 90'720 → max RAMD → should get near-max rente
       // At 65: 29 current + 16 future = 45 → capped at 44 → full contribution
       final rente = AvsCalculator.computeMonthlyRente(
         currentAge: 49,
@@ -400,8 +400,9 @@ void main() {
           reason: 'VS should have higher marginal rate than ZG');
       expect(rateVS, greaterThan(0.15),
           reason: 'VS marginal rate at 122k should be > 15%');
-      expect(rateZG, lessThan(0.20),
-          reason: 'ZG marginal rate at 122k should be < 20%');
+      // beads -8p4 v2 : ZG 122k ≈ 0.210 — reste nettement sous VS (0.399)
+      expect(rateZG, lessThan(0.25),
+          reason: 'ZG marginal rate at 122k should stay well below VS');
     });
 
     test('3d. NetIncomeBreakdown — Julien', () {
@@ -880,11 +881,15 @@ void main() {
       expect(pilier3aPlafondAvecLpp, equals(7258.0));
       expect(pilier3aPlafondSansLpp, equals(36288.0));
       expect(tauxImpotRetraitCapital['VS'], equals(0.060));
-      // Audit 2026-04-18 Q5 : remplacement du scalaire uniforme par une
-      // map cantonale. VS = 0.81, fallback 0.82, ZG le plus bas à 0.70.
-      expect(marriedCapitalTaxDiscountFor('VS'), equals(0.81));
-      expect(marriedCapitalTaxDiscountFor('ZG'), equals(0.70));
-      expect(marriedCapitalTaxDiscountFor('AG'), equals(0.82)); // fallback
+      // Impôt capital MARIÉ : le rabais forfaitaire par canton (inventé) a
+      // été supprimé (triage AnnAssign #1095) ; la part cantonale mariée
+      // interpole l'étalon ESTV cantonalCapitalTaxMarriedChf. VS réduit
+      // réellement -> marié < célibataire (fait ESTV, pas un coefficient plat).
+      final vsSingle = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: 500000, canton: 'VS', isMarried: false);
+      final vsMarried = RetirementTaxCalculator.capitalWithdrawalTax(
+          capitalBrut: 500000, canton: 'VS', isMarried: true);
+      expect(vsMarried, lessThan(vsSingle));
     });
 
     // ── TEST 9: AVS reduction from gaps ────────────────────────────────────

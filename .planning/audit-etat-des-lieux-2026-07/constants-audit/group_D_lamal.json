@@ -1,0 +1,35 @@
+[
+ {
+  "key": "lamal.copay_rate",
+  "value": 0.1,
+  "unit": "ratio",
+  "source_title": "LAMal art. 64",
+  "source_url": "https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lamal.copay_cap_adult",
+  "value": 700.0,
+  "unit": "CHF",
+  "source_title": "LAMal art. 64 al. 2",
+  "source_url": "https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ },
+ {
+  "key": "lamal.copay_cap_child",
+  "value": 350.0,
+  "unit": "CHF",
+  "source_title": "LAMal art. 64 al. 4",
+  "source_url": "https://www.bag.admin.ch/bag/fr/home/versicherungen/krankenversicherung.html",
+  "valid_from": "",
+  "valid_until": "",
+  "reviewed_at": "2026-06-26",
+  "category": null
+ }
+]

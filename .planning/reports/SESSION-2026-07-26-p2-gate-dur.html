@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SESSION 2026-07-26 — P2 gate-dur (10/10 simulateurs)</title>
+<style>
+  :root { --bg:#faf8f4; --fg:#1a1a1a; --muted:#666; --accent:#003b2f; --ok:#1a7f52; --warn:#b45309; --line:#e5e1d8; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--fg); line-height:1.55; }
+  .wrap { max-width:960px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+  h1 { font-size:1.9rem; margin:0 0 .25rem; }
+  h2 { font-size:1.3rem; margin:2.5rem 0 .75rem; border-bottom:2px solid var(--accent); padding-bottom:.3rem; }
+  .sub { color:var(--muted); margin:0 0 1.5rem; }
+  .banner { background:var(--accent); color:#fff; padding:1rem 1.25rem; border-radius:12px; font-weight:600; }
+  table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.92rem; }
+  th,td { text-align:left; padding:.55rem .6rem; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { background:#f0ece3; font-weight:700; }
+  code { background:#f0ece3; padding:.1rem .35rem; border-radius:4px; font-size:.85em; }
+  .ok { color:var(--ok); font-weight:700; }
+  .warn { color:var(--warn); font-weight:700; }
+  ul { margin:.5rem 0 1rem; padding-left:1.25rem; }
+  li { margin:.3rem 0; }
+  .cite { font-size:.85rem; color:var(--muted); }
+  .ev { background:#fff; border:1px solid var(--line); border-left:4px solid var(--accent); border-radius:8px; padding:.75rem 1rem; margin:.6rem 0; font-size:.92rem; }
+  .ev b { color:var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>P2 « gate dur » — 10/10 simulateurs</h1>
+<p class="sub">Session 2026-07-26 · rapport de preuve · MINT.nosync · branche cible <code>dev</code></p>
+
+<div class="banner">
+Directive (Julien) : un simulateur ne doit JAMAIS présenter un chiffre « ta situation » calculé sur des défauts fabriqués. Fait requis manquant → résultat GATÉ (aucun nombre inventé). Résultat : les 10 simulateurs de vie sont gatés + mergés, chacun validé par revue adversariale Codex jusqu'à PASS + CI verte, et 4 vérifiés end-to-end sur simulateur iOS.
+</div>
+
+<h2>1. État — 10/10 gatés + mergés</h2>
+<table>
+<thead><tr><th>#</th><th>Simulateur</th><th>PR</th><th>SHA squash</th><th>Codex rounds</th><th>CI</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>donation</td><td>#1032</td><td><code>fcfab3a96</code></td><td>1</td><td class="ok">verte</td></tr>
+<tr><td>2</td><td>first_job</td><td>#1033</td><td><code>e38c149d</code></td><td>1</td><td class="ok">verte</td></tr>
+<tr><td>3</td><td>naissance</td><td>#1034</td><td><code>0b412e8a8</code></td><td>6</td><td class="ok">verte</td></tr>
+<tr><td>4</td><td>mariage</td><td>#1035</td><td><code>01e93e484</code></td><td>1</td><td class="ok">verte</td></tr>
+<tr><td>5</td><td>deces_proche</td><td>#1036</td><td><code>0b7b07085</code></td><td>1</td><td class="ok">verte</td></tr>
+<tr><td>6</td><td>demenagement_cantonal</td><td>#1037</td><td><code>06dd1e77a</code></td><td>1</td><td class="ok">verte</td></tr>
+<tr><td>7</td><td>expat</td><td>#1038</td><td><code>9c8e9d6d3</code></td><td>2</td><td class="ok">verte</td></tr>
+<tr><td>8</td><td><b>divorce</b> (dual-party)</td><td>#1039</td><td><code>d3bd1a8ad</code></td><td><b>8</b> (10 edges)</td><td class="ok">verte</td></tr>
+<tr><td>9</td><td><b>concubinage</b> (3 tabs)</td><td>#1040</td><td><code>ed37486b5</code></td><td>6</td><td class="ok">verte</td></tr>
+<tr><td>10</td><td><b>gender_gap</b></td><td>#1041</td><td><code>e84c32406</code></td><td>2</td><td class="ok">verte</td></tr>
+</tbody>
+</table>
+<p class="cite">Primitive commune : <code>lib/widgets/situation/situation_gate.dart</code> (SituationFact / SituationGate / SituationGateCard). ADR : <code>.planning/decisions/2026-07-25-p2-simulator-result-gating.md</code>.</p>
+
+<h2>2. Preuve device — iPhone 16e (iOS 26.2), état anonyme (aucun profil)</h2>
+<p>Build DEBUG (hook <code>!kReleaseMode</code>) sans seed d'archétype → état vide réel. Parcours : « Continuer sans compte » puis deeplink <code>mintapp:///&lt;route&gt;</code>. Captures dans les artefacts de session (envoyées à Julien). Chaque défaut fabriqué s'affiche « <b>Non renseigné</b> » et chaque résultat rend une carte de gate, jamais un chiffre inventé.</p>
+
+<div class="ev"><b>divorce</b> — REVENUS/PATRIMOINE « Non renseigné » (défauts 90000/200000 supprimés). Tap « Simuler » sur formulaire vide → héros « <b>Donnée requise</b> » (« avoir au mariage requis… le montant du partage ne peut pas être établi »), PAS de transfert LPP fabriqué (~CHF 50'000 auparavant).</div>
+<div class="ev"><b>gender_gap</b> — revenu/âge/LPP/années/<b>canton tous « Non renseigné »</b> (canton ≠ 'ZH') ; rente gatée « Complète ta situation pour estimer ta rente — 0/3 complété ».</div>
+<div class="ev"><b>concubinage</b> — Revenu 1/2 + Patrimoine « Non renseigné » ; comparaison fiscale gatée « 0/3 complété » avec le « pourquoi » de chaque fait manquant (« Sans le revenu de ton partenaire, l'écart d'impôt du couple ne peut pas être estimé »).</div>
+<div class="ev"><b>naissance</b> — congé gaté « Complète ta situation pour un calcul fondé sur tes données — 0/2 » (salaire mensuel brut, parent concerné) ; hero éducatif LAPG conservé.</div>
+
+<p class="cite">4 types d'écran couverts : mono-gate (naissance), dual-party (divorce, concubinage), profil-only (gender_gap). ILLOG-02 : les surfaces premium collapse le pont AX iOS (describe-all=1 élément) → preuve par capture d'écran. Les 6 autres écrans partagent la même primitive (donation + first_job device-prouvés en sessions antérieures).</p>
+
+<h2>3. Classes de fabrication découvertes (front-loadées entre écrans)</h2>
+<p>La revue adversariale Codex a cristallisé ~9 classes, front-loadées dans les specs suivantes (divorce 8 rounds → gender_gap 2 rounds) :</p>
+<ul>
+<li><b>Défauts de champ</b> (90k revenu, 200k fortune) → nullable + « Non renseigné » + gate par sortie.</li>
+<li><b>Widgets secondaires à taux codé en dur</b> (PrixDuSilence fortune×24 %, film 1500/enfant) → retirer / consommer la vraie valeur service.</li>
+<li><b>Constantes service codées en dur</b> (canton='ZH') → threader le canton réel + gate.</li>
+<li><b>Bypass chaîne/enum</b> (canton ''/'XX'/fromJson ?? 'ZH') → clé fournie ∧ code valide (26).</li>
+<li><b>Recompute divergent</b> (film recalculait le transfert LPP en total-balance) → consommer la valeur service.</li>
+<li><b>Énoncés présumant une circonstance non confirmée</b> (direction, garde, testament) → conditionnel.</li>
+<li><b>Agrégat attribué à l'individu</b> (delta fiscal C1+C2 = « tu perds ») → « le ménage ».</li>
+<li><b>Préconditions légales domaine</b> (concubin héritier, éligibilité survivant art. 19, réserve héréditaire) → cadre conditionnel + ordre légal.</li>
+<li><b>Hypothèses de modèle divulguées</b> (taux effectif 0.65, rendement 1.5 %, durée 20 ans) → PAS gate-dur : divulguer + bead fiscal.</li>
+</ul>
+
+<h2>4. Reporté (beads déposés — hors périmètre gate-dur)</h2>
+<ul>
+<li><span class="warn">P1</span> — <code>mariage_screen</code> (#4 mergé) : même fabrication max-AVS que concubinage + bug latent <code>isMarried:!isConcubin</code> du widget partagé.</li>
+<li><span class="warn">P1</span> — audit <code>canton='ZH'</code> défaut local dans <code>first_job</code> (#2) + <code>deces_proche</code> (#5).</li>
+<li><span class="warn">P1</span> — divorce : asymétrie du modèle fiscal (marié = marginal plein vs individus × 0.65) → validation fiscale.</li>
+<li>P2 — gender_gap : bande de confiance + hypothèses de projection configurables (NEVER #9).</li>
+<li>P3 — divorce : picker canton on-screen pour anon (zéro-impasse).</li>
+<li>PrixDuSilenceWidget orphelin (retiré de divorce) → home = concubinage ou suppression.</li>
+</ul>
+
+<h2>5. 0-TRUST — ce qui est prouvé vs pas</h2>
+<table>
+<thead><tr><th>Affirmation</th><th>Preuve</th></tr></thead>
+<tbody>
+<tr><td>10/10 mergés</td><td class="ok">PR + SHA squash + <code>gh pr checks</code> verte cités (§1)</td></tr>
+<tr><td>gate-dur fonctionne (rendu device)</td><td class="ok">4 captures device iPhone 16e, état anon vide (§2)</td></tr>
+<tr><td>tests mutation-proof</td><td class="ok">≥23 tests/écran, assertion « aucun CHF à l'ouverture » ; full <code>test/screens/</code> shard vert (1309)</td></tr>
+<tr><td>6 autres écrans device-vérifiés cette session</td><td class="warn">NON — même primitive, prouvée sur 4 écrans divers ; donation+first_job prouvés antérieurement</td></tr>
+<tr><td>parcours saisie-complète → résultat réel</td><td class="warn">NON — preuve = état vide gaté + « Donnée requise » ; le chemin saisie-complète n'a pas été tapé cette session</td></tr>
+</tbody>
+</table>
+
+<p class="cite">Généré durant la boucle autonome /loop · MINT.nosync · 2026-07-26.</p>
+
+</div>
+</body>
+</html>

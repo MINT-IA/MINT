@@ -249,44 +249,56 @@ class TestDebtRiskScore:
 
 
 class TestMarginalTaxRate:
-    """Tests for marginal tax rate (IFD + cantonal estimation)."""
+    """Taux marginal — assertions derivees de l'ETALON, jamais de bandes ecrites a la main.
 
-    def test_zh_100k_single(self):
-        """ZH medium tax: IFD marginal 6.60% + ZH 30% = ~36.6% -> clamped."""
-        rate = calculate_marginal_tax_rate("ZH", 100000, "single")
-        assert 0.28 <= rate <= 0.40
+    Ces tests validaient auparavant le bug qu'ils etaient censes couvrir.
+    Leurs docstrings le documentaient meme : « IFD marginal 6.60% + ZH 30%
+    = ~36.6% ». `test_zh_100k_single` acceptait 0.28-0.40 pour une verite a
+    0.254, et `test_low_income_floor` exigeait un plancher de 10 % sur un
+    revenu de CHF 20'000 — c'est-a-dire qu'il EXIGEAIT le plancher invente.
 
-    def test_ge_100k_single(self):
-        """GE high tax: IFD marginal 6.60% + GE 41% = ~47.6% -> clamped 0.45."""
-        rate = calculate_marginal_tax_rate("GE", 100000, "single")
-        assert 0.35 <= rate <= 0.45
+    Une bande ecrite a la main ne prouve rien : elle encode l'attente de son
+    auteur. Les assertions comparent desormais a
+    ``fiscal.cantonal_comparator.estimate_marginal_rate``, qui est la pente
+    du modele calibre sur l'API officielle ESTV.
+    """
 
-    def test_lu_100k_single(self):
-        """LU low tax: IFD marginal 6.60% + LU 25% = ~31.6%."""
-        rate = calculate_marginal_tax_rate("LU", 100000, "single")
-        assert 0.20 <= rate <= 0.35
+    def test_delegue_a_l_etalon_sur_26_cantons(self):
+        """Aucune surface publique ne doit devier de la pente canonique."""
+        from app.services.fiscal.cantonal_comparator import (
+            CANTONAL_COMMUNAL_TAX_CHF,
+            estimate_marginal_rate,
+        )
 
-    def test_ge_higher_than_lu(self):
-        """GE should always be higher than LU for same income."""
-        rate_ge = calculate_marginal_tax_rate("GE", 100000)
-        rate_lu = calculate_marginal_tax_rate("LU", 100000)
-        assert rate_ge > rate_lu
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
+            for revenu in (40000, 80000, 100000, 150000):
+                attendu = estimate_marginal_rate(revenu, canton)
+                obtenu = calculate_marginal_tax_rate(canton, revenu, "single")
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
 
-    def test_canton_actually_matters(self):
-        """Le canton ne doit PLUS être ignoré."""
-        rate_zh = calculate_marginal_tax_rate("ZH", 100000)
-        rate_ge = calculate_marginal_tax_rate("GE", 100000)
-        assert rate_zh != rate_ge
+    def test_pas_de_plancher_invente_sur_un_revenu_peu_impose(self):
+        """Un revenu de 20'000 a Zoug n'a PAS un taux marginal de 10 %.
 
-    def test_low_income_floor(self):
-        """Very low income should still return at least 0.10."""
-        rate = calculate_marginal_tax_rate("ZG", 20000, "single")
-        assert rate >= 0.10
+        L'ancien clamp [0.10, 0.45] inventait un taux pour des revenus
+        quasi non imposes et masquait les cantons les plus lourds.
+        """
+        assert calculate_marginal_tax_rate("ZG", 20000, "single") < 0.10
 
-    def test_very_high_income_ceiling(self):
-        """Very high income should be clamped at 0.45."""
-        rate = calculate_marginal_tax_rate("GE", 1000000, "single")
-        assert rate <= 0.45
+    def test_ordre_cantonal_conserve(self):
+        """Geneve reste au-dessus de Lucerne a revenu egal."""
+        assert calculate_marginal_tax_rate("GE", 100000) > calculate_marginal_tax_rate(
+            "LU", 100000
+        )
+
+    def test_le_canton_change_le_resultat(self):
+        assert calculate_marginal_tax_rate("ZH", 100000) != calculate_marginal_tax_rate(
+            "GE", 100000
+        )
+
+    def test_revenu_nul_ne_produit_aucun_taux(self):
+        assert calculate_marginal_tax_rate("ZH", 0, "single") == 0.0
 
     def test_married_lower_than_single(self):
         """Married bracket starts higher, so marginal rate should differ."""
@@ -299,6 +311,51 @@ class TestMarginalTaxRate:
         """Unknown canton should use default multiplier, not crash."""
         rate = calculate_marginal_tax_rate("XX", 100000, "single")
         assert 0.10 <= rate <= 0.45
+
+
+class TestMinimalProfileDelegueALEtalon:
+    """minimal_profile_service ne doit porter aucune table de taux marginaux.
+
+    `effective_rates_100k` (26 valeurs x ajustement de revenu x1.3, clamp
+    [0.05, 0.45]) donnait 0.1290 pour ZH la ou l'etalon donne 0.1323 a
+    100k, et son clamp inventait un plancher de 5 % pour des revenus quasi
+    non imposes. Memes exigences que TestMarginalTaxRate : la seule source
+    du taux marginal est ``fiscal.cantonal_comparator``.
+    """
+
+    def test_taux_marginal_delegue_a_l_etalon_sur_26_cantons(self):
+        from app.services.fiscal.cantonal_comparator import (
+            CANTONAL_COMMUNAL_TAX_CHF,
+            estimate_marginal_rate,
+        )
+        from app.services.onboarding.minimal_profile_service import (
+            _compute_marginal_tax_rate,
+        )
+
+        for canton in CANTONAL_COMMUNAL_TAX_CHF:
+            for revenu in (40000, 80000, 100000, 150000):
+                attendu = estimate_marginal_rate(revenu, canton)
+                obtenu = _compute_marginal_tax_rate(revenu, canton)
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
+
+    def test_economie_3a_est_une_difference_d_impot(self):
+        """L'integration en 10 pas approximait ce que l'etalon calcule exactement."""
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+        from app.services.onboarding.minimal_profile_service import (
+            _estimate_tax_saving,
+        )
+
+        for canton in ("ZH", "GE", "VD", "ZG"):
+            for revenu in (80000, 100000):
+                attendu = estimate_tax_saving(revenu, 7258, canton)
+                obtenu = _estimate_tax_saving(
+                    income=revenu, deduction=7258, canton=canton
+                )
+                assert obtenu == pytest.approx(attendu, abs=1e-9), (
+                    f"{canton} {revenu} : {obtenu} != etalon {attendu}"
+                )
 
 
 class TestRenteVsCapital:
@@ -318,8 +375,8 @@ class TestRenteVsCapital:
         r = compute_rente_vs_capital(200_000, 300_000, 0.05, 65, "ZH", "single")
         assert r["rente_annuelle"] == pytest.approx(28_600, abs=1)
         assert r["rente_mensuelle"] == pytest.approx(2_383.33, abs=1)
-        assert r["impot_retrait"] == pytest.approx(39_325, abs=1)
-        assert r["capital_net"] == pytest.approx(460_675, abs=1)
+        assert r["impot_retrait"] == pytest.approx(35_067.69, abs=1)  # == point ESTV ZH 500k (v2 -2i2)
+        assert r["capital_net"] == pytest.approx(464_932.31, abs=1)
         # Prudent 1%: capital runs out before 85
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
         # Central 3%: surplus at 85
@@ -330,14 +387,15 @@ class TestRenteVsCapital:
     def test_sophie_vd_married_250k(self):
         """Sophie: 64 ans, VD, married, 150k oblig + 100k surob, taux surob 4.5%.
 
-        VD base 0.08, married 0.08*0.85 = 0.068.
-        Progressive: 100k*0.068*1.0 + 100k*0.068*1.15 + 50k*0.068*1.30
-        = 6800 + 7820 + 4420 = 19040
+        Étalon capital MARIÉ (triage AnnAssign #1095) : les DEUX parts sont
+        l'ESTV marié. Cantonal VD 250k = 11360 (grille) ; IFD art. 38 al. 2
+        marié 250k = 3676 (vs 3901 célibataire) -> impôt marié = 11360 + 3676
+        = 15036 (l'ancien rabais 0.78 + IFD célibataire donnait 14399/15261).
         """
         r = compute_rente_vs_capital(150_000, 100_000, 0.045, 64, "VD", "married")
         assert r["rente_annuelle"] == pytest.approx(14_700, abs=1)
-        assert r["impot_retrait"] == pytest.approx(19_040, abs=1)
-        assert r["capital_net"] == pytest.approx(230_960, abs=1)
+        assert r["impot_retrait"] == pytest.approx(15_036.0, abs=1)  # ESTV : cantonal + IFD marié
+        assert r["capital_net"] == pytest.approx(234_964.0, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
         assert r["scenarios"]["central"]["break_even_age"] is not None
 
@@ -349,20 +407,23 @@ class TestRenteVsCapital:
         """
         r = compute_rente_vs_capital(400_000, 600_000, 0.055, 65, "GE", "single")
         assert r["rente_annuelle"] == pytest.approx(60_200, abs=1)
-        assert r["impot_retrait"] == pytest.approx(101_625, abs=1)
-        assert r["capital_net"] == pytest.approx(898_375, abs=1)
+        assert r["impot_retrait"] == pytest.approx(81_069.29, abs=1)  # == point ESTV GE 1M (v2)
+        assert r["capital_net"] == pytest.approx(918_930.71, abs=1)
         assert r["scenarios"]["optimiste"]["capital_85"] > 300_000
 
     def test_anna_bs_married_100k(self):
         """Anna: 64 ans, BS, married, 80k oblig + 20k surob, taux surob 4.0%.
 
-        BS base 0.075, married 0.075*0.85 = 0.06375.
-        Progressive: 100k*0.06375*1.0 = 6375
+        Étalon capital MARIÉ (triage AnnAssign #1095) : BS n'a AUCUNE
+        réduction mariée CANTONALE d'après l'ESTV (BS 100k marié = 4750 =
+        célibataire), mais l'IFD art. 38 al. 2 marié réduit (363 vs 537) ->
+        impôt marié = 4750 + 363 = 5113 (le fédéral porte la réduction, pas
+        le cantonal ; l'ancien rabais 0.82 inventé donnait 4432).
         """
         r = compute_rente_vs_capital(80_000, 20_000, 0.04, 64, "BS", "married")
         assert r["rente_annuelle"] == pytest.approx(6_240, abs=1)
-        assert r["impot_retrait"] == pytest.approx(6_375, abs=1)
-        assert r["capital_net"] == pytest.approx(93_625, abs=1)
+        assert r["impot_retrait"] == pytest.approx(5_113.0, abs=1)  # ESTV : BS cantonal + IFD marié
+        assert r["capital_net"] == pytest.approx(94_887.0, abs=1)
         assert r["scenarios"]["prudent"]["break_even_age"] is not None
 
     def test_thomas_lu_single_500k(self):
@@ -373,8 +434,8 @@ class TestRenteVsCapital:
         """
         r = compute_rente_vs_capital(300_000, 200_000, 0.052, 65, "LU", "single")
         assert r["rente_annuelle"] == pytest.approx(30_800, abs=1)
-        assert r["impot_retrait"] == pytest.approx(33_275, abs=1)
-        assert r["capital_net"] == pytest.approx(466_725, abs=1)
+        assert r["impot_retrait"] == pytest.approx(29_756.69, abs=1)  # v2 : LU 500k
+        assert r["capital_net"] == pytest.approx(470_243.31, abs=1)
         assert r["scenarios"]["central"]["break_even_age"] is not None
 
     def test_unsupported_canton_raises(self):
@@ -386,7 +447,7 @@ class TestRenteVsCapital:
         """500k ZH single uses 3 brackets: 100k*1.0 + 100k*1.15 + 300k*1.30."""
         r = compute_rente_vs_capital(250_000, 250_000, 0.05, 65, "ZH", "single")
         # 100k*0.065*1.0 + 100k*0.065*1.15 + 300k*0.065*1.30 = 39325
-        assert r["impot_retrait"] == pytest.approx(39_325, abs=1)
+        assert r["impot_retrait"] == pytest.approx(35_067.69, abs=1)  # == point ESTV ZH 500k (v2 -2i2)
 
     def test_all_26_cantons_produce_results(self):
         """All 26 cantons should compute without error."""

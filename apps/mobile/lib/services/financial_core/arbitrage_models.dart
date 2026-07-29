@@ -74,6 +74,12 @@ class RetirementAsset {
 
 /// Calculation receipt required before visible RvC figures can be rendered.
 class ArbitrageCalculationReceipt {
+  // current_age est volontairement ABSENT : ce n'est un intrant que du mode
+  // estimation (projection depuis l'âge + salaire). Le mode certificat
+  // travaille sur les valeurs réelles du certificat LPP sans projection —
+  // l'exiger ici bloquait tout résultat certificat (beads MINT_nosync-8wy).
+  // Quand current_age est présent et non-null, il reste validé en domaine
+  // (voir _hasRequiredRvcAssumptions).
   static const _requiredRvcAssumptionKeys = <String>{
     'safe_withdrawal_rate',
     'expected_return',
@@ -82,7 +88,6 @@ class ArbitrageCalculationReceipt {
     'canton',
     'conversion_rate_obligatory',
     'conversion_rate_surobligatory',
-    'current_age',
   };
 
   final String calculationOrigin;
@@ -140,6 +145,17 @@ class ArbitrageCalculationReceipt {
       }
       if (value is! num || !value.isFinite) return false;
       if (!_isRvcAssumptionInDomain(key, value.toDouble())) return false;
+    }
+
+    // current_age : optionnel (mode certificat = null), mais s'il est
+    // fourni il doit rester un âge plausible — fail-closed sur les valeurs
+    // aberrantes, pas sur l'absence.
+    final currentAge = assumptions['current_age'];
+    if (currentAge != null) {
+      if (currentAge is! num || !currentAge.isFinite) return false;
+      if (!_isRvcAssumptionInDomain('current_age', currentAge.toDouble())) {
+        return false;
+      }
     }
 
     return true;

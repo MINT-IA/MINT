@@ -396,6 +396,10 @@ def codebase_has_key(key_id: str) -> bool:
             dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
         elif entry_key == "auth" and entry_value in {"present", "absent"}:
             dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+    if key_id.startswith("rvc_age_state_"):
+        suffix = key_id.removeprefix("rvc_age_state_")
+        if suffix.isdigit() or suffix == "${output.rvc_expected_age}":
+            dynamic_patterns.append(("rvc_age_state_$ageProof", suffix))
     needles = [
         re.escape(f"Key('{key_id}')"),
         re.escape(f'Key("{key_id}")'),
@@ -415,6 +419,20 @@ def codebase_has_key(key_id: str) -> bool:
             if template in content and suffix:
                 return True
     return False
+
+
+# Montants calculés au RUNTIME par le coach depuis les faits MINT du persona.
+# Ils ne peuvent par construction exister ni dans le code Dart ni dans les ARB
+# (la correspondance historique passait par coïncidence via le blob JSON du
+# snapshot regulatory_constants.g.dart). L'exécution Maestro reste la preuve
+# exécutable ; l'entrée documente le calcul pour rester falsifiable.
+RUNTIME_COMPUTED_TEXT_ALLOW: dict[str, set[str]] = {
+    "flow_row23_independent_no_lpp_coach_chat_runtime.yaml": {
+        # Marge 3a restante Nadia : 20% x 86'400 (OPP3 art. 7 al. 2)
+        # - 6'000 planifiés = 11'280 CHF/an.
+        ".*11.*280.*CHF/an.*",
+    },
+}
 
 
 def main() -> int:
@@ -439,8 +457,11 @@ def main() -> int:
         except OSError:
             continue
         texts, ids = collect_locators(flow)
+        runtime_allow = RUNTIME_COMPUTED_TEXT_ALLOW.get(flow.name, set())
         for t in sorted(texts):
             audited += 1
+            if t in runtime_allow:
+                continue
             if not codebase_has_text(t):
                 violations.append(
                     f"{flow.relative_to(REPO_ROOT)} — text literal not found in "

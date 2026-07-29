@@ -305,10 +305,10 @@ class GenderGapService:
             "id": "maximiser_3a",
             "titre": "Maximiser le 3e pilier",
             "description": (
-                f"Versez le maximum annuel dans votre 3e pilier "
-                f"(CHF {PLAFOND_3A_SALARIE:,.0f} pour les salaries). "
-                f"Cela compense partiellement la lacune LPP et offre "
-                f"un avantage fiscal."
+                f"Le plafond 3a salarié est de CHF {PLAFOND_3A_SALARIE:,.0f}. "
+                f"Cotiser au plafond pourrait compenser une partie de la "
+                f"lacune LPP et réduire le revenu imposable ; à comparer avec "
+                f"d'autres usages de cette épargne."
             ),
             "source": "OPP3 art. 7, LIFD art. 33",
             "priorite": "haute",

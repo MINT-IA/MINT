@@ -14,6 +14,8 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:provider/provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PILLAR 3A INDEPENDANT SCREEN — Sprint S18
@@ -36,12 +38,86 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
   bool _affilieLpp = false;
   double _tauxMarginal = 0.30;
   Pillar3aIndepResult? _result;
+  bool _prefilled = false;
+  CoachProfileProvider? _profileProvider;
+  // Une entrée éditée par l'utilisateur ne doit jamais être écrasée par une
+  // hydratation tardive du profil (course cold-start). Par-champ.
+  bool _revenuNetTouched = false;
+  bool _affilieLppTouched = false;
 
   @override
   void initState() {
     super.initState();
     _calculate();
   }
+
+  /// P2 (zéro donnée inventée) : amorce les entrées depuis le profil réel.
+  /// On s'abonne au [CoachProfileProvider] plutôt que de faire une lecture
+  /// unique : `loadFromWizard()` hydrate le profil de façon asynchrone au
+  /// démarrage, donc l'écran peut être monté AVANT que les vraies données
+  /// n'arrivent. Le listener amorce alors une seule fois, dès que le profil
+  /// devient disponible (au montage ou plus tard), au lieu de rester figé sur
+  /// les défauts fabriqués.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
+    }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+  }
+
+  void _seedFromProfile() {
+    if (_prefilled) return;
+    final profile = _profileProvider?.profile;
+    if (profile == null) return; // pas encore hydraté : le listener rejouera.
+    _prefilled = true;
+    var changed = false;
+
+    // Revenu : independentNetProfessionalIncomeAnnual est un NET annuel
+    // professionnel (même base que le slider) → pas de confusion brut/net.
+    // Clampé sur les bornes du slider (0..300000) pour ne jamais violer l'assert.
+    final net = profile.independentNetProfessionalIncomeAnnual;
+    if (!_revenuNetTouched && net != null && net > 0) {
+      _revenuNet = net.clamp(0.0, 300000.0);
+      changed = true;
+    }
+
+    // Affiliation LPP : n'utiliser QUE la vérité explicite de l'utilisateur
+    // (elle fait basculer le plafond 3a petit/grand). Inconnu → défaut éditable.
+    final fields = profile.userProvidedFields;
+    if (!_affilieLppTouched) {
+      if (fields.contains('pensionFundYes')) {
+        _affilieLpp = true;
+        changed = true;
+      } else if (fields.contains('pensionFundNo')) {
+        _affilieLpp = false;
+        changed = true;
+      }
+    }
+
+    if (changed && mounted) _calculate();
+  }
+
+  @override
+  void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
+    super.dispose();
+  }
+
+  /// @visibleForTesting : valeurs amorcées (preuve du seed profil, P2).
+  @visibleForTesting
+  double get debugRevenuNet => _revenuNet;
+  @visibleForTesting
+  bool get debugAffilieLpp => _affilieLpp;
 
   void _calculate() {
     setState(() {
@@ -179,6 +255,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             child: Switch(
               value: _affilieLpp,
               onChanged: (v) {
+                _affilieLppTouched = true;
                 _affilieLpp = v;
                 _calculate();
               },
@@ -206,6 +283,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         formatValue: (v) => IndependantsService.formatChf(v),
         onChanged: (v) {
           setState(() {
+            _revenuNetTouched = true;
             _revenuNet = v;
             _calculate();
           });

@@ -282,32 +282,72 @@ class UserMessageBubble extends StatelessWidget {
 class SystemMessageBubble extends StatelessWidget {
   final ChatMessage message;
 
-  const SystemMessageBubble({super.key, required this.message});
+  /// Optional retry callback. When provided, a visible « Réessayer » button is
+  /// rendered under the message so a degraded state (e.g. coach offline) is
+  /// re-tentable rather than a mute dead-end (PR-F, TRANCHE-FIRSTJOB-SPEC
+  /// §2.3/A4). A system message otherwise drops its `suggestedActions`.
+  final VoidCallback? onRetry;
+
+  /// Label for the retry button (localized by the caller).
+  final String? retryLabel;
+
+  const SystemMessageBubble({
+    super.key,
+    required this.message,
+    this.onRetry,
+    this.retryLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    Widget bubble = Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.md - 4,
-            vertical: MintSpacing.xs,
-          ),
-          decoration: BoxDecoration(
-            color: MintColors.porcelaine.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            message.content,
-            // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
-            style: MintTextStyles.micro(color: MintColors.textMutedAaa)
-                .copyWith(fontStyle: FontStyle.italic),
-            textAlign: TextAlign.center,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md - 4,
+                vertical: MintSpacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: MintColors.porcelaine.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                message.content,
+                // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+                style: MintTextStyles.micro(color: MintColors.textMutedAaa)
+                    .copyWith(fontStyle: FontStyle.italic),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            if (onRetry != null) ...[
+              const SizedBox(height: MintSpacing.xs),
+              Semantics(
+                button: true,
+                label: retryLabel,
+                child: TextButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(Icons.refresh, size: 16),
+                  label: Text(retryLabel ?? ''),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
+
+    // Expose the a11y/test identifier when the message carries one (e.g. the
+    // `coach-offline-degradation` anti-criterion node). No identifier on
+    // ordinary system messages preserves the existing a11y tree.
+    final id = message.semanticsIdentifier;
+    if (id != null) {
+      bubble = Semantics(identifier: id, container: true, child: bubble);
+    }
+    return bubble;
   }
 }
 

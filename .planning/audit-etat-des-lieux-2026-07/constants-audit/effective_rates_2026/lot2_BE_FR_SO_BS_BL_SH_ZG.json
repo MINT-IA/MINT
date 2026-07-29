@@ -1,0 +1,239 @@
+{
+  "meta": {
+    "collected_at": "2026-07-23",
+    "tax_year": 2026,
+    "profile": "célibataire, sans enfant, sans fortune, sans confession (Confession1=5, église=0 vérifié sur les 35 points)",
+    "income_definition": "revenu IMPOSABLE (TaxableIncomeCanton = TaxableIncomeFed = même montant ; les déductions fédérales/cantonales réelles peuvent différer)",
+    "method": "API officielle du simulateur ESTV (POST API_calculateSimpleTaxes, swisstaxcalculator.estv.admin.ch), requêtes live du 2026-07-23 — aucune valeur de mémoire",
+    "cantonal_communal_definition": "IncomeTaxCanton + IncomeTaxCity + PersonalTax (taxe personnelle : SO 50 CHF, SH 60 CHF ; 0 ailleurs)",
+    "currency": "CHF",
+    "validation": "somme cantonal_communal + ifd == TotalTax API sur 35/35 points ; commune (BfsID) vérifiée ; IFD identique inter-cantons à revenu égal ; ratio ville/canton BE 6915/13358=0.5176 ≈ quotités Berne 1.54/2.975",
+    "cross_check": "Reichlin Hess (reichlinhess.ch, 2025) : ville de Zoug ~9.9% à 150k — ordre de grandeur cohérent avec 13435/150000=8.96% cant+com (écart attribuable année/confession)"
+  },
+  "cantons": {
+    "BE": {
+      "chef_lieu": "Berne",
+      "points": {
+        "40000": {
+          "cantonal_communal": 6839,
+          "ifd": 198,
+          "total": 7037
+        },
+        "70000": {
+          "cantonal_communal": 13129,
+          "ifd": 968,
+          "total": 14097
+        },
+        "100000": {
+          "cantonal_communal": 20273,
+          "ifd": 2684,
+          "total": 22957
+        },
+        "150000": {
+          "cantonal_communal": 33232,
+          "ifd": 7076,
+          "total": 40308
+        },
+        "250000": {
+          "cantonal_communal": 60810,
+          "ifd": 19503,
+          "total": 80313
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV, TaxYear 2026, TaxLocationID 300000000 (BfsID 351, Berne), célibataire sans confession, fortune 0, requête live 2026-07-23"
+    },
+    "FR": {
+      "chef_lieu": "Fribourg",
+      "points": {
+        "40000": {
+          "cantonal_communal": 5027,
+          "ifd": 198,
+          "total": 5225
+        },
+        "70000": {
+          "cantonal_communal": 11704,
+          "ifd": 968,
+          "total": 12672
+        },
+        "100000": {
+          "cantonal_communal": 18992,
+          "ifd": 2684,
+          "total": 21676
+        },
+        "150000": {
+          "cantonal_communal": 32619,
+          "ifd": 7076,
+          "total": 39695
+        },
+        "250000": {
+          "cantonal_communal": 59400,
+          "ifd": 19503,
+          "total": 78903
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV, TaxYear 2026, TaxLocationID 170000000 (BfsID 2196, Fribourg), célibataire sans confession, fortune 0, requête live 2026-07-23"
+    },
+    "SO": {
+      "chef_lieu": "Soleure",
+      "points": {
+        "40000": {
+          "cantonal_communal": 4570,
+          "ifd": 198,
+          "total": 4768
+        },
+        "70000": {
+          "cantonal_communal": 11203,
+          "ifd": 968,
+          "total": 12171
+        },
+        "100000": {
+          "cantonal_communal": 18007,
+          "ifd": 2684,
+          "total": 20691
+        },
+        "150000": {
+          "cantonal_communal": 30402,
+          "ifd": 7076,
+          "total": 37478
+        },
+        "250000": {
+          "cantonal_communal": 55242,
+          "ifd": 19503,
+          "total": 74745
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV, TaxYear 2026, TaxLocationID 450000000 (BfsID 2601, Soleure), célibataire sans confession, fortune 0, requête live 2026-07-23"
+    },
+    "BS": {
+      "chef_lieu": "Bâle",
+      "points": {
+        "40000": {
+          "cantonal_communal": 8400,
+          "ifd": 198,
+          "total": 8598
+        },
+        "70000": {
+          "cantonal_communal": 14700,
+          "ifd": 968,
+          "total": 15668
+        },
+        "100000": {
+          "cantonal_communal": 21000,
+          "ifd": 2684,
+          "total": 23684
+        },
+        "150000": {
+          "cantonal_communal": 31500,
+          "ifd": 7076,
+          "total": 38576
+        },
+        "250000": {
+          "cantonal_communal": 54844,
+          "ifd": 19503,
+          "total": 74347
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV, TaxYear 2026, TaxLocationID 400000000 (BfsID 2701, Bâle), célibataire sans confession, fortune 0, requête live 2026-07-23"
+    },
+    "BL": {
+      "chef_lieu": "Liestal",
+      "points": {
+        "40000": {
+          "cantonal_communal": 3579,
+          "ifd": 198,
+          "total": 3777
+        },
+        "70000": {
+          "cantonal_communal": 10563,
+          "ifd": 968,
+          "total": 11531
+        },
+        "100000": {
+          "cantonal_communal": 18511,
+          "ifd": 2684,
+          "total": 21195
+        },
+        "150000": {
+          "cantonal_communal": 32802,
+          "ifd": 7076,
+          "total": 39878
+        },
+        "250000": {
+          "cantonal_communal": 62251,
+          "ifd": 19503,
+          "total": 81754
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV, TaxYear 2026, TaxLocationID 441000000 (BfsID 2829, Liestal), célibataire sans confession, fortune 0, requête live 2026-07-23"
+    },
+    "SH": {
+      "chef_lieu": "Schaffhouse",
+      "points": {
+        "40000": {
+          "cantonal_communal": 3085,
+          "ifd": 198,
+          "total": 3283
+        },
+        "70000": {
+          "cantonal_communal": 7525,
+          "ifd": 968,
+          "total": 8493
+        },
+        "100000": {
+          "cantonal_communal": 12772,
+          "ifd": 2684,
+          "total": 15456
+        },
+        "150000": {
+          "cantonal_communal": 21661,
+          "ifd": 7076,
+          "total": 28737
+        },
+        "250000": {
+          "cantonal_communal": 39408,
+          "ifd": 19503,
+          "total": 58911
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV, TaxYear 2026, TaxLocationID 820000000 (BfsID 2939, Schaffhouse), célibataire sans confession, fortune 0, requête live 2026-07-23"
+    },
+    "ZG": {
+      "chef_lieu": "Zoug",
+      "points": {
+        "40000": {
+          "cantonal_communal": 1882,
+          "ifd": 198,
+          "total": 2080
+        },
+        "70000": {
+          "cantonal_communal": 4162,
+          "ifd": 968,
+          "total": 5130
+        },
+        "100000": {
+          "cantonal_communal": 7325,
+          "ifd": 2684,
+          "total": 10009
+        },
+        "150000": {
+          "cantonal_communal": 13435,
+          "ifd": 7076,
+          "total": 20511
+        },
+        "250000": {
+          "cantonal_communal": 23835,
+          "ifd": 19503,
+          "total": 43338
+        }
+      },
+      "source_url": "https://swisstaxcalculator.estv.admin.ch/#/calculator/income-wealth-tax",
+      "source_note": "API officielle ESTV, TaxYear 2026, TaxLocationID 630000000 (BfsID 1711, Zoug), célibataire sans confession, fortune 0, requête live 2026-07-23"
+    }
+  }
+}

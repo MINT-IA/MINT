@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MINT — P2 gate-dur : rapport de phase (2026-07-25)</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral'});</script>
+<style>
+  :root { --ink:#12261f; --mint:#0a7d5a; --warn:#b45309; --ok:#0a7d5a; --bad:#b91c1c; --muted:#5b6b64; }
+  body { font: 15px/1.55 -apple-system, system-ui, sans-serif; color: var(--ink); max-width: 960px; margin: 2rem auto; padding: 0 1rem; }
+  h1 { color: var(--mint); border-bottom: 3px solid var(--mint); padding-bottom: .3rem; }
+  h2 { color: var(--mint); margin-top: 2rem; border-bottom: 1px solid #d7e4de; padding-bottom: .2rem; }
+  table { border-collapse: collapse; width: 100%; margin: .8rem 0; font-size: 14px; }
+  th, td { border: 1px solid #d7e4de; padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef6f2; }
+  code { background: #f2f6f4; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  .ok { color: var(--ok); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; }
+  .warn { color: var(--warn); font-weight: 600; } .muted { color: var(--muted); }
+  .box { background: #f7faf9; border-left: 4px solid var(--mint); padding: .6rem 1rem; margin: 1rem 0; }
+  .pending { background: #fff8ee; border-left-color: var(--warn); }
+</style>
+</head>
+<body>
+<h1>P2 « gate dur » — rapport de phase</h1>
+<p class="muted">Session 2026-07-25 · Founder directive : aucun simulateur ne présente un chiffre « ta situation » calculé sur un défaut inventé ; s'il manque une donnée, on la collecte (gate dur). Doctrine : <code>.planning/decisions/2026-07-25-p2-simulator-result-gating.md</code>.</p>
+
+<div class="box">
+<strong>0-trust — état honnête.</strong> Référence donation : <span class="ok">MERGÉE + prouvée widget/CI</span>, <span class="warn">preuve sim/VoiceOver en cours</span>. first_job : <span class="warn">en implémentation</span>. 9 autres simulateurs : <span class="muted">non commencés</span>.
+</div>
+
+<h2>1. Décision &amp; conception</h2>
+<ul>
+<li><strong>Directive founder</strong> (AskUserQuestion 2026-07-25) : traitement = <em>« Gate dur du résultat »</em> (le plus strict), séquencement délégué au PM.</li>
+<li><strong>Panel 3 lentes</strong> : mint-mobile (UX+eng), mint-quality-gate (a11y+adversarial), mint-swiss-brain (droit). Découverte clé : gate <strong>par-output</strong> (impôt cantonal→canton ; réserve fédérale→état civil/enfants), <code>age</code> ne gate rien ; provenance = <code>userProvidedFields ∪ touched</code>, jamais valeur≠défaut.</li>
+<li><strong>ADR filé</strong> (Decided) + P1 vérifié propre : <code>DonationService.reserves</code> = post-réforme 2023 (descendants 0.50 / parents 0.0).</li>
+</ul>
+
+<h2>2. Modèle de provenance (state-machine)</h2>
+<pre class="mermaid">
+stateDiagram-v2
+  [*] --> Assumed : défaut fabriqué
+  Assumed --> SeededFromProfile : userProvidedFields contient la clé (à chaque notify)
+  Assumed --> Touched : l'utilisateur édite le contrôle
+  SeededFromProfile --> Assumed : profil perd la clé / clear (re-évalué)
+  SeededFromProfile --> Touched : l'utilisateur édite (touched supersede seed)
+  Touched --> Touched : reste user-owned (immunisé au clear)
+  SeededFromProfile --> Confirmed : gate ouvre
+  Touched --> Confirmed : gate ouvre
+  Confirmed --> Assumed : valeur consommée change -> _result invalidé
+  note right of Confirmed : Le chiffre ne rend QUE si\ntous les faits déterminants\nde cet output sont Confirmed
+</pre>
+
+<h2>3. Référence donation — preuves</h2>
+<table>
+<tr><th>Élément</th><th>Preuve (citée)</th></tr>
+<tr><td>PR</td><td><span class="ok">#1032 MERGED</span> · mergeSha <code>fcfab3a96</code> · 2026-07-25T14:44:49Z</td></tr>
+<tr><td>Primitive réutilisable</td><td><code>apps/mobile/lib/widgets/situation/situation_gate.dart</code> (SituationFact / SituationGate / SituationGateCard)</td></tr>
+<tr><td>Revue adversariale Codex</td><td><strong>4 rounds → PASS</strong> (chaque round = vraie fuite, corrigée)</td></tr>
+<tr><td>Tests</td><td>14 anti-façade (<code>donation_gate_test.dart</code>, assert sur le chiffre RENDU) + 6 seed · <span class="ok">green</span></td></tr>
+<tr><td>CI</td><td>full screens shard <code>+1096 ~9</code> local + CI 24 checks pass / 4 skip · <span class="ok">verte</span></td></tr>
+<tr><td>Preuve device (sim/idb)</td><td class="ok">FAITE — iPhone 16e booté, build debug, deeplink <code>mintapp:///life-event/donation</code> : CTA = « Compléter ma situation (2/4) » (label gaté, pas « Calculer »), AUCUN chiffre réserve/impôt rendu (écran passe des inputs au footer COMPRENDRE). Gotcha trouvé : <code>flutter build ios</code> défaut = release → hook E2E (<code>!kReleaseMode</code>) désactivé ; build <code>--debug</code> requis.</td></tr>
+</table>
+
+<h3>Fuites trouvées par Codex (chacune corrigée + test de non-régression)</h3>
+<table>
+<tr><th>#</th><th>Fuite</th><th>Correctif</th></tr>
+<tr><td>1</td><td>Hydratation tardive rend une réserve calculée sur le défaut 800k</td><td>seed invalide <code>_result</code> sur tout changement de valeur consommée</td></tr>
+<tr><td>2</td><td>Édition d'un param scénario laisse un chiffre périmé</td><td>toute édition (situation OU scénario) → <code>_invalidateResult()</code></td></tr>
+<tr><td>3</td><td>Provenance latchée (<code>_xSeeded</code> jamais remise à false)</td><td>ré-évaluée depuis le profil courant à chaque notify</td></tr>
+<tr><td>4</td><td>Clear profil pendant l'écran monté : chiffres survivent</td><td>null profil → drop les <code>_xSeeded</code> + invalide (touched survit)</td></tr>
+<tr><td>5</td><td>Seed→touch→clear efface un chiffre saisi par l'utilisateur</td><td>touched supersede seed (<code>_xSeeded=false</code> au touch)</td></tr>
+</table>
+
+<h2>4. Roadmap réplication (beads)</h2>
+<table>
+<tr><th>Bead</th><th>Sujet</th><th>Statut</th></tr>
+<tr><td><code>MINT_nosync-1st</code> P1</td><td>Répliquer le gate aux ~9 simulateurs</td><td class="warn">first_job en cours</td></tr>
+<tr><td><code>MINT_nosync-udu</code> P2</td><td>#1031 indépendant : migrer hors <code>_prefilled</code> latch</td><td class="muted">open</td></tr>
+<tr><td><code>MINT_nosync-ch8</code> P2</td><td>DonationService assume un conjoint (réserve célibataire fausse)</td><td class="muted">open</td></tr>
+<tr><td><code>MINT_nosync-jx6</code> P2</td><td>Preuve VoiceOver device des gate cards (ILLOG-02)</td><td class="muted">open</td></tr>
+<tr><td><code>MINT_nosync-el8</code> P3</td><td>NEVER #9 : bande d'incertitude sur les chiffres révélés</td><td class="muted">open</td></tr>
+<tr><td><code>MINT_nosync-mrd</code> P3</td><td>Clés userProvidedFields manquantes (enfants/investissements/immobilier)</td><td class="muted">open</td></tr>
+</table>
+
+<h2>5. Audit outillage (honnête)</h2>
+<table>
+<tr><th>Outil</th><th>Utilisé cette session</th></tr>
+<tr><td>Mint agents (panel + délégation build)</td><td class="ok">oui</td></tr>
+<tr><td>Engram (mem_save)</td><td class="ok">oui — 3 obs</td></tr>
+<tr><td>Codex adversarial</td><td class="ok">oui — 4 rounds/écran</td></tr>
+<tr><td>beads</td><td class="ok">oui — 6 issues filées (ce rapport)</td></tr>
+<tr><td>Mermaid</td><td class="ok">oui — §2 ci-dessus</td></tr>
+<tr><td>HTML evidence report</td><td class="ok">oui — ce fichier</td></tr>
+<tr><td>Maestro / sim / idb</td><td class="warn">démarré maintenant (build en cours) — désormais étape standard du protocole gate</td></tr>
+<tr><td>Patrol / flutter-doctor</td><td class="muted">non nécessaires à ce stade</td></tr>
+</table>
+
+<p class="muted">Généré par Claude (Product Leader) — 0-trust : « prouvé widget/CI » ≠ « prouvé device ». La ligne device passera au vert après la passe sim/Maestro.</p>
+</body>
+</html>

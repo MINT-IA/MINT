@@ -248,6 +248,10 @@ class EPLRequest(BaseModel):
     aRacheteRecemment: bool = Field(
         False, description="Un rachat LPP a-t-il ete effectue recemment?"
     )
+    is_married: Optional[bool] = Field(
+        None, alias="isMarried",
+        description="Marie·e (coefficient cantonal retrait capital, defaut: False)",
+    )
     anneesDernierRachat: Optional[int] = Field(
         None, description="Nombre d'annees depuis le dernier rachat", ge=0
     )

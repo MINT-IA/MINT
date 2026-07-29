@@ -79,15 +79,20 @@ class BedrockMessageResponse:
 
 
 def _resolve_model_id(model: str) -> str:
-    """Map short alias → regional Bedrock model id."""
+    """Map alias or dated Anthropic id → regional Bedrock model id."""
     alias = (model or "").lower()
-    if alias in ("sonnet", "claude-sonnet", "claude-sonnet-4-5", "sonnet-4-5"):
-        return BEDROCK_SONNET_MODEL_ID
-    if alias in ("haiku", "claude-haiku", "claude-haiku-4-5", "haiku-4-5"):
-        return BEDROCK_HAIKU_MODEL_ID
     # Already a fully-qualified bedrock id
     if alias.startswith("anthropic.claude"):
         return model
+    # Family match — covers short aliases AND dated Anthropic ids
+    # (e.g. claude-haiku-4-5-20251001 from the coach fallback chain,
+    # claude-sonnet-4-5-20250929). Substring, pas liste fermée : une
+    # liste d'alias exacts routait le fallback Haiku du coach vers
+    # Sonnet en silence (review PR #969).
+    if "haiku" in alias:
+        return BEDROCK_HAIKU_MODEL_ID
+    if "sonnet" in alias:
+        return BEDROCK_SONNET_MODEL_ID
     # Fallback: treat as sonnet
     logger.warning("bedrock_client: unknown model alias %r, defaulting to sonnet", model)
     return BEDROCK_SONNET_MODEL_ID

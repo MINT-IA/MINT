@@ -45,8 +45,11 @@ from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     RETRAIT_CAPITAL_TRANCHES,
-    MARRIED_CAPITAL_TAX_DISCOUNT,
     get_lpp_bonification_rate,
+)
+from app.services.fiscal.cantonal_comparator import (
+    CANTONAL_CAPITAL_TAX_MARRIED_CHF,
+    estimate_capital_withdrawal_tax,
 )
 
 from app.services.onboarding.minimal_profile_service import compute_minimal_profile
@@ -124,8 +127,23 @@ class TestConstantsAlignment:
     def test_pilier_3a_plafond_sans_lpp(self):
         assert PILIER_3A_PLAFOND_SANS_LPP == 36_288.0
 
-    def test_married_capital_tax_discount(self):
-        assert MARRIED_CAPITAL_TAX_DISCOUNT == 0.85
+    def test_married_capital_tax_married_table(self):
+        # Triage AnnAssign #1095 : le rabais forfaitaire par canton (inventé)
+        # est SUPPRIMÉ ; la vérité est l'étalon ESTV mariée
+        # CANTONAL_CAPITAL_TAX_MARRIED_CHF, miroir exact du Dart
+        # cantonalCapitalTaxMarriedChf. Points de grille figés Python <-> Dart.
+        assert len(CANTONAL_CAPITAL_TAX_MARRIED_CHF) == 26
+        # Grille 7 noeuds (175k/350k ajoutés CAP-1 #1098).
+        assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["VD"] == [
+            3281, 7013, 11360, 17577, 27705, 45743, 63840,
+        ]
+        assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["ZH"] == [
+            4280, 7490, 10700, 14980, 21400, 32100, 57652,
+        ]
+        # BS : aucune réduction mariée cantonale (ESTV) -> == célibataire.
+        assert CANTONAL_CAPITAL_TAX_MARRIED_CHF["BS"] == [
+            4750, 10750, 16750, 24750, 36750, 56750, 76750,
+        ]
 
     def test_progressive_brackets(self):
         """Progressive withdrawal tax brackets (LIFD art. 38)."""
@@ -238,15 +256,16 @@ class TestProgressiveTax:
         assert abs(result - expected) < 1.0
 
     def test_married_discount(self):
-        """Married couples get 15% discount on capital withdrawal tax."""
-        single_rate = TAUX_IMPOT_RETRAIT_CAPITAL["ZH"]
-        married_rate = single_rate * MARRIED_CAPITAL_TAX_DISCOUNT
-
-        single_tax = self._progressive_tax(500_000, single_rate / 100)
-        married_tax = self._progressive_tax(500_000, married_rate / 100)
-
+        """Marié·e·s : l'impôt capital marié dérive de l'étalon ESTV mariée
+        (CANTONAL_CAPITAL_TAX_MARRIED_CHF), plus d'un rabais forfaitaire
+        (triage AnnAssign #1095). ZH réduit la part cantonale à 500k
+        (21400 vs 24567 CHF, étalon ESTV) -> impôt marié < célibataire.
+        """
+        single_tax = estimate_capital_withdrawal_tax(500_000, "ZH")
+        married_tax = estimate_capital_withdrawal_tax(
+            500_000, "ZH", is_married=True
+        )
         assert married_tax < single_tax
-        assert abs(married_tax / single_tax - 0.85) < 0.01
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

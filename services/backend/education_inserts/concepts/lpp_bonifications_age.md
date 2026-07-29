@@ -32,7 +32,7 @@ Les bonifications de vieillesse sont régies par LPP art. 16 :
 **Salaire coordonné** (LPP art. 8) :
 - Salaire annuel brut moins la déduction de coordination (CHF 26'460 en 2025).
 - Minimum coordonné : CHF 3'780/an.
-- Maximum : salaire plafonné à CHF 88'200 − CHF 26'460 = CHF 61'740/an.
+- Maximum : salaire plafonné à CHF 90'720 − CHF 26'460 = CHF 64'260/an.
 
 **Partage employeur/employé** (LPP art. 66) :
 - L'employeur doit payer au moins 50 % de la bonification totale.

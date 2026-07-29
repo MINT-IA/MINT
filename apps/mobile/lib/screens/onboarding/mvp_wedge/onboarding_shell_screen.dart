@@ -383,7 +383,11 @@ class _PrimaryButton extends StatelessWidget {
     return Semantics(
       key: buttonKey,
       identifier: identifier,
-      child: button,
+      label: label,
+      button: true,
+      enabled: onPressed != null,
+      onTap: onPressed,
+      child: ExcludeSemantics(child: button),
     );
   }
 }
@@ -1034,147 +1038,150 @@ class _RevenueStepState extends State<_RevenueStep> {
 
     return _StepScaffold(
       prompt: 'Combien te tombe net par mois ?',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (!_exactMode) ...[
-            Text(
-              '${_fmt(range.low)} – ${_fmt(range.high)} CHF',
-              style: MintTextStyles.displayMedium(
-                color: MintColors.textPrimary,
-              ).copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'tu ajusteras quand tu scanneras ta fiche',
-              style: MintTextStyles.bodySmall(
-                color: MintColors.textSecondary,
-              ).copyWith(fontStyle: FontStyle.italic),
-            ),
-            const SizedBox(height: 24),
-            OnboardingDiscreteAdjustControl(
-              decrementIdentifier: 'onboarding-revenue-decrease',
-              incrementIdentifier: 'onboarding-revenue-increase',
-              decrementLabel: l10n.onboardingRevenueDecreaseStep(stepLabel),
-              incrementLabel: l10n.onboardingRevenueIncreaseStep(stepLabel),
-              currentValueLabel: l10n.onboardingRevenueCurrentRange(
-                _fmt(range.low),
-                _fmt(range.high),
-              ),
-              visualValue: _fmt(_value.toDouble()),
-              canDecrement: _value > _kMinNet,
-              canIncrement: _value < _kMaxNet,
-              onDecrement: () => _shiftValue(-_kStep),
-              onIncrement: () => _shiftValue(_kStep),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${_fmt(_kMinNet.toDouble())} CHF',
-                  style: MintTextStyles.labelMedium(
-                    color: MintColors.textSecondary,
-                  ),
-                ),
-                Text(
-                  '${_fmt(_kMaxNet.toDouble())} CHF',
-                  style: MintTextStyles.labelMedium(
-                    color: MintColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            Center(
-              child: TextButton(
-                // lint-ignore: prefer_mint_cta
-                onPressed: () => setState(() => _exactMode = true),
-                child: Text(
-                  'Je sais le chiffre exact',
-                  style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondary,
-                  ).copyWith(
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _PrimaryButton(
-              key: const ValueKey('onboarding-revenue-range-continue'),
-              semanticsIdentifier: 'onboarding-revenue-range-continue',
-              label: 'Continuer',
-              onPressed: () {
-                provider.setNetMonthlyRange(range.low, range.high);
-                provider.advance();
-              },
-            ),
-          ] else ...[
-            TextField(
-              controller: _exactController,
-              keyboardType: TextInputType.number,
-              onTapOutside: (_) => FocusScope.of(context).unfocus(),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
-              ],
-              autofocus: true,
-              style: MintTextStyles.displayMedium(
-                color: MintColors.textPrimary,
-              ).copyWith(fontWeight: FontWeight.w600),
-              decoration: InputDecoration(
-                hintText: '7\u2019600',
-                hintStyle: MintTextStyles.displayMedium(
-                  color: MintColors.textSecondary.withValues(alpha: 0.35),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (!_exactMode) ...[
+              Text(
+                '${_fmt(range.low)} – ${_fmt(range.high)} CHF',
+                style: MintTextStyles.displayMedium(
+                  color: MintColors.textPrimary,
                 ).copyWith(fontWeight: FontWeight.w600),
-                suffixText: 'CHF',
-                border: const UnderlineInputBorder(),
               ),
-              onChanged: (raw) {
-                final cleaned = raw
-                    .replaceAll("'", '')
-                    .replaceAll(' ', '')
-                    .replaceAll('\u2019', '');
-                final n = double.tryParse(cleaned);
-                setState(() => _exactValue =
-                    (n != null && n >= 500 && n < 30000) ? n : null);
-              },
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Avant impôt, après cotisations (le chiffre que tu vois tomber).',
-              style: MintTextStyles.bodySmall(
-                color: MintColors.textSecondary,
+              const SizedBox(height: 4),
+              Text(
+                'tu ajusteras quand tu scanneras ta fiche',
+                style: MintTextStyles.bodySmall(
+                  color: MintColors.textSecondary,
+                ).copyWith(fontStyle: FontStyle.italic),
               ),
-            ),
-            const Spacer(),
-            Center(
-              child: TextButton(
-                // lint-ignore: prefer_mint_cta
-                onPressed: () => setState(() => _exactMode = false),
-                child: Text(
-                  'Revenir à la fourchette',
-                  style: MintTextStyles.bodyMedium(
-                    color: MintColors.textSecondary,
-                  ).copyWith(decoration: TextDecoration.underline),
+              const SizedBox(height: 8),
+              OnboardingDiscreteAdjustControl(
+                decrementIdentifier: 'onboarding-revenue-decrease',
+                incrementIdentifier: 'onboarding-revenue-increase',
+                decrementLabel: l10n.onboardingRevenueDecreaseStep(stepLabel),
+                incrementLabel: l10n.onboardingRevenueIncreaseStep(stepLabel),
+                currentValueLabel: l10n.onboardingRevenueCurrentRange(
+                  _fmt(range.low),
+                  _fmt(range.high),
+                ),
+                visualValue: _fmt(_value.toDouble()),
+                canDecrement: _value > _kMinNet,
+                canIncrement: _value < _kMaxNet,
+                onDecrement: () => _shiftValue(-_kStep),
+                onIncrement: () => _shiftValue(_kStep),
+              ),
+              const SizedBox(height: 8),
+              _PrimaryButton(
+                key: const ValueKey('onboarding-revenue-range-continue'),
+                semanticsIdentifier: 'onboarding-revenue-range-continue',
+                label: 'Continuer',
+                onPressed: () {
+                  provider.setNetMonthlyRange(range.low, range.high);
+                  provider.advance();
+                },
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${_fmt(_kMinNet.toDouble())} CHF',
+                    style: MintTextStyles.labelMedium(
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                  Text(
+                    '${_fmt(_kMaxNet.toDouble())} CHF',
+                    style: MintTextStyles.labelMedium(
+                      color: MintColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton(
+                  // lint-ignore: prefer_mint_cta
+                  onPressed: () => setState(() => _exactMode = true),
+                  child: Text(
+                    'Je sais le chiffre exact',
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary,
+                    ).copyWith(
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _PrimaryButton(
-              key: const ValueKey('onboarding-revenue-exact-continue'),
-              semanticsIdentifier: 'onboarding-revenue-exact-continue',
-              label: 'Continuer',
-              onPressed: _exactValue == null
-                  ? null
-                  : () {
-                      provider.setNetMonthlyExact(_exactValue!);
-                      provider.advance();
-                    },
-            ),
+            ] else ...[
+              TextField(
+                controller: _exactController,
+                keyboardType: TextInputType.number,
+                onTapOutside: (_) => FocusScope.of(context).unfocus(),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r"[0-9 ']")),
+                ],
+                autofocus: true,
+                style: MintTextStyles.displayMedium(
+                  color: MintColors.textPrimary,
+                ).copyWith(fontWeight: FontWeight.w600),
+                decoration: InputDecoration(
+                  hintText: '7\u2019600',
+                  hintStyle: MintTextStyles.displayMedium(
+                    color: MintColors.textSecondary.withValues(alpha: 0.35),
+                  ).copyWith(fontWeight: FontWeight.w600),
+                  suffixText: 'CHF',
+                  border: const UnderlineInputBorder(),
+                ),
+                onChanged: (raw) {
+                  final cleaned = raw
+                      .replaceAll("'", '')
+                      .replaceAll(' ', '')
+                      .replaceAll('\u2019', '');
+                  final n = double.tryParse(cleaned);
+                  setState(() => _exactValue =
+                      (n != null && n >= 500 && n < 30000) ? n : null);
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Avant impôt, après cotisations (le chiffre que tu vois tomber).',
+                style: MintTextStyles.bodySmall(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _PrimaryButton(
+                key: const ValueKey('onboarding-revenue-exact-continue'),
+                semanticsIdentifier: 'onboarding-revenue-exact-continue',
+                label: 'Continuer',
+                onPressed: _exactValue == null
+                    ? null
+                    : () {
+                        provider.setNetMonthlyExact(_exactValue!);
+                        provider.advance();
+                      },
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: TextButton(
+                  // lint-ignore: prefer_mint_cta
+                  onPressed: () => setState(() => _exactMode = false),
+                  child: Text(
+                    'Revenir à la fourchette',
+                    style: MintTextStyles.bodyMedium(
+                      color: MintColors.textSecondary,
+                    ).copyWith(decoration: TextDecoration.underline),
+                  ),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -1458,7 +1465,7 @@ class _ExplorerOverviewRow extends StatelessWidget {
 /// Terminal step of the wedge since 2026-04-24.
 ///
 /// Terminal actions:
-///   - Continuer        \u2192 seal + /coach/chat
+///   - Continuer        \u2192 seal + live decision room when available
 ///   - Créer un compte  \u2192 seal + /auth/register
 ///   - Repartir de zéro \u2192 clear pre-account diagnostic only
 ///   - Sortir           \u2192 seal + /home
@@ -1475,6 +1482,13 @@ class _BifurcationStep extends StatefulWidget {
 
 class _BifurcationStepState extends State<_BifurcationStep> {
   bool _sealing = false;
+
+  String _continueRouteFor(OnboardingIntent? intent) => switch (intent) {
+        OnboardingIntent.retraite => '/retraite/rente-vs-capital',
+        OnboardingIntent.achat => '/hypotheque',
+        OnboardingIntent.impots => '/pilier-3a',
+        OnboardingIntent.explorer || null => '/explore',
+      };
 
   Future<void> _sealAndGo({
     required bool deeper,
@@ -1594,56 +1608,59 @@ class _BifurcationStepState extends State<_BifurcationStep> {
 
     return _StepScaffold(
       prompt: phrase,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Expanded(child: _TerminalDossierSummary()),
-          const SizedBox(height: 12),
-          _PrimaryButton(
-            key: const ValueKey('onboarding-bifurcation-continue'),
-            semanticsIdentifier: 'onboarding-bifurcation-continue',
-            label: _sealing
-                ? 'On garde\u2026'
-                : l10n.diagnosticOnboardingTerminalContinueAction,
-            onPressed: _sealing
-                ? null
-                : () => _sealAndGo(
-                      deeper: true,
-                      route: '/coach/chat',
-                    ),
-          ),
-          const SizedBox(height: 8),
-          secondaryAction(
-            key: const ValueKey('onboarding-bifurcation-create-account'),
-            semanticsIdentifier: 'onboarding-bifurcation-create-account',
-            label: l10n.diagnosticOnboardingTerminalCreateAccountAction,
-            onPressed: _sealing
-                ? null
-                : () => _sealAndGo(
-                      deeper: false,
-                      route: '/auth/register',
-                    ),
-          ),
-          const SizedBox(height: 8),
-          secondaryAction(
-            key: const ValueKey('onboarding-bifurcation-reset'),
-            semanticsIdentifier: 'onboarding-bifurcation-reset',
-            label: l10n.diagnosticOnboardingTerminalResetAction,
-            onPressed: _sealing ? null : _resetDiagnostic,
-          ),
-          const SizedBox(height: 8),
-          secondaryAction(
-            key: const ValueKey('onboarding-bifurcation-exit'),
-            semanticsIdentifier: 'onboarding-bifurcation-exit',
-            label: l10n.diagnosticOnboardingTerminalExitAction,
-            onPressed: _sealing
-                ? null
-                : () => _sealAndGo(
-                      deeper: false,
-                      route: '/home',
-                    ),
-          ),
-        ],
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _PrimaryButton(
+              key: const ValueKey('onboarding-bifurcation-continue'),
+              semanticsIdentifier: 'onboarding-bifurcation-continue',
+              label: _sealing
+                  ? 'On garde\u2026'
+                  : l10n.diagnosticOnboardingTerminalContinueAction,
+              onPressed: _sealing
+                  ? null
+                  : () => _sealAndGo(
+                        deeper: true,
+                        route: _continueRouteFor(intent),
+                      ),
+            ),
+            const SizedBox(height: 8),
+            secondaryAction(
+              key: const ValueKey('onboarding-bifurcation-create-account'),
+              semanticsIdentifier: 'onboarding-bifurcation-create-account',
+              label: l10n.diagnosticOnboardingTerminalCreateAccountAction,
+              onPressed: _sealing
+                  ? null
+                  : () => _sealAndGo(
+                        deeper: false,
+                        route: '/auth/register',
+                      ),
+            ),
+            const SizedBox(height: 8),
+            secondaryAction(
+              key: const ValueKey('onboarding-bifurcation-reset'),
+              semanticsIdentifier: 'onboarding-bifurcation-reset',
+              label: l10n.diagnosticOnboardingTerminalResetAction,
+              onPressed: _sealing ? null : _resetDiagnostic,
+            ),
+            const SizedBox(height: 8),
+            secondaryAction(
+              key: const ValueKey('onboarding-bifurcation-exit'),
+              semanticsIdentifier: 'onboarding-bifurcation-exit',
+              label: l10n.diagnosticOnboardingTerminalExitAction,
+              onPressed: _sealing
+                  ? null
+                  : () => _sealAndGo(
+                        deeper: false,
+                        route: '/home',
+                      ),
+            ),
+            const SizedBox(height: 12),
+            const _TerminalDossierSummary(),
+          ],
+        ),
       ),
     );
   }
@@ -1662,79 +1679,77 @@ class _TerminalDossierSummary extends StatelessWidget {
     return Semantics(
       container: true,
       label: l10n.diagnosticOnboardingTerminalStateTitle,
-      child: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          decoration: BoxDecoration(
-            color: MintColors.craie,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: MintColors.textPrimary.withValues(alpha: 0.08),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+        decoration: BoxDecoration(
+          color: MintColors.craie,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: MintColors.textPrimary.withValues(alpha: 0.08),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.diagnosticOnboardingTerminalStateTitle,
+              style: MintTextStyles.labelSmall(
+                color: MintColors.corailDiscret,
+              ).copyWith(
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.2,
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.diagnosticOnboardingTerminalStateTitle,
-                style: MintTextStyles.labelSmall(
-                  color: MintColors.corailDiscret,
-                ).copyWith(
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
+            const SizedBox(height: 8),
+            Text(
+              _accountStateLabel(accountState, l10n),
+              style: MintTextStyles.bodyMedium(
+                color: MintColors.textPrimary,
+              ).copyWith(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 18),
+            _TerminalSummarySection(
+              title: l10n.diagnosticOnboardingTerminalUnderstoodTitle,
+              children: [
+                for (final entry in dossier)
+                  _TerminalSummaryRow(
+                    label: entry.label,
+                    value: entry.value,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _TerminalSummarySection(
+              title: l10n.diagnosticOnboardingTerminalMissingTitle,
+              children: [
+                _TerminalSummaryBullet(
+                  l10n.diagnosticOnboardingTerminalMissingLpp,
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _accountStateLabel(accountState, l10n),
-                style: MintTextStyles.bodyMedium(
-                  color: MintColors.textPrimary,
-                ).copyWith(fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 18),
-              _TerminalSummarySection(
-                title: l10n.diagnosticOnboardingTerminalUnderstoodTitle,
-                children: [
-                  for (final entry in dossier)
-                    _TerminalSummaryRow(
-                      label: entry.label,
-                      value: entry.value,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _TerminalSummarySection(
-                title: l10n.diagnosticOnboardingTerminalMissingTitle,
-                children: [
-                  _TerminalSummaryBullet(
-                    l10n.diagnosticOnboardingTerminalMissingLpp,
-                  ),
-                  _TerminalSummaryBullet(
-                    l10n.diagnosticOnboardingTerminalMissingExpenses,
-                  ),
-                  _TerminalSummaryBullet(
-                    l10n.diagnosticOnboardingTerminalMissingGoal,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _TerminalSummarySection(
-                title: l10n.diagnosticOnboardingTerminalNextQuestionsTitle,
-                children: [
-                  _TerminalSummaryBullet(
-                    l10n.diagnosticOnboardingTerminalQuestionGoal,
-                  ),
-                  _TerminalSummaryBullet(
-                    l10n.diagnosticOnboardingTerminalQuestionExpenses,
-                  ),
-                  _TerminalSummaryBullet(
-                    l10n.diagnosticOnboardingTerminalQuestionDocument,
-                  ),
-                ],
-              ),
-            ],
-          ),
+                _TerminalSummaryBullet(
+                  l10n.diagnosticOnboardingTerminalMissingExpenses,
+                ),
+                _TerminalSummaryBullet(
+                  l10n.diagnosticOnboardingTerminalMissingGoal,
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            _TerminalSummarySection(
+              title: l10n.diagnosticOnboardingTerminalNextQuestionsTitle,
+              children: [
+                _TerminalSummaryBullet(
+                  l10n.diagnosticOnboardingTerminalQuestionGoal,
+                ),
+                _TerminalSummaryBullet(
+                  l10n.diagnosticOnboardingTerminalQuestionExpenses,
+                ),
+                _TerminalSummaryBullet(
+                  l10n.diagnosticOnboardingTerminalQuestionDocument,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

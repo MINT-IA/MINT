@@ -145,6 +145,40 @@
         "title": "AcceptResponse",
         "type": "object"
       },
+      "AccountScenarioResponse": {
+        "description": "Un scenario N comptes: economie marginale vs frais annuels.",
+        "properties": {
+          "economieMarginale": {
+            "title": "Economiemarginale",
+            "type": "number"
+          },
+          "economieVsBloc": {
+            "title": "Economievsbloc",
+            "type": "number"
+          },
+          "fraisAnnuelsSupplementaires": {
+            "title": "Fraisannuelssupplementaires",
+            "type": "number"
+          },
+          "impotTotal": {
+            "title": "Impottotal",
+            "type": "number"
+          },
+          "nbComptes": {
+            "title": "Nbcomptes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "nbComptes",
+          "impotTotal",
+          "economieVsBloc",
+          "economieMarginale",
+          "fraisAnnuelsSupplementaires"
+        ],
+        "title": "AccountScenarioResponse",
+        "type": "object"
+      },
       "ActionItemResponse": {
         "description": "A single action item.",
         "properties": {
@@ -454,6 +488,18 @@
             "description": "Canton de domicile fiscal (lu depuis le profil si absent)",
             "from_profile": "canton",
             "title": "Canton"
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
           },
           "isPropertyOwner": {
             "anyOf": [
@@ -4164,6 +4210,19 @@
             "description": "Prior conversation messages for multi-turn context. Each item: {role: 'user'|'assistant', content: str}. Last 8 messages max. Sanitized client-side.",
             "title": "Conversationhistory"
           },
+          "inputsHash": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "firstJob PR-E — hash déterministe des inputs du receipt (compute_inputs_hash). Accompagne receiptId pour la résolution.",
+            "title": "Inputshash"
+          },
           "intent": {
             "anyOf": [
               {
@@ -4242,6 +4301,32 @@
             "description": "Fournisseur LLM: 'claude', 'openai', 'mistral'.",
             "title": "Provider",
             "type": "string"
+          },
+          "receiptId": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "firstJob PR-E — id du MoneyTruthReceipt à résoudre pour ce tour. Le backend résout le receipt scopé au propriétaire (SPEC §4.3) et ground le coach sur receipt.value. None sur le chemin chat classique.",
+            "title": "Receiptid"
+          },
+          "receiptInputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "firstJob PR-E — inputs normalisés portés par le payload d'entrée (cas pending : receipt pas encore synchronisé). Le coach répond depuis ces inputs quand la résolution serveur ne trouve pas le receipt du propriétaire.",
+            "title": "Receiptinputs"
           },
           "sourceCard": {
             "anyOf": [
@@ -5029,13 +5114,6 @@
             "title": "Enfants",
             "type": "integer"
           },
-          "patrimoine": {
-            "default": 0.0,
-            "description": "Patrimoine total du couple (CHF)",
-            "minimum": 0.0,
-            "title": "Patrimoine",
-            "type": "number"
-          },
           "revenu1": {
             "description": "Revenu annuel personne 1 (CHF)",
             "minimum": 0.0,
@@ -5068,7 +5146,7 @@
             "type": "array"
           },
           "differenceFiscale": {
-            "description": "Difference fiscale (CHF)",
+            "description": "Ecart d'impot sur le revenu (CHF)",
             "title": "Differencefiscale",
             "type": "number"
           },
@@ -5078,27 +5156,17 @@
             "type": "string"
           },
           "impotCelibatairesTotal": {
-            "description": "Impot en tant que 2 celibataires (CHF)",
+            "description": "Impot sur le revenu, en tant que 2 celibataires (CHF)",
             "title": "Impotcelibatairestotal",
             "type": "number"
           },
           "impotMariesTotal": {
-            "description": "Impot en tant que couple marie (CHF)",
+            "description": "Impot sur le revenu, en tant que couple marie (CHF)",
             "title": "Impotmariestotal",
             "type": "number"
           },
-          "impotSuccessionConcubin": {
-            "description": "Impot de succession si concubin (CHF)",
-            "title": "Impotsuccessionconcubin",
-            "type": "number"
-          },
-          "impotSuccessionConjoint": {
-            "description": "Impot de succession si conjoint (CHF)",
-            "title": "Impotsuccessionconjoint",
-            "type": "number"
-          },
           "premierEclairage": {
-            "description": "Chiffre choc pedagogique",
+            "description": "Le mecanisme successoral, sans montant ni taux",
             "title": "Premiereclairage",
             "type": "string"
           },
@@ -5133,8 +5201,6 @@
           "impotCelibatairesTotal",
           "impotMariesTotal",
           "differenceFiscale",
-          "impotSuccessionConjoint",
-          "impotSuccessionConcubin",
           "synthese",
           "premierEclairage",
           "disclaimer"
@@ -5639,7 +5705,7 @@
             "type": "string"
           },
           "policyVersion": {
-            "default": "v2.3.0",
+            "default": "v2.4.0",
             "title": "Policyversion",
             "type": "string"
           },
@@ -8590,11 +8656,6 @@
             "title": "Impactsuccession",
             "type": "string"
           },
-          "impotDonation": {
-            "description": "Tax amount (CHF)",
-            "title": "Impotdonation",
-            "type": "number"
-          },
           "montantDepassement": {
             "description": "Excess amount (CHF)",
             "title": "Montantdepassement",
@@ -8629,16 +8690,16 @@
             "title": "Sources",
             "type": "array"
           },
-          "tauxImposition": {
-            "description": "Tax rate",
-            "title": "Tauximposition",
-            "type": "number"
+          "verdictFiscal": {
+            "additionalProperties": true,
+            "description": "Verdict fiscal du socle ESTV 1.1.2025 : statut (exonere/taxe/taxe_lourd), plage_max_pct (uniquement si sourcée), mecanismes, bascule, source — remplace le couple tauxImposition/impotDonation (taux plat, ADR 2026-07-28 P4)",
+            "title": "Verdictfiscal",
+            "type": "object"
           }
         },
         "required": [
           "montantDonation",
-          "tauxImposition",
-          "impotDonation",
+          "verdictFiscal",
           "reserveHereditaireTotale",
           "quotiteDisponible",
           "donationDepasseQuotite",
@@ -8828,6 +8889,18 @@
             "description": "Code canton pour l'estimation fiscale (lu depuis le profil si absent)",
             "from_profile": "canton",
             "title": "Canton"
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
           },
           "montantRetraitSouhaite": {
             "description": "Montant de retrait souhaite (CHF)",
@@ -9153,6 +9226,51 @@
         "title": "EmploymentStatusEnum",
         "type": "string"
       },
+      "EnhancedConfidence": {
+        "description": "4-axis confidence wire payload (Plan 08a-01).\n\nWire shape::\n\n    {\n        \"completeness\": 0.8,\n        \"accuracy\": 0.9,\n        \"freshness\": 0.7,\n        \"understanding\": 0.6,\n        \"score\": 0.74\n    }",
+        "properties": {
+          "accuracy": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Accuracy",
+            "type": "number"
+          },
+          "completeness": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Completeness",
+            "type": "number"
+          },
+          "freshness": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Freshness",
+            "type": "number"
+          },
+          "score": {
+            "description": "Computed combined score (e.g. geometric mean of the 4 axes).",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "understanding": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Understanding",
+            "type": "number"
+          }
+        },
+        "required": [
+          "completeness",
+          "accuracy",
+          "freshness",
+          "understanding",
+          "score"
+        ],
+        "title": "EnhancedConfidence",
+        "type": "object"
+      },
       "EnrichmentPromptSchema": {
         "description": "Action recommandee pour ameliorer le score de confiance.",
         "properties": {
@@ -9372,6 +9490,18 @@
             "minimum": 0.0,
             "title": "Epargnecash",
             "type": "number"
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
           },
           "prixCible": {
             "default": 0,
@@ -11638,6 +11768,13 @@
             "title": "Anneevente",
             "type": "integer"
           },
+          "anneesOccupation": {
+            "default": 0,
+            "description": "Proven owner-occupation years (VD double-count, art. 72 al. 4 LI)",
+            "minimum": 0.0,
+            "title": "Anneesoccupation",
+            "type": "integer"
+          },
           "canton": {
             "default": "GE",
             "description": "Canton code (2-letter)",
@@ -11722,7 +11859,7 @@
         "type": "object"
       },
       "HousingSaleSimulationResponse": {
-        "description": "Response model for housing sale simulation.",
+        "description": "Response model for housing sale simulation.\n\nPour un canton non calibre (hors ZH / VD / GE), l'impot sur les gains\nimmobiliers n'est pas chiffre : `tauxImpositionPlusValue`, `impotPlusValue`,\n`remploiReport`, `impotEffectif` et `produitNet` valent alors `null` et\n`gainImmobilier` porte le mecanisme + le renvoi au calculateur cantonal.",
         "properties": {
           "alerts": {
             "description": "Warning messages",
@@ -11750,15 +11887,40 @@
             "title": "Dureedetention",
             "type": "integer"
           },
+          "gainImmobilier": {
+            "additionalProperties": true,
+            "description": "Gains-tax verdict (model, tax, effective rate, mechanisms, source)",
+            "title": "Gainimmobilier",
+            "type": "object"
+          },
           "impotEffectif": {
-            "description": "Actual tax due (CHF)",
-            "title": "Impoteffectif",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Actual tax due (CHF, null if canton not calibrated)",
+            "title": "Impoteffectif"
           },
           "impotPlusValue": {
-            "description": "Tax on capital gain (CHF)",
-            "title": "Impotplusvalue",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax on capital gain (CHF, null if canton not calibrated)",
+            "title": "Impotplusvalue"
+          },
+          "modeleGain": {
+            "description": "Gains-tax model: calibre | mecanisme | inconnu",
+            "title": "Modelegain",
+            "type": "string"
           },
           "plusValueBrute": {
             "description": "Gross capital gain (CHF)",
@@ -11777,9 +11939,16 @@
             "type": "object"
           },
           "produitNet": {
-            "description": "Net proceeds (CHF)",
-            "title": "Produitnet",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Net proceeds (CHF, null if gains tax not calibrated)",
+            "title": "Produitnet"
           },
           "remboursementEpl3a": {
             "description": "EPL 3a to repay (CHF)",
@@ -11792,9 +11961,16 @@
             "type": "number"
           },
           "remploiReport": {
-            "description": "Tax deferred via reinvestment (CHF)",
-            "title": "Remploireport",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax deferred via reinvestment (CHF, null if not calibrated)",
+            "title": "Remploireport"
           },
           "soldeHypotheque": {
             "description": "Mortgage payoff (CHF)",
@@ -11810,23 +11986,26 @@
             "type": "array"
           },
           "tauxImpositionPlusValue": {
-            "description": "Tax rate",
-            "title": "Tauximpositionplusvalue",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Effective tax rate (null if canton not calibrated)",
+            "title": "Tauximpositionplusvalue"
           }
         },
         "required": [
           "plusValueBrute",
           "plusValueImposable",
           "dureeDetention",
-          "tauxImpositionPlusValue",
-          "impotPlusValue",
-          "remploiReport",
-          "impotEffectif",
+          "modeleGain",
           "remboursementEplLpp",
           "remboursementEpl3a",
           "soldeHypotheque",
-          "produitNet",
           "disclaimer"
         ],
         "title": "HousingSaleSimulationResponse",
@@ -13773,6 +13952,18 @@
             "minimum": 65.0,
             "title": "Esperancevie",
             "type": "integer"
+          },
+          "isMarried": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Marie·e (coefficient cantonal retrait capital, defaut: False)",
+            "title": "Ismarried"
           }
         },
         "required": [
@@ -14772,6 +14963,184 @@
           }
         },
         "title": "MobileSessionLinkResponse",
+        "type": "object"
+      },
+      "MoneyTruthRange": {
+        "additionalProperties": false,
+        "description": "Bande d'incertitude {low, high} sur la valeur (SPEC §4.1 `range`).\n\nChaque borne est un RECALCUL du service avec une hypothèse bornante\nbasse / haute (PAS un pourcentage arbitraire) — SPEC §4.1 précision.",
+        "properties": {
+          "high": {
+            "title": "High",
+            "type": "number"
+          },
+          "low": {
+            "title": "Low",
+            "type": "number"
+          }
+        },
+        "required": [
+          "low",
+          "high"
+        ],
+        "title": "MoneyTruthRange",
+        "type": "object"
+      },
+      "MoneyTruthReceipt": {
+        "additionalProperties": false,
+        "description": "Contrat de vérité chiffrée v1 — enveloppe une valeur L1 + sa provenance.\n\nChamps (SPEC §4.1). `range` et `confidence` sont nullables EN GÉNÉRAL mais\nREQUIS pour `claim_id == firstjob.net_salary.v1` (validateur ci-dessous ;\nA3 les affiche).",
+        "properties": {
+          "assumptions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "base": {
+            "enum": [
+              "brut",
+              "net"
+            ],
+            "title": "Base",
+            "type": "string"
+          },
+          "civilStatus": {
+            "minLength": 1,
+            "title": "Civilstatus",
+            "type": "string"
+          },
+          "claimId": {
+            "minLength": 1,
+            "title": "Claimid",
+            "type": "string"
+          },
+          "computedAt": {
+            "minLength": 1,
+            "title": "Computedat",
+            "type": "string"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnhancedConfidence"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "engine": {
+            "minLength": 1,
+            "title": "Engine",
+            "type": "string"
+          },
+          "engineVersion": {
+            "minLength": 1,
+            "title": "Engineversion",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": true,
+            "title": "Inputs",
+            "type": "object"
+          },
+          "inputsHash": {
+            "maxLength": 64,
+            "minLength": 64,
+            "title": "Inputshash",
+            "type": "string"
+          },
+          "jurisdiction": {
+            "minLength": 1,
+            "title": "Jurisdiction",
+            "type": "string"
+          },
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MoneyTruthRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "receiptId": {
+            "minLength": 1,
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "rounding": {
+            "minLength": 1,
+            "title": "Rounding",
+            "type": "string"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/MoneyTruthSource"
+            },
+            "minItems": 1,
+            "title": "Sources",
+            "type": "array"
+          },
+          "taxYear": {
+            "maximum": 2100.0,
+            "minimum": 1900.0,
+            "title": "Taxyear",
+            "type": "integer"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "claimId",
+          "receiptId",
+          "inputs",
+          "inputsHash",
+          "jurisdiction",
+          "taxYear",
+          "base",
+          "civilStatus",
+          "assumptions",
+          "engine",
+          "engineVersion",
+          "rounding",
+          "sources",
+          "value",
+          "computedAt"
+        ],
+        "title": "MoneyTruthReceipt",
+        "type": "object"
+      },
+      "MoneyTruthSource": {
+        "additionalProperties": false,
+        "description": "Une source datée derrière la valeur (SPEC §4.1 `sources[]`).\n\n`vintage` = millésime de la source (ex. 2026 pour les taux de cotisation,\n2022 pour une statistique OFS ESS). Ne JAMAIS confondre avec `tax_year`\n(millésime des règles de cotisation appliquées) — SPEC §4.1 précision.",
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "vintage": {
+            "maximum": 2100.0,
+            "minimum": 1900.0,
+            "title": "Vintage",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "vintage"
+        ],
+        "title": "MoneyTruthSource",
         "type": "object"
       },
       "MonthlyEntryResponse": {
@@ -19813,7 +20182,7 @@
                 "type": "null"
               }
             ],
-            "description": "Age actuel, requis pour un receipt RvC complet",
+            "description": "Age actuel — requis pour le receipt seulement en mode estimation (input_mode='estimate')",
             "title": "Currentage"
           },
           "horizon": {
@@ -19841,6 +20210,19 @@
             ],
             "description": "Taux d'inflation (defaut: 2%)",
             "title": "Inflation"
+          },
+          "inputMode": {
+            "anyOf": [
+              {
+                "pattern": "^(certificate|estimate)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Mode de saisie mobile : 'certificate' (valeurs reelles du certificat LPP, pas de projection — current_age inutile) ou 'estimate' (projection cote mobile — current_age requis pour un receipt complet). Absent = appel hors ecran RvC, traite comme certificate (le backend ne projette jamais).",
+            "title": "Inputmode"
           },
           "isMarried": {
             "anyOf": [
@@ -20119,6 +20501,95 @@
         ],
         "title": "ResidenceCountry",
         "type": "string"
+      },
+      "ResolveReceiptRequest": {
+        "description": "Résolution scopée propriétaire (SPEC §4.3 clauses 2-3).",
+        "properties": {
+          "anonymousSessionId": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Session anonyme propriétaire (résolution non authentifiée).",
+            "title": "Anonymoussessionid"
+          },
+          "inputsHash": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Inputshash",
+            "type": "string"
+          },
+          "receiptId": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "receiptInputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inputs normalisés portés par le payload d'entrée (cas pending : receipt pas encore synchronisé). Le coach répond depuis ces inputs quand la ligne n'est pas résolvable pour ce propriétaire.",
+            "title": "Receiptinputs"
+          }
+        },
+        "required": [
+          "receiptId",
+          "inputsHash"
+        ],
+        "title": "ResolveReceiptRequest",
+        "type": "object"
+      },
+      "ResolveReceiptResponse": {
+        "description": "Résultat de la résolution.",
+        "properties": {
+          "inputs": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inputs échos — présents quand status='pending'.",
+            "title": "Inputs"
+          },
+          "receipt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MoneyTruthReceipt"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Receipt complet — présent SEULEMENT quand status='resolved'."
+          },
+          "status": {
+            "description": "'resolved' | 'pending' | 'not_found'.",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ResolveReceiptResponse",
+        "type": "object"
       },
       "RetirementAssetSchema": {
         "description": "Un avoir de prevoyance eligible au retrait.",
@@ -21704,6 +22175,13 @@
             "title": "Canton",
             "type": "string"
           },
+          "fraisAnnuelsParCompte": {
+            "default": 0.0,
+            "description": "Frais annuels par compte 3a (CHF, selon prestataire)",
+            "minimum": 0.0,
+            "title": "Fraisannuelsparcompte",
+            "type": "number"
+          },
           "nbComptes": {
             "default": 3,
             "description": "Nombre de comptes 3a (1-5)",
@@ -21776,15 +22254,18 @@
             "title": "Nbcomptes",
             "type": "integer"
           },
-          "optimalAccounts": {
-            "description": "Nombre optimal de comptes recommande",
-            "title": "Optimalaccounts",
-            "type": "integer"
-          },
           "premierEclairage": {
             "description": "Chiffre choc pour l'utilisateur",
             "title": "Premiereclairage",
             "type": "string"
+          },
+          "scenarios": {
+            "description": "Scenarios par nombre de comptes (2-5), sans classement",
+            "items": {
+              "$ref": "#/components/schemas/AccountScenarioResponse"
+            },
+            "title": "Scenarios",
+            "type": "array"
           },
           "sources": {
             "items": {
@@ -21819,7 +22300,6 @@
           "staggeredTauxEffectif",
           "economy",
           "economyPct",
-          "optimalAccounts",
           "yearlyPlan",
           "avoirTotal",
           "nbComptes",
@@ -21847,6 +22327,58 @@
         ],
         "title": "StatutProfessionnel",
         "type": "string"
+      },
+      "StoreReceiptRequest": {
+        "description": "Écriture idempotente d'un receipt (SPEC §4.3 clause 1).",
+        "properties": {
+          "anonymousSessionId": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Session anonyme propriétaire quand la requête n'est pas authentifiée (store /first-job pré-auth). Ignoré si un JWT est présent (le scope propriétaire prend alors user.id).",
+            "title": "Anonymoussessionid"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/MoneyTruthReceipt"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "title": "StoreReceiptRequest",
+        "type": "object"
+      },
+      "StoreReceiptResponse": {
+        "description": "Résultat de l'écriture.",
+        "properties": {
+          "inputsHash": {
+            "title": "Inputshash",
+            "type": "string"
+          },
+          "receiptId": {
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "status": {
+            "description": "'stored' (nouveau) | 'duplicate' (no-op).",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "receiptId",
+          "inputsHash"
+        ],
+        "title": "StoreReceiptResponse",
+        "type": "object"
       },
       "StripeCheckoutRequest": {
         "properties": {
@@ -21927,7 +22459,7 @@
         "type": "object"
       },
       "SuccessionRequest": {
-        "description": "Requete pour la comparaison d'impot sur les successions.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is widened\nfrom `default=\"ZH\"` to Optional `default=None` with the `from_profile`\nmarker so the `_resolve_defaults` helper can fill it from\n`_user.profile.canton` before the missing-check fires. A silent ZH default\non null canton (W0 audit row 23 sev-3) returned wrong concubin tax rates\n(~18% ZH vs canton-specific 0-26%) ; the grounding contract closes that\nsilent-wrong-tax class.",
+        "description": "Requete pour l'expose du mecanisme successoral en concubinage.\n\nPer D-CE-06 + D-CE-07 (Plan mint-calc-engine-v1-03), `canton` is Optional\n`default=None` with the `from_profile` marker so `_resolve_defaults` can\nfill it from `_user.profile.canton` before the missing-check fires.\n\nNe porte plus AUCUN champ chiffre :\n  - `patrimoine` etait REQUIS, donc l'endpoint reclamait a l'utilisateur\n    son patrimoine (422 s'il manquait) dans le seul but de produire un\n    montant indefendable. La doctrine dit l'inverse : retirer le chiffre\n    plutot qu'exiger des champs.\n  - `is_married` etait déjà mort — la reponse a toujours decrit les deux\n    situations, le drapeau ne changeait rien.\nLes clients qui envoient encore ces champs ne sont pas casses : Pydantic\nles ignore.",
         "properties": {
           "canton": {
             "anyOf": [
@@ -21943,62 +22475,45 @@
             "description": "Code canton (2 lettres, lu depuis le profil si absent)",
             "from_profile": "canton",
             "title": "Canton"
-          },
-          "isMarried": {
-            "default": false,
-            "description": "True pour conjoint, False pour concubin",
-            "title": "Ismarried",
-            "type": "boolean"
-          },
-          "patrimoine": {
-            "description": "Patrimoine a transmettre (CHF)",
-            "minimum": 0.0,
-            "title": "Patrimoine",
-            "type": "number"
           }
         },
-        "required": [
-          "patrimoine"
-        ],
         "title": "SuccessionRequest",
         "type": "object"
       },
       "SuccessionResponse": {
-        "description": "Reponse pour la comparaison d'impot sur les successions.",
+        "description": "Reponse : le mecanisme successoral, sans montant ni taux.\n\nLe taux plat par canton a ete retire avec le montant : il est dementi sur\nau moins deux cantons et ignore la commune, la franchise, la part reellement\nrecue et la duree de vie commune.",
         "properties": {
           "canton": {
             "description": "Code canton",
             "title": "Canton",
             "type": "string"
           },
-          "difference": {
-            "description": "Difference impot concubin - conjoint (CHF)",
-            "title": "Difference",
-            "type": "number"
+          "chargeConcubin": {
+            "description": "Qui paie quoi, enonce sans etre chiffre",
+            "title": "Chargeconcubin",
+            "type": "string"
           },
           "disclaimer": {
             "description": "Avertissement legal",
             "title": "Disclaimer",
             "type": "string"
           },
-          "impotConcubin": {
-            "description": "Impot si concubin survivant (CHF)",
-            "title": "Impotconcubin",
-            "type": "number"
-          },
-          "impotConjoint": {
-            "description": "Impot si conjoint survivant (CHF)",
-            "title": "Impotconjoint",
-            "type": "number"
-          },
-          "patrimoine": {
-            "description": "Patrimoine transmis (CHF)",
-            "title": "Patrimoine",
-            "type": "number"
+          "facteursDeterminants": {
+            "description": "Ce dont dependrait un chiffre reel",
+            "items": {
+              "type": "string"
+            },
+            "title": "Facteursdeterminants",
+            "type": "array"
           },
           "premierEclairage": {
-            "description": "Chiffre choc pedagogique",
+            "description": "Le mecanisme successoral, sans montant ni taux",
             "title": "Premiereclairage",
+            "type": "string"
+          },
+          "regleTransmission": {
+            "description": "Ce qui peut etre legue, et a qui (CC art. 470-471)",
+            "title": "Regletransmission",
             "type": "string"
           },
           "sources": {
@@ -22008,26 +22523,13 @@
             },
             "title": "Sources",
             "type": "array"
-          },
-          "tauxConcubin": {
-            "description": "Taux effectif concubin",
-            "title": "Tauxconcubin",
-            "type": "number"
-          },
-          "tauxConjoint": {
-            "description": "Taux effectif conjoint",
-            "title": "Tauxconjoint",
-            "type": "number"
           }
         },
         "required": [
           "canton",
-          "patrimoine",
-          "impotConjoint",
-          "impotConcubin",
-          "difference",
-          "tauxConjoint",
-          "tauxConcubin",
+          "regleTransmission",
+          "chargeConcubin",
+          "facteursDeterminants",
           "premierEclairage",
           "disclaimer"
         ],
@@ -29487,7 +29989,7 @@
     },
     "/api/v1/family/concubinage/succession": {
       "post": {
-        "description": "Compare l'impot de succession conjoint vs concubin.\n\nLe conjoint est exonere dans la plupart des cantons. Le concubin\nest impose au taux 'tiers' (10-25% selon le canton).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 23 sev-3 fix — legacy default\n\"ZH\" silently returned wrong concubin tax rates for non-ZH users).\nMissing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-default branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: Lois cantonales successions, CC art. 457-466.",
+        "description": "Enonce le mecanisme successoral du concubinage, sans le chiffrer.\n\nLe conjoint survivant est exonere d'impot successoral dans TOUS les\ncantons — par la loi fiscale cantonale, pas par le Code civil. Le concubin\nreleve du taux dit 'des tiers'. Ni ce taux ni le montant ne sont rendus :\nils dependent de la commune, de la franchise, de la part reellement recue\net de la duree de vie commune, qu'aucun taux plat ne represente.\n\nLe `patrimoine` n'est plus demande : il alimentait un `patrimoine x taux`\nqui supposait que 100 % du patrimoine pouvait revenir au ou a la\npartenaire, ce que la revision du droit successoral au 1.1.2023 dement.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body. Missing profile.canton triggers a 422 with\nthe D-CE-08 `CoachToolIncomplete` envelope when\n`PROFILE_GROUNDING_STRICT_MODE=true`.\n\nSources: lois fiscales cantonales sur les successions, CC art. 457 ss,\nCC art. 470-471.",
         "operationId": "compare_succession_api_v1_family_concubinage_succession_post",
         "requestBody": {
           "content": {
@@ -29707,7 +30209,7 @@
     },
     "/api/v1/family/naissance/allocations": {
       "post": {
-        "description": "Estime les allocations familiales cantonales.\n\nAllocation enfant: CHF 200-300/mois, allocation formation: +CHF 50/mois.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 18 sev-2 — canton-indexed\nallocations). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LAFam art. 3.",
+        "description": "Estime les allocations familiales cantonales.\n\nAllocation enfant: CHF 215-330/mois, formation par canton (OFAS/BSV 2026).\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (W0 audit row 18 sev-2 — canton-indexed\nallocations). Missing profile.canton triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when strict mode is enabled.\n\nSources: LAFam art. 3.",
         "operationId": "estimate_allocations_api_v1_family_naissance_allocations_post",
         "requestBody": {
           "content": {
@@ -29880,7 +30382,7 @@
     },
     "/api/v1/family/naissance/impact-fiscal": {
       "post": {
-        "description": "Calcule l'economie fiscale liee aux enfants.\n\nDeduction par enfant: CHF 6'700. Frais de garde: max CHF 25'500.\n\nSources: LIFD art. 35, 33.",
+        "description": "Calcule l'economie fiscale liee aux enfants.\n\nDeduction par enfant: CHF 6'800. Frais de garde: max CHF 25'800.\n\nSources: LIFD art. 35 al. 1 let. a, art. 33 al. 3.",
         "operationId": "impact_fiscal_enfant_api_v1_family_naissance_impact_fiscal_post",
         "requestBody": {
           "content": {
@@ -30152,7 +30654,7 @@
     },
     "/api/v1/fiscal/wealth-tax/compare": {
       "post": {
-        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier éclairage.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier éclairage.\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "compare_wealth_tax_api_v1_fiscal_wealth_tax_compare_post",
         "requestBody": {
           "content": {
@@ -30194,7 +30696,7 @@
     },
     "/api/v1/fiscal/wealth-tax/estimate": {
       "post": {
-        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (no silent hardcoded fallback). Missing\nrequired profile field triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-defaults branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Estimate wealth tax for a given fortune in a specific canton.\n\nReturns the fortune imposable (after exemption) and the estimated\nannual wealth tax based on simplified effective rates.\n\nGrounded via D-CE-06 + D-CE-07 : `canton` is read from `_user.profile`\nwhen not supplied in the body (no silent hardcoded fallback). Missing\nrequired profile field triggers a 422 with the D-CE-08\n`CoachToolIncomplete` envelope when `PROFILE_GROUNDING_STRICT_MODE=true` ;\notherwise a warning is logged and the legacy hardcoded-defaults branch\nresumes (non-strict graceful Flutter rollout).\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "estimate_wealth_tax_api_v1_fiscal_wealth_tax_estimate_post",
         "requestBody": {
           "content": {
@@ -30241,7 +30743,7 @@
     },
     "/api/v1/fiscal/wealth-tax/move": {
       "post": {
-        "description": "Simulate wealth tax savings from moving between cantons.\n\nReturns annual, monthly, and 10-year cumulative savings\non wealth tax from a cantonal move.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Simulate wealth tax savings from moving between cantons.\n\nReturns annual, monthly, and 10-year cumulative savings\non wealth tax from a cantonal move.\n\nSources: LHID art. 14, modele simplifie MINT (recalibrage ESTV en cours).",
         "operationId": "simulate_wealth_tax_move_api_v1_fiscal_wealth_tax_move_post",
         "requestBody": {
           "content": {
@@ -31419,6 +31921,102 @@
         "summary": "Lucidity Invariant Mortgage Cap",
         "tags": [
           "Lucidity L1-L4 (calc-engine-v1)"
+        ]
+      }
+    },
+    "/api/v1/lucidity/receipts": {
+      "post": {
+        "description": "Persiste un MoneyTruthReceipt de façon idempotente, scopé propriétaire.",
+        "operationId": "store_money_truth_receipt_api_v1_lucidity_receipts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StoreReceiptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreReceiptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Store Money Truth Receipt",
+        "tags": [
+          "Lucidity MoneyTruthReceipt store/resolve (firstJob PR-E)",
+          "lucidity-receipts"
+        ]
+      }
+    },
+    "/api/v1/lucidity/receipts/resolve": {
+      "post": {
+        "description": "Résout un receipt par (receiptId, inputsHash) scopé au propriétaire.",
+        "operationId": "resolve_money_truth_receipt_api_v1_lucidity_receipts_resolve_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveReceiptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolveReceiptResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Resolve Money Truth Receipt",
+        "tags": [
+          "Lucidity MoneyTruthReceipt store/resolve (firstJob PR-E)",
+          "lucidity-receipts"
         ]
       }
     },

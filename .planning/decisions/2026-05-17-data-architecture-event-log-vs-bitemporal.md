@@ -243,3 +243,14 @@ Phase `mint-data-architecture-v1-01-calc-engine-canonical` resolved the prerequi
 ### Panel-contract finding (out-of-scope but flagged)
 
 The `database-architect` agent's initial run wrote only a title-stub to engram obs #150 (no reasoning, no risks, no alternative) and returned a save receipt as its terminal output. The wshobson agent body template appears to auto-`mem_save` at end in a way that consumes the terminal-output slot. Mitigation in future panel runs: instruct agents to return verdict prose as their final text and treat `mem_save` as side-channel. Possible template fix worth filing as its own ADR or contract update.
+
+### Addendum 2026-07-24 — volet fiscal du calc-engine complété (statut : constat)
+
+Le domaine fiscal L2 est backend-canonique en pratique : modèles v2
+revenu/capital/rente calibrés sur l'API ESTV (130 points — revenu : PR
+#988 ; capital : PRs #990/#991 ; proxys restants : #995 ; comparaison
+cantonale : #997 ; provenance du registre : #994), dernier consommateur
+du modèle v1
+(`EFFECTIVE_RATES_100K_SINGLE`) supprimé, parités croisées gelées par
+fixtures partagées (`tools/fixtures/`). Reste hors périmètre : copie privée
+`_INCOME_ADJUSTMENT` de couple_optimizer (beads MINT_nosync-5up).

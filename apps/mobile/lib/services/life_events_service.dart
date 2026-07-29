@@ -1,4 +1,5 @@
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/succession_donation_socle.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
@@ -17,6 +18,14 @@ class DivorceInput {
   final int marriageDurationYears;
   final int numberOfChildren;
   final MatrimonialRegime regime;
+
+  /// Canton de résidence RÉEL de l'utilisateur, utilisé pour le barème d'impôt
+  /// (marié + individuel). Aucune valeur codée en dur : l'impôt du divorce d'un
+  /// contribuable GE ne peut pas être présenté avec le barème d'un autre canton.
+  /// La chaîne vide « » signifie « canton non confirmé » — l'écran bloque alors
+  /// l'affichage du résultat (gate dur), la valeur ne sert qu'au calcul interne.
+  final String canton;
+
   final double incomeConjoint1;
   final double incomeConjoint2;
   final double lppConjoint1;
@@ -34,13 +43,23 @@ class DivorceInput {
 
   final double pillar3aConjoint1;
   final double pillar3aConjoint2;
+
+  /// Repère INDICATIF sur le patrimoine du ménage. Ce n'est PAS une masse
+  /// partageable et aucune part n'en est dérivée : la liquidation du régime
+  /// exige les comptes de chaque époux séparément (voir la note au-dessus de
+  /// [DivorceResult]). Seul le constat qualitatif sur le niveau d'endettement
+  /// s'appuie dessus.
   final double fortuneCommune;
+
+  /// Dettes du ménage, repère INDICATIF au même titre que [fortuneCommune].
+  /// Sert uniquement au ratio qualitatif d'endettement, jamais à une part.
   final double dettesCommunes;
 
   const DivorceInput({
     required this.marriageDurationYears,
     required this.numberOfChildren,
     required this.regime,
+    required this.canton,
     required this.incomeConjoint1,
     required this.incomeConjoint2,
     required this.lppConjoint1,
@@ -63,6 +82,9 @@ class LppSplitResult {
   final double acquisConjoint1;
   final double acquisConjoint2;
 
+  /// Solde de prévoyance de chaque conjoint APRÈS le partage : avoir actuel
+  /// ∓ transfert. Ce n'est pas « la moitié des acquêts » — cette moitié n'est
+  /// l'avoir de personne. Les deux soldes s'additionnent à [totalLpp].
   final double shareConjoint1;
   final double shareConjoint2;
   final double transferAmount;
@@ -102,33 +124,48 @@ class TaxImpactResult {
   });
 }
 
-/// Patrimoine split result.
-class PatrimoineSplitResult {
-  final double fortuneNette;
-  final double shareConjoint1;
-  final double shareConjoint2;
-
-  const PatrimoineSplitResult({
-    required this.fortuneNette,
-    required this.shareConjoint1,
-    required this.shareConjoint2,
-  });
-}
+// ⚠️ Il n'existe PLUS de `PatrimoineSplitResult` — c'est délibéré.
+//
+// Aucune part personnelle de liquidation n'est calculée, pour aucun régime :
+//  • participation aux acquêts (CC art. 215) : chacun a droit à la moitié du
+//    bénéfice de L'AUTRE, puis les deux créances se compensent. Cela exige le
+//    compte d'acquêts de CHAQUE époux, après réunions (art. 208), récompenses
+//    (art. 206 et 209) et attribution de chaque dette à la bonne masse. Une
+//    masse commune unique divisée par deux n'approche ce résultat que si aucun
+//    de ces éléments n'existe — hypothèse que rien ne permet de poser ;
+//  • communauté de biens : en cas de DIVORCE c'est CC art. 242 al. 1-2 (chacun
+//    reprend d'abord les biens communs qui auraient été ses biens propres sous
+//    participation, seul le solde se partage par moitié), et non l'art. 241 qui
+//    ne vise que la dissolution par décès ou changement de régime ;
+//  • séparation de biens (CC art. 247-251) : il n'y a pas de masse à partager.
+//
+// L'UI énonce ces mécaniques par régime au lieu d'un chiffre. Les champs de
+// parts ont été SUPPRIMÉS plutôt que laissés calculés : une part indéfendable
+// qui dort dans le résultat finit par être affichée (audit conseiller
+// 2026-07-26, HIGH #3).
 
 /// Full divorce simulation result.
+///
+/// AUCUN montant d'entretien n'est exposé — délibérément. Le droit suisse fait
+/// dépendre l'entretien des revenus disponibles nets, du minimum vital, du
+/// logement, des frais de garde, du taux de garde, du train de vie, de la
+/// capacité de gain et du clean-break. L'ancienne heuristique (forfait par
+/// enfant + pourcentage de l'écart de revenus + seuils de durée) ne correspondait
+/// à aucune règle suisse et a été supprimée (audit conseiller 2026-07-26) : les
+/// écrans énoncent les facteurs déterminants et renvoient vers un·e spécialiste.
+/// L'alerte qualitative signale un point à EXAMINER au sens de CC art. 125 — le
+/// droit résulte d'un examen individuel et une longue durée de mariage ne le
+/// crée pas automatiquement (ATF 137 III 102 ; TF 5A_853/2024). Elle n'affirme
+/// donc ni probabilité, ni droit, ni montant.
 class DivorceResult {
   final LppSplitResult lppSplit;
   final TaxImpactResult taxImpact;
-  final PatrimoineSplitResult patrimoineSplit;
-  final double pensionAlimentaireMonthly;
   final List<String> alerts;
   final List<String> checklist;
 
   const DivorceResult({
     required this.lppSplit,
     required this.taxImpact,
-    required this.patrimoineSplit,
-    required this.pensionAlimentaireMonthly,
     required this.alerts,
     required this.checklist,
   });
@@ -172,17 +209,29 @@ class DivorceService {
           (input.lppConjoint1 - input.avoirAuMariage1!).clamp(0.0, double.infinity);
       final acquis2 =
           (input.lppConjoint2 - input.avoirAuMariage2!).clamp(0.0, double.infinity);
-      final totalAcquis = acquis1 + acquis2;
-      final halfAcquis = totalAcquis / 2;
       lppTransfer = (acquis1 - acquis2).abs() / 2;
       final lppDirection = acquis1 > acquis2 ? '1 \u2192 2' : '2 \u2192 1';
+
+      // Solde de CHACUN après partage = son avoir actuel ∓ le transfert. C'est
+      // la seule lecture honnête : la « moitié du pool acquis » n'est l'avoir de
+      // personne et ne se réconcilie pas avec le total affiché (audit conseiller
+      // 2026-07-26). Les deux soldes s'additionnent bien à `totalLpp`.
+      final pays1 = acquis1 > acquis2;
+      final solde1 = (pays1
+              ? input.lppConjoint1 - lppTransfer
+              : input.lppConjoint1 + lppTransfer)
+          .clamp(0.0, double.infinity);
+      final solde2 = (pays1
+              ? input.lppConjoint2 + lppTransfer
+              : input.lppConjoint2 - lppTransfer)
+          .clamp(0.0, double.infinity);
 
       lppSplit = LppSplitResult(
         totalLpp: totalLpp,
         acquisConjoint1: acquis1,
         acquisConjoint2: acquis2,
-        shareConjoint1: halfAcquis,
-        shareConjoint2: halfAcquis,
+        shareConjoint1: solde1,
+        shareConjoint2: solde2,
         transferAmount: lppTransfer,
         transferDirection: acquis1 == acquis2 ? '-' : lppDirection,
       );
@@ -196,51 +245,35 @@ class DivorceService {
     // Note: 3a split depends on regime but is handled separately via
     // the LPP/3a partage logic. The patrimoine split below covers net wealth.
 
-    // ---- Patrimoine Split ----
-    final fortuneNette = input.fortuneCommune - input.dettesCommunes;
-    double shareC1;
-    double shareC2;
-
-    switch (input.regime) {
-      case MatrimonialRegime.participationAuxAcquets:
-        // Each keeps own property; acquêts (= common fortune here) split 50/50
-        shareC1 = fortuneNette / 2;
-        shareC2 = fortuneNette / 2;
-      case MatrimonialRegime.communauteDeBiens:
-        // Everything pooled and split 50/50
-        shareC1 = fortuneNette / 2;
-        shareC2 = fortuneNette / 2;
-      case MatrimonialRegime.separationDeBiens:
-        // Each keeps their own — simplified: we split proportionally to income
-        final totalIncome = input.incomeConjoint1 + input.incomeConjoint2;
-        if (totalIncome > 0) {
-          shareC1 = fortuneNette * (input.incomeConjoint1 / totalIncome);
-          shareC2 = fortuneNette * (input.incomeConjoint2 / totalIncome);
-        } else {
-          shareC1 = fortuneNette / 2;
-          shareC2 = fortuneNette / 2;
-        }
-    }
-
-    final patrimoineSplit = PatrimoineSplitResult(
-      fortuneNette: fortuneNette,
-      shareConjoint1: shareC1,
-      shareConjoint2: shareC2,
-    );
+    // ---- Liquidation du régime matrimonial ----
+    // AUCUNE part n'est calculée (voir la note au-dessus de DivorceResult).
+    // `fortuneCommune` / `dettesCommunes` ne servent plus qu'au constat
+    // QUALITATIF sur le niveau d'endettement, jamais à une part personnelle.
 
     // ---- Tax Impact ----
-    // Simplified Swiss tax estimation:
-    // Married couples benefit from ~15-25% effective discount (splitting).
-    // After divorce, each is taxed individually.
+    // Impôt EFFECTIF des deux côtés (marié vs deux célibataires), via la fonction
+    // canonique estimateMonthlyIncomeTax (estimateIncomeTaxV2/12) — plus de
+    // marginale × revenu (qui surestimait le côté marié) ni de coefficient 0.65.
+    // Les deux côtés partagent le MÊME modèle effectif → le delta est symétrique
+    // et révèle la « pénalité de mariage » réelle (le divorce baisse souvent
+    // l'impôt du ménage à deux revenus). NEVER #3 : une seule source de vérité L1.
     final combinedIncome = input.incomeConjoint1 + input.incomeConjoint2;
-    // Married rate via centralized calculator (splitting + canton-average)
-    final marriedRate = RetirementTaxCalculator.estimateMarginalRate(
-      combinedIncome, 'ZH', isMarried: true,
-    );
-    final taxMarried = combinedIncome * marriedRate;
-    // Individual rates slightly higher per person
-    final taxC1 = _estimateIndividualTax(input.incomeConjoint1);
-    final taxC2 = _estimateIndividualTax(input.incomeConjoint2);
+    // Impôt marié au barème « marié » (splitting) du canton RÉEL du ménage —
+    // jamais un canton codé en dur. nombreEnfants:0 : le facteur enfant vaut 1.0,
+    // les enfants relèvent de la garde/pension, pas de ce partage d'impôt.
+    final taxMarried = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+          revenuAnnuelImposable: combinedIncome,
+          canton: input.canton,
+          etatCivil: 'marie',
+          nombreEnfants: 0,
+        ) *
+        12;
+    // Les deux impôts individuels utilisent le canton (confirmé) du ménage. Au
+    // moment du divorce le domicile est commun → base légale correcte pour la
+    // comparaison marié/séparés ; le canton futur de l'ex n'est PAS connu et n'est
+    // pas fabriqué (l'écran l'énonce via divorceImpactFiscalCantonNote).
+    final taxC1 = _estimateIndividualTax(input.incomeConjoint1, input.canton);
+    final taxC2 = _estimateIndividualTax(input.incomeConjoint2, input.canton);
     final totalTaxAfter = taxC1 + taxC2;
 
     final taxImpact = TaxImpactResult(
@@ -252,28 +285,18 @@ class DivorceService {
     );
 
     // ---- Pension Alimentaire ----
-    // Simplified estimation based on Swiss practice.
-    // Child contributions: CHF 600/month per child (base, age-independent).
-    // Spousal maintenance: depends on marriage duration and income gap.
-    // Aligned with backend (job_comparator/divorce_simulator) parameters.
-    double pensionAlimentaire = 0;
+    // ⚠️ AUCUN MONTANT D'ENTRETIEN N'EST CALCULÉ ICI — c'est délibéré.
+    // L'ancien modèle (forfait CHF 600/enfant + 8-15 % de l'écart de revenus +
+    // seuils à 5/10 ans) ne correspond à AUCUNE règle du droit de la famille
+    // suisse : le montant dépend des revenus disponibles nets, du minimum vital,
+    // du logement, des frais de garde, du taux de garde, du train de vie, de la
+    // capacité de gain et du clean-break. Il a été supprimé plutôt que laissé
+    // calculé (audit conseiller 2026-07-26) — un chiffre indéfendable qui dort
+    // dans le résultat finit par être affiché. L'écart de revenus reste utilisé
+    // pour l'alerte QUALITATIVE ci-dessous, qui signale un point à EXAMINER au
+    // sens de CC art. 125 — jamais une probabilité, un droit ou un montant.
     final incomeGap =
         (input.incomeConjoint1 - input.incomeConjoint2).abs();
-
-    // Children contribution (always applies if children exist)
-    final childContribution = input.numberOfChildren * 600.0;
-
-    // Spousal maintenance: only for marriages >= 5 years with income gap
-    double spouseContribution = 0;
-    if (input.marriageDurationYears >= 10 && incomeGap > 0) {
-      // Long marriage: ~15% of monthly income gap
-      spouseContribution = (incomeGap / 12.0) * 0.15;
-    } else if (input.marriageDurationYears >= 5 && incomeGap > 0) {
-      // Shorter marriage: reduced spousal maintenance (~8%)
-      spouseContribution = (incomeGap / 12.0) * 0.08;
-    }
-
-    pensionAlimentaire = childContribution + spouseContribution;
 
     // ---- Alerts ----
     final alerts = <String>[];
@@ -286,25 +309,44 @@ class DivorceService {
       );
     }
 
-    if (input.dettesCommunes > input.fortuneCommune * 0.5) {
+    // Ratio purement qualitatif. Garde-fou : sans patrimoine renseigné
+    // (fortuneCommune == 0 quand le fait n'est pas confirmé), le ratio se
+    // calculerait contre un 0 fabriqué et affirmerait « dettes élevées » sans
+    // base. On exige donc les deux montants pour émettre le constat.
+    if (input.fortuneCommune > 0 &&
+        input.dettesCommunes > input.fortuneCommune * 0.5) {
       alerts.add(
-        'Le niveau de dettes communes est eleve. Clarifiez la '
-        'repartition des dettes avant de signer la convention.',
+        'Les dettes du ménage sont élevées par rapport au patrimoine indiqué. '
+        'L\'attribution de chaque dette à la bonne masse est un point à '
+        'clarifier avant de signer la convention.',
       );
     }
 
     if (taxImpact.delta > 5000) {
+      // taxImpact.delta = impôt des deux ex-conjoints séparés − impôt du couple
+      // marié : c'est le surcoût du MÉNAGE (fin du splitting), pas l'impôt
+      // personnel de l'utilisateur — on ne l'attribue jamais à « ton budget ».
       alerts.add(
         'L\'impact fiscal du divorce est important : '
-        '+${chf.formatChfWithPrefix(taxImpact.delta)}/an. Anticipez ce surcout '
-        'dans ton budget.',
+        '+${chf.formatChfWithPrefix(taxImpact.delta)}/an pour le ménage. '
+        'Anticipez ce surcoût dans le budget des deux foyers.',
       );
     }
 
+    // CC art. 125 al. 1-2 : le droit à une contribution d'entretien résulte d'un
+    // examen INDIVIDUEL (capacité de subvenir soi-même, répartition des tâches
+    // pendant le mariage, durée, train de vie, âge et santé, revenus et fortune,
+    // prise en charge des enfants, formation et perspectives de gain,
+    // prévoyance). Une longue durée de mariage ne crée AUCUN droit automatique
+    // (ATF 137 III 102 ; TF 5A_853/2024). L'alerte signale donc un point à
+    // EXAMINER — jamais une probabilité, jamais un droit, jamais un montant.
     if (input.marriageDurationYears >= 10 && incomeGap > 40000) {
       alerts.add(
-        'Mariage de longue duree avec ecart de revenus important. '
-        'Une contribution d\'entretien au conjoint est probable.',
+        'Mariage de longue durée avec un écart de revenus important : '
+        'cela justifie d\'examiner une éventuelle contribution d\'entretien '
+        'au conjoint (CC art. 125). Les éléments saisis ici n\'établissent '
+        'aucun droit — celui-ci dépend d\'un examen individuel de la '
+        'situation des deux conjoints.',
       );
     }
 
@@ -318,9 +360,10 @@ class DivorceService {
 
     if (input.regime == MatrimonialRegime.separationDeBiens) {
       alerts.add(
-        'Regime de separation de biens : le partage du patrimoine '
-        'est plus simple mais le 3a n\'est pas automatiquement '
-        'partage.',
+        'Régime de séparation de biens : il n\'y a pas de masse à partager '
+        '(CC art. 247), mais la propriété de chaque bien doit être prouvée — '
+        'à défaut, le bien est présumé en copropriété (CC art. 248). Le 3a '
+        'n\'est pas automatiquement partagé.',
       );
     }
 
@@ -341,29 +384,27 @@ class DivorceService {
     return DivorceResult(
       lppSplit: lppSplit,
       taxImpact: taxImpact,
-      patrimoineSplit: patrimoineSplit,
-      pensionAlimentaireMonthly: pensionAlimentaire,
       alerts: alerts,
       checklist: checklist,
     );
   }
 
-  /// Simplified individual tax estimation (Swiss progressive).
+  /// Impôt individuel (célibataire) via la fonction canonique effective.
   ///
-  /// Delegates to RetirementTaxCalculator.estimateMarginalRate for the
-  /// income-based marginal rate, then applies it as an effective rate.
-  /// Canton defaults to 'ZH' (median tax burden) since the divorce
-  /// service does not have canton in scope here.
-  /// TODO(profile-injection): Pass canton from DivorceInput when available.
-  static double _estimateIndividualTax(double income) {
+  /// Réutilise RetirementTaxCalculator.estimateMonthlyIncomeTax (impôt EFFECTIF
+  /// estimateIncomeTaxV2/12, barème célibataire) au canton RÉEL fourni par
+  /// DivorceInput (donnée réelle du profil) — jamais un proxy médian codé en dur,
+  /// jamais la marginale × revenu × 0.65. Symétrique avec l'impôt marié : le delta
+  /// compare deux impôts EFFECTIFS (NEVER #3 : une seule source de vérité L1).
+  static double _estimateIndividualTax(double income, String canton) {
     if (income <= 0) return 0;
-    // Use centralized marginal rate (AFC taux marginaux 2025).
-    // 'ZH' is used as a median proxy — not exact, but avoids fabricated brackets.
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(income, 'ZH');
-    // Effective tax ≈ ~60-70% of marginal rate for progressive systems.
-    // This approximation aligns with the old bracket-based approach.
-    return income * marginalRate * 0.65;
+    return RetirementTaxCalculator.estimateMonthlyIncomeTax(
+          revenuAnnuelImposable: income,
+          canton: canton,
+          etatCivil: 'celibataire',
+          nombreEnfants: 0,
+        ) *
+        12;
   }
 
 }
@@ -436,7 +477,11 @@ class SuccessionResult {
   final double totalEstate;
   final List<String> alerts;
   final List<String> checklist;
-  final Map<String, double> taxByHeir;
+
+  /// Verdict fiscal directionnel par héritier (socle ESTV 1.1.2025) —
+  /// remplace l'ancien `taxByHeir` en montant × taux plat
+  /// (ADR 2026-07-28 P4).
+  final Map<String, SuccessionDonationVerdict> verdictByHeir;
   final String pillar3aBeneficiaryOrder;
 
   const SuccessionResult({
@@ -447,7 +492,7 @@ class SuccessionResult {
     required this.totalEstate,
     required this.alerts,
     required this.checklist,
-    required this.taxByHeir,
+    required this.verdictByHeir,
     required this.pillar3aBeneficiaryOrder,
   });
 }
@@ -506,16 +551,14 @@ class SuccessionService {
       );
     }
 
-    // ---- Tax by Heir ----
-    final taxByHeir = <String, double>{};
+    // ---- Verdict fiscal par héritier (socle ESTV — pas de montant × taux) ----
+    final verdictByHeir = <String, SuccessionDonationVerdict>{};
     final distribution = testamentDistribution ?? legalDistribution;
     for (final heir in distribution) {
-      final tax = _estimateSuccessionTax(
-        amount: heir.amount,
+      verdictByHeir[heir.heirLabel] = SuccessionDonationSocle.verdict(
         canton: input.canton,
-        kinship: _kinshipFromLabel(heir.heirLabel),
+        categorie: _kinshipFromLabel(heir.heirLabel),
       );
-      taxByHeir[heir.heirLabel] = tax;
     }
 
     // ---- 3a Beneficiary Order (OPP3 art. 2) ----
@@ -525,11 +568,28 @@ class SuccessionService {
     final alerts = <String>[];
 
     if (input.civilStatus == CivilStatus.concubinage) {
+      // Message conservé, chiffre/étiquette plat retiré, bascule du socle
+      // ajoutée (ADR 2026-07-28 P4).
+      final concubinVerdict = SuccessionDonationSocle.verdict(
+        canton: input.canton,
+        categorie: 'concubin',
+      );
+      // « sous condition » seulement si le socle porte une bascule (revue
+      // adversariale P3 : ne pas inventer de condition pour GR/ZG/OW/SZ).
+      final fiscal = concubinVerdict.statut == 'exonere'
+          ? (concubinVerdict.bascule != null
+              ? 'Dans ton canton, une transmission au concubin peut être ' // lint-ignore
+                  'exonérée sous condition.' // lint-ignore
+              : 'Dans ton canton, une transmission au concubin est ' // lint-ignore
+                  'exonérée d\'impôt successoral.') // lint-ignore
+          : 'La fiscalité est aussi nettement plus lourde ' // lint-ignore
+              '(souvent la classe la plus chargée du barème cantonal).'; // lint-ignore
+      final bascule =
+          concubinVerdict.bascule == null ? '' : ' ${concubinVerdict.bascule}';
       alerts.add(
         'En concubinage, ton/ta partenaire n\'a AUCUN droit '
         'successoral legal. Sans testament, il/elle ne recoit '
-        'rien. La fiscalite est aussi nettement plus lourde '
-        '(taux "tiers").',
+        'rien. $fiscal$bascule',
       );
     }
 
@@ -590,7 +650,7 @@ class SuccessionService {
       totalEstate: totalEstate,
       alerts: alerts,
       checklist: checklist,
-      taxByHeir: taxByHeir,
+      verdictByHeir: verdictByHeir,
       pillar3aBeneficiaryOrder: pillar3aOrder,
     );
   }
@@ -765,79 +825,24 @@ class SuccessionService {
     return shares;
   }
 
-  /// Estimate succession tax by canton and kinship.
-  static double _estimateSuccessionTax({
-    required double amount,
-    required String canton,
-    required String kinship,
-  }) {
-    if (amount <= 0) return 0;
+  // --------------------------------------------------------------------
+  // Pas de table de taux successoral par canton — NE PAS EN RECRÉER UNE.
+  //
+  // _successionTaxRates (6 cantons + fallback VD) vivait ici : des taux
+  // plats non sourcés, à l'envers du socle ESTV 1.1.2025 sur au moins
+  // deux cantons (VD enfant 0.0 alors que la ligne directe y est TAXÉE,
+  // déduction 1M par souche ; ZH enfant 0.02 alors que les descendants y
+  // sont EXONÉRÉS). La source de vérité mobile est
+  // lib/services/succession_donation_socle.dart (mini-socle généré,
+  // parité verrouillée sur l'archive ESTV). ADR :
+  // .planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md
+  // --------------------------------------------------------------------
 
-    // In most Swiss cantons, spouse and descendants are exempt or near-exempt.
-    // Concubins and third parties pay significantly more.
-    // Simplified rates:
-    final rates = _successionTaxRates[canton] ?? _successionTaxRates['VD']!;
-    final rate = rates[kinship] ?? rates['tiers']!;
-    return amount * rate;
-  }
-
-  /// Simplified succession tax rates by canton and kinship.
-  static const _successionTaxRates = <String, Map<String, double>>{
-    'VD': {
-      'conjoint': 0.0, // exempt
-      'enfant': 0.0, // exempt
-      'parent': 0.0, // exempt
-      'fratrie': 0.07, // ~7%
-      'concubin': 0.25, // ~25%
-      'tiers': 0.25, // ~25%
-    },
-    'GE': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.24,
-      'tiers': 0.26,
-    },
-    'ZH': {
-      'conjoint': 0.0,
-      'enfant': 0.02, // low rate
-      'parent': 0.02,
-      'fratrie': 0.06,
-      'concubin': 0.18,
-      'tiers': 0.24,
-    },
-    'BE': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.06,
-      'concubin': 0.24,
-      'tiers': 0.30,
-    },
-    'LU': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.08,
-      'concubin': 0.20,
-      'tiers': 0.28,
-    },
-    'BS': {
-      'conjoint': 0.0,
-      'enfant': 0.0,
-      'parent': 0.0,
-      'fratrie': 0.10,
-      'concubin': 0.22,
-      'tiers': 0.25,
-    },
-  };
-
-  /// Determine kinship category from heir label.
+  /// Map heir label to a socle categorie.
   static String _kinshipFromLabel(String label) {
     final lower = label.toLowerCase();
     if (lower.contains('conjoint')) return 'conjoint';
-    if (lower.contains('enfant')) return 'enfant';
+    if (lower.contains('enfant')) return 'descendant';
     if (lower.contains('parent')) return 'parent';
     if (lower.contains('fratrie')) return 'fratrie';
     if (lower.contains('concubin')) return 'concubin';

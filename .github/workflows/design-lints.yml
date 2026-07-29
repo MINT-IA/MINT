@@ -52,6 +52,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      # Les 5 lints ci-dessous partagent `_baseline_diff.new_violations`, qui
+      # compare à la baseline sans tenir compte du numéro de ligne. Si cette
+      # comparaison régressait, les lints deviendraient permissifs tout en
+      # continuant de sortir 0 — verts et inutiles. Cet auto-test le rend
+      # impossible : il échoue avant eux.
+      - name: _baseline_diff self-test
+        run: python3 tools/checks/_baseline_diff.py
+
       # ── 5 lint scripts (hard-fail on net-new) ────────────────────────────
       - name: prefer_mint_color_token (LINT-01)
         run: python3 tools/checks/prefer_mint_color_token.py

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -7,7 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/expat_service.dart';
+import 'package:mint_mobile/services/fiscal_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/couple/conjoint_missing_hint.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -16,6 +19,8 @@ import 'package:mint_mobile/widgets/coach/top_cantons_widget.dart';
 import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
+import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -40,69 +45,625 @@ class ExpatScreen extends StatefulWidget {
 class _ExpatScreenState extends State<ExpatScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  CoachProfileProvider? _profileProvider;
 
-  // ── Tab 1: Forfait inputs ─────────────────────────────
+  // ── Tab 1: Forfait inputs (TOUCH-ONLY — faits mondiaux, aucune source profil.
+  //    Les défauts 1M / 5M sont des fabrications : gate dur tant que non touchés) ──
   String _forfaitCanton = 'VD';
   double _livingExpenses = 1000000;
   double _actualIncome = 5000000;
   Map<String, dynamic>? _forfaitResult;
+  bool _forfaitCantonTouched = false;
+  bool _livingExpensesTouched = false;
+  bool _actualIncomeTouched = false;
+
+  // ── Tab 1: Top cantons — classement personnalisé sur le revenu RÉEL du profil
+  //    (jamais le défaut forfait 5M). Amorçable depuis le profil OU saisissable
+  //    à l'écran (P3 « zéro impasse » : sans contrôle, un anonyme ne pouvait
+  //    jamais ouvrir ce gate). Snapshots re-évalués à chaque notify (pas de
+  //    lecture live en build). ──
+  bool _topCantonsHasChildren = false;
+  List<CantonRanking> _topCantonsResult = const [];
+  double _topIncome = 0;
+  bool _topIncomeSeeded = false;
+  bool _topIncomeTouched = false;
+  String _topAnchor = 'VD';
+  bool _topAnchorSeeded = false;
+  bool _topAnchorTouched = false;
+  bool _topMarried = false;
+  int _topProfileEnfants = 0;
+  bool _topMissingConjointIncome = false;
 
   // ── Tab 2: Depart inputs ──────────────────────────────
   DateTime _departureDate = DateTime.now().add(const Duration(days: 180));
   String _departCanton = 'VD';
+  bool _departCantonTouched = false; // amorçage de confort (non gaté).
   double _pillar3aBalance = 80000;
   double _lppBalance = 250000;
+  bool _pillar3aTouched = false;
+  bool _pillar3aSeeded = false; // provenance = prevoyance.totalEpargne3a > 0.
+  bool _lppTouched = false;
+  bool _lppSeeded = false; // provenance = userProvidedFields('avoirLpp').
   Map<String, dynamic>? _departResult;
   final Set<String> _completedChecklist = {};
 
-  // ── Tab 3: AVS inputs ─────────────────────────────────
+  // ── Tab 3: AVS inputs (TOUCH-ONLY — pas de source profil pour les années.
+  //    Les défauts 20 / 10 sont des fabrications) ──
   int _yearsInCh = 20;
   int _yearsAbroad = 10;
+  bool _yearsInChTouched = false;
+  bool _yearsAbroadTouched = false;
   Map<String, dynamic>? _avsResult;
+  // Projection AvsGapWidget : âge RÉEL du profil (clé 'age'), pas le défaut 40.
+  int? _profileAge;
+  bool _ageSeeded = false;
+  // Contrôle à l'écran (P3 « zéro impasse ») : le wheel a besoin d'une valeur
+  // affichable, `_ageTouched` dit si l'utilisateur l'a confirmée. Le défaut 40
+  // reste ASSUMED → la projection reste gatée tant qu'il n'est ni seedé ni
+  // touché (motif divorce durée/enfants).
+  int _ageInput = 40;
+  bool _ageTouched = false;
+
+  /// L'âge qui alimente la projection : la saisie prime sur le seed profil.
+  int? get _effectiveAge => _ageTouched ? _ageInput : _profileAge;
+
+  // ── Gate baselines (annonce VoiceOver au passage incomplet→complet) ──
+  bool _forfaitGateComplete = false;
+  bool _topCantonsGateComplete = false;
+  bool _departGateComplete = false;
+  bool _avsGateComplete = false;
+  bool _avsProjectionGateComplete = false;
+
+  // ── Scroll anchors (scroll-to-first-missing) ──
+  final _forfaitCantonKey = GlobalKey();
+  final _livingExpensesKey = GlobalKey();
+  final _actualIncomeKey = GlobalKey();
+  final _pillar3aKey = GlobalKey();
+  final _lppKey = GlobalKey();
+  final _yearsInChKey = GlobalKey();
+  final _yearsAbroadKey = GlobalKey();
+  final _topIncomeKey = GlobalKey();
+  final _topAnchorKey = GlobalKey();
+  final _ageKey = GlobalKey();
+
+  // ── Debug getters (tests anti-façade : lire l'état confirmé, jamais un bool
+  //    interne comme vérité — les tests assertent sur le CHF rendu) ──
+  double get debugLivingExpenses => _livingExpenses;
+  double get debugActualIncome => _actualIncome;
+  double get debugPillar3a => _pillar3aBalance;
+  double get debugLpp => _lppBalance;
+  int get debugYearsInCh => _yearsInCh;
+  int get debugYearsAbroad => _yearsAbroad;
+  String get debugTopAnchor => _topAnchor;
+  double get debugTopIncome => _topIncome;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _recalculateForfait();
-    _recalculateDepart();
-    _recalculateAvs();
+    // Gate dur : au 1er frame rien n'est confirmé → aucun chiffre fabriqué.
+    _recalculateAll();
+  }
+
+  /// P2 (zéro donnée inventée) : on s'abonne au provider car `loadFromWizard()`
+  /// hydrate le profil de façon asynchrone (l'écran peut être monté avant
+  /// l'arrivée des données). Un champ édité (touched) n'est jamais réécrasé par
+  /// une hydratation tardive ; un champ absent garde son défaut éditable mais
+  /// reste non confirmé → gaté.
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    CoachProfileProvider? provider;
+    try {
+      provider = context.read<CoachProfileProvider>();
+    } on ProviderNotFoundException {
+      provider = null; // tests unitaires isolés : on garde les défauts.
+    }
+    if (!identical(provider, _profileProvider)) {
+      _profileProvider?.removeListener(_seedFromProfile);
+      _profileProvider = provider;
+      _profileProvider?.addListener(_seedFromProfile);
+    }
+    _seedFromProfile();
+    // Baseline APRÈS le seed : pas d'annonce parasite si le profil confirme
+    // déjà tout au premier build.
+    _refreshGateBaselines();
   }
 
   @override
   void dispose() {
+    _profileProvider?.removeListener(_seedFromProfile);
     _tabController.dispose();
     super.dispose();
   }
 
-  void _recalculateForfait() {
-    setState(() {
-      _forfaitResult = ExpatService.simulateForfaitFiscal(
-        canton: _forfaitCanton,
-        livingExpenses: _livingExpenses,
-        actualIncome: _actualIncome,
-      );
-    });
+  /// Classement REEL des cantons (audit T05-F41, MINT_nosync-9f8) : ecart =
+  /// charge fiscale du canton d'ancrage - charge du candidat, via
+  /// FiscalService (modele simplifie MINT, 26 cantons). Exclut l'ancrage, ne
+  /// garde que les ecarts positifs, max 5 — jamais de rangs rembourres.
+  /// Calcule au build (<1 ms pour 26 cantons) : reste coherent avec
+  /// l'hydratation asynchrone du profil (review Codex — un state fige en
+  /// initState restait rassis quand le profil arrivait apres).
+  List<CantonRanking> _computeTopCantons({
+    required String anchorCanton,
+    required double income,
+    required String etatCivil,
+    required int enfants,
+  }) {
+    final chargeActuelle = (FiscalService.estimateTax(
+          revenuBrut: income,
+          canton: anchorCanton,
+          etatCivil: etatCivil,
+          nombreEnfants: enfants,
+        )['chargeTotale'] as double?) ??
+        0;
+
+    final all = FiscalService.compareAllCantons(
+      revenuBrut: income,
+      etatCivil: etatCivil,
+      nombreEnfants: enfants,
+    );
+    final candidates = <CantonRanking>[];
+    for (final m in all) {
+      final code = m['canton'] as String;
+      if (code == anchorCanton) continue;
+      final saving = chargeActuelle - ((m['chargeTotale'] as double?) ?? 0);
+      if (saving <= 0) continue;
+      candidates.add(CantonRanking(
+        rank: candidates.length + 1,
+        canton: (m['cantonNom'] as String?) ?? code,
+        shortCode: code,
+        annualTaxSaving: saving.roundToDouble(),
+      ));
+      if (candidates.length == 5) break;
+    }
+    return candidates;
   }
 
-  void _recalculateDepart() {
-    setState(() {
-      _departResult = ExpatService.planDeparture(
-        departureDate: _departureDate,
-        canton: _departCanton,
-        pillar3aBalance: _pillar3aBalance,
-        lppBalance: _lppBalance,
+  // ════════════════════════════════════════════════════════════
+  //  SEED — provenance re-évaluée à CHAQUE notify (aucun latch global)
+  // ════════════════════════════════════════════════════════════
+
+  /// Un champ n'est amorcé — et donc confirmé — que si sa provenance est réelle :
+  /// une clé `userProvidedFields`, un solde profil > 0, jamais valeur≠défaut.
+  void _seedFromProfile() {
+    final profile = _profileProvider?.profile;
+    var changed = false;
+
+    if (profile == null) {
+      // Profil absent : pas encore hydraté (le listener rejouera) ou effacé
+      // (logout / reset). Toute provenance issue du profil disparaît : les faits
+      // seededFromProfile retombent non confirmés (un fait TOUCHÉ reste une
+      // donnée user et survit). Tout résultat qui reposait sur un fait seedé est
+      // invalidé — aucun chiffre ne survit à sa source.
+      changed = _resetSeededFlags();
+      if (changed) {
+        _recalculateAll();
+        _refreshGateBaselines();
+        if (mounted) setState(() {});
+      }
+      return;
+    }
+
+    final provided = profile.userProvidedFields;
+
+    // ── Départ — LPP : clé 'avoirLpp' + valeur DANS la plage du contrôle
+    //    [0, 1000000]. Hors plage → NON confirmé (un clamp fabriquerait une
+    //    valeur ≠ la vraie, ex. 2M affiché 1M). Le défaut 250000 reste ASSUMED.
+    if (!_lppTouched) {
+      final v = profile.prevoyance.avoirLppTotal ?? 0;
+      final valid = provided.contains('avoirLpp') && v > 0 && v <= 1000000;
+      if (_lppSeeded != valid) {
+        _lppSeeded = valid;
+        changed = true;
+      }
+      if (valid && v != _lppBalance) {
+        _lppBalance = v;
+        changed = true;
+      }
+    }
+
+    // ── Départ — 3a : solde RÉEL > 0 DANS la plage [0, 500000]. Aucune clé
+    //    `userProvidedFields` → un solde profil > 0 est une donnée user (motif
+    //    conjoint/gender). Le défaut 80000 reste ASSUMED jusqu'à seed/touch.
+    if (!_pillar3aTouched) {
+      final v = profile.prevoyance.totalEpargne3a;
+      final valid = v > 0 && v <= 500000;
+      if (_pillar3aSeeded != valid) {
+        _pillar3aSeeded = valid;
+        changed = true;
+      }
+      if (valid && v != _pillar3aBalance) {
+        _pillar3aBalance = v;
+        changed = true;
+      }
+    }
+
+    // ── Départ — canton courant : amorçage de CONFORT (aucun CHF n'en dépend →
+    //    non gaté ; sert au libellé de la checklist). ──
+    if (!_departCantonTouched) {
+      final c = profile.canton;
+      if (provided.contains('canton') &&
+          ExpatService.cantonNames.containsKey(c) &&
+          c != _departCanton) {
+        _departCanton = c;
+        changed = true;
+      }
+    }
+
+    // ── Top cantons — revenu RÉEL (clé 'salary' + valeur > 0) et canton
+    //    d'ancrage RÉEL (clé 'canton' + code connu du modèle). Le classement CHF
+    //    est personnalisé (barème sur le revenu) → sans ces faits il serait
+    //    fabriqué (défaut forfait 5M / ancrage VD). Marié (clé 'civilStatus')
+    //    → revenu du couple. ──
+    final married =
+        provided.contains('civilStatus') && profile.etatCivil.name == 'marie';
+    final income =
+        married ? profile.revenuBrutAnnuelCouple : profile.revenuBrutAnnuel;
+    // Revenu confirmé seulement dans une plage annuelle plausible : un revenu
+    // hors plage (ex. 1200/an ou 6M/an) ne doit pas débloquer un classement CHF
+    // personnalisé sur une valeur aberrante (pas de clamp — hors plage = non
+    // confirmé, gaté).
+    final incomeSeeded = provided.contains('salary') &&
+        income >= 20000.0 &&
+        income <= 2000000.0;
+    final anchorValid = provided.contains('canton') &&
+        cantonalCommunalTaxChf.containsKey(profile.canton);
+    final anchor = anchorValid ? profile.canton : _forfaitCanton;
+    final missingConj = married && profile.isMissingConjointIncome;
+    if (_topIncomeSeeded != incomeSeeded) {
+      _topIncomeSeeded = incomeSeeded;
+      changed = true;
+    }
+    // Une valeur SAISIE n'est jamais réécrasée par une hydratation tardive.
+    if (incomeSeeded && !_topIncomeTouched && income != _topIncome) {
+      _topIncome = income;
+      changed = true;
+    }
+    if (_topAnchorSeeded != anchorValid) {
+      _topAnchorSeeded = anchorValid;
+      changed = true;
+    }
+    if (!_topAnchorTouched && anchor != _topAnchor) {
+      _topAnchor = anchor;
+      changed = true;
+    }
+    if (_topMarried != married) {
+      _topMarried = married;
+      changed = true;
+    }
+    if (_topProfileEnfants != (profile.nombreEnfants)) {
+      _topProfileEnfants = profile.nombreEnfants;
+      changed = true;
+    }
+    if (_topMissingConjointIncome != missingConj) {
+      _topMissingConjointIncome = missingConj;
+      changed = true;
+    }
+
+    // ── AVS projection — âge RÉEL (clé 'age' + ageOrNull non-null), pas le
+    //    défaut 40. Champ d'état ré-évalué à chaque notify (un clear le remet à
+    //    null → la projection AvsGapWidget se re-gate). ──
+    // Value-in-range = la plage du CONTRÔLE (picker 16-99). Une valeur hors
+    // plage (profil legacy à 10 ou 120 ans) reste NON confirmée — jamais clampée
+    // dans une projection AVS présentée comme la sienne.
+    final ageValue = profile.ageOrNull;
+    final ageSeeded = provided.contains('age') &&
+        ageValue != null &&
+        ageValue >= 16 &&
+        ageValue <= 99;
+    final age = ageSeeded ? ageValue : null;
+    if (_ageSeeded != ageSeeded) {
+      _ageSeeded = ageSeeded;
+      changed = true;
+    }
+    if (_profileAge != age) {
+      _profileAge = age;
+      changed = true;
+    }
+    // Le contrôle à l'écran suit l'âge réel tant qu'il n'a pas été édité.
+    if (ageSeeded && !_ageTouched && age != null && age != _ageInput) {
+      _ageInput = age;
+      changed = true;
+    }
+
+    if (changed) {
+      _recalculateAll();
+      _refreshGateBaselines();
+      if (mounted) setState(() {});
+    }
+  }
+
+  /// Remet à zéro toute provenance issue du profil (clear/logout). Les faits
+  /// TOUCHÉS ne sont pas des flags seeded → ils survivent. Retourne true si un
+  /// flag/snapshot a changé.
+  bool _resetSeededFlags() {
+    var changed = false;
+    if (_lppSeeded) {
+      _lppSeeded = false;
+      changed = true;
+    }
+    if (_pillar3aSeeded) {
+      _pillar3aSeeded = false;
+      changed = true;
+    }
+    if (_topIncomeSeeded) {
+      _topIncomeSeeded = false;
+      changed = true;
+    }
+    if (_topAnchorSeeded) {
+      _topAnchorSeeded = false;
+      changed = true;
+    }
+    if (_topMarried) {
+      _topMarried = false;
+      changed = true;
+    }
+    if (_topProfileEnfants != 0) {
+      _topProfileEnfants = 0;
+      changed = true;
+    }
+    if (_topMissingConjointIncome) {
+      _topMissingConjointIncome = false;
+      changed = true;
+    }
+    if (_ageSeeded) {
+      _ageSeeded = false;
+      changed = true;
+    }
+    if (_profileAge != null) {
+      _profileAge = null;
+      changed = true;
+    }
+    return changed;
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  PROVENANCE — touched supersede seed ; assumed ne gate jamais ouvert
+  // ════════════════════════════════════════════════════════════
+
+  FactProvenance get _forfaitCantonProvenance =>
+      _forfaitCantonTouched ? FactProvenance.touched : FactProvenance.assumed;
+  FactProvenance get _livingExpensesProvenance =>
+      _livingExpensesTouched ? FactProvenance.touched : FactProvenance.assumed;
+  FactProvenance get _actualIncomeProvenance =>
+      _actualIncomeTouched ? FactProvenance.touched : FactProvenance.assumed;
+
+  FactProvenance get _topIncomeProvenance => _topIncomeTouched
+      ? FactProvenance.touched
+      : (_topIncomeSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+  FactProvenance get _topAnchorProvenance => _topAnchorTouched
+      ? FactProvenance.touched
+      : (_topAnchorSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _pillar3aProvenance => _pillar3aTouched
+      ? FactProvenance.touched
+      : (_pillar3aSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+  FactProvenance get _lppProvenance => _lppTouched
+      ? FactProvenance.touched
+      : (_lppSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  FactProvenance get _yearsInChProvenance =>
+      _yearsInChTouched ? FactProvenance.touched : FactProvenance.assumed;
+  FactProvenance get _yearsAbroadProvenance =>
+      _yearsAbroadTouched ? FactProvenance.touched : FactProvenance.assumed;
+  FactProvenance get _ageProvenance => _ageTouched
+      ? FactProvenance.touched
+      : (_ageSeeded
+          ? FactProvenance.seededFromProfile
+          : FactProvenance.assumed);
+
+  // ════════════════════════════════════════════════════════════
+  //  GATES — chaque sortie gate sur les faits QU'ELLE consomme
+  // ════════════════════════════════════════════════════════════
+
+  // Forfait fiscal : canton + dépenses de vie mondiales + revenu mondial réel.
+  SituationGate _forfaitGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'forfaitCanton',
+          label: (c) => S.of(c)!.expatGateFactForfaitCanton,
+          why: (c) => S.of(c)!.expatGateWhyForfaitCanton,
+          provenance: _forfaitCantonProvenance,
+          onComplete: () => _scrollToKey(_forfaitCantonKey),
+        ),
+        SituationFact(
+          key: 'livingExpenses',
+          label: (c) => S.of(c)!.expatGateFactLivingExpenses,
+          why: (c) => S.of(c)!.expatGateWhyLivingExpenses,
+          provenance: _livingExpensesProvenance,
+          onComplete: () => _scrollToKey(_livingExpensesKey),
+        ),
+        SituationFact(
+          key: 'actualIncome',
+          label: (c) => S.of(c)!.expatGateFactActualIncome,
+          why: (c) => S.of(c)!.expatGateWhyActualIncome,
+          provenance: _actualIncomeProvenance,
+          onComplete: () => _scrollToKey(_actualIncomeKey),
+        ),
+      ]);
+
+  // Top cantons : revenu imposable réel + canton d'ancrage réel — amorcés depuis
+  // le profil OU saisis dans la carte d'entrées du classement (onComplete y
+  // renvoie : le gate se complète à l'écran, profil ou pas).
+  SituationGate _topCantonsGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'income',
+          label: (c) => S.of(c)!.expatGateFactIncome,
+          why: (c) => S.of(c)!.expatGateWhyIncome,
+          provenance: _topIncomeProvenance,
+          onComplete: () => _scrollToKey(_topIncomeKey),
+        ),
+        SituationFact(
+          key: 'canton',
+          label: (c) => S.of(c)!.expatGateFactCanton,
+          why: (c) => S.of(c)!.expatGateWhyCanton,
+          provenance: _topAnchorProvenance,
+          onComplete: () => _scrollToKey(_topAnchorKey),
+        ),
+      ]);
+
+  // Départ (héros « capital en jeu ») : solde 3a + avoir LPP.
+  SituationGate _departGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'pillar3a',
+          label: (c) => S.of(c)!.expatGateFactPillar3a,
+          why: (c) => S.of(c)!.expatGateWhyPillar3a,
+          provenance: _pillar3aProvenance,
+          onComplete: () => _scrollToKey(_pillar3aKey),
+        ),
+        SituationFact(
+          key: 'lpp',
+          label: (c) => S.of(c)!.expatGateFactLpp,
+          why: (c) => S.of(c)!.expatGateWhyLpp,
+          provenance: _lppProvenance,
+          onComplete: () => _scrollToKey(_lppKey),
+        ),
+      ]);
+
+  // Lacune AVS (_avsResult) : années en Suisse + années à l'étranger.
+  SituationGate _avsGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'yearsInCh',
+          label: (c) => S.of(c)!.expatGateFactYearsInCh,
+          why: (c) => S.of(c)!.expatGateWhyYearsInCh,
+          provenance: _yearsInChProvenance,
+          onComplete: () => _scrollToKey(_yearsInChKey),
+        ),
+        SituationFact(
+          key: 'yearsAbroad',
+          label: (c) => S.of(c)!.expatGateFactYearsAbroad,
+          why: (c) => S.of(c)!.expatGateWhyYearsAbroad,
+          provenance: _yearsAbroadProvenance,
+          onComplete: () => _scrollToKey(_yearsAbroadKey),
+        ),
+      ]);
+
+  // Projection AvsGapWidget : années en Suisse (touch) + âge réel (clé 'age').
+  // La projection de rente future dépend des années restantes = f(âge).
+  SituationGate _avsProjectionGate(BuildContext context) => SituationGate([
+        SituationFact(
+          key: 'yearsInCh',
+          label: (c) => S.of(c)!.expatGateFactYearsInCh,
+          why: (c) => S.of(c)!.expatGateWhyYearsInCh,
+          provenance: _yearsInChProvenance,
+          onComplete: () => _scrollToKey(_yearsInChKey),
+        ),
+        SituationFact(
+          key: 'age',
+          label: (c) => S.of(c)!.expatGateFactAge,
+          why: (c) => S.of(c)!.expatGateWhyAge,
+          provenance: _ageProvenance,
+          onComplete: () => _scrollToKey(_ageKey),
+        ),
+      ]);
+
+  void _scrollToKey(GlobalKey key) {
+    final ctx = key.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+        alignment: 0.1,
       );
-    });
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  COMPUTE (gate au compute-time : aucun résultat sans faits confirmés)
+  // ════════════════════════════════════════════════════════════
+
+  void _recalculateAll() {
+    _recalculateForfait();
+    _recalculateTopCantons();
+    _recalculateDepart();
+    _recalculateAvs();
+  }
+
+  void _recalculateForfait() {
+    _forfaitResult = _forfaitGate(context).complete
+        ? ExpatService.simulateForfaitFiscal(
+            canton: _forfaitCanton,
+            livingExpenses: _livingExpenses,
+            actualIncome: _actualIncome,
+          )
+        : null;
+  }
+
+  void _recalculateTopCantons() {
+    _topCantonsResult = _topCantonsGate(context).complete
+        ? _computeTopCantons(
+            anchorCanton: _topAnchor,
+            income: _topIncome,
+            etatCivil: _topMarried ? 'marie' : 'celibataire',
+            enfants: _topMarried
+                ? ((_topCantonsHasChildren || _topProfileEnfants > 0) ? 1 : 0)
+                : 0,
+          )
+        : const [];
+  }
+
+  // Checklist / timeline départ : AUCUN CHF rendu → non gaté (calculé toujours).
+  void _recalculateDepart() {
+    _departResult = ExpatService.planDeparture(
+      departureDate: _departureDate,
+      canton: _departCanton,
+      pillar3aBalance: _pillar3aBalance,
+      lppBalance: _lppBalance,
+    );
   }
 
   void _recalculateAvs() {
-    setState(() {
-      _avsResult = ExpatService.estimateAvsGap(
-        yearsAbroad: _yearsAbroad,
-        yearsInCh: _yearsInCh,
-      );
-    });
+    _avsResult = _avsGate(context).complete
+        ? ExpatService.estimateAvsGap(
+            yearsAbroad: _yearsAbroad,
+            yearsInCh: _yearsInCh,
+          )
+        : null;
+  }
+
+  void _refreshGateBaselines() {
+    _forfaitGateComplete = _forfaitGate(context).complete;
+    _topCantonsGateComplete = _topCantonsGate(context).complete;
+    _departGateComplete = _departGate(context).complete;
+    _avsGateComplete = _avsGate(context).complete;
+    _avsProjectionGateComplete = _avsProjectionGate(context).complete;
+  }
+
+  void _announceComplete() {
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      S.of(context)!.situationGateAnnounceComplete,
+      Directionality.of(context),
+    );
+  }
+
+  /// L'utilisateur a édité un fait de SITUATION : recalcule tout (stale-result
+  /// invalidation) et annonce le passage incomplet→complet pour VoiceOver
+  /// (le scroll ≠ déplacement de focus). Une seule annonce si l'une des sorties
+  /// vient de se déverrouiller.
+  void _afterFactsChanged() {
+    final wasForfait = _forfaitGateComplete;
+    final wasTop = _topCantonsGateComplete;
+    final wasDepart = _departGateComplete;
+    final wasAvs = _avsGateComplete;
+    final wasProj = _avsProjectionGateComplete;
+    setState(_recalculateAll);
+    _refreshGateBaselines();
+    final lifted = (_forfaitGateComplete && !wasForfait) ||
+        (_topCantonsGateComplete && !wasTop) ||
+        (_departGateComplete && !wasDepart) ||
+        (_avsGateComplete && !wasAvs) ||
+        (_avsProjectionGateComplete && !wasProj);
+    if (lifted) _announceComplete();
   }
 
   // ════════════════════════════════════════════════════════════
@@ -111,19 +672,26 @@ class _ExpatScreenState extends State<ExpatScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MintColors.white,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          _buildAppBar(context, innerBoxIsScrolled),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildTab1Forfait(),
-            _buildTab2Depart(),
-            _buildTab3Avs(),
+    // ILLOG-02 : conteneur Semantics racine (motif rente_vs_capital) sinon le
+    // pont AX iOS effondre toute la route en un seul nœud (« 1 element »).
+    return Semantics(
+      identifier: 'expat_screen',
+      container: true,
+      explicitChildNodes: true,
+      child: Scaffold(
+        backgroundColor: MintColors.white,
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            _buildAppBar(context, innerBoxIsScrolled),
           ],
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildTab1Forfait(),
+              _buildTab2Depart(),
+              _buildTab3Avs(),
+            ],
+          ),
         ),
       ),
     );
@@ -178,10 +746,21 @@ class _ExpatScreenState extends State<ExpatScreen>
       children: [
         MintEntrance(child: _buildForfaitInputCard()),
         const SizedBox(height: MintSpacing.lg),
+        // Result slot : carte de comparaison OU carte de situation gatée. Le
+        // forfait ne se calcule pas sur les défauts fabriqués 1M / 5M.
         if (_forfaitResult != null) ...[
           MintEntrance(
             delay: const Duration(milliseconds: 100),
             child: _buildForfaitResultCard(),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+        ] else ...[
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: SituationGateCard(
+              title: S.of(context)!.expatForfaitGateTitle,
+              gate: _forfaitGate(context),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
         ],
@@ -208,53 +787,135 @@ class _ExpatScreenState extends State<ExpatScreen>
   }
 
   Widget _buildTopCantonSection() {
-    final scale = (_actualIncome / 100000).clamp(0.3, 10.0);
-    return TopCantonWidget(
-      currentCanton: _departCanton,
-      rankings: [
-        CantonRanking(
-          rank: 1,
-          canton: 'Schwyz',
-          shortCode: 'SZ',
-          annualTaxSaving: (8500 * scale).roundToDouble(),
-          monthlyLamal: 310,
-          monthlyRent: 1800,
-          highlight: S.of(context)!.expatHighlightSchwyz,
-        ),
-        CantonRanking(
-          rank: 2,
-          canton: 'Zoug',
-          shortCode: 'ZG',
-          annualTaxSaving: (7200 * scale).roundToDouble(),
-          monthlyLamal: 295,
-          monthlyRent: 2200,
-          highlight: S.of(context)!.expatHighlightZug,
-        ),
-        CantonRanking(
-          rank: 3,
-          canton: 'Nidwald',
-          shortCode: 'NW',
-          annualTaxSaving: (5800 * scale).roundToDouble(),
-          monthlyLamal: 288,
-          monthlyRent: 1600,
-        ),
-        CantonRanking(
-          rank: 4,
-          canton: 'Uri',
-          shortCode: 'UR',
-          annualTaxSaving: (5100 * scale).roundToDouble(),
-          monthlyLamal: 280,
-          monthlyRent: 1400,
-        ),
-        CantonRanking(
-          rank: 5,
-          canton: 'Appenzell Rh.-Int.',
-          shortCode: 'AI',
-          annualTaxSaving: (4600 * scale).roundToDouble(),
-          monthlyLamal: 285,
-          monthlyRent: 1500,
+    // Gate dur : le classement CHF est personnalisé (barème sur le revenu réel).
+    // Sans revenu + canton réels, chaque écart serait fabriqué (défaut forfait
+    // 5M / ancrage VD). P3 : les DEUX faits ont leur contrôle juste au-dessus →
+    // le gate se complète à l'écran, jamais une impasse. Snapshots re-évalués en
+    // _seedFromProfile (pas de lecture live en build).
+    final gate = _topCantonsGate(context);
+    // Le modèle famille de FiscalService n'a de variante enfants que pour les
+    // mariés — le toggle serait numériquement inerte sinon (façade) : masqué
+    // hors mariage, pré-réglé sur le profil.
+    final enfants = _topMarried
+        ? ((_topCantonsHasChildren || _topProfileEnfants > 0) ? 1 : 0)
+        : 0;
+
+    return Column(children: [
+      _buildTopCantonInputCard(),
+      const SizedBox(height: MintSpacing.lg),
+      if (!gate.complete)
+        SituationGateCard(
+          title: S.of(context)!.expatTopCantonsGateTitle,
+          gate: gate,
+        )
+      else ...[
+        // Honnêteté mono-revenu (beads MINT_nosync-mla volet C) : marié sans
+        // conjoint financier -> le classement couple est en fait mono-revenu.
+        // Gate sur MARIÉ uniquement — en concubinage l'imposition est séparée,
+        // le calcul solo est correct par conception (pas de fausse alerte
+        // « donnée manquante »).
+        if (_topMissingConjointIncome)
+          const ConjointMissingHint(forceShow: true),
+        TopCantonWidget(
+          currentCanton: _topAnchor,
+          rankings: _topCantonsResult,
+          hasChildren: enfants > 0,
+          onChildrenChanged: _topMarried
+              ? (v) {
+                  _topCantonsHasChildren = v;
+                  _afterFactsChanged();
+                }
+              : null,
         ),
       ],
+    ]);
+  }
+
+  /// Entrées du classement cantonal (P3 « zéro impasse ») : revenu imposable +
+  /// canton d'ancrage. Le TOUCHER confirme le fait, exactement comme le seed
+  /// profil ; tant qu'aucune provenance n'existe le contrôle rend « Non
+  /// renseigné » / aucun canton sélectionné — jamais le défaut fabriqué.
+  Widget _buildTopCantonInputCard() {
+    final l = S.of(context)!;
+    final sortedCodes = ExpatService.sortedCantonCodes;
+    final incomeKnown = _topIncomeTouched || _topIncomeSeeded;
+    final anchorKnown = _topAnchorTouched || _topAnchorSeeded;
+
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          KeyedSubtree(
+            key: _topIncomeKey,
+            child: MintAmountField(
+              label: l.expatGateFactIncome,
+              value: _topIncome,
+              formatValue: (v) =>
+                  incomeKnown ? ExpatService.formatChf(v) : l.expatNonRenseigne,
+              onChanged: (v) {
+                _topIncome = v;
+                _topIncomeTouched = true;
+                _afterFactsChanged();
+              },
+              min: 20000,
+              max: 2000000,
+            ),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          KeyedSubtree(
+            key: _topAnchorKey,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    l.expatGateFactCanton,
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary),
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: anchorKnown ? _topAnchor : null,
+                      hint: anchorKnown
+                          ? null
+                          : Text(
+                              l.expatNonRenseigne,
+                              style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textPrimary),
+                            ),
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary),
+                      items: sortedCodes.map((code) {
+                        return DropdownMenuItem(
+                          value: code,
+                          child: Text(
+                              '$code — ${ExpatService.cantonNames[code]}'),
+                        );
+                      }).toList(),
+                      onChanged: (v) {
+                        if (v != null) {
+                          _topAnchor = v;
+                          _topAnchorTouched = true;
+                          _afterFactsChanged();
+                        }
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -272,7 +933,9 @@ class _ExpatScreenState extends State<ExpatScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          KeyedSubtree(
+            key: _forfaitCantonKey,
+            child: Row(
             children: [
               Expanded(
                 child: Text(
@@ -303,7 +966,8 @@ class _ExpatScreenState extends State<ExpatScreen>
                     onChanged: (v) {
                       if (v != null) {
                         _forfaitCanton = v;
-                        _recalculateForfait();
+                        _forfaitCantonTouched = true;
+                        _afterFactsChanged();
                       }
                     },
                   ),
@@ -311,33 +975,38 @@ class _ExpatScreenState extends State<ExpatScreen>
               ),
             ],
           ),
-          const SizedBox(height: MintSpacing.lg),
-          MintAmountField(
-            label: l.expatLivingExpenses,
-            value: _livingExpenses,
-            formatValue: (v) => ExpatService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
-                _livingExpenses = v;
-                _recalculateForfait();
-              });
-            },
-            min: 250000,
-            max: 5000000,
           ),
           const SizedBox(height: MintSpacing.lg),
-          MintAmountField(
-            label: l.expatActualIncome,
-            value: _actualIncome,
-            formatValue: (v) => ExpatService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
+          KeyedSubtree(
+            key: _livingExpensesKey,
+            child: MintAmountField(
+              label: l.expatLivingExpenses,
+              value: _livingExpenses,
+              formatValue: (v) => ExpatService.formatChf(v),
+              onChanged: (v) {
+                _livingExpenses = v;
+                _livingExpensesTouched = true;
+                _afterFactsChanged();
+              },
+              min: 250000,
+              max: 5000000,
+            ),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          KeyedSubtree(
+            key: _actualIncomeKey,
+            child: MintAmountField(
+              label: l.expatActualIncome,
+              value: _actualIncome,
+              formatValue: (v) => ExpatService.formatChf(v),
+              onChanged: (v) {
                 _actualIncome = v;
-                _recalculateForfait();
-              });
-            },
-            min: 500000,
-            max: 20000000,
+                _actualIncomeTouched = true;
+                _afterFactsChanged();
+              },
+              min: 500000,
+              max: 20000000,
+            ),
           ),
         ],
       ),
@@ -381,6 +1050,7 @@ class _ExpatScreenState extends State<ExpatScreen>
     final isFavorable = result['isFavorable'] as bool;
 
     return MintSurface(
+      key: const Key('expatForfaitResult'),
       tone: MintSurfaceTone.porcelaine,
       elevated: true,
       child: Column(
@@ -589,23 +1259,41 @@ class _ExpatScreenState extends State<ExpatScreen>
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
       children: [
-        // ── Chiffre-choc hero for Tab 2 ──
-        if (totalCapital > 0)
+        // ── Chiffre-choc hero for Tab 2 — capital de prévoyance en jeu ──
+        // Gate dur : le héros = 3a + LPP. Sur les défauts fabriqués 80000 +
+        // 250000 (= 330000) il faudrait afficher un capital inventé → gaté tant
+        // que les deux soldes ne viennent pas des données réelles.
+        if (_departGate(context).complete) ...[
+          if (totalCapital > 0)
+            MintEntrance(
+              child: KeyedSubtree(
+                key: const Key('expatDepartHero'),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: MintSpacing.lg),
+                  child: MintResultHeroCard(
+                    eyebrow: l.expatTabDeparture.toUpperCase(),
+                    primaryValue: ExpatService.formatChf(totalCapital),
+                    primaryLabel: l.expatDepartPremierEclairage(
+                        ExpatService.formatChf(totalCapital)),
+                    narrative: l.expatDepartPremierEclairage(
+                        ExpatService.formatChf(totalCapital)),
+                    accentColor: MintColors.info,
+                    tone: MintSurfaceTone.bleu,
+                  ),
+                ),
+              ),
+            ),
+        ] else ...[
           MintEntrance(
             child: Padding(
               padding: const EdgeInsets.only(bottom: MintSpacing.lg),
-              child: MintResultHeroCard(
-                eyebrow: l.expatTabDeparture.toUpperCase(),
-                primaryValue: ExpatService.formatChf(totalCapital),
-                primaryLabel: l.expatDepartPremierEclairage(
-                    ExpatService.formatChf(totalCapital)),
-                narrative: l.expatDepartPremierEclairage(
-                    ExpatService.formatChf(totalCapital)),
-                accentColor: MintColors.info,
-                tone: MintSurfaceTone.bleu,
+              child: SituationGateCard(
+                title: S.of(context)!.expatDepartGateTitle,
+                gate: _departGate(context),
               ),
             ),
           ),
+        ],
 
         MintEntrance(
           delay: const Duration(milliseconds: 100),
@@ -712,7 +1400,7 @@ class _ExpatScreenState extends State<ExpatScreen>
               label: 'LAMal \u2014 assurance maladie',
               emoji: '\u{1F3E5}',
               before: 'Couverture universelle en Suisse',
-              after: 'L\u2019assurance maladie est \u00e0 souscrire dans le pays de r\u00e9sidence',
+              after: 'L\u2019assurance maladie rel\u00e8ve d\u00e9sormais du pays de r\u00e9sidence', // lint-ignore: no_hardcoded_fr (dette i18n pr\u00e9existante, LOT 3)
               legalRef: 'LAMal art. 3',
               impact:
                   'La couverture internationale est souvent partielle et '
@@ -784,7 +1472,7 @@ class _ExpatScreenState extends State<ExpatScreen>
                     );
                     if (picked != null) {
                       _departureDate = picked;
-                      _recalculateDepart();
+                      _afterFactsChanged();
                     }
                   },
                   child: Container(
@@ -846,7 +1534,8 @@ class _ExpatScreenState extends State<ExpatScreen>
                     onChanged: (v) {
                       if (v != null) {
                         _departCanton = v;
-                        _recalculateDepart();
+                        _departCantonTouched = true;
+                        _afterFactsChanged();
                       }
                     },
                   ),
@@ -855,32 +1544,36 @@ class _ExpatScreenState extends State<ExpatScreen>
             ],
           ),
           const SizedBox(height: MintSpacing.lg),
-          MintAmountField(
-            label: l.expatPillar3aBalance,
-            value: _pillar3aBalance,
-            formatValue: (v) => ExpatService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
+          KeyedSubtree(
+            key: _pillar3aKey,
+            child: MintAmountField(
+              label: l.expatPillar3aBalance,
+              value: _pillar3aBalance,
+              formatValue: (v) => ExpatService.formatChf(v),
+              onChanged: (v) {
                 _pillar3aBalance = v;
-                _recalculateDepart();
-              });
-            },
-            min: 0,
-            max: 500000,
+                _pillar3aTouched = true;
+                _afterFactsChanged();
+              },
+              min: 0,
+              max: 500000,
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
-          MintAmountField(
-            label: l.expatLppBalance,
-            value: _lppBalance,
-            formatValue: (v) => ExpatService.formatChf(v),
-            onChanged: (v) {
-              setState(() {
+          KeyedSubtree(
+            key: _lppKey,
+            child: MintAmountField(
+              label: l.expatLppBalance,
+              value: _lppBalance,
+              formatValue: (v) => ExpatService.formatChf(v),
+              onChanged: (v) {
                 _lppBalance = v;
-                _recalculateDepart();
-              });
-            },
-            min: 0,
-            max: 1000000,
+                _lppTouched = true;
+                _afterFactsChanged();
+              },
+              min: 0,
+              max: 1000000,
+            ),
           ),
         ],
       ),
@@ -1253,18 +1946,32 @@ class _ExpatScreenState extends State<ExpatScreen>
             child: _buildAvsRecommendation(),
           ),
           const SizedBox(height: MintSpacing.lg),
+        ] else ...[
+          // Gate dur : la lacune AVS se calcule sur les années de cotisation.
+          // Sur les défauts fabriqués 20 / 10 il faudrait une lacune inventée.
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: SituationGateCard(
+              title: l.expatAvsGateTitle,
+              gate: _avsGate(context),
+            ),
+          ),
+          const SizedBox(height: MintSpacing.lg),
         ],
-        Builder(builder: (context) {
-          final provider = context.read<CoachProfileProvider>();
-          final profileAge =
-              (provider.hasProfile && provider.profile!.age > 0)
-                  ? provider.profile!.age
-                  : 40;
-          return AvsGapWidget(
+        // Projection AvsGapWidget : rente future = f(années de cotisation, âge
+        // réel). Gate dur sur {yearsInCh (touché), âge (clé 'age')} — sinon la
+        // rente serait projetée sur le défaut 20 ans / âge 40 fabriqués.
+        if (_avsProjectionGate(context).complete && _effectiveAge != null) ...[
+          AvsGapWidget(
             currentContributionYears: _yearsInCh,
-            currentAge: profileAge,
-          );
-        }),
+            currentAge: _effectiveAge!,
+          ),
+        ] else ...[
+          SituationGateCard(
+            title: l.expatAvsProjectionGateTitle,
+            gate: _avsProjectionGate(context),
+          ),
+        ],
         const SizedBox(height: MintSpacing.lg),
         _buildEducationalInsert(l.expatAvsEducation),
         const SizedBox(height: MintSpacing.lg),
@@ -1286,32 +1993,55 @@ class _ExpatScreenState extends State<ExpatScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MintPickerTile(
-            label: l.expatYearsInSwitzerland,
-            value: _yearsInCh,
-            minValue: 0,
-            maxValue: 44,
-            formatValue: (v) => '$v ans',
-            onChanged: (v) {
-              setState(() {
+          KeyedSubtree(
+            key: _yearsInChKey,
+            child: MintPickerTile(
+              label: l.expatYearsInSwitzerland,
+              value: _yearsInCh,
+              minValue: 0,
+              maxValue: 44,
+              formatValue: (v) => '$v ans',
+              onChanged: (v) {
                 _yearsInCh = v;
-                _recalculateAvs();
-              });
-            },
+                _yearsInChTouched = true;
+                _afterFactsChanged();
+              },
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
-          MintPickerTile(
-            label: l.expatYearsAbroad,
-            value: _yearsAbroad,
-            minValue: 0,
-            maxValue: 44,
-            formatValue: (v) => '$v ans',
-            onChanged: (v) {
-              setState(() {
+          KeyedSubtree(
+            key: _yearsAbroadKey,
+            child: MintPickerTile(
+              label: l.expatYearsAbroad,
+              value: _yearsAbroad,
+              minValue: 0,
+              maxValue: 44,
+              formatValue: (v) => '$v ans',
+              onChanged: (v) {
                 _yearsAbroad = v;
-                _recalculateAvs();
-              });
-            },
+                _yearsAbroadTouched = true;
+                _afterFactsChanged();
+              },
+            ),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          // P3 « zéro impasse » : l'âge de la projection se saisit ICI quand le
+          // profil ne le porte pas. Non touché + non seedé = ASSUMED → la
+          // projection reste gatée (le défaut 40 ne débloque rien).
+          KeyedSubtree(
+            key: _ageKey,
+            child: MintPickerTile(
+              label: l.expatGateFactAge,
+              value: _ageInput,
+              minValue: 16,
+              maxValue: 99,
+              formatValue: (v) => l.ageYears('$v'),
+              onChanged: (v) {
+                _ageInput = v;
+                _ageTouched = true;
+                _afterFactsChanged();
+              },
+            ),
           ),
         ],
       ),
@@ -1459,6 +2189,7 @@ class _ExpatScreenState extends State<ExpatScreen>
     }
 
     return Container(
+      key: const Key('expatAvsResult'),
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: MintColors.white,
