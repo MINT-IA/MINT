@@ -436,6 +436,9 @@ ALLOW = {
     "tools/checks/tests/test_mint_variable_contract_extract.py",
     ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md",
     ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02c-variable-contract-lints-implementation-PLAN.md",
+    # Tranche verticale firstJob (Phase 1') : spec 12D + flow d'acceptation
+    # ROUGE par construction (voir header du flow — hors runners verts).
+    ".planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",
@@ -731,6 +734,8 @@ ALLOW = {
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
+    # Tranche firstJob : flow d'acceptation RED (skip locator-audit, hors sweep)
+    "tools/simulator/flows/firstjob_tranche_acceptance_red.yaml",
     "tools/simulator/journey_os_runtime_replay.sh",
     "tools/claude_review.py",
     "tools/claude_review.sh",
