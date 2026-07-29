@@ -26,7 +26,7 @@ void main() {
     // mécanisme _roundPyMirror2 (half-even décimal) est inchangé.
     expect(
       ArbitrageEngine.estimateIncomeTaxOnRenteRvc(5000, 'VD', false),
-      602.01, // == backend v2 (sonde python 2026-07-23)
+      381.93, // == backend v2 (sonde python 2026-07-28, nœuds bas INC-1)
     );
     expect(
       ArbitrageEngine.estimateIncomeTaxOnRenteRvc(
@@ -34,7 +34,7 @@ void main() {
         'VD',
         false,
       ),
-      0.2, // == backend v2
+      0.13, // == backend v2 (nœuds bas INC-1)
     );
   });
 
