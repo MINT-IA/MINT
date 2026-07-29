@@ -125,8 +125,9 @@ class FirstJobService {
   //  CONSTANTS (centralized in social_insurance.dart)
   // ════════════════════════════════════════════════════════════
 
-  /// AVS/AI/APG employee share rate.
-  static const double _avsAiApgRate = 0.053;
+  /// AVS/AI/APG employee share rate (LAVS art. 5).
+  /// Sourced from the centralized constant instead of a local literal.
+  static const double _avsAiApgRate = avsCotisationSalarie;
 
   /// AANP (accident non-professionnel) rate.
   static const double _aanpRate = 0.013;

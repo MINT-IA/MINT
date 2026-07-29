@@ -479,43 +479,48 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                               ),
                               const SizedBox(height: MintSpacing.lg),
                               PayslipXRayWidget(
-                                grossSalary: _salaire,
-                                netSalary: _salaire * 0.76,
-                                employerHiddenCost: _salaire * 1.13,
+                                // Toutes les valeurs proviennent de `_result!`
+                                // (étalon `FirstJobService.analyzeSalary`) : un
+                                // seul net sur l'écran, aucun ratio fabriqué.
+                                grossSalary: _result!.brut,
+                                netSalary: _result!.netEstime,
+                                // `cotisationsEmployeur` = charges employeur EN
+                                // PLUS du brut ; le widget affiche « ton vrai
+                                // salaire » = coût total employeur = brut +
+                                // charges.
+                                employerHiddenCost: _result!.brut +
+                                    _result!.cotisationsEmployeur,
                                 deductions: [
                                   PayslipLine(
                                     label:
                                         S.of(context)!.firstJobPayslipAvsLabel,
                                     emoji: '\u{1F6E1}\u{FE0F}',
-                                    amount: _salaire * 0.053,
-                                    percentage: 5.3,
+                                    amount: _result!.avsAiApg,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.avsAiApg /
+                                            _result!.brut *
+                                            100
+                                        : 0,
                                     explanation: S
                                         .of(context)!
                                         .firstJobPayslipAvsExplanation,
-                                    legalRef: 'LAVS art. 5',
+                                    legalRef:
+                                        'LAVS art. 5 · LAI art. 3 · LAPG art. 27',
                                   ),
                                   PayslipLine(
                                     label:
                                         S.of(context)!.firstJobPayslipLppLabel,
                                     emoji: '\u{1F3E6}',
-                                    amount: _salaire * 0.08,
-                                    percentage: 8.0,
+                                    amount: _result!.lppEmploye,
+                                    percentage: _result!.brut > 0
+                                        ? _result!.lppEmploye /
+                                            _result!.brut *
+                                            100
+                                        : 0,
                                     explanation: S
                                         .of(context)!
                                         .firstJobPayslipLppExplanation,
                                     legalRef: 'LPP art. 16',
-                                  ),
-                                  PayslipLine(
-                                    label: S
-                                        .of(context)!
-                                        .firstJobPayslipImpotLabel,
-                                    emoji: '\u{1F3DB}\u{FE0F}',
-                                    amount: _salaire * 0.09,
-                                    percentage: 9.0,
-                                    explanation: S
-                                        .of(context)!
-                                        .firstJobPayslipImpotExplanation,
-                                    legalRef: 'LIFD art. 83',
                                   ),
                                 ],
                               ),
@@ -537,7 +542,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                         deadline: l.firstJobChecklistDeadline1,
                                         emoji: '\u{1F4C4}',
                                         action: l.firstJobChecklistAction1,
-                                        legalRef: 'LPP art. 3 — libre passage',
+                                        legalRef: 'LFLP art. 2',
                                         consequence:
                                             l.firstJobChecklistConsequence1,
                                       ),
@@ -545,8 +550,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                         deadline: l.firstJobChecklistDeadline2,
                                         emoji: '\u{1F3E6}',
                                         action: l.firstJobChecklistAction2,
-                                        legalRef:
-                                            'OLP art. 3 — d\u00e9lai de transfert',
+                                        legalRef: 'LFLP art. 4 al. 2',
                                         consequence:
                                             l.firstJobChecklistConsequence2,
                                       ),
@@ -554,13 +558,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                                         deadline: l.firstJobChecklistDeadline3,
                                         emoji: '\u{1F6E1}\u{FE0F}',
                                         action: l.firstJobChecklistAction3,
-                                        legalRef: 'LAMal art. 3',
+                                        legalRef: 'LAMal art. 71',
                                       ),
                                       ChecklistItem(
                                         deadline: l.firstJobChecklistDeadline4,
                                         emoji: '\u{1F3E6}',
                                         action: l.firstJobChecklistAction4,
-                                        legalRef: 'OPP3 art. 1',
+                                        legalRef: 'OPP3 art. 7',
                                       ),
                                     ],
                                   );
@@ -1273,7 +1277,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildBudget503020() {
     final l10n = S.of(context)!;
-    final net = _result?.netEstime ?? _salaire * 0.85;
+    // Ce bloc n'est monté que dans la branche gatée (_result != null) : un seul
+    // net sur l'écran, celui de l'étalon — aucun ratio de repli fabriqué.
+    final net = _result!.netEstime;
     final annualSavings = net * 0.20 * 12;
     final years = (avsAgeReferenceHomme - _age).clamp(0, 45);
     final fv = _fvAnnuity(annualSavings, years);
@@ -1384,7 +1390,8 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildScenarioChips() {
     final l10n = S.of(context)!;
-    const median = 6500.0;
+    // Repère OFS daté (millésime visible via le label), pas un littéral en dur.
+    const median = ofsSalaireMedianMensuelBrut;
     final profileVal = _seededFromProfile
         ? context.read<CoachProfileProvider>().profile?.salaireBrutMensuel ??
             5000.0

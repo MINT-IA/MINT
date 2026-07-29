@@ -30086,7 +30086,7 @@ abstract class S {
   /// No description provided for @firstJobChecklistDeadline2.
   ///
   /// In fr, this message translates to:
-  /// **'30 jours'**
+  /// **'Dès le nouvel emploi'**
   String get firstJobChecklistDeadline2;
 
   /// No description provided for @firstJobChecklistDeadline3.
@@ -30164,7 +30164,7 @@ abstract class S {
   /// No description provided for @firstJobScenarioMedianCH.
   ///
   /// In fr, this message translates to:
-  /// **'Médian CH'**
+  /// **'Médiane CH (tous secteurs)'**
   String get firstJobScenarioMedianCH;
 
   /// No description provided for @firstJobScenarioMySalary.
@@ -32492,7 +32492,7 @@ abstract class S {
   /// No description provided for @narrativeFirstJobBody.
   ///
   /// In fr, this message translates to:
-  /// **'Entre AVS (LAVS art. 5), LPP (art. 16), impôt à la source et LAMal, ton net représente environ 75-80 % du brut. Comprendre ces déductions, c’est le premier pas vers une bonne gestion.'**
+  /// **'Entre l\'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c\'est le premier pas vers une bonne gestion.'**
   String get narrativeFirstJobBody;
 
   /// No description provided for @narrativeFirstJobHeadline.

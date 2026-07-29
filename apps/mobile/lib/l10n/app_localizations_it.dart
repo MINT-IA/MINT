@@ -17166,7 +17166,7 @@ class SIt extends S {
   String get firstJobChecklistDeadline1 => 'Prima di partire';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 giorni';
+  String get firstJobChecklistDeadline2 => 'All\'assunzione';
 
   @override
   String get firstJobChecklistDeadline3 => '1 mese';
@@ -17212,7 +17212,7 @@ class SIt extends S {
   String get firstJobScenarioDefault => 'Predefinito';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH';
+  String get firstJobScenarioMedianCH => 'Mediana CH (tutti i settori)';
 
   @override
   String get firstJobScenarioMySalary => 'Il mio stipendio';
@@ -18565,7 +18565,7 @@ class SIt extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Tra AVS (LAVS art. 5), LPP (art. 16), imposta alla fonte e LAMal, il tuo netto rappresenta circa il 75-80 % del lordo. Capire queste deduzioni è il primo passo verso una buona gestione.';
+      'Tra AVS (LAVS art. 5), LPP (art. 16) e LAMal, il tuo netto si aggira tipicamente intorno all\'88-90 % del lordo senza imposta alla fonte; con imposta alla fonte, viene trattenuto di più. Capire queste deduzioni è il primo passo verso una buona gestione.';
 
   @override
   String get narrativeFirstJobHeadline => 'Il tuo primo stipendio spiegato';

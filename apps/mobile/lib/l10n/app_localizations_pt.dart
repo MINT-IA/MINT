@@ -17119,7 +17119,7 @@ class SPt extends S {
   String get firstJobChecklistDeadline1 => 'Antes de sair';
 
   @override
-  String get firstJobChecklistDeadline2 => '30 dias';
+  String get firstJobChecklistDeadline2 => 'Ao começar';
 
   @override
   String get firstJobChecklistDeadline3 => '1 mês';
@@ -17165,7 +17165,7 @@ class SPt extends S {
   String get firstJobScenarioDefault => 'Padrão';
 
   @override
-  String get firstJobScenarioMedianCH => 'Mediana CH';
+  String get firstJobScenarioMedianCH => 'Mediana CH (todos os setores)';
 
   @override
   String get firstJobScenarioMySalary => 'O meu salário';
@@ -18517,7 +18517,7 @@ class SPt extends S {
 
   @override
   String get narrativeFirstJobBody =>
-      'Entre AVS (LAVS art. 5), LPP (art. 16), imposto na fonte e LAMal, o teu líquido representa cerca de 75-80 % do bruto. Compreender estas deduções é o primeiro passo para uma boa gestão.';
+      'Entre AVS (LAVS art. 5), LPP (art. 16) e LAMal, o teu líquido fica tipicamente à volta de 88-90 % do bruto sem imposto na fonte; com imposto na fonte, é retido mais. Compreender estas deduções é o primeiro passo para uma boa gestão.';
 
   @override
   String get narrativeFirstJobHeadline => 'O teu primeiro salário explicado';
