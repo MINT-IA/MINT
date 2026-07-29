@@ -434,6 +434,10 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # ADR des décisions déléguées (panels 2026-07-28)
+    ".planning/decisions/2026-07-28-fortune-recalibrage-estv.md",
+    ".planning/decisions/2026-07-28-prescriptions-ligne-et-mecanisme.md",
+    ".planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
