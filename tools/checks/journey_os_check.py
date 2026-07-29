@@ -444,10 +444,11 @@ ALLOW = {
     ".github/workflows/calc-rigor-failure-comment.md",
     "services/backend/tests/fixtures/estv_oracle.SCHEMA.md",
     # -ku6 : addenda de résolution datés sur les archives de phase 92.5
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-PLAN.md",
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-SUMMARY.md",
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-04-g6-gate-wiring-PLAN.md",
+    # (répertoire déplacé vers phases-archive/ le 2026-07-29)
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-PLAN.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-SUMMARY.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-04-g6-gate-wiring-PLAN.md",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
@@ -780,6 +781,24 @@ EVIDENCE_SECRET_PATTERNS = (
 def _is_ignored_generated(path: str) -> bool:
     return any(path.startswith(prefix) for prefix in IGNORED_GENERATED_PREFIXES)
 
+def _unquote_git_path(line: str) -> str:
+    """git (core.quotePath) cite en C-style les chemins non-ASCII :
+    `"...\\342\\235\\214..."`. Sans dé-quotage, ces chemins ne matchent
+    jamais les préfixes du whitelist (bug latent révélé par l'archivage
+    2026-07-29 d'un screenshot Maestro nommé avec un emoji)."""
+    if not (line.startswith('"') and line.endswith('"') and len(line) >= 2):
+        return line
+    try:
+        return (
+            line[1:-1]
+            .encode("ascii")
+            .decode("unicode_escape")
+            .encode("latin-1")
+            .decode("utf-8")
+        )
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        return line
+
 def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=root, text=True, capture_output=True)
     if proc.returncode:
@@ -796,17 +815,33 @@ def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
         outputs.append(extra.stdout)
     return sorted(
         {
-            line
+            _unquote_git_path(line)
             for output in outputs
             for line in output.splitlines()
-            if line and not _is_ignored_generated(line)
+            if line and not _is_ignored_generated(_unquote_git_path(line))
         }
     ), []
+
+def _archive_counterpart(path: str) -> str | None:
+    """Réconciliation plans 2026-07-29 : chemin archivé équivalent d'un
+    receipt de phase (ou de PERIMETERS.md) déplacé vers phases-archive/."""
+    if path.startswith(".planning/phases/"):
+        return ".planning/phases-archive/" + path[len(".planning/phases/"):]
+    if path == ".planning/PERIMETERS.md":
+        return ".planning/phases-archive/PERIMETERS.md"
+    return None
+
 
 def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
     for path in changed:
         if path in DELETION_ALLOW and not (root / path).exists():
+            continue
+        # Réconciliation plans 2026-07-29 : un déplacement git mv vers
+        # .planning/phases-archive/ n'est pas une suppression — l'ancien
+        # chemin est autorisé si (et seulement si) la copie archivée existe.
+        counterpart = _archive_counterpart(path)
+        if counterpart is not None and not (root / path).exists() and (root / counterpart).exists():
             continue
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
@@ -829,7 +864,11 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
                 and evidence_path.suffix in {".md", ".txt", ".xml", ".json"}
             )
         )
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture):
+        # Réconciliation plans 2026-07-29 : les receipts archivés sous
+        # .planning/phases-archive/ sont des feuilles mortes hors routing —
+        # leur maintenance (bannières datées, index) reste autorisée.
+        allowed_archive = path.startswith(".planning/phases-archive/")
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
