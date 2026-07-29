@@ -34,11 +34,11 @@ Generated from `.planning/journeys/records/*.json`. Do not edit directly.
 - Routes: /coach/chat
 - APIs: POST /api/v1/coach/chat
 - Runtime replay: authenticated, top / auth / MINT iPhone 13 mini RvC / tools/simulator/flows/maestro-perfect-set/flow_jos004_coach_advice_turn_runtime.yaml
-- Issues: JOS-004:verified/green
+- Issues: JOS-004:verified/green, JOS-006:proof_needed/green
 - Proof owner: mint-quality-gate
 - Fix owner: mint-swiss-brain
-- Latest proof: green / runtime / 2026-06-28T23:50:28Z / 52935411
-- Latest artifact: .planning/journeys/evidence/runtime_replay/20260628T234759Z/coach_advice_turn/result.xml
+- Latest proof: green / unit / 2026-07-29T05:32:10Z / 1ae9af4f
+- Latest artifact: .planning/journeys/evidence/coach_advice_turn/20260729T053210Z/etalon-fiscal-campagne.md
 
 ## money_truth_spine
 

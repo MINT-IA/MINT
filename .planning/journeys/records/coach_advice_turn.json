@@ -51,7 +51,8 @@
   "issues": [
     "CJT-011",
     "JOURNEY-TRUTH-MATRIX-014",
-    "JOS-004"
+    "JOS-004",
+    "JOS-006"
   ],
   "priority": {
     "trust_blast_radius": 5,
@@ -101,6 +102,15 @@
       "reason": "Fresh Journey OS top replay validates the PR #772 fix commit e8fbd58b3 as an ancestor of replay head 52935411, logs into staging, seeds the cadre_salarie_lpp_suisse_ready profile through the existing debug-only route helper, reaches /coach/chat, asks the 2026 3a/LPP ceiling question, and commits durable JUnit evidence with status SUCCESS.",
       "verified_at": "2026-06-28T23:50:28Z",
       "verified_commit": "52935411f36c693aad8dce1f18036f9e8e0bd772"
+    },
+    {
+      "kind": "unit",
+      "status": "green",
+      "command": "cd services/backend && python3 -m pytest tests/test_fiscal.py tests/test_337_fiscal_provenance.py -q",
+      "artifact": ".planning/journeys/evidence/coach_advice_turn/20260729T053210Z/etalon-fiscal-campagne.md",
+      "reason": "Campagne étalon fiscal 2026-07-25→29 (~50 PR mergées #1024-#1062, vagues #1063-#1100) : les chiffres fiscaux que le coach cite dérivent désormais des modèles calibrés ESTV v2 (revenu + capital + rente), un seul taux marginal (#1061), lint no_cantonal_rate_table (#1062), provenance des 39 clés du registre. Suite fiscale 53 passed au commit cité ; la re-preuve runtime post-fusion des vagues est trackée par JOS-006.",
+      "verified_at": "2026-07-29T05:32:10Z",
+      "verified_commit": "1ae9af4fadead2c0fbe193a42de9af6d7179b23f"
     }
   ]
 }
