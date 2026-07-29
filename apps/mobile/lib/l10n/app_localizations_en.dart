@@ -3174,11 +3174,6 @@ class SEn extends S {
   String get donationExoneree => 'Exempt';
 
   @override
-  String donationTauxCanton(String taux, String canton) {
-    return 'Rate: $taux% (canton $canton)';
-  }
-
-  @override
   String get donationMontantRow => 'Donation amount';
 
   @override
@@ -24693,5 +24688,16 @@ class SEn extends S {
   @override
   String genderGapModelLegalMinimum(String tauxConversion) {
     return 'Model used: the minimum mandatory LPP regime — statutory coordinated salary and a minimum conversion rate of $tauxConversion%. This is not your own pension fund\'s rules. With a super-mandatory plan, common above the ceiling of the mandatory insured salary, actual pensions depart from this illustration in either direction: applying $tauxConversion% to the entire capital can also overstate it, because wrap-around funds often apply a lower rate to the whole balance.';
+  }
+
+  @override
+  String get donationVerdictImposable => 'Taxable';
+
+  @override
+  String get donationVerdictInconnu => 'To be verified';
+
+  @override
+  String donationPlageJusqua(String pct) {
+    return 'up to ~$pct% (cantonal scale, excluding municipal surcharges)';
   }
 }

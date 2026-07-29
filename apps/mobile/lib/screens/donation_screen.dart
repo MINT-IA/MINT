@@ -930,23 +930,41 @@ class _DonationScreenState extends State<DonationScreen> {
   }
 
   // ── Tax Card ──
+  // Forme écran (ADR 2026-07-28 P4, maquette produit D3) : verdict
+  // directionnel + bascule ; plage « jusqu'à ~X % » SEULEMENT si le socle
+  // la donne — jamais de « CHF X d'impôt » fabriqué depuis un taux plat.
   Widget _buildTaxCard() {
     final r = _result!;
-    final hasTax = r.impotDonation > 0;
-    final accentColor = hasTax ? MintColors.indigo : MintColors.success;
+    final v = r.verdictFiscal;
+    final exonere = v.statut == 'exonere';
+    final inconnu = v.statut == 'inconnu';
+    final accentColor = exonere ? MintColors.success : MintColors.indigo;
+    final String primaryValue;
+    if (exonere) {
+      primaryValue = S.of(context)!.donationExoneree;
+    } else if (inconnu) {
+      primaryValue = S.of(context)!.donationVerdictInconnu;
+    } else {
+      primaryValue = S.of(context)!.donationVerdictImposable;
+    }
+    final montantRow =
+        '${S.of(context)!.donationMontantRow}\u00A0:\u00A0${_chfFmt(r.montantDonation)}';
+    // La bascule (concubins) prime sur la ligne « lien de parenté » :
+    // c'est la variable actionnable du verdict.
+    final narrative = v.bascule ??
+        '${S.of(context)!.donationLienRow}\u00A0:\u00A0${DonationService.lienParenteLabels[_lienParente] ?? _lienParente}';
     return MintResultHeroCard(
       key: const Key('donationTaxCard'),
       eyebrow: S.of(context)!.donationImpotTitle,
-      primaryValue: hasTax ? _chfFmt(r.impotDonation) : S.of(context)!.donationExoneree,
-      primaryLabel: hasTax
-          ? S.of(context)!.donationTauxCanton(
-              (r.tauxImposition * 100).toStringAsFixed(0),
-              _canton,
-            )
-          : '${S.of(context)!.donationMontantRow}\u00A0:\u00A0${_chfFmt(r.montantDonation)}',
-      secondaryValue: hasTax ? _chfFmt(r.montantDonation) : null,
-      secondaryLabel: hasTax ? S.of(context)!.donationMontantRow : null,
-      narrative: '${S.of(context)!.donationLienRow}\u00A0:\u00A0${DonationService.lienParenteLabels[_lienParente] ?? _lienParente}',
+      primaryValue: primaryValue,
+      primaryLabel: !exonere && !inconnu && v.plageMaxPct != null
+          ? S
+              .of(context)!
+              .donationPlageJusqua(v.plageMaxPct!.toStringAsFixed(0))
+          : montantRow,
+      secondaryValue: exonere ? null : _chfFmt(r.montantDonation),
+      secondaryLabel: exonere ? null : S.of(context)!.donationMontantRow,
+      narrative: narrative,
       accentColor: accentColor,
       tone: MintSurfaceTone.porcelaine,
     );

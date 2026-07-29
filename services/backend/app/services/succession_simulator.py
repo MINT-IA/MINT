@@ -29,6 +29,11 @@ Ethical requirements:
 from dataclasses import dataclass
 from typing import List, Optional, Dict
 
+from app.services.fiscal.succession_donation_socle import (
+    SOCLE_SOURCE,
+    verdict as socle_verdict,
+)
+
 
 @dataclass
 class SuccessionInput:
@@ -77,116 +82,24 @@ class SuccessionSimulator:
     Compliance: NEVER use "garanti", "assure", "certain".
     """
 
-    # Canton-specific succession tax rates (simplified)
-    # Rates: [conjoint/descendant, parent, fratrie, concubin/tiers]
-    # Many cantons exempt conjoint+descendants; concubins pay high rates
-    CANTON_SUCCESSION_TAX = {
-        "GE": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.10,
-            "concubin": 0.24,
-            "tiers": 0.26,
-        },
-        "VD": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.07,
-            "concubin": 0.25,
-            "tiers": 0.25,
-        },
-        "ZH": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.06,
-            "concubin": 0.18,
-            "tiers": 0.24,
-        },
-        "BE": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.06,
-            "concubin": 0.20,
-            "tiers": 0.25,
-        },
-        "BS": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.08,
-            "concubin": 0.22,
-            "tiers": 0.25,
-        },
-        "LU": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.02,
-            "fratrie": 0.08,
-            "concubin": 0.20,
-            "tiers": 0.25,
-        },
-        "SG": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.10,
-            "concubin": 0.20,
-            "tiers": 0.30,
-        },
-        "TI": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.03,
-            "fratrie": 0.08,
-            "concubin": 0.25,
-            "tiers": 0.35,
-        },
-        "VS": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.10,
-            "concubin": 0.25,
-            "tiers": 0.30,
-        },
-        "FR": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.0,
-            "fratrie": 0.07,
-            "concubin": 0.20,
-            "tiers": 0.25,
-        },
-        "NE": {
-            "conjoint": 0.0,
-            "descendant": 0.03,
-            "parent": 0.03,
-            "fratrie": 0.09,
-            "concubin": 0.30,
-            "tiers": 0.30,
-        },
-        "AG": {
-            "conjoint": 0.0,
-            "descendant": 0.0,
-            "parent": 0.04,
-            "fratrie": 0.08,
-            "concubin": 0.20,
-            "tiers": 0.25,
-        },
-    }
-
-    DEFAULT_TAX_RATES = {
-        "conjoint": 0.0,
-        "descendant": 0.0,
-        "parent": 0.0,
-        "fratrie": 0.08,
-        "concubin": 0.22,
-        "tiers": 0.25,
-    }
+    # ------------------------------------------------------------------
+    # Pas de table de taux successoral par canton — NE PAS EN RECRÉER UNE.
+    #
+    # CANTON_SUCCESSION_TAX (12 cantons) et DEFAULT_TAX_RATES vivaient ici :
+    # des taux plats non sourcés, démentis par le socle ESTV 1.1.2025
+    # (ex. ZH concubin 18 % plat contre un barème progressif ×6 avec
+    # franchise 50'000 ; NE descendants 3 % sans la déduction de 50'000 ;
+    # un « défaut » 25 % appliqué à 14 cantons dont SZ/OW qui ne prélèvent
+    # AUCUN impôt successoral). Un taux plat ne peut pas représenter des
+    # barèmes tantôt proportionnels tantôt progressifs, des franchises très
+    # inégales ni l'impôt communal facultatif.
+    #
+    # La source de vérité est app/services/fiscal/succession_donation_socle.py
+    # (statut / plage sourcée / mécanismes / bascule, parité verrouillée sur
+    # l'archive ESTV). Garde anti-résurrection : tools/checks/
+    # no_cantonal_rate_table.py. ADR :
+    # .planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md
+    # ------------------------------------------------------------------
 
     def simulate(self, input_data: SuccessionInput) -> SuccessionResult:
         """Run full succession simulation.
@@ -514,62 +427,46 @@ class SuccessionSimulator:
     def _compute_succession_tax(
         self, data: SuccessionInput, legal_dist: dict
     ) -> dict:
-        """Compute succession tax by heir category and canton.
+        """Emit the succession tax VERDICT per heir (socle ESTV 1.1.2025).
 
-        Tax varies greatly by canton and degree of kinship:
-        - Conjoint + descendants: 0% in most cantons
-        - Parents: 0-4% depending on canton
-        - Siblings: 6-10%
-        - Concubin/third parties: 18-35%
+        Plus aucun « impôt = montant × taux plat » : chaque héritier reçoit
+        le montant hérité et le verdict du socle (statut / plage sourcée /
+        mécanismes / bascule / source). Les barèmes cantonaux sont tantôt
+        proportionnels tantôt progressifs, avec franchises et impôt
+        communal facultatif — un taux plat les trahissait tous.
 
         Returns:
-            dict with tax amounts per heir category
+            dict {details_par_heritier, canton, source} — sans total en
+            francs (un total chiffré supposerait le taux plat supprimé).
         """
-        rates = self.CANTON_SUCCESSION_TAX.get(
-            data.canton, self.DEFAULT_TAX_RATES
-        )
-        _estate = data.fortune_totale
         tax_details: Dict[str, dict] = {}
 
-        # Conjoint
+        def _entry(montant: float, categorie: str) -> dict:
+            v = socle_verdict(data.canton, categorie, "succession")
+            return {
+                "montant_herite": round(montant, 2),
+                "statut": v["statut"],
+                "plage_max_pct": v["plage_max_pct"],
+                "mecanismes": v["mecanismes"],
+                "bascule": v["bascule"],
+                "source": v["source"],
+            }
+
         conjoint_montant = legal_dist.get("conjoint_montant", 0.0)
         if conjoint_montant > 0:
-            rate = rates["conjoint"]
-            tax_details["conjoint"] = {
-                "montant_herite": conjoint_montant,
-                "taux": rate,
-                "impot": round(conjoint_montant * rate, 2),
-            }
+            tax_details["conjoint"] = _entry(conjoint_montant, "conjoint")
 
-        # Descendants
         enfants_montant = legal_dist.get("enfants_montant_total", 0.0)
         if enfants_montant > 0:
-            rate = rates["descendant"]
-            tax_details["enfants"] = {
-                "montant_herite": enfants_montant,
-                "taux": rate,
-                "impot": round(enfants_montant * rate, 2),
-            }
+            tax_details["enfants"] = _entry(enfants_montant, "descendant")
 
-        # Parents
         parents_montant = legal_dist.get("parents_montant", 0.0)
         if parents_montant > 0:
-            rate = rates["parent"]
-            tax_details["parents"] = {
-                "montant_herite": parents_montant,
-                "taux": rate,
-                "impot": round(parents_montant * rate, 2),
-            }
+            tax_details["parents"] = _entry(parents_montant, "parent")
 
-        # Fratrie
         fratrie_montant = legal_dist.get("fratrie_montant", 0.0)
         if fratrie_montant > 0:
-            rate = rates["fratrie"]
-            tax_details["fratrie"] = {
-                "montant_herite": fratrie_montant,
-                "taux": rate,
-                "impot": round(fratrie_montant * rate, 2),
-            }
+            tax_details["fratrie"] = _entry(fratrie_montant, "fratrie")
 
         # Concubin (if mentioned in testament)
         if data.a_concubin and data.a_testament and data.quotite_disponible_testament:
@@ -580,22 +477,12 @@ class SuccessionSimulator:
                 reserves = self._compute_reserves(data, legal_for_reserves)
                 qd = self._compute_quotite_disponible(data, reserves)
                 concubin_montant = qd * concubin_fraction
-                rate = rates["concubin"]
-                tax_details["concubin"] = {
-                    "montant_herite": round(concubin_montant, 2),
-                    "taux": rate,
-                    "impot": round(concubin_montant * rate, 2),
-                }
-
-        total_impot = sum(
-            detail.get("impot", 0.0) for detail in tax_details.values()
-        )
+                tax_details["concubin"] = _entry(concubin_montant, "concubin")
 
         return {
             "details_par_heritier": tax_details,
-            "total_impot_succession": round(total_impot, 2),
             "canton": data.canton,
-            "source": "Lois cantonales sur les droits de succession",
+            "source": SOCLE_SOURCE,
         }
 
     def _get_3a_order(self, data: SuccessionInput) -> List[str]:
@@ -660,12 +547,36 @@ class SuccessionSimulator:
         if not data.a_concubin:
             return ""
 
+        v = socle_verdict(data.canton, "concubin", "succession")
+        if v["statut"] == "exonere":
+            # « sous condition » SEULEMENT si le socle en porte une (revue
+            # adversariale P3 : GR/ZG n'ont pas de condition documentée,
+            # OW/SZ n'ont aucun impôt — ne pas inventer de condition).
+            if v.get("bascule"):
+                fiscal_phrase = (
+                    "Dans votre canton, une transmission au concubin peut "
+                    "être exonérée sous condition."
+                )
+            else:
+                fiscal_phrase = (
+                    "Dans votre canton, une transmission au concubin est "
+                    "exonérée d'impôt successoral."
+                )
+        else:
+            fiscal_phrase = (
+                "De plus, dans votre canton, une transmission au concubin "
+                "est imposée (barème cantonal, souvent la classe la plus "
+                "lourde)."
+            )
+        bascule_phrase = f" {v['bascule']}" if v["bascule"] else ""
+
         return (
             "IMPORTANT : En droit suisse, le concubin n'a AUCUN droit "
             "successoral automatique. Sans testament, votre partenaire "
-            "ne recevra rien de votre succession. De plus, les droits "
-            "de succession pour les concubins sont élevés (souvent 20-35% "
-            "selon le canton). Actions recommandées : "
+            "ne recevra rien de votre succession. "
+            + fiscal_phrase
+            + bascule_phrase
+            + " Actions recommandées : "
             "1) Rédiger un testament attribuant la quotité disponible au concubin. "
             "2) Vérifier les clauses bénéficiaires du 3a et de l'assurance-vie. "
             "3) Envisager un pacte successoral. "
@@ -755,18 +666,25 @@ class SuccessionSimulator:
                 "de testament. La repartition legale s'appliquera."
             )
 
-        # High succession tax for concubin
+        # Succession tax verdict for concubin (socle — plus de taux plat)
         if data.a_concubin:
-            rates = self.CANTON_SUCCESSION_TAX.get(
-                data.canton, self.DEFAULT_TAX_RATES
-            )
-            concubin_rate = rates.get("concubin", 0.22)
-            if concubin_rate > 0.15:
+            v = socle_verdict(data.canton, "concubin", "succession")
+            if v["statut"] in ("taxe", "taxe_lourd"):
+                plage = (
+                    f" (jusqu'à ~{v['plage_max_pct']:.0f}% selon le barème "
+                    f"cantonal, hors mécanismes communaux)"
+                    if v["plage_max_pct"] is not None
+                    else ""
+                )
+                bascule = f" {v['bascule']}" if v["bascule"] else ""
                 alerts.append(
-                    f"Dans le canton de {data.canton}, le taux d'imposition "
-                    f"successorale pour les concubins est de "
-                    f"{concubin_rate * 100:.0f}%. Le mariage ou le partenariat "
-                    f"enregistre permettrait une exoneration."
+                    f"Dans le canton de {data.canton}, la transmission à "
+                    f"un·e concubin·e est imposée{plage}.{bascule}"
+                )
+            elif v["statut"] == "exonere" and v["bascule"]:
+                alerts.append(
+                    f"Dans le canton de {data.canton}, l'exonération du "
+                    f"concubin dépend d'une condition cantonale. {v['bascule']}"
                 )
 
         # Small quotite disponible with many heirs

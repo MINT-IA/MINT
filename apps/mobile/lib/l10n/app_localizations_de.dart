@@ -3208,11 +3208,6 @@ class SDe extends S {
   String get donationExoneree => 'Befreit';
 
   @override
-  String donationTauxCanton(String taux, String canton) {
-    return 'Satz: $taux% (Kanton $canton)';
-  }
-
-  @override
   String get donationMontantRow => 'Schenkungsbetrag';
 
   @override
@@ -24882,5 +24877,16 @@ class SDe extends S {
   @override
   String genderGapModelLegalMinimum(String tauxConversion) {
     return 'Verwendetes Modell: das gesetzliche BVG-Obligatorium — koordinierter Lohn nach Gesetz und Mindestumwandlungssatz von $tauxConversion %. Das ist nicht das Reglement deiner Pensionskasse. Bei einem überobligatorischen Plan, häufig oberhalb der Obergrenze des obligatorisch versicherten Lohns, weichen die tatsächlichen Renten in beide Richtungen von dieser Illustration ab: $tauxConversion % auf das gesamte Kapital anzuwenden kann auch zu hoch greifen, denn umhüllende Kassen wenden oft einen tieferen Satz auf das ganze Guthaben an.';
+  }
+
+  @override
+  String get donationVerdictImposable => 'Steuerpflichtig';
+
+  @override
+  String get donationVerdictInconnu => 'Zu prüfen';
+
+  @override
+  String donationPlageJusqua(String pct) {
+    return 'bis ~$pct % (kantonaler Tarif, ohne Gemeindezuschläge)';
   }
 }

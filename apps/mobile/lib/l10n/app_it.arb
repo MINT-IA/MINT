@@ -1381,17 +1381,6 @@
   "donationCalculer": "Calcolare",
   "donationImpotTitle": "IMPOSTA SULLA DONAZIONE",
   "donationExoneree": "Esente",
-  "donationTauxCanton": "Aliquota: {taux}% (cantone {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Importo della donazione",
   "donationLienRow": "Grado di parentela",
   "donationReserveTitle": "RISERVA EREDITARIA (2023)",
@@ -11716,6 +11705,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Imponibile",
+  "donationVerdictInconnu": "Da verificare",
+  "donationPlageJusqua": "fino a ~{pct} % (tariffa cantonale, esclusi supplementi comunali)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

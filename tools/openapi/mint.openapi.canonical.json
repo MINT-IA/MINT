@@ -8617,11 +8617,6 @@
             "title": "Impactsuccession",
             "type": "string"
           },
-          "impotDonation": {
-            "description": "Tax amount (CHF)",
-            "title": "Impotdonation",
-            "type": "number"
-          },
           "montantDepassement": {
             "description": "Excess amount (CHF)",
             "title": "Montantdepassement",
@@ -8656,16 +8651,16 @@
             "title": "Sources",
             "type": "array"
           },
-          "tauxImposition": {
-            "description": "Tax rate",
-            "title": "Tauximposition",
-            "type": "number"
+          "verdictFiscal": {
+            "additionalProperties": true,
+            "description": "Verdict fiscal du socle ESTV 1.1.2025 : statut (exonere/taxe/taxe_lourd), plage_max_pct (uniquement si sourcée), mecanismes, bascule, source — remplace le couple tauxImposition/impotDonation (taux plat, ADR 2026-07-28 P4)",
+            "title": "Verdictfiscal",
+            "type": "object"
           }
         },
         "required": [
           "montantDonation",
-          "tauxImposition",
-          "impotDonation",
+          "verdictFiscal",
           "reserveHereditaireTotale",
           "quotiteDisponible",
           "donationDepasseQuotite",

@@ -429,8 +429,7 @@ def simulate_donation(
 
     return DonationSimulationResponse(
         montantDonation=result.montant_donation,
-        tauxImposition=result.taux_imposition,
-        impotDonation=result.impot_donation,
+        verdictFiscal=result.verdict_fiscal,
         reserveHereditaireTotale=result.reserve_hereditaire_totale,
         quotiteDisponible=result.quotite_disponible,
         donationDepasseQuotite=result.donation_depasse_quotite,

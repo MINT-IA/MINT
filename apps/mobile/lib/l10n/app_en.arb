@@ -1381,17 +1381,6 @@
   "donationCalculer": "Calculate",
   "donationImpotTitle": "DONATION TAX",
   "donationExoneree": "Exempt",
-  "donationTauxCanton": "Rate: {taux}% (canton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Donation amount",
   "donationLienRow": "Kinship",
   "donationReserveTitle": "RESERVED PORTION (2023)",
@@ -11733,6 +11722,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Taxable",
+  "donationVerdictInconnu": "To be verified",
+  "donationPlageJusqua": "up to ~{pct}% (cantonal scale, excluding municipal surcharges)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

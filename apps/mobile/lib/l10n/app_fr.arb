@@ -1399,17 +1399,6 @@
   "donationCalculer": "Calculer",
   "donationImpotTitle": "IMPÔT SUR LA DONATION",
   "donationExoneree": "Exonérée",
-  "donationTauxCanton": "Taux : {taux} % (canton {canton})",
-  "@donationTauxCanton": {
-    "placeholders": {
-      "taux": {
-        "type": "String"
-      },
-      "canton": {
-        "type": "String"
-      }
-    }
-  },
   "donationMontantRow": "Montant de la donation",
   "donationLienRow": "Lien de parenté",
   "donationReserveTitle": "RÉSERVE HÉRÉDITAIRE (2023)",
@@ -13252,6 +13241,16 @@
   "@genderGapModelLegalMinimum": {
     "placeholders": {
       "tauxConversion": {
+        "type": "String"
+      }
+    }
+  },
+  "donationVerdictImposable": "Imposable",
+  "donationVerdictInconnu": "À vérifier",
+  "donationPlageJusqua": "jusqu'à ~{pct} % (barème cantonal, hors part communale)",
+  "@donationPlageJusqua": {
+    "placeholders": {
+      "pct": {
         "type": "String"
       }
     }

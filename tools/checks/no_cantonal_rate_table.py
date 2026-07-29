@@ -56,6 +56,14 @@ ALLOWED = {
     # vérification écrite (identité cantonal+communal+IFD sur 130 points).
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_COMMUNAL_TAX_CHF",
     "services/backend/app/services/fiscal/cantonal_comparator.py::CANTONAL_CAPITAL_TAX_CHF",
+    # ÉTALON — socle succession/donation (ADR 2026-07-28 P4). Source primaire :
+    # ESTV, dossier successions/donations, état 1.1.2025, archivé 2026-07-28
+    # sous .planning/audit-etat-des-lieux-2026-07/constants-audit/
+    # succession_donation_2025/socle_extraction.json. Méthode de vérification :
+    # parité champ par champ module ↔ archive
+    # (tests/test_succession_donation_socle.py). Ce ne sont pas des taux plats :
+    # statuts, franchises, multiplicateurs et plafonds de classe sourcés.
+    "services/backend/app/services/fiscal/succession_donation_socle.py::SOCLE_CANTONS",
     # NON-BARÈME — indexé par canton, mais ne porte aucun taux. Les valeurs
     # sont des dates d'échéance (mois, jour) issues des administrations
     # cantonales : un fait de calendrier, pas un chiffre financier dérivable.
@@ -70,11 +78,9 @@ ALLOWED = {
     "services/backend/app/services/expat/expat_service.py::FORFAIT_FISCAL_BASE_CANTONALE",
     "services/backend/app/services/expat/expat_service.py::FORFAIT_TAUX_ESTIMES",
     "services/backend/app/services/mortgage/imputed_rental_service.py::TAUX_VALEUR_LOCATIVE",
-    "services/backend/app/services/succession_simulator.py::CANTON_SUCCESSION_TAX",
     # RÉVÉLÉES par l'extension AnnAssign du 2026-07-28 (les tables ANNOTÉES
     # échappaient au visiteur) — DETTE HÉRITÉE gelée, à trier une à une :
     # les 3 premières meurent déjà dans des PR ouvertes (#1087, #1072, P5).
-    "services/backend/app/services/donation_service.py::TAUX_DONATION_CANTONAL",
     "services/backend/app/services/housing_sale_service.py::TAUX_PLUS_VALUE_IMMOBILIERE",
     "services/backend/app/constants/social_insurance.py::MARRIED_CAPITAL_TAX_DISCOUNT_BY_CANTON",
     "services/backend/app/services/family/naissance_service.py::ALLOCATIONS_ENFANT_PAR_CANTON",
