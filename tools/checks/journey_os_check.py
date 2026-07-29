@@ -743,6 +743,22 @@ ALLOW = {
     "tools/checks/tests/test_mint2_vz_route_contract_guard.py",
     "tools/checks/tests/test_mint_rules_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    # LOT-1 réécriture prescriptions produit ARB (ADR 2026-07-28-prescriptions)
+    # — impératifs d'achat 3a/assurance drainés vers des actes de lucidité.
+    "apps/mobile/lib/l10n/app_fr.arb",
+    "apps/mobile/lib/l10n/app_en.arb",
+    "apps/mobile/lib/l10n/app_de.arb",
+    "apps/mobile/lib/l10n/app_es.arb",
+    "apps/mobile/lib/l10n/app_it.arb",
+    "apps/mobile/lib/l10n/app_pt.arb",
+    "apps/mobile/lib/l10n_regional/app_regional_vs.arb",
+    "apps/mobile/lib/l10n/app_localizations.dart",
+    "apps/mobile/lib/l10n/app_localizations_fr.dart",
+    "apps/mobile/lib/l10n/app_localizations_en.dart",
+    "apps/mobile/lib/l10n/app_localizations_de.dart",
+    "apps/mobile/lib/l10n/app_localizations_es.dart",
+    "apps/mobile/lib/l10n/app_localizations_it.dart",
+    "apps/mobile/lib/l10n/app_localizations_pt.dart",
     # Réconciliation plans 2026-07-29 : blocs de clôture datés sur les
     # artefacts principaux des 8 phases de-facto closes + wiki lint/INDEX.
     ".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-CONTEXT.md",
