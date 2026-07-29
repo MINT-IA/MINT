@@ -211,8 +211,12 @@ ALLOW = {
     "apps/mobile/lib/widgets/visualizations/marriage_penalty_gauge.dart",
     "apps/mobile/lib/widgets/visualizations/marriage_tax_comparison.dart",
     "tools/checks/no_hardcoded_fr.py",
+    "tools/collect_estv.py",
+    "tools/checks/accent_lint_fr.py",
     "tools/checks/_baseline_diff.py",
     "tools/checks/no_cantonal_rate_table.py",
+    "services/backend/app/services/coaching_engine.py",
+    "services/backend/app/services/first_job/onboarding_service.py",
     "tools/checks/prefer_mint_cta.py",
     "tools/checks/prefer_mint_text_style.py",
     "tools/checks/prefer_mint_fonts.py",
@@ -434,16 +438,44 @@ ALLOW = {
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
     "services/backend/tests/test_rules_engine.py",
+    # Purge attribution fortune (ADR 2026-07-28-fortune U1)
+    "services/backend/app/services/fiscal/wealth_tax_service.py",
+    "apps/mobile/lib/services/wealth_tax_service.dart",
+    "services/backend/app/api/v1/endpoints/wealth_tax.py",
+    # Fix remploi méthode absolue (ADR 2026-07-28-remplacements P2)
+    "services/backend/app/services/housing_sale_service.py",
+    "services/backend/tests/test_housing_sale.py",
+    "apps/mobile/lib/services/housing_sale_service.dart",
+    "apps/mobile/test/services/housing_sale_service_test.dart",
+    # LAMal frontalier par pays de résidence (ADR 2026-07-28-remplacements P3)
+    # + suppression du champ base_rate mort (ADR 2026-07-28-remplacements P1)
+    "services/backend/app/services/expat/frontalier_service.py",
+    "services/backend/tests/test_expat.py",
+    # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
+    "services/backend/app/services/divorce_simulator.py",
+    "services/backend/tests/test_divorce_simulator.py",
+    "services/backend/tests/test_life_events.py",
+    # Citation CC des réserves héréditaires (hand-off 2026-07-27 §3.5)
+    "services/backend/app/services/coach/bundles/succession_divorce_bundle.py",
+    "services/backend/tests/bundles/test_succession_divorce_bundle.py",
+    # Drain des taux marginaux vers l'étalon (hand-off 2026-07-27 §3.1b)
+    "services/backend/app/services/precision/precision_service.py",
+    "services/backend/tests/test_precision.py",
+    # ADR des décisions déléguées (panels 2026-07-28)
+    ".planning/decisions/2026-07-28-fortune-recalibrage-estv.md",
+    ".planning/decisions/2026-07-28-prescriptions-ligne-et-mecanisme.md",
+    ".planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md",
     "services/backend/tests/test_calc_diff_harness.py",
     "services/backend/tests/test_cross_platform.py",
     "services/backend/tests/test_estv_oracle.py",
     ".github/workflows/calc-rigor-failure-comment.md",
     "services/backend/tests/fixtures/estv_oracle.SCHEMA.md",
     # -ku6 : addenda de résolution datés sur les archives de phase 92.5
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-PLAN.md",
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-SUMMARY.md",
-    ".planning/phases/92.5-mvp-calc-rigor-foundations/92.5-04-g6-gate-wiring-PLAN.md",
+    # (répertoire déplacé vers phases-archive/ le 2026-07-29)
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-PLAN.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-SUMMARY.md",
+    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-04-g6-gate-wiring-PLAN.md",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
@@ -722,6 +754,45 @@ ALLOW = {
     "services/backend/app/services/job_comparator.py",
     "services/backend/app/services/pillar_3a_deep/provider_comparator_service.py",
     "services/backend/app/services/precision/precision_service.py",
+    # LOT-1 réécriture prescriptions produit ARB (ADR 2026-07-28-prescriptions)
+    # — impératifs d'achat 3a/assurance drainés vers des actes de lucidité.
+    "apps/mobile/lib/l10n/app_fr.arb",
+    "apps/mobile/lib/l10n/app_en.arb",
+    "apps/mobile/lib/l10n/app_de.arb",
+    "apps/mobile/lib/l10n/app_es.arb",
+    "apps/mobile/lib/l10n/app_it.arb",
+    "apps/mobile/lib/l10n/app_pt.arb",
+    "apps/mobile/lib/l10n_regional/app_regional_vs.arb",
+    "apps/mobile/lib/l10n/app_localizations.dart",
+    "apps/mobile/lib/l10n/app_localizations_fr.dart",
+    "apps/mobile/lib/l10n/app_localizations_en.dart",
+    "apps/mobile/lib/l10n/app_localizations_de.dart",
+    "apps/mobile/lib/l10n/app_localizations_es.dart",
+    "apps/mobile/lib/l10n/app_localizations_it.dart",
+    "apps/mobile/lib/l10n/app_localizations_pt.dart",
+    # Réconciliation plans 2026-07-29 : blocs de clôture datés sur les
+    # artefacts principaux des 8 phases de-facto closes + wiki lint/INDEX.
+    ".planning/phases/mint-calc-engine-v1/mint-calc-engine-v1-CONTEXT.md",
+    ".planning/phases/mint-data-spine-plan-vivant-v1/CONTEXT.md",
+    ".planning/phases/mint-data-architecture-v1-02-event-log-projection/mint-data-architecture-v1-02-event-log-CONTEXT.md",
+    ".planning/phases/mint-grounded-coach-m1/mint-grounded-coach-m1-CONTEXT.md",
+    ".planning/phases/mint-illogism-fixes/mint-illogism-fixes-CONTEXT.md",
+    ".planning/phases/01.5-archetype-hard-gate-fatca/01.5-CONTEXT.md",
+    ".planning/phases/wave-1c-coach-tool-dispatch-rca/wave-1c-CONTEXT.md",
+    ".planning/phases/97-mvp-parfait-maestro-full-power-maestro-driven-on-device-grou/97-CONTEXT.md",
+    "tools/checks/wiki_lint.py",
+    ".planning/INDEX.md",
+    # P1 triage AnnAssign (#1095) : purge du taux marginal cantonal fabriqué
+    # injecté au coach par le RAG. Le taux dépend du revenu — le coach est
+    # dirigé vers l'étalon fiscal (cantonal_comparator.estimate_marginal_rate)
+    # plutôt que de recevoir un scalaire cantonal démenti par l'écran.
+    # Second volet : la directive n'est mandatée que si l'outil fiscal est
+    # réellement atteignable dans la requête (rag.py ne relaie que les tools
+    # annoncés par le client) — sinon variante sans outil + renvoi simulation.
+    "services/backend/app/services/rag/cantonal_knowledge.py",
+    "services/backend/tests/test_cantonal_knowledge.py",
+    "services/backend/tests/test_rag_s67_wiring.py",
+    "services/backend/app/api/v1/endpoints/rag.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
@@ -775,6 +846,24 @@ EVIDENCE_SECRET_PATTERNS = (
 def _is_ignored_generated(path: str) -> bool:
     return any(path.startswith(prefix) for prefix in IGNORED_GENERATED_PREFIXES)
 
+def _unquote_git_path(line: str) -> str:
+    """git (core.quotePath) cite en C-style les chemins non-ASCII :
+    `"...\\342\\235\\214..."`. Sans dé-quotage, ces chemins ne matchent
+    jamais les préfixes du whitelist (bug latent révélé par l'archivage
+    2026-07-29 d'un screenshot Maestro nommé avec un emoji)."""
+    if not (line.startswith('"') and line.endswith('"') and len(line) >= 2):
+        return line
+    try:
+        return (
+            line[1:-1]
+            .encode("ascii")
+            .decode("unicode_escape")
+            .encode("latin-1")
+            .decode("utf-8")
+        )
+    except (UnicodeDecodeError, UnicodeEncodeError):
+        return line
+
 def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
     proc = subprocess.run(["git", "diff", "--name-only", f"{base}...HEAD"], cwd=root, text=True, capture_output=True)
     if proc.returncode:
@@ -791,17 +880,33 @@ def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
         outputs.append(extra.stdout)
     return sorted(
         {
-            line
+            _unquote_git_path(line)
             for output in outputs
             for line in output.splitlines()
-            if line and not _is_ignored_generated(line)
+            if line and not _is_ignored_generated(_unquote_git_path(line))
         }
     ), []
+
+def _archive_counterpart(path: str) -> str | None:
+    """Réconciliation plans 2026-07-29 : chemin archivé équivalent d'un
+    receipt de phase (ou de PERIMETERS.md) déplacé vers phases-archive/."""
+    if path.startswith(".planning/phases/"):
+        return ".planning/phases-archive/" + path[len(".planning/phases/"):]
+    if path == ".planning/PERIMETERS.md":
+        return ".planning/phases-archive/PERIMETERS.md"
+    return None
+
 
 def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
     for path in changed:
         if path in DELETION_ALLOW and not (root / path).exists():
+            continue
+        # Réconciliation plans 2026-07-29 : un déplacement git mv vers
+        # .planning/phases-archive/ n'est pas une suppression — l'ancien
+        # chemin est autorisé si (et seulement si) la copie archivée existe.
+        counterpart = _archive_counterpart(path)
+        if counterpart is not None and not (root / path).exists() and (root / counterpart).exists():
             continue
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
@@ -824,7 +929,11 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
                 and evidence_path.suffix in {".md", ".txt", ".xml", ".json"}
             )
         )
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture):
+        # Réconciliation plans 2026-07-29 : les receipts archivés sous
+        # .planning/phases-archive/ sont des feuilles mortes hors routing —
+        # leur maintenance (bannières datées, index) reste autorisée.
+        allowed_archive = path.startswith(".planning/phases-archive/")
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):

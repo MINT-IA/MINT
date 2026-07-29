@@ -2,6 +2,8 @@
 description: "CONTEXT locké pour M1 Grounded Coach — premier milestone de la refondation lucidity-spine (ADR 2026-06-12). Deux objectifs indissociables : (A) blindage compliance périmètre éducation stricte (décision fondateur 2026-06-12, bulletproof) et (B) grounding des claims du coach (zéro définition/assertion financière non sourcée). Inputs : rapports 01 + 04 de l'état des lieux."
 ---
 
+> **Statut : CLOS 2026-07-29** — supersedé par Journey OS (journey `coach_advice_turn`) et la campagne étalon fiscal (#1060-#1100). Résidu éventuel de `deferred-items.md` à requalifier en beads. Réconciliation plans 2026-07-29.
+
 # CONTEXT — mint-grounded-coach-m1
 
 ## Décisions LOCKED (ne pas re-litiger)
