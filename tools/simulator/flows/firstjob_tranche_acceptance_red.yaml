@@ -1,0 +1,296 @@
+# tools/simulator/flows/firstjob_tranche_acceptance_red.yaml
+#
+# ⛔ FLOW ROUGE PAR CONSTRUCTION — TEST D'ACCEPTATION, PAS UN FLOW VERT ⛔
+#
+# Phase 1' — test d'acceptation de la tranche verticale firstJob, ECRIT AVANT
+# le code (Phase 2'). Spec :
+# .planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md
+# CE FLOW DOIT ECHOUER aujourd'hui :
+#   - l'ecran /home (aujourdhui_screen.dart) ne monte AUCUN lanceur de life
+#     event -> le tap "Premier emploi" sur /home echoue (etape RED-1).
+#   - /first-job n'a AUCUN bouton de handoff coach -> le tap "Demander au
+#     coach" echoue (etape RED-2).
+# C'est voulu : le flow passe au VERT seulement quand les PR D + E de la
+# Phase 2' ont cable les deux entrees. PR-I retire alors le suffixe `_red`
+# et le marqueur de skip ci-dessous, puis l'ajoute aux runners.
+#
+# ─── EXCLU DES RUNNERS VERTS PAR DEFAUT ────────────────────────────────
+# - maestro_sweep.sh selectionne par listes explicites (FLOWS_* :63-107) :
+#   NE PAS ajouter ce fichier a ces listes tant qu'il est rouge.
+# - mint2_quality_gate.sh reference 3 flows nommes (:18-20) : pas celui-ci.
+# - maestro_locator_audit: skip — les `id:` ci-dessous sont le CONTRAT de
+#   testIDs a cabler (SPEC §3.1), pas des locators existants ; les auditer
+#   avant PR-A/C/D/E produirait des faux "locator drift". PR-I retire ce
+#   skip en meme temps que le suffixe `_red`.
+#
+# ─── ISOLATION DU ROUGE (SPEC §3, revue Codex) ─────────────────────────
+# Un run RED n'est une PREUVE que s'il echoue exclusivement sur RED-1 ou
+# RED-2 (JUnit a l'appui). Un echec sur un pas d'onboarding `onb-*`
+# (hors-tranche) = run INVALIDE a re-tenter, pas une preuve.
+#
+# ─── DIFFERENCE VS travail_triad.yaml ──────────────────────────────────
+# travail_triad utilise des deeplinks `mintapp:///first-job` PARCE QUE les
+# boutons d'entree n'existent pas. Ce flow-ci refuse le raccourci deeplink :
+# il marche le PARCOURS REEL (landing -> /onb -> /home -> /first-job ->
+# /coach/chat) par taps sur l'arbre d'accessibilite. Le deeplink masquerait
+# justement le defaut que la tranche doit corriger.
+#
+# ─── PRE-REQUISITE (responsabilite du harnais) ─────────────────────────
+# Install NEUF pointe STAGING (memory: app_targets_staging_always).
+# Build (miroir tools/simulator/walker.sh) :
+#   flutter build ios --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1
+# PAS de --dart-define=MINT_E2E_ARCHETYPE : on veut le parcours d'onboarding
+# reel (le seed archetype court-circuiterait /onb et sauterait le bug).
+# Le variant anti-critere (bloc ANTI en fin de fichier) se lance avec un
+# API_BASE_URL injoignable (harnais : MINT_E2E_STAGING=down) pour prouver la
+# degradation propre.
+#
+# ─── CONVENTIONS (Maestro 2.5.1, verifiees dans le repo) ───────────────
+# - locators semantiques uniquement (text / id d'arbre a11y), zero pixel.
+#   Les point-taps de salvage01 sont un DEFAUT a11y (D7) que cette tranche
+#   corrige : chaque control tape ci-dessous DOIT exposer un noeud Semantics
+#   tappable. Les `id:` requis sont enumeres dans SPEC §3.1 Contrat testIDs.
+# - `timeout` interdit sur assertVisible -> utiliser extendedWaitUntil.
+# - budget mur : < 90 s jusqu'au premier chiffre (seuil go/no-go du plan).
+
+appId: ch.mint.app
+tags:
+  - phase-1prime
+  - tranche-firstjob
+  - acceptance
+  - red-by-construction
+  - feature:first-job
+---
+
+# ═══════════════════════════════════════════════════════════════════════
+# 0. INSTALL NEUF -> LANDING (/)
+# ═══════════════════════════════════════════════════════════════════════
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      text: "Parle à Mint"
+    timeout: 10000
+
+# ═══════════════════════════════════════════════════════════════════════
+# 1. LANDING -> ONBOARDING CANONIQUE (/onb)
+#    Sequence eprouvee par salvage01 (prompts = texte stable). Les taps de
+#    CHOIX doivent viser des id: d'arbre a11y (contrat testIDs onb-*), pas
+#    des points. Persona tranche = swiss_native, jeune actif (age <= 28)
+#    pour que la carte firstJob soit eligible sur /home.
+# ═══════════════════════════════════════════════════════════════════════
+- tapOn:
+    text: "Parle à Mint"
+- extendedWaitUntil:
+    visible:
+      text: "Un premier aperçu suisse."
+    timeout: 10000
+- tapOn:
+    id: "onb-entry-continue"          # RED possible si non expose : defaut D7
+
+# Intent : Travail / Premier emploi
+- waitForAnimationToEnd
+- tapOn:
+    id: "onb-intent-travail"
+
+# US tax person : Non
+- extendedWaitUntil:
+    visible:
+      text: "Es-tu citoyen ou résident fiscal aux États-Unis ?"
+    timeout: 8000
+- tapOn:
+    id: "us-tax-person-no"
+
+# Nationalite : Suisse
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta nationalité ?"
+    timeout: 8000
+- tapOn:
+    id: "onboarding-nationality-ch"
+
+# Situation professionnelle : Salarie (premier emploi)
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta situation professionnelle ?"
+    timeout: 8000
+- tapOn:
+    id: "onb-employment-salarie"
+
+# Situation familiale : Celibataire
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta situation familiale ?"
+    timeout: 8000
+- tapOn:
+    id: "onb-civil-celibataire"
+
+# Annees hors de Suisse : Non
+- extendedWaitUntil:
+    visible:
+      text: "As-tu passé des années hors de Suisse ?"
+    timeout: 8000
+- tapOn:
+    id: "onb-years-abroad-no"
+
+# Date de naissance : ~24 ans (age <= 28 -> carte firstJob eligible)
+- extendedWaitUntil:
+    visible:
+      text: "Quelle est ta date de naissance ?"
+    timeout: 8000
+- tapOn:
+    id: "onb-birthdate-open"
+- waitForAnimationToEnd
+- tapOn:
+    id: "onb-birthdate-confirm"
+
+# Canton : VD
+- extendedWaitUntil:
+    visible:
+      text: "Où tu vis ?"
+    timeout: 8000
+- scrollUntilVisible:
+    element:
+      id: "onb-canton-VD"
+    direction: DOWN
+    timeout: 8000
+- tapOn:
+    id: "onb-canton-VD"
+
+# Revenu : fourchette par defaut
+- extendedWaitUntil:
+    visible:
+      text: "Combien te tombe net par mois ?"
+    timeout: 8000
+- tapOn:
+    id: "onb-revenue-continue"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 2. AUJOURD'HUI (/home) — le shell canonique, PAS une decision room.
+#    Decision T2 ACTEE (SPEC §0) : atterrissage par intention de persona —
+#    persona firstJob -> /home ; la decision room /retraite/rente-vs-capital
+#    reste l'atterrissage du persona rente-vs-capital (salvage01 inchange).
+# ═══════════════════════════════════════════════════════════════════════
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"          # testID racine a ajouter sur aujourdhui
+    timeout: 15000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 3. RED-1 : /home -> /first-job
+#    ECHEC AUJOURD'HUI : LifeEventSuggestionsSection n'est jamais montee sur
+#    /home (life_event_suggestions.dart:186, 0 appelant). PR-D la monte et
+#    expose la carte avec l'id ci-dessous. Passe au VERT apres PR-D.
+# ═══════════════════════════════════════════════════════════════════════
+- scrollUntilVisible:
+    element:
+      id: "home-lifeevent-card-firstJob"
+    direction: DOWN
+    timeout: 12000
+- tapOn:
+    id: "home-lifeevent-card-firstJob"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 4. FIRST-JOB (/first-job) — appareil de lucidite + chiffre etalon
+# ═══════════════════════════════════════════════════════════════════════
+- extendedWaitUntil:
+    visible:
+      id: "first_job_screen"          # testID racine a ajouter (motif RvC)
+    timeout: 12000
+
+# Le gate de situation est deja rempli par le profil onboarding (salaire/
+# age/canton seeded) -> le premier eclairage se calcule sans saisie.
+# 4a. Chiffre net calcule et rendu (preuve anti-facade : premier eclairage
+#     n'existe que si _result != null).
+- extendedWaitUntil:
+    visible:
+      id: "firstjob-premier-eclairage-value"
+    timeout: 12000
+- assertVisible:
+    text: ".*CHF.*"
+# 4b. Divergence intra-ecran = 0 : le net du PayslipXRay DOIT etre le net du
+#     SalaryBreakdown (tous deux issus de _result!, plus de _salaire*0.76).
+#     L'assertion forte (byte-identity des deux valeurs) est portee par la
+#     suite golden ; ici on prouve qu'AUCUN second chiffre net ne s'affiche.
+- assertVisible:
+    id: "firstjob-net-value"          # unique source de verite pour le net
+# 4c. Appareil de lucidite (PR-C) : confidence + pourquoi + millesime.
+- assertVisible:
+    id: "firstjob-confidence-chip"
+- assertVisible:
+    id: "firstjob-source-vintage"     # ex. "AVS 2026 · OFS ESS 2022"
+- tapOn:
+    id: "firstjob-why-net"            # "pourquoi ce chiffre" -> depliage
+- extendedWaitUntil:
+    visible:
+      id: "firstjob-why-net-body"
+    timeout: 6000
+# 4d. Capture de la valeur affichee pour la parite dashboard<->coach (5c).
+- copyTextFrom:
+    id: "firstjob-net-value"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 5. RED-2 : /first-job -> /coach/chat (handoff porteur du receipt)
+#    ECHEC AUJOURD'HUI : aucun context.go('/coach') dans first_job_screen.
+#    PR-E ajoute le CTA firstjob-ask-coach qui passe receipt_id + inputs_hash
+#    dans le coachChatEntryPayload. Passe au VERT apres PR-E.
+# ═══════════════════════════════════════════════════════════════════════
+- scrollUntilVisible:
+    element:
+      id: "firstjob-ask-coach"
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: "firstjob-ask-coach"
+
+# 5a. Le coach s'ouvre (onglet 2 du shell).
+- extendedWaitUntil:
+    visible:
+      id: "coach_chat_screen"
+    timeout: 15000
+# 5b. Le coach parle du meme sujet et rend un chiffre.
+- extendedWaitUntil:
+    visible:
+      text: ".*CHF.*"
+    timeout: 20000
+# 5c. PARITE dashboard<->coach : le net copie sur /first-job (4d) doit
+#     apparaitre a l'identique dans la reponse coach (meme inputs_hash =>
+#     meme valeur apres arrondi). Divergence claims<->outputs = 0.
+- assertVisible:
+    text: "${maestro.copiedText}"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 6. ANTI-CRITERE — STAGING COUPE -> DEGRADATION PROPRE (jamais un vide)
+#    Bloc execute par le harnais avec API_BASE_URL injoignable
+#    (MINT_E2E_STAGING=down). Regression 2026-05-07 : ecran vide interdit.
+#    Le net first-job est L1 OFFLINE (Dart pur) : il DOIT rester calcule ;
+#    seul le coach (backend) degrade avec un message explicite.
+# ═══════════════════════════════════════════════════════════════════════
+- runFlow:
+    when:
+      visible:
+        id: "e2e-staging-down-marker"
+    commands:
+      # first-job : le chiffre L1 survit hors ligne.
+      - openLink: "mintapp:///first-job"
+      - extendedWaitUntil:
+          visible:
+            id: "firstjob-premier-eclairage-value"
+          timeout: 12000
+      - assertVisible:
+          text: ".*CHF.*"
+      # coach : degradation nommee, pas d'ecran vide, pas de chiffre nu.
+      - openLink: "mintapp:///coach/chat"
+      - extendedWaitUntil:
+          visible:
+            id: "coach-offline-degradation"
+          timeout: 15000
+      - assertNotVisible:
+          text: "Aucune donnée pour l'instant"
+      - assertNotVisible:
+          id: "coach_empty_blank_state"
