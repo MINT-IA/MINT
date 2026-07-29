@@ -874,6 +874,20 @@ ALLOW = {
     # PR-B addendum (revue Codex) : correction légale AC — le pour-cent de
     # solidarité (>148'200) a été aboli au 1.1.2023 ; test firstJob adapté.
     "apps/mobile/test/services/first_job_service_test.dart",
+    # PR-E (E1) handoff /first-job -> coach porteur du MoneyTruthReceipt
+    # (tranche firstJob, SPEC TRANCHE-FIRSTJOB §4.3) : store/resolve backend
+    # owner-scoped (idempotence + accès croisé + pending + TTL) + câblage
+    # coach (CoachChatRequest reçoit receiptId/inputsHash, résolution
+    # server-side). Portage API exposé => regen OpenAPI canonical + brut.
+    "services/backend/app/models/money_truth_receipt_record.py",
+    "services/backend/app/services/lucidity/__init__.py",
+    "services/backend/app/services/lucidity/receipt_store.py",
+    "services/backend/app/schemas/money_truth_receipt_api.py",
+    "services/backend/app/api/v1/endpoints/lucidity_receipts.py",
+    "services/backend/app/api/v1/router.py",
+    "services/backend/app/schemas/coach_chat.py",
+    "services/backend/tests/test_money_truth_receipt_store.py",
+    "services/backend/alembic/versions/p126_money_truth_receipts.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

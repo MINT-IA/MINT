@@ -59,6 +59,7 @@ from app.api.v1.endpoints import (
     consents,
     overview,
     lucidity,
+    lucidity_receipts,
     audit_mobile,
     waitlist,
 )
@@ -228,6 +229,14 @@ api_router.include_router(
 )
 api_router.include_router(
     lucidity.router, prefix="/lucidity", tags=["Lucidity L1-L4 (calc-engine-v1)"]
+)
+# Tranche firstJob PR-E (E1) — store/resolve du MoneyTruthReceipt pour le
+# handoff /first-job → coach (SPEC §4.3). Même préfixe /lucidity : les routes
+# concrètes sont /lucidity/receipts et /lucidity/receipts/resolve.
+api_router.include_router(
+    lucidity_receipts.router,
+    prefix="/lucidity",
+    tags=["Lucidity MoneyTruthReceipt store/resolve (firstJob PR-E)"],
 )
 # Phase mint-data-architecture-v1-02 Plan 02-02 W1 continuation-4 P2 —
 # Mobile L1 audit ingestion (D-12 + D-MOB-03 + iter-2 A6 handshake +
