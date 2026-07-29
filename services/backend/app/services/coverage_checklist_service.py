@@ -345,7 +345,8 @@ class CoverageChecklistService:
                 "Couvre les frais medicaux et la perte de gain en cas d'accident "
                 "(professionnel et non professionnel). Obligatoire pour les "
                 "personnes salariees (couvert par l'employeur). "
-                "Les personnes independantes doivent souscrire une LAA individuelle."
+                "Les personnes indépendantes ne sont pas couvertes par un "
+                "employeur : elles doivent s'assurer elles-mêmes (LAA individuelle)."
             ),
             "urgence": urgence,
             "statut": statut,

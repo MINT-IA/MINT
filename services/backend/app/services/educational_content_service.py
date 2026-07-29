@@ -145,7 +145,7 @@ _register(InsertContent(
     question_id="q_has_3a",
     title="Pilier 3a : ton potentiel d'economie",
     premier_eclairage=(
-        "Un-e salarie-e qui verse le maximum 3a (7'258 CHF) peut "
+        "Un-e salarie-e qui cotise au plafond 3a (7'258 CHF) peut "
         "economiser entre 1'500 et 2'800 CHF d'impots par an selon "
         "le canton — de l'argent que tu laisses a l'Etat chaque annee sans 3a."
     ),
@@ -171,7 +171,7 @@ _register(InsertContent(
     title="Economie fiscale 3a : combien tu gagnes",
     premier_eclairage=(
         "Ton versement 3a reduit directement ton revenu imposable. "
-        "Sur 30 ans, la difference entre verser le maximum et ne rien "
+        "Sur 30 ans, la difference entre cotiser au plafond et ne rien "
         "verser peut depasser 100'000 CHF en economies d'impots cumulees."
     ),
     learning_goals=[

@@ -10,6 +10,7 @@ All tests run without chromadb or an LLM API key (pure logic / HTTP only).
 from __future__ import annotations
 
 import asyncio
+import re
 import unittest.mock as mock
 
 import pytest
@@ -293,8 +294,8 @@ class TestCantonalEnrichment:
         )
 
         assert "VS" in prompt
-        # VS marginal rate is 36.0%
-        assert "36.0" in prompt or "36%" in prompt or "Valais" in prompt
+        # Untouched wealth-tax field still injected — proves the cantonal block ran.
+        assert "Impôt sur la fortune" in prompt
 
     def test_canton_zh_injected(self):
         """ZH (Zurich) tax data appears in system prompt when canton=ZH."""
@@ -307,8 +308,8 @@ class TestCantonalEnrichment:
         )
 
         assert "ZH" in prompt
-        # ZH marginal rate is 32.5%
-        assert "32.5" in prompt or "Zurich" in prompt
+        # Wealth-tax permille (untouched field) still injected for ZH.
+        assert "Impôt sur la fortune" in prompt
 
     def test_canton_ti_injected(self):
         """TI (Tessin) tax data appears in system prompt when canton=TI."""
@@ -321,8 +322,61 @@ class TestCantonalEnrichment:
         )
 
         assert "TI" in prompt
-        # TI marginal rate is 33.5%
-        assert "33.5" in prompt or "Tessin" in prompt
+        assert "Impôt sur la fortune" in prompt
+
+    def _marginal_lines(self, prompt: str) -> list[str]:
+        return [ln for ln in prompt.splitlines() if ln.startswith("Taux marginal")]
+
+    def test_marginal_rate_toolless_variant_is_default(self):
+        """Default (no fiscal tools reachable): figure-free, NO tool name, redirect.
+
+        The /api/v1/rag/query path only forwards client-announced tools, so the
+        safe default must NOT mandate a tool that may be unreachable — it forbids
+        any figure and redirects to the in-app simulation instead.
+        """
+        from app.services.rag.guardrails import ComplianceGuardrails
+
+        guardrails = ComplianceGuardrails()
+        for canton in ["ZH", "GE", "VS", "TI", "ZG", "BE"]:
+            prompt = guardrails.build_system_prompt(
+                language="fr",
+                profile_context={"canton": canton},
+            )
+            lines = self._marginal_lines(prompt)
+            assert lines, f"No marginal-rate line for canton {canton}"
+            for ln in lines:
+                assert not re.search(r"\d+(\.\d+)?\s*%", ln), (
+                    f"Static marginal percentage leaked for {canton}: {ln!r}"
+                )
+                assert "dépend du revenu" in ln
+                assert "simulation" in ln, (
+                    f"Tool-less variant missing simulation redirect for {canton}"
+                )
+                assert "cantonal_comparator__estimate_marginal_rate" not in ln, (
+                    f"Tool-less variant must NOT mandate the fiscal tool for {canton}"
+                )
+
+    def test_marginal_rate_tool_variant_when_fiscal_tools_available(self):
+        """fiscal_tools_available=True: figure-free directive that mandates the tool."""
+        from app.services.rag.guardrails import ComplianceGuardrails
+
+        guardrails = ComplianceGuardrails()
+        for canton in ["ZH", "GE", "VS", "TI", "ZG", "BE"]:
+            prompt = guardrails.build_system_prompt(
+                language="fr",
+                profile_context={"canton": canton},
+                fiscal_tools_available=True,
+            )
+            lines = self._marginal_lines(prompt)
+            assert lines, f"No marginal-rate line for canton {canton}"
+            for ln in lines:
+                assert not re.search(r"\d+(\.\d+)?\s*%", ln), (
+                    f"Static marginal percentage leaked for {canton}: {ln!r}"
+                )
+                assert "dépend du revenu" in ln
+                assert "cantonal_comparator__estimate_marginal_rate" in ln, (
+                    f"Tool variant missing fiscal tool name for {canton}"
+                )
 
     def test_canton_lowercase_normalized(self):
         """Lowercase canton code 'vs' is normalized to 'VS'."""
@@ -508,3 +562,113 @@ class TestKnowledgeStatusEndpoint:
             resp = c.get("/api/v1/knowledge/status")
         # May be 200 or 401 depending on auth config; must not be 500
         assert resp.status_code != 500
+
+
+# ---------------------------------------------------------------------------
+# Fiscal marginal-rate tool gating (P1: unreachable-tool directive)
+# ---------------------------------------------------------------------------
+
+
+class TestFiscalMarginalToolAvailable:
+    """Unit lock on the tool-detection helper that gates the marginal directive."""
+
+    def test_none_is_false(self):
+        from app.services.rag.guardrails import fiscal_marginal_tool_available
+
+        assert fiscal_marginal_tool_available(None) is False
+
+    def test_empty_is_false(self):
+        from app.services.rag.guardrails import fiscal_marginal_tool_available
+
+        assert fiscal_marginal_tool_available([]) is False
+
+    def test_fiscal_tool_present_is_true(self):
+        from app.services.rag.guardrails import fiscal_marginal_tool_available
+
+        tools = [
+            {"name": "cantonal_comparator__estimate_marginal_rate", "input_schema": {}}
+        ]
+        assert fiscal_marginal_tool_available(tools) is True
+
+    def test_other_tools_only_is_false(self):
+        from app.services.rag.guardrails import fiscal_marginal_tool_available
+
+        tools = [{"name": "save_insight"}, {"name": "retrieve_memories"}]
+        assert fiscal_marginal_tool_available(tools) is False
+
+    def test_lookalike_name_is_false(self):
+        """Revue Codex P2 : un sosie contenant la sous-chaîne ne doit pas
+        faire mandater l'outil canonique absent — égalité EXACTE exigée."""
+        from app.services.rag.guardrails import fiscal_marginal_tool_available
+
+        tools = [{"name": "custom_estimate_marginal_rate"}]
+        assert fiscal_marginal_tool_available(tools) is False
+
+    def test_mixed_list_with_fiscal_tool_is_true(self):
+        from app.services.rag.guardrails import fiscal_marginal_tool_available
+
+        tools = [
+            {"name": "save_insight"},
+            {"name": "cantonal_comparator__estimate_marginal_rate"},
+        ]
+        assert fiscal_marginal_tool_available(tools) is True
+
+
+class _CapturingOrchestrator:
+    """Fake RAG orchestrator: real guardrails, query() captures system_prompt."""
+
+    def __init__(self):
+        from app.services.rag.guardrails import ComplianceGuardrails
+
+        self.guardrails = ComplianceGuardrails()
+        self.captured: dict = {}
+
+    async def query(self, **kwargs):
+        self.captured["system_prompt"] = kwargs.get("system_prompt")
+        return {"answer": "ok", "sources": [], "disclaimers": [], "tokens_used": 0}
+
+
+class TestRagQueryMarginalDirectiveWiring:
+    """Caller lock (P1): /api/v1/rag/query forwards only client-announced tools.
+
+    With NO client tools, mandating cantonal_comparator__estimate_marginal_rate
+    would strand the model against an unreachable tool — so the wired system
+    prompt must carry the tool-LESS variant (figure-free, redirect to the app
+    simulation, no tool name).
+    """
+
+    def test_rag_query_without_tools_uses_toolless_variant(self, client):
+        import app.api.v1.endpoints.rag as rag_module
+
+        fake = _CapturingOrchestrator()
+
+        async def _fake_get_orch():
+            return fake
+
+        with mock.patch.object(
+            rag_module.ConsentManager, "is_consent_given", return_value=True
+        ), mock.patch(
+            "app.api.v1.endpoints.rag._get_orchestrator_safe",
+            new_callable=mock.AsyncMock,
+            side_effect=_fake_get_orch,
+        ):
+            resp = client.post(
+                "/api/v1/rag/query",
+                json={
+                    "question": "Quel est mon taux marginal à Genève ?",
+                    "api_key": "sk-test-123",
+                    "provider": "claude",
+                    "language": "fr",
+                    "profile_context": {"canton": "GE"},
+                },
+            )
+
+        assert resp.status_code == 200, resp.text
+        sp = fake.captured.get("system_prompt")
+        assert sp, "orchestrator.query received no system_prompt"
+        marginal = [ln for ln in sp.splitlines() if ln.startswith("Taux marginal")]
+        assert marginal, "no marginal-rate directive in rag.py system prompt"
+        for ln in marginal:
+            assert not re.search(r"\d+(\.\d+)?\s*%", ln)
+            assert "cantonal_comparator__estimate_marginal_rate" not in ln
+            assert "simulation" in ln

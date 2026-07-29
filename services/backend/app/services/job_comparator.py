@@ -614,7 +614,7 @@ class JobComparator:
         # If different IJM
         if current.has_ijm and not new.has_ijm:
             checklist.append(
-                "URGENT: Souscrire une IJM individuelle si le nouvel employeur n'en a pas."
+                "URGENT : vérifier ta couverture IJM — si le nouvel employeur n'en propose pas, comparer une police individuelle."
             )
 
         # If near max insured salary

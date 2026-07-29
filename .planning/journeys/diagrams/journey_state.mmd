@@ -7,11 +7,13 @@ stateDiagram-v2
   state "JOS-001 verified/green" as issue_JOS_001
   journey_account_lifecycle_delete --> issue_JOS_001: issue
   state "coach_advice_turn partial" as journey_coach_advice_turn
-  state "latest runtime green" as evidence_coach_advice_turn
+  state "latest unit green" as evidence_coach_advice_turn
   [*] --> journey_coach_advice_turn
   journey_coach_advice_turn --> evidence_coach_advice_turn: proof
   state "JOS-004 verified/green" as issue_JOS_004
   journey_coach_advice_turn --> issue_JOS_004: issue
+  state "JOS-006 proof_needed/green" as issue_JOS_006
+  journey_coach_advice_turn --> issue_JOS_006: issue
   state "money_truth_spine live_proven" as journey_money_truth_spine
   state "latest runtime green" as evidence_money_truth_spine
   [*] --> journey_money_truth_spine

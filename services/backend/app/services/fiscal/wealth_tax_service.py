@@ -3,7 +3,7 @@ Service d'estimation de l'impot sur la fortune — 26 cantons suisses.
 
 Estime la charge d'impot sur la fortune nette pour un contribuable
 dans chacun des 26 cantons, en se basant sur les taux effectifs
-simplifies publies par l'OFS (Charge Fiscale 2024).
+simplifies — modele MINT en attente de recalibrage ESTV.
 
 Approche:
     1. Taux effectif de base par canton a CHF 500'000 (celibataire, chef-lieu)
@@ -13,7 +13,7 @@ Approche:
 
 Sources:
     - LHID art. 14 (impot sur la fortune)
-    - OFS — Charge fiscale en Suisse 2024
+    - Modele simplifie MINT (recalibrage ESTV en cours, ADR 2026-07-28)
     - Lois fiscales cantonales
     - CC art. 196 ss (regime matrimonial)
 
@@ -59,7 +59,9 @@ CANTON_NAMES = {
 }
 
 # Effective wealth tax rates (per mille of net wealth)
-# At CHF 500'000, single, chef-lieu — Source: OFS Charge Fiscale 2024
+# At CHF 500'000, single, chef-lieu — modele simplifie MINT, NON calibre
+# sur une collecte fortune (l'archive ESTV 2026-07-23 est a fortune = 0) ;
+# recalibrage outille : ADR 2026-07-28-fortune-recalibrage-estv.
 # Lower = cheaper canton for wealth tax
 EFFECTIVE_WEALTH_TAX_RATES_500K = {
     "NW": 0.75,   # per mille — Nidwald (lowest)
@@ -144,7 +146,7 @@ DISCLAIMER = (
 
 SOURCES = [
     "LHID art. 14 (impot sur la fortune)",
-    "OFS — Charge fiscale en Suisse 2024",
+    "Modele simplifie MINT — recalibrage ESTV en cours (ADR 2026-07-28-fortune-recalibrage-estv)",
     "Lois fiscales cantonales",
     "CC art. 196 ss (regime matrimonial — fortune des epoux)",
 ]

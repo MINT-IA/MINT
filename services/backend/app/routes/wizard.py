@@ -328,7 +328,7 @@ def _generate_actions(answers: Dict[str, Any], safe_mode: bool) -> List[Dict[str
             {
                 "id": "3a",
                 "label": "3a",
-                "description": "Ouvrir un compte 3a",
+                "description": "Comparer les comptes 3a",
                 "status": "pending",
                 "impact_on_precision": 10,
             }

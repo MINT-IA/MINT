@@ -18,6 +18,7 @@ from app.core.rate_limit import limiter
 from app.models.user import User
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_models import ConsentType
+from app.services.rag.guardrails import fiscal_marginal_tool_available
 
 from app.schemas.rag import (
     ExtractedDocumentField,
@@ -158,9 +159,15 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
         f"\nANTI-PATTERNS (ne fais JAMAIS) :\n{anti_patterns_text}\n"
     )
     # Build the full guardrails prompt and append voice block.
+    # The marginal-rate directive only mandates the fiscal tool when the client
+    # actually announced it in body.tools — otherwise the prompt would strand
+    # the model against an unreachable tool (this path forwards only client
+    # tools to the LLM, unlike the coach path which has the full registry).
+    fiscal_tools_available = fiscal_marginal_tool_available(body.tools)
     guardrails_prompt = orchestrator.guardrails.build_system_prompt(
         body.language.value,
         profile_context=profile_ctx if has_byok_consent else None,
+        fiscal_tools_available=fiscal_tools_available,
     )
     enriched_prompt = guardrails_prompt + voice_block
 
