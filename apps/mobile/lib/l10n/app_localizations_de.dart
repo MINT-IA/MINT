@@ -10488,7 +10488,7 @@ class SDe extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'Häufig gewählt';
+  String get firstJobTopBadge => 'Häufig';
 
   @override
   String get authLoginSubtitle => 'Zugang zu deinem persönlichen Finanzbereich';

@@ -10491,7 +10491,7 @@ class SIt extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'Spesso scelta';
+  String get firstJobTopBadge => 'Comune';
 
   @override
   String get authLoginSubtitle => 'Accedi al tuo spazio finanziario personale';

@@ -10473,7 +10473,7 @@ class SFr extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'Souvent choisie';
+  String get firstJobTopBadge => 'Fréquent';
 
   @override
   String get authLoginSubtitle => 'Accède à ton espace financier personnel';

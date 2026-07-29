@@ -10465,7 +10465,7 @@ class SPt extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'Frequentemente escolhida';
+  String get firstJobTopBadge => 'Comum';
 
   @override
   String get authLoginSubtitle => 'Acede ao teu espaço financeiro pessoal';

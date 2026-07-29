@@ -10405,7 +10405,7 @@ class SEn extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'Often chosen';
+  String get firstJobTopBadge => 'Common';
 
   @override
   String get authLoginSubtitle => 'Access your personal financial space';

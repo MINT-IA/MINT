@@ -1332,19 +1332,29 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               child: Row(
                 children: [
                   if (isRecommended)
-                    Container(
-                      margin: const EdgeInsets.only(right: MintSpacing.sm),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: MintSpacing.xs + 2, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: MintColors.success,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        S.of(context)!.firstJobTopBadge,
-                        style:
-                            MintTextStyles.labelSmall(color: MintColors.white)
-                                .copyWith(fontWeight: FontWeight.w700),
+                    // Badge multi-mots (i18n ×6) : Flexible + ellipsis pour que
+                    // le badge n'ajoute JAMAIS sa largeur naturelle à la Row
+                    // (a11y — largeur étroite / gros texte). flex:3 garde le
+                    // label entier visible sur téléphone standard et ne tronque
+                    // proprement qu'à l'extrême (320 px × textScale élevé).
+                    Flexible(
+                      flex: 3,
+                      child: Container(
+                        margin: const EdgeInsets.only(right: MintSpacing.sm),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: MintSpacing.xs + 2, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: MintColors.success,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          S.of(context)!.firstJobTopBadge,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MintTextStyles.labelSmall(
+                                  color: MintColors.white)
+                              .copyWith(fontWeight: FontWeight.w700),
+                        ),
                       ),
                     ),
                   Expanded(

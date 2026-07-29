@@ -10468,7 +10468,7 @@ class SEs extends S {
   }
 
   @override
-  String get firstJobTopBadge => 'A menudo elegida';
+  String get firstJobTopBadge => 'Común';
 
   @override
   String get authLoginSubtitle => 'Accede a tu espacio financiero personal';

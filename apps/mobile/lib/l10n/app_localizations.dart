@@ -18405,7 +18405,7 @@ abstract class S {
   /// No description provided for @firstJobTopBadge.
   ///
   /// In fr, this message translates to:
-  /// **'Souvent choisie'**
+  /// **'Fréquent'**
   String get firstJobTopBadge;
 
   /// No description provided for @authLoginSubtitle.
