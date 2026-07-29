@@ -744,6 +744,9 @@ ALLOW = {
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
     # Tranche firstJob : flow d'acceptation RED (skip locator-audit, hors sweep)
     "tools/simulator/flows/firstjob_tranche_acceptance_red.yaml",
+    # Tranche firstJob : variante SEEDED (diagnostic PR-I) — atterrit /home via
+    # seed archetype, hors sweep vert (bloquée par l'effondrement AX iOS 26.2).
+    "tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml",
     "tools/simulator/journey_os_runtime_replay.sh",
     "tools/claude_review.py",
     "tools/claude_review.sh",
