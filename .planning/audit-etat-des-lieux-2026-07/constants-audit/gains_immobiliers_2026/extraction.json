@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "date_collecte": "2026-07-28",
+    "adr": ".planning/decisions/2026-07-28-remplacements-succession-donation-immo-lamal.md (P5)",
+    "methode": "Trois sources primaires téléchargées puis archivées dans ce dossier ; les barèmes ci-dessous sont retranscrits à la main depuis ces fichiers, champ par champ, sans aucune valeur de mémoire ni de source secondaire. ZH : PDF officiel du Steueramt (Zürcher Steuerbuch Nr. 225-1, formulaire StA eForm 225.1 / 09.25), barème lu en page 1, vecteurs de contrôle lus dans le tableau B (pages 2-4). VD : PDF consolidé de la LI 642.11 obtenu via lexfind.ch (tolv/200645), art. 72 lu en pages 36-38 du PDF. GE : page HTML consolidée de la LCP D 3 05 depuis silgeneve.ch (état au 1.1.2026), art. 84 extrait après décodage Windows-1252. La cohérence interne ZH est vérifiée : chaque vecteur du tableau B recalculé par la formule des tranches donne le montant imprimé.",
+    "verification": "tests de parité archive ↔ constantes générées + vecteurs officiels ZH rejoués (phase code, tests/test_gains_immobiliers_calibres.py)",
+    "perimetre": "ZH, VD, GE uniquement (modèles calibrés, ADR item 6). BE/LU/BS + défaut : hors de cette collecte — mécanisme sourcé + renvoi au calculateur cantonal officiel en phase code (ADR item 7), voir README."
+  },
+  "ZH": {
+    "modele": "progressif_par_gain",
+    "source": {
+      "titre": "Tarif für die Grundstückgewinnsteuer — A. Steuersätze gemäss § 225 StG",
+      "editeur": "Steueramt Kanton Zürich",
+      "url": "https://www.zh.ch/content/dam/zhweb/bilder-dokumente/themen/steuern-finanzen/steuern/vertreter/steuerbuch/zstb-nr-225-1.pdf",
+      "fichier_archive": "zstb-225-1-zh-tarif.pdf",
+      "etat": "StA eForm 225.1 / 09.25"
+    },
+    "tranches_par_gain": [
+      {"portion_chf": 4000, "taux": 0.10, "libelle": "10% für die ersten CHF 4'000"},
+      {"portion_chf": 6000, "taux": 0.15, "libelle": "15% für die weiteren CHF 6'000"},
+      {"portion_chf": 8000, "taux": 0.20, "libelle": "20% für die weiteren CHF 8'000"},
+      {"portion_chf": 12000, "taux": 0.25, "libelle": "25% für die weiteren CHF 12'000"},
+      {"portion_chf": 20000, "taux": 0.30, "libelle": "30% für die weiteren CHF 20'000"},
+      {"portion_chf": 50000, "taux": 0.35, "libelle": "35% für die weiteren CHF 50'000"},
+      {"portion_chf": null, "taux": 0.40, "libelle": "40% für die Gewinnteile über CHF 100'000"}
+    ],
+    "majoration_courte_duree": {
+      "moins_de_1_an": 0.50,
+      "moins_de_2_ans": 0.25,
+      "libelle": "erhöht sich bei einer anrechenbaren Besitzesdauer von weniger als 1 Jahr um 50 Prozent, von weniger als 2 Jahren um 25 Prozent"
+    },
+    "rabais_longue_duree": {
+      "table_annees_pleines": {
+        "5": 0.05, "6": 0.08, "7": 0.11, "8": 0.14, "9": 0.17,
+        "10": 0.20, "11": 0.23, "12": 0.26, "13": 0.29, "14": 0.32,
+        "15": 0.35, "16": 0.38, "17": 0.41, "18": 0.44, "19": 0.47,
+        "20": 0.50
+      },
+      "plafond": 0.50,
+      "libelle": "ermässigt sich bei vollen 5 Jahren um 5%, puis +3% par année pleine, 20 Jahren und mehr um 50%"
+    },
+    "franchise_chf": 5000,
+    "franchise_libelle": "Grundstückgewinne unter CHF 5000 werden nicht besteuert",
+    "vecteurs_officiels_tableau_B": [
+      {"gewinn_chf": 5000, "steuer_chf": 550},
+      {"gewinn_chf": 25000, "steuer_chf": 4650},
+      {"gewinn_chf": 50000, "steuer_chf": 11900},
+      {"gewinn_chf": 64900, "steuer_chf": 17115}
+    ],
+    "note": "Le tarif est le tarif de base (Grundtarif) avant majoration/rabais de durée ; impôt communal (perçu par la commune), pas de multiplicateur additionnel sur ce tarif."
+  },
+  "VD": {
+    "modele": "degressif_par_duree",
+    "source": {
+      "titre": "Loi sur les impôts directs cantonaux (LI), RSV 642.11, art. 72",
+      "editeur": "État de Vaud — version consolidée via lexfind.ch (tolv/200645)",
+      "url": "https://www.lexfind.ch/tolv/200645/fr",
+      "fichier_archive": "li-vd-642-11-consolide.pdf",
+      "pages_pdf": "36-38"
+    },
+    "bareme_par_annees_de_possession": [
+      {"de": 0, "a_exclu": 1, "taux": 0.30},
+      {"de": 1, "a_exclu": 2, "taux": 0.27},
+      {"de": 2, "a_exclu": 3, "taux": 0.24},
+      {"de": 3, "a_exclu": 4, "taux": 0.22},
+      {"de": 4, "a_exclu": 5, "taux": 0.20},
+      {"de": 5, "a_exclu": 6, "taux": 0.18},
+      {"de": 6, "a_exclu": 7, "taux": 0.17},
+      {"de": 7, "a_exclu": 8, "taux": 0.16},
+      {"de": 8, "a_exclu": 9, "taux": 0.15},
+      {"de": 9, "a_exclu": 10, "taux": 0.15},
+      {"de": 10, "a_exclu": 11, "taux": 0.14},
+      {"de": 11, "a_exclu": 12, "taux": 0.14},
+      {"de": 12, "a_exclu": 13, "taux": 0.13},
+      {"de": 13, "a_exclu": 14, "taux": 0.13},
+      {"de": 14, "a_exclu": 15, "taux": 0.12},
+      {"de": 15, "a_exclu": 16, "taux": 0.12},
+      {"de": 16, "a_exclu": 17, "taux": 0.11},
+      {"de": 17, "a_exclu": 18, "taux": 0.11},
+      {"de": 18, "a_exclu": 19, "taux": 0.10},
+      {"de": 19, "a_exclu": 20, "taux": 0.10},
+      {"de": 20, "a_exclu": 21, "taux": 0.09},
+      {"de": 21, "a_exclu": 22, "taux": 0.09},
+      {"de": 22, "a_exclu": 23, "taux": 0.08},
+      {"de": 23, "a_exclu": 24, "taux": 0.08},
+      {"de": 24, "a_exclu": null, "taux": 0.07}
+    ],
+    "occupation_personnelle": {
+      "regle": "double_comptage",
+      "libelle_al4": "Les années d'occupation prouvées par le contribuable comptent double."
+    },
+    "partage": "Impôt perçu par l'État, qui en verse les cinq douzièmes à la commune (art. 74) — le barème est le total, pas de multiplicateur communal.",
+    "imposition_distincte": "Les gains immobiliers font l'objet d'une imposition distincte de celle du revenu (art. 72 al. 1)."
+  },
+  "GE": {
+    "modele": "degressif_par_duree",
+    "source": {
+      "titre": "Loi générale sur les contributions publiques (LCP), rsGE D 3 05, art. 84",
+      "editeur": "République et canton de Genève — silgeneve.ch, état au 1.1.2026",
+      "url": "https://silgeneve.ch/legis/data/rsg_d3_05.htm",
+      "fichier_archive": "lcp-ge-d3-05-consolide.html",
+      "encodage_archive": "Windows-1252"
+    },
+    "bareme_par_annees_de_possession": [
+      {"de": 0, "a_exclu": 2, "taux": 0.50, "lettre": "a"},
+      {"de": 2, "a_exclu": 4, "taux": 0.40, "lettre": "b"},
+      {"de": 4, "a_exclu": 6, "taux": 0.30, "lettre": "c"},
+      {"de": 6, "a_exclu": 8, "taux": 0.20, "lettre": "d"},
+      {"de": 8, "a_exclu": 10, "taux": 0.15, "lettre": "e"},
+      {"de": 10, "a_exclu": 25, "taux": 0.10, "lettre": "f"},
+      {"de": 25, "a_exclu": null, "taux": 0.02, "lettre": "g"}
+    ],
+    "revision_2025": "La lettre g (2% dès 25 ans) porte le renvoi (257) : en vigueur depuis le 1.1.2025 — l'exonération totale au-delà de 25 ans est morte.",
+    "remploi": "Art. 85 LCP : à Genève le remploi est un REMBOURSEMENT de l'impôt (logement occupé par le propriétaire, propriété agricole exploitée), pas un simple report — à traiter en phase code.",
+    "travaux_plus_value": "Art. 84 al. 2 : plus-value de travaux d'une certaine importance → gain déterminé et imposé séparément par élément selon sa durée de propriété."
+  },
+  "ecarts_vs_table_fabriquee": {
+    "reference": "services/backend/app/services/housing_sale_service.py::TAUX_PLUS_VALUE_IMMOBILIERE (dev)",
+    "ZH": "La table fabriquée est par DURÉE (50%→0% à 20 ans) alors que le tarif légal est par MONTANT DE GAIN avec rabais de durée plafonné à 50% — le 0% après 20 ans n'existe pas.",
+    "VD": "Fabriquée : 5 paliers (30/25/20/15/7). Légale : 25 lignes (30→7) — fausse à presque chaque durée ; le double comptage d'occupation est absent.",
+    "GE": "Fabriquée : 25% à 6-8 ans, 20% à 8-10 ans, 0% dès 25 ans. Légale : 20%, 15%, et 2% dès 25 ans (révision 1.1.2025)."
+  }
+}
