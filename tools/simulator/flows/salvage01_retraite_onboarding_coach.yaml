@@ -199,12 +199,12 @@ appId: ch.mint.app
     point: "160, 280"
 
 # ─── SC-3: lands on RvC, NOT /coach/chat or /waitlist ───────────────────
+# Pilote AX (ADR 2026-07-30) : id racine rente_vs_capital_screen retire ;
+# on gate sur l'id INTERNE rvc_route_state (proof anchor, present au repos).
 - extendedWaitUntil:
     visible:
-      id: "rente_vs_capital_screen"
+      id: "rvc_route_state"
     timeout: 15000
-- assertVisible:
-    id: "rvc_route_state"
 - assertNotVisible:
     text: "Encore en chantier pour ton profil"
 - assertNotVisible:

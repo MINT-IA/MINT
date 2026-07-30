@@ -53,7 +53,7 @@ tags:
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "coach_chat_screen"
+      id: "coach_input_field"
     timeout: 12000
 - extendedWaitUntil:
     visible:
@@ -123,7 +123,7 @@ tags:
     id: "coach_history_conversation_0"
 - extendedWaitUntil:
     visible:
-      id: "coach_chat_screen"
+      id: "coach_input_field"
     timeout: 12000
 - assertVisible:
     id: "coach_user_message_0"

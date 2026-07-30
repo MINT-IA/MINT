@@ -281,7 +281,10 @@ def _check_maestro_flow(errors: list[str], root: Path) -> None:
     required_fragments = {
         'clearState: true': "must clear app state",
         'id: "mint2-axis-lpp_rente_capital"': "must assert the live LPP axis",
-        'id: "rente_vs_capital_screen"': "must assert rente_vs_capital_screen",
+        # AX pilote (ADR 2026-07-30) : l'id RACINE rente_vs_capital_screen a ete
+        # retire (conteneur Semantics racine = effondrement de l'arbre AX sur
+        # iOS 26.2). Le flow prouve l'arrivee via l'ancre INTERNE rvc_route_state.
+        'id: "rvc_route_state"': "must assert rvc arrival (rvc_route_state)",
         ACCOUNT_WALL_TITLE: "must assert the account gate is absent after route",
     }
     for fragment, reason in required_fragments.items():

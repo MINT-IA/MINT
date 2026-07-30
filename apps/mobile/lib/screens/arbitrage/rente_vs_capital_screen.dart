@@ -673,18 +673,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturnOnPop();
       },
-      // ILLOG-02 fix: screen-root Semantics boundary (matches the canonical
-      // healthy pattern of mon_argent_screen / budget_screen). The identifier
-      // must wrap the whole Scaffold as a container with explicit child nodes
-      // — NOT sit on the AppBar title leaf — otherwise the iOS accessibility
-      // bridge collapses the entire route into that single header node and
-      // `idb ui describe-all` reports "1 element" (the ILLOG-02 symptom).
-      child: Semantics(
-        key: const Key('rente_vs_capital_screen'),
-        identifier: 'rente_vs_capital_screen',
-        container: true,
-        explicitChildNodes: true,
-        child: Scaffold(
+      // AX iOS 26.2 (ADR 2026-07-30, pilote) : plus de Semantics racine.
+      // ILLOG-02 avait ajouté un conteneur racine ; sur iOS 26.2 ce conteneur
+      // fait DOUBLE frontière avec le scopesRoute de ModalRoute et effondre la
+      // route poussée à 1 nœud (cf. project_ios26_ax_tree_collapse). Retour au
+      // défaut du framework. NB : SliverAppBar conservé (re-effondrement au
+      // scroll hors périmètre — décidé post-upgrade 3.44.8). Ancre de flow :
+      // id interne rvc_route_state (proof anchors) ou titre AppBar.
+      child: Scaffold(
             body: Center(
                 child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 600),
@@ -837,7 +833,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                           ),
                         ),
                       ],
-                    )))),
+                    ))),
       ),
     );
   }

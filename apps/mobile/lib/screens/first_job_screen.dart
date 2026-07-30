@@ -503,13 +503,12 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturn();
       },
-      // ILLOG-02 : conteneur Semantics racine (motif rente_vs_capital) sinon le
-      // pont AX iOS effondre toute la route en un seul nœud (« 1 element »).
-      child: Semantics(
-        identifier: 'first_job_screen',
-        container: true,
-        explicitChildNodes: true,
-        child: Scaffold(
+      // AX iOS 26.2 (ADR 2026-07-30, pilote) : pas de Semantics racine ici.
+      // ModalRoute pose déjà scopesRoute ; un conteneur racine additionnel
+      // effondre l'arbre AX des routes poussées sur iOS 26.2 (cf. diagnostic
+      // project_ios26_ax_tree_collapse). Le flow re-gate sur les identifiants
+      // INTERNES du premier chiffre (firstjob-net-value), plus aucun id racine.
+      child: Scaffold(
           backgroundColor: MintColors.background,
           body: Center(
               child: ConstrainedBox(
@@ -745,7 +744,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                         ),
                       ),
                     ],
-                  ))))),
+                  )))),
     );
   }
 
