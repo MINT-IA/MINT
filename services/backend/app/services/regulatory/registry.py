@@ -936,26 +936,42 @@ _PARAMETERS: list[RegulatoryParameter] = [
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
+        # Pour-cent de solidarité AC ABOLI au 1.1.2023 : rate=0, effective_from
+        # 2023-01-01, effective_to=None (le 0 est la réalité en vigueur, pas un
+        # paramètre expiré -> pas de successeur requis). Le calcul consommateur
+        # est purgé côté py (frontalier) et dart (expat) — parité maintenue.
         key="ac.solidarity_rate_employee",
-        value=0.005,
+        value=0.0,
         unit="ratio",
-        effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LACI art. 3",
+        effective_from=date(2023, 1, 1),
+        source_url="https://www.ahv-iv.ch/p/2.08.f",
+        source_title="LACI art. 90c al. 4 (suppression) / art. 3 al. 3 (base)",
         source_type="law",
-        description="Cotisation de solidarité AC part salarié : 0.5% (au-dessus du plafond).",
+        description="Cotisation de solidarité AC part salarié : supprimée (0%) depuis le 1.1.2023.",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Pour-cent de solidarité AC (1% sur la part de salaire au-dessus du "
+            "plafond) aboli le 1.1.2023 : le fonds de compensation AC a dépassé "
+            "2,5 Mrd CHF fin 2022, supprimant la base légale (LACI art. 90c al. "
+            "4). Taux ramené à 0. Sources : mémento AVS/AI 2.08 (ahv-iv.ch), "
+            "centrepatronal.ch, ciam-avs.ch, CHSS 2023."
+        ),
     ),
     RegulatoryParameter(
         key="ac.solidarity_rate_total",
-        value=0.01,
+        value=0.0,
         unit="ratio",
-        effective_from=date(2025, 1, 1),
-        source_url=_OFAS_AVS_URL,
-        source_title="LACI art. 3",
+        effective_from=date(2023, 1, 1),
+        source_url="https://www.ahv-iv.ch/p/2.08.f",
+        source_title="LACI art. 90c al. 4 (suppression) / art. 3 al. 3 (base)",
         source_type="law",
-        description="Cotisation de solidarité AC total : 1.0%.",
+        description="Cotisation de solidarité AC totale : supprimée (0%) depuis le 1.1.2023.",
         reviewed_at=_REVIEWED,
+        notes=(
+            "Part salarié + employeur du pour-cent de solidarité AC, abolie le "
+            "1.1.2023 (fonds AC > 2,5 Mrd CHF fin 2022, LACI art. 90c al. 4). "
+            "Taux ramené à 0. Sources : mémento AVS/AI 2.08 (ahv-iv.ch), CHSS 2023."
+        ),
     ),
     RegulatoryParameter(
         key="ac.benefit_rate_standard",

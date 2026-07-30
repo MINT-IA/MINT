@@ -311,14 +311,24 @@ class TestSocialCharges:
         expected_ac = round(AC_PLAFOND * AC_TAUX_EMPLOYE, 2)
         assert result.ac_employe == expected_ac
 
-    def test_ac_solidarite_above_cap(self, frontalier_service):
-        """Salary above 148'200 should have AC solidarite."""
+    def test_ac_solidarite_removed_above_cap(self, frontalier_service):
+        """Au-dessus du plafond, plus aucune cotisation de solidarité AC.
+
+        Le pour-cent de solidarité (1% sur la part > 148'200) a été ABOLI au
+        1.1.2023 : le fonds AC a dépassé 2,5 Mrd CHF fin 2022, supprimant la
+        base légale (LACI art. 90c al. 4). Au-delà du plafond, la cotisation AC
+        se limite à plafond × taux, rien au-delà.
+        Source : mémento AVS/AI 2.08 (ahv-iv.ch), CHSS 2023.
+        """
         result = frontalier_service.compare_social_charges(
             salary=200_000, country_of_residence="FR",
         )
-        expected_solidarite = round((200_000 - AC_PLAFOND) * AC_SOLIDARITE_TAUX, 2)
-        assert result.ac_solidarite == expected_solidarite
-        assert result.ac_solidarite > 0
+        # Le taux de solidarité lui-même est nul depuis l'abolition.
+        assert AC_SOLIDARITE_TAUX == 0.0
+        # Solidarité abolie -> 0 quel que soit le dépassement du plafond.
+        assert result.ac_solidarite == 0.0
+        # La cotisation AC est plafonnée : plafond × taux, rien au-delà.
+        assert result.ac_employe == round(AC_PLAFOND * AC_TAUX_EMPLOYE, 2)
 
     def test_no_ac_solidarite_below_cap(self, frontalier_service):
         """Salary below 148'200 should have zero AC solidarite."""
