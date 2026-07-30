@@ -161,6 +161,77 @@ class TestReceiptDeterministicLoopResult:
         assert _receipt_deterministic_loop_result(poisoned, _NET_QUESTIONS[0]) is None
 
 
+# ── Fail-closed : scanner LSFin indisponible NE DOIT JAMAIS 500 (P0 #1118) ────
+class TestReceiptScannerUnavailableFailsClosed:
+    """#1118 : l'indisponibilité du scanner banni (IndexError/ImportError au
+    layout conteneur Railway) ne doit JAMAIS rendre le texte déterministe non
+    scanné NI faire 500 — on retombe fail-closed sur le chemin LLM (return None,
+    qui, lui, passe par ComplianceGuard)."""
+
+    def test_scan_raises_indexerror_defers_to_llm(self):
+        # Reproduit le crash conteneur (parents[5] -> IndexError) au scan.
+        with patch(
+            "app.services.encryption.banned_terms_runtime._scan_text",
+            side_effect=IndexError("5"),
+        ):
+            result = _receipt_deterministic_loop_result(RESOLVED, _NET_QUESTIONS[0])
+        assert result is None  # fail-closed : aucun texte déterministe non scanné
+
+    def test_scan_module_unimportable_defers_to_llm(self, monkeypatch):
+        # Reproduit le module scanner totalement inimportable (crash d'import).
+        import sys
+
+        monkeypatch.setitem(
+            sys.modules, "app.services.encryption.banned_terms_runtime", None
+        )
+        result = _receipt_deterministic_loop_result(RESOLVED, _NET_QUESTIONS[0])
+        assert result is None
+
+
+class TestLiveEndpointScannerUnavailable:
+    """#1118 endpoint : /coach/chat NE DOIT PAS 500 quand le scanner LSFin est
+    cassé — il abandonne le raccourci déterministe et répond 200 via le LLM."""
+
+    def test_scanner_unimportable_endpoint_returns_200_via_llm(self, client_with_auth):
+        import sys
+
+        llm_result = {
+            "answer": "Ton net pourrait s'élever à un montant selon ta situation.",
+            "tool_calls": [],
+            "citation_chips": None,
+            "sources": [],
+            "disclaimers": ["Outil éducatif."],
+            "tokens_used": 21,
+            "degraded": False,
+            "model_used": "claude",
+        }
+        agent_loop = AsyncMock(return_value=llm_result)
+        with patch(
+            "app.services.lucidity.receipt_store.resolve_receipt_context",
+            return_value=RESOLVED,
+        ), patch(
+            "app.api.v1.endpoints.coach_chat._get_orchestrator",
+            return_value=MagicMock(query=AsyncMock(return_value=llm_result)),
+        ), patch(
+            "app.api.v1.endpoints.coach_chat._run_agent_loop", agent_loop
+        ), patch.dict(
+            sys.modules,
+            {"app.services.encryption.banned_terms_runtime": None},
+        ):
+            resp = client_with_auth.post(
+                "/api/v1/coach/chat",
+                json={
+                    "message": "Quel est mon salaire net exact ?",
+                    "apiKey": "sk-test-key-12345",
+                    "receiptId": "rcpt-firstjob",
+                    "inputsHash": "a" * 64,
+                },
+            )
+        assert resp.status_code == 200, resp.text
+        # Le raccourci déterministe a été abandonné (scanner indispo) → LLM.
+        agent_loop.assert_called()
+
+
 # ── Chemin LIVE : endpoint réel POST /api/v1/coach/chat ──────────────────────
 def _fake_user():
     user = MagicMock()
