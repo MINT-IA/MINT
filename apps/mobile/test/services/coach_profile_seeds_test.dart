@@ -291,4 +291,100 @@ void main() {
               'so the budget hero renders Futur > 0');
     });
   });
+
+  group('CoachProfileSeeds — frontalier_geneve (Tier B Lot B5 cross_border)',
+      () {
+    test('by_archetype_cross_border_returns_frontalier_geneve_seed', () {
+      // BLOCKING contract closed by this seed. The Tier B smoke build passes
+      // --dart-define=MINT_E2E_ARCHETYPE=cross_border (archetype slug). Before
+      // this seed, byArchetype('cross_border') was null → the seeded frontalier
+      // build booted a navigable guest shell WITHOUT a profile → smoke C2
+      // (non-empty + chiffré) failed. NEVER #7 forbids frontalier as edge case.
+      final byArchetype = CoachProfileSeeds.byArchetype('cross_border');
+      final directLookup = CoachProfileSeeds.registry['frontalier_geneve'];
+      expect(byArchetype, isNotNull,
+          reason: 'archetype slug cross_border MUST resolve via byArchetype so '
+              'MINT_E2E_ARCHETYPE=cross_border hydrates a frontalier profile.');
+      expect(byArchetype, same(directLookup),
+          reason:
+              'archetype slug cross_border MUST map to seed frontalier_geneve.');
+    });
+
+    test('seed_registry_contains_frontalier_geneve_cross_border', () {
+      final seed = CoachProfileSeeds.registry['frontalier_geneve'];
+      expect(seed, isNotNull);
+      expect(seed!.archetype, 'cross_border');
+      expect(seed.canton, 'GE',
+          reason: 'emploi Genève — le frontalier travaille dans le canton.');
+      expect(seed.nationality, 'FR',
+          reason: 'résident France.');
+      expect(seed.residencePermit, 'permit_g',
+          reason: 'permis G est le signal frontalier (imposé à la source, '
+              'barème A0 pour un célibataire sans charge).');
+    });
+
+    test('frontalier_geneve hydrates a crossBorder profile via permit G', () {
+      final seed = CoachProfileSeeds.registry['frontalier_geneve']!;
+      final answers = seed.toWizardAnswers(now: DateTime(2026));
+
+      // The seed MUST emit the permit signal for the archetype getter.
+      expect(answers['q_residence_permit'], 'permit_g');
+      expect(answers['q_nationality'], 'FR');
+
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.archetype, FinancialArchetype.crossBorder,
+          reason: 'permit_g normalizes to G → FinancialArchetype.crossBorder '
+              '(coach_profile.dart archetype getter).');
+      expect(profile.isCrossBorder, isTrue);
+      expect(profile.residencePermit, 'G',
+          reason: 'normalizeResidencePermit(permit_g) == G.');
+      expect(profile.firstName, 'Nicolas');
+      expect(profile.age, 41);
+      expect(profile.canton, 'GE');
+    });
+
+    test('frontalier_geneve is NOT quasi-resident → no deductible 3a', () {
+      // Métier: cotiser au 3a reste possible pour un frontalier, mais sans le
+      // statut de quasi-résident genevois (>90 % du revenu mondial de source
+      // suisse) la cotisation n'ouvre AUCUNE déduction fiscale → une persona
+      // rationnelle n'en ouvre pas. Le seed ne doit donc PAS fabriquer une
+      // cotisation 3a synthétique via le fallback d'allocation d'épargne.
+      final seed = CoachProfileSeeds.registry['frontalier_geneve']!;
+      final answers = seed.toWizardAnswers(now: DateTime(2026));
+
+      expect(answers['q_has_3a'], isFalse);
+      expect(answers['q_3a_annual_contribution'], 0.0);
+      expect(answers['q_3a_accounts_count'], 0);
+      expect(answers['q_savings_allocation'], isNot(contains('3a')));
+
+      final profile = CoachProfile.fromWizardAnswers(answers);
+      expect(profile.total3aMensuel, 0);
+    });
+
+    test('frontalier_geneve boot produces a non-empty, chiffré /home', () {
+      // Mechanism proof (NOT sim): the seeded profile must carry the numeric
+      // facts /home renders — budget capacity + LPP balance — so the shell is
+      // never "Aucune donnée" (smoke C2). Mirrors the julien_swiss /
+      // cadre_salarie packet-visibility contracts above.
+      final seed = CoachProfileSeeds.registry['frontalier_geneve']!;
+      final profile = CoachProfile.fromWizardAnswers(seed.toWizardAnswers());
+
+      // Chiffré: real income + LPP present (Swiss 2nd pillar for the frontalier).
+      expect(profile.explicitMonthlyNetIncome, greaterThan(0));
+      expect(profile.prevoyance.avoirLppTotal, 82000.0);
+      expect(profile.prevoyance.salaireAssure, 55000.0);
+
+      final packet = CoachContextPacketAdapter.fromProfile(profile);
+      final factIds = (packet['facts'] as List)
+          .whereType<Map>()
+          .map((fact) => fact['id'])
+          .toSet();
+
+      expect(factIds, contains('budget.monthly_capacity'),
+          reason: 'a non-empty budget hero must be computable from the seed.');
+      expect(factIds, contains('pillar.lpp.total_balance'),
+          reason: 'the frontalier cotise au 2e pilier suisse — LPP fact must '
+              'be visible.');
+    });
+  });
 }

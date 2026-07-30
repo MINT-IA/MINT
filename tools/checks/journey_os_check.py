@@ -583,6 +583,11 @@ ALLOW = {
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",
     "apps/mobile/lib/providers/auth_provider.dart",
+    # --- Tier B smoke Lot B5 : seed E2E cross_border / frontalier_geneve
+    # (persona manquante bloquant le smoke C2 par cadrage
+    # mint-utilisable-tier-b-smoke). kReleaseMode-gardée, hors prod. ---
+    "apps/mobile/lib/services/coach/coach_profile_seeds.dart",
+    "apps/mobile/test/services/coach_profile_seeds_test.dart",
     "apps/mobile/lib/l10n/app_de.arb",
     "apps/mobile/lib/l10n/app_en.arb",
     "apps/mobile/lib/l10n/app_es.arb",
