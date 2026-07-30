@@ -20,6 +20,8 @@
 #           perfect    — perfect-set flows (workflow E + LSFin)
 #           personas   — Premier Éclairage personas (julien_swiss, lauren_expat_us)
 #           fatca      — FATCA 3a gate, requires an expat_us seeded build
+#           firstjob   — tranche firstJob acceptance, requires a
+#                        jeune_diplome_zurich seeded build (+ PROOF_ANCHORS)
 #           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
 #                        crashes SafariViewService on long-booted sims —
 #                        per memory `feedback_sim_crash_mitigation`)
@@ -110,6 +112,13 @@ FLOWS_PERFECT=(
 FLOWS_FATCA=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_fatca_3a_gate.yaml"
 )
+# Tranche firstJob acceptance (ADR AX iOS 26.2 Etape 2, promu 2026-07-30).
+# Tier SEEDE dedie : exige un build jeune_diplome_zurich + PROOF_ANCHORS
+# (cf. en-tete du flow) — comme FATCA, un app installe normal ne peut pas
+# le servir, donc hors des tiers auto (default / all).
+FLOWS_FIRSTJOB=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml"
+)
 FLOWS_PERSONAS=(
   "$REPO_ROOT/tools/simulator/flows/julien_swiss.yaml"
   "$REPO_ROOT/tools/simulator/flows/lauren_expat_us.yaml"
@@ -119,11 +128,12 @@ case "$TIER" in
   regression) FLOWS=("${FLOWS_REGRESSION[@]}") ;;
   perfect)    FLOWS=("${FLOWS_PERFECT[@]}") ;;
   fatca)      FLOWS=("${FLOWS_FATCA[@]}") ;;
+  firstjob)   FLOWS=("${FLOWS_FIRSTJOB[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
   all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
   default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | personas | deeplink | all | default)" >&2; exit 1 ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
 # ── Reboot the booted sim before any flow runs ────────────────────────

@@ -673,14 +673,24 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) _emitFinalReturnOnPop();
       },
-      // AX iOS 26.2 (ADR 2026-07-30, pilote) : plus de Semantics racine.
-      // ILLOG-02 avait ajouté un conteneur racine ; sur iOS 26.2 ce conteneur
-      // fait DOUBLE frontière avec le scopesRoute de ModalRoute et effondre la
-      // route poussée à 1 nœud (cf. project_ios26_ax_tree_collapse). Retour au
-      // défaut du framework. NB : SliverAppBar conservé (re-effondrement au
-      // scroll hors périmètre — décidé post-upgrade 3.44.8). Ancre de flow :
-      // id interne rvc_route_state (proof anchors) ou titre AppBar.
+      // AX iOS 26.2 (ADR 2026-07-30, pilote + Étape 2) : plus de Semantics
+      // racine ET plus de SliverAppBar. ILLOG-02 avait ajouté un conteneur
+      // racine ; sur iOS 26.2 ce conteneur fait DOUBLE frontière avec le
+      // scopesRoute de ModalRoute et effondre la route poussée à 1 nœud (cf.
+      // project_ios26_ax_tree_collapse). Retour au défaut du framework. Le
+      // SliverAppBar (2e déclencheur : ré-effondrement au scroll) est migré en
+      // AppBar fixe (Scaffold.appBar, voir _buildAppBar). Ancre de flow : id
+      // interne rvc_route_state (proof anchors) ou titre AppBar.
       child: Scaffold(
+            // AX iOS 26.2 (ADR 2026-07-30, Étape 2) : AppBar classique en
+            // Scaffold.appBar, plus de SliverAppBar dans le CustomScrollView.
+            // Le SliverAppBar ré-effondre l'arbre AX des routes poussées au
+            // scroll sur iOS 26.2 ; l'AppBar fixe garde un arbre riche et stable
+            // (cf. project_ios26_ax_tree_collapse). Rendu inchangé : l'ancien
+            // SliverAppBar n'avait ni expandedHeight ni flexibleSpace (aucun
+            // grand titre repliable). L'ancre de preuve rvc_route_state reste
+            // le premier sliver du corps.
+            appBar: _buildAppBar(context),
             body: Center(
                 child: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 600),
@@ -688,19 +698,6 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       slivers: [
                         SliverToBoxAdapter(
                           child: _buildRouteProofAnchors(context),
-                        ),
-                        // ── SliverAppBar (white standard — Simulator screen) ──
-                        SliverAppBar(
-                          pinned: true,
-                          backgroundColor: MintColors.white,
-                          foregroundColor: MintColors.textPrimary,
-                          surfaceTintColor: MintColors.white,
-                          title: Text(
-                            S.of(context)!.renteVsCapitalAppBarTitle,
-                            style: MintTextStyles.titleGambarino18Medium(
-                              color: MintColors.inkPrimary,
-                            ),
-                          ),
                         ),
 
                         // ── Content ──
@@ -834,6 +831,24 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                         ),
                       ],
                     ))),
+      ),
+    );
+  }
+
+  // ── App Bar (white standard — Simulator screen) ──────────────
+  // Migré de SliverAppBar vers AppBar classique (ADR AX iOS 26.2, Étape 2) :
+  // le rendu est identique (aucun expandedHeight/flexibleSpace sur l'ancien
+  // SliverAppBar), mais l'arbre AX ne s'effondre plus au scroll.
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
+      backgroundColor: MintColors.white,
+      foregroundColor: MintColors.textPrimary,
+      surfaceTintColor: MintColors.white,
+      title: Text(
+        S.of(context)!.renteVsCapitalAppBarTitle,
+        style: MintTextStyles.titleGambarino18Medium(
+          color: MintColors.inkPrimary,
+        ),
       ),
     );
   }
