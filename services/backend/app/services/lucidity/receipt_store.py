@@ -279,6 +279,18 @@ def resolve_receipt_context(
 
     if result.status == ReceiptResolveStatus.RESOLVED and result.receipt is not None:
         r = result.receipt
+        # firstJob P0 #1114 — surface l'appareil de lucidité (bande + confiance)
+        # pour que le bloc de grounding coach le rende avec la valeur. Les deux
+        # sont REQUIS pour firstjob.net_salary.v1 mais restent nullables ici
+        # (autres claims) : le renderer omet la ligne absente.
+        band = (
+            {"low": r.range.low, "high": r.range.high}
+            if r.range is not None
+            else None
+        )
+        confidence_score = (
+            r.confidence.score if r.confidence is not None else None
+        )
         return {
             "status": result.status.value,
             "receiptId": r.receipt_id,
@@ -291,6 +303,8 @@ def resolve_receipt_context(
                 {"id": s.id, "label": s.label, "vintage": s.vintage}
                 for s in r.sources
             ],
+            "range": band,
+            "confidence": confidence_score,
         }
     if result.status == ReceiptResolveStatus.PENDING:
         ctx: dict[str, Any] = {"status": result.status.value}

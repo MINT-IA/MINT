@@ -977,6 +977,60 @@ def _collect_user_input_numbers_from_session(
     return extract_user_input_numbers("\n".join(sources))
 
 
+def _receipt_grounded_numbers(receipt_ctx: "Optional[dict]"):
+    """firstJob P0 #1114 — nombres server-grounded du receipt à exempter du gate.
+
+    Le gate closed-world (`citation_parser.gate`) rejette tout montant NON cité
+    (`REJECTED_UNCITED` -> `FALLBACK` « Je n'ai pas cette donnée »). On demande
+    pourtant au coach de RENDRE la valeur du receipt : sans exemption, sa
+    réponse serait rabotée en fallback et la parité écran resterait cassée
+    MALGRÉ le grounding (deuxième étage de la façade). On aligne donc
+    l'exemption P003 (« nombres que le narrateur peut rendre sans citation »)
+    sur le receipt.
+
+    Implémentation SANS divergence rendu/exemption (revues Codex #1114) : on
+    n'énumère PAS les champs à la main (chaque nouvelle mise en forme — arrondi
+    2 décimales, confiance en %, etc. — créait une divergence). On extrait les
+    nombres du BLOC DE GROUNDING RÉELLEMENT RENDU, mais UNIQUEMENT ceux qui
+    portent une unité que le gate surveille (CHF / % / durée) via
+    `extract_gated_number_tokens`. Deux propriétés :
+    - pas de divergence : on exempte exactement ce que le LLM voit ;
+    - pas de sur-exemption : un nombre incident SANS unité (année de millésime
+      `2026`, n° d'article `art. 5`) n'est PAS exempté -> jamais transformable
+      en `2026 CHF` / `5 CHF` fabriqué (le gate ne les flagge pas non plus).
+
+    Chemins :
+    - ``resolved`` : valeur re-validée owner-scoped + bornes + confiance ;
+    - ``pending``  : brut/âge/taux FOURNIS par le client (déjà bornés/validés
+      par le renderer) — le coach reflète la saisie, ne fabrique aucun net.
+
+    Tolérance franc entier : on ajoute l'entier tronqué de chaque nombre extrait
+    (le LLM arrondit souvent au franc — seule forme non montrée littéralement).
+    Retourne un ``frozenset`` de ``Decimal``.
+    """
+    from decimal import Decimal, InvalidOperation
+
+    from app.services.coach.citation_parser import extract_gated_number_tokens
+    from app.services.coach.claude_coach_service import (
+        _build_receipt_grounding_section,
+    )
+
+    if not isinstance(receipt_ctx, dict):
+        return frozenset()
+
+    block = _build_receipt_grounding_section(receipt_ctx)
+    if not block:
+        return frozenset()
+
+    out: set = set(extract_gated_number_tokens(block))
+    for exact in list(out):
+        try:
+            out.add(Decimal(int(exact)))  # tolérance franc entier
+        except (InvalidOperation, ValueError):
+            pass
+    return frozenset(out)
+
+
 def _sanitize_conversation_history(
     history: list[dict[str, str]] | None,
 ) -> list[dict[str, str]] | None:
@@ -1233,6 +1287,15 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
                 if k not in merged:  # don't override builder-computed values
                     merged[k] = v
             ctx.known_values = merged
+        # firstJob P0 #1114 — le receipt RÉSOLU (owner-scoped, injecté serveur
+        # post-sanitize par resolve_receipt_context) n'est PAS un scalaire
+        # whitelisté : les deux filtres builder/extra_known le sautent. On le
+        # rattache explicitement au CoachContext pour qu'il atteigne le prompt
+        # via _build_context_section (sinon la clé est écrite une fois, lue
+        # zéro fois — parité coach×receipt rompue). Absent -> None, inchangé.
+        _receipt_ctx = profile_context.get(_MONEY_TRUTH_RECEIPT_CONTEXT_KEY)
+        if isinstance(_receipt_ctx, dict) and _receipt_ctx:
+            ctx.money_truth_receipt = _receipt_ctx
         return ctx
     except Exception as exc:
         logger.warning("Could not build CoachContext from profile_context: %s", exc)
@@ -5716,6 +5779,15 @@ async def coach_chat(
     _user_input_numbers = _collect_user_input_numbers_from_session(
         message=body.message, history=safe_history
     )
+    # firstJob P0 #1114 — exempte les nombres server-grounded du receipt du gate
+    # closed-world, au MÊME titre que les nombres saisis par l'utilisateur
+    # (P003). Sinon le coach, à qui on demande de RENDRE la valeur du receipt,
+    # verrait sa réponse rejetée REJECTED_UNCITED -> FALLBACK et la parité
+    # écran resterait cassée malgré le grounding du prompt.
+    if _resolved_receipt is not None:
+        _user_input_numbers = _user_input_numbers | _receipt_grounded_numbers(
+            _resolved_receipt
+        )
 
     def _emit_gate_breadcrumb(
         gated: GatedResponse,

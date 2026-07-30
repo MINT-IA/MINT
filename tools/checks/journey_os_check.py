@@ -930,6 +930,14 @@ ALLOW = {
     # chiffrées, grade la grille 8 points côté client, isole la casse de chaîne.
     "services/backend/tests/test_coach_receipt_parity_staging.py",
     "services/backend/pytest.ini",
+    # P0 #1114 — consommation du MoneyTruthReceipt dans le contexte/prompt coach
+    # (SPEC TRANCHE-FIRSTJOB §4.3) : le receipt résolu/pending atteint désormais
+    # le system prompt via CoachContext.money_truth_receipt + bloc de grounding,
+    # et la valeur grounded est exemptée du gate citations (extract_gated_
+    # number_tokens). Fermeture de la façade « clé écrite une fois, lue zéro ».
+    "services/backend/app/services/coach/coach_models.py",
+    "services/backend/app/services/coach/citation_parser.py",
+    "services/backend/tests/coach/test_coach_receipt_grounding.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
