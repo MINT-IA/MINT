@@ -796,6 +796,16 @@ ALLOW = {
     # Debloque par la migration SliverAppBar->AppBar (arbre AX stable au scroll),
     # VERT bout en bout (maestro hierarchy iPhone 16e/26.2 cite).
     "tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml",
+    # Tier B smoke lot B1 Famille (cadrage mint-utilisable-tier-b-smoke) : 4 flows
+    # seedes julien_swiss remplacant la dependance aux legacy deeplink racine.
+    # Runtime iPhone 16e/26.2 : C1/C3/C4/C5 verts, C2 rouge documente (sortie
+    # calculee gatee P2 sur seed celibataire — defaut ecran) — table C1-C5 en PR.
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_mariage.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_naissance.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_divorce.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_concubinage.yaml",
+    # Preuve d'ancre C1 (Semantics identifier <event>-anchor) des 4 ecrans famille.
+    "apps/mobile/test/screens/tierb_famille_anchors_test.dart",
     # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
     "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",
