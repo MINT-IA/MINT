@@ -804,8 +804,16 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_naissance.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_divorce.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_concubinage.yaml",
+    # Tier B smoke lot B1 Famille SEEDÉ (famille_bern, #1135) : variantes assertant
+    # le RÉSULTAT C2 chiffré (ancre <event>-result) débloqué par le seed couple/enfant.
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_mariage.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_naissance.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_divorce.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_concubinage.yaml",
     # Preuve d'ancre C1 (Semantics identifier <event>-anchor) des 4 ecrans famille.
     "apps/mobile/test/screens/tierb_famille_anchors_test.dart",
+    # Preuve d'ancre C2 (Semantics identifier <event>-result) sous seed famille_bern.
+    "apps/mobile/test/screens/tierb_famille_seeded_result_anchors_test.dart",
     # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
     "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",

@@ -685,16 +685,25 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             max: 300000,
           ),
           const SizedBox(height: MintSpacing.md),
-          MintAmountField(
-            key: _income2Key,
-            label: S.of(context)!.divorceConjoint2Revenu,
-            value: _incomeConjoint2 ?? 0,
-            formatValue: (v) => _incomeConjoint2 == null
-                ? S.of(context)!.divorceNonRenseigne
-                : _chfFmt(v),
-            onChanged: (v) => _onFactChanged(() => _incomeConjoint2 = v),
-            min: 0,
-            max: 300000,
+          // Ancre Tier B smoke SEEDÉ : identifiant sémantique du champ « revenu
+          // de l'ex-conjoint » — le SEUL tap irréductible (doctrine
+          // anti-contamination : le profil ne décrit pas l'ex). Le libellé du
+          // tuile est multi-ligne (label + valeur), non ciblable par le
+          // full-match texte de Maestro — l'id le rend déterministe. Le flow
+          // `flow_tierb_famille_seeded_divorce.yaml` scrolle+tape dessus.
+          Semantics(
+            identifier: 'divorce-income2',
+            child: MintAmountField(
+              key: _income2Key,
+              label: S.of(context)!.divorceConjoint2Revenu,
+              value: _incomeConjoint2 ?? 0,
+              formatValue: (v) => _incomeConjoint2 == null
+                  ? S.of(context)!.divorceNonRenseigne
+                  : _chfFmt(v),
+              onChanged: (v) => _onFactChanged(() => _incomeConjoint2 = v),
+              min: 0,
+              max: 300000,
+            ),
           ),
           const SizedBox(height: MintSpacing.md),
           _buildCantonPicker(),
@@ -900,6 +909,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     return SizedBox(
       width: double.infinity,
       child: Semantics(
+        // Ancre Tier B smoke SEEDÉ : id déterministe du bouton « Simuler »
+        // (flow_tierb_famille_seeded_divorce.yaml) — évite le full-match texte.
+        identifier: 'divorce-simulate',
         button: true,
         label: S.of(context)!.divorceSimuler,
         child: FilledButton.icon(
@@ -1024,7 +1036,14 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     // doit PAS être cadrée en vert/succès (« le divorce fait gagner »). On la rend
     // en bleu neutre (info) ; une hausse (surcoût réel) garde le ton attention.
     final accentColor = isIncrease ? MintColors.warning : MintColors.info;
-    return MintSurface(
+    // Ancre régionale Tier B smoke SEEDÉ (C2 « chiffré ») posée sur la carte
+    // d'impact fiscal /an — présente UNIQUEMENT quand le gate fiscal est complet
+    // (income1 + income2 ex + canton), jamais sur la carte de situation. Motif
+    // profond, jamais le wrapper racine (leçon ADR AX iOS 26.2). Le flow
+    // `flow_tierb_famille_seeded_divorce.yaml` l'asserte après le tap ex + Simuler.
+    return Semantics(
+      identifier: 'divorce-result',
+      child: MintSurface(
       tone: MintSurfaceTone.blanc,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1101,6 +1120,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             ).copyWith(height: 1.4),
           ),
         ],
+      ),
       ),
     );
   }

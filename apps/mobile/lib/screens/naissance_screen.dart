@@ -934,15 +934,22 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         ? S.of(context)!.naissanceMaternite
         : S.of(context)!.naissancePaternite;
 
-    return MintResultHeroCard(
-      key: const Key('naissanceCongeHero'),
-      eyebrow: typeLabel,
-      primaryValue: FamilyService.formatChf(totalApg),
-      primaryLabel: S.of(context)!.naissanceTotalApg,
-      secondaryValue: S.of(context)!.naissanceWeeks(weeks),
-      secondaryLabel: S.of(context)!.naissanceCongeLabel(typeLabel),
-      narrative: S.of(context)!.naissancePremierEclairageText(typeLabel, FamilyService.formatChf(totalApg), weeks),
-      tone: MintSurfaceTone.peche,
+    // Ancre régionale Tier B smoke SEEDÉ (C2 « chiffré ») posée sur le hero du
+    // congé APG — présente UNIQUEMENT via le render-gate `congeReady` (jamais sur
+    // la carte de situation). Motif profond, jamais le wrapper racine (leçon ADR
+    // AX iOS 26.2). Le flow `flow_tierb_famille_seeded_naissance.yaml` l'asserte.
+    return Semantics(
+      identifier: 'naissance-result',
+      child: MintResultHeroCard(
+        key: const Key('naissanceCongeHero'),
+        eyebrow: typeLabel,
+        primaryValue: FamilyService.formatChf(totalApg),
+        primaryLabel: S.of(context)!.naissanceTotalApg,
+        secondaryValue: S.of(context)!.naissanceWeeks(weeks),
+        secondaryLabel: S.of(context)!.naissanceCongeLabel(typeLabel),
+        narrative: S.of(context)!.naissancePremierEclairageText(typeLabel, FamilyService.formatChf(totalApg), weeks),
+        tone: MintSurfaceTone.peche,
+      ),
     );
   }
 

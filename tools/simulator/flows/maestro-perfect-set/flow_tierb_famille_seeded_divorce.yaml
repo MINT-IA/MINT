@@ -1,0 +1,110 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_divorce.yaml
+#
+# TIER B smoke SEEDÉ — lot B1 Famille — event `divorce` (route /divorce).
+# Variante SEEDÉE `famille_bern` du smoke julien_swiss (flow_tierb_famille_divorce).
+# Prouve le critère C2 « chiffré ». Cadrage : mint-utilisable-tier-b-smoke.
+#
+# ─── BUILD (seed famille_bern requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=famille_bern \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-famille-seeded`.
+#
+# ─── C2 CHIFFRÉ (le delta vs le smoke julien_swiss) ────────────────────
+#   Côté utilisateur, famille_bern seede le revenu (conjoint 1) et le canton BE.
+#   L'EX-conjoint (revenu 2) reste hors-profil PAR DOCTRINE anti-contamination
+#   (le profil ne décrit pas l'ex) : c'est le SEUL tap irréductible. Après la
+#   saisie du revenu de l'ex + « Simuler », l'impact fiscal /an se calcule
+#   (income1 + income2 + canton confirmés). L'ancre régionale `divorce-result`
+#   (posée sur la carte d'impact fiscal, présente UNIQUEMENT quand le gate fiscal
+#   est complet, jamais sur la carte de situation) prouve le chiffré. Le partage
+#   LPP reste gaté (avoirs de l'ex touch-only) — c'est correct, hors périmètre.
+#
+#   Saisie : MintAmountField ouvre une feuille (TextField autofocus + bouton OK).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - famille
+  - seeded
+  - famille-seeded
+  - feature:divorce
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /divorce.
+- openLink: "mintapp:///divorce"
+- extendedWaitUntil:
+    visible:
+      id: "divorce-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (famille « garanti* » seule ; voir
+# flow_tierb_famille_divorce.yaml pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 (étape 1) — Le seul tap irréductible : le revenu de l'ex-conjoint. Le champ
+# est sous la ligne de flottaison → scroll puis tap ouvre la feuille de saisie.
+# Ciblé par id (le tuile MintAmountField porte un libellé multi-ligne que le
+# full-match texte de Maestro ne peut pas cibler).
+- scrollUntilVisible:
+    element:
+      id: "divorce-income2"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+- tapOn:
+    id: "divorce-income2"
+# Feuille de saisie : TextField autofocus pré-rempli « 0 ». On efface puis saisit
+# le revenu de l'ex, puis on valide (bouton « OK » codé en dur, hors i18n).
+- eraseText
+- inputText: "60000"
+- tapOn:
+    text: "OK"
+
+# C2 (étape 2) — Simuler (ciblé par id) : déclenche le calcul (income1 + income2
+# + canton BE).
+- scrollUntilVisible:
+    element:
+      id: "divorce-simulate"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+- tapOn:
+    id: "divorce-simulate"
+
+# C2 (étape 3) — Chiffré : la carte d'impact fiscal /an rend l'ancre régionale.
+- scrollUntilVisible:
+    element:
+      id: "divorce-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home (safePop).
+- scrollUntilVisible:
+    element:
+      id: "divorce-back"
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: "divorce-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000
