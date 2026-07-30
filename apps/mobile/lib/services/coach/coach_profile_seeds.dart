@@ -142,6 +142,24 @@ class CoachProfileSeed {
   /// the `frontalier_geneve` addition are unmodified.
   final String? residencePermit;
 
+  /// Genre canonique de l'utilisateur principal ('F' / 'M'), forwarded to
+  /// `q_gender`. Seul signal positif du rôle parental dans naissance_screen
+  /// (congé maternité 14 sem. vs paternité 2 sem.). Optional avec défaut `null`
+  /// pour laisser les seeds antérieurs (genre inconnu → congé gaté) inchangés.
+  final String? gender;
+
+  /// Revenu NET mensuel du conjoint en CHF, forwarded to
+  /// `q_partner_net_income_chf`. Fait naître un [ConjointProfile] (household
+  /// `couple`) dont le salaire BRUT = net × facteur canonique IncomeConverter
+  /// (~1.17). C'est le revenu 2 (conjoint réel) qui débloque le partage
+  /// mariage / concubinage. Optional (défaut `null` ⇒ pas de conjoint).
+  final double? partnerNetMonthlyIncome;
+
+  /// Nombre d'enfants du ménage, forwarded to `q_children`. Amorce la VALEUR
+  /// des compteurs d'enfants (allocations / impact) et confirme le fait côté
+  /// divorce (nombreEnfants > 0 ⇒ touched). Optional (défaut `null` ⇒ 0).
+  final int? nombreEnfants;
+
   const CoachProfileSeed({
     required this.slug,
     required this.firstName,
@@ -174,6 +192,9 @@ class CoachProfileSeed {
     this.usTaxPerson,
     this.nationality,
     this.residencePermit,
+    this.gender,
+    this.partnerNetMonthlyIncome,
+    this.nombreEnfants,
   });
 
   /// Build a [CoachContext] hydrated from this seed.
@@ -229,6 +250,15 @@ class CoachProfileSeed {
         lppSupplementaryBalance != null ||
         lppInsuredSalary != null ||
         lppBuybackMax != null;
+    // Type de ménage dérivé : un conjoint réel (revenu partenaire) ou un état
+    // civil en couple (formes canoniques `married` / `concubinage` émises par
+    // les seeds) → `couple`, sinon `single`. Les seeds antérieurs (civilStatus
+    // null ou `single`, pas de conjoint) restent `single`.
+    // `CoachProfile.fromWizardAnswers` fait primer l'état civil frais sur ce
+    // champ, mais on le tient cohérent pour les surfaces ménage.
+    final isCoupleHousehold = partnerNetMonthlyIncome != null ||
+        civilStatus == 'married' ||
+        civilStatus == 'concubinage';
 
     return <String, dynamic>{
       'q_firstname': firstName,
@@ -242,7 +272,14 @@ class CoachProfileSeed {
         'q_self_employed_net_income_annual_chf':
             independentNetProfessionalIncomeAnnual,
       'q_employment_status': employmentStatus,
-      'q_household_type': 'single',
+      'q_household_type': isCoupleHousehold ? 'couple' : 'single',
+      if (gender != null) 'q_gender': gender,
+      if (nombreEnfants != null) 'q_children': nombreEnfants,
+      // Revenu NET du conjoint : `fromWizardAnswers` le convertit en BRUT via
+      // le facteur canonique IncomeConverter puis matérialise le ConjointProfile
+      // (gate `hasConjointData`). C'est le revenu 2 réel de mariage/concubinage.
+      if (partnerNetMonthlyIncome != null)
+        'q_partner_net_income_chf': partnerNetMonthlyIncome,
       if (housingStatus != null) 'q_housing_status': housingStatus,
       'q_housing_cost_period_chf':
           housingCostMonthly ?? (monthlyNetIncome * 0.26).roundToDouble(),
@@ -462,6 +499,61 @@ class CoachProfileSeeds {
       lppSource: 'document_scan',
       nationality: 'FR',
       residencePermit: 'permit_g',
+    ),
+    // Tier B smoke — persona FAMILLE (couple marié double-revenu, 1 enfant).
+    // Débloque le critère C2 « chiffré » des 4 écrans famille
+    // (mariage / naissance / divorce / concubinage) : toutes les seeds
+    // existantes sont `household_type: single`, sans conjoint ni enfant, donc
+    // les gates famille (revenu du conjoint, rôle parental, avoir LPP des deux)
+    // restaient fermés (P2 gate dur, .planning/decisions/2026-07-25). NEVER #4 :
+    // MINT couvre 18 événements de vie — la famille n'est pas un cas limite.
+    //
+    // Métier : ménage bernois, deux salaires (utilisateur ~114'000 brut/an ;
+    // conjoint ~78'000 brut/an, saisi en NET 5'556/mois × facteur canonique
+    // IncomeConverter ~1.17). Un enfant. LPP de l'utilisateur issue d'un
+    // certificat (salaire assuré déclaré ⇒ isLppFromCertificate) — le partage
+    // LPP du divorce exige une valeur réelle, jamais une estimation âge×salaire.
+    // La déduction fiscale du barème marié (splitting) et le quotient enfant se
+    // lisent sur revenu1 + revenu2 + canton BE (FamilyService, financial_core).
+    // L'utilisatrice est déclarée 'F' ⇒ le congé de naissance rend le volet
+    // maternité APG (14 sem.), plafonné à 220 CHF/jour pour ce niveau de revenu.
+    // Le conjoint (revenu 2) alimente aussi la comparaison concubinage. Le côté
+    // EX-conjoint du divorce (revenu 2, avoir au mariage) reste hors-profil par
+    // doctrine anti-contamination : il se renseigne à l'écran, jamais dérivé du
+    // profil. Exposée via `MINT_E2E_ARCHETYPE=famille_bern` (seedKey direct,
+    // pas un archétype). kReleaseMode-guarded via forcedArchetypeSlug.
+    'famille_bern': CoachProfileSeed(
+      slug: 'famille_bern',
+      firstName: 'Sarah',
+      age: 38,
+      canton: 'BE',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 9500,
+      employmentStatus: 'employed',
+      netMonthlyIncome: 7300,
+      gender: 'F',
+      civilStatus: 'married',
+      partnerNetMonthlyIncome: 5556,
+      nombreEnfants: 1,
+      hasPensionFund: true,
+      annual3aContribution: 7056,
+      threeABalance: 28000,
+      threeAAccountsCount: 1,
+      housingStatus: 'renter',
+      housingCostMonthly: 2200,
+      lamalPremiumMonthly: 620,
+      taxProvisionMonthly: 950,
+      otherFixedCostsMonthly: 1100,
+      savingsMonthly: 900,
+      cashTotal: 40000,
+      investmentsTotal: 30000,
+      lppBalanceTotal: 180000,
+      lppMandatoryBalance: 145000,
+      lppSupplementaryBalance: 35000,
+      lppInsuredSalary: 100000,
+      lppBuybackMax: 55000,
+      lppSource: 'document_scan',
+      nationality: 'CH',
     ),
   };
 
