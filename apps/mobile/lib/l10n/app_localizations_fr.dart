@@ -8376,7 +8376,7 @@ class SFr extends S {
 
   @override
   String get coachErrorConnection =>
-      'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.';
+      'Connexion au coach impossible. Vérifie ta connexion et réessaie.';
 
   @override
   String get coachSuggestSimulate3a =>
@@ -17648,7 +17648,7 @@ class SFr extends S {
 
   @override
   String get jobChangeChecklistDisclaimer =>
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.';
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 2, LFLP art. 4 al. 2, LAMal art. 71.';
 
   @override
   String jobChangeChecklistProgress(int completed, int total) {

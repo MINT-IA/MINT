@@ -8391,7 +8391,7 @@ class SIt extends S {
 
   @override
   String get coachErrorConnection =>
-      'Errore di connessione. Verifica la tua connessione internet o la tua chiave API.';
+      'Impossibile connettersi al coach. Verifica la tua connessione e riprova.';
 
   @override
   String get coachSuggestSimulate3a =>
@@ -17707,7 +17707,7 @@ class SIt extends S {
 
   @override
   String get jobChangeChecklistDisclaimer =>
-      'Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LPP art. 3 (libero passaggio), OLP art. 1-3.';
+      'Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LFLP art. 2, LFLP art. 4 al. 2, LAMal art. 71.';
 
   @override
   String jobChangeChecklistProgress(int completed, int total) {

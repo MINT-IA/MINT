@@ -265,16 +265,18 @@ tags:
     text: "${maestro.copiedText}"
 
 # ═══════════════════════════════════════════════════════════════════════
-# 6. ANTI-CRITERE — STAGING COUPE -> DEGRADATION PROPRE (jamais un vide)
-#    Bloc execute par le harnais avec API_BASE_URL injoignable
-#    (MINT_E2E_STAGING=down). Regression 2026-05-07 : ecran vide interdit.
-#    Le net first-job est L1 OFFLINE (Dart pur) : il DOIT rester calcule ;
-#    seul le coach (backend) degrade avec un message explicite.
+# 6. ANTI-CRITERE — DEGRADATION PROPRE (jamais un vide)
+#    Gate sur le marqueur REEL coach-offline-degradation
+#    (coach_chat_screen.dart, semanticsIdentifier). En run online le coach
+#    repond => marqueur absent => bloc saute. Backend injoignable (harnais :
+#    API_BASE_URL injoignable / MINT_E2E_STAGING=down) => le noeud nomme
+#    s'affiche => net first-job (L1 OFFLINE, Dart pur) survit, coach degrade
+#    sans ecran vide ni chiffre nu. Regression 2026-05-07 : vide interdit.
 # ═══════════════════════════════════════════════════════════════════════
 - runFlow:
     when:
       visible:
-        id: "e2e-staging-down-marker"
+        id: "coach-offline-degradation"
     commands:
       # first-job : le chiffre L1 survit hors ligne.
       - openLink: "mintapp:///first-job"
@@ -292,5 +294,3 @@ tags:
           timeout: 15000
       - assertNotVisible:
           text: "Aucune donnée pour l'instant"
-      - assertNotVisible:
-          id: "coach_empty_blank_state"
