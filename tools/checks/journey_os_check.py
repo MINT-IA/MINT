@@ -54,6 +54,12 @@ ALLOW = {
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",
     ".github/workflows/journey-os-runtime-replay.yml",
+    # Spike upgrade Flutter 3.44.8 (ADR AX iOS 26.2 Étape 4) : pins CI unifiés.
+    ".github/workflows/testflight.yml",
+    ".github/workflows/play-store.yml",
+    ".github/workflows/web.yml",
+    ".github/workflows/walker_nightly.yml",
+    "apps/mobile/pubspec.lock",
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
     ".planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/STUB.md",
