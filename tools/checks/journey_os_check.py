@@ -39,6 +39,10 @@ ALLOW = {
     str(journey_os_generate.TODAY),
     str(journey_os_generate.CARDS),
     str(OPENAPI),
+    # --- ops: sha de deploy dans /api/v1/health (vérification post-promotion) ---
+    "services/backend/app/api/v1/endpoints/health.py",
+    "services/backend/app/schemas/common.py",
+    "services/backend/tests/test_health.py",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",

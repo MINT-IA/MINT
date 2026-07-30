@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime, timezone
 
 from fastapi import APIRouter
@@ -6,7 +7,11 @@ from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.database import SessionLocal
-from app.schemas.common import DetailedHealthResponse, HealthResponse
+from app.schemas.common import (
+    DeployHealthResponse,
+    DetailedHealthResponse,
+    HealthResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +20,19 @@ router = APIRouter()
 _VERSION = "0.1.0"
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get("/health", response_model=DeployHealthResponse)
 def get_health():
-    """Health check endpoint (backward compatible)."""
-    return HealthResponse(status="ok")
+    """Health check endpoint (backward compatible).
+
+    Exposes the running image's deploy commit sha + a service_time so a
+    post-promotion check can prove which build is live (Railway injects
+    RAILWAY_GIT_COMMIT_SHA; the repo is public, the sha is not a secret).
+    """
+    return DeployHealthResponse(
+        status="ok",
+        commit=os.getenv("RAILWAY_GIT_COMMIT_SHA", "unknown")[:9],
+        service_time=datetime.now(timezone.utc),
+    )
 
 
 @router.get("/health/live", response_model=HealthResponse)
