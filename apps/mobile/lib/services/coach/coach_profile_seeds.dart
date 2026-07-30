@@ -160,6 +160,16 @@ class CoachProfileSeed {
   /// divorce (nombreEnfants > 0 ⇒ touched). Optional (défaut `null` ⇒ 0).
   final int? nombreEnfants;
 
+  /// Rente AVS mensuelle DÉCLARÉE en CHF, forwarded to `_coach_avs_rente_estimee`
+  /// → `PrevoyanceProfile.renteAVSEstimeeMensuelle` (clé wizard réelle, déjà lue
+  /// par `CoachProfile.fromWizardAnswers:2901` et écrite par le provider à
+  /// `coach_profile_provider.dart:2394`). C'est le revenu AVS d'un profil
+  /// `employmentStatus: 'retraite'` : le chemin retraité de `isInDebtCrisis`
+  /// (coach_profile.dart:2197) le lit comme dénominateur de revenu quand
+  /// `salaireBrutMensuel == 0`. Optional (défaut `null` ⇒ pas de rente déclarée,
+  /// laisse les seeds actifs — non retraités — inchangés).
+  final double? renteAvsMensuelle;
+
   const CoachProfileSeed({
     required this.slug,
     required this.firstName,
@@ -195,6 +205,7 @@ class CoachProfileSeed {
     this.gender,
     this.partnerNetMonthlyIncome,
     this.nombreEnfants,
+    this.renteAvsMensuelle,
   });
 
   /// Build a [CoachContext] hydrated from this seed.
@@ -306,6 +317,10 @@ class CoachProfileSeed {
       if (lppInsuredSalary != null) '_coach_salaire_assure': lppInsuredSalary,
       if (lppBuybackMax != null) '_coach_rachat_maximum': lppBuybackMax,
       if (lppHasExplicitFacts) '_coach_lpp_source': lppSource ?? 'manual_seed',
+      // Rente AVS déclarée (retraité) — clé wizard réelle lue par
+      // fromWizardAnswers → PrevoyanceProfile.renteAVSEstimeeMensuelle.
+      if (renteAvsMensuelle != null)
+        '_coach_avs_rente_estimee': renteAvsMensuelle,
       'q_avs_lacunes_status': 'unknown',
       'q_has_consumer_debt': false,
       'q_nationality':
@@ -552,6 +567,94 @@ class CoachProfileSeeds {
       lppSupplementaryBalance: 35000,
       lppInsuredSalary: 100000,
       lppBuybackMax: 55000,
+      lppSource: 'document_scan',
+      nationality: 'CH',
+    ),
+    // Tier B smoke — persona RETRAITÉ « en régime » (Lot B2). Débloque le
+    // constat non-trivial documenté par le Lot B5 (#1133) : le schéma de seed
+    // est salaire-centrique, donc AUCUNE seed n'exposait un profil
+    // `employmentStatus: 'retraite'` à `salaireBrutMensuel == 0`. Un build
+    // seedé retraité bootait donc un shell sans revenu → risque « Définis ton
+    // budget » (budget vide). NEVER #3 : MINT couvre 18 événements de vie, la
+    // retraite n'est pas un cas limite (cible 18-99).
+    //
+    // Mécanique salaire-0 (le cœur du Lot B2) — comment /home reste NON-VIDE
+    // et ADAPTÉ malgré un salaire nul :
+    //   1. `grossMonthlySalary: 0` ⇒ `q_gross_salary_annual: 0` ⇒
+    //      `salaireBrutMensuel == 0` (fromWizardAnswers:2780).
+    //   2. `employmentStatus: 'retraite'` route le budget vers la branche
+    //      retraitée de BudgetLivingEngine.compute (age >= âge de référence AVS)
+    //      → modules retraite (RetirementProjectionService), pas la projection
+    //      pré-retraite salaire-dépendante.
+    //   3. `netMonthlyIncome` = rente AVS + rente LPP mensuelles ⇒
+    //      `explicitMonthlyNetIncome > 0` : le budget PRÉSENT
+    //      (BudgetInputs.monthlyNetFromCoachProfile) prend le net explicite
+    //      AVANT le calcul salaire→net, donc le hero budget est chiffré même à
+    //      salaire nul (c'est le fait `budget.monthly_capacity` du packet /home).
+    //   4. `renteAvsMensuelle` émet la clé réelle `_coach_avs_rente_estimee`
+    //      (rente AVS déclarée) que le chemin retraité de isInDebtCrisis lit.
+    //   5. La rente LPP mensuelle est modélisée par l'AVOIR de 2e pilier
+    //      (`lppBalanceTotal`) que RetirementProjectionService convertit en rente
+    //      via le taux de conversion — SEULE modélisation « rente LPP » lue par
+    //      le module retraite rendu (le champ `projectedRenteLpp` ne vient QUE
+    //      d'un scan de certificat, jamais de l'onboarding : on ne l'invente pas).
+    //
+    // Métier Lausanne (vérifié Codex swiss-brain) — retraité célibataire, échelle
+    // 44 quasi-pleine : rente AVS ≈ 2'000/mois (plafond individuel 2025 ≈ 2'520),
+    // rente LPP ≈ 1'800/mois APPROXIMÉE au taux de conversion par défaut de l'app
+    // (~6,8 % sur tout l'avoir ; à noter que le minimum 6,8 % de LPP art. 14 ne
+    // s'impose légalement qu'à la part obligatoire, la surobligatoire pouvant
+    // être convertie plus bas — simplification assumée pour une seed smoke),
+    // 3a épuisé (retiré au départ à la retraite ⇒ annual3aContribution 0 /
+    // threeABalance 0), fortune liquide modeste. kReleaseMode-guarded via
+    // forcedArchetypeSlug. Exposé via `MINT_E2E_ARCHETYPE=retraite_lausanne`
+    // (seedKey direct : la retraite n'est pas un FinancialArchetype, comme
+    // famille_bern).
+    //
+    // Limitation connue (suivi, HORS « build the seed ») : RetirementProjectionService
+    // recalcule l'AVS depuis `revenuBrutAnnuel` (= 0 ici) → la VENTILATION du
+    // module retraite affiche AVS ≈ 0. La rente AVS DÉCLARÉE (2'000) reste
+    // correcte là où /home la lit vraiment : le budget PRÉSENT (net explicite
+    // 3'800) et le packet coach (`pillar.avs.estimated_monthly_pension` = 2'000).
+    // Honorer la rente AVS déclarée dans la projection = correctif du moteur
+    // (13e rente + plafond couple), à traiter à part de ce seed.
+    'retraite_lausanne': CoachProfileSeed(
+      slug: 'retraite_lausanne',
+      firstName: 'Roland',
+      age: 68,
+      canton: 'VD',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 0,
+      employmentStatus: 'retraite',
+      // Revenu net du ménage retraité = rente AVS 2'000 + rente LPP 1'800.
+      // Alimente le budget présent à salaire nul (explicitMonthlyNetIncome).
+      netMonthlyIncome: 3800,
+      gender: 'M',
+      civilStatus: 'single',
+      // Rente AVS déclarée — clé réelle `_coach_avs_rente_estimee`.
+      renteAvsMensuelle: 2000,
+      hasPensionFund: true,
+      // 3a épuisé au départ à la retraite (retiré) : aucune cotisation ni solde.
+      annual3aContribution: 0,
+      threeABalance: 0,
+      threeAAccountsCount: 0,
+      housingStatus: 'renter',
+      housingCostMonthly: 1600,
+      lamalPremiumMonthly: 450,
+      // Impôt modeste sur les rentes (barème VD, célibataire retraité).
+      taxProvisionMonthly: 220,
+      otherFixedCostsMonthly: 600,
+      // « En régime » : le retraité vit de ses rentes, pas d'épargne active.
+      savingsMonthly: 0,
+      // Fortune liquide modeste.
+      cashTotal: 28000,
+      investmentsTotal: 15000,
+      // Avoir LPP au départ à la retraite : converti au taux minimal 6,8 %,
+      // il produit la rente LPP ≈ 1'800/mois rendue par le module retraite.
+      lppBalanceTotal: 318000,
+      lppMandatoryBalance: 250000,
+      lppSupplementaryBalance: 68000,
+      lppInsuredSalary: 62000,
       lppSource: 'document_scan',
       nationality: 'CH',
     ),
