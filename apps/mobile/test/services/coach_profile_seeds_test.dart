@@ -20,7 +20,9 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/data_spine/coach_context_packet_adapter.dart';
 
@@ -472,6 +474,138 @@ void main() {
       expect(profile.prevoyance.avoirLppTotal, 180000.0);
       expect(profile.prevoyance.isLppFromCertificate, isTrue,
           reason: 'salaire assuré déclaré ⇒ certificat ⇒ divorce lpp1 seedé.');
+    });
+  });
+
+  // ── Tier B smoke — persona RETRAITÉ « en régime » (Lot B2) ─────────────────
+  // Verrouille le contrat du premier seed salaire-0 : un profil
+  // `employmentStatus: 'retraite'` à `salaireBrutMensuel == 0` doit rendre un
+  // /home NON-VIDE et ADAPTÉ (modules retraite) — jamais l'état « Définis ton
+  // budget ». Le revenu vient des rentes (net explicite), pas du salaire.
+  group('CoachProfileSeeds — retraite_lausanne (Tier B smoke retraité)', () {
+    test('seed_registry_contains_retraite_lausanne', () {
+      final seed = CoachProfileSeeds.registry['retraite_lausanne'];
+      expect(seed, isNotNull,
+          reason: 'retraite_lausanne doit exister pour exposer un retraité via '
+              'MINT_E2E_ARCHETYPE=retraite_lausanne (seedKey direct).');
+      expect(seed!.archetype, 'swiss_native',
+          reason: 'un retraité vaudois reste swiss_native — la retraite est un '
+              'statut d\'emploi, pas un archétype financier.');
+      expect(seed.canton, 'VD');
+      expect(seed.employmentStatus, 'retraite');
+      expect(seed.grossMonthlySalary, 0,
+          reason: 'un retraité « en régime » n\'a plus de salaire brut.');
+      expect(seed.renteAvsMensuelle, 2000,
+          reason: 'rente AVS déclarée — revenu d\'un retraité à salaire nul.');
+      expect(seed.netMonthlyIncome, 3800,
+          reason: 'net du ménage = rente AVS 2000 + rente LPP 1800.');
+    });
+
+    test('retraite_lausanne is exposed as a direct seedKey (forcedArchetypeSlug)',
+        () {
+      // Le smoke build passe MINT_E2E_ARCHETYPE=retraite_lausanne ; la clé
+      // existe dans registry ⇒ forcedArchetypeSlug la résout directement (pas
+      // d\'arm byArchetype — la retraite n\'est pas un FinancialArchetype).
+      expect(CoachProfileSeeds.bySlug('retraite_lausanne'), isNotNull);
+      expect(CoachProfileSeeds.registry.containsKey('retraite_lausanne'), isTrue);
+    });
+
+    test('retraite_lausanne emits the retiree wizard answers (salary 0 + rentes)',
+        () {
+      final seed = CoachProfileSeeds.registry['retraite_lausanne']!;
+      final answers = seed.toWizardAnswers(now: DateTime(2026));
+
+      // Salaire nul + statut retraité — le cœur du schéma salaire-0.
+      expect(answers['q_gross_salary_annual'], 0.0);
+      expect(answers['q_employment_status'], 'retraite');
+      // Rente AVS via la clé wizard RÉELLE (déjà lue par fromWizardAnswers).
+      expect(answers['_coach_avs_rente_estimee'], 2000.0,
+          reason: 'la clé wizard réelle qui hydrate renteAVSEstimeeMensuelle.');
+      // Le net explicite (rentes) alimente le budget présent à salaire nul.
+      expect(answers['q_net_income_period_chf'], 3800.0);
+      // La rente LPP est modélisée par l\'avoir 2e pilier (converti par le
+      // module retraite) — clé wizard existante, pas d\'invention de schéma.
+      expect(answers['_coach_avoir_lpp'], 318000.0);
+      // 3a épuisé au départ à la retraite.
+      expect(answers['q_3a_annual_contribution'], 0.0);
+      expect(answers['q_savings_allocation'], isNot(contains('3a')));
+    });
+
+    test('retraite_lausanne hydrates a retiree profile at salaireBrut 0', () {
+      final seed = CoachProfileSeeds.registry['retraite_lausanne']!;
+      final profile = CoachProfile.fromWizardAnswers(seed.toWizardAnswers());
+
+      expect(profile.salaireBrutMensuel, 0.0,
+          reason: 'salaire nul — déclenche le chemin retraité des consommateurs.');
+      expect(profile.employmentStatus, 'retraite');
+      expect(profile.age, 68);
+      // Revenu du retraité = net explicite (rentes), pas dérivé du salaire.
+      expect(profile.explicitMonthlyNetIncome, 3800.0);
+      expect(profile.prevoyance.renteAVSEstimeeMensuelle, 2000.0);
+      expect(profile.prevoyance.avoirLppTotal, 318000.0);
+      // Le chemin retraité de isInDebtCrisis (salaireBrut == 0, rente AVS 2000,
+      // aucune dette) ne doit PAS lever un faux signal de crise.
+      expect(profile.isInDebtCrisis, isFalse,
+          reason: 'un retraité sans dette avec rente AVS 2000 n\'est pas en '
+              'crise — le chemin retraité (salaire 0) ne doit pas mal classer.');
+    });
+
+    test(
+        'retraite_lausanne boot produces a non-empty, retirement-adapted /home '
+        'with NO division-by-zero at salary 0', () {
+      // Preuve mécanique (PAS sim) : à salaire nul, /home doit rester chiffré
+      // ET adapté à la retraite — pas l\'état « Définis ton budget ». Le budget
+      // bascule sur la branche retraitée de BudgetLivingEngine (age >= âge de
+      // référence), le budget présent est chiffré via le net explicite, et
+      // AUCUN calcul ne divise par le salaire (0) → toutes les sorties finies.
+      final seed = CoachProfileSeeds.registry['retraite_lausanne']!;
+      final profile = CoachProfile.fromWizardAnswers(seed.toWizardAnswers());
+
+      // Revenu chiffré malgré salaire 0 (rentes via net explicite).
+      expect(profile.explicitMonthlyNetIncome, greaterThan(0));
+
+      final snapshot = BudgetLivingEngine.compute(profile);
+
+      // Branche retraitée : modules retraite rendus (pas present-only vide).
+      expect(snapshot.stage, BudgetStage.fullGapVisible,
+          reason: 'age 68 >= âge de référence AVS ⇒ branche retraitée de '
+              'BudgetLivingEngine.compute (modules retraite).');
+      expect(snapshot.retirement, isNotNull,
+          reason: 'un retraité a un budget retraite (rentes), pas juste présent.');
+
+      // Budget présent NON-VIDE à salaire nul.
+      expect(snapshot.present.monthlyNet, greaterThan(0),
+          reason: 'le net explicite (rentes) rend le hero budget non-vide.');
+
+      // Anti-division-par-zéro : chaque sortie chiffrée du rendu est FINIE
+      // (pas de NaN/Infinity), preuve qu\'aucun consommateur ne divise par le
+      // salaire nul sur le chemin de rendu.
+      for (final entry in <String, double>{
+        'present.monthlyNet': snapshot.present.monthlyNet,
+        'present.monthlyCharges': snapshot.present.monthlyCharges,
+        'present.monthlyFree': snapshot.present.monthlyFree,
+        'retirement.monthlyIncome': snapshot.retirement!.monthlyIncome,
+        'retirement.monthlyNet': snapshot.retirement!.monthlyNet,
+      }.entries) {
+        expect(entry.value.isFinite, isTrue,
+            reason: '${entry.key} doit être fini (aucune division par salaire '
+                '0), obtenu ${entry.value}.');
+      }
+
+      // Faits /home visibles dans le packet coach : capacité budgétaire +
+      // rente AVS déclarée + avoir LPP → le shell n\'est jamais « Aucune donnée ».
+      final packet = CoachContextPacketAdapter.fromProfile(profile);
+      final factIds = (packet['facts'] as List)
+          .whereType<Map>()
+          .map((fact) => fact['id'])
+          .toSet();
+
+      expect(factIds, contains('budget.monthly_capacity'),
+          reason: 'un hero budget chiffré doit être calculable à salaire nul.');
+      expect(factIds, contains('pillar.avs.estimated_monthly_pension'),
+          reason: 'la rente AVS déclarée (2000) doit être visible.');
+      expect(factIds, contains('pillar.lpp.total_balance'),
+          reason: 'l\'avoir LPP (source de la rente LPP) doit être visible.');
     });
   });
 }

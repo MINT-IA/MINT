@@ -162,4 +162,35 @@ void main() {
       expect(homeLifeEventCardIdentifier(suggestion('/succession')), isNull);
     });
   });
+
+  group('homeLifeEventSuggestions — retraité (Tier B Lot B2, salaire 0)', () {
+    // Le retraité seedé (retraite_lausanne) boote à salaire 0. Sur /home,
+    // AujourdhuiScreen ne rend le lifeEventSection (shell NON-VIDE) que si
+    // homeLifeEventSuggestions renvoie au moins une carte. Le gate retraite
+    // (age >= 55) doit donc surfacer `/retraite` pour un profil retraité — c'est
+    // le module retraite qui évite le /home vide malgré un salaire nul.
+    test('65+ profile at salary 0 surfaces the /retraite card', () {
+      final r = routes(_profile(
+        age: 68,
+        gross: 0,
+        employment: 'retraite',
+        provided: {'age', 'employmentStatus'},
+      ));
+      expect(r, contains('/retraite'),
+          reason: 'un retraité (age >= 55) déclenche la carte /retraite → '
+              '/home rend un lifeEventSection non-vide même à salaire 0.');
+      // Salaire nul + net inconnu ⇒ aucune carte revenu fantôme.
+      expect(r, isNot(contains('/hypotheque')));
+    });
+
+    test('the /retraite card requires a PROVIDED age (no phantom at default)',
+        () {
+      // Sans provenance d'âge, aucune carte age-driven — pas de /retraite
+      // fabriqué sur un défaut de constructeur.
+      expect(
+        routes(_profile(age: 68, employment: 'retraite', provided: {})),
+        isEmpty,
+      );
+    });
+  });
 }
