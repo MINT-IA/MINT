@@ -11774,5 +11774,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Conto di libero passaggio",
+  "librePassageOptionCompteDescription": "Sicurezza elevata, tasso fisso 1-2%. Adatto se riprendi presto un lavoro.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — termine di 6 mesi",
+  "librePassageOptionPoliceLabel": "Polizza assicurativa",
+  "librePassageOptionPoliceDescription": "Copertura in caso di decesso e invalidità inclusa. Rendimento medio legato ai tassi tecnici.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Fondo d’investimento",
+  "librePassageOptionFondsDescription": "Maggiore potenziale di rendimento. Rischio di mercato da accettare sull’orizzonte.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

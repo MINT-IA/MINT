@@ -24904,4 +24904,35 @@ class SPt extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Motor de cálculo: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Conta de livre passagem';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Segurança elevada, taxa fixa 1-2%. Adequado se retomas um emprego rapidamente.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — prazo de 6 meses';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Apólice de seguro';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Cobertura de morte e invalidez incluída. Rendimento médio ligado às taxas técnicas.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Fundo de investimento';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Maior potencial de rendimento. Risco de mercado a aceitar no horizonte.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
 }

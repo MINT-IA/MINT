@@ -43394,6 +43394,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Moteur de calcul : {version}'**
   String firstJobLuciditeEngineLabel(String version);
+
+  /// No description provided for @librePassageOptionCompteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte libre passage'**
+  String get librePassageOptionCompteLabel;
+
+  /// No description provided for @librePassageOptionCompteDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité élevée, taux fixe 1-2%. Adapté si tu reprends un emploi rapidement.'**
+  String get librePassageOptionCompteDescription;
+
+  /// No description provided for @librePassageOptionCompteLegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'LFLP art. 4 al. 2 — délai 6 mois'**
+  String get librePassageOptionCompteLegalRef;
+
+  /// No description provided for @librePassageOptionPoliceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Police d’assurance'**
+  String get librePassageOptionPoliceLabel;
+
+  /// No description provided for @librePassageOptionPoliceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.'**
+  String get librePassageOptionPoliceDescription;
+
+  /// No description provided for @librePassageOptionPoliceLegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'OPP2 art. 10'**
+  String get librePassageOptionPoliceLegalRef;
+
+  /// No description provided for @librePassageOptionFondsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds de placement'**
+  String get librePassageOptionFondsLabel;
+
+  /// No description provided for @librePassageOptionFondsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.'**
+  String get librePassageOptionFondsDescription;
+
+  /// No description provided for @librePassageOptionFondsLegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'LFLP art. 4'**
+  String get librePassageOptionFondsLegalRef;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -11771,5 +11771,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Freizügigkeitskonto",
+  "librePassageOptionCompteDescription": "Hohe Sicherheit, fester Zinssatz 1-2%. Geeignet, wenn du bald wieder eine Stelle antrittst.",
+  "librePassageOptionCompteLegalRef": "FZG Art. 4 Abs. 2 — Frist von 6 Monaten",
+  "librePassageOptionPoliceLabel": "Versicherungspolice",
+  "librePassageOptionPoliceDescription": "Todesfall- und Invaliditätsschutz inklusive. Durchschnittliche Rendite an technische Zinssätze gebunden.",
+  "librePassageOptionPoliceLegalRef": "BVV2 Art. 10",
+  "librePassageOptionFondsLabel": "Anlagefonds",
+  "librePassageOptionFondsDescription": "Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.",
+  "librePassageOptionFondsLegalRef": "FZG Art. 4"
 }

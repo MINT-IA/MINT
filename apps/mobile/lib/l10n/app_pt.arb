@@ -11774,5 +11774,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Conta de livre passagem",
+  "librePassageOptionCompteDescription": "Segurança elevada, taxa fixa 1-2%. Adequado se retomas um emprego rapidamente.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — prazo de 6 meses",
+  "librePassageOptionPoliceLabel": "Apólice de seguro",
+  "librePassageOptionPoliceDescription": "Cobertura de morte e invalidez incluída. Rendimento médio ligado às taxas técnicas.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Fundo de investimento",
+  "librePassageOptionFondsDescription": "Maior potencial de rendimento. Risco de mercado a aceitar no horizonte.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

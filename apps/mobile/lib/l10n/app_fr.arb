@@ -13310,5 +13310,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Compte libre passage",
+  "librePassageOptionCompteDescription": "Sécurité élevée, taux fixe 1-2%. Adapté si tu reprends un emploi rapidement.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — délai 6 mois",
+  "librePassageOptionPoliceLabel": "Police d’assurance",
+  "librePassageOptionPoliceDescription": "Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Fonds de placement",
+  "librePassageOptionFondsDescription": "Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

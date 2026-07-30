@@ -11791,5 +11791,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Vested benefits account",
+  "librePassageOptionCompteDescription": "High security, fixed rate 1-2%. Suitable if you start a new job quickly.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — 6-month deadline",
+  "librePassageOptionPoliceLabel": "Insurance policy",
+  "librePassageOptionPoliceDescription": "Death and disability coverage included. Average return tied to technical rates.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Investment fund",
+  "librePassageOptionFondsDescription": "Higher return potential. Market risk to accept over the horizon.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }
