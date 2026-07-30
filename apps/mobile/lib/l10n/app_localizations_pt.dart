@@ -18538,7 +18538,7 @@ class SPt extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.';
+      'Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 4 al. 2). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.';
 
   @override
   String get narrativeLibrePassageHeadline =>

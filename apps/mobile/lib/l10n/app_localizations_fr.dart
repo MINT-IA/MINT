@@ -18525,7 +18525,7 @@ class SFr extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 3). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.';
+      'Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 4 al. 2). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.';
 
   @override
   String get narrativeLibrePassageHeadline =>
