@@ -1,0 +1,81 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_concubinage.yaml
+#
+# TIER B smoke SEEDÉ — lot B1 Famille — event `concubinage` (route /concubinage).
+# Variante SEEDÉE `famille_bern` du smoke julien_swiss (flow_tierb_famille_concubinage).
+# Prouve le critère C2 « chiffré ». Cadrage : mint-utilisable-tier-b-smoke.
+#
+# ─── BUILD (seed famille_bern requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=famille_bern \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-famille-seeded`.
+#
+# ─── C2 CHIFFRÉ (le delta vs le smoke julien_swiss) ────────────────────
+#   famille_bern porte un couple (revenu 1 = 114'000 seedé depuis `salary` ;
+#   revenu 2 = conjoint réel seedé, jamais dérivé de soi ; canton BE seedé). Le
+#   cluster fiscal de l'onglet Comparateur (par défaut) — matrice de décision +
+#   écart d'impôt chiffré — se calcule seul. L'ancre régionale `concubinage-result`
+#   (posée sur le cluster, présente UNIQUEMENT quand le gate fiscal est complet,
+#   jamais sur la carte de situation) prouve la matrice de décision chiffrée.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - famille
+  - seeded
+  - famille-seeded
+  - feature:concubinage
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /concubinage.
+- openLink: "mintapp:///concubinage"
+- extendedWaitUntil:
+    visible:
+      id: "concubinage-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (famille « garanti* » seule ; voir
+# flow_tierb_famille_concubinage.yaml pour le rationale — faux positif
+# « certain » prouvé sur cet écran).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Chiffré : la matrice de décision + le détail fiscal rendent seuls sous
+# famille_bern (le cluster est sous les champs de saisie → scroll requis :
+# Maestro ne dumpe que les nœuds à l'écran).
+- scrollUntilVisible:
+    element:
+      id: "concubinage-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home. On scrolle d'abord
+# vers le HAUT (le cluster fiscal était sous la flottaison → la barre AppBar, avec
+# son bouton retour, est remontée hors-vue par le scroll précédent).
+- scrollUntilVisible:
+    element:
+      id: "concubinage-back"
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: "concubinage-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

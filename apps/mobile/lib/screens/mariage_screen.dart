@@ -581,7 +581,24 @@ class _MariageScreenState extends State<MariageScreen>
         tabs: [
           Tab(text: S.of(context)!.mariageTabImpots),
           Tab(text: S.of(context)!.mariageTabRegime),
-          Tab(text: S.of(context)!.mariageTabProtection),
+          // Ancre Tier B smoke SEEDÉ : identifiant sémantique de l'onglet
+          // Protection (la rente de survivant chiffrée y est seed-alone). Le
+          // libellé d'onglet iOS porte un suffixe « \nOnglet 3 sur 4 » que le
+          // full-match texte de Maestro ne peut pas cibler — un id le rend
+          // déterministe. Le flow `flow_tierb_famille_seeded_mariage.yaml` tape
+          // dessus ; le Text conserve le rendu (DefaultTextStyle de TabBar).
+          Tab(
+            child: Semantics(
+              identifier: 'mariage-tab-protection',
+              // Reproduit le Text interne de `Tab(text:)` (softWrap:false +
+              // overflow:fade) pour préserver le rendu du libellé localisé.
+              child: Text(
+                S.of(context)!.mariageTabProtection,
+                softWrap: false,
+                overflow: TextOverflow.fade,
+              ),
+            ),
+          ),
           Tab(text: S.of(context)!.naissanceTabChecklist),
         ],
       ),
@@ -1260,14 +1277,22 @@ class _MariageScreenState extends State<MariageScreen>
     final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
 
     return [
-      MintResultHeroCard(
-        key: const Key('mariageSurvivorHero'),
-        eyebrow: S.of(context)!.mariageTabProtection,
-        primaryValue: '${FamilyService.formatChf(lppSurvivor)}/mois',
-        primaryLabel: S.of(context)!.mariageSurvivorMonthly,
-        narrative: S.of(context)!.mariageProtectionIntro,
-        accentColor: MintColors.success,
-        tone: MintSurfaceTone.sauge,
+      // Ancre régionale Tier B smoke SEEDÉ (C2 « chiffré ») posée sur le hero de
+      // la rente de survivant — présente UNIQUEMENT via le render-gate
+      // `protectionReady` (jamais sur la carte de situation). Motif profond,
+      // jamais le wrapper racine (leçon ADR AX iOS 26.2). Le flow
+      // `flow_tierb_famille_seeded_mariage.yaml` l'asserte après l'onglet Protection.
+      Semantics(
+        identifier: 'mariage-result',
+        child: MintResultHeroCard(
+          key: const Key('mariageSurvivorHero'),
+          eyebrow: S.of(context)!.mariageTabProtection,
+          primaryValue: '${FamilyService.formatChf(lppSurvivor)}/mois',
+          primaryLabel: S.of(context)!.mariageSurvivorMonthly,
+          narrative: S.of(context)!.mariageProtectionIntro,
+          accentColor: MintColors.success,
+          tone: MintSurfaceTone.sauge,
+        ),
       ),
       const SizedBox(height: MintSpacing.xl),
       // Rente LPP de survivant — donnée confirmée (rente LPP du défunt × 60 %).

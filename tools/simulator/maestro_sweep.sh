@@ -25,6 +25,11 @@
 #           tierb-famille — Tier B smoke lot B1 (mariage/naissance/divorce/
 #                        concubinage), requires a julien_swiss seeded build
 #                        (+ PROOF_ANCHORS). Voir 00-CADRAGE Tier B smoke.
+#           tierb-famille-seeded — Tier B smoke lot B1, variantes SEEDÉES
+#                        famille_bern assertant le RÉSULTAT C2 chiffré
+#                        (APG / rente survivant / matrice / impact fiscal).
+#                        Requires a famille_bern seeded build (+ PROOF_ANCHORS)
+#                        — un build = un seed, hors sweep normal.
 #           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
 #                        crashes SafariViewService on long-booted sims —
 #                        per memory `feedback_sim_crash_mitigation`)
@@ -132,6 +137,16 @@ FLOWS_TIERB_FAMILLE=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_divorce.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_concubinage.yaml"
 )
+# Tier B smoke — lot B1 Famille SEEDÉ (famille_bern). Variantes assertant le
+# RÉSULTAT C2 chiffré débloqué par le seed couple/enfant (#1135). Tier SEEDÉ
+# dédié : exige un build famille_bern + PROOF_ANCHORS — un build = un seed, donc
+# hors des tiers auto (default / all), comme FATCA / firstJob / tierb-famille.
+FLOWS_TIERB_FAMILLE_SEEDED=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_mariage.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_naissance.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_divorce.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_concubinage.yaml"
+)
 FLOWS_PERSONAS=(
   "$REPO_ROOT/tools/simulator/flows/julien_swiss.yaml"
   "$REPO_ROOT/tools/simulator/flows/lauren_expat_us.yaml"
@@ -143,11 +158,12 @@ case "$TIER" in
   fatca)      FLOWS=("${FLOWS_FATCA[@]}") ;;
   firstjob)   FLOWS=("${FLOWS_FIRSTJOB[@]}") ;;
   tierb-famille) FLOWS=("${FLOWS_TIERB_FAMILLE[@]}") ;;
+  tierb-famille-seeded) FLOWS=("${FLOWS_TIERB_FAMILLE_SEEDED[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
   all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
   default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | personas | deeplink | all | default)" >&2; exit 1 ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | tierb-famille-seeded | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
 # ── Reboot the booted sim before any flow runs ────────────────────────

@@ -488,19 +488,27 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
         gate: gate,
       );
     }
-    return Column(
-      children: [
-        ConcubinageDecisionMatrix(criteria: _matrixCriteria),
-        const SizedBox(height: MintSpacing.lg),
-        // Le mécanisme réel derrière l'écart d'impôt (cumul des revenus +
-        // barème réduit, sens dicté par la répartition) — expliqué avant le
-        // chiffre pour qu'il se lise comme une mécanique, pas comme un verdict.
-        _buildEducationalInsert(
-          S.of(context)!.impositionCommuneMecanique,
-        ),
-        const SizedBox(height: MintSpacing.lg),
-        _buildFiscalDetailCard(),
-      ],
+    // Ancre régionale Tier B smoke SEEDÉ (C2 « chiffré ») posée sur le cluster
+    // fiscal (matrice de décision + écart d'impôt chiffré) — présente UNIQUEMENT
+    // quand le gate fiscal est complet (jamais sur la carte de situation). Motif
+    // profond, jamais le wrapper racine (leçon ADR AX iOS 26.2). Le flow
+    // `flow_tierb_famille_seeded_concubinage.yaml` l'asserte.
+    return Semantics(
+      identifier: 'concubinage-result',
+      child: Column(
+        children: [
+          ConcubinageDecisionMatrix(criteria: _matrixCriteria),
+          const SizedBox(height: MintSpacing.lg),
+          // Le mécanisme réel derrière l'écart d'impôt (cumul des revenus +
+          // barème réduit, sens dicté par la répartition) — expliqué avant le
+          // chiffre pour qu'il se lise comme une mécanique, pas comme un verdict.
+          _buildEducationalInsert(
+            S.of(context)!.impositionCommuneMecanique,
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          _buildFiscalDetailCard(),
+        ],
+      ),
     );
   }
 
