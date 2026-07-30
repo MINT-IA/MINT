@@ -13,7 +13,8 @@ Deductions (employee share):
 
 Sources:
     - LAVS art. 5 (cotisation AVS employe: 5.30%)
-    - LACI art. 3 (cotisation chomage: 1.1%, solidarite: 0.5% au-dessus de 148'200)
+    - LACI art. 3 al. 2 (cotisation chomage: 1.1% jusqu'au plafond 148'200) ;
+      pour-cent de solidarite (part > plafond) ABOLI au 1.1.2023 -> LACI art. 90c al. 4
     - LAA art. 91 (AANP: prime non-professionnel, ~1.0-1.5%)
     - LPP art. 2, 7 (seuil d'acces: 22'680 CHF/an)
     - LPP art. 8 (deduction de coordination: 26'460 CHF)

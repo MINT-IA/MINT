@@ -84,7 +84,9 @@ class ExpatService {
   static double get acRate =>
       reg('ac.contribution_rate_employee', acCotisationSalarie);
 
-  /// AC solidarite above CHF 148'200.
+  /// AC solidarite (part > CHF 148'200) — abolie au 1.1.2023, taux 0
+  /// (LACI art. 90c al. 4). Lue depuis le registre ; conservee pour la parite
+  /// avec la cle backend ac.solidarity_rate_employee (desormais 0).
   static double get acSolidariteRate =>
       reg('ac.solidarity_rate_employee', acCotisationSolidariteSalarie);
 
@@ -468,11 +470,11 @@ class ExpatService {
 
     // ── CH charges ──
     final chAvs = annualSalary * avsAiApgRate;
-    final chAcBase = min(annualSalary, acCeiling) * acRate;
-    final chAcSolidarite = annualSalary > acCeiling
-        ? (annualSalary - acCeiling) * acSolidariteRate
-        : 0.0;
-    final chAc = chAcBase + chAcSolidarite;
+    // AC : 1.1% jusqu'au plafond (148'200/an), 0% au-dela. Le pour-cent de
+    // solidarite (1% sur la part > plafond) a ete ABOLI au 1.1.2023 (fonds AC
+    // > 2,5 Mrd CHF fin 2022 -> LACI art. 90c al. 4). Meme regle que le
+    // frontalier backend. Source : memento AVS/AI 2.08 (ahv-iv.ch).
+    final chAc = min(annualSalary, acCeiling) * acRate;
 
     // Estimated LPP contribution (employee ~7% of coordinated salary)
     final coordinatedSalary = max(

@@ -467,6 +467,9 @@ ALLOW = {
     # + suppression du champ base_rate mort (ADR 2026-07-28-remplacements P1)
     "services/backend/app/services/expat/frontalier_service.py",
     "services/backend/tests/test_expat.py",
+    # Purge de la solidarité AC abolie au 1.1.2023 (LACI art. 90c al. 4) :
+    # miroir dart du calcul frontalier (parité py↔dart).
+    "apps/mobile/lib/services/expat_service.dart",
     # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
     "services/backend/app/services/divorce_simulator.py",
     "services/backend/tests/test_divorce_simulator.py",
