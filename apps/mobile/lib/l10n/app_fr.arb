@@ -9740,7 +9740,7 @@
   "narrativeFirstJobBody": "Entre l'AVS (LAVS art. 5), la LPP (art. 16) et la LAMal, ton net se situe typiquement autour de 88-90 % du brut sans imposition à la source ; avec imposition à la source, davantage est retenu. Comprendre ces déductions, c'est le premier pas vers une bonne gestion.",
   "narrativeFirstJobHeadline": "Ton premier salaire expliqué",
   "narrativeLibrePassageBadge": "Libre passage",
-  "narrativeLibrePassageBody": "Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 3). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.",
+  "narrativeLibrePassageBody": "Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 4 al. 2). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.",
   "narrativeLibrePassageHeadline": "Libre passage : 6 mois pour agir",
   "narrativeMarriageBadge": "Mariage",
   "narrativeMarriageBody": "Le mariage modifie ton imposition (LIFD art. 9), ton régime matrimonial (CC art. 181) et tes droits de survivant (LAVS art. 23, LPP art. 19). Selon la répartition de vos deux revenus, l’impôt du ménage peut aller dans un sens comme dans l’autre.",
@@ -13310,5 +13310,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Compte libre passage",
+  "librePassageOptionCompteDescription": "Sécurité élevée, taux fixe 1-2%. Adapté si tu reprends un emploi rapidement.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — délai 6 mois",
+  "librePassageOptionPoliceLabel": "Police d’assurance",
+  "librePassageOptionPoliceDescription": "Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Fonds de placement",
+  "librePassageOptionFondsDescription": "Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

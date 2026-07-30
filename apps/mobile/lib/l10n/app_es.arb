@@ -8959,7 +8959,7 @@
   "narrativeFirstJobBody": "Entre AVS (LAVS art. 5), LPP (art. 16) y LAMal, tu neto ronda el 88-90 % del bruto sin impuesto en la fuente; con impuesto en la fuente, se retiene más. Entender estas deducciones es el primer paso hacia una buena gestión.",
   "narrativeFirstJobHeadline": "Tu primer salario explicado",
   "narrativeLibrePassageBadge": "Libre paso",
-  "narrativeLibrePassageBody": "Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 3). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.",
+  "narrativeLibrePassageBody": "Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 4 al. 2). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.",
   "narrativeLibrePassageHeadline": "Libre paso: 6 meses para actuar",
   "narrativeMarriageBadge": "Matrimonio",
   "narrativeMarriageBody": "El matrimonio modifica tu tributación (LIFD art. 9), tu régimen matrimonial (CC art. 181) y tus derechos de supervivencia (LAVS art. 23, LPP art. 19). Según cómo se repartan vuestros dos ingresos, el impuesto del hogar puede ir en un sentido o en el otro.",
@@ -11774,5 +11774,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Cuenta de libre paso",
+  "librePassageOptionCompteDescription": "Seguridad alta, tipo fijo 1-2%. Adecuado si retomas un empleo rápidamente.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — plazo de 6 meses",
+  "librePassageOptionPoliceLabel": "Póliza de seguro",
+  "librePassageOptionPoliceDescription": "Cobertura de fallecimiento e invalidez incluida. Rendimiento medio ligado a los tipos técnicos.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Fondo de inversión",
+  "librePassageOptionFondsDescription": "Mayor potencial de rendimiento. Riesgo de mercado a aceptar en el horizonte.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

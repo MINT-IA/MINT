@@ -18570,7 +18570,7 @@ class SDe extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.';
+      'Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 4 Abs. 2). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -24948,4 +24948,35 @@ class SDe extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Berechnungs-Engine: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Freizügigkeitskonto';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Hohe Sicherheit, fester Zinssatz 1-2%. Geeignet, wenn du bald wieder eine Stelle antrittst.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'FZG Art. 4 Abs. 2 — Frist von 6 Monaten';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Versicherungspolice';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Todesfall- und Invaliditätsschutz inklusive. Durchschnittliche Rendite an technische Zinssätze gebunden.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'BVV2 Art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Anlagefonds';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'FZG Art. 4';
 }

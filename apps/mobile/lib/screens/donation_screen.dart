@@ -1369,7 +1369,11 @@ class _DonationScreenState extends State<DonationScreen> {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
-        child: ExpansionTile(
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
           tilePadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1383,6 +1387,7 @@ class _DonationScreenState extends State<DonationScreen> {
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
             ),
           ],
+        )
         ),
       ),
     );

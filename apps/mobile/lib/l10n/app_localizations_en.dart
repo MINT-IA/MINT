@@ -18431,7 +18431,7 @@ class SEn extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 3). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.';
+      'When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 4 al. 2). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -24759,4 +24759,35 @@ class SEn extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Calculation engine: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Vested benefits account';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'High security, fixed rate 1-2%. Suitable if you start a new job quickly.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — 6-month deadline';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Insurance policy';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Death and disability coverage included. Average return tied to technical rates.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Investment fund';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Higher return potential. Market risk to accept over the horizon.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
 }

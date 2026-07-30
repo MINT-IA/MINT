@@ -1138,7 +1138,11 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
-        child: ExpansionTile(
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.xs),
           childrenPadding: const EdgeInsets.fromLTRB(MintSpacing.md, 0, MintSpacing.md, MintSpacing.md),
           title: Text(
@@ -1151,6 +1155,7 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ],
+        )
         ),
       ),
     );

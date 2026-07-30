@@ -18587,7 +18587,7 @@ class SIt extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 3). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.';
+      'Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 4 al. 2). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -24958,4 +24958,35 @@ class SIt extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Motore di calcolo: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Conto di libero passaggio';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Sicurezza elevata, tasso fisso 1-2%. Adatto se riprendi presto un lavoro.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — termine di 6 mesi';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Polizza assicurativa';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Copertura in caso di decesso e invalidità inclusa. Rendimento medio legato ai tassi tecnici.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Fondo d’investimento';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Maggiore potenziale di rendimento. Rischio di mercato da accettare sull’orizzonte.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
 }

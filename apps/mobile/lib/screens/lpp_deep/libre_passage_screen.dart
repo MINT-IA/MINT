@@ -158,29 +158,30 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                   daysElapsed: 10,
                   options: [
                     LppTransferOption(
-                      label: 'Compte libre passage',
+                      label: l.librePassageOptionCompteLabel,
                       emoji: '🏦',
-                      description:
-                          'Sécurité maximale, taux fixe 1-2%. Idéal si tu reprends un emploi rapidement.',
+                      description: l.librePassageOptionCompteDescription,
                       fiveYearGain: _avoir * 0.07,
-                      legalRef: 'LFLP art. 3 — délai 6 mois',
+                      // Le délai de 6 mois avant transfert d'office à
+                      // l'institution supplétive relève de LFLP art. 4 al. 2
+                      // (art. 3 = transfert à la nouvelle institution, sans
+                      // délai). Corrigé unité LFLP #1125, sourcé Fedlex.
+                      legalRef: l.librePassageOptionCompteLegalRef,
                     ),
                     LppTransferOption(
-                      label: 'Police d\'assurance',
+                      label: l.librePassageOptionPoliceLabel,
                       emoji: '🛡️',
-                      description:
-                          'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.',
+                      description: l.librePassageOptionPoliceDescription,
                       fiveYearGain: _avoir * 0.04,
-                      legalRef: 'OPP2 art. 10',
+                      legalRef: l.librePassageOptionPoliceLegalRef,
                     ),
                     LppTransferOption(
-                      label: 'Fonds de placement',
+                      label: l.librePassageOptionFondsLabel,
                       emoji: '📈',
-                      description:
-                          'Potentiel de rendement supérieur. Risque de marché à accepter sur l\'horizon.',
+                      description: l.librePassageOptionFondsDescription,
                       fiveYearGain: _avoir * 0.15,
                       recommended: true,
-                      legalRef: 'LFLP art. 4',
+                      legalRef: l.librePassageOptionFondsLegalRef,
                     ),
                   ],
                 )),

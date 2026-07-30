@@ -8959,7 +8959,7 @@
   "narrativeFirstJobBody": "Entre AVS (LAVS art. 5), LPP (art. 16) e LAMal, o teu líquido fica tipicamente à volta de 88-90 % do bruto sem imposto na fonte; com imposto na fonte, é retido mais. Compreender estas deduções é o primeiro passo para uma boa gestão.",
   "narrativeFirstJobHeadline": "O teu primeiro salário explicado",
   "narrativeLibrePassageBadge": "Livre passagem",
-  "narrativeLibrePassageBody": "Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.",
+  "narrativeLibrePassageBody": "Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 4 al. 2). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.",
   "narrativeLibrePassageHeadline": "Livre passagem: 6 meses para agir",
   "narrativeMarriageBadge": "Casamento",
   "narrativeMarriageBody": "O casamento altera a tua tributação (LIFD art. 9), o teu regime matrimonial (CC art. 181) e os teus direitos de sobrevivência (LAVS art. 23, LPP art. 19). Consoante a repartição dos vossos dois rendimentos, o imposto do agregado pode ir num sentido ou no outro.",
@@ -11774,5 +11774,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Conta de livre passagem",
+  "librePassageOptionCompteDescription": "Segurança elevada, taxa fixa 1-2%. Adequado se retomas um emprego rapidamente.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — prazo de 6 meses",
+  "librePassageOptionPoliceLabel": "Apólice de seguro",
+  "librePassageOptionPoliceDescription": "Cobertura de morte e invalidez incluída. Rendimento médio ligado às taxas técnicas.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Fundo de investimento",
+  "librePassageOptionFondsDescription": "Maior potencial de rendimento. Risco de mercado a aceitar no horizonte.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

@@ -8959,7 +8959,7 @@
   "narrativeFirstJobBody": "Between AVS (LAVS art. 5), LPP (art. 16) and LAMal, your net is typically around 88-90% of gross without withholding tax; with withholding tax, more is deducted. Understanding these deductions is the first step to good financial management.",
   "narrativeFirstJobHeadline": "Your first salary explained",
   "narrativeLibrePassageBadge": "Vested benefits",
-  "narrativeLibrePassageBody": "When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 3). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.",
+  "narrativeLibrePassageBody": "When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 4 al. 2). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.",
   "narrativeLibrePassageHeadline": "Vested benefits: 6 months to act",
   "narrativeMarriageBadge": "Marriage",
   "narrativeMarriageBody": "Marriage changes your taxation (FTA art. 9), your matrimonial property regime (CC art. 181) and your survivor rights (AHV art. 23, BVG art. 19). Depending on how your two incomes compare, the household tax can move either way.",
@@ -11791,5 +11791,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Vested benefits account",
+  "librePassageOptionCompteDescription": "High security, fixed rate 1-2%. Suitable if you start a new job quickly.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — 6-month deadline",
+  "librePassageOptionPoliceLabel": "Insurance policy",
+  "librePassageOptionPoliceDescription": "Death and disability coverage included. Average return tied to technical rates.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Investment fund",
+  "librePassageOptionFondsDescription": "Higher return potential. Market risk to accept over the horizon.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

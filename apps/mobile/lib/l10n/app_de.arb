@@ -8959,7 +8959,7 @@
   "narrativeFirstJobBody": "Zwischen AHV (AHVG Art. 5), BVG (Art. 16) und KVG liegt dein Netto ohne Quellensteuer typischerweise bei rund 88–90 % des Brutto; mit Quellensteuer wird mehr abgezogen. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.",
   "narrativeFirstJobHeadline": "Dein erster Lohn erklärt",
   "narrativeLibrePassageBadge": "Freizügigkeit",
-  "narrativeLibrePassageBody": "Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.",
+  "narrativeLibrePassageBody": "Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 4 Abs. 2). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.",
   "narrativeLibrePassageHeadline": "Freizügigkeit: 6 Monate zum Handeln",
   "narrativeMarriageBadge": "Ehe",
   "narrativeMarriageBody": "Die Heirat ändert deine Besteuerung (DBG Art. 9), deinen Güterstand (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nachdem, wie sich eure beiden Einkommen verteilen, kann die Haushaltssteuer in beide Richtungen gehen.",
@@ -11771,5 +11771,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Freizügigkeitskonto",
+  "librePassageOptionCompteDescription": "Hohe Sicherheit, fester Zinssatz 1-2%. Geeignet, wenn du bald wieder eine Stelle antrittst.",
+  "librePassageOptionCompteLegalRef": "FZG Art. 4 Abs. 2 — Frist von 6 Monaten",
+  "librePassageOptionPoliceLabel": "Versicherungspolice",
+  "librePassageOptionPoliceDescription": "Todesfall- und Invaliditätsschutz inklusive. Durchschnittliche Rendite an technische Zinssätze gebunden.",
+  "librePassageOptionPoliceLegalRef": "BVV2 Art. 10",
+  "librePassageOptionFondsLabel": "Anlagefonds",
+  "librePassageOptionFondsDescription": "Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.",
+  "librePassageOptionFondsLegalRef": "FZG Art. 4"
 }
