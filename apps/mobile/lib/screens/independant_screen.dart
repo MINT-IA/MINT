@@ -177,7 +177,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                           description:
                               'Transfert automatique apr\u00e8s 6 mois \u2014 rendement minimal.',
                           fiveYearGain: 1200,
-                          legalRef: 'OPP2 art. 10',
+                          legalRef: 'LFLP art. 4 al. 2',
                         ),
                         LppTransferOption(
                           label: 'Nouvelle caisse LPP',

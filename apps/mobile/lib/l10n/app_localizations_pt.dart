@@ -24924,7 +24924,7 @@ class SPt extends S {
       'Cobertura de morte e invalidez incluída. Rendimento médio ligado às taxas técnicas.';
 
   @override
-  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
 
   @override
   String get librePassageOptionFondsLabel => 'Fundo de investimento';
@@ -24934,5 +24934,9 @@ class SPt extends S {
       'Maior potencial de rendimento. Risco de mercado a aceitar no horizonte.';
 
   @override
-  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Ferramenta educativa · não constitui aconselhamento financeiro na aceção da LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Sem instrução, transferência oficiosa entre 6 meses e 2 anos (LFLP art. 4 al. 2). Haveres esquecidos: sfbvg.ch.';
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P7-D  Opération sauvetage 2e pilier — 30 jours chrono
 //  Charte : L5 (1 action) + L6 (Chiffre-choc)
-//  Source : LFLP art. 3-4, OPP2 art. 10
+//  Source : LFLP art. 3-4, OLP art. 10
 // ────────────────────────────────────────────────────────────
 
 class LppTransferOption {
@@ -89,7 +90,7 @@ class LppRescueWidget extends StatelessWidget {
                   const SizedBox(height: 4),
                   _buildPremierEclairage(),
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(context),
                 ],
               ),
             ),
@@ -287,11 +288,9 @@ class LppRescueWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(BuildContext context) {
     return Text(
-      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
-      'Source : LFLP art. 3-4, OPP2 art. 10. Délai légal de transfert : 6 mois (LFLP art. 4). '
-      'Avoirs oubliés : sfbvg.ch.',
+      S.of(context)!.lppRescueDisclaimer,
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

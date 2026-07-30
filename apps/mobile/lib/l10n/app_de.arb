@@ -11777,8 +11777,9 @@
   "librePassageOptionCompteLegalRef": "FZG Art. 4 Abs. 2 — Frist von 6 Monaten",
   "librePassageOptionPoliceLabel": "Versicherungspolice",
   "librePassageOptionPoliceDescription": "Todesfall- und Invaliditätsschutz inklusive. Durchschnittliche Rendite an technische Zinssätze gebunden.",
-  "librePassageOptionPoliceLegalRef": "BVV2 Art. 10",
+  "librePassageOptionPoliceLegalRef": "FZV Art. 10",
   "librePassageOptionFondsLabel": "Anlagefonds",
   "librePassageOptionFondsDescription": "Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.",
-  "librePassageOptionFondsLegalRef": "FZG Art. 4"
+  "librePassageOptionFondsLegalRef": "FZV Art. 19a",
+  "lppRescueDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch."
 }
