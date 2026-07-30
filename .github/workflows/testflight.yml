@@ -170,6 +170,9 @@ jobs:
           flutter-version: '3.44.8'
           cache: true
 
+      - name: Disable Swift Package Manager (3.44 defaults SPM on; plugins printing/sign_in_with_apple/sqflite_sqlcipher lack SPM support -> resolution hangs, fall back to CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
+
       - name: Install Flutter dependencies
         run: flutter pub get
 
