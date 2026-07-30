@@ -942,6 +942,12 @@ ALLOW = {
     "services/backend/app/services/coach/coach_models.py",
     "services/backend/app/services/coach/citation_parser.py",
     "services/backend/tests/coach/test_coach_receipt_grounding.py",
+    # P0 #1114 (suite, 2026-07-30) — raccourci DÉTERMINISTE du MoneyTruthReceipt
+    # sur le handoff /first-job : le narrateur LLM ne rendait pas la valeur
+    # (grounding noyé + dérivés gate-rejetés -> FALLBACK, parité staging 0/8), on
+    # rend la valeur canonique sans LLM ni gate quand le tour porte un receipt
+    # résolu + une question « salaire net ». Test du chemin LIVE (endpoint réel).
+    "services/backend/tests/coach/test_coach_receipt_deterministic.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
