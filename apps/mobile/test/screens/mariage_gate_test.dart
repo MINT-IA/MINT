@@ -907,12 +907,18 @@ void main() {
   //  revient (mot, couleur, récit de la mauvaise branche, chaîne hors ARB).
   // ══════════════════════════════════════════════════════════════
   group('Impôt du couple — mécanique, pas verdict', () {
-    // Revenus PROCHES → l'impôt du ménage marié dépasse celui de 2 célibataires.
+    // Revenus ÉGAUX et élevés → l'impôt du ménage marié dépasse celui de 2
+    // célibataires (cas d'école de la pénalité : le cumul pousse dans les
+    // tranches hautes malgré le splitting ×0.80). Recalibré 2026-07-30 après le
+    // drain vers l'étalon ESTV (estimateIncomeTaxV2) : sous l'ancien modèle
+    // (taux effectif plat × 0.92), 80k/60k donnait une pénalité ; sous l'étalon
+    // calibré, 80k/60k est un BONUS — d'où le passage à 100k/100k (fenêtre de
+    // pénalité ~90k-130k par tête ; au-delà le splitting reprend le dessus).
     Future<void> unlockMariePlusEleve(WidgetTester tester,
         {Locale locale = const Locale('fr')}) async {
       await _pump(tester, _FakeProvider(null), locale: locale);
-      await _touchRevenu1(tester, 80000);
-      await _touchRevenu2(tester, 60000);
+      await _touchRevenu1(tester, 100000);
+      await _touchRevenu2(tester, 100000);
       await _touchCanton(tester, 'VD');
       await _incrementChildren(tester);
     }
@@ -934,9 +940,9 @@ void main() {
     test('les deux fixtures encadrent bien les deux sens de l\'écart', () {
       expect(
         FamilyService.compareFiscalMariage(
-            revenu1: 80000, revenu2: 60000, canton: 'VD', nbEnfants: 1)['isPenalite'],
+            revenu1: 100000, revenu2: 100000, canton: 'VD', nbEnfants: 1)['isPenalite'],
         isTrue,
-        reason: 'revenus proches → impôt du ménage plus élevé marié',
+        reason: 'revenus égaux et élevés → impôt du ménage plus élevé marié',
       );
       expect(
         FamilyService.compareFiscalMariage(

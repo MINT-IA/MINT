@@ -278,12 +278,13 @@ class LppCalculator {
   //  SURVIVOR PENSION — LPP art. 19-20
   // ════════════════════════════════════════════════════════════════
 
-  /// Conjoint survivor pension rate (LPP art. 19 al. 1).
-  /// 60% of the insured's projected annual rente.
+  /// Conjoint survivor pension rate — LPP art. 21 al. 1 (montant de la rente
+  /// de survivants). 60% of the insured's disability rente (or retirement
+  /// rente in force). The entitlement CONDITIONS are LPP art. 19, not the rate.
   static const double survivorSpouseRate = 0.60;
 
-  /// Orphan pension rate per child (LPP art. 20).
-  /// 20% of the insured's projected annual rente.
+  /// Orphan pension rate per child — LPP art. 21 al. 1 (montant). 20% of the
+  /// insured's disability rente. The entitlement CONDITIONS are LPP art. 20.
   static const double survivorOrphanRate = 0.20;
 
   /// Compute survivor pensions (LPP art. 19-20).
