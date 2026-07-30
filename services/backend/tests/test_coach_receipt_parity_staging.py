@@ -31,6 +31,13 @@ En conséquence les couples P (pending) ont ``expects_parity=False`` : le harnai
 vérifie qu'ils ne FORGENT PAS le net canonique comme s'il était résolu (garde
 anti-parité), pas qu'ils l'affichent.
 
+Qualité pending (#1120, SPEC §4.3:242-245) — « répond depuis le payload […]
+jamais d'erreur nue » : le rendu pending déterministe accuse réception d'au
+moins un input fourni (brut / canton) et n'est JAMAIS le fallback nu « Je n'ai
+pas cette donnée pour l'instant ». Le harnais assert cette qualité (verdict 3)
+sans relâcher le verrou anti-forge (verdict 2) — reconnaître le brut SAISI ≠
+rendre le net CALCULÉ.
+
 Le harnais rejoue N couples (profil firstJob 25 ans ZH × questions chiffrées)
 contre l'API staging réelle et grade chaque réponse **mécaniquement, côté
 client**, sur la grille 8 points du panel actuariel/métier. Il isole où la
@@ -215,6 +222,25 @@ def _receipt_output_amounts(receipt: dict) -> set[int]:
         out.add(round(v))
         out.add(int(v))  # tronqué (le LLM arrondit souvent au franc inférieur)
     return out
+
+
+def _acknowledges_provided_input(msg: str, receipt: dict) -> bool:
+    """Le message reflète-t-il au moins un input fourni (brut / canton) ?
+
+    Qualité pending (#1120, SPEC §4.3:244) : le rendu déterministe accuse
+    réception des inputs saisis (brut, canton) — ce n'est PAS un forgeage du net
+    (le brut d'input est EXCLU de `_receipt_output_amounts`, cf. verrou anti-forge).
+    """
+    inp = receipt["inputs"]
+    brut = int(round(inp["salaireBrutMensuel"]))
+    canton = str(inp.get("canton") or "")
+    candidates = {str(brut), f"{brut:,}".replace(",", "'"), canton}
+    return any(c and c in (msg or "") for c in candidates)
+
+
+def _is_bare_data_fallback(msg: str) -> bool:
+    """Fallback nu « Je n'ai pas cette donnée » (l'anti-pattern que #1120 tue)."""
+    return (msg or "").strip().startswith("Je n'ai pas cette donnée")
 
 
 def _extract_bare_amounts(msg: str) -> list[float]:
@@ -524,6 +550,33 @@ def test_receipt_parity_matrix():
         "pending au LLM (aucune résolution par inputsHash). Sur:\n"
         + "\n".join(f"  [{g.couple_id}/{g.path}] {g.question!r} → {g.message[:120]!r}"
                     for g in pending_forged)
+        + "\n\n"
+        + grid
+    )
+
+    # Verdict dur 3 — QUALITÉ PENDING (#1120, SPEC §4.3:242-245) : sur le chemin
+    # pending + question « net » (P1-P3), le rendu déterministe DOIT accuser
+    # réception d'au moins un input fourni (brut / canton) ET ne PAS être le
+    # fallback nu « Je n'ai pas cette donnée pour l'instant » (« jamais d'erreur
+    # nue »). Le verrou anti-forge ci-dessus reste actif : reconnaître le brut
+    # SAISI n'est pas rendre le net CALCULÉ. P4 (contrôle 3a) est exclu : la
+    # question hors-net défère au LLM (comportement inchangé), sans rendu
+    # déterministe à contraindre.
+    pending_net_couples = [
+        g for g in grades if g.path == "pending" and g.question in _NET_QUESTIONS
+    ]
+    pending_quality_failures = [
+        g
+        for g in pending_net_couples
+        if _is_bare_data_fallback(g.message)
+        or not _acknowledges_provided_input(g.message, receipt)
+    ]
+    assert not pending_quality_failures, (
+        "QUALITÉ PENDING ROMPUE — le chemin pending renvoie un fallback nu ou "
+        "n'accuse réception d'aucun input fourni (SPEC §4.3:244, « jamais "
+        "d'erreur nue »). Sur:\n"
+        + "\n".join(f"  [{g.couple_id}/{g.path}] {g.question!r} → {g.message[:120]!r}"
+                    for g in pending_quality_failures)
         + "\n\n"
         + grid
     )

@@ -971,6 +971,13 @@ ALLOW = {
     "services/backend/app/services/encryption/banned_terms_runtime.py",
     "services/backend/tests/test_banned_terms_runtime_container.py",
     "services/backend/tests/test_compliance_wording.py",
+    # P0 #1120 (résidu, 2026-07-30) — rendu PENDING déterministe : sur le chemin
+    # pending (receiptInputs présents, receipt non résolu) + question « net », le
+    # narrateur retombait sur le fallback nu « Je n'ai pas cette donnée »
+    # (violation douce SPEC §4.3:242-245). On rend un accusé de réception
+    # déterministe depuis les inputs VALIDÉS (allowlist #1116), sans forger de
+    # net (décision Reading A), sans LLM ni gate. Même patron que #1118.
+    "services/backend/tests/coach/test_coach_receipt_pending_deterministic.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
