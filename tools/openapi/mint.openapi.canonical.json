@@ -7342,6 +7342,30 @@
         "title": "DeparturePlanResponse",
         "type": "object"
       },
+      "DeployHealthResponse": {
+        "properties": {
+          "commit": {
+            "title": "Commit",
+            "type": "string"
+          },
+          "service_time": {
+            "format": "date-time",
+            "title": "Service Time",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "commit",
+          "service_time"
+        ],
+        "title": "DeployHealthResponse",
+        "type": "object"
+      },
       "DestinationDepartEnum": {
         "enum": [
           "eu_aele",
@@ -30869,14 +30893,14 @@
     },
     "/api/v1/health": {
       "get": {
-        "description": "Health check endpoint (backward compatible).",
+        "description": "Health check endpoint (backward compatible).\n\nExposes the running image's deploy commit sha + a service_time so a\npost-promotion check can prove which build is live (Railway injects\nRAILWAY_GIT_COMMIT_SHA; the repo is public, the sha is not a secret).",
         "operationId": "get_health_api_v1_health_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HealthResponse"
+                  "$ref": "#/components/schemas/DeployHealthResponse"
                 }
               }
             },

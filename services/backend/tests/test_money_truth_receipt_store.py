@@ -470,6 +470,11 @@ def test_coach_chat_grounds_on_resolved_receipt(client):
     Le fixture ``client`` surcharge get_db (TestingSessionLocal) + l'auth
     (`_fake_user`, id 'test-user-id') + sème le grant de transfert. On stocke
     donc le receipt sous 'test-user-id' via LA MÊME session que l'endpoint.
+
+    NB (P0 #1114, 2026-07-30) : ce test couvre le chemin LLM (question NON-net)
+    où le receipt doit atteindre le contexte de l'orchestrateur. Les questions
+    « salaire net » prennent désormais le raccourci DÉTERMINISTE qui rend la
+    valeur sans LLM — cf. tests/coach/test_coach_receipt_deterministic.py.
     """
     from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -504,7 +509,10 @@ def test_coach_chat_grounds_on_resolved_receipt(client):
         resp = client.post(
             "/api/v1/coach/chat",
             json={
-                "message": "explique mon net firstJob",
+                # Question NON-net : reste sur le chemin LLM pour prouver que le
+                # receipt atteint le contexte orchestrateur (le raccourci
+                # déterministe ne s'arme que sur les questions « salaire net »).
+                "message": "explique mon profil firstJob",
                 "apiKey": "sk-test-byok",
                 "receiptId": "rcpt-coach",
                 "inputsHash": r.inputs_hash,
