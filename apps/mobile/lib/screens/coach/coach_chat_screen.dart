@@ -2312,13 +2312,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   @override
   Widget build(BuildContext context) {
     // CoachEmptyState deleted (KILL-02). Chat always renders — coach speaks first.
-
-    return Semantics(
-      key: const Key('coach_chat_screen'),
-      identifier: 'coach_chat_screen',
-      container: true,
-      explicitChildNodes: true,
-      child: Scaffold(
+    // AX iOS 26.2 (ADR 2026-07-30, pilote) : pas de Semantics racine —
+    // ModalRoute pose déjà scopesRoute ; un conteneur racine effondre la route
+    // poussée sur iOS 26.2. Pas de SliverAppBar ici (CoachAppBar dans un Column)
+    // donc pas de re-effondrement au scroll. Ancre de flow : id interne
+    // coach_input_field.
+    return Scaffold(
         backgroundColor: MintColors.craie,
         resizeToAvoidBottomInset: true,
         body: SafeArea(
@@ -2366,8 +2365,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 
   // ════════════════════════════════════════════════════════════

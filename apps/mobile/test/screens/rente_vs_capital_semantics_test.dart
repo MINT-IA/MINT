@@ -21,15 +21,22 @@
 //  `idb ui describe-all` "1 element" symptom triangulated on device, even
 //  though the Dart-level semantics tree is fully populated.
 //
-//  This test pins the canonical screen-root contract that the healthy
-//  screens satisfy and the RvC screen (pre-fix) violates : a single
-//  `rente_vs_capital_screen` semantics boundary that is a container with
-//  explicit child nodes AND is an ancestor of the screen body (title,
-//  estimate-mode control, LPP-total field) — the exact labels the
-//  regression flow bug__ILLOG02__rvc_ax_tree_empty.yaml asserts on.
+//  ── SUPERSEDED by the AX iOS 26.2 pilot (ADR 2026-07-30) ──────────────
+//  Instrumented re-diagnosis (8 sim builds, iPhone 16e / iOS 26.2 /
+//  Flutter 3.41.6, cf. project_ios26_ax_tree_collapse) proved the OPPOSITE
+//  of the ILLOG-02 conclusion: on iOS 26.2 the screen-root
+//  `Semantics(container:true, explicitChildNodes:true)` boundary does NOT
+//  prevent the collapse — it CAUSES it, by doubling the `scopesRoute`
+//  boundary that ModalRoute already places on a pushed route. The pilot
+//  removes that root wrapper (back to the framework default) and re-gates
+//  flows/tests on INTERNAL ids (`rvc_route_state`, title, fields).
 //
-//  Labels reuse the AppLocalizations strings already rendered visually —
-//  no new ARB key is introduced (wave 7 parallelism constraint).
+//  So Test 1 below keeps its value (the Dart semantics tree must stay
+//  populated — that never depended on the wrapper). Test 2 is FLIPPED: it
+//  now locks the pilot contract (no root container boundary; the internal
+//  arrival anchor survives) instead of the old ILLOG-02 container contract.
+//  Labels reuse AppLocalizations strings already rendered visually — no new
+//  ARB key is introduced.
 // ────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -108,23 +115,6 @@ SemanticsNode? _findByIdentifier(SemanticsNode root, String identifier) {
   return found;
 }
 
-/// Collect labels/values within the subtree rooted at [node].
-List<String> _labelsUnder(SemanticsNode node) {
-  final labels = <String>[];
-  void visit(SemanticsNode n) {
-    final data = n.getSemanticsData();
-    if (data.label.isNotEmpty) labels.add(data.label);
-    if (data.value.isNotEmpty) labels.add(data.value);
-    n.visitChildren((child) {
-      visit(child);
-      return true;
-    });
-  }
-
-  visit(node);
-  return labels;
-}
-
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -185,40 +175,43 @@ void main() {
     });
 
     testWidgets(
-        'screen-root identifier is a container ancestor of the body '
-        '(canonical iOS-safe boundary)', (tester) async {
+        'no screen-root container boundary; body stays reachable '
+        '(iOS 26.2 collapse fix, ADR 2026-07-30)', (tester) async {
       final handle = tester.ensureSemantics();
 
       await tester.pumpWidget(_buildWrapped(const RenteVsCapitalScreen()));
       await tester.pump();
 
       final root = _rootSemantics(tester);
-
-      final screenNode = _findByIdentifier(root, 'rente_vs_capital_screen');
+      final removedRoot = _findByIdentifier(root, 'rente_vs_capital_screen');
+      final labels = _collectSemanticLabels(root);
       handle.dispose();
 
-      // The screen identifier must exist.
+      // 1. The collapsing screen-root container is GONE. ILLOG-02 had wrapped
+      //    the Scaffold in Semantics(container:true, explicitChildNodes:true)
+      //    carrying this identifier; on iOS 26.2 that boundary doubles
+      //    ModalRoute.scopesRoute and collapses the pushed route to one AX
+      //    node. The pilot removes it — the identifier must no longer exist.
       expect(
-        screenNode,
-        isNotNull,
-        reason: 'rente_vs_capital_screen identifier missing from AX tree.',
+        removedRoot,
+        isNull,
+        reason: 'The screen-root rente_vs_capital_screen container boundary '
+            'must be removed (iOS 26.2 AX collapse fix, ADR 2026-07-30) — '
+            'rely on ModalRoute.scopesRoute instead of a redundant root '
+            'container.',
       );
 
-      // CANONICAL CONTRACT (matches mon_argent_screen / budget_screen) :
-      // the identified screen-root boundary must be an *ancestor container*
-      // wrapping the body — NOT a leaf on the AppBar title. The body labels
-      // (estimate mode + LPP field) must live UNDER the identified node so
-      // the iOS bridge cannot collapse the route to that single node.
-      final underScreen = _labelsUnder(screenNode!);
+      // 2. Removing the wrapper must NOT empty the tree: the body labels stay
+      //    reachable directly at the semantics root (framework-side guard).
+      //    The re-gated runtime anchor rvc_route_state (proof-anchor, needs a
+      //    GoRouter) is locked separately in rvc_real_route_public_test.
       expect(
-        underScreen.any((l) => l.contains('Estimer pour moi')) &&
-            underScreen.any((l) => l.contains('Ton avoir LPP actuel')),
+        labels.any((l) => l.contains('Estimer pour moi')) &&
+            labels.any((l) => l.contains('Ton avoir LPP actuel')),
         isTrue,
-        reason: 'The rente_vs_capital_screen Semantics node must be an '
-            'ancestor of the screen body (estimate-mode control + LPP field). '
-            'Pre-fix it sits on the AppBar title leaf, so the iOS bridge '
-            'collapses the route to one element (the idb "1 element" '
-            'symptom). Labels under screen node: ${underScreen.join(" | ")}',
+        reason: 'Body labels (estimate-mode control + LPP field) must remain '
+            'reachable in the semantics tree after the root wrapper removal. '
+            'Labels: ${labels.join(" | ")}',
       );
     });
   });

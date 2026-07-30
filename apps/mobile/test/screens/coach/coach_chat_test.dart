@@ -576,12 +576,11 @@ void main() {
         await tester.pumpWidget(buildTestWidget(withProfile: true));
         await tester.pump(const Duration(milliseconds: 100));
 
-        expect(
-          tester
-              .getSemantics(find.byKey(const Key('coach_chat_screen')))
-              .identifier,
-          'coach_chat_screen',
-        );
+        // AX pilote (ADR 2026-07-30) : l'ancien id RACINE 'coach_chat_screen'
+        // (conteneur Semantics au sommet du build) est retire — il effondrait
+        // l'arbre AX de la route poussee sur iOS 26.2. Les flows/tests gatent
+        // desormais sur les ids INTERNES ci-dessous (verrou framework-side que
+        // ces ancres survivent dans l'arbre semantique Dart).
         expect(
           tester
               .getSemantics(find.byKey(const Key('coach_history_button')))
@@ -737,10 +736,11 @@ void main() {
         expect(contentSemantics.label, contains('86\u00a0400\u00a0CHF/an'));
         expect(contentSemantics.label, contains('11\u00a0280\u00a0CHF/an'));
 
+        // AX pilote (ADR 2026-07-30) : 'coach_chat_screen' racine retire de la
+        // sous-sequence — l'ordre de traversal des ids INTERNES reste verrouille.
         expectIdentifierSubsequence(
           semanticIdentifiersInTraversalOrder(tester),
           [
-            'coach_chat_screen',
             'coach_user_message_0',
             'coach_assistant_message_0',
             'coach_message_content_1',

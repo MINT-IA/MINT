@@ -912,7 +912,9 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('rente_vs_capital_screen')), findsOneWidget);
+    // AX pilote (ADR 2026-07-30) : id racine 'rente_vs_capital_screen' retire ;
+    // l'arrivee sur RvC se prouve via l'ancre INTERNE 'rvc_route_state'.
+    expect(find.byKey(const Key('rvc_route_state')), findsOneWidget);
     expect(find.byKey(const Key('rvc_age_state')), findsOneWidget);
     expect(
       find.text('rvc_age=${_expectedAgeForPickedOnboardingDob()}'),

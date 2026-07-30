@@ -159,7 +159,7 @@ tags:
 
 - extendedWaitUntil:
     visible:
-      id: "coach_chat_screen"
+      id: "coach_input_field"
     timeout: 15000
 - assertNotVisible: "Encore en chantier pour ton profil"
 - assertNotVisible: "A RenderFlex overflowed"

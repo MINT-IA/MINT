@@ -72,12 +72,15 @@ tags:
 # mini; the calibrated screenshot point targets the first card's visual center.
 - tapOn:
     point: "200, 292"
+# Ancre d'arrivee = id INTERNE rvc_route_state (proof anchor, en tete d'arbre).
+# Pilote AX (ADR 2026-07-30) : l'id racine rente_vs_capital_screen est retire
+# (conteneur racine = effondrement de l'arbre AX sur iOS 26.2). rvc_route_state
+# est present au repos ; le SliverAppBar reste (re-effondrement au scroll hors
+# perimetre pilote — decide post-upgrade 3.44.8).
 - extendedWaitUntil:
     visible:
-      id: "rente_vs_capital_screen"
+      id: "rvc_route_state"
     timeout: 12000
-- assertVisible:
-    id: "rvc_route_state"
 - assertNotVisible:
     text: "Page introuvable"
 - assertNotVisible:

@@ -203,6 +203,8 @@ ALLOW = {
     "apps/mobile/test/screens/first_job_gate_test.dart",
     "apps/mobile/test/screens/first_job_lucidite_test.dart",
     "apps/mobile/test/screens/first_job_badge_overflow_test.dart",
+    # AX pilote (ADR 2026-07-30) : verrou SemanticsTester rvc (contrat inverse).
+    "apps/mobile/test/screens/rente_vs_capital_semantics_test.dart",
     "apps/mobile/lib/screens/naissance_screen.dart",
     "apps/mobile/lib/screens/mariage_screen.dart",
     "apps/mobile/test/screens/mariage_gate_test.dart",
@@ -746,6 +748,19 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_row22_profile_dossier_production_profile.yaml",
+    # AX pilote (ADR 2026-07-30) : re-gate des ancres d'arrivee sur ids INTERNES
+    # apres retrait des Semantics RACINE (coach_chat_screen / rente_vs_capital_screen
+    # effondraient l'arbre AX iOS 26.2). Substitution mecanique arrival-gate ->
+    # coach_input_field / rvc_route_state / titre AppBar. Cf. diagnostic
+    # project_ios26_ax_tree_collapse.
+    "tools/simulator/flows/maestro-perfect-set/flow_mint2_content_quality_surfaces.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_mon_argent_budget_setup_spine.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_3a_contributing.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row16_coach_route_to_screen_runtime.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row20_coach_history_resume.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml",
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
