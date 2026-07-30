@@ -11774,5 +11774,14 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Cuenta de libre paso",
+  "librePassageOptionCompteDescription": "Seguridad alta, tipo fijo 1-2%. Adecuado si retomas un empleo rápidamente.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — plazo de 6 meses",
+  "librePassageOptionPoliceLabel": "Póliza de seguro",
+  "librePassageOptionPoliceDescription": "Cobertura de fallecimiento e invalidez incluida. Rendimiento medio ligado a los tipos técnicos.",
+  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionFondsLabel": "Fondo de inversión",
+  "librePassageOptionFondsDescription": "Mayor potencial de rendimiento. Riesgo de mercado a aceptar en el horizonte.",
+  "librePassageOptionFondsLegalRef": "LFLP art. 4"
 }

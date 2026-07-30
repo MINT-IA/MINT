@@ -129,6 +129,10 @@ ALLOW = {
     "apps/mobile/lib/constants/social_insurance.dart",
     # -b9c : sémantique taux AVS combinés + provenance taux min LPP
     "services/backend/tests/test_b9c_avs_combined_semantics.py",
+    # codex/journey-os-libre-passage-i18n (#1125) : legalRef extrait en ARB +
+    # aligné sur LFLP art. 4 al. 2 (le délai 6 mois n'est pas art. 3).
+    "apps/mobile/lib/screens/lpp_deep/libre_passage_screen.dart",
+    "apps/mobile/test/screens/lpp_deep/libre_passage_screen_test.dart",
     # -dy0 : contraste AA — sites texte greenDark -> greenForest
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
