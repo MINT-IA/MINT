@@ -387,4 +387,91 @@ void main() {
               'be visible.');
     });
   });
+
+  // ── Tier B smoke — persona FAMILLE (couple marié double-revenu, 1 enfant) ──
+  // Verrouille le contrat de seed qui débloque le C2 « chiffré » des 4 écrans
+  // famille : sans conjoint / genre / enfant côté profil, les gates P2 dur
+  // restaient fermés (aucune seed existante ne porte de famille).
+  group('CoachProfileSeeds — famille_bern (Tier B smoke famille)', () {
+    test('seed_registry_contains_famille_bern', () {
+      final seed = CoachProfileSeeds.registry['famille_bern'];
+      expect(seed, isNotNull,
+          reason: 'famille_bern doit exister pour exposer une persona famille '
+              'via MINT_E2E_ARCHETYPE=famille_bern (seedKey direct).');
+      expect(seed!.archetype, 'swiss_native',
+          reason: 'un couple marié suisse reste swiss_native — la famille est '
+              'une variante de ménage, pas un archétype financier.');
+      expect(seed.canton, 'BE');
+      expect(seed.gender, 'F');
+      expect(seed.civilStatus, 'married');
+      expect(seed.nombreEnfants, 1);
+      expect(seed.partnerNetMonthlyIncome, isNotNull,
+          reason: 'le revenu 2 (conjoint réel) est le fait qui débloque le '
+              'partage mariage / concubinage.');
+    });
+
+    test('famille_bern is exposed as a direct seedKey (forcedArchetypeSlug)', () {
+      // Le smoke build passe MINT_E2E_ARCHETYPE=famille_bern ; comme la clé
+      // existe dans registry, forcedArchetypeSlug la résout directement (pas
+      // besoin d'un arm byArchetype — la famille n'est pas un FinancialArchetype).
+      expect(CoachProfileSeeds.bySlug('famille_bern'), isNotNull);
+      expect(CoachProfileSeeds.registry.containsKey('famille_bern'), isTrue);
+    });
+
+    test('famille_bern emits the couple wizard answers (household + conjoint)',
+        () {
+      final seed = CoachProfileSeeds.registry['famille_bern']!;
+      final answers = seed.toWizardAnswers(now: DateTime(2026));
+
+      expect(answers['q_household_type'], 'couple',
+          reason: 'un état civil marié / un conjoint ⇒ ménage couple, sinon le '
+              'gate ghost-conjoint de fromWizardAnswers supprime le conjoint.');
+      expect(answers['q_civil_status'], 'married');
+      expect(answers['q_gender'], 'F');
+      expect(answers['q_children'], 1);
+      expect(answers['q_partner_net_income_chf'], 5556);
+      expect(answers['q_gross_salary_annual'], 114000.0);
+    });
+
+    test('famille_bern hydrates a couple profile with ALL family gate facts',
+        () {
+      final seed = CoachProfileSeeds.registry['famille_bern']!;
+      final profile = CoachProfile.fromWizardAnswers(seed.toWizardAnswers());
+
+      // Revenu 1 (l'utilisateur) — clé 'salary' + brut mensuel dans les plages
+      // des écrans famille [2000, 15000] mensuel / [30000, 200000] annuel.
+      expect(profile.userProvidedFields, contains('salary'));
+      expect(profile.salaireBrutMensuel, 9500.0,
+          reason: '114 000 / 12 — dans la plage du congé (naissance) et de '
+              'l\'impact fiscal.');
+
+      // Revenu 2 (le conjoint réel) — matérialisé, salaire BRUT via le facteur
+      // canonique IncomeConverter (~1.17 × net 5556 ≈ 6500), annuel < 300 000.
+      expect(profile.conjoint, isNotNull,
+          reason: 'le conjoint réel débloque revenu2 (mariage + concubinage).');
+      final conjointGrossMonthly = profile.conjoint!.salaireBrutMensuel!;
+      expect(conjointGrossMonthly, closeTo(6500, 30));
+      expect(conjointGrossMonthly * profile.conjoint!.nombreDeMois,
+          lessThanOrEqualTo(300000.0));
+
+      // Canton — clé 'canton' réelle + code valide (barème famille).
+      expect(profile.userProvidedFields, contains('canton'));
+      expect(profile.canton, 'BE');
+
+      // Genre — rôle parental de naissance (congé maternité).
+      expect(profile.gender, 'F',
+          reason: 'le rôle parental de naissance_screen gate sur gender.');
+
+      // Enfant — pré-remplit les compteurs et confirme le fait côté divorce.
+      expect(profile.nombreEnfants, 1);
+
+      // LPP de l'utilisateur issue d'un certificat — le partage LPP du divorce
+      // exige une valeur RÉELLE (jamais estimée), et la rente de survivant du
+      // mariage dérive de cet avoir.
+      expect(profile.userProvidedFields, contains('avoirLpp'));
+      expect(profile.prevoyance.avoirLppTotal, 180000.0);
+      expect(profile.prevoyance.isLppFromCertificate, isTrue,
+          reason: 'salaire assuré déclaré ⇒ certificat ⇒ divorce lpp1 seedé.');
+    });
+  });
 }

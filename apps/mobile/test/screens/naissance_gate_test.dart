@@ -5,6 +5,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/naissance_screen.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
@@ -926,6 +927,38 @@ void main() {
       await _incrementChildren(tester);
       expect(find.byKey(_impactFigure), findsNothing,
           reason: '24000 < 30000 → revenu unconfirmed → impact gated');
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  Tier B smoke — persona FAMILLE seedée (famille_bern) : preuve C2 chiffré.
+  //  Profil hydraté depuis la SEULE seed (toWizardAnswers → fromWizardAnswers).
+  //  Prouve le chemin BOUT-EN-BOUT : la clé `q_gender` du seed traverse
+  //  fromWizardAnswers (câblage ajouté) → profile.gender='F' → rôle parental
+  //  confirmé → le congé maternité APG rend SANS toucher un champ.
+  // ══════════════════════════════════════════════════════════════
+  group('famille_bern seed unlocks the congé result (no touch)', () {
+    testWidgets('congé hero renders the maternité APG from the seeded salary',
+        (tester) async {
+      final profile = CoachProfile.fromWizardAnswers(
+          CoachProfileSeeds.registry['famille_bern']!.toWizardAnswers());
+      await _pump(tester, _FakeProvider(profile));
+
+      // Salaire (9500, dans [2000,15000]) + genre 'F' viennent tous deux du
+      // profil seedé → les deux faits du congé sont confirmés.
+      expect(_state(tester).debugSalaire, 9500.0);
+      expect(_state(tester).debugIsMother, isTrue,
+          reason: 'q_gender="F" traverse fromWizardAnswers → rôle mère.');
+      expect(find.byType(SituationGateCard), findsNothing,
+          reason: 'salaire + rôle parental confirmés par la seule seed');
+      expect(find.byKey(_congeHero), findsOneWidget);
+      expect(
+        find.descendant(
+            of: find.byKey(_congeHero),
+            matching: find.text(_expectedCongeTotal(tester))),
+        findsOneWidget,
+        reason: 'le hero rend le total APG maternité calculé sur 9500/mois',
+      );
     });
   });
 }
