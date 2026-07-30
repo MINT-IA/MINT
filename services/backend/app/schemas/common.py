@@ -8,6 +8,12 @@ class HealthResponse(BaseModel):
     status: str
 
 
+class DeployHealthResponse(BaseModel):
+    status: str
+    commit: str
+    service_time: datetime
+
+
 class DetailedHealthResponse(BaseModel):
     status: str
     version: str
