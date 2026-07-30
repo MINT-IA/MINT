@@ -974,6 +974,8 @@ IGNORED_GENERATED_PREFIXES = (
     # Cartographie navigation (audit 2026-07, demande Julien 2026-07-23) :
     # artefacts d'analyse .planning, pas du code Journey OS.
     ".planning/audit-etat-des-lieux-2026-07/",
+    # ADRs de décision (panels/synthèses) : artefacts .planning, pas du code Journey OS.
+    ".planning/decisions/",
 )
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}
