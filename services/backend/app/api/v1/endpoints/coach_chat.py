@@ -3570,6 +3570,212 @@ def _rente_capital_deterministic_loop_result(
     return recovered
 
 
+# ---------------------------------------------------------------------------
+# firstJob P0 #1114 — raccourci DÉTERMINISTE du MoneyTruthReceipt.
+# ---------------------------------------------------------------------------
+# Diagnostic staging LIVE (2026-07-30, deployment ⊃ dev) : le grounding du receipt
+# EST câblé dans le system prompt ET la valeur EST exemptée du gate citations
+# (« Ton net est 5849 CHF » → PASS). MAIS le narrateur LLM ne rend PAS la valeur
+# sur le handoff /first-job (profil vide) : l'échafaudage d'onboarding + le bloc
+# de reasoning « profil vide » (appended APRÈS le grounding) noient le bloc, et
+# quand le LLM tente un nombre dérivé/arrondi (annualisé, borne re-arrondie) le
+# gate le REJETTE → retry → FALLBACK. Parité staging : 0/8. Comme la valeur est
+# déjà calculée par la couche canonique L1 (receipt re-validé owner-scoped), on la
+# rend de façon déterministe — sans LLM, sans gate — plutôt que de parier sur le
+# LLM. Même mécanisme vetted que `_rente_capital_deterministic_loop_result`.
+
+# Motifs « salaire net » PRÉCIS (forme ASCII, frontières de mots). Le receipt est
+# un NET DE SALAIRE : on n'arme le raccourci que sur une vraie question de net
+# salarial. Frontières de mots obligatoires — sinon « interNET », « patrimoine
+# net », « net worth », « salaire BRUT », « revenu locatif » armaient à tort le
+# raccourci (revue adversariale Codex 2026-07-30).
+_RECEIPT_NET_QUERY_RE = re.compile(
+    r"\bsalaire net\b"
+    r"|\bnet (?:mensuel|par mois|a payer|percu|percois|touche|en chiffres|exact)\b"
+    r"|\bmon net\b"
+    r"|\bme reste\b"
+    r"|\bapres (?:les )?cotisations\b"
+    r"|\bcotisations sociales\b"
+    r"|\b(?:je touche combien|combien je touche)\b"
+)
+# Sujets que le receipt firstjob.net_salary.v1 NE couvre PAS : leur présence
+# désactive le raccourci (on défère au LLM au lieu de détourner la question).
+_RECEIPT_NON_NET_OVERRIDE_TERMS: tuple[str, ...] = (
+    "3a",
+    "3 a",
+    "pilier",
+    "retraite",
+    "rente",
+    "impot",
+    "hypotheque",
+    "lpp",
+    "avs",
+    "rachat",
+    "leasing",
+    "credit",
+    "dette",
+    "assurance",
+    "brut",
+    "patrimoine",
+    "fortune",
+    "locatif",
+    "investissement",
+    "epargne",
+    "worth",
+)
+# Borne de sanité du net mensuel rendu (revue Codex) : hors ]0 ; 1_000_000], on
+# défère au LLM plutôt que de rendre un montant négatif / absurde.
+_RECEIPT_NET_MAX_CHF = 1_000_000.0
+
+
+def _receipt_finite_float(value) -> "Optional[float]":
+    """Coerce en float FINI (jamais bool, NaN, inf, overflow), sinon None."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    try:
+        f = float(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return f if math.isfinite(f) else None
+
+
+def _clean_receipt_freetext(value) -> str:
+    """Aplatit un champ libre du receipt (label de source) : espaces normalisés,
+    pas de saut de ligne, borné 120 chars. Défense contre les labels forgés."""
+    return re.sub(r"\s+", " ", str(value)).strip()[:120]
+
+
+def _message_is_net_salary_query(message: "Optional[str]") -> bool:
+    """True quand le tour porte une question « salaire net » (et rien d'autre).
+
+    Motif PRÉCIS à frontières de mots (pas de match par sous-chaîne). Un terme
+    « hors-net » (3a, rente, impôt, LPP, brut, patrimoine…) désactive le
+    raccourci : le receipt net ne répond pas à ces sujets, on laisse le LLM.
+    """
+    if not message or not message.strip():
+        return False
+    import unicodedata
+
+    norm = "".join(
+        c
+        for c in unicodedata.normalize("NFD", message.lower())
+        if unicodedata.category(c) != "Mn"
+    )
+    if any(t in norm for t in _RECEIPT_NON_NET_OVERRIDE_TERMS):
+        return False
+    return _RECEIPT_NET_QUERY_RE.search(norm) is not None
+
+
+def _fmt_chf_swiss(value: float) -> str:
+    """Franc suisse arrondi, séparateur milliers apostrophe : 5849.17 -> 5'849."""
+    return f"{round(float(value)):,}".replace(",", "'")
+
+
+def _receipt_deterministic_loop_result(
+    resolved_receipt: "Optional[dict]",
+    user_message: "Optional[str]",
+) -> "Optional[dict]":
+    """Réponse déterministe rendant LA valeur du receipt résolu (P0 #1114).
+
+    Retourne un ``loop_result`` (même contrat que ``_run_agent_loop``) quand le
+    tour porte un receipt RÉSOLU (owner-scoped, re-validé) ET que l'utilisateur
+    demande son net — la valeur canonique est rendue telle quelle (source +
+    fourchette + millésime + confiance), SANS LLM ni gate, garantissant la parité
+    écran (SPEC §4.3). Retourne None sinon (pending / not_found / pas de receipt /
+    question hors-net) → chemin coach classique inchangé.
+
+    Le texte est composé pour être conforme (aucun terme banni LSFin, verbes
+    lucides) : le chemin déterministe ne passe PAS par ComplianceGuard.
+    """
+    if not isinstance(resolved_receipt, dict):
+        return None
+    if resolved_receipt.get("status") != "resolved":
+        return None
+    if not _message_is_net_salary_query(user_message):
+        return None
+    value = _receipt_finite_float(resolved_receipt.get("value"))
+    if value is None or not (0 < value <= _RECEIPT_NET_MAX_CHF):
+        # Un net résolu doit être positif et borné : hors bornes -> on défère.
+        return None
+
+    montant = _fmt_chf_swiss(value)
+    base_label = {"net": "net", "brut": "brut"}.get(resolved_receipt.get("base"), "")
+    tete = f"Ton salaire {base_label}".rstrip() if base_label else "Ton montant"
+    lignes = [f"{tete} s'élève à {montant} CHF par mois."]
+
+    band = resolved_receipt.get("range")
+    if isinstance(band, dict):
+        low = _receipt_finite_float(band.get("low"))
+        high = _receipt_finite_float(band.get("high"))
+        if low is not None and high is not None:
+            lignes.append(
+                f"Fourchette indicative : entre {_fmt_chf_swiss(low)} CHF et "
+                f"{_fmt_chf_swiss(high)} CHF selon les hypothèses retenues."
+            )
+
+    lignes.append(
+        "Ce chiffre vient du calcul déjà effectué dans l'app à partir de ton "
+        "salaire brut — je le reprends tel quel, sans le recalculer."
+    )
+
+    sources = resolved_receipt.get("sources") or []
+    clean_sources = [
+        (_clean_receipt_freetext(s["label"]), s.get("id"), s.get("vintage"))
+        for s in sources
+        if isinstance(s, dict) and s.get("label")
+    ]
+    src_labels = [lbl for (lbl, _id, _v) in clean_sources if lbl]
+    if src_labels:
+        detail = "Sources : " + " · ".join(src_labels)
+        tax_year = resolved_receipt.get("taxYear")
+        if tax_year:
+            detail += f" · millésime fiscal {tax_year}"
+        lignes.append(detail + ".")
+
+    conf = _receipt_finite_float(resolved_receipt.get("confidence"))
+    if conf is not None:
+        pct = round(conf * 100) if conf <= 1.0 else round(conf)
+        lignes.append(f"Confiance des données : environ {pct} %.")
+
+    answer = "\n\n".join(lignes)
+
+    # Défense en profondeur : le chemin déterministe NE passe PAS par
+    # ComplianceGuard. Un champ libre du receipt (label de source) pourrait faire
+    # fuir un terme banni LSFin — on scanne le texte final et, au moindre hit, on
+    # défère au LLM (fail-safe) plutôt que d'émettre un texte non conforme.
+    from app.services.encryption.banned_terms_runtime import (
+        _scan_text as _scan_banned_terms,
+    )
+
+    if _scan_banned_terms(answer) is not None:
+        return None
+
+    from app.services.coach.compliance_guard import ComplianceGuard
+
+    # Forme RagSource du contrat mobile (title/file/section, cf.
+    # coach_chat_api_service.dart:411) — parité de forme, aucun risque contrat.
+    response_sources = [
+        {
+            "title": lbl,
+            "file": _id or "",
+            "section": str(_v) if _v is not None else "",
+        }
+        for (lbl, _id, _v) in clean_sources
+        if lbl
+    ]
+
+    return {
+        "answer": answer,
+        "tool_calls": [],
+        "citation_chips": None,
+        "sources": response_sources,
+        "disclaimers": [ComplianceGuard.STANDARD_DISCLAIMER],
+        "tokens_used": 0,
+        "degraded": False,
+        "model_used": "deterministic-money-truth-receipt",
+    }
+
+
 def _fmt_pct(value) -> str:
     """Format a ratio (0-1) or percentage (0-100) as %."""
     if value is None:
@@ -5711,6 +5917,14 @@ async def coach_chat(
     )
     deterministic_reasoning_used = deterministic_loop_result is not None
 
+    # firstJob P0 #1114 — raccourci déterministe du MoneyTruthReceipt. Quand le
+    # tour porte un receipt RÉSOLU (owner-scoped) et une question « net », on rend
+    # LA valeur canonique sans LLM ni gate (le narrateur ne la surfaçait pas — cf.
+    # `_receipt_deterministic_loop_result`). Absent -> None -> chemin inchangé.
+    receipt_deterministic_result = _receipt_deterministic_loop_result(
+        _resolved_receipt, body.message
+    )
+
     # ------------------------------------------------------------------
     # Step 4: Agent loop — tool_use -> execute -> re-call LLM
     # Internal tools (retrieve_memories) are executed and their results
@@ -6158,7 +6372,13 @@ async def coach_chat(
         increment_and_get_previous(key)
         return await _run_narrator_with_gate(pack=pack)
 
-    if deterministic_loop_result is not None:
+    if receipt_deterministic_result is not None:
+        logger.info(
+            "coach_chat deterministic money-truth-receipt shortcut user=%s",
+            (str(_user.id)[:8] + "...") if _user else "anonymous",
+        )
+        loop_result = receipt_deterministic_result
+    elif deterministic_loop_result is not None:
         logger.info(
             "coach_chat deterministic reasoning shortcut fact=%s user=%s",
             reasoning_output.fact_tag,
@@ -6198,7 +6418,7 @@ async def coach_chat(
                 detail="LLM API call failed. Please verify your API key and try again.",
             )
 
-    if not deterministic_reasoning_used:
+    if not deterministic_reasoning_used and receipt_deterministic_result is None:
         loop_result = _recover_rente_capital_fallback(loop_result, reasoning_output)
 
     # ------------------------------------------------------------------
