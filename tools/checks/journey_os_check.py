@@ -467,6 +467,9 @@ ALLOW = {
     # + suppression du champ base_rate mort (ADR 2026-07-28-remplacements P1)
     "services/backend/app/services/expat/frontalier_service.py",
     "services/backend/tests/test_expat.py",
+    # Purge de la solidarité AC abolie au 1.1.2023 (LACI art. 90c al. 4) :
+    # miroir dart du calcul frontalier (parité py↔dart).
+    "apps/mobile/lib/services/expat_service.dart",
     # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
     "services/backend/app/services/divorce_simulator.py",
     "services/backend/tests/test_divorce_simulator.py",
@@ -921,6 +924,20 @@ ALLOW = {
     # signature étendue (receiptId/inputsHash/receiptInputs) + heads alembic
     # attendus incluent p126.
     "apps/mobile/test/services/coach_context_packet_payload_test.dart",
+    # Phase 3' — harnais de parité coach × MoneyTruthReceipt contre STAGING réel
+    # (SPEC TRANCHE-FIRSTJOB §4.3 / §4.4). Test integration_staging skippé par
+    # défaut (opt-in MINT_STAGING_PARITY=1) : rejoue profil firstJob × questions
+    # chiffrées, grade la grille 8 points côté client, isole la casse de chaîne.
+    "services/backend/tests/test_coach_receipt_parity_staging.py",
+    "services/backend/pytest.ini",
+    # P0 #1114 — consommation du MoneyTruthReceipt dans le contexte/prompt coach
+    # (SPEC TRANCHE-FIRSTJOB §4.3) : le receipt résolu/pending atteint désormais
+    # le system prompt via CoachContext.money_truth_receipt + bloc de grounding,
+    # et la valeur grounded est exemptée du gate citations (extract_gated_
+    # number_tokens). Fermeture de la façade « clé écrite une fois, lue zéro ».
+    "services/backend/app/services/coach/coach_models.py",
+    "services/backend/app/services/coach/citation_parser.py",
+    "services/backend/tests/coach/test_coach_receipt_grounding.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

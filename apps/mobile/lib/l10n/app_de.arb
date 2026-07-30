@@ -3730,7 +3730,7 @@
   "coachErrorInvalidKey": "Dein API-Schlüssel scheint ungültig oder abgelaufen zu sein. Überprüfe ihn in den Einstellungen.",
   "coachErrorRateLimit": "Anfragelimit erreicht. Versuche es in einem Moment erneut.",
   "coachErrorGeneric": "Technischer Fehler. Versuche es später erneut.",
-  "coachErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
+  "coachErrorConnection": "Verbindung zum Coach nicht möglich. Überprüfe deine Verbindung und versuche es erneut.",
   "coachSuggestSimulate3a": "Wenn ich mehr in meine 3a einzahle, was ändert sich?",
   "@coachSuggestSimulate3a": {
     "x-mint-meta": {
@@ -8709,7 +8709,7 @@
   "lppBuybackAssumptionsBody": "• Steuerabzug gemäss anwendbaren Regeln\n• Umwandlungssatz: aktuelle Annahme, kann sinken\n• Mit BVG-Ausweis und einer Steuerfachperson überprüfen",
   "jobChangeChecklistAlertBody": "Ohne Freizügigkeitsübertragung innerhalb der Frist kann dein BVG-Kapital bei der Auffangeinrichtung zu 0.05 % landen.",
   "jobChangeChecklistAlertTitle": "Fordere IMMER den BVG-Ausweis an, bevor du unterschreibst",
-  "jobChangeChecklistDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art. 3 (Freizügigkeit), FZV Art. 1-3.",
+  "jobChangeChecklistDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 2, FZG Art. 4 Abs. 2, KVG Art. 71.",
   "jobChangeChecklistProgress": "{completed} / {total} Aufgaben erledigt",
   "jobChangeChecklistSemantics": "Checkliste neuer Job BVG Freizügigkeit dringende Aufgaben",
   "jobChangeChecklistSubtitle": "Du hast 30 Tage, um zu prüfen, ob dein BVG übertragen wurde.",

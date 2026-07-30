@@ -8371,7 +8371,7 @@ class SPt extends S {
 
   @override
   String get coachErrorConnection =>
-      'Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.';
+      'Não foi possível ligar ao coach. Verifica a tua ligação e tenta novamente.';
 
   @override
   String get coachSuggestSimulate3a =>
@@ -17659,7 +17659,7 @@ class SPt extends S {
 
   @override
   String get jobChangeChecklistDisclaimer =>
-      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Fonte: LPP art. 3 (livre passagem), OLP art. 1-3.';
+      'Ferramenta educativa · não constitui aconselhamento financeiro nos termos da LSFin. Fonte: LFLP art. 2, LFLP art. 4 al. 2, LAMal art. 71.';
 
   @override
   String jobChangeChecklistProgress(int completed, int total) {

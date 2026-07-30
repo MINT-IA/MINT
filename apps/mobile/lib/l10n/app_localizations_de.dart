@@ -8390,7 +8390,7 @@ class SDe extends S {
 
   @override
   String get coachErrorConnection =>
-      'Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.';
+      'Verbindung zum Coach nicht möglich. Überprüfe deine Verbindung und versuche es erneut.';
 
   @override
   String get coachSuggestSimulate3a =>
@@ -17689,7 +17689,7 @@ class SDe extends S {
 
   @override
   String get jobChangeChecklistDisclaimer =>
-      'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: BVG Art. 3 (Freizügigkeit), FZV Art. 1-3.';
+      'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 2, FZG Art. 4 Abs. 2, KVG Art. 71.';
 
   @override
   String jobChangeChecklistProgress(int completed, int total) {

@@ -14814,7 +14814,7 @@ abstract class S {
   /// No description provided for @coachErrorConnection.
   ///
   /// In fr, this message translates to:
-  /// **'Erreur de connexion. Vérifie ta connexion internet ou ta clé API.'**
+  /// **'Connexion au coach impossible. Vérifie ta connexion et réessaie.'**
   String get coachErrorConnection;
 
   /// No description provided for @coachSuggestSimulate3a.
@@ -31028,7 +31028,7 @@ abstract class S {
   /// No description provided for @jobChangeChecklistDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LPP art. 3 (libre passage), OLP art. 1-3.'**
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 2, LFLP art. 4 al. 2, LAMal art. 71.'**
   String get jobChangeChecklistDisclaimer;
 
   /// No description provided for @jobChangeChecklistProgress.

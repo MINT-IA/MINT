@@ -3730,7 +3730,7 @@
   "coachErrorInvalidKey": "Tu clave API parece inválida o caducada. Verifícala en los ajustes.",
   "coachErrorRateLimit": "Límite de solicitudes alcanzado. Inténtalo de nuevo en un momento.",
   "coachErrorGeneric": "Error técnico. Inténtalo más tarde.",
-  "coachErrorConnection": "Error de conexión. Verifica tu conexión a internet o tu clave API.",
+  "coachErrorConnection": "No se puede conectar con el coach. Verifica tu conexión e inténtalo de nuevo.",
   "coachSuggestSimulate3a": "Si aporto más a mi 3a, ¿qué cambia?",
   "@coachSuggestSimulate3a": {
     "x-mint-meta": {
@@ -8709,7 +8709,7 @@
   "lppBuybackAssumptionsBody": "• Deducción fiscal según las reglas aplicables\n• Tasa de conversión: hipótesis actual, puede bajar\n• Verifica con el certificado LPP y un·a especialista en fiscalidad",
   "jobChangeChecklistAlertBody": "Sin transferencia del libre paso en los plazos, tu capital LPP puede acabar en la Fundación supletoria al 0.05 %.",
   "jobChangeChecklistAlertTitle": "Solicita SIEMPRE el certificado LPP antes de firmar",
-  "jobChangeChecklistDisclaimer": "Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LPP art. 3 (libre paso), OLP art. 1-3.",
+  "jobChangeChecklistDisclaimer": "Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 2, LFLP art. 4 al. 2, LAMal art. 71.",
   "jobChangeChecklistProgress": "{completed} / {total} acciones completadas",
   "jobChangeChecklistSemantics": "Lista de verificación nuevo empleo LPP libre paso acciones urgentes",
   "jobChangeChecklistSubtitle": "Tienes 30 días para verificar que tu LPP ha sido transferido.",

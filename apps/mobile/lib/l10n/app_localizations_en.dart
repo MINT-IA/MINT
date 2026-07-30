@@ -8314,7 +8314,7 @@ class SEn extends S {
 
   @override
   String get coachErrorConnection =>
-      'Connection error. Check your internet connection or API key.';
+      'Cannot connect to the coach. Check your connection and try again.';
 
   @override
   String get coachSuggestSimulate3a =>
@@ -17560,7 +17560,7 @@ class SEn extends S {
 
   @override
   String get jobChangeChecklistDisclaimer =>
-      'Educational tool · does not constitute financial advice under FinSA. Source: LPP art. 3 (vested benefits), OLP art. 1-3.';
+      'Educational tool · does not constitute financial advice under FinSA. Source: LFLP art. 2, LFLP art. 4 al. 2, LAMal art. 71.';
 
   @override
   String jobChangeChecklistProgress(int completed, int total) {

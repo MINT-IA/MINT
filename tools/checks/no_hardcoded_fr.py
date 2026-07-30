@@ -57,6 +57,12 @@ EXCLUDE_SUBSTRINGS = (
     "/build/",
     "/.git/",
     "/test/",  # tests often need literal strings
+    # Fichiers *.g.dart auto-générés (ex. snapshot du registre réglementaire
+    # généré par tools/codegen/regulatory_constants_to_dart.py) : ce sont des
+    # données dérivées de la source de vérité backend, pas des libellés écrits
+    # à la main rendus à l'utilisateur. Le blob JSON minifié ré-« ajoute » à
+    # chaque regen toutes les descriptions FR du registre -> faux positifs.
+    "/generated/",
 )
 
 

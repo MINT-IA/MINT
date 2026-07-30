@@ -7,7 +7,7 @@ and narrative generation results.
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 class ComponentType(str, Enum):
@@ -91,6 +91,14 @@ class CoachContext:
     # When True, the system prompt injects _SAFE_MODE_PROTOCOL to block
     # all 3a/LPP optimisation advice (RULES.md §2).
     has_debt: bool = False
+    # firstJob P0 #1114 — contexte MoneyTruthReceipt résolu server-side pour
+    # ce tour (owner-scoped). Forme = sortie de `resolve_receipt_context`
+    # ({"status": "resolved"|"pending"|"not_found", ...}). None = pas de
+    # receipt sur ce tour -> chemin coach classique STRICTEMENT inchangé.
+    # Non whitelisté par _build_coach_context_from_profile (dict, pas un
+    # scalaire) : rattaché explicitement pour atteindre le prompt via
+    # _build_context_section (sinon façade sans câblage : valeur droppée).
+    money_truth_receipt: Optional[Dict[str, Any]] = None
 
 
 @dataclass
