@@ -106,7 +106,7 @@ appId: ch.mint.app
 - assertVisible:
     id: "mint2-axis-lpp_rente_capital"
 - assertVisible:
-    id: "rente_vs_capital_screen"
+    id: "rvc_route_state"
 - assertNotVisible:
     text: "Cr\u00e9er ton compte"
 """,
@@ -607,11 +607,11 @@ def test_navigation_spine_guard_fails_when_maestro_flow_loses_live_route_probe(
         / "tools/simulator/flows/maestro-perfect-set/"
         "flow_mint2_first_experience_rente_capital_entry.yaml"
     )
-    flow.write_text(flow.read_text(encoding="utf-8").replace("rente_vs_capital_screen", "account_gate"), encoding="utf-8")
+    flow.write_text(flow.read_text(encoding="utf-8").replace("rvc_route_state", "account_gate"), encoding="utf-8")
 
     errors = mint2_navigation_spine_guard.check(tmp_path)
 
-    assert any("must assert rente_vs_capital_screen" in error for error in errors)
+    assert any("must assert rvc arrival (rvc_route_state)" in error for error in errors)
 
 
 def test_navigation_spine_guard_fails_without_account_wall_positive_control(

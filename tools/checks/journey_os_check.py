@@ -203,6 +203,8 @@ ALLOW = {
     "apps/mobile/test/screens/first_job_gate_test.dart",
     "apps/mobile/test/screens/first_job_lucidite_test.dart",
     "apps/mobile/test/screens/first_job_badge_overflow_test.dart",
+    # AX pilote (ADR 2026-07-30) : verrou SemanticsTester rvc (contrat inverse).
+    "apps/mobile/test/screens/rente_vs_capital_semantics_test.dart",
     "apps/mobile/lib/screens/naissance_screen.dart",
     "apps/mobile/lib/screens/mariage_screen.dart",
     "apps/mobile/test/screens/mariage_gate_test.dart",
@@ -746,6 +748,19 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_hero_marge_fiscale_3a.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_first_experience_rente_capital_entry.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_row22_profile_dossier_production_profile.yaml",
+    # AX pilote (ADR 2026-07-30) : re-gate des ancres d'arrivee sur ids INTERNES
+    # apres retrait des Semantics RACINE (coach_chat_screen / rente_vs_capital_screen
+    # effondraient l'arbre AX iOS 26.2). Substitution mecanique arrival-gate ->
+    # coach_input_field / rvc_route_state / titre AppBar. Cf. diagnostic
+    # project_ios26_ax_tree_collapse.
+    "tools/simulator/flows/maestro-perfect-set/flow_mint2_content_quality_surfaces.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_mon_argent_budget_setup_spine.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_3a_contributing.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_money_trust_chain_budget_mon_argent_rapport_coach.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row16_coach_route_to_screen_runtime.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row20_coach_history_resume.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row22_primary_screen_visual_crawl.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_row23_independent_no_lpp_coach_chat_runtime.yaml",
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
@@ -956,6 +971,13 @@ ALLOW = {
     "services/backend/app/services/encryption/banned_terms_runtime.py",
     "services/backend/tests/test_banned_terms_runtime_container.py",
     "services/backend/tests/test_compliance_wording.py",
+    # P0 #1120 (résidu, 2026-07-30) — rendu PENDING déterministe : sur le chemin
+    # pending (receiptInputs présents, receipt non résolu) + question « net », le
+    # narrateur retombait sur le fallback nu « Je n'ai pas cette donnée »
+    # (violation douce SPEC §4.3:242-245). On rend un accusé de réception
+    # déterministe depuis les inputs VALIDÉS (allowlist #1116), sans forger de
+    # net (décision Reading A), sans LLM ni gate. Même patron que #1118.
+    "services/backend/tests/coach/test_coach_receipt_pending_deterministic.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
@@ -974,6 +996,8 @@ IGNORED_GENERATED_PREFIXES = (
     # Cartographie navigation (audit 2026-07, demande Julien 2026-07-23) :
     # artefacts d'analyse .planning, pas du code Journey OS.
     ".planning/audit-etat-des-lieux-2026-07/",
+    # ADRs de décision (panels/synthèses) : artefacts .planning, pas du code Journey OS.
+    ".planning/decisions/",
 )
 TEAMS = {"mint-lead", "mint-quality-gate", "mint-mobile", "mint-backend", "mint-swiss-brain"}
 STATUS = {"draft", "partial", "live_proven", "blocked", "deferred", "out_of_beta"}

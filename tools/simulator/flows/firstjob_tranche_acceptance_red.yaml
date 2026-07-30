@@ -198,15 +198,12 @@ tags:
 # ═══════════════════════════════════════════════════════════════════════
 # 4. FIRST-JOB (/first-job) — appareil de lucidite + chiffre etalon
 # ═══════════════════════════════════════════════════════════════════════
-- extendedWaitUntil:
-    visible:
-      id: "first_job_screen"          # testID racine a ajouter (motif RvC)
-    timeout: 12000
-
 # Le gate de situation est deja rempli par le profil onboarding (salaire/
 # age/canton seeded) -> le premier eclairage se calcule sans saisie.
 # 4a. Chiffre net calcule et rendu (preuve anti-facade : premier eclairage
-#     n'existe que si _result != null).
+#     n'existe que si _result != null). Cet id INTERNE sert aussi d'ancre
+#     d'arrivee ecran : depuis le pilote AX (ADR 2026-07-30), l'id racine
+#     first_job_screen est retire (il effondrait l'arbre AX sur iOS 26.2).
 - extendedWaitUntil:
     visible:
       id: "firstjob-premier-eclairage-value"
@@ -251,7 +248,7 @@ tags:
 # 5a. Le coach s'ouvre (onglet 2 du shell).
 - extendedWaitUntil:
     visible:
-      id: "coach_chat_screen"
+      id: "coach_input_field"
     timeout: 15000
 # 5b. Le coach parle du meme sujet et rend un chiffre.
 - extendedWaitUntil:

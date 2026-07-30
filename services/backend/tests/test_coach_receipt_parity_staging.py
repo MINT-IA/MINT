@@ -2,10 +2,41 @@
 
 Ce que ce fichier prouve
 ========================
-Le contrat SPEC §4.3 (TRANCHE-FIRSTJOB-SPEC.md) : le coach, quand un tour porte
-``receiptId`` + ``inputsHash`` (chemin *resolved*) ou ``receiptInputs`` seuls
-(chemin *pending*), doit **grounder sur la MÊME valeur que le receipt** — le net
-firstJob (5'849 CHF pour le profil seedé brut=6'500 / ZH / 25 ans).
+Le contrat SPEC §4.3 (TRANCHE-FIRSTJOB-SPEC.md), lu à la lettre :
+
+- *resolved* (``receiptId`` + ``inputsHash`` d'un receipt STOCKÉ pour ce
+  propriétaire) : « le coach **résout le même receipt** […] et rend
+  ``receipt.value`` » (§4.3:234) — la parité écran (net firstJob 5'849 CHF pour
+  le profil seedé brut=6'500 / ZH / 25 ans) est EXIGÉE.
+- *pending* (``receiptInputs`` seuls, receiptId jamais stocké) : « le coach
+  **répond depuis le payload et marque le receipt pending** — jamais d'erreur
+  nue, jamais de recalcul avec d'autres inputs » (§4.3:242-245). La résolution
+  est « **par receiptId** scopée au propriétaire » (§4.3:239) — le spec ne
+  prévoit PAS de résolution par hash. La parité écran n'est donc PAS exigée sur
+  le chemin pending.
+
+Décision instruite (2026-07-30, revue Codex bornée) — pourquoi PAS de résolution
+par ``inputsHash`` : « même chiffre = mêmes inputs + **même définition + même
+moteur** » (§4.4:253), or ``inputsHash`` (compute_inputs_hash) ne couvre que les
+inputs normalisés {salaireBrutMensuel, age, canton, tauxActivite, etatCivil} —
+PAS ``claimId`` / ``engine`` / ``engineVersion`` / ``taxYear`` / ``rounding``.
+Deux receiptIds partageant un ``inputsHash`` peuvent porter des valeurs
+DIFFÉRENTES (moteur/millésime différent) ; résoudre par hash rendrait une valeur
+que l'utilisateur n'a jamais vue à l'écran. Le store n'authentifie pas non plus
+``compute_inputs_hash(receipt.inputs) == receipt.inputs_hash``. Le chemin pending
+reste donc au LLM (aucun forgeage serveur). Verrou déterministe :
+``test_money_truth_receipt_store.py::test_resolve_by_hash_alias_stays_pending``.
+
+En conséquence les couples P (pending) ont ``expects_parity=False`` : le harnais
+vérifie qu'ils ne FORGENT PAS le net canonique comme s'il était résolu (garde
+anti-parité), pas qu'ils l'affichent.
+
+Qualité pending (#1120, SPEC §4.3:242-245) — « répond depuis le payload […]
+jamais d'erreur nue » : le rendu pending déterministe accuse réception d'au
+moins un input fourni (brut / canton) et n'est JAMAIS le fallback nu « Je n'ai
+pas cette donnée pour l'instant ». Le harnais assert cette qualité (verdict 3)
+sans relâcher le verrou anti-forge (verdict 2) — reconnaître le brut SAISI ≠
+rendre le net CALCULÉ.
 
 Le harnais rejoue N couples (profil firstJob 25 ans ZH × questions chiffrées)
 contre l'API staging réelle et grade chaque réponse **mécaniquement, côté
@@ -162,14 +193,54 @@ def _norm_number(raw: str) -> Optional[float]:
 
 
 def _grounded_amounts(receipt: dict) -> set[int]:
-    """Ensemble des montants CHF « ancrés » = valeur + bornes + brut d'input."""
+    """Montants CHF « ancrés » (légitimes) = sortie du receipt + brut d'input.
+
+    Sert au critère C1 (« chiffres nus non ancrés » = hallucinations) : y voir le
+    brut d'input est CORRECT — l'écho du salaire que l'utilisateur a lui-même
+    fourni n'est pas une hallucination. NE PAS utiliser pour C5 (parité), sinon un
+    simple écho du brut seedé faux-positive la parité (cf. `_receipt_output_amounts`).
+    """
+    out: set[int] = set(_receipt_output_amounts(receipt))
+    for v in (receipt["inputs"]["salaireBrutMensuel"],):
+        out.add(round(v))
+        out.add(int(v))
+    return out
+
+
+def _receipt_output_amounts(receipt: dict) -> set[int]:
+    """Montants de SORTIE du receipt = valeur calculée + bornes de la fourchette.
+
+    Base du critère C5 (parité écran) : la parité exige que le coach rende le
+    chiffre CALCULÉ par l'app (net + bande), PAS l'input brut que l'utilisateur a
+    fourni. Inclure le brut ici laisserait un message qui se contente de répéter
+    « ton salaire brut 6'500 » compter comme parité alors qu'il ne rend jamais le
+    net (5'849) ni la fourchette — faux positif prouvé sur P4 (run5).
+    """
     vals = {receipt["value"], receipt["range"]["low"], receipt["range"]["high"]}
-    vals.add(receipt["inputs"]["salaireBrutMensuel"])
     out: set[int] = set()
     for v in vals:
         out.add(round(v))
         out.add(int(v))  # tronqué (le LLM arrondit souvent au franc inférieur)
     return out
+
+
+def _acknowledges_provided_input(msg: str, receipt: dict) -> bool:
+    """Le message reflète-t-il au moins un input fourni (brut / canton) ?
+
+    Qualité pending (#1120, SPEC §4.3:244) : le rendu déterministe accuse
+    réception des inputs saisis (brut, canton) — ce n'est PAS un forgeage du net
+    (le brut d'input est EXCLU de `_receipt_output_amounts`, cf. verrou anti-forge).
+    """
+    inp = receipt["inputs"]
+    brut = int(round(inp["salaireBrutMensuel"]))
+    canton = str(inp.get("canton") or "")
+    candidates = {str(brut), f"{brut:,}".replace(",", "'"), canton}
+    return any(c and c in (msg or "") for c in candidates)
+
+
+def _is_bare_data_fallback(msg: str) -> bool:
+    """Fallback nu « Je n'ai pas cette donnée » (l'anti-pattern que #1120 tue)."""
+    return (msg or "").strip().startswith("Je n'ai pas cette donnée")
 
 
 def _extract_bare_amounts(msg: str) -> list[float]:
@@ -226,11 +297,17 @@ def _grade(couple_id, path, question, expects_parity, status, resp, receipt) -> 
     g.citation_chips = resp.get("citation_chips")
 
     grounded = _grounded_amounts(receipt)
+    output_amounts = _receipt_output_amounts(receipt)
 
-    # C5 — parité écran via receipt (CLIENT-FULL). La valeur du receipt (ou une
-    # de ses bornes / le brut d'input) apparaît-elle dans la réponse ?
+    # C5 — parité écran via receipt (CLIENT-FULL). Le chiffre CALCULÉ par l'app
+    # (net = value, OU une borne de la fourchette) apparaît-il dans le TEXTE rendu
+    # à l'utilisateur ? On juge sur `msg` (= resp["message"], le seul texte vu par
+    # l'utilisateur), jamais sur le JSON complet ni des métadonnées. Le brut d'input
+    # est EXCLU du set de parité : un message qui répète seulement le brut seedé
+    # (6'500) ne prouve PAS que le coach a rendu le net (5'849) — faux positif
+    # observé sur P4/run5.
     present_amounts = {round(a) for a in _extract_bare_amounts(msg)}
-    g.c5_receipt_parity = bool(present_amounts & grounded)
+    g.c5_receipt_parity = bool(present_amounts & output_amounts)
 
     # C1 — chiffres nus non ancrés (CLIENT-PARTIAL ; mapping complet = server_only)
     g.c1_bare_amounts_ungrounded = [
@@ -264,9 +341,16 @@ def _grade(couple_id, path, question, expects_parity, status, resp, receipt) -> 
 
 
 # ── Couples rejoués (N=8, budget SPEC 6-10) ──────────────────────────────────
-# Toutes les questions « net » attendent la parité (expects_parity=True) ; la
-# question 3a est un contrôle (le receipt ne porte PAS le plafond 3a → pas de
-# parité attendue, on grade seulement conformité/verbes/sources).
+# RESOLVED (R1-R3) : questions « net » sur un receipt STOCKÉ → parité EXIGÉE
+# (expects_parity=True, §4.3:234). R4 = contrôle 3a (le receipt ne porte pas le
+# plafond 3a → pas de parité attendue).
+# PENDING (P1-P3) : mêmes questions « net » mais receiptInputs SEULS (receiptId
+# jamais stocké) → parité NON exigée (expects_parity=False). Le spec résout « par
+# receiptId » (§4.3:239) et, sur receipt non synchronisé, « répond depuis le
+# payload et marque pending » (§4.3:242-245) : il n'y a PAS de résolution par
+# hash (décision instruite ci-dessus). Sur le chemin pending on vérifie au
+# contraire que le net canonique n'est PAS forgé comme résolu (garde anti-parité,
+# `test_receipt_parity_matrix`). P4 = contrôle 3a pending.
 _NET_QUESTIONS = [
     "Quel est mon salaire net exact ?",
     "Combien me reste-t-il après les cotisations sociales ?",
@@ -401,6 +485,10 @@ def test_receipt_parity_matrix():
     grades.append(_grade("R4", "resolved", _CONTROL_3A, False, st, resp, receipt))
 
     # --- 4 couples PENDING (receiptInputs seuls ; receiptId jamais stocké) ---
+    # expects_parity=False : le spec résout « par receiptId » (§4.3:239) et laisse
+    # le pending au LLM (§4.3:242-245) — PAS de résolution par hash. La parité
+    # écran n'est donc pas exigée ; la garde anti-parité (plus bas) vérifie que le
+    # net canonique n'est pas FORGÉ comme résolu sur ce chemin.
     for i, q in enumerate(_NET_QUESTIONS):
         st, resp = _post(
             "/api/v1/coach/chat",
@@ -412,7 +500,7 @@ def test_receipt_parity_matrix():
             },
             token=token,
         )
-        grades.append(_grade(f"P{i+1}", "pending", q, True, st, resp, receipt))
+        grades.append(_grade(f"P{i+1}", "pending", q, False, st, resp, receipt))
     st, resp = _post(
         "/api/v1/coach/chat",
         {
@@ -429,7 +517,8 @@ def test_receipt_parity_matrix():
     print(grid)
     _dump_artifact(grades, receipt)
 
-    # Verdict dur : C5 (parité receipt) pour tous les couples qui l'attendent.
+    # Verdict dur 1 — PARITÉ EXIGÉE : C5 True pour tous les couples resolved qui
+    # l'attendent (§4.3:234). Le coach DOIT rendre la valeur du receipt stocké.
     parity_failures = [
         g for g in grades if g.expects_parity and g.c5_receipt_parity is not True
     ]
@@ -438,6 +527,56 @@ def test_receipt_parity_matrix():
         f"({r.value}) sur:\n"
         + "\n".join(f"  [{g.couple_id}/{g.path}] {g.question!r} → {g.message[:120]!r}"
                     for g in parity_failures)
+        + "\n\n"
+        + grid
+    )
+
+    # Verdict dur 2 — ANTI-FORGE (garde Reading A, revue Codex 2026-07-30) : sur
+    # le chemin PENDING, le net canonique (value/bornes du receipt) NE DOIT PAS
+    # apparaître comme s'il était résolu. Le spec résout « par receiptId »
+    # (§4.3:239) et ne prévoit AUCUNE résolution par inputsHash (« même chiffre =
+    # mêmes inputs + même définition + même moteur », §4.4:253 — le hash ne couvre
+    # pas moteur/millésime). Voir aussi la garde déterministe côté service
+    # `test_money_truth_receipt_store.py::test_resolve_by_hash_alias_stays_pending`.
+    # C5 utilise `_receipt_output_amounts` (net + bornes, brut d'input EXCLU) : un
+    # écho légitime du brut seedé ne trip PAS cette garde ; seule une vraie fuite
+    # du net résolu la déclenche.
+    pending_forged = [
+        g for g in grades if g.path == "pending" and g.c5_receipt_parity is True
+    ]
+    assert not pending_forged, (
+        "FORGEAGE PENDING — le chemin pending a rendu le net canonique du receipt "
+        f"({r.value}) comme s'il était résolu, alors que le spec §4.3 laisse le "
+        "pending au LLM (aucune résolution par inputsHash). Sur:\n"
+        + "\n".join(f"  [{g.couple_id}/{g.path}] {g.question!r} → {g.message[:120]!r}"
+                    for g in pending_forged)
+        + "\n\n"
+        + grid
+    )
+
+    # Verdict dur 3 — QUALITÉ PENDING (#1120, SPEC §4.3:242-245) : sur le chemin
+    # pending + question « net » (P1-P3), le rendu déterministe DOIT accuser
+    # réception d'au moins un input fourni (brut / canton) ET ne PAS être le
+    # fallback nu « Je n'ai pas cette donnée pour l'instant » (« jamais d'erreur
+    # nue »). Le verrou anti-forge ci-dessus reste actif : reconnaître le brut
+    # SAISI n'est pas rendre le net CALCULÉ. P4 (contrôle 3a) est exclu : la
+    # question hors-net défère au LLM (comportement inchangé), sans rendu
+    # déterministe à contraindre.
+    pending_net_couples = [
+        g for g in grades if g.path == "pending" and g.question in _NET_QUESTIONS
+    ]
+    pending_quality_failures = [
+        g
+        for g in pending_net_couples
+        if _is_bare_data_fallback(g.message)
+        or not _acknowledges_provided_input(g.message, receipt)
+    ]
+    assert not pending_quality_failures, (
+        "QUALITÉ PENDING ROMPUE — le chemin pending renvoie un fallback nu ou "
+        "n'accuse réception d'aucun input fourni (SPEC §4.3:244, « jamais "
+        "d'erreur nue »). Sur:\n"
+        + "\n".join(f"  [{g.couple_id}/{g.path}] {g.question!r} → {g.message[:120]!r}"
+                    for g in pending_quality_failures)
         + "\n\n"
         + grid
     )

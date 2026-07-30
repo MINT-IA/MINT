@@ -6,6 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,12 +64,20 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
+    // AX pilote (ADR 2026-07-30) : l'id RACINE 'rente_vs_capital_screen' est
+    // retire (conteneur Semantics racine = effondrement de l'arbre AX sur la
+    // route poussee iOS 26.2). On prouve l'arrivee sur RvC via l'ancre INTERNE
+    // 'rvc_route_state' (proof anchor, en tete d'arbre). De meme, l'absence du
+    // coach se prouve via son id interne 'coach_input_field'.
+    E2eRuntimeFlags.proofAnchorsOverride = true;
+    addTearDown(E2eRuntimeFlags.resetForTest);
+
     await _pumpRootRouter(tester);
     testOnlyRootRouter.go('/retraite/rente-vs-capital');
     await _pumpFrames(tester);
 
-    expect(find.byKey(const Key('rente_vs_capital_screen')), findsOneWidget);
-    expect(find.byKey(const Key('coach_chat_screen')), findsNothing);
+    expect(find.byKey(const Key('rvc_route_state')), findsOneWidget);
+    expect(find.byKey(const Key('coach_input_field')), findsNothing);
     expect(find.text('Page introuvable'), findsNothing);
     expect(find.text('Encore en chantier pour ton profil'), findsNothing);
   });

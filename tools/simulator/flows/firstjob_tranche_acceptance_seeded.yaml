@@ -81,11 +81,10 @@ tags:
 # ═══════════════════════════════════════════════════════════════════════
 # 2. /first-job — premier chiffre + appareil de lucidite
 # ═══════════════════════════════════════════════════════════════════════
-- extendedWaitUntil:
-    visible:
-      id: "first_job_screen"
-    timeout: 15000
-# 2a. Premier chiffre (ancre temps/taps du seuil go/no-go).
+# 2a. Premier chiffre (ancre temps/taps du seuil go/no-go). Sert AUSSI d'ancre
+#     d'arrivee ecran depuis le pilote AX (ADR 2026-07-30) : l'id racine
+#     first_job_screen est retire (il effondrait l'arbre AX sur iOS 26.2), on
+#     gate sur cet id INTERNE toujours present en etat resultat.
 - extendedWaitUntil:
     visible:
       id: "firstjob-premier-eclairage-value"
@@ -121,5 +120,5 @@ tags:
     id: "firstjob-ask-coach"
 - extendedWaitUntil:
     visible:
-      id: "coach_chat_screen"
+      id: "coach_input_field"
     timeout: 20000

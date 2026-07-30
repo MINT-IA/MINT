@@ -35,7 +35,7 @@ tags:
 - openLink: "mintapp:///coach/chat"
 - extendedWaitUntil:
     visible:
-      id: "coach_chat_screen"
+      id: "coach_input_field"
     timeout: 12000
 - assertNotVisible:
     text: "37'600"

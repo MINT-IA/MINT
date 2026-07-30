@@ -115,6 +115,24 @@ void main() {
         reason: 'le disclosure « pourquoi ce chiffre » est présent');
   });
 
+  // ── AX pilote (ADR 2026-07-30) : plus de Semantics RACINE ──────────────
+  // Le conteneur racine 'first_job_screen' effondrait l'arbre AX de la route
+  // poussée sur iOS 26.2 (double frontière avec ModalRoute.scopesRoute). Il
+  // est retiré ; les flows/tests gatent sur les ids INTERNES. Verrou : l'id
+  // racine a disparu ET l'ancre interne d'arrivée survit dans l'arbre Dart.
+  testWidgets(
+      'pilote AX : id racine first_job_screen retiré, ancre interne présente',
+      (tester) async {
+    await _pump(tester, _FakeProvider(_profile()));
+
+    expect(_byId('first_job_screen'), findsNothing,
+        reason: 'le conteneur Semantics racine first_job_screen doit être '
+            'retiré (fix effondrement AX iOS 26.2, ADR 2026-07-30)');
+    expect(_byId('firstjob-premier-eclairage-value'), findsOneWidget,
+        reason: 'l\'ancre INTERNE d\'arrivée (consommée par le flow '
+            'd\'acceptation re-gaté) doit survivre dans l\'arbre sémantique');
+  });
+
   // ── A3 : la bande correspond au range du receipt ──
   testWidgets('la bande d\'incertitude affiche le range du receipt (low/high)',
       (tester) async {

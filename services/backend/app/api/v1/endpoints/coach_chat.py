@@ -3791,6 +3791,125 @@ def _receipt_deterministic_loop_result(
     }
 
 
+# ---------------------------------------------------------------------------
+# firstJob P0 #1120 — rendu PENDING déterministe (résidu documenté par #1120).
+# ---------------------------------------------------------------------------
+# La boucle de parité #1114→#1120 a fermé le chemin RESOLVED (raccourci #1118)
+# mais a laissé un data gap (audit `parite-coach-receipt-2026-07-30.md`,
+# §Reading A) : sur le chemin PENDING (receiptInputs présents, receipt jamais
+# synchronisé) + question « net », le narrateur LLM retombe sur le fallback
+# quasi-nu « Je n'ai pas cette donnée pour l'instant » — violation douce de la
+# SPEC §4.3:242-245 (« répond depuis le payload et marque le receipt pending —
+# jamais d'erreur nue, jamais de recalcul »). Même cause racine que #1118
+# (lost-in-the-middle sur le handoff /first-job profil vide) → même remède : un
+# rendu DÉTERMINISTE, sans LLM. On reflète les inputs VALIDÉS (allowlist #1116)
+# et on nomme où voir le net, sans JAMAIS forger de valeur (décision Reading A :
+# le serveur ne fabrique jamais un net depuis des inputs client).
+
+
+def _receipt_pending_deterministic_loop_result(
+    receipt_ctx: "Optional[dict]",
+    user_message: "Optional[str]",
+) -> "Optional[dict]":
+    """Réponse déterministe pour un receipt PENDING + question « net » (#1120).
+
+    Déclenchée quand : le tour porte un receipt au status ``pending`` (inputs
+    fournis, valeur non encore synchronisée) ET l'utilisateur demande son net
+    (même détecteur à frontières de mots ``_message_is_net_salary_query`` que le
+    raccourci resolved). Le texte :
+
+      1. accuse réception des inputs VALIDÉS seulement — réutilise l'allowlist
+         #1116 ``_render_pending_input_lines`` (→ ``validated_pending_numeric``,
+         canton 2 lettres, etatCivil enum) : JAMAIS d'input client brut
+         interpolé (surface d'injection / DoS) ;
+      2. dit que le net exact n'est pas encore synchronisé et où le voir (écran
+         Premier éclairage) / réessayer ;
+      3. NE FORGE AUCUNE valeur nette (décision Reading A) — seuls les inputs
+         déjà saisis par l'utilisateur sont reflétés ;
+      4. reste conforme LSFin (scan fail-closed comme #1118, verbes lucides).
+
+    Retourne None sinon (resolved / not_found / pas de receipt / pending sans
+    input conforme / question hors-net) → chemin coach classique inchangé.
+
+    Cohérence gate (revue Codex) : les seuls nombres à unité rendus proviennent
+    du MÊME renderer allowlist (``_render_pending_input_lines``) dont
+    ``_receipt_grounded_numbers`` dérive l'exemption via
+    ``extract_gated_number_tokens`` — tout nombre CHF/%/durée du texte est donc
+    exempté, aucun net fabriqué ne peut s'y glisser.
+
+    Le chemin déterministe ne passe PAS par ComplianceGuard : on scanne le texte
+    final (défense en profondeur) et, scanner indispo, on défère au LLM
+    (fail-closed) plutôt que d'émettre un texte non scanné.
+    """
+    if not isinstance(receipt_ctx, dict):
+        return None
+    if receipt_ctx.get("status") != "pending":
+        return None
+    if not _message_is_net_salary_query(user_message):
+        return None
+    inputs = receipt_ctx.get("inputs")
+    if not isinstance(inputs, dict) or not inputs:
+        return None
+
+    # Réutilisation de l'allowlist #1116 : mêmes lignes bornées/validées que le
+    # bloc de grounding, donc mêmes nombres que l'exemption du gate.
+    from app.services.coach.claude_coach_service import _render_pending_input_lines
+
+    input_lines = _render_pending_input_lines(inputs)
+    if not input_lines:
+        # Aucun input conforme (fail-closed) -> on défère au LLM.
+        return None
+
+    ack_block = "J'ai bien noté les données que tu m'as transmises :\n" + "\n".join(
+        input_lines
+    )
+    answer = "\n\n".join(
+        [
+            ack_block,
+            "En revanche, le calcul de ton salaire net exact n'est pas encore "
+            "synchronisé de mon côté — je préfère ne pas avancer une estimation "
+            "que je n'ai pas pu vérifier.",
+            "Tu peux retrouver ce net sur l'écran Premier éclairage, ou me "
+            "reposer la question dans un moment : je reprendrai alors le chiffre "
+            "que l'app a calculé, tel quel.",
+        ]
+    )
+
+    # Fail-closed LSFin (#1118) : canton/etatCivil passent déjà par une allowlist,
+    # mais on scanne le texte final par défense en profondeur ; scanner indispo
+    # -> on NE rend PAS de texte non scanné (repli LLM, jamais un 500 / DoS).
+    try:
+        from app.services.encryption.banned_terms_runtime import (
+            _scan_text as _scan_banned_terms,
+        )
+
+        banned_hit = _scan_banned_terms(answer)
+    except Exception:  # noqa: BLE001 — scanner indispo -> fail-closed vers LLM
+        logger.warning(
+            "MoneyTruthReceipt pending déterministe : scan LSFin indisponible — "
+            "repli sur le chemin coach LLM (fail-closed).",
+            exc_info=True,
+        )
+        return None
+
+    if banned_hit is not None:
+        return None
+
+    from app.services.coach.compliance_guard import ComplianceGuard
+
+    return {
+        "answer": answer,
+        "tool_calls": [],
+        "citation_chips": None,
+        # Rien n'a été résolu/calculé côté serveur : aucune source à citer.
+        "sources": [],
+        "disclaimers": [ComplianceGuard.STANDARD_DISCLAIMER],
+        "tokens_used": 0,
+        "degraded": False,
+        "model_used": "deterministic-money-truth-receipt-pending",
+    }
+
+
 def _fmt_pct(value) -> str:
     """Format a ratio (0-1) or percentage (0-100) as %."""
     if value is None:
@@ -5940,6 +6059,16 @@ async def coach_chat(
         _resolved_receipt, body.message
     )
 
+    # firstJob P0 #1120 — rendu PENDING déterministe. Quand le tour porte un
+    # receipt PENDING (inputs fournis, net non synchronisé) et une question
+    # « net », on accuse réception des inputs validés et on nomme où voir le net
+    # — sans forger de valeur (SPEC §4.3:244, décision Reading A). Le narrateur
+    # LLM retombait sinon sur le fallback nu « Je n'ai pas cette donnée » (même
+    # lost-in-the-middle que #1118). Absent -> None -> chemin inchangé.
+    receipt_pending_deterministic_result = _receipt_pending_deterministic_loop_result(
+        _resolved_receipt, body.message
+    )
+
     # ------------------------------------------------------------------
     # Step 4: Agent loop — tool_use -> execute -> re-call LLM
     # Internal tools (retrieve_memories) are executed and their results
@@ -6393,6 +6522,12 @@ async def coach_chat(
             (str(_user.id)[:8] + "...") if _user else "anonymous",
         )
         loop_result = receipt_deterministic_result
+    elif receipt_pending_deterministic_result is not None:
+        logger.info(
+            "coach_chat deterministic money-truth-receipt PENDING shortcut user=%s",
+            (str(_user.id)[:8] + "...") if _user else "anonymous",
+        )
+        loop_result = receipt_pending_deterministic_result
     elif deterministic_loop_result is not None:
         logger.info(
             "coach_chat deterministic reasoning shortcut fact=%s user=%s",
@@ -6433,7 +6568,11 @@ async def coach_chat(
                 detail="LLM API call failed. Please verify your API key and try again.",
             )
 
-    if not deterministic_reasoning_used and receipt_deterministic_result is None:
+    if (
+        not deterministic_reasoning_used
+        and receipt_deterministic_result is None
+        and receipt_pending_deterministic_result is None
+    ):
         loop_result = _recover_rente_capital_fallback(loop_result, reasoning_output)
 
     # ------------------------------------------------------------------

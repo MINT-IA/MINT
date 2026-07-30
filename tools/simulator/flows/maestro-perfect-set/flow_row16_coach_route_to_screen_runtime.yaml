@@ -37,7 +37,7 @@ tags:
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "coach_chat_screen"
+      id: "coach_input_field"
     timeout: 12000
 - extendedWaitUntil:
     visible:
@@ -60,9 +60,12 @@ tags:
 - takeScreenshot: "01-row16-coach-route-suggestion"
 
 - tapOn: "Ouvrir"
+# Pilote AX (ADR 2026-07-30) : id racine rente_vs_capital_screen retire. Ce
+# flow n'active pas MINT_E2E_PROOF_ANCHORS (pas de rvc_route_state), on gate
+# donc sur le titre AppBar (present au repos ; motif ILLOG02 d'origine).
 - extendedWaitUntil:
     visible:
-      id: "rente_vs_capital_screen"
+      text: "Rente ou capital"
     timeout: 12000
 - assertNotVisible: "Page introuvable"
 - assertNotVisible: "NoSuchMethodError"
