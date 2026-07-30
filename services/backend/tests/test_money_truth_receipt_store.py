@@ -281,6 +281,69 @@ def test_resolve_expired_receipt_returns_not_found():
         db.close()
 
 
+# ── Garde Reading A : PAS de résolution par hash alias (revue Codex 2026-07-30) ─
+
+
+def test_resolve_by_hash_alias_stays_pending():
+    """VERROU DÉCISION (SPEC §4.3:239 « résolution par receiptId » ; §4.4:253
+    « même chiffre = mêmes inputs + même définition + même moteur »).
+
+    Un receipt EST stocké pour ce propriétaire avec l'inputs_hash H. Une seconde
+    requête arrive avec un receiptId JAMAIS stocké mais le MÊME inputs_hash H et
+    les MÊMES inputs (donc compute_inputs_hash(receipt_inputs) == H). Le serveur
+    NE DOIT PAS résoudre le receipt stocké « par alias de hash » : inputs_hash ne
+    couvre que {salaireBrutMensuel, age, canton, tauxActivite, etatCivil}, PAS
+    claimId/engine/engineVersion/taxYear/rounding. Deux receiptIds partageant un
+    hash peuvent porter des valeurs distinctes (moteur/millésime différent) —
+    résoudre par hash rendrait une valeur que l'utilisateur n'a jamais vue.
+
+    Comportement attendu : ``pending`` (jamais ``resolved``, jamais la valeur),
+    inputs échoés. Ce test échouerait si quelqu'un ajoutait une résolution par
+    inputsHash sans amender le spec + durcir l'authenticité du store.
+    """
+    db = _db()
+    try:
+        r = _make_receipt(receipt_id="rcpt-stored-abc", value=6104.92)
+        store_receipt(db, receipt=r, user=_User("user-a"))
+
+        same_inputs = {
+            "salaireBrutMensuel": 6788.0,
+            "age": 30,
+            "canton": "ZH",
+            "tauxActivite": 100.0,
+            "etatCivil": "celibataire",
+        }
+        # Sanity : ces inputs canonicalisent bien vers l'inputs_hash du receipt stocké.
+        assert compute_inputs_hash(same_inputs) == r.inputs_hash
+
+        res = resolve_receipt(
+            db,
+            receipt_id="rcpt-never-stored-xyz",  # receiptId jamais stocké
+            inputs_hash=r.inputs_hash,  # MÊME hash que le receipt stocké
+            receipt_inputs=same_inputs,  # MÊMES inputs (recompute == H)
+            user=_User("user-a"),  # MÊME propriétaire
+        )
+        assert res.status == ReceiptResolveStatus.PENDING
+        assert res.receipt is None  # JAMAIS la valeur du receipt stocké
+        assert res.inputs == same_inputs
+
+        # Idem au niveau du contexte coach : pending, aucune valeur exposée.
+        ctx = resolve_receipt_context(
+            db,
+            _User("user-a"),
+            _Body(
+                receipt_id="rcpt-never-stored-xyz",
+                inputs_hash=r.inputs_hash,
+                receipt_inputs=same_inputs,
+            ),
+        )
+        assert ctx is not None
+        assert ctx["status"] == "pending"
+        assert "value" not in ctx  # le raccourci déterministe #1118 ne s'arme pas
+    finally:
+        db.close()
+
+
 # ── Coach wiring : resolve_receipt_context ──────────────────────────────────
 
 
