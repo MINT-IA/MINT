@@ -3743,11 +3743,26 @@ def _receipt_deterministic_loop_result(
     # ComplianceGuard. Un champ libre du receipt (label de source) pourrait faire
     # fuir un terme banni LSFin — on scanne le texte final et, au moindre hit, on
     # défère au LLM (fail-safe) plutôt que d'émettre un texte non conforme.
-    from app.services.encryption.banned_terms_runtime import (
-        _scan_text as _scan_banned_terms,
-    )
+    #
+    # Fail-closed (#1118) : si le scanner LSFin est indisponible (crash d'import
+    # au layout conteneur, regex, etc.), on NE rend PAS le texte déterministe non
+    # scanné — on défère au chemin LLM normal (qui, lui, passe par ComplianceGuard).
+    # Un crash du scanner ne doit jamais devenir un déni de service de /coach/chat.
+    try:
+        from app.services.encryption.banned_terms_runtime import (
+            _scan_text as _scan_banned_terms,
+        )
 
-    if _scan_banned_terms(answer) is not None:
+        banned_hit = _scan_banned_terms(answer)
+    except Exception:  # noqa: BLE001 — scanner indispo -> fail-closed vers LLM
+        logger.warning(
+            "MoneyTruthReceipt déterministe : scan LSFin indisponible — repli "
+            "sur le chemin coach LLM (fail-closed).",
+            exc_info=True,
+        )
+        return None
+
+    if banned_hit is not None:
         return None
 
     from app.services.coach.compliance_guard import ComplianceGuard

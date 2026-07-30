@@ -50,6 +50,7 @@ GUARDRAIL_FILES = {
     "vision_guard.py",                 # LLM-as-judge prompt: literally lists banned terms
     "anonymous_chat.py",               # anon discovery prompt: « Termes interdits : garanti... »
     "runtime_verb_gate.py",            # Plan 18 D-CE-16(c) inlined banned-term vocab (2026-05-17)
+    "banned_terms_runtime.py",         # #1118 belt-2 inlined banned-term vocab (container fallback)
     # Dart
     "compliance_guard.dart",
     "coach_checkin_screen.dart",
