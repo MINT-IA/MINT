@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/family_service.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 /// Unit tests for FamilyService — Sprint S22 (Mariage + Naissance + Concubinage)
 ///
@@ -112,7 +113,8 @@ void main() {
         canton: 'XX',
       );
 
-      // Should not throw, uses fallback rate 0.13
+      // Should not throw : estimateIncomeTaxV2 retombe sur la moyenne des 26
+      // cantons pour un canton inconnu (plus de « taux fallback 0.13 »).
       expect(result['totalCelibataires'], isA<double>());
       expect(result['totalMarie'], isA<double>());
       expect(result['cantonNom'], 'XX');
@@ -132,6 +134,50 @@ void main() {
           1 * FamilyService.deductionParEnfant;
 
       expect(result['totalDeductions'], expectedTotal);
+    });
+
+    test('délègue à l\'étalon ESTV canonique (estimateIncomeTaxV2) — plus de '
+        'modèle de taux parallèle (drain #1062)', () {
+      // famille_bern (seed e2e #1135) : 114k + 78k, BE, 1 enfant. L'ancien
+      // modèle (taux effectif plat _effectiveRates100kSingle × ajustement quasi
+      // quadratique × facteur marié 0.92) annonçait une PÉNALITÉ (+404 CHF) là
+      // où l'étalon ESTV donne un BONUS (part cantonale BE sous-estimée ~41 %).
+      // Ce test pin la DÉLÉGATION (identité avec estimateIncomeTaxV2), pas un
+      // montant « vérité terrain » contestable.
+      const canton = 'BE';
+      final result = FamilyService.compareFiscalMariage(
+        revenu1: 114000,
+        revenu2: 78000,
+        canton: canton,
+        nbEnfants: 1,
+      );
+
+      const impSingle1 = 114000 - FamilyService.deductionAssuranceCelibataire;
+      const impSingle2 = 78000 - FamilyService.deductionAssuranceCelibataire;
+      const dedMarie = FamilyService.deductionMarie +
+          FamilyService.deductionAssuranceMarie +
+          1 * FamilyService.deductionParEnfant +
+          FamilyService.deductionDoubleRevenu;
+      const impMarie = 114000 + 78000 - dedMarie;
+
+      expect(result['taxSingle1'] as double,
+          closeTo(estimateIncomeTaxV2(impSingle1, canton), 0.01));
+      expect(result['taxSingle2'] as double,
+          closeTo(estimateIncomeTaxV2(impSingle2, canton), 0.01));
+      expect(
+          result['totalMarie'] as double,
+          closeTo(
+              estimateIncomeTaxV2(impMarie, canton, isMarried: true), 0.01));
+
+      // Le SENS suit l'étalon (dérivé), PAS un signe figé : si les points ESTV
+      // sont recalibrés et que famille_bern bascule, les deux côtés basculent
+      // ensemble — pas de faux blocage d'une correction future (challenge Codex
+      // 2026-07-30). L'ancien modèle plat fabriquait une pénalité +404 CHF ici.
+      final canonMarie = estimateIncomeTaxV2(impMarie, canton, isMarried: true);
+      final canonCel = estimateIncomeTaxV2(impSingle1, canton) +
+          estimateIncomeTaxV2(impSingle2, canton);
+      expect(result['isPenalite'], canonMarie > canonCel,
+          reason: 'le signe du comparateur suit l\'étalon ESTV');
     });
   });
 
@@ -520,7 +566,8 @@ void main() {
     });
 
     test('LPP survivor factor matches constants', () {
-      // LPP survivor rente: 60% of insured rente (LPP art. 19)
+      // LPP survivor rente: 60% — le taux est LPP art. 21 al. 1 (montant) ;
+      // art. 19 régit les conditions d'octroi, pas le taux.
       expect(FamilyService.lppSurvivorFactor, 0.60);
     });
 

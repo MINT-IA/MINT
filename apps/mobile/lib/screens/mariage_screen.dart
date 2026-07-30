@@ -1251,8 +1251,12 @@ class _MariageScreenState extends State<MariageScreen>
 
   /// Sortie « rente de survivant » — rendue seulement via le render-gate
   /// (`protectionReady`). La figure affichée est fondée sur la SEULE donnée
-  /// confirmée : la rente LPP de survivant (60 % de la rente LPP du défunt, LPP
-  /// art. 19). La rente AVS de survivant n'est PAS chiffrée — son montant dépend
+  /// confirmée : la rente LPP de survivant (60 % de la rente LPP du défunt —
+  /// le taux 60 % est LPP art. 21 al. 1 ; les conditions d'octroi sont art. 19,
+  /// cf. le footnote). Base = rente LPP courante (avoir actuel converti), une
+  /// approximation CONSERVATRICE de la base légale (rente d'invalidité projetée,
+  /// LPP art. 21) — le montant réel serait plus élevé pour un assuré jeune. La
+  /// rente AVS de survivant n'est PAS chiffrée — son montant dépend
   /// de la carrière de cotisation (non confirmée) ; l'afficher au maximum légal
   /// serait un chiffre personnel fabriqué. Elle est énoncée qualitativement
   /// (aucun CHF, LAVS art. 23), à l'image de concubinage_screen.
