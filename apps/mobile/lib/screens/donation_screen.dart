@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:provider/provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
@@ -437,7 +438,24 @@ class _DonationScreenState extends State<DonationScreen> {
       child: Scaffold(
         backgroundColor: MintColors.background,
         appBar: AppBar(
-          title: Text(S.of(context)!.donationAppBarTitle),
+          // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+          // pop, sinon go('/home')) remplaçant le back par défaut, non-poppable
+          // sur entrée deeplink. Smoke Tier B (lot B3).
+          leading: Semantics(
+            identifier: 'donation-back',
+            button: true,
+            label: MaterialLocalizations.of(context).backButtonTooltip,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => safePop(context),
+            ),
+          ),
+          // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+          // AppBar — motif profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+          title: Semantics(
+            identifier: 'donation-anchor',
+            child: Text(S.of(context)!.donationAppBarTitle),
+          ),
         ),
         body: SingleChildScrollView(
           controller: _scrollController,
@@ -511,7 +529,15 @@ class _DonationScreenState extends State<DonationScreen> {
   /// confirmed and a result exists; otherwise the gate card.
   Widget _buildTaxSlot() {
     if (_result != null && _taxGate(context).complete) {
-      return _buildTaxCard();
+      // Ancre régionale Tier B smoke (C2 « chiffré ») posée UNIQUEMENT sur la
+      // branche chiffrée (verdict fiscal + montant CHF) — jamais sur la
+      // SituationGateCard → l'ancre visible ⟺ gate ouvert. Le gate fiscal
+      // s'ouvre seed-alone (canton du profil), motif profond, jamais le wrapper
+      // racine (leçon ADR AX iOS 26.2).
+      return Semantics(
+        identifier: 'donation-result',
+        child: _buildTaxCard(),
+      );
     }
     return SituationGateCard(
       title: S.of(context)!.donationGateTitle,
@@ -899,6 +925,10 @@ class _DonationScreenState extends State<DonationScreen> {
             union.total,
           );
     return Semantics(
+      // Ancre Tier B smoke (C2) : id déterministe du bouton — évite le
+      // full-match texte de Maestro (le label morphe « Calculer » ⇄
+      // « Compléter ma situation (N/total) »). Déclenche le calcul chiffré.
+      identifier: 'donation-simulate',
       label: label,
       button: true,
       child: SizedBox(

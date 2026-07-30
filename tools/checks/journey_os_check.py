@@ -823,6 +823,18 @@ ALLOW = {
     # Preuve d'ancres C1/C2/C4 (Semantics identifier <event>-anchor/-result/-back)
     # des 3 ecrans Travail sous seed julien_swiss.
     "apps/mobile/test/screens/tierb_travail_anchors_test.dart",
+    # Tier B smoke lot B3 Logement & Patrimoine (julien_swiss) : flows seedes
+    # housingPurchase / inheritance / housingSale / donation. hypotheque +
+    # succession chiffrent au repos ; housing-sale + donation apres « Calculer »
+    # (donation gate fiscal ouvert seed-alone via le canton du profil).
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_hypotheque.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_succession.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_housing_sale.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_donation.yaml",
+    # Ancre C1/C2/C4 : ecran succession (les 3 autres ecrans B3 sont deja dans ALLOW).
+    "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart",
+    # Preuve d'ancres C1/C2/C4 des 4 ecrans Patrimoine sous seed julien_swiss.
+    "apps/mobile/test/screens/tierb_logement_anchors_test.dart",
     # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
     "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",
