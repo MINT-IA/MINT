@@ -764,11 +764,13 @@ ALLOW = {
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
-    # Tranche firstJob : flow d'acceptation RED (skip locator-audit, hors sweep)
-    "tools/simulator/flows/firstjob_tranche_acceptance_red.yaml",
-    # Tranche firstJob : variante SEEDED (diagnostic PR-I) — atterrit /home via
-    # seed archetype, hors sweep vert (bloquée par l'effondrement AX iOS 26.2).
-    "tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml",
+    # Tranche firstJob : flow d'acceptation CORE (promu _red->CORE, ADR AX iOS
+    # 26.2 Etape 2, 2026-07-30) — seed jeune_diplome_zurich, tier sweep dedie.
+    # Debloque par la migration SliverAppBar->AppBar (arbre AX stable au scroll),
+    # VERT bout en bout (maestro hierarchy iPhone 16e/26.2 cite).
+    "tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml",
+    # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
+    "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",
     "tools/claude_review.py",
     "tools/claude_review.sh",
@@ -990,6 +992,13 @@ DELETION_ALLOW = {
     "apps/mobile/lib/services/simulators/lpp_buyback_advanced_simulator.dart",
     "apps/mobile/test/simulators/lpp_buyback_advanced_simulator_test.dart",
     "apps/mobile/test/services/coach/chat_drawer_summon_test.dart",
+    # Tranche firstJob (ADR AX iOS 26.2 Etape 2, 2026-07-30) : promotion
+    # _red->CORE. La variante REELLE _red.yaml est INJOUABLE (testIDs onb-*
+    # absents, cablage hors-tranche SPEC §3.1) -> retiree. La variante SEEDED
+    # est deplacee vers maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml
+    # (promue CORE, VERT bout en bout cite).
+    "tools/simulator/flows/firstjob_tranche_acceptance_red.yaml",
+    "tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml",
 }
 IGNORED_GENERATED_PREFIXES = (
     "services/backend/mint_backend.egg-info/",

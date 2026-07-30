@@ -510,12 +510,12 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       // INTERNES du premier chiffre (firstjob-net-value), plus aucun id racine.
       child: Scaffold(
           backgroundColor: MintColors.background,
+          appBar: _buildAppBar(context),
           body: Center(
               child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: CustomScrollView(
                     slivers: [
-                      _buildAppBar(context),
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(
                             MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
@@ -750,9 +750,16 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   // ── App Bar (white standard per DESIGN_SYSTEM §4.5) ──────
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
+  // AX iOS 26.2 (ADR 2026-07-30, Étape 2) : AppBar classique en
+  // Scaffold.appBar, plus de SliverAppBar dans le CustomScrollView. Le
+  // SliverAppBar (changement de forme de l'arbre sémantique au scroll)
+  // ré-effondre l'arbre AX des routes poussées sur iOS 26.2 ; l'AppBar fixe
+  // garde un arbre riche et stable au scroll (cf. project_ios26_ax_tree_collapse,
+  // diagnostic Build8). Rendu inchangé : l'ancien SliverAppBar n'avait ni
+  // expandedHeight ni flexibleSpace (aucun grand titre repliable),
+  // centerTitle:false vient de l'AppBarTheme, scrolledUnderElevation préservé.
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
       backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0.5,
