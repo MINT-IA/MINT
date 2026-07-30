@@ -133,6 +133,15 @@ class CoachProfileSeed {
   /// seeds are unmodified.
   final String? nationality;
 
+  /// Residence permit (wizard option value or canonical code), forwarded to
+  /// `q_residence_permit` and normalized by [normalizeResidencePermit].
+  ///
+  /// The `'permit_g'` / `'G'` value is the sole positive signal that resolves
+  /// [CoachProfile.archetype] to [FinancialArchetype.crossBorder] (the
+  /// frontalier persona). Optional with default `null` so seeds created before
+  /// the `frontalier_geneve` addition are unmodified.
+  final String? residencePermit;
+
   const CoachProfileSeed({
     required this.slug,
     required this.firstName,
@@ -164,6 +173,7 @@ class CoachProfileSeed {
     this.lppSource,
     this.usTaxPerson,
     this.nationality,
+    this.residencePermit,
   });
 
   /// Build a [CoachContext] hydrated from this seed.
@@ -263,6 +273,7 @@ class CoachProfileSeed {
       'q_has_consumer_debt': false,
       'q_nationality':
           nationality ?? (archetype == 'swiss_native' ? 'CH' : null),
+      if (residencePermit != null) 'q_residence_permit': residencePermit,
       if (usTaxPerson != null) 'q_us_tax_person': usTaxPerson,
     };
   }
@@ -398,6 +409,60 @@ class CoachProfileSeeds {
       threeAAccountsCount: 1,
       nationality: 'CH',
     ),
+    // Tier B smoke — cross_border / frontalier persona (Lot B5). Closes the
+    // BLOCKING gap flagged by the Tier B cadrage
+    // (.planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md §4.1):
+    // byArchetype('cross_border') was null → a build seeded frontalier booted a
+    // navigable guest shell WITHOUT a profile → smoke C2 (non-empty + chiffré)
+    // failed. NEVER #7 forbids treating frontalier as an edge case.
+    //
+    // Métier — résident France, emploi Genève, permis G (frontalier), imposé à
+    // la source. Célibataire sans charge de famille ⇒ barème A0 (le barème C
+    // vise les couples mariés à deux revenus, pas une personne seule).
+    // `residencePermit: 'permit_g'` is the sole positive signal resolving
+    // CoachProfile.archetype to FinancialArchetype.crossBorder
+    // (models/coach_profile.dart:2024).
+    // Non quasi-résident PAR DÉFAUT : cotiser au 3a reste possible, mais sans le
+    // statut de quasi-résident genevois (>90 % du revenu mondial de source
+    // suisse, ouvrant la taxation ordinaire ultérieure) la cotisation n'ouvre
+    // AUCUNE déduction fiscale — le barème à la source intègre déjà un forfait.
+    // Un frontalier non quasi-résident ne cotise donc typiquement pas au 3a →
+    // annual3aContribution: 0 volontairement. La solidarité AC est abolie
+    // (#1115) — rien à seeder pour elle. LPP suisse présente (le frontalier
+    // cotise au 2e pilier suisse). kReleaseMode-guarded via forcedArchetypeSlug
+    // (no production leak).
+    'frontalier_geneve': CoachProfileSeed(
+      slug: 'frontalier_geneve',
+      firstName: 'Nicolas',
+      age: 41,
+      canton: 'GE',
+      archetype: 'cross_border',
+      grossMonthlySalary: 6800,
+      employmentStatus: 'employed',
+      netMonthlyIncome: 5800,
+      hasPensionFund: true,
+      annual3aContribution: 0,
+      threeAAccountsCount: 0,
+      civilStatus: 'single',
+      housingStatus: 'renter',
+      housingCostMonthly: 1350,
+      lamalPremiumMonthly: 380,
+      // Impôt à la source GE barème A0 2026 (célibataire) ≈ 11,3 % de 6'800
+      // brut (source ge.ch/document/41802) ≈ 770 CHF/mois.
+      taxProvisionMonthly: 770,
+      otherFixedCostsMonthly: 700,
+      savingsMonthly: 800,
+      cashTotal: 24000,
+      investmentsTotal: 18000,
+      lppBalanceTotal: 82000,
+      lppMandatoryBalance: 68000,
+      lppSupplementaryBalance: 14000,
+      lppInsuredSalary: 55000,
+      lppBuybackMax: 28000,
+      lppSource: 'document_scan',
+      nationality: 'FR',
+      residencePermit: 'permit_g',
+    ),
   };
 
   /// Return the seed slug forced via `MINT_E2E_ARCHETYPE`, or null when:
@@ -455,6 +520,11 @@ class CoachProfileSeeds {
         return registry['julien_swiss'];
       case 'independent_no_lpp':
         return registry['independent_no_lpp_income_reality'];
+      case 'cross_border':
+        // Tier B smoke Lot B5 — frontalier persona. Without this arm the smoke
+        // build (--dart-define=MINT_E2E_ARCHETYPE=cross_border) resolved to
+        // null → no profile → C2 (non-empty + chiffré) failed. NEVER #7.
+        return registry['frontalier_geneve'];
       // Add other slug → seed mappings here as new seeds are added in
       // future sub-phases. Do NOT add a default arm — unknown slug = null.
       default:
