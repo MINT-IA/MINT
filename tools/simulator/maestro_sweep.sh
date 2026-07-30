@@ -22,6 +22,9 @@
 #           fatca      — FATCA 3a gate, requires an expat_us seeded build
 #           firstjob   — tranche firstJob acceptance, requires a
 #                        jeune_diplome_zurich seeded build (+ PROOF_ANCHORS)
+#           tierb-famille — Tier B smoke lot B1 (mariage/naissance/divorce/
+#                        concubinage), requires a julien_swiss seeded build
+#                        (+ PROOF_ANCHORS). Voir 00-CADRAGE Tier B smoke.
 #           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
 #                        crashes SafariViewService on long-booted sims —
 #                        per memory `feedback_sim_crash_mitigation`)
@@ -119,6 +122,16 @@ FLOWS_FATCA=(
 FLOWS_FIRSTJOB=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml"
 )
+# Tier B smoke — lot B1 Famille (cadrage mint-utilisable-tier-b-smoke).
+# Tier SEEDÉ dédié : exige un build julien_swiss + PROOF_ANCHORS (cf. en-tête
+# de chaque flow) — comme FATCA / firstJob, un app installé normal ne peut pas
+# le servir, donc hors des tiers auto (default / all).
+FLOWS_TIERB_FAMILLE=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_mariage.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_naissance.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_divorce.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_concubinage.yaml"
+)
 FLOWS_PERSONAS=(
   "$REPO_ROOT/tools/simulator/flows/julien_swiss.yaml"
   "$REPO_ROOT/tools/simulator/flows/lauren_expat_us.yaml"
@@ -129,11 +142,12 @@ case "$TIER" in
   perfect)    FLOWS=("${FLOWS_PERFECT[@]}") ;;
   fatca)      FLOWS=("${FLOWS_FATCA[@]}") ;;
   firstjob)   FLOWS=("${FLOWS_FIRSTJOB[@]}") ;;
+  tierb-famille) FLOWS=("${FLOWS_TIERB_FAMILLE[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
   all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
   default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | personas | deeplink | all | default)" >&2; exit 1 ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
 # ── Reboot the booted sim before any flow runs ────────────────────────

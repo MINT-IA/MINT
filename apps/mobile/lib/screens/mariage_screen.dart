@@ -545,16 +545,27 @@ class _MariageScreenState extends State<MariageScreen>
       backgroundColor: MintColors.porcelaine,
       elevation: 0,
       surfaceTintColor: MintColors.porcelaine,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => safePop(context),
+      // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+      // pop, sinon go('/home')). Locator sémantique pour le smoke Tier B.
+      leading: Semantics(
+        identifier: 'mariage-back',
+        button: true,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => safePop(context),
+        ),
       ),
       flexibleSpace: FlexibleSpaceBar(
         titlePadding:
             const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
-        title: Text(
-          S.of(context)!.mariageTitle,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'mariage-anchor',
+          child: Text(
+            S.of(context)!.mariageTitle,
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+          ),
         ),
       ),
       bottom: TabBar(

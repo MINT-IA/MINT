@@ -3,6 +3,7 @@ import 'package:flutter/semantics.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -408,9 +409,25 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           backgroundColor: MintColors.porcelaine,
           surfaceTintColor: MintColors.porcelaine,
           foregroundColor: MintColors.textPrimary,
-          title: Text(
-            S.of(context)!.divorceAppBarTitle,
-            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+          // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+          // pop, sinon go('/home')) remplaçant le back AppBar par défaut non
+          // ciblable. Locator sémantique pour le smoke Tier B.
+          leading: Semantics(
+            identifier: 'divorce-back',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+              onPressed: () => safePop(context),
+            ),
+          ),
+          // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+          // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
+          title: Semantics(
+            identifier: 'divorce-anchor',
+            child: Text(
+              S.of(context)!.divorceAppBarTitle,
+              style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+            ),
           ),
         ),
         body: SingleChildScrollView(
