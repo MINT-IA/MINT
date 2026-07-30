@@ -87,13 +87,24 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
         backgroundColor: MintColors.porcelaine,
         surfaceTintColor: MintColors.porcelaine,
         foregroundColor: MintColors.textPrimary,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => safePop(context),
+        // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+        // pop, sinon go('/home')) pour le smoke Tier B (lot B2 Travail).
+        leading: Semantics(
+          identifier: 'unemployment-back',
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => safePop(context),
+          ),
         ),
-        title: Text(
-          S.of(context)!.unemploymentTitle,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'unemployment-anchor',
+          child: Text(
+            S.of(context)!.unemploymentTitle,
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -367,15 +378,23 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildPremierEclairage() {
     final r = _result!;
-    return MintResultHeroCard(
-      eyebrow: S.of(context)!.unemploymentTitle,
-      primaryValue: UnemploymentService.formatChf(r.perteMensuelle),
-      primaryLabel: S.of(context)!.unemploymentMonthlyBenefit,
-      secondaryValue: UnemploymentService.formatChf(r.indemniteMensuelle),
-      secondaryLabel: S.of(context)!.unemploymentInsuredEarnings,
-      narrative: r.premierEclairage,
-      accentColor: MintColors.error,
-      tone: MintSurfaceTone.peche,
+    // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur le hero de premier
+    // éclairage — présente UNIQUEMENT quand le résultat est éligible (branche
+    // gate.eligible du build), jamais sur l'entête vide. Motif profond, jamais le
+    // wrapper racine (leçon ADR AX iOS 26.2). Le seed salarié julien_swiss produit
+    // un résultat éligible → indemnité + perte mensuelle chiffrées.
+    return Semantics(
+      identifier: 'unemployment-result',
+      child: MintResultHeroCard(
+        eyebrow: S.of(context)!.unemploymentTitle,
+        primaryValue: UnemploymentService.formatChf(r.perteMensuelle),
+        primaryLabel: S.of(context)!.unemploymentMonthlyBenefit,
+        secondaryValue: UnemploymentService.formatChf(r.indemniteMensuelle),
+        secondaryLabel: S.of(context)!.unemploymentInsuredEarnings,
+        narrative: r.premierEclairage,
+        accentColor: MintColors.error,
+        tone: MintSurfaceTone.peche,
+      ),
     );
   }
 

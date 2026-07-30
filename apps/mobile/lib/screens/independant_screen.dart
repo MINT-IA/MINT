@@ -118,7 +118,19 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 const SizedBox(height: MintSpacing.lg),
 
                 // Revenue input
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenueSection()),
+                // Ancre régionale Tier B smoke (C2 « non-vide » POSITIF) posée sur
+                // la section revenu — rend AU REPOS, au-dessus de la ligne de
+                // flottaison (avant le collapse-au-scroll de la SliverAppBar), le
+                // revenu seedé chiffré + l'âge. Prouve que le corps de l'écran est
+                // non-vide (pas seulement la barre AppBar). Le chiffré CALCULÉ
+                // (Jour J) reste sous la ligne de flottaison → dette AX (voir flow).
+                MintEntrance(
+                  delay: const Duration(milliseconds: 200),
+                  child: Semantics(
+                    identifier: 'independant-input',
+                    child: _buildRevenueSection(),
+                  ),
+                ),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Coverage toggles
@@ -127,7 +139,15 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
                 if (_result != null) ...[
                   // Jour J — protection before/after (P6-A / S42)
-                  _buildJourJSection(),
+                  // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la
+                  // section Jour J — présente UNIQUEMENT quand le résultat existe
+                  // (branche if (_result != null)), jamais au repos vide. Le hero
+                  // rend le « chiffre-choc » de perte mensuelle (formatChf). Motif
+                  // profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+                  Semantics(
+                    identifier: 'independant-result',
+                    child: _buildJourJSection(),
+                  ),
                   const SizedBox(height: MintSpacing.lg),
 
                   // Critical alerts
@@ -218,12 +238,21 @@ class _IndependantScreenState extends State<IndependantScreen> {
       backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => safePop(context),
+      // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+      // pop, sinon go('/home')) pour le smoke Tier B (lot B2 Travail).
+      leading: Semantics(
+        identifier: 'independant-back',
+        button: true,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => safePop(context),
+        ),
       ),
+      // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+      // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
       title: Semantics(
         header: true,
+        identifier: 'independant-anchor',
         child: Text(
           S.of(context)!.independantAppBarTitle,
           style: MintTextStyles.headlineMedium(),

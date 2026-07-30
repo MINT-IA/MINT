@@ -4,6 +4,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/job_comparison_service.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -203,9 +204,25 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
         scrolledUnderElevation: 0,
-        title: Text(
-          S.of(context)!.jobCompareTitle,
-          style: MintTextStyles.headlineMedium(),
+        // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+        // pop, sinon go('/home')) remplaçant le back AppBar par défaut, non
+        // ciblable et non-poppable sur entrée deeplink. Smoke Tier B (lot B2).
+        leading: Semantics(
+          identifier: 'job-comparison-back',
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => safePop(context),
+          ),
+        ),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'job-comparison-anchor',
+          child: Text(
+            S.of(context)!.jobCompareTitle,
+            style: MintTextStyles.headlineMedium(),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -301,7 +318,16 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
               Container(key: _resultsKey),
-              MintEntrance(child: _buildVerdictCard()),
+              // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la carte
+              // verdict — présente UNIQUEMENT quand le calcul a produit un
+              // résultat (branche if (_result != null)), jamais au repos. Motif
+              // profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+              MintEntrance(
+                child: Semantics(
+                  identifier: 'job-comparison-result',
+                  child: _buildVerdictCard(),
+                ),
+              ),
               const SizedBox(height: MintSpacing.lg),
               MintEntrance(
                 delay: const Duration(milliseconds: 100),
@@ -701,6 +727,9 @@ class _JobComparisonScreenState extends State<JobComparisonScreen> {
   // --- Compare Button ---
   Widget _buildCompareButton() {
     return Semantics(
+      // Ancre Tier B smoke (C2) : id déterministe du bouton « Comparer » —
+      // évite le full-match texte de Maestro. Déclenche le calcul chiffré.
+      identifier: 'job-comparison-simulate',
       label: S.of(context)!.jobCompareButton,
       button: true,
       child: SizedBox(

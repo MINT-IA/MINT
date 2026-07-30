@@ -1,0 +1,112 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_job_comparison.yaml
+#
+# TIER B smoke — lot B2 Travail — event `newJob` (route /simulator/job-comparison).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Remplace la dépendance au legacy deeplink racine `travail_triad.yaml` (non-CORE,
+# seed swiss_native only, absent de tout tier de sweep). Patron : lot B1 Famille
+# (`flow_tierb_famille_*`, PR #1134) + seedé (`flow_tierb_famille_seeded_*`, #1137).
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-travail`.
+#
+# ─── SEED julien_swiss (salarié — pertinent pour les 3 events Travail) ──
+#   Contrairement au lot B1 Famille (célibataire → gates P2 « dur » fermés → C2
+#   non-chiffré), la persona SALARIÉE produit un chiffré sur les 3 écrans Travail.
+#   Ici : `/simulator/job-comparison` n'est PAS un écran gaté P2 — c'est un
+#   calculateur button-CTA à deux plans LPP pré-remplis (côté actuel seedé depuis
+#   le profil, côté nouveau = valeurs par défaut). « Comparer » calcule toujours
+#   un verdict chiffré (delta salaire /an + 7 axes). C2 « chiffré » atteignable.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` n'applique que la famille « garanti* » (les 6
+#   autres termes — optimal/meilleur/parfait/… — sont exclus comme trop
+#   colloquiaux ; faux positif « certain » prouvé en B1). L'écran rend « meilleur »
+#   dans le verdict (« nouveau poste meilleur ») — NON banni au sens canonique.
+#   Le smoke asserte donc UNIQUEMENT `(?i).*garanti.*`, pas le regex naïf 7 termes.
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
+#     sweep 20260730T235110 : ✅ maestro returned 0) ────────────────────
+#   C1 VERT  — `job-comparison-anchor` visible au repos (AppBar fixe, 56 nœuds).
+#   C2 VERT  — après « Comparer » (`job-comparison-simulate`), `job-comparison-result`
+#             (carte verdict, delta salaire chiffré) atteint par scroll.
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `job-comparison-back` (safePop, ajouté — l'écran n'avait aucun
+#             leading) → /home.
+#   C5 VERT  — 56 nœuds `maestro hierarchy` au repos (≥ 25 ; AppBar fixe, pas de
+#             collapse au scroll).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - travail
+  - seeded
+  - feature:new-job
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /simulator/job-comparison.
+- openLink: "mintapp:///simulator/job-comparison"
+- extendedWaitUntil:
+    visible:
+      id: "job-comparison-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : le bouton « Comparer » (ciblé par id — évite le full-match texte)
+# déclenche le calcul des deux plans LPP → carte verdict chiffrée.
+- scrollUntilVisible:
+    element:
+      id: "job-comparison-simulate"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+- tapOn:
+    id: "job-comparison-simulate"
+- scrollUntilVisible:
+    element:
+      id: "job-comparison-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home. On remonte d'abord
+# (AppBar fixe → le back reste épinglé, le scroll UP est instantané et sûr).
+- scrollUntilVisible:
+    element:
+      id: "job-comparison-back"
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: "job-comparison-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000
