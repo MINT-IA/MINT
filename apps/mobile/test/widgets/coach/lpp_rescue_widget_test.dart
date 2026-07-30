@@ -85,6 +85,16 @@ void main() {
     expect(find.textContaining('sfbvg'), findsOneWidget);
   });
 
+  testWidgets('disclaimer cites OLP art. 10, not the erroneous OPP2 art. 10',
+      (tester) async {
+    // OPP2 art. 10 = employer information duty (BVV2), unrelated to libre
+    // passage. The forms of maintaining prévoyance (police / compte) are
+    // founded on OLP art. 10. The disclaimer must carry the corrected base.
+    await tester.pumpWidget(buildWidget());
+    expect(find.textContaining('OLP art. 10'), findsOneWidget);
+    expect(find.textContaining('OPP2'), findsNothing);
+  });
+
   testWidgets('has Semantics label', (tester) async {
     await tester.pumpWidget(buildWidget());
     expect(find.bySemanticsLabel(RegExp('sauvetage LPP', caseSensitive: false)), findsOneWidget);

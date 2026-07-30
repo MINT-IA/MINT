@@ -24913,7 +24913,7 @@ class SEs extends S {
       'Cobertura de fallecimiento e invalidez incluida. Rendimiento medio ligado a los tipos técnicos.';
 
   @override
-  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
 
   @override
   String get librePassageOptionFondsLabel => 'Fondo de inversión';
@@ -24923,5 +24923,9 @@ class SEs extends S {
       'Mayor potencial de rendimiento. Riesgo de mercado a aceptar en el horizonte.';
 
   @override
-  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 3-4, OLP art. 10. Sin instrucción, transferencia de oficio entre 6 meses y 2 años (LFLP art. 4 al. 2). Haberes olvidados: sfbvg.ch.';
 }

@@ -24968,7 +24968,7 @@ class SDe extends S {
       'Todesfall- und Invaliditätsschutz inklusive. Durchschnittliche Rendite an technische Zinssätze gebunden.';
 
   @override
-  String get librePassageOptionPoliceLegalRef => 'BVV2 Art. 10';
+  String get librePassageOptionPoliceLegalRef => 'FZV Art. 10';
 
   @override
   String get librePassageOptionFondsLabel => 'Anlagefonds';
@@ -24978,5 +24978,9 @@ class SDe extends S {
       'Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.';
 
   @override
-  String get librePassageOptionFondsLegalRef => 'FZG Art. 4';
+  String get librePassageOptionFondsLegalRef => 'FZV Art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch.';
 }

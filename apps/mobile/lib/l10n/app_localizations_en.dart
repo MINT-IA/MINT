@@ -24779,7 +24779,7 @@ class SEn extends S {
       'Death and disability coverage included. Average return tied to technical rates.';
 
   @override
-  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
 
   @override
   String get librePassageOptionFondsLabel => 'Investment fund';
@@ -24789,5 +24789,9 @@ class SEn extends S {
       'Higher return potential. Market risk to accept over the horizon.';
 
   @override
-  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch.';
 }

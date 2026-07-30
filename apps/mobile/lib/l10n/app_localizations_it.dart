@@ -24978,7 +24978,7 @@ class SIt extends S {
       'Copertura in caso di decesso e invalidità inclusa. Rendimento medio legato ai tassi tecnici.';
 
   @override
-  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
 
   @override
   String get librePassageOptionFondsLabel => 'Fondo d’investimento';
@@ -24988,5 +24988,9 @@ class SIt extends S {
       'Maggiore potenziale di rendimento. Rischio di mercato da accettare sull’orizzonte.';
 
   @override
-  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Senza istruzioni, trasferimento d’ufficio tra 6 mesi e 2 anni (LFLP art. 4 al. 2). Averi dimenticati: sfbvg.ch.';
 }

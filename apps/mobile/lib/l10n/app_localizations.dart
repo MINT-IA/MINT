@@ -43428,7 +43428,7 @@ abstract class S {
   /// No description provided for @librePassageOptionPoliceLegalRef.
   ///
   /// In fr, this message translates to:
-  /// **'OPP2 art. 10'**
+  /// **'OLP art. 10'**
   String get librePassageOptionPoliceLegalRef;
 
   /// No description provided for @librePassageOptionFondsLabel.
@@ -43446,8 +43446,14 @@ abstract class S {
   /// No description provided for @librePassageOptionFondsLegalRef.
   ///
   /// In fr, this message translates to:
-  /// **'LFLP art. 4'**
+  /// **'OLP art. 19a'**
   String get librePassageOptionFondsLegalRef;
+
+  /// No description provided for @lppRescueDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.'**
+  String get lppRescueDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

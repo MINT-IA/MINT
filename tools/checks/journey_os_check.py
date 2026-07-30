@@ -997,6 +997,14 @@ ALLOW = {
     # déterministe depuis les inputs VALIDÉS (allowlist #1116), sans forger de
     # net (décision Reading A), sans LLM ni gate. Même patron que #1118.
     "services/backend/tests/coach/test_coach_receipt_pending_deterministic.py",
+    # fix(l10n) OLP art. 10 (2026-07-30) — base légale de la police de libre
+    # passage corrigée (OPP2 art. 10 = devoir d'info employeur ≠ formes de
+    # maintien ; formes = OLP art. 10, épargne-titres = OLP art. 19a). Écran
+    # (via ARB) + widget partagé (disclaimer extrait en ARB) + carte indépendant
+    # (institution supplétive → LFLP art. 4 al. 2).
+    "apps/mobile/lib/widgets/coach/lpp_rescue_widget.dart",
+    "apps/mobile/lib/screens/independant_screen.dart",
+    "apps/mobile/test/widgets/coach/lpp_rescue_widget_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

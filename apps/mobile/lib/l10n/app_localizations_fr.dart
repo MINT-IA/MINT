@@ -24913,7 +24913,7 @@ class SFr extends S {
       'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.';
 
   @override
-  String get librePassageOptionPoliceLegalRef => 'OPP2 art. 10';
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
 
   @override
   String get librePassageOptionFondsLabel => 'Fonds de placement';
@@ -24923,5 +24923,9 @@ class SFr extends S {
       'Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.';
 
   @override
-  String get librePassageOptionFondsLegalRef => 'LFLP art. 4';
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.';
 }

@@ -13316,8 +13316,9 @@
   "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — délai 6 mois",
   "librePassageOptionPoliceLabel": "Police d’assurance",
   "librePassageOptionPoliceDescription": "Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.",
-  "librePassageOptionPoliceLegalRef": "OPP2 art. 10",
+  "librePassageOptionPoliceLegalRef": "OLP art. 10",
   "librePassageOptionFondsLabel": "Fonds de placement",
   "librePassageOptionFondsDescription": "Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.",
-  "librePassageOptionFondsLegalRef": "LFLP art. 4"
+  "librePassageOptionFondsLegalRef": "OLP art. 19a",
+  "lppRescueDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch."
 }
