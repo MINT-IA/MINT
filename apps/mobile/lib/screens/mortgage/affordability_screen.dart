@@ -9,6 +9,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/screen_return.dart';
@@ -345,10 +346,28 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 pinned: true,
                 backgroundColor: MintColors.white,
                 foregroundColor: MintColors.textPrimary,
+                // Ancre C4 « pas de cul-de-sac » : bouton retour identifié
+                // (safePop → pop, sinon go('/home')) remplaçant le back par
+                // défaut, non-poppable sur entrée deeplink. Smoke Tier B (lot B3).
+                leading: Semantics(
+                  identifier: 'hypotheque-back',
+                  button: true,
+                  label: MaterialLocalizations.of(context).backButtonTooltip,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => safePop(context),
+                  ),
+                ),
                 flexibleSpace: FlexibleSpaceBar(
-                  title: Text(
-                    l.affordabilityTitle,
-                    style: MintTextStyles.headlineMedium(),
+                  // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le
+                  // titre AppBar — motif profond, JAMAIS le wrapper racine (leçon
+                  // ADR AX iOS 26.2).
+                  title: Semantics(
+                    identifier: 'hypotheque-anchor',
+                    child: Text(
+                      l.affordabilityTitle,
+                      style: MintTextStyles.headlineMedium(),
+                    ),
                   ),
                 ),
               ),
@@ -381,7 +400,12 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                     // SECTION 2 — LE RESULTAT : consequence financiere
                     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                    MintResultHeroCard(
+                    // Ancre régionale Tier B smoke (C2 « chiffré ») : capacité
+                    // (ou manque de fonds propres) calculée au repos depuis le
+                    // profil seedé — jamais gatée, toujours un montant CHF.
+                    Semantics(
+                      identifier: 'hypotheque-result',
+                      child: MintResultHeroCard(
                       eyebrow: result.premierEclairagePositif
                           ? l.affordabilityParameters
                           : l.affordabilityInsightEquityTitle,
@@ -396,6 +420,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           ? MintColors.success
                           : MintColors.error,
                       tone: MintSurfaceTone.porcelaine,
+                    ),
                     ),
                     const SizedBox(height: MintSpacing.xl),
 

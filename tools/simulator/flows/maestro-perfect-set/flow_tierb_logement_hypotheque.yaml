@@ -1,0 +1,108 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_hypotheque.yaml
+#
+# TIER B smoke — lot B3 Logement & Patrimoine — event `housingPurchase`
+# (route /hypotheque). Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Remplace la dépendance au legacy deeplink racine `logement_succession_parcours.yaml`
+# (non-CORE, seed swiss_native only, absent de tout tier de sweep). Patron :
+# lot B1 Famille (#1134) + lot B2 Travail (#1139).
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-logement`.
+#
+# ─── C2 CHIFFRÉ (calcul au repos, aucun gate) ──────────────────────────
+#   `/hypotheque` calcule la capacité d'achat AU REPOS (getter `_result` +
+#   `_initializeFromProfile` : revenu ménage / avoir LPP / épargne / canton du
+#   profil seedé). Le hero `MintResultHeroCard` rend le prix max accessible (ou le
+#   manque de fonds propres) chiffré — jamais gaté. L'ancre `hypotheque-result`
+#   est posée dessus (toujours un montant CHF). Aucun tap requis.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` n'applique que la famille « garanti* ». Le smoke
+#   asserte donc UNIQUEMENT `(?i).*garanti.*`, pas le regex naïf 7 termes.
+#
+# ─── DETTE AX (C5 diagnostic — hors périmètre ship, cadrage §2) ────────
+#   `/hypotheque` est un CustomScrollView + SliverAppBar(pinned, expandedHeight
+#   100). Le leading retour est icon-only → NON ciblable par Maestro `tapOn id:`
+#   (même dégradation AX iOS 26.2 que l'écran indépendant, lot B2). Repli
+#   documenté : tap par coordonnée (28,75 — centre du back, iPhone 16e). La
+#   migration SliverAppBar → AppBar (file `ax-pilote`/`appbar-gate`) rendra l'id
+#   ciblable. C5 au scroll = ROUGE potentiel (collapse contenu) = signal AX, non
+#   bloqueur Tier B.
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
+#     flow FULL vert bout en bout, tous steps COMPLETED) ────────────────
+#   C1 VERT  — `hypotheque-anchor` visible au repos (arbre riche, 714 nœuds
+#            `maestro hierarchy`, PAS d'effondrement au repos).
+#   C2 VERT  — `hypotheque-result` (hero capacité chiffré, bounds [24,233][366,456])
+#            visible au repos AU-DESSUS de la flottaison (scrollUntilVisible = no-op) ;
+#            aucune sentinelle vide.
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — tap-coordonnée (28,75 ; back bounds [0,47][56,103]) → safePop →
+#            `home_route_state`.
+#   C5 VERT au repos (714 ≥ 25) / dette AX au scroll (SliverAppBar collapse contenu
+#            iOS 26.2, même racine que /segments/independant B2) — NON déclenchée
+#            ici (résultat au-dessus de la flottaison, aucun scroll profond).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - logement
+  - seeded
+  - feature:housing-purchase
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /hypotheque.
+- openLink: "mintapp:///hypotheque"
+- extendedWaitUntil:
+    visible:
+      id: "hypotheque-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : le hero capacité (calculé au repos depuis le profil seedé) porte
+# `hypotheque-result`. scrollUntilVisible est un no-op si déjà au-dessus de la
+# flottaison (Maestro vérifie la visibilité AVANT de scroller → pas de collapse).
+- scrollUntilVisible:
+    element:
+      id: "hypotheque-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar →
+# tap par coordonnée (28,75, back épinglé en haut ; voir en-tête AX).
+- tapOn:
+    point: "28,75"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

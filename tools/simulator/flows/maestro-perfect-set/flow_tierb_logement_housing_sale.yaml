@@ -1,0 +1,111 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_housing_sale.yaml
+#
+# TIER B smoke — lot B3 Logement & Patrimoine — event `housingSale`
+# (route /life-event/housing-sale). Cadrage :
+# .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Event SANS AUCUN flow avant ce lot (création complète). Patron : lot B2 Travail
+# (#1139, écran button-CTA à AppBar fixe, comme job_comparison).
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-logement`.
+#
+# ─── C2 CHIFFRÉ (button-CTA) ───────────────────────────────────────────
+#   `/life-event/housing-sale` est un calculateur button-CTA à AppBar FIXE
+#   (SingleChildScrollView) — pas de collapse AX. Les champs sont pré-remplis
+#   (prix achat 800k / vente 1M / VD / résidence principale). « Calculer »
+#   (`housing-sale-simulate`) calcule la carte plus-value (plus-value brute
+#   chiffrée, toujours rendue post-calcul), portée par `housing-sale-result`.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` : famille « garanti* » seule → `(?i).*garanti.*`.
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
+#     flow FULL vert bout en bout + sonde isolée verte) ─────────────────
+#   C1 VERT  — `housing-sale-anchor` visible au repos (AppBar fixe, pas de collapse).
+#   C2 VERT  — après « Calculer » (`housing-sale-simulate`), `housing-sale-result`
+#            (carte plus-value brute chiffrée) atteint par scroll ; sentinelles absentes.
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `housing-sale-back` (safePop, id ciblable — AppBar fixe, patron
+#            job_comparison) → `home_route_state`.
+#   C5 VERT  — AppBar FIXE + SingleChildScrollView : aucun collapse AX au scroll.
+#   NB CONTAMINATION : le sim de dev PARTAGÉ (~80 agents) tue l'app en cours de flow
+#   long (/home-first + 40 s) → échecs à une étape VARIABLE (anchor, scroll…), PAS un
+#   défaut de flow (mémoire B2 finding #5). La sonde ISOLÉE (openurl direct, courte)
+#   + une passe FULL propre = tous steps COMPLETED. En CI le tier `tierb-logement`
+#   (build seedé dédié, comme fatca/firstjob) tourne isolé → vert attendu.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - logement
+  - seeded
+  - feature:housing-sale
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /life-event/housing-sale.
+- openLink: "mintapp:///life-event/housing-sale"
+- extendedWaitUntil:
+    visible:
+      id: "housing-sale-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : « Calculer » (ciblé par id — évite le full-match texte) déclenche
+# le calcul → carte plus-value chiffrée.
+- scrollUntilVisible:
+    element:
+      id: "housing-sale-simulate"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+- tapOn:
+    id: "housing-sale-simulate"
+- scrollUntilVisible:
+    element:
+      id: "housing-sale-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home (AppBar fixe → back
+# ciblable par id, comme job_comparison). On remonte d'abord (scroll UP).
+- scrollUntilVisible:
+    element:
+      id: "housing-sale-back"
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: "housing-sale-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000
