@@ -1,0 +1,96 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_unemployment.yaml
+#
+# TIER B smoke — lot B2 Travail — event `jobLoss` (route /unemployment).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Remplace la dépendance au legacy deeplink racine `travail_triad.yaml`.
+# Rationale complet (5D, build, seed, C3 garanti-only) : voir
+# flow_tierb_travail_job_comparison.yaml.
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-travail`.
+#
+# ─── C2 CHIFFRÉ (delta vs B1) ──────────────────────────────────────────
+#   `/unemployment` calcule le résultat AU REPOS (initState + auto-fill du profil :
+#   gain assuré dérivé du revenu seedé, âge du profil). La persona salariée
+#   julien_swiss (18 mois de cotisation par défaut, âge < 55) est ÉLIGIBLE → le
+#   hero « premier éclairage » rend l'indemnité + la perte mensuelle chiffrées.
+#   L'ancre régionale `unemployment-result` est posée sur ce hero (branche
+#   `eligible` uniquement, jamais l'entête vide). Aucun tap requis.
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
+#     sweep 20260730T235110 : ✅ maestro returned 0) ────────────────────
+#   C1 VERT  — `unemployment-anchor` visible au repos (AppBar fixe, 37 nœuds).
+#   C2 VERT  — `unemployment-result` (hero indemnité chiffrée) visible au repos —
+#             le seed salarié julien_swiss est éligible (chiffré, aucun tap).
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `unemployment-back` (safePop) → /home.
+#   C5 VERT  — 37 nœuds `maestro hierarchy` au repos (≥ 25 ; AppBar fixe).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - travail
+  - seeded
+  - feature:job-loss
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /unemployment.
+- openLink: "mintapp:///unemployment"
+- extendedWaitUntil:
+    visible:
+      id: "unemployment-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir job_comparison pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : le hero « premier éclairage » (indemnité éligible sous seed
+# salarié) est sous la ligne de flottaison → scrollUntilVisible (extendedWaitUntil
+# ne scrolle pas).
+- scrollUntilVisible:
+    element:
+      id: "unemployment-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home (AppBar fixe → back
+# épinglé, scroll UP instantané).
+- scrollUntilVisible:
+    element:
+      id: "unemployment-back"
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: "unemployment-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

@@ -814,6 +814,15 @@ ALLOW = {
     "apps/mobile/test/screens/tierb_famille_anchors_test.dart",
     # Preuve d'ancre C2 (Semantics identifier <event>-result) sous seed famille_bern.
     "apps/mobile/test/screens/tierb_famille_seeded_result_anchors_test.dart",
+    # Tier B smoke lot B2 Travail (julien_swiss salarie) : flows seedes newJob /
+    # jobLoss / selfEmployment ciblant l'ecran-event canonique. La persona salariee
+    # atteint C2 chiffre sur les 3 (indemnite chomage / verdict compare / perte Jour J).
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_job_comparison.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_unemployment.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_independant.yaml",
+    # Preuve d'ancres C1/C2/C4 (Semantics identifier <event>-anchor/-result/-back)
+    # des 3 ecrans Travail sous seed julien_swiss.
+    "apps/mobile/test/screens/tierb_travail_anchors_test.dart",
     # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
     "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",
