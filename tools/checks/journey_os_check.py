@@ -466,6 +466,9 @@ ALLOW = {
     # Tranche verticale firstJob (Phase 1') : spec 12D + flow d'acceptation
     # ROUGE par construction (voir header du flow — hors runners verts).
     ".planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md",
+    # Tier B smoke — cadrage des 18 life events (plan MINT utilisable v2.1,
+    # 2026-07-30). Page de cadrage, PAS d'implémentation.
+    ".planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",
