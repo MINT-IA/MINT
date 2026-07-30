@@ -320,6 +320,25 @@ def test_resolve_receipt_context_returns_grounded_dict_for_stored():
         db.close()
 
 
+def test_resolve_receipt_context_surfaces_band_and_confidence():
+    """P0 #1114 — le contexte résolu porte l'appareil de lucidité (fourchette +
+    confiance) pour que le bloc de grounding coach le rende avec la valeur."""
+    db = _db()
+    try:
+        r = _make_receipt(receipt_id="rcpt-band", value=6104.92)
+        store_receipt(db, receipt=r, user=_User("user-a"))
+        ctx = resolve_receipt_context(
+            db,
+            _User("user-a"),
+            _Body(receipt_id="rcpt-band", inputs_hash=r.inputs_hash),
+        )
+        assert ctx is not None
+        assert ctx["range"] == {"low": pytest.approx(6090.92), "high": pytest.approx(6124.92)}
+        assert ctx["confidence"] == pytest.approx(0.79)
+    finally:
+        db.close()
+
+
 def test_resolve_receipt_context_pending_no_row_with_inputs():
     """DOUBLE CEINTURE (Codex P1) : le coach grounde via `pending` depuis les
     `receiptInputs` SEULS — aucune ligne en base (store échoué / non appelé),

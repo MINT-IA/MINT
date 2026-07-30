@@ -233,6 +233,32 @@ def extract_user_input_numbers(text: str) -> frozenset[_Decimal]:
             out.add(normed)
     return frozenset(out)
 
+
+def extract_gated_number_tokens(text: str) -> frozenset[_Decimal]:
+    """Normalised values of tokens the gate's number-family regexes WOULD flag.
+
+    Unlike `extract_user_input_numbers` (which grabs EVERY numeric token, incl.
+    bare years and law-article numbers), this returns only the values carried by
+    a currency / percent / duration UNIT — i.e. exactly the numbers that, if the
+    narrator echoes them, would count against the closed-world citation
+    requirement (step 5b).
+
+    Used to build the receipt-grounding exemption (P0 #1114) from the RENDERED
+    grounding block WITHOUT over-exempting incidental unit-less numbers: a bare
+    `2026` (tax year) or `5` (`art. 5`) is never turned into an exemptable
+    `2026 CHF` / `5 CHF` fabrication. The regulatory named-constant regex is
+    intentionally excluded — it matches names, not narrator-echoable amounts.
+    """
+    if not text:
+        return frozenset()
+    out: set[_Decimal] = set()
+    for pattern in (_RE_CURRENCY, _RE_PERCENT, _RE_DURATION):
+        for m in pattern.finditer(text):
+            normed = _normalize_user_number_token(m.group(0))
+            if normed is not None:
+                out.add(normed)
+    return frozenset(out)
+
 # D-13 — verbatim FR reprompt for banned-claim assertions
 REPROMPT_ADDENDUM_BANNED_CLAIM: str = (
     "\n\nRAPPEL — Une projection est une scénario, pas une promesse. "
@@ -722,6 +748,7 @@ __all__ = [
     "REPROMPT_ADDENDUM_BANNED_CLAIM",
     "FALLBACK_TEMPLATED_TEXT",
     "extract_user_input_numbers",
+    "extract_gated_number_tokens",
     # Compiled regex (private but re-used by tests)
     "_RE_CURRENCY",
     "_RE_PERCENT",
