@@ -948,6 +948,14 @@ ALLOW = {
     # rend la valeur canonique sans LLM ni gate quand le tour porte un receipt
     # résolu + une question « salaire net ». Test du chemin LIVE (endpoint réel).
     "services/backend/tests/coach/test_coach_receipt_deterministic.py",
+    # P0 #1118 (hotfix, 2026-07-30) — le raccourci déterministe faisait 500 sur
+    # staging : banned_terms_runtime.py résolvait son vocabulaire LSFin via
+    # `parents[5]` (IndexError sous Railway WORKDIR=/app + `tools/` hors image).
+    # Résolution de racine robuste au conteneur (belt 1 marqueur borné, belt 2
+    # copie inline packagée côté app) + fail-closed du scan dans coach_chat.
+    "services/backend/app/services/encryption/banned_terms_runtime.py",
+    "services/backend/tests/test_banned_terms_runtime_container.py",
+    "services/backend/tests/test_compliance_wording.py",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
