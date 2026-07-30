@@ -104,9 +104,15 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.white,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 1) : AppBar classique en
+      // Scaffold.appBar, plus de SliverAppBar dans le CustomScrollView. Le
+      // SliverAppBar ré-effondrait l'arbre AX des routes poussées AU SCROLL sur
+      // iOS 26.2 (2e déclencheur, cf. project_ios26_ax_tree_collapse) ; l'AppBar
+      // fixe garde un arbre riche et stable → `independant-result` devient
+      // atteignable au scroll et `independant-back` (leading) redevient ciblable.
+      appBar: _buildAppBar(context),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
-          _buildAppBar(context),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
@@ -232,9 +238,13 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── App Bar ────────────────────────────────────────────────
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
+  // AX iOS 26.2 (ADR 2026-07-30, tranche AX 1) : migré de SliverAppBar vers
+  // AppBar classique (patron first_job/rvc #1127). Rendu inchangé : l'ancien
+  // SliverAppBar n'avait ni expandedHeight ni flexibleSpace (aucun grand titre
+  // repliable) ; centerTitle:false vient de l'AppBarTheme. L'arbre AX ne
+  // s'effondre plus au scroll → le leading `independant-back` redevient ciblable.
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
       backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,

@@ -151,12 +151,18 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 1) : AppBar classique en
+      // Scaffold.appBar, plus de SliverAppBar dans le CustomScrollView. Le
+      // SliverAppBar ré-effondrait l'arbre AX des routes poussées AU SCROLL sur
+      // iOS 26.2 (2e déclencheur, cf. project_ios26_ax_tree_collapse) ; cet écran
+      // /profile/bilan est exercé par les flows du gate → l'AppBar fixe garde un
+      // arbre riche et stable au scroll.
+      appBar: _buildAppBar(context),
       body: Center(
           child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: CustomScrollView(
                 slivers: [
-                  _buildAppBar(context),
                   _buildBodySliver(context, profile),
                 ],
               ))),
@@ -167,9 +173,13 @@ class FinancialSummaryScreen extends StatelessWidget {
   //  APP BAR
   // ══════════════════════════════════════════════════════════════
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
+  // AX iOS 26.2 (ADR 2026-07-30, tranche AX 1) : migré de SliverAppBar vers
+  // AppBar classique (patron first_job/rvc #1127). Rendu inchangé : l'ancien
+  // SliverAppBar n'avait ni expandedHeight ni flexibleSpace (aucun grand titre
+  // repliable) ; centerTitle:false vient de l'AppBarTheme. L'arbre AX ne
+  // s'effondre plus au scroll sur cette route poussée exercée par le gate.
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
       backgroundColor: MintColors.porcelaine,
       surfaceTintColor: MintColors.porcelaine,
       elevation: 0,
