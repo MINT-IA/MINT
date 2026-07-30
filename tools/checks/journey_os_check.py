@@ -43,6 +43,13 @@ ALLOW = {
     "services/backend/app/api/v1/endpoints/health.py",
     "services/backend/app/schemas/common.py",
     "services/backend/tests/test_health.py",
+    # --- prep Flutter 3.44.8 : ancêtre Material pour les tiles en carte colorée
+    # (assertion debug ListTile._debugCheckBackgroundIsHidden). Écrans/widgets
+    # partagés touchés, hors whitelist Journey OS existante. ---
+    "apps/mobile/lib/screens/job_comparison_screen.dart",
+    "apps/mobile/lib/screens/simulator_compound_screen.dart",
+    "apps/mobile/lib/widgets/collapsible_section.dart",
+    "apps/mobile/lib/widgets/educational/educational_insert_widget.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",

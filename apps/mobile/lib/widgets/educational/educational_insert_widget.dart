@@ -104,7 +104,9 @@ class EducationalInsertWidget extends StatelessWidget {
           if (hypotheses.isNotEmpty) ...[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ExpansionTile(
+              child: Material(
+                type: MaterialType.transparency,
+                child: ExpansionTile(
                 title: Text(
                   'Hypothèses de calcul',
                   style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
@@ -124,6 +126,7 @@ class EducationalInsertWidget extends StatelessWidget {
                     ],
                   ),
                 )).toList(),
+              )
               ),
             ),
           ],

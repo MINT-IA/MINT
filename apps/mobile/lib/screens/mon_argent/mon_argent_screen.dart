@@ -610,7 +610,9 @@ class _MonArgentDetailsExpansion extends StatelessWidget {
             splashColor: MintColors.transparent,
             highlightColor: MintColors.transparent,
           ),
-          child: ExpansionTile(
+          child: Material(
+            type: MaterialType.transparency,
+            child: ExpansionTile(
             tilePadding: EdgeInsets.zero,
             childrenPadding: const EdgeInsets.only(top: MintSpacing.sm),
             iconColor: MintColors.ardoise,
@@ -622,6 +624,7 @@ class _MonArgentDetailsExpansion extends StatelessWidget {
               ),
             ),
             children: [child],
+          )
           ),
         ),
       ),

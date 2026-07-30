@@ -1175,7 +1175,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   Widget _buildAdvancedInputSection({required bool includeRachatAndEpl}) {
-    return ExpansionTile(
+    return Material(
+      type: MaterialType.transparency,
+      child: ExpansionTile(
       tilePadding: EdgeInsets.zero,
       childrenPadding: const EdgeInsets.only(bottom: MintSpacing.sm),
       title: Text(
@@ -1251,6 +1253,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           ],
         ),
       ],
+    )
     );
   }
 

@@ -1407,7 +1407,11 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       padding: EdgeInsets.zero,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
-        child: ExpansionTile(
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
           tilePadding:
               const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.xs),
           childrenPadding: const EdgeInsets.fromLTRB(MintSpacing.md, 0, MintSpacing.md, MintSpacing.md),
@@ -1425,6 +1429,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               ).copyWith(height: 1.5),
             ),
           ],
+        )
         ),
       ),
     );
