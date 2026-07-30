@@ -18431,7 +18431,7 @@ class SEn extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 3). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.';
+      'When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 4 al. 2). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.';
 
   @override
   String get narrativeLibrePassageHeadline =>

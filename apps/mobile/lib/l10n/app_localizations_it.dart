@@ -18587,7 +18587,7 @@ class SIt extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 3). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.';
+      'Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 4 al. 2). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.';
 
   @override
   String get narrativeLibrePassageHeadline =>

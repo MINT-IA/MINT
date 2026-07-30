@@ -18539,7 +18539,7 @@ class SEs extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 3). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.';
+      'Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 4 al. 2). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.';
 
   @override
   String get narrativeLibrePassageHeadline => 'Libre paso: 6 meses para actuar';
