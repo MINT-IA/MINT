@@ -2808,6 +2808,9 @@ class SFr extends S {
   String get firstJobAskCoach => 'Demander au coach';
 
   @override
+  String get askCoachCta => 'Demander au coach';
+
+  @override
   String get firstJob3aHeader => 'PILIER 3A — À ENVISAGER';
 
   @override

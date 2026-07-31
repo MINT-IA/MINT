@@ -2815,6 +2815,9 @@ class SIt extends S {
   String get firstJobAskCoach => 'Chiedi al coach';
 
   @override
+  String get askCoachCta => 'Chiedi al coach';
+
+  @override
   String get firstJob3aHeader => 'PILASTRO 3A — DA VALUTARE';
 
   @override

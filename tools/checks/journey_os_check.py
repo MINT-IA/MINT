@@ -1089,6 +1089,14 @@ ALLOW = {
     # signature étendue (receiptId/inputsHash/receiptInputs) + heads alembic
     # attendus incluent p126.
     "apps/mobile/test/services/coach_context_packet_payload_test.dart",
+    # V2-4 (cluster Retraite deep + receipt) — propagation du MoneyTruthReceipt
+    # firstJob → retirement_dashboard + rente_vs_capital : chaque écran scelle son
+    # chiffre L1 affiché en receipt et le porte au coach (CTA retraite-ask-coach /
+    # rvc-ask-coach). Producteurs + CTA + parité écran↔receipt.
+    "apps/mobile/test/services/forecaster_retirement_receipt_test.dart",
+    "apps/mobile/test/services/financial_core/rvc_money_truth_receipt_test.dart",
+    "apps/mobile/test/screens/coach/retirement_ask_coach_cta_test.dart",
+    "apps/mobile/test/screens/arbitrage/rvc_ask_coach_cta_test.dart",
     # Phase 3' — harnais de parité coach × MoneyTruthReceipt contre STAGING réel
     # (SPEC TRANCHE-FIRSTJOB §4.3 / §4.4). Test integration_staging skippé par
     # défaut (opt-in MINT_STAGING_PARITY=1) : rejoue profil firstJob × questions

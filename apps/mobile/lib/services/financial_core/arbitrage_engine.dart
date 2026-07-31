@@ -1,9 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:uuid/uuid.dart';
+
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/money_truth_receipt.dart';
 import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 import 'package:mint_mobile/services/financial_core/generated/regulatory_constants.g.dart';
 import 'package:mint_mobile/services/financial_core/housing_cost_calculator.dart';
@@ -598,6 +601,116 @@ class ArbitrageEngine {
       capitalProjecte: effectiveCapitalTotal,
       isProjected: isProjected,
       calculationReceipt: receipt,
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  MoneyTruthReceipt — rente LPP mensuelle nette (V2-4)
+  // ════════════════════════════════════════════════════════════
+
+  static const int _rvcReceiptTaxYear = 2026;
+  static const String _rvcReceiptEngineVersion = 'rente-vs-capital-receipt-v1';
+
+  /// Scelle la rente LPP mensuelle nette AFFICHÉE ([ArbitrageResult.renteNet
+  /// Mensuelle]) en [MoneyTruthReceipt], pour que le coach la RÉSOLVE par
+  /// receiptId et rende LA même valeur (parité écran↔coach — V2-4).
+  ///
+  /// Le receipt ENVELOPPE le chiffre déjà calculé par [compareRenteVsCapital]
+  /// (ou son miroir backend) : il ne recalcule rien (NEVER #3). `inputs` = les
+  /// drivers RÉELS de la comparaison saisis à l'écran (capital, taux de
+  /// conversion, canton, âge, état civil, mode de saisie). `engine` reflète la
+  /// source réelle de la valeur (comparateur backend vs moteur local de repli).
+  ///
+  /// claimId dédié ([kRenteVsCapitalRenteClaimId]) : distinct du revenu TOTAL
+  /// de retraite scellé par le dashboard — pas de receipt contradictoire, deux
+  /// claims différents du même profil (design SPEC §4).
+  ///
+  /// `receiptId` / `computedAt` sont injectables pour les tests déterministes.
+  static MoneyTruthReceipt buildRenteMensuelleReceipt({
+    required double renteNetMensuelle,
+    required double capitalLppTotal,
+    required double capitalObligatoire,
+    required double capitalSurobligatoire,
+    required double renteAnnuelleProposee,
+    required double tauxConversionObligatoire,
+    required double tauxConversionSurobligatoire,
+    required String canton,
+    required int ageRetraite,
+    required bool isMarried,
+    required String inputMode,
+    required bool fromBackend,
+    double confidenceScore = 0,
+    String? receiptId,
+    String? computedAt,
+  }) {
+    final cantonNorm = canton.toUpperCase();
+    final civil = isMarried ? 'marie' : 'celibataire';
+
+    final inputs = <String, dynamic>{
+      'capitalLppTotal': capitalLppTotal,
+      'capitalObligatoire': capitalObligatoire,
+      'capitalSurobligatoire': capitalSurobligatoire,
+      'renteAnnuelleProposee': renteAnnuelleProposee,
+      'tauxConversionObligatoire': tauxConversionObligatoire,
+      'tauxConversionSurobligatoire': tauxConversionSurobligatoire,
+      'canton': cantonNorm,
+      'ageRetraite': ageRetraite,
+      'isMarried': isMarried,
+      'inputMode': inputMode,
+    };
+
+    // confidenceScore arrive en [0,100] (ArbitrageResult.confidenceScore) —
+    // ramené en [0,1] pour la forme fil EnhancedConfidence.
+    final confNorm = (confidenceScore > 1.0)
+        ? (confidenceScore / 100.0).clamp(0.0, 1.0)
+        : confidenceScore.clamp(0.0, 1.0);
+
+    return MoneyTruthReceipt(
+      claimId: kRenteVsCapitalRenteClaimId,
+      receiptId: receiptId ?? const Uuid().v4(),
+      inputs: inputs,
+      inputsHash: computeInputsHash(inputs),
+      jurisdiction: 'CH-$cantonNorm',
+      taxYear: _rvcReceiptTaxYear,
+      // renteNetMensuelle = net après impôt sur le revenu (arbitrage_models:272).
+      base: 'net',
+      civilStatus: civil,
+      assumptions: [
+        'Rente LPP mensuelle nette (après impôt sur le revenu), année 1', // lint-ignore: no_hardcoded_fr (receipt interne, i18n dette L1)
+        'Taux de conversion appliqué au capital LPP à l\'âge de la retraite', // lint-ignore: no_hardcoded_fr (receipt interne, i18n dette L1)
+        'Rente imposée comme revenu (LIFD art. 22)', // lint-ignore: no_hardcoded_fr (receipt interne, i18n dette L1)
+      ],
+      engine: fromBackend
+          ? 'backend.rente_vs_capital'
+          : 'financial_core.arbitrage_engine',
+      engineVersion: _rvcReceiptEngineVersion,
+      rounding: 'CHF arrondi au 1 franc',
+      sources: const [
+        MoneyTruthSource(
+          id: 'lpp',
+          label: 'Taux de conversion LPP (LPP art. 14)', // lint-ignore: no_hardcoded_fr (citation de source du receipt, i18n dette L1)
+          vintage: _rvcReceiptTaxYear,
+        ),
+        MoneyTruthSource(
+          id: 'lifd',
+          label: 'Imposition de la rente (LIFD art. 22)', // lint-ignore: no_hardcoded_fr (citation de source du receipt, i18n dette L1)
+          vintage: _rvcReceiptTaxYear,
+        ),
+      ],
+      value: renteNetMensuelle,
+      // Rente = capital × taux de conversion : déterministe, pas de bande
+      // naturelle propre à ce montant (la bande vit sur la comparaison, L2).
+      range: null,
+      confidence: confNorm > 0
+          ? MoneyTruthConfidence(
+              completeness: confNorm,
+              accuracy: 0.85,
+              freshness: 1.0,
+              understanding: 0.55,
+              score: confNorm,
+            )
+          : null,
+      computedAt: computedAt ?? DateTime.now().toUtc().toIso8601String(),
     );
   }
 
