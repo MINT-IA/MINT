@@ -16181,6 +16181,24 @@ class SEn extends S {
   String get donationRegimeSeparation => 'Separation of property';
 
   @override
+  String get donationLienConjoint => 'Spouse';
+
+  @override
+  String get donationLienDescendant => 'Child / Descendant';
+
+  @override
+  String get donationLienParent => 'Parent';
+
+  @override
+  String get donationLienFratrie => 'Sibling';
+
+  @override
+  String get donationLienConcubin => 'Cohabiting partner';
+
+  @override
+  String get donationLienTiers => 'Third party';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserved $pct%';
   }

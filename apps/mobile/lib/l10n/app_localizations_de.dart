@@ -16304,6 +16304,24 @@ class SDe extends S {
   String get donationRegimeSeparation => 'Gütertrennung';
 
   @override
+  String get donationLienConjoint => 'Ehepartner';
+
+  @override
+  String get donationLienDescendant => 'Kind / Nachkomme';
+
+  @override
+  String get donationLienParent => 'Elternteil';
+
+  @override
+  String get donationLienFratrie => 'Geschwister';
+
+  @override
+  String get donationLienConcubin => 'Lebenspartner';
+
+  @override
+  String get donationLienTiers => 'Dritte';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Pflichtteil $pct%';
   }

@@ -16275,6 +16275,24 @@ class SPt extends S {
   String get donationRegimeSeparation => 'Separação de bens';
 
   @override
+  String get donationLienConjoint => 'Cônjuge';
+
+  @override
+  String get donationLienDescendant => 'Filho(a) / Descendente';
+
+  @override
+  String get donationLienParent => 'Progenitor';
+
+  @override
+  String get donationLienFratrie => 'Irmão(ã)';
+
+  @override
+  String get donationLienConcubin => 'Companheiro(a)';
+
+  @override
+  String get donationLienTiers => 'Terceiro';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserva $pct%';
   }

@@ -16277,6 +16277,24 @@ class SEs extends S {
   String get donationRegimeSeparation => 'Separación de bienes';
 
   @override
+  String get donationLienConjoint => 'Cónyuge';
+
+  @override
+  String get donationLienDescendant => 'Hijo(a) / Descendiente';
+
+  @override
+  String get donationLienParent => 'Progenitor';
+
+  @override
+  String get donationLienFratrie => 'Hermano(a)';
+
+  @override
+  String get donationLienConcubin => 'Pareja de hecho';
+
+  @override
+  String get donationLienTiers => 'Tercero';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserva $pct%';
   }
