@@ -6140,6 +6140,8 @@
   "dividendeBeneficeTotal": "Utile totale",
   "dividendePartSalaire": "Quota salario",
   "dividendeTauxMarginal": "Aliquota marginale",
+  "dividendeFourchette": "Intervallo secondo la quota imponibile del dividendo considerata (50 % a 70 %): da {low} a {high} all'anno.",
+  "dividendeConfidenceMessage": "Questa stima esclude l'imposta sull'utile della società: il risparmio reale è inferiore. Considera una quota imponibile del dividendo del 50 %, mentre l'imposta federale ne prevede il 70 % (LIFD art. 20 cpv. 1bis) e quella cantonale almeno il 50 %. Da confermare con un fiduciario.",
   "successionUrgence": "Urgenza immediata",
   "successionDemarches": "Pratiche amministrative",
   "successionLegale": "Successione legale",

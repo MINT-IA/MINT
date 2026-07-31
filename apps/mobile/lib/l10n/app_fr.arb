@@ -6613,6 +6613,14 @@
   "dividendeBeneficeTotal": "Bénéfice total",
   "dividendePartSalaire": "Part salaire",
   "dividendeTauxMarginal": "Taux marginal d'imposition",
+  "dividendeFourchette": "Fourchette selon la part imposable du dividende retenue (50 % à 70 %) : de {low} à {high} par an.",
+  "@dividendeFourchette": {
+    "placeholders": {
+      "low": { "type": "String" },
+      "high": { "type": "String" }
+    }
+  },
+  "dividendeConfidenceMessage": "Cette estimation exclut l'impôt sur le bénéfice de la société : l'économie réelle est plus faible. Elle retient une part imposable du dividende de 50 %, alors que l'impôt fédéral en vise 70 % (LIFD art. 20 al. 1bis) et l'impôt cantonal au moins 50 %. À valider avec une fiduciaire.",
   "successionUrgence": "Urgence immédiate",
   "successionDemarches": "Démarches administratives",
   "successionLegale": "Succession légale",
