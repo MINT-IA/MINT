@@ -338,39 +338,39 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         },
         child: Scaffold(
           backgroundColor: MintColors.porcelaine,
-          // AX iOS 26.2 (ADR 2026-07-30, tranche AX 2 — patron #1127) : AppBar
-          // classique fixe en `Scaffold.appBar` au lieu d'un SliverAppBar dans le
-          // CustomScrollView (qui ré-effondrait l'arbre AX au scroll, 2ᵉ
-          // déclencheur ADR) → `hypotheque-back` (leading) redevient ciblable par
-          // id. Ancres C1 (hypotheque-anchor) / C4 (hypotheque-back) préservées.
-          appBar: AppBar(
-            backgroundColor: MintColors.white,
-            foregroundColor: MintColors.textPrimary,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
-            // pop, sinon go('/home')) — non-poppable sur entrée deeplink. Smoke Tier B.
-            leading: Semantics(
-              identifier: 'hypotheque-back',
-              button: true,
-              label: MaterialLocalizations.of(context).backButtonTooltip,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => safePop(context),
-              ),
-            ),
-            // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
-            // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
-            title: Semantics(
-              identifier: 'hypotheque-anchor',
-              child: Text(
-                l.affordabilityTitle,
-                style: MintTextStyles.headlineMedium(),
-              ),
-            ),
-          ),
           body: CustomScrollView(
             slivers: [
+              // ── White standard AppBar (Design System §4.5) ──
+              SliverAppBar(
+                expandedHeight: 100,
+                pinned: true,
+                backgroundColor: MintColors.white,
+                foregroundColor: MintColors.textPrimary,
+                // Ancre C4 « pas de cul-de-sac » : bouton retour identifié
+                // (safePop → pop, sinon go('/home')) remplaçant le back par
+                // défaut, non-poppable sur entrée deeplink. Smoke Tier B (lot B3).
+                leading: Semantics(
+                  identifier: 'hypotheque-back',
+                  button: true,
+                  label: MaterialLocalizations.of(context).backButtonTooltip,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => safePop(context),
+                  ),
+                ),
+                flexibleSpace: FlexibleSpaceBar(
+                  // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le
+                  // titre AppBar — motif profond, JAMAIS le wrapper racine (leçon
+                  // ADR AX iOS 26.2).
+                  title: Semantics(
+                    identifier: 'hypotheque-anchor',
+                    child: Text(
+                      l.affordabilityTitle,
+                      style: MintTextStyles.headlineMedium(),
+                    ),
+                  ),
+                ),
+              ),
               SliverPadding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: MintSpacing.lg,

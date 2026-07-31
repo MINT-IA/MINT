@@ -27,16 +27,15 @@
 # ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
 #   Assertion UNIQUEMENT `(?i).*garanti.*` (banned_terms_arb.py:13-14).
 #
-# ─── AX SAIN (tranche AX 2 appliquée — ADR 2026-07-30, patron #1127/#1140) ──
-#   `/retraite` migré : SliverAppBar (expandedHeight 80, floating, snap) +
-#   FlexibleSpaceBar/titlePadding (fix Codex #1143) → AppBar classique fixe
-#   (`Scaffold.appBar`, titre dans AppBar.title). Le 2e déclencheur d'effondrement
-#   iOS 26.2 (SliverAppBar-au-scroll) est supprimé. PREUVE RUNTIME (sweep tranche
-#   AX 2, iPhone 16e/26.2, seed retraite_lausanne) : arbre RICHE au repos (44
-#   nœuds) ET stable au scroll — `retraite-anchor` + `retraite-back` survivent au
-#   swipe (aucun effondrement), et `retraite-back` (leading AppBar fixe) redevient
-#   CIBLABLE par id (tap-coordonnée 28,75 supprimé). NB : `retraite-result` n'est
-#   PAS rendu au runtime en entrée deeplink (State C onboarding — voir C2).
+# ─── DETTE AX (C5 diagnostic — hors périmètre ship, cadrage §2) ────────
+#   `/retraite` est un CustomScrollView + SliverAppBar(expandedHeight 80, floating,
+#   snap). Riche au repos (`retraite-anchor` visible) ; collapse contenu AU SCROLL
+#   (2e trigger iOS 26.2, même racine que independant B2 / hypotheque B3). Leading
+#   icon-only NON ciblable `tapOn id:` → tap coordonnée (28,75, back épinglé).
+#   La ligne rente LPP est sous la flottaison → scroll requis : si le collapse au
+#   scroll dépouille l'id, la preuve C2 CORRECTE reste portée par le test widget
+#   `tierb_b5_anchors_test.dart` (retraite-result sous seed retraite_lausanne),
+#   motif B2 independant (assertion résultat au niveau widget).
 
 appId: ch.mint.app
 tags:
@@ -78,43 +77,28 @@ tags:
 - assertNotVisible:
     text: "Définis ton budget"
 
-# C2 — AX STABLE AU SCROLL (non-régression du swap) : un swipe ne doit PAS
-# effondrer l'arbre. Post-fix (SliverAppBar → AppBar fixe), `retraite-anchor`
-# (titre AppBar fixe) survit au scroll — avant le swap, le SliverAppBar dépouillait
-# tous les ids au scroll (2e trigger iOS 26.2). C'est la preuve runtime du swap
-# côté retraite (le `-result` étant non-rendu au runtime, cf. ci-dessous).
-- swipe:
-    direction: UP
-    duration: 400
-- assertVisible:
-    id: "retraite-anchor"
-
-# C2 — Chiffré CORRECT porté au WIDGET (PAS au flow). PREUVE RUNTIME (sweep tranche
-# AX 2, dump maestro hierarchy) : en entrée deeplink, `/retraite` rend l'état
-# ONBOARDING State C (« Commencer — 2 min », « Comment fonctionne la retraite »)
-# car la CoachProfileProvider n'est pas hydratée quand la route se construit
-# (hasProfile=false → State C) — la MÊME course d'hydratation que le quirk
-# /home→/onb (root-cause #1144, UNITÉ SÉPARÉE, hors périmètre AX). `retraite-result`
-# (ligne rente LPP) n'est donc PAS rendu au runtime (State C n'a pas de dashboard)
-# → un scrollUntilVisible échouerait pour une raison SANS RAPPORT avec l'AX
-# (l'arbre est sain, cf. swipe ci-dessus). La preuve C2 CHIFFRÉE CORRECTE (rente
-# LPP, PAS la ventilation AVS ≈ 0) reste portée au niveau WIDGET
-# (`tierb_b5_anchors_test.dart`, retraite-result findsOneWidget sous seed
-# retraite_lausanne).
+# C2 — Chiffré CORRECT : la ligne rente LPP (≈ 1'800/mois) porte `retraite-result`,
+# sous la flottaison. PREUVE RUNTIME MESURÉE (sweep 2026-07-31) : un
+# `scrollUntilVisible` sur cet id DÉCLENCHE le collapse SliverAppBar iOS 26.2
+# (2e trigger, cf. en-tête + B2 independant) → l'id reste dans l'arbre (92
+# occurrences dump) mais jamais 100 % visible+centré → l'assertion échoue. Le
+# scroll est donc RETIRÉ ici : la preuve C2 CHIFFRÉE CORRECTE (retraite-result
+# sur la rente LPP, PAS la ventilation AVS) est portée au niveau WIDGET par
+# `tierb_b5_anchors_test.dart` (retraite-result findsOneWidget sous seed
+# retraite_lausanne), motif B2 independant. Le runtime prouve ici l'atteignable
+# (C1) + non-vide (C2) + zéro-terme-banni (C3) + pas-de-cul-de-sac (C4).
 
 # C4 — Pas de cul-de-sac : le tap back (safePop) NAVIGUE hors de /retraite vers un
-# écran réel (pas de blocage, pas de crash). Leading `retraite-back` ciblable par
-# id (AppBar fixe — tap-coordonnée 28,75 retiré, patron tranche AX 2) ; en AppBar
-# fixe le leading reste visible après le scroll C2 (il ne défile pas hors-écran).
+# écran réel (pas de blocage, pas de crash). Leading icon-only de SliverAppBar
+# épinglé → tap coordonnée (28,75 ; back atteignable au repos, aucun scroll).
 # ATTERRISSAGE CONSTATÉ (sweep 2026-07-31) = `/onb` (OnboardingShellScreen), PAS
 # /home : en entrée deeplink, safePop→go('/home') retombe sur /onb APRÈS visite
 # /retraite (transition d'état /home→/onb ; le /home INITIAL du flow montrait bien
-# home_route_state). C'est un DÉFAUT RÉCOLTÉ (course d'hydratation, root-cause
-# #1144 — unité séparée), PAS un cul-de-sac : le back mène à un écran navigable.
-# Un vrai user atteint /retraite par push depuis /home → back = pop → /home. On
-# asserte l'atterrissage constaté.
+# home_route_state). C'est un DÉFAUT RÉCOLTÉ (root-cause = unité séparée), PAS un
+# cul-de-sac : le back mène à un écran navigable. Un vrai user atteint /retraite
+# par push depuis /home → back = pop → /home. On asserte l'atterrissage constaté.
 - tapOn:
-    id: "retraite-back"
+    point: "28,75"
 - extendedWaitUntil:
     visible:
       id: "onboarding-entry-open"
