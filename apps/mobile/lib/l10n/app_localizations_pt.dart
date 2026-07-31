@@ -21935,6 +21935,18 @@ class SPt extends S {
       'A taxa de substituição mede a parte do teu rendimento atual que manterás na reforma. Exemplo: 65% significa que receberás 65% do teu salário atual.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuidade do teu rendimento';
+
+  @override
+  String get incomeContinuityContext =>
+      'Já estás reformado/a: este indicador reflete a continuidade do teu rendimento de reforma, não uma taxa de substituição calculada sobre um salário de atividade passado.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Como já estás reformado/a, não há qualquer salário de atividade no dossiê. O teu rendimento de reforma serve então de referência: o indicador reflete a continuidade do teu rendimento, não uma taxa de substituição em sentido estrito.';
+
+  @override
   String get jargonLppTooltip =>
       'A LPP (Lei sobre a Previdência Profissional) é o 2.º pilar. Tu e o teu empregador contribuem juntos para a tua reforma.';
 

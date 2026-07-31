@@ -647,6 +647,9 @@ ALLOW = {
     "apps/mobile/lib/screens/coach/chat_as_verb_demo_screen.dart",
     "apps/mobile/lib/screens/coach/coach_chat_screen.dart",
     "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+    # P2 #1144 — libellé honnête continuité vs taux de remplacement (retraité).
+    "apps/mobile/lib/widgets/coach/retirement_hero_zone.dart",
+    "apps/mobile/test/screens/coach/retirement_income_continuity_label_test.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
     "apps/mobile/lib/services/apple_sign_in_service.dart",
