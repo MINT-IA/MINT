@@ -1507,7 +1507,18 @@ class _BifurcationStepState extends State<_BifurcationStep> {
     try {
       await provider.completeAndFlushToProfile(coach);
       if (coach.hasProfile) {
-        auth.markAccountProfileAvailable();
+        if (auth.isLoggedIn) {
+          auth.markAccountProfileAvailable();
+        } else {
+          // Honor the terminal promise « Anonyme · conservé sur cet
+          // appareil » : an anonymous guest who seals a local dossier must
+          // enter the app (guestEmpty ⇒ allowsMainNavigation) and be
+          // recognised on relaunch (enableLocalMode persists auth_local_mode).
+          // markAccountProfileAvailable() is a no-op when logged out, so
+          // without this branch /home redirected to /auth/register and the
+          // guest was forgotten on the next launch.
+          await auth.enableLocalMode();
+        }
       }
     } catch (e, stack) {
       dev.log(
