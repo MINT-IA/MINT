@@ -104,9 +104,15 @@ class _IndependantScreenState extends State<IndependantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.white,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 1) : AppBar classique en
+      // Scaffold.appBar, plus de SliverAppBar dans le CustomScrollView. Le
+      // SliverAppBar ré-effondrait l'arbre AX des routes poussées AU SCROLL sur
+      // iOS 26.2 (2e déclencheur, cf. project_ios26_ax_tree_collapse) ; l'AppBar
+      // fixe garde un arbre riche et stable → `independant-result` devient
+      // atteignable au scroll et `independant-back` (leading) redevient ciblable.
+      appBar: _buildAppBar(context),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
-          _buildAppBar(context),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
@@ -118,7 +124,19 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 const SizedBox(height: MintSpacing.lg),
 
                 // Revenue input
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildRevenueSection()),
+                // Ancre régionale Tier B smoke (C2 « non-vide » POSITIF) posée sur
+                // la section revenu — rend AU REPOS, au-dessus de la ligne de
+                // flottaison (avant le collapse-au-scroll de la SliverAppBar), le
+                // revenu seedé chiffré + l'âge. Prouve que le corps de l'écran est
+                // non-vide (pas seulement la barre AppBar). Le chiffré CALCULÉ
+                // (Jour J) reste sous la ligne de flottaison → dette AX (voir flow).
+                MintEntrance(
+                  delay: const Duration(milliseconds: 200),
+                  child: Semantics(
+                    identifier: 'independant-input',
+                    child: _buildRevenueSection(),
+                  ),
+                ),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Coverage toggles
@@ -127,7 +145,15 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
                 if (_result != null) ...[
                   // Jour J — protection before/after (P6-A / S42)
-                  _buildJourJSection(),
+                  // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la
+                  // section Jour J — présente UNIQUEMENT quand le résultat existe
+                  // (branche if (_result != null)), jamais au repos vide. Le hero
+                  // rend le « chiffre-choc » de perte mensuelle (formatChf). Motif
+                  // profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+                  Semantics(
+                    identifier: 'independant-result',
+                    child: _buildJourJSection(),
+                  ),
                   const SizedBox(height: MintSpacing.lg),
 
                   // Critical alerts
@@ -177,7 +203,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                           description:
                               'Transfert automatique apr\u00e8s 6 mois \u2014 rendement minimal.',
                           fiveYearGain: 1200,
-                          legalRef: 'OPP2 art. 10',
+                          legalRef: 'LFLP art. 4 al. 2',
                         ),
                         LppTransferOption(
                           label: 'Nouvelle caisse LPP',
@@ -212,18 +238,31 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
   // ── App Bar ────────────────────────────────────────────────
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
+  // AX iOS 26.2 (ADR 2026-07-30, tranche AX 1) : migré de SliverAppBar vers
+  // AppBar classique (patron first_job/rvc #1127). Rendu inchangé : l'ancien
+  // SliverAppBar n'avait ni expandedHeight ni flexibleSpace (aucun grand titre
+  // repliable) ; centerTitle:false vient de l'AppBarTheme. L'arbre AX ne
+  // s'effondre plus au scroll → le leading `independant-back` redevient ciblable.
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
       backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => safePop(context),
+      // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+      // pop, sinon go('/home')) pour le smoke Tier B (lot B2 Travail).
+      leading: Semantics(
+        identifier: 'independant-back',
+        button: true,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => safePop(context),
+        ),
       ),
+      // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+      // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
       title: Semantics(
         header: true,
+        identifier: 'independant-anchor',
         child: Text(
           S.of(context)!.independantAppBarTitle,
           style: MintTextStyles.headlineMedium(),

@@ -545,16 +545,27 @@ class _MariageScreenState extends State<MariageScreen>
       backgroundColor: MintColors.porcelaine,
       elevation: 0,
       surfaceTintColor: MintColors.porcelaine,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => safePop(context),
+      // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+      // pop, sinon go('/home')). Locator sémantique pour le smoke Tier B.
+      leading: Semantics(
+        identifier: 'mariage-back',
+        button: true,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => safePop(context),
+        ),
       ),
       flexibleSpace: FlexibleSpaceBar(
         titlePadding:
             const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
-        title: Text(
-          S.of(context)!.mariageTitle,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'mariage-anchor',
+          child: Text(
+            S.of(context)!.mariageTitle,
+            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
+          ),
         ),
       ),
       bottom: TabBar(
@@ -570,7 +581,24 @@ class _MariageScreenState extends State<MariageScreen>
         tabs: [
           Tab(text: S.of(context)!.mariageTabImpots),
           Tab(text: S.of(context)!.mariageTabRegime),
-          Tab(text: S.of(context)!.mariageTabProtection),
+          // Ancre Tier B smoke SEEDÉ : identifiant sémantique de l'onglet
+          // Protection (la rente de survivant chiffrée y est seed-alone). Le
+          // libellé d'onglet iOS porte un suffixe « \nOnglet 3 sur 4 » que le
+          // full-match texte de Maestro ne peut pas cibler — un id le rend
+          // déterministe. Le flow `flow_tierb_famille_seeded_mariage.yaml` tape
+          // dessus ; le Text conserve le rendu (DefaultTextStyle de TabBar).
+          Tab(
+            child: Semantics(
+              identifier: 'mariage-tab-protection',
+              // Reproduit le Text interne de `Tab(text:)` (softWrap:false +
+              // overflow:fade) pour préserver le rendu du libellé localisé.
+              child: Text(
+                S.of(context)!.mariageTabProtection,
+                softWrap: false,
+                overflow: TextOverflow.fade,
+              ),
+            ),
+          ),
           Tab(text: S.of(context)!.naissanceTabChecklist),
         ],
       ),
@@ -1240,8 +1268,12 @@ class _MariageScreenState extends State<MariageScreen>
 
   /// Sortie « rente de survivant » — rendue seulement via le render-gate
   /// (`protectionReady`). La figure affichée est fondée sur la SEULE donnée
-  /// confirmée : la rente LPP de survivant (60 % de la rente LPP du défunt, LPP
-  /// art. 19). La rente AVS de survivant n'est PAS chiffrée — son montant dépend
+  /// confirmée : la rente LPP de survivant (60 % de la rente LPP du défunt —
+  /// le taux 60 % est LPP art. 21 al. 1 ; les conditions d'octroi sont art. 19,
+  /// cf. le footnote). Base = rente LPP courante (avoir actuel converti), une
+  /// approximation CONSERVATRICE de la base légale (rente d'invalidité projetée,
+  /// LPP art. 21) — le montant réel serait plus élevé pour un assuré jeune. La
+  /// rente AVS de survivant n'est PAS chiffrée — son montant dépend
   /// de la carrière de cotisation (non confirmée) ; l'afficher au maximum légal
   /// serait un chiffre personnel fabriqué. Elle est énoncée qualitativement
   /// (aucun CHF, LAVS art. 23), à l'image de concubinage_screen.
@@ -1249,14 +1281,22 @@ class _MariageScreenState extends State<MariageScreen>
     final lppSurvivor = _renteLpp * FamilyService.lppSurvivorFactor;
 
     return [
-      MintResultHeroCard(
-        key: const Key('mariageSurvivorHero'),
-        eyebrow: S.of(context)!.mariageTabProtection,
-        primaryValue: '${FamilyService.formatChf(lppSurvivor)}/mois',
-        primaryLabel: S.of(context)!.mariageSurvivorMonthly,
-        narrative: S.of(context)!.mariageProtectionIntro,
-        accentColor: MintColors.success,
-        tone: MintSurfaceTone.sauge,
+      // Ancre régionale Tier B smoke SEEDÉ (C2 « chiffré ») posée sur le hero de
+      // la rente de survivant — présente UNIQUEMENT via le render-gate
+      // `protectionReady` (jamais sur la carte de situation). Motif profond,
+      // jamais le wrapper racine (leçon ADR AX iOS 26.2). Le flow
+      // `flow_tierb_famille_seeded_mariage.yaml` l'asserte après l'onglet Protection.
+      Semantics(
+        identifier: 'mariage-result',
+        child: MintResultHeroCard(
+          key: const Key('mariageSurvivorHero'),
+          eyebrow: S.of(context)!.mariageTabProtection,
+          primaryValue: '${FamilyService.formatChf(lppSurvivor)}/mois',
+          primaryLabel: S.of(context)!.mariageSurvivorMonthly,
+          narrative: S.of(context)!.mariageProtectionIntro,
+          accentColor: MintColors.success,
+          tone: MintSurfaceTone.sauge,
+        ),
       ),
       const SizedBox(height: MintSpacing.xl),
       // Rente LPP de survivant — donnée confirmée (rente LPP du défunt × 60 %).

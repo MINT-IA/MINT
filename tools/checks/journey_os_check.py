@@ -43,10 +43,38 @@ ALLOW = {
     "services/backend/app/api/v1/endpoints/health.py",
     "services/backend/app/schemas/common.py",
     "services/backend/tests/test_health.py",
+    # --- prep Flutter 3.44.8 : ancêtre Material pour les tiles en carte colorée
+    # (assertion debug ListTile._debugCheckBackgroundIsHidden). Écrans/widgets
+    # partagés touchés, hors whitelist Journey OS existante. ---
+    "apps/mobile/lib/screens/job_comparison_screen.dart",
+    "apps/mobile/lib/screens/simulator_compound_screen.dart",
+    "apps/mobile/lib/widgets/collapsible_section.dart",
+    "apps/mobile/lib/widgets/educational/educational_insert_widget.dart",
+    # --- fix(retraite) : honorer la rente AVS DÉCLARÉE dans les deux moteurs de
+    # projection (RPS + Forecaster) pour un retraité (salaire 0) au lieu de la
+    # recalculer depuis renteFromRAMD(0)=0. Preuve runtime dashboard /retraite. ---
+    "apps/mobile/lib/services/retirement_projection_service.dart",
+    "apps/mobile/lib/services/forecaster_service.dart",
+    "apps/mobile/test/services/retirement_declared_avs_test.dart",
+    "apps/mobile/test/screens/retraite_dashboard_declared_avs_test.dart",
+    "apps/mobile/test/screens/coach/retirement_dashboard_test.dart",
+    # --- fix(e2e) : fallback de scellement debug/E2E-only dans SecureWizardStore
+    # (double-gardé kReleaseMode + MINT_E2E_SEAL_FALLBACK). Sans lui, le seal
+    # keychain échoue sur build sim --no-codesign (-34018) → /retraite retombe en
+    # State C dans le harnais. Chemin release byte-inaccessible, contrat privacy
+    # secure_failure_test intact. Branche codex/journey-os-e2e-seal-fallback. ---
+    "apps/mobile/lib/services/secure_wizard_store.dart",
+    "apps/mobile/test/services/secure_wizard_store_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",
     ".github/workflows/journey-os-runtime-replay.yml",
+    # Spike upgrade Flutter 3.44.8 (ADR AX iOS 26.2 Étape 4) : pins CI unifiés.
+    ".github/workflows/testflight.yml",
+    ".github/workflows/play-store.yml",
+    ".github/workflows/web.yml",
+    ".github/workflows/walker_nightly.yml",
+    "apps/mobile/pubspec.lock",
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
     ".planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/STUB.md",
@@ -129,6 +157,10 @@ ALLOW = {
     "apps/mobile/lib/constants/social_insurance.dart",
     # -b9c : sémantique taux AVS combinés + provenance taux min LPP
     "services/backend/tests/test_b9c_avs_combined_semantics.py",
+    # codex/journey-os-libre-passage-i18n (#1125) : legalRef extrait en ARB +
+    # aligné sur LFLP art. 4 al. 2 (le délai 6 mois n'est pas art. 3).
+    "apps/mobile/lib/screens/lpp_deep/libre_passage_screen.dart",
+    "apps/mobile/test/screens/lpp_deep/libre_passage_screen_test.dart",
     # -dy0 : contraste AA — sites texte greenDark -> greenForest
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
@@ -198,6 +230,7 @@ ALLOW = {
     "apps/mobile/test/screens/donation_profile_seed_test.dart",
     "apps/mobile/lib/widgets/situation/situation_gate.dart",
     "apps/mobile/test/screens/donation_gate_test.dart",
+    "apps/mobile/test/screens/donation_i18n_wiring_test.dart",
     "apps/mobile/test/screens/life_event_screens_v2_smoke_test.dart",
     "apps/mobile/lib/screens/first_job_screen.dart",
     "apps/mobile/test/screens/first_job_gate_test.dart",
@@ -244,6 +277,10 @@ ALLOW = {
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.md",
+    ".planning/reports/SESSION-2026-07-30.html",
+    ".planning/reports/SESSION-2026-07-30.md",
+    ".planning/reports/SESSION-2026-07-31.html",
+    ".planning/reports/SESSION-2026-07-31.md",
     ".planning/audit/2026-07-26-advisor-lens-simulators.md",
     "tools/checks/generate_theme_maps.py",
     "tools/checks/nav_graph.py",
@@ -447,6 +484,9 @@ ALLOW = {
     # Tranche verticale firstJob (Phase 1') : spec 12D + flow d'acceptation
     # ROUGE par construction (voir header du flow — hors runners verts).
     ".planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md",
+    # Tier B smoke — cadrage des 18 life events (plan MINT utilisable v2.1,
+    # 2026-07-30). Page de cadrage, PAS d'implémentation.
+    ".planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",
@@ -557,10 +597,21 @@ ALLOW = {
     ".planning/phases/remediation-audit-2026-07/CONTEXT.md",
     ".planning/phases/remediation-audit-2026-07/AUTHORIZED_FILES.md",
     ".planning/phases/remediation-audit-2026-07/BACKLOG-DEV-VERIFIED.html",
+    # Clôture du P0 T11-F01 (/auth/apple/verify) : réel au SHA gelé, déjà
+    # corrigé dans dev (vérification JWKS) + durcissement e-mail non vérifié.
+    ".planning/audit-etat-des-lieux-2026-07/T11-F01-apple-verify-cloture.md",
+    # Résiduel actuariel P1 (#1144) : contrat de statut de l'avoir LPP —
+    # verdict d'ambiguïté + plan (double comptage rente retraité), page d'audit.
+    ".planning/audit-etat-des-lieux-2026-07/contrat-avoir-lpp-retraite.md",
     # --- end remediation audit 2026-07 ---
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",
     "apps/mobile/lib/providers/auth_provider.dart",
+    # --- Tier B smoke Lot B5 : seed E2E cross_border / frontalier_geneve
+    # (persona manquante bloquant le smoke C2 par cadrage
+    # mint-utilisable-tier-b-smoke). kReleaseMode-gardée, hors prod. ---
+    "apps/mobile/lib/services/coach/coach_profile_seeds.dart",
+    "apps/mobile/test/services/coach_profile_seeds_test.dart",
     "apps/mobile/lib/l10n/app_de.arb",
     "apps/mobile/lib/l10n/app_en.arb",
     "apps/mobile/lib/l10n/app_es.arb",
@@ -599,6 +650,9 @@ ALLOW = {
     "apps/mobile/lib/screens/coach/chat_as_verb_demo_screen.dart",
     "apps/mobile/lib/screens/coach/coach_chat_screen.dart",
     "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+    # P2 #1144 — libellé honnête continuité vs taux de remplacement (retraité).
+    "apps/mobile/lib/widgets/coach/retirement_hero_zone.dart",
+    "apps/mobile/test/screens/coach/retirement_income_continuity_label_test.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
     "apps/mobile/lib/services/apple_sign_in_service.dart",
@@ -764,11 +818,73 @@ ALLOW = {
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
-    # Tranche firstJob : flow d'acceptation RED (skip locator-audit, hors sweep)
-    "tools/simulator/flows/firstjob_tranche_acceptance_red.yaml",
-    # Tranche firstJob : variante SEEDED (diagnostic PR-I) — atterrit /home via
-    # seed archetype, hors sweep vert (bloquée par l'effondrement AX iOS 26.2).
-    "tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml",
+    # Tranche firstJob : flow d'acceptation CORE (promu _red->CORE, ADR AX iOS
+    # 26.2 Etape 2, 2026-07-30) — seed jeune_diplome_zurich, tier sweep dedie.
+    # Debloque par la migration SliverAppBar->AppBar (arbre AX stable au scroll),
+    # VERT bout en bout (maestro hierarchy iPhone 16e/26.2 cite).
+    "tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml",
+    # Tier B smoke lot B1 Famille (cadrage mint-utilisable-tier-b-smoke) : 4 flows
+    # seedes julien_swiss remplacant la dependance aux legacy deeplink racine.
+    # Runtime iPhone 16e/26.2 : C1/C3/C4/C5 verts, C2 rouge documente (sortie
+    # calculee gatee P2 sur seed celibataire — defaut ecran) — table C1-C5 en PR.
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_mariage.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_naissance.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_divorce.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_concubinage.yaml",
+    # Tier B smoke lot B1 Famille SEEDÉ (famille_bern, #1135) : variantes assertant
+    # le RÉSULTAT C2 chiffré (ancre <event>-result) débloqué par le seed couple/enfant.
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_mariage.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_naissance.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_divorce.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_concubinage.yaml",
+    # Preuve d'ancre C1 (Semantics identifier <event>-anchor) des 4 ecrans famille.
+    "apps/mobile/test/screens/tierb_famille_anchors_test.dart",
+    # Preuve d'ancre C2 (Semantics identifier <event>-result) sous seed famille_bern.
+    "apps/mobile/test/screens/tierb_famille_seeded_result_anchors_test.dart",
+    # Tier B smoke lot B2 Travail (julien_swiss salarie) : flows seedes newJob /
+    # jobLoss / selfEmployment ciblant l'ecran-event canonique. La persona salariee
+    # atteint C2 chiffre sur les 3 (indemnite chomage / verdict compare / perte Jour J).
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_job_comparison.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_unemployment.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_independant.yaml",
+    # Preuve d'ancres C1/C2/C4 (Semantics identifier <event>-anchor/-result/-back)
+    # des 3 ecrans Travail sous seed julien_swiss.
+    "apps/mobile/test/screens/tierb_travail_anchors_test.dart",
+    # Tier B smoke lot B3 Logement & Patrimoine (julien_swiss) : flows seedes
+    # housingPurchase / inheritance / housingSale / donation. hypotheque +
+    # succession chiffrent au repos ; housing-sale + donation apres « Calculer »
+    # (donation gate fiscal ouvert seed-alone via le canton du profil).
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_hypotheque.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_succession.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_housing_sale.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_donation.yaml",
+    # Ancre C1/C2/C4 : ecran succession (les 3 autres ecrans B3 sont deja dans ALLOW).
+    "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart",
+    # Preuve d'ancres C1/C2/C4 des 4 ecrans Patrimoine sous seed julien_swiss.
+    "apps/mobile/test/screens/tierb_logement_anchors_test.dart",
+    # Tier B smoke — lots B5 (crise / international) + retraite : 3 flows seedes
+    # (debtCrisis=julien_swiss, countryMove=julien_swiss [frontalier_geneve est
+    # waitlisted par la cohorte produit], retirement=retraite_lausanne). Les 3
+    # ecrans-evenements sont deja dans ALLOW.
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml",
+    # Preuve d'ancres C1/C2/C4 des 3 ecrans B5+retraite sous leurs seeds.
+    "apps/mobile/test/screens/tierb_b5_anchors_test.dart",
+    # Tier B smoke lot B4 Décès/Santé/Mobilité (julien_swiss) : flows seedes
+    # deathOfRelative / disability / cantonMove. deces/demenagement = AppBar FIXE
+    # (deces NON-VIDE au repos, chiffré CHF touch-only prouve au widget test ;
+    # demenagement chiffre apres 2 touches id-ciblees) ; invalidite = motif
+    # firstJob (CustomScrollView + SliverAppBar + wrapper racine) → C5/C1 rouges
+    # ATTENDUS = SIGNAL AX du cadrage (dette AX, non masque). Les 3 ecrans B4 sont
+    # deja dans ALLOW ci-dessus (bloc a11y ILLOG-02).
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_deces.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_demenagement.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_invalidite.yaml",
+    # Preuve d'ancres C1/C2/C4 des 3 ecrans B4 sous seed julien_swiss.
+    "apps/mobile/test/screens/tierb_b4_anchors_test.dart",
+    # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
+    "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",
     "tools/claude_review.py",
     "tools/claude_review.sh",
@@ -978,6 +1094,14 @@ ALLOW = {
     # déterministe depuis les inputs VALIDÉS (allowlist #1116), sans forger de
     # net (décision Reading A), sans LLM ni gate. Même patron que #1118.
     "services/backend/tests/coach/test_coach_receipt_pending_deterministic.py",
+    # fix(l10n) OLP art. 10 (2026-07-30) — base légale de la police de libre
+    # passage corrigée (OPP2 art. 10 = devoir d'info employeur ≠ formes de
+    # maintien ; formes = OLP art. 10, épargne-titres = OLP art. 19a). Écran
+    # (via ARB) + widget partagé (disclaimer extrait en ARB) + carte indépendant
+    # (institution supplétive → LFLP art. 4 al. 2).
+    "apps/mobile/lib/widgets/coach/lpp_rescue_widget.dart",
+    "apps/mobile/lib/screens/independant_screen.dart",
+    "apps/mobile/test/widgets/coach/lpp_rescue_widget_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
@@ -990,6 +1114,13 @@ DELETION_ALLOW = {
     "apps/mobile/lib/services/simulators/lpp_buyback_advanced_simulator.dart",
     "apps/mobile/test/simulators/lpp_buyback_advanced_simulator_test.dart",
     "apps/mobile/test/services/coach/chat_drawer_summon_test.dart",
+    # Tranche firstJob (ADR AX iOS 26.2 Etape 2, 2026-07-30) : promotion
+    # _red->CORE. La variante REELLE _red.yaml est INJOUABLE (testIDs onb-*
+    # absents, cablage hors-tranche SPEC §3.1) -> retiree. La variante SEEDED
+    # est deplacee vers maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml
+    # (promue CORE, VERT bout en bout cite).
+    "tools/simulator/flows/firstjob_tranche_acceptance_red.yaml",
+    "tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml",
 }
 IGNORED_GENERATED_PREFIXES = (
     "services/backend/mint_backend.egg-info/",

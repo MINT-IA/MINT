@@ -133,6 +133,43 @@ class CoachProfileSeed {
   /// seeds are unmodified.
   final String? nationality;
 
+  /// Residence permit (wizard option value or canonical code), forwarded to
+  /// `q_residence_permit` and normalized by [normalizeResidencePermit].
+  ///
+  /// The `'permit_g'` / `'G'` value is the sole positive signal that resolves
+  /// [CoachProfile.archetype] to [FinancialArchetype.crossBorder] (the
+  /// frontalier persona). Optional with default `null` so seeds created before
+  /// the `frontalier_geneve` addition are unmodified.
+  final String? residencePermit;
+
+  /// Genre canonique de l'utilisateur principal ('F' / 'M'), forwarded to
+  /// `q_gender`. Seul signal positif du rôle parental dans naissance_screen
+  /// (congé maternité 14 sem. vs paternité 2 sem.). Optional avec défaut `null`
+  /// pour laisser les seeds antérieurs (genre inconnu → congé gaté) inchangés.
+  final String? gender;
+
+  /// Revenu NET mensuel du conjoint en CHF, forwarded to
+  /// `q_partner_net_income_chf`. Fait naître un [ConjointProfile] (household
+  /// `couple`) dont le salaire BRUT = net × facteur canonique IncomeConverter
+  /// (~1.17). C'est le revenu 2 (conjoint réel) qui débloque le partage
+  /// mariage / concubinage. Optional (défaut `null` ⇒ pas de conjoint).
+  final double? partnerNetMonthlyIncome;
+
+  /// Nombre d'enfants du ménage, forwarded to `q_children`. Amorce la VALEUR
+  /// des compteurs d'enfants (allocations / impact) et confirme le fait côté
+  /// divorce (nombreEnfants > 0 ⇒ touched). Optional (défaut `null` ⇒ 0).
+  final int? nombreEnfants;
+
+  /// Rente AVS mensuelle DÉCLARÉE en CHF, forwarded to `_coach_avs_rente_estimee`
+  /// → `PrevoyanceProfile.renteAVSEstimeeMensuelle` (clé wizard réelle, déjà lue
+  /// par `CoachProfile.fromWizardAnswers:2901` et écrite par le provider à
+  /// `coach_profile_provider.dart:2394`). C'est le revenu AVS d'un profil
+  /// `employmentStatus: 'retraite'` : le chemin retraité de `isInDebtCrisis`
+  /// (coach_profile.dart:2197) le lit comme dénominateur de revenu quand
+  /// `salaireBrutMensuel == 0`. Optional (défaut `null` ⇒ pas de rente déclarée,
+  /// laisse les seeds actifs — non retraités — inchangés).
+  final double? renteAvsMensuelle;
+
   const CoachProfileSeed({
     required this.slug,
     required this.firstName,
@@ -164,6 +201,11 @@ class CoachProfileSeed {
     this.lppSource,
     this.usTaxPerson,
     this.nationality,
+    this.residencePermit,
+    this.gender,
+    this.partnerNetMonthlyIncome,
+    this.nombreEnfants,
+    this.renteAvsMensuelle,
   });
 
   /// Build a [CoachContext] hydrated from this seed.
@@ -219,6 +261,15 @@ class CoachProfileSeed {
         lppSupplementaryBalance != null ||
         lppInsuredSalary != null ||
         lppBuybackMax != null;
+    // Type de ménage dérivé : un conjoint réel (revenu partenaire) ou un état
+    // civil en couple (formes canoniques `married` / `concubinage` émises par
+    // les seeds) → `couple`, sinon `single`. Les seeds antérieurs (civilStatus
+    // null ou `single`, pas de conjoint) restent `single`.
+    // `CoachProfile.fromWizardAnswers` fait primer l'état civil frais sur ce
+    // champ, mais on le tient cohérent pour les surfaces ménage.
+    final isCoupleHousehold = partnerNetMonthlyIncome != null ||
+        civilStatus == 'married' ||
+        civilStatus == 'concubinage';
 
     return <String, dynamic>{
       'q_firstname': firstName,
@@ -232,7 +283,14 @@ class CoachProfileSeed {
         'q_self_employed_net_income_annual_chf':
             independentNetProfessionalIncomeAnnual,
       'q_employment_status': employmentStatus,
-      'q_household_type': 'single',
+      'q_household_type': isCoupleHousehold ? 'couple' : 'single',
+      if (gender != null) 'q_gender': gender,
+      if (nombreEnfants != null) 'q_children': nombreEnfants,
+      // Revenu NET du conjoint : `fromWizardAnswers` le convertit en BRUT via
+      // le facteur canonique IncomeConverter puis matérialise le ConjointProfile
+      // (gate `hasConjointData`). C'est le revenu 2 réel de mariage/concubinage.
+      if (partnerNetMonthlyIncome != null)
+        'q_partner_net_income_chf': partnerNetMonthlyIncome,
       if (housingStatus != null) 'q_housing_status': housingStatus,
       'q_housing_cost_period_chf':
           housingCostMonthly ?? (monthlyNetIncome * 0.26).roundToDouble(),
@@ -259,10 +317,15 @@ class CoachProfileSeed {
       if (lppInsuredSalary != null) '_coach_salaire_assure': lppInsuredSalary,
       if (lppBuybackMax != null) '_coach_rachat_maximum': lppBuybackMax,
       if (lppHasExplicitFacts) '_coach_lpp_source': lppSource ?? 'manual_seed',
+      // Rente AVS déclarée (retraité) — clé wizard réelle lue par
+      // fromWizardAnswers → PrevoyanceProfile.renteAVSEstimeeMensuelle.
+      if (renteAvsMensuelle != null)
+        '_coach_avs_rente_estimee': renteAvsMensuelle,
       'q_avs_lacunes_status': 'unknown',
       'q_has_consumer_debt': false,
       'q_nationality':
           nationality ?? (archetype == 'swiss_native' ? 'CH' : null),
+      if (residencePermit != null) 'q_residence_permit': residencePermit,
       if (usTaxPerson != null) 'q_us_tax_person': usTaxPerson,
     };
   }
@@ -398,6 +461,203 @@ class CoachProfileSeeds {
       threeAAccountsCount: 1,
       nationality: 'CH',
     ),
+    // Tier B smoke — cross_border / frontalier persona (Lot B5). Closes the
+    // BLOCKING gap flagged by the Tier B cadrage
+    // (.planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md §4.1):
+    // byArchetype('cross_border') was null → a build seeded frontalier booted a
+    // navigable guest shell WITHOUT a profile → smoke C2 (non-empty + chiffré)
+    // failed. NEVER #7 forbids treating frontalier as an edge case.
+    //
+    // Métier — résident France, emploi Genève, permis G (frontalier), imposé à
+    // la source. Célibataire sans charge de famille ⇒ barème A0 (le barème C
+    // vise les couples mariés à deux revenus, pas une personne seule).
+    // `residencePermit: 'permit_g'` is the sole positive signal resolving
+    // CoachProfile.archetype to FinancialArchetype.crossBorder
+    // (models/coach_profile.dart:2024).
+    // Non quasi-résident PAR DÉFAUT : cotiser au 3a reste possible, mais sans le
+    // statut de quasi-résident genevois (>90 % du revenu mondial de source
+    // suisse, ouvrant la taxation ordinaire ultérieure) la cotisation n'ouvre
+    // AUCUNE déduction fiscale — le barème à la source intègre déjà un forfait.
+    // Un frontalier non quasi-résident ne cotise donc typiquement pas au 3a →
+    // annual3aContribution: 0 volontairement. La solidarité AC est abolie
+    // (#1115) — rien à seeder pour elle. LPP suisse présente (le frontalier
+    // cotise au 2e pilier suisse). kReleaseMode-guarded via forcedArchetypeSlug
+    // (no production leak).
+    'frontalier_geneve': CoachProfileSeed(
+      slug: 'frontalier_geneve',
+      firstName: 'Nicolas',
+      age: 41,
+      canton: 'GE',
+      archetype: 'cross_border',
+      grossMonthlySalary: 6800,
+      employmentStatus: 'employed',
+      netMonthlyIncome: 5800,
+      hasPensionFund: true,
+      annual3aContribution: 0,
+      threeAAccountsCount: 0,
+      civilStatus: 'single',
+      housingStatus: 'renter',
+      housingCostMonthly: 1350,
+      lamalPremiumMonthly: 380,
+      // Impôt à la source GE barème A0 2026 (célibataire) ≈ 11,3 % de 6'800
+      // brut (source ge.ch/document/41802) ≈ 770 CHF/mois.
+      taxProvisionMonthly: 770,
+      otherFixedCostsMonthly: 700,
+      savingsMonthly: 800,
+      cashTotal: 24000,
+      investmentsTotal: 18000,
+      lppBalanceTotal: 82000,
+      lppMandatoryBalance: 68000,
+      lppSupplementaryBalance: 14000,
+      lppInsuredSalary: 55000,
+      lppBuybackMax: 28000,
+      lppSource: 'document_scan',
+      nationality: 'FR',
+      residencePermit: 'permit_g',
+    ),
+    // Tier B smoke — persona FAMILLE (couple marié double-revenu, 1 enfant).
+    // Débloque le critère C2 « chiffré » des 4 écrans famille
+    // (mariage / naissance / divorce / concubinage) : toutes les seeds
+    // existantes sont `household_type: single`, sans conjoint ni enfant, donc
+    // les gates famille (revenu du conjoint, rôle parental, avoir LPP des deux)
+    // restaient fermés (P2 gate dur, .planning/decisions/2026-07-25). NEVER #4 :
+    // MINT couvre 18 événements de vie — la famille n'est pas un cas limite.
+    //
+    // Métier : ménage bernois, deux salaires (utilisateur ~114'000 brut/an ;
+    // conjoint ~78'000 brut/an, saisi en NET 5'556/mois × facteur canonique
+    // IncomeConverter ~1.17). Un enfant. LPP de l'utilisateur issue d'un
+    // certificat (salaire assuré déclaré ⇒ isLppFromCertificate) — le partage
+    // LPP du divorce exige une valeur réelle, jamais une estimation âge×salaire.
+    // La déduction fiscale du barème marié (splitting) et le quotient enfant se
+    // lisent sur revenu1 + revenu2 + canton BE (FamilyService, financial_core).
+    // L'utilisatrice est déclarée 'F' ⇒ le congé de naissance rend le volet
+    // maternité APG (14 sem.), plafonné à 220 CHF/jour pour ce niveau de revenu.
+    // Le conjoint (revenu 2) alimente aussi la comparaison concubinage. Le côté
+    // EX-conjoint du divorce (revenu 2, avoir au mariage) reste hors-profil par
+    // doctrine anti-contamination : il se renseigne à l'écran, jamais dérivé du
+    // profil. Exposée via `MINT_E2E_ARCHETYPE=famille_bern` (seedKey direct,
+    // pas un archétype). kReleaseMode-guarded via forcedArchetypeSlug.
+    'famille_bern': CoachProfileSeed(
+      slug: 'famille_bern',
+      firstName: 'Sarah',
+      age: 38,
+      canton: 'BE',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 9500,
+      employmentStatus: 'employed',
+      netMonthlyIncome: 7300,
+      gender: 'F',
+      civilStatus: 'married',
+      partnerNetMonthlyIncome: 5556,
+      nombreEnfants: 1,
+      hasPensionFund: true,
+      annual3aContribution: 7056,
+      threeABalance: 28000,
+      threeAAccountsCount: 1,
+      housingStatus: 'renter',
+      housingCostMonthly: 2200,
+      lamalPremiumMonthly: 620,
+      taxProvisionMonthly: 950,
+      otherFixedCostsMonthly: 1100,
+      savingsMonthly: 900,
+      cashTotal: 40000,
+      investmentsTotal: 30000,
+      lppBalanceTotal: 180000,
+      lppMandatoryBalance: 145000,
+      lppSupplementaryBalance: 35000,
+      lppInsuredSalary: 100000,
+      lppBuybackMax: 55000,
+      lppSource: 'document_scan',
+      nationality: 'CH',
+    ),
+    // Tier B smoke — persona RETRAITÉ « en régime » (Lot B2). Débloque le
+    // constat non-trivial documenté par le Lot B5 (#1133) : le schéma de seed
+    // est salaire-centrique, donc AUCUNE seed n'exposait un profil
+    // `employmentStatus: 'retraite'` à `salaireBrutMensuel == 0`. Un build
+    // seedé retraité bootait donc un shell sans revenu → risque « Définis ton
+    // budget » (budget vide). NEVER #3 : MINT couvre 18 événements de vie, la
+    // retraite n'est pas un cas limite (cible 18-99).
+    //
+    // Mécanique salaire-0 (le cœur du Lot B2) — comment /home reste NON-VIDE
+    // et ADAPTÉ malgré un salaire nul :
+    //   1. `grossMonthlySalary: 0` ⇒ `q_gross_salary_annual: 0` ⇒
+    //      `salaireBrutMensuel == 0` (fromWizardAnswers:2780).
+    //   2. `employmentStatus: 'retraite'` route le budget vers la branche
+    //      retraitée de BudgetLivingEngine.compute (age >= âge de référence AVS)
+    //      → modules retraite (RetirementProjectionService), pas la projection
+    //      pré-retraite salaire-dépendante.
+    //   3. `netMonthlyIncome` = rente AVS + rente LPP mensuelles ⇒
+    //      `explicitMonthlyNetIncome > 0` : le budget PRÉSENT
+    //      (BudgetInputs.monthlyNetFromCoachProfile) prend le net explicite
+    //      AVANT le calcul salaire→net, donc le hero budget est chiffré même à
+    //      salaire nul (c'est le fait `budget.monthly_capacity` du packet /home).
+    //   4. `renteAvsMensuelle` émet la clé réelle `_coach_avs_rente_estimee`
+    //      (rente AVS déclarée) que le chemin retraité de isInDebtCrisis lit.
+    //   5. La rente LPP mensuelle est modélisée par l'AVOIR de 2e pilier
+    //      (`lppBalanceTotal`) que RetirementProjectionService convertit en rente
+    //      via le taux de conversion — SEULE modélisation « rente LPP » lue par
+    //      le module retraite rendu (le champ `projectedRenteLpp` ne vient QUE
+    //      d'un scan de certificat, jamais de l'onboarding : on ne l'invente pas).
+    //
+    // Métier Lausanne (vérifié Codex swiss-brain) — retraité célibataire, échelle
+    // 44 quasi-pleine : rente AVS ≈ 2'000/mois (plafond individuel 2025 ≈ 2'520),
+    // rente LPP ≈ 1'800/mois APPROXIMÉE au taux de conversion par défaut de l'app
+    // (~6,8 % sur tout l'avoir ; à noter que le minimum 6,8 % de LPP art. 14 ne
+    // s'impose légalement qu'à la part obligatoire, la surobligatoire pouvant
+    // être convertie plus bas — simplification assumée pour une seed smoke),
+    // 3a épuisé (retiré au départ à la retraite ⇒ annual3aContribution 0 /
+    // threeABalance 0), fortune liquide modeste. kReleaseMode-guarded via
+    // forcedArchetypeSlug. Exposé via `MINT_E2E_ARCHETYPE=retraite_lausanne`
+    // (seedKey direct : la retraite n'est pas un FinancialArchetype, comme
+    // famille_bern).
+    //
+    // Limitation connue (suivi, HORS « build the seed ») : RetirementProjectionService
+    // recalcule l'AVS depuis `revenuBrutAnnuel` (= 0 ici) → la VENTILATION du
+    // module retraite affiche AVS ≈ 0. La rente AVS DÉCLARÉE (2'000) reste
+    // correcte là où /home la lit vraiment : le budget PRÉSENT (net explicite
+    // 3'800) et le packet coach (`pillar.avs.estimated_monthly_pension` = 2'000).
+    // Honorer la rente AVS déclarée dans la projection = correctif du moteur
+    // (13e rente + plafond couple), à traiter à part de ce seed.
+    'retraite_lausanne': CoachProfileSeed(
+      slug: 'retraite_lausanne',
+      firstName: 'Roland',
+      age: 68,
+      canton: 'VD',
+      archetype: 'swiss_native',
+      grossMonthlySalary: 0,
+      employmentStatus: 'retraite',
+      // Revenu net du ménage retraité = rente AVS 2'000 + rente LPP 1'800.
+      // Alimente le budget présent à salaire nul (explicitMonthlyNetIncome).
+      netMonthlyIncome: 3800,
+      gender: 'M',
+      civilStatus: 'single',
+      // Rente AVS déclarée — clé réelle `_coach_avs_rente_estimee`.
+      renteAvsMensuelle: 2000,
+      hasPensionFund: true,
+      // 3a épuisé au départ à la retraite (retiré) : aucune cotisation ni solde.
+      annual3aContribution: 0,
+      threeABalance: 0,
+      threeAAccountsCount: 0,
+      housingStatus: 'renter',
+      housingCostMonthly: 1600,
+      lamalPremiumMonthly: 450,
+      // Impôt modeste sur les rentes (barème VD, célibataire retraité).
+      taxProvisionMonthly: 220,
+      otherFixedCostsMonthly: 600,
+      // « En régime » : le retraité vit de ses rentes, pas d'épargne active.
+      savingsMonthly: 0,
+      // Fortune liquide modeste.
+      cashTotal: 28000,
+      investmentsTotal: 15000,
+      // Avoir LPP au départ à la retraite : converti au taux minimal 6,8 %,
+      // il produit la rente LPP ≈ 1'800/mois rendue par le module retraite.
+      lppBalanceTotal: 318000,
+      lppMandatoryBalance: 250000,
+      lppSupplementaryBalance: 68000,
+      lppInsuredSalary: 62000,
+      lppSource: 'document_scan',
+      nationality: 'CH',
+    ),
   };
 
   /// Return the seed slug forced via `MINT_E2E_ARCHETYPE`, or null when:
@@ -455,6 +715,11 @@ class CoachProfileSeeds {
         return registry['julien_swiss'];
       case 'independent_no_lpp':
         return registry['independent_no_lpp_income_reality'];
+      case 'cross_border':
+        // Tier B smoke Lot B5 — frontalier persona. Without this arm the smoke
+        // build (--dart-define=MINT_E2E_ARCHETYPE=cross_border) resolved to
+        // null → no profile → C2 (non-empty + chiffré) failed. NEVER #7.
+        return registry['frontalier_geneve'];
       // Add other slug → seed mappings here as new seeds are added in
       // future sub-phases. Do NOT add a default arm — unknown slug = null.
       default:

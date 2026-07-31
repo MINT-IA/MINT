@@ -16275,6 +16275,24 @@ class SPt extends S {
   String get donationRegimeSeparation => 'Separação de bens';
 
   @override
+  String get donationLienConjoint => 'Cônjuge';
+
+  @override
+  String get donationLienDescendant => 'Filho(a) / Descendente';
+
+  @override
+  String get donationLienParent => 'Progenitor';
+
+  @override
+  String get donationLienFratrie => 'Irmão(ã)';
+
+  @override
+  String get donationLienConcubin => 'Companheiro(a)';
+
+  @override
+  String get donationLienTiers => 'Terceiro';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserva $pct%';
   }
@@ -18538,7 +18556,7 @@ class SPt extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 3). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.';
+      'Ao mudar de emprego, tens 6 meses para transferir o teu capital LPP (LFLP art. 4 al. 2). Após esse prazo, o capital é automaticamente depositado numa conta de livre passagem. Escolhe o veículo certo desde o início.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -21935,6 +21953,18 @@ class SPt extends S {
       'A taxa de substituição mede a parte do teu rendimento atual que manterás na reforma. Exemplo: 65% significa que receberás 65% do teu salário atual.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuidade do teu rendimento';
+
+  @override
+  String get incomeContinuityContext =>
+      'Já estás reformado/a: este indicador reflete a continuidade do teu rendimento de reforma, não uma taxa de substituição calculada sobre um salário de atividade passado.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Como já estás reformado/a, não há qualquer salário de atividade no dossiê. O teu rendimento de reforma serve então de referência: o indicador reflete a continuidade do teu rendimento, não uma taxa de substituição em sentido estrito.';
+
+  @override
   String get jargonLppTooltip =>
       'A LPP (Lei sobre a Previdência Profissional) é o 2.º pilar. Tu e o teu empregador contribuem juntos para a tua reforma.';
 
@@ -24904,4 +24934,39 @@ class SPt extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Motor de cálculo: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Conta de livre passagem';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Segurança elevada, taxa fixa 1-2%. Adequado se retomas um emprego rapidamente.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — prazo de 6 meses';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Apólice de seguro';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Cobertura de morte e invalidez incluída. Rendimento médio ligado às taxas técnicas.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Fundo de investimento';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Maior potencial de rendimento. Risco de mercado a aceitar no horizonte.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Ferramenta educativa · não constitui aconselhamento financeiro na aceção da LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Sem instrução, transferência oficiosa entre 6 meses e 2 anos (LFLP art. 4 al. 2). Haveres esquecidos: sfbvg.ch.';
 }

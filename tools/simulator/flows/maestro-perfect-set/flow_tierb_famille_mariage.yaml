@@ -1,0 +1,126 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_mariage.yaml
+#
+# TIER B smoke — lot B1 Famille — event `marriage` (route /mariage).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Remplace la dépendance au legacy deeplink racine `famille_parcours.yaml`
+# (mintapp:/// sim-instable, seed swiss_native only, dans aucun tier de sweep).
+#
+# ─── BUILD (seed archetype requis, miroir walker firstJob) ─────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-famille` (tier seedé
+#   dédié julien_swiss — un app installé normal ne peut pas le servir, cf.
+#   tiers `fatca` / `firstjob`).
+#
+# ─── GATE 5D (sous-ensemble de la grille 12D, cf. cadrage §2) ──────────
+#   C1 Atteignable      : /home seedé → deeplink /mariage → id `mariage-anchor`
+#   C2 Non-vide+chiffré : aucune sentinelle vide + ≥1 chiffre calculé
+#   C3 Zéro terme banni : regex LSFin absente à l'écran
+#   C4 Pas de cul-de-sac: bouton retour identifié → retour /home sans crash
+#   C5 Arbre AX ≥ 25    : diagnostic hors-flow via `maestro hierarchy`
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss, staging,
+#     maestro test — cité dans la PR) ─────────────────────────────────
+#   C1 VERT   — `mariage-anchor` visible au repos (contrairement à first_job
+#               en CustomScrollView, cet écran NestedScrollView NE s'effondre
+#               PAS : maestro hierarchy = 64 nœuds au repos, anchor présent).
+#   C2 ROUGE (défaut écran, hors périmètre) — l'écran est NON-VIDE (cartes +
+#     revenu1 seedé « CHF 114'000 » visible) et sans sentinelle vide, MAIS la
+#     sortie CALCULÉE (comparaison fiscale du couple) est gatée « dur » P2 :
+#     « Complète ta situation pour un calcul fondé ». Le seed julien_swiss est
+#     célibataire sans conjoint (revenu2 = défaut 60'000 « hypothèse
+#     modifiable »), sans enfant (nbEnfants touch seul), sans avoir LPP → les
+#     4 sorties (impôt couple / régime / timeline / rente survivant) restent
+#     gatées, ZÉRO résultat chiffré au repos. Aucun seed dispo (julien_swiss /
+#     couple_acheteurs_lausanne sont tous deux `household_type: single`) ne
+#     porte conjoint+enfants → C2 « chiffré » INATTEIGNABLE sans persona
+#     famille dédiée (cadrage §4 manquante #3). Ce flow n'asserte donc PAS le
+#     chiffre calculé (ce serait masquer le défaut) : il asserte la non-vacuité
+#     + l'absence de sentinelle, et LAISSE le défaut C2 visible dans le rapport.
+#   C3 VERT   — aucun terme banni rendu (regex ne matche rien au repos).
+#   C4 VERT   — `mariage-back` → retour /home (home_route_state visible).
+#   C5 VERT   — 64 nœuds au repos (≥ 25). N.B. les écrans SliverAppBar
+#               PEUVENT s'effondrer au scroll profond (dette AX, file
+#               ax-pilote/appbar-gate) ; non déclenché ici (anchor above-fold,
+#               résultat gaté donc pas de scroll vers un chiffre).
+#
+# Locators 100% sémantiques, zéro pixel.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - famille
+  - seeded
+  - feature:marriage
+---
+
+# ═══════════════════════════════════════════════════════════════════════
+# 0. COLD LAUNCH SEEDÉ → /home (guestEmpty shell navigable, motif firstJob)
+# ═══════════════════════════════════════════════════════════════════════
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 1. C1 — Atteignable : deeplink canonique /mariage (persona célibataire ne
+#    suggère pas la carte life event → fallback deeplink sanctionné cadrage).
+# ═══════════════════════════════════════════════════════════════════════
+- openLink: "mintapp:///mariage"
+- extendedWaitUntil:
+    visible:
+      id: "mariage-anchor"
+    timeout: 15000
+
+# ═══════════════════════════════════════════════════════════════════════
+# 2. C3 — Zéro terme banni LSFin. MIROIR RUNTIME de check_banned_terms.
+#    Le cadrage §2 donne DEUX définitions contradictoires de C3 : (i) un regex
+#    naïf 7-termes et (ii) « miroir runtime de check_banned_terms ». La source
+#    autoritaire est (ii) : l'implémentation canonique `banned_terms_arb.py`
+#    (lignes 13-14) EXCLUT explicitement optimal/meilleur/parfait/sans risque/
+#    assuré/certain (« too many colloquial uses ») et n'applique QUE la famille
+#    « garanti* » (frontière de mot + allowlist de négation). Preuve runtime :
+#    le regex naïf a matché « certain » dans une phrase de succession légitime
+#    sur /concubinage (faux positif). On mirroite donc le canonique : famille
+#    garanti* seule. Les 6 termes colloquiaux restent gouvernés par la doctrine
+#    + revue ARB + check_banned_terms MCP (jugement humain), pas un assert
+#    substring runtime. `(?i)` = insensible à la casse (attrape « GARANTI » d'un
+#    eyebrow en .toUpperCase()). RÉSIDUS assumés (limites intrinsèques d'un
+#    smoke, pas un miroir exhaustif) : ne couvre QUE la surface à l'écran (1er
+#    onglet, above-fold), pas les onglets/zones hors-vue ; ne modélise pas
+#    l'allowlist de négation (« pas garanti ») — ces deux-là restent au gate ARB
+#    banned_terms + revue.
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 3. C2 — Non-vide : aucune sentinelle vide. (Le « chiffré » CALCULÉ est
+#    gaté P2 sur le seed célibataire — défaut D-C2 documenté en tête.)
+# ═══════════════════════════════════════════════════════════════════════
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# ═══════════════════════════════════════════════════════════════════════
+# 4. C4 — Pas de cul-de-sac : bouton retour identifié → shell /home.
+# ═══════════════════════════════════════════════════════════════════════
+- tapOn:
+    id: "mariage-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

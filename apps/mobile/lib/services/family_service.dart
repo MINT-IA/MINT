@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FAMILY SERVICE — Sprint S22 / Famille & Concubinage
@@ -92,7 +93,11 @@ class FamilyService {
   /// AVS survivor rente: 80% of deceased's rente (LAVS art. 35).
   static const double avsSurvivorFactor = 0.80;
 
-  /// LPP survivor rente: 60% of insured rente (LPP art. 19).
+  /// LPP survivor rente: 60% of the deceased's disability/retirement rente.
+  /// The 60% RATE is LPP art. 21 al. 1 (montant de la rente de survivants).
+  /// LPP art. 19 governs the entitlement CONDITIONS, not the rate — see the
+  /// footnote `mariageLppSurvivorFootnote`. Mirrors
+  /// `LppCalculator.survivorSpouseRate` (canonical survivor engine).
   static const double lppSurvivorFactor = 0.60;
 
   // AVS max single rente mensuelle: uses avsRenteMaxMensuelle from social_insurance.dart
@@ -196,37 +201,32 @@ class FamilyService {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  SIMPLIFIED TAX RATES (effective rates for 100k single)
+  //  MODÈLE IMPÔT REVENU — délégué à l'étalon ESTV canonique
   // ════════════════════════════════════════════════════════════
-
-  static const Map<String, double> _effectiveRates100kSingle = {
-    'ZG': 0.0823,
-    'NW': 0.0891,
-    'OW': 0.0934,
-    'AI': 0.0956,
-    'AR': 0.1012,
-    'SZ': 0.1034,
-    'UR': 0.1067,
-    'LU': 0.1089,
-    'GL': 0.1102,
-    'TG': 0.1145,
-    'SH': 0.1167,
-    'AG': 0.1189,
-    'GR': 0.1203,
-    'BL': 0.1256,
-    'SG': 0.1278,
-    'ZH': 0.1290,
-    'FR': 0.1312,
-    'SO': 0.1334,
-    'TI': 0.1356,
-    'BE': 0.1389,
-    'NE': 0.1423,
-    'VS': 0.1456,
-    'VD': 0.1489,
-    'JU': 0.1512,
-    'GE': 0.1545,
-    'BS': 0.1578,
-  };
+  //
+  // La table `_effectiveRates100kSingle` (un taux effectif plat par canton à
+  // 100k, multiplié par un `_incomeAdjustment` quasi quadratique et un facteur
+  // marié plat 0.92) a été SUPPRIMÉE le 2026-07-30. Ne pas la réintroduire.
+  //
+  // C'était exactement la conception « taux_effectif(100k) × clamp(revenu/100k) »
+  // que `income_tax_model_v2.dart` (miroir du backend canonique
+  // `cantonal_comparator.py`) documente avoir remplacée : les DIFFÉRENCES
+  // d'impôt (marié vs 2 célibataires) étaient fausses. Mesure du 2026-07-30 sur
+  // famille_bern (114k + 78k, BE, 1 enfant) : l'ancien modèle annonçait une
+  // PÉNALITÉ de +404 CHF là où l'étalon ESTV donne un BONUS de −2'454 CHF
+  // (inversion de signe), la part cantonale BE étant sous-estimée de ~41 %.
+  //
+  // `compareFiscalMariage` délègue désormais à `estimateIncomeTaxV2` (IFD 2026
+  // progressif + cantonal/communal interpolé sur l'API ESTV, marié = splitting
+  // ×0.80). Une seule source d'impôt sur le revenu dans l'app — plus de table
+  // de taux par canton (interdiction lint #1062).
+  //
+  // Limite RÉSIDUELLE (documentée, non corrigée ici) : la base reste le revenu
+  // BRUT diminué des seules déductions fiscales fédérales (assurance, marié,
+  // enfant, Zweiverdiener), sans les déductions sociales (AVS/AI/APG/AC/LPP) ni
+  // les frais professionnels — le revenu imposable réel est donc surestimé. Les
+  // constantes `deductionDoubleRevenu`/`deductionMarie`/`deductionAssuranceMarie`
+  // sont par ailleurs périmées (cf. audit `moteur-famille-actuaire.md`).
 
   /// Inheritance tax rates for non-married partners by canton (taux "tiers").
   /// Married partners are tax-exempt in all cantons.
@@ -262,11 +262,15 @@ class FamilyService {
     required String canton,
     int nbEnfants = 0,
   }) {
-    final baseRate = _effectiveRates100kSingle[canton] ?? 0.13;
-
     // ── Two singles ──────────────────────────────────
-    final taxSingle1 = _estimateSingleTax(revenu1, baseRate);
-    final taxSingle2 = _estimateSingleTax(revenu2, baseRate);
+    // Barème CÉLIBATAIRE de l'étalon ESTV canonique (estimateIncomeTaxV2 : IFD
+    // 2026 progressif + cantonal/communal interpolé sur l'API ESTV). Base =
+    // revenu brut moins la déduction d'assurance célibataire (limite résiduelle :
+    // pas de déductions sociales AVS/LPP ni frais pro — voir note de section).
+    final imposableSingle1 = max(0.0, revenu1 - deductionAssuranceCelibataire);
+    final imposableSingle2 = max(0.0, revenu2 - deductionAssuranceCelibataire);
+    final taxSingle1 = estimateIncomeTaxV2(imposableSingle1, canton);
+    final taxSingle2 = estimateIncomeTaxV2(imposableSingle2, canton);
     final totalCelibataires = taxSingle1 + taxSingle2;
 
     // ── Married couple ──────────────────────────────
@@ -285,9 +289,10 @@ class FamilyService {
 
     final revenuImposableMarie = max(0.0, revenuCumule - deductions);
 
-    // Progressive married rate (higher combined income = higher bracket)
-    final marriedRate = _marriedEffectiveRate(revenuImposableMarie, baseRate);
-    final taxMarie = revenuImposableMarie * marriedRate;
+    // Barème MARIÉ (splitting ×0.80) du MÊME étalon ESTV — plus de facteur plat
+    // 0.92 ni de taux effectif par canton.
+    final taxMarie =
+        estimateIncomeTaxV2(revenuImposableMarie, canton, isMarried: true);
 
     // ── Difference ──────────────────────────────────
     final difference = taxMarie - totalCelibataires;
@@ -312,31 +317,6 @@ class FamilyService {
       'deductionEnfants': nbEnfants * deductionParEnfant,
       'totalDeductions': deductions,
     };
-  }
-
-  static double _estimateSingleTax(double revenu, double baseRate) {
-    if (revenu <= 0) return 0.0;
-    const deductions = deductionAssuranceCelibataire;
-    final imposable = max(0.0, revenu - deductions);
-    final adj = _incomeAdjustment(imposable);
-    return imposable * baseRate * adj;
-  }
-
-  static double _marriedEffectiveRate(double revenuImposable, double baseRate) {
-    // Progressive adjustment for married (splitting-like effect)
-    final adj = _incomeAdjustment(revenuImposable);
-    // Married couples benefit from a ~0.92 factor (splitting effect)
-    return baseRate * adj * 0.92;
-  }
-
-  static double _incomeAdjustment(double income) {
-    if (income <= 50000) return 0.75;
-    if (income <= 80000) return 0.75 + (income - 50000) / 30000 * 0.15;
-    if (income <= 100000) return 0.90 + (income - 80000) / 20000 * 0.10;
-    if (income <= 150000) return 1.00 + (income - 100000) / 50000 * 0.10;
-    if (income <= 200000) return 1.10 + (income - 150000) / 50000 * 0.08;
-    if (income <= 300000) return 1.18 + (income - 200000) / 100000 * 0.07;
-    return 1.25 + (income - 300000) / 200000 * 0.07;
   }
 
   // ════════════════════════════════════════════════════════════

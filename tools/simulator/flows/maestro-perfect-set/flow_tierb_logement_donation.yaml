@@ -1,0 +1,129 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_donation.yaml
+#
+# TIER B smoke — lot B3 Logement & Patrimoine — event `donation`
+# (route /life-event/donation). Cadrage :
+# .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Event SANS AUCUN flow avant ce lot (création complète). Patron : lot B2 Travail
+# (#1139, button-CTA à AppBar fixe) + doctrine P2 gate-dur du lot B1 Famille.
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-logement`.
+#
+# ─── C2 CHIFFRÉ (P2 gate-dur — gate fiscal ouvert seed-alone) ──────────
+#   `/life-event/donation` est gaté P2 par fait (comme les écrans famille B1) :
+#   chaque sortie exige ses faits déterminants CONFIRMÉS (provenance profil OU
+#   touch), jamais un défaut fabriqué.
+#     - Le gate FISCAL (impôt sur la donation) ne dépend que du CANTON : le seed
+#       julien_swiss fournit `q_canton` (VD) → `userProvidedFields['canton']` →
+#       gate ouvert SEED-ALONE. Après « Calculer » (`donation-simulate`), la carte
+#       verdict fiscal + montant CHF rend, portée par `donation-result`.
+#     - Le gate RÉSERVE / QUOTITÉ dépend de nbEnfants + fortune + régime. nbEnfants
+#       et régime N'ONT AUCUNE clé de provenance profil (confirmables au TOUCH
+#       seul) → ils restent gatés seed-alone (classe « divorce » du lot B1 : le C2
+#       de la réserve/quotité exige des saisies écran). NON asserté ici (l'asserter
+#       masquerait la récolte — doctrine B1). Suivi : ancres de touch nbEnfants +
+#       régime pour dé-rougir la réserve.
+#   Le bouton morphe « Calculer » ⇄ « Compléter ma situation (N/total) » : ciblé par
+#   id `donation-simulate` (pas par texte). Le tap calcule (gate fiscal ouvert) et
+#   défile vers le 1er fait manquant → `donation-result` (carte fiscale) est
+#   ré-atteint par scrollUntilVisible.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` : famille « garanti* » seule → `(?i).*garanti.*`.
+#
+# ─── DETTE i18n (documentée, hors périmètre) ───────────────────────────
+#   `donation_screen` a des libellés codés en dur (types de donation, régimes
+#   matrimoniaux, barre réserve/disponible) — dette i18n connue, unité séparée.
+#   Ce smoke ne les corrige pas et n'en dépend pas (ancres = identifiants).
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
+#     flow FULL vert bout en bout + sonde isolée verte) ─────────────────
+#   C1 VERT  — `donation-anchor` visible au repos (AppBar fixe).
+#   C2 VERT  — après « Calculer » (`donation-simulate`), `donation-result` (carte
+#            verdict fiscal + montant CHF) atteint : le gate FISCAL s'ouvre
+#            SEED-ALONE via le canton du profil (julien_swiss VD → q_canton →
+#            userProvidedFields['canton'] ; prouvé runtime + test widget) ;
+#            sentinelles absentes. Réserve/quotité restent touch-gated (nbEnfants
+#            + régime, sans provenance profil) — dette de suivi, non asserté.
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `donation-back` (safePop, id ciblable — AppBar fixe) → `home_route_state`.
+#   C5 VERT  — AppBar FIXE + SingleChildScrollView + wrapper racine `donation_screen`
+#            (AJOUTÉ comme FIX AX ILLOG-02, pas trigger) → arbre riche.
+#   NB CONTAMINATION : idem housing_sale (sonde isolée + passe FULL propre = vertes ;
+#   CI isolé attendu vert).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - logement
+  - seeded
+  - feature:donation
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /life-event/donation.
+- openLink: "mintapp:///life-event/donation"
+- extendedWaitUntil:
+    visible:
+      id: "donation-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : « Calculer / Compléter » (ciblé par id) → le gate fiscal est
+# ouvert seed-alone (canton du profil) → carte verdict fiscal chiffrée.
+- scrollUntilVisible:
+    element:
+      id: "donation-simulate"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+- tapOn:
+    id: "donation-simulate"
+- scrollUntilVisible:
+    element:
+      id: "donation-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home (AppBar fixe → back
+# ciblable par id, comme job_comparison). On remonte d'abord (scroll UP).
+- scrollUntilVisible:
+    element:
+      id: "donation-back"
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: "donation-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

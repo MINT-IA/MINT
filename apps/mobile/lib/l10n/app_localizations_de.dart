@@ -16304,6 +16304,24 @@ class SDe extends S {
   String get donationRegimeSeparation => 'Gütertrennung';
 
   @override
+  String get donationLienConjoint => 'Ehepartner';
+
+  @override
+  String get donationLienDescendant => 'Kind / Nachkomme';
+
+  @override
+  String get donationLienParent => 'Elternteil';
+
+  @override
+  String get donationLienFratrie => 'Geschwister';
+
+  @override
+  String get donationLienConcubin => 'Lebenspartner';
+
+  @override
+  String get donationLienTiers => 'Dritte';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Pflichtteil $pct%';
   }
@@ -18570,7 +18588,7 @@ class SDe extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.';
+      'Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 4 Abs. 2). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -21969,6 +21987,18 @@ class SDe extends S {
       'Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Einkommenskontinuität';
+
+  @override
+  String get incomeContinuityContext =>
+      'Du bist bereits im Ruhestand: Dieser Indikator zeigt die Kontinuität deines Renteneinkommens, nicht eine Ersatzquote auf einem früheren Erwerbslohn.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Da du bereits im Ruhestand bist, liegt kein Erwerbslohn vor. Dein Renteneinkommen dient dann als Referenz: Der Indikator zeigt die Kontinuität deines Einkommens, nicht eine Ersatzquote im engeren Sinne.';
+
+  @override
   String get jargonLppTooltip =>
       'Das BVG (Bundesgesetz über die berufliche Vorsorge) ist die 2. Säule. Du und dein Arbeitgeber zahlen gemeinsam für deine Pension ein.';
 
@@ -24948,4 +24978,39 @@ class SDe extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Berechnungs-Engine: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Freizügigkeitskonto';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Hohe Sicherheit, fester Zinssatz 1-2%. Geeignet, wenn du bald wieder eine Stelle antrittst.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'FZG Art. 4 Abs. 2 — Frist von 6 Monaten';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Versicherungspolice';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Todesfall- und Invaliditätsschutz inklusive. Durchschnittliche Rendite an technische Zinssätze gebunden.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'FZV Art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Anlagefonds';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'FZV Art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch.';
 }

@@ -1,0 +1,100 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_invalidite.yaml
+#
+# TIER B smoke — lot B4 Décès / Santé / Mobilité — event `disability`
+# (route /invalidite). Cadrage :
+# .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Event SANS AUCUN flow avant ce lot (création complète, exclu de
+# parcours_secondaires).
+#
+# ─── AX : RICHE AU REPOS, EFFONDRÉ AU SCROLL (dette AX C5, SIGNAL non masqué) ─
+#   /invalidite = `CustomScrollView` + `SliverAppBar` + wrapper racine
+#   `Semantics(container:true)` (motif firstJob). Mesure runtime `maestro
+#   hierarchy` (iPhone 16e / iOS 26.2, seed julien_swiss, staging) :
+#     • AU REPOS : 52 nœuds, `disability-anchor` + `disability-back` +
+#       `disability_gap_screen` affleurent → C1/C3/C4 VERTS, C5 vert AU REPOS.
+#     • APRÈS SCROLL (3 swipes) : 16 nœuds, TOUS les ids dépouillés (2ᵉ
+#       déclencheur ADR AX — SliverAppBar) → C5 ROUGE au scroll + le résultat
+#       `disability-result` (sous la flottaison) devient INATTEIGNABLE au flow
+#       (cf. B2 independant #1139).
+#   Le chiffré de la falaise (`disability-result`, acte employeur/IJM/AI+LPP
+#   calculé SEED-ALONE depuis le salaire) est donc prouvé au niveau WIDGET
+#   (`tierb_b4_anchors_test.dart`), PAS au flow (asserter un scroll inatteignable
+#   masquerait la récolte — doctrine B1 #1134). Fix C5 = retrait wrapper +
+#   SliverAppBar→AppBar (patron first_job Étape 2 #1127), HORS périmètre smoke →
+#   file AX (`ax-pilote`/`appbar-gate`).
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-b4`.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` : famille « garanti* » seule → `(?i).*garanti.*`.
+#
+# ─── VERDICT RUNTIME (isolé, iPhone 16e/26.2, seed julien_swiss) ────────
+#   C1 VERT  — `disability-anchor` visible au repos (arbre riche, 52 nœuds).
+#   C2 (non-vide) VERT — sentinelles absentes ; chiffré falaise seed-alone prouvé
+#            au widget test (`disability-result`), inatteignable au flow (collapse-scroll).
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `disability-back` (safePop, id ciblable grâce au `label` accessible
+#            ajouté — supersede la fallback coordonnée B2) → `home_route_state`.
+#   C5 REPOS vert / SCROLL ROUGE — dette AX (SliverAppBar collapse) consignée.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - b4
+  - invalidite
+  - seeded
+  - feature:invalidite
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /invalidite. L'ancre affleure AU REPOS
+# (arbre riche, 52 nœuds mesurés — PAS d'effondrement au repos malgré le motif
+# firstJob ; l'effondrement est AU SCROLL, cf. en-tête).
+- openLink: "mintapp:///invalidite"
+- extendedWaitUntil:
+    visible:
+      id: "disability-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide (falaise + bulletin chiffrés seed-alone
+# au repos). Le chiffré `disability-result` (sous la flottaison) est prouvé au
+# widget test (inatteignable au flow : SliverAppBar collapse au scroll).
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home. Le `label`
+# accessible (backButtonTooltip) rend le leading icon-only du SliverAppBar
+# CIBLABLE par id (mesuré : tapOn id:disability-back → home OK), sans scroll
+# préalable (SliverAppBar épinglé en haut → back visible au repos).
+- tapOn:
+    id: "disability-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

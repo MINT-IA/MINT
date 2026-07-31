@@ -189,7 +189,11 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
       radius: 16,
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
-        child: ExpansionTile(
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(
             horizontal: MintSpacing.md,
             vertical: MintSpacing.xs,
@@ -222,6 +226,7 @@ class _SimulatorCompoundScreenState extends State<SimulatorCompoundScreen> {
               },
             ),
           ],
+        )
         ),
       ),
     );

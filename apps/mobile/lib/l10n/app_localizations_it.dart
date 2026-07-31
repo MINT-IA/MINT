@@ -16322,6 +16322,24 @@ class SIt extends S {
   String get donationRegimeSeparation => 'Separazione dei beni';
 
   @override
+  String get donationLienConjoint => 'Coniuge';
+
+  @override
+  String get donationLienDescendant => 'Figlio(a) / Discendente';
+
+  @override
+  String get donationLienParent => 'Genitore';
+
+  @override
+  String get donationLienFratrie => 'Fratello / Sorella';
+
+  @override
+  String get donationLienConcubin => 'Convivente';
+
+  @override
+  String get donationLienTiers => 'Terzo';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Riserva $pct%';
   }
@@ -18587,7 +18605,7 @@ class SIt extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 3). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.';
+      'Quando cambi lavoro, hai 6 mesi per trasferire il tuo avere LPP (LFLP art. 4 al. 2). Scaduto questo termine, il capitale viene versato d’ufficio su un conto di libero passaggio. Scegli il veicolo giusto fin dall’inizio.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -21991,6 +22009,18 @@ class SIt extends S {
       'Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuità del tuo reddito';
+
+  @override
+  String get incomeContinuityContext =>
+      'Sei già in pensione: questo indicatore riflette la continuità del tuo reddito da pensione, non un tasso di sostituzione calcolato su uno stipendio da attività passato.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Poiché sei già in pensione, non c’è alcuno stipendio da attività nel dossier. Il tuo reddito da pensione funge allora da riferimento: l’indicatore riflette la continuità del tuo reddito, non un tasso di sostituzione in senso stretto.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Legge sulla previdenza professionale) è il 2° pilastro. Tu e il tuo datore di lavoro contribuite insieme per la tua pensione.';
 
@@ -24958,4 +24988,39 @@ class SIt extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Motore di calcolo: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Conto di libero passaggio';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Sicurezza elevata, tasso fisso 1-2%. Adatto se riprendi presto un lavoro.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — termine di 6 mesi';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Polizza assicurativa';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Copertura in caso di decesso e invalidità inclusa. Rendimento medio legato ai tassi tecnici.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Fondo d’investimento';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Maggiore potenziale di rendimento. Rischio di mercato da accettare sull’orizzonte.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Senza istruzioni, trasferimento d’ufficio tra 6 mesi e 2 anni (LFLP art. 4 al. 2). Averi dimenticati: sfbvg.ch.';
 }

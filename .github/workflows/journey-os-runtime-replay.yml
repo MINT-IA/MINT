@@ -58,8 +58,13 @@ jobs:
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         if: ${{ inputs.dry_run == false }}
         with:
+          flutter-version: '3.44.8'
           channel: stable
           cache: true
+
+      - name: Disable Swift Package Manager (3.44 defaults SPM on; plugins lack SPM support -> resolution hangs, fall back to CocoaPods)
+        if: ${{ inputs.dry_run == false }}
+        run: flutter config --no-enable-swift-package-manager
       - name: Install pinned Maestro
         if: ${{ inputs.dry_run == false }}
         run: |
@@ -97,8 +102,12 @@ jobs:
           fetch-depth: 0
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
+          flutter-version: '3.44.8'
           channel: stable
           cache: true
+
+      - name: Disable Swift Package Manager (3.44 defaults SPM on; plugins printing/sign_in_with_apple/sqflite_sqlcipher lack SPM support -> resolution hangs, fall back to CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
       - name: Install pinned Maestro
         run: |
           curl -fsSL -o /tmp/maestro.zip "https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip"

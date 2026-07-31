@@ -16181,6 +16181,24 @@ class SEn extends S {
   String get donationRegimeSeparation => 'Separation of property';
 
   @override
+  String get donationLienConjoint => 'Spouse';
+
+  @override
+  String get donationLienDescendant => 'Child / Descendant';
+
+  @override
+  String get donationLienParent => 'Parent';
+
+  @override
+  String get donationLienFratrie => 'Sibling';
+
+  @override
+  String get donationLienConcubin => 'Cohabiting partner';
+
+  @override
+  String get donationLienTiers => 'Third party';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserved $pct%';
   }
@@ -18431,7 +18449,7 @@ class SEn extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 3). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.';
+      'When changing jobs, you have 6 months to transfer your LPP assets (LFLP art. 4 al. 2). After this deadline, the capital is automatically deposited into a vested benefits account. Choose the right vehicle from the start.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -21805,6 +21823,18 @@ class SEn extends S {
       'The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Income continuity';
+
+  @override
+  String get incomeContinuityContext =>
+      'You are already retired: this indicator reflects the continuity of your retirement income, not a replacement rate calculated on a past working salary.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Since you are already retired, no working salary is on file. Your retirement income then serves as the reference: the indicator reflects your income continuity, not a replacement rate in the strict sense.';
+
+  @override
   String get jargonLppTooltip =>
       'The LPP (Occupational Pensions Act) is the 2nd pillar. You and your employer contribute together toward your retirement.';
 
@@ -24759,4 +24789,39 @@ class SEn extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Calculation engine: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Vested benefits account';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'High security, fixed rate 1-2%. Suitable if you start a new job quickly.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — 6-month deadline';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Insurance policy';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Death and disability coverage included. Average return tied to technical rates.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Investment fund';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Higher return potential. Market risk to accept over the horizon.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch.';
 }

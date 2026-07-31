@@ -28535,6 +28535,42 @@ abstract class S {
   /// **'Séparation de biens'**
   String get donationRegimeSeparation;
 
+  /// No description provided for @donationLienConjoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conjoint(e)'**
+  String get donationLienConjoint;
+
+  /// No description provided for @donationLienDescendant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfant / Descendant(e)'**
+  String get donationLienDescendant;
+
+  /// No description provided for @donationLienParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parent'**
+  String get donationLienParent;
+
+  /// No description provided for @donationLienFratrie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frère / Sœur'**
+  String get donationLienFratrie;
+
+  /// No description provided for @donationLienConcubin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubin(e)'**
+  String get donationLienConcubin;
+
+  /// No description provided for @donationLienTiers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tiers'**
+  String get donationLienTiers;
+
   /// No description provided for @donationReserveBarLabel.
   ///
   /// In fr, this message translates to:
@@ -32528,7 +32564,7 @@ abstract class S {
   /// No description provided for @narrativeLibrePassageBody.
   ///
   /// In fr, this message translates to:
-  /// **'Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 3). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.'**
+  /// **'Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 4 al. 2). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.'**
   String get narrativeLibrePassageBody;
 
   /// No description provided for @narrativeLibrePassageHeadline.
@@ -38381,6 +38417,24 @@ abstract class S {
   /// **'Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.'**
   String get jargonReplacementRateTooltip;
 
+  /// No description provided for @incomeContinuityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuité de ton revenu'**
+  String get incomeContinuityLabel;
+
+  /// No description provided for @incomeContinuityContext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es déjà à la retraite : cet indicateur reflète la continuité de ton revenu de retraite, pas un taux de remplacement calculé sur un salaire d’activité passé.'**
+  String get incomeContinuityContext;
+
+  /// No description provided for @incomeContinuityTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme tu es déjà à la retraite, aucun salaire d’activité n’est au dossier. Ton revenu de retraite sert alors de référence : l’indicateur reflète la continuité de ton revenu, et non un taux de remplacement au sens strict.'**
+  String get incomeContinuityTooltip;
+
   /// No description provided for @jargonLppTooltip.
   ///
   /// In fr, this message translates to:
@@ -43394,6 +43448,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Moteur de calcul : {version}'**
   String firstJobLuciditeEngineLabel(String version);
+
+  /// No description provided for @librePassageOptionCompteLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte libre passage'**
+  String get librePassageOptionCompteLabel;
+
+  /// No description provided for @librePassageOptionCompteDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sécurité élevée, taux fixe 1-2%. Adapté si tu reprends un emploi rapidement.'**
+  String get librePassageOptionCompteDescription;
+
+  /// No description provided for @librePassageOptionCompteLegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'LFLP art. 4 al. 2 — délai 6 mois'**
+  String get librePassageOptionCompteLegalRef;
+
+  /// No description provided for @librePassageOptionPoliceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Police d’assurance'**
+  String get librePassageOptionPoliceLabel;
+
+  /// No description provided for @librePassageOptionPoliceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.'**
+  String get librePassageOptionPoliceDescription;
+
+  /// No description provided for @librePassageOptionPoliceLegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'OLP art. 10'**
+  String get librePassageOptionPoliceLegalRef;
+
+  /// No description provided for @librePassageOptionFondsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fonds de placement'**
+  String get librePassageOptionFondsLabel;
+
+  /// No description provided for @librePassageOptionFondsDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.'**
+  String get librePassageOptionFondsDescription;
+
+  /// No description provided for @librePassageOptionFondsLegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'OLP art. 19a'**
+  String get librePassageOptionFondsLegalRef;
+
+  /// No description provided for @lppRescueDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.'**
+  String get lppRescueDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

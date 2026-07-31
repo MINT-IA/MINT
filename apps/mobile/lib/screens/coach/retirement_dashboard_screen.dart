@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
@@ -61,6 +62,25 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 //  Fallback chain: SLM → Templates → BYOK (privacy-first).
 //  Aucun terme banni (garanti, certain, optimal, meilleur...).
 // ────────────────────────────────────────────────────────────
+
+/// Honnêteté du libellé du « taux de remplacement ».
+///
+/// Un retraité déjà en régime n'a pas de salaire pré-retraite au dossier
+/// (salaire 0). Le forecaster (ForecasterService.project, ~L310-315) retombe
+/// alors sur son revenu de retraite courant comme base : le « taux » lit ~100 %
+/// par construction — c'est un indicateur de CONTINUITÉ de revenu (la rente
+/// couvre-t-elle le besoin courant), PAS un vrai taux de remplacement forward
+/// (rente / dernier salaire actif). Le calcul est correct ; seul le LIBELLÉ
+/// doit être honnête. Ce prédicat, mirroir fidèle de la branche du forecaster,
+/// dit à l'UI quand relabeller. Un actif garde « taux de remplacement ».
+bool retirementIncomeIsContinuityBasis({
+  required CoachProfile profile,
+  required double projectedAnnualRetirementIncome,
+}) {
+  return profile.employmentStatus == 'retraite' &&
+      profile.revenuBrutAnnuelCouple <= 0 &&
+      projectedAnnualRetirementIncome > 0;
+}
 
 class RetirementDashboardScreen extends StatefulWidget {
   const RetirementDashboardScreen({super.key});
@@ -481,14 +501,22 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         12;
     final troisA = (decoBase['3a'] ?? decoBase['pilier3a'] ?? 0) / 12;
 
+    // Retraité déjà en régime : le « taux » de 100 % est un indicateur de
+    // CONTINUITÉ de revenu, pas un taux de remplacement forward. Le libellé
+    // doit le dire honnêtement (voir retirementIncomeIsContinuityBasis).
+    final isContinuityBasis = retirementIncomeIsContinuityBasis(
+      profile: profile,
+      projectedAnnualRetirementIncome: proj.base.revenuAnnuelRetraite,
+    );
+
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      appBar: _buildAppBar(profile.firstName),
       body: Center(
           child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: CustomScrollView(
                 slivers: [
-                  _buildAppBar(profile.firstName),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.lg,
@@ -518,16 +546,20 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                 maxValue: 100,
                                 label:
                                     '${proj.tauxRemplacementBase.round()}\u00a0%',
-                                subtitle: l.jargonReplacementRate,
+                                subtitle: isContinuityBasis
+                                    ? l.incomeContinuityLabel
+                                    : l.jargonReplacementRate,
                                 size: 200,
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                proj.tauxRemplacementBase >= 80
-                                    ? l.replacementRateContextGood
-                                    : proj.tauxRemplacementBase >= 60
-                                        ? l.replacementRateContextAverage
-                                        : l.replacementRateContextLow,
+                                isContinuityBasis
+                                    ? l.incomeContinuityContext
+                                    : proj.tauxRemplacementBase >= 80
+                                        ? l.replacementRateContextGood
+                                        : proj.tauxRemplacementBase >= 60
+                                            ? l.replacementRateContextAverage
+                                            : l.replacementRateContextLow,
                                 style: MintTextStyles.labelSmall(
                                     color: MintColors.textSecondary),
                                 textAlign: TextAlign.center,
@@ -547,6 +579,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                         ? monthlyBase + partnerMonthly
                                         : monthlyBase,
                                 replacementRate: proj.tauxRemplacementBase,
+                                isContinuityBasis: isContinuityBasis,
                                 decomposition: decoBase,
                                 monthlyPrudent: monthlyPrudent,
                                 monthlyOptimiste: monthlyOptimiste,
@@ -598,10 +631,21 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                     value: 'CHF\u00a0${avs.round()}',
                                     valueColor: MintColors.retirementAvs,
                                   ),
-                                  MintSignalRow(
-                                    label: l.jargonLpp,
-                                    value: 'CHF\u00a0${lpp.round()}',
-                                    valueColor: MintColors.retirementLpp,
+                                  // C2 « non-vide + chiffré » : ancre posée sur la
+                                  // rente LPP (avoir 2e pilier × taux de conversion
+                                  // ≈ 1'800/mois) — chiffre CORRECT, dérivé de l'avoir
+                                  // seedé. VOLONTAIREMENT PAS la ligne AVS : la
+                                  // ventilation AVS de la projection est recalculée
+                                  // depuis un salaire nul (≈ 0), défaut moteur connu
+                                  // (#1138) — la rente AVS déclarée 2'000 reste juste
+                                  // sur /home (budget net explicite), pas ici.
+                                  Semantics(
+                                    identifier: 'retraite-result',
+                                    child: MintSignalRow(
+                                      label: l.jargonLpp,
+                                      value: 'CHF\u00a0${lpp.round()}',
+                                      valueColor: MintColors.retirementLpp,
+                                    ),
                                   ),
                                   if (troisA > 0)
                                     MintSignalRow(
@@ -708,12 +752,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget _buildStateC() {
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      appBar: _buildAppBar(null),
       body: Center(
           child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: CustomScrollView(
                 slivers: [
-                  _buildAppBar(null),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.lg,
@@ -769,12 +813,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      appBar: _buildAppBar(_profile?.firstName),
       body: Center(
           child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: CustomScrollView(
                 slivers: [
-                  _buildAppBar(_profile?.firstName),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.lg,
@@ -863,26 +907,44 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   //  APPBAR — White standard (not Pulse gradient per §4.5)
   // ────────────────────────────────────────────────────────────
 
-  SliverAppBar _buildAppBar(String? firstName) {
+  // AX iOS 26.2 (ADR 2026-07-30, tranche AX 2 — patron #1127/#1140) : AppBar
+  // classique fixe (plus de SliverAppBar dans le CustomScrollView, qui
+  // ré-effondrait l'arbre AX au scroll → `retraite-result` inatteignable). Le
+  // FlexibleSpaceBar + son titlePadding (fix Codex #1143 : réserver la largeur
+  // du leading) disparaissent proprement : en AppBar classique le titre vit dans
+  // `AppBar.title`, aligné à gauche via AppBarTheme.centerTitle=false, donc aucun
+  // chevauchement leading/titre possible. Ancres C1 (retraite-anchor) / C4
+  // (retraite-back) + action « Mes données » préservées.
+  PreferredSizeWidget _buildAppBar(String? firstName) {
     final title = firstName != null && firstName.isNotEmpty
         ? S.of(context)!.dashboardAppBarWithName(firstName)
         : S.of(context)!.dashboardAppBarDefault;
 
-    return SliverAppBar(
-      expandedHeight: 80,
-      floating: true,
-      snap: true,
+    return AppBar(
       backgroundColor: MintColors.porcelaine,
       surfaceTintColor: MintColors.transparent,
       elevation: 0,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
+      scrolledUnderElevation: 0,
+      // C4 « pas de cul-de-sac » : deeplink `mintapp:///retraite` entre par go()
+      // → un retour AppBar par défaut ne dépile pas vers /home. Leading safePop
+      // explicite (motif B2 job_comparison / B3 hypotheque). `label` = tooltip
+      // « Retour » localisé (idiome back accessible B3).
+      leading: Semantics(
+        identifier: 'retraite-back',
+        button: true,
+        label: MaterialLocalizations.of(context).backButtonTooltip,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textSecondary),
+          onPressed: () => safePop(context),
+        ),
+      ),
+      // C1 « atteignable » : ancre régionale profonde sur le TITRE.
+      title: Semantics(
+        identifier: 'retraite-anchor',
+        header: true,
+        child: Text(
           title,
           style: MintTextStyles.titleLarge(),
-        ),
-        titlePadding: const EdgeInsets.only(
-          left: MintSpacing.lg,
-          bottom: MintSpacing.sm + MintSpacing.xs,
         ),
       ),
       actions: [

@@ -6,6 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/mariage_screen.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -906,12 +907,18 @@ void main() {
   //  revient (mot, couleur, récit de la mauvaise branche, chaîne hors ARB).
   // ══════════════════════════════════════════════════════════════
   group('Impôt du couple — mécanique, pas verdict', () {
-    // Revenus PROCHES → l'impôt du ménage marié dépasse celui de 2 célibataires.
+    // Revenus ÉGAUX et élevés → l'impôt du ménage marié dépasse celui de 2
+    // célibataires (cas d'école de la pénalité : le cumul pousse dans les
+    // tranches hautes malgré le splitting ×0.80). Recalibré 2026-07-30 après le
+    // drain vers l'étalon ESTV (estimateIncomeTaxV2) : sous l'ancien modèle
+    // (taux effectif plat × 0.92), 80k/60k donnait une pénalité ; sous l'étalon
+    // calibré, 80k/60k est un BONUS — d'où le passage à 100k/100k (fenêtre de
+    // pénalité ~90k-130k par tête ; au-delà le splitting reprend le dessus).
     Future<void> unlockMariePlusEleve(WidgetTester tester,
         {Locale locale = const Locale('fr')}) async {
       await _pump(tester, _FakeProvider(null), locale: locale);
-      await _touchRevenu1(tester, 80000);
-      await _touchRevenu2(tester, 60000);
+      await _touchRevenu1(tester, 100000);
+      await _touchRevenu2(tester, 100000);
       await _touchCanton(tester, 'VD');
       await _incrementChildren(tester);
     }
@@ -933,9 +940,9 @@ void main() {
     test('les deux fixtures encadrent bien les deux sens de l\'écart', () {
       expect(
         FamilyService.compareFiscalMariage(
-            revenu1: 80000, revenu2: 60000, canton: 'VD', nbEnfants: 1)['isPenalite'],
+            revenu1: 100000, revenu2: 100000, canton: 'VD', nbEnfants: 1)['isPenalite'],
         isTrue,
-        reason: 'revenus proches → impôt du ménage plus élevé marié',
+        reason: 'revenus égaux et élevés → impôt du ménage plus élevé marié',
       );
       expect(
         FamilyService.compareFiscalMariage(
@@ -1118,6 +1125,60 @@ void main() {
       expect(node.label.toLowerCase(), isNot(contains('pénalité')),
           reason: 'le verdict survivait en VoiceOver');
       handle.dispose();
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  Tier B smoke — persona FAMILLE seedée (famille_bern) : preuve C2 chiffré.
+  //  Le profil est hydraté depuis la SEULE seed (toWizardAnswers →
+  //  fromWizardAnswers), sans aucun `_profile(...)` fabriqué : c'est la preuve
+  //  bout-en-bout que MINT_E2E_ARCHETYPE=famille_bern débloque un RÉSULTAT
+  //  chiffré sur mariage SANS toucher un seul champ à l'écran.
+  // ══════════════════════════════════════════════════════════════
+  group('famille_bern seed unlocks a chiffré result (no touch)', () {
+    CoachProfile seededFamille() => CoachProfile.fromWizardAnswers(
+        CoachProfileSeeds.registry['famille_bern']!.toWizardAnswers());
+
+    testWidgets('timeline (Tab Régime) renders the couple monthly income',
+        (tester) async {
+      await _pump(tester, _FakeProvider(seededFamille()));
+      await _goToTab(tester, 'Régime');
+
+      // revenu1 (salaire user) + revenu2 (conjoint réel) confirmés par la seed.
+      expect(_state(tester).debugRevenu1, 114000.0);
+      expect(_state(tester).debugRevenu2, closeTo(78006, 5),
+          reason: 'conjoint net 5556 × facteur IncomeConverter (~1.17) × 12.');
+      // La timeline (revenu mensuel RÉEL du couple) rend : le gate revenu1+
+      // revenu2 est ouvert par la seed seule (si un revenu manquait, la carte
+      // gatée remplacerait la timeline). Le partage du régime reste gaté
+      // (patrimoines touch-only) → une SituationGateCard régime subsiste, mais
+      // AUCUNE ne liste revenu2 (le gate timeline est complet).
+      expect(find.byType(CoupleNarrativeTimeline), findsOneWidget,
+          reason: 'timeline gate (revenu1+revenu2) ouverte par la seed seule');
+      final revenu2Gated = tester
+          .widgetList<SituationGateCard>(find.byType(SituationGateCard))
+          .any((c) => c.gate.facts.any((f) => f.key == 'revenu2'));
+      expect(revenu2Gated, isFalse,
+          reason: 'les deux revenus sont seededFromProfile → aucun gate revenu2');
+    });
+
+    testWidgets('survivor hero (Tab Protection) == service output',
+        (tester) async {
+      await _pump(tester, _FakeProvider(seededFamille()));
+      await _goToTab(tester, 'Protection');
+
+      // Rente LPP dérivée de l'avoir certifié (180000), pas du défaut 2500.
+      expect(find.byType(SituationGateCard), findsNothing);
+      expect(find.byKey(_survivorHero), findsOneWidget);
+      expect(_state(tester).debugRenteLpp, isNot(2500.0));
+      expect(_state(tester).debugRenteLpp, greaterThan(0));
+      expect(
+        find.descendant(
+            of: find.byKey(_survivorHero),
+            matching: find.text(_expectedSurvivorPrimary(tester))),
+        findsOneWidget,
+        reason: 'survivor = rente LPP du défunt × 60 % (LPP art. 19)',
+      );
     });
   });
 }

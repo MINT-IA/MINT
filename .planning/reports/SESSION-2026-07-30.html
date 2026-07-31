@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Session 2026-07-30 — parité coach fermée, campagne AX iOS 26.2, upgrade Flutter 3.44.8</title>
+<style>
+  :root { --ink:#1c2b26; --muted:#5f6f68; --line:#d8e0dc; --bg:#fafcfb; --card:#ffffff;
+          --green:#1c7a4d; --red:#b03030; --amber:#9a6b00; --accent:#003b2f; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:2rem 1rem; background:var(--bg); color:var(--ink);
+         font:15px/1.55 "Helvetica Neue", Arial, sans-serif; }
+  main { max-width:1080px; margin:0 auto; }
+  h1 { font-size:1.5rem; color:var(--accent); margin:0 0 .25rem; }
+  h2 { font-size:1.15rem; color:var(--accent); margin:2.2rem 0 .6rem; border-bottom:2px solid var(--line); padding-bottom:.3rem; }
+  h3 { font-size:1rem; margin:1.4rem 0 .4rem; }
+  p.lead { color:var(--muted); margin:.2rem 0 1rem; }
+  table { border-collapse:collapse; width:100%; background:var(--card); font-size:.88rem; }
+  th, td { border:1px solid var(--line); padding:.35rem .55rem; text-align:left; vertical-align:top; }
+  th { background:#eef4f1; font-weight:600; }
+  .tablewrap { overflow-x:auto; margin:.6rem 0 1rem; }
+  code { background:#eef2f0; padding:.05rem .3rem; border-radius:3px; font-size:.85em; }
+  .ok { color:var(--green); font-weight:600; }
+  .ko { color:var(--red); font-weight:600; }
+  .warn { color:var(--amber); font-weight:600; }
+  .pill { display:inline-block; border-radius:10px; padding:0 .5rem; font-size:.8rem; font-weight:600; }
+  .pill.parite { background:#e3efe8; color:#1c5c3d; }
+  .pill.ax { background:#e3ebf5; color:#1f4d7a; }
+  .pill.build { background:#f5eee0; color:#7a5a1f; }
+  .pill.legal { background:#f0e5f2; color:#6b2f7a; }
+  .pill.fiscal { background:#f5e3e3; color:#8a2a2a; }
+  .pill.docs { background:#e8e8e8; color:#444; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:6px; padding:1rem 1.2rem; margin:.8rem 0; }
+  .note { color:var(--muted); font-size:.85rem; }
+  ul { margin:.4rem 0 .8rem 1.2rem; padding:0; }
+  li { margin:.25rem 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Session 2026-07-30 — rapport cumulatif</h1>
+<p class="lead">18 PRs squash-mergées sur <code>dev</code> (#1113 → #1130, 06:44 → 18:14 UTC) · CI dev verte entre chaque fusion · promotions staging vérifiées par le champ <code>commit</code> de <code>/api/v1/health</code> (né en #1117). Source déterministe : <code>gh pr list --state merged --search "merged:2026-07-30"</code>. Version git-diffable courte : <code>SESSION-2026-07-30.md</code>.</p>
+
+<h2>1. Résumé exécutif</h2>
+<div class="card">
+  <ul>
+    <li><b>Boucle de parité coach × MoneyTruthReceipt fermée sur staging live.</b> Le harnais #1114 (8 couples profil×question contre l'API staging réelle) a pris la parité de <span class="ko">0/8</span> à <span class="ok">verte et spec-conforme</span> en 7 runs et 6 PRs de fix (#1116 grounding, #1117 marqueur de deploy, #1118 raccourci déterministe resolved, #1119 hotfix conteneur, #1120 décision Reading A, #1124 rendu pending déterministe). Verdict final : <b>2 passed</b> sur l'image staging <code>ea08b0f65</code> (certifiée <code>/api/v1/health</code> → <code>{"commit":"ea08b0f65"}</code>, 2026-07-30T18:17Z ; artefact <code>parite_run7.json</code>).</li>
+    <li><b>Campagne AX iOS 26.2 lancée et pilote livré.</b> ADR de remédiation (#1122, Proposed), retrait des wrappers Semantics racine sur les 3 écrans du chemin du gate (#1123), migration SliverAppBar → AppBar classique sur les 2 écrans du gate (#1127) : l'arbre AX reste riche et stable au scroll (53→58 nœuds, contre 53→16 effondré avant). Le flow d'acceptation firstJob est promu <code>_red</code> → CORE (tier sweep dédié, ancres re-gatées via <code>scrollUntilVisible</code>).</li>
+    <li><b>Upgrade Flutter 3.41.6 → 3.44.8 mergé</b> (#1126, précédé du correctif #1129 « ancêtre Material », 185 échecs → 0) : première CI dev verte sous 3.44.8, pins unifiés sur 9 sites de workflow, SPM désactivé en CI (fallback CocoaPods prouvé).</li>
+    <li><b>Corpus légal libre passage aligné sur Fedlex</b> (#1113, #1125, #1128, #1130 : LFLP art. 4 al. 2, OLP art. 10 / 19a) et <b>contribution de solidarité AC abolie purgée</b> du registre et des calculs (#1115, LACI art. 90c al. 4, parité py↔dart).</li>
+  </ul>
+</div>
+
+<h2>2. Boucle parité coach × receipt — chronologie des 7 runs</h2>
+<p>Substance détaillée : <code>.planning/audit-etat-des-lieux-2026-07/parite-coach-receipt-2026-07-30.md</code> (mergé en #1121). Seed : profil firstJob brut 6'500 / ZH / 25 ans → net receipt <b>5'849.17 CHF</b>. Grille de grading 8 critères côté client, deux chemins (<i>resolved</i> = receipt stocké + <code>receiptId</code>/<code>inputsHash</code> ; <i>pending</i> = <code>receiptInputs</code> seuls).</p>
+<div class="tablewrap">
+<table>
+<tr><th>Run</th><th>Image staging</th><th>Verdict</th><th>Enseignement → PR</th></tr>
+<tr><td>1-2</td><td><code>2cfe58156</code>→<code>1da71b813</code> (bascule en cours)</td><td class="ko">0/8, 1 faux « vert »</td><td>Bascule de deploy invérifiable sans marqueur → <b>#1117</b> (<code>/api/v1/health</code> expose <code>commit</code>)</td></tr>
+<tr><td>3</td><td><code>1da71b813</code> certifiée (CLI Railway)</td><td class="ko">0/8</td><td>Le grounding #1116 atteint le prompt (delta 45'879 vs 45'596 chars) mais le narrateur LLM le noie (lost-in-the-middle sur le handoff /first-job) → <b>#1118</b> raccourci déterministe sans LLM</td></tr>
+<tr><td>4</td><td><code>3bdfab8c0</code> certifiée (/health, 100 s)</td><td class="ko">3× HTTP 500</td><td><code>IndexError parents[5]</code> du scan LSFin sous <code>WORKDIR=/app</code> + vocab hors image Docker → <b>#1119</b> (résolution de racine défensive, vocab packagé, fail-closed)</td></tr>
+<tr><td>5</td><td><code>2b3b8208f</code> certifiée (120 s)</td><td class="warn">R1-R3 verts, P-couples rouges</td><td>Cœur resolved prouvé ; attentes pending à instruire</td></tr>
+<tr><td>6</td><td><code>2b3b8208f</code></td><td class="ok">2 passed</td><td><b>#1120</b> — décision Reading A : pas de résolution pending par <code>inputsHash</code> (substitution sémantique intra-compte possible, spec §4.4:253) ; attentes spec-fidèles + verrou anti-forge + fix faux positif C5</td></tr>
+<tr><td>7</td><td><code>ea08b0f65</code> certifiée (/health live)</td><td class="ok">2 passed — final</td><td><b>#1124</b> — rendu pending déterministe depuis le payload (§4.3:244, « jamais d'erreur nue, jamais de recalcul ») : P1-P3 accusent réception des inputs validés, étiquetés <code>brut</code>, sans forger de net</td></tr>
+</table>
+</div>
+<div class="card">
+  <h3>Trois causes racines successives, chacune masquée par la précédente</h3>
+  <ul>
+    <li><b>Façade sans câblage</b> — <code>money_truth_receipt</code> écrit dans <code>safe_profile</code> mais droppé par la whitelist de <code>_build_coach_context_from_profile</code> : écrit une fois, lu zéro fois. Fix #1116 : bloc de grounding resolved+pending + exemption du gate citations dérivée du bloc rendu.</li>
+    <li><b>Narrateur non déterministe</b> — même groundé, le prompt de 45k chars orienté onboarding noyait le bloc ; les dérivés/arrondis du LLM étaient gate-rejetés → FALLBACK. Fix #1118 : raccourci déterministe (patron <code>_rente_capital_deterministic_loop_result</code>) pour receipt résolu × question net.</li>
+    <li><b>Layout conteneur</b> — l'init module du scan LSFin faisait <code>Path(__file__).resolve().parents[5]</code> : IndexError sous <code>/app</code> + ImportError latent (<code>tools/checks/</code> hors image). Fix #1119 : résolution bornée par la profondeur réelle + copie vocab packagée + fail-closed (repli LLM, jamais 500).</li>
+  </ul>
+  <p class="note">État final run 7 (artefact <code>parite_run7.json</code>) : R1-R3 rendent « Ton salaire net s'élève à 5'849 CHF par mois » + fourchette + sources (LAVS/LACI/LPP/LAA) + millésime 2026 + confiance ; P1-P3 rendent l'accusé de réception déterministe #1124 (inputs validés seulement, aucun net fabriqué — décision Reading A) ; R4/P4 (question 3a, hors détecteur net) replient sans forgeage. Les 8 couples sont conformes aux attentes du harnais. Le harnais reste en garde de non-régression (<code>MINT_STAGING_PARITY=1</code>, skippé en CI).</p>
+</div>
+
+<h2>3. Campagne AX iOS 26.2 — ADR, pilote, flow CORE</h2>
+<p>ADR : <code>.planning/decisions/2026-07-30-ax-ios26-strategie-remediation.md</code> (Proposed, #1122). Diagnostic : sur iOS 26.2 / Flutter 3.41.6, deux déclencheurs indépendants effondrent l'arbre AX des routes poussées — (1) wrapper racine <code>Semantics(container:true, explicitChildNodes:true)</code> en double frontière avec le <code>scopesRoute</code> de ModalRoute (1 nœud au repos) ; (2) SliverAppBar dans un CustomScrollView (ré-effondrement au scroll, lignée flutter #61012).</p>
+<div class="tablewrap">
+<table>
+<tr><th>Étape ADR</th><th>PR</th><th>Livré</th><th>Preuve citée dans la PR</th></tr>
+<tr><td>1 — Pilote wrappers racine</td><td>#1123</td><td>Retrait du wrapper Semantics racine des 3 écrans du gate (first_job, rente_vs_capital, coach_chat) ; décompte déterministe du data gap ADR : 19 fichiers au motif, ~18 racine, 3 sur le chemin du gate ; flows Maestro re-gatés sur ids internes ; verrous SemanticsTester inversés</td><td><code>maestro_locator_audit</code> : 595 locators résolus</td></tr>
+<tr><td>2 — AppBar stable au scroll</td><td>#1127</td><td>SliverAppBar → <code>Scaffold.appBar</code> classique sur les 2 écrans du gate qui en avaient un (first_job, rente_vs_capital) ; rendu identique (pas d'expandedHeight/flexibleSpace avant)</td><td>Hiérarchie maestro (iPhone 16e / iOS 26.2 / staging seedé) : first-job 53 nœuds au repos → <b>58 après scroll</b> (avant : 53→16 effondré) ; rvc 60→58, titre AppBar persistant ; Codex adversarial : SHIP, 0 P1/P2</td></tr>
+<tr><td>Flow d'acceptation CORE</td><td>#1127</td><td><code>firstjob_tranche_acceptance_seeded.yaml</code> promu <code>_red</code> → <code>maestro-perfect-set/</code>, tier sweep dédié <code>firstjob</code> (build seedé requis), ancres sous la flottaison re-gatées via <code>scrollUntilVisible</code>, tous les asserts conservés</td><td>164 widget tests verts (73+91), <code>flutter analyze</code> 0 issue</td></tr>
+<tr><td>4 — Upgrade 3.44.8</td><td>#1126</td><td>Voir §4. Mesure pré-merge : l'upgrade engine seul ne corrige PAS le ré-effondrement au scroll en mesure maestro (50→16 avec SliverAppBar encore en place) — la migration app-side reste nécessaire</td><td>Mesure citée dans le corps de #1126 ; caveat G2 VoiceOver device maintenu (#184155 est VoiceOver-on-gated)</td></tr>
+</table>
+</div>
+
+<h2>4. Upgrade Flutter 3.41.6 → 3.44.8</h2>
+<div class="card">
+  <ul>
+    <li><b>#1129 (préparation)</b> — le spike isolait un blocker unique : la nouvelle assertion debug <code>ListTile._debugCheckBackgroundIsHidden</code> (tiles dans carte colorée) = 185 échecs / 23 fichiers / 934 occurrences. Fix : <code>Material(type: MaterialType.transparency)</code> intercalé à 9 sites, confinement du ripple par <code>borderRadius</code> + <code>clipBehavior</code> aux 6 sites à ras de carte. Preuve zéro pixel modifié au repos par golden.</li>
+    <li><b>#1126 (upgrade)</b> — re-validation post-#1129 sous SDK 3.44.8 : <code>flutter analyze</code> « No issues found! », <b>flutter test PASS=10320, SKIP=26, FAIL=0</b> (assertion ListTile 934→0, overflows RenderFlex 29→0), goldens macOS verts sans régén. Pins CI 3.41.4 → 3.44.8 sur 9 sites (<code>ci.yml</code> ×3, <code>testflight.yml</code>, <code>play-store.yml</code>, <code>web.yml</code>, + pin explicite des workflows qui flottaient sur <code>channel: stable</code>). SPM désactivé en CI sur les workflows qui buildent iOS (3 plugins sans support SPM → blocage de résolution sur runner frais ; fallback CocoaPods, build sim local 47 s exit 0).</li>
+    <li><b>Première CI dev verte sous 3.44.8</b> après la fusion de #1126 (mergée 17:20 UTC, après #1129 déjà dans la base <code>a6a740009</code>). Les fusions suivantes du train (#1130) ont passé CI sur cette toolchain.</li>
+  </ul>
+</div>
+
+<h2>5. Corrections légales et fiscales</h2>
+<div class="tablewrap">
+<table>
+<tr><th>PR</th><th>Surface</th><th>Avant → après</th></tr>
+<tr><td>#1113 (PR-H)</td><td><code>jobChangeChecklistDisclaimer</code> ×6 locales + <code>coachErrorConnection</code> + marqueurs A4 du flow d'acceptation</td><td>Footer « LPP art. 3, OLP art. 1-3 » → « LFLP art. 2, LFLP art. 4 al. 2, LAMal art. 71 » (DE : FZG/KVG) ; wording connexion neutre ServerKey ; flow re-gaté sur le marqueur réel <code>coach-offline-degradation</code></td></tr>
+<tr><td>#1125</td><td><code>narrativeLibrePassageBody</code> (écran libre passage)</td><td>« LFLP art. 3 » → « LFLP art. 4 al. 2 » pour le mécanisme 6 mois + versement d'office (vérité Fedlex : art. 3 = transfert à la nouvelle institution, sans délai)</td></tr>
+<tr><td>#1128</td><td><code>libre_passage_screen.dart</code> → <code>LppRescueWidget</code></td><td>9 chaînes hardcodées extraites en ARB ×6 (7'212 clés / locale, parité vérifiée) + même correction d'article + superlatifs LSFin adoucis</td></tr>
+<tr><td>#1130</td><td>Police de libre passage (écran + widget)</td><td>« OPP2 art. 10 » (devoir d'information de l'employeur, sans rapport) → « OLP art. 10 » (formes du maintien) ; véhicule fonds : « LFLP art. 4 » → « OLP art. 19a » (épargne-titres) ; 12/12 widget tests verts dont regression sur la citation</td></tr>
+<tr><td>#1115</td><td>Registre fiscal + <code>frontalier_service.py</code> + miroirs dart</td><td>Contribution de solidarité AC (abolie au 1.1.2023, LACI art. 90c al. 4) purgée : taux registre 0.005/0.01 → 0.0, calcul frontalier supprimé, snapshot <code>regulatory_constants.g.dart</code> régénéré (<code>--check</code> OK), parité py↔dart</td></tr>
+</table>
+</div>
+
+<h2>6. Hygiène du train — 18 PRs, CI verte entre chaque</h2>
+<p>Toutes squash-mergées sur <code>dev</code> le 2026-07-30 (horodatages <code>gh pr list --json mergedAt</code>). Les promotions staging intermédiaires de la boucle de parité ont été certifiées par le champ <code>commit</code> de <code>/api/v1/health</code> (délai observé 100-120 s), au lieu d'un settle aveugle.</p>
+<div class="tablewrap">
+<table>
+<tr><th>PR</th><th>Mergée (UTC)</th><th>Titre</th><th>Volet</th></tr>
+<tr><td>#1113</td><td>06:44</td><td>fix(l10n): firstJob — disclaimer aligné sur les refs corrigées + marqueurs A4 réels (PR-H)</td><td><span class="pill legal">légal/l10n</span></td></tr>
+<tr><td>#1114</td><td>06:52</td><td>test(coach): harnais de parité coach×receipt contre staging</td><td><span class="pill parite">parité</span></td></tr>
+<tr><td>#1115</td><td>07:00</td><td>fix(fiscal): purger la contribution de solidarité AC abolie au 1.1.2023 (registre + frontalier)</td><td><span class="pill fiscal">fiscal</span></td></tr>
+<tr><td>#1116</td><td>08:07</td><td>fix(coach): consommer le MoneyTruthReceipt dans le contexte du prompt — grounding resolved+pending</td><td><span class="pill parite">parité</span></td></tr>
+<tr><td>#1117</td><td>08:51</td><td>feat(ops): exposer le sha de deploy dans /api/v1/health pour la vérification post-promotion</td><td><span class="pill parite">parité/ops</span></td></tr>
+<tr><td>#1118</td><td>09:32</td><td>fix(coach): raccourci déterministe MoneyTruthReceipt sur le handoff /first-job (P0 #1114)</td><td><span class="pill parite">parité</span></td></tr>
+<tr><td>#1119</td><td>10:16</td><td>fix(coach): résolution de racine robuste au layout conteneur pour le scan LSFin du chemin déterministe</td><td><span class="pill parite">parité</span></td></tr>
+<tr><td>#1120</td><td>11:11</td><td>test(coach): parité pending = pas de résolution par hash + fix faux positif C5 (Reading A)</td><td><span class="pill parite">parité</span></td></tr>
+<tr><td>#1121</td><td>11:25</td><td>docs(audit): parité coach×receipt — boucle de preuve fermée (runs 1→6)</td><td><span class="pill docs">docs</span></td></tr>
+<tr><td>#1122</td><td>12:29</td><td>docs(decisions): ADR remédiation AX iOS 26.2 (Proposed)</td><td><span class="pill ax">AX</span></td></tr>
+<tr><td>#1123</td><td>13:46</td><td>fix(a11y): retirer les wrappers Semantics racine du chemin du gate — pilote ADR AX iOS 26.2</td><td><span class="pill ax">AX</span></td></tr>
+<tr><td>#1124</td><td>14:22</td><td>fix(coach): rendu pending déterministe depuis le payload — §4.3:244, jamais d'erreur nue</td><td><span class="pill parite">parité</span></td></tr>
+<tr><td>#1125</td><td>14:59</td><td>fix(l10n): narrativeLibrePassageBody — référence LFLP alignée sur le fond légal</td><td><span class="pill legal">légal/l10n</span></td></tr>
+<tr><td>#1127</td><td>15:55</td><td>fix(a11y): AppBar classique sur les écrans du gate — arbre AX stable au scroll (ADR AX Étape 2)</td><td><span class="pill ax">AX</span></td></tr>
+<tr><td>#1128</td><td>16:43</td><td>fix(l10n): libre_passage_screen — legalRef extrait en ARB et aligné sur LFLP art. 4 al. 2</td><td><span class="pill legal">légal/l10n</span></td></tr>
+<tr><td>#1129</td><td>17:03</td><td>fix(ui): ancêtre Material pour les tiles en carte colorée — préparation 3.44.8</td><td><span class="pill build">build</span></td></tr>
+<tr><td>#1126</td><td>17:20</td><td>build(flutter): upgrade 3.44.8 — fin de vie 3.41, pins CI unifiés, SPM off en CI [GO]</td><td><span class="pill build">build</span></td></tr>
+<tr><td>#1130</td><td>18:14</td><td>fix(l10n): police de libre passage — base légale OLP alignée (écran + widget)</td><td><span class="pill legal">légal/l10n</span></td></tr>
+</table>
+</div>
+<p class="note">Discipline observée : une unité atomique par PR, revue Codex bornée sur chaque livrable (plusieurs verdicts BLOQUANT corrigés avant merge — #1116 ×4 rounds, #1118, #1120, #1128, #1129), fusion seulement après CI verte de la PR, base dev re-mergée avant les PRs dépendantes (#1126 sur <code>a6a740009</code> incluant #1129).</p>
+
+<h2>7. Reste à faire (ouvert, non commencé sauf mention)</h2>
+<div class="card">
+  <ul>
+    <li><b>Tranches AX restantes</b> — ~45 écrans SliverAppBar hors chemin du gate (47 recensés − 2 migrés en #1127) et ~15 wrappers Semantics racine sur routes poussées hors gate (décompte #1123). Gates durs avant rollout large (ADR) : matrice idb multi-runtime (runtime iOS 18.x à acquérir) + session VoiceOver réelle sur device (G2 Julien — VoiceOver n'existe pas sur simulateur). La mesure #1126 montre que l'upgrade seul ne corrige pas le ré-effondrement au scroll : la migration par tranches reste le chemin.</li>
+    <li><b>Smoke Tier B post-upgrade</b> — la validation 3.44.8 citée est analyze + suite complète + goldens + build sim ; un sweep Maestro des flows Tier B sur la toolchain 3.44.8 reste à exécuter avant de considérer la surface device stabilisée.</li>
+    <li><b>Prose hardcodée <code>independant_screen.dart:178</code></b> — « Transfert automatique après 6 mois » : même simplification légale que la narrative corrigée, extraction i18n = unité de contenu séparée (dette documentée dans #1130, hors périmètre du token legalRef).</li>
+    <li><b>A11y des colonnes comparatives</b> — reliquat signalé en session (panel a11y) : les mises en page en colonnes des comparatifs n'exposent pas de sémantique de tableau ; unité à ouvrir, non citée dans une PR mergée.</li>
+    <li><b>P0 Apple takeover</b> — P0 de l'audit 2026-07 (641 findings, SHA gelé <code>8d059e502</code>) toujours ouvert ; hors périmètre de cette session, à planifier explicitement.</li>
+    <li><b>Références SPEC périmées</b> — <code>TRANCHE-FIRSTJOB-SPEC.md</code> (§3, A3, PR-I) pointe encore le fichier <code>_red.yaml</code> supprimé par la promotion CORE (#1127) ; réconciliation doc de planning à faire.</li>
+  </ul>
+</div>
+
+<p class="note">Rapport généré le 2026-07-30. Évidences : <code>gh pr list/view</code> (18 PRs citées), <code>.planning/audit-etat-des-lieux-2026-07/parite-coach-receipt-2026-07-30.md</code>, <code>.planning/decisions/2026-07-30-ax-ios26-strategie-remediation.md</code>, artefacts <code>parite_run4→7.json</code> (scratchpad session d8bdc5c9), <code>curl /api/v1/health</code> live → <code>ea08b0f65</code>. Les états CI et staging sont périmables — re-sonder avant toute décision de promotion.</p>
+</main>
+</body>
+</html>

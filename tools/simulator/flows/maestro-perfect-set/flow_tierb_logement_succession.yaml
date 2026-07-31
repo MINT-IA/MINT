@@ -1,0 +1,101 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_succession.yaml
+#
+# TIER B smoke — lot B3 Logement & Patrimoine — event `inheritance`
+# (route /succession). Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Remplace la dépendance au legacy deeplink racine `logement_succession_parcours.yaml`.
+# Rationale complet (5D, build, seed, C3 garanti-only) : voir
+# flow_tierb_logement_hypotheque.yaml.
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-logement`.
+#
+# ─── C2 CHIFFRÉ (écran éducatif, aucun gate) ───────────────────────────
+#   `/succession` est un écran ÉDUCATIF (StatelessWidget) : le widget « testament
+#   invisible » rend « Patrimoine : CHF 500'000 » + la répartition légale AU REPOS
+#   (illustration pédagogique, aucun gate). L'ancre `succession-result` est posée
+#   dessus. Le hero est sous la ligne de flottaison (2e bloc après le chiffre-choc)
+#   → scrollUntilVisible. NB : CustomScrollView + SliverAppBar → risque de collapse
+#   contenu au scroll (dette AX ci-dessous) ; le testament n'est qu'à ~1 écran du
+#   haut, la vérif runtime tranche s'il est atteignable avant le collapse.
+#
+# ─── AX SAIN (tranche AX 2 appliquée — ADR 2026-07-30, patron #1127) ───────
+#   `/succession` migré : SliverAppBar → AppBar classique fixe (`Scaffold.appBar`).
+#   Le leading `succession-back` redevient CIBLABLE par id (tap-coordonnée 28,75
+#   supprimé) et l'arbre AX reste riche au scroll.
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
+#     flow FULL vert bout en bout, tous steps COMPLETED) ────────────────
+#   C1 VERT  — `succession-anchor` visible au repos (arbre riche, aucun collapse
+#            au repos ; anchor + result + sentinelles asserés au repos).
+#   C2 VERT  — `succession-result` (« Patrimoine : CHF 500'000 » + répartition
+#            légale) visible au repos (assertVisible, visibilité partielle — voir
+#            ci-dessous) ; aucune sentinelle vide.
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `succession-back` (leading AppBar fixe, id ciblable) → safePop →
+#            `home_route_state`.
+#   C5 VERT  — arbre riche au repos ET au scroll (dette AX iOS 26.2 LEVÉE). Le
+#            widget testament reste plus haut que la fenêtre → C2 asserté en
+#            visibilité partielle au repos (contrainte géométrique, pas AX).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - logement
+  - seeded
+  - feature:inheritance
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /succession.
+- openLink: "mintapp:///succession"
+- extendedWaitUntil:
+    visible:
+      id: "succession-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir hypotheque pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : le widget « testament invisible » (Patrimoine CHF 500'000 +
+# répartition) porte `succession-result`, VISIBLE AU REPOS (2e bloc). assertVisible
+# (visibilité partielle) et NON scrollUntilVisible-100% : le widget est plus HAUT
+# que la fenêtre restante → un scroll-100%/centré est géométriquement impossible
+# (rien à voir avec l'AX : le collapse SliverAppBar est désormais LEVÉ). La preuve
+# widget vit dans `tierb_logement_anchors_test.dart`.
+- assertVisible:
+    id: "succession-result"
+
+# C4 — Pas de cul-de-sac : retour → /home. Leading `succession-back` ciblable par
+# id (AppBar fixe — tap-coordonnée 28,75 retiré, patron tranche AX 2).
+- tapOn:
+    id: "succession-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

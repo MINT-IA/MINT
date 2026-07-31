@@ -10,6 +10,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 /// Screen for navigating the financial impact of a relative's death in Switzerland.
 ///
@@ -198,7 +199,26 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       child: Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: Text(s.decesProcheTitre, style: MintTextStyles.headlineMedium()),
+        // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+        // pop, sinon go('/home')) remplaçant le back par défaut, non-poppable
+        // sur entrée deeplink. `label` = tooltip « retour » localisé (leçon
+        // Codex B3 #1141 : un leading icon-only sans label est annoncé « bouton »
+        // seul par VoiceOver). Smoke Tier B (lot B4).
+        leading: Semantics(
+          identifier: 'deces-back',
+          button: true,
+          label: MaterialLocalizations.of(context).backButtonTooltip,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => safePop(context),
+          ),
+        ),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'deces-anchor',
+          child: Text(s.decesProcheTitre, style: MintTextStyles.headlineMedium()),
+        ),
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
         elevation: 0,
@@ -526,7 +546,13 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
         gate: gate,
       );
     }
-    return Container(
+    // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la carte
+    // bénéficiaires — présente UNIQUEMENT quand le gate {lppDefunt, pilier3aDefunt}
+    // est complet (avoirs du défunt renseignés), jamais sur la carte-gate vide.
+    // Motif profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+    return Semantics(
+      identifier: 'deces-result',
+      child: Container(
       key: const Key('deces_beneficiaires_card'),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -553,6 +579,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
@@ -791,5 +792,35 @@ void main() {
     // Tab1 shows exactly the two gated outputs on open.
     expect(find.byType(SituationGateCard), findsNWidgets(2));
     handle.dispose();
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  Tier B smoke — persona FAMILLE seedée (famille_bern) : preuve C2 chiffré.
+  //  Profil hydraté depuis la SEULE seed (aucun _profile(...) fabriqué). La
+  //  comparaison fiscale se déverrouille SANS toucher un champ : revenu1
+  //  (salaire user), revenu2 (conjoint réel) et canton BE viennent du profil.
+  // ══════════════════════════════════════════════════════════════
+  group('famille_bern seed unlocks the fiscal comparison (no touch)', () {
+    testWidgets('fiscal cluster renders with CHF — revenu1+revenu2+canton seedés',
+        (tester) async {
+      final profile = CoachProfile.fromWizardAnswers(
+          CoachProfileSeeds.registry['famille_bern']!.toWizardAnswers());
+      await _pump(tester, _FakeProvider(profile));
+
+      final st = _state(tester);
+      expect(st.debugRevenu1, 114000.0);
+      expect(st.debugRevenu2, closeTo(78006, 5),
+          reason: 'revenu2 vient du conjoint réel (net 5556 × ~1.17 × 12).');
+      expect(st.debugCantonConfirmed, isTrue);
+      expect(st.debugCanton, 'BE');
+
+      // Fiscal gate ouvert par la seule seed → la comparaison chiffrée rend.
+      expect(_gate(tester, _fiscalTitle), isNull,
+          reason: 'les 3 faits fiscaux sont seededFromProfile');
+      expect(find.byType(ConcubinageDecisionMatrix), findsOneWidget);
+      expect(find.text('Impôts 2 célibataires'), findsOneWidget);
+      expect(find.textContaining('CHF'), findsWidgets,
+          reason: 'les figures fiscales rendent une fois déverrouillées');
+    });
   });
 }

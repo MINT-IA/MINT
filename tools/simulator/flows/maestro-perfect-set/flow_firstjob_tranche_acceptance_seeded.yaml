@@ -1,39 +1,42 @@
-# tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml
+# tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml
 #
-# VARIANTE SEEDED du test d'acceptation de la tranche verticale firstJob.
+# FLOW CORE d'acceptation de la tranche verticale firstJob (promu depuis
+# tools/simulator/flows/firstjob_tranche_acceptance_seeded.yaml, ADR AX iOS
+# 26.2 Etape 2, 2026-07-30).
 # Spec : .planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md
 #
-# ─── POURQUOI UNE VARIANTE SEEDED (diagnostic PR-I, 2026-07-29) ─────────
-# firstjob_tranche_acceptance_red.yaml marche le PARCOURS REEL
-# (landing -> /onb -> /home). Ce parcours est INJOUABLE via locators
-# semantiques aujourd'hui : 9 des 11 testIDs onb-* (onb-entry-continue,
-# onb-intent-travail, onb-employment-salarie, onb-civil-celibataire,
-# onb-years-abroad-no, onb-birthdate-open/confirm, onb-canton-VD,
-# onb-revenue-continue) n'existent PAS dans apps/mobile/lib -> le flow
-# echouerait sur un pas onb-* = run INVALIDE (SPEC §3 isolation du rouge),
-# pas une preuve. Le cablage de ces ids releve de la decision
-# onboarding-canonique (SPEC §3.1), HORS de cette tranche.
+# ─── PROMOTION _red -> CORE (2026-07-30) ───────────────────────────────
+# La variante REELLE (ex firstjob_tranche_acceptance_red.yaml) marchait le
+# parcours landing -> /onb -> /home ; INJOUABLE via locators semantiques
+# (9/11 testIDs onb-* absents de apps/mobile/lib, cablage hors-tranche
+# SPEC §3.1) -> jamais gate-able -> retiree. Ce flow SEEDE atterrit sur
+# /home via le seed d'archetype et couvre la MEME portee d'acceptation
+# (RED-1 carte /home -> RED-2 handoff coach) sans masquer de livrable :
+# la carte life event et le CTA coach sont TAPES ci-dessous.
 #
-# Ce flow atterrit donc sur /home via le seed d'archetype
-# (MINT_E2E_ARCHETYPE=jeune_diplome_zurich, persona 25 ans -> guestEmpty ->
-# shell navigable, auth_provider.dart:625-651). Le seed saute la SAISIE
-# d'onboarding (hors-tranche), il ne masque PAS RED-1/RED-2 : la carte
-# life event /home et le CTA coach sont toujours TAPES ci-dessous. Le seed
-# ne court-circuite donc que ce que la tranche ne livre pas.
+# Debloque par la migration SliverAppBar -> AppBar fixe (Scaffold.appBar)
+# sur first_job_screen : l'arbre AX des routes poussees ne s'effondre plus
+# au scroll sur iOS 26.2, donc le flow atteint les ancres INTERNES sous la
+# flottaison (firstjob-net-value...). Preuve runtime maestro hierarchy
+# (iPhone 16e / iOS 26.2) : first-job repos 53 noeuds -> apres scroll 58
+# noeuds (6 ids resultat presents) ; flow VERT bout en bout.
 #
-# ─── BUILD (miroir walker) ─────────────────────────────────────────────
+# ─── BUILD (seed archetype requis, miroir walker) ──────────────────────
 #   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
 #     --simulator --no-codesign \
 #     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
-#     --dart-define=MINT_E2E_ARCHETYPE=jeune_diplome_zurich
+#     --dart-define=MINT_E2E_ARCHETYPE=jeune_diplome_zurich \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner sweep : `tools/simulator/maestro_sweep.sh firstjob` (tier seede
+#   dedie, hors sweep normal — un app installe ne peut etre a la fois le
+#   build normal et le build seede jeune_diplome_zurich, cf. tier fatca).
 #
 # ─── PORTEE PROUVEE ────────────────────────────────────────────────────
 # T2 (/home shell) -> RED-1 (carte firstJob /home) -> /first-job
 # (appareil de lucidite : net + confidence + millesime + pourquoi) ->
 # RED-2 (CTA coach -> /coach/chat s'ouvre). La PARITE de contenu coach
-# (5b/5c du flow _red) exige un backend staging a jour (endpoint
-# /api/v1/lucidity/receipts) : hors de ce flow tant que staging n'est pas
-# avance (voir rapport PR-I). Locators 100% semantiques, zero pixel.
+# exige un backend staging a jour (endpoint /api/v1/lucidity/receipts) :
+# hors de ce flow. Locators 100% semantiques, zero pixel.
 
 appId: ch.mint.app
 tags:
@@ -41,6 +44,7 @@ tags:
   - tranche-firstjob
   - acceptance
   - seeded
+  - core
   - feature:first-job
 ---
 
@@ -81,24 +85,48 @@ tags:
 # ═══════════════════════════════════════════════════════════════════════
 # 2. /first-job — premier chiffre + appareil de lucidite
 # ═══════════════════════════════════════════════════════════════════════
-# 2a. Premier chiffre (ancre temps/taps du seuil go/no-go). Sert AUSSI d'ancre
-#     d'arrivee ecran depuis le pilote AX (ADR 2026-07-30) : l'id racine
-#     first_job_screen est retire (il effondrait l'arbre AX sur iOS 26.2), on
-#     gate sur cet id INTERNE toujours present en etat resultat.
+# 2a. Ancre d'ARRIVEE ecran = titre de l'AppBar (ADR AX 2026-07-30, Etape 2 :
+#     SliverAppBar migre en AppBar fixe -> le titre reste a l'ecran au repos ET
+#     au scroll, l'arbre AX ne s'effondre plus). L'id racine first_job_screen
+#     reste retire (il effondrait l'arbre sur iOS 26.2).
 - extendedWaitUntil:
     visible:
+      text: "Premier emploi"
+    timeout: 15000
+# 2b. Premier chiffre (ancre temps/taps du seuil go/no-go). Le bloc resultat est
+#     SOUS la flottaison (item 6) : on SCROLLE jusqu'a l'id INTERNE. Le scroll
+#     est desormais sur (AppBar fixe -> arbre AX riche+stable, preuve runtime
+#     maestro hierarchy : repos 53 noeuds -> apres scroll 58 noeuds, 6 ids
+#     resultat presents). scrollUntilVisible asserte AUSSI la visibilite.
+- scrollUntilVisible:
+    element:
       id: "firstjob-premier-eclairage-value"
+    direction: DOWN
     timeout: 15000
 - assertVisible:
     text: ".*CHF.*"
-# 2b. Source UNIQUE du net (PR-A anchor firstjob-net-value, ajoute PR-I).
-- assertVisible:
-    id: "firstjob-net-value"
-# 2c. Appareil de lucidite (PR-C) : confidence + millesime + pourquoi.
-- assertVisible:
-    id: "firstjob-confidence-chip"
-- assertVisible:
-    id: "firstjob-source-vintage"
+# 2c. Source UNIQUE du net (PR-A anchor firstjob-net-value, ajoute PR-I).
+- scrollUntilVisible:
+    element:
+      id: "firstjob-net-value"
+    direction: DOWN
+    timeout: 12000
+# 2d. Appareil de lucidite (PR-C) : confidence + millesime + pourquoi.
+- scrollUntilVisible:
+    element:
+      id: "firstjob-confidence-chip"
+    direction: DOWN
+    timeout: 12000
+- scrollUntilVisible:
+    element:
+      id: "firstjob-source-vintage"
+    direction: DOWN
+    timeout: 12000
+- scrollUntilVisible:
+    element:
+      id: "firstjob-why-net"
+    direction: DOWN
+    timeout: 12000
 - tapOn:
     id: "firstjob-why-net"
 - extendedWaitUntil:

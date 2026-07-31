@@ -18,6 +18,7 @@ import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — ÉCRAN PRINCIPAL INVALIDITÉ
@@ -285,9 +286,18 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputsCard()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCliffWidget(
-                  grossMonthly: _grossMonthly,
-                  acts: _acts,
+                // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la
+                // « Falaise » — les trois actes (employeur / IJM / AI+LPP) sont
+                // chiffrés au repos depuis le profil seedé (salaire/âge), aucun
+                // gate. Présente au repos, mais SOUS la flottaison + arbre AX
+                // effondré (SliverAppBar) → inatteignable au flow (asserté au
+                // niveau widget). Motif profond, jamais le wrapper racine.
+                MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
+                  identifier: 'disability-result',
+                  child: DisabilityCliffWidget(
+                    grossMonthly: _grossMonthly,
+                    acts: _acts,
+                  ),
                 )),
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityCountdownWidget(
@@ -335,6 +345,21 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       floating: false,
       pinned: true,
       backgroundColor: MintColors.primary,
+      // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+      // pop, sinon go('/home')) remplaçant le back par défaut, non-poppable sur
+      // entrée deeplink. `label` = tooltip « retour » localisé (leçon Codex B3
+      // #1141). Smoke Tier B (lot B4). NB : sur cet écran à SliverAppBar +
+      // wrapper racine (motif firstJob), l'arbre AX s'effondre → ce leading peut
+      // rester non-ciblable Maestro à l'écran (dette AX C5, tap-coordonnée).
+      leading: Semantics(
+        identifier: 'disability-back',
+        button: true,
+        label: MaterialLocalizations.of(context).backButtonTooltip,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.white),
+          onPressed: () => safePop(context),
+        ),
+      ),
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
           decoration: const BoxDecoration(
@@ -365,9 +390,17 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
           ),
         ),
       ),
-      title: Text(
-        S.of(context)!.disabilityAppBarTitle,
-        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+      // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+      // SliverAppBar — motif profond, jamais le wrapper racine (leçon ADR AX
+      // iOS 26.2). Sur cet écran (CustomScrollView + SliverAppBar + wrapper
+      // racine = motif firstJob) l'arbre peut s'effondrer au repos → C1/C5
+      // rouges attendus (SIGNAL AX du cadrage, pas un masquage).
+      title: Semantics(
+        identifier: 'disability-anchor',
+        child: Text(
+          S.of(context)!.disabilityAppBarTitle,
+          style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }

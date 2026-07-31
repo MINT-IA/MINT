@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
 import 'package:mint_mobile/widgets/coach/death_urgency_guide_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 class SuccessionPatrimoineScreen extends StatelessWidget {
   const SuccessionPatrimoineScreen({super.key});
@@ -28,21 +29,42 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.white,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 2 — patron #1127) : AppBar
+      // classique fixe en `Scaffold.appBar` au lieu d'un SliverAppBar dans le
+      // CustomScrollView. Le SliverAppBar ré-effondrait l'arbre AX des routes
+      // poussées AU SCROLL (2ᵉ déclencheur ADR) → `succession-result`
+      // inatteignable et `succession-back` (leading) non-ciblable par id. En
+      // AppBar fixe : arbre stable au scroll, back ciblable par id. Ancres
+      // C1 (succession-anchor) / C4 (succession-back) préservées.
+      appBar: AppBar(
+        backgroundColor: MintColors.white,
+        surfaceTintColor: MintColors.white,
+        foregroundColor: MintColors.textPrimary,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+        // pop, sinon go('/home')) — non-poppable sur entrée deeplink. Smoke Tier B.
+        leading: Semantics(
+          identifier: 'succession-back',
+          button: true,
+          label: MaterialLocalizations.of(context).backButtonTooltip,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => safePop(context),
+          ),
+        ),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, JAMAIS le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'succession-anchor',
+          child: Text(
+            l.successionTitle,
+            style: MintTextStyles.headlineMedium(),
+          ),
+        ),
+      ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
-          // ── AppBar white standard ──────────────────────────────
-          SliverAppBar(
-            expandedHeight: 100,
-            pinned: true,
-            backgroundColor: MintColors.white,
-            surfaceTintColor: MintColors.white,
-            foregroundColor: MintColors.textPrimary,
-            title: Text(
-              l.successionTitle,
-              style: MintTextStyles.headlineMedium(),
-            ),
-          ),
-
           SliverPadding(
             padding: const EdgeInsets.symmetric(
               horizontal: MintSpacing.lg,
@@ -60,9 +82,16 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── P8-A : Testament invisible ───────────────
-                const TestamentInvisibleWidget(
-                  patrimoine: 500000,
-                  initialStatus: FamilyStatus.concubin,
+                // Ancre régionale Tier B smoke (C2 « chiffré ») : le widget rend
+                // « Patrimoine : CHF 500'000 » + la répartition légale au repos
+                // (écran éducatif, aucun gate) — motif profond, jamais le
+                // wrapper racine.
+                Semantics(
+                  identifier: 'succession-result',
+                  child: const TestamentInvisibleWidget(
+                    patrimoine: 500000,
+                    initialStatus: FamilyStatus.concubin,
+                  ),
                 ),
                 const SizedBox(height: MintSpacing.lg),
 

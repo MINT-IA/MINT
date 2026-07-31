@@ -5,6 +5,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
+import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/life_events_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -1150,5 +1151,52 @@ void main() {
     expect(tester.getSemantics(find.byType(DivorceSimulatorScreen)), isNotNull);
     expect(find.byType(SituationGateCard), findsNWidgets(2));
     handle.dispose();
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  //  Tier B smoke — persona FAMILLE seedée (famille_bern) : preuve C2 chiffré.
+  //  Profil hydraté depuis la SEULE seed. Le divorce est un cas particulier :
+  //  le côté EX-conjoint (revenu 2, avoir au mariage) NE PEUT PAS venir du
+  //  profil (doctrine anti-contamination — le profil ne décrit pas l'ex). La
+  //  seed débloque donc tout le côté UTILISATEUR (income1, LPP certifiée,
+  //  canton, enfants) ; le résultat fiscal se rend après la SEULE saisie
+  //  irréductible : le revenu de l'ex.
+  // ══════════════════════════════════════════════════════════════
+  group('famille_bern seed unlocks the user side; ex income is the only touch',
+      () {
+    CoachProfile seededFamille() => CoachProfile.fromWizardAnswers(
+        CoachProfileSeeds.registry['famille_bern']!.toWizardAnswers());
+
+    testWidgets('conjoint-1 facts (income1, LPP certifiée, canton, enfants) seedés',
+        (tester) async {
+      await _pump(tester, _FakeProvider(seededFamille()));
+      await _simulate(tester);
+
+      expect(_state(tester).debugIncome1, 114000.0);
+      expect(_state(tester).debugCanton, 'BE');
+      expect(_state(tester).debugLpp1, 180000.0,
+          reason: 'LPP certifiée (salaire assuré déclaré) → seedable, '
+              'jamais une estimation âge×salaire.');
+      expect(_state(tester).debugChildrenTouched, isTrue,
+          reason: 'nombreEnfants>0 confirme le fait enfants.');
+      // Le fiscal reste gaté sur le SEUL revenu de l'ex (jamais dérivé du profil).
+      final gated = _gate(tester, _taxTitle);
+      expect(gated, isNotNull);
+      expect(gated!.gate.missing.map((f) => f.key), <String>['income2'],
+          reason: 'seul le revenu de l\'ex manque — tout le reste est seedé');
+    });
+
+    testWidgets('seed + ex income touch → tax figure renders (C2 chiffré)',
+        (tester) async {
+      await _pump(tester, _FakeProvider(seededFamille()));
+      // La SEULE saisie irréductible : le revenu de l'ex-conjoint.
+      await _setAmount(tester, _income2, 78000);
+      await _simulate(tester);
+
+      expect(_gate(tester, _taxTitle), isNull,
+          reason: 'income1 + canton seedés + income2 saisi → fiscal complet');
+      expect(find.textContaining('/an'), findsWidgets,
+          reason: 'le delta fiscal du divorce rend une fois déverrouillé');
+    });
   });
 }

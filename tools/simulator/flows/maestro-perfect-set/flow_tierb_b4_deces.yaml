@@ -1,0 +1,88 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_deces.yaml
+#
+# TIER B smoke — lot B4 Décès / Santé / Mobilité — event `deathOfRelative`
+# (route /life-event/deces-proche). Cadrage :
+# .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Event SANS AUCUN flow avant ce lot (création complète, exclu de
+# parcours_secondaires). Patron : lot B3 Logement (#1141, écran à AppBar FIXE +
+# SingleChildScrollView, comme housing_sale).
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-b4`.
+#
+# ─── C2 (non-vide) — chiffré per-user TOUCH-ONLY par conception P2 ──────
+#   /life-event/deces-proche est à AppBar FIXE (SingleChildScrollView) — pas de
+#   collapse AX. L'écran est NON-VIDE au repos (héros « délai de répudiation »
+#   = 3 mois (CC art. 567), urgences 48h, timeline, deux cartes de situation,
+#   actions). Sa SEULE sortie CHIFFRÉE en CHF (carte bénéficiaires : capital LPP
+#   + 3a du DÉFUNT) est gatée derrière des faits TOUCH-ONLY : les avoirs du défunt
+#   n'ont AUCUNE provenance dans le profil de l'utilisateur (les amorcer =
+#   fabrication). Ces avoirs se saisissent sur des `MintPremiumSlider` sans
+#   `Semantics(identifier:)` → NON ciblables par id en Maestro (défaut de
+#   testabilité récolté). L'ancre `deces-result` est donc prouvée au niveau WIDGET
+#   (`tierb_b4_anchors_test.dart`, sliders pilotés par `onChanged`), pas au flow
+#   (asserter un chiffré inatteignable masquerait la récolte — doctrine B1 #1134).
+#   Ce flow asserte C1 + C3 + C2-sentinelles-absentes + C4.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` : famille « garanti* » seule → `(?i).*garanti.*`.
+#
+# ─── VERDICT RUNTIME (à compléter après passe sim seedée) ──────────────
+#   Voir l'en-tête du sweep + le RETOUR d'agent B4 (tableau C1-C5).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - b4
+  - deces
+  - seeded
+  - feature:deces-proche
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /life-event/deces-proche.
+- openLink: "mintapp:///life-event/deces-proche"
+- extendedWaitUntil:
+    visible:
+      id: "deces-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide (l'écran rend le héros « 3 mois » +
+# urgences + timeline au repos). Le chiffré CHF per-user (bénéficiaires) est
+# touch-only (avoirs du défunt, sans provenance profil) → prouvé au widget test.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home (AppBar FIXE → back
+# ciblable par id, comme housing_sale).
+- tapOn:
+    id: "deces-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

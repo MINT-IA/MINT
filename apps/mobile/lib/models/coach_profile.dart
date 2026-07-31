@@ -3525,6 +3525,14 @@ class CoachProfile {
       // schema (Wave 01 Plan 01) roundtrips the value without coercion.
       usTaxPerson: answers['q_us_tax_person'] as bool?,
       etatCivil: etatCivil,
+      // `q_gender` ('F'/'M') est la clé de genre canonique du wizard : elle est
+      // déjà stockée (secure_wizard_store), mappée par le provider (gender ⇄
+      // q_gender) et lue par FinancialReportService.fromWizardAnswers. Seul
+      // ce constructeur l'ignorait — un profil hydraté depuis le wizard perdait
+      // le genre. Le câbler ici (symétrique à `q_partner_gender` du conjoint)
+      // alimente le rôle parental de naissance_screen (congé maternité vs
+      // paternité) sans fabriquer de défaut : gender null reste null → gaté.
+      gender: answers['q_gender'] as String?,
       nombreEnfants: nombreEnfants,
       conjoint: conjoint,
       salaireBrutMensuel: salaireBrutMensuel,

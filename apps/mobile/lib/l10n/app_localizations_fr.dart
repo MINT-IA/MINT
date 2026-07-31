@@ -16268,6 +16268,24 @@ class SFr extends S {
   String get donationRegimeSeparation => 'Séparation de biens';
 
   @override
+  String get donationLienConjoint => 'Conjoint(e)';
+
+  @override
+  String get donationLienDescendant => 'Enfant / Descendant(e)';
+
+  @override
+  String get donationLienParent => 'Parent';
+
+  @override
+  String get donationLienFratrie => 'Frère / Sœur';
+
+  @override
+  String get donationLienConcubin => 'Concubin(e)';
+
+  @override
+  String get donationLienTiers => 'Tiers';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Réserve $pct %';
   }
@@ -18525,7 +18543,7 @@ class SFr extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 3). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.';
+      'Lors d’un changement d’emploi, tu as 6 mois pour transférer ton avoir LPP (LFLP art. 4 al. 2). Passé ce délai, le capital est versé d’office sur un compte de libre passage. Choisis le bon véhicule dès le départ.';
 
   @override
   String get narrativeLibrePassageHeadline =>
@@ -21923,6 +21941,18 @@ class SFr extends S {
       'Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuité de ton revenu';
+
+  @override
+  String get incomeContinuityContext =>
+      'Tu es déjà à la retraite : cet indicateur reflète la continuité de ton revenu de retraite, pas un taux de remplacement calculé sur un salaire d’activité passé.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Comme tu es déjà à la retraite, aucun salaire d’activité n’est au dossier. Ton revenu de retraite sert alors de référence : l’indicateur reflète la continuité de ton revenu, et non un taux de remplacement au sens strict.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Loi sur la prévoyance professionnelle) est le 2e pilier. Ton employeur et toi cotisez ensemble pour ta retraite.';
 
@@ -24893,4 +24923,39 @@ class SFr extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Moteur de calcul : $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Compte libre passage';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Sécurité élevée, taux fixe 1-2%. Adapté si tu reprends un emploi rapidement.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — délai 6 mois';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Police d’assurance';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Protection décès et invalidité incluse. Rendement moyen lié aux taux techniques.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Fonds de placement';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.';
 }

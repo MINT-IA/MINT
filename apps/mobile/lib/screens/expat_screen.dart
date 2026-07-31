@@ -707,11 +707,20 @@ class _ExpatScreenState extends State<ExpatScreen>
       backgroundColor: MintColors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => safePop(context),
+      // C4 « pas de cul-de-sac » : leading safePop (déjà présent) + ancre `expat-back`
+      // et `label` tooltip « Retour » localisé (idiome back accessible B3).
+      leading: Semantics(
+        identifier: 'expat-back',
+        button: true,
+        label: MaterialLocalizations.of(context).backButtonTooltip,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+          onPressed: () => safePop(context),
+        ),
       ),
+      // C1 « atteignable » : ancre régionale profonde sur le TITRE.
       title: Semantics(
+        identifier: 'expat-anchor',
         header: true,
         child: Text(
           l.expatTitle,
@@ -816,16 +825,24 @@ class _ExpatScreenState extends State<ExpatScreen>
         // « donnée manquante »).
         if (_topMissingConjointIncome)
           const ConjointMissingHint(forceShow: true),
-        TopCantonWidget(
-          currentCanton: _topAnchor,
-          rankings: _topCantonsResult,
-          hasChildren: enfants > 0,
-          onChildrenChanged: _topMarried
-              ? (v) {
-                  _topCantonsHasChildren = v;
-                  _afterFactsChanged();
-                }
-              : null,
+        // C2 « non-vide + chiffré » : le classement cantonal (économie d'impôt
+        // annuelle CHF par canton) se calcule SEED-ALONE pour la persona
+        // frontalier_geneve (revenu `salary` + canton GE dans userProvidedFields
+        // ⇒ `_topCantonsGate` complet sans toucher). Ancre posée UNIQUEMENT sur
+        // la branche chiffrée (gate.complete) — jamais la carte-gate vide.
+        Semantics(
+          identifier: 'expat-result',
+          child: TopCantonWidget(
+            currentCanton: _topAnchor,
+            rankings: _topCantonsResult,
+            hasChildren: enfants > 0,
+            onChildrenChanged: _topMarried
+                ? (v) {
+                    _topCantonsHasChildren = v;
+                    _afterFactsChanged();
+                  }
+                : null,
+          ),
         ),
       ],
     ]);

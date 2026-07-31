@@ -1,0 +1,79 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_divorce.yaml
+#
+# TIER B smoke — lot B1 Famille — event `divorce` (route /divorce).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Remplace la dépendance au legacy deeplink racine `famille_parcours.yaml`.
+# Rationale complet (5D, build, seed) : voir flow_tierb_famille_mariage.yaml.
+#
+# ─── BUILD ─────────────────────────────────────────────────────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-famille`.
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss — PR) ────
+#   C1 VERT   — `divorce-anchor` visible au repos (maestro hierarchy = 41
+#               nœuds ; AppBar fixe + SingleChildScrollView, pas de collapse).
+#   C2 ROUGE (défaut écran, hors périmètre) — écran button-CTA (« Simuler ») :
+#     2 sorties gatées « dur » P2 (partage LPP / impact fiscal). Le seed
+#     julien_swiss n'a pas d'avoir LPP déclaré (lpp1 non confirmé) et
+#     l'ex-conjoint (income2) est touch seul → gatées, ZÉRO résultat chiffré au
+#     repos même après « Simuler ». C2 « chiffré » exige saisie manuelle des
+#     faits. Non-vide + aucune sentinelle vide. Le flow n'asserte pas le chiffre
+#     calculé (masquerait le défaut).
+#   C3 VERT   — aucun terme banni rendu.
+#   C4 VERT   — `divorce-back` → retour /home (safePop remplace le back AppBar
+#               par défaut, non ciblable et non-poppable sur entrée deeplink).
+#   C5 VERT   — 41 nœuds au repos (≥ 25).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - famille
+  - seeded
+  - feature:divorce
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /divorce.
+- openLink: "mintapp:///divorce"
+- extendedWaitUntil:
+    visible:
+      id: "divorce-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin. Miroir canonique check_banned_terms : famille
+# « garanti* » seule (banned_terms_arb.py:13-14 exclut les 6 termes colloquiaux
+# — faux positif « certain » prouvé). Voir flow_tierb_famille_mariage.yaml.
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide (chiffré CALCULÉ gaté — défaut D-C2).
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home.
+- tapOn:
+    id: "divorce-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

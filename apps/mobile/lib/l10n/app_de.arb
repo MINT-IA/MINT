@@ -8288,6 +8288,12 @@
   "donationRegimeCommunaute": "Gütergemeinschaft",
   "donationRegimeParticipation": "Errungenschaftsbeteiligung",
   "donationRegimeSeparation": "Gütertrennung",
+  "donationLienConjoint": "Ehepartner",
+  "donationLienDescendant": "Kind / Nachkomme",
+  "donationLienParent": "Elternteil",
+  "donationLienFratrie": "Geschwister",
+  "donationLienConcubin": "Lebenspartner",
+  "donationLienTiers": "Dritte",
   "donationReserveBarLabel": "Pflichtteil {pct}%",
   "donationTypeEspeces": "Bargeld / Liquidität",
   "donationTypeImmobilier": "Immobilien",
@@ -8959,7 +8965,7 @@
   "narrativeFirstJobBody": "Zwischen AHV (AHVG Art. 5), BVG (Art. 16) und KVG liegt dein Netto ohne Quellensteuer typischerweise bei rund 88–90 % des Brutto; mit Quellensteuer wird mehr abgezogen. Diese Abzüge zu verstehen ist der erste Schritt zu guter Finanzverwaltung.",
   "narrativeFirstJobHeadline": "Dein erster Lohn erklärt",
   "narrativeLibrePassageBadge": "Freizügigkeit",
-  "narrativeLibrePassageBody": "Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 3). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.",
+  "narrativeLibrePassageBody": "Bei einem Stellenwechsel hast du 6 Monate, um dein BVG-Guthaben zu übertragen (FZG Art. 4 Abs. 2). Nach Ablauf dieser Frist wird das Kapital automatisch auf ein Freizügigkeitskonto überwiesen. Wähle von Anfang an das richtige Instrument.",
   "narrativeLibrePassageHeadline": "Freizügigkeit: 6 Monate zum Handeln",
   "narrativeMarriageBadge": "Ehe",
   "narrativeMarriageBody": "Die Heirat ändert deine Besteuerung (DBG Art. 9), deinen Güterstand (ZGB Art. 181) und deine Hinterlassenenansprüche (AHVG Art. 23, BVG Art. 19). Je nachdem, wie sich eure beiden Einkommen verteilen, kann die Haushaltssteuer in beide Richtungen gehen.",
@@ -10058,6 +10064,9 @@
   "jargonAvs": "AHV (Altersversicherung)",
   "jargonRamd": "RAMD (massgebendes durchschnittliches Jahreseinkommen)",
   "jargonReplacementRateTooltip": "Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.",
+  "incomeContinuityLabel": "Einkommenskontinuität",
+  "incomeContinuityContext": "Du bist bereits im Ruhestand: Dieser Indikator zeigt die Kontinuität deines Renteneinkommens, nicht eine Ersatzquote auf einem früheren Erwerbslohn.",
+  "incomeContinuityTooltip": "Da du bereits im Ruhestand bist, liegt kein Erwerbslohn vor. Dein Renteneinkommen dient dann als Referenz: Der Indikator zeigt die Kontinuität deines Einkommens, nicht eine Ersatzquote im engeren Sinne.",
   "jargonLppTooltip": "Das BVG (Bundesgesetz über die berufliche Vorsorge) ist die 2. Säule. Du und dein Arbeitgeber zahlen gemeinsam für deine Pension ein.",
   "jargon3aTooltip": "Die Säule 3a ist freiwilliges Alterssparen. Einzahlungen können je nach BVG-Status vom steuerbaren Einkommen abziehbar sein.",
   "jargonAvsTooltip": "Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie soll ein Grundeinkommen im Ruhestand bereitstellen.",
@@ -11771,5 +11780,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Freizügigkeitskonto",
+  "librePassageOptionCompteDescription": "Hohe Sicherheit, fester Zinssatz 1-2%. Geeignet, wenn du bald wieder eine Stelle antrittst.",
+  "librePassageOptionCompteLegalRef": "FZG Art. 4 Abs. 2 — Frist von 6 Monaten",
+  "librePassageOptionPoliceLabel": "Versicherungspolice",
+  "librePassageOptionPoliceDescription": "Todesfall- und Invaliditätsschutz inklusive. Durchschnittliche Rendite an technische Zinssätze gebunden.",
+  "librePassageOptionPoliceLegalRef": "FZV Art. 10",
+  "librePassageOptionFondsLabel": "Anlagefonds",
+  "librePassageOptionFondsDescription": "Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.",
+  "librePassageOptionFondsLegalRef": "FZV Art. 19a",
+  "lppRescueDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch."
 }

@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:provider/provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
@@ -101,11 +102,21 @@ class _DonationScreenState extends State<DonationScreen> {
   static List<String> get _cantons => sortedCantonCodes;
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
-  static const _typesDonationLabels = {
-    'especes': 'Espèces / Liquidités',
-    'immobilier': 'Immobilier',
-    'titres': 'Titres / Valeurs mobilières',
-  };
+
+  /// Libellé localisé d'un type de donation (adossé ARB, aucun FR codé en dur).
+  String _typeDonationLabel(String type) {
+    final s = S.of(context)!;
+    switch (type) {
+      case 'especes':
+        return s.donationTypeEspeces;
+      case 'immobilier':
+        return s.donationTypeImmobilier;
+      case 'titres':
+        return s.donationTypeTitres;
+      default:
+        return type;
+    }
+  }
 
   static const _liensParente = [
     'conjoint',
@@ -116,11 +127,45 @@ class _DonationScreenState extends State<DonationScreen> {
     'tiers',
   ];
 
-  static const _regimesLabels = {
-    'participation_acquets': 'Participation aux acquêts',
-    'communaute_biens': 'Communauté de biens',
-    'separation_biens': 'Séparation de biens',
-  };
+  /// Libellé localisé d'un régime matrimonial (adossé ARB, aucun FR codé en dur).
+  String _regimeLabel(String regime) {
+    final s = S.of(context)!;
+    switch (regime) {
+      case 'participation_acquets':
+        return s.donationRegimeParticipation;
+      case 'communaute_biens':
+        return s.donationRegimeCommunaute;
+      case 'separation_biens':
+        return s.donationRegimeSeparation;
+      default:
+        return regime;
+    }
+  }
+
+  /// Libellé localisé d'un lien de parenté (adossé ARB, aucun FR codé en dur).
+  ///
+  /// Les clés (`conjoint`/`descendant`/…) sont la nomenclature du socle
+  /// succession/donation ([SuccessionDonationSocle.categories]) ; seule leur
+  /// forme affichée est localisée ici, en miroir de [_regimeLabel].
+  String _lienParenteLabel(String lien) {
+    final s = S.of(context)!;
+    switch (lien) {
+      case 'conjoint':
+        return s.donationLienConjoint;
+      case 'descendant':
+        return s.donationLienDescendant;
+      case 'parent':
+        return s.donationLienParent;
+      case 'fratrie':
+        return s.donationLienFratrie;
+      case 'concubin':
+        return s.donationLienConcubin;
+      case 'tiers':
+        return s.donationLienTiers;
+      default:
+        return lien;
+    }
+  }
 
   /// P2 (zéro donnée inventée) : amorce la situation réelle du donateur depuis
   /// le profil. On s'abonne au provider car `loadFromWizard()` hydrate le profil
@@ -437,7 +482,24 @@ class _DonationScreenState extends State<DonationScreen> {
       child: Scaffold(
         backgroundColor: MintColors.background,
         appBar: AppBar(
-          title: Text(S.of(context)!.donationAppBarTitle),
+          // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+          // pop, sinon go('/home')) remplaçant le back par défaut, non-poppable
+          // sur entrée deeplink. Smoke Tier B (lot B3).
+          leading: Semantics(
+            identifier: 'donation-back',
+            button: true,
+            label: MaterialLocalizations.of(context).backButtonTooltip,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => safePop(context),
+            ),
+          ),
+          // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+          // AppBar — motif profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+          title: Semantics(
+            identifier: 'donation-anchor',
+            child: Text(S.of(context)!.donationAppBarTitle),
+          ),
         ),
         body: SingleChildScrollView(
           controller: _scrollController,
@@ -511,7 +573,15 @@ class _DonationScreenState extends State<DonationScreen> {
   /// confirmed and a result exists; otherwise the gate card.
   Widget _buildTaxSlot() {
     if (_result != null && _taxGate(context).complete) {
-      return _buildTaxCard();
+      // Ancre régionale Tier B smoke (C2 « chiffré ») posée UNIQUEMENT sur la
+      // branche chiffrée (verdict fiscal + montant CHF) — jamais sur la
+      // SituationGateCard → l'ancre visible ⟺ gate ouvert. Le gate fiscal
+      // s'ouvre seed-alone (canton du profil), motif profond, jamais le wrapper
+      // racine (leçon ADR AX iOS 26.2).
+      return Semantics(
+        identifier: 'donation-result',
+        child: _buildTaxCard(),
+      );
     }
     return SituationGateCard(
       title: S.of(context)!.donationGateTitle,
@@ -674,7 +744,7 @@ class _DonationScreenState extends State<DonationScreen> {
             value: _donateurAge,
             minValue: 18,
             maxValue: 95,
-            formatValue: (v) => '$v ans',
+            formatValue: (v) => S.of(context)!.ageYears('$v'),
             onChanged: (v) => setState(() {
               _donateurAgeTouched = true;
               _donateurAge = v;
@@ -734,7 +804,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: _liensParente.map((lien) {
             final selected = _lienParente == lien;
             return Semantics(
-              label: DonationService.lienParenteLabels[lien] ?? lien,
+              label: _lienParenteLabel(lien),
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -758,7 +828,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  DonationService.lienParenteLabels[lien] ?? lien,
+                  _lienParenteLabel(lien),
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -788,7 +858,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
             return Semantics(
-              label: _typesDonationLabels[type] ?? type,
+              label: _typeDonationLabel(type),
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -812,7 +882,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _typesDonationLabels[type] ?? type,
+                  _typeDonationLabel(type),
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -845,7 +915,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: regimes.map((regime) {
             final selected = _regimeMatrimonial == regime;
             return Semantics(
-              label: _regimesLabels[regime] ?? regime,
+              label: _regimeLabel(regime),
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -872,7 +942,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _regimesLabels[regime] ?? regime,
+                  _regimeLabel(regime),
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -899,6 +969,10 @@ class _DonationScreenState extends State<DonationScreen> {
             union.total,
           );
     return Semantics(
+      // Ancre Tier B smoke (C2) : id déterministe du bouton — évite le
+      // full-match texte de Maestro (le label morphe « Calculer » ⇄
+      // « Compléter ma situation (N/total) »). Déclenche le calcul chiffré.
+      identifier: 'donation-simulate',
       label: label,
       button: true,
       child: SizedBox(
@@ -952,7 +1026,7 @@ class _DonationScreenState extends State<DonationScreen> {
     // La bascule (concubins) prime sur la ligne « lien de parenté » :
     // c'est la variable actionnable du verdict.
     final narrative = v.bascule ??
-        '${S.of(context)!.donationLienRow}\u00A0:\u00A0${DonationService.lienParenteLabels[_lienParente] ?? _lienParente}';
+        '${S.of(context)!.donationLienRow}\u00A0:\u00A0${_lienParenteLabel(_lienParente)}';
     return MintResultHeroCard(
       key: const Key('donationTaxCard'),
       eyebrow: S.of(context)!.donationImpotTitle,
@@ -1044,7 +1118,8 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationReserveBarLabel(
+                              (reservePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -1058,7 +1133,8 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: quotitePct > 0.15
                       ? Text(
-                          'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationDisponibleBarLabel(
+                              (quotitePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -1369,7 +1445,11 @@ class _DonationScreenState extends State<DonationScreen> {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
-        child: ExpansionTile(
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
           tilePadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -1383,6 +1463,7 @@ class _DonationScreenState extends State<DonationScreen> {
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
             ),
           ],
+        )
         ),
       ),
     );
@@ -1404,11 +1485,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _result?.disclaimer ??
-                  'Cet outil éducatif fournit des estimations indicatives et '
-                      'ne constitue pas un conseil juridique, fiscal ou notarial '
-                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
-                      '(notaire) pour ta situation.',
+              _result?.disclaimer ?? S.of(context)!.donationDisclaimerFallback,
               style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),

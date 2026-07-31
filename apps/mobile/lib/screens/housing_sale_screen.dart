@@ -14,6 +14,7 @@ import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -117,7 +118,24 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     return Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
-        title: Text(S.of(context)!.housingSaleAppBarTitle),
+        // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+        // pop, sinon go('/home')) remplaçant le back par défaut, non-poppable
+        // sur entrée deeplink. Smoke Tier B (lot B3).
+        leading: Semantics(
+          identifier: 'housing-sale-back',
+          button: true,
+          label: MaterialLocalizations.of(context).backButtonTooltip,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => safePop(context),
+          ),
+        ),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'housing-sale-anchor',
+          child: Text(S.of(context)!.housingSaleAppBarTitle),
+        ),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -141,7 +159,16 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             const SizedBox(height: 24),
             if (_result != null) ...[
               Container(key: _resultsKey),
-              MintEntrance(child: _buildPlusValueCard()),
+              // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la carte
+              // plus-value — présente UNIQUEMENT après un calcul (branche
+              // if (_result != null)), jamais au repos. Motif profond, jamais
+              // le wrapper racine (leçon ADR AX iOS 26.2).
+              MintEntrance(
+                child: Semantics(
+                  identifier: 'housing-sale-result',
+                  child: _buildPlusValueCard(),
+                ),
+              ),
               const SizedBox(height: 24),
               // Carte impot : uniquement quand le gain est chiffre (canton calibre).
               // Sinon le mecanisme + renvoi passent par la section alertes.
@@ -446,6 +473,9 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   // ── Simulate Button ──
   Widget _buildSimulateButton() {
     return Semantics(
+      // Ancre Tier B smoke (C2) : id déterministe du bouton « Calculer » —
+      // évite le full-match texte de Maestro. Déclenche le calcul chiffré.
+      identifier: 'housing-sale-simulate',
       button: true,
       label: S.of(context)!.housingSaleCalculer,
       child: SizedBox(
@@ -865,7 +895,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
-        child: ExpansionTile(
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: BorderRadius.circular(16),
+          clipBehavior: Clip.antiAlias,
+          child: ExpansionTile(
           tilePadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -879,6 +913,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.5),
             ),
           ],
+        )
         ),
       ),
     );

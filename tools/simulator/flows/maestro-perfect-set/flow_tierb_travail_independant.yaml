@@ -1,0 +1,144 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_travail_independant.yaml
+#
+# TIER B smoke — lot B2 Travail — event `selfEmployment` (route /segments/independant).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Vise l'ÉCRAN-EVENT canonique `/segments/independant` (pas la surface coach
+# adjacente des flows perfect-set `flow_row23_independent_*`). Rationale complet
+# (5D, build, seed, C3 garanti-only) : voir flow_tierb_travail_job_comparison.yaml.
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-travail`.
+#
+# ─── C2 CHIFFRÉ — désormais RUNTIME-ATTEIGNABLE (dette AX C5 LEVÉE) ─────
+#   `/segments/independant` calcule le résultat AU REPOS (initState `_compute()` +
+#   `_initializeFromProfile` : revenu / âge / canton du profil seedé). La section
+#   « Jour J » rend le « chiffre-choc » de perte mensuelle (formatChf), portée par
+#   l'ancre `independant-result` (branche `_result != null`). Le test widget
+#   `tierb_travail_anchors_test.dart` PROUVE que l'ancre est dans l'arbre sous seed.
+#   Le hero est SOUS la ligne de flottaison ; HISTORIQUEMENT cet écran était un
+#   CustomScrollView + SliverAppBar(pinned) et la sémantique du CONTENU s'effondrait
+#   au scroll (2e trigger ADR AX iOS 26.2). TRANCHE AX 1 a migré la SliverAppBar en
+#   AppBar fixe (patron first_job/rvc #1127) : l'arbre AX reste riche et stable au
+#   scroll, donc `scrollUntilVisible id:independant-result` L'ATTEINT.
+#
+#   DÉCISION (RE-ARMÉE, doctrine Étape 3 ADR) : le flow asserte MAINTENANT
+#   `independant-result` au scroll — c'est le test de non-régression du swap. On
+#   garde AUSSI l'assertion POSITIVE `independant-input` au repos (non-vide, au-dessus
+#   de la flottaison) : elle prouve que le corps rend hors AppBar même avant scroll.
+#   Le C2 « chiffré runtime » n'est plus bloqué par la dette AX.
+#
+# ─── DETTE AX (C5 — LEVÉE en tranche AX 1) ─────────────────────────────
+#   Migration SliverAppBar → AppBar de `independant_screen` LIVRÉE dans CE lot
+#   (patron first_job Étape 2, ADR AX iOS 26.2). C5 au repos = VERT ; C5 au scroll =
+#   VERT (arbre riche préservé, `independant-result` + `independant-back` ciblables).
+#   Le tap-coordonnée (28,75) est supprimé au profit de `tapOn id:independant-back`.
+#
+# ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss, staging —
+#     RE-ARMÉ tranche AX 1, 2026-07-31, build AppBar-swap) ──────────────
+#   C1 VERT  — `independant-anchor` visible au repos ; `maestro hierarchy` au
+#            repos = 58 nœuds (independant-anchor/back/input affleurent).
+#   C2 VERT (chiffré) — POSITIF `independant-input` au repos + aucune sentinelle
+#            vide ; ET le chiffré CALCULÉ Jour J (`independant-result`) est
+#            désormais ATTEIGNABLE au scroll : `maestro hierarchy` APRÈS scroll =
+#            53 nœuds RICHES (independant-anchor/back + `independant-result`
+#            affleurent — vs ~42 texte-dépouillé avant le swap). Sonde courte
+#            `ax_shortprobe_ind.yaml` (openLink direct, hors fenêtre de
+#            contamination) = 4/4 PASS : scrollUntilVisible independant-result +
+#            assertVisible independant-result = COMPLETED.
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `tapOn id:independant-back` (plus de tap-coordonnée) déclenche
+#            safePop → `home_route_state` (COMPLETED, sonde courte 4/4).
+#   C5 VERT au repos (58) ET au scroll (53) — l'effondrement-au-scroll est LEVÉ
+#            par la migration SliverAppBar → AppBar (tranche AX 1). Dette AX close.
+#   NOTE CONTAMINATION : le flow COMPLET (avec /home-first + attente 40 s) reste
+#            exposé sur le sim de dev PARTAGÉ (~80 agents installent ch.mint.app →
+#            app tuée pendant l'étape la plus longue ; `maestro hierarchy`
+#            post-kill = ~16 nœuds status-bar). En CI, le tier `tierb-travail`
+#            (build seedé dédié, comme fatca/firstjob) tourne ISOLÉ → vert attendu.
+#            La sonde courte 4/4 isole les assertions RE-ARMÉES hors contamination.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - travail
+  - seeded
+  - feature:self-employment
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /segments/independant.
+- openLink: "mintapp:///segments/independant"
+- extendedWaitUntil:
+    visible:
+      id: "independant-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir job_comparison pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 (positif) — Non-vide : la section revenu (`independant-input`) rend au repos,
+# au-dessus de la ligne de flottaison, le revenu seedé chiffré + l'âge. Assertion
+# POSITIVE : elle échoue si le corps de l'écran est vide / _result manquant /
+# crash (contrairement à la seule absence de sentinelles). Le chiffré CALCULÉ
+# (chiffre-choc Jour J, ancre `independant-result`) est SOUS la ligne de
+# flottaison et le scroll effondre la sémantique du contenu (dette AX SliverAppBar
+# — voir en-tête) ; sa preuve vit dans le test widget `tierb_travail_anchors_test.dart`
+# (l'asserter ici, via un scroll qui collapse, masquerait la dette AX).
+# extendedWaitUntil (pas assertVisible) : la section revenu est animée par
+# MintEntrance (délai 200 ms) → un snapshot immédiat échoue tant que l'entrée
+# n'est pas terminée (surtout quand le shell /home est déjà chaud).
+- extendedWaitUntil:
+    visible:
+      id: "independant-input"
+    timeout: 15000
+# C2 (négatif) — aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 (chiffré CALCULÉ) — RE-ARMÉ (tranche AX 1) : la migration SliverAppBar →
+# AppBar de `independant_screen` (patron first_job/rvc #1127) a supprimé le
+# collapse-au-scroll du CONTENU sur iOS 26.2. Le hero « Jour J » (chiffre-choc de
+# perte mensuelle, ancre `independant-result`, branche `_result != null`) est
+# désormais ATTEIGNABLE au scroll sans dépouiller la sémantique du contenu. On
+# scrolle jusqu'à lui (l'AppBar fixe conserve un arbre riche pendant le défilement).
+- scrollUntilVisible:
+    element:
+      id: "independant-result"
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: "independant-result"
+
+# C4 — Pas de cul-de-sac : retour → /home. RE-ARMÉ (tranche AX 1) : après la
+# migration SliverAppBar → AppBar, le leading `independant-back` (Semantics
+# identifier + safePop) est de nouveau CIBLABLE par Maestro `tapOn id:` (l'AppBar
+# fixe n'effondre plus l'arbre AX de la route poussée, donc le leading icon-only
+# n'est plus dépouillé). Le repli tap-coordonnée (28,75) est supprimé.
+- tapOn:
+    id: "independant-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

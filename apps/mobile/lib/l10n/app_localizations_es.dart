@@ -16277,6 +16277,24 @@ class SEs extends S {
   String get donationRegimeSeparation => 'Separación de bienes';
 
   @override
+  String get donationLienConjoint => 'Cónyuge';
+
+  @override
+  String get donationLienDescendant => 'Hijo(a) / Descendiente';
+
+  @override
+  String get donationLienParent => 'Progenitor';
+
+  @override
+  String get donationLienFratrie => 'Hermano(a)';
+
+  @override
+  String get donationLienConcubin => 'Pareja de hecho';
+
+  @override
+  String get donationLienTiers => 'Tercero';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserva $pct%';
   }
@@ -18539,7 +18557,7 @@ class SEs extends S {
 
   @override
   String get narrativeLibrePassageBody =>
-      'Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 3). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.';
+      'Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 4 al. 2). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.';
 
   @override
   String get narrativeLibrePassageHeadline => 'Libre paso: 6 meses para actuar';
@@ -21928,6 +21946,18 @@ class SEs extends S {
       'La tasa de reemplazo mide la parte de tu ingreso actual que conservarás en la jubilación. Ejemplo: 65% significa que recibirás el 65% de tu salario actual.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuidad de tus ingresos';
+
+  @override
+  String get incomeContinuityContext =>
+      'Ya estás jubilado/a: este indicador refleja la continuidad de tus ingresos de jubilación, no una tasa de reemplazo calculada sobre un salario laboral pasado.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Como ya estás jubilado/a, no hay ningún salario laboral en el expediente. Tus ingresos de jubilación sirven entonces de referencia: el indicador refleja la continuidad de tus ingresos, no una tasa de reemplazo en sentido estricto.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Ley de Previsión Profesional) es el 2.º pilar. Tú y tu empleador cotizáis juntos para tu jubilación.';
 
@@ -24893,4 +24923,39 @@ class SEs extends S {
   String firstJobLuciditeEngineLabel(String version) {
     return 'Motor de cálculo: $version';
   }
+
+  @override
+  String get librePassageOptionCompteLabel => 'Cuenta de libre paso';
+
+  @override
+  String get librePassageOptionCompteDescription =>
+      'Seguridad alta, tipo fijo 1-2%. Adecuado si retomas un empleo rápidamente.';
+
+  @override
+  String get librePassageOptionCompteLegalRef =>
+      'LFLP art. 4 al. 2 — plazo de 6 meses';
+
+  @override
+  String get librePassageOptionPoliceLabel => 'Póliza de seguro';
+
+  @override
+  String get librePassageOptionPoliceDescription =>
+      'Cobertura de fallecimiento e invalidez incluida. Rendimiento medio ligado a los tipos técnicos.';
+
+  @override
+  String get librePassageOptionPoliceLegalRef => 'OLP art. 10';
+
+  @override
+  String get librePassageOptionFondsLabel => 'Fondo de inversión';
+
+  @override
+  String get librePassageOptionFondsDescription =>
+      'Mayor potencial de rendimiento. Riesgo de mercado a aceptar en el horizonte.';
+
+  @override
+  String get librePassageOptionFondsLegalRef => 'OLP art. 19a';
+
+  @override
+  String get lppRescueDisclaimer =>
+      'Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 3-4, OLP art. 10. Sin instrucción, transferencia de oficio entre 6 meses y 2 años (LFLP art. 4 al. 2). Haberes olvidados: sfbvg.ch.';
 }

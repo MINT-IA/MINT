@@ -8288,6 +8288,12 @@
   "donationRegimeCommunaute": "Comunidad de bienes",
   "donationRegimeParticipation": "Participación en gananciales",
   "donationRegimeSeparation": "Separación de bienes",
+  "donationLienConjoint": "Cónyuge",
+  "donationLienDescendant": "Hijo(a) / Descendiente",
+  "donationLienParent": "Progenitor",
+  "donationLienFratrie": "Hermano(a)",
+  "donationLienConcubin": "Pareja de hecho",
+  "donationLienTiers": "Tercero",
   "donationReserveBarLabel": "Reserva {pct}%",
   "donationTypeEspeces": "Efectivo / Liquidez",
   "donationTypeImmobilier": "Inmueble",
@@ -8959,7 +8965,7 @@
   "narrativeFirstJobBody": "Entre AVS (LAVS art. 5), LPP (art. 16) y LAMal, tu neto ronda el 88-90 % del bruto sin impuesto en la fuente; con impuesto en la fuente, se retiene más. Entender estas deducciones es el primer paso hacia una buena gestión.",
   "narrativeFirstJobHeadline": "Tu primer salario explicado",
   "narrativeLibrePassageBadge": "Libre paso",
-  "narrativeLibrePassageBody": "Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 3). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.",
+  "narrativeLibrePassageBody": "Al cambiar de empleo, tienes 6 meses para transferir tu capital LPP (LFLP art. 4 al. 2). Pasado este plazo, el capital se deposita automáticamente en una cuenta de libre paso. Elige el vehículo adecuado desde el inicio.",
   "narrativeLibrePassageHeadline": "Libre paso: 6 meses para actuar",
   "narrativeMarriageBadge": "Matrimonio",
   "narrativeMarriageBody": "El matrimonio modifica tu tributación (LIFD art. 9), tu régimen matrimonial (CC art. 181) y tus derechos de supervivencia (LAVS art. 23, LPP art. 19). Según cómo se repartan vuestros dos ingresos, el impuesto del hogar puede ir en un sentido o en el otro.",
@@ -10058,6 +10064,9 @@
   "jargonAvs": "AVS (seguro de vejez)",
   "jargonRamd": "RAMD (ingreso anual medio determinante)",
   "jargonReplacementRateTooltip": "La tasa de reemplazo mide la parte de tu ingreso actual que conservarás en la jubilación. Ejemplo: 65% significa que recibirás el 65% de tu salario actual.",
+  "incomeContinuityLabel": "Continuidad de tus ingresos",
+  "incomeContinuityContext": "Ya estás jubilado/a: este indicador refleja la continuidad de tus ingresos de jubilación, no una tasa de reemplazo calculada sobre un salario laboral pasado.",
+  "incomeContinuityTooltip": "Como ya estás jubilado/a, no hay ningún salario laboral en el expediente. Tus ingresos de jubilación sirven entonces de referencia: el indicador refleja la continuidad de tus ingresos, no una tasa de reemplazo en sentido estricto.",
   "jargonLppTooltip": "La LPP (Ley de Previsión Profesional) es el 2.º pilar. Tú y tu empleador cotizáis juntos para tu jubilación.",
   "jargon3aTooltip": "El pilar 3a es un ahorro voluntario para la jubilación. Las aportaciones pueden ser deducibles de la renta imponible según tu situación LPP.",
   "jargonAvsTooltip": "El AVS (Seguro de Vejez y Supervivientes) es el 1.er pilar. Su objetivo es proporcionar un ingreso básico en la jubilación.",
@@ -11774,5 +11783,15 @@
         "type": "String"
       }
     }
-  }
+  },
+  "librePassageOptionCompteLabel": "Cuenta de libre paso",
+  "librePassageOptionCompteDescription": "Seguridad alta, tipo fijo 1-2%. Adecuado si retomas un empleo rápidamente.",
+  "librePassageOptionCompteLegalRef": "LFLP art. 4 al. 2 — plazo de 6 meses",
+  "librePassageOptionPoliceLabel": "Póliza de seguro",
+  "librePassageOptionPoliceDescription": "Cobertura de fallecimiento e invalidez incluida. Rendimiento medio ligado a los tipos técnicos.",
+  "librePassageOptionPoliceLegalRef": "OLP art. 10",
+  "librePassageOptionFondsLabel": "Fondo de inversión",
+  "librePassageOptionFondsDescription": "Mayor potencial de rendimiento. Riesgo de mercado a aceptar en el horizonte.",
+  "librePassageOptionFondsLegalRef": "OLP art. 19a",
+  "lppRescueDisclaimer": "Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 3-4, OLP art. 10. Sin instrucción, transferencia de oficio entre 6 meses y 2 años (LFLP art. 4 al. 2). Haberes olvidados: sfbvg.ch."
 }

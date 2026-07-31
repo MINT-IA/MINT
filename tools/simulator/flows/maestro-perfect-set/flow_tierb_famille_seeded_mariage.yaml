@@ -1,0 +1,85 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_famille_seeded_mariage.yaml
+#
+# TIER B smoke SEEDÉ — lot B1 Famille — event `marriage` (route /mariage).
+# Variante SEEDÉE `famille_bern` du smoke julien_swiss (flow_tierb_famille_mariage).
+# Prouve le critère C2 « chiffré ». Cadrage : mint-utilisable-tier-b-smoke.
+#
+# ─── BUILD (seed famille_bern requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=famille_bern \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-famille-seeded`.
+#
+# ─── C2 CHIFFRÉ (le delta vs le smoke julien_swiss) ────────────────────
+#   famille_bern porte un avoir LPP issu d'un certificat (isLppFromCertificate).
+#   La rente de survivant de l'onglet Protection se calcule seule (rente LPP du
+#   défunt × 60 %, LPP art. 19). On bascule sur l'onglet Protection puis on
+#   scrolle jusqu'à l'ancre régionale `mariage-result` (posée sur le hero de la
+#   rente de survivant, présente UNIQUEMENT via le render-gate `protectionReady`,
+#   jamais sur la carte de situation). L'onglet Impôts (par défaut) reste gaté
+#   car le nombre d'enfants est touch-only (pas de clé de provenance) — la
+#   timeline (onglet Régime) et la rente de survivant sont les sorties seed-alone.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - famille
+  - seeded
+  - famille-seeded
+  - feature:marriage
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /mariage.
+- openLink: "mintapp:///mariage"
+- extendedWaitUntil:
+    visible:
+      id: "mariage-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (famille « garanti* » seule ; voir
+# flow_tierb_famille_mariage.yaml pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Chiffré : bascule sur l'onglet Protection (la rente de survivant y est
+# seed-alone) puis scroll jusqu'à l'ancre régionale (Maestro ne dumpe que les
+# nœuds à l'écran → scrollUntilVisible obligatoire). L'onglet est ciblé par id
+# (le libellé porte un suffixe « Onglet 3 sur 4 » que le full-match texte rate).
+- tapOn:
+    id: "mariage-tab-protection"
+- scrollUntilVisible:
+    element:
+      id: "mariage-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home. On scrolle d'abord
+# vers le HAUT (le hero survivant était sous la flottaison → la barre AppBar, avec
+# son bouton retour, est remontée hors-vue par le scroll précédent).
+- scrollUntilVisible:
+    element:
+      id: "mariage-back"
+    direction: UP
+    timeout: 20000
+- tapOn:
+    id: "mariage-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000
