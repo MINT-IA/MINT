@@ -1177,7 +1177,7 @@ void main() {
             of: find.byKey(_survivorHero),
             matching: find.text(_expectedSurvivorPrimary(tester))),
         findsOneWidget,
-        reason: 'survivor = rente LPP du défunt × 60 % (LPP art. 19)',
+        reason: 'survivor = rente LPP du défunt × 60 % (LPP art. 21 al. 1)',
       );
     });
   });

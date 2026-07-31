@@ -29,10 +29,10 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.surface,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 3) : AppBar classique fixe en
+      // `Scaffold.appBar`, plus de SliverAppBar dans le CustomScrollView (2e
+      // déclencheur d'effondrement de l'arbre AX des routes poussées au scroll).
+      appBar: AppBar(
             backgroundColor: MintColors.white,
             surfaceTintColor: MintColors.white,
             foregroundColor: MintColors.textPrimary,
@@ -43,6 +43,8 @@ class _HelpResourcesScreenState extends State<HelpResourcesScreen> {
               style: MintTextStyles.titleMedium(),
             ),
           ),
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+        slivers: [
           SliverPadding(
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(

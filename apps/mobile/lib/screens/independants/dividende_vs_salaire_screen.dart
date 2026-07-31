@@ -6,11 +6,13 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DIVIDENDE VS SALAIRE SCREEN — Sprint S18
@@ -34,6 +36,14 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   double _partSalairePct = 70;
   double _tauxMarginal = 0.30;
   DividendeVsSalaireResult? _result;
+
+  /// Confiance du modèle (D10). Volontairement modérée : le simulateur intègre
+  /// désormais l'impôt sur le bénéfice de la société (double imposition
+  /// économique, modélisation #1163), mais avec un taux représentatif suisse
+  /// (moyenne KPMG 2025, pas le taux exact du canton) et une part imposable du
+  /// dividende simplifiée (60%). La bande D10 couvre la dispersion cantonale.
+  /// Cf. swiss-brain ruling 2026-07-31 + Codex 2026-07-31 (D2).
+  static const int _kModelConfidencePercent = 50;
 
   @override
   void initState() {
@@ -72,6 +82,13 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   MintEntrance(child: _buildPremierEclairage()),
+                  if (_result!.economie > 0) ...[
+                    const SizedBox(height: 12),
+                    MintEntrance(
+                      delay: const Duration(milliseconds: 80),
+                      child: _buildEconomieConfidence(),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   if (_result!.requalificationRisk) ...[
                     MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRequalificationAlert()),
@@ -217,6 +234,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     final saving = r.economie;
 
     return Semantics(
+      identifier: 'dividende-economie',
       label: saving > 0
           ? S.of(context)!.semanticsDividendeSaving(IndependantsService.formatChf(saving))
           : S.of(context)!.semanticsDividendeAdjust,
@@ -236,6 +254,47 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── D10 : fourchette d'incertitude + appareil de confiance ─────────
+
+  /// Rend la « bande d'incertitude » de l'économie (borne conservatrice =
+  /// impôt bénéfice Berne + inclusion fédérale 70% ; borne optimiste = impôt
+  /// bénéfice Zoug + inclusion cantonale 50%) + l'appareil de confiance
+  /// canonique [MintTrameConfiance] (Phase 8a — MTC est le SEUL primitif de
+  /// rendu de confiance ; `MintConfidenceNotice` est legacy, interdit par
+  /// no_legacy_confidence_render). Le caveat qui NOMME les hypothèses du modèle
+  /// (impôt sur le bénéfice représentatif, part imposable simplifiée, droits
+  /// AVS/LPP non valorisés) passe par la liste d'hypothèses `.detail` → le
+  /// « pourquoi ce chiffre » reste accessible.
+  Widget _buildEconomieConfidence() {
+    final r = _result!;
+    return Semantics(
+      identifier: 'dividende-confidence',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              S.of(context)!.dividendeFourchette(
+                    IndependantsService.formatChf(r.economieConservatrice),
+                    IndependantsService.formatChf(r.economieOptimiste),
+                  ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          const SizedBox(height: 12),
+          MintTrameConfiance.detail(
+            confidence: EnhancedConfidence.fromBareScore(
+              _kModelConfidencePercent.toDouble(),
+            ),
+            bloomStrategy: BloomStrategy.firstAppearance,
+            hypotheses: [S.of(context)!.dividendeConfidenceMessage],
+          ),
+        ],
       ),
     );
   }
@@ -557,10 +616,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Simulation simplifiée. L\'impôt sur le bénéfice de la société, '
-              'les déductions personnelles et les règles cantonales ne sont '
-              'pas intégrés dans ce calcul. Consulte un\u00B7e spécialiste '
-              'pour une analyse complète.',
+              S.of(context)!.dividendeSimulationDisclaimer,
               style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),

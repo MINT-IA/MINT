@@ -120,10 +120,34 @@ void main() {
         reason: 'no descendant labels under the "$identifier" boundary');
   }
 
-  testWidgets('DisabilityGapScreen exposes a screen-root semantics boundary',
-      (tester) async {
-    await expectScreenRootContract(
-        tester, const DisabilityGapScreen(), 'disability_gap_screen');
+  // AX iOS 26.2 (investigation AX invalidite, ADR 2026-07-31) : le contrat
+  // ILLOG-02 est INVERSÉ pour cet écran. Le wrapper racine collapsant
+  // `Semantics(container:true, explicitChildNodes:true,
+  // identifier:'disability_gap_screen')` est RETIRÉ — sur une route poussée
+  // iOS 26.2 il fait partie du motif firstJob qui effondre l'arbre AX (1er
+  // déclencheur, cf. project_ios26_ax_tree_collapse). Nouveau contrat : (a) le
+  // wrapper racine ne doit PLUS exister ; (b) l'ancre AppBar non-effondrante
+  // `disability-anchor` porte le titre localisé. Le déclencheur de CONTENU du
+  // fling-collapse (slider interne du countdown) est identifié par bisection
+  // runtime (Probe D/E) et corrigé côté écran (`interactive:false`) ; ce widget
+  // test ne peut PAS reproduire l'effondrement (bug du pont a11y iOS natif) —
+  // il pinne uniquement la structure du motif non-effondrant.
+  testWidgets(
+      'DisabilityGapScreen drops the collapsing root wrapper and exposes a '
+      'labeled disability-anchor (ADR AX iOS 26.2)', (tester) async {
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(_wrap(const DisabilityGapScreen()));
+    await tester.pump();
+
+    final root = _rootSemantics(tester);
+    expect(_findByIdentifier(root, 'disability_gap_screen'), isNull,
+        reason: 'the collapsing screen-root Semantics(container:true) wrapper '
+            'must NOT be reintroduced (iOS 26.2 AX collapse, ADR 2026-07-31)');
+    final anchor = _findByIdentifier(root, 'disability-anchor');
+    expect(anchor, isNotNull, reason: 'disability-anchor (AppBar title) missing');
+    expect(_labelsUnder(anchor!), isNotEmpty,
+        reason: 'no descendant labels under disability-anchor');
+    handle.dispose();
   });
 
   testWidgets('DecesProcheScreen exposes a screen-root semantics boundary',

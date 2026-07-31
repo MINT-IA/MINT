@@ -210,8 +210,9 @@ void main() {
       expect(certResult.sources.any((s) => s.contains('LIFD art. 38')), isTrue);
     });
 
-    test('sources include LPP art. 19 (survivor) when married', () {
-      expect(certResult.sources.any((s) => s.contains('LPP art. 19')), isTrue);
+    test('sources include LPP art. 21 al. 1 (survivor) when married', () {
+      expect(
+          certResult.sources.any((s) => s.contains('LPP art. 21 al. 1')), isTrue);
     });
 
     test('premierEclairage is non-empty', () {

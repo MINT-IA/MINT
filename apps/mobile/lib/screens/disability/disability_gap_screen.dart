@@ -263,94 +263,116 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      identifier: 'disability_gap_screen',
-      container: true,
-      explicitChildNodes: true,
-      child: Scaffold(
+    // AX iOS 26.2 (investigation AX invalidite, ADR 2026-07-31) : plus de
+    // wrapper racine `Semantics(container:true, explicitChildNodes:true)` NI de
+    // `SliverAppBar`. Les DEUX motifs effondraient l'arbre AX des routes
+    // poussées sur iOS 26.2 — le wrapper racine AU REPOS, le SliverAppBar AU
+    // SCROLL (cf. project_ios26_ax_tree_collapse, patron first_job #1127 /
+    // independant #1140). AppBar classique en `Scaffold.appBar` + hero-stat
+    // relogé en tête de corps (`_buildStatHero`, ex-`flexibleSpace`) → arbre
+    // riche et STABLE au scroll, `disability-result` (Falaise) atteignable.
+    // AX iOS 26.2 (investigation AX invalidite) : LISTE LAZY. La cause de
+    // l'effondrement d'arbre AX AU FLING était la DENSITÉ SÉMANTIQUE CUMULATIVE
+    // des ~4-5 cartes chiffrées rendues au repos (bisection Probe D→H : aucune
+    // carte seule n'effondre — sauf le countdown avec son slider interactif,
+    // désormais retiré ; c'est le CUMUL qui dépasse le seuil du pont a11y iOS
+    // 26.2). `SliverChildBuilderDelegate` + `addAutomaticKeepAlives:false`
+    // détruit les cartes hors-vue au scroll → le nombre de nœuds sémantiques
+    // VIVANTS reste borné au viewport, sous le seuil. (Cf.
+    // project_ios26_ax_tree_collapse ; independant reste sain car son bas de
+    // page est gaté/quasi-vide au repos.)
+    final items = <Widget>[
+      const SizedBox(height: 20),
+      // Hero-stat éducatif (« 1 personne sur 5 … ») migré depuis l'ancien
+      // `FlexibleSpaceBar` du SliverAppBar (aucune perte de contenu). Pas
+      // d'ancre AX ici → pas de piège re-collapse.
+      MintEntrance(child: _buildStatHero()),
+      const SizedBox(height: 20),
+      MintEntrance(child: MintNarrativeCard(
+        headline: S.of(context)!.narrativeDisabilityHeadline,
+        body: S.of(context)!.narrativeDisabilityBody,
+        tone: MintSurfaceTone.peche,
+        badge: S.of(context)!.narrativeDisabilityBadge,
+      )),
+      const SizedBox(height: 20),
+      MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputsCard()),
+      const SizedBox(height: 20),
+      // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la « Falaise »
+      // — les trois actes (employeur / IJM / AI+LPP) sont chiffrés au repos
+      // depuis le profil seedé (salaire/âge), aucun gate. Motif profond, jamais
+      // le wrapper racine.
+      MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
+        identifier: 'disability-result',
+        child: DisabilityCliffWidget(
+          grossMonthly: _grossMonthly,
+          acts: _acts,
+        ),
+      )),
+      const SizedBox(height: 20),
+      MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityCountdownWidget(
+        monthlyExpenses: _grossMonthly * 0.70,
+        initialSavings: _savings,
+        interactive: false,
+      )),
+      const SizedBox(height: 20),
+      if (_age >= 35 && _lppCapitalBefore > 0) DisabilityResetWidget(
+        currentAge: _age,
+        currentSalary: _grossMonthly * 12,
+        reducedSalary: _grossMonthly * 12 * 0.5,
+        capitalBefore: _lppCapitalBefore,
+        capitalAfter: _lppCapitalAfter,
+      ),
+      if (_age >= 35 && _lppCapitalBefore > 0) const SizedBox(height: 20),
+      MintEntrance(delay: const Duration(milliseconds: 400), child: DisabilityScorecardWidget(
+        items: _scorecardItems,
+        overallGrade: _overallGrade,
+        lifeDropPercent: _lifeDropPercent,
+      )),
+      const SizedBox(height: 20),
+      // ── Related sections (hub) ──
+      MintEntrance(delay: const Duration(milliseconds: 500), child: _buildRelatedSections()),
+      const SizedBox(height: 20),
+      EduDisclaimer(
+        text: S.of(context)!.disabilityGapDisclaimer,
+      ),
+      const SizedBox(height: 8),
+      EduLegalSources(
+        sources: S.of(context)!.disabilityGapSources,
+      ),
+    ];
+    return Scaffold(
       backgroundColor: MintColors.background,
+      appBar: _buildAppBar(context),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
-          _buildAppBar(),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
             sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                const SizedBox(height: 20),
-                MintEntrance(child: MintNarrativeCard(
-                  headline: S.of(context)!.narrativeDisabilityHeadline,
-                  body: S.of(context)!.narrativeDisabilityBody,
-                  tone: MintSurfaceTone.peche,
-                  badge: S.of(context)!.narrativeDisabilityBadge,
-                )),
-                const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputsCard()),
-                const SizedBox(height: 20),
-                // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur la
-                // « Falaise » — les trois actes (employeur / IJM / AI+LPP) sont
-                // chiffrés au repos depuis le profil seedé (salaire/âge), aucun
-                // gate. Présente au repos, mais SOUS la flottaison + arbre AX
-                // effondré (SliverAppBar) → inatteignable au flow (asserté au
-                // niveau widget). Motif profond, jamais le wrapper racine.
-                MintEntrance(delay: const Duration(milliseconds: 200), child: Semantics(
-                  identifier: 'disability-result',
-                  child: DisabilityCliffWidget(
-                    grossMonthly: _grossMonthly,
-                    acts: _acts,
-                  ),
-                )),
-                const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityCountdownWidget(
-                  monthlyExpenses: _grossMonthly * 0.70,
-                  initialSavings: _savings,
-                )),
-                const SizedBox(height: 20),
-                if (_age >= 35 && _lppCapitalBefore > 0) ...[
-                  DisabilityResetWidget(
-                    currentAge: _age,
-                    currentSalary: _grossMonthly * 12,
-                    reducedSalary: _grossMonthly * 12 * 0.5,
-                    capitalBefore: _lppCapitalBefore,
-                    capitalAfter: _lppCapitalAfter,
-                  ),
-                  const SizedBox(height: 20),
-                ],
-                MintEntrance(delay: const Duration(milliseconds: 400), child: DisabilityScorecardWidget(
-                  items: _scorecardItems,
-                  overallGrade: _overallGrade,
-                  lifeDropPercent: _lifeDropPercent,
-                )),
-                const SizedBox(height: 20),
-                // ── Related sections (hub) ──
-                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildRelatedSections()),
-                const SizedBox(height: 20),
-                EduDisclaimer(
-                  text: S.of(context)!.disabilityGapDisclaimer,
-                ),
-                const SizedBox(height: 8),
-                EduLegalSources(
-                  sources: S.of(context)!.disabilityGapSources,
-                ),
-              ]),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => items[index],
+                childCount: items.length,
+                addAutomaticKeepAlives: false,
+              ),
             ),
           ),
         ],
       ))),
-    ));
+    );
   }
 
-  Widget _buildAppBar() {
-    return SliverAppBar(
-      expandedHeight: 140,
-      floating: false,
-      pinned: true,
+  // AX iOS 26.2 (investigation AX invalidite, ADR 2026-07-31) : AppBar
+  // classique en `Scaffold.appBar` remplace le `SliverAppBar`
+  // (expandedHeight/flexibleSpace) qui ré-effondrait l'arbre AX AU SCROLL sur
+  // les routes poussées (2ᵉ déclencheur ADR, cf. project_ios26_ax_tree_collapse,
+  // patron first_job #1127 / independant #1140). Le hero-stat éducatif migre en
+  // tête de corps (`_buildStatHero`) → aucune perte de contenu. Titre →
+  // `AppBar.title` (disability-anchor, C1) ; retour → `leading`
+  // (disability-back, C4, safePop + `label` accessible localisé — leçon Codex B3
+  // #1141) ; centerTitle:false via AppBarTheme (app.dart).
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
       backgroundColor: MintColors.primary,
-      // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
-      // pop, sinon go('/home')) remplaçant le back par défaut, non-poppable sur
-      // entrée deeplink. `label` = tooltip « retour » localisé (leçon Codex B3
-      // #1141). Smoke Tier B (lot B4). NB : sur cet écran à SliverAppBar +
-      // wrapper racine (motif firstJob), l'arbre AX s'effondre → ce leading peut
-      // rester non-ciblable Maestro à l'écran (dette AX C5, tap-coordonnée).
+      foregroundColor: MintColors.white,
       leading: Semantics(
         identifier: 'disability-back',
         button: true,
@@ -360,47 +382,44 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
           onPressed: () => safePop(context),
         ),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [MintColors.redWine, MintColors.darkRed],
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 40, 20, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Text(
-                    S.of(context)!.disabilityStatLine1,
-                    style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5),
-                  ),
-                  Text(
-                    S.of(context)!.disabilityStatLine2,
-                    style: MintTextStyles.titleLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
-      // SliverAppBar — motif profond, jamais le wrapper racine (leçon ADR AX
-      // iOS 26.2). Sur cet écran (CustomScrollView + SliverAppBar + wrapper
-      // racine = motif firstJob) l'arbre peut s'effondrer au repos → C1/C5
-      // rouges attendus (SIGNAL AX du cadrage, pas un masquage).
       title: Semantics(
         identifier: 'disability-anchor',
         child: Text(
           S.of(context)!.disabilityAppBarTitle,
           style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
         ),
+      ),
+    );
+  }
+
+  // Hero-stat éducatif relogé depuis l'ancien `FlexibleSpaceBar` du SliverAppBar
+  // (« 1 personne sur 5 / sera touchée avant 65 ans »). Bannière dégradée en
+  // tête de corps — même contenu, mêmes couleurs/styles, aucune ancre AX (pas de
+  // piège re-collapse sur un MintEntrance animé).
+  Widget _buildStatHero() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [MintColors.redWine, MintColors.darkRed],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            S.of(context)!.disabilityStatLine1,
+            style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5),
+          ),
+          Text(
+            S.of(context)!.disabilityStatLine2,
+            style: MintTextStyles.titleLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
+          ),
+        ],
       ),
     );
   }

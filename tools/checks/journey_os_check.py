@@ -149,6 +149,9 @@ ALLOW = {
     "tools/checks/ci_gate_aggregation_check.py",
     "services/backend/app/constants/social_insurance.py",
     "services/backend/app/services/independants/avs_cotisations_service.py",
+    # Cluster 12D V2-1 (#1163 suite) : impôt sur le bénéfice dans le comparateur
+    # dividende — étalon backend (miroir mobile + parité déjà whitelistés).
+    "services/backend/app/services/independants/dividende_vs_salaire_service.py",
     "services/backend/app/services/independant_service.py",
     "services/backend/tests/test_independants.py",
     "services/backend/tests/test_independant_service.py",
@@ -223,6 +226,11 @@ ALLOW = {
     "apps/mobile/test/services/fiscal_service_test.dart",
     # -7vv : IndicatifBanner — trame réelle, CTA audible, fiscalite routable
     "apps/mobile/test/services/independants_service_test.dart",
+    # Cluster 12D V2-1 : drains D2 (parité backend) + confidence D10 dividende.
+    "apps/mobile/lib/screens/independants/dividende_vs_salaire_screen.dart",
+    "apps/mobile/test/screens/independants/dividende_vs_salaire_screen_test.dart",
+    "apps/mobile/test/services/independants_backend_parity_test.dart",
+    ".planning/phases/mint-utilisable-12d-vague2/V2-1-INDEPENDANTS-INVENTORY.md",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",
     "apps/mobile/lib/screens/independants/avs_cotisations_screen.dart",
@@ -487,6 +495,9 @@ ALLOW = {
     # Tier B smoke — cadrage des 18 life events (plan MINT utilisable v2.1,
     # 2026-07-30). Page de cadrage, PAS d'implémentation.
     ".planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md",
+    # Vague 2 revue 12D — cadrage clusters ordonnés (registre 12D rafraîchi,
+    # 2026-07-31). Page de cadrage/pilotage, PAS d'implémentation.
+    ".planning/phases/mint-utilisable-12d-vague2/00-CADRAGE.md",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",
@@ -516,6 +527,12 @@ ALLOW = {
     # Purge de la solidarité AC abolie au 1.1.2023 (LACI art. 90c al. 4) :
     # miroir dart du calcul frontalier (parité py↔dart).
     "apps/mobile/lib/services/expat_service.dart",
+    # Cluster 12D V2-2 « Segments risque » : drain i18n Tab 2 expat (LOT 3) +
+    # labels charges frontalier + bandes de confiance MTC (D10).
+    "apps/mobile/lib/screens/frontalier_screen.dart",
+    "apps/mobile/test/screens/expat_v22_i18n_test.dart",
+    "apps/mobile/test/screens/frontalier_v22_test.dart",
+    ".planning/phases/mint-utilisable-12d-vague2/V2-2-INVENTORY.md",
     # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
     "services/backend/app/services/divorce_simulator.py",
     "services/backend/tests/test_divorce_simulator.py",
@@ -586,6 +603,11 @@ ALLOW = {
     "apps/mobile/lib/services/financial_core/arbitrage_models.dart",
     "apps/mobile/test/services/financial_core/rvc_certificate_receipt_test.dart",
     "apps/mobile/test/services/financial_core/arbitrage_engine_rvc_boundary_test.dart",
+    # rente-survivant base légale unifiée (art. 21 al. 1 taux / art. 20a concubin) :
+    # le taux 60 % du conjoint était cité art. 19 (conditions) à plusieurs endroits.
+    "apps/mobile/lib/widgets/coach/survivor_pension_widget.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_fields_test.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_hero_fields_test.dart",
     "services/backend/app/services/rag/llm_client.py",
     "services/backend/app/api/v1/endpoints/anonymous_chat.py",
     "services/backend/app/api/v1/endpoints/coach_chat.py",
@@ -1102,6 +1124,40 @@ ALLOW = {
     "apps/mobile/lib/widgets/coach/lpp_rescue_widget.dart",
     "apps/mobile/lib/screens/independant_screen.dart",
     "apps/mobile/test/widgets/coach/lpp_rescue_widget_test.dart",
+    # Tranche AX 3 (ADR 2026-07-30, patron #1127/#1140/#1146) : migration
+    # SliverAppBar → AppBar classique fixe sur 7 ecrans a route poussee
+    # (CustomScrollView, barre titre-seule, sans expandedHeight/flexibleSpace).
+    # conversation_history retire en plus son wrapper Semantics racine
+    # `coach_history_screen` (double frontiere ModalRoute). debt_ratio +
+    # repayment deja dans ALLOW ; flows row20 + debt_ratio deja dans ALLOW,
+    # re-armes (row20 gate sur ancre interne, debt_ratio back par id).
+    "apps/mobile/lib/screens/document_scan/document_scan_screen.dart",
+    "apps/mobile/lib/screens/document_scan/avs_guide_screen.dart",
+    "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart",
+    "apps/mobile/lib/screens/debt_prevention/help_resources_screen.dart",
+    "apps/mobile/lib/screens/coach/conversation_history_screen.dart",
+    "apps/mobile/test/screens/coach/conversation_history_screen_test.dart",
+    # --- D4 vérités (2026-07-31) : la landing dit vrai (« Éclaire ma situation »
+    # remplace « Parle à Mint », qui promettait une conversation que le flux ne
+    # délivre pas — /start → /onb, cold-open chat anonyme retiré) + le coach
+    # guide l'entrée (3 chips de démarrage adaptées au profil sous l'ouverture).
+    # Le renommage du libellé propage aux tests widget + flows Maestro qui
+    # tapaient « Parle à Mint » par texte. ---
+    "apps/mobile/test/screens/core_app_screens_smoke_test.dart",
+    "apps/mobile/test/screens/landing_screen_test.dart",
+    "apps/mobile/test/widget_test.dart",
+    "apps/mobile/test/screens/coach/coach_starter_suggestions_test.dart",
+    "tools/simulator/walker.sh",
+    "tools/simulator/flows/e2e/flow_e2e_new_user_full_journey.yaml",
+    "tools/simulator/flows/julien_swiss.yaml",
+    "tools/simulator/flows/lauren_expat_us.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_b14_debt_intent_no_mortgage.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_b15_concrete_facts_chips.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_g2_julien_walkthrough.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_landing_to_register.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

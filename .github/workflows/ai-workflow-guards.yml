@@ -24,6 +24,21 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: "22"
+      - name: Cache Mermaid CLI (npx download + Puppeteer Chromium)
+        # The « Mermaid render guard » step below shells out to
+        # `npx -y @mermaid-js/mermaid-cli@11.4.2`, which on a COLD runner
+        # downloads the CLI into ~/.npm/_npx AND a full Chromium into
+        # ~/.cache/puppeteer — the slow first render that blew past the
+        # subprocess timeout (#1164 first pass ; timeout since raised to 300 s).
+        # Caching both dirs keyed on the pinned CLI version keeps warm runs off
+        # the cold path. A version bump in mermaid_render_guard.py rotates the
+        # key. Same first-party action + convention as calc-rigor.yml.
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/puppeteer
+          key: mermaid-cli-${{ runner.os }}-node22-11.4.2
       - name: Install guard dependencies
         run: |
           python3 -m pip install pytest jsonschema pyyaml

@@ -14,10 +14,22 @@ class DisabilityCountdownWidget extends StatefulWidget {
     super.key,
     required this.monthlyExpenses,
     required this.initialSavings,
+    this.interactive = true,
   });
 
   final double monthlyExpenses;
   final double initialSavings;
+
+  /// AX iOS 26.2 (investigation AX invalidite) : quand `false`, le slider
+  /// d'épargne interne est masqué (le widget reflète directement
+  /// `initialSavings`). Sur `disability_gap_screen`, l'écran porte DÉJÀ un
+  /// slider d'épargne (`disabilityAvailableSavings`) → le slider interne était
+  /// un doublon dé-synchronisé. Le retirer supprime AUSSI le seul élément
+  /// interactif (Material `Slider`, sémantique riche) de la zone de scroll
+  /// médiane — le déclencheur PROUVÉ (bisection Probe D/E) de l'effondrement
+  /// d'arbre AX au fling. `disability_self_employed_screen` garde `true`
+  /// (défaut) car il n'a pas de contrôle d'épargne dédié.
+  final bool interactive;
 
   @override
   State<DisabilityCountdownWidget> createState() => _DisabilityCountdownWidgetState();
@@ -35,7 +47,11 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     _savings = widget.initialSavings;
   }
 
-  double get _monthsCanHold => _savings / widget.monthlyExpenses;
+  // En mode non-interactif, refléter directement `initialSavings` (piloté par
+  // le slider d'épargne de l'écran) plutôt que l'état local du slider interne.
+  double get _savingsValue => widget.interactive ? _savings : widget.initialSavings;
+
+  double get _monthsCanHold => _savingsValue / widget.monthlyExpenses;
   double get _gapMonths => (_aiDelayMonths - _monthsCanHold).clamp(0, _aiDelayMonths.toDouble());
   double get _gapAmount => _gapMonths * widget.monthlyExpenses;
   double get _holdFraction => (_monthsCanHold / _aiDelayMonths).clamp(0.0, 1.0);
@@ -78,7 +94,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSavingsSlider(),
+                  _buildSavings(),
                   const SizedBox(height: 20),
                   _buildTimeline(hold, gap, color),
                   const SizedBox(height: 16),
@@ -128,7 +144,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildSavingsSlider() {
+  Widget _buildSavings() {
     final maxSavings = _aiDelayMonths * widget.monthlyExpenses * 1.5;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,29 +157,35 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
             Text(
-              'CHF ${_fmt(_savings)}',
+              'CHF ${_fmt(_savingsValue)}',
               style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
             ),
           ],
         ),
-        Slider(
-          value: _savings,
-          min: 0,
-          max: maxSavings,
-          divisions: 60,
-          activeColor: MintColors.primary,
-          onChanged: (v) => setState(() => _savings = v),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('CHF 0', style: MintTextStyles.micro(color: MintColors.textSecondary)),
-            Text(
-              'CHF ${_fmt(maxSavings)}',
-              style: MintTextStyles.micro(color: MintColors.textSecondary),
-            ),
-          ],
-        ),
+        // Slider interne UNIQUEMENT en mode interactif (self_employed, sans
+        // contrôle d'épargne dédié). Sur disability_gap_screen (interactive:
+        // false) l'épargne vient du slider de l'écran → pas de Material `Slider`
+        // interne dans la zone de scroll médiane (fix AX fling-collapse, Probe E).
+        if (widget.interactive) ...[
+          Slider(
+            value: _savingsValue.clamp(0, maxSavings),
+            min: 0,
+            max: maxSavings,
+            divisions: 60,
+            activeColor: MintColors.primary,
+            onChanged: (v) => setState(() => _savings = v),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('CHF 0', style: MintTextStyles.micro(color: MintColors.textSecondary)),
+              Text(
+                'CHF ${_fmt(maxSavings)}',
+                style: MintTextStyles.micro(color: MintColors.textSecondary),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

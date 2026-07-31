@@ -3662,10 +3662,7 @@ class SEn extends S {
 
   @override
   String jobCompareRetirementBody(
-    String betterJob,
-    String annualDelta,
-    String monthlyDelta,
-  ) {
+      String betterJob, String annualDelta, String monthlyDelta) {
     return '$betterJob is worth $annualDelta/year more in life annuity, i.e. $monthlyDelta/month FOR LIFE after retirement.';
   }
 
@@ -5750,10 +5747,7 @@ class SEn extends S {
 
   @override
   String simLppBuybackDisclaimer(
-    String fundRate,
-    int staggeringYears,
-    String taxableIncome,
-  ) {
+      String fundRate, int staggeringYears, String taxableIncome) {
     return 'Simulation including fund interest ($fundRate%) and indicative tax impact spread over $staggeringYears years for a taxable income of CHF $taxableIncome. Real return is calculated on your actual net effort.';
   }
 
@@ -5944,10 +5938,7 @@ class SEn extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-    String amount,
-    int years,
-    String plural,
-  ) {
+      String amount, int years, String plural) {
     return 'You lose $amount/month for life. But you gain $years year$plural of freedom.';
   }
 
@@ -6024,10 +6015,7 @@ class SEn extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-    String ordinary,
-    String forfait,
-    String savings,
-  ) {
+      String ordinary, String forfait, String savings) {
     return 'Lump-sum tax comparison. Ordinary taxation: $ordinary. Lump-sum tax: $forfait. Savings: $savings.';
   }
 
@@ -6445,7 +6433,7 @@ class SEn extends S {
   String get renteVsCapitalTransmissionLeftValueSingle => 'Nothing';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
+  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 21 al. 1';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailSingle => 'for your heirs';
@@ -7043,21 +7031,24 @@ class SEn extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(month, {
-      '1': 'January',
-      '2': 'February',
-      '3': 'March',
-      '4': 'April',
-      '5': 'May',
-      '6': 'June',
-      '7': 'July',
-      '8': 'August',
-      '9': 'September',
-      '10': 'October',
-      '11': 'November',
-      '12': 'December',
-      'other': 'month',
-    });
+    String _temp0 = intl.Intl.selectLogic(
+      month,
+      {
+        '1': 'January',
+        '2': 'February',
+        '3': 'March',
+        '4': 'April',
+        '5': 'May',
+        '6': 'June',
+        '7': 'July',
+        '8': 'August',
+        '9': 'September',
+        '10': 'October',
+        '11': 'November',
+        '12': 'December',
+        'other': 'month',
+      },
+    );
     return '$_temp0';
   }
 
@@ -8529,9 +8520,7 @@ class SEn extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-    String chargesTheoriques,
-    String chargesReelles,
-  ) {
+      String chargesTheoriques, String chargesReelles) {
     return 'Swiss banks use a theoretical 5% interest rate (ASB directive), even though the actual market rate is much lower. It\'s a stress test: they check you could handle the charges if rates rose. Your theoretical charges: $chargesTheoriques/mo. At market rate (~1.5%): $chargesReelles/mo.';
   }
 
@@ -13121,6 +13110,19 @@ class SEn extends S {
   String get dividendeTauxMarginal => 'Marginal tax rate';
 
   @override
+  String dividendeFourchette(String low, String high) {
+    return 'Range depending on the canton (corporate profit tax and taxable share of the dividend): $low to $high per year.';
+  }
+
+  @override
+  String get dividendeConfidenceMessage =>
+      'This estimate includes corporate profit tax at a representative Swiss rate (KPMG 2025 average) and a simplified 60% taxable share of the dividend; the actual federal 70% (LIFD art. 20 para. 1bis) / cantonal at least 50% split depends on the canton. It does not value the AVS/LPP entitlements built by salary. Confirm with a tax adviser.';
+
+  @override
+  String get dividendeSimulationDisclaimer =>
+      'Simplified simulation. Corporate profit tax is included via a representative Swiss rate (KPMG 2025 average); the exact cantonal rate, personal deductions, wealth tax and the AVS/LPP entitlements built by salary are not modelled. A market-conform salary is assumed. Consult a specialist for a full analysis.';
+
+  @override
   String get successionUrgence => 'Immediate urgency';
 
   @override
@@ -13248,7 +13250,7 @@ class SEn extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'The LPP survivor pension (60% of the deceased’s pension, LPP art. 19) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit — and you must apply for it.';
+      'The LPP survivor pension (60% of the deceased’s pension, LPP art. 21 al. 1) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit (LPP art. 20a) — and you must apply for it.';
 
   @override
   String get concubinageEducationalSuccession =>
@@ -13911,16 +13913,15 @@ class SEn extends S {
 
   @override
   String agentLetterAvsExtractBody(
-    String name,
-    String ssn,
-    String address,
-    String postalCity,
-    String avsOrg,
-    String avsAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-  ) {
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI kindly request that you send me an extract of my individual AVS account (CI) in order to verify my contribution record and identify any gaps.\n\nThank you in advance for your diligence.\n\nYours faithfully,\n\n$name';
   }
 
@@ -13949,32 +13950,30 @@ class SEn extends S {
 
   @override
   String agentLetterLppTransferBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisseSource,
-    String caisseCurrentAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String toComplete,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nDue to the termination of my employment / my departure from Switzerland (delete as applicable), I kindly request that you transfer my vested benefits.\n\nAmount to transfer: the full amount of my vested benefits at the date of departure.\n\nDestination institution:\nName: $toComplete\nIBAN or account number: $toComplete\nAddress: $toComplete\n\nDeparture date: $toComplete\n\nThank you for your diligence and please confirm the successful completion of this transfer.\n\nYours faithfully,\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisse,
-    String caisseAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String year,
-    String policeNumber,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI hereby wish to submit the following requests regarding my occupational pension file:\n\n1. Updated pension certificate $year (retirement assets, covered benefits, applicable conversion rate)\n\n2. Confirmation of my buyback capacity (maximum amount pursuant to Art. 79b LPP)\n\n3. Early retirement simulation (projection of assets and pension at 63 and 64, if applicable)\n\nThank you in advance for your diligence. I remain at your disposal for any further information.\n\nYours faithfully,\n\n$name\n$policeNumber';
   }
 
@@ -15953,10 +15952,7 @@ class SEn extends S {
 
   @override
   String disabilityGapAct3Detail(
-    String aiAmount,
-    String lppAmount,
-    String totalAmount,
-  ) {
+      String aiAmount, String lppAmount, String totalAmount) {
     return 'DI $aiAmount + LPP $lppAmount = $totalAmount CHF/month';
   }
 
@@ -19802,9 +19798,7 @@ class SEn extends S {
 
   @override
   String rcReplacementRateExplanation(
-    String totalMonthly,
-    String currentMonthly,
-  ) {
+      String totalMonthly, String currentMonthly) {
     return 'Estimated retirement income: $totalMonthly CHF/month vs $currentMonthly CHF/month today';
   }
 
@@ -20037,10 +20031,7 @@ class SEn extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-    String legal,
-    String monthly,
-    String free,
-  ) {
+      String legal, String monthly, String free) {
     return 'Remaining legal room: $legal/year. Monthly equivalent: $monthly/month. Current free budget: $free/month. Legal room ≠ monthly capacity: keep a reserve before increasing 3a.';
   }
 
@@ -20274,13 +20265,8 @@ class SEn extends S {
   String get scoreGaugeSectionPrevoyance => 'Pension';
 
   @override
-  String scoreGaugeSemanticsLabel(
-    String score,
-    String level,
-    String budget,
-    String prevoyance,
-    String patrimoine,
-  ) {
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
     return 'Financial fitness score. $score out of 100. Level $level. Budget $budget, Pension $prevoyance, Assets $patrimoine.';
   }
 
@@ -20369,11 +20355,7 @@ class SEn extends S {
 
   @override
   String semanticsBenchmarkMetric(
-    String label,
-    String status,
-    String low,
-    String high,
-  ) {
+      String label, String status, String low, String high) {
     return '$label: $status. Typical range $low to $high';
   }
 
@@ -21823,8 +21805,7 @@ class SEn extends S {
       'The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.';
 
   @override
-  String get incomeContinuityLabel =>
-      'Income continuity';
+  String get incomeContinuityLabel => 'Income continuity';
 
   @override
   String get incomeContinuityContext =>
@@ -21968,6 +21949,26 @@ class SEn extends S {
 
   @override
   String get coachStarterLurk => 'I\'ll just look around for now';
+
+  @override
+  String get coachStarterSuggestionLpp => 'What\'s my 2nd pillar?';
+
+  @override
+  String get coachStarterSuggestion3a => 'How much can I put in my 3a?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Where does my money go each month?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Pension or lump sum?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'Our retirement plan as a couple?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'My retirement plan as a freelancer?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23270,7 +23271,7 @@ class SEn extends S {
   String get landingV2PromiseSober => 'We clarify. You decide.';
 
   @override
-  String get landingV2CtaSober => 'Talk to Mint';
+  String get landingV2CtaSober => 'See my situation';
 
   @override
   String get landingV3Hero => 'See clearly. Decide for yourself.';
@@ -24721,10 +24722,7 @@ class SEn extends S {
 
   @override
   String genderGapProjectionAssumptions(
-    String rendement,
-    String tauxMin,
-    String annees,
-  ) {
+      String rendement, String tauxMin, String annees) {
     return 'Projection assumptions: the $rendement%/yr return on LPP assets is a MINT assumption, not a legal rate — the LPP minimum interest rate is $tauxMin%/yr. The cumulative gap is the annual gap multiplied by $annees years of retirement, with no discounting or indexation: an illustrative order of magnitude, not a loss already incurred.';
   }
 
@@ -24824,4 +24822,121 @@ class SEn extends S {
   @override
   String get lppRescueDisclaimer =>
       'Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch.';
+
+  @override
+  String get expatDeadline3aLabel => 'Pillar 3a — closure or freeze';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Contact your bank to plan the closure or transfer of your 3a.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'A 3a left unmanaged before departure can lock up funds for years.';
+
+  @override
+  String get expatDeadlineLppLabel => 'LPP — vested benefits';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Request the transfer of your LPP assets to a vested-benefits account or policy.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AVS — voluntary contribution';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'If you settle outside the EU/EFTA, you can join the AVS voluntarily to avoid gaps.';
+
+  @override
+  String get expatRightAvsLabel => 'AVS — mandatory contribution';
+
+  @override
+  String get expatRightAvsBefore => 'Automatic contribution via your employer';
+
+  @override
+  String get expatRightAvsAfter => 'AVS gaps → reduced pension';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Each missing year reduces your AVS pension by about $perYear %. 10 years = −$tenYear % for life.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'LPP — 2nd pillar';
+
+  @override
+  String get expatRightLppBefore => 'Mandatory retirement savings';
+
+  @override
+  String get expatRightLppAfter =>
+      'Capital locked or withdrawn without returns';
+
+  @override
+  String get expatRightLppImpact =>
+      'You can withdraw your LPP assets, but you pay tax on the withdrawn capital. Rebuilding it from abroad is not possible.';
+
+  @override
+  String get expatRight3aLabel => 'Pillar 3a';
+
+  @override
+  String get expatRight3aBefore => 'Annual tax deductions';
+
+  @override
+  String get expatRight3aAfter =>
+      'Account frozen — no new contributions possible';
+
+  @override
+  String get expatRight3aImpact =>
+      'You lose the right to pay into the 3a as soon as you no longer have income subject to Swiss AVS.';
+
+  @override
+  String get expatRightLamalLabel => 'LAMal — health insurance';
+
+  @override
+  String get expatRightLamalBefore => 'Universal coverage in Switzerland';
+
+  @override
+  String get expatRightLamalAfter =>
+      'Health insurance now falls under your country of residence';
+
+  @override
+  String get expatRightLamalImpact =>
+      'International coverage is often partial and costly. Check the bilateral agreements.';
+
+  @override
+  String get expatRightAcLabel => 'Unemployment AC';
+
+  @override
+  String get expatDestinationAbroad => 'abroad';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Estimate based on a simplified linear model (pension reduced pro rata to contribution years). The actual AVS pension also depends on average annual income and credits. Confirm with your compensation fund.';
+
+  @override
+  String get frontalierChargeMaladie => 'Health insurance';
+
+  @override
+  String get frontalierChargeRetraite => 'Retirement / old age';
+
+  @override
+  String get frontalierChargeChomage => 'Unemployment';
+
+  @override
+  String get frontalierChargeDependance => 'Long-term care';
+
+  @override
+  String get frontalierChargeLogement => 'Housing support';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'LPP (est.)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Estimate based on a simplified average rate per canton. The scale actually withheld depends on your family situation (single, married, number of children) — which this flat model does not distinguish. Separately, quasi-resident status can open a subsequent ordinary assessment with deductions, without changing the withheld scale. Confirm with the cantonal tax authority.';
+
 }

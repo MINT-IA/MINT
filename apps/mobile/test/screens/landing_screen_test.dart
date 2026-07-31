@@ -88,8 +88,9 @@ void main() {
       expect(find.text('MINT'), findsOneWidget);
       // Phase 73 hero — landingV3Hero option D, locked.
       expect(find.text('Voir clair, décider seul.'), findsOneWidget);
-      // CTA — landingV2CtaSober kept (only the line changed, not button copy).
-      expect(find.text('Parle à Mint'), findsOneWidget);
+      // CTA — landingV2CtaSober = « Éclaire ma situation » (D4 vérités: the
+      // CTA now names the guided-preview destination, no longer a chat.).
+      expect(find.text('Éclaire ma situation'), findsOneWidget);
       // No privacy subtitle.
       expect(
         find.textContaining('Rien ne sort de ton téléphone'),
@@ -173,7 +174,7 @@ void main() {
 
         final cta = find.byKey(const Key('landing_talk_to_mint_cta'));
         expect(cta, findsOneWidget);
-        expect(find.bySemanticsLabel('Parle à Mint'), findsOneWidget);
+        expect(find.bySemanticsLabel('Éclaire ma situation'), findsOneWidget);
         final node = tester.getSemantics(cta);
         expect(node.identifier, 'landing_talk_to_mint_cta');
         expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
@@ -206,7 +207,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.text(unexpectedDestination), findsNothing);
-        expect(find.text('Parle à Mint'), findsOneWidget);
+        expect(find.text('Éclaire ma situation'), findsOneWidget);
       }
 
       await expectEarlyTapIgnored(
@@ -282,7 +283,7 @@ void main() {
 
       // Hero is present immediately — no animation delay needed.
       expect(find.text('Voir clair, décider seul.'), findsOneWidget);
-      expect(find.text('Parle à Mint'), findsOneWidget);
+      expect(find.text('Éclaire ma situation'), findsOneWidget);
     });
   });
 }

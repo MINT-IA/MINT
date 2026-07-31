@@ -289,25 +289,31 @@ void main() {
       expect(result.sensitivity.last.partSalairePct, 100);
     });
 
-    test('charge dividende = 50% taxation (participation qualifiante)', () {
+    test('charge dividende inclut l\'impôt sur le bénéfice (double imposition)',
+        () {
       final result = IndependantsService.calculateDividendeVsSalaire(
         200000,
         0, // 100% dividende
         0.30,
       );
-      // Charge dividende = 200000 * 0.50 * 0.30 = 30000
-      expect(result.chargeDividende, closeTo(200000 * 0.50 * 0.30, 0.01));
+      // Impôt bénéfice (200000*0.144=28'800) + imposition partielle du dividende
+      // net (200000*0.856*0.60*0.30=30'816) = 59'616. Strictement supérieur à
+      // l'ancien modèle (200000*0.50*0.30=30'000) qui ignorait l'impôt bénéfice.
+      expect(result.chargeDividende, closeTo(59616, 0.01));
+      expect(result.chargeDividende, greaterThan(200000 * 0.50 * 0.30));
     });
 
-    test('charge salaire inclut impot + AVS (12.5%)', () {
+    test('charge salaire ramenée au même pot pré-impôt (÷ 1 + part patronale)',
+        () {
       final result = IndependantsService.calculateDividendeVsSalaire(
         200000,
         100, // 100% salaire
         0.30,
       );
-      // Charge = 200000 * 0.30 (impot) + 200000 * 0.125 (AVS)
-      const expectedCharge = 200000 * 0.30 + 200000 * 0.125;
+      // salaire brut + charges patronales = pot -> charge = pot*(0.125+0.30)/1.0625.
+      const expectedCharge = 200000 * (0.125 + 0.30) / 1.0625; // = 80'000
       expect(result.chargeSalaire, closeTo(expectedCharge, 0.01));
+      expect(result.chargeSalaire, closeTo(80000, 0.01));
     });
 
     test('economie >= 0 (optimal split vs tout salaire)', () {
@@ -317,6 +323,60 @@ void main() {
         0.30,
       );
       expect(result.economie, greaterThanOrEqualTo(0));
+    });
+
+    // ── Q4 (swiss-brain 2026-07-31) : plancher absolu de salaire raisonnable.
+    // Le mobile sous-alertait ; il converge vers le backend (part < 60% OU
+    // salaire propose < 60'000).
+    test('requalification quand salaire < seuil raisonnable meme si part >= 60%',
+        () {
+      // benefice 80'000, part 65% -> salaire 52'000 < 60'000 -> alerte.
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(80000, 65, 0.30);
+      expect(result.partSalaire, closeTo(52000, 0.01));
+      expect(result.requalificationRisk, true);
+    });
+
+    test('pas de requalification quand part >= 60% ET salaire >= 60\'000', () {
+      // benefice 200'000, part 70% -> salaire 140'000 >= 60'000 -> pas d'alerte.
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(200000, 70, 0.30);
+      expect(result.requalificationRisk, false);
+    });
+
+    test('requalification quand part < 60% meme si salaire >= 60\'000', () {
+      // benefice 200'000, part 50% -> salaire 100'000 (>= 60'000) mais part < 60%.
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(200000, 50, 0.30);
+      expect(result.requalificationRisk, true);
+    });
+
+    // ── D10 : bande d'incertitude. Bornes selon le canton : optimiste (impôt
+    // bénéfice Zoug 11.85% + inclusion cantonale 50%) et conservatrice (impôt
+    // bénéfice Berne 20.54% + inclusion fédérale 70%, LIFD art. 20 al. 1bis).
+    test('bande ordonnée : conservatrice <= point <= optimiste, toutes >= 0',
+        () {
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(200000, 60, 0.30);
+      expect(result.economieConservatrice, greaterThanOrEqualTo(0));
+      expect(result.economieConservatrice, lessThanOrEqualTo(result.economie));
+      expect(result.economie, lessThanOrEqualTo(result.economieOptimiste));
+    });
+
+    test('bande D10 : bornes numériques (200k, 30%)', () {
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(200000, 60, 0.30);
+      expect(result.economie, closeTo(20384, 0.01));
+      expect(result.economieOptimiste, closeTo(29855, 0.01));
+      expect(result.economieConservatrice, closeTo(5546.8, 0.01));
+    });
+
+    test('bande conservatrice STRICTEMENT < optimiste quand le dividende est '
+        'avantageux', () {
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(300000, 60, 0.35);
+      expect(result.economie, greaterThan(0));
+      expect(result.economieConservatrice, lessThan(result.economieOptimiste));
     });
   });
 

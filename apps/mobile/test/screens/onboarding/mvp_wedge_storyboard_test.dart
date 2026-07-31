@@ -14,7 +14,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/app.dart' show accountLifecycleAndArchetypeRedirect;
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -90,12 +92,31 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
 }
 
 class _TrackingAuthProvider extends AuthProvider {
+  _TrackingAuthProvider({this.forceLoggedIn = false});
+
+  /// Lets a widget test drive the account seal branch of `_sealAndGo`
+  /// without standing up a real JWT session. `_sealAndGo` decides between
+  /// `markAccountProfileAvailable()` and `enableLocalMode()` on
+  /// `auth.isLoggedIn`, so overriding that getter is enough to exercise
+  /// each branch.
+  final bool forceLoggedIn;
+
   int profileAvailableCalls = 0;
+  int localModeCalls = 0;
+
+  @override
+  bool get isLoggedIn => forceLoggedIn || super.isLoggedIn;
 
   @override
   void markAccountProfileAvailable() {
     profileAvailableCalls += 1;
     super.markAccountProfileAvailable();
+  }
+
+  @override
+  Future<void> enableLocalMode() async {
+    localModeCalls += 1;
+    await super.enableLocalMode();
   }
 }
 
@@ -888,7 +909,118 @@ void main() {
 
     final merged = fake.mergedCalls.single;
     expect(merged['q_wants_deeper'], isTrue);
+    // An anonymous guest who continues must be switched into local mode,
+    // NOT routed through the account-only markAccountProfileAvailable()
+    // (a no-op when logged out — the "Anonyme · conservé sur cet appareil"
+    // promise was previously broken here).
+    expect(auth.localModeCalls, 1);
+    expect(auth.profileAvailableCalls, 0);
+    expect(auth.isLocalMode, isTrue);
+    expect(auth.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+    expect(auth.authLifecycle.allowsMainNavigation, isTrue);
+  });
+
+  testWidgets(
+      'T8 Sortir: anonymous guest is switched to local mode so /home is '
+      'reachable and the dossier is remembered on relaunch',
+      (tester) async {
+    // Honors the on-screen promise "Anonyme · conservé sur cet appareil".
+    // Before the fix, Sortir called markAccountProfileAvailable() (a no-op
+    // when logged out), leaving the lifecycle at sessionRestoring/freshVisitor
+    // so /home bounced to /auth/register and nothing persisted for relaunch.
+    final fake = _FakeCoachProfileProvider();
+    final auth = _TrackingAuthProvider();
+    await _pumpShell(tester, fake, authProvider: auth);
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sortir'));
+    await tester.pumpAndSettle();
+
+    // The seal routes the guest through enableLocalMode(), never the
+    // account-only no-op.
+    expect(auth.localModeCalls, 1);
+    expect(auth.profileAvailableCalls, 0);
+
+    // Navigable local guest: allowsMainNavigation is what lets /home render
+    // instead of redirecting to the registration wall.
+    expect(auth.isLocalMode, isTrue);
+    expect(auth.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+    expect(auth.authLifecycle.accessMode, AuthAccessMode.guestLocal);
+    expect(auth.authLifecycle.allowsMainNavigation, isTrue);
+
+    // The PRODUCTION redirect guard (not the stub router) must let the sealed
+    // guest reach /home while a freshVisitor with the same dossier still hits
+    // the registration wall. This is the actual regression being repaired.
+    expect(
+      accountLifecycleAndArchetypeRedirect(
+        lifecycle: auth.authLifecycle,
+        location: '/home',
+        path: '/home',
+        topRoute: null,
+        profile: fake.profile,
+      ),
+      isNull,
+      reason: 'sealed guest must stay on /home, not bounce to /auth/register',
+    );
+    expect(
+      accountLifecycleAndArchetypeRedirect(
+        lifecycle: AuthLifecycleState.freshVisitor(),
+        location: '/home',
+        path: '/home',
+        topRoute: null,
+        profile: fake.profile,
+      ),
+      startsWith('/auth/register'),
+      reason: 'without local mode, /home is the registration wall (the bug)',
+    );
+
+    // Relaunch memory: the explicit local-mode flag is persisted, and a real
+    // cold-start restore (fresh AuthProvider + checkAuth) recognises the guest
+    // as guestEmpty — never freshVisitor, never the wall.
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('auth_local_mode'), isTrue);
+
+    final relaunched = AuthProvider();
+    await relaunched.checkAuth();
+    expect(relaunched.authLifecycle.state, AuthLifecycleKind.guestEmpty);
+    expect(relaunched.authLifecycle.allowsMainNavigation, isTrue);
+    expect(relaunched.isLoggedIn, isFalse);
+  });
+
+  testWidgets(
+      'T8 Sortir: an existing account still routes through the account seal '
+      '(no local-mode downgrade)',
+      (tester) async {
+    // Non-regression: a logged-in user sealing their dossier must keep using
+    // markAccountProfileAvailable() and must NOT be flipped into anonymous
+    // local mode.
+    final fake = _FakeCoachProfileProvider();
+    final auth = _TrackingAuthProvider(forceLoggedIn: true);
+    await _pumpShell(tester, fake, authProvider: auth);
+    await _commonEntry(
+      tester,
+      intentKey: const ValueKey('onboarding-intent-retraite'),
+    );
+    await _commonData(tester);
+
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sortir'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('home-landed'), findsOneWidget);
     expect(auth.profileAvailableCalls, 1);
+    expect(auth.localModeCalls, 0);
   });
 
   testWidgets(

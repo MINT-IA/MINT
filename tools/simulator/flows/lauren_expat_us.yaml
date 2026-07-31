@@ -38,12 +38,12 @@ appId: ch.mint.app
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 10000
 
 # 02 — tap landing CTA → anonymous chat opener
 - tapOn:
-    text: "Parle à Mint"
+    text: "Éclaire ma situation"
 - extendedWaitUntil:
     visible:
       text: ".*Écris ce qui te trotte.*"

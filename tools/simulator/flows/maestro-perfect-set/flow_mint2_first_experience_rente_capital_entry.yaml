@@ -33,13 +33,13 @@ tags:
 # 01 — fresh first screen observed.
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 10000
 - takeScreenshot: "01-mint2-first-screen"
 
 # 02 — enter Mint 2.0 first experience.
 - tapOn:
-    text: "Parle à Mint"
+    text: "Éclaire ma situation"
 - extendedWaitUntil:
     visible:
       text: "Un premier aperçu suisse."

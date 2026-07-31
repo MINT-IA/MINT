@@ -3700,10 +3700,7 @@ class SDe extends S {
 
   @override
   String jobCompareRetirementBody(
-    String betterJob,
-    String annualDelta,
-    String monthlyDelta,
-  ) {
+      String betterJob, String annualDelta, String monthlyDelta) {
     return '$betterJob bringt $annualDelta/Jahr mehr Leibrente, also $monthlyDelta/Monat LEBENSLANG nach der Pensionierung.';
   }
 
@@ -5799,10 +5796,7 @@ class SDe extends S {
 
   @override
   String simLppBuybackDisclaimer(
-    String fundRate,
-    int staggeringYears,
-    String taxableIncome,
-  ) {
+      String fundRate, int staggeringYears, String taxableIncome) {
     return 'Simulation inklusive Kassenzins ($fundRate %) und indikativem Steuereffekt, geglättet über $staggeringYears Jahre für ein steuerbares Einkommen von CHF $taxableIncome. Die reale Rendite wird auf deinen tatsächlichen Nettoaufwand berechnet.';
   }
 
@@ -5994,10 +5988,7 @@ class SDe extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-    String amount,
-    int years,
-    String plural,
-  ) {
+      String amount, int years, String plural) {
     return 'Du verlierst $amount/Monat lebenslang. Aber du gewinnst $years Jahr$plural Freiheit.';
   }
 
@@ -6074,10 +6065,7 @@ class SDe extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-    String ordinary,
-    String forfait,
-    String savings,
-  ) {
+      String ordinary, String forfait, String savings) {
     return 'Vergleich Pauschalbesteuerung. Ordentliche Besteuerung: $ordinary. Pauschalbesteuerung: $forfait. Ersparnis: $savings.';
   }
 
@@ -6499,7 +6487,7 @@ class SDe extends S {
   String get renteVsCapitalTransmissionLeftValueSingle => 'Nichts';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
+  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 21 al. 1';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailSingle => 'für deine Erben';
@@ -7106,21 +7094,24 @@ class SDe extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(month, {
-      '1': 'Januar',
-      '2': 'Februar',
-      '3': 'März',
-      '4': 'April',
-      '5': 'Mai',
-      '6': 'Juni',
-      '7': 'Juli',
-      '8': 'August',
-      '9': 'September',
-      '10': 'Oktober',
-      '11': 'November',
-      '12': 'Dezember',
-      'other': 'Monat',
-    });
+    String _temp0 = intl.Intl.selectLogic(
+      month,
+      {
+        '1': 'Januar',
+        '2': 'Februar',
+        '3': 'März',
+        '4': 'April',
+        '5': 'Mai',
+        '6': 'Juni',
+        '7': 'Juli',
+        '8': 'August',
+        '9': 'September',
+        '10': 'Oktober',
+        '11': 'November',
+        '12': 'Dezember',
+        'other': 'Monat',
+      },
+    );
     return '$_temp0';
   }
 
@@ -8608,9 +8599,7 @@ class SDe extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-    String chargesTheoriques,
-    String chargesReelles,
-  ) {
+      String chargesTheoriques, String chargesReelles) {
     return 'Schweizer Banken rechnen mit einem theoretischen Zinssatz von 5 % (ASB-Richtlinie), auch wenn der aktuelle Marktzins deutlich tiefer ist. Es ist ein Belastungstest: Sie prüfen, ob du die Kosten tragen könntest, falls die Zinsen steigen. Deine theoretischen Kosten: $chargesTheoriques/Mt. Zum Marktzins (~1,5 %): $chargesReelles/Mt.';
   }
 
@@ -13217,6 +13206,19 @@ class SDe extends S {
   String get dividendeTauxMarginal => 'Grenzsteuersatz';
 
   @override
+  String dividendeFourchette(String low, String high) {
+    return 'Bandbreite je nach Kanton (Gewinnsteuer und steuerbarer Dividendenanteil): $low bis $high pro Jahr.';
+  }
+
+  @override
+  String get dividendeConfidenceMessage =>
+      'Diese Schätzung enthält die Gewinnsteuer der Gesellschaft zu einem repräsentativen Schweizer Satz (Durchschnitt KPMG 2025) und einen vereinfachten steuerbaren Dividendenanteil von 60 %; die tatsächliche Aufteilung Bund 70 % (DBG Art. 20 Abs. 1bis) / Kanton mindestens 50 % hängt vom Kanton ab. Sie bewertet die durch den Lohn erworbenen AHV/BVG-Ansprüche nicht. Mit einer Treuhänderin bestätigen.';
+
+  @override
+  String get dividendeSimulationDisclaimer =>
+      'Vereinfachte Simulation. Die Gewinnsteuer ist über einen repräsentativen Schweizer Satz (Durchschnitt KPMG 2025) enthalten; der genaue kantonale Satz, persönliche Abzüge, die Vermögenssteuer und die durch den Lohn erworbenen AHV/BVG-Ansprüche sind nicht modelliert. Ein marktkonformer Lohn wird angenommen. Ziehe eine Fachperson für eine vollständige Analyse bei.';
+
+  @override
   String get successionUrgence => 'Sofortiger Handlungsbedarf';
 
   @override
@@ -13344,7 +13346,7 @@ class SDe extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 19) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen — und es muss beantragt werden.';
+      'Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 21 Abs. 1) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen (BVG Art. 20a) — und es muss beantragt werden.';
 
   @override
   String get concubinageEducationalSuccession =>
@@ -14017,16 +14019,15 @@ class SDe extends S {
 
   @override
   String agentLetterAvsExtractBody(
-    String name,
-    String ssn,
-    String address,
-    String postalCity,
-    String avsOrg,
-    String avsAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-  ) {
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nbitte senden Sie mir einen Auszug meines individuellen AHV-Kontos (IK), um den Stand meiner Beiträge zu prüfen und eventuelle Lücken zu identifizieren.\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
@@ -14054,32 +14055,30 @@ class SDe extends S {
 
   @override
   String agentLetterLppTransferBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisseSource,
-    String caisseCurrentAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String toComplete,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\naufgrund der Beendigung meines Arbeitsverhältnisses / meines Wegzugs aus der Schweiz (Nichtzutreffendes streichen) bitte ich Sie, mein Freizügigkeitsguthaben zu übertragen.\n\nZu übertragender Betrag: das gesamte Freizügigkeitsguthaben per Austrittsdatum.\n\nZielinstitution:\nName: $toComplete\nIBAN oder Kontonummer: $toComplete\nAdresse: $toComplete\n\nAustrittsdatum: $toComplete\n\nIch danke Ihnen für Ihre Sorgfalt und bitte um eine Bestätigung der Ausführung.\n\nMit freundlichen Grüssen\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisse,
-    String caisseAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String year,
-    String policeNumber,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, den $dateFormatted\n\nBetreff: $subject\n\nSehr geehrte Damen und Herren,\n\nhiermit erlaube ich mir, folgende Anfragen bezüglich meiner beruflichen Vorsorge zu stellen:\n\n1. Aktualisierter Vorsorgeausweis $year (Altersguthaben, gedeckte Leistungen, anwendbarer Umwandlungssatz)\n\n2. Bestätigung meiner Einkaufskapazität (Maximalbetrag gemäss Art. 79b BVG)\n\n3. Simulation Frühpensionierung (Projektion des Guthabens und der Rente mit 63 und 64 Jahren, falls zutreffend)\n\nIch danke Ihnen im Voraus für Ihre Sorgfalt und stehe Ihnen für Rückfragen gerne zur Verfügung.\n\nMit freundlichen Grüssen\n\n$name\n$policeNumber';
   }
 
@@ -16073,10 +16072,7 @@ class SDe extends S {
 
   @override
   String disabilityGapAct3Detail(
-    String aiAmount,
-    String lppAmount,
-    String totalAmount,
-  ) {
+      String aiAmount, String lppAmount, String totalAmount) {
     return 'IV $aiAmount + BVG $lppAmount = $totalAmount CHF/Monat';
   }
 
@@ -19949,9 +19945,7 @@ class SDe extends S {
 
   @override
   String rcReplacementRateExplanation(
-    String totalMonthly,
-    String currentMonthly,
-  ) {
+      String totalMonthly, String currentMonthly) {
     return 'Geschätztes Renteneinkommen: $totalMonthly CHF/Monat vs $currentMonthly CHF/Monat heute';
   }
 
@@ -20185,10 +20179,7 @@ class SDe extends S {
 
   @override
   String budgetIndependentNoLppDecisionSummary(
-    String legal,
-    String monthly,
-    String free,
-  ) {
+      String legal, String monthly, String free) {
     return 'Verbleibender rechtlicher Spielraum: $legal/Jahr. Monatliches Äquivalent: $monthly/Monat. Aktuell freies Budget: $free/Monat. Rechtlicher Spielraum ≠ monatliche Kapazität: Behalte eine Reserve, bevor du 3a erhöhst.';
   }
 
@@ -20421,13 +20412,8 @@ class SDe extends S {
   String get scoreGaugeSectionPrevoyance => 'Vorsorge';
 
   @override
-  String scoreGaugeSemanticsLabel(
-    String score,
-    String level,
-    String budget,
-    String prevoyance,
-    String patrimoine,
-  ) {
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
     return 'Finanzielle Fitness. $score von 100. Stufe $level. Budget $budget, Vorsorge $prevoyance, Vermögen $patrimoine.';
   }
 
@@ -20516,11 +20502,7 @@ class SDe extends S {
 
   @override
   String semanticsBenchmarkMetric(
-    String label,
-    String status,
-    String low,
-    String high,
-  ) {
+      String label, String status, String low, String high) {
     return '$label: $status. Typische Spanne $low bis $high';
   }
 
@@ -21987,8 +21969,7 @@ class SDe extends S {
       'Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.';
 
   @override
-  String get incomeContinuityLabel =>
-      'Einkommenskontinuität';
+  String get incomeContinuityLabel => 'Einkommenskontinuität';
 
   @override
   String get incomeContinuityContext =>
@@ -22134,6 +22115,27 @@ class SDe extends S {
 
   @override
   String get coachStarterLurk => 'Ich schaue erst mal rum';
+
+  @override
+  String get coachStarterSuggestionLpp => 'Was ist meine 2. Säule?';
+
+  @override
+  String get coachStarterSuggestion3a =>
+      'Wie viel kann ich in die Säule 3a einzahlen?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Wohin geht mein Geld jeden Monat?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Rente oder Kapital?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'Unsere Vorsorge als Paar?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'Meine Vorsorge als Selbstständige?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23444,7 +23446,7 @@ class SDe extends S {
   String get landingV2PromiseSober => 'Wir klären auf. Du entscheidest.';
 
   @override
-  String get landingV2CtaSober => 'Sprich mit Mint';
+  String get landingV2CtaSober => 'Meine Lage klären';
 
   @override
   String get landingV3Hero => 'Klar sehen. Selbst entscheiden.';
@@ -24910,10 +24912,7 @@ class SDe extends S {
 
   @override
   String genderGapProjectionAssumptions(
-    String rendement,
-    String tauxMin,
-    String annees,
-  ) {
+      String rendement, String tauxMin, String annees) {
     return 'Projektionsannahmen: Die Rendite von $rendement %/Jahr auf den BVG-Guthaben ist eine MINT-Annahme, kein gesetzlicher Satz — der BVG-Mindestzinssatz beträgt $tauxMin %/Jahr. Die kumulierte Lücke ist die jährliche Lücke multipliziert mit $annees Rentenjahren, ohne Diskontierung und ohne Indexierung: eine illustrative Grössenordnung, kein bereits erlittener Verlust.';
   }
 
@@ -25013,4 +25012,121 @@ class SDe extends S {
   @override
   String get lppRescueDisclaimer =>
       'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch.';
+
+  @override
+  String get expatDeadline3aLabel => 'Säule 3a — Auflösung oder Sperrung';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Kontaktiere deine Bank, um die Auflösung oder Übertragung der 3a zu planen.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'Eine vor der Abreise nicht geregelte 3a kann Gelder über Jahre blockieren.';
+
+  @override
+  String get expatDeadlineLppLabel => 'BVG — Freizügigkeit';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Beantrage die Übertragung deines BVG-Guthabens auf ein Freizügigkeitskonto oder eine Police.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AHV — freiwilliger Beitrag';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'Wenn du dich ausserhalb der EU/EFTA niederlässt, kannst du der AHV freiwillig beitreten, um Lücken zu vermeiden.';
+
+  @override
+  String get expatRightAvsLabel => 'AHV — obligatorischer Beitrag';
+
+  @override
+  String get expatRightAvsBefore =>
+      'Automatischer Beitrag über den Arbeitgeber';
+
+  @override
+  String get expatRightAvsAfter => 'AHV-Lücken → gekürzte Rente';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Jedes fehlende Jahr senkt deine AHV-Rente um rund $perYear %. 10 Jahre = −$tenYear % auf Lebenszeit.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'BVG — 2. Säule';
+
+  @override
+  String get expatRightLppBefore => 'Obligatorisches Altersguthaben';
+
+  @override
+  String get expatRightLppAfter => 'Kapital gesperrt oder ohne Rendite bezogen';
+
+  @override
+  String get expatRightLppImpact =>
+      'Du kannst dein BVG-Guthaben beziehen, zahlst aber Steuern auf das bezogene Kapital. Der Wiederaufbau aus dem Ausland ist nicht möglich.';
+
+  @override
+  String get expatRight3aLabel => 'Säule 3a';
+
+  @override
+  String get expatRight3aBefore => 'Jährliche Steuerabzüge';
+
+  @override
+  String get expatRight3aAfter =>
+      'Konto gesperrt — keine neuen Einzahlungen möglich';
+
+  @override
+  String get expatRight3aImpact =>
+      'Du verlierst das Recht auf Einzahlungen in die 3a, sobald du kein AHV-pflichtiges Einkommen mehr hast.';
+
+  @override
+  String get expatRightLamalLabel => 'KVG — Krankenversicherung';
+
+  @override
+  String get expatRightLamalBefore => 'Universelle Deckung in der Schweiz';
+
+  @override
+  String get expatRightLamalAfter =>
+      'Die Krankenversicherung richtet sich neu nach deinem Wohnsitzland';
+
+  @override
+  String get expatRightLamalImpact =>
+      'Der internationale Schutz ist oft teilweise und teuer. Prüfe die bilateralen Abkommen.';
+
+  @override
+  String get expatRightAcLabel => 'Arbeitslosigkeit ALV';
+
+  @override
+  String get expatDestinationAbroad => 'das Ausland';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Schätzung auf Basis eines vereinfachten linearen Modells (Rente anteilig zu den Beitragsjahren gekürzt). Die tatsächliche AHV-Rente hängt auch vom durchschnittlichen Jahreseinkommen und den Gutschriften ab. Mit deiner Ausgleichskasse zu bestätigen.';
+
+  @override
+  String get frontalierChargeMaladie => 'Krankenversicherung';
+
+  @override
+  String get frontalierChargeRetraite => 'Alter / Rente';
+
+  @override
+  String get frontalierChargeChomage => 'Arbeitslosigkeit';
+
+  @override
+  String get frontalierChargeDependance => 'Pflege';
+
+  @override
+  String get frontalierChargeLogement => 'Wohnbauförderung';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'BVG (geschätzt)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Der tatsächlich angewandte Quellensteuertarif hängt von deiner Familiensituation ab (ledig, verheiratet, Anzahl Kinder) — was dieses pauschale Modell nicht unterscheidet. Der Quasi-Ansässigkeitsstatus kann separat eine nachträgliche ordentliche Veranlagung mit Abzügen eröffnen, ohne den angewandten Tarif zu ändern. Mit der kantonalen Steuerverwaltung zu bestätigen.';
+
 }

@@ -24,12 +24,12 @@
 #   `banned_terms_arb.py:13-14` n'applique que la famille « garanti* ». Le smoke
 #   asserte donc UNIQUEMENT `(?i).*garanti.*`.
 #
-# ─── DETTE AX (C5 diagnostic — hors périmètre ship, cadrage §2) ────────
-#   `/debt/ratio` est un CustomScrollView + SliverAppBar(pinned). Le leading retour
-#   safePop est icon-only → NON ciblable par Maestro `tapOn id:` (même dégradation
-#   AX iOS 26.2 que l'écran indépendant B2 / hypotheque B3). Repli documenté : tap
-#   par coordonnée (28,75 — centre du back, iPhone 16e). La migration
-#   SliverAppBar → AppBar (file `ax-pilote`/`appbar-gate`) rendra l'id ciblable.
+# ─── AX iOS 26.2 — LEVÉE (tranche AX 3, ADR 2026-07-30) ───────────────
+#   `/debt/ratio` était un CustomScrollView + SliverAppBar(pinned) : le leading
+#   retour safePop icon-only n'était PAS ciblable par Maestro `tapOn id:` (même
+#   dégradation que l'écran indépendant B2 / hypotheque B3). La migration
+#   SliverAppBar → AppBar classique fixe (tranche AX 3) rend `debt-ratio-back`
+#   ciblable → le repli tap-coordonnée (28,75) est supprimé au profit de l'id.
 
 appId: ch.mint.app
 tags:
@@ -81,10 +81,10 @@ tags:
     timeout: 20000
     centerElement: true
 
-# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar →
-# tap par coordonnée (28,75, back épinglé en haut ; voir en-tête AX).
+# C4 — Pas de cul-de-sac : retour → /home. AppBar classique fixe (tranche AX 3) →
+# le leading `debt-ratio-back` est ciblable par id (fin du tap-coordonnée).
 - tapOn:
-    point: "28,75"
+    id: "debt-ratio-back"
 - extendedWaitUntil:
     visible:
       id: "home_route_state"

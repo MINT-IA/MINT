@@ -6,22 +6,26 @@
 # Event SANS AUCUN flow avant ce lot (création complète, exclu de
 # parcours_secondaires).
 #
-# ─── AX : RICHE AU REPOS, EFFONDRÉ AU SCROLL (dette AX C5, SIGNAL non masqué) ─
-#   /invalidite = `CustomScrollView` + `SliverAppBar` + wrapper racine
-#   `Semantics(container:true)` (motif firstJob). Mesure runtime `maestro
-#   hierarchy` (iPhone 16e / iOS 26.2, seed julien_swiss, staging) :
-#     • AU REPOS : 52 nœuds, `disability-anchor` + `disability-back` +
-#       `disability_gap_screen` affleurent → C1/C3/C4 VERTS, C5 vert AU REPOS.
-#     • APRÈS SCROLL (3 swipes) : 16 nœuds, TOUS les ids dépouillés (2ᵉ
-#       déclencheur ADR AX — SliverAppBar) → C5 ROUGE au scroll + le résultat
-#       `disability-result` (sous la flottaison) devient INATTEIGNABLE au flow
-#       (cf. B2 independant #1139).
-#   Le chiffré de la falaise (`disability-result`, acte employeur/IJM/AI+LPP
-#   calculé SEED-ALONE depuis le salaire) est donc prouvé au niveau WIDGET
-#   (`tierb_b4_anchors_test.dart`), PAS au flow (asserter un scroll inatteignable
-#   masquerait la récolte — doctrine B1 #1134). Fix C5 = retrait wrapper +
-#   SliverAppBar→AppBar (patron first_job Étape 2 #1127), HORS périmètre smoke →
-#   file AX (`ax-pilote`/`appbar-gate`).
+# ─── AX iOS 26.2 : investigation AX invalidite (ADR 2026-07-31) ─────────────
+#   Fix appliqué (3 leviers) : (1) retrait du wrapper racine
+#   `Semantics(container:true)` ; (2) `SliverAppBar`→`AppBar` fixe en
+#   `Scaffold.appBar` (hero-stat relogé en tête de corps) ; (3) déclencheur de
+#   CONTENU du fling-collapse identifié par BISECTION RUNTIME (Probe D/E, iPhone
+#   16e / iOS 26.2, seed julien_swiss) = le slider Material interne du
+#   `DisabilityCountdownWidget`, zone de scroll médiane → masqué sur cet écran
+#   (`interactive:false`, l'écran a déjà son slider d'épargne).
+#   Preuves bisection citées :
+#     • baseline (wrapper+SliverAppBar)     : repos 52 → fling 16 (collapse)
+#     • wrapper retiré + AppBar (Build B)   : repos 46 → fling 16 (collapse persiste)
+#     • + bas de page retiré (Probe D)      : repos 46 → fling 32 (RICHE)
+#     • countdown SEUL réintroduit (Probe E): repos 46 → fling 16 (collapse) ⇒ countdown
+#     • contrôle A/B independant (même build): repos 58 → fling 36 (RICHE) ⇒ structurel
+#   NB : le scroll GENTLE gardait l'arbre riche et faisait affleurer
+#   `disability-result` même avant le fix countdown (l'effondrement est
+#   spécifique au FLING/vélocité). Re-armement ci-dessous = scrollUntilVisible
+#   (speed modéré) → `disability-result`. VERIFICATION RUNTIME DU FIX COUNTDOWN
+#   EN ATTENTE (build de vérif bloqué par saturation disque partagé — À REJOUER
+#   avant merge).
 #
 # ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
 #   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
@@ -34,14 +38,18 @@
 # ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
 #   `banned_terms_arb.py:13-14` : famille « garanti* » seule → `(?i).*garanti.*`.
 #
-# ─── VERDICT RUNTIME (isolé, iPhone 16e/26.2, seed julien_swiss) ────────
-#   C1 VERT  — `disability-anchor` visible au repos (arbre riche, 52 nœuds).
-#   C2 (non-vide) VERT — sentinelles absentes ; chiffré falaise seed-alone prouvé
-#            au widget test (`disability-result`), inatteignable au flow (collapse-scroll).
+# ─── VERDICT RUNTIME (iPhone 16e/26.2, seed julien_swiss) ──────────────
+#   C1 VERT  — `disability-anchor` (AppBar) visible au repos (arbre riche, 46 nœuds
+#            mesurés post-fix).
+#   C2 (non-vide) VERT — sentinelles absentes ; chiffré falaise seed-alone.
+#   C2b — `disability-result` (Falaise chiffrée) via scrollUntilVisible.
+#            ⚠ ATTEINGNABILITÉ AU FLING = fix countdown NON ENCORE VÉRIFIÉ au
+#            runtime (build de vérif bloqué disque partagé). Gentle scroll : PROUVÉ
+#            atteignable. À REJOUER avant merge.
 #   C3 VERT  — aucun `garanti` rendu.
-#   C4 VERT  — `disability-back` (safePop, id ciblable grâce au `label` accessible
-#            ajouté — supersede la fallback coordonnée B2) → `home_route_state`.
-#   C5 REPOS vert / SCROLL ROUGE — dette AX (SliverAppBar collapse) consignée.
+#   C4 VERT  — `disability-back` (safePop, id AppBar ciblable) → `home_route_state`.
+#   C5 — arbre AX riche au repos ; effondrement AU FLING localisé au countdown
+#            (slider interne, Probe E) → masqué (`interactive:false`). VERIF RUNTIME PENDANTE.
 
 appId: ch.mint.app
 tags:
@@ -88,10 +96,23 @@ tags:
 - assertNotVisible:
     text: "Définis ton budget"
 
+# C2b — Chiffré ATTEIGNABLE au scroll : la Falaise (`disability-result`, actes
+# employeur / IJM / AI+LPP chiffrés seed-alone) affleure via scrollUntilVisible
+# (speed modéré = évite le fling qui effondrait l'arbre). Re-armement AX :
+# avant le fix (retrait wrapper + AppBar + slider countdown interne masqué) ce
+# scroll était inatteignable (collapse). VERIF RUNTIME EN ATTENTE (disque saturé).
+- scrollUntilVisible:
+    element:
+      id: "disability-result"
+    direction: DOWN
+    timeout: 25000
+    speed: 25
+- assertVisible:
+    id: "disability-result"
+
 # C4 — Pas de cul-de-sac : bouton retour identifié → /home. Le `label`
-# accessible (backButtonTooltip) rend le leading icon-only du SliverAppBar
-# CIBLABLE par id (mesuré : tapOn id:disability-back → home OK), sans scroll
-# préalable (SliverAppBar épinglé en haut → back visible au repos).
+# accessible (backButtonTooltip) rend le leading de l'AppBar fixe CIBLABLE par
+# id (AppBar épinglé en haut → back visible même après scroll).
 - tapOn:
     id: "disability-back"
 - extendedWaitUntil:

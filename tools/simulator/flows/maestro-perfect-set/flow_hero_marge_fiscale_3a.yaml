@@ -46,7 +46,7 @@
 #
 # Selector source-of-truth (per threat-model T-01.1-02-04 mitigation) :
 #   - « Je comprends, on y va »   → app_fr.arb:12221 betaDisclosureCta
-#   - « Parle à Mint »            → app_fr.arb:11392 landingV2CtaSober
+#   - « Éclaire ma situation »            → app_fr.arb:11392 landingV2CtaSober
 #   - « Coach » (bottom-nav tab)  → app_fr.arb:4154 tabCoach
 #   - « Dis-moi. » (auth coach composer hint) → app_fr.arb:3991 coachInputHint
 #   - « Suivant » (wizard)        → app_fr.arb:2456 wizardNext

@@ -3122,7 +3122,7 @@
     }
   },
   "renteVsCapitalTransmissionLeftValueSingle": "Rien",
-  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
+  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 21 al. 1",
   "renteVsCapitalTransmissionLeftDetailSingle": "pour tes héritiers",
   "renteVsCapitalTransmissionRightSubtitle": "Tes héritiers reçoivent",
   "renteVsCapitalTransmissionRightValue": "100 %",
@@ -6613,6 +6613,15 @@
   "dividendeBeneficeTotal": "Bénéfice total",
   "dividendePartSalaire": "Part salaire",
   "dividendeTauxMarginal": "Taux marginal d'imposition",
+  "dividendeFourchette": "Fourchette selon le canton (impôt sur le bénéfice et part imposable du dividende) : de {low} à {high} par an.",
+  "@dividendeFourchette": {
+    "placeholders": {
+      "low": { "type": "String" },
+      "high": { "type": "String" }
+    }
+  },
+  "dividendeConfidenceMessage": "Cette estimation intègre l'impôt sur le bénéfice via un taux suisse représentatif (moyenne KPMG 2025) et une part imposable du dividende simplifiée de 60 % ; la répartition réelle fédéral 70 % (LIFD art. 20 al. 1bis) / cantonal ≥ 50 % dépend du canton. Elle ne valorise pas les droits AVS/LPP acquis par le salaire. À valider avec une fiduciaire.",
+  "dividendeSimulationDisclaimer": "Simulation simplifiée. L'impôt sur le bénéfice est intégré via un taux suisse représentatif (moyenne KPMG 2025) ; le taux exact du canton, les déductions personnelles, l'impôt sur la fortune et les droits AVS/LPP acquis par le salaire ne sont pas modélisés. Un salaire conforme au marché est supposé. Consulte un·e spécialiste pour une analyse complète.",
   "successionUrgence": "Urgence immédiate",
   "successionDemarches": "Démarches administratives",
   "successionLegale": "Succession légale",
@@ -6715,7 +6724,7 @@
   },
   "concubinageHeroPremierEclairageDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
   "concubinageEducationalAvs": "En Suisse, le plafond de 150 % sur les rentes AVS de couple (LAVS art. 35) ne s’applique qu’aux mariés. Les concubins touchent chacun leur rente individuelle complète — un avantage réel quand les deux ont cotisé au maximum.",
-  "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d'en faire la demande.",
+  "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 21 al. 1) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès (LPP art. 20a) — et il est nécessaire d'en faire la demande.",
   "concubinageEducationalSuccession": "L'exonération du·de la conjoint·e survivant·e ne vient pas du Code civil : elle est inscrite dans les lois fiscales cantonales, et elle vaut dans les 26 cantons. Un·e concubin·e, lui·elle, relève du taux des « tiers » — et l'écart entre cantons est très large : certains ne prélèvent aucun impôt de succession, d'autres imposent lourdement les tiers. Ici, le canton pèse autant que le lien.",
   "concubinageProtectionIntro": "En concubinage, la Suisse ne protège pas comme le mariage. Voici ce qui change et ce que tu peux anticiper.",
   "concubinageProtectionAvsSurvivor": "Rente AVS de survivant",
@@ -9156,6 +9165,46 @@
   "expatAcIndemnities": "Indemnités AC jusqu'à 520 jours",
   "expatJobLossAbroad": "Si tu perds ton emploi à l'étranger, seul le régime local s'applique — souvent moins généreux.",
   "expatNoAcRightsAbroad": "Aucun droit AC suisse si tu travailles à l'étranger",
+  "expatDeadline3aLabel": "3e pilier 3a — clôture ou gel",
+  "expatDeadline3aAction": "Contacte ta banque pour planifier la clôture ou le transfert du 3a.",
+  "expatDeadline3aConsequence": "Un 3a non géré avant le départ peut bloquer des fonds pendant des années.",
+  "expatDeadlineLppLabel": "LPP — libre passage",
+  "expatDeadlineLppAction": "Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.",
+  "expatDeadlineAvsLabel": "AVS — cotisation volontaire",
+  "expatDeadlineAvsAction": "Si tu t'installes hors UE/AELE, tu peux t'affilier volontairement à l'AVS pour éviter des lacunes.",
+  "expatRightAvsLabel": "AVS — cotisation obligatoire",
+  "expatRightAvsBefore": "Cotisation automatique via l'employeur",
+  "expatRightAvsAfter": "Lacunes AVS → rente réduite",
+  "expatRightAvsImpact": "Chaque année manquante réduit ta rente AVS d'environ {perYear} %. 10 ans = −{tenYear} % à vie.",
+  "@expatRightAvsImpact": {
+    "placeholders": {
+      "perYear": { "type": "String" },
+      "tenYear": { "type": "String" }
+    }
+  },
+  "expatRightLppLabel": "LPP — 2e pilier",
+  "expatRightLppBefore": "Épargne retraite obligatoire",
+  "expatRightLppAfter": "Capital bloqué ou retiré sans rendement",
+  "expatRightLppImpact": "Tu peux retirer ton avoir LPP, mais tu paies l'impôt sur le capital retiré. La reconstitution est impossible à l'étranger.",
+  "expatRight3aLabel": "Pilier 3a",
+  "expatRight3aBefore": "Déductions fiscales annuelles",
+  "expatRight3aAfter": "Compte bloqué — aucun nouveau versement possible",
+  "expatRight3aImpact": "Tu perds le droit de verser dans le 3a dès que tu n'as plus de revenu soumis à l'AVS suisse.",
+  "expatRightLamalLabel": "LAMal — assurance maladie",
+  "expatRightLamalBefore": "Couverture universelle en Suisse",
+  "expatRightLamalAfter": "L'assurance maladie relève désormais du pays de résidence",
+  "expatRightLamalImpact": "La couverture internationale est souvent partielle et coûteuse. Vérifie les conventions bilatérales.",
+  "expatRightAcLabel": "Chômage AC",
+  "expatDestinationAbroad": "l'étranger",
+  "expatAvsConfidenceMessage": "Estimation sur un modèle linéaire simplifié (rente réduite au prorata des années cotisées). La rente AVS réelle dépend aussi du revenu annuel moyen et des bonifications. À valider avec ta caisse de compensation.",
+  "frontalierChargeMaladie": "Assurance maladie",
+  "frontalierChargeRetraite": "Retraite / vieillesse",
+  "frontalierChargeChomage": "Chômage",
+  "frontalierChargeDependance": "Dépendance",
+  "frontalierChargeLogement": "Aide au logement",
+  "frontalierChargeCsgCrds": "CSG / CRDS",
+  "frontalierChargeLppEstimated": "LPP (est.)",
+  "frontalierSourceTaxConfidenceMessage": "Estimation sur un taux moyen simplifié par canton. Le barème réellement prélevé dépend de ta situation familiale (célibataire, marié·e, nombre d'enfants) — que ce modèle plat ne distingue pas. Séparément, le statut de quasi-résident·e peut ouvrir une taxation ordinaire ultérieure avec déductions, sans changer le barème prélevé. À valider avec l'administration fiscale cantonale.",
   "expertArchetypeCrossBorder": "Frontalier·ère",
   "expertArchetypeExpatEu": "Expat EU/AELE",
   "expertArchetypeExpatNonEu": "Expat hors EU",
@@ -10979,6 +11028,48 @@
       "level": "N3"
     }
   },
+  "coachStarterSuggestionLpp": "C'est quoi mon 2e pilier ?",
+  "@coachStarterSuggestionLpp": {
+    "description": "Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestion3a": "Combien je peux mettre en 3a ?",
+  "@coachStarterSuggestion3a": {
+    "description": "Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionBudget": "Où part mon argent chaque mois ?",
+  "@coachStarterSuggestionBudget": {
+    "description": "Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionRenteCapital": "Rente ou capital ?",
+  "@coachStarterSuggestionRenteCapital": {
+    "description": "Coach entry suggestion chip (post-opener, surfaced when age >= 50). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionCouple": "Notre prévoyance à deux ?",
+  "@coachStarterSuggestionCouple": {
+    "description": "Coach entry suggestion chip (post-opener, surfaced when the profile is a couple). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionIndependant": "Ma prévoyance d'indépendant ?",
+  "@coachStarterSuggestionIndependant": {
+    "description": "Coach entry suggestion chip (post-opener, surfaced when the profile is self-employed). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
   "coachOptInDecline": "Non, je viens quand je veux",
@@ -11877,9 +11968,9 @@
   "@landingV2PromiseSober": {
     "description": "Landing v2 hero — alliance + empowerment. 4 words. Matches MINT doctrine (eclaire, ne conseille pas). Phase 5 POLISH-01."
   },
-  "landingV2CtaSober": "Parle à Mint",
+  "landingV2CtaSober": "Éclaire ma situation",
   "@landingV2CtaSober": {
-    "description": "Landing v2 CTA — conversational, not generic. Phase 5 POLISH-01."
+    "description": "Landing primary CTA. Lucidity verb (éclairer ↔ hero « Voir clair »), 3-word CTA norm, honest about the destination (a guided situation preview, not a live chat — anonymous cold-open chat is retired). Phase 5 POLISH-01 ; D4 vérités 2026-07-31 (was « Parle à Mint », which promised a conversation the flow does not deliver)."
   },
   "landingV3Hero": "Voir clair, décider seul.",
   "@landingV3Hero": {

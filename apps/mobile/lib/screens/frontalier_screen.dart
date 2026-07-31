@@ -11,6 +11,8 @@ import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -34,6 +36,13 @@ class FrontalierScreen extends StatefulWidget {
 class _FrontalierScreenState extends State<FrontalierScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
+
+  // D10 — l'impôt à la source est un taux MOYEN simplifié par canton (cf.
+  // ExpatService.sourceTaxRates : « simplified flat rates … backend uses
+  // progressive brackets »). Confiance médiane-basse : le barème réel (A/B/C)
+  // et le statut quasi-résident ne sont pas modélisés. Le message d'hypothèse
+  // (frontalierSourceTaxConfidenceMessage) les nomme. Rendu MintTrameConfiance.
+  static const int _kSourceTaxConfidencePercent = 50;
 
   // ── Tab 1: Impots inputs ──────────────────────────────
   String _taxCanton = 'GE';
@@ -176,6 +185,24 @@ class _FrontalierScreenState extends State<FrontalierScreen>
             child: _buildTaxResultCard(),
           ),
           const SizedBox(height: MintSpacing.md + 4),
+          // D10 — bande d'incertitude sur l'impôt à la source estimé (modèle
+          // taux moyen simplifié). Masquée au Tessin (imposé en Italie → pas de
+          // chiffre suisse à qualifier). MintTrameConfiance = seul primitif (8a).
+          if (_taxResult!['isTessin'] != true) ...[
+            MintEntrance(
+              delay: const Duration(milliseconds: 150),
+              child: MintTrameConfiance.detail(
+                confidence: EnhancedConfidence.fromBareScore(
+                  _kSourceTaxConfidencePercent.toDouble(),
+                ),
+                bloomStrategy: BloomStrategy.firstAppearance,
+                hypotheses: [
+                  S.of(context)!.frontalierSourceTaxConfidenceMessage,
+                ],
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md + 4),
+          ],
           if (_taxCanton == 'GE')
             MintEntrance(
               delay: const Duration(milliseconds: 200),
@@ -1110,7 +1137,8 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                 const SizedBox(height: MintSpacing.sm + 4),
                 _buildChargeRow('AVS/AI/APG', ch['avs_ai_apg'] as double),
                 _buildChargeRow('AC', ch['ac'] as double),
-                _buildChargeRow('LPP (est.)', ch['lpp'] as double),
+                _buildChargeRow(S.of(context)!.frontalierChargeLppEstimated,
+                    ch['lpp'] as double),
                 const Divider(height: MintSpacing.md),
                 _buildChargeRow(S.of(context)!.frontalierChargesTotal,
                     ch['total'] as double,
@@ -1173,12 +1201,45 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         details.entries.where((e) => e.key != 'total').toList();
 
     return entries.map((e) {
-      final label = e.key
-          .replaceAll('_', ' ')
-          .replaceFirst(e.key[0], e.key[0].toUpperCase());
+      final label = _foreignChargeLabel(e.key);
       final amount = annualSalary * (e.value as double);
       return _buildChargeRow(label, amount);
     }).toList();
+  }
+
+  /// D3 — les postes de charges étrangères sont des clés techniques du service
+  /// (`vieillesse_base`, `krankenversicherung`, `csg_crds`…). On les mappe vers
+  /// des libellés de concept localisés au lieu d'afficher le snake_case brut
+  /// (allemand/français mélangés). Clé inconnue → repli lisible, jamais un
+  /// chiffre orphelin.
+  String _foreignChargeLabel(String key) {
+    final l = S.of(context)!;
+    switch (key) {
+      case 'maladie':
+      case 'krankenversicherung':
+      case 'inps_malattia':
+        return l.frontalierChargeMaladie;
+      case 'vieillesse_base':
+      case 'vieillesse_compl':
+      case 'rentenversicherung':
+      case 'pensionsversicherung':
+      case 'inps_pensione':
+        return l.frontalierChargeRetraite;
+      case 'chomage':
+      case 'arbeitslosenversicherung':
+      case 'disoccupazione':
+        return l.frontalierChargeChomage;
+      case 'pflegeversicherung':
+        return l.frontalierChargeDependance;
+      case 'wohnbaufoerderung':
+        return l.frontalierChargeLogement;
+      case 'csg_crds':
+        return l.frontalierChargeCsgCrds;
+      default:
+        return key
+            .replaceAll('_', ' ')
+            .replaceFirst(key[0], key[0].toUpperCase());
+    }
   }
 
   Widget _buildChargeRow(String label, double value, {bool bold = false}) {
