@@ -93,8 +93,18 @@ tags:
     timeout: 20000
     centerElement: true
 
-# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar
-# épinglé → tap par coordonnée (28,75 ; voir en-tête AX).
+# C4 — Pas de cul-de-sac : retour → /home. PREUVE RUNTIME (sweep 2026-07-31) : le
+# scroll DOWN (C2) a dépilé le header NestedScrollView → le leading back sort de
+# l'écran (`expat-back` absent de l'arbre scrollé) ⇒ un tap direct rate le bouton.
+# On scroll UP pour ramener le header (motif B1 « back scrolls off after DOWN »)
+# AVANT de taper. Leading icon-only → tap coordonnée (28,75 ; `expat-back` bounds
+# [0,47][56,103] une fois le header revenu). Mesuré : back → home_route_state
+# (contrairement à retraite, l'expat back atteint bien /home).
+- scrollUntilVisible:
+    element:
+      id: "expat-anchor"
+    direction: UP
+    timeout: 15000
 - tapOn:
     point: "28,75"
 - extendedWaitUntil:
