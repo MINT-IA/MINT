@@ -1,5 +1,5 @@
 ---
-description: "SPEC exécutable de la tranche verticale firstJob (Phase 1' du plan MINT-utilisable v2.1). Chaque exigence est testable. Base statique : dev@519975788 (registre 12D) + lecture worktree principal 2026-07-29. Intègre le verdict métier/lois mint-swiss-brain (2026-07-29) en §2.4 et la décision T2 actée (atterrissage par intention de persona). Le flow d'acceptation firstjob_tranche_acceptance_red.yaml est ROUGE par construction (boutons absents) : c'est le test AVANT code."
+description: "SPEC exécutable de la tranche verticale firstJob (Phase 1' du plan MINT-utilisable v2.1). Chaque exigence est testable. Base statique : dev@519975788 (registre 12D) + lecture worktree principal 2026-07-29. Intègre le verdict métier/lois mint-swiss-brain (2026-07-29) en §2.4 et la décision T2 actée (atterrissage par intention de persona). Post-scriptum exécution (§9, 2026-07-31) : tranche CONSTRUITE et prouvée — le flow d'acceptation historique firstjob_tranche_acceptance_red.yaml (ROUGE par construction, test AVANT code) a été retiré, la variante seedée est promue CORE dans tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml (#1127)."
 ---
 
 # SPEC — TRANCHE VERTICALE firstJob (Phase 1')
@@ -125,6 +125,14 @@ Parcours (North star) : `landing (/)` → `onboarding (/onb)` → `aujourdhui (/
 ---
 
 ## 3. Flow Maestro cible — `tools/simulator/flows/firstjob_tranche_acceptance_red.yaml`
+
+> **Périmé (post-scriptum 2026-07-31, §9.2)** — ce fichier n'existe plus : la
+> variante RÉELLE était injouable en locators sémantiques (9/11 testIDs `onb-*`
+> non câblés, hors-tranche par décision §3.1) et a été retirée ; la variante
+> SEEDÉE est promue CORE dans
+> `tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml`
+> (#1127), à portée d'acceptation identique (RED-1 et RED-2 tapés). Le contenu
+> ci-dessous est le plan initial, conservé tel quel.
 
 - **Rouge aujourd'hui par construction** : RED-1 (`home-lifeevent-card-firstJob` inexistante) et RED-2 (`firstjob-ask-coach` inexistant). C'est le test d'acceptation AVANT code. Il vire au vert quand PR-D + PR-E câblent les deux entrées ; PR-I retire alors le suffixe `_red` + le marqueur de skip.
 - **Hors de tout runner vert par défaut, par construction** :
@@ -339,3 +347,100 @@ Caveat 0-TRUST : cette validation porte sur la SPEC (document), pas sur le
 code — aucun des critères A1-A7 n'est vert aujourd'hui, et le flow
 d'acceptation est ROUGE par construction. « Fermé » ci-dessus = « spécifié et
 testable », jamais « implémenté ».
+
+---
+
+## 9. Post-scriptum exécution (2026-07-31) — réconciliation documentaire
+
+> Ajout daté : le plan initial (§0-§8) est conservé tel quel ; cette section
+> consigne ce qui a été RÉELLEMENT construit et où les refs du plan ont divergé
+> de l'exécution. Dette documentaire ouverte par la promotion CORE du flow
+> d'acceptation (#1127).
+
+### 9.1 Statut de la tranche : CONSTRUITE, prouvée, flow CORE
+
+Les 9 PRs du découpage §6 sont mergées sur `dev` (shas cités, `git log
+origin/dev`), le flow d'acceptation est CORE dans le perfect-set, et la parité
+dashboard↔coach est verte sur staging (§9.5).
+
+| PR plan (§6) | PR réelle (sha dev) | Note |
+|---|---|---|
+| SPEC + flow RED | #1104 (`d23a00205`) | ce document + flow rouge initial |
+| PR-A | #1105 (`344a7d5fb`) | payslip drainé vers le service, médiane OFS 6'788, **+ 4 citations de lois corrigées à l'écran** (part de PR-H absorbée : `LFLP art. 2` `first_job_screen.dart:686`, `LFLP art. 4 al. 2` `:695`, `LAMal art. 71` `:703`, `OPP3 art. 7` `:709`, triple ref `:604`) |
+| PR-D | #1106 (`475082471`) | suggestions life events montées sur /home (RED-1) |
+| PR-B | #1107 (`27cc33e8e`) | MoneyTruthReceipt v1 (contrat backend + miroir Dart) |
+| PR-C | #1108 (`ef8769013`) | bande d'incertitude, confidence, « pourquoi ce chiffre » (A3) |
+| PR-E | #1109 (`ad3f64a5a`) + #1118 (`313d3e5cb`) + #1124 (`7b0619f9a`) | handoff coach porteur du receipt (RED-2) ; raccourci déterministe receipt résolu × question net ; rendu pending déterministe (§4.3 clause 3) |
+| PR-G | #1110 (`63238642f`) | frictions LSFin neutralisées + i18n copy héritée (A6) |
+| PR-F | #1111 (`7a21e5ed1`) | états réseau/vide/offline non bloquants (A4) |
+| PR-I | #1112 (`a4865921d`) + #1127 (`988458685`) | ancre `firstjob-net-value` + preuve runtime ; promotion CORE du flow (§9.2) |
+| PR-H | #1113 (`7a3c5f680`) | reliquats : disclaimer checklist réaligné sur les refs corrigées (×6 locales) + marqueurs A4 réels (§9.3) |
+
+### 9.2 Flow d'acceptation réel (remplace la cible §3)
+
+- Le fichier §3 `tools/simulator/flows/firstjob_tranche_acceptance_red.yaml` a
+  été **SUPPRIMÉ, pas verdi** : la variante RÉELLE marchait
+  landing→/onb→/home mais était injouable en locators sémantiques (9/11
+  testIDs `onb-*` absents de `apps/mobile/lib` — câblage hors-tranche par
+  décision §3.1) → jamais gate-able.
+- Remplaçant CORE :
+  `tools/simulator/flows/maestro-perfect-set/flow_firstjob_tranche_acceptance_seeded.yaml`
+  (promu par #1127). Atterrit sur /home via seed d'archétype
+  (`MINT_E2E_ARCHETYPE=jeune_diplome_zurich`) + deeplink `mintapp:///home` ; la
+  MÊME portée d'acceptation est conservée — RED-1 (carte
+  `home-lifeevent-card-firstJob`) et RED-2 (CTA `firstjob-ask-coach`) sont
+  TAPÉS, pas masqués (le deeplink ne saute que le segment landing→/home,
+  hors-tranche).
+- Runner : tier sweep dédié `firstjob` (`maestro_sweep.sh:242`, flow listé
+  `:157`) — hors sweep normal (build seedé requis, motif tier fatca). Les
+  numéros de lignes cités en §3 (`maestro_sweep.sh:63-107`) sont périmés.
+- Contrat testIDs §3.1 : les ids de tranche (« à ajouter » à l'époque) existent
+  et sont assertés par le flow — `home_route_state`,
+  `home-lifeevent-card-firstJob`, `firstjob-premier-eclairage-value`,
+  `firstjob-net-value`, `firstjob-confidence-chip`, `firstjob-source-vintage`,
+  `firstjob-why-net`/`-body`, `firstjob-ask-coach`. Les `onb-*` restent non
+  câblés (décision onboarding-canonique, hors-tranche) — cause du retrait de la
+  variante réelle.
+- Whitelist Journey OS : `tools/checks/journey_os_check.py:816` (flow CORE) ;
+  les anciens chemins restent listés `:1113-1114` avec note de déplacement.
+
+### 9.3 Marqueurs A4 (états réseau) — alignés par #1113
+
+Le bloc ANTI du flow rouge gattait sur des identifiers FICTIFS
+(`e2e-staging-down-marker`, `coach_empty_blank_state`). #1113 l'a réaligné sur
+le marqueur RÉEL `coach-offline-degradation`
+(`coach_chat_screen.dart:1642`, texte = `coachErrorConnection` reformulé
+ServerKey-neutre) avant le retrait du fichier. Caveat 0-TRUST : le flow seedé
+CORE n'a PAS de section ANTI — la couverture A4 vit aujourd'hui dans les tests
+widget (`test/screens/first_job_states_test.dart` : L1 offline survit staging
+coupé, `firstjob-loading` ; `test/widgets/coach/system_message_bubble_offline_test.dart` :
+marqueur coach), pas dans un flow Maestro CORE.
+
+### 9.4 Effondrement AX iOS 26.2 — résolu sur le chemin du gate
+
+Le flow n'a pu être gate-é sur les ancres INTERNES (sous la flottaison,
+`scrollUntilVisible`) qu'après la remédiation AX : ADR
+`.planning/decisions/2026-07-30-ax-ios26-strategie-remediation.md` (Proposed) —
+pilote #1123 (`d3c28c160`, retrait des wrappers Semantics racine du chemin du
+gate) puis Étape 2 #1127 (SliverAppBar → AppBar fixe sur `first_job_screen` et
+`rente_vs_capital_screen`). Preuve runtime citée dans #1127 (maestro hierarchy,
+iPhone 16e / iOS 26.2) : first-job repos 53 nœuds → après scroll 58 nœuds, les
+6 ids résultat présents.
+
+### 9.5 Parité dashboard↔coach (A7) — boucle de preuve fermée
+
+Page dédiée :
+`.planning/audit-etat-des-lieux-2026-07/parite-coach-receipt-2026-07-30.md`.
+Le harnais #1114 (`1e8efa23f`, 8 couples profil×question contre staging réel)
+est passé de 0/8 à 8/8-cohérent en 6 runs et 5 PRs (#1114→#1120) — trois causes
+racines successives (façade sans câblage, narrateur non déterministe, layout
+conteneur), décision Reading A (pas de résolution pending par hash, #1120). Le
+harnais est la garde de non-régression (`MINT_STAGING_PARITY=1`, skippé en CI).
+
+### 9.6 Ce que ce post-scriptum ne dit PAS (0-TRUST)
+
+- Les seuils go/no-go §5 (taps ≤ 12, ≤ 90 s, p95 coach, crash-free 20/20) n'ont
+  pas de campagne de mesure consignée ici — aucun claim.
+- « CONSTRUITE et prouvée » = preuves citées ci-dessus (merges `dev` + flow CORE
+  + parité staging + preuve runtime #1127), PAS un G2 device Julien consigné
+  pour la tranche entière.
