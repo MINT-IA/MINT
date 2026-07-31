@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/disability_gap_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -82,23 +84,15 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   // ── Calcul des actes (La Falaise) ─────────────────────────
 
   List<DisabilityAct> get _acts {
-    // Acte 1 : Employeur — 80% salaire (CO art. 324a, durée variable)
-    final act1Income = _grossMonthly * 0.80;
-
-    // Acte 2 : IJM — 80% si souscrite, 0 sinon (24 mois max)
-    final act2Income = _hasIjm ? _grossMonthly * 0.80 : 0.0;
-
-    // Acte 3 : AI + LPP (définitif)
-    // AI max CHF 2'520/mois (LAI art. 28 + LAVS art. 34)
-    // LPP invalidité ≈ 40% salaire coordonné (LPP art. 23-24, estimation)
-    final annualGross = _grossMonthly * 12;
-    double lppInvalidity = 0.0;
-    if (annualGross >= lppSeuilEntree) {
-      final coordinated = (annualGross - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
-      lppInvalidity = coordinated * 0.40 / 12;
-    }
-    final act3Income = aiRenteEntiere + lppInvalidity;
+    // Étalon unique : DisabilityService (fin du doublon 3-têtes, cf.
+    // V2-2-INVENTORY.md). Acte 1 = employeur 100 % (CO art. 324a — verdict
+    // actuaire Codex 2026-07-31 : afficher 80 % pour cet acte était FAUX, le
+    // 80 % correspond à l'IJM) ; acte 2 = IJM 80 %/0 ; acte 3 = AI (max légal)
+    // + LPP (proxy éducatif sourcé).
+    final proj = DisabilityService.acts(
+      grossMonthly: _grossMonthly,
+      hasIjm: _hasIjm,
+    );
 
     final s = S.of(context)!;
     return [
@@ -106,7 +100,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         label: s.disabilityGapAct1Label,
         subtitle: s.disabilityGapEmployerSub,
         durationLabel: s.disabilityGapAct1Duration,
-        monthlyIncome: act1Income,
+        monthlyIncome: proj.employerIncome,
         emoji: '🟢',
         color: MintColors.success,
         detail: s.disabilityGapAct1Detail,
@@ -117,7 +111,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             ? s.disabilityGapAct2SubIjm
             : s.disabilityGapAct2SubNoIjm,
         durationLabel: s.disabilityGapAct2Duration,
-        monthlyIncome: act2Income,
+        monthlyIncome: proj.ijmIncome,
         emoji: _hasIjm ? '🟡' : '🔴',
         color: _hasIjm ? MintColors.amber : MintColors.error,
         detail: _hasIjm
@@ -128,10 +122,13 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
         label: s.disabilityGapAct3Label,
         subtitle: s.disabilityGapAiDelaySub,
         durationLabel: s.disabilityGapAct3Duration,
-        monthlyIncome: act3Income,
+        monthlyIncome: proj.longTermIncome,
         emoji: '🔴',
         color: MintColors.error,
-        detail: s.disabilityGapAct3Detail(_fmtChf(aiRenteEntiere), _fmtChf(lppInvalidity), _fmtChf(act3Income)),
+        detail: s.disabilityGapAct3Detail(
+            formatChf(proj.aiRente),
+            formatChf(proj.lppInvalidity),
+            formatChf(proj.longTermIncome)),
       ),
     ];
   }
@@ -165,99 +162,58 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
   // ── Calcul Bulletin scolaire ─────────────────────────────
 
+  // Bulletin de couverture via l'étalon unique DisabilityService (notes lettres
+  // + réserve + chute de revenu). Les libellés/détails restent composés ici
+  // (i18n ARB) : le service ne retourne jamais de texte FR.
+  DisabilityCoverage get _coverage => DisabilityService.coverage(
+        grossMonthly: _grossMonthly,
+        savings: _savings,
+        hasIjm: _hasIjm,
+      );
+
   List<CoverageItem> get _scorecardItems {
     final s = S.of(context)!;
-    // APG/IJM grade
-    final ijmGrade = _hasIjm ? 'B+' : 'F';
-    final ijmDetail = _hasIjm
-        ? s.disabilityGapIjmCoverage
-        : s.disabilityGapNoIjmCoverage;
-
-    // AI grade (systemic — everyone gets it)
-    const aiGrade = 'C';
-
-    // LPP grade
-    final annualGross = _grossMonthly * 12;
-    final hasLpp = annualGross >= lppSeuilEntree;
-    final lppGrade = hasLpp ? 'A-' : 'D';
-    final lppDetail = hasLpp
-        ? s.disabilityGapLppCovered
-        : s.disabilityGapLppNotCovered;
-
-    // Épargne urgence grade
-    final monthsReserve = _savings / (_grossMonthly * 0.7);
-    final String savingsGrade;
-    if (monthsReserve >= 6) {
-      savingsGrade = 'A';
-    } else if (monthsReserve >= 3) {
-      savingsGrade = 'C+';
-    } else if (monthsReserve >= 1) {
-      savingsGrade = 'D';
-    } else {
-      savingsGrade = 'F';
-    }
-
+    final cov = _coverage;
     return [
       CoverageItem(
         label: s.disabilityGapApgLabel,
-        grade: ijmGrade,
-        detail: ijmDetail,
+        grade: cov.ijmGrade,
+        detail: _hasIjm
+            ? s.disabilityGapIjmCoverage
+            : s.disabilityGapNoIjmCoverage,
         legalRef: 'LAMal art. 67-77',
         emoji: '🛡️',
       ),
       CoverageItem(
         label: s.disabilityGapAiLabel,
-        grade: aiGrade,
-        detail: s.disabilityGapAiDetail(_fmtChf(aiRenteEntiere)),
+        grade: cov.aiGrade,
+        detail: s.disabilityGapAiDetail(
+            formatChf(DisabilityService.aiRenteFullMonthly)),
         legalRef: 'LAI art. 28',
         emoji: '🏛️',
       ),
       CoverageItem(
         label: s.disabilityGapLppLabel,
-        grade: lppGrade,
-        detail: lppDetail,
+        grade: cov.lppGrade,
+        detail: cov.hasLpp
+            ? s.disabilityGapLppCovered
+            : s.disabilityGapLppNotCovered,
         legalRef: 'LPP art. 23-26',
         emoji: '🏦',
       ),
       CoverageItem(
         label: s.disabilityGapSavingsLabel,
-        grade: savingsGrade,
-        detail: s.disabilityGapSavingsDetail(monthsReserve.toStringAsFixed(1)),
+        grade: cov.savingsGrade,
+        detail: s.disabilityGapSavingsDetail(
+            cov.reserveMonths.toStringAsFixed(1)),
         emoji: '💰',
       ),
     ];
   }
 
-  String get _overallGrade {
-    final hasIjmOk = _hasIjm;
-    final annualGross = _grossMonthly * 12;
-    final hasLpp = annualGross >= lppSeuilEntree;
-    final monthsReserve = _savings / (_grossMonthly * 0.7);
-    int score = 0;
-    if (hasIjmOk) score += 3;
-    if (hasLpp) score += 2;
-    if (monthsReserve >= 3) score += 2;
-    if (monthsReserve >= 6) score += 1;
-    if (score >= 7) return 'B+';
-    if (score >= 5) return 'C+';
-    if (score >= 3) return 'C-';
-    return 'D';
-  }
+  String get _overallGrade => _coverage.overallGrade;
 
-  double get _lifeDropPercent {
-    final act3Income = _acts.last.monthlyIncome;
-    return ((1 - act3Income / _grossMonthly) * 100).clamp(0, 100);
-  }
-
-  static String _fmtChf(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
+  double get _lifeDropPercent => _coverage.lifeDropPercent;
 
   // ── Build ─────────────────────────────────────────────────
 
@@ -310,7 +266,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
       )),
       const SizedBox(height: 20),
       MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityCountdownWidget(
-        monthlyExpenses: _grossMonthly * 0.70,
+        monthlyExpenses: DisabilityService.monthlyExpenses(_grossMonthly),
         initialSavings: _savings,
         interactive: false,
       )),
@@ -441,7 +397,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             min: 2000,
             max: 25000,
             divisions: 46,
-            format: (v) => "CHF ${_fmtChf(v)}",
+            format: (v) => "CHF ${formatChf(v)}",
             onChanged: (v) { _hasUserInteracted = true; setState(() => _grossMonthly = v); _emitScreenReturn(); },
           ),
           const SizedBox(height: 12),
@@ -461,7 +417,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             min: 0,
             max: 200000,
             divisions: 40,
-            format: (v) => "CHF ${_fmtChf(v)}",
+            format: (v) => "CHF ${formatChf(v)}",
             onChanged: (v) { _hasUserInteracted = true; setState(() => _savings = v); _emitScreenReturn(); },
           ),
           const SizedBox(height: 16),

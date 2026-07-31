@@ -16015,7 +16015,7 @@ class SEs extends S {
 
   @override
   String get disabilityGapAct1Detail =>
-      '80 % de tu salario pagado por tu empleador';
+      '100 % de tu salario (obligación legal del empleador)';
 
   @override
   String get disabilityGapAct1Duration => 'Semanas 1-26';
@@ -16050,7 +16050,7 @@ class SEs extends S {
   @override
   String disabilityGapAct3Detail(
       String aiAmount, String lppAmount, String totalAmount) {
-    return 'AI $aiAmount + LPP $lppAmount = $totalAmount CHF/mes';
+    return 'AI $aiAmount + LPP estimada $lppAmount ≈ $totalAmount CHF/mes';
   }
 
   @override
@@ -16074,6 +16074,19 @@ class SEs extends S {
 
   @override
   String get disabilityGapApgLabel => 'APG / IJM (pérdida de ingresos)';
+
+  @override
+  String get disabilityInsNoCoverage =>
+      '⚠️ Sin cobertura — fuera del periodo del empleador, son 0 CHF';
+
+  @override
+  String get disabilityInsPrivateCoverage =>
+      'Seguro privado personal (verifica las condiciones)';
+
+  @override
+  String disabilityInsSavingsDetail(String months) {
+    return '$months meses de gastos (objetivo: 6 meses)';
+  }
 
   @override
   String get disabilityGapIjmCoverage =>

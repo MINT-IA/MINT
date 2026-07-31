@@ -7286,6 +7286,13 @@
       }
     }
   },
+  "@disabilityInsSavingsDetail": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
   "@docCardFieldCount": {
     "placeholders": {
       "count": {
@@ -9006,7 +9013,7 @@
   "deuxViesGap": "Écart de {amount}/mois en faveur de {name}",
   "deuxViesLever": "{lever} comblerait {impact} de l'écart",
   "deuxViesTitle": "Vos deux vies",
-  "disabilityGapAct1Detail": "80 % de ton salaire versé par ton employeur",
+  "disabilityGapAct1Detail": "100 % de ton salaire (obligation légale employeur)",
   "disabilityGapAct1Duration": "Semaines 1-26",
   "disabilityGapAct1Label": "ACTE 1 · Employeur",
   "disabilityGapAct2DetailIjm": "80 % du salaire assuré",
@@ -9016,13 +9023,16 @@
   "disabilityGapAct2LabelNoIjm": "ACTE 2 · Pas d’IJM",
   "disabilityGapAct2SubIjm": "Assurance collective — 80 % pendant 720 jours max",
   "disabilityGapAct2SubNoIjm": "Sans IJM, tu passes directement à l’AI après l’employeur",
-  "disabilityGapAct3Detail": "AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois",
+  "disabilityGapAct3Detail": "AI {aiAmount} + LPP estimée {lppAmount} ≈ {totalAmount} CHF/mois",
   "disabilityGapAct3Duration": "Après 24 mois",
   "disabilityGapAct3Label": "ACTE 3 · AI + LPP (définitif)",
   "disabilityGapAgeLabel": "{age} ans",
   "disabilityGapAiDetail": "Max {amount} CHF/mois — délai ~14 mois",
   "disabilityGapAiLabel": "AI (assurance invalidité)",
   "disabilityGapApgLabel": "APG / IJM (perte de gain)",
+  "disabilityInsNoCoverage": "⚠️ Aucune couverture — hors période employeur, c’est 0 CHF",
+  "disabilityInsPrivateCoverage": "Assurance privée personnelle (vérifie les conditions)",
+  "disabilityInsSavingsDetail": "{months} mois de charges (objectif : 6 mois)",
   "disabilityGapIjmCoverage": "80 % pendant 720 jours — assurance collective",
   "disabilityGapLppCovered": "Rente invalidité ≈ 40 % salaire coordonné (LPP art. 23)",
   "disabilityGapLppLabel": "LPP invalidité (2e pilier)",

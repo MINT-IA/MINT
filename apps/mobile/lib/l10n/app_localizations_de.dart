@@ -16038,7 +16038,7 @@ class SDe extends S {
 
   @override
   String get disabilityGapAct1Detail =>
-      '80 % deines Lohns durch den Arbeitgeber bezahlt';
+      '100 % deines Lohns (gesetzliche Arbeitgeberpflicht)';
 
   @override
   String get disabilityGapAct1Duration => 'Wochen 1-26';
@@ -16073,7 +16073,7 @@ class SDe extends S {
   @override
   String disabilityGapAct3Detail(
       String aiAmount, String lppAmount, String totalAmount) {
-    return 'IV $aiAmount + BVG $lppAmount = $totalAmount CHF/Monat';
+    return 'IV $aiAmount + geschätzte BVG $lppAmount ≈ $totalAmount CHF/Monat';
   }
 
   @override
@@ -16097,6 +16097,19 @@ class SDe extends S {
 
   @override
   String get disabilityGapApgLabel => 'KTG / EO (Erwerbsausfall)';
+
+  @override
+  String get disabilityInsNoCoverage =>
+      '⚠️ Keine Deckung — ausserhalb der Arbeitgeberperiode sind es 0 CHF';
+
+  @override
+  String get disabilityInsPrivateCoverage =>
+      'Persönliche Privatversicherung (Bedingungen prüfen)';
+
+  @override
+  String disabilityInsSavingsDetail(String months) {
+    return '$months Monate an Ausgaben (Ziel: 6 Monate)';
+  }
 
   @override
   String get disabilityGapIjmCoverage =>
