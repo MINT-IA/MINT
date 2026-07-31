@@ -92,8 +92,22 @@ class SecureWizardStore {
         );
   }
 
-  static bool _isMissingEntitlement(Object error) =>
-      error is PlatformException && error.code == '-34018';
+  static bool _isMissingEntitlement(Object error) {
+    if (error is! PlatformException) return false;
+    // iOS (flutter_secure_storage SwiftFlutterSecureStoragePlugin) surfaces
+    // EVERY keychain OSStatus as `code == "Unexpected security result code"`
+    // with the numeric status in `details` (and echoed in `message`). The
+    // status, NOT the code string, distinguishes -34018 (errSecMissingEntitlement,
+    // the unsigned-sim case) from other keychain errors — so we must match the
+    // status wherever it lands. `code == '-34018'` also matches older shapes and
+    // our own test doubles.
+    const missing = -34018;
+    if (error.code == '$missing') return true;
+    final details = error.details;
+    if (details is int && details == missing) return true;
+    final message = error.message;
+    return message != null && message.contains('$missing');
+  }
 
   /// Resets the E2E fallback test seam (in-memory store + override). Debug-only.
   @visibleForTesting

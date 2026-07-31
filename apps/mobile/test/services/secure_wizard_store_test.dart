@@ -60,14 +60,20 @@ void main() {
   // setMockInitialValues groups preserves the channel platform. Same
   // clean-platform assumption as the '-34018 guard' group above.
   group('SecureWizardStore — E2E seal fallback (debug/harness-only)', () {
-    // Reproduce the unsigned-sim keychain: every write throws -34018, reads
-    // return null WITHOUT throwing (the real sim / secure_failure_test shape).
+    // Reproduce the REAL unsigned-sim keychain error. flutter_secure_storage
+    // iOS (SwiftFlutterSecureStoragePlugin) surfaces every OSStatus as
+    // `code: "Unexpected security result code"` with the numeric status in
+    // `details` (-34018 = errSecMissingEntitlement) and echoed in `message` —
+    // NOT `code: "-34018"`. Using the real shape is what makes this test able to
+    // catch a matcher that only checks `code` (the 2026-07-31 runtime miss).
+    // Reads return null WITHOUT throwing (the real sim / secure_failure shape).
     void mockMissingEntitlement() {
       messenger.setMockMethodCallHandler(channel, (call) async {
         if (call.method == 'write') {
           throw PlatformException(
-            code: '-34018',
-            message: 'errSecMissingEntitlement',
+            code: 'Unexpected security result code',
+            message: 'Code: -34018, Message: A required entitlement is missing.',
+            details: -34018,
           );
         }
         return null; // read/delete return null (no throw)
@@ -170,12 +176,18 @@ void main() {
       );
     });
 
-    test('ENABLED: a NON-(-34018) PlatformException still fails closed',
+    test('ENABLED: a NON-(-34018) keychain status still fails closed',
         () async {
-      // Any storage defect other than missing-entitlement must NOT be masked.
+      // iOS uses the SAME generic code ("Unexpected security result code") for
+      // every keychain error — only the status differs. A different status
+      // (-25300 errSecItemNotFound) must NOT be masked by the -34018 fallback.
       messenger.setMockMethodCallHandler(channel, (call) async {
         if (call.method == 'write') {
-          throw PlatformException(code: '-25300', message: 'errSecItemNotFound');
+          throw PlatformException(
+            code: 'Unexpected security result code',
+            message: 'Code: -25300, Message: The item cannot be found.',
+            details: -25300,
+          );
         }
         return null;
       });
