@@ -6,12 +6,13 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
-import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DIVIDENDE VS SALAIRE SCREEN — Sprint S18
@@ -259,9 +260,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   // ── D10 : fourchette d'incertitude + appareil de confiance ─────────
 
   /// Rend la « bande d'incertitude » de l'économie (de la borne fédérale 70%
-  /// au point d'estimation 50%) + un appareil de confiance qui NOMME les
-  /// exclusions du modèle (impôt sur le bénéfice, taux d'imposition partielle
-  /// indicatif). Le « pourquoi ce chiffre » devient accessible et honnête.
+  /// au point d'estimation 50%) + l'appareil de confiance canonique
+  /// [MintTrameConfiance] (Phase 8a — MTC est le SEUL primitif de rendu de
+  /// confiance ; `MintConfidenceNotice` est legacy, interdit par
+  /// no_legacy_confidence_render). Le caveat qui NOMME les exclusions du modèle
+  /// (impôt sur le bénéfice, part imposable indicative) passe par la liste
+  /// d'hypothèses `.detail` → le « pourquoi ce chiffre » reste accessible.
   Widget _buildEconomieConfidence() {
     final r = _result!;
     return Semantics(
@@ -280,9 +284,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          MintConfidenceNotice(
-            percent: _kModelConfidencePercent,
-            message: S.of(context)!.dividendeConfidenceMessage,
+          MintTrameConfiance.detail(
+            confidence: EnhancedConfidence.fromBareScore(
+              _kModelConfidencePercent.toDouble(),
+            ),
+            bloomStrategy: BloomStrategy.firstAppearance,
+            hypotheses: [S.of(context)!.dividendeConfidenceMessage],
           ),
         ],
       ),

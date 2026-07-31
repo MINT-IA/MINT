@@ -3,15 +3,15 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/independants/dividende_vs_salaire_screen.dart';
-import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 /// Cluster 12D V2-1 — écran `dividende_vs_salaire` (#37).
 ///
 /// Preuve D10 (lucidité) : l'écran ne rend plus un chiffre nu d'« économie ».
 /// Il rend, sous l'ancre `dividende-confidence` :
 ///   - une bande d'incertitude (fourchette 50–70% via `dividendeFourchette`) ;
-///   - un appareil de confiance (`MintConfidenceNotice`) qui NOMME les
-///     exclusions (impôt sur le bénéfice, taux d'imposition partielle indicatif).
+///   - l'appareil de confiance canonique `MintTrameConfiance` (Phase 8a) dont
+///     l'hypothèse NOMME les exclusions (impôt sur le bénéfice, part imposable).
 /// L'ancre `dividende-economie` porte le hero.
 ///
 /// Un renommage/retrait de ces ancres ou de leur wiring casse ce test avant le
@@ -56,9 +56,9 @@ void main() {
     // Ancre hero.
     expect(_byIdentifier('dividende-economie'), findsOneWidget);
 
-    // Ancre D10 : appareil de confiance + fourchette.
+    // Ancre D10 : appareil de confiance canonique (MTC) + fourchette.
     expect(_byIdentifier('dividende-confidence'), findsOneWidget);
-    expect(find.byType(MintConfidenceNotice), findsOneWidget);
+    expect(find.byType(MintTrameConfiance), findsOneWidget);
   });
 
   testWidgets('le message de confiance nomme l\'exclusion de l\'impôt bénéfice',
@@ -68,14 +68,15 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.pump(const Duration(seconds: 1));
 
-    // Le « pourquoi ce chiffre » (D10) est accessible et honnête. On compare le
-    // GETTER localisé au widget rendu (normalisation-proof : pas de littéral
-    // accentué côté test), puis on vérifie sur le getter (sous-chaîne ASCII)
-    // qu'il explique la part imposable retenue.
-    final ctx = tester.element(find.byType(MintConfidenceNotice));
+    // Le « pourquoi ce chiffre » (D10) est accessible et honnête : l'hypothèse
+    // MTC.detail rend le caveat. On vérifie l'appareil canonique + une
+    // sous-chaîne ASCII UNIQUE au caveat (« fiduciaire » — absente de la
+    // fourchette, qui contient déjà « part imposable du dividende »).
+    expect(find.byType(MintTrameConfiance), findsOneWidget);
+    final ctx = tester.element(find.byType(MintTrameConfiance));
     final msg = S.of(ctx)!.dividendeConfidenceMessage;
-    expect(find.text(msg), findsOneWidget);
-    expect(msg, contains('part imposable du dividende'));
+    expect(msg, contains('fiduciaire'));
+    expect(find.textContaining('fiduciaire'), findsOneWidget);
   });
 
   testWidgets('pas d\'alerte de requalification au défaut (part 70%, salaire '
