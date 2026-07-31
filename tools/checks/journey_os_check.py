@@ -835,6 +835,15 @@ ALLOW = {
     "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart",
     # Preuve d'ancres C1/C2/C4 des 4 ecrans Patrimoine sous seed julien_swiss.
     "apps/mobile/test/screens/tierb_logement_anchors_test.dart",
+    # Tier B smoke — lots B5 (crise / international) + retraite : 3 flows seedes
+    # (debtCrisis=julien_swiss, countryMove=julien_swiss [frontalier_geneve est
+    # waitlisted par la cohorte produit], retirement=retraite_lausanne). Les 3
+    # ecrans-evenements sont deja dans ALLOW.
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml",
+    # Preuve d'ancres C1/C2/C4 des 3 ecrans B5+retraite sous leurs seeds.
+    "apps/mobile/test/screens/tierb_b5_anchors_test.dart",
     # Tier B smoke lot B4 Décès/Santé/Mobilité (julien_swiss) : flows seedes
     # deathOfRelative / disability / cantonMove. deces/demenagement = AppBar FIXE
     # (deces NON-VIDE au repos, chiffré CHF touch-only prouve au widget test ;

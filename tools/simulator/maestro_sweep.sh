@@ -40,6 +40,18 @@
 #                        au repos ; housing-sale/donation après « Calculer »
 #                        (donation gate fiscal ouvert seed-alone via le canton).
 #                        Voir 00-CADRAGE Tier B smoke.
+#           tierb-debt — Tier B smoke lot B5 Crise (debtCrisis / /debt/ratio),
+#                        requires a julien_swiss seeded build (+ PROOF_ANCHORS).
+#                        Jauge ratio chiffree au repos. Voir 00-CADRAGE.
+#           tierb-expat — Tier B smoke lot B5 International (countryMove /
+#                        /expatriation), requires a julien_swiss seeded build
+#                        (+ PROOF_ANCHORS). Classement cantonal chiffre SEED-ALONE
+#                        (revenu + canton VD). frontalier_geneve est waitlisted
+#                        (cohorte produit) → seed julien_swiss. Voir 00-CADRAGE.
+#           tierb-retraite — Tier B smoke retraite (retirement / /retraite),
+#                        requires a retraite_lausanne (retraite 68) seeded build
+#                        (+ PROOF_ANCHORS). Ancre C2 rente LPP correcte (PAS la
+#                        ventilation AVS, defaut moteur #1138). Voir 00-CADRAGE.
 #           tierb-b4   — Tier B smoke lot B4 Décès/Santé/Mobilité (deathOfRelative
 #                        / disability / cantonMove), requires a julien_swiss
 #                        seeded build (+ PROOF_ANCHORS). deces/demenagement =
@@ -185,6 +197,27 @@ FLOWS_TIERB_LOGEMENT=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_housing_sale.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_donation.yaml"
 )
+# Tier B smoke — lot B5 Crise (debtCrisis / route /debt/ratio), tier de sweep
+# dédié : exige un build julien_swiss + PROOF_ANCHORS. La jauge ratio d'endettement
+# chiffre au repos (aucun gate). Un build = un seed, hors sweep normal.
+FLOWS_TIERB_DEBT=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml"
+)
+# Tier B smoke — lot B5 International (countryMove / route /expatriation), tier de
+# sweep dédié : exige un build julien_swiss (swissNative, calibré) + PROOF_ANCHORS.
+# Le classement cantonal chiffre SEED-ALONE (salary + canton VD ouvrent le gate).
+# frontalier_geneve (cross_border) est waitlisted par la cohorte produit → seed
+# julien_swiss. Un build = un seed, hors sweep normal.
+FLOWS_TIERB_EXPAT=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml"
+)
+# Tier B smoke — retraite (retirement / route /retraite), tier de sweep dédié :
+# exige un build retraite_lausanne (retraité 68) + PROOF_ANCHORS. Ancre C2 sur la
+# rente LPP correcte (PAS la ventilation AVS ≈ 0, défaut moteur documenté #1138).
+# Un build = un seed, hors sweep normal.
+FLOWS_TIERB_RETRAITE=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml"
+)
 # Tier B smoke lot B4 Décès / Santé / Mobilité (deathOfRelative / disability /
 # cantonMove), tier de sweep dédié : exige un build julien_swiss + PROOF_ANCHORS.
 # deces/demenagement = AppBar FIXE (AX-sain) : deces NON-VIDE au repos (chiffré
@@ -211,12 +244,15 @@ case "$TIER" in
   tierb-famille-seeded) FLOWS=("${FLOWS_TIERB_FAMILLE_SEEDED[@]}") ;;
   tierb-travail) FLOWS=("${FLOWS_TIERB_TRAVAIL[@]}") ;;
   tierb-logement) FLOWS=("${FLOWS_TIERB_LOGEMENT[@]}") ;;
+  tierb-debt) FLOWS=("${FLOWS_TIERB_DEBT[@]}") ;;
+  tierb-expat) FLOWS=("${FLOWS_TIERB_EXPAT[@]}") ;;
+  tierb-retraite) FLOWS=("${FLOWS_TIERB_RETRAITE[@]}") ;;
   tierb-b4)   FLOWS=("${FLOWS_TIERB_B4[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
   all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
   default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | tierb-famille-seeded | tierb-travail | tierb-logement | tierb-b4 | personas | deeplink | all | default)" >&2; exit 1 ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | tierb-famille-seeded | tierb-travail | tierb-logement | tierb-debt | tierb-expat | tierb-retraite | tierb-b4 | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
 # ── Reboot the booted sim before any flow runs ────────────────────────

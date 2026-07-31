@@ -1,0 +1,91 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml
+#
+# TIER B smoke — lot B5 Crise — event `debtCrisis` (route /debt/ratio).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Patron : lot B2 Travail (#1139) + lot B3 Logement (#1141).
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-debt`.
+#
+# ─── C2 CHIFFRÉ (calcul au repos, aucun gate) ──────────────────────────
+#   `/debt/ratio` calcule le ratio d'endettement AU REPOS (getter `_result` +
+#   `_hydrateFromProfile` : revenu / dettes / loyer / charges du profil seedé).
+#   La jauge (hero chiffre-choc) rend TOUJOURS le ratio (dettes / revenus × 100)
+#   — jamais gaté, jamais « Aucune donnée ». julien_swiss n'a aucune dette → ratio
+#   sain (~0 %), mais le chiffre EST calculé + le minimum vital LP art. 93 + la
+#   marge disponible sont chiffrés. L'ancre `debt-ratio-result` est sur la jauge.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` n'applique que la famille « garanti* ». Le smoke
+#   asserte donc UNIQUEMENT `(?i).*garanti.*`.
+#
+# ─── DETTE AX (C5 diagnostic — hors périmètre ship, cadrage §2) ────────
+#   `/debt/ratio` est un CustomScrollView + SliverAppBar(pinned). Le leading retour
+#   safePop est icon-only → NON ciblable par Maestro `tapOn id:` (même dégradation
+#   AX iOS 26.2 que l'écran indépendant B2 / hypotheque B3). Repli documenté : tap
+#   par coordonnée (28,75 — centre du back, iPhone 16e). La migration
+#   SliverAppBar → AppBar (file `ax-pilote`/`appbar-gate`) rendra l'id ciblable.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - crise
+  - seeded
+  - feature:debt-crisis
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /debt/ratio.
+- openLink: "mintapp:///debt/ratio"
+- extendedWaitUntil:
+    visible:
+      id: "debt-ratio-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : la jauge ratio (calculée au repos depuis le profil seedé) porte
+# `debt-ratio-result`. Hero au-dessus de la flottaison → scrollUntilVisible est un
+# no-op (Maestro vérifie la visibilité AVANT de scroller → pas de collapse).
+- scrollUntilVisible:
+    element:
+      id: "debt-ratio-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar →
+# tap par coordonnée (28,75, back épinglé en haut ; voir en-tête AX).
+- tapOn:
+    point: "28,75"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000
