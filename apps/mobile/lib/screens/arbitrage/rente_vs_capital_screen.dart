@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -9,9 +10,11 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/coach/money_truth_receipt_api_service.dart';
 import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/money_truth_receipt.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -48,7 +51,11 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 /// DECISION: prefill merge deferred to Phase 2 (S62+ coach-driven defaults).
 /// Current: CoachProfileProvider supplies defaults; coach prefill via GoRouter extra.
 class RenteVsCapitalScreen extends StatefulWidget {
-  const RenteVsCapitalScreen({super.key});
+  const RenteVsCapitalScreen({super.key, this.receiptApi});
+
+  /// V2-4 — service de store du MoneyTruthReceipt, injectable pour les tests
+  /// (MockClient). En production, une instance par défaut est créée au tap.
+  final MoneyTruthReceiptApiService? receiptApi;
 
   @override
   State<RenteVsCapitalScreen> createState() => _RenteVsCapitalScreenState();
@@ -104,6 +111,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   bool _hasError = false;
   int _requestCounter = 0;
   ArbitrageResult? _result;
+
+  // V2-4 — MoneyTruthReceipt scellé de la rente mensuelle nette affichée,
+  // reconstruit à chaque calcul complet (null sinon). Porté au coach par le CTA.
+  MoneyTruthReceipt? _moneyTruthReceipt;
 
   // P2-9: Debounce recomputation to avoid 200-300ms lag per keystroke.
   Timer? _debounceTimer;
@@ -475,6 +486,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       if (!mounted) return;
       setState(() {
         _result = null;
+        _moneyTruthReceipt = null;
         _isLoading = false;
         _hasError = false;
       });
@@ -569,7 +581,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
             : 'estimate',
       );
       if (!mounted || requestId != _requestCounter) return;
-      setState(() => _result = result);
+      setState(() {
+        _result = result;
+        _moneyTruthReceipt = _buildRvcReceipt(
+          result,
+          fromBackend: true,
+          capitalTotal: capitalTotal,
+          capitalOblig: capitalOblig,
+          capitalSurob: capitalSurob,
+          renteAnnuelle: renteAnnuelle,
+          tcOblig: tcOblig,
+          tcSurob: tcSurob,
+          ageRetraite: ageRetraite,
+        );
+      });
       _emitScreenReturn(result);
       return;
     } catch (_) {
@@ -594,7 +619,20 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           grossAnnualSalary: salary,
         );
         if (!mounted || requestId != _requestCounter) return;
-        setState(() => _result = fallback);
+        setState(() {
+          _result = fallback;
+          _moneyTruthReceipt = _buildRvcReceipt(
+            fallback,
+            fromBackend: false,
+            capitalTotal: capitalTotal,
+            capitalOblig: capitalOblig,
+            capitalSurob: capitalSurob,
+            renteAnnuelle: renteAnnuelle,
+            tcOblig: tcOblig,
+            tcSurob: tcSurob,
+            ageRetraite: ageRetraite,
+          );
+        });
         _emitScreenReturn(fallback);
       } catch (_) {
         if (!mounted || requestId != _requestCounter) return;
@@ -628,6 +666,127 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
 
   bool _hasCompleteCalculationReceipt(ArbitrageResult? result) =>
       result?.calculationReceipt?.isComplete ?? false;
+
+  // ────────────────────────────────────────────────────────────
+  //  Coach handoff (V2-4) — sceller la rente mensuelle nette
+  // ────────────────────────────────────────────────────────────
+
+  /// Scelle la rente mensuelle nette AFFICHÉE ([ArbitrageResult.renteNet
+  /// Mensuelle]) en MoneyTruthReceipt. Ne scelle QUE si le receipt de calcul est
+  /// complet (chiffre fiable). `result` + les entrées sont ceux du calcul en
+  /// cours — aucune valeur inventée (V2-4). Retourne null si incomplet.
+  MoneyTruthReceipt? _buildRvcReceipt(
+    ArbitrageResult result, {
+    required bool fromBackend,
+    required double capitalTotal,
+    required double capitalOblig,
+    required double capitalSurob,
+    required double renteAnnuelle,
+    required double tcOblig,
+    required double tcSurob,
+    required int ageRetraite,
+  }) {
+    if (!_hasCompleteCalculationReceipt(result)) return null;
+    // Ne scelle jamais un chiffre non fini : le hash déterministe rejette
+    // NaN/inf (FormatException) — on garde le receipt null (pas de CTA) plutôt
+    // que de faire échouer un tap plus tard (P1 Codex).
+    final finite = [
+      result.renteNetMensuelle,
+      capitalTotal,
+      capitalOblig,
+      capitalSurob,
+      renteAnnuelle,
+      tcOblig,
+      tcSurob,
+    ];
+    if (finite.any((v) => !v.isFinite)) return null;
+    return ArbitrageEngine.buildRenteMensuelleReceipt(
+      renteNetMensuelle: result.renteNetMensuelle,
+      capitalLppTotal: capitalTotal,
+      capitalObligatoire: capitalOblig,
+      capitalSurobligatoire: capitalSurob,
+      renteAnnuelleProposee: renteAnnuelle,
+      tauxConversionObligatoire: tcOblig,
+      tauxConversionSurobligatoire: tcSurob,
+      canton: _canton,
+      ageRetraite: ageRetraite,
+      isMarried: _isMarried,
+      inputMode:
+          _inputMode == _InputMode.certificate ? 'certificate' : 'estimate',
+      fromBackend: fromBackend,
+      confidenceScore: result.confidenceScore,
+    );
+  }
+
+  /// CTA « Demander au coach » (V2-4) — porte le receipt scellé de la rente au
+  /// coach (receiptId + inputsHash + receiptInputs). Monté uniquement quand un
+  /// receipt existe (calcul complet), donc la rente affichée est définie.
+  Widget _buildAskCoachCta() {
+    final l = S.of(context)!;
+    return Semantics(
+      identifier: 'rvc-ask-coach',
+      button: true,
+      label: l.askCoachCta,
+      child: Material(
+        color: MintColors.primary,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: _onAskCoachTapped,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: MintSpacing.md,
+              horizontal: MintSpacing.lg,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.forum_outlined,
+                    size: 18, color: MintColors.white),
+                const SizedBox(width: MintSpacing.sm),
+                Flexible(
+                  child: Text(
+                    l.askCoachCta,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: MintTextStyles.bodyMedium(color: MintColors.white)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// PERSISTE le receipt (best-effort, non bloquant) puis navigue vers le coach
+  /// en portant receiptId + inputsHash + receiptInputs (double ceinture SPEC
+  /// §4.3). Le coach résout par receiptId (claim-agnostique) et ground sur LA
+  /// même rente.
+  Future<void> _onAskCoachTapped() async {
+    final receipt = _moneyTruthReceipt;
+    if (receipt == null) return;
+    // Store best-effort : un échec ne bloque JAMAIS le handoff (P1 Codex).
+    try {
+      final api = widget.receiptApi ?? MoneyTruthReceiptApiService();
+      await api.store(receipt);
+    } catch (_) {
+      // best-effort
+    }
+    if (!mounted) return;
+    final uri = Uri(
+      path: '/coach/chat',
+      queryParameters: <String, String>{
+        'topic': 'renteVsCapital',
+        'receiptId': receipt.receiptId,
+        'inputsHash': receipt.inputsHash,
+        'receiptInputs': jsonEncode(receipt.inputs),
+      },
+    );
+    context.go(uri.toString());
+  }
 
   int get _ageRetraite => _ageRetraiteSlider.value.round();
 
@@ -771,6 +930,14 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                                   topEnrichmentCategory: IndicatifBanner.topEnrichmentCategoryFrom(
                                       _canonicalEnhanced),
                                 ),
+
+                                // Coach handoff (V2-4) — scelle la rente
+                                // mensuelle nette affichée et la porte au coach.
+                                if (_moneyTruthReceipt != null) ...[
+                                  const SizedBox(height: MintSpacing.md),
+                                  _buildAskCoachCta(),
+                                  const SizedBox(height: MintSpacing.sm),
+                                ],
 
                                 if (_hasEstimatedValues &&
                                     _inputMode == _InputMode.estimate)

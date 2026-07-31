@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +8,9 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/coach/money_truth_receipt_api_service.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/financial_core/money_truth_receipt.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
@@ -83,7 +86,11 @@ bool retirementIncomeIsContinuityBasis({
 }
 
 class RetirementDashboardScreen extends StatefulWidget {
-  const RetirementDashboardScreen({super.key});
+  const RetirementDashboardScreen({super.key, this.receiptApi});
+
+  /// V2-4 — service de store du MoneyTruthReceipt, injectable pour les tests
+  /// (MockClient). En production, une instance par défaut est créée au tap.
+  final MoneyTruthReceiptApiService? receiptApi;
 
   @override
   State<RetirementDashboardScreen> createState() =>
@@ -596,6 +603,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                     _showEnrichmentSheet(context),
                               )),
                           const SizedBox(height: MintSpacing.xxl),
+
+                          // Position 1c: Coach handoff (V2-4) — scelle le revenu
+                          // mensuel de retraite affiché et le porte au coach.
+                          MintEntrance(
+                            delay: const Duration(milliseconds: 150),
+                            child: _buildAskCoachCta(proj, profile),
+                          ),
+                          const SizedBox(height: MintSpacing.xxl),
                         ],
 
                         // ── BELOW FOLD ──
@@ -723,6 +738,151 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ],
               ))),
     );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  Coach handoff (V2-4) — sceller le revenu mensuel de retraite
+  // ────────────────────────────────────────────────────────────
+
+  /// Chiffres HÉRO de la projection — SOURCE UNIQUE partagée entre le
+  /// [RetirementHeroZone] rendu et le [MoneyTruthReceipt] scellé, pour garantir
+  /// que le coach rende exactement le nombre affiché (V2-4, pas de divergence).
+  ({
+    double monthlyIncome,
+    double monthlyPrudent,
+    double monthlyOptimiste,
+    double avs,
+    double lpp,
+    double troisA,
+    bool isCouple,
+  }) _heroFigures(ProjectionResult proj, CoachProfile profile) {
+    final monthlyBase = proj.base.revenuAnnuelRetraite / 12;
+    final monthlyPrudent = proj.prudent.revenuAnnuelRetraite / 12;
+    final monthlyOptimiste = proj.optimiste.revenuAnnuelRetraite / 12;
+    final decoBase = proj.base.decomposition;
+    final isCouple = profile.isCouple && profile.conjoint?.birthYear != null;
+    double partnerMonthly = 0;
+    if (isCouple) {
+      final avsConj = (decoBase['avs_conjoint'] ?? 0) / 12;
+      final lppConj = (decoBase['lpp_conjoint'] ?? 0) / 12;
+      partnerMonthly = avsConj + lppConj;
+    }
+    final avs = ((decoBase['avs'] ?? decoBase['avs_user'] ?? 0) +
+            (decoBase['avs_conjoint'] ?? 0)) /
+        12;
+    final lpp = ((decoBase['lpp'] ?? decoBase['lpp_user'] ?? 0) +
+            (decoBase['lpp_conjoint'] ?? 0)) /
+        12;
+    final troisA = (decoBase['3a'] ?? decoBase['pilier3a'] ?? 0) / 12;
+    return (
+      monthlyIncome: monthlyBase + partnerMonthly,
+      // Bande d'incertitude mono-personne EXACTEMENT comme affichée par le héro
+      // (scénarios prudent/optimiste, sans le conjoint). Le tap ne la scelle
+      // qu'en solo — en couple la valeur agrège le conjoint mais la bande non,
+      // donc on la laisse null pour éviter une divergence écran↔coach (P2 Codex).
+      monthlyPrudent: monthlyPrudent,
+      monthlyOptimiste: monthlyOptimiste,
+      avs: avs,
+      lpp: lpp,
+      troisA: troisA,
+      isCouple: isCouple,
+    );
+  }
+
+  /// CTA « Demander au coach » (V2-4) — scelle le revenu mensuel de retraite
+  /// affiché en MoneyTruthReceipt et navigue vers /coach/chat en portant
+  /// receiptId + inputsHash + receiptInputs (même contrat de handoff que
+  /// firstJob). Monté uniquement quand une projection + un âge existent, donc
+  /// le chiffre héro est défini quand ce bouton est visible.
+  Widget _buildAskCoachCta(ProjectionResult proj, CoachProfile profile) {
+    final l = S.of(context)!;
+    return Semantics(
+      identifier: 'retraite-ask-coach',
+      button: true,
+      label: l.askCoachCta,
+      child: Material(
+        color: MintColors.primary,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => _onAskCoachTapped(proj, profile),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: MintSpacing.md,
+              horizontal: MintSpacing.lg,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.forum_outlined,
+                    size: 18, color: MintColors.white),
+                const SizedBox(width: MintSpacing.sm),
+                Flexible(
+                  child: Text(
+                    l.askCoachCta,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: MintTextStyles.bodyMedium(color: MintColors.white)
+                        .copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Scelle le revenu mensuel de retraite (MÊME valeur que le héro), le PERSISTE
+  /// (best-effort, non bloquant) puis navigue vers le coach en portant le
+  /// receipt (double ceinture SPEC §4.3 : resolved via le store, pending via
+  /// receiptInputs). Le coach résout par receiptId (claim-agnostique) et ground
+  /// sur LA même valeur.
+  Future<void> _onAskCoachTapped(
+      ProjectionResult proj, CoachProfile profile) async {
+    final currentAge = profile.ageOrNull;
+    if (currentAge == null) return;
+    final figures = _heroFigures(proj, profile);
+
+    // Handoff TOUJOURS honoré (P1 Codex) : le scellement est best-effort. Si le
+    // chiffre n'est pas fini (profil corrompu) ou si la construction/le store
+    // échoue, on navigue vers le coach SANS receipt (chemin coach classique)
+    // plutôt que de bloquer le tap. Jamais de valeur non finie scellée (le hash
+    // déterministe rejette NaN/inf).
+    final params = <String, String>{'topic': 'retirementIncome'};
+    if (figures.monthlyIncome.isFinite &&
+        figures.avs.isFinite &&
+        figures.lpp.isFinite &&
+        figures.troisA.isFinite) {
+      try {
+        final receipt = ForecasterService.buildRetirementIncomeReceipt(
+          monthlyIncome: figures.monthlyIncome,
+          // Bande scellée uniquement en solo (parité avec la bande affichée) ;
+          // null en couple (le héro affiche une bande mono-personne).
+          rangeLow: figures.isCouple ? null : figures.monthlyPrudent,
+          rangeHigh: figures.isCouple ? null : figures.monthlyOptimiste,
+          avsMensuel: figures.avs,
+          lppMensuel: figures.lpp,
+          troisAMensuel: figures.troisA,
+          canton: profile.canton,
+          currentAge: currentAge,
+          retirementAge: profile.effectiveRetirementAge,
+          isCouple: figures.isCouple,
+          civilStatus: profile.etatCivil.name,
+          confidenceScore: _confidenceScore,
+        );
+        final api = widget.receiptApi ?? MoneyTruthReceiptApiService();
+        await api.store(receipt);
+        params['receiptId'] = receipt.receiptId;
+        params['inputsHash'] = receipt.inputsHash;
+        params['receiptInputs'] = jsonEncode(receipt.inputs);
+      } catch (_) {
+        // Scellement best-effort : un échec ne bloque JAMAIS le handoff.
+      }
+    }
+    if (!mounted) return;
+    context.go(Uri(path: '/coach/chat', queryParameters: params).toString());
   }
 
   // ────────────────────────────────────────────────────────────

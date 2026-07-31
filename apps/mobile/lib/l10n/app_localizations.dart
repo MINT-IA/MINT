@@ -5193,6 +5193,12 @@ abstract class S {
   /// **'Demander au coach'**
   String get firstJobAskCoach;
 
+  /// No description provided for @askCoachCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander au coach'**
+  String get askCoachCta;
+
   /// No description provided for @firstJob3aHeader.
   ///
   /// In fr, this message translates to:

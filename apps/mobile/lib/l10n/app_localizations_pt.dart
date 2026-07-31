@@ -2808,6 +2808,9 @@ class SPt extends S {
   String get firstJobAskCoach => 'Perguntar ao coach';
 
   @override
+  String get askCoachCta => 'Perguntar ao coach';
+
+  @override
   String get firstJob3aHeader => 'PILAR 3A — A CONSIDERAR';
 
   @override
