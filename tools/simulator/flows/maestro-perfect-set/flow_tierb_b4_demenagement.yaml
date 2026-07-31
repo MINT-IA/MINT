@@ -1,0 +1,94 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_demenagement.yaml
+#
+# TIER B smoke — lot B4 Décès / Santé / Mobilité — event `cantonMove`
+# (route /life-event/demenagement-cantonal). Cadrage :
+# .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Event SANS AUCUN flow avant ce lot (création complète, exclu de
+# parcours_secondaires). Patron : lot B3 (AppBar FIXE + SingleChildScrollView).
+#
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ──────────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-b4`.
+#
+# ─── C2 (non-vide) — chiffré per-user à 2 touches, prouvé au WIDGET test ─
+#   /life-event/demenagement-cantonal est à AppBar FIXE (SingleChildScrollView,
+#   AX-sain). Au repos l'écran est NON-VIDE (carte de situation + contrôles +
+#   checklist). Le héros delta fiscal (`demenagement-result`) est gaté sur QUATRE
+#   faits : revenu + canton de départ (AMORCÉS par julien_swiss : 'salary' +
+#   'canton'), situation familiale (PAS amorcée — julien_swiss n'a pas 'civilStatus')
+#   et canton d'arrivée (TOUCH-ONLY). Il faut donc DEUX touches pour le chiffré.
+#   RÉCOLTE testabilité : la situation familiale est un `SegmentedButton` qui
+#   FUSIONNE la sémantique de ses enfants → un `Semantics(identifier:)` sur le
+#   segment « Marié » NE surface PAS comme resource-id Maestro (mesuré :
+#   scrollUntilVisible id introuvable après scroll, alors que anchor/back
+#   surfacent). Asserter le chiffré via une cible non déterministe masquerait la
+#   récolte (doctrine B1 #1134) → le chiffré `demenagement-result` (après
+#   situation=Marié + canton d'arrivée=GE) est prouvé au niveau WIDGET
+#   (`tierb_b4_anchors_test.dart`, pilote par Key + onSelectionChanged/onChanged),
+#   PAS au flow. Ce flow asserte C1 + C3 + C2-sentinelles-absentes + C4.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   `banned_terms_arb.py:13-14` : famille « garanti* » seule → `(?i).*garanti.*`.
+#
+# ─── VERDICT RUNTIME (isolé, iPhone 16e/26.2, seed julien_swiss) ────────
+#   C1 VERT  — `demenagement-anchor` visible au repos (AppBar fixe, pas de collapse).
+#   C2 (non-vide) VERT — sentinelles absentes ; chiffré 2-touches prouvé au widget test.
+#   C3 VERT  — aucun `garanti` rendu.
+#   C4 VERT  — `demenagement-back` (safePop, id ciblable) → `home_route_state`.
+#   C5 VERT  — AppBar FIXE + SingleChildScrollView : aucun collapse AX au scroll.
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - b4
+  - demenagement
+  - seeded
+  - feature:demenagement-cantonal
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /life-event/demenagement-cantonal.
+- openLink: "mintapp:///life-event/demenagement-cantonal"
+- extendedWaitUntil:
+    visible:
+      id: "demenagement-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête pour le rationale).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide (carte de situation + contrôles +
+# checklist rendus au repos). Le chiffré per-user (2 touches) est prouvé au
+# widget test (cible touch SegmentedButton non déterministe — voir en-tête).
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C4 — Pas de cul-de-sac : bouton retour identifié → /home (AppBar FIXE →
+# back ciblable par id, toujours épinglé en haut).
+- tapOn:
+    id: "demenagement-back"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

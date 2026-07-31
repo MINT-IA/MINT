@@ -16,6 +16,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 /// Sortie calculée de l'écran : l'économie (ou surcoût) annuelle d'un
 /// déménagement inter-cantonal, décomposée en part fiscale et part LAMal.
@@ -409,9 +410,27 @@ class _DemenagementCantonalScreenState
       backgroundColor: MintColors.porcelaine,
       // ── White standard AppBar (Design System §4.5) ──
       appBar: AppBar(
-        title: Text(
-          s.demenagementTitreV2,
-          style: MintTextStyles.headlineMedium(),
+        // Ancre C4 « pas de cul-de-sac » : bouton retour identifié (safePop →
+        // pop, sinon go('/home')) remplaçant le back par défaut, non-poppable
+        // sur entrée deeplink. `label` = tooltip « retour » localisé (leçon
+        // Codex B3 #1141). Smoke Tier B (lot B4).
+        leading: Semantics(
+          identifier: 'demenagement-back',
+          button: true,
+          label: MaterialLocalizations.of(context).backButtonTooltip,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => safePop(context),
+          ),
+        ),
+        // Ancre régionale Tier B smoke (C1 « atteignable ») posée sur le titre
+        // AppBar — motif profond, jamais le wrapper racine (leçon ADR AX iOS 26.2).
+        title: Semantics(
+          identifier: 'demenagement-anchor',
+          child: Text(
+            s.demenagementTitreV2,
+            style: MintTextStyles.headlineMedium(),
+          ),
         ),
         backgroundColor: MintColors.white,
         foregroundColor: MintColors.textPrimary,
@@ -430,7 +449,13 @@ class _DemenagementCantonalScreenState
               // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
               if (resultReady) ...[
                 // SECTION 1 — L'ENJEU : delta fiscal hero
-                MintEntrance(child: MintHeroNumber(
+                // Ancre régionale Tier B smoke (C2 « chiffré ») posée sur le
+                // héros delta fiscal — présente UNIQUEMENT dans la branche
+                // `resultReady` (les quatre faits confirmés), jamais sur la
+                // carte-gate. Motif profond, jamais le wrapper racine (ADR AX).
+                MintEntrance(child: Semantics(
+                  identifier: 'demenagement-result',
+                  child: MintHeroNumber(
                   value: '${_result!.total >= 0 ? '+ ' : ''}'
                       '${formatChfWithPrefix(_result!.total)}',
                   caption: s.demenagementPremierEclairageSousTitre,
@@ -438,6 +463,7 @@ class _DemenagementCantonalScreenState
                       ? MintColors.success
                       : MintColors.error,
                   semanticsLabel: s.demenagementBilanTotal,
+                  ),
                 )),
                 const SizedBox(height: MintSpacing.sm),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
