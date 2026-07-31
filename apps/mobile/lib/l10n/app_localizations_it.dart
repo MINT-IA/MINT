@@ -11669,6 +11669,31 @@ class SIt extends S {
   String get timelineSectionTitle => 'La tua storia';
 
   @override
+  String get confidenceCurveTitle => 'La tua lucidità cresce';
+
+  @override
+  String get confidenceCurveNow => 'adesso';
+
+  @override
+  String get confidenceCurveSinglePoint =>
+      'Torna presto per vedere crescere la tua curva.';
+
+  @override
+  String confidenceCurveTrendSemantics(String start, String latest) {
+    return 'La tua fiducia è passata da $start a $latest.';
+  }
+
+  @override
+  String confidenceCurveMilestoneScan(String date) {
+    return 'Hai fatto luce su un documento il $date.';
+  }
+
+  @override
+  String confidenceCurveMilestoneCheckin(String date) {
+    return 'Hai fatto il punto il $date.';
+  }
+
+  @override
   String get timelineSectionSubtitle =>
       'Seleziona un evento per simulare il suo impatto finanziario.';
 

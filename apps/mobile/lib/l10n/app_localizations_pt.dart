@@ -11642,6 +11642,31 @@ class SPt extends S {
   String get timelineSectionTitle => 'A tua história';
 
   @override
+  String get confidenceCurveTitle => 'A tua lucidez cresce';
+
+  @override
+  String get confidenceCurveNow => 'agora';
+
+  @override
+  String get confidenceCurveSinglePoint =>
+      'Volta em breve para ver a tua curva crescer.';
+
+  @override
+  String confidenceCurveTrendSemantics(String start, String latest) {
+    return 'A tua confiança passou de $start para $latest.';
+  }
+
+  @override
+  String confidenceCurveMilestoneScan(String date) {
+    return 'Esclareceste um documento a $date.';
+  }
+
+  @override
+  String confidenceCurveMilestoneCheckin(String date) {
+    return 'Fizeste o teu ponto de situação a $date.';
+  }
+
+  @override
   String get timelineSectionSubtitle =>
       'Seleciona um evento para simular o seu impacto financeiro.';
 
