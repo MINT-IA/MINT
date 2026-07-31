@@ -78,18 +78,19 @@ tags:
     text: "Définis ton budget"
 
 # C2 — Chiffré CORRECT : la ligne rente LPP (≈ 1'800/mois) porte `retraite-result`,
-# sous la flottaison → scroll pour la révéler. PAS la ligne AVS (≈ 0, défaut moteur
-# documenté #1138). Si le collapse au scroll dépouille l'id, la preuve C2 correcte
-# est portée par le test widget (voir en-tête).
-- scrollUntilVisible:
-    element:
-      id: "retraite-result"
-    direction: DOWN
-    timeout: 20000
-    centerElement: true
+# sous la flottaison. PREUVE RUNTIME MESURÉE (sweep 2026-07-31) : un
+# `scrollUntilVisible` sur cet id DÉCLENCHE le collapse SliverAppBar iOS 26.2
+# (2e trigger, cf. en-tête + B2 independant) → l'id reste dans l'arbre (92
+# occurrences dump) mais jamais 100 % visible+centré → l'assertion échoue. Le
+# scroll est donc RETIRÉ ici : la preuve C2 CHIFFRÉE CORRECTE (retraite-result
+# sur la rente LPP, PAS la ventilation AVS) est portée au niveau WIDGET par
+# `tierb_b5_anchors_test.dart` (retraite-result findsOneWidget sous seed
+# retraite_lausanne), motif B2 independant. Le runtime prouve ici l'atteignable
+# (C1) + non-vide (C2) + zéro-terme-banni (C3) + pas-de-cul-de-sac (C4).
 
-# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar
-# épinglé → tap par coordonnée (28,75 ; voir en-tête AX).
+# C4 — Pas de cul-de-sac : retour → /home DEPUIS le repos (aucun scroll ⇒ pas de
+# collapse ⇒ leading back atteignable). Leading icon-only de SliverAppBar épinglé
+# → tap par coordonnée (28,75 ; voir en-tête AX).
 - tapOn:
     point: "28,75"
 - extendedWaitUntil:
