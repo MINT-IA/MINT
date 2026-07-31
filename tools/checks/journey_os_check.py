@@ -57,6 +57,7 @@ ALLOW = {
     "apps/mobile/lib/services/forecaster_service.dart",
     "apps/mobile/test/services/retirement_declared_avs_test.dart",
     "apps/mobile/test/screens/retraite_dashboard_declared_avs_test.dart",
+    "apps/mobile/test/screens/coach/retirement_dashboard_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",
