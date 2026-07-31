@@ -109,12 +109,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(
-        tester
-            .getSemantics(find.byKey(const Key('coach_history_screen')))
-            .identifier,
-        'coach_history_screen',
-      );
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 3) : le wrapper Semantics racine
+      // `coach_history_screen` a été retiré (double frontière avec le scopesRoute
+      // de ModalRoute → effondrement de l'arbre AX au repos) et le SliverAppBar
+      // migré en AppBar classique fixe. Contrat verrouillé : plus de SliverAppBar,
+      // un AppBar, et les ancres internes que Maestro cible restent adressables.
+      expect(find.byType(SliverAppBar), findsNothing);
+      expect(find.byType(AppBar), findsOneWidget);
       expect(
         tester
             .getSemantics(find.byKey(const Key('coach_history_conversation_0')))
