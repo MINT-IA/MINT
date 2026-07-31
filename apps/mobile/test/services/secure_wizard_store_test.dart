@@ -50,6 +50,159 @@ void main() {
     });
   });
 
+  // NOTE (ordering): this group MUST be declared BEFORE any group that calls
+  // `FlutterSecureStorage.setMockInitialValues()` (e.g. the happy-path group
+  // below). That call swaps `FlutterSecureStoragePlatform.instance` to an
+  // in-memory impl that BYPASSES the MethodChannel, which would turn the
+  // `-34018` channel mock here into a no-op (writes would silently succeed).
+  // Declaration order == run order (no test randomization — see
+  // apps/mobile/dart_test.yaml), so keeping this group ahead of the
+  // setMockInitialValues groups preserves the channel platform. Same
+  // clean-platform assumption as the '-34018 guard' group above.
+  group('SecureWizardStore — E2E seal fallback (debug/harness-only)', () {
+    // Reproduce the REAL unsigned-sim keychain error. flutter_secure_storage
+    // iOS (SwiftFlutterSecureStoragePlugin) surfaces every OSStatus as
+    // `code: "Unexpected security result code"` with the numeric status in
+    // `details` (-34018 = errSecMissingEntitlement) and echoed in `message` —
+    // NOT `code: "-34018"`. Using the real shape is what makes this test able to
+    // catch a matcher that only checks `code` (the 2026-07-31 runtime miss).
+    // Reads return null WITHOUT throwing (the real sim / secure_failure shape).
+    void mockMissingEntitlement() {
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'write') {
+          throw PlatformException(
+            code: 'Unexpected security result code',
+            message: 'Code: -34018, Message: A required entitlement is missing.',
+            details: -34018,
+          );
+        }
+        return null; // read/delete return null (no throw)
+      });
+    }
+
+    tearDown(SecureWizardStore.resetSealFallbackForTest);
+
+    test('DISABLED by default: -34018 still drops the sensitive value '
+        '(release-parity, privacy contract intact)', () async {
+      mockMissingEntitlement();
+
+      final cleaned = await SecureWizardStore.secureSensitiveKeys({
+        'q_net_income_period_chf': '7000',
+        'q_canton': 'VD',
+      });
+
+      // Fallback is off (no override, no dart-define) -> genuine seal failure.
+      expect(cleaned['q_canton'], 'VD');
+      expect(cleaned['q_net_income_period_chf'], isNull);
+      final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
+      expect(restored['q_net_income_period_chf'], isNull);
+    });
+
+    test('ENABLED: -34018 seals into the in-memory store and round-trips back',
+        () async {
+      mockMissingEntitlement();
+      SecureWizardStore.debugSealFallbackOverride = true;
+
+      final cleaned = await SecureWizardStore.secureSensitiveKeys({
+        'q_net_income_period_chf': '7000',
+        'q_canton': 'VD',
+      });
+
+      // The seal now SUCCEEDS off-keychain: sensitive key -> placeholder,
+      // non-sensitive untouched, raw PII never left in the plain map.
+      expect(cleaned['q_net_income_period_chf'], '__secure__');
+      expect(cleaned['q_canton'], 'VD');
+      expect(cleaned.containsValue('7000'), isFalse);
+
+      // Read-back path (loadAnswers -> restoreSensitiveKeys -> read) recovers
+      // the real value from RAM even though the keychain read returns null.
+      final restored = await SecureWizardStore.restoreSensitiveKeys(cleaned);
+      expect(restored['q_net_income_period_chf'], 7000);
+      expect(restored['q_canton'], 'VD');
+    });
+
+    test('ENABLED: sealSensitiveKeys reports allSensitiveSealed = true '
+        '(so saveAnswers persists and the profile is not cleared)', () async {
+      mockMissingEntitlement();
+      SecureWizardStore.debugSealFallbackOverride = true;
+
+      final result = await SecureWizardStore.sealSensitiveKeys({
+        'q_net_income_period_chf': '7000',
+        'q_avoir_lpp': '318000',
+        'q_canton': 'VD',
+      });
+
+      expect(result.allSensitiveSealed, isTrue);
+      expect(result.cleaned['q_net_income_period_chf'], '__secure__');
+      expect(result.cleaned['q_avoir_lpp'], '__secure__');
+      expect(result.cleaned['q_canton'], 'VD');
+    });
+
+    test('ENABLED: deleteAll purges the in-memory fallback (privacy reset)',
+        () async {
+      mockMissingEntitlement();
+      SecureWizardStore.debugSealFallbackOverride = true;
+
+      await SecureWizardStore.write('q_net_income_period_chf', '7000');
+      expect(
+        await SecureWizardStore.read('q_net_income_period_chf'),
+        '7000',
+      );
+
+      await SecureWizardStore.deleteAll();
+
+      // Fallback store emptied -> no resident PII after reset.
+      expect(
+        await SecureWizardStore.read('q_net_income_period_chf'),
+        isNull,
+      );
+    });
+
+    test('ENABLED: deleteAll purges even when the override is flipped off first',
+        () async {
+      mockMissingEntitlement();
+      SecureWizardStore.debugSealFallbackOverride = true;
+      await SecureWizardStore.write('q_net_income_period_chf', '7000');
+
+      // Override disabled AFTER the seal landed — deleteAll must still purge
+      // (gated on !kReleaseMode, not the E2E flag).
+      SecureWizardStore.debugSealFallbackOverride = false;
+      await SecureWizardStore.deleteAll();
+
+      SecureWizardStore.debugSealFallbackOverride = true;
+      expect(
+        await SecureWizardStore.read('q_net_income_period_chf'),
+        isNull,
+      );
+    });
+
+    test('ENABLED: a NON-(-34018) keychain status still fails closed',
+        () async {
+      // iOS uses the SAME generic code ("Unexpected security result code") for
+      // every keychain error — only the status differs. A different status
+      // (-25300 errSecItemNotFound) must NOT be masked by the -34018 fallback.
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'write') {
+          throw PlatformException(
+            code: 'Unexpected security result code',
+            message: 'Code: -25300, Message: The item cannot be found.',
+            details: -25300,
+          );
+        }
+        return null;
+      });
+      SecureWizardStore.debugSealFallbackOverride = true;
+
+      final cleaned = await SecureWizardStore.secureSensitiveKeys({
+        'q_net_income_period_chf': '7000',
+        'q_canton': 'VD',
+      });
+
+      expect(cleaned['q_canton'], 'VD');
+      expect(cleaned['q_net_income_period_chf'], isNull);
+    });
+  });
+
   group('SecureWizardStore — happy path (provisioned keychain)', () {
     test('classifies PR5 mapped wizard keys outside broad secure prefixes', () {
       const sensitive = {
