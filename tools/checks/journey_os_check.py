@@ -600,6 +600,9 @@ ALLOW = {
     # Clôture du P0 T11-F01 (/auth/apple/verify) : réel au SHA gelé, déjà
     # corrigé dans dev (vérification JWKS) + durcissement e-mail non vérifié.
     ".planning/audit-etat-des-lieux-2026-07/T11-F01-apple-verify-cloture.md",
+    # Résiduel actuariel P1 (#1144) : contrat de statut de l'avoir LPP —
+    # verdict d'ambiguïté + plan (double comptage rente retraité), page d'audit.
+    ".planning/audit-etat-des-lieux-2026-07/contrat-avoir-lpp-retraite.md",
     # --- end remediation audit 2026-07 ---
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",
