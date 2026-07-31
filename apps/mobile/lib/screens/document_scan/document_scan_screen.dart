@@ -101,6 +101,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 3) : AppBar classique fixe en
+      // `Scaffold.appBar`, plus de SliverAppBar dans le CustomScrollView (2e
+      // déclencheur d'effondrement de l'arbre AX des routes poussées au scroll).
+      appBar: _buildAppBar(context),
       body: Stack(
         children: [
           // FIX-064: Show linear progress during Vision extraction (10-30s on 3G)
@@ -116,7 +120,6 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: CustomScrollView(
                     slivers: [
-                      _buildAppBar(context),
                       SliverPadding(
                         padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                         sliver: SliverList(
@@ -160,9 +163,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
       backgroundColor: MintColors.background,
       elevation: 0,
       scrolledUnderElevation: 0,

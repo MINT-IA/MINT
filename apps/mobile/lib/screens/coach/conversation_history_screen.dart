@@ -77,36 +77,33 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
 
-    return Semantics(
-      key: const Key('coach_history_screen'),
-      identifier: 'coach_history_screen',
-      container: true,
-      explicitChildNodes: true,
-      child: Scaffold(
+    // AX iOS 26.2 (ADR 2026-07-30, tranche AX 3) : suppression du wrapper
+    // Semantics racine `coach_history_screen` (double frontière avec le
+    // scopesRoute que ModalRoute pose déjà → effondrement de l'arbre AX au
+    // repos sur route poussée) ET migration SliverAppBar → AppBar classique
+    // fixe (2e déclencheur au scroll). Les ancres internes restent adressables
+    // (coach_history_conversation_N, coach_history_new_conversation).
+    return Scaffold(
         backgroundColor: MintColors.background,
+        appBar: AppBar(
+          backgroundColor: MintColors.white,
+          surfaceTintColor: MintColors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text(
+            l10n.conversationHistoryTitle,
+            style: MintTextStyles.titleMedium(),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+            onPressed: () => safePop(context),
+          ),
+        ),
         body: Center(
             child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: CustomScrollView(
                   slivers: [
-                    // ── App Bar ──
-                    SliverAppBar(
-                      pinned: true,
-                      backgroundColor: MintColors.white,
-                      surfaceTintColor: MintColors.white,
-                      elevation: 0,
-                      scrolledUnderElevation: 0,
-                      title: Text(
-                        l10n.conversationHistoryTitle,
-                        style: MintTextStyles.titleMedium(),
-                      ),
-                      leading: IconButton(
-                        icon: const Icon(Icons.arrow_back,
-                            color: MintColors.textPrimary),
-                        onPressed: () => safePop(context),
-                      ),
-                    ),
-
                     // ── Body ──
                     if (_isLoading)
                       const SliverFillRemaining(
@@ -182,7 +179,6 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
                 ),
               )
             : null,
-      ),
     );
   }
 }

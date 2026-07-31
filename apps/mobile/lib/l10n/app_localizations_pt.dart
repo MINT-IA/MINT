@@ -16275,6 +16275,24 @@ class SPt extends S {
   String get donationRegimeSeparation => 'Separação de bens';
 
   @override
+  String get donationLienConjoint => 'Cônjuge';
+
+  @override
+  String get donationLienDescendant => 'Filho(a) / Descendente';
+
+  @override
+  String get donationLienParent => 'Progenitor';
+
+  @override
+  String get donationLienFratrie => 'Irmão(ã)';
+
+  @override
+  String get donationLienConcubin => 'Companheiro(a)';
+
+  @override
+  String get donationLienTiers => 'Terceiro';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserva $pct%';
   }
@@ -21935,6 +21953,17 @@ class SPt extends S {
       'A taxa de substituição mede a parte do teu rendimento atual que manterás na reforma. Exemplo: 65% significa que receberás 65% do teu salário atual.';
 
   @override
+  String get incomeContinuityLabel => 'Continuidade do teu rendimento';
+
+  @override
+  String get incomeContinuityContext =>
+      'Já estás reformado/a: este indicador reflete a continuidade do teu rendimento de reforma, não uma taxa de substituição calculada sobre um salário de atividade passado.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Como já estás reformado/a, não há qualquer salário de atividade no dossiê. O teu rendimento de reforma serve então de referência: o indicador reflete a continuidade do teu rendimento, não uma taxa de substituição em sentido estrito.';
+
+  @override
   String get jargonLppTooltip =>
       'A LPP (Lei sobre a Previdência Profissional) é o 2.º pilar. Tu e o teu empregador contribuem juntos para a tua reforma.';
 
@@ -22068,6 +22097,26 @@ class SPt extends S {
 
   @override
   String get coachStarterLurk => 'Só vou olhar, apresento-me depois';
+
+  @override
+  String get coachStarterSuggestionLpp => 'O que é o meu 2.º pilar?';
+
+  @override
+  String get coachStarterSuggestion3a => 'Quanto posso pôr no 3.º pilar A?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Para onde vai o meu dinheiro todos os meses?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Renda ou capital?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'A nossa previdência a dois?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'A minha previdência como independente?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23375,7 +23424,7 @@ class SPt extends S {
   String get landingV2PromiseSober => 'Nós esclarecemos. Tu decides.';
 
   @override
-  String get landingV2CtaSober => 'Fala com o Mint';
+  String get landingV2CtaSober => 'Esclarece a minha situação';
 
   @override
   String get landingV3Hero => 'Ver claro, decidir sozinho.';

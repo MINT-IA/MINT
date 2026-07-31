@@ -36,6 +36,11 @@ class RetirementHeroZone extends StatefulWidget {
   /// Replacement rate as percentage (0-100).
   final double replacementRate;
 
+  /// Whether the rate is a CONTINUITY basis (retiree already in régime — no
+  /// pre-retirement salary on file, so the rate is ~100% by construction and
+  /// is NOT a forward replacement rate). Drives the honest label swap.
+  final bool isContinuityBasis;
+
   /// Per-pillar annual breakdown: avs, lpp, 3a, libre/autre.
   final Map<String, double> decomposition;
 
@@ -72,6 +77,7 @@ class RetirementHeroZone extends StatefulWidget {
     super.key,
     required this.monthlyIncome,
     required this.replacementRate,
+    this.isContinuityBasis = false,
     required this.decomposition,
     required this.monthlyPrudent,
     required this.monthlyOptimiste,
@@ -298,12 +304,18 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
               style: MintTextStyles.labelMedium(color: _zoneColor).copyWith(fontWeight: FontWeight.w600),
             ),
             Tooltip(
-              message: S.of(context)?.jargonReplacementRateTooltip ?? '',
+              message: (widget.isContinuityBasis
+                      ? S.of(context)?.incomeContinuityTooltip
+                      : S.of(context)?.jargonReplacementRateTooltip) ??
+                  '',
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    S.of(context)?.jargonReplacementRate ?? 'Taux de remplacement',
+                    (widget.isContinuityBasis
+                            ? S.of(context)?.incomeContinuityLabel
+                            : S.of(context)?.jargonReplacementRate) ??
+                        '',
                     style: MintTextStyles.labelSmall(color: MintColors.textMuted),
                   ),
                   const SizedBox(width: 2),
@@ -317,7 +329,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         Padding(
           padding: const EdgeInsets.only(top: 4),
           child: Text(
-            _replacementRateContext(rate, context),
+            _replacementRateContext(rate, context, widget.isContinuityBasis),
             style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
           ),
         ),
@@ -507,8 +519,15 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
   }
 
   // ── Replacement rate context (FIX 4) ─────────────────────
-  String _replacementRateContext(double rate, BuildContext context) {
+  String _replacementRateContext(
+      double rate, BuildContext context, bool isContinuityBasis) {
     final l = S.of(context);
+    // Retiree already in régime: the rate is a continuity indicator (~100% by
+    // construction), not a forward replacement rate — say so honestly instead
+    // of praising a « good » replacement level.
+    if (isContinuityBasis) {
+      return l?.incomeContinuityContext ?? '';
+    }
     if (rate >= 80) {
       return l?.replacementRateContextGood ?? '';
     } else if (rate >= 60) {

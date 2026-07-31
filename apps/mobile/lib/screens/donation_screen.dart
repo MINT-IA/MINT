@@ -142,6 +142,31 @@ class _DonationScreenState extends State<DonationScreen> {
     }
   }
 
+  /// Libellé localisé d'un lien de parenté (adossé ARB, aucun FR codé en dur).
+  ///
+  /// Les clés (`conjoint`/`descendant`/…) sont la nomenclature du socle
+  /// succession/donation ([SuccessionDonationSocle.categories]) ; seule leur
+  /// forme affichée est localisée ici, en miroir de [_regimeLabel].
+  String _lienParenteLabel(String lien) {
+    final s = S.of(context)!;
+    switch (lien) {
+      case 'conjoint':
+        return s.donationLienConjoint;
+      case 'descendant':
+        return s.donationLienDescendant;
+      case 'parent':
+        return s.donationLienParent;
+      case 'fratrie':
+        return s.donationLienFratrie;
+      case 'concubin':
+        return s.donationLienConcubin;
+      case 'tiers':
+        return s.donationLienTiers;
+      default:
+        return lien;
+    }
+  }
+
   /// P2 (zéro donnée inventée) : amorce la situation réelle du donateur depuis
   /// le profil. On s'abonne au provider car `loadFromWizard()` hydrate le profil
   /// de façon asynchrone : l'écran peut être monté avant l'arrivée des données.
@@ -779,7 +804,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: _liensParente.map((lien) {
             final selected = _lienParente == lien;
             return Semantics(
-              label: DonationService.lienParenteLabels[lien] ?? lien,
+              label: _lienParenteLabel(lien),
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -803,7 +828,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  DonationService.lienParenteLabels[lien] ?? lien,
+                  _lienParenteLabel(lien),
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -1001,7 +1026,7 @@ class _DonationScreenState extends State<DonationScreen> {
     // La bascule (concubins) prime sur la ligne « lien de parenté » :
     // c'est la variable actionnable du verdict.
     final narrative = v.bascule ??
-        '${S.of(context)!.donationLienRow}\u00A0:\u00A0${DonationService.lienParenteLabels[_lienParente] ?? _lienParente}';
+        '${S.of(context)!.donationLienRow}\u00A0:\u00A0${_lienParenteLabel(_lienParente)}';
     return MintResultHeroCard(
       key: const Key('donationTaxCard'),
       eyebrow: S.of(context)!.donationImpotTitle,

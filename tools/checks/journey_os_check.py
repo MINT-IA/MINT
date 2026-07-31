@@ -58,6 +58,13 @@ ALLOW = {
     "apps/mobile/test/services/retirement_declared_avs_test.dart",
     "apps/mobile/test/screens/retraite_dashboard_declared_avs_test.dart",
     "apps/mobile/test/screens/coach/retirement_dashboard_test.dart",
+    # --- fix(e2e) : fallback de scellement debug/E2E-only dans SecureWizardStore
+    # (double-gardé kReleaseMode + MINT_E2E_SEAL_FALLBACK). Sans lui, le seal
+    # keychain échoue sur build sim --no-codesign (-34018) → /retraite retombe en
+    # State C dans le harnais. Chemin release byte-inaccessible, contrat privacy
+    # secure_failure_test intact. Branche codex/journey-os-e2e-seal-fallback. ---
+    "apps/mobile/lib/services/secure_wizard_store.dart",
+    "apps/mobile/test/services/secure_wizard_store_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",
@@ -480,6 +487,9 @@ ALLOW = {
     # Tier B smoke — cadrage des 18 life events (plan MINT utilisable v2.1,
     # 2026-07-30). Page de cadrage, PAS d'implémentation.
     ".planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md",
+    # Vague 2 revue 12D — cadrage clusters ordonnés (registre 12D rafraîchi,
+    # 2026-07-31). Page de cadrage/pilotage, PAS d'implémentation.
+    ".planning/phases/mint-utilisable-12d-vague2/00-CADRAGE.md",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",
@@ -590,6 +600,12 @@ ALLOW = {
     ".planning/phases/remediation-audit-2026-07/CONTEXT.md",
     ".planning/phases/remediation-audit-2026-07/AUTHORIZED_FILES.md",
     ".planning/phases/remediation-audit-2026-07/BACKLOG-DEV-VERIFIED.html",
+    # Clôture du P0 T11-F01 (/auth/apple/verify) : réel au SHA gelé, déjà
+    # corrigé dans dev (vérification JWKS) + durcissement e-mail non vérifié.
+    ".planning/audit-etat-des-lieux-2026-07/T11-F01-apple-verify-cloture.md",
+    # Résiduel actuariel P1 (#1144) : contrat de statut de l'avoir LPP —
+    # verdict d'ambiguïté + plan (double comptage rente retraité), page d'audit.
+    ".planning/audit-etat-des-lieux-2026-07/contrat-avoir-lpp-retraite.md",
     # --- end remediation audit 2026-07 ---
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",
@@ -637,6 +653,9 @@ ALLOW = {
     "apps/mobile/lib/screens/coach/chat_as_verb_demo_screen.dart",
     "apps/mobile/lib/screens/coach/coach_chat_screen.dart",
     "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
+    # P2 #1144 — libellé honnête continuité vs taux de remplacement (retraité).
+    "apps/mobile/lib/widgets/coach/retirement_hero_zone.dart",
+    "apps/mobile/test/screens/coach/retirement_income_continuity_label_test.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/retroactive_3a_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
     "apps/mobile/lib/services/apple_sign_in_service.dart",
@@ -1086,6 +1105,40 @@ ALLOW = {
     "apps/mobile/lib/widgets/coach/lpp_rescue_widget.dart",
     "apps/mobile/lib/screens/independant_screen.dart",
     "apps/mobile/test/widgets/coach/lpp_rescue_widget_test.dart",
+    # Tranche AX 3 (ADR 2026-07-30, patron #1127/#1140/#1146) : migration
+    # SliverAppBar → AppBar classique fixe sur 7 ecrans a route poussee
+    # (CustomScrollView, barre titre-seule, sans expandedHeight/flexibleSpace).
+    # conversation_history retire en plus son wrapper Semantics racine
+    # `coach_history_screen` (double frontiere ModalRoute). debt_ratio +
+    # repayment deja dans ALLOW ; flows row20 + debt_ratio deja dans ALLOW,
+    # re-armes (row20 gate sur ancre interne, debt_ratio back par id).
+    "apps/mobile/lib/screens/document_scan/document_scan_screen.dart",
+    "apps/mobile/lib/screens/document_scan/avs_guide_screen.dart",
+    "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart",
+    "apps/mobile/lib/screens/debt_prevention/help_resources_screen.dart",
+    "apps/mobile/lib/screens/coach/conversation_history_screen.dart",
+    "apps/mobile/test/screens/coach/conversation_history_screen_test.dart",
+    # --- D4 vérités (2026-07-31) : la landing dit vrai (« Éclaire ma situation »
+    # remplace « Parle à Mint », qui promettait une conversation que le flux ne
+    # délivre pas — /start → /onb, cold-open chat anonyme retiré) + le coach
+    # guide l'entrée (3 chips de démarrage adaptées au profil sous l'ouverture).
+    # Le renommage du libellé propage aux tests widget + flows Maestro qui
+    # tapaient « Parle à Mint » par texte. ---
+    "apps/mobile/test/screens/core_app_screens_smoke_test.dart",
+    "apps/mobile/test/screens/landing_screen_test.dart",
+    "apps/mobile/test/widget_test.dart",
+    "apps/mobile/test/screens/coach/coach_starter_suggestions_test.dart",
+    "tools/simulator/walker.sh",
+    "tools/simulator/flows/e2e/flow_e2e_new_user_full_journey.yaml",
+    "tools/simulator/flows/julien_swiss.yaml",
+    "tools/simulator/flows/lauren_expat_us.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_b14_debt_intent_no_mortgage.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_b15_concrete_facts_chips.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_g2_julien_walkthrough.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_landing_to_register.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

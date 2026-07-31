@@ -145,10 +145,10 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       },
       child: Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 3) : AppBar classique fixe en
+      // `Scaffold.appBar`, plus de SliverAppBar dans le CustomScrollView (2e
+      // déclencheur d'effondrement de l'arbre AX des routes poussées au scroll).
+      appBar: AppBar(
             backgroundColor: MintColors.white,
             surfaceTintColor: MintColors.white,
             elevation: 0,
@@ -178,6 +178,8 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
               ),
             ),
           ),
+      body: CustomScrollView(
+        slivers: [
           SliverPadding(
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(

@@ -615,7 +615,7 @@ case "$MODE" in
       && log "archetype-walkthrough: captured 00-seed-loaded.png" \
       || log "WARN: 00-seed-loaded snap failed"
 
-    # Phase 1: open the chat surface — tap "Parle à Mint" CTA on landing.
+    # Phase 1: open the chat surface — tap "Éclaire ma situation" CTA on landing.
     tap_at 195 760
     wait_for_ui 6
     snap "${SHOTS_DIR}/01-chat-open.png" \

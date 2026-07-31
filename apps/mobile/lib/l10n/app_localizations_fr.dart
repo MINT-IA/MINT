@@ -16268,6 +16268,24 @@ class SFr extends S {
   String get donationRegimeSeparation => 'Séparation de biens';
 
   @override
+  String get donationLienConjoint => 'Conjoint(e)';
+
+  @override
+  String get donationLienDescendant => 'Enfant / Descendant(e)';
+
+  @override
+  String get donationLienParent => 'Parent';
+
+  @override
+  String get donationLienFratrie => 'Frère / Sœur';
+
+  @override
+  String get donationLienConcubin => 'Concubin(e)';
+
+  @override
+  String get donationLienTiers => 'Tiers';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Réserve $pct %';
   }
@@ -21923,6 +21941,17 @@ class SFr extends S {
       'Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.';
 
   @override
+  String get incomeContinuityLabel => 'Continuité de ton revenu';
+
+  @override
+  String get incomeContinuityContext =>
+      'Tu es déjà à la retraite : cet indicateur reflète la continuité de ton revenu de retraite, pas un taux de remplacement calculé sur un salaire d’activité passé.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Comme tu es déjà à la retraite, aucun salaire d’activité n’est au dossier. Ton revenu de retraite sert alors de référence : l’indicateur reflète la continuité de ton revenu, et non un taux de remplacement au sens strict.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Loi sur la prévoyance professionnelle) est le 2e pilier. Ton employeur et toi cotisez ensemble pour ta retraite.';
 
@@ -22057,6 +22086,25 @@ class SFr extends S {
 
   @override
   String get coachStarterLurk => 'Je regarde, je me présente après';
+
+  @override
+  String get coachStarterSuggestionLpp => 'C\'est quoi mon 2e pilier ?';
+
+  @override
+  String get coachStarterSuggestion3a => 'Combien je peux mettre en 3a ?';
+
+  @override
+  String get coachStarterSuggestionBudget => 'Où part mon argent chaque mois ?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Rente ou capital ?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'Notre prévoyance à deux ?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'Ma prévoyance d\'indépendant ?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23367,7 +23415,7 @@ class SFr extends S {
   String get landingV2PromiseSober => 'On éclaire. Tu décides.';
 
   @override
-  String get landingV2CtaSober => 'Parle à Mint';
+  String get landingV2CtaSober => 'Éclaire ma situation';
 
   @override
   String get landingV3Hero => 'Voir clair, décider seul.';

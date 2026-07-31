@@ -203,8 +203,11 @@ void main() {
       );
       await tester.pump();
 
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
-      await tester.pump();
+      // AX iOS 26.2 (tranche AX 3) : le SliverAppBar est sorti du CustomScrollView
+      // vers `Scaffold.appBar` → la section « Mes dettes » (avec le bouton d'ajout)
+      // est désormais le PREMIER enfant du SliverList, en haut du viewport. Un
+      // drag fixe -500 la poussait au-dessus du cache de la liste paresseuse
+      // (widget détruit → introuvable). On laisse simplement l'entrée s'animer.
       // MintEntrance (delay 150 ms) : laisser l'animation monter la section.
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));

@@ -8288,6 +8288,12 @@
   "donationRegimeCommunaute": "Gütergemeinschaft",
   "donationRegimeParticipation": "Errungenschaftsbeteiligung",
   "donationRegimeSeparation": "Gütertrennung",
+  "donationLienConjoint": "Ehepartner",
+  "donationLienDescendant": "Kind / Nachkomme",
+  "donationLienParent": "Elternteil",
+  "donationLienFratrie": "Geschwister",
+  "donationLienConcubin": "Lebenspartner",
+  "donationLienTiers": "Dritte",
   "donationReserveBarLabel": "Pflichtteil {pct}%",
   "donationTypeEspeces": "Bargeld / Liquidität",
   "donationTypeImmobilier": "Immobilien",
@@ -10058,6 +10064,9 @@
   "jargonAvs": "AHV (Altersversicherung)",
   "jargonRamd": "RAMD (massgebendes durchschnittliches Jahreseinkommen)",
   "jargonReplacementRateTooltip": "Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.",
+  "incomeContinuityLabel": "Einkommenskontinuität",
+  "incomeContinuityContext": "Du bist bereits im Ruhestand: Dieser Indikator zeigt die Kontinuität deines Renteneinkommens, nicht eine Ersatzquote auf einem früheren Erwerbslohn.",
+  "incomeContinuityTooltip": "Da du bereits im Ruhestand bist, liegt kein Erwerbslohn vor. Dein Renteneinkommen dient dann als Referenz: Der Indikator zeigt die Kontinuität deines Einkommens, nicht eine Ersatzquote im engeren Sinne.",
   "jargonLppTooltip": "Das BVG (Bundesgesetz über die berufliche Vorsorge) ist die 2. Säule. Du und dein Arbeitgeber zahlen gemeinsam für deine Pension ein.",
   "jargon3aTooltip": "Die Säule 3a ist freiwilliges Alterssparen. Einzahlungen können je nach BVG-Status vom steuerbaren Einkommen abziehbar sein.",
   "jargonAvsTooltip": "Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie soll ein Grundeinkommen im Ruhestand bereitstellen.",
@@ -10144,6 +10153,12 @@
   "@coachStarterLurk": {
     "description": "Conversation starter chip — dismisses opener without forcing engagement."
   },
+  "coachStarterSuggestionLpp": "Was ist meine 2. Säule?",
+  "coachStarterSuggestion3a": "Wie viel kann ich in die Säule 3a einzahlen?",
+  "coachStarterSuggestionBudget": "Wohin geht mein Geld jeden Monat?",
+  "coachStarterSuggestionRenteCapital": "Rente oder Kapital?",
+  "coachStarterSuggestionCouple": "Unsere Vorsorge als Paar?",
+  "coachStarterSuggestionIndependant": "Meine Vorsorge als Selbstständige?",
   "coachProactiveOptIn": "Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?",
   "coachOptInAccept": "Ja, zeig mir an",
   "coachOptInDecline": "Nein, ich komme wenn ich will",
@@ -10772,7 +10787,7 @@
     "description": "Phase 9 Plan 09-04 — screen-reader announce text fired on G2→G3 transition (MINT-as-subject, D-03/D-11)."
   },
   "landingV2PromiseSober": "Wir klären auf. Du entscheidest.",
-  "landingV2CtaSober": "Sprich mit Mint",
+  "landingV2CtaSober": "Meine Lage klären",
   "landingV3Hero": "Klar sehen. Selbst entscheiden.",
   "@landingV3Hero": {
     "description": "Phase 73 v2.10 — Landing v3 editorial hero. Brand line locked by panel."

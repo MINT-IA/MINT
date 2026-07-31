@@ -9,34 +9,48 @@
 #     --simulator --no-codesign \
 #     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
 #     --dart-define=MINT_E2E_ARCHETYPE=retraite_lausanne \
-#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true \
+#     --dart-define=MINT_E2E_SEAL_FALLBACK=true
 #   Runner : `tools/simulator/maestro_sweep.sh tierb-retraite`.
 #
-# ─── C2 CHIFFRÉ CORRECT (rente LPP, PAS la ventilation AVS) ─────────────
+# ─── FIX SCELLEMENT E2E (codex/journey-os-e2e-seal-fallback) ────────────
+#   `MINT_E2E_SEAL_FALLBACK=true` active le fallback de scellement debug/E2E-only
+#   de SecureWizardStore : sur build sim `--no-codesign` sans entitlement keychain,
+#   `write` lève `PlatformException` (code « Unexpected security result code »,
+#   status -34018 errSecMissingEntitlement dans `details`). Sans le fallback, le
+#   seal échoue, `saveAnswers` n'écrit rien, et le contrat privacy efface le profil
+#   seedé quand `/retraite` persiste son snapshot à l'entrée (_persistInitialSnapshot,
+#   post-frame) → State C onboarding. Avec le fallback, le seal réussit en mémoire
+#   process (PII jamais en clair — SharedPreferences ne contient que des `__secure__`),
+#   le profil est CONSERVÉ, et le dashboard chiffré rend au repos. Double-gardé
+#   kReleaseMode + flag → chemin release byte-inaccessible, contrat privacy
+#   secure_failure_test intact.
+#
+# ─── C2 CHIFFRÉ CORRECT (dashboard retraite rendu, plus de State C) ──────
 #   `/retraite` (RetirementDashboardScreen) rend le tableau de bord retraite au
-#   repos (projection ForecasterService depuis le profil seedé). L'ancre
-#   `retraite-result` est posée sur la LIGNE RENTE LPP (avoir 2e pilier ≈ 318'000
-#   × taux de conversion 6,8 % ≈ 1'800/mois) — un chiffre JUSTE.
-#   DÉFAUT MOTEUR CONNU (#1138) consigné : la ventilation AVS de la projection est
-#   recalculée depuis un salaire nul (grossAnnualSalary = 0) → la ligne AVS affiche
-#   ≈ 0, FAUX. La rente AVS déclarée (2'000) reste juste là où /home la lit
-#   vraiment (budget net explicite 3'800). Le smoke n'asserte donc JAMAIS la ligne
-#   AVS — uniquement la rente LPP correcte. La ventilation AVS ≈ 0 reste une dette
-#   moteur (correctif 13e rente + plafond couple), hors périmètre de ce lot.
+#   repos (projection ForecasterService depuis le profil seedé « Roland »). PREUVE
+#   RUNTIME (sweep 2026-07-31, iPhone 16e/26.2 dédié, seed retraite_lausanne +
+#   SEAL_FALLBACK) : taux de remplacement 100 %, revenu projeté ~CHF 4'055/mois
+#   (fourchette 3'447–4'664), ventilation AVS 2'167 + LPP 1'745 (+ 3a 0 / autre 143)
+#   — CHIFFRES NON NULS et cohérents (rente AVS DÉCLARÉE honorée dans les deux
+#   moteurs, cf. fix retraite AVS déjà sur dev). L'ancre `retraite-result` (ligne
+#   rente LPP ≈ 1'745, avoir 2e pilier ≈ 318'000 × taux 6,8 %) est atteignable par
+#   scrollUntilVisible et rendue au runtime.
 #
 # ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
 #   Assertion UNIQUEMENT `(?i).*garanti.*` (banned_terms_arb.py:13-14).
 #
 # ─── AX SAIN (tranche AX 2 appliquée — ADR 2026-07-30, patron #1127/#1140) ──
-#   `/retraite` migré : SliverAppBar (expandedHeight 80, floating, snap) +
-#   FlexibleSpaceBar/titlePadding (fix Codex #1143) → AppBar classique fixe
-#   (`Scaffold.appBar`, titre dans AppBar.title). Le 2e déclencheur d'effondrement
-#   iOS 26.2 (SliverAppBar-au-scroll) est supprimé. PREUVE RUNTIME (sweep tranche
-#   AX 2, iPhone 16e/26.2, seed retraite_lausanne) : arbre RICHE au repos (44
-#   nœuds) ET stable au scroll — `retraite-anchor` + `retraite-back` survivent au
-#   swipe (aucun effondrement), et `retraite-back` (leading AppBar fixe) redevient
-#   CIBLABLE par id (tap-coordonnée 28,75 supprimé). NB : `retraite-result` n'est
-#   PAS rendu au runtime en entrée deeplink (State C onboarding — voir C2).
+#   `/retraite` migré : AppBar classique fixe (`Scaffold.appBar`, titre dans
+#   AppBar.title). Le 2e déclencheur d'effondrement iOS 26.2 (SliverAppBar-au-scroll)
+#   est supprimé. `retraite-anchor` + `retraite-back` survivent au swipe (aucun
+#   effondrement) ; `retraite-back` (leading AppBar fixe) reste CIBLABLE par id.
+#
+# ─── C4 — Back → /home (plus de cul-de-sac ni de détour /onb) ───────────
+#   PREUVE RUNTIME (sweep 2026-07-31) : le tap `retraite-back` (safePop) navigue
+#   vers `/home` (home_route_state) — le profil étant hydraté et conservé (fix seal),
+#   la transition parasite /home→/onb (qui apparaissait quand /retraite retombait en
+#   State C) ne se produit plus. Atterrissage = /home, écran réel et navigable.
 
 appId: ch.mint.app
 tags:
@@ -70,54 +84,44 @@ tags:
 - assertNotVisible:
     text: "(?i).*garanti.*"
 
-# C2 — Non-vide : aucune sentinelle vide (dont l'onboarding « 4 infos suffisent »).
+# C2 — Non-vide : aucune sentinelle vide (dont l'onboarding State C).
 - assertNotVisible:
     text: "Aucune donnée"
 - assertNotVisible:
     text: "Aucune donnée pour l'instant"
 - assertNotVisible:
     text: "Définis ton budget"
+- assertNotVisible:
+    text: "4 infos suffisent"
 
-# C2 — AX STABLE AU SCROLL (non-régression du swap) : un swipe ne doit PAS
+# C2 — CHIFFRÉ CORRECT au runtime : le dashboard est rendu (plus de State C grâce au
+# fallback de scellement). L'ancre `retraite-result` (ligne rente LPP) est atteignable
+# depuis le haut et rendue.
+- scrollUntilVisible:
+    element:
+      id: "retraite-result"
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: "retraite-result"
+
+# C2 — AX STABLE AU SCROLL (non-régression du swap AppBar) : un swipe ne doit PAS
 # effondrer l'arbre. Post-fix (SliverAppBar → AppBar fixe), `retraite-anchor`
-# (titre AppBar fixe) survit au scroll — avant le swap, le SliverAppBar dépouillait
-# tous les ids au scroll (2e trigger iOS 26.2). C'est la preuve runtime du swap
-# côté retraite (le `-result` étant non-rendu au runtime, cf. ci-dessous).
+# (titre AppBar fixe) survit au scroll.
 - swipe:
     direction: UP
     duration: 400
 - assertVisible:
     id: "retraite-anchor"
 
-# C2 — Chiffré CORRECT porté au WIDGET (PAS au flow). PREUVE RUNTIME (sweep tranche
-# AX 2, dump maestro hierarchy) : en entrée deeplink, `/retraite` rend l'état
-# ONBOARDING State C (« Commencer — 2 min », « Comment fonctionne la retraite »)
-# car la CoachProfileProvider n'est pas hydratée quand la route se construit
-# (hasProfile=false → State C) — la MÊME course d'hydratation que le quirk
-# /home→/onb (root-cause #1144, UNITÉ SÉPARÉE, hors périmètre AX). `retraite-result`
-# (ligne rente LPP) n'est donc PAS rendu au runtime (State C n'a pas de dashboard)
-# → un scrollUntilVisible échouerait pour une raison SANS RAPPORT avec l'AX
-# (l'arbre est sain, cf. swipe ci-dessus). La preuve C2 CHIFFRÉE CORRECTE (rente
-# LPP, PAS la ventilation AVS ≈ 0) reste portée au niveau WIDGET
-# (`tierb_b5_anchors_test.dart`, retraite-result findsOneWidget sous seed
-# retraite_lausanne).
-
-# C4 — Pas de cul-de-sac : le tap back (safePop) NAVIGUE hors de /retraite vers un
-# écran réel (pas de blocage, pas de crash). Leading `retraite-back` ciblable par
-# id (AppBar fixe — tap-coordonnée 28,75 retiré, patron tranche AX 2) ; en AppBar
-# fixe le leading reste visible après le scroll C2 (il ne défile pas hors-écran).
-# ATTERRISSAGE CONSTATÉ (sweep 2026-07-31) = `/onb` (OnboardingShellScreen), PAS
-# /home : en entrée deeplink, safePop→go('/home') retombe sur /onb APRÈS visite
-# /retraite (transition d'état /home→/onb ; le /home INITIAL du flow montrait bien
-# home_route_state). C'est un DÉFAUT RÉCOLTÉ (course d'hydratation, root-cause
-# #1144 — unité séparée), PAS un cul-de-sac : le back mène à un écran navigable.
-# Un vrai user atteint /retraite par push depuis /home → back = pop → /home. On
-# asserte l'atterrissage constaté.
+# C4 — Pas de cul-de-sac : le tap back (safePop) navigue hors de /retraite vers
+# `/home` (home_route_state) — écran réel, navigable. Leading `retraite-back` ciblable
+# par id (AppBar fixe). Atterrissage = /home (le profil hydraté supprime le détour /onb).
 - tapOn:
     id: "retraite-back"
 - extendedWaitUntil:
     visible:
-      id: "onboarding-entry-open"
+      id: "home_route_state"
     timeout: 15000
 - assertNotVisible:
     text: "Page introuvable"

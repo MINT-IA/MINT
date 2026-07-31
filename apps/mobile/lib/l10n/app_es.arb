@@ -8288,6 +8288,12 @@
   "donationRegimeCommunaute": "Comunidad de bienes",
   "donationRegimeParticipation": "Participación en gananciales",
   "donationRegimeSeparation": "Separación de bienes",
+  "donationLienConjoint": "Cónyuge",
+  "donationLienDescendant": "Hijo(a) / Descendiente",
+  "donationLienParent": "Progenitor",
+  "donationLienFratrie": "Hermano(a)",
+  "donationLienConcubin": "Pareja de hecho",
+  "donationLienTiers": "Tercero",
   "donationReserveBarLabel": "Reserva {pct}%",
   "donationTypeEspeces": "Efectivo / Liquidez",
   "donationTypeImmobilier": "Inmueble",
@@ -10058,6 +10064,9 @@
   "jargonAvs": "AVS (seguro de vejez)",
   "jargonRamd": "RAMD (ingreso anual medio determinante)",
   "jargonReplacementRateTooltip": "La tasa de reemplazo mide la parte de tu ingreso actual que conservarás en la jubilación. Ejemplo: 65% significa que recibirás el 65% de tu salario actual.",
+  "incomeContinuityLabel": "Continuidad de tus ingresos",
+  "incomeContinuityContext": "Ya estás jubilado/a: este indicador refleja la continuidad de tus ingresos de jubilación, no una tasa de reemplazo calculada sobre un salario laboral pasado.",
+  "incomeContinuityTooltip": "Como ya estás jubilado/a, no hay ningún salario laboral en el expediente. Tus ingresos de jubilación sirven entonces de referencia: el indicador refleja la continuidad de tus ingresos, no una tasa de reemplazo en sentido estricto.",
   "jargonLppTooltip": "La LPP (Ley de Previsión Profesional) es el 2.º pilar. Tú y tu empleador cotizáis juntos para tu jubilación.",
   "jargon3aTooltip": "El pilar 3a es un ahorro voluntario para la jubilación. Las aportaciones pueden ser deducibles de la renta imponible según tu situación LPP.",
   "jargonAvsTooltip": "El AVS (Seguro de Vejez y Supervivientes) es el 1.er pilar. Su objetivo es proporcionar un ingreso básico en la jubilación.",
@@ -10144,6 +10153,12 @@
   "@coachStarterLurk": {
     "description": "Conversation starter chip — dismisses opener without forcing engagement."
   },
+  "coachStarterSuggestionLpp": "¿Qué es mi 2.º pilar?",
+  "coachStarterSuggestion3a": "¿Cuánto puedo aportar al 3a?",
+  "coachStarterSuggestionBudget": "¿A dónde va mi dinero cada mes?",
+  "coachStarterSuggestionRenteCapital": "¿Renta o capital?",
+  "coachStarterSuggestionCouple": "¿Nuestra previsión en pareja?",
+  "coachStarterSuggestionIndependant": "¿Mi previsión como autónomo?",
   "coachProactiveOptIn": "Por cierto — ¿quieres que te señale las cosas importantes al abrir la app? ¿O prefieres que hablemos solo cuando te apetezca?",
   "coachOptInAccept": "Sí, señálame",
   "coachOptInDecline": "No, vengo cuando quiera",
@@ -10772,7 +10787,7 @@
     "description": "Phase 9 Plan 09-04 — screen-reader announce text fired on G2→G3 transition (MINT-as-subject, D-03/D-11)."
   },
   "landingV2PromiseSober": "Nosotros aclaramos. Tú decides.",
-  "landingV2CtaSober": "Habla con Mint",
+  "landingV2CtaSober": "Aclara mi situación",
   "landingV3Hero": "Ver claro, decidir por ti.",
   "@landingV3Hero": {
     "description": "Phase 73 v2.10 — Landing v3 editorial hero. Brand line locked by panel."

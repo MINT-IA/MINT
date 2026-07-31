@@ -8288,6 +8288,12 @@
   "donationRegimeCommunaute": "Community of property",
   "donationRegimeParticipation": "Participation in acquired property",
   "donationRegimeSeparation": "Separation of property",
+  "donationLienConjoint": "Spouse",
+  "donationLienDescendant": "Child / Descendant",
+  "donationLienParent": "Parent",
+  "donationLienFratrie": "Sibling",
+  "donationLienConcubin": "Cohabiting partner",
+  "donationLienTiers": "Third party",
   "donationReserveBarLabel": "Reserved {pct}%",
   "donationTypeEspeces": "Cash / Liquidity",
   "donationTypeImmobilier": "Real estate",
@@ -10058,6 +10064,9 @@
   "jargonAvs": "AVS (old-age insurance)",
   "jargonRamd": "RAMD (average annual determining income)",
   "jargonReplacementRateTooltip": "The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.",
+  "incomeContinuityLabel": "Income continuity",
+  "incomeContinuityContext": "You are already retired: this indicator reflects the continuity of your retirement income, not a replacement rate calculated on a past working salary.",
+  "incomeContinuityTooltip": "Since you are already retired, no working salary is on file. Your retirement income then serves as the reference: the indicator reflects your income continuity, not a replacement rate in the strict sense.",
   "jargonLppTooltip": "The LPP (Occupational Pensions Act) is the 2nd pillar. You and your employer contribute together toward your retirement.",
   "jargon3aTooltip": "Pillar 3a is voluntary retirement savings. Contributions may be deductible from taxable income depending on your LPP status.",
   "jargonAvsTooltip": "AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It is designed to provide a basic retirement income.",
@@ -10144,6 +10153,12 @@
   "@coachStarterLurk": {
     "description": "Conversation starter chip — dismisses opener without forcing engagement."
   },
+  "coachStarterSuggestionLpp": "What's my 2nd pillar?",
+  "coachStarterSuggestion3a": "How much can I put in my 3a?",
+  "coachStarterSuggestionBudget": "Where does my money go each month?",
+  "coachStarterSuggestionRenteCapital": "Pension or lump sum?",
+  "coachStarterSuggestionCouple": "Our retirement plan as a couple?",
+  "coachStarterSuggestionIndependant": "My retirement plan as a freelancer?",
   "coachProactiveOptIn": "By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?",
   "coachOptInAccept": "Yes, flag for me",
   "coachOptInDecline": "No, I'll come when I want",
@@ -10772,7 +10787,7 @@
     "description": "Phase 9 Plan 09-04 — screen-reader announce text fired on G2→G3 transition (MINT-as-subject, D-03/D-11)."
   },
   "landingV2PromiseSober": "We clarify. You decide.",
-  "landingV2CtaSober": "Talk to Mint",
+  "landingV2CtaSober": "See my situation",
   "landingV3Hero": "See clearly. Decide for yourself.",
   "@landingV3Hero": {
     "description": "Phase 73 v2.10 — Landing v3 editorial hero. Brand line locked by panel."

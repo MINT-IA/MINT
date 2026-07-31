@@ -16322,6 +16322,24 @@ class SIt extends S {
   String get donationRegimeSeparation => 'Separazione dei beni';
 
   @override
+  String get donationLienConjoint => 'Coniuge';
+
+  @override
+  String get donationLienDescendant => 'Figlio(a) / Discendente';
+
+  @override
+  String get donationLienParent => 'Genitore';
+
+  @override
+  String get donationLienFratrie => 'Fratello / Sorella';
+
+  @override
+  String get donationLienConcubin => 'Convivente';
+
+  @override
+  String get donationLienTiers => 'Terzo';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Riserva $pct%';
   }
@@ -21991,6 +22009,17 @@ class SIt extends S {
       'Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.';
 
   @override
+  String get incomeContinuityLabel => 'Continuità del tuo reddito';
+
+  @override
+  String get incomeContinuityContext =>
+      'Sei già in pensione: questo indicatore riflette la continuità del tuo reddito da pensione, non un tasso di sostituzione calcolato su uno stipendio da attività passato.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Poiché sei già in pensione, non c’è alcuno stipendio da attività nel dossier. Il tuo reddito da pensione funge allora da riferimento: l’indicatore riflette la continuità del tuo reddito, non un tasso di sostituzione in senso stretto.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Legge sulla previdenza professionale) è il 2° pilastro. Tu e il tuo datore di lavoro contribuite insieme per la tua pensione.';
 
@@ -22125,6 +22154,26 @@ class SIt extends S {
 
   @override
   String get coachStarterLurk => 'Guardo in giro, mi presento dopo';
+
+  @override
+  String get coachStarterSuggestionLpp => 'Cos\'è il mio 2° pilastro?';
+
+  @override
+  String get coachStarterSuggestion3a => 'Quanto posso versare nel 3a?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Dove vanno i miei soldi ogni mese?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Rendita o capitale?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'La nostra previdenza in coppia?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'La mia previdenza da autonomo?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23431,7 +23480,7 @@ class SIt extends S {
   String get landingV2PromiseSober => 'Noi chiariamo. Tu decidi.';
 
   @override
-  String get landingV2CtaSober => 'Parla con Mint';
+  String get landingV2CtaSober => 'Chiarisci la mia situazione';
 
   @override
   String get landingV3Hero => 'Vedere chiaro, decidere da sé.';

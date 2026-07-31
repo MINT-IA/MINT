@@ -10,7 +10,7 @@
 # app.dart:417 gate ALLOWS anonymous /home access via
 # (isLoggedIn || isLocalMode). But the cold-launch lands at `/`
 # (LandingScreen, initialLocation per app.dart:214) and the screen
-# exposes only two CTAs : « Parle à Mint » → /start → /anonymous/chat,
+# exposes only two CTAs : « Éclaire ma situation » → /start → /anonymous/chat,
 # and « J'ai déjà un compte » → /auth/login. No public path to /home.
 #
 # Reachability path tested :
@@ -58,20 +58,20 @@ tags:
       - waitForAnimationToEnd
 
 # ── Step 3 — LandingScreen visible (cold-launch lands here) ───────────
-# Pre-fix : LandingScreen renders, only 2 CTAs (« Parle à Mint » +
+# Pre-fix : LandingScreen renders, only 2 CTAs (« Éclaire ma situation » +
 # « J'ai déjà un compte »). The wordmark MINT confirms we're on the
-# landing surface ; the « Parle à Mint » primary CTA is the most
+# landing surface ; the « Éclaire ma situation » primary CTA is the most
 # reliable text anchor (single-line, mid-screen) even when the hero
 # wraps across lines.
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 10000
 
 # ── Step 3-bis — Wait for the auxiliary-link FadeTransition to settle ──
 # Both « J'ai déjà un compte » and « Continuer sans compte » share the
 # _ctaOpacity (2500-2800ms interval, landing_screen.dart:58-62). The
-# « Parle à Mint » button uses the same controller — once it's visible
+# « Éclaire ma situation » button uses the same controller — once it's visible
 # the FadeTransition is well past 2.8s. waitForAnimationToEnd belt-and-
 # suspenders the assertion against FadeTransition opacity ambiguity.
 - waitForAnimationToEnd

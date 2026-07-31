@@ -80,15 +80,10 @@ class DonationService {
     'parents': 0.25,
   };
 
-  /// Human-readable labels for relationship types.
-  static const Map<String, String> lienParenteLabels = {
-    'conjoint': 'Conjoint(e)',
-    'descendant': 'Enfant / Descendant(e)',
-    'parent': 'Parent',
-    'fratrie': 'Frere / Soeur',
-    'concubin': 'Concubin(e)',
-    'tiers': 'Tiers',
-  };
+  // Les libellés d'affichage de lien de parenté (conjoint/descendant/…) sont
+  // résolus côté écran via AppLocalizations (donation_screen._lienParenteLabel),
+  // en miroir de _regimeLabel : le service ne renvoie aucun FR d'affichage. La
+  // nomenclature exposée reste celle de SuccessionDonationSocle.categories.
 
   /// Calculate the tax and succession impact of a donation.
   static DonationResult calculate({

@@ -16181,6 +16181,24 @@ class SEn extends S {
   String get donationRegimeSeparation => 'Separation of property';
 
   @override
+  String get donationLienConjoint => 'Spouse';
+
+  @override
+  String get donationLienDescendant => 'Child / Descendant';
+
+  @override
+  String get donationLienParent => 'Parent';
+
+  @override
+  String get donationLienFratrie => 'Sibling';
+
+  @override
+  String get donationLienConcubin => 'Cohabiting partner';
+
+  @override
+  String get donationLienTiers => 'Third party';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Reserved $pct%';
   }
@@ -21805,6 +21823,17 @@ class SEn extends S {
       'The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.';
 
   @override
+  String get incomeContinuityLabel => 'Income continuity';
+
+  @override
+  String get incomeContinuityContext =>
+      'You are already retired: this indicator reflects the continuity of your retirement income, not a replacement rate calculated on a past working salary.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Since you are already retired, no working salary is on file. Your retirement income then serves as the reference: the indicator reflects your income continuity, not a replacement rate in the strict sense.';
+
+  @override
   String get jargonLppTooltip =>
       'The LPP (Occupational Pensions Act) is the 2nd pillar. You and your employer contribute together toward your retirement.';
 
@@ -21938,6 +21967,26 @@ class SEn extends S {
 
   @override
   String get coachStarterLurk => 'I\'ll just look around for now';
+
+  @override
+  String get coachStarterSuggestionLpp => 'What\'s my 2nd pillar?';
+
+  @override
+  String get coachStarterSuggestion3a => 'How much can I put in my 3a?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Where does my money go each month?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Pension or lump sum?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'Our retirement plan as a couple?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'My retirement plan as a freelancer?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23240,7 +23289,7 @@ class SEn extends S {
   String get landingV2PromiseSober => 'We clarify. You decide.';
 
   @override
-  String get landingV2CtaSober => 'Talk to Mint';
+  String get landingV2CtaSober => 'See my situation';
 
   @override
   String get landingV3Hero => 'See clearly. Decide for yourself.';
