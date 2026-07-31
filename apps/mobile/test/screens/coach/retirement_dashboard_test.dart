@@ -61,7 +61,7 @@ void main() {
     testWidgets('shows AppBar with default title', (tester) async {
       await tester.pumpWidget(buildDashboard());
       await tester.pump(const Duration(seconds: 1));
-      expect(find.byType(SliverAppBar), findsOneWidget);
+      expect(find.byType(AppBar), findsOneWidget);
     });
 
     testWidgets('shows onboarding content when no profile', (tester) async {

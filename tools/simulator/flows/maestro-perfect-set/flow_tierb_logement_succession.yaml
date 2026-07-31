@@ -23,9 +23,10 @@
 #   contenu au scroll (dette AX ci-dessous) ; le testament n'est qu'à ~1 écran du
 #   haut, la vérif runtime tranche s'il est atteignable avant le collapse.
 #
-# ─── DETTE AX (C5 diagnostic — hors périmètre ship, cadrage §2) ────────
-#   Même dégradation AX iOS 26.2 que /hypotheque : SliverAppBar leading icon-only
-#   → tap par coordonnée (28,75). Migration SliverAppBar → AppBar = file AX.
+# ─── AX SAIN (tranche AX 2 appliquée — ADR 2026-07-30, patron #1127) ───────
+#   `/succession` migré : SliverAppBar → AppBar classique fixe (`Scaffold.appBar`).
+#   Le leading `succession-back` redevient CIBLABLE par id (tap-coordonnée 28,75
+#   supprimé) et l'arbre AX reste riche au scroll.
 #
 # ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
 #     flow FULL vert bout en bout, tous steps COMPLETED) ────────────────
@@ -35,12 +36,11 @@
 #            légale) visible au repos (assertVisible, visibilité partielle — voir
 #            ci-dessous) ; aucune sentinelle vide.
 #   C3 VERT  — aucun `garanti` rendu.
-#   C4 VERT  — tap-coordonnée (28,75 ; back bounds [0,47][56,103]) → safePop →
+#   C4 VERT  — `succession-back` (leading AppBar fixe, id ciblable) → safePop →
 #            `home_route_state`.
-#   C5 VERT au repos / dette AX au scroll (SliverAppBar collapse contenu iOS 26.2).
-#            Le widget testament est plus haut que la fenêtre restante → un
-#            scroll-100% le dépouille avant de l'atteindre ; on asserte donc le
-#            chiffré RÉELLEMENT atteignable au repos (visibilité partielle).
+#   C5 VERT  — arbre riche au repos ET au scroll (dette AX iOS 26.2 LEVÉE). Le
+#            widget testament reste plus haut que la fenêtre → C2 asserté en
+#            visibilité partielle au repos (contrainte géométrique, pas AX).
 
 appId: ch.mint.app
 tags:
@@ -83,21 +83,18 @@ tags:
     text: "Définis ton budget"
 
 # C2 — Chiffré : le widget « testament invisible » (Patrimoine CHF 500'000 +
-# répartition) porte `succession-result`, VISIBLE AU REPOS (2e bloc, en partie
-# sous la flottaison). assertVisible (repos, visibilité partielle) et NON
-# scrollUntilVisible : le widget est plus haut que la fenêtre restante → un
-# scroll-100% est impossible sans déclencher le collapse-contenu de la
-# SliverAppBar (dette AX iOS 26.2, même racine que /segments/independant B2), qui
-# dépouille l'id avant de l'atteindre. On asserte donc le chiffré RÉELLEMENT
-# atteignable au repos ; la preuve widget vit dans `tierb_logement_anchors_test.dart`.
+# répartition) porte `succession-result`, VISIBLE AU REPOS (2e bloc). assertVisible
+# (visibilité partielle) et NON scrollUntilVisible-100% : le widget est plus HAUT
+# que la fenêtre restante → un scroll-100%/centré est géométriquement impossible
+# (rien à voir avec l'AX : le collapse SliverAppBar est désormais LEVÉ). La preuve
+# widget vit dans `tierb_logement_anchors_test.dart`.
 - assertVisible:
     id: "succession-result"
 
-# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar →
-# tap par coordonnée (28,75, back épinglé en haut ; voir en-tête AX). On reste au
-# repos (aucun scroll → arbre non effondré, back épinglé en haut).
+# C4 — Pas de cul-de-sac : retour → /home. Leading `succession-back` ciblable par
+# id (AppBar fixe — tap-coordonnée 28,75 retiré, patron tranche AX 2).
 - tapOn:
-    point: "28,75"
+    id: "succession-back"
 - extendedWaitUntil:
     visible:
       id: "home_route_state"
