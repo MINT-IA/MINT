@@ -9,9 +9,11 @@ import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 ///
 /// Preuve D10 (lucidité) : l'écran ne rend plus un chiffre nu d'« économie ».
 /// Il rend, sous l'ancre `dividende-confidence` :
-///   - une bande d'incertitude (fourchette 50–70% via `dividendeFourchette`) ;
+///   - une bande d'incertitude cantonale (bornes conservatrice/optimiste via
+///     `dividendeFourchette`) ;
 ///   - l'appareil de confiance canonique `MintTrameConfiance` (Phase 8a) dont
-///     l'hypothèse NOMME les exclusions (impôt sur le bénéfice, part imposable).
+///     l'hypothèse NOMME les simplifications du modèle (impôt sur le bénéfice
+///     représentatif, part imposable simplifiée, droits AVS/LPP non valorisés).
 /// L'ancre `dividende-economie` porte le hero.
 ///
 /// Un renommage/retrait de ces ancres ou de leur wiring casse ce test avant le
@@ -61,7 +63,7 @@ void main() {
     expect(find.byType(MintTrameConfiance), findsOneWidget);
   });
 
-  testWidgets('le message de confiance nomme l\'exclusion de l\'impôt bénéfice',
+  testWidgets('le message de confiance nomme les simplifications du modèle',
       (tester) async {
     _bigSurface(tester);
     await tester.pumpWidget(_host());
@@ -69,9 +71,9 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     // Le « pourquoi ce chiffre » (D10) est accessible et honnête : l'hypothèse
-    // MTC.detail rend le caveat. On vérifie l'appareil canonique + une
-    // sous-chaîne ASCII UNIQUE au caveat (« fiduciaire » — absente de la
-    // fourchette, qui contient déjà « part imposable du dividende »).
+    // MTC.detail rend le caveat (impôt bénéfice représentatif, part imposable
+    // simplifiée, droits AVS/LPP non valorisés). On vérifie l'appareil canonique
+    // + une sous-chaîne UNIQUE au caveat (« fiduciaire »).
     expect(find.byType(MintTrameConfiance), findsOneWidget);
     final ctx = tester.element(find.byType(MintTrameConfiance));
     final msg = S.of(ctx)!.dividendeConfidenceMessage;

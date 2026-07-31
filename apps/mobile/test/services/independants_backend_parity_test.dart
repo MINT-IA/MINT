@@ -19,32 +19,47 @@ import 'package:mint_mobile/services/independants_service.dart';
 /// PR), pas re-générées par le mobile — c'est le point d'un fixture de parité.
 void main() {
   group('Parité mobile ↔ backend — dividende vs salaire', () {
-    // Backend _calculer_charge_split(benefice, part, taux) :
-    //   charges_sociales = salaire * CHARGES_SOCIALES_TOTALES (0.125)
-    //   impot_salaire    = salaire * taux
-    //   dividende_imposable = dividende * TAUX_IMPOSITION_DIVIDENDE_FEDERAL (0.50)
-    //   impot_dividende  = dividende_imposable * taux
+    // Backend _calculer_charge_split(benefice, part, taux) — modélisation #1163
+    // (impôt sur le bénéfice inclus, même pot pré-impôt des deux côtés) :
+    //   BRANCHE SALAIRE : pot_sal * (0.125 + taux) / (1 + 0.0625)   [même pot]
+    //   BRANCHE DIVIDENDE : profit*tb + profit*(1-tb)*pd*taux
+    //     tb = TAUX_IMPOT_BENEFICE_EFFECTIF (0.144)
+    //     pd = TAUX_IMPOSITION_DIVIDENDE_PARTIELLE (0.60)
     // Mobile _computeSalaryCharge / _computeDividendCharge : formule identique.
 
     test('charge 100% salaire == backend charge_tout_salaire (200k, 30%)', () {
-      // Backend : 200000 * (0.30 + 0.125) = 85'000.
+      // Backend : 200000 * (0.30 + 0.125) / 1.0625 = 80'000 (même pot pré-impôt).
       final r = IndependantsService.calculateDividendeVsSalaire(200000, 100, 0.30);
-      expect(r.chargeToutSalaire, closeTo(85000, 0.01));
-      expect(r.chargeSalaire, closeTo(85000, 0.01));
+      expect(r.chargeToutSalaire, closeTo(80000, 0.01));
+      expect(r.chargeSalaire, closeTo(80000, 0.01));
     });
 
-    test('charge 100% dividende == backend (200k, 30%)', () {
-      // Backend charge_tout_dividende : 200000 * 0.50 * 0.30 = 30'000.
+    test('charge 100% dividende == backend, impôt bénéfice inclus (200k, 30%)',
+        () {
+      // Backend : 200000*0.144 (impôt bénéfice) + 200000*0.856*0.60*0.30
+      //         = 28'800 + 30'816 = 59'616.
       final r = IndependantsService.calculateDividendeVsSalaire(200000, 0, 0.30);
-      expect(r.chargeDividende, closeTo(30000, 0.01));
+      expect(r.chargeDividende, closeTo(59616, 0.01));
     });
 
-    test('economie == backend economies (200k, part 60%, 30%)', () {
-      // Backend : charge_tout_salaire (85'000) - best_charge (all-dividend,
-      // 30'000) = 55'000. Charge linéaire en part -> optimum à un bord (0%),
-      // donc le pas 10% (mobile) et le pas 1% (backend) trouvent le même min.
+    test('economie == backend economies point (200k, part 60%, 30%)', () {
+      // Backend : charge_tout_salaire (80'000) - best_charge (all-dividend,
+      // 59'616) = 20'384. Charge affine en part -> optimum au bord (0%), donc
+      // le pas 10% (mobile) et le pas 1% (backend) trouvent le même min.
       final r = IndependantsService.calculateDividendeVsSalaire(200000, 60, 0.30);
-      expect(r.economie, closeTo(55000, 0.01));
+      expect(r.economie, closeTo(20384, 0.01));
+    });
+
+    test('bande D10 == backend (optimiste/conservatrice, 200k, 30%)', () {
+      // Backend optimiste : tb_min(0.1185) + pd 0.50 -> 80'000 - 50'145 = 29'855.
+      // Backend conservatrice : tb_max(0.2054) + pd 0.70 -> 80'000 - 74'453.2
+      //                       = 5'546.8.
+      final r = IndependantsService.calculateDividendeVsSalaire(200000, 60, 0.30);
+      expect(r.economieOptimiste, closeTo(29855, 0.01));
+      expect(r.economieConservatrice, closeTo(5546.8, 0.01));
+      // Ordonnée : conservatrice <= point <= optimiste.
+      expect(r.economieConservatrice, lessThanOrEqualTo(r.economie));
+      expect(r.economie, lessThanOrEqualTo(r.economieOptimiste));
     });
 
     test('alerte requalification bicritère == backend (part<60% OU salaire<60k)',

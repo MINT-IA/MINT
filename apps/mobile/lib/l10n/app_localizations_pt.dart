@@ -13181,12 +13181,16 @@ class SPt extends S {
 
   @override
   String dividendeFourchette(String low, String high) {
-    return 'Intervalo consoante a parte tributável do dividendo considerada (50 % a 70 %): de $low a $high por ano.';
+    return 'Intervalo consoante o cantão (imposto sobre o lucro e parte tributável do dividendo): de $low a $high por ano.';
   }
 
   @override
   String get dividendeConfidenceMessage =>
-      'Esta estimativa exclui o imposto sobre o lucro da empresa: a poupança real é menor. Considera uma parte tributável do dividendo de 50 %, enquanto o imposto federal aplica 70 % (LIFD art. 20 n.º 1bis) e o cantonal pelo menos 50 %. A confirmar com um contabilista.';
+      'Esta estimativa inclui o imposto sobre o lucro da empresa a uma taxa suíça representativa (média KPMG 2025) e uma parte tributável do dividendo simplificada de 60 %; a repartição real federal 70 % (LIFD art. 20 n.º 1bis) / cantonal pelo menos 50 % depende do cantão. Não valoriza os direitos AVS/LPP adquiridos pelo salário. A confirmar com um contabilista.';
+
+  @override
+  String get dividendeSimulationDisclaimer =>
+      'Simulação simplificada. O imposto sobre o lucro está incluído através de uma taxa suíça representativa (média KPMG 2025); a taxa cantonal exata, as deduções pessoais, o imposto sobre o património e os direitos AVS/LPP adquiridos pelo salário não estão modelizados. Pressupõe-se um salário conforme ao mercado. Consulta uma pessoa especialista para uma análise completa.';
 
   @override
   String get successionUrgence => 'Urgência imediata';

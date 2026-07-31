@@ -13211,12 +13211,16 @@ class SIt extends S {
 
   @override
   String dividendeFourchette(String low, String high) {
-    return 'Intervallo secondo la quota imponibile del dividendo considerata (50 % a 70 %): da $low a $high all\'anno.';
+    return 'Intervallo secondo il cantone (imposta sull\'utile e quota imponibile del dividendo): da $low a $high all\'anno.';
   }
 
   @override
   String get dividendeConfidenceMessage =>
-      'Questa stima esclude l\'imposta sull\'utile della società: il risparmio reale è inferiore. Considera una quota imponibile del dividendo del 50 %, mentre l\'imposta federale ne prevede il 70 % (LIFD art. 20 cpv. 1bis) e quella cantonale almeno il 50 %. Da confermare con un fiduciario.';
+      'Questa stima include l\'imposta sull\'utile della società a un\'aliquota svizzera rappresentativa (media KPMG 2025) e una quota imponibile del dividendo semplificata del 60 %; la ripartizione reale federale 70 % (LIFD art. 20 cpv. 1bis) / cantonale almeno 50 % dipende dal cantone. Non valorizza i diritti AVS/LPP acquisiti con il salario. Da confermare con un fiduciario.';
+
+  @override
+  String get dividendeSimulationDisclaimer =>
+      'Simulazione semplificata. L\'imposta sull\'utile è inclusa tramite un\'aliquota svizzera rappresentativa (media KPMG 2025); l\'aliquota cantonale esatta, le deduzioni personali, l\'imposta sul patrimonio e i diritti AVS/LPP acquisiti con il salario non sono modellizzati. Si presuppone un salario conforme al mercato. Consulta una persona specialista per un\'analisi completa.';
 
   @override
   String get successionUrgence => 'Urgenza immediata';

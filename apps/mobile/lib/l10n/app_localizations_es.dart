@@ -13188,12 +13188,16 @@ class SEs extends S {
 
   @override
   String dividendeFourchette(String low, String high) {
-    return 'Rango según la parte imponible del dividendo considerada (50 % a 70 %): de $low a $high al año.';
+    return 'Rango según el cantón (impuesto sobre el beneficio y parte imponible del dividendo): de $low a $high al año.';
   }
 
   @override
   String get dividendeConfidenceMessage =>
-      'Esta estimación excluye el impuesto sobre el beneficio de la sociedad: el ahorro real es menor. Considera una parte imponible del dividendo del 50 %, mientras que el impuesto federal aplica el 70 % (LIFD art. 20 ap. 1bis) y el cantonal al menos el 50 %. Confírmalo con un asesor fiscal.';
+      'Esta estimación incluye el impuesto sobre el beneficio de la sociedad a un tipo suizo representativo (media KPMG 2025) y una parte imponible del dividendo simplificada del 60 %; el reparto real federal 70 % (LIFD art. 20 ap. 1bis) / cantonal al menos 50 % depende del cantón. No valora los derechos AVS/LPP adquiridos con el salario. Confírmalo con un asesor fiscal.';
+
+  @override
+  String get dividendeSimulationDisclaimer =>
+      'Simulación simplificada. El impuesto sobre el beneficio está incluido mediante un tipo suizo representativo (media KPMG 2025); el tipo cantonal exacto, las deducciones personales, el impuesto sobre el patrimonio y los derechos AVS/LPP adquiridos con el salario no están modelizados. Se supone un salario conforme al mercado. Consulta a una persona especialista para un análisis completo.';
 
   @override
   String get successionUrgence => 'Urgencia inmediata';

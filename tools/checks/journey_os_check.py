@@ -149,6 +149,9 @@ ALLOW = {
     "tools/checks/ci_gate_aggregation_check.py",
     "services/backend/app/constants/social_insurance.py",
     "services/backend/app/services/independants/avs_cotisations_service.py",
+    # Cluster 12D V2-1 (#1163 suite) : impôt sur le bénéfice dans le comparateur
+    # dividende — étalon backend (miroir mobile + parité déjà whitelistés).
+    "services/backend/app/services/independants/dividende_vs_salaire_service.py",
     "services/backend/app/services/independant_service.py",
     "services/backend/tests/test_independants.py",
     "services/backend/tests/test_independant_service.py",
