@@ -226,7 +226,11 @@ class RetirementProjectionService {
         (profile.conjoint?.revenuBrutAnnuel ?? 0) / 12;
     final tauxRemplacement = ForecasterService.safeReplacementRate(
       annualRetirementIncome: revenuMensuel * 12,
-      annualCurrentIncome: revenuBrutMensuel * 12,
+      annualCurrentIncome: _replacementDenominatorAnnual(
+        profile: profile,
+        preRetirementGrossMonthly: revenuBrutMensuel,
+        projectedRetirementMonthly: revenuMensuel,
+      ),
     );
 
     // 2. Couple phases
@@ -364,16 +368,27 @@ class RetirementProjectionService {
     // F3-3: Pass gender + birthYear for AVS21 gender-aware reference age.
     final userIsFemale =
         profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
-    final avsUserRaw = AvsCalculator.computeMonthlyRente(
-      currentAge: profile.age,
-      retirementAge: ageUser,
-      lacunes: profile.prevoyance.lacunesAVS ?? 0,
-      anneesContribuees: profile.prevoyance.anneesContribuees,
-      arrivalAge: profile.arrivalAge,
-      grossAnnualSalary: profile.revenuBrutAnnuel,
-      isFemale: userIsFemale,
-      birthYear: _birthYearForProjection(profile),
-    );
+    // Provenance : honorer une rente AVS DÉCLARÉE (champ nullable renseigné,
+    // unknown = null ≠ défaut) plutôt que de la recalculer depuis le salaire.
+    // Un retraité (salaire 0) verrait sinon AVS ≈ 0 (`renteFromRAMD(0) = 0`).
+    // La rente déclarée est traitée comme le montant MENSUEL ORDINAIRE échelle 44
+    // (barème mensuel), substitué au NIVEAU BRUT : elle traverse ensuite la 13e
+    // rente (`annualRente`, LAVS art. 34 nouveau) ET le plafond couple
+    // (`computeCouple`, LAVS art. 35) EXACTEMENT comme le chemin recalculé —
+    // homogénéité d'unité garantie (mensuel effectif = déclaré × 13/12). Un
+    // actif (rente null) garde le recalcul AvsCalculator.
+    final declaredAvsUser = _declaredAvsMonthly(profile);
+    final avsUserRaw = declaredAvsUser ??
+        AvsCalculator.computeMonthlyRente(
+          currentAge: profile.age,
+          retirementAge: ageUser,
+          lacunes: profile.prevoyance.lacunesAVS ?? 0,
+          anneesContribuees: profile.prevoyance.anneesContribuees,
+          arrivalAge: profile.arrivalAge,
+          grossAnnualSalary: profile.revenuBrutAnnuel,
+          isFemale: userIsFemale,
+          birthYear: _birthYearForProjection(profile),
+        );
     // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
     final avsUser = AvsCalculator.annualRente(avsUserRaw) / 12;
 
@@ -417,7 +432,9 @@ class RetirementProjectionService {
         ),
         isMarried: true,
       );
-      // Apply 13th rente to capped values.
+      // Apply 13th rente to capped values. `couple.user` dérive de `avsUserRaw`
+      // (rente déclarée honorée au niveau brut) → le plafond couple LAVS art. 35
+      // s'applique bien à la part déclarée.
       final coupleUserWith13 = AvsCalculator.annualRente(couple.user) / 12;
       final coupleConjWith13 = AvsCalculator.annualRente(couple.conjoint) / 12;
       sources.add(RetirementIncomeSource(
@@ -818,19 +835,20 @@ class RetirementProjectionService {
       // User AVS — no couple cap during transition (LAVS art. 35 al. 1).
       // The cap (150%) applies only when BOTH spouses receive a pension.
       // During transition, only the retired spouse receives → individual rente.
-      // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
-      final avsUser =
-          AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
-                currentAge: profile.age,
-                retirementAge: ageUser,
-                lacunes: profile.prevoyance.lacunesAVS ?? 0,
-                anneesContribuees: profile.prevoyance.anneesContribuees,
-                arrivalAge: profile.arrivalAge,
-                grossAnnualSalary: profile.revenuBrutAnnuel,
-                isFemale: tpIsFemale,
-                birthYear: _birthYearForProjection(profile),
-              )) /
-              12;
+      // Rente déclarée honorée au niveau BRUT (voir [_declaredAvsMonthly]) puis
+      // 13e rente (LAVS art. 34 nouveau) : effective monthly = annual / 12.
+      final avsUserRaw = _declaredAvsMonthly(profile) ??
+          AvsCalculator.computeMonthlyRente(
+            currentAge: profile.age,
+            retirementAge: ageUser,
+            lacunes: profile.prevoyance.lacunesAVS ?? 0,
+            anneesContribuees: profile.prevoyance.anneesContribuees,
+            arrivalAge: profile.arrivalAge,
+            grossAnnualSalary: profile.revenuBrutAnnuel,
+            isFemale: tpIsFemale,
+            birthYear: _birthYearForProjection(profile),
+          );
+      final avsUser = AvsCalculator.annualRente(avsUserRaw) / 12;
       sources.add(RetirementIncomeSource(
         id: 'avs_user',
         label: 'AVS $userName',
@@ -1183,9 +1201,15 @@ class RetirementProjectionService {
     final revenuPreRetraite =
         userBkdn.monthlyNetPayslip + (conjBkdn?.monthlyNetPayslip ?? 0);
     // FIX-P1-3: Delegate to ForecasterService.safeReplacementRate (canonical).
+    // Retraité déjà en régime : base de continuité (voir
+    // [_replacementDenominatorAnnual]) pour éviter un 0 % trompeur.
     final tauxRemplacement = ForecasterService.safeReplacementRate(
       annualRetirementIncome: totalRevenus * 12,
-      annualCurrentIncome: revenuPreRetraite * 12,
+      annualCurrentIncome: _replacementDenominatorAnnual(
+        profile: profile,
+        preRetirementGrossMonthly: revenuPreRetraite,
+        projectedRetirementMonthly: totalRevenus,
+      ),
     );
 
     final solde = totalRevenus - impotMensuel - depensesMensuelles;
@@ -1302,6 +1326,37 @@ class RetirementProjectionService {
   // ════════════════════════════════════════════════════════════
   //  HELPERS
   // ════════════════════════════════════════════════════════════
+
+  /// Rente AVS mensuelle DÉCLARÉE par l'utilisateur (provenance profil), ou
+  /// null quand elle n'a pas été renseignée. Le champ est nullable de défaut
+  /// null : `!= null` distingue « unknown » de « défaut » sans recours à
+  /// [CoachProfile.userProvidedFields]. Un retraité déclare ici la rente qu'il
+  /// touche réellement — les moteurs l'honorent au lieu de la recalculer depuis
+  /// un salaire nul.
+  static double? _declaredAvsMonthly(CoachProfile profile) {
+    final declared = profile.prevoyance.renteAVSEstimeeMensuelle;
+    if (declared != null && declared > 0) return declared;
+    return null;
+  }
+
+  /// Dénominateur ANNUEL du taux de remplacement. Un retraité déjà en régime
+  /// n'a pas de salaire pré-retraite au dossier (salaire 0) : un taux calculé
+  /// contre 0 vaudrait 0 % — lecture TROMPEUSE (« perte totale de revenu »).
+  /// On retombe alors sur son revenu de retraite courant comme base de
+  /// continuité : le taux lit honnêtement ~100 % (revenu stable) sans fabriquer
+  /// un salaire passé inexistant. Un actif garde son salaire brut comme base.
+  static double _replacementDenominatorAnnual({
+    required CoachProfile profile,
+    required double preRetirementGrossMonthly,
+    required double projectedRetirementMonthly,
+  }) {
+    final alreadyRetired = profile.employmentStatus == 'retraite' &&
+        preRetirementGrossMonthly <= 0;
+    if (alreadyRetired && projectedRetirementMonthly > 0) {
+      return projectedRetirementMonthly * 12;
+    }
+    return preRetirementGrossMonthly * 12;
+  }
 
   static double _userLppBuyback(CoachProfile profile) {
     double total = 0;
