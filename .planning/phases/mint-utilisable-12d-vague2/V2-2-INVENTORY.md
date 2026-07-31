@@ -55,14 +55,19 @@ le calcul *impôt source* ne l'est pas).
 |---|---|---|
 | **D3 Texte** | `_buildForeignChargeRows` affichait les clés techniques brutes (`vieillesse_base`, `krankenversicherung`, `csg_crds` → snake_case) ; `'LPP (est.)'` codé en dur | helper `_foreignChargeLabel` → 6 libellés de concept localisés (`frontalierCharge*`) ; `'LPP (est.)'` → ARB |
 | **D2 Calc** | taux plat simplifié (divergent backend) sans qualification | inchangé (correct comme *modèle éducatif*), mais **honnêteté** ajoutée via D10 |
-| **D10 Lucidité** | 0 appareil de confiance | `MintTrameConfiance.detail` sur l'impôt source (non-Tessin) — hypothèse `frontalierSourceTaxConfidenceMessage` (nomme barème A/B/C + quasi-résident) |
+| **D10 Lucidité** | 0 appareil de confiance | `MintTrameConfiance.detail` sur l'impôt source (non-Tessin) — hypothèse `frontalierSourceTaxConfidenceMessage` : le barème prélevé dépend de la **situation familiale** (A/B/C) ; le **quasi-résident** est un mécanisme SÉPARÉ (taxation ordinaire ultérieure), pas une sélection de barème (correction Codex) |
 
-**Métier (Codex borné)** : FATCA/expat_us = résident fiscal US → le retrait 3a/LPP
-au départ est un *exit event* IRS ; le service porte déjà un `usPersonWarning`
-(`expat_service.dart:698`) mais l'écran ne le surface pas encore (résiduel, voir
-ci-dessous). Frontalier GE célibataire sans charge = **barème A0** (≈ 11,31 % GE
-2026), **pas C** (C = couple à deux revenus) — le modèle plat + facteur marié ne
-distingue pas A/B/C, ce que la bande de confiance nomme désormais explicitement.
+**Métier (Codex borné)** : FATCA/expat_us = résident fiscal US → le retrait
+3a/LPP au départ peut recevoir un **traitement fiscal / de reporting US distinct**
+(selon le statut et le véhicule) ; à vérifier au cas par cas, pas un « exit event »
+générique. Le service porte déjà un `usPersonWarning` (`expat_service.dart:698`,
+formulé de façon catégorique — à assouplir) que l'écran ne surface pas encore
+(résiduel). NB : le **WEP est abrogé** (Social Security Fairness Act) → ne PAS
+présenter le WEP comme un risque actuel. Frontalier GE célibataire sans charge =
+**barème A0** (≈ 11,31 % GE 2026), **pas C** (C = couple à deux revenus) — le modèle
+plat + facteur marié ne distingue pas A/B/C, ce que la bande de confiance nomme
+désormais ; le statut quasi-résident, lui, ouvre une taxation ordinaire ultérieure
+(déductions) sans changer le barème prélevé.
 
 ## Écrans INVENTORIÉS (non traités — écarts chiffrés)
 
@@ -106,8 +111,10 @@ invalidité (à créer — aucune persona invalidité seedée n'existe aujourd'h
    service pour retourner des clés (ou résoudre à l'écran) — unité séparée.
 2. **`usPersonWarning` non surfacé** : le service porte l'avertissement FATCA
    (`expat_service.dart:698`) mais `_buildDepartChecklist` (expat_screen) ne l'affiche
-   pas. Surfacer l'exit-event IRS pour la persona `expat_us` = valeur métier élevée,
-   unité dédiée (nécessite que l'écran connaisse le statut US-person via l'archétype).
+   pas. Le libellé service est catégorique (« exit event IRS ») → à reformuler en
+   « traitement fiscal/reporting US potentiellement distinct, à vérifier selon statut
+   et véhicule » AVANT de le surfacer pour la persona `expat_us` (valeur métier élevée,
+   unité dédiée ; nécessite que l'écran connaisse le statut US-person via l'archétype).
 3. **Étiquette journey_os trompeuse** : `expat_service.dart` est marqué « parité
    py↔dart » alors que l'impôt source diverge par conception — corriger le commentaire.
 4. **Wire-to-backend frontalier** : le TODO `expat_service.dart:44` (câbler l'impôt

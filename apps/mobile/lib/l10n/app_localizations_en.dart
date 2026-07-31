@@ -24933,6 +24933,6 @@ class SEn extends S {
 
   @override
   String get frontalierSourceTaxConfidenceMessage =>
-      'Estimate based on a simplified average rate per canton. The actual withholding tax depends on the applicable scale (A, B or C based on your family situation) and on your quasi-resident status. Confirm with the cantonal tax authority.';
+      'Estimate based on a simplified average rate per canton. The scale actually withheld depends on your family situation (single, married, number of children) — which this flat model does not distinguish. Separately, quasi-resident status can open a subsequent ordinary assessment with deductions, without changing the withheld scale. Confirm with the cantonal tax authority.';
 
 }

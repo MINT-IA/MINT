@@ -8410,7 +8410,7 @@
   "frontalierChargeLogement": "Wohnbauförderung",
   "frontalierChargeCsgCrds": "CSG / CRDS",
   "frontalierChargeLppEstimated": "BVG (geschätzt)",
-  "frontalierSourceTaxConfidenceMessage": "Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Die tatsächliche Quellensteuer hängt vom anwendbaren Tarif (A, B oder C je nach Familiensituation) und deinem Quasi-Ansässigkeitsstatus ab. Mit der kantonalen Steuerverwaltung zu bestätigen.",
+  "frontalierSourceTaxConfidenceMessage": "Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Der tatsächlich angewandte Quellensteuertarif hängt von deiner Familiensituation ab (ledig, verheiratet, Anzahl Kinder) — was dieses pauschale Modell nicht unterscheidet. Der Quasi-Ansässigkeitsstatus kann separat eine nachträgliche ordentliche Veranlagung mit Abzügen eröffnen, ohne den angewandten Tarif zu ändern. Mit der kantonalen Steuerverwaltung zu bestätigen.",
   "expertArchetypeCrossBorder": "Grenzgänger·in",
   "expertArchetypeExpatEu": "Expat EU/EFTA",
   "expertArchetypeExpatNonEu": "Expat nicht-EU",

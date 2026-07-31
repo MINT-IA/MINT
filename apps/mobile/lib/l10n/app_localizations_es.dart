@@ -25067,6 +25067,6 @@ class SEs extends S {
 
   @override
   String get frontalierSourceTaxConfidenceMessage =>
-      'Estimación con una tasa media simplificada por cantón. El impuesto en la fuente real depende del baremo aplicable (A, B o C según tu situación familiar) y de tu estatus de cuasi-residente. A confirmar con la administración fiscal cantonal.';
+      'Estimación con una tasa media simplificada por cantón. El baremo realmente retenido depende de tu situación familiar (soltero/a, casado/a, número de hijos), que este modelo plano no distingue. Por separado, el estatus de cuasi-residente puede abrir una tributación ordinaria posterior con deducciones, sin cambiar el baremo retenido. A confirmar con la administración fiscal cantonal.';
 
 }

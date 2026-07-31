@@ -25123,6 +25123,6 @@ class SDe extends S {
 
   @override
   String get frontalierSourceTaxConfidenceMessage =>
-      'Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Die tatsächliche Quellensteuer hängt vom anwendbaren Tarif (A, B oder C je nach Familiensituation) und deinem Quasi-Ansässigkeitsstatus ab. Mit der kantonalen Steuerverwaltung zu bestätigen.';
+      'Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Der tatsächlich angewandte Quellensteuertarif hängt von deiner Familiensituation ab (ledig, verheiratet, Anzahl Kinder) — was dieses pauschale Modell nicht unterscheidet. Der Quasi-Ansässigkeitsstatus kann separat eine nachträgliche ordentliche Veranlagung mit Abzügen eröffnen, ohne den angewandten Tarif zu ändern. Mit der kantonalen Steuerverwaltung zu bestätigen.';
 
 }

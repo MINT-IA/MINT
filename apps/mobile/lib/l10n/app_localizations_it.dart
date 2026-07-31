@@ -25133,6 +25133,6 @@ class SIt extends S {
 
   @override
   String get frontalierSourceTaxConfidenceMessage =>
-      'Stima su un tasso medio semplificato per cantone. L\'imposta alla fonte reale dipende dalla tariffa applicabile (A, B o C secondo la tua situazione familiare) e dal tuo statuto di quasi-residente. Da confermare con l\'amministrazione fiscale cantonale.';
+      'Stima su un tasso medio semplificato per cantone. La tariffa alla fonte effettivamente applicata dipende dalla tua situazione familiare (celibe/nubile, coniugato/a, numero di figli), che questo modello semplificato non distingue. Separatamente, lo statuto di quasi-residente può aprire una tassazione ordinaria posteriore con deduzioni, senza cambiare la tariffa applicata. Da confermare con l\'amministrazione fiscale cantonale.';
 
 }

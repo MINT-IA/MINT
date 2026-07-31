@@ -8410,7 +8410,7 @@
   "frontalierChargeLogement": "Apoio à habitação",
   "frontalierChargeCsgCrds": "CSG / CRDS",
   "frontalierChargeLppEstimated": "LPP (est.)",
-  "frontalierSourceTaxConfidenceMessage": "Estimativa com uma taxa média simplificada por cantão. O imposto na fonte real depende da tabela aplicável (A, B ou C conforme a tua situação familiar) e do teu estatuto de quase-residente. A confirmar com a administração fiscal cantonal.",
+  "frontalierSourceTaxConfidenceMessage": "Estimativa com uma taxa média simplificada por cantão. A tabela efetivamente retida na fonte depende da tua situação familiar (solteiro/a, casado/a, número de filhos), que este modelo plano não distingue. Em separado, o estatuto de quase-residente pode abrir uma tributação ordinária posterior com deduções, sem alterar a tabela retida. A confirmar com a administração fiscal cantonal.",
   "expertArchetypeCrossBorder": "Trabalhador·a fronteiriço·a",
   "expertArchetypeExpatEu": "Expat UE/EFTA",
   "expertArchetypeExpatNonEu": "Expat não-UE",

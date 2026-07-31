@@ -25065,6 +25065,6 @@ class SFr extends S {
 
   @override
   String get frontalierSourceTaxConfidenceMessage =>
-      'Estimation sur un taux moyen simplifié par canton. L\'impôt à la source réel dépend du barème applicable (A, B ou C selon ta situation familiale) et de ton statut de quasi-résident·e. À valider avec l\'administration fiscale cantonale.';
+      'Estimation sur un taux moyen simplifié par canton. Le barème réellement prélevé dépend de ta situation familiale (célibataire, marié·e, nombre d\'enfants) — que ce modèle plat ne distingue pas. Séparément, le statut de quasi-résident·e peut ouvrir une taxation ordinaire ultérieure avec déductions, sans changer le barème prélevé. À valider avec l\'administration fiscale cantonale.';
 
 }
