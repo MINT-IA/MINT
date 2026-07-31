@@ -21946,8 +21946,7 @@ class SEs extends S {
       'La tasa de reemplazo mide la parte de tu ingreso actual que conservarás en la jubilación. Ejemplo: 65% significa que recibirás el 65% de tu salario actual.';
 
   @override
-  String get incomeContinuityLabel =>
-      'Continuidad de tus ingresos';
+  String get incomeContinuityLabel => 'Continuidad de tus ingresos';
 
   @override
   String get incomeContinuityContext =>
@@ -22092,6 +22091,25 @@ class SEs extends S {
 
   @override
   String get coachStarterLurk => 'Solo miro, me presento después';
+
+  @override
+  String get coachStarterSuggestionLpp => '¿Qué es mi 2.º pilar?';
+
+  @override
+  String get coachStarterSuggestion3a => '¿Cuánto puedo aportar al 3a?';
+
+  @override
+  String get coachStarterSuggestionBudget => '¿A dónde va mi dinero cada mes?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => '¿Renta o capital?';
+
+  @override
+  String get coachStarterSuggestionCouple => '¿Nuestra previsión en pareja?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      '¿Mi previsión como autónomo?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23399,7 +23417,7 @@ class SEs extends S {
   String get landingV2PromiseSober => 'Nosotros aclaramos. Tú decides.';
 
   @override
-  String get landingV2CtaSober => 'Habla con Mint';
+  String get landingV2CtaSober => 'Aclara mi situación';
 
   @override
   String get landingV3Hero => 'Ver claro, decidir por ti.';

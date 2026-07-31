@@ -22,11 +22,11 @@ tags:
 # 01 — cold launch
 - launchApp:
     clearState: false
-- assertVisible: "Parle à Mint"
+- assertVisible: "Éclaire ma situation"
 - takeScreenshot: "01-landing"
 
 # 02 — open anon chat
-- tapOn: "Parle à Mint"
+- tapOn: "Éclaire ma situation"
 - extendedWaitUntil:
     visible:
       text: ".*Écris ce qui te trotte.*"

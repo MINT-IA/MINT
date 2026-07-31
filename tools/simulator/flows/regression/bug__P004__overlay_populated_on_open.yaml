@@ -87,7 +87,7 @@ tags:
 # ── Step 2-bis — Wait for LandingScreen FadeTransitions to settle ─────
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 10000
 - waitForAnimationToEnd
 

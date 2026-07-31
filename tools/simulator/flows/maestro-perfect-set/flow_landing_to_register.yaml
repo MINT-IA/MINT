@@ -3,7 +3,7 @@
 # ─── PURPOSE ───────────────────────────────────────────────────────────
 # Validates the first-experience entry funnel after the anonymous chat
 # cold-open retirement:
-#   landing → "Parle à Mint" → onboarding entry.
+#   landing → "Éclaire ma situation" → onboarding entry.
 #
 # This is the canonical first screen path. The old anonymous chat opener
 # must not be visible here.

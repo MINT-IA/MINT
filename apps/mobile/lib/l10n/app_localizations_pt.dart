@@ -21953,8 +21953,7 @@ class SPt extends S {
       'A taxa de substituição mede a parte do teu rendimento atual que manterás na reforma. Exemplo: 65% significa que receberás 65% do teu salário atual.';
 
   @override
-  String get incomeContinuityLabel =>
-      'Continuidade do teu rendimento';
+  String get incomeContinuityLabel => 'Continuidade do teu rendimento';
 
   @override
   String get incomeContinuityContext =>
@@ -22098,6 +22097,26 @@ class SPt extends S {
 
   @override
   String get coachStarterLurk => 'Só vou olhar, apresento-me depois';
+
+  @override
+  String get coachStarterSuggestionLpp => 'O que é o meu 2.º pilar?';
+
+  @override
+  String get coachStarterSuggestion3a => 'Quanto posso pôr no 3.º pilar A?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Para onde vai o meu dinheiro todos os meses?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Renda ou capital?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'A nossa previdência a dois?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'A minha previdência como independente?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23405,7 +23424,7 @@ class SPt extends S {
   String get landingV2PromiseSober => 'Nós esclarecemos. Tu decides.';
 
   @override
-  String get landingV2CtaSober => 'Fala com o Mint';
+  String get landingV2CtaSober => 'Esclarece a minha situação';
 
   @override
   String get landingV3Hero => 'Ver claro, decidir sozinho.';

@@ -22009,8 +22009,7 @@ class SIt extends S {
       'Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.';
 
   @override
-  String get incomeContinuityLabel =>
-      'Continuità del tuo reddito';
+  String get incomeContinuityLabel => 'Continuità del tuo reddito';
 
   @override
   String get incomeContinuityContext =>
@@ -22155,6 +22154,26 @@ class SIt extends S {
 
   @override
   String get coachStarterLurk => 'Guardo in giro, mi presento dopo';
+
+  @override
+  String get coachStarterSuggestionLpp => 'Cos\'è il mio 2° pilastro?';
+
+  @override
+  String get coachStarterSuggestion3a => 'Quanto posso versare nel 3a?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Dove vanno i miei soldi ogni mese?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Rendita o capitale?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'La nostra previdenza in coppia?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'La mia previdenza da autonomo?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23461,7 +23480,7 @@ class SIt extends S {
   String get landingV2PromiseSober => 'Noi chiariamo. Tu decidi.';
 
   @override
-  String get landingV2CtaSober => 'Parla con Mint';
+  String get landingV2CtaSober => 'Chiarisci la mia situazione';
 
   @override
   String get landingV3Hero => 'Vedere chiaro, decidere da sé.';

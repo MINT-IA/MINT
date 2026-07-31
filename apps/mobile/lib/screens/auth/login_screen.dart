@@ -307,7 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             button: true,
                             child: SizedBox(
                               // Material 3 spec primary CTA = 56 (matches
-                              // landing_screen.dart « Parle à Mint » CTA which
+                              // landing_screen.dart « Éclaire ma situation » CTA which
                               // uses minimumSize: Size.fromHeight(56)).
                               // 48px caused vertical clip on
                               // « Recevoir un lien magique » (23 chars under
