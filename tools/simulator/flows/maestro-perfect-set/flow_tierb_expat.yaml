@@ -4,19 +4,30 @@
 # Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
 # Patron : lot B2 Travail (#1139) + lot B3 Logement (#1141).
 #
-# ─── BUILD (seed frontalier_geneve requis — un build = un seed) ─────────
+# ─── BUILD (seed julien_swiss requis — un build = un seed) ─────────────
 #   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
 #     --simulator --no-codesign \
 #     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
-#     --dart-define=MINT_E2E_ARCHETYPE=frontalier_geneve \
+#     --dart-define=MINT_E2E_ARCHETYPE=julien_swiss \
 #     --dart-define=MINT_E2E_PROOF_ANCHORS=true
-#   Runner : `tools/simulator/maestro_sweep.sh tierb-expat`.
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-expat` (sous le build
+#   julien_swiss ; le smoke debt partage le même build seed).
+#
+# ─── SEED : julien_swiss, PAS frontalier_geneve (découverte produit) ───
+#   Le smoke teste l'ÉCRAN `/expatriation` (classement cantonal seed-alone via
+#   salary+canton), pas la persona frontalier. `frontalier_geneve` (cross_border)
+#   est HARD-GATÉ vers `/waitlist` par la cohorte produit calibrée (swissNative +
+#   independentNoLpp uniquement — route_metadata.dart:143, coach_archetype_guard)
+#   → il n'atteint JAMAIS `/home` ni `/expatriation`. Découverte produit consignée
+#   (root-cause éligibilité frontalier = unité séparée) ; la seed frontalier reste
+#   pour les tests backend. julien_swiss (swissNative, canton VD, salary 9500)
+#   franchit le gate d'éligibilité ET ouvre le classement cantonal seed-alone.
 #
 # ─── C2 CHIFFRÉ (classement cantonal, gate ouvert SEED-ALONE) ──────────
 #   Les héros forfait / départ / lacune AVS de `/expatriation` sont GATÉS sur des
 #   faits touch-only (dépenses mondiales, années à l'étranger). MAIS le classement
-#   cantonal (`_topCantonsGate`) s'ouvre SEED-ALONE : la persona frontalier_geneve
-#   fournit `salary` (revenu) + `canton` (GE) dans userProvidedFields → le gate est
+#   cantonal (`_topCantonsGate`) s'ouvre SEED-ALONE : la persona julien_swiss
+#   fournit `salary` (revenu) + `canton` (VD) dans userProvidedFields → le gate est
 #   complet sans toucher → `TopCantonWidget` rend l'économie d'impôt annuelle CHF
 #   par canton (barème sur le revenu réel). L'ancre `expat-result` est sur cette
 #   branche chiffrée (onglet Forfait par défaut, sous la flottaison), jamais la

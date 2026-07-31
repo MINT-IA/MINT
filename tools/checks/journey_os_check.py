@@ -836,8 +836,9 @@ ALLOW = {
     # Preuve d'ancres C1/C2/C4 des 4 ecrans Patrimoine sous seed julien_swiss.
     "apps/mobile/test/screens/tierb_logement_anchors_test.dart",
     # Tier B smoke — lots B5 (crise / international) + retraite : 3 flows seedes
-    # (debtCrisis=julien_swiss, countryMove=frontalier_geneve, retirement=
-    # retraite_lausanne). Les 3 ecrans-evenements sont deja dans ALLOW.
+    # (debtCrisis=julien_swiss, countryMove=julien_swiss [frontalier_geneve est
+    # waitlisted par la cohorte produit], retirement=retraite_lausanne). Les 3
+    # ecrans-evenements sont deja dans ALLOW.
     "tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml",

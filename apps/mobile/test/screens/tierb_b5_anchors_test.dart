@@ -151,14 +151,19 @@ void main() {
 
   testWidgets(
     'expat_screen (/expatriation) porte les ancres C1 + C4 + C2 '
-    '(classement cantonal chiffré SEED-ALONE) — seed frontalier_geneve',
+    '(classement cantonal chiffré SEED-ALONE) — seed julien_swiss',
     (tester) async {
       _ignoreTestFontOverflow();
-      await _pump(tester, _seeded('frontalier_geneve'), const ExpatScreen());
+      // Repointé sur julien_swiss (swissNative, calibré) : la persona
+      // frontalier_geneve (cross_border) est HARD-GATÉE vers /waitlist par la
+      // cohorte produit (route_metadata.dart:143) et n'atteint jamais
+      // /expatriation — découverte produit consignée, la seed frontalier reste
+      // pour les tests backend. julien_swiss fournit salary + canton (VD).
+      await _pump(tester, _seeded('julien_swiss'), const ExpatScreen());
       expect(_byIdentifier('expat-anchor'), findsOneWidget);
       expect(_byIdentifier('expat-back'), findsOneWidget);
       // C2 chiffré : `_topCantonsGate` s'ouvre seed-alone (revenu `salary` +
-      // canton GE dans userProvidedFields) → le classement (économie d'impôt
+      // canton VD dans userProvidedFields) → le classement (économie d'impôt
       // annuelle CHF) rend au repos sur l'onglet Forfait, jamais la carte-gate.
       expect(_byIdentifier('expat-result'), findsOneWidget);
     },

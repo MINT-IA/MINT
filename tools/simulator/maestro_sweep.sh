@@ -44,9 +44,10 @@
 #                        requires a julien_swiss seeded build (+ PROOF_ANCHORS).
 #                        Jauge ratio chiffree au repos. Voir 00-CADRAGE.
 #           tierb-expat — Tier B smoke lot B5 International (countryMove /
-#                        /expatriation), requires a frontalier_geneve (cross_border)
-#                        seeded build (+ PROOF_ANCHORS). Classement cantonal chiffre
-#                        SEED-ALONE (revenu + canton). Voir 00-CADRAGE.
+#                        /expatriation), requires a julien_swiss seeded build
+#                        (+ PROOF_ANCHORS). Classement cantonal chiffre SEED-ALONE
+#                        (revenu + canton VD). frontalier_geneve est waitlisted
+#                        (cohorte produit) → seed julien_swiss. Voir 00-CADRAGE.
 #           tierb-retraite — Tier B smoke retraite (retirement / /retraite),
 #                        requires a retraite_lausanne (retraite 68) seeded build
 #                        (+ PROOF_ANCHORS). Ancre C2 rente LPP correcte (PAS la
@@ -196,9 +197,10 @@ FLOWS_TIERB_DEBT=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml"
 )
 # Tier B smoke — lot B5 International (countryMove / route /expatriation), tier de
-# sweep dédié : exige un build frontalier_geneve (cross_border) + PROOF_ANCHORS. Le
-# classement cantonal chiffre SEED-ALONE (revenu + canton du profil ouvrent le
-# gate). Un build = un seed, hors sweep normal.
+# sweep dédié : exige un build julien_swiss (swissNative, calibré) + PROOF_ANCHORS.
+# Le classement cantonal chiffre SEED-ALONE (salary + canton VD ouvrent le gate).
+# frontalier_geneve (cross_border) est waitlisted par la cohorte produit → seed
+# julien_swiss. Un build = un seed, hors sweep normal.
 FLOWS_TIERB_EXPAT=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml"
 )

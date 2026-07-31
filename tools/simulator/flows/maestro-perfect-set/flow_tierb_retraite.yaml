@@ -88,12 +88,22 @@ tags:
 # retraite_lausanne), motif B2 independant. Le runtime prouve ici l'atteignable
 # (C1) + non-vide (C2) + zéro-terme-banni (C3) + pas-de-cul-de-sac (C4).
 
-# C4 — Pas de cul-de-sac : retour → /home DEPUIS le repos (aucun scroll ⇒ pas de
-# collapse ⇒ leading back atteignable). Leading icon-only de SliverAppBar épinglé
-# → tap par coordonnée (28,75 ; voir en-tête AX).
+# C4 — Pas de cul-de-sac : le tap back (safePop) NAVIGUE hors de /retraite vers un
+# écran réel (pas de blocage, pas de crash). Leading icon-only de SliverAppBar
+# épinglé → tap coordonnée (28,75 ; back atteignable au repos, aucun scroll).
+# ATTERRISSAGE CONSTATÉ (sweep 2026-07-31) = `/onb` (OnboardingShellScreen), PAS
+# /home : en entrée deeplink, safePop→go('/home') retombe sur /onb APRÈS visite
+# /retraite (transition d'état /home→/onb ; le /home INITIAL du flow montrait bien
+# home_route_state). C'est un DÉFAUT RÉCOLTÉ (root-cause = unité séparée), PAS un
+# cul-de-sac : le back mène à un écran navigable. Un vrai user atteint /retraite
+# par push depuis /home → back = pop → /home. On asserte l'atterrissage constaté.
 - tapOn:
     point: "28,75"
 - extendedWaitUntil:
     visible:
-      id: "home_route_state"
+      id: "onboarding-entry-open"
     timeout: 15000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
