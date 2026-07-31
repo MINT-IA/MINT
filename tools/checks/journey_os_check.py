@@ -597,6 +597,9 @@ ALLOW = {
     ".planning/phases/remediation-audit-2026-07/CONTEXT.md",
     ".planning/phases/remediation-audit-2026-07/AUTHORIZED_FILES.md",
     ".planning/phases/remediation-audit-2026-07/BACKLOG-DEV-VERIFIED.html",
+    # Clôture du P0 T11-F01 (/auth/apple/verify) : réel au SHA gelé, déjà
+    # corrigé dans dev (vérification JWKS) + durcissement e-mail non vérifié.
+    ".planning/audit-etat-des-lieux-2026-07/T11-F01-apple-verify-cloture.md",
     # --- end remediation audit 2026-07 ---
     "apps/mobile/lib/app.dart",
     "apps/mobile/lib/models/screen_return.dart",

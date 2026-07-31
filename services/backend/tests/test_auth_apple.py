@@ -550,6 +550,122 @@ def test_apple_recreate_does_not_link_to_live_email_account(
         db.close()
 
 
+def test_apple_login_blocks_link_to_password_account_when_email_unverified(
+    client: TestClient,
+    monkeypatch,
+):
+    """Durcissement takeover T11-F01 : une identité Apple dont l'e-mail n'est
+    PAS attesté vérifié ne doit jamais se rattacher automatiquement à un compte
+    mot-de-passe préexistant partageant cet e-mail (vecteur Apple ID géré dont
+    l'e-mail a été fixé sans vérification par un admin tiers)."""
+    app.dependency_overrides.pop(require_current_user, None)
+    app.dependency_overrides.pop(get_current_user, None)
+
+    payloads = {
+        # Pas de claim `email_verified` -> Apple n'atteste pas l'e-mail.
+        "apple-token": {
+            "sub": "001999.unverified-email-link",
+            "email": "victim-unverified@example.ch",
+        },
+    }
+
+    def fake_verify(identity_token: str, nonce: str | None) -> dict[str, object]:
+        return payloads[identity_token]
+
+    monkeypatch.setattr(auth_endpoint, "_verify_apple_identity_token", fake_verify)
+
+    email_account = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "victim-unverified@example.ch",
+            "password": "correct horse battery staple",
+        },
+    )
+    assert email_account.status_code == 201
+
+    # Login intent (allowRecreateAfterDelete absent = False) avec e-mail Apple non vérifié.
+    apple_login = client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identity_token": "apple-token", "nonce": "nonce"},
+    )
+
+    assert apple_login.status_code == 409
+    assert apple_login.json()["detail"]["code"] == "apple_email_already_linked"
+
+    db = TestingSessionLocal()
+    try:
+        victim = (
+            db.query(User)
+            .filter(User.email == "victim-unverified@example.ch")
+            .one()
+        )
+        # Le compte mot-de-passe reste intact, aucune identité Apple attachée.
+        assert victim.apple_sub is None
+        event = (
+            db.query(AuditEventModel)
+            .filter(
+                AuditEventModel.event_type == "auth.apple_verify",
+                AuditEventModel.status == "apple_email_unverified",
+            )
+            .one()
+        )
+        assert event.user_id == victim.id
+    finally:
+        db.close()
+
+
+def test_apple_login_links_to_password_account_when_email_verified(
+    client: TestClient,
+    monkeypatch,
+):
+    """Chemin légitime préservé : un e-mail Apple attesté vérifié consolide
+    l'identité Apple dans le compte e-mail préexistant. Le durcissement
+    ci-dessus est chirurgical : il ne bloque QUE l'e-mail non vérifié."""
+    app.dependency_overrides.pop(require_current_user, None)
+    app.dependency_overrides.pop(get_current_user, None)
+
+    payloads = {
+        "apple-token": {
+            "sub": "001999.verified-email-link",
+            "email": "owner-verified@example.ch",
+            "email_verified": True,
+        },
+    }
+
+    def fake_verify(identity_token: str, nonce: str | None) -> dict[str, object]:
+        return payloads[identity_token]
+
+    monkeypatch.setattr(auth_endpoint, "_verify_apple_identity_token", fake_verify)
+
+    email_account = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "owner-verified@example.ch",
+            "password": "correct horse battery staple",
+        },
+    )
+    assert email_account.status_code == 201
+
+    apple_login = client.post(
+        "/api/v1/auth/apple/verify",
+        json={"identity_token": "apple-token", "nonce": "nonce"},
+    )
+
+    assert apple_login.status_code == 200
+
+    db = TestingSessionLocal()
+    try:
+        owner = (
+            db.query(User)
+            .filter(User.email == "owner-verified@example.ch")
+            .one()
+        )
+        assert owner.apple_sub == "001999.verified-email-link"
+        assert apple_login.json()["userId"] == owner.id
+    finally:
+        db.close()
+
+
 def test_apple_verify_rejects_email_already_linked_to_different_sub(
     client: TestClient,
     monkeypatch,
