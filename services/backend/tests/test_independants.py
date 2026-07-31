@@ -40,6 +40,10 @@ from app.services.independants.pillar_3a_indep_service import (
 )
 from app.services.independants.dividende_vs_salaire_service import (
     simuler_dividende_vs_salaire,
+    CHARGES_SOCIALES_TOTALES,
+    CHARGES_SOCIALES_EMPLOYEUR,
+    TAUX_IMPOT_BENEFICE_EFFECTIF,
+    TAUX_IMPOSITION_DIVIDENDE_PARTIELLE,
     DISCLAIMER as DIV_DISCLAIMER,
     SOURCES as DIV_SOURCES,
 )
@@ -307,18 +311,40 @@ class TestDividendeVsSalaire:
         assert result.economies == 0.0
 
     def test_100_pct_salary_charges(self):
-        """100% salary should have both social charges and income tax."""
-        result = simuler_dividende_vs_salaire(200_000.0, 1.0, 0.35)
-        # Charges: 200k * 12.5% + 200k * 35% = 25k + 70k = 95k
-        expected = round(200_000 * 0.125 + 200_000 * 0.35, 2)
-        assert abs(result.charge_totale_salaire - expected) < 0.01
+        """100% salary: charges on the gross salary funded by the SAME pot.
 
-    def test_100_pct_dividend_no_social_charges(self):
-        """100% dividend should have no social charges, only partial tax."""
+        Same-pot normalization: gross salary + employer charges = pot, so the
+        charge is pot * (total social + income tax) / (1 + employer share).
+        """
+        result = simuler_dividende_vs_salaire(200_000.0, 1.0, 0.35)
+        expected = round(
+            200_000 * (CHARGES_SOCIALES_TOTALES + 0.35)
+            / (1 + CHARGES_SOCIALES_EMPLOYEUR),
+            2,
+        )
+        assert abs(result.charge_totale_salaire - expected) < 0.01
+        # 200000 * 0.475 / 1.0625 = 89'411.76
+        assert abs(result.charge_totale_salaire - 89_411.76) < 0.01
+
+    def test_100_pct_dividend_includes_corporate_profit_tax(self):
+        """100% dividend now includes corporate profit tax (was omitted).
+
+        Corporate tax on the pot first, then partial personal tax on the net
+        distributed dividend. This is strictly higher than the old model
+        (200k * 50% * 35% = 35'000) that ignored the profit tax.
+        """
         result = simuler_dividende_vs_salaire(200_000.0, 0.0, 0.35)
-        # Charges: 0% social + 200k * 50% * 35% = 35k
-        expected = round(200_000 * 0.50 * 0.35, 2)
+        tb = TAUX_IMPOT_BENEFICE_EFFECTIF
+        pd = TAUX_IMPOSITION_DIVIDENDE_PARTIELLE
+        impot_benefice = 200_000 * tb
+        dividende_net = 200_000 * (1 - tb)
+        impot_dividende = dividende_net * pd * 0.35
+        expected = round(impot_benefice + impot_dividende, 2)
         assert abs(result.charge_totale_tout_dividende - expected) < 0.01
+        # 28'800 + 171'200 * 0.60 * 0.35 = 64'752
+        assert abs(result.charge_totale_tout_dividende - 64_752.0) < 0.01
+        # Strictly higher than the old (corporate-tax-free) model.
+        assert result.charge_totale_tout_dividende > 200_000 * 0.50 * 0.35
 
     def test_dividend_cheaper_than_salary(self):
         """100% dividend should have lower total charge than 100% salary."""
@@ -361,6 +387,44 @@ class TestDividendeVsSalaire:
         """Optimal split should be between 0 and 1."""
         result = simuler_dividende_vs_salaire(200_000.0, 0.5, 0.35)
         assert 0.0 <= result.split_optimal_indicatif <= 1.0
+
+    # ── Corporate profit tax + D10 band (cluster 12D V2-1, #1163 follow-up) ──
+
+    def test_corporate_tax_lowers_the_economy_vs_old_model(self):
+        """Modelling corporate profit tax stops over-stating the economy.
+
+        Reference case bénéfice 200'000, taux marginal 30%. Old model claimed
+        55'000 (85'000 all-salary − 30'000 all-dividend). New point estimate is
+        materially lower (20'384) — the whole point of #1163's follow-up.
+        """
+        result = simuler_dividende_vs_salaire(200_000.0, 0.70, 0.30)
+        assert abs(result.charge_totale_salaire - 80_000.0) < 0.01
+        assert abs(result.economies - 20_384.0) < 0.01
+        old_model_economy = 55_000.0
+        assert result.economies < old_model_economy
+
+    def test_d10_band_is_ordered_and_non_negative(self):
+        """Conservative <= point <= optimistic, all non-negative."""
+        result = simuler_dividende_vs_salaire(200_000.0, 0.60, 0.30)
+        assert result.economies_conservatrice >= 0
+        assert result.economies_conservatrice <= result.economies
+        assert result.economies <= result.economies_optimiste
+
+    def test_d10_band_bounds_reference_case(self):
+        """Band bounds for 200'000 / 30% (KPMG 2025 corporate spread + 50-70%).
+
+        - optimiste: Zoug 11.85% corporate + cantonal-minimum 50% inclusion
+        - conservatrice: Berne 20.54% corporate + federal 70% inclusion
+        """
+        result = simuler_dividende_vs_salaire(200_000.0, 0.60, 0.30)
+        assert abs(result.economies_optimiste - 29_855.0) < 0.01
+        assert abs(result.economies_conservatrice - 5_546.8) < 0.01
+
+    def test_zero_benefice_band_is_zero(self):
+        """Zero profit produces a zero band, not a crash."""
+        result = simuler_dividende_vs_salaire(0.0, 0.5, 0.30)
+        assert result.economies_optimiste == 0.0
+        assert result.economies_conservatrice == 0.0
 
 
 # ===========================================================================

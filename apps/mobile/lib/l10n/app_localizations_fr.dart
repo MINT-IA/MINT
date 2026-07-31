@@ -13187,12 +13187,16 @@ class SFr extends S {
 
   @override
   String dividendeFourchette(String low, String high) {
-    return 'Fourchette selon la part imposable du dividende retenue (50 % à 70 %) : de $low à $high par an.';
+    return 'Fourchette selon le canton (impôt sur le bénéfice et part imposable du dividende) : de $low à $high par an.';
   }
 
   @override
   String get dividendeConfidenceMessage =>
-      'Cette estimation exclut l\'impôt sur le bénéfice de la société : l\'économie réelle est plus faible. Elle retient une part imposable du dividende de 50 %, alors que l\'impôt fédéral en vise 70 % (LIFD art. 20 al. 1bis) et l\'impôt cantonal au moins 50 %. À valider avec une fiduciaire.';
+      'Cette estimation intègre l\'impôt sur le bénéfice via un taux suisse représentatif (moyenne KPMG 2025) et une part imposable du dividende simplifiée de 60 % ; la répartition réelle fédéral 70 % (LIFD art. 20 al. 1bis) / cantonal ≥ 50 % dépend du canton. Elle ne valorise pas les droits AVS/LPP acquis par le salaire. À valider avec une fiduciaire.';
+
+  @override
+  String get dividendeSimulationDisclaimer =>
+      'Simulation simplifiée. L\'impôt sur le bénéfice est intégré via un taux suisse représentatif (moyenne KPMG 2025) ; le taux exact du canton, les déductions personnelles, l\'impôt sur la fortune et les droits AVS/LPP acquis par le salaire ne sont pas modélisés. Un salaire conforme au marché est supposé. Consulte un·e spécialiste pour une analyse complète.';
 
   @override
   String get successionUrgence => 'Urgence immédiate';

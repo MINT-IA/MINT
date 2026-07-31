@@ -116,13 +116,14 @@ class DividendeVsSalaireResult {
   final double chargeDividende;
   final double chargeTotal;
   final double chargeToutSalaire; // 100% salary scenario
-  final double economie; // savings from split (point d'estimation, part 50%)
-  /// Borne conservatrice de l'économie : recalculée avec la part imposable
-  /// FÉDÉRALE du dividende (70%, LIFD art. 20 al. 1bis). L'économie réelle se
-  /// situe entre [economieConservatrice] et [economie] selon la pratique
-  /// cantonale (50–70%) — et reste plus faible car ce modèle exclut l'impôt
-  /// sur le bénéfice de la société (double imposition économique). Rendue en
-  /// fourchette d'incertitude à l'écran (D10).
+  final double economie; // point estimate (impôt bénéfice repr. + inclusion 60%)
+  /// Borne OPTIMISTE de l'économie (bande D10) : impôt sur le bénéfice le plus
+  /// bas (Zoug, 11.85%) + part imposable cantonale minimale (50%, LHID).
+  final double economieOptimiste;
+  /// Borne CONSERVATRICE de l'économie (bande D10) : impôt sur le bénéfice le
+  /// plus haut (Berne, 20.54%) + part imposable fédérale (70%, LIFD art. 20
+  /// al. 1bis). L'économie réelle se situe entre [economieConservatrice] et
+  /// [economieOptimiste] selon le canton ; [economie] est l'estimation centrale.
   final double economieConservatrice;
   final List<DividendeSplitPoint> sensitivity;
   final double optimalSplitPct;
@@ -138,6 +139,7 @@ class DividendeVsSalaireResult {
     required this.chargeTotal,
     required this.chargeToutSalaire,
     required this.economie,
+    required this.economieOptimiste,
     required this.economieConservatrice,
     required this.sensitivity,
     required this.optimalSplitPct,
@@ -260,31 +262,53 @@ class IndependantsService {
 
   // ── Dividende vs salaire — étalon partagé (miroir backend) ──────────────
   // Ces constantes reflètent 1:1 le backend
-  // `services/backend/app/services/independants/dividende_vs_salaire_service.py`
-  // (CHARGES_SOCIALES_TOTALES / TAUX_IMPOSITION_DIVIDENDE_FEDERAL /
-  //  SEUIL_REQUALIFICATION / SALAIRE_MINIMUM_RAISONNABLE). Toute divergence
-  // casserait la parité écran↔coach (test independants_backend_parity_test.dart).
+  // `services/backend/app/services/independants/dividende_vs_salaire_service.py`.
+  // Toute divergence casserait la parité écran↔coach
+  // (test independants_backend_parity_test.dart). Modélisation #1163 :
+  // l'impôt sur le bénéfice de la société est désormais intégré (double
+  // imposition économique) et les deux branches comparent le MÊME bénéfice
+  // AVANT impôt.
 
-  /// Charges sociales totales employeur+employé (AVS/AI/APG/AC ~12.5%) sur la
-  /// part salaire. Approximation combinée, hors frais d'administration de caisse.
+  /// Charges sociales totales employeur+employé (AVS/AI/APG/AC ~12.5%).
   /// Miroir backend `CHARGES_SOCIALES_TOTALES = 0.125`.
   static const double _chargesSocialesTotales = 0.1250;
 
-  /// Part imposable du dividende retenue par le modèle : 50%.
-  /// ⚠️ C'est le MINIMUM cantonal (LHID art. 7 al. 1), PAS le taux fédéral.
-  /// Depuis la réforme RFFA (en vigueur 1.1.2020), LIFD art. 20 al. 1bis impose
-  /// les participations qualifiantes (≥10%) détenues dans la fortune privée à
-  /// 70% au niveau fédéral. Le modèle (miroir backend, cantonal-minimum) sous-
-  /// estime donc l'impôt sur le dividende → surévalue l'« économie ».
-  /// Divergence documentée (cross-layer) : swiss-brain ruling 2026-07-31 Q1.
-  /// Le taux fédéral [_tauxImpositionDividendeFederal] sert de borne prudente
-  /// à la fourchette d'incertitude rendue à l'écran (D10).
-  static const double _tauxImpositionDividendePartielle = 0.50;
+  /// Part patronale des charges sociales (~6.25%). Sert à ramener la branche
+  /// salaire au même pot pré-impôt : salaire brut = pot / (1 + part patronale).
+  /// Miroir backend `CHARGES_SOCIALES_EMPLOYEUR = 0.0625`.
+  static const double _chargesSocialesEmployeur = 0.0625;
 
-  /// Part imposable fédérale du dividende qualifiant (≥10%), fortune privée :
-  /// 70% depuis RFFA (LIFD art. 20 al. 1bis, en vigueur 1.1.2020). Utilisée
-  /// UNIQUEMENT comme borne conservatrice de la fourchette d'incertitude
-  /// (l'économie réelle est plus faible que le point d'estimation à 50%).
+  /// Impôt sur le bénéfice effectif combiné REPRÉSENTATIF (moyenne suisse KPMG
+  /// Clarity on Swiss Taxes 2025). Le fédéral 8.5% sur bénéfice après impôt
+  /// (= 7.83% effectif) est déjà inclus. Un seul taux (pas de table par canton :
+  /// interdite par le lint) ; la dispersion cantonale nourrit la bande D10.
+  /// Miroir backend `TAUX_IMPOT_BENEFICE_EFFECTIF = 0.144`.
+  static const double _tauxImpotBeneficeEffectif = 0.144;
+
+  /// Borne basse (Zoug) de l'impôt sur le bénéfice — borne optimiste de la bande.
+  /// Miroir backend `TAUX_IMPOT_BENEFICE_MIN = 0.1185`.
+  static const double _tauxImpotBeneficeMin = 0.1185;
+
+  /// Borne haute (Berne) de l'impôt sur le bénéfice — borne conservatrice.
+  /// Miroir backend `TAUX_IMPOT_BENEFICE_MAX = 0.2054`.
+  static const double _tauxImpotBeneficeMax = 0.2054;
+
+  /// Part imposable du dividende — POINT d'estimation : 60%.
+  /// ⚠️ HYPOTHÈSE SIMPLIFIÉE appliquée au taux marginal combiné, PAS une
+  /// moyenne : la répartition réelle fédéral 70% (LIFD art. 20 al. 1bis) /
+  /// cantonal ≥50% (LHID art. 7 al. 1) dépend du canton. La bande D10 couvre
+  /// la fourchette légale 50–70%. Miroir backend
+  /// `TAUX_IMPOSITION_DIVIDENDE_PARTIELLE = 0.60`.
+  static const double _tauxImpositionDividendePartielle = 0.60;
+
+  /// Minimum cantonal d'imposition partielle (LHID art. 7 al. 1) : 50%.
+  /// Borne OPTIMISTE de la bande. Miroir backend
+  /// `TAUX_IMPOSITION_DIVIDENDE_CANTONAL_MIN = 0.50`.
+  static const double _tauxImpositionDividendeCantonalMin = 0.50;
+
+  /// Part imposable fédérale du dividende qualifiant (≥10%, fortune privée) :
+  /// 70% depuis RFFA (LIFD art. 20 al. 1bis). Borne CONSERVATRICE de la bande.
+  /// Miroir backend `TAUX_IMPOSITION_DIVIDENDE_FEDERAL = 0.70`.
   static const double _tauxImpositionDividendeFederal = 0.70;
 
   /// Seuil de requalification (part salaire, en % du bénéfice). En dessous,
@@ -523,11 +547,13 @@ class IndependantsService {
   //  4. DIVIDENDE VS SALAIRE
   // ════════════════════════════════════════════════════════════
 
-  /// Calculate the most tax-efficient salary vs dividend split for a SA/Sarl.
+  /// Compare salary vs dividend for a SA/Sàrl on the SAME pre-tax profit pot.
   ///
-  /// Salary portion: full income tax + AVS charges (~12.5% employer+employee).
-  /// Dividend portion: 50% taxation (qualifying participation), no AVS.
-  /// Generates sensitivity data: charge vs split ratio (0% to 100%, step 10%).
+  /// Salary branch: gross salary + employer charges = pot (deductible, no
+  /// corporate profit tax); full income tax + AVS charges (~12.5%).
+  /// Dividend branch: corporate profit tax on the pot first, then partial
+  /// personal taxation on the net distributed dividend (economic double
+  /// taxation). Generates sensitivity data: charge vs split (0% to 100%, 10%).
   static DividendeVsSalaireResult calculateDividendeVsSalaire(
     double benefice,
     double partSalairePct,
@@ -543,6 +569,7 @@ class IndependantsService {
         chargeTotal: 0,
         chargeToutSalaire: 0,
         economie: 0,
+        economieOptimiste: 0,
         economieConservatrice: 0,
         sensitivity: [],
         optimalSplitPct: 60,
@@ -585,15 +612,33 @@ class IndependantsService {
       }
     }
 
-    // Economie = savings of optimal split vs all-salary (aligned with backend)
+    // Economie = écart théorique entre 100% salaire et le split le moins chargé
+    // (point d'estimation, aligné backend). Le modèle est affine en la part :
+    // l'optimum se situe à un bord ; l'arbitrage réel est borné par la
+    // requalification (alerte séparée), ce n'est pas un split « optimal » réalisable.
     final economie = chargeToutSalaire - optimalCharge;
 
-    // Borne conservatrice : même optimum, mais dividende imposé au taux FÉDÉRAL
-    // (70%). L'économie réelle se situe entre cette borne et [economie] selon
-    // la pratique cantonale (50–70%). Rendue en fourchette d'incertitude (D10).
-    final optimalChargeFederal = _optimalTotalCharge(
-        benefice, tauxMarginal, _tauxImpositionDividendeFederal);
-    final economieConservatrice = chargeToutSalaire - optimalChargeFederal;
+    // Bande D10 : le taux d'impôt sur le bénéfice ET la part imposable du
+    // dividende dépendent du canton.
+    // - Optimiste : impôt bénéfice le plus bas (Zoug) + inclusion cantonale
+    //   minimale (50%).
+    // - Conservatrice : impôt bénéfice le plus haut (Berne) + inclusion fédérale
+    //   (70%, LIFD art. 20 al. 1bis).
+    final optimalChargeOptimiste = _optimalTotalCharge(
+      benefice,
+      tauxMarginal,
+      tauxImpotBenefice: _tauxImpotBeneficeMin,
+      tauxImposition: _tauxImpositionDividendeCantonalMin,
+    );
+    final economieOptimiste = chargeToutSalaire - optimalChargeOptimiste;
+
+    final optimalChargeConservatrice = _optimalTotalCharge(
+      benefice,
+      tauxMarginal,
+      tauxImpotBenefice: _tauxImpotBeneficeMax,
+      tauxImposition: _tauxImpositionDividendeFederal,
+    );
+    final economieConservatrice = chargeToutSalaire - optimalChargeConservatrice;
 
     // Requalification : part < 60% OU salaire proposé < seuil raisonnable
     // (converge vers le backend, cf. swiss-brain ruling 2026-07-31 Q4 — le
@@ -610,6 +655,7 @@ class IndependantsService {
       chargeTotal: chargeTotal,
       chargeToutSalaire: chargeToutSalaire,
       economie: max(economie, 0),
+      economieOptimiste: max(economieOptimiste, 0),
       economieConservatrice: max(economieConservatrice, 0),
       sensitivity: sensitivity,
       optimalSplitPct: optimalSplitPct,
@@ -618,42 +664,51 @@ class IndependantsService {
     );
   }
 
-  /// Compute total charge on salary portion.
-  /// Full income tax + charges sociales combinées (~12.5%).
-  static double _computeSalaryCharge(double salary, double tauxMarginal) {
-    if (salary <= 0) return 0;
-    final impot = salary * tauxMarginal;
-    final chargesSociales = salary * _chargesSocialesTotales;
-    return impot + chargesSociales;
+  /// Charge totale sur la part salaire, ramenée au même pot pré-impôt.
+  /// salaire brut + charges patronales = pot, donc charge = pot × (charges
+  /// sociales totales + taux marginal) / (1 + part patronale). Miroir backend
+  /// `_calculer_charge_split` (branche salaire).
+  static double _computeSalaryCharge(double potSalaire, double tauxMarginal) {
+    if (potSalaire <= 0) return 0;
+    return potSalaire *
+        (_chargesSocialesTotales + tauxMarginal) /
+        (1 + _chargesSocialesEmployeur);
   }
 
-  /// Compute total charge on dividend portion (partial taxation, no AVS).
-  /// [tauxImposition] = part imposable du dividende (défaut = 50%, minimum
-  /// cantonal). Passer [_tauxImpositionDividendeFederal] (70%) pour la borne
-  /// conservatrice de la fourchette d'incertitude.
+  /// Charge totale sur la part dividende : impôt sur le bénéfice de la société
+  /// d'abord, puis imposition partielle personnelle sur le dividende NET
+  /// distribué (double imposition économique). Miroir backend
+  /// `_calculer_charge_split` (branche dividende).
+  /// [tauxImpotBenefice] et [tauxImposition] sont paramétrables pour dériver la
+  /// bande D10 (défauts = point d'estimation).
   static double _computeDividendCharge(
-    double dividend,
+    double profitResiduel,
     double tauxMarginal, {
+    double tauxImpotBenefice = _tauxImpotBeneficeEffectif,
     double tauxImposition = _tauxImpositionDividendePartielle,
   }) {
-    if (dividend <= 0) return 0;
-    final impot = dividend * tauxImposition * tauxMarginal;
-    return impot;
+    if (profitResiduel <= 0) return 0;
+    final impotBenefice = profitResiduel * tauxImpotBenefice;
+    final dividendeNet = profitResiduel * (1 - tauxImpotBenefice);
+    final impotDividende = dividendeNet * tauxImposition * tauxMarginal;
+    return impotBenefice + impotDividende;
   }
 
-  /// Charge totale du split optimal (min sur 0→100% par pas de 10%) pour une
-  /// part imposable de dividende [tauxImposition] donnée. Sert à dériver la
-  /// fourchette d'incertitude de l'économie (point à 50%, borne à 70%).
+  /// Charge totale du split le moins chargé (min sur 0→100% par pas de 10%)
+  /// pour un couple (impôt sur le bénéfice, part imposable) donné. Sert à
+  /// dériver les bornes de la bande D10.
   static double _optimalTotalCharge(
     double benefice,
-    double tauxMarginal,
-    double tauxImposition,
-  ) {
+    double tauxMarginal, {
+    double tauxImpotBenefice = _tauxImpotBeneficeEffectif,
+    double tauxImposition = _tauxImpositionDividendePartielle,
+  }) {
     double best = double.infinity;
     for (int pct = 0; pct <= 100; pct += 10) {
       final sal = benefice * (pct / 100);
       final total = _computeSalaryCharge(sal, tauxMarginal) +
           _computeDividendCharge(benefice - sal, tauxMarginal,
+              tauxImpotBenefice: tauxImpotBenefice,
               tauxImposition: tauxImposition);
       if (total < best) best = total;
     }

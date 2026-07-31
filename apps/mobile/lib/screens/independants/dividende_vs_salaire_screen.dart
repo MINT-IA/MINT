@@ -37,12 +37,13 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   double _tauxMarginal = 0.30;
   DividendeVsSalaireResult? _result;
 
-  /// Confiance du modèle (D10). Volontairement basse : ce simulateur EXCLUT
-  /// l'impôt sur le bénéfice de la société (double imposition économique) et
-  /// utilise la part imposable minimale (50%, minimum cantonal) au lieu du
-  /// taux fédéral (70%). Les deux biais surévaluent l'économie.
-  /// Cf. swiss-brain ruling 2026-07-31 (Q1/Q2).
-  static const int _kModelConfidencePercent = 40;
+  /// Confiance du modèle (D10). Volontairement modérée : le simulateur intègre
+  /// désormais l'impôt sur le bénéfice de la société (double imposition
+  /// économique, modélisation #1163), mais avec un taux représentatif suisse
+  /// (moyenne KPMG 2025, pas le taux exact du canton) et une part imposable du
+  /// dividende simplifiée (60%). La bande D10 couvre la dispersion cantonale.
+  /// Cf. swiss-brain ruling 2026-07-31 + Codex 2026-07-31 (D2).
+  static const int _kModelConfidencePercent = 50;
 
   @override
   void initState() {
@@ -259,13 +260,15 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
 
   // ── D10 : fourchette d'incertitude + appareil de confiance ─────────
 
-  /// Rend la « bande d'incertitude » de l'économie (de la borne fédérale 70%
-  /// au point d'estimation 50%) + l'appareil de confiance canonique
-  /// [MintTrameConfiance] (Phase 8a — MTC est le SEUL primitif de rendu de
-  /// confiance ; `MintConfidenceNotice` est legacy, interdit par
-  /// no_legacy_confidence_render). Le caveat qui NOMME les exclusions du modèle
-  /// (impôt sur le bénéfice, part imposable indicative) passe par la liste
-  /// d'hypothèses `.detail` → le « pourquoi ce chiffre » reste accessible.
+  /// Rend la « bande d'incertitude » de l'économie (borne conservatrice =
+  /// impôt bénéfice Berne + inclusion fédérale 70% ; borne optimiste = impôt
+  /// bénéfice Zoug + inclusion cantonale 50%) + l'appareil de confiance
+  /// canonique [MintTrameConfiance] (Phase 8a — MTC est le SEUL primitif de
+  /// rendu de confiance ; `MintConfidenceNotice` est legacy, interdit par
+  /// no_legacy_confidence_render). Le caveat qui NOMME les hypothèses du modèle
+  /// (impôt sur le bénéfice représentatif, part imposable simplifiée, droits
+  /// AVS/LPP non valorisés) passe par la liste d'hypothèses `.detail` → le
+  /// « pourquoi ce chiffre » reste accessible.
   Widget _buildEconomieConfidence() {
     final r = _result!;
     return Semantics(
@@ -278,7 +281,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             child: Text(
               S.of(context)!.dividendeFourchette(
                     IndependantsService.formatChf(r.economieConservatrice),
-                    IndependantsService.formatChf(r.economie),
+                    IndependantsService.formatChf(r.economieOptimiste),
                   ),
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
@@ -613,10 +616,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Simulation simplifiée. L\'impôt sur le bénéfice de la société, '
-              'les déductions personnelles et les règles cantonales ne sont '
-              'pas intégrés dans ce calcul. Consulte un\u00B7e spécialiste '
-              'pour une analyse complète.',
+              S.of(context)!.dividendeSimulationDisclaimer,
               style: MintTextStyles.bodySmall(color: MintColors.deepOrange),
             ),
           ),

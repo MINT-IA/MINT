@@ -13207,12 +13207,16 @@ class SDe extends S {
 
   @override
   String dividendeFourchette(String low, String high) {
-    return 'Bandbreite je nach angenommenem steuerbarem Dividendenanteil (50 % bis 70 %): $low bis $high pro Jahr.';
+    return 'Bandbreite je nach Kanton (Gewinnsteuer und steuerbarer Dividendenanteil): $low bis $high pro Jahr.';
   }
 
   @override
   String get dividendeConfidenceMessage =>
-      'Diese Schätzung schließt die Gewinnsteuer der Gesellschaft aus: die tatsächliche Ersparnis ist geringer. Sie unterstellt einen steuerbaren Dividendenanteil von 50 %, während die Bundessteuer 70 % vorsieht (DBG Art. 20 Abs. 1bis) und die kantonale Steuer mindestens 50 %. Mit einer Treuhänderin bestätigen.';
+      'Diese Schätzung enthält die Gewinnsteuer der Gesellschaft zu einem repräsentativen Schweizer Satz (Durchschnitt KPMG 2025) und einen vereinfachten steuerbaren Dividendenanteil von 60 %; die tatsächliche Aufteilung Bund 70 % (DBG Art. 20 Abs. 1bis) / Kanton mindestens 50 % hängt vom Kanton ab. Sie bewertet die durch den Lohn erworbenen AHV/BVG-Ansprüche nicht. Mit einer Treuhänderin bestätigen.';
+
+  @override
+  String get dividendeSimulationDisclaimer =>
+      'Vereinfachte Simulation. Die Gewinnsteuer ist über einen repräsentativen Schweizer Satz (Durchschnitt KPMG 2025) enthalten; der genaue kantonale Satz, persönliche Abzüge, die Vermögenssteuer und die durch den Lohn erworbenen AHV/BVG-Ansprüche sind nicht modelliert. Ein marktkonformer Lohn wird angenommen. Ziehe eine Fachperson für eine vollständige Analyse bei.';
 
   @override
   String get successionUrgence => 'Sofortiger Handlungsbedarf';
