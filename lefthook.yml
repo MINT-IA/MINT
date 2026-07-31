@@ -231,6 +231,25 @@ pre-commit:
       glob: "apps/mobile/lib/l10n/*.arb"
       tags: [compliance, i18n, phase-34-guard-05]
       fail_text: "ARB parity drift. Run `flutter gen-l10n` after syncing keys, or update FR reference and propagate to en/de/es/it/pt."
+    # ── Phase 8a / MTC — no legacy confidence render (CI blind-spot closure) ──
+    no-legacy-confidence-render-gate:
+      # HARD gate. `no_legacy_confidence_render.py` refuses hand-rolled
+      # confidence color / threshold / uncertainty-band rendering outside the
+      # MintTrameConfiance allowlist. It ALREADY runs in CI — but only inside
+      # the path-filtered « Backend tests » job (ci.yml), which SKIPS on a
+      # mobile-only PR (needs.changes.outputs.backend == 'false', pull_request
+      # event). So a mobile-only PR could merge a Dart violation that only turns
+      # dev red on the next `push` build (real cases : #1163, #1164). Wiring the
+      # same script here on the Dart glob closes the blind spot at commit time.
+      # The script scans apps/mobile/lib repo-wide (no {staged_files} arg,
+      # ~0.8 s), same pattern as banned-terms-arb / arb-parity gates above :
+      # the glob only decides WHEN to run, not WHAT to scan.
+      # Memory : feedback_ci_path_filter_blind_spots (pre-commit lint lives on
+      # the file glob, not only in a path-filtered CI workflow).
+      run: python3 tools/checks/no_legacy_confidence_render.py
+      glob: "apps/mobile/lib/**/*.dart"
+      tags: [trust, mtc, phase-8a, ci-blind-spot]
+      fail_text: "Legacy confidence render outside the MintTrameConfiance allowlist (Phase 8a gate). Migrate the file to MintTrameConfiance (CONTEXT §D-01), or baseline it in docs/MIGRATION_RESIDUE_8a.md + RESIDUE_BASELINE. This mirrors the CI « No legacy confidence render » job so mobile-only PRs cannot merge a violation that reddens dev on push."
     # ── Phase MVP-DESIGN-LINTS-V1 (chat-as-verb milestone, 2026-05-09) ──
     # 5 design-system lints. SOFT-warn at pre-commit (`fail_text` only
     # printed; exit-0 suffices because each script gracefully no-ops on

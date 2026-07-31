@@ -27,7 +27,8 @@ def test_mermaid_render_guard_writes_sandbox_config_and_checks_svg(monkeypatch, 
         assert cwd == root.resolve()
         assert text is True
         assert capture_output is True
-        assert timeout == 120
+        assert timeout == mermaid_render_guard.RENDER_TIMEOUT_SECONDS
+        assert timeout == 300
         assert json.loads(puppeteer_config.read_text(encoding="utf-8")) == {
             "args": ["--no-sandbox", "--disable-setuid-sandbox"]
         }
