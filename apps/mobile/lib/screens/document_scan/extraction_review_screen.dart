@@ -72,9 +72,12 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
+      // AX iOS 26.2 (ADR 2026-07-30, tranche AX 3) : AppBar classique fixe en
+      // `Scaffold.appBar`, plus de SliverAppBar dans le CustomScrollView (2e
+      // déclencheur d'effondrement de l'arbre AX des routes poussées au scroll).
+      appBar: _buildAppBar(context),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
-          _buildAppBar(context),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
@@ -117,9 +120,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
 
   // ── AppBar ───────────────────────────────────────────────
 
-  Widget _buildAppBar(BuildContext context) {
-    return SliverAppBar(
-      pinned: true,
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
+    return AppBar(
       backgroundColor: MintColors.background,
       elevation: 0,
       scrolledUnderElevation: 0,

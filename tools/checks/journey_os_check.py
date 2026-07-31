@@ -1105,6 +1105,19 @@ ALLOW = {
     "apps/mobile/lib/widgets/coach/lpp_rescue_widget.dart",
     "apps/mobile/lib/screens/independant_screen.dart",
     "apps/mobile/test/widgets/coach/lpp_rescue_widget_test.dart",
+    # Tranche AX 3 (ADR 2026-07-30, patron #1127/#1140/#1146) : migration
+    # SliverAppBar → AppBar classique fixe sur 7 ecrans a route poussee
+    # (CustomScrollView, barre titre-seule, sans expandedHeight/flexibleSpace).
+    # conversation_history retire en plus son wrapper Semantics racine
+    # `coach_history_screen` (double frontiere ModalRoute). debt_ratio +
+    # repayment deja dans ALLOW ; flows row20 + debt_ratio deja dans ALLOW,
+    # re-armes (row20 gate sur ancre interne, debt_ratio back par id).
+    "apps/mobile/lib/screens/document_scan/document_scan_screen.dart",
+    "apps/mobile/lib/screens/document_scan/avs_guide_screen.dart",
+    "apps/mobile/lib/screens/document_scan/extraction_review_screen.dart",
+    "apps/mobile/lib/screens/debt_prevention/help_resources_screen.dart",
+    "apps/mobile/lib/screens/coach/conversation_history_screen.dart",
+    "apps/mobile/test/screens/coach/conversation_history_screen_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

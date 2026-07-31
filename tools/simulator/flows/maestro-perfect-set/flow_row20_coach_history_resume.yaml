@@ -75,16 +75,15 @@ tags:
 - takeScreenshot: "01-row20-created-conversation"
 
 # 03 - Use the real history button, which auto-saves before navigating.
+# AX iOS 26.2 (tranche AX 3) : le wrapper Semantics racine `coach_history_screen`
+# a été retiré (effondrement de l'arbre AX au repos) ; on gate l'arrivée sur
+# l'ancre interne `coach_history_conversation_0`, que ce flow tape ensuite.
 - tapOn:
     id: "coach_history_button"
 - extendedWaitUntil:
     visible:
-      id: "coach_history_screen"
-    timeout: 12000
-- extendedWaitUntil:
-    visible:
       id: "coach_history_conversation_0"
-    timeout: 8000
+    timeout: 12000
 - takeScreenshot: "02-row20-history-before-restart"
 
 # 04 - Restart without clearing state, then open history again.
@@ -108,12 +107,8 @@ tags:
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      id: "coach_history_screen"
-    timeout: 12000
-- extendedWaitUntil:
-    visible:
       id: "coach_history_conversation_0"
-    timeout: 8000
+    timeout: 12000
 - takeScreenshot: "03-row20-history-after-restart"
 
 # 05 - Resume and send a follow-up. The Flutter test asserts this follow-up is
