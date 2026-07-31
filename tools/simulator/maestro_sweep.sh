@@ -40,6 +40,13 @@
 #                        au repos ; housing-sale/donation après « Calculer »
 #                        (donation gate fiscal ouvert seed-alone via le canton).
 #                        Voir 00-CADRAGE Tier B smoke.
+#           tierb-b4   — Tier B smoke lot B4 Décès/Santé/Mobilité (deathOfRelative
+#                        / disability / cantonMove), requires a julien_swiss
+#                        seeded build (+ PROOF_ANCHORS). deces/demenagement =
+#                        AppBar FIXE (AX-sain) ; invalidite = motif firstJob
+#                        (CustomScrollView + SliverAppBar + wrapper racine) →
+#                        C5 (et possiblement C1) ROUGES ATTENDUS = SIGNAL AX du
+#                        cadrage (dette AX, non masqué). Voir 00-CADRAGE Tier B.
 #           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
 #                        crashes SafariViewService on long-booted sims —
 #                        per memory `feedback_sim_crash_mitigation`)
@@ -178,6 +185,18 @@ FLOWS_TIERB_LOGEMENT=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_housing_sale.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_donation.yaml"
 )
+# Tier B smoke lot B4 Décès / Santé / Mobilité (deathOfRelative / disability /
+# cantonMove), tier de sweep dédié : exige un build julien_swiss + PROOF_ANCHORS.
+# deces/demenagement = AppBar FIXE (AX-sain) : deces NON-VIDE au repos (chiffré
+# CHF touch-only, prouvé au widget test) ; demenagement chiffre après 2 touches
+# id-ciblées. invalidite = CustomScrollView + SliverAppBar + wrapper racine =
+# motif firstJob → C5 (et possiblement C1) ROUGES ATTENDUS (dette AX, SIGNAL du
+# cadrage, non masqué). Un build = un seed, hors sweep normal.
+FLOWS_TIERB_B4=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_deces.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_demenagement.yaml"
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_invalidite.yaml"
+)
 FLOWS_PERSONAS=(
   "$REPO_ROOT/tools/simulator/flows/julien_swiss.yaml"
   "$REPO_ROOT/tools/simulator/flows/lauren_expat_us.yaml"
@@ -192,11 +211,12 @@ case "$TIER" in
   tierb-famille-seeded) FLOWS=("${FLOWS_TIERB_FAMILLE_SEEDED[@]}") ;;
   tierb-travail) FLOWS=("${FLOWS_TIERB_TRAVAIL[@]}") ;;
   tierb-logement) FLOWS=("${FLOWS_TIERB_LOGEMENT[@]}") ;;
+  tierb-b4)   FLOWS=("${FLOWS_TIERB_B4[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
   all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
   default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | tierb-famille-seeded | tierb-travail | tierb-logement | personas | deeplink | all | default)" >&2; exit 1 ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | tierb-famille-seeded | tierb-travail | tierb-logement | tierb-b4 | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
 # ── Reboot the booted sim before any flow runs ────────────────────────
