@@ -272,6 +272,8 @@ ALLOW = {
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.md",
     ".planning/reports/SESSION-2026-07-30.html",
     ".planning/reports/SESSION-2026-07-30.md",
+    ".planning/reports/SESSION-2026-07-31.html",
+    ".planning/reports/SESSION-2026-07-31.md",
     ".planning/audit/2026-07-26-advisor-lens-simulators.md",
     "tools/checks/generate_theme_maps.py",
     "tools/checks/nav_graph.py",
