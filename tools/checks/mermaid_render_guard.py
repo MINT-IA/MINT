@@ -13,6 +13,13 @@ from pathlib import Path
 DIAGRAMS = Path(".planning/journeys/diagrams")
 MERMAID_CLI = "@mermaid-js/mermaid-cli@11.4.2"
 
+# On a cold runner `npx -y @mermaid-js/mermaid-cli` downloads the CLI AND a full
+# Puppeteer Chromium before it can render — that first render blew past the old
+# 120 s subprocess timeout (real case : #1164 first pass). The CI job caches the
+# download (see .github/workflows/ai-workflow-guards.yml), but the timeout is the
+# defence-in-depth for a cache miss ; 300 s covers the cold path with margin.
+RENDER_TIMEOUT_SECONDS = 300
+
 
 def _render(root: Path, diagram: Path, out_dir: Path, puppeteer_config: Path) -> str | None:
     output = out_dir / f"{diagram.stem}.svg"
@@ -21,7 +28,7 @@ def _render(root: Path, diagram: Path, out_dir: Path, puppeteer_config: Path) ->
         cwd=root,
         text=True,
         capture_output=True,
-        timeout=120,
+        timeout=RENDER_TIMEOUT_SECONDS,
     )
     if proc.returncode:
         return f"{diagram.relative_to(root)} failed to render: {proc.stderr.strip() or proc.stdout.strip()}"
