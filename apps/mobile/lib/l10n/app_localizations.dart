@@ -11628,7 +11628,7 @@ abstract class S {
   /// No description provided for @renteVsCapitalTransmissionLeftDetailMarried.
   ///
   /// In fr, this message translates to:
-  /// **'LPP art. 19'**
+  /// **'LPP art. 21 al. 1'**
   String get renteVsCapitalTransmissionLeftDetailMarried;
 
   /// No description provided for @renteVsCapitalTransmissionLeftDetailSingle.
@@ -23499,7 +23499,7 @@ abstract class S {
   /// No description provided for @concubinageEducationalLpp.
   ///
   /// In fr, this message translates to:
-  /// **'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d\'en faire la demande.'**
+  /// **'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 21 al. 1) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès (LPP art. 20a) — et il est nécessaire d\'en faire la demande.'**
   String get concubinageEducationalLpp;
 
   /// No description provided for @concubinageEducationalSuccession.

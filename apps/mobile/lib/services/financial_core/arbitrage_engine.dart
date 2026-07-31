@@ -454,7 +454,8 @@ class ArbitrageEngine {
     // Rente reelle an 20 (deflated)
     final renteReelleAn20 = effectiveRente / math.pow(1 + inflation, 20);
 
-    // Rente survivant (60%, LPP art. 19)
+    // Rente survivant : le taux 60 % est LPP art. 21 al. 1 (montant) ; l'art. 19
+    // régit les conditions d'octroi. Le moteur applique le taux, pas l'éligibilité.
     final renteSurvivant = isMarried ? effectiveRente * 0.6 : 0.0;
 
     // Chiffre choc — compare total economic value in real terms:
@@ -516,13 +517,15 @@ class ArbitrageEngine {
       'Taux de conversion surobligatoire : ${(tauxConversionSurobligatoire * 100).toStringAsFixed(1)} %',
       'Valeurs en francs d\'aujourd\'hui (pouvoir d\'achat réel)',
       if (isMarried) 'Splitting marié : réduction ~15 % sur impôt retrait',
-      if (isMarried) 'Rente de survivant : 60 % (LPP art. 19)',
+      // moteur L1 offline (pas de contexte l10n), liste hypotheses FR par design.
+      if (isMarried) 'Rente de survivant : 60 % (LPP art. 21 al. 1)', // lint-ignore
     ];
     final sources = [
       'LPP art. 14 (taux de conversion)',
       'LIFD art. 22 (imposition des rentes)',
       'LIFD art. 38 (impôt sur retrait en capital)',
-      if (isMarried) 'LPP art. 19 (rente de survivant)',
+      // moteur L1 offline (pas de contexte l10n), liste sources FR par design.
+      if (isMarried) 'LPP art. 21 al. 1 (rente de survivant)', // lint-ignore
     ];
     final confidenceScore = _computeArbitrageConfidence(
       ['capitalLppTotal', 'tauxConversion', 'renteAnnuelle', 'canton'],

@@ -6499,7 +6499,7 @@ class SDe extends S {
   String get renteVsCapitalTransmissionLeftValueSingle => 'Nichts';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
+  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 21 al. 1';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailSingle => 'für deine Erben';
@@ -13344,7 +13344,7 @@ class SDe extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 19) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen — und es muss beantragt werden.';
+      'Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 21 Abs. 1) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen (BVG Art. 20a) — und es muss beantragt werden.';
 
   @override
   String get concubinageEducationalSuccession =>

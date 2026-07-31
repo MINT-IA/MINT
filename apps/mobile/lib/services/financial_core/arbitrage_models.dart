@@ -287,7 +287,8 @@ class ArbitrageResult {
   /// Real purchasing power of rente at year 20 (annual, deflated).
   final double renteReelleAn20;
 
-  /// 60% survivor rente for spouse (LPP art. 19), annual. 0 if unmarried.
+  /// 60% survivor rente for spouse — taux LPP art. 21 al. 1 (montant) ;
+  /// conditions art. 19. Annual. 0 if unmarried.
   final double renteSurvivant;
 
   /// Projected capital at retirement (if projection was used).

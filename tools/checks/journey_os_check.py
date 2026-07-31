@@ -589,6 +589,11 @@ ALLOW = {
     "apps/mobile/lib/services/financial_core/arbitrage_models.dart",
     "apps/mobile/test/services/financial_core/rvc_certificate_receipt_test.dart",
     "apps/mobile/test/services/financial_core/arbitrage_engine_rvc_boundary_test.dart",
+    # rente-survivant base légale unifiée (art. 21 al. 1 taux / art. 20a concubin) :
+    # le taux 60 % du conjoint était cité art. 19 (conditions) à plusieurs endroits.
+    "apps/mobile/lib/widgets/coach/survivor_pension_widget.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_fields_test.dart",
+    "apps/mobile/test/services/financial_core/arbitrage_engine_hero_fields_test.dart",
     "services/backend/app/services/rag/llm_client.py",
     "services/backend/app/api/v1/endpoints/anonymous_chat.py",
     "services/backend/app/api/v1/endpoints/coach_chat.py",

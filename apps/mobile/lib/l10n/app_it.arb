@@ -3036,7 +3036,7 @@
     }
   },
   "renteVsCapitalTransmissionLeftValueSingle": "Nulla",
-  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
+  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 21 al. 1",
   "renteVsCapitalTransmissionLeftDetailSingle": "per i tuoi eredi",
   "renteVsCapitalTransmissionRightSubtitle": "I tuoi eredi ricevono",
   "renteVsCapitalTransmissionRightValue": "100 %",
@@ -6221,7 +6221,7 @@
   },
   "concubinageHeroPremierEclairageDesc": "In concubinato, il tuo partner non è erede legale. Senza testamento, questo importo gli sfugge interamente.",
   "concubinageEducationalAvs": "In Svizzera, il tetto del 150 % sulle rendite AVS di coppia (LAVS art. 35) si applica solo ai coniugi. I concubini percepiscono ciascuno la propria rendita individuale completa — un vantaggio reale quando entrambi hanno versato al massimo.",
-  "concubinageEducationalLpp": "La rendita LPP superstite (60 % della rendita del defunto, LPP art. 19) è riservata ai coniugi. In concubinato, solo il regolamento della cassa può prevedere un capitale di decesso — e bisogna richiederlo.",
+  "concubinageEducationalLpp": "La rendita LPP superstite (60 % della rendita del defunto, LPP art. 21 al. 1) è riservata ai coniugi. In concubinato, solo il regolamento della cassa può prevedere un capitale di decesso (LPP art. 20a) — e bisogna richiederlo.",
   "concubinageEducationalSuccession": "L'esenzione del·la coniuge superstite non deriva dal Codice civile: è iscritta nelle leggi fiscali cantonali e vale in tutti i 26 cantoni. Un·a convivente rientra invece nell'aliquota per i « terzi » — e il divario tra cantoni è molto ampio: alcuni non prelevano alcuna imposta di successione, altri tassano pesantemente i terzi. Qui il cantone pesa quanto il legame.",
   "concubinageProtectionIntro": "In concubinato, la Svizzera non protegge come il matrimonio. Ecco cosa cambia e cosa puoi anticipare.",
   "concubinageProtectionAvsSurvivor": "Rendita AVS superstite",
