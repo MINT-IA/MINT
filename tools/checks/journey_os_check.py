@@ -844,6 +844,18 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml",
     # Preuve d'ancres C1/C2/C4 des 3 ecrans B5+retraite sous leurs seeds.
     "apps/mobile/test/screens/tierb_b5_anchors_test.dart",
+    # Tier B smoke lot B4 Décès/Santé/Mobilité (julien_swiss) : flows seedes
+    # deathOfRelative / disability / cantonMove. deces/demenagement = AppBar FIXE
+    # (deces NON-VIDE au repos, chiffré CHF touch-only prouve au widget test ;
+    # demenagement chiffre apres 2 touches id-ciblees) ; invalidite = motif
+    # firstJob (CustomScrollView + SliverAppBar + wrapper racine) → C5/C1 rouges
+    # ATTENDUS = SIGNAL AX du cadrage (dette AX, non masque). Les 3 ecrans B4 sont
+    # deja dans ALLOW ci-dessus (bloc a11y ILLOG-02).
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_deces.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_demenagement.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_b4_invalidite.yaml",
+    # Preuve d'ancres C1/C2/C4 des 3 ecrans B4 sous seed julien_swiss.
+    "apps/mobile/test/screens/tierb_b4_anchors_test.dart",
     # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
     "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",
