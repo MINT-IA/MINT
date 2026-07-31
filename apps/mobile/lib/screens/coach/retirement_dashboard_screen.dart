@@ -910,8 +910,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             style: MintTextStyles.titleLarge(),
           ),
         ),
+        // `left` réserve la largeur du leading back (56 px + marge) : au repli
+        // la barre flottante ramène le titre au niveau de la toolbar, sinon il
+        // chevauche le bouton retour (Codex P2). MintSpacing.lg seul (24 px)
+        // laissait le titre passer SOUS le leading.
         titlePadding: const EdgeInsets.only(
-          left: MintSpacing.lg,
+          left: MintSpacing.xxxl,
           bottom: MintSpacing.sm + MintSpacing.xs,
         ),
       ),
