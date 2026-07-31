@@ -484,12 +484,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      appBar: _buildAppBar(profile.firstName),
       body: Center(
           child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: CustomScrollView(
                 slivers: [
-                  _buildAppBar(profile.firstName),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.lg,
@@ -720,12 +720,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   Widget _buildStateC() {
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      appBar: _buildAppBar(null),
       body: Center(
           child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: CustomScrollView(
                 slivers: [
-                  _buildAppBar(null),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.lg,
@@ -781,12 +781,12 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
     final l = S.of(context)!;
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
+      appBar: _buildAppBar(_profile?.firstName),
       body: Center(
           child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 600),
               child: CustomScrollView(
                 slivers: [
-                  _buildAppBar(_profile?.firstName),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.lg,
@@ -875,18 +875,24 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   //  APPBAR — White standard (not Pulse gradient per §4.5)
   // ────────────────────────────────────────────────────────────
 
-  SliverAppBar _buildAppBar(String? firstName) {
+  // AX iOS 26.2 (ADR 2026-07-30, tranche AX 2 — patron #1127/#1140) : AppBar
+  // classique fixe (plus de SliverAppBar dans le CustomScrollView, qui
+  // ré-effondrait l'arbre AX au scroll → `retraite-result` inatteignable). Le
+  // FlexibleSpaceBar + son titlePadding (fix Codex #1143 : réserver la largeur
+  // du leading) disparaissent proprement : en AppBar classique le titre vit dans
+  // `AppBar.title`, aligné à gauche via AppBarTheme.centerTitle=false, donc aucun
+  // chevauchement leading/titre possible. Ancres C1 (retraite-anchor) / C4
+  // (retraite-back) + action « Mes données » préservées.
+  PreferredSizeWidget _buildAppBar(String? firstName) {
     final title = firstName != null && firstName.isNotEmpty
         ? S.of(context)!.dashboardAppBarWithName(firstName)
         : S.of(context)!.dashboardAppBarDefault;
 
-    return SliverAppBar(
-      expandedHeight: 80,
-      floating: true,
-      snap: true,
+    return AppBar(
       backgroundColor: MintColors.porcelaine,
       surfaceTintColor: MintColors.transparent,
       elevation: 0,
+      scrolledUnderElevation: 0,
       // C4 « pas de cul-de-sac » : deeplink `mintapp:///retraite` entre par go()
       // → un retour AppBar par défaut ne dépile pas vers /home. Leading safePop
       // explicite (motif B2 job_comparison / B3 hypotheque). `label` = tooltip
@@ -900,23 +906,13 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           onPressed: () => safePop(context),
         ),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        // C1 « atteignable » : ancre régionale profonde sur le TITRE.
-        title: Semantics(
-          identifier: 'retraite-anchor',
-          header: true,
-          child: Text(
-            title,
-            style: MintTextStyles.titleLarge(),
-          ),
-        ),
-        // `left` réserve la largeur du leading back (56 px + marge) : au repli
-        // la barre flottante ramène le titre au niveau de la toolbar, sinon il
-        // chevauche le bouton retour (Codex P2). MintSpacing.lg seul (24 px)
-        // laissait le titre passer SOUS le leading.
-        titlePadding: const EdgeInsets.only(
-          left: MintSpacing.xxxl,
-          bottom: MintSpacing.sm + MintSpacing.xs,
+      // C1 « atteignable » : ancre régionale profonde sur le TITRE.
+      title: Semantics(
+        identifier: 'retraite-anchor',
+        header: true,
+        child: Text(
+          title,
+          style: MintTextStyles.titleLarge(),
         ),
       ),
       actions: [
