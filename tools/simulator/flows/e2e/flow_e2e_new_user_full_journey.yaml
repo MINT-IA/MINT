@@ -16,7 +16,7 @@
 # Step 01 — cold launch with clean state (clearState: true)
 # Step 02 — bêta modal dismissed (if surfaced)
 # Step 03 — landing « Voir clair, décider seul. » visible
-# Step 04 — tap « Parle à Mint » → anonymous chat opener
+# Step 04 — tap « Éclaire ma situation » → anonymous chat opener
 # Step 05 — anonymous chat LSFin disclaimer visible
 # Step 06 — type 1 message + submit → assistant reply rendered
 # Step 07 — scroll + wait « Créer un compte » CTA (post auth-gate)
@@ -107,12 +107,12 @@ tags:
 
 # M001 workaround : Flutter Semantics label not always queryable on iOS
 # via Maestro's exact-text match (Gambarino italic hero rendered via
-# custom paint). Use regex wildcards + anchor on the « Parle à Mint »
+# custom paint). Use regex wildcards + anchor on the « Éclaire ma situation »
 # CTA which is a Material button (queryable reliably). Fallback regex
 # on the hero substring stays as soft confirmation.
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 15000
 - waitForAnimationToEnd
 
@@ -124,7 +124,7 @@ tags:
 # ╚══════════════════════════════════════════════════════════════════════╝
 
 - tapOn:
-    text: "Parle à Mint"
+    text: "Éclaire ma situation"
 - extendedWaitUntil:
     visible:
       text: "Écris ce qui te trotte en tête…"

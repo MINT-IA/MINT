@@ -1118,6 +1118,27 @@ ALLOW = {
     "apps/mobile/lib/screens/debt_prevention/help_resources_screen.dart",
     "apps/mobile/lib/screens/coach/conversation_history_screen.dart",
     "apps/mobile/test/screens/coach/conversation_history_screen_test.dart",
+    # --- D4 vérités (2026-07-31) : la landing dit vrai (« Éclaire ma situation »
+    # remplace « Parle à Mint », qui promettait une conversation que le flux ne
+    # délivre pas — /start → /onb, cold-open chat anonyme retiré) + le coach
+    # guide l'entrée (3 chips de démarrage adaptées au profil sous l'ouverture).
+    # Le renommage du libellé propage aux tests widget + flows Maestro qui
+    # tapaient « Parle à Mint » par texte. ---
+    "apps/mobile/test/screens/core_app_screens_smoke_test.dart",
+    "apps/mobile/test/screens/landing_screen_test.dart",
+    "apps/mobile/test/widget_test.dart",
+    "apps/mobile/test/screens/coach/coach_starter_suggestions_test.dart",
+    "tools/simulator/walker.sh",
+    "tools/simulator/flows/e2e/flow_e2e_new_user_full_journey.yaml",
+    "tools/simulator/flows/julien_swiss.yaml",
+    "tools/simulator/flows/lauren_expat_us.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_b14_debt_intent_no_mortgage.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_b15_concrete_facts_chips.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_diagnostic_situation_scene.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_extractor_captures_age_canton.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_g2_julien_walkthrough.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_landing_to_register.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

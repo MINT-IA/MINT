@@ -16,7 +16,7 @@
 #   keychain auth token, uninstall + install before invoking this flow.
 #
 # LOCATOR STRATEGY
-# - Landing CTA uses the current FR l10n label "Parle à Mint".
+# - Landing CTA uses the current FR l10n label "Éclaire ma situation".
 # - Diagnostic assertions use onboarding semantics identifiers where available
 #   to avoid coupling this route contract to long marketing copy.
 
@@ -40,13 +40,13 @@ tags:
 # 01 — landing visible.
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 8000
 - takeScreenshot: "01-landing"
 
 # 02 — landing CTA delegates to /start, then app routes to /onb.
 - tapOn:
-    text: "Parle à Mint"
+    text: "Éclaire ma situation"
 - extendedWaitUntil:
     visible:
       text: "Un premier aperçu suisse."

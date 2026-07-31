@@ -50,10 +50,10 @@ appId: ch.mint.app
     clearState: true
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 10000
 - tapOn:
-    text: "Parle à Mint"
+    text: "Éclaire ma situation"
 - extendedWaitUntil:
     visible:
       text: "Un premier aperçu suisse."

@@ -10153,6 +10153,12 @@
   "@coachStarterLurk": {
     "description": "Conversation starter chip — dismisses opener without forcing engagement."
   },
+  "coachStarterSuggestionLpp": "Was ist meine 2. Säule?",
+  "coachStarterSuggestion3a": "Wie viel kann ich in die Säule 3a einzahlen?",
+  "coachStarterSuggestionBudget": "Wohin geht mein Geld jeden Monat?",
+  "coachStarterSuggestionRenteCapital": "Rente oder Kapital?",
+  "coachStarterSuggestionCouple": "Unsere Vorsorge als Paar?",
+  "coachStarterSuggestionIndependant": "Meine Vorsorge als Selbstständige?",
   "coachProactiveOptIn": "Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?",
   "coachOptInAccept": "Ja, zeig mir an",
   "coachOptInDecline": "Nein, ich komme wenn ich will",
@@ -10781,7 +10787,7 @@
     "description": "Phase 9 Plan 09-04 — screen-reader announce text fired on G2→G3 transition (MINT-as-subject, D-03/D-11)."
   },
   "landingV2PromiseSober": "Wir klären auf. Du entscheidest.",
-  "landingV2CtaSober": "Sprich mit Mint",
+  "landingV2CtaSober": "Meine Lage klären",
   "landingV3Hero": "Klar sehen. Selbst entscheiden.",
   "@landingV3Hero": {
     "description": "Phase 73 v2.10 — Landing v3 editorial hero. Brand line locked by panel."

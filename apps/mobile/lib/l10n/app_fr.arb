@@ -10979,6 +10979,48 @@
       "level": "N3"
     }
   },
+  "coachStarterSuggestionLpp": "C'est quoi mon 2e pilier ?",
+  "@coachStarterSuggestionLpp": {
+    "description": "Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestion3a": "Combien je peux mettre en 3a ?",
+  "@coachStarterSuggestion3a": {
+    "description": "Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionBudget": "Où part mon argent chaque mois ?",
+  "@coachStarterSuggestionBudget": {
+    "description": "Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionRenteCapital": "Rente ou capital ?",
+  "@coachStarterSuggestionRenteCapital": {
+    "description": "Coach entry suggestion chip (post-opener, surfaced when age >= 50). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionCouple": "Notre prévoyance à deux ?",
+  "@coachStarterSuggestionCouple": {
+    "description": "Coach entry suggestion chip (post-opener, surfaced when the profile is a couple). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
+  "coachStarterSuggestionIndependant": "Ma prévoyance d'indépendant ?",
+  "@coachStarterSuggestionIndependant": {
+    "description": "Coach entry suggestion chip (post-opener, surfaced when the profile is self-employed). Human question sent verbatim to the coach. D4 vérités 2026-07-31.",
+    "x-mint-meta": {
+      "level": "N3"
+    }
+  },
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
   "coachOptInDecline": "Non, je viens quand je veux",
@@ -11877,9 +11919,9 @@
   "@landingV2PromiseSober": {
     "description": "Landing v2 hero — alliance + empowerment. 4 words. Matches MINT doctrine (eclaire, ne conseille pas). Phase 5 POLISH-01."
   },
-  "landingV2CtaSober": "Parle à Mint",
+  "landingV2CtaSober": "Éclaire ma situation",
   "@landingV2CtaSober": {
-    "description": "Landing v2 CTA — conversational, not generic. Phase 5 POLISH-01."
+    "description": "Landing primary CTA. Lucidity verb (éclairer ↔ hero « Voir clair »), 3-word CTA norm, honest about the destination (a guided situation preview, not a live chat — anonymous cold-open chat is retired). Phase 5 POLISH-01 ; D4 vérités 2026-07-31 (was « Parle à Mint », which promised a conversation the flow does not deliver)."
   },
   "landingV3Hero": "Voir clair, décider seul.",
   "@landingV3Hero": {

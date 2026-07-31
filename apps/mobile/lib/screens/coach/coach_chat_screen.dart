@@ -2615,13 +2615,33 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
 
   Widget _buildMessageList() {
+    // D4 vérités (2026-07-31) — the coach opens with one bubble, then the user
+    // faced a blank space down to « Dis-moi. ». Surface up to 3 profile-adaptive
+    // starter questions under the opener, but ONLY while the user has not
+    // replied yet: once any user message exists they disappear (silent-chat
+    // doctrine — no widgets hanging around unused). Gated on a material profile
+    // so the questions are actually sourced from what MINT knows.
+    final coachProvider = context.watch<CoachProfileProvider>();
+    final starterProfile = coachProvider.profile ?? _profile;
+    final showStarters = starterProfile != null &&
+        starterProfile.hasMaterialData &&
+        _messages.any((m) => m.isAssistant) &&
+        !_messages.any((m) => m.isUser);
+    final starterSuggestions = showStarters
+        ? resolveCoachStarterSuggestions(starterProfile, S.of(context)!)
+        : const <String>[];
+    final hasStarters = starterSuggestions.isNotEmpty;
+
     return RepaintBoundary(
       child: ListView.builder(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(
             horizontal: MintSpacing.md, vertical: 24),
-        itemCount: _messages.length,
+        itemCount: _messages.length + (hasStarters ? 1 : 0),
         itemBuilder: (context, index) {
+          if (hasStarters && index == _messages.length) {
+            return _buildStarterSuggestions(starterSuggestions);
+          }
           final msg = _messages[index];
           final Widget child;
           if (msg.isSystem) {
@@ -2763,6 +2783,62 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       ),
     );
   }
+
+  /// Footer rendered under the coach opener while the user has not replied
+  /// yet (D4 vérités). Up to 3 tappable starter questions; reuses the
+  /// existing [_OpenerChip] and sends each question verbatim so the space
+  /// between the opener bubble and « Dis-moi. » guides the entry instead of
+  /// being a blank dead-end.
+  Widget _buildStarterSuggestions(List<String> suggestions) {
+    return Padding(
+      key: const Key('coach_starter_suggestions'),
+      padding: const EdgeInsets.only(top: 20, bottom: 4),
+      child: Semantics(
+        identifier: 'coach_starter_suggestions',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            for (int i = 0; i < suggestions.length; i++) ...[
+              if (i > 0) const SizedBox(height: 10),
+              _OpenerChip(
+                label: suggestions[i],
+                onTap: () => _sendMessage(suggestions[i]),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Up to 3 profile-adaptive starter questions surfaced under the coach's
+/// opener message (D4 vérités). Each string is BOTH the chip label and the
+/// exact message sent to the coach — what the user would have typed.
+///
+/// Contextual candidates come first (near-retirement / couple / self-employed),
+/// then a life-event-diverse base (2e pilier / 3a / budget) guarantees three
+/// even for a plain salaried profile. Kept top-level so tests can exercise the
+/// selection without mounting the full screen (mirrors [resolveIntentOpener]).
+List<String> resolveCoachStarterSuggestions(CoachProfile? profile, S l10n) {
+  final out = <String>[];
+  void add(String question) {
+    if (out.length < 3 && !out.contains(question)) out.add(question);
+  }
+
+  if (profile != null) {
+    if (profile.age >= 50) add(l10n.coachStarterSuggestionRenteCapital);
+    if (profile.isCouple) add(l10n.coachStarterSuggestionCouple);
+    if (profile.employmentStatus == 'independant') {
+      add(l10n.coachStarterSuggestionIndependant);
+    }
+  }
+  // Base — always available, spanning distinct life events so the entry never
+  // reads as retirement-first (MINT ≠ retirement app).
+  add(l10n.coachStarterSuggestionLpp);
+  add(l10n.coachStarterSuggestion3a);
+  add(l10n.coachStarterSuggestionBudget);
+  return out;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

@@ -21941,8 +21941,7 @@ class SFr extends S {
       'Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.';
 
   @override
-  String get incomeContinuityLabel =>
-      'Continuité de ton revenu';
+  String get incomeContinuityLabel => 'Continuité de ton revenu';
 
   @override
   String get incomeContinuityContext =>
@@ -22087,6 +22086,25 @@ class SFr extends S {
 
   @override
   String get coachStarterLurk => 'Je regarde, je me présente après';
+
+  @override
+  String get coachStarterSuggestionLpp => 'C\'est quoi mon 2e pilier ?';
+
+  @override
+  String get coachStarterSuggestion3a => 'Combien je peux mettre en 3a ?';
+
+  @override
+  String get coachStarterSuggestionBudget => 'Où part mon argent chaque mois ?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Rente ou capital ?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'Notre prévoyance à deux ?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'Ma prévoyance d\'indépendant ?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23397,7 +23415,7 @@ class SFr extends S {
   String get landingV2PromiseSober => 'On éclaire. Tu décides.';
 
   @override
-  String get landingV2CtaSober => 'Parle à Mint';
+  String get landingV2CtaSober => 'Éclaire ma situation';
 
   @override
   String get landingV3Hero => 'Voir clair, décider seul.';

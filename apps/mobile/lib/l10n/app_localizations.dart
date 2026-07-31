@@ -38663,6 +38663,42 @@ abstract class S {
   /// **'Je regarde, je me présente après'**
   String get coachStarterLurk;
 
+  /// Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est quoi mon 2e pilier ?'**
+  String get coachStarterSuggestionLpp;
+
+  /// Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien je peux mettre en 3a ?'**
+  String get coachStarterSuggestion3a;
+
+  /// Coach entry suggestion chip (post-opener, seeded profile). Human question sent verbatim to the coach. D4 vérités 2026-07-31.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où part mon argent chaque mois ?'**
+  String get coachStarterSuggestionBudget;
+
+  /// Coach entry suggestion chip (post-opener, surfaced when age >= 50). Human question sent verbatim to the coach. D4 vérités 2026-07-31.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rente ou capital ?'**
+  String get coachStarterSuggestionRenteCapital;
+
+  /// Coach entry suggestion chip (post-opener, surfaced when the profile is a couple). Human question sent verbatim to the coach. D4 vérités 2026-07-31.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notre prévoyance à deux ?'**
+  String get coachStarterSuggestionCouple;
+
+  /// Coach entry suggestion chip (post-opener, surfaced when the profile is self-employed). Human question sent verbatim to the coach. D4 vérités 2026-07-31.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma prévoyance d\'indépendant ?'**
+  String get coachStarterSuggestionIndependant;
+
   /// No description provided for @coachProactiveOptIn.
   ///
   /// In fr, this message translates to:
@@ -40859,10 +40895,10 @@ abstract class S {
   /// **'On éclaire. Tu décides.'**
   String get landingV2PromiseSober;
 
-  /// Landing v2 CTA — conversational, not generic. Phase 5 POLISH-01.
+  /// Landing primary CTA. Lucidity verb (éclairer ↔ hero « Voir clair »), 3-word CTA norm, honest about the destination (a guided situation preview, not a live chat — anonymous cold-open chat is retired). Phase 5 POLISH-01 ; D4 vérités 2026-07-31 (was « Parle à Mint », which promised a conversation the flow does not deliver).
   ///
   /// In fr, this message translates to:
-  /// **'Parle à Mint'**
+  /// **'Éclaire ma situation'**
   String get landingV2CtaSober;
 
   /// Phase 73 v2.10 — Landing v3 éditorial hero. Brand line option D locked by 2-pers panel (PANEL-VERDICT.md §1). Two verbs, two beats, hero-shaped. LSFin-safe (capacity, not result). Voice = Linear/Stripe verb-led. Rendered in Fraunces italic 40pt w400.

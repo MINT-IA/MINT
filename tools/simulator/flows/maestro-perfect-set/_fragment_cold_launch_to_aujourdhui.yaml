@@ -79,12 +79,12 @@ tags:
 
 # ── Step 3 — LandingScreen visible (primary CTA anchor) ───────────────
 # The wordmark MINT + hero « Voir clair, décider seul » render once
-# the bêta modal closes. The « Parle à Mint » primary CTA is the most
+# the bêta modal closes. The « Éclaire ma situation » primary CTA is the most
 # reliable text anchor (single-line, mid-screen) even when the hero
 # wraps across lines.
 - extendedWaitUntil:
     visible:
-      text: "Parle à Mint"
+      text: "Éclaire ma situation"
     timeout: 10000
 
 # ── Step 4 — Wait for the CTA FadeTransition to settle (2.5-2.8s) ─────

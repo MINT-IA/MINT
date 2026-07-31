@@ -21987,8 +21987,7 @@ class SDe extends S {
       'Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.';
 
   @override
-  String get incomeContinuityLabel =>
-      'Einkommenskontinuität';
+  String get incomeContinuityLabel => 'Einkommenskontinuität';
 
   @override
   String get incomeContinuityContext =>
@@ -22134,6 +22133,27 @@ class SDe extends S {
 
   @override
   String get coachStarterLurk => 'Ich schaue erst mal rum';
+
+  @override
+  String get coachStarterSuggestionLpp => 'Was ist meine 2. Säule?';
+
+  @override
+  String get coachStarterSuggestion3a =>
+      'Wie viel kann ich in die Säule 3a einzahlen?';
+
+  @override
+  String get coachStarterSuggestionBudget =>
+      'Wohin geht mein Geld jeden Monat?';
+
+  @override
+  String get coachStarterSuggestionRenteCapital => 'Rente oder Kapital?';
+
+  @override
+  String get coachStarterSuggestionCouple => 'Unsere Vorsorge als Paar?';
+
+  @override
+  String get coachStarterSuggestionIndependant =>
+      'Meine Vorsorge als Selbstständige?';
 
   @override
   String get coachProactiveOptIn =>
@@ -23444,7 +23464,7 @@ class SDe extends S {
   String get landingV2PromiseSober => 'Wir klären auf. Du entscheidest.';
 
   @override
-  String get landingV2CtaSober => 'Sprich mit Mint';
+  String get landingV2CtaSober => 'Meine Lage klären';
 
   @override
   String get landingV3Hero => 'Klar sehen. Selbst entscheiden.';

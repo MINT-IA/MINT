@@ -282,15 +282,15 @@ void main() {
       expect(find.textContaining('Rien ne sort de ton t\u00e9l\u00e9phone'), findsNothing);
     });
 
-    testWidgets('shows CTA button Parle a Mint', (tester) async {
+    testWidgets('shows CTA button Eclaire ma situation', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingV2CtaSober = "Parle à Mint"
-      expect(find.text('Parle \u00e0 Mint'), findsOneWidget);
+      // landingV2CtaSober = "Éclaire ma situation"
+      expect(find.text('\u00c9claire ma situation'), findsOneWidget);
     });
 
     testWidgets('hides login behind wordmark long-press (D-12 hidden affordance)', (tester) async {
