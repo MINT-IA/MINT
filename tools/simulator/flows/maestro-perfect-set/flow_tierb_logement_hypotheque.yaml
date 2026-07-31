@@ -25,10 +25,14 @@
 #   `banned_terms_arb.py:13-14` n'applique que la famille « garanti* ». Le smoke
 #   asserte donc UNIQUEMENT `(?i).*garanti.*`, pas le regex naïf 7 termes.
 #
-# ─── AX SAIN (tranche AX 2 appliquée — ADR 2026-07-30, patron #1127) ───────
-#   `/hypotheque` migré : SliverAppBar → AppBar classique fixe (`Scaffold.appBar`).
-#   Le leading `hypotheque-back` redevient CIBLABLE par id (tap-coordonnée 28,75
-#   supprimé) et l'arbre AX reste riche au scroll (2ᵉ déclencheur ADR supprimé).
+# ─── DETTE AX (C5 diagnostic — hors périmètre ship, cadrage §2) ────────
+#   `/hypotheque` est un CustomScrollView + SliverAppBar(pinned, expandedHeight
+#   100). Le leading retour est icon-only → NON ciblable par Maestro `tapOn id:`
+#   (même dégradation AX iOS 26.2 que l'écran indépendant, lot B2). Repli
+#   documenté : tap par coordonnée (28,75 — centre du back, iPhone 16e). La
+#   migration SliverAppBar → AppBar (file `ax-pilote`/`appbar-gate`) rendra l'id
+#   ciblable. C5 au scroll = ROUGE potentiel (collapse contenu) = signal AX, non
+#   bloqueur Tier B.
 #
 # ─── VERDICT RUNTIME (iPhone 16e / iOS 26.2, seed julien_swiss —
 #     flow FULL vert bout en bout, tous steps COMPLETED) ────────────────
@@ -38,10 +42,11 @@
 #            visible au repos AU-DESSUS de la flottaison (scrollUntilVisible = no-op) ;
 #            aucune sentinelle vide.
 #   C3 VERT  — aucun `garanti` rendu.
-#   C4 VERT  — `hypotheque-back` (leading AppBar fixe, id ciblable) → safePop →
+#   C4 VERT  — tap-coordonnée (28,75 ; back bounds [0,47][56,103]) → safePop →
 #            `home_route_state`.
-#   C5 VERT  — arbre riche au repos ET au scroll (dette AX iOS 26.2 LEVÉE par le
-#            swap SliverAppBar → AppBar).
+#   C5 VERT au repos (714 ≥ 25) / dette AX au scroll (SliverAppBar collapse contenu
+#            iOS 26.2, même racine que /segments/independant B2) — NON déclenchée
+#            ici (résultat au-dessus de la flottaison, aucun scroll profond).
 
 appId: ch.mint.app
 tags:
@@ -93,10 +98,10 @@ tags:
     timeout: 20000
     centerElement: true
 
-# C4 — Pas de cul-de-sac : retour → /home. Leading `hypotheque-back` ciblable par
-# id (AppBar fixe — tap-coordonnée 28,75 retiré, patron tranche AX 2).
+# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar →
+# tap par coordonnée (28,75, back épinglé en haut ; voir en-tête AX).
 - tapOn:
-    id: "hypotheque-back"
+    point: "28,75"
 - extendedWaitUntil:
     visible:
       id: "home_route_state"
