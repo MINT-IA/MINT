@@ -50,6 +50,13 @@ ALLOW = {
     "apps/mobile/lib/screens/simulator_compound_screen.dart",
     "apps/mobile/lib/widgets/collapsible_section.dart",
     "apps/mobile/lib/widgets/educational/educational_insert_widget.dart",
+    # --- fix(retraite) : honorer la rente AVS DÉCLARÉE dans les deux moteurs de
+    # projection (RPS + Forecaster) pour un retraité (salaire 0) au lieu de la
+    # recalculer depuis renteFromRAMD(0)=0. Preuve runtime dashboard /retraite. ---
+    "apps/mobile/lib/services/retirement_projection_service.dart",
+    "apps/mobile/lib/services/forecaster_service.dart",
+    "apps/mobile/test/services/retirement_declared_avs_test.dart",
+    "apps/mobile/test/screens/retraite_dashboard_declared_avs_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",

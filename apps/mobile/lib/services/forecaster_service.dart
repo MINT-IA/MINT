@@ -302,9 +302,20 @@ class ForecasterService {
     // Compare against GROSS household income for consistency.
     // Previously used householdNetAnnuel (NET) which inflated the ratio.
     final householdGrossAnnuel = profile.revenuBrutAnnuelCouple;
+    // Retraité déjà en régime : pas de salaire pré-retraite au dossier
+    // (salaire 0). Un taux calculé contre 0 vaudrait 0 % — lecture TROMPEUSE
+    // (« perte totale de revenu »). On retombe sur son revenu de retraite
+    // courant comme base de continuité : le taux lit honnêtement ~100 %
+    // (revenu stable) sans fabriquer un salaire passé inexistant.
+    final isRetiredNow = profile.employmentStatus == 'retraite';
+    final currentIncomeBasis = (isRetiredNow &&
+            householdGrossAnnuel <= 0 &&
+            scenarioBase.revenuAnnuelRetraite > 0)
+        ? scenarioBase.revenuAnnuelRetraite
+        : householdGrossAnnuel;
     final tauxRemplacement = safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
-      annualCurrentIncome: householdGrossAnnuel,
+      annualCurrentIncome: currentIncomeBasis,
     );
 
     // Milestones
@@ -500,7 +511,14 @@ class ForecasterService {
   }) {
     final now = DateTime.now();
     final months = _monthsBetween(now, targetDate);
-    if (months <= 0) {
+    // Un retraité déjà en régime a une date de retraite dans le PASSÉ : aucune
+    // fenêtre d'accumulation à projeter. Retourner un scénario vide rendrait le
+    // dashboard /retraite tout à zéro (revenu, AVS, taux). On évalue alors son
+    // revenu de retraite depuis les soldes COURANTS — la boucle d'accumulation
+    // tourne zéro mois. Les profils NON retraités gardent le comportement
+    // inchangé (scénario vide sur cible passée/dégénérée).
+    final isRetiredNow = profile.employmentStatus == 'retraite';
+    if (months <= 0 && !isRetiredNow) {
       return ProjectionScenario(
         label: assumptions.label,
         points: const [],
@@ -509,6 +527,7 @@ class ForecasterService {
         decomposition: const {},
       );
     }
+    final projectionMonths = months < 0 ? 0 : months;
 
     // --- Initial balances ---
     double lppBalance = profile.prevoyance.avoirLppTotal ?? 0;
@@ -670,7 +689,7 @@ class ForecasterService {
     final points = <ProjectionPoint>[];
     double totalRendement = 0;
 
-    for (int m = 0; m < months; m++) {
+    for (int m = 0; m < projectionMonths; m++) {
       // FIX-059: was m+1, causing all projections to be shifted by 1 month.
       final date = DateTime(now.year, now.month + m);
 
@@ -819,20 +838,31 @@ class ForecasterService {
     final grossAnnualSalary = profile.salaireBrutMensuel * 12;
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
 
-    // AVS user — RAMD-based, with arrivalAge/lacunes (LAVS art. 34)
+    // AVS user — RAMD-based, with arrivalAge/lacunes (LAVS art. 34).
+    // Provenance : honorer une rente AVS DÉCLARÉE (champ nullable renseigné,
+    // unknown = null ≠ défaut) au NIVEAU BRUT (rente mensuelle ordinaire échelle
+    // 44) plutôt que de la recalculer depuis le salaire. Substituée ici, elle
+    // traverse la 13e rente (`annualRente`) ET le plafond couple (`computeCouple`,
+    // LAVS art. 35) exactement comme le chemin recalculé. Un retraité (salaire 0)
+    // verrait sinon AVS ≈ 0 (`renteFromRAMD(0) = 0`).
     // F2-4: Pass gender + birthYear for AVS21 transitional reference age
-    final avsUserMonthly = currentAge == null
-        ? 0.0
-        : AvsCalculator.computeMonthlyRente(
-            currentAge: currentAge,
-            retirementAge: retirementAge,
-            arrivalAge: profile.arrivalAge,
-            anneesContribuees: profile.prevoyance.anneesContribuees,
-            lacunes: profile.prevoyance.lacunesAVS ?? 0,
-            grossAnnualSalary: grossAnnualSalary,
-            isFemale: profile.gender == 'F' ? true : null,
-            birthYear: profile.gender == 'F' ? profile.birthYear : null,
-          );
+    final declaredAvsUserMonthly = profile.prevoyance.renteAVSEstimeeMensuelle;
+    final hasDeclaredAvsUser =
+        declaredAvsUserMonthly != null && declaredAvsUserMonthly > 0;
+    final avsUserMonthly = hasDeclaredAvsUser
+        ? declaredAvsUserMonthly
+        : (currentAge == null
+            ? 0.0
+            : AvsCalculator.computeMonthlyRente(
+                currentAge: currentAge,
+                retirementAge: retirementAge,
+                arrivalAge: profile.arrivalAge,
+                anneesContribuees: profile.prevoyance.anneesContribuees,
+                lacunes: profile.prevoyance.lacunesAVS ?? 0,
+                grossAnnualSalary: grossAnnualSalary,
+                isFemale: profile.gender == 'F' ? true : null,
+                birthYear: profile.gender == 'F' ? profile.birthYear : null,
+              ));
 
     // AVS conjoint — pass anneesContribuees (LAVS art. 29bis)
     double avsConjointMonthly = 0;
@@ -855,7 +885,8 @@ class ForecasterService {
       );
     }
 
-    // Couple cap: married only (LAVS art. 35)
+    // Couple cap: married only (LAVS art. 35). `avsUserMonthly` porte déjà la
+    // rente déclarée honorée (au niveau brut) → le plafond s'applique dessus.
     final coupleAvs = AvsCalculator.computeCouple(
       avsUser: avsUserMonthly,
       avsConjoint: avsConjointMonthly,
