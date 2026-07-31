@@ -5914,6 +5914,40 @@
   "timelineHeader": "Ta vie financière,\nétape par étape.",
   "timelineSubheader": "Outils essentiels et événements de vie — tout est là.",
   "timelineSectionTitle": "Ton histoire",
+  "confidenceCurveTitle": "Ta lucidité grandit",
+  "@confidenceCurveTitle": {
+    "description": "D5 lucidity-evolution card title (Ton histoire section)."
+  },
+  "confidenceCurveNow": "maintenant",
+  "@confidenceCurveNow": {
+    "description": "D5 curve endpoint caption for the current confidence value."
+  },
+  "confidenceCurveSinglePoint": "Reviens bientôt pour voir ta courbe grandir.",
+  "@confidenceCurveSinglePoint": {
+    "description": "D5 curve 1-point state invite (no line can be drawn yet)."
+  },
+  "confidenceCurveTrendSemantics": "Ta confiance est passée de {start} à {latest}.",
+  "@confidenceCurveTrendSemantics": {
+    "description": "D5 curve screen-reader trend sentence (from start to latest).",
+    "placeholders": {
+      "start": { "type": "String" },
+      "latest": { "type": "String" }
+    }
+  },
+  "confidenceCurveMilestoneScan": "Tu as éclairé un document le {date}.",
+  "@confidenceCurveMilestoneScan": {
+    "description": "D5 curve named milestone — a document scan on {date}.",
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "confidenceCurveMilestoneCheckin": "Tu as fait le point le {date}.",
+  "@confidenceCurveMilestoneCheckin": {
+    "description": "D5 curve named milestone — a monthly check-in on {date}.",
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
   "timelineSectionSubtitle": "Sélectionne un événement pour simuler son impact financier.",
   "cockpitDetailTitle": "Cockpit détaillé",
   "annualRefreshTitle": "Check-up annuel",

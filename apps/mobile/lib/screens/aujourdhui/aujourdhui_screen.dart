@@ -29,6 +29,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 // ChangeNotifierProxyProvider wired in `app.dart`.
 import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
 import 'package:mint_mobile/widgets/aujourdhui/commitments_and_checkins_card.dart';
+import 'package:mint_mobile/widgets/aujourdhui/confidence_evolution_card.dart';
 // Walker 2026-05-08 / Aujourdhui-wire fix: surface the persistent
 // FinancialPlan + ConfidenceScore right after the Cap du jour banner.
 // Both widgets existed (lib/widgets/home/) but had ZERO callers — the
@@ -384,6 +385,13 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                   ],
                 ),
               ),
+            ),
+
+            // ── D5 — lucidity evolution curve (head of « Ton histoire ») ──
+            // Self-hides on 0 points (no empty section, D4). Renders the
+            // monotone confidence curve « toi d'avant vs toi maintenant ».
+            const SliverToBoxAdapter(
+              child: ConfidenceEvolutionCard(),
             ),
 
             // ── Timeline months + nodes ────────────────────────

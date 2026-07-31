@@ -11577,6 +11577,31 @@ class SEn extends S {
   String get timelineSectionTitle => 'Your story';
 
   @override
+  String get confidenceCurveTitle => 'Your clarity is growing';
+
+  @override
+  String get confidenceCurveNow => 'now';
+
+  @override
+  String get confidenceCurveSinglePoint =>
+      'Come back soon to watch your curve grow.';
+
+  @override
+  String confidenceCurveTrendSemantics(String start, String latest) {
+    return 'Your confidence went from $start to $latest.';
+  }
+
+  @override
+  String confidenceCurveMilestoneScan(String date) {
+    return 'You shed light on a document on $date.';
+  }
+
+  @override
+  String confidenceCurveMilestoneCheckin(String date) {
+    return 'You checked in on $date.';
+  }
+
+  @override
   String get timelineSectionSubtitle =>
       'Select an event to simulate its financial impact.';
 

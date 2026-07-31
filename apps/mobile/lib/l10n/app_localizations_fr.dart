@@ -11650,6 +11650,31 @@ class SFr extends S {
   String get timelineSectionTitle => 'Ton histoire';
 
   @override
+  String get confidenceCurveTitle => 'Ta lucidité grandit';
+
+  @override
+  String get confidenceCurveNow => 'maintenant';
+
+  @override
+  String get confidenceCurveSinglePoint =>
+      'Reviens bientôt pour voir ta courbe grandir.';
+
+  @override
+  String confidenceCurveTrendSemantics(String start, String latest) {
+    return 'Ta confiance est passée de $start à $latest.';
+  }
+
+  @override
+  String confidenceCurveMilestoneScan(String date) {
+    return 'Tu as éclairé un document le $date.';
+  }
+
+  @override
+  String confidenceCurveMilestoneCheckin(String date) {
+    return 'Tu as fait le point le $date.';
+  }
+
+  @override
   String get timelineSectionSubtitle =>
       'Sélectionne un événement pour simuler son impact financier.';
 

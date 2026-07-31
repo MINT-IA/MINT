@@ -11669,6 +11669,31 @@ class SDe extends S {
   String get timelineSectionTitle => 'Deine Geschichte';
 
   @override
+  String get confidenceCurveTitle => 'Deine Klarheit wächst';
+
+  @override
+  String get confidenceCurveNow => 'jetzt';
+
+  @override
+  String get confidenceCurveSinglePoint =>
+      'Komm bald wieder, um deine Kurve wachsen zu sehen.';
+
+  @override
+  String confidenceCurveTrendSemantics(String start, String latest) {
+    return 'Dein Vertrauen ging von $start auf $latest.';
+  }
+
+  @override
+  String confidenceCurveMilestoneScan(String date) {
+    return 'Du hast am $date ein Dokument beleuchtet.';
+  }
+
+  @override
+  String confidenceCurveMilestoneCheckin(String date) {
+    return 'Du hast am $date deine Standortbestimmung gemacht.';
+  }
+
+  @override
   String get timelineSectionSubtitle =>
       'Wähle ein Ereignis aus, um die finanziellen Auswirkungen zu simulieren.';
 

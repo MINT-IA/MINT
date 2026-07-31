@@ -11645,6 +11645,31 @@ class SEs extends S {
   String get timelineSectionTitle => 'Tu historia';
 
   @override
+  String get confidenceCurveTitle => 'Tu lucidez crece';
+
+  @override
+  String get confidenceCurveNow => 'ahora';
+
+  @override
+  String get confidenceCurveSinglePoint =>
+      'Vuelve pronto para ver crecer tu curva.';
+
+  @override
+  String confidenceCurveTrendSemantics(String start, String latest) {
+    return 'Tu confianza pasó de $start a $latest.';
+  }
+
+  @override
+  String confidenceCurveMilestoneScan(String date) {
+    return 'Aclaraste un documento el $date.';
+  }
+
+  @override
+  String confidenceCurveMilestoneCheckin(String date) {
+    return 'Hiciste tu punto de control el $date.';
+  }
+
+  @override
   String get timelineSectionSubtitle =>
       'Selecciona un evento para simular su impacto financiero.';
 

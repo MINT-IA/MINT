@@ -20515,6 +20515,42 @@ abstract class S {
   /// **'Ton histoire'**
   String get timelineSectionTitle;
 
+  /// D5 lucidity-evolution card title (Ton histoire section).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta lucidité grandit'**
+  String get confidenceCurveTitle;
+
+  /// D5 curve endpoint caption for the current confidence value.
+  ///
+  /// In fr, this message translates to:
+  /// **'maintenant'**
+  String get confidenceCurveNow;
+
+  /// D5 curve 1-point state invite (no line can be drawn yet).
+  ///
+  /// In fr, this message translates to:
+  /// **'Reviens bientôt pour voir ta courbe grandir.'**
+  String get confidenceCurveSinglePoint;
+
+  /// D5 curve screen-reader trend sentence (from start to latest).
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta confiance est passée de {start} à {latest}.'**
+  String confidenceCurveTrendSemantics(String start, String latest);
+
+  /// D5 curve named milestone — a document scan on {date}.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as éclairé un document le {date}.'**
+  String confidenceCurveMilestoneScan(String date);
+
+  /// D5 curve named milestone — a monthly check-in on {date}.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as fait le point le {date}.'**
+  String confidenceCurveMilestoneCheckin(String date);
+
   /// No description provided for @timelineSectionSubtitle.
   ///
   /// In fr, this message translates to:

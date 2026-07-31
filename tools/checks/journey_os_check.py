@@ -1170,6 +1170,11 @@ ALLOW = {
     "apps/mobile/test/providers/coach_profile_provider_confidence_history_test.dart",
     "docs/data-flow.md",
     ".planning/design/2026-07-31-d5-confidence-curve.md",
+    # feat/d5-confidence-curve : la courbe « toi d'avant vs toi maintenant »
+    # rendue visible en tête de « Ton histoire » (aujourdhui_screen). Lit le
+    # socle ci-dessus ; monotonie running-max au rendu (le service reste brut).
+    "apps/mobile/lib/widgets/aujourdhui/confidence_evolution_card.dart",
+    "apps/mobile/test/widgets/aujourdhui/confidence_evolution_card_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
