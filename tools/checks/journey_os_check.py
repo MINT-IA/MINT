@@ -75,6 +75,11 @@ ALLOW = {
     ".github/workflows/web.yml",
     ".github/workflows/walker_nightly.yml",
     "apps/mobile/pubspec.lock",
+    # Candidat TestFlight 2.13.0 (2026-08-01) : bump du version name pubspec
+    # (2.12.4 -> 2.13.0) pour la promotion staging. Fichier release/ops,
+    # orthogonal au périmètre Journey OS — même statut que pubspec.lock ci-dessus
+    # et testflight.yml plus haut.
+    "apps/mobile/pubspec.yaml",
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
     ".planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/STUB.md",
