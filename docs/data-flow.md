@@ -360,7 +360,9 @@ profile yet re-enter an old coach or budget state on relaunch.
 The reset contract is:
 
 - clear wizard answers, diagnostic state, coach check-ins, score history,
-  contribution history, and letters through `ReportPersistenceService.clear()`;
+  confidence history (`confidence_history_v1`, the D5 « évolution visible »
+  curve socle), contribution history, and letters through
+  `ReportPersistenceService.clear()`;
 - clear the current authenticated user's `ConversationStore` namespace when a
   user id is available;
 - clear anonymous-session metadata and the degraded `budget_inputs_v1` read

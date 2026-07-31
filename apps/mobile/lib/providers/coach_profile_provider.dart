@@ -21,6 +21,8 @@ import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
+import 'package:mint_mobile/services/confidence/confidence_history_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
@@ -794,6 +796,15 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Charger l'historique des scores mensuels
     _scoreHistory = await ReportPersistenceService.loadScoreHistory();
+
+    // D5 — socle « évolution visible » : capture un point de confiance daté
+    // à chaque hydratation (une fois par session, dédupliqué par jour) pour
+    // donner une origine à la courbe même sans scan/check-in. Guardé et
+    // silencieux : un échec d'écriture ne doit jamais casser l'hydratation.
+    await ConfidenceHistoryService.record(
+      ConfidenceScorer.scoreEnhanced(_profile!),
+      trigger: 'profile_load',
+    );
   }
 
   /// Met a jour le profil directement a partir d'un map d'answers.
@@ -1730,9 +1741,14 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// W15: Create a financial snapshot from the current profile state.
   /// Fire-and-forget — errors are logged, never surfaced to the user.
+  ///
+  /// D5: also records a dated confidence point so « Ton histoire » can draw
+  /// the confidence curve. The snapshot's `confidenceScore` is now the real
+  /// combined 4-axis score instead of the historical `0.0` placeholder.
   void _createSnapshotFromProfile(String trigger) {
     final p = _profile;
     if (p == null) return;
+    final confidence = ConfidenceScorer.scoreEnhanced(p);
     SnapshotService.createSnapshot(
       trigger: trigger,
       age: p.age,
@@ -1742,8 +1758,10 @@ class CoachProfileProvider extends ChangeNotifier {
           0.0, // Computed by projection services, not available here
       monthsLiquidity: 0.0, // Requires budget data not in CoachProfile
       taxSavingPotential: 0.0, // Requires tax simulation
-      confidenceScore: 0.0, // Requires projection
+      confidenceScore: confidence.combined,
     );
+    // Fire-and-forget: a history-write failure must never break enrichment.
+    ConfidenceHistoryService.record(confidence, trigger: trigger);
   }
 
   void _persistHousingFieldsSync(

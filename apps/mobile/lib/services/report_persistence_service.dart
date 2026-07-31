@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/confidence/confidence_history_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 class ReportPersistenceService {
@@ -919,6 +920,7 @@ class ReportPersistenceService {
   /// Efface uniquement l'historique coach:
   /// - check-ins mensuels
   /// - score du mois + historique des scores
+  /// - historique de confiance (courbe « évolution visible » — D5)
   /// - progression "simulateurs explorés"
   /// - activite utilisateur (life events, tips dismissed/snoozed)
   static Future<void> clearCoachHistory() async {
@@ -927,6 +929,7 @@ class ReportPersistenceService {
     await prefs.remove(_lastScoreKey);
     await prefs.remove(_lastScoreMonthKey);
     await prefs.remove(_scoreHistoryKey);
+    await prefs.remove(ConfidenceHistoryService.storageKey);
     await prefs.remove(_lastScoreReasonKey);
     await prefs.remove(_lastScoreDeltaKey);
     await prefs.remove(_lastScoreReasonAtKey);

@@ -1158,6 +1158,18 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_g2_julien_walkthrough.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_landing_to_register.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml",
+    # codex/journey-os-d5-evolution : socle « évolution visible » (North Star
+    # D5). Historise le score de confiance 4 axes (un point daté / jour) pour
+    # rendre possible la courbe « toi d'avant vs toi maintenant ». Stockage
+    # local pur, câblé au contrat de reset. Widget de courbe = unité suivante.
+    "apps/mobile/lib/models/confidence_point.dart",
+    "apps/mobile/lib/services/confidence/confidence_history_service.dart",
+    "apps/mobile/lib/providers/coach_profile_provider.dart",
+    "apps/mobile/lib/services/report_persistence_service.dart",
+    "apps/mobile/test/services/confidence/confidence_history_service_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_confidence_history_test.dart",
+    "docs/data-flow.md",
+    ".planning/design/2026-07-31-d5-confidence-curve.md",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
