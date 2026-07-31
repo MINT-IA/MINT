@@ -1433,6 +1433,22 @@ def _verify_apple_identity_token(
     return payload
 
 
+def _apple_email_is_verified(payload: dict) -> bool:
+    """Whether Apple attests the token's email as verified.
+
+    Apple returns ``email_verified`` as a boolean or the string ``"true"``.
+    When the claim is absent or falsy the email is treated as NOT verified,
+    so it can never be used to silently attach an Apple identity to a
+    pre-existing password account.
+    """
+    raw = payload.get("email_verified")
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, str):
+        return raw.strip().lower() in {"true", "1", "yes"}
+    return False
+
+
 @router.post("/apple/verify", response_model=AppleVerifyResponse)
 @limiter.limit("5/minute")
 def apple_verify(
@@ -1489,6 +1505,22 @@ def apple_verify(
                         db,
                         request=request,
                         status_value="apple_email_already_linked",
+                        code="apple_email_already_linked",
+                        message="Apple email is already linked to another account",
+                        subject=apple_sub,
+                        user=user,
+                        allow_recreate_after_delete=body.allow_recreate_after_delete,
+                    )
+                # Takeover hardening (audit T11-F01 theme): never auto-attach an
+                # Apple identity to a pre-existing password account unless Apple
+                # attests the email as verified. A managed Apple ID whose email
+                # was set by an admin without verification must not be able to
+                # claim a third party's email login.
+                if not _apple_email_is_verified(payload):
+                    _raise_apple_verify_conflict(
+                        db,
+                        request=request,
+                        status_value="apple_email_unverified",
                         code="apple_email_already_linked",
                         message="Apple email is already linked to another account",
                         subject=apple_sub,
