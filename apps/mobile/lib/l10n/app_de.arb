@@ -3036,7 +3036,7 @@
     }
   },
   "renteVsCapitalTransmissionLeftValueSingle": "Nichts",
-  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
+  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 21 al. 1",
   "renteVsCapitalTransmissionLeftDetailSingle": "für deine Erben",
   "renteVsCapitalTransmissionRightSubtitle": "Deine Erben erhalten",
   "renteVsCapitalTransmissionRightValue": "100 %",
@@ -6221,7 +6221,7 @@
   },
   "concubinageHeroPremierEclairageDesc": "Im Konkubinat ist dein Partner kein gesetzlicher Erbe. Ohne Testament geht dieser Betrag vollständig an andere.",
   "concubinageEducationalAvs": "In der Schweiz gilt die 150 %-Plafonierung der AHV-Ehepaarrenten (AHVG Art. 35) nur für Verheiratete. Konkubinatspartner erhalten je ihre volle Einzelrente — ein echter Vorteil, wenn beide maximal eingezahlt haben.",
-  "concubinageEducationalLpp": "Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 19) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen — und es muss beantragt werden.",
+  "concubinageEducationalLpp": "Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 21 Abs. 1) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen (BVG Art. 20a) — und es muss beantragt werden.",
   "concubinageEducationalSuccession": "Die Befreiung des·der überlebenden Ehegatt·in stammt nicht aus dem Zivilgesetzbuch: Sie steht in den kantonalen Steuergesetzen und gilt in allen 26 Kantonen. Ein·e Konkubinatspartner·in fällt unter den Satz für « Nichtverwandte » — und die Unterschiede zwischen den Kantonen sind sehr gross: Einige erheben gar keine Erbschaftssteuer, andere besteuern Nichtverwandte hoch. Hier wiegt der Kanton so schwer wie die Beziehung.",
   "concubinageProtectionIntro": "Im Konkubinat schützt die Schweiz nicht wie bei der Ehe. Hier siehst du, was sich ändert und was du vorausplanen kannst.",
   "concubinageProtectionAvsSurvivor": "AHV-Hinterlassenenrente",

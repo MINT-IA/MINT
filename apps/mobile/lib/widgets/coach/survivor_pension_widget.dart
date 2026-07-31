@@ -230,7 +230,7 @@ class SurvivorPensionWidget extends StatelessWidget {
         children: [
           _buildDetailRow('AVS rente veuf/veuve (80%)', _avsMarried, 'LAVS art. 23', true),
           const Divider(height: 1),
-          _buildDetailRow('LPP rente partenaire (60%)', _lppMarried, 'LPP art. 19', true),
+          _buildDetailRow('LPP rente partenaire (60%)', _lppMarried, 'LPP art. 21 al. 1', true),
           if (!survivor.conjointGetsRente && survivor.conjointLumpSum > 0) ...[
             const Divider(height: 1),
             _buildDetailRow(

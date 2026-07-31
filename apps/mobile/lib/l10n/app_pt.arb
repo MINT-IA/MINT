@@ -3036,7 +3036,7 @@
     }
   },
   "renteVsCapitalTransmissionLeftValueSingle": "Nada",
-  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
+  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 21 al. 1",
   "renteVsCapitalTransmissionLeftDetailSingle": "para os teus herdeiros",
   "renteVsCapitalTransmissionRightSubtitle": "Os teus herdeiros recebem",
   "renteVsCapitalTransmissionRightValue": "100 %",
@@ -6221,7 +6221,7 @@
   },
   "concubinageHeroPremierEclairageDesc": "Em concubinato, o teu parceiro não é herdeiro legal. Sem testamento, este montante perde-se por completo.",
   "concubinageEducationalAvs": "Na Suíça, o teto de 150 % nas pensões AVS de casal (LAVS art. 35) só se aplica aos casados. Os concubinos recebem cada um a sua pensão individual completa — uma vantagem real quando ambos contribuíram ao máximo.",
-  "concubinageEducationalLpp": "A pensão LPP de sobrevivente (60 % da pensão do falecido, LPP art. 19) é reservada aos cônjuges. Em concubinato, apenas o regulamento da caixa pode prever um capital por falecimento — e é preciso solicitá-lo.",
+  "concubinageEducationalLpp": "A pensão LPP de sobrevivente (60 % da pensão do falecido, LPP art. 21 al. 1) é reservada aos cônjuges. Em concubinato, apenas o regulamento da caixa pode prever um capital por falecimento (LPP art. 20a) — e é preciso solicitá-lo.",
   "concubinageEducationalSuccession": "A isenção do·a cônjuge sobrevivo·a não vem do Código Civil: está inscrita nas leis fiscais cantonais e vale nos 26 cantões. Um·a parceiro·a em união de facto fica sujeito·a à taxa de « terceiros » — e a diferença entre cantões é muito ampla: alguns não cobram qualquer imposto de sucessão, outros tributam pesadamente os terceiros. Aqui o cantão pesa tanto como o vínculo.",
   "concubinageProtectionIntro": "Em concubinato, a Suíça não protege como o casamento. Aqui está o que muda e o que podes antecipar.",
   "concubinageProtectionAvsSurvivor": "Pensão AVS de sobrevivente",

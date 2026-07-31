@@ -6445,7 +6445,7 @@ class SEn extends S {
   String get renteVsCapitalTransmissionLeftValueSingle => 'Nothing';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
+  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 21 al. 1';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailSingle => 'for your heirs';
@@ -13248,7 +13248,7 @@ class SEn extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'The LPP survivor pension (60% of the deceased’s pension, LPP art. 19) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit — and you must apply for it.';
+      'The LPP survivor pension (60% of the deceased’s pension, LPP art. 21 al. 1) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit (LPP art. 20a) — and you must apply for it.';
 
   @override
   String get concubinageEducationalSuccession =>

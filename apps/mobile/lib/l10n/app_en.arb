@@ -3036,7 +3036,7 @@
     }
   },
   "renteVsCapitalTransmissionLeftValueSingle": "Nothing",
-  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
+  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 21 al. 1",
   "renteVsCapitalTransmissionLeftDetailSingle": "for your heirs",
   "renteVsCapitalTransmissionRightSubtitle": "Your heirs receive",
   "renteVsCapitalTransmissionRightValue": "100 %",
@@ -6221,7 +6221,7 @@
   },
   "concubinageHeroPremierEclairageDesc": "In cohabitation, your partner is not a legal heir. Without a will, this entire amount is lost to them.",
   "concubinageEducationalAvs": "In Switzerland, the 150% cap on couple AVS pensions (OASI art. 35) only applies to married couples. Cohabiting partners each receive their full individual pension — a real advantage when both have contributed the maximum.",
-  "concubinageEducationalLpp": "The LPP survivor pension (60% of the deceased’s pension, LPP art. 19) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit — and you must apply for it.",
+  "concubinageEducationalLpp": "The LPP survivor pension (60% of the deceased’s pension, LPP art. 21 al. 1) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit (LPP art. 20a) — and you must apply for it.",
   "concubinageEducationalSuccession": "The surviving spouse's exemption does not come from the Civil Code: it is written into cantonal tax laws, and it applies in all 26 cantons. A cohabiting partner falls under the « third-party » rate — and the spread between cantons is very wide: some levy no inheritance tax at all, others tax third parties heavily. Here the canton weighs as much as the relationship.",
   "concubinageProtectionIntro": "In cohabitation, Switzerland does not protect like marriage. Here is what changes and what you can anticipate.",
   "concubinageProtectionAvsSurvivor": "AVS survivor pension",

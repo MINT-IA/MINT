@@ -6497,7 +6497,7 @@ class SFr extends S {
   String get renteVsCapitalTransmissionLeftValueSingle => 'Rien';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
+  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 21 al. 1';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailSingle => 'pour tes héritiers';
@@ -13324,7 +13324,7 @@ class SFr extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d\'en faire la demande.';
+      'La rente LPP de survivant (60 % de la rente du défunt, LPP art. 21 al. 1) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès (LPP art. 20a) — et il est nécessaire d\'en faire la demande.';
 
   @override
   String get concubinageEducationalSuccession =>

@@ -988,8 +988,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
 
   // Rente de survivant (conjoint·e marié·e vs concubin·e). Gaté sur la rente LPP
   // du partenaire. La figure MARIÉE est fondée sur la seule donnée CONFIRMÉE — la
-  // rente LPP de survivant (60 % de la rente du partenaire, LPP art. 19). La rente
-  // AVS de survivant N'EST PAS chiffrée ici : son montant dépend de la carrière de
+  // rente LPP de survivant (60 % de la rente du partenaire — le taux 60 % est LPP
+  // art. 21 al. 1 ; les conditions d'octroi sont art. 19). La rente AVS de survivant
+  // N'EST PAS chiffrée ici : son montant dépend de la carrière de
   // cotisation (non confirmée) ; l'afficher au maximum légal serait fabriqué. Elle
   // est mentionnée qualitativement sous la comparaison (aucun CHF). Le côté
   // concubin est CHF 0 — vérité légale (aucune rente automatique).

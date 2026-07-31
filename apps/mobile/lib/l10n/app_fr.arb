@@ -3122,7 +3122,7 @@
     }
   },
   "renteVsCapitalTransmissionLeftValueSingle": "Rien",
-  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 19",
+  "renteVsCapitalTransmissionLeftDetailMarried": "LPP art. 21 al. 1",
   "renteVsCapitalTransmissionLeftDetailSingle": "pour tes héritiers",
   "renteVsCapitalTransmissionRightSubtitle": "Tes héritiers reçoivent",
   "renteVsCapitalTransmissionRightValue": "100 %",
@@ -6715,7 +6715,7 @@
   },
   "concubinageHeroPremierEclairageDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
   "concubinageEducationalAvs": "En Suisse, le plafond de 150 % sur les rentes AVS de couple (LAVS art. 35) ne s’applique qu’aux mariés. Les concubins touchent chacun leur rente individuelle complète — un avantage réel quand les deux ont cotisé au maximum.",
-  "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d'en faire la demande.",
+  "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 21 al. 1) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès (LPP art. 20a) — et il est nécessaire d'en faire la demande.",
   "concubinageEducationalSuccession": "L'exonération du·de la conjoint·e survivant·e ne vient pas du Code civil : elle est inscrite dans les lois fiscales cantonales, et elle vaut dans les 26 cantons. Un·e concubin·e, lui·elle, relève du taux des « tiers » — et l'écart entre cantons est très large : certains ne prélèvent aucun impôt de succession, d'autres imposent lourdement les tiers. Ici, le canton pèse autant que le lien.",
   "concubinageProtectionIntro": "En concubinage, la Suisse ne protège pas comme le mariage. Voici ce qui change et ce que tu peux anticiper.",
   "concubinageProtectionAvsSurvivor": "Rente AVS de survivant",

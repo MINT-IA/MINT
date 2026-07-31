@@ -6503,7 +6503,7 @@ class SIt extends S {
   String get renteVsCapitalTransmissionLeftValueSingle => 'Nulla';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
+  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 21 al. 1';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailSingle => 'per i tuoi eredi';
@@ -13348,7 +13348,7 @@ class SIt extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'La rendita LPP superstite (60 % della rendita del defunto, LPP art. 19) è riservata ai coniugi. In concubinato, solo il regolamento della cassa può prevedere un capitale di decesso — e bisogna richiederlo.';
+      'La rendita LPP superstite (60 % della rendita del defunto, LPP art. 21 al. 1) è riservata ai coniugi. In concubinato, solo il regolamento della cassa può prevedere un capitale di decesso (LPP art. 20a) — e bisogna richiederlo.';
 
   @override
   String get concubinageEducationalSuccession =>

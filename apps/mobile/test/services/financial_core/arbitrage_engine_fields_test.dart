@@ -133,7 +133,7 @@ void main() {
   group('married — renteSurvivant', () {
     test('renteSurvivant = 60% of annual effective rente', () {
       final r = certResult(renteAnnuelle: 36000, isMarried: true);
-      // LPP art. 19: 60% survivor pension
+      // LPP art. 21 al. 1: 60% survivor pension (montant ; conditions art. 19)
       expect(r.renteSurvivant, closeTo(36000 * 0.6, 36000 * 0.6 * 0.05));
     });
   });

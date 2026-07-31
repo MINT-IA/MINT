@@ -6492,7 +6492,7 @@ class SEs extends S {
   String get renteVsCapitalTransmissionLeftValueSingle => 'Nada';
 
   @override
-  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 19';
+  String get renteVsCapitalTransmissionLeftDetailMarried => 'LPP art. 21 al. 1';
 
   @override
   String get renteVsCapitalTransmissionLeftDetailSingle => 'para tus herederos';
@@ -13325,7 +13325,7 @@ class SEs extends S {
 
   @override
   String get concubinageEducationalLpp =>
-      'La pensión LPP de superviviente (60 % de la pensión del fallecido, LPP art. 19) está reservada a los cónyuges. En concubinato, solo el reglamento de la caja puede prever un capital por fallecimiento — y hay que solicitarlo.';
+      'La pensión LPP de superviviente (60 % de la pensión del fallecido, LPP art. 21 al. 1) está reservada a los cónyuges. En concubinato, solo el reglamento de la caja puede prever un capital por fallecimiento (LPP art. 20a) — y hay que solicitarlo.';
 
   @override
   String get concubinageEducationalSuccession =>
