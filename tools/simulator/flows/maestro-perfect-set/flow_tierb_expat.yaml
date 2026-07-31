@@ -1,0 +1,92 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml
+#
+# TIER B smoke — lot B5 International — event `countryMove` (route /expatriation).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Patron : lot B2 Travail (#1139) + lot B3 Logement (#1141).
+#
+# ─── BUILD (seed frontalier_geneve requis — un build = un seed) ─────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=frontalier_geneve \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-expat`.
+#
+# ─── C2 CHIFFRÉ (classement cantonal, gate ouvert SEED-ALONE) ──────────
+#   Les héros forfait / départ / lacune AVS de `/expatriation` sont GATÉS sur des
+#   faits touch-only (dépenses mondiales, années à l'étranger). MAIS le classement
+#   cantonal (`_topCantonsGate`) s'ouvre SEED-ALONE : la persona frontalier_geneve
+#   fournit `salary` (revenu) + `canton` (GE) dans userProvidedFields → le gate est
+#   complet sans toucher → `TopCantonWidget` rend l'économie d'impôt annuelle CHF
+#   par canton (barème sur le revenu réel). L'ancre `expat-result` est sur cette
+#   branche chiffrée (onglet Forfait par défaut, sous la flottaison), jamais la
+#   carte-gate vide.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   Assertion UNIQUEMENT `(?i).*garanti.*` (banned_terms_arb.py:13-14).
+#
+# ─── AX (C5) — NestedScrollView + wrapper racine `expat_screen` ────────
+#   `/expatriation` est un NestedScrollView (les écrans NestedScrollView restent
+#   RICHES au repos, ≠ collapse CustomScrollView B2/B3) + wrapper racine Semantics
+#   `expat_screen` (motif rente_vs_capital anti-effondrement). SliverAppBar
+#   pinned+floating → leading icon-only NON ciblable `tapOn id:` → tap coordonnée
+#   (28,75, back épinglé).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - international
+  - seeded
+  - feature:country-move
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /expatriation.
+- openLink: "mintapp:///expatriation"
+- extendedWaitUntil:
+    visible:
+      id: "expat-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide.
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré : le classement cantonal (gate ouvert seed-alone) porte
+# `expat-result`, sous la flottaison de l'onglet Forfait → scroll pour le révéler
+# (NestedScrollView riche, pas de collapse).
+- scrollUntilVisible:
+    element:
+      id: "expat-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar
+# épinglé → tap par coordonnée (28,75 ; voir en-tête AX).
+- tapOn:
+    point: "28,75"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

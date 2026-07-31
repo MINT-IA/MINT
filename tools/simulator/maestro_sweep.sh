@@ -40,6 +40,17 @@
 #                        au repos ; housing-sale/donation après « Calculer »
 #                        (donation gate fiscal ouvert seed-alone via le canton).
 #                        Voir 00-CADRAGE Tier B smoke.
+#           tierb-debt — Tier B smoke lot B5 Crise (debtCrisis / /debt/ratio),
+#                        requires a julien_swiss seeded build (+ PROOF_ANCHORS).
+#                        Jauge ratio chiffree au repos. Voir 00-CADRAGE.
+#           tierb-expat — Tier B smoke lot B5 International (countryMove /
+#                        /expatriation), requires a frontalier_geneve (cross_border)
+#                        seeded build (+ PROOF_ANCHORS). Classement cantonal chiffre
+#                        SEED-ALONE (revenu + canton). Voir 00-CADRAGE.
+#           tierb-retraite — Tier B smoke retraite (retirement / /retraite),
+#                        requires a retraite_lausanne (retraite 68) seeded build
+#                        (+ PROOF_ANCHORS). Ancre C2 rente LPP correcte (PAS la
+#                        ventilation AVS, defaut moteur #1138). Voir 00-CADRAGE.
 #           deeplink   — opt-in deeplink/Universal Link flows (sim-unreliable,
 #                        crashes SafariViewService on long-booted sims —
 #                        per memory `feedback_sim_crash_mitigation`)
@@ -178,6 +189,26 @@ FLOWS_TIERB_LOGEMENT=(
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_housing_sale.yaml"
   "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_logement_donation.yaml"
 )
+# Tier B smoke — lot B5 Crise (debtCrisis / route /debt/ratio), tier de sweep
+# dédié : exige un build julien_swiss + PROOF_ANCHORS. La jauge ratio d'endettement
+# chiffre au repos (aucun gate). Un build = un seed, hors sweep normal.
+FLOWS_TIERB_DEBT=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml"
+)
+# Tier B smoke — lot B5 International (countryMove / route /expatriation), tier de
+# sweep dédié : exige un build frontalier_geneve (cross_border) + PROOF_ANCHORS. Le
+# classement cantonal chiffre SEED-ALONE (revenu + canton du profil ouvrent le
+# gate). Un build = un seed, hors sweep normal.
+FLOWS_TIERB_EXPAT=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml"
+)
+# Tier B smoke — retraite (retirement / route /retraite), tier de sweep dédié :
+# exige un build retraite_lausanne (retraité 68) + PROOF_ANCHORS. Ancre C2 sur la
+# rente LPP correcte (PAS la ventilation AVS ≈ 0, défaut moteur documenté #1138).
+# Un build = un seed, hors sweep normal.
+FLOWS_TIERB_RETRAITE=(
+  "$REPO_ROOT/tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml"
+)
 FLOWS_PERSONAS=(
   "$REPO_ROOT/tools/simulator/flows/julien_swiss.yaml"
   "$REPO_ROOT/tools/simulator/flows/lauren_expat_us.yaml"
@@ -192,11 +223,14 @@ case "$TIER" in
   tierb-famille-seeded) FLOWS=("${FLOWS_TIERB_FAMILLE_SEEDED[@]}") ;;
   tierb-travail) FLOWS=("${FLOWS_TIERB_TRAVAIL[@]}") ;;
   tierb-logement) FLOWS=("${FLOWS_TIERB_LOGEMENT[@]}") ;;
+  tierb-debt) FLOWS=("${FLOWS_TIERB_DEBT[@]}") ;;
+  tierb-expat) FLOWS=("${FLOWS_TIERB_EXPAT[@]}") ;;
+  tierb-retraite) FLOWS=("${FLOWS_TIERB_RETRAITE[@]}") ;;
   personas)   FLOWS=("${FLOWS_PERSONAS[@]}") ;;
   deeplink)   FLOWS=("${FLOWS_DEEPLINK[@]}") ;;
   all)        FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}" "${FLOWS_PERSONAS[@]}") ;;
   default)    FLOWS=("${FLOWS_E2E[@]}" "${FLOWS_REGRESSION[@]}" "${FLOWS_PERFECT[@]}") ;;
-  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | tierb-famille-seeded | tierb-travail | tierb-logement | personas | deeplink | all | default)" >&2; exit 1 ;;
+  *)          echo "Unknown tier: $TIER (use: e2e | regression | perfect | fatca | firstjob | tierb-famille | tierb-famille-seeded | tierb-travail | tierb-logement | tierb-debt | tierb-expat | tierb-retraite | personas | deeplink | all | default)" >&2; exit 1 ;;
 esac
 
 # ── Reboot the booted sim before any flow runs ────────────────────────

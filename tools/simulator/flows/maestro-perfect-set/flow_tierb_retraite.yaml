@@ -1,0 +1,98 @@
+# tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml
+#
+# TIER B smoke — retraite — event `retirement` (route /retraite).
+# Cadrage : .planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md
+# Patron : lot B2 Travail (#1139) + lot B3 Logement (#1141). Seed retraité #1138.
+#
+# ─── BUILD (seed retraite_lausanne requis — un build = un seed) ─────────
+#   cd apps/mobile && CODE_SIGNING_ALLOWED=NO flutter build ios --debug \
+#     --simulator --no-codesign \
+#     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+#     --dart-define=MINT_E2E_ARCHETYPE=retraite_lausanne \
+#     --dart-define=MINT_E2E_PROOF_ANCHORS=true
+#   Runner : `tools/simulator/maestro_sweep.sh tierb-retraite`.
+#
+# ─── C2 CHIFFRÉ CORRECT (rente LPP, PAS la ventilation AVS) ─────────────
+#   `/retraite` (RetirementDashboardScreen) rend le tableau de bord retraite au
+#   repos (projection ForecasterService depuis le profil seedé). L'ancre
+#   `retraite-result` est posée sur la LIGNE RENTE LPP (avoir 2e pilier ≈ 318'000
+#   × taux de conversion 6,8 % ≈ 1'800/mois) — un chiffre JUSTE.
+#   DÉFAUT MOTEUR CONNU (#1138) consigné : la ventilation AVS de la projection est
+#   recalculée depuis un salaire nul (grossAnnualSalary = 0) → la ligne AVS affiche
+#   ≈ 0, FAUX. La rente AVS déclarée (2'000) reste juste là où /home la lit
+#   vraiment (budget net explicite 3'800). Le smoke n'asserte donc JAMAIS la ligne
+#   AVS — uniquement la rente LPP correcte. La ventilation AVS ≈ 0 reste une dette
+#   moteur (correctif 13e rente + plafond couple), hors périmètre de ce lot.
+#
+# ─── C3 (LSFin) — miroir canonique check_banned_terms ──────────────────
+#   Assertion UNIQUEMENT `(?i).*garanti.*` (banned_terms_arb.py:13-14).
+#
+# ─── DETTE AX (C5 diagnostic — hors périmètre ship, cadrage §2) ────────
+#   `/retraite` est un CustomScrollView + SliverAppBar(expandedHeight 80, floating,
+#   snap). Riche au repos (`retraite-anchor` visible) ; collapse contenu AU SCROLL
+#   (2e trigger iOS 26.2, même racine que independant B2 / hypotheque B3). Leading
+#   icon-only NON ciblable `tapOn id:` → tap coordonnée (28,75, back épinglé).
+#   La ligne rente LPP est sous la flottaison → scroll requis : si le collapse au
+#   scroll dépouille l'id, la preuve C2 CORRECTE reste portée par le test widget
+#   `tierb_b5_anchors_test.dart` (retraite-result sous seed retraite_lausanne),
+#   motif B2 independant (assertion résultat au niveau widget).
+
+appId: ch.mint.app
+tags:
+  - tier-b
+  - smoke
+  - retraite
+  - seeded
+  - feature:retirement
+---
+
+- launchApp:
+    clearState: true
+- openLink: "mintapp:///home"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 40000
+- assertNotVisible:
+    text: "Page introuvable"
+- assertNotVisible:
+    text: "NoSuchMethodError"
+
+# C1 — Atteignable : deeplink canonique /retraite.
+- openLink: "mintapp:///retraite"
+- extendedWaitUntil:
+    visible:
+      id: "retraite-anchor"
+    timeout: 15000
+
+# C3 — Zéro terme banni LSFin (« garanti* » seule ; voir en-tête).
+- assertNotVisible:
+    text: "(?i).*garanti.*"
+
+# C2 — Non-vide : aucune sentinelle vide (dont l'onboarding « 4 infos suffisent »).
+- assertNotVisible:
+    text: "Aucune donnée"
+- assertNotVisible:
+    text: "Aucune donnée pour l'instant"
+- assertNotVisible:
+    text: "Définis ton budget"
+
+# C2 — Chiffré CORRECT : la ligne rente LPP (≈ 1'800/mois) porte `retraite-result`,
+# sous la flottaison → scroll pour la révéler. PAS la ligne AVS (≈ 0, défaut moteur
+# documenté #1138). Si le collapse au scroll dépouille l'id, la preuve C2 correcte
+# est portée par le test widget (voir en-tête).
+- scrollUntilVisible:
+    element:
+      id: "retraite-result"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+# C4 — Pas de cul-de-sac : retour → /home. Leading icon-only de SliverAppBar
+# épinglé → tap par coordonnée (28,75 ; voir en-tête AX).
+- tapOn:
+    point: "28,75"
+- extendedWaitUntil:
+    visible:
+      id: "home_route_state"
+    timeout: 15000

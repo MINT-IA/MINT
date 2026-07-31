@@ -14,6 +14,7 @@ import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -153,9 +154,28 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
             elevation: 0,
             scrolledUnderElevation: 0,
             foregroundColor: MintColors.textPrimary,
-            title: Text(
-              S.of(context)!.debtRatioTitle,
-              style: MintTextStyles.titleMedium(),
+            // C4 « pas de cul-de-sac » : deeplink `mintapp:///debt/ratio` entre
+            // par go() → un retour AppBar par défaut ne dépile pas vers /home.
+            // Leading safePop explicite (motif B2 job_comparison / B3 hypotheque).
+            // `label` = tooltip « Retour » localisé (idiome back accessible B3).
+            leading: Semantics(
+              identifier: 'debt-ratio-back',
+              button: true,
+              label: MaterialLocalizations.of(context).backButtonTooltip,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => safePop(context),
+              ),
+            ),
+            // C1 « atteignable » : ancre régionale profonde sur le TITRE
+            // (jamais le wrapper racine — leçon ADR AX iOS 26.2).
+            title: Semantics(
+              identifier: 'debt-ratio-anchor',
+              header: true,
+              child: Text(
+                S.of(context)!.debtRatioTitle,
+                style: MintTextStyles.titleMedium(),
+              ),
             ),
           ),
           SliverPadding(
@@ -233,7 +253,13 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
       DebtRiskLevel.rouge => S.of(context)!.debtRatioLevelCritique,
     };
 
-    return MintSurface(
+    // C2 « non-vide + chiffré » : la jauge rend TOUJOURS le ratio d'endettement
+    // calculé (dettes / revenus × 100) depuis le profil seedé — aucun gate, aucun
+    // « Aucune donnée ». Ancre posée sur le hero chiffre-choc (au-dessus de la
+    // flottaison, présent au repos).
+    return Semantics(
+      identifier: 'debt-ratio-result',
+      child: MintSurface(
       tone: MintSurfaceTone.porcelaine,
       elevated: true,
       child: Column(
@@ -286,7 +312,7 @@ class _DebtRatioScreenState extends State<DebtRatioScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildLegendDot(Color color, String label) {

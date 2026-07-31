@@ -835,6 +835,14 @@ ALLOW = {
     "apps/mobile/lib/screens/coach/succession_patrimoine_screen.dart",
     # Preuve d'ancres C1/C2/C4 des 4 ecrans Patrimoine sous seed julien_swiss.
     "apps/mobile/test/screens/tierb_logement_anchors_test.dart",
+    # Tier B smoke — lots B5 (crise / international) + retraite : 3 flows seedes
+    # (debtCrisis=julien_swiss, countryMove=frontalier_geneve, retirement=
+    # retraite_lausanne). Les 3 ecrans-evenements sont deja dans ALLOW.
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_debt_ratio.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_expat.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_tierb_retraite.yaml",
+    # Preuve d'ancres C1/C2/C4 des 3 ecrans B5+retraite sous leurs seeds.
+    "apps/mobile/test/screens/tierb_b5_anchors_test.dart",
     # Runner sweep : nouveau tier `firstjob` (seed dedie, hors sweep normal).
     "tools/simulator/maestro_sweep.sh",
     "tools/simulator/journey_os_runtime_replay.sh",

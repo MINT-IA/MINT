@@ -8,6 +8,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/dashboard_curator_service.dart';
@@ -598,10 +599,21 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                     value: 'CHF\u00a0${avs.round()}',
                                     valueColor: MintColors.retirementAvs,
                                   ),
-                                  MintSignalRow(
-                                    label: l.jargonLpp,
-                                    value: 'CHF\u00a0${lpp.round()}',
-                                    valueColor: MintColors.retirementLpp,
+                                  // C2 « non-vide + chiffré » : ancre posée sur la
+                                  // rente LPP (avoir 2e pilier × taux de conversion
+                                  // ≈ 1'800/mois) — chiffre CORRECT, dérivé de l'avoir
+                                  // seedé. VOLONTAIREMENT PAS la ligne AVS : la
+                                  // ventilation AVS de la projection est recalculée
+                                  // depuis un salaire nul (≈ 0), défaut moteur connu
+                                  // (#1138) — la rente AVS déclarée 2'000 reste juste
+                                  // sur /home (budget net explicite), pas ici.
+                                  Semantics(
+                                    identifier: 'retraite-result',
+                                    child: MintSignalRow(
+                                      label: l.jargonLpp,
+                                      value: 'CHF\u00a0${lpp.round()}',
+                                      valueColor: MintColors.retirementLpp,
+                                    ),
                                   ),
                                   if (troisA > 0)
                                     MintSignalRow(
@@ -875,10 +887,28 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       backgroundColor: MintColors.porcelaine,
       surfaceTintColor: MintColors.transparent,
       elevation: 0,
+      // C4 « pas de cul-de-sac » : deeplink `mintapp:///retraite` entre par go()
+      // → un retour AppBar par défaut ne dépile pas vers /home. Leading safePop
+      // explicite (motif B2 job_comparison / B3 hypotheque). `label` = tooltip
+      // « Retour » localisé (idiome back accessible B3).
+      leading: Semantics(
+        identifier: 'retraite-back',
+        button: true,
+        label: MaterialLocalizations.of(context).backButtonTooltip,
+        child: IconButton(
+          icon: const Icon(Icons.arrow_back, color: MintColors.textSecondary),
+          onPressed: () => safePop(context),
+        ),
+      ),
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          title,
-          style: MintTextStyles.titleLarge(),
+        // C1 « atteignable » : ancre régionale profonde sur le TITRE.
+        title: Semantics(
+          identifier: 'retraite-anchor',
+          header: true,
+          child: Text(
+            title,
+            style: MintTextStyles.titleLarge(),
+          ),
         ),
         titlePadding: const EdgeInsets.only(
           left: MintSpacing.lg,
