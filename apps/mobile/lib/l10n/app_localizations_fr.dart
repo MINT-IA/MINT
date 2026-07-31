@@ -21923,6 +21923,18 @@ class SFr extends S {
       'Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuité de ton revenu';
+
+  @override
+  String get incomeContinuityContext =>
+      'Tu es déjà à la retraite : cet indicateur reflète la continuité de ton revenu de retraite, pas un taux de remplacement calculé sur un salaire d’activité passé.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Comme tu es déjà à la retraite, aucun salaire d’activité n’est au dossier. Ton revenu de retraite sert alors de référence : l’indicateur reflète la continuité de ton revenu, et non un taux de remplacement au sens strict.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Loi sur la prévoyance professionnelle) est le 2e pilier. Ton employeur et toi cotisez ensemble pour ta retraite.';
 

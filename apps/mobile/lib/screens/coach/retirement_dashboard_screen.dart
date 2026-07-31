@@ -63,6 +63,25 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 //  Aucun terme banni (garanti, certain, optimal, meilleur...).
 // ────────────────────────────────────────────────────────────
 
+/// Honnêteté du libellé du « taux de remplacement ».
+///
+/// Un retraité déjà en régime n'a pas de salaire pré-retraite au dossier
+/// (salaire 0). Le forecaster (ForecasterService.project, ~L310-315) retombe
+/// alors sur son revenu de retraite courant comme base : le « taux » lit ~100 %
+/// par construction — c'est un indicateur de CONTINUITÉ de revenu (la rente
+/// couvre-t-elle le besoin courant), PAS un vrai taux de remplacement forward
+/// (rente / dernier salaire actif). Le calcul est correct ; seul le LIBELLÉ
+/// doit être honnête. Ce prédicat, mirroir fidèle de la branche du forecaster,
+/// dit à l'UI quand relabeller. Un actif garde « taux de remplacement ».
+bool retirementIncomeIsContinuityBasis({
+  required CoachProfile profile,
+  required double projectedAnnualRetirementIncome,
+}) {
+  return profile.employmentStatus == 'retraite' &&
+      profile.revenuBrutAnnuelCouple <= 0 &&
+      projectedAnnualRetirementIncome > 0;
+}
+
 class RetirementDashboardScreen extends StatefulWidget {
   const RetirementDashboardScreen({super.key});
 
@@ -482,6 +501,14 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         12;
     final troisA = (decoBase['3a'] ?? decoBase['pilier3a'] ?? 0) / 12;
 
+    // Retraité déjà en régime : le « taux » de 100 % est un indicateur de
+    // CONTINUITÉ de revenu, pas un taux de remplacement forward. Le libellé
+    // doit le dire honnêtement (voir retirementIncomeIsContinuityBasis).
+    final isContinuityBasis = retirementIncomeIsContinuityBasis(
+      profile: profile,
+      projectedAnnualRetirementIncome: proj.base.revenuAnnuelRetraite,
+    );
+
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
       appBar: _buildAppBar(profile.firstName),
@@ -519,16 +546,20 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                 maxValue: 100,
                                 label:
                                     '${proj.tauxRemplacementBase.round()}\u00a0%',
-                                subtitle: l.jargonReplacementRate,
+                                subtitle: isContinuityBasis
+                                    ? l.incomeContinuityLabel
+                                    : l.jargonReplacementRate,
                                 size: 200,
                               ),
                               const SizedBox(height: 6),
                               Text(
-                                proj.tauxRemplacementBase >= 80
-                                    ? l.replacementRateContextGood
-                                    : proj.tauxRemplacementBase >= 60
-                                        ? l.replacementRateContextAverage
-                                        : l.replacementRateContextLow,
+                                isContinuityBasis
+                                    ? l.incomeContinuityContext
+                                    : proj.tauxRemplacementBase >= 80
+                                        ? l.replacementRateContextGood
+                                        : proj.tauxRemplacementBase >= 60
+                                            ? l.replacementRateContextAverage
+                                            : l.replacementRateContextLow,
                                 style: MintTextStyles.labelSmall(
                                     color: MintColors.textSecondary),
                                 textAlign: TextAlign.center,
@@ -548,6 +579,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                                         ? monthlyBase + partnerMonthly
                                         : monthlyBase,
                                 replacementRate: proj.tauxRemplacementBase,
+                                isContinuityBasis: isContinuityBasis,
                                 decomposition: decoBase,
                                 monthlyPrudent: monthlyPrudent,
                                 monthlyOptimiste: monthlyOptimiste,

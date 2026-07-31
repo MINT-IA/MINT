@@ -21991,6 +21991,18 @@ class SIt extends S {
       'Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuità del tuo reddito';
+
+  @override
+  String get incomeContinuityContext =>
+      'Sei già in pensione: questo indicatore riflette la continuità del tuo reddito da pensione, non un tasso di sostituzione calcolato su uno stipendio da attività passato.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Poiché sei già in pensione, non c’è alcuno stipendio da attività nel dossier. Il tuo reddito da pensione funge allora da riferimento: l’indicatore riflette la continuità del tuo reddito, non un tasso di sostituzione in senso stretto.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Legge sulla previdenza professionale) è il 2° pilastro. Tu e il tuo datore di lavoro contribuite insieme per la tua pensione.';
 

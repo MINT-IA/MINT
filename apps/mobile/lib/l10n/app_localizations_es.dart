@@ -21928,6 +21928,18 @@ class SEs extends S {
       'La tasa de reemplazo mide la parte de tu ingreso actual que conservarás en la jubilación. Ejemplo: 65% significa que recibirás el 65% de tu salario actual.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Continuidad de tus ingresos';
+
+  @override
+  String get incomeContinuityContext =>
+      'Ya estás jubilado/a: este indicador refleja la continuidad de tus ingresos de jubilación, no una tasa de reemplazo calculada sobre un salario laboral pasado.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Como ya estás jubilado/a, no hay ningún salario laboral en el expediente. Tus ingresos de jubilación sirven entonces de referencia: el indicador refleja la continuidad de tus ingresos, no una tasa de reemplazo en sentido estricto.';
+
+  @override
   String get jargonLppTooltip =>
       'La LPP (Ley de Previsión Profesional) es el 2.º pilar. Tú y tu empleador cotizáis juntos para tu jubilación.';
 

@@ -38381,6 +38381,24 @@ abstract class S {
   /// **'Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.'**
   String get jargonReplacementRateTooltip;
 
+  /// No description provided for @incomeContinuityLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuité de ton revenu'**
+  String get incomeContinuityLabel;
+
+  /// No description provided for @incomeContinuityContext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu es déjà à la retraite : cet indicateur reflète la continuité de ton revenu de retraite, pas un taux de remplacement calculé sur un salaire d’activité passé.'**
+  String get incomeContinuityContext;
+
+  /// No description provided for @incomeContinuityTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comme tu es déjà à la retraite, aucun salaire d’activité n’est au dossier. Ton revenu de retraite sert alors de référence : l’indicateur reflète la continuité de ton revenu, et non un taux de remplacement au sens strict.'**
+  String get incomeContinuityTooltip;
+
   /// No description provided for @jargonLppTooltip.
   ///
   /// In fr, this message translates to:

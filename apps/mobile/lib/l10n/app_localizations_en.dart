@@ -21805,6 +21805,18 @@ class SEn extends S {
       'The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Income continuity';
+
+  @override
+  String get incomeContinuityContext =>
+      'You are already retired: this indicator reflects the continuity of your retirement income, not a replacement rate calculated on a past working salary.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Since you are already retired, no working salary is on file. Your retirement income then serves as the reference: the indicator reflects your income continuity, not a replacement rate in the strict sense.';
+
+  @override
   String get jargonLppTooltip =>
       'The LPP (Occupational Pensions Act) is the 2nd pillar. You and your employer contribute together toward your retirement.';
 

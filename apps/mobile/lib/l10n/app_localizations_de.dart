@@ -21969,6 +21969,18 @@ class SDe extends S {
       'Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.';
 
   @override
+  String get incomeContinuityLabel =>
+      'Einkommenskontinuität';
+
+  @override
+  String get incomeContinuityContext =>
+      'Du bist bereits im Ruhestand: Dieser Indikator zeigt die Kontinuität deines Renteneinkommens, nicht eine Ersatzquote auf einem früheren Erwerbslohn.';
+
+  @override
+  String get incomeContinuityTooltip =>
+      'Da du bereits im Ruhestand bist, liegt kein Erwerbslohn vor. Dein Renteneinkommen dient dann als Referenz: Der Indikator zeigt die Kontinuität deines Einkommens, nicht eine Ersatzquote im engeren Sinne.';
+
+  @override
   String get jargonLppTooltip =>
       'Das BVG (Bundesgesetz über die berufliche Vorsorge) ist die 2. Säule. Du und dein Arbeitgeber zahlen gemeinsam für deine Pension ein.';
 
