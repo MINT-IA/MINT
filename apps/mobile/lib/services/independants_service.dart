@@ -116,11 +116,18 @@ class DividendeVsSalaireResult {
   final double chargeDividende;
   final double chargeTotal;
   final double chargeToutSalaire; // 100% salary scenario
-  final double economie; // savings from split
+  final double economie; // savings from split (point d'estimation, part 50%)
+  /// Borne conservatrice de l'économie : recalculée avec la part imposable
+  /// FÉDÉRALE du dividende (70%, LIFD art. 20 al. 1bis). L'économie réelle se
+  /// situe entre [economieConservatrice] et [economie] selon la pratique
+  /// cantonale (50–70%) — et reste plus faible car ce modèle exclut l'impôt
+  /// sur le bénéfice de la société (double imposition économique). Rendue en
+  /// fourchette d'incertitude à l'écran (D10).
+  final double economieConservatrice;
   final List<DividendeSplitPoint> sensitivity;
   final double optimalSplitPct;
   final double optimalCharge;
-  final bool requalificationRisk; // salary < 60%
+  final bool requalificationRisk; // part < 60% OU salaire < seuil raisonnable
 
   const DividendeVsSalaireResult({
     required this.benefice,
@@ -131,6 +138,7 @@ class DividendeVsSalaireResult {
     required this.chargeTotal,
     required this.chargeToutSalaire,
     required this.economie,
+    required this.economieConservatrice,
     required this.sensitivity,
     required this.optimalSplitPct,
     required this.optimalCharge,
@@ -250,8 +258,46 @@ class IndependantsService {
     '55-65': 0.18,
   };
 
-  /// AVS combined employer+employee rate for salary calculations.
-  static const double _avsCombinedRate = 0.1250;
+  // ── Dividende vs salaire — étalon partagé (miroir backend) ──────────────
+  // Ces constantes reflètent 1:1 le backend
+  // `services/backend/app/services/independants/dividende_vs_salaire_service.py`
+  // (CHARGES_SOCIALES_TOTALES / TAUX_IMPOSITION_DIVIDENDE_FEDERAL /
+  //  SEUIL_REQUALIFICATION / SALAIRE_MINIMUM_RAISONNABLE). Toute divergence
+  // casserait la parité écran↔coach (test independants_backend_parity_test.dart).
+
+  /// Charges sociales totales employeur+employé (AVS/AI/APG/AC ~12.5%) sur la
+  /// part salaire. Approximation combinée, hors frais d'administration de caisse.
+  /// Miroir backend `CHARGES_SOCIALES_TOTALES = 0.125`.
+  static const double _chargesSocialesTotales = 0.1250;
+
+  /// Part imposable du dividende retenue par le modèle : 50%.
+  /// ⚠️ C'est le MINIMUM cantonal (LHID art. 7 al. 1), PAS le taux fédéral.
+  /// Depuis la réforme RFFA (en vigueur 1.1.2020), LIFD art. 20 al. 1bis impose
+  /// les participations qualifiantes (≥10%) détenues dans la fortune privée à
+  /// 70% au niveau fédéral. Le modèle (miroir backend, cantonal-minimum) sous-
+  /// estime donc l'impôt sur le dividende → surévalue l'« économie ».
+  /// Divergence documentée (cross-layer) : swiss-brain ruling 2026-07-31 Q1.
+  /// Le taux fédéral [_tauxImpositionDividendeFederal] sert de borne prudente
+  /// à la fourchette d'incertitude rendue à l'écran (D10).
+  static const double _tauxImpositionDividendePartielle = 0.50;
+
+  /// Part imposable fédérale du dividende qualifiant (≥10%), fortune privée :
+  /// 70% depuis RFFA (LIFD art. 20 al. 1bis, en vigueur 1.1.2020). Utilisée
+  /// UNIQUEMENT comme borne conservatrice de la fourchette d'incertitude
+  /// (l'économie réelle est plus faible que le point d'estimation à 50%).
+  static const double _tauxImpositionDividendeFederal = 0.70;
+
+  /// Seuil de requalification (part salaire, en % du bénéfice). En dessous,
+  /// alerte : l'AVS pourrait requalifier une part des dividendes en salaire.
+  /// Proxy de pratique (jurisprudence ATF 134 V 297 + DSD OFAS), pas un seuil
+  /// légal. Miroir backend `SEUIL_REQUALIFICATION = 0.60`.
+  static const double _seuilRequalificationPct = 60.0;
+
+  /// Plancher absolu de salaire « conforme au marché / raisonnable » (CHF/an)
+  /// sous lequel l'alerte de requalification se déclenche AUSSI, même si la
+  /// part dépasse 60%. Proxy de pratique (DSD OFAS), pas un seuil légal.
+  /// Miroir backend `SALAIRE_MINIMUM_RAISONNABLE = 60_000`.
+  static const double _salaireMinimumRaisonnable = 60000.0;
 
   /// LPP conversion rate at retirement — minimum legal, obligatoire only.
   /// For independants with voluntary LPP, most plans have only obligatoire
@@ -497,6 +543,7 @@ class IndependantsService {
         chargeTotal: 0,
         chargeToutSalaire: 0,
         economie: 0,
+        economieConservatrice: 0,
         sensitivity: [],
         optimalSplitPct: 60,
         optimalCharge: 0,
@@ -540,7 +587,19 @@ class IndependantsService {
 
     // Economie = savings of optimal split vs all-salary (aligned with backend)
     final economie = chargeToutSalaire - optimalCharge;
-    final requalificationRisk = partSalairePct < 60;
+
+    // Borne conservatrice : même optimum, mais dividende imposé au taux FÉDÉRAL
+    // (70%). L'économie réelle se situe entre cette borne et [economie] selon
+    // la pratique cantonale (50–70%). Rendue en fourchette d'incertitude (D10).
+    final optimalChargeFederal = _optimalTotalCharge(
+        benefice, tauxMarginal, _tauxImpositionDividendeFederal);
+    final economieConservatrice = chargeToutSalaire - optimalChargeFederal;
+
+    // Requalification : part < 60% OU salaire proposé < seuil raisonnable
+    // (converge vers le backend, cf. swiss-brain ruling 2026-07-31 Q4 — le
+    // mobile sous-alertait). Proxys de pratique, pas des seuils légaux.
+    final requalificationRisk = partSalairePct < _seuilRequalificationPct ||
+        partSalaire < _salaireMinimumRaisonnable;
 
     return DividendeVsSalaireResult(
       benefice: benefice,
@@ -551,6 +610,7 @@ class IndependantsService {
       chargeTotal: chargeTotal,
       chargeToutSalaire: chargeToutSalaire,
       economie: max(economie, 0),
+      economieConservatrice: max(economieConservatrice, 0),
       sensitivity: sensitivity,
       optimalSplitPct: optimalSplitPct,
       optimalCharge: optimalCharge,
@@ -559,21 +619,45 @@ class IndependantsService {
   }
 
   /// Compute total charge on salary portion.
-  /// Full income tax + AVS combined (~12.5%).
+  /// Full income tax + charges sociales combinées (~12.5%).
   static double _computeSalaryCharge(double salary, double tauxMarginal) {
     if (salary <= 0) return 0;
     final impot = salary * tauxMarginal;
-    final avs = salary * _avsCombinedRate;
-    return impot + avs;
+    final chargesSociales = salary * _chargesSocialesTotales;
+    return impot + chargesSociales;
   }
 
-  /// Compute total charge on dividend portion.
-  /// 50% taxation (qualifying participation), no AVS.
-  static double _computeDividendCharge(double dividend, double tauxMarginal) {
+  /// Compute total charge on dividend portion (partial taxation, no AVS).
+  /// [tauxImposition] = part imposable du dividende (défaut = 50%, minimum
+  /// cantonal). Passer [_tauxImpositionDividendeFederal] (70%) pour la borne
+  /// conservatrice de la fourchette d'incertitude.
+  static double _computeDividendCharge(
+    double dividend,
+    double tauxMarginal, {
+    double tauxImposition = _tauxImpositionDividendePartielle,
+  }) {
     if (dividend <= 0) return 0;
-    // Only 50% is taxable (participation qualifiante)
-    final impot = dividend * 0.50 * tauxMarginal;
+    final impot = dividend * tauxImposition * tauxMarginal;
     return impot;
+  }
+
+  /// Charge totale du split optimal (min sur 0→100% par pas de 10%) pour une
+  /// part imposable de dividende [tauxImposition] donnée. Sert à dériver la
+  /// fourchette d'incertitude de l'économie (point à 50%, borne à 70%).
+  static double _optimalTotalCharge(
+    double benefice,
+    double tauxMarginal,
+    double tauxImposition,
+  ) {
+    double best = double.infinity;
+    for (int pct = 0; pct <= 100; pct += 10) {
+      final sal = benefice * (pct / 100);
+      final total = _computeSalaryCharge(sal, tauxMarginal) +
+          _computeDividendCharge(benefice - sal, tauxMarginal,
+              tauxImposition: tauxImposition);
+      if (total < best) best = total;
+    }
+    return best;
   }
 
   // ════════════════════════════════════════════════════════════

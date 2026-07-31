@@ -6140,6 +6140,8 @@
   "dividendeBeneficeTotal": "Gesamtgewinn",
   "dividendePartSalaire": "Lohnanteil",
   "dividendeTauxMarginal": "Grenzsteuersatz",
+  "dividendeFourchette": "Bandbreite je nach angenommenem steuerbarem Dividendenanteil (50 % bis 70 %): {low} bis {high} pro Jahr.",
+  "dividendeConfidenceMessage": "Diese Schätzung schließt die Gewinnsteuer der Gesellschaft aus: die tatsächliche Ersparnis ist geringer. Sie unterstellt einen steuerbaren Dividendenanteil von 50 %, während die Bundessteuer 70 % vorsieht (DBG Art. 20 Abs. 1bis) und die kantonale Steuer mindestens 50 %. Mit einer Treuhänderin bestätigen.",
   "successionUrgence": "Sofortiger Handlungsbedarf",
   "successionDemarches": "Verwaltungsschritte",
   "successionLegale": "Gesetzliche Erbfolge",

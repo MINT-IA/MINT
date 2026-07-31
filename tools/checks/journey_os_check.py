@@ -223,6 +223,11 @@ ALLOW = {
     "apps/mobile/test/services/fiscal_service_test.dart",
     # -7vv : IndicatifBanner — trame réelle, CTA audible, fiscalite routable
     "apps/mobile/test/services/independants_service_test.dart",
+    # Cluster 12D V2-1 : drains D2 (parité backend) + confidence D10 dividende.
+    "apps/mobile/lib/screens/independants/dividende_vs_salaire_screen.dart",
+    "apps/mobile/test/screens/independants/dividende_vs_salaire_screen_test.dart",
+    "apps/mobile/test/services/independants_backend_parity_test.dart",
+    ".planning/phases/mint-utilisable-12d-vague2/V2-1-INDEPENDANTS-INVENTORY.md",
     "apps/mobile/lib/services/segments_service.dart",
     "apps/mobile/test/services/segments_service_test.dart",
     "apps/mobile/lib/screens/independants/avs_cotisations_screen.dart",

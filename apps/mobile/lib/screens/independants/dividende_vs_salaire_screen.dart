@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
@@ -34,6 +35,13 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   double _partSalairePct = 70;
   double _tauxMarginal = 0.30;
   DividendeVsSalaireResult? _result;
+
+  /// Confiance du modèle (D10). Volontairement basse : ce simulateur EXCLUT
+  /// l'impôt sur le bénéfice de la société (double imposition économique) et
+  /// utilise la part imposable minimale (50%, minimum cantonal) au lieu du
+  /// taux fédéral (70%). Les deux biais surévaluent l'économie.
+  /// Cf. swiss-brain ruling 2026-07-31 (Q1/Q2).
+  static const int _kModelConfidencePercent = 40;
 
   @override
   void initState() {
@@ -72,6 +80,13 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 const SizedBox(height: 24),
                 if (_result != null) ...[
                   MintEntrance(child: _buildPremierEclairage()),
+                  if (_result!.economie > 0) ...[
+                    const SizedBox(height: 12),
+                    MintEntrance(
+                      delay: const Duration(milliseconds: 80),
+                      child: _buildEconomieConfidence(),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   if (_result!.requalificationRisk) ...[
                     MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRequalificationAlert()),
@@ -217,6 +232,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     final saving = r.economie;
 
     return Semantics(
+      identifier: 'dividende-economie',
       label: saving > 0
           ? S.of(context)!.semanticsDividendeSaving(IndependantsService.formatChf(saving))
           : S.of(context)!.semanticsDividendeAdjust,
@@ -236,6 +252,39 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ── D10 : fourchette d'incertitude + appareil de confiance ─────────
+
+  /// Rend la « bande d'incertitude » de l'économie (de la borne fédérale 70%
+  /// au point d'estimation 50%) + un appareil de confiance qui NOMME les
+  /// exclusions du modèle (impôt sur le bénéfice, taux d'imposition partielle
+  /// indicatif). Le « pourquoi ce chiffre » devient accessible et honnête.
+  Widget _buildEconomieConfidence() {
+    final r = _result!;
+    return Semantics(
+      identifier: 'dividende-confidence',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              S.of(context)!.dividendeFourchette(
+                    IndependantsService.formatChf(r.economieConservatrice),
+                    IndependantsService.formatChf(r.economie),
+                  ),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+          const SizedBox(height: 12),
+          MintConfidenceNotice(
+            percent: _kModelConfidencePercent,
+            message: S.of(context)!.dividendeConfidenceMessage,
+          ),
+        ],
       ),
     );
   }

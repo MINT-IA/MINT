@@ -6140,6 +6140,8 @@
   "dividendeBeneficeTotal": "Beneficio total",
   "dividendePartSalaire": "Parte salarial",
   "dividendeTauxMarginal": "Tipo marginal de impuesto",
+  "dividendeFourchette": "Rango según la parte imponible del dividendo considerada (50 % a 70 %): de {low} a {high} al año.",
+  "dividendeConfidenceMessage": "Esta estimación excluye el impuesto sobre el beneficio de la sociedad: el ahorro real es menor. Considera una parte imponible del dividendo del 50 %, mientras que el impuesto federal aplica el 70 % (LIFD art. 20 ap. 1bis) y el cantonal al menos el 50 %. Confírmalo con un asesor fiscal.",
   "successionUrgence": "Urgencia inmediata",
   "successionDemarches": "Trámites administrativos",
   "successionLegale": "Sucesión legal",

@@ -318,6 +318,55 @@ void main() {
       );
       expect(result.economie, greaterThanOrEqualTo(0));
     });
+
+    // ── Q4 (swiss-brain 2026-07-31) : plancher absolu de salaire raisonnable.
+    // Le mobile sous-alertait ; il converge vers le backend (part < 60% OU
+    // salaire propose < 60'000).
+    test('requalification quand salaire < seuil raisonnable meme si part >= 60%',
+        () {
+      // benefice 80'000, part 65% -> salaire 52'000 < 60'000 -> alerte.
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(80000, 65, 0.30);
+      expect(result.partSalaire, closeTo(52000, 0.01));
+      expect(result.requalificationRisk, true);
+    });
+
+    test('pas de requalification quand part >= 60% ET salaire >= 60\'000', () {
+      // benefice 200'000, part 70% -> salaire 140'000 >= 60'000 -> pas d'alerte.
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(200000, 70, 0.30);
+      expect(result.requalificationRisk, false);
+    });
+
+    test('requalification quand part < 60% meme si salaire >= 60\'000', () {
+      // benefice 200'000, part 50% -> salaire 100'000 (>= 60'000) mais part < 60%.
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(200000, 50, 0.30);
+      expect(result.requalificationRisk, true);
+    });
+
+    // ── D10 : fourchette d'incertitude. La borne conservatrice recalcule le
+    // dividende au taux FEDERAL (70%, LIFD art. 20 al. 1bis) -> avantage plus
+    // faible que le point d'estimation (50%, minimum cantonal).
+    test('economie conservatrice (70%) <= economie (50%) et >= 0', () {
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(200000, 60, 0.30);
+      expect(result.economieConservatrice, greaterThanOrEqualTo(0));
+      expect(
+        result.economieConservatrice,
+        lessThanOrEqualTo(result.economie),
+      );
+    });
+
+    test('economie conservatrice STRICTEMENT < economie quand le dividende est '
+        'optimal', () {
+      // Taux marginal eleve -> le split optimal inclut du dividende -> la borne
+      // federale (70%) reduit strictement l'economie.
+      final result =
+          IndependantsService.calculateDividendeVsSalaire(300000, 60, 0.35);
+      expect(result.economie, greaterThan(0));
+      expect(result.economieConservatrice, lessThan(result.economie));
+    });
   });
 
   // ════════════════════════════════════════════════════════════
