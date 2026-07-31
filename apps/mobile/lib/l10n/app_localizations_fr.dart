@@ -16268,6 +16268,24 @@ class SFr extends S {
   String get donationRegimeSeparation => 'Séparation de biens';
 
   @override
+  String get donationLienConjoint => 'Conjoint(e)';
+
+  @override
+  String get donationLienDescendant => 'Enfant / Descendant(e)';
+
+  @override
+  String get donationLienParent => 'Parent';
+
+  @override
+  String get donationLienFratrie => 'Frère / Sœur';
+
+  @override
+  String get donationLienConcubin => 'Concubin(e)';
+
+  @override
+  String get donationLienTiers => 'Tiers';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Réserve $pct %';
   }

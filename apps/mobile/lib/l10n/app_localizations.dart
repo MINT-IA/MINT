@@ -28535,6 +28535,42 @@ abstract class S {
   /// **'Séparation de biens'**
   String get donationRegimeSeparation;
 
+  /// No description provided for @donationLienConjoint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conjoint(e)'**
+  String get donationLienConjoint;
+
+  /// No description provided for @donationLienDescendant.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enfant / Descendant(e)'**
+  String get donationLienDescendant;
+
+  /// No description provided for @donationLienParent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parent'**
+  String get donationLienParent;
+
+  /// No description provided for @donationLienFratrie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frère / Sœur'**
+  String get donationLienFratrie;
+
+  /// No description provided for @donationLienConcubin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Concubin(e)'**
+  String get donationLienConcubin;
+
+  /// No description provided for @donationLienTiers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tiers'**
+  String get donationLienTiers;
+
   /// No description provided for @donationReserveBarLabel.
   ///
   /// In fr, this message translates to:

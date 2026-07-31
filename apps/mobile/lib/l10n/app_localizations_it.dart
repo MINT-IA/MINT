@@ -16322,6 +16322,24 @@ class SIt extends S {
   String get donationRegimeSeparation => 'Separazione dei beni';
 
   @override
+  String get donationLienConjoint => 'Coniuge';
+
+  @override
+  String get donationLienDescendant => 'Figlio(a) / Discendente';
+
+  @override
+  String get donationLienParent => 'Genitore';
+
+  @override
+  String get donationLienFratrie => 'Fratello / Sorella';
+
+  @override
+  String get donationLienConcubin => 'Convivente';
+
+  @override
+  String get donationLienTiers => 'Terzo';
+
+  @override
   String donationReserveBarLabel(String pct) {
     return 'Riserva $pct%';
   }

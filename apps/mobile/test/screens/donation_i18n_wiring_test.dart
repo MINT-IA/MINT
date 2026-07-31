@@ -10,8 +10,9 @@ import 'package:provider/provider.dart';
 /// i18n wiring contract for donation_screen (dette audit 2026-07 + lot B3).
 ///
 /// Positive proof that the user-facing labels formerly hardcoded in FR
-/// (types de donation, régimes matrimoniaux, libellé d'âge, disclaimer de
-/// repli) rendent désormais la valeur ARB via [S]. Chaque assertion compare le
+/// (types de donation, régimes matrimoniaux, liens de parenté, libellé d'âge,
+/// disclaimer de repli) rendent désormais la valeur ARB via [S]. Chaque
+/// assertion compare le
 /// texte rendu à la valeur du getter localisé — jamais à un littéral FR (qui
 /// ré-introduirait la dette). Si un getter cassait au runtime, le build de
 /// l'écran lèverait avant même l'assertion.
@@ -57,6 +58,19 @@ void main() {
     expect(find.text(l.donationRegimeParticipation), findsWidgets);
     expect(find.text(l.donationRegimeCommunaute), findsWidgets);
     expect(find.text(l.donationRegimeSeparation), findsWidgets);
+  });
+
+  testWidgets('lien-de-parenté chips render the ARB value, not hardcoded FR',
+      (tester) async {
+    final l = await _pumpAndLocalize(tester);
+    // Les 6 catégories du socle (conjoint/descendant/…) sont résolues via
+    // _lienParenteLabel → ARB, en miroir des régimes matrimoniaux.
+    expect(find.text(l.donationLienConjoint), findsWidgets);
+    expect(find.text(l.donationLienDescendant), findsWidgets);
+    expect(find.text(l.donationLienParent), findsWidgets);
+    expect(find.text(l.donationLienFratrie), findsWidgets);
+    expect(find.text(l.donationLienConcubin), findsWidgets);
+    expect(find.text(l.donationLienTiers), findsWidgets);
   });
 
   testWidgets('age picker formats via the shared ageYears ARB key',
