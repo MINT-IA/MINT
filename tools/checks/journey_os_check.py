@@ -58,6 +58,13 @@ ALLOW = {
     "apps/mobile/test/services/retirement_declared_avs_test.dart",
     "apps/mobile/test/screens/retraite_dashboard_declared_avs_test.dart",
     "apps/mobile/test/screens/coach/retirement_dashboard_test.dart",
+    # --- fix(e2e) : fallback de scellement debug/E2E-only dans SecureWizardStore
+    # (double-gardé kReleaseMode + MINT_E2E_SEAL_FALLBACK). Sans lui, le seal
+    # keychain échoue sur build sim --no-codesign (-34018) → /retraite retombe en
+    # State C dans le harnais. Chemin release byte-inaccessible, contrat privacy
+    # secure_failure_test intact. Branche codex/journey-os-e2e-seal-fallback. ---
+    "apps/mobile/lib/services/secure_wizard_store.dart",
+    "apps/mobile/test/services/secure_wizard_store_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",

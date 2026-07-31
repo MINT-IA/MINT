@@ -10,7 +10,10 @@
 library;
 
 import 'dart:convert';
+import 'dart:developer' as dev;
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class SecureWizardSealResult {
@@ -40,6 +43,64 @@ class SecureWizardStore {
   static const _manifestKey = '_mint_wizard_secure_keys_v1';
   static const _heldPrefix = '_mint_held_anonymous_wizard_';
   static const _heldManifestKey = '_mint_held_anonymous_wizard_secure_keys_v1';
+
+  // ── E2E SEAL FALLBACK (debug/harness-only, NEVER release) ──────────────────
+  //
+  // Unsigned iOS-sim builds (`--no-codesign`) have no keychain-access-groups
+  // entitlement, so `_storage.write` throws `PlatformException('-34018')`. The
+  // real seal then fails, `saveAnswers` writes nothing, and the deliberate
+  // privacy contract clears the profile — so any screen that persists sensitive
+  // data on entry (e.g. `/retraite` via `_persistInitialSnapshot`) drops to the
+  // onboarding empty state (State C) in the E2E harness, even though the exact
+  // same flow succeeds on a provisioned device.
+  //
+  // This fallback lets the harness seal into a process-local in-memory map
+  // instead of the keychain, so those screens can be exercised end-to-end
+  // WITHOUT weakening the release seal path and WITHOUT relaxing the privacy
+  // contract for unit tests:
+  //   * Double-gated: `kReleaseMode` short-circuits to false FIRST (the whole
+  //     branch is const-false dead-code-eliminated from the release AOT
+  //     snapshot), then an explicit, default-false E2E opt-in
+  //     (`MINT_E2E_SEAL_FALLBACK` / `debugSealFallbackOverride`).
+  //   * OFF by default: unit tests and production stay on the genuine
+  //     seal-failure path (the privacy contract in
+  //     `coach_profile_provider_secure_failure_test.dart` remains asserted).
+  //   * In-memory only: PII is NEVER demoted to plain SharedPreferences, even
+  //     in debug — SEC-10 holds in the harness too. The value lives only in
+  //     process RAM, exactly as a keychain-resident value would be accessed.
+  //   * Missing-entitlement only: activates strictly on `-34018`; every other
+  //     storage failure still fails closed.
+  //
+  // Pattern mirrors `E2eRuntimeFlags` and `coach_profile_seeds.dart`
+  // (`forcedArchetypeSlug`), both kReleaseMode-guarded for the same
+  // "never leak to production" reason.
+  static final Map<String, String> _e2eSealFallbackStore = <String, String>{};
+
+  /// Test seam mirroring `E2eRuntimeFlags.*Override`: forces the fallback on
+  /// (or off) in widget/unit tests. Defaults to null -> the compile-time flag.
+  @visibleForTesting
+  static bool? debugSealFallbackOverride;
+
+  /// True only when the E2E seal fallback is active. Release short-circuits to
+  /// false (const), so the fallback branches strip from the release snapshot.
+  static bool get _sealFallbackEnabled {
+    if (kReleaseMode) return false;
+    return debugSealFallbackOverride ??
+        const bool.fromEnvironment(
+          'MINT_E2E_SEAL_FALLBACK',
+          defaultValue: false,
+        );
+  }
+
+  static bool _isMissingEntitlement(Object error) =>
+      error is PlatformException && error.code == '-34018';
+
+  /// Resets the E2E fallback test seam (in-memory store + override). Debug-only.
+  @visibleForTesting
+  static void resetSealFallbackForTest() {
+    _e2eSealFallbackStore.clear();
+    debugSealFallbackOverride = null;
+  }
 
   static const _classifiedSensitiveKeys = {
     'q_employment_rate',
@@ -216,7 +277,19 @@ class SecureWizardStore {
         return false;
       }
       return true;
-    } on Exception {
+    } on Exception catch (e) {
+      if (_sealFallbackEnabled && _isMissingEntitlement(e)) {
+        // E2E harness only (kReleaseMode-stripped): seal into a process-local
+        // in-memory map so the flush succeeds off-keychain. NEVER reached in
+        // release or in a default unit test.
+        _e2eSealFallbackStore[key] = value;
+        dev.log(
+          'E2E seal fallback: sealed "$key" in debug in-memory store '
+          '(keychain -34018, NOT a real keychain seal, NOT release)',
+          name: 'SecureWizardStore',
+        );
+        return true;
+      }
       // Secure storage unavailable (sim entitlement / locked keychain):
       // degrade gracefully rather than aborting the seal.
       return false;
@@ -235,9 +308,17 @@ class SecureWizardStore {
   /// « opener re-appears after scan » regression).
   static Future<String?> read(String key) async {
     if (!isSensitive(key)) return null;
+    // E2E harness only (kReleaseMode-stripped): the in-memory fallback is the
+    // authoritative store when active — a failed keychain read returns null
+    // WITHOUT throwing (so a catch-only guard would silently lose the value),
+    // and a live keychain read could return a stale value. Prefer the map.
+    if (_sealFallbackEnabled && _e2eSealFallbackStore.containsKey(key)) {
+      return _e2eSealFallbackStore[key];
+    }
     try {
       return await _storage.read(key: key);
     } on Exception {
+      if (_sealFallbackEnabled) return _e2eSealFallbackStore[key];
       return null;
     }
   }
@@ -353,6 +434,13 @@ class SecureWizardStore {
   /// Delete all sensitive keys from encrypted storage.
   static Future<bool> deleteAll() async {
     var deletedAll = true;
+    // Privacy reset must also purge the E2E in-memory fallback. Gated on
+    // `!kReleaseMode` (NOT the E2E flag) so it strips from the release snapshot
+    // yet always runs in any debug/harness run — even if the override was
+    // flipped off after seals landed — leaving no PII resident.
+    if (!kReleaseMode) {
+      _e2eSealFallbackStore.clear();
+    }
     final keys = {..._sensitiveKeys, ...await _readManifest()};
     for (final key in keys) {
       try {
