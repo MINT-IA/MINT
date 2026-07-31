@@ -25017,4 +25017,122 @@ class SIt extends S {
   @override
   String get lppRescueDisclaimer =>
       'Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Senza istruzioni, trasferimento d’ufficio tra 6 mesi e 2 anni (LFLP art. 4 al. 2). Averi dimenticati: sfbvg.ch.';
+
+  @override
+  String get expatDeadline3aLabel => 'Pilastro 3a — chiusura o blocco';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Contatta la tua banca per pianificare la chiusura o il trasferimento del 3a.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'Un 3a non gestito prima della partenza può bloccare i fondi per anni.';
+
+  @override
+  String get expatDeadlineLppLabel => 'LPP — libero passaggio';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Richiedi il trasferimento del tuo avere LPP su un conto di libero passaggio o una polizza.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AVS — contributo volontario';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'Se ti stabilisci fuori dall\'UE/AELS, puoi aderire volontariamente all\'AVS per evitare lacune.';
+
+  @override
+  String get expatRightAvsLabel => 'AVS — contributo obbligatorio';
+
+  @override
+  String get expatRightAvsBefore =>
+      'Contributo automatico tramite il datore di lavoro';
+
+  @override
+  String get expatRightAvsAfter => 'Lacune AVS → rendita ridotta';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Ogni anno mancante riduce la tua rendita AVS di circa il $perYear %. 10 anni = −$tenYear % a vita.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'LPP — 2° pilastro';
+
+  @override
+  String get expatRightLppBefore => 'Risparmio pensionistico obbligatorio';
+
+  @override
+  String get expatRightLppAfter =>
+      'Capitale bloccato o prelevato senza rendimento';
+
+  @override
+  String get expatRightLppImpact =>
+      'Puoi prelevare il tuo avere LPP, ma paghi l\'imposta sul capitale prelevato. La ricostituzione dall\'estero non è possibile.';
+
+  @override
+  String get expatRight3aLabel => 'Pilastro 3a';
+
+  @override
+  String get expatRight3aBefore => 'Deduzioni fiscali annue';
+
+  @override
+  String get expatRight3aAfter =>
+      'Conto bloccato — nessun nuovo versamento possibile';
+
+  @override
+  String get expatRight3aImpact =>
+      'Perdi il diritto di versare nel 3a non appena non hai più un reddito soggetto all\'AVS svizzera.';
+
+  @override
+  String get expatRightLamalLabel => 'LAMal — assicurazione malattia';
+
+  @override
+  String get expatRightLamalBefore => 'Copertura universale in Svizzera';
+
+  @override
+  String get expatRightLamalAfter =>
+      'L\'assicurazione malattia dipende ora dal tuo paese di residenza';
+
+  @override
+  String get expatRightLamalImpact =>
+      'La copertura internazionale è spesso parziale e costosa. Verifica gli accordi bilaterali.';
+
+  @override
+  String get expatRightAcLabel => 'Disoccupazione AD';
+
+  @override
+  String get expatDestinationAbroad => 'l\'estero';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Stima su un modello lineare semplificato (rendita ridotta in proporzione agli anni di contribuzione). La rendita AVS reale dipende anche dal reddito annuo medio e dagli accrediti. Da confermare con la tua cassa di compensazione.';
+
+  @override
+  String get frontalierChargeMaladie => 'Assicurazione malattia';
+
+  @override
+  String get frontalierChargeRetraite => 'Pensione / vecchiaia';
+
+  @override
+  String get frontalierChargeChomage => 'Disoccupazione';
+
+  @override
+  String get frontalierChargeDependance => 'Dipendenza';
+
+  @override
+  String get frontalierChargeLogement => 'Aiuto all\'alloggio';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'LPP (stim.)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Stima su un tasso medio semplificato per cantone. L\'imposta alla fonte reale dipende dalla tariffa applicabile (A, B o C secondo la tua situazione familiare) e dal tuo statuto di quasi-residente. Da confermare con l\'amministrazione fiscale cantonale.';
+
 }

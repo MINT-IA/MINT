@@ -20,7 +20,9 @@ import 'package:mint_mobile/widgets/coach/avs_gap_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/expat_rights_loss_widget.dart';
 import 'package:mint_mobile/services/financial_core/income_tax_model_v2.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/widgets/situation/situation_gate.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  EXPAT SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -46,6 +48,12 @@ class _ExpatScreenState extends State<ExpatScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   CoachProfileProvider? _profileProvider;
+
+  // D10 — confiance de l'estimation de lacune AVS. Modèle linéaire simplifié
+  // (rente réduite au prorata des années), donc confiance médiane : le message
+  // d'hypothèse (expatAvsConfidenceMessage) nomme les facteurs non modélisés
+  // (revenu annuel moyen, bonifications). Rendu via MintTrameConfiance (Phase 8a).
+  static const int _kAvsGapConfidencePercent = 55;
 
   // ── Tab 1: Forfait inputs (TOUCH-ONLY — faits mondiaux, aucune source profil.
   //    Les défauts 1M / 5M sont des fabrications : gate dur tant que non touchés) ──
@@ -1272,6 +1280,15 @@ class _ExpatScreenState extends State<ExpatScreen>
     // Chiffre-choc for tab 2: total capital at stake
     final totalCapital = _pillar3aBalance + _lppBalance;
 
+    // D2 — pourcentages de réduction AVS DÉRIVÉS du registre (1 / durée de
+    // cotisation complète), jamais des littéraux nus. reductionPerMissingYear
+    // = 1/44 ≈ 2.3 % ; sur 10 ans ≈ 23 %. Même source que la carte de lacune
+    // AVS (Tab 3) → aucun risque de divergence écran↔écran.
+    final avsPerYearPct =
+        (ExpatService.reductionPerMissingYear * 100).toStringAsFixed(1);
+    final avsTenYearPct =
+        (ExpatService.reductionPerMissingYear * 10 * 100).toStringAsFixed(0);
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, MintSpacing.xxl),
@@ -1326,31 +1343,27 @@ class _ExpatScreenState extends State<ExpatScreen>
           delay: const Duration(milliseconds: 200),
           child: ExpatCountdownWidget(
           departureDate: _departureDate,
-          deadlines: const [
+          deadlines: [
             ExpatDeadline(
-              label: '3\u00e8me pilier 3a \u2014 cl\u00f4ture ou gel',
+              label: l.expatDeadline3aLabel,
               emoji: '\u{1F3E6}',
               daysFromDeparture: -90,
-              action:
-                  'Contacte ta banque pour planifier la cl\u00f4ture ou le transfert du 3a.',
+              action: l.expatDeadline3aAction,
               legalRef: 'OPP3 art. 1',
-              consequence:
-                  'Un 3a non g\u00e9r\u00e9 avant le d\u00e9part peut bloquer des fonds pendant des ann\u00e9es.',
+              consequence: l.expatDeadline3aConsequence,
             ),
             ExpatDeadline(
-              label: 'LPP \u2014 libre passage',
+              label: l.expatDeadlineLppLabel,
               emoji: '\u{1F4BC}',
               daysFromDeparture: -60,
-              action:
-                  'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.',
+              action: l.expatDeadlineLppAction,
               legalRef: 'LPP art. 5 + LFLP art. 4',
             ),
             ExpatDeadline(
-              label: 'AVS \u2014 cotisation volontaire',
+              label: l.expatDeadlineAvsLabel,
               emoji: '\u{1F6E1}\uFE0F',
               daysFromDeparture: 0,
-              action:
-                  'Si tu t\'installes hors EU/AELE, tu peux t\'affilier volontairement \u00e0 l\'AVS pour \u00e9viter des lacunes.',
+              action: l.expatDeadlineAvsAction,
               legalRef: 'LAVS art. 2',
               isEuOnly: false,
             ),
@@ -1379,52 +1392,44 @@ class _ExpatScreenState extends State<ExpatScreen>
         MintEntrance(
           delay: const Duration(milliseconds: 400),
           child: ExpatRightsLossWidget(
-          destination: 'l\'\u00e9tranger',
+          destination: l.expatDestinationAbroad,
           isEuDestination: false,
           rights: [
-            const ExpatRight(
-              label: 'AVS \u2014 cotisation obligatoire',
+            ExpatRight(
+              label: l.expatRightAvsLabel,
               emoji: '\u{1F6E1}\uFE0F',
-              before: 'Cotisation automatique via employeur',
-              after: 'Lacunes AVS \u2192 rente r\u00e9duite',
+              before: l.expatRightAvsBefore,
+              after: l.expatRightAvsAfter,
               legalRef: 'LAVS art. 1a',
-              impact:
-                  'Chaque ann\u00e9e manquante r\u00e9duit ta rente AVS de ~2.3%. '
-                  '10 ans = \u221223% \u00e0 vie.',
+              impact: l.expatRightAvsImpact(avsPerYearPct, avsTenYearPct),
               isIrreversible: true,
             ),
-            const ExpatRight(
-              label: 'LPP \u2014 2e pilier',
+            ExpatRight(
+              label: l.expatRightLppLabel,
               emoji: '\u{1F3E6}',
-              before: '\u00c9pargne retraite obligatoire',
-              after: 'Capital bloqu\u00e9 ou retir\u00e9 sans rendement',
+              before: l.expatRightLppBefore,
+              after: l.expatRightLppAfter,
               legalRef: 'LPP art. 5',
-              impact:
-                  'Tu peux retirer ton avoir LPP, mais tu paies l\'imp\u00f4t '
-                  'sur le capital retir\u00e9. La reconstitution est impossible \u00e0 l\'\u00e9tranger.',
-            ),
-            const ExpatRight(
-              label: 'Pilier 3a',
-              emoji: '\u{1F3DB}\uFE0F',
-              before: 'D\u00e9ductions fiscales annuelles',
-              after: 'Compte bloqu\u00e9 \u2014 aucun nouveau versement possible',
-              legalRef: 'OPP3 art. 1',
-              impact:
-                  'Tu perds le droit de verser dans le 3a d\u00e8s que tu n\'as '
-                  'plus de revenu soumis \u00e0 l\'AVS suisse.',
-            ),
-            const ExpatRight(
-              label: 'LAMal \u2014 assurance maladie',
-              emoji: '\u{1F3E5}',
-              before: 'Couverture universelle en Suisse',
-              after: 'L\u2019assurance maladie rel\u00e8ve d\u00e9sormais du pays de r\u00e9sidence', // lint-ignore: no_hardcoded_fr (dette i18n pr\u00e9existante, LOT 3)
-              legalRef: 'LAMal art. 3',
-              impact:
-                  'La couverture internationale est souvent partielle et '
-                  'co\u00fbteuse. V\u00e9rifie les conventions bilat\u00e9rales.',
+              impact: l.expatRightLppImpact,
             ),
             ExpatRight(
-              label: 'Ch\u00f4mage AC',
+              label: l.expatRight3aLabel,
+              emoji: '\u{1F3DB}\uFE0F',
+              before: l.expatRight3aBefore,
+              after: l.expatRight3aAfter,
+              legalRef: 'OPP3 art. 1',
+              impact: l.expatRight3aImpact,
+            ),
+            ExpatRight(
+              label: l.expatRightLamalLabel,
+              emoji: '\u{1F3E5}',
+              before: l.expatRightLamalBefore,
+              after: l.expatRightLamalAfter,
+              legalRef: 'LAMal art. 3',
+              impact: l.expatRightLamalImpact,
+            ),
+            ExpatRight(
+              label: l.expatRightAcLabel,
               emoji: '\u{1F4BC}',
               before: S.of(context)!.expatAcIndemnities,
               after: S.of(context)!.expatNoAcRightsAbroad,
@@ -1961,6 +1966,17 @@ class _ExpatScreenState extends State<ExpatScreen>
           MintEntrance(
             delay: const Duration(milliseconds: 350),
             child: _buildAvsRecommendation(),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+          // D10 — appareil de confiance : bande d'incertitude sur l'estimation
+          // de lacune AVS (modèle linéaire simplifié). MintTrameConfiance (MTC)
+          // est le seul primitif de rendu de confiance (Phase 8a).
+          MintTrameConfiance.detail(
+            confidence: EnhancedConfidence.fromBareScore(
+              _kAvsGapConfidencePercent.toDouble(),
+            ),
+            bloomStrategy: BloomStrategy.firstAppearance,
+            hypotheses: [l.expatAvsConfidenceMessage],
           ),
           const SizedBox(height: MintSpacing.lg),
         ] else ...[

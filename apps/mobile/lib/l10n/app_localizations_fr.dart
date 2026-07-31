@@ -24951,4 +24951,120 @@ class SFr extends S {
   @override
   String get lppRescueDisclaimer =>
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.';
+
+  @override
+  String get expatDeadline3aLabel => '3e pilier 3a — clôture ou gel';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Contacte ta banque pour planifier la clôture ou le transfert du 3a.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.';
+
+  @override
+  String get expatDeadlineLppLabel => 'LPP — libre passage';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AVS — cotisation volontaire';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'Si tu t\'installes hors UE/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.';
+
+  @override
+  String get expatRightAvsLabel => 'AVS — cotisation obligatoire';
+
+  @override
+  String get expatRightAvsBefore => 'Cotisation automatique via l\'employeur';
+
+  @override
+  String get expatRightAvsAfter => 'Lacunes AVS → rente réduite';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Chaque année manquante réduit ta rente AVS d\'environ $perYear %. 10 ans = −$tenYear % à vie.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'LPP — 2e pilier';
+
+  @override
+  String get expatRightLppBefore => 'Épargne retraite obligatoire';
+
+  @override
+  String get expatRightLppAfter => 'Capital bloqué ou retiré sans rendement';
+
+  @override
+  String get expatRightLppImpact =>
+      'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt sur le capital retiré. La reconstitution est impossible à l\'étranger.';
+
+  @override
+  String get expatRight3aLabel => 'Pilier 3a';
+
+  @override
+  String get expatRight3aBefore => 'Déductions fiscales annuelles';
+
+  @override
+  String get expatRight3aAfter =>
+      'Compte bloqué — aucun nouveau versement possible';
+
+  @override
+  String get expatRight3aImpact =>
+      'Tu perds le droit de verser dans le 3a dès que tu n\'as plus de revenu soumis à l\'AVS suisse.';
+
+  @override
+  String get expatRightLamalLabel => 'LAMal — assurance maladie';
+
+  @override
+  String get expatRightLamalBefore => 'Couverture universelle en Suisse';
+
+  @override
+  String get expatRightLamalAfter =>
+      'L\'assurance maladie relève désormais du pays de résidence';
+
+  @override
+  String get expatRightLamalImpact =>
+      'La couverture internationale est souvent partielle et coûteuse. Vérifie les conventions bilatérales.';
+
+  @override
+  String get expatRightAcLabel => 'Chômage AC';
+
+  @override
+  String get expatDestinationAbroad => 'l\'étranger';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Estimation sur un modèle linéaire simplifié (rente réduite au prorata des années cotisées). La rente AVS réelle dépend aussi du revenu annuel moyen et des bonifications. À valider avec ta caisse de compensation.';
+
+  @override
+  String get frontalierChargeMaladie => 'Assurance maladie';
+
+  @override
+  String get frontalierChargeRetraite => 'Retraite / vieillesse';
+
+  @override
+  String get frontalierChargeChomage => 'Chômage';
+
+  @override
+  String get frontalierChargeDependance => 'Dépendance';
+
+  @override
+  String get frontalierChargeLogement => 'Aide au logement';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'LPP (est.)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Estimation sur un taux moyen simplifié par canton. L\'impôt à la source réel dépend du barème applicable (A, B ou C selon ta situation familiale) et de ton statut de quasi-résident·e. À valider avec l\'administration fiscale cantonale.';
+
 }
