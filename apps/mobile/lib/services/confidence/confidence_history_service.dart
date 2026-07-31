@@ -78,14 +78,17 @@ class ConfidenceHistoryService {
     return merged;
   }
 
-  /// Serializes concurrent [record] writes so an unawaited enrichment write and
-  /// an awaited hydration write can never interleave their read-modify-write and
-  /// drop a point.
-  static Future<void> _writeChain = Future<void>.value();
-
   /// Record a confidence measurement. Fire-and-forget in production; returns a
   /// Future so hydration paths and tests can await a deterministic write.
-  /// Writes are globally serialized via [_writeChain].
+  ///
+  /// Self-contained read-modify-write (deliberately NOT chained on a shared
+  /// static future): a shared write chain deadlocks widget tests, because an
+  /// awaited hydration record can end up waiting on a fire-and-forget record
+  /// scheduled inside a `pumpAndSettle` fake-async zone that never resolves in
+  /// real async. Concurrency safety is provided by [mergePoint] instead: same
+  /// calendar day de-dups (last write wins, with explicit-event trigger
+  /// priority), so a rare interleaving loses at most one same-day trigger, not a
+  /// point — acceptable for a sparse 90-day curve.
   ///
   /// Skips non-finite or non-positive `combined` scores so an empty/identity
   /// profile does not seed a meaningless origin point.
@@ -93,9 +96,9 @@ class ConfidenceHistoryService {
     EnhancedConfidence confidence, {
     required String trigger,
     DateTime? now,
-  }) {
+  }) async {
     final combined = confidence.combined;
-    if (!combined.isFinite || combined <= 0) return Future<void>.value();
+    if (!combined.isFinite || combined <= 0) return;
     final point = ConfidencePoint(
       date: now ?? DateTime.now(),
       combined: combined,
@@ -105,12 +108,6 @@ class ConfidenceHistoryService {
       understanding: confidence.understanding,
       trigger: trigger,
     );
-    final next = _writeChain.then((_) => _persist(point));
-    _writeChain = next.catchError((_) {});
-    return next;
-  }
-
-  static Future<void> _persist(ConfidencePoint point) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final existing = _decode(prefs.getString(storageKey));
