@@ -24818,4 +24818,121 @@ class SEn extends S {
   @override
   String get lppRescueDisclaimer =>
       'Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch.';
+
+  @override
+  String get expatDeadline3aLabel => 'Pillar 3a — closure or freeze';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Contact your bank to plan the closure or transfer of your 3a.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'A 3a left unmanaged before departure can lock up funds for years.';
+
+  @override
+  String get expatDeadlineLppLabel => 'LPP — vested benefits';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Request the transfer of your LPP assets to a vested-benefits account or policy.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AVS — voluntary contribution';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'If you settle outside the EU/EFTA, you can join the AVS voluntarily to avoid gaps.';
+
+  @override
+  String get expatRightAvsLabel => 'AVS — mandatory contribution';
+
+  @override
+  String get expatRightAvsBefore => 'Automatic contribution via your employer';
+
+  @override
+  String get expatRightAvsAfter => 'AVS gaps → reduced pension';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Each missing year reduces your AVS pension by about $perYear %. 10 years = −$tenYear % for life.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'LPP — 2nd pillar';
+
+  @override
+  String get expatRightLppBefore => 'Mandatory retirement savings';
+
+  @override
+  String get expatRightLppAfter =>
+      'Capital locked or withdrawn without returns';
+
+  @override
+  String get expatRightLppImpact =>
+      'You can withdraw your LPP assets, but you pay tax on the withdrawn capital. Rebuilding it from abroad is not possible.';
+
+  @override
+  String get expatRight3aLabel => 'Pillar 3a';
+
+  @override
+  String get expatRight3aBefore => 'Annual tax deductions';
+
+  @override
+  String get expatRight3aAfter =>
+      'Account frozen — no new contributions possible';
+
+  @override
+  String get expatRight3aImpact =>
+      'You lose the right to pay into the 3a as soon as you no longer have income subject to Swiss AVS.';
+
+  @override
+  String get expatRightLamalLabel => 'LAMal — health insurance';
+
+  @override
+  String get expatRightLamalBefore => 'Universal coverage in Switzerland';
+
+  @override
+  String get expatRightLamalAfter =>
+      'Health insurance now falls under your country of residence';
+
+  @override
+  String get expatRightLamalImpact =>
+      'International coverage is often partial and costly. Check the bilateral agreements.';
+
+  @override
+  String get expatRightAcLabel => 'Unemployment AC';
+
+  @override
+  String get expatDestinationAbroad => 'abroad';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Estimate based on a simplified linear model (pension reduced pro rata to contribution years). The actual AVS pension also depends on average annual income and credits. Confirm with your compensation fund.';
+
+  @override
+  String get frontalierChargeMaladie => 'Health insurance';
+
+  @override
+  String get frontalierChargeRetraite => 'Retirement / old age';
+
+  @override
+  String get frontalierChargeChomage => 'Unemployment';
+
+  @override
+  String get frontalierChargeDependance => 'Long-term care';
+
+  @override
+  String get frontalierChargeLogement => 'Housing support';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'LPP (est.)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Estimate based on a simplified average rate per canton. The scale actually withheld depends on your family situation (single, married, number of children) — which this flat model does not distinguish. Separately, quasi-resident status can open a subsequent ordinary assessment with deductions, without changing the withheld scale. Confirm with the cantonal tax authority.';
+
 }

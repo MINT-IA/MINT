@@ -524,6 +524,12 @@ ALLOW = {
     # Purge de la solidarité AC abolie au 1.1.2023 (LACI art. 90c al. 4) :
     # miroir dart du calcul frontalier (parité py↔dart).
     "apps/mobile/lib/services/expat_service.dart",
+    # Cluster 12D V2-2 « Segments risque » : drain i18n Tab 2 expat (LOT 3) +
+    # labels charges frontalier + bandes de confiance MTC (D10).
+    "apps/mobile/lib/screens/frontalier_screen.dart",
+    "apps/mobile/test/screens/expat_v22_i18n_test.dart",
+    "apps/mobile/test/screens/frontalier_v22_test.dart",
+    ".planning/phases/mint-utilisable-12d-vague2/V2-2-INVENTORY.md",
     # Drain fiscal divorce vers l'étalon (hand-off 2026-07-27 §3.4)
     "services/backend/app/services/divorce_simulator.py",
     "services/backend/tests/test_divorce_simulator.py",

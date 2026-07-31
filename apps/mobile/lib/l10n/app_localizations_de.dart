@@ -25008,4 +25008,121 @@ class SDe extends S {
   @override
   String get lppRescueDisclaimer =>
       'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch.';
+
+  @override
+  String get expatDeadline3aLabel => 'Säule 3a — Auflösung oder Sperrung';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Kontaktiere deine Bank, um die Auflösung oder Übertragung der 3a zu planen.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'Eine vor der Abreise nicht geregelte 3a kann Gelder über Jahre blockieren.';
+
+  @override
+  String get expatDeadlineLppLabel => 'BVG — Freizügigkeit';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Beantrage die Übertragung deines BVG-Guthabens auf ein Freizügigkeitskonto oder eine Police.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AHV — freiwilliger Beitrag';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'Wenn du dich ausserhalb der EU/EFTA niederlässt, kannst du der AHV freiwillig beitreten, um Lücken zu vermeiden.';
+
+  @override
+  String get expatRightAvsLabel => 'AHV — obligatorischer Beitrag';
+
+  @override
+  String get expatRightAvsBefore =>
+      'Automatischer Beitrag über den Arbeitgeber';
+
+  @override
+  String get expatRightAvsAfter => 'AHV-Lücken → gekürzte Rente';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Jedes fehlende Jahr senkt deine AHV-Rente um rund $perYear %. 10 Jahre = −$tenYear % auf Lebenszeit.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'BVG — 2. Säule';
+
+  @override
+  String get expatRightLppBefore => 'Obligatorisches Altersguthaben';
+
+  @override
+  String get expatRightLppAfter => 'Kapital gesperrt oder ohne Rendite bezogen';
+
+  @override
+  String get expatRightLppImpact =>
+      'Du kannst dein BVG-Guthaben beziehen, zahlst aber Steuern auf das bezogene Kapital. Der Wiederaufbau aus dem Ausland ist nicht möglich.';
+
+  @override
+  String get expatRight3aLabel => 'Säule 3a';
+
+  @override
+  String get expatRight3aBefore => 'Jährliche Steuerabzüge';
+
+  @override
+  String get expatRight3aAfter =>
+      'Konto gesperrt — keine neuen Einzahlungen möglich';
+
+  @override
+  String get expatRight3aImpact =>
+      'Du verlierst das Recht auf Einzahlungen in die 3a, sobald du kein AHV-pflichtiges Einkommen mehr hast.';
+
+  @override
+  String get expatRightLamalLabel => 'KVG — Krankenversicherung';
+
+  @override
+  String get expatRightLamalBefore => 'Universelle Deckung in der Schweiz';
+
+  @override
+  String get expatRightLamalAfter =>
+      'Die Krankenversicherung richtet sich neu nach deinem Wohnsitzland';
+
+  @override
+  String get expatRightLamalImpact =>
+      'Der internationale Schutz ist oft teilweise und teuer. Prüfe die bilateralen Abkommen.';
+
+  @override
+  String get expatRightAcLabel => 'Arbeitslosigkeit ALV';
+
+  @override
+  String get expatDestinationAbroad => 'das Ausland';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Schätzung auf Basis eines vereinfachten linearen Modells (Rente anteilig zu den Beitragsjahren gekürzt). Die tatsächliche AHV-Rente hängt auch vom durchschnittlichen Jahreseinkommen und den Gutschriften ab. Mit deiner Ausgleichskasse zu bestätigen.';
+
+  @override
+  String get frontalierChargeMaladie => 'Krankenversicherung';
+
+  @override
+  String get frontalierChargeRetraite => 'Alter / Rente';
+
+  @override
+  String get frontalierChargeChomage => 'Arbeitslosigkeit';
+
+  @override
+  String get frontalierChargeDependance => 'Pflege';
+
+  @override
+  String get frontalierChargeLogement => 'Wohnbauförderung';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'BVG (geschätzt)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Der tatsächlich angewandte Quellensteuertarif hängt von deiner Familiensituation ab (ledig, verheiratet, Anzahl Kinder) — was dieses pauschale Modell nicht unterscheidet. Der Quasi-Ansässigkeitsstatus kann separat eine nachträgliche ordentliche Veranlagung mit Abzügen eröffnen, ohne den angewandten Tarif zu ändern. Mit der kantonalen Steuerverwaltung zu bestätigen.';
+
 }

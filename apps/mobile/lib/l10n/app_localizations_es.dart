@@ -24951,4 +24951,122 @@ class SEs extends S {
   @override
   String get lppRescueDisclaimer =>
       'Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 3-4, OLP art. 10. Sin instrucción, transferencia de oficio entre 6 meses y 2 años (LFLP art. 4 al. 2). Haberes olvidados: sfbvg.ch.';
+
+  @override
+  String get expatDeadline3aLabel => 'Pilar 3a — cierre o congelación';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Contacta con tu banco para planificar el cierre o la transferencia del 3a.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'Un 3a sin gestionar antes de la salida puede bloquear fondos durante años.';
+
+  @override
+  String get expatDeadlineLppLabel => 'LPP — libre paso';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Solicita la transferencia de tu haber LPP a una cuenta de libre paso o una póliza.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AVS — cotización voluntaria';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'Si te instalas fuera de la UE/AELC, puedes afiliarte voluntariamente al AVS para evitar lagunas.';
+
+  @override
+  String get expatRightAvsLabel => 'AVS — cotización obligatoria';
+
+  @override
+  String get expatRightAvsBefore =>
+      'Cotización automática a través del empleador';
+
+  @override
+  String get expatRightAvsAfter => 'Lagunas AVS → pensión reducida';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Cada año que falta reduce tu pensión AVS en aproximadamente un $perYear %. 10 años = −$tenYear % de por vida.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'LPP — 2.º pilar';
+
+  @override
+  String get expatRightLppBefore => 'Ahorro de jubilación obligatorio';
+
+  @override
+  String get expatRightLppAfter =>
+      'Capital bloqueado o retirado sin rendimiento';
+
+  @override
+  String get expatRightLppImpact =>
+      'Puedes retirar tu haber LPP, pero pagas impuestos sobre el capital retirado. Reconstituirlo desde el extranjero no es posible.';
+
+  @override
+  String get expatRight3aLabel => 'Pilar 3a';
+
+  @override
+  String get expatRight3aBefore => 'Deducciones fiscales anuales';
+
+  @override
+  String get expatRight3aAfter =>
+      'Cuenta bloqueada — no se pueden hacer nuevas aportaciones';
+
+  @override
+  String get expatRight3aImpact =>
+      'Pierdes el derecho a aportar al 3a en cuanto dejas de tener ingresos sujetos al AVS suizo.';
+
+  @override
+  String get expatRightLamalLabel => 'LAMal — seguro de enfermedad';
+
+  @override
+  String get expatRightLamalBefore => 'Cobertura universal en Suiza';
+
+  @override
+  String get expatRightLamalAfter =>
+      'El seguro de enfermedad depende ahora de tu país de residencia';
+
+  @override
+  String get expatRightLamalImpact =>
+      'La cobertura internacional suele ser parcial y costosa. Comprueba los acuerdos bilaterales.';
+
+  @override
+  String get expatRightAcLabel => 'Desempleo AC';
+
+  @override
+  String get expatDestinationAbroad => 'el extranjero';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Estimación con un modelo lineal simplificado (pensión reducida a prorrata de los años cotizados). La pensión AVS real depende también del ingreso anual medio y de las bonificaciones. A confirmar con tu caja de compensación.';
+
+  @override
+  String get frontalierChargeMaladie => 'Seguro de enfermedad';
+
+  @override
+  String get frontalierChargeRetraite => 'Jubilación / vejez';
+
+  @override
+  String get frontalierChargeChomage => 'Desempleo';
+
+  @override
+  String get frontalierChargeDependance => 'Dependencia';
+
+  @override
+  String get frontalierChargeLogement => 'Ayuda a la vivienda';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'LPP (est.)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Estimación con una tasa media simplificada por cantón. El baremo realmente retenido depende de tu situación familiar (soltero/a, casado/a, número de hijos), que este modelo plano no distingue. Por separado, el estatus de cuasi-residente puede abrir una tributación ordinaria posterior con deducciones, sin cambiar el baremo retenido. A confirmar con la administración fiscal cantonal.';
+
 }

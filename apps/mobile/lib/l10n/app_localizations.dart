@@ -43522,6 +43522,211 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.'**
   String get lppRescueDisclaimer;
+
+  /// No description provided for @expatDeadline3aLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier 3a — clôture ou gel'**
+  String get expatDeadline3aLabel;
+
+  /// No description provided for @expatDeadline3aAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contacte ta banque pour planifier la clôture ou le transfert du 3a.'**
+  String get expatDeadline3aAction;
+
+  /// No description provided for @expatDeadline3aConsequence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.'**
+  String get expatDeadline3aConsequence;
+
+  /// No description provided for @expatDeadlineLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP — libre passage'**
+  String get expatDeadlineLppLabel;
+
+  /// No description provided for @expatDeadlineLppAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.'**
+  String get expatDeadlineLppAction;
+
+  /// No description provided for @expatDeadlineAvsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS — cotisation volontaire'**
+  String get expatDeadlineAvsLabel;
+
+  /// No description provided for @expatDeadlineAvsAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu t\'installes hors UE/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.'**
+  String get expatDeadlineAvsAction;
+
+  /// No description provided for @expatRightAvsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS — cotisation obligatoire'**
+  String get expatRightAvsLabel;
+
+  /// No description provided for @expatRightAvsBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation automatique via l\'employeur'**
+  String get expatRightAvsBefore;
+
+  /// No description provided for @expatRightAvsAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacunes AVS → rente réduite'**
+  String get expatRightAvsAfter;
+
+  /// No description provided for @expatRightAvsImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année manquante réduit ta rente AVS d\'environ {perYear} %. 10 ans = −{tenYear} % à vie.'**
+  String expatRightAvsImpact(String perYear, String tenYear);
+
+  /// No description provided for @expatRightLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP — 2e pilier'**
+  String get expatRightLppLabel;
+
+  /// No description provided for @expatRightLppBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne retraite obligatoire'**
+  String get expatRightLppBefore;
+
+  /// No description provided for @expatRightLppAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital bloqué ou retiré sans rendement'**
+  String get expatRightLppAfter;
+
+  /// No description provided for @expatRightLppImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt sur le capital retiré. La reconstitution est impossible à l\'étranger.'**
+  String get expatRightLppImpact;
+
+  /// No description provided for @expatRight3aLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a'**
+  String get expatRight3aLabel;
+
+  /// No description provided for @expatRight3aBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions fiscales annuelles'**
+  String get expatRight3aBefore;
+
+  /// No description provided for @expatRight3aAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte bloqué — aucun nouveau versement possible'**
+  String get expatRight3aAfter;
+
+  /// No description provided for @expatRight3aImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu perds le droit de verser dans le 3a dès que tu n\'as plus de revenu soumis à l\'AVS suisse.'**
+  String get expatRight3aImpact;
+
+  /// No description provided for @expatRightLamalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAMal — assurance maladie'**
+  String get expatRightLamalLabel;
+
+  /// No description provided for @expatRightLamalBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture universelle en Suisse'**
+  String get expatRightLamalBefore;
+
+  /// No description provided for @expatRightLamalAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'assurance maladie relève désormais du pays de résidence'**
+  String get expatRightLamalAfter;
+
+  /// No description provided for @expatRightLamalImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'La couverture internationale est souvent partielle et coûteuse. Vérifie les conventions bilatérales.'**
+  String get expatRightLamalImpact;
+
+  /// No description provided for @expatRightAcLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chômage AC'**
+  String get expatRightAcLabel;
+
+  /// No description provided for @expatDestinationAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'l\'étranger'**
+  String get expatDestinationAbroad;
+
+  /// No description provided for @expatAvsConfidenceMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation sur un modèle linéaire simplifié (rente réduite au prorata des années cotisées). La rente AVS réelle dépend aussi du revenu annuel moyen et des bonifications. À valider avec ta caisse de compensation.'**
+  String get expatAvsConfidenceMessage;
+
+  /// No description provided for @frontalierChargeMaladie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance maladie'**
+  String get frontalierChargeMaladie;
+
+  /// No description provided for @frontalierChargeRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite / vieillesse'**
+  String get frontalierChargeRetraite;
+
+  /// No description provided for @frontalierChargeChomage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chômage'**
+  String get frontalierChargeChomage;
+
+  /// No description provided for @frontalierChargeDependance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépendance'**
+  String get frontalierChargeDependance;
+
+  /// No description provided for @frontalierChargeLogement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide au logement'**
+  String get frontalierChargeLogement;
+
+  /// No description provided for @frontalierChargeCsgCrds.
+  ///
+  /// In fr, this message translates to:
+  /// **'CSG / CRDS'**
+  String get frontalierChargeCsgCrds;
+
+  /// No description provided for @frontalierChargeLppEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP (est.)'**
+  String get frontalierChargeLppEstimated;
+
+  /// No description provided for @frontalierSourceTaxConfidenceMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation sur un taux moyen simplifié par canton. Le barème réellement prélevé dépend de ta situation familiale (célibataire, marié·e, nombre d\'enfants) — que ce modèle plat ne distingue pas. Séparément, le statut de quasi-résident·e peut ouvrir une taxation ordinaire ultérieure avec déductions, sans changer le barème prélevé. À valider avec l\'administration fiscale cantonale.'**
+  String get frontalierSourceTaxConfidenceMessage;
+
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
