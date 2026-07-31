@@ -102,11 +102,21 @@ class _DonationScreenState extends State<DonationScreen> {
   static List<String> get _cantons => sortedCantonCodes;
 
   static const _typesDonation = ['especes', 'immobilier', 'titres'];
-  static const _typesDonationLabels = {
-    'especes': 'Espèces / Liquidités',
-    'immobilier': 'Immobilier',
-    'titres': 'Titres / Valeurs mobilières',
-  };
+
+  /// Libellé localisé d'un type de donation (adossé ARB, aucun FR codé en dur).
+  String _typeDonationLabel(String type) {
+    final s = S.of(context)!;
+    switch (type) {
+      case 'especes':
+        return s.donationTypeEspeces;
+      case 'immobilier':
+        return s.donationTypeImmobilier;
+      case 'titres':
+        return s.donationTypeTitres;
+      default:
+        return type;
+    }
+  }
 
   static const _liensParente = [
     'conjoint',
@@ -117,11 +127,20 @@ class _DonationScreenState extends State<DonationScreen> {
     'tiers',
   ];
 
-  static const _regimesLabels = {
-    'participation_acquets': 'Participation aux acquêts',
-    'communaute_biens': 'Communauté de biens',
-    'separation_biens': 'Séparation de biens',
-  };
+  /// Libellé localisé d'un régime matrimonial (adossé ARB, aucun FR codé en dur).
+  String _regimeLabel(String regime) {
+    final s = S.of(context)!;
+    switch (regime) {
+      case 'participation_acquets':
+        return s.donationRegimeParticipation;
+      case 'communaute_biens':
+        return s.donationRegimeCommunaute;
+      case 'separation_biens':
+        return s.donationRegimeSeparation;
+      default:
+        return regime;
+    }
+  }
 
   /// P2 (zéro donnée inventée) : amorce la situation réelle du donateur depuis
   /// le profil. On s'abonne au provider car `loadFromWizard()` hydrate le profil
@@ -700,7 +719,7 @@ class _DonationScreenState extends State<DonationScreen> {
             value: _donateurAge,
             minValue: 18,
             maxValue: 95,
-            formatValue: (v) => '$v ans',
+            formatValue: (v) => S.of(context)!.ageYears('$v'),
             onChanged: (v) => setState(() {
               _donateurAgeTouched = true;
               _donateurAge = v;
@@ -814,7 +833,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: _typesDonation.map((type) {
             final selected = _typeDonation == type;
             return Semantics(
-              label: _typesDonationLabels[type] ?? type,
+              label: _typeDonationLabel(type),
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -838,7 +857,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _typesDonationLabels[type] ?? type,
+                  _typeDonationLabel(type),
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -871,7 +890,7 @@ class _DonationScreenState extends State<DonationScreen> {
           children: regimes.map((regime) {
             final selected = _regimeMatrimonial == regime;
             return Semantics(
-              label: _regimesLabels[regime] ?? regime,
+              label: _regimeLabel(regime),
               button: true,
               selected: selected,
               child: GestureDetector(
@@ -898,7 +917,7 @@ class _DonationScreenState extends State<DonationScreen> {
                   ),
                 ),
                 child: Text(
-                  _regimesLabels[regime] ?? regime,
+                  _regimeLabel(regime),
                   style: MintTextStyles.labelSmall(
                     color: selected ? MintColors.indigo : MintColors.textSecondary,
                   ).copyWith(fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
@@ -1074,7 +1093,8 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: reservePct > 0.15
                       ? Text(
-                          'Réserve ${(reservePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationReserveBarLabel(
+                              (reservePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -1088,7 +1108,8 @@ class _DonationScreenState extends State<DonationScreen> {
                   alignment: Alignment.center,
                   child: quotitePct > 0.15
                       ? Text(
-                          'Disponible ${(quotitePct * 100).toStringAsFixed(0)}%',
+                          S.of(context)!.donationDisponibleBarLabel(
+                              (quotitePct * 100).toStringAsFixed(0)),
                           style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
                         )
                       : null,
@@ -1439,11 +1460,7 @@ class _DonationScreenState extends State<DonationScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _result?.disclaimer ??
-                  'Cet outil éducatif fournit des estimations indicatives et '
-                      'ne constitue pas un conseil juridique, fiscal ou notarial '
-                      'personnalisé au sens de la LSFin. Consulte un·e spécialiste '
-                      '(notaire) pour ta situation.',
+              _result?.disclaimer ?? S.of(context)!.donationDisclaimerFallback,
               style: MintTextStyles.micro(color: MintColors.deepOrange).copyWith(height: 1.5),
             ),
           ),

@@ -222,6 +222,7 @@ ALLOW = {
     "apps/mobile/test/screens/donation_profile_seed_test.dart",
     "apps/mobile/lib/widgets/situation/situation_gate.dart",
     "apps/mobile/test/screens/donation_gate_test.dart",
+    "apps/mobile/test/screens/donation_i18n_wiring_test.dart",
     "apps/mobile/test/screens/life_event_screens_v2_smoke_test.dart",
     "apps/mobile/lib/screens/first_job_screen.dart",
     "apps/mobile/test/screens/first_job_gate_test.dart",
