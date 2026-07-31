@@ -487,6 +487,9 @@ ALLOW = {
     # Tier B smoke — cadrage des 18 life events (plan MINT utilisable v2.1,
     # 2026-07-30). Page de cadrage, PAS d'implémentation.
     ".planning/phases/mint-utilisable-tier-b-smoke/00-CADRAGE.md",
+    # Vague 2 revue 12D — cadrage clusters ordonnés (registre 12D rafraîchi,
+    # 2026-07-31). Page de cadrage/pilotage, PAS d'implémentation.
+    ".planning/phases/mint-utilisable-12d-vague2/00-CADRAGE.md",
     # PR calc-registry-freshness (bead -5u4) : gate fraîcheur du registre
     "services/backend/app/calculators/_registry.py",
     "services/backend/tests/test_calc_registry.py",

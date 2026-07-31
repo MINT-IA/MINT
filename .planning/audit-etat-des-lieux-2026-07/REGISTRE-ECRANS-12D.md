@@ -1,5 +1,5 @@
 ---
-description: "Registre écran-par-écran MINT : 108 écrans × 12 dimensions (route/calculs/texte/logique/doublons/métier-lois + a11y/perf/design-system/lucidité/temps/privacy), pré-rempli statiquement sur dev@5199757 (2026-07-29). Comptes clés : 353 littéraux numériques sur 54 écrans, 268 strings FR hardcodées sur 41 écrans, 110 citations de lois sur 21 écrans, 2 orphelins réels. Tranche firstJob = premier lot revue complète ; 14 lots Codex avec nourriciers. Base des passes Codex de la Phase 2 runtime."
+description: "Registre écran-par-écran MINT : 108 écrans × 12 dimensions (route/calculs/texte/logique/doublons/métier-lois + a11y/perf/design-system/lucidité/temps/privacy), pré-rempli statiquement sur dev@5199757 (2026-07-29). Comptes clés : 353 littéraux numériques sur 54 écrans, 268 strings FR hardcodées sur 41 écrans, 110 citations de lois sur 21 écrans, 2 orphelins réels. Tranche firstJob = premier lot revue complète ; 14 lots Codex avec nourriciers. Base des passes Codex de la Phase 2 runtime. RAFRAÎCHI 2026-07-31 : §8 = delta PR #1097→#1156 (45 PR fusionnées, cases 12D changées citées par PR) ; cadrage vague 2 = .planning/phases/mint-utilisable-12d-vague2/00-CADRAGE.md."
 ---
 
 # REGISTRE ÉCRAN-PAR-ÉCRAN — 12 DIMENSIONS (statique)
@@ -7,6 +7,7 @@ description: "Registre écran-par-écran MINT : 108 écrans × 12 dimensions (ro
 - **SHA figé** : `dev@51997578823191afa6dbf8f69524bc429fae5980` (2026-07-29 13:13 +0200, merge PR #1090) — snapshot extrait par `git archive`, worktree principal non touché.
 - **Méthode** : parse à pile d'imbrication de `apps/mobile/lib/app.dart` (158 GoRoute), extraction des redirects par bloc, croisement ScreenRegistry (142 entrées `route:`), grep littéral `context.go/push` sur screens+widgets+services+providers, métriques par fichier (regex — voir « Limites »).
 - **Statuts** : `ok` = rien détecté statiquement · `défaut` = défaut statique cité `path:ligne` · `RT` = à-vérifier-runtime (donnée dynamique, Phase 2).
+- **Le tableau maître §1 reste figé au SHA ci-dessus** (contrat « statique »). Le delta post-figé (45 PR #1097→#1156, tête `dev@9096d462`, 2026-07-31) est consigné en **§8 Rafraîchissement** — cases 12D changées citées par PR. Lire §8 avant d'ouvrir une unité sur un écran du chemin du gate ou d'un life event Tier B (ce sont ceux qui ont le plus bougé). Cadrage de la vague 2 (clusters ordonnés) : `.planning/phases/mint-utilisable-12d-vague2/00-CADRAGE.md`.
 
 ## 0. Synthèse chiffrée
 
@@ -1674,3 +1675,122 @@ Fichiers support onboarding à inclure : `screens/onboarding/mvp_wedge/{onboardi
 - D10/D11 : « affiche un chiffre » approximé par (littéraux numériques OU financial_core OU api_service) ; l'appareil de confiance peut vivre dans un widget nourricier (ex. `confidence_score_card`) — vérifier par lot avant verdict.
 - D12 : scan du fichier écran seul ; les services nourriciers (logs backend, Sentry breadcrumbs) sont à couvrir dans la passe Codex par lot.
 - Runtime (Phase 2) requis pour : états L/E/V réels, contenus servis par backend/financial_core (`RT`), atteignabilité effective des 🟡.
+
+## 8. Rafraîchissement 2026-07-31 — delta PR #1097 → #1156
+
+TLDR : le tableau maître §1 est figé à `dev@5199757`. Depuis, 45 PR ont fusionné
+(tête `dev@9096d462`, 2026-07-31). Ce §8 marque les **cases 12D changées** en
+citant la PR par case — c'est un **delta, pas un re-audit**. Le chemin du gate
+(firstJob) et les 18 life events (Tier B) ont le plus bougé. Convention :
+« ✓#N » = dimension **adressée** par PR #N (preuve = diff de la PR) ; cela ne vaut
+**pas** « statiquement re-scanné propre » — la vérif runtime (Phase 2) reste due.
+
+### 8.1 Méthode du delta
+
+- Base : SHA figé §préambule (`dev@5199757`, PR #1090). Tête : `dev@9096d462` (merge
+  PR #1156). Plage : PR #1097 → #1156 (58 commits, 45 PR).
+- Attribution : mapping PR→fichier via `git show --name-only`, dimension confirmée
+  par lecture du diff (échantillon cité). Aucune case du tableau §1 n'est mutée
+  (contrat « statique ») : ce §8 est la couche delta autoritative.
+
+### 8.2 Chemin du gate + tranche firstJob (Tier A) — cases changées
+
+| Écran | Dimension | Delta (PR) |
+|---|---|---|
+| `first_job_screen.dart` (/first-job) | D2 Calc | ✓#1105 — payslip drainé vers service, médiane OFS sourcée (`ofsSalaireMedianMensuelBrut`, plus de `const 6500`). Restant : bornes sliders (2000/15000). |
+| `first_job_screen.dart` | D3 Texte | ✓#1110 (i18n copy héritée + frictions LSFin) · ✓#1113 (disclaimer aligné) |
+| `first_job_screen.dart` | D4 Logique | ✓#1111 — états réseau/vide/offline non bloquants |
+| `first_job_screen.dart` | D6 Lois | ✓#1105 — 8 refs corrigées (LAVS/LAI/LAPG, LACI art.3, LAA art.91, LPP art.16, LFLP art.2 + art.4 al.2, LAMal art.71, OPP3 art.7) |
+| `first_job_screen.dart` | D7 A11y | ✓#1123 (wrappers Semantics racine retirés) · ✓#1127 (AppBar classique) |
+| `first_job_screen.dart` | D10 Lucidité | ✓#1108 — bande d'incertitude + confidence + « pourquoi ce chiffre » depuis le receipt (Lucid défaut(0) → adossé receipt) |
+| `first_job_screen.dart` | test/runtime | ✓#1112 — ancre `firstjob-net-value` + preuve runtime |
+| `aujourdhui/aujourdhui_screen.dart` (/home) | D1 Route | ✓#1106 — suggestions life events montées, entrée firstJob (+ `home_life_events.dart`) |
+| `coach/coach_chat_screen.dart` (/coach/chat) | D2 Calc / D10 | ✓#1109 handoff receipt · backend grounding ✓#1116/#1118/#1120/#1124 |
+| `coach/coach_chat_screen.dart` | D4 Logique | ✓#1111 — états réseau/vide/offline |
+| `coach/coach_chat_screen.dart` | D7 A11y | ✓#1123 — Semantics racine retirés (chemin du gate) |
+| `arbitrage/rente_vs_capital_screen.dart` (/retraite/rente-vs-capital) | D2 Calc | ✓#1097 — capital MARIÉ calibré ESTV 26 cantons (backend `rente_vs_capital.py`) |
+| `arbitrage/rente_vs_capital_screen.dart` | D7 A11y | ✓#1123 (Semantics racine) · ✓#1127 (AppBar) · ✓#1129 (ancêtre Material tiles) |
+
+### 8.3 Tier B smoke (18 life events) — ancres D1 Route + D4 Logique
+
+Chaque lot pose une ancre sémantique **atteignable** (D1) + **pas de cul-de-sac /
+bouton retour identifié** (D4), en motif profond (jamais wrapper racine — leçon
+ADR AX iOS 26.2). Ancre ≠ profondeur chiffrée (Calc/Lucidité/Lois restent dus).
+
+| Lot (PR) | Écrans touchés (D1 + D4) |
+|---|---|
+| B1 Famille (#1134, #1137) | `concubinage`, `divorce_simulator`, `mariage`, `naissance` (ancres + C2 chiffré seedé) |
+| B2 Travail (#1139) | `independant`, `job_comparison`, `unemployment` |
+| B3 Logement/Patrimoine (#1141) | `coach/succession_patrimoine`, `donation`, `housing_sale`, `mortgage/affordability` |
+| B4 Décès/Santé/Mobilité (#1142) | `deces_proche`, `demenagement_cantonal`, `disability/disability_gap` |
+| B5 + retraite (#1143) | `coach/retirement_dashboard`, `debt_prevention/debt_ratio`, `expat` |
+| B5 frontalier seed (#1133) | `frontalier` (persona `cross_border` / `frontalier_geneve`) |
+
+### 8.4 Tranche AX iOS 26.2 (D7 A11y) — AppBar classique / ancêtre Material
+
+Migration `SliverAppBar` → `AppBar` classique (arbre AX stable au scroll, iOS
+26.2) ; Flutter 3.44.8 (#1126). Rendu inchangé (pas un changement D9).
+
+| Écran | Delta (PR) |
+|---|---|
+| `independant_screen.dart`, `profile/financial_summary_screen.dart` | ✓#1140 (tranche AX 1) |
+| `mortgage/affordability_screen.dart`, `coach/succession_patrimoine_screen.dart`, `coach/retirement_dashboard_screen.dart` | ✓#1148 (tranche AX 2 — #1146 revert #1147, re-land #1148) |
+| `rente_vs_capital`, `divorce_simulator`, `donation`, `housing_sale`, `job_comparison`, `mon_argent`, `simulator_compound` | ✓#1129 (ancêtre Material pour tiles en carte colorée — prépa 3.44.8) |
+
+### 8.5 Calibration fiscale backend (D2 Calc + D6 Lois) — écrans consommateurs
+
+| Écran | Dimension | Delta (PR) |
+|---|---|---|
+| `mariage_screen.dart` (/mariage) | D2 Calc + D6 Lois | ✓#1136 — `compareFiscalMariage` drainé vers l'étalon ESTV + citation LPP survivant |
+| `frontalier_screen.dart` (/segments/frontalier) | D2 Calc + D6 Lois | ✓#1115 — contribution solidarité AC (abolie 1.1.2023) purgée (registre + frontalier) |
+| `coach/retirement_dashboard_screen.dart` (/retraite) | D2 Calc | ✓#1144 — rente AVS déclarée honorée dans les projections + root-cause redirect /onb |
+| `coach/retirement_dashboard_screen.dart` | D3 Texte / D10 | ✓#1154 — libellé « continuité de revenu » honnête vs « taux de remplacement » (retraité) |
+| Surfaces capital MARIÉ (rachat, calendrier retraits, RvC, comparateur cantonal) | D2 Calc | ✓#1097 — 26 cantons calibrés ESTV ; nœuds bas 15k/25k/35k ✓#1099 (fin surestimation < 40k) |
+
+### 8.6 i18n / Texte (D3) + Lois (D6)
+
+| Écran | Delta (PR) |
+|---|---|
+| `lpp_deep/libre_passage_screen.dart` (/libre-passage) | ✓#1128 (legalRef → ARB, LFLP art.4 al.2) · ✓#1125 (narrativeLibrePassageBody LFLP) · ✓#1130 (base OLP alignée, écran + widget) |
+| `donation_screen.dart` (/life-event/donation) | ✓#1145 (extraction ARB) · ✓#1156 (lien de parenté → ARB) |
+| `independant_screen.dart` | ✓#1130 (base légale OLP alignée) |
+
+### 8.7 Doublons inter-écrans (D5) — passe ciblée 2026-07-31
+
+Grep ciblé sur constantes financières dupliquées (taux, plafonds, rentes) entre
+écrans. Résultat :
+
+1. **LIVE — rente LPP survivant 60%** : `mariage_screen.dart:1271` (« 60 % … LPP
+   art. 21 al. 1 ») vs `concubinage_screen.dart:991` (« 60 % … LPP art. 19 ») —
+   même taux, **citation d'article divergente**. #1136 a ajouté la citation
+   mariage sans réconcilier concubinage → violation « un seul étalon ». **Cluster
+   C10-survivant** (nouveau) → arbitrage swiss-brain + narration unique. Traité en
+   vague 2 cluster V2-3.
+2. **Façade orpheline** : `anonymous_chat_screen.dart` — projection retraite
+   entièrement en dur (`avsMonthlyRente 1800`, `lppAnnualRente 18000`,
+   `totalMonthlyRetirement 3300`, `plafond3a 7258`, `existingLpp 35000`) doublant
+   la projection réelle des providers C4. Orphelin (route → redirect /onb), déjà
+   candidat SUPPRESSION (§3 C3-chat / LOT-14). Confirmé doublon-façade à chiffres
+   divergents → supprimer.
+3. **Résolu à la source** : le taux de remplacement lit `proj.tauxRemplacementBase`
+   (objet projection partagé) sur `retirement_dashboard` ET `coach_chat` ; #1154 a
+   rendu le libellé honnête → duplication dashboard↔coach du taux résolue.
+4. **Non-doublon confirmé** : `lppSeuilEntree` = constante partagée
+   (`social_insurance.dart` + `reg('lpp.entry_threshold', …)`) sur disability_gap /
+   disability_insurance / onboarding_provider — centralisé, pas de divergence.
+5. **C4-dashboards (doublon runtime, pas statique)** : les 5 surfaces dashboard
+   lisent en RT depuis providers/services — pas de littéral dupliqué dans les
+   écrans ; le risque « même projection potentiellement divergente » est une
+   parité RUNTIME (`inputs_hash` / receipt), non un doublon statique. Le
+   MoneyTruthReceipt est câblé firstJob (#1107/#1108/#1109) mais **pas propagé**
+   aux surfaces retraite/dashboard → parité non garantie hors firstJob. Traité en
+   vague 2 clusters V2-4 (propagation receipt) + V2-5 (canonique C4).
+
+### 8.8 PR sans impact registre (calibration/tests/docs, pour traçabilité)
+
+#1098 (oracle ESTV réveillé), #1100/#1103/#1104/#1121/#1122/#1131/#1132/#1149/
+#1152/#1155 (docs/plans/ADR/rapports), #1102 (analyze zéro issue), #1107
+(receipt backend), #1114/#1116/#1118/#1119/#1120/#1124 (parité coach backend),
+#1117 (sha deploy /health), #1126 (Flutter 3.44.8), #1133/#1135/#1138 (seeds
+personas), #1151 (fallback scellement debug), #1153 (durcissement Apple Sign-In
+T11-F01).
