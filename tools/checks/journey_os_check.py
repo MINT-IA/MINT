@@ -808,6 +808,14 @@ ALLOW = {
     ".planning/audit/2026-07-life-event-screens-a11y-gap.md",
     # a11y ILLOG-02 contract : screen-root Semantics sur 3 écrans life-event premium
     "apps/mobile/lib/screens/disability/disability_gap_screen.dart",
+    # Drain 12D V2-2 : service invalidité UNIQUE (fin du doublon 3-têtes).
+    # `DisabilityService` (domain) miroir de disability_gap_service.py ; les 3
+    # écrans invalidité consomment le service ; goldens de parité + widget.
+    "apps/mobile/lib/domain/disability_gap_calculator.dart",
+    "apps/mobile/lib/screens/disability/disability_insurance_screen.dart",
+    "apps/mobile/lib/screens/disability/disability_self_employed_screen.dart",
+    "apps/mobile/test/domain/disability_service_parity_test.dart",
+    "apps/mobile/test/screens/disability/disability_screens_service_test.dart",
     "apps/mobile/lib/screens/deces_proche_screen.dart",
     "apps/mobile/test/screens/deces_gate_test.dart",
     "apps/mobile/lib/screens/demenagement_cantonal_screen.dart",

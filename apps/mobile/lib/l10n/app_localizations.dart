@@ -28202,7 +28202,7 @@ abstract class S {
   /// No description provided for @disabilityGapAct3Detail.
   ///
   /// In fr, this message translates to:
-  /// **'AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois'**
+  /// **'AI {aiAmount} + LPP estimée {lppAmount} ≈ {totalAmount} CHF/mois'**
   String disabilityGapAct3Detail(
       String aiAmount, String lppAmount, String totalAmount);
 
@@ -28241,6 +28241,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'APG / IJM (perte de gain)'**
   String get disabilityGapApgLabel;
+
+  /// No description provided for @disabilityInsNoCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'⚠️ Aucune couverture — hors période employeur, c’est 0 CHF'**
+  String get disabilityInsNoCoverage;
+
+  /// No description provided for @disabilityInsPrivateCoverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance privée personnelle (vérifie les conditions)'**
+  String get disabilityInsPrivateCoverage;
+
+  /// No description provided for @disabilityInsSavingsDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'{months} mois de charges (objectif : 6 mois)'**
+  String disabilityInsSavingsDetail(String months);
 
   /// No description provided for @disabilityGapIjmCoverage.
   ///

@@ -15943,7 +15943,7 @@ class SEn extends S {
 
   @override
   String get disabilityGapAct1Detail =>
-      '80% of your salary paid by your employer';
+      '100% of your salary (employer’s legal obligation)';
 
   @override
   String get disabilityGapAct1Duration => 'Weeks 1-26';
@@ -15978,7 +15978,7 @@ class SEn extends S {
   @override
   String disabilityGapAct3Detail(
       String aiAmount, String lppAmount, String totalAmount) {
-    return 'DI $aiAmount + LPP $lppAmount = $totalAmount CHF/month';
+    return 'DI $aiAmount + estimated LPP $lppAmount ≈ $totalAmount CHF/month';
   }
 
   @override
@@ -16002,6 +16002,19 @@ class SEn extends S {
 
   @override
   String get disabilityGapApgLabel => 'DLI / APG (loss of income)';
+
+  @override
+  String get disabilityInsNoCoverage =>
+      '⚠️ No coverage — outside the employer period, it’s 0 CHF';
+
+  @override
+  String get disabilityInsPrivateCoverage =>
+      'Personal private insurance (check the conditions)';
+
+  @override
+  String disabilityInsSavingsDetail(String months) {
+    return '$months months of expenses (target: 6 months)';
+  }
 
   @override
   String get disabilityGapIjmCoverage =>

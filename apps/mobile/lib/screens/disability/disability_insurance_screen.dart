@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:provider/provider.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/domain/disability_gap_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -50,99 +51,68 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
 
   // ── Scorecard items ───────────────────────────────────────
 
+  // Bulletin de couverture via l'étalon unique DisabilityService (fin du
+  // doublon 3-têtes, cf. V2-2-INVENTORY.md). L'assurance privée personnelle est
+  // prise en compte via `hasPrivateInsurance`. Les libellés restent composés ici
+  // (i18n ARB) : le service ne retourne jamais de texte FR.
+  DisabilityCoverage get _coverage => DisabilityService.coverage(
+        grossMonthly: _grossMonthly,
+        savings: _savings,
+        hasIjm: _hasIjm,
+        hasPrivateInsurance: _hasPrivateInsurance,
+      );
+
   List<CoverageItem> get _scorecardItems {
-    final annualGross = _grossMonthly * 12;
-    final hasLpp = annualGross >= lppSeuilEntree;
+    final s = S.of(context)!;
+    final cov = _coverage;
 
-    // IJM
-    final ijmGrade = _hasIjm ? 'B+' : (_hasPrivateInsurance ? 'B' : 'F');
-    final ijmDetail = _hasIjm
-        ? '80% salaire — 720 jours (assurance collective)'
-        : _hasPrivateInsurance
-            ? 'Assurance privée personnelle (vérifie les conditions)'
-            : '⚠️ Aucune couverture — hors période employeur, c\'est 0 CHF';
-
-    // AI
-    const aiGrade = 'C';
-
-    // LPP
-    final lppGrade = hasLpp ? 'A-' : 'D';
-    final lppDetail = hasLpp
-        ? 'Rente ≈ 40% salaire coordonné (LPP art. 23)'
-        : 'Sous le seuil LPP ${_fmtChf(lppSeuilEntree)} CHF/an — pas de couverture 2e pilier';
-
-    // Épargne
-    final monthsReserve = _savings / (_grossMonthly * 0.7);
-    final String savingsGrade;
-    if (monthsReserve >= 6) {
-      savingsGrade = 'A';
-    } else if (monthsReserve >= 3) {
-      savingsGrade = 'C+';
-    } else if (monthsReserve >= 1) {
-      savingsGrade = 'D';
+    final String ijmDetail;
+    if (_hasIjm) {
+      ijmDetail = s.disabilityGapIjmCoverage;
+    } else if (_hasPrivateInsurance) {
+      ijmDetail = s.disabilityInsPrivateCoverage;
     } else {
-      savingsGrade = 'F';
+      ijmDetail = s.disabilityInsNoCoverage;
     }
-    final savingsDetail =
-        '${monthsReserve.toStringAsFixed(1)} mois de charges (objectif : 6 mois)';
 
     return [
       CoverageItem(
-        label: 'IJM / Perte de gain',
-        grade: ijmGrade,
+        label: s.disabilityGapApgLabel,
+        grade: cov.ijmGrade,
         detail: ijmDetail,
         legalRef: 'LAMal art. 67-77',
         emoji: '🛡️',
       ),
       CoverageItem(
-        label: 'AI fédérale',
-        grade: aiGrade,
-        detail: 'Max ${_fmtChf(aiRenteEntiere)} CHF/mois — délai décision ~14 mois',
+        label: s.disabilityGapAiLabel,
+        grade: cov.aiGrade,
+        detail: s.disabilityGapAiDetail(
+            formatChf(DisabilityService.aiRenteFullMonthly)),
         legalRef: 'LAI art. 28',
         emoji: '🏛️',
       ),
       CoverageItem(
-        label: 'LPP invalidité',
-        grade: lppGrade,
-        detail: lppDetail,
+        label: s.disabilityGapLppLabel,
+        grade: cov.lppGrade,
+        detail: cov.hasLpp
+            ? s.disabilityGapLppCovered
+            : s.disabilityGapLppNotCovered,
         legalRef: 'LPP art. 23-26',
         emoji: '🏦',
       ),
       CoverageItem(
-        label: 'Réserve d\'urgence',
-        grade: savingsGrade,
-        detail: savingsDetail,
+        label: s.disabilityGapSavingsLabel,
+        grade: cov.savingsGrade,
+        detail: s.disabilityInsSavingsDetail(
+            cov.reserveMonths.toStringAsFixed(1)),
         emoji: '💰',
       ),
     ];
   }
 
-  String get _overallGrade {
-    int score = 0;
-    if (_hasIjm || _hasPrivateInsurance) score += 3;
-    final annualGross = _grossMonthly * 12;
-    if (annualGross >= lppSeuilEntree) score += 2;
-    final monthsReserve = _savings / (_grossMonthly * 0.7);
-    if (monthsReserve >= 3) score += 2;
-    if (monthsReserve >= 6) score += 1;
-    if (score >= 7) return 'B+';
-    if (score >= 5) return 'C+';
-    if (score >= 3) return 'C-';
-    return 'D';
-  }
+  String get _overallGrade => _coverage.overallGrade;
 
-  double get _lifeDropPercent {
-    // Act 3 income estimate: AI + LPP
-    final annualGross = _grossMonthly * 12;
-    double lppInvalidity = 0.0;
-    if (annualGross >= lppSeuilEntree) {
-      final coordinated = (annualGross - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
-      lppInvalidity = coordinated * 0.40 / 12;
-    }
-    final act3Income = aiRenteEntiere + lppInvalidity;
-    return ((1 - act3Income / _grossMonthly) * 100).clamp(0, 100);
-  }
+  double get _lifeDropPercent => _coverage.lifeDropPercent;
 
   // ── Franchise options ─────────────────────────────────────
 
@@ -154,16 +124,6 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     FranchiseOption(franchiseAmount: 2000, monthlyPremiumSavings: 60),
     FranchiseOption(franchiseAmount: 2500, monthlyPremiumSavings: 80),
   ];
-
-  static String _fmtChf(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
-  }
 
   // ── Build ─────────────────────────────────────────────────
 
@@ -270,7 +230,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             min: 2000,
             max: 25000,
             divisions: 46,
-            format: (v) => "CHF ${_fmtChf(v)}",
+            format: (v) => "CHF ${formatChf(v)}",
             onChanged: (v) => setState(() => _grossMonthly = v),
           )),
           const SizedBox(height: 12),
@@ -280,7 +240,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             min: 0,
             max: 200000,
             divisions: 40,
-            format: (v) => "CHF ${_fmtChf(v)}",
+            format: (v) => "CHF ${formatChf(v)}",
             onChanged: (v) => setState(() => _savings = v),
           )),
           const SizedBox(height: 16),
