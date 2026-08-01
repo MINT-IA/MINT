@@ -74,6 +74,20 @@ def build(root: Path) -> dict:
     for entry in entries:
         hashes.setdefault(entry["sha256"], []).append(entry["path"])
     duplicate_groups = [paths for paths in hashes.values() if len(paths) > 1]
+    # Identical bytes are one piece of evidence. A filename must never make the
+    # same artifact acquire contradictory semantic dispositions.
+    by_path = {entry["path"]: entry for entry in entries}
+    for paths in duplicate_groups:
+        canonical = by_path[paths[0]]
+        if Path(paths[0]).suffix.lower() in {".png", ".jpg", ".jpeg", ".gif"}:
+            decision = "ADAPT"
+            reason = "byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority"
+        else:
+            decision = canonical["decision"]
+            reason = f"byte-identical artifact group canonicalized from {paths[0]}; {canonical['reason']}"
+        for path in paths:
+            by_path[path]["decision"] = decision
+            by_path[path]["reason"] = reason
     return {
         "schema_version": 1,
         "status": "exhaustive_for_declared_roots",

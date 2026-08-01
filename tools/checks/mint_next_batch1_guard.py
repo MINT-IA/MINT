@@ -24,11 +24,12 @@ FILES = {
     "evaluation": "evaluation.yaml",
     "prototype": "prototype/index.html",
     "render": "evidence/render-20260801.yaml",
+    "tax_fixture": "tax-fixture.yaml",
 }
 EXPECTED_DIRECTIONS = {
-    "instant_tax_receipt": ("calculator_first", "synthetic_result_slot_in_receipt"),
-    "next_life_decision": ("event_decision_first", "synthetic_result_slot_in_decision_canvas"),
-    "conversation_to_card": ("coach_intent_first_structured_data_output", "pinned_verifiable_question_card"),
+    "instant_tax_receipt": ("calculator_first", "synthetic_calculated_fixture_receipt"),
+    "next_life_decision": ("event_decision_first", "synthetic_calculated_fixture_decision_canvas"),
+    "conversation_to_card": ("coach_intent_first_structured_data_output", "pinned_synthetic_fixture_card"),
 }
 GOVERNING_SOURCES = {
     "CLAUDE.md", "docs/MINT_UX_GRAAL_MASTERPLAN.md", "docs/MINT_IDENTITY.md",
@@ -36,10 +37,23 @@ GOVERNING_SOURCES = {
     "apps/mobile/lib/theme/mint_text_styles.dart", "apps/mobile/pubspec.yaml",
 }
 MODERATED_TASKS = {
-    "understand_that_no_tax_result_is_calculated", "identify_required_tax_inputs_and_assumptions",
+    "understand_synthetic_tax_scenario_without_mistaking_it_for_personal_advice", "find_fixture_source_and_assumptions",
     "correct_an_assumption", "continue_without_account", "recover_next_step_on_return",
 }
 REQUIRED_REVIEWS = {"ux", "accessibility", "swiss_tax", "compliance", "privacy_security"}
+REQUIRED_METRICS = {
+    "unaided_task_success", "time_to_first_value_median_and_p90", "teach_back_correctness",
+    "source_and_assumption_discovery", "data_correction_success", "calibrated_trust",
+    "perceived_judgment_or_manipulation", "non_stimulated_return_j7_j30",
+    "accessibility_critical_task_success",
+}
+REQUIRED_THRESHOLDS = {
+    "unaided_task_success_percent": 85, "median_first_value_seconds_max": 90,
+    "p90_first_value_seconds_max": 180, "teach_back_percent": 80,
+    "source_discovery_percent": 90, "number_provenance_percent": 100,
+    "disabled_or_b1_critical_success_percent": 80,
+    "minimum_major_segment_success_percent": 70, "route_dead_ends": 0,
+}
 FORBIDDEN_DISCORD = {
     "financial_data", "tax_data", "pension_data", "insurance_data", "bank_data",
     "avs_data", "prompt", "response", "auth_header", "token", "document",
@@ -120,8 +134,13 @@ def validate(root: Path) -> list[str]:
     if not isinstance(contract, dict) or contract.get("bank_connection_required") is not False:
         errors.append("bank connection must not be required before first value")
     result = contract.get("result", {}) if isinstance(contract, dict) else {}
-    if not isinstance(result, dict) or result.get("range_chf") is not None or result.get("display_placeholder") != "CHF_X_to_Y" or result.get("number_state") != "synthetic_layout_placeholder":
-        errors.append("prototype must use only the common non-financial result placeholder")
+    fixture = _yaml(root, "tax_fixture", errors)
+    fixture_inputs = fixture.get("inputs_chf", {})
+    fixture_calc = fixture.get("calculation", {})
+    if fixture.get("fixture_id") != "B1-FX-01" or fixture.get("status") != "synthetic_ux_fixture_not_swiss_tax_result" or fixture_calc.get("result_chf") != fixture_inputs.get("synthetic_baseline_tax", 0) - fixture_inputs.get("synthetic_scenario_tax", 0):
+        errors.append("synthetic tax UX fixture must remain explicit and arithmetically reproducible")
+    if not isinstance(result, dict) or result.get("range_chf") is not None or result.get("value") != 1500 or result.get("fixture_id") != "B1-FX-01" or result.get("number_state") != "synthetic_calculated_ux_fixture":
+        errors.append("first value must use the common calculated synthetic fixture")
     if not {"municipality", "tax_regime", "residence"} <= set(first.get("persona", {})):
         errors.append("tax-first persona must disclose municipality, residence, and tax regime")
 
@@ -152,7 +171,7 @@ def validate(root: Path) -> list[str]:
     comparability = directions_data.get("comparability", {})
     if not isinstance(comparability, dict) or comparability.get("winner") != "none_until_user_evidence":
         errors.append("no direction winner may be claimed without user evidence")
-    for key in ("same_persona", "same_financial_facts", "same_result_placeholder", "same_primary_action"):
+    for key in ("same_persona", "same_financial_facts", "same_calculated_fixture", "same_primary_action"):
         if not isinstance(comparability, dict) or comparability.get(key) is not True:
             errors.append(f"direction comparability requires {key}")
 
@@ -172,10 +191,10 @@ def validate(root: Path) -> list[str]:
     if not isinstance(participants, dict) or len(participants.get("segments", [])) < 5 or set(participants.get("languages_minimum", [])) != {"fr", "de"}:
         errors.append("evaluation participant coverage is incomplete")
     metrics = set(evaluation.get("metrics", []))
-    if not {"unaided_task_success", "teach_back_correctness", "data_correction_success", "accessibility_critical_task_success"} <= metrics:
+    if metrics != REQUIRED_METRICS:
         errors.append("evaluation metrics are incomplete")
     thresholds = evaluation.get("thresholds", {})
-    if not isinstance(thresholds, dict) or thresholds.get("route_dead_ends") != 0 or thresholds.get("unaided_task_success_percent") != 85:
+    if thresholds != REQUIRED_THRESHOLDS:
         errors.append("evaluation thresholds are incomplete")
     scorecard = evaluation.get("scorecard_100", {})
     if not isinstance(scorecard, dict) or sum(v for v in scorecard.values() if isinstance(v, int)) != 100:
@@ -205,6 +224,16 @@ def validate(root: Path) -> list[str]:
     if coordination.get("discord_existence") != "user_attested_not_technically_verified":
         errors.append("Discord existence must not be overstated")
     coordination_evidence = _yaml(root, "coordination_evidence", errors)
+    expected_coordination_sources = {
+        ("Slack_Free_feature_limitations", "https://slack.com/help/articles/27204752526611-Feature-limitations-on-the-free-version-of-Slack"),
+        ("Discord_webhooks", "https://docs.discord.com/developers/platform/webhooks"),
+        ("Discord_privacy", "https://discord.com/privacy"),
+    }
+    actual_coordination_sources = {
+        (item.get("title"), item.get("url")) for item in coordination_evidence.get("sources", []) if isinstance(item, dict) and item.get("supports")
+    }
+    if actual_coordination_sources != expected_coordination_sources:
+        errors.append("coordination evidence official sources are incomplete or have drifted")
     alternatives = coordination_evidence.get("alternatives", {})
     if not isinstance(alternatives, dict) or set(alternatives) != {"no_chat", "discord_notification_only", "slack_free"}:
         errors.append("coordination evidence must compare Discord, Slack Free, and no chat")
@@ -236,10 +265,10 @@ def validate(root: Path) -> list[str]:
             errors.append("prototype must expose three direction selectors")
         if html.count("()=>`") != 18:
             errors.append("prototype must contain exactly 18 prototype states")
-        for phrase in ("Sans compte", "Voir les hypothèses", "MAQUETTE · AUCUN MOTEUR BRANCHÉ", "MINT compare. Léa décide.", "localStorage.setItem", "data-edit"):
+        for phrase in ("Sans compte", "Voir les hypothèses", "B1-FX-01", "SIMULATION SYNTHÉTIQUE", "MINT compare. Léa décide.", "localStorage.setItem", "data-edit"):
             if phrase not in html:
                 errors.append(f"prototype missing required contract phrase: {phrase}")
-        if "900–1’700" in html or "Barème VD + tes réponses" in html or "moteur versionné" in html:
+        if "900–1’700" in html or "Barème VD + tes réponses" in html or "moteur versionné" in html or "CHF X–Y" in html:
             errors.append("prototype must not present the removed fictitious fiscal provenance")
         if html.count("Vérifier les données manquantes") < 3:
             errors.append("prototype directions must expose the same primary missing-data action")

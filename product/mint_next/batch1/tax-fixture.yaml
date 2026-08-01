@@ -1,0 +1,19 @@
+schema_version: 1
+fixture_id: B1-FX-01
+status: synthetic_ux_fixture_not_swiss_tax_result
+purpose: compare_result_comprehension_across_three_interaction_mechanisms
+inputs_chf:
+  synthetic_baseline_tax: 15000
+  synthetic_scenario_tax: 13500
+calculation:
+  operation: baseline_minus_scenario
+  result_chf: 1500
+required_display:
+  amount: CHF_1500
+  source: B1-FX-01
+  labels: [synthetic_test_fixture, not_personalized, not_tax_estimate, not_advice]
+prohibited_use:
+  - swiss_tax_accuracy_claim
+  - contribution_recommendation
+  - production_calculation
+  - user_financial_decision

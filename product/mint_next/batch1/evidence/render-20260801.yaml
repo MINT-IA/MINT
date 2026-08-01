@@ -7,13 +7,13 @@ rendered_state: result_step_4_of_6
 artifacts:
   direction_a:
     path: product/mint_next/batch1/evidence/direction-a-result.png
-    sha256: e31a8e8c4b968808b8c1ee5fa77b0761dd8a0cd372e8de5266a8b613a29fd1cb
+    sha256: 911e0fd84104f9dcff7df202a58e65f7e140336c897ddf324c8a7c8539a90eda
   direction_b:
     path: product/mint_next/batch1/evidence/direction-b-result.png
-    sha256: cc4fe66be8eda1f508f0f0b1bfa786b5bbc48ef35dd91aa4bf644a08fc70743c
+    sha256: 38c80f82a055b8ba16fb41250b89f45e1e078071e630c26117e616a7b41b37df
   direction_c:
     path: product/mint_next/batch1/evidence/direction-c-result.png
-    sha256: a2375d3121ae16e24200e88161fc8f52bfc7880d153522017d9d844d6a98bd2f
+    sha256: 2d1661e9e3231463d7f29a261dfef8f08a75d99cfc86c3743fc498eebdcc401c
 claims:
   all_three_rendered: true
   visual_inspection_performed: true

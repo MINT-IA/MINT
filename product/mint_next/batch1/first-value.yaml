@@ -25,13 +25,14 @@ first_value_contract:
   account_required: false
   bank_connection_required: false
   result:
-    value: synthetic_placeholder_not_a_financial_result
+    value: 1500
     range_chf: null
-    display_placeholder: CHF_X_to_Y
-    number_state: synthetic_layout_placeholder
+    display_placeholder: CHF_1500
+    number_state: synthetic_calculated_ux_fixture
+    fixture_id: B1-FX-01
     required_labels: [source, assumptions, tax_year, confidence, what_it_does_not_mean]
   primary_action: review_missing_tax_inputs
-  secondary_action: understand_required_inputs_and_limits
+  secondary_action: understand_fixture_source_assumptions_and_limits
 prohibited:
   - personalized_precision_without_sufficient_data
   - llm_generated_calculation

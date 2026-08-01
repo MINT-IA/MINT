@@ -6,19 +6,20 @@ import argparse
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from urllib.parse import urlencode
 
 
 HTML = Path("product/mint_next/batch1/prototype/index.html")
 CASES = [
-    ({"direction": "a", "step": 3}, ["4 / 6", "CHF X–Y", "Vérifier les données manquantes"]),
-    ({"direction": "b", "step": 3}, ["4 / 6", "CHF X–Y", "MINT compare. Léa décide."]),
-    ({"direction": "c", "step": 3}, ["4 / 6", "AUCUN MOTEUR BRANCHÉ", "Vérifier les données manquantes"]),
+    ({"direction": "a", "step": 3}, ["4 / 6", "CHF 1’500", "B1-FX-01", "PAS UNE ESTIMATION PERSONNELLE"]),
+    ({"direction": "b", "step": 3}, ["4 / 6", "CHF 1’500", "MINT compare. Léa décide."]),
+    ({"direction": "c", "step": 3}, ["4 / 6", "CHF 1’500", "B1-FX-01", "PAS UNE ESTIMATION"]),
     ({"direction": "a", "probe": "correction"}, ["2 / 6", "Nyon", "Valeur corrigée", 'aria-pressed="true"']),
+    ({"direction": "a", "probe": "correction_journey"}, ["5 / 6", "Nyon", 'aria-pressed="true"']),
     ({"direction": "b", "probe": "back"}, ["4 / 6", "Deux chemins, aucun montant recommandé"]),
     ({"direction": "c", "probe": "explain"}, ["5 / 6", "Corriger avant de calculer"]),
-    ({"direction": "a", "probe": "save"}, ["6 / 6", "Cap enregistré localement", "Cap enregistré"]),
 ]
 
 
@@ -54,6 +55,19 @@ def main() -> int:
             print(f"ERROR mint_next_batch1_runtime_probe: query={query} missing={missing} stderr={proc.stderr[-400:]}", file=sys.stderr)
             return 1
         print(f"PASS query={query}")
+    with tempfile.TemporaryDirectory(prefix="mint-b1-chrome-") as temp_root:
+        profile = Path(temp_root) / "saved-profile"
+        reload_profile = Path(temp_root) / "reload-profile"
+        base = [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--dump-dom"]
+        saved = subprocess.run(base + [f"--user-data-dir={profile}", f"{source}?direction=a&probe=save"], capture_output=True, text=True, timeout=30)
+        shutil.copytree(profile, reload_profile, ignore=shutil.ignore_patterns("Singleton*"))
+        reloaded = subprocess.run(base + [f"--user-data-dir={reload_profile}", f"{source}?direction=a"], capture_output=True, text=True, timeout=30)
+        expected = ["6 / 6", "Cap enregistré localement", "Cap enregistré"]
+        missing = [value for value in expected if value not in reloaded.stdout]
+        if saved.returncode or reloaded.returncode or missing:
+            print(f"ERROR mint_next_batch1_runtime_probe: persisted reload missing={missing}", file=sys.stderr)
+            return 1
+        print("PASS persisted save across browser reload")
     print("OK mint_next_batch1_runtime_probe: render, correction, back, explain, and save behavior executed.", file=sys.stderr)
     return 0
 

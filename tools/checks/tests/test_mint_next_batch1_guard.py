@@ -178,6 +178,31 @@ def test_guard_rejects_non_reproducible_coordination_total(tmp_path: Path) -> No
     assert "total is not reproducible" in proc.stderr
 
 
+def test_guard_rejects_removed_coordination_sources(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "coordination-evidence.yaml"
+    text = path.read_text(encoding="utf-8")
+    path.write_text(text[: text.index("sources:\n")] + "sources: []\n", encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "official sources" in proc.stderr
+
+
+def test_guard_rejects_evidable_evaluation_protocol(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "evaluation.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8")
+        .replace("  - teach_back_correctness\n", "")
+        .replace("  number_provenance_percent: 100\n", ""),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "metrics are incomplete" in proc.stderr
+    assert "thresholds are incomplete" in proc.stderr
+
+
 def test_guard_rejects_root_level_inventory_boilerplate(tmp_path: Path) -> None:
     _copy(tmp_path)
     path = tmp_path / ROOT / "handoff-inventory.yaml"

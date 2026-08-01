@@ -17,52 +17,62 @@ files:
   bytes: 7302
   sha256: 16a198defe991a11a91d00083f9b51047d2e8eda7392ded80bce4482a4f928e5
   decision: RETAIN_AS_HISTORY
-  reason: architecture/readme receipt explains intent but does not govern Batch 1
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/00-README.md;
+    architecture/readme receipt explains intent but does not govern Batch 1
 - path: .planning/handoff/2026-04-26-chat-vivant-services/01-vision.md
   bytes: 4772
   sha256: d96621e3ebef928db0581cd62be4baf1169cd6c0dd6c88f957994a03333cd013
   decision: ADAPT
-  reason: retain scene/canvas/artifact interaction concepts; reject explicit Claude equivalence and visual skin
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/01-vision.md;
+    retain scene/canvas/artifact interaction concepts; reject explicit Claude equivalence and visual skin
 - path: .planning/handoff/2026-04-26-chat-vivant-services/02-chat-vivant-services.md
   bytes: 5281
   sha256: f17ef02f777f93baa9059c416c6764b20c22e46018269b71b5ff8c11b23d4d80
   decision: REWRITE
-  reason: service/component/integration contract conflicts with current deterministic finance and runtime boundaries
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/02-chat-vivant-services.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoff/2026-04-26-chat-vivant-services/03-components.md
   bytes: 8357
   sha256: 24bf85a2138f32b2b0af37257a59ad277ac40be6bbc513a9a6597570b98b347c
   decision: REWRITE
-  reason: service/component/integration contract conflicts with current deterministic finance and runtime boundaries
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/03-components.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoff/2026-04-26-chat-vivant-services/04-animations.md
   bytes: 3225
   sha256: 3559262aec7189a6c3e0730dffebf54c880c5ffe179ec10c7892969563c29201
   decision: ADAPT
-  reason: motion intent may inform prototypes only after reduced-motion and accessibility review
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/04-animations.md;
+    motion intent may inform prototypes only after reduced-motion and accessibility review
 - path: .planning/handoff/2026-04-26-chat-vivant-services/05-integration.md
   bytes: 3780
   sha256: 84545534eb66d4f63863a74da072448e09cabc03b27665c37d684b8530604806
   decision: REWRITE
-  reason: service/component/integration contract conflicts with current deterministic finance and runtime boundaries
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/05-integration.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoff/2026-04-26-chat-vivant-services/06-test-plan.md
   bytes: 3945
   sha256: 65c1f3550e46fda4f731d169dff85fc1e40d007367ac62c94aa3d491c3bca96e
   decision: ADAPT
-  reason: test scenarios are inputs to the new comparable protocol, not inherited acceptance evidence
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/06-test-plan.md;
+    test scenarios are inputs to the new comparable protocol, not inherited acceptance evidence
 - path: .planning/handoff/2026-04-26-chat-vivant-services/ARCHITECTURE.md
   bytes: 16262
   sha256: 38cc3c7415cc8875dc9de7200d96e42017fc42f691e5622876453055c8406d8b
   decision: RETAIN_AS_HISTORY
-  reason: architecture/readme receipt explains intent but does not govern Batch 1
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/ARCHITECTURE.md;
+    architecture/readme receipt explains intent but does not govern Batch 1
 - path: .planning/handoff/2026-04-26-chat-vivant-services/architecture.html
   bytes: 24572
   sha256: 79012768038ed58db9724e7823b5dee1e1c563146e45c5964d3a3b69c7288cba
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/architecture.html;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/colors_and_type.css
   bytes: 6801
   sha256: 5d1e2b9c846b82f9b4edf451343d2364e5413c12ea8b70f8883ff79a98b41381
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/colors_and_type.css;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prompts.md
   bytes: 7339
   sha256: 54969e4bd1ac1f932409ab251d3fb10bd88ea60828f50d8c537562dfd71d104a
@@ -72,82 +82,92 @@ files:
   bytes: 9496
   sha256: 56920ec8f81a112aef6f75d39960f7cf25987467384127ed1a788322193676fe
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/MINT
+    - Chat vivant.html; visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/captures/01-chat-comparison.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
   decision: ADAPT
-  reason: retain scene/canvas/artifact interaction concepts; reject explicit Claude equivalence and visual skin
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/captures/01-early-chat.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
   decision: ADAPT
-  reason: retain scene/canvas/artifact interaction concepts; reject explicit Claude equivalence and visual skin
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/captures/02-full-conversation.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: REWRITE
-  reason: service/component/integration contract conflicts with current deterministic finance and runtime boundaries
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/captures/02-scene-rente.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: REWRITE
-  reason: service/component/integration contract conflicts with current deterministic finance and runtime boundaries
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/captures/03-canvas-open.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: REWRITE
-  reason: service/component/integration contract conflicts with current deterministic finance and runtime boundaries
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/captures/03-scene-rachat.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: REWRITE
-  reason: service/component/integration contract conflicts with current deterministic finance and runtime boundaries
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/canvas-rente-capital.jsx
   bytes: 11973
   sha256: e8d4ac5018ef2a4a852e4b574a4b7b592769f187ede7cacfa4e470abfb797bf4
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/canvas-rente-capital.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/chat-ui.jsx
   bytes: 5179
   sha256: a7c37c544f553bea075b926bafb424256d280458a87a1e9de896736ad5199a54
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/chat-ui.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/conversation.jsx
   bytes: 9716
   sha256: 0f26f620aea3651b3508cdab3e969296da3fa8f3d163f3d719fe60f88a088714
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/conversation.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/count-up.jsx
   bytes: 1236
   sha256: cfb24cdccc43f84ef81baa0ec2cca5408348bf5f8eea4755581ab0b71f7f0ea5
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/count-up.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/insight-card.jsx
   bytes: 2841
   sha256: d45d4a1d50a934be380a17467e7a31ff0b0636d0b93c5758182ba5de723e0634
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/insight-card.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rachat-lpp.jsx
   bytes: 6575
   sha256: 1521c4e834d138097f7be68e80cc38efa739d7a1e428e9c328c8319d5a1d9cd4
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rachat-lpp.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rente-capital.jsx
   bytes: 8875
   sha256: bf90cebb4d4631389e64a2536016313cda806faf253c2b6bbed23636cfa645ac
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rente-capital.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/tokens.jsx
   bytes: 4062
   sha256: 2cbd42e5400375edf6cc94906816f2654905aebebd952d07cf2590a6e0cb4c2e
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/tokens.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-04-26-chat-vivant-services/prototype/ios-frame.jsx
   bytes: 15755
   sha256: d67eb3ffe5627b46123f751ec6ae7c41dad03c3ef43f81ec11052969c74e39b3
   decision: ADAPT
-  reason: visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/ios-frame.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/MINT_COACH_AI_INTEGRATION_PROMPT.md
   bytes: 20657
   sha256: 705e5ef16fefe2ea3517f1040882153ef566ea6cffc0ecdccc2aa2f60682113e
@@ -171,103 +191,123 @@ files:
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/colors_and_type.css
   bytes: 6801
   sha256: 5d1e2b9c846b82f9b4edf451343d2364e5413c12ea8b70f8883ff79a98b41381
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/colors_and_type.css;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/design-canvas.jsx
   bytes: 31136
   sha256: 5d0e3900362805093d71b2b620ccfcc266b035ce0540608239e61aaf151caa8d
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/design-canvas.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/primitives.jsx
   bytes: 7870
   sha256: c59daaf258ccfd64f8e6fef4159fc076c975f838e4743d57204bfe7dddc1c02a
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/primitives.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-aujourdhui.jsx
   bytes: 4133
   sha256: 3648341bb2e5808290bb4ec29715178059b4e58ef666d8451ac07616d9e7ed47
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-aujourdhui.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-coach-empty.jsx
   bytes: 3508
   sha256: c3446a23eb8940f8aa384a1b4155e53476bb56ad1a376c6f83f45ddd941679fd
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-coach-empty.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-coach.jsx
   bytes: 10809
   sha256: 4bcf1d038adaaaffe1490c554185b2582fa7b00def5e8e7f7fabb8a461a937aa
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-coach.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-hypotheque.jsx
   bytes: 4659
   sha256: a90bb4f4d40498d39857abc33e762436b7cc0da0f7469821b0159727e5d291b4
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-hypotheque.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-landing.jsx
   bytes: 1914
   sha256: 9d09299fb729cd0995d8bb7548fea77a014d224ad7cb646483f7870ead681e4c
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-landing.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-lpp.jsx
   bytes: 3420
   sha256: 06e9c28af90776af53b9a17c2389e50a9d3eba8e60e0fa0accf2c1d4aa14d7e3
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-lpp.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-onboarding.jsx
   bytes: 2214
   sha256: 25765e18b7e468032b1ed320669a2d13801f562f1bd71c587576fef8b7865905
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-onboarding.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-plan.jsx
   bytes: 4810
   sha256: 5530bd9d560fceb95a2d2d79c004d9905a5b90c12c3f74b447964993e57b6eff
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-plan.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/tokens.jsx
   bytes: 4100
   sha256: 00410034daecefa923294d08b02ed71176f6aadef0daadbe885e0aa9b9197e57
   decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/tokens.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/00-README.md
   bytes: 7302
   sha256: 16a198defe991a11a91d00083f9b51047d2e8eda7392ded80bce4482a4f928e5
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: RETAIN_AS_HISTORY
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/00-README.md;
+    architecture/readme receipt explains intent but does not govern Batch 1
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/01-vision.md
   bytes: 4772
   sha256: d96621e3ebef928db0581cd62be4baf1169cd6c0dd6c88f957994a03333cd013
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/01-vision.md;
+    retain scene/canvas/artifact interaction concepts; reject explicit Claude equivalence and visual skin
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/02-chat-vivant-services.md
   bytes: 5281
   sha256: f17ef02f777f93baa9059c416c6764b20c22e46018269b71b5ff8c11b23d4d80
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: REWRITE
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/02-chat-vivant-services.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/03-components.md
   bytes: 8357
   sha256: 24bf85a2138f32b2b0af37257a59ad277ac40be6bbc513a9a6597570b98b347c
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: REWRITE
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/03-components.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/04-animations.md
   bytes: 3225
   sha256: 3559262aec7189a6c3e0730dffebf54c880c5ffe179ec10c7892969563c29201
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/04-animations.md;
+    motion intent may inform prototypes only after reduced-motion and accessibility review
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/05-integration.md
   bytes: 3780
   sha256: 84545534eb66d4f63863a74da072448e09cabc03b27665c37d684b8530604806
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: REWRITE
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/05-integration.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/06-test-plan.md
   bytes: 3945
   sha256: 65c1f3550e46fda4f731d169dff85fc1e40d007367ac62c94aa3d491c3bca96e
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/06-test-plan.md;
+    test scenarios are inputs to the new comparable protocol, not inherited acceptance evidence
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/ARCHITECTURE.md
   bytes: 16262
   sha256: 38cc3c7415cc8875dc9de7200d96e42017fc42f691e5622876453055c8406d8b
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: RETAIN_AS_HISTORY
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/ARCHITECTURE.md;
+    architecture/readme receipt explains intent but does not govern Batch 1
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/CLAUDE_CODE_FIX_PROMPTS.md
   bytes: 27870
   sha256: 101e7872fdb143d6612f11b6c612346d0995136202fd2c09c245deab42348bff
@@ -281,93 +321,105 @@ files:
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/architecture.html
   bytes: 24572
   sha256: 79012768038ed58db9724e7823b5dee1e1c563146e45c5964d3a3b69c7288cba
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/architecture.html;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/colors_and_type.css
   bytes: 6801
   sha256: 5d1e2b9c846b82f9b4edf451343d2364e5413c12ea8b70f8883ff79a98b41381
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/colors_and_type.css;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/MINT - Chat vivant.html
   bytes: 9496
   sha256: 56920ec8f81a112aef6f75d39960f7cf25987467384127ed1a788322193676fe
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/MINT
+    - Chat vivant.html; visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/captures/01-chat-comparison.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/captures/01-early-chat.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/captures/02-full-conversation.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/captures/02-scene-rente.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/captures/03-canvas-open.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/captures/03-scene-rachat.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/canvas-rente-capital.jsx
   bytes: 11973
   sha256: e8d4ac5018ef2a4a852e4b574a4b7b592769f187ede7cacfa4e470abfb797bf4
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/canvas-rente-capital.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/chat-ui.jsx
   bytes: 5179
   sha256: a7c37c544f553bea075b926bafb424256d280458a87a1e9de896736ad5199a54
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/chat-ui.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/conversation.jsx
   bytes: 9716
   sha256: 0f26f620aea3651b3508cdab3e969296da3fa8f3d163f3d719fe60f88a088714
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/conversation.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/count-up.jsx
   bytes: 1236
   sha256: cfb24cdccc43f84ef81baa0ec2cca5408348bf5f8eea4755581ab0b71f7f0ea5
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/count-up.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/insight-card.jsx
   bytes: 2841
   sha256: d45d4a1d50a934be380a17467e7a31ff0b0636d0b93c5758182ba5de723e0634
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/insight-card.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/scene-rachat-lpp.jsx
   bytes: 6575
   sha256: 1521c4e834d138097f7be68e80cc38efa739d7a1e428e9c328c8319d5a1d9cd4
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rachat-lpp.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/scene-rente-capital.jsx
   bytes: 8875
   sha256: bf90cebb4d4631389e64a2536016313cda806faf253c2b6bbed23636cfa645ac
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rente-capital.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/chat-vivant/tokens.jsx
   bytes: 4062
   sha256: 2cbd42e5400375edf6cc94906816f2654905aebebd952d07cf2590a6e0cb4c2e
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/tokens.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/2026-05-09-design-system-v8/handoff/prototype/ios-frame.jsx
   bytes: 15755
   sha256: d67eb3ffe5627b46123f751ec6ae7c41dad03c3ef43f81ec11052969c74e39b3
-  decision: RETIRE_FROM_PROMPTS
-  reason: hash inventory shows this generated bundle duplicates inspected Handoff/brand material
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/ios-frame.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/00-README.md
   bytes: 4281
   sha256: 3af6ade87433f84c36eaa0619ea0ff2a358f0bbe5346ce2c573812ac527dcfae
@@ -376,33 +428,39 @@ files:
 - path: .planning/handoffs/chat-vivant-2026-04-19/01-vision.md
   bytes: 4772
   sha256: d96621e3ebef928db0581cd62be4baf1169cd6c0dd6c88f957994a03333cd013
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/01-vision.md;
+    retain scene/canvas/artifact interaction concepts; reject explicit Claude equivalence and visual skin
 - path: .planning/handoffs/chat-vivant-2026-04-19/02-architecture.md
   bytes: 5281
   sha256: f17ef02f777f93baa9059c416c6764b20c22e46018269b71b5ff8c11b23d4d80
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: REWRITE
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/02-chat-vivant-services.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoffs/chat-vivant-2026-04-19/03-components.md
   bytes: 8357
   sha256: 24bf85a2138f32b2b0af37257a59ad277ac40be6bbc513a9a6597570b98b347c
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: REWRITE
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/03-components.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoffs/chat-vivant-2026-04-19/04-animations.md
   bytes: 3225
   sha256: 3559262aec7189a6c3e0730dffebf54c880c5ffe179ec10c7892969563c29201
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/04-animations.md;
+    motion intent may inform prototypes only after reduced-motion and accessibility review
 - path: .planning/handoffs/chat-vivant-2026-04-19/05-integration.md
   bytes: 3780
   sha256: 84545534eb66d4f63863a74da072448e09cabc03b27665c37d684b8530604806
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: REWRITE
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/05-integration.md;
+    service/component/integration contract conflicts with current deterministic finance and runtime boundaries
 - path: .planning/handoffs/chat-vivant-2026-04-19/06-test-plan.md
   bytes: 3945
   sha256: 65c1f3550e46fda4f731d169dff85fc1e40d007367ac62c94aa3d491c3bca96e
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/06-test-plan.md;
+    test scenarios are inputs to the new comparable protocol, not inherited acceptance evidence
 - path: .planning/handoffs/chat-vivant-2026-04-19/REVIEW.md
   bytes: 6646
   sha256: b9e759e7542cb982d8c65a3c4f1a8882d40cc87f11130beecb005f98009b6676
@@ -416,83 +474,93 @@ files:
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/MINT - Chat vivant.html
   bytes: 9496
   sha256: 56920ec8f81a112aef6f75d39960f7cf25987467384127ed1a788322193676fe
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/MINT
+    - Chat vivant.html; visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/captures/01-chat-comparison.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/captures/01-early-chat.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/captures/02-full-conversation.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/captures/02-scene-rente.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/captures/03-canvas-open.png
   bytes: 22337
   sha256: 81c1ad8c6df3878572d152a98e0e17af6a4e894b9214eb43216c0e8f98fabf75
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/captures/03-scene-rachat.png
   bytes: 8813
   sha256: fc20d9a7112b7addccff4afd949c77e3a31a4480bb264b25a2222dfc57b43c33
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical visual reference; inspect hierarchy only and reject inherited shell, copy, and authority
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/canvas-rente-capital.jsx
   bytes: 11973
   sha256: e8d4ac5018ef2a4a852e4b574a4b7b592769f187ede7cacfa4e470abfb797bf4
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/canvas-rente-capital.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/chat-ui.jsx
   bytes: 5179
   sha256: a7c37c544f553bea075b926bafb424256d280458a87a1e9de896736ad5199a54
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/chat-ui.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/conversation.jsx
   bytes: 9716
   sha256: 0f26f620aea3651b3508cdab3e969296da3fa8f3d163f3d719fe60f88a088714
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/conversation.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/count-up.jsx
   bytes: 1236
   sha256: cfb24cdccc43f84ef81baa0ec2cca5408348bf5f8eea4755581ab0b71f7f0ea5
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/count-up.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/insight-card.jsx
   bytes: 2841
   sha256: d45d4a1d50a934be380a17467e7a31ff0b0636d0b93c5758182ba5de723e0634
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/insight-card.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/scene-rachat-lpp.jsx
   bytes: 6575
   sha256: 1521c4e834d138097f7be68e80cc38efa739d7a1e428e9c328c8319d5a1d9cd4
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rachat-lpp.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/scene-rente-capital.jsx
   bytes: 8875
   sha256: bf90cebb4d4631389e64a2536016313cda806faf253c2b6bbed23636cfa645ac
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/scene-rente-capital.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/chat-vivant/tokens.jsx
   bytes: 4062
   sha256: 2cbd42e5400375edf6cc94906816f2654905aebebd952d07cf2590a6e0cb4c2e
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/chat-vivant/tokens.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoffs/chat-vivant-2026-04-19/prototype/ios-frame.jsx
   bytes: 15755
   sha256: d67eb3ffe5627b46123f751ec6ae7c41dad03c3ef43f81ec11052969c74e39b3
-  decision: RETIRE_FROM_PROMPTS
-  reason: superseded generation; exact useful duplicates are retained from the inspected April 26 root
+  decision: ADAPT
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-04-26-chat-vivant-services/prototype/ios-frame.jsx;
+    visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected
 - path: .planning/handoff/pdfs/Karpathy-Wiki-Pattern-2026-05-06.pdf
   bytes: 1674882
   sha256: 3702de44fb9476004931a9447b49b8857efca616744df9004073524bb8aeb1fe
@@ -511,58 +579,69 @@ files:
 - path: docs/brand/mint-v2/design-canvas.jsx
   bytes: 31136
   sha256: 5d0e3900362805093d71b2b620ccfcc266b035ce0540608239e61aaf151caa8d
-  decision: RETAIN_AS_HISTORY
-  reason: supporting brand artifact retained for provenance rather than prompt authority
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/design-canvas.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/primitives.jsx
   bytes: 7870
   sha256: c59daaf258ccfd64f8e6fef4159fc076c975f838e4743d57204bfe7dddc1c02a
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/primitives.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-aujourdhui.jsx
   bytes: 4133
   sha256: 3648341bb2e5808290bb4ec29715178059b4e58ef666d8451ac07616d9e7ed47
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-aujourdhui.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-coach-empty.jsx
   bytes: 3508
   sha256: c3446a23eb8940f8aa384a1b4155e53476bb56ad1a376c6f83f45ddd941679fd
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-coach-empty.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-coach.jsx
   bytes: 10809
   sha256: 4bcf1d038adaaaffe1490c554185b2582fa7b00def5e8e7f7fabb8a461a937aa
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-coach.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-hypotheque.jsx
   bytes: 4659
   sha256: a90bb4f4d40498d39857abc33e762436b7cc0da0f7469821b0159727e5d291b4
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-hypotheque.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-landing.jsx
   bytes: 1914
   sha256: 9d09299fb729cd0995d8bb7548fea77a014d224ad7cb646483f7870ead681e4c
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-landing.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-lpp.jsx
   bytes: 3420
   sha256: 06e9c28af90776af53b9a17c2389e50a9d3eba8e60e0fa0accf2c1d4aa14d7e3
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-lpp.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-onboarding.jsx
   bytes: 2214
   sha256: 25765e18b7e468032b1ed320669a2d13801f562f1bd71c587576fef8b7865905
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-onboarding.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/screen-plan.jsx
   bytes: 4810
   sha256: 5530bd9d560fceb95a2d2d79c004d9905a5b90c12c3f74b447964993e57b6eff
-  decision: ADAPT
-  reason: selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/screen-plan.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 - path: docs/brand/mint-v2/tokens.jsx
   bytes: 4100
   sha256: 00410034daecefa923294d08b02ed71176f6aadef0daadbe885e0aa9b9197e57
-  decision: RETAIN_AS_HISTORY
-  reason: supporting brand artifact retained for provenance rather than prompt authority
+  decision: RETIRE_FROM_PROMPTS
+  reason: byte-identical artifact group canonicalized from .planning/handoff/2026-05-09-design-system-v8/docs/brand/mint-v2/tokens.jsx;
+    hash inventory shows this generated bundle duplicates inspected Handoff/brand material
 duplicate_groups:
 - - .planning/handoff/2026-04-26-chat-vivant-services/00-README.md
   - .planning/handoff/2026-05-09-design-system-v8/handoff/00-README.md

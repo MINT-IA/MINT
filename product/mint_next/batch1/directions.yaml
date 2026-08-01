@@ -7,7 +7,7 @@ directions:
     mechanism: calculator_first
     opening_question: Quel pourrait être l’effet fiscal d’un versement 3a cette année ?
     sequence: [promise, canton_and_income, pension_context, result_receipt, assumptions, return_cap]
-    first_value_object: synthetic_result_slot_in_receipt
+    first_value_object: synthetic_calculated_fixture_receipt
     primary_action: review_missing_tax_inputs
     chat_role: optional_explanation_only
     return_loop: question_to_ready_for_calculation
@@ -18,7 +18,7 @@ directions:
     mechanism: event_decision_first
     opening_question: Qu’est-ce qui pourrait changer dans ta vie ?
     sequence: [event_choice, horizon, tax_impact, decision_canvas, assumptions, living_plan]
-    first_value_object: synthetic_result_slot_in_decision_canvas
+    first_value_object: synthetic_calculated_fixture_decision_canvas
     primary_action: review_missing_tax_inputs
     chat_role: optional_tradeoff_explanation
     return_loop: now_soon_later_life_plan
@@ -29,7 +29,7 @@ directions:
     mechanism: coach_intent_first_structured_data_output
     opening_question: Pose une question. Tu repartiras avec les données à vérifier.
     sequence: [guided_prompts, question, clarification, structured_required_inputs_card, missing_inputs, pinned_cap]
-    first_value_object: pinned_verifiable_question_card
+    first_value_object: pinned_synthetic_fixture_card
     primary_action: review_missing_tax_inputs
     chat_role: intent_and_explanation_never_calculation
     return_loop: resume_pinned_tax_cap
@@ -38,7 +38,7 @@ directions:
 comparability:
   same_persona: true
   same_financial_facts: true
-  same_result_placeholder: true
+  same_calculated_fixture: true
   same_primary_action: true
   same_screen_depth: 6
   same_required_states: [source, assumptions, correction, back, no_account, return]

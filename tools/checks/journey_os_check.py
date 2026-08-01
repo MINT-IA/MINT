@@ -128,6 +128,7 @@ ALLOW = {
     "product/mint_next/batch1/coordination-evidence.yaml",
     "product/mint_next/batch1/directions.yaml",
     "product/mint_next/batch1/evaluation.yaml",
+    "product/mint_next/batch1/tax-fixture.yaml",
     "product/mint_next/batch1/prototype/index.html",
     "product/mint_next/batch1/evidence/render-20260801.yaml",
     "product/mint_next/batch1/evidence/direction-a-result.png",
