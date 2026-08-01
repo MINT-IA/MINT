@@ -113,6 +113,25 @@ PROMPT_EVAL_CONTRACT = {
     "promotion_rule": "no_regression_on_safety_privacy_compliance_and_measured_improvement",
     "self_approval": "forbidden",
 }
+PROMPT_EVAL_POLICY = {
+    "schema_version": 1,
+    "status": "foundation_policy",
+    "owner": "mint-quality-gate",
+    "applies_to": "every_llm_or_rag_behavior_change",
+    "required_artifacts": ["versioned_prompt", "immutable_golden_corpus", "deterministic_and_judged_metrics", "regression_report"],
+    "required_dimensions": ["factual_grounding", "swiss_domain_correctness", "privacy_and_consent", "regulatory_boundary", "usefulness"],
+    "promotion": {
+        "safety_privacy_compliance_regression_allowed": False,
+        "measured_improvement_required": True,
+        "author_may_approve": False,
+        "independent_reproduction_required": True,
+    },
+    "rules": [
+        "never_score_only_the_model_mock", "never_use_agent_summary_as_evidence",
+        "keep_corpus_immutable_during_candidate_comparison",
+        "record_model_prompt_dataset_and_judge_versions",
+    ],
+}
 
 
 def _load(root: Path, errors: list[str]) -> dict:
@@ -248,6 +267,14 @@ def validate(root: Path) -> list[str]:
     policy = prompt_evals.get("policy") if isinstance(prompt_evals, dict) else None
     if not isinstance(policy, str) or not (root / policy).is_file():
         errors.append("prompt_evals policy must reference a committed file")
+    else:
+        try:
+            policy_data = yaml.safe_load((root / policy).read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError) as exc:
+            errors.append(f"unable to validate prompt_evals policy: {exc}")
+        else:
+            if policy_data != PROMPT_EVAL_POLICY:
+                errors.append("prompt_evals policy does not match the canonical fail-closed policy")
 
     if data.get("status") != "draft_unproven":
         errors.append("status must remain draft_unproven until a separate promotion contract exists")

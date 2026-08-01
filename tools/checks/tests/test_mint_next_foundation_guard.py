@@ -244,6 +244,20 @@ def test_guard_rejects_missing_prompt_eval_contract(tmp_path: Path) -> None:
     assert "prompt_evals" in proc.stderr
 
 
+def test_guard_rejects_self_approved_prompt_eval_policy(tmp_path: Path) -> None:
+    _copy_contract(tmp_path)
+    policy = tmp_path / "product/mint_next/contracts/llm-eval.yaml"
+    policy.write_text(
+        policy.read_text(encoding="utf-8").replace(
+            "author_may_approve: false", "author_may_approve: true"
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "prompt_evals policy" in proc.stderr
+
+
 def test_guard_rejects_invented_tool_state(tmp_path: Path) -> None:
     contract = _copy_contract(tmp_path)
     contract.write_text(
