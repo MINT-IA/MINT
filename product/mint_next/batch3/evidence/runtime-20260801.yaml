@@ -1,18 +1,20 @@
 schema_version: 1
 status: local_browser_runtime_evidence_not_user_validation
-prototype_sha256: e98b7d134fd638387bd22713e3e932b508b7eb98d66b1dd413b1a329c74d7f5d
-probe_sha256: f49658573d2f20b00ddd18640b6c3aebc1a81ed1cb7066d1c7a3af80c4246095
+prototype_sha256: 79e487e5058f1766f720bf5c24e1169c00cfdd9eb90237f844b0b49446c56dbe
+probe_sha256: dd3db3d21e3d4e9a9b4a944ad02d38191e9118e69fd4f72c1411baf1093f4284
 command: python3 tools/checks/mint_next_batch3_runtime_probe.py
 proofs:
-  state_matrix: 18_of_18_rendered_at_320_component_contract
-  horizontal_overflow: false
-  common_result_A_B_C: pass
-  disclosure_A_B_C: pass
+  state_matrix: 18_of_18_traversed_by_CDP_input_at_true_320px_viewport
+  document_horizontal_overflow: false
+  scoped_visible_result_A_B_C: pass_at_A4_B3_C4
+  visible_disclosure_A_B_C: pass
+  modal_keyboard_focus_and_background_isolation: pass
   correction_invalidation_A_B_C: pass
-  stale_amount_after_correction: false
-  back_exact_fixture_restore_A_B_C: pass
-  save_reload_direction_count: 3
-  dead_primary_or_secondary_control_found: false
+  stale_amount_in_invalidated_content: false
+  back_preserves_correction_A_B_C: pass
+  explicit_revert_restores_exact_fixture_A_B_C: pass
+  save_reload_returns_state6_A_B_C: pass
+  direction_primary_secondary_chip_and_reset_controls: pass
 claims:
   user_validated: false
   accessibility_fully_validated: false

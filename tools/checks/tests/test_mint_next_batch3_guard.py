@@ -31,7 +31,12 @@ def test_current_contract_passes():
  ('scenario.yaml','municipality: Lausanne','municipality: Nyon','assumptions'),
  ('scenario.yaml','required_adjacent_labels: [official_indicative','required_adjacent_labels: [exact_personal','display'),
  ('scenario.yaml','hide_all_official_amounts_and_show_recalculation_unavailable_in_prototype','keep_result_visible','correction'),
+ ('scenario.yaml','tax_year, canton, municipality','color, font, municipality','correction'),
+ ('scenario.yaml','may_restore_only_the_exact_promoted_fixture','may_keep_stale_result','correction'),
+ ('scenario.yaml','product_connected, nationwide_coverage','product_ready, nationwide_coverage','forbidden claim'),
  ('directions.yaml','state_count: 6','state_count: 5','direction'),
+ ('directions.yaml','mechanism: receipt_first','mechanism: generic_flow','direction'),
+ ('directions.yaml','differing_only: [entry_mechanism, visual_object, return_loop]','differing_only: [colors]','equality'),
  ('directions.yaml','identical_financial_facts: true','identical_financial_facts: false','equality'),
  ('evaluation-readiness.yaml','participants: 0','participants: 12','user evidence'),
  ('evaluation-readiness.yaml','winner_selected: false','winner_selected: true','user evidence'),
@@ -42,7 +47,10 @@ def test_rejects_contract_mutation(tmp_path,rel,old,new,message):
  p=mutate(tmp_path,rel,old,new);assert p.returncode==1 and message in p.stderr
 
 def test_rejects_legacy_fixture_in_prototype(tmp_path):
- p=mutate(tmp_path,'prototype/index.html','</body>','CHF 1’500 B1-FX-01 Léa</body>');assert p.returncode==1 and 'legacy' in p.stderr
+    p=mutate(tmp_path,'prototype/index.html','</body>','CHF 1’500 B1-FX-01 Léa</body>');assert p.returncode==1 and 'legacy' in p.stderr
+
+def test_rejects_official_receipt_endorsement(tmp_path):
+ p=mutate(tmp_path,'prototype/index.html','</body>','Reçu officiel</body>');assert p.returncode==1 and 'official receipt' in p.stderr
 
 def test_rejects_upstream_hash_mutation(tmp_path):
  copy(tmp_path);p=tmp_path/'product/mint_next/batch2/fixture.yaml';p.write_text(p.read_text()+'\n');r=run(tmp_path);assert r.returncode==1 and 'upstream hash' in r.stderr
@@ -54,7 +62,7 @@ def test_rejects_false_runtime_user_validation(tmp_path):
  p=mutate(tmp_path,'evidence/runtime-20260801.yaml','user_validated: false','user_validated: true');assert p.returncode==1 and 'runtime receipt' in p.stderr
 
 def test_rejects_stale_render_bytes(tmp_path):
- copy(tmp_path);p=tmp_path/BASE/'evidence/renders/phone320-a-result.png';p.write_bytes(p.read_bytes()+b'x');r=run(tmp_path);assert r.returncode==1 and 'render artifact mismatch' in r.stderr
+ copy(tmp_path);p=tmp_path/BASE/'evidence/renders/component320-a-result.png';p.write_bytes(p.read_bytes()+b'x');r=run(tmp_path);assert r.returncode==1 and 'render artifact mismatch' in r.stderr
 
 def test_rejects_education_removal(tmp_path):
  p=mutate(tmp_path,'scenario.yaml','pillar3a_reduces_liquidity','liquidity_irrelevant');assert p.returncode==1 and 'display' in p.stderr

@@ -50,6 +50,7 @@ CI_TESTS = (
     "tools/checks/tests/test_mint_next_batch1_guard.py",
     "tools/checks/tests/test_mint_next_batch2_guard.py",
     "tools/checks/tests/test_mint_next_batch3_guard.py",
+    "tools/checks/tests/test_mint_next_batch3_runtime_probe.py",
     "tools/checks/tests/test_verify_phase_acceptance.py",
 )
 
