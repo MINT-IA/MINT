@@ -10,8 +10,8 @@ internal_falsification:
   required_reviews: [ux, accessibility, swiss_tax, compliance, privacy_security]
   eliminate_until_fixed: [p0, p1, route_dead_end, inaccessible_critical_task, unproven_number]
 moderated_tasks:
-  - understand_current_year_tax_optimization
-  - find_source_and_assumptions
+  - understand_that_no_tax_result_is_calculated
+  - identify_required_tax_inputs_and_assumptions
   - correct_an_assumption
   - continue_without_account
   - recover_next_step_on_return
@@ -61,6 +61,10 @@ promotion:
     - inaccessible_critical_task
     - nonconsensual_or_punitive_engagement
     - unperformed_user_test_claimed_as_performed
+  before_winner_selection:
+    - connect_one_identical_verified_tax_fixture_to_all_directions
+    - rerun_swiss_tax_and_accessibility_reviews
+    - execute_moderated_protocol_with_raw_evidence
 ethical_engagement:
   allowed: [continuity, mastery, visible_progress, opt_in_reminders, quiet_hours, easy_revocation]
   forbidden: [punitive_streaks, variable_reward_manipulation, shame, false_urgency, moral_financial_score]

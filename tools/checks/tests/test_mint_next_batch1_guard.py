@@ -150,3 +150,27 @@ def test_guard_rejects_unsubstantiated_coordination_selection(tmp_path: Path) ->
     proc = _run(tmp_path)
     assert proc.returncode == 1
     assert "coordination evidence" in proc.stderr
+
+
+def test_guard_rejects_non_reproducible_coordination_total(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "coordination-evidence.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace("score_100: 81", "score_100: 99"),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "total is not reproducible" in proc.stderr
+
+
+def test_guard_rejects_root_level_inventory_boilerplate(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "handoff-inventory.yaml"
+    text = path.read_text(encoding="utf-8")
+    for decision in ("REWRITE", "RETIRE_FROM_PROMPTS", "RETAIN_AS_HISTORY"):
+        text = text.replace(f"decision: {decision}", "decision: ADAPT")
+    path.write_text(text, encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "file-specific" in proc.stderr

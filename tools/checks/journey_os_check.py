@@ -135,6 +135,7 @@ ALLOW = {
     "product/mint_next/batch1/evidence/direction-c-result.png",
     "tools/checks/mint_next_batch1_guard.py",
     "tools/checks/mint_next_batch1_inventory.py",
+    "tools/checks/mint_next_batch1_runtime_probe.py",
     "tools/checks/tests/test_mint_next_batch1_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",

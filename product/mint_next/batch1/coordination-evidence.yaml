@@ -6,15 +6,18 @@ observed_needs:
   - zero_financial_or_personal_data_in_chat
 alternatives:
   no_chat:
-    score_100: 69
+    score_100: 76
+    criterion_scores_1_to_5: {source_of_truth_drift_resistance: 5, privacy_and_secret_exposure: 5, timely_incident_awareness: 1, fit_with_existing_stack: 3, cost: 5, operational_simplicity: 4}
     strengths: [no_new_silo, no_new_secret, no_chat_privacy_exposure]
     weaknesses: [weak_asynchronous_incident_awareness, requires_manual_polling]
   discord_notification_only:
     score_100: 81
+    criterion_scores_1_to_5: {source_of_truth_drift_resistance: 4, privacy_and_secret_exposure: 2, timely_incident_awareness: 5, fit_with_existing_stack: 5, cost: 5, operational_simplicity: 4}
     strengths: [existing_user_attested_server, simple_one_way_webhooks, low_cost, good_interrupt_surface]
     weaknesses: [not_swiss_data_plane, weak_governance, secret_and_noise_risk]
   slack_free:
-    score_100: 48
+    score_100: 47
+    criterion_scores_1_to_5: {source_of_truth_drift_resistance: 1, privacy_and_secret_exposure: 1, timely_incident_awareness: 4, fit_with_existing_stack: 2, cost: 5, operational_simplicity: 3}
     strengths: [familiar_work_ui, incoming_webhooks]
     weaknesses: [ninety_day_search_window, one_year_deletion, ten_app_limit, added_silo, insufficient_governance]
 criteria_100:
@@ -24,6 +27,7 @@ criteria_100:
   fit_with_existing_stack: 15
   cost: 10
   operational_simplicity: 10
+score_formula: sum_criterion_weight_times_score_divided_by_5
 selected: discord_notification_only
 selection_boundary: wins_only_as_one_way_signal_not_as_coordination_system
 sources:

@@ -26,9 +26,9 @@ FILES = {
     "render": "evidence/render-20260801.yaml",
 }
 EXPECTED_DIRECTIONS = {
-    "instant_tax_receipt": ("calculator_first", "tax_estimate_receipt"),
-    "next_life_decision": ("event_decision_first", "two_option_decision_canvas"),
-    "conversation_to_card": ("coach_intent_first_ui_output", "pinned_deterministic_cap_card"),
+    "instant_tax_receipt": ("calculator_first", "synthetic_result_slot_in_receipt"),
+    "next_life_decision": ("event_decision_first", "synthetic_result_slot_in_decision_canvas"),
+    "conversation_to_card": ("coach_intent_first_structured_data_output", "pinned_verifiable_question_card"),
 }
 GOVERNING_SOURCES = {
     "CLAUDE.md", "docs/MINT_UX_GRAAL_MASTERPLAN.md", "docs/MINT_IDENTITY.md",
@@ -36,7 +36,7 @@ GOVERNING_SOURCES = {
     "apps/mobile/lib/theme/mint_text_styles.dart", "apps/mobile/pubspec.yaml",
 }
 MODERATED_TASKS = {
-    "understand_current_year_tax_optimization", "find_source_and_assumptions",
+    "understand_that_no_tax_result_is_calculated", "identify_required_tax_inputs_and_assumptions",
     "correct_an_assumption", "continue_without_account", "recover_next_step_on_return",
 }
 REQUIRED_REVIEWS = {"ux", "accessibility", "swiss_tax", "compliance", "privacy_security"}
@@ -108,6 +108,8 @@ def validate(root: Path) -> list[str]:
         for item in inventory_files
     ):
         errors.append("every Handoff inventory item needs path, size, hash, decision, and reason")
+    elif not {"ADAPT", "REWRITE", "RETIRE_FROM_PROMPTS", "RETAIN_AS_HISTORY"} <= {item["decision"] for item in inventory_files} or len({item["reason"] for item in inventory_files}) < 10:
+        errors.append("Handoff inventory decisions must be materially file-specific, not root-level boilerplate")
 
     first = _yaml(root, "first_value", errors)
     if first.get("decision") != "tax_first_for_batch1_experiment":
@@ -148,7 +150,7 @@ def validate(root: Path) -> list[str]:
     comparability = directions_data.get("comparability", {})
     if not isinstance(comparability, dict) or comparability.get("winner") != "none_until_user_evidence":
         errors.append("no direction winner may be claimed without user evidence")
-    for key in ("same_persona", "same_financial_facts", "same_result_range", "same_primary_action"):
+    for key in ("same_persona", "same_financial_facts", "same_result_placeholder", "same_primary_action"):
         if not isinstance(comparability, dict) or comparability.get(key) is not True:
             errors.append(f"direction comparability requires {key}")
 
@@ -209,6 +211,18 @@ def validate(root: Path) -> list[str]:
     criteria = coordination_evidence.get("criteria_100", {})
     if not isinstance(criteria, dict) or sum(v for v in criteria.values() if isinstance(v, int)) != 100:
         errors.append("coordination evidence criteria must total 100")
+    if isinstance(criteria, dict) and isinstance(alternatives, dict):
+        for name, alternative in alternatives.items():
+            scores = alternative.get("criterion_scores_1_to_5", {}) if isinstance(alternative, dict) else {}
+            if not isinstance(scores, dict) or set(scores) != set(criteria) or any(value not in {1, 2, 3, 4, 5} for value in scores.values()):
+                errors.append(f"coordination evidence scores incomplete for {name}")
+                continue
+            computed = sum(criteria[key] * scores[key] for key in criteria) // 5
+            if alternative.get("score_100") != computed:
+                errors.append(f"coordination evidence total is not reproducible for {name}")
+        totals = {name: item.get("score_100") for name, item in alternatives.items() if isinstance(item, dict)}
+        if totals and max(totals, key=totals.get) != coordination_evidence.get("selected"):
+            errors.append("coordination evidence selected option is not the scored winner")
     verified = coordination_evidence.get("verified_state", {})
     if not isinstance(verified, dict) or verified.get("webhook_created") is not False or verified.get("notification_need_runtime_measured") is not False:
         errors.append("coordination evidence must disclose its unverified runtime state")

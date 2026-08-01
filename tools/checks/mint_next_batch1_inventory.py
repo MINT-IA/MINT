@@ -11,33 +11,60 @@ import yaml
 
 
 OUTPUT = Path("product/mint_next/batch1/handoff-inventory.yaml")
-ROOTS = {
-    ".planning/handoff/2026-04-26-chat-vivant-services": (
-        "ADAPT", "primary inspected Handoff; interaction ideas only, never authority"
-    ),
-    ".planning/handoff/2026-05-09-design-system-v8": (
-        "RETIRE_FROM_PROMPTS", "later bundle contains duplicated Handoff and historical generated assets"
-    ),
-    ".planning/handoffs/chat-vivant-2026-04-19": (
-        "RETIRE_FROM_PROMPTS", "superseded earlier generation"
-    ),
-    ".planning/handoff/pdfs": (
-        "RETAIN_AS_HISTORY", "binary historical reference; not runtime or governing source"
-    ),
-    "docs/brand/mint-v2": (
-        "ADAPT", "selected structural inspiration; shell, typography and skin rejected"
-    ),
-}
+ROOTS = [
+    ".planning/handoff/2026-04-26-chat-vivant-services",
+    ".planning/handoff/2026-05-09-design-system-v8",
+    ".planning/handoffs/chat-vivant-2026-04-19",
+    ".planning/handoff/pdfs",
+    "docs/brand/mint-v2",
+]
+
+
+def classify(rel: str) -> tuple[str, str]:
+    name = Path(rel).name.lower()
+    if rel.startswith(".planning/handoffs/chat-vivant-2026-04-19"):
+        return "RETIRE_FROM_PROMPTS", "superseded generation; exact useful duplicates are retained from the inspected April 26 root"
+    if rel.startswith(".planning/handoff/pdfs"):
+        return "RETAIN_AS_HISTORY", "binary historical reference requiring visual provenance; never runtime or governing authority"
+    if rel.startswith(".planning/handoff/2026-05-09-design-system-v8"):
+        if "prompt" in name:
+            return "RETIRE_FROM_PROMPTS", "model-specific implementation prompt would reintroduce Claude-like framing"
+        if "/handoff/" in rel or "/docs/brand/" in rel:
+            return "RETIRE_FROM_PROMPTS", "hash inventory shows this generated bundle duplicates inspected Handoff/brand material"
+        return "RETAIN_AS_HISTORY", "installation asset or binary retained only to explain the historical delivery bundle"
+    if rel.startswith(".planning/handoff/2026-04-26-chat-vivant-services"):
+        if name == "prompts.md":
+            return "RETIRE_FROM_PROMPTS", "prompt instructions are not design evidence and bias new agents toward the old solution"
+        if name.startswith("02-") or name.startswith("03-") or name.startswith("05-"):
+            return "REWRITE", "service/component/integration contract conflicts with current deterministic finance and runtime boundaries"
+        if name.startswith("01-"):
+            return "ADAPT", "retain scene/canvas/artifact interaction concepts; reject explicit Claude equivalence and visual skin"
+        if name.startswith("04-"):
+            return "ADAPT", "motion intent may inform prototypes only after reduced-motion and accessibility review"
+        if name.startswith("06-"):
+            return "ADAPT", "test scenarios are inputs to the new comparable protocol, not inherited acceptance evidence"
+        if name.endswith((".html", ".jsx", ".css")):
+            return "ADAPT", "visual prototype is inspectable inspiration; shell, tokens, typography and calculations are rejected"
+        return "RETAIN_AS_HISTORY", "architecture/readme receipt explains intent but does not govern Batch 1"
+    if rel.startswith("docs/brand/mint-v2"):
+        if name.startswith("screen-") or name == "primitives.jsx":
+            return "ADAPT", "selected structure can inspire hierarchy; generic fintech assembly and old shell are rejected"
+        if name.endswith((".css", ".html")) or name in {"app.jsx", "components.jsx"}:
+            return "REWRITE", "combined demo implementation cannot be reused without current tokens, routing and accessibility contracts"
+        return "RETAIN_AS_HISTORY", "supporting brand artifact retained for provenance rather than prompt authority"
+    raise ValueError(f"unclassified Handoff artifact: {rel}")
 
 
 def build(root: Path) -> dict:
     entries = []
-    for rel_root, (decision, reason) in ROOTS.items():
+    for rel_root in ROOTS:
         base = root / rel_root
         for path in sorted(p for p in base.rglob("*") if p.is_file()):
             data = path.read_bytes()
+            rel = path.relative_to(root).as_posix()
+            decision, reason = classify(rel)
             entries.append({
-                "path": path.relative_to(root).as_posix(),
+                "path": rel,
                 "bytes": len(data),
                 "sha256": hashlib.sha256(data).hexdigest(),
                 "decision": decision,
@@ -50,7 +77,7 @@ def build(root: Path) -> dict:
     return {
         "schema_version": 1,
         "status": "exhaustive_for_declared_roots",
-        "roots": list(ROOTS),
+        "roots": ROOTS,
         "decision_vocabulary": ["REUSE", "ADAPT", "REWRITE", "RETIRE_FROM_PROMPTS", "RETAIN_AS_HISTORY"],
         "files": entries,
         "duplicate_groups": duplicate_groups,

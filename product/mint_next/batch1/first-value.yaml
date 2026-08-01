@@ -31,7 +31,7 @@ first_value_contract:
     number_state: synthetic_layout_placeholder
     required_labels: [source, assumptions, tax_year, confidence, what_it_does_not_mean]
   primary_action: review_missing_tax_inputs
-  secondary_action: understand_this_estimate
+  secondary_action: understand_required_inputs_and_limits
 prohibited:
   - personalized_precision_without_sufficient_data
   - llm_generated_calculation

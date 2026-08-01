@@ -16,6 +16,7 @@ SESSION_COMMANDS = (
     "python3 tools/checks/mint_next_foundation_guard.py",
     "python3 tools/checks/mint_next_batch1_guard.py",
     "python3 tools/checks/mint_next_batch1_inventory.py",
+    "python3 tools/checks/mint_next_batch1_runtime_probe.py",
 )
 CI_EXTRA = (
     "python3 tools/checks/agent_reference_guard.py",
