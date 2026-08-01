@@ -1,6 +1,6 @@
 schema_version: 1
 fixture_id: B2-VD-3A-2026-01
-status: captured_unpromoted_fixture
+status: proven_bounded_fixture_not_product_connected
 purpose: compare_three_Batch_1_mechanisms_with_one_identical_officially_captured_counterfactual
 persona_boundary:
   synthetic: true

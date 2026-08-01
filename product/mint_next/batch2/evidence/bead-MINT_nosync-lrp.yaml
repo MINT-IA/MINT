@@ -1,0 +1,7 @@
+schema_version: 1
+id: MINT_nosync-lrp
+title: MINT Next Batch 2 — verified Vaud tax fixture
+status: closed
+closed_at: 2026-08-01T18:47:09Z
+close_reason: Batch 2 bounded Vaud fixture independently audited with no P1/P2 at d0fc4f587913de9e2b6d044108c29be72fbafee9; no product or nationwide claim.
+audited_head: d0fc4f587913de9e2b6d044108c29be72fbafee9

@@ -3,6 +3,11 @@
 Batch 2 proves one Vaud 2026 tax fixture. It does not build a new tax engine,
 select a Batch 1 UX direction, or connect a result to the product.
 
+The bounded fixture was promoted after independent scope, Swiss-tax/licensing,
+and engine/provenance reviews of the exact audited commit. Promotion means the
+evidence contract is proven—not that the result is personalized, exact,
+filing-ready, nationally complete, API-connected, or safe as financial advice.
+
 The fixture starts from declared **taxable** ICC/IFD income. Gross salary is
 deliberately absent because the official Vaud calculator requires taxable
 income and a salary-to-taxable shortcut would manufacture personalization.

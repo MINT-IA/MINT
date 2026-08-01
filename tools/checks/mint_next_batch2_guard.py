@@ -58,11 +58,14 @@ def validate(root: Path) -> list[str]:
     fixture = load(root, "fixture.yaml", errors)
     official = load(root, "evidence/vd-calculator-capture-20260801.yaml", errors)
     engine = load(root, "evidence/mint-engine-capture-20260801.yaml", errors)
+    promotion = load(root, "evidence/promotion-20260801.yaml", errors)
+    bead_receipt = load(root, "evidence/bead-MINT_nosync-lrp.yaml", errors)
 
-    if batch.get("status") != "draft_unproven" or batch.get("work_tracking") != {"system": "beads", "id": "MINT_nosync-lrp", "expected_live_status": "in_progress"}:
-        errors.append("Batch 2 must remain draft and linked to its live Bead before promotion")
+    promoted_status = "proven_bounded_fixture_not_product_connected"
+    if batch.get("status") != promoted_status or batch.get("work_tracking") != {"system": "beads", "id": "MINT_nosync-lrp", "expected_live_status": "closed"}:
+        errors.append("Batch 2 promoted status must match its closed live Bead")
     expected_batch_scope = {"includes": ["one_vd_2026_fixture", "official_before_after_capture", "canonical_engine_comparison", "provenance", "mutation_guards", "independent_roast"], "excludes": ["new_tax_engine", "gross_to_taxable_derivation", "flutter_product", "ux_winner", "user_validation", "production_connection", "nationwide_tax_claim", "jos006_closure"]}
-    expected_artifacts = {"scope": "product/mint_next/batch2/scope.yaml", "sources": "product/mint_next/batch2/sources.yaml", "fixture": "product/mint_next/batch2/fixture.yaml", "official_capture": "product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml", "engine_capture": "product/mint_next/batch2/evidence/mint-engine-capture-20260801.yaml", "normalized_receipt": "product/mint_next/batch2/evidence/vd-calculator-normalized-receipt-20260801.json", "replay_verifier": "product/mint_next/batch2/evidence/verify_vd_calculator_receipt.py"}
+    expected_artifacts = {"scope": "product/mint_next/batch2/scope.yaml", "sources": "product/mint_next/batch2/sources.yaml", "fixture": "product/mint_next/batch2/fixture.yaml", "official_capture": "product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml", "engine_capture": "product/mint_next/batch2/evidence/mint-engine-capture-20260801.yaml", "normalized_receipt": "product/mint_next/batch2/evidence/vd-calculator-normalized-receipt-20260801.json", "replay_verifier": "product/mint_next/batch2/evidence/verify_vd_calculator_receipt.py", "promotion_receipt": "product/mint_next/batch2/evidence/promotion-20260801.yaml", "work_tracking_receipt": "product/mint_next/batch2/evidence/bead-MINT_nosync-lrp.yaml"}
     expected_promotion = {"author_cannot_approve": True, "requires": ["official_source_hashes", "arithmetic_identity", "canonical_engine_identity", "per_component_oracle_tolerance", "swiss_tax_review", "licensing_boundary_review", "independent_roast_no_p1_p2"], "never_sufficient": ["author_claim", "same_engine_expected_values", "file_existence", "mutable_web_page_without_capture_receipt", "test_exit_code_without_mutation"]}
     if batch.get("scope") != expected_batch_scope or batch.get("artifacts") != expected_artifacts:
         errors.append("Batch 2 exact scope, exclusions, or artifact paths have drifted")
@@ -85,8 +88,17 @@ def validate(root: Path) -> list[str]:
         errors.append("fixture must never derive taxable income from Léa's gross salary")
     if fixture.get("fixture_id") != "B2-VD-3A-2026-01" or fixture.get("purpose") != "compare_three_Batch_1_mechanisms_with_one_identical_officially_captured_counterfactual":
         errors.append("fixture identity or bounded purpose has drifted")
-    if any(item.get("schema_version") != 1 for item in (batch, scope, sources, fixture, official, engine)):
+    if any(item.get("schema_version") != 1 for item in (batch, scope, sources, fixture, official, engine, promotion, bead_receipt)):
         errors.append("Batch 2 YAML schema version has drifted")
+    expected_reviews = {"scope_roast": {"reviewer": "batch2_scope_roast", "verdict": "ROAST_PASS"}, "swiss_tax_and_licensing": {"reviewer": "batch2_sources_compliance", "verdict": "ROAST_PASS"}, "engine_and_provenance": {"reviewer": "batch2_engine_audit", "verdict": "ROAST_PASS"}}
+    expected_proofs = {"targeted_and_workflow_tests": "66_passed", "swiss_tax_targeted_tests": "46_passed", "live_official_replay": "pass_version_echoes_outputs_and_5_percent_claim", "canonical_engine_runtime": "pass_python_3_9_and_3_11", "repository_guards": "pass", "live_work_tracking": "closed"}
+    expected_limitations = {"official_result_is_indicative": True, "personalized_tax_estimate_delivered": False, "tax_filing_result_delivered": False, "advice_or_recommendation_delivered": False, "supported_or_licensed_vaud_api_identified": False, "flutter_product_runtime_delivered": False, "production_connection_delivered": False, "nationwide_swiss_tax_coverage_delivered": False, "ux_winner_selected": False, "user_testing_completed": False, "jos006_closed_or_displaced": False, "mint_delta_gap_chf": 62.59}
+    if promotion != {"schema_version": 1, "batch": "mint_next_batch2_bounded_vaud_fixture", "status": promoted_status, "audited_head": "d0fc4f587913de9e2b6d044108c29be72fbafee9", "unresolved_p1_p2": 0, "independent_reviews": expected_reviews, "proofs": expected_proofs, "limitations": expected_limitations}:
+        errors.append("Batch 2 proven status requires the exact independent promotion receipt")
+    normalized_bead = {key: (value.isoformat().replace("+00:00", "Z") if key == "closed_at" and hasattr(value, "isoformat") else value) for key, value in bead_receipt.items()}
+    expected_bead = {"schema_version": 1, "id": "MINT_nosync-lrp", "title": "MINT Next Batch 2 — verified Vaud tax fixture", "status": "closed", "closed_at": "2026-08-01T18:47:09Z", "close_reason": "Batch 2 bounded Vaud fixture independently audited with no P1/P2 at d0fc4f587913de9e2b6d044108c29be72fbafee9; no product or nationwide claim.", "audited_head": "d0fc4f587913de9e2b6d044108c29be72fbafee9"}
+    if normalized_bead != expected_bead:
+        errors.append("Batch 2 closed Bead receipt has drifted")
     assumptions = fixture.get("assumptions", {})
     expected_assumptions = {
         "tax_year": 2026, "canton": "VD", "municipality": "Lausanne",
@@ -99,8 +111,8 @@ def validate(root: Path) -> list[str]:
     }
     if assumptions != expected_assumptions:
         errors.append("fixture assumptions are incomplete or drifted")
-    if fixture.get("status") != "captured_unpromoted_fixture":
-        errors.append("fixture must remain captured and unpromoted during draft lifecycle")
+    if fixture.get("status") != promoted_status:
+        errors.append("fixture status must match the bounded promotion receipt")
     inputs = fixture.get("inputs", {})
     expected_inputs = {
         "baseline_taxable_income_icc_chf": 80000, "baseline_taxable_income_ifd_chf": 80000,
@@ -274,7 +286,7 @@ def live_errors(root: Path) -> list[str]:
         item = json.loads(proc.stdout)[0]
     except Exception:
         return ["unable to parse live Batch 2 Bead"]
-    return [] if item.get("status") == "in_progress" else [f"live Batch 2 Bead must be in_progress, got {item.get('status')}"]
+    return [] if item.get("status") == "closed" else [f"live Batch 2 Bead must be closed, got {item.get('status')}"]
 
 
 def main() -> int:
@@ -290,7 +302,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR mint_next_batch2_guard: {error}", file=sys.stderr)
         return 1
-    print("OK mint_next_batch2_guard: bounded Vaud fixture remains explicit, sourced, and unpromoted.", file=sys.stderr)
+    print("OK mint_next_batch2_guard: bounded Vaud fixture promotion remains evidence-linked and non-product.", file=sys.stderr)
     return 0
 
 

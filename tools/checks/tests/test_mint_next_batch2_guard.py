@@ -150,9 +150,26 @@ def test_rejects_missing_3a_credit_timing(tmp_path: Path) -> None:
     assert proc.returncode == 1 and "assumptions" in proc.stderr
 
 
-def test_rejects_premature_verified_status(tmp_path: Path) -> None:
-    proc = mutate(tmp_path, "fixture.yaml", "status: captured_unpromoted_fixture", "status: verified_official_fixture_not_product_connected")
-    assert proc.returncode == 1 and "unpromoted" in proc.stderr
+def test_rejects_fixture_status_rollback(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", "status: proven_bounded_fixture_not_product_connected", "status: captured_unpromoted_fixture")
+    assert proc.returncode == 1 and "promotion receipt" in proc.stderr
+
+
+@pytest.mark.parametrize(("old", "new"), [
+    ("unresolved_p1_p2: 0", "unresolved_p1_p2: 1"),
+    ("verdict: ROAST_PASS", "verdict: ROAST_FAIL"),
+    ("audited_head: d0fc4f587913de9e2b6d044108c29be72fbafee9", "audited_head: d0fc4f5"),
+    ("personalized_tax_estimate_delivered: false", "personalized_tax_estimate_delivered: true"),
+    ("mint_delta_gap_chf: 62.59", "mint_delta_gap_chf: 0.00"),
+])
+def test_rejects_promotion_receipt_mutation(tmp_path: Path, old: str, new: str) -> None:
+    proc = mutate(tmp_path, "evidence/promotion-20260801.yaml", old, new)
+    assert proc.returncode == 1 and "promotion receipt" in proc.stderr
+
+
+def test_rejects_closed_bead_receipt_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/bead-MINT_nosync-lrp.yaml", "status: closed", "status: in_progress")
+    assert proc.returncode == 1 and "Bead receipt" in proc.stderr
 
 
 def test_rejects_commune_identity_mutation(tmp_path: Path) -> None:

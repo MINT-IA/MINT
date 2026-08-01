@@ -1,0 +1,29 @@
+schema_version: 1
+batch: mint_next_batch2_bounded_vaud_fixture
+status: proven_bounded_fixture_not_product_connected
+audited_head: d0fc4f587913de9e2b6d044108c29be72fbafee9
+unresolved_p1_p2: 0
+independent_reviews:
+  scope_roast: {reviewer: batch2_scope_roast, verdict: ROAST_PASS}
+  swiss_tax_and_licensing: {reviewer: batch2_sources_compliance, verdict: ROAST_PASS}
+  engine_and_provenance: {reviewer: batch2_engine_audit, verdict: ROAST_PASS}
+proofs:
+  targeted_and_workflow_tests: 66_passed
+  swiss_tax_targeted_tests: 46_passed
+  live_official_replay: pass_version_echoes_outputs_and_5_percent_claim
+  canonical_engine_runtime: pass_python_3_9_and_3_11
+  repository_guards: pass
+  live_work_tracking: closed
+limitations:
+  official_result_is_indicative: true
+  personalized_tax_estimate_delivered: false
+  tax_filing_result_delivered: false
+  advice_or_recommendation_delivered: false
+  supported_or_licensed_vaud_api_identified: false
+  flutter_product_runtime_delivered: false
+  production_connection_delivered: false
+  nationwide_swiss_tax_coverage_delivered: false
+  ux_winner_selected: false
+  user_testing_completed: false
+  jos006_closed_or_displaced: false
+  mint_delta_gap_chf: 62.59

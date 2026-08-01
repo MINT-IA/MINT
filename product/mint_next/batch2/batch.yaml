@@ -1,9 +1,9 @@
 schema_version: 1
-status: draft_unproven
+status: proven_bounded_fixture_not_product_connected
 work_tracking:
   system: beads
   id: MINT_nosync-lrp
-  expected_live_status: in_progress
+  expected_live_status: closed
 scope:
   includes: [one_vd_2026_fixture, official_before_after_capture, canonical_engine_comparison, provenance, mutation_guards, independent_roast]
   excludes: [new_tax_engine, gross_to_taxable_derivation, flutter_product, ux_winner, user_validation, production_connection, nationwide_tax_claim, jos006_closure]
@@ -15,6 +15,8 @@ artifacts:
   engine_capture: product/mint_next/batch2/evidence/mint-engine-capture-20260801.yaml
   normalized_receipt: product/mint_next/batch2/evidence/vd-calculator-normalized-receipt-20260801.json
   replay_verifier: product/mint_next/batch2/evidence/verify_vd_calculator_receipt.py
+  promotion_receipt: product/mint_next/batch2/evidence/promotion-20260801.yaml
+  work_tracking_receipt: product/mint_next/batch2/evidence/bead-MINT_nosync-lrp.yaml
 promotion:
   author_cannot_approve: true
   requires: [official_source_hashes, arithmetic_identity, canonical_engine_identity, per_component_oracle_tolerance, swiss_tax_review, licensing_boundary_review, independent_roast_no_p1_p2]
