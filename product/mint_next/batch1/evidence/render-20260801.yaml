@@ -1,0 +1,22 @@
+schema_version: 1
+status: local_render_proof_not_user_validation
+renderer: Google Chrome headless
+viewport: 1280x900
+source: product/mint_next/batch1/prototype/index.html
+rendered_state: result_step_4_of_6
+artifacts:
+  direction_a:
+    path: product/mint_next/batch1/evidence/direction-a-result.png
+    sha256: 79834eaee9159b487dd52eb4c03c21044b45c3c1543a0857fa73e6a70f9c1de0
+  direction_b:
+    path: product/mint_next/batch1/evidence/direction-b-result.png
+    sha256: 04c615f81fcbfe70f82ae5c22822be728be03a66f8f338000948bb995b3cb111
+  direction_c:
+    path: product/mint_next/batch1/evidence/direction-c-result.png
+    sha256: 4d334f90e4f8166ba5ed38d98409e05dc363ae3ee9d4cc8d140026a1432de9a4
+claims:
+  all_three_rendered: true
+  visual_inspection_performed: true
+  interactions_fully_runtime_tested: false
+  accessibility_validated: false
+  user_validated: false

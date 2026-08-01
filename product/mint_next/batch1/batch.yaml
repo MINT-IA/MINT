@@ -14,6 +14,7 @@ artifacts:
   directions: product/mint_next/batch1/directions.yaml
   evaluation: product/mint_next/batch1/evaluation.yaml
   prototype: product/mint_next/batch1/prototype/index.html
+  render_evidence: product/mint_next/batch1/evidence/render-20260801.yaml
 promotion:
   author_cannot_approve: true
   requires: [deterministic_guard, rendered_prototype_proof, task_comparability, accessibility_review, swiss_tax_review, independent_roast_no_p1_p2]

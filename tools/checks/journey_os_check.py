@@ -127,6 +127,10 @@ ALLOW = {
     "product/mint_next/batch1/directions.yaml",
     "product/mint_next/batch1/evaluation.yaml",
     "product/mint_next/batch1/prototype/index.html",
+    "product/mint_next/batch1/evidence/render-20260801.yaml",
+    "product/mint_next/batch1/evidence/direction-a-result.png",
+    "product/mint_next/batch1/evidence/direction-b-result.png",
+    "product/mint_next/batch1/evidence/direction-c-result.png",
     "tools/checks/mint_next_batch1_guard.py",
     "tools/checks/tests/test_mint_next_batch1_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---

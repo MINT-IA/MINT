@@ -1,0 +1,50 @@
+schema_version: 1
+status: hypotheses_not_user_validated
+common_input: product/mint_next/batch1/first-value.yaml
+directions:
+  instant_tax_receipt:
+    label: Reçu fiscal instantané
+    mechanism: calculator_first
+    opening_question: Combien laisses-tu potentiellement sur la table cette année ?
+    sequence: [promise, canton_and_income, pension_context, result_receipt, assumptions, return_cap]
+    first_value_object: tax_estimate_receipt
+    primary_action: refine_with_salary_certificate
+    chat_role: optional_explanation_only
+    return_loop: estimated_to_verified_before_tax_deadline
+    falsifiable_bet: fastest_tangible_value
+    primary_risk: deceptive_precision_and_3a_reductionism
+  next_life_decision:
+    label: Prochaine décision de vie
+    mechanism: event_decision_first
+    opening_question: Qu’est-ce qui pourrait changer dans ta vie ?
+    sequence: [event_choice, horizon, tax_impact, decision_canvas, assumptions, living_plan]
+    first_value_object: two_option_decision_canvas
+    primary_action: refine_with_salary_certificate
+    chat_role: optional_tradeoff_explanation
+    return_loop: now_soon_later_life_plan
+    falsifiable_bet: strongest_lifetime_relevance
+    primary_risk: scope_explosion_and_diluted_tax_value
+  conversation_to_card:
+    label: Conversation qui produit une carte
+    mechanism: coach_intent_first_ui_output
+    opening_question: Pose une question. Tu repartiras avec un chiffre et sa preuve.
+    sequence: [guided_prompts, question, clarification, deterministic_card, assumptions, pinned_cap]
+    first_value_object: pinned_deterministic_cap_card
+    primary_action: refine_with_salary_certificate
+    chat_role: intent_and_explanation_never_calculation
+    return_loop: resume_pinned_tax_cap
+    falsifiable_bet: highest_human_desirability
+    primary_risk: blank_page_hallucination_latency_and_chat_only_regression
+comparability:
+  same_persona: true
+  same_financial_facts: true
+  same_result_range: true
+  same_primary_action: true
+  same_screen_depth: 6
+  same_required_states: [source, assumptions, correction, back, no_account, return]
+  winner: none_until_user_evidence
+anti_skin_gate:
+  mechanisms_must_be_unique: true
+  first_value_objects_must_be_unique: true
+  return_loops_must_be_unique: true
+

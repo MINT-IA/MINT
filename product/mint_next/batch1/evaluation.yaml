@@ -1,0 +1,66 @@
+schema_version: 1
+status: protocol_not_executed
+claim_boundary:
+  user_testing_completed: false
+  winner_selected: false
+  prototype_proves_implementation_feasibility: false
+internal_falsification:
+  equal_depth_required: true
+  identical_persona_and_numbers_required: true
+  required_reviews: [ux, accessibility, swiss_tax, compliance, privacy_security]
+  eliminate_until_fixed: [p0, p1, route_dead_end, inaccessible_critical_task, unproven_number]
+moderated_tasks:
+  - understand_current_year_tax_optimization
+  - find_source_and_assumptions
+  - correct_an_assumption
+  - continue_without_account
+  - recover_next_step_on_return
+participant_coverage:
+  segments: [first_employment_18_25, household_lpp_30_50, pre_retirement_55_70, low_income_or_b1, assistive_technology]
+  languages_minimum: [fr, de]
+  cantons_must_contrast: true
+metrics:
+  - unaided_task_success
+  - time_to_first_value_median_and_p90
+  - teach_back_correctness
+  - source_and_assumption_discovery
+  - data_correction_success
+  - calibrated_trust
+  - perceived_judgment_or_manipulation
+  - non_stimulated_return_j7_j30
+  - accessibility_critical_task_success
+thresholds:
+  unaided_task_success_percent: 85
+  median_first_value_seconds_max: 90
+  p90_first_value_seconds_max: 180
+  teach_back_percent: 80
+  source_discovery_percent: 90
+  number_provenance_percent: 100
+  disabled_or_b1_critical_success_percent: 80
+  minimum_major_segment_success_percent: 70
+  route_dead_ends: 0
+scorecard_100:
+  swiss_tax_value: 18
+  fil_rouge_and_next_step: 15
+  proof_and_uncertainty: 14
+  simplicity_and_time_to_value: 12
+  accessibility_and_inclusion: 12
+  coach_plus_structured_surfaces: 8
+  ethics_autonomy_privacy: 8
+  lifetime_extensibility: 5
+  resilience_and_testability: 5
+  distinctive_mint_character: 3
+promotion:
+  score_required: 95
+  vetoes:
+    - account_before_value
+    - number_without_provenance
+    - chat_required_for_critical_action
+    - llm_calculation_presented_as_deterministic
+    - prescriptive_financial_advice
+    - inaccessible_critical_task
+    - nonconsensual_or_punitive_engagement
+    - unperformed_user_test_claimed_as_performed
+ethical_engagement:
+  allowed: [continuity, mastery, visible_progress, opt_in_reminders, quiet_hours, easy_revocation]
+  forbidden: [punitive_streaks, variable_reward_manipulation, shame, false_urgency, moral_financial_score]

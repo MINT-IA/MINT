@@ -79,6 +79,9 @@ pre-commit:
     mint-next-foundation-guard:
       run: python3 tools/checks/mint_next_foundation_guard.py --live-work-tracking
       tags: [agents, planning, workflow, mint-next]
+    mint-next-batch1-guard:
+      run: python3 tools/checks/mint_next_batch1_guard.py --live-work-tracking
+      tags: [agents, planning, workflow, mint-next, design]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.
