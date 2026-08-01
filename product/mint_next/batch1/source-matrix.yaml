@@ -1,0 +1,45 @@
+schema_version: 1
+principle: repo_runtime_and_explicit_overrides_beat_handoff_proposals
+governing:
+  - path: CLAUDE.md
+    take: [lucidity_not_protection, deterministic_financial_boundaries, swiss_life_events]
+  - path: docs/MINT_UX_GRAAL_MASTERPLAN.md
+    take: [plan_first_coach_orchestrated, one_dominant_idea, insight_to_cap_to_action_to_proof]
+  - path: docs/MINT_IDENTITY.md
+    take: [reduce_shame, translate_complexity_into_choices, twenty_second_test]
+    override: protection_language_replaced_by_lucidity
+  - path: docs/VOICE_SYSTEM.md
+    take: [calm_precise_fine_reassuring_clear, number_first, no_false_urgency]
+  - path: docs/DESIGN_SYSTEM.md
+    take: [one_idea_per_screen, progressive_disclosure, editable_assumptions]
+    reject: [documented_typography_tokens]
+  - path: apps/mobile/lib/theme/colors.dart
+    take: [runtime_color_tokens_as_reference_only]
+  - path: apps/mobile/lib/theme/mint_text_styles.dart
+    take: [runtime_typography_as_reference_only]
+  - path: apps/mobile/pubspec.yaml
+    take: [runtime_font_assets_as_reference_only]
+inspiration_only:
+  - path: .planning/handoff/2026-04-26-chat-vivant-services/01-vision.md
+    take: [inline_chat_scene_canvas, structured_artifacts]
+    reject: [claude_equivalence, skin, shell, local_financial_calculation]
+  - path: docs/brand/mint-v2/primitives.jsx
+    take: [artifact_decomposition]
+    reject: [generic_ai_fintech_component_assembly]
+  - path: docs/brand/mint-v2/screen-aujourdhui.jsx
+    take: [single_dominant_signal]
+    reject: [three_tab_shell, generic_dashboard_composition]
+  - path: visions/MINT_DESIGN_BRIEF_v0.2.3.md
+    take: [hypotheses_only_read_with_red_team]
+  - path: visions/MINT_DESIGN_BRIEF_v0.2.3_RED_TEAM.md
+    take: [anti_manipulation_accessibility_and_calm_critique]
+excluded_from_direction_prompts:
+  - .planning/handoff/2026-05-09-design-system-v8/handoff
+  - .planning/handoffs/chat-vivant-2026-04-19
+  - .planning/handoff/2026-05-09-design-system-v8/handoff/CLAUDE_CODE_PROMPT.md
+  - .planning/handoff/2026-05-09-design-system-v8/handoff/CLAUDE_CODE_FIX_PROMPTS.md
+unresolved_must_not_be_inherited:
+  navigation_shell: [three_tabs, four_tabs_today_money_coach_explore, four_tabs_today_coach_explore_dossier]
+  typography: [montserrat_inter, fraunces, supreme_gambarino]
+  positioning: [protection, lucidity]
+

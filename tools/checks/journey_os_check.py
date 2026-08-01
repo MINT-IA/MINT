@@ -117,6 +117,18 @@ ALLOW = {
     ".agents/skills/mint-experience-critique/SKILL.md",
     ".agents/skills/mint-regulatory-boundary/SKILL.md",
     ".agents/skills/mint-prompt-eval/SKILL.md",
+    # MINT Next Batch 1: design-only experiment contracts. No user route or
+    # product implementation is introduced in this batch.
+    "product/mint_next/batch1/README.md",
+    "product/mint_next/batch1/batch.yaml",
+    "product/mint_next/batch1/source-matrix.yaml",
+    "product/mint_next/batch1/first-value.yaml",
+    "product/mint_next/batch1/coordination.yaml",
+    "product/mint_next/batch1/directions.yaml",
+    "product/mint_next/batch1/evaluation.yaml",
+    "product/mint_next/batch1/prototype/index.html",
+    "tools/checks/mint_next_batch1_guard.py",
+    "tools/checks/tests/test_mint_next_batch1_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

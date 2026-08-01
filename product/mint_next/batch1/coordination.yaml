@@ -1,0 +1,36 @@
+schema_version: 1
+decision: existing_private_discord_notification_only
+status: specified_not_wired
+systems_of_record:
+  repository: specifications_decisions_code_and_evidence
+  beads: work_ownership_dependencies_and_terminal_state
+  journey_os: product_journeys_priority_and_runtime_evidence
+  engram: recall_only_never_proof
+  sentry_ci: operational_events_and_mechanical_results
+slack_free:
+  decision: rejected
+  reasons: [ninety_day_search_window, one_year_deletion, ten_app_limit, duplicate_source_of_truth]
+discord:
+  source_of_truth: false
+  approval_surface: false
+  agent_input_surface: false
+  channels:
+    mint_ops: [privacy_filtered_p0_p1, security_alert, deploy_failure, gate_unable_to_run]
+    mint_delivery: [default_branch_ci_state, deploy_state, daily_digest]
+  allowed_fields: [environment, severity, event_type, utc_timestamp, commit_or_pr_or_bead_id, sanitized_route_or_guard, status, canonical_link]
+  forbidden_fields: [name, email, financial_data, tax_data, pension_data, insurance_data, bank_data, avs_data, prompt, response, auth_header, token, request_body, response_body, document, screenshot, raw_stack_locals, user_id]
+  implementation_boundary:
+    - inbound_webhooks_only
+    - one_secret_per_channel
+    - secrets_in_ci_or_railway_secret_store_only
+    - no_bidirectional_bot
+    - no_slash_commands
+    - failed_notification_never_changes_authoritative_result
+    - sanitize_allowed_mentions
+disable_if:
+  - any_forbidden_data_reaches_discord
+  - decisions_or_approvals_move_into_chat
+  - unactionable_alerts_exceed_thirty_percent_for_two_weeks
+  - webhook_secret_cannot_be_rotated_or_audited
+  - team_requires_governed_retention_sso_dlp_or_data_residency
+

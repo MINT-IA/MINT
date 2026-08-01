@@ -1,0 +1,20 @@
+schema_version: 1
+status: draft_unproven
+work_tracking:
+  system: beads
+  id: MINT_nosync-5em
+  expected_live_status: in_progress
+scope:
+  includes: [handoff_inventory, source_authority, three_testable_directions, evaluation_protocol, coordination_decision, independent_roast]
+  excludes: [flutter_implementation, production_runtime, discord_webhook_wiring, winner_claim, user_validation_claim]
+artifacts:
+  source_matrix: product/mint_next/batch1/source-matrix.yaml
+  first_value: product/mint_next/batch1/first-value.yaml
+  coordination: product/mint_next/batch1/coordination.yaml
+  directions: product/mint_next/batch1/directions.yaml
+  evaluation: product/mint_next/batch1/evaluation.yaml
+  prototype: product/mint_next/batch1/prototype/index.html
+promotion:
+  author_cannot_approve: true
+  requires: [deterministic_guard, rendered_prototype_proof, task_comparability, accessibility_review, swiss_tax_review, independent_roast_no_p1_p2]
+  never_sufficient: [agent_summary, author_claim, static_file_existence, visual_preference, test_exit_code_without_coverage_inspection]

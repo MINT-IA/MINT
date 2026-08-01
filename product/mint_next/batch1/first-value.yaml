@@ -1,0 +1,37 @@
+schema_version: 1
+status: frozen_experiment_input
+decision: tax_first_for_batch1_experiment
+conflict_disclosed:
+  existing_t0: lpp_rente_capital_partial
+  founder_priority: swiss_tax_optimization_first
+  resolution: compare_tax_first_mechanisms_without_claiming_product_winner
+persona:
+  id: lea_34_vaud_salaried
+  age: 34
+  canton: VD
+  civil_status: single
+  employment: salaried
+  gross_income_chf: 108000
+  lpp_affiliated: true
+  pillar_3a_contribution_chf: 2400
+  source_quality: self_reported_estimate
+common_task: understand_what_i_can_still_optimize_fiscally_this_year
+first_value_contract:
+  maximum_answers: 5
+  median_target_seconds: 90
+  account_required: false
+  bank_connection_required: false
+  result:
+    value: illustrative_range_not_a_tax_quote
+    range_chf: [900, 1700]
+    number_state: example
+    required_labels: [source, assumptions, tax_year, confidence, what_it_does_not_mean]
+  primary_action: refine_with_salary_certificate
+  secondary_action: understand_this_estimate
+prohibited:
+  - personalized_precision_without_sufficient_data
+  - llm_generated_calculation
+  - prescriptive_contribution_recommendation
+  - account_before_first_value
+  - hidden_assumptions
+
