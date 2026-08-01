@@ -163,7 +163,7 @@ def main() -> int:
         browser.click("#disclose"); browser.key("Tab")
         check(browser.js("document.activeElement.matches('#disclosure a[href]')&&(()=>{const r=document.activeElement.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()"), "modal Tab reaches visible source")
         browser.key("Tab")
-        check(browser.js("document.activeElement.id==='close-overlay'&&(()=>{const r=document.activeElement.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()"), "modal Tab reaches visible close")
+        check(browser.js("document.activeElement.id==='close-overlay'&&getComputedStyle(document.activeElement).backgroundColor==='rgb(23, 107, 88)'&&getComputedStyle(document.activeElement).color==='rgb(255, 255, 255)'&&(()=>{const r=document.activeElement.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight&&r.height>=44})()"), "modal Tab reaches visible high-contrast close")
         browser.key("Tab", modifiers=8)
         check(browser.js("document.activeElement.matches('#disclosure a[href]')"), "modal Shift+Tab returns to source")
         browser.click("#close-overlay")

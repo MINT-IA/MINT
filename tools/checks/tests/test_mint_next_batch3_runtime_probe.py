@@ -35,6 +35,7 @@ def run_mutation(tmp_path: Path, old: str, new: str) -> subprocess.CompletedProc
         ("b:{cls:'direction-b',resultStep:3", "b:{cls:'direction-b',resultStep:4"),
         ("back.onclick=()=>{if(index>0){index--;render();if(index===0)content.focus({preventScroll:true})}}", "back.onclick=()=>{if(index>0){state.corrections[dir]={};index--;render()}}"),
         ("document.querySelector('#disclosure-title').focus({preventScroll:true})", "document.querySelector('#close-overlay').focus({preventScroll:true})"),
+        ("#close-overlay{background:#176b58;color:#fff}", "#close-overlay{background:transparent;color:#fff}"),
     ],
 )
 def test_runtime_probe_rejects_theatrical_or_broken_paths(tmp_path: Path, old: str, new: str):
