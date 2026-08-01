@@ -1,0 +1,93 @@
+schema_version: 1
+status: local_render_evidence_not_user_or_accessibility_validation
+renderer: Google Chrome headless
+source: product/mint_next/batch3/prototype/index.html
+viewports:
+  phone320: 320x700
+  desktop1280: 1280x900
+states:
+- result
+- disclosure
+- invalidated
+directions:
+- a
+- b
+- c
+artifacts:
+  desktop1280-a-disclosure.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-a-disclosure.png
+    sha256: adfecb418fbdbf89ac54492cea3f20ae78ff4fabdb87c1c71976d2959774e1e3
+    bytes: 206908
+  desktop1280-a-invalidated.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-a-invalidated.png
+    sha256: fb587acfb37e6bb9c52d9b9d9636a9c07ac43008c7913c00f802c15df32e5477
+    bytes: 170120
+  desktop1280-a-result.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-a-result.png
+    sha256: f0f34ac13b304ddea2e299d9a1625c87337f299c43c86173322109f99492ea02
+    bytes: 182656
+  desktop1280-b-disclosure.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-b-disclosure.png
+    sha256: 61b43770c7f555e790fbae413794ad9b30e3bccb8822c364e10ee77d22591322
+    bytes: 207884
+  desktop1280-b-invalidated.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-b-invalidated.png
+    sha256: a980b4139036b7d81dd59539de317fa588afdcde5fe350851afa52638b22f3f6
+    bytes: 170237
+  desktop1280-b-result.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-b-result.png
+    sha256: 9585e5b00c717c3705b5ff5f25ea2288498cea8833163ec53a3eb442489c5795
+    bytes: 166398
+  desktop1280-c-disclosure.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-c-disclosure.png
+    sha256: c30a5894bb22ffd6f9c99a4ff0faf6a4f159dd69a51783c672573b3d5dc07e69
+    bytes: 207379
+  desktop1280-c-invalidated.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-c-invalidated.png
+    sha256: 3dc86159d2c93b97615943695bac9cd0744f9ccd63cdd8a1e49b21a1126a180a
+    bytes: 170298
+  desktop1280-c-result.png:
+    path: product/mint_next/batch3/evidence/renders/desktop1280-c-result.png
+    sha256: b3384b32c045143a39af9a360cb436c4237697548223e3babe0aec92bb4c219c
+    bytes: 181372
+  phone320-a-disclosure.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-a-disclosure.png
+    sha256: 91cf68bdaf03de723ffc7534535b63ea66f9a2d355803c17a1792fc2c74727b6
+    bytes: 74098
+  phone320-a-invalidated.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-a-invalidated.png
+    sha256: 0f0dd74e96b9ef792a978e68c363b2e3eda3159e02ec30fe656103e49a05474d
+    bytes: 46160
+  phone320-a-result.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-a-result.png
+    sha256: ad28fa49492bcced9ce98dfe2f24b12876d5d39c0ead5685380a2661ce93710b
+    bytes: 49323
+  phone320-b-disclosure.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-b-disclosure.png
+    sha256: a7c36b2327c240d71c0d0a4ac9d36d5fd5c41f67bf4d0a628b28ee03165ffa81
+    bytes: 74144
+  phone320-b-invalidated.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-b-invalidated.png
+    sha256: b29dca1f92ed71a7665181b639cc64b44217b0f3d1a775744a58febd64567032
+    bytes: 46139
+  phone320-b-result.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-b-result.png
+    sha256: 8bc387aea37aefe105bb4d1d0992e92354708bee29937c07283c25c7a2511ad3
+    bytes: 46035
+  phone320-c-disclosure.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-c-disclosure.png
+    sha256: e61ddbefbfcb30fcea30de068ffe8b0c93a23259aaaa2025055dd1bf2168da0c
+    bytes: 74146
+  phone320-c-invalidated.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-c-invalidated.png
+    sha256: b369aeaffbec05837697c2c9a6f9c2f3b1e5cb2f6225167aebd84f9133c96583
+    bytes: 46121
+  phone320-c-result.png:
+    path: product/mint_next/batch3/evidence/renders/phone320-c-result.png
+    sha256: 0a92c0d5eb8dc6f3fdfb9659e927dd121f6e0bf97890ed0f89c45c76216f1902
+    bytes: 48657
+claims:
+  all_18_renders_created: true
+  user_validated: false
+  accessibility_validated_by_screenshots: false
+  winner_selected: false

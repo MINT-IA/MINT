@@ -1,0 +1,20 @@
+schema_version: 1
+status: local_browser_runtime_evidence_not_user_validation
+prototype_sha256: e98b7d134fd638387bd22713e3e932b508b7eb98d66b1dd413b1a329c74d7f5d
+probe_sha256: f49658573d2f20b00ddd18640b6c3aebc1a81ed1cb7066d1c7a3af80c4246095
+command: python3 tools/checks/mint_next_batch3_runtime_probe.py
+proofs:
+  state_matrix: 18_of_18_rendered_at_320_component_contract
+  horizontal_overflow: false
+  common_result_A_B_C: pass
+  disclosure_A_B_C: pass
+  correction_invalidation_A_B_C: pass
+  stale_amount_after_correction: false
+  back_exact_fixture_restore_A_B_C: pass
+  save_reload_direction_count: 3
+  dead_primary_or_secondary_control_found: false
+claims:
+  user_validated: false
+  accessibility_fully_validated: false
+  flutter_or_product_runtime: false
+  winner_selected: false

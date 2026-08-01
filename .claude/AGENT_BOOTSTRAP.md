@@ -28,6 +28,9 @@ python3 tools/checks/mint_next_batch1_guard.py
 python3 tools/checks/mint_next_batch1_inventory.py
 python3 tools/checks/mint_next_batch1_runtime_probe.py
 python3 tools/checks/mint_next_batch2_guard.py
+python3 tools/checks/mint_next_batch3_guard.py
+python3 tools/checks/mint_next_batch3_runtime_probe.py
+python3 tools/checks/mint_next_batch3_render.py
 git status --short --branch
 
 Hard boundaries:

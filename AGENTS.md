@@ -150,6 +150,9 @@ rampart. After ship:
 14. Run `python3 tools/checks/mint_next_batch1_inventory.py` while Batch 1 artifacts exist.
 15. Run `python3 tools/checks/mint_next_batch1_runtime_probe.py` while Batch 1 artifacts exist.
 16. Run `python3 tools/checks/mint_next_batch2_guard.py` while Batch 2 artifacts exist.
+17. Run `python3 tools/checks/mint_next_batch3_guard.py` while Batch 3 artifacts exist.
+18. Run `python3 tools/checks/mint_next_batch3_runtime_probe.py` while Batch 3 artifacts exist.
+19. Run `python3 tools/checks/mint_next_batch3_render.py` while Batch 3 artifacts exist.
 13. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
    `SPEC.md` has a `verify` block.
 14. When the user names a subsystem, read the matching `docs/*.md` **before

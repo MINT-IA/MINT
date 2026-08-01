@@ -1,0 +1,11 @@
+schema_version: 1
+status: protocol_not_executed
+participants: 0
+winner_selected: false
+raw_user_evidence_present: false
+upstream_batch1_evaluation:
+  path: product/mint_next/batch1/evaluation.yaml
+  sha256: c296f971514009c164c73dc5f14b498fc47cb9a59733bd69b832ac4f2b37d222
+moderated_tasks_reused: [understand_scenario_without_personal_advice_confusion, find_source_and_assumptions, correct_an_assumption_and_observe_invalidation, continue_without_account, recover_next_step_on_return]
+next_honest_gate: moderated_protocol_with_raw_evidence_after_Batch3_promotion
+forbidden_claims: [user_testing_completed, winner_selected, score_95_achieved, production_feasibility_proven]

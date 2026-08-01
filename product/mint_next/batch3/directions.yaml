@@ -1,0 +1,23 @@
+schema_version: 1
+shared_contract:
+  fixture_id: B2-VD-3A-2026-01
+  state_count: 6
+  primary_task: understand_verify_and_save_the_same_bounded_tax_question
+  required_capabilities: [result_with_adjacent_provenance, disclosure_overlay, correction_invalidation, exact_revert, back, continue_without_account, save_and_return]
+directions:
+  a:
+    mechanism: receipt_first
+    states: [promise, exact_inputs_gate, pillar3a_context, official_receipt, verification_and_correction, saved_cap]
+  b:
+    mechanism: life_decision_first
+    states: [life_question, horizons, bounded_tax_angle, official_before_after_canvas, verification_and_correction, saved_plan]
+  c:
+    mechanism: question_to_structured_card
+    states: [intent, clarification, required_inputs, official_fixture_card, verification_and_correction, saved_card]
+equality_rules:
+  identical_financial_facts: true
+  identical_result_labels: true
+  identical_source_discoverability: true
+  identical_correction_invalidation: true
+  equal_depth: true
+  differing_only: [entry_mechanism, visual_object, return_loop]

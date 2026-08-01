@@ -1,0 +1,61 @@
+schema_version: 1
+scenario_id: B3-B2-VD-3A-2026-01
+status: promoted_fixture_derivative_not_product_connected
+fixture_reference:
+  fixture_id: B2-VD-3A-2026-01
+  promoted_batch2_head: 424fdb14e1ab53a9fedc171e398f171b51be23b9
+  files:
+    batch.yaml: 09c45417139a29315eae822f35fb42e3eb3418136fbe29658806e978b69e97e2
+    fixture.yaml: f59b37bc21f19f18cb8ae57969b183cca824d52de605b14b8efb526a703886fc
+    sources.yaml: 44e5541f4be8382f9fd5751fdf05a72f203e5b07755c58d6b379fb7976cc0e8c
+    evidence/vd-calculator-normalized-receipt-20260801.json: 5ed976cb07688a6d08cba29f96e9c2a451fb3546f5daf6cc5fe58a4348832293
+    evidence/promotion-20260801.yaml: 7a6140df95080a43a71dac0a312836387b06e3b1c7f4e10ec0f9f9368d0098cb
+persona_boundary:
+  synthetic: true
+  anonymous: true
+  linked_to_batch1_lea: false
+  gross_income_chf: null
+  rule: declared_taxable_inputs_only_never_salary_derived
+assumptions:
+  tax_year: 2026
+  canton: VD
+  municipality: Lausanne
+  full_year_domicile: true
+  taxation: ordinary
+  civil_status: single
+  children_full_quotient: 0
+  children_half_quotient: 0
+  children_same_household: 0
+  intercantonal_or_international_allocation: false
+  taxable_wealth_icc_chf: 0
+  employee_with_lpp: true
+  pillar3a_contribution_credited_in_tax_year: true
+  retroactive_3a_catchup: false
+inputs:
+  baseline_taxable_income_icc_chf: 80000
+  baseline_taxable_income_ifd_chf: 80000
+  hypothetical_pillar3a_chf: 7258
+  counterfactual_submitted_icc_chf: 72742
+  counterfactual_submitted_ifd_chf: 72742
+  official_displayed_counterfactual_chf: 72700
+official_indicative_result:
+  baseline: {icc_chf: 14423.15, ifd_chf: 1378.20, total_chf: 15801.35}
+  counterfactual: {icc_chf: 12648.75, ifd_chf: 1048.60, total_chf: 13697.35}
+  difference: {icc_chf: 1774.40, ifd_chf: 329.60, total_chf: 2104.00}
+  definitive_tax_set_by: ACI_Vaud
+  calculator_version_visible: 10.4.0
+  captured_on: 2026-08-01
+  expires_on: 2026-12-31
+display_contract:
+  heading: Écart fiscal indicatif du scénario
+  identity: Scénario illustratif B2-VD-3A-2026-01 · non personnalisé
+  required_adjacent_labels: [official_indicative, declared_taxable_inputs, not_personalized, not_filing_result, not_advice, official_rounding, no_contribution_recommendation]
+  required_education: [pillar3a_reduces_liquidity, capital_locked_until_eligible_release, withdrawal_taxed_separately]
+  source_url: https://www.vd.ch/etat-droit-finances/impots/impots-pour-les-individus/calculer-mes-impots
+  api_boundary: manual_evidence_only_no_supported_or_licensed_Vaud_API_identified
+correction_invariant:
+  critical_fields: [tax_year, canton, municipality, full_year_domicile, taxation, civil_status, children, allocation, taxable_wealth, taxable_income, pillar3a_amount, pillar3a_timing]
+  on_any_change: hide_all_official_amounts_and_show_recalculation_unavailable_in_prototype
+  exact_revert: may_restore_only_the_exact_promoted_fixture
+forbidden_active_strings: [B1-FX-01, "CHF 1’500", "15’000", "13’500", "108’000", "2’400", Léa, "CHF 2’166.59"]
+forbidden_claims: [personal_tax_estimate, tax_filing_result, advice_or_recommendation, recommended_contribution, guaranteed_saving, exact_engine_result, FINMA_certified, supported_or_licensed_api, product_connected, nationwide_coverage, winner_selected, users_tested, LLM_calculation]
