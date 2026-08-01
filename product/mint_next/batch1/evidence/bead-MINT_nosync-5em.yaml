@@ -1,0 +1,10 @@
+schema_version: 1
+captured_utc: 2026-08-01T16:45:20Z
+system: beads
+id: MINT_nosync-5em
+status: closed
+status_kind: terminal_snapshot_live_verified
+priority: 1
+title: MINT Next Batch 1 — audited Handoff and creative directions
+completion_claim: true
+reason: bounded design experiment promoted only after global, Swiss-tax, and accessibility reviews reported no P1/P2

@@ -84,8 +84,20 @@ def validate(root: Path) -> list[str]:
             errors.append(f"missing Batch 1 artifact: {BASE / rel}")
 
     batch = _yaml(root, "batch", errors)
-    if batch.get("schema_version") != 1 or batch.get("status") != "draft_unproven":
-        errors.append("Batch 1 must remain schema 1 draft_unproven before promotion")
+    if batch.get("schema_version") != 1 or batch.get("status") != "proven_bounded_design_experiment":
+        errors.append("Batch 1 status must match its bounded promotion receipt")
+    artifacts = batch.get("artifacts", {})
+    promotion_path = root / artifacts.get("promotion_receipt", "") if isinstance(artifacts, dict) else None
+    bead_snapshot_path = root / artifacts.get("bead_snapshot", "") if isinstance(artifacts, dict) else None
+    promotion = yaml.safe_load(promotion_path.read_text(encoding="utf-8")) if promotion_path and promotion_path.is_file() else {}
+    bead_snapshot = yaml.safe_load(bead_snapshot_path.read_text(encoding="utf-8")) if bead_snapshot_path and bead_snapshot_path.is_file() else {}
+    if promotion.get("audited_head") != "c29d7dd95" or promotion.get("unresolved_p1_p2") != 0 or promotion.get("status") != batch.get("status"):
+        errors.append("Batch 1 proven status requires the exact independent promotion receipt")
+    limitations = promotion.get("limitations", {})
+    if not isinstance(limitations, dict) or any(limitations.get(key) is not False for key in ("winner_selected", "user_testing_completed", "real_swiss_tax_engine_connected", "flutter_product_runtime_delivered", "discord_webhook_wired", "fixture_is_safe_for_financial_decisions")):
+        errors.append("Batch 1 promotion limitations must remain explicit")
+    if bead_snapshot.get("id") != "MINT_nosync-5em" or bead_snapshot.get("status") != "closed" or bead_snapshot.get("completion_claim") is not True:
+        errors.append("Batch 1 proven status requires a closed committed Bead snapshot")
     tracking = batch.get("work_tracking", {})
     if not isinstance(tracking, dict) or tracking.get("system") != "beads" or tracking.get("id") != "MINT_nosync-5em":
         errors.append("Batch 1 must be owned by Bead MINT_nosync-5em")
@@ -325,8 +337,8 @@ def live_tracking_errors(root: Path) -> list[str]:
     except json.JSONDecodeError:
         return ["live Batch 1 Bead returned invalid JSON"]
     item = payload[0] if isinstance(payload, list) and payload else payload
-    if not isinstance(item, dict) or item.get("status") != "in_progress":
-        return [f"live Batch 1 Bead must be in_progress, got {item.get('status') if isinstance(item, dict) else None}"]
+    if not isinstance(item, dict) or item.get("status") != "closed":
+        return [f"live Batch 1 Bead must be closed, got {item.get('status') if isinstance(item, dict) else None}"]
     return []
 
 
@@ -343,7 +355,7 @@ def main() -> int:
         for error in errors:
             print(f"ERROR mint_next_batch1_guard: {error}", file=sys.stderr)
         return 1
-    print("OK mint_next_batch1_guard: Batch 1 remains comparable, bounded, and unproven.", file=sys.stderr)
+    print("OK mint_next_batch1_guard: Batch 1 promotion remains bounded, evidence-linked, and non-product.", file=sys.stderr)
     return 0
 
 

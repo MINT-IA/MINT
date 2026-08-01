@@ -1,9 +1,9 @@
 schema_version: 1
-status: draft_unproven
+status: proven_bounded_design_experiment
 work_tracking:
   system: beads
   id: MINT_nosync-5em
-  expected_live_status: in_progress
+  expected_live_status: closed
 scope:
   includes: [handoff_inventory, source_authority, three_testable_directions, evaluation_protocol, coordination_decision, independent_roast]
   excludes: [flutter_implementation, production_runtime, discord_webhook_wiring, winner_claim, user_validation_claim]
@@ -14,8 +14,11 @@ artifacts:
   coordination: product/mint_next/batch1/coordination.yaml
   directions: product/mint_next/batch1/directions.yaml
   evaluation: product/mint_next/batch1/evaluation.yaml
+  tax_fixture: product/mint_next/batch1/tax-fixture.yaml
   prototype: product/mint_next/batch1/prototype/index.html
   render_evidence: product/mint_next/batch1/evidence/render-20260801.yaml
+  promotion_receipt: product/mint_next/batch1/evidence/promotion-20260801.yaml
+  bead_snapshot: product/mint_next/batch1/evidence/bead-MINT_nosync-5em.yaml
 promotion:
   author_cannot_approve: true
   requires: [deterministic_guard, rendered_prototype_proof, task_comparability, accessibility_review, swiss_tax_review, independent_roast_no_p1_p2]

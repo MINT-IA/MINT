@@ -1,0 +1,21 @@
+schema_version: 1
+batch: mint_next_batch1_design_experiment
+status: proven_bounded_design_experiment
+audited_head: c29d7dd95
+unresolved_p1_p2: 0
+independent_reviews:
+  global_roast: {reviewer: batch0_roast, verdict: ROAST_PASS}
+  swiss_tax: {reviewer: batch1_swiss_tax_review, verdict: PASS}
+  accessibility: {reviewer: batch1_a11y_review, verdict: PASS}
+proofs:
+  targeted_tests: 39_passed
+  runtime_probe: pass_including_cross_process_reload
+  inventory_guard: pass
+  repository_guards: pass
+limitations:
+  winner_selected: false
+  user_testing_completed: false
+  real_swiss_tax_engine_connected: false
+  flutter_product_runtime_delivered: false
+  discord_webhook_wired: false
+  fixture_is_safe_for_financial_decisions: false
