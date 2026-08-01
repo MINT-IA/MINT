@@ -13,6 +13,7 @@ SESSION_COMMANDS = (
     "python3 tools/checks/mint_rules_guard.py",
     "python3 tools/checks/journey_os_check.py",
     "python3 tools/checks/workflow_contract_guard.py",
+    "python3 tools/checks/mint_next_foundation_guard.py",
 )
 CI_EXTRA = (
     "python3 tools/checks/agent_reference_guard.py",
@@ -38,6 +39,7 @@ CI_TESTS = (
     "tools/checks/tests/test_maestro_locator_audit.py",
     "tools/checks/tests/test_mermaid_render_guard.py",
     "tools/checks/tests/test_workflow_contract_guard.py",
+    "tools/checks/tests/test_mint_next_foundation_guard.py",
     "tools/checks/tests/test_verify_phase_acceptance.py",
 )
 

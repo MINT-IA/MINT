@@ -140,6 +140,7 @@ python3 tools/checks/phase_contract_guard.py
 python3 tools/checks/mint_rules_guard.py
 python3 tools/checks/journey_os_check.py
 python3 tools/checks/workflow_contract_guard.py
+python3 tools/checks/mint_next_foundation_guard.py
 python3 tools/checks/agent_reference_guard.py
 python3 tools/checks/claude_hooks_guard.py
 ```
