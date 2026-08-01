@@ -16,8 +16,8 @@ directions:
 artifacts:
   component320-a-disclosure.png:
     path: product/mint_next/batch3/evidence/renders/component320-a-disclosure.png
-    sha256: 91cf68bdaf03de723ffc7534535b63ea66f9a2d355803c17a1792fc2c74727b6
-    bytes: 74098
+    sha256: b9bddf3e2f9506fac7bc0fea5cbaa21eaf3fc317ab4fa63c2915fc2d2289a18d
+    bytes: 74407
   component320-a-invalidated.png:
     path: product/mint_next/batch3/evidence/renders/component320-a-invalidated.png
     sha256: e1d6fed4f91bd045da55238a5dc82e5ef04b5a109d606f7478aeeb5f97ca90a1
@@ -28,8 +28,8 @@ artifacts:
     bytes: 50183
   component320-b-disclosure.png:
     path: product/mint_next/batch3/evidence/renders/component320-b-disclosure.png
-    sha256: a7c36b2327c240d71c0d0a4ac9d36d5fd5c41f67bf4d0a628b28ee03165ffa81
-    bytes: 74144
+    sha256: c3e48a953247191b5b82be5b7ed3d1ab4a596ce614977cbfddb8e1221d4467c3
+    bytes: 74457
   component320-b-invalidated.png:
     path: product/mint_next/batch3/evidence/renders/component320-b-invalidated.png
     sha256: ad4bda1a0353f37fbe08b9f7130678595ddaf32bfc04090fdee9ee5855523148
@@ -40,8 +40,8 @@ artifacts:
     bytes: 50333
   component320-c-disclosure.png:
     path: product/mint_next/batch3/evidence/renders/component320-c-disclosure.png
-    sha256: e61ddbefbfcb30fcea30de068ffe8b0c93a23259aaaa2025055dd1bf2168da0c
-    bytes: 74146
+    sha256: e2c8fa3f366623dc34c5ae679289f2be8c6538f94d076b559d709c1f77536f67
+    bytes: 74456
   component320-c-invalidated.png:
     path: product/mint_next/batch3/evidence/renders/component320-c-invalidated.png
     sha256: b647ec94f5292d4ad8f3602e58bf5184b71fac30edca87c5b67fe7697f1268b5
@@ -52,8 +52,8 @@ artifacts:
     bytes: 48342
   desktop1280-a-disclosure.png:
     path: product/mint_next/batch3/evidence/renders/desktop1280-a-disclosure.png
-    sha256: adfecb418fbdbf89ac54492cea3f20ae78ff4fabdb87c1c71976d2959774e1e3
-    bytes: 206908
+    sha256: 383b02df4fc1e5ed0b4a36c68ec9352d3d952929cd5ab108295df012bc23d6cc
+    bytes: 205407
   desktop1280-a-invalidated.png:
     path: product/mint_next/batch3/evidence/renders/desktop1280-a-invalidated.png
     sha256: 0f4a682a11b6ba6294b6fa77bef6efc9c2611308074b0b13a30d3ebe247a52b4
@@ -64,8 +64,8 @@ artifacts:
     bytes: 186699
   desktop1280-b-disclosure.png:
     path: product/mint_next/batch3/evidence/renders/desktop1280-b-disclosure.png
-    sha256: 61b43770c7f555e790fbae413794ad9b30e3bccb8822c364e10ee77d22591322
-    bytes: 207884
+    sha256: 033146dca18bb9a27a1a365706836f6fdb66f63edf342c9cc8543f97d1975112
+    bytes: 206404
   desktop1280-b-invalidated.png:
     path: product/mint_next/batch3/evidence/renders/desktop1280-b-invalidated.png
     sha256: 658ffe460924a9a4d9d578e9a03a9de9dc09af7964e23ae2ba110613e012184f
@@ -76,8 +76,8 @@ artifacts:
     bytes: 186687
   desktop1280-c-disclosure.png:
     path: product/mint_next/batch3/evidence/renders/desktop1280-c-disclosure.png
-    sha256: c30a5894bb22ffd6f9c99a4ff0faf6a4f159dd69a51783c672573b3d5dc07e69
-    bytes: 207379
+    sha256: efa1d1e99d19a9fa1c43d92d40bd14822ae868e1425bf7ba78304e800a2924ca
+    bytes: 205883
   desktop1280-c-invalidated.png:
     path: product/mint_next/batch3/evidence/renders/desktop1280-c-invalidated.png
     sha256: 12cf9a83ddd5c1ea7585c2968420e7491fd2dc3f1d97d0b1df982c8155f85e02

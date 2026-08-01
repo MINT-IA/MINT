@@ -100,8 +100,16 @@ class Target:
         self.js("new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
 
     def key(self, key: str, modifiers: int = 0):
-        self.call("Input.dispatchKeyEvent", {"type": "keyDown", "key": key, "modifiers": modifiers})
-        self.call("Input.dispatchKeyEvent", {"type": "keyUp", "key": key, "modifiers": modifiers})
+        codes = {"Tab": ("Tab", 9), "Escape": ("Escape", 27), "End": ("End", 35), "ArrowDown": ("ArrowDown", 40)}
+        code, virtual = codes.get(key, (key, 0))
+        payload = {"key": key, "code": code, "windowsVirtualKeyCode": virtual, "modifiers": modifiers}
+        self.call("Input.dispatchKeyEvent", {"type": "keyDown", **payload})
+        self.call("Input.dispatchKeyEvent", {"type": "keyUp", **payload})
+
+    def wheel(self, selector: str, delta_y: int):
+        rect = self.js(f"(()=>{{const r=document.querySelector({json.dumps(selector)}).getBoundingClientRect();return {{x:r.left+r.width/2,y:r.top+r.height/2}}}})()")
+        self.call("Input.dispatchMouseEvent", {"type": "mouseWheel", "x": rect["x"], "y": rect["y"], "deltaX": 0, "deltaY": delta_y})
+        self.js("new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))")
 
     def close(self):
         try: self.ws.close()
@@ -147,13 +155,17 @@ def main() -> int:
         # Disclosure: click open/close, Escape, Tab loop, background isolation and focus restore.
         browser.navigate(source + "?direction=a&step=1")
         browser.js("disclose.focus()"); browser.click("#disclose")
-        check(browser.js("!overlay.classList.contains('hidden')&&app.inert&&app.getAttribute('aria-hidden')==='true'&&document.activeElement.id==='close-overlay'"), "modal open/isolation/focus")
+        check(browser.js("!overlay.classList.contains('hidden')&&app.inert&&app.getAttribute('aria-hidden')==='true'&&document.activeElement.id==='disclosure-title'&&(()=>{const r=document.activeElement.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()"), "modal open/isolation/visible initial focus")
         browser.click("#close-overlay")
         check(browser.js("overlay.classList.contains('hidden')&&!app.inert&&!app.hasAttribute('aria-hidden')&&document.activeElement===disclose"), "modal close/focus restore: "+str(browser.js("({hidden:overlay.classList.contains('hidden'),inert:app.inert,aria:app.hasAttribute('aria-hidden'),active:document.activeElement.id})")))
         browser.click("#disclose"); browser.key("Escape")
         check(browser.js("overlay.classList.contains('hidden')&&document.activeElement===disclose"), "modal Escape")
-        browser.click("#disclose"); browser.js("document.querySelector('#close-overlay').focus()"); browser.key("Tab")
-        check(browser.js("document.activeElement.matches('#disclosure a[href]')"), "modal Tab loop")
+        browser.click("#disclose"); browser.key("Tab")
+        check(browser.js("document.activeElement.matches('#disclosure a[href]')&&(()=>{const r=document.activeElement.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()"), "modal Tab reaches visible source")
+        browser.key("Tab")
+        check(browser.js("document.activeElement.id==='close-overlay'&&(()=>{const r=document.activeElement.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()"), "modal Tab reaches visible close")
+        browser.key("Tab", modifiers=8)
+        check(browser.js("document.activeElement.matches('#disclosure a[href]')"), "modal Shift+Tab returns to source")
         browser.click("#close-overlay")
 
         for direction in "abc":
@@ -161,6 +173,15 @@ def main() -> int:
             browser.click("#disclose")
             check(browser.js("!overlay.classList.contains('hidden')&&overlay.getBoundingClientRect().width>0&&overlay.scrollWidth<=document.documentElement.clientWidth"), f"{direction} visible disclosure")
             browser.click("#close-overlay")
+
+        # Every Back edge is live; focus intentionally stays on the control while aria-live announces replacement.
+        for direction in "abc":
+            browser.navigate(source + f"?direction={direction}&step=6")
+            browser.js("back.focus()")
+            for expected in range(5, 0, -1):
+                browser.click("#back")
+                check(browser.js(f"step.textContent==='{expected} / 6'&&document.activeElement==={('content' if expected == 1 else 'back')}&&content.getAttribute('aria-live')==='polite'"), f"{direction} Back edge to {expected}")
+            check(browser.js("back.disabled"), f"{direction} Back disabled at start")
 
         # Correction remains across Back; only physically clicking the same row reverts it.
         for direction in "abc":
@@ -180,6 +201,20 @@ def main() -> int:
         browser.click("[data-disclosure]")
         check(browser.js("!overlay.classList.contains('hidden')"), "C disclosure chip")
         browser.click("#close-overlay")
+
+        # Long result content is keyboard-scrollable to its last proof row.
+        browser.navigate(source + "?direction=a&step=4")
+        browser.js("content.focus()")
+        browser.wheel("#content", 900)
+        check(browser.js("content.scrollTop>0&&(()=>{const r=content.lastElementChild.getBoundingClientRect(),c=content.getBoundingClientRect();return r.bottom<=c.bottom+1})()"), "result content keyboard scroll reachability: "+str(browser.js("({top:content.scrollTop,sh:content.scrollHeight,ch:content.clientHeight,last:content.lastElementChild.getBoundingClientRect().bottom,cb:content.getBoundingClientRect().bottom,active:document.activeElement.id})")))
+
+        # Reduced-motion preference disables the only entry animation.
+        browser.call("Emulation.setEmulatedMedia", {"features": [{"name": "prefers-reduced-motion", "value": "reduce"}]})
+        browser.navigate(source + "?direction=a&step=1")
+        check(browser.js("getComputedStyle(content.firstElementChild).animationName==='none'"), "reduced motion disables animation")
+        browser.call("Emulation.setEmulatedMedia", {"features": [{"name": "prefers-reduced-motion", "value": "no-preference"}]})
+        browser.navigate(source + "?direction=a&step=1")
+        check(browser.js("getComputedStyle(content.firstElementChild).animationName==='enter'"), "default motion retains entry animation")
 
         # Save by traversing/clicking, then perform an actual navigation reload into saved state 6.
         for direction in "abc":
