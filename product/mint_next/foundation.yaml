@@ -32,6 +32,7 @@ skills:
   consent_and_provenance: {owner: mint-integrations-security, file: .agents/skills/mint-consent-and-provenance/SKILL.md}
   experience_critique: {owner: mint-experience, file: .agents/skills/mint-experience-critique/SKILL.md}
   regulatory_boundary: {owner: mint-swiss-brain, file: .agents/skills/mint-regulatory-boundary/SKILL.md}
+  prompt_eval: {owner: mint-quality-gate, file: .agents/skills/mint-prompt-eval/SKILL.md}
 
 tools:
   flutter:
@@ -138,6 +139,14 @@ model_roles:
   opus: ambiguous product/domain critique and adversarial review
   codex_sol: bounded implementation, command execution, debugging, and independent verification
   rule: models_do_not_vote_evidence_decides
+
+prompt_evals:
+  owner: mint-quality-gate
+  policy: product/mint_next/contracts/llm-eval.yaml
+  applies_to: every_llm_or_rag_behavior_change
+  required_artifacts: [versioned_prompt, immutable_golden_corpus, deterministic_and_judged_metrics, regression_report]
+  promotion_rule: no_regression_on_safety_privacy_compliance_and_measured_improvement
+  self_approval: forbidden
 
 rebuild_strategy:
   repository: existing_monorepo

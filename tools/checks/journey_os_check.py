@@ -106,6 +106,7 @@ ALLOW = {
     "product/mint_next/evidence/bead-MINT_nosync-9kv.yaml",
     "product/mint_next/evidence/engram-local-restore-20260801.txt",
     "product/mint_next/runbooks/engram-fun2.md",
+    "product/mint_next/contracts/llm-eval.yaml",
     ".claude/agents/mint-experience.md",
     ".claude/agents/mint-integrations-security.md",
     ".agents/skills/mint-journey-design/SKILL.md",
@@ -114,6 +115,7 @@ ALLOW = {
     ".agents/skills/mint-consent-and-provenance/SKILL.md",
     ".agents/skills/mint-experience-critique/SKILL.md",
     ".agents/skills/mint-regulatory-boundary/SKILL.md",
+    ".agents/skills/mint-prompt-eval/SKILL.md",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

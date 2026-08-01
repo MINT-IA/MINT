@@ -64,6 +64,7 @@ def _copy_contract(tmp_path: Path) -> Path:
         "product/mint_next/evidence/engram-fun2-20260801.yaml",
         "product/mint_next/evidence/bead-MINT_nosync-9kv.yaml",
         "product/mint_next/evidence/engram-local-restore-20260801.txt",
+        "product/mint_next/contracts/llm-eval.yaml",
     ):
         source = REPO_ROOT / rel
         path = tmp_path / rel
@@ -92,6 +93,7 @@ def _copy_contract(tmp_path: Path) -> Path:
         ".agents/skills/mint-consent-and-provenance/SKILL.md",
         ".agents/skills/mint-experience-critique/SKILL.md",
         ".agents/skills/mint-regulatory-boundary/SKILL.md",
+        ".agents/skills/mint-prompt-eval/SKILL.md",
     ):
         path = tmp_path / rel
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -231,6 +233,15 @@ def test_guard_rejects_tool_state_downgrade_that_removes_proof(tmp_path: Path) -
     proc = _run(tmp_path)
     assert proc.returncode == 1
     assert "sentry" in proc.stderr
+
+
+def test_guard_rejects_missing_prompt_eval_contract(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    text = contract.read_text(encoding="utf-8")
+    contract.write_text(text.split("\nprompt_evals:\n", 1)[0] + "\n", encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "prompt_evals" in proc.stderr
 
 
 def test_guard_rejects_invented_tool_state(tmp_path: Path) -> None:

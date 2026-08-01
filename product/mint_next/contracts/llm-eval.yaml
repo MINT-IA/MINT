@@ -1,0 +1,25 @@
+schema_version: 1
+status: foundation_policy
+owner: mint-quality-gate
+applies_to: every_llm_or_rag_behavior_change
+required_artifacts:
+  - versioned_prompt
+  - immutable_golden_corpus
+  - deterministic_and_judged_metrics
+  - regression_report
+required_dimensions:
+  - factual_grounding
+  - swiss_domain_correctness
+  - privacy_and_consent
+  - regulatory_boundary
+  - usefulness
+promotion:
+  safety_privacy_compliance_regression_allowed: false
+  measured_improvement_required: true
+  author_may_approve: false
+  independent_reproduction_required: true
+rules:
+  - never_score_only_the_model_mock
+  - never_use_agent_summary_as_evidence
+  - keep_corpus_immutable_during_candidate_comparison
+  - record_model_prompt_dataset_and_judge_versions

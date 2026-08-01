@@ -41,6 +41,7 @@ SKILL_CONTRACTS = {
     "consent_and_provenance": ("mint-integrations-security", ".agents/skills/mint-consent-and-provenance/SKILL.md"),
     "experience_critique": ("mint-experience", ".agents/skills/mint-experience-critique/SKILL.md"),
     "regulatory_boundary": ("mint-swiss-brain", ".agents/skills/mint-regulatory-boundary/SKILL.md"),
+    "prompt_eval": ("mint-quality-gate", ".agents/skills/mint-prompt-eval/SKILL.md"),
 }
 REQUIRED_TOOLS = {
     "flutter",
@@ -100,6 +101,17 @@ TOOL_CONTRACTS = {
     "infomaniak": ("candidate Swiss production data plane pending an operational spike", "mint-integrations-security", "unconfigured_candidate", "no_data_until_spike_approved", None),
     "vercel": ("optional previews and non-sensitive web surfaces, never the default financial data plane", "mint-experience", "available_not_reverified_in_batch0", "public_or_synthetic_only", None),
     "hugging_face": ("optional measured model, embedding, and evaluation experiments only", "mint-integrations-security", "unconfigured_optional", "public_corpus_or_synthetic_only", None),
+}
+PROMPT_EVAL_CONTRACT = {
+    "owner": "mint-quality-gate",
+    "policy": "product/mint_next/contracts/llm-eval.yaml",
+    "applies_to": "every_llm_or_rag_behavior_change",
+    "required_artifacts": [
+        "versioned_prompt", "immutable_golden_corpus",
+        "deterministic_and_judged_metrics", "regression_report",
+    ],
+    "promotion_rule": "no_regression_on_safety_privacy_compliance_and_measured_improvement",
+    "self_approval": "forbidden",
 }
 
 
@@ -229,6 +241,13 @@ def validate(root: Path) -> list[str]:
             expected_proof = TOOL_PROOFS.get(name)
             if proof != expected_proof:
                 errors.append(f"tool {name} must use proof {expected_proof}")
+
+    prompt_evals = data.get("prompt_evals")
+    if prompt_evals != PROMPT_EVAL_CONTRACT:
+        errors.append("prompt_evals must match the canonical evaluation contract")
+    policy = prompt_evals.get("policy") if isinstance(prompt_evals, dict) else None
+    if not isinstance(policy, str) or not (root / policy).is_file():
+        errors.append("prompt_evals policy must reference a committed file")
 
     if data.get("status") != "draft_unproven":
         errors.append("status must remain draft_unproven until a separate promotion contract exists")
