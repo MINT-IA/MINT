@@ -69,6 +69,8 @@ jobs:
         run: python3 tools/checks/mint_next_foundation_guard.py
       - name: MINT Next Batch 1 design guard
         run: python3 tools/checks/mint_next_batch1_guard.py
+      - name: MINT Next Batch 1 Handoff inventory
+        run: python3 tools/checks/mint_next_batch1_inventory.py
       - name: Product prescription lint (ADR 2026-07-28)
         run: |
           python3 tools/checks/product_prescription_lint.py --self-test

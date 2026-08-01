@@ -15,6 +15,7 @@ SESSION_COMMANDS = (
     "python3 tools/checks/workflow_contract_guard.py",
     "python3 tools/checks/mint_next_foundation_guard.py",
     "python3 tools/checks/mint_next_batch1_guard.py",
+    "python3 tools/checks/mint_next_batch1_inventory.py",
 )
 CI_EXTRA = (
     "python3 tools/checks/agent_reference_guard.py",

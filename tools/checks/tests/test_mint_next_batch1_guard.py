@@ -100,3 +100,53 @@ def test_guard_rejects_stale_render_evidence(tmp_path: Path) -> None:
     proc = _run(tmp_path)
     assert proc.returncode == 1
     assert "render evidence hash mismatch" in proc.stderr
+
+
+def test_guard_rejects_empty_governing_source_matrix(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "source-matrix.yaml"
+    text = path.read_text(encoding="utf-8")
+    start, rest = text.split("governing:\n", 1)
+    _, tail = rest.split("inspiration_only:\n", 1)
+    path.write_text(start + "governing: []\ninspiration_only:\n" + tail, encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "governing source" in proc.stderr
+
+
+def test_guard_rejects_empty_evaluation_tasks(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "evaluation.yaml"
+    text = path.read_text(encoding="utf-8")
+    start, rest = text.split("moderated_tasks:\n", 1)
+    _, tail = rest.split("participant_coverage:\n", 1)
+    path.write_text(start + "moderated_tasks: []\nparticipant_coverage:\n" + tail, encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "moderated tasks" in proc.stderr
+
+
+def test_guard_rejects_empty_discord_channels(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "coordination.yaml"
+    text = path.read_text(encoding="utf-8")
+    start, rest = text.split("  channels:\n", 1)
+    _, tail = rest.split("  allowed_fields:", 1)
+    path.write_text(start + "  channels: {}\n  allowed_fields:" + tail, encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "Discord channels" in proc.stderr
+
+
+def test_guard_rejects_unsubstantiated_coordination_selection(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "coordination-evidence.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(
+            "selected: discord_notification_only", "selected: slack_free"
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "coordination evidence" in proc.stderr

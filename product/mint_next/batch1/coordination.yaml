@@ -1,6 +1,8 @@
 schema_version: 1
 decision: existing_private_discord_notification_only
 status: specified_not_wired
+discord_existence: user_attested_not_technically_verified
+evidence: product/mint_next/batch1/coordination-evidence.yaml
 systems_of_record:
   repository: specifications_decisions_code_and_evidence
   beads: work_ownership_dependencies_and_terminal_state
@@ -33,4 +35,3 @@ disable_if:
   - unactionable_alerts_exceed_thirty_percent_for_two_weeks
   - webhook_secret_cannot_be_rotated_or_audited
   - team_requires_governed_retention_sso_dlp_or_data_residency
-

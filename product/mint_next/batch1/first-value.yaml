@@ -9,6 +9,9 @@ persona:
   id: lea_34_vaud_salaried
   age: 34
   canton: VD
+  municipality: Lausanne
+  residence: swiss_resident
+  tax_regime: ordinary_taxation
   civil_status: single
   employment: salaried
   gross_income_chf: 108000
@@ -22,11 +25,12 @@ first_value_contract:
   account_required: false
   bank_connection_required: false
   result:
-    value: illustrative_range_not_a_tax_quote
-    range_chf: [900, 1700]
-    number_state: example
+    value: synthetic_placeholder_not_a_financial_result
+    range_chf: null
+    display_placeholder: CHF_X_to_Y
+    number_state: synthetic_layout_placeholder
     required_labels: [source, assumptions, tax_year, confidence, what_it_does_not_mean]
-  primary_action: refine_with_salary_certificate
+  primary_action: review_missing_tax_inputs
   secondary_action: understand_this_estimate
 prohibited:
   - personalized_precision_without_sufficient_data
@@ -34,4 +38,8 @@ prohibited:
   - prescriptive_contribution_recommendation
   - account_before_first_value
   - hidden_assumptions
-
+required_education:
+  - pillar_3a_capital_is_locked_until_eligible_release
+  - withdrawal_is_taxed_separately
+  - tax_effect_varies_with_municipality_regime_income_and_deductions
+  - no_contribution_amount_is_recommended

@@ -18,6 +18,8 @@ FILES = {
     "sources": "source-matrix.yaml",
     "first_value": "first-value.yaml",
     "coordination": "coordination.yaml",
+    "coordination_evidence": "coordination-evidence.yaml",
+    "inventory": "handoff-inventory.yaml",
     "directions": "directions.yaml",
     "evaluation": "evaluation.yaml",
     "prototype": "prototype/index.html",
@@ -28,6 +30,16 @@ EXPECTED_DIRECTIONS = {
     "next_life_decision": ("event_decision_first", "two_option_decision_canvas"),
     "conversation_to_card": ("coach_intent_first_ui_output", "pinned_deterministic_cap_card"),
 }
+GOVERNING_SOURCES = {
+    "CLAUDE.md", "docs/MINT_UX_GRAAL_MASTERPLAN.md", "docs/MINT_IDENTITY.md",
+    "docs/VOICE_SYSTEM.md", "docs/DESIGN_SYSTEM.md", "apps/mobile/lib/theme/colors.dart",
+    "apps/mobile/lib/theme/mint_text_styles.dart", "apps/mobile/pubspec.yaml",
+}
+MODERATED_TASKS = {
+    "understand_current_year_tax_optimization", "find_source_and_assumptions",
+    "correct_an_assumption", "continue_without_account", "recover_next_step_on_return",
+}
+REQUIRED_REVIEWS = {"ux", "accessibility", "swiss_tax", "compliance", "privacy_security"}
 FORBIDDEN_DISCORD = {
     "financial_data", "tax_data", "pension_data", "insurance_data", "bank_data",
     "avs_data", "prompt", "response", "auth_header", "token", "document",
@@ -66,7 +78,12 @@ def validate(root: Path) -> list[str]:
         errors.append("Batch 1 scope exclusions are incomplete")
 
     sources = _yaml(root, "sources", errors)
+    if sources.get("principle") != "repo_runtime_and_explicit_overrides_beat_handoff_proposals":
+        errors.append("source matrix principle must keep repo/runtime authority")
     governing = sources.get("governing", [])
+    governing_paths = {entry.get("path") for entry in governing if isinstance(entry, dict)} if isinstance(governing, list) else set()
+    if governing_paths != GOVERNING_SOURCES:
+        errors.append("governing source set is incomplete or has drifted")
     for entry in governing if isinstance(governing, list) else []:
         rel = entry.get("path") if isinstance(entry, dict) else None
         if not isinstance(rel, str) or not (root / rel).exists():
@@ -77,6 +94,20 @@ def validate(root: Path) -> list[str]:
     unresolved = sources.get("unresolved_must_not_be_inherited", {})
     if not isinstance(unresolved, dict) or not {"navigation_shell", "typography", "positioning"} <= set(unresolved):
         errors.append("source matrix must expose navigation, typography, and positioning conflicts")
+    inspiration = sources.get("inspiration_only", [])
+    if not isinstance(inspiration, list) or len(inspiration) < 5:
+        errors.append("source matrix must retain five bounded inspiration/red-team sources")
+
+    inventory = _yaml(root, "inventory", errors)
+    summary = inventory.get("summary", {})
+    inventory_files = inventory.get("files", [])
+    if not isinstance(summary, dict) or summary.get("file_count", 0) < 100 or summary.get("all_files_have_decision_reason_and_hash") is not True:
+        errors.append("Handoff inventory must remain exhaustive, classified, and hash-bound")
+    if not isinstance(inventory_files, list) or any(
+        not isinstance(item, dict) or not all(item.get(key) is not None for key in ("path", "bytes", "sha256", "decision", "reason"))
+        for item in inventory_files
+    ):
+        errors.append("every Handoff inventory item needs path, size, hash, decision, and reason")
 
     first = _yaml(root, "first_value", errors)
     if first.get("decision") != "tax_first_for_batch1_experiment":
@@ -87,8 +118,10 @@ def validate(root: Path) -> list[str]:
     if not isinstance(contract, dict) or contract.get("bank_connection_required") is not False:
         errors.append("bank connection must not be required before first value")
     result = contract.get("result", {}) if isinstance(contract, dict) else {}
-    if not isinstance(result, dict) or result.get("range_chf") != [900, 1700] or result.get("number_state") != "example":
-        errors.append("common illustrative result range/state changed")
+    if not isinstance(result, dict) or result.get("range_chf") is not None or result.get("display_placeholder") != "CHF_X_to_Y" or result.get("number_state") != "synthetic_layout_placeholder":
+        errors.append("prototype must use only the common non-financial result placeholder")
+    if not {"municipality", "tax_regime", "residence"} <= set(first.get("persona", {})):
+        errors.append("tax-first persona must disclose municipality, residence, and tax regime")
 
     directions_data = _yaml(root, "directions", errors)
     directions = directions_data.get("directions", {})
@@ -106,6 +139,8 @@ def validate(root: Path) -> list[str]:
         objects.append(str(actual[1]))
         if not isinstance(item, dict) or len(item.get("sequence", [])) != 6:
             errors.append(f"direction {name} must contain six comparable states")
+        if not isinstance(item, dict) or item.get("primary_action") != "review_missing_tax_inputs":
+            errors.append(f"direction {name} must share the review_missing_tax_inputs action")
     if len(set(mechanisms)) != 3:
         errors.append("each direction must use a unique interaction mechanism")
     if len(set(objects)) != 3:
@@ -123,6 +158,21 @@ def validate(root: Path) -> list[str]:
         errors.append("Batch 1 must not claim user testing was completed")
     if not isinstance(claims, dict) or claims.get("winner_selected") is not False:
         errors.append("Batch 1 must not select a winner before user evidence")
+    tasks = set(evaluation.get("moderated_tasks", []))
+    if tasks != MODERATED_TASKS:
+        errors.append("evaluation moderated tasks are incomplete or have drifted")
+    falsification = evaluation.get("internal_falsification", {})
+    if not isinstance(falsification, dict) or set(falsification.get("required_reviews", [])) != REQUIRED_REVIEWS:
+        errors.append("evaluation required reviews are incomplete")
+    participants = evaluation.get("participant_coverage", {})
+    if not isinstance(participants, dict) or len(participants.get("segments", [])) < 5 or set(participants.get("languages_minimum", [])) != {"fr", "de"}:
+        errors.append("evaluation participant coverage is incomplete")
+    metrics = set(evaluation.get("metrics", []))
+    if not {"unaided_task_success", "teach_back_correctness", "data_correction_success", "accessibility_critical_task_success"} <= metrics:
+        errors.append("evaluation metrics are incomplete")
+    thresholds = evaluation.get("thresholds", {})
+    if not isinstance(thresholds, dict) or thresholds.get("route_dead_ends") != 0 or thresholds.get("unaided_task_success_percent") != 85:
+        errors.append("evaluation thresholds are incomplete")
     scorecard = evaluation.get("scorecard_100", {})
     if not isinstance(scorecard, dict) or sum(v for v in scorecard.values() if isinstance(v, int)) != 100:
         errors.append("evaluation scorecard must total 100")
@@ -143,6 +193,25 @@ def validate(root: Path) -> list[str]:
     boundary = set(discord.get("implementation_boundary", [])) if isinstance(discord, dict) else set()
     if not {"no_bidirectional_bot", "no_slash_commands", "failed_notification_never_changes_authoritative_result"} <= boundary:
         errors.append("Discord implementation boundary is incomplete")
+    channels = discord.get("channels", {}) if isinstance(discord, dict) else {}
+    if not isinstance(channels, dict) or set(channels) != {"mint_ops", "mint_delivery"}:
+        errors.append("Discord channels must remain the two bounded notification channels")
+    if not isinstance(discord, dict) or len(discord.get("allowed_fields", [])) < 8 or len(coordination.get("disable_if", [])) < 5:
+        errors.append("Discord allowed fields and disable criteria are incomplete")
+    if coordination.get("discord_existence") != "user_attested_not_technically_verified":
+        errors.append("Discord existence must not be overstated")
+    coordination_evidence = _yaml(root, "coordination_evidence", errors)
+    alternatives = coordination_evidence.get("alternatives", {})
+    if not isinstance(alternatives, dict) or set(alternatives) != {"no_chat", "discord_notification_only", "slack_free"}:
+        errors.append("coordination evidence must compare Discord, Slack Free, and no chat")
+    if coordination_evidence.get("selected") != "discord_notification_only" or coordination_evidence.get("selection_boundary") != "wins_only_as_one_way_signal_not_as_coordination_system":
+        errors.append("coordination evidence does not support the bounded Discord selection")
+    criteria = coordination_evidence.get("criteria_100", {})
+    if not isinstance(criteria, dict) or sum(v for v in criteria.values() if isinstance(v, int)) != 100:
+        errors.append("coordination evidence criteria must total 100")
+    verified = coordination_evidence.get("verified_state", {})
+    if not isinstance(verified, dict) or verified.get("webhook_created") is not False or verified.get("notification_need_runtime_measured") is not False:
+        errors.append("coordination evidence must disclose its unverified runtime state")
 
     prototype_path = root / BASE / FILES["prototype"]
     if prototype_path.is_file():
@@ -151,9 +220,13 @@ def validate(root: Path) -> list[str]:
             errors.append("prototype must expose three direction selectors")
         if html.count("()=>`") != 18:
             errors.append("prototype must contain exactly 18 prototype states")
-        for phrase in ("Sans compte", "Voir les hypothèses", "CARTE DÉTERMINISTE", "MINT compare. Léa décide."):
+        for phrase in ("Sans compte", "Voir les hypothèses", "MAQUETTE · AUCUN MOTEUR BRANCHÉ", "MINT compare. Léa décide.", "localStorage.setItem", "data-edit"):
             if phrase not in html:
                 errors.append(f"prototype missing required contract phrase: {phrase}")
+        if "900–1’700" in html or "Barème VD + tes réponses" in html or "moteur versionné" in html:
+            errors.append("prototype must not present the removed fictitious fiscal provenance")
+        if html.count("Vérifier les données manquantes") < 3:
+            errors.append("prototype directions must expose the same primary missing-data action")
 
     render = _yaml(root, "render", errors)
     claims = render.get("claims", {})

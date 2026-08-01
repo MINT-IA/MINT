@@ -1,0 +1,48 @@
+schema_version: 1
+decision_question: coordination_and_notification_surface_for_solo_founder_plus_agents
+observed_needs:
+  - timely_human_awareness_of_p0_p1_and_deploy_failure
+  - links_to_canonical_evidence_without_creating_another_truth
+  - zero_financial_or_personal_data_in_chat
+alternatives:
+  no_chat:
+    score_100: 69
+    strengths: [no_new_silo, no_new_secret, no_chat_privacy_exposure]
+    weaknesses: [weak_asynchronous_incident_awareness, requires_manual_polling]
+  discord_notification_only:
+    score_100: 81
+    strengths: [existing_user_attested_server, simple_one_way_webhooks, low_cost, good_interrupt_surface]
+    weaknesses: [not_swiss_data_plane, weak_governance, secret_and_noise_risk]
+  slack_free:
+    score_100: 48
+    strengths: [familiar_work_ui, incoming_webhooks]
+    weaknesses: [ninety_day_search_window, one_year_deletion, ten_app_limit, added_silo, insufficient_governance]
+criteria_100:
+  source_of_truth_drift_resistance: 25
+  privacy_and_secret_exposure: 20
+  timely_incident_awareness: 20
+  fit_with_existing_stack: 15
+  cost: 10
+  operational_simplicity: 10
+selected: discord_notification_only
+selection_boundary: wins_only_as_one_way_signal_not_as_coordination_system
+sources:
+  - title: Slack_Free_feature_limitations
+    url: https://slack.com/help/articles/27204752526611-Feature-limitations-on-the-free-version-of-Slack
+    supports: [ninety_day_search_window, one_year_deletion, ten_app_limit]
+  - title: Discord_webhooks
+    url: https://docs.discord.com/developers/platform/webhooks
+    supports: [incoming_webhook_without_persistent_bot]
+  - title: Discord_privacy
+    url: https://discord.com/privacy
+    supports: [not_a_swiss_financial_data_plane, international_processing_risk]
+verified_state:
+  official_sources_checked_utc: 2026-08-01
+  discord_server_exists: user_attested_only
+  webhook_created: false
+  secret_created: false
+  notification_need_runtime_measured: false
+reconsideration:
+  - disable_if_noise_or_sensitive_data_rules_trigger
+  - choose_no_chat_if_notifications_are_not_actionable
+  - assess_paid_governed_tool_when_human_team_requires_retention_sso_dlp_or_data_residency

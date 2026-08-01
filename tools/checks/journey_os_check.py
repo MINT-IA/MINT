@@ -122,8 +122,10 @@ ALLOW = {
     "product/mint_next/batch1/README.md",
     "product/mint_next/batch1/batch.yaml",
     "product/mint_next/batch1/source-matrix.yaml",
+    "product/mint_next/batch1/handoff-inventory.yaml",
     "product/mint_next/batch1/first-value.yaml",
     "product/mint_next/batch1/coordination.yaml",
+    "product/mint_next/batch1/coordination-evidence.yaml",
     "product/mint_next/batch1/directions.yaml",
     "product/mint_next/batch1/evaluation.yaml",
     "product/mint_next/batch1/prototype/index.html",
@@ -132,6 +134,7 @@ ALLOW = {
     "product/mint_next/batch1/evidence/direction-b-result.png",
     "product/mint_next/batch1/evidence/direction-c-result.png",
     "tools/checks/mint_next_batch1_guard.py",
+    "tools/checks/mint_next_batch1_inventory.py",
     "tools/checks/tests/test_mint_next_batch1_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",

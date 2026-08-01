@@ -9,6 +9,7 @@ scope:
   excludes: [flutter_implementation, production_runtime, discord_webhook_wiring, winner_claim, user_validation_claim]
 artifacts:
   source_matrix: product/mint_next/batch1/source-matrix.yaml
+  handoff_inventory: product/mint_next/batch1/handoff-inventory.yaml
   first_value: product/mint_next/batch1/first-value.yaml
   coordination: product/mint_next/batch1/coordination.yaml
   directions: product/mint_next/batch1/directions.yaml
