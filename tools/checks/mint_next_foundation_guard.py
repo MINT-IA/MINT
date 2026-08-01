@@ -30,6 +30,18 @@ CAPABILITY_AGENTS = {
     "quality_privacy_security": ("mint-quality-gate", ".claude/agents/mint-quality-gate.md"),
     "data_integrations": ("mint-integrations-security", ".claude/agents/mint-integrations-security.md"),
 }
+SKILL_CONTRACTS = {
+    "operating_gates": ("mint-quality-gate", ".agents/skills/mint-operating-gates/SKILL.md"),
+    "flutter": ("mint-mobile", ".agents/skills/mint-flutter-dev/SKILL.md"),
+    "backend": ("mint-backend", ".agents/skills/mint-backend-dev/SKILL.md"),
+    "swiss_compliance": ("mint-swiss-brain", ".agents/skills/mint-swiss-compliance/SKILL.md"),
+    "journey_design": ("mint-experience", ".agents/skills/mint-journey-design/SKILL.md"),
+    "runtime_walkthrough": ("mint-quality-gate", ".agents/skills/mint-runtime-walkthrough/SKILL.md"),
+    "financial_calculation_contract": ("mint-swiss-brain", ".agents/skills/mint-financial-calculation-contract/SKILL.md"),
+    "consent_and_provenance": ("mint-integrations-security", ".agents/skills/mint-consent-and-provenance/SKILL.md"),
+    "experience_critique": ("mint-experience", ".agents/skills/mint-experience-critique/SKILL.md"),
+    "regulatory_boundary": ("mint-swiss-brain", ".agents/skills/mint-regulatory-boundary/SKILL.md"),
+}
 REQUIRED_TOOLS = {
     "flutter",
     "beads",
@@ -67,6 +79,15 @@ TOOL_STATES = {
     "unconfigured_optional",
 }
 PROVEN_TOOL_STATES = {"repo_configured", "locally_verified"}
+TOOL_PROOFS = {
+    "flutter": "apps/mobile/pubspec.yaml",
+    "beads": "product/mint_next/evidence/bead-MINT_nosync-9kv.yaml",
+    "engram": "product/mint_next/evidence/engram-fun2-20260801.yaml",
+    "mermaid": "tools/checks/mermaid_render_guard.py",
+    "maestro": "tools/checks/maestro_locator_audit.py",
+    "patrol": "apps/mobile/pubspec.yaml",
+    "sentry": "tools/checks/verify_sentry_init.py",
+}
 
 
 def _load(root: Path, errors: list[str]) -> dict:
@@ -155,8 +176,16 @@ def validate(root: Path) -> list[str]:
         roster = {agent for agent, _ in CAPABILITY_AGENTS.values()}
         if skill.get("owner") not in roster:
             errors.append(f"skill {name} has unknown owner {skill.get('owner')}")
+        expected = SKILL_CONTRACTS.get(name)
+        if expected is None:
+            errors.append(f"skill {name} is not part of the foundation contract")
+        elif (skill.get("owner"), skill.get("file")) != expected:
+            errors.append(f"skill {name} must be owned by {expected[0]} at {expected[1]}")
         if _frontmatter_name(root / str(skill["file"])) != Path(str(skill["file"])).parent.name:
             errors.append(f"skill identity mismatch at {skill['file']}")
+    missing_skills = set(SKILL_CONTRACTS) - set(skills)
+    if missing_skills:
+        errors.append(f"skills missing: {', '.join(sorted(missing_skills))}")
 
     tools = data.get("tools")
     if not isinstance(tools, dict):
@@ -178,6 +207,9 @@ def validate(root: Path) -> list[str]:
             proof = entry.get("proof")
             if not isinstance(proof, str) or not (root / proof).exists():
                 errors.append(f"tool {name} state {state} requires committed proof")
+            expected_proof = TOOL_PROOFS.get(name)
+            if proof != expected_proof:
+                errors.append(f"tool {name} must use proof {expected_proof}")
 
     if data.get("status") != "draft_unproven":
         errors.append("status must remain draft_unproven until a separate promotion contract exists")

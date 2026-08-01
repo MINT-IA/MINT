@@ -186,6 +186,36 @@ def test_guard_rejects_unknown_skill_owner(tmp_path: Path) -> None:
     assert "ghost-agent" in proc.stderr
 
 
+def test_guard_rejects_wrong_known_skill_owner(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "regulatory_boundary: {owner: mint-swiss-brain,",
+            "regulatory_boundary: {owner: mint-mobile,",
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "regulatory_boundary" in proc.stderr
+
+
+def test_guard_rejects_unrelated_tool_proof(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    unrelated = tmp_path / "product/mint_next/README.md"
+    unrelated.write_text("unrelated", encoding="utf-8")
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "proof: tools/checks/verify_sentry_init.py",
+            "proof: product/mint_next/README.md",
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "sentry" in proc.stderr
+
+
 def test_guard_rejects_invented_tool_state(tmp_path: Path) -> None:
     contract = _copy_contract(tmp_path)
     contract.write_text(
