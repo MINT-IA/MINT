@@ -195,3 +195,43 @@ def test_rejects_coherent_oracle_hash_mutation(tmp_path: Path) -> None:
     evidence.write_text(evidence.read_text().replace("11775899c1a736cc69dd3c3df17af3208658726a930983556fc7fa35c9d7a977", digest), encoding="utf-8")
     proc = run(tmp_path)
     assert proc.returncode == 1 and "recorded hashes" in proc.stderr
+
+
+def test_rejects_author_self_approval(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "batch.yaml", "author_cannot_approve: true", "author_cannot_approve: false")
+    assert proc.returncode == 1 and "promotion contract" in proc.stderr
+
+
+def test_rejects_weakened_roast_requirement(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "batch.yaml", "independent_roast_no_p1_p2", "author_summary_only")
+    assert proc.returncode == 1 and "promotion contract" in proc.stderr
+
+
+def test_rejects_removed_financial_forbidden_claim(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "scope.yaml", "  - fixture_is_a_personal_tax_estimate\n", "")
+    assert proc.returncode == 1 and "forbidden claims" in proc.stderr
+
+
+def test_rejects_exact_personal_result_claim(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "official_page_calls_results_indicative_and_ACI_sets_definitive_tax", "exact_personal_tax_result")
+    assert proc.returncode == 1 and "overstated" in proc.stderr
+
+
+def test_rejects_nationwide_scope_expansion(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "batch.yaml", ", nationwide_tax_claim", "")
+    assert proc.returncode == 1 and "exact scope" in proc.stderr
+
+
+def test_rejects_engine_capture_timestamp_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/mint-engine-capture-20260801.yaml", "2026-08-01T18:14:30Z", "1970-01-01T00:00:00Z")
+    assert proc.returncode == 1 and "delta is not exact" in proc.stderr
+
+
+def test_rejects_source_capture_timestamp_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "sources.yaml", "2026-08-01T18:14:30Z", "1970-01-01T00:00:00Z")
+    assert proc.returncode == 1 and "source capture timestamp" in proc.stderr
+
+
+def test_rejects_engine_exactness_claim_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/mint-engine-capture-20260801.yaml", "engine_matches_each_official_component_within_preexisting_oracle_floors_but_delta_error_is_disclosed_not_declared_exact", "engine_is_exact_for_Vaud")
+    assert proc.returncode == 1 and "delta is not exact" in proc.stderr

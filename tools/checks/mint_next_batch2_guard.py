@@ -59,11 +59,18 @@ def validate(root: Path) -> list[str]:
     official = load(root, "evidence/vd-calculator-capture-20260801.yaml", errors)
     engine = load(root, "evidence/mint-engine-capture-20260801.yaml", errors)
 
-    if batch.get("status") != "draft_unproven" or batch.get("work_tracking", {}).get("id") != "MINT_nosync-lrp":
+    if batch.get("status") != "draft_unproven" or batch.get("work_tracking") != {"system": "beads", "id": "MINT_nosync-lrp", "expected_live_status": "in_progress"}:
         errors.append("Batch 2 must remain draft and linked to its live Bead before promotion")
-    excluded = set(batch.get("scope", {}).get("excludes", []))
-    if not {"new_tax_engine", "gross_to_taxable_derivation", "flutter_product", "ux_winner", "jos006_closure"} <= excluded:
-        errors.append("Batch 2 exclusions are incomplete")
+    expected_batch_scope = {"includes": ["one_vd_2026_fixture", "official_before_after_capture", "canonical_engine_comparison", "provenance", "mutation_guards", "independent_roast"], "excludes": ["new_tax_engine", "gross_to_taxable_derivation", "flutter_product", "ux_winner", "user_validation", "production_connection", "nationwide_tax_claim", "jos006_closure"]}
+    expected_artifacts = {"scope": "product/mint_next/batch2/scope.yaml", "sources": "product/mint_next/batch2/sources.yaml", "fixture": "product/mint_next/batch2/fixture.yaml", "official_capture": "product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml", "engine_capture": "product/mint_next/batch2/evidence/mint-engine-capture-20260801.yaml"}
+    expected_promotion = {"author_cannot_approve": True, "requires": ["official_source_hashes", "arithmetic_identity", "canonical_engine_identity", "per_component_oracle_tolerance", "swiss_tax_review", "licensing_boundary_review", "independent_roast_no_p1_p2"], "never_sufficient": ["author_claim", "same_engine_expected_values", "file_existence", "mutable_web_page_without_capture_receipt", "test_exit_code_without_mutation"]}
+    if batch.get("scope") != expected_batch_scope or batch.get("artifacts") != expected_artifacts:
+        errors.append("Batch 2 exact scope, exclusions, or artifact paths have drifted")
+    if batch.get("promotion") != expected_promotion:
+        errors.append("Batch 2 zero-trust promotion contract has drifted")
+    expected_forbidden = {"fixture_is_a_personal_tax_estimate", "engine_is_exact_for_Vaud", "all_Swiss_tax_cases_are_supported", "FINMA_compliance_is_certified", "direction_winner_selected", "user_testing_completed", "product_runtime_delivered", "official_machine_API_is_licensed"}
+    if scope.get("decision") != "bounded_verification_fixture_only" or scope.get("upstream_requirement") != "product/mint_next/batch1/evaluation.yaml#promotion.before_winner_selection" or set(scope.get("forbidden_claims", [])) != expected_forbidden:
+        errors.append("Batch 2 bounded decision or forbidden claims have drifted")
     override = scope.get("journey_os_override", {})
     if override != {
         "current_priority": "JOS-006", "remains_open_and_unmodified": True,
@@ -115,7 +122,7 @@ def validate(root: Path) -> list[str]:
         errors.append("fixture prohibited uses or expiry are incomplete")
 
     captures = official.get("captures", {})
-    if official.get("capture_method") != "manual_form_POST_reproduced_with_requests_for_evidence_only_not_a_supported_API" or official.get("calculator_version_visible") != "10.4.0":
+    if official.get("capture_method") != "manual_form_POST_reproduced_with_requests_for_evidence_only_not_a_supported_API" or official.get("calculator_version_visible") != "10.4.0" or official.get("claim_boundary") != "official_page_calls_results_indicative_and_ACI_sets_definitive_tax":
         errors.append("official calculator capture method/version is overstated or drifted")
     if official.get("request_common") != EXPECTED_REQUEST:
         errors.append("official request assumptions have drifted")
@@ -147,6 +154,8 @@ def validate(root: Path) -> list[str]:
         errors.append("calculator receipt verifier self-test failed")
 
     source_items = {item.get("id"): item for item in sources.get("sources", []) if isinstance(item, dict)}
+    if sources.get("captured_utc").isoformat() != "2026-08-01T18:14:30+00:00":
+        errors.append("source capture timestamp has drifted")
     if sources.get("redistribution_boundary") != "store_minimal_extracted_facts_urls_dates_and_hashes_only_no_source_documents_or_calculator_code":
         errors.append("source redistribution boundary has drifted")
     if set(source_items) != set(EXPECTED_SOURCES):
@@ -210,7 +219,7 @@ def validate(root: Path) -> list[str]:
         path = root / rel
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != existing.get(key):
             errors.append(f"existing oracle file hash mismatch for {rel}")
-    if "delta_error_is_disclosed_not_declared_exact" not in str(engine.get("claim_boundary", "")):
+    if engine.get("captured_utc").isoformat() != "2026-08-01T18:14:30+00:00" or engine.get("claim_boundary") != "engine_matches_each_official_component_within_preexisting_oracle_floors_but_delta_error_is_disclosed_not_declared_exact":
         errors.append("engine comparison must disclose that the delta is not exact")
     # Execute the canonical code. Stored engine evidence must not become a
     # self-consistent fiction after a source change.
