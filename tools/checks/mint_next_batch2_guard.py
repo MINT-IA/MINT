@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -25,11 +24,14 @@ EXPECTED_SOURCES = {
     "vd_cantonal_reduction_2026": ("Etat_de_Vaud_ACI", "https://www.vd.ch/etat-droit-finances/impots/impots-pour-les-individus/payer-mes-impots", None, None),
 }
 RECEIPT_SHA256 = "5ed976cb07688a6d08cba29f96e9c2a451fb3546f5daf6cc5fe58a4348832293"
-VERIFIER_SHA256 = "9b2a87ed7b3da7e661ce011574edcc1b35773231e3a8ef20fe532f72bdb64a19"
+VERIFIER_SHA256 = "9cfd4b7ec4e0644633b82af164ae9311deb38b97736179a8774c56f335605a8d"
 EXPECTED_LAST_MODIFIED = {
     "vd_income_scale_2026": "Thu, 02 Apr 2026 07:49:44 GMT",
     "vd_municipal_rates_2026": "Tue, 16 Dec 2025 07:30:48 GMT",
+    "ofas_pillar3a_2026": "Wed, 05 Nov 2025 13:47:13 GMT",
+    "ifd_scale_2026": "Thu, 19 Feb 2026 15:12:05 GMT",
 }
+EXPECTED_ORACLE_HASHES = {"test_sha256": "516ecb2faf8468d2ed40abd377e317083e5eff10167dd94744bd605aa8a0af08", "fixture_sha256": "11775899c1a736cc69dd3c3df17af3208658726a930983556fc7fa35c9d7a977"}
 
 
 def load(root: Path, rel: str, errors: list[str]) -> dict:
@@ -117,6 +119,8 @@ def validate(root: Path) -> list[str]:
         errors.append("official calculator capture method/version is overstated or drifted")
     if official.get("request_common") != EXPECTED_REQUEST:
         errors.append("official request assumptions have drifted")
+    if official.get("captured_utc").isoformat() != "2026-08-01T18:14:30+00:00" or official.get("source_id") != "vd_calculator" or official.get("posted_municipality_value") != "lausanne" or official.get("observed_commune_option") != {"id": "commune3260", "value": "lausanne", "data_periode": 2026, "text": "Lausanne"}:
+        errors.append("official capture provenance or commune identity has drifted")
     exact_official = {
         "baseline": {"submitted": {"taxable_income_icc_chf": 80000, "taxable_income_ifd_chf": 80000}, "normalized": {"family_share": 1.0, "taxable_income_displayed_chf": 80000, "icc_base_chf": 6389.0, "cantonal_coefficient": 155.0, "cantonal_reduction_rate": 0.05, "cantonal_charge_chf": 9407.8, "municipal_coefficient": 78.5, "municipal_charge_chf": 5015.35, "icc_total_chf": 14423.15, "ifd_base_chf": 1378.2, "ifd_total_chf": 1378.2, "total_chf": 15801.35}},
         "counterfactual": {"submitted": {"taxable_income_icc_chf": 72742, "taxable_income_ifd_chf": 72742}, "normalized": {"family_share": 1.0, "taxable_income_displayed_chf": 72700, "icc_base_chf": 5603.0, "cantonal_coefficient": 155.0, "cantonal_reduction_rate": 0.05, "cantonal_charge_chf": 8250.4, "municipal_coefficient": 78.5, "municipal_charge_chf": 4398.35, "icc_total_chf": 12648.75, "ifd_base_chf": 1048.6, "ifd_total_chf": 1048.6, "total_chf": 13697.35}},
@@ -139,8 +143,12 @@ def validate(root: Path) -> list[str]:
     verifier_path = root / str(official.get("manual_replay_verifier", ""))
     if official.get("normalized_receipt_sha256") != RECEIPT_SHA256 or not receipt_path.is_file() or hashlib.sha256(receipt_path.read_bytes()).hexdigest() != RECEIPT_SHA256 or not verifier_path.is_file() or hashlib.sha256(verifier_path.read_bytes()).hexdigest() != VERIFIER_SHA256:
         errors.append("canonical normalized calculator receipt or verifier is missing")
+    elif subprocess.run([sys.executable, str(verifier_path), "--self-test"], cwd=root, capture_output=True, text=True, timeout=10).returncode:
+        errors.append("calculator receipt verifier self-test failed")
 
     source_items = {item.get("id"): item for item in sources.get("sources", []) if isinstance(item, dict)}
+    if sources.get("redistribution_boundary") != "store_minimal_extracted_facts_urls_dates_and_hashes_only_no_source_documents_or_calculator_code":
+        errors.append("source redistribution boundary has drifted")
     if set(source_items) != set(EXPECTED_SOURCES):
         errors.append("official source allowlist is incomplete")
     if sources.get("machine_api_status") != "no_supported_or_licensed_Vaud_API_identified" or not all(item.get("supports") for item in source_items.values()):
@@ -163,6 +171,8 @@ def validate(root: Path) -> list[str]:
             errors.append(f"official source metadata has drifted for {source_id}")
     if any(source_items.get(key, {}).get("last_modified_http") != value for key, value in EXPECTED_LAST_MODIFIED.items()) or source_items.get("vd_calculator", {}).get("version_visible") != "10.4.0":
         errors.append("official source version or last-modified metadata has drifted")
+    if source_items.get("vd_cantonal_reduction_2026", {}).get("verification") != "exact_claim_checked_by_manual_live_replay":
+        errors.append("cantonal reduction claim verification has drifted")
 
     canonical = engine.get("canonical_engine", {})
     engine_path = root / str(canonical.get("path", ""))
@@ -173,6 +183,8 @@ def validate(root: Path) -> list[str]:
     if canonical.get("git_head") != "f6b8a0172d2ef5007964c73ecb217f280659a87b":
         errors.append("canonical engine git provenance has drifted")
     oracle = engine.get("oracle_comparison", {})
+    if engine.get("comparison_basis") != "official_displayed_taxable_income_after_rounding" or engine.get("existing_oracle", {}).get("tolerance_policy") != "max_2_percent_or_measured_point_specific_band_for_cantonal_component_and_1_5_CHF_IFD_2026":
+        errors.append("engine comparison basis or oracle policy has drifted")
     if oracle.get("per_component_tolerance_relative") != 0.02 or oracle.get("ifd_tolerance_absolute_chf") != 1.50:
         errors.append("pre-existing oracle tolerance floors have drifted")
     if oracle.get("baseline_cantonal_communal_relative_error", 1) > 0.02 or oracle.get("counterfactual_cantonal_communal_relative_error", 1) > 0.02 or oracle.get("baseline_ifd_absolute_error_chf", 99) > 1.5 or oracle.get("counterfactual_ifd_absolute_error_chf", 99) > 1.5:
@@ -192,6 +204,8 @@ def validate(root: Path) -> list[str]:
     if any(oracle.get(key) != value for key, value in recomputed.items()):
         errors.append("oracle component errors do not match recomputed evidence")
     existing = engine.get("existing_oracle", {})
+    if any(existing.get(key) != value for key, value in EXPECTED_ORACLE_HASHES.items()):
+        errors.append("existing oracle recorded hashes have drifted")
     for rel, key in (("services/backend/tests/test_estv_oracle.py", "test_sha256"), ("services/backend/tests/fixtures/estv_oracle_2025.jsonl", "fixture_sha256")):
         path = root / rel
         if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != existing.get(key):
@@ -201,9 +215,15 @@ def validate(root: Path) -> list[str]:
     # Execute the canonical code. Stored engine evidence must not become a
     # self-consistent fiction after a source change.
     try:
-        python = shutil.which("python3.11") or sys.executable
-        code = """import json
-from app.services.fiscal.cantonal_comparator import estimate_income_tax, estimate_income_tax_parts
+        python = sys.executable
+        code = """import json, sys, types
+from pathlib import Path
+module = types.ModuleType("mint_batch2_canonical_engine")
+sys.modules[module.__name__] = module
+source = Path("app/services/fiscal/cantonal_comparator.py").read_text(encoding="utf-8")
+exec(compile("from __future__ import annotations\\n" + source, "cantonal_comparator.py", "exec"), module.__dict__)
+estimate_income_tax = module.estimate_income_tax
+estimate_income_tax_parts = module.estimate_income_tax_parts
 out = {}
 for name, income in ((\"baseline\", 80000), (\"counterfactual\", 72700)):
     ifd, cc = estimate_income_tax_parts(income, \"VD\")

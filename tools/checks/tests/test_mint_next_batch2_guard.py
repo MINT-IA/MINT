@@ -153,3 +153,45 @@ def test_rejects_missing_3a_credit_timing(tmp_path: Path) -> None:
 def test_rejects_premature_verified_status(tmp_path: Path) -> None:
     proc = mutate(tmp_path, "fixture.yaml", "status: captured_unpromoted_fixture", "status: verified_official_fixture_not_product_connected")
     assert proc.returncode == 1 and "unpromoted" in proc.stderr
+
+
+def test_rejects_commune_identity_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "posted_municipality_value: lausanne", "posted_municipality_value: nyon")
+    assert proc.returncode == 1 and "commune identity" in proc.stderr
+
+
+def test_rejects_capture_source_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "source_id: vd_calculator", "source_id: invented")
+    assert proc.returncode == 1 and "provenance" in proc.stderr
+
+
+def test_rejects_capture_timestamp_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "2026-08-01T18:14:30Z", "1970-01-01T00:00:00Z")
+    assert proc.returncode == 1 and "provenance" in proc.stderr
+
+
+def test_rejects_commune_option_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "id: commune3260", "id: commune9999")
+    assert proc.returncode == 1 and "commune identity" in proc.stderr
+
+
+def test_rejects_redistribution_boundary_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "sources.yaml", "store_minimal_extracted_facts_urls_dates_and_hashes_only_no_source_documents_or_calculator_code", "copy_everything")
+    assert proc.returncode == 1 and "redistribution" in proc.stderr
+
+
+def test_rejects_comparison_basis_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/mint-engine-capture-20260801.yaml", "comparison_basis: official_displayed_taxable_income_after_rounding", "comparison_basis: gross_salary")
+    assert proc.returncode == 1 and "comparison basis" in proc.stderr
+
+
+def test_rejects_coherent_oracle_hash_mutation(tmp_path: Path) -> None:
+    copy(tmp_path)
+    path = tmp_path / "services/backend/tests/fixtures/estv_oracle_2025.jsonl"
+    path.write_text(path.read_text() + "\n", encoding="utf-8")
+    import hashlib
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    evidence = tmp_path / BASE / "evidence/mint-engine-capture-20260801.yaml"
+    evidence.write_text(evidence.read_text().replace("11775899c1a736cc69dd3c3df17af3208658726a930983556fc7fa35c9d7a977", digest), encoding="utf-8")
+    proc = run(tmp_path)
+    assert proc.returncode == 1 and "recorded hashes" in proc.stderr

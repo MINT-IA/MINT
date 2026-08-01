@@ -28,14 +28,17 @@ sources:
     url: https://www.bsv.admin.ch/dam/fr/sd-web/sAgdISSXenMT/f_Betr%C3%A4ge%202026.pdf
     sha256: da5dc20f34e0dc7f4c47d218f253b3915880c10d04e370eaa224b6437a97e1a3
     bytes: 204118
+    last_modified_http: Wed, 05 Nov 2025 13:47:13 GMT
     supports: [employee_with_pension_fund_3a_ceiling_7258]
   - id: ifd_scale_2026
     authority: AFC
     url: https://www.estv.admin.ch/dam/fr/sd-web/gnde9CmEsalK/dbst-tairfe-58c-2026-dfi.pdf
     sha256: a8a0ff6914523b9e5defa533759ee69daee892d3ab8669e21881de4728cfceaa
     bytes: 142066
+    last_modified_http: Thu, 19 Feb 2026 15:12:05 GMT
     supports: [ifd_2026_single_person_scale]
   - id: vd_cantonal_reduction_2026
     authority: Etat_de_Vaud_ACI
     url: https://www.vd.ch/etat-droit-finances/impots/impots-pour-les-individus/payer-mes-impots
+    verification: exact_claim_checked_by_manual_live_replay
     supports: [cantonal_personal_income_tax_reduction_5_percent_for_2026]
