@@ -29,6 +29,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary design branch: `codex/mint-next-batch1-design-20260801` is
   authorized only for the MINT Next Batch 1 Handoff audit, creative directions,
   and coordination-channel decision; no product implementation.
+- Temporary fiscal-fixture branch: `codex/mint-next-batch2-tax-fixture-20260801` is
+  authorized only for one bounded, officially sourced Vaud tax fixture, its
+  validation contracts, and independent roast; no UX winner or product runtime.
 - Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
   is authorized only for the Money truth spine Journey OS vertical.
 - Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`
