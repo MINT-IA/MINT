@@ -91,7 +91,24 @@ def validate(root: Path) -> list[str]:
     bead_snapshot_path = root / artifacts.get("bead_snapshot", "") if isinstance(artifacts, dict) else None
     promotion = yaml.safe_load(promotion_path.read_text(encoding="utf-8")) if promotion_path and promotion_path.is_file() else {}
     bead_snapshot = yaml.safe_load(bead_snapshot_path.read_text(encoding="utf-8")) if bead_snapshot_path and bead_snapshot_path.is_file() else {}
-    if promotion.get("audited_head") != "c29d7dd95" or promotion.get("unresolved_p1_p2") != 0 or promotion.get("status") != batch.get("status"):
+    expected_reviews = {
+        "global_roast": {"reviewer": "batch0_roast", "verdict": "ROAST_PASS"},
+        "swiss_tax": {"reviewer": "batch1_swiss_tax_review", "verdict": "PASS"},
+        "accessibility": {"reviewer": "batch1_a11y_review", "verdict": "PASS"},
+    }
+    expected_proofs = {
+        "targeted_tests": "39_passed",
+        "runtime_probe": "pass_including_cross_process_reload",
+        "inventory_guard": "pass",
+        "repository_guards": "pass",
+    }
+    if (
+        promotion.get("audited_head") != "c29d7dd95a6c6e9d6d0d3e24fbb523742a5e6f59"
+        or promotion.get("unresolved_p1_p2") != 0
+        or promotion.get("status") != batch.get("status")
+        or promotion.get("independent_reviews") != expected_reviews
+        or promotion.get("proofs") != expected_proofs
+    ):
         errors.append("Batch 1 proven status requires the exact independent promotion receipt")
     limitations = promotion.get("limitations", {})
     if not isinstance(limitations, dict) or any(limitations.get(key) is not False for key in ("winner_selected", "user_testing_completed", "real_swiss_tax_engine_connected", "flutter_product_runtime_delivered", "discord_webhook_wired", "fixture_is_safe_for_financial_decisions")):

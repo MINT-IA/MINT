@@ -1,7 +1,7 @@
 schema_version: 1
 batch: mint_next_batch1_design_experiment
 status: proven_bounded_design_experiment
-audited_head: c29d7dd95
+audited_head: c29d7dd95a6c6e9d6d0d3e24fbb523742a5e6f59
 unresolved_p1_p2: 0
 independent_reviews:
   global_roast: {reviewer: batch0_roast, verdict: ROAST_PASS}

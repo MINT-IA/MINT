@@ -70,6 +70,20 @@ def test_guard_rejects_user_validation_claim(tmp_path: Path) -> None:
     assert "user testing" in proc.stderr
 
 
+def test_guard_rejects_failed_promotion_review_or_proof(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "evidence/promotion-20260801.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8")
+        .replace("verdict: ROAST_PASS", "verdict: FAIL")
+        .replace("targeted_tests: 39_passed", "targeted_tests: 0_failed"),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "exact independent promotion receipt" in proc.stderr
+
+
 def test_guard_rejects_discord_as_source_of_truth(tmp_path: Path) -> None:
     _copy(tmp_path)
     path = tmp_path / ROOT / "coordination.yaml"
