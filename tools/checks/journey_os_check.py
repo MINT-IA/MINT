@@ -95,6 +95,13 @@ ALLOW = {
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",
     "rules.md",
+    # MINT Next Batch 0: fail-closed foundation contract and its deterministic
+    # verifier. Product implementation remains forbidden until this draft is
+    # independently audited and promoted.
+    "product/mint_next/README.md",
+    "product/mint_next/foundation.yaml",
+    "tools/checks/mint_next_foundation_guard.py",
+    "tools/checks/tests/test_mint_next_foundation_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

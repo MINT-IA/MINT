@@ -1,0 +1,89 @@
+schema_version: 1
+status: draft_unproven
+bead: MINT_nosync-9kv
+
+promise: >-
+  Rebuild MINT one observable Swiss financial decision at a time; a batch is
+  not complete until current-state evidence proves the user outcome.
+
+required_capabilities:
+  product_lead: mint-lead
+  experience: mint-experience
+  mobile: mint-mobile
+  backend_calculations: mint-backend
+  swiss_domain: mint-swiss-brain
+  quality_privacy_security: mint-quality-gate
+  data_integrations: mint-integrations-security
+
+tools:
+  flutter:
+    role: iOS and Android product implementation
+  beads:
+    role: durable work, dependencies, blockers, and ownership
+  engram:
+    role: prior decisions, discoveries, preferences, and session recovery
+  mermaid:
+    role: generated views of journeys, routes, data, and system boundaries
+  maestro:
+    role: small black-box smoke suite for critical user journeys
+  patrol:
+    role: native mobile boundaries such as permissions, files, biometrics, and notifications
+  sentry:
+    role: privacy-filtered crash and runtime error evidence
+  railway:
+    role: current synthetic-data staging and existing runtime delivery path
+  infomaniak:
+    role: candidate Swiss production data plane pending an operational spike
+  vercel:
+    role: optional previews and non-sensitive web surfaces, never the default financial data plane
+  hugging_face:
+    role: optional measured model, embedding, and evaluation experiments only
+
+memory:
+  source_of_truth: false
+  live_database: ~/.engram/engram.db
+  fun2_mode: encrypted_backup
+  fun2_bundle: /Volumes/FUN2/MINT-Engram-Vault/MINT-Engram-Encrypted.sparsebundle
+  cutover_requires:
+    - coordinated_agent_shutdown
+    - encrypted_volume_mounted
+    - database_restore_drill
+    - rollback_proof
+    - independent_review
+
+batch_policy:
+  status_default: unproven
+  author_cannot_approve: true
+  one_user_outcome: true
+  one_owner: true
+  small_revertable_diff: true
+  runtime_before_completion: true
+
+completion_evidence:
+  allowed:
+    - deterministic_check
+    - current_state_inspection
+    - independent_adversarial_review
+    - runtime_proof
+    - user_research
+  never_sufficient:
+    - agent_summary
+    - author_claim
+    - plan_status
+    - memory_only
+    - unit_tests_for_end_to_end_claim
+
+model_roles:
+  fable: long-horizon orchestration after Claude availability returns
+  opus: ambiguous product/domain critique and adversarial review
+  codex_sol: bounded implementation, command execution, debugging, and independent verification
+  rule: models_do_not_vote_evidence_decides
+
+rebuild_strategy:
+  repository: existing_monorepo
+  mobile_target: sibling_app_after_batch0_approval
+  migration: reuse_adapt_rewrite_retire
+  backend: modular_monolith
+  data_strategy: document_first_api_enhanced
+  llm_boundary: explanation_and_orchestration_only
+  calculations: deterministic_versioned_and_provenanced
