@@ -188,6 +188,15 @@ def test_guard_rejects_removed_coordination_sources(tmp_path: Path) -> None:
     assert "official sources" in proc.stderr
 
 
+def test_guard_rejects_falsified_coordination_support_claims(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "coordination-evidence.yaml"
+    path.write_text(path.read_text(encoding="utf-8").replace("supports: [ninety_day_search_window, one_year_deletion, ten_app_limit]", "supports: [invented_claim]"), encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "official sources" in proc.stderr
+
+
 def test_guard_rejects_evidable_evaluation_protocol(tmp_path: Path) -> None:
     _copy(tmp_path)
     path = tmp_path / ROOT / "evaluation.yaml"
@@ -201,6 +210,24 @@ def test_guard_rejects_evidable_evaluation_protocol(tmp_path: Path) -> None:
     assert proc.returncode == 1
     assert "metrics are incomplete" in proc.stderr
     assert "thresholds are incomplete" in proc.stderr
+
+
+def test_guard_rejects_arbitrary_participant_segments(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "evaluation.yaml"
+    path.write_text(path.read_text(encoding="utf-8").replace("segments: [first_employment_18_25, household_lpp_30_50, pre_retirement_55_70, low_income_or_b1, assistive_technology]", "segments: [a, b, c, d, e]"), encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "participant coverage" in proc.stderr
+
+
+def test_guard_rejects_removed_fixture_safety_contract(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "tax-fixture.yaml"
+    path.write_text(path.read_text(encoding="utf-8").replace("purpose: compare_result_comprehension_across_three_interaction_mechanisms", "purpose: convince_users_to_contribute").replace("  labels: [synthetic_test_fixture, not_personalized, not_tax_estimate, not_advice]", "  labels: []"), encoding="utf-8")
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "synthetic tax UX fixture" in proc.stderr
 
 
 def test_guard_rejects_root_level_inventory_boilerplate(tmp_path: Path) -> None:

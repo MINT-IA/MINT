@@ -54,6 +54,9 @@ REQUIRED_THRESHOLDS = {
     "disabled_or_b1_critical_success_percent": 80,
     "minimum_major_segment_success_percent": 70, "route_dead_ends": 0,
 }
+REQUIRED_SEGMENTS = {"first_employment_18_25", "household_lpp_30_50", "pre_retirement_55_70", "low_income_or_b1", "assistive_technology"}
+REQUIRED_FIXTURE_LABELS = {"synthetic_test_fixture", "not_personalized", "not_tax_estimate", "not_advice"}
+REQUIRED_FIXTURE_PROHIBITIONS = {"swiss_tax_accuracy_claim", "contribution_recommendation", "production_calculation", "user_financial_decision"}
 FORBIDDEN_DISCORD = {
     "financial_data", "tax_data", "pension_data", "insurance_data", "bank_data",
     "avs_data", "prompt", "response", "auth_header", "token", "document",
@@ -137,7 +140,18 @@ def validate(root: Path) -> list[str]:
     fixture = _yaml(root, "tax_fixture", errors)
     fixture_inputs = fixture.get("inputs_chf", {})
     fixture_calc = fixture.get("calculation", {})
-    if fixture.get("fixture_id") != "B1-FX-01" or fixture.get("status") != "synthetic_ux_fixture_not_swiss_tax_result" or fixture_calc.get("result_chf") != fixture_inputs.get("synthetic_baseline_tax", 0) - fixture_inputs.get("synthetic_scenario_tax", 0):
+    fixture_display = fixture.get("required_display", {})
+    if (
+        fixture.get("fixture_id") != "B1-FX-01"
+        or fixture.get("status") != "synthetic_ux_fixture_not_swiss_tax_result"
+        or fixture.get("purpose") != "compare_result_comprehension_across_three_interaction_mechanisms"
+        or fixture_inputs != {"synthetic_baseline_tax": 15000, "synthetic_scenario_tax": 13500}
+        or fixture_calc != {"operation": "baseline_minus_scenario", "result_chf": 1500}
+        or fixture_display.get("amount") != "CHF_1500"
+        or fixture_display.get("source") != "B1-FX-01"
+        or set(fixture_display.get("labels", [])) != REQUIRED_FIXTURE_LABELS
+        or set(fixture.get("prohibited_use", [])) != REQUIRED_FIXTURE_PROHIBITIONS
+    ):
         errors.append("synthetic tax UX fixture must remain explicit and arithmetically reproducible")
     if not isinstance(result, dict) or result.get("range_chf") is not None or result.get("value") != 1500 or result.get("fixture_id") != "B1-FX-01" or result.get("number_state") != "synthetic_calculated_ux_fixture":
         errors.append("first value must use the common calculated synthetic fixture")
@@ -188,7 +202,7 @@ def validate(root: Path) -> list[str]:
     if not isinstance(falsification, dict) or set(falsification.get("required_reviews", [])) != REQUIRED_REVIEWS:
         errors.append("evaluation required reviews are incomplete")
     participants = evaluation.get("participant_coverage", {})
-    if not isinstance(participants, dict) or len(participants.get("segments", [])) < 5 or set(participants.get("languages_minimum", [])) != {"fr", "de"}:
+    if not isinstance(participants, dict) or set(participants.get("segments", [])) != REQUIRED_SEGMENTS or set(participants.get("languages_minimum", [])) != {"fr", "de"} or participants.get("cantons_must_contrast") is not True:
         errors.append("evaluation participant coverage is incomplete")
     metrics = set(evaluation.get("metrics", []))
     if metrics != REQUIRED_METRICS:
@@ -225,12 +239,12 @@ def validate(root: Path) -> list[str]:
         errors.append("Discord existence must not be overstated")
     coordination_evidence = _yaml(root, "coordination_evidence", errors)
     expected_coordination_sources = {
-        ("Slack_Free_feature_limitations", "https://slack.com/help/articles/27204752526611-Feature-limitations-on-the-free-version-of-Slack"),
-        ("Discord_webhooks", "https://docs.discord.com/developers/platform/webhooks"),
-        ("Discord_privacy", "https://discord.com/privacy"),
+        ("Slack_Free_feature_limitations", "https://slack.com/help/articles/27204752526611-Feature-limitations-on-the-free-version-of-Slack", frozenset({"ninety_day_search_window", "one_year_deletion", "ten_app_limit"})),
+        ("Discord_webhooks", "https://docs.discord.com/developers/platform/webhooks", frozenset({"incoming_webhook_without_persistent_bot"})),
+        ("Discord_privacy", "https://discord.com/privacy", frozenset({"not_a_swiss_financial_data_plane", "international_processing_risk"})),
     }
     actual_coordination_sources = {
-        (item.get("title"), item.get("url")) for item in coordination_evidence.get("sources", []) if isinstance(item, dict) and item.get("supports")
+        (item.get("title"), item.get("url"), frozenset(item.get("supports", []))) for item in coordination_evidence.get("sources", []) if isinstance(item, dict)
     }
     if actual_coordination_sources != expected_coordination_sources:
         errors.append("coordination evidence official sources are incomplete or have drifted")
@@ -265,11 +279,15 @@ def validate(root: Path) -> list[str]:
             errors.append("prototype must expose three direction selectors")
         if html.count("()=>`") != 18:
             errors.append("prototype must contain exactly 18 prototype states")
-        for phrase in ("Sans compte", "Voir les hypothèses", "B1-FX-01", "SIMULATION SYNTHÉTIQUE", "MINT compare. Léa décide.", "localStorage.setItem", "data-edit"):
+        for phrase in ("Sans compte", "Voir les hypothèses", "B1-FX-01", "Fixture UX fictive", "Léa ne décide rien à partir de ces montants", "localStorage.setItem", "data-edit"):
             if phrase not in html:
                 errors.append(f"prototype missing required contract phrase: {phrase}")
         if "900–1’700" in html or "Barème VD + tes réponses" in html or "moteur versionné" in html or "CHF X–Y" in html:
             errors.append("prototype must not present the removed fictitious fiscal provenance")
+        if html.count("${common.disclaimer}") != 4 or "non personnelle · pas une estimation fiscale · pas un conseil" not in html:
+            errors.append("every numeric fixture surface must carry the canonical adjacent disclaimer")
+        if "Cette maquette n’en produit aucun" in html or "Il ne produit ni calcul" in html or "MINT compare. Léa décide." in html:
+            errors.append("fixture copy must not contradict test arithmetic or imply a personal decision")
         if html.count("Vérifier les données manquantes") < 3:
             errors.append("prototype directions must expose the same primary missing-data action")
 

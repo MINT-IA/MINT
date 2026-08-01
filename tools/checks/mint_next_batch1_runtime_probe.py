@@ -13,9 +13,9 @@ from urllib.parse import urlencode
 
 HTML = Path("product/mint_next/batch1/prototype/index.html")
 CASES = [
-    ({"direction": "a", "step": 3}, ["4 / 6", "CHF 1’500", "B1-FX-01", "PAS UNE ESTIMATION PERSONNELLE"]),
-    ({"direction": "b", "step": 3}, ["4 / 6", "CHF 1’500", "MINT compare. Léa décide."]),
-    ({"direction": "c", "step": 3}, ["4 / 6", "CHF 1’500", "B1-FX-01", "PAS UNE ESTIMATION"]),
+    ({"direction": "a", "step": 3}, ["4 / 6", "CHF 1’500", "B1-FX-01", "non personnelle", "pas un conseil"]),
+    ({"direction": "b", "step": 3}, ["4 / 6", "CHF 1’500", "non personnelle", "Léa ne décide rien à partir de ces montants"]),
+    ({"direction": "c", "step": 3}, ["4 / 6", "CHF 1’500", "B1-FX-01", "non personnelle", "pas un conseil"]),
     ({"direction": "a", "probe": "correction"}, ["2 / 6", "Nyon", "Valeur corrigée", 'aria-pressed="true"']),
     ({"direction": "a", "probe": "correction_journey"}, ["5 / 6", "Nyon", 'aria-pressed="true"']),
     ({"direction": "b", "probe": "back"}, ["4 / 6", "Deux chemins, aucun montant recommandé"]),
