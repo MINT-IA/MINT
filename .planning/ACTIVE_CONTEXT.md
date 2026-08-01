@@ -32,6 +32,10 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Temporary fiscal-fixture branch: `codex/mint-next-batch2-tax-fixture-20260801` is
   authorized only for one bounded, officially sourced Vaud tax fixture, its
   validation contracts, and independent roast; no UX winner or product runtime.
+- Temporary prototype-fixture branch: `codex/mint-next-batch3-real-fixture-20260801` is
+  authorized only for applying the promoted Batch 2 fixture identically across
+  the three Batch 1 directions with runtime/accessibility proofs; no UX winner,
+  moderated-user-test claim, Flutter product, or engine change.
 - Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
   is authorized only for the Money truth spine Journey OS vertical.
 - Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`
