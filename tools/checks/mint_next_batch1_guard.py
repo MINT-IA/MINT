@@ -126,6 +126,8 @@ def validate(root: Path) -> list[str]:
         errors.append("tax-first persona must disclose municipality, residence, and tax regime")
 
     directions_data = _yaml(root, "directions", errors)
+    if "deterministic_card" in str(directions_data):
+        errors.append("direction contracts must not imply a deterministic tax result before an engine is connected")
     directions = directions_data.get("directions", {})
     if not isinstance(directions, dict) or set(directions) != set(EXPECTED_DIRECTIONS):
         errors.append("exactly three canonical Batch 1 directions are required")

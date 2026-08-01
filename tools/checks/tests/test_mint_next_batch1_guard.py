@@ -42,6 +42,20 @@ def test_guard_rejects_cosmetic_direction_duplicates(tmp_path: Path) -> None:
     assert "mechanism" in proc.stderr
 
 
+def test_guard_rejects_false_deterministic_result_semantics(tmp_path: Path) -> None:
+    _copy(tmp_path)
+    path = tmp_path / ROOT / "directions.yaml"
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(
+            "structured_required_inputs_card", "deterministic_card"
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "deterministic tax result" in proc.stderr
+
+
 def test_guard_rejects_user_validation_claim(tmp_path: Path) -> None:
     _copy(tmp_path)
     path = tmp_path / ROOT / "evaluation.yaml"

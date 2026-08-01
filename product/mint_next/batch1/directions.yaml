@@ -28,7 +28,7 @@ directions:
     label: Conversation qui produit une carte
     mechanism: coach_intent_first_structured_data_output
     opening_question: Pose une question. Tu repartiras avec les données à vérifier.
-    sequence: [guided_prompts, question, clarification, deterministic_card, assumptions, pinned_cap]
+    sequence: [guided_prompts, question, clarification, structured_required_inputs_card, missing_inputs, pinned_cap]
     first_value_object: pinned_verifiable_question_card
     primary_action: review_missing_tax_inputs
     chat_role: intent_and_explanation_never_calculation
