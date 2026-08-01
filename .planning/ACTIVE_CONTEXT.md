@@ -26,6 +26,9 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
   authorized only for the PR-size-budget doctrine correction.
 - Temporary foundation branch: `codex/mint-next-batch0-foundation-20260801` is
   authorized only for the audited MINT Next Batch 0 agent/tool/memory/infra foundation.
+- Temporary design branch: `codex/mint-next-batch1-design-20260801` is
+  authorized only for the MINT Next Batch 1 Handoff audit, creative directions,
+  and coordination-channel decision; no product implementation.
 - Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
   is authorized only for the Money truth spine Journey OS vertical.
 - Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`

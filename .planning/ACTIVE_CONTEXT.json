@@ -27,7 +27,8 @@
     "codex/jos004-maestro-first-experience-proof-20260627",
     "codex/jos005-onboarding-first-value-20260627",
     "codex/jos005-first-value-before-account-20260627",
-    "codex/mint-next-batch0-foundation-20260801"
+    "codex/mint-next-batch0-foundation-20260801",
+    "codex/mint-next-batch1-design-20260801"
   ],
   "allowed_branch_patterns": [
     "codex/jos[0-9][0-9][0-9]*",
