@@ -216,6 +216,23 @@ def test_guard_rejects_unrelated_tool_proof(tmp_path: Path) -> None:
     assert "sentry" in proc.stderr
 
 
+def test_guard_rejects_tool_state_downgrade_that_removes_proof(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "owner: mint-quality-gate\n    state: repo_configured\n"
+            "    data_class: redacted_operational_telemetry\n"
+            "    proof: tools/checks/verify_sentry_init.py",
+            "owner: ghost-agent\n    state: unconfigured_optional\n"
+            "    data_class: redacted_operational_telemetry",
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "sentry" in proc.stderr
+
+
 def test_guard_rejects_invented_tool_state(tmp_path: Path) -> None:
     contract = _copy_contract(tmp_path)
     contract.write_text(

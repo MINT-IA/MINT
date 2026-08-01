@@ -88,6 +88,19 @@ TOOL_PROOFS = {
     "patrol": "apps/mobile/pubspec.yaml",
     "sentry": "tools/checks/verify_sentry_init.py",
 }
+TOOL_CONTRACTS = {
+    "flutter": ("iOS and Android product implementation", "mint-mobile", "repo_configured", "synthetic_and_user_financial_ui", TOOL_PROOFS["flutter"]),
+    "beads": ("durable work, dependencies, blockers, and ownership", "mint-lead", "locally_verified", "project_metadata_no_user_financial_data", TOOL_PROOFS["beads"]),
+    "engram": ("prior decisions, discoveries, preferences, and session recovery", "mint-lead", "locally_verified", "project_memory_no_user_financial_data", TOOL_PROOFS["engram"]),
+    "mermaid": ("generated views of journeys, routes, data, and system boundaries", "mint-lead", "repo_configured", "generated_project_metadata", TOOL_PROOFS["mermaid"]),
+    "maestro": ("small black-box smoke suite for critical user journeys", "mint-quality-gate", "repo_configured", "synthetic_runtime_evidence", TOOL_PROOFS["maestro"]),
+    "patrol": ("native mobile boundaries such as permissions, files, biometrics, and notifications", "mint-quality-gate", "repo_configured", "synthetic_runtime_evidence", TOOL_PROOFS["patrol"]),
+    "sentry": ("privacy-filtered crash and runtime error evidence", "mint-quality-gate", "repo_configured", "redacted_operational_telemetry", TOOL_PROOFS["sentry"]),
+    "railway": ("current synthetic-data staging and existing runtime delivery path", "mint-backend", "existing_path_not_reverified_in_batch0", "synthetic_staging_only", None),
+    "infomaniak": ("candidate Swiss production data plane pending an operational spike", "mint-integrations-security", "unconfigured_candidate", "no_data_until_spike_approved", None),
+    "vercel": ("optional previews and non-sensitive web surfaces, never the default financial data plane", "mint-experience", "available_not_reverified_in_batch0", "public_or_synthetic_only", None),
+    "hugging_face": ("optional measured model, embedding, and evaluation experiments only", "mint-integrations-security", "unconfigured_optional", "public_corpus_or_synthetic_only", None),
+}
 
 
 def _load(root: Path, errors: list[str]) -> dict:
@@ -203,6 +216,12 @@ def validate(root: Path) -> list[str]:
         state = str(entry["state"])
         if state not in TOOL_STATES:
             errors.append(f"tool {name} has unknown state {state}")
+        actual_contract = (
+            entry.get("role"), entry.get("owner"), entry.get("state"),
+            entry.get("data_class"), entry.get("proof"),
+        )
+        if actual_contract != TOOL_CONTRACTS[name]:
+            errors.append(f"tool {name} does not match its canonical role, owner, state, data class, and proof")
         if state in PROVEN_TOOL_STATES:
             proof = entry.get("proof")
             if not isinstance(proof, str) or not (root / proof).exists():
