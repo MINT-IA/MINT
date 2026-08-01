@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -18,6 +20,15 @@ REQUIRED_CAPABILITIES = {
     "swiss_domain",
     "quality_privacy_security",
     "data_integrations",
+}
+CAPABILITY_AGENTS = {
+    "product_lead": ("mint-lead", ".claude/agents/mint-lead.md"),
+    "experience": ("mint-experience", ".claude/agents/mint-experience.md"),
+    "mobile": ("mint-mobile", ".claude/agents/mint-mobile.md"),
+    "backend_calculations": ("mint-backend", ".claude/agents/mint-backend.md"),
+    "swiss_domain": ("mint-swiss-brain", ".claude/agents/mint-swiss-brain.md"),
+    "quality_privacy_security": ("mint-quality-gate", ".claude/agents/mint-quality-gate.md"),
+    "data_integrations": ("mint-integrations-security", ".claude/agents/mint-integrations-security.md"),
 }
 REQUIRED_TOOLS = {
     "flutter",
@@ -47,6 +58,15 @@ REQUIRED_CUTOVER = {
     "rollback_proof",
     "independent_review",
 }
+TOOL_STATES = {
+    "repo_configured",
+    "locally_verified",
+    "existing_path_not_reverified_in_batch0",
+    "unconfigured_candidate",
+    "available_not_reverified_in_batch0",
+    "unconfigured_optional",
+}
+PROVEN_TOOL_STATES = {"repo_configured", "locally_verified"}
 
 
 def _load(root: Path, errors: list[str]) -> dict:
@@ -63,6 +83,18 @@ def _load(root: Path, errors: list[str]) -> dict:
         errors.append(f"{CONTRACT} must be a mapping")
         return {}
     return data
+
+
+def _frontmatter_name(path: Path) -> str | None:
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    if not text.startswith("---\n") or "\n---\n" not in text[4:]:
+        return None
+    raw = text.split("\n---\n", 1)[0][4:]
+    data = yaml.safe_load(raw)
+    return data.get("name") if isinstance(data, dict) else None
 
 
 def validate(root: Path) -> list[str]:
@@ -85,7 +117,7 @@ def validate(root: Path) -> list[str]:
             snapshot = yaml.safe_load((root / snapshot_rel).read_text(encoding="utf-8"))
             if not isinstance(snapshot, dict) or snapshot.get("id") != bead_id:
                 errors.append("work_tracking snapshot bead id mismatch")
-            if not isinstance(snapshot, dict) or snapshot.get("status") != tracking.get("expected_status"):
+            if not isinstance(snapshot, dict) or snapshot.get("status") != tracking.get("captured_status"):
                 errors.append("work_tracking snapshot status mismatch")
         if tracking.get("journey_os") != "not_applicable_foundation_has_no_user_route":
             errors.append("foundation must explicitly state why no Journey OS route owns it")
@@ -102,6 +134,12 @@ def validate(root: Path) -> list[str]:
         path = root / str(owner["file"])
         if not path.is_file():
             errors.append(f"required agent {owner['agent']} missing at {owner['file']}")
+            continue
+        expected_agent, expected_file = CAPABILITY_AGENTS[name]
+        if (owner.get("agent"), owner.get("file")) != (expected_agent, expected_file):
+            errors.append(f"required capability {name} must be owned by {expected_agent} at {expected_file}")
+        if _frontmatter_name(path) != owner.get("agent"):
+            errors.append(f"agent identity mismatch for {owner.get('agent')} at {owner.get('file')}")
 
     skills = data.get("skills")
     if not isinstance(skills, dict) or not skills:
@@ -113,6 +151,12 @@ def validate(root: Path) -> list[str]:
             continue
         if not (root / str(skill["file"])).is_file():
             errors.append(f"skill {name} missing at {skill['file']}")
+            continue
+        roster = {agent for agent, _ in CAPABILITY_AGENTS.values()}
+        if skill.get("owner") not in roster:
+            errors.append(f"skill {name} has unknown owner {skill.get('owner')}")
+        if _frontmatter_name(root / str(skill["file"])) != Path(str(skill["file"])).parent.name:
+            errors.append(f"skill identity mismatch at {skill['file']}")
 
     tools = data.get("tools")
     if not isinstance(tools, dict):
@@ -126,6 +170,14 @@ def validate(root: Path) -> list[str]:
         ]
         if missing_fields:
             errors.append(f"tool {name} missing: {', '.join(missing_fields)}")
+            continue
+        state = str(entry["state"])
+        if state not in TOOL_STATES:
+            errors.append(f"tool {name} has unknown state {state}")
+        if state in PROVEN_TOOL_STATES:
+            proof = entry.get("proof")
+            if not isinstance(proof, str) or not (root / proof).exists():
+                errors.append(f"tool {name} state {state} requires committed proof")
 
     if data.get("status") != "draft_unproven":
         errors.append("status must remain draft_unproven until a separate promotion contract exists")
@@ -179,15 +231,53 @@ def validate(root: Path) -> list[str]:
                 errors.append("Engram evidence must keep live_cutover_allowed false")
             if not isinstance(drills, dict) or drills.get("sqlite_local_restore") != "pass":
                 errors.append("Engram evidence must prove a local SQLite restore")
+            receipt_rel = drills.get("sqlite_local_restore_receipt") if isinstance(drills, dict) else None
+            if not isinstance(receipt_rel, str) or not (root / receipt_rel).is_file():
+                errors.append("Engram local restore must reference a durable receipt")
 
     return errors
+
+
+def _live_tracking_errors(root: Path, data: dict) -> list[str]:
+    tracking = data.get("work_tracking", {})
+    common = subprocess.run(
+        ["git", "rev-parse", "--path-format=absolute", "--git-common-dir"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    if common.returncode:
+        return ["unable to locate canonical repository for live Beads check"]
+    canonical_root = Path(common.stdout.strip()).parent
+    proc = subprocess.run(
+        ["bd", "-C", str(canonical_root), "show", str(tracking.get("id", "")), "--json"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode:
+        return [f"unable to inspect live Bead: {proc.stderr.strip() or proc.stdout.strip()}"]
+    try:
+        payload = json.loads(proc.stdout)
+    except json.JSONDecodeError as exc:
+        return [f"live Bead returned invalid JSON: {exc}"]
+    item = payload[0] if isinstance(payload, list) and payload else payload
+    if not isinstance(item, dict) or item.get("id") != tracking.get("id"):
+        return ["live Bead identity mismatch"]
+    if item.get("status") != "in_progress":
+        return [f"live Bead must remain in_progress while foundation is draft, got {item.get('status')}"]
+    return []
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", type=Path, default=Path.cwd())
+    parser.add_argument("--live-work-tracking", action="store_true")
     args = parser.parse_args()
-    errors = validate(args.root.resolve())
+    root = args.root.resolve()
+    errors = validate(root)
+    if args.live_work_tracking and not errors:
+        errors += _live_tracking_errors(root, _load(root, errors))
     if errors:
         for error in errors:
             print(f"ERROR mint_next_foundation_guard: {error}", file=sys.stderr)

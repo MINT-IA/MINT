@@ -16,6 +16,7 @@ backup:
   json_sha256: cc0d137fa6132a5fedacd7dd71766230aebb4766ea759b61940bfe1d66b06815
 restore_drills:
   sqlite_local_restore: pass
+  sqlite_local_restore_receipt: product/mint_next/evidence/engram-local-restore-20260801.txt
   external_live_restore: fail
   json_import: fail
 failures:

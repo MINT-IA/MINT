@@ -77,7 +77,7 @@ pre-commit:
       run: python3 tools/checks/workflow_contract_guard.py
       tags: [agents, planning, workflow]
     mint-next-foundation-guard:
-      run: python3 tools/checks/mint_next_foundation_guard.py
+      run: python3 tools/checks/mint_next_foundation_guard.py --live-work-tracking
       tags: [agents, planning, workflow, mint-next]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the

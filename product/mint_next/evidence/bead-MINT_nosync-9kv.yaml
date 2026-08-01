@@ -3,6 +3,7 @@ captured_utc: 2026-08-01T14:31:16Z
 system: beads
 id: MINT_nosync-9kv
 status: in_progress
+status_kind: historical_snapshot_not_live_validation
 priority: 1
 title: MINT Next Batch 0 — audited agent/tool/memory/infra foundation
 completion_claim: false

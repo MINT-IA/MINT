@@ -104,6 +104,7 @@ ALLOW = {
     "tools/checks/tests/test_mint_next_foundation_guard.py",
     "product/mint_next/evidence/engram-fun2-20260801.yaml",
     "product/mint_next/evidence/bead-MINT_nosync-9kv.yaml",
+    "product/mint_next/evidence/engram-local-restore-20260801.txt",
     "product/mint_next/runbooks/engram-fun2.md",
     ".claude/agents/mint-experience.md",
     ".claude/agents/mint-integrations-security.md",

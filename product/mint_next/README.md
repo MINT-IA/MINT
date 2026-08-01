@@ -22,8 +22,8 @@ journey before changing a batch from `unproven`.
 
 The live database remains local. FUN2 currently holds an AES-256 encrypted
 backup vault because direct SQLite operation inside the external sparsebundle
-failed the first restore drill. The historical `/Volumes/FUN2/engram` recovery
-directory is invalid and must not be reused. A live cutover is forbidden until
+failed the first restore drill. The historical unencrypted recovery directory
+on FUN2 is invalid and must not be reused. A live cutover is forbidden until
 local restore, external backup, rollback, mount-loss, and independent-review
 gates all pass.
 

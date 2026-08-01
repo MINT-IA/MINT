@@ -63,6 +63,7 @@ def _copy_contract(tmp_path: Path) -> Path:
         "product/mint_next/runbooks/engram-fun2.md",
         "product/mint_next/evidence/engram-fun2-20260801.yaml",
         "product/mint_next/evidence/bead-MINT_nosync-9kv.yaml",
+        "product/mint_next/evidence/engram-local-restore-20260801.txt",
     ):
         source = REPO_ROOT / rel
         path = tmp_path / rel
@@ -79,7 +80,7 @@ def _copy_contract(tmp_path: Path) -> Path:
     ):
         path = tmp_path / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("agent", encoding="utf-8")
+        path.write_text(f"---\nname: {path.stem}\n---\n", encoding="utf-8")
     for rel in (
         ".agents/skills/mint-operating-gates/SKILL.md",
         ".agents/skills/mint-flutter-dev/SKILL.md",
@@ -94,7 +95,17 @@ def _copy_contract(tmp_path: Path) -> Path:
     ):
         path = tmp_path / rel
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text("skill", encoding="utf-8")
+        path.write_text(f"---\nname: {path.parent.name}\n---\n", encoding="utf-8")
+    for rel in (
+        "apps/mobile/pubspec.yaml",
+        ".beads/config.yaml",
+        "tools/checks/mermaid_render_guard.py",
+        "tools/checks/maestro_locator_audit.py",
+        "tools/checks/verify_sentry_init.py",
+    ):
+        path = tmp_path / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("proof", encoding="utf-8")
     return target
 
 
@@ -145,3 +156,45 @@ def test_guard_rejects_missing_engram_receipt(tmp_path: Path) -> None:
     proc = _run(tmp_path)
     assert proc.returncode == 1
     assert "latest_evidence" in proc.stderr
+
+
+def test_guard_rejects_agent_identity_mismatch(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "experience: {agent: mint-experience,",
+            "experience: {agent: mint-lead,",
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "experience" in proc.stderr
+
+
+def test_guard_rejects_unknown_skill_owner(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "journey_design: {owner: mint-experience,",
+            "journey_design: {owner: ghost-agent,",
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "ghost-agent" in proc.stderr
+
+
+def test_guard_rejects_invented_tool_state(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "state: unconfigured_candidate",
+            "state: fully_production_verified",
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "fully_production_verified" in proc.stderr

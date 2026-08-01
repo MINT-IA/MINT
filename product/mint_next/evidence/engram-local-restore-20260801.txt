@@ -1,0 +1,14 @@
+MINT Engram local restore drill — sanitized receipt
+captured_utc=2026-08-01T14:24:06Z
+source_artifact=encrypted_FUN2_SQLite_backup
+restore_target=protected_local_APFS_test_directory
+command_1=sqlite3 restored/engram.db 'PRAGMA integrity_check;'
+result_1=ok
+command_2=ENGRAM_DATA_DIR=restored engram stats
+result_2_observations=11892
+result_2_sessions=2930
+command_3=ENGRAM_DATA_DIR=restored engram search 'MINT' --project mint --limit 1
+result_3_first_observation_id=1314
+result_3_first_title=MINT repo is MINT-IA/MINT
+verdict=PASS_local_SQLite_restore_only
+external_live_cutover=FORBIDDEN

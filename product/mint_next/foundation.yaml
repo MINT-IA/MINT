@@ -4,7 +4,7 @@ bead: MINT_nosync-9kv
 work_tracking:
   system: beads
   id: MINT_nosync-9kv
-  expected_status: in_progress
+  captured_status: in_progress
   snapshot: product/mint_next/evidence/bead-MINT_nosync-9kv.yaml
   journey_os: not_applicable_foundation_has_no_user_route
 
@@ -39,36 +39,43 @@ tools:
     owner: mint-mobile
     state: repo_configured
     data_class: synthetic_and_user_financial_ui
+    proof: apps/mobile/pubspec.yaml
   beads:
     role: durable work, dependencies, blockers, and ownership
     owner: mint-lead
-    state: repo_configured
+    state: locally_verified
     data_class: project_metadata_no_user_financial_data
+    proof: product/mint_next/evidence/bead-MINT_nosync-9kv.yaml
   engram:
     role: prior decisions, discoveries, preferences, and session recovery
     owner: mint-lead
     state: locally_verified
     data_class: project_memory_no_user_financial_data
+    proof: product/mint_next/evidence/engram-fun2-20260801.yaml
   mermaid:
     role: generated views of journeys, routes, data, and system boundaries
     owner: mint-lead
     state: repo_configured
     data_class: generated_project_metadata
+    proof: tools/checks/mermaid_render_guard.py
   maestro:
     role: small black-box smoke suite for critical user journeys
     owner: mint-quality-gate
     state: repo_configured
     data_class: synthetic_runtime_evidence
+    proof: tools/checks/maestro_locator_audit.py
   patrol:
     role: native mobile boundaries such as permissions, files, biometrics, and notifications
     owner: mint-quality-gate
     state: repo_configured
     data_class: synthetic_runtime_evidence
+    proof: apps/mobile/pubspec.yaml
   sentry:
     role: privacy-filtered crash and runtime error evidence
     owner: mint-quality-gate
     state: repo_configured
     data_class: redacted_operational_telemetry
+    proof: tools/checks/verify_sentry_init.py
   railway:
     role: current synthetic-data staging and existing runtime delivery path
     owner: mint-backend
