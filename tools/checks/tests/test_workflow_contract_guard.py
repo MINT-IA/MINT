@@ -17,6 +17,7 @@ SESSION_COMMANDS = (
     "python3 tools/checks/mint_next_batch1_guard.py",
     "python3 tools/checks/mint_next_batch1_inventory.py",
     "python3 tools/checks/mint_next_batch1_runtime_probe.py",
+    "python3 tools/checks/mint_next_batch2_guard.py",
 )
 CI_EXTRA = (
     "python3 tools/checks/agent_reference_guard.py",
@@ -44,6 +45,7 @@ CI_TESTS = (
     "tools/checks/tests/test_workflow_contract_guard.py",
     "tools/checks/tests/test_mint_next_foundation_guard.py",
     "tools/checks/tests/test_mint_next_batch1_guard.py",
+    "tools/checks/tests/test_mint_next_batch2_guard.py",
     "tools/checks/tests/test_verify_phase_acceptance.py",
 )
 

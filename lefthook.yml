@@ -88,6 +88,9 @@ pre-commit:
     mint-next-batch1-runtime-probe:
       run: python3 tools/checks/mint_next_batch1_runtime_probe.py
       tags: [agents, planning, workflow, mint-next, design, runtime]
+    mint-next-batch2-guard:
+      run: python3 tools/checks/mint_next_batch2_guard.py --live-work-tracking
+      tags: [agents, planning, workflow, mint-next, tax, evidence]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.

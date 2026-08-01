@@ -1,0 +1,18 @@
+schema_version: 1
+decision: bounded_verification_fixture_only
+upstream_requirement: product/mint_next/batch1/evaluation.yaml#promotion.before_winner_selection
+journey_os_override:
+  current_priority: JOS-006
+  remains_open_and_unmodified: true
+  displaced: false
+  runtime_reproof_claimed: false
+  rationale: Batch_2_is_a_non_product_prerequisite_explicitly_required_by_the_promoted_Batch_1_contract
+forbidden_claims:
+  - fixture_is_a_personal_tax_estimate
+  - engine_is_exact_for_Vaud
+  - all_Swiss_tax_cases_are_supported
+  - FINMA_compliance_is_certified
+  - direction_winner_selected
+  - user_testing_completed
+  - product_runtime_delivered
+  - official_machine_API_is_licensed

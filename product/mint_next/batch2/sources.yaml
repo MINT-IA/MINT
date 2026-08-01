@@ -1,0 +1,38 @@
+schema_version: 1
+captured_utc: 2026-08-01T18:14:30Z
+redistribution_boundary: store_minimal_extracted_facts_urls_dates_and_hashes_only_no_source_documents_or_calculator_code
+machine_api_status: no_supported_or_licensed_Vaud_API_identified
+sources:
+  - id: vd_calculator
+    authority: Etat_de_Vaud_ACI
+    url: https://www.vd.ch/etat-droit-finances/impots/impots-pour-les-individus/calculer-mes-impots
+    version_visible: 10.4.0
+    supports: [taxable_income_and_fortune_are_required, results_are_indicative, definitive_tax_is_set_by_ACI, fixture_inputs_and_outputs]
+    response_sha256_baseline: 7640653ee007938ed3b1c5030b67acb32189949f55492236de53d2c2d1293eb8
+    response_sha256_counterfactual: 096d533d09b7d26cb0857ad3a8d24df83ca5a15e8489150f62eed76aaf221485
+  - id: vd_income_scale_2026
+    authority: Etat_de_Vaud_ACI
+    url: https://www.vd.ch/fileadmin/user_upload/organisation/dfin/aci/fichiers_pdf/Bar%C3%A8mes_Revenu_2026.pdf
+    sha256: 34cb7f9f38ff8d8ea8e13b966986720a7a55b72947ad31224ce625209fcf3171
+    bytes: 257586
+    last_modified_http: Thu, 02 Apr 2026 07:49:44 GMT
+    supports: [icc_base_80000_is_6389, icc_base_72700_is_5603, fractions_below_100_are_abandoned]
+  - id: vd_municipal_rates_2026
+    authority: Etat_de_Vaud
+    url: https://www.vd.ch/fileadmin/user_upload/themes/territoire/communes/finances_communales/fichiers_xls/Arr%C3%AAt%C3%A9s_d_imposition_2026.xls
+    sha256: e7e04fc78b69a08c09d160afd1083a2291c08fc8b53b3b4726d7bee273cc260a
+    bytes: 104960
+    last_modified_http: Tue, 16 Dec 2025 07:30:48 GMT
+    supports: [lausanne_income_tax_coefficient_78_5]
+  - id: ofas_pillar3a_2026
+    authority: OFAS
+    url: https://www.bsv.admin.ch/dam/fr/sd-web/sAgdISSXenMT/f_Betr%C3%A4ge%202026.pdf
+    sha256: da5dc20f34e0dc7f4c47d218f253b3915880c10d04e370eaa224b6437a97e1a3
+    bytes: 204118
+    supports: [employee_with_pension_fund_3a_ceiling_7258]
+  - id: ifd_scale_2026
+    authority: AFC
+    url: https://www.estv.admin.ch/dam/fr/sd-web/gnde9CmEsalK/dbst-tairfe-58c-2026-dfi.pdf
+    sha256: a8a0ff6914523b9e5defa533759ee69daee892d3ab8669e21881de4728cfceaa
+    bytes: 142066
+    supports: [ifd_2026_single_person_scale]

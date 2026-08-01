@@ -73,6 +73,8 @@ jobs:
         run: python3 tools/checks/mint_next_batch1_inventory.py
       - name: MINT Next Batch 1 prototype runtime probe
         run: python3 tools/checks/mint_next_batch1_runtime_probe.py
+      - name: MINT Next Batch 2 Vaud fixture guard
+        run: python3 tools/checks/mint_next_batch2_guard.py
       - name: Product prescription lint (ADR 2026-07-28)
         run: |
           python3 tools/checks/product_prescription_lint.py --self-test
@@ -123,5 +125,6 @@ jobs:
           tools/checks/tests/test_workflow_contract_guard.py
           tools/checks/tests/test_mint_next_foundation_guard.py
           tools/checks/tests/test_mint_next_batch1_guard.py
+          tools/checks/tests/test_mint_next_batch2_guard.py
           tools/checks/tests/test_verify_phase_acceptance.py
           -q

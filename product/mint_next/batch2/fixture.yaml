@@ -1,0 +1,42 @@
+schema_version: 1
+fixture_id: B2-VD-3A-2026-01
+status: verified_official_fixture_not_product_connected
+purpose: compare_three_Batch_1_mechanisms_with_one_identical_officially_captured_counterfactual
+persona_boundary:
+  synthetic: true
+  linked_to_Batch1_Lea_salary: false
+  gross_income_chf: null
+  warning: taxable_income_is_declared_input_never_derived_from_salary
+assumptions:
+  tax_year: 2026
+  canton: VD
+  municipality: Lausanne
+  full_year_domicile: true
+  taxation: ordinary
+  civil_status: single
+  children_full_quotient: 0
+  children_half_quotient: 0
+  children_same_household: 0
+  intercantonal_or_international_allocation: false
+  taxable_wealth_icc_chf: 0
+  pillar3a_eligible_employee_with_lpp: true
+  retroactive_3a_catchup: false
+inputs:
+  baseline_taxable_income_icc_chf: 80000
+  baseline_taxable_income_ifd_chf: 80000
+  pillar3a_counterfactual_contribution_chf: 7258
+  counterfactual_taxable_income_submitted_icc_chf: 72742
+  counterfactual_taxable_income_submitted_ifd_chf: 72742
+  official_displayed_taxable_income_chf: 72700
+official_result:
+  baseline: {icc_chf: 14423.15, ifd_chf: 1378.20, total_chf: 15801.35}
+  counterfactual: {icc_chf: 12648.75, ifd_chf: 1048.60, total_chf: 13697.35}
+  difference: {icc_chf: 1774.40, ifd_chf: 329.60, total_chf: 2104.00}
+  arithmetic_identity: baseline_minus_counterfactual
+  source_capture: product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml
+display_contract:
+  amount_chf: 2104.00
+  labels: [illustrative_counterfactual, declared_taxable_income_inputs, official_calculator_indicative_result, not_personalized, not_filing_result, not_advice]
+  required_adjacent_assumptions: [tax_year, municipality, civil_status, children, ordinary_taxation, taxable_income_before_after, pillar3a_amount, official_rounding]
+prohibited_use: [salary_to_taxable_inference, contribution_recommendation, product_or_provider_ranking, filing_submission, transaction_execution, LLM_calculation, production_tax_result]
+expires_on: 2026-12-31

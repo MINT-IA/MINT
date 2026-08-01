@@ -1,0 +1,28 @@
+schema_version: 1
+captured_utc: 2026-08-01T18:14:30Z
+canonical_engine:
+  path: services/backend/app/services/fiscal/cantonal_comparator.py
+  symbols: [estimate_income_tax, estimate_income_tax_parts]
+  sha256: 12aff58f77da533a23aa898a6b9d3f4f1ffe21fe1d8f3092bb3df92b0a3ef4a4
+  git_head: f6b8a0172d2ef5007964c73ecb217f280659a87b
+comparison_basis: official_displayed_taxable_income_after_rounding
+outputs:
+  baseline: {taxable_income_chf: 80000, cantonal_communal_chf: 14555.33, ifd_chf: 1378.30, total_chf: 15933.63}
+  counterfactual: {taxable_income_chf: 72700, cantonal_communal_chf: 12718.41, ifd_chf: 1048.63, total_chf: 13767.04}
+  difference: {cantonal_communal_chf: 1836.92, ifd_chf: 329.67, total_chf: 2166.59}
+oracle_comparison:
+  baseline_cantonal_communal_relative_error: 0.009165
+  counterfactual_cantonal_communal_relative_error: 0.005507
+  per_component_tolerance_relative: 0.02
+  baseline_ifd_absolute_error_chf: 0.10
+  counterfactual_ifd_absolute_error_chf: 0.03
+  ifd_tolerance_absolute_chf: 1.50
+  official_delta_chf: 2104.00
+  mint_delta_chf: 2166.59
+  delta_difference_chf: 62.59
+  delta_relative_error: 0.029748
+claim_boundary: engine_matches_each_official_component_within_preexisting_oracle_floors_but_delta_error_is_disclosed_not_declared_exact
+existing_oracle:
+  test_sha256: 516ecb2faf8468d2ed40abd377e317083e5eff10167dd94744bd605aa8a0af08
+  fixture_sha256: 11775899c1a736cc69dd3c3df17af3208658726a930983556fc7fa35c9d7a977
+  tolerance_policy: max_2_percent_or_measured_point_specific_band_for_cantonal_component_and_1_5_CHF_IFD_2026

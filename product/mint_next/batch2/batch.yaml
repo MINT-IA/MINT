@@ -1,0 +1,19 @@
+schema_version: 1
+status: draft_unproven
+work_tracking:
+  system: beads
+  id: MINT_nosync-lrp
+  expected_live_status: in_progress
+scope:
+  includes: [one_vd_2026_fixture, official_before_after_capture, canonical_engine_comparison, provenance, mutation_guards, independent_roast]
+  excludes: [new_tax_engine, gross_to_taxable_derivation, flutter_product, ux_winner, user_validation, production_connection, nationwide_tax_claim, jos006_closure]
+artifacts:
+  scope: product/mint_next/batch2/scope.yaml
+  sources: product/mint_next/batch2/sources.yaml
+  fixture: product/mint_next/batch2/fixture.yaml
+  official_capture: product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml
+  engine_capture: product/mint_next/batch2/evidence/mint-engine-capture-20260801.yaml
+promotion:
+  author_cannot_approve: true
+  requires: [official_source_hashes, arithmetic_identity, canonical_engine_identity, per_component_oracle_tolerance, swiss_tax_review, licensing_boundary_review, independent_roast_no_p1_p2]
+  never_sufficient: [author_claim, same_engine_expected_values, file_existence, mutable_web_page_without_capture_receipt, test_exit_code_without_mutation]

@@ -1,0 +1,17 @@
+schema_version: 1
+captured_utc: 2026-08-01T18:14:30Z
+capture_method: manual_form_POST_reproduced_with_requests_for_evidence_only_not_a_supported_API
+source_id: vd_calculator
+calculator_version_visible: 10.4.0
+request_common: {tax_year: 2026, municipality: Lausanne, civil_status_code: 1, children_full: 0, children_half: 0, children_household: 0, taxable_wealth_icc_chf: 0, calculate_icc: true, calculate_ifd: true, allocation: false}
+captures:
+  baseline:
+    submitted: {taxable_income_icc_chf: 80000, taxable_income_ifd_chf: 80000}
+    response_sha256: 7640653ee007938ed3b1c5030b67acb32189949f55492236de53d2c2d1293eb8
+    normalized_output: {family_share: 1.00, taxable_income_displayed_chf: 80000, icc_base_chf: 6389.00, cantonal_coefficient: 155.0, cantonal_charge_chf: 9407.80, municipal_coefficient: 78.5, municipal_charge_chf: 5015.35, icc_total_chf: 14423.15, ifd_base_chf: 1378.20, ifd_total_chf: 1378.20, total_chf: 15801.35}
+  counterfactual:
+    submitted: {taxable_income_icc_chf: 72742, taxable_income_ifd_chf: 72742}
+    response_sha256: 096d533d09b7d26cb0857ad3a8d24df83ca5a15e8489150f62eed76aaf221485
+    normalized_output: {family_share: 1.00, taxable_income_displayed_chf: 72700, icc_base_chf: 5603.00, cantonal_coefficient: 155.0, cantonal_charge_chf: 8250.40, municipal_coefficient: 78.5, municipal_charge_chf: 4398.35, icc_total_chf: 12648.75, ifd_base_chf: 1048.60, ifd_total_chf: 1048.60, total_chf: 13697.35}
+claim_boundary: official_page_calls_results_indicative_and_ACI_sets_definitive_tax
+raw_source_retention: hashes_only_public_repo_does_not_store_source_HTML
