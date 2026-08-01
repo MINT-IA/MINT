@@ -26,6 +26,8 @@ The default permanent roster is:
 | `mint-mobile` | `.claude/agents/mint-mobile.md` | Flutter app changes |
 | `mint-backend` | `.claude/agents/mint-backend.md` | FastAPI/backend/data changes |
 | `mint-swiss-brain` | `.claude/agents/mint-swiss-brain.md` | Swiss finance/compliance meaning |
+| `mint-experience` | `.claude/agents/mint-experience.md` | Journey, research, design, accessibility, comprehension |
+| `mint-integrations-security` | `.claude/agents/mint-integrations-security.md` | Consent, provenance, APIs, documents, security, recovery |
 
 No imported vendor agent catalog is active by default. External specialists may
 be used only for an explicit, named gap after the Mint roster has scoped it.
@@ -38,6 +40,12 @@ Canonical skills live in `.agents/skills/mint-*`:
 | `mint-flutter-dev` | Flutter implementation in `apps/mobile/` |
 | `mint-backend-dev` | Backend implementation in `services/backend/` |
 | `mint-swiss-compliance` | Swiss regulatory/compliance review |
+| `mint-journey-design` | One human outcome before screens or code |
+| `mint-runtime-walkthrough` | Device proof of the named journey |
+| `mint-financial-calculation-contract` | Reproducible financial-number contract |
+| `mint-consent-and-provenance` | Purpose, source, freshness, revoke/delete |
+| `mint-experience-critique` | Independent clarity and design roast |
+| `mint-regulatory-boundary` | Information/advice/execution boundary gate |
 
 `.claude/skills/mint-*` entries are thin compatibility mirrors. If mirror and
 canonical content diverge, `.agents/skills/mint-*` wins.
@@ -137,12 +145,13 @@ rampart. After ship:
    is the canonical Journey OS board, issue registry, evidence map, and
    priority queue for vertical work.
 11. Run `python3 tools/checks/workflow_contract_guard.py`.
-12. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
+12. Run `python3 tools/checks/mint_next_foundation_guard.py`.
+13. Run `python3 tools/checks/verify_phase_acceptance.py` when an active
    `SPEC.md` has a `verify` block.
-13. When the user names a subsystem, read the matching `docs/*.md` **before
+14. When the user names a subsystem, read the matching `docs/*.md` **before
    the first code change**.
-14. Run the grep verification from the table.
-15. *Only then* change code.
+15. Run the grep verification from the table.
+16. *Only then* change code.
 
 If a step was skipped, revert and redo. That's cheaper than debugging
 the ghost in prod.
@@ -151,8 +160,9 @@ the ghost in prod.
 
 Default sequence:
 
-`mint-lead` -> `mint-quality-gate` -> `mint-mobile` / `mint-backend` /
-`mint-swiss-brain` -> `mint-quality-gate`.
+`mint-lead` -> `mint-experience` / `mint-swiss-brain` ->
+`mint-quality-gate` -> `mint-mobile` / `mint-backend` /
+`mint-integrations-security` -> independent `mint-quality-gate`.
 
 Use external specialists only for a named gap. Do not start multiple agents
 unless tasks have disjoint files or disjoint read-only questions.

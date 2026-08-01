@@ -43,6 +43,8 @@ Permanent Mint agents:
 - `mint-mobile`: Flutter only.
 - `mint-backend`: FastAPI/backend only.
 - `mint-swiss-brain`: Swiss finance and compliance meaning.
+- `mint-experience`: journey, research, design, accessibility, and comprehension.
+- `mint-integrations-security`: consent, provenance, APIs, documents, security, and recovery.
 
 No vendor catalog is checked into `.claude/agents/`. External specialists are
 allowed only for a specific named gap after the Mint roster has scoped it.
@@ -55,6 +57,12 @@ Canonical cross-tool skills live under `.agents/skills/`:
 - `mint-flutter-dev`
 - `mint-backend-dev`
 - `mint-swiss-compliance`
+- `mint-journey-design`
+- `mint-runtime-walkthrough`
+- `mint-financial-calculation-contract`
+- `mint-consent-and-provenance`
+- `mint-experience-critique`
+- `mint-regulatory-boundary`
 
 `.claude/skills/mint-*` mirrors are compatibility shims. If they diverge from
 `.agents/skills/mint-*`, the `.agents` version wins.

@@ -1,0 +1,24 @@
+schema_version: 1
+captured_utc: 2026-08-01T14:24:06Z
+live_cutover_allowed: false
+source:
+  location: local_default_data_dir
+  sqlite_integrity: pass
+  observations_at_backup: 11892
+  sessions_at_backup: 2930
+backup:
+  location: encrypted_fun2_sparsebundle
+  encryption: APFS_AES_256
+  sqlite_integrity: pass
+  observations: 11892
+  sessions: 2930
+  sqlite_sha256: 45df5d847a17b64efadc84b6c25e769ef8cffcad08ebd7d9536cdab76e881ece
+  json_sha256: cc0d137fa6132a5fedacd7dd71766230aebb4766ea759b61940bfe1d66b06815
+restore_drills:
+  sqlite_local_restore: pass
+  external_live_restore: fail
+  json_import: fail
+failures:
+  - external live test returned database disk image is malformed
+  - JSON import rejected a NUL byte in a string literal
+decision: backup_only_until_external_and_json_restore_failures_are_resolved

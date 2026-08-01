@@ -1,49 +1,102 @@
 schema_version: 1
 status: draft_unproven
 bead: MINT_nosync-9kv
+work_tracking:
+  system: beads
+  id: MINT_nosync-9kv
+  expected_status: in_progress
+  snapshot: product/mint_next/evidence/bead-MINT_nosync-9kv.yaml
+  journey_os: not_applicable_foundation_has_no_user_route
 
 promise: >-
   Rebuild MINT one observable Swiss financial decision at a time; a batch is
   not complete until current-state evidence proves the user outcome.
 
 required_capabilities:
-  product_lead: mint-lead
-  experience: mint-experience
-  mobile: mint-mobile
-  backend_calculations: mint-backend
-  swiss_domain: mint-swiss-brain
-  quality_privacy_security: mint-quality-gate
-  data_integrations: mint-integrations-security
+  product_lead: {agent: mint-lead, file: .claude/agents/mint-lead.md}
+  experience: {agent: mint-experience, file: .claude/agents/mint-experience.md}
+  mobile: {agent: mint-mobile, file: .claude/agents/mint-mobile.md}
+  backend_calculations: {agent: mint-backend, file: .claude/agents/mint-backend.md}
+  swiss_domain: {agent: mint-swiss-brain, file: .claude/agents/mint-swiss-brain.md}
+  quality_privacy_security: {agent: mint-quality-gate, file: .claude/agents/mint-quality-gate.md}
+  data_integrations: {agent: mint-integrations-security, file: .claude/agents/mint-integrations-security.md}
+
+skills:
+  operating_gates: {owner: mint-quality-gate, file: .agents/skills/mint-operating-gates/SKILL.md}
+  flutter: {owner: mint-mobile, file: .agents/skills/mint-flutter-dev/SKILL.md}
+  backend: {owner: mint-backend, file: .agents/skills/mint-backend-dev/SKILL.md}
+  swiss_compliance: {owner: mint-swiss-brain, file: .agents/skills/mint-swiss-compliance/SKILL.md}
+  journey_design: {owner: mint-experience, file: .agents/skills/mint-journey-design/SKILL.md}
+  runtime_walkthrough: {owner: mint-quality-gate, file: .agents/skills/mint-runtime-walkthrough/SKILL.md}
+  financial_calculation_contract: {owner: mint-swiss-brain, file: .agents/skills/mint-financial-calculation-contract/SKILL.md}
+  consent_and_provenance: {owner: mint-integrations-security, file: .agents/skills/mint-consent-and-provenance/SKILL.md}
+  experience_critique: {owner: mint-experience, file: .agents/skills/mint-experience-critique/SKILL.md}
+  regulatory_boundary: {owner: mint-swiss-brain, file: .agents/skills/mint-regulatory-boundary/SKILL.md}
 
 tools:
   flutter:
     role: iOS and Android product implementation
+    owner: mint-mobile
+    state: repo_configured
+    data_class: synthetic_and_user_financial_ui
   beads:
     role: durable work, dependencies, blockers, and ownership
+    owner: mint-lead
+    state: repo_configured
+    data_class: project_metadata_no_user_financial_data
   engram:
     role: prior decisions, discoveries, preferences, and session recovery
+    owner: mint-lead
+    state: locally_verified
+    data_class: project_memory_no_user_financial_data
   mermaid:
     role: generated views of journeys, routes, data, and system boundaries
+    owner: mint-lead
+    state: repo_configured
+    data_class: generated_project_metadata
   maestro:
     role: small black-box smoke suite for critical user journeys
+    owner: mint-quality-gate
+    state: repo_configured
+    data_class: synthetic_runtime_evidence
   patrol:
     role: native mobile boundaries such as permissions, files, biometrics, and notifications
+    owner: mint-quality-gate
+    state: repo_configured
+    data_class: synthetic_runtime_evidence
   sentry:
     role: privacy-filtered crash and runtime error evidence
+    owner: mint-quality-gate
+    state: repo_configured
+    data_class: redacted_operational_telemetry
   railway:
     role: current synthetic-data staging and existing runtime delivery path
+    owner: mint-backend
+    state: existing_path_not_reverified_in_batch0
+    data_class: synthetic_staging_only
   infomaniak:
     role: candidate Swiss production data plane pending an operational spike
+    owner: mint-integrations-security
+    state: unconfigured_candidate
+    data_class: no_data_until_spike_approved
   vercel:
     role: optional previews and non-sensitive web surfaces, never the default financial data plane
+    owner: mint-experience
+    state: available_not_reverified_in_batch0
+    data_class: public_or_synthetic_only
   hugging_face:
     role: optional measured model, embedding, and evaluation experiments only
+    owner: mint-integrations-security
+    state: unconfigured_optional
+    data_class: public_corpus_or_synthetic_only
 
 memory:
   source_of_truth: false
-  live_database: ~/.engram/engram.db
+  live_database_env: ENGRAM_DATA_DIR
   fun2_mode: encrypted_backup
-  fun2_bundle: /Volumes/FUN2/MINT-Engram-Vault/MINT-Engram-Encrypted.sparsebundle
+  fun2_bundle_env: MINT_ENGRAM_VAULT_BUNDLE
+  runbook: product/mint_next/runbooks/engram-fun2.md
+  latest_evidence: product/mint_next/evidence/engram-fun2-20260801.yaml
   cutover_requires:
     - coordinated_agent_shutdown
     - encrypted_volume_mounted
