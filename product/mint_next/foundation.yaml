@@ -1,5 +1,6 @@
 schema_version: 1
-status: draft_unproven
+status: proven
+promotion_receipt: product/mint_next/evidence/batch0-promotion-20260801.yaml
 bead: MINT_nosync-9kv
 work_tracking:
   system: beads

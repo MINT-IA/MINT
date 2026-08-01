@@ -1,0 +1,23 @@
+schema_version: 1
+batch: mint_next_foundation_batch0
+status: proven
+audited_head: 39341a1de
+reviewer: batch0_roast
+verdict: ROAST_PASS
+unresolved_p1_p2: 0
+review_scope:
+  - agents_and_capabilities
+  - skills_and_ownership
+  - memory_backup_and_restore
+  - tools_and_infrastructure_roles
+  - workflow_and_live_tracking
+  - prompt_and_eval_policy
+independent_proofs:
+  foundation_live_guard: pass
+  targeted_tests: 36_passed
+  required_repository_guards: pass
+  semantic_mutation_suite: pass
+limitations:
+  engram_live_cutover_allowed: false
+  product_runtime_delivered: false
+  batch1_authorized_automatically: false

@@ -2,7 +2,8 @@
 
 This directory is the small canonical contract for the proposed MINT rebuild.
 It does not claim that the rebuild, the new mobile app, or the infrastructure
-migration exists. The current status is `draft_unproven`.
+migration exists. Batch 0's foundation contract is `proven`; the bounded
+promotion receipt does not promote any product runtime or Engram live cutover.
 
 ## Zero-trust rule
 

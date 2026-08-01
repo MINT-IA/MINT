@@ -276,8 +276,43 @@ def validate(root: Path) -> list[str]:
             if policy_data != PROMPT_EVAL_POLICY:
                 errors.append("prompt_evals policy does not match the canonical fail-closed policy")
 
-    if data.get("status") != "draft_unproven":
-        errors.append("status must remain draft_unproven until a separate promotion contract exists")
+    if data.get("status") != "proven":
+        errors.append("status must be proven only through the Batch 0 promotion receipt")
+    promotion_rel = data.get("promotion_receipt")
+    promotion_path = root / promotion_rel if isinstance(promotion_rel, str) else None
+    if promotion_path is None or not promotion_path.is_file():
+        errors.append("proven status requires a committed promotion receipt")
+    else:
+        try:
+            promotion = yaml.safe_load(promotion_path.read_text(encoding="utf-8"))
+        except (OSError, yaml.YAMLError) as exc:
+            errors.append(f"unable to validate promotion receipt: {exc}")
+        else:
+            required_promotion = {
+                "schema_version": 1,
+                "batch": "mint_next_foundation_batch0",
+                "status": "proven",
+                "audited_head": "39341a1de",
+                "reviewer": "batch0_roast",
+                "verdict": "ROAST_PASS",
+                "unresolved_p1_p2": 0,
+                "review_scope": [
+                    "agents_and_capabilities", "skills_and_ownership",
+                    "memory_backup_and_restore", "tools_and_infrastructure_roles",
+                    "workflow_and_live_tracking", "prompt_and_eval_policy",
+                ],
+                "independent_proofs": {
+                    "foundation_live_guard": "pass", "targeted_tests": "36_passed",
+                    "required_repository_guards": "pass", "semantic_mutation_suite": "pass",
+                },
+                "limitations": {
+                    "engram_live_cutover_allowed": False,
+                    "product_runtime_delivered": False,
+                    "batch1_authorized_automatically": False,
+                },
+            }
+            if promotion != required_promotion:
+                errors.append("promotion receipt does not match the independently reviewed Batch 0 result")
 
     evidence = data.get("completion_evidence")
     allowed = evidence.get("allowed") if isinstance(evidence, dict) else None

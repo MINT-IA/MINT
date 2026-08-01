@@ -64,6 +64,7 @@ def _copy_contract(tmp_path: Path) -> Path:
         "product/mint_next/evidence/engram-fun2-20260801.yaml",
         "product/mint_next/evidence/bead-MINT_nosync-9kv.yaml",
         "product/mint_next/evidence/engram-local-restore-20260801.txt",
+        "product/mint_next/evidence/batch0-promotion-20260801.yaml",
         "product/mint_next/contracts/llm-eval.yaml",
     ):
         source = REPO_ROOT / rel
@@ -114,12 +115,20 @@ def _copy_contract(tmp_path: Path) -> Path:
 def test_guard_rejects_premature_complete_status(tmp_path: Path) -> None:
     contract = _copy_contract(tmp_path)
     contract.write_text(
-        contract.read_text(encoding="utf-8").replace("status: draft_unproven", "status: complete"),
+        contract.read_text(encoding="utf-8").replace("status: proven", "status: complete", 1),
         encoding="utf-8",
     )
     proc = _run(tmp_path)
     assert proc.returncode == 1
     assert "status" in proc.stderr
+
+
+def test_guard_rejects_proven_status_without_promotion_receipt(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    (tmp_path / "product/mint_next/evidence/batch0-promotion-20260801.yaml").unlink()
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "promotion" in proc.stderr
 
 
 def test_guard_rejects_missing_cutover_gate(tmp_path: Path) -> None:
