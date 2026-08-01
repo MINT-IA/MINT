@@ -147,6 +147,8 @@ ALLOW = {
     "product/mint_next/batch2/fixture.yaml",
     "product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml",
     "product/mint_next/batch2/evidence/mint-engine-capture-20260801.yaml",
+    "product/mint_next/batch2/evidence/vd-calculator-normalized-receipt-20260801.json",
+    "product/mint_next/batch2/evidence/verify_vd_calculator_receipt.py",
     "tools/checks/mint_next_batch2_guard.py",
     "tools/checks/tests/test_mint_next_batch2_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---

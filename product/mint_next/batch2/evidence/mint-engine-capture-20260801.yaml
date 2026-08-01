@@ -11,7 +11,7 @@ outputs:
   counterfactual: {taxable_income_chf: 72700, cantonal_communal_chf: 12718.41, ifd_chf: 1048.63, total_chf: 13767.04}
   difference: {cantonal_communal_chf: 1836.92, ifd_chf: 329.67, total_chf: 2166.59}
 oracle_comparison:
-  baseline_cantonal_communal_relative_error: 0.009165
+  baseline_cantonal_communal_relative_error: 0.009164
   counterfactual_cantonal_communal_relative_error: 0.005507
   per_component_tolerance_relative: 0.02
   baseline_ifd_absolute_error_chf: 0.10

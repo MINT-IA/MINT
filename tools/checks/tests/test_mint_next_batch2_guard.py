@@ -5,6 +5,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO = Path(__file__).resolve().parents[3]
 SCRIPT = REPO / "tools/checks/mint_next_batch2_guard.py"
 BASE = Path("product/mint_next/batch2")
@@ -15,6 +17,10 @@ def copy(tmp_path: Path) -> None:
     target = tmp_path / "services/backend/app/services/fiscal"
     target.mkdir(parents=True)
     shutil.copy(REPO / "services/backend/app/services/fiscal/cantonal_comparator.py", target)
+    oracle_target = tmp_path / "services/backend/tests/fixtures"
+    oracle_target.mkdir(parents=True)
+    shutil.copy(REPO / "services/backend/tests/fixtures/estv_oracle_2025.jsonl", oracle_target)
+    shutil.copy(REPO / "services/backend/tests/test_estv_oracle.py", oracle_target.parent)
 
 
 def run(root: Path) -> subprocess.CompletedProcess[str]:
@@ -55,9 +61,15 @@ def test_rejects_assumption_mutation(tmp_path: Path) -> None:
     assert proc.returncode == 1 and "assumptions" in proc.stderr
 
 
-def test_rejects_source_hash_mutation(tmp_path: Path) -> None:
-    proc = mutate(tmp_path, "sources.yaml", "7640653ee007938ed3b1c5030b67acb32189949f55492236de53d2c2d1293eb8", "0" * 64)
-    assert proc.returncode == 1 and "response hashes" in proc.stderr
+@pytest.mark.parametrize("digest", [
+    "34cb7f9f38ff8d8ea8e13b966986720a7a55b72947ad31224ce625209fcf3171",
+    "e7e04fc78b69a08c09d160afd1083a2291c08fc8b53b3b4726d7bee273cc260a",
+    "da5dc20f34e0dc7f4c47d218f253b3915880c10d04e370eaa224b6437a97e1a3",
+    "a8a0ff6914523b9e5defa533759ee69daee892d3ab8669e21881de4728cfceaa",
+])
+def test_rejects_source_hash_mutation(tmp_path: Path, digest: str) -> None:
+    proc = mutate(tmp_path, "sources.yaml", digest, "0" * 64)
+    assert proc.returncode == 1 and "metadata" in proc.stderr
 
 
 def test_rejects_source_support_mutation(tmp_path: Path) -> None:
@@ -82,9 +94,62 @@ def test_rejects_hidden_delta_gap(tmp_path: Path) -> None:
 
 def test_rejects_self_consistent_fake_engine_output(tmp_path: Path) -> None:
     proc = mutate(tmp_path, "evidence/mint-engine-capture-20260801.yaml", "total_chf: 15933.63", "total_chf: 15000.00")
-    assert proc.returncode == 1 and ("runtime" in proc.stderr or "arithmetic" in proc.stderr)
+    assert proc.returncode == 1 and "stored MINT engine evidence does not match runtime" in proc.stderr
 
 
 def test_rejects_jos006_displacement(tmp_path: Path) -> None:
     proc = mutate(tmp_path, "scope.yaml", "displaced: false", "displaced: true")
     assert proc.returncode == 1 and "JOS-006" in proc.stderr
+
+
+def test_rejects_official_request_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "civil_status_code: 1", "civil_status_code: 9")
+    assert proc.returncode == 1 and "request" in proc.stderr
+
+
+def test_rejects_official_submitted_input_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "taxable_income_icc_chf: 72742", "taxable_income_icc_chf: 99999")
+    assert proc.returncode == 1 and "submitted" in proc.stderr
+
+
+def test_rejects_official_component_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/vd-calculator-capture-20260801.yaml", "icc_base_chf: 6389.00", "icc_base_chf: 1.00")
+    assert proc.returncode == 1 and "capture" in proc.stderr
+
+
+def test_rejects_claimed_error_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "evidence/mint-engine-capture-20260801.yaml", "baseline_cantonal_communal_relative_error: 0.009164", "baseline_cantonal_communal_relative_error: 0.000001")
+    assert proc.returncode == 1 and "recomputed" in proc.stderr
+
+
+def test_rejects_source_url_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "sources.yaml", "https://www.vd.ch/etat-droit-finances/impots/impots-pour-les-individus/calculer-mes-impots", "https://evil.example")
+    assert proc.returncode == 1 and "metadata" in proc.stderr
+
+
+def test_rejects_source_last_modified_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "sources.yaml", "Thu, 02 Apr 2026 07:49:44 GMT", "Thu, 01 Jan 1970 00:00:00 GMT")
+    assert proc.returncode == 1 and "last-modified" in proc.stderr
+
+
+def test_rejects_fixture_capture_divergence(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", "icc_chf: 14423.15", "icc_chf: 14523.15")
+    assert proc.returncode == 1 and "capture" in proc.stderr
+
+
+def test_rejects_existing_oracle_byte_mutation(tmp_path: Path) -> None:
+    copy(tmp_path)
+    path = tmp_path / "services/backend/tests/fixtures/estv_oracle_2025.jsonl"
+    path.write_text(path.read_text() + "\n", encoding="utf-8")
+    proc = run(tmp_path)
+    assert proc.returncode == 1 and "oracle file hash" in proc.stderr
+
+
+def test_rejects_missing_3a_credit_timing(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", "pillar3a_contribution_credited_in_tax_year: true", "pillar3a_contribution_credited_in_tax_year: false")
+    assert proc.returncode == 1 and "assumptions" in proc.stderr
+
+
+def test_rejects_premature_verified_status(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", "status: captured_unpromoted_fixture", "status: verified_official_fixture_not_product_connected")
+    assert proc.returncode == 1 and "unpromoted" in proc.stderr

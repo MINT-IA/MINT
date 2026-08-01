@@ -1,6 +1,6 @@
 schema_version: 1
 fixture_id: B2-VD-3A-2026-01
-status: verified_official_fixture_not_product_connected
+status: captured_unpromoted_fixture
 purpose: compare_three_Batch_1_mechanisms_with_one_identical_officially_captured_counterfactual
 persona_boundary:
   synthetic: true
@@ -20,6 +20,7 @@ assumptions:
   intercantonal_or_international_allocation: false
   taxable_wealth_icc_chf: 0
   pillar3a_eligible_employee_with_lpp: true
+  pillar3a_contribution_credited_in_tax_year: true
   retroactive_3a_catchup: false
 inputs:
   baseline_taxable_income_icc_chf: 80000
@@ -37,6 +38,6 @@ official_result:
 display_contract:
   amount_chf: 2104.00
   labels: [illustrative_counterfactual, declared_taxable_income_inputs, official_calculator_indicative_result, not_personalized, not_filing_result, not_advice]
-  required_adjacent_assumptions: [tax_year, municipality, civil_status, children, ordinary_taxation, taxable_income_before_after, pillar3a_amount, official_rounding]
+  required_adjacent_assumptions: [tax_year, municipality, civil_status, children, ordinary_taxation, taxable_income_before_after, pillar3a_amount, pillar3a_credit_timing, official_rounding]
 prohibited_use: [salary_to_taxable_inference, contribution_recommendation, product_or_provider_ranking, filing_submission, transaction_execution, LLM_calculation, production_tax_result]
 expires_on: 2026-12-31

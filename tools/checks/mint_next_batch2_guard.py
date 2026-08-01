@@ -14,7 +14,22 @@ import yaml
 
 BASE = Path("product/mint_next/batch2")
 EXPECTED_PROHIBITED = {"salary_to_taxable_inference", "contribution_recommendation", "product_or_provider_ranking", "filing_submission", "transaction_execution", "LLM_calculation", "production_tax_result"}
-EXPECTED_ADJACENT = {"tax_year", "municipality", "civil_status", "children", "ordinary_taxation", "taxable_income_before_after", "pillar3a_amount", "official_rounding"}
+EXPECTED_ADJACENT = {"tax_year", "municipality", "civil_status", "children", "ordinary_taxation", "taxable_income_before_after", "pillar3a_amount", "pillar3a_credit_timing", "official_rounding"}
+EXPECTED_REQUEST = {"tax_year": 2026, "municipality": "Lausanne", "civil_status_code": 1, "children_full": 0, "children_half": 0, "children_household": 0, "taxable_wealth_icc_chf": 0, "calculate_icc": True, "calculate_ifd": True, "allocation": False}
+EXPECTED_SOURCES = {
+    "vd_calculator": ("Etat_de_Vaud_ACI", "https://www.vd.ch/etat-droit-finances/impots/impots-pour-les-individus/calculer-mes-impots", None, None),
+    "vd_income_scale_2026": ("Etat_de_Vaud_ACI", "https://www.vd.ch/fileadmin/user_upload/organisation/dfin/aci/fichiers_pdf/Bar%C3%A8mes_Revenu_2026.pdf", "34cb7f9f38ff8d8ea8e13b966986720a7a55b72947ad31224ce625209fcf3171", 257586),
+    "vd_municipal_rates_2026": ("Etat_de_Vaud", "https://www.vd.ch/fileadmin/user_upload/themes/territoire/communes/finances_communales/fichiers_xls/Arr%C3%AAt%C3%A9s_d_imposition_2026.xls", "e7e04fc78b69a08c09d160afd1083a2291c08fc8b53b3b4726d7bee273cc260a", 104960),
+    "ofas_pillar3a_2026": ("OFAS", "https://www.bsv.admin.ch/dam/fr/sd-web/sAgdISSXenMT/f_Betr%C3%A4ge%202026.pdf", "da5dc20f34e0dc7f4c47d218f253b3915880c10d04e370eaa224b6437a97e1a3", 204118),
+    "ifd_scale_2026": ("AFC", "https://www.estv.admin.ch/dam/fr/sd-web/gnde9CmEsalK/dbst-tairfe-58c-2026-dfi.pdf", "a8a0ff6914523b9e5defa533759ee69daee892d3ab8669e21881de4728cfceaa", 142066),
+    "vd_cantonal_reduction_2026": ("Etat_de_Vaud_ACI", "https://www.vd.ch/etat-droit-finances/impots/impots-pour-les-individus/payer-mes-impots", None, None),
+}
+RECEIPT_SHA256 = "5ed976cb07688a6d08cba29f96e9c2a451fb3546f5daf6cc5fe58a4348832293"
+VERIFIER_SHA256 = "9b2a87ed7b3da7e661ce011574edcc1b35773231e3a8ef20fe532f72bdb64a19"
+EXPECTED_LAST_MODIFIED = {
+    "vd_income_scale_2026": "Thu, 02 Apr 2026 07:49:44 GMT",
+    "vd_municipal_rates_2026": "Tue, 16 Dec 2025 07:30:48 GMT",
+}
 
 
 def load(root: Path, rel: str, errors: list[str]) -> dict:
@@ -65,10 +80,13 @@ def validate(root: Path) -> list[str]:
         "children_full_quotient": 0, "children_half_quotient": 0,
         "children_same_household": 0, "intercantonal_or_international_allocation": False,
         "taxable_wealth_icc_chf": 0, "pillar3a_eligible_employee_with_lpp": True,
+        "pillar3a_contribution_credited_in_tax_year": True,
         "retroactive_3a_catchup": False,
     }
     if assumptions != expected_assumptions:
         errors.append("fixture assumptions are incomplete or drifted")
+    if fixture.get("status") != "captured_unpromoted_fixture":
+        errors.append("fixture must remain captured and unpromoted during draft lifecycle")
     inputs = fixture.get("inputs", {})
     expected_inputs = {
         "baseline_taxable_income_icc_chf": 80000, "baseline_taxable_income_ifd_chf": 80000,
@@ -97,34 +115,54 @@ def validate(root: Path) -> list[str]:
     captures = official.get("captures", {})
     if official.get("capture_method") != "manual_form_POST_reproduced_with_requests_for_evidence_only_not_a_supported_API" or official.get("calculator_version_visible") != "10.4.0":
         errors.append("official calculator capture method/version is overstated or drifted")
+    if official.get("request_common") != EXPECTED_REQUEST:
+        errors.append("official request assumptions have drifted")
     exact_official = {
-        "baseline": {"taxable": 80000, "icc": 14423.15, "ifd": 1378.20, "total": 15801.35, "hash": "7640653ee007938ed3b1c5030b67acb32189949f55492236de53d2c2d1293eb8"},
-        "counterfactual": {"taxable": 72700, "icc": 12648.75, "ifd": 1048.60, "total": 13697.35, "hash": "096d533d09b7d26cb0857ad3a8d24df83ca5a15e8489150f62eed76aaf221485"},
+        "baseline": {"submitted": {"taxable_income_icc_chf": 80000, "taxable_income_ifd_chf": 80000}, "normalized": {"family_share": 1.0, "taxable_income_displayed_chf": 80000, "icc_base_chf": 6389.0, "cantonal_coefficient": 155.0, "cantonal_reduction_rate": 0.05, "cantonal_charge_chf": 9407.8, "municipal_coefficient": 78.5, "municipal_charge_chf": 5015.35, "icc_total_chf": 14423.15, "ifd_base_chf": 1378.2, "ifd_total_chf": 1378.2, "total_chf": 15801.35}},
+        "counterfactual": {"submitted": {"taxable_income_icc_chf": 72742, "taxable_income_ifd_chf": 72742}, "normalized": {"family_share": 1.0, "taxable_income_displayed_chf": 72700, "icc_base_chf": 5603.0, "cantonal_coefficient": 155.0, "cantonal_reduction_rate": 0.05, "cantonal_charge_chf": 8250.4, "municipal_coefficient": 78.5, "municipal_charge_chf": 4398.35, "icc_total_chf": 12648.75, "ifd_base_chf": 1048.6, "ifd_total_chf": 1048.6, "total_chf": 13697.35}},
     }
     for name, expected in exact_official.items():
         capture = captures.get(name, {})
         normalized = capture.get("normalized_output", {})
-        if capture.get("response_sha256") != expected["hash"] or normalized.get("taxable_income_displayed_chf") != expected["taxable"] or normalized.get("icc_total_chf") != expected["icc"] or normalized.get("ifd_total_chf") != expected["ifd"] or normalized.get("total_chf") != expected["total"] or not close(normalized.get("icc_total_chf", -1) + normalized.get("ifd_total_chf", -1), normalized.get("total_chf", -2)):
+        if capture.get("submitted") != expected["submitted"]:
+            errors.append(f"official {name} submitted inputs have drifted")
+        if normalized != expected["normalized"] or not close(normalized.get("icc_total_chf", -1) + normalized.get("ifd_total_chf", -1), normalized.get("total_chf", -2)):
             errors.append(f"official {name} capture is incomplete")
-    if official.get("raw_source_retention") != "hashes_only_public_repo_does_not_store_source_HTML":
+        expected_canton = normalized.get("icc_base_chf", 0) * normalized.get("cantonal_coefficient", 0) / 100 * (1 - normalized.get("cantonal_reduction_rate", 9))
+        if not close(expected_canton, normalized.get("cantonal_charge_chf", -1), 0.02):
+            errors.append(f"official {name} cantonal reduction arithmetic is incomplete")
+    if baseline != {"icc_chf": 14423.15, "ifd_chf": 1378.2, "total_chf": 15801.35} or counter != {"icc_chf": 12648.75, "ifd_chf": 1048.6, "total_chf": 13697.35} or difference != {"icc_chf": 1774.4, "ifd_chf": 329.6, "total_chf": 2104.0}:
+        errors.append("fixture official result does not match exact source capture")
+    if official.get("raw_source_retention") != "no_dynamic_HTML_retained_canonical_normalized_JSON_and_manual_replay_recipe_only":
         errors.append("official raw-source redistribution boundary has drifted")
+    receipt_path = root / str(official.get("normalized_receipt_path", ""))
+    verifier_path = root / str(official.get("manual_replay_verifier", ""))
+    if official.get("normalized_receipt_sha256") != RECEIPT_SHA256 or not receipt_path.is_file() or hashlib.sha256(receipt_path.read_bytes()).hexdigest() != RECEIPT_SHA256 or not verifier_path.is_file() or hashlib.sha256(verifier_path.read_bytes()).hexdigest() != VERIFIER_SHA256:
+        errors.append("canonical normalized calculator receipt or verifier is missing")
 
     source_items = {item.get("id"): item for item in sources.get("sources", []) if isinstance(item, dict)}
-    if set(source_items) != {"vd_calculator", "vd_income_scale_2026", "vd_municipal_rates_2026", "ofas_pillar3a_2026", "ifd_scale_2026"}:
+    if set(source_items) != set(EXPECTED_SOURCES):
         errors.append("official source allowlist is incomplete")
     if sources.get("machine_api_status") != "no_supported_or_licensed_Vaud_API_identified" or not all(item.get("supports") for item in source_items.values()):
         errors.append("source licensing/support claims are incomplete")
-    if source_items.get("vd_calculator", {}).get("response_sha256_baseline") != captures.get("baseline", {}).get("response_sha256") or source_items.get("vd_calculator", {}).get("response_sha256_counterfactual") != captures.get("counterfactual", {}).get("response_sha256"):
-        errors.append("official calculator response hashes do not match capture receipt")
+    if source_items.get("vd_calculator", {}).get("normalized_receipt_sha256") != RECEIPT_SHA256:
+        errors.append("official calculator normalized receipt hash does not match evidence")
     expected_supports = {
         "vd_calculator": {"taxable_income_and_fortune_are_required", "results_are_indicative", "definitive_tax_is_set_by_ACI", "fixture_inputs_and_outputs"},
         "vd_income_scale_2026": {"icc_base_80000_is_6389", "icc_base_72700_is_5603", "fractions_below_100_are_abandoned"},
         "vd_municipal_rates_2026": {"lausanne_income_tax_coefficient_78_5"},
         "ofas_pillar3a_2026": {"employee_with_pension_fund_3a_ceiling_7258"},
         "ifd_scale_2026": {"ifd_2026_single_person_scale"},
+        "vd_cantonal_reduction_2026": {"cantonal_personal_income_tax_reduction_5_percent_for_2026"},
     }
     if any(set(source_items.get(key, {}).get("supports", [])) != value for key, value in expected_supports.items()):
         errors.append("official source support claims have drifted")
+    for source_id, (authority, url, digest, size) in EXPECTED_SOURCES.items():
+        item = source_items.get(source_id, {})
+        if item.get("authority") != authority or item.get("url") != url or (digest is not None and (item.get("sha256") != digest or item.get("bytes") != size)):
+            errors.append(f"official source metadata has drifted for {source_id}")
+    if any(source_items.get(key, {}).get("last_modified_http") != value for key, value in EXPECTED_LAST_MODIFIED.items()) or source_items.get("vd_calculator", {}).get("version_visible") != "10.4.0":
+        errors.append("official source version or last-modified metadata has drifted")
 
     canonical = engine.get("canonical_engine", {})
     engine_path = root / str(canonical.get("path", ""))
@@ -132,6 +170,8 @@ def validate(root: Path) -> list[str]:
         errors.append("Batch 2 must reuse only the canonical backend tax engine")
     if not engine_path.is_file() or hashlib.sha256(engine_path.read_bytes()).hexdigest() != canonical.get("sha256"):
         errors.append("canonical engine hash mismatch")
+    if canonical.get("git_head") != "f6b8a0172d2ef5007964c73ecb217f280659a87b":
+        errors.append("canonical engine git provenance has drifted")
     oracle = engine.get("oracle_comparison", {})
     if oracle.get("per_component_tolerance_relative") != 0.02 or oracle.get("ifd_tolerance_absolute_chf") != 1.50:
         errors.append("pre-existing oracle tolerance floors have drifted")
@@ -143,6 +183,19 @@ def validate(root: Path) -> list[str]:
             errors.append(f"MINT engine arithmetic identity failed for {key}")
     if oracle.get("official_delta_chf") != 2104.00 or oracle.get("mint_delta_chf") != 2166.59 or oracle.get("delta_difference_chf") != 62.59 or oracle.get("delta_relative_error") != 0.029748:
         errors.append("disclosed MINT-vs-official delta gap has drifted")
+    recomputed = {
+        "baseline_cantonal_communal_relative_error": round(abs(outputs.get("baseline", {}).get("cantonal_communal_chf", 0) - 14423.15) / 14423.15, 6),
+        "counterfactual_cantonal_communal_relative_error": round(abs(outputs.get("counterfactual", {}).get("cantonal_communal_chf", 0) - 12648.75) / 12648.75, 6),
+        "baseline_ifd_absolute_error_chf": round(abs(outputs.get("baseline", {}).get("ifd_chf", 0) - 1378.20), 2),
+        "counterfactual_ifd_absolute_error_chf": round(abs(outputs.get("counterfactual", {}).get("ifd_chf", 0) - 1048.60), 2),
+    }
+    if any(oracle.get(key) != value for key, value in recomputed.items()):
+        errors.append("oracle component errors do not match recomputed evidence")
+    existing = engine.get("existing_oracle", {})
+    for rel, key in (("services/backend/tests/test_estv_oracle.py", "test_sha256"), ("services/backend/tests/fixtures/estv_oracle_2025.jsonl", "fixture_sha256")):
+        path = root / rel
+        if not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != existing.get(key):
+            errors.append(f"existing oracle file hash mismatch for {rel}")
     if "delta_error_is_disclosed_not_declared_exact" not in str(engine.get("claim_boundary", "")):
         errors.append("engine comparison must disclose that the delta is not exact")
     # Execute the canonical code. Stored engine evidence must not become a
