@@ -42,6 +42,14 @@ def test_current_contract_passes():
  ('evaluation-readiness.yaml','winner_selected: false','winner_selected: true','user evidence'),
  ('batch.yaml','author_cannot_approve: true','author_cannot_approve: false','promotion'),
  ('batch.yaml','nationwide_tax_claim','nationwide_tax_ready','scope'),
+ ('batch.yaml','status: proven_derivative_comparison_not_user_validated','status: draft_unproven','lifecycle'),
+ ('evidence/promotion-20260801.yaml','reviewer: batch3_scope_roast','reviewer: author','promotion receipt'),
+ ('evidence/promotion-20260801.yaml','verdict: ROAST_PASS','verdict: FAIL','promotion receipt'),
+ ('evidence/promotion-20260801.yaml','audited_head: a4add500f6401e94b1cabef4713746bf262de0fd','audited_head: deadbeef','promotion receipt'),
+ ('evidence/promotion-20260801.yaml','moderated_user_testing_completed: false','moderated_user_testing_completed: true','promotion receipt'),
+ ('evidence/promotion-20260801.yaml','next_honest_gate: moderated_protocol_with_raw_evidence','next_honest_gate: production','promotion receipt'),
+ ('evidence/bead-MINT_nosync-wgi.yaml','status: closed','status: in_progress','work tracking receipt'),
+ ('evidence/bead-MINT_nosync-wgi.yaml','closed_at: 2026-08-01T20:18:41Z','closed_at: 2026-08-01T20:18:42Z','work tracking receipt'),
 ])
 def test_rejects_contract_mutation(tmp_path,rel,old,new,message):
  p=mutate(tmp_path,rel,old,new);assert p.returncode==1 and message in p.stderr

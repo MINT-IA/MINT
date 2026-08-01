@@ -163,6 +163,8 @@ ALLOW = {
     "tools/checks/mint_next_batch3_runtime_probe.py",
     "product/mint_next/batch3/evidence/runtime-20260801.yaml",
     "product/mint_next/batch3/evidence/render-20260801.yaml",
+    "product/mint_next/batch3/evidence/promotion-20260801.yaml",
+    "product/mint_next/batch3/evidence/bead-MINT_nosync-wgi.yaml",
     "tools/checks/mint_next_batch3_render.py",
     "product/mint_next/batch3/evidence/renders/phone320-a-result.png",
     "product/mint_next/batch3/evidence/renders/component320-a-result.png",

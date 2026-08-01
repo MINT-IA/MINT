@@ -1,0 +1,33 @@
+schema_version: 1
+batch: mint_next_batch3_real_fixture_comparison
+status: proven_derivative_comparison_not_user_validated
+audited_head: a4add500f6401e94b1cabef4713746bf262de0fd
+unresolved_p1_p2: 0
+independent_reviews:
+  scope_and_runtime_roast: {reviewer: batch3_scope_roast, verdict: ROAST_PASS}
+  design_accessibility_runtime: {reviewer: batch3_design_a11y, verdict: ROAST_PASS}
+  swiss_tax_and_compliance: {reviewer: batch3_tax_compliance, verdict: ROAST_PASS}
+proofs:
+  targeted_guard_runtime_workflow_tests: 51_passed
+  hostile_runtime_mutations: 6_rejected
+  live_cdp_runtime: pass_true_320_scoped_results_controls_return_focus_scroll_motion_contrast
+  deterministic_targeted_renders: 18_match_receipt
+  live_official_vaud_replay: pass_upstream_batch2_fixture_unchanged
+  repository_guards: pass
+  live_work_tracking: closed
+limitations:
+  local_derivative_prototype_only: true
+  moderated_user_testing_completed: false
+  raw_user_evidence_present: false
+  ux_winner_selected: false
+  accessibility_fully_validated: false
+  flutter_product_runtime_delivered: false
+  production_connection_delivered: false
+  tax_engine_changed: false
+  personalized_tax_estimate_delivered: false
+  tax_filing_result_delivered: false
+  advice_or_recommendation_delivered: false
+  supported_or_licensed_vaud_api_identified: false
+  nationwide_swiss_tax_coverage_delivered: false
+  jos006_closed_or_displaced: false
+next_honest_gate: moderated_protocol_with_raw_evidence

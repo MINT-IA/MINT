@@ -23,11 +23,11 @@ def load(root,rel,errors):
 def validate(root:Path)->list[str]:
  e=[];batch=load(root,'batch.yaml',e);scenario=load(root,'scenario.yaml',e);directions=load(root,'directions.yaml',e);evaluation=load(root,'evaluation-readiness.yaml',e)
  if any(x.get('schema_version')!=1 for x in (batch,scenario,directions,evaluation)):e.append('Batch 3 schema versions have drifted')
- if batch.get('status')!='draft_unproven' or batch.get('work_tracking')!={'system':'beads','id':'MINT_nosync-wgi','expected_live_status':'in_progress'}:e.append('Batch 3 draft lifecycle has drifted')
+ if batch.get('status')!='proven_derivative_comparison_not_user_validated' or batch.get('work_tracking')!={'system':'beads','id':'MINT_nosync-wgi','expected_live_status':'closed'}:e.append('Batch 3 promoted lifecycle has drifted')
  exact_scope={'includes':['derivative_local_prototype','three_equal_depth_directions','one_identical_promoted_fixture','correction_invalidation','source_assumption_disclosure','runtime_and_accessibility_proofs','independent_roasts'],'excludes':['historical_batch1_edit','historical_batch2_edit','ux_winner','moderated_user_test_claim','flutter_product','tax_engine_change','production_connection','supported_or_licensed_api_claim','nationwide_tax_claim','jos006_closure']}
  if batch.get('scope')!=exact_scope:e.append('Batch 3 scope has drifted')
  if batch.get('upstream')!={'batch1_promoted_head':'c29d7dd95a6c6e9d6d0d3e24fbb523742a5e6f59','batch2_promoted_head':'424fdb14e1ab53a9fedc171e398f171b51be23b9'}:e.append('Batch 3 upstream promotion identity has drifted')
- exact_artifacts={'scenario':'product/mint_next/batch3/scenario.yaml','directions':'product/mint_next/batch3/directions.yaml','evaluation_readiness':'product/mint_next/batch3/evaluation-readiness.yaml','prototype':'product/mint_next/batch3/prototype/index.html','runtime_probe':'tools/checks/mint_next_batch3_runtime_probe.py','runtime_receipt':'product/mint_next/batch3/evidence/runtime-20260801.yaml','render_tool':'tools/checks/mint_next_batch3_render.py','render_receipt':'product/mint_next/batch3/evidence/render-20260801.yaml'}
+ exact_artifacts={'scenario':'product/mint_next/batch3/scenario.yaml','directions':'product/mint_next/batch3/directions.yaml','evaluation_readiness':'product/mint_next/batch3/evaluation-readiness.yaml','prototype':'product/mint_next/batch3/prototype/index.html','runtime_probe':'tools/checks/mint_next_batch3_runtime_probe.py','runtime_receipt':'product/mint_next/batch3/evidence/runtime-20260801.yaml','render_tool':'tools/checks/mint_next_batch3_render.py','render_receipt':'product/mint_next/batch3/evidence/render-20260801.yaml','promotion_receipt':'product/mint_next/batch3/evidence/promotion-20260801.yaml','work_tracking_receipt':'product/mint_next/batch3/evidence/bead-MINT_nosync-wgi.yaml'}
  if batch.get('artifacts')!=exact_artifacts:e.append('Batch 3 artifact graph has drifted')
  exact_promotion={'author_cannot_approve':True,'requires':['upstream_hash_identity','three_direction_fact_parity','correction_invalidation_runtime','source_disclosure_runtime','accessibility_review','swiss_tax_and_compliance_review','independent_roast_no_p1_p2'],'never_sufficient':['author_summary','screenshots_only','grep_only','test_exit_code_without_mutation','same_file_expected_values','claimed_user_test_without_raw_evidence']}
  if batch.get('promotion')!=exact_promotion:e.append('Batch 3 promotion contract has drifted')
@@ -82,6 +82,12 @@ def validate(root:Path)->list[str]:
  for name,item in render.get('artifacts',{}).items():
   p=root/str(item.get('path',''))
   if not p.is_file() or p.name!=name or hashlib.sha256(p.read_bytes()).hexdigest()!=item.get('sha256') or p.stat().st_size!=item.get('bytes'):e.append(f'Batch 3 render artifact mismatch: {name}')
+ promotion=load(root,'evidence/promotion-20260801.yaml',e)
+ expected_promotion={'schema_version':1,'batch':'mint_next_batch3_real_fixture_comparison','status':'proven_derivative_comparison_not_user_validated','audited_head':'a4add500f6401e94b1cabef4713746bf262de0fd','unresolved_p1_p2':0,'independent_reviews':{'scope_and_runtime_roast':{'reviewer':'batch3_scope_roast','verdict':'ROAST_PASS'},'design_accessibility_runtime':{'reviewer':'batch3_design_a11y','verdict':'ROAST_PASS'},'swiss_tax_and_compliance':{'reviewer':'batch3_tax_compliance','verdict':'ROAST_PASS'}},'proofs':{'targeted_guard_runtime_workflow_tests':'51_passed','hostile_runtime_mutations':'6_rejected','live_cdp_runtime':'pass_true_320_scoped_results_controls_return_focus_scroll_motion_contrast','deterministic_targeted_renders':'18_match_receipt','live_official_vaud_replay':'pass_upstream_batch2_fixture_unchanged','repository_guards':'pass','live_work_tracking':'closed'},'limitations':{'local_derivative_prototype_only':True,'moderated_user_testing_completed':False,'raw_user_evidence_present':False,'ux_winner_selected':False,'accessibility_fully_validated':False,'flutter_product_runtime_delivered':False,'production_connection_delivered':False,'tax_engine_changed':False,'personalized_tax_estimate_delivered':False,'tax_filing_result_delivered':False,'advice_or_recommendation_delivered':False,'supported_or_licensed_vaud_api_identified':False,'nationwide_swiss_tax_coverage_delivered':False,'jos006_closed_or_displaced':False},'next_honest_gate':'moderated_protocol_with_raw_evidence'}
+ if promotion!=expected_promotion:e.append('Batch 3 promotion receipt has drifted')
+ bead=load(root,'evidence/bead-MINT_nosync-wgi.yaml',e)
+ expected_bead={'schema_version':1,'id':'MINT_nosync-wgi','title':'MINT Next Batch 3 — real fixture across three directions','status':'closed','closed_at':__import__('datetime').datetime(2026,8,1,20,18,41,tzinfo=__import__('datetime').timezone.utc),'close_reason':'Batch 3 derivative comparison independently audited with no P1/P2 at a4add500f6401e94b1cabef4713746bf262de0fd; no user, winner, Flutter product, engine, API, advice, filing or nationwide claim.','audited_head':'a4add500f6401e94b1cabef4713746bf262de0fd'}
+ if bead!=expected_bead:e.append('Batch 3 work tracking receipt has drifted')
  return e
 
 def live(root):
@@ -90,11 +96,15 @@ def live(root):
  canonical=Path(p.stdout.strip()).parent;q=subprocess.run(['bd','show','MINT_nosync-wgi','--json'],cwd=canonical,capture_output=True,text=True)
  try:item=json.loads(q.stdout)[0]
  except Exception:return ['unable to parse live Batch 3 Bead']
- return [] if item.get('status')=='in_progress' else [f"live Batch 3 Bead must be in_progress, got {item.get('status')}"]
+ expected={'status':'closed','closed_at':'2026-08-01T20:18:41Z','close_reason':'Batch 3 derivative comparison independently audited with no P1/P2 at a4add500f6401e94b1cabef4713746bf262de0fd; no user, winner, Flutter product, engine, API, advice, filing or nationwide claim.'}
+ errors=[]
+ for key,value in expected.items():
+  if item.get(key)!=value:errors.append(f"live Batch 3 Bead {key} mismatch: {item.get(key)}")
+ return errors
 def main():
  ap=argparse.ArgumentParser();ap.add_argument('--root',type=Path,default=Path.cwd());ap.add_argument('--live-work-tracking',action='store_true');a=ap.parse_args();errors=validate(a.root.resolve());errors+=live(a.root.resolve()) if a.live_work_tracking else []
  if errors:
   for x in errors:print('ERROR mint_next_batch3_guard:',x,file=sys.stderr)
   return 1
- print('OK mint_next_batch3_guard: derivative fixture comparison remains bounded and unpromoted.',file=sys.stderr);return 0
+ print('OK mint_next_batch3_guard: promoted derivative fixture comparison remains bounded and not user-validated.',file=sys.stderr);return 0
 if __name__=='__main__':raise SystemExit(main())

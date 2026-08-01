@@ -1,12 +1,32 @@
 schema_version: 1
-status: draft_unproven
-work_tracking: {system: beads, id: MINT_nosync-wgi, expected_live_status: in_progress}
+status: proven_derivative_comparison_not_user_validated
+work_tracking:
+  system: beads
+  id: MINT_nosync-wgi
+  expected_live_status: closed
 upstream:
   batch1_promoted_head: c29d7dd95a6c6e9d6d0d3e24fbb523742a5e6f59
   batch2_promoted_head: 424fdb14e1ab53a9fedc171e398f171b51be23b9
 scope:
-  includes: [derivative_local_prototype, three_equal_depth_directions, one_identical_promoted_fixture, correction_invalidation, source_assumption_disclosure, runtime_and_accessibility_proofs, independent_roasts]
-  excludes: [historical_batch1_edit, historical_batch2_edit, ux_winner, moderated_user_test_claim, flutter_product, tax_engine_change, production_connection, supported_or_licensed_api_claim, nationwide_tax_claim, jos006_closure]
+  includes:
+  - derivative_local_prototype
+  - three_equal_depth_directions
+  - one_identical_promoted_fixture
+  - correction_invalidation
+  - source_assumption_disclosure
+  - runtime_and_accessibility_proofs
+  - independent_roasts
+  excludes:
+  - historical_batch1_edit
+  - historical_batch2_edit
+  - ux_winner
+  - moderated_user_test_claim
+  - flutter_product
+  - tax_engine_change
+  - production_connection
+  - supported_or_licensed_api_claim
+  - nationwide_tax_claim
+  - jos006_closure
 artifacts:
   scenario: product/mint_next/batch3/scenario.yaml
   directions: product/mint_next/batch3/directions.yaml
@@ -16,7 +36,22 @@ artifacts:
   runtime_receipt: product/mint_next/batch3/evidence/runtime-20260801.yaml
   render_tool: tools/checks/mint_next_batch3_render.py
   render_receipt: product/mint_next/batch3/evidence/render-20260801.yaml
+  promotion_receipt: product/mint_next/batch3/evidence/promotion-20260801.yaml
+  work_tracking_receipt: product/mint_next/batch3/evidence/bead-MINT_nosync-wgi.yaml
 promotion:
   author_cannot_approve: true
-  requires: [upstream_hash_identity, three_direction_fact_parity, correction_invalidation_runtime, source_disclosure_runtime, accessibility_review, swiss_tax_and_compliance_review, independent_roast_no_p1_p2]
-  never_sufficient: [author_summary, screenshots_only, grep_only, test_exit_code_without_mutation, same_file_expected_values, claimed_user_test_without_raw_evidence]
+  requires:
+  - upstream_hash_identity
+  - three_direction_fact_parity
+  - correction_invalidation_runtime
+  - source_disclosure_runtime
+  - accessibility_review
+  - swiss_tax_and_compliance_review
+  - independent_roast_no_p1_p2
+  never_sufficient:
+  - author_summary
+  - screenshots_only
+  - grep_only
+  - test_exit_code_without_mutation
+  - same_file_expected_values
+  - claimed_user_test_without_raw_evidence

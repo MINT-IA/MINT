@@ -1,0 +1,7 @@
+schema_version: 1
+id: MINT_nosync-wgi
+title: MINT Next Batch 3 — real fixture across three directions
+status: closed
+closed_at: 2026-08-01T20:18:41Z
+close_reason: Batch 3 derivative comparison independently audited with no P1/P2 at a4add500f6401e94b1cabef4713746bf262de0fd; no user, winner, Flutter product, engine, API, advice, filing or nationwide claim.
+audited_head: a4add500f6401e94b1cabef4713746bf262de0fd
