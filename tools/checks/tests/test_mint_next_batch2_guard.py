@@ -235,3 +235,32 @@ def test_rejects_source_capture_timestamp_mutation(tmp_path: Path) -> None:
 def test_rejects_engine_exactness_claim_mutation(tmp_path: Path) -> None:
     proc = mutate(tmp_path, "evidence/mint-engine-capture-20260801.yaml", "engine_matches_each_official_component_within_preexisting_oracle_floors_but_delta_error_is_disclosed_not_declared_exact", "engine_is_exact_for_Vaud")
     assert proc.returncode == 1 and "delta is not exact" in proc.stderr
+
+
+@pytest.mark.parametrize(("old", "new"), [
+    ("fixture_id: B2-VD-3A-2026-01", "fixture_id: PERSONAL-JULIEN"),
+    ("purpose: compare_three_Batch_1_mechanisms_with_one_identical_officially_captured_counterfactual", "purpose: exact_personal_tax_advice_for_Julien"),
+])
+def test_rejects_fixture_identity_or_purpose_mutation(tmp_path: Path, old: str, new: str) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", old, new)
+    assert proc.returncode == 1 and "bounded purpose" in proc.stderr
+
+
+def test_rejects_non_synthetic_persona(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", "synthetic: true", "synthetic: false")
+    assert proc.returncode == 1 and "gross salary" in proc.stderr
+
+
+def test_rejects_salary_derivation_warning_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", "taxable_income_is_declared_input_never_derived_from_salary", "taxable_income_is_derived_from_salary")
+    assert proc.returncode == 1 and "gross salary" in proc.stderr
+
+
+def test_rejects_schema_version_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "batch.yaml", "schema_version: 1", "schema_version: 999")
+    assert proc.returncode == 1 and "schema version" in proc.stderr
+
+
+def test_rejects_source_capture_path_mutation(tmp_path: Path) -> None:
+    proc = mutate(tmp_path, "fixture.yaml", "source_capture: product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml", "source_capture: fake.yaml")
+    assert proc.returncode == 1 and "source-capture path" in proc.stderr

@@ -13,6 +13,8 @@ artifacts:
   fixture: product/mint_next/batch2/fixture.yaml
   official_capture: product/mint_next/batch2/evidence/vd-calculator-capture-20260801.yaml
   engine_capture: product/mint_next/batch2/evidence/mint-engine-capture-20260801.yaml
+  normalized_receipt: product/mint_next/batch2/evidence/vd-calculator-normalized-receipt-20260801.json
+  replay_verifier: product/mint_next/batch2/evidence/verify_vd_calculator_receipt.py
 promotion:
   author_cannot_approve: true
   requires: [official_source_hashes, arithmetic_identity, canonical_engine_identity, per_component_oracle_tolerance, swiss_tax_review, licensing_boundary_review, independent_roast_no_p1_p2]
