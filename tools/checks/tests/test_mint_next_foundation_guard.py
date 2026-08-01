@@ -131,6 +131,33 @@ def test_guard_rejects_proven_status_without_promotion_receipt(tmp_path: Path) -
     assert "promotion" in proc.stderr
 
 
+def test_guard_rejects_proven_foundation_with_open_tracking(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "captured_status: closed", "captured_status: in_progress"
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "closed work tracking" in proc.stderr
+
+
+def test_guard_rejects_product_runtime_requirement_for_foundation(tmp_path: Path) -> None:
+    contract = _copy_contract(tmp_path)
+    contract.write_text(
+        contract.read_text(encoding="utf-8").replace(
+            "runtime_before_completion: not_applicable_foundation_has_no_user_runtime",
+            "runtime_before_completion: true",
+        ),
+        encoding="utf-8",
+    )
+    proc = _run(tmp_path)
+    assert proc.returncode == 1
+    assert "runtime proof not applicable" in proc.stderr
+
+
 def test_guard_rejects_missing_cutover_gate(tmp_path: Path) -> None:
     contract = _copy_contract(tmp_path)
     contract.write_text(

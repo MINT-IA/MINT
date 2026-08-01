@@ -5,7 +5,7 @@ bead: MINT_nosync-9kv
 work_tracking:
   system: beads
   id: MINT_nosync-9kv
-  captured_status: in_progress
+  captured_status: closed
   snapshot: product/mint_next/evidence/bead-MINT_nosync-9kv.yaml
   journey_os: not_applicable_foundation_has_no_user_route
 
@@ -119,7 +119,7 @@ batch_policy:
   one_user_outcome: true
   one_owner: true
   small_revertable_diff: true
-  runtime_before_completion: true
+  runtime_before_completion: not_applicable_foundation_has_no_user_runtime
 
 completion_evidence:
   allowed:

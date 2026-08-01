@@ -186,6 +186,8 @@ def validate(root: Path) -> list[str]:
                 errors.append("work_tracking snapshot status mismatch")
         if tracking.get("journey_os") != "not_applicable_foundation_has_no_user_route":
             errors.append("foundation must explicitly state why no Journey OS route owns it")
+        if data.get("status") == "proven" and tracking.get("captured_status") != "closed":
+            errors.append("proven foundation must have closed work tracking")
 
     capabilities = data.get("required_capabilities")
     if not isinstance(capabilities, dict):
@@ -336,6 +338,8 @@ def validate(root: Path) -> list[str]:
         errors.append("batch status must default to unproven")
     if not isinstance(batches, dict) or batches.get("author_cannot_approve") is not True:
         errors.append("batch author must not approve their own work")
+    if not isinstance(batches, dict) or batches.get("runtime_before_completion") != "not_applicable_foundation_has_no_user_runtime":
+        errors.append("Batch 0 must explicitly mark product runtime proof not applicable")
 
     memory = data.get("memory")
     if not isinstance(memory, dict) or memory.get("source_of_truth") is not False:
@@ -396,8 +400,9 @@ def _live_tracking_errors(root: Path, data: dict) -> list[str]:
     item = payload[0] if isinstance(payload, list) and payload else payload
     if not isinstance(item, dict) or item.get("id") != tracking.get("id"):
         return ["live Bead identity mismatch"]
-    if item.get("status") != "in_progress":
-        return [f"live Bead must remain in_progress while foundation is draft, got {item.get('status')}"]
+    expected_status = "closed" if data.get("status") == "proven" else "in_progress"
+    if item.get("status") != expected_status:
+        return [f"live Bead must be {expected_status} for foundation status {data.get('status')}, got {item.get('status')}"]
     return []
 
 
