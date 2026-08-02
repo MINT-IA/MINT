@@ -1,0 +1,347 @@
+#!/usr/bin/env python3
+"""Fail-closed guard for the MINT Next governance-authority transition.
+
+This guard deliberately proves less than product readiness.  It permits only a
+governance-only router transition while protecting the existing retirement
+vertical, product code, Journey OS evidence, and simulator flows byte-for-byte.
+"""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import subprocess
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set
+
+import yaml
+
+
+OLD_MILESTONE = "mint-2-0-first-experience-rente-capital"
+NEW_MILESTONE = "mint-next-architecture-authority-20260802"
+NEW_PHASE_DIR = f".planning/phases/{NEW_MILESTONE}"
+NEW_CONTEXT = f"{NEW_PHASE_DIR}/CONTEXT.md"
+NEW_SPEC = f"{NEW_PHASE_DIR}/SPEC.md"
+
+AUTHORITY_MARKER = (
+    "<!-- mint-authority: milestone={milestone}; phase_dir={phase_dir}; "
+    "context={context}; spec={spec}; mode=governance-only -->"
+)
+
+# Audited at 707b25b815483ea20f77b065df9a47c63210f790.  Keeping the
+# manifest here makes deletion, addition, or mutation of the old runtime
+# vertical fail independently of git rename heuristics.
+LEGACY_RETIREMENT_MANIFEST: Dict[str, str] = {
+    ".planning/phases/mint-2-0-first-experience-rente-capital/CLAUDE-REVIEW.md": "fbd7894c09762646834247c0cede3178c09240f21550f92ce67cb6e809b4d8f5",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md": "60c601b8349bd8ac14a5a8a877fc7ee00624866fbe7d5e9dfd2479de34b3127b",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/PLAN.md": "d996ff7ba3e635a8da10985719ec70ce3418894c46039fd42a8030b6dee850b5",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/PLANS.md": "b3b35b9bbeaac943f4eb1f6102ae9629da29fae9cace01eb26695256df1b72ce",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md": "7714cc2ba2784eaa3ce33dce93e8aec2f1bb3b61cda6c0eb69e08350da78109e",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/STATE-TABLE.md": "3a0ab9ebd62db4a2c9d22d41edc2ea344e1dacfbb3cbb9cfe9974e16295f4e5e",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/TRANCHE-FIRSTJOB-SPEC.md": "6077d06a438bdd9be0f42122d15ca8cb9303354444c79f8e0fa3f270ecb467a0",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/VERIFICATION-REPORT.html": "5fb3319fe901eb18ae29e06fa85c120d1d4d9f969af6d9ecce08e69456f85bfb",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/VERIFICATION.md": "74896dbe334aed7d729dc7dd92ab9006802075dd1d19f29fef6c102c87ec6438",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/VZ_ROUTE_ARCHITECTURE.md": "a73f3b057651ebab288ed6abd53664bd4da35a46bbecb1c6e596dc5505612de7",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/golden-onboarding-archetypes.md": "3c354e1699f5fb2fbdbb143f798c87c63a35460963a891cb661322cc2b7367e8",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-01-contract-before-code-PLAN.md": "fd7bbf31436f67f03380a5afb80f59df92fe340114de3b89fd7b46acee8cea3c",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02-entry-and-three-axes-code-map-PLAN.md": "f31d5f1fe839ebf2738a0a6106cdc3e964a29a4834d083a572b62e3a6fa90491",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02a-data-dictionary-onboarding-profile-PLAN.md": "2e14e3050dade84788b56cb3042e28efaeeda6338c3dc393de91acb25e03dd53",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02b-existing-variable-coverage-map-PLAN.md": "29ffd233c536fad3d58fcf270f006fffa8a23a211d4eaa2adff4e95aadbfc7b6",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-02c-variable-contract-lints-implementation-PLAN.md": "57bebb0e1228e195128715341cbd8defb5541897c09b2db26561e78b26bc6298",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-CONTEXT.md": "621bdc78bc574f243e1a220b12d2c3fe2d385e65594d3d8431bd5d306bced426",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-SUMMARY.md": "27b6d39ad843e3e8d3748a8c3120806106537d5744b7273c09eb736fdcfa2229",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/mint-2-0-first-experience-rente-capital-VERIFICATION.md": "7fd674df95137383a00df3b5d9feae88a124c64ca7208530426b2cac17190c91",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts/account_lifecycle_delete.json": "0b1fcf88726b120635a3d0083f0266908dee55408af752e9506c5ebde3abc6e7",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts/coach_advice_turn.json": "7277b4afa63435f65d3b56c70e88994f38fcc3abde8b2413658bc4e44215f463",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts/money_truth_spine.json": "d5f594ca367a67eb22d8e8c3cb74b43490baa619186701445c93af6b851c69dd",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts/onboarding_first_value.json": "87de04b9c8d3c047f5364693e9802864d169b9ae86cfd638760a1721322676ff",
+    ".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts/profile_privacy_control.json": "8c0a0205fddc127c147389d300ab76272501ab1a56d5f87c4dabb9e1c4bf0814",
+}
+
+DEFAULT_BASELINE_REF = "707b25b815483ea20f77b065df9a47c63210f790"
+
+PROTECTED_PRODUCT_PREFIXES = ("apps/mobile/", "services/backend/")
+PROTECTED_EVIDENCE_PREFIXES = (
+    ".planning/journeys/records/",
+    ".planning/journeys/issues/",
+    ".planning/journeys/evidence/",
+    "tools/simulator/flows/",
+)
+
+
+@dataclass(frozen=True)
+class TransitionPolicy:
+    baseline_ref: str = DEFAULT_BASELINE_REF
+    legacy_manifest: Mapping[str, str] = None  # type: ignore[assignment]
+
+    def __post_init__(self) -> None:
+        if self.legacy_manifest is None:
+            object.__setattr__(self, "legacy_manifest", LEGACY_RETIREMENT_MANIFEST)
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _git(root: Path, args: Sequence[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        ["git", *args], cwd=root, text=True, capture_output=True, check=False
+    )
+
+
+def _changed_paths(root: Path, baseline_ref: str, errors: List[str]) -> Set[str]:
+    if _git(root, ["cat-file", "-e", f"{baseline_ref}^{{commit}}"]).returncode != 0:
+        errors.append(f"baseline ref does not resolve to a git commit: {baseline_ref}")
+        return set()
+    diff = _git(root, ["diff", "--name-only", baseline_ref, "--"])
+    if diff.returncode != 0:
+        errors.append(f"cannot compare transition with baseline {baseline_ref}: {diff.stderr.strip()}")
+        return set()
+    untracked = _git(root, ["ls-files", "--others", "--exclude-standard"])
+    if untracked.returncode != 0:
+        errors.append(f"cannot enumerate untracked files: {untracked.stderr.strip()}")
+        return set()
+    return {line for line in (diff.stdout + "\n" + untracked.stdout).splitlines() if line}
+
+
+def _load_yaml(path: Path, errors: List[str], label: str) -> object:
+    if not path.is_file():
+        errors.append(f"{label} missing: {path}")
+        return None
+    try:
+        return yaml.safe_load(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, yaml.YAMLError) as exc:
+        errors.append(f"{label} is unreadable: {exc}")
+        return None
+
+
+def _check_legacy_manifest(root: Path, manifest: Mapping[str, str], errors: List[str]) -> None:
+    expected = set(manifest)
+    legacy_root = root / ".planning/phases" / OLD_MILESTONE
+    actual = {
+        path.relative_to(root).as_posix()
+        for path in legacy_root.rglob("*")
+        if path.is_file()
+    } if legacy_root.is_dir() else set()
+    for path in sorted(expected | actual):
+        full = root / path
+        if path not in expected:
+            errors.append(f"legacy retirement baseline mismatch: unexpected file {path}")
+        elif not full.is_file():
+            errors.append(f"legacy retirement baseline mismatch: missing file {path}")
+        elif _sha256(full) != manifest[path]:
+            errors.append(f"legacy retirement baseline mismatch: byte hash changed for {path}")
+
+
+def _check_router(root: Path, errors: List[str]) -> None:
+    active_path = root / ".planning/ACTIVE_CONTEXT.json"
+    try:
+        active = json.loads(active_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        errors.append(f"ACTIVE_CONTEXT.json is unreadable: {exc}")
+        return
+    expected = {
+        "active_milestone": NEW_MILESTONE,
+        "active_phase_dir": NEW_PHASE_DIR,
+        "active_phase_context": NEW_CONTEXT,
+        "active_spec": NEW_SPEC,
+        "next_product_phase_context": NEW_CONTEXT,
+        "authority_mode": "governance-only",
+        "successor_product_phase_queued": False,
+    }
+    for key, value in expected.items():
+        if active.get(key) != value:
+            errors.append(
+                f"old-authority transition incomplete: ACTIVE_CONTEXT.json {key!r} "
+                f"must be {value!r}, got {active.get(key)!r}"
+            )
+    historical = active.get("historical_not_active", [])
+    preserved = active.get("preserved_runtime_vertical_not_global_authority", [])
+    if OLD_MILESTONE not in historical:
+        errors.append("old retirement milestone must be listed in historical_not_active")
+    if OLD_MILESTONE not in preserved:
+        errors.append(
+            "old retirement milestone must be preserved_runtime_vertical_not_global_authority"
+        )
+    for path in (NEW_CONTEXT, NEW_SPEC):
+        if not (root / path).is_file():
+            errors.append(f"new governance authority file missing: {path}")
+
+    marker = AUTHORITY_MARKER.format(
+        milestone=NEW_MILESTONE,
+        phase_dir=NEW_PHASE_DIR,
+        context=NEW_CONTEXT,
+        spec=NEW_SPEC,
+    )
+    markdown_paths = (
+        ".planning/ACTIVE_CONTEXT.md",
+        ".planning/STATE.md",
+        ".planning/ROADMAP.md",
+        ".planning/INDEX.md",
+    )
+    for relative in markdown_paths:
+        path = root / relative
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            errors.append(f"router document unreadable: {relative}: {exc}")
+            continue
+        if marker not in text:
+            errors.append(f"router authority marker missing or inconsistent: {relative}")
+        active_old_phrases = (
+            f"Active milestone: `{OLD_MILESTONE}`",
+            f"Active milestone: {OLD_MILESTONE}",
+            f"milestone: {OLD_MILESTONE}",
+            "Current operating phase is **Mint 2.0 first experience rente/capital**",
+        )
+        if any(phrase in text for phrase in active_old_phrases):
+            errors.append(f"old retirement authority remains active in {relative}")
+
+
+def _check_conflict(root: Path, errors: List[str]) -> None:
+    data = _load_yaml(
+        root / "product/mint_next/batch4/architecture_conflicts.yaml",
+        errors,
+        "Batch4 conflict registry",
+    )
+    if not isinstance(data, dict) or not isinstance(data.get("conflicts"), list):
+        errors.append("Batch4 conflict registry must contain conflicts[]")
+        return
+    conflict = next(
+        (item for item in data["conflicts"] if isinstance(item, dict) and item.get("id") == "retirement_first_active_context"),
+        None,
+    )
+    if not conflict or conflict.get("status") != "resolved":
+        errors.append("retirement-first conflict is not resolved")
+        return
+    resolution = conflict.get("resolution")
+    expected = {
+        "kind": "governance_authority_transition",
+        "authority_milestone": NEW_MILESTONE,
+        "legacy_disposition": "preserved_runtime_vertical_not_global_authority",
+    }
+    if not isinstance(resolution, dict):
+        errors.append("retirement-first conflict lacks a structured resolution")
+        return
+    for key, value in expected.items():
+        if resolution.get(key) != value:
+            errors.append(f"retirement-first conflict resolution {key!r} must be {value!r}")
+    evidence = resolution.get("evidence")
+    required_evidence = {
+        ".planning/ACTIVE_CONTEXT.json",
+        ".planning/ACTIVE_CONTEXT.md",
+        ".planning/STATE.md",
+        ".planning/ROADMAP.md",
+        ".planning/INDEX.md",
+    }
+    if not isinstance(evidence, list) or not required_evidence.issubset(set(evidence)):
+        errors.append("retirement-first conflict resolution evidence is incomplete")
+
+
+def _git_commit_exists(root: Path, sha: object) -> bool:
+    return (
+        isinstance(sha, str)
+        and len(sha) == 40
+        and all(char in "0123456789abcdef" for char in sha)
+        and _git(root, ["cat-file", "-e", f"{sha}^{{commit}}"]).returncode == 0
+    )
+
+
+def _check_registry_manifest(root: Path, relative: object, errors: List[str]) -> None:
+    if not isinstance(relative, str) or not (root / relative).is_file():
+        errors.append(f"promotion registry manifest does not exist: {relative!r}")
+        return
+    data = _load_yaml(root / relative, errors, "promotion registry manifest")
+    if not isinstance(data, dict) or not isinstance(data.get("files"), dict):
+        errors.append("promotion registry manifest must contain files: {path: sha256}")
+        return
+    for path, digest in data["files"].items():
+        if not isinstance(path, str) or not isinstance(digest, str) or len(digest) != 64:
+            errors.append(f"invalid registry manifest entry: {path!r}")
+        elif not (root / path).is_file() or _sha256(root / path) != digest:
+            errors.append(f"registry manifest mismatch: {path}")
+
+
+def _check_promotion(root: Path, errors: List[str]) -> None:
+    data = _load_yaml(root / "product/mint_next/batch4/batch.yaml", errors, "Batch4 batch contract")
+    if not isinstance(data, dict):
+        errors.append("Batch4 batch contract must be a mapping")
+        return
+    status = data.get("status")
+    receipt_path = data.get("promotion_receipt")
+    if status == "draft_unproven":
+        if receipt_path is not None:
+            errors.append("draft batch must not claim a promotion receipt")
+        return
+    if status != "promoted_architecture":
+        errors.append(f"unsupported Batch4 status for authority transition: {status!r}")
+        return
+    receipt = _load_yaml(root / str(receipt_path), errors, "Batch4 promotion receipt") if isinstance(receipt_path, str) else None
+    if not isinstance(receipt, dict):
+        errors.append("promoted Batch4 requires a readable promotion receipt")
+        return
+    for field in ("audited_architecture_head", "authority_transition_head"):
+        sha = receipt.get(field)
+        if not _git_commit_exists(root, sha):
+            errors.append(f"promotion receipt {field} does not resolve to a git object: {sha!r}")
+    _check_registry_manifest(root, receipt.get("registry_manifest"), errors)
+    roasts = receipt.get("roasts")
+    if not isinstance(roasts, list) or not roasts:
+        errors.append("promotion receipt roasts must be non-empty")
+    else:
+        for index, roast in enumerate(roasts):
+            if not isinstance(roast, dict) or not all(
+                roast.get(key) for key in ("reviewer", "verdict", "audited_head", "evidence")
+            ):
+                errors.append(f"promotion receipt roast[{index}] is incomplete")
+            elif roast.get("verdict") not in ("PASS", "ROAST_PASS"):
+                errors.append(f"promotion receipt roast[{index}] is not passing")
+            elif not _git_commit_exists(root, roast.get("audited_head")):
+                errors.append(f"promotion receipt roast[{index}] audited_head is not a git commit")
+    allowlist = receipt.get("allowed_post_audit_changes")
+    if not isinstance(allowlist, list) or any(not isinstance(path, str) for path in allowlist):
+        errors.append("promotion receipt allowed_post_audit_changes must be a path list")
+    audited = receipt.get("audited_architecture_head")
+    if _git_commit_exists(root, audited) and isinstance(allowlist, list):
+        changed = _changed_paths(root, audited, errors)
+        unexpected = sorted(changed - set(allowlist))
+        for path in unexpected:
+            errors.append(f"post-audit change is outside promotion allowlist: {path}")
+
+
+def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str]:
+    policy = policy or TransitionPolicy()
+    errors: List[str] = []
+    _check_legacy_manifest(root, policy.legacy_manifest, errors)
+    changed = _changed_paths(root, policy.baseline_ref, errors)
+    for path in sorted(changed):
+        if path.startswith(PROTECTED_PRODUCT_PREFIXES):
+            errors.append(f"product/runtime path changed during governance transition: {path}")
+        if path.startswith(PROTECTED_EVIDENCE_PREFIXES):
+            errors.append(f"Journey OS/runtime evidence changed during governance transition: {path}")
+    _check_router(root, errors)
+    _check_conflict(root, errors)
+    _check_promotion(root, errors)
+    return errors
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[2])
+    parser.add_argument("--baseline-ref", default=DEFAULT_BASELINE_REF)
+    args = parser.parse_args(argv)
+    errors = run_guard(args.root.resolve(), TransitionPolicy(baseline_ref=args.baseline_ref))
+    if errors:
+        print("MINT NEXT AUTHORITY TRANSITION GUARD: FAIL")
+        for error in errors:
+            print(f"- {error}")
+        return 1
+    print("MINT NEXT AUTHORITY TRANSITION GUARD: PASS")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
