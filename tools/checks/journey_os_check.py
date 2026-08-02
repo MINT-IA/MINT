@@ -212,6 +212,10 @@ ALLOW = {
     ".github/workflows/mint-next-batch11-contract.yml",
     "tools/checks/mint_next_batch11_amount_scope_guard.py",
     "tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py",
+    # Batch 12 starts the accepted Batch11 single-provider runtime with a pure,
+    # exact-money parser and its hostile unit contract. UI wiring stays separate.
+    "product/mint_next/batch7/design_lab/lib/ordinary_chf_amount.dart",
+    "product/mint_next/batch7/design_lab/test/ordinary_chf_amount_test.dart",
     "AGENTS.md",
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",
