@@ -27,8 +27,12 @@ implementation_snapshot:
 runtime_evidence:
   ci_workflow:
     path: .github/workflows/ai-workflow-guards.yml
-    normalized_contract_sha256: f6ac96033096aea1e8a97439b346c9735abb452fba3543422db9cadec8545bd2
+    normalized_contract_sha256: 1e62a698bb551dbbd13126d484290cbf264bd317b7cc3109017775ebb40bbd6c
     verification: exact_global_runtime_job_and_guard_test_wiring_normalized_contract
+  trust_unit_workflow:
+    path: .github/workflows/mint-next-batch10-runtime.yml
+    normalized_contract_sha256: 02e592723709606119902a8078937e25aae498d5ec06fd6054377664733931a8
+    verification: exact_guard_tests_and_acceptance_hashes_verified_by_independent_shell_step
   probe:
     path: tools/checks/mint_next_batch10_contribution_runtime_probe.py
     sha256: e17e58061a57fae242b26e6dc7cbd6a687c42aec87cbad65a12cda8b4e67726a

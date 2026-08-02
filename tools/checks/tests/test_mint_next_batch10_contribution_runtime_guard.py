@@ -13,6 +13,7 @@ from tools.checks.mint_next_batch10_contribution_runtime_guard import (
     L10N,
     MANIFEST,
     RECEIPT,
+    TRUST_WORKFLOW,
     WORKFLOW,
     validate,
 )
@@ -168,6 +169,20 @@ class Batch10ContributionRuntimeGuardTest(unittest.TestCase):
             errors,
         )
 
+    def test_rejects_guards_job_false_condition(self) -> None:
+        errors = self._mutated_workflow(
+            "  guards:\n    name: Active context and agent workflow guards",
+            "  guards:\n    if: false\n    name: Active context and agent workflow guards",
+        )
+        self.assertIn("Batch10 normalized workflow contract drift", errors)
+
+    def test_rejects_guard_tests_false_condition(self) -> None:
+        errors = self._mutated_workflow(
+            "      - name: Guard tests\n        run: >",
+            "      - name: Guard tests\n        if: false\n        run: >",
+        )
+        self.assertIn("Batch10 normalized workflow contract drift", errors)
+
     def test_rejects_manual_only_ci(self) -> None:
         errors = self._mutated_workflow(
             "on:\n  pull_request:\n    branches: [dev, staging, main]\n  push:\n    branches: [dev, staging, main]",
@@ -211,6 +226,35 @@ class Batch10ContributionRuntimeGuardTest(unittest.TestCase):
             )
             path.write_text(source, encoding="utf-8")
             self.assertEqual(validate(workflow_path=path), [])
+
+    def _mutated_trust_workflow(self, old: str, new: str) -> list[str]:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "trust-workflow.yaml"
+            source = TRUST_WORKFLOW.read_text(encoding="utf-8")
+            self.assertIn(old, source)
+            path.write_text(source.replace(old, new, 1), encoding="utf-8")
+            return validate(trust_workflow_path=path)
+
+    def test_rejects_trust_unit_guard_hash_rewrite(self) -> None:
+        errors = self._mutated_trust_workflow(
+            "EXPECTED_BATCH10_GUARD_SHA256:",
+            "EXPECTED_BATCH10_GUARD_SHA256: 0000 #",
+        )
+        self.assertIn("Batch10 verifier trust-unit binding drift", errors)
+
+    def test_rejects_trust_unit_job_skip(self) -> None:
+        errors = self._mutated_trust_workflow(
+            "  trust-unit:\n    name: Exact contribution runtime trust unit",
+            "  trust-unit:\n    if: false\n    name: Exact contribution runtime trust unit",
+        )
+        self.assertIn("Batch10 trust workflow normalized contract drift", errors)
+
+    def test_rejects_trust_hash_step_skip(self) -> None:
+        errors = self._mutated_trust_workflow(
+            "      - name: Verify the verifier trust unit\n        run: |",
+            "      - name: Verify the verifier trust unit\n        if: false\n        run: |",
+        )
+        self.assertIn("Batch10 trust workflow normalized contract drift", errors)
 
 
 if __name__ == "__main__":

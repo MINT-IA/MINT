@@ -107,7 +107,7 @@ class Batch8LppRuntimeGuardTest(unittest.TestCase):
             path = Path(directory) / "workflow.yaml"
             path.write_text(
                 WORKFLOW.read_text(encoding="utf-8").replace(
-                    "run: python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py",
+                    "run: python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py",
                     "run: echo skipped",
                     1,
                 ),
@@ -131,20 +131,20 @@ class Batch8LppRuntimeGuardTest(unittest.TestCase):
 
     def test_rejects_ci_probe_continue_on_error(self) -> None:
         self._assert_ci_skip_mutation_rejected(
-            "        run: python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py",
-            "        run: python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py\n        continue-on-error: true",
+            "        run: python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py",
+            "        run: python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py\n        continue-on-error: true",
         )
 
     def test_rejects_ci_probe_false_condition(self) -> None:
         self._assert_ci_skip_mutation_rejected(
-            "        run: python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py",
-            "        run: python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py\n        if: false",
+            "        run: python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py",
+            "        run: python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py\n        if: false",
         )
 
     def test_rejects_ci_job_false_condition(self) -> None:
         self._assert_ci_skip_mutation_rejected(
-            "  batch8-lpp-real-runtime:\n    name: Batch 8 LPP real Flutter Web navigation\n    runs-on: ubuntu-latest\n    steps:",
-            "  batch8-lpp-real-runtime:\n    name: Batch 8 LPP real Flutter Web navigation\n    runs-on: ubuntu-latest\n    if: false\n    steps:",
+            "  batch10-contribution-real-runtime:\n    name: Batch 10 contribution real Flutter Web navigation\n    runs-on: ubuntu-latest\n    steps:",
+            "  batch10-contribution-real-runtime:\n    name: Batch 10 contribution real Flutter Web navigation\n    runs-on: ubuntu-latest\n    if: false\n    steps:",
         )
 
     def test_rejects_manual_only_ci_trigger(self) -> None:

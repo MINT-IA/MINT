@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import struct
 import sys
 from pathlib import Path
@@ -25,16 +26,19 @@ ACCEPTANCE = ROOT / "product/mint_next/batch10/design-lab-acceptance.yaml"
 RECEIPT = ROOT / "product/mint_next/batch10/evidence/runtime/receipt.yaml"
 PROBE = ROOT / "tools/checks/mint_next_batch10_contribution_runtime_probe.py"
 WORKFLOW = ROOT / ".github/workflows/ai-workflow-guards.yml"
+TRUST_WORKFLOW = ROOT / ".github/workflows/mint-next-batch10-runtime.yml"
+TESTS = ROOT / "tools/checks/tests/test_mint_next_batch10_contribution_runtime_guard.py"
 BATCH8_ACCEPTANCE = ROOT / "product/mint_next/batch8/design-lab-acceptance.yaml"
 
 EXPECTED = {
     MANIFEST: "0df9b96df97c46b250b23bcf27185b54d3045648126ef7ca13f96b9d42c69ec6",
-    ACCEPTANCE: "6030be364125af3a8fb1b86a9193d17d06d682eb9eb6bdcf277e427d4abb038c",
+    ACCEPTANCE: "1e68c8401fb21ad1f42e10d3d63ecb610bae375bf96a215dbf650e2678862037",
     RECEIPT: "30bfd072d365f3786b27800de47392b711143f0dd9ddcb2b26a55ecb7b6642d9",
     PROBE: "e17e58061a57fae242b26e6dc7cbd6a687c42aec87cbad65a12cda8b4e67726a",
     BATCH8_ACCEPTANCE: "108817ab4424897efc78a8e22e6928473cace44c76fb86fee7ae1f23fae48add",
 }
-EXPECTED_WORKFLOW_CONTRACT = "f6ac96033096aea1e8a97439b346c9735abb452fba3543422db9cadec8545bd2"
+EXPECTED_WORKFLOW_CONTRACT = "1e62a698bb551dbbd13126d484290cbf264bd317b7cc3109017775ebb40bbd6c"
+EXPECTED_TRUST_WORKFLOW_NORMALIZED = "02e592723709606119902a8078937e25aae498d5ec06fd6054377664733931a8"
 EXPECTED_COMMIT = "e10daa4e6f431ea4807ad30d79065fda1a777f53"
 EXPECTED_TREE = "a44bfa00fe215b6da0d185f1d4a49d95158fa808"
 EXPECTED_CAPTURE_HASHES = {
@@ -51,6 +55,24 @@ def _digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else "missing"
 
 
+def _normalized_trust_workflow_digest(path: Path) -> str:
+    text = path.read_text(encoding="utf-8")
+    normalized = re.sub(
+        r"(?m)^(  EXPECTED_BATCH10_(?:GUARD|TESTS|ACCEPTANCE)_SHA256:) .+$",
+        r"\1 <BOUND>",
+        text,
+    )
+    return hashlib.sha256(normalized.encode()).hexdigest()
+
+
+def _trust_binding(path: Path, name: str) -> str | None:
+    match = re.search(
+        rf"(?m)^  {re.escape(name)}: ([0-9a-f]{{64}})$",
+        path.read_text(encoding="utf-8"),
+    )
+    return match.group(1) if match else None
+
+
 def validate(
     *,
     app_path: Path = APP,
@@ -58,6 +80,7 @@ def validate(
     receipt_path: Path = RECEIPT,
     acceptance_path: Path = ACCEPTANCE,
     workflow_path: Path = WORKFLOW,
+    trust_workflow_path: Path = TRUST_WORKFLOW,
     manifest_path: Path = MANIFEST,
     cas_root: Path = DEFAULT_CAS,
 ) -> list[str]:
@@ -72,6 +95,22 @@ def validate(
     for canonical, actual in supplied.items():
         if _digest(actual) != EXPECTED[canonical]:
             errors.append(f"Batch10 exact accepted artifact drift: {canonical.relative_to(ROOT)}")
+    trust_workflow_exists = trust_workflow_path.is_file()
+    if (
+        not trust_workflow_exists
+        or _normalized_trust_workflow_digest(trust_workflow_path)
+        != EXPECTED_TRUST_WORKFLOW_NORMALIZED
+    ):
+        errors.append("Batch10 trust workflow normalized contract drift")
+    if trust_workflow_exists and (
+        _trust_binding(trust_workflow_path, "EXPECTED_BATCH10_GUARD_SHA256")
+        != _digest(Path(__file__))
+        or _trust_binding(trust_workflow_path, "EXPECTED_BATCH10_TESTS_SHA256")
+        != _digest(TESTS)
+        or _trust_binding(trust_workflow_path, "EXPECTED_BATCH10_ACCEPTANCE_SHA256")
+        != _digest(acceptance_path)
+    ):
+        errors.append("Batch10 verifier trust-unit binding drift")
 
     snapshot, manifest_errors = validate_manifest(manifest_path, cas_root=cas_root)
     errors.extend(f"Batch10 manifest: {error}" for error in manifest_errors)
@@ -189,17 +228,40 @@ def validate(
         runtime_job = None
         workflow = {}
         workflow_triggers = None
-    guard_runs = "\n".join(
-        str(step.get("run", ""))
-        for step in workflow.get("jobs", {}).get("guards", {}).get("steps", [])
-        if isinstance(step, dict)
-    ) if isinstance(workflow, dict) else ""
+    guards_job = workflow.get("jobs", {}).get("guards", {}) if isinstance(workflow, dict) else {}
+    guard_steps = guards_job.get("steps", []) if isinstance(guards_job, dict) else []
+    named_guard_steps = {
+        step.get("name"): step
+        for step in guard_steps
+        if isinstance(step, dict) and isinstance(step.get("name"), str)
+    }
+    batch10_guard_step = named_guard_steps.get(
+        "MINT Next Batch 10 contribution runtime guard"
+    )
+    guard_tests_step = named_guard_steps.get("Guard tests")
+    guard_tests_run = (
+        str(guard_tests_step.get("run", ""))
+        if isinstance(guard_tests_step, dict)
+        else ""
+    )
     workflow_contract = {
         "name": workflow.get("name") if isinstance(workflow, dict) else None,
         "triggers": workflow_triggers,
         "concurrency": workflow.get("concurrency") if isinstance(workflow, dict) else None,
         "runtime_job": runtime_job,
-        "guard_test_wired": "tools/checks/tests/test_mint_next_batch10_contribution_runtime_guard.py" in guard_runs,
+        "guards_job_keys": sorted(guards_job) if isinstance(guards_job, dict) else [],
+        "guards_job_name": guards_job.get("name") if isinstance(guards_job, dict) else None,
+        "guards_job_runs_on": guards_job.get("runs-on") if isinstance(guards_job, dict) else None,
+        "batch10_guard_step": batch10_guard_step,
+        "guard_tests_step_keys": (
+            sorted(guard_tests_step) if isinstance(guard_tests_step, dict) else []
+        ),
+        "guard_tests_uses_pytest": "python3 -m pytest" in guard_tests_run,
+        "guard_tests_wires_batch10": (
+            "tools/checks/tests/test_mint_next_batch10_contribution_runtime_guard.py"
+            in guard_tests_run
+        ),
+        "guard_tests_fail_closed": guard_tests_run.rstrip().endswith("-q"),
     }
     workflow_contract_digest = hashlib.sha256(
         json.dumps(

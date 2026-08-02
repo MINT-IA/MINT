@@ -163,7 +163,7 @@ def validate(
     try:
         workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8"))
         workflow_triggers = workflow.get("on", workflow.get(True))
-        runtime_job = workflow["jobs"]["batch8-lpp-real-runtime"]
+        runtime_job = workflow["jobs"]["batch10-contribution-real-runtime"]
         runtime_steps = runtime_job["steps"]
     except (OSError, KeyError, TypeError, yaml.YAMLError) as exc:
         errors.append(f"Batch8 real runtime CI job missing or unreadable: {exc}")
@@ -172,7 +172,7 @@ def validate(
         "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
         "subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2",
         "flutter pub get",
-        "python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py",
+        "python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py",
     }
     actual_ci = {
         str(step.get("uses") or step.get("run", "")).strip()
@@ -182,7 +182,7 @@ def validate(
     if not expected_ci.issubset(actual_ci):
         errors.append("Batch8 real Chrome probe is not mechanically enforced in CI")
     expected_job = {
-        "name": "Batch 8 LPP real Flutter Web navigation",
+        "name": "Batch 10 contribution real Flutter Web navigation",
         "runs-on": "ubuntu-latest",
         "steps": [
             {"uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"},
@@ -196,8 +196,8 @@ def validate(
                 "run": "flutter pub get",
             },
             {
-                "name": "Traverse exact Batch 8 LPP routes in real Chrome",
-                "run": "python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py",
+                "name": "Traverse exact Batch 10 contribution routes in real Chrome",
+                "run": "python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py",
             },
         ],
     }

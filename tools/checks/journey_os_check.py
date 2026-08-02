@@ -188,6 +188,7 @@ ALLOW = {
     "product/mint_next/batch9/legacy-inventory.yaml",
     "product/mint_next/batch9/contribution-status-acceptance.yaml",
     ".github/workflows/mint-next-batch9-contract.yml",
+    ".github/workflows/mint-next-batch10-runtime.yml",
     "tools/checks/mint_next_batch9_contribution_scope_guard.py",
     "tools/checks/tests/test_mint_next_batch9_contribution_scope_guard.py",
     "product/mint_next/batch7/design_lab/test/design_lab_contribution_navigation_test.dart",
