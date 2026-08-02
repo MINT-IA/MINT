@@ -1,0 +1,50 @@
+{
+  "@@locale": "en",
+  "brand": "MINT",
+  "quit": "Exit",
+  "todayEyebrow": "TODAY · PILLAR 3A",
+  "todayTitle": "What changes if I pay into 3a this year?",
+  "todayBody": "We will understand the effects one step at a time. MINT informs you, but does not decide for you.",
+  "start": "Understand",
+  "orientationEyebrow": "BEFORE THE NUMBERS",
+  "orientationTitle": "Saving for retirement may also reduce your tax.",
+  "orientationBody": "A 3a payment may lower your taxable income — the amount on which your tax is calculated. Your available cash falls now and the 3a capital remains tied until retirement, except in cases allowed by law.",
+  "orientationNote": "We will first check the year and your situation. No amount will be recommended.",
+  "continueLabel": "Continue",
+  "backLabel": "Back",
+  "taxYearEyebrow": "STEP 1 · TAX YEAR",
+  "taxYearTitle": "Which year are we talking about?",
+  "taxYearBody": "The maximum depends on the year and your situation, including your earned income and pension-fund affiliation. The current year is suggested, never chosen for you.",
+  "currentYearLabel": "Current year: {year}",
+  "confirmYear": "Choose {year}",
+  "yearChosen": "Year {year} selected",
+  "partialBoundary": "The next screen will be added in the next batch. Nothing is saved.",
+  "safeExitTitle": "Would you like to stop here?",
+  "safeExitBody": "No personal financial data is saved in this Design Lab.",
+  "resume": "Continue here",
+  "leave": "Leave without saving",
+  "dismissedTitle": "Journey closed",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Start",
+  "keepReferenceUnavailable": "Local marker — coming soon"
+}

@@ -32,6 +32,7 @@ batch6-figma-receipt: python3 tools/checks/mint_next_batch6_figma_receipt.py
 batch6-navigation: python3 tools/checks/mint_next_batch6_navigation_guard.py
 batch6-navigation-diagram: python3 tools/checks/mint_next_batch6_navigation_diagram.py
 batch6-navigation-acceptance: python3 tools/checks/mint_next_batch6_navigation_acceptance.py
+batch7-design-lab-acceptance: python3 tools/checks/mint_next_batch7_design_lab_guard.py
 active-context: python3 tools/checks/active_context_guard.py
 phase-contract: python3 tools/checks/phase_contract_guard.py
 mint-rules: python3 tools/checks/mint_rules_guard.py

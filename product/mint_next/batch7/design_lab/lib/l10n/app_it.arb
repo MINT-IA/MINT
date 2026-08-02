@@ -1,0 +1,50 @@
+{
+  "@@locale": "it",
+  "brand": "MINT",
+  "quit": "Esci",
+  "todayEyebrow": "OGGI · PILASTRO 3A",
+  "todayTitle": "Cosa cambia con un versamento nel pilastro 3a quest’anno?",
+  "todayBody": "Capiremo gli effetti un passo alla volta. MINT ti informa, ma non decide al tuo posto.",
+  "start": "Capire",
+  "orientationEyebrow": "PRIMA DEI NUMERI",
+  "orientationTitle": "Risparmiare per la tua pensione può anche ridurre le imposte.",
+  "orientationBody": "Un versamento nel pilastro 3a può ridurre il tuo reddito imponibile — l’importo sul quale vengono calcolate le imposte. Il denaro che hai a disposizione diminuisce ora e il capitale 3a resta vincolato fino alla pensione, salvo i casi previsti dalla legge.",
+  "orientationNote": "Prima verificheremo l’anno e la tua situazione. Non verrà consigliato alcun importo.",
+  "continueLabel": "Continua",
+  "backLabel": "Indietro",
+  "taxYearEyebrow": "PASSO 1 · ANNO FISCALE",
+  "taxYearTitle": "Di quale anno stiamo parlando?",
+  "taxYearBody": "Il limite dipende dall’anno e dalla tua situazione, in particolare dal reddito da attività lucrativa e dall’affiliazione a una cassa pensione. L’anno corrente viene proposto, mai scelto al tuo posto.",
+  "currentYearLabel": "Anno corrente: {year}",
+  "confirmYear": "Scegli {year}",
+  "yearChosen": "Anno {year} selezionato",
+  "partialBoundary": "La schermata successiva sarà aggiunta nel prossimo piccolo lotto. Nulla viene salvato.",
+  "safeExitTitle": "Vuoi fermarti qui?",
+  "safeExitBody": "Nessun dato finanziario personale viene salvato in questo Design Lab.",
+  "resume": "Continua qui",
+  "leave": "Esci senza salvare",
+  "dismissedTitle": "Percorso chiuso",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Iniziare",
+  "keepReferenceUnavailable": "Promemoria locale — presto disponibile"
+}

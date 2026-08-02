@@ -1,0 +1,28 @@
+schema_version: 1
+status: implementation_candidate_unreviewed
+authority:
+  navigation_contract: product/mint_next/batch6/navigation.yaml
+  navigation_sha256: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+  design_handoff: .planning/handoff/2026-05-09-design-system-v8
+runtime_boundary:
+  kind: standalone_flutter_package
+  path: product/mint_next/batch7/design_lab
+  imported_by_product: false
+  product_route_added: false
+first_visual_slice:
+  nodes: [today_3a_intent, orientation, fact_tax_year]
+  overlays: [safe_exit]
+  locales: [fr, en, de, it, es, pt]
+  viewport_evidence: [390x844, 320x700]
+  text_scale_evidence: [1.0, 2.0]
+  fonts: [Supreme, Gambarino]
+honest_limitations:
+  - partial_renderer_not_full_navigation_binding
+  - no_calculation_engine
+  - no_personal_result
+  - no_product_runtime
+  - no_user_validation
+  - local_reference_action_visible_but_disabled_until_implemented
+exit_gate:
+  required: [widget_tests, 320px_no_overflow, text_scale_2_no_loss, six_locale_smoke, runtime_capture, independent_ux_a11y_roast, independent_swiss_copy_roast]
+  accepted_only_if: p1_zero_and_p2_zero

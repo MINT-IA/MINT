@@ -1,0 +1,50 @@
+{
+  "@@locale": "fr",
+  "brand": "MINT",
+  "quit": "Quitter",
+  "todayEyebrow": "AUJOURD’HUI · 3A",
+  "todayTitle": "Que change un versement 3a cette année ?",
+  "todayBody": "On va comprendre ses effets, une étape à la fois. MINT t’informe, mais ne décide pas à ta place.",
+  "start": "Comprendre",
+  "orientationEyebrow": "AVANT LES CHIFFRES",
+  "orientationTitle": "Épargner pour ta retraite peut aussi réduire tes impôts.",
+  "orientationBody": "Un versement 3a peut diminuer ton revenu imposable — le montant sur lequel tes impôts sont calculés. Ton argent disponible baisse maintenant et le capital 3a reste lié jusqu’à la retraite, sauf dans les cas prévus par la loi.",
+  "orientationNote": "On vérifiera d’abord l’année et ta situation. Aucun montant ne sera recommandé.",
+  "continueLabel": "Continuer",
+  "backLabel": "Retour",
+  "taxYearEyebrow": "ÉTAPE 1 · ANNÉE FISCALE",
+  "taxYearTitle": "De quelle année parle-t-on ?",
+  "taxYearBody": "Le plafond dépend de l’année et de ta situation, notamment de ton revenu professionnel et de ton affiliation à une caisse de pension. L’année en cours est proposée, jamais choisie à ta place.",
+  "currentYearLabel": "Année en cours : {year}",
+  "confirmYear": "Choisir {year}",
+  "yearChosen": "Année {year} sélectionnée",
+  "partialBoundary": "Le prochain écran sera ajouté dans le lot suivant. Rien n’est enregistré.",
+  "safeExitTitle": "Tu veux t’arrêter ici ?",
+  "safeExitBody": "Aucune donnée financière personnelle n’est enregistrée dans ce Design Lab.",
+  "resume": "Continuer ici",
+  "leave": "Quitter sans enregistrer",
+  "dismissedTitle": "Parcours fermé",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Commencer",
+  "keepReferenceUnavailable": "Repère local — bientôt disponible"
+}

@@ -1,0 +1,50 @@
+{
+  "@@locale": "es",
+  "brand": "MINT",
+  "quit": "Salir",
+  "todayEyebrow": "HOY · PILAR 3A",
+  "todayTitle": "¿Qué cambia si aporto al pilar 3a este año?",
+  "todayBody": "Entenderemos los efectos paso a paso. MINT te informa, pero no decide por ti.",
+  "start": "Entender",
+  "orientationEyebrow": "ANTES DE LOS NÚMEROS",
+  "orientationTitle": "Ahorrar para tu jubilación también puede reducir tus impuestos.",
+  "orientationBody": "Una aportación al pilar 3a puede reducir tu renta imponible — el importe sobre el que se calculan tus impuestos. Tu dinero disponible disminuye ahora y el capital 3a queda vinculado hasta la jubilación, salvo en los casos previstos por la ley.",
+  "orientationNote": "Primero comprobaremos el año y tu situación. No se recomendará ningún importe.",
+  "continueLabel": "Continuar",
+  "backLabel": "Atrás",
+  "taxYearEyebrow": "PASO 1 · AÑO FISCAL",
+  "taxYearTitle": "¿De qué año hablamos?",
+  "taxYearBody": "El límite depende del año y de tu situación, incluidos tus ingresos profesionales y tu afiliación a una caja de pensiones. Se propone el año actual, pero nunca se elige por ti.",
+  "currentYearLabel": "Año actual: {year}",
+  "confirmYear": "Elegir {year}",
+  "yearChosen": "Año {year} seleccionado",
+  "partialBoundary": "La siguiente pantalla se añadirá en el próximo lote pequeño. No se guarda nada.",
+  "safeExitTitle": "¿Quieres detenerte aquí?",
+  "safeExitBody": "Este Design Lab no guarda datos financieros personales.",
+  "resume": "Continuar aquí",
+  "leave": "Salir sin guardar",
+  "dismissedTitle": "Recorrido cerrado",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Empezar",
+  "keepReferenceUnavailable": "Referencia local — próximamente"
+}

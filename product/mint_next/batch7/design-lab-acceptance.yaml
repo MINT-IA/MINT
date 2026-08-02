@@ -1,0 +1,59 @@
+schema_version: 1
+status: accepted_isolated_first_visual_slice
+accepted_at: '2026-08-02T19:55:00+02:00'
+scope:
+  path: product/mint_next/batch7/design-lab-scope.yaml
+  sha256: ef3a431d65bb058ab32e5b7b14389d18a20056604834129a72dea8a3fae58c9e
+artifacts:
+  app:
+    path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+    sha256: e9a0b10b6363244680c1d842eac49a1c15b120335256d2da37c0ccd24e062168
+  runtime_receipt:
+    path: product/mint_next/batch7/design_lab/evidence/runtime/receipt.yaml
+    sha256: 2650b3a44895e35c748fe558c0413159b159d8eff93162d687c72f5bde2badac
+  web_host:
+    path: product/mint_next/batch7/design_lab/web/index.html
+    sha256: cbbf71acc368b31b29d7106b91194cc8194393b0192b60d36bf237c9c4e1a3ce
+reviews:
+- agent: ux_architecture
+  verdict: ACCEPT
+  p1: 0
+  p2: 0
+  bound_app_sha256: e9a0b10b6363244680c1d842eac49a1c15b120335256d2da37c0ccd24e062168
+  bound_scope_sha256: ef3a431d65bb058ab32e5b7b14389d18a20056604834129a72dea8a3fae58c9e
+  bound_runtime_receipt_sha256: 2650b3a44895e35c748fe558c0413159b159d8eff93162d687c72f5bde2badac
+- agent: batch1_a11y_review
+  verdict: PASS
+  p1: 0
+  p2: 0
+  bound_app_sha256: e9a0b10b6363244680c1d842eac49a1c15b120335256d2da37c0ccd24e062168
+  bound_scope_sha256: ef3a431d65bb058ab32e5b7b14389d18a20056604834129a72dea8a3fae58c9e
+- agent: batch1_swiss_tax_review
+  verdict: PASS
+  p1: 0
+  p2: 0
+  bound_app_sha256: e9a0b10b6363244680c1d842eac49a1c15b120335256d2da37c0ccd24e062168
+  bound_scope_sha256: ef3a431d65bb058ab32e5b7b14389d18a20056604834129a72dea8a3fae58c9e
+commands:
+- flutter analyze
+- flutter test
+- flutter build web --release --dart-define=MINT_LAB_LOCALE=fr
+- python3 tools/checks/mint_next_batch7_design_lab_guard.py
+- python3 -m unittest tools.checks.tests.test_mint_next_batch7_design_lab_guard
+- python3 tools/checks/journey_os_check.py
+accepted_scope_only:
+- standalone_flutter_design_lab
+- today_3a_intent
+- orientation
+- fact_tax_year
+- safe_exit
+- six_source_locales
+- 390x844_chrome_runtime
+- 320x700_text_scale_2_widget_runtime
+not_accepted:
+- product_integration
+- ios_runtime
+- android_runtime
+- calculation_engine
+- personal_result
+- user_validation

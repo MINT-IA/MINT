@@ -1,0 +1,23 @@
+schema_version: 1
+status: runtime_evidence_unreviewed
+runtime: Flutter Web release in headless Google Chrome via DevTools device emulation
+build_command: flutter build web --release --dart-define=MINT_LAB_LOCALE=fr
+viewport:
+  width: 390
+  height: 844
+  device_scale_factor: 1
+captures:
+- path: evidence/runtime/fr_today_chrome_390.png
+  sha256: 4b228bd123cfff2118fc13606fe13fd0f7429bc6c079d972d3a31096eef710d3
+- path: evidence/runtime/fr_orientation_chrome_390.png
+  sha256: c9ec31af6b60876fe05da4727120a4c56cff74b12c194b6aa9721f17cddc7112
+- path: evidence/runtime/fr_tax_year_chrome_390.png
+  sha256: a443a21c6f673802ae2fdea449bedf60bfce462d3691926524434aa9dc438088
+- path: evidence/runtime/fr_tax_year_selected_chrome_390.png
+  sha256: 2ddbc7ce23259e17d997b0f33b59694f8f23aaad91aee0cac96439baa15b9978
+limitations:
+- web_design_lab_only
+- not_ios_or_android_product_runtime
+- not_user_validation
+capture_method: Chrome DevTools emulation; real pointer taps through Today → Orientation
+  → Tax year → selected year; selected capture scrolled back to top
