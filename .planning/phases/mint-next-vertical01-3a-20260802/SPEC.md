@@ -27,6 +27,7 @@ the phase.
 
 ```verify
 batch5-runtime: python3 tools/checks/mint_next_batch5_runtime_probe.py --capture
+batch6-figma-receipt: python3 tools/checks/mint_next_batch6_figma_receipt.py
 active-context: python3 tools/checks/active_context_guard.py
 phase-contract: python3 tools/checks/phase_contract_guard.py
 mint-rules: python3 tools/checks/mint_rules_guard.py

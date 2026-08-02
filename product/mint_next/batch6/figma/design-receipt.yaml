@@ -1,0 +1,134 @@
+schema_version: 1
+artifact_id: mint_next_3a_consultative_slice_v0_1
+status: rejected_pending_corrections
+created_at: 2026-08-02T14:40:00+02:00
+
+figma:
+  file_key: J8DV52MVOFVPJv81pOFq2u
+  file_url: https://www.figma.com/design/J8DV52MVOFVPJv81pOFq2u
+  page_id: "0:1"
+  page_name: "3a consultation · v0.1"
+  wrapper_id: "3:2"
+  screen_ids:
+    question: "3:4"
+    explanation: "3:5"
+    next_action: "3:6"
+
+authority:
+  visual_inputs:
+    - .planning/handoff/2026-05-09-design-system-v8
+    - .planning/handoff/pdfs/MINT-Design-System-2026-05-08.pdf
+    - .planning/handoff/pdfs/MINT-Brand-print-2026-05-09.pdf
+  product_contract: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  execution_issue: MINT_nosync-ihj
+
+typography:
+  production_required:
+    ui: Supreme
+    editorial: Gambarino
+  figma_editable_proxies:
+    ui: Manrope
+    editorial: Instrument Serif
+  fidelity: proxy_not_final
+  reason: Supreme and Gambarino were unavailable to the Figma MCP font environment.
+
+tokens:
+  light_collection_id: "VariableCollectionId:2:3"
+  dark_reference_collection_id: "VariableCollectionId:2:4"
+  mode_constraint: Figma Starter permits one mode per collection.
+
+evidence:
+  wrapper:
+    path: product/mint_next/batch6/figma/evidence/wrapper-v0.1.png
+    sha256: 6d98713494d24cc6928b8a1aa2d0c43648fefadd4a2eaccc1ca5663ee659415d
+  question:
+    path: product/mint_next/batch6/figma/evidence/screen-01-v0.1.png
+    sha256: ea6b41823c1d6066ef2d911903957df2cada47ee07e23d9df57249be4e9e20a4
+  explanation:
+    path: product/mint_next/batch6/figma/evidence/screen-02-v0.1.png
+    sha256: 6c00427975066e77db36396fe26a9f6a0fba02de004df0a2fa889bdc2feba73d
+  next_action:
+    path: product/mint_next/batch6/figma/evidence/screen-03-v0.1.png
+    sha256: de70b354c74121d72305e769776336b8d2de2e0a89b75a5d7e1b8a927bdcf5ec
+
+known_rejections:
+  - id: FIGMA-3A-001
+    severity: P1
+    screen_id: "3:4"
+    problem: The initial question preselects “Non”, inventing a user fact.
+    required_fix: Render all answers unselected and keep continue disabled until an explicit choice.
+  - id: FIGMA-3A-002
+    severity: P2
+    screen_ids: ["3:4", "3:5", "3:6"]
+    problem: Several top-bar labels are text-sized rather than explicit 44px touch targets.
+    required_fix: Wrap every back, disclosure, and safe-exit control in a minimum 44x44 target.
+  - id: FIGMA-3A-003
+    severity: P1
+    screen_ids: ["3:4", "3:5", "3:6"]
+    problem: Fixed 390x844 clipped frames do not prove 320px or Dynamic Type reflow.
+    required_fix: Define scroll-safe responsive behavior and prove FR/DE at 320px with text scales 1.3 and 2.0.
+  - id: FIGMA-3A-004
+    severity: P2
+    screen_ids: ["3:4", "3:5", "3:6"]
+    problem: Coral and menthe-deep micro-label combinations fail 4.5:1 contrast at 11px.
+    required_fix: Darken semantic label tokens or increase size/weight and attach measured ratios.
+  - id: FIGMA-3A-005
+    severity: P2
+    screen_ids: ["3:4", "3:5", "3:6"]
+    problem: Fixed content widths and long labels do not prove six-language expansion.
+    required_fix: Use wrapping auto-layout and capture all six locales, including German at 320px.
+  - id: FIGMA-3A-006
+    severity: P2
+    screen_id: "3:6"
+    problem: “Commencer doucement” does not name the promised action.
+    required_fix: Rename to “Commencer mon calcul” and state that canton and income are requested first.
+  - id: FIGMA-3A-007
+    severity: P2
+    screen_id: "3:5"
+    problem: The contribution split relies on color without an explicit semantic reading order.
+    required_fix: Add a non-color legend and an accessible sentence covering 7’258, 5’154 and illustrative 2’104 CHF.
+  - id: FIGMA-3A-008
+    severity: P2
+    screen_id: "3:4"
+    problem: “Marge fiscale à explorer” assumes financial vocabulary the target audience may not know.
+    required_fix: Say “Pour savoir si tu peux encore réduire tes impôts cette année — rien de plus.”
+  - id: FIGMA-3A-009
+    severity: P2
+    screen_id: "3:4"
+    problem: Adjacent upper blocks have no rhythmic gaps while unused space accumulates below.
+    required_fix: Add intentional 8–16px gaps between title, question, purpose and answers; reduce residual spacer.
+  - id: FIGMA-3A-010
+    severity: P2
+    screen_id: "3:5"
+    problem: Net effort and estimated tax reduction have equal hierarchy, weakening the teaching point.
+    required_fix: Make “environ 2’104 CHF d’impôts en moins dans cet exemple” the memorable hero while retaining the estimate warning.
+  - id: FIGMA-3A-011
+    severity: P2
+    screen_id: "3:6"
+    problem: The green summary resembles a CTA and competes with the black primary action.
+    required_fix: Label the green surface “Ton choix” as non-interactive and use one explicit primary CTA.
+
+roasts:
+  accessibility_comprehension:
+    reviewer: figma_3a_a11y_roast
+    verdict: reject
+    p1: 2
+    p2: 5
+    positive_evidence:
+      - one idea per screen
+      - airy hierarchy
+      - main answer and primary-action targets are at least 48px
+      - safe exits are visible
+      - example is labelled non-personal
+  visual_design:
+    reviewer: figma_3a_design_roast
+    verdict: reject
+    score: 8.4
+    p1: 0
+    p2: 5
+    limit: Score applies only to the three static Figma frames, not the journey or product.
+
+blocked_correction:
+  reason: Figma Starter MCP tool-call limit reached before the correction mutation.
+  accepted: false
+  flutter_allowed: false
