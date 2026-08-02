@@ -173,5 +173,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "batch11AmountEyebrow": "AS TUAS CONTRIBUIÇÕES 3A · {taxYear}",
+  "batch11AmountTitle": "Quanto receberam efetivamente, no total, todos os teus prestadores 3a em {taxYear}?",
+  "batch11AmountBody": "Indica o total confirmado das contribuições ordinárias de cada prestador. A MINT soma os valores.",
+  "batch11ProviderNameLabel": "Nome do prestador (por ex., VIAC ou o teu banco)",
+  "batch11ProviderNamePrivacy": "Não indiques números de conta, apólice, seguro social suíço ou IBAN.",
+  "batch11OrdinaryAmountLabel": "Contribuições ordinárias confirmadas de {taxYear}",
+  "batch11NotTaxResult": "Este total ainda não é um resultado fiscal.",
+  "batch11AllProvidersReviewed": "Verifiquei todos os meus prestadores 3a de {taxYear}",
+  "batch11WhereFindTitle": "Onde encontro o valor?",
+  "batch11WhereFindBody": "No certificado de cada prestador, procura o total das contribuições para o pilar 3a. Usa-o uma única vez, mesmo que inclua vários contratos.",
+  "batch11UnknownAmount": "Ainda não conheço nenhum valor",
+  "batch11Continue": "Continuar",
+  "batch11CorrectPrevious": "Corrigir a resposta anterior",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Indica o nome do prestador.",
+  "batch11ProviderNameSensitive": "Usa apenas o nome do prestador, sem números de conta, apólice, seguro social suíço ou IBAN.",
+  "batch11AmountInvalid": "Indica um valor CHF válido.",
+  "batch11AmountZero": "O valor deve ser superior a zero.",
+  "batch11ReviewAllRequired": "Confirma que verificaste todos os teus prestadores 3a.",
+  "batch11HelpTitle": "Primeiro encontra um valor confirmado.",
+  "batch11HelpUnknownBody": "Começa pelo certificado de um prestador 3a. Procura o total das contribuições ordinárias do ano, sem adicionar transferências, contribuições retroativas ou reembolsos.",
+  "batch11HelpFoundFirst": "Encontrei um primeiro valor",
+  "batch11HelpEducationOnly": "Continuar com uma explicação geral",
+  "batch11HelpBack": "Voltar à introdução"
 }

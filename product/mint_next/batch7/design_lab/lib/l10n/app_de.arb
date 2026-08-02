@@ -173,5 +173,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "batch11AmountEyebrow": "DEINE 3A-BEITRÄGE · {taxYear}",
+  "batch11AmountTitle": "Wie viel haben alle deine 3a-Anbieter {taxYear} tatsächlich erhalten?",
+  "batch11AmountBody": "Erfasse pro Anbieter den bestätigten Gesamtbetrag der ordentlichen Beiträge. MINT addiert.",
+  "batch11ProviderNameLabel": "Name des Anbieters (z. B. VIAC oder deine Bank)",
+  "batch11ProviderNamePrivacy": "Keine Konto-, Policen-, AHV- oder IBAN-Nummer eingeben.",
+  "batch11OrdinaryAmountLabel": "Bestätigte ordentliche Beiträge für {taxYear}",
+  "batch11NotTaxResult": "Diese Summe ist noch kein Steuerergebnis.",
+  "batch11AllProvidersReviewed": "Ich habe alle meine 3a-Anbieter für {taxYear} geprüft",
+  "batch11WhereFindTitle": "Wo finde ich den Betrag?",
+  "batch11WhereFindBody": "Suche auf der Bescheinigung jedes Anbieters „Total Beiträge an die Säule 3a“. Verwende dieses Anbietertotal einmal, auch wenn es mehrere Verträge umfasst.",
+  "batch11UnknownAmount": "Ich kenne noch keinen Betrag",
+  "batch11Continue": "Weiter",
+  "batch11CorrectPrevious": "Vorherige Antwort korrigieren",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Gib den Namen des Anbieters ein.",
+  "batch11ProviderNameSensitive": "Verwende nur den Anbieternamen, ohne Konto-, Policen-, AHV- oder IBAN-Nummer.",
+  "batch11AmountInvalid": "Gib einen gültigen CHF-Betrag ein.",
+  "batch11AmountZero": "Der Betrag muss grösser als null sein.",
+  "batch11ReviewAllRequired": "Bestätige, dass du alle deine 3a-Anbieter geprüft hast.",
+  "batch11HelpTitle": "Finde zuerst einen bestätigten Betrag.",
+  "batch11HelpUnknownBody": "Beginne mit der Bescheinigung eines 3a-Anbieters. Suche den Gesamtbetrag der ordentlichen Beiträge des Jahres, ohne Transfer, Einkauf oder Rückerstattung.",
+  "batch11HelpFoundFirst": "Ich habe einen ersten Betrag gefunden",
+  "batch11HelpEducationOnly": "Mit einer allgemeinen Erklärung fortfahren",
+  "batch11HelpBack": "Zurück zur Eingabe"
 }

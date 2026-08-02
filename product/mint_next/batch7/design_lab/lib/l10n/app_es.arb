@@ -173,5 +173,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "batch11AmountEyebrow": "TUS APORTACIONES AL 3A · {taxYear}",
+  "batch11AmountTitle": "¿Cuánto recibieron realmente en total todos tus proveedores 3a en {taxYear}?",
+  "batch11AmountBody": "Introduce el total confirmado de aportaciones ordinarias de cada proveedor. MINT los suma.",
+  "batch11ProviderNameLabel": "Nombre del proveedor (p. ej., VIAC o tu banco)",
+  "batch11ProviderNamePrivacy": "No introduzcas números de cuenta, póliza, seguridad social suiza ni IBAN.",
+  "batch11OrdinaryAmountLabel": "Aportaciones ordinarias confirmadas de {taxYear}",
+  "batch11NotTaxResult": "Este total todavía no es un resultado fiscal.",
+  "batch11AllProvidersReviewed": "He comprobado todos mis proveedores 3a de {taxYear}",
+  "batch11WhereFindTitle": "¿Dónde encuentro el importe?",
+  "batch11WhereFindBody": "En el certificado de cada proveedor, busca el total de aportaciones al pilar 3a. Úsalo una sola vez, aunque incluya varios contratos.",
+  "batch11UnknownAmount": "Todavía no conozco ningún importe",
+  "batch11Continue": "Continuar",
+  "batch11CorrectPrevious": "Corregir mi respuesta anterior",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Introduce el nombre del proveedor.",
+  "batch11ProviderNameSensitive": "Usa solo el nombre del proveedor, sin números de cuenta, póliza, seguridad social suiza ni IBAN.",
+  "batch11AmountInvalid": "Introduce un importe CHF válido.",
+  "batch11AmountZero": "El importe debe ser superior a cero.",
+  "batch11ReviewAllRequired": "Confirma que has comprobado todos tus proveedores 3a.",
+  "batch11HelpTitle": "Primero encuentra un importe confirmado.",
+  "batch11HelpUnknownBody": "Empieza por el certificado de un proveedor 3a. Busca el total de aportaciones ordinarias del año, sin añadir transferencias, aportaciones retroactivas ni reembolsos.",
+  "batch11HelpFoundFirst": "He encontrado un primer importe",
+  "batch11HelpEducationOnly": "Continuar con una explicación general",
+  "batch11HelpBack": "Volver a la entrada"
 }

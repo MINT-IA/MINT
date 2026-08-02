@@ -341,4 +341,89 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get contributionEducationBack => 'Zurück zur Prüfung';
+
+  @override
+  String batch11AmountEyebrow(int taxYear) {
+    return 'DEINE 3A-BEITRÄGE · $taxYear';
+  }
+
+  @override
+  String batch11AmountTitle(int taxYear) {
+    return 'Wie viel haben alle deine 3a-Anbieter $taxYear tatsächlich erhalten?';
+  }
+
+  @override
+  String get batch11AmountBody =>
+      'Erfasse pro Anbieter den bestätigten Gesamtbetrag der ordentlichen Beiträge. MINT addiert.';
+
+  @override
+  String get batch11ProviderNameLabel =>
+      'Name des Anbieters (z. B. VIAC oder deine Bank)';
+
+  @override
+  String get batch11ProviderNamePrivacy =>
+      'Keine Konto-, Policen-, AHV- oder IBAN-Nummer eingeben.';
+
+  @override
+  String batch11OrdinaryAmountLabel(int taxYear) {
+    return 'Bestätigte ordentliche Beiträge für $taxYear';
+  }
+
+  @override
+  String get batch11NotTaxResult => 'Diese Summe ist noch kein Steuerergebnis.';
+
+  @override
+  String batch11AllProvidersReviewed(int taxYear) {
+    return 'Ich habe alle meine 3a-Anbieter für $taxYear geprüft';
+  }
+
+  @override
+  String get batch11WhereFindTitle => 'Wo finde ich den Betrag?';
+
+  @override
+  String get batch11WhereFindBody =>
+      'Suche auf der Bescheinigung jedes Anbieters „Total Beiträge an die Säule 3a“. Verwende dieses Anbietertotal einmal, auch wenn es mehrere Verträge umfasst.';
+
+  @override
+  String get batch11UnknownAmount => 'Ich kenne noch keinen Betrag';
+
+  @override
+  String get batch11Continue => 'Weiter';
+
+  @override
+  String get batch11CorrectPrevious => 'Vorherige Antwort korrigieren';
+
+  @override
+  String get batch11ProviderNameEmpty => 'Gib den Namen des Anbieters ein.';
+
+  @override
+  String get batch11ProviderNameSensitive =>
+      'Verwende nur den Anbieternamen, ohne Konto-, Policen-, AHV- oder IBAN-Nummer.';
+
+  @override
+  String get batch11AmountInvalid => 'Gib einen gültigen CHF-Betrag ein.';
+
+  @override
+  String get batch11AmountZero => 'Der Betrag muss grösser als null sein.';
+
+  @override
+  String get batch11ReviewAllRequired =>
+      'Bestätige, dass du alle deine 3a-Anbieter geprüft hast.';
+
+  @override
+  String get batch11HelpTitle => 'Finde zuerst einen bestätigten Betrag.';
+
+  @override
+  String get batch11HelpUnknownBody =>
+      'Beginne mit der Bescheinigung eines 3a-Anbieters. Suche den Gesamtbetrag der ordentlichen Beiträge des Jahres, ohne Transfer, Einkauf oder Rückerstattung.';
+
+  @override
+  String get batch11HelpFoundFirst => 'Ich habe einen ersten Betrag gefunden';
+
+  @override
+  String get batch11HelpEducationOnly =>
+      'Mit einer allgemeinen Erklärung fortfahren';
+
+  @override
+  String get batch11HelpBack => 'Zurück zur Eingabe';
 }

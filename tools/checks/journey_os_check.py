@@ -216,6 +216,9 @@ ALLOW = {
     # exact-money parser and its hostile unit contract. UI wiring stays separate.
     "product/mint_next/batch7/design_lab/lib/ordinary_chf_amount.dart",
     "product/mint_next/batch7/design_lab/test/ordinary_chf_amount_test.dart",
+    "product/mint_next/batch7/design_lab/lib/provider_label.dart",
+    "product/mint_next/batch7/design_lab/test/provider_label_test.dart",
+    "product/mint_next/batch7/design_lab/test/design_lab_contributed_amount_navigation_test.dart",
     "AGENTS.md",
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",

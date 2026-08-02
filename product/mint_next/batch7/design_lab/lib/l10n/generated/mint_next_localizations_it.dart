@@ -342,4 +342,90 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get contributionEducationBack => 'Tornare alle verifiche';
+
+  @override
+  String batch11AmountEyebrow(int taxYear) {
+    return 'I TUOI CONTRIBUTI 3A · $taxYear';
+  }
+
+  @override
+  String batch11AmountTitle(int taxYear) {
+    return 'Quanto hanno effettivamente ricevuto in totale tutti i tuoi istituti 3a nel $taxYear?';
+  }
+
+  @override
+  String get batch11AmountBody =>
+      'Inserisci per ogni istituto il totale confermato dei contributi ordinari. MINT li somma.';
+
+  @override
+  String get batch11ProviderNameLabel =>
+      'Nome dell’istituto (ad es. VIAC o la tua banca)';
+
+  @override
+  String get batch11ProviderNamePrivacy =>
+      'Non inserire numeri di conto, polizza, AVS o IBAN.';
+
+  @override
+  String batch11OrdinaryAmountLabel(int taxYear) {
+    return 'Contributi ordinari confermati per il $taxYear';
+  }
+
+  @override
+  String get batch11NotTaxResult =>
+      'Questo totale non è ancora un risultato fiscale.';
+
+  @override
+  String batch11AllProvidersReviewed(int taxYear) {
+    return 'Ho verificato tutti i miei istituti 3a per il $taxYear';
+  }
+
+  @override
+  String get batch11WhereFindTitle => 'Dove trovo l’importo?';
+
+  @override
+  String get batch11WhereFindBody =>
+      'Sull’attestazione di ogni istituto cerca «Totale contributi al pilastro 3a». Usa una sola volta il totale dell’istituto, anche se comprende più contratti.';
+
+  @override
+  String get batch11UnknownAmount => 'Non conosco ancora alcun importo';
+
+  @override
+  String get batch11Continue => 'Continua';
+
+  @override
+  String get batch11CorrectPrevious => 'Correggi la risposta precedente';
+
+  @override
+  String get batch11ProviderNameEmpty => 'Inserisci il nome dell’istituto.';
+
+  @override
+  String get batch11ProviderNameSensitive =>
+      'Usa solo il nome dell’istituto, senza numeri di conto, polizza, AVS o IBAN.';
+
+  @override
+  String get batch11AmountInvalid => 'Inserisci un importo CHF valido.';
+
+  @override
+  String get batch11AmountZero => 'L’importo deve essere superiore a zero.';
+
+  @override
+  String get batch11ReviewAllRequired =>
+      'Conferma di avere verificato tutti i tuoi istituti 3a.';
+
+  @override
+  String get batch11HelpTitle => 'Trova prima un importo confermato.';
+
+  @override
+  String get batch11HelpUnknownBody =>
+      'Inizia dall’attestazione di un istituto 3a. Cerca il totale dei contributi ordinari dell’anno, senza aggiungere trasferimenti, contributi retroattivi o rimborsi.';
+
+  @override
+  String get batch11HelpFoundFirst => 'Ho trovato un primo importo';
+
+  @override
+  String get batch11HelpEducationOnly =>
+      'Continua con una spiegazione generale';
+
+  @override
+  String get batch11HelpBack => 'Torna all’inserimento';
 }

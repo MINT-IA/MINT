@@ -173,5 +173,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "batch11AmountEyebrow": "YOUR 3A CONTRIBUTIONS · {taxYear}",
+  "batch11AmountTitle": "How much did all your 3a providers actually receive in {taxYear}?",
+  "batch11AmountBody": "Enter each provider’s confirmed ordinary-contribution total. MINT adds them up.",
+  "batch11ProviderNameLabel": "Provider name (for example VIAC or your bank)",
+  "batch11ProviderNamePrivacy": "Do not enter an account, policy, Swiss social-security or IBAN number.",
+  "batch11OrdinaryAmountLabel": "Confirmed ordinary amount for {taxYear}",
+  "batch11NotTaxResult": "This total is not a tax result yet.",
+  "batch11AllProvidersReviewed": "I checked all my 3a providers for {taxYear}",
+  "batch11WhereFindTitle": "Where can I find it?",
+  "batch11WhereFindBody": "On each provider certificate, find “Total 3a contributions”. Use that provider total once, even if it covers several contracts.",
+  "batch11UnknownAmount": "I do not know any amount yet",
+  "batch11Continue": "Continue",
+  "batch11CorrectPrevious": "Correct my previous answer",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Enter the provider name.",
+  "batch11ProviderNameSensitive": "Use only the provider name, without an account, policy, Swiss social-security or IBAN number.",
+  "batch11AmountInvalid": "Enter a valid CHF amount.",
+  "batch11AmountZero": "The amount must be greater than zero.",
+  "batch11ReviewAllRequired": "Confirm that you checked all your 3a providers.",
+  "batch11HelpTitle": "First find one confirmed amount.",
+  "batch11HelpUnknownBody": "Start with one provider certificate. Find its ordinary-contribution total for the year, without adding a transfer, catch-up contribution or refund.",
+  "batch11HelpFoundFirst": "I found a first amount",
+  "batch11HelpEducationOnly": "Continue with a general explanation",
+  "batch11HelpBack": "Back to entry"
 }

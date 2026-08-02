@@ -338,4 +338,90 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String get contributionEducationBack => 'Revenir aux vérifications';
+
+  @override
+  String batch11AmountEyebrow(int taxYear) {
+    return 'TES VERSEMENTS 3A · $taxYear';
+  }
+
+  @override
+  String batch11AmountTitle(int taxYear) {
+    return 'Combien tes 3a ont-ils reçu au total en $taxYear ?';
+  }
+
+  @override
+  String get batch11AmountBody =>
+      'Saisis le total ordinaire indiqué par chaque prestataire 3a. MINT additionne les montants.';
+
+  @override
+  String get batch11ProviderNameLabel =>
+      'Nom du prestataire (par ex. VIAC ou ta banque)';
+
+  @override
+  String get batch11ProviderNamePrivacy =>
+      'N’indique aucun numéro de compte, de police, AVS ou IBAN.';
+
+  @override
+  String batch11OrdinaryAmountLabel(int taxYear) {
+    return 'Montant ordinaire confirmé pour $taxYear';
+  }
+
+  @override
+  String get batch11NotTaxResult =>
+      'Ce total n’est pas encore un résultat fiscal.';
+
+  @override
+  String batch11AllProvidersReviewed(int taxYear) {
+    return 'J’ai vérifié tous mes 3a pour $taxYear';
+  }
+
+  @override
+  String get batch11WhereFindTitle => 'Où trouver le montant ?';
+
+  @override
+  String get batch11WhereFindBody =>
+      'Sur l’attestation de chaque prestataire, cherche « Total des cotisations au pilier 3a ». Utilise ce total une seule fois, même s’il couvre plusieurs contrats.';
+
+  @override
+  String get batch11UnknownAmount => 'Je ne connais encore aucun montant';
+
+  @override
+  String get batch11Continue => 'Continuer';
+
+  @override
+  String get batch11CorrectPrevious => 'Corriger ma réponse précédente';
+
+  @override
+  String get batch11ProviderNameEmpty => 'Indique le nom du prestataire.';
+
+  @override
+  String get batch11ProviderNameSensitive =>
+      'Utilise seulement le nom du prestataire, sans numéro de compte, de police, AVS ou IBAN.';
+
+  @override
+  String get batch11AmountInvalid => 'Indique un montant CHF valide.';
+
+  @override
+  String get batch11AmountZero => 'Le montant doit être supérieur à zéro.';
+
+  @override
+  String get batch11ReviewAllRequired =>
+      'Confirme que tu as vérifié tous tes 3a.';
+
+  @override
+  String get batch11HelpTitle => 'Retrouve d’abord un montant confirmé.';
+
+  @override
+  String get batch11HelpUnknownBody =>
+      'Commence par l’attestation d’un prestataire 3a. Cherche son total de cotisations ordinaires pour l’année, sans ajouter transfert, rachat ni remboursement.';
+
+  @override
+  String get batch11HelpFoundFirst => 'J’ai trouvé un premier montant';
+
+  @override
+  String get batch11HelpEducationOnly =>
+      'Continuer avec une explication générale';
+
+  @override
+  String get batch11HelpBack => 'Revenir à la saisie';
 }

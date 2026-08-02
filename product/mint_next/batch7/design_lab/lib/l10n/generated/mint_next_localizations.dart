@@ -648,6 +648,144 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Revenir aux vérifications'**
   String get contributionEducationBack;
+
+  /// No description provided for @batch11AmountEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'TES VERSEMENTS 3A · {taxYear}'**
+  String batch11AmountEyebrow(int taxYear);
+
+  /// No description provided for @batch11AmountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien tes 3a ont-ils reçu au total en {taxYear} ?'**
+  String batch11AmountTitle(int taxYear);
+
+  /// No description provided for @batch11AmountBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis le total ordinaire indiqué par chaque prestataire 3a. MINT additionne les montants.'**
+  String get batch11AmountBody;
+
+  /// No description provided for @batch11ProviderNameLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du prestataire (par ex. VIAC ou ta banque)'**
+  String get batch11ProviderNameLabel;
+
+  /// No description provided for @batch11ProviderNamePrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'N’indique aucun numéro de compte, de police, AVS ou IBAN.'**
+  String get batch11ProviderNamePrivacy;
+
+  /// No description provided for @batch11OrdinaryAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant ordinaire confirmé pour {taxYear}'**
+  String batch11OrdinaryAmountLabel(int taxYear);
+
+  /// No description provided for @batch11NotTaxResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce total n’est pas encore un résultat fiscal.'**
+  String get batch11NotTaxResult;
+
+  /// No description provided for @batch11AllProvidersReviewed.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai vérifié tous mes 3a pour {taxYear}'**
+  String batch11AllProvidersReviewed(int taxYear);
+
+  /// No description provided for @batch11WhereFindTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où trouver le montant ?'**
+  String get batch11WhereFindTitle;
+
+  /// No description provided for @batch11WhereFindBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur l’attestation de chaque prestataire, cherche « Total des cotisations au pilier 3a ». Utilise ce total une seule fois, même s’il couvre plusieurs contrats.'**
+  String get batch11WhereFindBody;
+
+  /// No description provided for @batch11UnknownAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne connais encore aucun montant'**
+  String get batch11UnknownAmount;
+
+  /// No description provided for @batch11Continue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get batch11Continue;
+
+  /// No description provided for @batch11CorrectPrevious.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger ma réponse précédente'**
+  String get batch11CorrectPrevious;
+
+  /// No description provided for @batch11ProviderNameEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique le nom du prestataire.'**
+  String get batch11ProviderNameEmpty;
+
+  /// No description provided for @batch11ProviderNameSensitive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilise seulement le nom du prestataire, sans numéro de compte, de police, AVS ou IBAN.'**
+  String get batch11ProviderNameSensitive;
+
+  /// No description provided for @batch11AmountInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique un montant CHF valide.'**
+  String get batch11AmountInvalid;
+
+  /// No description provided for @batch11AmountZero.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant doit être supérieur à zéro.'**
+  String get batch11AmountZero;
+
+  /// No description provided for @batch11ReviewAllRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirme que tu as vérifié tous tes 3a.'**
+  String get batch11ReviewAllRequired;
+
+  /// No description provided for @batch11HelpTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retrouve d’abord un montant confirmé.'**
+  String get batch11HelpTitle;
+
+  /// No description provided for @batch11HelpUnknownBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commence par l’attestation d’un prestataire 3a. Cherche son total de cotisations ordinaires pour l’année, sans ajouter transfert, rachat ni remboursement.'**
+  String get batch11HelpUnknownBody;
+
+  /// No description provided for @batch11HelpFoundFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai trouvé un premier montant'**
+  String get batch11HelpFoundFirst;
+
+  /// No description provided for @batch11HelpEducationOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec une explication générale'**
+  String get batch11HelpEducationOnly;
+
+  /// No description provided for @batch11HelpBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à la saisie'**
+  String get batch11HelpBack;
 }
 
 class _MintNextLocalizationsDelegate

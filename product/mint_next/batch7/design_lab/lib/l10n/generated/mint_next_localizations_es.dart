@@ -338,4 +338,90 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
 
   @override
   String get contributionEducationBack => 'Volver a las comprobaciones';
+
+  @override
+  String batch11AmountEyebrow(int taxYear) {
+    return 'TUS APORTACIONES AL 3A · $taxYear';
+  }
+
+  @override
+  String batch11AmountTitle(int taxYear) {
+    return '¿Cuánto recibieron realmente en total todos tus proveedores 3a en $taxYear?';
+  }
+
+  @override
+  String get batch11AmountBody =>
+      'Introduce el total confirmado de aportaciones ordinarias de cada proveedor. MINT los suma.';
+
+  @override
+  String get batch11ProviderNameLabel =>
+      'Nombre del proveedor (p. ej., VIAC o tu banco)';
+
+  @override
+  String get batch11ProviderNamePrivacy =>
+      'No introduzcas números de cuenta, póliza, seguridad social suiza ni IBAN.';
+
+  @override
+  String batch11OrdinaryAmountLabel(int taxYear) {
+    return 'Aportaciones ordinarias confirmadas de $taxYear';
+  }
+
+  @override
+  String get batch11NotTaxResult =>
+      'Este total todavía no es un resultado fiscal.';
+
+  @override
+  String batch11AllProvidersReviewed(int taxYear) {
+    return 'He comprobado todos mis proveedores 3a de $taxYear';
+  }
+
+  @override
+  String get batch11WhereFindTitle => '¿Dónde encuentro el importe?';
+
+  @override
+  String get batch11WhereFindBody =>
+      'En el certificado de cada proveedor, busca el total de aportaciones al pilar 3a. Úsalo una sola vez, aunque incluya varios contratos.';
+
+  @override
+  String get batch11UnknownAmount => 'Todavía no conozco ningún importe';
+
+  @override
+  String get batch11Continue => 'Continuar';
+
+  @override
+  String get batch11CorrectPrevious => 'Corregir mi respuesta anterior';
+
+  @override
+  String get batch11ProviderNameEmpty => 'Introduce el nombre del proveedor.';
+
+  @override
+  String get batch11ProviderNameSensitive =>
+      'Usa solo el nombre del proveedor, sin números de cuenta, póliza, seguridad social suiza ni IBAN.';
+
+  @override
+  String get batch11AmountInvalid => 'Introduce un importe CHF válido.';
+
+  @override
+  String get batch11AmountZero => 'El importe debe ser superior a cero.';
+
+  @override
+  String get batch11ReviewAllRequired =>
+      'Confirma que has comprobado todos tus proveedores 3a.';
+
+  @override
+  String get batch11HelpTitle => 'Primero encuentra un importe confirmado.';
+
+  @override
+  String get batch11HelpUnknownBody =>
+      'Empieza por el certificado de un proveedor 3a. Busca el total de aportaciones ordinarias del año, sin añadir transferencias, aportaciones retroactivas ni reembolsos.';
+
+  @override
+  String get batch11HelpFoundFirst => 'He encontrado un primer importe';
+
+  @override
+  String get batch11HelpEducationOnly =>
+      'Continuar con una explicación general';
+
+  @override
+  String get batch11HelpBack => 'Volver a la entrada';
 }

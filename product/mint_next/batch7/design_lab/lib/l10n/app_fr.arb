@@ -173,5 +173,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "batch11AmountEyebrow": "TES VERSEMENTS 3A · {taxYear}",
+  "batch11AmountTitle": "Combien tes 3a ont-ils reçu au total en {taxYear} ?",
+  "batch11AmountBody": "Saisis le total ordinaire indiqué par chaque prestataire 3a. MINT additionne les montants.",
+  "batch11ProviderNameLabel": "Nom du prestataire (par ex. VIAC ou ta banque)",
+  "batch11ProviderNamePrivacy": "N’indique aucun numéro de compte, de police, AVS ou IBAN.",
+  "batch11OrdinaryAmountLabel": "Montant ordinaire confirmé pour {taxYear}",
+  "batch11NotTaxResult": "Ce total n’est pas encore un résultat fiscal.",
+  "batch11AllProvidersReviewed": "J’ai vérifié tous mes 3a pour {taxYear}",
+  "batch11WhereFindTitle": "Où trouver le montant ?",
+  "batch11WhereFindBody": "Sur l’attestation de chaque prestataire, cherche « Total des cotisations au pilier 3a ». Utilise ce total une seule fois, même s’il couvre plusieurs contrats.",
+  "batch11UnknownAmount": "Je ne connais encore aucun montant",
+  "batch11Continue": "Continuer",
+  "batch11CorrectPrevious": "Corriger ma réponse précédente",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Indique le nom du prestataire.",
+  "batch11ProviderNameSensitive": "Utilise seulement le nom du prestataire, sans numéro de compte, de police, AVS ou IBAN.",
+  "batch11AmountInvalid": "Indique un montant CHF valide.",
+  "batch11AmountZero": "Le montant doit être supérieur à zéro.",
+  "batch11ReviewAllRequired": "Confirme que tu as vérifié tous tes 3a.",
+  "batch11HelpTitle": "Retrouve d’abord un montant confirmé.",
+  "batch11HelpUnknownBody": "Commence par l’attestation d’un prestataire 3a. Cherche son total de cotisations ordinaires pour l’année, sans ajouter transfert, rachat ni remboursement.",
+  "batch11HelpFoundFirst": "J’ai trouvé un premier montant",
+  "batch11HelpEducationOnly": "Continuer avec une explication générale",
+  "batch11HelpBack": "Revenir à la saisie"
 }

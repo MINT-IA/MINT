@@ -73,7 +73,7 @@ void main() {
     }
   });
 
-  testWidgets('yes routes to amount boundary and back restores yes', (
+  testWidgets('yes routes to amount builder and correction restores yes', (
     tester,
   ) async {
     await openContributionQuestion(tester, currentYear: 2026);
@@ -85,10 +85,12 @@ void main() {
       find.byKey(const ValueKey('node:fact_contributed_amount')),
       findsOneWidget,
     );
-    expect(find.textContaining('aucun montant n’est connu'), findsOneWidget);
+    expect(find.textContaining('résultat fiscal'), findsOneWidget);
 
     await tester.tap(
-      find.byKey(const ValueKey('action:fact_contributed_amount.back')),
+      find.byKey(
+        const ValueKey('action:fact_contributed_amount.correct_previous'),
+      ),
     );
     await tester.pumpAndSettle();
     expect(
@@ -334,7 +336,7 @@ void main() {
       'action:fact_contribution.choose_no',
       'action:fact_canton.back',
       'action:fact_contribution.choose_yes',
-      'action:fact_contributed_amount.back',
+      'action:fact_contributed_amount.correct_previous',
     ]) {
       final finder = find.byKey(ValueKey(action));
       await tester.ensureVisible(finder);
@@ -385,7 +387,9 @@ void main() {
       findsOneWidget,
     );
     await tester.tap(
-      find.byKey(const ValueKey('action:fact_contributed_amount.back')),
+      find.byKey(
+        const ValueKey('action:fact_contributed_amount.correct_previous'),
+      ),
     );
     await tester.pumpAndSettle();
     expect(

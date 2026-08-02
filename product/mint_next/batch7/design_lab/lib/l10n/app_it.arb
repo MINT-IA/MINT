@@ -173,5 +173,56 @@
         "type": "int"
       }
     }
-  }
+  },
+  "batch11AmountEyebrow": "I TUOI CONTRIBUTI 3A · {taxYear}",
+  "batch11AmountTitle": "Quanto hanno effettivamente ricevuto in totale tutti i tuoi istituti 3a nel {taxYear}?",
+  "batch11AmountBody": "Inserisci per ogni istituto il totale confermato dei contributi ordinari. MINT li somma.",
+  "batch11ProviderNameLabel": "Nome dell’istituto (ad es. VIAC o la tua banca)",
+  "batch11ProviderNamePrivacy": "Non inserire numeri di conto, polizza, AVS o IBAN.",
+  "batch11OrdinaryAmountLabel": "Contributi ordinari confermati per il {taxYear}",
+  "batch11NotTaxResult": "Questo totale non è ancora un risultato fiscale.",
+  "batch11AllProvidersReviewed": "Ho verificato tutti i miei istituti 3a per il {taxYear}",
+  "batch11WhereFindTitle": "Dove trovo l’importo?",
+  "batch11WhereFindBody": "Sull’attestazione di ogni istituto cerca «Totale contributi al pilastro 3a». Usa una sola volta il totale dell’istituto, anche se comprende più contratti.",
+  "batch11UnknownAmount": "Non conosco ancora alcun importo",
+  "batch11Continue": "Continua",
+  "batch11CorrectPrevious": "Correggi la risposta precedente",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Inserisci il nome dell’istituto.",
+  "batch11ProviderNameSensitive": "Usa solo il nome dell’istituto, senza numeri di conto, polizza, AVS o IBAN.",
+  "batch11AmountInvalid": "Inserisci un importo CHF valido.",
+  "batch11AmountZero": "L’importo deve essere superiore a zero.",
+  "batch11ReviewAllRequired": "Conferma di avere verificato tutti i tuoi istituti 3a.",
+  "batch11HelpTitle": "Trova prima un importo confermato.",
+  "batch11HelpUnknownBody": "Inizia dall’attestazione di un istituto 3a. Cerca il totale dei contributi ordinari dell’anno, senza aggiungere trasferimenti, contributi retroattivi o rimborsi.",
+  "batch11HelpFoundFirst": "Ho trovato un primo importo",
+  "batch11HelpEducationOnly": "Continua con una spiegazione generale",
+  "batch11HelpBack": "Torna all’inserimento"
 }

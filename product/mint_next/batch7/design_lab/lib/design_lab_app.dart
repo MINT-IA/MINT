@@ -3,6 +3,8 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import 'l10n/generated/mint_next_localizations.dart';
+import 'ordinary_chf_amount.dart';
+import 'provider_label.dart';
 
 enum _DesignNode {
   today3aIntent,
@@ -14,6 +16,7 @@ enum _DesignNode {
   factContribution,
   contributionUnknownHelp,
   factContributedAmount,
+  contributedAmountUnknownHelp,
   factCanton,
   educationExplanation,
   dismissed,
@@ -105,6 +108,11 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   _LppAffiliation? _lppAffiliation;
   _ContributionStatus? _contributionStatus;
   bool _contributionEdgeHelpExpanded = false;
+  String _providerName = '';
+  String _ordinaryAmountRaw = '';
+  bool _allProvidersReviewed = false;
+  bool _amountWhereToFindExpanded = false;
+  _DesignNode _educationBackNode = _DesignNode.contributionUnknownHelp;
   final FocusNode _safeExitTriggerFocus = FocusNode(
     debugLabel: 'safe exit trigger',
   );
@@ -129,6 +137,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   void _clearContributionFacts() {
     _contributionStatus = null;
     _contributionEdgeHelpExpanded = false;
+    _clearContributionAmount();
+  }
+
+  void _clearContributionAmount() {
+    _providerName = '';
+    _ordinaryAmountRaw = '';
+    _allProvidersReviewed = false;
+    _amountWhereToFindExpanded = false;
   }
 
   void _clearEphemeralFacts() {
@@ -154,6 +170,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _DesignNode.factContribution => 'fact_contribution',
     _DesignNode.contributionUnknownHelp => 'contribution_unknown_help',
     _DesignNode.factContributedAmount => 'fact_contributed_amount',
+    _DesignNode.contributedAmountUnknownHelp =>
+      'contributed_amount_unknown_help',
     _DesignNode.factCanton => 'fact_canton',
     _DesignNode.educationExplanation => 'education_explanation',
     _DesignNode.dismissed => 'dismissed',
@@ -251,7 +269,12 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                             !_contributionEdgeHelpExpanded,
                       ),
                       onChoose: (value) {
-                        setState(() => _contributionStatus = value);
+                        setState(() {
+                          if (_contributionStatus != value) {
+                            _clearContributionAmount();
+                          }
+                          _contributionStatus = value;
+                        });
                         _go(switch (value) {
                           _ContributionStatus.yes =>
                             _DesignNode.factContributedAmount,
@@ -265,21 +288,53 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                     _DesignNode.contributionUnknownHelp =>
                       _ContributionUnknownHelp(
                         taxYear: _taxYear!,
-                        onContinueEducation: () =>
-                            _go(_DesignNode.educationExplanation),
+                        onContinueEducation: () {
+                          _educationBackNode =
+                              _DesignNode.contributionUnknownHelp;
+                          _go(_DesignNode.educationExplanation);
+                        },
                         onBack: () => _go(_DesignNode.factContribution),
                       ),
                     _DesignNode.factContributedAmount =>
-                      _ContributionAmountBoundary(
+                      _ContributionAmountForm(
                         taxYear: _taxYear!,
-                        onBack: () => _go(_DesignNode.factContribution),
+                        providerName: _providerName,
+                        amountRaw: _ordinaryAmountRaw,
+                        allProvidersReviewed: _allProvidersReviewed,
+                        whereToFindExpanded: _amountWhereToFindExpanded,
+                        onProviderNameChanged: (value) => _providerName = value,
+                        onAmountChanged: (value) => _ordinaryAmountRaw = value,
+                        onReviewedChanged: (value) =>
+                            setState(() => _allProvidersReviewed = value),
+                        onWhereToFindChanged: (value) =>
+                            setState(() => _amountWhereToFindExpanded = value),
+                        onUnknown: () =>
+                            _go(_DesignNode.contributedAmountUnknownHelp),
+                        onContinue: () => _go(_DesignNode.factCanton),
+                        onCorrectPrevious: () =>
+                            _go(_DesignNode.factContribution),
+                      ),
+                    _DesignNode.contributedAmountUnknownHelp =>
+                      _ContributedAmountUnknownHelp(
+                        onFoundAmount: () =>
+                            _go(_DesignNode.factContributedAmount),
+                        onContinueEducation: () {
+                          _educationBackNode =
+                              _DesignNode.contributedAmountUnknownHelp;
+                          _go(_DesignNode.educationExplanation);
+                        },
+                        onBack: () => _go(_DesignNode.factContributedAmount),
                       ),
                     _DesignNode.factCanton => _CantonBoundary(
                       taxYear: _taxYear!,
-                      onBack: () => _go(_DesignNode.factContribution),
+                      onBack: () => _go(
+                        _contributionStatus == _ContributionStatus.yes
+                            ? _DesignNode.factContributedAmount
+                            : _DesignNode.factContribution,
+                      ),
                     ),
                     _DesignNode.educationExplanation => _EducationBoundary(
-                      onBack: () => _go(_DesignNode.contributionUnknownHelp),
+                      onBack: () => _go(_educationBackNode),
                     ),
                     _DesignNode.dismissed => _Terminal(
                       title: l10n.dismissedTitle,
@@ -963,28 +1018,256 @@ class _ContributionUnknownHelp extends StatelessWidget {
   }
 }
 
-class _ContributionAmountBoundary extends StatelessWidget {
-  const _ContributionAmountBoundary({
-    required this.taxYear,
+class _ContributedAmountUnknownHelp extends StatelessWidget {
+  const _ContributedAmountUnknownHelp({
+    required this.onFoundAmount,
+    required this.onContinueEducation,
     required this.onBack,
   });
-  final int taxYear;
+
+  final VoidCallback onFoundAmount;
+  final VoidCallback onContinueEducation;
   final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
     final l10n = MintNextLocalizations.of(context);
     return _Page(
-      nodeId: 'fact_contributed_amount',
-      eyebrow: l10n.nextStepEyebrow,
-      title: l10n.contributionAmountBoundaryTitle(taxYear),
-      body: l10n.contributionAmountBoundaryBody(taxYear),
+      nodeId: 'contributed_amount_unknown_help',
+      eyebrow: l10n.contributionUnknownEyebrow,
+      title: l10n.batch11HelpTitle,
+      body: l10n.batch11HelpUnknownBody,
       accent: const _QuietOrb(),
       actions: [
+        MintDesignLabAction(
+          key: const ValueKey(
+            'action:contributed_amount_unknown_help.found_amount',
+          ),
+          label: l10n.batch11HelpFoundFirst,
+          onPressed: onFoundAmount,
+        ),
+        MintDesignLabAction.secondary(
+          key: const ValueKey(
+            'action:contributed_amount_unknown_help.continue_education_only',
+          ),
+          label: l10n.batch11HelpEducationOnly,
+          onPressed: onContinueEducation,
+        ),
         MintDesignLabAction.text(
-          key: const ValueKey('action:fact_contributed_amount.back'),
-          label: l10n.contributionBoundaryBack,
+          key: const ValueKey('action:contributed_amount_unknown_help.back'),
+          label: l10n.batch11HelpBack,
           onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
+class _ContributionAmountForm extends StatefulWidget {
+  const _ContributionAmountForm({
+    required this.taxYear,
+    required this.providerName,
+    required this.amountRaw,
+    required this.allProvidersReviewed,
+    required this.whereToFindExpanded,
+    required this.onProviderNameChanged,
+    required this.onAmountChanged,
+    required this.onReviewedChanged,
+    required this.onWhereToFindChanged,
+    required this.onUnknown,
+    required this.onContinue,
+    required this.onCorrectPrevious,
+  });
+  final int taxYear;
+  final String providerName;
+  final String amountRaw;
+  final bool allProvidersReviewed;
+  final bool whereToFindExpanded;
+  final ValueChanged<String> onProviderNameChanged;
+  final ValueChanged<String> onAmountChanged;
+  final ValueChanged<bool> onReviewedChanged;
+  final ValueChanged<bool> onWhereToFindChanged;
+  final VoidCallback onUnknown;
+  final VoidCallback onContinue;
+  final VoidCallback onCorrectPrevious;
+
+  @override
+  State<_ContributionAmountForm> createState() =>
+      _ContributionAmountFormState();
+}
+
+class _ContributionAmountFormState extends State<_ContributionAmountForm> {
+  late final TextEditingController _providerController;
+  late final TextEditingController _amountController;
+  final FocusNode _providerFocus = FocusNode(debugLabel: 'provider name');
+  final FocusNode _amountFocus = FocusNode(debugLabel: 'ordinary amount');
+  String? _providerError;
+  String? _amountError;
+  bool _reviewedError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _providerController = TextEditingController(text: widget.providerName);
+    _amountController = TextEditingController(text: widget.amountRaw);
+  }
+
+  @override
+  void dispose() {
+    _providerController.dispose();
+    _amountController.dispose();
+    _providerFocus.dispose();
+    _amountFocus.dispose();
+    super.dispose();
+  }
+
+  void _continue() {
+    final providerMissing = _providerController.text.trim().isEmpty;
+    final providerUnsafe =
+        !providerMissing && !providerLabelIsSafe(_providerController.text);
+    final l10n = MintNextLocalizations.of(context);
+    int? amount;
+    try {
+      amount = parseOrdinaryChfAmount(
+        _amountController.text,
+        locale: Localizations.localeOf(context).languageCode,
+      );
+    } on FormatException {
+      amount = null;
+    }
+    setState(() {
+      _providerError = providerMissing
+          ? l10n.batch11ProviderNameEmpty
+          : providerUnsafe
+          ? l10n.batch11ProviderNameSensitive
+          : null;
+      _amountError = amount == null
+          ? l10n.batch11AmountInvalid
+          : amount == 0
+          ? l10n.batch11AmountZero
+          : null;
+      _reviewedError = !widget.allProvidersReviewed;
+    });
+    if (providerMissing || providerUnsafe) {
+      _providerFocus.requestFocus();
+      return;
+    }
+    if (_amountError != null) {
+      _amountFocus.requestFocus();
+      return;
+    }
+    if (_reviewedError) return;
+    widget.onContinue();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'fact_contributed_amount',
+      eyebrow: l10n.batch11AmountEyebrow(widget.taxYear),
+      title: l10n.batch11AmountTitle(widget.taxYear),
+      body: l10n.batch11AmountBody,
+      accent: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            key: const ValueKey('field:fact_contributed_amount.provider_name'),
+            controller: _providerController,
+            focusNode: _providerFocus,
+            textInputAction: TextInputAction.next,
+            decoration: InputDecoration(
+              labelText: l10n.batch11ProviderNameLabel,
+              helperText: l10n.batch11ProviderNamePrivacy,
+              errorText: _providerError,
+              border: const OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              widget.onProviderNameChanged(value);
+              if (_providerError != null) {
+                setState(() => _providerError = null);
+              }
+            },
+          ),
+          const SizedBox(height: 20),
+          TextFormField(
+            key: const ValueKey('field:fact_contributed_amount.amount'),
+            controller: _amountController,
+            focusNode: _amountFocus,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(
+              labelText: l10n.batch11OrdinaryAmountLabel(widget.taxYear),
+              suffixText: 'CHF',
+              errorText: _amountError,
+              border: const OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              widget.onAmountChanged(value);
+              if (_amountError != null) {
+                setState(() => _amountError = null);
+              }
+            },
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.batch11NotTaxResult,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+          CheckboxListTile(
+            key: const ValueKey(
+              'action:fact_contributed_amount.toggle_all_reviewed',
+            ),
+            contentPadding: EdgeInsets.zero,
+            value: widget.allProvidersReviewed,
+            title: Text(l10n.batch11AllProvidersReviewed(widget.taxYear)),
+            subtitle: _reviewedError
+                ? Text(l10n.batch11ReviewAllRequired)
+                : null,
+            onChanged: (value) {
+              widget.onReviewedChanged(value ?? false);
+              if (_reviewedError) setState(() => _reviewedError = false);
+            },
+          ),
+          Semantics(
+            button: true,
+            expanded: widget.whereToFindExpanded,
+            child: TextButton(
+              key: const ValueKey(
+                'action:fact_contributed_amount.toggle_where_to_find',
+              ),
+              onPressed: () =>
+                  widget.onWhereToFindChanged(!widget.whereToFindExpanded),
+              child: Text(l10n.batch11WhereFindTitle),
+            ),
+          ),
+          if (widget.whereToFindExpanded)
+            Text(
+              l10n.batch11WhereFindBody,
+              key: const ValueKey(
+                'content:fact_contributed_amount.where_to_find',
+              ),
+            ),
+        ],
+      ),
+      actions: [
+        MintDesignLabAction(
+          key: const ValueKey('action:fact_contributed_amount.continue'),
+          label: l10n.batch11Continue,
+          onPressed: _continue,
+        ),
+        MintDesignLabAction.secondary(
+          key: const ValueKey('action:fact_contributed_amount.unknown_amount'),
+          label: l10n.batch11UnknownAmount,
+          onPressed: widget.onUnknown,
+        ),
+        MintDesignLabAction.text(
+          key: const ValueKey(
+            'action:fact_contributed_amount.correct_previous',
+          ),
+          label: l10n.batch11CorrectPrevious,
+          onPressed: widget.onCorrectPrevious,
         ),
       ],
     );

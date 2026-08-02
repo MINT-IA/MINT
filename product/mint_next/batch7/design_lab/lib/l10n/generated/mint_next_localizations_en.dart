@@ -339,4 +339,88 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get contributionEducationBack => 'Back to the checks';
+
+  @override
+  String batch11AmountEyebrow(int taxYear) {
+    return 'YOUR 3A CONTRIBUTIONS · $taxYear';
+  }
+
+  @override
+  String batch11AmountTitle(int taxYear) {
+    return 'How much did all your 3a providers actually receive in $taxYear?';
+  }
+
+  @override
+  String get batch11AmountBody =>
+      'Enter each provider’s confirmed ordinary-contribution total. MINT adds them up.';
+
+  @override
+  String get batch11ProviderNameLabel =>
+      'Provider name (for example VIAC or your bank)';
+
+  @override
+  String get batch11ProviderNamePrivacy =>
+      'Do not enter an account, policy, Swiss social-security or IBAN number.';
+
+  @override
+  String batch11OrdinaryAmountLabel(int taxYear) {
+    return 'Confirmed ordinary amount for $taxYear';
+  }
+
+  @override
+  String get batch11NotTaxResult => 'This total is not a tax result yet.';
+
+  @override
+  String batch11AllProvidersReviewed(int taxYear) {
+    return 'I checked all my 3a providers for $taxYear';
+  }
+
+  @override
+  String get batch11WhereFindTitle => 'Where can I find it?';
+
+  @override
+  String get batch11WhereFindBody =>
+      'On each provider certificate, find “Total 3a contributions”. Use that provider total once, even if it covers several contracts.';
+
+  @override
+  String get batch11UnknownAmount => 'I do not know any amount yet';
+
+  @override
+  String get batch11Continue => 'Continue';
+
+  @override
+  String get batch11CorrectPrevious => 'Correct my previous answer';
+
+  @override
+  String get batch11ProviderNameEmpty => 'Enter the provider name.';
+
+  @override
+  String get batch11ProviderNameSensitive =>
+      'Use only the provider name, without an account, policy, Swiss social-security or IBAN number.';
+
+  @override
+  String get batch11AmountInvalid => 'Enter a valid CHF amount.';
+
+  @override
+  String get batch11AmountZero => 'The amount must be greater than zero.';
+
+  @override
+  String get batch11ReviewAllRequired =>
+      'Confirm that you checked all your 3a providers.';
+
+  @override
+  String get batch11HelpTitle => 'First find one confirmed amount.';
+
+  @override
+  String get batch11HelpUnknownBody =>
+      'Start with one provider certificate. Find its ordinary-contribution total for the year, without adding a transfer, catch-up contribution or refund.';
+
+  @override
+  String get batch11HelpFoundFirst => 'I found a first amount';
+
+  @override
+  String get batch11HelpEducationOnly => 'Continue with a general explanation';
+
+  @override
+  String get batch11HelpBack => 'Back to entry';
 }
