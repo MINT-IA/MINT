@@ -1,0 +1,197 @@
+schema_version: 1
+status: draft_written_contract_runtime_forbidden
+journey_id: swiss_3a_question_to_next_action
+authority:
+  navigation_contract: product/mint_next/batch6/navigation.yaml
+  navigation_sha256: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+  previous_accepted_slice: product/mint_next/batch8/design-lab-acceptance.yaml
+  semantic_refinement: fact_contribution_means_ordinary_contribution_actually_credited_for_selected_year
+  route_change: none
+slice:
+  entry_from: fact_lpp_affiliation.choose_yes
+  nodes: [fact_contribution, contribution_unknown_help]
+  boundary_nodes: [fact_contributed_amount, fact_canton, education_explanation]
+  routes:
+    'yes': fact_contributed_amount
+    'no': fact_canton
+    'unknown': contribution_unknown_help
+    unknown_education_only: education_explanation
+  locales: [fr, en, de, it, es, pt]
+audience: beginner_low_financial_literacy
+
+human_outcome:
+  question: Determine whether any ordinary pillar 3a contribution was actually credited to any of the person's accounts or policies for the selected tax year.
+  why_now: The next personal step may ask for the all-provider ordinary total; absence, transfer, buyback, pending payment and refund must not become a false paid amount.
+  must_understand:
+    - MINT asks about money confirmed as received by a personal 3a, not an order or bank debit.
+    - All 3a bank, fintech and insurance contracts must be considered together.
+    - A transfer between 3a providers and a retroactive buyback for a past year are separate facts.
+    - The total is not requested on this screen.
+  next_small_action:
+    'yes': Ask for the ordinary amount actually credited for the selected year across all providers.
+    'no': Continue to the canton question with an explicit zero adapter only for ordinary credited contributions.
+    'unknown': Help the person verify without guessing, or continue in education-only mode.
+
+fact_contract:
+  id: ordinary_3a_contribution_credited_any_provider_for_selected_year
+  tax_year_ref: tax_year
+  allowed_values: ['yes', 'no', unknown]
+  default: null
+  storage: ephemeral
+  evidence_basis: explicit_user_assertion_or_later_provider_evidence
+  never_derive_from: [has_3a_account, existing_3a_balance, planned_contribution, standing_order, bank_account_debit, missing_document, missing_amount]
+  explicit_exclusions: [provider_to_provider_3a_transfer, uncredited_or_pending_payment, retroactive_buyback_for_past_year, fully_refunded_or_reversed_amount]
+  separate_deferred_facts: [retroactive_3a_buyback, provider_transfer, refund_or_correction, credited_ordinary_total]
+  invariants:
+    'yes': credited_ordinary_total_remains_unknown_until_next_node
+    'no': stored_amount_remains_null_and_calculation_adapter_may_use_zero_only_after_explicit_no
+    'unknown': stored_amount_remains_null_and_personal_calculation_is_forbidden
+  correction_effect: replace_status_clear_credited_total_provider_rows_and_result
+  tax_year_change_effect: clear_status_credited_total_provider_rows_and_result
+
+node_contracts:
+  fact_contribution:
+    reference_copy_fr:
+      eyebrow: Tes versements 3a · {taxYear}
+      title: En {taxYear}, l’un de tes 3a a-t-il reçu un nouveau versement ?
+      body: Réponds pour tous tes 3a, y compris une assurance 3a.
+      credited_note: Compte seulement l’argent neuf reçu pour {taxYear}. Un paiement seulement envoyé ou débité ne compte pas encore ; un transfert, un rendement ou un remboursement de frais non plus.
+      amount_note: Pas besoin de connaître le total maintenant. On te le demandera seulement si tu réponds oui.
+      choose_yes: Oui, un nouveau versement a été reçu
+      choose_no: Non, aucun nouveau versement
+      choose_unknown: Je ne sais pas
+      edge_help: Ce qui compte — et ce qui ne compte pas
+    required_arb_keys: [contributionEyebrow, contributionTitle, contributionBody, contributionCreditedNote, contributionAmountNote, contributionChoiceYes, contributionChoiceNo, contributionChoiceUnknown, contributionEdgeHelp]
+    title_intent: Ask about any ordinary contribution actually credited for the interpolated selected year, without implying the person initiated it personally.
+    all_provider_scope: every_personal_3a_bank_fintech_and_insurance_contract
+    edge_help_contract:
+      pattern: same_node_disclosure
+      cases:
+        pending_or_scheduled: Do not count it until the personal 3a shows it as credited.
+        provider_transfer: Do not count an existing 3a balance moved to another recognized 3a.
+        retroactive_buyback: Keep it separate because it belongs to a contribution gap from a past year.
+        full_refund_or_reversal: If no effective ordinary contribution remains across any provider, answer no.
+        partial_refund_known_net: If a provider confirms a positive ordinary net amount remains, answer yes; the next node collects that confirmed net total.
+        refund_or_correction_unclear: If the effective ordinary amount after correction is unclear, choose unknown.
+        mixed_transfer_and_new_money: Count only the new ordinary money credited for the selected year.
+        investment_return_or_interest: Do not count investment gains, interest or portfolio performance as a contribution.
+        non_contribution_adjustment: Do not count fee refunds, rebates or other provider adjustments as a contribution.
+      forbidden: [tax_calculation, mental_subtraction_prompt, provider_recommendation]
+    controls:
+      choose_yes: {label_intent: at_least_one_ordinary_contribution_credited, immediate_to: fact_contributed_amount, mutation: contribution_status_yes}
+      choose_no: {label_intent: no_ordinary_contribution_credited, immediate_to: fact_canton, mutation: contribution_status_no, clears: [contributed_amount, ephemeral_provider_rows]}
+      choose_unknown: {label_intent: unknown_credit_or_classification, immediate_to: contribution_unknown_help, mutation: contribution_status_unknown, clears: [contributed_amount, ephemeral_provider_rows]}
+      toggle_edge_help: {operation: same_node_disclosure, default_expanded: false}
+      back: {to: fact_lpp_affiliation}
+      open_safe_exit: {overlay: safe_exit}
+  contribution_unknown_help:
+    emotional_contract: uncertainty_is_valid_not_zero
+    reference_copy_fr:
+      eyebrow: Aucun souci
+      title: Tu peux vérifier sans additionner toi-même.
+      body: Cherche si une cotisation ordinaire a été créditée pour {taxYear} sur chacun de tes 3a. Si un transfert, un rachat ou un remboursement rend la réponse incertaine, garde « Je ne sais pas ».
+      provider_statement: Dans l’app ou le relevé de chaque banque ou fintech 3a, cherche un crédit reçu pour {taxYear}.
+      insurance_certificate: Pour une assurance 3a, regarde l’attestation annuelle ou demande quelle cotisation ordinaire a été créditée.
+      provider_question: En cas de doute, demande au prestataire si le mouvement est une cotisation ordinaire, un transfert, un rachat ou un remboursement.
+      transfer_warning: N’additionne jamais un transfert entre deux 3a. Ce serait compter le même argent deux fois.
+      education_limit: Tu peux continuer sans montant personnel. MINT montrera seulement une explication générale.
+      continue_education_only: Continuer avec une explication générale
+      back: Revenir à la question
+    required_arb_keys: [contributionUnknownEyebrow, contributionUnknownTitle, contributionUnknownBody, contributionUnknownProviderStatement, contributionUnknownInsuranceCertificate, contributionUnknownProviderQuestion, contributionUnknownTransferWarning, contributionUnknownEducationLimit, contributionUnknownContinueEducation, contributionBackToQuestion]
+    evidence_list_semantics: ordered_informative_list_not_interactive_controls
+    forbidden: [convert_unknown_to_no, infer_zero, continue_personal_estimate, show_remaining_room, claim_tax_deduction]
+    controls:
+      continue_education_only: {to: education_explanation, mode: general_education_no_personal_amount}
+      back: {operation: history_back, allowed_predecessors: [fact_contribution]}
+      open_safe_exit: {overlay: safe_exit}
+  fact_contributed_amount_boundary:
+    reference_copy_fr:
+      title: Ensuite, MINT demandera le total ordinaire déjà crédité pour {taxYear}.
+      body: Le total devra couvrir tous tes comptes et polices 3a. Après un remboursement partiel, tu pourras utiliser le montant net confirmé par le prestataire. Pour l’instant, aucun montant n’est connu ni calculé.
+      back: Corriger ma réponse
+    forbidden: [render_amount_input_in_batch9, assume_total, include_transfer, include_retroactive_buyback, calculate_remaining_room]
+    controls:
+      back: {to: fact_contribution, restores_selection: 'yes'}
+  fact_canton_boundary:
+    reference_copy_fr:
+      title: D’après ta réponse, aucun versement ordinaire n’est retenu pour {taxYear}.
+      body: Aucun résultat fiscal n’est encore calculé. L’étape suivante demandera ton canton.
+      back: Corriger ma réponse
+    forbidden: [claim_proven_zero_without_user_answer, show_remaining_room, calculate_tax_saving]
+    controls:
+      back: {operation: history_back, allowed_predecessors: [fact_contribution], restores_selection: 'no'}
+
+interaction_contract:
+  selection: no_preselection_one_tap_routes_immediately
+  repeated_tap: idempotent
+  back_from_question: fact_lpp_affiliation_with_yes_visible
+  back_from_yes_boundary: fact_contribution_with_yes_visible
+  back_from_no_boundary: fact_contribution_with_no_visible
+  back_from_unknown_help: fact_contribution_with_unknown_visible
+  resume: preserve_node_scroll_disclosure_and_ephemeral_facts
+  leave_without_saving: clear_contribution_status_amount_provider_rows_and_all_prior_ephemeral_facts
+  app_kill_or_ttl_expiry: restart_and_clear
+  tax_year_rollover: return_to_tax_year_and_clear_year_scoped_contribution_facts
+  no_resume_promise_without_implemented_local_reference: true
+
+accessibility_contract:
+  choice_pattern: selected_button_group
+  choice_group_label_intent: ordinary_3a_contributions_credited_in_interpolated_year
+  choice_semantics: each_full_width_choice_is_a_button_and_exposes_selected_state_on_return
+  activation: tap_commits_then_routes_immediately_without_continue_cta
+  dynamic_year_in_choice_group_label: true
+  repeat_year_in_each_choice_label: false
+  edge_help_pattern: disclosure_button_with_expanded_state
+  focus_on_route: first_semantic_heading
+  minimum_touch_target: 48x48_logical_pixels
+  reading_order: [global_header, safe_exit, question, definition, credited_note, amount_note, edge_help, choices, back]
+  safe_exit:
+    trigger_role: button
+    trigger_visible_copy_fr: Quitter
+    trigger_accessible_copy_fr: Quitter ce parcours
+    trigger_label_intent: leave_this_journey
+    overlay_initial_focus: safe_exit_heading
+    overlay_focus_trap: true
+    resume_returns_focus_to_trigger: true
+    system_back_or_escape: dismiss_overlay_without_mutation_and_return_focus
+    leave_action_clears_ephemeral_facts_before_dismissed_boundary: true
+  required_proofs: [320x700_text_scale_2_all_routes_and_safe_exit, 390x844_runtime, screen_reader_labels, keyboard_focus_order, reduced_motion]
+
+six_locale_intent_contract:
+  required_distinctions:
+    - actually_credited_not_merely_sent_ordered_or_debited
+    - ordinary_new_contribution_not_provider_transfer
+    - selected_tax_year_not_habitual_annual_plan
+    - all_bank_fintech_and_insurance_3a_contracts
+    - retroactive_buyback_is_separate
+    - unknown_never_means_no
+  semantic_review_required_per_locale: true
+  key_parity_alone_is_insufficient: true
+
+content_boundaries:
+  no_amounts_thresholds_or_percentages: true
+  no_remaining_room_or_tax_saving: true
+  no_product_or_provider_recommendation: true
+  no_personal_financial_advice: true
+  no_account_required: true
+  no_persistence_claim: true
+  no_retroactive_buyback_calculation: true
+
+legacy_decisions:
+  inventory: product/mint_next/batch9/legacy-inventory.yaml
+  harvest_later:
+    - apps/mobile/lib/services/financial_core/pillar_3a_room_calculator.dart:annualCeiling_only_after_fact_adapter
+    - apps/mobile/lib/providers/coach_profile_provider.dart:claim_transport_pattern_only
+    - services/backend/app/api/v1/endpoints/documents.py:document_extraction_pattern_only_with_year_source_and_provider
+  reject:
+    - apps/mobile/lib/data/wizard_questions.dart:q_has_3a_is_account_ownership_not_year_payment
+    - apps/mobile/lib/data/wizard_questions_v2.dart:q_3a_annual_contribution_is_habit_not_credited_fact
+    - apps/mobile/lib/models/coach_profile.dart:planned_monthly_contribution_is_not_paid_fact
+    - services/backend/education_inserts/concepts/3a_retroactif_conditions.md:unsafe_legacy_copy_not_source_of_truth
+
+exit_gate:
+  required: [exact_contract_guard, official_source_receipt, legacy_inventory, mutation_tests, ux_roast, swiss_compliance_roast, adversarial_roast]
+  accepted_only_if: deterministic_proofs_pass_and_p1_zero_and_p2_zero
+  user_test_required_for_this_batch: false
+  runtime_required_for_this_batch: false
+  next_gate: isolated_flutter_implementation_of_exact_accepted_contract

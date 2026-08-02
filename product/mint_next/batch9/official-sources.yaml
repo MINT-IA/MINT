@@ -1,0 +1,72 @@
+schema_version: 1
+checked_at: '2026-08-02'
+retrieved_at: '2026-08-02T23:45:00+02:00'
+jurisdiction: CH
+scope: ordinary_3a_contribution_credit_status_for_selected_tax_year
+sources:
+  - id: estv_circular_18a
+    authority: Administration fédérale des contributions
+    title: Circulaire no 18a — Traitement fiscal des cotisations et prestations du pilier 3a
+    url: https://www.estv.admin.ch/dam/estv/fr/dokumente/dbst/kreisschreiben/dbst-ks-2025-1-018a-dv.pdf.download.pdf/dbst-ks-2025-1-018a-dv.pdf
+    dated_at: '2025-12-22'
+    anchors:
+      - section_5_1_printed_pages_4_5_credit_to_individual_account_or_policy_is_decisive
+      - section_5_2_printed_page_5_total_across_multiple_bank_and_insurance_contracts
+      - section_5_6_printed_pages_6_7_retroactive_buyback_is_distinct
+      - section_6_2_a_printed_page_9_provider_transfer_is_not_new_ordinary_contribution
+      - section_8_printed_pages_11_12_provider_attestation_and_transfer_history
+      - section_9_1_printed_page_12_excess_contribution_refund
+    supports:
+      - actual_credit_to_personal_3a_contract_not_bank_debit_is_decisive
+      - annual_ordinary_total_is_aggregated_across_all_recognized_3a_contracts
+      - bank_foundations_and_insurance_policies_are_in_scope
+      - transfer_retroactive_buyback_and_refund_are_distinct_from_effective_ordinary_contribution
+  - id: estv_form_21_edp_notice
+    authority: Administration fédérale des contributions
+    title: Notice concernant l’attestation de cotisations au pilier 3a — formulaire 21 EDP
+    url: https://www.estv.admin.ch/dam/fr/sd-web/bwQT3vUiDRc1/dbst-mb-21edp-2025-fr.pdf
+    dated_at: '2025-07-29'
+    anchors:
+      - general_page_1_each_institution_issues_certificate_to_contract_holder
+      - section_2_printed_pages_4_5_effective_contributions_per_contract_and_provider_total
+      - section_3_printed_page_5_buybacks_attested_separately
+    supports:
+      - each_provider_certificate_is_provider_scoped_not_global_truth
+      - recognized_effective_ordinary_contributions_are_attested
+      - buybacks_are_separately_attested
+  - id: ofas_your_third_pillar_contribution
+    authority: Office fédéral des assurances sociales
+    title: Votre cotisation au 3e pilier
+    url: https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier
+    published_at: '2025-11-27'
+    anchors:
+      - contribution_must_be_credited_by_31_december_for_same_year_tax_treatment
+      - first_retroactive_buyback_possible_in_tax_year_2026_for_2025
+    supports:
+      - credit_timing_determines_same_year_tax_treatment
+      - retroactive_buyback_is_a_separate_new_mechanism
+direct_facts:
+  - credit_to_the_individual_3a_account_or_policy_is_decisive_not_order_or_debit
+  - ordinary_contributions_share_one_annual_total_across_all_3a_banks_and_insurers
+  - each_provider_attestation_covers_that_provider_so_multiple_providers_require_multiple_evidence_items
+  - a_provider_transfer_is_not_a_new_ordinary_contribution
+  - retroactive_buybacks_are_attested_separately_from_ordinary_contributions
+  - effective_amount_may_change_after_refund_or_correction
+derived_product_safety_inferences:
+  - id: explicit_tri_state_is_required
+    reasoning: Missing evidence cannot prove zero and an unresolved movement may be a pending credit, transfer, buyback or refund.
+    classification: product_safety_inference_not_direct_official_quote
+    source_ids: [estv_circular_18a, estv_form_21_edp_notice]
+  - id: question_must_cover_every_personal_provider_without_personal_payment_wording
+    reasoning: The annual total spans bank and insurance contracts, including automatic or third-party initiated flows that the person may not describe as a payment they personally made.
+    classification: product_safety_inference_not_direct_official_quote
+    source_ids: [estv_circular_18a]
+  - id: unresolved_special_movement_forces_unknown_not_zero_or_yes
+    reasoning: Ordinary contribution, transfer, retroactive buyback and refund have distinct official treatment and evidence.
+    classification: product_safety_inference_not_direct_official_quote
+    source_ids: [estv_circular_18a, estv_form_21_edp_notice]
+implementation_limits:
+  authorize_amount_or_personal_result: false
+  authorize_remaining_room_or_tax_saving: false
+  ordinary_contribution_only: true
+  retroactive_buyback_calculation: deferred

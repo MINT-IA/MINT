@@ -1,0 +1,68 @@
+schema_version: 1
+audited_at: '2026-08-02T23:40:00+02:00'
+scope: fact_contribution_and_immediate_routes_only
+verdict: no_legacy_fact_is_safe_for_direct_reuse
+required_new_fact:
+  id: ordinary_3a_contribution_credited_any_provider_for_selected_year
+  dimensions: [tax_year, tri_state_status, actual_credit, all_provider_scope, evidence_basis]
+candidates:
+  - score: 2
+    decision: reject
+    path: apps/mobile/lib/data/wizard_questions.dart
+    symbol: q_has_3a
+    reason: account ownership is not a selected-year credited contribution and the answer is binary
+  - score: 5
+    decision: adapt_later_amount_concept_only
+    path: apps/mobile/lib/data/wizard_questions_v2.dart
+    symbol: q_3a_annual_contribution
+    reason: habitual annual amount has no selected year, actual-credit status or unknown state
+  - score: 2
+    decision: reject
+    path: apps/mobile/lib/models/coach_profile.dart
+    symbol: CoachProfile.fromWizardAnswers_contribution3a
+    reason: positive amount implies account existence and missing collapses toward zero
+  - score: 3
+    decision: reject_as_paid_fact
+    path: apps/mobile/lib/models/coach_profile.dart
+    symbol: PlannedMonthlyContribution
+    reason: planned recurring contribution is not an amount already credited
+  - score: 9
+    decision: harvest_later_annual_ceiling_only
+    path: apps/mobile/lib/services/financial_core/pillar_3a_room_calculator.dart
+    symbol: annualCeiling
+    reason: ceiling engine is useful later but current remaining-room input subtracts plans rather than selected-year credited facts
+  - score: 4
+    decision: adapt_transport_pattern_only
+    path: apps/mobile/lib/providers/coach_profile_provider.dart
+    symbol: _claimKeyToWizardAnswers_pillar3aAnnual
+    reason: deterministic transport pattern is useful but the timeless annual field is semantically unsafe
+  - score: 4
+    decision: adapt_validation_pattern_only
+    path: services/backend/app/schemas/profile.py
+    symbol: pillar3aAnnual
+    reason: bounded numeric validation is reusable but the field lacks year, source and credit status
+  - score: 5
+    decision: adapt_future_evidence_ingestion
+    path: services/backend/app/api/v1/endpoints/documents.py
+    symbol: versementAnnuel3a_to_pillar3aAnnual
+    reason: document extraction may help only after preserving document year, provider, source and confidence
+  - score: 1
+    decision: reject
+    path: apps/mobile/lib/widgets/educational/tax_savings_insert_widget.dart
+    symbol: maximum_contribution_simulation
+    reason: assumed future maximum and rates do not establish whether a payment happened
+  - score: 8
+    decision: harvest_copy_fact_only
+    path: apps/mobile/lib/l10n/app_fr.arb
+    symbol: communityChallenge03Desc
+    reason: the credited-by-year-end distinction is useful but urgency and action copy are outside Batch9
+dangerous_assumptions:
+  - owning_a_3a_account_means_contributed_this_year
+  - standing_order_or_plan_means_already_credited
+  - null_or_missing_means_zero_or_no
+  - existing_balance_proves_selected_year_payment
+  - one_provider_certificate_is_the_all_provider_total
+  - bank_debit_date_is_the_3a_credit_date
+  - ordinary_contribution_can_include_transfer_or_retroactive_buyback
+  - timeless_pillar3aAnnual_is_safe_personal_evidence
+legacy_code_reused_in_batch9_runtime: false

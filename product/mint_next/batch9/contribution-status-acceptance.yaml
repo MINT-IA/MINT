@@ -1,0 +1,74 @@
+schema_version: 1
+status: mechanically_accepted_written_contract_runtime_unimplemented
+accepted_at: '2026-08-02T22:27:27+02:00'
+artifacts:
+  scope:
+    path: product/mint_next/batch9/contribution-status-scope.yaml
+    sha256: 64d941ce3c974c76bf5f3e40cb85a5a5e323cfe9b9f4eacbc8ee234d9722f83d
+  sources:
+    path: product/mint_next/batch9/official-sources.yaml
+    sha256: 8343040e400603f5634574aa84142be4c3b6bbc351049ea2ee4584f9777eaf98
+  legacy_inventory:
+    path: product/mint_next/batch9/legacy-inventory.yaml
+    sha256: 95c5cbb0f4034f302ddd977e676b05316c0182f389d3bfa9d961040cccf15214
+  guard:
+    path: tools/checks/mint_next_batch9_contribution_scope_guard.py
+    sha256: 44ea40825ddaef30e75630da82a60e95ec976e7b3d7631fc35ac4eb922600b3a
+  tests:
+    path: tools/checks/tests/test_mint_next_batch9_contribution_scope_guard.py
+    sha256: 4523c55e4cf540e90865eb1480e2e5c1f85604eec0138a0373d164b13ca1d2ee
+  ci_workflow:
+    path: .github/workflows/mint-next-batch9-contract.yml
+    normalized_sha256: d6f2260b77d52af6d5c6aebbaa4a37e18deaaa7e4097efcec30c6322fa07c053
+  previous_acceptance:
+    path: product/mint_next/batch8/design-lab-acceptance.yaml
+    sha256: 108817ab4424897efc78a8e22e6928473cace44c76fb86fee7ae1f23fae48add
+mechanical_acceptance_basis:
+  authority: deterministic_commands_exact_digests_normalized_ci_and_hostile_mutations
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent_identity_truthfulness_branch_protection_and_external_ci_execution_are_not_authenticated_here
+advisory_roasts:
+  - role: ux_navigation
+    verdict: ACCEPT
+    score: 9.7
+    p1: 0
+    p2: 0
+    bound_scope_sha256: 64d941ce3c974c76bf5f3e40cb85a5a5e323cfe9b9f4eacbc8ee234d9722f83d
+  - role: swiss_compliance
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    bound_scope_sha256: 64d941ce3c974c76bf5f3e40cb85a5a5e323cfe9b9f4eacbc8ee234d9722f83d
+    bound_sources_sha256: 8343040e400603f5634574aa84142be4c3b6bbc351049ea2ee4584f9777eaf98
+  - role: adversarial
+    verdict: ROAST_PASS
+    p1: 0
+    p2: 0
+    bound_scope_sha256: 64d941ce3c974c76bf5f3e40cb85a5a5e323cfe9b9f4eacbc8ee234d9722f83d
+commands:
+  - python3 tools/checks/mint_next_batch9_contribution_scope_guard.py
+  - python3 -m unittest tools.checks.tests.test_mint_next_batch9_contribution_scope_guard
+  - python3 tools/checks/journey_os_check.py
+  - python3 tools/checks/workflow_contract_guard.py
+  - python3 tools/checks/verify_phase_acceptance.py
+accepted_scope_only:
+  - written_fact_contribution_contract
+  - written_yes_no_unknown_routes
+  - written_edge_case_classification
+  - written_safe_exit_and_accessibility_contract
+  - official_source_receipt
+  - bounded_legacy_inventory
+not_accepted:
+  - flutter_runtime
+  - product_integration
+  - six_translations
+  - amount_input
+  - calculation_engine
+  - personal_tax_result
+  - ios_runtime
+  - android_runtime
+  - user_validation
+  - persistence
+  - external_ci_run
+  - branch_protection
+next_gate: isolated_flutter_implementation_of_exact_accepted_contract

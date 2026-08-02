@@ -109,6 +109,9 @@ pre-commit:
     mint-next-batch8-lpp-runtime-guard:
       run: python3 tools/checks/mint_next_batch8_lpp_runtime_guard.py
       tags: [agents, planning, workflow, mint-next, navigation, flutter, swiss]
+    mint-next-batch9-contribution-scope-guard:
+      run: python3 tools/checks/mint_next_batch9_contribution_scope_guard.py
+      tags: [agents, planning, workflow, mint-next, navigation, swiss]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.

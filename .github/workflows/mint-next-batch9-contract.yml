@@ -1,0 +1,37 @@
+name: MINT Next Batch 9 Written Contract
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+  push:
+    branches: [dev, staging, main]
+
+concurrency:
+  group: mint-next-batch9-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  EXPECTED_BATCH9_GUARD_SHA256: 44ea40825ddaef30e75630da82a60e95ec976e7b3d7631fc35ac4eb922600b3a
+  EXPECTED_BATCH9_TESTS_SHA256: 4523c55e4cf540e90865eb1480e2e5c1f85604eec0138a0373d164b13ca1d2ee
+  EXPECTED_BATCH9_ACCEPTANCE_SHA256: 5985a366f81135722acce34b93439f8bede2a9bac35b46cf78cd14a37018f437
+
+jobs:
+  contract:
+    name: Exact contribution-status contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency
+        run: python3 -m pip install PyYAML==6.0.2
+      - name: Verify the verifier trust unit
+        run: |
+          test "$(shasum -a 256 tools/checks/mint_next_batch9_contribution_scope_guard.py | cut -d ' ' -f 1)" = "$EXPECTED_BATCH9_GUARD_SHA256"
+          test "$(shasum -a 256 tools/checks/tests/test_mint_next_batch9_contribution_scope_guard.py | cut -d ' ' -f 1)" = "$EXPECTED_BATCH9_TESTS_SHA256"
+          test "$(shasum -a 256 product/mint_next/batch9/contribution-status-acceptance.yaml | cut -d ' ' -f 1)" = "$EXPECTED_BATCH9_ACCEPTANCE_SHA256"
+      - name: Verify written contract
+        run: python3 tools/checks/mint_next_batch9_contribution_scope_guard.py
+      - name: Fire hostile mutations
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch9_contribution_scope_guard
