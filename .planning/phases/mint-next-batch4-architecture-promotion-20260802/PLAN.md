@@ -40,4 +40,3 @@ Before any `promotion_eligible: true` claim, a clean clone must prove:
 
 If any gate fails, keep Batch 4 draft/null, record the blocker, and start a new
 candidate lineage rather than mutating or reinterpreting failed evidence.
-
