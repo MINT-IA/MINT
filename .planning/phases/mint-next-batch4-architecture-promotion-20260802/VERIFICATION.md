@@ -23,9 +23,10 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 | Synthetic request payload | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_request_verifier.py` | PASS — 74/74; structural request non-evidence only |
 | Normative prompt component | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py` | PASS — 43/43; static prompt-contract non-evidence only |
 | Model review-content component | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py` | PASS — 39/39; structural/differential non-evidence only |
+| Outbound policy component | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_outbound_policy_verifier.py` | PASS — 38/38; synthetic descriptor/policy non-evidence only |
 | Generated views | `python3 tools/checks/mint_next_batch4_generate_views.py --check` | PASS — exact match |
-| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 15/15 deterministic criteria |
-| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 269/269 |
+| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 16/16 deterministic criteria |
+| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 289/289 |
 | Diff whitespace | `git diff --check` | PASS |
 
 ## Promotion gates
@@ -54,6 +55,13 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 - The model-review-content schema/verifier is implemented but unintegrated and
   non-evidence; attested runner-owned metadata assembly remains absent, and the
   model is not asked to invent provider/model/time/verdict.
+- The outbound policy/schema/verifier is implemented but unintegrated and
+  non-evidence; no concrete manifest, scanner execution or final-payload scan
+  receipt exists. Its budget test covers only the known partial 52-descriptor
+  inventory, with exactly five unresolved precomputed artifact sizes still
+  blocking; it rejects when declared input bytes plus actual canonical manifest
+  bytes exceed the pinned 524288-byte downstream ceiling and proves neither
+  completeness nor future fit.
 - Swiss legal and regulatory validation is absent.
 - Official-source URLs are not captured, hashed rule truth.
 - Audience comprehension and UX are hypotheses without user evidence.

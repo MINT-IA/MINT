@@ -43,7 +43,12 @@ implementation_blockers:
   supply_chain_manifest: absent_unimplemented_blocking
   provider_failure_policy: absent_unimplemented_blocking
   provider_family_registry: absent_unimplemented_blocking
-  outbound_data_policy: absent_unimplemented_blocking
+  outbound_data_policy: implemented_component_unintegrated_blocking
+  outbound_classification_manifest_shape_schema: implemented_component_unintegrated_blocking
+  outbound_policy_semantic_verifier: implemented_component_unintegrated_blocking
+  outbound_classification_manifest_builder: absent_unimplemented_blocking
+  secret_and_pii_scanner_execution: absent_unimplemented_blocking
+  final_payload_scan_receipt_builder: absent_unimplemented_blocking
   git_lineage_and_preservation_evidence: absent_unimplemented_blocking
   trusted_attestation_policy: absent_unimplemented_blocking
 candidate_freeze_requirements:
@@ -256,7 +261,7 @@ future_provider_family_registry_requirements:
   diversity_check: derived_review_provider_family_must_be_outside_complete_authoring_provider_family_set
   limitation: transport_provenance_still_does_not_prove_human_identity_or_cryptographic_model_identity
 future_outbound_data_policy_requirements:
-  status: absent_unimplemented_blocking
+  status: policy_and_synthetic_manifest_component_implemented_unintegrated_blocking
   export_scope: repository_planning_artifacts_only_no_user_data
   preflight_must_produce:
   - exact_export_path_allowlist
@@ -313,6 +318,29 @@ future_outbound_data_policy_requirements:
   - context_budget_exceeded_or_ambiguous
   - provider_retention_or_training_setting_unknown_or_not_accepted
   overflow_behavior: reject_never_truncate_summarize_or_drop_inputs
+implemented_outbound_policy_component:
+  status: implemented_component_unintegrated_blocking
+  policy_path: product/mint_next/batch4/evidence/outbound-data-policy-v1.yaml
+  policy_sha256: 530fd404e272b1c2de1a2fdf3061edd8c9b98ad5bb281ed14c841d75f5b8ac46
+  schema_path: product/mint_next/batch4/evidence/outbound-input-classification-manifest.schema.json
+  schema_sha256: dc336f2cce128a272ac25085c7f02feb69cda0d5bc822cbeabc2f02e86b50b18
+  verifier_path: tools/checks/mint_next_batch4_outbound_policy_verifier.py
+  verifier_sha256: 91e1592eaea3b1ba1f136e6e1abccaf47d3bc758cb707a9357a2b3b7a97b8a49
+  test_path: tools/checks/tests/test_mint_next_batch4_outbound_policy_verifier.py
+  test_sha256: 2e3d1af7de10eb9921d2cfbf6a70e56ac6dec28736ae785bc07a7dc6b606a1c7
+  canonicalizer_path: tools/checks/mint_next_batch4_canonical_json.py
+  canonicalizer_sha256: e2982d1ac823b6e1d795f687ab326aedd610d2e556bd1f0e4ae77c1a9c61b80a
+  success_output: STRUCTURALLY_VALID_OUTBOUND_POLICY_NON_EVIDENCE
+  writes_manifest_or_digest: false
+  concrete_manifest: absent_not_created
+  proves_input_set_complete: false
+  proves_future_artifacts_fit: false
+  proves_descriptor_hashes_match_repository_bytes: false
+  proves_scanner_executed_or_authentic: false
+  proves_content_contains_no_secret_or_PII: false
+  proves_provider_retention_or_training_controls: false
+  proves_export_request_review_identity_or_promotion: false
+  eligible_as_gate_or_promotion_evidence: false
 review_dimensions:
   - id: information_architecture_closure
     question: Are every declared node, edge, action, state, fallback, and terminal outcome closed without dead routes?

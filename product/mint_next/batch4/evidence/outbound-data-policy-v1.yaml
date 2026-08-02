@@ -1,0 +1,40 @@
+schema_version: 1
+kind: mint_next_batch4_outbound_data_policy
+status: implemented_component_unintegrated_blocking
+classification_subject: outbound_semantic_inputs_excluding_this_manifest_and_transport_auth_headers
+manifest_self_classification: forbidden_circular_outer_serialized_payload_scan_required_later
+forbidden_descriptor_paths:
+- outbound-input-classification-manifest.json
+allowed_classifications:
+- public_source_metadata
+- project_internal_non_secret_architecture
+forbidden_classifications:
+- secret_or_credential
+- personal_identifying_data
+- user_financial_or_health_data
+- unknown_or_unclassified
+budgets:
+  max_entries: 64
+  max_entry_bytes: 192000
+  max_combined_classified_inputs_and_manifest_bytes: 524288
+  max_manifest_bytes: 131072
+  downstream_request_total_decoded_limit: 524288
+overflow_behavior: reject_without_truncation_summarization_or_drop
+manifest_excludes:
+- content_bytes_or_base64
+- scanner_receipts
+- provider_retention_or_training_assertions
+- final_serialized_payload_digest
+separate_absent_blocking_evidence:
+- secret_and_pii_scanner_execution_and_receipts
+- provider_retention_training_authority
+- final_serialized_payload_scan_receipt
+writes_manifest_or_digest: false
+claim_boundary:
+  proves_input_set_complete: false
+  proves_future_artifacts_fit: false
+  proves_descriptor_hashes_match_repository_bytes: false
+  proves_scanner_executed_or_authentic: false
+  proves_content_contains_no_secret_or_pii: false
+  proves_provider_retention_or_training_controls: false
+  proves_export_request_review_identity_or_promotion: false

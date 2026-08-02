@@ -80,6 +80,10 @@ def reset(clone: Path):
         guard.MODEL_CONTENT_SCHEMA,
         guard.MODEL_CONTENT_VERIFIER,
         guard.MODEL_CONTENT_VERIFIER_TEST,
+        guard.OUTBOUND_POLICY,
+        guard.OUTBOUND_SCHEMA,
+        guard.OUTBOUND_VERIFIER,
+        guard.OUTBOUND_VERIFIER_TEST,
         Path(guard.PHASE_DIR),
         Path(".planning/ACTIVE_CONTEXT.json"),
         Path(".planning/STATE.md"),
@@ -292,6 +296,61 @@ def test_rejects_model_content_claim_inflation(clone: Path, key: str) -> None:
         clone,
         guard.REVIEW_PROTOCOL,
         lambda data: data["implemented_model_review_content_component"].__setitem__(key, True),
+    )
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        guard.OUTBOUND_POLICY, guard.OUTBOUND_SCHEMA,
+        guard.OUTBOUND_VERIFIER, guard.OUTBOUND_VERIFIER_TEST,
+    ],
+)
+def test_rejects_outbound_component_byte_drift(clone: Path, relative: Path) -> None:
+    with (clone / relative).open("ab") as handle:
+        handle.write(b"\n")
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "writes_manifest_or_digest",
+        "proves_input_set_complete",
+        "proves_future_artifacts_fit",
+        "proves_descriptor_hashes_match_repository_bytes",
+        "proves_scanner_executed_or_authentic",
+        "proves_content_contains_no_secret_or_PII",
+        "proves_provider_retention_or_training_controls",
+        "proves_export_request_review_identity_or_promotion",
+        "eligible_as_gate_or_promotion_evidence",
+    ],
+)
+def test_rejects_outbound_component_claim_inflation(clone: Path, key: str) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implemented_outbound_policy_component"].__setitem__(key, True),
+    )
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "outbound_classification_manifest_builder",
+        "secret_and_pii_scanner_execution",
+        "final_payload_scan_receipt_builder",
+    ],
+)
+def test_rejects_outbound_execution_readiness_inflation(clone: Path, key: str) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implementation_blockers"].__setitem__(
+            key, "implemented_component_unintegrated_blocking"
+        ),
     )
     assert guard.validate(clone)
 

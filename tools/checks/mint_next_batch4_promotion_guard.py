@@ -44,6 +44,14 @@ MODEL_CONTENT_VERIFIER = Path(
 MODEL_CONTENT_VERIFIER_TEST = Path(
     "tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py"
 )
+OUTBOUND_POLICY = Path("product/mint_next/batch4/evidence/outbound-data-policy-v1.yaml")
+OUTBOUND_SCHEMA = Path(
+    "product/mint_next/batch4/evidence/outbound-input-classification-manifest.schema.json"
+)
+OUTBOUND_VERIFIER = Path("tools/checks/mint_next_batch4_outbound_policy_verifier.py")
+OUTBOUND_VERIFIER_TEST = Path(
+    "tools/checks/tests/test_mint_next_batch4_outbound_policy_verifier.py"
+)
 BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
@@ -51,11 +59,11 @@ PHASE_DIR = f".planning/phases/{PHASE}"
 HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
 SEMANTIC_ARTIFACTS: dict[str, str] = {
     f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
-    f"{PHASE_DIR}/SPEC.md": "a8e9f80cb152046230d8c561c676d29c1bfedbf306b1846cd001a2199f054072",
-    f"{PHASE_DIR}/PLAN.md": "7920f970a785336a76603c33923b04c863779d95604ab3f4a231b5f8d7aec8a2",
-    f"{PHASE_DIR}/VERIFICATION.md": "f54a237acf75022a2c76f83a540f5ea8b9afa1417c458e5a42ee58a89bbca019",
+    f"{PHASE_DIR}/SPEC.md": "c1f845218cad372ff58f4ae04c44984e57dbcc86e59a0cf2713d56a19d7ee33b",
+    f"{PHASE_DIR}/PLAN.md": "0874731c9d6cef7cf637925ea30c4e6dd9fa86a1d7ac2db36114eba5276de7ab",
+    f"{PHASE_DIR}/VERIFICATION.md": "74a07c434483af9775cd8a6de69ca1623ddd9a805526f828807b74c90290bd39",
     str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
-    str(REVIEW_PROTOCOL): "ee50f4448e2948cc023ccd24ef5a5036000ac2d51316873a7243390db867fec8",
+    str(REVIEW_PROTOCOL): "39301a7d4df6458518590e5fc6fbc76149e04b38dcc1edd4c77572e5618a7f88",
     str(RESULT_SCHEMA): "b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda",
     str(RESULT_VERIFIER): "7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f",
     str(RESULT_VERIFIER_TEST): "d9a63c21de33bf7b8da8aabc61b87de75d8a9d8297919b2ec9492e48f3a9ef35",
@@ -72,6 +80,10 @@ SEMANTIC_ARTIFACTS: dict[str, str] = {
     str(MODEL_CONTENT_SCHEMA): "55ec47f199a0bba592ac05a4ee1bf879f03eaa158433800307f567996ebde634",
     str(MODEL_CONTENT_VERIFIER): "bc3c406a05cefa647f4c34c6a505bfb8f6c7acd8170c371737ec4b402589f660",
     str(MODEL_CONTENT_VERIFIER_TEST): "e26703a94aace5d13a0733bf97e490e28e0a63f2ced588eb9e692b1e9179bce9",
+    str(OUTBOUND_POLICY): "530fd404e272b1c2de1a2fdf3061edd8c9b98ad5bb281ed14c841d75f5b8ac46",
+    str(OUTBOUND_SCHEMA): "dc336f2cce128a272ac25085c7f02feb69cda0d5bc822cbeabc2f02e86b50b18",
+    str(OUTBOUND_VERIFIER): "91e1592eaea3b1ba1f136e6e1abccaf47d3bc758cb707a9357a2b3b7a97b8a49",
+    str(OUTBOUND_VERIFIER_TEST): "2e3d1af7de10eb9921d2cfbf6a70e56ac6dec28736ae785bc07a7dc6b606a1c7",
 }
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
@@ -220,6 +232,7 @@ def validate(root: Path) -> list[str]:
         "implemented_request_payload_contract_component",
         "implemented_normative_prompt_component",
         "implemented_model_review_content_component",
+        "implemented_outbound_policy_component",
         "future_detached_execution_manifest", "future_result_verifier_requirements",
         "finding_remediation_lifecycle", "forbidden_current_claims",
     }
@@ -296,7 +309,7 @@ def validate(root: Path) -> list[str]:
         "execution_policy_requirements": "unimplemented_blocking",
         "future_provider_failure_policy_requirements": "absent_unimplemented_blocking",
         "future_provider_family_registry_requirements": "absent_unimplemented_blocking",
-        "future_outbound_data_policy_requirements": "absent_unimplemented_blocking",
+        "future_outbound_data_policy_requirements": "policy_and_synthetic_manifest_component_implemented_unintegrated_blocking",
         "future_prompt_requirements": "static_prompt_component_implemented_unintegrated_blocking",
         "future_detached_execution_manifest": "absent_unimplemented_blocking",
         "future_result_verifier_requirements": "absent_unimplemented_blocking",
@@ -398,6 +411,7 @@ def validate(root: Path) -> list[str]:
     ):
         if field not in transport_evidence:
             errors.append(f"review transport evidence must retain {field}")
+    blockers = protocol.get("implementation_blockers") or {}
     outbound = protocol.get("future_outbound_data_policy_requirements") or {}
     required_rejections = {
         "any_secret_or_PII_match",
@@ -427,6 +441,43 @@ def validate(root: Path) -> list[str]:
         "detached_final_payload_scan_receipt_created_after_serialization_and_never_transmitted"
     ) is not True or not outbound.get("final_payload_scan_receipt_must_bind"):
         errors.append("review outbound scan receipt must remain detached and acyclic")
+    outbound_component = protocol.get("implemented_outbound_policy_component") or {}
+    expected_outbound_component = {
+        "status": "implemented_component_unintegrated_blocking",
+        "policy_path": str(OUTBOUND_POLICY),
+        "policy_sha256": SEMANTIC_ARTIFACTS[str(OUTBOUND_POLICY)],
+        "schema_path": str(OUTBOUND_SCHEMA),
+        "schema_sha256": SEMANTIC_ARTIFACTS[str(OUTBOUND_SCHEMA)],
+        "verifier_path": str(OUTBOUND_VERIFIER),
+        "verifier_sha256": SEMANTIC_ARTIFACTS[str(OUTBOUND_VERIFIER)],
+        "test_path": str(OUTBOUND_VERIFIER_TEST),
+        "test_sha256": SEMANTIC_ARTIFACTS[str(OUTBOUND_VERIFIER_TEST)],
+        "canonicalizer_path": str(CANONICAL_TOOL),
+        "canonicalizer_sha256": SEMANTIC_ARTIFACTS[str(CANONICAL_TOOL)],
+        "success_output": "STRUCTURALLY_VALID_OUTBOUND_POLICY_NON_EVIDENCE",
+        "writes_manifest_or_digest": False,
+        "concrete_manifest": "absent_not_created",
+        "proves_input_set_complete": False,
+        "proves_future_artifacts_fit": False,
+        "proves_descriptor_hashes_match_repository_bytes": False,
+        "proves_scanner_executed_or_authentic": False,
+        "proves_content_contains_no_secret_or_PII": False,
+        "proves_provider_retention_or_training_controls": False,
+        "proves_export_request_review_identity_or_promotion": False,
+        "eligible_as_gate_or_promotion_evidence": False,
+    }
+    if outbound_component != expected_outbound_component:
+        errors.append("outbound policy component must remain exact, synthetic, unintegrated, and non-evidence")
+    expected_outbound_blockers = {
+        "outbound_data_policy": "implemented_component_unintegrated_blocking",
+        "outbound_classification_manifest_shape_schema": "implemented_component_unintegrated_blocking",
+        "outbound_policy_semantic_verifier": "implemented_component_unintegrated_blocking",
+        "outbound_classification_manifest_builder": "absent_unimplemented_blocking",
+        "secret_and_pii_scanner_execution": "absent_unimplemented_blocking",
+        "final_payload_scan_receipt_builder": "absent_unimplemented_blocking",
+    }
+    if any(blockers.get(key) != value for key, value in expected_outbound_blockers.items()):
+        errors.append("outbound policy component must not inflate builder, scanner, or receipt readiness")
     result_contract = protocol.get("future_result_contract") or {}
     if result_contract.get("status") != "schema_defined_component_only_non_executable":
         errors.append("review result contract must remain component-only and non-executable")
@@ -460,7 +511,6 @@ def validate(root: Path) -> list[str]:
         path = root / relative
         if not path.is_file() or path.is_symlink() or _sha(path) != expected_sha:
             errors.append(f"result payload component byte drift: {relative}")
-    blockers = protocol.get("implementation_blockers") or {}
     if blockers.get("exact_result_json_schema") != "implemented_component_unintegrated_blocking" or blockers.get(
         "result_payload_semantic_verifier"
     ) != "implemented_component_unintegrated_blocking" or blockers.get(

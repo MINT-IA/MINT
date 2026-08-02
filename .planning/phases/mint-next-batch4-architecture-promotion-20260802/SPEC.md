@@ -58,6 +58,17 @@ machine-readable and impossible to confuse with promotion itself.
     reuse the pinned full-result verifier differentially, write no artifact or
     digest, and prove no model behavior, resolved reference, candidate/provider
     identity, review, gate or promotion.
+15. The outbound policy/schema/verifier may accept canonical synthetic
+    descriptor manifests only. It permits no secret, PII, user financial or
+    health data, unknown classification or combined classified-input plus
+    canonical-manifest overflow beyond the pinned 524288-byte downstream
+    ceiling. The known partial 52-descriptor inventory fits without truncation,
+    but five precomputed artifact sizes remain explicitly unresolved and
+    blocking; neither future fit nor input-set completeness is proven. The
+    manifest's own path is forbidden from its descriptors. Content bytes,
+    scanner receipts and provider-policy assertions are excluded and remain
+    separately blocking. It writes no manifest/digest and proves no descriptor
+    matches repository bytes, content is safe or export occurred.
 
 ## Future eligibility criteria
 
@@ -108,6 +119,8 @@ one frozen candidate semantic head:
 - The pinned model review-content schema/verifier passes hostile synthetic and
   differential tests and emits only
   `STRUCTURALLY_VALID_MODEL_CONTENT_NON_EVIDENCE`.
+- The pinned outbound policy/schema/verifier passes hostile synthetic tests and
+  emits only `STRUCTURALLY_VALID_OUTBOUND_POLICY_NON_EVIDENCE`.
 - Router documents name this phase as governance/readiness work only.
 - Batch 4 remains draft/null and generated views remain unchanged.
 - The old authority phase remains historical and accepted in its original
@@ -129,6 +142,7 @@ canonical-json-primitive: python3 -m pytest -q tools/checks/tests/test_mint_next
 request-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_request_verifier.py
 review-prompt-linter: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py
 model-review-content-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py
+outbound-policy-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_outbound_policy_verifier.py
 generated-views: python3 tools/checks/mint_next_batch4_generate_views.py --check
 readiness-yaml: python3 -c "import yaml; d=yaml.safe_load(open('product/mint_next/batch4/evidence/promotion-readiness.yaml')); assert set(d)=={'schema_version','kind','phase','status','promotion_eligible','selected_gate','candidate_head','promotion_receipt','gates','manifests','formula_blockers','claim_boundary'} and d['status']=='blocked_waiting_cross_provider_review' and d['promotion_eligible'] is False and d['selected_gate']=='none' and d['candidate_head'] is None and d['promotion_receipt'] is None"
 contract-diff: git diff --check

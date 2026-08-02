@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mint.local/schemas/batch4/outbound-input-classification-manifest.schema.json",
+  "description": "Synthetic descriptor-only outbound classification manifest; excludes content, scanner receipts and provider assertions and is not evidence.",
+  "type": "object",
+  "required": ["schema_version", "kind", "trust_scope", "policy_sha256", "classified_input_set_sha256", "entries"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "kind": {"type": "string", "const": "mint_next_batch4_synthetic_outbound_classification_manifest"},
+    "trust_scope": {"type": "string", "const": "descriptor_shape_policy_and_internal_hashes_only_non_evidence"},
+    "policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "classified_input_set_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "required": ["path", "classification", "size_bytes", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string","minLength": 1,"maxLength": 512,"pattern": "^(?!/)(?!.*//)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\/$)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+          "classification": {"type": "string", "enum": ["public_source_metadata", "project_internal_non_secret_architecture"]},
+          "size_bytes": {"type": "integer", "minimum": 0, "maximum": 192000},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

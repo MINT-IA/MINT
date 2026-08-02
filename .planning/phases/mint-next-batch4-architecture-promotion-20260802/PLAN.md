@@ -144,6 +144,37 @@ protocol, model-content schema/verifier/test, promotion guard/test and three
 exact Journey whitelist additions. A clean-clone revert must restore the parent
 tree.
 
+## Batch R7 — outbound data-policy primitive only
+
+1. Pin one fail-closed policy and one closed Draft 2020-12 synthetic
+   classification-manifest schema. Only public-source metadata and internal
+   non-secret architecture are permitted; secrets, PII, user financial/health
+   data and unknown classifications are forbidden.
+2. Add one strict offline verifier for canonical synthetic descriptor
+   manifests. It checks path/classification closure, declared sizes/hashes,
+   ordered descriptor-set binding and bounded resources. Content bytes,
+   scanner receipts and provider-policy assertions are deliberately excluded.
+3. Enforce the pinned downstream 524288-byte decoded-content ceiling against
+   the actual sum of classified input sizes plus the actual canonical manifest
+   byte length. Do not impose a lower arbitrary input cap. A hostile test must
+   keep every known required R4–R7 file, exclude the manifest itself and admit
+   zero sizes only for the exact five unresolved precomputed artifacts. This
+   proves only that the known partial 52-descriptor inventory currently fits;
+   actual future artifact sizes remain blocking. Overflow rejects; it never
+   truncates, summarizes or drops input.
+4. Success emits only `STRUCTURALLY_VALID_OUTBOUND_POLICY_NON_EVIDENCE`.
+   No scan, provider setting, safe content, export, request, review or promotion
+   is proven, and no manifest or digest is written.
+5. Keep policy/schema/verifier unintegrated. Keep the manifest builder, actual
+   scanners, provider-policy authority, final-payload receipt, request builder,
+   runner, provider, transport, attestation, bundle, candidate, gate and
+   promotion absent.
+
+R7's exact parent is `33d1e133a620e9db3fc937a9ea6d892e176450ab`.
+Its final diff is restricted to this phase's PLAN/SPEC/VERIFICATION, protocol,
+policy/schema/verifier/test, promotion guard/test and four Journey whitelist
+additions. A clean-clone revert must restore the parent tree.
+
 ## Future four-head promotion protocol
 
 The four heads are distinct and must never be collapsed or backfilled:
