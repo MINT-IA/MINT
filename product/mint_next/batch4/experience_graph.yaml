@@ -142,7 +142,7 @@ edges:
   destination: safe_exit
   visible_label_intent: Pas maintenant
   guard: registered_decision_context
-  data_effect: explicit_save_or_edit
+  data_effect: none
   back_semantics: preserve_context
   analytics_event: next_leave_question
   fallback: safe_exit
@@ -366,8 +366,8 @@ chat:
     - expert_details_now
     - return_today_without_pressure
     - change_subject
-    requires_explicit_user_confirmation:
     - leave_question
+    requires_explicit_user_confirmation:
     - use_my_numbers
     - leave_example
     - compare_scenarios

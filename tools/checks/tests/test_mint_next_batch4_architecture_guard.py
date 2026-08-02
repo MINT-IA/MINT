@@ -31,7 +31,7 @@ def valid_documents() -> dict[str, dict]:
             "boundaries": [{"id": "education_only"}], "source_ids": ["tax_law"],
         },
         "calculation_contracts.yaml": {"contracts": [{
-            "id": "tax_calc", "decision_id": "fund_3a", "required_inputs": ["income"],
+            "id": "tax_calc", "decision_id": "pillar_3a", "required_inputs": ["income"],
             "outputs": ["tax_delta"], "formula_ids": ["tax_v1"], "source_ids": ["tax_law"],
         }]},
         "formula_contracts.yaml": {"formulas": [{
@@ -41,13 +41,22 @@ def valid_documents() -> dict[str, dict]:
         }]},
         "domain_coverage.yaml": {
             "dispositions": ["covered_by_decision", "official_handoff"],
-            "domains": [{"id": "tax", "disposition": "covered_by_decision", "decision_ids": ["fund_3a"], "missing_contract": None}],
+            "domains": [{"id": "tax", "disposition": "covered_by_decision", "decision_ids": ["pillar_3a"], "missing_contract": None}],
         },
         "audience.yaml": {
             "audience_hypothesis": {"status": "hypothesis", "statement": "Works under stress"},
-            "universal_floor": {"sequence": ["consequence"]},
-            "progressive_depth": [{"id": "n0", "intent": "consequence"}],
-            "expert_escape": ["sources"],
+            "universal_floor": {
+                "sequence": ["concrete_consequence", "chf_example", "one_cause_effect", "one_action_or_choice", "visible_limits"],
+                "max_primary_numbers": 3, "amounts_before_percentages": True,
+                "example_before_personalization": True, "color_never_only_signal": True,
+                "plain_language_before_technical_term": True, "sensitive_event_examples_must_be_contextual": True,
+            },
+            "progressive_depth": [
+                {"id": "n0", "intent": "consequence"}, {"id": "n1", "intent": "simple_why"},
+                {"id": "n2", "intent": "visual_comparison"}, {"id": "n3", "intent": "editable_assumptions"},
+                {"id": "n4", "intent": "calculation_sources_limits"},
+            ],
+            "expert_escape": ["see_calculation", "edit_assumptions", "see_sources", "compare_scenarios"],
             "comprehension_evidence": ["choice"],
             "forbidden_patterns": ["shaming"],
             "falsification_protocol": {
@@ -67,7 +76,7 @@ def valid_documents() -> dict[str, dict]:
             "schema_version": 1,
             "decisions": [
                 {
-                    "id": "fund_3a",
+                    "id": "pillar_3a",
                     "human_question": "Should I fund 3a?",
                     "triggers": ["annual_review"],
                     "concept_ids": ["tax"],
@@ -137,7 +146,7 @@ def valid_documents() -> dict[str, dict]:
                 },
             },
             "decision_template": {
-                "applies_to_decision_ids": ["fund_3a"],
+                "applies_to_decision_ids": ["pillar_3a"],
                 "binding_contract": "persist decision",
                 "required_context": ["decision_id"],
                 "unbound_decision_behavior": "not reachable",
@@ -270,9 +279,18 @@ def test_accepts_complete_closed_graph(tmp_path: Path) -> None:
         (lambda d: d["formula_contracts.yaml"]["formulas"][0].update(status="magic"), "invalid formula status"),
         (lambda d: d["decisions.yaml"]["decisions"][0].update(minimum_input_ids=[]), "minimum inputs do not cover"),
         (lambda d: d["decisions.yaml"]["decisions"][0].update(learning_variant="ghost"), "unknown decision learning variant"),
+        (lambda d: d["decisions.yaml"]["decisions"][0].update(learning_variant="urgent"), "learning variant mapping mismatch"),
         (lambda d: d["audience.yaml"].pop("falsification_protocol"), "falsification_protocol"),
         (lambda d: d["concepts.yaml"]["concepts"][0].pop("simple_why"), "simple_why"),
         (lambda d: d["experience_graph.yaml"]["edges"][-3].update(data_effect="none"), "choose_reminder"),
+        (lambda d: d["audience.yaml"]["universal_floor"].update(sequence=[]), "canonical order"),
+        (lambda d: d["audience.yaml"]["universal_floor"].update(max_primary_numbers=999), "between 1 and 3"),
+        (lambda d: d["audience.yaml"]["universal_floor"].update(example_before_personalization=False), "example_before_personalization"),
+        (lambda d: d["audience.yaml"].update(expert_escape=[]), "expert_escape lacks"),
+        (lambda d: d["audience.yaml"]["progressive_depth"].pop(), "canonical n0..n4"),
+        (lambda d: d["audience.yaml"]["falsification_protocol"]["signals"][0].pop("measure"), "signal understood.measure"),
+        (lambda d: d["concepts.yaml"]["concepts"][0].update(glossary_terms=[]), "glossary_terms must be a non-empty"),
+        (lambda d: d["concepts.yaml"]["concepts"][0].update(chf_example="CHF only once"), "at least two numeric amounts"),
     ],
 )
 def test_rejects_hostile_mutations(tmp_path: Path, mutation, message: str) -> None:

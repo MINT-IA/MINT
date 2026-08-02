@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import re
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
@@ -73,6 +74,21 @@ LEGACY_DISPOSITIONS = {
 SAFE_TERMINALS = {"success", "safe_exit", "saved"}
 REQUIRED_NONTERMINAL_MODES = {
     "example", "personal", "missing", "stale", "offline", "error", "corrected", "saved",
+}
+UNIVERSAL_SEQUENCE = ["concrete_consequence", "chf_example", "one_cause_effect", "one_action_or_choice", "visible_limits"]
+PROGRESSIVE_DEPTH = {
+    "n0": "consequence", "n1": "simple_why", "n2": "visual_comparison",
+    "n3": "editable_assumptions", "n4": "calculation_sources_limits",
+}
+REQUIRED_EXPERT_ESCAPES = {"see_calculation", "edit_assumptions", "see_sources", "compare_scenarios"}
+LEARNING_VARIANT_BY_DECISION = {
+    "annual_tax": "planning", "pillar_3a": "planning", "free_investing": "planning",
+    "home_purchase": "planning", "lpp_buyback": "planning", "retirement_prepare": "planning",
+    "retirement_live": "planning", "stability_first": "urgent", "work_incapacity": "urgent",
+    "unemployment_pause": "urgent", "salary_protection": "protection", "child_or_dependent": "protection",
+    "employer_change": "protection", "self_employment": "protection", "couple_change": "sensitive_life_event",
+    "separation_divorce": "sensitive_life_event", "inheritance_received": "sensitive_life_event",
+    "estate_incapacity": "sensitive_life_event",
 }
 EXPECTED_LEGACY_BOUNDARY = {
     "next_imports_legacy_ui": False,
@@ -145,9 +161,12 @@ def _validate_concepts(concepts: dict[str, dict[str, Any]], errors: list[str]) -
                 errors.append(f"concept {identifier}.{field} must be non-empty")
         if not _list_of_strings(concept, "misconceptions", f"concept {identifier}", errors):
             errors.append(f"concept {identifier}.misconceptions must not be empty")
+        example = concept.get("chf_example", "")
+        if isinstance(example, str) and len(re.findall(r"CHF\s*[0-9][0-9’'.,]*", example)) < 2:
+            errors.append(f"concept {identifier}.chf_example requires CHF and at least two numeric amounts")
         glossary = concept.get("glossary_terms")
-        if not isinstance(glossary, list):
-            errors.append(f"concept {identifier}.glossary_terms must be a list")
+        if not isinstance(glossary, list) or not glossary:
+            errors.append(f"concept {identifier}.glossary_terms must be a non-empty list")
         else:
             for index, term in enumerate(glossary):
                 if not isinstance(term, dict) or not all(isinstance(term.get(x), str) and term.get(x).strip() for x in ("term", "plain_language")):
@@ -513,7 +532,25 @@ def validate(root: Path) -> list[str]:
     for field in ("audience_hypothesis", "universal_floor", "progressive_depth", "expert_escape", "comprehension_evidence", "forbidden_patterns"):
         if field not in audience:
             errors.append(f"audience.yaml missing required field: {field}")
-    _index(_items(audience, "progressive_depth", "audience.yaml", errors), "progressive depth", errors)
+    floor = audience.get("universal_floor")
+    if not isinstance(floor, dict):
+        errors.append("audience universal_floor must be a mapping")
+        floor = {}
+    if floor.get("sequence") != UNIVERSAL_SEQUENCE:
+        errors.append("audience universal_floor.sequence must match the canonical order")
+    maximum = floor.get("max_primary_numbers")
+    if not isinstance(maximum, int) or isinstance(maximum, bool) or not 1 <= maximum <= 3:
+        errors.append("audience universal_floor.max_primary_numbers must be between 1 and 3")
+    for flag in ("amounts_before_percentages", "example_before_personalization", "color_never_only_signal",
+                 "plain_language_before_technical_term", "sensitive_event_examples_must_be_contextual"):
+        if floor.get(flag) is not True:
+            errors.append(f"audience universal_floor.{flag} must be true")
+    depths = _index(_items(audience, "progressive_depth", "audience.yaml", errors), "progressive depth", errors)
+    if {identifier: item.get("intent") for identifier, item in depths.items()} != PROGRESSIVE_DEPTH:
+        errors.append("audience progressive_depth must define canonical n0..n4 intents")
+    escapes = set(_list_of_strings(audience, "expert_escape", "audience", errors))
+    if not REQUIRED_EXPERT_ESCAPES <= escapes:
+        errors.append("audience expert_escape lacks required one-gesture capabilities")
     falsification = audience.get("falsification_protocol")
     if not isinstance(falsification, dict):
         errors.append("audience falsification_protocol must be a mapping")
@@ -524,8 +561,12 @@ def validate(root: Path) -> list[str]:
         for field in ("participant_coverage", "rejection_conditions", "privacy"):
             if not _list_of_strings(falsification, field, "audience falsification_protocol", errors):
                 errors.append(f"audience falsification_protocol.{field} must not be empty")
-        if not _index(_items(falsification, "signals", "falsification_protocol", errors), "falsification signal", errors):
+        signals = _index(_items(falsification, "signals", "falsification_protocol", errors), "falsification signal", errors)
+        if not signals:
             errors.append("audience falsification signals must not be empty")
+        for identifier, signal in signals.items():
+            if not isinstance(signal.get("measure"), str) or not signal.get("measure", "").strip():
+                errors.append(f"falsification signal {identifier}.measure must be non-empty")
     concepts = _index(_items(documents["concepts.yaml"], "concepts", "concepts.yaml", errors), "concept", errors)
     if not concepts:
         errors.append("concept registry must not be empty")
@@ -580,6 +621,9 @@ def validate(root: Path) -> list[str]:
     for decision_id, decision in decisions.items():
         if decision.get("learning_variant") not in variants:
             errors.append(f"unknown decision learning variant: {decision_id} -> {decision.get('learning_variant')}")
+        expected_variant = LEARNING_VARIANT_BY_DECISION.get(decision_id)
+        if expected_variant is not None and decision.get("learning_variant") != expected_variant:
+            errors.append(f"decision learning variant mapping mismatch: {decision_id} must be {expected_variant}")
 
     legacy = documents["legacy_reuse.yaml"]
     boundary = legacy.get("boundary")
