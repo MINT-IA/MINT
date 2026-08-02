@@ -204,6 +204,7 @@ def valid_documents() -> dict[str, dict]:
                 "analytics_event": action}
     graph["edges"] += [
         edge("open_question", "today_entry", "question"), edge("explain_simply", "question", "simple_why"),
+        edge("leave_question", "question", "safe_exit"),
         edge("show_contextual_example", "simple_why", "example"), edge("finish_example", "example", "safe_exit"),
         edge("expert_details_now", "question", "receipt"), edge("finish_receipt", "receipt", "safe_exit"),
         edge("return_today_without_pressure", "safe_exit", "today_entry"),
@@ -211,6 +212,8 @@ def valid_documents() -> dict[str, dict]:
         edge("dismiss_suggestion", "safe_exit", "today_entry", "explicit_save_or_edit"),
         edge("change_subject", "safe_exit", "today_entry"),
     ]
+    graph["chat"]["allowed_action_ids"].append("leave_question")
+    graph["chat"]["action_policy"]["navigation_only"].append("leave_question")
     return documents
 
 
@@ -311,6 +314,20 @@ def test_rejects_non_mapping_yaml_and_wrong_schema(tmp_path: Path) -> None:
     assert result.returncode == 1
     assert "yaml mapping" in result.stderr.lower()
     assert "schema_version" in result.stderr
+
+
+def test_rejects_coordinated_coercive_leave_question(tmp_path: Path) -> None:
+    documents = valid_documents()
+    graph = documents["experience_graph.yaml"]
+    edge = next(item for item in graph["edges"] if item["action_id"] == "leave_question")
+    edge["data_effect"] = "explicit_save_or_edit"
+    policy = graph["chat"]["action_policy"]
+    policy["navigation_only"].remove("leave_question")
+    policy["requires_explicit_user_confirmation"].append("leave_question")
+    write_documents(tmp_path, documents)
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "leave_question" in result.stderr
 
 
 def test_draft_may_record_conflict_but_promotion_fails_closed(tmp_path: Path) -> None:

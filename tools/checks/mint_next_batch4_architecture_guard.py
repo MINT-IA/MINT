@@ -327,6 +327,7 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
         errors.append(f"graph node cannot reach a safe terminal: {identifier}")
 
     required_actions = {
+        "leave_question": ("question", "safe_exit", "none"),
         "explain_simply": ("question", "simple_why", "none"),
         "show_contextual_example": ("simple_why", "example", "none"),
         "expert_details_now": ("question", "receipt", "none"),
@@ -365,6 +366,10 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
                 errors.append("chat actions must belong to exactly one policy category")
             if set(categorized) != set(chat_actions):
                 errors.append("chat action policy must classify every and only allowed action")
+            navigation = set(policy.get("navigation_only", []))
+            confirmed = set(policy.get("requires_explicit_user_confirmation", []))
+            if "leave_question" not in navigation or "leave_question" in confirmed:
+                errors.append("leave_question must be frictionless navigation without confirmation")
             allowed_effects = set(_list_of_strings(policy, "allowed_data_effects", "chat.action_policy", errors))
             for action in chat_actions:
                 edge = edge_by_action.get(action, {})
