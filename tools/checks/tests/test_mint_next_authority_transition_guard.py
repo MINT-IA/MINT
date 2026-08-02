@@ -4,6 +4,7 @@ import hashlib
 import json
 import subprocess
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -89,6 +90,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
     _git(root, "add", ".")
     _git(root, "commit", "-m", "baseline")
     baseline = _git(root, "rev-parse", "HEAD")
+    audited_head = baseline
 
     marker = AUTHORITY_MARKER.format(
         milestone=NEW,
@@ -125,7 +127,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         root,
         ".planning/STATE.md",
         "---\nstatus: governance-authority-accepted\n"
-        f"accepted_transition_head: {AUDITED_TRANSITION_HEAD}\n---\n"
+        f"accepted_transition_head: {audited_head}\n---\n"
         f"{marker}\nGovernance-only authority accepted.\n"
         f"{ACTIVE_BOUNDARIES['.planning/STATE.md']}\nHistorical receipts remain unchanged.\n",
     )
@@ -136,10 +138,54 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         root,
         f"{NEW_DIR}/VERIFICATION.md",
         "Status: **ACCEPTED — GOVERNANCE AUTHORITY ONLY**\n"
-        f"Audited transition head: `{AUDITED_TRANSITION_HEAD}`\n"
+        f"Audited transition head: `{audited_head}`\n"
         "Accepted scope: `governance_authority_only`\n"
         "Batch 4 promotion: **false**\n",
     )
+    artifact_specs = {
+        name: {
+            "path": f"{NEW_DIR}/evidence/{filename}",
+            "data": {
+                "schema_version": 1,
+                "evidence_id": evidence_id,
+                "review": name,
+                "reviewer": reviewer,
+                "audited_head": audited_head,
+                "verdict": "PASS",
+                "p1": 0,
+                "p2": 0,
+                "limitation": f"{name} scope only",
+                "source": "independent_agent_result_captured_in_repo",
+                "captured_at": "2026-08-02T07:28:44Z",
+                "checks": [
+                    {"command": "test command", "exit": 0, "evidence": "PASS"}
+                ],
+            },
+        }
+        for name, reviewer, evidence_id, filename in (
+            (
+                "authority_coherence",
+                "authority_roast_coherence",
+                "roast:authority-coherence:b88a42557",
+                "authority-coherence-b88a42557.yaml",
+            ),
+            (
+                "legacy_evidence_preservation",
+                "authority_roast_preservation",
+                "roast:legacy-preservation:b88a42557",
+                "legacy-preservation-b88a42557.yaml",
+            ),
+            (
+                "guard_hostile_mutation_quality",
+                "authority_roast_guard",
+                "roast:guard-hostile-mutations:b88a42557",
+                "guard-hostile-mutations-b88a42557.yaml",
+            ),
+        )
+    }
+    for spec in artifact_specs.values():
+        _write(root, spec["path"], yaml.safe_dump(spec["data"], sort_keys=False))
+        spec["sha256"] = hashlib.sha256((root / spec["path"]).read_bytes()).hexdigest()
     _write(
         root,
         "product/mint_next/batch4/architecture_conflicts.yaml",
@@ -151,6 +197,10 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                         "id": "retirement_first_active_context",
                         "severity": "blocker",
                         "status": "resolved",
+                        "resolution_required": (
+                            "Satisfied for governance authority only; Batch 4 still requires "
+                            "its own promotion and cannot inherit this resolution as product authority."
+                        ),
                         "resolution": {
                             "kind": "governance_authority_transition",
                             "authority_milestone": NEW,
@@ -163,7 +213,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                                 ".planning/INDEX.md",
                             ],
                             "verification": {
-                                "audited_head": AUDITED_TRANSITION_HEAD,
+                                "audited_head": audited_head,
                                 "accepted_scope": "governance_authority_only",
                                 "batch4_promotion": False,
                                 "successor_product_phase_queued": False,
@@ -174,8 +224,11 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                                         "verdict": "PASS",
                                         "p1": 0,
                                         "p2": 0,
-                                        "audited_head": AUDITED_TRANSITION_HEAD,
+                                        "audited_head": audited_head,
                                         "evidence_id": evidence_id,
+                                        "artifact_path": artifact_specs[name]["path"],
+                                        "artifact_sha256": artifact_specs[name]["sha256"],
+                                        "limitation": artifact_specs[name]["data"]["limitation"],
                                     }
                                     for name, reviewer, evidence_id in (
                                         (
@@ -231,13 +284,66 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         for path, content in protected.items()
         if path.startswith(f"{OLD_DIR}/")
     }
-    policy = TransitionPolicy(baseline_ref=baseline, legacy_manifest=manifest)
+    policy = TransitionPolicy(
+        baseline_ref=baseline,
+        audited_transition_head=audited_head,
+        audited_transition_manifest={},
+        roast_artifacts={
+            name: {"path": spec["path"], "sha256": spec["sha256"]}
+            for name, spec in artifact_specs.items()
+        },
+        legacy_manifest=manifest,
+    )
     return root, policy
 
 
 def test_valid_governance_only_transition_passes(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     assert run_guard(root, policy) == []
+
+
+def test_rejects_synthetic_accepted_tree_without_audited_ancestor(
+    tmp_path: Path,
+) -> None:
+    root, policy = _fixture(tmp_path)
+    _git(root, "add", ".")
+    _git(root, "commit", "-m", "synthetic accepted tree")
+    baseline_tree = _git(root, "rev-parse", f"{policy.baseline_ref}^{{tree}}")
+    sibling = _git(
+        root,
+        "commit-tree",
+        baseline_tree,
+        "-p",
+        policy.baseline_ref,
+        "-m",
+        "synthetic audited sibling",
+    )
+    hostile_policy = replace(
+        policy,
+        audited_transition_head=sibling,
+        audited_transition_manifest={},
+    )
+    errors = run_guard(root, hostile_policy)
+    assert any("audited transition must be an ancestor" in error for error in errors)
+
+
+def test_rejects_missing_audited_transition_object(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    hostile_policy = replace(policy, audited_transition_head="0" * 40)
+    assert any(
+        "audited transition head does not resolve" in error
+        for error in run_guard(root, hostile_policy)
+    )
+
+
+def test_rejects_audited_transition_diff_manifest_mismatch(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    hostile_policy = replace(
+        policy,
+        audited_transition_manifest={"invented/path": "0" * 64},
+    )
+    errors = run_guard(root, hostile_policy)
+    assert any("audited transition diff surface mismatch" in error for error in errors)
 
 
 @pytest.mark.parametrize(
@@ -320,20 +426,64 @@ def test_rejects_fake_or_incomplete_acceptance_roasts(
     assert any(needle in error for error in run_guard(root, policy))
 
 
+def test_rejects_roast_artifact_byte_tampering(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    artifact = policy.roast_artifacts["authority_coherence"]
+    path = root / artifact["path"]
+    path.write_text(path.read_text() + "# tampered\n", encoding="utf-8")
+    assert any(
+        "artifact hash mismatch" in error for error in run_guard(root, policy)
+    )
+
+
+def test_rejects_coordinated_roast_artifact_receipt_rewrite(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    conflict_path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    conflict = yaml.safe_load(conflict_path.read_text())
+    roast = conflict["conflicts"][0]["resolution"]["verification"]["roasts"][0]
+    roast["artifact_path"] = policy.roast_artifacts["legacy_evidence_preservation"]["path"]
+    roast["artifact_sha256"] = policy.roast_artifacts["legacy_evidence_preservation"]["sha256"]
+    conflict_path.write_text(yaml.safe_dump(conflict), encoding="utf-8")
+    assert any(
+        "artifact receipt mismatch" in error for error in run_guard(root, policy)
+    )
+
+
+def test_rejects_roast_artifact_with_empty_checks_even_if_rehashed(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    contracts = {name: dict(contract) for name, contract in policy.roast_artifacts.items()}
+    contract = contracts["authority_coherence"]
+    path = root / contract["path"]
+    artifact = yaml.safe_load(path.read_text())
+    artifact["checks"] = []
+    path.write_text(yaml.safe_dump(artifact, sort_keys=False), encoding="utf-8")
+    contract["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+    conflict_path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    conflict = yaml.safe_load(conflict_path.read_text())
+    roast = conflict["conflicts"][0]["resolution"]["verification"]["roasts"][0]
+    roast["artifact_sha256"] = contract["sha256"]
+    conflict_path.write_text(yaml.safe_dump(conflict), encoding="utf-8")
+    hostile_policy = replace(policy, roast_artifacts=contracts)
+    assert any(
+        "artifact checks must be nonempty" in error
+        for error in run_guard(root, hostile_policy)
+    )
+
+
 @pytest.mark.parametrize(
     ("relative", "old", "new", "needle"),
     [
         (
             f"{NEW_DIR}/VERIFICATION.md",
-            f"Audited transition head: `{AUDITED_TRANSITION_HEAD}`",
+            "Audited transition head:",
             "Audited transition head: `0000000000000000000000000000000000000000`",
-            "accepted phase VERIFICATION missing exact receipt",
+            "exactly one audited head",
         ),
         (
             ".planning/STATE.md",
             "status: governance-authority-accepted",
             "status: governance-only-authority-transition",
-            "STATE must record status",
+            "STATE must record exactly one status",
         ),
     ],
 )
@@ -342,9 +492,63 @@ def test_rejects_fake_accepted_phase_or_state(
 ) -> None:
     root, policy = _fixture(tmp_path)
     path = root / relative
+    if relative.endswith("VERIFICATION.md"):
+        current = path.read_text()
+        old = next(line for line in current.splitlines() if line.startswith(old))
     path.write_text(path.read_text().replace(old, new), encoding="utf-8")
     errors = run_guard(root, policy)
     assert any(needle in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "needle"),
+    [
+        (
+            "Batch 4 promotion: **true**\nBatch 4 promotion: **false**\n",
+            "exactly one Batch 4 promotion",
+        ),
+        (
+            "Batch 4 promotion: **false**\nBatch 4 promotion: **false**\n",
+            "exactly one Batch 4 promotion",
+        ),
+    ],
+)
+def test_rejects_duplicate_or_conflicting_batch4_promotion_receipt(
+    tmp_path: Path, mutation: str, needle: str
+) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / NEW_DIR / "VERIFICATION.md"
+    current = path.read_text()
+    path.write_text(
+        current.replace("Batch 4 promotion: **false**\n", mutation),
+        encoding="utf-8",
+    )
+    assert any(needle in error for error in run_guard(root, policy))
+
+
+def test_rejects_conflict_satisfaction_denial(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["conflicts"][0]["resolution_required"] = (
+        "NOT satisfied; independent verification is fabricated."
+    )
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any(
+        "exactly one canonical governance-only satisfaction claim" in error
+        for error in run_guard(root, policy)
+    )
+
+
+@pytest.mark.parametrize("key", ["resolution_required", "batch4_promotion"])
+def test_rejects_duplicate_high_risk_conflict_keys(tmp_path: Path, key: str) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    current = path.read_text()
+    path.write_text(f"{key}: malicious-duplicate\n" + current, encoding="utf-8")
+    assert any(
+        f"exactly one {key!r} field" in error for error in run_guard(root, policy)
+    )
 
 
 def test_draft_requires_null_receipt(tmp_path: Path) -> None:

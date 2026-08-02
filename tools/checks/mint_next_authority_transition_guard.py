@@ -29,6 +29,22 @@ NEW_SPEC = f"{NEW_PHASE_DIR}/SPEC.md"
 NEW_PLAN = f"{NEW_PHASE_DIR}/PLAN.md"
 NEW_VERIFICATION = f"{NEW_PHASE_DIR}/VERIFICATION.md"
 AUDITED_TRANSITION_HEAD = "b88a425573eb93508a554ca9e3c9a7bfd72f5d46"
+AUDITED_TRANSITION_MANIFEST: Dict[str, str] = {
+    ".planning/ACTIVE_CONTEXT.json": "8fda531e673162678e5e193c7ff82190fc0ea92e0f38ed373abe0dac42c9a5e0",
+    ".planning/ACTIVE_CONTEXT.md": "41bcb068b6db45938adfa0476bf4b8c930a2f6523b831411d4aae1b807291a56",
+    ".planning/INDEX.md": "3d7569f4e55c08528d6e6b20bdf95e1e84391aa9cb8c2667cd2b0bca208be4b9",
+    ".planning/ROADMAP.md": "a34d08c1851241970f21b33d21a6a01985496386f8f7b35cbda10e6b4c931481",
+    ".planning/STATE.md": "d504c6272d44111e747e82be34557ade31c42a41f60828547c68eeb17e4f70ad",
+    f"{NEW_PHASE_DIR}/CONTEXT.md": "74cab13924ce0ecd30bcacf0a069fa55775af8c01e2c97216e7532f36f681c0e",
+    f"{NEW_PHASE_DIR}/PLAN.md": "095abbb9c7dddd0f74611c09eb10e4b3062efaef2e94ee35770446cf59617961",
+    f"{NEW_PHASE_DIR}/SPEC.md": "65b7ff39bb4404e96768ec1aa49c51cc3223376defcca2765b714a6dbe0596d5",
+    f"{NEW_PHASE_DIR}/VERIFICATION.md": "8cccd38db208ca43490eec1200da5caf9191776cf05e5435db55401efa310a88",
+    "product/mint_next/batch4/architecture_conflicts.yaml": "a2d37da20e3b164e571c19b982d61e2a5e508b1d1b9f971e9d67ab65d7f01a36",
+    "product/mint_next/batch4/source-inventory.yaml": "2e0c352dabb427c5b0a60d7eda0e9724fa61f8b2992f62df8d5eb9bf1a4e2997",
+    "tools/checks/journey_os_check.py": "0c57f6d6bd0edf71ed471cd5ba165c1eb37b3f9d2596f425e0fed46e21ec73e7",
+    "tools/checks/mint_next_authority_transition_guard.py": "089cb19017389a5aed8c46e473a53147e52278a968fa15c69f1301f5abe6def1",
+    "tools/checks/tests/test_mint_next_authority_transition_guard.py": "513ae6108241ecfed2ee65ec5bc25d948c6f9dcb6313ab9fd68f4c30c5f0b614",
+}
 REQUIRED_ROASTS = {
     "authority_coherence": (
         "authority_roast_coherence",
@@ -42,6 +58,20 @@ REQUIRED_ROASTS = {
         "authority_roast_guard",
         "roast:guard-hostile-mutations:b88a42557",
     ),
+}
+ROAST_ARTIFACTS: Dict[str, Dict[str, str]] = {
+    "authority_coherence": {
+        "path": f"{NEW_PHASE_DIR}/evidence/authority-coherence-b88a42557.yaml",
+        "sha256": "b58330e8a4c1dbf72770ac81cb7cd41ccce687de0193c04800d5a0a2ecc29490",
+    },
+    "legacy_evidence_preservation": {
+        "path": f"{NEW_PHASE_DIR}/evidence/legacy-preservation-b88a42557.yaml",
+        "sha256": "5b7e057e38bbfc85dc67f94f3096bad4108d6a708559be0cc5b0979aee3b3d59",
+    },
+    "guard_hostile_mutation_quality": {
+        "path": f"{NEW_PHASE_DIR}/evidence/guard-hostile-mutations-b88a42557.yaml",
+        "sha256": "57186a5a128fce4f7dc501cbf69892f06794c52eedd95d08b3cb05b403e16743",
+    },
 }
 
 AUTHORITY_MARKER = (
@@ -117,9 +147,11 @@ ALLOWED_TRANSITION_PATHS = frozenset(
         f"{NEW_PHASE_DIR}/SPEC.md",
         f"{NEW_PHASE_DIR}/PLAN.md",
         f"{NEW_PHASE_DIR}/VERIFICATION.md",
+        *(artifact["path"] for artifact in ROAST_ARTIFACTS.values()),
         "product/mint_next/batch4/architecture_conflicts.yaml",
         "product/mint_next/batch4/source-inventory.yaml",
         "tools/checks/journey_os_check.py",
+        "tools/checks/tests/test_journey_os_check.py",
         "tools/checks/mint_next_authority_transition_guard.py",
         "tools/checks/tests/test_mint_next_authority_transition_guard.py",
     }
@@ -129,10 +161,17 @@ ALLOWED_TRANSITION_PATHS = frozenset(
 @dataclass(frozen=True)
 class TransitionPolicy:
     baseline_ref: str = DEFAULT_BASELINE_REF
+    audited_transition_head: str = AUDITED_TRANSITION_HEAD
+    audited_transition_manifest: Mapping[str, str] = None  # type: ignore[assignment]
+    roast_artifacts: Mapping[str, Mapping[str, str]] = None  # type: ignore[assignment]
     legacy_manifest: Mapping[str, str] = None  # type: ignore[assignment]
     allowed_transition_paths: Set[str] = None  # type: ignore[assignment]
 
     def __post_init__(self) -> None:
+        if self.audited_transition_manifest is None:
+            object.__setattr__(self, "audited_transition_manifest", AUDITED_TRANSITION_MANIFEST)
+        if self.roast_artifacts is None:
+            object.__setattr__(self, "roast_artifacts", ROAST_ARTIFACTS)
         if self.legacy_manifest is None:
             object.__setattr__(self, "legacy_manifest", LEGACY_RETIREMENT_MANIFEST)
         if self.allowed_transition_paths is None:
@@ -162,6 +201,49 @@ def _changed_paths(root: Path, baseline_ref: str, errors: List[str]) -> Set[str]
         errors.append(f"cannot enumerate untracked files: {untracked.stderr.strip()}")
         return set()
     return {line for line in (diff.stdout + "\n" + untracked.stdout).splitlines() if line}
+
+
+def _check_audited_transition_git(
+    root: Path, policy: TransitionPolicy, errors: List[str]
+) -> None:
+    audited = policy.audited_transition_head
+    if _git(root, ["cat-file", "-e", f"{audited}^{{commit}}"]).returncode != 0:
+        errors.append(f"audited transition head does not resolve to a commit: {audited}")
+        return
+    for ancestor, descendant, label in (
+        (policy.baseline_ref, audited, "baseline must be an ancestor of audited transition"),
+        (audited, "HEAD", "audited transition must be an ancestor of accepted HEAD"),
+    ):
+        result = _git(root, ["merge-base", "--is-ancestor", ancestor, descendant])
+        if result.returncode != 0:
+            errors.append(f"{label}: {ancestor} -> {descendant}")
+
+    diff = _git(root, ["diff", "--name-only", policy.baseline_ref, audited, "--"])
+    if diff.returncode != 0:
+        errors.append(f"cannot inspect audited transition diff: {diff.stderr.strip()}")
+        return
+    actual_paths = {line for line in diff.stdout.splitlines() if line}
+    expected_paths = set(policy.audited_transition_manifest)
+    if actual_paths != expected_paths:
+        errors.append(
+            "audited transition diff surface mismatch: "
+            f"missing={sorted(expected_paths - actual_paths)!r}, "
+            f"unexpected={sorted(actual_paths - expected_paths)!r}"
+        )
+    for relative, expected_hash in policy.audited_transition_manifest.items():
+        blob = _git(root, ["show", f"{audited}:{relative}"])
+        if blob.returncode != 0:
+            errors.append(f"audited transition manifest path unreadable: {relative}")
+            continue
+        # Git's text mode would normalize/encode output. Read the exact blob bytes.
+        exact = subprocess.run(
+            ["git", "show", f"{audited}:{relative}"],
+            cwd=root,
+            capture_output=True,
+            check=False,
+        )
+        if exact.returncode != 0 or hashlib.sha256(exact.stdout).hexdigest() != expected_hash:
+            errors.append(f"audited transition manifest hash mismatch: {relative}")
 
 
 def _load_yaml(path: Path, errors: List[str], label: str) -> object:
@@ -343,9 +425,90 @@ def _normalize_authority_value(value: str) -> str:
     return value.strip().rstrip(". ")
 
 
-def _check_conflict(root: Path, errors: List[str]) -> None:
+def _check_roast_artifact(
+    root: Path,
+    name: str,
+    roast: Mapping[str, object],
+    artifact_contract: Mapping[str, str],
+    audited_head: str,
+    errors: List[str],
+) -> None:
+    path_value = artifact_contract.get("path")
+    hash_value = artifact_contract.get("sha256")
+    if roast.get("artifact_path") != path_value or roast.get("artifact_sha256") != hash_value:
+        errors.append(f"transition roast {name!r} artifact receipt mismatch")
+    if not isinstance(path_value, str) or not isinstance(hash_value, str):
+        errors.append(f"transition roast {name!r} artifact contract is invalid")
+        return
+    path = root / path_value
+    if not path.is_file() or _sha256(path) != hash_value:
+        errors.append(f"transition roast {name!r} artifact hash mismatch")
+        return
+    artifact = _load_yaml(path, errors, f"transition roast {name!r} artifact")
+    if not isinstance(artifact, dict):
+        errors.append(f"transition roast {name!r} artifact must be a mapping")
+        return
+    expected_keys = {
+        "schema_version", "evidence_id", "review", "reviewer", "audited_head",
+        "verdict", "p1", "p2", "limitation", "source", "captured_at", "checks",
+    }
+    if set(artifact) != expected_keys:
+        errors.append(f"transition roast {name!r} artifact schema keys mismatch")
+    expected_values = {
+        "schema_version": 1,
+        "evidence_id": roast.get("evidence_id"),
+        "review": name,
+        "reviewer": roast.get("reviewer"),
+        "audited_head": audited_head,
+        "verdict": "PASS",
+        "p1": 0,
+        "p2": 0,
+        "limitation": roast.get("limitation"),
+        "source": "independent_agent_result_captured_in_repo",
+    }
+    for key, value in expected_values.items():
+        if artifact.get(key) != value:
+            errors.append(f"transition roast {name!r} artifact {key!r} mismatch")
+    captured_at = artifact.get("captured_at")
+    if not isinstance(captured_at, str) or not re.fullmatch(
+        r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", captured_at
+    ):
+        errors.append(f"transition roast {name!r} artifact captured_at is invalid")
+    checks = artifact.get("checks")
+    if not isinstance(checks, list) or not checks:
+        errors.append(f"transition roast {name!r} artifact checks must be nonempty")
+        return
+    for index, check in enumerate(checks):
+        if not isinstance(check, dict) or set(check) != {"command", "exit", "evidence"}:
+            errors.append(f"transition roast {name!r} check {index} schema mismatch")
+            continue
+        if (
+            not isinstance(check.get("command"), str)
+            or not check["command"].strip()
+            or check.get("exit") != 0
+            or not isinstance(check.get("evidence"), str)
+            or not check["evidence"].strip()
+        ):
+            errors.append(f"transition roast {name!r} check {index} is not passing evidence")
+
+
+def _check_conflict(root: Path, policy: TransitionPolicy, errors: List[str]) -> None:
+    audited_head = policy.audited_transition_head
+    conflict_path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    try:
+        conflict_text = conflict_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"Batch4 conflict registry is unreadable: {exc}")
+        return
+    for key in ("resolution_required", "batch4_promotion"):
+        occurrences = re.findall(rf"(?m)^\s*{re.escape(key)}\s*:", conflict_text)
+        if len(occurrences) != 1:
+            errors.append(
+                f"Batch4 conflict registry must contain exactly one {key!r} field; "
+                f"found {len(occurrences)}"
+            )
     data = _load_yaml(
-        root / "product/mint_next/batch4/architecture_conflicts.yaml",
+        conflict_path,
         errors,
         "Batch4 conflict registry",
     )
@@ -390,7 +553,7 @@ def _check_conflict(root: Path, errors: List[str]) -> None:
         errors.append("resolved transition requires structured resolution.verification")
         return
     expected_verification = {
-        "audited_head": AUDITED_TRANSITION_HEAD,
+        "audited_head": audited_head,
         "accepted_scope": "governance_authority_only",
         "batch4_promotion": False,
         "successor_product_phase_queued": False,
@@ -419,15 +582,43 @@ def _check_conflict(root: Path, errors: List[str]) -> None:
             errors.append(f"transition roast {name!r} verdict must be PASS")
         if roast.get("p1") != 0 or roast.get("p2") != 0:
             errors.append(f"transition roast {name!r} must record p1=0 and p2=0")
-        if roast.get("audited_head") != AUDITED_TRANSITION_HEAD:
+        if roast.get("audited_head") != audited_head:
             errors.append(f"transition roast {name!r} audited_head mismatch")
         if roast.get("reviewer") != expected_reviewer:
             errors.append(f"transition roast {name!r} reviewer mismatch")
         if roast.get("evidence_id") != expected_evidence:
             errors.append(f"transition roast {name!r} evidence_id mismatch")
+        artifact_contract = policy.roast_artifacts.get(name)
+        if not isinstance(artifact_contract, Mapping):
+            errors.append(f"transition roast {name!r} artifact contract missing")
+        else:
+            _check_roast_artifact(
+                root, name, roast, artifact_contract, audited_head, errors
+            )
+
+    expected_resolution_claim = (
+        "Satisfied for governance authority only; Batch 4 still requires its own "
+        "promotion and cannot inherit this resolution as product authority."
+    )
+    if conflict.get("resolution_required") != expected_resolution_claim:
+        errors.append(
+            "retirement-first conflict must contain exactly one canonical "
+            "governance-only satisfaction claim"
+        )
 
 
-def _check_accepted_documents(root: Path, errors: List[str]) -> None:
+def _single_receipt_value(
+    text: str, pattern: str, label: str, expected: str, errors: List[str]
+) -> None:
+    values = re.findall(pattern, text, flags=re.MULTILINE | re.IGNORECASE)
+    if values != [expected]:
+        errors.append(
+            f"accepted phase VERIFICATION must contain exactly one {label}={expected!r}; "
+            f"found {values!r}"
+        )
+
+
+def _check_accepted_documents(root: Path, audited_head: str, errors: List[str]) -> None:
     verification_path = root / NEW_VERIFICATION
     state_path = root / ".planning/STATE.md"
     try:
@@ -436,22 +627,27 @@ def _check_accepted_documents(root: Path, errors: List[str]) -> None:
     except (OSError, UnicodeDecodeError) as exc:
         errors.append(f"accepted transition document unreadable: {exc}")
         return
-    required_verification_literals = (
-        "Status: **ACCEPTED — GOVERNANCE AUTHORITY ONLY**",
-        f"Audited transition head: `{AUDITED_TRANSITION_HEAD}`",
-        "Accepted scope: `governance_authority_only`",
-        "Batch 4 promotion: **false**",
+    receipt_fields = (
+        (
+            r"^Status:\s*\*\*(.+?)\*\*\s*$",
+            "status",
+            "ACCEPTED — GOVERNANCE AUTHORITY ONLY",
+        ),
+        (r"^Audited transition head:\s*`([^`]+)`\s*$", "audited head", audited_head),
+        (r"^Accepted scope:\s*`([^`]+)`\s*$", "accepted scope", "governance_authority_only"),
+        (r"^Batch 4 promotion:\s*\*\*(true|false)\*\*\s*$", "Batch 4 promotion", "false"),
     )
-    for literal in required_verification_literals:
-        if literal not in verification:
-            errors.append(f"accepted phase VERIFICATION missing exact receipt: {literal}")
-    if not re.search(r"(?m)^status:\s*governance-authority-accepted\s*$", state):
-        errors.append("STATE must record status: governance-authority-accepted")
-    if not re.search(
-        rf"(?m)^accepted_transition_head:\s*[\"']?{AUDITED_TRANSITION_HEAD}[\"']?\s*$",
-        state,
-    ):
-        errors.append("STATE must record the exact accepted_transition_head")
+    for pattern, label, expected in receipt_fields:
+        _single_receipt_value(verification, pattern, label, expected, errors)
+
+    state_statuses = re.findall(r"(?m)^status:\s*([^\s#]+)\s*$", state)
+    if state_statuses != ["governance-authority-accepted"]:
+        errors.append("STATE must record exactly one status: governance-authority-accepted")
+    state_heads = re.findall(
+        r"(?m)^accepted_transition_head:\s*[\"']?([0-9a-f]{40})[\"']?\s*$", state
+    )
+    if state_heads != [audited_head]:
+        errors.append("STATE must record exactly one exact accepted_transition_head")
 
 
 def _check_batch_remains_draft(root: Path, errors: List[str]) -> None:
@@ -503,6 +699,7 @@ def _check_router_source_inventory(root: Path, errors: List[str]) -> None:
 def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str]:
     policy = policy or TransitionPolicy()
     errors: List[str] = []
+    _check_audited_transition_git(root, policy, errors)
     _check_legacy_manifest(root, policy.legacy_manifest, errors)
     changed = _changed_paths(root, policy.baseline_ref, errors)
     for path in sorted(changed):
@@ -513,8 +710,8 @@ def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str
         if path.startswith(PROTECTED_EVIDENCE_PREFIXES):
             errors.append(f"Journey OS/runtime evidence changed during governance transition: {path}")
     _check_router(root, errors)
-    _check_conflict(root, errors)
-    _check_accepted_documents(root, errors)
+    _check_conflict(root, policy, errors)
+    _check_accepted_documents(root, policy.audited_transition_head, errors)
     _check_batch_remains_draft(root, errors)
     _check_router_source_inventory(root, errors)
     return errors

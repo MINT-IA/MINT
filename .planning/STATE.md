@@ -4,6 +4,8 @@ milestone: mint-next-architecture-authority-20260802
 milestone_name: MINT Next Architecture Authority
 status: governance-authority-accepted
 accepted_transition_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+acceptance_metadata_head: 73406990db57a2c7079dbba2784a45c85a151090
+rollback_proven_through: 73406990db57a2c7079dbba2784a45c85a151090
 stopped_at: Governance authority verified at b88a425573eb93508a554ca9e3c9a7bfd72f5d46; Batch 4 remains draft and no product phase is queued.
 last_updated: "2026-08-02T00:00:00.000Z"
 last_activity: 2026-08-02 -- governance authority accepted after three independent zero-P1/P2 roasts; no product/runtime change.

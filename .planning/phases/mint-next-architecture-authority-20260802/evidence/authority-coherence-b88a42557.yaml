@@ -1,0 +1,24 @@
+schema_version: 1
+evidence_id: roast:authority-coherence:b88a42557
+review: authority_coherence
+reviewer: authority_roast_coherence
+audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+verdict: PASS
+p1: 0
+p2: 0
+limitation: Router, lifecycle, and claim coherence only; no product or runtime proof.
+source: independent_agent_result_captured_in_repo
+captured_at: '2026-08-02T07:28:44Z'
+checks:
+- command: git diff --name-status 3db31c820..b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+  exit: 0
+  evidence: Only the authority transition guard and its focused hostile tests changed.
+- command: python3 tools/checks/mint_next_authority_transition_guard.py
+  exit: 0
+  evidence: 'MINT NEXT AUTHORITY TRANSITION GUARD: PASS'
+- command: python3 -m pytest tools/checks/tests/test_mint_next_authority_transition_guard.py -q
+  exit: 0
+  evidence: 22 passed; structured authority override mutations were rejected.
+- command: python3 tools/checks/active_context_guard.py && python3 tools/checks/phase_contract_guard.py && python3 tools/checks/mint_rules_guard.py && python3 tools/checks/journey_os_check.py && python3 tools/checks/workflow_contract_guard.py
+  exit: 0
+  evidence: All five routing, phase, rules, Journey OS, and workflow guards passed.

@@ -222,6 +222,9 @@ ALLOW = {
     ".planning/phases/mint-next-architecture-authority-20260802/SPEC.md",
     ".planning/phases/mint-next-architecture-authority-20260802/PLAN.md",
     ".planning/phases/mint-next-architecture-authority-20260802/VERIFICATION.md",
+    ".planning/phases/mint-next-architecture-authority-20260802/evidence/authority-coherence-b88a42557.yaml",
+    ".planning/phases/mint-next-architecture-authority-20260802/evidence/legacy-preservation-b88a42557.yaml",
+    ".planning/phases/mint-next-architecture-authority-20260802/evidence/guard-hostile-mutations-b88a42557.yaml",
     "tools/checks/mint_next_authority_transition_guard.py",
     "tools/checks/tests/test_mint_next_authority_transition_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---

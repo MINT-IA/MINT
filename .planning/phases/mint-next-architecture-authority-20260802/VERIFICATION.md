@@ -50,19 +50,26 @@ the exact audited transition head before this metadata-only acceptance update.
 - [x] Router JSON/Markdown, STATE, ROADMAP, and INDEX tell the same story.
 - [x] `next_product_phase_context` self-references this phase and queues no
       successor product phase.
-- [x] In a clean clone at the audited head,
-      `git revert --no-commit 707b25b815483ea20f77b065df9a47c63210f790..b88a425573eb93508a554ca9e3c9a7bfd72f5d46`
+- [x] In a clean clone at accepted metadata head
+      `73406990db57a2c7079dbba2784a45c85a151090`,
+      `git revert --no-commit 707b25b815483ea20f77b065df9a47c63210f790..73406990db57a2c7079dbba2784a45c85a151090`
       exited `0`; `git diff --quiet 707b25b815483ea20f77b065df9a47c63210f790 --`
       reported an identical tracked tree. Committing that index would create one
       rollback commit without a product/data migration.
+- [x] The older range ending at audited transition head `b88a425...` is not
+      claimed as runnable from the accepted metadata state: it conflicts there.
+      A descendant may re-prove `707b25b...CURRENT_HEAD` only while every later
+      commit remains inside the governance-only transition/acceptance surface.
+      Product, runtime, data, deployment, or unrelated descendants require a
+      separately scoped rollback and must never be swept into this range.
 
 ## Independent Roasts
 
-| Review | Evidence ID | Exact commit | P1 | P2 | Verdict | Limitation |
-|---|---|---|---:|---:|---|---|
-| `authority_coherence` | `roast:authority-coherence:b88a42557` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Router and claim coherence only; no product/runtime proof. |
-| `legacy_evidence_preservation` | `roast:legacy-preservation:b88a42557` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Byte preservation and open device caveat only; no fresh device proof. |
-| `guard_hostile_mutation_quality` | `roast:guard-hostile-mutations:b88a42557` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Guard/mutation quality only; no product behavior proof. |
+| Review | Evidence ID | Durable artifact | Exact commit | P1 | P2 | Verdict | Limitation |
+|---|---|---|---|---:|---:|---|---|
+| `authority_coherence` | `roast:authority-coherence:b88a42557` | [`evidence/authority-coherence-b88a42557.yaml`](evidence/authority-coherence-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Router and claim coherence only; no product/runtime proof. |
+| `legacy_evidence_preservation` | `roast:legacy-preservation:b88a42557` | [`evidence/legacy-preservation-b88a42557.yaml`](evidence/legacy-preservation-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Byte preservation and open device caveat only; no fresh device proof. |
+| `guard_hostile_mutation_quality` | `roast:guard-hostile-mutations:b88a42557` | [`evidence/guard-hostile-mutations-b88a42557.yaml`](evidence/guard-hostile-mutations-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Guard/mutation quality only; no product behavior proof. |
 
 ## Promotion Verdict
 

@@ -189,6 +189,29 @@ def test_changed_file_outside_whitelist_fails(tmp_path: Path) -> None:
         for error in _errors(root, ["apps/mobile/lib/unscoped_surface.dart"])
     )
 
+
+def test_authority_roast_evidence_whitelist_is_exact(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+    exact = [
+        ".planning/phases/mint-next-architecture-authority-20260802/evidence/authority-coherence-b88a42557.yaml",
+        ".planning/phases/mint-next-architecture-authority-20260802/evidence/legacy-preservation-b88a42557.yaml",
+        ".planning/phases/mint-next-architecture-authority-20260802/evidence/guard-hostile-mutations-b88a42557.yaml",
+    ]
+    assert not any(
+        "outside Journey OS whitelist" in error for error in _errors(root, exact)
+    )
+    surprise = exact + [
+        ".planning/phases/mint-next-architecture-authority-20260802/evidence/fabricated.yaml"
+    ]
+    assert any(
+        "outside Journey OS whitelist" in error
+        and "fabricated.yaml" in error
+        for error in _errors(root, surprise)
+    )
+
 def test_active_context_branch_authorization_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)
     _record(root)

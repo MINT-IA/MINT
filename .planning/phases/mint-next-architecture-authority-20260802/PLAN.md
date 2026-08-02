@@ -77,9 +77,21 @@ Stop rather than paper over the conflict if:
 
 ## Rollback
 
-The reviewed transition is the contiguous commit range
-`707b25b815483ea20f77b065df9a47c63210f790..b88a425573eb93508a554ca9e3c9a7bfd72f5d46`.
+The accepted transition plus its acceptance metadata is the contiguous range
+`707b25b815483ea20f77b065df9a47c63210f790..73406990db57a2c7079dbba2784a45c85a151090`.
 Reverse-applying that exact range with `git revert --no-commit` and then making
-one rollback commit restores the baseline tracked tree. This was proven in a
-clean clone before acceptance. No data migration or deployment rollback is
-needed because this phase has no runtime effect.
+one rollback commit restores the baseline tracked tree. This was proven from
+accepted metadata head `73406990db57a2c7079dbba2784a45c85a151090`
+in a clean clone. The earlier range ending at audited head `b88a425...` is
+historical audit evidence only and is not a valid rollback command from the
+accepted state.
+
+If commits descend from the accepted metadata head **and every descendant stays
+inside this declared governance-only transition/acceptance surface**, rollback
+must use `707b25b815483ea20f77b065df9a47c63210f790..CURRENT_HEAD` and must first
+be re-proven in a clean clone to restore the baseline tree exactly; do not reuse
+a stale terminal SHA. Once product, runtime, data, deployment, or unrelated
+history descends from this phase, that broad range is forbidden: use a newly
+scoped rollback that reverts only the governance commits and separately handles
+each later surface. No data migration or deployment rollback is needed for this
+phase itself because it has no runtime effect.

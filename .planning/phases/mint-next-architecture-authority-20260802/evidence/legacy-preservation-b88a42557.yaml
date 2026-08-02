@@ -1,0 +1,24 @@
+schema_version: 1
+evidence_id: roast:legacy-preservation:b88a42557
+review: legacy_evidence_preservation
+reviewer: authority_roast_preservation
+audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+verdict: PASS
+p1: 0
+p2: 0
+limitation: Byte preservation and the open device caveat only; no fresh device proof.
+source: independent_agent_result_captured_in_repo
+captured_at: '2026-08-02T07:28:44Z'
+checks:
+- command: git rev-parse 707b25b815483ea20f77b065df9a47c63210f790:{path} && git rev-parse b88a425573eb93508a554ca9e3c9a7bfd72f5d46:{path}
+  exit: 0
+  evidence: 'Identical tree IDs: retirement phase a3b21c7b9ddf458f432318e0f8030167c2dcf6f8; apps/mobile f3870e29ea7649dab73e45570f829969cacec887; services/backend ce91bb1891945ac351049a2496b48df57c714b7e; Journey OS 8b075420a6544a75443bfae14d3654976827becd; simulator flows 4049007cfb03e10b1d8564b0c224a191fb368c4a.'
+- command: git diff --quiet 707b25b815483ea20f77b065df9a47c63210f790 b88a425573eb93508a554ca9e3c9a7bfd72f5d46 -- apps/mobile services/backend .planning/journeys tools/simulator/flows .planning/phases/mint-2-0-first-experience-rente-capital
+  exit: 0
+  evidence: No tracked content changed in any protected product, evidence, simulator, or legacy-retirement surface.
+- command: grep -RniE 'Keychain|iCloud|physical.device' .planning/phases/mint-2-0-first-experience-rente-capital
+  exit: 0
+  evidence: The unresolved physical-device Keychain/iCloud restore limitation remained explicitly discoverable.
+- command: python3 tools/checks/mint_next_batch4_architecture_guard.py
+  exit: 0
+  evidence: Batch 4 remained structurally closed and draft_unproven with a null promotion receipt.

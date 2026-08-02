@@ -73,8 +73,14 @@ that MINT Next exists in the application.
 - Existing active-context, phase-contract, rules, Journey OS, workflow, and
   Batch 4 architecture guards pass.
 - The phase diff contains no product/runtime/deployment file.
-- A clean-clone reverse application of the exact audited transition range
-  restores a tracked tree identical to baseline before a rollback commit.
+- A clean-clone reverse application of the exact accepted transition and
+  metadata range through `73406990db57a2c7079dbba2784a45c85a151090`
+  restores a tracked tree identical to baseline before one rollback commit.
+- A descendant HEAD may use a newly proven `baseline..CURRENT_HEAD` rollback
+  range only while every descendant remains within the declared governance-only
+  transition/acceptance surface. If product, runtime, data, deployment, or
+  unrelated history exists, it requires a separately scoped rollback instead;
+  an earlier terminal SHA must not be presented as current-state proof.
 - `VERIFICATION.md` records fresh outputs against one exact commit before the
   phase is described as verified.
 

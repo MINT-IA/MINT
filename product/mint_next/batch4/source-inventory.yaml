@@ -8,7 +8,7 @@ sources:
   sha256: 41bcb068b6db45938adfa0476bf4b8c930a2f6523b831411d4aae1b807291a56
   role: governance_authority_verified
 - path: .planning/STATE.md
-  sha256: cb98e86a6bfa8f62cb2571fb984c0e9a27df85e1187aa7f84c4b921ce517800a
+  sha256: 2ceec6c89f5076aba50e01392d118fb0183cc3235bf934084199e79d65191772
   role: governance_authority_verified
 - path: .planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md
   sha256: 7714cc2ba2784eaa3ce33dce93e8aec2f1bb3b61cda6c0eb69e08350da78109e
