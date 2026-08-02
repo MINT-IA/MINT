@@ -184,4 +184,159 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
   @override
   String get nextStepBody =>
       'The next question will ask what you have already paid this year. It will be added in the next small batch. Nothing is saved.';
+
+  @override
+  String get quitJourney => 'Leave this journey';
+
+  @override
+  String contributionEyebrow(int taxYear) {
+    return 'YOUR 3A CONTRIBUTIONS · $taxYear';
+  }
+
+  @override
+  String contributionTitle(int taxYear) {
+    return 'In $taxYear, did one of your pillar 3a accounts receive a new contribution?';
+  }
+
+  @override
+  String get contributionBody =>
+      'Answer for all your pillar 3a accounts, including a 3a insurance policy.';
+
+  @override
+  String contributionCreditedNote(int taxYear) {
+    return 'Count only new money received for $taxYear. A payment merely sent or debited does not count yet; nor do a transfer, investment return or fee refund.';
+  }
+
+  @override
+  String get contributionAmountNote =>
+      'You do not need the total yet. We will ask for it only if you answer yes.';
+
+  @override
+  String get contributionChoiceYes => 'Yes, a new contribution was received';
+
+  @override
+  String get contributionChoiceNo => 'No, no new contribution';
+
+  @override
+  String get contributionChoiceUnknown => 'I don’t know';
+
+  @override
+  String contributionChoiceGroupLabel(int taxYear) {
+    return 'New pillar 3a contributions received in $taxYear';
+  }
+
+  @override
+  String get contributionEdgeHelp => 'What counts — and what does not';
+
+  @override
+  String get contributionEdgePending =>
+      'A scheduled, sent or debited payment counts only once your pillar 3a receives it.';
+
+  @override
+  String get contributionEdgeTransfer =>
+      'Do not count a transfer between two pillar 3a providers: it is not new money.';
+
+  @override
+  String get contributionEdgeBuyback =>
+      'Keep a retroactive buyback for a past year separate.';
+
+  @override
+  String get contributionEdgeFullRefund =>
+      'After a full refund, answer no if no effective ordinary contribution remains.';
+
+  @override
+  String get contributionEdgePartialRefund =>
+      'After a partial refund, answer yes if the provider confirms a positive net amount remains.';
+
+  @override
+  String get contributionEdgeUnclearCorrection =>
+      'If a correction makes the effective amount unclear, choose “I don’t know”.';
+
+  @override
+  String get contributionEdgeMixedTransfer =>
+      'If a transfer and new money arrive together, count only the new money.';
+
+  @override
+  String get contributionEdgeReturn =>
+      'Do not count investment returns or interest as a contribution.';
+
+  @override
+  String get contributionEdgeAdjustment =>
+      'Do not count a fee refund, rebate or other adjustment.';
+
+  @override
+  String get contributionUnknownEyebrow => 'NO PROBLEM';
+
+  @override
+  String get contributionUnknownTitle =>
+      'You can check without adding it up yourself.';
+
+  @override
+  String contributionUnknownBody(int taxYear) {
+    return 'Check whether an ordinary contribution was received for $taxYear on each of your pillar 3a accounts. If a transfer, buyback or refund makes the answer unclear, keep “I don’t know”.';
+  }
+
+  @override
+  String get contributionUnknownListLabel => 'How to check without guessing';
+
+  @override
+  String contributionUnknownProviderStatement(int taxYear) {
+    return 'In each bank or fintech app or statement, look for a credit received for $taxYear.';
+  }
+
+  @override
+  String get contributionUnknownInsuranceCertificate =>
+      'For a pillar 3a insurance policy, check the annual certificate or ask which ordinary contribution was received.';
+
+  @override
+  String get contributionUnknownProviderQuestion =>
+      'If unsure, ask the provider whether the movement is an ordinary contribution, transfer, buyback or refund.';
+
+  @override
+  String get contributionUnknownTransferWarning =>
+      'Never add a transfer between two pillar 3a accounts. That would count the same money twice.';
+
+  @override
+  String get contributionUnknownEducationLimit =>
+      'You may continue without a personal amount. MINT will show only a general explanation.';
+
+  @override
+  String get contributionUnknownContinueEducation =>
+      'Continue with a general explanation';
+
+  @override
+  String get contributionBackToQuestion => 'Back to the question';
+
+  @override
+  String contributionAmountBoundaryTitle(int taxYear) {
+    return 'Next, MINT will ask for the ordinary total already received for $taxYear.';
+  }
+
+  @override
+  String contributionAmountBoundaryBody(int taxYear) {
+    return 'The total must cover all your pillar 3a accounts and policies. After a partial refund, you can use the net amount confirmed by the provider. For now, no amount is known or calculated.';
+  }
+
+  @override
+  String contributionCantonBoundaryTitle(int taxYear) {
+    return 'Based on your answer, no ordinary contribution is included for $taxYear.';
+  }
+
+  @override
+  String get contributionCantonBoundaryBody =>
+      'No personal tax result has been calculated. The next step will ask for your canton.';
+
+  @override
+  String get contributionBoundaryBack => 'Correct my answer';
+
+  @override
+  String get contributionEducationTitle =>
+      'You can understand the rule without giving an amount.';
+
+  @override
+  String get contributionEducationBody =>
+      'This explanation remains general: no personal amount, pillar 3a room or personal tax saving is calculated.';
+
+  @override
+  String get contributionEducationBack => 'Back to the checks';
 }

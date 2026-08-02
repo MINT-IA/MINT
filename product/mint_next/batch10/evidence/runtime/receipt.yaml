@@ -1,0 +1,55 @@
+schema_version: 1
+status: candidate_runtime_evidence_not_promotion
+captured_at: '2026-08-02T22:55:00+02:00'
+runner: local_real_chrome_cdp_flutter_web_release
+viewport:
+  width: 390
+  height: 844
+  device_scale_factor: 1
+app:
+  path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  sha256: 304baea8a795861ac2e1da6244c605600a74707f0726b25b1e813025efed8777
+probe:
+  path: tools/checks/mint_next_batch10_contribution_runtime_probe.py
+  sha256: 013cc60a2ed1a9afd8a950b46c71f8b98611990884e16f71cecaa7783297169f
+commands:
+- flutter analyze
+- flutter test
+- python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py --capture
+assertions:
+- question_has_no_default_or_personal_amount
+- yes_no_unknown_physical_routes
+- back_restores_selection
+- same_node_disclosure_classifies_neighboring_movements
+- unknown_continues_education_only
+- safe_exit_resume_preserves_state
+- leave_without_saving_purges_all_ephemeral_facts
+- real_runtime_has_no_external_https_resource
+captures:
+- path: product/mint_next/batch10/evidence/runtime/fr_contribution_disclosure_chrome_390.png
+  sha256: f1b18999544de8d42ad20963c8ddabf459d7516feba1b21bfb49747d2008f07f
+  width: 390
+  height: 844
+- path: product/mint_next/batch10/evidence/runtime/fr_contribution_no_boundary_chrome_390.png
+  sha256: 6c9c63ef3e9c6cea1134e75a316a9671914b43ef7d002c808d6bf4d047a84b5d
+  width: 390
+  height: 844
+- path: product/mint_next/batch10/evidence/runtime/fr_contribution_question_chrome_390.png
+  sha256: 82821afdad75b2a08aecc75bf2a79671b261c1fcb41494c81de9fe97fa771708
+  width: 390
+  height: 844
+- path: product/mint_next/batch10/evidence/runtime/fr_contribution_unknown_chrome_390.png
+  sha256: 235339531764b374f10d7deed07f89ff941d1ba86dd093c5dea2a95c604c66cf
+  width: 390
+  height: 844
+- path: product/mint_next/batch10/evidence/runtime/fr_contribution_yes_boundary_chrome_390.png
+  sha256: 76482e1525891569ba35dae942e539ed6db9673f2f36f1e2a9b93c31e2ff6a2c
+  width: 390
+  height: 844
+limitations:
+- candidate_not_yet_roasted
+- not_product_integrated
+- ios_not_run
+- android_not_run
+- external_ci_not_run
+- user_not_validated

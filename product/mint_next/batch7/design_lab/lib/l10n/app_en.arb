@@ -71,5 +71,107 @@
   "withoutLppKeepExplanation": "Keep this explanation on this device",
   "nextStepEyebrow": "NEXT STEP",
   "nextStepTitle": "Your affiliation is clear.",
-  "nextStepBody": "The next question will ask what you have already paid this year. It will be added in the next small batch. Nothing is saved."
+  "nextStepBody": "The next question will ask what you have already paid this year. It will be added in the next small batch. Nothing is saved.",
+  "quitJourney": "Leave this journey",
+  "contributionEyebrow": "YOUR 3A CONTRIBUTIONS · {taxYear}",
+  "contributionTitle": "In {taxYear}, did one of your pillar 3a accounts receive a new contribution?",
+  "contributionBody": "Answer for all your pillar 3a accounts, including a 3a insurance policy.",
+  "contributionCreditedNote": "Count only new money received for {taxYear}. A payment merely sent or debited does not count yet; nor do a transfer, investment return or fee refund.",
+  "contributionAmountNote": "You do not need the total yet. We will ask for it only if you answer yes.",
+  "contributionChoiceYes": "Yes, a new contribution was received",
+  "contributionChoiceNo": "No, no new contribution",
+  "contributionChoiceUnknown": "I don’t know",
+  "contributionChoiceGroupLabel": "New pillar 3a contributions received in {taxYear}",
+  "contributionEdgeHelp": "What counts — and what does not",
+  "contributionEdgePending": "A scheduled, sent or debited payment counts only once your pillar 3a receives it.",
+  "contributionEdgeTransfer": "Do not count a transfer between two pillar 3a providers: it is not new money.",
+  "contributionEdgeBuyback": "Keep a retroactive buyback for a past year separate.",
+  "contributionEdgeFullRefund": "After a full refund, answer no if no effective ordinary contribution remains.",
+  "contributionEdgePartialRefund": "After a partial refund, answer yes if the provider confirms a positive net amount remains.",
+  "contributionEdgeUnclearCorrection": "If a correction makes the effective amount unclear, choose “I don’t know”.",
+  "contributionEdgeMixedTransfer": "If a transfer and new money arrive together, count only the new money.",
+  "contributionEdgeReturn": "Do not count investment returns or interest as a contribution.",
+  "contributionEdgeAdjustment": "Do not count a fee refund, rebate or other adjustment.",
+  "contributionUnknownEyebrow": "NO PROBLEM",
+  "contributionUnknownTitle": "You can check without adding it up yourself.",
+  "contributionUnknownBody": "Check whether an ordinary contribution was received for {taxYear} on each of your pillar 3a accounts. If a transfer, buyback or refund makes the answer unclear, keep “I don’t know”.",
+  "contributionUnknownListLabel": "How to check without guessing",
+  "contributionUnknownProviderStatement": "In each bank or fintech app or statement, look for a credit received for {taxYear}.",
+  "contributionUnknownInsuranceCertificate": "For a pillar 3a insurance policy, check the annual certificate or ask which ordinary contribution was received.",
+  "contributionUnknownProviderQuestion": "If unsure, ask the provider whether the movement is an ordinary contribution, transfer, buyback or refund.",
+  "contributionUnknownTransferWarning": "Never add a transfer between two pillar 3a accounts. That would count the same money twice.",
+  "contributionUnknownEducationLimit": "You may continue without a personal amount. MINT will show only a general explanation.",
+  "contributionUnknownContinueEducation": "Continue with a general explanation",
+  "contributionBackToQuestion": "Back to the question",
+  "contributionAmountBoundaryTitle": "Next, MINT will ask for the ordinary total already received for {taxYear}.",
+  "contributionAmountBoundaryBody": "The total must cover all your pillar 3a accounts and policies. After a partial refund, you can use the net amount confirmed by the provider. For now, no amount is known or calculated.",
+  "contributionCantonBoundaryTitle": "Based on your answer, no ordinary contribution is included for {taxYear}.",
+  "contributionCantonBoundaryBody": "No personal tax result has been calculated. The next step will ask for your canton.",
+  "contributionBoundaryBack": "Correct my answer",
+  "contributionEducationTitle": "You can understand the rule without giving an amount.",
+  "contributionEducationBody": "This explanation remains general: no personal amount, pillar 3a room or personal tax saving is calculated.",
+  "contributionEducationBack": "Back to the checks",
+  "@contributionEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCreditedNote": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionChoiceGroupLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownProviderStatement": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCantonBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
 }

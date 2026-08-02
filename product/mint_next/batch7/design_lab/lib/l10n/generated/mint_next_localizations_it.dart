@@ -186,4 +186,160 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
   @override
   String get nextStepBody =>
       'La prossima domanda riguarderà ciò che hai già versato quest’anno. Sarà aggiunta nel prossimo piccolo lotto. Nulla viene salvato.';
+
+  @override
+  String get quitJourney => 'Uscire da questo percorso';
+
+  @override
+  String contributionEyebrow(int taxYear) {
+    return 'I TUOI VERSAMENTI 3A · $taxYear';
+  }
+
+  @override
+  String contributionTitle(int taxYear) {
+    return 'Nel $taxYear, uno dei tuoi pilastri 3a ha ricevuto un nuovo versamento?';
+  }
+
+  @override
+  String get contributionBody =>
+      'Rispondi considerando tutti i tuoi pilastri 3a, compresa un’assicurazione 3a.';
+
+  @override
+  String contributionCreditedNote(int taxYear) {
+    return 'Conta solo il denaro nuovo ricevuto per il $taxYear. Un pagamento soltanto inviato o addebitato non conta ancora; nemmeno un trasferimento, un rendimento o un rimborso di spese.';
+  }
+
+  @override
+  String get contributionAmountNote =>
+      'Non devi ancora conoscere il totale. Te lo chiederemo solo se rispondi sì.';
+
+  @override
+  String get contributionChoiceYes =>
+      'Sì, è stato ricevuto un nuovo versamento';
+
+  @override
+  String get contributionChoiceNo => 'No, nessun nuovo versamento';
+
+  @override
+  String get contributionChoiceUnknown => 'Non lo so';
+
+  @override
+  String contributionChoiceGroupLabel(int taxYear) {
+    return 'Nuovi versamenti 3a ricevuti nel $taxYear';
+  }
+
+  @override
+  String get contributionEdgeHelp => 'Che cosa conta — e che cosa no';
+
+  @override
+  String get contributionEdgePending =>
+      'Un pagamento pianificato, inviato o addebitato conta solo quando arriva sul tuo 3a.';
+
+  @override
+  String get contributionEdgeTransfer =>
+      'Non contare un trasferimento tra due pilastri 3a: non è denaro nuovo.';
+
+  @override
+  String get contributionEdgeBuyback =>
+      'Tieni separato un riscatto retroattivo per un anno passato.';
+
+  @override
+  String get contributionEdgeFullRefund =>
+      'Dopo un rimborso totale, rispondi no se non resta alcun versamento ordinario effettivo.';
+
+  @override
+  String get contributionEdgePartialRefund =>
+      'Dopo un rimborso parziale, rispondi sì se l’istituto conferma un importo netto positivo.';
+
+  @override
+  String get contributionEdgeUnclearCorrection =>
+      'Se una correzione rende incerto l’importo effettivo, scegli «Non lo so».';
+
+  @override
+  String get contributionEdgeMixedTransfer =>
+      'Se arrivano insieme un trasferimento e denaro nuovo, conta solo il denaro nuovo.';
+
+  @override
+  String get contributionEdgeReturn =>
+      'Non contare rendimenti o interessi come versamento.';
+
+  @override
+  String get contributionEdgeAdjustment =>
+      'Non contare rimborsi di spese, accrediti o altre rettifiche.';
+
+  @override
+  String get contributionUnknownEyebrow => 'NESSUN PROBLEMA';
+
+  @override
+  String get contributionUnknownTitle =>
+      'Puoi verificare senza fare tu la somma.';
+
+  @override
+  String contributionUnknownBody(int taxYear) {
+    return 'Controlla su ogni tuo 3a se nel $taxYear è stato ricevuto un versamento ordinario. Se un trasferimento, riscatto o rimborso rende incerta la risposta, mantieni «Non lo so».';
+  }
+
+  @override
+  String get contributionUnknownListLabel => 'Come verificare senza indovinare';
+
+  @override
+  String contributionUnknownProviderStatement(int taxYear) {
+    return 'Nell’app o nell’estratto di ogni banca o fintech 3a, cerca un accredito ricevuto per il $taxYear.';
+  }
+
+  @override
+  String get contributionUnknownInsuranceCertificate =>
+      'Per un’assicurazione 3a, consulta l’attestazione annuale o chiedi quale versamento ordinario è stato ricevuto.';
+
+  @override
+  String get contributionUnknownProviderQuestion =>
+      'In caso di dubbio, chiedi all’istituto se il movimento è un versamento ordinario, un trasferimento, un riscatto o un rimborso.';
+
+  @override
+  String get contributionUnknownTransferWarning =>
+      'Non sommare mai un trasferimento tra due 3a: conteresti due volte lo stesso denaro.';
+
+  @override
+  String get contributionUnknownEducationLimit =>
+      'Puoi continuare senza un importo personale. MINT mostrerà solo una spiegazione generale.';
+
+  @override
+  String get contributionUnknownContinueEducation =>
+      'Continuare con una spiegazione generale';
+
+  @override
+  String get contributionBackToQuestion => 'Tornare alla domanda';
+
+  @override
+  String contributionAmountBoundaryTitle(int taxYear) {
+    return 'In seguito MINT chiederà il totale ordinario già ricevuto per il $taxYear.';
+  }
+
+  @override
+  String contributionAmountBoundaryBody(int taxYear) {
+    return 'Il totale dovrà comprendere tutti i tuoi conti e le tue polizze 3a. Dopo un rimborso parziale potrai usare l’importo netto confermato dall’istituto. Per ora nessun importo è noto o calcolato.';
+  }
+
+  @override
+  String contributionCantonBoundaryTitle(int taxYear) {
+    return 'In base alla tua risposta, per il $taxYear non viene considerato alcun versamento ordinario.';
+  }
+
+  @override
+  String get contributionCantonBoundaryBody =>
+      'Non è ancora stato calcolato alcun risultato fiscale personale. Il prossimo passo chiederà il tuo cantone.';
+
+  @override
+  String get contributionBoundaryBack => 'Correggere la risposta';
+
+  @override
+  String get contributionEducationTitle =>
+      'Puoi capire la regola senza indicare un importo.';
+
+  @override
+  String get contributionEducationBody =>
+      'Questa spiegazione resta generale: non vengono calcolati importi personali, margine 3a o risparmi fiscali personali.';
+
+  @override
+  String get contributionEducationBack => 'Tornare alle verifiche';
 }

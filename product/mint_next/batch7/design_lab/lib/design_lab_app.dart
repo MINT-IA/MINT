@@ -10,16 +10,28 @@ enum _DesignNode {
   lppUnknownHelp,
   withoutLppBoundary,
   factContribution,
+  contributionUnknownHelp,
+  factContributedAmount,
+  factCanton,
+  educationExplanation,
   dismissed,
 }
 
 enum _LppAffiliation { yes, no, unknown }
 
+enum _ContributionStatus { yes, no, unknown }
+
 class MintNextDesignLabApp extends StatelessWidget {
-  const MintNextDesignLabApp({super.key, this.locale, this.textScaler});
+  const MintNextDesignLabApp({
+    super.key,
+    this.locale,
+    this.textScaler,
+    this.currentYear,
+  });
 
   final Locale? locale;
   final TextScaler? textScaler;
+  final int? currentYear;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +45,7 @@ class MintNextDesignLabApp extends StatelessWidget {
         data: MediaQuery.of(context).copyWith(textScaler: textScaler),
         child: child!,
       ),
-      home: const _DesignLabJourney(),
+      home: _DesignLabJourney(currentYear: currentYear ?? DateTime.now().year),
     );
   }
 }
@@ -77,7 +89,9 @@ final _theme = ThemeData(
 );
 
 class _DesignLabJourney extends StatefulWidget {
-  const _DesignLabJourney();
+  const _DesignLabJourney({required this.currentYear});
+
+  final int currentYear;
 
   @override
   State<_DesignLabJourney> createState() => _DesignLabJourneyState();
@@ -87,13 +101,43 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   _DesignNode _node = _DesignNode.today3aIntent;
   int? _taxYear;
   _LppAffiliation? _lppAffiliation;
+  _ContributionStatus? _contributionStatus;
+  bool _contributionEdgeHelpExpanded = false;
+  final FocusNode _safeExitTriggerFocus = FocusNode(
+    debugLabel: 'safe exit trigger',
+  );
+
+  @override
+  void didUpdateWidget(covariant _DesignLabJourney oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentYear != widget.currentYear) {
+      _clearEphemeralFacts();
+      _node = _DesignNode.today3aIntent;
+    }
+  }
+
+  @override
+  void dispose() {
+    _safeExitTriggerFocus.dispose();
+    super.dispose();
+  }
 
   void _go(_DesignNode node) => setState(() => _node = node);
 
+  void _clearContributionFacts() {
+    _contributionStatus = null;
+    _contributionEdgeHelpExpanded = false;
+  }
+
+  void _clearEphemeralFacts() {
+    _taxYear = null;
+    _lppAffiliation = null;
+    _clearContributionFacts();
+  }
+
   void _leaveWithoutSaving() {
     setState(() {
-      _taxYear = null;
-      _lppAffiliation = null;
+      _clearEphemeralFacts();
       _node = _DesignNode.dismissed;
     });
   }
@@ -106,24 +150,31 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _DesignNode.lppUnknownHelp => 'lpp_unknown_help',
     _DesignNode.withoutLppBoundary => 'without_lpp_boundary',
     _DesignNode.factContribution => 'fact_contribution',
+    _DesignNode.contributionUnknownHelp => 'contribution_unknown_help',
+    _DesignNode.factContributedAmount => 'fact_contributed_amount',
+    _DesignNode.factCanton => 'fact_canton',
+    _DesignNode.educationExplanation => 'education_explanation',
     _DesignNode.dismissed => 'dismissed',
   };
 
   Future<void> _showSafeExit() async {
     final l10n = MintNextLocalizations.of(context);
-    await showModalBottomSheet<void>(
+    final leftJourney = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       backgroundColor: _paper,
       builder: (sheetContext) => _SafeExitSheet(
         l10n: l10n,
-        onResume: () => Navigator.pop(sheetContext),
+        onResume: () => Navigator.pop(sheetContext, false),
         onLeave: () {
-          Navigator.pop(sheetContext);
+          Navigator.pop(sheetContext, true);
           _leaveWithoutSaving();
         },
       ),
     );
+    if (mounted && leftJourney != true) {
+      _safeExitTriggerFocus.requestFocus();
+    }
   }
 
   @override
@@ -133,7 +184,11 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
       body: SafeArea(
         child: Column(
           children: [
-            _Header(nodeId: _nodeId, onExit: _showSafeExit),
+            _Header(
+              nodeId: _nodeId,
+              onExit: _showSafeExit,
+              exitFocusNode: _safeExitTriggerFocus,
+            ),
             Expanded(
               child: AnimatedSwitcher(
                 duration: MediaQuery.disableAnimationsOf(context)
@@ -152,15 +207,25 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                     ),
                     _DesignNode.factTaxYear => _TaxYear(
                       selectedYear: _taxYear,
-                      onSelect: () =>
-                          setState(() => _taxYear = DateTime.now().year),
+                      currentYear: widget.currentYear,
+                      onSelect: () => setState(() {
+                        if (_taxYear != widget.currentYear) {
+                          _clearContributionFacts();
+                        }
+                        _taxYear = widget.currentYear;
+                      }),
                       onBack: () => _go(_DesignNode.orientation),
                       onContinue: () => _go(_DesignNode.factLppAffiliation),
                     ),
                     _DesignNode.factLppAffiliation => _LppQuestion(
                       selected: _lppAffiliation,
                       onChoose: (value) {
-                        setState(() => _lppAffiliation = value);
+                        setState(() {
+                          if (_lppAffiliation != value) {
+                            _clearContributionFacts();
+                          }
+                          _lppAffiliation = value;
+                        });
                         _go(switch (value) {
                           _LppAffiliation.yes => _DesignNode.factContribution,
                           _LppAffiliation.no => _DesignNode.withoutLppBoundary,
@@ -175,8 +240,44 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                     _DesignNode.withoutLppBoundary => _WithoutLppBoundary(
                       onBack: () => _go(_DesignNode.factLppAffiliation),
                     ),
-                    _DesignNode.factContribution => _ContributionBoundary(
+                    _DesignNode.factContribution => _ContributionQuestion(
+                      taxYear: _taxYear!,
+                      selected: _contributionStatus,
+                      edgeHelpExpanded: _contributionEdgeHelpExpanded,
+                      onToggleEdgeHelp: () => setState(
+                        () => _contributionEdgeHelpExpanded =
+                            !_contributionEdgeHelpExpanded,
+                      ),
+                      onChoose: (value) {
+                        setState(() => _contributionStatus = value);
+                        _go(switch (value) {
+                          _ContributionStatus.yes =>
+                            _DesignNode.factContributedAmount,
+                          _ContributionStatus.no => _DesignNode.factCanton,
+                          _ContributionStatus.unknown =>
+                            _DesignNode.contributionUnknownHelp,
+                        });
+                      },
                       onBack: () => _go(_DesignNode.factLppAffiliation),
+                    ),
+                    _DesignNode.contributionUnknownHelp =>
+                      _ContributionUnknownHelp(
+                        taxYear: _taxYear!,
+                        onContinueEducation: () =>
+                            _go(_DesignNode.educationExplanation),
+                        onBack: () => _go(_DesignNode.factContribution),
+                      ),
+                    _DesignNode.factContributedAmount =>
+                      _ContributionAmountBoundary(
+                        taxYear: _taxYear!,
+                        onBack: () => _go(_DesignNode.factContribution),
+                      ),
+                    _DesignNode.factCanton => _CantonBoundary(
+                      taxYear: _taxYear!,
+                      onBack: () => _go(_DesignNode.factContribution),
+                    ),
+                    _DesignNode.educationExplanation => _EducationBoundary(
+                      onBack: () => _go(_DesignNode.contributionUnknownHelp),
                     ),
                     _DesignNode.dismissed => _Terminal(
                       title: l10n.dismissedTitle,
@@ -194,9 +295,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
 }
 
 class _Header extends StatelessWidget {
-  const _Header({required this.nodeId, required this.onExit});
+  const _Header({
+    required this.nodeId,
+    required this.onExit,
+    required this.exitFocusNode,
+  });
   final String nodeId;
   final VoidCallback onExit;
+  final FocusNode exitFocusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +332,8 @@ class _Header extends StatelessWidget {
           if (largeText)
             IconButton(
               key: ValueKey('action:$nodeId.open_safe_exit'),
-              tooltip: l10n.quit,
+              focusNode: exitFocusNode,
+              tooltip: l10n.quitJourney,
               onPressed: onExit,
               icon: const ExcludeSemantics(
                 child: Text(
@@ -239,6 +346,8 @@ class _Header extends StatelessWidget {
             MintDesignLabAction.text(
               key: ValueKey('action:$nodeId.open_safe_exit'),
               label: l10n.quit,
+              semanticsLabel: l10n.quitJourney,
+              focusNode: exitFocusNode,
               onPressed: onExit,
               compact: true,
             ),
@@ -306,11 +415,13 @@ class _Orientation extends StatelessWidget {
 class _TaxYear extends StatelessWidget {
   const _TaxYear({
     required this.selectedYear,
+    required this.currentYear,
     required this.onSelect,
     required this.onBack,
     required this.onContinue,
   });
   final int? selectedYear;
+  final int currentYear;
   final VoidCallback onSelect;
   final VoidCallback onBack;
   final VoidCallback onContinue;
@@ -318,7 +429,7 @@ class _TaxYear extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = MintNextLocalizations.of(context);
-    final year = DateTime.now().year;
+    final year = currentYear;
     return _Page(
       nodeId: 'fact_tax_year',
       eyebrow: l10n.taxYearEyebrow,
@@ -612,8 +723,21 @@ class _UnavailableReference extends StatelessWidget {
   );
 }
 
-class _ContributionBoundary extends StatelessWidget {
-  const _ContributionBoundary({required this.onBack});
+class _ContributionQuestion extends StatelessWidget {
+  const _ContributionQuestion({
+    required this.taxYear,
+    required this.selected,
+    required this.edgeHelpExpanded,
+    required this.onToggleEdgeHelp,
+    required this.onChoose,
+    required this.onBack,
+  });
+
+  final int taxYear;
+  final _ContributionStatus? selected;
+  final bool edgeHelpExpanded;
+  final VoidCallback onToggleEdgeHelp;
+  final ValueChanged<_ContributionStatus> onChoose;
   final VoidCallback onBack;
 
   @override
@@ -621,14 +745,285 @@ class _ContributionBoundary extends StatelessWidget {
     final l10n = MintNextLocalizations.of(context);
     return _Page(
       nodeId: 'fact_contribution',
-      eyebrow: l10n.nextStepEyebrow,
-      title: l10n.nextStepTitle,
-      body: l10n.nextStepBody,
-      accent: const _QuietOrb(),
+      eyebrow: l10n.contributionEyebrow(taxYear),
+      title: l10n.contributionTitle(taxYear),
+      body: l10n.contributionBody,
+      accent: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _EditorialNote(text: l10n.contributionCreditedNote(taxYear)),
+          const SizedBox(height: 12),
+          Text(
+            l10n.contributionAmountNote,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 18),
+          _DisclosureAction(
+            label: l10n.contributionEdgeHelp,
+            expanded: edgeHelpExpanded,
+            onPressed: onToggleEdgeHelp,
+          ),
+          if (edgeHelpExpanded) ...[
+            const SizedBox(height: 12),
+            Container(
+              key: const ValueKey('content:fact_contribution.edge_help'),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              decoration: BoxDecoration(
+                color: _porcelain,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: _border),
+              ),
+              child: Column(
+                children: [
+                  l10n.contributionEdgePending,
+                  l10n.contributionEdgeTransfer,
+                  l10n.contributionEdgeBuyback,
+                  l10n.contributionEdgeFullRefund,
+                  l10n.contributionEdgePartialRefund,
+                  l10n.contributionEdgeUnclearCorrection,
+                  l10n.contributionEdgeMixedTransfer,
+                  l10n.contributionEdgeReturn,
+                  l10n.contributionEdgeAdjustment,
+                ].map((text) => _MovementRule(text: text)).toList(),
+              ),
+            ),
+          ],
+        ],
+      ),
       actions: [
+        Semantics(
+          key: const ValueKey('group:fact_contribution.choices'),
+          container: true,
+          explicitChildNodes: true,
+          label: l10n.contributionChoiceGroupLabel(taxYear),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _ChoiceAction(
+                actionId: 'action:fact_contribution.choose_yes',
+                label: l10n.contributionChoiceYes,
+                selected: selected == _ContributionStatus.yes,
+                onPressed: () => onChoose(_ContributionStatus.yes),
+              ),
+              const SizedBox(height: 6),
+              _ChoiceAction(
+                actionId: 'action:fact_contribution.choose_no',
+                label: l10n.contributionChoiceNo,
+                selected: selected == _ContributionStatus.no,
+                onPressed: () => onChoose(_ContributionStatus.no),
+              ),
+              const SizedBox(height: 6),
+              _ChoiceAction(
+                actionId: 'action:fact_contribution.choose_unknown',
+                label: l10n.contributionChoiceUnknown,
+                selected: selected == _ContributionStatus.unknown,
+                onPressed: () => onChoose(_ContributionStatus.unknown),
+              ),
+            ],
+          ),
+        ),
         MintDesignLabAction.text(
           key: const ValueKey('action:fact_contribution.back'),
           label: l10n.backLabel,
+          onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
+class _DisclosureAction extends StatelessWidget {
+  const _DisclosureAction({
+    required this.label,
+    required this.expanded,
+    required this.onPressed,
+  });
+
+  final String label;
+  final bool expanded;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    button: true,
+    expanded: expanded,
+    label: label,
+    onTap: onPressed,
+    excludeSemantics: true,
+    child: InkWell(
+      key: const ValueKey('action:fact_contribution.toggle_edge_help'),
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 48),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: _border),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(label, style: Theme.of(context).textTheme.labelLarge),
+            ),
+            Icon(expanded ? Icons.expand_less : Icons.expand_more),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+class _MovementRule extends StatelessWidget {
+  const _MovementRule({required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(top: 3),
+          child: Icon(Icons.arrow_right_rounded, size: 20, color: _coral),
+        ),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    ),
+  );
+}
+
+class _ContributionUnknownHelp extends StatelessWidget {
+  const _ContributionUnknownHelp({
+    required this.taxYear,
+    required this.onContinueEducation,
+    required this.onBack,
+  });
+
+  final int taxYear;
+  final VoidCallback onContinueEducation;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'contribution_unknown_help',
+      eyebrow: l10n.contributionUnknownEyebrow,
+      title: l10n.contributionUnknownTitle,
+      body: l10n.contributionUnknownBody(taxYear),
+      accent: Semantics(
+        label: l10n.contributionUnknownListLabel,
+        child: Column(
+          children:
+              [
+                    l10n.contributionUnknownProviderStatement(taxYear),
+                    l10n.contributionUnknownInsuranceCertificate,
+                    l10n.contributionUnknownProviderQuestion,
+                    l10n.contributionUnknownTransferWarning,
+                    l10n.contributionUnknownEducationLimit,
+                  ]
+                  .asMap()
+                  .entries
+                  .map(
+                    (entry) =>
+                        _ChecklistRow(number: entry.key + 1, text: entry.value),
+                  )
+                  .toList(),
+        ),
+      ),
+      actions: [
+        MintDesignLabAction(
+          key: const ValueKey(
+            'action:contribution_unknown_help.continue_education_only',
+          ),
+          label: l10n.contributionUnknownContinueEducation,
+          onPressed: onContinueEducation,
+        ),
+        MintDesignLabAction.text(
+          key: const ValueKey('action:contribution_unknown_help.back'),
+          label: l10n.contributionBackToQuestion,
+          onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
+class _ContributionAmountBoundary extends StatelessWidget {
+  const _ContributionAmountBoundary({
+    required this.taxYear,
+    required this.onBack,
+  });
+  final int taxYear;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'fact_contributed_amount',
+      eyebrow: l10n.nextStepEyebrow,
+      title: l10n.contributionAmountBoundaryTitle(taxYear),
+      body: l10n.contributionAmountBoundaryBody(taxYear),
+      accent: const _QuietOrb(),
+      actions: [
+        MintDesignLabAction.text(
+          key: const ValueKey('action:fact_contributed_amount.back'),
+          label: l10n.contributionBoundaryBack,
+          onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
+class _CantonBoundary extends StatelessWidget {
+  const _CantonBoundary({required this.taxYear, required this.onBack});
+  final int taxYear;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'fact_canton',
+      eyebrow: l10n.nextStepEyebrow,
+      title: l10n.contributionCantonBoundaryTitle(taxYear),
+      body: l10n.contributionCantonBoundaryBody,
+      accent: const _QuietOrb(),
+      actions: [
+        MintDesignLabAction.text(
+          key: const ValueKey('action:fact_canton.back'),
+          label: l10n.contributionBoundaryBack,
+          onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
+class _EducationBoundary extends StatelessWidget {
+  const _EducationBoundary({required this.onBack});
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'education_explanation',
+      eyebrow: l10n.contributionUnknownEyebrow,
+      title: l10n.contributionEducationTitle,
+      body: l10n.contributionEducationBody,
+      accent: const _QuietOrb(),
+      actions: [
+        MintDesignLabAction.text(
+          key: const ValueKey('action:education_explanation.back'),
+          label: l10n.contributionEducationBack,
           onPressed: onBack,
         ),
       ],
@@ -774,10 +1169,20 @@ class _SafeExitSheet extends StatefulWidget {
 
 class _SafeExitSheetState extends State<_SafeExitSheet> {
   final ScrollController _controller = ScrollController();
+  final FocusNode _headingFocus = FocusNode(debugLabel: 'safe exit heading');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _headingFocus.requestFocus();
+    });
+  }
 
   @override
   void dispose() {
     _controller.dispose();
+    _headingFocus.dispose();
     super.dispose();
   }
 
@@ -795,7 +1200,14 @@ class _SafeExitSheetState extends State<_SafeExitSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(widget.l10n.safeExitTitle, style: _editorial(30)),
+            Focus(
+              key: const ValueKey('heading:safe_exit'),
+              focusNode: _headingFocus,
+              child: Semantics(
+                header: true,
+                child: Text(widget.l10n.safeExitTitle, style: _editorial(30)),
+              ),
+            ),
             const SizedBox(height: 12),
             Text(
               widget.l10n.safeExitBody,
@@ -901,23 +1313,31 @@ class MintDesignLabAction extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.compact = false,
+    this.semanticsLabel,
+    this.focusNode,
   }) : tone = MintActionTone.primary;
   const MintDesignLabAction.secondary({
     super.key,
     required this.label,
     required this.onPressed,
     this.compact = false,
+    this.semanticsLabel,
+    this.focusNode,
   }) : tone = MintActionTone.secondary;
   const MintDesignLabAction.text({
     super.key,
     required this.label,
     required this.onPressed,
     this.compact = false,
+    this.semanticsLabel,
+    this.focusNode,
   }) : tone = MintActionTone.text;
 
   final String label;
   final VoidCallback? onPressed;
   final bool compact;
+  final String? semanticsLabel;
+  final FocusNode? focusNode;
   final MintActionTone tone;
 
   @override
@@ -940,8 +1360,9 @@ class MintDesignLabAction extends StatelessWidget {
         ),
       ),
     );
-    return switch (tone) {
+    final button = switch (tone) {
       MintActionTone.primary => FilledButton(
+        focusNode: focusNode,
         style: style.copyWith(
           backgroundColor: const WidgetStatePropertyAll(_ink),
           foregroundColor: const WidgetStatePropertyAll(Colors.white),
@@ -950,6 +1371,7 @@ class MintDesignLabAction extends StatelessWidget {
         child: Text(label),
       ),
       MintActionTone.secondary => OutlinedButton(
+        focusNode: focusNode,
         style: style.copyWith(
           foregroundColor: const WidgetStatePropertyAll(_ink),
           side: const WidgetStatePropertyAll(BorderSide(color: _ink)),
@@ -958,6 +1380,7 @@ class MintDesignLabAction extends StatelessWidget {
         child: Text(label),
       ),
       MintActionTone.text => TextButton(
+        focusNode: focusNode,
         style: style.copyWith(
           foregroundColor: const WidgetStatePropertyAll(_secondaryInk),
         ),
@@ -965,5 +1388,14 @@ class MintDesignLabAction extends StatelessWidget {
         child: Text(label),
       ),
     };
+    if (semanticsLabel == null) return button;
+    return Semantics(
+      label: semanticsLabel,
+      button: true,
+      enabled: onPressed != null,
+      onTap: onPressed,
+      excludeSemantics: true,
+      child: button,
+    );
   }
 }

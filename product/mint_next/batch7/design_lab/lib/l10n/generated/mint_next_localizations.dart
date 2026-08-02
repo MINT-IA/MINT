@@ -414,6 +414,240 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'La prochaine question portera sur ce que tu as déjà versé cette année. Elle sera ajoutée dans le prochain petit lot. Rien n’est enregistré.'**
   String get nextStepBody;
+
+  /// No description provided for @quitJourney.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter ce parcours'**
+  String get quitJourney;
+
+  /// No description provided for @contributionEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'TES VERSEMENTS 3A · {taxYear}'**
+  String contributionEyebrow(int taxYear);
+
+  /// No description provided for @contributionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'En {taxYear}, l’un de tes 3a a-t-il reçu un nouveau versement ?'**
+  String contributionTitle(int taxYear);
+
+  /// No description provided for @contributionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds pour tous tes 3a, y compris une assurance 3a.'**
+  String get contributionBody;
+
+  /// No description provided for @contributionCreditedNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte seulement l’argent neuf reçu pour {taxYear}. Un paiement seulement envoyé ou débité ne compte pas encore ; un transfert, un rendement ou un remboursement de frais non plus.'**
+  String contributionCreditedNote(int taxYear);
+
+  /// No description provided for @contributionAmountNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas besoin de connaître le total maintenant. On te le demandera seulement si tu réponds oui.'**
+  String get contributionAmountNote;
+
+  /// No description provided for @contributionChoiceYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, un nouveau versement a été reçu'**
+  String get contributionChoiceYes;
+
+  /// No description provided for @contributionChoiceNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, aucun nouveau versement'**
+  String get contributionChoiceNo;
+
+  /// No description provided for @contributionChoiceUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas'**
+  String get contributionChoiceUnknown;
+
+  /// No description provided for @contributionChoiceGroupLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveaux versements 3a reçus en {taxYear}'**
+  String contributionChoiceGroupLabel(int taxYear);
+
+  /// No description provided for @contributionEdgeHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui compte — et ce qui ne compte pas'**
+  String get contributionEdgeHelp;
+
+  /// No description provided for @contributionEdgePending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un paiement planifié, envoyé ou débité ne compte qu’une fois reçu sur ton 3a.'**
+  String get contributionEdgePending;
+
+  /// No description provided for @contributionEdgeTransfer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne compte pas un transfert entre deux 3a : ce n’est pas de l’argent neuf.'**
+  String get contributionEdgeTransfer;
+
+  /// No description provided for @contributionEdgeBuyback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garde séparé un rachat pour une année passée.'**
+  String get contributionEdgeBuyback;
+
+  /// No description provided for @contributionEdgeFullRefund.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après un remboursement complet, réponds non si aucune cotisation ordinaire effective ne reste.'**
+  String get contributionEdgeFullRefund;
+
+  /// No description provided for @contributionEdgePartialRefund.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après un remboursement partiel, réponds oui si le prestataire confirme qu’un montant net positif reste.'**
+  String get contributionEdgePartialRefund;
+
+  /// No description provided for @contributionEdgeUnclearCorrection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si une correction rend le montant effectif incertain, choisis « Je ne sais pas ».'**
+  String get contributionEdgeUnclearCorrection;
+
+  /// No description provided for @contributionEdgeMixedTransfer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si un transfert et de l’argent neuf arrivent ensemble, compte seulement l’argent neuf.'**
+  String get contributionEdgeMixedTransfer;
+
+  /// No description provided for @contributionEdgeReturn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne compte pas les rendements ou les intérêts comme un versement.'**
+  String get contributionEdgeReturn;
+
+  /// No description provided for @contributionEdgeAdjustment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne compte pas un remboursement de frais, une ristourne ou un autre ajustement.'**
+  String get contributionEdgeAdjustment;
+
+  /// No description provided for @contributionUnknownEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'AUCUN SOUCI'**
+  String get contributionUnknownEyebrow;
+
+  /// No description provided for @contributionUnknownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux vérifier sans additionner toi-même.'**
+  String get contributionUnknownTitle;
+
+  /// No description provided for @contributionUnknownBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cherche si une cotisation ordinaire a été reçue pour {taxYear} sur chacun de tes 3a. Si un transfert, un rachat ou un remboursement rend la réponse incertaine, garde « Je ne sais pas ».'**
+  String contributionUnknownBody(int taxYear);
+
+  /// No description provided for @contributionUnknownListLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment vérifier sans deviner'**
+  String get contributionUnknownListLabel;
+
+  /// No description provided for @contributionUnknownProviderStatement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans l’app ou le relevé de chaque banque ou fintech 3a, cherche un crédit reçu pour {taxYear}.'**
+  String contributionUnknownProviderStatement(int taxYear);
+
+  /// No description provided for @contributionUnknownInsuranceCertificate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour une assurance 3a, regarde l’attestation annuelle ou demande quelle cotisation ordinaire a été reçue.'**
+  String get contributionUnknownInsuranceCertificate;
+
+  /// No description provided for @contributionUnknownProviderQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cas de doute, demande au prestataire si le mouvement est une cotisation ordinaire, un transfert, un rachat ou un remboursement.'**
+  String get contributionUnknownProviderQuestion;
+
+  /// No description provided for @contributionUnknownTransferWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'N’additionne jamais un transfert entre deux 3a. Ce serait compter le même argent deux fois.'**
+  String get contributionUnknownTransferWarning;
+
+  /// No description provided for @contributionUnknownEducationLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux continuer sans montant personnel. MINT montrera seulement une explication générale.'**
+  String get contributionUnknownEducationLimit;
+
+  /// No description provided for @contributionUnknownContinueEducation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec une explication générale'**
+  String get contributionUnknownContinueEducation;
+
+  /// No description provided for @contributionBackToQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à la question'**
+  String get contributionBackToQuestion;
+
+  /// No description provided for @contributionAmountBoundaryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ensuite, MINT demandera le total ordinaire déjà reçu pour {taxYear}.'**
+  String contributionAmountBoundaryTitle(int taxYear);
+
+  /// No description provided for @contributionAmountBoundaryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le total devra couvrir tous tes comptes et polices 3a. Après un remboursement partiel, tu pourras utiliser le montant net confirmé par le prestataire. Pour l’instant, aucun montant n’est connu ni calculé.'**
+  String contributionAmountBoundaryBody(int taxYear);
+
+  /// No description provided for @contributionCantonBoundaryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'D’après ta réponse, aucun versement ordinaire n’est retenu pour {taxYear}.'**
+  String contributionCantonBoundaryTitle(int taxYear);
+
+  /// No description provided for @contributionCantonBoundaryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat fiscal n’est encore calculé. L’étape suivante demandera ton canton.'**
+  String get contributionCantonBoundaryBody;
+
+  /// No description provided for @contributionBoundaryBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger ma réponse'**
+  String get contributionBoundaryBack;
+
+  /// No description provided for @contributionEducationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux comprendre la règle sans donner de montant.'**
+  String get contributionEducationTitle;
+
+  /// No description provided for @contributionEducationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette explication reste générale : aucun montant personnel, aucune marge 3a et aucune économie fiscale personnelle ne sont calculés.'**
+  String get contributionEducationBody;
+
+  /// No description provided for @contributionEducationBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir aux vérifications'**
+  String get contributionEducationBack;
 }
 
 class _MintNextLocalizationsDelegate

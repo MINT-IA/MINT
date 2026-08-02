@@ -71,5 +71,107 @@
   "withoutLppKeepExplanation": "Conserva questa spiegazione sul dispositivo",
   "nextStepEyebrow": "PROSSIMO PASSO",
   "nextStepTitle": "La tua affiliazione è chiara.",
-  "nextStepBody": "La prossima domanda riguarderà ciò che hai già versato quest’anno. Sarà aggiunta nel prossimo piccolo lotto. Nulla viene salvato."
+  "nextStepBody": "La prossima domanda riguarderà ciò che hai già versato quest’anno. Sarà aggiunta nel prossimo piccolo lotto. Nulla viene salvato.",
+  "quitJourney": "Uscire da questo percorso",
+  "contributionEyebrow": "I TUOI VERSAMENTI 3A · {taxYear}",
+  "contributionTitle": "Nel {taxYear}, uno dei tuoi pilastri 3a ha ricevuto un nuovo versamento?",
+  "contributionBody": "Rispondi considerando tutti i tuoi pilastri 3a, compresa un’assicurazione 3a.",
+  "contributionCreditedNote": "Conta solo il denaro nuovo ricevuto per il {taxYear}. Un pagamento soltanto inviato o addebitato non conta ancora; nemmeno un trasferimento, un rendimento o un rimborso di spese.",
+  "contributionAmountNote": "Non devi ancora conoscere il totale. Te lo chiederemo solo se rispondi sì.",
+  "contributionChoiceYes": "Sì, è stato ricevuto un nuovo versamento",
+  "contributionChoiceNo": "No, nessun nuovo versamento",
+  "contributionChoiceUnknown": "Non lo so",
+  "contributionChoiceGroupLabel": "Nuovi versamenti 3a ricevuti nel {taxYear}",
+  "contributionEdgeHelp": "Che cosa conta — e che cosa no",
+  "contributionEdgePending": "Un pagamento pianificato, inviato o addebitato conta solo quando arriva sul tuo 3a.",
+  "contributionEdgeTransfer": "Non contare un trasferimento tra due pilastri 3a: non è denaro nuovo.",
+  "contributionEdgeBuyback": "Tieni separato un riscatto retroattivo per un anno passato.",
+  "contributionEdgeFullRefund": "Dopo un rimborso totale, rispondi no se non resta alcun versamento ordinario effettivo.",
+  "contributionEdgePartialRefund": "Dopo un rimborso parziale, rispondi sì se l’istituto conferma un importo netto positivo.",
+  "contributionEdgeUnclearCorrection": "Se una correzione rende incerto l’importo effettivo, scegli «Non lo so».",
+  "contributionEdgeMixedTransfer": "Se arrivano insieme un trasferimento e denaro nuovo, conta solo il denaro nuovo.",
+  "contributionEdgeReturn": "Non contare rendimenti o interessi come versamento.",
+  "contributionEdgeAdjustment": "Non contare rimborsi di spese, accrediti o altre rettifiche.",
+  "contributionUnknownEyebrow": "NESSUN PROBLEMA",
+  "contributionUnknownTitle": "Puoi verificare senza fare tu la somma.",
+  "contributionUnknownBody": "Controlla su ogni tuo 3a se nel {taxYear} è stato ricevuto un versamento ordinario. Se un trasferimento, riscatto o rimborso rende incerta la risposta, mantieni «Non lo so».",
+  "contributionUnknownListLabel": "Come verificare senza indovinare",
+  "contributionUnknownProviderStatement": "Nell’app o nell’estratto di ogni banca o fintech 3a, cerca un accredito ricevuto per il {taxYear}.",
+  "contributionUnknownInsuranceCertificate": "Per un’assicurazione 3a, consulta l’attestazione annuale o chiedi quale versamento ordinario è stato ricevuto.",
+  "contributionUnknownProviderQuestion": "In caso di dubbio, chiedi all’istituto se il movimento è un versamento ordinario, un trasferimento, un riscatto o un rimborso.",
+  "contributionUnknownTransferWarning": "Non sommare mai un trasferimento tra due 3a: conteresti due volte lo stesso denaro.",
+  "contributionUnknownEducationLimit": "Puoi continuare senza un importo personale. MINT mostrerà solo una spiegazione generale.",
+  "contributionUnknownContinueEducation": "Continuare con una spiegazione generale",
+  "contributionBackToQuestion": "Tornare alla domanda",
+  "contributionAmountBoundaryTitle": "In seguito MINT chiederà il totale ordinario già ricevuto per il {taxYear}.",
+  "contributionAmountBoundaryBody": "Il totale dovrà comprendere tutti i tuoi conti e le tue polizze 3a. Dopo un rimborso parziale potrai usare l’importo netto confermato dall’istituto. Per ora nessun importo è noto o calcolato.",
+  "contributionCantonBoundaryTitle": "In base alla tua risposta, per il {taxYear} non viene considerato alcun versamento ordinario.",
+  "contributionCantonBoundaryBody": "Non è ancora stato calcolato alcun risultato fiscale personale. Il prossimo passo chiederà il tuo cantone.",
+  "contributionBoundaryBack": "Correggere la risposta",
+  "contributionEducationTitle": "Puoi capire la regola senza indicare un importo.",
+  "contributionEducationBody": "Questa spiegazione resta generale: non vengono calcolati importi personali, margine 3a o risparmi fiscali personali.",
+  "contributionEducationBack": "Tornare alle verifiche",
+  "@contributionEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCreditedNote": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionChoiceGroupLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownProviderStatement": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCantonBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
 }

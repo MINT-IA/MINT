@@ -183,4 +183,159 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
   @override
   String get nextStepBody =>
       'La siguiente pregunta será sobre lo que ya has aportado este año. Se añadirá en el próximo lote pequeño. No se guarda nada.';
+
+  @override
+  String get quitJourney => 'Salir de este recorrido';
+
+  @override
+  String contributionEyebrow(int taxYear) {
+    return 'TUS APORTACIONES 3A · $taxYear';
+  }
+
+  @override
+  String contributionTitle(int taxYear) {
+    return 'En $taxYear, ¿alguno de tus pilares 3a recibió una nueva aportación?';
+  }
+
+  @override
+  String get contributionBody =>
+      'Responde teniendo en cuenta todos tus pilares 3a, incluido un seguro 3a.';
+
+  @override
+  String contributionCreditedNote(int taxYear) {
+    return 'Cuenta solo el dinero nuevo recibido para $taxYear. Un pago solo enviado o cargado aún no cuenta; tampoco una transferencia, un rendimiento o un reembolso de gastos.';
+  }
+
+  @override
+  String get contributionAmountNote =>
+      'Todavía no necesitas saber el total. Solo te lo pediremos si respondes que sí.';
+
+  @override
+  String get contributionChoiceYes => 'Sí, se recibió una nueva aportación';
+
+  @override
+  String get contributionChoiceNo => 'No, ninguna nueva aportación';
+
+  @override
+  String get contributionChoiceUnknown => 'No lo sé';
+
+  @override
+  String contributionChoiceGroupLabel(int taxYear) {
+    return 'Nuevas aportaciones 3a recibidas en $taxYear';
+  }
+
+  @override
+  String get contributionEdgeHelp => 'Qué cuenta — y qué no';
+
+  @override
+  String get contributionEdgePending =>
+      'Un pago programado, enviado o cargado solo cuenta cuando llega a tu 3a.';
+
+  @override
+  String get contributionEdgeTransfer =>
+      'No cuentes una transferencia entre dos pilares 3a: no es dinero nuevo.';
+
+  @override
+  String get contributionEdgeBuyback =>
+      'Mantén separada una recompra retroactiva para un año anterior.';
+
+  @override
+  String get contributionEdgeFullRefund =>
+      'Tras un reembolso total, responde no si no queda ninguna aportación ordinaria efectiva.';
+
+  @override
+  String get contributionEdgePartialRefund =>
+      'Tras un reembolso parcial, responde sí si la entidad confirma que queda un importe neto positivo.';
+
+  @override
+  String get contributionEdgeUnclearCorrection =>
+      'Si una corrección hace incierto el importe efectivo, elige «No lo sé».';
+
+  @override
+  String get contributionEdgeMixedTransfer =>
+      'Si llegan juntos una transferencia y dinero nuevo, cuenta solo el dinero nuevo.';
+
+  @override
+  String get contributionEdgeReturn =>
+      'No cuentes rendimientos ni intereses como aportación.';
+
+  @override
+  String get contributionEdgeAdjustment =>
+      'No cuentes un reembolso de gastos, bonificación u otro ajuste.';
+
+  @override
+  String get contributionUnknownEyebrow => 'NO PASA NADA';
+
+  @override
+  String get contributionUnknownTitle =>
+      'Puedes comprobarlo sin sumar por tu cuenta.';
+
+  @override
+  String contributionUnknownBody(int taxYear) {
+    return 'Comprueba en cada uno de tus 3a si se recibió una aportación ordinaria para $taxYear. Si una transferencia, recompra o devolución hace dudosa la respuesta, mantén «No lo sé».';
+  }
+
+  @override
+  String get contributionUnknownListLabel => 'Cómo comprobarlo sin adivinar';
+
+  @override
+  String contributionUnknownProviderStatement(int taxYear) {
+    return 'En la app o extracto de cada banco o fintech 3a, busca un abono recibido para $taxYear.';
+  }
+
+  @override
+  String get contributionUnknownInsuranceCertificate =>
+      'Para un seguro 3a, consulta el certificado anual o pregunta qué aportación ordinaria se recibió.';
+
+  @override
+  String get contributionUnknownProviderQuestion =>
+      'En caso de duda, pregunta a la entidad si el movimiento es una aportación ordinaria, transferencia, recompra o devolución.';
+
+  @override
+  String get contributionUnknownTransferWarning =>
+      'Nunca sumes una transferencia entre dos 3a. Contarías dos veces el mismo dinero.';
+
+  @override
+  String get contributionUnknownEducationLimit =>
+      'Puedes continuar sin un importe personal. MINT solo mostrará una explicación general.';
+
+  @override
+  String get contributionUnknownContinueEducation =>
+      'Continuar con una explicación general';
+
+  @override
+  String get contributionBackToQuestion => 'Volver a la pregunta';
+
+  @override
+  String contributionAmountBoundaryTitle(int taxYear) {
+    return 'Después, MINT pedirá el total ordinario ya recibido para $taxYear.';
+  }
+
+  @override
+  String contributionAmountBoundaryBody(int taxYear) {
+    return 'El total deberá abarcar todas tus cuentas y pólizas 3a. Tras un reembolso parcial, podrás usar el importe neto confirmado por la entidad. Por ahora no se conoce ni calcula ningún importe.';
+  }
+
+  @override
+  String contributionCantonBoundaryTitle(int taxYear) {
+    return 'Según tu respuesta, no se incluye ninguna aportación ordinaria para $taxYear.';
+  }
+
+  @override
+  String get contributionCantonBoundaryBody =>
+      'Aún no se ha calculado ningún resultado fiscal personal. El siguiente paso preguntará tu cantón.';
+
+  @override
+  String get contributionBoundaryBack => 'Corregir mi respuesta';
+
+  @override
+  String get contributionEducationTitle =>
+      'Puedes entender la regla sin indicar un importe.';
+
+  @override
+  String get contributionEducationBody =>
+      'Esta explicación sigue siendo general: no se calcula ningún importe personal, margen 3a ni ahorro fiscal personal.';
+
+  @override
+  String get contributionEducationBack => 'Volver a las comprobaciones';
 }

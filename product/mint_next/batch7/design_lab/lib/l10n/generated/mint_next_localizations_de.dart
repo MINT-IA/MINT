@@ -185,4 +185,160 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
   @override
   String get nextStepBody =>
       'Als Nächstes geht es darum, was du dieses Jahr bereits eingezahlt hast. Diese Frage kommt im nächsten kleinen Paket. Nichts wird gespeichert.';
+
+  @override
+  String get quitJourney => 'Diesen Weg verlassen';
+
+  @override
+  String contributionEyebrow(int taxYear) {
+    return 'DEINE 3A-EINZAHLUNGEN · $taxYear';
+  }
+
+  @override
+  String contributionTitle(int taxYear) {
+    return 'Hat eine deiner Säulen 3a im Jahr $taxYear eine neue Einzahlung erhalten?';
+  }
+
+  @override
+  String get contributionBody =>
+      'Antworte für alle deine 3a-Konten, auch für eine 3a-Versicherung.';
+
+  @override
+  String contributionCreditedNote(int taxYear) {
+    return 'Zähle nur neues Geld, das für $taxYear eingegangen ist. Eine nur gesendete oder belastete Zahlung zählt noch nicht; ebenso wenig ein Transfer, Anlageertrag oder eine Gebührenrückerstattung.';
+  }
+
+  @override
+  String get contributionAmountNote =>
+      'Den Gesamtbetrag musst du jetzt noch nicht kennen. Wir fragen nur danach, wenn du Ja antwortest.';
+
+  @override
+  String get contributionChoiceYes =>
+      'Ja, eine neue Einzahlung ist eingegangen';
+
+  @override
+  String get contributionChoiceNo => 'Nein, keine neue Einzahlung';
+
+  @override
+  String get contributionChoiceUnknown => 'Ich weiss es nicht';
+
+  @override
+  String contributionChoiceGroupLabel(int taxYear) {
+    return 'Neue 3a-Einzahlungen, die $taxYear eingegangen sind';
+  }
+
+  @override
+  String get contributionEdgeHelp => 'Was zählt — und was nicht';
+
+  @override
+  String get contributionEdgePending =>
+      'Eine geplante, gesendete oder belastete Zahlung zählt erst, wenn sie auf deiner Säule 3a eingegangen ist.';
+
+  @override
+  String get contributionEdgeTransfer =>
+      'Zähle einen Transfer zwischen zwei Säulen 3a nicht: Er ist kein neues Geld.';
+
+  @override
+  String get contributionEdgeBuyback =>
+      'Halte einen nachträglichen Einkauf für ein früheres Jahr getrennt.';
+
+  @override
+  String get contributionEdgeFullRefund =>
+      'Antworte nach einer vollständigen Rückzahlung Nein, wenn keine wirksame ordentliche Einzahlung übrig bleibt.';
+
+  @override
+  String get contributionEdgePartialRefund =>
+      'Antworte nach einer teilweisen Rückzahlung Ja, wenn der Anbieter einen positiven Nettobetrag bestätigt.';
+
+  @override
+  String get contributionEdgeUnclearCorrection =>
+      'Wenn eine Korrektur den wirksamen Betrag unklar macht, wähle «Ich weiss es nicht».';
+
+  @override
+  String get contributionEdgeMixedTransfer =>
+      'Wenn Transfer und neues Geld zusammen eingehen, zähle nur das neue Geld.';
+
+  @override
+  String get contributionEdgeReturn =>
+      'Zähle Anlageerträge oder Zinsen nicht als Einzahlung.';
+
+  @override
+  String get contributionEdgeAdjustment =>
+      'Zähle keine Gebührenrückerstattung, Vergütung oder andere Korrektur.';
+
+  @override
+  String get contributionUnknownEyebrow => 'KEIN PROBLEM';
+
+  @override
+  String get contributionUnknownTitle =>
+      'Du kannst nachsehen, ohne selbst zusammenzurechnen.';
+
+  @override
+  String contributionUnknownBody(int taxYear) {
+    return 'Prüfe bei jeder deiner Säulen 3a, ob für $taxYear eine ordentliche Einzahlung eingegangen ist. Wenn Transfer, Einkauf oder Rückzahlung die Antwort unklar machen, bleibe bei «Ich weiss es nicht».';
+  }
+
+  @override
+  String get contributionUnknownListLabel => 'So prüfst du es, ohne zu raten';
+
+  @override
+  String contributionUnknownProviderStatement(int taxYear) {
+    return 'Suche in jeder Bank- oder Fintech-App oder Abrechnung nach einer für $taxYear eingegangenen Gutschrift.';
+  }
+
+  @override
+  String get contributionUnknownInsuranceCertificate =>
+      'Prüfe bei einer 3a-Versicherung die Jahresbescheinigung oder frage nach der eingegangenen ordentlichen Einzahlung.';
+
+  @override
+  String get contributionUnknownProviderQuestion =>
+      'Frage im Zweifel den Anbieter, ob die Bewegung eine ordentliche Einzahlung, ein Transfer, Einkauf oder eine Rückzahlung ist.';
+
+  @override
+  String get contributionUnknownTransferWarning =>
+      'Addiere nie einen Transfer zwischen zwei Säulen 3a. Sonst zählst du dasselbe Geld doppelt.';
+
+  @override
+  String get contributionUnknownEducationLimit =>
+      'Du kannst ohne persönlichen Betrag fortfahren. MINT zeigt nur eine allgemeine Erklärung.';
+
+  @override
+  String get contributionUnknownContinueEducation =>
+      'Mit einer allgemeinen Erklärung fortfahren';
+
+  @override
+  String get contributionBackToQuestion => 'Zurück zur Frage';
+
+  @override
+  String contributionAmountBoundaryTitle(int taxYear) {
+    return 'Als Nächstes fragt MINT nach dem bereits für $taxYear eingegangenen ordentlichen Gesamtbetrag.';
+  }
+
+  @override
+  String contributionAmountBoundaryBody(int taxYear) {
+    return 'Der Gesamtbetrag muss alle deine 3a-Konten und -Policen umfassen. Nach einer teilweisen Rückzahlung kannst du den vom Anbieter bestätigten Nettobetrag verwenden. Noch ist kein Betrag bekannt oder berechnet.';
+  }
+
+  @override
+  String contributionCantonBoundaryTitle(int taxYear) {
+    return 'Gemäss deiner Antwort wird für $taxYear keine ordentliche Einzahlung berücksichtigt.';
+  }
+
+  @override
+  String get contributionCantonBoundaryBody =>
+      'Es wurde noch kein persönliches Steuerergebnis berechnet. Als Nächstes fragen wir nach deinem Kanton.';
+
+  @override
+  String get contributionBoundaryBack => 'Antwort korrigieren';
+
+  @override
+  String get contributionEducationTitle =>
+      'Du kannst die Regel ohne Betrag verstehen.';
+
+  @override
+  String get contributionEducationBody =>
+      'Diese Erklärung bleibt allgemein: Es werden weder ein persönlicher Betrag noch dein 3a-Spielraum oder eine persönliche Steuerersparnis berechnet.';
+
+  @override
+  String get contributionEducationBack => 'Zurück zur Prüfung';
 }
