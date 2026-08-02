@@ -1,9 +1,13 @@
 schema_version: 1
-status: accepted_isolated_first_visual_slice
+status: mechanically_accepted_isolated_first_visual_slice
 accepted_at: '2026-08-02T19:55:00+02:00'
 scope:
   path: product/mint_next/batch7/design-lab-scope.yaml
   sha256: ef3a431d65bb058ab32e5b7b14389d18a20056604834129a72dea8a3fae58c9e
+manifest:
+  path: product/mint_next/batch7/design-lab-manifest.yaml
+  sha256: 0cf7cb3d05b96dc2b9d644e10a70817aa605de268d55f661b92a870e7c639e23
+  verification: offline_current_or_content_addressed_blob_no_git_or_network
 artifacts:
   app:
     path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
@@ -14,7 +18,11 @@ artifacts:
   web_host:
     path: product/mint_next/batch7/design_lab/web/index.html
     sha256: cbbf71acc368b31b29d7106b91194cc8194393b0192b60d36bf237c9c4e1a3ce
-reviews:
+mechanical_acceptance_basis:
+  authority: deterministic_commands_and_hash_bound_runtime_artifacts_only
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent identity independence and truthfulness are not authenticated
+advisory_roasts:
 - agent: ux_architecture
   verdict: ACCEPT
   p1: 0

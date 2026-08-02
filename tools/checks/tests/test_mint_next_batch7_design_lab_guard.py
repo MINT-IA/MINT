@@ -6,7 +6,7 @@ from pathlib import Path
 
 import yaml
 
-from tools.checks.mint_next_batch7_design_lab_guard import SCOPE, formal_voice_errors, validate
+from tools.checks.mint_next_batch7_design_lab_guard import ACCEPTANCE, SCOPE, formal_voice_errors, validate
 
 
 class Batch7DesignLabGuardTest(unittest.TestCase):
@@ -41,6 +41,16 @@ class Batch7DesignLabGuardTest(unittest.TestCase):
                 formal_voice_errors(path, "fr"),
                 ["fr copy drifts from informal singular voice: vous"],
             )
+
+    def test_rejects_mutated_review_verdict(self) -> None:
+        data = yaml.safe_load(ACCEPTANCE.read_text(encoding="utf-8"))
+        data["advisory_roasts"][0]["verdict"] = "FAIL"
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "acceptance.yaml"
+            path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+            errors = validate(acceptance_path=path)
+        self.assertIn("design-lab exact acceptance receipt digest drift", errors)
+        self.assertIn("design-lab advisory roast record drift", errors)
 
 
 if __name__ == "__main__":
