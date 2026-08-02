@@ -33,7 +33,7 @@ def clone(tmp_path_factory: pytest.TempPathFactory) -> Path:
     )
     # The readiness/phase files may be deliberately uncommitted in the parent
     # batch. Copy them so tests exercise the exact working-tree contract.
-    for relative in [guard.READINESS, Path(guard.PHASE_DIR)]:
+    for relative in [guard.READINESS, guard.REVIEW_PROTOCOL, Path(guard.PHASE_DIR)]:
         source, target = REPO / relative, root / relative
         if source.is_dir():
             shutil.copytree(source, target, dirs_exist_ok=True)
@@ -56,6 +56,7 @@ def reset(clone: Path):
     subprocess.run(["git", "clean", "-fd"], cwd=clone, check=True, capture_output=True)
     for relative in [
         guard.READINESS,
+        guard.REVIEW_PROTOCOL,
         Path(guard.PHASE_DIR),
         Path(".planning/ACTIVE_CONTEXT.json"),
         Path(".planning/STATE.md"),
@@ -79,6 +80,285 @@ def _mutate_yaml(root: Path, relative: Path, mutation) -> None:
 
 def test_exact_blocked_readiness_passes(clone: Path) -> None:
     assert guard.validate(clone) == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("status", "executed"),
+        ("selected_gate", "cross_provider_review"),
+        ("candidate_head", "f" * 40),
+        ("review_execution", {"verdict": "pass_no_p1_p2"}),
+    ],
+)
+def test_rejects_fabricated_review_execution(
+    clone: Path, key: str, value: object
+) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL, lambda data: data.__setitem__(key, value)
+    )
+    assert guard.validate(clone)
+
+
+def test_rejects_review_protocol_validation_claim(clone: Path) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["claim_boundary"].__setitem__(
+            "proves_reviewer_independence", True
+        ),
+    )
+    assert any("must not claim" in error for error in guard.validate(clone))
+
+
+def test_rejects_review_protocol_identity_inflation(clone: Path) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["trust_boundary"].__setitem__(
+            "cross_provider_value_if_future_verified", "authenticated_independence"
+        ),
+    )
+    assert any("diversity-only" in error for error in guard.validate(clone))
+
+
+def test_rejects_incomplete_review_input_manifest(clone: Path) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["future_request_contract"][
+            "required_canonical_registries"
+        ].pop(),
+    )
+    assert any("canonical input list" in error for error in guard.validate(clone))
+
+
+def test_rejects_incomplete_detached_execution_manifest(clone: Path) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["future_detached_execution_manifest"][
+            "must_hash_without_self_reference"
+        ].remove(
+            "response-body.bin"
+        ),
+    )
+    assert any("exact raw artifacts" in error for error in guard.validate(clone))
+
+
+def test_rejects_unbound_toolchain_manifest(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_request_contract"]["required_fields"].remove(
+            "toolchain_manifest_sha256"
+        ),
+    )
+    assert any("must bind toolchain_manifest_sha256" in error for error in guard.validate(clone))
+
+
+def test_rejects_retry_eligible_for_pass(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_provider_failure_policy_requirements"].__setitem__(
+            "any_retry_bundle_is_ineligible_for_pass", False
+        ),
+    )
+    assert any("failure policy" in error for error in guard.validate(clone))
+
+
+def test_rejects_self_claimed_provider_family(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_provider_family_registry_requirements"].__setitem__(
+            "family_derivation", "result_self_claim"
+        ),
+    )
+    assert any("never self-claim" in error for error in guard.validate(clone))
+
+
+def test_rejects_outbound_policy_that_allows_context_overflow(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_outbound_data_policy_requirements"]["reject_if"].remove(
+            "context_budget_exceeded_or_ambiguous"
+        ),
+    )
+    assert any("outbound policy" in error for error in guard.validate(clone))
+
+
+def test_rejects_candidate_without_readiness_ancestry(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["candidate_freeze_requirements"].__setitem__(
+            "candidate_must_descend_from_readiness_baseline", False
+        ),
+    )
+    assert any("must descend" in error for error in guard.validate(clone))
+
+
+def test_rejects_untrusted_authoring_provider_claim(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_provider_family_registry_requirements"].__setitem__(
+            "authoring_provider_family_source", "repository_claim"
+        ),
+    )
+    assert any("never self-claim" in error for error in guard.validate(clone))
+
+
+def test_rejects_toolchain_without_scanner_provenance(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_supply_chain_requirements"][
+            "signed_toolchain_manifest_must_bind"
+        ].remove("secret_scanner_executable_config_rules_and_signature_db_sha256"),
+    )
+    assert any("runtime, scanners" in error for error in guard.validate(clone))
+
+
+def test_rejects_attestation_without_bound_subject(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_supply_chain_requirements"].__setitem__(
+            "attestation_subject_must_bind_together", []
+        ),
+    )
+    assert any("attestation trust roots" in error for error in guard.validate(clone))
+
+
+def test_rejects_attestation_manifest_mutual_hash_cycle(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_detached_execution_manifest"][
+            "must_hash_without_self_reference"
+        ].append("workflow-attestation.bundle"),
+    )
+    assert any("exact raw artifacts" in error for error in guard.validate(clone))
+
+
+def test_rejects_git_evidence_not_delivered_to_reviewer(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_request_contract"][
+            "required_precomputed_evidence_inputs"
+        ].remove("git-lineage-evidence.json"),
+    )
+    assert any("deliver exact precomputed evidence" in error for error in guard.validate(clone))
+
+
+def test_rejects_scan_scope_that_differs_from_transmitted_payload(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_outbound_data_policy_requirements"].__setitem__(
+            "scanned_bytes_must_equal_transmitted_payload_bytes_by_sha256", False
+        ),
+    )
+    assert any("outbound policy" in error for error in guard.validate(clone))
+
+
+def test_rejects_unparsed_scanner_verdict(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_outbound_data_policy_requirements"][
+            "scanner_result_contract"
+        ].__setitem__(
+            "verifier_must_parse_schema_findings_coverage_exit_code_and_payload_digest",
+            False,
+        ),
+    )
+    assert any("scanner results must be parsed" in error for error in guard.validate(clone))
+
+
+def test_rejects_missing_transport_registry_mismatch_rule(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_result_verifier_requirements"]["must_reject"].remove(
+            "any_non_allowlisted_transport_hop_or_ambiguous_effective_endpoint"
+        ),
+    )
+    assert any("transport and retention" in error for error in guard.validate(clone))
+
+
+def test_rejects_retention_evidence_not_bound_to_exact_run(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_outbound_data_policy_requirements"].__setitem__(
+            "retention_training_evidence_must_bind", []
+        ),
+    )
+    assert any("exact provider account" in error for error in guard.validate(clone))
+
+
+def test_rejects_transmitted_manifest_with_final_payload_digest(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_outbound_data_policy_requirements"].__setitem__(
+            "input_classification_manifest_is_transmitted_but_must_not_contain_final_payload_digest",
+            False,
+        ),
+    )
+    assert any("detached and acyclic" in error for error in guard.validate(clone))
+
+
+def test_rejects_unbound_authoring_provider_provenance(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_provider_family_registry_requirements"].__setitem__(
+            "request_and_execution_payload_manifest_must_bind_authoring_provenance_sha256",
+            False,
+        ),
+    )
+    assert any("delivered and hash-bound" in error for error in guard.validate(clone))
+
+
+def test_rejects_bundle_controlled_trust_bootstrap(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_supply_chain_requirements"].__setitem__(
+            "bundled_policy_or_registry_is_descriptive_never_a_trust_root", False
+        ),
+    )
+    assert any("external to the candidate" in error for error in guard.validate(clone))
+
+
+def test_rejects_phantom_or_incomplete_review_context(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_request_contract"]["required_context_and_verifiers"].pop(),
+    )
+    assert any("exact existing review inputs" in error for error in guard.validate(clone))
+
+
+def test_rejects_incomplete_multi_provider_authorship_coverage(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_provider_family_registry_requirements"].__setitem__(
+            "unknown_unattested_or_uncovered_material_authorship", "allowed"
+        ),
+    )
+    assert any("authoring provider provenance" in error for error in guard.validate(clone))
+
+
+def test_rejects_review_context_without_verification_claims(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_request_contract"]["required_context_and_verifiers"].remove(
+            f"{guard.PHASE_DIR}/VERIFICATION.md"
+        ),
+    )
+    assert any("exact existing review inputs" in error for error in guard.validate(clone))
+
+
+def test_rejects_authorship_boundary_excluding_inherited_inputs(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["future_provider_family_registry_requirements"][
+            "authoring_provenance_artifact_must_bind"
+        ].remove(
+            "exact_authorship_boundary_every_semantic_review_input_content_lineage_through_candidate"
+        ),
+    )
+    assert any("inherited and changed" in error for error in guard.validate(clone))
 
 
 @pytest.mark.parametrize("relative", guard.SEMANTIC_ARTIFACTS)

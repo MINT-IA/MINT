@@ -1,0 +1,449 @@
+schema_version: 1
+kind: mint_next_batch4_cross_provider_review_protocol
+status: draft_unproven_blocked
+protocol_eligible: false
+selected_gate: none
+candidate_head: null
+review_execution: null
+current_effect: cannot_select_gate_or_promote
+claim_boundary:
+  current_claim: review_protocol_requirements_inventory_only
+  proves_protocol_executable: false
+  proves_review_occurred: false
+  proves_provider_diversity: false
+  proves_reviewer_identity: false
+  proves_reviewer_independence: false
+  proves_swiss_financial_correctness: false
+  proves_legal_or_regulatory_compliance: false
+  proves_user_or_product_validation: false
+trust_boundary:
+  cross_provider_value_if_future_verified: diversity_only
+  cross_provider_not_proof_of: authenticated_identity_or_cryptographic_independence
+  local_agent_reports: untrusted_advisory_issue_discovery_only
+  external_attestation_requires: verified_identity_and_provenance
+implementation_blockers:
+  normative_prompt_artifact: absent_unimplemented_blocking
+  canonical_request_builder: absent_unimplemented_blocking
+  frozen_input_manifest_builder: absent_unimplemented_blocking
+  isolated_no_secrets_runner: absent_unimplemented_blocking
+  direct_provider_transport_capture: absent_unimplemented_blocking
+  externally_verifiable_runner_attestation: absent_unimplemented_blocking
+  detached_execution_manifest: absent_unimplemented_blocking
+  exact_result_json_schema: absent_unimplemented_blocking
+  result_bundle_verifier: absent_unimplemented_blocking
+  finding_disposition_ledger: absent_unimplemented_blocking
+  supply_chain_manifest: absent_unimplemented_blocking
+  provider_failure_policy: absent_unimplemented_blocking
+  provider_family_registry: absent_unimplemented_blocking
+  outbound_data_policy: absent_unimplemented_blocking
+  git_lineage_and_preservation_evidence: absent_unimplemented_blocking
+  trusted_attestation_policy: absent_unimplemented_blocking
+candidate_freeze_requirements:
+  authority_ancestor: ff310fca76f78272ea31c5a796ffc149a8fe3b49
+  readiness_baseline: b6744f3002e0aefd96a759fd02d24891c4d6e3db
+  candidate_head_format: lowercase_40_hex_commit
+  candidate_tree: clean
+  review_target: exact_commit_not_branch_or_mutable_link
+  candidate_must_descend_from_readiness_baseline: true
+  deterministic_evidence_must_bind:
+  - candidate_commit_object_parent_and_tree
+  - merge_base_and_ancestor_proof
+  - exact_baseline_to_candidate_name_status_and_binary_diff
+  - full_protected_surface_tree_manifest
+  - guard_commands_outputs_and_hostile_mutation_results
+  invalidation_events:
+  - any_canonical_registry_byte_change
+  - any_protocol_prompt_schema_builder_runner_or_verifier_change
+  - any_input_manifest_change
+  - any_untracked_or_dirty_evidence
+future_request_contract:
+  status: draft_non_executable
+  canonicalization: mint_json_c14n_v1_utf8_sorted_keys_compact_no_floats
+  detached_request_hash: sha256_lowercase_64_hex
+  required_fields:
+  - schema_version
+  - kind
+  - candidate_head
+  - authoring_provider_families_claimed
+  - protocol_sha256
+  - system_prompt_sha256
+  - result_schema_sha256
+  - toolchain_manifest_sha256
+  - provider_family_registry_sha256
+  - outbound_input_classification_manifest_sha256
+  - authoring_provider_provenance_sha256
+  - git_lineage_evidence_sha256
+  - trusted_attestation_policy_sha256
+  - ordered_inputs
+  - ordered_review_dimension_ids
+  - execution_policy
+  ordered_input_entry_fields:
+  - path
+  - role
+  - size_bytes
+  - sha256
+  - content_base64
+  required_canonical_registries:
+  - product/mint_next/batch4/batch.yaml
+  - product/mint_next/batch4/source-inventory.yaml
+  - product/mint_next/batch4/architecture_conflicts.yaml
+  - product/mint_next/batch4/calculation_contracts.yaml
+  - product/mint_next/batch4/formula_contracts.yaml
+  - product/mint_next/batch4/official_sources.yaml
+  - product/mint_next/batch4/regulatory_boundaries.yaml
+  - product/mint_next/batch4/domain_coverage.yaml
+  - product/mint_next/batch4/audience.yaml
+  - product/mint_next/batch4/concepts.yaml
+  - product/mint_next/batch4/decisions.yaml
+  - product/mint_next/batch4/experience_graph.yaml
+  - product/mint_next/batch4/claims_and_data.yaml
+  - product/mint_next/batch4/legacy_reuse.yaml
+  required_context_and_verifiers:
+  - .planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md
+  - .planning/phases/mint-next-batch4-architecture-promotion-20260802/PLAN.md
+  - .planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md
+  - .planning/phases/mint-next-batch4-architecture-promotion-20260802/VERIFICATION.md
+  - product/mint_next/batch4/evidence/cross-provider-review-protocol.yaml
+  - product/mint_next/batch4/evidence/promotion-readiness.yaml
+  - tools/checks/mint_next_batch4_architecture_guard.py
+  - tools/checks/mint_next_batch4_promotion_guard.py
+  - tools/checks/tests/test_mint_next_batch4_architecture_guard.py
+  - tools/checks/tests/test_mint_next_batch4_promotion_guard.py
+  - product/mint_next/batch4/README.md
+  - product/mint_next/batch4/ONE-PAGE.md
+  - product/mint_next/batch4/views/experience-graph.mmd
+  required_precomputed_evidence_inputs:
+  - git-lineage-evidence.json
+  - toolchain-manifest.json
+  - provider-family-registry.json
+  - outbound-input-classification-manifest.json
+  - authoring-provider-provenance.json
+  - trusted-attestation-policy.json
+  every_precomputed_evidence_input_uses_ordered_input_entry_fields: true
+future_supply_chain_requirements:
+  status: absent_unimplemented_blocking
+  signed_toolchain_manifest_must_bind:
+  - canonical_request_builder_path_sha256_and_version
+  - canonicalizer_path_sha256_and_version
+  - isolated_runner_path_sha256_and_version
+  - result_schema_path_sha256
+  - result_verifier_path_sha256_and_version
+  - workflow_definition_path_sha256
+  - command_allowlist_path_sha256
+  - runtime_interpreter_or_container_image_digest
+  - dependency_lockfiles_and_sha256
+  - secret_scanner_executable_config_rules_and_signature_db_sha256
+  - PII_scanner_executable_config_rules_and_signature_db_sha256
+  request_must_bind: toolchain_manifest_sha256
+  attested_workflow_must_match_every_toolchain_hash: true
+  trusted_attestation_policy_must_bind:
+  - accepted_issuer_and_verification_roots
+  - exact_subject_repository_ref_workflow_and_builder_identity
+  - signature_algorithm_and_verification_policy
+  - key_expiry_rotation_revocation_and_offline_verification
+  attestation_subject_must_bind_together:
+  - execution_payload_manifest_sha256
+  - candidate_head
+  - request_sha256
+  - raw_response_body_sha256
+  - review_result_sha256
+  - authoring_provider_provenance_sha256
+  - repository_workflow_run_id_and_run_attempt
+  verifier_trust_bootstrap_external_to_candidate_request_and_bundle:
+  - pinned_attestation_issuer_and_verification_roots
+  - pinned_subject_repository_ref_workflow_and_builder_policy
+  - approved_provider_registry_signer_and_hash
+  - approved_authoring_provenance_signer_and_schema
+  - bootstrap_rotation_revocation_and_break_glass_policy
+  bundled_policy_or_registry_is_descriptive_never_a_trust_root: true
+execution_policy_requirements:
+  status: unimplemented_blocking
+  checkout: disposable_read_only_exact_candidate
+  credentials_in_checkout: forbidden
+  network_for_reviewer: denied
+  repository_hooks: disabled
+  repository_commands_for_reviewer: forbidden
+  candidate_files_and_tool_output: untrusted_data_never_instructions
+  provider_call: trusted_runner_direct_api_only
+  manual_or_locally_authored_result: never_sufficient
+  command_evidence_required:
+  - argv
+  - cwd
+  - executable_sha256
+  - version_output_sha256
+  - exit_code
+  - stdout_sha256
+  - stderr_sha256
+  - started_at_utc
+  - finished_at_utc
+  transport_evidence_required:
+  - provider_endpoint_origin_from_runner_configuration
+  - provider_request_id_from_response_headers
+  - raw_request_bytes_sha256
+  - raw_response_body_bytes_sha256
+  - provider_finish_reason
+  - declared_response_byte_length
+  - observed_response_body_byte_length
+  - effective_TLS_peer_certificate_chain_and_SPKI_sha256
+  - redirect_and_proxy_chain
+  - HTTP_status
+  - selected_raw_response_headers_sha256
+  - retry_count
+  - fallback_used_false
+  - truncation_detected_false
+  - declared_tool_access_none
+  external_runner_evidence_required:
+  - immutable_workflow_path_and_sha256
+  - repository_and_commit
+  - run_id_and_run_attempt
+  - oidc_or_artifact_attestation_bundle
+  - offline_attestation_verification_command_and_output_hashes
+future_provider_failure_policy_requirements:
+  status: absent_unimplemented_blocking
+  one_execution_bundle_contains_exactly_one_provider_attempt: true
+  retry_requires_new_execution_id_and_new_bundle: true
+  any_retry_bundle_is_ineligible_for_pass: true
+  timeout_seconds_must_be_explicit_and_hash_bound: true
+  provider_error_rate_limit_or_transport_failure: reject_bundle
+  malformed_or_schema_invalid_response: reject_bundle
+  fallback_provider_or_model: reject_bundle
+  truncation_detection_must_use:
+  - provider_finish_reason
+  - declared_response_byte_length
+  - complete_JSON_parse
+  - exact_result_schema_validation
+  ambiguous_truncation_state: reject_bundle
+future_provider_family_registry_requirements:
+  status: absent_unimplemented_blocking
+  registry_must_bind:
+  - provider_family
+  - exact_TLS_endpoint_origin_allowlist
+  - expected_request_id_header_names
+  - workflow_environment_and_secret_name
+  - retention_and_training_configuration_capabilities
+  - registry_authority_and_sha256
+  family_derivation: attested_runner_configuration_plus_allowlisted_endpoint_not_result_self_claim
+  authoring_provider_family_source: trusted_attested_session_or_tool_invocation_record
+  unknown_or_unattested_authoring_provider_family: diversity_gate_ineligible
+  authoring_provenance_artifact_must_bind:
+  - exact_authorship_boundary_every_semantic_review_input_content_lineage_through_candidate
+  - ordered_complete_authoring_invocation_records
+  - every_record_provider_family_endpoint_request_id_timestamp_signer_and_schema
+  - coverage_mapping_from_every_semantic_input_digest_including_inherited_content_to_all_material_invocation_records
+  - complete_authoring_provider_family_set
+  request_and_execution_payload_manifest_must_bind_authoring_provenance_sha256: true
+  unknown_unattested_or_uncovered_material_authorship: diversity_gate_ineligible
+  diversity_check: derived_review_provider_family_must_be_outside_complete_authoring_provider_family_set
+  limitation: transport_provenance_still_does_not_prove_human_identity_or_cryptographic_model_identity
+future_outbound_data_policy_requirements:
+  status: absent_unimplemented_blocking
+  export_scope: repository_planning_artifacts_only_no_user_data
+  preflight_must_produce:
+  - exact_export_path_allowlist
+  - secret_scan_command_version_exit_and_output_hashes
+  - PII_scan_command_version_exit_and_output_hashes
+  - per_file_data_classification
+  - total_raw_bytes
+  - total_base64_bytes
+  - deterministic_token_estimator_path_version_and_sha256
+  - estimated_input_tokens
+  - model_context_limit_and_reserved_output_tokens
+  - provider_retention_and_training_settings
+  - provider_retention_training_evidence_source_and_acceptance_authority
+  retention_training_evidence_must_bind:
+  - exact_provider_account_project_workspace_and_API_credential_policy
+  - effective_retention_and_training_settings
+  - settings_source_and_evidence_sha256
+  - effective_at_attested_run_timestamp
+  scan_scope: every_outbound_semantic_artifact_plus_exact_final_serialized_provider_payload_excluding_only_transport_auth_headers
+  input_classification_manifest_is_transmitted_but_must_not_contain_final_payload_digest: true
+  detached_final_payload_scan_receipt_created_after_serialization_and_never_transmitted: true
+  final_payload_scan_receipt_must_bind:
+  - exact_final_provider_payload_sha256
+  - scanner_results_and_coverage
+  - input_classification_manifest_sha256
+  - serialization_and_transport_envelope_version
+  scanned_bytes_must_equal_transmitted_payload_bytes_by_sha256: true
+  secret_and_PII_scanners_must_be_bound_by_signed_toolchain_manifest: true
+  unsupported_binary_scan_error_or_incomplete_coverage: reject_bundle
+  scanner_result_contract:
+    exact_schema_required_for_each_scanner: true
+    required_fields:
+    - scanner_id_and_version
+    - scanned_payload_sha256
+    - scanned_byte_ranges_and_total_bytes
+    - ruleset_and_suppression_manifest_sha256
+    - exit_code
+    - findings
+    - coverage_complete
+    zero_match_pass_predicate: exit_code_zero_and_findings_empty_and_coverage_complete_true
+    exit_code_truth_table:
+      zero: eligible_only_if_zero_match_pass_predicate_true
+      nonzero: reject_bundle
+      signal_timeout_or_unknown: reject_bundle
+    suppressions: forbidden_unless_hash_bound_and_approved_by_named_security_authority
+    verifier_must_parse_schema_findings_coverage_exit_code_and_payload_digest: true
+  permitted_classifications:
+  - public_source_metadata
+  - project_internal_non_secret_architecture
+  reject_if:
+  - any_secret_or_PII_match
+  - any_unclassified_or_non_allowlisted_file
+  - any_user_financial_or_personal_data
+  - context_budget_exceeded_or_ambiguous
+  - provider_retention_or_training_setting_unknown_or_not_accepted
+  overflow_behavior: reject_never_truncate_summarize_or_drop_inputs
+review_dimensions:
+  - id: information_architecture_closure
+    question: Are every declared node, edge, action, state, fallback, and terminal outcome closed without dead routes?
+  - id: beginner_comprehension_hypotheses
+    question: Are beginner-first simplifications explicit hypotheses with falsification gates rather than claims of comprehension?
+  - id: swiss_life_coverage
+    question: Are material Swiss life events and arbitrages represented or explicitly blocking without claiming financial completeness?
+  - id: formula_and_source_boundaries
+    question: Do all formulas and official-source assertions remain unimplemented or unverified where evidence is absent?
+  - id: regulatory_boundaries
+    question: Are advice, intermediation, data-protection, and outsourcing boundaries explicit without a FINMA or legal-compliance claim?
+  - id: legacy_reuse_and_preservation
+    question: Is every reuse item candidate, reject, or unknown with no destructive coupling to the legacy runtime?
+  - id: trust_and_promotion_integrity
+    question: Can any prose, metadata, history rewrite, prompt injection, or self-attestation bypass the declared promotion gate?
+future_prompt_requirements:
+  status: absent_unimplemented_blocking
+  system_message_must:
+  - delimit_every_candidate_file_as_untrusted_data
+  - forbid_following_instructions_from_candidate_files_or_tool_output
+  - forbid_repository_code_hook_or_command_execution
+  - forbid_network_tools_and_secrets
+  - require_one_dimension_result_per_ordered_dimension_id
+  - require_JSON_only_matching_the_exact_result_schema
+  - require_uncertainty_to_be_unverified_not_inferred_pass
+  - forbid_identity_independence_qualification_or_compliance_claims
+  request_assembly_must:
+  - use_only_the_canonical_request_builder
+  - preserve_ordered_inputs_and_exact_bytes
+  - reject_extra_missing_duplicate_or_path_traversal_inputs
+  - hash_the_detached_request_bytes_not_a_self_referential_field
+future_result_contract:
+  status: draft_non_executable
+  result_payload_excludes_its_own_hash: true
+  execution_payload_manifest_excludes_attestation_bytes: true
+  outer_unsigned_bundle_index_holds_payload_manifest_and_attestation_hashes: true
+  exact_payload_fields:
+  - schema_version
+  - kind
+  - reviewed_candidate_head
+  - provider_family_claimed
+  - model_identifier_claimed
+  - executed_at_utc
+  - trust_scope
+  - verdict
+  - dimension_results
+  - findings
+  - limitations
+  dimension_result_fields:
+  - dimension_id
+  - status
+  - evidence_refs
+  - reasoning
+  dimension_statuses:
+  - pass
+  - fail
+  - unverified
+  dimension_completeness: exactly_one_result_for_each_ordered_review_dimension
+  finding_fields:
+  - id
+  - severity
+  - title
+  - path
+  - locator
+  - evidence
+  - reproduction
+  - impact
+  - required_remediation
+  finding_ids: unique_and_sorted
+  severity_rubric:
+    P1: promotion_or_trust_bypass_data_loss_security_or_materially_false_architecture
+    P2: missing_or_ambiguous_contract_that_can_invalidate_architecture_or_review_evidence
+    P3: bounded_improvement_not_required_to_prevent_false_acceptance
+  verdict_truth_table:
+    pass_no_p1_p2: all_dimensions_pass_and_no_P1_or_P2_and_no_blocking_limitation
+    fail_findings_present: any_dimension_fail_or_unverified_or_any_P1_or_P2_or_blocking_limitation
+    P3_with_all_dimensions_pass: pass_no_p1_p2_allowed_but_P3_must_be_recorded
+  blocking_limitations:
+  - incomplete_input_or_context
+  - tool_or_transport_error
+  - retry_or_fallback_used
+  - response_truncated
+  - undeclared_tool_or_network_access
+  - schema_or_hash_mismatch
+future_detached_execution_manifest:
+  status: absent_unimplemented_blocking
+  canonicalization: mint_json_c14n_v1_utf8_sorted_keys_compact_no_floats
+  role: attested_execution_payload_manifest_excludes_attestation_bytes
+  must_hash_without_self_reference:
+  - request.json
+  - response-body.bin
+  - response-headers.json
+  - review-result.json
+  - command-evidence.json
+  - toolchain-manifest.json
+  - provider-family-registry.json
+  - outbound-input-classification-manifest.json
+  - final-payload-scan-receipt.json
+  - authoring-provider-provenance.json
+  - git-lineage-evidence.json
+  - trusted-attestation-policy.json
+  must_not_hash:
+  - workflow-attestation.bundle
+  outer_bundle_index:
+    role: unsigned_content_addressed_packaging_only_never_attested_evidence
+    hashes:
+    - execution-payload-manifest.json
+    - workflow-attestation.bundle
+  stale_or_mismatch_effect: reject_entire_review_bundle
+future_result_verifier_requirements:
+  status: absent_unimplemented_blocking
+  must_reject:
+  - extra_missing_duplicate_or_wrong_order_input
+  - stale_or_wrong_candidate_head
+  - wrong_protocol_prompt_schema_builder_runner_or_workflow_hash
+  - missing_or_invalid_external_runner_attestation
+  - provider_family_derived_only_from_self_claimed_strings
+  - authoring_provider_provenance_missing_invalid_untrusted_or_hash_mismatched
+  - bundle_supplied_trust_root_or_registry_not_matching_external_verifier_bootstrap
+  - toolchain_provider_registry_or_outbound_manifest_hash_mismatch
+  - missing_invalid_or_recombined_git_lineage_or_attestation_evidence
+  - response_result_or_manifest_hash_mismatch
+  - missing_duplicate_or_unknown_dimension_result
+  - pass_with_failed_or_unverified_dimension
+  - pass_with_P1_or_P2_or_blocking_limitation
+  - provider_error_retry_fallback_or_truncation
+  - transport_origin_TLS_peer_redirect_proxy_or_request_ID_header_mismatch_against_provider_registry
+  - any_non_allowlisted_transport_hop_or_ambiguous_effective_endpoint
+  - retention_training_evidence_not_effective_for_exact_provider_account_configuration_and_run
+  - undeclared_tool_network_or_secret_access
+  - missing_raw_command_or_transport_evidence
+  - secret_PII_classification_or_context_budget_failure
+  - unsupported_binary_scan_error_or_incomplete_outbound_coverage
+  - scanner_result_not_parsed_or_not_zero_match_complete_coverage
+  - scanned_payload_digest_differs_from_transmitted_payload
+finding_remediation_lifecycle:
+  status: absent_unimplemented_blocking
+  rules:
+  - every_P1_and_P2_requires_a_stable_finding_id_and_deterministic_reproduction
+  - remediation_creates_a_new_candidate_head_and_new_review_bundle
+  - old_findings_are_never_deleted_or_reinterpreted
+  - disposition_ledger_links_old_finding_new_commit_test_and_verdict
+  - no_prior_review_can_be_reused_after_an_invalidation_event
+forbidden_current_claims:
+- protocol_executable_or_accepted
+- review_executed
+- provider_diversity_verified
+- reviewer_authenticated_or_independent
+- candidate_selected
+- gate_selected
+- architecture_promoted
+- product_or_runtime_ready
+- swiss_financial_or_legal_correctness
+- user_comprehension_validated

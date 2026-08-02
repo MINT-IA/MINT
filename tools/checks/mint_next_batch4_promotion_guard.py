@@ -17,6 +17,9 @@ import yaml
 
 
 READINESS = Path("product/mint_next/batch4/evidence/promotion-readiness.yaml")
+REVIEW_PROTOCOL = Path(
+    "product/mint_next/batch4/evidence/cross-provider-review-protocol.yaml"
+)
 BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
@@ -24,10 +27,11 @@ PHASE_DIR = f".planning/phases/{PHASE}"
 HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
 SEMANTIC_ARTIFACTS: dict[str, str] = {
     f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
-    f"{PHASE_DIR}/SPEC.md": "93a544987d50ed547d38d66783f8b0e9dbc14ad548875c503d5d6bb3d68a8301",
-    f"{PHASE_DIR}/PLAN.md": "06fbb8972e878146df33e72eac83e9423005b6684f2e684a622540479829fb83",
-    f"{PHASE_DIR}/VERIFICATION.md": "80a44ec67918bd77d68adf29dc9fedf5d95ef4c151edfec5e408e832b16b242c",
+    f"{PHASE_DIR}/SPEC.md": "3f8807ce207c642136315d459b6ea23150059cfb109b2dd27bd4f471e34d828a",
+    f"{PHASE_DIR}/PLAN.md": "032bded5982232390715c78e61436fe9c20b0e71847e199800dd27ee33035883",
+    f"{PHASE_DIR}/VERIFICATION.md": "e2ea54f1cb848c47cd5225bdc1589e8d7401a819378517876f440c58cc448b03",
     str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
+    str(REVIEW_PROTOCOL): "0afc8505d8cb70ea838674244f9d7aaabc9dae4102c955cfc5c2b910ac0cb167",
 }
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
@@ -159,6 +163,246 @@ def validate(root: Path) -> list[str]:
             errors.append(f"promotion semantic artifact byte drift: {relative}")
 
     readiness = _load(root / READINESS, errors)
+    protocol = _load(root / REVIEW_PROTOCOL, errors)
+    protocol_keys = {
+        "schema_version", "kind", "status", "protocol_eligible",
+        "selected_gate", "candidate_head", "review_execution", "current_effect",
+        "claim_boundary", "trust_boundary", "implementation_blockers",
+        "candidate_freeze_requirements", "future_request_contract",
+        "future_supply_chain_requirements",
+        "execution_policy_requirements", "review_dimensions",
+        "future_provider_failure_policy_requirements",
+        "future_provider_family_registry_requirements",
+        "future_outbound_data_policy_requirements",
+        "future_prompt_requirements", "future_result_contract",
+        "future_detached_execution_manifest", "future_result_verifier_requirements",
+        "finding_remediation_lifecycle", "forbidden_current_claims",
+    }
+    if set(protocol) != protocol_keys:
+        errors.append("cross-provider review protocol must use the exact template schema")
+    expected_protocol_scalars = {
+        "schema_version": 1,
+        "kind": "mint_next_batch4_cross_provider_review_protocol",
+        "status": "draft_unproven_blocked",
+        "protocol_eligible": False,
+        "selected_gate": "none",
+        "candidate_head": None,
+        "review_execution": None,
+        "current_effect": "cannot_select_gate_or_promote",
+    }
+    for key, expected in expected_protocol_scalars.items():
+        if protocol.get(key) != expected:
+            errors.append(f"review protocol must keep {key}={expected!r}")
+    protocol_claims = protocol.get("claim_boundary") or {}
+    if any(value is not False for key, value in protocol_claims.items() if key.startswith("proves_")):
+        errors.append("review protocol must not claim an executed or validated review")
+    freeze = protocol.get("candidate_freeze_requirements") or {}
+    if freeze.get("authority_ancestor") != HISTORICAL_AUTHORITY_HEAD:
+        errors.append("review protocol must bind the final accepted authority ancestor")
+    if freeze.get("readiness_baseline") != "b6744f3002e0aefd96a759fd02d24891c4d6e3db":
+        errors.append("review protocol must bind the accepted readiness baseline")
+    if freeze.get("candidate_must_descend_from_readiness_baseline") is not True:
+        errors.append("review candidate must descend from the accepted readiness baseline")
+    request_contract = protocol.get("future_request_contract") or {}
+    protocol_inputs = request_contract.get("required_canonical_registries")
+    if protocol_inputs != list(CANONICAL):
+        errors.append("review protocol canonical input list must match the exact manifest order")
+    expected_context_inputs = [
+        f"{PHASE_DIR}/CONTEXT.md", f"{PHASE_DIR}/PLAN.md", f"{PHASE_DIR}/SPEC.md",
+        f"{PHASE_DIR}/VERIFICATION.md",
+        str(REVIEW_PROTOCOL), str(READINESS),
+        "tools/checks/mint_next_batch4_architecture_guard.py",
+        "tools/checks/mint_next_batch4_promotion_guard.py",
+        "tools/checks/tests/test_mint_next_batch4_architecture_guard.py",
+        "tools/checks/tests/test_mint_next_batch4_promotion_guard.py",
+        "product/mint_next/batch4/README.md",
+        "product/mint_next/batch4/ONE-PAGE.md",
+        "product/mint_next/batch4/views/experience-graph.mmd",
+    ]
+    if request_contract.get("required_context_and_verifiers") != expected_context_inputs:
+        errors.append("review protocol context list must match the exact existing review inputs")
+    for relative in expected_context_inputs:
+        path = root / relative
+        if not path.is_file() or path.is_symlink():
+            errors.append(f"review protocol input missing or symlinked: {relative}")
+    expected_evidence_inputs = [
+        "git-lineage-evidence.json", "toolchain-manifest.json",
+        "provider-family-registry.json", "outbound-input-classification-manifest.json",
+        "authoring-provider-provenance.json", "trusted-attestation-policy.json",
+    ]
+    if request_contract.get("required_precomputed_evidence_inputs") != expected_evidence_inputs or request_contract.get(
+        "every_precomputed_evidence_input_uses_ordered_input_entry_fields"
+    ) is not True:
+        errors.append("review request must deliver exact precomputed evidence to the no-command reviewer")
+    if (protocol.get("trust_boundary") or {}).get("cross_provider_value_if_future_verified") != "diversity_only":
+        errors.append("review protocol must keep cross-provider value diversity-only")
+    blocker_values = (protocol.get("implementation_blockers") or {}).values()
+    if not blocker_values or any(
+        not isinstance(value, str)
+        or not (value.endswith("_blocking") or value.endswith("_not_implemented"))
+        for value in blocker_values
+    ):
+        errors.append("every review protocol implementation gap must remain blocking")
+    expected_blocked_sections = {
+        "future_supply_chain_requirements": "absent_unimplemented_blocking",
+        "execution_policy_requirements": "unimplemented_blocking",
+        "future_provider_failure_policy_requirements": "absent_unimplemented_blocking",
+        "future_provider_family_registry_requirements": "absent_unimplemented_blocking",
+        "future_outbound_data_policy_requirements": "absent_unimplemented_blocking",
+        "future_prompt_requirements": "absent_unimplemented_blocking",
+        "future_detached_execution_manifest": "absent_unimplemented_blocking",
+        "future_result_verifier_requirements": "absent_unimplemented_blocking",
+        "finding_remediation_lifecycle": "absent_unimplemented_blocking",
+    }
+    for section, expected_status in expected_blocked_sections.items():
+        if (protocol.get(section) or {}).get("status") != expected_status:
+            errors.append(f"review protocol must keep {section} blocked")
+    if request_contract.get("status") != "draft_non_executable":
+        errors.append("review request contract must remain non-executable")
+    required_request_fields = request_contract.get("required_fields") or []
+    for field in (
+        "toolchain_manifest_sha256",
+        "provider_family_registry_sha256",
+        "outbound_input_classification_manifest_sha256",
+        "authoring_provider_provenance_sha256",
+        "git_lineage_evidence_sha256",
+        "trusted_attestation_policy_sha256",
+    ):
+        if field not in required_request_fields:
+            errors.append(f"review request must bind {field}")
+    supply_chain = protocol.get("future_supply_chain_requirements") or {}
+    if supply_chain.get("request_must_bind") != "toolchain_manifest_sha256" or supply_chain.get(
+        "attested_workflow_must_match_every_toolchain_hash"
+    ) is not True:
+        errors.append("review supply-chain contract must bind and attest every tool hash")
+    required_toolchain_bindings = {
+        "runtime_interpreter_or_container_image_digest",
+        "dependency_lockfiles_and_sha256",
+        "secret_scanner_executable_config_rules_and_signature_db_sha256",
+        "PII_scanner_executable_config_rules_and_signature_db_sha256",
+    }
+    if not required_toolchain_bindings.issubset(
+        set(supply_chain.get("signed_toolchain_manifest_must_bind") or [])
+    ) or not supply_chain.get("trusted_attestation_policy_must_bind") or not supply_chain.get(
+        "attestation_subject_must_bind_together"
+    ):
+        errors.append("review supply-chain contract must bind runtime, scanners, and attestation trust roots")
+    if not supply_chain.get("verifier_trust_bootstrap_external_to_candidate_request_and_bundle") or supply_chain.get(
+        "bundled_policy_or_registry_is_descriptive_never_a_trust_root"
+    ) is not True:
+        errors.append("review verifier trust roots must be external to the candidate and bundle")
+    failure_policy = protocol.get("future_provider_failure_policy_requirements") or {}
+    exact_failure_rules = {
+        "one_execution_bundle_contains_exactly_one_provider_attempt": True,
+        "retry_requires_new_execution_id_and_new_bundle": True,
+        "any_retry_bundle_is_ineligible_for_pass": True,
+        "provider_error_rate_limit_or_transport_failure": "reject_bundle",
+        "malformed_or_schema_invalid_response": "reject_bundle",
+        "fallback_provider_or_model": "reject_bundle",
+        "ambiguous_truncation_state": "reject_bundle",
+    }
+    if any(failure_policy.get(key) != value for key, value in exact_failure_rules.items()):
+        errors.append("review provider failure policy must reject retries, fallback, errors, and ambiguity")
+    provider_registry = protocol.get("future_provider_family_registry_requirements") or {}
+    if provider_registry.get("family_derivation") != (
+        "attested_runner_configuration_plus_allowlisted_endpoint_not_result_self_claim"
+    ) or provider_registry.get("authoring_provider_family_source") != (
+        "trusted_attested_session_or_tool_invocation_record"
+    ) or provider_registry.get("unknown_or_unattested_authoring_provider_family") != (
+        "diversity_gate_ineligible"
+    ):
+        errors.append("review provider family must derive from attested configuration, never self-claim")
+    if not provider_registry.get("authoring_provenance_artifact_must_bind") or provider_registry.get(
+        "request_and_execution_payload_manifest_must_bind_authoring_provenance_sha256"
+    ) is not True or provider_registry.get(
+        "unknown_unattested_or_uncovered_material_authorship"
+    ) != "diversity_gate_ineligible" or provider_registry.get("diversity_check") != (
+        "derived_review_provider_family_must_be_outside_complete_authoring_provider_family_set"
+    ):
+        errors.append("review authoring provider provenance must be delivered and hash-bound")
+    required_authorship_bindings = {
+        "exact_authorship_boundary_every_semantic_review_input_content_lineage_through_candidate",
+        "coverage_mapping_from_every_semantic_input_digest_including_inherited_content_to_all_material_invocation_records",
+        "complete_authoring_provider_family_set",
+    }
+    if not required_authorship_bindings.issubset(
+        set(provider_registry.get("authoring_provenance_artifact_must_bind") or [])
+    ):
+        errors.append("review authorship provenance must cover inherited and changed semantic inputs")
+    transport_evidence = (protocol.get("execution_policy_requirements") or {}).get(
+        "transport_evidence_required"
+    ) or []
+    for field in (
+        "provider_finish_reason", "declared_response_byte_length",
+        "observed_response_body_byte_length",
+    ):
+        if field not in transport_evidence:
+            errors.append(f"review transport evidence must retain {field}")
+    outbound = protocol.get("future_outbound_data_policy_requirements") or {}
+    required_rejections = {
+        "any_secret_or_PII_match",
+        "any_unclassified_or_non_allowlisted_file",
+        "any_user_financial_or_personal_data",
+        "context_budget_exceeded_or_ambiguous",
+        "provider_retention_or_training_setting_unknown_or_not_accepted",
+    }
+    if set(outbound.get("reject_if") or []) != required_rejections or outbound.get(
+        "overflow_behavior"
+    ) != "reject_never_truncate_summarize_or_drop_inputs" or outbound.get(
+        "secret_and_PII_scanners_must_be_bound_by_signed_toolchain_manifest"
+    ) is not True or outbound.get("unsupported_binary_scan_error_or_incomplete_coverage") != (
+        "reject_bundle"
+    ) or outbound.get("scan_scope") != (
+        "every_outbound_semantic_artifact_plus_exact_final_serialized_provider_payload_excluding_only_transport_auth_headers"
+    ) or outbound.get("scanned_bytes_must_equal_transmitted_payload_bytes_by_sha256") is not True:
+        errors.append("review outbound policy must reject secrets, PII, unknown data, and overflow")
+    scanner_contract = outbound.get("scanner_result_contract") or {}
+    if scanner_contract.get("zero_match_pass_predicate") != (
+        "exit_code_zero_and_findings_empty_and_coverage_complete_true"
+    ) or scanner_contract.get("verifier_must_parse_schema_findings_coverage_exit_code_and_payload_digest") is not True:
+        errors.append("review scanner results must be parsed with zero-match and complete-coverage semantics")
+    if not outbound.get("retention_training_evidence_must_bind"):
+        errors.append("review retention evidence must bind the exact provider account and attested run")
+    if outbound.get("input_classification_manifest_is_transmitted_but_must_not_contain_final_payload_digest") is not True or outbound.get(
+        "detached_final_payload_scan_receipt_created_after_serialization_and_never_transmitted"
+    ) is not True or not outbound.get("final_payload_scan_receipt_must_bind"):
+        errors.append("review outbound scan receipt must remain detached and acyclic")
+    result_contract = protocol.get("future_result_contract") or {}
+    if result_contract.get("status") != "draft_non_executable":
+        errors.append("review result contract must remain non-executable")
+    if result_contract.get("result_payload_excludes_its_own_hash") is not True:
+        errors.append("review result must use a detached non-self-referential hash")
+    if result_contract.get("execution_payload_manifest_excludes_attestation_bytes") is not True or result_contract.get(
+        "outer_unsigned_bundle_index_holds_payload_manifest_and_attestation_hashes"
+    ) is not True:
+        errors.append("review result contract must preserve the acyclic two-layer bundle")
+    expected_detached_artifacts = [
+        "request.json", "response-body.bin", "response-headers.json",
+        "review-result.json", "command-evidence.json",
+        "toolchain-manifest.json", "provider-family-registry.json",
+        "outbound-input-classification-manifest.json",
+        "final-payload-scan-receipt.json", "authoring-provider-provenance.json",
+        "git-lineage-evidence.json", "trusted-attestation-policy.json",
+    ]
+    detached = protocol.get("future_detached_execution_manifest") or {}
+    if detached.get("must_hash_without_self_reference") != expected_detached_artifacts:
+        errors.append("detached execution manifest must preserve exact raw artifacts")
+    if detached.get("must_not_hash") != ["workflow-attestation.bundle"] or (
+        detached.get("outer_bundle_index") or {}
+    ).get("hashes") != [
+        "execution-payload-manifest.json", "workflow-attestation.bundle"
+    ]:
+        errors.append("attestation must bind the payload manifest without a mutual hash cycle")
+    verifier_rejections = set(
+        (protocol.get("future_result_verifier_requirements") or {}).get("must_reject") or []
+    )
+    required_transport_rejections = {
+        "transport_origin_TLS_peer_redirect_proxy_or_request_ID_header_mismatch_against_provider_registry",
+        "any_non_allowlisted_transport_hop_or_ambiguous_effective_endpoint",
+        "retention_training_evidence_not_effective_for_exact_provider_account_configuration_and_run",
+    }
+    if not required_transport_rejections.issubset(verifier_rejections):
+        errors.append("review verifier must reject transport and retention evidence mismatch")
     expected_keys = {
         "schema_version", "kind", "phase", "status", "promotion_eligible",
         "selected_gate", "candidate_head", "promotion_receipt", "gates",

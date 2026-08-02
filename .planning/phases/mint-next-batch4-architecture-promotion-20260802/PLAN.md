@@ -11,6 +11,22 @@ Status: `blocked_waiting_cross_provider_review`
 4. Stop. Do not create a candidate head or promotion receipt while the selected
    gate is `none`.
 
+## Batch R1 — review protocol template only
+
+1. Record a fail-closed requirements inventory for future cross-provider
+   inputs, prompts, sandboxing, transport evidence, outputs, dispositions, and
+   verification.
+2. Keep it `draft_unproven_blocked` and `protocol_eligible: false`, with no
+   selected gate, candidate head, execution, verdict, reviewer, or receipt.
+3. Preserve every missing builder, runner, supply-chain manifest and trust
+   roots, Git-lineage/preservation evidence, provider registry/failure policy,
+   outbound-data/scanner policy, transport attestation, detached manifest,
+   schema, verifier, and disposition ledger as
+   `unimplemented_blocking`.
+4. Hash-bind the draft and reject fabricated execution, self-attested identity,
+   incomplete inputs, circular hashes, and provider-diversity inflation.
+5. Stop. This inventory cannot be executed or used as promotion evidence.
+
 ## Future four-head promotion protocol
 
 The four heads are distinct and must never be collapsed or backfilled:

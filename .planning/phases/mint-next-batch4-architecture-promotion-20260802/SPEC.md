@@ -25,6 +25,12 @@ machine-readable and impossible to confuse with promotion itself.
    `formula_contracts.yaml` retain machine precedence over `README.md`.
 8. No promotion receipt, candidate SHA, reviewer identity, review result, or
    test result is fabricated.
+9. `cross-provider-review-protocol.yaml` remains a non-executable,
+   `draft_unproven_blocked` requirements inventory. Every missing prompt,
+   builder, sandbox runner, supply-chain manifest/trust roots, Git-lineage and
+   preservation evidence, provider registry/failure policy, outbound-data and
+   scanner policy, transport attestation, detached manifest, result schema,
+   verifier, and disposition ledger remains blocking.
 
 ## Future eligibility criteria
 
@@ -60,6 +66,9 @@ one frozen candidate semantic head:
 
 - The readiness artifact parses and states every required null/false/absent
   value exactly.
+- The cross-provider protocol parses as `draft_unproven_blocked`, remains
+  ineligible, and cannot be confused with an executable review, result, or
+  identity attestation.
 - Router documents name this phase as governance/readiness work only.
 - Batch 4 remains draft/null and generated views remain unchanged.
 - The old authority phase remains historical and accepted in its original
