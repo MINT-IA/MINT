@@ -94,13 +94,49 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
         errors = self._mutate_scope(lambda value: value["aggregation_contract"].update({"over_ceiling_assertion": "clamp_to_ceiling"}))
         self.assertIn("Batch11 aggregation invariant drift: over_ceiling_assertion", errors)
 
+    def test_rejects_full_refund_auto_zero(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["aggregation_contract"]["full_refund"].update(
+                {"aggregate_becomes_zero": "commit_zero_and_continue"}
+            )
+        )
+        self.assertIn("Batch11 full refund can silently commit zero", errors)
+
+    def test_rejects_sensitive_identifier_in_optional_label(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["aggregation_contract"].update(
+                {"optional_local_label": "account_or_policy_number_allowed"}
+            )
+        )
+        self.assertIn("Batch11 optional provider label can collect sensitive identifiers", errors)
+
     def test_rejects_continue_without_complete_positive_guard(self) -> None:
         errors = self._mutate_scope(lambda value: value["node_contracts"]["fact_contributed_amount"]["controls"]["continue"].update({"guard": "subtotal_nonnegative"}))
         self.assertIn("Batch11 continue can commit incomplete or zero total", errors)
 
+    def test_rejects_removing_the_only_provider_row(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["fact_contributed_amount"]["controls"]["remove_provider"].update(
+                {"minimum_rows_after_removal": 0}
+            )
+        )
+        self.assertIn("Batch11 provider removal can leave zero rows", errors)
+
+    def test_rejects_missing_disclosure_copy(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["fact_contributed_amount"]["reference_copy_fr"].pop("where_to_find_body")
+        )
+        self.assertIn("Batch11 provider-label privacy or disclosure copy drift", errors)
+
     def test_rejects_dead_unknown_help(self) -> None:
         errors = self._mutate_scope(lambda value: value["node_contracts"]["contributed_amount_unknown_help"]["controls"]["found_amount"].update({"to": "dead"}))
         self.assertIn("Batch11 unknown-help route is dead or personal", errors)
+
+    def test_rejects_missing_help_back_label(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["contributed_amount_unknown_help"]["reference_copy_fr"].pop("back")
+        )
+        self.assertIn("Batch11 help variants or Back copy missing", errors)
 
     def test_rejects_ambiguous_separator_guess(self) -> None:
         errors = self._mutate_scope(lambda value: value["input_contract"].update({"ambiguous_or_mixed_separators": "guess"}))
@@ -122,9 +158,56 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
         errors = self._mutate_scope(lambda value: value["input_contract"].update({"amount_logging_analytics_and_crash_breadcrumbs": "allowed"}))
         self.assertIn("Batch11 private amount telemetry became allowed", errors)
 
+    def test_rejects_forbidden_token_removal(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["input_contract"].update({"forbidden_tokens": []})
+        )
+        self.assertIn("Batch11 forbidden numeric token contract drift", errors)
+
+    def test_rejects_missing_technical_overflow_bound(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["input_contract"].update(
+                {"maximum_minor_units_technical_not_fiscal": None}
+            )
+        )
+        self.assertIn("Batch11 non-fiscal technical input bound drift", errors)
+
     def test_rejects_stale_amount_after_status_change(self) -> None:
         errors = self._mutate_scope(lambda value: value["interaction_contract"].update({"status_change_to_no_or_unknown": "preserve_total"}))
         self.assertIn("Batch11 status correction leaves stale amount", errors)
+
+    def test_rejects_stale_amount_after_fact_correction(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["fact_contract"].update(
+                {"correction_effect": "preserve_canonical_total_and_result"}
+            )
+        )
+        self.assertIn("Batch11 correction or tax-year clearing invariant drift", errors)
+
+    def test_rejects_stale_amount_after_tax_year_change(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["fact_contract"].update(
+                {"tax_year_change_effect": "keep_rows_and_result"}
+            )
+        )
+        self.assertIn("Batch11 correction or tax-year clearing invariant drift", errors)
+
+    def test_rejects_private_amount_after_app_kill(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["interaction_contract"].update(
+                {"app_kill_or_ttl_expiry": "preserve_forever"}
+            )
+        )
+        self.assertIn("Batch11 app-kill or TTL privacy purge drift", errors)
+
+    def test_rejects_each_six_locale_semantic_invariant_removal(self) -> None:
+        contract = load(SCOPE)["six_locale_intent_contract"]
+        for intent in contract["required_distinctions_per_locale"]:
+            with self.subTest(intent=intent):
+                errors = self._mutate_scope(
+                    lambda value, target=intent: value["six_locale_intent_contract"]["required_distinctions_per_locale"].remove(target)
+                )
+                self.assertIn("Batch11 six-locale semantic contract drift", errors)
 
     def test_rejects_missing_provider_q_source_anchor(self) -> None:
         def mutate(value) -> None:
@@ -139,6 +222,19 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
             item["anchors"].remove("field_x_total_3a_buybacks")
         errors = self._mutate_sources(mutate)
         self.assertIn("Batch11 current form ordinary/buyback separation missing", errors)
+
+    def test_rejects_contradictory_source_inference_unknown_is_zero(self) -> None:
+        def mutate(value) -> None:
+            value["derived_product_safety_inferences"].append(
+                {
+                    "id": "unknown_is_zero",
+                    "reasoning": "Missing means zero.",
+                    "classification": "product_safety_inference_not_direct_official_quote",
+                    "source_ids": ["estv_circular_18a"],
+                }
+            )
+        errors = self._mutate_sources(mutate)
+        self.assertIn("Batch11 exact written artifact drift: product/mint_next/batch11/official-sources.yaml", errors)
 
     def test_rejects_legacy_habitual_amount_reuse(self) -> None:
         def mutate(value) -> None:
@@ -157,6 +253,28 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
     def test_rejects_premature_single_big_runtime(self) -> None:
         errors = self._mutate_scope(lambda value: value.update({"implementation_slices_after_written_acceptance": ["full_product_runtime"]}))
         self.assertIn("Batch11 future implementation is no longer split into bounded slices", errors)
+
+    def test_rejects_mandatory_roast_removal(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["exit_gate"]["required"].remove("adversarial_roast")
+        )
+        self.assertIn("Batch11 mandatory roast or evidence gate drift", errors)
+
+    def test_rejects_zero_copy_that_auto_changes_status(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["fact_contributed_amount"]["inline_errors"].update(
+                {"zero": "Nous avons mis ta réponse sur non et continué."}
+            )
+        )
+        self.assertIn("Batch11 exact written artifact drift: product/mint_next/batch11/ordinary-contribution-amount-scope.yaml", errors)
+
+    def test_rejects_personal_tax_saving_copy(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["fact_contributed_amount"]["reference_copy_fr"].update(
+                {"not_result_note": "Tu économiseras CHF 2’000 d’impôt."}
+            )
+        )
+        self.assertIn("Batch11 exact written artifact drift: product/mint_next/batch11/ordinary-contribution-amount-scope.yaml", errors)
 
     def test_rejects_ci_guard_replaced_by_echo(self) -> None:
         errors = self._mutate_workflow(

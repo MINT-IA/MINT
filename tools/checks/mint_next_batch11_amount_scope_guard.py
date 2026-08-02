@@ -24,6 +24,11 @@ EXPECTED_AUTHORITY_DIGESTS = {
     PREVIOUS_SCOPE: "64d941ce3c974c76bf5f3e40cb85a5a5e323cfe9b9f4eacbc8ee234d9722f83d",
     PREVIOUS_ACCEPTANCE: "36c9ef128aa7b548c1df04637d9721cda2babfe330ef16ff1133f5a1288846f2",
 }
+EXPECTED_WRITTEN_ARTIFACT_DIGESTS = {
+    SCOPE: "eba64ea7a6280575db4a6ff95b2f6408ee295078a22da4f59e3f95b5b3c697a3",
+    SOURCES: "6ebc04d5edb92d8f437db1b6ce60ebae5daa187f294cdc3cdffbe2d934ce3741",
+    LEGACY: "2fae82c99a9a66ddaefba524445b061f6b363860b48bd9d0c17a0a62ef994204",
+}
 EXPECTED_URLS = {
     "https://www.estv.admin.ch/dam/estv/fr/dokumente/dbst/kreisschreiben/dbst-ks-2025-1-018a-dv.pdf.download.pdf/dbst-ks-2025-1-018a-dv.pdf",
     "https://www.estv.admin.ch/dam/fr/sd-web/bwQT3vUiDRc1/dbst-mb-21edp-2025-fr.pdf",
@@ -95,12 +100,17 @@ def validate(
     for path, expected in EXPECTED_AUTHORITY_DIGESTS.items():
         if digest(path) != expected:
             errors.append(f"Batch11 authority drift: {path.relative_to(ROOT)}")
+    for canonical, expected in EXPECTED_WRITTEN_ARTIFACT_DIGESTS.items():
+        actual = {SCOPE: scope_path, SOURCES: sources_path, LEGACY: legacy_path}[canonical]
+        if digest(actual) != expected:
+            errors.append(f"Batch11 exact written artifact drift: {canonical.relative_to(ROOT)}")
 
     expected_top = {
         "schema_version", "status", "journey_id", "audience", "authority", "slice",
         "human_outcome", "fact_contract", "aggregation_contract", "node_contracts",
         "input_contract", "interaction_contract", "accessibility_contract",
-        "content_boundaries", "implementation_slices_after_written_acceptance", "exit_gate",
+        "six_locale_intent_contract", "content_boundaries",
+        "implementation_slices_after_written_acceptance", "exit_gate",
     }
     if set(scope) != expected_top or scope.get("status") != "draft_written_contract_runtime_forbidden":
         errors.append("Batch11 schema or write-only status drift")
@@ -162,6 +172,8 @@ def validate(
         "blank_parse_error_or_unknown": "never_zero",
     }:
         errors.append("Batch11 unknown/blank/yes could become zero")
+    if fact.get("correction_effect") != "clear_canonical_total_and_downstream_result_then_recompute_only_after_complete_confirmation" or fact.get("tax_year_change_effect") != "clear_status_rows_total_completeness_and_downstream_result_before_render":
+        errors.append("Batch11 correction or tax-year clearing invariant drift")
     forbidden_inferences = set(fact.get("never_derive_from", []))
     required_forbidden = {
         "current_balance_or_cash_value", "planned_scheduled_or_habitual_contribution",
@@ -192,13 +204,20 @@ def validate(
         "duplicate_or_reissued_evidence": "latest_provider_confirmed_correction_supersedes_never_adds",
         "partial_refund": "provider_confirmed_net_ordinary_amount_only_no_mental_subtraction",
         "unclear_refund_or_correction": "conflicted_no_canonical_total",
-        "over_ceiling_assertion": "do_not_clamp_or_call_deductible_route_to_verification_if_unresolved",
+        "over_ceiling_assertion": "do_not_clamp_or_call_deductible_if_unresolved_use_contributed_amount_unknown_help",
     }
     for key, value in required_aggregation.items():
         if aggregation.get(key) != value:
             errors.append(f"Batch11 aggregation invariant drift: {key}")
     if aggregation.get("provider_identity_required") is not False:
         errors.append("Batch11 unnecessary provider identity became required")
+    if aggregation.get("optional_local_label") != "allowed_but_never_account_policy_or_avs_number":
+        errors.append("Batch11 optional provider label can collect sensitive identifiers")
+    if aggregation.get("full_refund") != {
+        "aggregate_still_positive": "remove_or_correct_affected_row_then_reconfirm_completeness",
+        "aggregate_becomes_zero": "return_to_status_question_for_explicit_no",
+    }:
+        errors.append("Batch11 full refund can silently commit zero")
 
     nodes = scope.get("node_contracts", {})
     amount = nodes.get("fact_contributed_amount", {})
@@ -214,9 +233,18 @@ def validate(
             errors.append(f"Batch11 amount control route drift: {action}")
     if controls.get("continue", {}).get("guard") != "complete_positive_total_only":
         errors.append("Batch11 continue can commit incomplete or zero total")
+    remove = controls.get("remove_provider", {})
+    if remove.get("visible_only_when_row_count_at_least") != 2 or remove.get("minimum_rows_after_removal") != 1:
+        errors.append("Batch11 provider removal can leave zero rows")
+    copy = amount.get("reference_copy_fr", {})
+    if copy.get("optional_label") != "Surnom facultatif — sans numéro de compte ou de police" or not copy.get("where_to_find_title") or not copy.get("where_to_find_body"):
+        errors.append("Batch11 provider-label privacy or disclosure copy drift")
     help_controls = nodes.get("contributed_amount_unknown_help", {}).get("controls", {})
     if help_controls.get("found_amount", {}).get("to") != "fact_contributed_amount" or help_controls.get("continue_education_only", {}).get("to") != "education_explanation":
         errors.append("Batch11 unknown-help route is dead or personal")
+    help_copy = nodes.get("contributed_amount_unknown_help", {}).get("reference_copy_fr", {})
+    if not help_copy.get("back") or not help_copy.get("partial_body") or not help_copy.get("unknown_body"):
+        errors.append("Batch11 help variants or Back copy missing")
     if "import_or_scan_cta" not in set(nodes.get("contributed_amount_unknown_help", {}).get("forbidden", [])):
         errors.append("Batch11 premature document import became allowed")
 
@@ -237,6 +265,10 @@ def validate(
         errors.append("Batch11 parser can silently alter user amount")
     if parser.get("amount_logging_analytics_and_crash_breadcrumbs") != "forbidden":
         errors.append("Batch11 private amount telemetry became allowed")
+    if set(parser.get("forbidden_tokens", [])) != {"minus_sign", "plus_sign", "exponent", "percent", "NaN", "Infinity", "currency_other_than_CHF"}:
+        errors.append("Batch11 forbidden numeric token contract drift")
+    if parser.get("maximum_raw_input_code_points") != 32 or parser.get("maximum_minor_units_technical_not_fiscal") != 99999999999999 or parser.get("technical_overflow_behavior") != "reject_without_clamp_preserve_raw_input_and_focus_field":
+        errors.append("Batch11 non-fiscal technical input bound drift")
     if parser.get("explicit_continue_required") is not True or parser.get("keyboard_done_does_not_commit_or_route") is not True:
         errors.append("Batch11 typing can route without explicit confirmation")
 
@@ -247,17 +279,44 @@ def validate(
         errors.append("Batch11 status correction leaves stale amount")
     if interaction.get("leave_without_saving") != "clear_status_rows_total_completeness_and_all_prior_ephemeral_facts":
         errors.append("Batch11 safe-exit purge drift")
+    if interaction.get("app_kill_or_ttl_expiry") != "restart_and_clear":
+        errors.append("Batch11 app-kill or TTL privacy purge drift")
+
+    locale_contract = scope.get("six_locale_intent_contract", {})
+    required_locale_intents = {
+        "selected_tax_year_not_habitual_or_previous_year",
+        "ordinary_contribution_actually_credited_not_planned_sent_or_debited",
+        "one_row_is_one_provider_total_q_not_a_transaction_or_contract",
+        "all_bank_fintech_and_insurance_providers_must_be_reviewed",
+        "partial_and_unknown_never_equal_zero",
+        "provider_transfer_is_excluded",
+        "retroactive_buyback_is_separate",
+        "provider_total_may_already_cover_multiple_contracts",
+        "collected_total_is_not_yet_a_tax_result_deduction_or_remaining_room",
+    }
+    if locale_contract.get("locales") != ["fr", "en", "de", "it", "es", "pt"] or set(locale_contract.get("required_distinctions_per_locale", [])) != required_locale_intents or locale_contract.get("semantic_review_required_for_every_locale") is not True or locale_contract.get("key_parity_alone_is_insufficient") is not True:
+        errors.append("Batch11 six-locale semantic contract drift")
 
     boundaries = scope.get("content_boundaries", {})
     if not boundaries or not all(value is True for value in boundaries.values()):
         errors.append("Batch11 forbidden calculation/runtime boundary drift")
     if scope.get("implementation_slices_after_written_acceptance") != [
-        "single_provider_positive_amount_unknown_help_and_boundaries",
-        "additional_provider_rows_local_exact_sum_and_completeness",
-        "six_locale_copy_accessibility_and_real_runtime_proof",
+        {
+            "id": "single_provider_positive_amount_unknown_help_and_boundaries",
+            "rendered_controls": ["amount_input", "where_to_find", "missing_amount", "unknown_amount", "continue", "correct_previous", "safe_exit"],
+            "forbidden_visible_controls": ["add_provider", "remove_provider"],
+        },
+        {
+            "id": "additional_provider_rows_local_exact_sum_and_completeness",
+            "rendered_controls": ["add_provider", "remove_provider", "running_total", "all_providers_reviewed"],
+            "remove_hidden_at_one_row": True,
+        },
+        {"id": "six_locale_copy_accessibility_and_real_runtime_proof", "requires_complete_previous_controls": True},
     ]:
         errors.append("Batch11 future implementation is no longer split into bounded slices")
     exit_gate = scope.get("exit_gate", {})
+    if set(exit_gate.get("required", [])) != {"exact_contract_guard", "official_source_receipt", "legacy_inventory", "hostile_mutation_tests", "ux_roast", "swiss_compliance_roast", "adversarial_roast"}:
+        errors.append("Batch11 mandatory roast or evidence gate drift")
     if exit_gate.get("runtime_required_for_this_batch") is not False or exit_gate.get("next_gate") != "isolated_single_provider_runtime_only_after_written_contract_acceptance":
         errors.append("Batch11 exit gate permits premature runtime")
 

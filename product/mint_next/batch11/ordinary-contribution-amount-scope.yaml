@@ -104,7 +104,7 @@ aggregation_contract:
   full_refund:
     aggregate_still_positive: remove_or_correct_affected_row_then_reconfirm_completeness
     aggregate_becomes_zero: return_to_status_question_for_explicit_no
-  over_ceiling_assertion: do_not_clamp_or_call_deductible_route_to_verification_if_unresolved
+  over_ceiling_assertion: do_not_clamp_or_call_deductible_if_unresolved_use_contributed_amount_unknown_help
 
 node_contracts:
   fact_contributed_amount:
@@ -115,7 +115,7 @@ node_contracts:
       provider_total_note: Utilise le total annuel ordinaire confirmé par ce prestataire. S’il couvre plusieurs contrats, ne recompte pas leur détail.
       not_result_note: Ce total n’est pas encore un résultat fiscal.
       first_row_label: Banque, fintech ou assurance 3a n° 1
-      optional_label: Nom pour t’y retrouver (facultatif)
+      optional_label: Surnom facultatif — sans numéro de compte ou de police
       amount_label: Montant ordinaire confirmé pour {taxYear}
       amount_suffix: CHF
       add_provider: Ajouter un autre prestataire 3a
@@ -123,10 +123,12 @@ node_contracts:
       running_total: Total saisi · CHF {amount}
       completeness_confirmation: J’ai vérifié tous mes 3a pour {taxYear}
       where_to_find: Où trouver le bon montant ?
-      missing_amount: Il me manque un montant
-      unknown_amount: Je ne sais pas
+      missing_amount: Il me manque le montant d’un de mes 3a
+      unknown_amount: Je ne connais encore aucun montant
       continue: Continuer
       correct_previous: Corriger ma réponse précédente
+      where_to_find_title: Sur l’attestation de chaque prestataire
+      where_to_find_body: Cherche la ligne « Total des cotisations au pilier 3a » pour {taxYear}. Utilise ce total une seule fois, même si l’attestation liste plusieurs contrats.
     required_copy_intents:
       - selected_year_in_question_and_each_amount_label
       - provider_not_transaction_or_contract_row
@@ -136,12 +138,12 @@ node_contracts:
       - not_yet_a_tax_result
     controls:
       add_provider: {operation: append_empty_ephemeral_provider_row, focus: new_row_heading}
-      remove_provider: {operation: remove_row_clear_total_and_recompute_working_subtotal, focus: adjacent_row_or_add_button}
+      remove_provider: {operation: remove_row_clear_total_and_recompute_working_subtotal, visible_only_when_row_count_at_least: 2, minimum_rows_after_removal: 1, focus: adjacent_row_or_add_button}
       edit_amount: {operation: update_minor_units_clear_canonical_total_until_reconfirmed}
       toggle_all_reviewed: {operation: set_completeness_assertion_clear_canonical_total_then_validate}
       where_to_find: {operation: same_node_disclosure, default_expanded: false}
-      missing_amount: {to: contributed_amount_unknown_help, preserves: ephemeral_working_rows}
-      unknown_amount: {to: contributed_amount_unknown_help, mutation: amount_unknown, preserves: ephemeral_working_rows}
+      missing_amount: {to: contributed_amount_unknown_help, mode: partial_known, preserves: ephemeral_working_rows}
+      unknown_amount: {to: contributed_amount_unknown_help, mode: no_amount_known, mutation: amount_unknown, preserves: ephemeral_working_rows}
       continue: {to: fact_canton, guard: complete_positive_total_only, mutation: commit_canonical_total}
       correct_previous: {to: fact_contribution, restores_selection: 'yes', preserves_draft_until_status_changes}
       open_safe_exit: {overlay: safe_exit}
@@ -167,6 +169,8 @@ node_contracts:
       eyebrow: Aucun souci
       title: Tu peux vérifier sans faire l’addition toi-même.
       body: Cherche le total annuel ordinaire indiqué par chaque prestataire pour {taxYear}. MINT additionnera les montants confirmés.
+      partial_body: Garde les montants déjà trouvés. Il manque seulement le total d’au moins un prestataire pour {taxYear}.
+      unknown_body: Commence par un relevé ou une attestation 3a de {taxYear}. Tu n’as rien à additionner toi-même.
       bank_fintech: Dans chaque app ou attestation, cherche le total reçu pour les cotisations ordinaires de {taxYear}.
       insurance: Pour une assurance 3a, utilise l’attestation annuelle ou demande le total ordinaire confirmé.
       provider_total_warning: Si un total couvre plusieurs contrats, ne rajoute pas leurs lignes détaillées.
@@ -174,6 +178,7 @@ node_contracts:
       classification_question: En cas de doute, demande si le mouvement est une cotisation ordinaire, un transfert, un rachat ou un remboursement.
       found_amount: J’ai trouvé le montant
       continue_education_only: Continuer sans montant personnel
+      back: Revenir à mes montants
     controls:
       found_amount: {to: fact_contributed_amount, restores: rows_scroll_and_focus}
       continue_education_only: {to: education_explanation, mutation: amount_unknown, mode: general_education_no_personal_amount}
@@ -200,6 +205,10 @@ input_contract:
   maximum_fraction_digits: 2
   no_fraction: accepted_as_whole_chf
   forbidden_tokens: [minus_sign, plus_sign, exponent, percent, NaN, Infinity, currency_other_than_CHF]
+  maximum_raw_input_code_points: 32
+  maximum_minor_units_technical_not_fiscal: 99999999999999
+  technical_overflow_behavior: reject_without_clamp_preserve_raw_input_and_focus_field
+  technical_overflow_error_fr: Ce montant est trop long. Vérifie le total indiqué par ton prestataire.
   no_silent_rounding_truncation_clamping_or_fx: true
   raw_text_preserved_on_error: true
   format_after_blur_only: true
@@ -219,6 +228,21 @@ interaction_contract:
   app_kill_or_ttl_expiry: restart_and_clear
   tax_year_rollover: return_to_tax_year_and_clear_year_scoped_facts_before_render
   status_change_to_no_or_unknown: clear_rows_total_completeness_and_downstream_result_atomically
+
+six_locale_intent_contract:
+  locales: [fr, en, de, it, es, pt]
+  required_distinctions_per_locale:
+    - selected_tax_year_not_habitual_or_previous_year
+    - ordinary_contribution_actually_credited_not_planned_sent_or_debited
+    - one_row_is_one_provider_total_q_not_a_transaction_or_contract
+    - all_bank_fintech_and_insurance_providers_must_be_reviewed
+    - partial_and_unknown_never_equal_zero
+    - provider_transfer_is_excluded
+    - retroactive_buyback_is_separate
+    - provider_total_may_already_cover_multiple_contracts
+    - collected_total_is_not_yet_a_tax_result_deduction_or_remaining_room
+  semantic_review_required_for_every_locale: true
+  key_parity_alone_is_insufficient: true
 
 accessibility_contract:
   amount_row_role: named_group
@@ -248,9 +272,14 @@ content_boundaries:
   no_tax_declaration_rounding: true
 
 implementation_slices_after_written_acceptance:
-  - single_provider_positive_amount_unknown_help_and_boundaries
-  - additional_provider_rows_local_exact_sum_and_completeness
-  - six_locale_copy_accessibility_and_real_runtime_proof
+  - id: single_provider_positive_amount_unknown_help_and_boundaries
+    rendered_controls: [amount_input, where_to_find, missing_amount, unknown_amount, continue, correct_previous, safe_exit]
+    forbidden_visible_controls: [add_provider, remove_provider]
+  - id: additional_provider_rows_local_exact_sum_and_completeness
+    rendered_controls: [add_provider, remove_provider, running_total, all_providers_reviewed]
+    remove_hidden_at_one_row: true
+  - id: six_locale_copy_accessibility_and_real_runtime_proof
+    requires_complete_previous_controls: true
 
 exit_gate:
   required: [exact_contract_guard, official_source_receipt, legacy_inventory, hostile_mutation_tests, ux_roast, swiss_compliance_roast, adversarial_roast]
