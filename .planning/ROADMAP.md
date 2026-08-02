@@ -1,17 +1,17 @@
 # Roadmap: MINT
 
-## Active Pointer — 2026-06-18
+## Active Pointer — 2026-08-02
 
-Current operating phase is **Mint 2.0 first experience rente/capital**. The
-foundation cleanup and infrastructure entries below are retained as historical
-receipts; they are not the active router for new product work.
+<!-- mint-authority: milestone=mint-next-architecture-authority-20260802; phase_dir=.planning/phases/mint-next-architecture-authority-20260802; context=.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md; spec=.planning/phases/mint-next-architecture-authority-20260802/SPEC.md; mode=governance-only -->
 
-- Mint 2.0 active context: [`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/CONTEXT.md)
-- Mint 2.0 active spec: [`.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`](phases/mint-2-0-first-experience-rente-capital/SPEC.md)
-- Journey OS operating overlay: [`.planning/journeys/JOURNEYS.md`](journeys/JOURNEYS.md)
-  and [`.planning/journeys/BOARD.md`](journeys/BOARD.md), guarded by
-  `python3 tools/checks/journey_os_check.py`.
-- Next product phase: [`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`](phases/mint-2-0-first-experience-rente-capital/CONTEXT.md) — self-reference placeholder; no successor product phase is queued yet.
+Current authority phase is **MINT Next Architecture Authority**, governance-only.
+It reconciles the event-triggered Batch 4 maps with the project router without changing product or runtime behavior.
+
+- Active context: [`.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md`](phases/mint-next-architecture-authority-20260802/CONTEXT.md)
+- Active spec: [`.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`](phases/mint-next-architecture-authority-20260802/SPEC.md)
+- Journey OS remains the runtime operating overlay.
+- the former retirement-first phase remains below as a preserved historical runtime vertical, not the global IA.
+- Next product phase: none queued; the active context self-reference is a schema placeholder.
 
 ## Soldage des gates legacy — 2026-07-29
 

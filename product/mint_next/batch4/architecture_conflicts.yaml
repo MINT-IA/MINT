@@ -2,7 +2,7 @@ schema_version: 1
 conflicts:
 - id: retirement_first_active_context
   severity: blocker
-  status: unresolved
+  status: resolved
   authority_paths:
   - .planning/ACTIVE_CONTEXT.json
   - .planning/ACTIVE_CONTEXT.md
@@ -12,3 +12,17 @@ conflicts:
   conflict: The current routing authority still selects a retirement-first phase, while Batch 4 proposes an event-triggered architecture.
   draft_behavior: record_and_block_promotion
   resolution_required: A separately reviewed successor active context must reconcile or replace the retirement-first authority before implementation or promotion.
+  resolution:
+    kind: governance_authority_transition
+    authority_milestone: mint-next-architecture-authority-20260802
+    legacy_disposition: preserved_runtime_vertical_not_global_authority
+    evidence:
+    - .planning/ACTIVE_CONTEXT.json
+    - .planning/ACTIVE_CONTEXT.md
+    - .planning/STATE.md
+    - .planning/ROADMAP.md
+    - .planning/INDEX.md
+    limitations:
+    - governance_only
+    - no_product_or_runtime_activation
+    - batch4_still_requires_separate_promotion

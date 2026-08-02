@@ -2,17 +2,17 @@ generated_on: '2026-08-02'
 schema_version: 1
 sources:
 - path: .planning/ACTIVE_CONTEXT.json
-  sha256: 4c331533ac8828b1dd2f8c486485b93f196c0c0c7bd8746cd5343c7272a7aea4
-  role: current_routing_authority_conflicts_with_batch4
+  sha256: 8fda531e673162678e5e193c7ff82190fc0ea92e0f38ed373abe0dac42c9a5e0
+  role: reconciled_governance_authority
 - path: .planning/ACTIVE_CONTEXT.md
-  sha256: e175b91acfc74e25517c70416125fafed300c93a0b418ee3950e713c3a05a9b1
-  role: current_routing_authority_conflicts_with_batch4
+  sha256: 41bcb068b6db45938adfa0476bf4b8c930a2f6523b831411d4aae1b807291a56
+  role: reconciled_governance_authority
 - path: .planning/STATE.md
-  sha256: a57d1d73695c51d9058f1f6217ea993646d1ad985f3f6a715dd08e81bc177d86
-  role: current_project_state_requires_reconciliation
+  sha256: d5991cd99264d98bbca63934fb71a785e676e1f5364cefa6b4517d0b8d340cc5
+  role: reconciled_governance_state
 - path: .planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md
   sha256: 7714cc2ba2784eaa3ce33dce93e8aec2f1bb3b61cda6c0eb69e08350da78109e
-  role: current_product_spec_conflicts_with_batch4
+  role: preserved_runtime_vertical_not_global_authority
 - path: docs/VOICE_SYSTEM.md
   sha256: 3cd1cc8a347252ed874a71c7d1fcccb3db4352ba57482c6400ee8544e411ab17
   role: input_evidence_not_automatically_authoritative

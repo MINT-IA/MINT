@@ -5,78 +5,19 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 
 ## Active Now
 
-- Active milestone: `mint-2-0-first-experience-rente-capital`
-- Active context: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
-- Active spec: `.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
-- Active integration branch: `dev`
-- Active operating overlay: `.planning/journeys/` is the canonical Journey OS
-  board, issue registry, evidence map, and priority queue for proving the next
-  Mint vertical.
+<!-- mint-authority: milestone=mint-next-architecture-authority-20260802; phase_dir=.planning/phases/mint-next-architecture-authority-20260802; context=.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md; spec=.planning/phases/mint-next-architecture-authority-20260802/SPEC.md; mode=governance-only -->
+
+- Active milestone: `mint-next-architecture-authority-20260802`
+- Active context: `.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md`
+- Active spec: `.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`
+- Authority mode: **governance-only**. This phase changes planning authority, not product or runtime behavior.
+- Active integration branch: `dev`; this transition branch is review-only until independently accepted.
+- Active operating overlay: `.planning/journeys/` remains the canonical runtime board, issue registry, evidence map, and priority queue.
+- Legacy retirement vertical: `.planning/phases/mint-2-0-first-experience-rente-capital/` is preserved as a runtime vertical and historical receipt; it is no longer the global information architecture.
+- Batch 4: `product/mint_next/batch4/` remains `draft_unproven` until a separate exact-head promotion receipt and final roasts.
+- Next product phase: none queued. `.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md` self-references only because the router schema requires a context path.
 - Journey OS guard: `python3 tools/checks/journey_os_check.py`.
 - Workflow contract guard: `python3 tools/checks/workflow_contract_guard.py`.
-- Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
-  self-references the active context as a placeholder; no successor product
-  phase is queued yet.
-- Temporary hotfix branch: `codex/account-lifecycle-gate-20260624` is
-  authorized only for the account lifecycle/onboarding gate hotfix.
-- Temporary runtime-proof branch: `codex/jos001-seeded-auth-runtime-20260626`
-  is authorized only for the JOS-001 account lifecycle seeded-auth runtime
-  proof and any directly required gate fix.
-- Temporary workflow branch: `codex/dynamic-pr-size-rule-20260626` is
-  authorized only for the PR-size-budget doctrine correction.
-- Temporary foundation branch: `codex/mint-next-batch0-foundation-20260801` is
-  authorized only for the audited MINT Next Batch 0 agent/tool/memory/infra foundation.
-- Temporary design branch: `codex/mint-next-batch1-design-20260801` is
-  authorized only for the MINT Next Batch 1 Handoff audit, creative directions,
-  and coordination-channel decision; no product implementation.
-- Temporary fiscal-fixture branch: `codex/mint-next-batch2-tax-fixture-20260801` is
-  authorized only for one bounded, officially sourced Vaud tax fixture, its
-  validation contracts, and independent roast; no UX winner or product runtime.
-- Temporary prototype-fixture branch: `codex/mint-next-batch3-real-fixture-20260801` is
-  authorized only for applying the promoted Batch 2 fixture identically across
-  the three Batch 1 directions with runtime/accessibility proofs; no UX winner,
-  moderated-user-test claim, Flutter product, or engine change.
-- Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
-  is authorized only for the Money truth spine Journey OS vertical.
-- Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`
-  is authorized only for the JOS-002A onboarding persistence gate needed before
-  the downstream Money truth spine proof.
-- Temporary runtime-proof branch: `codex/jos002b-money-truth-runtime-20260627`
-  is authorized only for the JOS-002B Money truth runtime proof harness and any
-  directly required SEC-10-preserving simulator fixture fix.
-- Temporary Journey OS branch: `codex/jos003-next-journey-vertical-20260627`
-  is authorized only for selecting and executing the next scoped Journey OS
-  vertical from clean `origin/dev`.
-- Temporary Journey OS branch: `codex/jos004-profile-privacy-control-20260627`
-  is authorized only for the Profile Privacy Control Journey OS vertical from
-  clean `origin/dev`.
-- Temporary Journey OS branch: `codex/jos005-coach-advice-turn-20260627`
-  is authorized only for the Coach Advice Turn Journey OS vertical from clean
-  `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-coach-advice-fix-20260627` is
-  authorized only for the JOS-004 Coach advice turn regulatory freshness fix
-  from clean `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-coach-empty-answer-fix-20260627` is
-  authorized only for the JOS-004 authenticated Coach empty-answer fix, the
-  directly required runtime-proof harness update, and evidence from clean
-  `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-regulatory-floor-20260627` is
-  authorized only for the JOS-004 closed regulatory 3a/LPP deterministic
-  runtime floor and evidence from clean `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-regulatory-floor-close-loop-20260627`
-  is authorized only for closing the JOS-004 3a/LPP regulatory tool loop
-  deterministically before a fallback response can overwrite it.
-- Temporary runtime-proof branch:
-  `codex/jos004-maestro-first-experience-proof-20260627` is authorized only
-  for the JOS-004 Coach advice turn Maestro runtime proof harness update from
-  clean `origin/dev`; no product code changes.
-- Temporary Journey OS branch: `codex/jos005-onboarding-first-value-20260627`
-  is authorized only for classifying and proving the Onboarding First Value
-  Journey OS vertical from clean `origin/dev`.
-- Temporary hotfix branch: `codex/jos005-first-value-before-account-20260627`
-  is authorized only for the JOS-005 Mint 2.0 onboarding first-value fix so the
-  live LPP/rente-capital axis reaches `/rente-vs-capital` before account
-  creation, from clean `origin/dev`.
 
 ## Required Session Start
 
@@ -116,6 +57,7 @@ may be cited as evidence, but they are not active routing authority:
 - `money-trust-contract-v1-03-onboarding-3a-number-gate`
 - `money-trust-contract-v1-33-3a-onboarding-tax-copy-guard`
 - `mint-karpathy-rules-infra-20260614`
+- `mint-2-0-first-experience-rente-capital` — preserved runtime vertical; not global architecture authority
 
 The canonical checkout is `/Users/julienbattaglia/Desktop/MINT.nosync` on
 `dev`. Historical local copies and deleted worktrees were moved into

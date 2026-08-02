@@ -217,6 +217,13 @@ ALLOW = {
     "tools/checks/mint_next_batch4_architecture_guard.py",
     "tools/checks/mint_next_batch4_generate_views.py",
     "tools/checks/tests/test_mint_next_batch4_architecture_guard.py",
+    # Governance-only authority transition; no product/runtime surface.
+    ".planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md",
+    ".planning/phases/mint-next-architecture-authority-20260802/SPEC.md",
+    ".planning/phases/mint-next-architecture-authority-20260802/PLAN.md",
+    ".planning/phases/mint-next-architecture-authority-20260802/VERIFICATION.md",
+    "tools/checks/mint_next_authority_transition_guard.py",
+    "tools/checks/tests/test_mint_next_authority_transition_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

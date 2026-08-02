@@ -1,116 +1,42 @@
 ---
 gsd_state_version: 1.0
-milestone: mint-2-0-first-experience-rente-capital
-milestone_name: Mint 2.0 First Experience Rente/Capital
-status: historical-receipt-superseded-by-journey-os
-stopped_at: Journey OS is now the active daily router; see .planning/journeys/TODAY.md and BOARD.md. Current top issue is JOS-005 onboarding_first_value red regression.
-last_updated: "2026-06-28T00:00:00.000Z"
-last_activity: 2026-06-28 -- PR #767 made Journey OS mandatory in guards; this file is retained as historical GSD receipt, not the current product router.
+milestone: mint-next-architecture-authority-20260802
+milestone_name: MINT Next Architecture Authority
+status: governance-only-authority-transition
+stopped_at: Batch 4 architecture is audited but remains draft until separate promotion evidence.
+last_updated: "2026-08-02T00:00:00.000Z"
+last_activity: 2026-08-02 -- event-triggered architecture authority transition; no product/runtime change.
 progress:
-  scope: runtime_path_proof
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  scope: governance_only
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 1
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: Mint 2.0 First Experience Rente/Capital
+# GSD State: MINT Next Architecture Authority
 
 ## Current Router
 
-This file is historical. Current Mint product routing now lives in:
+<!-- mint-authority: milestone=mint-next-architecture-authority-20260802; phase_dir=.planning/phases/mint-next-architecture-authority-20260802; context=.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md; spec=.planning/phases/mint-next-architecture-authority-20260802/SPEC.md; mode=governance-only -->
 
-- `.planning/journeys/TODAY.md`
-- `.planning/journeys/BOARD.md`
-- `.planning/journeys/JOURNEYS.md`
-- `.planning/ACTIVE_CONTEXT.md`
-- `.planning/ACTIVE_CONTEXT.json`
+The active phase is governance-only: `.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md` and `.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`. It establishes the event-triggered Batch 4 maps as the candidate global architecture without activating any screen, route, calculator, API, recommendation, or deployment.
 
-As of 2026-06-28, the Journey OS top queue item is `JOS-005`: restore the
-Mint2 LPP/rente-capital first-value path before the account gate, then rerun
-the iPhone 13 mini Mint2 quality gate.
+Journey OS remains the runtime truth overlay. The former retirement-first phase is preserved byte-for-byte as a historical receipt and proven runtime vertical, not deleted and not treated as the global IA.
 
 ## Project Reference
 
-Active operating map:
-`.planning/ACTIVE_CONTEXT.md`,
-`.planning/ACTIVE_CONTEXT.json`,
-`.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`,
-`.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
-and `.planning/phases/mint-2-0-first-experience-rente-capital/VERIFICATION.md`.
-
-The older GSD receipts below are retained as history. They are not the current
-router for Mint 2.0 product planning.
-
-**Core value:** Mint 2.0 first experience is a Swiss financial dossier and
-navigation flow. The first active door is rente/capital; logement and fiscal
-remain signalétique until their own implementation gates exist.
-
-**Current focus:** close the only remaining non-simulator phase gap:
-physical-device/TestFlight Keychain/iCloud restore evidence.
-
-## Strategic Frame
-
-- **Doctrine:** spec first, verifier second, implementation third. A product
-  surface is not active because an agent described it; it must have a phase
-  contract and fresh verification evidence.
-
-- **Source:** `.planning/phases/mint-2-0-first-experience-rente-capital/`.
-
-- **Proof contract:** fresh command output, guard tests, Engram summary, and no
-  product claim without simulator/device evidence.
+- Session authority: `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.
+- Governance contract: `.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`.
+- Runtime queue/evidence: `.planning/journeys/`.
+- Candidate architecture: `product/mint_next/batch4/`, still `draft_unproven`.
+- Next product phase: none queued.
 
 ## Current Position
 
-Phase: mint-2-0-first-experience-rente-capital — LOCAL QUALITY GATE LANDED,
-DEVICE RESTORE BLOCKED
-Plan: first route proof, local dossier/account handoff, fresh anonymous residue
-blocking, and local runtime quality gate are merged. Do not re-prove those paths
-unless a regression appears.
-Status: `dev` contains the Mint 2.0 first-entry route to the existing
-`/rente-vs-capital` surface, dossier/account handoff coverage, fresh anonymous
-residue blocking, and `tools/simulator/mint2_quality_gate.sh`.
-Original dirty tree remains quarantine.
-Last activity: 2026-06-20 -- PR #721 merged as `e68272bcf`; S10 real-device
-restore preflight produced `BLOCKED_NO_AVAILABLE_DEVICE`.
-
-Progress counters now measure the initial route/runtime proof. The remaining
-open claim is physical-device/TestFlight restore evidence.
-
-**Promotion evidence:**
-
-- `python3 tools/checks/active_context_guard.py`.
-- `python3 tools/checks/phase_contract_guard.py`.
-- `python3 tools/checks/verify_phase_acceptance.py`.
-- Guard pytest suite for active context, phase contract, rules, agent reference,
-  Claude hooks, and phase acceptance.
-- PR #705 CI gate and local runtime artifacts under
-  `.planning/runtime-evidence/20260617T212912Z`.
-- Design-system runtime check artifacts under
-  `.planning/runtime-evidence/20260618T055622Z-design-check-final`.
-- Local Mint 2.0 quality gate artifacts under
-  `.planning/runtime-evidence/mint2-quality-gate-20260620T111549Z`.
-- Real-device restore preflight artifacts under
-  `.planning/runtime-evidence/mint2-real-device-restore-gate-20260620T114221Z`.
-
-**Remaining open items:**
-
-- Physical-device/TestFlight Keychain/iCloud restore remains outside
-  simulator-only proof.
-- Current real-device preflight evidence shows target `Jul` exists as iPhone 13
-  mini but is unavailable to CoreDevice.
-- Runtime evidence artifacts are local and untracked; the executable Maestro
-  flow is committed under `tools/simulator/flows/maestro-perfect-set/`.
-- PR #723 contributes cleanup handoff provenance under
-  `.planning/handoffs/mint-cleanup-2026-06-21/`; this integration keeps the
-  newer staging state above as the active router instead of reverting to the
-  earlier cleanup-only milestone.
-
-**Next execution bias:** reconnect the physical iPhone 13 mini and rerun
-`bash tools/simulator/mint2_real_device_restore_gate.sh`; only then proceed to a
-TestFlight/manual restore proof. Do not claim Keychain/iCloud closure while the
-gate is `BLOCKED_NO_AVAILABLE_DEVICE`.
+Phase: `mint-next-architecture-authority-20260802` — governance transition under independent review.
+Status: no Flutter/backend/runtime/device change; Batch 4 promotion remains a separate gate.
 
 ## Historical Receipts
 
