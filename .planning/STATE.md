@@ -2,17 +2,18 @@
 gsd_state_version: 1.0
 milestone: mint-next-architecture-authority-20260802
 milestone_name: MINT Next Architecture Authority
-status: governance-only-authority-transition
-stopped_at: Governance router transition applied for review; independent acceptance remains pending and Batch 4 remains draft.
+status: governance-authority-accepted
+accepted_transition_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+stopped_at: Governance authority verified at b88a425573eb93508a554ca9e3c9a7bfd72f5d46; Batch 4 remains draft and no product phase is queued.
 last_updated: "2026-08-02T00:00:00.000Z"
-last_activity: 2026-08-02 -- event-triggered architecture authority transition; no product/runtime change.
+last_activity: 2026-08-02 -- governance authority accepted after three independent zero-P1/P2 roasts; no product/runtime change.
 progress:
   scope: governance_only
   total_phases: 1
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 1
-  completed_plans: 0
-  percent: 0
+  completed_plans: 1
+  percent: 100
 ---
 
 # GSD State: MINT Next Architecture Authority
@@ -35,8 +36,10 @@ Journey OS remains the runtime truth overlay. The former retirement-first phase 
 
 ## Current Position
 
-Phase: `mint-next-architecture-authority-20260802` — governance transition under independent review.
-Status: no Flutter/backend/runtime/device change; Batch 4 promotion remains a separate gate.
+Phase: `mint-next-architecture-authority-20260802` — governance authority accepted
+at audited head `b88a425573eb93508a554ca9e3c9a7bfd72f5d46`.
+Status: authority transition verified only; no Flutter/backend/runtime/device
+change, and Batch 4 promotion remains a separate gate.
 
 ## Historical Receipts
 

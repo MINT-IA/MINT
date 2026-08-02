@@ -1,61 +1,71 @@
 # MINT Next Architecture Authority Transition — Verification
 
-Status: **TRANSITION APPLIED FOR REVIEW / UNVERIFIED**
+Status: **ACCEPTED — GOVERNANCE AUTHORITY ONLY**
 
-The router transition is present on this review branch, but no acceptance
-record for it has been captured at one exact commit. The existence of these
-documents, an agent summary, or a passing guard is not completion evidence.
+Audited transition head: `b88a425573eb93508a554ca9e3c9a7bfd72f5d46`
+
+Accepted scope: `governance_authority_only`
+
+Batch 4 promotion: **false**
+
+The accepted claim is limited to a coherent, non-destructive planning-authority
+transition. Acceptance metadata was written only after the exact transition
+head passed deterministic checks and three independent zero-P1/P2 roasts.
 
 ## Claim Boundary
 
-This report may eventually prove only coherent, non-destructive planning
-authority. It cannot prove product behavior, UX quality, Swiss financial
+This report proves only coherent, non-destructive planning authority. It cannot
+prove product behavior, UX quality, Swiss financial
 correctness, regulatory compliance, deployment readiness, or user validation.
 There is no device/runtime tier and no founder test for this phase.
 
-## Deterministic Evidence — Not Yet Run Against Promoted State
+## Deterministic Evidence
 
 | Criterion | Exact command | Commit | Exit | Evidence | Status |
 |---|---|---|---:|---|---|
-| Active router | `python3 tools/checks/active_context_guard.py` | — | — | — | NOT RUN |
-| Phase contract | `python3 tools/checks/phase_contract_guard.py` | — | — | — | NOT RUN |
-| Rules | `python3 tools/checks/mint_rules_guard.py` | — | — | — | NOT RUN |
-| Journey evidence | `python3 tools/checks/journey_os_check.py` | — | — | — | NOT RUN |
-| Workflow | `python3 tools/checks/workflow_contract_guard.py` | — | — | — | NOT RUN |
-| Batch 4 maps | `python3 tools/checks/mint_next_batch4_architecture_guard.py` | — | — | — | NOT RUN |
-| Transition | `python3 tools/checks/mint_next_authority_transition_guard.py` | — | — | — | NOT RUN |
-| Hostile tests | `python3 -m pytest tools/checks/tests/test_mint_next_authority_transition_guard.py -q` | — | — | — | NOT RUN |
-| Phase diff | `git diff --check -- .planning/phases/mint-next-architecture-authority-20260802` | — | — | — | NOT RUN |
+| Active router | `python3 tools/checks/active_context_guard.py` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | `OK active_context_guard: active context is coherent.` | PASS |
+| Phase contract | `python3 tools/checks/phase_contract_guard.py` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | `OK phase_contract_guard: active phase contract is coherent.` | PASS |
+| Rules | `python3 tools/checks/mint_rules_guard.py` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | `OK mint_rules_guard: rules registry is coherent.` | PASS |
+| Journey evidence | `python3 tools/checks/journey_os_check.py` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | `OK journey_os_check` | PASS |
+| Workflow | `python3 tools/checks/workflow_contract_guard.py` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | `OK workflow_contract_guard: workflow guard wiring is coherent.` | PASS |
+| Batch 4 maps | `python3 tools/checks/mint_next_batch4_architecture_guard.py` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | Structural registries internally closed; Batch 4 remained `draft_unproven`. | PASS |
+| Transition | `python3 tools/checks/mint_next_authority_transition_guard.py` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | `MINT NEXT AUTHORITY TRANSITION GUARD: PASS` | PASS |
+| Hostile tests | `python3 -m pytest tools/checks/tests/test_mint_next_authority_transition_guard.py -q` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | `22 passed in 3.08s` | PASS |
+| Phase diff | `git diff --check -- .planning/phases/mint-next-architecture-authority-20260802` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | No whitespace errors. | PASS |
 
-## Manual Diff Evidence — Not Yet Recorded
+Recorded at `2026-08-02T07:10:39Z`. Command outputs above were rerun against
+the exact audited transition head before this metadata-only acceptance update.
 
-- [ ] `git diff --name-status <audited-base>...<exact-head>` contains only the
+## Manual Diff Evidence
+
+- [x] `git diff --name-status 707b25b815483ea20f77b065df9a47c63210f790...b88a425573eb93508a554ca9e3c9a7bfd72f5d46` contains only the
       declared governance/checker surface.
-- [ ] Full diff inspection confirms no product, runtime, deployment, evidence,
+- [x] Full diff inspection confirms no product, runtime, deployment, evidence,
       or legacy-phase content changed.
-- [ ] Retirement phase and open physical-device restore caveat remain present.
-- [ ] Batch 4 remains `draft_unproven` and has no fabricated promotion receipt.
-- [ ] Exact before/after hashes for the preserved retirement phase, Journey OS,
+- [x] Retirement phase and open physical-device restore caveat remain present.
+- [x] Batch 4 remains `draft_unproven` and has no promotion receipt.
+- [x] Exact before/after hashes for the preserved retirement phase, Journey OS,
       and Batch 4 architecture content are identical; only the declared Batch 4
       conflict/source metadata differs.
-- [ ] Router JSON/Markdown, STATE, ROADMAP, and INDEX tell the same story.
-- [ ] `next_product_phase_context` self-references this phase and queues no
+- [x] Router JSON/Markdown, STATE, ROADMAP, and INDEX tell the same story.
+- [x] `next_product_phase_context` self-references this phase and queues no
       successor product phase.
-- [ ] Revert of the governance commit restores the prior authority without a
-      product/data migration.
+- [x] In a clean clone at the audited head,
+      `git revert --no-commit 707b25b815483ea20f77b065df9a47c63210f790..b88a425573eb93508a554ca9e3c9a7bfd72f5d46`
+      exited `0`; `git diff --quiet 707b25b815483ea20f77b065df9a47c63210f790 --`
+      reported an identical tracked tree. Committing that index would create one
+      rollback commit without a product/data migration.
 
-## Independent Roast — Not Yet Recorded
+## Independent Roasts
 
-| Review | Exact commit | P1 | P2 | Verdict |
-|---|---|---:|---:|---|
-| Authority coherence | — | — | — | NOT RUN |
-| Legacy/evidence preservation | — | — | — | NOT RUN |
-| Guard hostile-mutation quality | — | — | — | NOT RUN |
-| Claim and scope honesty | — | — | — | NOT RUN |
+| Review | Evidence ID | Exact commit | P1 | P2 | Verdict | Limitation |
+|---|---|---|---:|---:|---|---|
+| `authority_coherence` | `roast:authority-coherence:b88a42557` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Router and claim coherence only; no product/runtime proof. |
+| `legacy_evidence_preservation` | `roast:legacy-preservation:b88a42557` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Byte preservation and open device caveat only; no fresh device proof. |
+| `guard_hostile_mutation_quality` | `roast:guard-hostile-mutations:b88a42557` | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Guard/mutation quality only; no product behavior proof. |
 
 ## Promotion Verdict
 
-**UNVERIFIED — DO NOT CALL COMPLETE.** Promotion is forbidden until all rows
-above refer to the same exact commit, every deterministic check passes, the
-manual diff inspection is recorded, and independent review reports zero open
-P1/P2.
+**ACCEPTED FOR GOVERNANCE AUTHORITY ONLY.** Batch 4 remains `draft_unproven`,
+its promotion receipt remains null, no successor product phase is queued, and
+no product/runtime/compliance/user-validation claim follows from this verdict.

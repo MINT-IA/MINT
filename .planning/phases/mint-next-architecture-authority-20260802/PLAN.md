@@ -1,7 +1,8 @@
 # MINT Next Architecture Authority Transition — Plan
 
-Status: Router transition applied on the review branch; independent acceptance,
-exact-HEAD verification, and completion remain pending.
+Status: Governance-only transition executed and independently accepted at
+audited head `b88a425573eb93508a554ca9e3c9a7bfd72f5d46`. This closes only the
+authority transition; Batch 4 promotion and product work remain separate.
 
 ## Scope Budget
 
@@ -76,7 +77,9 @@ Stop rather than paper over the conflict if:
 
 ## Rollback
 
-The transition must be one revertable governance commit. Reverting it restores
-the prior router without deleting Batch 4 or altering legacy runtime behavior.
-No data migration or deployment rollback is needed because this phase has no
-runtime effect.
+The reviewed transition is the contiguous commit range
+`707b25b815483ea20f77b065df9a47c63210f790..b88a425573eb93508a554ca9e3c9a7bfd72f5d46`.
+Reverse-applying that exact range with `git revert --no-commit` and then making
+one rollback commit restores the baseline tracked tree. This was proven in a
+clean clone before acceptance. No data migration or deployment rollback is
+needed because this phase has no runtime effect.

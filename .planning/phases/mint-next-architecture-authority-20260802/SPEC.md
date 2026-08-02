@@ -1,17 +1,16 @@
 # MINT Next Architecture Authority Transition — Specification
 
-Status: Router transition applied on the review branch, pending independent
-acceptance and exact-HEAD verification. Governance-only; no product
-implementation.
+Status: Governance authority transition accepted and verified at audited head
+`b88a425573eb93508a554ca9e3c9a7bfd72f5d46`. Governance-only; Batch 4 remains
+draft and no product implementation is claimed.
 
 ## Promise
 
-On this review branch, every agent can determine unambiguously that the
-governance-only router transition has been applied but is not yet independently
-accepted, while the retirement-first phase and Journey OS runtime evidence
-remain intact. Batch 4 remains a draft candidate until its own separate audited
-architecture promotion, and no claim is made that MINT Next exists in the
-application.
+Every agent can determine unambiguously that the governance-only authority
+transition was independently accepted, while the retirement-first phase and
+Journey OS runtime evidence remain intact. Batch 4 remains a draft candidate
+until its own separate audited architecture promotion, and no claim is made
+that MINT Next exists in the application.
 
 ## Required Behavior
 
@@ -74,6 +73,8 @@ application.
 - Existing active-context, phase-contract, rules, Journey OS, workflow, and
   Batch 4 architecture guards pass.
 - The phase diff contains no product/runtime/deployment file.
+- A clean-clone reverse application of the exact audited transition range
+  restores a tracked tree identical to baseline before a rollback commit.
 - `VERIFICATION.md` records fresh outputs against one exact commit before the
   phase is described as verified.
 

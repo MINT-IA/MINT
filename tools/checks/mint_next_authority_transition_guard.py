@@ -28,6 +28,21 @@ NEW_CONTEXT = f"{NEW_PHASE_DIR}/CONTEXT.md"
 NEW_SPEC = f"{NEW_PHASE_DIR}/SPEC.md"
 NEW_PLAN = f"{NEW_PHASE_DIR}/PLAN.md"
 NEW_VERIFICATION = f"{NEW_PHASE_DIR}/VERIFICATION.md"
+AUDITED_TRANSITION_HEAD = "b88a425573eb93508a554ca9e3c9a7bfd72f5d46"
+REQUIRED_ROASTS = {
+    "authority_coherence": (
+        "authority_roast_coherence",
+        "roast:authority-coherence:b88a42557",
+    ),
+    "legacy_evidence_preservation": (
+        "authority_roast_preservation",
+        "roast:legacy-preservation:b88a42557",
+    ),
+    "guard_hostile_mutation_quality": (
+        "authority_roast_guard",
+        "roast:guard-hostile-mutations:b88a42557",
+    ),
+}
 
 AUTHORITY_MARKER = (
     "<!-- mint-authority: milestone={milestone}; phase_dir={phase_dir}; "
@@ -75,11 +90,11 @@ PROTECTED_EVIDENCE_PREFIXES = (
 )
 
 ROUTER_SOURCE_ROLES = {
-    ".planning/ACTIVE_CONTEXT.json": "governance_transition_applied_pending_verification",
-    ".planning/ACTIVE_CONTEXT.md": "governance_transition_applied_pending_verification",
-    ".planning/STATE.md": "governance_transition_state_applied_pending_verification",
-    ".planning/ROADMAP.md": "governance_transition_roadmap_applied_pending_verification",
-    ".planning/INDEX.md": "governance_transition_index_applied_pending_verification",
+    ".planning/ACTIVE_CONTEXT.json": "governance_authority_verified",
+    ".planning/ACTIVE_CONTEXT.md": "governance_authority_verified",
+    ".planning/STATE.md": "governance_authority_verified",
+    ".planning/ROADMAP.md": "governance_authority_verified",
+    ".planning/INDEX.md": "governance_authority_verified",
 }
 
 # Only the live authority portion is normative.  Historical receipts legitimately
@@ -341,10 +356,10 @@ def _check_conflict(root: Path, errors: List[str]) -> None:
         (item for item in data["conflicts"] if isinstance(item, dict) and item.get("id") == "retirement_first_active_context"),
         None,
     )
-    expected_status = "resolution_applied_pending_verification"
+    expected_status = "resolved"
     if not conflict or conflict.get("status") != expected_status:
         errors.append(
-            "retirement-first conflict is not resolved at the honest transition "
+            "retirement-first conflict is not at the accepted transition "
             f"lifecycle: expected {expected_status!r}"
         )
         return
@@ -370,6 +385,73 @@ def _check_conflict(root: Path, errors: List[str]) -> None:
     }
     if not isinstance(evidence, list) or not required_evidence.issubset(set(evidence)):
         errors.append("retirement-first conflict resolution evidence is incomplete")
+    verification = resolution.get("verification")
+    if not isinstance(verification, dict):
+        errors.append("resolved transition requires structured resolution.verification")
+        return
+    expected_verification = {
+        "audited_head": AUDITED_TRANSITION_HEAD,
+        "accepted_scope": "governance_authority_only",
+        "batch4_promotion": False,
+        "successor_product_phase_queued": False,
+    }
+    for key, value in expected_verification.items():
+        if verification.get(key) != value:
+            errors.append(f"transition verification {key!r} must be {value!r}")
+    roasts = verification.get("roasts")
+    if not isinstance(roasts, list):
+        errors.append("transition verification roasts must be a list")
+        return
+    by_name = {
+        roast.get("name"): roast
+        for roast in roasts
+        if isinstance(roast, dict) and isinstance(roast.get("name"), str)
+    }
+    if set(by_name) != set(REQUIRED_ROASTS) or len(roasts) != len(REQUIRED_ROASTS):
+        errors.append(
+            "transition verification must contain exactly the three named independent roasts"
+        )
+    for name, (expected_reviewer, expected_evidence) in sorted(REQUIRED_ROASTS.items()):
+        roast = by_name.get(name)
+        if not isinstance(roast, dict):
+            continue
+        if roast.get("verdict") != "PASS":
+            errors.append(f"transition roast {name!r} verdict must be PASS")
+        if roast.get("p1") != 0 or roast.get("p2") != 0:
+            errors.append(f"transition roast {name!r} must record p1=0 and p2=0")
+        if roast.get("audited_head") != AUDITED_TRANSITION_HEAD:
+            errors.append(f"transition roast {name!r} audited_head mismatch")
+        if roast.get("reviewer") != expected_reviewer:
+            errors.append(f"transition roast {name!r} reviewer mismatch")
+        if roast.get("evidence_id") != expected_evidence:
+            errors.append(f"transition roast {name!r} evidence_id mismatch")
+
+
+def _check_accepted_documents(root: Path, errors: List[str]) -> None:
+    verification_path = root / NEW_VERIFICATION
+    state_path = root / ".planning/STATE.md"
+    try:
+        verification = verification_path.read_text(encoding="utf-8")
+        state = state_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"accepted transition document unreadable: {exc}")
+        return
+    required_verification_literals = (
+        "Status: **ACCEPTED — GOVERNANCE AUTHORITY ONLY**",
+        f"Audited transition head: `{AUDITED_TRANSITION_HEAD}`",
+        "Accepted scope: `governance_authority_only`",
+        "Batch 4 promotion: **false**",
+    )
+    for literal in required_verification_literals:
+        if literal not in verification:
+            errors.append(f"accepted phase VERIFICATION missing exact receipt: {literal}")
+    if not re.search(r"(?m)^status:\s*governance-authority-accepted\s*$", state):
+        errors.append("STATE must record status: governance-authority-accepted")
+    if not re.search(
+        rf"(?m)^accepted_transition_head:\s*[\"']?{AUDITED_TRANSITION_HEAD}[\"']?\s*$",
+        state,
+    ):
+        errors.append("STATE must record the exact accepted_transition_head")
 
 
 def _check_batch_remains_draft(root: Path, errors: List[str]) -> None:
@@ -432,6 +514,7 @@ def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str
             errors.append(f"Journey OS/runtime evidence changed during governance transition: {path}")
     _check_router(root, errors)
     _check_conflict(root, errors)
+    _check_accepted_documents(root, errors)
     _check_batch_remains_draft(root, errors)
     _check_router_source_inventory(root, errors)
     return errors

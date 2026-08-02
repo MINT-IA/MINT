@@ -2,7 +2,7 @@ schema_version: 1
 conflicts:
 - id: retirement_first_active_context
   severity: blocker
-  status: resolution_applied_pending_verification
+  status: resolved
   authority_paths:
   - .planning/ACTIVE_CONTEXT.json
   - .planning/ACTIVE_CONTEXT.md
@@ -11,7 +11,7 @@ conflicts:
   batch4_position: event_triggered_not_age_timeline
   conflict: The pre-transition routing authority selected a retirement-first phase, while Batch 4 proposes an event-triggered architecture.
   draft_behavior: record_and_block_promotion
-  resolution_required: The applied governance transition must pass exact-HEAD verification and independent acceptance before this conflict may be marked resolved or Batch 4 promoted.
+  resolution_required: Satisfied for governance authority only; Batch 4 still requires its own promotion and cannot inherit this resolution as product authority.
   resolution:
     kind: governance_authority_transition
     authority_milestone: mint-next-architecture-authority-20260802
@@ -26,3 +26,33 @@ conflicts:
     - governance_only
     - no_product_or_runtime_activation
     - batch4_still_requires_separate_promotion
+    verification:
+      audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+      accepted_scope: governance_authority_only
+      batch4_promotion: false
+      successor_product_phase_queued: false
+      roasts:
+      - name: authority_coherence
+        evidence_id: roast:authority-coherence:b88a42557
+        reviewer: authority_roast_coherence
+        verdict: PASS
+        p1: 0
+        p2: 0
+        audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+        limitation: Router and claim coherence only; no product or runtime proof.
+      - name: legacy_evidence_preservation
+        evidence_id: roast:legacy-preservation:b88a42557
+        reviewer: authority_roast_preservation
+        verdict: PASS
+        p1: 0
+        p2: 0
+        audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+        limitation: Byte preservation and open device caveat only; no fresh device proof.
+      - name: guard_hostile_mutation_quality
+        evidence_id: roast:guard-hostile-mutations:b88a42557
+        reviewer: authority_roast_guard
+        verdict: PASS
+        p1: 0
+        p2: 0
+        audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
+        limitation: Guard and hostile-mutation coverage only; no product behavior proof.

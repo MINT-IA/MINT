@@ -13,6 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
 
 from tools.checks.mint_next_authority_transition_guard import (
+    AUDITED_TRANSITION_HEAD,
     AUTHORITY_MARKER,
     TransitionPolicy,
     run_guard,
@@ -120,10 +121,25 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
             f"{marker}\nGovernance-only authority; no successor product phase queued.\n"
             f"{ACTIVE_BOUNDARIES[path]}\nHistorical receipts remain unchanged.\n",
         )
+    _write(
+        root,
+        ".planning/STATE.md",
+        "---\nstatus: governance-authority-accepted\n"
+        f"accepted_transition_head: {AUDITED_TRANSITION_HEAD}\n---\n"
+        f"{marker}\nGovernance-only authority accepted.\n"
+        f"{ACTIVE_BOUNDARIES['.planning/STATE.md']}\nHistorical receipts remain unchanged.\n",
+    )
     _write(root, f"{NEW_DIR}/CONTEXT.md", "governance-only transition\n")
     _write(root, f"{NEW_DIR}/SPEC.md", "governance-only spec\n")
     _write(root, f"{NEW_DIR}/PLAN.md", "governance-only plan\n")
-    _write(root, f"{NEW_DIR}/VERIFICATION.md", "draft, unverified\n")
+    _write(
+        root,
+        f"{NEW_DIR}/VERIFICATION.md",
+        "Status: **ACCEPTED — GOVERNANCE AUTHORITY ONLY**\n"
+        f"Audited transition head: `{AUDITED_TRANSITION_HEAD}`\n"
+        "Accepted scope: `governance_authority_only`\n"
+        "Batch 4 promotion: **false**\n",
+    )
     _write(
         root,
         "product/mint_next/batch4/architecture_conflicts.yaml",
@@ -134,7 +150,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                     {
                         "id": "retirement_first_active_context",
                         "severity": "blocker",
-                        "status": "resolution_applied_pending_verification",
+                        "status": "resolved",
                         "resolution": {
                             "kind": "governance_authority_transition",
                             "authority_milestone": NEW,
@@ -146,6 +162,40 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                                 ".planning/ROADMAP.md",
                                 ".planning/INDEX.md",
                             ],
+                            "verification": {
+                                "audited_head": AUDITED_TRANSITION_HEAD,
+                                "accepted_scope": "governance_authority_only",
+                                "batch4_promotion": False,
+                                "successor_product_phase_queued": False,
+                                "roasts": [
+                                    {
+                                        "name": name,
+                                        "reviewer": reviewer,
+                                        "verdict": "PASS",
+                                        "p1": 0,
+                                        "p2": 0,
+                                        "audited_head": AUDITED_TRANSITION_HEAD,
+                                        "evidence_id": evidence_id,
+                                    }
+                                    for name, reviewer, evidence_id in (
+                                        (
+                                            "authority_coherence",
+                                            "authority_roast_coherence",
+                                            "roast:authority-coherence:b88a42557",
+                                        ),
+                                        (
+                                            "legacy_evidence_preservation",
+                                            "authority_roast_preservation",
+                                            "roast:legacy-preservation:b88a42557",
+                                        ),
+                                        (
+                                            "guard_hostile_mutation_quality",
+                                            "authority_roast_guard",
+                                            "roast:guard-hostile-mutations:b88a42557",
+                                        ),
+                                    )
+                                ],
+                            },
                         },
                     }
                 ],
@@ -153,11 +203,11 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         ),
     )
     inventory_roles = {
-        ".planning/ACTIVE_CONTEXT.json": "governance_transition_applied_pending_verification",
-        ".planning/ACTIVE_CONTEXT.md": "governance_transition_applied_pending_verification",
-        ".planning/STATE.md": "governance_transition_state_applied_pending_verification",
-        ".planning/ROADMAP.md": "governance_transition_roadmap_applied_pending_verification",
-        ".planning/INDEX.md": "governance_transition_index_applied_pending_verification",
+        ".planning/ACTIVE_CONTEXT.json": "governance_authority_verified",
+        ".planning/ACTIVE_CONTEXT.md": "governance_authority_verified",
+        ".planning/STATE.md": "governance_authority_verified",
+        ".planning/ROADMAP.md": "governance_authority_verified",
+        ".planning/INDEX.md": "governance_authority_verified",
     }
     _write(
         root,
@@ -224,16 +274,77 @@ def test_rejects_unresolved_conflict(tmp_path: Path) -> None:
     data = yaml.safe_load(path.read_text())
     data["conflicts"][0]["status"] = "unresolved"
     path.write_text(yaml.safe_dump(data), encoding="utf-8")
-    assert any("retirement-first conflict is not resolved" in error for error in run_guard(root, policy))
+    assert any("expected 'resolved'" in error for error in run_guard(root, policy))
 
 
-def test_rejects_prematurely_resolved_conflict(tmp_path: Path) -> None:
+def test_rejects_pending_conflict_after_acceptance(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
     data = yaml.safe_load(path.read_text())
-    data["conflicts"][0]["status"] = "resolved"
+    data["conflicts"][0]["status"] = "resolution_applied_pending_verification"
     path.write_text(yaml.safe_dump(data), encoding="utf-8")
-    assert any("resolution_applied_pending_verification" in error for error in run_guard(root, policy))
+    assert any("expected 'resolved'" in error for error in run_guard(root, policy))
+
+
+@pytest.mark.parametrize(
+    ("mutation", "needle"),
+    [
+        ("wrong_head", "audited_head"),
+        ("missing_roast", "exactly the three named"),
+        ("failed_roast", "verdict must be PASS"),
+        ("nonzero_p1", "p1=0 and p2=0"),
+        ("missing_evidence", "evidence_id mismatch"),
+        ("wrong_roast_head", "audited_head mismatch"),
+    ],
+)
+def test_rejects_fake_or_incomplete_acceptance_roasts(
+    tmp_path: Path, mutation: str, needle: str
+) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    data = yaml.safe_load(path.read_text())
+    verification = data["conflicts"][0]["resolution"]["verification"]
+    if mutation == "wrong_head":
+        verification["audited_head"] = "0" * 40
+    elif mutation == "missing_roast":
+        verification["roasts"].pop()
+    elif mutation == "failed_roast":
+        verification["roasts"][0]["verdict"] = "FAIL"
+    elif mutation == "nonzero_p1":
+        verification["roasts"][0]["p1"] = 1
+    elif mutation == "missing_evidence":
+        verification["roasts"][0]["evidence_id"] = ""
+    elif mutation == "wrong_roast_head":
+        verification["roasts"][0]["audited_head"] = "0" * 40
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any(needle in error for error in run_guard(root, policy))
+
+
+@pytest.mark.parametrize(
+    ("relative", "old", "new", "needle"),
+    [
+        (
+            f"{NEW_DIR}/VERIFICATION.md",
+            f"Audited transition head: `{AUDITED_TRANSITION_HEAD}`",
+            "Audited transition head: `0000000000000000000000000000000000000000`",
+            "accepted phase VERIFICATION missing exact receipt",
+        ),
+        (
+            ".planning/STATE.md",
+            "status: governance-authority-accepted",
+            "status: governance-only-authority-transition",
+            "STATE must record status",
+        ),
+    ],
+)
+def test_rejects_fake_accepted_phase_or_state(
+    tmp_path: Path, relative: str, old: str, new: str, needle: str
+) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / relative
+    path.write_text(path.read_text().replace(old, new), encoding="utf-8")
+    errors = run_guard(root, policy)
+    assert any(needle in error for error in errors)
 
 
 def test_draft_requires_null_receipt(tmp_path: Path) -> None:
