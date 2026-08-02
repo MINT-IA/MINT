@@ -1,0 +1,24 @@
+schema_version: 1
+status: mechanically_accepted_written_contract_runtime_unimplemented
+accepted_at: '2026-08-02T20:45:00+02:00'
+scope:
+  path: product/mint_next/batch8/lpp-affiliation-scope.yaml
+  sha256: 5a8cbbbaf70ae36b6b49add173ef5d36205bfcfa93d67ee0bac0980ef608ebfc
+sources:
+  path: product/mint_next/batch8/official-sources.yaml
+  sha256: 7014446847361acf6a24921ce3397d32d7981e425ef413cdb3378bbffab0c07b
+mechanical_acceptance_basis:
+  authority: exact_hash_bound_contract_and_deterministic_mutation_tests
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent_identity_independence_and_truthfulness_are_not_authenticated
+advisory_roasts:
+  - role: ux
+    verdict: ACCEPT
+    score: 9.7
+    p1: 0
+    p2: 0
+  - role: swiss_compliance
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+not_accepted: [flutter_implementation, runtime_navigation, six_locale_copy, accessibility_runtime, user_validation, calculation_engine, product_integration]

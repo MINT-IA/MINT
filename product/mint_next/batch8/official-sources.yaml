@@ -1,0 +1,31 @@
+schema_version: 1
+checked_at: '2026-08-02'
+retrieved_at: '2026-08-02T20:30:00+02:00'
+jurisdiction: CH
+scope: lpp_affiliation_question_and_3a_branching_only
+sources:
+  - id: ofas_third_pillar
+    authority: Office fédéral des assurances sociales
+    url: https://www.bsv.admin.ch/fr/le-troisieme-pilier
+    published_at: '2026-02-10'
+    supports:
+      - pillar_3a_requires_earned_income_subject_to_avs
+      - contribution_rule_differs_by_actual_second_pillar_affiliation
+      - no_lpp_rule_is_not_synonymous_with_self_employment
+  - id: ofas_occupational_pension
+    authority: Office fédéral des assurances sociales
+    url: https://www.bsv.admin.ch/fr/prevoyance-vieillesse-prevoyance-professionnelle
+    published_at: '2026-01-05'
+    supports:
+      - occupational_pension_is_second_pillar
+      - compulsory_affiliation_has_exceptions_and_voluntary_cases
+derived_inferences:
+  - id: do_not_infer_actual_affiliation_from_demographics_or_job_status
+    statement: Age, salary or job status alone is not sufficient UI evidence of a person's actual current affiliation.
+    reasoning: The official rules describe thresholds and start dates, but also exceptions and voluntary affiliation; MINT therefore asks the person instead of inferring the fact.
+    source_ids: [ofas_occupational_pension]
+    source_anchors: [Qui est assuré, compulsory exceptions, voluntary minimum insurance]
+    classification: product_safety_inference_not_direct_official_quote
+implementation_limit:
+  amounts_or_thresholds_authorized_in_batch8_ui: false
+  reason: This slice only identifies affiliation; dated constants belong to the calculation receipt.

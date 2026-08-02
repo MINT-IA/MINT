@@ -1,0 +1,129 @@
+schema_version: 1
+status: written_contract_accepted_runtime_unimplemented
+journey_id: swiss_3a_question_to_next_action
+authority:
+  navigation_contract: product/mint_next/batch6/navigation.yaml
+  navigation_sha256: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+  previous_accepted_slice: product/mint_next/batch7/design-lab-acceptance.yaml
+slice:
+  entry_from: fact_tax_year.continue
+  nodes: [fact_lpp_affiliation, lpp_unknown_help, without_lpp_boundary]
+  successful_continuation: fact_contribution
+  locales: [fr, en, de, it, es, pt]
+audience: beginner_low_financial_literacy
+
+human_outcome:
+  question: Determine whether the person is currently affiliated with an occupational pension institution, including voluntary affiliation.
+  why_now: The applicable pillar 3a contribution rule differs according to actual second-pillar affiliation.
+  must_understand: MINT asks for an observable fact, not a test of financial knowledge.
+  next_small_action:
+    yes: Continue the guided 3a estimate.
+    no: Explain honestly that this first calculator branch is not yet verified.
+    unknown: Help the person verify the fact without guessing.
+
+fact_contract:
+  id: lpp_affiliation
+  allowed_values: ['yes', 'no', unknown]
+  default: null
+  storage: ephemeral
+  forbidden_inferences: [salary, age, employment_status, profession, existing_lpp_balance]
+  distinct_truths: [lpp_affiliation, lpp_balance, permission_to_estimate, pillar3a_eligibility, pillar3a_ceiling]
+  correction_effect: replace_lpp_affiliation_and_invalidate_session_result
+
+node_contracts:
+  fact_lpp_affiliation:
+    reference_copy_fr:
+      eyebrow: Ta situation
+      title: As-tu actuellement une caisse de pension ?
+      body: C’est aussi appelé LPP ou 2e pilier. Tu peux être affilié·e par ton emploi ou volontairement. Ici, on te demande si tu es couvert·e actuellement, pas combien tu verses.
+      evidence_note: Pour vérifier, cherche une ligne LPP ou caisse de pension sur une fiche de salaire, consulte un certificat récent, ou demande à ta caisse, ton employeur ou aux RH.
+      choose_yes: Oui
+      choose_no: Non
+      choose_unknown: Je ne sais pas
+    required_arb_keys: [lppQuestionEyebrow, lppQuestionTitle, lppQuestionBody, lppQuestionEvidence, lppChoiceYes, lppChoiceNo, lppChoiceUnknown]
+    title_intent: Ask whether the person is currently affiliated with or insured by a pension fund, whether through an employer or voluntarily; do not ask whether the person contributes.
+    explanation_intent: Name LPP, second pillar and pension fund as equivalent cues in this question.
+    evidence_cues: [payslip_lpp_or_pension_fund_line, current_pension_certificate, pension_institution_or_employer_or_hr_confirmation]
+    caution: A payslip is a useful place to look, not universal proof.
+    controls:
+      choose_yes: {label_intent: 'Yes', immediate_to: fact_contribution, mutation: lpp_affiliation_yes}
+      choose_no: {label_intent: 'No', immediate_to: without_lpp_boundary, mutation: lpp_affiliation_no}
+      choose_unknown: {label_intent: I do not know, immediate_to: lpp_unknown_help, mutation: lpp_affiliation_unknown}
+      back: {to: fact_tax_year}
+      open_safe_exit: {overlay: safe_exit}
+  lpp_unknown_help:
+    emotional_contract: uncertainty_is_valid_not_an_error
+    reference_copy_fr:
+      eyebrow: Aucun souci
+      title: Tu peux le vérifier sans deviner.
+      body: Commence par ce qui est le plus facile pour toi. Quand tu as la réponse, reprends ce parcours et réponds à nouveau à la question.
+      payslip: Cherche une ligne LPP, 2e pilier, CP ou caisse de pension sur une fiche de salaire récente.
+      certificate: Cherche un certificat de prévoyance récent envoyé par ta caisse de pension.
+      ask: Demande à ta caisse, ton employeur ou aux RH si tu es actuellement affilié·e.
+      back: Revenir à la question
+      keep: Garder cette liste sur cet appareil
+      keep_unavailable: Bientôt disponible
+    required_arb_keys: [lppUnknownEyebrow, lppUnknownTitle, lppUnknownBody, lppUnknownPayslip, lppUnknownCertificate, lppUnknownAsk, lppBackToQuestion, lppKeepChecklist, localReferenceUnavailable]
+    evidence_list_semantics: ordered_informative_list_not_interactive_controls
+    explanation_order:
+      - Look for an LPP, second pillar, pension fund or CP deduction on a recent payslip.
+      - Look for a pension certificate from the pension institution.
+      - Ask the employer or HR which pension institution covers the person.
+    forbidden: [guess_affiliation, convert_unknown_to_no, show_personal_ceiling, continue_personal_estimate]
+    controls:
+      back: {operation: history_back, allowed_predecessors: [fact_lpp_affiliation]}
+      keep_checklist_local: {enabled: false, canonical_destination: reference_saved, reason: persistence_not_implemented, visual_state: disabled_with_unavailable_label}
+      open_safe_exit: {overlay: safe_exit}
+  without_lpp_boundary:
+    reference_copy_fr:
+      eyebrow: Une autre règle s’applique
+      title: Tu peux peut-être verser dans un 3a, mais avec d’autres règles.
+      body: Ta réponse ne signifie pas que tu n’as pas droit au 3a. Ce premier calcul ne couvre simplement pas encore ce cas.
+      back: Corriger ma réponse
+      keep: Garder cette explication sur cet appareil
+      keep_unavailable: Bientôt disponible
+    required_arb_keys: [withoutLppEyebrow, withoutLppTitle, withoutLppBody, lppCorrectAnswer, withoutLppKeepExplanation, localReferenceUnavailable]
+    message_intent: MINT has not yet verified this calculator branch; this does not mean the person is ineligible for pillar 3a.
+    forbidden: [call_person_self_employed, claim_pillar3a_ineligibility, show_with_lpp_ceiling, show_without_lpp_ceiling, calculate_personal_result]
+    controls:
+      back: {operation: history_back, allowed_predecessors: [fact_lpp_affiliation]}
+      keep_explanation_local: {enabled: false, canonical_destination: reference_saved, reason: persistence_not_implemented, visual_state: disabled_with_unavailable_label}
+      open_safe_exit: {overlay: safe_exit}
+
+interaction_contract:
+  selection: no_preselection_one_tap_routes_immediately
+  repeated_tap: idempotent
+  back_from_yes_destination: fact_lpp_affiliation_with_yes_visible
+  back_from_boundaries_destination: fact_lpp_affiliation_with_previous_choice_visible
+  safe_exit: reuse_batch7_overlay_and_purge_ephemeral_on_leave_without_saving
+  app_kill: reuse_navigation_lifecycle_restart_and_clear
+
+accessibility_contract:
+  choice_pattern: selected_button_group
+  choice_semantics: each_full_width_choice_is_a_button_and_exposes_selected_state_on_return
+  activation: tap_commits_then_routes_immediately_without_continue_cta
+  choice_group_label: required
+  focus_on_route: first_semantic_heading
+  minimum_touch_target: 48x48_logical_pixels
+  required_proofs: [320x700_text_scale_2_no_loss, 390x844_runtime, screen_reader_labels, keyboard_focus_order]
+
+content_boundaries:
+  no_amounts_or_percentages: true
+  no_product_or_provider_recommendation: true
+  no_personal_financial_advice: true
+  no_account_required: true
+  no_persistence_claim: true
+
+legacy_decisions:
+  adapt:
+    - apps/mobile/lib/data/wizard_questions.dart:q_has_pension_fund_tri_state_semantics
+  reject:
+    - apps/mobile/lib/data/wizard_questions_v2.dart:salary_threshold_implies_yes
+    - apps/mobile/lib/widgets/coach/lpp_pivot_insert_widget.dart:binary_promotional_flow
+  defer:
+    - apps/mobile/lib/services/financial_core/pillar_3a_room_calculator.dart
+
+exit_gate:
+  required: [contract_guard, navigation_tests, six_locale_parity, accessibility_tests, real_runtime_capture, ux_roast, accessibility_roast, swiss_compliance_roast]
+  accepted_only_if: deterministic_proofs_pass_and_p1_zero_and_p2_zero
+  user_test_required_for_this_batch: false
