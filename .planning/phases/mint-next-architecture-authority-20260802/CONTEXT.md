@@ -1,28 +1,30 @@
 # MINT Next Architecture Authority Transition — Context
 
-Status: Draft governance contract; not active until the router transition is
-reviewed, applied atomically, and verified.
+Status: Router transition applied on the review branch; governance contract
+pending independent acceptance and exact-HEAD verification.
 
 ## Why This Phase Exists
 
-The current router still selects
-`mint-2-0-first-experience-rente-capital`, while the audited Batch 4 maps use
+Before this review branch, the router selected
+`mint-2-0-first-experience-rente-capital`, while the audited Batch 4 maps used
 an event-triggered, whole-financial-life architecture. Silently treating the
-new maps as authoritative would create two competing product directions. This
-phase changes planning authority explicitly before any new product work.
+new maps as authoritative would have created two competing product directions.
+This branch applies an explicit governance transition for independent review
+before any new product work.
 
 This is a governance-only transition. It changes no Flutter screen, backend
 service, route, calculation, deployment, feature flag, user data, or runtime
 behavior.
 
-## Authority After A Verified Transition
+## Authority Applied For Review
 
 Authority is intentionally layered rather than collapsed:
 
 1. `AGENTS.md` and `CLAUDE.md` remain operating and compliance authority.
 2. `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json` remain the
    only active-phase router.
-3. This phase's four canonical files govern the authority transition itself.
+3. This phase's four canonical files govern the applied transition while it is
+   pending independent acceptance.
 4. `product/mint_next/batch4/` remains a **draft architecture candidate**. It
    can become canonical architecture only through a separate exact-HEAD,
    independently audited promotion after this authority transition; it never

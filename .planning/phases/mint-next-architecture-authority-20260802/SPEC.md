@@ -1,14 +1,17 @@
 # MINT Next Architecture Authority Transition — Specification
 
-Status: Draft and unverified. Governance-only; no product implementation.
+Status: Router transition applied on the review branch, pending independent
+acceptance and exact-HEAD verification. Governance-only; no product
+implementation.
 
 ## Promise
 
-After explicit promotion, every agent can determine unambiguously that the
-governance-only authority transition is active, while the retirement-first
-phase and Journey OS runtime evidence remain intact. Batch 4 remains a draft
-candidate until its own separate audited architecture promotion, and no claim
-is made that MINT Next exists in the application.
+On this review branch, every agent can determine unambiguously that the
+governance-only router transition has been applied but is not yet independently
+accepted, while the retirement-first phase and Journey OS runtime evidence
+remain intact. Batch 4 remains a draft candidate until its own separate audited
+architecture promotion, and no claim is made that MINT Next exists in the
+application.
 
 ## Required Behavior
 

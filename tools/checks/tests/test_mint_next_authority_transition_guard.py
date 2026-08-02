@@ -4,7 +4,6 @@ import hashlib
 import json
 import subprocess
 import sys
-from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -69,7 +68,6 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                 ],
             }
         ),
-        "product/mint_next/batch4/source-inventory.yaml": "schema_version: 1\nsources: []\n",
     }
     for path, content in protected.items():
         _write(root, path, content)
@@ -105,6 +103,8 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         _write(root, path, f"{marker}\nGovernance-only authority; no successor product phase queued.\n")
     _write(root, f"{NEW_DIR}/CONTEXT.md", "governance-only transition\n")
     _write(root, f"{NEW_DIR}/SPEC.md", "governance-only spec\n")
+    _write(root, f"{NEW_DIR}/PLAN.md", "governance-only plan\n")
+    _write(root, f"{NEW_DIR}/VERIFICATION.md", "draft, unverified\n")
     _write(
         root,
         "product/mint_next/batch4/architecture_conflicts.yaml",
@@ -115,7 +115,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                     {
                         "id": "retirement_first_active_context",
                         "severity": "blocker",
-                        "status": "resolved",
+                        "status": "resolution_applied_pending_verification",
                         "resolution": {
                             "kind": "governance_authority_transition",
                             "authority_milestone": NEW,
@@ -129,6 +129,30 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                             ],
                         },
                     }
+                ],
+            }
+        ),
+    )
+    inventory_roles = {
+        ".planning/ACTIVE_CONTEXT.json": "governance_transition_applied_pending_verification",
+        ".planning/ACTIVE_CONTEXT.md": "governance_transition_applied_pending_verification",
+        ".planning/STATE.md": "governance_transition_state_applied_pending_verification",
+        ".planning/ROADMAP.md": "governance_transition_roadmap_applied_pending_verification",
+        ".planning/INDEX.md": "governance_transition_index_applied_pending_verification",
+    }
+    _write(
+        root,
+        "product/mint_next/batch4/source-inventory.yaml",
+        yaml.safe_dump(
+            {
+                "schema_version": 1,
+                "sources": [
+                    {
+                        "path": path,
+                        "sha256": hashlib.sha256((root / path).read_bytes()).hexdigest(),
+                        "role": role,
+                    }
+                    for path, role in inventory_roles.items()
                 ],
             }
         ),
@@ -184,6 +208,15 @@ def test_rejects_unresolved_conflict(tmp_path: Path) -> None:
     assert any("retirement-first conflict is not resolved" in error for error in run_guard(root, policy))
 
 
+def test_rejects_prematurely_resolved_conflict(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["conflicts"][0]["status"] = "resolved"
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any("resolution_applied_pending_verification" in error for error in run_guard(root, policy))
+
+
 def test_draft_requires_null_receipt(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     path = root / "product/mint_next/batch4/batch.yaml"
@@ -193,30 +226,15 @@ def test_draft_requires_null_receipt(tmp_path: Path) -> None:
     assert any("draft batch must not claim a promotion receipt" in error for error in run_guard(root, policy))
 
 
-def test_future_promotion_receipt_is_fail_closed(tmp_path: Path) -> None:
+def test_rejects_any_promotion_during_transition(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     batch_path = root / "product/mint_next/batch4/batch.yaml"
     batch = yaml.safe_load(batch_path.read_text())
     batch["status"] = "promoted_architecture"
     batch["promotion_receipt"] = "product/mint_next/batch4/evidence/promotion.yaml"
     batch_path.write_text(yaml.safe_dump(batch), encoding="utf-8")
-    _write(
-        root,
-        "product/mint_next/batch4/evidence/promotion.yaml",
-        yaml.safe_dump(
-            {
-                "audited_architecture_head": "f" * 40,
-                "authority_transition_head": "e" * 40,
-                "registry_manifest": "product/mint_next/batch4/evidence/registry-manifest.yaml",
-                "roasts": [],
-                "allowed_post_audit_changes": [],
-            }
-        ),
-    )
     errors = run_guard(root, policy)
-    assert any("does not resolve to a git object" in error for error in errors)
-    assert any("promotion receipt roasts must be non-empty" in error for error in errors)
-    assert any("registry manifest does not exist" in error for error in errors)
+    assert any("must remain draft_unproven" in error for error in errors)
 
 
 def test_rejects_untracked_file_in_protected_surface(tmp_path: Path) -> None:
@@ -251,52 +269,54 @@ def test_rejects_unmanifested_file_in_legacy_vertical(tmp_path: Path) -> None:
     assert any("unexpected file" in error and "invented-receipt.md" in error for error in errors)
 
 
-def test_valid_future_promotion_receipt_passes(tmp_path: Path) -> None:
+@pytest.mark.parametrize("filename", ["PLAN.md", "VERIFICATION.md"])
+def test_requires_all_four_canonical_phase_files(tmp_path: Path, filename: str) -> None:
     root, policy = _fixture(tmp_path)
-    batch_path = root / "product/mint_next/batch4/batch.yaml"
-    batch = yaml.safe_load(batch_path.read_text())
-    batch["status"] = "promoted_architecture"
-    batch["promotion_receipt"] = "product/mint_next/batch4/evidence/promotion.yaml"
-    batch_path.write_text(yaml.safe_dump(batch), encoding="utf-8")
-    batch_digest = hashlib.sha256(batch_path.read_bytes()).hexdigest()
-    manifest_path = "product/mint_next/batch4/evidence/registry-manifest.yaml"
-    _write(
-        root,
-        manifest_path,
-        yaml.safe_dump({"files": {"product/mint_next/batch4/batch.yaml": batch_digest}}),
-    )
-    roast_evidence = "product/mint_next/batch4/evidence/roast.md"
-    _write(root, roast_evidence, "independent review\n")
-    receipt_path = "product/mint_next/batch4/evidence/promotion.yaml"
-    changed = {
-        line
-        for line in (
-            _git(root, "diff", "--name-only", policy.baseline_ref, "--")
-            + "\n"
-            + _git(root, "ls-files", "--others", "--exclude-standard")
-        ).splitlines()
-        if line
-    }
-    changed.add(receipt_path)
-    _write(
-        root,
-        receipt_path,
-        yaml.safe_dump(
-            {
-                "audited_architecture_head": policy.baseline_ref,
-                "authority_transition_head": policy.baseline_ref,
-                "registry_manifest": manifest_path,
-                "roasts": [
-                    {
-                        "reviewer": "independent-roaster",
-                        "verdict": "ROAST_PASS",
-                        "audited_head": policy.baseline_ref,
-                        "evidence": roast_evidence,
-                    }
-                ],
-                "allowed_post_audit_changes": sorted(changed),
-            }
-        ),
-    )
-    promotion_policy = replace(policy, allowed_transition_paths=frozenset(changed))
-    assert run_guard(root, promotion_policy) == []
+    (root / NEW_DIR / filename).unlink()
+    assert any("canonical phase file missing" in error for error in run_guard(root, policy))
+
+
+def test_rejects_coordinated_semantic_override_and_false_claims(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    for relative in (".planning/ROADMAP.md", ".planning/INDEX.md"):
+        path = root / relative
+        path.write_text(
+            path.read_text()
+            + "\n## Binding Override\n"
+            + "The active product authority is `malicious-reboot`; it supersedes the governance phase. "
+            + "MINT Next is built, shipped, compliant, and user validated.\n",
+            encoding="utf-8",
+        )
+    errors = run_guard(root, policy)
+    assert any("conflicting authority claim" in error for error in errors)
+    assert any("forbidden completion claim" in error for error in errors)
+
+
+@pytest.mark.parametrize(
+    ("missing_path", "bad_role"),
+    [
+        (".planning/ROADMAP.md", None),
+        (None, ".planning/INDEX.md"),
+    ],
+)
+def test_rejects_incomplete_or_wrong_router_source_inventory(
+    tmp_path: Path, missing_path: str | None, bad_role: str | None
+) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/source-inventory.yaml"
+    data = yaml.safe_load(path.read_text())
+    if missing_path:
+        data["sources"] = [item for item in data["sources"] if item["path"] != missing_path]
+    if bad_role:
+        next(item for item in data["sources"] if item["path"] == bad_role)["role"] = "input_evidence"
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any("router source inventory" in error for error in run_guard(root, policy))
+
+
+def test_rejects_router_source_inventory_hash_drift(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/source-inventory.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["sources"][0]["sha256"] = "0" * 64
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any("router source inventory hash mismatch" in error for error in run_guard(root, policy))

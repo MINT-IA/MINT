@@ -3,13 +3,13 @@ schema_version: 1
 sources:
 - path: .planning/ACTIVE_CONTEXT.json
   sha256: 8fda531e673162678e5e193c7ff82190fc0ea92e0f38ed373abe0dac42c9a5e0
-  role: reconciled_governance_authority
+  role: governance_transition_applied_pending_verification
 - path: .planning/ACTIVE_CONTEXT.md
   sha256: 41bcb068b6db45938adfa0476bf4b8c930a2f6523b831411d4aae1b807291a56
-  role: reconciled_governance_authority
+  role: governance_transition_applied_pending_verification
 - path: .planning/STATE.md
-  sha256: d5991cd99264d98bbca63934fb71a785e676e1f5364cefa6b4517d0b8d340cc5
-  role: reconciled_governance_state
+  sha256: d504c6272d44111e747e82be34557ade31c42a41f60828547c68eeb17e4f70ad
+  role: governance_transition_state_applied_pending_verification
 - path: .planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md
   sha256: 7714cc2ba2784eaa3ce33dce93e8aec2f1bb3b61cda6c0eb69e08350da78109e
   role: preserved_runtime_vertical_not_global_authority
@@ -31,4 +31,10 @@ sources:
 - path: apps/mobile/lib/routes/route_metadata.dart
   sha256: 1b750e23f7a290a0dca42c9023825bf597ec84df81103a47df45903c6a665131
   role: input_evidence_not_automatically_authoritative
+- path: .planning/ROADMAP.md
+  sha256: a34d08c1851241970f21b33d21a6a01985496386f8f7b35cbda10e6b4c931481
+  role: governance_transition_roadmap_applied_pending_verification
+- path: .planning/INDEX.md
+  sha256: 3d7569f4e55c08528d6e6b20bdf95e1e84391aa9cb8c2667cd2b0bca208be4b9
+  role: governance_transition_index_applied_pending_verification
 rule: Hash drift requires explicit reconciliation; no source becomes canonical by inclusion.

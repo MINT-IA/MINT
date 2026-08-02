@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: mint-next-architecture-authority-20260802
 milestone_name: MINT Next Architecture Authority
 status: governance-only-authority-transition
-stopped_at: Batch 4 architecture is audited but remains draft until separate promotion evidence.
+stopped_at: Governance router transition applied for review; independent acceptance remains pending and Batch 4 remains draft.
 last_updated: "2026-08-02T00:00:00.000Z"
 last_activity: 2026-08-02 -- event-triggered architecture authority transition; no product/runtime change.
 progress:
@@ -23,7 +23,7 @@ progress:
 
 The active phase is governance-only: `.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md` and `.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`. It establishes the event-triggered Batch 4 maps as the candidate global architecture without activating any screen, route, calculator, API, recommendation, or deployment.
 
-Journey OS remains the runtime truth overlay. The former retirement-first phase is preserved byte-for-byte as a historical receipt and proven runtime vertical, not deleted and not treated as the global IA.
+Journey OS remains the runtime truth overlay. The former retirement-first phase is preserved byte-for-byte as a historical receipt and partially runtime-evidenced legacy vertical, not deleted and not treated as the global IA; its physical-device restore limitation remains open.
 
 ## Project Reference
 

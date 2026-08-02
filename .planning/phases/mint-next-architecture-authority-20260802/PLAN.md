@@ -1,6 +1,7 @@
 # MINT Next Architecture Authority Transition — Plan
 
-Status: Draft. No execution or completion claim.
+Status: Router transition applied on the review branch; independent acceptance,
+exact-HEAD verification, and completion remain pending.
 
 ## Scope Budget
 

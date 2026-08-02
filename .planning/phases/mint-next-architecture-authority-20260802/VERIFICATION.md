@@ -1,10 +1,10 @@
 # MINT Next Architecture Authority Transition — Verification
 
-Status: **DRAFT / UNVERIFIED**
+Status: **TRANSITION APPLIED FOR REVIEW / UNVERIFIED**
 
-No acceptance command for the promoted transition has been recorded at one
-exact commit. The existence of these documents, an agent summary, or a passing
-pre-transition guard is not completion evidence.
+The router transition is present on this review branch, but no acceptance
+record for it has been captured at one exact commit. The existence of these
+documents, an agent summary, or a passing guard is not completion evidence.
 
 ## Claim Boundary
 

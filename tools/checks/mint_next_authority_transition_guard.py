@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -25,6 +26,8 @@ NEW_MILESTONE = "mint-next-architecture-authority-20260802"
 NEW_PHASE_DIR = f".planning/phases/{NEW_MILESTONE}"
 NEW_CONTEXT = f"{NEW_PHASE_DIR}/CONTEXT.md"
 NEW_SPEC = f"{NEW_PHASE_DIR}/SPEC.md"
+NEW_PLAN = f"{NEW_PHASE_DIR}/PLAN.md"
+NEW_VERIFICATION = f"{NEW_PHASE_DIR}/VERIFICATION.md"
 
 AUTHORITY_MARKER = (
     "<!-- mint-authority: milestone={milestone}; phase_dir={phase_dir}; "
@@ -70,6 +73,23 @@ PROTECTED_EVIDENCE_PREFIXES = (
     ".planning/journeys/evidence/",
     "tools/simulator/flows/",
 )
+
+ROUTER_SOURCE_ROLES = {
+    ".planning/ACTIVE_CONTEXT.json": "governance_transition_applied_pending_verification",
+    ".planning/ACTIVE_CONTEXT.md": "governance_transition_applied_pending_verification",
+    ".planning/STATE.md": "governance_transition_state_applied_pending_verification",
+    ".planning/ROADMAP.md": "governance_transition_roadmap_applied_pending_verification",
+    ".planning/INDEX.md": "governance_transition_index_applied_pending_verification",
+}
+
+# Only the live authority portion is normative.  Historical receipts legitimately
+# contain old milestones and old "shipped" claims and must remain byte-preserved.
+ACTIVE_SECTION_END = {
+    ".planning/ACTIVE_CONTEXT.md": "## Not Active",
+    ".planning/STATE.md": "## Historical Receipts",
+    ".planning/ROADMAP.md": "## Soldage des gates legacy",
+    ".planning/INDEX.md": "## `_archive/`",
+}
 
 ALLOWED_TRANSITION_PATHS = frozenset(
     {
@@ -188,9 +208,9 @@ def _check_router(root: Path, errors: List[str]) -> None:
         errors.append(
             "old retirement milestone must be preserved_runtime_vertical_not_global_authority"
         )
-    for path in (NEW_CONTEXT, NEW_SPEC):
+    for path in (NEW_CONTEXT, NEW_SPEC, NEW_PLAN, NEW_VERIFICATION):
         if not (root / path).is_file():
-            errors.append(f"new governance authority file missing: {path}")
+            errors.append(f"canonical phase file missing: {path}")
 
     marker = AUTHORITY_MARKER.format(
         milestone=NEW_MILESTONE,
@@ -221,6 +241,44 @@ def _check_router(root: Path, errors: List[str]) -> None:
         )
         if any(phrase in text for phrase in active_old_phrases):
             errors.append(f"old retirement authority remains active in {relative}")
+        _check_active_authority_semantics(relative, text, marker, errors)
+
+
+def _active_section(relative: str, text: str) -> str:
+    boundary = ACTIVE_SECTION_END[relative]
+    return text.split(boundary, 1)[0]
+
+
+def _check_active_authority_semantics(
+    relative: str, text: str, expected_marker: str, errors: List[str]
+) -> None:
+    active = _active_section(relative, text)
+    marker_count = active.count(expected_marker)
+    if marker_count != 1:
+        errors.append(
+            f"active authority section must contain exactly one canonical marker: "
+            f"{relative} has {marker_count}"
+        )
+    all_markers = re.findall(r"<!--\s*mint-authority:[\s\S]*?-->", active)
+    if any(candidate != expected_marker for candidate in all_markers):
+        errors.append(f"conflicting authority marker in active section: {relative}")
+
+    # The canonical marker is necessary but not sufficient.  Reject an explicit
+    # prose override even if an attacker leaves the marker in place.
+    conflicting_claims = (
+        r"\bbinding\s+override\b",
+        r"\bactive\s+product\s+authority\b",
+        r"\bsupersedes\s+the\s+governance\s+phase\b",
+    )
+    if any(re.search(pattern, active, flags=re.IGNORECASE) for pattern in conflicting_claims):
+        errors.append(f"conflicting authority claim in active section: {relative}")
+
+    forbidden_completion = re.compile(
+        r"\b(?:MINT\s+Next\s+is\s+)?(?:built|shipped|compliant|user[- ]validated)\b",
+        flags=re.IGNORECASE,
+    )
+    if forbidden_completion.search(active):
+        errors.append(f"forbidden completion claim in active section: {relative}")
 
 
 def _check_conflict(root: Path, errors: List[str]) -> None:
@@ -236,8 +294,12 @@ def _check_conflict(root: Path, errors: List[str]) -> None:
         (item for item in data["conflicts"] if isinstance(item, dict) and item.get("id") == "retirement_first_active_context"),
         None,
     )
-    if not conflict or conflict.get("status") != "resolved":
-        errors.append("retirement-first conflict is not resolved")
+    expected_status = "resolution_applied_pending_verification"
+    if not conflict or conflict.get("status") != expected_status:
+        errors.append(
+            "retirement-first conflict is not resolved at the honest transition "
+            f"lifecycle: expected {expected_status!r}"
+        )
         return
     resolution = conflict.get("resolution")
     expected = {
@@ -263,75 +325,50 @@ def _check_conflict(root: Path, errors: List[str]) -> None:
         errors.append("retirement-first conflict resolution evidence is incomplete")
 
 
-def _git_commit_exists(root: Path, sha: object) -> bool:
-    return (
-        isinstance(sha, str)
-        and len(sha) == 40
-        and all(char in "0123456789abcdef" for char in sha)
-        and _git(root, ["cat-file", "-e", f"{sha}^{{commit}}"]).returncode == 0
-    )
-
-
-def _check_registry_manifest(root: Path, relative: object, errors: List[str]) -> None:
-    if not isinstance(relative, str) or not (root / relative).is_file():
-        errors.append(f"promotion registry manifest does not exist: {relative!r}")
-        return
-    data = _load_yaml(root / relative, errors, "promotion registry manifest")
-    if not isinstance(data, dict) or not isinstance(data.get("files"), dict):
-        errors.append("promotion registry manifest must contain files: {path: sha256}")
-        return
-    for path, digest in data["files"].items():
-        if not isinstance(path, str) or not isinstance(digest, str) or len(digest) != 64:
-            errors.append(f"invalid registry manifest entry: {path!r}")
-        elif not (root / path).is_file() or _sha256(root / path) != digest:
-            errors.append(f"registry manifest mismatch: {path}")
-
-
-def _check_promotion(root: Path, errors: List[str]) -> None:
+def _check_batch_remains_draft(root: Path, errors: List[str]) -> None:
     data = _load_yaml(root / "product/mint_next/batch4/batch.yaml", errors, "Batch4 batch contract")
     if not isinstance(data, dict):
         errors.append("Batch4 batch contract must be a mapping")
         return
-    status = data.get("status")
-    receipt_path = data.get("promotion_receipt")
-    if status == "draft_unproven":
-        if receipt_path is not None:
-            errors.append("draft batch must not claim a promotion receipt")
+    if data.get("status") != "draft_unproven":
+        errors.append("Batch4 must remain draft_unproven during the authority transition")
+    if data.get("promotion_receipt") is not None:
+        errors.append("draft batch must not claim a promotion receipt")
+
+
+def _check_router_source_inventory(root: Path, errors: List[str]) -> None:
+    data = _load_yaml(
+        root / "product/mint_next/batch4/source-inventory.yaml",
+        errors,
+        "Batch4 source inventory",
+    )
+    sources = data.get("sources") if isinstance(data, dict) else None
+    if not isinstance(sources, list):
+        errors.append("router source inventory must contain sources[]")
         return
-    if status != "promoted_architecture":
-        errors.append(f"unsupported Batch4 status for authority transition: {status!r}")
-        return
-    receipt = _load_yaml(root / str(receipt_path), errors, "Batch4 promotion receipt") if isinstance(receipt_path, str) else None
-    if not isinstance(receipt, dict):
-        errors.append("promoted Batch4 requires a readable promotion receipt")
-        return
-    for field in ("audited_architecture_head", "authority_transition_head"):
-        sha = receipt.get(field)
-        if not _git_commit_exists(root, sha):
-            errors.append(f"promotion receipt {field} does not resolve to a git object: {sha!r}")
-    _check_registry_manifest(root, receipt.get("registry_manifest"), errors)
-    roasts = receipt.get("roasts")
-    if not isinstance(roasts, list) or not roasts:
-        errors.append("promotion receipt roasts must be non-empty")
-    else:
-        for index, roast in enumerate(roasts):
-            if not isinstance(roast, dict) or not all(
-                roast.get(key) for key in ("reviewer", "verdict", "audited_head", "evidence")
-            ):
-                errors.append(f"promotion receipt roast[{index}] is incomplete")
-            elif roast.get("verdict") not in ("PASS", "ROAST_PASS"):
-                errors.append(f"promotion receipt roast[{index}] is not passing")
-            elif not _git_commit_exists(root, roast.get("audited_head")):
-                errors.append(f"promotion receipt roast[{index}] audited_head is not a git commit")
-    allowlist = receipt.get("allowed_post_audit_changes")
-    if not isinstance(allowlist, list) or any(not isinstance(path, str) for path in allowlist):
-        errors.append("promotion receipt allowed_post_audit_changes must be a path list")
-    audited = receipt.get("audited_architecture_head")
-    if _git_commit_exists(root, audited) and isinstance(allowlist, list):
-        changed = _changed_paths(root, audited, errors)
-        unexpected = sorted(changed - set(allowlist))
-        for path in unexpected:
-            errors.append(f"post-audit change is outside promotion allowlist: {path}")
+    by_path = {
+        item.get("path"): item
+        for item in sources
+        if isinstance(item, dict) and isinstance(item.get("path"), str)
+    }
+    for relative, expected_role in ROUTER_SOURCE_ROLES.items():
+        item = by_path.get(relative)
+        if not isinstance(item, dict):
+            errors.append(f"router source inventory missing: {relative}")
+            continue
+        if item.get("role") != expected_role:
+            errors.append(
+                f"router source inventory role mismatch: {relative} must be {expected_role!r}"
+            )
+        digest = item.get("sha256")
+        full = root / relative
+        if (
+            not full.is_file()
+            or not isinstance(digest, str)
+            or len(digest) != 64
+            or _sha256(full) != digest
+        ):
+            errors.append(f"router source inventory hash mismatch: {relative}")
 
 
 def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str]:
@@ -348,7 +385,8 @@ def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str
             errors.append(f"Journey OS/runtime evidence changed during governance transition: {path}")
     _check_router(root, errors)
     _check_conflict(root, errors)
-    _check_promotion(root, errors)
+    _check_batch_remains_draft(root, errors)
+    _check_router_source_inventory(root, errors)
     return errors
 
 
