@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import 'l10n/generated/mint_next_localizations.dart';
 
@@ -1204,55 +1205,76 @@ class _SafeExitSheetState extends State<_SafeExitSheet> {
   }
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-    key: const ValueKey('overlay:safe_exit'),
-    child: Scrollbar(
-      controller: _controller,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        key: const ValueKey('scroll:safe_exit'),
-        controller: _controller,
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Focus(
-              key: const ValueKey('heading:safe_exit'),
-              focusNode: _headingFocus,
-              child: Semantics(
-                header: true,
-                child: Text(widget.l10n.safeExitTitle, style: _editorial(30)),
-              ),
+  Widget build(BuildContext context) => FocusTraversalGroup(
+    policy: WidgetOrderTraversalPolicy(),
+    child: Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      onKeyEvent: (node, event) {
+        if (event is! KeyDownEvent ||
+            event.logicalKey != LogicalKeyboardKey.tab) {
+          return KeyEventResult.ignored;
+        }
+        final scope = FocusScope.of(context);
+        HardwareKeyboard.instance.isShiftPressed
+            ? scope.previousFocus()
+            : scope.nextFocus();
+        return KeyEventResult.handled;
+      },
+      child: SafeArea(
+        key: const ValueKey('overlay:safe_exit'),
+        child: Scrollbar(
+          controller: _controller,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            key: const ValueKey('scroll:safe_exit'),
+            controller: _controller,
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Focus(
+                  key: const ValueKey('heading:safe_exit'),
+                  focusNode: _headingFocus,
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      widget.l10n.safeExitTitle,
+                      style: _editorial(30),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  widget.l10n.safeExitBody,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 24),
+                MintDesignLabAction(
+                  key: const ValueKey('overlay-action:safe_exit.resume'),
+                  label: widget.l10n.resume,
+                  onPressed: widget.onResume,
+                ),
+                const SizedBox(height: 10),
+                MintDesignLabAction.secondary(
+                  key: const ValueKey(
+                    'overlay-action:safe_exit.keep_local_reference',
+                  ),
+                  label: widget.l10n.keepReferenceUnavailable,
+                  onPressed: null,
+                ),
+                const SizedBox(height: 10),
+                MintDesignLabAction.text(
+                  key: const ValueKey(
+                    'overlay-action:safe_exit.leave_without_saving',
+                  ),
+                  label: widget.l10n.leave,
+                  onPressed: widget.onLeave,
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              widget.l10n.safeExitBody,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 24),
-            MintDesignLabAction(
-              key: const ValueKey('overlay-action:safe_exit.resume'),
-              label: widget.l10n.resume,
-              onPressed: widget.onResume,
-            ),
-            const SizedBox(height: 10),
-            MintDesignLabAction.secondary(
-              key: const ValueKey(
-                'overlay-action:safe_exit.keep_local_reference',
-              ),
-              label: widget.l10n.keepReferenceUnavailable,
-              onPressed: null,
-            ),
-            const SizedBox(height: 10),
-            MintDesignLabAction.text(
-              key: const ValueKey(
-                'overlay-action:safe_exit.leave_without_saving',
-              ),
-              label: widget.l10n.leave,
-              onPressed: widget.onLeave,
-            ),
-          ],
+          ),
         ),
       ),
     ),

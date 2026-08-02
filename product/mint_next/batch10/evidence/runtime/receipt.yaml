@@ -1,6 +1,6 @@
 schema_version: 1
 status: corrected_candidate_runtime_evidence_not_promotion
-captured_at: '2026-08-02T23:24:49+02:00'
+captured_at: '2026-08-02T23:38:18+02:00'
 runner: local_real_chrome_cdp_flutter_web_release
 viewport:
   width: 390
@@ -8,16 +8,20 @@ viewport:
   device_scale_factor: 1
 app:
   path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
-  sha256: 15a1ed8cc0954df780d867f565e889fd4b000fcb87cf766723eb82a2fac67648
+  sha256: 377922477a00747b3210a1e07b4ce6bec110fd13d6f6d3ded8903f1f3ca7fec6
 probe:
   path: tools/checks/mint_next_batch10_contribution_runtime_probe.py
-  sha256: d6eb922e60b0172f7bc7a9543caf4e5e28648cca1f7a513387333f7580208157
+  sha256: 7fc3f3e77987ac168984235dd8e010f9d0265675f9ac84697192918dbc3f1fc8
 commands:
 - flutter analyze
 - flutter test
 - python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py --capture
 assertions:
-- lpp_unknown_no_and_back_live_coverage_carried_forward
+- six_locale_source_contract_unknown_is_not_no_and_transfer_is_not_new_money
+- safe_exit_ax_background_isolation_nonempty_keyboard_loop_escape_and_focus_return
+- reviewed_fr_ax_copy_is_exact_on_question_unknown_yes_and_no_boundaries
+- real_chrome_ax_full_written_reading_order_includes_definition_credit_and_amount_notes
+- batch8_live_lpp_question_unknown_no_yes_back_and_safe_exit_coverage_carried_forward
 - question_has_no_default_or_personal_amount
 - yes_no_unknown_physical_routes
 - back_restores_selection
@@ -25,9 +29,7 @@ assertions:
 - same_node_disclosure_classifies_neighboring_movements
 - unknown_continues_education_only
 - all_rendered_boundaries_reject_personal_promises_amounts_thresholds_and_percentages
-- real_chrome_ax_reading_order_matches_written_contract
 - real_chrome_ax_focus_moves_to_route_heading
-- safe_exit_ax_background_isolation_keyboard_trap_escape_and_focus_return
 - safe_exit_resume_preserves_state
 - leave_without_saving_purges_all_ephemeral_facts
 - flutter_320x700_text_scale_2_all_routes_and_safe_exit

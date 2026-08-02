@@ -135,12 +135,19 @@ def ax_reading_names(browser: Target) -> list[str]:
     return names
 
 
+def assert_exact_ax_text(browser: Target, expected: str, state: str) -> None:
+    check(expected in ax_reading_names(browser), f"{state} exact reviewed copy")
+
+
 def assert_question_accessibility(browser: Target, year: int) -> None:
     names = ax_reading_names(browser)
     expected = [
         "MINT",
         "Quitter ce parcours",
         f"En {year}, l’un de tes 3a a-t-il reçu un nouveau versement ?",
+        "Réponds pour tous tes 3a, y compris une assurance 3a.",
+        f"Compte seulement l’argent neuf reçu pour {year}. Un paiement seulement envoyé ou débité ne compte pas encore ; un transfert, un rendement ou un remboursement de frais non plus.",
+        "Pas besoin de connaître le total maintenant. On te le demandera seulement si tu réponds oui.",
         "Ce qui compte — et ce qui ne compte pas",
         "Oui, un nouveau versement a été reçu",
         "Non, aucun nouveau versement",
@@ -175,7 +182,6 @@ def assert_safe_exit_keyboard(browser: Target, year: int) -> None:
         "Continuer ici",
         "Quitter sans enregistrer",
         "Fond",
-        "",
     }
     for _ in range(10):
         browser.key("Tab")
@@ -222,6 +228,13 @@ def reach_contribution(browser: Target, url: str) -> int:
         f"En {year}, l’un de tes 3a a-t-il reçu un nouveau versement ?" in text(browser),
         "contribution question reached",
     )
+    click_label(browser, "Retour")
+    check(selected(browser, "Oui"), "LPP yes selection restored from contribution Back")
+    click_label(browser, "Quitter ce parcours")
+    check("Tu veux t’arrêter ici ?" in text(browser), "LPP safe exit opens")
+    click_label(browser, "Continuer ici")
+    check(selected(browser, "Oui"), "LPP safe-exit Resume preserves yes")
+    click_label(browser, "Oui")
     return year
 
 
@@ -260,18 +273,35 @@ def run(capture: bool) -> None:
             {"width": 390, "height": 844, "deviceScaleFactor": 1, "mobile": True},
         )
         year = reach_lpp(browser, url)
+        body = text(browser)
+        check(all(label in body for label in ("Oui", "Non", "Je ne sais pas")), "three visible LPP choices")
+        check(
+            not any(token in body for token in ("CHF", "%", "7’", "36’")),
+            "LPP question has no amount or threshold",
+        )
         click_label(browser, "Je ne sais pas")
         body = text(browser)
+        check("MINT" in body and "Quitter" in body, "LPP unknown keeps header and exit")
         check("Tu peux le vérifier sans deviner." in body, "LPP unknown help remains live")
+        check(
+            all(fragment in body for fragment in ("fiche de salaire", "certificat de prévoyance", "employeur")),
+            "all LPP unknown verification paths remain live",
+        )
         check("Bientôt disponible" in body, "LPP unknown local reference remains explicit")
         click_label(browser, "Revenir à la question")
         check(selected(browser, "Je ne sais pas"), "LPP unknown selection restored on Back")
 
         reach_lpp(browser, url)
         click_label(browser, "Non")
+        body = text(browser)
+        check("MINT" in body and "Quitter" in body, "LPP no boundary keeps header and exit")
         check(
-            "ne signifie pas que tu n’as pas droit au 3a" in text(browser),
+            "ne signifie pas que tu n’as pas droit au 3a" in body,
             "LPP no boundary remains honest",
+        )
+        check(
+            not any(token in body for token in ("CHF", "%", "indépendant")),
+            "LPP no boundary remains calculation-free",
         )
         click_label(browser, "Corriger ma réponse")
         check(selected(browser, "Non"), "LPP no selection restored on Back")
@@ -291,6 +321,11 @@ def run(capture: bool) -> None:
             "three visible contribution choices",
         )
         assert_no_personal_result(browser, "question")
+        assert_exact_ax_text(
+            browser,
+            f"Compte seulement l’argent neuf reçu pour {year}. Un paiement seulement envoyé ou débité ne compte pas encore ; un transfert, un rendement ou un remboursement de frais non plus.",
+            "question credited note",
+        )
         check("transfert, un rendement ou un remboursement de frais" in body, "always-visible exclusions")
         check(not any(token in body for token in ("CHF", "%", "7’", "36’")), "question has no amount or threshold")
         if capture:
@@ -347,6 +382,11 @@ def run(capture: bool) -> None:
         check("Tu peux vérifier sans additionner toi-même." in body, "unknown help reached")
         check("N’additionne jamais un transfert" in body, "unknown help prevents double counting")
         assert_no_personal_result(browser, "unknown help")
+        assert_exact_ax_text(
+            browser,
+            f"Cherche si une cotisation ordinaire a été créditée pour {year} sur chacun de tes 3a. Si un transfert, un rachat ou un remboursement rend la réponse incertaine, garde « Je ne sais pas ».",
+            "unknown help body",
+        )
         if capture:
             screenshot(browser, CAPTURES / "fr_contribution_unknown_chrome_390.png")
         click_label(browser, "Revenir à la question")
@@ -357,6 +397,11 @@ def run(capture: bool) -> None:
         body = text(browser)
         check("Aucun résultat fiscal n’est encore calculé" in body, "no boundary remains calculation-free")
         assert_no_personal_result(browser, "no boundary")
+        assert_exact_ax_text(
+            browser,
+            "Aucun résultat fiscal n’est encore calculé. L’étape suivante demandera ton canton.",
+            "no boundary body",
+        )
         if capture:
             screenshot(browser, CAPTURES / "fr_contribution_no_boundary_chrome_390.png")
         click_label(browser, "Corriger ma réponse")
@@ -366,6 +411,11 @@ def run(capture: bool) -> None:
         body = text(browser)
         check("aucun montant n’est connu ni calculé" in body, "yes boundary does not invent an amount")
         assert_no_personal_result(browser, "yes boundary")
+        assert_exact_ax_text(
+            browser,
+            "Le total devra couvrir tous tes comptes et polices 3a. Après un remboursement partiel, tu pourras utiliser le montant net confirmé par le prestataire. Pour l’instant, aucun montant n’est connu ni calculé.",
+            "yes boundary body",
+        )
         if capture:
             screenshot(browser, CAPTURES / "fr_contribution_yes_boundary_chrome_390.png")
         click_label(browser, "Corriger ma réponse")
