@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import os
 import re
@@ -38,6 +39,37 @@ FORBIDDEN_PERSONAL_CLAIMS = (
     "recommandons",
     "garanti",
 )
+
+CONTRIBUTION_COPY_SHA256 = {
+    "fr": "11ee6df4e094d6c2bc2755f62678983b975ccd01585eca49417e50a8eea4d9b2",
+    "en": "ba6a43a437360a04142a3132e13420a62755c76987ba0f5ad10fbd918f4dcbbb",
+    "de": "18f4335700a461fb0c9daf8914f2e0036efafbb846472860a2db73dcd56b5cc4",
+    "it": "ee5b95d7dfbd7f23293f493d698defd83cfcff4b1f0d1f0f7ae06eedf42ee9e0",
+    "es": "8c63c560f0e9b7793192fa80789040f60286f133860ec619ea0e43a4b4bfa587",
+    "pt": "234000fd21143b14399850eec2ba2129eb83a479ac2cbefa237c6f92b8c4ae9b",
+}
+
+
+def assert_reviewed_contribution_copy() -> None:
+    """Bind every reviewed user-facing contribution string in all six locales."""
+    for locale, expected in CONTRIBUTION_COPY_SHA256.items():
+        source = json.loads((LAB / "lib" / "l10n" / f"app_{locale}.arb").read_text())
+        contribution_copy = {
+            key: value
+            for key, value in source.items()
+            if key.startswith("contribution") and not key.startswith("@")
+        }
+        encoded = json.dumps(
+            contribution_copy,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+        actual = hashlib.sha256(encoded).hexdigest()
+        check(
+            actual == expected,
+            f"{locale} reviewed contribution copy is exact ({actual})",
+        )
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -462,10 +494,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--capture", action="store_true")
     args = parser.parse_args()
-    if not chrome():
-        print("ERROR mint_next_batch10_contribution_runtime_probe: Chrome required")
-        return 1
     try:
+        assert_reviewed_contribution_copy()
+        if not chrome():
+            print("ERROR mint_next_batch10_contribution_runtime_probe: Chrome required")
+            return 1
         run(args.capture)
         return 0
     except Exception as exc:
