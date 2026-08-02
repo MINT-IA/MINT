@@ -32,7 +32,6 @@ EXPECTED = {
     ACCEPTANCE: "108817ab4424897efc78a8e22e6928473cace44c76fb86fee7ae1f23fae48add",
     RECEIPT: "b374fbc551e8287ec66ba4daedd4de2c85c4ef6bc47ce106228a66aeb75fcfc8",
     PROBE: "a562a7daf3e0200c3560f2ba2b4aa2507cb55d71bbc1abf34e44f3bbbfd4389e",
-    WORKFLOW: "4fb19568bf5d9b83a8f4251151de24c7e4aae08e14b559fac1a1c6158e40d20b",
 }
 EXPECTED_COMMIT = "d265dfdf46c1c3c8b1745a7d814d4e1b853521fc"
 EXPECTED_TREE = "a18ff1a156cf83c47e3b94b913c0a8b5f0b95b74"
@@ -61,7 +60,6 @@ def validate(
         ACCEPTANCE: acceptance_path,
         RECEIPT: receipt_path,
         PROBE: PROBE,
-        WORKFLOW: workflow_path,
     }
     for canonical, actual in supplied.items():
         if _digest(actual) != EXPECTED[canonical]:

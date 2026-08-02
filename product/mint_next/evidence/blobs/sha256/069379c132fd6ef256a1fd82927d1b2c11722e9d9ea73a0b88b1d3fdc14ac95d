@@ -1,0 +1,177 @@
+{
+  "@@locale": "de",
+  "brand": "MINT",
+  "quit": "Beenden",
+  "todayEyebrow": "HEUTE · SÄULE 3A",
+  "todayTitle": "Was ändert eine Einzahlung in die Säule 3a dieses Jahr?",
+  "todayBody": "Wir verstehen die Auswirkungen Schritt für Schritt. MINT informiert dich, entscheidet aber nicht für dich.",
+  "start": "Verstehen",
+  "orientationEyebrow": "VOR DEN ZAHLEN",
+  "orientationTitle": "Für deine Pensionierung sparen kann auch deine Steuern senken.",
+  "orientationBody": "Eine Einzahlung in die Säule 3a kann dein steuerbares Einkommen senken — den Betrag, auf dem deine Steuern berechnet werden. Dein verfügbares Geld sinkt jetzt und das 3a-Kapital bleibt bis zur Pensionierung gebunden, ausser in den gesetzlich vorgesehenen Fällen.",
+  "orientationNote": "Zuerst prüfen wir das Jahr und deine Situation. Es wird kein Betrag empfohlen.",
+  "continueLabel": "Weiter",
+  "backLabel": "Zurück",
+  "taxYearEyebrow": "SCHRITT 1 · STEUERJAHR",
+  "taxYearTitle": "Über welches Jahr sprechen wir?",
+  "taxYearBody": "Der Höchstbetrag hängt vom Jahr und von deiner Situation ab, insbesondere von deinem Erwerbseinkommen und dem Anschluss an eine Pensionskasse. Das laufende Jahr wird vorgeschlagen, nie für dich gewählt.",
+  "currentYearLabel": "Laufendes Jahr: {year}",
+  "confirmYear": "{year} auswählen",
+  "yearChosen": "Jahr {year} ausgewählt",
+  "partialBoundary": "Der nächste Bildschirm folgt im nächsten kleinen Paket. Nichts wird gespeichert.",
+  "safeExitTitle": "Möchtest du hier aufhören?",
+  "safeExitBody": "In diesem Design Lab werden keine persönlichen Finanzdaten gespeichert.",
+  "resume": "Hier weitermachen",
+  "leave": "Ohne Speichern beenden",
+  "dismissedTitle": "Ablauf beendet",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Starten",
+  "keepReferenceUnavailable": "Lokaler Merker — bald verfügbar",
+  "lppQuestionEyebrow": "DEINE SITUATION",
+  "lppQuestionTitle": "Hast du derzeit eine Pensionskasse?",
+  "lppQuestionBody": "Das wird auch berufliche Vorsorge, BVG oder zweite Säule genannt. Du kannst über deine Arbeit oder freiwillig versichert sein. Hier geht es darum, ob du aktuell versichert bist – nicht darum, wie viel du einzahlst.",
+  "lppQuestionEvidence": "Prüfe auf einer Lohnabrechnung eine Zeile zu BVG oder Pensionskasse, sieh in einem aktuellen Vorsorgeausweis nach oder frage deine Pensionskasse, deinen Arbeitgeber oder die Personalabteilung.",
+  "lppChoiceYes": "Ja",
+  "lppChoiceNo": "Nein",
+  "lppChoiceUnknown": "Ich weiss es nicht",
+  "lppUnknownEyebrow": "KEIN PROBLEM",
+  "lppUnknownTitle": "Du kannst es prüfen, ohne zu raten.",
+  "lppUnknownBody": "Beginne mit dem, was für dich am einfachsten ist. Wenn du die Antwort kennst, starte diesen Weg erneut und beantworte die Frage nochmals.",
+  "lppUnknownListLabel": "Drei Möglichkeiten, deine Pensionskassen-Zugehörigkeit zu prüfen",
+  "lppUnknownPayslip": "Suche auf einer aktuellen Lohnabrechnung nach BVG, zweiter Säule oder Pensionskasse.",
+  "lppUnknownCertificate": "Suche nach einem aktuellen Vorsorgeausweis deiner Pensionskasse.",
+  "lppUnknownAsk": "Frage deine Pensionskasse, deinen Arbeitgeber oder die Personalabteilung, ob du aktuell versichert bist.",
+  "lppBackToQuestion": "Zurück zur Frage",
+  "lppKeepChecklist": "Diese Liste auf diesem Gerät behalten",
+  "localReferenceUnavailable": "Bald verfügbar",
+  "withoutLppEyebrow": "ES GILT EINE ANDERE REGEL",
+  "withoutLppTitle": "Du kannst möglicherweise trotzdem in die Säule 3a einzahlen, aber es gelten andere Regeln.",
+  "withoutLppBody": "Deine Antwort bedeutet nicht, dass du kein Recht auf die Säule 3a hast. Diese erste Berechnung deckt diesen Fall einfach noch nicht ab.",
+  "lppCorrectAnswer": "Meine Antwort korrigieren",
+  "withoutLppKeepExplanation": "Diese Erklärung auf diesem Gerät behalten",
+  "nextStepEyebrow": "NÄCHSTER SCHRITT",
+  "nextStepTitle": "Deine Zugehörigkeit ist geklärt.",
+  "nextStepBody": "Als Nächstes geht es darum, was du dieses Jahr bereits eingezahlt hast. Diese Frage kommt im nächsten kleinen Paket. Nichts wird gespeichert.",
+  "quitJourney": "Diesen Weg verlassen",
+  "contributionEyebrow": "DEINE 3A-EINZAHLUNGEN · {taxYear}",
+  "contributionTitle": "Hat eine deiner Säulen 3a im Jahr {taxYear} eine neue Einzahlung erhalten?",
+  "contributionBody": "Antworte für alle deine 3a-Konten, auch für eine 3a-Versicherung.",
+  "contributionCreditedNote": "Zähle nur neues Geld, das für {taxYear} eingegangen ist. Eine nur gesendete oder belastete Zahlung zählt noch nicht; ebenso wenig ein Transfer, Anlageertrag oder eine Gebührenrückerstattung.",
+  "contributionAmountNote": "Den Gesamtbetrag musst du jetzt noch nicht kennen. Wir fragen nur danach, wenn du Ja antwortest.",
+  "contributionChoiceYes": "Ja, eine neue Einzahlung ist eingegangen",
+  "contributionChoiceNo": "Nein, keine neue Einzahlung",
+  "contributionChoiceUnknown": "Ich weiss es nicht",
+  "contributionChoiceGroupLabel": "Neue 3a-Einzahlungen, die {taxYear} eingegangen sind",
+  "contributionEdgeHelp": "Was zählt — und was nicht",
+  "contributionEdgePending": "Eine geplante, gesendete oder belastete Zahlung zählt erst, wenn sie auf deiner Säule 3a eingegangen ist.",
+  "contributionEdgeTransfer": "Zähle einen Transfer zwischen zwei Säulen 3a nicht: Er ist kein neues Geld.",
+  "contributionEdgeBuyback": "Halte einen nachträglichen Einkauf für ein früheres Jahr getrennt.",
+  "contributionEdgeFullRefund": "Antworte nach einer vollständigen Rückzahlung Nein, wenn keine wirksame ordentliche Einzahlung übrig bleibt.",
+  "contributionEdgePartialRefund": "Antworte nach einer teilweisen Rückzahlung Ja, wenn der Anbieter einen positiven Nettobetrag bestätigt.",
+  "contributionEdgeUnclearCorrection": "Wenn eine Korrektur den wirksamen Betrag unklar macht, wähle «Ich weiss es nicht».",
+  "contributionEdgeMixedTransfer": "Wenn Transfer und neues Geld zusammen eingehen, zähle nur das neue Geld.",
+  "contributionEdgeReturn": "Zähle Anlageerträge oder Zinsen nicht als Einzahlung.",
+  "contributionEdgeAdjustment": "Zähle keine Gebührenrückerstattung, Vergütung oder andere Korrektur.",
+  "contributionUnknownEyebrow": "KEIN PROBLEM",
+  "contributionUnknownTitle": "Du kannst nachsehen, ohne selbst zusammenzurechnen.",
+  "contributionUnknownBody": "Prüfe bei jeder deiner Säulen 3a, ob für {taxYear} eine ordentliche Einzahlung eingegangen ist. Wenn Transfer, Einkauf oder Rückzahlung die Antwort unklar machen, bleibe bei «Ich weiss es nicht».",
+  "contributionUnknownListLabel": "So prüfst du es, ohne zu raten",
+  "contributionUnknownProviderStatement": "Suche in jeder Bank- oder Fintech-App oder Abrechnung nach einer für {taxYear} eingegangenen Gutschrift.",
+  "contributionUnknownInsuranceCertificate": "Prüfe bei einer 3a-Versicherung die Jahresbescheinigung oder frage nach der eingegangenen ordentlichen Einzahlung.",
+  "contributionUnknownProviderQuestion": "Frage im Zweifel den Anbieter, ob die Bewegung eine ordentliche Einzahlung, ein Transfer, Einkauf oder eine Rückzahlung ist.",
+  "contributionUnknownTransferWarning": "Addiere nie einen Transfer zwischen zwei Säulen 3a. Sonst zählst du dasselbe Geld doppelt.",
+  "contributionUnknownEducationLimit": "Du kannst ohne persönlichen Betrag fortfahren. MINT zeigt nur eine allgemeine Erklärung.",
+  "contributionUnknownContinueEducation": "Mit einer allgemeinen Erklärung fortfahren",
+  "contributionBackToQuestion": "Zurück zur Frage",
+  "contributionAmountBoundaryTitle": "Als Nächstes fragt MINT nach dem bereits für {taxYear} eingegangenen ordentlichen Gesamtbetrag.",
+  "contributionAmountBoundaryBody": "Der Gesamtbetrag muss alle deine 3a-Konten und -Policen umfassen. Nach einer teilweisen Rückzahlung kannst du den vom Anbieter bestätigten Nettobetrag verwenden. Noch ist kein Betrag bekannt oder berechnet.",
+  "contributionCantonBoundaryTitle": "Gemäss deiner Antwort wird für {taxYear} keine ordentliche Einzahlung berücksichtigt.",
+  "contributionCantonBoundaryBody": "Es wurde noch kein persönliches Steuerergebnis berechnet. Als Nächstes fragen wir nach deinem Kanton.",
+  "contributionBoundaryBack": "Antwort korrigieren",
+  "contributionEducationTitle": "Du kannst die Regel ohne Betrag verstehen.",
+  "contributionEducationBody": "Diese Erklärung bleibt allgemein: Es werden weder ein persönlicher Betrag noch dein 3a-Spielraum oder eine persönliche Steuerersparnis berechnet.",
+  "contributionEducationBack": "Zurück zur Prüfung",
+  "@contributionEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCreditedNote": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionChoiceGroupLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownProviderStatement": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCantonBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
+}

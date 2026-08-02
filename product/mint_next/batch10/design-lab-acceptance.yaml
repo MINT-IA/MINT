@@ -1,0 +1,114 @@
+schema_version: 1
+status: mechanically_accepted_isolated_contribution_status_slice
+accepted_at: '2026-08-03T00:10:00+02:00'
+written_contract:
+  scope:
+    path: product/mint_next/batch9/contribution-status-scope.yaml
+    sha256: 64d941ce3c974c76bf5f3e40cb85a5a5e323cfe9b9f4eacbc8ee234d9722f83d
+  sources:
+    path: product/mint_next/batch9/official-sources.yaml
+    sha256: 8343040e400603f5634574aa84142be4c3b6bbc351049ea2ee4584f9777eaf98
+  acceptance:
+    path: product/mint_next/batch9/contribution-status-acceptance.yaml
+    sha256: 5985a366f81135722acce34b93439f8bede2a9bac35b46cf78cd14a37018f437
+predecessor_runtime:
+  acceptance:
+    path: product/mint_next/batch8/design-lab-acceptance.yaml
+    sha256: 108817ab4424897efc78a8e22e6928473cace44c76fb86fee7ae1f23fae48add
+implementation_snapshot:
+  manifest:
+    path: product/mint_next/batch10/design-lab-manifest.yaml
+    sha256: 0df9b96df97c46b250b23bcf27185b54d3045648126ef7ca13f96b9d42c69ec6
+    verification: offline_current_or_content_addressed_blob_no_git_or_network
+  accepted_commit: e10daa4e6f431ea4807ad30d79065fda1a777f53
+  accepted_tree: a44bfa00fe215b6da0d185f1d4a49d95158fa808
+  tracked_files: 43
+  content_addressed_archive: all_43_entries_present
+runtime_evidence:
+  ci_workflow:
+    path: .github/workflows/ai-workflow-guards.yml
+    normalized_contract_sha256: f6ac96033096aea1e8a97439b346c9735abb452fba3543422db9cadec8545bd2
+    verification: exact_global_runtime_job_and_guard_test_wiring_normalized_contract
+  probe:
+    path: tools/checks/mint_next_batch10_contribution_runtime_probe.py
+    sha256: e17e58061a57fae242b26e6dc7cbd6a687c42aec87cbad65a12cda8b4e67726a
+  receipt:
+    path: product/mint_next/batch10/evidence/runtime/receipt.yaml
+    sha256: 30bfd072d365f3786b27800de47392b711143f0dd9ddcb2b26a55ecb7b6642d9
+  captures:
+    contribution_question:
+      path: product/mint_next/batch10/evidence/runtime/fr_contribution_question_chrome_390.png
+      sha256: 82821afdad75b2a08aecc75bf2a79671b261c1fcb41494c81de9fe97fa771708
+    contribution_disclosure:
+      path: product/mint_next/batch10/evidence/runtime/fr_contribution_disclosure_chrome_390.png
+      sha256: ed473c5f933b44b2a7d1acb7ba48231444a3f512c2192a0b8e6091466b858836
+    contribution_unknown:
+      path: product/mint_next/batch10/evidence/runtime/fr_contribution_unknown_chrome_390.png
+      sha256: 3807e1b956ca31b7ca9f718d6ee824900a20244207f8306cf8ee97c3b6e84f9c
+    contribution_no_boundary:
+      path: product/mint_next/batch10/evidence/runtime/fr_contribution_no_boundary_chrome_390.png
+      sha256: 6c9c63ef3e9c6cea1134e75a316a9671914b43ef7d002c808d6bf4d047a84b5d
+    contribution_yes_boundary:
+      path: product/mint_next/batch10/evidence/runtime/fr_contribution_yes_boundary_chrome_390.png
+      sha256: 8178ea797b627aa1cbbecf625be4421c9fe7c2d4dc973670601dd5a072fc3826
+mechanical_acceptance_basis:
+  authority: deterministic_commands_exact_digests_full_package_manifest_real_chrome_receipt_and_hostile_mutations
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent_identity_independence_and_truthfulness_are_not_authenticated
+advisory_roasts:
+- role: adversarial
+  verdict: ROAST_PASS
+  p1: 0
+  p2: 0
+  p3: 1
+  bound_commit: e10daa4e6f431ea4807ad30d79065fda1a777f53
+- role: swiss_locale
+  verdict: ACCEPT
+  p1: 0
+  p2: 0
+  p3: 0
+  bound_commit: e10daa4e6f431ea4807ad30d79065fda1a777f53
+- role: ux_accessibility
+  verdict: ACCEPT
+  score: 9.7
+  p1: 0
+  p2: 0
+  p3: 0
+  bound_commit: e10daa4e6f431ea4807ad30d79065fda1a777f53
+commands:
+- flutter analyze
+- flutter test
+- flutter gen-l10n
+- python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py
+- python3 tools/checks/mint_next_batch10_contribution_runtime_guard.py
+- python3 -m unittest tools.checks.tests.test_mint_next_batch10_contribution_runtime_guard
+- python3 tools/checks/mint_next_batch9_contribution_scope_guard.py
+- python3 tools/checks/mint_next_batch8_lpp_runtime_guard.py
+accepted_scope_only:
+- isolated_flutter_design_lab
+- written_fact_contribution_navigation
+- ordinary_contribution_status_for_selected_tax_year
+- yes_no_unknown_physical_routes
+- same_node_edge_case_disclosure
+- unknown_verification_and_education_only_route
+- back_restores_selected_state
+- safe_exit_resume_preserves_ephemeral_answers
+- leave_without_saving_purges_ephemeral_answers
+- selected_tax_year_rollover_purges_scoped_facts_on_widget_rebuild
+- six_source_locales_and_generated_output_parity
+- real_chrome_ax_touch_keyboard_and_modal_runtime
+- 390x844_french_chrome_runtime
+- 320x700_text_scale_2_widget_runtime
+not_accepted:
+- product_integration
+- ios_runtime
+- android_runtime
+- external_ci_execution
+- user_validation
+- calculation_engine
+- personal_tax_result
+- contribution_amount_collection
+- persisted_user_fact
+- provider_recommendation
+- passive_midnight_rollover_without_widget_rebuild
+next_batch_boundary: write_only_the_ordinary_contribution_amount_collection_contract_before_any_runtime_change

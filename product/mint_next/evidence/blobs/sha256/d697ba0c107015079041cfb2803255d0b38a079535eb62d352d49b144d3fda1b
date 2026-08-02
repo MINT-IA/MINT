@@ -1,0 +1,177 @@
+{
+  "@@locale": "es",
+  "brand": "MINT",
+  "quit": "Salir",
+  "todayEyebrow": "HOY · PILAR 3A",
+  "todayTitle": "¿Qué cambia si aporto al pilar 3a este año?",
+  "todayBody": "Entenderemos los efectos paso a paso. MINT te informa, pero no decide por ti.",
+  "start": "Entender",
+  "orientationEyebrow": "ANTES DE LOS NÚMEROS",
+  "orientationTitle": "Ahorrar para tu jubilación también puede reducir tus impuestos.",
+  "orientationBody": "Una aportación al pilar 3a puede reducir tu renta imponible — el importe sobre el que se calculan tus impuestos. Tu dinero disponible disminuye ahora y el capital 3a queda vinculado hasta la jubilación, salvo en los casos previstos por la ley.",
+  "orientationNote": "Primero comprobaremos el año y tu situación. No se recomendará ningún importe.",
+  "continueLabel": "Continuar",
+  "backLabel": "Atrás",
+  "taxYearEyebrow": "PASO 1 · AÑO FISCAL",
+  "taxYearTitle": "¿De qué año hablamos?",
+  "taxYearBody": "El límite depende del año y de tu situación, incluidos tus ingresos profesionales y tu afiliación a una caja de pensiones. Se propone el año actual, pero nunca se elige por ti.",
+  "currentYearLabel": "Año actual: {year}",
+  "confirmYear": "Elegir {year}",
+  "yearChosen": "Año {year} seleccionado",
+  "partialBoundary": "La siguiente pantalla se añadirá en el próximo lote pequeño. No se guarda nada.",
+  "safeExitTitle": "¿Quieres detenerte aquí?",
+  "safeExitBody": "Este Design Lab no guarda datos financieros personales.",
+  "resume": "Continuar aquí",
+  "leave": "Salir sin guardar",
+  "dismissedTitle": "Recorrido cerrado",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Empezar",
+  "keepReferenceUnavailable": "Referencia local — próximamente",
+  "lppQuestionEyebrow": "TU SITUACIÓN",
+  "lppQuestionTitle": "¿Tienes actualmente una caja de pensiones?",
+  "lppQuestionBody": "También se llama previsión profesional, LPP o segundo pilar. Puedes estar afiliado por tu trabajo o voluntariamente. Te preguntamos si tienes cobertura actualmente, no cuánto aportas.",
+  "lppQuestionEvidence": "Para comprobarlo, busca una línea LPP o caja de pensiones en una nómina, consulta un certificado reciente o pregunta a tu caja de pensiones, empleador o recursos humanos.",
+  "lppChoiceYes": "Sí",
+  "lppChoiceNo": "No",
+  "lppChoiceUnknown": "No lo sé",
+  "lppUnknownEyebrow": "NO PASA NADA",
+  "lppUnknownTitle": "Puedes comprobarlo sin adivinar.",
+  "lppUnknownBody": "Empieza por lo que te resulte más fácil. Cuando tengas la respuesta, retoma este recorrido y responde de nuevo a la pregunta.",
+  "lppUnknownListLabel": "Tres formas de comprobar tu afiliación",
+  "lppUnknownPayslip": "Busca LPP, segundo pilar o caja de pensiones en una nómina reciente.",
+  "lppUnknownCertificate": "Busca un certificado de previsión reciente enviado por tu caja de pensiones.",
+  "lppUnknownAsk": "Pregunta a tu caja de pensiones, empleador o recursos humanos si estás afiliado actualmente.",
+  "lppBackToQuestion": "Volver a la pregunta",
+  "lppKeepChecklist": "Guardar esta lista en este dispositivo",
+  "localReferenceUnavailable": "Próximamente",
+  "withoutLppEyebrow": "SE APLICA OTRA REGLA",
+  "withoutLppTitle": "Quizá puedas aportar al pilar 3a, pero se aplican otras reglas.",
+  "withoutLppBody": "Tu respuesta no significa que no tengas derecho al pilar 3a. Este primer cálculo simplemente aún no cubre este caso.",
+  "lppCorrectAnswer": "Corregir mi respuesta",
+  "withoutLppKeepExplanation": "Guardar esta explicación en este dispositivo",
+  "nextStepEyebrow": "SIGUIENTE PASO",
+  "nextStepTitle": "Tu afiliación está clara.",
+  "nextStepBody": "La siguiente pregunta será sobre lo que ya has aportado este año. Se añadirá en el próximo lote pequeño. No se guarda nada.",
+  "quitJourney": "Salir de este recorrido",
+  "contributionEyebrow": "TUS APORTACIONES 3A · {taxYear}",
+  "contributionTitle": "En {taxYear}, ¿alguno de tus pilares 3a recibió una nueva aportación?",
+  "contributionBody": "Responde teniendo en cuenta todos tus pilares 3a, incluido un seguro 3a.",
+  "contributionCreditedNote": "Cuenta solo el dinero nuevo recibido para {taxYear}. Un pago solo enviado o cargado aún no cuenta; tampoco una transferencia, un rendimiento o un reembolso de gastos.",
+  "contributionAmountNote": "Todavía no necesitas saber el total. Solo te lo pediremos si respondes que sí.",
+  "contributionChoiceYes": "Sí, se recibió una nueva aportación",
+  "contributionChoiceNo": "No, ninguna nueva aportación",
+  "contributionChoiceUnknown": "No lo sé",
+  "contributionChoiceGroupLabel": "Nuevas aportaciones 3a recibidas en {taxYear}",
+  "contributionEdgeHelp": "Qué cuenta — y qué no",
+  "contributionEdgePending": "Un pago programado, enviado o cargado solo cuenta cuando llega a tu 3a.",
+  "contributionEdgeTransfer": "No cuentes una transferencia entre dos pilares 3a: no es dinero nuevo.",
+  "contributionEdgeBuyback": "Mantén separada una aportación retroactiva para cubrir una laguna de un año anterior.",
+  "contributionEdgeFullRefund": "Tras un reembolso total, responde no si no queda ninguna aportación ordinaria efectiva.",
+  "contributionEdgePartialRefund": "Tras un reembolso parcial, responde sí si la entidad confirma que queda un importe neto positivo.",
+  "contributionEdgeUnclearCorrection": "Si una corrección hace incierto el importe efectivo, elige «No lo sé».",
+  "contributionEdgeMixedTransfer": "Si llegan juntos una transferencia y dinero nuevo, cuenta solo el dinero nuevo.",
+  "contributionEdgeReturn": "No cuentes rendimientos ni intereses como aportación.",
+  "contributionEdgeAdjustment": "No cuentes un reembolso de gastos, bonificación u otro ajuste.",
+  "contributionUnknownEyebrow": "NO PASA NADA",
+  "contributionUnknownTitle": "Puedes comprobarlo sin sumar por tu cuenta.",
+  "contributionUnknownBody": "Comprueba en cada uno de tus 3a si se recibió una aportación ordinaria para {taxYear}. Si una transferencia, una aportación retroactiva para cubrir una laguna de un año anterior o una devolución hace dudosa la respuesta, mantén «No lo sé».",
+  "contributionUnknownListLabel": "Cómo comprobarlo sin adivinar",
+  "contributionUnknownProviderStatement": "En la app o extracto de cada banco o fintech 3a, busca un abono recibido para {taxYear}.",
+  "contributionUnknownInsuranceCertificate": "Para un seguro 3a, consulta el certificado anual o pregunta qué aportación ordinaria se recibió.",
+  "contributionUnknownProviderQuestion": "En caso de duda, pregunta a la entidad si el movimiento es una aportación ordinaria, una transferencia, una aportación retroactiva para cubrir una laguna de un año anterior o una devolución.",
+  "contributionUnknownTransferWarning": "Nunca sumes una transferencia entre dos 3a. Contarías dos veces el mismo dinero.",
+  "contributionUnknownEducationLimit": "Puedes continuar sin un importe personal. MINT solo mostrará una explicación general.",
+  "contributionUnknownContinueEducation": "Continuar con una explicación general",
+  "contributionBackToQuestion": "Volver a la pregunta",
+  "contributionAmountBoundaryTitle": "Después, MINT pedirá el total ordinario ya recibido para {taxYear}.",
+  "contributionAmountBoundaryBody": "El total deberá abarcar todas tus cuentas y pólizas 3a. Tras un reembolso parcial, podrás usar el importe neto confirmado por la entidad. Por ahora no se conoce ni calcula ningún importe.",
+  "contributionCantonBoundaryTitle": "Según tu respuesta, no se incluye ninguna aportación ordinaria para {taxYear}.",
+  "contributionCantonBoundaryBody": "Aún no se ha calculado ningún resultado fiscal personal. El siguiente paso preguntará tu cantón.",
+  "contributionBoundaryBack": "Corregir mi respuesta",
+  "contributionEducationTitle": "Puedes entender la regla sin indicar un importe.",
+  "contributionEducationBody": "Esta explicación sigue siendo general: no se calcula ningún importe personal, margen 3a ni ahorro fiscal personal.",
+  "contributionEducationBack": "Volver a las comprobaciones",
+  "@contributionEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCreditedNote": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionChoiceGroupLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownProviderStatement": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCantonBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
+}
