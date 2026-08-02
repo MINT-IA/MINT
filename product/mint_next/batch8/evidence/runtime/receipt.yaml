@@ -1,0 +1,25 @@
+schema_version: 1
+status: runtime_evidence_unreviewed
+captured_at: '2026-08-02T21:05:00+02:00'
+runtime: Flutter Web release in headless Google Chrome through the semantics tree
+build_command: flutter build web --release --no-web-resources-cdn --dart-define=MINT_LAB_LOCALE=fr
+probe_command: python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py --capture
+scope_sha256: 5a8cbbbaf70ae36b6b49add173ef5d36205bfcfa93d67ee0bac0980ef608ebfc
+viewport: {width: 390, height: 844, device_scale_factor: 1}
+captures:
+  - node: fact_lpp_affiliation
+    path: product/mint_next/batch8/evidence/runtime/fr_lpp_question_chrome_390.png
+    sha256: b857a8f604c343e33bff3a51299ee85273207d9b67f3a8a3ae465cc6b63e793b
+  - node: lpp_unknown_help
+    path: product/mint_next/batch8/evidence/runtime/fr_lpp_unknown_chrome_390.png
+    sha256: bef5500492e2f0601ed20fb744a13229f6c43f565d81f6f62d3281918548259b
+  - node: without_lpp_boundary
+    path: product/mint_next/batch8/evidence/runtime/fr_without_lpp_chrome_390.png
+    sha256: 3ab85ee619f2cabea73342a8194b5a9b5d0e96e74c21acf0c8181bca0fa769ac
+mechanical_proofs:
+  - yes_no_unknown_physically_traversed
+  - back_restores_selected_state
+  - unknown_and_no_paths_produce_no_personal_calculation
+  - disabled_local_reference_is_visible
+  - zero_external_runtime_resources
+limitations: [web_design_lab_only, french_runtime_capture_only, not_ios_or_android, not_user_validation, fact_contribution_is_honest_next_batch_boundary, not_product_integration]

@@ -98,4 +98,89 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
 
   @override
   String get keepReferenceUnavailable => 'Referencia local — próximamente';
+
+  @override
+  String get lppQuestionEyebrow => 'TU SITUACIÓN';
+
+  @override
+  String get lppQuestionTitle => '¿Tienes actualmente una caja de pensiones?';
+
+  @override
+  String get lppQuestionBody =>
+      'También se llama previsión profesional, LPP o segundo pilar. Puedes estar afiliado por tu trabajo o voluntariamente. Te preguntamos si tienes cobertura actualmente, no cuánto aportas.';
+
+  @override
+  String get lppQuestionEvidence =>
+      'Para comprobarlo, busca una línea LPP o caja de pensiones en una nómina, consulta un certificado reciente o pregunta a tu caja de pensiones, empleador o recursos humanos.';
+
+  @override
+  String get lppChoiceYes => 'Sí';
+
+  @override
+  String get lppChoiceNo => 'No';
+
+  @override
+  String get lppChoiceUnknown => 'No lo sé';
+
+  @override
+  String get lppUnknownEyebrow => 'NO PASA NADA';
+
+  @override
+  String get lppUnknownTitle => 'Puedes comprobarlo sin adivinar.';
+
+  @override
+  String get lppUnknownBody =>
+      'Empieza por lo que te resulte más fácil. Cuando tengas la respuesta, retoma este recorrido y responde de nuevo a la pregunta.';
+
+  @override
+  String get lppUnknownListLabel => 'Tres formas de comprobar tu afiliación';
+
+  @override
+  String get lppUnknownPayslip =>
+      'Busca LPP, segundo pilar o caja de pensiones en una nómina reciente.';
+
+  @override
+  String get lppUnknownCertificate =>
+      'Busca un certificado de previsión reciente enviado por tu caja de pensiones.';
+
+  @override
+  String get lppUnknownAsk =>
+      'Pregunta a tu caja de pensiones, empleador o recursos humanos si estás afiliado actualmente.';
+
+  @override
+  String get lppBackToQuestion => 'Volver a la pregunta';
+
+  @override
+  String get lppKeepChecklist => 'Guardar esta lista en este dispositivo';
+
+  @override
+  String get localReferenceUnavailable => 'Próximamente';
+
+  @override
+  String get withoutLppEyebrow => 'SE APLICA OTRA REGLA';
+
+  @override
+  String get withoutLppTitle =>
+      'Quizá puedas aportar al pilar 3a, pero se aplican otras reglas.';
+
+  @override
+  String get withoutLppBody =>
+      'Tu respuesta no significa que no tengas derecho al pilar 3a. Este primer cálculo simplemente aún no cubre este caso.';
+
+  @override
+  String get lppCorrectAnswer => 'Corregir mi respuesta';
+
+  @override
+  String get withoutLppKeepExplanation =>
+      'Guardar esta explicación en este dispositivo';
+
+  @override
+  String get nextStepEyebrow => 'SIGUIENTE PASO';
+
+  @override
+  String get nextStepTitle => 'Tu afiliación está clara.';
+
+  @override
+  String get nextStepBody =>
+      'La siguiente pregunta será sobre lo que ya has aportado este año. Se añadirá en el próximo lote pequeño. No se guarda nada.';
 }

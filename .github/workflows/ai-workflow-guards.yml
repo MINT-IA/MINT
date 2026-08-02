@@ -137,5 +137,6 @@ jobs:
           tools/checks/tests/test_mint_next_artifact_manifest.py
           tools/checks/tests/test_mint_next_batch7_design_lab_guard.py
           tools/checks/tests/test_mint_next_batch8_lpp_scope_guard.py
+          tools/checks/tests/test_mint_next_batch8_lpp_runtime_guard.py
           tools/checks/tests/test_verify_phase_acceptance.py
           -q

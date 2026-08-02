@@ -2,7 +2,18 @@ import 'package:flutter/material.dart';
 
 import 'l10n/generated/mint_next_localizations.dart';
 
-enum _DesignNode { today3aIntent, orientation, factTaxYear, dismissed }
+enum _DesignNode {
+  today3aIntent,
+  orientation,
+  factTaxYear,
+  factLppAffiliation,
+  lppUnknownHelp,
+  withoutLppBoundary,
+  factContribution,
+  dismissed,
+}
+
+enum _LppAffiliation { yes, no, unknown }
 
 class MintNextDesignLabApp extends StatelessWidget {
   const MintNextDesignLabApp({super.key, this.locale, this.textScaler});
@@ -75,6 +86,7 @@ class _DesignLabJourney extends StatefulWidget {
 class _DesignLabJourneyState extends State<_DesignLabJourney> {
   _DesignNode _node = _DesignNode.today3aIntent;
   int? _taxYear;
+  _LppAffiliation? _lppAffiliation;
 
   void _go(_DesignNode node) => setState(() => _node = node);
 
@@ -82,6 +94,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _DesignNode.today3aIntent => 'today_3a_intent',
     _DesignNode.orientation => 'orientation',
     _DesignNode.factTaxYear => 'fact_tax_year',
+    _DesignNode.factLppAffiliation => 'fact_lpp_affiliation',
+    _DesignNode.lppUnknownHelp => 'lpp_unknown_help',
+    _DesignNode.withoutLppBoundary => 'without_lpp_boundary',
+    _DesignNode.factContribution => 'fact_contribution',
     _DesignNode.dismissed => 'dismissed',
   };
 
@@ -131,6 +147,28 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                       onSelect: () =>
                           setState(() => _taxYear = DateTime.now().year),
                       onBack: () => _go(_DesignNode.orientation),
+                      onContinue: () => _go(_DesignNode.factLppAffiliation),
+                    ),
+                    _DesignNode.factLppAffiliation => _LppQuestion(
+                      selected: _lppAffiliation,
+                      onChoose: (value) {
+                        setState(() => _lppAffiliation = value);
+                        _go(switch (value) {
+                          _LppAffiliation.yes => _DesignNode.factContribution,
+                          _LppAffiliation.no => _DesignNode.withoutLppBoundary,
+                          _LppAffiliation.unknown => _DesignNode.lppUnknownHelp,
+                        });
+                      },
+                      onBack: () => _go(_DesignNode.factTaxYear),
+                    ),
+                    _DesignNode.lppUnknownHelp => _LppUnknownHelp(
+                      onBack: () => _go(_DesignNode.factLppAffiliation),
+                    ),
+                    _DesignNode.withoutLppBoundary => _WithoutLppBoundary(
+                      onBack: () => _go(_DesignNode.factLppAffiliation),
+                    ),
+                    _DesignNode.factContribution => _ContributionBoundary(
+                      onBack: () => _go(_DesignNode.factLppAffiliation),
                     ),
                     _DesignNode.dismissed => _Terminal(
                       title: l10n.dismissedTitle,
@@ -262,10 +300,12 @@ class _TaxYear extends StatelessWidget {
     required this.selectedYear,
     required this.onSelect,
     required this.onBack,
+    required this.onContinue,
   });
   final int? selectedYear;
   final VoidCallback onSelect;
   final VoidCallback onBack;
+  final VoidCallback onContinue;
 
   @override
   Widget build(BuildContext context) {
@@ -315,15 +355,271 @@ class _TaxYear extends StatelessWidget {
           ),
         ),
       ),
-      afterAccent: selectedYear == year
-          ? Text(
-              l10n.partialBoundary,
-              style: Theme.of(context).textTheme.bodyMedium,
-            )
-          : null,
       actions: [
+        if (selectedYear == year)
+          MintDesignLabAction(
+            key: const ValueKey('action:fact_tax_year.continue'),
+            label: l10n.continueLabel,
+            onPressed: onContinue,
+          ),
         MintDesignLabAction.text(
           key: const ValueKey('action:fact_tax_year.back'),
+          label: l10n.backLabel,
+          onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
+class _LppQuestion extends StatelessWidget {
+  const _LppQuestion({
+    required this.selected,
+    required this.onChoose,
+    required this.onBack,
+  });
+
+  final _LppAffiliation? selected;
+  final ValueChanged<_LppAffiliation> onChoose;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'fact_lpp_affiliation',
+      eyebrow: l10n.lppQuestionEyebrow,
+      title: l10n.lppQuestionTitle,
+      body: l10n.lppQuestionBody,
+      accent: _EditorialNote(text: l10n.lppQuestionEvidence),
+      actions: [
+        Semantics(
+          key: const ValueKey('group:fact_lpp_affiliation.choices'),
+          container: true,
+          explicitChildNodes: true,
+          label: l10n.lppQuestionTitle,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _ChoiceAction(
+                actionId: 'action:fact_lpp_affiliation.choose_yes',
+                label: l10n.lppChoiceYes,
+                selected: selected == _LppAffiliation.yes,
+                onPressed: () => onChoose(_LppAffiliation.yes),
+              ),
+              const SizedBox(height: 6),
+              _ChoiceAction(
+                actionId: 'action:fact_lpp_affiliation.choose_no',
+                label: l10n.lppChoiceNo,
+                selected: selected == _LppAffiliation.no,
+                onPressed: () => onChoose(_LppAffiliation.no),
+              ),
+              const SizedBox(height: 6),
+              _ChoiceAction(
+                actionId: 'action:fact_lpp_affiliation.choose_unknown',
+                label: l10n.lppChoiceUnknown,
+                selected: selected == _LppAffiliation.unknown,
+                onPressed: () => onChoose(_LppAffiliation.unknown),
+              ),
+            ],
+          ),
+        ),
+        MintDesignLabAction.text(
+          key: const ValueKey('action:fact_lpp_affiliation.back'),
+          label: l10n.backLabel,
+          onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
+class _ChoiceAction extends StatelessWidget {
+  const _ChoiceAction({
+    required this.actionId,
+    required this.label,
+    required this.selected,
+    required this.onPressed,
+  });
+  final String actionId;
+  final String label;
+  final bool selected;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    selected: selected,
+    button: true,
+    label: label,
+    onTap: onPressed,
+    excludeSemantics: true,
+    child: MintDesignLabAction.secondary(
+      key: ValueKey(actionId),
+      label: selected ? '✓  $label' : label,
+      onPressed: onPressed,
+    ),
+  );
+}
+
+class _LppUnknownHelp extends StatelessWidget {
+  const _LppUnknownHelp({required this.onBack});
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'lpp_unknown_help',
+      eyebrow: l10n.lppUnknownEyebrow,
+      title: l10n.lppUnknownTitle,
+      body: l10n.lppUnknownBody,
+      accent: Semantics(
+        label: l10n.lppUnknownListLabel,
+        child: Column(
+          children:
+              [
+                    l10n.lppUnknownPayslip,
+                    l10n.lppUnknownCertificate,
+                    l10n.lppUnknownAsk,
+                  ]
+                  .asMap()
+                  .entries
+                  .map(
+                    (entry) =>
+                        _ChecklistRow(number: entry.key + 1, text: entry.value),
+                  )
+                  .toList(),
+        ),
+      ),
+      actions: [
+        MintDesignLabAction(
+          key: const ValueKey('action:lpp_unknown_help.back'),
+          label: l10n.lppBackToQuestion,
+          onPressed: onBack,
+        ),
+        _UnavailableReference(
+          key: const ValueKey('action:lpp_unknown_help.keep_checklist_local'),
+          label: l10n.lppKeepChecklist,
+          unavailable: l10n.localReferenceUnavailable,
+        ),
+      ],
+    );
+  }
+}
+
+class _ChecklistRow extends StatelessWidget {
+  const _ChecklistRow({required this.number, required this.text});
+  final int number;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(bottom: 12),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 30,
+          height: 30,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(shape: BoxShape.circle, color: _sage),
+          child: Text('$number', style: Theme.of(context).textTheme.labelLarge),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+        ),
+      ],
+    ),
+  );
+}
+
+class _WithoutLppBoundary extends StatelessWidget {
+  const _WithoutLppBoundary({required this.onBack});
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'without_lpp_boundary',
+      eyebrow: l10n.withoutLppEyebrow,
+      title: l10n.withoutLppTitle,
+      body: l10n.withoutLppBody,
+      accent: const _QuietOrb(),
+      actions: [
+        MintDesignLabAction(
+          key: const ValueKey('action:without_lpp_boundary.back'),
+          label: l10n.lppCorrectAnswer,
+          onPressed: onBack,
+        ),
+        _UnavailableReference(
+          key: const ValueKey(
+            'action:without_lpp_boundary.keep_explanation_local',
+          ),
+          label: l10n.withoutLppKeepExplanation,
+          unavailable: l10n.localReferenceUnavailable,
+        ),
+      ],
+    );
+  }
+}
+
+class _UnavailableReference extends StatelessWidget {
+  const _UnavailableReference({
+    super.key,
+    required this.label,
+    required this.unavailable,
+  });
+
+  final String label;
+  final String unavailable;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    enabled: false,
+    label: '$label. $unavailable',
+    excludeSemantics: true,
+    child: Container(
+      constraints: const BoxConstraints(minHeight: 48),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: _porcelain,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _border),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.schedule_rounded, size: 20, color: _secondaryInk),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              '$label · $unavailable',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+class _ContributionBoundary extends StatelessWidget {
+  const _ContributionBoundary({required this.onBack});
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'fact_contribution',
+      eyebrow: l10n.nextStepEyebrow,
+      title: l10n.nextStepTitle,
+      body: l10n.nextStepBody,
+      accent: const _QuietOrb(),
+      actions: [
+        MintDesignLabAction.text(
+          key: const ValueKey('action:fact_contribution.back'),
           label: l10n.backLabel,
           onPressed: onBack,
         ),
@@ -340,14 +636,12 @@ class _Page extends StatefulWidget {
     required this.body,
     required this.accent,
     required this.actions,
-    this.afterAccent,
   });
   final String nodeId;
   final String eyebrow;
   final String title;
   final String body;
   final Widget accent;
-  final Widget? afterAccent;
   final List<Widget> actions;
 
   @override
@@ -420,10 +714,6 @@ class _PageState extends State<_Page> {
                   ),
                   const SizedBox(height: 32),
                   widget.accent,
-                  if (widget.afterAccent != null) ...[
-                    const SizedBox(height: 18),
-                    widget.afterAccent!,
-                  ],
                   if (largeText) ...[const SizedBox(height: 24), actionPanel],
                 ],
               ),

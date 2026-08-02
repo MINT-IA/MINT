@@ -100,4 +100,90 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
   @override
   String get keepReferenceUnavailable =>
       'Promemoria locale — presto disponibile';
+
+  @override
+  String get lppQuestionEyebrow => 'LA TUA SITUAZIONE';
+
+  @override
+  String get lppQuestionTitle => 'Hai attualmente una cassa pensione?';
+
+  @override
+  String get lppQuestionBody =>
+      'È chiamata anche previdenza professionale, LPP o secondo pilastro. Puoi essere affiliato tramite il lavoro o volontariamente. Ti chiediamo se sei attualmente assicurato, non quanto versi.';
+
+  @override
+  String get lppQuestionEvidence =>
+      'Per verificare, cerca una voce LPP o cassa pensione su un conteggio salario, consulta un certificato recente oppure chiedi alla tua cassa pensione, al datore di lavoro o alle risorse umane.';
+
+  @override
+  String get lppChoiceYes => 'Sì';
+
+  @override
+  String get lppChoiceNo => 'No';
+
+  @override
+  String get lppChoiceUnknown => 'Non lo so';
+
+  @override
+  String get lppUnknownEyebrow => 'NESSUN PROBLEMA';
+
+  @override
+  String get lppUnknownTitle => 'Puoi verificarlo senza indovinare.';
+
+  @override
+  String get lppUnknownBody =>
+      'Inizia da ciò che ti sembra più semplice. Quando avrai la risposta, riprendi questo percorso e rispondi di nuovo alla domanda.';
+
+  @override
+  String get lppUnknownListLabel =>
+      'Tre modi per verificare la tua affiliazione';
+
+  @override
+  String get lppUnknownPayslip =>
+      'Cerca LPP, secondo pilastro o cassa pensione su un conteggio salario recente.';
+
+  @override
+  String get lppUnknownCertificate =>
+      'Cerca un certificato di previdenza recente inviato dalla tua cassa pensione.';
+
+  @override
+  String get lppUnknownAsk =>
+      'Chiedi alla tua cassa pensione, al datore di lavoro o alle risorse umane se sei attualmente affiliato.';
+
+  @override
+  String get lppBackToQuestion => 'Torna alla domanda';
+
+  @override
+  String get lppKeepChecklist => 'Conserva questa lista sul dispositivo';
+
+  @override
+  String get localReferenceUnavailable => 'Disponibile presto';
+
+  @override
+  String get withoutLppEyebrow => 'SI APPLICA UN’ALTRA REGOLA';
+
+  @override
+  String get withoutLppTitle =>
+      'Potresti comunque poter versare nel pilastro 3a, ma con regole diverse.';
+
+  @override
+  String get withoutLppBody =>
+      'La tua risposta non significa che non hai diritto al pilastro 3a. Questo primo calcolo semplicemente non copre ancora il tuo caso.';
+
+  @override
+  String get lppCorrectAnswer => 'Correggi la mia risposta';
+
+  @override
+  String get withoutLppKeepExplanation =>
+      'Conserva questa spiegazione sul dispositivo';
+
+  @override
+  String get nextStepEyebrow => 'PROSSIMO PASSO';
+
+  @override
+  String get nextStepTitle => 'La tua affiliazione è chiara.';
+
+  @override
+  String get nextStepBody =>
+      'La prossima domanda riguarderà ciò che hai già versato quest’anno. Sarà aggiunta nel prossimo piccolo lotto. Nulla viene salvato.';
 }

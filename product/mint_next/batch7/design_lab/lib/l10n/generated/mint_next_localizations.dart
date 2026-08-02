@@ -264,6 +264,156 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Repère local — bientôt disponible'**
   String get keepReferenceUnavailable;
+
+  /// No description provided for @lppQuestionEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'TA SITUATION'**
+  String get lppQuestionEyebrow;
+
+  /// No description provided for @lppQuestionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu actuellement une caisse de pension ?'**
+  String get lppQuestionTitle;
+
+  /// No description provided for @lppQuestionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est aussi appelé LPP ou 2e pilier. Tu peux être affilié·e par ton emploi ou volontairement. Ici, on te demande si tu es couvert·e actuellement, pas combien tu verses.'**
+  String get lppQuestionBody;
+
+  /// No description provided for @lppQuestionEvidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour vérifier, cherche une ligne LPP ou caisse de pension sur une fiche de salaire, consulte un certificat récent, ou demande à ta caisse, ton employeur ou aux RH.'**
+  String get lppQuestionEvidence;
+
+  /// No description provided for @lppChoiceYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get lppChoiceYes;
+
+  /// No description provided for @lppChoiceNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get lppChoiceNo;
+
+  /// No description provided for @lppChoiceUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas'**
+  String get lppChoiceUnknown;
+
+  /// No description provided for @lppUnknownEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'AUCUN SOUCI'**
+  String get lppUnknownEyebrow;
+
+  /// No description provided for @lppUnknownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux le vérifier sans deviner.'**
+  String get lppUnknownTitle;
+
+  /// No description provided for @lppUnknownBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commence par ce qui est le plus facile pour toi. Quand tu as la réponse, reprends ce parcours et réponds à nouveau à la question.'**
+  String get lppUnknownBody;
+
+  /// No description provided for @lppUnknownListLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trois façons de vérifier ton affiliation'**
+  String get lppUnknownListLabel;
+
+  /// No description provided for @lppUnknownPayslip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cherche une ligne LPP, 2e pilier, CP ou caisse de pension sur une fiche de salaire récente.'**
+  String get lppUnknownPayslip;
+
+  /// No description provided for @lppUnknownCertificate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cherche un certificat de prévoyance récent envoyé par ta caisse de pension.'**
+  String get lppUnknownCertificate;
+
+  /// No description provided for @lppUnknownAsk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande à ta caisse de pension, ton employeur ou aux RH si tu es actuellement affilié·e.'**
+  String get lppUnknownAsk;
+
+  /// No description provided for @lppBackToQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à la question'**
+  String get lppBackToQuestion;
+
+  /// No description provided for @lppKeepChecklist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder cette liste sur cet appareil'**
+  String get lppKeepChecklist;
+
+  /// No description provided for @localReferenceUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bientôt disponible'**
+  String get localReferenceUnavailable;
+
+  /// No description provided for @withoutLppEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'UNE AUTRE RÈGLE S’APPLIQUE'**
+  String get withoutLppEyebrow;
+
+  /// No description provided for @withoutLppTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux peut-être verser dans un 3a, mais avec d’autres règles.'**
+  String get withoutLppTitle;
+
+  /// No description provided for @withoutLppBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta réponse ne signifie pas que tu n’as pas droit au 3a. Ce premier calcul ne couvre simplement pas encore ce cas.'**
+  String get withoutLppBody;
+
+  /// No description provided for @lppCorrectAnswer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger ma réponse'**
+  String get lppCorrectAnswer;
+
+  /// No description provided for @withoutLppKeepExplanation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder cette explication sur cet appareil'**
+  String get withoutLppKeepExplanation;
+
+  /// No description provided for @nextStepEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'ÉTAPE SUIVANTE'**
+  String get nextStepEyebrow;
+
+  /// No description provided for @nextStepTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton affiliation est claire.'**
+  String get nextStepTitle;
+
+  /// No description provided for @nextStepBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La prochaine question portera sur ce que tu as déjà versé cette année. Elle sera ajoutée dans le prochain petit lot. Rien n’est enregistré.'**
+  String get nextStepBody;
 }
 
 class _MintNextLocalizationsDelegate

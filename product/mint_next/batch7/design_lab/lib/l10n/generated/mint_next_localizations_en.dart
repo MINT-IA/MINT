@@ -98,4 +98,90 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get keepReferenceUnavailable => 'Local marker — coming soon';
+
+  @override
+  String get lppQuestionEyebrow => 'YOUR SITUATION';
+
+  @override
+  String get lppQuestionTitle => 'Do you currently have a pension fund?';
+
+  @override
+  String get lppQuestionBody =>
+      'This is also called occupational pension or second pillar. You may be covered through work or voluntarily. We are asking whether you are currently covered, not how much you pay.';
+
+  @override
+  String get lppQuestionEvidence =>
+      'To check, look for a pension-fund line on a payslip, check a recent pension certificate, or ask your pension fund, employer or HR.';
+
+  @override
+  String get lppChoiceYes => 'Yes';
+
+  @override
+  String get lppChoiceNo => 'No';
+
+  @override
+  String get lppChoiceUnknown => 'I don’t know';
+
+  @override
+  String get lppUnknownEyebrow => 'NO PROBLEM';
+
+  @override
+  String get lppUnknownTitle => 'You can check without guessing.';
+
+  @override
+  String get lppUnknownBody =>
+      'Start with whatever feels easiest. Once you know, restart this journey and answer the question again.';
+
+  @override
+  String get lppUnknownListLabel =>
+      'Three ways to check your pension-fund affiliation';
+
+  @override
+  String get lppUnknownPayslip =>
+      'Look for an occupational pension, second pillar or pension-fund line on a recent payslip.';
+
+  @override
+  String get lppUnknownCertificate =>
+      'Look for a recent pension certificate sent by your pension fund.';
+
+  @override
+  String get lppUnknownAsk =>
+      'Ask your pension fund, employer or HR whether you are currently affiliated.';
+
+  @override
+  String get lppBackToQuestion => 'Back to the question';
+
+  @override
+  String get lppKeepChecklist => 'Keep this list on this device';
+
+  @override
+  String get localReferenceUnavailable => 'Coming soon';
+
+  @override
+  String get withoutLppEyebrow => 'A DIFFERENT RULE APPLIES';
+
+  @override
+  String get withoutLppTitle =>
+      'You may still be able to pay into pillar 3a, but different rules apply.';
+
+  @override
+  String get withoutLppBody =>
+      'Your answer does not mean you are ineligible for pillar 3a. This first calculation simply does not cover this case yet.';
+
+  @override
+  String get lppCorrectAnswer => 'Correct my answer';
+
+  @override
+  String get withoutLppKeepExplanation =>
+      'Keep this explanation on this device';
+
+  @override
+  String get nextStepEyebrow => 'NEXT STEP';
+
+  @override
+  String get nextStepTitle => 'Your affiliation is clear.';
+
+  @override
+  String get nextStepBody =>
+      'The next question will ask what you have already paid this year. It will be added in the next small batch. Nothing is saved.';
 }

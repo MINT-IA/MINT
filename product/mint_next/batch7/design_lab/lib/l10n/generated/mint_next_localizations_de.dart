@@ -99,4 +99,90 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get keepReferenceUnavailable => 'Lokaler Merker — bald verfügbar';
+
+  @override
+  String get lppQuestionEyebrow => 'DEINE SITUATION';
+
+  @override
+  String get lppQuestionTitle => 'Hast du derzeit eine Pensionskasse?';
+
+  @override
+  String get lppQuestionBody =>
+      'Das wird auch berufliche Vorsorge, BVG oder zweite Säule genannt. Du kannst über deine Arbeit oder freiwillig versichert sein. Hier geht es darum, ob du aktuell versichert bist – nicht darum, wie viel du einzahlst.';
+
+  @override
+  String get lppQuestionEvidence =>
+      'Prüfe auf einer Lohnabrechnung eine Zeile zu BVG oder Pensionskasse, sieh in einem aktuellen Vorsorgeausweis nach oder frage deine Pensionskasse, deinen Arbeitgeber oder die Personalabteilung.';
+
+  @override
+  String get lppChoiceYes => 'Ja';
+
+  @override
+  String get lppChoiceNo => 'Nein';
+
+  @override
+  String get lppChoiceUnknown => 'Ich weiss es nicht';
+
+  @override
+  String get lppUnknownEyebrow => 'KEIN PROBLEM';
+
+  @override
+  String get lppUnknownTitle => 'Du kannst es prüfen, ohne zu raten.';
+
+  @override
+  String get lppUnknownBody =>
+      'Beginne mit dem, was für dich am einfachsten ist. Wenn du die Antwort kennst, starte diesen Weg erneut und beantworte die Frage nochmals.';
+
+  @override
+  String get lppUnknownListLabel =>
+      'Drei Möglichkeiten, deine Pensionskassen-Zugehörigkeit zu prüfen';
+
+  @override
+  String get lppUnknownPayslip =>
+      'Suche auf einer aktuellen Lohnabrechnung nach BVG, zweiter Säule oder Pensionskasse.';
+
+  @override
+  String get lppUnknownCertificate =>
+      'Suche nach einem aktuellen Vorsorgeausweis deiner Pensionskasse.';
+
+  @override
+  String get lppUnknownAsk =>
+      'Frage deine Pensionskasse, deinen Arbeitgeber oder die Personalabteilung, ob du aktuell versichert bist.';
+
+  @override
+  String get lppBackToQuestion => 'Zurück zur Frage';
+
+  @override
+  String get lppKeepChecklist => 'Diese Liste auf diesem Gerät behalten';
+
+  @override
+  String get localReferenceUnavailable => 'Bald verfügbar';
+
+  @override
+  String get withoutLppEyebrow => 'ES GILT EINE ANDERE REGEL';
+
+  @override
+  String get withoutLppTitle =>
+      'Du kannst möglicherweise trotzdem in die Säule 3a einzahlen, aber es gelten andere Regeln.';
+
+  @override
+  String get withoutLppBody =>
+      'Deine Antwort bedeutet nicht, dass du kein Recht auf die Säule 3a hast. Diese erste Berechnung deckt diesen Fall einfach noch nicht ab.';
+
+  @override
+  String get lppCorrectAnswer => 'Meine Antwort korrigieren';
+
+  @override
+  String get withoutLppKeepExplanation =>
+      'Diese Erklärung auf diesem Gerät behalten';
+
+  @override
+  String get nextStepEyebrow => 'NÄCHSTER SCHRITT';
+
+  @override
+  String get nextStepTitle => 'Deine Zugehörigkeit ist geklärt.';
+
+  @override
+  String get nextStepBody =>
+      'Als Nächstes geht es darum, was du dieses Jahr bereits eingezahlt hast. Diese Frage kommt im nächsten kleinen Paket. Nichts wird gespeichert.';
 }
