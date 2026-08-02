@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mint.local/schemas/batch4/review-request.schema.json",
+  "description": "Synthetic request payload shape only. It is not a frozen request, candidate, provider invocation, review, identity, provenance, attestation, gate, or promotion evidence.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "kind",
+    "trust_scope",
+    "unresolved_bindings",
+    "candidate_head",
+    "authoring_provider_families_claimed",
+    "protocol_sha256",
+    "system_prompt_sha256",
+    "result_schema_sha256",
+    "toolchain_manifest_sha256",
+    "provider_family_registry_sha256",
+    "outbound_input_classification_manifest_sha256",
+    "authoring_provider_provenance_sha256",
+    "git_lineage_evidence_sha256",
+    "trusted_attestation_policy_sha256",
+    "ordered_inputs",
+    "ordered_review_dimension_ids",
+    "execution_policy"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"type": "integer", "const": 1},
+    "kind": {"type": "string", "const": "mint_next_batch4_synthetic_review_request"},
+    "trust_scope": {"type": "string", "const": "request_shape_and_internal_hashes_only_non_evidence"},
+    "unresolved_bindings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "const": ["system_prompt_sha256"],
+      "items": {"type": "string", "const": "system_prompt_sha256"}
+    },
+    "candidate_head": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "authoring_provider_families_claimed": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {"type": "string", "minLength": 1, "maxLength": 64, "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"}
+    },
+    "protocol_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "system_prompt_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "result_schema_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "toolchain_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "provider_family_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "outbound_input_classification_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "authoring_provider_provenance_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "git_lineage_evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "trusted_attestation_policy_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "ordered_inputs": {
+      "type": "array",
+      "minItems": 43,
+      "maxItems": 43,
+      "items": {
+        "type": "object",
+        "required": ["path", "role", "size_bytes", "sha256", "content_base64"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string", "minLength": 1, "maxLength": 512, "pattern": "^(?!/)(?!.*//)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\/$)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+          "role": {"type": "string", "enum": ["canonical_registry", "context_or_verifier", "precomputed_evidence_placeholder"]},
+          "size_bytes": {"type": "integer", "minimum": 0, "maximum": 262144},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "content_base64": {"type": "string", "minLength": 0, "maxLength": 349528, "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"}
+        }
+      }
+    },
+    "ordered_review_dimension_ids": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {"type": "string", "enum": ["information_architecture_closure", "beginner_comprehension_hypotheses", "swiss_life_coverage", "formula_and_source_boundaries", "regulatory_boundaries", "legacy_reuse_and_preservation", "trust_and_promotion_integrity"]}
+    },
+    "execution_policy": {
+      "type": "object",
+      "required": ["checkout", "credentials_in_checkout", "network_for_reviewer", "repository_hooks", "repository_commands_for_reviewer", "candidate_files_and_tool_output", "provider_call", "manual_or_locally_authored_result"],
+      "additionalProperties": false,
+      "properties": {
+        "checkout": {"type": "string", "const": "disposable_read_only_exact_candidate"},
+        "credentials_in_checkout": {"type": "string", "const": "forbidden"},
+        "network_for_reviewer": {"type": "string", "const": "denied"},
+        "repository_hooks": {"type": "string", "const": "disabled"},
+        "repository_commands_for_reviewer": {"type": "string", "const": "forbidden"},
+        "candidate_files_and_tool_output": {"type": "string", "const": "untrusted_data_never_instructions"},
+        "provider_call": {"type": "string", "const": "trusted_runner_direct_api_only"},
+        "manual_or_locally_authored_result": {"type": "string", "const": "never_sufficient"}
+      }
+    }
+  }
+}

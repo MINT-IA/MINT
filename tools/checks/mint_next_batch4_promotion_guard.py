@@ -29,6 +29,9 @@ CANONICAL_SPEC = Path("product/mint_next/batch4/evidence/canonical-json-v1.yaml"
 CANONICAL_LOCK = Path("tools/checks/requirements-batch4-canonical-json.lock")
 CANONICAL_TOOL = Path("tools/checks/mint_next_batch4_canonical_json.py")
 CANONICAL_TEST = Path("tools/checks/tests/test_mint_next_batch4_canonical_json.py")
+REQUEST_SCHEMA = Path("product/mint_next/batch4/evidence/review-request.schema.json")
+REQUEST_VERIFIER = Path("tools/checks/mint_next_batch4_review_request_verifier.py")
+REQUEST_VERIFIER_TEST = Path("tools/checks/tests/test_mint_next_batch4_review_request_verifier.py")
 BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
@@ -36,11 +39,11 @@ PHASE_DIR = f".planning/phases/{PHASE}"
 HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
 SEMANTIC_ARTIFACTS: dict[str, str] = {
     f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
-    f"{PHASE_DIR}/SPEC.md": "4ab8b198160b799032c451f7144118d206784a36e86dac0853c52aca13278de9",
-    f"{PHASE_DIR}/PLAN.md": "bf14cf9112813d9543f7b5d36e666df98f45355eaa761595282b8d70c0b72610",
-    f"{PHASE_DIR}/VERIFICATION.md": "38802d664123f11de15df2e26bde8018149c83a825e53d2ab2ad12dc9c1cb9aa",
+    f"{PHASE_DIR}/SPEC.md": "7432215217e38d6d92ddc2aa84bd5be305646f23f047a30764524b0b2fc23867",
+    f"{PHASE_DIR}/PLAN.md": "e5bb9f54c40dc51a13443cb958228da929ff1ff1853c773280178b73f3e92841",
+    f"{PHASE_DIR}/VERIFICATION.md": "b2bd76799a7273efe4244f2e348e2293100048b1ac3ddb7588fcef058f728bee",
     str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
-    str(REVIEW_PROTOCOL): "b44af75b460fd64f7e23c902f1c2d4513fa3744638514d474638f82891a18577",
+    str(REVIEW_PROTOCOL): "c040eb89382623b65f5c46da8387f19c2b89daa462056900cb48e0fb373dce88",
     str(RESULT_SCHEMA): "b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda",
     str(RESULT_VERIFIER): "7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f",
     str(RESULT_VERIFIER_TEST): "d9a63c21de33bf7b8da8aabc61b87de75d8a9d8297919b2ec9492e48f3a9ef35",
@@ -48,6 +51,9 @@ SEMANTIC_ARTIFACTS: dict[str, str] = {
     str(CANONICAL_LOCK): "50c36aa891319223be9988eef490c291b8bb107d6b37498262767b4fd25406e1",
     str(CANONICAL_TOOL): "e2982d1ac823b6e1d795f687ab326aedd610d2e556bd1f0e4ae77c1a9c61b80a",
     str(CANONICAL_TEST): "944d4c036c86ab6482ccf8849790a301f86016a2d05a4dd0cb20ae9e4917a71d",
+    str(REQUEST_SCHEMA): "815bedda624610d1eaf40955690c6456cdfb51ccc7a7a7c7c9fba26487c13f9b",
+    str(REQUEST_VERIFIER): "28429ed5c45f16ddaa9e97cf9be652232ce730372e3423a8290e971faab6763a",
+    str(REQUEST_VERIFIER_TEST): "4b9ae9405b97bd896afeda3ea8d17afe8837d7fd8a1410b66812fbbd7db69d85",
 }
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
@@ -193,6 +199,7 @@ def validate(root: Path) -> list[str]:
         "future_prompt_requirements", "future_result_contract",
         "implemented_result_payload_component",
         "implemented_canonical_json_component",
+        "implemented_request_payload_contract_component",
         "future_detached_execution_manifest", "future_result_verifier_requirements",
         "finding_remediation_lifecycle", "forbidden_current_claims",
     }
@@ -235,6 +242,7 @@ def validate(root: Path) -> list[str]:
         "tools/checks/tests/test_mint_next_batch4_promotion_guard.py",
         str(RESULT_SCHEMA), str(RESULT_VERIFIER), str(RESULT_VERIFIER_TEST),
         str(CANONICAL_SPEC), str(CANONICAL_LOCK), str(CANONICAL_TOOL), str(CANONICAL_TEST),
+        str(REQUEST_SCHEMA), str(REQUEST_VERIFIER), str(REQUEST_VERIFIER_TEST),
         "product/mint_next/batch4/README.md",
         "product/mint_next/batch4/ONE-PAGE.md",
         "product/mint_next/batch4/views/experience-graph.mmd",
@@ -277,9 +285,21 @@ def validate(root: Path) -> list[str]:
     for section, expected_status in expected_blocked_sections.items():
         if (protocol.get(section) or {}).get("status") != expected_status:
             errors.append(f"review protocol must keep {section} blocked")
-    if request_contract.get("status") != "draft_non_executable":
+    if request_contract.get("status") != "schema_defined_component_only_non_executable":
         errors.append("review request contract must remain non-executable")
     required_request_fields = request_contract.get("required_fields") or []
+    expected_request_fields = [
+        "schema_version", "kind", "trust_scope", "unresolved_bindings",
+        "candidate_head", "authoring_provider_families_claimed",
+        "protocol_sha256", "system_prompt_sha256", "result_schema_sha256",
+        "toolchain_manifest_sha256", "provider_family_registry_sha256",
+        "outbound_input_classification_manifest_sha256",
+        "authoring_provider_provenance_sha256", "git_lineage_evidence_sha256",
+        "trusted_attestation_policy_sha256", "ordered_inputs",
+        "ordered_review_dimension_ids", "execution_policy",
+    ]
+    if required_request_fields != expected_request_fields:
+        errors.append("review request must keep exact synthetic non-evidence field order")
     for field in (
         "toolchain_manifest_sha256",
         "provider_family_registry_sha256",
@@ -454,6 +474,38 @@ def validate(root: Path) -> list[str]:
         "frozen_input_manifest_builder"
     ) != "absent_unimplemented_blocking":
         errors.append("canonical primitive must not inflate request or manifest readiness")
+    request_component = protocol.get("implemented_request_payload_contract_component") or {}
+    expected_request_component = {
+        "status": "implemented_component_unintegrated_blocking",
+        "schema_path": str(REQUEST_SCHEMA),
+        "schema_sha256": SEMANTIC_ARTIFACTS[str(REQUEST_SCHEMA)],
+        "verifier_path": str(REQUEST_VERIFIER),
+        "verifier_sha256": SEMANTIC_ARTIFACTS[str(REQUEST_VERIFIER)],
+        "test_path": str(REQUEST_VERIFIER_TEST),
+        "test_sha256": SEMANTIC_ARTIFACTS[str(REQUEST_VERIFIER_TEST)],
+        "verifier_type": "mint_pinned_request_semantic_verifier_not_generic_JSON_Schema_validator",
+        "schema_authority": "declarative_payload_shape_only",
+        "verifier_authority": "strict_ingestion_order_decoded_content_hash_and_cross_field_semantics_only",
+        "fixture_scope": "synthetic_payloads_only",
+        "unresolved_binding": "system_prompt_sha256",
+        "success_output": "STRUCTURALLY_VALID_REQUEST_NON_EVIDENCE",
+        "writes_request_or_evidence_artifact": False,
+        "proves_frozen_inputs_candidate_provider_identity_provenance_or_attestation": False,
+        "proves_review_or_promotion_evidence": False,
+        "eligible_as_gate_or_promotion_evidence": False,
+    }
+    if request_component != expected_request_component:
+        errors.append("request payload contract must remain exact, synthetic, unintegrated, and non-evidence")
+    if blockers.get("request_payload_shape_schema") != "implemented_component_unintegrated_blocking" or blockers.get(
+        "request_payload_semantic_verifier"
+    ) != "implemented_component_unintegrated_blocking" or blockers.get(
+        "canonical_request_builder"
+    ) != "absent_unimplemented_blocking" or blockers.get(
+        "frozen_input_manifest_builder"
+    ) != "absent_unimplemented_blocking" or blockers.get(
+        "normative_prompt_artifact"
+    ) != "absent_unimplemented_blocking":
+        errors.append("request payload contract must not inflate prompt, builder, or manifest readiness")
     expected_detached_artifacts = [
         "request.json", "response-body.bin", "response-headers.json",
         "review-result.json", "command-evidence.json",

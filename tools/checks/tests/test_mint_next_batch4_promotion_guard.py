@@ -38,6 +38,7 @@ def clone(tmp_path_factory: pytest.TempPathFactory) -> Path:
         guard.RESULT_VERIFIER, guard.RESULT_VERIFIER_TEST, Path(guard.PHASE_DIR),
         guard.CANONICAL_SPEC, guard.CANONICAL_LOCK, guard.CANONICAL_TOOL,
         guard.CANONICAL_TEST,
+        guard.REQUEST_SCHEMA, guard.REQUEST_VERIFIER, guard.REQUEST_VERIFIER_TEST,
     ]:
         source, target = REPO / relative, root / relative
         if source.is_dir():
@@ -69,6 +70,9 @@ def reset(clone: Path):
         guard.CANONICAL_LOCK,
         guard.CANONICAL_TOOL,
         guard.CANONICAL_TEST,
+        guard.REQUEST_SCHEMA,
+        guard.REQUEST_VERIFIER,
+        guard.REQUEST_VERIFIER_TEST,
         Path(guard.PHASE_DIR),
         Path(".planning/ACTIVE_CONTEXT.json"),
         Path(".planning/STATE.md"),
@@ -145,6 +149,49 @@ def test_rejects_detached_manifest_canonicalization_divergence(clone: Path) -> N
     [guard.CANONICAL_SPEC, guard.CANONICAL_LOCK, guard.CANONICAL_TOOL, guard.CANONICAL_TEST],
 )
 def test_rejects_canonical_component_byte_drift(clone: Path, relative: Path) -> None:
+    with (clone / relative).open("ab") as handle:
+        handle.write(b"\n")
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "writes_request_or_evidence_artifact",
+        "proves_frozen_inputs_candidate_provider_identity_provenance_or_attestation",
+        "proves_review_or_promotion_evidence",
+        "eligible_as_gate_or_promotion_evidence",
+    ],
+)
+def test_rejects_request_component_claim_inflation(clone: Path, key: str) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implemented_request_payload_contract_component"].__setitem__(key, True),
+    )
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "key",
+    ["normative_prompt_artifact", "canonical_request_builder", "frozen_input_manifest_builder"],
+)
+def test_rejects_request_dependency_readiness_inflation(clone: Path, key: str) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implementation_blockers"].__setitem__(
+            key, "implemented_component_unintegrated_blocking"
+        ),
+    )
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [guard.REQUEST_SCHEMA, guard.REQUEST_VERIFIER, guard.REQUEST_VERIFIER_TEST],
+)
+def test_rejects_request_component_byte_drift(clone: Path, relative: Path) -> None:
     with (clone / relative).open("ab") as handle:
         handle.write(b"\n")
     assert guard.validate(clone)

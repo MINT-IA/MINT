@@ -71,6 +71,27 @@ R3 is a single revertable batch whose exact parent is
 Acceptance additionally requires a clean-clone revert of the final R3 commit
 to restore the exact tracked tree of the parent above.
 
+## Batch R4A — synthetic request payload contract only
+
+1. Define one closed declarative Draft 2020-12 request shape schema and one pinned offline,
+   Mint-specific semantic verifier. Do not implement the production request
+   builder while the normative prompt and frozen manifest builder are absent.
+2. Accept only canonical synthetic payload bytes with exact ordered paths and
+   roles, canonical Base64, matching decoded sizes/hashes, exact dimensions and
+   execution policy, and every available top-level hash cross-bound once.
+3. Keep `system_prompt_sha256` explicitly unresolved. Success emits only
+   `STRUCTURALLY_VALID_REQUEST_NON_EVIDENCE` and writes no request artifact.
+4. Keep schema/verifier `implemented_component_unintegrated_blocking`; keep the
+   canonical request builder, prompt, manifest builder, runner, provider,
+   transport, attestation, bundle, gate, candidate and promotion absent.
+5. Stop. Synthetic fixtures prove shape/internal consistency only.
+
+R4A's exact parent is `838ef93f703e80c1e29f7ffcd8aa9c4f5c8a0cd1`.
+Its final diff is restricted to this phase's PLAN/SPEC/VERIFICATION, the review
+protocol, the request schema/verifier/test, the promotion guard/test, and the
+three exact Journey whitelist additions. A clean-clone revert of the final R4A
+range must restore the exact parent tree.
+
 ## Future four-head promotion protocol
 
 The four heads are distinct and must never be collapsed or backfilled:

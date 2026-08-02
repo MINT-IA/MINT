@@ -39,6 +39,11 @@ machine-readable and impossible to confuse with promotion itself.
     non-evidence component. Its digest output proves canonical bytes for its
     strict supported subset only—not trusted input, request/manifest validity,
     cross-runtime equivalence, review, identity, gate, or promotion.
+12. The declarative request shape schema plus semantic verifier may accept canonical synthetic payloads only.
+    `system_prompt_sha256` remains explicitly unresolved; success proves only
+    closed shape, order, decoded-content hashes and internal cross-bindings.
+    It does not freeze inputs, build or emit a real request, establish a
+    candidate/provider/provenance/attestation, or satisfy any gate.
 
 ## Future eligibility criteria
 
@@ -82,6 +87,8 @@ one frozen candidate semantic head:
 - The pinned canonical JSON primitive passes golden, Unicode, hostile parser,
   resource, file-safety, dependency-drift, and CLI tests and emits only
   `CANONICAL_DIGEST_NON_EVIDENCE` plus digest and byte count.
+- The pinned request payload shape schema/verifier passes hostile synthetic tests and
+  emits only `STRUCTURALLY_VALID_REQUEST_NON_EVIDENCE` without a digest or file.
 - Router documents name this phase as governance/readiness work only.
 - Batch 4 remains draft/null and generated views remain unchanged.
 - The old authority phase remains historical and accepted in its original
@@ -100,6 +107,7 @@ batch4-architecture: python3 tools/checks/mint_next_batch4_architecture_guard.py
 promotion-readiness: python3 tools/checks/mint_next_batch4_promotion_guard.py
 result-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_result_verifier.py
 canonical-json-primitive: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_canonical_json.py
+request-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_request_verifier.py
 generated-views: python3 tools/checks/mint_next_batch4_generate_views.py --check
 readiness-yaml: python3 -c "import yaml; d=yaml.safe_load(open('product/mint_next/batch4/evidence/promotion-readiness.yaml')); assert set(d)=={'schema_version','kind','phase','status','promotion_eligible','selected_gate','candidate_head','promotion_receipt','gates','manifests','formula_blockers','claim_boundary'} and d['status']=='blocked_waiting_cross_provider_review' and d['promotion_eligible'] is False and d['selected_gate']=='none' and d['candidate_head'] is None and d['promotion_receipt'] is None"
 contract-diff: git diff --check
