@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mint.local/schemas/batch4/review-result.schema.json",
+  "description": "Declarative result payload shape only. It is not review, identity, provenance, bundle, or promotion evidence.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "kind",
+    "reviewed_candidate_head",
+    "provider_family_claimed",
+    "model_identifier_claimed",
+    "executed_at_utc",
+    "trust_scope",
+    "verdict",
+    "dimension_results",
+    "findings",
+    "limitations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "kind": {
+      "type": "string",
+      "const": "mint_next_batch4_cross_provider_review_result"
+    },
+    "reviewed_candidate_head": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "provider_family_claimed": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "model_identifier_claimed": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "executed_at_utc": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 32,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,6})?Z$"
+    },
+    "trust_scope": {
+      "type": "string",
+      "const": "payload_shape_and_semantics_only_non_evidence"
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "pass_no_p1_p2",
+        "fail_findings_present"
+      ]
+    },
+    "dimension_results": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "required": [
+          "dimension_id",
+          "status",
+          "evidence_refs",
+          "reasoning"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "dimension_id": {
+            "type": "string",
+            "enum": [
+              "information_architecture_closure",
+              "beginner_comprehension_hypotheses",
+              "swiss_life_coverage",
+              "formula_and_source_boundaries",
+              "regulatory_boundaries",
+              "legacy_reuse_and_preservation",
+              "trust_and_promotion_integrity"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pass",
+              "fail",
+              "unverified"
+            ]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 64,
+            "items": {
+              "type": "object",
+              "required": [
+                "input_index",
+                "path",
+                "locator"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "input_index": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512,
+                  "pattern": "^(?!/)(?!.*//)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\/$)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+                },
+                "locator": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                }
+              }
+            }
+          },
+          "reasoning": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "severity",
+          "title",
+          "path",
+          "locator",
+          "evidence",
+          "reproduction",
+          "impact",
+          "required_remediation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 6,
+            "maxLength": 64,
+            "pattern": "^P[123]-[0-9]{3,}$"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "P1",
+              "P2",
+              "P3"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^(?!/)(?!.*//)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*\\/$)[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384
+          },
+          "reproduction": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16384
+          },
+          "impact": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "required_remediation": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "blocking",
+          "detail"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "incomplete_input_or_context",
+              "tool_or_transport_error",
+              "retry_or_fallback_used",
+              "response_truncated",
+              "undeclared_tool_or_network_access",
+              "schema_or_hash_mismatch",
+              "candidate_binding_unverified",
+              "evidence_refs_unresolved",
+              "provider_identity_unverified"
+            ]
+          },
+          "blocking": {
+            "type": "boolean"
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      }
+    }
+  }
+}

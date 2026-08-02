@@ -33,7 +33,10 @@ def clone(tmp_path_factory: pytest.TempPathFactory) -> Path:
     )
     # The readiness/phase files may be deliberately uncommitted in the parent
     # batch. Copy them so tests exercise the exact working-tree contract.
-    for relative in [guard.READINESS, guard.REVIEW_PROTOCOL, Path(guard.PHASE_DIR)]:
+    for relative in [
+        guard.READINESS, guard.REVIEW_PROTOCOL, guard.RESULT_SCHEMA,
+        guard.RESULT_VERIFIER, guard.RESULT_VERIFIER_TEST, Path(guard.PHASE_DIR),
+    ]:
         source, target = REPO / relative, root / relative
         if source.is_dir():
             shutil.copytree(source, target, dirs_exist_ok=True)
@@ -57,6 +60,9 @@ def reset(clone: Path):
     for relative in [
         guard.READINESS,
         guard.REVIEW_PROTOCOL,
+        guard.RESULT_SCHEMA,
+        guard.RESULT_VERIFIER,
+        guard.RESULT_VERIFIER_TEST,
         Path(guard.PHASE_DIR),
         Path(".planning/ACTIVE_CONTEXT.json"),
         Path(".planning/STATE.md"),
@@ -109,6 +115,33 @@ def test_rejects_review_protocol_validation_claim(clone: Path) -> None:
         ),
     )
     assert any("must not claim" in error for error in guard.validate(clone))
+
+
+def test_rejects_payload_component_as_review_evidence(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["implemented_result_payload_component"].__setitem__(
+            "eligible_as_gate_or_promotion_evidence", True
+        ),
+    )
+    assert any("unintegrated, and non-evidence" in error for error in guard.validate(clone))
+
+
+def test_rejects_payload_verifier_inflating_bundle_readiness(clone: Path) -> None:
+    _mutate_yaml(
+        clone, guard.REVIEW_PROTOCOL,
+        lambda data: data["implementation_blockers"].__setitem__(
+            "result_bundle_verifier", "implemented"
+        ),
+    )
+    assert any("bundle-verifier readiness" in error for error in guard.validate(clone))
+
+
+@pytest.mark.parametrize("relative", [guard.RESULT_SCHEMA, guard.RESULT_VERIFIER])
+def test_rejects_result_component_byte_drift(clone: Path, relative: Path) -> None:
+    path = clone / relative
+    path.write_bytes(path.read_bytes() + b"\n")
+    assert any("result payload component byte drift" in error for error in guard.validate(clone))
 
 
 def test_rejects_review_protocol_identity_inflation(clone: Path) -> None:

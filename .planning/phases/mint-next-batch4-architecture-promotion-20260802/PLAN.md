@@ -27,6 +27,21 @@ Status: `blocked_waiting_cross_provider_review`
    incomplete inputs, circular hashes, and provider-diversity inflation.
 5. Stop. This inventory cannot be executed or used as promotion evidence.
 
+## Batch R2 — result payload component only
+
+1. Define one closed Draft 2020-12 declarative payload schema and one pinned,
+   contract-specific offline semantic verifier. The verifier is not a generic
+   JSON Schema implementation.
+2. Reject duplicate keys, non-finite values, invalid UTF-8, BOM/trailing data,
+   resource-limit breaches, wrong dimensions, inconsistent findings,
+   limitations, and verdict truth tables.
+3. Emit only `STRUCTURALLY_VALID_NON_EVIDENCE` on success. Synthetic test data
+   is never review, bundle, candidate, provider, identity, or promotion proof.
+4. Keep the schema and payload verifier
+   `implemented_component_unintegrated_blocking`; keep the bundle verifier,
+   request builder, runner, transport, attestation, and all gates absent.
+5. Stop. Do not write a review-result artifact or select a candidate or gate.
+
 ## Future four-head promotion protocol
 
 The four heads are distinct and must never be collapsed or backfilled:

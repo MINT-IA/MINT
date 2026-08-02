@@ -20,6 +20,11 @@ READINESS = Path("product/mint_next/batch4/evidence/promotion-readiness.yaml")
 REVIEW_PROTOCOL = Path(
     "product/mint_next/batch4/evidence/cross-provider-review-protocol.yaml"
 )
+RESULT_SCHEMA = Path("product/mint_next/batch4/evidence/review-result.schema.json")
+RESULT_VERIFIER = Path("tools/checks/mint_next_batch4_review_result_verifier.py")
+RESULT_VERIFIER_TEST = Path(
+    "tools/checks/tests/test_mint_next_batch4_review_result_verifier.py"
+)
 BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
@@ -27,11 +32,14 @@ PHASE_DIR = f".planning/phases/{PHASE}"
 HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
 SEMANTIC_ARTIFACTS: dict[str, str] = {
     f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
-    f"{PHASE_DIR}/SPEC.md": "3f8807ce207c642136315d459b6ea23150059cfb109b2dd27bd4f471e34d828a",
-    f"{PHASE_DIR}/PLAN.md": "032bded5982232390715c78e61436fe9c20b0e71847e199800dd27ee33035883",
-    f"{PHASE_DIR}/VERIFICATION.md": "e2ea54f1cb848c47cd5225bdc1589e8d7401a819378517876f440c58cc448b03",
+    f"{PHASE_DIR}/SPEC.md": "831dc66acba14d08aad68834f69e735e75f8c5354c8300e5f90e3002bf6ad093",
+    f"{PHASE_DIR}/PLAN.md": "6248c5abeb646c61c320b59d63996f68ebc3c982948e53d579444f29e1bd95fd",
+    f"{PHASE_DIR}/VERIFICATION.md": "5a87c44a5b549685b9f825e9e83f5254e77f3010ed4ec580c0820dad89c88255",
     str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
-    str(REVIEW_PROTOCOL): "0afc8505d8cb70ea838674244f9d7aaabc9dae4102c955cfc5c2b910ac0cb167",
+    str(REVIEW_PROTOCOL): "25cde9924be89621b1de1ca85661c5b1d8e46cf2c152d3c976bfda5019998dd5",
+    str(RESULT_SCHEMA): "b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda",
+    str(RESULT_VERIFIER): "7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f",
+    str(RESULT_VERIFIER_TEST): "d9a63c21de33bf7b8da8aabc61b87de75d8a9d8297919b2ec9492e48f3a9ef35",
 }
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
@@ -175,6 +183,7 @@ def validate(root: Path) -> list[str]:
         "future_provider_family_registry_requirements",
         "future_outbound_data_policy_requirements",
         "future_prompt_requirements", "future_result_contract",
+        "implemented_result_payload_component",
         "future_detached_execution_manifest", "future_result_verifier_requirements",
         "finding_remediation_lifecycle", "forbidden_current_claims",
     }
@@ -215,6 +224,7 @@ def validate(root: Path) -> list[str]:
         "tools/checks/mint_next_batch4_promotion_guard.py",
         "tools/checks/tests/test_mint_next_batch4_architecture_guard.py",
         "tools/checks/tests/test_mint_next_batch4_promotion_guard.py",
+        str(RESULT_SCHEMA), str(RESULT_VERIFIER), str(RESULT_VERIFIER_TEST),
         "product/mint_next/batch4/README.md",
         "product/mint_next/batch4/ONE-PAGE.md",
         "product/mint_next/batch4/views/experience-graph.mmd",
@@ -368,14 +378,45 @@ def validate(root: Path) -> list[str]:
     ) is not True or not outbound.get("final_payload_scan_receipt_must_bind"):
         errors.append("review outbound scan receipt must remain detached and acyclic")
     result_contract = protocol.get("future_result_contract") or {}
-    if result_contract.get("status") != "draft_non_executable":
-        errors.append("review result contract must remain non-executable")
+    if result_contract.get("status") != "schema_defined_component_only_non_executable":
+        errors.append("review result contract must remain component-only and non-executable")
     if result_contract.get("result_payload_excludes_its_own_hash") is not True:
         errors.append("review result must use a detached non-self-referential hash")
     if result_contract.get("execution_payload_manifest_excludes_attestation_bytes") is not True or result_contract.get(
         "outer_unsigned_bundle_index_holds_payload_manifest_and_attestation_hashes"
     ) is not True:
         errors.append("review result contract must preserve the acyclic two-layer bundle")
+    component = protocol.get("implemented_result_payload_component") or {}
+    expected_component = {
+        "status": "implemented_component_unintegrated_blocking",
+        "schema_path": str(RESULT_SCHEMA),
+        "schema_sha256": "b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda",
+        "verifier_path": str(RESULT_VERIFIER),
+        "verifier_sha256": "7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f",
+        "verifier_type": "mint_pinned_result_semantic_verifier_not_generic_JSON_Schema_validator",
+        "schema_authority": "declarative_payload_shape_only",
+        "verifier_authority": "strict_ingestion_resource_bounds_and_cross_field_semantics_only",
+        "success_output": "STRUCTURALLY_VALID_NON_EVIDENCE",
+        "proves_review_or_bundle_valid": False,
+        "proves_candidate_provider_identity_provenance_or_diversity": False,
+        "eligible_as_gate_or_promotion_evidence": False,
+    }
+    if component != expected_component:
+        errors.append("result payload component must remain exact, unintegrated, and non-evidence")
+    for relative, expected_sha in {
+        RESULT_SCHEMA: expected_component["schema_sha256"],
+        RESULT_VERIFIER: expected_component["verifier_sha256"],
+    }.items():
+        path = root / relative
+        if not path.is_file() or path.is_symlink() or _sha(path) != expected_sha:
+            errors.append(f"result payload component byte drift: {relative}")
+    blockers = protocol.get("implementation_blockers") or {}
+    if blockers.get("exact_result_json_schema") != "implemented_component_unintegrated_blocking" or blockers.get(
+        "result_payload_semantic_verifier"
+    ) != "implemented_component_unintegrated_blocking" or blockers.get(
+        "result_bundle_verifier"
+    ) != "absent_unimplemented_blocking":
+        errors.append("payload components must not inflate bundle-verifier readiness")
     expected_detached_artifacts = [
         "request.json", "response-body.bin", "response-headers.json",
         "review-result.json", "command-evidence.json",

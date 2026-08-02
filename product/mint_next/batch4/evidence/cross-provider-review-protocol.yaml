@@ -29,7 +29,8 @@ implementation_blockers:
   direct_provider_transport_capture: absent_unimplemented_blocking
   externally_verifiable_runner_attestation: absent_unimplemented_blocking
   detached_execution_manifest: absent_unimplemented_blocking
-  exact_result_json_schema: absent_unimplemented_blocking
+  exact_result_json_schema: implemented_component_unintegrated_blocking
+  result_payload_semantic_verifier: implemented_component_unintegrated_blocking
   result_bundle_verifier: absent_unimplemented_blocking
   finding_disposition_ledger: absent_unimplemented_blocking
   supply_chain_manifest: absent_unimplemented_blocking
@@ -109,6 +110,9 @@ future_request_contract:
   - tools/checks/mint_next_batch4_promotion_guard.py
   - tools/checks/tests/test_mint_next_batch4_architecture_guard.py
   - tools/checks/tests/test_mint_next_batch4_promotion_guard.py
+  - product/mint_next/batch4/evidence/review-result.schema.json
+  - tools/checks/mint_next_batch4_review_result_verifier.py
+  - tools/checks/tests/test_mint_next_batch4_review_result_verifier.py
   - product/mint_next/batch4/README.md
   - product/mint_next/batch4/ONE-PAGE.md
   - product/mint_next/batch4/views/experience-graph.mmd
@@ -325,7 +329,7 @@ future_prompt_requirements:
   - reject_extra_missing_duplicate_or_path_traversal_inputs
   - hash_the_detached_request_bytes_not_a_self_referential_field
 future_result_contract:
-  status: draft_non_executable
+  status: schema_defined_component_only_non_executable
   result_payload_excludes_its_own_hash: true
   execution_payload_manifest_excludes_attestation_bytes: true
   outer_unsigned_bundle_index_holds_payload_manifest_and_attestation_hashes: true
@@ -377,6 +381,19 @@ future_result_contract:
   - response_truncated
   - undeclared_tool_or_network_access
   - schema_or_hash_mismatch
+implemented_result_payload_component:
+  status: implemented_component_unintegrated_blocking
+  schema_path: product/mint_next/batch4/evidence/review-result.schema.json
+  schema_sha256: b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda
+  verifier_path: tools/checks/mint_next_batch4_review_result_verifier.py
+  verifier_sha256: 7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f
+  verifier_type: mint_pinned_result_semantic_verifier_not_generic_JSON_Schema_validator
+  schema_authority: declarative_payload_shape_only
+  verifier_authority: strict_ingestion_resource_bounds_and_cross_field_semantics_only
+  success_output: STRUCTURALLY_VALID_NON_EVIDENCE
+  proves_review_or_bundle_valid: false
+  proves_candidate_provider_identity_provenance_or_diversity: false
+  eligible_as_gate_or_promotion_evidence: false
 future_detached_execution_manifest:
   status: absent_unimplemented_blocking
   canonicalization: mint_json_c14n_v1_utf8_sorted_keys_compact_no_floats
@@ -447,3 +464,4 @@ forbidden_current_claims:
 - product_or_runtime_ready
 - swiss_financial_or_legal_correctness
 - user_comprehension_validated
+- payload_structural_validity_is_review_or_promotion_evidence

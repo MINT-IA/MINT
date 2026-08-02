@@ -235,8 +235,11 @@ ALLOW = {
     ".planning/phases/mint-next-batch4-architecture-promotion-20260802/VERIFICATION.md",
     "product/mint_next/batch4/evidence/promotion-readiness.yaml",
     "product/mint_next/batch4/evidence/cross-provider-review-protocol.yaml",
+    "product/mint_next/batch4/evidence/review-result.schema.json",
     "tools/checks/mint_next_batch4_promotion_guard.py",
+    "tools/checks/mint_next_batch4_review_result_verifier.py",
     "tools/checks/tests/test_mint_next_batch4_promotion_guard.py",
+    "tools/checks/tests/test_mint_next_batch4_review_result_verifier.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

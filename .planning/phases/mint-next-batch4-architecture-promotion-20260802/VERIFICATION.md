@@ -18,9 +18,10 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 | Batch 4 structure | `python3 tools/checks/mint_next_batch4_architecture_guard.py` | PASS |
 | Promotion readiness | `python3 tools/checks/mint_next_batch4_promotion_guard.py` | PASS — blocked; no promotion claimed |
 | Cross-provider protocol | same promotion-readiness guard | PASS — draft blocked and non-executable; no review execution claimed |
+| Result payload component | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_result_verifier.py` | PASS — 93/93; structural non-evidence only |
 | Generated views | `python3 tools/checks/mint_next_batch4_generate_views.py --check` | PASS — exact match |
-| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 10/10 deterministic criteria |
-| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 210/210 |
+| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 11/11 deterministic criteria |
+| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 217/217 |
 | Diff whitespace | `git diff --check` | PASS |
 
 ## Promotion gates
@@ -38,6 +39,8 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 ## Preserved blockers
 
 - 19 formula contracts are `unimplemented_blocking`.
+- The result schema/payload verifier is unintegrated; the bundle verifier,
+  request builder, runner, transport, attestation, and trust gate remain absent.
 - Swiss legal and regulatory validation is absent.
 - Official-source URLs are not captured, hashed rule truth.
 - Audience comprehension and UX are hypotheses without user evidence.

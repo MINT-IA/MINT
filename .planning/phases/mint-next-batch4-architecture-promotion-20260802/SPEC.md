@@ -29,8 +29,12 @@ machine-readable and impossible to confuse with promotion itself.
    `draft_unproven_blocked` requirements inventory. Every missing prompt,
    builder, sandbox runner, supply-chain manifest/trust roots, Git-lineage and
    preservation evidence, provider registry/failure policy, outbound-data and
-   scanner policy, transport attestation, detached manifest, result schema,
-   verifier, and disposition ledger remains blocking.
+   scanner policy, transport attestation, detached manifest, bundle verifier,
+   and disposition ledger remains blocking. The result schema and offline
+   payload verifier may exist only as unintegrated, non-evidence components.
+10. Payload-verifier success means shape and internal semantics only. It does
+    not validate a review, bundle, candidate, provider, provenance, identity,
+    diversity, attestation, or promotion eligibility.
 
 ## Future eligibility criteria
 
@@ -69,6 +73,8 @@ one frozen candidate semantic head:
 - The cross-provider protocol parses as `draft_unproven_blocked`, remains
   ineligible, and cannot be confused with an executable review, result, or
   identity attestation.
+- The pinned result schema and offline payload verifier pass hostile tests and
+  emit only `STRUCTURALLY_VALID_NON_EVIDENCE` for synthetic valid input.
 - Router documents name this phase as governance/readiness work only.
 - Batch 4 remains draft/null and generated views remain unchanged.
 - The old authority phase remains historical and accepted in its original
@@ -85,6 +91,7 @@ journey-os: python3 tools/checks/journey_os_check.py
 workflow-contract: python3 tools/checks/workflow_contract_guard.py
 batch4-architecture: python3 tools/checks/mint_next_batch4_architecture_guard.py
 promotion-readiness: python3 tools/checks/mint_next_batch4_promotion_guard.py
+result-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_result_verifier.py
 generated-views: python3 tools/checks/mint_next_batch4_generate_views.py --check
 readiness-yaml: python3 -c "import yaml; d=yaml.safe_load(open('product/mint_next/batch4/evidence/promotion-readiness.yaml')); assert set(d)=={'schema_version','kind','phase','status','promotion_eligible','selected_gate','candidate_head','promotion_receipt','gates','manifests','formula_blockers','claim_boundary'} and d['status']=='blocked_waiting_cross_provider_review' and d['promotion_eligible'] is False and d['selected_gate']=='none' and d['candidate_head'] is None and d['promotion_receipt'] is None"
 contract-diff: git diff --check
