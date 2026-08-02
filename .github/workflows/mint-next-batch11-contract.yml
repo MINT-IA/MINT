@@ -13,6 +13,11 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  EXPECTED_BATCH11_GUARD_SHA256: c9d8786199ab5acf0e471025f5927ae07191d9c7631a36a1c253ddcbdd440895
+  EXPECTED_BATCH11_TESTS_SHA256: 40d1c8a0ccc63ebc632fd2d99ed051c7d9272edf93568f3d3853034c03dcc690
+  EXPECTED_BATCH11_ACCEPTANCE_SHA256: 18c7adebb6915c3d5011715666841a43c3f81a07858452855475696a06e067cf
+
 jobs:
   contract:
     name: Ordinary 3a credited amount written contract
@@ -24,6 +29,11 @@ jobs:
           python-version: '3.11'
       - name: Install exact guard dependency
         run: python3 -m pip install PyYAML==6.0.2
+      - name: Verify the verifier trust unit
+        run: |
+          test "$(shasum -a 256 tools/checks/mint_next_batch11_amount_scope_guard.py | cut -d ' ' -f 1)" = "$EXPECTED_BATCH11_GUARD_SHA256"
+          test "$(shasum -a 256 tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py | cut -d ' ' -f 1)" = "$EXPECTED_BATCH11_TESTS_SHA256"
+          test "$(shasum -a 256 product/mint_next/batch11/ordinary-contribution-amount-acceptance.yaml | cut -d ' ' -f 1)" = "$EXPECTED_BATCH11_ACCEPTANCE_SHA256"
       - name: Verify write-only amount contract
         run: python3 tools/checks/mint_next_batch11_amount_scope_guard.py
       - name: Fire hostile amount-contract mutations

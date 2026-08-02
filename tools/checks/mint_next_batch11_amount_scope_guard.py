@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import hashlib
+import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -15,6 +17,8 @@ SCOPE = ROOT / "product/mint_next/batch11/ordinary-contribution-amount-scope.yam
 SOURCES = ROOT / "product/mint_next/batch11/official-sources.yaml"
 LEGACY = ROOT / "product/mint_next/batch11/legacy-inventory.yaml"
 WORKFLOW = ROOT / ".github/workflows/mint-next-batch11-contract.yml"
+ACCEPTANCE = ROOT / "product/mint_next/batch11/ordinary-contribution-amount-acceptance.yaml"
+TESTS = ROOT / "tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py"
 NAVIGATION = ROOT / "product/mint_next/batch6/navigation.yaml"
 PREVIOUS_SCOPE = ROOT / "product/mint_next/batch9/contribution-status-scope.yaml"
 PREVIOUS_ACCEPTANCE = ROOT / "product/mint_next/batch10/design-lab-acceptance.yaml"
@@ -35,6 +39,8 @@ EXPECTED_URLS = {
     "https://www.estv.admin.ch/dam/de/sd-web/SGAqZmbwA2OC/21EDP-2026-de.pdf",
     "https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier",
 }
+EXPECTED_WORKFLOW_NORMALIZED_SHA256 = "0a9b36d1c26a6c3b85b68ce5540b68137b6e0fc365fad9b14954b1dc3e665827"
+EXPECTED_ACCEPTANCE_NORMALIZED_SHA256 = "c0b7e09cb204c9a43d03300d04dee7050618f1743104eec4a0949abab59da7eb"
 
 
 class UniqueKeyLoader(yaml.SafeLoader):
@@ -65,6 +71,40 @@ def load(path: Path) -> dict:
     return value
 
 
+def normalized_workflow_digest(path: Path) -> str:
+    normalized = re.sub(
+        r"(?m)^(  EXPECTED_BATCH11_(?:GUARD|TESTS|ACCEPTANCE)_SHA256:) .+$",
+        r"\1 <BOUND>",
+        path.read_text(encoding="utf-8"),
+    )
+    return hashlib.sha256(normalized.encode()).hexdigest()
+
+
+def workflow_binding(path: Path, name: str) -> str | None:
+    match = re.search(
+        rf"(?m)^  {re.escape(name)}: ([0-9a-f]{{64}})$",
+        path.read_text(encoding="utf-8"),
+    )
+    return match.group(1) if match else None
+
+
+def normalized_acceptance_digest(acceptance: object) -> str:
+    if not isinstance(acceptance, dict):
+        return "invalid"
+    normalized = json.loads(json.dumps(acceptance))
+    trust = normalized.get("verifier_trust_unit")
+    if isinstance(trust, dict):
+        for binding in trust.values():
+            if isinstance(binding, dict) and "sha256" in binding:
+                binding["sha256"] = "<BOUND>"
+    workflow = normalized.get("ci_workflow")
+    if isinstance(workflow, dict) and "normalized_sha256" in workflow:
+        workflow["normalized_sha256"] = "<BOUND>"
+    return hashlib.sha256(
+        json.dumps(normalized, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
 def _runtime_drift() -> list[str]:
     try:
         changed = subprocess.run(
@@ -84,6 +124,7 @@ def validate(
     sources_path: Path = SOURCES,
     legacy_path: Path = LEGACY,
     workflow_path: Path = WORKFLOW,
+    acceptance_path: Path = ACCEPTANCE,
     *,
     check_runtime: bool = True,
 ) -> list[str]:
@@ -92,8 +133,32 @@ def validate(
         scope = load(scope_path)
         sources = load(sources_path)
         legacy = load(legacy_path)
+        acceptance = load(acceptance_path)
     except (OSError, ValueError, yaml.YAMLError) as exc:
         return [f"Batch11 contract unreadable: {exc}"]
+
+    expected_acceptance_trust = {
+        "guard": {
+            "path": "tools/checks/mint_next_batch11_amount_scope_guard.py",
+            "sha256": digest(Path(__file__)),
+        },
+        "tests": {
+            "path": "tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py",
+            "sha256": digest(TESTS),
+        },
+    }
+    if acceptance.get("verifier_trust_unit") != expected_acceptance_trust:
+        errors.append("Batch11 acceptance verifier trust-unit drift")
+    if normalized_acceptance_digest(acceptance) != EXPECTED_ACCEPTANCE_NORMALIZED_SHA256:
+        errors.append("Batch11 normalized acceptance contract drift")
+    expected_acceptance_artifacts = {
+        "scope": {"path": "product/mint_next/batch11/ordinary-contribution-amount-scope.yaml", "sha256": EXPECTED_WRITTEN_ARTIFACT_DIGESTS[SCOPE]},
+        "sources": {"path": "product/mint_next/batch11/official-sources.yaml", "sha256": EXPECTED_WRITTEN_ARTIFACT_DIGESTS[SOURCES]},
+        "legacy_inventory": {"path": "product/mint_next/batch11/legacy-inventory.yaml", "sha256": EXPECTED_WRITTEN_ARTIFACT_DIGESTS[LEGACY]},
+        "previous_runtime_acceptance": {"path": "product/mint_next/batch10/design-lab-acceptance.yaml", "sha256": EXPECTED_AUTHORITY_DIGESTS[PREVIOUS_ACCEPTANCE]},
+    }
+    if acceptance.get("artifacts") != expected_acceptance_artifacts or acceptance.get("accepted_candidate") != {"commit": "78e4baadbf97b9251e15130312624b6c67190f19", "tree": "66f23556abbcc235d6425d9c2df0298b8522bd11"}:
+        errors.append("Batch11 acceptance artifact or candidate binding drift")
 
     if check_runtime and (drift := _runtime_drift()):
         errors.append(f"Batch11 write-only boundary violated by runtime drift: {','.join(drift)}")
@@ -376,6 +441,12 @@ def validate(
                 "with": {"python-version": "3.11"},
             },
             {"name": "Install exact guard dependency", "run": "python3 -m pip install PyYAML==6.0.2"},
+            {
+                "name": "Verify the verifier trust unit",
+                "run": "test \"$(shasum -a 256 tools/checks/mint_next_batch11_amount_scope_guard.py | cut -d ' ' -f 1)\" = \"$EXPECTED_BATCH11_GUARD_SHA256\"\n"
+                "test \"$(shasum -a 256 tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py | cut -d ' ' -f 1)\" = \"$EXPECTED_BATCH11_TESTS_SHA256\"\n"
+                "test \"$(shasum -a 256 product/mint_next/batch11/ordinary-contribution-amount-acceptance.yaml | cut -d ' ' -f 1)\" = \"$EXPECTED_BATCH11_ACCEPTANCE_SHA256\"\n",
+            },
             {"name": "Verify write-only amount contract", "run": "python3 tools/checks/mint_next_batch11_amount_scope_guard.py"},
             {"name": "Fire hostile amount-contract mutations", "run": "python3 -m unittest tools.checks.tests.test_mint_next_batch11_amount_scope_guard"},
         ],
@@ -387,13 +458,21 @@ def validate(
         "push": {"branches": ["dev", "staging", "main"]},
     }:
         errors.append("Batch11 CI triggers permit the written gate to be skipped")
-    if not isinstance(workflow, dict) or set(workflow) != {"name", True, "concurrency", "permissions", "jobs"}:
+    if not isinstance(workflow, dict) or set(workflow) != {"name", True, "concurrency", "permissions", "env", "jobs"}:
         errors.append("Batch11 workflow top-level bypass or schema drift")
     if workflow.get("concurrency") != {
         "group": "mint-next-batch11-contract-${{ github.ref }}",
         "cancel-in-progress": True,
     } or workflow.get("permissions") != {"contents": "read"}:
         errors.append("Batch11 workflow concurrency or least-privilege drift")
+    if not workflow_path.is_file() or normalized_workflow_digest(workflow_path) != EXPECTED_WORKFLOW_NORMALIZED_SHA256:
+        errors.append("Batch11 normalized CI workflow contract drift")
+    if workflow_path.is_file() and (
+        workflow_binding(workflow_path, "EXPECTED_BATCH11_GUARD_SHA256") != digest(Path(__file__))
+        or workflow_binding(workflow_path, "EXPECTED_BATCH11_TESTS_SHA256") != digest(TESTS)
+        or workflow_binding(workflow_path, "EXPECTED_BATCH11_ACCEPTANCE_SHA256") != digest(acceptance_path)
+    ):
+        errors.append("Batch11 workflow verifier trust-unit binding drift")
 
     return errors
 

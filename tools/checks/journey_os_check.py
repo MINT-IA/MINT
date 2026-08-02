@@ -208,6 +208,7 @@ ALLOW = {
     "product/mint_next/batch11/ordinary-contribution-amount-scope.yaml",
     "product/mint_next/batch11/official-sources.yaml",
     "product/mint_next/batch11/legacy-inventory.yaml",
+    "product/mint_next/batch11/ordinary-contribution-amount-acceptance.yaml",
     ".github/workflows/mint-next-batch11-contract.yml",
     "tools/checks/mint_next_batch11_amount_scope_guard.py",
     "tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py",

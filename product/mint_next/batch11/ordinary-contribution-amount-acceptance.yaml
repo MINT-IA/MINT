@@ -1,0 +1,96 @@
+schema_version: 1
+status: mechanically_accepted_written_contract_runtime_unimplemented
+accepted_at: '2026-08-03T01:30:00+02:00'
+accepted_candidate:
+  commit: 78e4baadbf97b9251e15130312624b6c67190f19
+  tree: 66f23556abbcc235d6425d9c2df0298b8522bd11
+artifacts:
+  scope:
+    path: product/mint_next/batch11/ordinary-contribution-amount-scope.yaml
+    sha256: 1310c2d0192e2d1ded2e8555ccaa9b0624e0f1d1b3d206a95dfc47e83799f23c
+  sources:
+    path: product/mint_next/batch11/official-sources.yaml
+    sha256: 6ebc04d5edb92d8f437db1b6ce60ebae5daa187f294cdc3cdffbe2d934ce3741
+  legacy_inventory:
+    path: product/mint_next/batch11/legacy-inventory.yaml
+    sha256: 2fae82c99a9a66ddaefba524445b061f6b363860b48bd9d0c17a0a62ef994204
+  previous_runtime_acceptance:
+    path: product/mint_next/batch10/design-lab-acceptance.yaml
+    sha256: 36c9ef128aa7b548c1df04637d9721cda2babfe330ef16ff1133f5a1288846f2
+verifier_trust_unit:
+  guard:
+    path: tools/checks/mint_next_batch11_amount_scope_guard.py
+    sha256: c9d8786199ab5acf0e471025f5927ae07191d9c7631a36a1c253ddcbdd440895
+  tests:
+    path: tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py
+    sha256: 40d1c8a0ccc63ebc632fd2d99ed051c7d9272edf93568f3d3853034c03dcc690
+ci_workflow:
+  path: .github/workflows/mint-next-batch11-contract.yml
+  normalized_sha256: 0a9b36d1c26a6c3b85b68ce5540b68137b6e0fc365fad9b14954b1dc3e665827
+  verification: exact_job_triggers_permissions_commands_and_verifier_hashes
+mechanical_acceptance_basis:
+  authority: exact_artifact_digests_structural_semantic_guards_57_hostile_mutations_and_three_exact_roasts
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent_identity_truthfulness_branch_protection_and_external_ci_execution_are_not_authenticated_here
+advisory_roasts:
+  - role: ux_navigation_accessibility
+    verdict: ACCEPT
+    score: 10.0
+    p1: 0
+    p2: 0
+    p3: 0
+    bound_commit: 78e4baadbf97b9251e15130312624b6c67190f19
+    bound_scope_sha256: 1310c2d0192e2d1ded2e8555ccaa9b0624e0f1d1b3d206a95dfc47e83799f23c
+  - role: swiss_compliance_locale
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    bound_commit: 78e4baadbf97b9251e15130312624b6c67190f19
+    bound_scope_sha256: 1310c2d0192e2d1ded2e8555ccaa9b0624e0f1d1b3d206a95dfc47e83799f23c
+    bound_sources_sha256: 6ebc04d5edb92d8f437db1b6ce60ebae5daa187f294cdc3cdffbe2d934ce3741
+  - role: adversarial
+    verdict: ROAST_PASS
+    p1: 0
+    p2: 0
+    p3: 1
+    bound_commit: 78e4baadbf97b9251e15130312624b6c67190f19
+    bound_scope_sha256: 1310c2d0192e2d1ded2e8555ccaa9b0624e0f1d1b3d206a95dfc47e83799f23c
+    limitation: normalized_provider_names_do_not_prove_identity_grade_alias_or_homoglyph_deduplication
+commands:
+  - python3 tools/checks/mint_next_batch11_amount_scope_guard.py
+  - python3 -m unittest tools.checks.tests.test_mint_next_batch11_amount_scope_guard
+  - python3 tools/checks/mint_next_batch10_contribution_runtime_guard.py
+  - python3 tools/checks/journey_os_check.py
+  - python3 tools/checks/phase_contract_guard.py
+  - python3 tools/checks/workflow_contract_guard.py
+  - git diff --check
+accepted_scope_only:
+  - written_year_scoped_ordinary_3a_complete_amount_fact
+  - written_provider_total_q_rows_and_local_exact_sum
+  - written_partial_unknown_conflicted_and_complete_states
+  - written_duplicate_provider_and_sensitive_identifier_protection
+  - written_zero_correction_and_all_provider_confirmation
+  - written_six_locale_semantic_intents
+  - official_source_receipt
+  - bounded_legacy_inventory
+  - bounded_future_implementation_slices
+not_accepted:
+  - flutter_runtime
+  - product_integration
+  - six_translated_runtime_copies
+  - parser_implementation
+  - provider_alias_or_homoglyph_identity_proof
+  - persistence
+  - document_scan_upload_ocr_or_provider_api
+  - calculation_engine
+  - contribution_ceiling_or_remaining_room
+  - deductible_amount_or_tax_saving
+  - personal_tax_result
+  - canton_collection_runtime
+  - ios_runtime
+  - android_runtime
+  - external_ci_execution
+  - branch_protection_required_checks
+  - user_validation
+next_gate: isolated_single_provider_positive_amount_unknown_help_and_boundaries_runtime

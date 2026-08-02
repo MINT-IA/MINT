@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from tools.checks.mint_next_batch11_amount_scope_guard import LEGACY, SCOPE, SOURCES, WORKFLOW, load, validate
+from tools.checks.mint_next_batch11_amount_scope_guard import ACCEPTANCE, LEGACY, SCOPE, SOURCES, WORKFLOW, load, validate
 
 
 class Batch11AmountScopeGuardTest(unittest.TestCase):
@@ -45,6 +45,14 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
             self.assertIn(old, source)
             path.write_text(source.replace(old, new, 1), encoding="utf-8")
             return validate(workflow_path=path, check_runtime=False)
+
+    def _mutate_acceptance(self, mutate) -> list[str]:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "acceptance.yaml"
+            value = deepcopy(load(ACCEPTANCE))
+            mutate(value)
+            path.write_text(yaml.safe_dump(value, sort_keys=False, allow_unicode=True), encoding="utf-8")
+            return validate(acceptance_path=path, check_runtime=False)
 
     def test_rejects_runtime_authorization(self) -> None:
         errors = self._mutate_scope(lambda value: value["authority"].update({"runtime_change": "allowed"}))
@@ -363,6 +371,41 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
             "on: workflow_dispatch",
         )
         self.assertIn("Batch11 CI triggers permit the written gate to be skipped", errors)
+
+    def test_rejects_acceptance_scope_hash_rewrite(self) -> None:
+        errors = self._mutate_acceptance(
+            lambda value: value["artifacts"]["scope"].update({"sha256": "0" * 64})
+        )
+        self.assertIn("Batch11 acceptance artifact or candidate binding drift", errors)
+        self.assertIn("Batch11 normalized acceptance contract drift", errors)
+
+    def test_rejects_acceptance_limit_removal(self) -> None:
+        errors = self._mutate_acceptance(
+            lambda value: value["not_accepted"].remove("user_validation")
+        )
+        self.assertIn("Batch11 normalized acceptance contract drift", errors)
+
+    def test_rejects_acceptance_guard_hash_rewrite(self) -> None:
+        errors = self._mutate_acceptance(
+            lambda value: value["verifier_trust_unit"]["guard"].update(
+                {"sha256": "0" * 64}
+            )
+        )
+        self.assertIn("Batch11 acceptance verifier trust-unit drift", errors)
+
+    def test_rejects_workflow_guard_hash_rewrite(self) -> None:
+        errors = self._mutate_workflow(
+            "EXPECTED_BATCH11_GUARD_SHA256:",
+            "EXPECTED_BATCH11_GUARD_SHA256: 0000 #",
+        )
+        self.assertIn("Batch11 workflow verifier trust-unit binding drift", errors)
+
+    def test_rejects_workflow_trust_step_skip(self) -> None:
+        errors = self._mutate_workflow(
+            "      - name: Verify the verifier trust unit\n        run: |",
+            "      - name: Verify the verifier trust unit\n        if: false\n        run: |",
+        )
+        self.assertIn("Batch11 CI job permits skip ignored failure or command drift", errors)
 
 
 if __name__ == "__main__":
