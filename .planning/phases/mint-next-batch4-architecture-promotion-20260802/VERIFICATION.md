@@ -19,9 +19,10 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 | Promotion readiness | `python3 tools/checks/mint_next_batch4_promotion_guard.py` | PASS — blocked; no promotion claimed |
 | Cross-provider protocol | same promotion-readiness guard | PASS — draft blocked and non-executable; no review execution claimed |
 | Result payload component | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_result_verifier.py` | PASS — 93/93; structural non-evidence only |
+| Canonical JSON primitive | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_canonical_json.py` | PASS — 37/37; canonical digest non-evidence only |
 | Generated views | `python3 tools/checks/mint_next_batch4_generate_views.py --check` | PASS — exact match |
-| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 11/11 deterministic criteria |
-| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 217/217 |
+| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 12/12 deterministic criteria |
+| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 232/232 |
 | Diff whitespace | `git diff --check` | PASS |
 
 ## Promotion gates
@@ -41,6 +42,8 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 - 19 formula contracts are `unimplemented_blocking`.
 - The result schema/payload verifier is unintegrated; the bundle verifier,
   request builder, runner, transport, attestation, and trust gate remain absent.
+- The canonical JSON primitive is unintegrated and has no cross-runtime proof;
+  no request, manifest, or evidence consumer exists.
 - Swiss legal and regulatory validation is absent.
 - Official-source URLs are not captured, hashed rule truth.
 - Audience comprehension and UX are hypotheses without user evidence.
@@ -54,3 +57,10 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 external/cross-provider trust gate remains absent. This is a descriptive
 readiness state, not a GSD `blocked` lifecycle declaration and not evidence of
 promotion.
+
+R3 rollback proof is necessarily produced after its final commit and retained
+in the external acceptance record, because this tracked report cannot bind its
+own final commit without self-reference. The required test is a clean-clone
+revert of the final R3 range to parent
+`2a1c3fbab01bd43a10b6ee452cc41d2163b5ec44`; no precommit working-tree result
+is presented as that proof.

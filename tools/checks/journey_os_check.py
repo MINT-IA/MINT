@@ -240,6 +240,10 @@ ALLOW = {
     "tools/checks/mint_next_batch4_review_result_verifier.py",
     "tools/checks/tests/test_mint_next_batch4_promotion_guard.py",
     "tools/checks/tests/test_mint_next_batch4_review_result_verifier.py",
+    "product/mint_next/batch4/evidence/canonical-json-v1.yaml",
+    "tools/checks/requirements-batch4-canonical-json.lock",
+    "tools/checks/mint_next_batch4_canonical_json.py",
+    "tools/checks/tests/test_mint_next_batch4_canonical_json.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

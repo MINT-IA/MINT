@@ -1,0 +1,5 @@
+# Batch4 canonical JSON primitive — isolated governance dependency.
+# Source: https://pypi.org/project/rfc8785/0.1.4/
+# Upstream: https://github.com/trailofbits/rfc8785.py
+# License: Apache-2.0; wheel: rfc8785-0.1.4-py3-none-any.whl
+rfc8785==0.1.4 --hash=sha256:520d690b448ecf0703691c76e1a34a24ddcd4fc5bc41d589cb7c58ec651bcd48

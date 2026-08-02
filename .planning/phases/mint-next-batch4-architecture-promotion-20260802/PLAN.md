@@ -42,6 +42,35 @@ Status: `blocked_waiting_cross_provider_review`
    request builder, runner, transport, attestation, and all gates absent.
 5. Stop. Do not write a review-result artifact or select a candidate or gate.
 
+## Batch R3 — canonical JSON primitive only
+
+1. Pin Trail of Bits `rfc8785==0.1.4` by exact wheel hash and expose one strict
+   raw-bytes primitive for the no-float, safe-integer I-JSON subset.
+2. Reject duplicate decoded keys, BOM, malformed UTF-8/JSON, floats,
+   non-finite constants, unsafe integers, lone surrogates, resource overflows,
+   symlinks, and non-regular CLI inputs.
+3. Preserve RFC 8785 UTF-16 key ordering without Unicode normalization. Emit
+   only `CANONICAL_DIGEST_NON_EVIDENCE` plus digest and byte count on the CLI.
+4. Keep the primitive `implemented_component_unintegrated_blocking`; a future
+   consumer must retain both raw and canonical hashes and prove cross-runtime
+   conformance before integration.
+5. Stop. Do not build a request, manifest, bundle, provider call, gate, review,
+   candidate, or promotion artifact.
+
+R3 is a single revertable batch whose exact parent is
+`2a1c3fbab01bd43a10b6ee452cc41d2163b5ec44`. Its final diff is restricted to:
+
+- this phase's `PLAN.md`, `SPEC.md`, and `VERIFICATION.md`;
+- `product/mint_next/batch4/evidence/cross-provider-review-protocol.yaml`;
+- `product/mint_next/batch4/evidence/canonical-json-v1.yaml`;
+- `tools/checks/requirements-batch4-canonical-json.lock`;
+- `tools/checks/mint_next_batch4_canonical_json.py` and its focused test;
+- `tools/checks/mint_next_batch4_promotion_guard.py` and its focused test;
+- `tools/checks/journey_os_check.py` for those four exact new paths only.
+
+Acceptance additionally requires a clean-clone revert of the final R3 commit
+to restore the exact tracked tree of the parent above.
+
 ## Future four-head promotion protocol
 
 The four heads are distinct and must never be collapsed or backfilled:

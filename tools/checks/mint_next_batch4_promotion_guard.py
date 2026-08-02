@@ -25,6 +25,10 @@ RESULT_VERIFIER = Path("tools/checks/mint_next_batch4_review_result_verifier.py"
 RESULT_VERIFIER_TEST = Path(
     "tools/checks/tests/test_mint_next_batch4_review_result_verifier.py"
 )
+CANONICAL_SPEC = Path("product/mint_next/batch4/evidence/canonical-json-v1.yaml")
+CANONICAL_LOCK = Path("tools/checks/requirements-batch4-canonical-json.lock")
+CANONICAL_TOOL = Path("tools/checks/mint_next_batch4_canonical_json.py")
+CANONICAL_TEST = Path("tools/checks/tests/test_mint_next_batch4_canonical_json.py")
 BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
@@ -32,14 +36,18 @@ PHASE_DIR = f".planning/phases/{PHASE}"
 HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
 SEMANTIC_ARTIFACTS: dict[str, str] = {
     f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
-    f"{PHASE_DIR}/SPEC.md": "831dc66acba14d08aad68834f69e735e75f8c5354c8300e5f90e3002bf6ad093",
-    f"{PHASE_DIR}/PLAN.md": "6248c5abeb646c61c320b59d63996f68ebc3c982948e53d579444f29e1bd95fd",
-    f"{PHASE_DIR}/VERIFICATION.md": "5a87c44a5b549685b9f825e9e83f5254e77f3010ed4ec580c0820dad89c88255",
+    f"{PHASE_DIR}/SPEC.md": "4ab8b198160b799032c451f7144118d206784a36e86dac0853c52aca13278de9",
+    f"{PHASE_DIR}/PLAN.md": "bf14cf9112813d9543f7b5d36e666df98f45355eaa761595282b8d70c0b72610",
+    f"{PHASE_DIR}/VERIFICATION.md": "38802d664123f11de15df2e26bde8018149c83a825e53d2ab2ad12dc9c1cb9aa",
     str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
-    str(REVIEW_PROTOCOL): "25cde9924be89621b1de1ca85661c5b1d8e46cf2c152d3c976bfda5019998dd5",
+    str(REVIEW_PROTOCOL): "b44af75b460fd64f7e23c902f1c2d4513fa3744638514d474638f82891a18577",
     str(RESULT_SCHEMA): "b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda",
     str(RESULT_VERIFIER): "7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f",
     str(RESULT_VERIFIER_TEST): "d9a63c21de33bf7b8da8aabc61b87de75d8a9d8297919b2ec9492e48f3a9ef35",
+    str(CANONICAL_SPEC): "838b92e5ebd42800bbb637aec43bd6be10f3186ec0bb5cafeb2ac4302bbd04ce",
+    str(CANONICAL_LOCK): "50c36aa891319223be9988eef490c291b8bb107d6b37498262767b4fd25406e1",
+    str(CANONICAL_TOOL): "e2982d1ac823b6e1d795f687ab326aedd610d2e556bd1f0e4ae77c1a9c61b80a",
+    str(CANONICAL_TEST): "944d4c036c86ab6482ccf8849790a301f86016a2d05a4dd0cb20ae9e4917a71d",
 }
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
@@ -184,6 +192,7 @@ def validate(root: Path) -> list[str]:
         "future_outbound_data_policy_requirements",
         "future_prompt_requirements", "future_result_contract",
         "implemented_result_payload_component",
+        "implemented_canonical_json_component",
         "future_detached_execution_manifest", "future_result_verifier_requirements",
         "finding_remediation_lifecycle", "forbidden_current_claims",
     }
@@ -225,6 +234,7 @@ def validate(root: Path) -> list[str]:
         "tools/checks/tests/test_mint_next_batch4_architecture_guard.py",
         "tools/checks/tests/test_mint_next_batch4_promotion_guard.py",
         str(RESULT_SCHEMA), str(RESULT_VERIFIER), str(RESULT_VERIFIER_TEST),
+        str(CANONICAL_SPEC), str(CANONICAL_LOCK), str(CANONICAL_TOOL), str(CANONICAL_TEST),
         "product/mint_next/batch4/README.md",
         "product/mint_next/batch4/ONE-PAGE.md",
         "product/mint_next/batch4/views/experience-graph.mmd",
@@ -417,6 +427,33 @@ def validate(root: Path) -> list[str]:
         "result_bundle_verifier"
     ) != "absent_unimplemented_blocking":
         errors.append("payload components must not inflate bundle-verifier readiness")
+    canonical_component = protocol.get("implemented_canonical_json_component") or {}
+    expected_canonical_component = {
+        "status": "implemented_component_unintegrated_blocking",
+        "specification_path": str(CANONICAL_SPEC),
+        "specification_sha256": SEMANTIC_ARTIFACTS[str(CANONICAL_SPEC)],
+        "dependency_lock_path": str(CANONICAL_LOCK),
+        "dependency_lock_sha256": SEMANTIC_ARTIFACTS[str(CANONICAL_LOCK)],
+        "implementation_path": str(CANONICAL_TOOL),
+        "implementation_sha256": SEMANTIC_ARTIFACTS[str(CANONICAL_TOOL)],
+        "test_path": str(CANONICAL_TEST),
+        "test_sha256": SEMANTIC_ARTIFACTS[str(CANONICAL_TEST)],
+        "algorithm": "RFC_8785_JCS_strict_no_float_I_JSON_subset",
+        "dependency": "rfc8785==0.1.4",
+        "success_output": "CANONICAL_DIGEST_NON_EVIDENCE",
+        "proves_cross_runtime_equivalence": False,
+        "proves_request_or_manifest_valid": False,
+        "proves_review_or_promotion_evidence": False,
+        "eligible_as_gate_or_promotion_evidence": False,
+    }
+    if canonical_component != expected_canonical_component:
+        errors.append("canonical JSON component must remain exact, unintegrated, and non-evidence")
+    if blockers.get("canonical_json_primitive") != "implemented_component_unintegrated_blocking" or blockers.get(
+        "canonical_request_builder"
+    ) != "absent_unimplemented_blocking" or blockers.get(
+        "frozen_input_manifest_builder"
+    ) != "absent_unimplemented_blocking":
+        errors.append("canonical primitive must not inflate request or manifest readiness")
     expected_detached_artifacts = [
         "request.json", "response-body.bin", "response-headers.json",
         "review-result.json", "command-evidence.json",
@@ -426,6 +463,10 @@ def validate(root: Path) -> list[str]:
         "git-lineage-evidence.json", "trusted-attestation-policy.json",
     ]
     detached = protocol.get("future_detached_execution_manifest") or {}
+    if request_contract.get("canonicalization") != "RFC_8785_JCS_strict_no_float_I_JSON_subset" or detached.get(
+        "canonicalization"
+    ) != request_contract.get("canonicalization"):
+        errors.append("request and detached manifest must share the exact pinned canonicalization")
     if detached.get("must_hash_without_self_reference") != expected_detached_artifacts:
         errors.append("detached execution manifest must preserve exact raw artifacts")
     if detached.get("must_not_hash") != ["workflow-attestation.bundle"] or (

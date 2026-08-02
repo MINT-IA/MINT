@@ -23,6 +23,7 @@ trust_boundary:
   external_attestation_requires: verified_identity_and_provenance
 implementation_blockers:
   normative_prompt_artifact: absent_unimplemented_blocking
+  canonical_json_primitive: implemented_component_unintegrated_blocking
   canonical_request_builder: absent_unimplemented_blocking
   frozen_input_manifest_builder: absent_unimplemented_blocking
   isolated_no_secrets_runner: absent_unimplemented_blocking
@@ -59,7 +60,7 @@ candidate_freeze_requirements:
   - any_untracked_or_dirty_evidence
 future_request_contract:
   status: draft_non_executable
-  canonicalization: mint_json_c14n_v1_utf8_sorted_keys_compact_no_floats
+  canonicalization: RFC_8785_JCS_strict_no_float_I_JSON_subset
   detached_request_hash: sha256_lowercase_64_hex
   required_fields:
   - schema_version
@@ -113,6 +114,10 @@ future_request_contract:
   - product/mint_next/batch4/evidence/review-result.schema.json
   - tools/checks/mint_next_batch4_review_result_verifier.py
   - tools/checks/tests/test_mint_next_batch4_review_result_verifier.py
+  - product/mint_next/batch4/evidence/canonical-json-v1.yaml
+  - tools/checks/requirements-batch4-canonical-json.lock
+  - tools/checks/mint_next_batch4_canonical_json.py
+  - tools/checks/tests/test_mint_next_batch4_canonical_json.py
   - product/mint_next/batch4/README.md
   - product/mint_next/batch4/ONE-PAGE.md
   - product/mint_next/batch4/views/experience-graph.mmd
@@ -394,9 +399,26 @@ implemented_result_payload_component:
   proves_review_or_bundle_valid: false
   proves_candidate_provider_identity_provenance_or_diversity: false
   eligible_as_gate_or_promotion_evidence: false
+implemented_canonical_json_component:
+  status: implemented_component_unintegrated_blocking
+  specification_path: product/mint_next/batch4/evidence/canonical-json-v1.yaml
+  specification_sha256: 838b92e5ebd42800bbb637aec43bd6be10f3186ec0bb5cafeb2ac4302bbd04ce
+  dependency_lock_path: tools/checks/requirements-batch4-canonical-json.lock
+  dependency_lock_sha256: 50c36aa891319223be9988eef490c291b8bb107d6b37498262767b4fd25406e1
+  implementation_path: tools/checks/mint_next_batch4_canonical_json.py
+  implementation_sha256: e2982d1ac823b6e1d795f687ab326aedd610d2e556bd1f0e4ae77c1a9c61b80a
+  test_path: tools/checks/tests/test_mint_next_batch4_canonical_json.py
+  test_sha256: 944d4c036c86ab6482ccf8849790a301f86016a2d05a4dd0cb20ae9e4917a71d
+  algorithm: RFC_8785_JCS_strict_no_float_I_JSON_subset
+  dependency: rfc8785==0.1.4
+  success_output: CANONICAL_DIGEST_NON_EVIDENCE
+  proves_cross_runtime_equivalence: false
+  proves_request_or_manifest_valid: false
+  proves_review_or_promotion_evidence: false
+  eligible_as_gate_or_promotion_evidence: false
 future_detached_execution_manifest:
   status: absent_unimplemented_blocking
-  canonicalization: mint_json_c14n_v1_utf8_sorted_keys_compact_no_floats
+  canonicalization: RFC_8785_JCS_strict_no_float_I_JSON_subset
   role: attested_execution_payload_manifest_excludes_attestation_bytes
   must_hash_without_self_reference:
   - request.json

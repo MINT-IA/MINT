@@ -1,0 +1,48 @@
+schema_version: 1
+kind: mint_next_batch4_canonical_json_primitive
+status: implemented_component_unintegrated_blocking
+algorithm: RFC_8785_JCS_strict_no_float_I_JSON_subset
+dependency:
+  package: rfc8785
+  version: 0.1.4
+  wheel: rfc8785-0.1.4-py3-none-any.whl
+  wheel_sha256: 520d690b448ecf0703691c76e1a34a24ddcd4fc5bc41d589cb7c58ec651bcd48
+  installed_module_sha256:
+    __init__.py: fa44927afd547caf7547247078bcf28863d1e69caf116d258c532b3f20ffd154
+    _impl.py: c25bc3a046528482d53bee3487b837f31dd9c05f33e8f13288c7aab320932cec
+  source: https://github.com/trailofbits/rfc8785.py
+  license: Apache-2.0
+input_contract:
+  representation: raw_utf8_bytes
+  bom: forbidden
+  trailing_non_whitespace: forbidden
+  duplicate_decoded_object_keys: forbidden
+  permitted_values:
+  - object_with_string_keys
+  - array
+  - string_unicode_scalar_values
+  - boolean
+  - 'null'
+  - safe_integer
+  integer_minimum: -9007199254740991
+  integer_maximum: 9007199254740991
+  float_tokens: forbidden
+  non_finite_constants: forbidden
+  unicode_normalization: none
+output_contract:
+  representation: RFC_8785_JCS_UTF8_bytes
+  bom: absent
+  insignificant_whitespace: absent
+  trailing_newline: absent
+  cli_output: digest_and_size_only_non_evidence
+future_consumer_requirements:
+  retain_raw_sha256_and_size: true
+  retain_canonical_sha256_and_size: true
+  cross_runtime_conformance_required_before_integration: true
+claims:
+  canonical_bytes_for_supported_subset: true
+  cross_runtime_equivalence_proven: false
+  request_or_manifest_valid: false
+  review_or_promotion_evidence: false
+  provider_identity_or_independence: false
+  trusted_input: false

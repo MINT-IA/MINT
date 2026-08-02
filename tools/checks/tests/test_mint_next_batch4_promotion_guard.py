@@ -36,6 +36,8 @@ def clone(tmp_path_factory: pytest.TempPathFactory) -> Path:
     for relative in [
         guard.READINESS, guard.REVIEW_PROTOCOL, guard.RESULT_SCHEMA,
         guard.RESULT_VERIFIER, guard.RESULT_VERIFIER_TEST, Path(guard.PHASE_DIR),
+        guard.CANONICAL_SPEC, guard.CANONICAL_LOCK, guard.CANONICAL_TOOL,
+        guard.CANONICAL_TEST,
     ]:
         source, target = REPO / relative, root / relative
         if source.is_dir():
@@ -63,6 +65,10 @@ def reset(clone: Path):
         guard.RESULT_SCHEMA,
         guard.RESULT_VERIFIER,
         guard.RESULT_VERIFIER_TEST,
+        guard.CANONICAL_SPEC,
+        guard.CANONICAL_LOCK,
+        guard.CANONICAL_TOOL,
+        guard.CANONICAL_TEST,
         Path(guard.PHASE_DIR),
         Path(".planning/ACTIVE_CONTEXT.json"),
         Path(".planning/STATE.md"),
@@ -86,6 +92,62 @@ def _mutate_yaml(root: Path, relative: Path, mutation) -> None:
 
 def test_exact_blocked_readiness_passes(clone: Path) -> None:
     assert guard.validate(clone) == []
+
+
+@pytest.mark.parametrize(
+    ("key", "value"),
+    [
+        ("proves_cross_runtime_equivalence", True),
+        ("proves_request_or_manifest_valid", True),
+        ("proves_review_or_promotion_evidence", True),
+        ("eligible_as_gate_or_promotion_evidence", True),
+    ],
+)
+def test_rejects_canonical_component_claim_inflation(
+    clone: Path, key: str, value: object
+) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implemented_canonical_json_component"].__setitem__(key, value),
+    )
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "key",
+    ["canonical_request_builder", "frozen_input_manifest_builder"],
+)
+def test_rejects_canonical_primitive_readiness_inflation(clone: Path, key: str) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implementation_blockers"].__setitem__(
+            key, "implemented_component_unintegrated_blocking"
+        ),
+    )
+    assert guard.validate(clone)
+
+
+def test_rejects_detached_manifest_canonicalization_divergence(clone: Path) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["future_detached_execution_manifest"].__setitem__(
+            "canonicalization", "different_algorithm"
+        ),
+    )
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [guard.CANONICAL_SPEC, guard.CANONICAL_LOCK, guard.CANONICAL_TOOL, guard.CANONICAL_TEST],
+)
+def test_rejects_canonical_component_byte_drift(clone: Path, relative: Path) -> None:
+    with (clone / relative).open("ab") as handle:
+        handle.write(b"\n")
+    assert guard.validate(clone)
 
 
 @pytest.mark.parametrize(
