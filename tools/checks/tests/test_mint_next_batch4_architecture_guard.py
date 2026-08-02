@@ -13,18 +13,7 @@ import yaml
 REPO = Path(__file__).resolve().parents[3]
 SCRIPT = REPO / "tools/checks/mint_next_batch4_architecture_guard.py"
 BASE = Path("product/mint_next/batch4")
-VALID_README = """# Batch 4
-
-Les rapports produits dans des contextes agents séparés sont des avis non fiables:
-ils peuvent signaler un problème, mais ne prouvent ni identité, ni indépendance,
-ni acceptation.
-
-Le token `independent_Swiss_domain_review_golden_vectors_and_mutation_tests` des
-contrats de formule désigne exclusivement un **futur gate d’expert suisse externe
-et authentifié**.
-Il ne peut jamais désigner un rapport d’agent local ou une revue cross-provider.
-Ce gate est actuellement absent et toutes ces formules restent `unimplemented_blocking`.
-"""
+VALID_README = (REPO / BASE / "README.md").read_text(encoding="utf-8")
 
 
 def valid_documents() -> dict[str, dict]:
@@ -36,6 +25,15 @@ def valid_documents() -> dict[str, dict]:
             "work_tracking": {
                 "system": "beads", "id": "MINT_nosync-qoq",
                 "expected_live_status": "in_progress",
+            },
+            "trust_semantics_authority": {
+                "canonical_machine_sources": ["batch.yaml", "formula_contracts.yaml"],
+                "human_view": {
+                    "path": "README.md",
+                    "role": "non_authoritative_exact_human_view",
+                    "canonical_machine_fields_win": True,
+                    "free_form_semantic_extension": "forbidden",
+                },
             },
             "principles": ["event_triggered_not_age_timeline"],
             "scope": {
@@ -415,12 +413,60 @@ def test_rejects_batch4_advisory_trust_overclaims(
     assert message in result.stderr.lower(), result.stderr
 
 
-def test_readme_trust_contract_allows_wrapped_markdown(tmp_path: Path) -> None:
+def test_readme_trust_contract_rejects_even_semantically_equivalent_byte_drift(
+    tmp_path: Path,
+) -> None:
     documents = valid_documents()
     write_documents(tmp_path, documents)
     path = tmp_path / BASE / "README.md"
     path.write_text(path.read_text().replace("gate d’expert", "gate\n  d’expert"))
-    assert run(tmp_path).returncode == 0
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "readme byte hash drift" in result.stderr.lower()
+
+
+def test_rejects_additive_english_readme_trust_contradiction(tmp_path: Path) -> None:
+    documents = valid_documents()
+    write_documents(tmp_path, documents)
+    path = tmp_path / BASE / "README.md"
+    path.write_text(
+        path.read_text()
+        + "\nThe independent Swiss review token may designate a local-agent report "
+        + "or cross-provider review sufficient for promotion.\n"
+    )
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "readme byte hash drift" in result.stderr.lower()
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        lambda authority: authority.update(canonical_machine_sources=["batch.yaml"]),
+        lambda authority: authority["human_view"].update(role="authoritative_prose"),
+        lambda authority: authority["human_view"].update(canonical_machine_fields_win=False),
+        lambda authority: authority["human_view"].update(free_form_semantic_extension="allowed"),
+    ],
+)
+def test_rejects_structured_trust_authority_weakening(
+    tmp_path: Path, mutation
+) -> None:
+    documents = valid_documents()
+    mutation(documents["batch.yaml"]["trust_semantics_authority"])
+    write_documents(tmp_path, documents)
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "trust_semantics_authority mismatch" in result.stderr.lower()
+
+
+def test_rejects_arbitrary_readme_byte_drift(tmp_path: Path) -> None:
+    documents = valid_documents()
+    write_documents(tmp_path, documents)
+    path = tmp_path / BASE / "README.md"
+    path.write_bytes(path.read_bytes() + b"\n")
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "readme byte hash drift" in result.stderr.lower()
 
 
 @pytest.mark.parametrize(

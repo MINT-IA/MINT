@@ -1,5 +1,12 @@
 # Batch 4 — architecture canonique avant écrans
 
+Rôle: `non_authoritative_exact_human_view`.
+
+Les champs structurés de `batch.yaml` et `formula_contracts.yaml` sont les seules
+sources canoniques des sémantiques de confiance et gagnent toujours en cas de
+désaccord. Ce README est leur vue humaine exacte, vérifiée mécaniquement; il ne
+peut ajouter, étendre ou modifier librement aucune règle de confiance.
+
 Ce batch ne construit aucun écran. Il remplace les suppositions par six registres
 lisibles par machine: audience, concepts, décisions, expérience, données/claims et
 réutilisation legacy.

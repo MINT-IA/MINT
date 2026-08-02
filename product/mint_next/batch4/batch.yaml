@@ -5,6 +5,15 @@ work_tracking:
   system: beads
   id: MINT_nosync-qoq
   expected_live_status: in_progress
+trust_semantics_authority:
+  canonical_machine_sources:
+  - batch.yaml
+  - formula_contracts.yaml
+  human_view:
+    path: README.md
+    role: non_authoritative_exact_human_view
+    canonical_machine_fields_win: true
+    free_form_semantic_extension: forbidden
 principles:
 - event_triggered_not_age_timeline
 - survival_before_optimization

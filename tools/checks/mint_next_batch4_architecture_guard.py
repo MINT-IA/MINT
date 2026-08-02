@@ -132,6 +132,16 @@ EXPECTED_PROMOTION_TRUST_BOUNDARY = {
     "advisory_not_sufficient": True,
 }
 SWISS_FORMULA_GATE = "independent_Swiss_domain_review_golden_vectors_and_mutation_tests"
+EXPECTED_README_SHA256 = "c2deab9ec21ed8f8af3c4f0bebe8085bacb0a69fe9e215c3059eed0302f33e0c"
+EXPECTED_TRUST_SEMANTICS_AUTHORITY = {
+    "canonical_machine_sources": ["batch.yaml", "formula_contracts.yaml"],
+    "human_view": {
+        "path": "README.md",
+        "role": "non_authoritative_exact_human_view",
+        "canonical_machine_fields_win": True,
+        "free_form_semantic_extension": "forbidden",
+    },
+}
 
 README_TRUST_FRAGMENTS = (
     "Les rapports produits dans des contextes agents séparés sont des avis non fiables:",
@@ -146,10 +156,13 @@ README_TRUST_FRAGMENTS = (
 def _validate_readme_trust_contract(root: Path, errors: list[str]) -> None:
     path = root / BASE / "README.md"
     try:
-        text = path.read_text(encoding="utf-8")
+        raw = path.read_bytes()
+        text = raw.decode("utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         errors.append(f"Batch4 README trust contract unreadable: {exc}")
         return
+    if hashlib.sha256(raw).hexdigest() != EXPECTED_README_SHA256:
+        errors.append("Batch4 README byte hash drift from the canonical trust contract")
     normalized = re.sub(r"\s+", " ", text).strip()
     for fragment in README_TRUST_FRAGMENTS:
         if re.sub(r"\s+", " ", fragment).strip() not in normalized:
@@ -176,7 +189,7 @@ def _validate_readme_trust_contract(root: Path, errors: list[str]) -> None:
 def _validate_batch_trust_contract(batch: dict[str, Any], errors: list[str]) -> None:
     expected_top = {
         "schema_version", "status", "promotion_receipt", "work_tracking",
-        "principles", "scope", "promotion",
+        "trust_semantics_authority", "principles", "scope", "promotion",
     }
     if set(batch) != expected_top:
         errors.append("batch.yaml must contain exactly the canonical trust-contract fields")
@@ -184,6 +197,8 @@ def _validate_batch_trust_contract(batch: dict[str, Any], errors: list[str]) -> 
         errors.append("Batch 4 trust-contract phase must remain draft_unproven")
     if batch.get("promotion_receipt") is not None:
         errors.append("Batch 4 trust-contract phase must keep promotion_receipt null")
+    if batch.get("trust_semantics_authority") != EXPECTED_TRUST_SEMANTICS_AUTHORITY:
+        errors.append("batch.yaml trust_semantics_authority mismatch")
 
     scope = batch.get("scope")
     if not isinstance(scope, dict) or set(scope) != {"includes", "excludes"}:
