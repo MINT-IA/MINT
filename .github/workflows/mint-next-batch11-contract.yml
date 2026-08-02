@@ -1,0 +1,30 @@
+name: MINT Next Batch 11 Written Amount Contract
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+  push:
+    branches: [dev, staging, main]
+
+concurrency:
+  group: mint-next-batch11-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Ordinary 3a credited amount written contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency
+        run: python3 -m pip install PyYAML==6.0.2
+      - name: Verify write-only amount contract
+        run: python3 tools/checks/mint_next_batch11_amount_scope_guard.py
+      - name: Fire hostile amount-contract mutations
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch11_amount_scope_guard

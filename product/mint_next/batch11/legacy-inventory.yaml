@@ -1,0 +1,84 @@
+schema_version: 1
+reviewed_at: '2026-08-03'
+source_repo: /Users/julienbattaglia/Desktop/MINT.nosync
+policy: legacy_is_read_only_library_never_authority
+scope: ordinary_3a_amount_collection
+candidates:
+  - path: apps/mobile/lib/data/wizard_questions_v2.dart
+    symbol: q_3a_annual_contribution
+    decision: reject_semantics
+    score: 2
+    reasons:
+      - asks_habitual_how_much_do_you_pay_not_selected_year_actual_credit
+      - mixes_employee_and_self_employed_ceiling_before_fact_collection
+      - has_no_unknown_partial_provider_or_refund_state
+      - single_number_can_hide_multi_provider_omission
+  - path: apps/mobile/lib/models/coach_profile.dart
+    symbol: q_3a_annual_contribution_consumers
+    decision: reject_semantics
+    score: 1
+    reasons:
+      - defaults_missing_to_zero
+      - infers_has_3a_from_contribution_and_balance
+      - reuses_one_value_for_projection_budget_scoring_and_reports
+      - loses_selected_year_source_and_completeness
+  - path: apps/mobile/lib/providers/auth_provider.dart
+    symbol: pillar3aAnnual_claim_adapter
+    decision: reject_semantics
+    score: 1
+    reasons:
+      - zero_plus_no_balance_can_infer_no_account
+      - merges_claim_and_wizard_meanings
+      - no_provider_or_year_evidence
+  - path: apps/mobile/lib/widgets/coach/chat_inline_inputs.dart
+    symbol: ChatAmountInput
+    decision: reject_widget_harvest_parser_only_as_warning
+    score: 3
+    harvestable:
+      - swiss_grouping_display_intent
+    reject:
+      - empty_becomes_zero
+      - integer_only_digit_stripping_silently_changes_invalid_input
+      - double_storage
+      - arbitrary_clamp
+      - no_inline_error_or_locale_parser
+  - path: apps/mobile/lib/widgets/premium/mint_amount_field.dart
+    symbol: MintAmountField
+    decision: harvest_interaction_lessons_not_widget
+    score: 6
+    harvestable:
+      - local_parser_accepts_common_swiss_grouping_and_decimal_comma
+      - editor_owns_controller_lifecycle
+      - modal_closes_before_parent_callback_to_avoid_route_lifecycle_bug
+      - duplicate_submit_guard
+    reject:
+      - double_storage
+      - fallback_to_previous_value_on_parse_failure
+      - silent_min_max_clamp
+      - integer_only_keyboard_in_editor
+      - bottom_sheet_adds_unnecessary_navigation_for_primary_fact
+  - path: apps/mobile/lib/widgets/onboarding/onboarding_widgets.dart
+    symbol: MintChfInputField
+    decision: harvest_visual_principle_not_widget
+    score: 4
+    harvestable:
+      - visible_CHF_affordance
+      - clear_focus_border
+    reject:
+      - digits_only
+      - no_error_contract
+      - no_exact_value_model
+  - path: apps/mobile/lib/services/financial_core/pillar3a_room_calculator.dart
+    symbol: annual_ceiling_logic
+    decision: defer_calculator_only
+    score: 7
+    harvestable:
+      - legal_ceiling_calculation_only_after_fact_adapter_and_separate_validation
+    reject:
+      - must_not_define_or_clamp_collected_actual_amount
+summary:
+  directly_reusable_widgets: 0
+  harvestable_interaction_lessons: 7
+  canonical_fact_semantics_found: false
+  primary_legacy_failure: planned_actual_balance_and_missing_zero_are_conflated
+  batch11_decision: write_new_year_scoped_complete_fact_and_exact_parser_contract

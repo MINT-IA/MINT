@@ -1,0 +1,260 @@
+schema_version: 1
+status: draft_written_contract_runtime_forbidden
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_literacy
+
+authority:
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  previous_written_contract: product/mint_next/batch9/contribution-status-scope.yaml
+  previous_runtime_acceptance: product/mint_next/batch10/design-lab-acceptance.yaml
+  semantic_refinement: collect_complete_ordinary_3a_total_actually_credited_for_selected_year
+  route_change: refine_fact_contributed_amount_only
+  runtime_change: forbidden
+
+slice:
+  entry_preconditions:
+    tax_year: explicitly_selected
+    fact_lpp_affiliation: 'yes'
+    ordinary_contribution_status: 'yes'
+  nodes: [fact_contributed_amount, contributed_amount_unknown_help]
+  boundary_nodes: [fact_canton, education_explanation]
+  routes:
+    complete_positive_total: fact_canton
+    missing_or_unknown_amount: contributed_amount_unknown_help
+    found_amount: fact_contributed_amount
+    education_only: education_explanation
+    correct_previous_answer: fact_contribution
+  locales: [fr, en, de, it, es, pt]
+
+human_outcome:
+  question: Build the complete ordinary 3a amount actually credited for the selected year without asking the person to add providers mentally.
+  why_now: A personal calculation must never consume a planned amount, a balance, an incomplete subtotal, a transfer, a buyback or a silent zero.
+  must_understand:
+    - Add each provider's confirmed ordinary annual total once; MINT performs the addition.
+    - A provider total may already cover several contracts or policies, so its detail lines must not be counted again.
+    - Transfers, retroactive buybacks, returns and unresolved corrections are not ordinary contributions for this fact.
+    - The collected amount is not yet a deductible amount, remaining room, tax result or recommendation.
+  next_small_action:
+    complete: Continue to canton collection without calculating anything.
+    partial_or_unknown: Help verify the missing total or continue with general education only.
+    zero_contradiction: Return to the previous status question; never convert automatically to no.
+
+fact_contract:
+  id: ordinary_3a_credited_total_for_selected_tax_year
+  tax_year_ref: tax_year
+  currency: CHF
+  canonical_representation: integer_minor_units
+  float_forbidden: true
+  storage: ephemeral
+  entry_requires: ordinary_3a_contribution_credited_any_provider_for_selected_year_yes
+  working_states:
+    unset: no_committed_amount_and_no_zero
+    partial_known: positive_rows_exist_but_not_all_personal_providers_are_confirmed
+    unknown: amount_null
+    conflicted: amount_null_due_to_unresolved_duplicate_refund_correction_or_classification
+    complete: positive_total_and_all_personal_providers_reviewed
+  canonical_value_only_when:
+    state: complete
+    amount_minor_units: positive_integer
+    all_personal_providers_reviewed: true
+    every_row_valid: true
+    unresolved_movement_count: 0
+  zero_invariant:
+    status_yes: zero_forbidden
+    status_no: downstream_zero_adapter_allowed_only_from_explicit_status_no
+    blank_parse_error_or_unknown: never_zero
+  basis_values: [explicit_user_confirmation, provider_attestation_totals]
+  never_derive_from:
+    - account_or_policy_existence
+    - current_balance_or_cash_value
+    - investment_value_return_or_interest
+    - planned_scheduled_or_habitual_contribution
+    - standing_order_or_bank_debit
+    - previous_year_amount
+    - statutory_ceiling
+    - missing_document_or_missing_provider
+    - incomplete_subtotal
+    - uncertain_ocr_chat_or_llm_extraction
+    - transfer_description
+    - retroactive_buyback
+    - spouse_or_partner_amount
+  explicit_exclusions:
+    - provider_to_provider_transfer_inbound_and_outbound
+    - retroactive_buyback_for_a_past_year
+    - pending_sent_scheduled_or_debited_uncredited_payment
+    - investment_return_interest_or_portfolio_gain
+    - fee_refund_rebate_or_non_contribution_adjustment
+    - fully_refunded_or_reversed_ordinary_amount
+  correction_effect: clear_canonical_total_and_downstream_result_then_recompute_only_after_complete_confirmation
+  tax_year_change_effect: clear_status_rows_total_completeness_and_downstream_result_before_render
+
+aggregation_contract:
+  row_unit: one_provider_attestation_total_for_selected_year
+  provider_kinds: [bank_or_fintech_foundation, insurance_institution, unspecified]
+  provider_identity_required: false
+  optional_local_label: allowed_but_never_account_policy_or_avs_number
+  source_rule: use_provider_total_q_once_when_available
+  do_not_double_count: provider_total_q_plus_policy_or_contract_detail_p
+  multiple_providers: sum_each_provider_scoped_total_once
+  duplicate_or_reissued_evidence: latest_provider_confirmed_correction_supersedes_never_adds
+  employer_or_third_party_initiated: include_only_when_recognized_provider_attests_for_the_person
+  insurance_rule: never_infer_from_balance_cash_value_or_risk_savings_split
+  partial_refund: provider_confirmed_net_ordinary_amount_only_no_mental_subtraction
+  unclear_refund_or_correction: conflicted_no_canonical_total
+  full_refund:
+    aggregate_still_positive: remove_or_correct_affected_row_then_reconfirm_completeness
+    aggregate_becomes_zero: return_to_status_question_for_explicit_no
+  over_ceiling_assertion: do_not_clamp_or_call_deductible_route_to_verification_if_unresolved
+
+node_contracts:
+  fact_contributed_amount:
+    reference_copy_fr:
+      eyebrow: Tes versements 3a · {taxYear}
+      title: Combien tes 3a ont-ils reçu au total en {taxYear} ?
+      body: Ajoute le total indiqué par chaque banque, fintech ou assurance 3a. MINT fera l’addition.
+      provider_total_note: Utilise le total annuel ordinaire confirmé par ce prestataire. S’il couvre plusieurs contrats, ne recompte pas leur détail.
+      not_result_note: Ce total n’est pas encore un résultat fiscal.
+      first_row_label: Banque, fintech ou assurance 3a n° 1
+      optional_label: Nom pour t’y retrouver (facultatif)
+      amount_label: Montant ordinaire confirmé pour {taxYear}
+      amount_suffix: CHF
+      add_provider: Ajouter un autre prestataire 3a
+      remove_provider: Supprimer le prestataire {index}
+      running_total: Total saisi · CHF {amount}
+      completeness_confirmation: J’ai vérifié tous mes 3a pour {taxYear}
+      where_to_find: Où trouver le bon montant ?
+      missing_amount: Il me manque un montant
+      unknown_amount: Je ne sais pas
+      continue: Continuer
+      correct_previous: Corriger ma réponse précédente
+    required_copy_intents:
+      - selected_year_in_question_and_each_amount_label
+      - provider_not_transaction_or_contract_row
+      - all_bank_fintech_and_insurance_providers
+      - provider_total_may_cover_multiple_contracts
+      - mint_adds_locally
+      - not_yet_a_tax_result
+    controls:
+      add_provider: {operation: append_empty_ephemeral_provider_row, focus: new_row_heading}
+      remove_provider: {operation: remove_row_clear_total_and_recompute_working_subtotal, focus: adjacent_row_or_add_button}
+      edit_amount: {operation: update_minor_units_clear_canonical_total_until_reconfirmed}
+      toggle_all_reviewed: {operation: set_completeness_assertion_clear_canonical_total_then_validate}
+      where_to_find: {operation: same_node_disclosure, default_expanded: false}
+      missing_amount: {to: contributed_amount_unknown_help, preserves: ephemeral_working_rows}
+      unknown_amount: {to: contributed_amount_unknown_help, mutation: amount_unknown, preserves: ephemeral_working_rows}
+      continue: {to: fact_canton, guard: complete_positive_total_only, mutation: commit_canonical_total}
+      correct_previous: {to: fact_contribution, restores_selection: 'yes', preserves_draft_until_status_changes}
+      open_safe_exit: {overlay: safe_exit}
+    inline_errors:
+      all_rows_empty: Entre un montant ou choisis « Je ne sais pas ».
+      one_row_empty: Complète ou supprime ce prestataire.
+      zero: Un montant reçu doit être supérieur à zéro. Si rien n’est resté crédité, corrige ta réponse précédente.
+      invalid_format: Utilise uniquement des chiffres et un seul séparateur décimal.
+      too_many_decimals: Indique au maximum deux chiffres après le séparateur.
+      unresolved_provider: Vérifie ce montant avant de continuer.
+    forbidden:
+      - prefilled_zero
+      - disabled_dead_end_without_accessible_reason
+      - automatic_route_after_typing
+      - transaction_level_rows
+      - mandatory_provider_name_or_identifier
+      - mental_sum_prompt
+      - ceiling_validation_or_clamping
+      - calculation_or_personal_result
+  contributed_amount_unknown_help:
+    emotional_contract: incomplete_or_unknown_is_valid_not_zero
+    reference_copy_fr:
+      eyebrow: Aucun souci
+      title: Tu peux vérifier sans faire l’addition toi-même.
+      body: Cherche le total annuel ordinaire indiqué par chaque prestataire pour {taxYear}. MINT additionnera les montants confirmés.
+      bank_fintech: Dans chaque app ou attestation, cherche le total reçu pour les cotisations ordinaires de {taxYear}.
+      insurance: Pour une assurance 3a, utilise l’attestation annuelle ou demande le total ordinaire confirmé.
+      provider_total_warning: Si un total couvre plusieurs contrats, ne rajoute pas leurs lignes détaillées.
+      correction_warning: Après un remboursement ou une correction, demande le nouveau montant net ordinaire. Ne le soustrais pas toi-même.
+      classification_question: En cas de doute, demande si le mouvement est une cotisation ordinaire, un transfert, un rachat ou un remboursement.
+      found_amount: J’ai trouvé le montant
+      continue_education_only: Continuer sans montant personnel
+    controls:
+      found_amount: {to: fact_contributed_amount, restores: rows_scroll_and_focus}
+      continue_education_only: {to: education_explanation, mutation: amount_unknown, mode: general_education_no_personal_amount}
+      back: {operation: history_back, allowed_predecessors: [fact_contributed_amount]}
+      open_safe_exit: {overlay: safe_exit}
+    forbidden: [infer_zero, commit_partial_subtotal, personal_estimate, import_or_scan_cta, dead_provider_link]
+  fact_canton_boundary:
+    reference_copy_fr:
+      title: Ton total ordinaire pour {taxYear} est prêt.
+      body: Aucun résultat fiscal n’est encore calculé. L’étape suivante demandera ton canton.
+      back: Corriger mes montants
+    forbidden: [display_deductible_amount, remaining_room, tax_saving, provider_recommendation]
+    controls:
+      back: {to: fact_contributed_amount, restores_rows_and_complete_confirmation: true}
+
+input_contract:
+  empty_default: true
+  parser_output: integer_minor_units
+  accepted_decimal_separators_for_all_six_locales: [comma, point]
+  accepted_grouping_on_paste: [space, non_breaking_space, apostrophe, typographic_apostrophe]
+  comma_or_point_with_three_trailing_digits: reject_as_ambiguous_not_grouping
+  apostrophe_or_space_grouping_with_optional_single_decimal_separator: accepted
+  ambiguous_or_mixed_separators: reject_without_mutation
+  maximum_fraction_digits: 2
+  no_fraction: accepted_as_whole_chf
+  forbidden_tokens: [minus_sign, plus_sign, exponent, percent, NaN, Infinity, currency_other_than_CHF]
+  no_silent_rounding_truncation_clamping_or_fx: true
+  raw_text_preserved_on_error: true
+  format_after_blur_only: true
+  keyboard_done_does_not_commit_or_route: true
+  explicit_continue_required: true
+  amount_logging_analytics_and_crash_breadcrumbs: forbidden
+
+interaction_contract:
+  initial_rows: one_empty_row
+  continue_with_incomplete_state: stay_and_focus_first_error
+  repeated_continue: idempotent_single_commit
+  back_from_amount: fact_contribution_with_yes_visible
+  back_from_help: amount_builder_with_drafts_visible
+  back_from_canton_boundary: amount_builder_with_rows_and_confirmation_visible
+  resume: preserve_node_scroll_disclosure_focus_rows_and_ephemeral_facts
+  leave_without_saving: clear_status_rows_total_completeness_and_all_prior_ephemeral_facts
+  app_kill_or_ttl_expiry: restart_and_clear
+  tax_year_rollover: return_to_tax_year_and_clear_year_scoped_facts_before_render
+  status_change_to_no_or_unknown: clear_rows_total_completeness_and_downstream_result_atomically
+
+accessibility_contract:
+  amount_row_role: named_group
+  row_label_includes_index_and_selected_year: true
+  input_label_unique: true
+  error_relation: field_described_by_error_and_polite_announcement
+  running_total: polite_live_region_debounced
+  add_row_focus: new_row_heading_then_input
+  remove_row_focus: adjacent_row_or_add_button_with_removal_announcement
+  completeness_control: checkbox_with_selected_year
+  minimum_touch_target: 48x48_logical_pixels
+  focus_on_route: first_semantic_heading
+  visual_and_keyboard_order_identical: true
+  no_color_only_state: true
+  text_scale_proof: 320x700_at_2x
+  safe_exit_focus_trap_and_restore: inherited_from_accepted_batch10
+  reduced_motion: true
+
+content_boundaries:
+  no_ceiling_remaining_room_tax_saving_or_deduction: true
+  no_calculation_engine_or_personal_result: true
+  no_provider_recommendation_or_financial_advice: true
+  no_document_scan_upload_ocr_or_provider_api: true
+  no_persistence_account_or_cross_device_resume: true
+  no_product_integration_or_mobile_runtime: true
+  no_retroactive_buyback_amount: true
+  no_tax_declaration_rounding: true
+
+implementation_slices_after_written_acceptance:
+  - single_provider_positive_amount_unknown_help_and_boundaries
+  - additional_provider_rows_local_exact_sum_and_completeness
+  - six_locale_copy_accessibility_and_real_runtime_proof
+
+exit_gate:
+  required: [exact_contract_guard, official_source_receipt, legacy_inventory, hostile_mutation_tests, ux_roast, swiss_compliance_roast, adversarial_roast]
+  accepted_only_if: deterministic_proofs_pass_and_p1_zero_and_p2_zero
+  user_test_required_for_this_batch: false
+  runtime_required_for_this_batch: false
+  next_gate: isolated_single_provider_runtime_only_after_written_contract_acceptance
