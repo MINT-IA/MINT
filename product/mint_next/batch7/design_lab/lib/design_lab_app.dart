@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 import 'l10n/generated/mint_next_localizations.dart';
 
@@ -112,7 +113,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentYear != widget.currentYear) {
       _clearEphemeralFacts();
-      _node = _DesignNode.today3aIntent;
+      _node = _DesignNode.factTaxYear;
     }
   }
 
@@ -315,6 +316,7 @@ class _Header extends StatelessWidget {
           Expanded(
             child: Semantics(
               label: l10n.brand,
+              sortKey: const OrdinalSortKey(0),
               child: ExcludeSemantics(
                 child: Text(
                   largeText ? 'm.' : l10n.brand,
@@ -330,15 +332,18 @@ class _Header extends StatelessWidget {
             ),
           ),
           if (largeText)
-            IconButton(
-              key: ValueKey('action:$nodeId.open_safe_exit'),
-              focusNode: exitFocusNode,
-              tooltip: l10n.quitJourney,
-              onPressed: onExit,
-              icon: const ExcludeSemantics(
-                child: Text(
-                  '×',
-                  style: TextStyle(fontFamily: 'Supreme', fontSize: 28),
+            Semantics(
+              sortKey: const OrdinalSortKey(1),
+              child: IconButton(
+                key: ValueKey('action:$nodeId.open_safe_exit'),
+                focusNode: exitFocusNode,
+                tooltip: l10n.quitJourney,
+                onPressed: onExit,
+                icon: const ExcludeSemantics(
+                  child: Text(
+                    '×',
+                    style: TextStyle(fontFamily: 'Supreme', fontSize: 28),
+                  ),
                 ),
               ),
             )
@@ -347,6 +352,7 @@ class _Header extends StatelessWidget {
               key: ValueKey('action:$nodeId.open_safe_exit'),
               label: l10n.quit,
               semanticsLabel: l10n.quitJourney,
+              semanticsSortKey: const OrdinalSortKey(1),
               focusNode: exitFocusNode,
               onPressed: onExit,
               compact: true,
@@ -696,7 +702,9 @@ class _UnavailableReference extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
+    container: true,
     enabled: false,
+    readOnly: true,
     label: '$label. $unavailable',
     excludeSemantics: true,
     child: Container(
@@ -1077,53 +1085,62 @@ class _PageState extends State<_Page> {
     return Column(
       children: [
         Expanded(
-          child: Scrollbar(
-            controller: _scrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              key: ValueKey('scroll:${widget.nodeId}'),
+          child: Semantics(
+            container: true,
+            sortKey: const OrdinalSortKey(2),
+            child: Scrollbar(
               controller: _scrollController,
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    widget.eyebrow,
-                    style: const TextStyle(
-                      fontFamily: 'Supreme',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.3,
-                      color: _coral,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-                  Focus(
-                    key: ValueKey('heading:${widget.nodeId}'),
-                    focusNode: _headingFocus,
-                    child: Semantics(
-                      header: true,
-                      liveRegion: true,
-                      child: Text(
-                        widget.title,
-                        style: _editorial(largeText ? 28 : 38),
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                key: ValueKey('scroll:${widget.nodeId}'),
+                controller: _scrollController,
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      widget.eyebrow,
+                      style: const TextStyle(
+                        fontFamily: 'Supreme',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.3,
+                        color: _coral,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 18),
-                  Text(
-                    widget.body,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 32),
-                  widget.accent,
-                  if (largeText) ...[const SizedBox(height: 24), actionPanel],
-                ],
+                    const SizedBox(height: 18),
+                    Focus(
+                      key: ValueKey('heading:${widget.nodeId}'),
+                      focusNode: _headingFocus,
+                      child: Semantics(
+                        header: true,
+                        liveRegion: true,
+                        child: Text(
+                          widget.title,
+                          style: _editorial(largeText ? 28 : 38),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      widget.body,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 32),
+                    widget.accent,
+                    if (largeText) ...[const SizedBox(height: 24), actionPanel],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-        if (!largeText) actionPanel,
+        if (!largeText)
+          Semantics(
+            container: true,
+            sortKey: const OrdinalSortKey(3),
+            child: actionPanel,
+          ),
       ],
     );
   }
@@ -1314,6 +1331,7 @@ class MintDesignLabAction extends StatelessWidget {
     required this.onPressed,
     this.compact = false,
     this.semanticsLabel,
+    this.semanticsSortKey,
     this.focusNode,
   }) : tone = MintActionTone.primary;
   const MintDesignLabAction.secondary({
@@ -1322,6 +1340,7 @@ class MintDesignLabAction extends StatelessWidget {
     required this.onPressed,
     this.compact = false,
     this.semanticsLabel,
+    this.semanticsSortKey,
     this.focusNode,
   }) : tone = MintActionTone.secondary;
   const MintDesignLabAction.text({
@@ -1330,6 +1349,7 @@ class MintDesignLabAction extends StatelessWidget {
     required this.onPressed,
     this.compact = false,
     this.semanticsLabel,
+    this.semanticsSortKey,
     this.focusNode,
   }) : tone = MintActionTone.text;
 
@@ -1337,6 +1357,7 @@ class MintDesignLabAction extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool compact;
   final String? semanticsLabel;
+  final SemanticsSortKey? semanticsSortKey;
   final FocusNode? focusNode;
   final MintActionTone tone;
 
@@ -1362,7 +1383,7 @@ class MintDesignLabAction extends StatelessWidget {
     );
     final button = switch (tone) {
       MintActionTone.primary => FilledButton(
-        focusNode: focusNode,
+        focusNode: semanticsLabel == null ? focusNode : null,
         style: style.copyWith(
           backgroundColor: const WidgetStatePropertyAll(_ink),
           foregroundColor: const WidgetStatePropertyAll(Colors.white),
@@ -1371,7 +1392,7 @@ class MintDesignLabAction extends StatelessWidget {
         child: Text(label),
       ),
       MintActionTone.secondary => OutlinedButton(
-        focusNode: focusNode,
+        focusNode: semanticsLabel == null ? focusNode : null,
         style: style.copyWith(
           foregroundColor: const WidgetStatePropertyAll(_ink),
           side: const WidgetStatePropertyAll(BorderSide(color: _ink)),
@@ -1380,7 +1401,7 @@ class MintDesignLabAction extends StatelessWidget {
         child: Text(label),
       ),
       MintActionTone.text => TextButton(
-        focusNode: focusNode,
+        focusNode: semanticsLabel == null ? focusNode : null,
         style: style.copyWith(
           foregroundColor: const WidgetStatePropertyAll(_secondaryInk),
         ),
@@ -1389,13 +1410,17 @@ class MintDesignLabAction extends StatelessWidget {
       ),
     };
     if (semanticsLabel == null) return button;
-    return Semantics(
-      label: semanticsLabel,
-      button: true,
-      enabled: onPressed != null,
-      onTap: onPressed,
-      excludeSemantics: true,
-      child: button,
+    return Focus(
+      focusNode: focusNode,
+      child: Semantics(
+        label: semanticsLabel,
+        sortKey: semanticsSortKey,
+        button: true,
+        enabled: onPressed != null,
+        onTap: onPressed,
+        excludeSemantics: true,
+        child: button,
+      ),
     );
   }
 }

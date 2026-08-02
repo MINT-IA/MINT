@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import os
+import re
 import subprocess
 import sys
 import threading
@@ -20,8 +22,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from mint_next_batch3_runtime_probe import Target, check, chrome  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
-LAB = ROOT / "product/mint_next/batch7/design_lab"
+LAB = Path(
+    os.environ.get(
+        "MINT_BATCH10_LAB",
+        ROOT / "product/mint_next/batch7/design_lab",
+    )
+).resolve()
 CAPTURES = ROOT / "product/mint_next/batch10/evidence/runtime"
+FORBIDDEN_PERSONAL_CLAIMS = (
+    "Tu économiseras",
+    "tu économiseras",
+    "Tu gagneras",
+    "tu gagneras",
+    "marge 3a restante",
+    "recommandons",
+    "garanti",
+)
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -42,7 +58,7 @@ def screenshot(browser: Target, path: Path) -> None:
         "Page.captureScreenshot",
         {
             "format": "png",
-            "captureBeyondViewport": True,
+            "captureBeyondViewport": False,
             "clip": {"x": 0, "y": 0, "width": 390, "height": 844, "scale": 1},
         },
     )
@@ -76,19 +92,118 @@ def text(browser: Target) -> str:
     return str(browser.js("document.body.innerText"))
 
 
-def scroll_text_into_view(browser: Target, fragment: str) -> None:
-    encoded = json.dumps(fragment)
-    expression = (
-        "[...document.querySelectorAll('flt-semantics')]"
-        f".filter(e=>e.innerText.includes({encoded}))"
-        ".sort((a,b)=>a.innerText.length-b.innerText.length)[0]"
+def ax_nodes(browser: Target) -> list[dict[str, object]]:
+    return list(browser.call("Accessibility.getFullAXTree").get("nodes", []))
+
+
+def ax_name(node: dict[str, object]) -> str:
+    return str(dict(node.get("name", {})).get("value", ""))
+
+
+def ax_role(node: dict[str, object]) -> str:
+    return str(dict(node.get("role", {})).get("value", ""))
+
+
+def ax_focused_name(browser: Target) -> str:
+    for node in ax_nodes(browser):
+        properties = {
+            str(item.get("name")): dict(item.get("value", {})).get("value")
+            for item in node.get("properties", [])
+        }
+        if properties.get("focused") is True and ax_role(node) != "RootWebArea":
+            return ax_name(node)
+    return ""
+
+
+def ax_reading_names(browser: Target) -> list[str]:
+    nodes = ax_nodes(browser)
+    by_id = {str(node.get("nodeId")): node for node in nodes}
+    names: list[str] = []
+
+    def visit(node_id: str) -> None:
+        node = by_id[node_id]
+        name = ax_name(node)
+        if name:
+            names.append(name)
+        for child_id in node.get("childIds", []):
+            child = str(child_id)
+            if child in by_id:
+                visit(child)
+
+    if nodes:
+        visit(str(nodes[0].get("nodeId")))
+    return names
+
+
+def assert_question_accessibility(browser: Target, year: int) -> None:
+    names = ax_reading_names(browser)
+    expected = [
+        "MINT",
+        "Quitter ce parcours",
+        f"En {year}, l’un de tes 3a a-t-il reçu un nouveau versement ?",
+        "Ce qui compte — et ce qui ne compte pas",
+        "Oui, un nouveau versement a été reçu",
+        "Non, aucun nouveau versement",
+        "Je ne sais pas",
+        "Retour",
+    ]
+    positions = []
+    for label in expected:
+        check(label in names, f"AX tree exposes {label}")
+        positions.append(names.index(label))
+    check(positions == sorted(positions), f"AX reading order follows written contract: {positions}")
+    check(
+        ax_focused_name(browser) == expected[2],
+        "route change moves real Chrome AX focus to question heading",
     )
-    check(browser.js(f"!!({expression})"), f"semantic text to scroll: {fragment}")
-    browser.js(f"({expression}).scrollIntoView({{block:'center'}})")
-    browser.js("new Promise(resolve=>setTimeout(resolve,250))")
 
 
-def reach_contribution(browser: Target, url: str) -> int:
+def assert_safe_exit_keyboard(browser: Target, year: int) -> None:
+    click_label(browser, "Quitter ce parcours")
+    modal_names = [ax_name(node) for node in ax_nodes(browser)]
+    check("Tu veux t’arrêter ici ?" in modal_names, "safe exit heading in AX tree")
+    check(
+        f"En {year}, l’un de tes 3a a-t-il reçu un nouveau versement ?" not in modal_names,
+        "safe exit isolates the background AX tree",
+    )
+    check(
+        ax_focused_name(browser) == "Tu veux t’arrêter ici ?",
+        "safe exit gives real Chrome AX focus to its heading",
+    )
+    allowed = {
+        "Tu veux t’arrêter ici ?",
+        "Continuer ici",
+        "Quitter sans enregistrer",
+        "Fond",
+        "",
+    }
+    for _ in range(10):
+        browser.key("Tab")
+        browser.js("new Promise(resolve=>requestAnimationFrame(resolve))")
+        focused = ax_focused_name(browser)
+        check(focused in allowed, f"safe exit focus remains trapped: {focused!r}")
+    browser.key("Escape")
+    browser.js("new Promise(resolve=>setTimeout(resolve,300))")
+    check("Tu veux t’arrêter ici ?" not in text(browser), "Escape dismisses safe exit")
+    check(
+        ax_focused_name(browser) == "Quitter ce parcours",
+        "Escape returns real Chrome AX focus to the trigger",
+    )
+
+
+def assert_no_personal_result(browser: Target, state: str) -> None:
+    body = text(browser)
+    check(
+        not any(fragment in body for fragment in FORBIDDEN_PERSONAL_CLAIMS),
+        f"{state} has no personal promise or recommendation",
+    )
+    check(
+        re.search(r"(?:CHF|Fr\.)\s*[0-9]|[0-9]+(?:[.,][0-9]+)?\s*%", body) is None,
+        f"{state} has no amount, threshold or percentage",
+    )
+
+
+def reach_lpp(browser: Target, url: str) -> int:
     browser.navigate(url)
     enable_semantics(browser)
     click_label(browser, "Comprendre")
@@ -96,6 +211,12 @@ def reach_contribution(browser: Target, url: str) -> int:
     year = datetime.now(ZoneInfo("Europe/Zurich")).year
     click_label(browser, f"Année en cours : {year}")
     click_label(browser, "Continuer")
+    check("As-tu actuellement une caisse de pension ?" in text(browser), "LPP question reached")
+    return year
+
+
+def reach_contribution(browser: Target, url: str) -> int:
+    year = reach_lpp(browser, url)
     click_label(browser, "Oui")
     check(
         f"En {year}, l’un de tes 3a a-t-il reçu un nouveau versement ?" in text(browser),
@@ -138,7 +259,25 @@ def run(capture: bool) -> None:
             "Emulation.setDeviceMetricsOverride",
             {"width": 390, "height": 844, "deviceScaleFactor": 1, "mobile": True},
         )
+        year = reach_lpp(browser, url)
+        click_label(browser, "Je ne sais pas")
+        body = text(browser)
+        check("Tu peux le vérifier sans deviner." in body, "LPP unknown help remains live")
+        check("Bientôt disponible" in body, "LPP unknown local reference remains explicit")
+        click_label(browser, "Revenir à la question")
+        check(selected(browser, "Je ne sais pas"), "LPP unknown selection restored on Back")
+
+        reach_lpp(browser, url)
+        click_label(browser, "Non")
+        check(
+            "ne signifie pas que tu n’as pas droit au 3a" in text(browser),
+            "LPP no boundary remains honest",
+        )
+        click_label(browser, "Corriger ma réponse")
+        check(selected(browser, "Non"), "LPP no selection restored on Back")
+
         year = reach_contribution(browser, url)
+        assert_question_accessibility(browser, year)
         body = text(browser)
         check(
             all(
@@ -151,6 +290,7 @@ def run(capture: bool) -> None:
             ),
             "three visible contribution choices",
         )
+        assert_no_personal_result(browser, "question")
         check("transfert, un rendement ou un remboursement de frais" in body, "always-visible exclusions")
         check(not any(token in body for token in ("CHF", "%", "7’", "36’")), "question has no amount or threshold")
         if capture:
@@ -171,14 +311,42 @@ def run(capture: bool) -> None:
             ),
             "same-node disclosure classifies neighboring movements",
         )
+        assert_no_personal_result(browser, "disclosure")
         if capture:
-            scroll_text_into_view(browser, "rendements ou les intérêts")
+            browser.call(
+                "Input.dispatchTouchEvent",
+                {
+                    "type": "touchStart",
+                    "touchPoints": [{"x": 195, "y": 520}],
+                },
+            )
+            for y in (480, 440, 400, 360, 320, 280, 240, 200, 160, 120):
+                time.sleep(0.04)
+                browser.call(
+                    "Input.dispatchTouchEvent",
+                    {
+                        "type": "touchMove",
+                        "touchPoints": [{"x": 195, "y": y}],
+                    },
+                )
+            time.sleep(0.04)
+            browser.call(
+                "Input.dispatchTouchEvent",
+                {"type": "touchEnd", "touchPoints": []},
+            )
+            browser.js("new Promise(resolve=>setTimeout(resolve,250))")
+            check(
+                "Quitter ce parcours" in text(browser)
+                and "Je ne sais pas" in text(browser),
+                "disclosure keeps a semantic exit and answer path",
+            )
             screenshot(browser, CAPTURES / "fr_contribution_disclosure_chrome_390.png")
 
         click_label(browser, "Je ne sais pas")
         body = text(browser)
         check("Tu peux vérifier sans additionner toi-même." in body, "unknown help reached")
         check("N’additionne jamais un transfert" in body, "unknown help prevents double counting")
+        assert_no_personal_result(browser, "unknown help")
         if capture:
             screenshot(browser, CAPTURES / "fr_contribution_unknown_chrome_390.png")
         click_label(browser, "Revenir à la question")
@@ -188,6 +356,7 @@ def run(capture: bool) -> None:
         click_label(browser, "Non, aucun nouveau versement")
         body = text(browser)
         check("Aucun résultat fiscal n’est encore calculé" in body, "no boundary remains calculation-free")
+        assert_no_personal_result(browser, "no boundary")
         if capture:
             screenshot(browser, CAPTURES / "fr_contribution_no_boundary_chrome_390.png")
         click_label(browser, "Corriger ma réponse")
@@ -196,11 +365,13 @@ def run(capture: bool) -> None:
         click_label(browser, "Oui, un nouveau versement a été reçu")
         body = text(browser)
         check("aucun montant n’est connu ni calculé" in body, "yes boundary does not invent an amount")
+        assert_no_personal_result(browser, "yes boundary")
         if capture:
             screenshot(browser, CAPTURES / "fr_contribution_yes_boundary_chrome_390.png")
         click_label(browser, "Corriger ma réponse")
         check(selected(browser, "Oui, un nouveau versement a été reçu"), "yes selection restored on Back")
 
+        assert_safe_exit_keyboard(browser, year)
         click_label(browser, "Quitter ce parcours")
         check("Tu veux t’arrêter ici ?" in text(browser), "safe exit opened")
         click_label(browser, "Continuer ici")
@@ -228,7 +399,7 @@ def run(capture: bool) -> None:
             f"runtime has no external network resource: {resources}",
         )
         print(
-            "OK mint_next_batch10_contribution_runtime_probe: real Chrome traversed contribution yes/no/unknown, disclosure, Back, safe-exit Resume/purge and honest boundaries."
+            "OK mint_next_batch10_contribution_runtime_probe: real Chrome traversed contribution yes/no/unknown, disclosure, Back, honest boundaries, AX reading/focus order, modal isolation, keyboard trap, Escape focus return and safe-exit Resume/purge."
         )
     finally:
         browser.close()

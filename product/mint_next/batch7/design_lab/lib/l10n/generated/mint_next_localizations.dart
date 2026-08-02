@@ -550,7 +550,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @contributionUnknownBody.
   ///
   /// In fr, this message translates to:
-  /// **'Cherche si une cotisation ordinaire a été reçue pour {taxYear} sur chacun de tes 3a. Si un transfert, un rachat ou un remboursement rend la réponse incertaine, garde « Je ne sais pas ».'**
+  /// **'Cherche si une cotisation ordinaire a été créditée pour {taxYear} sur chacun de tes 3a. Si un transfert, un rachat ou un remboursement rend la réponse incertaine, garde « Je ne sais pas ».'**
   String contributionUnknownBody(int taxYear);
 
   /// No description provided for @contributionUnknownListLabel.
@@ -568,7 +568,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @contributionUnknownInsuranceCertificate.
   ///
   /// In fr, this message translates to:
-  /// **'Pour une assurance 3a, regarde l’attestation annuelle ou demande quelle cotisation ordinaire a été reçue.'**
+  /// **'Pour une assurance 3a, regarde l’attestation annuelle ou demande quelle cotisation ordinaire a été créditée.'**
   String get contributionUnknownInsuranceCertificate;
 
   /// No description provided for @contributionUnknownProviderQuestion.
@@ -604,7 +604,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @contributionAmountBoundaryTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ensuite, MINT demandera le total ordinaire déjà reçu pour {taxYear}.'**
+  /// **'Ensuite, MINT demandera le total ordinaire déjà crédité pour {taxYear}.'**
   String contributionAmountBoundaryTitle(int taxYear);
 
   /// No description provided for @contributionAmountBoundaryBody.

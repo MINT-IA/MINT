@@ -272,7 +272,7 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String contributionUnknownBody(int taxYear) {
-    return 'Cherche si une cotisation ordinaire a été reçue pour $taxYear sur chacun de tes 3a. Si un transfert, un rachat ou un remboursement rend la réponse incertaine, garde « Je ne sais pas ».';
+    return 'Cherche si une cotisation ordinaire a été créditée pour $taxYear sur chacun de tes 3a. Si un transfert, un rachat ou un remboursement rend la réponse incertaine, garde « Je ne sais pas ».';
   }
 
   @override
@@ -285,7 +285,7 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String get contributionUnknownInsuranceCertificate =>
-      'Pour une assurance 3a, regarde l’attestation annuelle ou demande quelle cotisation ordinaire a été reçue.';
+      'Pour une assurance 3a, regarde l’attestation annuelle ou demande quelle cotisation ordinaire a été créditée.';
 
   @override
   String get contributionUnknownProviderQuestion =>
@@ -308,7 +308,7 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String contributionAmountBoundaryTitle(int taxYear) {
-    return 'Ensuite, MINT demandera le total ordinaire déjà reçu pour $taxYear.';
+    return 'Ensuite, MINT demandera le total ordinaire déjà crédité pour $taxYear.';
   }
 
   @override

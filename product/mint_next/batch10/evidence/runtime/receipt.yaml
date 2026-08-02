@@ -1,6 +1,6 @@
 schema_version: 1
-status: candidate_runtime_evidence_not_promotion
-captured_at: '2026-08-02T22:55:00+02:00'
+status: corrected_candidate_runtime_evidence_not_promotion
+captured_at: '2026-08-02T23:24:49+02:00'
 runner: local_real_chrome_cdp_flutter_web_release
 viewport:
   width: 390
@@ -8,26 +8,34 @@ viewport:
   device_scale_factor: 1
 app:
   path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
-  sha256: 304baea8a795861ac2e1da6244c605600a74707f0726b25b1e813025efed8777
+  sha256: 15a1ed8cc0954df780d867f565e889fd4b000fcb87cf766723eb82a2fac67648
 probe:
   path: tools/checks/mint_next_batch10_contribution_runtime_probe.py
-  sha256: 013cc60a2ed1a9afd8a950b46c71f8b98611990884e16f71cecaa7783297169f
+  sha256: d6eb922e60b0172f7bc7a9543caf4e5e28648cca1f7a513387333f7580208157
 commands:
 - flutter analyze
 - flutter test
 - python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py --capture
 assertions:
+- lpp_unknown_no_and_back_live_coverage_carried_forward
 - question_has_no_default_or_personal_amount
 - yes_no_unknown_physical_routes
 - back_restores_selection
+- tax_year_rollover_returns_to_tax_year_and_purges_year_facts
 - same_node_disclosure_classifies_neighboring_movements
 - unknown_continues_education_only
+- all_rendered_boundaries_reject_personal_promises_amounts_thresholds_and_percentages
+- real_chrome_ax_reading_order_matches_written_contract
+- real_chrome_ax_focus_moves_to_route_heading
+- safe_exit_ax_background_isolation_keyboard_trap_escape_and_focus_return
 - safe_exit_resume_preserves_state
 - leave_without_saving_purges_all_ephemeral_facts
+- flutter_320x700_text_scale_2_all_routes_and_safe_exit
+- flutter_reduced_motion_zeroes_page_and_selection_animations
 - real_runtime_has_no_external_https_resource
 captures:
 - path: product/mint_next/batch10/evidence/runtime/fr_contribution_disclosure_chrome_390.png
-  sha256: f1b18999544de8d42ad20963c8ddabf459d7516feba1b21bfb49747d2008f07f
+  sha256: d1f54348732bdfcceddd5a28e5d23ccd4d0c350aec105ebac890ddce9950c331
   width: 390
   height: 844
 - path: product/mint_next/batch10/evidence/runtime/fr_contribution_no_boundary_chrome_390.png
@@ -39,15 +47,15 @@ captures:
   width: 390
   height: 844
 - path: product/mint_next/batch10/evidence/runtime/fr_contribution_unknown_chrome_390.png
-  sha256: 235339531764b374f10d7deed07f89ff941d1ba86dd093c5dea2a95c604c66cf
+  sha256: 3807e1b956ca31b7ca9f718d6ee824900a20244207f8306cf8ee97c3b6e84f9c
   width: 390
   height: 844
 - path: product/mint_next/batch10/evidence/runtime/fr_contribution_yes_boundary_chrome_390.png
-  sha256: 76482e1525891569ba35dae942e539ed6db9673f2f36f1e2a9b93c31e2ff6a2c
+  sha256: 8178ea797b627aa1cbbecf625be4421c9fe7c2d4dc973670601dd5a072fc3826
   width: 390
   height: 844
 limitations:
-- candidate_not_yet_roasted
+- corrected_candidate_not_yet_reroasted
 - not_product_integrated
 - ios_not_run
 - android_not_run

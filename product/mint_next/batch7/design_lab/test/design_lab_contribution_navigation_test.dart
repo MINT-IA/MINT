@@ -1,6 +1,7 @@
 import 'dart:ui' show SemanticsAction, Tristate;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_next_design_lab/design_lab_app.dart';
 
@@ -288,7 +289,7 @@ void main() {
     expect(action.focusNode?.hasFocus, isTrue);
   });
 
-  testWidgets('year rollover clears year-scoped contribution state', (
+  testWidgets('year rollover returns to tax year and clears scoped facts', (
     tester,
   ) async {
     await openContributionQuestion(tester, currentYear: 2026);
@@ -301,7 +302,11 @@ void main() {
       const MintNextDesignLabApp(locale: Locale('fr'), currentYear: 2027),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:today_3a_intent')), findsOneWidget);
+    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('action:fact_tax_year.continue')),
+      findsNothing,
+    );
     expect(find.textContaining('2026'), findsNothing);
   });
 
@@ -320,6 +325,8 @@ void main() {
     );
     for (final action in [
       'action:fact_contribution.toggle_edge_help',
+      'action:fact_contribution.open_safe_exit',
+      'overlay-action:safe_exit.resume',
       'action:fact_contribution.choose_unknown',
       'action:contribution_unknown_help.continue_education_only',
       'action:education_explanation.back',
@@ -335,5 +342,55 @@ void main() {
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     }
+  });
+
+  testWidgets('safe exit traps focus and Escape dismisses without mutation', (
+    tester,
+  ) async {
+    await openContributionQuestion(tester, currentYear: 2026);
+    await tester.tap(
+      find.byKey(const ValueKey('action:fact_contribution.choose_yes')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(
+        const ValueKey('action:fact_contributed_amount.open_safe_exit'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final overlay = find.byKey(const ValueKey('overlay:safe_exit'));
+    expect(overlay, findsOneWidget);
+    for (var index = 0; index < 8; index += 1) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      final focused = FocusManager.instance.primaryFocus?.context;
+      expect(focused, isNotNull);
+      expect(
+        find.descendant(
+          of: overlay,
+          matching: find.byElementPredicate(
+            (element) => identical(element, focused),
+          ),
+        ),
+        findsOneWidget,
+      );
+    }
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(overlay, findsNothing);
+    expect(
+      find.byKey(const ValueKey('node:fact_contributed_amount')),
+      findsOneWidget,
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('action:fact_contributed_amount.back')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      selectedState(tester, 'action:fact_contribution.choose_yes'),
+      Tristate.isTrue,
+    );
   });
 }

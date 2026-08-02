@@ -237,7 +237,7 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
 
   @override
   String get contributionEdgeBuyback =>
-      'Mantén separada una recompra retroactiva para un año anterior.';
+      'Mantén separada una aportación retroactiva para cubrir una laguna de un año anterior.';
 
   @override
   String get contributionEdgeFullRefund =>
@@ -272,7 +272,7 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
 
   @override
   String contributionUnknownBody(int taxYear) {
-    return 'Comprueba en cada uno de tus 3a si se recibió una aportación ordinaria para $taxYear. Si una transferencia, recompra o devolución hace dudosa la respuesta, mantén «No lo sé».';
+    return 'Comprueba en cada uno de tus 3a si se recibió una aportación ordinaria para $taxYear. Si una transferencia, una aportación retroactiva para cubrir una laguna de un año anterior o una devolución hace dudosa la respuesta, mantén «No lo sé».';
   }
 
   @override
@@ -289,7 +289,7 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
 
   @override
   String get contributionUnknownProviderQuestion =>
-      'En caso de duda, pregunta a la entidad si el movimiento es una aportación ordinaria, transferencia, recompra o devolución.';
+      'En caso de duda, pregunta a la entidad si el movimiento es una aportación ordinaria, una transferencia, una aportación retroactiva para cubrir una laguna de un año anterior o una devolución.';
 
   @override
   String get contributionUnknownTransferWarning =>

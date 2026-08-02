@@ -238,7 +238,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get contributionEdgeBuyback =>
-      'Keep a retroactive buyback for a past year separate.';
+      'Keep a retroactive/catch-up contribution for a past year separate.';
 
   @override
   String get contributionEdgeFullRefund =>
@@ -273,7 +273,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String contributionUnknownBody(int taxYear) {
-    return 'Check whether an ordinary contribution was received for $taxYear on each of your pillar 3a accounts. If a transfer, buyback or refund makes the answer unclear, keep “I don’t know”.';
+    return 'Check whether an ordinary contribution was received for $taxYear on each of your pillar 3a accounts. If a transfer, retroactive/catch-up contribution for a past year, or refund makes the answer unclear, keep “I don’t know”.';
   }
 
   @override
@@ -290,7 +290,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get contributionUnknownProviderQuestion =>
-      'If unsure, ask the provider whether the movement is an ordinary contribution, transfer, buyback or refund.';
+      'If unsure, ask the provider whether the movement is an ordinary contribution, transfer, retroactive/catch-up contribution for a past year, or refund.';
 
   @override
   String get contributionUnknownTransferWarning =>
