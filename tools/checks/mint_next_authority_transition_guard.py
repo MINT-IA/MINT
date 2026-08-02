@@ -15,7 +15,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set
+from typing import Dict, List, Mapping, Optional, Sequence, Set
 
 import yaml
 
@@ -71,15 +71,37 @@ PROTECTED_EVIDENCE_PREFIXES = (
     "tools/simulator/flows/",
 )
 
+ALLOWED_TRANSITION_PATHS = frozenset(
+    {
+        ".planning/ACTIVE_CONTEXT.json",
+        ".planning/ACTIVE_CONTEXT.md",
+        ".planning/STATE.md",
+        ".planning/ROADMAP.md",
+        ".planning/INDEX.md",
+        f"{NEW_PHASE_DIR}/CONTEXT.md",
+        f"{NEW_PHASE_DIR}/SPEC.md",
+        f"{NEW_PHASE_DIR}/PLAN.md",
+        f"{NEW_PHASE_DIR}/VERIFICATION.md",
+        "product/mint_next/batch4/architecture_conflicts.yaml",
+        "product/mint_next/batch4/source-inventory.yaml",
+        "tools/checks/journey_os_check.py",
+        "tools/checks/mint_next_authority_transition_guard.py",
+        "tools/checks/tests/test_mint_next_authority_transition_guard.py",
+    }
+)
+
 
 @dataclass(frozen=True)
 class TransitionPolicy:
     baseline_ref: str = DEFAULT_BASELINE_REF
     legacy_manifest: Mapping[str, str] = None  # type: ignore[assignment]
+    allowed_transition_paths: Set[str] = None  # type: ignore[assignment]
 
     def __post_init__(self) -> None:
         if self.legacy_manifest is None:
             object.__setattr__(self, "legacy_manifest", LEGACY_RETIREMENT_MANIFEST)
+        if self.allowed_transition_paths is None:
+            object.__setattr__(self, "allowed_transition_paths", ALLOWED_TRANSITION_PATHS)
 
 
 def _sha256(path: Path) -> str:
@@ -318,6 +340,8 @@ def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str
     _check_legacy_manifest(root, policy.legacy_manifest, errors)
     changed = _changed_paths(root, policy.baseline_ref, errors)
     for path in sorted(changed):
+        if path not in policy.allowed_transition_paths:
+            errors.append(f"path outside governance transition allowlist changed: {path}")
         if path.startswith(PROTECTED_PRODUCT_PREFIXES):
             errors.append(f"product/runtime path changed during governance transition: {path}")
         if path.startswith(PROTECTED_EVIDENCE_PREFIXES):

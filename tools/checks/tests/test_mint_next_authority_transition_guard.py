@@ -4,6 +4,7 @@ import hashlib
 import json
 import subprocess
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -53,6 +54,22 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         ".planning/journeys/issues/JOS-001.json": "{}\n",
         ".planning/journeys/evidence/JOS-001.json": "{}\n",
         "tools/simulator/flows/existing.yaml": "appId: ch.mint\n",
+        "product/mint_next/batch4/batch.yaml": yaml.safe_dump(
+            {"schema_version": 1, "status": "draft_unproven", "promotion_receipt": None}
+        ),
+        "product/mint_next/batch4/architecture_conflicts.yaml": yaml.safe_dump(
+            {
+                "schema_version": 1,
+                "conflicts": [
+                    {
+                        "id": "retirement_first_active_context",
+                        "severity": "blocker",
+                        "status": "unresolved",
+                    }
+                ],
+            }
+        ),
+        "product/mint_next/batch4/source-inventory.yaml": "schema_version: 1\nsources: []\n",
     }
     for path, content in protected.items():
         _write(root, path, content)
@@ -88,11 +105,6 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         _write(root, path, f"{marker}\nGovernance-only authority; no successor product phase queued.\n")
     _write(root, f"{NEW_DIR}/CONTEXT.md", "governance-only transition\n")
     _write(root, f"{NEW_DIR}/SPEC.md", "governance-only spec\n")
-    _write(
-        root,
-        "product/mint_next/batch4/batch.yaml",
-        yaml.safe_dump({"schema_version": 1, "status": "draft_unproven", "promotion_receipt": None}),
-    )
     _write(
         root,
         "product/mint_next/batch4/architecture_conflicts.yaml",
@@ -214,6 +226,24 @@ def test_rejects_untracked_file_in_protected_surface(tmp_path: Path) -> None:
     assert any("product/runtime path changed" in error and "surprise.dart" in error for error in errors)
 
 
+def test_rejects_batch4_registry_content_mutation(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/concepts.yaml"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("concepts: []\n", encoding="utf-8")
+    errors = run_guard(root, policy)
+    assert any("outside governance transition allowlist" in error and "concepts.yaml" in error for error in errors)
+
+
+def test_rejects_arbitrary_batch4_file_and_unrelated_repo_file(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    _write(root, "product/mint_next/batch4/surprise.yaml", "claim: fake\n")
+    _write(root, "docs/unrelated.md", "scope drift\n")
+    errors = run_guard(root, policy)
+    assert any("outside governance transition allowlist" in error and "surprise.yaml" in error for error in errors)
+    assert any("outside governance transition allowlist" in error and "docs/unrelated.md" in error for error in errors)
+
+
 def test_rejects_unmanifested_file_in_legacy_vertical(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     _write(root, f"{OLD_DIR}/invented-receipt.md", "not audited\n")
@@ -268,4 +298,5 @@ def test_valid_future_promotion_receipt_passes(tmp_path: Path) -> None:
             }
         ),
     )
-    assert run_guard(root, policy) == []
+    promotion_policy = replace(policy, allowed_transition_paths=frozenset(changed))
+    assert run_guard(root, promotion_policy) == []
