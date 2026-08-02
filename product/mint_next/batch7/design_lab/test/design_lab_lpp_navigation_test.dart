@@ -57,7 +57,51 @@ void main() {
     expect(tester.takeException(), isNull);
     final back = find.byKey(const ValueKey('action:lpp_unknown_help.back'));
     await tester.ensureVisible(back);
-    expect(back, findsOneWidget);
+    await tester.tap(back);
+    await tester.pumpAndSettle();
+
+    for (final route in [
+      (
+        choice: 'action:fact_lpp_affiliation.choose_no',
+        node: 'node:without_lpp_boundary',
+        back: 'action:without_lpp_boundary.back',
+      ),
+      (
+        choice: 'action:fact_lpp_affiliation.choose_yes',
+        node: 'node:fact_contribution',
+        back: 'action:fact_contribution.back',
+      ),
+    ]) {
+      final choice = find.byKey(ValueKey(route.choice));
+      await tester.ensureVisible(choice);
+      await tester.tap(choice);
+      await tester.pumpAndSettle();
+      expect(find.byKey(ValueKey(route.node)), findsOneWidget);
+      final routeBack = find.byKey(ValueKey(route.back));
+      await tester.ensureVisible(routeBack);
+      await tester.tap(routeBack);
+      await tester.pumpAndSettle();
+    }
+
+    final exit = find.byKey(
+      const ValueKey('action:fact_lpp_affiliation.open_safe_exit'),
+    );
+    await tester.tap(exit);
+    await tester.pumpAndSettle();
+    final disabled = tester.getSemantics(
+      find.byKey(
+        const ValueKey('overlay-action:safe_exit.keep_local_reference'),
+      ),
+    );
+    expect(disabled.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
+    final leave = find.byKey(
+      const ValueKey('overlay-action:safe_exit.leave_without_saving'),
+    );
+    await tester.ensureVisible(leave);
+    await tester.tap(leave);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('node:dismissed')), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('tax year continues to the exact tri-state LPP question', (
@@ -184,4 +228,92 @@ void main() {
       );
     },
   );
+
+  testWidgets('safe exit resume preserves facts and leave purges them', (
+    tester,
+  ) async {
+    await openLppQuestion(tester);
+    await tester.tap(
+      find.byKey(const ValueKey('action:fact_lpp_affiliation.choose_unknown')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('action:lpp_unknown_help.open_safe_exit')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('overlay-action:safe_exit.resume')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('action:lpp_unknown_help.back')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .getSemantics(
+            find.byKey(
+              const ValueKey(
+                'action:fact_lpp_affiliation.choose_unknown',
+              ),
+            ),
+          )
+          .getSemanticsData()
+          .flagsCollection
+          .isSelected,
+      Tristate.isTrue,
+    );
+
+    await tester.tap(
+      find.byKey(
+        const ValueKey('action:fact_lpp_affiliation.open_safe_exit'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(
+        const ValueKey('overlay-action:safe_exit.leave_without_saving'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('node:dismissed')), findsOneWidget);
+    await tester.tap(
+      find.byKey(const ValueKey('action:dismissed.restart')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('action:today_3a_intent.start')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('action:orientation.continue')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('action:fact_tax_year.continue')),
+      findsNothing,
+    );
+    await tester.tap(
+      find.byKey(
+        const ValueKey('action:fact_tax_year.confirm_current_year'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('action:fact_tax_year.continue')),
+    );
+    await tester.pumpAndSettle();
+    for (final id in ['choose_yes', 'choose_no', 'choose_unknown']) {
+      expect(
+        tester
+            .getSemantics(
+              find.byKey(ValueKey('action:fact_lpp_affiliation.$id')),
+            )
+            .getSemanticsData()
+            .flagsCollection
+            .isSelected,
+        isNot(Tristate.isTrue),
+      );
+    }
+  });
 }

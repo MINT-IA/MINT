@@ -90,6 +90,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
 
   void _go(_DesignNode node) => setState(() => _node = node);
 
+  void _leaveWithoutSaving() {
+    setState(() {
+      _taxYear = null;
+      _lppAffiliation = null;
+      _node = _DesignNode.dismissed;
+    });
+  }
+
   String get _nodeId => switch (_node) {
     _DesignNode.today3aIntent => 'today_3a_intent',
     _DesignNode.orientation => 'orientation',
@@ -112,7 +120,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
         onResume: () => Navigator.pop(sheetContext),
         onLeave: () {
           Navigator.pop(sheetContext);
-          _go(_DesignNode.dismissed);
+          _leaveWithoutSaving();
         },
       ),
     );
@@ -869,6 +877,7 @@ class _Terminal extends StatelessWidget {
     accent: const _QuietOrb(),
     actions: [
       MintDesignLabAction(
+        key: const ValueKey('action:dismissed.restart'),
         label: MintNextLocalizations.of(context).start,
         onPressed: onRestart,
       ),
