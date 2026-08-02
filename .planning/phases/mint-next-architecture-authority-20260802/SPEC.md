@@ -7,8 +7,10 @@ draft and no product implementation is claimed.
 ## Promise
 
 Every agent can determine unambiguously that the governance-only authority
-transition was independently accepted, while the retirement-first phase and
-Journey OS runtime evidence remain intact. Batch 4 remains a draft candidate
+transition was accepted solely from reproducible deterministic Git evidence,
+while the retirement-first phase and Journey OS runtime evidence remain intact.
+Separate-context reports are untrusted advisory records, not authenticated or
+independent attestations. Batch 4 remains a draft candidate
 until its own separate audited architecture promotion, and no claim is made
 that MINT Next exists in the application.
 
@@ -44,6 +46,14 @@ that MINT Next exists in the application.
    diffs, and inconsistent planning pointers.
 12. A successor product vertical is not implied. It must receive a separate
     bounded phase contract and verification before implementation.
+13. Governance acceptance relies only on reproducible Git lineage, exact diff,
+    clean-clone rollback, guards, and tests. Advisory report identity,
+    independence, signature, and cryptographic provenance are explicitly not
+    claimed.
+14. External attestation and cross-provider review are both absent. A
+    cross-provider review adds diversity but does not establish cryptographic
+    identity. Batch 4 stays `draft_unproven` with a null receipt until a separate
+    promotion gate receives and verifies one of them within its honest scope.
 
 ## Forbidden Claims And Changes
 
@@ -57,6 +67,8 @@ that MINT Next exists in the application.
 - Any Flutter/backend/route/deployment change in this phase.
 - Any device or TestFlight proof attributed to this governance transition.
 - A hand-edited exception that lets router documents disagree.
+- An advisory agent report described as independent, authenticated, signed,
+  externally attested, or sufficient to accept governance or promote Batch 4.
 
 ## Acceptance Criteria
 
@@ -83,6 +95,9 @@ that MINT Next exists in the application.
   an earlier terminal SHA must not be presented as current-state proof.
 - `VERIFICATION.md` records fresh outputs against one exact commit before the
   phase is described as verified.
+- Separate-context advisory reports are labeled untrusted and excluded from the
+  acceptance basis; external attestation and cross-provider review are absent,
+  while the separate Batch 4 promotion gate remains pending.
 
 ```verify
 # tier: deterministic

@@ -14,6 +14,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Mapping, Optional, Sequence, Set
@@ -48,29 +49,29 @@ AUDITED_TRANSITION_MANIFEST: Dict[str, str] = {
 REQUIRED_ROASTS = {
     "authority_coherence": (
         "authority_roast_coherence",
-        "roast:authority-coherence:b88a42557",
+        "advisory:authority-coherence:b88a42557",
     ),
     "legacy_evidence_preservation": (
         "authority_roast_preservation",
-        "roast:legacy-preservation:b88a42557",
+        "advisory:legacy-preservation:b88a42557",
     ),
     "guard_hostile_mutation_quality": (
         "authority_roast_guard",
-        "roast:guard-hostile-mutations:b88a42557",
+        "advisory:guard-hostile-mutations:b88a42557",
     ),
 }
 ROAST_ARTIFACTS: Dict[str, Dict[str, str]] = {
     "authority_coherence": {
         "path": f"{NEW_PHASE_DIR}/evidence/authority-coherence-b88a42557.yaml",
-        "sha256": "b58330e8a4c1dbf72770ac81cb7cd41ccce687de0193c04800d5a0a2ecc29490",
+        "sha256": "54eec126429d6fc0c660745b001e8d746d24a9aa2f07385f25686ea4b19d4a42",
     },
     "legacy_evidence_preservation": {
         "path": f"{NEW_PHASE_DIR}/evidence/legacy-preservation-b88a42557.yaml",
-        "sha256": "5b7e057e38bbfc85dc67f94f3096bad4108d6a708559be0cc5b0979aee3b3d59",
+        "sha256": "037577798476278643f891c2628b9d48c86435dbd7644e83656ae75c52f03994",
     },
     "guard_hostile_mutation_quality": {
         "path": f"{NEW_PHASE_DIR}/evidence/guard-hostile-mutations-b88a42557.yaml",
-        "sha256": "57186a5a128fce4f7dc501cbf69892f06794c52eedd95d08b3cb05b403e16743",
+        "sha256": "820de160cf5bf1c0862817536a36445a9b785787e464c2d87147ad10d3825acf",
     },
 }
 
@@ -164,6 +165,7 @@ class TransitionPolicy:
     audited_transition_head: str = AUDITED_TRANSITION_HEAD
     audited_transition_manifest: Mapping[str, str] = None  # type: ignore[assignment]
     roast_artifacts: Mapping[str, Mapping[str, str]] = None  # type: ignore[assignment]
+    verify_rollback: bool = True
     legacy_manifest: Mapping[str, str] = None  # type: ignore[assignment]
     allowed_transition_paths: Set[str] = None  # type: ignore[assignment]
 
@@ -244,6 +246,38 @@ def _check_audited_transition_git(
         )
         if exact.returncode != 0 or hashlib.sha256(exact.stdout).hexdigest() != expected_hash:
             errors.append(f"audited transition manifest hash mismatch: {relative}")
+
+
+def _check_rollback_reproducible(
+    root: Path, baseline_ref: str, errors: List[str]
+) -> None:
+    """Prove the committed governance range can be reverse-applied exactly.
+
+    The disposable local clone avoids touching the caller's index/worktree. It
+    deliberately proves only the currently committed HEAD; dirty acceptance
+    metadata still requires a fresh exact-HEAD run after commit.
+    """
+    with tempfile.TemporaryDirectory(prefix="mint-authority-rollback-") as temp:
+        clone = Path(temp) / "repo"
+        created = subprocess.run(
+            ["git", "clone", "--quiet", "--no-hardlinks", str(root), str(clone)],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if created.returncode != 0:
+            errors.append(f"cannot create rollback proof clone: {created.stderr.strip()}")
+            return
+        reverted = _git(clone, ["revert", "--no-commit", f"{baseline_ref}..HEAD"])
+        if reverted.returncode != 0:
+            errors.append(
+                "committed governance range is not cleanly revertible: "
+                f"{reverted.stderr.strip()}"
+            )
+            return
+        exact = _git(clone, ["diff", "--quiet", baseline_ref, "--"])
+        if exact.returncode != 0:
+            errors.append("rollback proof does not restore the exact baseline tracked tree")
 
 
 def _load_yaml(path: Path, errors: List[str], label: str) -> object:
@@ -449,22 +483,23 @@ def _check_roast_artifact(
         errors.append(f"transition roast {name!r} artifact must be a mapping")
         return
     expected_keys = {
-        "schema_version", "evidence_id", "review", "reviewer", "audited_head",
-        "verdict", "p1", "p2", "limitation", "source", "captured_at", "checks",
+        "schema_version", "advisory_id", "review", "claimed_context_label",
+        "audited_head", "advisory_outcome", "reported_p1", "reported_p2",
+        "limitation", "source", "captured_at", "checks",
     }
     if set(artifact) != expected_keys:
         errors.append(f"transition roast {name!r} artifact schema keys mismatch")
     expected_values = {
         "schema_version": 1,
-        "evidence_id": roast.get("evidence_id"),
+        "advisory_id": roast.get("advisory_id"),
         "review": name,
-        "reviewer": roast.get("reviewer"),
+        "claimed_context_label": roast.get("claimed_context_label"),
         "audited_head": audited_head,
-        "verdict": "PASS",
-        "p1": 0,
-        "p2": 0,
+        "advisory_outcome": "REPORTED_PASS",
+        "reported_p1": 0,
+        "reported_p2": 0,
         "limitation": roast.get("limitation"),
-        "source": "independent_agent_result_captured_in_repo",
+        "source": "untrusted_separate_context_review_report",
     }
     for key, value in expected_values.items():
         if artifact.get(key) != value:
@@ -490,6 +525,55 @@ def _check_roast_artifact(
             or not check["evidence"].strip()
         ):
             errors.append(f"transition roast {name!r} check {index} is not passing evidence")
+
+
+def _check_no_trust_overclaim(root: Path, errors: List[str]) -> None:
+    documents = (
+        f"{NEW_PHASE_DIR}/CONTEXT.md",
+        f"{NEW_PHASE_DIR}/PLAN.md",
+        f"{NEW_PHASE_DIR}/SPEC.md",
+        f"{NEW_PHASE_DIR}/VERIFICATION.md",
+        ".planning/STATE.md",
+        "product/mint_next/batch4/architecture_conflicts.yaml",
+    )
+    # Explicit negations such as "not authenticated" are required honesty, not
+    # overclaims. These patterns target only affirmative acceptance language.
+    forbidden = (
+        r"\bthree\s+independent\b",
+        r"\bindependent(?:ly)?\s+(?:accepted|verified|audited|reviewed|authenticated)\b",
+        r"\b(?:reviewer\s+)?independence\s+(?:is|was|has\s+been)\s+(?:established|verified|proven)\b",
+        r"\bauthenticated\s+(?:reviewer|identity|receipt|evidence|attestation)\b(?!\s+(?:is|are)\s+(?:absent|unavailable))",
+        r"\bauthentication\s+(?:is|was|has\s+been)\s+(?:established|verified|proven)\b",
+        r"\bsigned\s+(?:receipt|report|evidence|attestation)\b",
+        r"\bsignature\s+(?:is|was)\s+(?:valid|verified|present)\b",
+        r"\btamper[- ]proof\b",
+        r"\bcryptographically\s+(?:authenticated|verified|signed|protected|immutable)\b",
+        r"\bexternal\s+attestation\s+(?:exists|is\s+present|is\s+verified)\b",
+        r"^##\s+Independent\s+(?:Roast|Review|Audit)",
+        r"\badvisory\s+reports?\s+(?:are|form|provide|constitute)\s+(?:the\s+)?acceptance\s+(?:basis|proof|evidence)\b",
+    )
+    for relative in documents:
+        path = root / relative
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            errors.append(f"trust-boundary document unreadable: {relative}: {exc}")
+            continue
+        if relative == ".planning/STATE.md":
+            text = _active_section(relative, text)
+        for pattern in forbidden:
+            for match in re.finditer(pattern, text, flags=re.IGNORECASE | re.MULTILINE):
+                prefix = text[max(0, match.start() - 180) : match.start()]
+                # Allow explicit denial across a short wrapped sentence, e.g.
+                # "no external signature ... or external attestation exists".
+                # A sentence break or adversative clause ends that negation.
+                clause = re.split(r"[.;!?]|\b(?:but|however)\b", prefix, flags=re.IGNORECASE)[-1]
+                if re.search(r"\b(?:no|not|never|neither|without)\b", clause, re.IGNORECASE):
+                    continue
+                errors.append(
+                    f"forbidden acceptance trust overclaim in {relative}: {pattern}"
+                )
+                break
 
 
 def _check_conflict(root: Path, policy: TransitionPolicy, errors: List[str]) -> None:
@@ -519,7 +603,7 @@ def _check_conflict(root: Path, policy: TransitionPolicy, errors: List[str]) -> 
         (item for item in data["conflicts"] if isinstance(item, dict) and item.get("id") == "retirement_first_active_context"),
         None,
     )
-    expected_status = "resolved"
+    expected_status = "resolved_for_governance_routing_only"
     if not conflict or conflict.get("status") != expected_status:
         errors.append(
             "retirement-first conflict is not at the accepted transition "
@@ -557,13 +641,28 @@ def _check_conflict(root: Path, policy: TransitionPolicy, errors: List[str]) -> 
         "accepted_scope": "governance_authority_only",
         "batch4_promotion": False,
         "successor_product_phase_queued": False,
+        "trust_basis": "reproducible_deterministic_git_evidence_only",
+        "external_attestation": "absent",
+        "cross_provider_review": "absent",
+        "cross_provider_review_scope": (
+            "diversity_only_not_authenticated_or_cryptographic_identity"
+        ),
+        "batch4_promotion_gate": (
+            "blocked_pending_external_attestation_or_cross_provider_review"
+        ),
     }
+    expected_verification_keys = set(expected_verification) | {"advisory_reports"}
+    if set(verification) != expected_verification_keys:
+        errors.append(
+            "transition verification schema must contain only deterministic trust "
+            "fields and advisory_reports"
+        )
     for key, value in expected_verification.items():
         if verification.get(key) != value:
             errors.append(f"transition verification {key!r} must be {value!r}")
-    roasts = verification.get("roasts")
+    roasts = verification.get("advisory_reports")
     if not isinstance(roasts, list):
-        errors.append("transition verification roasts must be a list")
+        errors.append("transition advisory_reports must be a list")
         return
     by_name = {
         roast.get("name"): roast
@@ -572,22 +671,33 @@ def _check_conflict(root: Path, policy: TransitionPolicy, errors: List[str]) -> 
     }
     if set(by_name) != set(REQUIRED_ROASTS) or len(roasts) != len(REQUIRED_ROASTS):
         errors.append(
-            "transition verification must contain exactly the three named independent roasts"
+            "transition verification must contain exactly the three named untrusted advisory reports"
         )
     for name, (expected_reviewer, expected_evidence) in sorted(REQUIRED_ROASTS.items()):
         roast = by_name.get(name)
         if not isinstance(roast, dict):
             continue
-        if roast.get("verdict") != "PASS":
-            errors.append(f"transition roast {name!r} verdict must be PASS")
-        if roast.get("p1") != 0 or roast.get("p2") != 0:
-            errors.append(f"transition roast {name!r} must record p1=0 and p2=0")
+        expected_advisory_keys = {
+            "name", "advisory_id", "artifact_path", "artifact_sha256",
+            "claimed_context_label", "advisory_outcome", "reported_p1",
+            "reported_p2", "audited_head", "limitation", "trust",
+        }
+        if set(roast) != expected_advisory_keys:
+            errors.append(f"transition advisory {name!r} schema keys mismatch")
+        if roast.get("advisory_outcome") != "REPORTED_PASS":
+            errors.append(f"transition advisory {name!r} outcome must be REPORTED_PASS")
+        if roast.get("reported_p1") != 0 or roast.get("reported_p2") != 0:
+            errors.append(
+                f"transition advisory {name!r} must report p1=0 and p2=0"
+            )
         if roast.get("audited_head") != audited_head:
             errors.append(f"transition roast {name!r} audited_head mismatch")
-        if roast.get("reviewer") != expected_reviewer:
-            errors.append(f"transition roast {name!r} reviewer mismatch")
-        if roast.get("evidence_id") != expected_evidence:
-            errors.append(f"transition roast {name!r} evidence_id mismatch")
+        if roast.get("claimed_context_label") != expected_reviewer:
+            errors.append(f"transition advisory {name!r} claimed_context_label mismatch")
+        if roast.get("advisory_id") != expected_evidence:
+            errors.append(f"transition advisory {name!r} advisory_id mismatch")
+        if roast.get("trust") != "untrusted_advisory_only":
+            errors.append(f"transition advisory {name!r} must be untrusted_advisory_only")
         artifact_contract = policy.roast_artifacts.get(name)
         if not isinstance(artifact_contract, Mapping):
             errors.append(f"transition roast {name!r} artifact contract missing")
@@ -597,8 +707,9 @@ def _check_conflict(root: Path, policy: TransitionPolicy, errors: List[str]) -> 
             )
 
     expected_resolution_claim = (
-        "Satisfied for governance authority only; Batch 4 still requires its own "
-        "promotion and cannot inherit this resolution as product authority."
+        "Satisfied for governance routing only from reproducible deterministic "
+        "evidence; Batch 4 promotion remains blocked pending external "
+        "attestation or cross-provider review."
     )
     if conflict.get("resolution_required") != expected_resolution_claim:
         errors.append(
@@ -700,6 +811,8 @@ def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str
     policy = policy or TransitionPolicy()
     errors: List[str] = []
     _check_audited_transition_git(root, policy, errors)
+    if policy.verify_rollback:
+        _check_rollback_reproducible(root, policy.baseline_ref, errors)
     _check_legacy_manifest(root, policy.legacy_manifest, errors)
     changed = _changed_paths(root, policy.baseline_ref, errors)
     for path in sorted(changed):
@@ -711,6 +824,7 @@ def run_guard(root: Path, policy: Optional[TransitionPolicy] = None) -> List[str
             errors.append(f"Journey OS/runtime evidence changed during governance transition: {path}")
     _check_router(root, errors)
     _check_conflict(root, policy, errors)
+    _check_no_trust_overclaim(root, errors)
     _check_accepted_documents(root, policy.audited_transition_head, errors)
     _check_batch_remains_draft(root, errors)
     _check_router_source_inventory(root, errors)

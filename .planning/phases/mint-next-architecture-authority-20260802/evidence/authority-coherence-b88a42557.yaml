@@ -1,13 +1,13 @@
 schema_version: 1
-evidence_id: roast:authority-coherence:b88a42557
+advisory_id: advisory:authority-coherence:b88a42557
 review: authority_coherence
-reviewer: authority_roast_coherence
+claimed_context_label: authority_roast_coherence
 audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
-verdict: PASS
-p1: 0
-p2: 0
+advisory_outcome: REPORTED_PASS
+reported_p1: 0
+reported_p2: 0
 limitation: Router, lifecycle, and claim coherence only; no product or runtime proof.
-source: independent_agent_result_captured_in_repo
+source: untrusted_separate_context_review_report
 captured_at: '2026-08-02T07:28:44Z'
 checks:
 - command: git diff --name-status 3db31c820..b88a425573eb93508a554ca9e3c9a7bfd72f5d46

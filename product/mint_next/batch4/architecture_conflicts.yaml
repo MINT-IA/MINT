@@ -2,7 +2,7 @@ schema_version: 1
 conflicts:
 - id: retirement_first_active_context
   severity: blocker
-  status: resolved
+  status: resolved_for_governance_routing_only
   authority_paths:
   - .planning/ACTIVE_CONTEXT.json
   - .planning/ACTIVE_CONTEXT.md
@@ -11,7 +11,7 @@ conflicts:
   batch4_position: event_triggered_not_age_timeline
   conflict: The pre-transition routing authority selected a retirement-first phase, while Batch 4 proposes an event-triggered architecture.
   draft_behavior: record_and_block_promotion
-  resolution_required: Satisfied for governance authority only; Batch 4 still requires its own promotion and cannot inherit this resolution as product authority.
+  resolution_required: Satisfied for governance routing only from reproducible deterministic evidence; Batch 4 promotion remains blocked pending external attestation or cross-provider review.
   resolution:
     kind: governance_authority_transition
     authority_milestone: mint-next-architecture-authority-20260802
@@ -23,42 +23,53 @@ conflicts:
     - .planning/ROADMAP.md
     - .planning/INDEX.md
     limitations:
-    - governance_only
+    - governance_routing_only
     - no_product_or_runtime_activation
+    - untrusted_advisory_reports_not_acceptance_basis
+    - external_attestation_absent
+    - cross_provider_review_absent_not_identity_proof
     - batch4_still_requires_separate_promotion
     verification:
       audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
       accepted_scope: governance_authority_only
       batch4_promotion: false
       successor_product_phase_queued: false
-      roasts:
+      trust_basis: reproducible_deterministic_git_evidence_only
+      external_attestation: absent
+      cross_provider_review: absent
+      cross_provider_review_scope: diversity_only_not_authenticated_or_cryptographic_identity
+      batch4_promotion_gate: blocked_pending_external_attestation_or_cross_provider_review
+      advisory_reports:
       - name: authority_coherence
-        evidence_id: roast:authority-coherence:b88a42557
+        advisory_id: advisory:authority-coherence:b88a42557
         artifact_path: .planning/phases/mint-next-architecture-authority-20260802/evidence/authority-coherence-b88a42557.yaml
-        artifact_sha256: b58330e8a4c1dbf72770ac81cb7cd41ccce687de0193c04800d5a0a2ecc29490
-        reviewer: authority_roast_coherence
-        verdict: PASS
-        p1: 0
-        p2: 0
+        artifact_sha256: 54eec126429d6fc0c660745b001e8d746d24a9aa2f07385f25686ea4b19d4a42
+        claimed_context_label: authority_roast_coherence
+        advisory_outcome: REPORTED_PASS
+        reported_p1: 0
+        reported_p2: 0
         audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
         limitation: Router, lifecycle, and claim coherence only; no product or runtime proof.
+        trust: untrusted_advisory_only
       - name: legacy_evidence_preservation
-        evidence_id: roast:legacy-preservation:b88a42557
+        advisory_id: advisory:legacy-preservation:b88a42557
         artifact_path: .planning/phases/mint-next-architecture-authority-20260802/evidence/legacy-preservation-b88a42557.yaml
-        artifact_sha256: 5b7e057e38bbfc85dc67f94f3096bad4108d6a708559be0cc5b0979aee3b3d59
-        reviewer: authority_roast_preservation
-        verdict: PASS
-        p1: 0
-        p2: 0
+        artifact_sha256: 037577798476278643f891c2628b9d48c86435dbd7644e83656ae75c52f03994
+        claimed_context_label: authority_roast_preservation
+        advisory_outcome: REPORTED_PASS
+        reported_p1: 0
+        reported_p2: 0
         audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
         limitation: Byte preservation and the open device caveat only; no fresh device proof.
+        trust: untrusted_advisory_only
       - name: guard_hostile_mutation_quality
-        evidence_id: roast:guard-hostile-mutations:b88a42557
+        advisory_id: advisory:guard-hostile-mutations:b88a42557
         artifact_path: .planning/phases/mint-next-architecture-authority-20260802/evidence/guard-hostile-mutations-b88a42557.yaml
-        artifact_sha256: 57186a5a128fce4f7dc501cbf69892f06794c52eedd95d08b3cb05b403e16743
-        reviewer: authority_roast_guard
-        verdict: PASS
-        p1: 0
-        p2: 0
+        artifact_sha256: 820de160cf5bf1c0862817536a36445a9b785787e464c2d87147ad10d3825acf
+        claimed_context_label: authority_roast_guard
+        advisory_outcome: REPORTED_PASS
+        reported_p1: 0
+        reported_p2: 0
         audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
         limitation: Guard and hostile-mutation quality only; no product behavior proof.
+        trust: untrusted_advisory_only

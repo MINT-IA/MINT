@@ -1,6 +1,6 @@
 # MINT Next Architecture Authority Transition — Plan
 
-Status: Governance-only transition executed and independently accepted at
+Status: Governance-only transition executed and deterministically accepted at
 audited head `b88a425573eb93508a554ca9e3c9a7bfd72f5d46`. This closes only the
 authority transition; Batch 4 promotion and product work remain separate.
 
@@ -47,14 +47,17 @@ the contents of the preserved retirement phase are out of scope.
   the retirement phase/Journey OS as preserved historical/runtime evidence.
 - Do not edit `product/mint_next/batch4/batch.yaml` to create a pass.
 
-### 4. Verify, Then Roast
+### 4. Verify, Then Capture Advisory Reports
 
 - Run every deterministic command in `SPEC.md` against the resulting tree.
 - Inspect `git diff --name-status` and the full diff; passing tests alone do not
   prove non-destructive scope.
-- Obtain independent adversarial review for authority coherence, legacy
-  preservation, guard mutation strength, and honesty of claims.
-- Remediate every P1/P2 and rerun from a clean exact commit.
+- Capture separate-context adversarial reports for authority coherence, legacy
+  preservation, guard mutation strength, and honesty of claims. Treat every
+  report as untrusted advisory input: no identity, independence, signature, or
+  external provenance is established.
+- Investigate every reported P1/P2 and remediate it only when reproducible
+  deterministic evidence confirms the issue; rerun from a clean exact commit.
 
 ### 5. Record Evidence
 
@@ -73,7 +76,8 @@ Stop rather than paper over the conflict if:
 - preserving the retirement receipts would require rewriting history;
 - Batch 4 cannot remain explicitly draft/unproven;
 - a guard passes after a hostile mutation it claims to block;
-- an independent roast reports an unresolved P1/P2.
+- an advisory report identifies an unresolved issue confirmed by reproducible
+  deterministic evidence.
 
 ## Rollback
 

@@ -1,8 +1,10 @@
 # MINT Next Architecture Authority Transition — Context
 
-Status: Governance authority transition accepted after exact-HEAD verification
-and three independent zero-P1/P2 roasts. This acceptance changes planning
-authority only; Batch 4 and the product remain unpromoted.
+Status: Governance routing transition accepted from reproducible deterministic
+Git lineage, diff, rollback, guards, and tests only. Three separate-context
+reports are preserved as untrusted advisory records and were not an acceptance
+basis. This changes planning authority only; Batch 4 and the product remain
+unpromoted.
 
 ## Why This Phase Exists
 
@@ -10,7 +12,7 @@ Before this review branch, the router selected
 `mint-2-0-first-experience-rente-capital`, while the audited Batch 4 maps used
 an event-triggered, whole-financial-life architecture. Silently treating the
 new maps as authoritative would have created two competing product directions.
-This branch applies an explicit governance transition for independent review
+This branch applies an explicit governance transition for reproducible review
 before any new product work.
 
 This is a governance-only transition. It changes no Flutter screen, backend
@@ -26,9 +28,11 @@ Authority is intentionally layered rather than collapsed:
    only active-phase router.
 3. This phase's four canonical files govern the accepted authority transition.
 4. `product/mint_next/batch4/` remains a **draft architecture candidate**. It
-   can become canonical architecture only through a separate exact-HEAD,
-   independently audited promotion after this authority transition; it never
-   becomes product or runtime authority merely because this phase is active.
+   can become canonical architecture only through a separate exact-HEAD
+   promotion with an external attestation or cross-provider review after this
+   authority transition; neither exists yet. A cross-provider review adds model
+   diversity, not authenticated or cryptographic identity. It never becomes
+   product or runtime authority merely because this phase is active.
 5. `.planning/journeys/` remains the historical/runtime evidence board. It may
    not silently redefine the Batch 4 architecture, and Batch 4 may not erase
    its evidence.
@@ -71,3 +75,6 @@ effectiveness claim.
 The audited transition head is
 `b88a425573eb93508a554ca9e3c9a7bfd72f5d46`. Acceptance metadata written after
 that audit does not promote Batch 4, queue a product phase, or alter runtime.
+No agent identity, report independence, signature, or cryptographic provenance
+is claimed. Separate-context reports are advisory only; deterministic evidence
+is the sole acceptance basis.

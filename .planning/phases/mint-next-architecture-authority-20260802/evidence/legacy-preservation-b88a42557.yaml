@@ -1,13 +1,13 @@
 schema_version: 1
-evidence_id: roast:legacy-preservation:b88a42557
+advisory_id: advisory:legacy-preservation:b88a42557
 review: legacy_evidence_preservation
-reviewer: authority_roast_preservation
+claimed_context_label: authority_roast_preservation
 audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
-verdict: PASS
-p1: 0
-p2: 0
+advisory_outcome: REPORTED_PASS
+reported_p1: 0
+reported_p2: 0
 limitation: Byte preservation and the open device caveat only; no fresh device proof.
-source: independent_agent_result_captured_in_repo
+source: untrusted_separate_context_review_report
 captured_at: '2026-08-02T07:28:44Z'
 checks:
 - command: git rev-parse 707b25b815483ea20f77b065df9a47c63210f790:{path} && git rev-parse b88a425573eb93508a554ca9e3c9a7bfd72f5d46:{path}

@@ -1,13 +1,13 @@
 schema_version: 1
-evidence_id: roast:guard-hostile-mutations:b88a42557
+advisory_id: advisory:guard-hostile-mutations:b88a42557
 review: guard_hostile_mutation_quality
-reviewer: authority_roast_guard
+claimed_context_label: authority_roast_guard
 audited_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
-verdict: PASS
-p1: 0
-p2: 0
+advisory_outcome: REPORTED_PASS
+reported_p1: 0
+reported_p2: 0
 limitation: Guard and hostile-mutation quality only; no product behavior proof.
-source: independent_agent_result_captured_in_repo
+source: untrusted_separate_context_review_report
 captured_at: '2026-08-02T07:28:44Z'
 checks:
 - command: python3 tools/checks/mint_next_authority_transition_guard.py

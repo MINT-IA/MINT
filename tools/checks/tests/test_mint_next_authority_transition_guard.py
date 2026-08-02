@@ -147,15 +147,15 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
             "path": f"{NEW_DIR}/evidence/{filename}",
             "data": {
                 "schema_version": 1,
-                "evidence_id": evidence_id,
+                "advisory_id": evidence_id,
                 "review": name,
-                "reviewer": reviewer,
+                "claimed_context_label": reviewer,
                 "audited_head": audited_head,
-                "verdict": "PASS",
-                "p1": 0,
-                "p2": 0,
+                "advisory_outcome": "REPORTED_PASS",
+                "reported_p1": 0,
+                "reported_p2": 0,
                 "limitation": f"{name} scope only",
-                "source": "independent_agent_result_captured_in_repo",
+                "source": "untrusted_separate_context_review_report",
                 "captured_at": "2026-08-02T07:28:44Z",
                 "checks": [
                     {"command": "test command", "exit": 0, "evidence": "PASS"}
@@ -166,19 +166,19 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
             (
                 "authority_coherence",
                 "authority_roast_coherence",
-                "roast:authority-coherence:b88a42557",
+                "advisory:authority-coherence:b88a42557",
                 "authority-coherence-b88a42557.yaml",
             ),
             (
                 "legacy_evidence_preservation",
                 "authority_roast_preservation",
-                "roast:legacy-preservation:b88a42557",
+                "advisory:legacy-preservation:b88a42557",
                 "legacy-preservation-b88a42557.yaml",
             ),
             (
                 "guard_hostile_mutation_quality",
                 "authority_roast_guard",
-                "roast:guard-hostile-mutations:b88a42557",
+                "advisory:guard-hostile-mutations:b88a42557",
                 "guard-hostile-mutations-b88a42557.yaml",
             ),
         )
@@ -196,10 +196,11 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                     {
                         "id": "retirement_first_active_context",
                         "severity": "blocker",
-                        "status": "resolved",
+                        "status": "resolved_for_governance_routing_only",
                         "resolution_required": (
-                            "Satisfied for governance authority only; Batch 4 still requires "
-                            "its own promotion and cannot inherit this resolution as product authority."
+                            "Satisfied for governance routing only from reproducible deterministic "
+                            "evidence; Batch 4 promotion remains blocked pending external "
+                            "attestation or cross-provider review."
                         ),
                         "resolution": {
                             "kind": "governance_authority_transition",
@@ -217,34 +218,44 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
                                 "accepted_scope": "governance_authority_only",
                                 "batch4_promotion": False,
                                 "successor_product_phase_queued": False,
-                                "roasts": [
+                                "trust_basis": "reproducible_deterministic_git_evidence_only",
+                                "external_attestation": "absent",
+                                "cross_provider_review": "absent",
+                                "cross_provider_review_scope": (
+                                    "diversity_only_not_authenticated_or_cryptographic_identity"
+                                ),
+                                "batch4_promotion_gate": (
+                                    "blocked_pending_external_attestation_or_cross_provider_review"
+                                ),
+                                "advisory_reports": [
                                     {
                                         "name": name,
-                                        "reviewer": reviewer,
-                                        "verdict": "PASS",
-                                        "p1": 0,
-                                        "p2": 0,
+                                        "claimed_context_label": reviewer,
+                                        "advisory_outcome": "REPORTED_PASS",
+                                        "reported_p1": 0,
+                                        "reported_p2": 0,
                                         "audited_head": audited_head,
-                                        "evidence_id": evidence_id,
+                                        "advisory_id": evidence_id,
                                         "artifact_path": artifact_specs[name]["path"],
                                         "artifact_sha256": artifact_specs[name]["sha256"],
                                         "limitation": artifact_specs[name]["data"]["limitation"],
+                                        "trust": "untrusted_advisory_only",
                                     }
                                     for name, reviewer, evidence_id in (
                                         (
                                             "authority_coherence",
                                             "authority_roast_coherence",
-                                            "roast:authority-coherence:b88a42557",
+                                            "advisory:authority-coherence:b88a42557",
                                         ),
                                         (
                                             "legacy_evidence_preservation",
                                             "authority_roast_preservation",
-                                            "roast:legacy-preservation:b88a42557",
+                                            "advisory:legacy-preservation:b88a42557",
                                         ),
                                         (
                                             "guard_hostile_mutation_quality",
                                             "authority_roast_guard",
-                                            "roast:guard-hostile-mutations:b88a42557",
+                                            "advisory:guard-hostile-mutations:b88a42557",
                                         ),
                                     )
                                 ],
@@ -292,6 +303,7 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
             name: {"path": spec["path"], "sha256": spec["sha256"]}
             for name, spec in artifact_specs.items()
         },
+        verify_rollback=False,
         legacy_manifest=manifest,
     )
     return root, policy
@@ -300,6 +312,13 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
 def test_valid_governance_only_transition_passes(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     assert run_guard(root, policy) == []
+
+
+def test_committed_governance_range_has_exact_rollback_proof(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    _git(root, "add", ".")
+    _git(root, "commit", "-m", "accepted governance metadata")
+    assert run_guard(root, replace(policy, verify_rollback=True)) == []
 
 
 def test_rejects_synthetic_accepted_tree_without_audited_ancestor(
@@ -380,16 +399,16 @@ def test_rejects_unresolved_conflict(tmp_path: Path) -> None:
     data = yaml.safe_load(path.read_text())
     data["conflicts"][0]["status"] = "unresolved"
     path.write_text(yaml.safe_dump(data), encoding="utf-8")
-    assert any("expected 'resolved'" in error for error in run_guard(root, policy))
+    assert any("expected 'resolved_for_governance_routing_only'" in error for error in run_guard(root, policy))
 
 
 def test_rejects_pending_conflict_after_acceptance(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
     data = yaml.safe_load(path.read_text())
-    data["conflicts"][0]["status"] = "resolution_applied_pending_verification"
+    data["conflicts"][0]["status"] = "resolved"
     path.write_text(yaml.safe_dump(data), encoding="utf-8")
-    assert any("expected 'resolved'" in error for error in run_guard(root, policy))
+    assert any("expected 'resolved_for_governance_routing_only'" in error for error in run_guard(root, policy))
 
 
 @pytest.mark.parametrize(
@@ -397,9 +416,9 @@ def test_rejects_pending_conflict_after_acceptance(tmp_path: Path) -> None:
     [
         ("wrong_head", "audited_head"),
         ("missing_roast", "exactly the three named"),
-        ("failed_roast", "verdict must be PASS"),
-        ("nonzero_p1", "p1=0 and p2=0"),
-        ("missing_evidence", "evidence_id mismatch"),
+        ("failed_roast", "outcome must be REPORTED_PASS"),
+        ("nonzero_p1", "report p1=0 and p2=0"),
+        ("missing_evidence", "advisory_id mismatch"),
         ("wrong_roast_head", "audited_head mismatch"),
     ],
 )
@@ -413,17 +432,109 @@ def test_rejects_fake_or_incomplete_acceptance_roasts(
     if mutation == "wrong_head":
         verification["audited_head"] = "0" * 40
     elif mutation == "missing_roast":
-        verification["roasts"].pop()
+        verification["advisory_reports"].pop()
     elif mutation == "failed_roast":
-        verification["roasts"][0]["verdict"] = "FAIL"
+        verification["advisory_reports"][0]["advisory_outcome"] = "PASS"
     elif mutation == "nonzero_p1":
-        verification["roasts"][0]["p1"] = 1
+        verification["advisory_reports"][0]["reported_p1"] = 1
     elif mutation == "missing_evidence":
-        verification["roasts"][0]["evidence_id"] = ""
+        verification["advisory_reports"][0]["advisory_id"] = ""
     elif mutation == "wrong_roast_head":
-        verification["roasts"][0]["audited_head"] = "0" * 40
+        verification["advisory_reports"][0]["audited_head"] = "0" * 40
     path.write_text(yaml.safe_dump(data), encoding="utf-8")
     assert any(needle in error for error in run_guard(root, policy))
+
+
+@pytest.mark.parametrize(
+    "overclaim",
+    [
+        "The transition was independently verified.\n",
+        "Reviewer independence is established.\n",
+        "This has authenticated reviewer identity.\n",
+        "Authentication has been verified.\n",
+        "The signed attestation proves acceptance.\n",
+        "The signature is valid.\n",
+        "The receipt is tamper-proof.\n",
+        "The review is cryptographically authenticated.\n",
+        "External attestation exists.\n",
+        "## Independent Audit\n",
+        "The advisory reports form the acceptance basis.\n",
+    ],
+)
+def test_rejects_acceptance_trust_overclaims(
+    tmp_path: Path, overclaim: str
+) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / NEW_DIR / "VERIFICATION.md"
+    path.write_text(path.read_text() + "\n" + overclaim, encoding="utf-8")
+    assert any(
+        "forbidden acceptance trust overclaim" in error
+        for error in run_guard(root, policy)
+    )
+
+
+def test_allows_explicit_negation_of_external_attestation(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / NEW_DIR / "VERIFICATION.md"
+    path.write_text(
+        path.read_text()
+        + "\nTrust boundary: no external signature, authenticated identity, "
+        + "or external attestation exists.\n",
+        encoding="utf-8",
+    )
+    assert run_guard(root, policy) == []
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("trust_basis", "untrusted_advisory_reports"),
+        ("external_attestation", "present"),
+        ("cross_provider_review", "complete"),
+        ("cross_provider_review_scope", "authenticated_identity"),
+        ("batch4_promotion_gate", "open"),
+    ],
+)
+def test_rejects_non_deterministic_or_completed_attestation_basis(
+    tmp_path: Path, field: str, value: str
+) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    data = yaml.safe_load(path.read_text())
+    data["conflicts"][0]["resolution"]["verification"][field] = value
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any(
+        f"transition verification {field!r}" in error
+        for error in run_guard(root, policy)
+    )
+
+
+def test_rejects_advisory_report_promoted_to_trusted_evidence(tmp_path: Path) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    data = yaml.safe_load(path.read_text())
+    advisory = data["conflicts"][0]["resolution"]["verification"]["advisory_reports"][0]
+    advisory["trust"] = "trusted_acceptance_evidence"
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any(
+        "must be untrusted_advisory_only" in error for error in run_guard(root, policy)
+    )
+
+
+@pytest.mark.parametrize("target", ["verification", "advisory"])
+def test_rejects_hidden_advisory_acceptance_proof_field(
+    tmp_path: Path, target: str
+) -> None:
+    root, policy = _fixture(tmp_path)
+    path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
+    data = yaml.safe_load(path.read_text())
+    verification = data["conflicts"][0]["resolution"]["verification"]
+    if target == "verification":
+        verification["advisory_reports_are_acceptance_proof"] = True
+    else:
+        verification["advisory_reports"][0]["acceptance_proof"] = True
+    path.write_text(yaml.safe_dump(data), encoding="utf-8")
+    assert any("schema" in error for error in run_guard(root, policy))
 
 
 def test_rejects_roast_artifact_byte_tampering(tmp_path: Path) -> None:
@@ -440,7 +551,7 @@ def test_rejects_coordinated_roast_artifact_receipt_rewrite(tmp_path: Path) -> N
     root, policy = _fixture(tmp_path)
     conflict_path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
     conflict = yaml.safe_load(conflict_path.read_text())
-    roast = conflict["conflicts"][0]["resolution"]["verification"]["roasts"][0]
+    roast = conflict["conflicts"][0]["resolution"]["verification"]["advisory_reports"][0]
     roast["artifact_path"] = policy.roast_artifacts["legacy_evidence_preservation"]["path"]
     roast["artifact_sha256"] = policy.roast_artifacts["legacy_evidence_preservation"]["sha256"]
     conflict_path.write_text(yaml.safe_dump(conflict), encoding="utf-8")
@@ -460,7 +571,7 @@ def test_rejects_roast_artifact_with_empty_checks_even_if_rehashed(tmp_path: Pat
     contract["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
     conflict_path = root / "product/mint_next/batch4/architecture_conflicts.yaml"
     conflict = yaml.safe_load(conflict_path.read_text())
-    roast = conflict["conflicts"][0]["resolution"]["verification"]["roasts"][0]
+    roast = conflict["conflicts"][0]["resolution"]["verification"]["advisory_reports"][0]
     roast["artifact_sha256"] = contract["sha256"]
     conflict_path.write_text(yaml.safe_dump(conflict), encoding="utf-8")
     hostile_policy = replace(policy, roast_artifacts=contracts)

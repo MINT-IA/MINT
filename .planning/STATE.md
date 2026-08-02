@@ -8,7 +8,7 @@ acceptance_metadata_head: 73406990db57a2c7079dbba2784a45c85a151090
 rollback_proven_through: 73406990db57a2c7079dbba2784a45c85a151090
 stopped_at: Governance authority verified at b88a425573eb93508a554ca9e3c9a7bfd72f5d46; Batch 4 remains draft and no product phase is queued.
 last_updated: "2026-08-02T00:00:00.000Z"
-last_activity: 2026-08-02 -- governance authority accepted after three independent zero-P1/P2 roasts; no product/runtime change.
+last_activity: 2026-08-02 -- governance routing accepted from reproducible deterministic Git evidence only; untrusted advisory reports do not authorize promotion.
 progress:
   scope: governance_only
   total_phases: 1
@@ -41,7 +41,10 @@ Journey OS remains the runtime truth overlay. The former retirement-first phase 
 Phase: `mint-next-architecture-authority-20260802` — governance authority accepted
 at audited head `b88a425573eb93508a554ca9e3c9a7bfd72f5d46`.
 Status: authority transition verified only; no Flutter/backend/runtime/device
-change, and Batch 4 promotion remains a separate gate.
+change. The separate-context reports are untrusted advisory records, not
+authenticated attestations. External attestation and cross-provider review are
+absent; the latter would add diversity, not cryptographic identity. Batch 4
+promotion remains blocked behind a separate gate.
 
 ## Historical Receipts
 

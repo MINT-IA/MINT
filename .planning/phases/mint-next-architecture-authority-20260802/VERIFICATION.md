@@ -9,8 +9,10 @@ Accepted scope: `governance_authority_only`
 Batch 4 promotion: **false**
 
 The accepted claim is limited to a coherent, non-destructive planning-authority
-transition. Acceptance metadata was written only after the exact transition
-head passed deterministic checks and three independent zero-P1/P2 roasts.
+transition. Its sole acceptance basis is reproducible deterministic Git lineage,
+exact diff/scope, clean-clone rollback, guards, and tests. The separate-context
+reports below are untrusted advisory records; they neither establish identity
+or independence nor authorize acceptance.
 
 ## Claim Boundary
 
@@ -18,6 +20,13 @@ This report proves only coherent, non-destructive planning authority. It cannot
 prove product behavior, UX quality, Swiss financial
 correctness, regulatory compliance, deployment readiness, or user validation.
 There is no device/runtime tier and no founder test for this phase.
+
+Trust boundary: external signatures, CI identity, cryptographic reviewer
+identity, and external attestation are absent. External attestation and
+cross-provider review are both **absent**; a cross-provider review would add
+diversity only, not authenticated or cryptographic identity. The separate
+promotion gate remains pending. Batch 4 stays `draft_unproven` with a null
+promotion receipt.
 
 ## Deterministic Evidence
 
@@ -63,16 +72,22 @@ the exact audited transition head before this metadata-only acceptance update.
       Product, runtime, data, deployment, or unrelated descendants require a
       separately scoped rollback and must never be swept into this range.
 
-## Independent Roasts
+## Untrusted Separate-Context Advisory Reports
 
-| Review | Evidence ID | Durable artifact | Exact commit | P1 | P2 | Verdict | Limitation |
-|---|---|---|---|---:|---:|---|---|
-| `authority_coherence` | `roast:authority-coherence:b88a42557` | [`evidence/authority-coherence-b88a42557.yaml`](evidence/authority-coherence-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Router and claim coherence only; no product/runtime proof. |
-| `legacy_evidence_preservation` | `roast:legacy-preservation:b88a42557` | [`evidence/legacy-preservation-b88a42557.yaml`](evidence/legacy-preservation-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Byte preservation and open device caveat only; no fresh device proof. |
-| `guard_hostile_mutation_quality` | `roast:guard-hostile-mutations:b88a42557` | [`evidence/guard-hostile-mutations-b88a42557.yaml`](evidence/guard-hostile-mutations-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | PASS | Guard/mutation quality only; no product behavior proof. |
+These reports are preserved for transparency, not trusted as attestations. The
+context labels are claims about execution context, not authenticated identities.
+
+| Review | Advisory ID | Claimed context label | Artifact | Exact commit | Reported P1 | Reported P2 | Advisory outcome | Limitation |
+|---|---|---|---|---|---:|---:|---|---|
+| `authority_coherence` | `advisory:authority-coherence:b88a42557` | `authority_roast_coherence` | [`evidence/authority-coherence-b88a42557.yaml`](evidence/authority-coherence-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | `REPORTED_PASS` | Router, lifecycle, and claim coherence only; no product or runtime proof. |
+| `legacy_evidence_preservation` | `advisory:legacy-preservation:b88a42557` | `authority_roast_preservation` | [`evidence/legacy-preservation-b88a42557.yaml`](evidence/legacy-preservation-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | `REPORTED_PASS` | Byte preservation and the open device caveat only; no fresh device proof. |
+| `guard_hostile_mutation_quality` | `advisory:guard-hostile-mutations:b88a42557` | `authority_roast_guard` | [`evidence/guard-hostile-mutations-b88a42557.yaml`](evidence/guard-hostile-mutations-b88a42557.yaml) | `b88a425573eb93508a554ca9e3c9a7bfd72f5d46` | 0 | 0 | `REPORTED_PASS` | Guard and hostile-mutation quality only; no product behavior proof. |
 
 ## Promotion Verdict
 
 **ACCEPTED FOR GOVERNANCE AUTHORITY ONLY.** Batch 4 remains `draft_unproven`,
 its promotion receipt remains null, no successor product phase is queued, and
 no product/runtime/compliance/user-validation claim follows from this verdict.
+This acceptance is deterministic, not reviewer-attested. Batch 4 promotion is
+blocked pending a separately scoped external attestation or cross-provider
+review; the latter must never be presented as cryptographic identity proof.
