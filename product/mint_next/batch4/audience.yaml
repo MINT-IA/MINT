@@ -1,6 +1,11 @@
 audience_hypothesis:
   status: hypothesis_not_exclusive_persona
   statement: MINT reste compréhensible par une personne fatiguée, anxieuse et peu à l’aise avec les chiffres, sans ralentir une personne experte.
+  evidence_status: not_yet_user_validated
+  must_not_claim:
+  - every_user_is_a_beginner
+  - low_numeracy_is_the_only_market
+  - comprehension_without_observed_evidence
   must_not_store:
   - beginner_label
   - math_level_label
@@ -16,6 +21,8 @@ universal_floor:
   amounts_before_percentages: true
   example_before_personalization: true
   color_never_only_signal: true
+  plain_language_before_technical_term: true
+  sensitive_event_examples_must_be_contextual: true
 progressive_depth:
 - id: n0
   intent: consequence
@@ -35,7 +42,7 @@ expert_escape:
 comprehension_evidence:
 - teach_back_choice
 - correct_concrete_action
-- voluntary_open_detail
+- correction_without_hidden_help
 forbidden_patterns:
 - quiz_grading
 - badges_for_financial_literacy
@@ -43,3 +50,36 @@ forbidden_patterns:
 - forced_curriculum
 - confidence_as_competence
 - opaque_personalization
+- detail_opened_as_proof_of_comprehension
+falsification_protocol:
+  status: protocol_to_preregister_before_user_validation
+  unit_of_analysis: current_task_not_persistent_persona
+  participant_coverage:
+  - low_numeric_confidence
+  - high_financial_experience
+  - fatigued_or_time_constrained_context
+  - anxious_or_sensitive_life_event_context
+  signals:
+  - id: consequence_understood
+    measure: participant_explains_the_concrete_effect_in_their_own_words_without_financial_jargon
+  - id: next_action_understood
+    measure: participant_identifies_the_safe_next_action_and_one_reason_for_it
+  - id: estimate_not_promise
+    measure: participant_distinguishes_a_fact_an_assumption_and_an_estimate
+  - id: correction_success
+    measure: participant_corrects_one_input_without_losing_or_misreading_the_result
+  - id: depth_burden
+    measure: abandonment_and_time_at_each_progressive_depth
+  - id: expert_friction
+    measure: time_and_actions_for_an_experienced_participant_to_reach_assumptions_calculation_and_sources
+  - id: emotional_fit
+    measure: qualitative_report_of_shame_pressure_trivialization_or_false_reassurance
+  rejection_conditions:
+  - reject_beginner_safe_claim_if_the_concrete_consequence_cannot_be_explained_without_help
+  - reject_no_expert_slowdown_claim_if_experienced_participants_cannot_reach_depth_in_one_optional_action
+  - reject_example_pattern_if_participants_treat_an_estimate_as_a_promise
+  - reject_universal_example_if_a_sensitive_event_feels_trivialized_or_coercive
+  thresholds: preregister_after_pilot_and_before_validation_readout
+  privacy:
+  - store_aggregate_task_signals_not_a_beginner_profile
+  - do_not_adapt_from_a_single_wrong_answer

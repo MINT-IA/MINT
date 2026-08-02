@@ -1,101 +1,197 @@
 concepts:
 - id: stock_flow
   prerequisites: []
-  mental_model: Un stock est ce que tu as; un flux est ce qui entre ou sort.
-  chf_example: Avec CHF 100 sur le compte et CHF 20 dépensés, il reste CHF 80.
-  visual: bar_or_timeline
+  plain_language_question: Est-ce de l’argent disponible maintenant, ou de l’argent qui entre et sort chaque mois?
+  mental_model: Ce que tu possèdes aujourd’hui est un stock; ce qui entre ou sort pendant une période est un flux.
+  simple_why: Un bon salaire ne garantit pas qu’il reste assez d’argent sur le compte.
+  chf_example: Tu as CHF 1’000 sur le compte. Après une facture de CHF 200, il reste CHF 800; le compte est le stock, la facture est un flux sortant.
+  visual: one_account_bar_before_chf_1000_after_chf_800_plus_one_outgoing_arrow_chf_200
   misconceptions:
   - confondre salaire et patrimoine
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: stock
+    plain_language: argent ou biens présents à une date précise
+  - term: flux
+    plain_language: argent qui entre ou sort pendant une période
+  comprehension_evidence:
+    prompt: Après la facture, combien reste-t-il sur le compte et qu’est-ce qui a changé?
+    acceptable_answer: CHF 800 restent; la dépense a réduit l’argent disponible de CHF 200.
+    never_score_or_label: true
 - id: gross_net_taxable
   prerequisites:
   - stock_flow
-  mental_model: Brut, net et imposable répondent à trois questions différentes.
-  chf_example: Sur CHF 100 brut, les prélèvements donnent un net inférieur; l’imposable suit encore d’autres règles.
-  visual: bar_or_timeline
+  plain_language_question: Quel chiffre est gagné, quel chiffre est versé, et quel chiffre sert aux impôts?
+  mental_model: Le brut est avant retenues, le net est versé après retenues, et le revenu imposable est déterminé séparément pour l’impôt annuel.
+  simple_why: Comparer ces trois chiffres comme s’ils étaient identiques crée de faux budgets et de fausses estimations fiscales.
+  chf_example: Exemple simplifié — salaire brut CHF 5’000, retenues salariales CHF 650, versement net CHF 4’350. Le revenu imposable annuel n’est automatiquement ni CHF 5’000 ni CHF 4’350.
+  visual: three_labeled_boxes_gross_chf_5000_minus_deductions_chf_650_equals_paid_chf_4350_then_taxable_separate
   misconceptions:
   - penser que net égale imposable
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: brut
+    plain_language: montant avant les retenues indiquées sur le salaire
+  - term: net
+    plain_language: montant effectivement versé après ces retenues
+  - term: imposable
+    plain_language: montant retenu par les règles fiscales pour calculer l’impôt
+  comprehension_evidence:
+    prompt: Dans cet exemple, quel montant arrive sur le compte et lequel doit encore être calculé séparément?
+    acceptable_answer: CHF 4’350 arrivent sur le compte; le revenu imposable doit être calculé séparément.
+    never_score_or_label: true
 - id: fact_estimate_assumption
   prerequisites: []
-  mental_model: Un fait est observé; une estimation est calculée; une hypothèse peut être changée.
-  chf_example: CHF 100 sur un relevé est un fait; CHF 105 demain peut être une estimation.
-  visual: bar_or_timeline
+  plain_language_question: Ce chiffre est-il observé, calculé, ou choisi pour tester un scénario?
+  mental_model: Un fait vient d’une source observée; une estimation est un résultat calculé; une hypothèse est une valeur modifiable utilisée pour calculer.
+  simple_why: Changer une hypothèse change le résultat sans changer les faits déjà observés.
+  chf_example: Le relevé montre CHF 10’000 aujourd’hui — fait. Tu choisis 3% de rendement — hypothèse. Le calcul affiche CHF 10’300 dans un an — estimation, pas promesse.
+  visual: three_cards_source_chf_10000_input_3_percent_output_chf_10300_with_estimate_badge
   misconceptions:
   - prendre un scénario pour une promesse
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: hypothèse
+    plain_language: valeur choisie et modifiable pour tester un calcul
+  - term: estimation
+    plain_language: résultat calculé qui peut différer de la réalité future
+  - term: scénario
+    plain_language: combinaison d’hypothèses utilisée pour explorer une possibilité
+  comprehension_evidence:
+    prompt: Si le rendement choisi passe de 3% à 1%, quel élément change d’abord?
+    acceptable_answer: L’hypothèse change, puis l’estimation; les CHF 10’000 observés restent un fait.
+    never_score_or_label: true
 - id: liquidity_lock
   prerequisites:
   - stock_flow
-  mental_model: L’argent liquide reste disponible; l’argent bloqué ne paie pas une urgence.
-  chf_example: CHF 100 en réserve peut payer une facture; CHF 100 en 3a est normalement bloqué.
-  visual: bar_or_timeline
+  plain_language_question: Cet argent peut-il payer une facture cette semaine?
+  mental_model: L’argent disponible peut répondre à une urgence; l’argent bloqué ne le peut normalement pas.
+  simple_why: Une économie fiscale ne remplace pas l’argent nécessaire pour vivre ou absorber un imprévu.
+  chf_example: Tu as CHF 3’000. Si CHF 2’000 vont dans une solution bloquée, seuls CHF 1’000 restent pour une facture urgente de CHF 1’500; il manque CHF 500.
+  visual: cash_bar_chf_3000_split_locked_chf_2000_available_chf_1000_against_bill_chf_1500
   misconceptions:
   - optimiser avant de pouvoir payer les factures
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: liquidité
+    plain_language: argent utilisable rapidement pour payer
+  - term: bloqué
+    plain_language: argent qui ne peut être retiré que dans certaines situations prévues
+  comprehension_evidence:
+    prompt: Après le versement bloqué, la facture urgente de CHF 1’500 peut-elle être entièrement payée?
+    acceptable_answer: Non; CHF 1’000 restent disponibles et il manque CHF 500.
+    never_score_or_label: true
 - id: risk_return_fees
   prerequisites:
   - fact_estimate_assumption
-  mental_model: Plus de rendement espéré implique risque, temps et frais; rien n’est garanti.
-  chf_example: CHF 100 investi peut temporairement valoir CHF 80, même si le scénario long terme est positif.
-  visual: bar_or_timeline
+  plain_language_question: Combien puis-je gagner, perdre temporairement et payer en frais?
+  mental_model: Un gain futur plus élevé n’est qu’espéré; la valeur peut baisser et les frais réduisent ce qui reste.
+  simple_why: Le meilleur scénario ne suffit pas pour choisir si une baisse t’obligerait à vendre au mauvais moment.
+  chf_example: CHF 10’000 investis peuvent tomber à CHF 8’000 — baisse de CHF 2’000. Avec CHF 100 de frais annuels, même une valeur remontée à CHF 10’500 laisse CHF 10’400 avant autres coûts.
+  visual: range_chart_chf_8000_to_chf_10500_then_fee_chf_100
   misconceptions:
   - rendement attendu égale rendement garanti
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: rendement espéré
+    plain_language: gain moyen envisagé, sans garantie
+  - term: risque
+    plain_language: possibilité que le résultat soit moins bon ou arrive au mauvais moment
+  - term: frais
+    plain_language: montants prélevés qui réduisent le résultat final
+  comprehension_evidence:
+    prompt: Quel montant peut être perdu temporairement et quel coût reste même si la valeur remonte?
+    acceptable_answer: La baisse temporaire est CHF 2’000; les CHF 100 de frais réduisent encore le résultat.
+    never_score_or_label: true
 - id: compounding
   prerequisites:
   - risk_return_fees
-  mental_model: Les gains futurs peuvent produire des gains, mais les pertes et frais composent aussi.
-  chf_example: 'CHF 100 puis CHF 105: le gain suivant se calcule sur CHF 105.'
-  visual: bar_or_timeline
+  plain_language_question: Les gains produisent-ils eux-mêmes des gains au fil du temps?
+  mental_model: Chaque résultat devient le point de départ du résultat suivant; cela vaut aussi pour les frais et les pertes.
+  simple_why: Le temps amplifie de petites différences répétées, positives comme négatives.
+  chf_example: Hypothèse fixe de 5% sans frais — CHF 1’000 deviennent CHF 1’050 après un an, puis CHF 1’102.50 après deux ans; la deuxième hausse est CHF 52.50, pas CHF 50.
+  visual: two_step_bar_chf_1000_to_chf_1050_to_chf_1102_50_with_assumption_badge
   misconceptions:
   - extrapoler un taux sans risque
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: intérêts composés
+    plain_language: gains calculés aussi sur les gains précédents
+  - term: extrapoler
+    plain_language: prolonger une hypothèse dans le futur comme si elle restait vraie
+  comprehension_evidence:
+    prompt: Pourquoi la hausse de la deuxième année vaut-elle CHF 52.50?
+    acceptable_answer: Parce que 5% sont calculés sur CHF 1’050, gains précédents compris.
+    never_score_or_label: true
 - id: marginal_tax
   prerequisites:
   - gross_net_taxable
   - fact_estimate_assumption
-  mental_model: Une déduction économise l’impôt applicable au prochain franc, pas son montant entier.
-  chf_example: Verser CHF 100 ne rend pas CHF 100; la baisse d’impôt dépend de la situation.
-  visual: bar_or_timeline
+  plain_language_question: Combien d’impôt économise réellement le prochain franc déduit?
+  mental_model: Une déduction réduit le revenu soumis au calcul; elle ne rembourse pas la totalité du versement.
+  simple_why: L’économie dépend notamment du revenu, du canton, de la commune et du ménage.
+  chf_example: Illustration avec un taux marginal supposé de 25% — une déduction de CHF 1’000 réduit l’impôt estimé de CHF 250; l’effort après économie fiscale reste CHF 750.
+  visual: contribution_bar_chf_1000_split_net_effort_chf_750_tax_saving_chf_250_with_assumption_badge
   misconceptions:
   - déduction égale remboursement
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: déduction
+    plain_language: montant retiré du revenu avant le calcul fiscal selon les règles applicables
+  - term: taux marginal
+    plain_language: part d’impôt estimée sur la prochaine tranche de revenu ajoutée ou retirée
+  comprehension_evidence:
+    prompt: Dans cette illustration, CHF 1’000 déduits signifient-ils CHF 1’000 remboursés?
+    acceptable_answer: Non; avec l’hypothèse de 25%, l’économie estimée est CHF 250 et l’effort reste CHF 750.
+    never_score_or_label: true
 - id: tax_now_later
   prerequisites:
   - marginal_tax
   - liquidity_lock
-  mental_model: Une économie fiscale aujourd’hui peut s’accompagner d’impôt et de contraintes plus tard.
-  chf_example: CHF 100 déduit aujourd’hui peut être imposé lors du retrait.
-  visual: bar_or_timeline
+  plain_language_question: L’avantage fiscal d’aujourd’hui crée-t-il un impôt ou une contrainte plus tard?
+  mental_model: Certains versements réduisent l’impôt maintenant, mais l’argent est bloqué et le retrait peut être imposé plus tard.
+  simple_why: Il faut comparer l’effort net aujourd’hui, la durée de blocage et le montant net récupéré, pas seulement la déduction.
+  chf_example: Illustration — versement CHF 1’000, économie estimée CHF 250, effort net CHF 750 aujourd’hui. Si CHF 1’000 sont retirés plus tard avec CHF 80 d’impôt, CHF 920 restent; les deux taux sont des hypothèses distinctes.
+  visual: two_timeline_bars_today_chf_1000_minus_chf_250_and_later_chf_1000_minus_chf_80
   misconceptions:
   - oublier impôt au retrait
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: effort net
+    plain_language: argent réellement supporté après l’économie fiscale estimée
+  - term: impôt au retrait
+    plain_language: impôt pouvant être dû lorsque le capital est retiré
+  comprehension_evidence:
+    prompt: Quels sont les deux montants nets à comparer dans cette illustration?
+    acceptable_answer: CHF 750 d’effort aujourd’hui et CHF 920 récupérés après l’impôt illustratif au retrait.
+    never_score_or_label: true
 - id: diversification
   prerequisites:
   - risk_return_fees
-  mental_model: Répartir évite qu’un seul risque décide de tout le résultat.
-  chf_example: CHF 100 répartis ne dépendent pas entièrement d’une seule entreprise.
-  visual: bar_or_timeline
+  plain_language_question: Tout mon résultat dépend-il d’un seul placement?
+  mental_model: Répartir l’argent limite l’impact d’un seul échec, sans empêcher une baisse générale.
+  simple_why: La répartition réduit la concentration; elle ne supprime ni le risque ni les pertes.
+  chf_example: CHF 10’000 dans une seule entreprise perdant 50% deviennent CHF 5’000. Si seulement CHF 1’000 y sont exposés et les CHF 9’000 ailleurs restent stables, le total devient CHF 9’500.
+  visual: side_by_side_one_asset_chf_5000_vs_ten_parts_total_chf_9500
   misconceptions:
   - diversification supprime les pertes
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: diversification
+    plain_language: répartition entre plusieurs placements et types de risques
+  - term: concentration
+    plain_language: part trop importante dépendant d’un même risque
+  comprehension_evidence:
+    prompt: Dans l’exemple réparti, combien la perte d’une entreprise retire-t-elle au total?
+    acceptable_answer: CHF 500; le total passe de CHF 10’000 à CHF 9’500.
+    never_score_or_label: true
 - id: reversibility
   prerequisites:
   - fact_estimate_assumption
-  mental_model: Une décision réversible se corrige; une décision irréversible exige plus de preuves.
-  chf_example: Un virement futur peut être arrêté; un choix de rente peut être irréversible.
-  visual: bar_or_timeline
+  plain_language_question: Puis-je changer d’avis plus tard, et à quel coût?
+  mental_model: Une décision réversible peut être corrigée; une décision difficile ou impossible à annuler exige davantage de vérifications.
+  simple_why: Deux options ayant le même résultat estimé ne se valent pas si une seule permet de revenir en arrière.
+  chf_example: Un virement mensuel futur de CHF 200 peut être arrêté avant le prochain paiement. Un choix irréversible portant sur CHF 200’000 ne peut pas être traité comme un simple bouton à annuler.
+  visual: two_paths_recurring_chf_200_with_stop_control_vs_locked_choice_chf_200000
   misconceptions:
   - traiter tous les choix comme équivalents
-  glossary_terms: []
-  comprehension_evidence: concrete_choice_not_quiz
+  glossary_terms:
+  - term: réversible
+    plain_language: qui peut être modifié ou annulé ensuite
+  - term: irréversible
+    plain_language: qui ne peut normalement plus être annulé après confirmation
+  comprehension_evidence:
+    prompt: Laquelle des deux décisions demande le plus de vérifications avant confirmation, et pourquoi?
+    acceptable_answer: Le choix irréversible de CHF 200’000, parce qu’il ne peut pas simplement être annulé.
+    never_score_or_label: true

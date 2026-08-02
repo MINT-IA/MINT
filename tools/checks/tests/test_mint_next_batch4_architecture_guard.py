@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import subprocess
 import sys
 from pathlib import Path
@@ -16,7 +17,27 @@ BASE = Path("product/mint_next/batch4")
 
 def valid_documents() -> dict[str, dict]:
     return {
-        "batch.yaml": {"schema_version": 1, "status": "draft_unproven"},
+        "batch.yaml": {"schema_version": 1, "status": "draft_unproven", "promotion_receipt": None},
+        "source-inventory.yaml": {
+            "schema_version": 1,
+            "sources": [{"path": "SOURCE.txt", "sha256": hashlib.sha256(b"source\n").hexdigest(), "role": "test_authority"}],
+        },
+        "architecture_conflicts.yaml": {"schema_version": 1, "conflicts": []},
+        "official_sources.yaml": {"sources": [{
+            "id": "tax_law", "authority": "Authority", "title": "Law", "url": "https://example.test/law",
+            "jurisdiction": "CH", "version_basis": "effective_date",
+        }]},
+        "regulatory_boundaries.yaml": {
+            "boundaries": [{"id": "education_only"}], "source_ids": ["tax_law"],
+        },
+        "calculation_contracts.yaml": {"contracts": [{
+            "id": "tax_calc", "decision_id": "fund_3a", "required_inputs": ["income"],
+            "outputs": ["tax_delta"], "formula_ids": ["tax_v1"], "source_ids": ["tax_law"],
+        }]},
+        "domain_coverage.yaml": {
+            "dispositions": ["covered_by_decision", "official_handoff"],
+            "domains": [{"id": "tax", "disposition": "covered_by_decision", "decision_ids": ["fund_3a"], "missing_contract": None}],
+        },
         "audience.yaml": {
             "audience_hypothesis": {"status": "hypothesis", "statement": "Works under stress"},
             "universal_floor": {"sequence": ["consequence"]},
@@ -45,8 +66,8 @@ def valid_documents() -> dict[str, dict]:
                     "missing_data_behavior": "withhold",
                     "scenario_ids": ["with_without"],
                     "tradeoffs": ["liquidity"],
-                    "calculation_contract": "deterministic_tax_delta",
-                    "compliance_boundary": "education_not_advice",
+                    "calculation_contract": "tax_calc",
+                    "compliance_boundary": "education_only",
                     "receipt": "decision_receipt",
                     "next_decision_ids": [],
                     "next_action": "one action",
@@ -66,7 +87,8 @@ def valid_documents() -> dict[str, dict]:
                     "learning_outcome": "Know the question",
                     "kind": "entry",
                     "view_binding": "next.start",
-                    "modes": ["example", "missing", "error", "offline", "stale"],
+                    "modes": ["example", "personal", "missing", "stale", "offline", "error", "corrected", "saved"],
+                    "terminal_kind": "nonterminal",
                 },
                 {
                     "id": "safe_exit",
@@ -75,6 +97,7 @@ def valid_documents() -> dict[str, dict]:
                     "kind": "safe_exit",
                     "view_binding": "next.exit",
                     "modes": ["saved"],
+                    "terminal_kind": "safe_exit",
                 },
             ],
             "edges": [
@@ -87,9 +110,27 @@ def valid_documents() -> dict[str, dict]:
                     "data_effect": "none",
                     "back_semantics": "return_to_start",
                     "fallback": "safe_exit",
+                    "analytics_event": "exit_safely",
+                    "visible_label": "Stop for now",
                 }
             ],
-            "chat": {"allowed_action_ids": ["exit_safely"]},
+            "chat": {
+                "allowed_action_ids": ["exit_safely"],
+                "action_policy": {
+                    "read_only": [],
+                    "navigation_only": ["exit_safely"],
+                    "requires_explicit_user_confirmation": [],
+                    "allowed_data_effects": ["none"],
+                    "authorization": "same user",
+                    "continuity_fields": ["decision_id"],
+                },
+            },
+            "decision_template": {
+                "applies_to_decision_ids": ["fund_3a"],
+                "binding_contract": "persist decision",
+                "required_context": ["decision_id"],
+                "unbound_decision_behavior": "not reachable",
+            },
         },
         "claims_and_data.yaml": {
             "items": [
@@ -102,7 +143,14 @@ def valid_documents() -> dict[str, dict]:
             ],
         },
         "legacy_reuse.yaml": {
-            "boundary": {"next_imports_legacy_ui": False},
+            "boundary": {
+                "next_imports_legacy_ui": False,
+                "legacy_imports_next": False,
+                "next_default_enabled": False,
+                "kill_switch_required": True,
+                "fallback_until_equivalence_and_rollback_proven": True,
+                "approved_reuse_status": "reuse_approved_with_exact_evidence",
+            },
             "assets": [
                 {
                     "id": "tax_engine",
@@ -119,7 +167,8 @@ def valid_documents() -> dict[str, dict]:
 
 def write_documents(root: Path, documents: dict[str, dict]) -> None:
     base = root / BASE
-    base.mkdir(parents=True)
+    base.mkdir(parents=True, exist_ok=True)
+    (root / "SOURCE.txt").write_text("source\n")
     for name, document in documents.items():
         (base / name).write_text(yaml.safe_dump(document, sort_keys=False))
 
@@ -142,6 +191,9 @@ def test_accepts_complete_closed_graph(tmp_path: Path) -> None:
     ("mutation", "message"),
     [
         (lambda d: d.pop("concepts.yaml"), "missing registry"),
+        (lambda d: d["concepts.yaml"].update(concepts=[]), "concept registry must not be empty"),
+        (lambda d: d["decisions.yaml"].update(decisions=[]), "decision registry must not be empty"),
+        (lambda d: d["claims_and_data.yaml"].update(items=[]), "claims/data registry must not be empty"),
         (lambda d: d["concepts.yaml"]["concepts"].append({"id": "tax", "prerequisites": []}), "duplicate concept id"),
         (lambda d: d["concepts.yaml"]["concepts"][1].update(prerequisites=["ghost"]), "unknown concept prerequisite"),
         (lambda d: d["concepts.yaml"]["concepts"][0].update(prerequisites=["tax"]), "concept prerequisite cycle"),
@@ -154,12 +206,25 @@ def test_accepts_complete_closed_graph(tmp_path: Path) -> None:
         (lambda d: d["experience_graph.yaml"]["edges"].clear(), "nonterminal node has no visible action"),
         (lambda d: d["experience_graph.yaml"]["nodes"][1].update(kind="entry"), "cannot reach a safe terminal"),
         (lambda d: d["experience_graph.yaml"]["edges"][0].update(visible_label_intent=""), "visible label"),
+        (lambda d: d["experience_graph.yaml"]["edges"][0].pop("analytics_event"), "analytics_event"),
+        (lambda d: d["experience_graph.yaml"]["nodes"][0].update(modes=["nonsense"]), "missing required modes"),
+        (lambda d: d["experience_graph.yaml"]["decision_template"].update(applies_to_decision_ids=[]), "bind every and only"),
         (lambda d: d["claims_and_data.yaml"]["items"][0].pop("provenance"), "provenance"),
         (lambda d: d["claims_and_data.yaml"]["items"][0].pop("freshness_days"), "freshness"),
         (lambda d: d["claims_and_data.yaml"]["items"][0].pop("missing_behavior"), "missing behavior"),
         (lambda d: d["legacy_reuse.yaml"]["assets"][0].update(disposition="unknown"), "unknown dependency used by next"),
         (lambda d: d["legacy_reuse.yaml"]["assets"][0].update(disposition="magically_safe"), "invalid legacy disposition"),
+        (lambda d: d["legacy_reuse.yaml"]["boundary"].update(next_imports_legacy_ui=True), "legacy boundary violation"),
+        (lambda d: d["legacy_reuse.yaml"].update(assets=[]), "legacy dependency registry must not be empty"),
         (lambda d: d["experience_graph.yaml"].update(chat={"allowed_action_ids": ["invented"]}), "unregistered chat action"),
+        (lambda d: d["source-inventory.yaml"]["sources"][0].update(sha256="0" * 64), "source inventory hash drift"),
+        (lambda d: d["batch.yaml"].update(status="promoted"), "promotion_receipt.exact_head"),
+        (lambda d: d["calculation_contracts.yaml"]["contracts"][0].update(required_inputs=["ghost"]), "unknown calculation input"),
+        (lambda d: d["calculation_contracts.yaml"]["contracts"][0].update(source_ids=["ghost"]), "unknown calculation source"),
+        (lambda d: d["decisions.yaml"]["decisions"][0].update(calculation_contract="ghost"), "decision calculation contract mismatch"),
+        (lambda d: d["decisions.yaml"]["decisions"][0].update(compliance_boundary="ghost"), "unknown decision regulatory boundary"),
+        (lambda d: d["domain_coverage.yaml"]["domains"][0].update(decision_ids=["ghost"]), "unknown domain decision"),
+        (lambda d: d["official_sources.yaml"]["sources"][0].pop("version_basis"), "version_basis"),
     ],
 )
 def test_rejects_hostile_mutations(tmp_path: Path, mutation, message: str) -> None:
@@ -180,3 +245,22 @@ def test_rejects_non_mapping_yaml_and_wrong_schema(tmp_path: Path) -> None:
     assert result.returncode == 1
     assert "yaml mapping" in result.stderr.lower()
     assert "schema_version" in result.stderr
+
+
+def test_draft_may_record_conflict_but_promotion_fails_closed(tmp_path: Path) -> None:
+    documents = valid_documents()
+    documents["architecture_conflicts.yaml"]["conflicts"] = [{
+        "id": "active_context_conflict",
+        "severity": "blocker",
+        "status": "unresolved",
+        "conflict": "old authority disagrees",
+        "resolution_required": "replace authority separately",
+        "authority_paths": ["SOURCE.txt"],
+    }]
+    write_documents(tmp_path, documents)
+    assert run(tmp_path).returncode == 0
+    documents["batch.yaml"].update(status="promoted", promotion_receipt={"exact_head": "abc"})
+    write_documents(tmp_path, documents)
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "unresolved architecture conflict" in result.stderr

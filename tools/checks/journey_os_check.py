@@ -198,6 +198,11 @@ ALLOW = {
     # MINT Next Batch 4: architecture registries and generated views only.
     # No legacy route, Flutter screen, backend service, or product runtime.
     "product/mint_next/batch4/README.md",
+    "product/mint_next/batch4/architecture_conflicts.yaml",
+    "product/mint_next/batch4/calculation_contracts.yaml",
+    "product/mint_next/batch4/official_sources.yaml",
+    "product/mint_next/batch4/regulatory_boundaries.yaml",
+    "product/mint_next/batch4/domain_coverage.yaml",
     "product/mint_next/batch4/ONE-PAGE.md",
     "product/mint_next/batch4/audience.yaml",
     "product/mint_next/batch4/batch.yaml",

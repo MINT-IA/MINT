@@ -1,0 +1,48 @@
+schema_version: 1
+status: architecture_hypothesis_requires_swiss_legal_validation
+rule: Product wording does not determine regulatory status; actual function, remuneration, partner relationships and user-specific output do.
+boundaries:
+- id: education_or_calculation_only_v1
+  permitted_before_legal_gate:
+  - explain a registered concept without selecting a product
+  - calculate a deterministic result from user-approved inputs with assumptions and sources
+  - compare user-authored scenarios without ranking providers or instruments
+  - direct the user to an official authority or licensed professional
+  prohibited_before_legal_gate:
+  - recommend, rank or select a financial instrument, provider, insurance contract or portfolio for a person
+  - transmit a lead, application or order to a provider
+  - receive provider-linked compensation
+  - claim suitability, appropriateness, optimality or guaranteed outcome
+  - mediate, conclude or assist conclusion of an insurance contract
+  - hold client assets, credentials or execute transactions
+  escalation: disable_action_and_require_recorded_legal_approval
+activity_matrix:
+- action_class: generic_education
+  provisional_classification: information
+  required_evidence: concept_id_and_source_receipt
+  gate_owner: mint-swiss-brain
+- action_class: personalized_deterministic_calculation
+  provisional_classification: calculation_not_recommendation
+  required_evidence: calculation_contract_and_no_provider_selection
+  gate_owner: mint-swiss-brain_plus_legal
+- action_class: provider_or_product_comparison
+  provisional_classification: potentially_financial_service_or_intermediation
+  required_evidence: LSFin_LSA_analysis_neutrality_method_and_compensation_disclosure
+  gate_owner: qualified_swiss_legal_counsel
+- action_class: personalized_rank_or_call_to_action
+  provisional_classification: blocked_pending_regulatory_determination
+  required_evidence: licence_or_partner_model_suitability_process_and_audit_log
+  gate_owner: qualified_swiss_legal_counsel
+- action_class: insurance_quote_lead_or_conclusion
+  provisional_classification: possible_insurance_intermediation
+  required_evidence: ISA_ISO_FINMA_registration_analysis_training_disclosures_and_partner_contract
+  gate_owner: qualified_swiss_legal_counsel
+- action_class: bank_pension_insurance_tax_data_import
+  provisional_classification: data_processing_and_sector_API_risk
+  required_evidence: explicit_consent_data_minimisation_provider_terms_security_DPIA_retention_and_revocation
+  gate_owner: privacy_security_plus_legal
+- action_class: AI_chat_response
+  provisional_classification: same_as_underlying_action
+  required_evidence: registered_action_id_claim_sources_no_invented_number_and_full_receipt
+  gate_owner: underlying_action_owner
+source_ids: [fedlex_finsa_lsfin, finma_insurance_intermediation]

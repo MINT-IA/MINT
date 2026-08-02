@@ -7,10 +7,11 @@ decisions:
   - stock_flow
   - liquidity_lock
   eligibility: event_and_data_dependent
-  minimum_input_ids: &id001
+  minimum_input_ids:
   - residency_canton_commune
   - household_status
   - income_expenses_liquidity
+  - costly_debt
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -20,13 +21,14 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: stability_runway_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids: []
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: salary_protection
   human_question: Où part mon salaire et que couvre déjà mon employeur?
   triggers:
@@ -35,7 +37,14 @@ decisions:
   - gross_net_taxable
   - fact_estimate_assumption
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - employment_status
+  - gross_net_salary
+  - social_insurance_coverage
+  - lpp_certificate
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -45,13 +54,14 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: salary_protection_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids: []
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: annual_tax
   human_question: Qu’est-ce qui réduit réellement mes impôts, et à quel coût?
   triggers:
@@ -60,7 +70,15 @@ decisions:
   - marginal_tax
   - tax_now_later
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - tax_year
+  - taxable_income_wealth
+  - deductions_inventory
+  - taxation_regime
+  - religious_affiliation
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -70,14 +88,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: annual_tax_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: pillar_3a
   human_question: Combien cela me coûte vraiment aujourd’hui et qu’obtiens-je plus tard?
   triggers:
@@ -88,7 +107,16 @@ decisions:
   - risk_return_fees
   - compounding
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - tax_year
+  - employment_status
+  - lpp_affiliation
+  - pillar_3a_contributions_balances
+  - pillar_3a_product_costs_allocation
+  - retirement_withdrawal_plan
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -98,14 +126,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: pillar_3a_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: free_investing
   human_question: Dois-je garder cet argent disponible ou l’investir?
   triggers:
@@ -115,7 +144,14 @@ decisions:
   - risk_return_fees
   - diversification
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - investment_horizon
+  - risk_capacity
+  - portfolio_costs_allocation
+  - costly_debt
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -125,14 +161,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: free_investing_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: couple_change
   human_question: Que devient notre situation si nous nous séparons ou si l’un meurt?
   triggers:
@@ -141,7 +178,15 @@ decisions:
   - stock_flow
   - reversibility
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - partner_legal_status
+  - social_insurance_coverage
+  - lpp_certificate
+  - insurance_policies
+  - estate_documents
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -151,14 +196,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: household_risk_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: child_or_dependent
   human_question: Combien ce changement coûte-t-il si un revenu disparaît?
   triggers:
@@ -167,7 +213,14 @@ decisions:
   - stock_flow
   - fact_estimate_assumption
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - dependant_costs
+  - social_insurance_coverage
+  - lpp_certificate
+  - insurance_policies
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -177,14 +230,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: household_risk_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: work_incapacity
   human_question: Combien de temps puis-je payer mes factures sans travailler?
   triggers:
@@ -193,7 +247,15 @@ decisions:
   - stock_flow
   - liquidity_lock
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - employment_status
+  - social_insurance_coverage
+  - lpp_certificate
+  - insurance_policies
+  - medical_work_capacity
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -203,13 +265,14 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: work_incapacity_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids: []
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: unemployment_pause
   human_question: Que dois-je sécuriser cette semaine?
   triggers:
@@ -218,7 +281,13 @@ decisions:
   - stock_flow
   - liquidity_lock
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - employment_history
+  - unemployment_benefit_basis
+  - social_insurance_coverage
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -228,13 +297,14 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: unemployment_runway_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids: []
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: employer_change
   human_question: Tout mon deuxième pilier a-t-il suivi?
   triggers:
@@ -243,7 +313,14 @@ decisions:
   - stock_flow
   - fact_estimate_assumption
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - employment_status
+  - lpp_certificate
+  - vested_benefit_accounts
+  - previous_employer_exit
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -253,14 +330,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: vested_benefits_transfer_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: self_employment
   human_question: Quelles protections disparaissent avec le salariat?
   triggers:
@@ -270,7 +348,15 @@ decisions:
   - liquidity_lock
   - risk_return_fees
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - employment_status
+  - business_income
+  - social_insurance_coverage
+  - lpp_affiliation
+  - insurance_policies
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -280,14 +366,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: self_employment_protection_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: home_purchase
   human_question: Puis-je acheter sans fragiliser le reste de ma vie?
   triggers:
@@ -297,7 +384,15 @@ decisions:
   - risk_return_fees
   - tax_now_later
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - property_price_equity
+  - mortgage_terms
+  - lpp_certificate
+  - pillar_3a_contributions_balances
+  - housing_running_costs
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -307,14 +402,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: home_affordability_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: lpp_buyback
   human_question: Est-ce utile de remettre de l’argent dans ma caisse maintenant?
   triggers:
@@ -325,7 +421,17 @@ decisions:
   - tax_now_later
   - reversibility
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - tax_year
+  - lpp_certificate
+  - lpp_buyback_statement
+  - prior_wef_withdrawals
+  - prior_lpp_buybacks
+  - planned_capital_withdrawals
+  - arrival_in_switzerland
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -335,14 +441,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: lpp_buyback_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: separation_divorce
   human_question: Que dois-je préserver immédiatement et que sera-t-il partagé?
   triggers:
@@ -351,7 +458,15 @@ decisions:
   - stock_flow
   - reversibility
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - partner_legal_status
+  - assets_liabilities_ownership
+  - lpp_certificate
+  - pillar_3a_contributions_balances
+  - estate_documents
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -361,14 +476,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: separation_inventory_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: inheritance_received
   human_question: Que dois-je vérifier avant de dépenser ou investir?
   triggers:
@@ -378,7 +494,14 @@ decisions:
   - diversification
   - fact_estimate_assumption
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - inheritance_documents
+  - inheritance_jurisdiction
+  - assets_liabilities_ownership
+  - tax_year
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -388,14 +511,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: inheritance_inventory_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: retirement_prepare
   human_question: Quel revenu durable aurai-je et quels choix deviennent irréversibles?
   triggers:
@@ -406,7 +530,17 @@ decisions:
   - risk_return_fees
   - reversibility
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - retirement_date_plan
+  - avs_individual_account
+  - avs_pension_estimate
+  - lpp_certificate
+  - pillar_3a_contributions_balances
+  - retirement_withdrawal_plan
+  - taxable_income_wealth
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -416,14 +550,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: retirement_income_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: retirement_live
   human_question: Mon argent reste-t-il suffisant si je vis longtemps?
   triggers:
@@ -433,7 +568,14 @@ decisions:
   - risk_return_fees
   - fact_estimate_assumption
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - retirement_income_streams
+  - retirement_assets
+  - health_long_term_costs
+  - taxable_income_wealth
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -443,14 +585,15 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: retirement_sustainability_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1
 - id: estate_incapacity
   human_question: Qui pourra agir et mes proches sauront-ils quoi faire?
   triggers:
@@ -459,7 +602,15 @@ decisions:
   - stock_flow
   - reversibility
   eligibility: event_and_data_dependent
-  minimum_input_ids: *id001
+  minimum_input_ids:
+  - residency_canton_commune
+  - household_status
+  - income_expenses_liquidity
+  - partner_legal_status
+  - assets_liabilities_ownership
+  - insurance_policies
+  - estate_documents
+  - digital_asset_inventory
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -469,11 +620,12 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: deterministic_versioned_or_no_personal_number
-  compliance_boundary: education_calculation_comparison_only_until_regulatory_gate
+  calculation_contract: estate_inventory_v1
+  compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
   - stability_first
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
+  regulatory_boundary_id: education_or_calculation_only_v1

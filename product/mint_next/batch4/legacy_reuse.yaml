@@ -5,6 +5,7 @@ boundary:
   kill_switch_required: true
   migration_unit: one_decision_id_vertical
   fallback_until_equivalence_and_rollback_proven: true
+  approved_reuse_status: reuse_approved_with_exact_evidence
 assets:
 - id: financial_core
   path: apps/mobile/lib/services/financial_core

@@ -1,0 +1,26 @@
+schema_version: 1
+status: explicit_scope_map_not_product_completeness_claim
+dispositions: [covered_by_decision, required_subdecision_before_implementation, official_handoff, professional_handoff, out_of_scope]
+domains:
+- {id: cashflow_emergency_debt, disposition: covered_by_decision, decision_ids: [stability_first], missing_contract: null}
+- {id: payroll_social_contributions, disposition: covered_by_decision, decision_ids: [salary_protection], missing_contract: null}
+- {id: annual_income_wealth_tax, disposition: covered_by_decision, decision_ids: [annual_tax], missing_contract: canton_and_commune_adapters_required}
+- {id: source_tax_and_subsequent_assessment, disposition: required_subdecision_before_implementation, decision_ids: [annual_tax], missing_contract: eligibility_deadlines_and_cantonal_process}
+- {id: pillar_3a_contribution_product_and_withdrawal, disposition: covered_by_decision, decision_ids: [pillar_3a], missing_contract: provider_comparison_blocked_by_regulatory_gate}
+- {id: avs_contributions_and_individual_account_gaps, disposition: required_subdecision_before_implementation, decision_ids: [salary_protection, self_employment, retirement_prepare], missing_contract: contribution_gap_and_retroactive_payment_contract}
+- {id: avs_early_normal_deferred_claim, disposition: required_subdecision_before_implementation, decision_ids: [retirement_prepare], missing_contract: cohort_and_transition_rule_contract}
+- {id: ai_disability_benefits, disposition: required_subdecision_before_implementation, decision_ids: [work_incapacity], missing_contract: entitlement_and_timeline_contract}
+- {id: lpp_affiliation_certificate_and_multi_employer, disposition: required_subdecision_before_implementation, decision_ids: [salary_protection, employer_change], missing_contract: mandatory_extra_mandatory_and_multiple_employment_contract}
+- {id: vested_benefits_transfer, disposition: covered_by_decision, decision_ids: [employer_change], missing_contract: institution_discovery_API_or_official_handoff}
+- {id: lpp_buyback_and_wef_constraints, disposition: covered_by_decision, decision_ids: [lpp_buyback], missing_contract: pension_fund_confirmation_remains_authoritative}
+- {id: retirement_rent_capital_mix, disposition: covered_by_decision, decision_ids: [retirement_prepare], missing_contract: pension_fund_deadlines_and_survivor_rules_are_fund_specific}
+- {id: mandatory_health_insurance_franchise_model_premiums, disposition: official_handoff, decision_ids: [], missing_contract: link_to_Priminfo_until_a_neutrality_and_data_contract_is_approved}
+- {id: health_insurance_premium_subsidies, disposition: official_handoff, decision_ids: [], missing_contract: canton_specific_eligibility_and_application}
+- {id: accident_daily_allowance_private_liability_household, disposition: required_subdecision_before_implementation, decision_ids: [salary_protection, work_incapacity], missing_contract: policy_fact_extraction_and_gap_contract}
+- {id: life_and_disability_insurance_product_selection, disposition: professional_handoff, decision_ids: [work_incapacity, child_or_dependent], missing_contract: FINMA_intermediation_gate}
+- {id: unemployment_benefits, disposition: covered_by_decision, decision_ids: [unemployment_pause], missing_contract: authority_decision_remains_authoritative}
+- {id: home_purchase_mortgage_and_wef, disposition: covered_by_decision, decision_ids: [home_purchase], missing_contract: lender_policy_is_not_legal_entitlement}
+- {id: marriage_cohabitation_separation_divorce, disposition: required_subdecision_before_implementation, decision_ids: [couple_change, separation_divorce], missing_contract: civil_status_property_regime_and_legal_review}
+- {id: succession_donation_incapacity, disposition: professional_handoff, decision_ids: [inheritance_received, estate_incapacity], missing_contract: cantonal_private_law_and_cross_border_legal_review}
+- {id: emigration_frontier_cross_border, disposition: required_subdecision_before_implementation, decision_ids: [annual_tax, retirement_prepare], missing_contract: treaty_residence_social_security_and_pension_withdrawal_contracts}
+- {id: free_investing_portfolio_selection, disposition: professional_handoff, decision_ids: [free_investing], missing_contract: LSFin_suitability_and_business_model_gate}

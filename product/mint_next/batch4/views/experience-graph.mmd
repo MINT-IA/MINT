@@ -1,6 +1,7 @@
 flowchart TD
   today_entry["show_one_relevant_question"]
   question["state_human_question"]
+  simple_why["explain_one_cause_and_effect"]
   example["show_chf_example"]
   inputs["collect_minimum_only"]
   comparison["compare_baseline_and_adverse"]
@@ -8,7 +9,6 @@ flowchart TD
   safe_exit["leave_without_loss"]
   complete["save_one_action"]
   today_entry -->|Voir pourquoi maintenant| question
-  question -->|Voir avec CHF 100| example
   question -->|Pas maintenant| safe_exit
   example -->|Voir pour moi| inputs
   example -->|Garder l’exemple| safe_exit
@@ -21,3 +21,10 @@ flowchart TD
   receipt -->|Enregistrer| complete
   safe_exit -->|Reprendre| question
   complete -->|Retour à aujourd’hui| today_entry
+  question -->|Pourquoi, simplement| simple_why
+  simple_why -->|Voir un exemple adapté| example
+  question -->|Calcul, hypothèses et sources| receipt
+  safe_exit -->|Retour à aujourd’hui| today_entry
+  safe_exit -->|Me le rappeler plus tard| today_entry
+  safe_exit -->|Ne plus me le proposer| today_entry
+  safe_exit -->|Voir un autre sujet| today_entry

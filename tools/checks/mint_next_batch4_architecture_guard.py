@@ -7,6 +7,7 @@ financial content is correct, complete, user-tested, or compliant.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
@@ -18,6 +19,12 @@ import yaml
 BASE = Path("product/mint_next/batch4")
 FILES = (
     "batch.yaml",
+    "source-inventory.yaml",
+    "architecture_conflicts.yaml",
+    "calculation_contracts.yaml",
+    "official_sources.yaml",
+    "regulatory_boundaries.yaml",
+    "domain_coverage.yaml",
     "audience.yaml",
     "concepts.yaml",
     "decisions.yaml",
@@ -52,6 +59,8 @@ EDGE_FIELDS = (
     "data_effect",
     "back_semantics",
     "fallback",
+    "analytics_event",
+    "visible_label",
 )
 LEGACY_DISPOSITIONS = {
     "reuse_as_is",
@@ -61,6 +70,16 @@ LEGACY_DISPOSITIONS = {
     "unknown",
 }
 SAFE_TERMINALS = {"success", "safe_exit", "saved"}
+REQUIRED_NONTERMINAL_MODES = {
+    "example", "personal", "missing", "stale", "offline", "error", "corrected", "saved",
+}
+EXPECTED_LEGACY_BOUNDARY = {
+    "next_imports_legacy_ui": False,
+    "legacy_imports_next": False,
+    "next_default_enabled": False,
+    "kill_switch_required": True,
+    "fallback_until_equivalence_and_rollback_proven": True,
+}
 
 
 def _load(root: Path, name: str, errors: list[str]) -> dict[str, Any]:
@@ -192,6 +211,7 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
     outgoing: dict[str, list[str]] = defaultdict(list)
     incoming: dict[str, list[str]] = defaultdict(list)
     action_ids: set[str] = set()
+    edge_by_action: dict[str, dict[str, Any]] = {}
     for index, edge in enumerate(edges):
         context = f"edge[{index}]"
         for field in EDGE_FIELDS:
@@ -204,6 +224,7 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
             errors.append(f"duplicate graph action id: {action}")
         else:
             action_ids.add(action)
+            edge_by_action[action] = edge
         source, destination = edge.get("source"), edge.get("destination")
         if source not in nodes:
             errors.append(f"unknown edge source: {source}")
@@ -217,7 +238,7 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
             incoming[destination].append(source)
         if not isinstance(edge.get("visible_label_intent"), str) or not edge.get("visible_label_intent", "").strip():
             errors.append(f"{context} visible label must be non-empty")
-        for field in ("guard", "data_effect", "back_semantics"):
+        for field in ("guard", "data_effect", "back_semantics", "analytics_event", "visible_label"):
             if field in edge and (not isinstance(edge[field], str) or not edge[field].strip()):
                 errors.append(f"{context}.{field} must be non-empty")
 
@@ -225,12 +246,23 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
     if not isinstance(terminal_kinds, list) or not terminal_kinds or any(not isinstance(x, str) or not x for x in terminal_kinds):
         errors.append("experience_graph terminal_kinds must be a non-empty string list")
         terminal_kinds = []
+    view_bindings: set[str] = set()
     for identifier, node in nodes.items():
         for field in ("purpose", "learning_outcome", "kind", "view_binding"):
             if not isinstance(node.get(field), str) or not node.get(field, "").strip():
                 errors.append(f"graph node {identifier}.{field} must be non-empty")
-        _list_of_strings(node, "modes", f"graph node {identifier}", errors)
+        modes = set(_list_of_strings(node, "modes", f"graph node {identifier}", errors))
+        binding = node.get("view_binding")
+        if binding in view_bindings:
+            errors.append(f"duplicate graph view_binding: {binding}")
+        elif isinstance(binding, str):
+            view_bindings.add(binding)
         terminal_kind = node.get("kind")
+        if node.get("terminal_kind") != (terminal_kind if terminal_kind in terminal_kinds else "nonterminal"):
+            errors.append(f"graph node {identifier} terminal_kind contradicts kind")
+        if terminal_kind not in terminal_kinds and not REQUIRED_NONTERMINAL_MODES.issubset(modes):
+            missing_modes = sorted(REQUIRED_NONTERMINAL_MODES - modes)
+            errors.append(f"graph node {identifier} missing required modes: {missing_modes}")
         if terminal_kind not in terminal_kinds and not outgoing.get(identifier):
             errors.append(f"nonterminal node has no visible action: {identifier}")
 
@@ -265,14 +297,158 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
     if not isinstance(chat_actions, list) or any(not isinstance(x, str) or not x for x in chat_actions):
         errors.append("experience_graph chat_action_ids must be a string list")
     else:
+        if len(chat_actions) != len(set(chat_actions)):
+            errors.append("duplicate registered chat action")
         for action in chat_actions:
             if action not in action_ids:
                 errors.append(f"unregistered chat action: {action}")
+        policy = chat.get("action_policy")
+        if not isinstance(policy, dict):
+            errors.append("experience_graph chat.action_policy must be a mapping")
+        else:
+            categories = ("read_only", "navigation_only", "requires_explicit_user_confirmation")
+            categorized: list[str] = []
+            for category in categories:
+                categorized.extend(_list_of_strings(policy, category, "chat.action_policy", errors))
+            if len(categorized) != len(set(categorized)):
+                errors.append("chat actions must belong to exactly one policy category")
+            if set(categorized) != set(chat_actions):
+                errors.append("chat action policy must classify every and only allowed action")
+            allowed_effects = set(_list_of_strings(policy, "allowed_data_effects", "chat.action_policy", errors))
+            for action in chat_actions:
+                edge = edge_by_action.get(action, {})
+                if edge.get("data_effect") not in allowed_effects:
+                    errors.append(f"chat action has forbidden data effect: {action}")
+            for field in ("authorization",):
+                if not isinstance(policy.get(field), str) or not policy.get(field, "").strip():
+                    errors.append(f"chat.action_policy.{field} must be non-empty")
+            _list_of_strings(policy, "continuity_fields", "chat.action_policy", errors)
+
+
+def _validate_sources(root: Path, document: dict[str, Any], errors: list[str]) -> set[str]:
+    if document.get("schema_version") != 1:
+        errors.append("source-inventory.yaml schema_version must be 1")
+    sources = _items(document, "sources", "source-inventory.yaml", errors)
+    seen: set[str] = set()
+    for index, source in enumerate(sources):
+        path, expected, role = source.get("path"), source.get("sha256"), source.get("role")
+        if not isinstance(path, str) or not path or path in seen:
+            errors.append(f"source[{index}] path must be unique and non-empty")
+            continue
+        seen.add(path)
+        target = root / path
+        if not target.is_file():
+            errors.append(f"source inventory path missing: {path}")
+        elif not isinstance(expected, str) or hashlib.sha256(target.read_bytes()).hexdigest() != expected:
+            errors.append(f"source inventory hash drift: {path}")
+        if not isinstance(role, str) or not role.strip():
+            errors.append(f"source inventory role missing: {path}")
+    return seen
+
+
+def _validate_conflicts(
+    document: dict[str, Any], promoted: bool, source_paths: set[str], errors: list[str]
+) -> None:
+    if document.get("schema_version") != 1:
+        errors.append("architecture_conflicts.yaml schema_version must be 1")
+    conflicts = _index(_items(document, "conflicts", "architecture_conflicts.yaml", errors), "architecture conflict", errors)
+    for identifier, conflict in conflicts.items():
+        for field in ("severity", "status", "conflict", "resolution_required"):
+            if not isinstance(conflict.get(field), str) or not conflict.get(field, "").strip():
+                errors.append(f"architecture conflict {identifier}.{field} must be non-empty")
+        for path in _list_of_strings(conflict, "authority_paths", f"architecture conflict {identifier}", errors):
+            if path not in source_paths:
+                errors.append(f"architecture conflict authority absent from source inventory: {identifier} -> {path}")
+        if promoted and conflict.get("status") != "resolved":
+            errors.append(f"promotion blocked by unresolved architecture conflict: {identifier}")
+
+
+def _validate_domain_contracts(
+    documents: dict[str, dict[str, Any]], decisions: dict[str, dict[str, Any]], data_ids: set[str], errors: list[str]
+) -> None:
+    source_doc = documents["official_sources.yaml"]
+    sources = _index(_items(source_doc, "sources", "official_sources.yaml", errors), "official source", errors)
+    if not sources:
+        errors.append("official source registry must not be empty")
+    for identifier, source in sources.items():
+        for field in ("authority", "title", "jurisdiction", "version_basis"):
+            if not isinstance(source.get(field), str) or not source.get(field, "").strip():
+                errors.append(f"official source {identifier}.{field} must be non-empty")
+        locations = [source.get("url"), source.get("url_template")]
+        if sum(isinstance(x, str) and bool(x.strip()) for x in locations) != 1:
+            errors.append(f"official source {identifier} requires exactly one url or url_template")
+
+    regulatory = documents["regulatory_boundaries.yaml"]
+    boundaries = _index(_items(regulatory, "boundaries", "regulatory_boundaries.yaml", errors), "regulatory boundary", errors)
+    for source_id in _list_of_strings(regulatory, "source_ids", "regulatory_boundaries.yaml", errors):
+        if source_id not in sources:
+            errors.append(f"unknown regulatory source: {source_id}")
+
+    contracts_doc = documents["calculation_contracts.yaml"]
+    contracts = _index(_items(contracts_doc, "contracts", "calculation_contracts.yaml", errors), "calculation contract", errors)
+    bound_decisions: dict[str, str] = {}
+    for identifier, contract in contracts.items():
+        refs: list[str] = []
+        if "decision_id" in contract:
+            refs = [contract.get("decision_id")] if isinstance(contract.get("decision_id"), str) else []
+        elif "decision_ids" in contract:
+            refs = _list_of_strings(contract, "decision_ids", f"calculation contract {identifier}", errors)
+        if not refs:
+            errors.append(f"calculation contract {identifier} requires decision_id(s)")
+        for decision_id in refs:
+            if decision_id not in decisions:
+                errors.append(f"unknown calculation decision: {identifier} -> {decision_id}")
+            elif decision_id in bound_decisions:
+                errors.append(f"decision has multiple calculation contracts: {decision_id}")
+            else:
+                bound_decisions[decision_id] = identifier
+        for input_id in _list_of_strings(contract, "required_inputs", f"calculation contract {identifier}", errors):
+            if input_id not in data_ids:
+                errors.append(f"unknown calculation input: {identifier} -> {input_id}")
+        for source_id in _list_of_strings(contract, "source_ids", f"calculation contract {identifier}", errors):
+            if source_id not in sources:
+                errors.append(f"unknown calculation source: {identifier} -> {source_id}")
+        for field in ("outputs", "formula_ids"):
+            if not _list_of_strings(contract, field, f"calculation contract {identifier}", errors):
+                errors.append(f"calculation contract {identifier}.{field} must not be empty")
+    for decision_id, decision in decisions.items():
+        contract_id = decision.get("calculation_contract")
+        if contract_id not in contracts or bound_decisions.get(decision_id) != contract_id:
+            errors.append(f"decision calculation contract mismatch: {decision_id} -> {contract_id}")
+        if decision.get("compliance_boundary") not in boundaries:
+            errors.append(f"unknown decision regulatory boundary: {decision_id} -> {decision.get('compliance_boundary')}")
+
+    domain_doc = documents["domain_coverage.yaml"]
+    allowed = set(_list_of_strings(domain_doc, "dispositions", "domain_coverage.yaml", errors))
+    domains = _index(_items(domain_doc, "domains", "domain_coverage.yaml", errors), "domain", errors)
+    if not domains:
+        errors.append("domain coverage registry must not be empty")
+    for identifier, domain in domains.items():
+        if domain.get("disposition") not in allowed:
+            errors.append(f"invalid domain disposition: {identifier}")
+        decision_refs = _list_of_strings(domain, "decision_ids", f"domain {identifier}", errors)
+        for decision_id in decision_refs:
+            if decision_id not in decisions:
+                errors.append(f"unknown domain decision: {identifier} -> {decision_id}")
+        if domain.get("disposition") == "covered_by_decision" and not decision_refs:
+            errors.append(f"covered domain lacks decision: {identifier}")
+        if domain.get("disposition") != "covered_by_decision" and not domain.get("missing_contract"):
+            errors.append(f"non-covered domain lacks explicit missing_contract: {identifier}")
 
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     documents = {name: _load(root, name, errors) for name in FILES}
+    batch = documents["batch.yaml"]
+    status = batch.get("status")
+    if status not in {"draft_unproven", "promoted"}:
+        errors.append(f"invalid batch status: {status}")
+    promoted = status == "promoted"
+    receipt = batch.get("promotion_receipt")
+    if promoted and (not isinstance(receipt, dict) or not receipt.get("exact_head")):
+        errors.append("promoted batch requires promotion_receipt.exact_head")
+    source_paths = _validate_sources(root, documents["source-inventory.yaml"], errors)
+    _validate_conflicts(documents["architecture_conflicts.yaml"], promoted, source_paths, errors)
 
     audience = documents["audience.yaml"]
     for field in ("audience_hypothesis", "universal_floor", "progressive_depth", "expert_escape", "comprehension_evidence", "forbidden_patterns"):
@@ -280,6 +456,8 @@ def validate(root: Path) -> list[str]:
             errors.append(f"audience.yaml missing required field: {field}")
     _index(_items(audience, "progressive_depth", "audience.yaml", errors), "progressive depth", errors)
     concepts = _index(_items(documents["concepts.yaml"], "concepts", "concepts.yaml", errors), "concept", errors)
+    if not concepts:
+        errors.append("concept registry must not be empty")
     _validate_concepts(concepts, errors)
 
     data = _index(
@@ -287,6 +465,8 @@ def validate(root: Path) -> list[str]:
         "claim/data",
         errors,
     )
+    if not data:
+        errors.append("claims/data registry must not be empty")
     for identifier, item in data.items():
         for field, label in (
             ("provenance", "provenance"),
@@ -299,14 +479,39 @@ def validate(root: Path) -> list[str]:
             errors.append(f"claim/data {identifier} requires non-negative freshness_days")
 
     decisions = _index(_items(documents["decisions.yaml"], "decisions", "decisions.yaml", errors), "decision", errors)
+    if not decisions:
+        errors.append("decision registry must not be empty")
     _validate_decisions(decisions, concepts, set(data), errors)
-    _validate_graph(documents["experience_graph.yaml"], errors)
+    _validate_domain_contracts(documents, decisions, set(data), errors)
+    graph = documents["experience_graph.yaml"]
+    _validate_graph(graph, errors)
+    template = graph.get("decision_template")
+    if not isinstance(template, dict):
+        errors.append("experience_graph decision_template must be a mapping")
+    else:
+        bound = set(_list_of_strings(template, "applies_to_decision_ids", "decision_template", errors))
+        if bound != set(decisions):
+            errors.append("decision_template must bind every and only registered decision")
+        for field in ("binding_contract", "unbound_decision_behavior"):
+            if not isinstance(template.get(field), str) or not template.get(field, "").strip():
+                errors.append(f"decision_template.{field} must be non-empty")
+        _list_of_strings(template, "required_context", "decision_template", errors)
 
+    legacy = documents["legacy_reuse.yaml"]
+    boundary = legacy.get("boundary")
+    if not isinstance(boundary, dict):
+        errors.append("legacy_reuse boundary must be a mapping")
+        boundary = {}
+    for field, expected in EXPECTED_LEGACY_BOUNDARY.items():
+        if boundary.get(field) is not expected:
+            errors.append(f"legacy boundary violation: {field} must be {expected}")
     dependencies = _index(
-        _items(documents["legacy_reuse.yaml"], "assets", "legacy_reuse.yaml", errors),
+        _items(legacy, "assets", "legacy_reuse.yaml", errors),
         "legacy dependency",
         errors,
     )
+    if not dependencies:
+        errors.append("legacy dependency registry must not be empty")
     for identifier, dependency in dependencies.items():
         disposition = dependency.get("disposition")
         if disposition not in LEGACY_DISPOSITIONS:
@@ -318,6 +523,8 @@ def validate(root: Path) -> list[str]:
                 errors.append(f"legacy dependency {identifier} requires non-empty {field}")
         if disposition == "unknown" and dependency.get("status") != "not_reused":
             errors.append(f"unknown dependency used by Next: {identifier}")
+        if disposition == "reuse_as_is" and dependency.get("status") != boundary.get("approved_reuse_status"):
+            errors.append(f"legacy reuse_as_is lacks approved exact evidence: {identifier}")
     return errors
 
 

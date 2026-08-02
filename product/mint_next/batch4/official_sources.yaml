@@ -1,0 +1,75 @@
+reviewed_on: '2026-08-02'
+rule: A URL is evidence, not truth; each calculation pins the retrieved document hash, effective date, jurisdiction and reviewer.
+sources:
+- id: fedlex_bvg_lpp
+  authority: Swiss Confederation
+  title: Federal Act on Occupational Retirement, Survivors’ and Disability Pension Plans (BVG/LPP)
+  url: https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/en
+  jurisdiction: CH
+  version_basis: effective_date
+- id: fedlex_bvv3_opp3
+  authority: Swiss Confederation
+  title: Ordinance on Tax-Deductible Contributions to Recognised Pension Schemes (BVV 3/OPP 3)
+  url: https://www.fedlex.admin.ch/eli/cc/1985/1778_1778_1778/en
+  jurisdiction: CH
+  version_basis: effective_date
+- id: estv_3a_circular_18a
+  authority: Federal Tax Administration
+  title: Circular 18a — tax treatment of pillar 3a contributions and benefits
+  url: https://www.estv.admin.ch/fr/newnsb/uvIC0mFBWEozIsXH-rb49
+  jurisdiction: CH_and_cantonal_application
+  version_basis: publication_and_tax_year
+- id: estv_income_tax
+  authority: Federal Tax Administration
+  title: Income tax for natural persons
+  url: https://www.estv.admin.ch/estv/fr/accueil/impot-federal-direct.html
+  jurisdiction: CH_federal
+  version_basis: tax_year
+- id: cantonal_tax_authority
+  authority: Applicable cantonal tax administration
+  title: Cantonal and communal tax rules and calculators
+  url_template: authority_registry://tax/{canton}/{tax_year}
+  jurisdiction: canton_and_commune
+  version_basis: tax_year_and_effective_date
+- id: ahv_iv_pension_system
+  authority: AVS/AI Information Centre
+  title: Swiss social insurance information and official leaflets
+  url: https://www.ahv-iv.ch/en/
+  jurisdiction: CH
+  version_basis: leaflet_version_and_effective_date
+- id: avs_individual_account_service
+  authority: AVS/AI Information Centre
+  title: Individual account extract request
+  url: https://www.ahv-iv.ch/en/Social-insurances/Old-age-and-survivors-insurance-OASI/Individual-account
+  jurisdiction: CH
+  version_basis: request_date
+- id: seco_unemployment
+  authority: State Secretariat for Economic Affairs
+  title: Unemployment insurance information
+  url: https://www.arbeit.swiss/secoalv/en/home.html
+  jurisdiction: CH
+  version_basis: effective_date
+- id: bag_cost_sharing
+  authority: Federal Office of Public Health
+  title: Health-insurance premiums and cost participation
+  url: https://www.bag.admin.ch/fr/assurance-maladie-primes-et-participation-aux-couts
+  jurisdiction: CH
+  version_basis: premium_year_and_effective_date
+- id: bag_priminfo
+  authority: Federal Office of Public Health
+  title: Official health-insurance premium calculator
+  url: https://www.priminfo.admin.ch/
+  jurisdiction: canton_premium_region
+  version_basis: premium_year
+- id: finma_insurance_intermediation
+  authority: FINMA
+  title: Insurance intermediaries — authorisation and obligations
+  url: https://www.finma.ch/fr/autorisation/intermediation-dassurance/
+  jurisdiction: CH
+  version_basis: effective_date
+- id: fedlex_finsa_lsfin
+  authority: Swiss Confederation
+  title: Financial Services Act (FinSA/LSFin)
+  url: https://www.fedlex.admin.ch/eli/cc/2019/758/en
+  jurisdiction: CH
+  version_basis: effective_date

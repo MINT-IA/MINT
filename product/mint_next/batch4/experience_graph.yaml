@@ -18,6 +18,7 @@ nodes:
   - error
   - corrected
   - saved
+  terminal_kind: nonterminal
 - id: question
   kind: decision
   purpose: state_human_question
@@ -32,6 +33,22 @@ nodes:
   - error
   - corrected
   - saved
+  terminal_kind: nonterminal
+- id: simple_why
+  kind: learning
+  purpose: explain_one_cause_and_effect
+  learning_outcome: say_why_in_daily_words
+  view_binding: next.decision.simple_why
+  modes:
+  - example
+  - personal
+  - missing
+  - stale
+  - offline
+  - error
+  - corrected
+  - saved
+  terminal_kind: nonterminal
 - id: example
   kind: learning
   purpose: show_chf_example
@@ -46,6 +63,7 @@ nodes:
   - error
   - corrected
   - saved
+  terminal_kind: nonterminal
 - id: inputs
   kind: data
   purpose: collect_minimum_only
@@ -60,6 +78,7 @@ nodes:
   - error
   - corrected
   - saved
+  terminal_kind: nonterminal
 - id: comparison
   kind: result
   purpose: compare_baseline_and_adverse
@@ -74,6 +93,7 @@ nodes:
   - error
   - corrected
   - saved
+  terminal_kind: nonterminal
 - id: receipt
   kind: result
   purpose: show_assumptions_sources_limits
@@ -88,6 +108,7 @@ nodes:
   - error
   - corrected
   - saved
+  terminal_kind: nonterminal
 - id: safe_exit
   kind: safe_exit
   purpose: leave_without_loss
@@ -96,6 +117,7 @@ nodes:
   modes:
   - saved
   - offline
+  terminal_kind: safe_exit
 - id: complete
   kind: success
   purpose: save_one_action
@@ -103,6 +125,7 @@ nodes:
   view_binding: next.complete
   modes:
   - saved
+  terminal_kind: success
 edges:
 - action_id: open_relevant_question
   source: today_entry
@@ -113,15 +136,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_open_relevant_question
   fallback: safe_exit
-- action_id: show_example
-  source: question
-  destination: example
-  visible_label_intent: Voir avec CHF 100
-  guard: registered_decision_context
-  data_effect: none
-  back_semantics: preserve_context
-  analytics_event: next_show_example
-  fallback: safe_exit
+  visible_label: Voir pourquoi maintenant
 - action_id: leave_question
   source: question
   destination: safe_exit
@@ -131,6 +146,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_leave_question
   fallback: safe_exit
+  visible_label: Pas maintenant
 - action_id: use_my_numbers
   source: example
   destination: inputs
@@ -140,6 +156,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_use_my_numbers
   fallback: safe_exit
+  visible_label: Voir pour moi
 - action_id: leave_example
   source: example
   destination: safe_exit
@@ -149,6 +166,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_leave_example
   fallback: safe_exit
+  visible_label: Garder l’exemple
 - action_id: compare_scenarios
   source: inputs
   destination: comparison
@@ -158,6 +176,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_compare_scenarios
   fallback: safe_exit
+  visible_label: Comparer
 - action_id: leave_inputs
   source: inputs
   destination: safe_exit
@@ -167,6 +186,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_leave_inputs
   fallback: safe_exit
+  visible_label: Enregistrer et quitter
 - action_id: see_receipt
   source: comparison
   destination: receipt
@@ -176,6 +196,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_see_receipt
   fallback: safe_exit
+  visible_label: Voir calcul et limites
 - action_id: correct_inputs
   source: comparison
   destination: inputs
@@ -185,6 +206,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_correct_inputs
   fallback: safe_exit
+  visible_label: Corriger mes données
 - action_id: choose_action
   source: comparison
   destination: complete
@@ -194,6 +216,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_choose_action
   fallback: safe_exit
+  visible_label: Choisir ma prochaine action
 - action_id: back_to_comparison
   source: receipt
   destination: comparison
@@ -203,6 +226,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_back_to_comparison
   fallback: safe_exit
+  visible_label: Retour au résultat
 - action_id: finish_from_receipt
   source: receipt
   destination: complete
@@ -212,6 +236,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_finish_from_receipt
   fallback: safe_exit
+  visible_label: Enregistrer
 - action_id: resume_saved
   source: safe_exit
   destination: question
@@ -221,6 +246,7 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_resume_saved
   fallback: safe_exit
+  visible_label: Reprendre
 - action_id: return_today
   source: complete
   destination: today_entry
@@ -230,10 +256,80 @@ edges:
   back_semantics: preserve_context
   analytics_event: next_return_today
   fallback: safe_exit
+  visible_label: Retour à aujourd’hui
+- action_id: explain_simply
+  source: question
+  destination: simple_why
+  visible_label_intent: Pourquoi, simplement
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_explain_simply
+  fallback: safe_exit
+  visible_label: Pourquoi, simplement
+- action_id: show_contextual_example
+  source: simple_why
+  destination: example
+  visible_label_intent: Voir un exemple adapté
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_show_contextual_example
+  fallback: safe_exit
+  visible_label: Voir un exemple adapté
+- action_id: expert_details_now
+  source: question
+  destination: receipt
+  visible_label_intent: Calcul, hypothèses et sources
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_expert_details_now
+  fallback: safe_exit
+  visible_label: Calcul, hypothèses et sources
+- action_id: return_today_without_pressure
+  source: safe_exit
+  destination: today_entry
+  visible_label_intent: Retour à aujourd’hui
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_return_today_without_pressure
+  fallback: safe_exit
+  visible_label: Retour à aujourd’hui
+- action_id: choose_reminder
+  source: safe_exit
+  destination: today_entry
+  visible_label_intent: Me le rappeler plus tard
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_choose_reminder
+  fallback: safe_exit
+  visible_label: Me le rappeler plus tard
+- action_id: dismiss_suggestion
+  source: safe_exit
+  destination: today_entry
+  visible_label_intent: Ne plus me le proposer
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_dismiss_suggestion
+  fallback: safe_exit
+  visible_label: Ne plus me le proposer
+- action_id: change_subject
+  source: safe_exit
+  destination: today_entry
+  visible_label_intent: Voir un autre sujet
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_change_subject
+  fallback: safe_exit
+  visible_label: Voir un autre sujet
 chat:
-  allowed_action_ids:
+  allowed_action_ids: &id001
   - open_relevant_question
-  - show_example
   - leave_question
   - use_my_numbers
   - leave_example
@@ -246,8 +342,90 @@ chat:
   - finish_from_receipt
   - resume_saved
   - return_today
+  - explain_simply
+  - show_contextual_example
+  - expert_details_now
+  - return_today_without_pressure
+  - choose_reminder
+  - dismiss_suggestion
+  - change_subject
   forbidden:
   - invent_route
   - invent_calculation
   - mutate_hidden_state
   continuity: same_decision_id_and_receipt_inside_or_outside_chat
+  action_policy:
+    read_only: []
+    navigation_only:
+    - open_relevant_question
+    - see_receipt
+    - back_to_comparison
+    - return_today
+    - explain_simply
+    - show_contextual_example
+    - expert_details_now
+    - return_today_without_pressure
+    - change_subject
+    requires_explicit_user_confirmation:
+    - leave_question
+    - use_my_numbers
+    - leave_example
+    - compare_scenarios
+    - leave_inputs
+    - correct_inputs
+    - choose_action
+    - finish_from_receipt
+    - resume_saved
+    - choose_reminder
+    - dismiss_suggestion
+    allowed_data_effects:
+    - none
+    - explicit_save_or_edit
+    authorization: same_authenticated_user_and_registered_decision_context
+    continuity_fields:
+    - decision_id
+    - input_version
+    - assumption_version
+    - source_set_version
+schema_version: 1
+decision_template:
+  applies_to_decision_ids:
+  - stability_first
+  - salary_protection
+  - annual_tax
+  - pillar_3a
+  - free_investing
+  - couple_change
+  - child_or_dependent
+  - work_incapacity
+  - unemployment_pause
+  - employer_change
+  - self_employment
+  - home_purchase
+  - lpp_buyback
+  - separation_divorce
+  - inheritance_received
+  - retirement_prepare
+  - retirement_live
+  - estate_incapacity
+  binding_contract: decision_id persists across every node, edge, correction, chat turn and receipt
+  required_context:
+  - decision_id
+  - input_version
+  - assumption_version
+  - source_set_version
+  unbound_decision_behavior: not_reachable
+chat_action_ids: *id001
+learning_variants:
+  planning:
+    example_intent: CHF 100 before/after
+    tone: neutral
+  urgent:
+    example_intent: time_until_cash_shortfall
+    tone: calm_direct
+  protection:
+    example_intent: income_timeline_and_gap
+    tone: reassuring_non_sales
+  sensitive_life_event:
+    example_intent: options_and_next_safe_step_without_trivializing_amount
+    tone: empathetic_non_infantilizing
