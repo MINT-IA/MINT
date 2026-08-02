@@ -22,9 +22,10 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 | Canonical JSON primitive | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_canonical_json.py` | PASS — 37/37; canonical digest non-evidence only |
 | Synthetic request payload | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_request_verifier.py` | PASS — 74/74; structural request non-evidence only |
 | Normative prompt component | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py` | PASS — 43/43; static prompt-contract non-evidence only |
+| Model review-content component | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py` | PASS — 39/39; structural/differential non-evidence only |
 | Generated views | `python3 tools/checks/mint_next_batch4_generate_views.py --check` | PASS — exact match |
-| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 14/14 deterministic criteria |
-| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 258/258 |
+| Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 15/15 deterministic criteria |
+| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 269/269 |
 | Diff whitespace | `git diff --check` | PASS |
 
 ## Promotion gates
@@ -50,8 +51,9 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
   prompt hash stays unresolved and no builder or frozen manifest exists.
 - The prompt component is unintegrated; behavioral model evals and future
   system/data transport-role separation remain absent and blocking.
-- The model-review-content schema and attested runner-owned metadata assembly
-  are absent; the model is not asked to invent provider/model/time/verdict.
+- The model-review-content schema/verifier is implemented but unintegrated and
+  non-evidence; attested runner-owned metadata assembly remains absent, and the
+  model is not asked to invent provider/model/time/verdict.
 - Swiss legal and regulatory validation is absent.
 - Official-source URLs are not captured, hashed rule truth.
 - Audience comprehension and UX are hypotheses without user evidence.

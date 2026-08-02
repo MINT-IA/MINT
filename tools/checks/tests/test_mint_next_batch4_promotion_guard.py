@@ -77,6 +77,9 @@ def reset(clone: Path):
         guard.REVIEW_PROMPT,
         guard.PROMPT_LINTER,
         guard.PROMPT_LINTER_TEST,
+        guard.MODEL_CONTENT_SCHEMA,
+        guard.MODEL_CONTENT_VERIFIER,
+        guard.MODEL_CONTENT_VERIFIER_TEST,
         Path(guard.PHASE_DIR),
         Path(".planning/ACTIVE_CONTEXT.json"),
         Path(".planning/STATE.md"),
@@ -222,7 +225,7 @@ def test_rejects_prompt_component_claim_inflation(clone: Path, key: str) -> None
 @pytest.mark.parametrize(
     "key",
     [
-        "prompt_behavioral_model_evals", "model_review_content_schema",
+        "prompt_behavioral_model_evals",
         "canonical_request_builder", "frozen_input_manifest_builder",
     ],
 )
@@ -238,12 +241,58 @@ def test_rejects_prompt_dependency_readiness_inflation(clone: Path, key: str) ->
 
 
 @pytest.mark.parametrize(
+    "key", ["model_review_content_schema", "model_review_content_semantic_verifier"]
+)
+def test_rejects_model_content_component_downgrade(clone: Path, key: str) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implementation_blockers"].__setitem__(
+            key, "absent_unimplemented_blocking"
+        ),
+    )
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
     "relative",
     [guard.REVIEW_PROMPT, guard.PROMPT_LINTER, guard.PROMPT_LINTER_TEST],
 )
 def test_rejects_prompt_component_byte_drift(clone: Path, relative: Path) -> None:
     with (clone / relative).open("ab") as handle:
         handle.write(b"\n")
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "relative",
+    [
+        guard.MODEL_CONTENT_SCHEMA,
+        guard.MODEL_CONTENT_VERIFIER,
+        guard.MODEL_CONTENT_VERIFIER_TEST,
+    ],
+)
+def test_rejects_model_content_component_byte_drift(clone: Path, relative: Path) -> None:
+    with (clone / relative).open("ab") as handle:
+        handle.write(b"\n")
+    assert guard.validate(clone)
+
+
+@pytest.mark.parametrize(
+    "key",
+    [
+        "proves_model_behavior_or_prompt_injection_resistance",
+        "proves_resolved_evidence_refs_or_candidate_binding",
+        "proves_runner_provider_identity_review_or_promotion",
+        "eligible_as_gate_or_promotion_evidence",
+    ],
+)
+def test_rejects_model_content_claim_inflation(clone: Path, key: str) -> None:
+    _mutate_yaml(
+        clone,
+        guard.REVIEW_PROTOCOL,
+        lambda data: data["implemented_model_review_content_component"].__setitem__(key, True),
+    )
     assert guard.validate(clone)
 
 

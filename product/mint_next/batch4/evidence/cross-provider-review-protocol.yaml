@@ -25,7 +25,8 @@ implementation_blockers:
   normative_prompt_artifact: implemented_component_unintegrated_blocking
   normative_prompt_linter: implemented_component_unintegrated_blocking
   prompt_behavioral_model_evals: absent_unimplemented_blocking
-  model_review_content_schema: absent_unimplemented_blocking
+  model_review_content_schema: implemented_component_unintegrated_blocking
+  model_review_content_semantic_verifier: implemented_component_unintegrated_blocking
   canonical_json_primitive: implemented_component_unintegrated_blocking
   request_payload_shape_schema: implemented_component_unintegrated_blocking
   request_payload_semantic_verifier: implemented_component_unintegrated_blocking
@@ -345,7 +346,7 @@ future_prompt_requirements:
   - verdict
   runner_must_derive_verdict_from_verified_content: true
   model_must_not_generate_or_self_attest_runner_owned_fields: true
-  model_review_content_schema: absent_unimplemented_blocking
+  model_review_content_schema: implemented_component_unintegrated_blocking
   limitation_ownership:
     model_permitted_codes:
     - incomplete_input_or_context
@@ -385,11 +386,34 @@ implemented_normative_prompt_component:
   request_system_prompt_sha256_binding: unresolved_until_separate_integration_batch
   future_transport_role: provider_system_or_developer_channel_separate_from_untrusted_payload
   model_output_scope: semantic_review_content_only_untrusted
-  model_review_content_schema: absent_unimplemented_blocking
+  model_review_content_schema: implemented_component_unintegrated_blocking
   success_output: PROMPT_CONTRACT_LINTED_NON_EVIDENCE
   proves_prompt_injection_resistance: false
   proves_provider_behavior_or_output_conformance: false
   proves_review_or_promotion_evidence: false
+  eligible_as_gate_or_promotion_evidence: false
+implemented_model_review_content_component:
+  status: implemented_component_unintegrated_blocking
+  schema_path: product/mint_next/batch4/evidence/model-review-content.schema.json
+  schema_sha256: 55ec47f199a0bba592ac05a4ee1bf879f03eaa158433800307f567996ebde634
+  verifier_path: tools/checks/mint_next_batch4_model_review_content_verifier.py
+  verifier_sha256: bc3c406a05cefa647f4c34c6a505bfb8f6c7acd8170c371737ec4b402589f660
+  test_path: tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py
+  test_sha256: e26703a94aace5d13a0733bf97e490e28e0a63f2ced588eb9e692b1e9179bce9
+  exact_model_output_fields:
+  - dimension_results
+  - findings
+  - limitations
+  differential_dependencies:
+    full_result_schema_path: product/mint_next/batch4/evidence/review-result.schema.json
+    full_result_schema_sha256: b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda
+    full_result_verifier_path: tools/checks/mint_next_batch4_review_result_verifier.py
+    full_result_verifier_sha256: 7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f
+  success_output: STRUCTURALLY_VALID_MODEL_CONTENT_NON_EVIDENCE
+  writes_artifact_or_digest: false
+  proves_model_behavior_or_prompt_injection_resistance: false
+  proves_resolved_evidence_refs_or_candidate_binding: false
+  proves_runner_provider_identity_review_or_promotion: false
   eligible_as_gate_or_promotion_evidence: false
 future_result_contract:
   status: schema_defined_component_only_non_executable

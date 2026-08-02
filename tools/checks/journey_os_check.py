@@ -250,6 +250,9 @@ ALLOW = {
     "product/mint_next/batch4/evidence/cross-provider-review-system-prompt-v1.txt",
     "tools/checks/mint_next_batch4_review_prompt_linter.py",
     "tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py",
+    "product/mint_next/batch4/evidence/model-review-content.schema.json",
+    "tools/checks/mint_next_batch4_model_review_content_verifier.py",
+    "tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

@@ -119,6 +119,31 @@ Its final diff is restricted to this phase's PLAN/SPEC/VERIFICATION, the review
 protocol, prompt/linter/test, promotion guard/test and three exact Journey
 whitelist additions. A clean-clone revert must restore the parent tree.
 
+## Batch R6 — model review-content contract only
+
+1. Pin one closed Draft 2020-12 shape schema for exactly
+   `dimension_results`, `findings`, and model-permitted `limitations`.
+   Runner-owned top-level fields and runner-only limitation codes are forbidden.
+2. Add one strict offline semantic verifier. It rejects unsafe JSON/resources,
+   ownership violations, dimension/finding/limitation drift and unsafe files.
+   It loads the already pinned full-result verifier from verified retained bytes,
+   constructs an in-memory synthetic envelope, and requires differential
+   acceptance without writing that envelope.
+3. Success emits only `STRUCTURALLY_VALID_MODEL_CONTENT_NON_EVIDENCE`.
+   It proves neither model behavior nor evidence-reference resolution,
+   candidate/provider identity, review, gate, or promotion.
+4. Keep schema/verifier `implemented_component_unintegrated_blocking`.
+   Keep behavioral evals, prompt request binding, builder, manifest, provider,
+   transport, runner, attestation, bundle, candidate, gate and promotion absent.
+5. Stop. Do not call a model or create content, request, response, result,
+   manifest, receipt, or evidence artifacts.
+
+R6's exact parent is `2036f58e422515e2cc64bbc643fe4a5e8840a850`.
+Its final diff is restricted to this phase's PLAN/SPEC/VERIFICATION, the review
+protocol, model-content schema/verifier/test, promotion guard/test and three
+exact Journey whitelist additions. A clean-clone revert must restore the parent
+tree.
+
 ## Future four-head promotion protocol
 
 The four heads are distinct and must never be collapsed or backfilled:

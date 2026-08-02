@@ -53,6 +53,11 @@ machine-readable and impossible to confuse with promotion itself.
     Model-visible and runner-observed limitation codes are disjoint; a future
     runner must reject ownership violations and merge them deterministically
     before deriving the verdict.
+14. The model review-content schema and verifier may accept synthetic content
+    only. They exclude all runner-owned fields and runner-only limitation codes,
+    reuse the pinned full-result verifier differentially, write no artifact or
+    digest, and prove no model behavior, resolved reference, candidate/provider
+    identity, review, gate or promotion.
 
 ## Future eligibility criteria
 
@@ -100,6 +105,9 @@ one frozen candidate semantic head:
   emits only `STRUCTURALLY_VALID_REQUEST_NON_EVIDENCE` without a digest or file.
 - The pinned normative prompt/linter passes static mutation and cross-artifact
   vocabulary tests and emits only `PROMPT_CONTRACT_LINTED_NON_EVIDENCE`.
+- The pinned model review-content schema/verifier passes hostile synthetic and
+  differential tests and emits only
+  `STRUCTURALLY_VALID_MODEL_CONTENT_NON_EVIDENCE`.
 - Router documents name this phase as governance/readiness work only.
 - Batch 4 remains draft/null and generated views remain unchanged.
 - The old authority phase remains historical and accepted in its original
@@ -120,6 +128,7 @@ result-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_
 canonical-json-primitive: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_canonical_json.py
 request-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_request_verifier.py
 review-prompt-linter: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py
+model-review-content-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py
 generated-views: python3 tools/checks/mint_next_batch4_generate_views.py --check
 readiness-yaml: python3 -c "import yaml; d=yaml.safe_load(open('product/mint_next/batch4/evidence/promotion-readiness.yaml')); assert set(d)=={'schema_version','kind','phase','status','promotion_eligible','selected_gate','candidate_head','promotion_receipt','gates','manifests','formula_blockers','claim_boundary'} and d['status']=='blocked_waiting_cross_provider_review' and d['promotion_eligible'] is False and d['selected_gate']=='none' and d['candidate_head'] is None and d['promotion_receipt'] is None"
 contract-diff: git diff --check

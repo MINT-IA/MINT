@@ -35,6 +35,15 @@ REQUEST_VERIFIER_TEST = Path("tools/checks/tests/test_mint_next_batch4_review_re
 REVIEW_PROMPT = Path("product/mint_next/batch4/evidence/cross-provider-review-system-prompt-v1.txt")
 PROMPT_LINTER = Path("tools/checks/mint_next_batch4_review_prompt_linter.py")
 PROMPT_LINTER_TEST = Path("tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py")
+MODEL_CONTENT_SCHEMA = Path(
+    "product/mint_next/batch4/evidence/model-review-content.schema.json"
+)
+MODEL_CONTENT_VERIFIER = Path(
+    "tools/checks/mint_next_batch4_model_review_content_verifier.py"
+)
+MODEL_CONTENT_VERIFIER_TEST = Path(
+    "tools/checks/tests/test_mint_next_batch4_model_review_content_verifier.py"
+)
 BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
@@ -42,11 +51,11 @@ PHASE_DIR = f".planning/phases/{PHASE}"
 HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
 SEMANTIC_ARTIFACTS: dict[str, str] = {
     f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
-    f"{PHASE_DIR}/SPEC.md": "116ed4b84a8a1e06c8e482543aabb1a56dc2264d058b8ab2b2c3592d686ac41a",
-    f"{PHASE_DIR}/PLAN.md": "071b8c30147fac349eadba8aaca8cf3807d1e6bf188b69834aed90bdd1ab754b",
-    f"{PHASE_DIR}/VERIFICATION.md": "be0d68abe1dbc6219bfd2faff2e23a38ae88deef6ee4b982abbd8664837288a5",
+    f"{PHASE_DIR}/SPEC.md": "a8e9f80cb152046230d8c561c676d29c1bfedbf306b1846cd001a2199f054072",
+    f"{PHASE_DIR}/PLAN.md": "7920f970a785336a76603c33923b04c863779d95604ab3f4a231b5f8d7aec8a2",
+    f"{PHASE_DIR}/VERIFICATION.md": "f54a237acf75022a2c76f83a540f5ea8b9afa1417c458e5a42ee58a89bbca019",
     str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
-    str(REVIEW_PROTOCOL): "a9b0b391bb27f0b34ed42b29e00ba3c7abc5a7aeae9bc34327c9a189e1c3a464",
+    str(REVIEW_PROTOCOL): "ee50f4448e2948cc023ccd24ef5a5036000ac2d51316873a7243390db867fec8",
     str(RESULT_SCHEMA): "b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda",
     str(RESULT_VERIFIER): "7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f",
     str(RESULT_VERIFIER_TEST): "d9a63c21de33bf7b8da8aabc61b87de75d8a9d8297919b2ec9492e48f3a9ef35",
@@ -60,6 +69,9 @@ SEMANTIC_ARTIFACTS: dict[str, str] = {
     str(REVIEW_PROMPT): "6b048935b777ee4f5fcdc0575345c11ddf4f9c5a619758010e9a18ffd7083b6f",
     str(PROMPT_LINTER): "04dd657d29e3c73579b5b763368e1d14293ddfef9c8fd2e30306f6bb2169169a",
     str(PROMPT_LINTER_TEST): "72e6dee039c07795b7158bf75eb8dd4693216c45b1bcf2056cc4f97de5254530",
+    str(MODEL_CONTENT_SCHEMA): "55ec47f199a0bba592ac05a4ee1bf879f03eaa158433800307f567996ebde634",
+    str(MODEL_CONTENT_VERIFIER): "bc3c406a05cefa647f4c34c6a505bfb8f6c7acd8170c371737ec4b402589f660",
+    str(MODEL_CONTENT_VERIFIER_TEST): "e26703a94aace5d13a0733bf97e490e28e0a63f2ced588eb9e692b1e9179bce9",
 }
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
@@ -207,6 +219,7 @@ def validate(root: Path) -> list[str]:
         "implemented_canonical_json_component",
         "implemented_request_payload_contract_component",
         "implemented_normative_prompt_component",
+        "implemented_model_review_content_component",
         "future_detached_execution_manifest", "future_result_verifier_requirements",
         "finding_remediation_lifecycle", "forbidden_current_claims",
     }
@@ -524,7 +537,7 @@ def validate(root: Path) -> list[str]:
         "request_system_prompt_sha256_binding": "unresolved_until_separate_integration_batch",
         "future_transport_role": "provider_system_or_developer_channel_separate_from_untrusted_payload",
         "model_output_scope": "semantic_review_content_only_untrusted",
-        "model_review_content_schema": "absent_unimplemented_blocking",
+        "model_review_content_schema": "implemented_component_unintegrated_blocking",
         "success_output": "PROMPT_CONTRACT_LINTED_NON_EVIDENCE",
         "proves_prompt_injection_resistance": False,
         "proves_provider_behavior_or_output_conformance": False,
@@ -533,13 +546,40 @@ def validate(root: Path) -> list[str]:
     }
     if prompt_component != expected_prompt_component:
         errors.append("normative prompt component must remain exact, unintegrated, and non-evidence")
+    model_content_component = protocol.get("implemented_model_review_content_component") or {}
+    expected_model_content_component = {
+        "status": "implemented_component_unintegrated_blocking",
+        "schema_path": str(MODEL_CONTENT_SCHEMA),
+        "schema_sha256": SEMANTIC_ARTIFACTS[str(MODEL_CONTENT_SCHEMA)],
+        "verifier_path": str(MODEL_CONTENT_VERIFIER),
+        "verifier_sha256": SEMANTIC_ARTIFACTS[str(MODEL_CONTENT_VERIFIER)],
+        "test_path": str(MODEL_CONTENT_VERIFIER_TEST),
+        "test_sha256": SEMANTIC_ARTIFACTS[str(MODEL_CONTENT_VERIFIER_TEST)],
+        "exact_model_output_fields": ["dimension_results", "findings", "limitations"],
+        "differential_dependencies": {
+            "full_result_schema_path": str(RESULT_SCHEMA),
+            "full_result_schema_sha256": SEMANTIC_ARTIFACTS[str(RESULT_SCHEMA)],
+            "full_result_verifier_path": str(RESULT_VERIFIER),
+            "full_result_verifier_sha256": SEMANTIC_ARTIFACTS[str(RESULT_VERIFIER)],
+        },
+        "success_output": "STRUCTURALLY_VALID_MODEL_CONTENT_NON_EVIDENCE",
+        "writes_artifact_or_digest": False,
+        "proves_model_behavior_or_prompt_injection_resistance": False,
+        "proves_resolved_evidence_refs_or_candidate_binding": False,
+        "proves_runner_provider_identity_review_or_promotion": False,
+        "eligible_as_gate_or_promotion_evidence": False,
+    }
+    if model_content_component != expected_model_content_component:
+        errors.append("model review content component must remain exact, unintegrated, and non-evidence")
     if blockers.get("normative_prompt_artifact") != "implemented_component_unintegrated_blocking" or blockers.get(
         "normative_prompt_linter"
     ) != "implemented_component_unintegrated_blocking" or blockers.get(
         "prompt_behavioral_model_evals"
     ) != "absent_unimplemented_blocking" or blockers.get(
         "model_review_content_schema"
-    ) != "absent_unimplemented_blocking" or blockers.get(
+    ) != "implemented_component_unintegrated_blocking" or blockers.get(
+        "model_review_content_semantic_verifier"
+    ) != "implemented_component_unintegrated_blocking" or blockers.get(
         "canonical_request_builder"
     ) != "absent_unimplemented_blocking" or blockers.get(
         "frozen_input_manifest_builder"
