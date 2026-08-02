@@ -58,6 +58,7 @@ fact_contract:
     amount_minor_units: positive_integer
     all_personal_providers_reviewed: true
     every_row_valid: true
+    normalized_provider_names_unique: true
     unresolved_movement_count: 0
   zero_invariant:
     status_yes: zero_forbidden
@@ -91,8 +92,11 @@ fact_contract:
 aggregation_contract:
   row_unit: one_provider_attestation_total_for_selected_year
   provider_kinds: [bank_or_fintech_foundation, insurance_institution, unspecified]
-  provider_identity_required: false
-  optional_local_label: allowed_but_never_account_policy_or_avs_number
+  provider_identity_required: ephemeral_provider_name_only
+  provider_name_storage: ephemeral_never_logged_or_persisted
+  provider_name_forbidden_content: [account_number, policy_number, avs_number, iban]
+  provider_name_normalization: unicode_trim_casefold_collapse_spaces
+  provider_rows_unique_by_normalized_ephemeral_name: true
   source_rule: use_provider_total_q_once_when_available
   do_not_double_count: provider_total_q_plus_policy_or_contract_detail_p
   multiple_providers: sum_each_provider_scoped_total_once
@@ -115,7 +119,8 @@ node_contracts:
       provider_total_note: Utilise le total annuel ordinaire confirmé par ce prestataire. S’il couvre plusieurs contrats, ne recompte pas leur détail.
       not_result_note: Ce total n’est pas encore un résultat fiscal.
       first_row_label: Banque, fintech ou assurance 3a n° 1
-      optional_label: Surnom facultatif — sans numéro de compte ou de police
+      provider_name: Nom du prestataire (par ex. VIAC ou ta banque)
+      provider_name_privacy: N’indique aucun numéro de compte, de police ou AVS.
       amount_label: Montant ordinaire confirmé pour {taxYear}
       amount_suffix: CHF
       add_provider: Ajouter un autre prestataire 3a
@@ -142,14 +147,17 @@ node_contracts:
       edit_amount: {operation: update_minor_units_clear_canonical_total_until_reconfirmed}
       toggle_all_reviewed: {operation: set_completeness_assertion_clear_canonical_total_then_validate}
       where_to_find: {operation: same_node_disclosure, default_expanded: false}
-      missing_amount: {to: contributed_amount_unknown_help, mode: partial_known, preserves: ephemeral_working_rows}
-      unknown_amount: {to: contributed_amount_unknown_help, mode: no_amount_known, mutation: amount_unknown, preserves: ephemeral_working_rows}
+      missing_amount: {to: contributed_amount_unknown_help, visible_when: at_least_one_positive_draft_and_total_incomplete, mode: partial_known, preserves: ephemeral_working_rows}
+      unknown_amount: {to: contributed_amount_unknown_help, visible_when: no_positive_draft_exists, mode: no_amount_known, mutation: amount_unknown, preserves: ephemeral_working_rows}
       continue: {to: fact_canton, guard: complete_positive_total_only, mutation: commit_canonical_total}
       correct_previous: {to: fact_contribution, restores_selection: 'yes', preserves_draft_until_status_changes}
       open_safe_exit: {overlay: safe_exit}
     inline_errors:
-      all_rows_empty: Entre un montant ou choisis « Je ne sais pas ».
-      one_row_empty: Complète ou supprime ce prestataire.
+      all_rows_empty: Entre le nom et le montant d’un prestataire, ou choisis « Je ne connais encore aucun montant ».
+      provider_name_empty: Indique seulement le nom du prestataire, sans numéro de compte ou de police.
+      sole_amount_empty: Entre le montant confirmé, ou choisis « Je ne connais encore aucun montant ».
+      additional_row_incomplete: Complète ou supprime ce prestataire.
+      duplicate_provider: Ce prestataire est déjà ajouté. Corrige la ligne existante au lieu de compter son total deux fois.
       zero: Un montant reçu doit être supérieur à zéro. Si rien n’est resté crédité, corrige ta réponse précédente.
       invalid_format: Utilise uniquement des chiffres et un seul séparateur décimal.
       too_many_decimals: Indique au maximum deux chiffres après le séparateur.
@@ -176,13 +184,14 @@ node_contracts:
       provider_total_warning: Si un total couvre plusieurs contrats, ne rajoute pas leurs lignes détaillées.
       correction_warning: Après un remboursement ou une correction, demande le nouveau montant net ordinaire. Ne le soustrais pas toi-même.
       classification_question: En cas de doute, demande si le mouvement est une cotisation ordinaire, un transfert, un rachat ou un remboursement.
-      found_amount: J’ai trouvé le montant
+      found_partial_amount: Ajouter le montant manquant
+      found_first_amount: Saisir un premier montant
       continue_education_only: Continuer sans montant personnel
       back: Revenir à mes montants
     controls:
-      found_amount: {to: fact_contributed_amount, restores: rows_scroll_and_focus}
+      found_amount: {to: fact_contributed_amount, label_by_mode: {partial_known: found_partial_amount, no_amount_known: found_first_amount}, mutation: verification_attempt_completed, focus: first_missing_or_first_row}
       continue_education_only: {to: education_explanation, mutation: amount_unknown, mode: general_education_no_personal_amount}
-      back: {operation: history_back, allowed_predecessors: [fact_contributed_amount]}
+      back: {operation: history_back_without_mutation, allowed_predecessors: [fact_contributed_amount], restores: originating_help_trigger_focus}
       open_safe_exit: {overlay: safe_exit}
     forbidden: [infer_zero, commit_partial_subtotal, personal_estimate, import_or_scan_cta, dead_provider_link]
   fact_canton_boundary:
@@ -273,7 +282,7 @@ content_boundaries:
 
 implementation_slices_after_written_acceptance:
   - id: single_provider_positive_amount_unknown_help_and_boundaries
-    rendered_controls: [amount_input, where_to_find, missing_amount, unknown_amount, continue, correct_previous, safe_exit]
+    rendered_controls: [provider_name, amount_input, all_providers_reviewed, where_to_find, missing_amount, unknown_amount, continue, correct_previous, safe_exit]
     forbidden_visible_controls: [add_provider, remove_provider]
   - id: additional_provider_rows_local_exact_sum_and_completeness
     rendered_controls: [add_provider, remove_provider, running_total, all_providers_reviewed]

@@ -105,10 +105,26 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
     def test_rejects_sensitive_identifier_in_optional_label(self) -> None:
         errors = self._mutate_scope(
             lambda value: value["aggregation_contract"].update(
-                {"optional_local_label": "account_or_policy_number_allowed"}
+                {"provider_name_forbidden_content": []}
             )
         )
-        self.assertIn("Batch11 optional provider label can collect sensitive identifiers", errors)
+        self.assertIn("Batch11 duplicate-provider or sensitive-identifier invariant drift", errors)
+
+    def test_rejects_duplicate_provider_rows_becoming_canonical(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["fact_contract"]["canonical_value_only_when"].update(
+                {"normalized_provider_names_unique": False}
+            )
+        )
+        self.assertIn("Batch11 incomplete subtotal could become canonical", errors)
+
+    def test_rejects_provider_name_not_being_ephemeral(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["aggregation_contract"].update(
+                {"provider_name_storage": "persisted"}
+            )
+        )
+        self.assertIn("Batch11 privacy-safe provider discriminator drift", errors)
 
     def test_rejects_continue_without_complete_positive_guard(self) -> None:
         errors = self._mutate_scope(lambda value: value["node_contracts"]["fact_contributed_amount"]["controls"]["continue"].update({"guard": "subtotal_nonnegative"}))
@@ -128,6 +144,30 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
         )
         self.assertIn("Batch11 provider-label privacy or disclosure copy drift", errors)
 
+    def test_rejects_stale_empty_error_action_label(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["fact_contributed_amount"]["inline_errors"].update(
+                {"all_rows_empty": "Choisis Je ne sais pas."}
+            )
+        )
+        self.assertIn("Batch11 inline error does not match visible action or duplicate state", errors)
+
+    def test_rejects_partial_action_without_positive_draft_guard(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["fact_contributed_amount"]["controls"]["missing_amount"].update(
+                {"visible_when": "always"}
+            )
+        )
+        self.assertIn("Batch11 partial and no-amount actions can contradict working state", errors)
+
+    def test_rejects_unknown_action_with_positive_draft(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["fact_contributed_amount"]["controls"]["unknown_amount"].update(
+                {"visible_when": "always"}
+            )
+        )
+        self.assertIn("Batch11 partial and no-amount actions can contradict working state", errors)
+
     def test_rejects_dead_unknown_help(self) -> None:
         errors = self._mutate_scope(lambda value: value["node_contracts"]["contributed_amount_unknown_help"]["controls"]["found_amount"].update({"to": "dead"}))
         self.assertIn("Batch11 unknown-help route is dead or personal", errors)
@@ -137,6 +177,12 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
             lambda value: value["node_contracts"]["contributed_amount_unknown_help"]["reference_copy_fr"].pop("back")
         )
         self.assertIn("Batch11 help variants or Back copy missing", errors)
+
+    def test_rejects_help_primary_action_redundant_with_back(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["node_contracts"]["contributed_amount_unknown_help"]["controls"]["found_amount"].pop("mutation")
+        )
+        self.assertIn("Batch11 help primary action and Back remain semantically redundant", errors)
 
     def test_rejects_ambiguous_separator_guess(self) -> None:
         errors = self._mutate_scope(lambda value: value["input_contract"].update({"ambiguous_or_mixed_separators": "guess"}))
@@ -252,6 +298,12 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
 
     def test_rejects_premature_single_big_runtime(self) -> None:
         errors = self._mutate_scope(lambda value: value.update({"implementation_slices_after_written_acceptance": ["full_product_runtime"]}))
+        self.assertIn("Batch11 future implementation is no longer split into bounded slices", errors)
+
+    def test_rejects_slice1_without_completeness_control(self) -> None:
+        errors = self._mutate_scope(
+            lambda value: value["implementation_slices_after_written_acceptance"][0]["rendered_controls"].remove("all_providers_reviewed")
+        )
         self.assertIn("Batch11 future implementation is no longer split into bounded slices", errors)
 
     def test_rejects_mandatory_roast_removal(self) -> None:

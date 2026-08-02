@@ -25,7 +25,7 @@ EXPECTED_AUTHORITY_DIGESTS = {
     PREVIOUS_ACCEPTANCE: "36c9ef128aa7b548c1df04637d9721cda2babfe330ef16ff1133f5a1288846f2",
 }
 EXPECTED_WRITTEN_ARTIFACT_DIGESTS = {
-    SCOPE: "eba64ea7a6280575db4a6ff95b2f6408ee295078a22da4f59e3f95b5b3c697a3",
+    SCOPE: "7bffb567e33d76565900ee547f73fdd937c6d8722e5a135dab2e2a5cced721ea",
     SOURCES: "6ebc04d5edb92d8f437db1b6ce60ebae5daa187f294cdc3cdffbe2d934ce3741",
     LEGACY: "2fae82c99a9a66ddaefba524445b061f6b363860b48bd9d0c17a0a62ef994204",
 }
@@ -163,6 +163,7 @@ def validate(
         "amount_minor_units": "positive_integer",
         "all_personal_providers_reviewed": True,
         "every_row_valid": True,
+        "normalized_provider_names_unique": True,
         "unresolved_movement_count": 0,
     }:
         errors.append("Batch11 incomplete subtotal could become canonical")
@@ -209,10 +210,10 @@ def validate(
     for key, value in required_aggregation.items():
         if aggregation.get(key) != value:
             errors.append(f"Batch11 aggregation invariant drift: {key}")
-    if aggregation.get("provider_identity_required") is not False:
-        errors.append("Batch11 unnecessary provider identity became required")
-    if aggregation.get("optional_local_label") != "allowed_but_never_account_policy_or_avs_number":
-        errors.append("Batch11 optional provider label can collect sensitive identifiers")
+    if aggregation.get("provider_identity_required") != "ephemeral_provider_name_only" or aggregation.get("provider_name_storage") != "ephemeral_never_logged_or_persisted":
+        errors.append("Batch11 privacy-safe provider discriminator drift")
+    if set(aggregation.get("provider_name_forbidden_content", [])) != {"account_number", "policy_number", "avs_number", "iban"} or aggregation.get("provider_name_normalization") != "unicode_trim_casefold_collapse_spaces" or aggregation.get("provider_rows_unique_by_normalized_ephemeral_name") is not True:
+        errors.append("Batch11 duplicate-provider or sensitive-identifier invariant drift")
     if aggregation.get("full_refund") != {
         "aggregate_still_positive": "remove_or_correct_affected_row_then_reconfirm_completeness",
         "aggregate_becomes_zero": "return_to_status_question_for_explicit_no",
@@ -237,14 +238,22 @@ def validate(
     if remove.get("visible_only_when_row_count_at_least") != 2 or remove.get("minimum_rows_after_removal") != 1:
         errors.append("Batch11 provider removal can leave zero rows")
     copy = amount.get("reference_copy_fr", {})
-    if copy.get("optional_label") != "Surnom facultatif — sans numéro de compte ou de police" or not copy.get("where_to_find_title") or not copy.get("where_to_find_body"):
+    if copy.get("provider_name") != "Nom du prestataire (par ex. VIAC ou ta banque)" or copy.get("provider_name_privacy") != "N’indique aucun numéro de compte, de police ou AVS." or not copy.get("where_to_find_title") or not copy.get("where_to_find_body"):
         errors.append("Batch11 provider-label privacy or disclosure copy drift")
+    if controls.get("missing_amount", {}).get("visible_when") != "at_least_one_positive_draft_and_total_incomplete" or controls.get("unknown_amount", {}).get("visible_when") != "no_positive_draft_exists":
+        errors.append("Batch11 partial and no-amount actions can contradict working state")
+    inline_errors = amount.get("inline_errors", {})
+    if inline_errors.get("all_rows_empty") != "Entre le nom et le montant d’un prestataire, ou choisis « Je ne connais encore aucun montant »." or not inline_errors.get("provider_name_empty") or not inline_errors.get("sole_amount_empty") or not inline_errors.get("additional_row_incomplete") or not inline_errors.get("duplicate_provider"):
+        errors.append("Batch11 inline error does not match visible action or duplicate state")
     help_controls = nodes.get("contributed_amount_unknown_help", {}).get("controls", {})
     if help_controls.get("found_amount", {}).get("to") != "fact_contributed_amount" or help_controls.get("continue_education_only", {}).get("to") != "education_explanation":
         errors.append("Batch11 unknown-help route is dead or personal")
     help_copy = nodes.get("contributed_amount_unknown_help", {}).get("reference_copy_fr", {})
-    if not help_copy.get("back") or not help_copy.get("partial_body") or not help_copy.get("unknown_body"):
+    if not help_copy.get("back") or not help_copy.get("partial_body") or not help_copy.get("unknown_body") or not help_copy.get("found_partial_amount") or not help_copy.get("found_first_amount"):
         errors.append("Batch11 help variants or Back copy missing")
+    found_control = help_controls.get("found_amount", {})
+    if found_control.get("mutation") != "verification_attempt_completed" or found_control.get("focus") != "first_missing_or_first_row" or help_controls.get("back", {}).get("operation") != "history_back_without_mutation":
+        errors.append("Batch11 help primary action and Back remain semantically redundant")
     if "import_or_scan_cta" not in set(nodes.get("contributed_amount_unknown_help", {}).get("forbidden", [])):
         errors.append("Batch11 premature document import became allowed")
 
@@ -303,7 +312,7 @@ def validate(
     if scope.get("implementation_slices_after_written_acceptance") != [
         {
             "id": "single_provider_positive_amount_unknown_help_and_boundaries",
-            "rendered_controls": ["amount_input", "where_to_find", "missing_amount", "unknown_amount", "continue", "correct_previous", "safe_exit"],
+            "rendered_controls": ["provider_name", "amount_input", "all_providers_reviewed", "where_to_find", "missing_amount", "unknown_amount", "continue", "correct_previous", "safe_exit"],
             "forbidden_visible_controls": ["add_provider", "remove_provider"],
         },
         {
