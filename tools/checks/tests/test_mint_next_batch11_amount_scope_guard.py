@@ -4,15 +4,51 @@ import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch
 
 import yaml
 
-from tools.checks.mint_next_batch11_amount_scope_guard import ACCEPTANCE, LEGACY, SCOPE, SOURCES, WORKFLOW, load, validate
+from tools.checks.mint_next_batch11_amount_scope_guard import (
+    ACCEPTANCE,
+    ACCEPTED_CANDIDATE_COMMIT,
+    BASE_COMMIT,
+    LEGACY,
+    ROOT,
+    SCOPE,
+    SOURCES,
+    WORKFLOW,
+    _runtime_drift,
+    load,
+    validate,
+)
 
 
 class Batch11AmountScopeGuardTest(unittest.TestCase):
     def test_current_written_contract_passes(self) -> None:
         self.assertEqual(validate(), [])
+
+    def test_no_runtime_proof_is_bound_to_the_accepted_candidate_not_future_head(self) -> None:
+        with patch("tools.checks.mint_next_batch11_amount_scope_guard.subprocess.run") as run:
+            run.return_value.stdout = ""
+            self.assertEqual(_runtime_drift(), [])
+
+        run.assert_called_once_with(
+            [
+                "git",
+                "diff",
+                "--name-only",
+                BASE_COMMIT,
+                ACCEPTED_CANDIDATE_COMMIT,
+                "--",
+                "product/mint_next/batch7/design_lab",
+                "apps/mobile",
+                "services/backend",
+            ],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
     def _mutate_scope(self, mutate) -> list[str]:
         with tempfile.TemporaryDirectory() as directory:

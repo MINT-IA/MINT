@@ -20,10 +20,10 @@ artifacts:
 verifier_trust_unit:
   guard:
     path: tools/checks/mint_next_batch11_amount_scope_guard.py
-    sha256: c9d8786199ab5acf0e471025f5927ae07191d9c7631a36a1c253ddcbdd440895
+    sha256: 5cd3d7c2dae9602430132a6d804513e7905a6a1475ccfade231712467bfedb83
   tests:
     path: tools/checks/tests/test_mint_next_batch11_amount_scope_guard.py
-    sha256: 40d1c8a0ccc63ebc632fd2d99ed051c7d9272edf93568f3d3853034c03dcc690
+    sha256: dc1ab577dbf7bbba852cbb69443ad72ca952c4ac4fbcbfbfc223ef304170c05f
 ci_workflow:
   path: .github/workflows/mint-next-batch11-contract.yml
   normalized_sha256: 0a9b36d1c26a6c3b85b68ce5540b68137b6e0fc365fad9b14954b1dc3e665827

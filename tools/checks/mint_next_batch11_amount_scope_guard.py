@@ -23,6 +23,7 @@ NAVIGATION = ROOT / "product/mint_next/batch6/navigation.yaml"
 PREVIOUS_SCOPE = ROOT / "product/mint_next/batch9/contribution-status-scope.yaml"
 PREVIOUS_ACCEPTANCE = ROOT / "product/mint_next/batch10/design-lab-acceptance.yaml"
 BASE_COMMIT = "19dd384eca2b2fdbc87510fb86cce988f646f471"
+ACCEPTED_CANDIDATE_COMMIT = "78e4baadbf97b9251e15130312624b6c67190f19"
 EXPECTED_AUTHORITY_DIGESTS = {
     NAVIGATION: "461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250",
     PREVIOUS_SCOPE: "64d941ce3c974c76bf5f3e40cb85a5a5e323cfe9b9f4eacbc8ee234d9722f83d",
@@ -108,7 +109,17 @@ def normalized_acceptance_digest(acceptance: object) -> str:
 def _runtime_drift() -> list[str]:
     try:
         changed = subprocess.run(
-            ["git", "diff", "--name-only", BASE_COMMIT, "--", "product/mint_next/batch7/design_lab", "apps/mobile", "services/backend"],
+            [
+                "git",
+                "diff",
+                "--name-only",
+                BASE_COMMIT,
+                ACCEPTED_CANDIDATE_COMMIT,
+                "--",
+                "product/mint_next/batch7/design_lab",
+                "apps/mobile",
+                "services/backend",
+            ],
             cwd=ROOT,
             check=True,
             capture_output=True,
@@ -157,7 +168,7 @@ def validate(
         "legacy_inventory": {"path": "product/mint_next/batch11/legacy-inventory.yaml", "sha256": EXPECTED_WRITTEN_ARTIFACT_DIGESTS[LEGACY]},
         "previous_runtime_acceptance": {"path": "product/mint_next/batch10/design-lab-acceptance.yaml", "sha256": EXPECTED_AUTHORITY_DIGESTS[PREVIOUS_ACCEPTANCE]},
     }
-    if acceptance.get("artifacts") != expected_acceptance_artifacts or acceptance.get("accepted_candidate") != {"commit": "78e4baadbf97b9251e15130312624b6c67190f19", "tree": "66f23556abbcc235d6425d9c2df0298b8522bd11"}:
+    if acceptance.get("artifacts") != expected_acceptance_artifacts or acceptance.get("accepted_candidate") != {"commit": ACCEPTED_CANDIDATE_COMMIT, "tree": "66f23556abbcc235d6425d9c2df0298b8522bd11"}:
         errors.append("Batch11 acceptance artifact or candidate binding drift")
 
     if check_runtime and (drift := _runtime_drift()):
