@@ -1,0 +1,75 @@
+{
+  "@@locale": "es",
+  "brand": "MINT",
+  "quit": "Salir",
+  "todayEyebrow": "HOY · PILAR 3A",
+  "todayTitle": "¿Qué cambia si aporto al pilar 3a este año?",
+  "todayBody": "Entenderemos los efectos paso a paso. MINT te informa, pero no decide por ti.",
+  "start": "Entender",
+  "orientationEyebrow": "ANTES DE LOS NÚMEROS",
+  "orientationTitle": "Ahorrar para tu jubilación también puede reducir tus impuestos.",
+  "orientationBody": "Una aportación al pilar 3a puede reducir tu renta imponible — el importe sobre el que se calculan tus impuestos. Tu dinero disponible disminuye ahora y el capital 3a queda vinculado hasta la jubilación, salvo en los casos previstos por la ley.",
+  "orientationNote": "Primero comprobaremos el año y tu situación. No se recomendará ningún importe.",
+  "continueLabel": "Continuar",
+  "backLabel": "Atrás",
+  "taxYearEyebrow": "PASO 1 · AÑO FISCAL",
+  "taxYearTitle": "¿De qué año hablamos?",
+  "taxYearBody": "El límite depende del año y de tu situación, incluidos tus ingresos profesionales y tu afiliación a una caja de pensiones. Se propone el año actual, pero nunca se elige por ti.",
+  "currentYearLabel": "Año actual: {year}",
+  "confirmYear": "Elegir {year}",
+  "yearChosen": "Año {year} seleccionado",
+  "partialBoundary": "La siguiente pantalla se añadirá en el próximo lote pequeño. No se guarda nada.",
+  "safeExitTitle": "¿Quieres detenerte aquí?",
+  "safeExitBody": "Este Design Lab no guarda datos financieros personales.",
+  "resume": "Continuar aquí",
+  "leave": "Salir sin guardar",
+  "dismissedTitle": "Recorrido cerrado",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Empezar",
+  "keepReferenceUnavailable": "Referencia local — próximamente",
+  "lppQuestionEyebrow": "TU SITUACIÓN",
+  "lppQuestionTitle": "¿Tienes actualmente una caja de pensiones?",
+  "lppQuestionBody": "También se llama previsión profesional, LPP o segundo pilar. Puedes estar afiliado por tu trabajo o voluntariamente. Te preguntamos si tienes cobertura actualmente, no cuánto aportas.",
+  "lppQuestionEvidence": "Para comprobarlo, busca una línea LPP o caja de pensiones en una nómina, consulta un certificado reciente o pregunta a tu caja de pensiones, empleador o recursos humanos.",
+  "lppChoiceYes": "Sí",
+  "lppChoiceNo": "No",
+  "lppChoiceUnknown": "No lo sé",
+  "lppUnknownEyebrow": "NO PASA NADA",
+  "lppUnknownTitle": "Puedes comprobarlo sin adivinar.",
+  "lppUnknownBody": "Empieza por lo que te resulte más fácil. Cuando tengas la respuesta, retoma este recorrido y responde de nuevo a la pregunta.",
+  "lppUnknownListLabel": "Tres formas de comprobar tu afiliación",
+  "lppUnknownPayslip": "Busca LPP, segundo pilar o caja de pensiones en una nómina reciente.",
+  "lppUnknownCertificate": "Busca un certificado de previsión reciente enviado por tu caja de pensiones.",
+  "lppUnknownAsk": "Pregunta a tu caja de pensiones, empleador o recursos humanos si estás afiliado actualmente.",
+  "lppBackToQuestion": "Volver a la pregunta",
+  "lppKeepChecklist": "Guardar esta lista en este dispositivo",
+  "localReferenceUnavailable": "Próximamente",
+  "withoutLppEyebrow": "SE APLICA OTRA REGLA",
+  "withoutLppTitle": "Quizá puedas aportar al pilar 3a, pero se aplican otras reglas.",
+  "withoutLppBody": "Tu respuesta no significa que no tengas derecho al pilar 3a. Este primer cálculo simplemente aún no cubre este caso.",
+  "lppCorrectAnswer": "Corregir mi respuesta",
+  "withoutLppKeepExplanation": "Guardar esta explicación en este dispositivo",
+  "nextStepEyebrow": "SIGUIENTE PASO",
+  "nextStepTitle": "Tu afiliación está clara.",
+  "nextStepBody": "La siguiente pregunta será sobre lo que ya has aportado este año. Se añadirá en el próximo lote pequeño. No se guarda nada."
+}

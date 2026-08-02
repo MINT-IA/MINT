@@ -1,0 +1,36 @@
+name: mint_next_design_lab
+description: Isolated executable design lab for MINT Next; never imported by the product.
+publish_to: none
+version: 0.0.1
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  generate: true
+  uses-material-design: true
+  fonts:
+    - family: Supreme
+      fonts:
+        - asset: assets/fonts/Supreme-Regular.otf
+          weight: 400
+        - asset: assets/fonts/Supreme-Medium.otf
+          weight: 500
+        - asset: assets/fonts/Supreme-Bold.otf
+          weight: 700
+    - family: Gambarino
+      fonts:
+        - asset: assets/fonts/Gambarino-Regular.otf
+          weight: 400

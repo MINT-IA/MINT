@@ -1,0 +1,75 @@
+{
+  "@@locale": "pt",
+  "brand": "MINT",
+  "quit": "Sair",
+  "todayEyebrow": "HOJE · PILAR 3A",
+  "todayTitle": "O que muda se contribuir para o pilar 3a este ano?",
+  "todayBody": "Vamos compreender os efeitos passo a passo. A MINT informa-te, mas não decide por ti.",
+  "start": "Compreender",
+  "orientationEyebrow": "ANTES DOS NÚMEROS",
+  "orientationTitle": "Poupar para a tua reforma também pode reduzir os teus impostos.",
+  "orientationBody": "Uma contribuição para o pilar 3a pode reduzir o teu rendimento tributável — o montante sobre o qual os impostos são calculados. O teu dinheiro disponível diminui agora e o capital 3a fica vinculado até à reforma, salvo nos casos previstos por lei.",
+  "orientationNote": "Primeiro verificamos o ano e a tua situação. Não será recomendado qualquer montante.",
+  "continueLabel": "Continuar",
+  "backLabel": "Voltar",
+  "taxYearEyebrow": "PASSO 1 · ANO FISCAL",
+  "taxYearTitle": "De que ano estamos a falar?",
+  "taxYearBody": "O limite depende do ano e da tua situação, incluindo o rendimento profissional e a filiação numa caixa de pensões. O ano atual é proposto, nunca escolhido por ti.",
+  "currentYearLabel": "Ano atual: {year}",
+  "confirmYear": "Escolher {year}",
+  "yearChosen": "Ano {year} selecionado",
+  "partialBoundary": "O ecrã seguinte será adicionado no próximo pequeno lote. Nada é guardado.",
+  "safeExitTitle": "Queres parar aqui?",
+  "safeExitBody": "Este Design Lab não guarda dados financeiros pessoais.",
+  "resume": "Continuar aqui",
+  "leave": "Sair sem guardar",
+  "dismissedTitle": "Percurso encerrado",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Começar",
+  "keepReferenceUnavailable": "Referência local — disponível em breve",
+  "lppQuestionEyebrow": "A TUA SITUAÇÃO",
+  "lppQuestionTitle": "Tens atualmente uma caixa de pensões?",
+  "lppQuestionBody": "Também se chama previdência profissional, LPP ou segundo pilar. Podes estar afiliado através do trabalho ou voluntariamente. Perguntamos se tens cobertura atualmente, não quanto pagas.",
+  "lppQuestionEvidence": "Para verificar, procura uma linha LPP ou caixa de pensões num recibo de salário, consulta um certificado recente ou pergunta à tua caixa de pensões, empregador ou recursos humanos.",
+  "lppChoiceYes": "Sim",
+  "lppChoiceNo": "Não",
+  "lppChoiceUnknown": "Não sei",
+  "lppUnknownEyebrow": "SEM PROBLEMA",
+  "lppUnknownTitle": "Podes verificar sem adivinhar.",
+  "lppUnknownBody": "Começa pelo que for mais fácil para ti. Quando tiveres a resposta, retoma este percurso e responde novamente à pergunta.",
+  "lppUnknownListLabel": "Três formas de verificar a tua afiliação",
+  "lppUnknownPayslip": "Procura LPP, segundo pilar ou caixa de pensões num recibo de salário recente.",
+  "lppUnknownCertificate": "Procura um certificado de previdência recente enviado pela tua caixa de pensões.",
+  "lppUnknownAsk": "Pergunta à tua caixa de pensões, empregador ou recursos humanos se estás atualmente afiliado.",
+  "lppBackToQuestion": "Voltar à pergunta",
+  "lppKeepChecklist": "Guardar esta lista neste dispositivo",
+  "localReferenceUnavailable": "Em breve",
+  "withoutLppEyebrow": "APLICA-SE OUTRA REGRA",
+  "withoutLppTitle": "Talvez possas contribuir para o pilar 3a, mas aplicam-se outras regras.",
+  "withoutLppBody": "A tua resposta não significa que não tens direito ao pilar 3a. Este primeiro cálculo simplesmente ainda não cobre este caso.",
+  "lppCorrectAnswer": "Corrigir a minha resposta",
+  "withoutLppKeepExplanation": "Guardar esta explicação neste dispositivo",
+  "nextStepEyebrow": "PRÓXIMO PASSO",
+  "nextStepTitle": "A tua afiliação está clara.",
+  "nextStepBody": "A próxima pergunta será sobre o que já pagaste este ano. Será adicionada no próximo pequeno lote. Nada é guardado."
+}

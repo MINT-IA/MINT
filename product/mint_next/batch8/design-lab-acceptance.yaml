@@ -1,0 +1,90 @@
+schema_version: 1
+status: mechanically_accepted_isolated_lpp_affiliation_slice
+accepted_at: '2026-08-02T23:15:00+02:00'
+written_contract:
+  scope:
+    path: product/mint_next/batch8/lpp-affiliation-scope.yaml
+    sha256: 5a8cbbbaf70ae36b6b49add173ef5d36205bfcfa93d67ee0bac0980ef608ebfc
+  sources:
+    path: product/mint_next/batch8/official-sources.yaml
+    sha256: 7014446847361acf6a24921ce3397d32d7981e425ef413cdb3378bbffab0c07b
+  acceptance:
+    path: product/mint_next/batch8/lpp-affiliation-acceptance.yaml
+    sha256: bb69f883de45f79af7ff430749857a406a3490ef29059597cfd6501941616727
+implementation_snapshot:
+  manifest:
+    path: product/mint_next/batch8/design-lab-manifest.yaml
+    sha256: b19348e8fd76a6ec77ce2864d097290300c31b77c23cff80a32b33279388413c
+    verification: offline_current_or_content_addressed_blob_no_git_or_network
+  accepted_commit: d265dfdf46c1c3c8b1745a7d814d4e1b853521fc
+  accepted_tree: a18ff1a156cf83c47e3b94b913c0a8b5f0b95b74
+  tracked_files: 42
+  content_addressed_archive: all_42_entries_present
+runtime_evidence:
+  ci_workflow:
+    path: .github/workflows/ai-workflow-guards.yml
+    sha256: 4fb19568bf5d9b83a8f4251151de24c7e4aae08e14b559fac1a1c6158e40d20b
+  probe:
+    path: tools/checks/mint_next_batch8_lpp_runtime_probe.py
+    sha256: a562a7daf3e0200c3560f2ba2b4aa2507cb55d71bbc1abf34e44f3bbbfd4389e
+  receipt:
+    path: product/mint_next/batch8/evidence/runtime/receipt.yaml
+    sha256: b374fbc551e8287ec66ba4daedd4de2c85c4ef6bc47ce106228a66aeb75fcfc8
+  captures:
+    fact_lpp_affiliation:
+      path: product/mint_next/batch8/evidence/runtime/fr_lpp_question_chrome_390.png
+      sha256: b857a8f604c343e33bff3a51299ee85273207d9b67f3a8a3ae465cc6b63e793b
+    lpp_unknown_help:
+      path: product/mint_next/batch8/evidence/runtime/fr_lpp_unknown_chrome_390.png
+      sha256: bef5500492e2f0601ed20fb744a13229f6c43f565d81f6f62d3281918548259b
+    without_lpp_boundary:
+      path: product/mint_next/batch8/evidence/runtime/fr_without_lpp_chrome_390.png
+      sha256: 3ab85ee619f2cabea73342a8194b5a9b5d0e96e74c21acf0c8181bca0fa769ac
+mechanical_acceptance_basis:
+  authority: deterministic_commands_exact_digests_full_package_manifest_and_real_chrome_receipt
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent_identity_independence_and_truthfulness_are_not_authenticated
+advisory_roasts:
+  - role: ux
+    verdict: ACCEPT
+    score: 9.8
+    p1: 0
+    p2: 0
+    bound_app_sha256: fab2f10819de164d3a351a816b106d95e7650daf433dca54e5725bfb129f483d
+  - role: accessibility
+    verdict: PASS
+    p1: 0
+    p2: 0
+    bound_app_sha256: fab2f10819de164d3a351a816b106d95e7650daf433dca54e5725bfb129f483d
+  - role: swiss_compliance
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    bound_app_sha256: fab2f10819de164d3a351a816b106d95e7650daf433dca54e5725bfb129f483d
+commands:
+  - flutter analyze
+  - flutter test
+  - python3 tools/checks/mint_next_batch8_lpp_runtime_probe.py
+  - python3 tools/checks/mint_next_batch8_lpp_runtime_guard.py
+  - python3 -m unittest tools.checks.tests.test_mint_next_batch8_lpp_runtime_guard
+  - python3 tools/checks/mint_next_batch7_design_lab_guard.py
+accepted_scope_only:
+  - isolated_flutter_design_lab
+  - written_fact_lpp_affiliation_navigation
+  - yes_no_unknown_physical_routes
+  - back_restores_selected_state
+  - safe_exit_visible
+  - safe_exit_resume_preserves_ephemeral_answers
+  - leave_without_saving_purges_ephemeral_answers
+  - six_source_locales
+  - 390x844_french_chrome_runtime
+  - 320x700_german_text_scale_2_widget_runtime
+not_accepted:
+  - product_integration
+  - ios_runtime
+  - android_runtime
+  - user_validation
+  - calculation_engine
+  - personal_result
+  - fact_contribution_implementation
+  - persisted_user_fact

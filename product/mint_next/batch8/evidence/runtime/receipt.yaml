@@ -21,5 +21,7 @@ mechanical_proofs:
   - back_restores_selected_state
   - unknown_and_no_paths_produce_no_personal_calculation
   - disabled_local_reference_is_visible
+  - safe_exit_resume_preserves_ephemeral_answers
+  - leave_without_saving_purges_tax_year_and_lpp_answer
   - zero_external_runtime_resources
 limitations: [web_design_lab_only, french_runtime_capture_only, not_ios_or_android, not_user_validation, fact_contribution_is_honest_next_batch_boundary, not_product_integration]

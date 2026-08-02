@@ -171,6 +171,8 @@ ALLOW = {
     "product/mint_next/batch8/lpp-affiliation-scope.yaml",
     "product/mint_next/batch8/lpp-affiliation-acceptance.yaml",
     "product/mint_next/batch8/official-sources.yaml",
+    "product/mint_next/batch8/design-lab-manifest.yaml",
+    "product/mint_next/batch8/design-lab-acceptance.yaml",
     "tools/checks/mint_next_batch8_lpp_scope_guard.py",
     "tools/checks/tests/test_mint_next_batch8_lpp_scope_guard.py",
     "product/mint_next/batch7/design_lab/test/design_lab_lpp_navigation_test.dart",

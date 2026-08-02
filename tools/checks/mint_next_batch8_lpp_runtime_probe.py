@@ -132,9 +132,32 @@ def run(capture: bool) -> None:
         click_label(browser, "Retour")
         selected = browser.js("(()=>{const e=" + button_expression("Oui") + ";return e&&e.getAttribute('aria-current')})()")
         check(selected == "true", "yes selection restored on Back")
+
+        click_label(browser, "Quitter")
+        check("Tu veux t’arrêter ici ?" in text(browser), "safe exit opened")
+        check("Repère local — bientôt disponible" in text(browser), "disabled local reference remains explicit")
+        click_label(browser, "Continuer ici")
+        selected = browser.js("(()=>{const e=" + button_expression("Oui") + ";return e&&e.getAttribute('aria-current')})()")
+        check(selected == "true", "safe exit Resume preserves the selected answer")
+
+        click_label(browser, "Quitter")
+        click_label(browser, "Quitter sans enregistrer")
+        check("Parcours fermé" in text(browser), "leave without saving reaches dismissed boundary")
+        click_label(browser, "Comprendre")
+        click_label(browser, "Comprendre")
+        click_label(browser, "Continuer")
+        check(not browser.js(f"!!({button_expression('Continuer')})"), "tax year was purged on leave without saving")
+        year = datetime.now(ZoneInfo("Europe/Zurich")).year
+        click_label(browser, f"Année en cours : {year}")
+        click_label(browser, "Continuer")
+        selected_count = browser.js(
+            "[...document.querySelectorAll('flt-semantics[role=button][aria-current=true]')]"
+            ".filter(e=>['Oui','Non','Je ne sais pas'].includes(e.innerText.trim())).length"
+        )
+        check(selected_count == 0, "LPP choice was purged on leave without saving")
         resources = browser.js("performance.getEntriesByType('resource').map(entry=>entry.name)")
         check(not any(str(item).startswith("https://") for item in resources), f"runtime has no external network resource: {resources}")
-        print("OK mint_next_batch8_lpp_runtime_probe: real Chrome traversed yes/no/unknown, Back state, honest boundaries and zero external runtime calls.")
+        print("OK mint_next_batch8_lpp_runtime_probe: real Chrome traversed yes/no/unknown, Back, safe-exit Resume/purge, honest boundaries and zero external runtime calls.")
     finally:
         browser.close()
         server.shutdown()
