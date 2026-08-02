@@ -227,6 +227,15 @@ ALLOW = {
     ".planning/phases/mint-next-architecture-authority-20260802/evidence/guard-hostile-mutations-b88a42557.yaml",
     "tools/checks/mint_next_authority_transition_guard.py",
     "tools/checks/tests/test_mint_next_authority_transition_guard.py",
+    # Batch 4 promotion-readiness phase. Exact files only: the phase is
+    # deliberately blocked and introduces no Journey/product implementation.
+    ".planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md",
+    ".planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md",
+    ".planning/phases/mint-next-batch4-architecture-promotion-20260802/PLAN.md",
+    ".planning/phases/mint-next-batch4-architecture-promotion-20260802/VERIFICATION.md",
+    "product/mint_next/batch4/evidence/promotion-readiness.yaml",
+    "tools/checks/mint_next_batch4_promotion_guard.py",
+    "tools/checks/tests/test_mint_next_batch4_promotion_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

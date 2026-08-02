@@ -1,52 +1,55 @@
 ---
 gsd_state_version: 1.0
-milestone: mint-next-architecture-authority-20260802
-milestone_name: MINT Next Architecture Authority
-status: governance-authority-accepted
+milestone: mint-next-batch4-architecture-promotion-20260802
+milestone_name: Batch 4 Architecture Promotion Readiness
+status: blocked_waiting_cross_provider_review
 accepted_transition_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
 acceptance_metadata_head: 73406990db57a2c7079dbba2784a45c85a151090
 rollback_proven_through: 73406990db57a2c7079dbba2784a45c85a151090
-stopped_at: Governance authority verified at b88a425573eb93508a554ca9e3c9a7bfd72f5d46; Batch 4 remains draft and no product phase is queued.
+stopped_at: Promotion readiness recorded; promotion_eligible false, selected_gate none, no candidate or receipt, waiting for cross-provider review.
 last_updated: "2026-08-02T00:00:00.000Z"
-last_activity: 2026-08-02 -- governance routing accepted from reproducible deterministic Git evidence only; untrusted advisory reports do not authorize promotion.
+last_activity: 2026-08-02 -- readiness phase opened without promotion; Batch 4 remains draft/null and all unproven claim boundaries remain explicit.
 progress:
-  scope: governance_only
+  scope: governance_readiness_only
   total_phases: 1
-  completed_phases: 1
+  completed_phases: 0
   total_plans: 1
-  completed_plans: 1
-  percent: 100
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: MINT Next Architecture Authority
+# GSD State: Batch 4 Architecture Promotion Readiness
 
 ## Current Router
 
-<!-- mint-authority: milestone=mint-next-architecture-authority-20260802; phase_dir=.planning/phases/mint-next-architecture-authority-20260802; context=.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md; spec=.planning/phases/mint-next-architecture-authority-20260802/SPEC.md; mode=governance-only -->
+<!-- mint-authority: milestone=mint-next-batch4-architecture-promotion-20260802; phase_dir=.planning/phases/mint-next-batch4-architecture-promotion-20260802; context=.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md; spec=.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md; mode=governance-readiness -->
 
-The active phase is governance-only: `.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md` and `.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`. It establishes the event-triggered Batch 4 maps as the candidate global architecture without activating any screen, route, calculator, API, recommendation, or deployment.
-
-Journey OS remains the runtime truth overlay. The former retirement-first phase is preserved byte-for-byte as a historical receipt and partially runtime-evidenced legacy vertical, not deleted and not treated as the global IA; its physical-device restore limitation remains open.
+The active phase records promotion readiness only. Batch 4 remains
+`draft_unproven` with a null receipt. Promotion eligibility is false, the
+selected gate is none, and no candidate head exists. There is no product,
+runtime, API, formula, legal, user, device, or deployment activation.
 
 ## Project Reference
 
 - Session authority: `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.
-- Governance contract: `.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`.
+- Active readiness contract: `.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md`.
+- Machine readiness artifact: `product/mint_next/batch4/evidence/promotion-readiness.yaml`.
+- Historical accepted governance receipt remains preserved below.
 - Runtime queue/evidence: `.planning/journeys/`.
-- Candidate architecture: `product/mint_next/batch4/`, still `draft_unproven`.
 - Next product phase: none queued.
 
 ## Current Position
 
-Phase: `mint-next-architecture-authority-20260802` — governance authority accepted
-at audited head `b88a425573eb93508a554ca9e3c9a7bfd72f5d46`.
-Status: authority transition verified only; no Flutter/backend/runtime/device
-change. The separate-context reports are untrusted advisory records, not
-authenticated attestations. External attestation and cross-provider review are
-absent; the latter would add diversity, not cryptographic identity. Batch 4
-promotion remains blocked behind a separate gate.
+Status: `blocked_waiting_cross_provider_review` as a descriptive readiness state,
+not a GSD blocked lifecycle declaration. Claude review, cross-provider review,
+and authenticated external attestation are absent. Agent reports remain
+untrusted advisory issue discovery only. All 19 formulas remain
+`unimplemented_blocking`; legal, source, audience, legacy, and product/runtime
+claims remain unproven.
 
 ## Historical Receipts
+
+The accepted governance-only authority receipt remains at `.planning/phases/mint-next-architecture-authority-20260802/VERIFICATION.md`; it is not Batch 4 promotion evidence.
 
 The sections below pre-date the current cleanup/account lifecycle session. They
 stay available for provenance, but they are not the active routing state.

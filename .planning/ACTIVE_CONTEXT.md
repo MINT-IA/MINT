@@ -5,17 +5,18 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 
 ## Active Now
 
-<!-- mint-authority: milestone=mint-next-architecture-authority-20260802; phase_dir=.planning/phases/mint-next-architecture-authority-20260802; context=.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md; spec=.planning/phases/mint-next-architecture-authority-20260802/SPEC.md; mode=governance-only -->
+<!-- mint-authority: milestone=mint-next-batch4-architecture-promotion-20260802; phase_dir=.planning/phases/mint-next-batch4-architecture-promotion-20260802; context=.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md; spec=.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md; mode=governance-readiness -->
 
-- Active milestone: `mint-next-architecture-authority-20260802`
-- Active context: `.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md`
-- Active spec: `.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`
-- Authority mode: **governance-only**. This phase changes planning authority, not product or runtime behavior.
-- Active integration branch: `dev`; this transition branch is review-only until independently accepted.
+- Active milestone: `mint-next-batch4-architecture-promotion-20260802`
+- Active context: `.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md`
+- Active spec: `.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md`
+- Authority mode: **governance-readiness**. This phase inventories promotion prerequisites; it does not promote Batch 4 or change product/runtime behavior.
+- Active integration branch: `dev`; this transition branch is review-only until deterministically accepted under the declared trust gate.
 - Active operating overlay: `.planning/journeys/` remains the canonical runtime board, issue registry, evidence map, and priority queue.
 - Legacy retirement vertical: `.planning/phases/mint-2-0-first-experience-rente-capital/` is preserved as a runtime vertical and historical receipt; it is no longer the global information architecture.
-- Batch 4: `product/mint_next/batch4/` remains `draft_unproven` until a separate exact-head promotion receipt and final roasts.
-- Next product phase: none queued. `.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md` self-references only because the router schema requires a context path.
+- Batch 4: `product/mint_next/batch4/` remains `draft_unproven`; readiness is `blocked_waiting_cross_provider_review`, `promotion_eligible: false`, with no selected gate, candidate head, or receipt.
+- Historical authority receipt: `.planning/phases/mint-next-architecture-authority-20260802/` remains accepted for governance only.
+- Next product phase: none queued. The active readiness context self-references only because the router schema requires a context path.
 - Journey OS guard: `python3 tools/checks/journey_os_check.py`.
 - Workflow contract guard: `python3 tools/checks/workflow_contract_guard.py`.
 
@@ -58,6 +59,7 @@ may be cited as evidence, but they are not active routing authority:
 - `money-trust-contract-v1-33-3a-onboarding-tax-copy-guard`
 - `mint-karpathy-rules-infra-20260614`
 - `mint-2-0-first-experience-rente-capital` — preserved runtime vertical; not global architecture authority
+- `mint-next-architecture-authority-20260802` — accepted historical governance-only authority receipt; not Batch 4 promotion
 
 The canonical checkout is `/Users/julienbattaglia/Desktop/MINT.nosync` on
 `dev`. Historical local copies and deleted worktrees were moved into

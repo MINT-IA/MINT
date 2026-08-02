@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import re
+import subprocess
 import sys
 from collections import defaultdict, deque
 from pathlib import Path
@@ -18,6 +19,19 @@ import yaml
 
 
 BASE = Path("product/mint_next/batch4")
+PROMOTION_PHASE = "mint-next-batch4-architecture-promotion-20260802"
+HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
+HISTORICAL_ROUTER_PATHS = {
+    ".planning/ACTIVE_CONTEXT.json", ".planning/ACTIVE_CONTEXT.md",
+    ".planning/STATE.md", ".planning/ROADMAP.md", ".planning/INDEX.md",
+}
+PROMOTION_ROUTER_HASHES = {
+    ".planning/ACTIVE_CONTEXT.json": "9fbc7c5c418457c677551e53cc74ca76eb2b3e85a0e6ef0b6ca33b28158d5872",
+    ".planning/ACTIVE_CONTEXT.md": "348de0ce92ed3012d5772bfb8019446aaf9cff22159011bd0a64a6daaa37b7af",
+    ".planning/STATE.md": "f8db4069e4a7b25339755205ab27f1b82dd23708a6fd29a55085d304637ef355",
+    ".planning/ROADMAP.md": "87a1cef8de68b2007329c834cbde5db5db8b2dc9cb42c1e3abd5ea8edbbc8447",
+    ".planning/INDEX.md": "8c0c62b1753ea7bcc77c86034f573363aca71f9ccecd15e96d8a5d4451707f21",
+}
 FILES = (
     "batch.yaml",
     "source-inventory.yaml",
@@ -537,8 +551,32 @@ def _validate_sources(root: Path, document: dict[str, Any], errors: list[str]) -
         target = root / path
         if not target.is_file():
             errors.append(f"source inventory path missing: {path}")
-        elif not isinstance(expected, str) or hashlib.sha256(target.read_bytes()).hexdigest() != expected:
+        elif not isinstance(expected, str):
             errors.append(f"source inventory hash drift: {path}")
+        elif hashlib.sha256(target.read_bytes()).hexdigest() != expected:
+            # These five entries intentionally preserve the exact accepted
+            # governance snapshot. During the separate promotion phase the
+            # live router is guarded by promotion_guard; rewriting this source
+            # inventory would destroy its historical evidence semantics.
+            active_path = root / ".planning/ACTIVE_CONTEXT.json"
+            try:
+                active = yaml.safe_load(active_path.read_text())
+            except Exception:
+                active = {}
+            historical_ok = False
+            if (
+                path in HISTORICAL_ROUTER_PATHS
+                and isinstance(active, dict)
+                and active.get("active_milestone") == PROMOTION_PHASE
+                and hashlib.sha256(target.read_bytes()).hexdigest() == PROMOTION_ROUTER_HASHES[path]
+            ):
+                blob = subprocess.run(
+                    ["git", "show", f"{HISTORICAL_AUTHORITY_HEAD}:{path}"],
+                    cwd=root, capture_output=True, check=False,
+                )
+                historical_ok = blob.returncode == 0 and hashlib.sha256(blob.stdout).hexdigest() == expected
+            if not historical_ok:
+                errors.append(f"source inventory hash drift: {path}")
         if not isinstance(role, str) or not role.strip():
             errors.append(f"source inventory role missing: {path}")
     return seen

@@ -2,16 +2,17 @@
 
 ## Active Pointer — 2026-08-02
 
-<!-- mint-authority: milestone=mint-next-architecture-authority-20260802; phase_dir=.planning/phases/mint-next-architecture-authority-20260802; context=.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md; spec=.planning/phases/mint-next-architecture-authority-20260802/SPEC.md; mode=governance-only -->
+<!-- mint-authority: milestone=mint-next-batch4-architecture-promotion-20260802; phase_dir=.planning/phases/mint-next-batch4-architecture-promotion-20260802; context=.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md; spec=.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md; mode=governance-readiness -->
 
-Current authority phase is **MINT Next Architecture Authority**, governance-only.
-It reconciles the event-triggered Batch 4 maps with the project router without changing product or runtime behavior.
+Current phase is **Batch 4 Architecture Promotion Readiness**, governance-readiness only. It records why promotion is not yet eligible and does not change product or runtime behavior.
 
-- Active context: [`.planning/phases/mint-next-architecture-authority-20260802/CONTEXT.md`](phases/mint-next-architecture-authority-20260802/CONTEXT.md)
-- Active spec: [`.planning/phases/mint-next-architecture-authority-20260802/SPEC.md`](phases/mint-next-architecture-authority-20260802/SPEC.md)
+- Active context: [`.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md`](phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md)
+- Active spec: [`.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md`](phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md)
+- Batch 4 remains `draft_unproven`; promotion eligibility is false pending a cross-provider review or authenticated external attestation.
+- The accepted architecture-authority phase remains a historical governance-only receipt.
 - Journey OS remains the runtime operating overlay.
 - the former retirement-first phase remains below as a preserved historical runtime vertical, not the global IA.
-- Next product phase: none queued; the active context self-reference is a schema placeholder.
+- Next product phase: none queued; the readiness context self-reference is a schema placeholder.
 
 ## Soldage des gates legacy — 2026-07-29
 

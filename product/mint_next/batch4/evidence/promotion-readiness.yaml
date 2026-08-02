@@ -1,0 +1,77 @@
+schema_version: 1
+kind: mint_next_batch4_architecture_promotion_readiness
+phase: mint-next-batch4-architecture-promotion-20260802
+status: blocked_waiting_cross_provider_review
+promotion_eligible: false
+selected_gate: none
+candidate_head: null
+promotion_receipt: null
+gates:
+  external_attestation: absent
+  cross_provider_review: absent
+manifests:
+  canonical_registries:
+    algorithm: sha256
+    entries:
+    - path: product/mint_next/batch4/batch.yaml
+      sha256: 1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47
+    - path: product/mint_next/batch4/source-inventory.yaml
+      sha256: 31fc42e2bc1c33be4662860485f36e76c7204e740a3d1dc993277eaec318acbe
+    - path: product/mint_next/batch4/architecture_conflicts.yaml
+      sha256: d041d24840e85f64e0e52136a9a1f354550234d47ec99a5d41b9c91731665854
+    - path: product/mint_next/batch4/calculation_contracts.yaml
+      sha256: 4df33396c1d7303216e21253534054d9531169b427a3b8a542d98c25ea030bcc
+    - path: product/mint_next/batch4/formula_contracts.yaml
+      sha256: d226d5651213bd81d5bcb5b82ef6df352ed1254aa817b6dedc0c4a33198868be
+    - path: product/mint_next/batch4/official_sources.yaml
+      sha256: 8372e1c3462219c98d533040d7986a454fe537d6d535ecbb28414d6c41a3bf8c
+    - path: product/mint_next/batch4/regulatory_boundaries.yaml
+      sha256: bcb6f3b8f376558e077a8b4699717f07c0b9f4be8db469902dcad81ce46f8e89
+    - path: product/mint_next/batch4/domain_coverage.yaml
+      sha256: 8cde9c06d9c7caa93832b98a10fdd4e167fbba32661cdef3cb7c6b9fb099b571
+    - path: product/mint_next/batch4/audience.yaml
+      sha256: e71a39364f69f9462e6924e246f2a993352efae030ae290d319f7179a557e3ca
+    - path: product/mint_next/batch4/concepts.yaml
+      sha256: 81d26df406f20624fb7f555bf3c67e1632e87e9cc3660a2a0285d900af3bd001
+    - path: product/mint_next/batch4/decisions.yaml
+      sha256: 83e04e192c4da60dccd0dafe64784e70e65ac10900865ae06ef84b19166ddb38
+    - path: product/mint_next/batch4/experience_graph.yaml
+      sha256: c51e8d4c0fb362dfa070502784e82a23b93a9e8f3e54db782f9b4e952315d492
+    - path: product/mint_next/batch4/claims_and_data.yaml
+      sha256: 7d032e2730d8e6df0a5e8a7c625bb73bfaf7d259d59a6a1ec0a3fd42067af7a9
+    - path: product/mint_next/batch4/legacy_reuse.yaml
+      sha256: 432b6d9002edbfb2460c7184043200a1d716ddd9456c4cbe3505ef83318cfd11
+  legacy:
+    algorithm: sha256-tree-v1
+    path_prefixes:
+    - .planning/phases/mint-2-0-first-experience-rente-capital/
+    tracked_file_count: 24
+    digest: ee3a7ed7e64b789ff1ed29bccaf6bc187b5a2f397a2d2767015d2a293ae00b8d
+  product:
+    algorithm: sha256-tree-v1
+    path_prefixes:
+    - apps/mobile/
+    - services/backend/
+    tracked_file_count: 3187
+    digest: 4ba2d80218fe69f1094f2d26bdf7c23313b7c74d23fcd8ab57fa83d516b4a390
+  journey:
+    algorithm: sha256-tree-v1
+    path_prefixes:
+    - .planning/journeys/
+    tracked_file_count: 64
+    digest: 2ffcc877a091c3cc8025e9c74332a14524aabf02b4b91c9b6e8317602664ac54
+  simulator:
+    algorithm: sha256-tree-v1
+    path_prefixes:
+    - tools/simulator/
+    tracked_file_count: 134
+    digest: 755bca7dc40adde85a77eac2e6dd12440dde73b679b11ef3cd71bc238ef56b99
+formula_blockers:
+  count: 19
+  status: unimplemented_blocking
+claim_boundary:
+  architecture_promoted: false
+  product_runtime: false
+  swiss_financial_correctness: false
+  regulatory_compliance: false
+  ux_user_validation: false
