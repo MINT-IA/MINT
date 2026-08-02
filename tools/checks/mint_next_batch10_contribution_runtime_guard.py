@@ -32,13 +32,13 @@ BATCH8_ACCEPTANCE = ROOT / "product/mint_next/batch8/design-lab-acceptance.yaml"
 
 EXPECTED = {
     MANIFEST: "0df9b96df97c46b250b23bcf27185b54d3045648126ef7ca13f96b9d42c69ec6",
-    ACCEPTANCE: "1e68c8401fb21ad1f42e10d3d63ecb610bae375bf96a215dbf650e2678862037",
     RECEIPT: "30bfd072d365f3786b27800de47392b711143f0dd9ddcb2b26a55ecb7b6642d9",
     PROBE: "e17e58061a57fae242b26e6dc7cbd6a687c42aec87cbad65a12cda8b4e67726a",
     BATCH8_ACCEPTANCE: "108817ab4424897efc78a8e22e6928473cace44c76fb86fee7ae1f23fae48add",
 }
-EXPECTED_WORKFLOW_CONTRACT = "1e62a698bb551dbbd13126d484290cbf264bd317b7cc3109017775ebb40bbd6c"
+EXPECTED_WORKFLOW_CONTRACT = "2b676bd15b430ed37311ee7df4dd950be82d6834acd4cc090443aef37e6664ab"
 EXPECTED_TRUST_WORKFLOW_NORMALIZED = "02e592723709606119902a8078937e25aae498d5ec06fd6054377664733931a8"
+EXPECTED_ACCEPTANCE_NORMALIZED = "21779407412fda987e8fc8c84b7e5abf35182bf256f169b0d93643473aa0813a"
 EXPECTED_COMMIT = "e10daa4e6f431ea4807ad30d79065fda1a777f53"
 EXPECTED_TREE = "a44bfa00fe215b6da0d185f1d4a49d95158fa808"
 EXPECTED_CAPTURE_HASHES = {
@@ -73,6 +73,25 @@ def _trust_binding(path: Path, name: str) -> str | None:
     return match.group(1) if match else None
 
 
+def _normalized_acceptance_digest(acceptance: object) -> str:
+    if not isinstance(acceptance, dict):
+        return "invalid"
+    normalized = json.loads(json.dumps(acceptance))
+    trust_unit = normalized.get("verifier_trust_unit")
+    if isinstance(trust_unit, dict):
+        for binding in trust_unit.values():
+            if isinstance(binding, dict) and "sha256" in binding:
+                binding["sha256"] = "<BOUND>"
+    return hashlib.sha256(
+        json.dumps(
+            normalized,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
+
+
 def validate(
     *,
     app_path: Path = APP,
@@ -87,7 +106,6 @@ def validate(
     errors = validate_scope()
     supplied = {
         MANIFEST: manifest_path,
-        ACCEPTANCE: acceptance_path,
         RECEIPT: receipt_path,
         PROBE: PROBE,
         BATCH8_ACCEPTANCE: BATCH8_ACCEPTANCE,
@@ -111,6 +129,26 @@ def validate(
         != _digest(acceptance_path)
     ):
         errors.append("Batch10 verifier trust-unit binding drift")
+
+    try:
+        acceptance = yaml.safe_load(acceptance_path.read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError) as exc:
+        errors.append(f"Batch10 acceptance unreadable: {exc}")
+        acceptance = {}
+    expected_trust_unit = {
+        "guard": {
+            "path": "tools/checks/mint_next_batch10_contribution_runtime_guard.py",
+            "sha256": _digest(Path(__file__)),
+        },
+        "tests": {
+            "path": "tools/checks/tests/test_mint_next_batch10_contribution_runtime_guard.py",
+            "sha256": _digest(TESTS),
+        },
+    }
+    if not isinstance(acceptance, dict) or acceptance.get("verifier_trust_unit") != expected_trust_unit:
+        errors.append("Batch10 acceptance verifier trust-unit drift")
+    if _normalized_acceptance_digest(acceptance) != EXPECTED_ACCEPTANCE_NORMALIZED:
+        errors.append("Batch10 normalized acceptance contract drift")
 
     snapshot, manifest_errors = validate_manifest(manifest_path, cas_root=cas_root)
     errors.extend(f"Batch10 manifest: {error}" for error in manifest_errors)
@@ -256,12 +294,7 @@ def validate(
         "guard_tests_step_keys": (
             sorted(guard_tests_step) if isinstance(guard_tests_step, dict) else []
         ),
-        "guard_tests_uses_pytest": "python3 -m pytest" in guard_tests_run,
-        "guard_tests_wires_batch10": (
-            "tools/checks/tests/test_mint_next_batch10_contribution_runtime_guard.py"
-            in guard_tests_run
-        ),
-        "guard_tests_fail_closed": guard_tests_run.rstrip().endswith("-q"),
+        "guard_tests_run_sha256": hashlib.sha256(guard_tests_run.encode()).hexdigest(),
     }
     workflow_contract_digest = hashlib.sha256(
         json.dumps(

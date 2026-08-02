@@ -127,7 +127,7 @@ class Batch10ContributionRuntimeGuardTest(unittest.TestCase):
                 encoding="utf-8",
             )
             self.assertIn(
-                "Batch10 exact accepted artifact drift: product/mint_next/batch10/design-lab-acceptance.yaml",
+                "Batch10 normalized acceptance contract drift",
                 validate(acceptance_path=path),
             )
 
@@ -180,6 +180,20 @@ class Batch10ContributionRuntimeGuardTest(unittest.TestCase):
         errors = self._mutated_workflow(
             "      - name: Guard tests\n        run: >",
             "      - name: Guard tests\n        if: false\n        run: >",
+        )
+        self.assertIn("Batch10 normalized workflow contract drift", errors)
+
+    def test_rejects_direct_batch10_guard_false_condition(self) -> None:
+        errors = self._mutated_workflow(
+            "      - name: MINT Next Batch 10 contribution runtime guard\n        run:",
+            "      - name: MINT Next Batch 10 contribution runtime guard\n        if: false\n        run:",
+        )
+        self.assertIn("Batch10 normalized workflow contract drift", errors)
+
+    def test_rejects_guard_tests_shell_short_circuit(self) -> None:
+        errors = self._mutated_workflow(
+            "python3 -m pytest",
+            "true || python3 -m pytest",
         )
         self.assertIn("Batch10 normalized workflow contract drift", errors)
 
@@ -255,6 +269,30 @@ class Batch10ContributionRuntimeGuardTest(unittest.TestCase):
             "      - name: Verify the verifier trust unit\n        if: false\n        run: |",
         )
         self.assertIn("Batch10 trust workflow normalized contract drift", errors)
+
+    def test_rejects_acceptance_guard_hash_rewrite(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "acceptance.yaml"
+            acceptance = yaml.safe_load(ACCEPTANCE.read_text(encoding="utf-8"))
+            acceptance["verifier_trust_unit"]["guard"]["sha256"] = "0" * 64
+            path.write_text(
+                yaml.safe_dump(acceptance, sort_keys=False, allow_unicode=True),
+                encoding="utf-8",
+            )
+            errors = validate(acceptance_path=path)
+            self.assertIn("Batch10 acceptance verifier trust-unit drift", errors)
+
+    def test_rejects_acceptance_tests_hash_rewrite(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "acceptance.yaml"
+            acceptance = yaml.safe_load(ACCEPTANCE.read_text(encoding="utf-8"))
+            acceptance["verifier_trust_unit"]["tests"]["sha256"] = "0" * 64
+            path.write_text(
+                yaml.safe_dump(acceptance, sort_keys=False, allow_unicode=True),
+                encoding="utf-8",
+            )
+            errors = validate(acceptance_path=path)
+            self.assertIn("Batch10 acceptance verifier trust-unit drift", errors)
 
 
 if __name__ == "__main__":

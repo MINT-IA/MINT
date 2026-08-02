@@ -24,10 +24,17 @@ implementation_snapshot:
   accepted_tree: a44bfa00fe215b6da0d185f1d4a49d95158fa808
   tracked_files: 43
   content_addressed_archive: all_43_entries_present
+verifier_trust_unit:
+  guard:
+    path: tools/checks/mint_next_batch10_contribution_runtime_guard.py
+    sha256: 6c734fd862c752ce912af6bdc35e76578a8d8e1319f9b4454affdff7d5663910
+  tests:
+    path: tools/checks/tests/test_mint_next_batch10_contribution_runtime_guard.py
+    sha256: 17e24136242f237361ac1a1a61577aaf5bfaf92ed8915e2e4e8e4fc9cbd6a614
 runtime_evidence:
   ci_workflow:
     path: .github/workflows/ai-workflow-guards.yml
-    normalized_contract_sha256: 1e62a698bb551dbbd13126d484290cbf264bd317b7cc3109017775ebb40bbd6c
+    normalized_contract_sha256: 2b676bd15b430ed37311ee7df4dd950be82d6834acd4cc090443aef37e6664ab
     verification: exact_global_runtime_job_and_guard_test_wiring_normalized_contract
   trust_unit_workflow:
     path: .github/workflows/mint-next-batch10-runtime.yml
@@ -58,7 +65,7 @@ runtime_evidence:
 mechanical_acceptance_basis:
   authority: deterministic_commands_exact_digests_full_package_manifest_real_chrome_receipt_and_hostile_mutations
   advisory_roasts_authorize_acceptance: false
-  limitation: agent_identity_independence_and_truthfulness_are_not_authenticated
+  limitation: agent_identity_truthfulness_branch_protection_and_external_ci_execution_are_not_authenticated_here
 advisory_roasts:
 - role: adversarial
   verdict: ROAST_PASS
