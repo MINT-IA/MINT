@@ -2,17 +2,16 @@
 
 ## Active Pointer — 2026-08-02
 
-<!-- mint-authority: milestone=mint-next-batch4-architecture-promotion-20260802; phase_dir=.planning/phases/mint-next-batch4-architecture-promotion-20260802; context=.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md; spec=.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md; mode=governance-readiness -->
+<!-- mint-authority: milestone=mint-next-vertical01-3a-20260802; phase_dir=.planning/phases/mint-next-vertical01-3a-20260802; context=.planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md; spec=.planning/phases/mint-next-vertical01-3a-20260802/SPEC.md; mode=product-execution -->
 
-Current phase is **Batch 4 Architecture Promotion Readiness**, governance-readiness only. It records why promotion is not yet eligible and does not change product or runtime behavior.
+Current phase is **MINT Next Vertical 01 — 3a**, the sole product WIP.
 
-- Active context: [`.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md`](phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md)
-- Active spec: [`.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md`](phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md)
-- Batch 4 remains `draft_unproven`; promotion eligibility is false pending a cross-provider review or authenticated external attestation.
-- The accepted architecture-authority phase remains a historical governance-only receipt.
-- Journey OS remains the runtime operating overlay.
-- the former retirement-first phase remains below as a preserved historical runtime vertical, not the global IA.
-- Next product phase: none queued; the readiness context self-reference is a schema placeholder.
+- Active context: [`.planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md`](phases/mint-next-vertical01-3a-20260802/CONTEXT.md)
+- Active spec: [`.planning/phases/mint-next-vertical01-3a-20260802/SPEC.md`](phases/mint-next-vertical01-3a-20260802/SPEC.md)
+- Execution truth: Bead `MINT_nosync-ihj`.
+- Batch 5 is a bounded functional micro-lesson; Figma-bound product design remains pending.
+- Batch 4 promotion work is frozen and historical.
+- No second fiscal theme opens before runtime acceptance of this vertical.
 
 ## Soldage des gates legacy — 2026-07-29
 

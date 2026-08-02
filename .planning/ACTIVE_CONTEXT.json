@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
   "updated": "2026-08-02",
-  "active_milestone": "mint-next-batch4-architecture-promotion-20260802",
-  "active_phase_dir": ".planning/phases/mint-next-batch4-architecture-promotion-20260802",
-  "active_phase_context": ".planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md",
-  "active_spec": ".planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md",
-  "next_product_phase_context": ".planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md",
-  "worktree_root": "/Users/julienbattaglia/Desktop/MINT.nosync",
+  "active_milestone": "mint-next-vertical01-3a-20260802",
+  "active_phase_dir": ".planning/phases/mint-next-vertical01-3a-20260802",
+  "active_phase_context": ".planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md",
+  "active_spec": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
+  "next_product_phase_context": ".planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md",
+  "worktree_root": "/Users/julienbattaglia/Desktop/MINT-batch0-foundation.nosync",
   "allowed_branches": [
     "dev",
     "staging",
@@ -31,7 +31,8 @@
     "codex/mint-next-batch1-design-20260801",
     "codex/mint-next-batch2-tax-fixture-20260801",
     "codex/mint-next-batch3-real-fixture-20260801",
-    "codex/mint-next-batch4-architecture-maps-20260802"
+    "codex/mint-next-batch4-architecture-maps-20260802",
+    "codex/mint-next-batch5-beginner-navigation-3a-20260802"
   ],
   "allowed_branch_patterns": [
     "codex/jos[0-9][0-9][0-9]*",
@@ -44,8 +45,8 @@
     "PLAN.md",
     "VERIFICATION.md"
   ],
-  "pre_verifier_report": ".planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md",
-  "post_verifier_report": ".planning/phases/mint-next-batch4-architecture-promotion-20260802/VERIFICATION.md",
+  "pre_verifier_report": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
+  "post_verifier_report": ".planning/phases/mint-next-vertical01-3a-20260802/VERIFICATION.md",
   "environment_guard": "tools/checks/active_context_guard.py",
   "phase_contract_guard": "tools/checks/phase_contract_guard.py",
   "rules_guard": "tools/checks/mint_rules_guard.py",
@@ -75,7 +76,8 @@
     "money-trust-contract-v1-03-onboarding-3a-number-gate",
     "money-trust-contract-v1-33-3a-onboarding-tax-copy-guard",
     "mint-2-0-first-experience-rente-capital",
-    "mint-next-architecture-authority-20260802"
+    "mint-next-architecture-authority-20260802",
+    "mint-next-batch4-architecture-promotion-20260802"
   ],
   "quarantine_paths": [
     "/Users/julienbattaglia/Desktop/MINT-cleanup-archive-20260624T074611Z"
@@ -110,16 +112,16 @@
     "engram_project": "mint",
     "repo_wins_over_memory": true,
     "curator_memory": "pointer-only",
-    "topic_key_prefix": "workflow:mint-next-batch4-architecture-promotion"
+    "topic_key_prefix": "workflow:mint-next-vertical01-3a"
   },
   "rules": [
     "Only .planning/ACTIVE_CONTEXT.md, .planning/ACTIVE_CONTEXT.json, and .planning/STATE.md can define the active phase.",
     "Historical phase directories are receipts, not routing authority.",
-    "Use the clean worktree /Users/julienbattaglia/Desktop/MINT.nosync for Mint work.",
+    "Use /Users/julienbattaglia/Desktop/MINT-batch0-foundation.nosync for the isolated MINT Next vertical; legacy /Users/julienbattaglia/Desktop/MINT.nosync remains read-only.",
     "Do not physically archive historical phase directories without a dry-run inventory and a dedicated reviewable PR."
   ],
-  "authority_mode": "governance-readiness",
-  "successor_product_phase_queued": false,
+  "authority_mode": "product-execution",
+  "successor_product_phase_queued": true,
   "preserved_runtime_vertical_not_global_authority": [
     "mint-2-0-first-experience-rente-capital"
   ]

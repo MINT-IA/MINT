@@ -1,18 +1,18 @@
 ---
 gsd_state_version: 1.0
-milestone: mint-next-batch4-architecture-promotion-20260802
-milestone_name: Batch 4 Architecture Promotion Readiness
-status: blocked_waiting_cross_provider_review
+milestone: mint-next-vertical01-3a-20260802
+milestone_name: MINT Next Vertical 01 — 3a
+status: in_progress
 accepted_transition_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
 acceptance_metadata_head: 73406990db57a2c7079dbba2784a45c85a151090
 rollback_proven_through: 73406990db57a2c7079dbba2784a45c85a151090
 accepted_authority_head: ff310fca76f78272ea31c5a796ffc149a8fe3b49
 authority_rollback_proven_through: ff310fca76f78272ea31c5a796ffc149a8fe3b49
-stopped_at: Promotion readiness recorded; promotion_eligible false, selected_gate none, no candidate or receipt, waiting for cross-provider review.
+stopped_at: Batch 5 functional micro-lesson proven; Figma-bound consultative slice pending.
 last_updated: "2026-08-02T00:00:00.000Z"
-last_activity: 2026-08-02 -- readiness phase opened without promotion; Batch 4 remains draft/null and all unproven claim boundaries remain explicit.
+last_activity: 2026-08-02 -- governance work frozen; sole WIP moved to the 3a product vertical.
 progress:
-  scope: governance_readiness_only
+  scope: product_vertical_3a_only
   total_phases: 1
   completed_phases: 0
   total_plans: 1
@@ -20,34 +20,29 @@ progress:
   percent: 0
 ---
 
-# GSD State: Batch 4 Architecture Promotion Readiness
+# GSD State: MINT Next Vertical 01 — 3a
 
 ## Current Router
 
-<!-- mint-authority: milestone=mint-next-batch4-architecture-promotion-20260802; phase_dir=.planning/phases/mint-next-batch4-architecture-promotion-20260802; context=.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md; spec=.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md; mode=governance-readiness -->
+<!-- mint-authority: milestone=mint-next-vertical01-3a-20260802; phase_dir=.planning/phases/mint-next-vertical01-3a-20260802; context=.planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md; spec=.planning/phases/mint-next-vertical01-3a-20260802/SPEC.md; mode=product-execution -->
 
-The active phase records promotion readiness only. Batch 4 remains
-`draft_unproven` with a null receipt. Promotion eligibility is false, the
-selected gate is none, and no candidate head exists. There is no product,
-runtime, API, formula, legal, user, device, or deployment activation.
+The sole active work is Bead `MINT_nosync-ihj`: one beginner 3a decision
+journey. Batch 5 is functional research only; no product, visual, personal
+calculation, device or user-validation claim exists yet.
 
 ## Project Reference
 
 - Session authority: `.planning/ACTIVE_CONTEXT.md` and `.planning/ACTIVE_CONTEXT.json`.
-- Active readiness contract: `.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md`.
-- Machine readiness artifact: `product/mint_next/batch4/evidence/promotion-readiness.yaml`.
+- Active contract: `.planning/phases/mint-next-vertical01-3a-20260802/SPEC.md`.
+- Active execution: Bead `MINT_nosync-ihj`.
 - Historical accepted governance receipt remains preserved below.
 - Runtime queue/evidence: `.planning/journeys/`.
-- Next product phase: none queued.
+- Next product step: exact Figma frame and isolated consultative 3a slice.
 
 ## Current Position
 
-Status: `blocked_waiting_cross_provider_review` as a descriptive readiness state,
-not a GSD blocked lifecycle declaration. Claude review, cross-provider review,
-and authenticated external attestation are absent. Agent reports remain
-untrusted advisory issue discovery only. All 19 formulas remain
-`unimplemented_blocking`; legal, source, audience, legacy, and product/runtime
-claims remain unproven.
+Status: `in_progress`. Legacy 3a is 36/100 and cannot be copied wholesale.
+The active slice remains limited to a salaried person affiliated to LPP.
 
 ## Historical Receipts
 

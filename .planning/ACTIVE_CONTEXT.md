@@ -5,18 +5,18 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 
 ## Active Now
 
-<!-- mint-authority: milestone=mint-next-batch4-architecture-promotion-20260802; phase_dir=.planning/phases/mint-next-batch4-architecture-promotion-20260802; context=.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md; spec=.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md; mode=governance-readiness -->
+<!-- mint-authority: milestone=mint-next-vertical01-3a-20260802; phase_dir=.planning/phases/mint-next-vertical01-3a-20260802; context=.planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md; spec=.planning/phases/mint-next-vertical01-3a-20260802/SPEC.md; mode=product-execution -->
 
-- Active milestone: `mint-next-batch4-architecture-promotion-20260802`
-- Active context: `.planning/phases/mint-next-batch4-architecture-promotion-20260802/CONTEXT.md`
-- Active spec: `.planning/phases/mint-next-batch4-architecture-promotion-20260802/SPEC.md`
-- Authority mode: **governance-readiness**. This phase inventories promotion prerequisites; it does not promote Batch 4 or change product/runtime behavior.
-- Active integration branch: `dev`; this transition branch is review-only until deterministically accepted under the declared trust gate.
+- Active milestone: `mint-next-vertical01-3a-20260802`
+- Active context: `.planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md`
+- Active spec: `.planning/phases/mint-next-vertical01-3a-20260802/SPEC.md`
+- Authority mode: **product-execution**. One 3a vertical is active under Bead `MINT_nosync-ihj`.
+- Active worktree: `/Users/julienbattaglia/Desktop/MINT-batch0-foundation.nosync`; legacy `MINT.nosync` stays read-only.
 - Active operating overlay: `.planning/journeys/` remains the canonical runtime board, issue registry, evidence map, and priority queue.
 - Legacy retirement vertical: `.planning/phases/mint-2-0-first-experience-rente-capital/` is preserved as a runtime vertical and historical receipt; it is no longer the global information architecture.
-- Batch 4: `product/mint_next/batch4/` remains `draft_unproven`; readiness is `blocked_waiting_cross_provider_review`, `promotion_eligible: false`, with no selected gate, candidate head, or receipt.
+- Batch 4 promotion work is frozen and historical; it remains unpromoted.
 - Historical authority receipt: `.planning/phases/mint-next-architecture-authority-20260802/` remains accepted for governance only.
-- Next product phase: none queued. The active readiness context self-references only because the router schema requires a context path.
+- Current product batch: the Batch 5 bounded 3a micro-lesson, followed by one Figma-bound consultative slice.
 - Journey OS guard: `python3 tools/checks/journey_os_check.py`.
 - Workflow contract guard: `python3 tools/checks/workflow_contract_guard.py`.
 
@@ -60,9 +60,12 @@ may be cited as evidence, but they are not active routing authority:
 - `mint-karpathy-rules-infra-20260614`
 - `mint-2-0-first-experience-rente-capital` — preserved runtime vertical; not global architecture authority
 - `mint-next-architecture-authority-20260802` — accepted historical governance-only authority receipt; not Batch 4 promotion
+- `mint-next-batch4-architecture-promotion-20260802` — frozen governance-readiness work; not product authority
 
-The canonical checkout is `/Users/julienbattaglia/Desktop/MINT.nosync` on
-`dev`. Historical local copies and deleted worktrees were moved into
+The active MINT Next checkout is
+`/Users/julienbattaglia/Desktop/MINT-batch0-foundation.nosync`. The legacy
+`/Users/julienbattaglia/Desktop/MINT.nosync` checkout is read-only during
+this vertical. Historical local copies and deleted worktrees were moved into
 `/Users/julienbattaglia/Desktop/MINT-cleanup-archive-20260624T074611Z`.
 
 ## Archive Policy

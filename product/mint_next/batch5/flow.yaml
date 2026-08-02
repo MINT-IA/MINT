@@ -1,0 +1,83 @@
+schema_version: 1
+flow_id: batch5_beginner_3a_navigation
+artifact_kind: bounded_micro_lesson
+locale: fr-CH
+entry_node: today
+runtime_contract:
+  current_node_attribute: body[data-node]
+  action_attribute: data-action
+  persistence: localStorage_non_sensitive_only
+  reset_probe: "?probe=reset"
+  network: forbidden
+nodes:
+  today:
+    actions:
+      start_question: {to: question}
+      today_safe_exit: {to: safe_exit}
+      today_open_disclosure: {overlay: disclosure}
+  question:
+    actions:
+      question_continue: {to: why}
+      question_back: {to: today}
+      question_safe_exit: {to: safe_exit}
+      question_open_disclosure: {overlay: disclosure}
+  why:
+    actions:
+      why_continue: {to: example}
+      why_back: {to: question}
+      why_safe_exit: {to: safe_exit}
+      why_open_disclosure: {overlay: disclosure}
+  example:
+    actions:
+      example_continue: {to: tradeoff}
+      example_back: {to: why}
+      example_safe_exit: {to: safe_exit}
+      example_open_disclosure: {overlay: disclosure}
+  tradeoff:
+    actions:
+      tradeoff_continue: {to: correction}
+      tradeoff_back: {to: example}
+      tradeoff_safe_exit: {to: safe_exit}
+      tradeoff_open_disclosure: {overlay: disclosure}
+  correction:
+    actions:
+      correction_toggle_commune: {to: correction, mutation: toggle_commune}
+      correction_toggle_income: {to: correction, mutation: toggle_income}
+      correction_restore: {to: correction, mutation: restore_fixture}
+      correction_compare: {to: comparison}
+      correction_back: {to: tradeoff}
+      correction_safe_exit: {to: safe_exit}
+      correction_open_disclosure: {overlay: disclosure}
+  comparison:
+    actions:
+      comparison_complete: {to: complete}
+      comparison_back: {to: correction}
+      comparison_safe_exit: {to: safe_exit}
+      comparison_open_disclosure: {overlay: disclosure}
+  complete:
+    terminal: true
+    actions:
+      complete_save: {to: complete, mutation: save_local}
+      complete_restart: {to: today, mutation: reset_local}
+      complete_open_disclosure: {overlay: disclosure}
+  safe_exit:
+    terminal: true
+    actions:
+      exit_save_reference: {to: reference_saved, mutation: save_reference_local}
+      exit_dismiss: {to: dismissed, mutation: clear_local}
+      exit_resume: {to: today}
+      safe_exit_open_disclosure: {overlay: disclosure}
+  reference_saved:
+    terminal: true
+    actions:
+      reference_saved_restart: {to: today}
+      reference_saved_dismiss: {to: dismissed, mutation: clear_local}
+      reference_saved_open_disclosure: {overlay: disclosure}
+  dismissed:
+    terminal: true
+    actions:
+      dismissed_restart: {to: today, mutation: reset_local}
+      dismissed_open_disclosure: {overlay: disclosure}
+overlay_controls:
+  disclosure_close: {overlay: disclosure, operation: close}
+  disclosure_close_escape: {overlay: disclosure, operation: close, keyboard: Escape}
