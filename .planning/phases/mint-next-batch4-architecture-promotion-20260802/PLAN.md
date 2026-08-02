@@ -92,6 +92,33 @@ protocol, the request schema/verifier/test, the promotion guard/test, and the
 three exact Journey whitelist additions. A clean-clone revert of the final R4A
 range must restore the exact parent tree.
 
+## Batch R5 — normative review prompt component only
+
+1. Pin one static, provider-neutral UTF-8/LF system prompt and one offline
+   contract linter. The prompt has no interpolation, candidate value, provider,
+   URL, command example, mutable dependency, or self-hash.
+2. Lock instruction/data separation, no-tool/no-network behavior, exact seven
+   dimensions, semantic review-content vocabulary, uncertainty handling,
+   runner-derived verdict truth table, mandatory non-evidence limitations and
+   forbidden claims. The model must not author runner-owned metadata or
+   runner-observed limitation codes; the future runner must reject those codes,
+   merge disjoint limitation sources deterministically, then derive the verdict.
+3. Static mutation tests prove prompt bytes/linter invariants only. They do not
+   prove model behavior or prompt-injection resistance; behavioral model evals
+   remain absent and blocking.
+   The separate model-review-content schema and runner metadata assembly also
+   remain absent and blocking.
+4. Keep the component `implemented_component_unintegrated_blocking`. Keep the
+   R4A prompt hash unresolved and do not add the prompt to ordered request
+   inputs until a separate integration/cycle audit.
+5. Stop. Do not implement a manifest, builder, provider call, runner,
+   transport, attestation, bundle, candidate, gate or promotion.
+
+R5's exact parent is `764a30a76c862af00814f62b777458f997ced7cd`.
+Its final diff is restricted to this phase's PLAN/SPEC/VERIFICATION, the review
+protocol, prompt/linter/test, promotion guard/test and three exact Journey
+whitelist additions. A clean-clone revert must restore the parent tree.
+
 ## Future four-head promotion protocol
 
 The four heads are distinct and must never be collapsed or backfilled:

@@ -32,6 +32,9 @@ CANONICAL_TEST = Path("tools/checks/tests/test_mint_next_batch4_canonical_json.p
 REQUEST_SCHEMA = Path("product/mint_next/batch4/evidence/review-request.schema.json")
 REQUEST_VERIFIER = Path("tools/checks/mint_next_batch4_review_request_verifier.py")
 REQUEST_VERIFIER_TEST = Path("tools/checks/tests/test_mint_next_batch4_review_request_verifier.py")
+REVIEW_PROMPT = Path("product/mint_next/batch4/evidence/cross-provider-review-system-prompt-v1.txt")
+PROMPT_LINTER = Path("tools/checks/mint_next_batch4_review_prompt_linter.py")
+PROMPT_LINTER_TEST = Path("tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py")
 BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
@@ -39,11 +42,11 @@ PHASE_DIR = f".planning/phases/{PHASE}"
 HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
 SEMANTIC_ARTIFACTS: dict[str, str] = {
     f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
-    f"{PHASE_DIR}/SPEC.md": "7432215217e38d6d92ddc2aa84bd5be305646f23f047a30764524b0b2fc23867",
-    f"{PHASE_DIR}/PLAN.md": "e5bb9f54c40dc51a13443cb958228da929ff1ff1853c773280178b73f3e92841",
-    f"{PHASE_DIR}/VERIFICATION.md": "b2bd76799a7273efe4244f2e348e2293100048b1ac3ddb7588fcef058f728bee",
+    f"{PHASE_DIR}/SPEC.md": "116ed4b84a8a1e06c8e482543aabb1a56dc2264d058b8ab2b2c3592d686ac41a",
+    f"{PHASE_DIR}/PLAN.md": "071b8c30147fac349eadba8aaca8cf3807d1e6bf188b69834aed90bdd1ab754b",
+    f"{PHASE_DIR}/VERIFICATION.md": "be0d68abe1dbc6219bfd2faff2e23a38ae88deef6ee4b982abbd8664837288a5",
     str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
-    str(REVIEW_PROTOCOL): "c040eb89382623b65f5c46da8387f19c2b89daa462056900cb48e0fb373dce88",
+    str(REVIEW_PROTOCOL): "a9b0b391bb27f0b34ed42b29e00ba3c7abc5a7aeae9bc34327c9a189e1c3a464",
     str(RESULT_SCHEMA): "b8d5c6be40673451208bb1039c6431b5e3af4214fff042c911a12a56735cfbda",
     str(RESULT_VERIFIER): "7f32a0e62c512dc6e3d5c96d943ecbdbbbd12a4d650f89cc85a44d139b77873f",
     str(RESULT_VERIFIER_TEST): "d9a63c21de33bf7b8da8aabc61b87de75d8a9d8297919b2ec9492e48f3a9ef35",
@@ -54,6 +57,9 @@ SEMANTIC_ARTIFACTS: dict[str, str] = {
     str(REQUEST_SCHEMA): "815bedda624610d1eaf40955690c6456cdfb51ccc7a7a7c7c9fba26487c13f9b",
     str(REQUEST_VERIFIER): "28429ed5c45f16ddaa9e97cf9be652232ce730372e3423a8290e971faab6763a",
     str(REQUEST_VERIFIER_TEST): "4b9ae9405b97bd896afeda3ea8d17afe8837d7fd8a1410b66812fbbd7db69d85",
+    str(REVIEW_PROMPT): "6b048935b777ee4f5fcdc0575345c11ddf4f9c5a619758010e9a18ffd7083b6f",
+    str(PROMPT_LINTER): "04dd657d29e3c73579b5b763368e1d14293ddfef9c8fd2e30306f6bb2169169a",
+    str(PROMPT_LINTER_TEST): "72e6dee039c07795b7158bf75eb8dd4693216c45b1bcf2056cc4f97de5254530",
 }
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
@@ -200,6 +206,7 @@ def validate(root: Path) -> list[str]:
         "implemented_result_payload_component",
         "implemented_canonical_json_component",
         "implemented_request_payload_contract_component",
+        "implemented_normative_prompt_component",
         "future_detached_execution_manifest", "future_result_verifier_requirements",
         "finding_remediation_lifecycle", "forbidden_current_claims",
     }
@@ -277,7 +284,7 @@ def validate(root: Path) -> list[str]:
         "future_provider_failure_policy_requirements": "absent_unimplemented_blocking",
         "future_provider_family_registry_requirements": "absent_unimplemented_blocking",
         "future_outbound_data_policy_requirements": "absent_unimplemented_blocking",
-        "future_prompt_requirements": "absent_unimplemented_blocking",
+        "future_prompt_requirements": "static_prompt_component_implemented_unintegrated_blocking",
         "future_detached_execution_manifest": "absent_unimplemented_blocking",
         "future_result_verifier_requirements": "absent_unimplemented_blocking",
         "finding_remediation_lifecycle": "absent_unimplemented_blocking",
@@ -502,10 +509,42 @@ def validate(root: Path) -> list[str]:
         "canonical_request_builder"
     ) != "absent_unimplemented_blocking" or blockers.get(
         "frozen_input_manifest_builder"
-    ) != "absent_unimplemented_blocking" or blockers.get(
-        "normative_prompt_artifact"
     ) != "absent_unimplemented_blocking":
-        errors.append("request payload contract must not inflate prompt, builder, or manifest readiness")
+        errors.append("request payload contract must not inflate builder or manifest readiness")
+    prompt_component = protocol.get("implemented_normative_prompt_component") or {}
+    expected_prompt_component = {
+        "status": "implemented_component_unintegrated_blocking",
+        "prompt_path": str(REVIEW_PROMPT),
+        "prompt_sha256": SEMANTIC_ARTIFACTS[str(REVIEW_PROMPT)],
+        "linter_path": str(PROMPT_LINTER),
+        "linter_sha256": SEMANTIC_ARTIFACTS[str(PROMPT_LINTER)],
+        "test_path": str(PROMPT_LINTER_TEST),
+        "test_sha256": SEMANTIC_ARTIFACTS[str(PROMPT_LINTER_TEST)],
+        "format": "static_UTF8_LF_provider_neutral_system_message",
+        "request_system_prompt_sha256_binding": "unresolved_until_separate_integration_batch",
+        "future_transport_role": "provider_system_or_developer_channel_separate_from_untrusted_payload",
+        "model_output_scope": "semantic_review_content_only_untrusted",
+        "model_review_content_schema": "absent_unimplemented_blocking",
+        "success_output": "PROMPT_CONTRACT_LINTED_NON_EVIDENCE",
+        "proves_prompt_injection_resistance": False,
+        "proves_provider_behavior_or_output_conformance": False,
+        "proves_review_or_promotion_evidence": False,
+        "eligible_as_gate_or_promotion_evidence": False,
+    }
+    if prompt_component != expected_prompt_component:
+        errors.append("normative prompt component must remain exact, unintegrated, and non-evidence")
+    if blockers.get("normative_prompt_artifact") != "implemented_component_unintegrated_blocking" or blockers.get(
+        "normative_prompt_linter"
+    ) != "implemented_component_unintegrated_blocking" or blockers.get(
+        "prompt_behavioral_model_evals"
+    ) != "absent_unimplemented_blocking" or blockers.get(
+        "model_review_content_schema"
+    ) != "absent_unimplemented_blocking" or blockers.get(
+        "canonical_request_builder"
+    ) != "absent_unimplemented_blocking" or blockers.get(
+        "frozen_input_manifest_builder"
+    ) != "absent_unimplemented_blocking":
+        errors.append("prompt component must not inflate eval, request, or manifest readiness")
     expected_detached_artifacts = [
         "request.json", "response-body.bin", "response-headers.json",
         "review-result.json", "command-evidence.json",

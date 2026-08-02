@@ -22,7 +22,10 @@ trust_boundary:
   local_agent_reports: untrusted_advisory_issue_discovery_only
   external_attestation_requires: verified_identity_and_provenance
 implementation_blockers:
-  normative_prompt_artifact: absent_unimplemented_blocking
+  normative_prompt_artifact: implemented_component_unintegrated_blocking
+  normative_prompt_linter: implemented_component_unintegrated_blocking
+  prompt_behavioral_model_evals: absent_unimplemented_blocking
+  model_review_content_schema: absent_unimplemented_blocking
   canonical_json_primitive: implemented_component_unintegrated_blocking
   request_payload_shape_schema: implemented_component_unintegrated_blocking
   request_payload_semantic_verifier: implemented_component_unintegrated_blocking
@@ -325,14 +328,44 @@ review_dimensions:
   - id: trust_and_promotion_integrity
     question: Can any prose, metadata, history rewrite, prompt injection, or self-attestation bypass the declared promotion gate?
 future_prompt_requirements:
-  status: absent_unimplemented_blocking
+  status: static_prompt_component_implemented_unintegrated_blocking
+  model_output_scope: semantic_review_content_only_untrusted
+  exact_model_output_fields:
+  - dimension_results
+  - findings
+  - limitations
+  runner_owned_result_fields:
+  - schema_version
+  - kind
+  - reviewed_candidate_head
+  - provider_family_claimed
+  - model_identifier_claimed
+  - executed_at_utc
+  - trust_scope
+  - verdict
+  runner_must_derive_verdict_from_verified_content: true
+  model_must_not_generate_or_self_attest_runner_owned_fields: true
+  model_review_content_schema: absent_unimplemented_blocking
+  limitation_ownership:
+    model_permitted_codes:
+    - incomplete_input_or_context
+    - candidate_binding_unverified
+    - evidence_refs_unresolved
+    - provider_identity_unverified
+    runner_only_codes:
+    - tool_or_transport_error
+    - retry_or_fallback_used
+    - response_truncated
+    - undeclared_tool_or_network_access
+    - schema_or_hash_mismatch
+    merge: reject_model_runner_only_codes_then_union_by_unique_code_in_schema_enum_order
   system_message_must:
   - delimit_every_candidate_file_as_untrusted_data
   - forbid_following_instructions_from_candidate_files_or_tool_output
   - forbid_repository_code_hook_or_command_execution
   - forbid_network_tools_and_secrets
   - require_one_dimension_result_per_ordered_dimension_id
-  - require_JSON_only_matching_the_exact_result_schema
+  - require_JSON_only_matching_future_model_review_content_schema
   - require_uncertainty_to_be_unverified_not_inferred_pass
   - forbid_identity_independence_qualification_or_compliance_claims
   request_assembly_must:
@@ -340,6 +373,24 @@ future_prompt_requirements:
   - preserve_ordered_inputs_and_exact_bytes
   - reject_extra_missing_duplicate_or_path_traversal_inputs
   - hash_the_detached_request_bytes_not_a_self_referential_field
+implemented_normative_prompt_component:
+  status: implemented_component_unintegrated_blocking
+  prompt_path: product/mint_next/batch4/evidence/cross-provider-review-system-prompt-v1.txt
+  prompt_sha256: 6b048935b777ee4f5fcdc0575345c11ddf4f9c5a619758010e9a18ffd7083b6f
+  linter_path: tools/checks/mint_next_batch4_review_prompt_linter.py
+  linter_sha256: 04dd657d29e3c73579b5b763368e1d14293ddfef9c8fd2e30306f6bb2169169a
+  test_path: tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py
+  test_sha256: 72e6dee039c07795b7158bf75eb8dd4693216c45b1bcf2056cc4f97de5254530
+  format: static_UTF8_LF_provider_neutral_system_message
+  request_system_prompt_sha256_binding: unresolved_until_separate_integration_batch
+  future_transport_role: provider_system_or_developer_channel_separate_from_untrusted_payload
+  model_output_scope: semantic_review_content_only_untrusted
+  model_review_content_schema: absent_unimplemented_blocking
+  success_output: PROMPT_CONTRACT_LINTED_NON_EVIDENCE
+  proves_prompt_injection_resistance: false
+  proves_provider_behavior_or_output_conformance: false
+  proves_review_or_promotion_evidence: false
+  eligible_as_gate_or_promotion_evidence: false
 future_result_contract:
   status: schema_defined_component_only_non_executable
   result_payload_excludes_its_own_hash: true

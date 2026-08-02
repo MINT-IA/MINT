@@ -44,6 +44,15 @@ machine-readable and impossible to confuse with promotion itself.
     closed shape, order, decoded-content hashes and internal cross-bindings.
     It does not freeze inputs, build or emit a real request, establish a
     candidate/provider/provenance/attestation, or satisfy any gate.
+13. The static normative prompt and linter may prove exact bytes, vocabulary
+    and deterministic deny/uncertainty/output clauses only. The prompt remains
+    unintegrated and its R4A hash unresolved; no model behavior, injection
+    resistance, provider conformance, identity, review or promotion is proven.
+    The model outputs semantic review content only; candidate/provider/model/
+    timestamp/trust/verdict metadata are future attested-runner responsibilities.
+    Model-visible and runner-observed limitation codes are disjoint; a future
+    runner must reject ownership violations and merge them deterministically
+    before deriving the verdict.
 
 ## Future eligibility criteria
 
@@ -89,6 +98,8 @@ one frozen candidate semantic head:
   `CANONICAL_DIGEST_NON_EVIDENCE` plus digest and byte count.
 - The pinned request payload shape schema/verifier passes hostile synthetic tests and
   emits only `STRUCTURALLY_VALID_REQUEST_NON_EVIDENCE` without a digest or file.
+- The pinned normative prompt/linter passes static mutation and cross-artifact
+  vocabulary tests and emits only `PROMPT_CONTRACT_LINTED_NON_EVIDENCE`.
 - Router documents name this phase as governance/readiness work only.
 - Batch 4 remains draft/null and generated views remain unchanged.
 - The old authority phase remains historical and accepted in its original
@@ -108,6 +119,7 @@ promotion-readiness: python3 tools/checks/mint_next_batch4_promotion_guard.py
 result-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_result_verifier.py
 canonical-json-primitive: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_canonical_json.py
 request-payload-verifier: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_request_verifier.py
+review-prompt-linter: python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_review_prompt_linter.py
 generated-views: python3 tools/checks/mint_next_batch4_generate_views.py --check
 readiness-yaml: python3 -c "import yaml; d=yaml.safe_load(open('product/mint_next/batch4/evidence/promotion-readiness.yaml')); assert set(d)=={'schema_version','kind','phase','status','promotion_eligible','selected_gate','candidate_head','promotion_receipt','gates','manifests','formula_blockers','claim_boundary'} and d['status']=='blocked_waiting_cross_provider_review' and d['promotion_eligible'] is False and d['selected_gate']=='none' and d['candidate_head'] is None and d['promotion_receipt'] is None"
 contract-diff: git diff --check
