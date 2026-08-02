@@ -110,6 +110,14 @@ class Batch11AmountScopeGuardTest(unittest.TestCase):
         )
         self.assertIn("Batch11 duplicate-provider or sensitive-identifier invariant drift", errors)
 
+    def test_rejects_forbidding_the_required_provider_name(self) -> None:
+        def mutate(value) -> None:
+            forbidden = value["node_contracts"]["fact_contributed_amount"]["forbidden"]
+            forbidden.remove("mandatory_account_policy_avs_or_iban_identifier")
+            forbidden.append("mandatory_provider_name_or_identifier")
+        errors = self._mutate_scope(mutate)
+        self.assertIn("Batch11 required provider name contradicts its forbidden controls", errors)
+
     def test_rejects_duplicate_provider_rows_becoming_canonical(self) -> None:
         errors = self._mutate_scope(
             lambda value: value["fact_contract"]["canonical_value_only_when"].update(

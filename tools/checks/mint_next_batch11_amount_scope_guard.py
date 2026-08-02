@@ -25,7 +25,7 @@ EXPECTED_AUTHORITY_DIGESTS = {
     PREVIOUS_ACCEPTANCE: "36c9ef128aa7b548c1df04637d9721cda2babfe330ef16ff1133f5a1288846f2",
 }
 EXPECTED_WRITTEN_ARTIFACT_DIGESTS = {
-    SCOPE: "7bffb567e33d76565900ee547f73fdd937c6d8722e5a135dab2e2a5cced721ea",
+    SCOPE: "1310c2d0192e2d1ded2e8555ccaa9b0624e0f1d1b3d206a95dfc47e83799f23c",
     SOURCES: "6ebc04d5edb92d8f437db1b6ce60ebae5daa187f294cdc3cdffbe2d934ce3741",
     LEGACY: "2fae82c99a9a66ddaefba524445b061f6b363860b48bd9d0c17a0a62ef994204",
 }
@@ -238,12 +238,15 @@ def validate(
     if remove.get("visible_only_when_row_count_at_least") != 2 or remove.get("minimum_rows_after_removal") != 1:
         errors.append("Batch11 provider removal can leave zero rows")
     copy = amount.get("reference_copy_fr", {})
-    if copy.get("provider_name") != "Nom du prestataire (par ex. VIAC ou ta banque)" or copy.get("provider_name_privacy") != "N’indique aucun numéro de compte, de police ou AVS." or not copy.get("where_to_find_title") or not copy.get("where_to_find_body"):
+    if copy.get("provider_name") != "Nom du prestataire (par ex. VIAC ou ta banque)" or copy.get("provider_name_privacy") != "N’indique aucun numéro de compte, de police, AVS ou IBAN." or not copy.get("where_to_find_title") or not copy.get("where_to_find_body"):
         errors.append("Batch11 provider-label privacy or disclosure copy drift")
+    amount_forbidden = set(amount.get("forbidden", []))
+    if "mandatory_account_policy_avs_or_iban_identifier" not in amount_forbidden or "mandatory_provider_name_or_identifier" in amount_forbidden:
+        errors.append("Batch11 required provider name contradicts its forbidden controls")
     if controls.get("missing_amount", {}).get("visible_when") != "at_least_one_positive_draft_and_total_incomplete" or controls.get("unknown_amount", {}).get("visible_when") != "no_positive_draft_exists":
         errors.append("Batch11 partial and no-amount actions can contradict working state")
     inline_errors = amount.get("inline_errors", {})
-    if inline_errors.get("all_rows_empty") != "Entre le nom et le montant d’un prestataire, ou choisis « Je ne connais encore aucun montant »." or not inline_errors.get("provider_name_empty") or not inline_errors.get("sole_amount_empty") or not inline_errors.get("additional_row_incomplete") or not inline_errors.get("duplicate_provider"):
+    if inline_errors.get("all_rows_empty") != "Entre le nom et le montant d’un prestataire, ou choisis « Je ne connais encore aucun montant »." or inline_errors.get("provider_name_empty") != "Indique seulement le nom du prestataire, sans numéro de compte, de police, AVS ou IBAN." or not inline_errors.get("sole_amount_empty") or not inline_errors.get("additional_row_incomplete") or not inline_errors.get("duplicate_provider"):
         errors.append("Batch11 inline error does not match visible action or duplicate state")
     help_controls = nodes.get("contributed_amount_unknown_help", {}).get("controls", {})
     if help_controls.get("found_amount", {}).get("to") != "fact_contributed_amount" or help_controls.get("continue_education_only", {}).get("to") != "education_explanation":

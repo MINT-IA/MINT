@@ -120,7 +120,7 @@ node_contracts:
       not_result_note: Ce total n’est pas encore un résultat fiscal.
       first_row_label: Banque, fintech ou assurance 3a n° 1
       provider_name: Nom du prestataire (par ex. VIAC ou ta banque)
-      provider_name_privacy: N’indique aucun numéro de compte, de police ou AVS.
+      provider_name_privacy: N’indique aucun numéro de compte, de police, AVS ou IBAN.
       amount_label: Montant ordinaire confirmé pour {taxYear}
       amount_suffix: CHF
       add_provider: Ajouter un autre prestataire 3a
@@ -154,7 +154,7 @@ node_contracts:
       open_safe_exit: {overlay: safe_exit}
     inline_errors:
       all_rows_empty: Entre le nom et le montant d’un prestataire, ou choisis « Je ne connais encore aucun montant ».
-      provider_name_empty: Indique seulement le nom du prestataire, sans numéro de compte ou de police.
+      provider_name_empty: Indique seulement le nom du prestataire, sans numéro de compte, de police, AVS ou IBAN.
       sole_amount_empty: Entre le montant confirmé, ou choisis « Je ne connais encore aucun montant ».
       additional_row_incomplete: Complète ou supprime ce prestataire.
       duplicate_provider: Ce prestataire est déjà ajouté. Corrige la ligne existante au lieu de compter son total deux fois.
@@ -167,7 +167,7 @@ node_contracts:
       - disabled_dead_end_without_accessible_reason
       - automatic_route_after_typing
       - transaction_level_rows
-      - mandatory_provider_name_or_identifier
+      - mandatory_account_policy_avs_or_iban_identifier
       - mental_sum_prompt
       - ceiling_validation_or_clamping
       - calculation_or_personal_result
