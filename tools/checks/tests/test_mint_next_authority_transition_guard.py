@@ -23,12 +23,26 @@ OLD = "mint-2-0-first-experience-rente-capital"
 NEW = "mint-next-architecture-authority-20260802"
 NEW_DIR = f".planning/phases/{NEW}"
 OLD_DIR = f".planning/phases/{OLD}"
+ACTIVE_BOUNDARIES = {
+    ".planning/ACTIVE_CONTEXT.md": "## Not Active",
+    ".planning/STATE.md": "## Historical Receipts",
+    ".planning/ROADMAP.md": "## Soldage des gates legacy",
+    ".planning/INDEX.md": "## `_archive/`",
+}
 
 
 def _write(root: Path, relative: str, content: str) -> None:
     path = root / relative
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
+
+
+def _insert_into_active_section(root: Path, relative: str, content: str) -> None:
+    path = root / relative
+    boundary = ACTIVE_BOUNDARIES[relative]
+    current = path.read_text(encoding="utf-8")
+    assert boundary in current
+    path.write_text(current.replace(boundary, content + boundary, 1), encoding="utf-8")
 
 
 def _git(root: Path, *args: str) -> str:
@@ -100,7 +114,12 @@ def _fixture(tmp_path: Path) -> tuple[Path, TransitionPolicy]:
         ".planning/ROADMAP.md",
         ".planning/INDEX.md",
     ):
-        _write(root, path, f"{marker}\nGovernance-only authority; no successor product phase queued.\n")
+        _write(
+            root,
+            path,
+            f"{marker}\nGovernance-only authority; no successor product phase queued.\n"
+            f"{ACTIVE_BOUNDARIES[path]}\nHistorical receipts remain unchanged.\n",
+        )
     _write(root, f"{NEW_DIR}/CONTEXT.md", "governance-only transition\n")
     _write(root, f"{NEW_DIR}/SPEC.md", "governance-only spec\n")
     _write(root, f"{NEW_DIR}/PLAN.md", "governance-only plan\n")
@@ -279,17 +298,43 @@ def test_requires_all_four_canonical_phase_files(tmp_path: Path, filename: str) 
 def test_rejects_coordinated_semantic_override_and_false_claims(tmp_path: Path) -> None:
     root, policy = _fixture(tmp_path)
     for relative in (".planning/ROADMAP.md", ".planning/INDEX.md"):
-        path = root / relative
-        path.write_text(
-            path.read_text()
-            + "\n## Binding Override\n"
+        _insert_into_active_section(
+            root,
+            relative,
+            "\n## Binding Override\n"
             + "The active product authority is `malicious-reboot`; it supersedes the governance phase. "
             + "MINT Next is built, shipped, compliant, and user validated.\n",
-            encoding="utf-8",
         )
     errors = run_guard(root, policy)
     assert any("conflicting authority claim" in error for error in errors)
     assert any("forbidden completion claim" in error for error in errors)
+
+
+def test_rejects_structured_override_even_when_inventory_hashes_are_updated(
+    tmp_path: Path,
+) -> None:
+    root, policy = _fixture(tmp_path)
+    targets = (".planning/ROADMAP.md", ".planning/INDEX.md")
+    for relative in targets:
+        _insert_into_active_section(
+            root,
+            relative,
+            "\n## Active Override\n"
+            + "Active phase_dir: `.planning/phases/evil`\n"
+            + "Active context: [`.planning/phases/evil/CONTEXT.md`](evil-context)\n"
+            + "Active spec: `.planning/phases/evil/SPEC.md`\n",
+        )
+    inventory_path = root / "product/mint_next/batch4/source-inventory.yaml"
+    inventory = yaml.safe_load(inventory_path.read_text())
+    for item in inventory["sources"]:
+        if item["path"] in targets:
+            item["sha256"] = hashlib.sha256((root / item["path"]).read_bytes()).hexdigest()
+    inventory_path.write_text(yaml.safe_dump(inventory), encoding="utf-8")
+
+    errors = run_guard(root, policy)
+    assert any("conflicting explicit phase_dir authority" in error for error in errors)
+    assert any("conflicting explicit context authority" in error for error in errors)
+    assert any("conflicting explicit spec authority" in error for error in errors)
 
 
 @pytest.mark.parametrize(

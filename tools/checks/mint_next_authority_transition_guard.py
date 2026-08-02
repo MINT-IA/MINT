@@ -273,12 +273,59 @@ def _check_active_authority_semantics(
     if any(re.search(pattern, active, flags=re.IGNORECASE) for pattern in conflicting_claims):
         errors.append(f"conflicting authority claim in active section: {relative}")
 
+    expected_by_label = {
+        "milestone": NEW_MILESTONE,
+        "phase_dir": NEW_PHASE_DIR,
+        "phase": NEW_PHASE_DIR,
+        "context": NEW_CONTEXT,
+        "spec": NEW_SPEC,
+    }
+    label_pattern = re.compile(
+        r"^\s*(?:[-*]\s*)?(?:\*\*)?"
+        r"(?P<label>(?:active\s+)?milestone|(?:active\s+)?phase[_ ]dir|"
+        r"active\s+phase|active\s+context|active\s+spec)"
+        r"(?:\*\*)?\s*[:=]\s*(?P<value>.+?)\s*$",
+        flags=re.IGNORECASE | re.MULTILINE,
+    )
+    for match in label_pattern.finditer(active):
+        label = re.sub(r"\s+", " ", match.group("label").lower()).strip()
+        if label.startswith("active "):
+            label = label[len("active ") :]
+        label = label.replace(" ", "_")
+        value = _normalize_authority_value(match.group("value"))
+        expected = expected_by_label[label]
+        if value != expected:
+            errors.append(
+                f"conflicting explicit {label} authority in active section: "
+                f"{relative} has {value!r}, expected {expected!r}"
+            )
+
+    authority_phase_pattern = re.compile(
+        r"\b(?:current|active)\s+authority\s+phase\s+is\s+([^,.\n]+)",
+        flags=re.IGNORECASE,
+    )
+    for match in authority_phase_pattern.finditer(active):
+        value = _normalize_authority_value(match.group(1))
+        if value not in (NEW_MILESTONE, "MINT Next Architecture Authority"):
+            errors.append(
+                f"conflicting explicit authority phase in active section: "
+                f"{relative} has {value!r}"
+            )
+
     forbidden_completion = re.compile(
         r"\b(?:MINT\s+Next\s+is\s+)?(?:built|shipped|compliant|user[- ]validated)\b",
         flags=re.IGNORECASE,
     )
     if forbidden_completion.search(active):
         errors.append(f"forbidden completion claim in active section: {relative}")
+
+
+def _normalize_authority_value(value: str) -> str:
+    # Prefer the visible label from Markdown links: router docs deliberately use
+    # repo-relative link targets while displaying the canonical root-relative path.
+    value = re.sub(r"\[([^]]+)\]\([^)]+\)", r"\1", value)
+    value = value.replace("`", "").replace("*", "")
+    return value.strip().rstrip(". ")
 
 
 def _check_conflict(root: Path, errors: List[str]) -> None:
