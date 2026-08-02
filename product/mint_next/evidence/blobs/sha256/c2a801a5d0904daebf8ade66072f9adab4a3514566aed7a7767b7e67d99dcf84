@@ -1,0 +1,50 @@
+{
+  "@@locale": "de",
+  "brand": "MINT",
+  "quit": "Beenden",
+  "todayEyebrow": "HEUTE · SÄULE 3A",
+  "todayTitle": "Was ändert eine Einzahlung in die Säule 3a dieses Jahr?",
+  "todayBody": "Wir verstehen die Auswirkungen Schritt für Schritt. MINT informiert dich, entscheidet aber nicht für dich.",
+  "start": "Verstehen",
+  "orientationEyebrow": "VOR DEN ZAHLEN",
+  "orientationTitle": "Für deine Pensionierung sparen kann auch deine Steuern senken.",
+  "orientationBody": "Eine Einzahlung in die Säule 3a kann dein steuerbares Einkommen senken — den Betrag, auf dem deine Steuern berechnet werden. Dein verfügbares Geld sinkt jetzt und das 3a-Kapital bleibt bis zur Pensionierung gebunden, ausser in den gesetzlich vorgesehenen Fällen.",
+  "orientationNote": "Zuerst prüfen wir das Jahr und deine Situation. Es wird kein Betrag empfohlen.",
+  "continueLabel": "Weiter",
+  "backLabel": "Zurück",
+  "taxYearEyebrow": "SCHRITT 1 · STEUERJAHR",
+  "taxYearTitle": "Über welches Jahr sprechen wir?",
+  "taxYearBody": "Der Höchstbetrag hängt vom Jahr und von deiner Situation ab, insbesondere von deinem Erwerbseinkommen und dem Anschluss an eine Pensionskasse. Das laufende Jahr wird vorgeschlagen, nie für dich gewählt.",
+  "currentYearLabel": "Laufendes Jahr: {year}",
+  "confirmYear": "{year} auswählen",
+  "yearChosen": "Jahr {year} ausgewählt",
+  "partialBoundary": "Der nächste Bildschirm folgt im nächsten kleinen Paket. Nichts wird gespeichert.",
+  "safeExitTitle": "Möchtest du hier aufhören?",
+  "safeExitBody": "In diesem Design Lab werden keine persönlichen Finanzdaten gespeichert.",
+  "resume": "Hier weitermachen",
+  "leave": "Ohne Speichern beenden",
+  "dismissedTitle": "Ablauf beendet",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Starten",
+  "keepReferenceUnavailable": "Lokaler Merker — bald verfügbar"
+}

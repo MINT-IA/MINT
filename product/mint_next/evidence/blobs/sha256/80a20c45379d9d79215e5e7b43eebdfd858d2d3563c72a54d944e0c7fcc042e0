@@ -1,0 +1,50 @@
+{
+  "@@locale": "pt",
+  "brand": "MINT",
+  "quit": "Sair",
+  "todayEyebrow": "HOJE · PILAR 3A",
+  "todayTitle": "O que muda se contribuir para o pilar 3a este ano?",
+  "todayBody": "Vamos compreender os efeitos passo a passo. A MINT informa-te, mas não decide por ti.",
+  "start": "Compreender",
+  "orientationEyebrow": "ANTES DOS NÚMEROS",
+  "orientationTitle": "Poupar para a tua reforma também pode reduzir os teus impostos.",
+  "orientationBody": "Uma contribuição para o pilar 3a pode reduzir o teu rendimento tributável — o montante sobre o qual os impostos são calculados. O teu dinheiro disponível diminui agora e o capital 3a fica vinculado até à reforma, salvo nos casos previstos por lei.",
+  "orientationNote": "Primeiro verificamos o ano e a tua situação. Não será recomendado qualquer montante.",
+  "continueLabel": "Continuar",
+  "backLabel": "Voltar",
+  "taxYearEyebrow": "PASSO 1 · ANO FISCAL",
+  "taxYearTitle": "De que ano estamos a falar?",
+  "taxYearBody": "O limite depende do ano e da tua situação, incluindo o rendimento profissional e a filiação numa caixa de pensões. O ano atual é proposto, nunca escolhido por ti.",
+  "currentYearLabel": "Ano atual: {year}",
+  "confirmYear": "Escolher {year}",
+  "yearChosen": "Ano {year} selecionado",
+  "partialBoundary": "O ecrã seguinte será adicionado no próximo pequeno lote. Nada é guardado.",
+  "safeExitTitle": "Queres parar aqui?",
+  "safeExitBody": "Este Design Lab não guarda dados financeiros pessoais.",
+  "resume": "Continuar aqui",
+  "leave": "Sair sem guardar",
+  "dismissedTitle": "Percurso encerrado",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Começar",
+  "keepReferenceUnavailable": "Referência local — disponível em breve"
+}

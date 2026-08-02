@@ -1588,7 +1588,8 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         # .planning/phases-archive/ sont des feuilles mortes hors routing —
         # leur maintenance (bannières datées, index) reste autorisée.
         allowed_archive = path.startswith(".planning/phases-archive/")
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive):
+        allowed_mint_next_blob = re.fullmatch(r"product/mint_next/evidence/blobs/sha256/[0-9a-f]{64}", path) is not None
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_mint_next_blob):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
