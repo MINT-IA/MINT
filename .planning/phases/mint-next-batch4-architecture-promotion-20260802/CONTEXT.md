@@ -10,7 +10,8 @@ canonical batch remains `draft_unproven`, its `promotion_receipt` remains
 The previously accepted
 `mint-next-architecture-authority-20260802` phase remains a historical,
 governance-only receipt. It established coherent routing; it did not accept
-Batch 4.
+Batch 4. Its immutable final accepted authority and rollback boundary is
+`ff310fca76f78272ea31c5a796ffc149a8fe3b49`.
 
 ## Current gate
 
@@ -36,4 +37,3 @@ correct, user-validated, connected to APIs, or ready for production.
 All 19 formula contracts remain `unimplemented_blocking`. Swiss legal review,
 official-source captures, audience falsification, legacy-reuse approval, and
 product/runtime evidence remain future gates.
-

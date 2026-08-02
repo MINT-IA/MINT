@@ -40,7 +40,10 @@ def clone(tmp_path_factory: pytest.TempPathFactory) -> Path:
         elif source.exists():
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, target)
-    for relative in (Path(".planning/ACTIVE_CONTEXT.json"),):
+    for relative in (
+        Path(".planning/ACTIVE_CONTEXT.json"),
+        Path(".planning/STATE.md"),
+    ):
         shutil.copy2(REPO / relative, root / relative)
     for relative in map(Path, guard.CANONICAL):
         shutil.copy2(REPO / relative, root / relative)
@@ -51,7 +54,12 @@ def clone(tmp_path_factory: pytest.TempPathFactory) -> Path:
 def reset(clone: Path):
     subprocess.run(["git", "reset", "--hard", "HEAD"], cwd=clone, check=True, capture_output=True)
     subprocess.run(["git", "clean", "-fd"], cwd=clone, check=True, capture_output=True)
-    for relative in [guard.READINESS, Path(guard.PHASE_DIR), Path(".planning/ACTIVE_CONTEXT.json")]:
+    for relative in [
+        guard.READINESS,
+        Path(guard.PHASE_DIR),
+        Path(".planning/ACTIVE_CONTEXT.json"),
+        Path(".planning/STATE.md"),
+    ]:
         source, target = REPO / relative, clone / relative
         if source.is_dir():
             shutil.copytree(source, target, dirs_exist_ok=True)
@@ -71,6 +79,69 @@ def _mutate_yaml(root: Path, relative: Path, mutation) -> None:
 
 def test_exact_blocked_readiness_passes(clone: Path) -> None:
     assert guard.validate(clone) == []
+
+
+@pytest.mark.parametrize("relative", guard.SEMANTIC_ARTIFACTS)
+def test_rejects_appended_semantic_contradiction(clone: Path, relative: str) -> None:
+    path = clone / relative
+    path.write_text(path.read_text() + "\n# promoted: true; self-attested and production-ready\n")
+    assert any(
+        f"promotion semantic artifact byte drift: {relative}" in error
+        for error in guard.validate(clone)
+    )
+
+
+@pytest.mark.parametrize(
+    "key", ["accepted_authority_head", "authority_rollback_proven_through"]
+)
+def test_rejects_stale_or_forged_final_authority_state(clone: Path, key: str) -> None:
+    path = clone / ".planning/STATE.md"
+    path.write_text(
+        path.read_text().replace(
+            f"{key}: {guard.HISTORICAL_AUTHORITY_HEAD}", f"{key}: {'f' * 40}", 1
+        )
+    )
+    assert any(f"STATE must bind {key}" in error for error in guard.validate(clone))
+
+
+def test_rejects_orphan_history_with_identical_committed_tree(clone: Path) -> None:
+    original_head = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=clone, check=True, text=True,
+        capture_output=True,
+    ).stdout.strip()
+    tree = subprocess.run(
+        ["git", "rev-parse", "HEAD^{tree}"], cwd=clone, check=True, text=True,
+        capture_output=True,
+    ).stdout.strip()
+    orphan = subprocess.run(
+        ["git", "commit-tree", tree, "-m", "hostile orphan with identical tree"],
+        cwd=clone, check=True, text=True, capture_output=True,
+    ).stdout.strip()
+    try:
+        subprocess.run(
+            ["git", "checkout", "--quiet", "--detach", orphan], cwd=clone, check=True
+        )
+        # Preserve the exact working-tree contract while changing only ancestry.
+        for relative in [
+            guard.READINESS, Path(guard.PHASE_DIR), Path(".planning/ACTIVE_CONTEXT.json"),
+            Path(".planning/STATE.md"),
+        ]:
+            source, target = REPO / relative, clone / relative
+            if source.is_dir():
+                shutil.copytree(source, target, dirs_exist_ok=True)
+            else:
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, target)
+        errors = guard.validate(clone)
+        assert any("must be an ancestor of HEAD" in error for error in errors)
+        architecture_errors = architecture_guard.validate(clone)
+        assert any(
+            "must be an ancestor of HEAD" in error for error in architecture_errors
+        )
+    finally:
+        subprocess.run(
+            ["git", "checkout", "--quiet", "--detach", original_head], cwd=clone, check=True
+        )
 
 
 @pytest.mark.parametrize(

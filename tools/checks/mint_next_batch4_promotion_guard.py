@@ -21,6 +21,14 @@ BATCH = Path("product/mint_next/batch4/batch.yaml")
 FORMULAS = Path("product/mint_next/batch4/formula_contracts.yaml")
 PHASE = "mint-next-batch4-architecture-promotion-20260802"
 PHASE_DIR = f".planning/phases/{PHASE}"
+HISTORICAL_AUTHORITY_HEAD = "ff310fca76f78272ea31c5a796ffc149a8fe3b49"
+SEMANTIC_ARTIFACTS: dict[str, str] = {
+    f"{PHASE_DIR}/CONTEXT.md": "6d83f0c1dd1e704c2e28b0bf3482778100fbaf2db33ae47cda1a3ce6b54f9598",
+    f"{PHASE_DIR}/SPEC.md": "a733754d5e6ac0730d2c61d3a3b996b30522c6fb9927c63bc41986f515d0acb4",
+    f"{PHASE_DIR}/PLAN.md": "8915eca7405ed2d1bec48f7bcfed5fe8e87c87125efb9cda954f2595c035ef45",
+    f"{PHASE_DIR}/VERIFICATION.md": "80a44ec67918bd77d68adf29dc9fedf5d95ef4c151edfec5e408e832b16b242c",
+    str(READINESS): "fb3ab9a26cd71b3ae4d9962dbd2d9a3bbd3bef812a3dae4a6916a27b35b038eb",
+}
 CANONICAL: dict[str, str] = {
     "product/mint_next/batch4/batch.yaml": "1747152dbe7af810b7fd4e1116aa14295c50c146aab07670e132f46a8a631c47",
     "product/mint_next/batch4/source-inventory.yaml": "31fc42e2bc1c33be4662860485f36e76c7204e740a3d1dc993277eaec318acbe",
@@ -80,6 +88,21 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _state_frontmatter(path: Path, errors: list[str]) -> dict[str, Any]:
+    try:
+        parts = path.read_text().split("---", 2)
+        if len(parts) != 3 or parts[0].strip():
+            raise ValueError("missing YAML frontmatter")
+        value = yaml.load(parts[1], Loader=_UniqueKeyLoader)
+    except Exception as exc:
+        errors.append(f"unreadable STATE frontmatter: {exc}")
+        return {}
+    if not isinstance(value, dict):
+        errors.append("STATE frontmatter must be a mapping")
+        return {}
+    return value
+
+
 def _tree(root: Path, prefixes: tuple[str, ...], errors: list[str]) -> tuple[int, str]:
     command = ["git", "ls-files", "--", *prefixes]
     result = subprocess.run(command, cwd=root, text=True, capture_output=True)
@@ -103,8 +126,21 @@ def _tree(root: Path, prefixes: tuple[str, ...], errors: list[str]) -> tuple[int
     return len(paths), digest.hexdigest()
 
 
+def _require_authority_ancestry(root: Path, errors: list[str]) -> None:
+    """Require lineage, not merely local availability of the authority object."""
+    result = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", HISTORICAL_AUTHORITY_HEAD, "HEAD"],
+        cwd=root, text=True, capture_output=True,
+    )
+    if result.returncode != 0:
+        errors.append(
+            f"historical authority head {HISTORICAL_AUTHORITY_HEAD} must be an ancestor of HEAD"
+        )
+
+
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
+    _require_authority_ancestry(root, errors)
     active = _load(root / ".planning/ACTIVE_CONTEXT.json", errors)
     expected_router = {
         "active_milestone": PHASE,
@@ -115,9 +151,12 @@ def validate(root: Path) -> list[str]:
     for key, expected in expected_router.items():
         if active.get(key) != expected:
             errors.append(f"active promotion router mismatch: {key}")
-    for name in ("CONTEXT.md", "SPEC.md", "PLAN.md", "VERIFICATION.md"):
-        if not (root / PHASE_DIR / name).is_file():
-            errors.append(f"missing promotion phase file: {name}")
+    for relative, expected_sha in SEMANTIC_ARTIFACTS.items():
+        path = root / relative
+        if not path.is_file() or path.is_symlink():
+            errors.append(f"missing or symlinked promotion semantic artifact: {relative}")
+        elif _sha(path) != expected_sha:
+            errors.append(f"promotion semantic artifact byte drift: {relative}")
 
     readiness = _load(root / READINESS, errors)
     expected_keys = {
@@ -140,6 +179,10 @@ def validate(root: Path) -> list[str]:
     for key, expected in expected_scalar.items():
         if readiness.get(key) != expected:
             errors.append(f"promotion readiness must keep {key}={expected!r}")
+    state = _state_frontmatter(root / ".planning/STATE.md", errors)
+    for key in ("accepted_authority_head", "authority_rollback_proven_through"):
+        if state.get(key) != HISTORICAL_AUTHORITY_HEAD:
+            errors.append(f"STATE must bind {key} to the final accepted authority head")
     gates = readiness.get("gates") or {}
     if gates != {"external_attestation": "absent", "cross_provider_review": "absent"}:
         errors.append("promotion readiness must keep both gates absent")

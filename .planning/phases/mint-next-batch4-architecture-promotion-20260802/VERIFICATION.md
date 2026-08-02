@@ -19,7 +19,7 @@ false, no gate is selected, no candidate head exists, and Batch 4 remains
 | Promotion readiness | `python3 tools/checks/mint_next_batch4_promotion_guard.py` | PASS — blocked; no promotion claimed |
 | Generated views | `python3 tools/checks/mint_next_batch4_generate_views.py --check` | PASS — exact match |
 | Phase acceptance | `python3 tools/checks/verify_phase_acceptance.py` | PASS — 10/10 deterministic criteria |
-| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 172/172 |
+| Hostile guard tests | `python3 -m pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py tools/checks/tests/test_mint_next_batch4_promotion_guard.py tools/checks/tests/test_journey_os_check.py` | PASS — 180/180 |
 | Diff whitespace | `git diff --check` | PASS |
 
 ## Promotion gates

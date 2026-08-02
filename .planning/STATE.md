@@ -6,6 +6,8 @@ status: blocked_waiting_cross_provider_review
 accepted_transition_head: b88a425573eb93508a554ca9e3c9a7bfd72f5d46
 acceptance_metadata_head: 73406990db57a2c7079dbba2784a45c85a151090
 rollback_proven_through: 73406990db57a2c7079dbba2784a45c85a151090
+accepted_authority_head: ff310fca76f78272ea31c5a796ffc149a8fe3b49
+authority_rollback_proven_through: ff310fca76f78272ea31c5a796ffc149a8fe3b49
 stopped_at: Promotion readiness recorded; promotion_eligible false, selected_gate none, no candidate or receipt, waiting for cross-provider review.
 last_updated: "2026-08-02T00:00:00.000Z"
 last_activity: 2026-08-02 -- readiness phase opened without promotion; Batch 4 remains draft/null and all unproven claim boundaries remain explicit.
@@ -49,7 +51,12 @@ claims remain unproven.
 
 ## Historical Receipts
 
-The accepted governance-only authority receipt remains at `.planning/phases/mint-next-architecture-authority-20260802/VERIFICATION.md`; it is not Batch 4 promotion evidence.
+The accepted governance-only authority receipt remains at
+`.planning/phases/mint-next-architecture-authority-20260802/VERIFICATION.md`.
+Its final accepted authority head and rollback boundary are both
+`ff310fca76f78272ea31c5a796ffc149a8fe3b49`; the earlier `b88a425...` and
+`73406990...` fields above retain their narrower transition/metadata meanings.
+None of these commits is Batch 4 promotion evidence.
 
 The sections below pre-date the current cleanup/account lifecycle session. They
 stay available for provenance, but they are not the active routing state.

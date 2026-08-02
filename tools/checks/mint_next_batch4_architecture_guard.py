@@ -28,7 +28,7 @@ HISTORICAL_ROUTER_PATHS = {
 PROMOTION_ROUTER_HASHES = {
     ".planning/ACTIVE_CONTEXT.json": "9fbc7c5c418457c677551e53cc74ca76eb2b3e85a0e6ef0b6ca33b28158d5872",
     ".planning/ACTIVE_CONTEXT.md": "348de0ce92ed3012d5772bfb8019446aaf9cff22159011bd0a64a6daaa37b7af",
-    ".planning/STATE.md": "f8db4069e4a7b25339755205ab27f1b82dd23708a6fd29a55085d304637ef355",
+    ".planning/STATE.md": "12e4dbf1631ab749fd36682b78ed8743917c6dc7f7a8e2ea66c97ba5f65e4f41",
     ".planning/ROADMAP.md": "87a1cef8de68b2007329c834cbde5db5db8b2dc9cb42c1e3abd5ea8edbbc8447",
     ".planning/INDEX.md": "8c0c62b1753ea7bcc77c86034f573363aca71f9ccecd15e96d8a5d4451707f21",
 }
@@ -700,6 +700,23 @@ def _validate_domain_contracts(
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
+    active_path = root / ".planning/ACTIVE_CONTEXT.json"
+    if active_path.is_file():
+        try:
+            active = yaml.safe_load(active_path.read_text())
+        except Exception:
+            active = {}
+        if isinstance(active, dict) and active.get("active_milestone") == PROMOTION_PHASE:
+            lineage = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", HISTORICAL_AUTHORITY_HEAD, "HEAD"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+            )
+            if lineage.returncode != 0:
+                errors.append(
+                    f"historical authority head {HISTORICAL_AUTHORITY_HEAD} must be an ancestor of HEAD"
+                )
     _validate_readme_trust_contract(root, errors)
     documents = {name: _load(root, name, errors) for name in FILES}
     batch = documents["batch.yaml"]
