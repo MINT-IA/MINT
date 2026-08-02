@@ -73,3 +73,33 @@ sources:
   url: https://www.fedlex.admin.ch/eli/cc/2019/758/en
   jurisdiction: CH
   version_basis: effective_date
+- id: fedlex_ahvg_lavs
+  authority: Swiss Confederation
+  title: Federal Act on Old-Age and Survivors’ Insurance (AHVG/LAVS)
+  url: https://www.fedlex.admin.ch/eli/cc/63/837_843_843/en
+  jurisdiction: CH
+  version_basis: effective_date
+- id: fedlex_ivg_lai
+  authority: Swiss Confederation
+  title: Federal Act on Invalidity Insurance (IVG/LAI)
+  url: https://www.fedlex.admin.ch/eli/cc/1959/827_857_845/en
+  jurisdiction: CH
+  version_basis: effective_date
+- id: fedlex_uvg_laa
+  authority: Swiss Confederation
+  title: Federal Act on Accident Insurance (UVG/LAA)
+  url: https://www.fedlex.admin.ch/eli/cc/1982/1676_1676_1676/en
+  jurisdiction: CH
+  version_basis: effective_date
+- id: fedlex_avig_laci
+  authority: Swiss Confederation
+  title: Federal Act on Compulsory Unemployment Insurance (AVIG/LACI)
+  url: https://www.fedlex.admin.ch/eli/cc/1982/2184_2184_2184/en
+  jurisdiction: CH
+  version_basis: effective_date
+- id: ahv_survivors_leaflets
+  authority: AVS/AI Information Centre
+  title: Official OASI survivors-benefit leaflets
+  url: https://www.ahv-iv.ch/en/Leaflets-forms/Leaflets/OASI
+  jurisdiction: CH
+  version_basis: leaflet_number_version_and_effective_date

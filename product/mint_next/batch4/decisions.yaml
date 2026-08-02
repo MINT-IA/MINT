@@ -28,7 +28,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: urgent
 - id: salary_protection
   human_question: Où part mon salaire et que couvre déjà mon employeur?
   triggers:
@@ -61,7 +61,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: protection
 - id: annual_tax
   human_question: Qu’est-ce qui réduit réellement mes impôts, et à quel coût?
   triggers:
@@ -96,7 +96,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: planning
 - id: pillar_3a
   human_question: Combien cela me coûte vraiment aujourd’hui et qu’obtiens-je plus tard?
   triggers:
@@ -117,6 +117,10 @@ decisions:
   - pillar_3a_contributions_balances
   - pillar_3a_product_costs_allocation
   - retirement_withdrawal_plan
+  - taxable_income_wealth
+  - deductions_inventory
+  - taxation_regime
+  - religious_affiliation
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -134,7 +138,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: planning
 - id: free_investing
   human_question: Dois-je garder cet argent disponible ou l’investir?
   triggers:
@@ -169,7 +173,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: planning
 - id: couple_change
   human_question: Que devient notre situation si nous nous séparons ou si l’un meurt?
   triggers:
@@ -196,7 +200,7 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: household_risk_v1
+  calculation_contract: couple_change_risk_v1
   compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
@@ -204,7 +208,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: sensitive_life_event
 - id: child_or_dependent
   human_question: Combien ce changement coûte-t-il si un revenu disparaît?
   triggers:
@@ -230,7 +234,7 @@ decisions:
   - tax
   - risk
   - reversibility
-  calculation_contract: household_risk_v1
+  calculation_contract: dependant_risk_v1
   compliance_boundary: education_or_calculation_only_v1
   receipt: assumptions_sources_date_and_next_action
   next_decision_ids:
@@ -238,7 +242,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: protection
 - id: work_incapacity
   human_question: Combien de temps puis-je payer mes factures sans travailler?
   triggers:
@@ -272,7 +276,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: urgent
 - id: unemployment_pause
   human_question: Que dois-je sécuriser cette semaine?
   triggers:
@@ -304,7 +308,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: urgent
 - id: employer_change
   human_question: Tout mon deuxième pilier a-t-il suivi?
   triggers:
@@ -338,7 +342,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: protection
 - id: self_employment
   human_question: Quelles protections disparaissent avec le salariat?
   triggers:
@@ -374,7 +378,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: protection
 - id: home_purchase
   human_question: Puis-je acheter sans fragiliser le reste de ma vie?
   triggers:
@@ -410,7 +414,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: planning
 - id: lpp_buyback
   human_question: Est-ce utile de remettre de l’argent dans ma caisse maintenant?
   triggers:
@@ -432,6 +436,10 @@ decisions:
   - prior_lpp_buybacks
   - planned_capital_withdrawals
   - arrival_in_switzerland
+  - taxable_income_wealth
+  - deductions_inventory
+  - taxation_regime
+  - religious_affiliation
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -449,7 +457,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: planning
 - id: separation_divorce
   human_question: Que dois-je préserver immédiatement et que sera-t-il partagé?
   triggers:
@@ -484,7 +492,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: sensitive_life_event
 - id: inheritance_received
   human_question: Que dois-je vérifier avant de dépenser ou investir?
   triggers:
@@ -519,7 +527,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: sensitive_life_event
 - id: retirement_prepare
   human_question: Quel revenu durable aurai-je et quels choix deviennent irréversibles?
   triggers:
@@ -541,6 +549,10 @@ decisions:
   - pillar_3a_contributions_balances
   - retirement_withdrawal_plan
   - taxable_income_wealth
+  - tax_year
+  - deductions_inventory
+  - taxation_regime
+  - religious_affiliation
   missing_data_behavior: explain_missing_and_withhold_personal_number
   scenario_ids:
   - baseline
@@ -558,7 +570,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: planning
 - id: retirement_live
   human_question: Mon argent reste-t-il suffisant si je vis longtemps?
   triggers:
@@ -593,7 +605,7 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: planning
 - id: estate_incapacity
   human_question: Qui pourra agir et mes proches sauront-ils quoi faire?
   triggers:
@@ -628,4 +640,4 @@ decisions:
   next_action: one_contextual_action
   return_and_correction: editable_without_silent_discard
   not_applicable_behavior: record_reason_without_forcing_flow
-  regulatory_boundary_id: education_or_calculation_only_v1
+  learning_variant: sensitive_life_event

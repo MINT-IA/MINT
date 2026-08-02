@@ -1,0 +1,213 @@
+schema_version: 1
+rule: A formula ID is not executable authority. Every unimplemented formula blocks personalized output until replaced by a reviewed
+  full contract.
+formulas:
+- id: cash_runway_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_months
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: debt_apr_cost_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_per_year
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: payroll_reconciliation_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_per_period
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: jurisdiction_tax_delta_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_per_tax_year
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: pillar_3a_eligibility_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: eligibility_and_CHF
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: fee_aware_projection_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_range_at_horizon
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: capital_withdrawal_tax_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_by_withdrawal_year
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: surplus_after_safety_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: incapacity_gap_timeline_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_by_month
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: unemployment_gap_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_by_day_and_month
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: vested_benefit_reconciliation_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: self_employment_gap_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_per_month
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: mortgage_stress_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_and_ratio
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: lpp_buyback_gate_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: eligibility_flags_and_CHF
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: inventory_only_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: non_numeric_inventory
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: retirement_income_bridge_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_per_year
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: retirement_cashflow_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_range_by_year
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: survivor_gap_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: CHF_per_month
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests
+- id: dependant_runway_v1
+  status: unimplemented_blocking
+  owner: mint-swiss-brain_plus_calculation_engine
+  input_units: must_be_declared_by_implementing_vertical
+  output_units: months
+  rounding: forbidden_until_formula_contract_is_implemented_and_reviewed
+  invariants:
+  - no_personal_output_while_unimplemented_blocking
+  - all_inputs_sources_constants_jurisdictions_and_effective_dates_must_be_pinned
+  - examples_remain_synthetic_and_labeled
+  implementation_gate: independent_Swiss_domain_review_golden_vectors_and_mutation_tests

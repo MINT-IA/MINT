@@ -200,6 +200,7 @@ ALLOW = {
     "product/mint_next/batch4/README.md",
     "product/mint_next/batch4/architecture_conflicts.yaml",
     "product/mint_next/batch4/calculation_contracts.yaml",
+    "product/mint_next/batch4/formula_contracts.yaml",
     "product/mint_next/batch4/official_sources.yaml",
     "product/mint_next/batch4/regulatory_boundaries.yaml",
     "product/mint_next/batch4/domain_coverage.yaml",

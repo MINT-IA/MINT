@@ -16,7 +16,7 @@ BASE = Path("product/mint_next/batch4")
 
 
 def valid_documents() -> dict[str, dict]:
-    return {
+    documents = {
         "batch.yaml": {"schema_version": 1, "status": "draft_unproven", "promotion_receipt": None},
         "source-inventory.yaml": {
             "schema_version": 1,
@@ -34,6 +34,11 @@ def valid_documents() -> dict[str, dict]:
             "id": "tax_calc", "decision_id": "fund_3a", "required_inputs": ["income"],
             "outputs": ["tax_delta"], "formula_ids": ["tax_v1"], "source_ids": ["tax_law"],
         }]},
+        "formula_contracts.yaml": {"formulas": [{
+            "id": "tax_v1", "status": "unimplemented_blocking", "owner": "test", "input_units": "CHF",
+            "output_units": "CHF", "rounding": "none", "invariants": ["no personal output"],
+            "implementation_gate": "review",
+        }]},
         "domain_coverage.yaml": {
             "dispositions": ["covered_by_decision", "official_handoff"],
             "domains": [{"id": "tax", "disposition": "covered_by_decision", "decision_ids": ["fund_3a"], "missing_contract": None}],
@@ -45,6 +50,11 @@ def valid_documents() -> dict[str, dict]:
             "expert_escape": ["sources"],
             "comprehension_evidence": ["choice"],
             "forbidden_patterns": ["shaming"],
+            "falsification_protocol": {
+                "unit_of_analysis": "task", "thresholds": "preregister",
+                "participant_coverage": ["low confidence"], "rejection_conditions": ["cannot explain"],
+                "privacy": ["aggregate only"], "signals": [{"id": "understood", "measure": "teach back"}],
+            },
         },
         "concepts.yaml": {
             "schema_version": 1,
@@ -73,16 +83,17 @@ def valid_documents() -> dict[str, dict]:
                     "next_action": "one action",
                     "return_and_correction": "preserve",
                     "not_applicable_behavior": "record reason",
+                    "learning_variant": "planning",
                 }
             ],
         },
         "experience_graph.yaml": {
             "schema_version": 1,
-            "entry_node_ids": ["start"],
+            "entry_node_ids": ["today_entry"],
             "terminal_kinds": ["safe_exit", "success"],
             "nodes": [
                 {
-                    "id": "start",
+                    "id": "today_entry",
                     "purpose": "Orient",
                     "learning_outcome": "Know the question",
                     "kind": "entry",
@@ -103,7 +114,7 @@ def valid_documents() -> dict[str, dict]:
             "edges": [
                 {
                     "action_id": "exit_safely",
-                    "source": "start",
+                    "source": "today_entry",
                     "destination": "safe_exit",
                     "visible_label_intent": "Stop for now",
                     "guard": "always",
@@ -131,6 +142,7 @@ def valid_documents() -> dict[str, dict]:
                 "required_context": ["decision_id"],
                 "unbound_decision_behavior": "not reachable",
             },
+            "learning_variants": {"planning": {"example_intent": "CHF example", "tone": "neutral"}},
         },
         "claims_and_data.yaml": {
             "items": [
@@ -163,6 +175,34 @@ def valid_documents() -> dict[str, dict]:
             ],
         },
     }
+    for concept in documents["concepts.yaml"]["concepts"]:
+        concept.update({
+            "plain_language_question": "What changes?", "mental_model": "Simple model", "simple_why": "Because cash changes",
+            "chf_example": "CHF 100 becomes CHF 80", "visual": "one bar", "misconceptions": ["wrong assumption"],
+            "glossary_terms": [{"term": "cash", "plain_language": "money"}],
+            "comprehension_evidence": {"prompt": "What remains?", "acceptable_answer": "CHF 80", "never_score_or_label": True},
+        })
+    graph = documents["experience_graph.yaml"]
+    mode = ["example", "personal", "missing", "stale", "offline", "error", "corrected", "saved"]
+    for node_id in ("question", "simple_why", "example", "receipt"):
+        graph["nodes"].append({"id": node_id, "purpose": node_id, "learning_outcome": node_id,
+                               "kind": "learning", "view_binding": f"next.{node_id}", "modes": mode,
+                               "terminal_kind": "nonterminal"})
+    def edge(action: str, source: str, destination: str, effect: str = "none") -> dict:
+        return {"action_id": action, "source": source, "destination": destination,
+                "visible_label_intent": action, "visible_label": action, "guard": "always",
+                "data_effect": effect, "back_semantics": "preserve", "fallback": "safe_exit",
+                "analytics_event": action}
+    graph["edges"] += [
+        edge("open_question", "today_entry", "question"), edge("explain_simply", "question", "simple_why"),
+        edge("show_contextual_example", "simple_why", "example"), edge("finish_example", "example", "safe_exit"),
+        edge("expert_details_now", "question", "receipt"), edge("finish_receipt", "receipt", "safe_exit"),
+        edge("return_today_without_pressure", "safe_exit", "today_entry"),
+        edge("choose_reminder", "safe_exit", "today_entry", "explicit_save_or_edit"),
+        edge("dismiss_suggestion", "safe_exit", "today_entry", "explicit_save_or_edit"),
+        edge("change_subject", "safe_exit", "today_entry"),
+    ]
+    return documents
 
 
 def write_documents(root: Path, documents: dict[str, dict]) -> None:
@@ -225,6 +265,14 @@ def test_accepts_complete_closed_graph(tmp_path: Path) -> None:
         (lambda d: d["decisions.yaml"]["decisions"][0].update(compliance_boundary="ghost"), "unknown decision regulatory boundary"),
         (lambda d: d["domain_coverage.yaml"]["domains"][0].update(decision_ids=["ghost"]), "unknown domain decision"),
         (lambda d: d["official_sources.yaml"]["sources"][0].pop("version_basis"), "version_basis"),
+        (lambda d: d["experience_graph.yaml"]["edges"][0].update(data_effect="explicit_save_or_edit"), "unconfirmed chat action writes state"),
+        (lambda d: d["calculation_contracts.yaml"]["contracts"][0].update(formula_ids=["ghost"]), "unknown formula contract"),
+        (lambda d: d["formula_contracts.yaml"]["formulas"][0].update(status="magic"), "invalid formula status"),
+        (lambda d: d["decisions.yaml"]["decisions"][0].update(minimum_input_ids=[]), "minimum inputs do not cover"),
+        (lambda d: d["decisions.yaml"]["decisions"][0].update(learning_variant="ghost"), "unknown decision learning variant"),
+        (lambda d: d["audience.yaml"].pop("falsification_protocol"), "falsification_protocol"),
+        (lambda d: d["concepts.yaml"]["concepts"][0].pop("simple_why"), "simple_why"),
+        (lambda d: d["experience_graph.yaml"]["edges"][-3].update(data_effect="none"), "choose_reminder"),
     ],
 )
 def test_rejects_hostile_mutations(tmp_path: Path, mutation, message: str) -> None:

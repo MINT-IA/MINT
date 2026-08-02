@@ -22,6 +22,7 @@ FILES = (
     "source-inventory.yaml",
     "architecture_conflicts.yaml",
     "calculation_contracts.yaml",
+    "formula_contracts.yaml",
     "official_sources.yaml",
     "regulatory_boundaries.yaml",
     "domain_coverage.yaml",
@@ -139,6 +140,23 @@ def _list_of_strings(item: dict[str, Any], field: str, context: str, errors: lis
 def _validate_concepts(concepts: dict[str, dict[str, Any]], errors: list[str]) -> None:
     prerequisites: dict[str, list[str]] = {}
     for identifier, concept in concepts.items():
+        for field in ("plain_language_question", "mental_model", "simple_why", "chf_example", "visual"):
+            if not isinstance(concept.get(field), str) or not concept.get(field, "").strip():
+                errors.append(f"concept {identifier}.{field} must be non-empty")
+        if not _list_of_strings(concept, "misconceptions", f"concept {identifier}", errors):
+            errors.append(f"concept {identifier}.misconceptions must not be empty")
+        glossary = concept.get("glossary_terms")
+        if not isinstance(glossary, list):
+            errors.append(f"concept {identifier}.glossary_terms must be a list")
+        else:
+            for index, term in enumerate(glossary):
+                if not isinstance(term, dict) or not all(isinstance(term.get(x), str) and term.get(x).strip() for x in ("term", "plain_language")):
+                    errors.append(f"concept {identifier}.glossary_terms[{index}] is incomplete")
+        evidence = concept.get("comprehension_evidence")
+        if not isinstance(evidence, dict) or not all(
+            isinstance(evidence.get(x), str) and evidence.get(x).strip() for x in ("prompt", "acceptable_answer")
+        ) or evidence.get("never_score_or_label") is not True:
+            errors.append(f"concept {identifier}.comprehension_evidence is incomplete")
         refs = _list_of_strings(concept, "prerequisites", f"concept {identifier}", errors)
         prerequisites[identifier] = refs
         for ref in refs:
@@ -289,6 +307,20 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
     for identifier in reachable - can_exit:
         errors.append(f"graph node cannot reach a safe terminal: {identifier}")
 
+    required_actions = {
+        "explain_simply": ("question", "simple_why", "none"),
+        "show_contextual_example": ("simple_why", "example", "none"),
+        "expert_details_now": ("question", "receipt", "none"),
+        "return_today_without_pressure": ("safe_exit", "today_entry", "none"),
+        "choose_reminder": ("safe_exit", "today_entry", "explicit_save_or_edit"),
+        "dismiss_suggestion": ("safe_exit", "today_entry", "explicit_save_or_edit"),
+        "change_subject": ("safe_exit", "today_entry", "none"),
+    }
+    for action, contract in required_actions.items():
+        edge = edge_by_action.get(action)
+        if not edge or (edge.get("source"), edge.get("destination"), edge.get("data_effect")) != contract:
+            errors.append(f"required pedagogy/soft-exit action contract mismatch: {action}")
+
     chat = document.get("chat")
     if not isinstance(chat, dict):
         errors.append("experience_graph chat must be a mapping")
@@ -319,6 +351,14 @@ def _validate_graph(document: dict[str, Any], errors: list[str]) -> None:
                 edge = edge_by_action.get(action, {})
                 if edge.get("data_effect") not in allowed_effects:
                     errors.append(f"chat action has forbidden data effect: {action}")
+            non_writing = set(policy.get("read_only", [])) | set(policy.get("navigation_only", []))
+            confirmed = set(policy.get("requires_explicit_user_confirmation", []))
+            for action in non_writing:
+                if edge_by_action.get(action, {}).get("data_effect") != "none":
+                    errors.append(f"unconfirmed chat action writes state: {action}")
+            for action in confirmed:
+                if edge_by_action.get(action, {}).get("data_effect") != "explicit_save_or_edit":
+                    errors.append(f"confirmed chat action lacks explicit write effect: {action}")
             for field in ("authorization",):
                 if not isinstance(policy.get(field), str) or not policy.get(field, "").strip():
                     errors.append(f"chat.action_policy.{field} must be non-empty")
@@ -385,6 +425,18 @@ def _validate_domain_contracts(
             errors.append(f"unknown regulatory source: {source_id}")
 
     contracts_doc = documents["calculation_contracts.yaml"]
+    formula_doc = documents["formula_contracts.yaml"]
+    formulas = _index(_items(formula_doc, "formulas", "formula_contracts.yaml", errors), "formula contract", errors)
+    if not formulas:
+        errors.append("formula contract registry must not be empty")
+    for identifier, formula in formulas.items():
+        if formula.get("status") not in {"unimplemented_blocking", "implemented_reviewed"}:
+            errors.append(f"invalid formula status: {identifier}")
+        for field in ("owner", "input_units", "output_units", "rounding", "implementation_gate"):
+            if not isinstance(formula.get(field), str) or not formula.get(field, "").strip():
+                errors.append(f"formula contract {identifier}.{field} must be non-empty")
+        if not _list_of_strings(formula, "invariants", f"formula contract {identifier}", errors):
+            errors.append(f"formula contract {identifier}.invariants must not be empty")
     contracts = _index(_items(contracts_doc, "contracts", "calculation_contracts.yaml", errors), "calculation contract", errors)
     bound_decisions: dict[str, str] = {}
     for identifier, contract in contracts.items():
@@ -409,12 +461,19 @@ def _validate_domain_contracts(
             if source_id not in sources:
                 errors.append(f"unknown calculation source: {identifier} -> {source_id}")
         for field in ("outputs", "formula_ids"):
-            if not _list_of_strings(contract, field, f"calculation contract {identifier}", errors):
+            values = _list_of_strings(contract, field, f"calculation contract {identifier}", errors)
+            if not values:
                 errors.append(f"calculation contract {identifier}.{field} must not be empty")
+            if field == "formula_ids":
+                for formula_id in values:
+                    if formula_id not in formulas:
+                        errors.append(f"unknown formula contract: {identifier} -> {formula_id}")
     for decision_id, decision in decisions.items():
         contract_id = decision.get("calculation_contract")
         if contract_id not in contracts or bound_decisions.get(decision_id) != contract_id:
             errors.append(f"decision calculation contract mismatch: {decision_id} -> {contract_id}")
+        elif not set(contracts[contract_id].get("required_inputs", [])) <= set(decision.get("minimum_input_ids", [])):
+            errors.append(f"decision minimum inputs do not cover calculation contract: {decision_id}")
         if decision.get("compliance_boundary") not in boundaries:
             errors.append(f"unknown decision regulatory boundary: {decision_id} -> {decision.get('compliance_boundary')}")
 
@@ -455,6 +514,18 @@ def validate(root: Path) -> list[str]:
         if field not in audience:
             errors.append(f"audience.yaml missing required field: {field}")
     _index(_items(audience, "progressive_depth", "audience.yaml", errors), "progressive depth", errors)
+    falsification = audience.get("falsification_protocol")
+    if not isinstance(falsification, dict):
+        errors.append("audience falsification_protocol must be a mapping")
+    else:
+        for field in ("unit_of_analysis", "thresholds"):
+            if not isinstance(falsification.get(field), str) or not falsification.get(field, "").strip():
+                errors.append(f"audience falsification_protocol.{field} must be non-empty")
+        for field in ("participant_coverage", "rejection_conditions", "privacy"):
+            if not _list_of_strings(falsification, field, "audience falsification_protocol", errors):
+                errors.append(f"audience falsification_protocol.{field} must not be empty")
+        if not _index(_items(falsification, "signals", "falsification_protocol", errors), "falsification signal", errors):
+            errors.append("audience falsification signals must not be empty")
     concepts = _index(_items(documents["concepts.yaml"], "concepts", "concepts.yaml", errors), "concept", errors)
     if not concepts:
         errors.append("concept registry must not be empty")
@@ -496,6 +567,19 @@ def validate(root: Path) -> list[str]:
             if not isinstance(template.get(field), str) or not template.get(field, "").strip():
                 errors.append(f"decision_template.{field} must be non-empty")
         _list_of_strings(template, "required_context", "decision_template", errors)
+    variants = graph.get("learning_variants")
+    if not isinstance(variants, dict) or not variants:
+        errors.append("experience_graph learning_variants must be a non-empty mapping")
+        variants = {}
+    for identifier, variant in variants.items():
+        if not isinstance(variant, dict) or not all(
+            isinstance(variant.get(field), str) and variant.get(field).strip()
+            for field in ("example_intent", "tone")
+        ):
+            errors.append(f"learning variant is incomplete: {identifier}")
+    for decision_id, decision in decisions.items():
+        if decision.get("learning_variant") not in variants:
+            errors.append(f"unknown decision learning variant: {decision_id} -> {decision.get('learning_variant')}")
 
     legacy = documents["legacy_reuse.yaml"]
     boundary = legacy.get("boundary")
