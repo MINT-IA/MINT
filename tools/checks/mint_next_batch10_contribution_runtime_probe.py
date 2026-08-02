@@ -41,23 +41,35 @@ FORBIDDEN_PERSONAL_CLAIMS = (
 )
 
 CONTRIBUTION_COPY_SHA256 = {
-    "fr": "11ee6df4e094d6c2bc2755f62678983b975ccd01585eca49417e50a8eea4d9b2",
-    "en": "ba6a43a437360a04142a3132e13420a62755c76987ba0f5ad10fbd918f4dcbbb",
-    "de": "18f4335700a461fb0c9daf8914f2e0036efafbb846472860a2db73dcd56b5cc4",
-    "it": "ee5b95d7dfbd7f23293f493d698defd83cfcff4b1f0d1f0f7ae06eedf42ee9e0",
-    "es": "8c63c560f0e9b7793192fa80789040f60286f133860ec619ea0e43a4b4bfa587",
-    "pt": "234000fd21143b14399850eec2ba2129eb83a479ac2cbefa237c6f92b8c4ae9b",
+    "fr": "8f57592fb6d01218aa90e093c1574efc49ef4506f8887f523252aee832da1485",
+    "en": "dd74bb2b65b6212c5482a8b8485a6b78939b8395635a71d939ecb151fb4425af",
+    "de": "e14466dc86b19437478d5a68b3f50fcf433c61bb312c369063629cb016fd0b54",
+    "it": "a043b8a41d7485c089f75631bcc31885ac3303164012aec1432726e0bc524a4f",
+    "es": "d039368b56b007b58eb91f19179911b6ece9d394b26efb593e3044d078a4f160",
+    "pt": "7eddcfe5d4300ce4a41b1d34a6fddf60b748b5e9d79f0d786f822032807e991a",
+}
+
+LOCALIZATION_PIPELINE_SHA256 = {
+    "pubspec.yaml": "f910eea0fd3d1f9d2b9d57c8995f3d0505f5da2efa2381859eb326b4b3be88e5",
+    "l10n.yaml": "0879c4e81347d78e3551434c75ad282aa818efe28ede77d63326dd8b8d4201be",
+    "lib/l10n/generated/mint_next_localizations.dart": "09f915ce4cd18205eba4d55697bdca859227a6770e89eb090cd733424b90d552",
+    "lib/l10n/generated/mint_next_localizations_de.dart": "4b689023ed3bad3b952841fedbac44990c95470e57683c199d37e576faf7ad26",
+    "lib/l10n/generated/mint_next_localizations_en.dart": "bfd9cc4c2b34169a97fe38adb06a80356516e29c828d57319b18daab844fa115",
+    "lib/l10n/generated/mint_next_localizations_es.dart": "02c4b7d93c0024cb045cb851f16ec3970b0eb9068309c6e07f2cdeb8bc2af2ca",
+    "lib/l10n/generated/mint_next_localizations_fr.dart": "4bcac7e19ece107a5295ee7c24ce13a27a0ab5fba6b900fcb58d28a9d99e495b",
+    "lib/l10n/generated/mint_next_localizations_it.dart": "3beb668c58695f0bcc57fab11ecf951cef437a8bf2a9033ca3748e6bba282b54",
+    "lib/l10n/generated/mint_next_localizations_pt.dart": "4aad23764c8281662232b1499ecd64a7f122f2aae5c89f60e06f1fc6117e2e26",
 }
 
 
 def assert_reviewed_contribution_copy() -> None:
-    """Bind every reviewed user-facing contribution string in all six locales."""
+    """Bind every reviewed contribution value and its generation metadata in all six locales."""
     for locale, expected in CONTRIBUTION_COPY_SHA256.items():
         source = json.loads((LAB / "lib" / "l10n" / f"app_{locale}.arb").read_text())
         contribution_copy = {
             key: value
             for key, value in source.items()
-            if key.startswith("contribution") and not key.startswith("@")
+            if key.startswith("contribution") or key.startswith("@contribution")
         }
         encoded = json.dumps(
             contribution_copy,
@@ -70,6 +82,14 @@ def assert_reviewed_contribution_copy() -> None:
             actual == expected,
             f"{locale} reviewed contribution copy is exact ({actual})",
         )
+
+
+def assert_reviewed_localization_pipeline() -> None:
+    """Reject stale or bypassed generated localization inputs before rendering."""
+    for relative, expected in LOCALIZATION_PIPELINE_SHA256.items():
+        path = LAB / relative
+        actual = hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else "missing"
+        check(actual == expected, f"localization pipeline bytes are exact: {relative} ({actual})")
 
 
 class QuietHandler(SimpleHTTPRequestHandler):
@@ -496,6 +516,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         assert_reviewed_contribution_copy()
+        assert_reviewed_localization_pipeline()
         if not chrome():
             print("ERROR mint_next_batch10_contribution_runtime_probe: Chrome required")
             return 1
