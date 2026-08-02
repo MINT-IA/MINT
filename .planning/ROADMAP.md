@@ -9,7 +9,7 @@ Current phase is **MINT Next Vertical 01 — 3a**, the sole product WIP.
 - Active context: [`.planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md`](phases/mint-next-vertical01-3a-20260802/CONTEXT.md)
 - Active spec: [`.planning/phases/mint-next-vertical01-3a-20260802/SPEC.md`](phases/mint-next-vertical01-3a-20260802/SPEC.md)
 - Execution truth: Bead `MINT_nosync-ihj`.
-- Batch 5 is a bounded functional micro-lesson; Figma-bound product design remains pending.
+- Batch 5 is a bounded functional micro-lesson; the Batch 6 canonical navigation graph is accepted for written-contract scope only, and the executable Flutter Design Lab remains pending. Figma is optional reference.
 - Batch 4 promotion work is frozen and historical.
 - No second fiscal theme opens before runtime acceptance of this vertical.
 

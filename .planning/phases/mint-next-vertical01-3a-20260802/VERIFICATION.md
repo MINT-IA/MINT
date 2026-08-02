@@ -9,10 +9,13 @@ Status: `in_progress`
 - Swiss/content re-roast: P1=0, P2=0.
 - Batch 5 is labeled a bounded micro-lesson and contains no active network link.
 
+## Accepted bounded evidence
+
+- Batch 6 written navigation YAML and generated Mermaid: exact SHA-bound acceptance receipt, two independent reviews at P1=0/P2=0.
+
 ## Still required
 
-- Final UX re-roast after the last two P2 fixes.
-- Exact Figma frame/version and visual acceptance.
+- Executable Flutter Design Lab visual and runtime acceptance bound to the accepted graph; Figma is optional reference.
 - Progressive fact collection and one canonical persistence path.
 - Verified personal calculation seam, teach-back and persisted next action.
 - Flutter ARB parity in fr/en/de/it/es/pt.

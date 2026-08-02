@@ -20,14 +20,18 @@ action or safe exit.
 
 ## Completion evidence
 
-Completion requires every acceptance clause on Bead `MINT_nosync-ihj`, an
-exact Figma frame/version, six-language ARB parity, inspected runtime renders,
-P1/P2=0, and a tiny prevalidated build. Documents or a self-score cannot close
-the phase.
+Completion requires every acceptance clause on Bead `MINT_nosync-ihj`, the
+machine-verified canonical navigation graph, an executable Flutter Design Lab,
+six-language ARB parity, inspected runtime renders, P1/P2=0, and a tiny
+prevalidated build. Figma is optional reference material. Documents, static
+frames, or a self-score cannot close the phase.
 
 ```verify
 batch5-runtime: python3 tools/checks/mint_next_batch5_runtime_probe.py --capture
 batch6-figma-receipt: python3 tools/checks/mint_next_batch6_figma_receipt.py
+batch6-navigation: python3 tools/checks/mint_next_batch6_navigation_guard.py
+batch6-navigation-diagram: python3 tools/checks/mint_next_batch6_navigation_diagram.py
+batch6-navigation-acceptance: python3 tools/checks/mint_next_batch6_navigation_acceptance.py
 active-context: python3 tools/checks/active_context_guard.py
 phase-contract: python3 tools/checks/phase_contract_guard.py
 mint-rules: python3 tools/checks/mint_rules_guard.py

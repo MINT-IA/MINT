@@ -1,0 +1,306 @@
+%% GENERATED from navigation.yaml sha256=461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+%% Do not edit manually; run tools/checks/mint_next_batch6_navigation_diagram.py --write
+flowchart TD
+  overlay_return_to_invoker(["return to invoking screen"])
+  today_3a_intent["today_3a_intent"]
+  orientation["orientation"]
+  fact_tax_year["fact_tax_year"]
+  fact_lpp_affiliation["fact_lpp_affiliation"]
+  fact_contribution["fact_contribution"]
+  fact_contributed_amount["fact_contributed_amount"]
+  contributed_amount_total_helper["contributed_amount_total_helper"]
+  contribution_unknown_help["contribution_unknown_help"]
+  fact_canton["fact_canton"]
+  canton_unknown_help["canton_unknown_help"]
+  fact_commune["fact_commune"]
+  fact_household["fact_household"]
+  fact_income["fact_income"]
+  income_unknown_help["income_unknown_help"]
+  fact_amount["fact_amount"]
+  amount_unknown_help["amount_unknown_help"]
+  edit_lpp_affiliation["edit_lpp_affiliation"]
+  edit_tax_year["edit_tax_year"]
+  edit_contribution["edit_contribution"]
+  edit_contributed_amount["edit_contributed_amount"]
+  edit_contributed_amount_total_helper["edit_contributed_amount_total_helper"]
+  edit_canton["edit_canton"]
+  edit_commune["edit_commune"]
+  edit_commune_after_canton["edit_commune_after_canton"]
+  edit_household["edit_household"]
+  edit_income["edit_income"]
+  edit_income_after_household["edit_income_after_household"]
+  edit_amount["edit_amount"]
+  confirm_facts["confirm_facts"]
+  result["result"]
+  existing_overcontribution_help["existing_overcontribution_help"]
+  teach_back["teach_back"]
+  teach_back_correction["teach_back_correction"]
+  next_action["next_action"]
+  personal_setup_boundary["personal_setup_boundary"]
+  insufficient_facts["insufficient_facts"]
+  insufficient_education_teach_back["insufficient_education_teach_back"]
+  insufficient_education_correction["insufficient_education_correction"]
+  insufficient_next_action["insufficient_next_action"]
+  education_explanation["education_explanation"]
+  education_teach_back["education_teach_back"]
+  education_teach_back_correction["education_teach_back_correction"]
+  education_next_action["education_next_action"]
+  unsupported_case["unsupported_case"]
+  retroactive_3a_boundary["retroactive_3a_boundary"]
+  without_lpp_boundary["without_lpp_boundary"]
+  lpp_unknown_help["lpp_unknown_help"]
+  calculation_failed["calculation_failed"]
+  tax_year_rolled_over["tax_year_rolled_over"]
+  reference_saved[["reference_saved"]]
+  dismissed[["dismissed"]]
+  today_3a_intent -->|"start"| orientation
+  today_3a_intent -.->|"open_safe_exit"| overlay_safe_exit
+  orientation -->|"continue"| fact_tax_year
+  orientation -->|"back"| today_3a_intent
+  orientation -.->|"open_safe_exit"| overlay_safe_exit
+  fact_tax_year -->|"confirm_current_year:state"| fact_tax_year
+  fact_tax_year -->|"choose_past_year"| retroactive_3a_boundary
+  fact_tax_year -->|"continue"| fact_lpp_affiliation
+  fact_tax_year -->|"back"| orientation
+  fact_tax_year -.->|"open_safe_exit"| overlay_safe_exit
+  fact_lpp_affiliation -->|"choose_yes"| fact_contribution
+  fact_lpp_affiliation -->|"choose_no"| without_lpp_boundary
+  fact_lpp_affiliation -->|"choose_unknown"| lpp_unknown_help
+  fact_lpp_affiliation -->|"back"| fact_tax_year
+  fact_lpp_affiliation -.->|"open_safe_exit"| overlay_safe_exit
+  fact_contribution -->|"choose_yes"| fact_contributed_amount
+  fact_contribution -->|"choose_no"| fact_canton
+  fact_contribution -->|"choose_unknown"| contribution_unknown_help
+  fact_contribution -->|"back"| fact_lpp_affiliation
+  fact_contribution -.->|"open_safe_exit"| overlay_safe_exit
+  fact_contributed_amount -->|"enter_amount:state"| fact_contributed_amount
+  fact_contributed_amount -->|"open_total_helper"| contributed_amount_total_helper
+  fact_contributed_amount -->|"continue"| fact_canton
+  fact_contributed_amount -->|"back"| fact_contribution
+  fact_contributed_amount -.->|"open_safe_exit"| overlay_safe_exit
+  contributed_amount_total_helper -->|"add_provider_row:state"| contributed_amount_total_helper
+  contributed_amount_total_helper -->|"remove_provider_row:state"| contributed_amount_total_helper
+  contributed_amount_total_helper -->|"use_automatic_total"| fact_contributed_amount
+  contributed_amount_total_helper -->|"review_contribution_status"| fact_contribution
+  contributed_amount_total_helper -->|"back"| fact_contributed_amount
+  contributed_amount_total_helper -.->|"open_safe_exit"| overlay_safe_exit
+  contribution_unknown_help -->|"continue_education_only"| education_explanation
+  contribution_unknown_help -->|"back"| fact_contribution
+  contribution_unknown_help -.->|"open_safe_exit"| overlay_safe_exit
+  fact_canton -->|"choose_canton:state"| fact_canton
+  fact_canton -->|"choose_unknown"| canton_unknown_help
+  fact_canton -->|"continue"| fact_commune
+  fact_canton -.->|"back:history"| fact_contribution
+  fact_canton -.->|"back:history"| fact_contributed_amount
+  fact_canton -.->|"open_safe_exit"| overlay_safe_exit
+  canton_unknown_help -->|"continue_education_only"| education_explanation
+  canton_unknown_help -.->|"back:history"| fact_canton
+  canton_unknown_help -.->|"back:history"| edit_canton
+  canton_unknown_help -.->|"open_safe_exit"| overlay_safe_exit
+  fact_commune -->|"choose_commune:state"| fact_commune
+  fact_commune -->|"choose_unknown:state"| fact_commune
+  fact_commune -->|"continue"| fact_household
+  fact_commune -->|"back"| fact_canton
+  fact_commune -.->|"open_safe_exit"| overlay_safe_exit
+  fact_household -->|"choose_category:state"| fact_household
+  fact_household -->|"choose_unknown:state"| fact_household
+  fact_household -->|"continue"| fact_income
+  fact_household -->|"back"| fact_commune
+  fact_household -.->|"open_safe_exit"| overlay_safe_exit
+  fact_income -->|"choose_band:state"| fact_income
+  fact_income -->|"choose_unknown"| income_unknown_help
+  fact_income -->|"continue"| fact_amount
+  fact_income -->|"back"| fact_household
+  fact_income -.->|"open_safe_exit"| overlay_safe_exit
+  income_unknown_help -->|"continue_education_only"| education_explanation
+  income_unknown_help -.->|"back:history"| fact_income
+  income_unknown_help -.->|"back:history"| edit_income
+  income_unknown_help -.->|"back:history"| edit_income_after_household
+  income_unknown_help -.->|"open_safe_exit"| overlay_safe_exit
+  fact_amount -->|"enter_amount:state"| fact_amount
+  fact_amount -->|"choose_unknown"| amount_unknown_help
+  fact_amount -->|"continue"| confirm_facts
+  fact_amount -->|"back"| fact_income
+  fact_amount -.->|"open_safe_exit"| overlay_safe_exit
+  amount_unknown_help -->|"continue_education_only"| education_explanation
+  amount_unknown_help -.->|"back:history"| fact_amount
+  amount_unknown_help -.->|"back:history"| edit_amount
+  amount_unknown_help -.->|"open_safe_exit"| overlay_safe_exit
+  edit_lpp_affiliation -->|"choose_yes"| confirm_facts
+  edit_lpp_affiliation -->|"choose_no"| without_lpp_boundary
+  edit_lpp_affiliation -->|"choose_unknown"| lpp_unknown_help
+  edit_lpp_affiliation -->|"back"| confirm_facts
+  edit_lpp_affiliation -.->|"open_safe_exit"| overlay_safe_exit
+  edit_tax_year -->|"confirm_current_year"| confirm_facts
+  edit_tax_year -->|"choose_past_year"| retroactive_3a_boundary
+  edit_tax_year -->|"back"| confirm_facts
+  edit_tax_year -.->|"open_safe_exit"| overlay_safe_exit
+  edit_contribution -->|"choose_yes"| edit_contributed_amount
+  edit_contribution -->|"choose_no"| confirm_facts
+  edit_contribution -->|"choose_unknown"| confirm_facts
+  edit_contribution -->|"back"| confirm_facts
+  edit_contribution -.->|"open_safe_exit"| overlay_safe_exit
+  edit_contributed_amount -->|"enter_amount:state"| edit_contributed_amount
+  edit_contributed_amount -->|"open_total_helper"| edit_contributed_amount_total_helper
+  edit_contributed_amount -->|"confirm_edit"| confirm_facts
+  edit_contributed_amount -->|"back"| confirm_facts
+  edit_contributed_amount -.->|"open_safe_exit"| overlay_safe_exit
+  edit_contributed_amount_total_helper -->|"add_provider_row:state"| edit_contributed_amount_total_helper
+  edit_contributed_amount_total_helper -->|"remove_provider_row:state"| edit_contributed_amount_total_helper
+  edit_contributed_amount_total_helper -->|"use_automatic_total"| edit_contributed_amount
+  edit_contributed_amount_total_helper -->|"review_contribution_status"| edit_contribution
+  edit_contributed_amount_total_helper -->|"back"| edit_contributed_amount
+  edit_contributed_amount_total_helper -.->|"open_safe_exit"| overlay_safe_exit
+  edit_canton -->|"choose_canton:state"| edit_canton
+  edit_canton -->|"choose_unknown"| canton_unknown_help
+  edit_canton -->|"confirm_edit"| edit_commune_after_canton
+  edit_canton -->|"back"| confirm_facts
+  edit_canton -.->|"open_safe_exit"| overlay_safe_exit
+  edit_commune -->|"choose_commune:state"| edit_commune
+  edit_commune -->|"choose_unknown:state"| edit_commune
+  edit_commune -->|"confirm_edit"| confirm_facts
+  edit_commune -->|"back"| confirm_facts
+  edit_commune -.->|"open_safe_exit"| overlay_safe_exit
+  edit_commune_after_canton -->|"choose_commune:state"| edit_commune_after_canton
+  edit_commune_after_canton -->|"choose_unknown:state"| edit_commune_after_canton
+  edit_commune_after_canton -->|"confirm_edit"| confirm_facts
+  edit_commune_after_canton -->|"back"| edit_canton
+  edit_commune_after_canton -.->|"open_safe_exit"| overlay_safe_exit
+  edit_household -->|"choose_category:state"| edit_household
+  edit_household -->|"choose_unknown:state"| edit_household
+  edit_household -->|"confirm_edit"| edit_income_after_household
+  edit_household -->|"back"| confirm_facts
+  edit_household -.->|"open_safe_exit"| overlay_safe_exit
+  edit_income -->|"choose_band:state"| edit_income
+  edit_income -->|"choose_unknown"| income_unknown_help
+  edit_income -->|"confirm_edit"| confirm_facts
+  edit_income -->|"back"| confirm_facts
+  edit_income -.->|"open_safe_exit"| overlay_safe_exit
+  edit_income_after_household -->|"choose_band:state"| edit_income_after_household
+  edit_income_after_household -->|"choose_unknown"| income_unknown_help
+  edit_income_after_household -->|"confirm_edit"| confirm_facts
+  edit_income_after_household -->|"back"| edit_household
+  edit_income_after_household -.->|"open_safe_exit"| overlay_safe_exit
+  edit_amount -->|"enter_amount:state"| edit_amount
+  edit_amount -->|"choose_unknown"| amount_unknown_help
+  edit_amount -->|"confirm_edit"| confirm_facts
+  edit_amount -->|"back"| confirm_facts
+  edit_amount -.->|"open_safe_exit"| overlay_safe_exit
+  confirm_facts -->|"edit_tax_year"| edit_tax_year
+  confirm_facts -->|"edit_lpp_affiliation"| edit_lpp_affiliation
+  confirm_facts -->|"edit_contribution"| edit_contribution
+  confirm_facts -->|"edit_contributed_amount"| edit_contributed_amount
+  confirm_facts -->|"edit_canton"| edit_canton
+  confirm_facts -->|"edit_commune"| edit_commune
+  confirm_facts -->|"edit_household"| edit_household
+  confirm_facts -->|"edit_income"| edit_income
+  confirm_facts -->|"edit_amount"| edit_amount
+  confirm_facts -->|"calculate:success"| result
+  confirm_facts -->|"calculate:insufficient_facts"| insufficient_facts
+  confirm_facts -->|"calculate:unsupported_case"| unsupported_case
+  confirm_facts -->|"calculate:calculation_failed"| calculation_failed
+  confirm_facts -->|"calculate:tax_year_rolled_over"| tax_year_rolled_over
+  confirm_facts -->|"back:valid_result_review"| result
+  confirm_facts -->|"back:initial_collection"| fact_amount
+  confirm_facts -.->|"open_safe_exit"| overlay_safe_exit
+  result -->|"continue"| teach_back
+  result -->|"edit_facts"| confirm_facts
+  result -.->|"open_assumptions"| overlay_assumptions
+  result -.->|"open_sources"| overlay_sources
+  result -->|"correct_additional_planned_amount"| edit_amount
+  result -->|"review_existing_overcontribution"| existing_overcontribution_help
+  result -->|"back"| confirm_facts
+  result -.->|"open_safe_exit"| overlay_safe_exit
+  existing_overcontribution_help -->|"correct_contributed_amount"| edit_contributed_amount
+  existing_overcontribution_help -->|"back"| result
+  existing_overcontribution_help -.->|"open_safe_exit"| overlay_safe_exit
+  teach_back -->|"choose_correct"| next_action
+  teach_back -->|"choose_incorrect"| teach_back_correction
+  teach_back -->|"choose_unknown"| teach_back_correction
+  teach_back -->|"back"| result
+  teach_back -.->|"open_safe_exit"| overlay_safe_exit
+  teach_back_correction -->|"retry_simplified"| teach_back
+  teach_back_correction -->|"continue_anyway"| next_action
+  teach_back_correction -->|"back"| teach_back
+  teach_back_correction -.->|"open_safe_exit"| overlay_safe_exit
+  next_action -->|"prepare_personal_setup"| personal_setup_boundary
+  next_action -->|"keep_local_reference"| reference_saved
+  next_action -->|"leave_without_saving"| dismissed
+  next_action -->|"back"| teach_back
+  next_action -.->|"open_safe_exit"| overlay_safe_exit
+  personal_setup_boundary -->|"save_checklist_local"| reference_saved
+  personal_setup_boundary -->|"back"| next_action
+  personal_setup_boundary -.->|"open_safe_exit"| overlay_safe_exit
+  insufficient_facts -->|"review_facts"| confirm_facts
+  insufficient_facts -->|"continue_education_only"| insufficient_education_teach_back
+  insufficient_facts -->|"back"| confirm_facts
+  insufficient_facts -.->|"open_safe_exit"| overlay_safe_exit
+  insufficient_education_teach_back -->|"choose_correct"| insufficient_next_action
+  insufficient_education_teach_back -->|"choose_incorrect"| insufficient_education_correction
+  insufficient_education_teach_back -->|"choose_unknown"| insufficient_education_correction
+  insufficient_education_teach_back -->|"back"| insufficient_facts
+  insufficient_education_teach_back -.->|"open_safe_exit"| overlay_safe_exit
+  insufficient_education_correction -->|"retry_simplified"| insufficient_education_teach_back
+  insufficient_education_correction -->|"continue_anyway"| insufficient_next_action
+  insufficient_education_correction -->|"back"| insufficient_education_teach_back
+  insufficient_education_correction -.->|"open_safe_exit"| overlay_safe_exit
+  insufficient_next_action -->|"review_missing_facts"| confirm_facts
+  insufficient_next_action -->|"keep_learning_reference"| reference_saved
+  insufficient_next_action -->|"leave_without_saving"| dismissed
+  insufficient_next_action -->|"back"| insufficient_education_teach_back
+  insufficient_next_action -.->|"open_safe_exit"| overlay_safe_exit
+  education_explanation -->|"continue"| education_teach_back
+  education_explanation -.->|"back:history"| contribution_unknown_help
+  education_explanation -.->|"back:history"| canton_unknown_help
+  education_explanation -.->|"back:history"| income_unknown_help
+  education_explanation -.->|"back:history"| amount_unknown_help
+  education_explanation -.->|"open_safe_exit"| overlay_safe_exit
+  education_teach_back -->|"choose_correct"| education_next_action
+  education_teach_back -->|"choose_incorrect"| education_teach_back_correction
+  education_teach_back -->|"choose_unknown"| education_teach_back_correction
+  education_teach_back -->|"back"| education_explanation
+  education_teach_back -.->|"open_safe_exit"| overlay_safe_exit
+  education_teach_back_correction -->|"retry_simplified"| education_teach_back
+  education_teach_back_correction -->|"continue_anyway"| education_next_action
+  education_teach_back_correction -->|"back"| education_teach_back
+  education_teach_back_correction -.->|"open_safe_exit"| overlay_safe_exit
+  education_next_action -->|"restart_fact_collection"| fact_tax_year
+  education_next_action -->|"keep_learning_reference"| reference_saved
+  education_next_action -->|"leave_without_saving"| dismissed
+  education_next_action -->|"back"| education_teach_back
+  education_next_action -.->|"open_safe_exit"| overlay_safe_exit
+  unsupported_case -->|"review_facts"| confirm_facts
+  unsupported_case -->|"leave_without_saving"| dismissed
+  unsupported_case -->|"back"| confirm_facts
+  unsupported_case -.->|"open_safe_exit"| overlay_safe_exit
+  retroactive_3a_boundary -->|"restart_current_year"| fact_tax_year
+  retroactive_3a_boundary -->|"keep_explanation_local"| reference_saved
+  retroactive_3a_boundary -->|"back:initial_collection"| fact_tax_year
+  retroactive_3a_boundary -->|"back:edit_review"| edit_tax_year
+  retroactive_3a_boundary -.->|"open_safe_exit"| overlay_safe_exit
+  without_lpp_boundary -->|"keep_explanation_local"| reference_saved
+  without_lpp_boundary -.->|"back:history"| fact_lpp_affiliation
+  without_lpp_boundary -.->|"back:history"| edit_lpp_affiliation
+  without_lpp_boundary -.->|"open_safe_exit"| overlay_safe_exit
+  lpp_unknown_help -->|"keep_checklist_local"| reference_saved
+  lpp_unknown_help -.->|"back:history"| fact_lpp_affiliation
+  lpp_unknown_help -.->|"back:history"| edit_lpp_affiliation
+  lpp_unknown_help -.->|"open_safe_exit"| overlay_safe_exit
+  calculation_failed -->|"review_before_retry"| confirm_facts
+  calculation_failed -->|"back"| confirm_facts
+  calculation_failed -.->|"open_safe_exit"| overlay_safe_exit
+  tax_year_rolled_over -->|"restart_new_current_year"| fact_tax_year
+  tax_year_rolled_over -->|"leave_without_saving"| dismissed
+  tax_year_rolled_over -->|"back"| fact_tax_year
+  tax_year_rolled_over -.->|"open_safe_exit"| overlay_safe_exit
+  reference_saved -->|"restart"| today_3a_intent
+  reference_saved -->|"dismiss"| dismissed
+  dismissed -->|"restart"| today_3a_intent
+  overlay_safe_exit{{"overlay:safe_exit"}}
+  overlay_safe_exit -.->|"resume:close"| overlay_return_to_invoker
+  overlay_safe_exit -->|"keep_local_reference"| reference_saved
+  overlay_safe_exit -->|"leave_without_saving"| dismissed
+  overlay_assumptions{{"overlay:assumptions"}}
+  overlay_assumptions -.->|"close:close"| overlay_return_to_invoker
+  overlay_sources{{"overlay:sources"}}
+  overlay_sources -.->|"close:close"| overlay_return_to_invoker

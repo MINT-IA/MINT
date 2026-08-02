@@ -8,7 +8,7 @@ acceptance_metadata_head: 73406990db57a2c7079dbba2784a45c85a151090
 rollback_proven_through: 73406990db57a2c7079dbba2784a45c85a151090
 accepted_authority_head: ff310fca76f78272ea31c5a796ffc149a8fe3b49
 authority_rollback_proven_through: ff310fca76f78272ea31c5a796ffc149a8fe3b49
-stopped_at: Batch 5 functional micro-lesson proven; Figma-bound consultative slice pending.
+stopped_at: Batch 6 written navigation contract accepted; executable Flutter Design Lab slice pending.
 last_updated: "2026-08-02T00:00:00.000Z"
 last_activity: 2026-08-02 -- governance work frozen; sole WIP moved to the 3a product vertical.
 progress:
@@ -37,7 +37,7 @@ calculation, device or user-validation claim exists yet.
 - Active execution: Bead `MINT_nosync-ihj`.
 - Historical accepted governance receipt remains preserved below.
 - Runtime queue/evidence: `.planning/journeys/`.
-- Next product step: exact Figma frame and isolated consultative 3a slice.
+- Next product step: implement the accepted graph only inside an isolated executable Flutter Design Lab 3a slice; Figma remains optional reference.
 
 ## Current Position
 

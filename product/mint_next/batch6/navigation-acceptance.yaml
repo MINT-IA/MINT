@@ -1,0 +1,31 @@
+schema_version: 1
+scope: written_batch6_navigation_contract_and_generated_mermaid_only
+verdict: accepted
+reviewed_at: 2026-08-02
+contract:
+  path: product/mint_next/batch6/navigation.yaml
+  sha256: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+diagram:
+  path: product/mint_next/batch6/navigation.mmd
+  sha256: 642a9b9596f5e9f1ace2dd92511d90c4efc3b8c49c898f09f8028aead709866e
+independent_reviews:
+  - reviewer: batch6_navigation_roast
+    verdict: accepted
+    p1: 0
+    p2: 0
+  - reviewer: ux_architecture
+    verdict: accepted
+    p1: 0
+    p2: 0
+automated_evidence:
+  guard: python3 tools/checks/mint_next_batch6_navigation_guard.py
+  diagram: python3 tools/checks/mint_next_batch6_navigation_diagram.py
+  tests: python3 -m unittest tools.checks.tests.test_mint_next_batch6_navigation_guard tools.checks.tests.test_mint_next_batch6_navigation_diagram
+next_gate: executable_flutter_design_lab_only
+explicitly_not_accepted:
+  - flutter_product_runtime
+  - calculation_engine_correctness
+  - localized_copy
+  - visual_design_quality
+  - accessibility_runtime
+  - full_3a_vertical

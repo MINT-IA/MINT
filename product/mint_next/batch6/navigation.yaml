@@ -1,0 +1,695 @@
+schema_version: 1
+journey_id: swiss_3a_question_to_next_action
+status: written_contract_accepted_runtime_unimplemented
+flutter_allowed: false
+design_lab_allowed: true
+next_gate: executable_flutter_design_lab_only
+entry_node: today_3a_intent
+design_authority:
+  required: executable_flutter_design_lab
+  optional_reference: figma
+audience: beginner_low_financial_literacy
+
+invariants:
+  - one_canonical_graph_for_routes_and_controls
+  - every_visible_control_has_one_declared_destination
+  - every_nonterminal_state_has_back_and_safe_exit
+  - bounded_education_requires_no_account
+  - facts_are_ephemeral_until_explicit_confirmation
+  - changed_fact_invalidates_and_hides_previous_result
+  - every_estimate_shows_assumptions_confidence_and_provenance
+  - every_interruption_has_a_deterministic_resume_or_exit
+  - no_dead_node_no_orphan_renderer_no_hidden_route
+
+lifecycle:
+  app_kill: restart_entry_and_clear_ephemeral_and_session_result
+  explicit_local_reference: resume_at_reference_saved
+  background_resume_same_process: resume_current_node
+  background_resume_ttl_minutes: 30
+  background_resume_after_ttl: restart_entry_and_clear_ephemeral_and_session_result
+  resume_precedence:
+    allowlisted_reference_exists: resume_reference_saved_with_allowlisted_payload_only
+    otherwise: restart_entry_and_clear_ephemeral_and_session_result
+
+guards:
+  tax_year_answered: tax_year_is_current_calendar_year_for_ordinary_estimate
+  lpp_affiliation_confirmed: lpp_affiliation_is_yes
+  contributed_amount_answered: contributed_amount_is_strictly_positive_chf_when_contribution_status_yes
+  canton_answered: canton_is_selected_or_explicitly_unknown
+  commune_answered: commune_is_selected_or_explicitly_unknown
+  household_answered: household_is_selected_or_explicitly_unknown
+  income_answered: current_year_expected_assessment_taxable_income_band_is_selected_or_explicitly_unknown
+  amount_answered: additional_planned_amount_is_set_or_explicitly_unknown
+  comprehension_answered: comprehension_answer_is_set
+  provider_row_selected: provider_rows_exist_and_one_row_is_selected
+  provider_total_usable: at_least_one_provider_row_and_every_row_has_strictly_positive_chf_amount
+
+calculation_contract:
+  operation: swiss_3a_tax_estimate_v1
+  engine_binding: not_implemented
+  inputs: [tax_year, lpp_affiliation, contribution_status, contributed_amount, canton, commune, household, current_year_expected_assessment_taxable_income_band, additional_planned_amount]
+  official_constants:
+    annual_cap:
+      key: pillar3a_with_lpp_annual_cap
+      provider: verified_swiss_constants_registry
+      required_receipt_fields: [value_chf, effective_tax_year, official_source_url, source_checked_at]
+  amount_domain: planned_amount_is_chf_non_negative_and_contributed_amount_when_status_yes_is_strictly_positive
+  normalization:
+    contribution_status_yes: effective_contributed_amount_equals_contributed_amount
+    contribution_status_no: effective_contributed_amount_equals_zero
+    contribution_status_unknown: stop_with_insufficient_facts_without_personal_amount
+    precedence: unknown_stops_before_any_amount_formula
+  formulas:
+    remaining_3a_room: max(0, annual_cap - effective_contributed_amount)
+    existing_excess_contribution: max(0, effective_contributed_amount - annual_cap)
+    deductible_amount: min(additional_planned_amount, remaining_3a_room)
+    planned_excess_contribution: max(0, additional_planned_amount - deductible_amount)
+    tax_base: deductible_amount_only
+  outputs: [remaining_3a_room, existing_excess_contribution, deductible_amount, planned_excess_contribution, illustrative_tax_range, liquidity_transfer, illustrative_net_effort, confidence, provenance_receipt]
+  complete_inputs_result: illustrative_estimate_or_range_never_tax_filing
+  unknown_input_result: education_only_without_personal_amount
+  outcomes: [success, insufficient_facts, unsupported_case, calculation_failed, tax_year_rolled_over]
+  preconditions:
+    tax_year_current_at_calculation: tax_year_equals_current_calendar_year_in_europe_zurich_at_calculation_time
+  outcome_precedence: [tax_year_rolled_over, unsupported_case, insufficient_facts, success, calculation_failed]
+  outcome_predicates:
+    tax_year_rolled_over: tax_year_differs_from_current_calendar_year_in_europe_zurich_at_calculation_time
+    unsupported_case: lpp_affiliation_is_not_yes
+    insufficient_facts: any_critical_input_is_unknown_or_missing
+    success: critical_inputs_complete_and_engine_succeeds
+    calculation_failed: critical_inputs_complete_and_engine_errors
+  conditional_requiredness:
+    contributed_amount: required_only_when_contribution_status_is_yes
+  input_policy:
+    critical: [tax_year, lpp_affiliation, contribution_status, contributed_amount_when_yes, canton, current_year_expected_assessment_taxable_income_band, additional_planned_amount]
+    optional_unknown_low_confidence_range: [commune, household]
+  stale_policy: hide_result_immediately_after_any_input_change
+
+provenance_contract:
+  required_fields: [tax_year, canton, commune_or_unknown, household_assumption, official_source_url, source_checked_at, assumptions, confidence]
+  result_actions: [open_assumptions, open_sources]
+
+result_display_contract:
+  tax_range_uses: deductible_amount_only
+  planned_excess_when_positive:
+    show_adjacent: [deductible_amount, planned_excess_contribution, no_tax_benefit_on_planned_excess]
+    correction_action: correct_additional_planned_amount
+  existing_excess_when_positive:
+    show_adjacent: [annual_cap, effective_contributed_amount, existing_excess_contribution, verify_or_request_correction]
+    help_action: review_existing_overcontribution
+
+tax_year_contract:
+  initialization: current_calendar_year_in_europe_zurich_frozen_at_journey_start
+  ordinary_estimate_allowed_value: current_calendar_year_only
+  past_year_selection: route_to_retroactive_3a_boundary_without_ordinary_calculation
+  confirmation_visibility: always_show_tax_year_and_official_cap_year
+  correction_action: edit_tax_year
+
+contributed_amount_contract:
+  meaning: total_paid_this_tax_year_across_all_3a_bank_accounts_fintech_accounts_and_insurance_policies
+  collection_help: add_all_provider_receipts_or_statements_before_confirming
+  canonical_storage: one_aggregated_chf_amount
+  helper_output: sum_of_ephemeral_provider_rows_replaces_canonical_contributed_amount
+  dependent_annual_facts: [contributed_amount, ephemeral_provider_rows]
+  empty_or_zero_total: cannot_confirm_as_already_contributed_offer_change_status_to_no
+
+income_estimate_contract:
+  meaning: expected_taxable_income_band_for_current_year_and_current_tax_assessment_unit
+  latest_assessment_use: starting_point_only_then_adjust_for_income_or_household_changes
+  value_metadata: [basis_latest_assessment_or_current_estimate, source_year_or_current_estimate]
+  confirmation_visibility: [current_year_expected_band, basis, source_year_or_current_estimate, adjustment_assumption]
+
+teach_back_contract:
+  learning_objective: understand_tax_deduction_locked_liquidity_and_no_tax_benefit_above_remaining_room
+  proposition: a_3a_payment_can_reduce_taxable_income_but_locks_liquidity_and_only_the_amount_within_remaining_room_is_used_for_this_estimate
+  correct_answer_id: choose_correct
+  incorrect_answer_ids: [choose_incorrect, choose_unknown]
+  renderer_requirement: visible_answer_meanings_must_match_these_ids_in_runtime_inventory
+  modes: [teach_back, insufficient_education_teach_back, education_teach_back]
+  locales: [fr, en, de, it, es, pt]
+
+persistence_contract:
+  local_reference_allowlist: [journey_id, generic_reference_id, saved_at]
+  forbidden_local_fields: [tax_year, lpp_affiliation, contribution_status, contributed_amount, canton, commune, household, current_year_expected_assessment_taxable_income_band, additional_planned_amount, result]
+  exit_purge: [ephemeral_facts, session_result]
+
+renderer_binding:
+  status: not_implemented
+  source_of_truth: this_file
+  required_before_flutter: every_node_and_action_id_bound_bidirectionally_to_design_lab
+  verified_manifest: null
+  verified_manifest_source: generated_flutter_design_lab_runtime_inventory
+  verified_manifest_storage: ignored_runtime_evidence_generated_after_checkout_not_committed
+  source_binding: manifest_source_commit_equals_checked_out_head_and_navigation_sha256_matches_this_file
+  required_verified_evidence: [source_commit, runtime_probe, node_actions, overlay_actions, teach_back_semantics, localized_semantic_receipts, render_receipts]
+
+temporal_validity_contract:
+  revalidate_at: [foreground_or_resume, before_result_render, before_every_result_derived_action]
+  valid_when: tax_year_equals_current_calendar_year_in_europe_zurich_at_check_time
+  on_mismatch: hide_and_purge_result_then_route_tax_year_rolled_over
+  scoped_nodes: [result, existing_overcontribution_help, teach_back, teach_back_correction, next_action, personal_setup_boundary]
+  scoped_overlays: [assumptions, sources]
+
+edit_transaction_contract:
+  scope: every_node_whose_id_starts_with_edit
+  draft_semantics: fact_mutations_and_result_invalidation_are_staged_until_commit
+  rollback_semantics: Back_leaving_edit_discards_draft_and_restores_all_canonical_facts_and_valid_result
+  commit_semantics: commit_atomically_replaces_canonical_facts_clears_declared_dependencies_and_invalidates_result_only_when_canonical_state_changes
+  no_op_commit: preserve_valid_result_when_canonical_value_and_dependencies_are_unchanged
+  no_op_effect_order: compare_canonical_state_before_clears_invalidation_or_navigation_effects
+  transaction_context_propagation: follows_navigation_through_help_and_boundary_nodes_until_commit_rollback_or_purge
+  continue_draft_actions:
+    edit_contribution: [choose_yes]
+    edit_contributed_amount: [enter_amount, open_total_helper]
+    edit_contributed_amount_total_helper: [add_provider_row, remove_provider_row, use_automatic_total, review_contribution_status, back]
+    edit_lpp_affiliation: [choose_no, choose_unknown]
+    edit_tax_year: [choose_past_year]
+    edit_canton: [choose_canton, choose_unknown, confirm_edit]
+    edit_commune: [choose_commune, choose_unknown]
+    edit_commune_after_canton: [choose_commune, choose_unknown, back]
+    edit_household: [choose_category, choose_unknown, confirm_edit]
+    edit_income_after_household: [choose_band, choose_unknown]
+    edit_income: [choose_band, choose_unknown]
+    edit_amount: [enter_amount, choose_unknown]
+  commit_actions:
+    edit_lpp_affiliation: [choose_yes]
+    edit_tax_year: []
+    edit_contribution: [choose_no, choose_unknown]
+    edit_contributed_amount: [confirm_edit]
+    edit_canton: []
+    edit_commune: [confirm_edit]
+    edit_commune_after_canton: [confirm_edit]
+    edit_household: []
+    edit_income: [confirm_edit]
+    edit_income_after_household: [confirm_edit]
+    edit_amount: [confirm_edit]
+  rollback_actions:
+    edit_lpp_affiliation: back
+    edit_tax_year: back
+    edit_contribution: back
+    edit_contributed_amount: back
+    edit_canton: back
+    edit_commune: back
+    edit_household: back
+    edit_income: back
+    edit_amount: back
+  no_op_actions:
+    edit_tax_year:
+      confirm_current_year: close_edit_transaction_and_return_to_confirmation_without_clears_invalidation_or_recollection
+  result_review_entry_actions: [edit_facts, back, correct_additional_planned_amount, review_existing_overcontribution]
+  result_review_entry: preserve_valid_result_until_first_changed_atomic_commit
+
+overlays:
+  safe_exit:
+    actions:
+      resume: {operation: close}
+      keep_local_reference: {to: reference_saved, persistence: local_non_sensitive}
+      leave_without_saving: {to: dismissed, persistence: clear_ephemeral_and_session_result}
+  assumptions:
+    temporal_guard: current_tax_year_or_route_rollover
+    actions:
+      close: {operation: close}
+  sources:
+    temporal_guard: current_tax_year_or_route_rollover
+    content: provenance_receipt_official_source_urls
+    actions:
+      close: {operation: close}
+
+nodes:
+  today_3a_intent:
+    purpose: Answer one human question without exposing the app map.
+    requires_account: false
+    actions:
+      start: {to: orientation}
+      open_safe_exit: {overlay: safe_exit}
+  orientation:
+    purpose: Explain tax benefit and locked liquidity before asking for data.
+    requires_account: false
+    actions:
+      continue: {to: fact_tax_year}
+      back: {to: today_3a_intent}
+      open_safe_exit: {overlay: safe_exit}
+  fact_tax_year:
+    purpose: Show the tax year initialized from Europe/Zurich and let the person correct it before any estimate.
+    requires_account: false
+    on_enter: initialize_current_calendar_year_in_europe_zurich_once_and_freeze_for_journey
+    actions:
+      confirm_current_year: {mutation: tax_year, value: current_calendar_year, replaces: tax_year, storage: ephemeral, invalidates: result}
+      choose_past_year: {to: retroactive_3a_boundary, mutation: tax_year, value: selected_past_year, replaces: tax_year, storage: ephemeral, invalidates: result}
+      continue: {to: fact_lpp_affiliation, guard: tax_year_answered}
+      back: {to: orientation}
+      open_safe_exit: {overlay: safe_exit}
+  fact_lpp_affiliation:
+    purpose: Confirm the current salaried-with-pension-fund scope and explain why the 3a ceiling differs otherwise.
+    requires_account: false
+    actions:
+      choose_yes: {to: fact_contribution, mutation: lpp_affiliation, value: "yes", replaces: lpp_affiliation, storage: ephemeral, invalidates: result}
+      choose_no: {to: without_lpp_boundary, mutation: lpp_affiliation, value: "no", replaces: lpp_affiliation, storage: ephemeral, invalidates: result}
+      choose_unknown: {to: lpp_unknown_help, mutation: lpp_affiliation, value: unknown, replaces: lpp_affiliation, storage: ephemeral, invalidates: result}
+      back: {to: fact_tax_year}
+      open_safe_exit: {overlay: safe_exit}
+  fact_contribution:
+    purpose: Ask whether a 3a contribution already happened and why this matters.
+    requires_account: false
+    actions:
+      choose_yes: {to: fact_contributed_amount, mutation: contribution_status, value: "yes", replaces: contribution_status, storage: ephemeral, invalidates: result}
+      choose_no: {to: fact_canton, mutation: contribution_status, value: "no", replaces: contribution_status, clears: [contributed_amount, ephemeral_provider_rows], storage: ephemeral, invalidates: result}
+      choose_unknown: {to: contribution_unknown_help, mutation: contribution_status, value: unknown, replaces: contribution_status, clears: [contributed_amount, ephemeral_provider_rows], storage: ephemeral, invalidates: result}
+      back: {to: fact_lpp_affiliation}
+      open_safe_exit: {overlay: safe_exit}
+  fact_contributed_amount:
+    purpose: Collect the total already paid this tax year across every 3a bank, fintech and insurance account, with help to add provider receipts, so remaining room is not overstated.
+    requires_account: false
+    actions:
+      enter_amount: {mutation: contributed_amount, value: entered, replaces: contributed_amount, storage: ephemeral, invalidates: result}
+      open_total_helper: {to: contributed_amount_total_helper}
+      continue: {to: fact_canton, guard: contributed_amount_answered}
+      back: {to: fact_contribution}
+      open_safe_exit: {overlay: safe_exit}
+  contributed_amount_total_helper:
+    purpose: Let a low-numeracy person add one row per 3a bank, fintech or insurance provider and use the automatically summed annual total.
+    requires_account: false
+    actions:
+      add_provider_row: {mutation: ephemeral_provider_rows, operation: append_strictly_positive_chf_row, storage: ephemeral, invalidates: result}
+      remove_provider_row: {mutation: ephemeral_provider_rows, operation: remove_selected_row_and_recalculate, guard: provider_row_selected, storage: ephemeral, invalidates: result}
+      use_automatic_total: {to: fact_contributed_amount, mutation: contributed_amount, value: sum_of_ephemeral_provider_rows, replaces: contributed_amount, guard: provider_total_usable, storage: ephemeral, invalidates: result}
+      review_contribution_status: {to: fact_contribution, clears: [contributed_amount, ephemeral_provider_rows], storage: ephemeral, invalidates: result}
+      back: {to: fact_contributed_amount}
+      open_safe_exit: {overlay: safe_exit}
+  contribution_unknown_help:
+    purpose: Explain where to find the contribution and continue only in education-only mode.
+    requires_account: false
+    actions:
+      continue_education_only: {to: education_explanation}
+      back: {to: fact_contribution}
+      open_safe_exit: {overlay: safe_exit}
+  fact_canton:
+    purpose: Obtain the canton needed to choose the correct official tax source.
+    requires_account: false
+    actions:
+      choose_canton: {mutation: canton, value: selected, replaces: canton, clears: [commune], storage: ephemeral, invalidates: result}
+      choose_unknown: {to: canton_unknown_help, mutation: canton, value: unknown, replaces: canton, clears: [commune], storage: ephemeral, invalidates: result}
+      continue: {to: fact_commune, guard: canton_answered}
+      back: {operation: history_back, allowed_predecessors: [fact_contribution, fact_contributed_amount]}
+      open_safe_exit: {overlay: safe_exit}
+  canton_unknown_help:
+    purpose: Explain why no personal tax range is possible without canton and stop further personal collection.
+    requires_account: false
+    actions:
+      continue_education_only: {to: education_explanation}
+      back: {operation: history_back, mutation: clear_unknown_canton_and_commune, invalidates: result, allowed_predecessors: [fact_canton, edit_canton]}
+      open_safe_exit: {overlay: safe_exit}
+  fact_commune:
+    purpose: Improve the tax range or explicitly preserve uncertainty when the commune is unknown.
+    requires_account: false
+    actions:
+      choose_commune: {mutation: commune, value: selected, replaces: commune, storage: ephemeral, invalidates: result}
+      choose_unknown: {mutation: commune, value: unknown, replaces: commune, storage: ephemeral, invalidates: result}
+      continue: {to: fact_household, guard: commune_answered}
+      back: {to: fact_canton}
+      open_safe_exit: {overlay: safe_exit}
+  fact_household:
+    purpose: Collect only the household category needed to avoid a false point estimate.
+    requires_account: false
+    actions:
+      choose_category: {mutation: household, value: selected, replaces: household, clears: [current_year_expected_assessment_taxable_income_band], storage: ephemeral, invalidates: result}
+      choose_unknown: {mutation: household, value: unknown, replaces: household, clears: [current_year_expected_assessment_taxable_income_band], storage: ephemeral, invalidates: result}
+      continue: {to: fact_income, guard: household_answered}
+      back: {to: fact_commune}
+      open_safe_exit: {overlay: safe_exit}
+  fact_income:
+    purpose: Estimate the current-year taxable-income band for the current assessment unit; the latest tax assessment is only a starting point to adjust when income or household changed, and its year/basis stay visible.
+    requires_account: false
+    actions:
+      choose_band: {mutation: current_year_expected_assessment_taxable_income_band, value: selected_with_basis_and_source_year, replaces: current_year_expected_assessment_taxable_income_band, storage: ephemeral, invalidates: result}
+      choose_unknown: {to: income_unknown_help, mutation: current_year_expected_assessment_taxable_income_band, value: unknown, replaces: current_year_expected_assessment_taxable_income_band, storage: ephemeral, invalidates: result}
+      continue: {to: fact_amount, guard: income_answered}
+      back: {to: fact_household}
+      open_safe_exit: {overlay: safe_exit}
+  income_unknown_help:
+    purpose: Explain how to find an income band and stop further personal collection.
+    requires_account: false
+    actions:
+      continue_education_only: {to: education_explanation}
+      back: {operation: history_back, mutation: clear_unknown_current_year_expected_income, invalidates: result, allowed_predecessors: [fact_income, edit_income, edit_income_after_household]}
+      open_safe_exit: {overlay: safe_exit}
+  fact_amount:
+    purpose: Ask only the additional amount still planned for this tax year, excluding anything already paid; keep the result educational when unknown.
+    requires_account: false
+    actions:
+      enter_amount: {mutation: additional_planned_amount, value: entered, replaces: additional_planned_amount, storage: ephemeral, invalidates: result}
+      choose_unknown: {to: amount_unknown_help, mutation: additional_planned_amount, value: unknown, replaces: additional_planned_amount, storage: ephemeral, invalidates: result}
+      continue: {to: confirm_facts, guard: amount_answered}
+      back: {to: fact_income}
+      open_safe_exit: {overlay: safe_exit}
+  amount_unknown_help:
+    purpose: Explain that no personal amount can be shown without the additional amount still planned for this tax year, excluding anything already paid, and stop collection.
+    requires_account: false
+    actions:
+      continue_education_only: {to: education_explanation}
+      back: {operation: history_back, mutation: clear_unknown_additional_planned_amount, invalidates: result, allowed_predecessors: [fact_amount, edit_amount]}
+      open_safe_exit: {overlay: safe_exit}
+  edit_lpp_affiliation:
+    purpose: Replace pension-fund affiliation and return only when the supported scope remains true.
+    renderer: fact_lpp_affiliation
+    requires_account: false
+    actions:
+      choose_yes: {to: confirm_facts, mutation: lpp_affiliation, value: "yes", replaces: lpp_affiliation, storage: ephemeral, invalidates: result}
+      choose_no: {to: without_lpp_boundary, mutation: lpp_affiliation, value: "no", replaces: lpp_affiliation, storage: ephemeral, invalidates: result}
+      choose_unknown: {to: lpp_unknown_help, mutation: lpp_affiliation, value: unknown, replaces: lpp_affiliation, storage: ephemeral, invalidates: result}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_tax_year:
+    purpose: Reconfirm the current tax year or route a past year to the separate retroactive boundary; changing year clears annual facts.
+    renderer: fact_tax_year
+    requires_account: false
+    actions:
+      confirm_current_year: {to: confirm_facts, operation: no_op_close_edit_transaction_and_return_to_review_context_without_effects}
+      choose_past_year: {to: retroactive_3a_boundary, mutation: tax_year, value: selected_past_year, replaces: tax_year, clears: [lpp_affiliation, contribution_status, contributed_amount, ephemeral_provider_rows, additional_planned_amount], storage: ephemeral, invalidates: result}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_contribution:
+    purpose: Replace contribution status, clear dependent amount when needed, then return to confirmation.
+    renderer: fact_contribution
+    requires_account: false
+    actions:
+      choose_yes: {to: edit_contributed_amount, mutation: contribution_status, value: "yes", replaces: contribution_status, storage: ephemeral, invalidates: result}
+      choose_no: {to: confirm_facts, mutation: contribution_status, value: "no", replaces: contribution_status, clears: [contributed_amount, ephemeral_provider_rows], storage: ephemeral, invalidates: result}
+      choose_unknown: {to: confirm_facts, mutation: contribution_status, value: unknown, replaces: contribution_status, clears: [contributed_amount, ephemeral_provider_rows], storage: ephemeral, invalidates: result}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_contributed_amount:
+    purpose: Replace the contributed amount and return directly to confirmation.
+    renderer: fact_contributed_amount
+    requires_account: false
+    actions:
+      enter_amount: {mutation: contributed_amount, value: entered, replaces: contributed_amount, storage: ephemeral, invalidates: result}
+      open_total_helper: {to: edit_contributed_amount_total_helper}
+      confirm_edit: {to: confirm_facts, guard: contributed_amount_answered}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_contributed_amount_total_helper:
+    purpose: Recalculate the annual all-provider total during correction and return only to the edit context.
+    renderer: contributed_amount_total_helper
+    requires_account: false
+    actions:
+      add_provider_row: {mutation: ephemeral_provider_rows, operation: append_strictly_positive_chf_row, storage: ephemeral, invalidates: result}
+      remove_provider_row: {mutation: ephemeral_provider_rows, operation: remove_selected_row_and_recalculate, guard: provider_row_selected, storage: ephemeral, invalidates: result}
+      use_automatic_total: {to: edit_contributed_amount, mutation: contributed_amount, value: sum_of_ephemeral_provider_rows, replaces: contributed_amount, guard: provider_total_usable, storage: ephemeral, invalidates: result}
+      review_contribution_status: {to: edit_contribution, clears: [contributed_amount, ephemeral_provider_rows], storage: ephemeral, invalidates: result}
+      back: {to: edit_contributed_amount}
+      open_safe_exit: {overlay: safe_exit}
+  edit_canton:
+    purpose: Replace canton, clear the old commune, then require a commune or explicit unknown before confirmation.
+    renderer: fact_canton
+    requires_account: false
+    actions:
+      choose_canton: {mutation: canton, value: selected, replaces: canton, clears: [commune], storage: ephemeral, invalidates: result}
+      choose_unknown: {to: canton_unknown_help, mutation: canton, value: unknown, replaces: canton, clears: [commune], storage: ephemeral, invalidates: result}
+      confirm_edit: {to: edit_commune_after_canton, guard: canton_answered}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_commune:
+    purpose: Replace commune and return directly to confirmation.
+    renderer: fact_commune
+    requires_account: false
+    actions:
+      choose_commune: {mutation: commune, value: selected, replaces: commune, storage: ephemeral, invalidates: result}
+      choose_unknown: {mutation: commune, value: unknown, replaces: commune, storage: ephemeral, invalidates: result}
+      confirm_edit: {to: confirm_facts, guard: commune_answered}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_commune_after_canton:
+    purpose: Require a new commune or explicit unknown after canton replacement; Back returns to canton and cannot bypass this dependency.
+    renderer: fact_commune
+    requires_account: false
+    actions:
+      choose_commune: {mutation: commune, value: selected, replaces: commune, storage: ephemeral, invalidates: result}
+      choose_unknown: {mutation: commune, value: unknown, replaces: commune, storage: ephemeral, invalidates: result}
+      confirm_edit: {to: confirm_facts, guard: commune_answered}
+      back: {to: edit_canton}
+      open_safe_exit: {overlay: safe_exit}
+  edit_household:
+    purpose: Replace household category, clear the old assessment-unit income band, then require income reconfirmation.
+    renderer: fact_household
+    requires_account: false
+    actions:
+      choose_category: {mutation: household, value: selected, replaces: household, clears: [current_year_expected_assessment_taxable_income_band], storage: ephemeral, invalidates: result}
+      choose_unknown: {mutation: household, value: unknown, replaces: household, clears: [current_year_expected_assessment_taxable_income_band], storage: ephemeral, invalidates: result}
+      confirm_edit: {to: edit_income_after_household, guard: household_answered}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_income:
+    purpose: Replace the taxable-income band of the tax assessment unit and return directly to confirmation.
+    renderer: fact_income
+    requires_account: false
+    actions:
+      choose_band: {mutation: current_year_expected_assessment_taxable_income_band, value: selected_with_basis_and_source_year, replaces: current_year_expected_assessment_taxable_income_band, storage: ephemeral, invalidates: result}
+      choose_unknown: {to: income_unknown_help, mutation: current_year_expected_assessment_taxable_income_band, value: unknown, replaces: current_year_expected_assessment_taxable_income_band, storage: ephemeral, invalidates: result}
+      confirm_edit: {to: confirm_facts, guard: income_answered}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  edit_income_after_household:
+    purpose: Require the taxable-income band for the newly selected tax assessment unit; Back cannot bypass this dependency.
+    renderer: fact_income
+    requires_account: false
+    actions:
+      choose_band: {mutation: current_year_expected_assessment_taxable_income_band, value: selected_with_basis_and_source_year, replaces: current_year_expected_assessment_taxable_income_band, storage: ephemeral, invalidates: result}
+      choose_unknown: {to: income_unknown_help, mutation: current_year_expected_assessment_taxable_income_band, value: unknown, replaces: current_year_expected_assessment_taxable_income_band, storage: ephemeral, invalidates: result}
+      confirm_edit: {to: confirm_facts, guard: income_answered}
+      back: {to: edit_household}
+      open_safe_exit: {overlay: safe_exit}
+  edit_amount:
+    purpose: Replace the additional amount still planned for this tax year, excluding anything already paid, and return to confirmation.
+    renderer: fact_amount
+    requires_account: false
+    actions:
+      enter_amount: {mutation: additional_planned_amount, value: entered, replaces: additional_planned_amount, storage: ephemeral, invalidates: result}
+      choose_unknown: {to: amount_unknown_help, mutation: additional_planned_amount, value: unknown, replaces: additional_planned_amount, storage: ephemeral, invalidates: result}
+      confirm_edit: {to: confirm_facts, guard: amount_answered}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  confirm_facts:
+    purpose: Show every fact including tax year, official cap year, source and uncertainty before calculation.
+    requires_account: false
+    actions:
+      edit_tax_year: {to: edit_tax_year}
+      edit_lpp_affiliation: {to: edit_lpp_affiliation}
+      edit_contribution: {to: edit_contribution}
+      edit_contributed_amount: {to: edit_contributed_amount, visible_when: contribution_status_is_yes}
+      edit_canton: {to: edit_canton}
+      edit_commune: {to: edit_commune}
+      edit_household: {to: edit_household}
+      edit_income: {to: edit_income}
+      edit_amount: {to: edit_amount}
+      calculate:
+        operation: swiss_3a_tax_estimate_v1
+        precondition: tax_year_current_at_calculation
+        mutation: confirm_for_calculation
+        storage: session_result
+        outcomes:
+          success: result
+          insufficient_facts: insufficient_facts
+          unsupported_case: unsupported_case
+          calculation_failed: calculation_failed
+          tax_year_rolled_over: tax_year_rolled_over
+      back:
+        operation: contextual_back
+        outcomes:
+          valid_result_review: result
+          initial_collection: fact_amount
+        predicates:
+          valid_result_review: result_is_still_valid_and_review_was_entered_from_result
+          initial_collection: otherwise
+      open_safe_exit: {overlay: safe_exit}
+  result:
+    purpose: Teach tax effect, liquidity transfer and uncertainty together.
+    temporal_guard: current_tax_year_or_route_rollover
+    requires_account: false
+    actions:
+      continue: {to: teach_back}
+      edit_facts: {to: confirm_facts, operation: enter_fact_review_preserve_result_until_first_atomic_commit}
+      open_assumptions: {overlay: assumptions}
+      open_sources: {overlay: sources}
+      correct_additional_planned_amount: {to: edit_amount, operation: enter_fact_review_preserve_result_until_first_atomic_commit, visible_when: planned_excess_contribution_is_positive}
+      review_existing_overcontribution: {to: existing_overcontribution_help, operation: enter_fact_review_preserve_result_until_first_atomic_commit, visible_when: existing_excess_contribution_is_positive}
+      back: {to: confirm_facts, operation: enter_fact_review_preserve_result_until_first_atomic_commit}
+      open_safe_exit: {overlay: safe_exit}
+  existing_overcontribution_help:
+    purpose: Explain that an amount already paid above the verified annual cap may need provider or tax-authority correction without giving legal advice.
+    temporal_guard: current_tax_year_or_route_rollover
+    requires_account: false
+    actions:
+      correct_contributed_amount: {to: edit_contributed_amount}
+      back: {to: result, operation: cancel_result_review_and_restore_valid_result}
+      open_safe_exit: {overlay: safe_exit}
+  teach_back:
+    purpose: Check the concept without testing arithmetic.
+    temporal_guard: current_tax_year_or_route_rollover
+    requires_account: false
+    actions:
+      choose_correct: {to: next_action, mutation: comprehension_answer, value: correct, storage: ephemeral}
+      choose_incorrect: {to: teach_back_correction, mutation: comprehension_answer, value: incorrect, storage: ephemeral}
+      choose_unknown: {to: teach_back_correction, mutation: comprehension_answer, value: unknown, storage: ephemeral}
+      back: {to: result}
+      open_safe_exit: {overlay: safe_exit}
+  teach_back_correction:
+    purpose: Explain the concept again without shame or arithmetic testing.
+    temporal_guard: current_tax_year_or_route_rollover
+    requires_account: false
+    actions:
+      retry_simplified: {to: teach_back}
+      continue_anyway: {to: next_action, meaning: proceed_without_confirmed_comprehension}
+      back: {to: teach_back}
+      open_safe_exit: {overlay: safe_exit}
+  next_action:
+    purpose: Offer one explicit next step and honest persistence choices.
+    temporal_guard: current_tax_year_or_route_rollover
+    requires_account: false
+    actions:
+      prepare_personal_setup: {to: personal_setup_boundary}
+      keep_local_reference: {to: reference_saved, persistence: local_non_sensitive}
+      leave_without_saving: {to: dismissed, persistence: clear_ephemeral_and_session_result}
+      back: {to: teach_back}
+      open_safe_exit: {overlay: safe_exit}
+  personal_setup_boundary:
+    purpose: Explain the next data and consent boundary without pretending to start a calculation.
+    temporal_guard: current_tax_year_or_route_rollover
+    requires_account: false
+    actions:
+      save_checklist_local: {to: reference_saved, persistence: local_non_sensitive}
+      back: {to: next_action}
+      open_safe_exit: {overlay: safe_exit}
+  insufficient_facts:
+    purpose: Explain which missing fact prevents a personal estimate and offer education-only continuation.
+    requires_account: false
+    actions:
+      review_facts: {to: confirm_facts}
+      continue_education_only: {to: insufficient_education_teach_back}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  insufficient_education_teach_back:
+    purpose: Check the fallback explanation after an attempted calculation with missing facts.
+    requires_account: false
+    actions:
+      choose_correct: {to: insufficient_next_action, mutation: comprehension_answer, value: correct, storage: ephemeral}
+      choose_incorrect: {to: insufficient_education_correction, mutation: comprehension_answer, value: incorrect, storage: ephemeral}
+      choose_unknown: {to: insufficient_education_correction, mutation: comprehension_answer, value: unknown, storage: ephemeral}
+      back: {to: insufficient_facts}
+      open_safe_exit: {overlay: safe_exit}
+  insufficient_education_correction:
+    purpose: Correct the fallback concept without exposing a nonexistent result.
+    requires_account: false
+    actions:
+      retry_simplified: {to: insufficient_education_teach_back}
+      continue_anyway: {to: insufficient_next_action, meaning: proceed_without_confirmed_comprehension}
+      back: {to: insufficient_education_teach_back}
+      open_safe_exit: {overlay: safe_exit}
+  insufficient_next_action:
+    purpose: Offer review, a generic reference, or exit after an insufficient-facts outcome.
+    requires_account: false
+    actions:
+      review_missing_facts: {to: confirm_facts}
+      keep_learning_reference: {to: reference_saved, persistence: local_non_sensitive}
+      leave_without_saving: {to: dismissed, persistence: clear_ephemeral_and_session_result}
+      back: {to: insufficient_education_teach_back}
+      open_safe_exit: {overlay: safe_exit}
+  education_explanation:
+    purpose: Teach the 3a tax and liquidity concept without collecting more personal facts or showing a result.
+    requires_account: false
+    actions:
+      continue: {to: education_teach_back}
+      back: {operation: history_back, allowed_predecessors: [contribution_unknown_help, canton_unknown_help, income_unknown_help, amount_unknown_help]}
+      open_safe_exit: {overlay: safe_exit}
+  education_teach_back:
+    purpose: Check the education-only concept without implying that a result exists.
+    requires_account: false
+    actions:
+      choose_correct: {to: education_next_action, mutation: comprehension_answer, value: correct, storage: ephemeral}
+      choose_incorrect: {to: education_teach_back_correction, mutation: comprehension_answer, value: incorrect, storage: ephemeral}
+      choose_unknown: {to: education_teach_back_correction, mutation: comprehension_answer, value: unknown, storage: ephemeral}
+      back: {to: education_explanation}
+      open_safe_exit: {overlay: safe_exit}
+  education_teach_back_correction:
+    purpose: Correct the education-only concept and return without inventing a result.
+    requires_account: false
+    actions:
+      retry_simplified: {to: education_teach_back}
+      continue_anyway: {to: education_next_action, meaning: proceed_without_confirmed_comprehension}
+      back: {to: education_teach_back}
+      open_safe_exit: {overlay: safe_exit}
+  education_next_action:
+    purpose: Offer only actions that remain honest without a personal result.
+    requires_account: false
+    actions:
+      restart_fact_collection: {to: fact_tax_year, persistence: clear_ephemeral_and_session_result}
+      keep_learning_reference: {to: reference_saved, persistence: local_non_sensitive}
+      leave_without_saving: {to: dismissed, persistence: clear_ephemeral_and_session_result}
+      back: {to: education_teach_back}
+      open_safe_exit: {overlay: safe_exit}
+  unsupported_case:
+    purpose: State honestly that the calculation engine does not cover the confirmed case and show no result.
+    requires_account: false
+    actions:
+      review_facts: {to: confirm_facts}
+      leave_without_saving: {to: dismissed, persistence: clear_ephemeral_and_session_result}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  retroactive_3a_boundary:
+    purpose: Explain that a past tax year may follow distinct retroactive-contribution rules and is never sent through the ordinary current-year estimate.
+    requires_account: false
+    actions:
+      restart_current_year: {to: fact_tax_year, persistence: clear_ephemeral_and_session_result}
+      keep_explanation_local: {to: reference_saved, persistence: local_non_sensitive}
+      back:
+        operation: contextual_transaction_back
+        outcomes:
+          initial_collection: fact_tax_year
+          edit_review: edit_tax_year
+        outcome_effects:
+          initial_collection: clear_selected_past_year
+          edit_review: rollback_entire_past_year_draft_restore_all_annual_facts_and_valid_result_keep_review_context
+      open_safe_exit: {overlay: safe_exit}
+  without_lpp_boundary:
+    purpose: Explain that the no-LPP 3a ceiling differs and this first calculation does not cover it.
+    requires_account: false
+    actions:
+      keep_explanation_local: {to: reference_saved, persistence: local_non_sensitive}
+      back: {operation: history_back, allowed_predecessors: [fact_lpp_affiliation, edit_lpp_affiliation]}
+      open_safe_exit: {overlay: safe_exit}
+  lpp_unknown_help:
+    purpose: Explain how to verify pension-fund affiliation without guessing eligibility.
+    requires_account: false
+    actions:
+      keep_checklist_local: {to: reference_saved, persistence: local_non_sensitive}
+      back: {operation: history_back, allowed_predecessors: [fact_lpp_affiliation, edit_lpp_affiliation]}
+      open_safe_exit: {overlay: safe_exit}
+  calculation_failed:
+    purpose: Preserve facts in-process, hide result and offer retry or safe exit.
+    requires_account: false
+    actions:
+      review_before_retry: {to: confirm_facts}
+      back: {to: confirm_facts}
+      open_safe_exit: {overlay: safe_exit}
+  tax_year_rolled_over:
+    purpose: Explain that the calendar year changed before calculation, hide any result, clear annual facts, and restart safely for the new current year.
+    requires_account: false
+    actions:
+      restart_new_current_year: {to: fact_tax_year, persistence: clear_annual_facts_ephemeral_and_session_result}
+      leave_without_saving: {to: dismissed, persistence: clear_ephemeral_and_session_result}
+      back: {to: fact_tax_year, persistence: clear_annual_facts_ephemeral_and_session_result}
+      open_safe_exit: {overlay: safe_exit}
+  reference_saved:
+    terminal: true
+    purpose: Confirm only a non-sensitive local reference was saved.
+    on_enter: clear_ephemeral_and_session_result_keep_local_reference
+    requires_account: false
+    actions:
+      restart: {to: today_3a_intent, persistence: clear_local_reference_and_ephemeral_and_session_result}
+      dismiss: {to: dismissed, persistence: clear_local_reference}
+  dismissed:
+    terminal: true
+    purpose: Confirm exit without persistence.
+    requires_account: false
+    actions:
+      restart: {to: today_3a_intent, persistence: clear_ephemeral_and_session_result}

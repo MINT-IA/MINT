@@ -16,7 +16,7 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Legacy retirement vertical: `.planning/phases/mint-2-0-first-experience-rente-capital/` is preserved as a runtime vertical and historical receipt; it is no longer the global information architecture.
 - Batch 4 promotion work is frozen and historical; it remains unpromoted.
 - Historical authority receipt: `.planning/phases/mint-next-architecture-authority-20260802/` remains accepted for governance only.
-- Current product batch: the Batch 5 bounded 3a micro-lesson, followed by one Figma-bound consultative slice.
+- Current product batch: the Batch 5 bounded 3a micro-lesson, followed by one navigation-bound executable Flutter Design Lab slice; Figma is optional reference.
 - Journey OS guard: `python3 tools/checks/journey_os_check.py`.
 - Workflow contract guard: `python3 tools/checks/workflow_contract_guard.py`.
 
