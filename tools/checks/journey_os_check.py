@@ -195,6 +195,22 @@ ALLOW = {
     "product/mint_next/batch3/evidence/renders/desktop1280-c-invalidated.png",
     "tools/checks/tests/test_mint_next_batch3_guard.py",
     "tools/checks/tests/test_mint_next_batch3_runtime_probe.py",
+    # MINT Next Batch 4: architecture registries and generated views only.
+    # No legacy route, Flutter screen, backend service, or product runtime.
+    "product/mint_next/batch4/README.md",
+    "product/mint_next/batch4/ONE-PAGE.md",
+    "product/mint_next/batch4/audience.yaml",
+    "product/mint_next/batch4/batch.yaml",
+    "product/mint_next/batch4/claims_and_data.yaml",
+    "product/mint_next/batch4/concepts.yaml",
+    "product/mint_next/batch4/decisions.yaml",
+    "product/mint_next/batch4/experience_graph.yaml",
+    "product/mint_next/batch4/legacy_reuse.yaml",
+    "product/mint_next/batch4/source-inventory.yaml",
+    "product/mint_next/batch4/views/experience-graph.mmd",
+    "tools/checks/mint_next_batch4_architecture_guard.py",
+    "tools/checks/mint_next_batch4_generate_views.py",
+    "tools/checks/tests/test_mint_next_batch4_architecture_guard.py",
     # --- Remediation audit 2026-07 (dedicated phase, see .planning/phases/remediation-audit-2026-07) ---
     "tools/checks/journey_os_check.py",
     "tools/checks/no_false_privacy_attestation.py",

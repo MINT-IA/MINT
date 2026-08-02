@@ -1,0 +1,21 @@
+generated_on: '2026-08-02'
+sources:
+- path: docs/VOICE_SYSTEM.md
+  sha256: 3cd1cc8a347252ed874a71c7d1fcccb3db4352ba57482c6400ee8544e411ab17
+  role: input_evidence_not_automatically_authoritative
+- path: docs/calculator-graph.md
+  sha256: ce6dab2f37d0b927a086f25da2e6d88a101adc5b206bc7f31abe4e69830d12eb
+  role: input_evidence_not_automatically_authoritative
+- path: .planning/SCREEN_MAP.md
+  sha256: 1ddbafc05fe6489691ce71554491a913c2d52a0c4f7cc3344d604fd5e96fbedf
+  role: input_evidence_not_automatically_authoritative
+- path: .planning/decisions/2026-07-31-north-star-experience.md
+  sha256: fe45b2dfb08b7bb1f98e673c8c4ba22a321fd465f4d0a13b3ed56bf035b48764
+  role: input_evidence_not_automatically_authoritative
+- path: .planning/decisions/2026-06-12-refondation-lucidity-spine.md
+  sha256: b5b67f54b72b7fed9ba71f7db20650675db7475eeac0b5e19f5b8236d14f6b18
+  role: input_evidence_not_automatically_authoritative
+- path: apps/mobile/lib/routes/route_metadata.dart
+  sha256: 1b750e23f7a290a0dca42c9023825bf597ec84df81103a47df45903c6a665131
+  role: input_evidence_not_automatically_authoritative
+rule: Hash drift requires explicit reconciliation; no source becomes canonical by inclusion.

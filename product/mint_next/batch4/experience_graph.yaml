@@ -1,0 +1,253 @@
+entry_node_ids:
+- today_entry
+terminal_kinds:
+- success
+- safe_exit
+nodes:
+- id: today_entry
+  kind: entry
+  purpose: show_one_relevant_question
+  learning_outcome: understand_why_now
+  view_binding: next.today
+  modes:
+  - example
+  - personal
+  - missing
+  - stale
+  - offline
+  - error
+  - corrected
+  - saved
+- id: question
+  kind: decision
+  purpose: state_human_question
+  learning_outcome: name_the_choice
+  view_binding: next.decision.question
+  modes:
+  - example
+  - personal
+  - missing
+  - stale
+  - offline
+  - error
+  - corrected
+  - saved
+- id: example
+  kind: learning
+  purpose: show_chf_example
+  learning_outcome: predict_concrete_effect
+  view_binding: next.decision.example
+  modes:
+  - example
+  - personal
+  - missing
+  - stale
+  - offline
+  - error
+  - corrected
+  - saved
+- id: inputs
+  kind: data
+  purpose: collect_minimum_only
+  learning_outcome: distinguish_fact_and_assumption
+  view_binding: next.decision.inputs
+  modes:
+  - example
+  - personal
+  - missing
+  - stale
+  - offline
+  - error
+  - corrected
+  - saved
+- id: comparison
+  kind: result
+  purpose: compare_baseline_and_adverse
+  learning_outcome: understand_tradeoff
+  view_binding: next.decision.comparison
+  modes:
+  - example
+  - personal
+  - missing
+  - stale
+  - offline
+  - error
+  - corrected
+  - saved
+- id: receipt
+  kind: result
+  purpose: show_assumptions_sources_limits
+  learning_outcome: know_what_is_certain
+  view_binding: next.decision.receipt
+  modes:
+  - example
+  - personal
+  - missing
+  - stale
+  - offline
+  - error
+  - corrected
+  - saved
+- id: safe_exit
+  kind: safe_exit
+  purpose: leave_without_loss
+  learning_outcome: know_next_step
+  view_binding: next.safe_exit
+  modes:
+  - saved
+  - offline
+- id: complete
+  kind: success
+  purpose: save_one_action
+  learning_outcome: know_next_step
+  view_binding: next.complete
+  modes:
+  - saved
+edges:
+- action_id: open_relevant_question
+  source: today_entry
+  destination: question
+  visible_label_intent: Voir pourquoi maintenant
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_open_relevant_question
+  fallback: safe_exit
+- action_id: show_example
+  source: question
+  destination: example
+  visible_label_intent: Voir avec CHF 100
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_show_example
+  fallback: safe_exit
+- action_id: leave_question
+  source: question
+  destination: safe_exit
+  visible_label_intent: Pas maintenant
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_leave_question
+  fallback: safe_exit
+- action_id: use_my_numbers
+  source: example
+  destination: inputs
+  visible_label_intent: Voir pour moi
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_use_my_numbers
+  fallback: safe_exit
+- action_id: leave_example
+  source: example
+  destination: safe_exit
+  visible_label_intent: Garder l’exemple
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_leave_example
+  fallback: safe_exit
+- action_id: compare_scenarios
+  source: inputs
+  destination: comparison
+  visible_label_intent: Comparer
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_compare_scenarios
+  fallback: safe_exit
+- action_id: leave_inputs
+  source: inputs
+  destination: safe_exit
+  visible_label_intent: Enregistrer et quitter
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_leave_inputs
+  fallback: safe_exit
+- action_id: see_receipt
+  source: comparison
+  destination: receipt
+  visible_label_intent: Voir calcul et limites
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_see_receipt
+  fallback: safe_exit
+- action_id: correct_inputs
+  source: comparison
+  destination: inputs
+  visible_label_intent: Corriger mes données
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_correct_inputs
+  fallback: safe_exit
+- action_id: choose_action
+  source: comparison
+  destination: complete
+  visible_label_intent: Choisir ma prochaine action
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_choose_action
+  fallback: safe_exit
+- action_id: back_to_comparison
+  source: receipt
+  destination: comparison
+  visible_label_intent: Retour au résultat
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_back_to_comparison
+  fallback: safe_exit
+- action_id: finish_from_receipt
+  source: receipt
+  destination: complete
+  visible_label_intent: Enregistrer
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_finish_from_receipt
+  fallback: safe_exit
+- action_id: resume_saved
+  source: safe_exit
+  destination: question
+  visible_label_intent: Reprendre
+  guard: registered_decision_context
+  data_effect: explicit_save_or_edit
+  back_semantics: preserve_context
+  analytics_event: next_resume_saved
+  fallback: safe_exit
+- action_id: return_today
+  source: complete
+  destination: today_entry
+  visible_label_intent: Retour à aujourd’hui
+  guard: registered_decision_context
+  data_effect: none
+  back_semantics: preserve_context
+  analytics_event: next_return_today
+  fallback: safe_exit
+chat:
+  allowed_action_ids:
+  - open_relevant_question
+  - show_example
+  - leave_question
+  - use_my_numbers
+  - leave_example
+  - compare_scenarios
+  - leave_inputs
+  - see_receipt
+  - correct_inputs
+  - choose_action
+  - back_to_comparison
+  - finish_from_receipt
+  - resume_saved
+  - return_today
+  forbidden:
+  - invent_route
+  - invent_calculation
+  - mutate_hidden_state
+  continuity: same_decision_id_and_receipt_inside_or_outside_chat

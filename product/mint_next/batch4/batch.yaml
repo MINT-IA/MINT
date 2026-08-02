@@ -1,0 +1,42 @@
+schema_version: 1
+status: draft_unproven
+work_tracking:
+  system: beads
+  id: MINT_nosync-qoq
+  expected_live_status: in_progress
+principles:
+- event_triggered_not_age_timeline
+- survival_before_optimization
+- beginner_safe_not_beginner_labeled
+- one_consequence_one_action
+- expert_depth_in_one_gesture
+- route_screen_state_decision_are_distinct
+- chat_may_only_emit_registered_actions
+- legacy_preserved_behind_explicit_adapters
+scope:
+  includes:
+  - canonical_architecture_registries
+  - generated_views
+  - mechanical_graph_guard
+  - legacy_reuse_classification
+  - independent_roasts
+  excludes:
+  - flutter_product
+  - backend_product
+  - legacy_route_rewrite
+  - production_api
+  - personalized_product_recommendation
+  - user_validation_claim
+promotion:
+  author_cannot_approve: true
+  requires:
+  - all_guards_pass
+  - mutation_tests_pass
+  - all_registries_complete
+  - independent_roasts_zero_p1_p2
+  - exact_head_receipt
+  never_sufficient:
+  - author_summary
+  - diagram_only
+  - agent_claim
+  - unverified_source

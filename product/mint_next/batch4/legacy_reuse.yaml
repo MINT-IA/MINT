@@ -1,0 +1,44 @@
+boundary:
+  next_imports_legacy_ui: false
+  legacy_imports_next: false
+  next_default_enabled: false
+  kill_switch_required: true
+  migration_unit: one_decision_id_vertical
+  fallback_until_equivalence_and_rollback_proven: true
+assets:
+- id: financial_core
+  path: apps/mobile/lib/services/financial_core
+  disposition: adapt_behind_adapter
+  evidence: docs/calculator-graph.md plus per-engine parity required
+  forbidden_dependency: Flutter UI and route state
+  status: candidate_not_reuse_approved
+- id: route_metadata
+  path: apps/mobile/lib/routes/route_metadata.dart
+  disposition: retire
+  evidence: inventory only; no transition semantics
+  forbidden_dependency: canonical Next experience graph
+  status: compatibility_reference_only
+- id: journey_os
+  path: .planning/journeys
+  disposition: adapt_behind_adapter
+  evidence: issue/evidence tracking useful; route_paths are not an ordered transition proof
+  forbidden_dependency: navigation truth
+  status: candidate_not_reuse_approved
+- id: batch3_prototypes
+  path: product/mint_next/batch3
+  disposition: adapt_behind_adapter
+  evidence: promoted research evidence; no UX winner or product validation
+  forbidden_dependency: production UI import
+  status: research_only
+- id: legacy_screens
+  path: apps/mobile/lib/screens
+  disposition: unknown
+  evidence: 127 screen files require decision-by-decision audit
+  forbidden_dependency: direct Next import
+  status: not_reused
+- id: backend_services
+  path: services/backend/app/services
+  disposition: unknown
+  evidence: broad service inventory not audited for Next contracts
+  forbidden_dependency: direct Next dependency
+  status: not_reused

@@ -1,0 +1,101 @@
+concepts:
+- id: stock_flow
+  prerequisites: []
+  mental_model: Un stock est ce que tu as; un flux est ce qui entre ou sort.
+  chf_example: Avec CHF 100 sur le compte et CHF 20 dépensés, il reste CHF 80.
+  visual: bar_or_timeline
+  misconceptions:
+  - confondre salaire et patrimoine
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: gross_net_taxable
+  prerequisites:
+  - stock_flow
+  mental_model: Brut, net et imposable répondent à trois questions différentes.
+  chf_example: Sur CHF 100 brut, les prélèvements donnent un net inférieur; l’imposable suit encore d’autres règles.
+  visual: bar_or_timeline
+  misconceptions:
+  - penser que net égale imposable
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: fact_estimate_assumption
+  prerequisites: []
+  mental_model: Un fait est observé; une estimation est calculée; une hypothèse peut être changée.
+  chf_example: CHF 100 sur un relevé est un fait; CHF 105 demain peut être une estimation.
+  visual: bar_or_timeline
+  misconceptions:
+  - prendre un scénario pour une promesse
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: liquidity_lock
+  prerequisites:
+  - stock_flow
+  mental_model: L’argent liquide reste disponible; l’argent bloqué ne paie pas une urgence.
+  chf_example: CHF 100 en réserve peut payer une facture; CHF 100 en 3a est normalement bloqué.
+  visual: bar_or_timeline
+  misconceptions:
+  - optimiser avant de pouvoir payer les factures
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: risk_return_fees
+  prerequisites:
+  - fact_estimate_assumption
+  mental_model: Plus de rendement espéré implique risque, temps et frais; rien n’est garanti.
+  chf_example: CHF 100 investi peut temporairement valoir CHF 80, même si le scénario long terme est positif.
+  visual: bar_or_timeline
+  misconceptions:
+  - rendement attendu égale rendement garanti
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: compounding
+  prerequisites:
+  - risk_return_fees
+  mental_model: Les gains futurs peuvent produire des gains, mais les pertes et frais composent aussi.
+  chf_example: 'CHF 100 puis CHF 105: le gain suivant se calcule sur CHF 105.'
+  visual: bar_or_timeline
+  misconceptions:
+  - extrapoler un taux sans risque
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: marginal_tax
+  prerequisites:
+  - gross_net_taxable
+  - fact_estimate_assumption
+  mental_model: Une déduction économise l’impôt applicable au prochain franc, pas son montant entier.
+  chf_example: Verser CHF 100 ne rend pas CHF 100; la baisse d’impôt dépend de la situation.
+  visual: bar_or_timeline
+  misconceptions:
+  - déduction égale remboursement
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: tax_now_later
+  prerequisites:
+  - marginal_tax
+  - liquidity_lock
+  mental_model: Une économie fiscale aujourd’hui peut s’accompagner d’impôt et de contraintes plus tard.
+  chf_example: CHF 100 déduit aujourd’hui peut être imposé lors du retrait.
+  visual: bar_or_timeline
+  misconceptions:
+  - oublier impôt au retrait
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: diversification
+  prerequisites:
+  - risk_return_fees
+  mental_model: Répartir évite qu’un seul risque décide de tout le résultat.
+  chf_example: CHF 100 répartis ne dépendent pas entièrement d’une seule entreprise.
+  visual: bar_or_timeline
+  misconceptions:
+  - diversification supprime les pertes
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz
+- id: reversibility
+  prerequisites:
+  - fact_estimate_assumption
+  mental_model: Une décision réversible se corrige; une décision irréversible exige plus de preuves.
+  chf_example: Un virement futur peut être arrêté; un choix de rente peut être irréversible.
+  visual: bar_or_timeline
+  misconceptions:
+  - traiter tous les choix comme équivalents
+  glossary_terms: []
+  comprehension_evidence: concrete_choice_not_quiz

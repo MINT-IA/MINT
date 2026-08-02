@@ -1,0 +1,23 @@
+flowchart TD
+  today_entry["show_one_relevant_question"]
+  question["state_human_question"]
+  example["show_chf_example"]
+  inputs["collect_minimum_only"]
+  comparison["compare_baseline_and_adverse"]
+  receipt["show_assumptions_sources_limits"]
+  safe_exit["leave_without_loss"]
+  complete["save_one_action"]
+  today_entry -->|Voir pourquoi maintenant| question
+  question -->|Voir avec CHF 100| example
+  question -->|Pas maintenant| safe_exit
+  example -->|Voir pour moi| inputs
+  example -->|Garder l’exemple| safe_exit
+  inputs -->|Comparer| comparison
+  inputs -->|Enregistrer et quitter| safe_exit
+  comparison -->|Voir calcul et limites| receipt
+  comparison -->|Corriger mes données| inputs
+  comparison -->|Choisir ma prochaine action| complete
+  receipt -->|Retour au résultat| comparison
+  receipt -->|Enregistrer| complete
+  safe_exit -->|Reprendre| question
+  complete -->|Retour à aujourd’hui| today_entry

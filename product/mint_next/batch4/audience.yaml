@@ -1,0 +1,45 @@
+audience_hypothesis:
+  status: hypothesis_not_exclusive_persona
+  statement: MINT reste compréhensible par une personne fatiguée, anxieuse et peu à l’aise avec les chiffres, sans ralentir une personne experte.
+  must_not_store:
+  - beginner_label
+  - math_level_label
+  - financial_intelligence_score
+universal_floor:
+  sequence:
+  - concrete_consequence
+  - chf_example
+  - one_cause_effect
+  - one_action_or_choice
+  - visible_limits
+  max_primary_numbers: 3
+  amounts_before_percentages: true
+  example_before_personalization: true
+  color_never_only_signal: true
+progressive_depth:
+- id: n0
+  intent: consequence
+- id: n1
+  intent: simple_why
+- id: n2
+  intent: visual_comparison
+- id: n3
+  intent: editable_assumptions
+- id: n4
+  intent: calculation_sources_limits
+expert_escape:
+- see_calculation
+- edit_assumptions
+- see_sources
+- compare_scenarios
+comprehension_evidence:
+- teach_back_choice
+- correct_concrete_action
+- voluntary_open_detail
+forbidden_patterns:
+- quiz_grading
+- badges_for_financial_literacy
+- shaming
+- forced_curriculum
+- confidence_as_competence
+- opaque_personalization

@@ -1,0 +1,71 @@
+items:
+- id: residency_canton_commune
+  kind: data
+  semantics: Tax residence at relevant date
+  unit: jurisdiction
+  time_basis: effective_date
+  owner: user
+  provenance: user_or_official_document
+  freshness_days: 365
+  confidence: declared_or_verified
+  consent: explicit
+  residency: switzerland
+  version: '1'
+  missing_behavior: no_local_tax_number
+  stale_behavior: ask_to_confirm
+- id: household_status
+  kind: data
+  semantics: Civil status and dependants
+  unit: category
+  time_basis: effective_date
+  owner: user
+  provenance: user_or_official_document
+  freshness_days: 365
+  confidence: declared_or_verified
+  consent: explicit
+  residency: switzerland
+  version: '1'
+  missing_behavior: no_household_specific_number
+  stale_behavior: ask_to_confirm
+- id: income_expenses_liquidity
+  kind: data
+  semantics: Income, essential expenses, cash and costly debt
+  unit: CHF
+  time_basis: monthly_and_annual_labeled
+  owner: user
+  provenance: user_bank_or_document
+  freshness_days: 90
+  confidence: declared_imported_or_verified
+  consent: explicit
+  residency: switzerland
+  version: '1'
+  missing_behavior: example_only
+  stale_behavior: show_stale_and_withhold_precision
+- id: swiss_rule_constants
+  kind: claim
+  semantics: Versioned legal and fiscal constants
+  unit: rule_set
+  time_basis: tax_or_benefit_year
+  owner: mint-swiss-brain
+  provenance: official_authority_primary_source
+  freshness_days: 90
+  confidence: verified
+  consent: not_applicable
+  residency: switzerland
+  version: year_and_jurisdiction
+  missing_behavior: no_personalized_calculation
+  stale_behavior: fail_closed
+- id: calculator_output
+  kind: claim
+  semantics: Deterministic output linked to inputs and formula
+  unit: CHF_or_ratio_labeled
+  time_basis: explicit_horizon
+  owner: calculation_engine
+  provenance: calculator_version_input_hash_source_set
+  freshness_days: 30
+  confidence: calculated_not_guaranteed
+  consent: derived_from_consented_inputs
+  residency: switzerland
+  version: engine_semver
+  missing_behavior: no_output
+  stale_behavior: recalculate_or_withhold
