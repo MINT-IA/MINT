@@ -1,6 +1,6 @@
 schema_version: 1
 status: corrected_candidate_runtime_evidence_not_promotion
-captured_at: '2026-08-02T23:38:18+02:00'
+captured_at: '2026-08-03T00:01:51+02:00'
 runner: local_real_chrome_cdp_flutter_web_release
 viewport:
   width: 390
@@ -38,7 +38,7 @@ assertions:
 - real_runtime_has_no_external_https_resource
 captures:
 - path: product/mint_next/batch10/evidence/runtime/fr_contribution_disclosure_chrome_390.png
-  sha256: d1f54348732bdfcceddd5a28e5d23ccd4d0c350aec105ebac890ddce9950c331
+  sha256: ed473c5f933b44b2a7d1acb7ba48231444a3f512c2192a0b8e6091466b858836
   width: 390
   height: 844
 - path: product/mint_next/batch10/evidence/runtime/fr_contribution_no_boundary_chrome_390.png
