@@ -20,7 +20,7 @@ scope:
   - generated_views
   - mechanical_graph_guard
   - legacy_reuse_classification
-  - independent_roasts
+  - untrusted_separate_context_advisory_reports
   excludes:
   - flutter_product
   - backend_product
@@ -30,15 +30,25 @@ scope:
   - user_validation_claim
 promotion:
   author_cannot_approve: true
+  trust_boundary:
+    trust_basis: deterministic_evidence_plus_separate_promotion_gate
+    external_attestation: absent
+    cross_provider_review: absent
+    cross_provider_review_scope: diversity_only_not_authenticated_or_cryptographic_identity
+    advisory_reports: untrusted_issue_discovery_only
+    advisory_not_sufficient: true
   requires:
   - all_guards_pass
   - mutation_tests_pass
   - all_registries_complete
-  - independent_roasts_zero_p1_p2
+  - external_attestation_or_cross_provider_review
+  - all_advisory_issues_reproduced_or_disposed_by_deterministic_evidence
   - exact_head_receipt
   - no_unresolved_canonical_conflicts
   never_sufficient:
   - author_summary
   - diagram_only
   - agent_claim
+  - untrusted_advisory_report
+  - cross_provider_identity_claim
   - unverified_source

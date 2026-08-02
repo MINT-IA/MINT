@@ -13,11 +13,65 @@ import yaml
 REPO = Path(__file__).resolve().parents[3]
 SCRIPT = REPO / "tools/checks/mint_next_batch4_architecture_guard.py"
 BASE = Path("product/mint_next/batch4")
+VALID_README = """# Batch 4
+
+Les rapports produits dans des contextes agents séparés sont des avis non fiables:
+ils peuvent signaler un problème, mais ne prouvent ni identité, ni indépendance,
+ni acceptation.
+
+Le token `independent_Swiss_domain_review_golden_vectors_and_mutation_tests` des
+contrats de formule désigne exclusivement un **futur gate d’expert suisse externe
+et authentifié**.
+Il ne peut jamais désigner un rapport d’agent local ou une revue cross-provider.
+Ce gate est actuellement absent et toutes ces formules restent `unimplemented_blocking`.
+"""
 
 
 def valid_documents() -> dict[str, dict]:
     documents = {
-        "batch.yaml": {"schema_version": 1, "status": "draft_unproven", "promotion_receipt": None},
+        "batch.yaml": {
+            "schema_version": 1,
+            "status": "draft_unproven",
+            "promotion_receipt": None,
+            "work_tracking": {
+                "system": "beads", "id": "MINT_nosync-qoq",
+                "expected_live_status": "in_progress",
+            },
+            "principles": ["event_triggered_not_age_timeline"],
+            "scope": {
+                "includes": [
+                    "canonical_architecture_registries", "generated_views",
+                    "mechanical_graph_guard", "legacy_reuse_classification",
+                    "untrusted_separate_context_advisory_reports",
+                ],
+                "excludes": ["flutter_product"],
+            },
+            "promotion": {
+                "author_cannot_approve": True,
+                "trust_boundary": {
+                    "trust_basis": "deterministic_evidence_plus_separate_promotion_gate",
+                    "external_attestation": "absent",
+                    "cross_provider_review": "absent",
+                    "cross_provider_review_scope": (
+                        "diversity_only_not_authenticated_or_cryptographic_identity"
+                    ),
+                    "advisory_reports": "untrusted_issue_discovery_only",
+                    "advisory_not_sufficient": True,
+                },
+                "requires": [
+                    "all_guards_pass", "mutation_tests_pass",
+                    "all_registries_complete",
+                    "external_attestation_or_cross_provider_review",
+                    "all_advisory_issues_reproduced_or_disposed_by_deterministic_evidence",
+                    "exact_head_receipt", "no_unresolved_canonical_conflicts",
+                ],
+                "never_sufficient": [
+                    "author_summary", "diagram_only", "agent_claim",
+                    "untrusted_advisory_report", "cross_provider_identity_claim",
+                    "unverified_source",
+                ],
+            },
+        },
         "source-inventory.yaml": {
             "schema_version": 1,
             "sources": [{"path": "SOURCE.txt", "sha256": hashlib.sha256(b"source\n").hexdigest(), "role": "test_authority"}],
@@ -37,7 +91,7 @@ def valid_documents() -> dict[str, dict]:
         "formula_contracts.yaml": {"formulas": [{
             "id": "tax_v1", "status": "unimplemented_blocking", "owner": "test", "input_units": "CHF",
             "output_units": "CHF", "rounding": "none", "invariants": ["no personal output"],
-            "implementation_gate": "review",
+            "implementation_gate": "independent_Swiss_domain_review_golden_vectors_and_mutation_tests",
         }]},
         "domain_coverage.yaml": {
             "dispositions": ["covered_by_decision", "official_handoff"],
@@ -221,6 +275,7 @@ def write_documents(root: Path, documents: dict[str, dict]) -> None:
     base = root / BASE
     base.mkdir(parents=True, exist_ok=True)
     (root / "SOURCE.txt").write_text("source\n")
+    (base / "README.md").write_text(VALID_README)
     for name, document in documents.items():
         (base / name).write_text(yaml.safe_dump(document, sort_keys=False))
 
@@ -314,6 +369,98 @@ def test_rejects_non_mapping_yaml_and_wrong_schema(tmp_path: Path) -> None:
     assert result.returncode == 1
     assert "yaml mapping" in result.stderr.lower()
     assert "schema_version" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        (
+            lambda batch: batch["scope"]["includes"].append("independent_roasts"),
+            "legacy independent_roasts promotion requirement is forbidden",
+        ),
+        (
+            lambda batch: batch["promotion"]["requires"].append(
+                "independent_roasts_zero_p1_p2"
+            ),
+            "legacy independent_roasts promotion requirement is forbidden",
+        ),
+        (
+            lambda batch: batch["promotion"]["trust_boundary"].update(
+                advisory_reports="authenticated_independent"
+            ),
+            "advisory reports must not claim independent/authenticated/signed trust",
+        ),
+        (
+            lambda batch: batch["promotion"]["never_sufficient"].remove(
+                "untrusted_advisory_report"
+            ),
+            "promotion never_sufficient mismatch",
+        ),
+        (
+            lambda batch: batch.update(
+                independent_signed_advisory_reports_are_approval=True
+            ),
+            "advisory reports must not claim independent/authenticated/signed trust",
+        ),
+    ],
+)
+def test_rejects_batch4_advisory_trust_overclaims(
+    tmp_path: Path, mutation, message: str
+) -> None:
+    documents = valid_documents()
+    mutation(documents["batch.yaml"])
+    write_documents(tmp_path, documents)
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert message in result.stderr.lower(), result.stderr
+
+
+def test_readme_trust_contract_allows_wrapped_markdown(tmp_path: Path) -> None:
+    documents = valid_documents()
+    write_documents(tmp_path, documents)
+    path = tmp_path / BASE / "README.md"
+    path.write_text(path.read_text().replace("gate d’expert", "gate\n  d’expert"))
+    assert run(tmp_path).returncode == 0
+
+
+@pytest.mark.parametrize(
+    ("old", "new", "message"),
+    [
+        (
+            "sont des avis non fiables:",
+            "sont des preuves indépendantes:",
+            "missing honest trust definition",
+        ),
+        (
+            "Il ne peut jamais désigner un rapport d’agent local ou une revue cross-provider.",
+            "Il peut désigner un rapport d’agent local ou une revue cross-provider.",
+            "forbidden trust overclaim",
+        ),
+    ],
+)
+def test_rejects_readme_advisory_or_formula_gate_redefinition(
+    tmp_path: Path, old: str, new: str, message: str
+) -> None:
+    documents = valid_documents()
+    write_documents(tmp_path, documents)
+    path = tmp_path / BASE / "README.md"
+    path.write_text(path.read_text().replace(old, new))
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert message in result.stderr.lower(), result.stderr
+
+
+def test_rejects_unimplemented_formula_without_external_swiss_gate(
+    tmp_path: Path,
+) -> None:
+    documents = valid_documents()
+    documents["formula_contracts.yaml"]["formulas"][0]["implementation_gate"] = (
+        "local_agent_or_cross_provider_review"
+    )
+    write_documents(tmp_path, documents)
+    result = run(tmp_path)
+    assert result.returncode == 1
+    assert "externally defined swiss expert gate" in result.stderr.lower()
 
 
 def test_rejects_coordinated_coercive_leave_question(tmp_path: Path) -> None:

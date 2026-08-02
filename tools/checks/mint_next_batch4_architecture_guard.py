@@ -97,6 +97,125 @@ EXPECTED_LEGACY_BOUNDARY = {
     "kill_switch_required": True,
     "fallback_until_equivalence_and_rollback_proven": True,
 }
+EXPECTED_BATCH_INCLUDES = [
+    "canonical_architecture_registries",
+    "generated_views",
+    "mechanical_graph_guard",
+    "legacy_reuse_classification",
+    "untrusted_separate_context_advisory_reports",
+]
+EXPECTED_PROMOTION_REQUIRES = [
+    "all_guards_pass",
+    "mutation_tests_pass",
+    "all_registries_complete",
+    "external_attestation_or_cross_provider_review",
+    "all_advisory_issues_reproduced_or_disposed_by_deterministic_evidence",
+    "exact_head_receipt",
+    "no_unresolved_canonical_conflicts",
+]
+EXPECTED_NEVER_SUFFICIENT = [
+    "author_summary",
+    "diagram_only",
+    "agent_claim",
+    "untrusted_advisory_report",
+    "cross_provider_identity_claim",
+    "unverified_source",
+]
+EXPECTED_PROMOTION_TRUST_BOUNDARY = {
+    "trust_basis": "deterministic_evidence_plus_separate_promotion_gate",
+    "external_attestation": "absent",
+    "cross_provider_review": "absent",
+    "cross_provider_review_scope": (
+        "diversity_only_not_authenticated_or_cryptographic_identity"
+    ),
+    "advisory_reports": "untrusted_issue_discovery_only",
+    "advisory_not_sufficient": True,
+}
+SWISS_FORMULA_GATE = "independent_Swiss_domain_review_golden_vectors_and_mutation_tests"
+
+README_TRUST_FRAGMENTS = (
+    "Les rapports produits dans des contextes agents séparés sont des avis non fiables:",
+    "ils peuvent signaler un problème, mais ne prouvent ni identité, ni indépendance,",
+    "Le token `independent_Swiss_domain_review_golden_vectors_and_mutation_tests` des",
+    "désigne exclusivement un **futur gate d’expert suisse externe",
+    "Il ne peut jamais désigner un rapport d’agent local ou une revue cross-provider.",
+    "est actuellement absent et toutes ces formules restent `unimplemented_blocking`.",
+)
+
+
+def _validate_readme_trust_contract(root: Path, errors: list[str]) -> None:
+    path = root / BASE / "README.md"
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        errors.append(f"Batch4 README trust contract unreadable: {exc}")
+        return
+    normalized = re.sub(r"\s+", " ", text).strip()
+    for fragment in README_TRUST_FRAGMENTS:
+        if re.sub(r"\s+", " ", fragment).strip() not in normalized:
+            errors.append(f"Batch4 README missing honest trust definition: {fragment}")
+    lowered = text.lower()
+    forbidden = (
+        "roasts indépendants",
+        "désigne un rapport d’agent",
+        "désigne une revue cross-provider",
+        "peut désigner un rapport d’agent",
+        "peut désigner une revue cross-provider",
+    )
+    for phrase in forbidden:
+        if phrase in lowered:
+            errors.append(f"Batch4 README contains forbidden trust overclaim: {phrase}")
+    if re.search(
+        r"(?is)rapports?.{0,100}(?:prouvent|garantissent|établissent)"
+        r".{0,80}(?:identité|indépendance|acceptation)",
+        text,
+    ):
+        errors.append("Batch4 README lets advisory reports prove trust or acceptance")
+
+
+def _validate_batch_trust_contract(batch: dict[str, Any], errors: list[str]) -> None:
+    expected_top = {
+        "schema_version", "status", "promotion_receipt", "work_tracking",
+        "principles", "scope", "promotion",
+    }
+    if set(batch) != expected_top:
+        errors.append("batch.yaml must contain exactly the canonical trust-contract fields")
+    if batch.get("status") != "draft_unproven":
+        errors.append("Batch 4 trust-contract phase must remain draft_unproven")
+    if batch.get("promotion_receipt") is not None:
+        errors.append("Batch 4 trust-contract phase must keep promotion_receipt null")
+
+    scope = batch.get("scope")
+    if not isinstance(scope, dict) or set(scope) != {"includes", "excludes"}:
+        errors.append("batch.yaml.scope must contain exactly includes and excludes")
+    elif scope.get("includes") != EXPECTED_BATCH_INCLUDES:
+        errors.append("batch.yaml.scope.includes must use the untrusted advisory contract")
+
+    promotion = batch.get("promotion")
+    expected_promotion_keys = {
+        "author_cannot_approve", "trust_boundary", "requires", "never_sufficient"
+    }
+    if not isinstance(promotion, dict) or set(promotion) != expected_promotion_keys:
+        errors.append("batch.yaml.promotion must contain exactly the honest trust fields")
+        return
+    if promotion.get("author_cannot_approve") is not True:
+        errors.append("batch.yaml promotion author_cannot_approve must be true")
+    if promotion.get("trust_boundary") != EXPECTED_PROMOTION_TRUST_BOUNDARY:
+        errors.append("batch.yaml promotion trust_boundary mismatch")
+    if promotion.get("requires") != EXPECTED_PROMOTION_REQUIRES:
+        errors.append("batch.yaml promotion requires mismatch")
+    if promotion.get("never_sufficient") != EXPECTED_NEVER_SUFFICIENT:
+        errors.append("batch.yaml promotion never_sufficient mismatch")
+
+    raw = yaml.safe_dump(batch, sort_keys=False).lower()
+    if "independent_roasts" in raw or "independent_roasts_zero_p1_p2" in raw:
+        errors.append("legacy independent_roasts promotion requirement is forbidden")
+    if re.search(
+        r"(?m)^.*(?:independent|authenticated|signed).*advisory.*$|"
+        r"^.*advisory.*(?:independent|authenticated|signed).*$",
+        raw,
+    ):
+        errors.append("advisory reports must not claim independent/authenticated/signed trust")
 
 
 def _load(root: Path, name: str, errors: list[str]) -> dict[str, Any]:
@@ -459,6 +578,13 @@ def _validate_domain_contracts(
         for field in ("owner", "input_units", "output_units", "rounding", "implementation_gate"):
             if not isinstance(formula.get(field), str) or not formula.get(field, "").strip():
                 errors.append(f"formula contract {identifier}.{field} must be non-empty")
+        if (
+            formula.get("status") == "unimplemented_blocking"
+            and formula.get("implementation_gate") != SWISS_FORMULA_GATE
+        ):
+            errors.append(
+                f"formula contract {identifier} must use the externally defined Swiss expert gate"
+            )
         if not _list_of_strings(formula, "invariants", f"formula contract {identifier}", errors):
             errors.append(f"formula contract {identifier}.invariants must not be empty")
     contracts = _index(_items(contracts_doc, "contracts", "calculation_contracts.yaml", errors), "calculation contract", errors)
@@ -521,8 +647,10 @@ def _validate_domain_contracts(
 
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
+    _validate_readme_trust_contract(root, errors)
     documents = {name: _load(root, name, errors) for name in FILES}
     batch = documents["batch.yaml"]
+    _validate_batch_trust_contract(batch, errors)
     status = batch.get("status")
     if status not in {"draft_unproven", "promoted"}:
         errors.append(f"invalid batch status: {status}")

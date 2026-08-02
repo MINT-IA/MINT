@@ -150,9 +150,13 @@ ALLOWED_TRANSITION_PATHS = frozenset(
         f"{NEW_PHASE_DIR}/VERIFICATION.md",
         *(artifact["path"] for artifact in ROAST_ARTIFACTS.values()),
         "product/mint_next/batch4/architecture_conflicts.yaml",
+        "product/mint_next/batch4/batch.yaml",
+        "product/mint_next/batch4/README.md",
         "product/mint_next/batch4/source-inventory.yaml",
         "tools/checks/journey_os_check.py",
         "tools/checks/tests/test_journey_os_check.py",
+        "tools/checks/mint_next_batch4_architecture_guard.py",
+        "tools/checks/tests/test_mint_next_batch4_architecture_guard.py",
         "tools/checks/mint_next_authority_transition_guard.py",
         "tools/checks/tests/test_mint_next_authority_transition_guard.py",
     }

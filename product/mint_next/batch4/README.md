@@ -12,5 +12,21 @@ python3 tools/checks/mint_next_batch4_architecture_guard.py
 pytest -q tools/checks/tests/test_mint_next_batch4_architecture_guard.py
 ```
 
-Le statut reste `draft_unproven` tant que les roasts indépendants et le reçu de
-promotion lié au HEAD exact ne sont pas présents.
+## Frontière de confiance
+
+Les rapports produits dans des contextes agents séparés sont des avis non fiables:
+ils peuvent signaler un problème, mais ne prouvent ni identité, ni indépendance,
+ni acceptation. La promotion exige des preuves déterministes et, dans un gate
+séparé, soit une attestation externe dont identité et provenance sont vérifiées,
+soit une revue cross-provider. Cette dernière ajoute uniquement de la diversité;
+elle ne prouve aucune identité authentifiée ou indépendance cryptographique.
+
+Le token `independent_Swiss_domain_review_golden_vectors_and_mutation_tests` des
+contrats de formule désigne exclusivement un **futur gate d’expert suisse externe
+et authentifié**, accompagné de vecteurs golden et de tests de mutation.
+Il ne peut jamais désigner un rapport d’agent local ou une revue cross-provider.
+Ce gate est actuellement absent et toutes ces formules restent `unimplemented_blocking`.
+
+Le statut reste `draft_unproven` avec un reçu de promotion `null` tant que le gate
+externe ou cross-provider séparé, les preuves déterministes et le reçu lié au HEAD
+exact ne sont pas présents.
