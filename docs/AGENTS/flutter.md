@@ -136,7 +136,6 @@ tester.view.devicePixelRatio = 2.0;
 - `docs/DESIGN_SYSTEM.md` — tokens, components, screen categories, checklist.
 - `docs/VOICE_SYSTEM.md` — 5 piliers, 50 avant/après, microcopy.
 - `docs/NAVIGATION_GRAAL_V10.md` — full IA.
-- `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` — UX 7 laws + 75 propositions.
 - Subagents : `mint-mobile` + `mint-quality-gate` par défaut ;
   `mint-experience` en amont pour le contrat d'expérience (journey,
   architecture d'information, microcopy pédagogique, accessibilité).

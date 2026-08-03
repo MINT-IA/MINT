@@ -122,7 +122,7 @@ If GitHub branch protection rejects direct push to `staging`, open a PR into `st
 
 ## 6. QUICK LINKS
 
-`rules.md` · `docs/MINT_IDENTITY.md` · `docs/DESIGN_SYSTEM.md` · `docs/VOICE_SYSTEM.md` · `SOT.md` · `docs/ROADMAP_V2.md` · `.claude/skills/mint-{swiss-compliance,flutter-dev,backend-dev}/SKILL.md` · `.planning/INDEX.md`.
+`.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md` (doctrine canonique reconstruction) · `.planning/decisions/2026-07-31-north-star-experience.md` (North Star, chantiers D1-D5) · `.planning/journeys/` (board actif) · `rules.md` · `docs/MINT_IDENTITY.md` · `docs/DESIGN_SYSTEM.md` · `docs/VOICE_SYSTEM.md` · `SOT.md` · `docs/ROADMAP_V2.md` (superseded, bandeau en tête) · `.claude/skills/mint-{swiss-compliance,flutter-dev,backend-dev}/SKILL.md` · `.planning/INDEX.md`.
 
 ## 7. BEHAVIOR FOUNDATION — Karpathy 4 (LLM coding pitfalls, [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills))
 

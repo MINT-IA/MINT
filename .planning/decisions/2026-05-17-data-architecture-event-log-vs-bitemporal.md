@@ -7,6 +7,7 @@ supersedes: .planning/decisions/2026-05-06-personal-financial-wiki-v3-candidate.
 superseded_by: —
 description: 5-agent adversarial panel converges on event-log + projection + per-user DEK envelope; rejects Snodgrass SCD2 bitemporal and Karpathy coach-memory wiki
 related:
+  - .planning/decisions/2026-08-03-doctrine-reconstruction-mint.md
   - docs/AGENTS/backend.md
   - docs/AGENTS/swiss-brain.md
   - apps/mobile/lib/services/financial_core/
