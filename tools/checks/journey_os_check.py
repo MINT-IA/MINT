@@ -294,6 +294,19 @@ ALLOW = {
     "tools/checks/mint_next_batch18_runtime_scope_guard.py",
     "tools/checks/tests/test_mint_next_batch18_runtime_scope_guard.py",
     ".github/workflows/mint-next-batch18-canton-runtime-scope.yml",
+    # Batch18 dispatcher amendment: decouple append-only future artifact paths
+    # from the immutable Batch18 scope receipt. Runtime remains unevaluated.
+    "product/mint_next/batch18/dispatcher-decoupling-acceptance.yaml",
+    "tools/checks/mint_next_batch18_dispatcher_decoupling_guard.py",
+    "tools/checks/tests/test_mint_next_batch18_dispatcher_decoupling_guard.py",
+    ".github/workflows/mint-next-batch18-dispatcher-decoupling.yml",
+    # Batch19 planned expected-RED artifacts. Listing paths permits review; it
+    # does not accept their content, runtime or product promotion.
+    "product/mint_next/batch18/runtime-gates.yaml",
+    "product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart",
+    "product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart",
+    "tools/checks/mint_next_batch19_r1_red_guard.py",
+    "tools/checks/tests/test_mint_next_batch19_r1_red_guard.py",
     "product/mint_next/batch7/design_lab/analysis_options.yaml",
     "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
     "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",

@@ -255,25 +255,25 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
     def test_journey_allow_alias_clear_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\n_BATCH18_ALIAS = ALLOW\n_BATCH18_ALIAS.clear()\n")
-        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "Journey OS executable logic drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_journey_allow_helper_mutation_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\ndef _batch18_mutate(value):\n    value.clear()\n_batch18_mutate(ALLOW)\n")
-        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "Journey OS executable logic drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_journey_allow_alias_isub_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\n_BATCH18_ALIAS = ALLOW\n_BATCH18_ALIAS -= set(ALLOW)\n")
-        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "Journey OS executable logic drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_journey_allow_container_alias_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\n_BATCH18_BOX = [ALLOW]\n_BATCH18_BOX[0].clear()\n")
-        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "Journey OS executable logic drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_current_artifacts_are_a_pending_candidate_anchor(self) -> None:
@@ -447,7 +447,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
     def test_guard_source_drift_invalidates_candidate_receipt(self) -> None:
         path = self.root / GUARD
         path.write_text(path.read_text() + "\n# weakened\n")
-        with self.assertRaisesRegex(GuardFailure, "candidate review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "workflow trust hash stale: GUARD"):
             validate(self.root, check_parent_git=False, require_accepted=None)
 
     def test_hostile_test_deletion_invalidates_registry(self) -> None:

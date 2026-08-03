@@ -31,6 +31,7 @@ EXPECTED_SCOPE_SHA256 = "88dfd16846bc658db21c992c8855a8344305704d5cb9c8a5ebdd78c
 EXPECTED_ACCEPTED_SCOPE_SHA256 = "ecb83ff852211d055ca50d9e0667d138b744e1bca1a7ba81131c2c1814761f8a"
 EXPECTED_SCOPE_CANONICAL_SHA256 = "d38bd26d1e2a7feaf9512ac986d9db877f5d7fe912de106200eeb6aa89a7af1f"
 EXPECTED_PARENT_SHA256 = "bb1a293f55b980ba7e1f07d575d34626ac181369bb97a9f9b9372c04af952c4a"
+EXPECTED_JOURNEY_EXECUTABLE_SHA256 = "a854d772773eddd31eda9fee2f752121e33a8dfc5a8c7324bdea2f10fb7733c4"
 
 
 class GuardFailure(RuntimeError):
@@ -102,6 +103,41 @@ def _normalized_python_ast_bytes(source: str) -> bytes:
         tree = ast.parse(source)
     except SyntaxError as exc:
         raise GuardFailure("Journey OS source is not parseable") from exc
+    return ast.dump(tree, annotate_fields=True, include_attributes=False).encode("utf-8")
+
+
+def _append_only_allow_ast_bytes(source: str) -> bytes:
+    """Bind executable Journey logic while permitting reviewed literal appends."""
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        raise GuardFailure("Journey OS source is not parseable") from exc
+    assignments = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "ALLOW"
+            for target in node.targets
+        )
+    ]
+    _require(
+        len(assignments) == 1 and isinstance(assignments[0].value, ast.Set),
+        "Journey OS active ALLOW assignment drifted",
+    )
+    dynamic_entries = [
+        element
+        for element in assignments[0].value.elts
+        if not (
+            isinstance(element, ast.Constant)
+            and isinstance(element.value, str)
+        )
+    ]
+    assignments[0].value = ast.Set(
+        elts=dynamic_entries
+        + [ast.Constant(value=entry) for entry in sorted(EXPECTED_JOURNEY_ENTRIES)]
+    )
+    ast.fix_missing_locations(tree)
     return ast.dump(tree, annotate_fields=True, include_attributes=False).encode("utf-8")
 
 
@@ -509,7 +545,13 @@ def validate(root: Path, *, check_byte_digest: bool = True, check_parent_git: bo
     lines = verify.group(1).splitlines()
     _require(lines.count(f"batch18-canton-runtime-scope: {guard_command}") == 1, "operational SPEC guard binding missing or duplicated")
     _require(lines.count(f"batch18-canton-runtime-scope-hostiles: {tests_command}") == 1, "operational SPEC hostile binding missing or duplicated")
-    _active_journey_allow_entries((root / JOURNEY_GUARD).read_text(encoding="utf-8"))
+    journey_source = (root / JOURNEY_GUARD).read_text(encoding="utf-8")
+    _active_journey_allow_entries(journey_source)
+    _require(
+        hashlib.sha256(_append_only_allow_ast_bytes(journey_source)).hexdigest()
+        == EXPECTED_JOURNEY_EXECUTABLE_SHA256,
+        "Journey OS executable logic drifted outside append-only literal ALLOW entries",
+    )
 
     acceptance = _load(root / ACCEPTANCE)
     _require(set(acceptance) == {"schema_version", "status", "current_verdict", "reviews", "mechanical_binding", "accepted_scope_only", "not_accepted", "next_gate"}, "scope acceptance schema drifted")
@@ -530,7 +572,20 @@ def validate(root: Path, *, check_byte_digest: bool = True, check_parent_git: bo
     _require(discovered == set(EXPECTED_POSITIVE_TESTS) | set(EXPECTED_HOSTILE_TESTS), "immutable test inventory drifted")
     _require(binding["positive_tests"] == EXPECTED_POSITIVE_TESTS, "positive test registry drifted")
     _require(binding["hostile_tests"] == EXPECTED_HOSTILE_TESTS, "hostile test registry drifted")
-    payload = _review_payload_sha256(root)
+    if require_accepted:
+        if check_parent_git:
+            candidate = binding["reviewed_candidate_commit"]
+            _require(
+                re.fullmatch(r"[0-9a-f]{40}", candidate or "") is not None,
+                "reviewed candidate commit missing or malformed",
+            )
+            payload = _review_payload_sha256_at_commit(root, candidate)
+        else:
+            # The immutable scope receipt is historical. Current dispatcher
+            # bytes are separately bound by the decoupling amendment guard.
+            payload = binding["reviewed_payload_sha256"]
+    else:
+        payload = _review_payload_sha256(root)
     _require(binding["candidate_review_payload_sha256"] == payload, "candidate review payload drifted")
     if require_accepted:
         _require(binding["reviewed_payload_sha256"] == payload, "accepted review payload drifted")
@@ -541,9 +596,7 @@ def validate(root: Path, *, check_byte_digest: bool = True, check_parent_git: bo
         if check_parent_git:
             candidate = binding["reviewed_candidate_commit"]
             _require(subprocess.run(["git", "merge-base", "--is-ancestor", candidate, "HEAD"], cwd=root).returncode == 0, "reviewed scope candidate is not an ancestor")
-            candidate_payload = _review_payload_sha256_at_commit(root, candidate)
-            _require_pending_candidate_at_commit(root, candidate, candidate_payload)
-            _require(candidate_payload == payload, "reviewed scope candidate does not reproduce payload")
+            _require_pending_candidate_at_commit(root, candidate, payload)
     else:
         _require(binding["reviewed_payload_sha256"] is None and binding["reviewed_candidate_commit"] is None, "candidate carries accepted receipt")
         _require(acceptance["accepted_scope_only"] == [], "candidate claims accepted scope")
