@@ -1,1 +1,7 @@
 include: package:flutter_lints/flutter.yaml
+
+# Intentional Batch16C TDD RED. The explicit `flutter test` remains red; remove
+# this one-file exclusion in the immediate GREEN commit.
+analyzer:
+  exclude:
+    - test/design_lab_batch16_unresolved_navigation_test.dart

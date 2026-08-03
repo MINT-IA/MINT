@@ -133,6 +133,9 @@ pre-commit:
     mint-next-batch16-classification-model-guard:
       run: python3 tools/checks/mint_next_batch16_classification_model_guard.py
       tags: [agents, mint-next, model, flutter, privacy]
+    mint-next-batch16-runtime-red-contract-guard:
+      run: python3 tools/checks/mint_next_batch16_runtime_red_contract_guard.py
+      tags: [agents, mint-next, navigation, red-contract, swiss, privacy]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.
