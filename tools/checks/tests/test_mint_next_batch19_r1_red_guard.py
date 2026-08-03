@@ -21,6 +21,7 @@ FILES = (
     guard.TEST,
     guard.FIXTURE,
     guard.PUBSPEC,
+    guard.PUBSPEC_LOCK,
 )
 
 
@@ -215,6 +216,18 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "pubspec digest drifted"):
             guard.validate(self.root, check_git=False)
 
+    def test_lockfile_drift_is_rejected(self) -> None:
+        path = self.root / guard.PUBSPEC_LOCK
+        path.write_text(path.read_text() + "\n# drift\n")
+        with self.assertRaisesRegex(guard.GuardFailure, "pubspec lock digest drifted"):
+            guard.validate(self.root, check_git=False)
+
+    def test_non_dart_runtime_input_drift_is_rejected(self) -> None:
+        path = self.root / guard.LIB_ROOT / "l10n" / "app_fr.arb"
+        path.write_text(path.read_text().replace("MINT", "M1NT", 1))
+        with self.assertRaisesRegex(guard.GuardFailure, "source inventory or digest drifted"):
+            guard.validate(self.root, check_git=False)
+
     def test_nonexistent_batch18_harness_is_rejected(self) -> None:
         path = self.root / guard.TEST
         path.write_text(path.read_text().replace("MintNextDesignLabApp(", "MintNextDesignLabApp.batch18Harness(", 1))
@@ -272,14 +285,14 @@ class Batch19R1RedGuardTest(unittest.TestCase):
 
     def test_compile_or_load_failure_is_not_expected_red(self) -> None:
         completed = subprocess.CompletedProcess([], 1, self._machine_output(load="error"), "")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "compile or load"):
                 guard.run_expected_red(self.root, check_git=False)
 
     def test_unexpected_green_runtime_test_is_not_red_evidence(self) -> None:
         green = next(iter(guard.EXPECTED_FAILED_NAMES))
         completed = subprocess.CompletedProcess([], 1, self._machine_output(green_name=green), "")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "unexpected RED failures"):
                 guard.run_expected_red(self.root, check_git=False)
 
@@ -288,7 +301,7 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         completed = subprocess.CompletedProcess(
             [], 1, self._machine_output(timeout_name=timed_out), ""
         )
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "exact named behavioral assertion"):
                 guard.run_expected_red(self.root, check_git=False)
 
@@ -299,13 +312,13 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             1,
         )
         completed = subprocess.CompletedProcess([], 1, output, "")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "exact named behavioral assertion"):
                 guard.run_expected_red(self.root, check_git=False)
 
     def test_stderr_cannot_be_hidden_by_valid_named_failures(self) -> None:
         completed = subprocess.CompletedProcess([], 1, self._machine_output(), "compiler warning")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "emitted stderr"):
                 guard.run_expected_red(self.root, check_git=False)
 
@@ -315,7 +328,7 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         lines.insert(-1, json.dumps({"type": "error", "testID": 999, "error": "boom"}))
         lines.insert(-1, json.dumps({"type": "testDone", "testID": 999, "result": "error", "hidden": True}))
         completed = subprocess.CompletedProcess([], 1, "\n".join(lines), "")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "unexpected hidden"):
                 guard.run_expected_red(self.root, check_git=False)
 
@@ -324,7 +337,7 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             {"type": "done", "success": False, "time": 2}
         )
         completed = subprocess.CompletedProcess([], 1, output, "")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "final done event"):
                 guard.run_expected_red(self.root, check_git=False)
 
@@ -332,14 +345,14 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         lines = self._machine_output().splitlines()
         lines.insert(-1, json.dumps({"type": "testStart", "test": {"id": 999, "name": "orphan"}}))
         completed = subprocess.CompletedProcess([], 1, "\n".join(lines), "")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "testStart/testDone"):
                 guard.run_expected_red(self.root, check_git=False)
 
     def test_unknown_machine_event_is_rejected(self) -> None:
         output = self._machine_output() + "\n" + json.dumps({"type": "surprise"})
         completed = subprocess.CompletedProcess([], 1, output, "")
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "unknown R1 machine event"):
                 guard.run_expected_red(self.root, check_git=False)
 
@@ -347,14 +360,14 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         completed = subprocess.CompletedProcess(
             [], 1, self._machine_output() + "\nnot-json", ""
         )
-        with patch.object(guard.subprocess, "run", return_value=completed):
+        with patch.object(guard, "_run_candidate_command", return_value=completed):
             with self.assertRaisesRegex(guard.GuardFailure, "non-JSON stdout"):
                 guard.run_expected_red(self.root, check_git=False)
 
     def test_process_timeout_is_rejected(self) -> None:
         with patch.object(
-            guard.subprocess,
-            "run",
+            guard,
+            "_run_candidate_command",
             side_effect=subprocess.TimeoutExpired(["flutter"], 120),
         ):
             with self.assertRaisesRegex(guard.GuardFailure, "command timed out"):

@@ -7,8 +7,10 @@ import argparse
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import yaml
@@ -25,6 +27,7 @@ FIXTURE = Path(
     "product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart"
 )
 PUBSPEC = Path("product/mint_next/batch7/design_lab/pubspec.yaml")
+PUBSPEC_LOCK = Path("product/mint_next/batch7/design_lab/pubspec.lock")
 LIB_ROOT = Path("product/mint_next/batch7/design_lab/lib")
 ANCHOR = "7bbf90b447c5d772597bd807810c39b22b232632"
 
@@ -33,8 +36,15 @@ EXPECTED_COPY_SHA256 = "3c6d19a37dee264bf5bd0b9e80151eac2796b6a517ddd82a96feb397
 EXPECTED_TEST_SHA256 = "c5dde1139cb52855140322c0254b6dc60f3e6a66e1c21cb6060795dd460e071b"
 EXPECTED_FIXTURE_SHA256 = "204e505c92a94c650f888d872faf8240b58a763d8d2fa2326ad1c6796b8534ec"
 EXPECTED_PUBSPEC_SHA256 = "0b83bf36a5ee2242becbd0fb601235f0c3b2942813207552a03957aaf1569326"
+EXPECTED_PUBSPEC_LOCK_SHA256 = "6d7f501ae44e385c80d3726c6a25d830d04d3acf0a7456c6129a293f97f885a1"
 EXPECTED_LIB_SOURCE_SHA256 = {
     "design_lab_app.dart": "95a795d2b68360365792da2966864be476ca00f6064a53637454cd686a2d812f",
+    "l10n/app_de.arb": "7f283d427787d7bd23138433128c7adc2653906b780e48df8fba668a8564d8ad",
+    "l10n/app_en.arb": "59b383b51a9808e7e5514b77d7db55e232f12793f6f91e6f1ce1ae676e07de61",
+    "l10n/app_es.arb": "1f8130fee1785858cd878acc768bc8b7a6e92760babbdf63e5ed6b14e41b8dd0",
+    "l10n/app_fr.arb": "f37b21af04584bcac05cc932f30b4311628059b263ab76807b496fd9cfbf05a4",
+    "l10n/app_it.arb": "01e53567f90955a8828d73355cb92e937dfdd8da50f7af2153ffc639356e36a7",
+    "l10n/app_pt.arb": "b44a6f641f21c7300b7dfee4eeb91157ba67fd28487b65e5e885167963a0f462",
     "l10n/generated/mint_next_localizations.dart": "4fb82bcbeb91bfc814d8e773615cf972933b8810749271928ece466034056a13",
     "l10n/generated/mint_next_localizations_de.dart": "950543ea668b2370bd260d362508978a7443b6f5ca527adea8e3f708d01dc45e",
     "l10n/generated/mint_next_localizations_en.dart": "79c5382c4f1832e19ad78bd99223ac60f32c7f53475b381392e6b13303b48998",
@@ -203,7 +213,7 @@ def _validate_diff_boundary(root: Path) -> None:
 
 
 def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
-    for relative in (REGISTRY, SCOPE, COPY, TEST, FIXTURE, PUBSPEC):
+    for relative in (REGISTRY, SCOPE, COPY, TEST, FIXTURE, PUBSPEC, PUBSPEC_LOCK):
         path = root / relative
         _require(path.is_file() and not path.is_symlink(), f"artifact is not a regular file: {relative}")
     registry = _load(root / REGISTRY)
@@ -287,6 +297,10 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     _require(_sha(root / TEST) == EXPECTED_TEST_SHA256, "R1 test digest drifted")
     _require(_sha(root / FIXTURE) == EXPECTED_FIXTURE_SHA256, "R1 fixture digest drifted")
     _require(_sha(root / PUBSPEC) == EXPECTED_PUBSPEC_SHA256, "reviewed pubspec digest drifted")
+    _require(
+        _sha(root / PUBSPEC_LOCK) == EXPECTED_PUBSPEC_LOCK_SHA256,
+        "reviewed pubspec lock digest drifted",
+    )
     pubspec = _load(root / PUBSPEC)
     _require(
         set(pubspec.get("dependencies", {}))
@@ -295,7 +309,7 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     )
     sources = {
         path.relative_to(root / LIB_ROOT).as_posix(): _sha(path)
-        for path in sorted((root / LIB_ROOT).rglob("*.dart"))
+        for path in sorted((root / LIB_ROOT).rglob("*"))
         if path.is_file() and not path.is_symlink()
     }
     _require(
@@ -306,18 +320,50 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
         _validate_diff_boundary(root)
 
 
+def _run_candidate_command(root: Path, r1: dict) -> subprocess.CompletedProcess[str]:
+    design_lab = PUBSPEC.parent
+    with tempfile.TemporaryDirectory(prefix="mint-b19-r1-") as directory:
+        isolated_root = Path(directory)
+        isolated_lab = isolated_root / design_lab
+        isolated_lab.mkdir(parents=True)
+        for relative in (PUBSPEC, PUBSPEC_LOCK):
+            target = isolated_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(root / relative, target)
+        for relative in (Path("l10n.yaml"),):
+            shutil.copy2(root / design_lab / relative, isolated_lab / relative)
+        shutil.copytree(root / LIB_ROOT, isolated_root / LIB_ROOT)
+        shutil.copytree(root / design_lab / "assets", isolated_lab / "assets")
+        for relative in (TEST, FIXTURE, REGISTRY):
+            target = isolated_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(root / relative, target)
+        resolved = subprocess.run(
+            ["flutter", "pub", "get", "--offline", "--enforce-lockfile"],
+            cwd=isolated_lab,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+        _require(
+            resolved.returncode == 0,
+            "R1 isolated dependency resolution failed",
+        )
+        return subprocess.run(
+            r1["command"],
+            cwd=isolated_lab,
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+
+
 def run_expected_red(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     validate(root, check_git=check_git)
     registry = _load(root / REGISTRY)
     r1 = registry["gates"]["R1"]
     try:
-        completed = subprocess.run(
-            r1["command"],
-            cwd=root / r1["working_directory"],
-            capture_output=True,
-            text=True,
-            timeout=120,
-        )
+        completed = _run_candidate_command(root, r1)
     except subprocess.TimeoutExpired as exc:
         raise GuardFailure("R1 RED command timed out") from exc
     _require(not completed.stderr.strip(), "R1 runner emitted stderr")
