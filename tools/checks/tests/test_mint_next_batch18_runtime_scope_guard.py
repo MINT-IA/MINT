@@ -57,6 +57,8 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
     def _promote_fixture(self) -> None:
         scope_path = self.root / SCOPE
         scope_text = scope_path.read_text()
+        if "status: accepted_scope_contract_runtime_state_not_evaluated" in scope_text:
+            return
         self.assertEqual(scope_text.count("status: candidate_scope_acceptance_absent"), 1)
         scope_path.write_text(scope_text.replace(
             "status: candidate_scope_acceptance_absent",
@@ -91,6 +93,48 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
             "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py",
         ))
 
+    def _candidate_fixture(self) -> None:
+        scope_path = self.root / SCOPE
+        scope_text = scope_path.read_text()
+        if "status: candidate_scope_acceptance_absent" in scope_text:
+            return
+        self.assertEqual(scope_text.count("status: accepted_scope_contract_runtime_state_not_evaluated"), 1)
+        scope_path.write_text(scope_text.replace(
+            "status: accepted_scope_contract_runtime_state_not_evaluated",
+            "status: candidate_scope_acceptance_absent",
+            1,
+        ))
+        acceptance_path = self.root / ACCEPTANCE
+        acceptance = yaml.safe_load(acceptance_path.read_text())
+        acceptance["status"] = "candidate_scope_unaccepted"
+        acceptance["current_verdict"] = "PENDING_INDEPENDENT_ROASTS"
+        for review in acceptance["reviews"].values():
+            review.clear()
+            review.update({"verdict": "PENDING", "p1": None, "p2": None, "p3": None})
+        acceptance["mechanical_binding"]["reviewed_payload_sha256"] = None
+        acceptance["mechanical_binding"]["reviewed_candidate_commit"] = None
+        acceptance["accepted_scope_only"] = []
+        acceptance["next_gate"] = "stabilize_candidate_trust_unit_then_independent_roasts"
+        acceptance_path.write_text(yaml.safe_dump(acceptance, sort_keys=False, allow_unicode=True))
+        workflow_path = self.root / WORKFLOW
+        workflow = workflow_path.read_text().replace(
+            "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py\n",
+            "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract\n",
+            1,
+        )
+        workflow = re.sub(
+            r"(?m)^(  EXPECTED_BATCH18_[A-Z0-9_]+_SHA256:) [0-9a-f]{64}$",
+            rf"\1 {'0' * 64}",
+            workflow,
+        )
+        workflow_path.write_text(workflow)
+        spec_path = self.root / SPEC
+        spec_path.write_text(spec_path.read_text().replace(
+            "batch18-canton-runtime-scope: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py\n",
+            "batch18-canton-runtime-scope: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract\n",
+            1,
+        ))
+
     def test_current_scope_passes(self) -> None:
         validate(self.root, check_parent_git=False, require_accepted=None)
 
@@ -113,6 +157,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_candidate_binding_extra_runtime_claim_is_rejected(self) -> None:
+        self._candidate_fixture()
         path = self.root / ACCEPTANCE
         data = yaml.safe_load(path.read_text())
         data["mechanical_binding"]["runtime_accepted"] = True
@@ -121,6 +166,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_candidate_review_extra_runtime_claim_is_rejected(self) -> None:
+        self._candidate_fixture()
         path = self.root / ACCEPTANCE
         data = yaml.safe_load(path.read_text())
         data["reviews"]["engineering_parent_feasibility"]["runtime_implemented"] = True
@@ -209,28 +255,29 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
     def test_journey_allow_alias_clear_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\n_BATCH18_ALIAS = ALLOW\n_BATCH18_ALIAS.clear()\n")
-        with self.assertRaisesRegex(GuardFailure, "candidate review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_journey_allow_helper_mutation_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\ndef _batch18_mutate(value):\n    value.clear()\n_batch18_mutate(ALLOW)\n")
-        with self.assertRaisesRegex(GuardFailure, "candidate review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_journey_allow_alias_isub_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\n_BATCH18_ALIAS = ALLOW\n_BATCH18_ALIAS -= set(ALLOW)\n")
-        with self.assertRaisesRegex(GuardFailure, "candidate review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_journey_allow_container_alias_invalidates_review_payload(self) -> None:
         path = self.root / JOURNEY_GUARD
         path.write_text(path.read_text() + "\n_BATCH18_BOX = [ALLOW]\n_BATCH18_BOX[0].clear()\n")
-        with self.assertRaisesRegex(GuardFailure, "candidate review payload drifted"):
+        with self.assertRaisesRegex(GuardFailure, "review payload drifted"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_current_artifacts_are_a_pending_candidate_anchor(self) -> None:
+        self._candidate_fixture()
         expected_payload = yaml.safe_load((self.root / ACCEPTANCE).read_text())["mechanical_binding"]["candidate_review_payload_sha256"]
         _validate_pending_candidate_artifacts(
             (self.root / SCOPE).read_text(),
@@ -241,6 +288,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
         )
 
     def test_candidate_anchor_with_extra_runtime_claim_is_rejected(self) -> None:
+        self._candidate_fixture()
         acceptance = yaml.safe_load((self.root / ACCEPTANCE).read_text())
         expected_payload = acceptance["mechanical_binding"]["candidate_review_payload_sha256"]
         acceptance["mechanical_binding"]["runtime_accepted"] = True
@@ -254,6 +302,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
             )
 
     def test_candidate_anchor_with_wrong_well_formed_payload_is_rejected(self) -> None:
+        self._candidate_fixture()
         acceptance = yaml.safe_load((self.root / ACCEPTANCE).read_text())
         expected_payload = acceptance["mechanical_binding"]["candidate_review_payload_sha256"]
         acceptance["mechanical_binding"]["candidate_review_payload_sha256"] = "0" * 64
@@ -411,6 +460,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
             validate(self.root, check_parent_git=False, require_accepted=None)
 
     def test_acceptance_claim_without_reviews_is_rejected(self) -> None:
+        self._candidate_fixture()
         path = self.root / ACCEPTANCE
         data = yaml.safe_load(path.read_text())
         data["status"] = "accepted_scope_contract_runtime_not_evaluated"
