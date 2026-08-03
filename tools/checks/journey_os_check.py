@@ -1205,6 +1205,13 @@ ALLOW = {
     "apps/mobile/lib/widgets/common/safe_mode_gate.dart",
     "apps/mobile/test/models/coach_profile_safe_mode_test.dart",
     "apps/mobile/test/safe_mode_gate_test.dart",
+    # Même P0 : le fix du faux positif ouvre le gate pour un profil partiel et
+    # DÉMASQUE deux bugs pré-existants de l'écran rachat échelonné (overflow
+    # horizontal 320pt iPhone SE + plan annuel 79b sous le pli d'un
+    # CustomScrollView paresseux). Correctif responsive + a11y (état sélectionné,
+    # cible 44pt) + test qui scrolle vers le contenu paresseux réel.
+    "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+    "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
