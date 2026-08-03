@@ -1809,6 +1809,22 @@ _INTENT_KEYWORDS: dict[str, tuple[str, ...]] = {
         "pension alimentaire",
         "naissance",
         "adoption",
+        # Couple / prévoyance-à-deux lexicon (coach-intent-couple-forcage,
+        # 2026-08). A couple-optimization question ("notre prévoyance à deux",
+        # "prévoyance couple", "et pour mon conjoint ?") previously classified
+        # as retirement-ONLY (via "prevoyance") and never surfaced family, so
+        # get_couple_optimization was never routed and the coach deflected.
+        # Accent-stripped + lowercase to match _classify_user_intent's NFD
+        # normalisation. Tradeoff: bare "a deux" can also fire on the
+        # existential "il y a deux X"; the blast radius is bounded — forcing
+        # is additionally gated by _should_force_couple, and the couple engine
+        # returns a grounded "analyse couple non applicable" for non-couples,
+        # never a wrong number.
+        "couple",
+        "en couple",
+        "conjoint",
+        "partenaire",
+        "a deux",
     ),
     "career": (
         "demission",
@@ -2088,6 +2104,43 @@ def _looks_like_3a_regulatory_constant_lookup(
     has_subject = any(term in normalized for term in _REGULATORY_CONSTANT_SUBJECT_TERMS)
     has_lookup = any(term in normalized for term in _REGULATORY_CONSTANT_LOOKUP_TERMS)
     return has_subject and has_lookup
+
+
+# Partner / couple cues that route a couple-prévoyance question to
+# get_couple_optimization. Accent-stripped + lowercase (matched against the
+# NFD-normalised message), mirroring _REGULATORY_CONSTANT_* term lists.
+_COUPLE_FORCE_TERMS: tuple[str, ...] = (
+    "couple",
+    "en couple",
+    "conjoint",
+    "partenaire",
+    "a deux",
+)
+
+
+def _should_force_couple(
+    *,
+    question: Optional[str],
+    detected_intents: Optional[set[str]],
+    tools: list[dict],
+) -> bool:
+    """FIRST-CALL-ONLY force gate for get_couple_optimization.
+
+    Symmetric to :func:`_should_force_regulatory_constant`: force the couple
+    engine when the advertised tool is present, the turn carries the ``family``
+    intent, and the message contains an explicit partner/couple cue. Forcing a
+    grounded couple tool_result (AVS cap 150 % LAVS art. 35, LPP ×2, 3a ×2)
+    replaces the pre-fix path where a free-generated couple answer was blanked
+    to a generic deflection by the ComplianceGuard.
+    """
+    if not any(t.get("name") == "get_couple_optimization" for t in tools):
+        return False
+    if "family" not in (detected_intents or set()):
+        return False
+    normalized = _normalise_intent_text(question)
+    if not normalized:
+        return False
+    return any(term in normalized for term in _COUPLE_FORCE_TERMS)
 
 
 def _should_default_to_3a_2026_with_lpp(
@@ -5086,6 +5139,20 @@ async def _run_agent_loop(
                 )
             ):
                 _forced_tool_choice = {"type": "tool", "name": "explain_concept"}
+            elif iteration == 0 and _should_force_couple(
+                question=question,
+                detected_intents=detected_intents,
+                tools=stripped_tools,
+            ):
+                # coach-intent-couple-forcage (2026-08): force the couple engine
+                # on the turn's first call so « notre prévoyance à deux ? » is
+                # answered from get_couple_optimization instead of a
+                # free-generated reply the ComplianceGuard blanks to a
+                # deflection. First-call-only (iterations 2..MAX revert to auto).
+                _forced_tool_choice = {
+                    "type": "tool",
+                    "name": "get_couple_optimization",
+                }
             else:
                 _forced_tool_choice = None
 

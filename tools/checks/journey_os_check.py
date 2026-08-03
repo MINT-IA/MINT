@@ -787,6 +787,10 @@ ALLOW = {
     "services/backend/app/services/coach/compliance_guard.py",
     "services/backend/app/services/coach/structured_reasoning.py",
     "services/backend/app/services/coach/_route_intents_generated.py",
+    # codex/journey-os-coach-intent-couple-forcage (2026-08) : forçage de
+    # get_couple_optimization sur l'intent couple / prévoyance-à-deux
+    # (coach_chat.py déjà whitelisté ci-dessus). Ajout test-only.
+    "services/backend/tests/test_coach_couple_intent_force.py",
     "services/backend/app/services/llm/router.py",
     "services/backend/app/services/rag/guardrails.py",
     "services/backend/app/services/rag/hybrid_search_service.py",
