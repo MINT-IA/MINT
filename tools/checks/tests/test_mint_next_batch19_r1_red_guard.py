@@ -175,9 +175,10 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             "const channel = MethodChannel .new('mint.exfil');",
             "SystemChannels.platform.invokeMethod<void>('exfil');",
             "PlatformDispatcher.instance.sendPlatformMessage('exfil', null, (_) {});",
-            "final file = File.new('/tmp/exfil');",
-            "final socket = Socket.connect('example.invalid', 443);",
-            "final process = Process.run('echo', <String>['exfil']);",
+            "final leak = print;",
+            "final debugLeak = debugPrint;",
+            "final callLeak = (print).call;",
+            "final spacedLeak = debugPrint .call;",
         )
         for mutation in mutations:
             with self.subTest(mutation=mutation):

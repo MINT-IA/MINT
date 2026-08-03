@@ -87,13 +87,15 @@ EXPECTED_BLOCKED_GATES = {
 }
 FORBIDDEN_CAPABILITY_TOKENS = {
     "package:http", "package:dio", "shared_preferences", "firebase_analytics",
-    "package:sentry", "dart:developer", "dart:io", "dart:ffi", "dart:ui",
+    "package:sentry", "dart:developer", "dart:io", "dart:ffi",
+}
+FORBIDDEN_CAPABILITY_IDENTIFIERS = {
     "MethodChannel", "BasicMessageChannel", "EventChannel", "BinaryMessenger",
     "ServicesBinding", "SystemChannels", "PlatformDispatcher", "sendPlatformMessage",
-    "HttpClient", "Socket", "WebSocket", "RawSocket", "SecureSocket",
-    "RawDatagramSocket", "InternetAddress", "NetworkInterface", "Process",
-    "File", "Directory", "RandomAccessFile",
-    "analytics", "logger", "debugPrint(", "print(",
+    "print", "debugPrint", "debugPrintSynchronously", "debugDumpApp",
+    "debugDumpRenderTree", "debugDumpLayerTree", "debugDumpSemanticsTree",
+    "debugDumpFocusTree", "dumpErrorToConsole",
+    "analytics", "logger",
 }
 
 
@@ -290,6 +292,13 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
         for path in sorted((root / LIB_ROOT).rglob("*.dart"))
     )
     leaked = sorted(token for token in FORBIDDEN_CAPABILITY_TOKENS if token in capability_source)
+    leaked.extend(
+        sorted(
+            identifier
+            for identifier in FORBIDDEN_CAPABILITY_IDENTIFIERS
+            if re.search(rf"(?<![A-Za-z0-9_$]){re.escape(identifier)}(?![A-Za-z0-9_$])", capability_source)
+        )
+    )
     _require(not leaked, f"Design Lab uninstrumented capability path present: {leaked}")
     if check_git:
         _validate_diff_boundary(root)
