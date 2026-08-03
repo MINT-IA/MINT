@@ -7738,7 +7738,7 @@
   "pillar3aProviderDescFintechC": "Digital solution from a cantonal bank",
   "pillar3aProviderDescBanque": "Fixed rate, not exposed to markets, limited return",
   "pillar3aProviderDescAssurance": "Combines savings and coverage (death, disability). High fees, long commitment period.",
-  "pillar3aProviderAssuranceWarning": "At {age}, a 3a insurance costs you about CHF {montant} in lower returns over {duree} years compared with a fintech. High fees and reduced flexibility.",
+  "pillar3aProviderAssuranceWarning": "At {age}, based on the fee and coverage assumptions used, the final-capital gap between a 3a insurance and a fintech provider is about CHF {montant} over {duree} years in your simulation. A 3a insurance combines savings and coverage; its fees and flexibility vary by contract.",
   "authErrorService": "Account service not available on this environment. Use local mode.",
   "authHidePassword": "Hide password",
   "authShowPassword": "Show password",

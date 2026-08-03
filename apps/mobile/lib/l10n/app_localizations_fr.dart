@@ -5487,7 +5487,7 @@ class SFr extends S {
 
   @override
   String get pillar3aDisclaimer =>
-      'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.';
+      'Hypothèses pédagogiques basées sur rendements historiques moyens. Les rendements passés ne préjugent pas des rendements futurs.';
 
   @override
   String get pillar3aCapitalEvolution => 'Évolution de ton capital 3a';
@@ -19179,15 +19179,15 @@ class SFr extends S {
 
   @override
   String get pillar3aProviderDisclaimer =>
-      'Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consultez un ou une spécialiste.';
+      'Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consulte un ou une spécialiste.';
 
   @override
   String get pillar3aRealReturnDisclaimer =>
-      'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.';
+      'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consulte un ou une spécialiste avant toute décision.';
 
   @override
   String get pillar3aStaggeredDisclaimer =>
-      'Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consultez un ou une spécialiste en prévoyance avant toute décision.';
+      'Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consulte un ou une spécialiste en prévoyance avant toute décision.';
 
   @override
   String get portfolioAppBarTitle => 'Mon patrimoine';
@@ -25168,7 +25168,7 @@ class SFr extends S {
 
   @override
   String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'À $age ans, une assurance 3a te coûte environ CHF $montant de rendement en moins sur $duree ans par rapport à une fintech. Frais élevés et flexibilité réduite.';
+    return 'À $age ans, selon les hypothèses de frais et de couverture retenues, l’écart de capital final entre une assurance 3a et un prestataire fintech est d’environ CHF $montant sur $duree ans dans ta simulation. Une assurance 3a lie épargne et couverture ; ses frais et sa flexibilité varient selon le contrat.';
   }
 
 }

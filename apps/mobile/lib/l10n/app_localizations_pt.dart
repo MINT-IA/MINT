@@ -25182,7 +25182,7 @@ class SPt extends S {
 
   @override
   String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'Aos $age anos, um seguro 3a custa-te cerca de CHF $montant de rendimento a menos ao longo de $duree anos face a uma fintech. Taxas elevadas e flexibilidade reduzida.';
+    return 'Aos $age anos, com base nas hipóteses de taxas e cobertura consideradas, a diferença de capital final entre um seguro 3a e um fornecedor fintech é de cerca de CHF $montant ao longo de $duree anos na tua simulação. Um seguro 3a combina poupança e cobertura; as suas taxas e a sua flexibilidade variam consoante o contrato.';
   }
 
 }
