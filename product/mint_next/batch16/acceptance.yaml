@@ -43,7 +43,7 @@ mechanical_binding:
   digest_binding:
     contract_sha256: 09c838b2534b217327dcc2bd0845a61721ee519b48c6f884d82685a6b2c28945
     navigation_sha256: ff8efef370d20fe9fb0a9fa73d04148f4dc41155eded8150d3985c6a273fd053
-    normalized_workflow_sha256: 05503e9dd9c8a484edb8e31fd9941f0ab5ab6869cda30b66c097868641b45761
+    normalized_workflow_sha256: f96890b67b2f7db01ddac5a1ebcefe94c4d89079a26df252cb67ba70781cf27e
   scope_hostile_mutations_executed:
     runtime_promotion: test_runtime_promotion_is_rejected
     unresolved_blocker_removed: test_unresolved_commit_blocker_removal_is_rejected

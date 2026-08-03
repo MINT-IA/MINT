@@ -7,6 +7,12 @@ enum MultiProviderAddResult { added, existingEmpty, capacityReached }
 
 enum MultiProviderRowLifecycle { active, tombstone }
 
+enum MultiProviderAmountClassification {
+  unreviewed,
+  confirmedOrdinary,
+  unresolved,
+}
+
 enum MultiProviderRemoveResult {
   tombstoned,
   removedEmpty,
@@ -17,6 +23,8 @@ enum MultiProviderRemoveResult {
 enum MultiProviderUndoResult { restored, stale }
 
 enum MultiProviderFinalizeResult { finalized, stale }
+
+enum MultiProviderUnresolvedActionResult { resolvedToUnreviewed, stale }
 
 sealed class _RowToken {
   const _RowToken(this.rowId, this.epoch, this.generation, this.nonce);
@@ -62,6 +70,22 @@ final class MultiProviderFinalizeToken extends _RowToken {
   );
 }
 
+final class MultiProviderUnresolvedResolveToken extends _RowToken {
+  const MultiProviderUnresolvedResolveToken._(
+    super.rowId,
+    super.epoch,
+    super.generation,
+    super.nonce,
+  );
+}
+
+final class MultiProviderUnresolvedOrigin {
+  const MultiProviderUnresolvedOrigin._(this.rowId, this.resolveToken);
+
+  final String rowId;
+  final MultiProviderUnresolvedResolveToken resolveToken;
+}
+
 class MultiProviderAmountRow {
   MultiProviderAmountRow._(this.id, this._generation);
 
@@ -72,16 +96,20 @@ class MultiProviderAmountRow {
   String _rawAmount = '';
   int? _amountMinorUnits;
   bool _amountInvalid = false;
+  MultiProviderAmountClassification _classification =
+      MultiProviderAmountClassification.unreviewed;
   MultiProviderEditToken? _editToken;
   MultiProviderRemoveToken? _removeToken;
   MultiProviderUndoToken? _undoToken;
   MultiProviderFinalizeToken? _finalizeToken;
+  MultiProviderUnresolvedOrigin? _unresolvedOrigin;
 
   MultiProviderRowLifecycle get lifecycle => _lifecycle;
   String get providerName => isActive ? _providerName : '';
   String get rawAmount => isActive ? _rawAmount : '';
   int? get amountMinorUnits => isActive ? _amountMinorUnits : null;
   bool get amountInvalid => _amountInvalid;
+  MultiProviderAmountClassification get classification => _classification;
   MultiProviderEditToken get editToken => _editToken!;
   MultiProviderRemoveToken? get removeToken => _removeToken;
   MultiProviderUndoToken? get undoToken => _undoToken;
@@ -171,6 +199,10 @@ class MultiProviderAmountDraft {
     _committedTotalMinorUnits = null;
   }
 
+  void _invalidateUnresolvedOrigin(MultiProviderAmountRow row) {
+    row._unresolvedOrigin = null;
+  }
+
   void invalidateConfirmation() => _invalidateCommit();
 
   bool updateProviderName(MultiProviderEditToken token, String value) {
@@ -178,6 +210,7 @@ class MultiProviderAmountDraft {
     if (row == null || !identical(row._editToken, token) || !row.isActive) {
       return false;
     }
+    _invalidateUnresolvedOrigin(row);
     row._providerName = value;
     _invalidateCommit();
     return true;
@@ -192,6 +225,8 @@ class MultiProviderAmountDraft {
     if (row == null || !identical(row._editToken, token) || !row.isActive) {
       return false;
     }
+    _invalidateUnresolvedOrigin(row);
+    row._classification = MultiProviderAmountClassification.unreviewed;
     row._rawAmount = value;
     try {
       row._amountMinorUnits = parseOrdinaryChfAmount(value, locale: locale);
@@ -202,6 +237,49 @@ class MultiProviderAmountDraft {
     }
     _invalidateCommit();
     return true;
+  }
+
+  MultiProviderUnresolvedOrigin? markAmountUnresolved(
+    MultiProviderEditToken token,
+  ) {
+    final row = _rowFor(token);
+    if (row == null ||
+        !identical(row._editToken, token) ||
+        !row.isActive ||
+        !row.hasPositiveExactAmount) {
+      return null;
+    }
+    _invalidateUnresolvedOrigin(row);
+    final origin = MultiProviderUnresolvedOrigin._(
+      row.id,
+      MultiProviderUnresolvedResolveToken._(
+        row.id,
+        _sessionEpoch,
+        row._generation,
+        _nextNonce++,
+      ),
+    );
+    row
+      .._classification = MultiProviderAmountClassification.unresolved
+      .._unresolvedOrigin = origin;
+    _invalidateCommit();
+    return origin;
+  }
+
+  MultiProviderUnresolvedActionResult resolveProviderReportedTotal(
+    MultiProviderUnresolvedResolveToken token,
+  ) {
+    final row = _rowFor(token);
+    if (row == null ||
+        !row.isActive ||
+        row._classification != MultiProviderAmountClassification.unresolved ||
+        !identical(row._unresolvedOrigin?.resolveToken, token)) {
+      return MultiProviderUnresolvedActionResult.stale;
+    }
+    _invalidateUnresolvedOrigin(row);
+    row._classification = MultiProviderAmountClassification.unreviewed;
+    _invalidateCommit();
+    return MultiProviderUnresolvedActionResult.resolvedToUnreviewed;
   }
 
   MultiProviderAddResult addProvider() {
@@ -220,6 +298,7 @@ class MultiProviderAmountDraft {
       return MultiProviderRemoveResult.stale;
     }
     if (activeRowCount <= 1) return MultiProviderRemoveResult.minimumActive;
+    _invalidateUnresolvedOrigin(row);
     _invalidateCommit();
     if (row.isCompletelyEmpty) {
       _wipe(row);
@@ -262,6 +341,8 @@ class MultiProviderAmountDraft {
     row._rawAmount = '';
     row._amountMinorUnits = null;
     row._amountInvalid = false;
+    row._classification = MultiProviderAmountClassification.unreviewed;
+    row._unresolvedOrigin = null;
     row._editToken = null;
     row._removeToken = null;
     row._undoToken = null;
@@ -326,17 +407,28 @@ class MultiProviderAmountDraft {
       !hasTombstones &&
       _activeRows.isNotEmpty &&
       _activeRows.every(
-        (row) => row.hasSafeProviderName && row.hasPositiveExactAmount,
+        (row) =>
+            row.hasSafeProviderName &&
+            row.hasPositiveExactAmount &&
+            row.classification != MultiProviderAmountClassification.unresolved,
       ) &&
       duplicateRowIds.isEmpty &&
       !aggregateOverflow;
 
   bool setAllProvidersReviewed(bool value) {
     if (!value) {
+      for (final row in _activeRows) {
+        _invalidateUnresolvedOrigin(row);
+        row._classification = MultiProviderAmountClassification.unreviewed;
+      }
       _invalidateCommit();
       return true;
     }
     if (!canConfirmAllProvidersReviewed) return false;
+    for (final row in _activeRows) {
+      _invalidateUnresolvedOrigin(row);
+      row._classification = MultiProviderAmountClassification.confirmedOrdinary;
+    }
     _allProvidersReviewed = true;
     _committedTotalMinorUnits = null;
     return true;
@@ -344,6 +436,13 @@ class MultiProviderAmountDraft {
 
   int? commit() {
     if (!_allProvidersReviewed || !canConfirmAllProvidersReviewed) return null;
+    if (_activeRows.any(
+      (row) =>
+          row.classification !=
+          MultiProviderAmountClassification.confirmedOrdinary,
+    )) {
+      return null;
+    }
     final subtotal = provisionalSubtotalMinorUnits;
     if (subtotal == null) return null;
     return _committedTotalMinorUnits = subtotal;

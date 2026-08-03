@@ -1,0 +1,51 @@
+schema_version: 1
+batch: 16A
+status: accepted_hidden_model_groundwork_only
+contract_ref: product/mint_next/batch16/classification-doubt-scope.yaml
+runtime_surface: no_new_control_or_route
+product_promotion: forbidden
+full_batch16_runtime_acceptance: forbidden
+
+exact_files:
+  model: product/mint_next/batch7/design_lab/lib/multi_provider_amount_draft.dart
+  model_sha256: a10deeb5233715e767201e1480b73cc31e7b6704f24b2c6dff1088e3df89d5c2
+  tests: product/mint_next/batch7/design_lab/test/multi_provider_classification_test.dart
+  tests_sha256: b5e098a008cbd9819defa84ca22621a6f6c33b2c18be8e1095bd71af857e3de2
+  prior_model_tests_sha256: fdec013acf75831821b54f922010eb65143d6daf1358eb459f756848b93e97de
+  prior_widget_runtime_tests_sha256: 6cde992628aa5823fa47c87dacd342c687a64c323d9193c7c37869cfd9519cbe
+  unchanged_editor_sha256: e273bb089c18335bb6455288e2e7377e3d0a8be7491c627c16fcada9f0da9675
+  unchanged_design_app_sha256: 5bebed3896fa604b1c24a9360d27402a567e87ebfcf6f3fe39468a654b01f2ac
+  unchanged_entrypoint_sha256: 5c8b1681e8997acde204ff7049204fb55aa9829d98c81dd065202992c85efd24
+
+accepted_behavior:
+  states: [unreviewed, confirmedOrdinary, unresolved]
+  unresolved: included_in_provisional_subtotal_but_blocks_review_and_commit
+  provider_reported_resolution: returns_same_row_to_unreviewed_without_changing_amount
+  confirmed_ordinary_only_by: successful_global_review
+  remove_undo: preserve_exact_classification
+  finalize_purge: erase_classification_and_origin
+  stale_actions: no_op
+
+explicitly_not_implemented:
+  - unresolved_help_UI
+  - refund_sibling_token_and_transaction
+  - all_zero_sibling_token_and_correction_route
+  - education_navigation_binding
+  - six_locale_copy
+  - runtime_guard_or_runtime_acceptance
+  - product_route
+
+roast_receipt:
+  ux: accepted_p1_0_p2_0_p3_0
+  swiss: accepted_p1_0_p2_0_p3_0
+  adversarial: accepted_p1_0_p2_0_p3_0
+
+proofs:
+  targeted_tests: 8
+  combined_model_tests: 26
+  combined_model_and_widget_runtime_tests: 59
+  flutter_analyze: clean
+  guard: tools/checks/mint_next_batch16_classification_model_guard.py
+  guard_tests: tools/checks/tests/test_mint_next_batch16_classification_model_guard.py
+  lefthook_key: mint-next-batch16-classification-model-guard
+  ci_workflow: .github/workflows/mint-next-batch16-runtime.yml
