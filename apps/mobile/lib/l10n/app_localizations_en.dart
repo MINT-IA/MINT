@@ -25001,4 +25001,42 @@ class SEn extends S {
   String get frontalierSourceTaxConfidenceMessage =>
       'Estimate based on a simplified average rate per canton. The scale actually withheld depends on your family situation (single, married, number of children) — which this flat model does not distinguish. Separately, quasi-resident status can open a subsequent ordinary assessment with deductions, without changing the withheld scale. Confirm with the cantonal tax authority.';
 
+  @override
+  String get authRecreateAccountCta => 'Recreate my account';
+
+  @override
+  String get pillar3aProviderNameFintechA => 'Fintech A';
+
+  @override
+  String get pillar3aProviderNameFintechB => 'Fintech B';
+
+  @override
+  String get pillar3aProviderNameFintechC => 'Fintech C';
+
+  @override
+  String get pillar3aProviderNameBanque => 'Traditional bank (3a account)';
+
+  @override
+  String get pillar3aProviderNameAssurance => '3a insurance (mixed)';
+
+  @override
+  String get pillar3aProviderDescFintechA => 'Mobile app, passive index strategies, automated management';
+
+  @override
+  String get pillar3aProviderDescFintechB => 'Among the lowest fees, global strategies, flexibility';
+
+  @override
+  String get pillar3aProviderDescFintechC => 'Digital solution from a cantonal bank';
+
+  @override
+  String get pillar3aProviderDescBanque => 'Fixed rate, not exposed to markets, limited return';
+
+  @override
+  String get pillar3aProviderDescAssurance => 'Combines savings and coverage (death, disability). High fees, long commitment period.';
+
+  @override
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
+    return 'At $age, a 3a insurance costs you about CHF $montant in lower returns over $duree years compared with a fintech. High fees and reduced flexibility.';
+  }
+
 }

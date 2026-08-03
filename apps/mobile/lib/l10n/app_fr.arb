@@ -8549,6 +8549,31 @@
   "authErrorNotVerified": "Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.",
   "authErrorRegistration": "Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.",
   "authErrorAccountDeletedRecreate": "Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.",
+  "authRecreateAccountCta": "Recréer mon compte",
+  "pillar3aProviderNameFintechA": "Fintech A",
+  "pillar3aProviderNameFintechB": "Fintech B",
+  "pillar3aProviderNameFintechC": "Fintech C",
+  "pillar3aProviderNameBanque": "Banque classique (compte 3a)",
+  "pillar3aProviderNameAssurance": "Assurance 3a (mixte)",
+  "pillar3aProviderDescFintechA": "App mobile, stratégies passives indexées, gestion automatisée",
+  "pillar3aProviderDescFintechB": "Frais parmi les plus bas, stratégies globales, flexibilité",
+  "pillar3aProviderDescFintechC": "Solution digitale d’une banque cantonale",
+  "pillar3aProviderDescBanque": "Taux fixe, non exposé aux marchés, rendement limité",
+  "pillar3aProviderDescAssurance": "Combine épargne et couverture (décès, invalidité). Frais élevés, durée d’engagement longue.",
+  "pillar3aProviderAssuranceWarning": "À {age} ans, une assurance 3a te coûte environ CHF {montant} de rendement en moins sur {duree} ans par rapport à une fintech. Frais élevés et flexibilité réduite.",
+  "@pillar3aProviderAssuranceWarning": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "montant": {
+        "type": "String"
+      },
+      "duree": {
+        "type": "int"
+      }
+    }
+  },
   "authErrorService": "Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.",
   "authHidePassword": "Masquer le mot de passe",
   "authShowPassword": "Afficher le mot de passe",

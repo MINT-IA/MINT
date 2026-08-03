@@ -36,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _magicLinkSent = false;
   bool _appleSignInLoading = false;
   String? _appleSignInError;
+  AuthError? _appleSignInErrorCode;
   int _countdownSeconds = 0;
   Timer? _countdownTimer;
   bool _handoffChoiceRequired = false;
@@ -159,7 +160,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleAppleSignIn() async {
     if (!await _canStartAccountAction()) return;
     if (!mounted) return;
-    setState(() => _appleSignInLoading = true);
+    setState(() {
+      _appleSignInLoading = true;
+      _appleSignInError = null;
+      _appleSignInErrorCode = null;
+    });
     try {
       final response = await AppleSignInService.signIn();
       if (response != null && mounted) {
@@ -171,12 +176,10 @@ class _LoginScreenState extends State<LoginScreen> {
               claimAnonymousConversations: false,
             );
         if (!ok) {
-          if (mounted) {
-            setState(() {
-              _appleSignInError = context.read<AuthProvider>().error?.name ??
-                  'Apple Sign-In failed';
-            });
-          }
+          // completeAppleSignIn already set AuthProvider.error, rendered
+          // (localized) by the dedicated error banner below. Nothing to surface
+          // here — never the enum name or a raw backend string. The recreate
+          // path is always the throw branch (409 from Apple verify).
           return;
         }
         if (!mounted) return;
@@ -184,8 +187,14 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
+        // The Apple verify endpoint can throw a 409 (recreate_required,
+        // apple_email_already_linked, apple_account_conflict) whose backend
+        // `message` is English. Classify + localize instead of showing raw text.
+        final l10n = S.of(context)!;
+        final code = authErrorFromException(e, appleContext: true);
         setState(() {
-          _appleSignInError = e.toString().replaceAll('Exception: ', '');
+          _appleSignInErrorCode = code;
+          _appleSignInError = localizeAuthError(code, l10n);
         });
       }
     } finally {
@@ -436,13 +445,41 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Apple Sign-In error
                         if (_appleSignInError != null) ...[
                           const SizedBox(height: MintSpacing.sm),
-                          Text(
-                            _appleSignInError!,
-                            style: MintTextStyles.bodySmall(
-                              color: MintColors.error,
+                          // liveRegion so VoiceOver announces the error (and the
+                          // recovery CTA below) the moment it appears via setState.
+                          Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              _appleSignInError!,
+                              style: MintTextStyles.bodySmall(
+                                color: MintColors.error,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
                           ),
+                          // Deleted-account recovery: an explicit recreate path
+                          // routes to the register flow, which sends
+                          // allowRecreateAfterDelete=true to the Apple verify.
+                          if (_appleSignInErrorCode ==
+                              AuthError.accountDeletedRecreate) ...[
+                            const SizedBox(height: MintSpacing.xs),
+                            Center(
+                              child: Semantics(
+                                label: l10n.authRecreateAccountCta,
+                                button: true,
+                                child: TextButton(
+                                  // lint-ignore: prefer_mint_cta
+                                  onPressed: () => context.go('/auth/register'),
+                                  child: Text(
+                                    l10n.authRecreateAccountCta,
+                                    style: MintTextStyles.bodyMedium(
+                                      color: MintColors.primary,
+                                    ).copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
 
                         const SizedBox(height: MintSpacing.lg),

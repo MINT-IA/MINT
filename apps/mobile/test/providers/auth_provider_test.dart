@@ -732,6 +732,57 @@ void main() {
       expect(message, isNot(l10n.authErrorRegistration));
     });
 
+    test('authErrorFromException classifies Apple codes + localized fallbacks',
+        () {
+      // The public classifier drives the login screen's recreate CTA decision.
+      expect(
+        authErrorFromException(
+          const ApiException(
+            'Apple account was deleted. Recreate it explicitly to continue.',
+            statusCode: 409,
+            backendCode: 'recreate_required',
+          ),
+          appleContext: true,
+        ),
+        AuthError.accountDeletedRecreate,
+      );
+      expect(
+        authErrorFromException(
+          const ApiException(
+            'Apple email is already linked',
+            statusCode: 409,
+            backendCode: 'apple_email_already_linked',
+          ),
+          appleContext: true,
+        ),
+        AuthError.emailAlreadyUsed,
+      );
+      expect(
+        authErrorFromException(
+          const ApiException(
+            'Apple account conflict',
+            statusCode: 409,
+            backendCode: 'apple_account_conflict',
+          ),
+          appleContext: true,
+        ),
+        AuthError.registrationUnavailable,
+      );
+      // Unknown Apple failure → localized service fallback (never raw text).
+      expect(
+        authErrorFromException(
+          const ApiException('Internal Server Error', statusCode: 500),
+          appleContext: true,
+        ),
+        AuthError.serviceUnavailable,
+      );
+      // Unknown non-Apple failure → localized generic fallback.
+      expect(
+        authErrorFromException(Exception('mystery')),
+        AuthError.genericError,
+      );
+    });
+
     test('localizeAuthException maps Apple 409 conflicts to actionable copy',
         () async {
       final l10n = await S.delegate.load(const Locale('fr'));

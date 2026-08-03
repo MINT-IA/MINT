@@ -43829,6 +43829,78 @@ abstract class S {
   /// **'Estimation sur un taux moyen simplifié par canton. Le barème réellement prélevé dépend de ta situation familiale (célibataire, marié·e, nombre d\'enfants) — que ce modèle plat ne distingue pas. Séparément, le statut de quasi-résident·e peut ouvrir une taxation ordinaire ultérieure avec déductions, sans changer le barème prélevé. À valider avec l\'administration fiscale cantonale.'**
   String get frontalierSourceTaxConfidenceMessage;
 
+  /// No description provided for @authRecreateAccountCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recréer mon compte'**
+  String get authRecreateAccountCta;
+
+  /// No description provided for @pillar3aProviderNameFintechA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fintech A'**
+  String get pillar3aProviderNameFintechA;
+
+  /// No description provided for @pillar3aProviderNameFintechB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fintech B'**
+  String get pillar3aProviderNameFintechB;
+
+  /// No description provided for @pillar3aProviderNameFintechC.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fintech C'**
+  String get pillar3aProviderNameFintechC;
+
+  /// No description provided for @pillar3aProviderNameBanque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Banque classique (compte 3a)'**
+  String get pillar3aProviderNameBanque;
+
+  /// No description provided for @pillar3aProviderNameAssurance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance 3a (mixte)'**
+  String get pillar3aProviderNameAssurance;
+
+  /// No description provided for @pillar3aProviderDescFintechA.
+  ///
+  /// In fr, this message translates to:
+  /// **'App mobile, stratégies passives indexées, gestion automatisée'**
+  String get pillar3aProviderDescFintechA;
+
+  /// No description provided for @pillar3aProviderDescFintechB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais parmi les plus bas, stratégies globales, flexibilité'**
+  String get pillar3aProviderDescFintechB;
+
+  /// No description provided for @pillar3aProviderDescFintechC.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solution digitale d’une banque cantonale'**
+  String get pillar3aProviderDescFintechC;
+
+  /// No description provided for @pillar3aProviderDescBanque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux fixe, non exposé aux marchés, rendement limité'**
+  String get pillar3aProviderDescBanque;
+
+  /// No description provided for @pillar3aProviderDescAssurance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combine épargne et couverture (décès, invalidité). Frais élevés, durée d’engagement longue.'**
+  String get pillar3aProviderDescAssurance;
+
+  /// No description provided for @pillar3aProviderAssuranceWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'À {age} ans, une assurance 3a te coûte environ CHF {montant} de rendement en moins sur {duree} ans par rapport à une fintech. Frais élevés et flexibilité réduite.'**
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree);
+
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

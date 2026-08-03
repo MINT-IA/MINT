@@ -182,6 +182,12 @@ ALLOW = {
     # -dy0 : contraste AA — sites texte greenDark -> greenForest
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
+    # fix(i18n) device-evidence : les 3 écrans 3a profonds passent `l` au
+    # simulateur (disclaimer localisé au lieu du fallback ASCII) ; le
+    # comparateur localise aussi name/description/warning. staggered était
+    # déjà whitelisté ci-dessus.
+    "apps/mobile/lib/screens/pillar_3a_deep/provider_comparator_screen.dart",
+    "apps/mobile/lib/screens/pillar_3a_deep/real_return_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
     "apps/mobile/lib/widgets/educational/leasing_cost_insert_widget.dart",
     "apps/mobile/lib/theme/colors.dart",
