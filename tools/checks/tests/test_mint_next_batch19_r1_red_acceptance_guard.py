@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import tempfile
@@ -9,12 +10,17 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import yaml
-
 from tools.checks import mint_next_batch19_r1_red_acceptance_guard as guard
 
 ROOT = Path(__file__).resolve().parents[3]
-FILES = (guard.ACCEPTANCE, guard.GUARD, guard.TESTS, guard.OWNER, *guard.RED_ARTIFACTS)
+FILES = (
+    guard.ACCEPTANCE,
+    guard.GUARD,
+    guard.TESTS,
+    guard.OWNER,
+    guard.TRUST_OWNER,
+    *guard.RED_ARTIFACTS,
+)
 
 
 class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
@@ -39,9 +45,9 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
 
     def _mutate(self, mutation, expected: str) -> None:
         path = self.root / guard.ACCEPTANCE
-        data = yaml.safe_load(path.read_text())
+        data = json.loads(path.read_text())
         mutation(data)
-        path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True))
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
         with self.assertRaisesRegex(guard.GuardFailure, expected):
             self._validate()
 
@@ -52,10 +58,33 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "still pending"):
             self._validate(require_accepted=True)
 
-    def test_duplicate_yaml_key_is_rejected(self) -> None:
+    def test_duplicate_top_level_json_key_is_rejected(self) -> None:
         path = self.root / guard.ACCEPTANCE
-        path.write_text(path.read_text() + "\nstatus: accepted\n")
-        with self.assertRaisesRegex(guard.GuardFailure, "duplicate YAML key"):
+        data = path.read_text().rstrip()
+        path.write_text(data[:-1] + ',\n  "status": "accepted"\n}\n')
+        with self.assertRaisesRegex(guard.GuardFailure, "duplicate JSON key"):
+            self._validate()
+
+    def test_duplicate_nested_json_key_is_rejected(self) -> None:
+        path = self.root / guard.ACCEPTANCE
+        raw = path.read_text()
+        raw = raw.replace(
+            '"runtime_implemented": false,',
+            '"runtime_implemented": false,\n    "runtime_implemented": true,',
+            1,
+        )
+        path.write_text(raw)
+        with self.assertRaisesRegex(guard.GuardFailure, "duplicate JSON key"):
+            self._validate()
+
+    def test_malformed_json_is_rejected(self) -> None:
+        (self.root / guard.ACCEPTANCE).write_text('{"schema_version": 2')
+        with self.assertRaises(json.JSONDecodeError):
+            self._validate()
+
+    def test_non_object_json_root_is_rejected(self) -> None:
+        (self.root / guard.ACCEPTANCE).write_text("[]\n")
+        with self.assertRaisesRegex(guard.GuardFailure, "root must be an object"):
             self._validate()
 
     def test_runtime_implementation_claim_is_rejected(self) -> None:
@@ -102,6 +131,15 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
         path.write_text(path.read_text().replace("test_runtime_implementation_claim", "removed_runtime_claim", 1))
         with self.assertRaisesRegex(guard.GuardFailure, "candidate payload drifted"):
             self._validate()
+
+    def test_each_owner_receipt_is_bound_into_payload(self) -> None:
+        for relative in (guard.OWNER, guard.TRUST_OWNER):
+            with self.subTest(relative=relative):
+                original = (self.root / relative).read_text()
+                (self.root / relative).write_text(original + "\n")
+                with self.assertRaisesRegex(guard.GuardFailure, "candidate payload drifted"):
+                    self._validate()
+                (self.root / relative).write_text(original)
 
     def test_future_path_owner_does_not_deadlock_accepted_next_gate(self) -> None:
         completed = [
@@ -318,6 +356,13 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
                 guard._require_clean_worktree(root)
             shadow.unlink()
 
+            sourceless = root / "tools/__init__.pyc"
+            (root / ".git/info/exclude").write_text("tools/__init__.pyc\n")
+            sourceless.write_bytes(b"ignored executable bytecode")
+            with self.assertRaisesRegex(guard.GuardFailure, "ignored protected files"):
+                guard._require_clean_worktree(root)
+            sourceless.unlink()
+
             fake_cache_runtime = root / "product/mint_next/batch7/design_lab/build/lib/main.dart"
             fake_cache_runtime.parent.mkdir(parents=True, exist_ok=True)
             (root / ".git/info/exclude").write_text("product/mint_next/batch7/design_lab/build/\n")
@@ -337,6 +382,61 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
             tracked.write_text("hidden skip-worktree mutation\n")
             with self.assertRaisesRegex(guard.GuardFailure, "hidden index flags"):
                 guard._require_clean_worktree(root)
+
+    def test_isolated_cli_excludes_script_and_pythonpath_shadow_modules(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            script = root / guard.GUARD
+            script.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / guard.GUARD, script)
+            script_marker = root / "script-shadow-executed"
+            root_marker = root / "root-shadow-executed"
+            (script.parent / "json.py").write_text(
+                f"from pathlib import Path\nPath({str(script_marker)!r}).write_text('executed')\n"
+            )
+            (root / "json.py").write_text(
+                f"from pathlib import Path\nPath({str(root_marker)!r}).write_text('executed')\n"
+            )
+            environment = os.environ.copy()
+            environment["PYTHONPATH"] = str(root)
+            safe = subprocess.run(
+                ["python3", "-I", str(script)], cwd=root, env=environment,
+                capture_output=True, text=True,
+            )
+            self.assertNotEqual(safe.returncode, 0)
+            self.assertFalse(script_marker.exists(), safe.stdout + safe.stderr)
+            self.assertFalse(root_marker.exists(), safe.stdout + safe.stderr)
+            self.assertIn("artifact is not regular", safe.stderr)
+
+    def test_non_isolated_cli_returns_explicit_usage_error(self) -> None:
+        result = subprocess.run(
+            ["python3", str(ROOT / guard.GUARD)], cwd=ROOT,
+            capture_output=True, text=True,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("USAGE: run this proof as python3 -I", result.stderr)
+
+    def test_detached_proofs_ignore_user_site_sitecustomize(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            environment = os.environ.copy()
+            environment["HOME"] = str(home)
+            user_site = Path(subprocess.run(
+                ["python3", "-c", "import site; print(site.getusersitepackages())"],
+                env=environment, check=True, capture_output=True, text=True,
+            ).stdout.strip())
+            user_site.mkdir(parents=True)
+            marker = home / "user-sitecustomize-executed"
+            (user_site / "sitecustomize.py").write_text(
+                "from pathlib import Path\n"
+                f"Path({str(marker)!r}).write_text('executed')\n"
+                "import os\n"
+                "os._exit(0)\n"
+            )
+            with patch.dict(os.environ, environment, clear=True):
+                with self.assertRaisesRegex(guard.GuardFailure, "proof failed"):
+                    guard.run_proofs(ROOT)
+            self.assertFalse(marker.exists(), "user-site sitecustomize bypassed detached proofs")
 
 
 if __name__ == "__main__":

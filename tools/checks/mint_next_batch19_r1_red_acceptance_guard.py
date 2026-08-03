@@ -5,22 +5,19 @@ from __future__ import annotations
 
 import sys
 
-# Direct CLI execution must import stdlib and PyYAML without first consulting
-# the script directory, where an ignored shadow module could otherwise run
-# before the worktree check. Unit imports keep their normal package path.
-if __name__ == "__main__":
-    sys.path[:] = [entry for index, entry in enumerate(sys.path) if index != 0 and entry]
+if __name__ == "__main__" and not sys.flags.isolated:
+    raise SystemExit("USAGE: run this proof as python3 -I tools/checks/mint_next_batch19_r1_red_acceptance_guard.py")
 sys.dont_write_bytecode = True
 
 import argparse
 import hashlib
 import json
+import os
+import pwd
 import re
 import subprocess
 import tempfile
 from pathlib import Path
-
-import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
@@ -31,10 +28,12 @@ if __name__ != "__main__":
 else:
     journey_os_check = None
 
-ACCEPTANCE = Path("product/mint_next/batch19/r1-red-acceptance.yaml")
+ACCEPTANCE = Path("product/mint_next/batch19/r1-red-acceptance.json")
+LEGACY_ACCEPTANCE = Path("product/mint_next/batch19/r1-red-acceptance.yaml")
 GUARD = Path("tools/checks/mint_next_batch19_r1_red_acceptance_guard.py")
 TESTS = Path("tools/checks/tests/test_mint_next_batch19_r1_red_acceptance_guard.py")
-OWNER = Path(".planning/journeys/path-owners/batch19-r1-red-acceptance.json")
+OWNER = Path(".planning/journeys/path-owners/batch19-r1-red-acceptance-json.json")
+TRUST_OWNER = Path(".planning/journeys/path-owners/batch19-r1-red-acceptance.json")
 RED_GUARD = Path("tools/checks/mint_next_batch19_r1_red_guard.py")
 RED_TESTS = Path("tools/checks/tests/test_mint_next_batch19_r1_red_guard.py")
 REGISTRY = Path("product/mint_next/batch18/runtime-gates.yaml")
@@ -42,12 +41,20 @@ R1_TEST = Path("product/mint_next/batch7/design_lab/test/design_lab_batch18_cant
 FIXTURE = Path("product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart")
 RED_ARTIFACTS = (REGISTRY, R1_TEST, FIXTURE, RED_GUARD, RED_TESTS)
 RED_COMMIT = "387d74a150b49eb38c436d61068e68d596ab89f9"
-OWNER_PROMOTION_COMMIT = "91d0652b01b2c9663925af34048a215372e87793"
+OWNER_PROMOTION_COMMIT = "2ecc5210c6fff8b40c838c51c71733b244a2a256"
+TRUST_OWNER_PROMOTION_COMMIT = "91d0652b01b2c9663925af34048a215372e87793"
 ROLES = {"architecture_integrity", "mechanical_evidence", "ux_navigation_scope"}
+ISOLATED_BOOTSTRAP = (
+    "import runpy,site,sys;"
+    "root,deps,module,*args=sys.argv[1:];"
+    "sys.path[:0]=[root,deps];"
+    "sys.argv=[module,*args];"
+    "runpy.run_module(module,run_name='__main__')"
+)
 COMMANDS = {
-    "hostile_unit": "python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_red_guard",
-    "isolated_expected_red": "python3 tools/checks/mint_next_batch19_r1_red_guard.py",
-    "journey_scope": "python3 tools/checks/journey_os_check.py",
+    "hostile_unit": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} unittest tools.checks.tests.test_mint_next_batch19_r1_red_guard",
+    "isolated_expected_red": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.mint_next_batch19_r1_red_guard",
+    "journey_scope": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.journey_os_check",
 }
 NOT_ACCEPTED = [
     "runtime_implemented", "runtime_accepted", "user_validated",
@@ -64,21 +71,13 @@ class GuardFailure(RuntimeError):
     pass
 
 
-class UniqueLoader(yaml.SafeLoader):
-    pass
-
-
-def _unique_mapping(loader: yaml.Loader, node: yaml.MappingNode, deep: bool = False) -> dict:
+def _reject_duplicate_json_keys(pairs: list[tuple[str, object]]) -> dict:
     result: dict = {}
-    for key_node, value_node in node.value:
-        key = loader.construct_object(key_node, deep=deep)
+    for key, value in pairs:
         if key in result:
-            raise GuardFailure(f"duplicate YAML key: {key}")
-        result[key] = loader.construct_object(value_node, deep=deep)
+            raise GuardFailure(f"duplicate JSON key: {key}")
+        result[key] = value
     return result
-
-
-UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _unique_mapping)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -95,7 +94,9 @@ def _journey_os_module():
 
 
 def _load_bytes(raw: bytes) -> dict:
-    return yaml.load(raw.decode("utf-8"), Loader=UniqueLoader)
+    data = json.loads(raw.decode("utf-8"), object_pairs_hook=_reject_duplicate_json_keys)
+    _require(isinstance(data, dict), "acceptance JSON root must be an object")
+    return data
 
 
 def _load(root: Path, relative: Path) -> dict:
@@ -141,6 +142,7 @@ def _payload(root: Path, commit: str | None = None) -> str:
         str(GUARD): read(GUARD),
         str(TESTS): read(TESTS),
         str(OWNER): read(OWNER),
+        str(TRUST_OWNER): read(TRUST_OWNER),
     }
     for relative in RED_ARTIFACTS:
         parts[f"RED@{RED_COMMIT}:{relative}"] = _git_bytes(root, RED_COMMIT, relative)
@@ -151,7 +153,7 @@ def _payload(root: Path, commit: str | None = None) -> str:
 
 
 def _core(data: dict) -> None:
-    _require(set(data) == TOP_KEYS and data.get("schema_version") == 1, "acceptance schema drifted")
+    _require(set(data) == TOP_KEYS and data.get("schema_version") == 2, "acceptance schema drifted")
     _require(data.get("candidate") == {
         "red_commit": RED_COMMIT,
         "gate": "R1",
@@ -233,7 +235,7 @@ def _require_clean_worktree(root: Path) -> None:
                 "git", "ls-files", "--others", "--ignored",
                 "--exclude-standard", "-z", "--",
                 "product/mint_next", ".planning/journeys/path-owners",
-                "tools/checks", ":(top,glob)*.py", ":(top,glob)*/*.py",
+                "tools", ":(top,glob)*.py", ":(top,glob)*/*.py",
             ],
             cwd=root, check=True, capture_output=True,
         ).stdout.decode("utf-8").split("\0")
@@ -278,7 +280,7 @@ def _require_owned_tail_chronology(
                 _require(path not in manifests_by_path, f"owned path chronology is ambiguous: {path}")
                 manifests_by_path[path] = relative
 
-    trust_paths = {str(ACCEPTANCE), str(GUARD), str(TESTS)}
+    trust_paths = {str(ACCEPTANCE), str(LEGACY_ACCEPTANCE), str(GUARD), str(TESTS)}
     for commit, paths in _commit_path_changes(root, RED_COMMIT, candidate_end):
         unexpected = {
             path for path in paths
@@ -321,7 +323,7 @@ def _require_owned_tail_chronology(
 
 
 def _git_boundary(root: Path) -> None:
-    trust_paths = {str(ACCEPTANCE), str(GUARD), str(TESTS)}
+    trust_paths = {str(ACCEPTANCE), str(LEGACY_ACCEPTANCE), str(GUARD), str(TESTS)}
     try:
         candidate_end = subprocess.run(
             ["git", "log", "-1", "--format=%H", "HEAD", "--", *sorted(trust_paths)],
@@ -355,11 +357,13 @@ def _git_boundary(root: Path) -> None:
 
 
 def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, check_git: bool = True) -> None:
-    for relative in (ACCEPTANCE, GUARD, TESTS, OWNER, *RED_ARTIFACTS):
+    for relative in (ACCEPTANCE, GUARD, TESTS, OWNER, TRUST_OWNER, *RED_ARTIFACTS):
         path = root / relative
         _require(path.is_file() and not path.is_symlink(), f"artifact is not regular: {relative}")
     _require(_ancestor(root, RED_COMMIT), "RED commit is not an ancestor")
     _require(_ancestor(root, OWNER_PROMOTION_COMMIT), "acceptance owner is not promoted")
+    _require(_ancestor(root, TRUST_OWNER_PROMOTION_COMMIT), "acceptance trust owner is not promoted")
+    _require(not (root / LEGACY_ACCEPTANCE).exists(), "legacy YAML acceptance path still exists")
     for relative in RED_ARTIFACTS:
         _require((root / relative).read_bytes() == _git_bytes(root, RED_COMMIT, relative), f"RED artifact drifted: {relative}")
     data = _load(root, ACCEPTANCE)
@@ -387,10 +391,21 @@ def run_proofs(root: Path = REPO_ROOT) -> None:
         )
         _require(added.returncode == 0, "cannot create detached RED replay")
         try:
+            trusted_home = pwd.getpwuid(os.getuid()).pw_dir
+            dependency_site = subprocess.run(
+                ["python3", "-ISB", "-c", "import site;print(site.getusersitepackages())"],
+                check=True, capture_output=True, text=True,
+                env={**os.environ, "HOME": trusted_home},
+            ).stdout.strip()
+            _require(Path(dependency_site).is_dir(), "trusted dependency site is unavailable")
+            prefix = [
+                "python3", "-ISB", "-c", ISOLATED_BOOTSTRAP,
+                str(replay), dependency_site,
+            ]
             for command in (
-                ["python3", "-m", "unittest", "tools.checks.tests.test_mint_next_batch19_r1_red_guard"],
-                ["python3", str(RED_GUARD)],
-                ["python3", "tools/checks/journey_os_check.py"],
+                [*prefix, "unittest", "tools.checks.tests.test_mint_next_batch19_r1_red_guard"],
+                [*prefix, "tools.checks.mint_next_batch19_r1_red_guard"],
+                [*prefix, "tools.checks.journey_os_check"],
             ):
                 _require(subprocess.run(command, cwd=replay).returncode == 0, f"proof failed: {' '.join(command)}")
         finally:
@@ -406,7 +421,7 @@ def main() -> int:
         validate(require_accepted=True if args.release else None)
         if args.proof or args.release:
             run_proofs()
-    except (GuardFailure, OSError, UnicodeError, yaml.YAMLError, subprocess.CalledProcessError) as exc:
+    except (GuardFailure, OSError, UnicodeError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
         print(f"BATCH19 R1 RED ACCEPTANCE FAIL: {exc}", file=sys.stderr)
         return 1
     print("BATCH19 R1 RED ACCEPTANCE PASS")
