@@ -1,6 +1,6 @@
 schema_version: 1
-status: candidate_dispatcher_decoupling_unaccepted
-current_verdict: PENDING_INDEPENDENT_ROASTS
+status: accepted_dispatcher_decoupling
+current_verdict: DISPATCHER_DECOUPLING_ACCEPTED
 scope_effect:
   historical_batch18_scope_receipt: preserved
   reviewed_path_owner_receipts: enabled
@@ -8,25 +8,29 @@ scope_effect:
   runtime_state: not_evaluated
 reviews:
   dispatcher_integrity:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: ac88fee933b248a9185a7a32107535c2f9c0871414f49aaaaf095c0dbd5ef4d1
   adversarial_future_batch_append:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: ac88fee933b248a9185a7a32107535c2f9c0871414f49aaaaf095c0dbd5ef4d1
   historical_receipt_preservation:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: ac88fee933b248a9185a7a32107535c2f9c0871414f49aaaaf095c0dbd5ef4d1
 mechanical_binding:
   candidate_review_payload_sha256: ac88fee933b248a9185a7a32107535c2f9c0871414f49aaaaf095c0dbd5ef4d1
-  reviewed_payload_sha256: null
-  reviewed_candidate_commit: null
-accepted_change: []
+  reviewed_payload_sha256: ac88fee933b248a9185a7a32107535c2f9c0871414f49aaaaf095c0dbd5ef4d1
+  reviewed_candidate_commit: 8c43b73ccd97cf85f83026646557773d73396725
+accepted_change:
+- reviewed_path_owner_receipts_without_historical_scope_rebinding
 not_accepted:
 - any_runtime_microstep
 - hidden_runtime
@@ -36,4 +40,4 @@ not_accepted:
 - persistence
 - unreviewed_or_literal_Journey_OS_path_widening
 - arbitrary_executable_Journey_OS_change
-next_gate: independent_zero_finding_roasts
+next_gate: create_and_review_batch19_r1_path_owner_receipt
