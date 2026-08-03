@@ -237,5 +237,46 @@
         "type": "int"
       }
     }
+  },
+  "batch14AmountBody": "Aggiungi separatamente ogni fornitore del pilastro 3a. MINT somma gli importi localmente senza calcolare ancora un risultato fiscale.",
+  "batch14AddProvider": "Aggiungi un fornitore 3a",
+  "batch14ProviderRowLabel": "Fornitore 3a n. {index}",
+  "batch14ProvisionalSubtotal": "Somma provvisoria — nessun risultato fiscale calcolato: {amount}",
+  "batch14AllReviewed": "Confermo di aver incluso, per il {taxYear}, solo i versamenti ordinari effettivamente accreditati presso tutti i miei fornitori del pilastro 3a",
+  "batch14RemoveEmpty": "Rimuovi questa riga vuota",
+  "batch14Duplicate": "Questo fornitore è già presente. Correggi la sua riga per evitare un doppio conteggio.",
+  "batch14AggregateOverflow": "La somma è troppo grande. Verifica gli importi inseriti.",
+  "batch14EmptyBeforeAdd": "Inizia o rimuovi la riga vuota prima di aggiungerne un’altra.",
+  "batch14ClassificationGuide": "Per il {taxYear}, una riga corrisponde al totale annuo di un fornitore, anche se vi detieni più contratti o polizze. Inserisci solo i versamenti ordinari effettivamente accreditati e conta ogni importo una sola volta. Non includere trasferimenti, versamenti retroattivi, pagamenti ancora in sospeso o soltanto addebitati, né rendimenti. Dopo una correzione o un rimborso, usa l’importo netto confermato dal fornitore.",
+  "batch14Privacy": "Inserimento locale e temporaneo: nulla viene salvato o inviato. Non indicare numeri di conto, polizza, AVS o IBAN. Uscendo, nomi e importi vengono cancellati.",
+  "batch14RemovedAnnouncement": "Riga vuota eliminata. Il focus è passato alla riga vicina.",
+  "batch14ProviderCapacity": "Questa schermata accetta al massimo 50 fornitori. Controlla l’elenco prima di continuare.",
+  "@batch14ClassificationGuide": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch14ProviderRowLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch14ProvisionalSubtotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch14AllReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
   }
 }

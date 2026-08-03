@@ -7,11 +7,13 @@ environment:
   sdk: ^3.11.0
 
 dependencies:
+  characters: ^1.4.1
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   intl: any
+  unorm_dart: 0.3.2
 
 dev_dependencies:
   flutter_test:

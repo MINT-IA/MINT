@@ -445,4 +445,58 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String get batch12CorrectAmounts => 'Corrigir os meus valores';
+
+  @override
+  String get batch14AmountBody =>
+      'Adiciona separadamente cada entidade do pilar 3a. A MINT soma os montantes localmente sem calcular ainda um resultado fiscal.';
+
+  @override
+  String get batch14AddProvider => 'Adicionar uma entidade 3a';
+
+  @override
+  String batch14ProviderRowLabel(int index) {
+    return 'Entidade 3a n.º $index';
+  }
+
+  @override
+  String batch14ProvisionalSubtotal(String amount) {
+    return 'Soma provisória — nenhum resultado fiscal calculado: $amount';
+  }
+
+  @override
+  String batch14AllReviewed(int taxYear) {
+    return 'Confirmo que, para $taxYear, incluí apenas as contribuições ordinárias efetivamente creditadas em todos os meus prestadores do pilar 3a';
+  }
+
+  @override
+  String get batch14RemoveEmpty => 'Remover esta linha vazia';
+
+  @override
+  String get batch14Duplicate =>
+      'Esta entidade já está incluída. Corrige a linha para evitar a dupla contagem.';
+
+  @override
+  String get batch14AggregateOverflow =>
+      'A soma é demasiado elevada. Verifica os montantes introduzidos.';
+
+  @override
+  String get batch14EmptyBeforeAdd =>
+      'Começa ou remove a linha vazia antes de adicionar outra.';
+
+  @override
+  String batch14ClassificationGuide(int taxYear) {
+    return 'Para $taxYear, uma linha corresponde ao total anual de um prestador, mesmo que tenhas ali vários contratos ou apólices. Introduz apenas as contribuições ordinárias efetivamente creditadas e conta cada montante uma só vez. Não incluas transferências, contribuições retroativas, pagamentos ainda pendentes ou apenas debitados, nem rendimentos. Após uma correção ou reembolso, usa o montante líquido confirmado pelo prestador.';
+  }
+
+  @override
+  String get batch14Privacy =>
+      'Introdução local e temporária: nada é guardado ou enviado. Não indiques números de conta, apólice, AVS ou IBAN. Ao sair, os nomes e montantes são apagados.';
+
+  @override
+  String get batch14RemovedAnnouncement =>
+      'Linha vazia removida. O foco passou para a linha adjacente.';
+
+  @override
+  String get batch14ProviderCapacity =>
+      'Esta introdução aceita no máximo 50 prestadores. Revê a lista antes de continuar.';
 }

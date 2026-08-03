@@ -444,4 +444,58 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get batch12CorrectAmounts => 'Correct my amounts';
+
+  @override
+  String get batch14AmountBody =>
+      'Add each pillar 3a provider separately. MINT adds the amounts locally without calculating a tax result yet.';
+
+  @override
+  String get batch14AddProvider => 'Add a pillar 3a provider';
+
+  @override
+  String batch14ProviderRowLabel(int index) {
+    return 'Pillar 3a provider no. $index';
+  }
+
+  @override
+  String batch14ProvisionalSubtotal(String amount) {
+    return 'Provisional sum — no tax result calculated: $amount';
+  }
+
+  @override
+  String batch14AllReviewed(int taxYear) {
+    return 'I confirm that, for $taxYear, I included only ordinary contributions actually credited at all my pillar 3a providers';
+  }
+
+  @override
+  String get batch14RemoveEmpty => 'Remove this empty row';
+
+  @override
+  String get batch14Duplicate =>
+      'This provider is already listed. Correct its row to avoid counting it twice.';
+
+  @override
+  String get batch14AggregateOverflow =>
+      'The sum is too large. Check the amounts entered.';
+
+  @override
+  String get batch14EmptyBeforeAdd =>
+      'Start or remove the empty row before adding another.';
+
+  @override
+  String batch14ClassificationGuide(int taxYear) {
+    return 'For $taxYear, one row is the annual total for one provider, even if you hold several contracts or policies there. Enter only ordinary contributions actually credited and count each amount once. Do not include transfers, retroactive contributions, payments still pending or merely debited, or investment returns. After a correction or refund, use the net amount confirmed by the provider.';
+  }
+
+  @override
+  String get batch14Privacy =>
+      'Local, temporary entry: nothing is saved or sent. Do not enter an account, policy, social-security or IBAN number. Leaving erases names and amounts.';
+
+  @override
+  String get batch14RemovedAnnouncement =>
+      'Empty row removed. Focus moved to the neighbouring row.';
+
+  @override
+  String get batch14ProviderCapacity =>
+      'This entry accepts at most 50 providers. Review the list before continuing.';
 }

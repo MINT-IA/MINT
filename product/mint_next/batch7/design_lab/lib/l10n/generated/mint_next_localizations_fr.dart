@@ -446,4 +446,58 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String get batch12CorrectAmounts => 'Corriger mes montants';
+
+  @override
+  String get batch14AmountBody =>
+      'Ajoute chaque prestataire 3a séparément. MINT additionne les montants localement, sans calculer encore de résultat fiscal.';
+
+  @override
+  String get batch14AddProvider => 'Ajouter un prestataire 3a';
+
+  @override
+  String batch14ProviderRowLabel(int index) {
+    return 'Prestataire 3a n°$index';
+  }
+
+  @override
+  String batch14ProvisionalSubtotal(String amount) {
+    return 'Addition provisoire — aucun résultat fiscal calculé : $amount';
+  }
+
+  @override
+  String batch14AllReviewed(int taxYear) {
+    return 'Je confirme avoir inclus, pour $taxYear, uniquement les versements ordinaires réellement crédités chez tous mes prestataires 3a';
+  }
+
+  @override
+  String get batch14RemoveEmpty => 'Supprimer cette ligne vide';
+
+  @override
+  String get batch14Duplicate =>
+      'Ce prestataire est déjà présent. Corrige sa ligne pour éviter un double comptage.';
+
+  @override
+  String get batch14AggregateOverflow =>
+      'L’addition est trop grande. Vérifie les montants indiqués.';
+
+  @override
+  String get batch14EmptyBeforeAdd =>
+      'Commence la ligne vide ou supprime-la avant d’en ajouter une autre.';
+
+  @override
+  String batch14ClassificationGuide(int taxYear) {
+    return 'Pour $taxYear, une ligne correspond au total annuel d’un prestataire, même si tu y as plusieurs contrats ou polices. Indique uniquement les versements ordinaires réellement crédités et compte chaque montant une seule fois. N’inclus pas les transferts, rachats rétroactifs, paiements encore en attente ou seulement débités, ni le rendement. Après une correction ou un remboursement, utilise le montant net confirmé par le prestataire.';
+  }
+
+  @override
+  String get batch14Privacy =>
+      'Saisie locale et éphémère : rien n’est enregistré ni envoyé. N’indique aucun numéro de compte, de police, AVS ou IBAN. Quitter efface les noms et montants.';
+
+  @override
+  String get batch14RemovedAnnouncement =>
+      'Ligne vide supprimée. Le focus est placé sur la ligne voisine.';
+
+  @override
+  String get batch14ProviderCapacity =>
+      'Cette saisie accepte au maximum 50 prestataires. Vérifie la liste avant de continuer.';
 }

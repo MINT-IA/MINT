@@ -447,4 +447,58 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get batch12CorrectAmounts => 'Meine Beträge korrigieren';
+
+  @override
+  String get batch14AmountBody =>
+      'Füge jeden Säule-3a-Anbieter einzeln hinzu. MINT addiert die Beträge lokal, ohne bereits ein Steuerergebnis zu berechnen.';
+
+  @override
+  String get batch14AddProvider => 'Säule-3a-Anbieter hinzufügen';
+
+  @override
+  String batch14ProviderRowLabel(int index) {
+    return 'Säule-3a-Anbieter Nr. $index';
+  }
+
+  @override
+  String batch14ProvisionalSubtotal(String amount) {
+    return 'Vorläufige Summe — kein Steuerergebnis berechnet: $amount';
+  }
+
+  @override
+  String batch14AllReviewed(int taxYear) {
+    return 'Ich bestätige, dass ich für $taxYear nur die tatsächlich gutgeschriebenen ordentlichen Einzahlungen bei allen meinen Säule-3a-Anbietern erfasst habe';
+  }
+
+  @override
+  String get batch14RemoveEmpty => 'Diese leere Zeile entfernen';
+
+  @override
+  String get batch14Duplicate =>
+      'Dieser Anbieter ist bereits aufgeführt. Korrigiere seine Zeile, damit er nicht doppelt gezählt wird.';
+
+  @override
+  String get batch14AggregateOverflow =>
+      'Die Summe ist zu gross. Prüfe die eingegebenen Beträge.';
+
+  @override
+  String get batch14EmptyBeforeAdd =>
+      'Beginne oder entferne die leere Zeile, bevor du eine weitere hinzufügst.';
+
+  @override
+  String batch14ClassificationGuide(int taxYear) {
+    return 'Für $taxYear entspricht eine Zeile dem Jahrestotal eines Anbieters, auch wenn du dort mehrere Verträge oder Policen hast. Erfasse nur tatsächlich gutgeschriebene ordentliche Einzahlungen und jeden Betrag nur einmal. Überträge, rückwirkende Einzahlungen, noch ausstehende oder nur belastete Zahlungen sowie Anlagerenditen gehören nicht dazu. Verwende nach einer Korrektur oder Rückerstattung den vom Anbieter bestätigten Nettobetrag.';
+  }
+
+  @override
+  String get batch14Privacy =>
+      'Lokale, vorübergehende Eingabe: Nichts wird gespeichert oder gesendet. Keine Konto-, Policen-, AHV- oder IBAN-Nummer eingeben. Beim Verlassen werden Namen und Beträge gelöscht.';
+
+  @override
+  String get batch14RemovedAnnouncement =>
+      'Leere Zeile entfernt. Der Fokus liegt nun auf der benachbarten Zeile.';
+
+  @override
+  String get batch14ProviderCapacity =>
+      'Diese Eingabe erlaubt höchstens 50 Anbieter. Prüfe die Liste, bevor du fortfährst.';
 }

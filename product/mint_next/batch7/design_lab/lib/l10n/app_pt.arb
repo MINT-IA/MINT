@@ -237,5 +237,46 @@
         "type": "int"
       }
     }
+  },
+  "batch14AmountBody": "Adiciona separadamente cada entidade do pilar 3a. A MINT soma os montantes localmente sem calcular ainda um resultado fiscal.",
+  "batch14AddProvider": "Adicionar uma entidade 3a",
+  "batch14ProviderRowLabel": "Entidade 3a n.º {index}",
+  "batch14ProvisionalSubtotal": "Soma provisória — nenhum resultado fiscal calculado: {amount}",
+  "batch14AllReviewed": "Confirmo que, para {taxYear}, incluí apenas as contribuições ordinárias efetivamente creditadas em todos os meus prestadores do pilar 3a",
+  "batch14RemoveEmpty": "Remover esta linha vazia",
+  "batch14Duplicate": "Esta entidade já está incluída. Corrige a linha para evitar a dupla contagem.",
+  "batch14AggregateOverflow": "A soma é demasiado elevada. Verifica os montantes introduzidos.",
+  "batch14EmptyBeforeAdd": "Começa ou remove a linha vazia antes de adicionar outra.",
+  "batch14ClassificationGuide": "Para {taxYear}, uma linha corresponde ao total anual de um prestador, mesmo que tenhas ali vários contratos ou apólices. Introduz apenas as contribuições ordinárias efetivamente creditadas e conta cada montante uma só vez. Não incluas transferências, contribuições retroativas, pagamentos ainda pendentes ou apenas debitados, nem rendimentos. Após uma correção ou reembolso, usa o montante líquido confirmado pelo prestador.",
+  "batch14Privacy": "Introdução local e temporária: nada é guardado ou enviado. Não indiques números de conta, apólice, AVS ou IBAN. Ao sair, os nomes e montantes são apagados.",
+  "batch14RemovedAnnouncement": "Linha vazia removida. O foco passou para a linha adjacente.",
+  "batch14ProviderCapacity": "Esta introdução aceita no máximo 50 prestadores. Revê a lista antes de continuar.",
+  "@batch14ClassificationGuide": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch14ProviderRowLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch14ProvisionalSubtotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch14AllReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
   }
 }

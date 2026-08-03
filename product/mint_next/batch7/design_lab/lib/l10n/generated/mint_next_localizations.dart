@@ -822,6 +822,84 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Corriger mes montants'**
   String get batch12CorrectAmounts;
+
+  /// No description provided for @batch14AmountBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute chaque prestataire 3a séparément. MINT additionne les montants localement, sans calculer encore de résultat fiscal.'**
+  String get batch14AmountBody;
+
+  /// No description provided for @batch14AddProvider.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un prestataire 3a'**
+  String get batch14AddProvider;
+
+  /// No description provided for @batch14ProviderRowLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prestataire 3a n°{index}'**
+  String batch14ProviderRowLabel(int index);
+
+  /// No description provided for @batch14ProvisionalSubtotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Addition provisoire — aucun résultat fiscal calculé : {amount}'**
+  String batch14ProvisionalSubtotal(String amount);
+
+  /// No description provided for @batch14AllReviewed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je confirme avoir inclus, pour {taxYear}, uniquement les versements ordinaires réellement crédités chez tous mes prestataires 3a'**
+  String batch14AllReviewed(int taxYear);
+
+  /// No description provided for @batch14RemoveEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer cette ligne vide'**
+  String get batch14RemoveEmpty;
+
+  /// No description provided for @batch14Duplicate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce prestataire est déjà présent. Corrige sa ligne pour éviter un double comptage.'**
+  String get batch14Duplicate;
+
+  /// No description provided for @batch14AggregateOverflow.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’addition est trop grande. Vérifie les montants indiqués.'**
+  String get batch14AggregateOverflow;
+
+  /// No description provided for @batch14EmptyBeforeAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commence la ligne vide ou supprime-la avant d’en ajouter une autre.'**
+  String get batch14EmptyBeforeAdd;
+
+  /// No description provided for @batch14ClassificationGuide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour {taxYear}, une ligne correspond au total annuel d’un prestataire, même si tu y as plusieurs contrats ou polices. Indique uniquement les versements ordinaires réellement crédités et compte chaque montant une seule fois. N’inclus pas les transferts, rachats rétroactifs, paiements encore en attente ou seulement débités, ni le rendement. Après une correction ou un remboursement, utilise le montant net confirmé par le prestataire.'**
+  String batch14ClassificationGuide(int taxYear);
+
+  /// No description provided for @batch14Privacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie locale et éphémère : rien n’est enregistré ni envoyé. N’indique aucun numéro de compte, de police, AVS ou IBAN. Quitter efface les noms et montants.'**
+  String get batch14Privacy;
+
+  /// No description provided for @batch14RemovedAnnouncement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne vide supprimée. Le focus est placé sur la ligne voisine.'**
+  String get batch14RemovedAnnouncement;
+
+  /// No description provided for @batch14ProviderCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette saisie accepte au maximum 50 prestataires. Vérifie la liste avant de continuer.'**
+  String get batch14ProviderCapacity;
 }
 
 class _MintNextLocalizationsDelegate

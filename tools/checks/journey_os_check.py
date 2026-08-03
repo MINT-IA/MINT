@@ -239,6 +239,18 @@ ALLOW = {
     "tools/checks/mint_next_batch13_multi_provider_contract_guard.py",
     "tools/checks/tests/test_mint_next_batch13_multi_provider_contract_guard.py",
     ".github/workflows/mint-next-batch13-contract.yml",
+    # Batch 14 starts a hidden, default-off multi-provider runtime caller.
+    # It is not accepted or reachable from the normal design-lab entrypoint.
+    "product/mint_next/batch7/design_lab/lib/multi_provider_amount_draft.dart",
+    "product/mint_next/batch7/design_lab/lib/multi_provider_amount_editor.dart",
+    "product/mint_next/batch7/design_lab/lib/multi_provider_casefold_data.dart",
+    "product/mint_next/batch7/design_lab/lib/multi_provider_default_ignorable_data.dart",
+    "product/mint_next/batch7/design_lab/lib/multi_provider_label.dart",
+    "product/mint_next/batch7/design_lab/test/multi_provider_amount_draft_test.dart",
+    "product/mint_next/batch7/design_lab/test/design_lab_multi_provider_runtime_test.dart",
+    "tools/checks/mint_next_batch14_unicode_data.py",
+    "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
+    "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",
     "AGENTS.md",
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",

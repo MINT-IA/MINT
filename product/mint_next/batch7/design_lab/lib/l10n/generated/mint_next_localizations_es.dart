@@ -445,4 +445,58 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
 
   @override
   String get batch12CorrectAmounts => 'Corregir mis importes';
+
+  @override
+  String get batch14AmountBody =>
+      'Añade por separado cada proveedor del pilar 3a. MINT suma los importes localmente sin calcular todavía un resultado fiscal.';
+
+  @override
+  String get batch14AddProvider => 'Añadir un proveedor 3a';
+
+  @override
+  String batch14ProviderRowLabel(int index) {
+    return 'Proveedor 3a n.º $index';
+  }
+
+  @override
+  String batch14ProvisionalSubtotal(String amount) {
+    return 'Suma provisional — sin resultado fiscal calculado: $amount';
+  }
+
+  @override
+  String batch14AllReviewed(int taxYear) {
+    return 'Confirmo que, para $taxYear, solo he incluido las aportaciones ordinarias realmente abonadas en todos mis proveedores del pilar 3a';
+  }
+
+  @override
+  String get batch14RemoveEmpty => 'Eliminar esta fila vacía';
+
+  @override
+  String get batch14Duplicate =>
+      'Este proveedor ya está incluido. Corrige su fila para evitar contarlo dos veces.';
+
+  @override
+  String get batch14AggregateOverflow =>
+      'La suma es demasiado grande. Comprueba los importes introducidos.';
+
+  @override
+  String get batch14EmptyBeforeAdd =>
+      'Empieza o elimina la fila vacía antes de añadir otra.';
+
+  @override
+  String batch14ClassificationGuide(int taxYear) {
+    return 'Para $taxYear, una fila corresponde al total anual de un proveedor, aunque tengas allí varios contratos o pólizas. Introduce solo las aportaciones ordinarias realmente abonadas y cuenta cada importe una sola vez. No incluyas transferencias, aportaciones retroactivas, pagos aún pendientes o solo cargados, ni rendimientos. Tras una corrección o reembolso, usa el importe neto confirmado por el proveedor.';
+  }
+
+  @override
+  String get batch14Privacy =>
+      'Entrada local y temporal: no se guarda ni se envía nada. No indiques números de cuenta, póliza, AVS o IBAN. Al salir se borran nombres e importes.';
+
+  @override
+  String get batch14RemovedAnnouncement =>
+      'Fila vacía eliminada. El foco se ha movido a la fila contigua.';
+
+  @override
+  String get batch14ProviderCapacity =>
+      'Esta entrada admite como máximo 50 proveedores. Revisa la lista antes de continuar.';
 }

@@ -449,4 +449,58 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get batch12CorrectAmounts => 'Correggi i miei importi';
+
+  @override
+  String get batch14AmountBody =>
+      'Aggiungi separatamente ogni fornitore del pilastro 3a. MINT somma gli importi localmente senza calcolare ancora un risultato fiscale.';
+
+  @override
+  String get batch14AddProvider => 'Aggiungi un fornitore 3a';
+
+  @override
+  String batch14ProviderRowLabel(int index) {
+    return 'Fornitore 3a n. $index';
+  }
+
+  @override
+  String batch14ProvisionalSubtotal(String amount) {
+    return 'Somma provvisoria — nessun risultato fiscale calcolato: $amount';
+  }
+
+  @override
+  String batch14AllReviewed(int taxYear) {
+    return 'Confermo di aver incluso, per il $taxYear, solo i versamenti ordinari effettivamente accreditati presso tutti i miei fornitori del pilastro 3a';
+  }
+
+  @override
+  String get batch14RemoveEmpty => 'Rimuovi questa riga vuota';
+
+  @override
+  String get batch14Duplicate =>
+      'Questo fornitore è già presente. Correggi la sua riga per evitare un doppio conteggio.';
+
+  @override
+  String get batch14AggregateOverflow =>
+      'La somma è troppo grande. Verifica gli importi inseriti.';
+
+  @override
+  String get batch14EmptyBeforeAdd =>
+      'Inizia o rimuovi la riga vuota prima di aggiungerne un’altra.';
+
+  @override
+  String batch14ClassificationGuide(int taxYear) {
+    return 'Per il $taxYear, una riga corrisponde al totale annuo di un fornitore, anche se vi detieni più contratti o polizze. Inserisci solo i versamenti ordinari effettivamente accreditati e conta ogni importo una sola volta. Non includere trasferimenti, versamenti retroattivi, pagamenti ancora in sospeso o soltanto addebitati, né rendimenti. Dopo una correzione o un rimborso, usa l’importo netto confermato dal fornitore.';
+  }
+
+  @override
+  String get batch14Privacy =>
+      'Inserimento locale e temporaneo: nulla viene salvato o inviato. Non indicare numeri di conto, polizza, AVS o IBAN. Uscendo, nomi e importi vengono cancellati.';
+
+  @override
+  String get batch14RemovedAnnouncement =>
+      'Riga vuota eliminata. Il focus è passato alla riga vicina.';
+
+  @override
+  String get batch14ProviderCapacity =>
+      'Questa schermata accetta al massimo 50 fornitori. Controlla l’elenco prima di continuare.';
 }

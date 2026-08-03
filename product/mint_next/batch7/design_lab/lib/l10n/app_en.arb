@@ -237,5 +237,46 @@
         "type": "int"
       }
     }
+  },
+  "batch14AmountBody": "Add each pillar 3a provider separately. MINT adds the amounts locally without calculating a tax result yet.",
+  "batch14AddProvider": "Add a pillar 3a provider",
+  "batch14ProviderRowLabel": "Pillar 3a provider no. {index}",
+  "batch14ProvisionalSubtotal": "Provisional sum — no tax result calculated: {amount}",
+  "batch14AllReviewed": "I confirm that, for {taxYear}, I included only ordinary contributions actually credited at all my pillar 3a providers",
+  "batch14RemoveEmpty": "Remove this empty row",
+  "batch14Duplicate": "This provider is already listed. Correct its row to avoid counting it twice.",
+  "batch14AggregateOverflow": "The sum is too large. Check the amounts entered.",
+  "batch14EmptyBeforeAdd": "Start or remove the empty row before adding another.",
+  "batch14ClassificationGuide": "For {taxYear}, one row is the annual total for one provider, even if you hold several contracts or policies there. Enter only ordinary contributions actually credited and count each amount once. Do not include transfers, retroactive contributions, payments still pending or merely debited, or investment returns. After a correction or refund, use the net amount confirmed by the provider.",
+  "batch14Privacy": "Local, temporary entry: nothing is saved or sent. Do not enter an account, policy, social-security or IBAN number. Leaving erases names and amounts.",
+  "batch14RemovedAnnouncement": "Empty row removed. Focus moved to the neighbouring row.",
+  "batch14ProviderCapacity": "This entry accepts at most 50 providers. Review the list before continuing.",
+  "@batch14ClassificationGuide": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch14ProviderRowLabel": {
+    "placeholders": {
+      "index": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch14ProvisionalSubtotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch14AllReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
   }
 }

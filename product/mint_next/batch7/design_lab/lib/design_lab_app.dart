@@ -3,6 +3,8 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import 'l10n/generated/mint_next_localizations.dart';
+import 'multi_provider_amount_draft.dart';
+import 'multi_provider_amount_editor.dart';
 import 'ordinary_chf_amount.dart';
 import 'provider_label.dart';
 
@@ -32,11 +34,20 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.locale,
     this.textScaler,
     this.currentYear,
-  });
+  }) : _enableBatch14MultiProvider = false;
+
+  @visibleForTesting
+  const MintNextDesignLabApp.batch14Harness({
+    super.key,
+    this.locale,
+    this.textScaler,
+    this.currentYear,
+  }) : _enableBatch14MultiProvider = true;
 
   final Locale? locale;
   final TextScaler? textScaler;
   final int? currentYear;
+  final bool _enableBatch14MultiProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +61,10 @@ class MintNextDesignLabApp extends StatelessWidget {
         data: MediaQuery.of(context).copyWith(textScaler: textScaler),
         child: child!,
       ),
-      home: _DesignLabJourney(currentYear: currentYear ?? DateTime.now().year),
+      home: _DesignLabJourney(
+        currentYear: currentYear ?? DateTime.now().year,
+        enableBatch14MultiProvider: _enableBatch14MultiProvider,
+      ),
     );
   }
 }
@@ -94,9 +108,13 @@ final _theme = ThemeData(
 );
 
 class _DesignLabJourney extends StatefulWidget {
-  const _DesignLabJourney({required this.currentYear});
+  const _DesignLabJourney({
+    required this.currentYear,
+    required this.enableBatch14MultiProvider,
+  });
 
   final int currentYear;
+  final bool enableBatch14MultiProvider;
 
   @override
   State<_DesignLabJourney> createState() => _DesignLabJourneyState();
@@ -111,6 +129,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   final TextEditingController _providerNameController = TextEditingController();
   final TextEditingController _ordinaryAmountController =
       TextEditingController();
+  final MultiProviderAmountDraft _multiProviderDraft =
+      MultiProviderAmountDraft();
   bool _allProvidersReviewed = false;
   bool _amountWhereToFindExpanded = false;
   bool _amountHelpPartial = false;
@@ -170,6 +190,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _amountWhereToFindExpanded = false;
     _amountHelpPartial = false;
     _multipleProvidersDeclared = false;
+    _multiProviderDraft.purge();
   }
 
   void _clearEphemeralFacts() {
@@ -300,6 +321,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                             _clearContributionAmount();
                           }
                           _contributionStatus = value;
+                          if (widget.enableBatch14MultiProvider &&
+                              value == _ContributionStatus.yes) {
+                            _multiProviderDraft.invalidateConfirmation();
+                          }
                         });
                         _go(switch (value) {
                           _ContributionStatus.yes =>
@@ -322,48 +347,87 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                         onBack: () => _go(_DesignNode.factContribution),
                       ),
                     _DesignNode.factContributedAmount =>
-                      _ContributionAmountForm(
-                        taxYear: _taxYear!,
-                        providerController: _providerNameController,
-                        amountController: _ordinaryAmountController,
-                        allProvidersReviewed: _allProvidersReviewed,
-                        whereToFindExpanded: _amountWhereToFindExpanded,
-                        restoreAmountFocus: _restoreAmountFocus,
-                        restoreUnknownActionFocus: _restoreUnknownActionFocus,
-                        onRestoreFocusConsumed: () {
-                          if (mounted &&
-                              (_restoreAmountFocus ||
-                                  _restoreUnknownActionFocus)) {
-                            setState(() {
-                              _restoreAmountFocus = false;
-                              _restoreUnknownActionFocus = false;
-                            });
-                          }
-                        },
-                        onReviewedChanged: (value) {
-                          if (value && _multipleProvidersDeclared) return;
-                          setState(() => _allProvidersReviewed = value);
-                        },
-                        onWhereToFindChanged: (value) =>
-                            setState(() => _amountWhereToFindExpanded = value),
-                        onUnknown: () => setState(() {
-                          _amountHelpPartial = false;
-                          _node = _DesignNode.contributedAmountUnknownHelp;
-                        }),
-                        onMissing: () => setState(() {
-                          _allProvidersReviewed = false;
-                          _multipleProvidersDeclared = true;
-                          _amountHelpPartial = true;
-                          _node = _DesignNode.contributedAmountUnknownHelp;
-                        }),
-                        onContinue: () {
-                          if (!_multipleProvidersDeclared) {
-                            _go(_DesignNode.factCanton);
-                          }
-                        },
-                        onCorrectPrevious: () =>
-                            _go(_DesignNode.factContribution),
-                      ),
+                      widget.enableBatch14MultiProvider
+                          ? _Page(
+                              nodeId: 'fact_contributed_amount',
+                              eyebrow: l10n.batch11AmountEyebrow(_taxYear!),
+                              title: l10n.batch11AmountTitle(_taxYear!),
+                              body: l10n.batch14AmountBody,
+                              accent: MultiProviderAmountEditor(
+                                taxYear: _taxYear!,
+                                draft: _multiProviderDraft,
+                                onCommitted: (_) => _go(_DesignNode.factCanton),
+                                restoreAmountFocus: _restoreAmountFocus,
+                                restoreUnknownActionFocus:
+                                    _restoreUnknownActionFocus,
+                                onRestoreFocusConsumed: () {
+                                  if (mounted &&
+                                      (_restoreAmountFocus ||
+                                          _restoreUnknownActionFocus)) {
+                                    setState(() {
+                                      _restoreAmountFocus = false;
+                                      _restoreUnknownActionFocus = false;
+                                    });
+                                  }
+                                },
+                                onUnknown: () => setState(() {
+                                  _amountHelpPartial = false;
+                                  _node =
+                                      _DesignNode.contributedAmountUnknownHelp;
+                                }),
+                                onCorrectPrevious: () {
+                                  _multiProviderDraft.invalidateConfirmation();
+                                  _go(_DesignNode.factContribution);
+                                },
+                              ),
+                              actions: const [],
+                            )
+                          : _ContributionAmountForm(
+                              taxYear: _taxYear!,
+                              providerController: _providerNameController,
+                              amountController: _ordinaryAmountController,
+                              allProvidersReviewed: _allProvidersReviewed,
+                              whereToFindExpanded: _amountWhereToFindExpanded,
+                              restoreAmountFocus: _restoreAmountFocus,
+                              restoreUnknownActionFocus:
+                                  _restoreUnknownActionFocus,
+                              onRestoreFocusConsumed: () {
+                                if (mounted &&
+                                    (_restoreAmountFocus ||
+                                        _restoreUnknownActionFocus)) {
+                                  setState(() {
+                                    _restoreAmountFocus = false;
+                                    _restoreUnknownActionFocus = false;
+                                  });
+                                }
+                              },
+                              onReviewedChanged: (value) {
+                                if (value && _multipleProvidersDeclared) return;
+                                setState(() => _allProvidersReviewed = value);
+                              },
+                              onWhereToFindChanged: (value) => setState(
+                                () => _amountWhereToFindExpanded = value,
+                              ),
+                              onUnknown: () => setState(() {
+                                _amountHelpPartial = false;
+                                _node =
+                                    _DesignNode.contributedAmountUnknownHelp;
+                              }),
+                              onMissing: () => setState(() {
+                                _allProvidersReviewed = false;
+                                _multipleProvidersDeclared = true;
+                                _amountHelpPartial = true;
+                                _node =
+                                    _DesignNode.contributedAmountUnknownHelp;
+                              }),
+                              onContinue: () {
+                                if (!_multipleProvidersDeclared) {
+                                  _go(_DesignNode.factCanton);
+                                }
+                              },
+                              onCorrectPrevious: () =>
+                                  _go(_DesignNode.factContribution),
+                            ),
                     _DesignNode.contributedAmountUnknownHelp =>
                       _ContributedAmountUnknownHelp(
                         partial: _amountHelpPartial,
