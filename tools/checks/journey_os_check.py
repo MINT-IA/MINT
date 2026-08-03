@@ -795,6 +795,10 @@ ALLOW = {
     "services/backend/tests/test_citation_gate/test_byte_identity_flag_off.py",
     "services/backend/tests/test_coach_chat_endpoint.py",
     "services/backend/tests/test_auth_apple.py",
+    # P0 2026-08-03 : cycle de vie du compte (suppression nLPD complète +
+    # reconnexion Apple propre après suppression).
+    "services/backend/tests/test_auth_apple_lifecycle.py",
+    ".planning/audit/2026-08-03-nlpd-suppression-compte-apple.md",
     "services/backend/tests/test_compliance_guard.py",
     "services/backend/tests/test_coach_tools.py",
     "services/backend/tests/test_e2e_coach_pipeline.py",
