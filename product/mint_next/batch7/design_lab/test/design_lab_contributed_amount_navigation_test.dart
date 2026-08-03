@@ -127,6 +127,7 @@ void main() {
       find.byKey(const ValueKey('field:fact_contributed_amount.amount')),
       '7258',
     );
+    await tester.pump();
     await tester.tap(
       find.byKey(const ValueKey('action:fact_contributed_amount.continue')),
     );
@@ -528,5 +529,82 @@ void main() {
       contains('Indique un montant CHF valide'),
     );
     semantics.dispose();
+  });
+
+  testWidgets('keyboard Done and disclosure never commit or route', (
+    tester,
+  ) async {
+    await openContributedAmountBuilder(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('field:fact_contributed_amount.provider_name')),
+      'VIAC',
+    );
+    final amount = find.byKey(
+      const ValueKey('field:fact_contributed_amount.amount'),
+    );
+    await tester.enterText(amount, '7258');
+    await tester.showKeyboard(amount);
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('node:fact_contributed_amount')),
+      findsOneWidget,
+    );
+    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+
+    final disclosure = find.byKey(
+      const ValueKey('action:fact_contributed_amount.toggle_where_to_find'),
+    );
+    await tester.ensureVisible(disclosure);
+    await tester.tap(disclosure);
+    await tester.pump();
+    expect(find.textContaining('une seule fois'), findsOneWidget);
+    expect(find.textContaining('plusieurs contrats'), findsOneWidget);
+    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+  });
+
+  testWidgets('education-only from partial help reveals no personal result', (
+    tester,
+  ) async {
+    await openContributedAmountBuilder(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('field:fact_contributed_amount.provider_name')),
+      'VIAC',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('field:fact_contributed_amount.amount')),
+      '7258',
+    );
+    await tester.pump();
+    await tester.tap(
+      find.byKey(
+        const ValueKey('action:fact_contributed_amount.missing_amount'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(
+        const ValueKey(
+          'action:contributed_amount_unknown_help.continue_education_only',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('node:education_explanation')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('aucun montant personnel'), findsOneWidget);
+    expect(find.textContaining('7258'), findsNothing);
+    expect(find.textContaining('économie fiscale personnelle'), findsOneWidget);
+    await tester.tap(
+      find.byKey(const ValueKey('action:education_explanation.back')),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('node:contributed_amount_unknown_help')),
+      findsOneWidget,
+    );
+    expect(find.text('Ajouter le montant manquant'), findsOneWidget);
   });
 }
