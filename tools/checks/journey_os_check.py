@@ -69,6 +69,9 @@ ALLOW = {
     ".github/pull_request_template.md",
     ".github/workflows/ai-workflow-guards.yml",
     ".github/workflows/journey-os-runtime-replay.yml",
+    # Batch 19 R1 (2026-08-03) : exécuteur CI neutre des preuves RED + job
+    # release-attestation dispatch-only (check_git=True non-waivé).
+    ".github/workflows/mint-next-proofs.yml",
     # Spike upgrade Flutter 3.44.8 (ADR AX iOS 26.2 Étape 4) : pins CI unifiés.
     ".github/workflows/testflight.yml",
     ".github/workflows/play-store.yml",
