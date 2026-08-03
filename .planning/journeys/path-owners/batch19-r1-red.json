@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner_id": "batch19-r1-red",
-  "status": "candidate_unaccepted",
+  "status": "accepted",
   "paths": [
     "product/mint_next/batch18/runtime-gates.yaml",
     "product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart",
@@ -11,27 +11,30 @@
   ],
   "reviews": {
     "journey_safety": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "2cf60e446272195f4f95e5f11997fc20e678a6217a104984a7e66379065306eb"
     },
     "mechanical_adversary": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "2cf60e446272195f4f95e5f11997fc20e678a6217a104984a7e66379065306eb"
     },
     "scope_integrity": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "2cf60e446272195f4f95e5f11997fc20e678a6217a104984a7e66379065306eb"
     }
   },
   "mechanical_binding": {
     "candidate_payload_sha256": "2cf60e446272195f4f95e5f11997fc20e678a6217a104984a7e66379065306eb",
-    "reviewed_payload_sha256": null,
-    "reviewed_candidate_commit": null
+    "reviewed_payload_sha256": "2cf60e446272195f4f95e5f11997fc20e678a6217a104984a7e66379065306eb",
+    "reviewed_candidate_commit": "eec7d35a6c367d1ecdaae288438f721d4b75cb1c"
   }
 }
