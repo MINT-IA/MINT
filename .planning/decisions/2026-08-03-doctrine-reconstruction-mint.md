@@ -57,7 +57,7 @@ Les règles §29 du handoff, amendées par l'audit. Chaque règle est impérativ
 10. **(nouveau)** Termine chaque batch par un runtime touchable ; sinon le batch a échoué.
 11. Ne crois jamais le résumé d'un agent : inspecte diff, Git, runtime et preuves.
 12. Garde dev et main intacts hors du chemin PR ; ne merge rien sans CI verte et décision explicite.
-13. **(nouveau)** Cercle herméneutique : chaque batch se clôt par deux questions consignées — « qu'est-ce que ce batch révèle du tout ? » et « que doit réviser le tout ? » — et la révision du tout (doctrine, contrat de navigation, inventaire) est committée dans le même cycle. Une leçon laissée en mémoire de session est une leçon perdue.
+13. **(nouveau)** Cercle herméneutique : chaque batch se clôt par deux questions consignées par mint-lead — « qu'est-ce que ce batch révèle du tout ? » et « que doit réviser le tout ? » — où « le tout » désigne exactement trois artefacts : ce document, le contrat de navigation, l'inventaire réutilisable. « Aucune révision requise » est une réponse valide et committée comme telle ; quand une révision s'impose, elle est committée dans le même cycle. La mémoire de session sert d'entrée, l'artefact committé est la seule forme durable.
 
 ## Le workflow par batch (A→I condensé)
 
@@ -79,15 +79,15 @@ Les règles §29 du handoff, amendées par l'audit. Chaque règle est impérativ
 - **mint-lead** — borne le périmètre, refuse la dérive, décide merge/no-merge sur preuves, et **porte le battement produit** : à lui de faire finir chaque batch sur du touchable, pas seulement sur du propre.
 - **mint-quality-gate** — gates auth/privacy/onboarding/runtime, pouvoir de veto ; vérifie le diff et les preuves, pas les résumés.
 - **mint-mobile / mint-backend / mint-swiss-brain** — implémentation par verticale, chacun dans ses paths owned.
-- **mint-experience** — journey, architecture d'information, microcopy pédagogique, accessibilité, tests de compréhension ; cinquième lentille des panels design avec mandat de fidélité au design historique validé.
-- **mint-integrations-security** — consentement, provenance, APIs externes futures, design sécurité, chemins de récupération.
+- **mint-experience** — journey, architecture d'information, microcopy pédagogique, accessibilité, tests de compréhension ; cinquième lentille des panels design, avec un mandat de cohérence envers le design validé qui ne prime jamais sur l'accessibilité ni sur les résultats de compréhension mesurés (périmètre détaillé : `.claude/agents/mint-experience.md`).
+- **mint-integrations-security** — consentement, provenance, API externes futures, conception de la sécurité, chemins de récupération (périmètre détaillé : `.claude/agents/mint-integrations-security.md`).
 - **Codex en critique croisée, bornée dans le temps** — tout livrable significatif (diff, ADR, constat, synthèse) passe une critique Codex couvrant six axes : code, architecture, flow, UX, actuariat, légal. Ne jamais laisser le même agent construire, s'auto-noter et promouvoir.
 - **Preuves en CI, liées au SHA** — l'exécuteur des preuves est la CI, pas la machine de l'agent qui a écrit le code. Les gates locaux (lefthook) restent des filtres rapides ; ils ne promeuvent rien.
 - **Julien** — valide la compréhension et la douceur en 3-5 minutes par micro-batch ; arbitre les compromis majeurs.
 
 ## Ce qui est déjà prouvé et se réutilise
 
-Deux noms fixent le vocabulaire partagé de la reconstruction (confirmés par Julien, 2026-08-03). **Strangler Fig** = la structure : MINT Next pousse à côté du produit vivant (`product/mint_next/`, surface `hidden_design_lab_only`), verticale par verticale, et la couture est explicite — contrat de navigation, discriminateur de payloads L1/L2-L4, gates de promotion par batch (cf. D-11). **Legacy-as-library** = la politique d'approvisionnement : l'ancien MINT est une carrière de matériaux dont on n'extrait que des blocs prouvés, avec leurs tests et leurs reçus — jamais du legacy en vrac. Pendant que le figuier pousse, l'ancien arbre reste vivant et soigné : les P0 du produit courant se corrigent sur le legacy sans attendre la reconstruction.
+Deux noms fixent le vocabulaire partagé de la reconstruction (adoptés le 2026-08-03). **Orientation Strangler Fig** = la structure visée : MINT Next pousse à côté du produit vivant (`product/mint_next/`, surface `hidden_design_lab_only`), verticale par verticale, couture explicite — contrat de navigation, discriminateur de payloads L1/L2-L4, gates de promotion par batch (cf. D-11). Tant qu'aucune verticale promue n'intercepte une route du legacy, c'est un chantier parallèle scellé ; il ne devient strangler qu'à la première interception mesurable, et le retrait du legacy se mesure route par route. **Legacy-as-library** = politique interne MINT (métaphore, pas un pattern homologué) : l'ancien MINT est une carrière de matériaux dont on n'extrait que des blocs prouvés — critères d'extraction : tests verts liés au bloc, reçus/provenance, référence de PR mergée — jamais du legacy en vrac. Pendant que le figuier pousse, l'ancien arbre reste vivant et soigné : les P0 du produit courant se corrigent sur le legacy sans attendre la reconstruction.
 
 L'inventaire se fait contre dev actuel (règle 9). Ces briques sont mergées sur dev et se réutilisent telles quelles :
 
