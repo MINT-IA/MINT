@@ -124,6 +124,8 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
         ]
         with patch.object(guard.subprocess, "run", side_effect=completed), patch.object(
             guard.journey_os_check, "_load_path_owners", return_value=(set(), [])
+        ), patch.object(
+            guard, "_require_owned_tail_chronology"
         ):
             guard._git_boundary(self.root)
 
@@ -174,7 +176,7 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
             acceptance = root / guard.ACCEPTANCE
             acceptance.parent.mkdir(parents=True, exist_ok=True)
             acceptance.write_text("candidate\n")
-            commit("acceptance candidate")
+            acceptance_candidate = commit("acceptance candidate")
 
             target = "product/mint_next/batch20/r1-runtime.dart"
             owner_path = root / ".planning/journeys/path-owners/batch20-r1-runtime.json"
@@ -243,6 +245,61 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
             commit("target after owner accepted")
             with patch.object(guard, "RED_COMMIT", red_commit):
                 guard._git_boundary(root)
+
+            # A pre-authorization scratch file cannot be laundered by renaming
+            # it into an accepted-owned path after promotion.
+            subprocess.run(["git", "reset", "--hard", "-q", acceptance_candidate], cwd=root, check=True)
+            scratch = root / "scratch.dart"
+            scratch.write_text("runtime authored before authorization\n")
+            commit("unowned scratch before owner")
+            owner["status"] = "candidate_unaccepted"
+            owner["reviews"] = {
+                "scope_integrity": pending_review,
+                "mechanical_adversary": pending_review,
+                "journey_safety": pending_review,
+            }
+            owner["mechanical_binding"] = {
+                "candidate_payload_sha256": payload,
+                "reviewed_payload_sha256": None,
+                "reviewed_candidate_commit": None,
+            }
+            owner_path.parent.mkdir(parents=True, exist_ok=True)
+            owner_path.write_text(json.dumps(owner, indent=2) + "\n")
+            renamed_owner_candidate = commit("owner pending after scratch")
+            owner["status"] = "accepted"
+            owner["reviews"] = {
+                "scope_integrity": accepted_review,
+                "mechanical_adversary": accepted_review,
+                "journey_safety": accepted_review,
+            }
+            owner["mechanical_binding"] = {
+                "candidate_payload_sha256": payload,
+                "reviewed_payload_sha256": payload,
+                "reviewed_candidate_commit": renamed_owner_candidate,
+            }
+            owner_path.write_text(json.dumps(owner, indent=2) + "\n")
+            commit("owner promoted after scratch")
+            runtime.parent.mkdir(parents=True, exist_ok=True)
+            scratch.rename(runtime)
+            commit("rename scratch into owned target")
+            with patch.object(guard, "RED_COMMIT", red_commit):
+                with self.assertRaisesRegex(guard.GuardFailure, "not reviewed-owned"):
+                    guard._git_boundary(root)
+
+    def test_dirty_or_untracked_worktree_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "test@mint.invalid"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "MINT Test"], cwd=root, check=True)
+            tracked = root / "tracked.txt"
+            tracked.write_text("clean\n")
+            subprocess.run(["git", "add", "tracked.txt"], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-q", "-m", "clean"], cwd=root, check=True)
+            guard._require_clean_worktree(root)
+            (root / "untracked-runtime.dart").write_text("hidden\n")
+            with self.assertRaisesRegex(guard.GuardFailure, "clean worktree"):
+                guard._require_clean_worktree(root)
 
 
 if __name__ == "__main__":

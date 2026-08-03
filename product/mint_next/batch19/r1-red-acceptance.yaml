@@ -25,7 +25,7 @@ reviews:
   mechanical_evidence: *pending
   ux_navigation_scope: *pending
 mechanical_binding:
-  candidate_review_payload_sha256: f09baabf03a824372dcb1feaa5863151c3e765eca9061ad68ef2562537beb208
+  candidate_review_payload_sha256: b7e556399fc5f430b0f921d6f8971e1becad0ee02c41806663eebe6e1822b39b
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
 accepted_evidence: []
