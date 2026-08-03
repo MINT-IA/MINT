@@ -1246,6 +1246,97 @@ def delete_account(
             HouseholdMemberModel.user_id == user_id
         ).delete(synchronize_session=False)
 
+        # P0 nLPD 2026-08-03: erase every remaining user-scoped PII surface.
+        # A "deleted" account previously kept coaching memory, the canonical
+        # fact read model, wrapped encryption keys, earmark/commitment records,
+        # external banking sources and outstanding magic-link tokens (a silent
+        # resurrection vector). Two erasure mechanisms, chosen per table:
+        #
+        #   1. Row DELETE for mutable, user_id-scoped tables (below).
+        #   2. Crypto-shredding for APPEND-ONLY tables whose migrations REVOKE
+        #      DELETE (fact_event, money_truth_receipts): the app role cannot
+        #      and must not delete those rows, so a literal DELETE would fail in
+        #      production and leave data behind. Destroying the user's DEK
+        #      (below) makes every DEK-encrypted value (incl. fact_event.value_enc)
+        #      irrecoverable from the live system — the codebase's PFPDT-based
+        #      crypto-shred model (see key_vault.py; backups retain ciphertext but
+        #      not a readable key, and age out per retention policy).
+        #
+        # KNOWN RESIDUAL (documented, not solved here): money_truth_receipts holds
+        # a PLAINTEXT body scoped only by HMAC(user_id). It is not DEK-encrypted,
+        # so crypto-shred does not cover it, and the app role cannot DELETE it
+        # (append-only). The 30-day TTL disables API resolution only — the row
+        # persists. Erasing it needs a privileged retention job or encrypting
+        # receipt_body under the DEK. Tracked in
+        # .planning/audit/2026-08-03-nlpd-suppression-compte-apple.md §5/§8.
+        #
+        # Each mutable-table purge runs inside its own SAVEPOINT (best-effort):
+        # a table not yet migrated in a given environment must NEVER abort the
+        # atomic core erasure. A skipped purge is logged, not swallowed silently.
+        from app.models.coach_insight import CoachInsightRecord
+        from app.models.document_memory import DocumentMemory
+        from app.models.fact_current import FactCurrent
+        from app.models.earmark import ProvenanceRecord, EarmarkTag
+        from app.models.commitment import CommitmentDevice, PreMortemEntry
+        from app.models.dek_vault import DEKVault
+        from app.models.external_data_source import ExternalDataSourceModel
+        from app.models.magic_link_token import MagicLinkTokenModel
+
+        def _best_effort_purge(label: str, apply) -> None:
+            try:
+                with db.begin_nested():
+                    apply()
+            except Exception as exc:  # noqa: BLE001 — resilience over completeness
+                logger.warning(
+                    "nLPD purge skipped for %s (user %s): %s",
+                    label,
+                    user_id[:8],
+                    exc,
+                )
+
+        for model in (
+            CoachInsightRecord,
+            DocumentMemory,
+            FactCurrent,
+            ProvenanceRecord,
+            EarmarkTag,
+            CommitmentDevice,
+            PreMortemEntry,
+            ExternalDataSourceModel,
+        ):
+            _best_effort_purge(
+                model.__tablename__,
+                lambda m=model: db.query(m)
+                .filter(m.user_id == user_id)
+                .delete(synchronize_session=False),
+            )
+
+        # Crypto-shred: destroy the user's wrapped DEK. This is the erasure
+        # mechanism for append-only DEK-encrypted data (fact_event.value_enc and
+        # any other envelope-encrypted column). Deleting the dek_vault row drops
+        # the wrapped key material; the FK ON DELETE CASCADE from the user row
+        # would also remove it, but we do it explicitly so erasure holds even
+        # where cascades are not enforced. (A per-process DEK cache may retain the
+        # plaintext DEK for its ~5min TTL, but no request ever sets
+        # current_user_id to a deleted user, so no decrypt path survives — the
+        # residual is the cache's TTL, not this deletion.)
+        _best_effort_purge(
+            DEKVault.__tablename__,
+            lambda: db.query(DEKVault)
+            .filter(DEKVault.user_id == user_id)
+            .delete(synchronize_session=False),
+        )
+
+        # Outstanding magic-link tokens are keyed by e-mail, not user_id.
+        if current_user.email:
+            _email_norm = current_user.email.lower().strip()
+            _best_effort_purge(
+                "magic_link_tokens",
+                lambda: db.query(MagicLinkTokenModel)
+                .filter(MagicLinkTokenModel.email == _email_norm)
+                .delete(synchronize_session=False),
+            )
+
         # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory/insights).
         # Orphaned embeddings would persist user data after account deletion.
         # This covers both document embeddings AND coach insight memories
@@ -1268,6 +1359,25 @@ def delete_account(
         # If purge fails, abort — never leave orphaned user data.
         from app.models.document import DocumentModel
         db.query(DocumentModel).filter(DocumentModel.user_id == user_id).delete()
+
+        # P0 nLPD 2026-08-03: redact plaintext PII from the user's audit trail.
+        # The audit log is retained for security/compliance forensics, but
+        # after right-of-erasure it must keep only the pepper-HMAC linkage
+        # (user_id_hash) and hashed provider subjects — never the plaintext
+        # user_id or actor_email. This includes the account_delete tombstone
+        # just written above, whose HMAC subject hash (in details_json) still
+        # powers the anti-resurrection gate.
+        from sqlalchemy import or_ as _sa_or
+        _audit_pii_filter = AuditEventModel.user_id == user_id
+        if current_user.email:
+            _audit_pii_filter = _sa_or(
+                _audit_pii_filter,
+                AuditEventModel.actor_email == current_user.email,
+            )
+        db.query(AuditEventModel).filter(_audit_pii_filter).update(
+            {AuditEventModel.user_id: None, AuditEventModel.actor_email: None},
+            synchronize_session=False,
+        )
 
         db.delete(current_user)
         db.commit()
@@ -1498,29 +1608,37 @@ def apple_verify(
         user = db.query(User).filter(User.email == apple_email).first()
         if user is not None:
             if user.apple_sub is None:
-                # Register intent must create a new Apple account or fail. It
-                # must not silently attach Apple to an existing email login.
-                if body.allow_recreate_after_delete:
-                    _raise_apple_verify_conflict(
-                        db,
-                        request=request,
-                        status_value="apple_email_already_linked",
-                        code="apple_email_already_linked",
-                        message="Apple email is already linked to another account",
-                        subject=apple_sub,
-                        user=user,
-                        allow_recreate_after_delete=body.allow_recreate_after_delete,
-                    )
-                # Takeover hardening (audit T11-F01 theme): never auto-attach an
-                # Apple identity to a pre-existing password account unless Apple
-                # attests the email as verified. A managed Apple ID whose email
-                # was set by an admin without verification must not be able to
-                # claim a third party's email login.
+                # Linking an Apple identity to a pre-existing account that
+                # already owns this e-mail is gated ONLY on Apple attesting the
+                # e-mail as verified — identically for the login AND the
+                # register/recreate intent.
+                #
+                # P0 2026-08-03 lockout fix: a returning user who deleted their
+                # Apple account and then created a same-e-mail account (magic
+                # link / password) was permanently locked out — login
+                # short-circuited on the delete tombstone (recreate_required)
+                # and register always refused to link
+                # (apple_email_already_linked). Because ``users.email`` is
+                # UNIQUE a "fresh" account with that e-mail is impossible, so
+                # reclaiming the existing account via a verified Apple e-mail is
+                # the only clean recovery.
+                #
+                # Takeover hardening (audit T11-F01) is preserved: an UNVERIFIED
+                # Apple e-mail still never attaches to a pre-existing account. A
+                # managed Apple ID whose e-mail was set by an admin without
+                # verification cannot claim a third party's e-mail login.
                 if not _apple_email_is_verified(payload):
+                    # Status distinguishes intent so the audit trail stays
+                    # precise (register/recreate vs login).
+                    status_value = (
+                        "apple_email_already_linked"
+                        if body.allow_recreate_after_delete
+                        else "apple_email_unverified"
+                    )
                     _raise_apple_verify_conflict(
                         db,
                         request=request,
-                        status_value="apple_email_unverified",
+                        status_value=status_value,
                         code="apple_email_already_linked",
                         message="Apple email is already linked to another account",
                         subject=apple_sub,
