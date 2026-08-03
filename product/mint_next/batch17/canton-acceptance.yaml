@@ -71,6 +71,7 @@ mechanical_binding:
   - test_official_source_url_drift_is_rejected
   - test_personal_storage_is_rejected
   - test_privacy_logging_is_rejected
+  - test_promoted_fixture_hostile_is_not_lifecycle_vacuous
   - test_purge_event_narrowing_is_rejected
   - test_rehashed_parent_continue_guard_removal_is_rejected_semantically
   - test_rehashed_parent_safe_exit_removal_is_rejected_semantically
@@ -92,7 +93,7 @@ mechanical_binding:
   - test_unknown_personal_result_is_rejected
   - test_wrong_canton_set_is_rejected
   normalized_workflow_sha256: 3715fb2d56d6cfb2d9309c956bd48dae15dd5b32244cdcb8251bc65db695d067
-  candidate_review_payload_sha256: 12137ad905de0695e9611a4a5d311b531ef07ae5e713c4ab39ee5a37c3476ee2
+  candidate_review_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
 accepted_scope_only:
 - written_fact_canton_semantics
 - written_navigation_and_lifecycle

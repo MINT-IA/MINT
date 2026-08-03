@@ -38,6 +38,7 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
             destination = self.root / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, destination)
+        validate(self.root, check_digests=True, require_accepted=None)
 
     def tearDown(self) -> None:
         self.temp.cleanup()
@@ -47,11 +48,14 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         return path, yaml.safe_load(path.read_text(encoding="utf-8"))
 
     def _mutate_scope(self, mutation) -> None:
+        # Anti-vacuity: the exact fixture must validate in its declared
+        # candidate/accepted lifecycle before the hostile mutation is applied.
+        validate(self.root, check_digests=True, require_accepted=None)
         path, data = self._yaml(ARTIFACTS[0])
         mutation(data)
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def _accepted_git_fixture(self) -> str:
         subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
@@ -118,6 +122,15 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         with self.assertRaises(GuardFailure):
             validate(self.root, check_digests=False, require_accepted=True, check_git=True)
 
+    def test_promoted_fixture_hostile_is_not_lifecycle_vacuous(self) -> None:
+        self._accepted_git_fixture()
+        validate(self.root, check_digests=True, require_accepted=None, check_git=True)
+        path, scope = self._yaml(ARTIFACTS[0])
+        scope["input_contract"]["free_text"] = True
+        path.write_text(yaml.safe_dump(scope, sort_keys=False), encoding="utf-8")
+        with self.assertRaises(GuardFailure):
+            validate(self.root, check_digests=False, require_accepted=None, check_git=True)
+
     def test_runtime_promotion_is_rejected(self) -> None:
         self._mutate_scope(lambda d: d["authority"].__setitem__("runtime_change", "implemented"))
 
@@ -183,14 +196,14 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         del data["copy"]["it"]["privacy"]
         path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_localized_canton_label_omission_is_rejected(self) -> None:
         path, data = self._yaml(Path("product/mint_next/batch17/six-locale-copy.yaml"))
         del data["canton_labels"]["de"]["JU"]
         path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_compact_accessibility_regression_is_rejected(self) -> None:
         self._mutate_scope(lambda d: d["accessibility_contract"].__setitem__("minimum_target_size_points", 44))
@@ -212,7 +225,7 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         data["ordered_codes"]["fr"][0], data["ordered_codes"]["fr"][1] = data["ordered_codes"]["fr"][1], data["ordered_codes"]["fr"][0]
         path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_calculation_is_rejected(self) -> None:
         self._mutate_scope(lambda d: d["scope_exclusions"].remove("tax_calculation_or_personal_result"))
@@ -222,7 +235,7 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         data["implementation_limits"]["authorize_personal_tax_result"] = True
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_official_source_url_drift_is_rejected(self) -> None:
         path, data = self._yaml(ARTIFACTS[1])
@@ -231,46 +244,46 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         data["sources"][0]["final_url"] = data["sources"][0]["url"]
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_source_receipt_digest_drift_is_rejected(self) -> None:
         path = self.root / "product/mint_next/batch17/source-receipt.txt"
         path.write_text(path.read_text() + "drift\n")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_legacy_fallback_is_rejected(self) -> None:
         path, data = self._yaml(ARTIFACTS[2])
         data["summary"]["silent_default_or_rate_fallback_reusable"] = True
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_nonzero_roast_is_rejected(self) -> None:
         path, data = self._yaml(ARTIFACTS[3])
         data["reviews"]["ux_navigation_accessibility"]["p3"] = 1
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_runtime_evidence_overclaim_is_rejected(self) -> None:
         path, data = self._yaml(ARTIFACTS[3])
         data["current_evidence"]["runtime_implemented"] = True
         path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_removed_lefthook_binding_is_rejected(self) -> None:
         path = self.root / "lefthook.yml"
         path.write_text(path.read_text().replace("mint-next-batch17-canton-scope-guard:", "removed-batch17-guard:"))
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_removed_ci_command_is_rejected(self) -> None:
         path = self.root / ".github/workflows/mint-next-batch17-canton-contract.yml"
         path.write_text(path.read_text().replace("python3 tools/checks/mint_next_batch17_canton_scope_guard.py", "echo removed"))
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_ci_hash_in_unused_comment_is_rejected(self) -> None:
         path = self.root / ".github/workflows/mint-next-batch17-canton-contract.yml"
@@ -278,37 +291,37 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         text = text.replace("test \"$(sha256sum tools/checks/mint_next_batch17_canton_scope_guard.py", "# unused hash; test \"$(sha256sum tools/checks/mint_next_batch17_canton_scope_guard.py")
         path.write_text(text)
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_duplicate_yaml_key_is_rejected(self) -> None:
         path = self.root / ARTIFACTS[0]
         path.write_text(path.read_text() + "\nstatus: accepted\n")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_scope_byte_drift_is_rejected_by_digest(self) -> None:
         path = self.root / ARTIFACTS[0]
         path.write_text(path.read_text() + "\n# byte drift\n")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=True, require_accepted=False)
+            validate(self.root, check_digests=True, require_accepted=None)
 
     def test_copy_byte_drift_is_rejected_by_digest(self) -> None:
         path = self.root / "product/mint_next/batch17/six-locale-copy.yaml"
         path.write_text(path.read_text() + "\n# byte drift\n")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=True, require_accepted=False)
+            validate(self.root, check_digests=True, require_accepted=None)
 
     def test_sources_byte_drift_is_rejected_by_digest(self) -> None:
         path = self.root / ARTIFACTS[1]
         path.write_text(path.read_text() + "\n# byte drift\n")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=True, require_accepted=False)
+            validate(self.root, check_digests=True, require_accepted=None)
 
     def test_legacy_byte_drift_is_rejected_by_digest(self) -> None:
         path = self.root / ARTIFACTS[2]
         path.write_text(path.read_text() + "\n# byte drift\n")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=True, require_accepted=False)
+            validate(self.root, check_digests=True, require_accepted=None)
 
     def test_honest_copy_rebind_invalidates_prior_review_receipts(self) -> None:
         # Promote the copied candidate honestly, then mutate and rebind every
@@ -362,7 +375,7 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         acceptance["mechanical_binding"]["artifact_sha256"]["parent_navigation"] = digest
         acceptance_path.write_text(yaml.safe_dump(acceptance, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
     def test_rehashed_parent_continue_guard_removal_is_rejected_semantically(self) -> None:
         parent_path, parent = self._yaml(Path("product/mint_next/batch6/navigation.yaml"))
@@ -376,7 +389,7 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         acceptance["mechanical_binding"]["artifact_sha256"]["parent_navigation"] = digest
         acceptance_path.write_text(yaml.safe_dump(acceptance, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
-            validate(self.root, check_digests=False, require_accepted=False)
+            validate(self.root, check_digests=False, require_accepted=None)
 
 
 if __name__ == "__main__":
