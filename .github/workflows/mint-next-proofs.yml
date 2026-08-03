@@ -49,7 +49,12 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install exact guard dependency
-        run: python3 -m pip install PyYAML==6.0.2
+        run: |
+          python3 -m pip install PyYAML==6.0.2
+          # The user site-packages dir must EXIST for run_proofs' trusted
+          # dependency_site probe (exercised by the sitecustomize-isolation
+          # test). A fresh runner has none until a --user install creates it.
+          python3 -m pip install --user PyYAML==6.0.2
       - name: Fire the 27 hostile acceptance-guard mutations
         run: python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_red_acceptance_guard
       - name: Verify acceptance receipt substance (payload + schema + RED integrity; git boundary waived on this non-merge executor branch)
@@ -77,9 +82,15 @@ jobs:
           flutter-version: '3.44.8'
           channel: stable
           cache: true
-      - name: Resolve isolated Design Lab dependencies (warm pub cache)
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
         working-directory: product/mint_next/batch7/design_lab
-        run: flutter pub get
+        # --enforce-lockfile downloads exactly the pinned lockfile versions
+        # (what the guard's isolated `pub get --offline --enforce-lockfile`
+        # needs) WITHOUT upgrading/rewriting pubspec.lock. Plain `flutter pub
+        # get` would upgrade transitive deps and drift the guard's pinned SHA.
+        run: flutter pub get --enforce-lockfile
+      - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
       - name: Replay expected-RED contract and assert exact 2/13 behavioral pattern
         run: python3 tools/checks/mint_next_batch19_r1_red_guard.py
       - name: Fire the 40 hostile RED-guard mutations
