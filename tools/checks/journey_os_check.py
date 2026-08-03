@@ -138,6 +138,12 @@ ALLOW = {
     "CLAUDE.md",
     "docs/AGENTS/flutter.md",
     "docs/AGENTS/backend.md",
+    # --- docs(doctrine) 2026-08-03 : neutralisation des couches doctrinales
+    # contradictoires (bandeau SUPERSEDED sur ROADMAP_V2, étalon ESTV dans
+    # swiss-brain §3). Carte :
+    # .planning/audit-etat-des-lieux-2026-07/carte-contradictions-doctrinales.md ---
+    "docs/ROADMAP_V2.md",
+    "docs/AGENTS/swiss-brain.md",
     ".claude/skills/mint-flutter-dev/SKILL.md",
     ".claude/skills/mint-backend-dev/SKILL.md",
     ".planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md",

@@ -91,8 +91,9 @@ Revolut) from ones that turn in circles. Apply religiously.
    `.claude/skills/autoresearch-prompt-lab/`. Extend to coach narrative,
    extraction, fallback templates.
 7. **Feature flag + kill switch for every new path.** Default `FeatureFlags.xxx
-   = false` until ready. Phase 33 mechanizes this — until shipped,
-   manual flag.
+   = false` until ready. Règle 5 de la doctrine anti-dérive
+   (`.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`) ;
+   flag manuel par défaut.
 
 ## ❌ Anti-patterns to REFUSE (even when an agent suggests them)
 
@@ -109,18 +110,19 @@ Revolut) from ones that turn in circles. Apply religiously.
   hidden constraints, invariants, workarounds.
 - Tests that assert LLM mock output (testing the mock, not the code).
 
-## 🛡 MINT drift-catchers (already roadmapped — use them as soon as shipped)
+## 🛡 MINT drift-catchers
 
-Until v2.8 Phases 33/34/35 land, the docs in `/docs/*.md` are the manual
-rampart. After ship:
+> La numérotation « v2.8 Phases 33/34/35 » est historique (roadmap 2026-03,
+> superseded — voir bandeau de `docs/ROADMAP_V2.md`). Ce qui est vivant :
 
-- **Phase 33 kill-switches** → any path flag-kill-able from `/admin/flags`
-- **Phase 34 lefthook** → 5 mechanical lints block regressions at commit
-- **Phase 35 Boucle Daily** → morning sim walk + Sentry pull + auto-PR
-  on P0/P1. **The mechanism that catches « an agent broke something
-  overnight ».** Mandatory for solo-dev + AI workflow.
-- **Phase 30.7 MCP tools** → Swiss constants / banned-terms /
-  ARB-parity as on-demand tools (stop bloating agent context with rules)
+- **lefthook** (`lefthook.yml`) — lints mécaniques au commit. Filtre rapide
+  seulement : les preuves qui promeuvent s'exécutent en CI, liées au SHA
+  (doctrine anti-dérive règle 6,
+  `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`).
+- **MCP tools** — Swiss constants / banned-terms / ARB-parity / accents
+  (CLAUDE.md §3).
+- **Feature flag + kill switch** sur tout chemin utilisateur nouveau —
+  doctrine anti-dérive règle 5.
 
 ## 🤝 Session handshake — run these in order, every time
 

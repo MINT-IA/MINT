@@ -45,3 +45,5 @@ All migrated L2-L4 calcs land in `services/backend/app/api/v1/endpoints/` with `
 `app/services/fiscal/cantonal_comparator.py` : estimate_income_tax(_parts), estimate_income_tax_on_rente, estimate_capital_withdrawal_tax (IFD exact + interpolation ESTV, marié par canton) ; fortune : wealth_tax_service (modèle simplifié OFS, PAS calibré ESTV). Ne jamais recomposer un taux plat ni un proxy heuristique — parités croisées gelées au centime (tools/fixtures/*.json). Modèle v1 supprimé.
 
 <!-- mint-data-architecture-v1-01-canonical:end -->
+
+La doctrine de reconstruction (`.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`) est la référence de workflow (fil rouge 6 étapes, anti-dérive v2, runtime touchable) ; ce mirror et la frontière L1/L2 restent régis par le bloc canonique ci-dessus.

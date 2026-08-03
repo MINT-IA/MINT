@@ -5,7 +5,13 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 
 ## Active Now
 
-- Active milestone: `mint-2-0-first-experience-rente-capital`
+- Active milestone: `mint-2-0-first-experience-rente-capital` — **receipt
+  historique** (`.planning/STATE.md` : `status:
+  historical-receipt-superseded-by-journey-os`). Le routeur quotidien est
+  `.planning/journeys/` (TODAY.md, BOARD.md) ; la doctrine de travail est
+  `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`. Le
+  pointeur de milestone reste ici tant que la Promotion Rule n'a pas été
+  exécutée (4 fichiers dans le même commit).
 - Active context: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
 - Active spec: `.planning/phases/mint-2-0-first-experience-rente-capital/SPEC.md`
 - Active integration branch: `dev`
@@ -17,54 +23,13 @@ file and `.planning/ACTIVE_CONTEXT.json` win until the disagreement is fixed.
 - Next product phase: `.planning/phases/mint-2-0-first-experience-rente-capital/CONTEXT.md`
   self-references the active context as a placeholder; no successor product
   phase is queued yet.
-- Temporary hotfix branch: `codex/account-lifecycle-gate-20260624` is
-  authorized only for the account lifecycle/onboarding gate hotfix.
-- Temporary runtime-proof branch: `codex/jos001-seeded-auth-runtime-20260626`
-  is authorized only for the JOS-001 account lifecycle seeded-auth runtime
-  proof and any directly required gate fix.
-- Temporary workflow branch: `codex/dynamic-pr-size-rule-20260626` is
-  authorized only for the PR-size-budget doctrine correction.
-- Temporary runtime-proof branch: `codex/jos002-money-truth-spine-20260626`
-  is authorized only for the Money truth spine Journey OS vertical.
-- Temporary hotfix branch: `codex/jos002a-onboarding-persistence-20260627`
-  is authorized only for the JOS-002A onboarding persistence gate needed before
-  the downstream Money truth spine proof.
-- Temporary runtime-proof branch: `codex/jos002b-money-truth-runtime-20260627`
-  is authorized only for the JOS-002B Money truth runtime proof harness and any
-  directly required SEC-10-preserving simulator fixture fix.
-- Temporary Journey OS branch: `codex/jos003-next-journey-vertical-20260627`
-  is authorized only for selecting and executing the next scoped Journey OS
-  vertical from clean `origin/dev`.
-- Temporary Journey OS branch: `codex/jos004-profile-privacy-control-20260627`
-  is authorized only for the Profile Privacy Control Journey OS vertical from
-  clean `origin/dev`.
-- Temporary Journey OS branch: `codex/jos005-coach-advice-turn-20260627`
-  is authorized only for the Coach Advice Turn Journey OS vertical from clean
-  `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-coach-advice-fix-20260627` is
-  authorized only for the JOS-004 Coach advice turn regulatory freshness fix
-  from clean `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-coach-empty-answer-fix-20260627` is
-  authorized only for the JOS-004 authenticated Coach empty-answer fix, the
-  directly required runtime-proof harness update, and evidence from clean
-  `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-regulatory-floor-20260627` is
-  authorized only for the JOS-004 closed regulatory 3a/LPP deterministic
-  runtime floor and evidence from clean `origin/dev`.
-- Temporary hotfix branch: `codex/jos004-regulatory-floor-close-loop-20260627`
-  is authorized only for closing the JOS-004 3a/LPP regulatory tool loop
-  deterministically before a fallback response can overwrite it.
-- Temporary runtime-proof branch:
-  `codex/jos004-maestro-first-experience-proof-20260627` is authorized only
-  for the JOS-004 Coach advice turn Maestro runtime proof harness update from
-  clean `origin/dev`; no product code changes.
-- Temporary Journey OS branch: `codex/jos005-onboarding-first-value-20260627`
-  is authorized only for classifying and proving the Onboarding First Value
-  Journey OS vertical from clean `origin/dev`.
-- Temporary hotfix branch: `codex/jos005-first-value-before-account-20260627`
-  is authorized only for the JOS-005 Mint 2.0 onboarding first-value fix so the
-  live LPP/rente-capital axis reaches `/rente-vs-capital` before account
-  creation, from clean `origin/dev`.
+- Branches temporaires 2026-06-24 → 2026-06-27 (`codex/account-lifecycle-gate-…`,
+  `codex/jos001…` → `codex/jos005…`, `codex/dynamic-pr-size-rule-…`) :
+  **clôturées — historique.** Elles restent listées dans
+  `.planning/ACTIVE_CONTEXT.json` `allowed_branches` pour la traçabilité, mais
+  n'autorisent plus aucun travail. Les autorisations vivantes sont les patterns
+  `codex/jos[0-9][0-9][0-9]*` et `codex/journey-os-*` du manifest, adossées au
+  board `.planning/journeys/`.
 
 ## Required Session Start
 
