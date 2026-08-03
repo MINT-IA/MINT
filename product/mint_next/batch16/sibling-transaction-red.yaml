@@ -1,0 +1,28 @@
+schema_version: 1
+batch: 16B-red
+status: committed_failing_tests_before_implementation
+contract_ref: product/mint_next/batch16/classification-doubt-scope.yaml
+runtime_surface: none
+product_promotion: forbidden
+
+test_file: product/mint_next/batch7/design_lab/test/multi_provider_unresolved_siblings_test.dart
+expected_red_reason:
+  - MultiProviderUnresolvedRefundToken_missing
+  - MultiProviderUnresolvedAllZeroToken_missing
+  - MultiProviderUnresolvedRefundResult_missing
+  - MultiProviderAllZeroCorrectionResult_missing
+  - refundFullyProvider_missing
+  - beginAllProvidersZeroCorrection_missing
+
+locked_behavior:
+  sibling_tokens: distinct_opaque_same_origin_generation
+  provider_total: consumes_origin_and_every_sibling
+  refund_success: atomically_uses_captured_remove_token_and_tombstones_exact_origin
+  refund_failed_validation: no_op_and_consume_nothing
+  all_zero_entry: validates_without_mutation_or_consumption
+  external_remove_edit_new_doubt_and_purge: invalidate_every_old_sibling
+  ui_route_or_product_surface: forbidden
+
+red_proof_command: >-
+  cd product/mint_next/batch7/design_lab &&
+  flutter test test/multi_provider_unresolved_siblings_test.dart

@@ -262,6 +262,8 @@ ALLOW = {
     "product/mint_next/batch7/design_lab/test/multi_provider_classification_test.dart",
     "tools/checks/mint_next_batch16_classification_model_guard.py",
     "tools/checks/tests/test_mint_next_batch16_classification_model_guard.py",
+    "product/mint_next/batch16/sibling-transaction-red.yaml",
+    "product/mint_next/batch7/design_lab/test/multi_provider_unresolved_siblings_test.dart",
     "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
     "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",
     "AGENTS.md",
