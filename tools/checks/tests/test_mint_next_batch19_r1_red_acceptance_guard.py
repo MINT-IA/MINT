@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import shutil
 import subprocess
 import tempfile
@@ -146,8 +148,101 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
         ]
         with patch.object(guard.subprocess, "run", side_effect=completed), patch.object(
             guard.journey_os_check, "_load_path_owners", return_value=({target}, [])
+        ), patch.object(
+            guard, "_require_owned_tail_chronology"
         ):
             guard._git_boundary(self.root)
+
+    def test_future_target_committed_before_owner_promotion_is_rejected(self) -> None:
+        """Final accepted ownership must not authorize earlier target work."""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "test@mint.invalid"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "MINT Test"], cwd=root, check=True)
+
+            def commit(message: str) -> str:
+                subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+                subprocess.run(["git", "commit", "-q", "-m", message], cwd=root, check=True)
+                return subprocess.run(
+                    ["git", "rev-parse", "HEAD"], cwd=root, check=True,
+                    capture_output=True, text=True,
+                ).stdout.strip()
+
+            (root / "red.txt").write_text("red\n")
+            red_commit = commit("red")
+            acceptance = root / guard.ACCEPTANCE
+            acceptance.parent.mkdir(parents=True, exist_ok=True)
+            acceptance.write_text("candidate\n")
+            commit("acceptance candidate")
+
+            target = "product/mint_next/batch20/r1-runtime.dart"
+            owner_path = root / ".planning/journeys/path-owners/batch20-r1-runtime.json"
+            owner_path.parent.mkdir(parents=True, exist_ok=True)
+            payload_source = {
+                "schema_version": 1,
+                "owner_id": "batch20-r1-runtime",
+                "paths": [target],
+            }
+            payload = hashlib.sha256(json.dumps(
+                payload_source, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")).hexdigest()
+            pending_review = {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
+            owner = {
+                **payload_source,
+                "status": "candidate_unaccepted",
+                "reviews": {
+                    "scope_integrity": pending_review,
+                    "mechanical_adversary": pending_review,
+                    "journey_safety": pending_review,
+                },
+                "mechanical_binding": {
+                    "candidate_payload_sha256": payload,
+                    "reviewed_payload_sha256": None,
+                    "reviewed_candidate_commit": None,
+                },
+            }
+            owner_path.write_text(json.dumps(owner, indent=2) + "\n")
+            owner_candidate = commit("owner pending")
+
+            runtime = root / target
+            runtime.parent.mkdir(parents=True, exist_ok=True)
+            runtime.write_text("runtime before authorization\n")
+            commit("target before owner accepted")
+
+            accepted_review = {
+                "verdict": "ACCEPT", "p1": 0, "p2": 0, "p3": 0,
+                "reviewed_payload_sha256": payload,
+            }
+            owner["status"] = "accepted"
+            owner["reviews"] = {
+                "scope_integrity": accepted_review,
+                "mechanical_adversary": accepted_review,
+                "journey_safety": accepted_review,
+            }
+            owner["mechanical_binding"] = {
+                "candidate_payload_sha256": payload,
+                "reviewed_payload_sha256": payload,
+                "reviewed_candidate_commit": owner_candidate,
+            }
+            owner_path.write_text(json.dumps(owner, indent=2) + "\n")
+            commit("owner promoted after target")
+
+            with patch.object(guard, "RED_COMMIT", red_commit):
+                with self.assertRaisesRegex(guard.GuardFailure, "predates owner promotion"):
+                    guard._git_boundary(root)
+
+            # Rebuild the same tail in the required order: accepted owner first,
+            # target work second. This must remain possible rather than deadlock.
+            subprocess.run(["git", "reset", "--hard", "-q", owner_candidate], cwd=root, check=True)
+            owner_path.write_text(json.dumps(owner, indent=2) + "\n")
+            commit("owner promoted before target")
+            runtime.parent.mkdir(parents=True, exist_ok=True)
+            runtime.write_text("runtime after authorization\n")
+            commit("target after owner accepted")
+            with patch.object(guard, "RED_COMMIT", red_commit):
+                guard._git_boundary(root)
 
 
 if __name__ == "__main__":

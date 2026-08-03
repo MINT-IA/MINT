@@ -178,6 +178,62 @@ def _accepted(root: Path, data: dict, payload: str) -> None:
     _require(data.get("next_gate") == "create_and_review_R1_runtime_path_owner_receipt", "accepted next gate drifted")
 
 
+def _require_owned_tail_chronology(
+    root: Path,
+    candidate_end: str,
+    owned_paths: set[str],
+    tail: list[str],
+) -> None:
+    """Prove authorization existed before every owned target change.
+
+    The latest commit touching an accepted owner receipt is deliberately used
+    as the conservative promotion boundary. A later receipt rewrite therefore
+    cannot retroactively bless older target work.
+    """
+    manifests_by_path: dict[str, str] = {}
+    owners = root / journey_os_check.PATH_OWNERS
+    for manifest in sorted(owners.glob("*.json")):
+        try:
+            data = json.loads(
+                manifest.read_text(encoding="utf-8"),
+                object_pairs_hook=journey_os_check._reject_duplicate_json_keys,
+            )
+        except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+            raise GuardFailure(f"cannot inspect accepted path-owner chronology: {manifest}") from exc
+        relative = manifest.relative_to(root).as_posix()
+        for path in data.get("paths", []) if isinstance(data, dict) else []:
+            if path in owned_paths:
+                _require(path not in manifests_by_path, f"owned path chronology is ambiguous: {path}")
+                manifests_by_path[path] = relative
+
+    targets = {
+        path for path in tail
+        if not path.startswith(".planning/journeys/path-owners/")
+    }
+    for path in sorted(targets):
+        manifest = manifests_by_path.get(path)
+        _require(manifest is not None, f"owned path has no accepted receipt: {path}")
+        try:
+            promotion = subprocess.run(
+                ["git", "log", "-1", "--format=%H", "HEAD", "--", manifest],
+                cwd=root, check=True, capture_output=True, text=True,
+            ).stdout.strip()
+            target_commits = subprocess.run(
+                ["git", "log", "--reverse", "--format=%H", f"{candidate_end}..HEAD", "--", path],
+                cwd=root, check=True, capture_output=True, text=True,
+            ).stdout.splitlines()
+        except subprocess.CalledProcessError as exc:
+            raise GuardFailure(f"cannot inspect owner chronology for: {path}") from exc
+        _require(re.fullmatch(r"[0-9a-f]{40}", promotion) is not None, f"owner promotion commit missing for: {path}")
+        _require(target_commits, f"tail path has no replayable commits: {path}")
+        for target_commit in target_commits:
+            strictly_after = promotion != target_commit and subprocess.run(
+                ["git", "merge-base", "--is-ancestor", promotion, target_commit],
+                cwd=root, capture_output=True,
+            ).returncode == 0
+            _require(strictly_after, f"target commit predates owner promotion: {path}@{target_commit}")
+
+
 def _git_boundary(root: Path) -> None:
     trust_paths = {str(ACCEPTANCE), str(GUARD), str(TESTS)}
     try:
@@ -209,6 +265,7 @@ def _git_boundary(root: Path) -> None:
         and path not in owned_paths
     }
     _require(not unexpected_tail, f"post-acceptance path is not reviewed-owned: {sorted(unexpected_tail)}")
+    _require_owned_tail_chronology(root, candidate_end, owned_paths, tail)
 
 
 def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, check_git: bool = True) -> None:
