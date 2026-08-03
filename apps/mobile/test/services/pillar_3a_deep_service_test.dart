@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 
 /// Unit tests pour Pillar 3a Deep Service — Sprint S16 (3a Deep)
 ///
@@ -529,17 +531,35 @@ void main() {
     });
 
     test('assurance 3a a un warning pour les jeunes (< 35 ans)', () {
-      final result = ProviderComparator.compare(
+      // Calculation path (l == null): the flag is set; the message is null
+      // because user-facing copy is resolved via AppLocalizations only.
+      final calcOnly = ProviderComparator.compare(
         age: 28,
         versementAnnuel: 7258,
         duree: 30,
         profilRisque: ProfilRisque.equilibre,
       );
-      final assurance = result.providers.firstWhere(
+      final calcAssurance = calcOnly.providers.firstWhere(
+        (p) => p.provider.type == 'assurance',
+      );
+      expect(calcAssurance.hasWarning, true);
+      expect(calcAssurance.warningMessage, isNull);
+
+      // Localized path (l provided): the warning message is a non-null
+      // localized string — never a hardcoded FR literal.
+      final localized = ProviderComparator.compare(
+        age: 28,
+        versementAnnuel: 7258,
+        duree: 30,
+        profilRisque: ProfilRisque.equilibre,
+        l: SFr(),
+      );
+      final assurance = localized.providers.firstWhere(
         (p) => p.provider.type == 'assurance',
       );
       expect(assurance.hasWarning, true);
       expect(assurance.warningMessage, isNotNull);
+      expect(assurance.warningMessage, contains('assurance 3a'));
     });
 
     test('pas de warning assurance pour les 35+ ans', () {
@@ -621,6 +641,65 @@ void main() {
           reason: 'No winner designation — No-Ranking doctrine');
       expect(assurance.hasWarning, isTrue,
           reason: 'Assurance provider should still surface a warning flag');
+    });
+  });
+
+  // ════════════════════════════════════════════════════════════
+  //  D. i18n LOCALISATION (device evidence 2026-08-03)
+  //  When AppLocalizations is passed, disclaimers must come from the ARB
+  //  (accents corrects), not the ASCII calculation-path fallback that the
+  //  device surfaced on « Retrait 3a échelonné ».
+  // ════════════════════════════════════════════════════════════
+  group('i18n localisation', () {
+    final S l = SFr();
+
+    test('staggered disclaimer localisé = ARB accentué (pas le fallback ASCII)',
+        () {
+      final result = StaggeredWithdrawalSimulator.simulate(
+        avoirTotal: 300000,
+        nbComptes: 3,
+        canton: 'ZH',
+        revenuImposable: 120000,
+        ageRetraitDebut: 60,
+        ageRetraitFin: 64,
+        l: l,
+      );
+      expect(result.disclaimer, l.pillar3aStaggeredDisclaimer);
+      expect(result.disclaimer, contains('à titre indicatif'));
+      expect(result.disclaimer, contains('prévoyance'));
+      // Regression: the ASCII fallback ("a titre indicatif") must not surface.
+      expect(result.disclaimer, isNot(contains('Simulation pedagogique a')));
+    });
+
+    test('real return disclaimer localisé = ARB', () {
+      final result = RealReturnCalculator.calculate(
+        versementAnnuel: 7258,
+        tauxMarginal: 0.30,
+        rendementBrut: 0.045,
+        fraisGestion: 0.005,
+        dureeAnnees: 30,
+        l: l,
+      );
+      expect(result.disclaimer, l.pillar3aRealReturnDisclaimer);
+      expect(result.disclaimer, contains('pédagogique'));
+    });
+
+    test('provider disclaimer + warning localisés = ARB', () {
+      final result = ProviderComparator.compare(
+        age: 28,
+        versementAnnuel: 7258,
+        duree: 30,
+        profilRisque: ProfilRisque.equilibre,
+        l: l,
+      );
+      expect(result.disclaimer, l.pillar3aProviderDisclaimer);
+      final assurance = result.providers.firstWhere(
+        (p) => p.provider.type == 'assurance',
+      );
+      // Warning is localized from the ARB (accents corrects), not hardcoded FR.
+      expect(assurance.warningMessage, isNotNull);
+      expect(assurance.warningMessage, contains('flexibilité réduite'));
+      expect(assurance.warningMessage, contains('À 28 ans'));
     });
   });
 }

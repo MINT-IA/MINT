@@ -25147,4 +25147,42 @@ class SPt extends S {
   String get frontalierSourceTaxConfidenceMessage =>
       'Estimativa com uma taxa média simplificada por cantão. A tabela efetivamente retida na fonte depende da tua situação familiar (solteiro/a, casado/a, número de filhos), que este modelo plano não distingue. Em separado, o estatuto de quase-residente pode abrir uma tributação ordinária posterior com deduções, sem alterar a tabela retida. A confirmar com a administração fiscal cantonal.';
 
+  @override
+  String get authRecreateAccountCta => 'Recriar a minha conta';
+
+  @override
+  String get pillar3aProviderNameFintechA => 'Fintech A';
+
+  @override
+  String get pillar3aProviderNameFintechB => 'Fintech B';
+
+  @override
+  String get pillar3aProviderNameFintechC => 'Fintech C';
+
+  @override
+  String get pillar3aProviderNameBanque => 'Banco clássico (conta 3a)';
+
+  @override
+  String get pillar3aProviderNameAssurance => 'Seguro 3a (misto)';
+
+  @override
+  String get pillar3aProviderDescFintechA => 'App móvel, estratégias passivas indexadas, gestão automatizada';
+
+  @override
+  String get pillar3aProviderDescFintechB => 'Taxas entre as mais baixas, estratégias globais, flexibilidade';
+
+  @override
+  String get pillar3aProviderDescFintechC => 'Solução digital de um banco cantonal';
+
+  @override
+  String get pillar3aProviderDescBanque => 'Taxa fixa, sem exposição aos mercados, rendimento limitado';
+
+  @override
+  String get pillar3aProviderDescAssurance => 'Combina poupança e cobertura (morte, invalidez). Taxas elevadas, período de compromisso longo.';
+
+  @override
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
+    return 'Aos $age anos, um seguro 3a custa-te cerca de CHF $montant de rendimento a menos ao longo de $duree anos face a uma fintech. Taxas elevadas e flexibilidade reduzida.';
+  }
+
 }

@@ -110,6 +110,20 @@ String localizeAuthException(
   );
 }
 
+/// Public classifier: map an exception-like auth failure to its [AuthError].
+///
+/// UI screens use this when they need the *code* (not just the localized
+/// string) — e.g. to decide whether to surface the "recreate account" CTA
+/// after an Apple sign-in returns `recreate_required`. Never expose
+/// `error.toString()` or a backend `message` to the user; always route it
+/// through [localizeAuthError]/[localizeAuthException] instead.
+AuthError authErrorFromException(
+  Object error, {
+  bool appleContext = false,
+}) {
+  return _authErrorFromException(error, appleContext: appleContext);
+}
+
 AuthError _authErrorFromException(
   Object error, {
   bool appleContext = false,

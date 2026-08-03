@@ -394,13 +394,17 @@ class RealReturnCalculator {
 
 enum ProfilRisque { prudent, equilibre, dynamique }
 
-/// Données d'un provider 3a
+/// Données d'un provider 3a.
+///
+/// `nom` and `type` are stable identifiers (also used by tests). The
+/// user-facing name + description are resolved through AppLocalizations in
+/// the provider comparator screen (`_localizedProviderName` /
+/// `_localizedProviderDescription`), keyed on `nom` — never hardcoded here.
 class Provider3a {
   final String nom;
   final String type; // fintech, banque, assurance
   final Map<ProfilRisque, double> rendementParProfil;
   final double fraisGestion;
-  final String description;
   final int? engagementAnnees;
 
   const Provider3a({
@@ -408,7 +412,6 @@ class Provider3a {
     required this.type,
     required this.rendementParProfil,
     required this.fraisGestion,
-    required this.description,
     this.engagementAnnees,
   });
 
@@ -464,8 +467,6 @@ class ProviderComparator {
         ProfilRisque.dynamique: 0.045,
       },
       fraisGestion: 0.0052,
-      description:
-          'App mobile, strategies passives indexees, gestion automatisee',
     ),
     Provider3a(
       nom: 'Fintech B',
@@ -476,7 +477,6 @@ class ProviderComparator {
         ProfilRisque.dynamique: 0.055,
       },
       fraisGestion: 0.0039,
-      description: 'Frais parmi les plus bas, strategies globales, flexibilite',
     ),
     Provider3a(
       nom: 'Fintech C',
@@ -487,7 +487,6 @@ class ProviderComparator {
         ProfilRisque.dynamique: 0.040,
       },
       fraisGestion: 0.0044,
-      description: 'Solution digitale d\'une banque cantonale',
     ),
     Provider3a(
       nom: 'Banque classique (compte 3a)',
@@ -498,7 +497,6 @@ class ProviderComparator {
         ProfilRisque.dynamique: 0.015,
       },
       fraisGestion: 0.0,
-      description: 'Taux fixe, pas de risque de marche, rendement limite',
     ),
     Provider3a(
       nom: 'Assurance 3a (mixte)',
@@ -509,8 +507,6 @@ class ProviderComparator {
         ProfilRisque.dynamique: 0.010,
       },
       fraisGestion: 0.0175,
-      description: 'Combine epargne et couverture risque (deces, invalidite). '
-          'Frais eleves, duree d\'engagement longue.',
       engagementAnnees: 10,
     ),
   ];
@@ -575,9 +571,14 @@ class ProviderComparator {
           clampedDuree,
         );
         final perte = capitalFintech - capital;
-        warningMsg = 'A $clampedAge ans, une assurance 3a te coute environ '
-            'CHF ${formatChf(perte)} de rendement perdu sur $clampedDuree ans '
-            'par rapport a une fintech. Frais eleves et flexibilite reduite.';
+        // User-facing copy is resolved here through the passed-in
+        // AppLocalizations (6 langs). Calculation-only callers (unit tests)
+        // pass l == null and read the `hasWarning` flag instead.
+        warningMsg = l?.pillar3aProviderAssuranceWarning(
+          clampedAge,
+          formatChf(perte),
+          clampedDuree,
+        );
       }
 
       results.add(ProviderResult(

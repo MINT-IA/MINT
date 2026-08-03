@@ -25191,4 +25191,42 @@ class SDe extends S {
   String get frontalierSourceTaxConfidenceMessage =>
       'Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Der tatsächlich angewandte Quellensteuertarif hängt von deiner Familiensituation ab (ledig, verheiratet, Anzahl Kinder) — was dieses pauschale Modell nicht unterscheidet. Der Quasi-Ansässigkeitsstatus kann separat eine nachträgliche ordentliche Veranlagung mit Abzügen eröffnen, ohne den angewandten Tarif zu ändern. Mit der kantonalen Steuerverwaltung zu bestätigen.';
 
+  @override
+  String get authRecreateAccountCta => 'Mein Konto neu erstellen';
+
+  @override
+  String get pillar3aProviderNameFintechA => 'Fintech A';
+
+  @override
+  String get pillar3aProviderNameFintechB => 'Fintech B';
+
+  @override
+  String get pillar3aProviderNameFintechC => 'Fintech C';
+
+  @override
+  String get pillar3aProviderNameBanque => 'Klassische Bank (3a-Konto)';
+
+  @override
+  String get pillar3aProviderNameAssurance => '3a-Versicherung (gemischt)';
+
+  @override
+  String get pillar3aProviderDescFintechA => 'Mobile App, passive Indexstrategien, automatisierte Verwaltung';
+
+  @override
+  String get pillar3aProviderDescFintechB => 'Gebühren unter den niedrigsten, globale Strategien, Flexibilität';
+
+  @override
+  String get pillar3aProviderDescFintechC => 'Digitale Lösung einer Kantonalbank';
+
+  @override
+  String get pillar3aProviderDescBanque => 'Fester Zins, nicht marktabhängig, begrenzte Rendite';
+
+  @override
+  String get pillar3aProviderDescAssurance => 'Kombiniert Sparen und Deckung (Tod, Invalidität). Hohe Gebühren, lange Bindungsdauer.';
+
+  @override
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
+    return 'Mit $age Jahren kostet dich eine 3a-Versicherung rund CHF $montant weniger Rendite über $duree Jahre im Vergleich zu einer Fintech. Hohe Gebühren und geringere Flexibilität.';
+  }
+
 }

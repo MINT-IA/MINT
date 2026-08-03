@@ -142,6 +142,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         revenuImposable: _revenuImposable,
         ageRetraitDebut: _ageRetraitDebut,
         ageRetraitFin: _ageRetraitFin,
+        // Route the disclaimer through AppLocalizations so the localized ARB
+        // copy renders instead of the calculation-path fallback.
+        l: S.of(context),
       );
 
   // _emitScreenReturn is called on user interaction (slider change, button tap).

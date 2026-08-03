@@ -49,6 +49,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         rendementBrut: _rendementBrut,
         fraisGestion: _fraisGestion,
         dureeAnnees: _dureeAnnees,
+        // Route the disclaimer through AppLocalizations so the localized ARB
+        // copy renders instead of the calculation-path fallback.
+        l: S.of(context),
       );
 
   @override

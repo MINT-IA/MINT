@@ -80,6 +80,9 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         versementAnnuel: _versementAnnuel,
         duree: _duree,
         profilRisque: _profilRisque,
+        // Route the disclaimer + assurance warning through AppLocalizations so
+        // the localized ARB copy renders instead of the calculation fallback.
+        l: S.of(context),
       );
 
   @override
@@ -355,8 +358,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(result.provider.nom, style: MintTextStyles.titleMedium()),
-                    Text(result.provider.description, style: MintTextStyles.labelSmall(color: MintColors.textMuted)),
+                    Text(_localizedProviderName(l, result.provider),
+                        style: MintTextStyles.titleMedium()),
+                    Text(_localizedProviderDescription(l, result.provider),
+                        style:
+                            MintTextStyles.labelSmall(color: MintColors.textMuted)),
                   ],
                 ),
               ),
@@ -471,6 +477,45 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         const SizedBox(height: MintSpacing.lg),
       ],
     ];
+  }
+
+  /// Localized provider name. The service keeps `provider.nom` as a stable
+  /// identifier (also used by tests); the UI resolves the display label
+  /// through AppLocalizations so archetype labels are never hardcoded FR.
+  String _localizedProviderName(S l, Provider3a provider) {
+    switch (provider.nom) {
+      case 'Fintech A':
+        return l.pillar3aProviderNameFintechA;
+      case 'Fintech B':
+        return l.pillar3aProviderNameFintechB;
+      case 'Fintech C':
+        return l.pillar3aProviderNameFintechC;
+      case 'Banque classique (compte 3a)':
+        return l.pillar3aProviderNameBanque;
+      case 'Assurance 3a (mixte)':
+        return l.pillar3aProviderNameAssurance;
+      default:
+        return provider.nom;
+    }
+  }
+
+  /// Localized provider description, resolved from the stable `provider.nom`
+  /// identifier through AppLocalizations.
+  String _localizedProviderDescription(S l, Provider3a provider) {
+    switch (provider.nom) {
+      case 'Fintech A':
+        return l.pillar3aProviderDescFintechA;
+      case 'Fintech B':
+        return l.pillar3aProviderDescFintechB;
+      case 'Fintech C':
+        return l.pillar3aProviderDescFintechC;
+      case 'Banque classique (compte 3a)':
+        return l.pillar3aProviderDescBanque;
+      case 'Assurance 3a (mixte)':
+        return l.pillar3aProviderDescAssurance;
+      default:
+        return '';
+    }
   }
 
   Widget _buildDisclaimer(String disclaimer) {

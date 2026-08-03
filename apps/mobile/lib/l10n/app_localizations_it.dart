@@ -25201,4 +25201,42 @@ class SIt extends S {
   String get frontalierSourceTaxConfidenceMessage =>
       'Stima su un tasso medio semplificato per cantone. La tariffa alla fonte effettivamente applicata dipende dalla tua situazione familiare (celibe/nubile, coniugato/a, numero di figli), che questo modello semplificato non distingue. Separatamente, lo statuto di quasi-residente può aprire una tassazione ordinaria posteriore con deduzioni, senza cambiare la tariffa applicata. Da confermare con l\'amministrazione fiscale cantonale.';
 
+  @override
+  String get authRecreateAccountCta => 'Ricrea il mio account';
+
+  @override
+  String get pillar3aProviderNameFintechA => 'Fintech A';
+
+  @override
+  String get pillar3aProviderNameFintechB => 'Fintech B';
+
+  @override
+  String get pillar3aProviderNameFintechC => 'Fintech C';
+
+  @override
+  String get pillar3aProviderNameBanque => 'Banca classica (conto 3a)';
+
+  @override
+  String get pillar3aProviderNameAssurance => 'Assicurazione 3a (mista)';
+
+  @override
+  String get pillar3aProviderDescFintechA => 'App mobile, strategie passive indicizzate, gestione automatizzata';
+
+  @override
+  String get pillar3aProviderDescFintechB => 'Commissioni tra le più basse, strategie globali, flessibilità';
+
+  @override
+  String get pillar3aProviderDescFintechC => 'Soluzione digitale di una banca cantonale';
+
+  @override
+  String get pillar3aProviderDescBanque => 'Tasso fisso, non esposto ai mercati, rendimento limitato';
+
+  @override
+  String get pillar3aProviderDescAssurance => 'Combina risparmio e copertura (decesso, invalidità). Commissioni elevate, lunga durata di impegno.';
+
+  @override
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
+    return 'A $age anni, un’assicurazione 3a ti costa circa CHF $montant di rendimento in meno su $duree anni rispetto a una fintech. Commissioni elevate e flessibilità ridotta.';
+  }
+
 }
