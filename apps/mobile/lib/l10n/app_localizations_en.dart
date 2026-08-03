@@ -25036,7 +25036,7 @@ class SEn extends S {
 
   @override
   String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'At $age, a 3a insurance costs you about CHF $montant in lower returns over $duree years compared with a fintech. High fees and reduced flexibility.';
+    return 'At $age, the final-capital gap between a 3a insurance and a fintech provider, driven by higher fees, is about CHF $montant over $duree years in your simulation. A 3a insurance combines savings and coverage; its fees and flexibility vary by contract.';
   }
 
 }

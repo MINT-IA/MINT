@@ -25226,7 +25226,7 @@ class SDe extends S {
 
   @override
   String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'Mit $age Jahren kostet dich eine 3a-Versicherung rund CHF $montant weniger Rendite über $duree Jahre im Vergleich zu einer Fintech. Hohe Gebühren und geringere Flexibilität.';
+    return 'Mit $age Jahren beträgt der Unterschied beim Endkapital zwischen einer 3a-Versicherung und einem Fintech-Anbieter, bedingt durch höhere Gebühren, in deiner Simulation rund CHF $montant über $duree Jahre. Eine 3a-Versicherung verbindet Sparen und Absicherung; Gebühren und Flexibilität variieren je nach Vertrag.';
   }
 
 }

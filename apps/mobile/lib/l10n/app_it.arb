@@ -7738,7 +7738,7 @@
   "pillar3aProviderDescFintechC": "Soluzione digitale di una banca cantonale",
   "pillar3aProviderDescBanque": "Tasso fisso, non esposto ai mercati, rendimento limitato",
   "pillar3aProviderDescAssurance": "Combina risparmio e copertura (decesso, invalidità). Commissioni elevate, lunga durata di impegno.",
-  "pillar3aProviderAssuranceWarning": "A {age} anni, un’assicurazione 3a ti costa circa CHF {montant} di rendimento in meno su {duree} anni rispetto a una fintech. Commissioni elevate e flessibilità ridotta.",
+  "pillar3aProviderAssuranceWarning": "A {age} anni, la differenza di capitale finale tra un’assicurazione 3a e un fornitore fintech, dovuta a commissioni più elevate, è di circa CHF {montant} su {duree} anni nella tua simulazione. Un’assicurazione 3a combina risparmio e copertura; le sue commissioni e la sua flessibilità variano in base al contratto.",
   "authErrorService": "Servizio account non disponibile in questo ambiente. Usa la modalità locale.",
   "authHidePassword": "Nascondi password",
   "authShowPassword": "Mostra password",

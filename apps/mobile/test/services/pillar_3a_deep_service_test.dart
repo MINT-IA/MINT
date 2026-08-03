@@ -698,7 +698,7 @@ void main() {
       );
       // Warning is localized from the ARB (accents corrects), not hardcoded FR.
       expect(assurance.warningMessage, isNotNull);
-      expect(assurance.warningMessage, contains('flexibilité réduite'));
+      expect(assurance.warningMessage, contains('frais plus élevés'));
       expect(assurance.warningMessage, contains('À 28 ans'));
     });
   });

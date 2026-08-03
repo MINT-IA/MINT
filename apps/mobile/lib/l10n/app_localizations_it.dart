@@ -25236,7 +25236,7 @@ class SIt extends S {
 
   @override
   String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'A $age anni, un’assicurazione 3a ti costa circa CHF $montant di rendimento in meno su $duree anni rispetto a una fintech. Commissioni elevate e flessibilità ridotta.';
+    return 'A $age anni, la differenza di capitale finale tra un’assicurazione 3a e un fornitore fintech, dovuta a commissioni più elevate, è di circa CHF $montant su $duree anni nella tua simulazione. Un’assicurazione 3a combina risparmio e copertura; le sue commissioni e la sua flessibilità variano in base al contratto.';
   }
 
 }
