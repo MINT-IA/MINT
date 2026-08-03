@@ -1,6 +1,6 @@
 schema_version: 1
 batch: 16
-status: draft_written_runtime_forbidden
+status: contract_accepted_runtime_unimplemented_product_forbidden
 title: Classification par ligne et résolution d'un montant 3a douteux
 
 authority:

@@ -80,7 +80,10 @@ def validate(root: Path, *, check_digests: bool = True, check_git: bool = True) 
     _load_yaml(parent_path)
     nav = nav_path.read_text(encoding="utf-8")
 
-    _require(scope["status"] == "draft_written_runtime_forbidden", "runtime must remain forbidden")
+    _require(
+        scope["status"] == "contract_accepted_runtime_unimplemented_product_forbidden",
+        "contract lifecycle drifted or runtime/product was accepted prematurely",
+    )
     _require(scope["authority"]["runtime_surface"] == "hidden_design_lab_harness_only", "hidden harness limit drifted")
     _require(scope["authority"]["product_promotion"] == "forbidden", "product promotion must remain forbidden")
     _require(_sha256(parent_path) == scope["authority"]["parent_contract_sha256"], "parent contract digest drifted")
@@ -160,7 +163,39 @@ def validate(root: Path, *, check_digests: bool = True, check_git: bool = True) 
         "contract roast roles or exact zero verdicts drifted",
     )
     _require(acceptance["contract_roast_receipt"]["rounds"] == 6, "roast receipt drifted")
-    _require(acceptance["current_verdict"] == "REJECT_UNTIL_CONTRACT_ROAST_AND_MECHANICAL_GUARD", "runtime was accepted prematurely")
+    _require(
+        acceptance["full_runtime_acceptance_requires"]
+        == {
+            "severity_counts": {"p1": 0, "p2": 0, "p3": 0},
+            "no_dead_end": True,
+            "no_uncabled_control": True,
+            "no_automatic_financial_inference": True,
+            "runtime_proofs_complete": True,
+            "hidden_harness_only": True,
+        },
+        "future runtime acceptance conditions drifted or became ambiguous",
+    )
+    _require(
+        acceptance["status"] == "contract_accepted_runtime_unimplemented",
+        "written-contract status drifted or runtime was accepted prematurely",
+    )
+    current_evidence = acceptance["current_evidence"]
+    _require(
+        current_evidence
+        == {
+            "written_contract_roasts_complete": True,
+            "scope_guard_complete": True,
+            "hidden_model_groundwork_complete": True,
+            "runtime_proofs_complete": False,
+            "runtime_guard_complete": False,
+            "product_promotion": "forbidden",
+        },
+        "current evidence overclaims or omits the runtime boundary",
+    )
+    _require(
+        acceptance["current_verdict"] == "CONTRACT_ACCEPTED_RUNTIME_UNIMPLEMENTED",
+        "runtime was accepted prematurely or contract acceptance was erased",
+    )
     binding = acceptance["mechanical_binding"]
     _require(binding["scope_guard"] == str(GUARD), "current scope guard path drifted")
     _require(binding["scope_guard_tests"] == str(GUARD_TESTS), "current scope guard tests path drifted")
@@ -177,6 +212,9 @@ def validate(root: Path, *, check_digests: bool = True, check_git: bool = True) 
         "destructive_aggregate_edge_added": "test_destructive_aggregate_edge_is_rejected",
         "mutation_registry_entry_removed": "test_missing_hostile_mutation_id_is_rejected",
         "nonzero_roast_inserted": "test_nonzero_roast_is_rejected",
+        "runtime_evidence_overclaimed": "test_runtime_evidence_overclaim_is_rejected",
+        "runtime_guard_overclaimed": "test_runtime_guard_overclaim_is_rejected",
+        "contract_acceptance_erased": "test_contract_acceptance_erasure_is_rejected",
         "lefthook_binding_removed": "test_removed_lefthook_binding_is_rejected",
         "ci_binding_removed": "test_removed_ci_binding_is_rejected",
         "duplicate_yaml_key_added": "test_duplicate_yaml_key_is_rejected",

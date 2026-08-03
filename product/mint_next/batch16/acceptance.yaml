@@ -1,6 +1,6 @@
 schema_version: 1
 batch: 16
-status: draft_unaccepted
+status: contract_accepted_runtime_unimplemented
 scope_ref: product/mint_next/batch16/classification-doubt-scope.yaml
 navigation_ref: product/mint_next/batch16/navigation.mmd
 
@@ -14,13 +14,21 @@ contract_roast_receipt:
   final_exact_artifacts: [classification-doubt-scope.yaml, navigation.mmd, acceptance.yaml]
   runtime_claim: forbidden
 
-acceptance_requires:
+full_runtime_acceptance_requires:
   severity_counts: {p1: 0, p2: 0, p3: 0}
   no_dead_end: true
   no_uncabled_control: true
   no_automatic_financial_inference: true
   runtime_proofs_complete: true
   hidden_harness_only: true
+
+current_evidence:
+  written_contract_roasts_complete: true
+  scope_guard_complete: true
+  hidden_model_groundwork_complete: true
+  runtime_proofs_complete: false
+  runtime_guard_complete: false
+  product_promotion: forbidden
 
 mechanical_binding:
   scope_guard: tools/checks/mint_next_batch16_classification_scope_guard.py
@@ -41,7 +49,7 @@ mechanical_binding:
     - cd product/mint_next/batch7/design_lab && flutter analyze
     - cd product/mint_next/batch7/design_lab && flutter test
   digest_binding:
-    contract_sha256: 09c838b2534b217327dcc2bd0845a61721ee519b48c6f884d82685a6b2c28945
+    contract_sha256: c5bf3eb9eef71aa4e50125cbc32abc4d73ea1fa11d25536ab49c89b4b006adee
     navigation_sha256: ff8efef370d20fe9fb0a9fa73d04148f4dc41155eded8150d3985c6a273fd053
     normalized_workflow_sha256: f96890b67b2f7db01ddac5a1ebcefe94c4d89079a26df252cb67ba70781cf27e
   scope_hostile_mutations_executed:
@@ -55,6 +63,9 @@ mechanical_binding:
     destructive_aggregate_edge_added: test_destructive_aggregate_edge_is_rejected
     mutation_registry_entry_removed: test_missing_hostile_mutation_id_is_rejected
     nonzero_roast_inserted: test_nonzero_roast_is_rejected
+    runtime_evidence_overclaimed: test_runtime_evidence_overclaim_is_rejected
+    runtime_guard_overclaimed: test_runtime_guard_overclaim_is_rejected
+    contract_acceptance_erased: test_contract_acceptance_erasure_is_rejected
     lefthook_binding_removed: test_removed_lefthook_binding_is_rejected
     ci_binding_removed: test_removed_ci_binding_is_rejected
     duplicate_yaml_key_added: test_duplicate_yaml_key_is_rejected
@@ -94,4 +105,4 @@ mechanical_binding:
     ci_binding_removed: workflow_binding_guard_test_must_fail
     hidden_harness_limit_changed: hidden_surface_guard_test_must_fail
 
-current_verdict: REJECT_UNTIL_CONTRACT_ROAST_AND_MECHANICAL_GUARD
+current_verdict: CONTRACT_ACCEPTED_RUNTIME_UNIMPLEMENTED

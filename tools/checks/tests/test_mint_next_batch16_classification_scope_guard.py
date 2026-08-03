@@ -110,6 +110,24 @@ class Batch16ClassificationScopeGuardTest(unittest.TestCase):
         path.write_text(yaml.safe_dump(data, sort_keys=False))
         self._validate_mutation()
 
+    def test_runtime_evidence_overclaim_is_rejected(self) -> None:
+        path, data = self._acceptance()
+        data["current_evidence"]["runtime_proofs_complete"] = True
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        self._validate_mutation()
+
+    def test_runtime_guard_overclaim_is_rejected(self) -> None:
+        path, data = self._acceptance()
+        data["current_evidence"]["runtime_guard_complete"] = True
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        self._validate_mutation()
+
+    def test_contract_acceptance_erasure_is_rejected(self) -> None:
+        path, data = self._acceptance()
+        data["status"] = "draft_unaccepted"
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        self._validate_mutation()
+
     def test_removed_lefthook_binding_is_rejected(self) -> None:
         path = self.root / "lefthook.yml"
         path.write_text(path.read_text().replace("mint-next-batch16-classification-scope-guard:", "removed-batch16-scope-guard:"))
