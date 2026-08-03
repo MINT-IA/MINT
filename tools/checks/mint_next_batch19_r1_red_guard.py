@@ -29,6 +29,8 @@ FIXTURE = Path(
 PUBSPEC = Path("product/mint_next/batch7/design_lab/pubspec.yaml")
 PUBSPEC_LOCK = Path("product/mint_next/batch7/design_lab/pubspec.lock")
 LIB_ROOT = Path("product/mint_next/batch7/design_lab/lib")
+L10N_CONFIG = Path("product/mint_next/batch7/design_lab/l10n.yaml")
+ASSETS_ROOT = Path("product/mint_next/batch7/design_lab/assets")
 ANCHOR = "7bbf90b447c5d772597bd807810c39b22b232632"
 
 EXPECTED_SCOPE_SHA256 = "ecb83ff852211d055ca50d9e0667d138b744e1bca1a7ba81131c2c1814761f8a"
@@ -60,6 +62,15 @@ EXPECTED_LIB_SOURCE_SHA256 = {
     "multi_provider_label.dart": "f39f18d582dcec006422631710f1168d3fd582da1dc688bf330ca0f8c56757ac",
     "ordinary_chf_amount.dart": "43c9850e89d0696f98d11c1b6cdd295ab48aeb480149b8d5e60116fccf4b55be",
     "provider_label.dart": "06f3714e147660539e6eed40898f9f691a77b7fdaa50f7ca6ad7a44d36c3188a",
+}
+EXPECTED_AUX_INPUT_SHA256 = {
+    "l10n.yaml": "0879c4e81347d78e3551434c75ad282aa818efe28ede77d63326dd8b8d4201be",
+    "assets/fonts/Gambarino-Regular.otf": "3cfc8143b820d4e9e5970748cf6189d0624aeb1f8c5a0138c2c82bbb9b50efdf",
+    "assets/fonts/LICENSE-GAMBARINO.txt": "c2fa18da766a12ef7a1750bc58268048ec01744669e99061494995ea93320e01",
+    "assets/fonts/LICENSE-SUPREME.txt": "716d23ed97562988d3436b36c9a2f6a3876be064bafcebceea29b0a135768e03",
+    "assets/fonts/Supreme-Bold.otf": "00ebce7fae218b2e28df0581652749e9cbc1d4a6a4221780541532362471d89a",
+    "assets/fonts/Supreme-Medium.otf": "4771fa1237212a3eddb060814b2d721e47a79b9b3bf58451ac1b98c48dce58f9",
+    "assets/fonts/Supreme-Regular.otf": "00410913847ad5e731e49da556a0c541aacfae84e6c998c5a3a6b4fca3b18ee4",
 }
 EXPECTED_ORDER = [
     "R1", "R2", "R3", "R4a_safe_exit",
@@ -213,7 +224,10 @@ def _validate_diff_boundary(root: Path) -> None:
 
 
 def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
-    for relative in (REGISTRY, SCOPE, COPY, TEST, FIXTURE, PUBSPEC, PUBSPEC_LOCK):
+    for relative in (
+        REGISTRY, SCOPE, COPY, TEST, FIXTURE, PUBSPEC, PUBSPEC_LOCK,
+        L10N_CONFIG,
+    ):
         path = root / relative
         _require(path.is_file() and not path.is_symlink(), f"artifact is not a regular file: {relative}")
     registry = _load(root / REGISTRY)
@@ -318,6 +332,17 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     _require(
         sources == EXPECTED_LIB_SOURCE_SHA256,
         "reviewed RED runtime source inventory or digest drifted",
+    )
+    design_lab = PUBSPEC.parent
+    auxiliary = {"l10n.yaml": _sha(root / L10N_CONFIG)}
+    auxiliary.update({
+        path.relative_to(root / design_lab).as_posix(): _sha(path)
+        for path in sorted((root / ASSETS_ROOT).rglob("*"))
+        if path.is_file() and not path.is_symlink()
+    })
+    _require(
+        auxiliary == EXPECTED_AUX_INPUT_SHA256,
+        "reviewed RED auxiliary input inventory or digest drifted",
     )
     if check_git:
         _validate_diff_boundary(root)

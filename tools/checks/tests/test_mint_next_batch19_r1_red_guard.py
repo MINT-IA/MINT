@@ -22,6 +22,7 @@ FILES = (
     guard.FIXTURE,
     guard.PUBSPEC,
     guard.PUBSPEC_LOCK,
+    guard.L10N_CONFIG,
 )
 
 
@@ -34,6 +35,7 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, target)
         shutil.copytree(ROOT / guard.LIB_ROOT, self.root / guard.LIB_ROOT)
+        shutil.copytree(ROOT / guard.ASSETS_ROOT, self.root / guard.ASSETS_ROOT)
         guard.validate(self.root, check_git=False)
 
     def tearDown(self) -> None:
@@ -232,6 +234,18 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         path = self.root / guard.LIB_ROOT / "l10n" / "app_fr.arb"
         path.write_text(path.read_text().replace("MINT", "M1NT", 1))
         with self.assertRaisesRegex(guard.GuardFailure, "source inventory or digest drifted"):
+            guard.validate(self.root, check_git=False)
+
+    def test_l10n_config_drift_is_rejected(self) -> None:
+        path = self.root / guard.L10N_CONFIG
+        path.write_text(path.read_text() + "\n# drift\n")
+        with self.assertRaisesRegex(guard.GuardFailure, "auxiliary input inventory or digest drifted"):
+            guard.validate(self.root, check_git=False)
+
+    def test_asset_drift_is_rejected(self) -> None:
+        path = self.root / guard.ASSETS_ROOT / "fonts" / "Supreme-Regular.otf"
+        path.write_bytes(path.read_bytes() + b"drift")
+        with self.assertRaisesRegex(guard.GuardFailure, "auxiliary input inventory or digest drifted"):
             guard.validate(self.root, check_git=False)
 
     def test_nonexistent_batch18_harness_is_rejected(self) -> None:
