@@ -171,6 +171,14 @@ void main() {
     'es': ['recompra'],
     'pt': ['resgate'],
   };
+  const exactOrdinaryAmountLabels = {
+    'fr': 'Montant ordinaire crédité confirmé · {taxYear}',
+    'en': 'Confirmed ordinary contribution received · {taxYear}',
+    'de': 'Bestätigte ordentliche Beiträge · {taxYear}',
+    'it': 'Contributi ordinari confermati · {taxYear}',
+    'es': 'Aportaciones ordinarias confirmadas · {taxYear}',
+    'pt': 'Contribuições ordinárias confirmadas · {taxYear}',
+  };
   for (final locale in ['fr', 'en', 'de', 'it', 'es', 'pt']) {
     test(
       '$locale source preserves reviewed contribution semantics exactly',
@@ -178,6 +186,11 @@ void main() {
         final source =
             jsonDecode(File('lib/l10n/app_$locale.arb').readAsStringSync())
                 as Map<String, dynamic>;
+        expect(
+          source['batch11OrdinaryAmountLabel'],
+          exactOrdinaryAmountLabels[locale],
+          reason: '$locale ordinary contribution field must retain its fact',
+        );
         for (final entry in semanticContracts[locale]!.entries) {
           expect(
             source[entry.key],

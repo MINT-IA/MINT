@@ -179,7 +179,7 @@
   "batch11AmountBody": "Start with your 3a provider. If you have more than one, say that one is missing after this first amount.",
   "batch11ProviderNameLabel": "3a provider",
   "batch11ProviderNamePrivacy": "Do not enter an account, policy, Swiss social-security or IBAN number.",
-  "batch11OrdinaryAmountLabel": "Confirmed amount · {taxYear}",
+  "batch11OrdinaryAmountLabel": "Confirmed ordinary contribution received · {taxYear}",
   "batch11NotTaxResult": "This total is not a tax result yet.",
   "batch11AllProvidersReviewed": "I have only one 3a provider and checked its total for {taxYear}",
   "batch11WhereFindTitle": "Where can I find it?",
@@ -225,11 +225,12 @@
   "batch11HelpFoundFirst": "I found a first amount",
   "batch11HelpEducationOnly": "Continue with a general explanation",
   "batch11HelpBack": "Back to entry",
-  "batch11MissingAmount": "I am missing one provider’s amount",
-  "batch11HelpPartialBody": "Keep the amounts already entered. At least one provider is still missing: find its confirmed total before validating.",
-  "batch11HelpFoundPartial": "Add the missing amount",
+  "batch11MissingAmount": "I have several pillar 3a providers",
+  "batch11HelpPartialBody": "This first journey cannot yet add several providers. Do not confirm this total here. You can return without confirming or continue with general guidance.",
+  "batch11HelpFoundPartial": "Return without confirming",
   "batch12PositiveCantonTitle": "Your ordinary amount for {taxYear} is ready.",
   "batch12PositiveCantonBody": "No tax result has been calculated yet. The next step will ask for your canton.",
+  "batch12CorrectAmounts": "Correct my amounts",
   "@batch12PositiveCantonTitle": {
     "placeholders": {
       "taxYear": {

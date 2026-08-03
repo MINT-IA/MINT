@@ -190,7 +190,7 @@ def run(capture: bool) -> None:
         accessible_text = body + "\n" + "\n".join(ax_reading_names(browser))
         for fragment in (
             "Prestataire 3a",
-            f"Montant confirmé · {year}",
+            f"Montant ordinaire crédité confirmé · {year}",
             f"Je n’ai qu’un seul prestataire 3a et j’ai vérifié son total pour {year}",
             "Ce total n’est pas encore un résultat fiscal",
         ):
@@ -209,30 +209,68 @@ def run(capture: bool) -> None:
             screenshot(browser, CAPTURES / "fr_amount_empty_chrome_390.png")
 
         click_label(browser, "Où trouver le montant ?")
+        disclosure = semantic_expression("button", "Où trouver le montant ?")
+        check(
+            browser.js(f"({disclosure}).getAttribute('aria-expanded')") == "true",
+            "disclosure exposes expanded state",
+        )
         disclosure_text = text(browser) + "\n" + "\n".join(ax_reading_names(browser))
         check("une seule fois" in disclosure_text, f"provider total once guidance is visible: {disclosure_text!r}")
         check("plusieurs contrats" in disclosure_text, "multi-contract warning is visible")
         if capture:
+            browser.call(
+                "Input.dispatchMouseEvent",
+                {
+                    "type": "mouseWheel",
+                    "x": 195,
+                    "y": 520,
+                    "deltaX": 0,
+                    "deltaY": 620,
+                },
+            )
+            browser.js("new Promise(resolve=>setTimeout(resolve,350))")
             screenshot(browser, CAPTURES / "fr_amount_disclosure_chrome_390.png")
 
         enter_text(browser, "Prestataire 3a", "VIAC")
         browser.key("Tab")
         browser.js("new Promise(resolve=>setTimeout(resolve,150))")
-        enter_text(browser, f"Montant confirmé · {year}", "7258.50")
+        enter_text(
+            browser,
+            f"Montant ordinaire crédité confirmé · {year}",
+            "7258.50",
+        )
         click_label(browser, "Continuer")
         check(
-            "Il me manque le montant d’un de mes 3a" in text(browser),
+            ax_focused_name(browser).startswith("Je n’ai qu’un seul prestataire 3a"),
+            "missing review moves AX focus to the checkbox",
+        )
+        check(
+            any("Confirme" in name for name in ax_reading_names(browser)),
+            "missing review error is exposed in the AX tree",
+        )
+        check(
+            "J’ai plusieurs prestataires 3a" in text(browser),
             "positive draft switches to partial action; inputs="
             + repr(browser.js("[...document.querySelectorAll('input,textarea')].map(e=>({value:e.value,label:e.getAttribute('aria-label')}))"))
             + "; body="
             + repr(text(browser)),
         )
-        click_label(browser, "Il me manque le montant d’un de mes 3a")
-        check("Ajouter le montant manquant" in text(browser), "partial help reached")
+        click_label(browser, "J’ai plusieurs prestataires 3a")
+        check(
+            "Ce premier parcours ne peut pas encore additionner plusieurs prestataires"
+            in text(browser),
+            "honest multi-provider holding route reached",
+        )
         check("7258.50" not in text(browser), "partial help does not render personal amount")
         if capture:
             screenshot(browser, CAPTURES / "fr_amount_partial_help_chrome_390.png")
-        click_label(browser, "Ajouter le montant manquant")
+        click_label(browser, "Revenir à la saisie sans confirmer")
+        check(
+            ax_focused_name(browser).startswith(
+                f"Montant ordinaire crédité confirmé · {year}"
+            ),
+            "partial-help return restores amount focus",
+        )
         focus_textbox(browser, "Prestataire 3a")
         browser.key("Tab")
         browser.js("new Promise(resolve=>setTimeout(resolve,150))")
@@ -243,7 +281,16 @@ def run(capture: bool) -> None:
             f"partial help restores draft: dom={restored}, ax={restored_ax}",
         )
 
+        checkbox = semantic_expression("checkbox", "Je n’ai qu’un seul prestataire 3a")
+        check(
+            browser.js(f"({checkbox}).getAttribute('aria-checked')") == "false",
+            "single-provider confirmation starts unchecked",
+        )
         click_checkbox(browser, "Je n’ai qu’un seul prestataire 3a")
+        check(
+            browser.js(f"({checkbox}).getAttribute('aria-checked')") == "true",
+            "single-provider confirmation exposes checked state",
+        )
         click_label(browser, "Continuer")
         check("Aucun résultat fiscal n’est encore calculé" in text(browser), "complete amount reaches honest canton boundary")
         check(
@@ -257,7 +304,7 @@ def run(capture: bool) -> None:
         check("7258.50" not in text(browser), "canton boundary does not repeat personal amount")
         if capture:
             screenshot(browser, CAPTURES / "fr_amount_complete_boundary_chrome_390.png")
-        click_label(browser, "Corriger ma réponse")
+        click_label(browser, "Corriger mes montants")
         focus_textbox(browser, "Prestataire 3a")
         browser.key("Tab")
         browser.js("new Promise(resolve=>setTimeout(resolve,150))")

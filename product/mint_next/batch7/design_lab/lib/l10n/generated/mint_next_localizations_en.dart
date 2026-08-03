@@ -363,7 +363,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Confirmed amount · $taxYear';
+    return 'Confirmed ordinary contribution received · $taxYear';
   }
 
   @override
@@ -424,14 +424,14 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
   String get batch11HelpBack => 'Back to entry';
 
   @override
-  String get batch11MissingAmount => 'I am missing one provider’s amount';
+  String get batch11MissingAmount => 'I have several pillar 3a providers';
 
   @override
   String get batch11HelpPartialBody =>
-      'Keep the amounts already entered. At least one provider is still missing: find its confirmed total before validating.';
+      'This first journey cannot yet add several providers. Do not confirm this total here. You can return without confirming or continue with general guidance.';
 
   @override
-  String get batch11HelpFoundPartial => 'Add the missing amount';
+  String get batch11HelpFoundPartial => 'Return without confirming';
 
   @override
   String batch12PositiveCantonTitle(int taxYear) {
@@ -441,4 +441,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
   @override
   String get batch12PositiveCantonBody =>
       'No tax result has been calculated yet. The next step will ask for your canton.';
+
+  @override
+  String get batch12CorrectAmounts => 'Correct my amounts';
 }

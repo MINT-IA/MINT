@@ -366,7 +366,7 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Importo confermato · $taxYear';
+    return 'Contributi ordinari confermati · $taxYear';
   }
 
   @override
@@ -429,14 +429,14 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
   String get batch11HelpBack => 'Torna all’inserimento';
 
   @override
-  String get batch11MissingAmount => 'Mi manca l’importo di un istituto 3a';
+  String get batch11MissingAmount => 'Ho diversi istituti 3a';
 
   @override
   String get batch11HelpPartialBody =>
-      'Conserva gli importi già inseriti. Manca ancora almeno un istituto: trova il suo totale confermato prima di convalidare.';
+      'Questo primo percorso non può ancora sommare diversi istituti. Non confermare qui questo totale. Puoi tornare senza confermare o continuare con informazioni generali.';
 
   @override
-  String get batch11HelpFoundPartial => 'Aggiungi l’importo mancante';
+  String get batch11HelpFoundPartial => 'Torna senza confermare';
 
   @override
   String batch12PositiveCantonTitle(int taxYear) {
@@ -446,4 +446,7 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
   @override
   String get batch12PositiveCantonBody =>
       'Non è ancora stato calcolato alcun risultato fiscale. Il prossimo passaggio chiederà il tuo cantone.';
+
+  @override
+  String get batch12CorrectAmounts => 'Correggi i miei importi';
 }

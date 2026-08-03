@@ -179,7 +179,7 @@
   "batch11AmountBody": "Beginne mit deinem 3a-Anbieter. Wenn du mehrere hast, gib nach diesem ersten Betrag an, dass noch einer fehlt.",
   "batch11ProviderNameLabel": "3a-Anbieter",
   "batch11ProviderNamePrivacy": "Keine Konto-, Policen-, AHV- oder IBAN-Nummer eingeben.",
-  "batch11OrdinaryAmountLabel": "Bestätigter Betrag · {taxYear}",
+  "batch11OrdinaryAmountLabel": "Bestätigte ordentliche Beiträge · {taxYear}",
   "batch11NotTaxResult": "Diese Summe ist noch kein Steuerergebnis.",
   "batch11AllProvidersReviewed": "Ich habe nur einen 3a-Anbieter und seinen Gesamtbetrag für {taxYear} geprüft",
   "batch11WhereFindTitle": "Wo finde ich den Betrag?",
@@ -225,11 +225,12 @@
   "batch11HelpFoundFirst": "Ich habe einen ersten Betrag gefunden",
   "batch11HelpEducationOnly": "Mit einer allgemeinen Erklärung fortfahren",
   "batch11HelpBack": "Zurück zur Eingabe",
-  "batch11MissingAmount": "Mir fehlt der Betrag eines 3a-Anbieters",
-  "batch11HelpPartialBody": "Behalte die bereits erfassten Beträge. Mindestens ein Anbieter fehlt noch: Finde seinen bestätigten Gesamtbetrag vor der Bestätigung.",
-  "batch11HelpFoundPartial": "Fehlenden Betrag hinzufügen",
+  "batch11MissingAmount": "Ich habe mehrere 3a-Anbieter",
+  "batch11HelpPartialBody": "Dieser erste Ablauf kann mehrere Anbieter noch nicht addieren. Bestätige den Gesamtbetrag hier nicht. Du kannst ohne Bestätigung zurückkehren oder mit allgemeinen Hinweisen fortfahren.",
+  "batch11HelpFoundPartial": "Ohne Bestätigung zurückkehren",
   "batch12PositiveCantonTitle": "Dein ordentlicher Betrag für {taxYear} ist bereit.",
   "batch12PositiveCantonBody": "Es wurde noch kein Steuerergebnis berechnet. Im nächsten Schritt wird dein Kanton gefragt.",
+  "batch12CorrectAmounts": "Meine Beträge korrigieren",
   "@batch12PositiveCantonTitle": {
     "placeholders": {
       "taxYear": {

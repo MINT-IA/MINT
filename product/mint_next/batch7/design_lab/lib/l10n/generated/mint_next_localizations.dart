@@ -682,7 +682,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @batch11OrdinaryAmountLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Montant confirmé · {taxYear}'**
+  /// **'Montant ordinaire crédité confirmé · {taxYear}'**
   String batch11OrdinaryAmountLabel(int taxYear);
 
   /// No description provided for @batch11NotTaxResult.
@@ -790,19 +790,19 @@ abstract class MintNextLocalizations {
   /// No description provided for @batch11MissingAmount.
   ///
   /// In fr, this message translates to:
-  /// **'Il me manque le montant d’un de mes 3a'**
+  /// **'J’ai plusieurs prestataires 3a'**
   String get batch11MissingAmount;
 
   /// No description provided for @batch11HelpPartialBody.
   ///
   /// In fr, this message translates to:
-  /// **'Garde les montants déjà saisis. Il manque encore au moins un prestataire : retrouve son total confirmé avant de valider.'**
+  /// **'Ce premier parcours ne peut pas encore additionner plusieurs prestataires. Ne confirme pas ce total ici. Tu peux revenir sans confirmer ou continuer avec une explication générale.'**
   String get batch11HelpPartialBody;
 
   /// No description provided for @batch11HelpFoundPartial.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter le montant manquant'**
+  /// **'Revenir à la saisie sans confirmer'**
   String get batch11HelpFoundPartial;
 
   /// No description provided for @batch12PositiveCantonTitle.
@@ -816,6 +816,12 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Aucun résultat fiscal n’est encore calculé. L’étape suivante demandera ton canton.'**
   String get batch12PositiveCantonBody;
+
+  /// No description provided for @batch12CorrectAmounts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger mes montants'**
+  String get batch12CorrectAmounts;
 }
 
 class _MintNextLocalizationsDelegate

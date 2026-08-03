@@ -179,7 +179,7 @@
   "batch11AmountBody": "Empieza por tu proveedor 3a. Si tienes más de uno, indica después de este primer importe que falta uno.",
   "batch11ProviderNameLabel": "Proveedor 3a",
   "batch11ProviderNamePrivacy": "No introduzcas números de cuenta, póliza, seguridad social suiza ni IBAN.",
-  "batch11OrdinaryAmountLabel": "Importe confirmado · {taxYear}",
+  "batch11OrdinaryAmountLabel": "Aportaciones ordinarias confirmadas · {taxYear}",
   "batch11NotTaxResult": "Este total todavía no es un resultado fiscal.",
   "batch11AllProvidersReviewed": "Solo tengo un proveedor 3a y he comprobado su total de {taxYear}",
   "batch11WhereFindTitle": "¿Dónde encuentro el importe?",
@@ -225,11 +225,12 @@
   "batch11HelpFoundFirst": "He encontrado un primer importe",
   "batch11HelpEducationOnly": "Continuar con una explicación general",
   "batch11HelpBack": "Volver a la entrada",
-  "batch11MissingAmount": "Me falta el importe de un proveedor 3a",
-  "batch11HelpPartialBody": "Conserva los importes ya introducidos. Todavía falta al menos un proveedor: encuentra su total confirmado antes de validar.",
-  "batch11HelpFoundPartial": "Añadir el importe que falta",
+  "batch11MissingAmount": "Tengo varios proveedores 3a",
+  "batch11HelpPartialBody": "Este primer recorrido todavía no puede sumar varios proveedores. No confirmes aquí este total. Puedes volver sin confirmar o continuar con información general.",
+  "batch11HelpFoundPartial": "Volver sin confirmar",
   "batch12PositiveCantonTitle": "Tu importe ordinario de {taxYear} está listo.",
   "batch12PositiveCantonBody": "Todavía no se ha calculado ningún resultado fiscal. El siguiente paso preguntará tu cantón.",
+  "batch12CorrectAmounts": "Corregir mis importes",
   "@batch12PositiveCantonTitle": {
     "placeholders": {
       "taxYear": {

@@ -6,9 +6,9 @@ bool providerLabelIsSafe(String raw) {
   if (normalized.isEmpty || normalized.runes.length > 32) return false;
 
   final compact = normalized.replaceAll(RegExp(r'[\s.\-]'), '');
-  if (RegExp(r'^ch[0-9]{19}$').hasMatch(compact)) return false;
-  if (RegExp(r'^756[0-9]{10}$').hasMatch(compact)) return false;
-  if (RegExp(r'^[0-9]{10,}$').hasMatch(compact)) return false;
+  if (RegExp(r'ch[0-9]{19}').hasMatch(compact)) return false;
+  if (RegExp(r'756[0-9]{10}').hasMatch(compact)) return false;
+  if (RegExp(r'[0-9]{10,}').hasMatch(compact)) return false;
 
   final identifierKeyword = RegExp(
     r'\b(?:compte|account|konto|conto|cuenta|conta|police|policy|police|polizza|p[oó]liza|ap[oó]lice)\b',

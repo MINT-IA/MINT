@@ -111,8 +111,13 @@ void main() {
       '7258.50',
     );
     await tester.tap(continueAction);
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(find.textContaining('Confirme'), findsOneWidget);
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'provider review');
+    expect(
+      find.byKey(const ValueKey('error:fact_contributed_amount.all_reviewed')),
+      findsOneWidget,
+    );
     expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
   });
 
@@ -123,7 +128,7 @@ void main() {
     final provider = find.byKey(
       const ValueKey('field:fact_contributed_amount.provider_name'),
     );
-    await tester.enterText(provider, 'CH93 0076 2011 6238 5295 7');
+    await tester.enterText(provider, 'VIAC CH93 0076 2011 6238 5295 7');
     await tester.enterText(
       find.byKey(const ValueKey('field:fact_contributed_amount.amount')),
       '7258',
@@ -172,6 +177,7 @@ void main() {
       find.byKey(const ValueKey('node:fact_contributed_amount')),
       findsOneWidget,
     );
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'ordinary amount');
   });
 
   testWidgets('positive incomplete draft exposes partial help only', (
@@ -211,8 +217,16 @@ void main() {
       find.byKey(const ValueKey('node:contributed_amount_unknown_help')),
       findsOneWidget,
     );
-    expect(find.textContaining('manque'), findsWidgets);
-    expect(find.text('Ajouter le montant manquant'), findsOneWidget);
+    expect(find.textContaining('plusieurs prestataires'), findsWidgets);
+    expect(
+      find.textContaining('ne peut pas encore additionner'),
+      findsOneWidget,
+    );
+    expect(find.text('Revenir à la saisie sans confirmer'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('action:contributed_amount_unknown_help.back')),
+      findsNothing,
+    );
     await tester.tap(
       find.byKey(
         const ValueKey('action:contributed_amount_unknown_help.found_amount'),
@@ -221,6 +235,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('VIAC'), findsOneWidget);
     expect(find.text('7258'), findsOneWidget);
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'ordinary amount');
   });
 
   testWidgets('complete positive amount reaches canton and Back restores it', (
@@ -491,6 +506,49 @@ void main() {
       find.byKey(const ValueKey('scroll:fact_contributed_amount')),
       findsOneWidget,
     );
+    final continueAction = find.byKey(
+      const ValueKey('action:fact_contributed_amount.continue'),
+    );
+    await tester.ensureVisible(continueAction);
+    await tester.tap(continueAction);
+    await tester.pumpAndSettle();
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'provider name');
+    expect(tester.takeException(), isNull);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('field:fact_contributed_amount.provider_name')),
+      'VIAC',
+    );
+    await tester.enterText(
+      find.byKey(const ValueKey('field:fact_contributed_amount.amount')),
+      '7258',
+    );
+    await tester.ensureVisible(continueAction);
+    await tester.tap(continueAction);
+    await tester.pumpAndSettle();
+    expect(FocusManager.instance.primaryFocus?.debugLabel, 'provider review');
+    expect(tester.takeException(), isNull);
+
+    final reviewed = find.byKey(
+      const ValueKey('action:fact_contributed_amount.toggle_all_reviewed'),
+    );
+    await tester.ensureVisible(reviewed);
+    await tester.tap(reviewed);
+    await tester.pump();
+    await tester.ensureVisible(continueAction);
+    await tester.tap(continueAction);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
+    expect(find.text('Corriger mes montants'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    final back = find.byKey(const ValueKey('action:fact_canton.back'));
+    await tester.ensureVisible(back);
+    await tester.tap(back);
+    await tester.pumpAndSettle();
+    expect(find.text('VIAC'), findsOneWidget);
+    expect(find.text('7258'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('amount controls expose year-bound semantics and error text', (
@@ -507,7 +565,10 @@ void main() {
     final reviewed = find.byKey(
       const ValueKey('action:fact_contributed_amount.toggle_all_reviewed'),
     );
-    expect(tester.getSemantics(amount).label, contains('2026'));
+    expect(
+      tester.getSemantics(amount).label,
+      contains('Montant ordinaire crédité confirmé · 2026'),
+    );
     expect(tester.getSemantics(reviewed).label, contains('2026'));
 
     await tester.tap(
@@ -611,6 +672,44 @@ void main() {
       find.byKey(const ValueKey('node:contributed_amount_unknown_help')),
       findsOneWidget,
     );
-    expect(find.text('Ajouter le montant manquant'), findsOneWidget);
+    expect(find.text('Revenir à la saisie sans confirmer'), findsOneWidget);
+  });
+
+  testWidgets('editing a reviewed fact requires explicit reconfirmation', (
+    tester,
+  ) async {
+    await openContributedAmountBuilder(tester);
+    await tester.enterText(
+      find.byKey(const ValueKey('field:fact_contributed_amount.provider_name')),
+      'VIAC',
+    );
+    final amount = find.byKey(
+      const ValueKey('field:fact_contributed_amount.amount'),
+    );
+    await tester.enterText(amount, '7258');
+    final reviewed = find.byKey(
+      const ValueKey('action:fact_contributed_amount.toggle_all_reviewed'),
+    );
+    await tester.ensureVisible(reviewed);
+    await tester.tap(reviewed);
+    await tester.pump();
+    expect(tester.widget<CheckboxListTile>(reviewed).value, isTrue);
+
+    await tester.enterText(amount, '7000');
+    await tester.pump();
+
+    expect(tester.widget<CheckboxListTile>(reviewed).value, isFalse);
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('action:fact_contributed_amount.continue')),
+    );
+    await tester.tap(
+      find.byKey(const ValueKey('action:fact_contributed_amount.continue')),
+    );
+    await tester.pump();
+    expect(
+      find.byKey(const ValueKey('node:fact_contributed_amount')),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Confirme que'), findsOneWidget);
   });
 }
