@@ -12777,6 +12777,12 @@
   "safeModeWhyBlockedBody": "En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.",
   "safeModeWhyBlockedLink": "Pourquoi est-ce en pause ?",
   "safeModeFormalDesendettementNote": "Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.",
+  "safeModeContinueAnyway": "Continuer quand même",
+  "safeModeCorrectData": "Corriger mes données",
+  "safeModeReasonsIntro": "Ce qui déclenche la mise en pause :",
+  "safeModeReasonDebtLoad": "Des dettes en cours sont enregistrées dans ton profil.",
+  "safeModeReasonHighDebtRatio": "Tes mensualités de crédit dépassent le seuil recommandé face à ton revenu net.",
+  "safeModeReasonThinCushion": "Ton épargne de précaution déclarée couvre moins de trois mois de charges.",
   "scanSummaryLppCertificate": "Certificat LPP scanné",
   "@scanSummaryLppCertificate": {
     "description": "Persistent event summary when an LPP certificate is scanned."

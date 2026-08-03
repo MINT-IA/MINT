@@ -215,6 +215,86 @@ void main() {
   });
 
   // ────────────────────────────────────────────────────────────
+  // GROUP 1b: SafeModeGate escape hatch (P0 2026-08-03 — never a dead end)
+  // ────────────────────────────────────────────────────────────
+  group('SafeModeGate — escape hatch & provenance', () {
+    Widget wrap(Widget child) => MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: Scaffold(body: child),
+        );
+
+    testWidgets('"Continuer quand même" reveals the child (no dead end)',
+        (tester) async {
+      await tester.pumpWidget(wrap(
+        const SafeModeGate(
+          hasDebt: true,
+          child: Text('3a optimization content'),
+        ),
+      ));
+
+      // Gated: child hidden, lock shown, continue action offered.
+      expect(find.text('3a optimization content'), findsNothing);
+      expect(find.byIcon(Icons.lock_person), findsOneWidget);
+      expect(find.text('Continuer quand même'), findsOneWidget);
+
+      await tester.tap(find.text('Continuer quand même'));
+      await tester.pumpAndSettle();
+
+      // After bypass: child visible, lock gone.
+      expect(find.text('3a optimization content'), findsOneWidget);
+      expect(find.byIcon(Icons.lock_person), findsNothing);
+    });
+
+    testWidgets('"Corriger mes données" action is present when gated',
+        (tester) async {
+      await tester.pumpWidget(wrap(
+        const SafeModeGate(
+          hasDebt: true,
+          child: Text('Hidden'),
+        ),
+      ));
+
+      expect(find.text('Corriger mes données'), findsOneWidget);
+    });
+
+    testWidgets('reasons intro + provenance bullet shown when reasons present',
+        (tester) async {
+      await tester.pumpWidget(wrap(
+        const SafeModeGate(
+          hasDebt: true,
+          reasons: ['Ton épargne de précaution couvre moins de trois mois.'],
+          child: Text('Hidden'),
+        ),
+      ));
+
+      expect(find.text('Ce qui déclenche la mise en pause :'), findsOneWidget);
+      expect(
+        find.text('Ton épargne de précaution couvre moins de trois mois.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('no provider → no crash, gate still escapable', (tester) async {
+      // lookupSafeModeReasons must fail-open when CoachProfileProvider is absent.
+      await tester.pumpWidget(wrap(
+        const SafeModeGate(
+          hasDebt: true,
+          child: Text('content'),
+        ),
+      ));
+      expect(tester.takeException(), isNull);
+      expect(find.text('Continuer quand même'), findsOneWidget);
+    });
+  });
+
+  // ────────────────────────────────────────────────────────────
   // GROUP 2: RecommendationCard SafeMode behavior
   // ────────────────────────────────────────────────────────────
   group('RecommendationCard', () {

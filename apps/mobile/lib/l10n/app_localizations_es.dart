@@ -24129,6 +24129,27 @@ class SEs extends S {
       'Estas retiradas siguen siendo posibles en caso de procedimiento formal de saneamiento de deudas — habla con un especialista.';
 
   @override
+  String get safeModeContinueAnyway => 'Continuar de todos modos';
+
+  @override
+  String get safeModeCorrectData => 'Corregir mis datos';
+
+  @override
+  String get safeModeReasonsIntro => 'Lo que activa la pausa:';
+
+  @override
+  String get safeModeReasonDebtLoad =>
+      'Hay deudas pendientes registradas en tu perfil.';
+
+  @override
+  String get safeModeReasonHighDebtRatio =>
+      'Tus cuotas de crédito superan la proporción recomendada de tu ingreso neto.';
+
+  @override
+  String get safeModeReasonThinCushion =>
+      'Tu ahorro de emergencia declarado cubre menos de tres meses de gastos.';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificado LPP escaneado';
 
   @override

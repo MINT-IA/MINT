@@ -24001,6 +24001,27 @@ class SEn extends S {
       'These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.';
 
   @override
+  String get safeModeContinueAnyway => 'Continue anyway';
+
+  @override
+  String get safeModeCorrectData => 'Correct my data';
+
+  @override
+  String get safeModeReasonsIntro => 'What triggers the pause:';
+
+  @override
+  String get safeModeReasonDebtLoad =>
+      'Outstanding debt is recorded in your profile.';
+
+  @override
+  String get safeModeReasonHighDebtRatio =>
+      'Your credit payments exceed the recommended share of your net income.';
+
+  @override
+  String get safeModeReasonThinCushion =>
+      'Your declared emergency savings cover less than three months of expenses.';
+
+  @override
   String get scanSummaryLppCertificate => 'LPP certificate scanned';
 
   @override

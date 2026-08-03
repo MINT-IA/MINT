@@ -24129,6 +24129,27 @@ class SFr extends S {
       'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.';
 
   @override
+  String get safeModeContinueAnyway => 'Continuer quand même';
+
+  @override
+  String get safeModeCorrectData => 'Corriger mes données';
+
+  @override
+  String get safeModeReasonsIntro => 'Ce qui déclenche la mise en pause :';
+
+  @override
+  String get safeModeReasonDebtLoad =>
+      'Des dettes en cours sont enregistrées dans ton profil.';
+
+  @override
+  String get safeModeReasonHighDebtRatio =>
+      'Tes mensualités de crédit dépassent le seuil recommandé face à ton revenu net.';
+
+  @override
+  String get safeModeReasonThinCushion =>
+      'Ton épargne de précaution déclarée couvre moins de trois mois de charges.';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificat LPP scanné';
 
   @override

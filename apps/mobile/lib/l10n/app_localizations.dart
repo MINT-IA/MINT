@@ -42154,6 +42154,42 @@ abstract class S {
   /// **'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.'**
   String get safeModeFormalDesendettementNote;
 
+  /// No description provided for @safeModeContinueAnyway.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer quand même'**
+  String get safeModeContinueAnyway;
+
+  /// No description provided for @safeModeCorrectData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger mes données'**
+  String get safeModeCorrectData;
+
+  /// No description provided for @safeModeReasonsIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui déclenche la mise en pause :'**
+  String get safeModeReasonsIntro;
+
+  /// No description provided for @safeModeReasonDebtLoad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des dettes en cours sont enregistrées dans ton profil.'**
+  String get safeModeReasonDebtLoad;
+
+  /// No description provided for @safeModeReasonHighDebtRatio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes mensualités de crédit dépassent le seuil recommandé face à ton revenu net.'**
+  String get safeModeReasonHighDebtRatio;
+
+  /// No description provided for @safeModeReasonThinCushion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton épargne de précaution déclarée couvre moins de trois mois de charges.'**
+  String get safeModeReasonThinCushion;
+
   /// Persistent event summary when an LPP certificate is scanned.
   ///
   /// In fr, this message translates to:

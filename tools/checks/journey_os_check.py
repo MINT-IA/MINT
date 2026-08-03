@@ -1196,6 +1196,15 @@ ALLOW = {
     # socle ci-dessus ; monotonie running-max au rendu (le service reste brut).
     "apps/mobile/lib/widgets/aujourdhui/confidence_evolution_card.dart",
     "apps/mobile/test/widgets/aujourdhui/confidence_evolution_card_test.dart",
+    # codex/journey-os-p0-gate-3a : P0 device (2026-08-03) — le gate dette
+    # (SafeMode, isInDebtCrisis Signal C) verrouillait à tort les écrans 3a
+    # profonds pour un profil salarié PARTIEL (épargne/charges non saisies lues
+    # comme coussin nul + base de charges fabriquée). Correctif faux positif +
+    # le mur explique (provenance), laisse corriger la donnée et offre toujours
+    # « Continuer quand même ». coach_profile.dart et les ARB sont déjà couverts.
+    "apps/mobile/lib/widgets/common/safe_mode_gate.dart",
+    "apps/mobile/test/models/coach_profile_safe_mode_test.dart",
+    "apps/mobile/test/safe_mode_gate_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
