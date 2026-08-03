@@ -3,11 +3,14 @@ from __future__ import annotations
 import shutil
 import tempfile
 import unittest
+import json
+import subprocess
 from pathlib import Path
 
 import yaml
 
 from tools.checks import mint_next_batch17_canton_scope_guard as batch17
+from tools.checks import journey_os_check as journey_os
 from tools.checks import mint_next_batch18_dispatcher_decoupling_guard as guard
 from tools.checks import mint_next_batch18_runtime_scope_guard as scope_guard
 from tools.checks.tests.test_mint_next_batch18_runtime_scope_guard import (
@@ -71,7 +74,7 @@ class DispatcherDecouplingGuardTest(unittest.TestCase):
             payload,
         )
 
-    def test_future_literal_append_does_not_rebind_executable_logic(self) -> None:
+    def test_unowned_future_literal_append_is_rejected(self) -> None:
         path = self.root / guard.JOURNEY
         text = path.read_text()
         text = text.replace(
@@ -80,7 +83,108 @@ class DispatcherDecouplingGuardTest(unittest.TestCase):
             1,
         )
         path.write_text(text)
-        guard.validate(self.root, check_git=False, require_accepted=False)
+        with self.assertRaisesRegex(guard.GuardFailure, "owner-registry logic or literal ALLOW"):
+            guard.validate(self.root, check_git=False, require_accepted=False)
+
+    def test_pending_owner_receipt_does_not_authorize_target(self) -> None:
+        owner = self.root / journey_os.PATH_OWNERS / "future-red.json"
+        owner.parent.mkdir(parents=True)
+        target = "product/mint_next/batch99/future-contract.yaml"
+        data = self._owner_receipt("future-red", [target])
+        owner.write_text(json.dumps(data))
+        errors = journey_os._scope_errors(self.root, [owner.relative_to(self.root).as_posix(), target])
+        self.assertIn(f"changed file outside Journey OS whitelist: {target}", errors)
+
+    def test_owner_receipt_cannot_own_control_plane(self) -> None:
+        owner = self.root / journey_os.PATH_OWNERS / "control-plane.json"
+        owner.parent.mkdir(parents=True)
+        data = self._owner_receipt("control-plane", ["tools/checks/journey_os_check.py"])
+        owner.write_text(json.dumps(data))
+        errors = journey_os._scope_errors(self.root, [owner.relative_to(self.root).as_posix()])
+        self.assertIn(f"Journey path-owner path set invalid: {owner.relative_to(self.root).as_posix()}", errors)
+
+    def test_fabricated_accepted_owner_receipt_does_not_authorize(self) -> None:
+        owner = self.root / journey_os.PATH_OWNERS / "fake.json"
+        owner.parent.mkdir(parents=True)
+        target = "product/mint_next/batch99/fake.yaml"
+        data = self._owner_receipt("fake", [target])
+        payload = data["mechanical_binding"]["candidate_payload_sha256"]
+        data["status"] = "accepted"
+        data["reviews"] = {
+            role: {"verdict": "ACCEPT", "p1": 0, "p2": 0, "p3": 0, "reviewed_payload_sha256": payload}
+            for role in journey_os._PATH_OWNER_ROLES
+        }
+        data["mechanical_binding"].update(
+            {"reviewed_payload_sha256": payload, "reviewed_candidate_commit": "a" * 40}
+        )
+        owner.write_text(json.dumps(data))
+        errors = journey_os._scope_errors(self.root, [owner.relative_to(self.root).as_posix(), target])
+        self.assertIn(f"Journey path-owner candidate cannot replay: {owner.relative_to(self.root).as_posix()}", errors)
+        self.assertIn(f"changed file outside Journey OS whitelist: {target}", errors)
+
+    def test_duplicate_path_owners_are_rejected(self) -> None:
+        owners = self.root / journey_os.PATH_OWNERS
+        owners.mkdir(parents=True)
+        target = "product/mint_next/batch99/shared.yaml"
+        for owner_id in ("one", "two"):
+            (owners / f"{owner_id}.json").write_text(json.dumps(self._owner_receipt(owner_id, [target])))
+        errors = journey_os._scope_errors(self.root, [])
+        self.assertIn(f"Journey path has multiple owners: {target}", errors)
+
+    def test_independently_reviewed_owner_receipt_authorizes_exact_target(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.email", "guard@example.invalid"], cwd=root, check=True)
+            subprocess.run(["git", "config", "user.name", "Guard Fixture"], cwd=root, check=True)
+            owner = root / journey_os.PATH_OWNERS / "future-red.json"
+            owner.parent.mkdir(parents=True)
+            target = "product/mint_next/batch99/future-contract.yaml"
+            candidate = self._owner_receipt("future-red", [target])
+            owner.write_text(json.dumps(candidate, sort_keys=True))
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-qm", "candidate"], cwd=root, check=True)
+            sha = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, text=True).stdout.strip()
+            payload = candidate["mechanical_binding"]["candidate_payload_sha256"]
+            accepted = self._owner_receipt("future-red", [target])
+            accepted["status"] = "accepted"
+            accepted["reviews"] = {
+                role: {"verdict": "ACCEPT", "p1": 0, "p2": 0, "p3": 0, "reviewed_payload_sha256": payload}
+                for role in journey_os._PATH_OWNER_ROLES
+            }
+            accepted["mechanical_binding"].update(
+                {"reviewed_payload_sha256": payload, "reviewed_candidate_commit": sha}
+            )
+            owner.write_text(json.dumps(accepted, sort_keys=True))
+            subprocess.run(["git", "add", "."], cwd=root, check=True)
+            subprocess.run(["git", "commit", "-qm", "promote"], cwd=root, check=True)
+            errors = journey_os._scope_errors(root, [owner.relative_to(root).as_posix(), target])
+            self.assertEqual(errors, [])
+            other = "product/mint_next/batch99/unowned.yaml"
+            self.assertIn(
+                f"changed file outside Journey OS whitelist: {other}",
+                journey_os._scope_errors(root, [other]),
+            )
+
+    @staticmethod
+    def _owner_receipt(owner_id: str, paths: list[str]) -> dict:
+        data = {
+            "schema_version": 1,
+            "owner_id": owner_id,
+            "status": "candidate_unaccepted",
+            "paths": sorted(paths),
+            "reviews": {
+                role: {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
+                for role in journey_os._PATH_OWNER_ROLES
+            },
+            "mechanical_binding": {
+                "candidate_payload_sha256": None,
+                "reviewed_payload_sha256": None,
+                "reviewed_candidate_commit": None,
+            },
+        }
+        data["mechanical_binding"]["candidate_payload_sha256"] = journey_os._path_owner_payload(data)
+        return data
 
     def test_nonliteral_allow_append_is_rejected(self) -> None:
         path = self.root / guard.JOURNEY
@@ -96,15 +200,15 @@ class DispatcherDecouplingGuardTest(unittest.TestCase):
 
     def test_owned_literal_removal_is_rejected(self) -> None:
         path = self.root / guard.JOURNEY
-        path.write_text(path.read_text().replace(f'    "{guard.OWNED_APPEND_ONLY_ENTRIES[0]}",\n', "", 1))
-        with self.assertRaisesRegex(guard.GuardFailure, "owned append-only Journey entry"):
+        path.write_text(path.read_text().replace(f'    "{guard.OWNED_MIGRATION_ENTRIES[0]}",\n', "", 1))
+        with self.assertRaisesRegex(guard.GuardFailure, "owned migration Journey entry|literal ALLOW"):
             guard.validate(self.root, check_git=False, require_accepted=False)
 
     def test_owned_literal_duplication_is_rejected(self) -> None:
         path = self.root / guard.JOURNEY
-        entry = f'    "{guard.OWNED_APPEND_ONLY_ENTRIES[0]}",\n'
+        entry = f'    "{guard.OWNED_MIGRATION_ENTRIES[0]}",\n'
         path.write_text(path.read_text().replace(entry, entry + entry, 1))
-        with self.assertRaisesRegex(guard.GuardFailure, "owned append-only Journey entry"):
+        with self.assertRaisesRegex(guard.GuardFailure, "owned migration Journey entry|literal ALLOW"):
             guard.validate(self.root, check_git=False, require_accepted=False)
 
     def test_historical_scope_payload_mutation_is_rejected(self) -> None:

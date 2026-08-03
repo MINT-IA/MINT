@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Guard the one-time append-only Journey dispatcher decoupling amendment."""
+"""Guard the one-time reviewed path-owner Journey dispatcher amendment."""
 
 from __future__ import annotations
 
@@ -29,19 +29,15 @@ SPEC = Path(".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md")
 ANCHOR = "64a2d41a0e74fbb8ced93bf140484062e6ea98d7"
 HISTORICAL_SCOPE_PAYLOAD = "3dc113073d6ba780915b8cd9a5285b02be80122eb377b3a81c8761fe569b2272"
 HISTORICAL_SCOPE_CANDIDATE = "83cc9e051945365cf30d08cb3fb0f0970a34ada2"
+EXPECTED_OWNER_REGISTRY_AST_SHA256 = "175a6b96bcdecd9dbac9ed02a39a072ca7dc9e3322815ddb9754871d2e7bcb68"
 
-OWNED_APPEND_ONLY_ENTRIES = [
+OWNED_MIGRATION_ENTRIES = [
     "product/mint_next/batch18/dispatcher-decoupling-acceptance.yaml",
     "tools/checks/mint_next_batch18_dispatcher_decoupling_guard.py",
     "tools/checks/tests/test_mint_next_batch18_dispatcher_decoupling_guard.py",
     ".github/workflows/mint-next-batch18-dispatcher-decoupling.yml",
-    "product/mint_next/batch18/runtime-gates.yaml",
-    "product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart",
-    "product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart",
-    "tools/checks/mint_next_batch19_r1_red_guard.py",
-    "tools/checks/tests/test_mint_next_batch19_r1_red_guard.py",
 ]
-ALLOWED_DIFF_PATHS = set(OWNED_APPEND_ONLY_ENTRIES[:4]) | {
+ALLOWED_DIFF_PATHS = set(OWNED_MIGRATION_ENTRIES[:4]) | {
     str(JOURNEY),
     str(scope_guard.GUARD),
     str(scope_guard.TESTS),
@@ -60,7 +56,8 @@ NOT_ACCEPTED = [
     "user_validation",
     "calculation",
     "persistence",
-    "arbitrary_nonliteral_or_executable_Journey_OS_change",
+    "unreviewed_or_literal_Journey_OS_path_widening",
+    "arbitrary_executable_Journey_OS_change",
 ]
 
 
@@ -166,8 +163,8 @@ def review_payload(root: Path) -> str:
         str(scope_guard.GUARD): (root / scope_guard.GUARD).read_bytes(),
         str(scope_guard.TESTS): (root / scope_guard.TESTS).read_bytes(),
         str(OLD_WORKFLOW): (root / OLD_WORKFLOW).read_bytes(),
-        "JOURNEY_EXECUTABLE_APPEND_ONLY_AST": scope_guard._append_only_allow_ast_bytes(journey_source),
-        "OWNED_APPEND_ONLY_ENTRIES": ("\n".join(OWNED_APPEND_ONLY_ENTRIES) + "\n").encode(),
+        "JOURNEY_EXECUTABLE_OWNER_REGISTRY_AST": scope_guard._normalized_python_ast_bytes(journey_source),
+        "OWNED_MIGRATION_ENTRIES": ("\n".join(OWNED_MIGRATION_ENTRIES) + "\n").encode(),
         str(GUARD): (root / GUARD).read_bytes(),
         str(TESTS): (root / TESTS).read_bytes(),
         str(WORKFLOW): _normalized_workflow(root / WORKFLOW),
@@ -225,12 +222,12 @@ class _MaterializedPayload:
         self._temp.cleanup()
 
 
-def _validate_diff(root: Path) -> None:
-    commands = (
-        ["git", "diff", "--name-only", f"{ANCHOR}..HEAD"],
-        ["git", "diff", "--name-only", "HEAD"],
-        ["git", "ls-files", "--others", "--exclude-standard"],
-    )
+def _validate_diff(root: Path, end: str = "HEAD", *, include_worktree: bool = True) -> None:
+    commands = [["git", "diff", "--name-only", f"{ANCHOR}..{end}"]]
+    if include_worktree:
+        commands.extend(
+            (["git", "diff", "--name-only", "HEAD"], ["git", "ls-files", "--others", "--exclude-standard"])
+        )
     changed: set[str] = set()
     for command in commands:
         result = subprocess.run(command, cwd=root, check=True, capture_output=True, text=True)
@@ -272,14 +269,12 @@ def validate(
 
     journey_source = (root / JOURNEY).read_text(encoding="utf-8")
     literals = _literal_allow_entries(journey_source)
-    for entry in OWNED_APPEND_ONLY_ENTRIES:
-        _require(literals.count(entry) == 1, f"owned append-only Journey entry missing or duplicated: {entry}")
-    executable_hash = hashlib.sha256(
-        scope_guard._append_only_allow_ast_bytes(journey_source)
-    ).hexdigest()
+    for entry in OWNED_MIGRATION_ENTRIES:
+        _require(literals.count(entry) == 1, f"owned migration Journey entry missing or duplicated: {entry}")
+    executable_hash = hashlib.sha256(scope_guard._normalized_python_ast_bytes(journey_source)).hexdigest()
     _require(
-        executable_hash == scope_guard.EXPECTED_JOURNEY_EXECUTABLE_SHA256,
-        "Journey executable logic changed outside literal append-only entries",
+        executable_hash == EXPECTED_OWNER_REGISTRY_AST_SHA256,
+        "Journey executable owner-registry logic or literal ALLOW set changed",
     )
 
     acceptance = _load(root / ACCEPTANCE)
@@ -312,7 +307,7 @@ def validate(
         acceptance["scope_effect"]
         == {
             "historical_batch18_scope_receipt": "preserved",
-            "append_only_literal_paths": "enabled",
+            "reviewed_path_owner_receipts": "enabled",
             "executable_journey_logic": "immutable",
             "runtime_state": "not_evaluated",
         },
@@ -348,8 +343,8 @@ def validate(
         _require(re.fullmatch(r"[0-9a-f]{40}", candidate or "") is not None, "dispatcher reviewed candidate malformed")
         for review in acceptance["reviews"].values():
             _require(review["reviewed_payload_sha256"] == payload, "dispatcher review payload mismatch")
-        _require(acceptance["accepted_change"] == ["append_only_literal_Journey_OS_paths_without_historical_scope_rebinding"], "dispatcher accepted change widened")
-        _require(acceptance["next_gate"] == "restore_and_review_expected_failing_R1_tests", "dispatcher accepted next gate drifted")
+        _require(acceptance["accepted_change"] == ["reviewed_path_owner_receipts_without_historical_scope_rebinding"], "dispatcher accepted change widened")
+        _require(acceptance["next_gate"] == "create_and_review_batch19_r1_path_owner_receipt", "dispatcher accepted next gate drifted")
         if check_git:
             _require(subprocess.run(["git", "merge-base", "--is-ancestor", candidate, "HEAD"], cwd=root).returncode == 0, "dispatcher candidate is not ancestor")
             _require(_review_payload_at_commit(root, candidate) == payload, "dispatcher candidate payload does not replay")
@@ -364,6 +359,7 @@ def validate(
                 Loader=UniqueLoader,
             )
             _require(candidate_acceptance["status"] == "candidate_dispatcher_decoupling_unaccepted", "reviewed dispatcher anchor was not pending")
+            _validate_diff(root, candidate, include_worktree=False)
     else:
         _require(binding["reviewed_payload_sha256"] is None and binding["reviewed_candidate_commit"] is None, "dispatcher candidate carries accepted receipt")
         _require(acceptance["accepted_change"] == [], "dispatcher candidate claims accepted change")
@@ -386,7 +382,7 @@ def validate(
     _require(workflow["env"] == expected_hashes, "dispatcher workflow trust hashes drifted")
     job = workflow["jobs"]["contract"]
     _require(set(job) == {"name", "runs-on", "steps"}, "dispatcher workflow job schema drifted")
-    _require(job["name"] == "Verify append-only dispatcher amendment" and job["runs-on"] == "ubuntu-latest", "dispatcher workflow job identity drifted")
+    _require(job["name"] == "Verify reviewed path-owner dispatcher amendment" and job["runs-on"] == "ubuntu-latest", "dispatcher workflow job identity drifted")
     expected_steps = [
         {"uses": "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683"},
         {"uses": "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b", "with": {"python-version": "3.11"}},
@@ -398,7 +394,7 @@ def validate(
     spec_lines = re.search(r"```verify\n(.*?)\n```", (root / SPEC).read_text(), re.S).group(1).splitlines()
     _require(spec_lines.count(f"batch18-dispatcher-decoupling: {command}") == 1, "dispatcher SPEC lifecycle command drifted")
     _require(spec_lines.count("batch18-dispatcher-decoupling-hostiles: python3 -m unittest tools.checks.tests.test_mint_next_batch18_dispatcher_decoupling_guard") == 1, "dispatcher SPEC hostile command drifted")
-    if check_git:
+    if check_git and not require_accepted:
         _validate_diff(root)
 
 

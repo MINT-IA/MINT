@@ -26,6 +26,14 @@ ISSUE_SCHEMA = JOURNEYS / "issue.schema.json"
 ROUTES = Path("apps/mobile/lib/routes/route_metadata.dart")
 OPENAPI = Path("tools/openapi/mint.openapi.canonical.json")
 ROUTE_CONTRACTS = Path(".planning/phases/mint-2-0-first-experience-rente-capital/route_contracts")
+PATH_OWNERS = JOURNEYS / "path-owners"
+PATH_OWNER_CONTROL_PLANE = {
+    "tools/checks/journey_os_check.py",
+    "tools/checks/mint_next_batch18_dispatcher_decoupling_guard.py",
+    "tools/checks/tests/test_mint_next_batch18_dispatcher_decoupling_guard.py",
+    ".github/workflows/mint-next-batch18-dispatcher-decoupling.yml",
+    "product/mint_next/batch18/dispatcher-decoupling-acceptance.yaml",
+}
 ALLOW = {
     str(SCHEMA),
     str(ISSUE_SCHEMA),
@@ -294,19 +302,12 @@ ALLOW = {
     "tools/checks/mint_next_batch18_runtime_scope_guard.py",
     "tools/checks/tests/test_mint_next_batch18_runtime_scope_guard.py",
     ".github/workflows/mint-next-batch18-canton-runtime-scope.yml",
-    # Batch18 dispatcher amendment: decouple append-only future artifact paths
-    # from the immutable Batch18 scope receipt. Runtime remains unevaluated.
+    # Batch18 dispatcher amendment: introduce reviewed per-path owner receipts
+    # without rebinding the immutable Batch18 scope receipt. Runtime is untouched.
     "product/mint_next/batch18/dispatcher-decoupling-acceptance.yaml",
     "tools/checks/mint_next_batch18_dispatcher_decoupling_guard.py",
     "tools/checks/tests/test_mint_next_batch18_dispatcher_decoupling_guard.py",
     ".github/workflows/mint-next-batch18-dispatcher-decoupling.yml",
-    # Batch19 planned expected-RED artifacts. Listing paths permits review; it
-    # does not accept their content, runtime or product promotion.
-    "product/mint_next/batch18/runtime-gates.yaml",
-    "product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart",
-    "product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart",
-    "tools/checks/mint_next_batch19_r1_red_guard.py",
-    "tools/checks/tests/test_mint_next_batch19_r1_red_guard.py",
     "product/mint_next/batch7/design_lab/analysis_options.yaml",
     "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
     "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",
@@ -1690,8 +1691,157 @@ def _archive_counterpart(path: str) -> str | None:
     return None
 
 
-def _scope_errors(root: Path, changed: list[str]) -> list[str]:
+_PATH_OWNER_ROLES = {
+    "scope_integrity",
+    "mechanical_adversary",
+    "journey_safety",
+}
+
+
+def _reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def _path_owner_payload(data: dict[str, Any]) -> str:
+    """Hash the immutable identity/scope shared by candidate and promotion."""
+    payload = {
+        "schema_version": data.get("schema_version"),
+        "owner_id": data.get("owner_id"),
+        "paths": data.get("paths"),
+    }
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+
+
+def _load_path_owners(root: Path) -> tuple[set[str], list[str]]:
+    """Return paths backed by an independently reviewed, replayable receipt.
+
+    Pending owner files are themselves committable, but authorize no target.
+    This gives every future batch a two-commit path: review receipt, then work.
+    """
+    allowed: set[str] = set()
     errors: list[str] = []
+    owners = root / PATH_OWNERS
+    if not owners.exists():
+        return allowed, errors
+    if not owners.is_dir() or owners.is_symlink():
+        return allowed, [f"Journey path-owner registry is not a regular directory: {PATH_OWNERS}"]
+    claimed: dict[str, str] = {}
+    for manifest in sorted(owners.iterdir()):
+        relative = manifest.relative_to(root).as_posix()
+        if manifest.is_symlink() or not manifest.is_file() or manifest.suffix != ".json":
+            errors.append(f"unsupported Journey path-owner artifact: {relative}")
+            continue
+        try:
+            data = json.loads(manifest.read_text(encoding="utf-8"), object_pairs_hook=_reject_duplicate_json_keys)
+        except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+            errors.append(f"invalid Journey path-owner manifest {relative}: {exc}")
+            continue
+        expected_keys = {"schema_version", "owner_id", "status", "paths", "reviews", "mechanical_binding"}
+        if not isinstance(data, dict) or set(data) != expected_keys:
+            errors.append(f"Journey path-owner schema drifted: {relative}")
+            continue
+        owner_id = data.get("owner_id")
+        if not isinstance(owner_id, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", owner_id) or manifest.name != f"{owner_id}.json":
+            errors.append(f"Journey path-owner identity drifted: {relative}")
+            continue
+        paths = data.get("paths")
+        if (
+            data.get("schema_version") != 1
+            or not isinstance(paths, list)
+            or not paths
+            or paths != sorted(set(paths))
+            or any(not isinstance(path, str) or path.startswith("/") or ".." in Path(path).parts for path in paths)
+            or relative in paths
+            or any(path in PATH_OWNER_CONTROL_PLANE or path.startswith(str(PATH_OWNERS) + "/") for path in paths)
+        ):
+            errors.append(f"Journey path-owner path set invalid: {relative}")
+            continue
+        duplicate = next((path for path in paths if path in claimed), None)
+        if duplicate is not None:
+            errors.append(f"Journey path has multiple owners: {duplicate}")
+            continue
+        for path in paths:
+            claimed[path] = owner_id
+        reviews = data.get("reviews")
+        binding = data.get("mechanical_binding")
+        payload = _path_owner_payload(data)
+        if not isinstance(reviews, dict) or set(reviews) != _PATH_OWNER_ROLES or not isinstance(binding, dict) or set(binding) != {"candidate_payload_sha256", "reviewed_payload_sha256", "reviewed_candidate_commit"}:
+            errors.append(f"Journey path-owner review binding drifted: {relative}")
+            continue
+        if binding.get("candidate_payload_sha256") != payload:
+            errors.append(f"Journey path-owner candidate payload drifted: {relative}")
+            continue
+        status = data.get("status")
+        if status == "candidate_unaccepted":
+            pending = {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
+            if any(review != pending for review in reviews.values()) or binding.get("reviewed_payload_sha256") is not None or binding.get("reviewed_candidate_commit") is not None:
+                errors.append(f"Journey path-owner candidate claims acceptance: {relative}")
+            continue
+        if status != "accepted":
+            errors.append(f"Journey path-owner lifecycle drifted: {relative}")
+            continue
+        candidate = binding.get("reviewed_candidate_commit")
+        exact_review = {
+            "verdict": "ACCEPT",
+            "p1": 0,
+            "p2": 0,
+            "p3": 0,
+            "reviewed_payload_sha256": payload,
+        }
+        if binding.get("reviewed_payload_sha256") != payload or not isinstance(candidate, str) or re.fullmatch(r"[0-9a-f]{40}", candidate) is None or any(review != exact_review for review in reviews.values()):
+            errors.append(f"Journey path-owner is not exact zero-finding acceptance: {relative}")
+            continue
+        try:
+            ancestor = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", candidate, "HEAD"],
+                cwd=root,
+                capture_output=True,
+            ).returncode == 0
+            raw = subprocess.run(
+                ["git", "show", f"{candidate}:{relative}"],
+                cwd=root,
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+            previous = json.loads(raw, object_pairs_hook=_reject_duplicate_json_keys)
+        except (OSError, subprocess.CalledProcessError, json.JSONDecodeError, ValueError):
+            errors.append(f"Journey path-owner candidate cannot replay: {relative}")
+            continue
+        pending = {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
+        previous_binding = previous.get("mechanical_binding", {}) if isinstance(previous, dict) else {}
+        if (
+            not ancestor
+            or not isinstance(previous, dict)
+            or set(previous) != expected_keys
+            or previous.get("schema_version") != 1
+            or previous.get("status") != "candidate_unaccepted"
+            or previous.get("paths") != paths
+            or previous.get("owner_id") != owner_id
+            or _path_owner_payload(previous) != payload
+            or set(previous.get("reviews", {})) != _PATH_OWNER_ROLES
+            or any(review != pending for review in previous.get("reviews", {}).values())
+            or not isinstance(previous_binding, dict)
+            or set(previous_binding) != {"candidate_payload_sha256", "reviewed_payload_sha256", "reviewed_candidate_commit"}
+            or previous_binding.get("candidate_payload_sha256") != payload
+            or previous_binding.get("reviewed_payload_sha256") is not None
+            or previous_binding.get("reviewed_candidate_commit") is not None
+        ):
+            errors.append(f"Journey path-owner reviewed candidate is not exact pending scope: {relative}")
+            continue
+        allowed.update(paths)
+    return allowed, errors
+
+
+def _scope_errors(root: Path, changed: list[str]) -> list[str]:
+    owned_paths, errors = _load_path_owners(root)
     for path in changed:
         if path in DELETION_ALLOW and not (root / path).exists():
             continue
@@ -1727,7 +1877,8 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         # leur maintenance (bannières datées, index) reste autorisée.
         allowed_archive = path.startswith(".planning/phases-archive/")
         allowed_mint_next_blob = re.fullmatch(r"product/mint_next/evidence/blobs/sha256/[0-9a-f]{64}", path) is not None
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_mint_next_blob):
+        allowed_owner_manifest = path.startswith(str(PATH_OWNERS) + "/") and path.endswith(".json") and "/" not in path[len(str(PATH_OWNERS)) + 1 :]
+        if not (path in ALLOW or path in owned_paths or allowed_owner_manifest or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_mint_next_blob):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
