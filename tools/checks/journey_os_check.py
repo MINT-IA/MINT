@@ -1239,6 +1239,10 @@ ALLOW = {
     # cible 44pt) + test qui scrolle vers le contenu paresseux réel.
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
+    # codex/journey-os-mx-fidelite-design : audit de fidélité au design validé
+    # (mint-experience, 5e lentille) sur les 4 surfaces ci-dessus + login/3a.
+    # Constat sans patch — aucune surface modifiée, un seul artefact d'audit.
+    ".planning/audit/2026-08-04-fidelite-design-mint-experience.md",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
