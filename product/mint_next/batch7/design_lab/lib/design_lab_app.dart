@@ -1104,22 +1104,38 @@ class _ContributedAmountUnknownHelp extends StatelessWidget {
       body: partial ? l10n.batch11HelpPartialBody : l10n.batch11HelpUnknownBody,
       accent: const _QuietOrb(),
       actions: [
-        MintDesignLabAction(
-          key: const ValueKey(
-            'action:contributed_amount_unknown_help.found_amount',
+        if (partial)
+          MintDesignLabAction(
+            key: const ValueKey(
+              'action:contributed_amount_unknown_help.continue_education_only',
+            ),
+            label: l10n.batch11HelpEducationOnly,
+            onPressed: onContinueEducation,
+          )
+        else
+          MintDesignLabAction(
+            key: const ValueKey(
+              'action:contributed_amount_unknown_help.found_amount',
+            ),
+            label: l10n.batch11HelpFoundFirst,
+            onPressed: onFoundAmount,
           ),
-          label: partial
-              ? l10n.batch11HelpFoundPartial
-              : l10n.batch11HelpFoundFirst,
-          onPressed: onFoundAmount,
-        ),
-        MintDesignLabAction.secondary(
-          key: const ValueKey(
-            'action:contributed_amount_unknown_help.continue_education_only',
+        if (partial)
+          MintDesignLabAction.secondary(
+            key: const ValueKey(
+              'action:contributed_amount_unknown_help.found_amount',
+            ),
+            label: l10n.batch11HelpFoundPartial,
+            onPressed: onFoundAmount,
+          )
+        else
+          MintDesignLabAction.secondary(
+            key: const ValueKey(
+              'action:contributed_amount_unknown_help.continue_education_only',
+            ),
+            label: l10n.batch11HelpEducationOnly,
+            onPressed: onContinueEducation,
           ),
-          label: l10n.batch11HelpEducationOnly,
-          onPressed: onContinueEducation,
-        ),
         if (!partial)
           MintDesignLabAction.text(
             key: const ValueKey('action:contributed_amount_unknown_help.back'),
