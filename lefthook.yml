@@ -127,6 +127,9 @@ pre-commit:
     mint-next-batch15-tombstone-runtime-guard:
       run: python3 tools/checks/mint_next_batch15_tombstone_runtime_guard.py
       tags: [agents, mint-next, navigation, flutter, privacy, accessibility]
+    mint-next-batch16-classification-scope-guard:
+      run: python3 tools/checks/mint_next_batch16_classification_scope_guard.py
+      tags: [agents, mint-next, navigation, swiss, privacy, accessibility]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.

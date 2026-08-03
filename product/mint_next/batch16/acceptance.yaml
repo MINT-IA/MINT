@@ -1,0 +1,97 @@
+schema_version: 1
+batch: 16
+status: draft_unaccepted
+scope_ref: product/mint_next/batch16/classification-doubt-scope.yaml
+navigation_ref: product/mint_next/batch16/navigation.mmd
+
+review_required:
+  ux_navigation: accepted_contract_only_p1_0_p2_0_p3_0
+  swiss_finance_copy: accepted_contract_only_p1_0_p2_0_p3_0
+  adversarial_state_machine: accepted_contract_only_p1_0_p2_0_p3_0
+
+contract_roast_receipt:
+  rounds: 6
+  final_exact_artifacts: [classification-doubt-scope.yaml, navigation.mmd, acceptance.yaml]
+  runtime_claim: forbidden
+
+acceptance_requires:
+  severity_counts: {p1: 0, p2: 0, p3: 0}
+  no_dead_end: true
+  no_uncabled_control: true
+  no_automatic_financial_inference: true
+  runtime_proofs_complete: true
+  hidden_harness_only: true
+
+mechanical_binding:
+  scope_guard: tools/checks/mint_next_batch16_classification_scope_guard.py
+  scope_guard_tests: tools/checks/tests/test_mint_next_batch16_classification_scope_guard.py
+  scope_lefthook_key: mint-next-batch16-classification-scope-guard
+  runtime_guard_planned: tools/checks/mint_next_batch16_classification_runtime_guard.py
+  runtime_guard_tests_planned: tools/checks/tests/test_mint_next_batch16_classification_runtime_guard.py
+  runtime_lefthook_key_planned: mint-next-batch16-classification-runtime
+  flutter_model_tests: product/mint_next/batch7/design_lab/test/multi_provider_amount_draft_test.dart
+  flutter_runtime_tests: product/mint_next/batch7/design_lab/test/design_lab_multi_provider_runtime_test.dart
+  ci_workflow: .github/workflows/mint-next-batch16-runtime.yml
+  required_scope_commands:
+    - python3 tools/checks/mint_next_batch16_classification_scope_guard.py
+    - python3 -m unittest tools.checks.tests.test_mint_next_batch16_classification_scope_guard
+  required_runtime_commands_planned:
+    - python3 tools/checks/mint_next_batch16_classification_runtime_guard.py
+    - python3 -m unittest tools.checks.tests.test_mint_next_batch16_classification_runtime_guard
+    - cd product/mint_next/batch7/design_lab && flutter analyze
+    - cd product/mint_next/batch7/design_lab && flutter test
+  digest_binding:
+    contract_sha256: 09c838b2534b217327dcc2bd0845a61721ee519b48c6f884d82685a6b2c28945
+    navigation_sha256: ff8efef370d20fe9fb0a9fa73d04148f4dc41155eded8150d3985c6a273fd053
+    normalized_workflow_sha256: 05503e9dd9c8a484edb8e31fd9941f0ab5ab6869cda30b66c097868641b45761
+  scope_hostile_mutations_executed:
+    runtime_promotion: test_runtime_promotion_is_rejected
+    unresolved_blocker_removed: test_unresolved_commit_blocker_removal_is_rejected
+    parent_purge_narrowed: test_parent_purge_narrowing_is_rejected
+    refund_R_g_step_removed: test_refund_atomic_R_g_step_removal_is_rejected
+    swiss_semantic_intent_replaced: test_swiss_semantic_intent_replacement_is_rejected
+    hidden_harness_limit_changed: test_hidden_harness_limit_change_is_rejected
+    finalize_navigation_removed: test_finalize_navigation_removal_is_rejected
+    destructive_aggregate_edge_added: test_destructive_aggregate_edge_is_rejected
+    mutation_registry_entry_removed: test_missing_hostile_mutation_id_is_rejected
+    nonzero_roast_inserted: test_nonzero_roast_is_rejected
+    lefthook_binding_removed: test_removed_lefthook_binding_is_rejected
+    ci_binding_removed: test_removed_ci_binding_is_rejected
+    duplicate_yaml_key_added: test_duplicate_yaml_key_is_rejected
+  runtime_hostile_mutations_planned:
+    doubt_to_help_exact_origin: exact_row_help_round_trip_test_must_fail
+    unresolved_commit_block_removed: unresolved_blocks_review_commit_test_must_fail
+    amount_edit_does_not_reset_origin_row: amount_edit_resets_only_origin_row_test_must_fail
+    global_review_not_sole_confirmation_transition: global_review_only_confirms_test_must_fail
+    unresolved_removed_from_provisional_subtotal: unresolved_subtotal_label_and_value_test_must_fail
+    remove_undo_drops_classification: remove_undo_preserves_classification_test_must_fail
+    finalize_keeps_classification: finalize_erases_classification_and_tokens_test_must_fail
+    tombstone_finalize_exit_missing: finalize_navigation_focus_and_stale_undo_test_must_fail
+    all_confirmed_edit_exit_missing: all_confirmed_reversible_exit_matrix_test_must_fail
+    all_confirmed_safe_exit_loses_state: all_confirmed_safe_exit_exact_restore_test_must_fail
+    choose_yes_changes_unresolved: all_zero_choose_yes_preserves_unresolved_test_must_fail
+    correction_back_removed: all_zero_correction_back_origin_test_must_fail
+    education_entry_back_removed: education_entry_back_exact_origin_test_must_fail
+    education_safe_exit_loses_origin: education_safe_exit_exact_restore_test_must_fail
+    sibling_not_consumed: first_successful_help_action_consumes_siblings_test_must_fail
+    edit_then_new_doubt_reuses_nonce: fresh_nonce_after_edit_test_must_fail
+    wrong_row_or_repeated_retargets: wrong_row_repeated_no_retarget_test_must_fail
+    refund_order_rearranged: refund_atomic_R_g_transition_test_must_fail
+    refund_changes_other_row: refund_preserves_other_rows_test_must_fail
+    refund_focus_not_undo: refund_focuses_origin_tombstone_undo_test_must_fail
+    external_remove_keeps_origin: external_remove_invalidates_origin_test_must_fail
+    safe_exit_help_loses_origin: help_safe_exit_exact_restore_test_must_fail
+    all_zero_not_explicit: all_zero_requires_explicit_activation_test_must_fail
+    post_purge_callback_mutates: terminal_purge_callbacks_no_op_test_must_fail
+    continue_focus_precedence_changed: unresolved_canonical_error_precedence_test_must_fail
+    compact_help_action_not_hittable: compact_text2_keyboard_rect_hit_test_must_fail
+    semantics_row_or_help_duplicate: semantics_tree_focus_and_labels_test_must_fail
+    parent_purge_narrowed: purge_superset_guard_test_must_fail
+    parent_error_order_reordered: error_order_inheritance_guard_test_must_fail
+    one_locale_intent_omitted: six_locale_semantic_review_guard_test_must_fail
+    runtime_test_skipped_or_commented: executable_test_inventory_guard_test_must_fail
+    lefthook_binding_removed: workflow_binding_guard_test_must_fail
+    ci_binding_removed: workflow_binding_guard_test_must_fail
+    hidden_harness_limit_changed: hidden_surface_guard_test_must_fail
+
+current_verdict: REJECT_UNTIL_CONTRACT_ROAST_AND_MECHANICAL_GUARD

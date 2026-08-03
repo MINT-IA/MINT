@@ -1,0 +1,289 @@
+schema_version: 1
+batch: 16
+status: draft_written_runtime_forbidden
+title: Classification par ligne et résolution d'un montant 3a douteux
+
+authority:
+  parent_contract: product/mint_next/batch13/multi-provider-navigation-contract.yaml
+  parent_contract_sha256: c609f4038842fdc51173e3009f95f8fa1fbd6351a87a24241aa2b3997ac6b282
+  prerequisite_commits:
+    multi_provider_amount_harness: 1579ea8f3dce299a2180667a0594a3b711ea803e
+    reversible_provider_removal: 1c7c18ccd
+  runtime_surface: hidden_design_lab_harness_only
+  product_promotion: forbidden
+
+user_outcome:
+  statement: Une personne peut signaler qu'un montant contient peut-être autre chose que des cotisations ordinaires, comprendre quoi vérifier, puis revenir exactement au bon endroit sans que MINT estime ou valide ce montant.
+  beginner_rule: Une décision visible à la fois; aucun calcul mental demandé.
+
+scope:
+  included:
+    - row_classification_state_machine
+    - exact_row_doubt_origin
+    - unresolved_help_complete_navigation
+    - provider_reported_ordinary_total_obtained_resolution
+    - one_provider_fully_refunded_resolution
+    - explicit_all_providers_zero_correction
+    - existing_education_boundary_back_safe_exit_and_terminal_leave_purge
+    - six_locale_copy_and_accessibility
+    - hostile_stale_callback_proofs
+  excluded:
+    - missing_provider_declaration_or_resolution
+    - batch12_entry_migration
+    - scan_api_llm_or_persistence
+    - tax_deduction_ceiling_saving_or_recommendation
+    - provider_identity_matching
+    - estimation_subtraction_or_automatic_zero
+    - product_route_or_testflight_promotion
+
+why_full_help_is_atomic:
+  decision: All exposed exits of unresolved help ship together.
+  reason: Omitting refund or all-zero recovery traps a real user or forces a false amount; an isolated button or help page would be an uncabled facade.
+  swiss_review_constraint: Copies never imply that a refund is a contribution, that a surrender value is an ordinary contribution, or that MINT may infer zero.
+
+row_state_machine:
+  states: [unreviewed, confirmed_ordinary, unresolved]
+  initial: unreviewed
+  amount_edit: unreviewed
+  doubt_activation: unresolved
+  successful_global_review: confirmed_ordinary_for_every_active_row
+  global_review_unchecked: unreviewed_for_every_active_row
+  remove_and_undo: preserve_exact_row_classification
+  finalize_and_terminal_purge: erase_classification_and_all_related_tokens
+  unresolved_amount:
+    subtotal: included_in_provisional_subtotal_with_to_verify_label
+    canonical_total: null
+    global_review: blocked
+    continue: blocked
+    canton_route: forbidden
+
+origin_contract:
+  identity: opaque_session_row_id_plus_session_epoch_plus_row_generation_plus_one_shot_origin_nonce
+  registry: at_most_one_current_unresolved_help_origin_per_row_generation_and_session
+  successful_doubt_activation:
+    atomic: true
+    order:
+      - consume_previous_origin_and_every_previous_sibling_action_token_for_that_row
+      - set_exact_row_unresolved_and_clear_review_commit_downstream
+      - capture_exact_current_remove_token_R_g
+      - create_fresh_never_reused_origin_nonce_and_distinct_sibling_action_tokens
+      - route_help
+  captured_on: successful_doubt_activation
+  valid_only_when: same_session_same_generation_same_active_unresolved_row
+  preservation_without_consumption: [help_back_or_system_back, education_back, safe_exit_cancel_resume_or_system_back, contribution_correction_back_or_system_back]
+  successful_terminal_action_consumes_atomically:
+    - origin_nonce
+    - every_sibling_help_action_token
+  invalidation_before_mutation: [amount_edit, provider_name_edit, external_remove, undo, finalize, new_doubt_activation, tax_year_change, status_terminal_choice, leave, education_completion_or_reference_save, app_kill_or_ttl_expiry]
+  refunded_origin_transaction:
+    atomic_order:
+      - validate_origin_refund_sibling_and_exact_captured_R_g_without_consuming_any
+      - consume_origin_and_every_sibling
+      - consume_exact_R_g_via_batch15_contentful_remove
+      - create_tombstone_generation_and_fresh_U_and_F
+      - retire_every_captured_reference
+    failure_at_any_validation: no_op_and_consume_nothing
+    external_remove_rule: invalidate_origin_and_siblings_before_external_remove_mutation
+  new_activation_after_invalidation: creates_fresh_never_reused_nonce_and_siblings
+  stale_wrong_repeated_or_retired_activation: no_op_never_retarget_recreate_or_mutate_with_polite_non_sensitive_announcement
+  first_row_fallback: forbidden
+
+navigation:
+  editor_to_unresolved_help:
+    trigger: row_amount_classification_doubt
+    mutation_order:
+      - set_exact_origin_row_unresolved
+      - clear_global_review_commit_and_downstream
+      - capture_one_shot_origin
+      - route_unresolved_help
+    preserves: [all_rows, tombstones, raw_inputs, provisional_subtotal, disclosures]
+    entry_focus: temporary_help_heading_outside_tab_order
+
+  unresolved_help_to_provider_total_obtained:
+    visible_label_intent: i_obtained_the_provider_reported_ordinary_total_and_understand_mint_has_not_verified_it
+    guard: exact_origin_is_same_active_unresolved_generation
+    instruction_if_provider_gave_different_total: edit_the_amount_field_after_return
+    mutation: atomically_consume_origin_and_siblings_then_unresolved_to_unreviewed_keep_amount_unchanged_keep_canonical_null
+    destination: editor
+    focus: exact_origin_row_amount
+    automatic_confirmation: forbidden
+
+  unresolved_help_to_one_provider_refunded:
+    visible_label_intent: remove_only_this_fully_refunded_provider
+    guard: exact_origin_is_same_active_unresolved_generation_and_origin_is_contentful_and_origin_has_positive_parse_valid_amount_and_another_active_provider_has_positive_parse_valid_amount
+    operation: atomically_consume_origin_and_siblings_then_reuse_exact_captured_batch15_contentful_remove_token_R_g
+    preserves: [all_other_rows, their_exact_order, their_raw_values, their_classification]
+    destination: editor
+    focus: exact_origin_tombstone_undo
+    announcement: updated_provisional_subtotal
+    repeated_activation: no_op
+
+  unresolved_help_to_all_zero_correction:
+    visible_label_intent: nothing_remained_credited_across_all_providers
+    activation_requires: explicit_person_declaration
+    destination: contribution_status_correction
+    restores_previous_selection: yes
+    mutation_before_person_chooses: clear_review_commit_and_downstream_only
+    automatic_zero_or_status_change: forbidden
+    choose_yes: return_editor_preserve_rows_keep_origin_row_unresolved_keep_origin_and_focus_origin_doubt_trigger
+    choose_no_or_unknown: terminally_purge_then_follow_inherited_route
+    back_or_system_back: return_same_unresolved_help_same_origin_focus_all_zero_action_without_mutation
+    safe_exit:
+      cancel_resume_or_system_back: return_same_correction_node_same_origin_focus_safe_exit_trigger
+      leave: terminally_purge_before_dismiss
+
+  unresolved_help_to_education:
+    destination: existing_head_education_explanation_boundary_only
+    canonical_total: null
+    runtime_authority:
+      path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+      symbol: _EducationBoundary
+      git_blob_sha1: 0a89cf47f5f6d35c741a7f65ba824fe6e9c1052c
+    displayed_actions: [explicit_back, global_open_safe_exit]
+    explicit_back_or_system_back: return_same_unresolved_help_same_origin_focus_education_trigger
+    safe_exit_cancel_resume_or_system_back: return_same_education_boundary_same_origin_focus_safe_exit_trigger
+    safe_exit_leave: terminally_purge_before_dismiss
+    full_batch13_teach_back_correction_next_action_reference_subgraph: not_implemented_outside_batch16_and_not_claimed_as_runtime
+
+  unresolved_help_back_or_system_back:
+    destination: editor
+    mutation: none
+    classification: remains_unresolved
+    focus: exact_origin_row_doubt_trigger
+
+  unresolved_help_safe_exit:
+    modal: heading_focus_trap_and_accessible_modal_semantics
+    cancel_resume_or_system_back: restore_same_help_mode_origin_and_focus_safe_exit_trigger
+    leave: terminally_purge_before_dismiss
+
+  inherited_editor_and_canton_edges:
+    inheritance_rule: only_controls_listed_in_runtime_manifest_at_head_are_claimed_as_rendered
+    local_override: unresolved_blocks_global_review_continue_and_canton
+
+runtime_manifest_at_head_1c7c18ccd:
+  bound_head: 1c7c18ccd850ce8718b9559c0eed0a9415687498
+  evidence_sources:
+    - path: product/mint_next/batch7/design_lab/lib/multi_provider_amount_editor.dart
+      git_blob_sha1: ecfb12021ebb693822dbe767692b95b1b865861f
+    - path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+      git_blob_sha1: 0a89cf47f5f6d35c741a7f65ba824fe6e9c1052c
+  rendered_editor_controls:
+    - provider_name_field_per_active_row
+    - amount_field_per_active_row
+    - remove_per_active_row_when_two_or_more_active
+    - undo_and_finalize_per_tombstone
+    - add_provider
+    - global_review_checkbox
+    - continue
+    - unknown_amount_only_when_no_positive_subtotal
+    - correct_previous
+    - global_open_safe_exit
+  rendered_existing_correction_boundary_controls:
+    - choose_yes
+    - choose_no
+    - choose_unknown
+    - explicit_back
+    - global_open_safe_exit
+  rendered_global_safe_exit_controls:
+    - resume
+    - keep_local_reference_disabled_and_non_actionable
+    - leave_without_saving
+  batch16_new_rendered_controls:
+    - doubt_per_active_row
+    - unresolved_help_provider_total_obtained
+    - unresolved_help_one_provider_refunded_when_guard_true
+    - unresolved_help_all_providers_zero
+    - unresolved_help_education
+    - unresolved_help_back
+  not_implemented_outside_batch16_and_not_claimed_as_inherited:
+    - where_to_find
+    - all_reviewed_help
+    - missing_amount_partial_known
+    - return_to_missing_request
+    - retract_missing_provider
+    - editor_system_back_contract
+    - full_education_teach_back_correction_next_action_reference_subgraph
+  proof_rule: every_control_claimed_as_rendered_has_a_runtime_finder_activation_destination_mutation_and_focus_assertion
+
+error_and_focus_order:
+  continue:
+    inherit_exactly: parent_contract.graph.fact_contributed_amount.controls.continue.failure_order
+    missing_provider_step: present_but_dormant_until_missing_provider_subsystem_exists
+    narrowing_or_reordering: forbidden
+  unresolved_error:
+    placement: inline_next_to_exact_row_doubt_trigger
+    semantics: described_by_and_polite_live_announcement
+    action: scroll_then_focus_exact_row_doubt_trigger
+
+accessibility:
+  all_displayed_actions_minimum_target: 48x48
+  accessible_name_equals_visible_label_for_text_actions: true
+  doubt_accessible_name: visible_label_plus_visual_row_index_and_selected_tax_year
+  help_actions_accessible_names: unique_and_include_selected_provider_row_context_without_exposing_private_provider_name
+  help_heading: unique_semantic_heading_temporarily_focused_and_skip_traversal
+  help_action_order: [provider_total_obtained, one_provider_refunded_when_guard_true, all_providers_zero, education, back, safe_exit]
+  keyboard_visual_order: identical
+  no_color_only_state: true
+  reduced_motion: true
+
+privacy_and_lifecycle:
+  local_ephemeral_only: true
+  persistence_network_analytics_crash_breadcrumbs: forbidden
+  purge_events: [status_no_or_unknown, tax_year_change, safe_exit_leave, education_completion_or_reference_save, app_kill_or_ttl_expiry]
+  education_completion_or_reference_save_in_batch16_runtime: not_rendered_future_canonical_event_only
+  purged_fields:
+    inherit_exactly: parent_contract.state_contract.personal_state_purge_fields
+    additions: [unresolved_origin_tokens, unresolved_sibling_action_tokens, captured_remove_tokens]
+    narrowing_forbidden: true
+    duplicate_with_inherited_list: forbidden
+  callbacks_after_purge: no_op_across_session_and_tax_year
+
+required_runtime_proofs:
+  model:
+    - amount_edit_resets_only_that_row_to_unreviewed_and_invalidates_commit
+    - unresolved_stays_in_provisional_subtotal_but_blocks_review_commit_ready_and_continue
+    - successful_global_review_is_only_transition_to_confirmed_ordinary
+    - remove_undo_preserves_classification_and_finalize_erases_it
+  identity_and_hostility:
+    - three_rows_exact_origin_round_trip_never_first_row_fallback
+    - stale_origin_after_edit_remove_undo_finalize_is_no_op
+    - edit_then_new_doubt_uses_fresh_nonce_and_old_siblings_remain_no_op
+    - first_successful_help_action_consumes_origin_and_every_sibling
+    - repeated_or_wrong_row_resolution_never_retargets
+    - year_leave_status_and_ttl_purge_neutralize_all_callbacks
+  complete_navigation:
+    - help_back_and_system_back_return_exact_doubt_trigger
+    - provider_reported_total_obtained_returns_exact_amount_without_edit_or_confirmation
+    - education_back_restores_same_help_and_origin
+    - safe_exit_cancel_resume_and_system_back_restore_exact_origin_and_leave_purges
+    - refund_tombstones_only_origin_preserves_others_and_focuses_undo
+    - all_zero_requires_explicit_declaration_then_correction_choice
+    - all_zero_correction_back_and_system_back_restore_same_help_origin_and_action_focus
+    - all_zero_choose_yes_preserves_unresolved_and_returns_exact_doubt_trigger
+    - correction_safe_exit_cancel_resume_system_back_and_leave_have_exact_focus_and_purge
+  layout_and_semantics:
+    - 320x700_text_scale_2_three_rows_keyboard_inset_280_each_help_action_back_and_safe_exit_has_48px_rect_is_scrollable_visible_and_hittable
+    - screen_reader_named_row_doubt_error_help_heading_subtotal_and_focus_return
+    - six_locale_semantic_intent_review_without_placeholders
+
+six_locale_semantic_contract:
+  locales: [fr, en, de, it, es, pt]
+  key_parity_alone_is_insufficient: true
+  every_locale_must_distinguish:
+    - one_provider_annual_ordinary_or_Q_total_counted_once
+    - actually_credited_for_selected_year_not_merely_planned_sent_or_debited
+    - exclude_transfer_retroactive_buyback_pending_movement_return_and_investment_gain
+    - after_correction_or_refund_obtain_provider_confirmed_net_ordinary_total_never_subtract_mentally
+    - insurance_uses_annual_certificate_never_surrender_value_or_risk_savings_split
+    - one_provider_fully_refunded_is_not_all_providers_zero
+    - mint_has_not_verified_the_entered_amount
+    - no_tax_result_or_recommendation_is_produced_here
+
+promotion_gates:
+  - written_contract_roasted_with_zero_p1_p2_p3
+  - failing_tests_committed_before_runtime_implementation
+  - mechanical_batch16_guard_wired_to_pre_commit_and_ci
+  - flutter_analyze_clean
+  - full_design_lab_suite_green
+  - final_exact_diff_ux_swiss_and_adversarial_roasts_zero_p1_p2_p3
+  - hidden_harness_limit_stated_in_evidence

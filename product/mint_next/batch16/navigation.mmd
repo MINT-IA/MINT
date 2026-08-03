@@ -1,0 +1,72 @@
+stateDiagram-v2
+  [*] --> Editor_RowsMixed
+
+  Editor_RowsMixed --> Help_Unresolved: Doute sur une ligne\norigine exacte + tokens frais
+  Help_Unresolved --> Editor_RowsMixed: Total prestataire obtenu\nligne devient à revoir, montant inchangé
+  Help_Unresolved --> Editor_Tombstone: Prestataire entièrement remboursé\norigine contentful + autre ligne positive
+  Help_Unresolved --> Contribution_Correction: Rien chez aucun prestataire\ndéclaration explicite
+  Help_Unresolved --> Existing_Education_Boundary: Comprendre sans montant personnel
+  Help_Unresolved --> Editor_RowsMixed: Retour / retour système\norigine reste unresolved
+  Help_Unresolved --> Help_Safe_Exit: Quitter
+
+  Editor_Tombstone --> Editor_RowsMixed: Annuler la suppression\nclassification exacte restaurée selon l'origine
+  Editor_Tombstone --> Editor_RowsMixed: Finaliser la suppression\nefface contenu, classification et tokens; invalide Undo\nfocus active suivante sinon précédente sinon Ajouter
+  Contribution_Correction --> Editor_RowsMixed: Oui, j'ai versé\norigine reste unresolved
+  Contribution_Correction --> Purged: Non / Je ne sais pas
+  Contribution_Correction --> Help_Unresolved: Retour / retour système\nmême origine, focus action tous-zéro
+  Contribution_Correction --> Correction_Safe_Exit: Quitter
+  Correction_Safe_Exit --> Contribution_Correction: Annuler / reprendre / retour système
+  Correction_Safe_Exit --> Purged: Quitter sans enregistrer
+  Existing_Education_Boundary --> Help_Unresolved: Retour / retour système\nmême origine
+  Existing_Education_Boundary --> Education_Safe_Exit: Quitter
+  Education_Safe_Exit --> Existing_Education_Boundary: Annuler / reprendre / retour système
+  Education_Safe_Exit --> Purged: Quitter sans enregistrer
+  Help_Safe_Exit --> Help_Unresolved: Annuler / reprendre / retour système
+  Help_Safe_Exit --> Purged: Quitter sans enregistrer
+
+  Editor_RowsMixed --> Editor_AllConfirmed: Revue globale réussie\nseulement si aucune unresolved
+  Editor_RowsMixed --> Editor_RowsMixed: Continuer refusé\nfocus première erreur canonique
+  Editor_AllConfirmed --> Canton: Continuer explicite
+  Editor_AllConfirmed --> Editor_RowsMixed: Modifier montant\nligne devient unreviewed; invalide revue et commit
+  Editor_AllConfirmed --> Editor_RowsMixed: Modifier nom\ninvalide revue et commit
+  Editor_AllConfirmed --> Editor_RowsMixed: Ajouter une ligne\nnouvelle ligne unreviewed; invalide revue et commit
+  Editor_AllConfirmed --> Editor_RowsMixed: Décocher la revue\ntoutes les lignes deviennent unreviewed
+  Editor_AllConfirmed --> Editor_Tombstone: Supprimer une ligne remplie\ntombstone + Undo / Finalize
+  Editor_AllConfirmed --> Help_Unresolved: Doute exact sur une ligne\ninvalide revue, commit et downstream
+  Editor_AllConfirmed --> Inherited_Contribution_Correction: Corriger la réponse précédente
+  Editor_AllConfirmed --> Editor_AllConfirmed_Safe_Exit: Quitter
+  Editor_AllConfirmed_Safe_Exit --> Editor_AllConfirmed: Annuler / reprendre / retour système\naucune mutation
+  Editor_AllConfirmed_Safe_Exit --> Purged: Quitter sans enregistrer
+  Canton --> Editor_AllConfirmed: Retour\nrestaure lignes + revue + commit
+
+  Editor_RowsMixed --> Inherited_Contribution_Correction: Corriger la réponse précédente
+  Editor_RowsMixed --> Editor_Safe_Exit: Quitter
+  Editor_Safe_Exit --> Editor_RowsMixed: Annuler / reprendre / retour système
+  Editor_Safe_Exit --> Purged: Quitter sans enregistrer
+  Editor_RowsMixed --> Purged: année / statut terminal / TTL
+  Editor_AllConfirmed --> Purged: année / statut terminal / TTL
+  Purged --> [*]
+
+  note right of Help_Unresolved
+    Aucun calcul, aucune estimation,
+    aucun zéro ou statut inféré.
+    Origine = id + session + génération + nonce.
+  end note
+
+  note right of Existing_Education_Boundary
+    Batch16 réutilise seulement la frontière simple réellement rendue au HEAD.
+    Aucun teach-back, correction, next-action ou reference-saved
+    n'est revendiqué ni promu par ce lot.
+  end note
+
+  note left of Editor_RowsMixed
+    Les contrôles existants ne sont pas pseudo-agrégés ici.
+    Leur liste runtime exacte et leurs preuves sont normatives
+    dans runtime_manifest_at_head_1c7c18ccd.
+  end note
+
+  note right of Inherited_Contribution_Correction
+    Sous-graphe existant non redessiné et non promu ici.
+    Ses choix Oui / Non / Inconnu, Back et safe-exit
+    restent gouvernés par le runtime manifest et le parent.
+  end note
