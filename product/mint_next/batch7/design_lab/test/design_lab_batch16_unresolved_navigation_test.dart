@@ -1488,7 +1488,7 @@ void main() {
       final l10n = MintNextLocalizations.of(context);
       final swissIntents = <String>[
         l10n.batch16AnnualOrdinaryTotalMeaning,
-        l10n.batch16ActuallyCreditedMeaning,
+        l10n.batch16ActuallyCreditedMeaning(2026),
         l10n.batch16ExcludedMovementsMeaning,
         l10n.batch16ProviderConfirmedNetMeaning,
         l10n.batch16InsuranceCertificateMeaning,
