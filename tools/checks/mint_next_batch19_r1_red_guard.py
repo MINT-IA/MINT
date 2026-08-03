@@ -91,7 +91,8 @@ FORBIDDEN_CAPABILITY_TOKENS = {
 }
 FORBIDDEN_CAPABILITY_IDENTIFIERS = {
     "MethodChannel", "BasicMessageChannel", "EventChannel", "BinaryMessenger",
-    "ServicesBinding", "SystemChannels", "PlatformDispatcher", "sendPlatformMessage",
+    "defaultBinaryMessenger", "ServicesBinding", "SystemChannels",
+    "PlatformDispatcher", "sendPlatformMessage",
     "print", "debugPrint", "debugPrintSynchronously", "debugDumpApp",
     "debugDumpRenderTree", "debugDumpLayerTree", "debugDumpSemanticsTree",
     "debugDumpFocusTree", "dumpErrorToConsole",

@@ -175,6 +175,7 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             "const channel = MethodChannel .new('mint.exfil');",
             "SystemChannels.platform.invokeMethod<void>('exfil');",
             "PlatformDispatcher.instance.sendPlatformMessage('exfil', null, (_) {});",
+            "WidgetsBinding.instance.defaultBinaryMessenger.send('mint.exfil', null);",
             "final leak = print;",
             "final debugLeak = debugPrint;",
             "final callLeak = (print).call;",
