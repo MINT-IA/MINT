@@ -8560,7 +8560,7 @@
   "pillar3aProviderDescFintechC": "Solution digitale d’une banque cantonale",
   "pillar3aProviderDescBanque": "Taux fixe, non exposé aux marchés, rendement limité",
   "pillar3aProviderDescAssurance": "Combine épargne et couverture (décès, invalidité). Frais élevés, durée d’engagement longue.",
-  "pillar3aProviderAssuranceWarning": "À {age} ans, l’écart de capital final entre une assurance 3a et un prestataire fintech, lié à des frais plus élevés, est d’environ CHF {montant} sur {duree} ans dans ta simulation. Une assurance 3a lie épargne et couverture ; ses frais et sa flexibilité varient selon le contrat.",
+  "pillar3aProviderAssuranceWarning": "À {age} ans, selon les hypothèses de frais et de couverture retenues, l’écart de capital final entre une assurance 3a et un prestataire fintech est d’environ CHF {montant} sur {duree} ans dans ta simulation. Une assurance 3a lie épargne et couverture ; ses frais et sa flexibilité varient selon le contrat.",
   "@pillar3aProviderAssuranceWarning": {
     "placeholders": {
       "age": {

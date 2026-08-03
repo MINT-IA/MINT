@@ -25170,7 +25170,7 @@ class SEs extends S {
 
   @override
   String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'A los $age años, la diferencia de capital final entre un seguro 3a y un proveedor fintech, debida a comisiones más altas, es de unos CHF $montant en $duree años en tu simulación. Un seguro 3a combina ahorro y cobertura; sus comisiones y su flexibilidad varían según el contrato.';
+    return 'A los $age años, según las hipótesis de comisiones y cobertura aplicadas, la diferencia de capital final entre un seguro 3a y un proveedor fintech es de unos CHF $montant en $duree años en tu simulación. Un seguro 3a combina ahorro y cobertura; sus comisiones y su flexibilidad varían según el contrato.';
   }
 
 }

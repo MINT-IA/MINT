@@ -25168,7 +25168,7 @@ class SFr extends S {
 
   @override
   String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'À $age ans, l’écart de capital final entre une assurance 3a et un prestataire fintech, lié à des frais plus élevés, est d’environ CHF $montant sur $duree ans dans ta simulation. Une assurance 3a lie épargne et couverture ; ses frais et sa flexibilité varient selon le contrat.';
+    return 'À $age ans, selon les hypothèses de frais et de couverture retenues, l’écart de capital final entre une assurance 3a et un prestataire fintech est d’environ CHF $montant sur $duree ans dans ta simulation. Une assurance 3a lie épargne et couverture ; ses frais et sa flexibilité varient selon le contrat.';
   }
 
 }

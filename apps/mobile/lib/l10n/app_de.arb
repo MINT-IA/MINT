@@ -7738,7 +7738,7 @@
   "pillar3aProviderDescFintechC": "Digitale Lösung einer Kantonalbank",
   "pillar3aProviderDescBanque": "Fester Zins, nicht marktabhängig, begrenzte Rendite",
   "pillar3aProviderDescAssurance": "Kombiniert Sparen und Deckung (Tod, Invalidität). Hohe Gebühren, lange Bindungsdauer.",
-  "pillar3aProviderAssuranceWarning": "Mit {age} Jahren beträgt der Unterschied beim Endkapital zwischen einer 3a-Versicherung und einem Fintech-Anbieter, bedingt durch höhere Gebühren, in deiner Simulation rund CHF {montant} über {duree} Jahre. Eine 3a-Versicherung verbindet Sparen und Absicherung; Gebühren und Flexibilität variieren je nach Vertrag.",
+  "pillar3aProviderAssuranceWarning": "Mit {age} Jahren beträgt der Unterschied beim Endkapital zwischen einer 3a-Versicherung und einem Fintech-Anbieter gemäss den angenommenen Gebühren und Deckungen in deiner Simulation rund CHF {montant} über {duree} Jahre. Eine 3a-Versicherung verbindet Sparen und Absicherung; Gebühren und Flexibilität variieren je nach Vertrag.",
   "authErrorService": "Kontodienst in dieser Umgebung nicht verfügbar. Nutze den lokalen Modus.",
   "authHidePassword": "Passwort verbergen",
   "authShowPassword": "Passwort anzeigen",
