@@ -67,6 +67,9 @@ ALLOW = {
     "apps/mobile/test/services/secure_wizard_store_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
+    # Décision S4-F1 (2026-08-04) : §4.8 vocabulaire de la confiance —
+    # trame vs courbe, acte l'écart majeur de l'audit de fidélité #1185.
+    "docs/DESIGN_SYSTEM.md",
     ".github/workflows/ai-workflow-guards.yml",
     ".github/workflows/journey-os-runtime-replay.yml",
     # Batch 19 R1 (2026-08-03) : exécuteur CI neutre des preuves RED + job

@@ -327,6 +327,17 @@ Padding: spacingLg (24px) horizontal
 | **Error** | Bandeau inline : fond `error` alpha 0.06, bordure `error` alpha 0.15, icône + message + TextButton retry. | `MintErrorBanner` |
 | **No data** | Comme Empty mais CTA orienté enrichment ("Ajoute tes données pour voir…"). | `MintEmptyState` variante |
 
+### 4.8 Vocabulaire de la confiance — deux objets, deux fonctions
+
+Décision actée le 2026-08-04 (audit de fidélité `.planning/audit/2026-08-04-fidelite-design-mint-experience.md`, écart S4-F1) : les deux objets coexistent volontairement, leur distinction est normative.
+
+| Objet | Fonction | Règles visuelles |
+|------|---------|------------------|
+| `MintTrameConfiance` | Dire **à quel point CE chiffre est fondé**, au point d'affichage du chiffre. | Trame grise unique (« la confiance a une couleur »), jamais de score numérique en tête, primitif unique — aucun badge/pastille/pourcentage concurrent à côté d'un chiffre. |
+| `ConfidenceEvolutionCard` | Montrer **la trajectoire de lucidité dans le temps** (« l'app se souvient de toi », North Star D5). | Le score EST le sujet de la carte : chiffre en tête autorisé, courbe historique, monotone running-max. Ne s'affiche jamais accolée à un chiffre financier individuel. |
+
+Règle : toute nouvelle surface touchant à la confiance choisit l'un des deux objets — jamais un troisième vocabulaire. Confiance d'un chiffre → trame ; évolution de la lucidité → courbe.
+
 ---
 
 ## 5. DATA VISUALIZATION (Charts, Comparatifs, Alertes)
