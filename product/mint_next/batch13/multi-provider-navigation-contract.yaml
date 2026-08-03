@@ -154,8 +154,8 @@ graph:
         operation:
           bound_active_row: focus_first_invalid_or_empty_control_in_order_provider_name_safety_or_empty_then_amount_invalid_or_empty_then_duplicate_provider_name_then_unresolved_classification_help
           bound_tombstoned_row: focus_bound_tombstone_undo_then_finalize_group
-          unallocated_under_capacity: apply_missing_provider_resolution_contract_recovery_transition_without_new_token_then_focus_exact_bound_row_control
-          unallocated_at_capacity: route_partial_help_focus_capacity_recovery_or_education
+          unallocated_under_capacity: apply_missing_provider_resolution_contract_recovery_transition_without_new_token_then_focus_bound_active_row_using_exact_bound_active_row_error_order
+          unallocated_at_capacity: route_partial_help_focus_first_tombstone_finalize_else_capacity_education_action
         repeated_activation: idempotent_never_create_or_rebind_token
       retract_missing_provider:
         visibility: missing_provider_declared_or_allocation_blocked
@@ -200,7 +200,7 @@ graph:
       primary:
         label_intent: return_to_first_missing_provider
         to: fact_contributed_amount
-        focus: first_incomplete_row_or_at_limit_education_action
+        focus: bound_active_row_using_exact_bound_active_row_error_order_else_first_tombstone_finalize_else_at_limit_education_action
       education_only:
         to: education_explanation
         mutation: canonical_total_remains_null
@@ -380,8 +380,8 @@ missing_provider_resolution_contract:
     third: if_no_eligible_row_and_rendered_count_is_50_stay_unallocated_set_allocation_blocked
   capacity_freed_by_finalize: if_unallocated_atomically_allocate_and_bind_one_empty_row
   recovery_control_while_unallocated:
-    under_capacity: rerun_exact_declaration_transition_order_without_creating_or_rebinding_token_then_focus_exact_bound_row_control
-    at_capacity: remain_unallocated_route_partial_help_focus_education_action
+    under_capacity: rerun_exact_declaration_transition_order_without_creating_or_rebinding_token_then_focus_bound_active_row_using_graph_fact_contributed_amount_controls_return_to_missing_request_operation_bound_active_row_order
+    at_capacity: remain_unallocated_route_partial_help_focus_first_tombstone_finalize_else_education_action
   ordinary_add_while_unallocated: bind_added_row_once
   ordinary_add_while_bound: never_rebind_token_new_row_is_unrelated
   edits_after_binding: never_unbind_or_rebind_token_invalid_or_duplicate_or_unresolved_bound_row_remains_bound_until_resolved_retracted_tombstoned_or_finalized
@@ -515,11 +515,12 @@ state_contract:
   unresolved_movement_correction_or_classification: canonical_total_null_until_provider_confirmed_amount_and_global_reconfirmation
   tombstone_lifecycle:
     operation_token_generation:
-      remove: create_fresh_one_shot_remove_token_for_active_row_generation
-      undo: consume_remove_token_create_fresh_one_shot_undo_token_for_same_tombstone_generation
-      remove_after_undo: consume_prior_generation_and_create_new_tombstone_generation_with_fresh_remove_token
-      finalize: consume_current_generation_token_retire_row_id_and_all_tokens
-      stale_callback_from_any_prior_generation: no_op_never_recreate_retarget_or_mutate
+      active_row_generation_g: expose_fresh_one_shot_remove_token_R_g_before_remove_activation
+      successful_remove_R_g: atomically_consume_R_g_create_tombstone_generation_g_plus_1_and_expose_distinct_sibling_tokens_U_g_plus_1_and_F_g_plus_1
+      successful_undo_U_g_plus_1: atomically_consume_U_g_plus_1_retire_sibling_F_g_plus_1_restore_active_row_as_fresh_generation_g_plus_2_and_expose_fresh_R_g_plus_2
+      successful_remove_after_undo_R_g_plus_2: atomically_consume_R_g_plus_2_create_tombstone_generation_g_plus_3_and_expose_fresh_distinct_U_g_plus_3_and_F_g_plus_3
+      successful_finalize_F_current: atomically_consume_F_current_retire_sibling_U_current_retire_row_id_and_all_generation_tokens
+      repeated_consumed_sibling_or_prior_generation_activation: no_op_never_recreate_retarget_or_mutate
     preserved_through: [all_help_modes_and_back, entire_reversible_inherited_education_subgraph, safe_exit_resume_cancel_or_system_back, fact_contribution_correction_and_back]
     finalized_only_by: [explicit_finalize_remove, status_change, tax_year_change, explicit_education_session_completion_or_reference_save, leave_without_saving, app_kill_or_ttl_expiry]
   stale_callback_after_finalize_or_any_terminal_purge:
@@ -623,6 +624,7 @@ proof_contract:
     - stale_commit_after_unchecking_confirmation_or_declaring_missing_provider
     - stale_remove_or_undo_callback_and_row_id_reuse
     - remove_undo_remove_requires_fresh_generation_tokens_and_rejects_prior_callbacks
+    - remove_finalize_requires_distinct_preexposed_sibling_tokens_atomic_consumption_and_stale_sibling_no_op
     - active_row_count_confused_with_tombstone_count
     - tombstone_lost_across_reversible_help_overlay_correction_or_education_route
     - rendered_row_capacity_allocation_or_undo_bypass
@@ -642,6 +644,8 @@ proof_contract:
     - delayed_callback_after_status_tax_year_leave_app_kill_or_ttl_purge_recreates_or_mutates_state
     - runtime_proof_omits_missing_request_finalize_capacity_or_exact_purge_paths
     - pending_missing_recovery_label_accessible_name_or_state_focus_missing
+    - unallocated_under_capacity_recovery_focus_does_not_use_exact_bound_row_error_order
+    - at_capacity_recovery_with_tombstone_skips_first_finalize_for_education_escape
     - missing_request_binding_nondeterministic_or_targets_unresolved_or_duplicate_row
     - at_capacity_with_eligible_existing_row_fails_to_bind_without_allocation
     - missing_control_bypasses_canonical_declaration_transition_order
