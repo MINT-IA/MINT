@@ -43,6 +43,10 @@ Validated 4509 gzip bytes / 95.6% headroom vs 100 KB ceiling per `.planning/phas
 
 Widgets réutilisables de `lib/widgets/premium/` : MintAmountField, MintPickerTile, MintChoiceCard, MintBottomSheet, MintDialog, MintEntrance, MintHeroNumber, MintCountUp, MintConfidenceNotice. Les anciens noms MintCard / MintSection / MintPremiumButton / MintGlassCard n'existent pas dans le code — ne pas les citer ni les recréer.
 
+### Roster élargi (2026-08-03)
+
+`mint-experience` (`.claude/agents/mint-experience.md`) porte le contrat d'expérience en amont (journey, architecture d'information, microcopy pédagogique, accessibilité, critères de compréhension) ; `mint-mobile` implémente contre ce contrat. Doctrine canonique : `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`. Sortie d'agent = finding, jamais vérité — reproduction mécanique exigée.
+
 <!-- mint-data-architecture-v1-01-canonical:end -->
 
 La doctrine de reconstruction (`.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`) est la référence de workflow (fil rouge 6 étapes, anti-dérive v2, runtime touchable) ; ce mirror et la frontière L1/L2 restent régis par le bloc canonique ci-dessus.

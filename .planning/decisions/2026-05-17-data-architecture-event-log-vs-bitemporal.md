@@ -255,3 +255,15 @@ du modèle v1
 (`EFFECTIVE_RATES_100K_SINGLE`) supprimé, parités croisées gelées par
 fixtures partagées (`tools/fixtures/`). Reste hors périmètre : copie privée
 `_INCOME_ADJUSTMENT` de couple_optimizer (beads MINT_nosync-5up).
+
+### Addendum 2026-08-03 — roster agents élargi (statut : constat)
+
+Roster permanent élargi selon le handoff 2026-08-03 §11.2/§11.4 :
+`mint-experience` (journey, architecture d'information, microcopy
+pédagogique, accessibilité, critères de compréhension) et
+`mint-integrations-security` (consentement, provenance, connecteurs
+externes, sécurité, récupération) rejoignent les 5 agents existants sous
+`.claude/agents/`. Doctrine canonique de référence :
+`.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`. Rappel
+transversal : sortie d'agent = finding, jamais vérité — reproduction
+mécanique exigée avant toute promotion.

@@ -162,8 +162,9 @@ Exposé via MCP tool `get_swiss_constants(category)` (cf. CLAUDE.md §3).
 
 - `SOT.md` — data contracts (Profile, SessionReport, EnhancedConfidence).
 - `tools/openapi/mint.openapi.canonical.json` — API contract canonique.
-- Subagents : `mint-backend` + `mint-quality-gate` par défaut. Expertise
-  externe uniquement pour un gap nommé.
+- Subagents : `mint-backend` + `mint-quality-gate` par défaut ;
+  `mint-integrations-security` pour consentement, provenance et design de
+  connecteurs externes. Expertise externe uniquement pour un gap nommé.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.
 
 ## 14. Staging promotion authority

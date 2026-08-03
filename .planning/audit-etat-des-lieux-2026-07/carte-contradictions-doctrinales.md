@@ -39,14 +39,16 @@ ou sortie de commande pour chaque contradiction retenue.
 | `.claude/skills/mint-*` | Miroirs minces conformes (« .agents wins ») | Rien à neutraliser |
 | `.planning/phases-archive/PERIMETERS.md` | Déjà bannérisé « SUPERSEDED par Journey OS » (réconciliation 2026-07-29) | Déjà neutralisé |
 | CLAUDE.md §4 | Convention `feature/S{XX}-<slug>` vs pratique réelle `codex/journey-os-*` | Les deux coexistent via `allowed_branch_patterns` du manifest ; harmonisation = décision de workflow, pas une neutralisation |
-| Worktree `/Users/julienbattaglia/Desktop/MINT-batch0-foundation.nosync` (lecture seule) | `AGENTS.md` + `docs/MINT_AGENT_WORKFLOW.md` divergent du repo principal : roster étendu (`mint-experience`, `mint-integrations-security`), 6 skills supplémentaires (`mint-journey-design`, `mint-runtime-walkthrough`, `mint-financial-calculation-contract`, `mint-consent-and-provenance`, `mint-experience-critique`, `mint-regulatory-boundary`), guards batch 1-3, handshake renuméroté (double étape 13) ; `CLAUDE.md` identique | Worktree de reconstruction sur sa propre branche — la réconciliation se fera au merge des batches ; y toucher ici créerait un conflit. À surveiller : quand ces fichiers atterriront sur dev, le §3.5 de CLAUDE.md (roster à 5) devra suivre dans le même train |
+| Worktree `/Users/julienbattaglia/Desktop/MINT-batch0-foundation.nosync` (lecture seule) | `AGENTS.md` + `docs/MINT_AGENT_WORKFLOW.md` divergent du repo principal : roster étendu (`mint-experience`, `mint-integrations-security`), 6 skills supplémentaires (`mint-journey-design`, `mint-runtime-walkthrough`, `mint-financial-calculation-contract`, `mint-consent-and-provenance`, `mint-experience-critique`, `mint-regulatory-boundary`), guards batch 1-3, handshake renuméroté (double étape 13) ; `CLAUDE.md` identique | Worktree de reconstruction sur sa propre branche — la réconciliation se fera au merge des batches ; y toucher ici créerait un conflit |
+| Roster élargi — atterrissage partiel sur dev (PR #1174, 2026-08-03 17:57) | `CLAUDE.md` §3.5 liste désormais 7 agents et `docs/AGENTS/{flutter,backend}.md` citent `mint-experience` / `mint-integrations-security`, mais la table roster d'`AGENTS.md` (5 agents), la « Default route » de CLAUDE.md §3.5 et `docs/MINT_AGENT_WORKFLOW.md` §Default Roster n'ont pas suivi | Incohérence transitoire du train roster en cours (flux batch0) — l'alignement appartient à ce flux ; la corriger ici créerait un conflit avec sa prochaine PR |
 
 ## Ce qui fait foi désormais
 
 1. `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md` — doctrine
    canonique (fil rouge 6 étapes, anti-dérive v2, workflow batch A→I, runtime
-   touchable, preuves CI liées au SHA, zéro-confiance symétrique). Statut
-   Proposed au moment de cette carte (PR #1173) ; le chemin est stable.
+   touchable, preuves CI liées au SHA, zéro-confiance symétrique). Mergée sur
+   dev via PR #1173 (commit `2163209b7`) ; statut interne Proposed → Decided
+   après critique croisée Codex et lecture de Julien.
 2. `.planning/decisions/2026-07-31-north-star-experience.md` — expérience
    cible et chantiers D1-D5.
 3. `.planning/journeys/` — board, registre d'issues, evidence map.

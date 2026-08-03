@@ -41,6 +41,8 @@ Default roster is Mint-specific and small:
 | `mint-mobile` | `.claude/agents/mint-mobile.md` | `apps/mobile/` implementation |
 | `mint-backend` | `.claude/agents/mint-backend.md` | `services/backend/` implementation |
 | `mint-swiss-brain` | `.claude/agents/mint-swiss-brain.md` | Swiss financial meaning/compliance |
+| `mint-experience` | `.claude/agents/mint-experience.md` | journey/IA/microcopy/accessibility/comprehension |
+| `mint-integrations-security` | `.claude/agents/mint-integrations-security.md` | consent/provenance/APIs/security/recovery |
 
 Default route:
 
