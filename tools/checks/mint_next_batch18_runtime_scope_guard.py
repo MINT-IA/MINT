@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import ast
 import re
 import subprocess
 import sys
@@ -70,6 +71,32 @@ def _load_structure(path: Path) -> dict:
     return yaml.load(path.read_text(encoding="utf-8"), Loader=UniqueStringKeyLoader)
 
 
+def _active_journey_allow_entries(source: str) -> list[str]:
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        raise GuardFailure("Journey OS source is not parseable") from exc
+    assignments = [
+        node for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "ALLOW" for target in node.targets)
+    ]
+    _require(len(assignments) == 1 and isinstance(assignments[0].value, ast.Set), "Journey OS active ALLOW assignment drifted")
+    stores = [node for node in ast.walk(tree) if isinstance(node, ast.Name) and node.id == "ALLOW" and isinstance(node.ctx, ast.Store)]
+    mutations = [
+        node for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and isinstance(node.func.value, ast.Name)
+        and node.func.value.id == "ALLOW"
+    ]
+    _require(len(stores) == 1 and not mutations, "Journey OS ALLOW is reassigned or mutated after declaration")
+    literals = [element.value for element in assignments[0].value.elts if isinstance(element, ast.Constant) and isinstance(element.value, str)]
+    for entry in EXPECTED_JOURNEY_ENTRIES:
+        _require(literals.count(entry) == 1, f"Journey OS active scope entry missing or duplicated: {entry}")
+    return [entry for entry in EXPECTED_JOURNEY_ENTRIES if entry in literals]
+
+
 def _normalized_workflow_bytes(path: Path) -> bytes:
     text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
     text, count = re.subn(r"(?m)^(  EXPECTED_BATCH18_[A-Z0-9_]+_SHA256:) [0-9a-f]{64}$", r"\1 <HASH>", text)
@@ -100,8 +127,7 @@ def _review_payload_sha256(root: Path) -> str:
     _require(re.fullmatch(r"[0-9a-f]{64}", parent_payload) is not None, "accepted parent reviewed payload missing")
     parts["BATCH17_REVIEWED_PAYLOAD"] = parent_payload.encode("ascii")
     journey_source = (root / JOURNEY_GUARD).read_text(encoding="utf-8")
-    journey_entries = [entry for entry in EXPECTED_JOURNEY_ENTRIES if journey_source.count(f'"{entry}"') == 1]
-    _require(len(journey_entries) == len(EXPECTED_JOURNEY_ENTRIES), "Journey OS review payload entries drifted")
+    journey_entries = _active_journey_allow_entries(journey_source)
     parts["JOURNEY_OS_BATCH18_ENTRIES"] = ("\n".join(journey_entries) + "\n").encode("utf-8")
     for name, payload in parts.items():
         digest.update(name.encode("utf-8") + b"\0" + payload + b"\0")
@@ -130,8 +156,7 @@ def _review_payload_sha256_at_commit(root: Path, commit: str) -> str:
     parent_acceptance = yaml.load(show(batch17.ACCEPTANCE).decode("utf-8"), Loader=UniqueKeyLoader)
     parent_payload = parent_acceptance["mechanical_binding"]["reviewed_payload_sha256"]
     journey_source = show(JOURNEY_GUARD).decode("utf-8")
-    journey_entries = [entry for entry in EXPECTED_JOURNEY_ENTRIES if journey_source.count(f'"{entry}"') == 1]
-    _require(len(journey_entries) == len(EXPECTED_JOURNEY_ENTRIES), "reviewed Journey OS entries drifted")
+    journey_entries = _active_journey_allow_entries(journey_source)
     parts = {
         str(SCOPE): yaml.safe_dump(scope, sort_keys=True, allow_unicode=True).encode("utf-8"),
         str(GUARD): show(GUARD),
@@ -145,6 +170,44 @@ def _review_payload_sha256_at_commit(root: Path, commit: str) -> str:
     for name, payload in parts.items():
         digest.update(name.encode("utf-8") + b"\0" + payload + b"\0")
     return digest.hexdigest()
+
+
+def _validate_pending_candidate_artifacts(scope_text: str, acceptance_text: str, workflow_text: str, spec_text: str) -> None:
+    scope = yaml.load(scope_text, Loader=UniqueKeyLoader)
+    acceptance = yaml.load(acceptance_text, Loader=UniqueKeyLoader)
+    workflow = yaml.load(workflow_text, Loader=UniqueStringKeyLoader)
+    _require(scope.get("status") == "candidate_scope_acceptance_absent", "reviewed anchor was not a pending scope candidate")
+    _require(set(acceptance) == {"schema_version", "status", "current_verdict", "reviews", "mechanical_binding", "accepted_scope_only", "not_accepted", "next_gate"}, "reviewed anchor acceptance schema drifted")
+    _require(acceptance.get("status") == "candidate_scope_unaccepted" and acceptance.get("current_verdict") == "PENDING_INDEPENDENT_ROASTS", "reviewed anchor acceptance was not pending")
+    pending_review = {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
+    _require(set(acceptance.get("reviews", {})) == {"ux_accessibility_microstep_scope", "engineering_parent_feasibility", "adversarial_mechanical"}, "reviewed anchor roles drifted")
+    _require(all(review == pending_review for review in acceptance["reviews"].values()), "reviewed anchor already carried review receipts")
+    binding = acceptance.get("mechanical_binding", {})
+    _require(set(binding) == {"candidate_review_payload_sha256", "reviewed_payload_sha256", "reviewed_candidate_commit", "positive_tests", "hostile_tests"}, "reviewed anchor binding schema drifted")
+    _require(re.fullmatch(r"[0-9a-f]{64}", binding.get("candidate_review_payload_sha256") or "") is not None, "reviewed anchor candidate payload missing")
+    _require(binding.get("reviewed_payload_sha256") is None and binding.get("reviewed_candidate_commit") is None, "reviewed anchor already carried accepted binding")
+    _require(binding.get("positive_tests") == EXPECTED_POSITIVE_TESTS and binding.get("hostile_tests") == EXPECTED_HOSTILE_TESTS, "reviewed anchor test inventory drifted")
+    _require(acceptance.get("accepted_scope_only") == [], "reviewed anchor already claimed accepted scope")
+    _require(acceptance.get("not_accepted") == EXPECTED_NOT_ACCEPTED, "reviewed anchor boundary drifted")
+    _require(acceptance.get("next_gate") == "stabilize_candidate_trust_unit_then_independent_roasts", "reviewed anchor next gate was not candidate review")
+    zeros = "0" * 64
+    _require(set(workflow.get("env", {})) == {"EXPECTED_BATCH18_GUARD_SHA256", "EXPECTED_BATCH18_TESTS_SHA256", "EXPECTED_BATCH18_ACCEPTANCE_SHA256"}, "reviewed anchor workflow trust environment drifted")
+    _require(all(value == zeros for value in workflow["env"].values()), "reviewed anchor workflow was already promoted")
+    candidate_command = "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract"
+    runs = [step.get("run") for step in workflow["jobs"]["scope"]["steps"] if isinstance(step, dict)]
+    _require(runs.count(candidate_command) == 1, "reviewed anchor workflow was not in candidate mode")
+    verify = re.search(r"```verify\n(.*?)\n```", spec_text, re.DOTALL)
+    _require(verify is not None and verify.group(1).splitlines().count(f"batch18-canton-runtime-scope: {candidate_command}") == 1, "reviewed anchor SPEC was not in candidate mode")
+
+
+def _require_pending_candidate_at_commit(root: Path, commit: str) -> None:
+    def show(relative: Path) -> str:
+        try:
+            return subprocess.run(["git", "show", f"{commit}:{relative}"], cwd=root, check=True, capture_output=True, text=True).stdout
+        except subprocess.CalledProcessError as exc:
+            raise GuardFailure(f"reviewed candidate cannot provide lifecycle artifact {relative}") from exc
+
+    _validate_pending_candidate_artifacts(show(SCOPE), show(ACCEPTANCE), show(WORKFLOW), show(SPEC))
 
 
 def _require(condition: bool, message: str) -> None:
@@ -267,23 +330,34 @@ EXPECTED_FORBIDDEN_CLAIMS = [
     "runtime_implemented", "runtime_accepted", "user_validated", "production_ready", "calculation_available",
     "privacy_compliant_by_declaration",
 ]
+EXPECTED_NOT_ACCEPTED = [
+    "any_runtime_microstep", "hidden_runtime", "product_route", "user_validation", "calculation", "persistence",
+    "local_precommit_binding_until_shared_registry_is_decoupled",
+]
 EXPECTED_POSITIVE_TESTS = ['test_current_scope_passes', 'test_release_gate_matches_declared_lifecycle']
 EXPECTED_HOSTILE_TESTS = ['test_acceptance_claim_without_reviews_is_rejected',
  'test_any_out_of_scope_removal_is_rejected_semantically',
  'test_authority_retarget_is_rejected_semantically',
  'test_byte_drift_has_its_own_failure',
+ 'test_candidate_anchor_with_extra_runtime_claim_is_rejected',
  'test_candidate_binding_extra_runtime_claim_is_rejected',
  'test_candidate_review_extra_runtime_claim_is_rejected',
  'test_ci_comment_is_not_operational',
  'test_ci_custom_shell_cannot_make_commands_inert',
  'test_ci_false_condition_is_rejected',
+ 'test_ci_workflow_default_shell_cannot_make_all_commands_inert',
+ 'test_ci_workflow_default_working_directory_is_rejected',
  'test_complete_gate_removal_is_rejected_semantically',
  'test_contradictory_extra_acceptance_key_is_rejected',
+ 'test_current_artifacts_are_a_pending_candidate_anchor',
  'test_duplicate_yaml_key_is_rejected_semantically',
  'test_forbidden_privacy_claim_removal_is_rejected_semantically',
  'test_guard_source_drift_invalidates_candidate_receipt',
  'test_hidden_surface_widening_is_rejected_semantically',
  'test_hostile_test_deletion_invalidates_registry',
+ 'test_journey_allow_cannot_be_cleared_after_declaration',
+ 'test_journey_entries_commented_out_are_not_active',
+ 'test_journey_entries_moved_to_dead_string_are_not_active',
  'test_microstep_removal_is_rejected_semantically',
  'test_obligation_removal_is_rejected_semantically',
  'test_parent_drift_is_rejected_even_if_scope_parent_hash_is_rebound',
@@ -292,6 +366,7 @@ EXPECTED_HOSTILE_TESTS = ['test_acceptance_claim_without_reviews_is_rejected',
  'test_planned_topology_cannot_claim_runtime_state',
  'test_post_runtime_product_promotion_is_rejected_semantically',
  'test_product_promotion_is_rejected_semantically',
+ 'test_promoted_artifacts_cannot_be_reused_as_candidate_anchor',
  'test_promoted_binding_extra_runtime_claim_is_rejected',
  'test_promoted_fixture_passes_and_hostile_is_not_lifecycle_vacuous',
  'test_promoted_review_extra_user_validated_claim_is_rejected',
@@ -390,6 +465,12 @@ def validate(root: Path, *, check_byte_digest: bool = True, check_parent_git: bo
     guard_command = "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py" + ("" if require_accepted else " --contract")
     tests_command = "python3 -m unittest tools.checks.tests.test_mint_next_batch18_runtime_scope_guard"
     workflow = _load_structure(root / WORKFLOW)
+    _require(set(workflow) == {"name", "on", "concurrency", "permissions", "env", "jobs"}, "CI workflow top-level schema drifted")
+    _require(workflow["name"] == "MINT Next Batch 18 Canton Runtime Scope", "CI workflow name drifted")
+    _require(workflow["concurrency"] == {"group": "mint-next-batch18-canton-runtime-scope-${{ github.ref }}", "cancel-in-progress": "true"}, "CI concurrency drifted")
+    _require(workflow["permissions"] == {"contents": "read"}, "CI permissions drifted")
+    _require(set(workflow["env"]) == {"EXPECTED_BATCH18_GUARD_SHA256", "EXPECTED_BATCH18_TESTS_SHA256", "EXPECTED_BATCH18_ACCEPTANCE_SHA256"}, "CI trust environment schema drifted")
+    _require(set(workflow["jobs"]) == {"scope"}, "CI jobs schema drifted")
     _require(set(workflow["on"]) == {"pull_request", "push"}, "CI trigger drifted")
     for trigger in ("pull_request", "push"):
         _require(workflow["on"][trigger]["branches"] == ["dev", "staging", "main"], f"CI {trigger} branches drifted")
@@ -413,9 +494,7 @@ def validate(root: Path, *, check_byte_digest: bool = True, check_parent_git: bo
     lines = verify.group(1).splitlines()
     _require(lines.count(f"batch18-canton-runtime-scope: {guard_command}") == 1, "operational SPEC guard binding missing or duplicated")
     _require(lines.count(f"batch18-canton-runtime-scope-hostiles: {tests_command}") == 1, "operational SPEC hostile binding missing or duplicated")
-    journey_source = (root / JOURNEY_GUARD).read_text(encoding="utf-8")
-    for entry in EXPECTED_JOURNEY_ENTRIES:
-        _require(journey_source.count(f'"{entry}"') == 1, f"Journey OS scope entry missing or duplicated: {entry}")
+    _active_journey_allow_entries((root / JOURNEY_GUARD).read_text(encoding="utf-8"))
 
     acceptance = _load(root / ACCEPTANCE)
     _require(set(acceptance) == {"schema_version", "status", "current_verdict", "reviews", "mechanical_binding", "accepted_scope_only", "not_accepted", "next_gate"}, "scope acceptance schema drifted")
@@ -447,11 +526,12 @@ def validate(root: Path, *, check_byte_digest: bool = True, check_parent_git: bo
         if check_parent_git:
             candidate = binding["reviewed_candidate_commit"]
             _require(subprocess.run(["git", "merge-base", "--is-ancestor", candidate, "HEAD"], cwd=root).returncode == 0, "reviewed scope candidate is not an ancestor")
+            _require_pending_candidate_at_commit(root, candidate)
             _require(_review_payload_sha256_at_commit(root, candidate) == payload, "reviewed scope candidate does not reproduce payload")
     else:
         _require(binding["reviewed_payload_sha256"] is None and binding["reviewed_candidate_commit"] is None, "candidate carries accepted receipt")
         _require(acceptance["accepted_scope_only"] == [], "candidate claims accepted scope")
-    _require(acceptance["not_accepted"] == ["any_runtime_microstep", "hidden_runtime", "product_route", "user_validation", "calculation", "persistence", "local_precommit_binding_until_shared_registry_is_decoupled"], "not-accepted boundary drifted")
+    _require(acceptance["not_accepted"] == EXPECTED_NOT_ACCEPTED, "not-accepted boundary drifted")
     _require(acceptance["next_gate"] == ("write_expected_failing_R1_tests" if require_accepted else "stabilize_candidate_trust_unit_then_independent_roasts"), "next gate drifted")
 
     workflow_text = (root / WORKFLOW).read_text(encoding="utf-8")

@@ -18,7 +18,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_review_payload_sha256: 08990d56f204f5dc23dbfee3ec4d7e1df8cf0a05cd07bb087fc838e90706a7f1
+  candidate_review_payload_sha256: b86d9075401c43bf2adc3b5dcdc9d9351ca06c91e4800dc581692949f225a1ab
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
   positive_tests:
@@ -29,18 +29,25 @@ mechanical_binding:
   - test_any_out_of_scope_removal_is_rejected_semantically
   - test_authority_retarget_is_rejected_semantically
   - test_byte_drift_has_its_own_failure
+  - test_candidate_anchor_with_extra_runtime_claim_is_rejected
   - test_candidate_binding_extra_runtime_claim_is_rejected
   - test_candidate_review_extra_runtime_claim_is_rejected
   - test_ci_comment_is_not_operational
   - test_ci_custom_shell_cannot_make_commands_inert
   - test_ci_false_condition_is_rejected
+  - test_ci_workflow_default_shell_cannot_make_all_commands_inert
+  - test_ci_workflow_default_working_directory_is_rejected
   - test_complete_gate_removal_is_rejected_semantically
   - test_contradictory_extra_acceptance_key_is_rejected
+  - test_current_artifacts_are_a_pending_candidate_anchor
   - test_duplicate_yaml_key_is_rejected_semantically
   - test_forbidden_privacy_claim_removal_is_rejected_semantically
   - test_guard_source_drift_invalidates_candidate_receipt
   - test_hidden_surface_widening_is_rejected_semantically
   - test_hostile_test_deletion_invalidates_registry
+  - test_journey_allow_cannot_be_cleared_after_declaration
+  - test_journey_entries_commented_out_are_not_active
+  - test_journey_entries_moved_to_dead_string_are_not_active
   - test_microstep_removal_is_rejected_semantically
   - test_obligation_removal_is_rejected_semantically
   - test_parent_drift_is_rejected_even_if_scope_parent_hash_is_rebound
@@ -49,6 +56,7 @@ mechanical_binding:
   - test_planned_topology_cannot_claim_runtime_state
   - test_post_runtime_product_promotion_is_rejected_semantically
   - test_product_promotion_is_rejected_semantically
+  - test_promoted_artifacts_cannot_be_reused_as_candidate_anchor
   - test_promoted_binding_extra_runtime_claim_is_rejected
   - test_promoted_fixture_passes_and_hostile_is_not_lifecycle_vacuous
   - test_promoted_review_extra_user_validated_claim_is_rejected

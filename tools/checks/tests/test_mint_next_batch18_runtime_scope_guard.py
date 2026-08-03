@@ -20,6 +20,7 @@ from tools.checks.mint_next_batch18_runtime_scope_guard import (
     SPEC,
     TESTS,
     WORKFLOW,
+    _validate_pending_candidate_artifacts,
     validate,
 )
 
@@ -152,6 +153,87 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
         path.write_text(yaml.safe_dump(data, sort_keys=False))
         with self.assertRaisesRegex(GuardFailure, "CI scope steps are not exact executable steps"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_ci_workflow_default_shell_cannot_make_all_commands_inert(self) -> None:
+        path = self.root / WORKFLOW
+        text = path.read_text().replace("\njobs:\n", "\ndefaults:\n  run:\n    shell: echo {0}\n\njobs:\n")
+        path.write_text(text)
+        with self.assertRaisesRegex(GuardFailure, "CI workflow top-level schema drifted"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_ci_workflow_default_working_directory_is_rejected(self) -> None:
+        path = self.root / WORKFLOW
+        text = path.read_text().replace("\njobs:\n", "\ndefaults:\n  run:\n    working-directory: /tmp\n\njobs:\n")
+        path.write_text(text)
+        with self.assertRaisesRegex(GuardFailure, "CI workflow top-level schema drifted"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_journey_entries_commented_out_are_not_active(self) -> None:
+        path = self.root / JOURNEY_GUARD
+        text = path.read_text()
+        for entry in (
+            "product/mint_next/batch18/runtime-scope.yaml",
+            "product/mint_next/batch18/scope-acceptance.yaml",
+            "tools/checks/mint_next_batch18_runtime_scope_guard.py",
+            "tools/checks/tests/test_mint_next_batch18_runtime_scope_guard.py",
+            ".github/workflows/mint-next-batch18-canton-runtime-scope.yml",
+        ):
+            text = text.replace(f'    "{entry}",', f'    # "{entry}",')
+        path.write_text(text)
+        with self.assertRaisesRegex(GuardFailure, "Journey OS active scope entry missing"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_journey_entries_moved_to_dead_string_are_not_active(self) -> None:
+        path = self.root / JOURNEY_GUARD
+        text = path.read_text()
+        dead = []
+        for entry in (
+            "product/mint_next/batch18/runtime-scope.yaml",
+            "product/mint_next/batch18/scope-acceptance.yaml",
+            "tools/checks/mint_next_batch18_runtime_scope_guard.py",
+            "tools/checks/tests/test_mint_next_batch18_runtime_scope_guard.py",
+            ".github/workflows/mint-next-batch18-canton-runtime-scope.yml",
+        ):
+            text = text.replace(f'    "{entry}",\n', "")
+            dead.append(entry)
+        path.write_text(text + '\nDEAD_BATCH18_NAMES = "' + "|".join(dead) + '"\n')
+        with self.assertRaisesRegex(GuardFailure, "Journey OS active scope entry missing"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_journey_allow_cannot_be_cleared_after_declaration(self) -> None:
+        path = self.root / JOURNEY_GUARD
+        path.write_text(path.read_text() + "\nALLOW.clear()\n")
+        with self.assertRaisesRegex(GuardFailure, "Journey OS ALLOW is reassigned or mutated"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_current_artifacts_are_a_pending_candidate_anchor(self) -> None:
+        _validate_pending_candidate_artifacts(
+            (self.root / SCOPE).read_text(),
+            (self.root / ACCEPTANCE).read_text(),
+            (self.root / WORKFLOW).read_text(),
+            (self.root / SPEC).read_text(),
+        )
+
+    def test_candidate_anchor_with_extra_runtime_claim_is_rejected(self) -> None:
+        acceptance = yaml.safe_load((self.root / ACCEPTANCE).read_text())
+        acceptance["mechanical_binding"]["runtime_accepted"] = True
+        with self.assertRaisesRegex(GuardFailure, "reviewed anchor binding schema drifted"):
+            _validate_pending_candidate_artifacts(
+                (self.root / SCOPE).read_text(),
+                yaml.safe_dump(acceptance, sort_keys=False),
+                (self.root / WORKFLOW).read_text(),
+                (self.root / SPEC).read_text(),
+            )
+
+    def test_promoted_artifacts_cannot_be_reused_as_candidate_anchor(self) -> None:
+        self._promote_fixture()
+        with self.assertRaisesRegex(GuardFailure, "reviewed anchor was not a pending scope candidate"):
+            _validate_pending_candidate_artifacts(
+                (self.root / SCOPE).read_text(),
+                (self.root / ACCEPTANCE).read_text(),
+                (self.root / WORKFLOW).read_text(),
+                (self.root / SPEC).read_text(),
+            )
 
     def test_r4_planned_file_swap_is_rejected(self) -> None:
         self._mutate(
