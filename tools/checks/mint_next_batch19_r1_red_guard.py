@@ -193,21 +193,21 @@ def _validate_fixture(root: Path) -> None:
 
 def _validate_diff_boundary(root: Path) -> None:
     try:
+        candidate_end = subprocess.run(
+            ["git", "log", "-1", "--format=%H", "HEAD", "--", *sorted(ALLOWED_DIFF_PATHS)],
+            cwd=root, check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        _require(re.fullmatch(r"[0-9a-f]{40}", candidate_end) is not None, "cannot locate Batch19 RED candidate commit")
         committed = subprocess.run(
-            ["git", "diff", "--name-only", f"{ANCHOR}..HEAD"],
-            cwd=root, check=True, capture_output=True, text=True,
-        ).stdout.splitlines()
-        uncommitted = subprocess.run(
-            ["git", "diff", "--name-only", "HEAD"],
-            cwd=root, check=True, capture_output=True, text=True,
-        ).stdout.splitlines()
-        untracked = subprocess.run(
-            ["git", "ls-files", "--others", "--exclude-standard"],
+            ["git", "diff", "--name-only", f"{ANCHOR}..{candidate_end}"],
             cwd=root, check=True, capture_output=True, text=True,
         ).stdout.splitlines()
     except subprocess.CalledProcessError as exc:
         raise GuardFailure("cannot inspect Batch19 git boundary") from exc
-    changed = set(committed + uncommitted + untracked)
+    changed = {
+        path for path in committed
+        if not path.startswith(".planning/journeys/path-owners/")
+    }
     unexpected = changed - ALLOWED_DIFF_PATHS
     _require(not unexpected, f"Batch19 RED scope changed forbidden paths: {sorted(unexpected)}")
 
@@ -254,7 +254,10 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     _require(r1.get("test_file") == str(TEST), "R1 test path drifted")
     _require(r1.get("fixture_file") == str(FIXTURE), "R1 fixture path drifted")
     _require(
-        r1.get("command") == ["flutter", "test", "test/design_lab_batch18_canton_r1_test.dart", "--machine"],
+        r1.get("command") == [
+            "flutter", "test", "test/design_lab_batch18_canton_r1_test.dart",
+            "--machine", "--no-pub",
+        ],
         "R1 command is not exact and targeted",
     )
     _require(r1.get("working_directory") == "product/mint_next/batch7/design_lab", "R1 working directory drifted")

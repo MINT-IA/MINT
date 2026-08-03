@@ -30,6 +30,7 @@ gates:
     - test
     - test/design_lab_batch18_canton_r1_test.dart
     - --machine
+    - --no-pub
     working_directory: product/mint_next/batch7/design_lab
     expected_exit_code: 1
     expected_summary:

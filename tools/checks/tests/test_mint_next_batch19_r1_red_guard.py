@@ -108,6 +108,12 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             "command is not exact",
         )
 
+    def test_flutter_test_cannot_re_resolve_after_isolated_pub_get(self) -> None:
+        self._registry_mutation(
+            lambda data: data["gates"]["R1"]["command"].remove("--no-pub"),
+            "command is not exact",
+        )
+
     def test_gate_reordering_is_rejected(self) -> None:
         self._registry_mutation(
             lambda data: data["ordered_gates"].__setitem__(0, "R2"),
