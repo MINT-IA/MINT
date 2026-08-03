@@ -57,7 +57,7 @@ Les règles §29 du handoff, amendées par l'audit. Chaque règle est impérativ
 10. **(nouveau)** Termine chaque batch par un runtime touchable ; sinon le batch a échoué.
 11. Ne crois jamais le résumé d'un agent : inspecte diff, Git, runtime et preuves.
 12. Garde dev et main intacts hors du chemin PR ; ne merge rien sans CI verte et décision explicite.
-13. **(nouveau)** Cercle herméneutique : chaque batch se clôt par deux questions consignées par mint-lead — « qu'est-ce que ce batch révèle du tout ? » et « que doit réviser le tout ? » — où « le tout » désigne exactement trois artefacts : ce document, le contrat de navigation, l'inventaire réutilisable. « Aucune révision requise » est une réponse valide et committée comme telle ; quand une révision s'impose, elle est committée dans le même cycle. La mémoire de session sert d'entrée, l'artefact committé est la seule forme durable.
+13. **(nouveau)** Cercle herméneutique : chaque batch se clôt par deux questions dont mint-lead consigne les réponses dans une section « Herméneutique (règle 13) » du corps de la PR de clôture du batch — « qu'est-ce que ce batch révèle du tout ? » et « que doit réviser le tout ? » — où « le tout » désigne exactement trois artefacts : ce document, le contrat de navigation, l'inventaire réutilisable. « Aucune révision requise » y est une réponse valide ; quand une révision s'impose, son commit fait partie de la même PR. Vérification : la présence de la section se contrôle à la review de la PR ; un lint de présence est le gate candidat (follow-up outillage, comptabilisé dans le plafond méta de la règle 8). La mémoire de session sert d'entrée, l'artefact committé est la seule forme durable.
 
 ## Le workflow par batch (A→I condensé)
 
