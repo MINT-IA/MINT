@@ -1,0 +1,124 @@
+# MINT Next navigation-contract guard — EXPLICIT waitlist.
+#
+# Read by tools/checks/mint_next_navigation_contract.py. Every entry here is a
+# KNOWN, ASSUMED divergence between the canonical contract
+# (product/mint_next/batch6/navigation.yaml) and the executable Design Lab
+# (product/mint_next/batch7/design_lab). Nothing is silently ignored: each
+# block carries a dated TODO. Remove an entry the moment it is reconciled and
+# the guard immediately enforces that node/action again.
+#
+# The Design Lab is currently the "beginner navigation 3a" slice
+# (codex/mint-next-batch5-beginner-navigation-3a-...). It faithfully implements
+# the early flow (today -> orientation -> tax year -> lpp -> contribution ->
+# canton) and legitimately does not yet build the later graph, so the bulk of
+# this file is the deferred-node runway. A smaller set of entries records code
+# that currently reaches past the contract (a control the contract does not yet
+# declare); those are the ones to resolve FIRST — either declare them in
+# navigation.yaml or drop/rename them in the Design Lab.
+#
+# Snapshot taken against Design Lab HEAD f363d1ad4 on 2026-08-04.
+
+# ---------------------------------------------------------------------------
+# 1. Contract nodes declared but not yet built in the Design Lab (runtime
+#    futur). contract -> code direction. These are expected: the beginner slice
+#    stops at fact_canton; the fact tail, the confirmation/result/teach-back
+#    arc, every edit_* transaction node, and the boundary/failure nodes are
+#    later batches.
+#    TODO(2026-08-04): implement each as its Design Lab batch lands, deleting
+#    the line so the guard enforces its screen + declared controls.
+# ---------------------------------------------------------------------------
+unimplemented_nodes:
+  # fact tail (past fact_canton)
+  - fact_commune
+  - fact_household
+  - fact_income
+  - fact_amount
+  - amount_unknown_help
+  - income_unknown_help
+  - canton_unknown_help
+  - contributed_amount_total_helper
+  # confirmation + result + teach-back arc
+  - confirm_facts
+  - result
+  - existing_overcontribution_help
+  - teach_back
+  - teach_back_correction
+  - next_action
+  - personal_setup_boundary
+  # edit_* transaction nodes
+  - edit_lpp_affiliation
+  - edit_tax_year
+  - edit_contribution
+  - edit_contributed_amount
+  - edit_contributed_amount_total_helper
+  - edit_canton
+  - edit_commune
+  - edit_commune_after_canton
+  - edit_household
+  - edit_income
+  - edit_income_after_household
+  - edit_amount
+  # insufficient-facts arc
+  - insufficient_facts
+  - insufficient_education_teach_back
+  - insufficient_education_correction
+  - insufficient_next_action
+  # education-only arc
+  - education_teach_back
+  - education_teach_back_correction
+  - education_next_action
+  # boundary + failure + persistence nodes
+  - unsupported_case
+  - retroactive_3a_boundary
+  - calculation_failed
+  - tax_year_rolled_over
+  - reference_saved
+
+# ---------------------------------------------------------------------------
+# 2. Design Lab node namespaces present in code but not (yet) in the contract.
+#    code -> contract direction. RESOLVE FIRST: for each, either add the node
+#    to navigation.yaml (if it is a real destination the beginner flow needs)
+#    or remove/rename it in the Design Lab (doctrine: "il n'existe pas s'il n'a
+#    pas de route").
+#    TODO(2026-08-04): reconcile with the contract owner.
+#      - contributed_amount_unknown_help : parallels the declared
+#        `contribution_unknown_help`; likely needs a contract node.
+#      - contribution_status_correction  : rendered nodeId whose action keys
+#        use the `contribution_correction` namespace — an INTERNAL Design Lab
+#        id mismatch to fix alongside the contract reconciliation.
+#      - contribution_correction         : action-key namespace with no
+#        matching `nodeId` (see above).
+#      - unresolved_help                 : the multi-provider "amounts still
+#        unresolved" helper; not yet a contract node.
+# ---------------------------------------------------------------------------
+pending_code_nodes:
+  - contributed_amount_unknown_help
+  - contribution_status_correction
+  - contribution_correction
+  - unresolved_help
+
+# ---------------------------------------------------------------------------
+# 3. Controls wired on contract nodes but with an action id the contract does
+#    not declare. code -> contract direction. RESOLVE: declare in navigation.yaml
+#    or reprefix (the toggle_* controls are in-place disclosure toggles that
+#    arguably should not live under the `action:` graph namespace).
+#    TODO(2026-08-04): reconcile with the contract owner.
+# ---------------------------------------------------------------------------
+pending_code_actions:
+  - fact_contributed_amount.add_provider
+  - fact_contributed_amount.correct_previous
+  - fact_contributed_amount.missing_amount
+  - fact_contributed_amount.unknown_amount
+  - fact_contributed_amount.toggle_all_reviewed
+  - fact_contributed_amount.toggle_where_to_find
+  - fact_contribution.toggle_edge_help
+
+# ---------------------------------------------------------------------------
+# 4. Controls the contract declares on a BUILT node but for which the Design Lab
+#    has no interactive element yet. contract -> code direction.
+#    TODO(2026-08-04): add the missing Back element to the multi-provider
+#    fact_contributed_amount screen, or confirm Back is intentionally provided
+#    by another affordance and declare that mapping.
+# ---------------------------------------------------------------------------
+contract_action_gaps:
+  - fact_contributed_amount.back
