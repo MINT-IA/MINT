@@ -161,7 +161,7 @@ graph:
         visibility: missing_provider_declared_or_allocation_blocked
         label_intent: explicit_correction_that_every_provider_is_already_added
         operation:
-          token_owned_untouched_synthetic_empty_row: remove_that_row_then_clear_request
+          token_owned_untouched_synthetic_empty_row: invoke_missing_provider_resolution_contract_explicit_retraction_bound_synthetic_empty_row
           preexisting_or_edited_bound_row: unbind_preserve_row_then_clear_request
           unallocated_request: clear_request
         mutations: [set_all_active_rows_classification_unreviewed, clear_all_providers_reviewed, clear_committed_total, clear_downstream_result]
@@ -392,6 +392,7 @@ missing_provider_resolution_contract:
   automatic_resolution_mutation: transition_bound_to_resolved_clear_missing_provider_declared_and_allocation_blocked_keep_global_confirmation_false
   removing_tombstoning_or_finalizing_bound_missing_row: keep_missing_provider_declared_true
   explicit_retraction_only_via: retract_missing_provider
+  explicit_retraction_bound_synthetic_empty_row: atomically_consume_and_retire_exposed_remove_token_R_retire_row_id_and_all_generation_tokens_create_no_tombstone_U_or_F_retire_missing_request_token_clear_missing_and_allocation_flags_make_all_delayed_edit_focus_remove_undo_finalize_callbacks_no_op_focus_graph_fact_contributed_amount_controls_retract_missing_provider_focus_without_entering_unallocated_recovery
   checkbox_and_continue_never_clear_missing_state: true
 
 row_count_contract:
@@ -629,6 +630,7 @@ proof_contract:
     - remove_finalize_requires_distinct_preexposed_sibling_tokens_atomic_consumption_and_stale_sibling_no_op
     - ordinary_or_bound_missing_empty_immediate_remove_leaves_tombstone_or_live_token_or_accepts_delayed_callback
     - bound_missing_empty_immediate_remove_implicitly_reallocates_or_binds_before_explicit_recovery_activation
+    - retract_synthetic_missing_row_leaves_remove_token_row_id_or_delayed_callback_live
     - active_row_count_confused_with_tombstone_count
     - tombstone_lost_across_reversible_help_overlay_correction_or_education_route
     - rendered_row_capacity_allocation_or_undo_bypass
