@@ -43,10 +43,10 @@ Grille par surface : (a) tokens couleur/typo/espacement · (b) voix ·
 
 | Surface | Verdict global | Écarts majeurs | Écarts mineurs | Escalades swiss-brain |
 |---------|----------------|:---:|:---:|:---:|
-| S1 SafeModeGate | **CONFORME** (structure exemplaire) | 0 | 4 | 0 |
+| S1 SafeModeGate | **CONFORME** (structure exemplaire) | 0 | 6 (A1,B1,B2,B3,D1,E1) | 0 |
 | S2 Login | **CONFORME** | 0 | 2 | 0 |
 | S3 Disclaimers 3a | **CONFORME** (fix), écart de voix | 0 | 2 | 2 |
-| S4 Confidence / MTC | **CONFORME** (composants), **ÉCART MAJEUR** (cohérence) | 1 | 3 | 0 |
+| S4 Confidence / MTC | **CONFORME** (composants), **ÉCART MAJEUR** (cohérence) | 1 | 2 (A1,B1) + 2 pré-existants hors périmètre (Z1,Z2) | 0 |
 
 Un seul écart **majeur** au total (S4-F1), et c'est une décision de doctrine à
 prendre, pas un défaut à corriger en aveugle.
@@ -128,10 +128,20 @@ par une abstraction. **S1-E1 (ÉCART MINEUR, priorité basse) :** incohérence
 mineure — `reasons.take(3)` inline (`:156`) vs `take(4)` dans la bottom sheet
 (`:213`). Aligner à un seul plafond.
 
-### (f) Cohérence — CONFORME (fort)
-La sortie « Continuer quand même » est une échappatoire réelle, de poids visuel
-égal, pas un opt-out honteux → **aucun dark pattern**, aligné MINT_IDENTITY #2 et
-la North Star « chaleur sans jugement ». **CONFORME.**
+### (f) Cohérence — CONFORME (fort), avec une correction de justification
+La sortie « Continuer quand même » est une échappatoire **réelle, pleine largeur,
+clairement libellée et non obstruée** (`:274-287`) → **aucun dark pattern**,
+aligné MINT_IDENTITY #2 et la North Star « chaleur sans jugement ». **CONFORME.**
+
+**Précision (post-revue Codex, 0-trust) :** l'échappatoire n'est **pas** de poids
+visuel égal à l'action guidée — « Corriger mes données » est un `OutlinedButton`
+proéminent bordé primary (`:236-252`) tandis que « Continuer quand même » est un
+`TextButton` gris (`textSecondary`, `:274-287`). Cette hiérarchie est
+**acceptable** : rendre l'action recommandée plus visible que l'échappatoire
+n'est pas un dark pattern **tant que l'échappatoire n'est ni cachée, ni obstruée,
+ni honteuse** — ce qui est le cas ici. Ce qui fonde le verdict « pas de dark
+pattern » est la présence/lisibilité/non-obstruction de la sortie, **pas** une
+parité de poids.
 
 ---
 
@@ -162,10 +172,16 @@ Zéro hex (`login_screen.dart:451-478`). **CONFORME.**
 ### (c) Air / hiérarchie — CONFORME
 Texte d'erreur + CTA de récupération en dessous, centrés. Sobre. **CONFORME.**
 
-### (d) Accessibilité — CONFORME (fort)
-`Semantics(liveRegion:true)` sur le texte d'erreur (`:451`) → VoiceOver annonce
-l'erreur et le CTA dès l'apparition via `setState`. `Semantics(label + button)`
-sur le CTA (`:468`), cible padded par défaut. **CONFORME.**
+### (d) Accessibilité — CONFORME (précision post-revue Codex)
+`Semantics(liveRegion:true)` enveloppe **uniquement le texte d'erreur**
+(`:450-459`) → VoiceOver **annonce le message d'erreur** dès son apparition via
+`setState`. Le CTA « Recréer mon compte » est un nœud **frère hors du
+liveRegion** (`:463-480`) : il porte son propre `Semantics(label + button)` et
+une cible padded, donc il est **correctement étiqueté et atteignable par
+navigation VoiceOver**, mais il **n'est pas auto-annoncé** par le liveRegion.
+Correct et suffisant (l'erreur est annoncée, la sortie est étiquetée et
+navigable) ; l'affirmation initiale « annonce l'erreur **et le CTA** » était
+surévaluée et est corrigée ici. **CONFORME.**
 
 ### (e) Compréhension — CONFORME
 Le gain central : un message serveur brut anglais (« Apple account was
@@ -393,6 +409,14 @@ l'accessibilité (points 6-7) ni sur les résultats de compréhension mesurés
 a11y ou compréhension, **c'est la cohérence qui cède**, et le correctif est de
 documenter la distinction, pas d'homogénéiser.
 
+**Chaque point est un déclencheur de revue STATIQUE, pas une conclusion.** Un
+« conforme » a11y ou compréhension ne tient qu'après **confirmation mécanique** :
+passe VoiceOver réelle (pt 6-7), contraste **mesuré** au ratio (pt 1, 9),
+et — pour la compréhension (pt 1-2) — un test avec un vrai débutant contre un
+**seuil d'acceptation** défini (p. ex. « comprend le chiffre + la prochaine
+action en < 20 s »). La checklist trie ce qu'il faut vérifier ; elle ne remplace
+pas la mesure.
+
 1. **Un chiffre d'abord, jamais nu.** Un seul chiffre domine, avec un label
    humain. Un chiffre projeté/estimé s'accompagne de son cadre de confiance ; un
    chiffre de confiance/score ne se lit jamais comme une **note** (anti-honte).
@@ -413,8 +437,9 @@ documenter la distinction, pas d'homogénéiser.
 7. **Le Semantics porte le sens qu'une peinture cache.** Toute courbe / trame /
    couleur-seule a un label texte (tendance en mots) ; reduced-motion géré.
 8. **Jamais de cul-de-sac, jamais de honte, jamais de dark pattern.** Toute porte
-   qui met en pause NOMME la cause, offre une correction ET une sortie de **poids
-   égal**. La sortie n'est jamais un opt-out honteux.
+   qui met en pause NOMME la cause, offre une correction ET une sortie
+   **présente, lisible, non obstruée** (elle peut être plus discrète que l'action
+   guidée, mais jamais cachée ni honteuse).
 9. **Tokens only.** Zéro hex ; espacement sur l'échelle 4/8/16/24/32/48 ;
    `MintTextStyles` ; deux fonts max (Montserrat + Inter). Signaler l'off-scale.
 10. **i18n + accents parfaits.** Zéro string FR en dur (surtout légendes de
@@ -449,6 +474,54 @@ documenter la distinction, pas d'homogénéiser.
   objet distinct **résout** S4-F1 sans changement de code. Un verdict swiss-brain
   sur S3-X1/X2 tranche ces deux items hors de mon ressort. Une reproduction
   mécanique (sim / lint / œil de Julien) prime sur tout verdict ci-dessus.
+
+## Post-revue Codex (borné ~330s, read-only) — verdict verbatim
+
+Codex `codex-cli 0.144.6`, `exec -s read-only` sur `origin/dev @ 347ab2725`,
+avec accès aux fichiers cités. Verdict rendu :
+
+> - **Citations globalement réelles**, mais une erreur de synthèse : S1 annonce
+>   **4 écarts mineurs** (`audit:46`) alors que six sont recensés : A1, B1, B2,
+>   B3, D1 et E1.
+> - **S1 est surévalué** : « sortie de poids visuel égal » (`audit:132-134`) est
+>   faux. « Corriger » est un `OutlinedButton` primaire
+>   (`safe_mode_gate.dart:236-252`), tandis que « Continuer quand même » est un
+>   `TextButton` gris (`:274-287`).
+> - **S2 a11y est suraffirmé** : le `liveRegion` n'enveloppe que le texte
+>   d'erreur (`login_screen.dart:450-459`), pas le CTA frère (`:463-480`). Rien
+>   ne prouve qu'il annonce « l'erreur et le CTA ».
+> - **S4-F1 est réel** : MTC est une trame grise sans nombre
+>   (`mint_trame_confiance.dart:205-219`), déclarée seul primitif
+>   (`dividende_vs_salaire_screen.dart:263-268`), tandis que la carte expose
+>   `$latest` et une courbe anthracite/forêt
+>   (`confidence_evolution_card.dart:191-227`). La qualification **décision
+>   doctrinale, pas bug automatique**, est juste puisque les deux objets ont des
+>   finalités distinctes.
+> - Aucun écart S4 inventé détecté. Les chaînes codées en dur et l'accent
+>   manquant existent bien (`dividende_vs_salaire_screen.dart:452-489`).
+> - La checklist est actionnable pour une **revue statique**, mais insuffisamment
+>   bornée pour conclure a11y/compréhension : aucun protocole VoiceOver, contraste
+>   mesuré, test utilisateur ou seuil d'acceptation.
+>
+> VERDICT: SOLIDE AVEC RÉSERVES — le conflit doctrinal central est correctement
+> identifié, mais plusieurs verdicts secondaires dépassent les preuves statiques
+> et une affirmation d'accessibilité est factuellement fausse.
+
+**Corrections appliquées (0-trust symétrique — les claims de Codex vérifiés
+contre le code avant acceptation) :**
+1. Comptage S1 corrigé (6 écarts mineurs, pas 4) — tableau de synthèse.
+2. S1-(f) : retrait de la fausse parité de « poids visuel égal » ; le verdict
+   « pas de dark pattern » est re-fondé sur la présence/lisibilité/non-obstruction
+   de la sortie, avec la hiérarchie de poids explicitée.
+3. S2-(d) : le `liveRegion` annonce le message d'erreur seul ; le CTA est étiqueté
+   et navigable mais non auto-annoncé — surévaluation corrigée.
+4. Checklist : ajout du bornage « déclencheur de revue statique ≠ conclusion ;
+   confirmation mécanique requise (VoiceOver, contraste mesuré, test compréhension
+   contre seuil) » — point 8 dé-lié de la « parité de poids ».
+
+Les items non corrigés (S4-F1 réel et bien qualifié, aucune citation inventée)
+sont confirmés par Codex. Le verdict d'ensemble reste : composants conformes,
+un écart MAJEUR doctrinal à trancher.
 
 ## Statut & suite
 
