@@ -248,6 +248,20 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "auxiliary input inventory or digest drifted"):
             guard.validate(self.root, check_git=False)
 
+    def test_nested_lib_symlink_is_rejected(self) -> None:
+        target = self.root / "outside-lib.dart"
+        target.write_text("void unreviewed() {}\n")
+        (self.root / guard.LIB_ROOT / "unreviewed.dart").symlink_to(target)
+        with self.assertRaisesRegex(guard.GuardFailure, "contains symlink or special entry"):
+            guard.validate(self.root, check_git=False)
+
+    def test_nested_asset_symlink_is_rejected(self) -> None:
+        target = self.root / "outside-asset.txt"
+        target.write_text("unreviewed\n")
+        (self.root / guard.ASSETS_ROOT / "unreviewed.txt").symlink_to(target)
+        with self.assertRaisesRegex(guard.GuardFailure, "contains symlink or special entry"):
+            guard.validate(self.root, check_git=False)
+
     def test_nonexistent_batch18_harness_is_rejected(self) -> None:
         path = self.root / guard.TEST
         path.write_text(path.read_text().replace("MintNextDesignLabApp(", "MintNextDesignLabApp.batch18Harness(", 1))

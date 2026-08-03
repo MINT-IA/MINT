@@ -324,10 +324,17 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
         == {"characters", "flutter", "flutter_localizations", "intl", "unorm_dart"},
         "Design Lab dependency capability surface widened",
     )
+    for tree in (root / LIB_ROOT, root / ASSETS_ROOT):
+        _require(tree.is_dir() and not tree.is_symlink(), f"reviewed RED input tree is invalid: {tree.relative_to(root)}")
+        nodes = list(tree.rglob("*"))
+        _require(
+            all(not node.is_symlink() and (node.is_file() or node.is_dir()) for node in nodes),
+            f"reviewed RED input tree contains symlink or special entry: {tree.relative_to(root)}",
+        )
     sources = {
         path.relative_to(root / LIB_ROOT).as_posix(): _sha(path)
         for path in sorted((root / LIB_ROOT).rglob("*"))
-        if path.is_file() and not path.is_symlink()
+        if path.is_file()
     }
     _require(
         sources == EXPECTED_LIB_SOURCE_SHA256,
@@ -338,7 +345,7 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     auxiliary.update({
         path.relative_to(root / design_lab).as_posix(): _sha(path)
         for path in sorted((root / ASSETS_ROOT).rglob("*"))
-        if path.is_file() and not path.is_symlink()
+        if path.is_file()
     })
     _require(
         auxiliary == EXPECTED_AUX_INPUT_SHA256,
