@@ -13,29 +13,45 @@ route" into a CI gate over the executable Design Lab
   1. contract -> code : every contract node with an implemented surface must
      have a Design Lab screen (`nodeId: '<node>'`), and every declared action
      that routes to a *built* destination must have an interactive element
-     (`'action:<node>.<action>'`). Nodes not yet built live on an EXPLICIT
-     waitlist (`unimplemented_nodes`) — never silently ignored.
+     (`'action:<node>.<action>'`). Every declared overlay must be built (or
+     waitlisted) and its declared actions wired. Nodes/overlays not yet built
+     live on an EXPLICIT waitlist — never silently ignored.
 
   2. code -> contract : every navigation element wired in the Design Lab
-     (a `nodeId`, an `'action:<node>.<action>'` key, an `'overlay:<id>'` or
-     `'overlay-action:<id>.<action>'` key) must be declared in the contract.
+     (a `nodeId`, an `action:<node>.<action>` key, an `overlay:<id>` or
+     `overlay-action:<id>.<action>` key) must be declared in the contract.
      An undeclared control is a FAIL with `path:line`.
 
-The Design Lab already maintains an explicit, greppable key registry, so the
-guard reads that convention rather than doing fragile AST analysis (Karpathy
-#2). Two systematic exceptions are handled explicitly:
+Parsing approach (Karpathy #2 — robust and simple). The Design Lab already
+maintains an explicit, greppable key registry, so the guard reads that
+convention rather than doing fragile AST analysis. Systematic exceptions are
+handled explicitly:
 
   * the safe-exit header is auto-injected for every scaffolded node as
-    `ValueKey('action:$nodeId.open_safe_exit')` (an interpolation, not a
-    literal) — recognised via `has_auto_safe_exit`;
-  * row-scoped controls use `'action:<verb>:${row.id}'` (colon, interpolated) —
-    they are NOT graph transitions and are excluded by construction (the action
-    key regex only matches `'action:<node>.<action>'` with a single dot and no
-    interpolation).
+    `ValueKey('action:$nodeId.open_safe_exit')` — recognised as an auto action;
+  * row-scoped controls use `'action:<verb>:${row.id}'` — not graph
+    transitions, excluded by construction.
 
-The guard NO-OPS GREEN when `navigation.yaml` or the Design Lab is absent (e.g.
-on `dev` before the MINT Next stack lands), matching the presence-detection
-idiom of `.github/workflows/mint-next-proofs.yml`.
+To keep the code->contract direction from being bypassed by a different spelling
+of the same key, the scanner accepts single OR double quotes, and — crucially —
+any OTHER `action:` string that it cannot resolve to a clean literal (an
+interpolated id, an adjacent-string concatenation, a key built from a variable)
+is reported as an *unresolvable navigation key* FAIL: ambiguity fails closed.
+
+Known scope boundary (documented, not hidden): a purely static scan cannot see
+navigation expressed WITHOUT the key registry — an unkeyed `Navigator.push`,
+`InkWell`/`GestureDetector` `onTap`, or a node id interpolated at runtime. The
+contract's own `renderer_binding.verified_manifest`
+(`generated_flutter_design_lab_runtime_inventory`) is the designated RUNTIME
+complement that resolves those. This guard is the fast, Flutter-free CI gate
+over the declared key registry plus a fail-closed detector for dynamic keys.
+Contract-internal integrity (targets exist, reachability, cardinality) is owned
+by `tools/checks/mint_next_batch6_navigation_guard.py` and not re-implemented
+here.
+
+The guard NO-OPS GREEN only when BOTH the contract and the Design Lab are absent
+(the legitimate pre-landing state on `dev`). If exactly one side is present it
+FAILS — a half-present tree is a deletion/rename accident, not a no-op.
 
 Usage:
     python3 tools/checks/mint_next_navigation_contract.py            # gate
@@ -62,12 +78,17 @@ DEFAULT_WAITLIST = SCRIPT_DIR / "mint_next_navigation_contract_waitlist.yaml"
 # per-node key. Only satisfied when the interpolated header is present.
 AUTO_INJECTED_ACTIONS = frozenset({"open_safe_exit"})
 
-# The Design Lab key registry conventions.
-NODE_RE = re.compile(r"nodeId:\s*'([a-z0-9_]+)'")
-ACTION_RE = re.compile(r"'action:([a-z0-9_]+)\.([a-z0-9_]+)'")
-OVERLAY_RE = re.compile(r"'overlay:([a-z0-9_]+)'")
-OVERLAY_ACTION_RE = re.compile(r"'overlay-action:([a-z0-9_]+)\.([a-z0-9_]+)'")
-AUTO_SAFE_EXIT_RE = re.compile(r"action:\$[A-Za-z_][A-Za-z0-9_]*\.open_safe_exit")
+_Q = r"['\"]"  # single or double quote
+NODE_RE = re.compile(rf"nodeId:\s*{_Q}([a-z0-9_]+){_Q}")
+# Every quoted string that starts with the `action:` prefix, captured whole so
+# the scanner can classify it (literal / auto safe-exit / row-scoped / dynamic).
+ACTION_TOKEN_RE = re.compile(rf"{_Q}action:([^'\"]*){_Q}")
+OVERLAY_RE = re.compile(rf"{_Q}overlay:([a-z0-9_]+){_Q}")
+OVERLAY_ACTION_RE = re.compile(rf"{_Q}overlay-action:([a-z0-9_]+)\.([a-z0-9_]+){_Q}")
+
+LITERAL_ACTION_RE = re.compile(r"^([a-z0-9_]+)\.([a-z0-9_]+)$")
+AUTO_SAFE_EXIT_RE = re.compile(r"^\$[A-Za-z_][A-Za-z0-9_]*\.open_safe_exit$")
+ROW_SCOPED_RE = re.compile(r"^[a-z0-9_]+:")  # `verb:${row.id}` — not a transition
 
 
 # --------------------------------------------------------------------------
@@ -154,7 +175,17 @@ class CodeInventory:
     action_sites: dict[str, str] = field(default_factory=dict)  # "node.action" -> site
     overlay_sites: dict[str, str] = field(default_factory=dict)
     overlay_action_sites: dict[str, str] = field(default_factory=dict)
+    unresolved_action_sites: dict[str, str] = field(default_factory=dict)  # raw -> site
     has_auto_safe_exit: bool = False
+
+    @property
+    def action_namespaces(self) -> set[str]:
+        return {key.split(".", 1)[0] for key in self.action_sites}
+
+
+def _is_comment(line: str) -> bool:
+    stripped = line.lstrip()
+    return stripped.startswith("//") or stripped.startswith("*") or stripped.startswith("///")
 
 
 def scan_lab(lab_dir: Path, root: Path) -> CodeInventory:
@@ -166,13 +197,24 @@ def scan_lab(lab_dir: Path, root: Path) -> CodeInventory:
             continue
         rel = dart.relative_to(root).as_posix()
         for lineno, line in enumerate(dart.read_text(encoding="utf-8").splitlines(), 1):
+            if _is_comment(line):
+                continue  # doc/example lines are not wiring
             site = f"{rel}:{lineno}"
-            if AUTO_SAFE_EXIT_RE.search(line):
-                inv.has_auto_safe_exit = True
             for m in NODE_RE.finditer(line):
                 inv.node_sites.setdefault(m.group(1), site)
-            for m in ACTION_RE.finditer(line):
-                inv.action_sites.setdefault(f"{m.group(1)}.{m.group(2)}", site)
+            for m in ACTION_TOKEN_RE.finditer(line):
+                inner = m.group(1)
+                lit = LITERAL_ACTION_RE.match(inner)
+                if lit:
+                    inv.action_sites.setdefault(f"{lit.group(1)}.{lit.group(2)}", site)
+                elif AUTO_SAFE_EXIT_RE.match(inner):
+                    inv.has_auto_safe_exit = True
+                elif ROW_SCOPED_RE.match(inner):
+                    continue  # row-scoped control, not a graph transition
+                else:
+                    # An `action:` key we cannot resolve to a clean literal —
+                    # interpolated id, concatenation, variable. Fail closed.
+                    inv.unresolved_action_sites.setdefault(f"action:{inner}", site)
             for m in OVERLAY_RE.finditer(line):
                 inv.overlay_sites.setdefault(m.group(1), site)
             for m in OVERLAY_ACTION_RE.finditer(line):
@@ -188,11 +230,13 @@ def scan_lab(lab_dir: Path, root: Path) -> CodeInventory:
 @dataclass
 class Waitlist:
     unimplemented_nodes: set[str] = field(default_factory=set)
+    unimplemented_overlays: set[str] = field(default_factory=set)
     pending_code_nodes: set[str] = field(default_factory=set)
     pending_code_actions: set[str] = field(default_factory=set)
     pending_code_overlays: set[str] = field(default_factory=set)
     pending_code_overlay_actions: set[str] = field(default_factory=set)
     contract_action_gaps: set[str] = field(default_factory=set)
+    contract_overlay_action_gaps: set[str] = field(default_factory=set)
 
 
 def waitlist_from_dict(data: dict | None) -> Waitlist:
@@ -203,11 +247,13 @@ def waitlist_from_dict(data: dict | None) -> Waitlist:
 
     return Waitlist(
         unimplemented_nodes=_set("unimplemented_nodes"),
+        unimplemented_overlays=_set("unimplemented_overlays"),
         pending_code_nodes=_set("pending_code_nodes"),
         pending_code_actions=_set("pending_code_actions"),
         pending_code_overlays=_set("pending_code_overlays"),
         pending_code_overlay_actions=_set("pending_code_overlay_actions"),
         contract_action_gaps=_set("contract_action_gaps"),
+        contract_overlay_action_gaps=_set("contract_overlay_action_gaps"),
     )
 
 
@@ -226,7 +272,7 @@ def load_waitlist(path: Path | None) -> Waitlist:
 
 
 def _action_requires_element(
-    ca: ContractAction, model: ContractModel, inv: CodeInventory, waitlist: Waitlist
+    ca: ContractAction, model: ContractModel, inv: CodeInventory
 ) -> bool:
     """A declared action needs a keyed interactive element iff it is the Back
     control of a built non-entry non-terminal node, OR it routes to a
@@ -244,28 +290,53 @@ def _action_requires_element(
     return False
 
 
+def _waitlist_hygiene(model: ContractModel, inv: CodeInventory, wl: Waitlist) -> list[str]:
+    """Every mask must correspond to a real, still-present divergence. A stale
+    entry is a silent green — flag it so the ledger cannot rot."""
+    out: list[str] = []
+    for node in sorted(wl.unimplemented_nodes):
+        if node not in model.nodes:
+            out.append(f"[waitlist] '{node}' is waitlisted (unimplemented_nodes) but is not a contract node (stale)")
+        elif node in inv.node_sites:
+            out.append(f"[waitlist] '{node}' is waitlisted (unimplemented_nodes) but the design lab already renders it ({inv.node_sites[node]}) — stale mask, remove the entry")
+    for overlay in sorted(wl.unimplemented_overlays):
+        if overlay not in model.overlays:
+            out.append(f"[waitlist] '{overlay}' is waitlisted (unimplemented_overlays) but is not a contract overlay (stale)")
+        elif overlay in inv.overlay_sites:
+            out.append(f"[waitlist] '{overlay}' is waitlisted (unimplemented_overlays) but the design lab already renders it ({inv.overlay_sites[overlay]}) — stale mask, remove the entry")
+    for node in sorted(wl.pending_code_nodes):
+        if node not in inv.node_sites and node not in inv.action_namespaces:
+            out.append(f"[waitlist] '{node}' is waitlisted (pending_code_nodes) but the design lab no longer references it (stale)")
+    for key in sorted(wl.pending_code_actions):
+        if key not in inv.action_sites:
+            out.append(f"[waitlist] 'action:{key}' is waitlisted (pending_code_actions) but the design lab no longer wires it (stale)")
+    for key in sorted(wl.pending_code_overlay_actions):
+        if key not in inv.overlay_action_sites:
+            out.append(f"[waitlist] 'overlay-action:{key}' is waitlisted but the design lab no longer wires it (stale)")
+    for key in sorted(wl.contract_action_gaps):
+        if key in inv.action_sites:
+            out.append(f"[waitlist] 'action:{key}' is waitlisted (contract_action_gaps) but the design lab now has an element ({inv.action_sites[key]}) — stale mask, remove it")
+    for key in sorted(wl.contract_overlay_action_gaps):
+        if key in inv.overlay_action_sites:
+            out.append(f"[waitlist] 'overlay-action:{key}' is waitlisted but the design lab now has an element ({inv.overlay_action_sites[key]}) — stale mask, remove it")
+    return out
+
+
 def evaluate(model: ContractModel, inv: CodeInventory, waitlist: Waitlist) -> list[str]:
     violations: list[str] = []
+    violations += _waitlist_hygiene(model, inv, waitlist)
 
-    # ---- direction 2 prerequisite: waitlist honesty ---------------------
-    for node in sorted(waitlist.unimplemented_nodes):
-        if node not in model.nodes:
-            violations.append(
-                f"[waitlist] '{node}' is waitlisted as unimplemented but is not a "
-                f"contract node (stale entry — remove it)"
-            )
-        elif node in inv.node_sites:
-            violations.append(
-                f"[waitlist] '{node}' is waitlisted as unimplemented but the design "
-                f"lab already renders it ({inv.node_sites[node]}) — stale mask, "
-                f"remove the entry so parity is enforced"
-            )
+    # ---- unresolvable keys : ambiguity fails closed ---------------------
+    for raw, site in sorted(inv.unresolved_action_sites.items()):
+        violations.append(
+            f"[code->contract] design lab wires an unresolvable navigation key "
+            f"'{raw}' (interpolated / concatenated / non-literal) — use a literal "
+            f"'action:<node>.<action>' so parity can be verified ({site})"
+        )
 
     # ---- direction 1 : code -> contract ---------------------------------
     for node, site in sorted(inv.node_sites.items()):
-        if node in model.nodes:
-            continue
-        if node in waitlist.pending_code_nodes:
+        if node in model.nodes or node in waitlist.pending_code_nodes:
             continue
         violations.append(
             f"[code->contract] design lab renders node '{node}' that is not declared "
@@ -314,7 +385,7 @@ def evaluate(model: ContractModel, inv: CodeInventory, waitlist: Waitlist) -> li
                 f"'{action}' is not declared on overlay '{overlay}' ({site})"
             )
 
-    # ---- direction 2 : contract -> code ---------------------------------
+    # ---- direction 2 : contract -> code (nodes) -------------------------
     for node in sorted(model.nodes):
         if node in waitlist.unimplemented_nodes:
             continue
@@ -328,18 +399,36 @@ def evaluate(model: ContractModel, inv: CodeInventory, waitlist: Waitlist) -> li
         for action_id, ca in model.actions.get(node, {}).items():
             if action_id in AUTO_INJECTED_ACTIONS and inv.has_auto_safe_exit:
                 continue
-            if not _action_requires_element(ca, model, inv, waitlist):
+            if not _action_requires_element(ca, model, inv):
                 continue
             key = f"{node}.{action_id}"
-            if key in inv.action_sites:
-                continue
-            if key in waitlist.contract_action_gaps:
+            if key in inv.action_sites or key in waitlist.contract_action_gaps:
                 continue
             dest = ", ".join(ca.destinations) or ca.overlay or "(back)"
             violations.append(
                 f"[contract->code] contract declares control 'action:{key}' -> {dest} "
                 f"but the design lab has no interactive element for it "
                 f"({CONTRACT_RELPATH})"
+            )
+
+    # ---- direction 2 : contract -> code (overlays) ----------------------
+    for overlay in sorted(model.overlays):
+        if overlay in waitlist.unimplemented_overlays:
+            continue
+        if overlay not in inv.overlay_sites:
+            violations.append(
+                f"[contract->code] contract overlay '{overlay}' has no design-lab "
+                f"surface (no `overlay:{overlay}`) and is not on the explicit waitlist "
+                f"({CONTRACT_RELPATH})"
+            )
+            continue
+        for action_id in sorted(model.overlays[overlay]):
+            key = f"{overlay}.{action_id}"
+            if key in inv.overlay_action_sites or key in waitlist.contract_overlay_action_gaps:
+                continue
+            violations.append(
+                f"[contract->code] contract declares 'overlay-action:{key}' but the "
+                f"design lab has no interactive element for it ({CONTRACT_RELPATH})"
             )
 
     return violations
@@ -350,19 +439,35 @@ def evaluate(model: ContractModel, inv: CodeInventory, waitlist: Waitlist) -> li
 # --------------------------------------------------------------------------
 
 
+def _presence(root: Path) -> tuple[bool, bool]:
+    root = Path(root)
+    return (
+        (root / CONTRACT_RELPATH).is_file(),
+        (root / LAB_RELPATH).is_dir(),
+    )
+
+
 def run(
     root: Path,
     waitlist_path: Path | None = DEFAULT_WAITLIST,
 ) -> tuple[str, list[str]]:
-    """Return (status, violations). status is 'noop' when the contract or the
-    design lab is absent on this base, else 'checked'."""
+    """Return (status, violations). status is 'noop' when BOTH the contract and
+    the design lab are absent, 'half' when exactly one is present (fail-closed),
+    else 'checked'."""
     root = Path(root)
-    contract_path = root / CONTRACT_RELPATH
-    lab_dir = root / LAB_RELPATH
-    if not contract_path.is_file() or not lab_dir.is_dir():
+    has_contract, has_lab = _presence(root)
+    if not has_contract and not has_lab:
         return "noop", []
-    model = build_contract_model(load_contract(contract_path))
-    inv = scan_lab(lab_dir, root)
+    if has_contract != has_lab:
+        missing = LAB_RELPATH if has_contract else CONTRACT_RELPATH
+        present = CONTRACT_RELPATH if has_contract else LAB_RELPATH
+        return "half", [
+            f"[presence] {present} is present but {missing} is missing — the "
+            f"navigation contract and its design lab must land and leave together; "
+            f"a half-present tree cannot be checked and is not a valid no-op"
+        ]
+    model = build_contract_model(load_contract(root / CONTRACT_RELPATH))
+    inv = scan_lab(root / LAB_RELPATH, root)
     waitlist = load_waitlist(waitlist_path)
     return "checked", evaluate(model, inv, waitlist)
 
@@ -434,14 +539,13 @@ def main(argv: list[str] | None = None) -> int:
         print(explain(model, inv, load_waitlist(waitlist_path), args.explain))
         return 0
 
-    if not contract_path.is_file() or not lab_dir.is_dir():
+    status, violations = run(root, waitlist_path)
+    if status == "noop":
         print(
-            "no-op: navigation contract or design lab absent on this base "
+            "no-op: navigation contract and design lab both absent on this base "
             "(nothing to check) — green."
         )
         return 0
-
-    _, violations = run(root, waitlist_path)
     if violations:
         print(
             f"NAVIGATION CONTRACT GUARD: {len(violations)} violation(s) between "

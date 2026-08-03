@@ -323,6 +323,118 @@ def test_cli_fails_on_violation(tmp_path: Path) -> None:
     assert "step_one.teleport" in proc.stdout
 
 
+# --------------------------------------------------------------------------
+# hardening tests (adversarial review 2026-08-04): the code->contract direction
+# must not be bypassable by a different spelling of the same key, waitlist masks
+# must not rot, overlays must be covered both ways, and a half-present tree must
+# fail closed.
+# --------------------------------------------------------------------------
+
+
+def test_double_quoted_action_key_is_scanned(tmp_path: Path) -> None:
+    _write_contract(tmp_path)
+    rogue = FAITHFUL_LAB.replace(
+        "RowControl(key: ValueKey('action:remove_row:${row.id}')),",
+        'MintAction(key: ValueKey("action:step_one.teleport")),',
+    )
+    _write_lab(tmp_path, rogue)
+    violations = _run_eval(tmp_path, _base_waitlist())
+    assert any("step_one.teleport" in v and "code->contract" in v for v in violations), violations
+
+
+def test_dynamic_action_key_fails_closed(tmp_path: Path) -> None:
+    # An interpolated node/action id cannot be resolved -> must FAIL, not pass.
+    _write_contract(tmp_path)
+    rogue = FAITHFUL_LAB.replace(
+        "RowControl(key: ValueKey('action:remove_row:${row.id}')),",
+        "MintAction(key: ValueKey('action:$node.$action')),",
+    )
+    _write_lab(tmp_path, rogue)
+    violations = _run_eval(tmp_path, _base_waitlist())
+    assert any("unresolvable navigation key" in v for v in violations), violations
+
+
+def test_adjacent_string_concat_fails_closed(tmp_path: Path) -> None:
+    _write_contract(tmp_path)
+    rogue = FAITHFUL_LAB.replace(
+        "RowControl(key: ValueKey('action:remove_row:${row.id}')),",
+        "MintAction(key: ValueKey('action:step_one.' 'teleport')),",
+    )
+    _write_lab(tmp_path, rogue)
+    violations = _run_eval(tmp_path, _base_waitlist())
+    assert any("unresolvable navigation key" in v for v in violations), violations
+
+
+def test_comment_example_is_ignored(tmp_path: Path) -> None:
+    _write_contract(tmp_path)
+    rogue = FAITHFUL_LAB.replace(
+        "RowControl(key: ValueKey('action:remove_row:${row.id}')),",
+        "// example: ValueKey('action:ghost_node.tap') is how you key a control",
+    )
+    _write_lab(tmp_path, rogue)
+    violations = _run_eval(tmp_path, _base_waitlist())
+    assert all("ghost_node" not in v for v in violations), violations
+
+
+def test_half_present_tree_fails_closed(tmp_path: Path) -> None:
+    _write_contract(tmp_path)  # contract present, no design lab
+    status, violations = guard.run(root=tmp_path, waitlist_path=None)
+    assert status == "half"
+    assert any("half-present" in v or "missing" in v for v in violations), violations
+
+
+CONTRACT_WITH_UNBUILT_OVERLAY = MINIMAL_CONTRACT.replace(
+    "overlays:\n  safe_exit:",
+    "overlays:\n  assumptions:\n    actions:\n      close: {operation: close}\n  safe_exit:",
+)
+assert "assumptions:" in CONTRACT_WITH_UNBUILT_OVERLAY  # guard the fixture
+
+
+def test_unbuilt_overlay_requires_waitlist(tmp_path: Path) -> None:
+    _write_contract(tmp_path, CONTRACT_WITH_UNBUILT_OVERLAY)
+    _write_lab(tmp_path, FAITHFUL_LAB)  # only safe_exit built
+    # not waitlisted -> violation
+    violations = _run_eval(tmp_path, _base_waitlist())
+    assert any("assumptions" in v and "contract->code" in v for v in violations), violations
+    # waitlisted -> clean
+    waitlist = _base_waitlist()
+    waitlist["unimplemented_overlays"] = ["assumptions"]
+    assert _run_eval(tmp_path, waitlist) == []
+
+
+def test_built_overlay_missing_declared_action_fails(tmp_path: Path) -> None:
+    _write_contract(tmp_path)
+    # remove the safe_exit.leave overlay action element from the lab
+    no_leave = FAITHFUL_LAB.replace(
+        "MintAction(key: ValueKey('overlay-action:safe_exit.leave')),", ""
+    )
+    assert "safe_exit.leave" not in no_leave  # guard the fixture
+    _write_lab(tmp_path, no_leave)
+    violations = _run_eval(tmp_path, _base_waitlist())
+    assert any("safe_exit.leave" in v and "contract->code" in v for v in violations), violations
+
+
+def test_stale_pending_code_action_flagged(tmp_path: Path) -> None:
+    _write_contract(tmp_path)
+    _write_lab(tmp_path, FAITHFUL_LAB)
+    waitlist = _base_waitlist()
+    waitlist["pending_code_actions"] = ["step_one.nonexistent"]
+    violations = _run_eval(tmp_path, waitlist)
+    assert any("nonexistent" in v and "stale" in v for v in violations), violations
+
+
+def test_stale_contract_action_gap_flagged(tmp_path: Path) -> None:
+    # gap says step_one.back has no element, but the lab does have it -> stale.
+    _write_contract(tmp_path)
+    _write_lab(tmp_path, FAITHFUL_LAB)
+    waitlist = _base_waitlist()
+    waitlist["contract_action_gaps"] = ["step_one.back"]
+    violations = _run_eval(tmp_path, waitlist)
+    assert any("step_one.back" in v and "stale" in v.replace("mask", "stale") for v in violations) or any(
+        "step_one.back" in v and "remove the mask" in v for v in violations
+    ), violations
+
+
 def test_cli_explain_outputs_contract(tmp_path: Path) -> None:
     _write_contract(tmp_path)
     _write_lab(tmp_path, FAITHFUL_LAB)

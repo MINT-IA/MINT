@@ -75,6 +75,17 @@ unimplemented_nodes:
   - reference_saved
 
 # ---------------------------------------------------------------------------
+# 1b. Contract overlays declared but not yet built in the Design Lab. The
+#     `safe_exit` overlay is built; `assumptions` and `sources` are only reached
+#     from the result node (itself runtime-futur), so they land with it.
+#     TODO(2026-08-04): build each overlay with its declared close action when
+#     the result arc lands, deleting the line.
+# ---------------------------------------------------------------------------
+unimplemented_overlays:
+  - assumptions
+  - sources
+
+# ---------------------------------------------------------------------------
 # 2. Design Lab node namespaces present in code but not (yet) in the contract.
 #    code -> contract direction. RESOLVE FIRST: for each, either add the node
 #    to navigation.yaml (if it is a real destination the beginner flow needs)
