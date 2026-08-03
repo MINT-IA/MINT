@@ -97,6 +97,14 @@ def _active_journey_allow_entries(source: str) -> list[str]:
     return [entry for entry in EXPECTED_JOURNEY_ENTRIES if entry in literals]
 
 
+def _normalized_python_ast_bytes(source: str) -> bytes:
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as exc:
+        raise GuardFailure("Journey OS source is not parseable") from exc
+    return ast.dump(tree, annotate_fields=True, include_attributes=False).encode("utf-8")
+
+
 def _normalized_workflow_bytes(path: Path) -> bytes:
     text = path.read_text(encoding="utf-8").replace("\r\n", "\n")
     text, count = re.subn(r"(?m)^(  EXPECTED_BATCH18_[A-Z0-9_]+_SHA256:) [0-9a-f]{64}$", r"\1 <HASH>", text)
@@ -129,6 +137,7 @@ def _review_payload_sha256(root: Path) -> str:
     journey_source = (root / JOURNEY_GUARD).read_text(encoding="utf-8")
     journey_entries = _active_journey_allow_entries(journey_source)
     parts["JOURNEY_OS_BATCH18_ENTRIES"] = ("\n".join(journey_entries) + "\n").encode("utf-8")
+    parts["JOURNEY_OS_EXECUTABLE_AST"] = _normalized_python_ast_bytes(journey_source)
     for name, payload in parts.items():
         digest.update(name.encode("utf-8") + b"\0" + payload + b"\0")
     return digest.hexdigest()
@@ -165,6 +174,7 @@ def _review_payload_sha256_at_commit(root: Path, commit: str) -> str:
         "SPEC_BATCH18_VERIFY": ("\n".join(spec_lines) + "\n").encode("utf-8"),
         "BATCH17_REVIEWED_PAYLOAD": parent_payload.encode("ascii"),
         "JOURNEY_OS_BATCH18_ENTRIES": ("\n".join(journey_entries) + "\n").encode("utf-8"),
+        "JOURNEY_OS_EXECUTABLE_AST": _normalized_python_ast_bytes(journey_source),
     }
     digest = hashlib.sha256()
     for name, payload in parts.items():
@@ -355,7 +365,11 @@ EXPECTED_HOSTILE_TESTS = ['test_acceptance_claim_without_reviews_is_rejected',
  'test_guard_source_drift_invalidates_candidate_receipt',
  'test_hidden_surface_widening_is_rejected_semantically',
  'test_hostile_test_deletion_invalidates_registry',
+ 'test_journey_allow_alias_clear_invalidates_review_payload',
+ 'test_journey_allow_alias_isub_invalidates_review_payload',
  'test_journey_allow_cannot_be_cleared_after_declaration',
+ 'test_journey_allow_container_alias_invalidates_review_payload',
+ 'test_journey_allow_helper_mutation_invalidates_review_payload',
  'test_journey_entries_commented_out_are_not_active',
  'test_journey_entries_moved_to_dead_string_are_not_active',
  'test_microstep_removal_is_rejected_semantically',

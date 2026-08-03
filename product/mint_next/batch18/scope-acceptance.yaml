@@ -18,7 +18,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_review_payload_sha256: b86d9075401c43bf2adc3b5dcdc9d9351ca06c91e4800dc581692949f225a1ab
+  candidate_review_payload_sha256: 86099a54f969c65c8e6392b3e1a8f3f796d4b3cc41ffd8672545267a5113f459
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
   positive_tests:
@@ -45,7 +45,11 @@ mechanical_binding:
   - test_guard_source_drift_invalidates_candidate_receipt
   - test_hidden_surface_widening_is_rejected_semantically
   - test_hostile_test_deletion_invalidates_registry
+  - test_journey_allow_alias_clear_invalidates_review_payload
+  - test_journey_allow_alias_isub_invalidates_review_payload
   - test_journey_allow_cannot_be_cleared_after_declaration
+  - test_journey_allow_container_alias_invalidates_review_payload
+  - test_journey_allow_helper_mutation_invalidates_review_payload
   - test_journey_entries_commented_out_are_not_active
   - test_journey_entries_moved_to_dead_string_are_not_active
   - test_microstep_removal_is_rejected_semantically
