@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "status": "accepted_expected_red_evidence_runtime_not_implemented",
-  "current_verdict": "RED_CONTRACT_ACCEPTED_RUNTIME_NOT_IMPLEMENTED",
+  "status": "candidate_red_acceptance_unaccepted",
+  "current_verdict": "PENDING_INDEPENDENT_ROASTS",
   "candidate": {
     "red_commit": "387d74a150b49eb38c436d61068e68d596ab89f9",
     "gate": "R1",
@@ -22,35 +22,30 @@
   },
   "reviews": {
     "architecture_integrity": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "6ef7ab3d6ce75cef6d63da268b356b75d6542875fe91f6336b43723bf2b9f31c"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     },
     "mechanical_evidence": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "6ef7ab3d6ce75cef6d63da268b356b75d6542875fe91f6336b43723bf2b9f31c"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     },
     "ux_navigation_scope": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "6ef7ab3d6ce75cef6d63da268b356b75d6542875fe91f6336b43723bf2b9f31c"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     }
   },
   "mechanical_binding": {
     "candidate_review_payload_sha256": "6ef7ab3d6ce75cef6d63da268b356b75d6542875fe91f6336b43723bf2b9f31c",
-    "reviewed_payload_sha256": "6ef7ab3d6ce75cef6d63da268b356b75d6542875fe91f6336b43723bf2b9f31c",
-    "reviewed_candidate_commit": "097e52f93aa271751a281658e18a130dbda94574"
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
   },
-  "accepted_evidence": [
-    "expected_failing_R1_contract_only"
-  ],
+  "accepted_evidence": [],
   "not_accepted": [
     "runtime_implemented",
     "runtime_accepted",
@@ -59,5 +54,5 @@
     "R2_or_later_gate",
     "production_ready"
   ],
-  "next_gate": "create_and_review_R1_runtime_path_owner_receipt"
+  "next_gate": "independent_roasts_of_exact_pending_acceptance_commit"
 }
