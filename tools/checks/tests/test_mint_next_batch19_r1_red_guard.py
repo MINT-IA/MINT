@@ -173,6 +173,10 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         mutations = (
             "const channel = MethodChannel.new('mint.exfil');",
             "const channel = MethodChannel .new('mint.exfil');",
+            "final optional = OptionalMethodChannel('mint.exfil');",
+            "final optionalNew = OptionalMethodChannel.new('mint.exfil');",
+            "final background = BackgroundIsolateBinaryMessenger.instance;",
+            "final custom = createBinaryMessenger();",
             "SystemChannels.platform.invokeMethod<void>('exfil');",
             "PlatformDispatcher.instance.sendPlatformMessage('exfil', null, (_) {});",
             "WidgetsBinding.instance.defaultBinaryMessenger.send('mint.exfil', null);",

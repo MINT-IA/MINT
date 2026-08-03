@@ -90,13 +90,12 @@ FORBIDDEN_CAPABILITY_TOKENS = {
     "package:sentry", "dart:developer", "dart:io", "dart:ffi",
 }
 FORBIDDEN_CAPABILITY_IDENTIFIERS = {
-    "MethodChannel", "BasicMessageChannel", "EventChannel", "BinaryMessenger",
-    "defaultBinaryMessenger", "ServicesBinding", "SystemChannels",
-    "PlatformDispatcher", "sendPlatformMessage",
+    "ServicesBinding", "SystemChannels", "PlatformDispatcher", "sendPlatformMessage",
     "print", "dumpErrorToConsole", "presentError", "reportError",
     "analytics", "logger",
 }
 FORBIDDEN_CAPABILITY_IDENTIFIER_PATTERNS = {
+    r"[A-Za-z0-9_]*(?:MethodChannel|MessageChannel|EventChannel|BinaryMessenger)",
     r"debug(?:Print|Dump)[A-Za-z0-9_]*",
 }
 
