@@ -426,4 +426,14 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get batch11HelpBack => 'Zurück zur Eingabe';
+
+  @override
+  String get batch11MissingAmount => 'Mir fehlt der Betrag eines 3a-Anbieters';
+
+  @override
+  String get batch11HelpPartialBody =>
+      'Behalte die bereits erfassten Beträge. Mindestens ein Anbieter fehlt noch: Finde seinen bestätigten Gesamtbetrag vor der Bestätigung.';
+
+  @override
+  String get batch11HelpFoundPartial => 'Fehlenden Betrag hinzufügen';
 }

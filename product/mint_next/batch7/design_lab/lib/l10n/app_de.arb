@@ -224,5 +224,8 @@
   "batch11HelpUnknownBody": "Beginne mit der Bescheinigung eines 3a-Anbieters. Suche den Gesamtbetrag der ordentlichen Beiträge des Jahres, ohne Transfer, Einkauf oder Rückerstattung.",
   "batch11HelpFoundFirst": "Ich habe einen ersten Betrag gefunden",
   "batch11HelpEducationOnly": "Mit einer allgemeinen Erklärung fortfahren",
-  "batch11HelpBack": "Zurück zur Eingabe"
+  "batch11HelpBack": "Zurück zur Eingabe",
+  "batch11MissingAmount": "Mir fehlt der Betrag eines 3a-Anbieters",
+  "batch11HelpPartialBody": "Behalte die bereits erfassten Beträge. Mindestens ein Anbieter fehlt noch: Finde seinen bestätigten Gesamtbetrag vor der Bestätigung.",
+  "batch11HelpFoundPartial": "Fehlenden Betrag hinzufügen"
 }

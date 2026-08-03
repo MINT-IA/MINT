@@ -224,5 +224,8 @@
   "batch11HelpUnknownBody": "Commence par l’attestation d’un prestataire 3a. Cherche son total de cotisations ordinaires pour l’année, sans ajouter transfert, rachat ni remboursement.",
   "batch11HelpFoundFirst": "J’ai trouvé un premier montant",
   "batch11HelpEducationOnly": "Continuer avec une explication générale",
-  "batch11HelpBack": "Revenir à la saisie"
+  "batch11HelpBack": "Revenir à la saisie",
+  "batch11MissingAmount": "Il me manque le montant d’un de mes 3a",
+  "batch11HelpPartialBody": "Garde les montants déjà saisis. Il manque encore au moins un prestataire : retrouve son total confirmé avant de valider.",
+  "batch11HelpFoundPartial": "Ajouter le montant manquant"
 }

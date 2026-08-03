@@ -428,4 +428,14 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get batch11HelpBack => 'Torna all’inserimento';
+
+  @override
+  String get batch11MissingAmount => 'Mi manca l’importo di un istituto 3a';
+
+  @override
+  String get batch11HelpPartialBody =>
+      'Conserva gli importi già inseriti. Manca ancora almeno un istituto: trova il suo totale confermato prima di convalidare.';
+
+  @override
+  String get batch11HelpFoundPartial => 'Aggiungi l’importo mancante';
 }

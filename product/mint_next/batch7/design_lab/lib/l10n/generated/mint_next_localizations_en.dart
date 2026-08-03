@@ -423,4 +423,14 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get batch11HelpBack => 'Back to entry';
+
+  @override
+  String get batch11MissingAmount => 'I am missing one provider’s amount';
+
+  @override
+  String get batch11HelpPartialBody =>
+      'Keep the amounts already entered. At least one provider is still missing: find its confirmed total before validating.';
+
+  @override
+  String get batch11HelpFoundPartial => 'Add the missing amount';
 }

@@ -224,5 +224,8 @@
   "batch11HelpUnknownBody": "Começa pelo certificado de um prestador 3a. Procura o total das contribuições ordinárias do ano, sem adicionar transferências, contribuições retroativas ou reembolsos.",
   "batch11HelpFoundFirst": "Encontrei um primeiro valor",
   "batch11HelpEducationOnly": "Continuar com uma explicação geral",
-  "batch11HelpBack": "Voltar à introdução"
+  "batch11HelpBack": "Voltar à introdução",
+  "batch11MissingAmount": "Falta-me o valor de um prestador 3a",
+  "batch11HelpPartialBody": "Mantém os valores já introduzidos. Falta ainda pelo menos um prestador: encontra o total confirmado antes de validar.",
+  "batch11HelpFoundPartial": "Adicionar o valor em falta"
 }

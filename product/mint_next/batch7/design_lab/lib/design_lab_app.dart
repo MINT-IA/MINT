@@ -112,6 +112,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   String _ordinaryAmountRaw = '';
   bool _allProvidersReviewed = false;
   bool _amountWhereToFindExpanded = false;
+  bool _amountHelpPartial = false;
   _DesignNode _educationBackNode = _DesignNode.contributionUnknownHelp;
   final FocusNode _safeExitTriggerFocus = FocusNode(
     debugLabel: 'safe exit trigger',
@@ -145,6 +146,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _ordinaryAmountRaw = '';
     _allProvidersReviewed = false;
     _amountWhereToFindExpanded = false;
+    _amountHelpPartial = false;
   }
 
   void _clearEphemeralFacts() {
@@ -211,6 +213,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
             ),
             Expanded(
               child: AnimatedSwitcher(
+                key: ValueKey('journey-switcher:${widget.currentYear}'),
                 duration: MediaQuery.disableAnimationsOf(context)
                     ? Duration.zero
                     : const Duration(milliseconds: 240),
@@ -308,14 +311,21 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                             setState(() => _allProvidersReviewed = value),
                         onWhereToFindChanged: (value) =>
                             setState(() => _amountWhereToFindExpanded = value),
-                        onUnknown: () =>
-                            _go(_DesignNode.contributedAmountUnknownHelp),
+                        onUnknown: () => setState(() {
+                          _amountHelpPartial = false;
+                          _node = _DesignNode.contributedAmountUnknownHelp;
+                        }),
+                        onMissing: () => setState(() {
+                          _amountHelpPartial = true;
+                          _node = _DesignNode.contributedAmountUnknownHelp;
+                        }),
                         onContinue: () => _go(_DesignNode.factCanton),
                         onCorrectPrevious: () =>
                             _go(_DesignNode.factContribution),
                       ),
                     _DesignNode.contributedAmountUnknownHelp =>
                       _ContributedAmountUnknownHelp(
+                        partial: _amountHelpPartial,
                         onFoundAmount: () =>
                             _go(_DesignNode.factContributedAmount),
                         onContinueEducation: () {
@@ -1020,11 +1030,13 @@ class _ContributionUnknownHelp extends StatelessWidget {
 
 class _ContributedAmountUnknownHelp extends StatelessWidget {
   const _ContributedAmountUnknownHelp({
+    required this.partial,
     required this.onFoundAmount,
     required this.onContinueEducation,
     required this.onBack,
   });
 
+  final bool partial;
   final VoidCallback onFoundAmount;
   final VoidCallback onContinueEducation;
   final VoidCallback onBack;
@@ -1036,14 +1048,16 @@ class _ContributedAmountUnknownHelp extends StatelessWidget {
       nodeId: 'contributed_amount_unknown_help',
       eyebrow: l10n.contributionUnknownEyebrow,
       title: l10n.batch11HelpTitle,
-      body: l10n.batch11HelpUnknownBody,
+      body: partial ? l10n.batch11HelpPartialBody : l10n.batch11HelpUnknownBody,
       accent: const _QuietOrb(),
       actions: [
         MintDesignLabAction(
           key: const ValueKey(
             'action:contributed_amount_unknown_help.found_amount',
           ),
-          label: l10n.batch11HelpFoundFirst,
+          label: partial
+              ? l10n.batch11HelpFoundPartial
+              : l10n.batch11HelpFoundFirst,
           onPressed: onFoundAmount,
         ),
         MintDesignLabAction.secondary(
@@ -1075,6 +1089,7 @@ class _ContributionAmountForm extends StatefulWidget {
     required this.onReviewedChanged,
     required this.onWhereToFindChanged,
     required this.onUnknown,
+    required this.onMissing,
     required this.onContinue,
     required this.onCorrectPrevious,
   });
@@ -1088,6 +1103,7 @@ class _ContributionAmountForm extends StatefulWidget {
   final ValueChanged<bool> onReviewedChanged;
   final ValueChanged<bool> onWhereToFindChanged;
   final VoidCallback onUnknown;
+  final VoidCallback onMissing;
   final VoidCallback onContinue;
   final VoidCallback onCorrectPrevious;
 
@@ -1160,6 +1176,18 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
     widget.onContinue();
   }
 
+  bool get _hasPositiveDraft {
+    try {
+      return parseOrdinaryChfAmount(
+            _amountController.text,
+            locale: Localizations.localeOf(context).languageCode,
+          ) >
+          0;
+    } on FormatException {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = MintNextLocalizations.of(context);
@@ -1189,6 +1217,15 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
               }
             },
           ),
+          if (_providerError != null)
+            Semantics(
+              key: const ValueKey(
+                'error:fact_contributed_amount.provider_name',
+              ),
+              liveRegion: true,
+              label: _providerError,
+              child: const SizedBox.shrink(),
+            ),
           const SizedBox(height: 20),
           TextFormField(
             key: const ValueKey('field:fact_contributed_amount.amount'),
@@ -1204,11 +1241,16 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
             ),
             onChanged: (value) {
               widget.onAmountChanged(value);
-              if (_amountError != null) {
-                setState(() => _amountError = null);
-              }
+              setState(() => _amountError = null);
             },
           ),
+          if (_amountError != null)
+            Semantics(
+              key: const ValueKey('error:fact_contributed_amount.amount'),
+              liveRegion: true,
+              label: _amountError,
+              child: const SizedBox.shrink(),
+            ),
           const SizedBox(height: 8),
           Text(
             l10n.batch11NotTaxResult,
@@ -1257,11 +1299,22 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
           label: l10n.batch11Continue,
           onPressed: _continue,
         ),
-        MintDesignLabAction.secondary(
-          key: const ValueKey('action:fact_contributed_amount.unknown_amount'),
-          label: l10n.batch11UnknownAmount,
-          onPressed: widget.onUnknown,
-        ),
+        if (_hasPositiveDraft)
+          MintDesignLabAction.secondary(
+            key: const ValueKey(
+              'action:fact_contributed_amount.missing_amount',
+            ),
+            label: l10n.batch11MissingAmount,
+            onPressed: widget.onMissing,
+          )
+        else
+          MintDesignLabAction.secondary(
+            key: const ValueKey(
+              'action:fact_contributed_amount.unknown_amount',
+            ),
+            label: l10n.batch11UnknownAmount,
+            onPressed: widget.onUnknown,
+          ),
         MintDesignLabAction.text(
           key: const ValueKey(
             'action:fact_contributed_amount.correct_previous',

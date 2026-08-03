@@ -224,5 +224,8 @@
   "batch11HelpUnknownBody": "Start with one provider certificate. Find its ordinary-contribution total for the year, without adding a transfer, catch-up contribution or refund.",
   "batch11HelpFoundFirst": "I found a first amount",
   "batch11HelpEducationOnly": "Continue with a general explanation",
-  "batch11HelpBack": "Back to entry"
+  "batch11HelpBack": "Back to entry",
+  "batch11MissingAmount": "I am missing one provider’s amount",
+  "batch11HelpPartialBody": "Keep the amounts already entered. At least one provider is still missing: find its confirmed total before validating.",
+  "batch11HelpFoundPartial": "Add the missing amount"
 }

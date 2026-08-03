@@ -424,4 +424,14 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String get batch11HelpBack => 'Revenir à la saisie';
+
+  @override
+  String get batch11MissingAmount => 'Il me manque le montant d’un de mes 3a';
+
+  @override
+  String get batch11HelpPartialBody =>
+      'Garde les montants déjà saisis. Il manque encore au moins un prestataire : retrouve son total confirmé avant de valider.';
+
+  @override
+  String get batch11HelpFoundPartial => 'Ajouter le montant manquant';
 }

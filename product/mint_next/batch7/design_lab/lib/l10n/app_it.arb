@@ -224,5 +224,8 @@
   "batch11HelpUnknownBody": "Inizia dall’attestazione di un istituto 3a. Cerca il totale dei contributi ordinari dell’anno, senza aggiungere trasferimenti, contributi retroattivi o rimborsi.",
   "batch11HelpFoundFirst": "Ho trovato un primo importo",
   "batch11HelpEducationOnly": "Continua con una spiegazione generale",
-  "batch11HelpBack": "Torna all’inserimento"
+  "batch11HelpBack": "Torna all’inserimento",
+  "batch11MissingAmount": "Mi manca l’importo di un istituto 3a",
+  "batch11HelpPartialBody": "Conserva gli importi già inseriti. Manca ancora almeno un istituto: trova il suo totale confermato prima di convalidare.",
+  "batch11HelpFoundPartial": "Aggiungi l’importo mancante"
 }

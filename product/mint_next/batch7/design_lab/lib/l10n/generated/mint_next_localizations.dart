@@ -786,6 +786,24 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Revenir à la saisie'**
   String get batch11HelpBack;
+
+  /// No description provided for @batch11MissingAmount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il me manque le montant d’un de mes 3a'**
+  String get batch11MissingAmount;
+
+  /// No description provided for @batch11HelpPartialBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garde les montants déjà saisis. Il manque encore au moins un prestataire : retrouve son total confirmé avant de valider.'**
+  String get batch11HelpPartialBody;
+
+  /// No description provided for @batch11HelpFoundPartial.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter le montant manquant'**
+  String get batch11HelpFoundPartial;
 }
 
 class _MintNextLocalizationsDelegate

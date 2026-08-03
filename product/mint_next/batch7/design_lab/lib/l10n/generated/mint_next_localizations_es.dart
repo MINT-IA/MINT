@@ -424,4 +424,14 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
 
   @override
   String get batch11HelpBack => 'Volver a la entrada';
+
+  @override
+  String get batch11MissingAmount => 'Me falta el importe de un proveedor 3a';
+
+  @override
+  String get batch11HelpPartialBody =>
+      'Conserva los importes ya introducidos. Todavía falta al menos un proveedor: encuentra su total confirmado antes de validar.';
+
+  @override
+  String get batch11HelpFoundPartial => 'Añadir el importe que falta';
 }

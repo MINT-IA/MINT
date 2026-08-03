@@ -424,4 +424,14 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String get batch11HelpBack => 'Voltar à introdução';
+
+  @override
+  String get batch11MissingAmount => 'Falta-me o valor de um prestador 3a';
+
+  @override
+  String get batch11HelpPartialBody =>
+      'Mantém os valores já introduzidos. Falta ainda pelo menos um prestador: encontra o total confirmado antes de validar.';
+
+  @override
+  String get batch11HelpFoundPartial => 'Adicionar o valor em falta';
 }

@@ -224,5 +224,8 @@
   "batch11HelpUnknownBody": "Empieza por el certificado de un proveedor 3a. Busca el total de aportaciones ordinarias del año, sin añadir transferencias, aportaciones retroactivas ni reembolsos.",
   "batch11HelpFoundFirst": "He encontrado un primer importe",
   "batch11HelpEducationOnly": "Continuar con una explicación general",
-  "batch11HelpBack": "Volver a la entrada"
+  "batch11HelpBack": "Volver a la entrada",
+  "batch11MissingAmount": "Me falta el importe de un proveedor 3a",
+  "batch11HelpPartialBody": "Conserva los importes ya introducidos. Todavía falta al menos un proveedor: encuentra su total confirmado antes de validar.",
+  "batch11HelpFoundPartial": "Añadir el importe que falta"
 }
