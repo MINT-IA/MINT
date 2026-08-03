@@ -278,5 +278,49 @@
         "type": "int"
       }
     }
+  },
+  "batch15RemoveProvider": "Diese Zeile aus meiner Eingabe entfernen",
+  "batch15TombstoneLabel": "Zeile {rowNumber} aus dieser Eingabe entfernt",
+  "batch15UndoRemoval": "Entfernen von Zeile {rowNumber} rückgängig machen",
+  "batch15FinalizeRemoval": "Zeile {rowNumber} endgültig aus dieser Eingabe löschen",
+  "batch15TombstonedAnnouncement": "Zeile aus dieser Eingabe entfernt. Neuer vorläufiger Zwischensaldo: {subtotal}.",
+  "batch15RestoredAnnouncement": "Zeile in dieser Eingabe wiederhergestellt. Neuer vorläufiger Zwischensaldo: {subtotal}.",
+  "batch15FinalizedAnnouncement": "Die entfernte Zeile wurde endgültig aus dieser Eingabe gelöscht.",
+  "batch15NoProvisionalSubtotal": "kein positiver Betrag erfasst",
+  "batch15ResolveTombstoneError": "Mache das Entfernen rückgängig oder lösche diese Zeile endgültig, bevor du fortfährst.",
+  "@batch15TombstoneLabel": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15UndoRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15FinalizeRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15TombstonedAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch15RestoredAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
   }
 }

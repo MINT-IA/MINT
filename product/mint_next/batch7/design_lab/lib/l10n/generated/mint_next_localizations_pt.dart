@@ -499,4 +499,44 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
   @override
   String get batch14ProviderCapacity =>
       'Esta introdução aceita no máximo 50 prestadores. Revê a lista antes de continuar.';
+
+  @override
+  String get batch15RemoveProvider => 'Remover esta linha do meu registo';
+
+  @override
+  String batch15TombstoneLabel(int rowNumber) {
+    return 'Linha $rowNumber removida deste registo';
+  }
+
+  @override
+  String batch15UndoRemoval(int rowNumber) {
+    return 'Anular a remoção da linha $rowNumber';
+  }
+
+  @override
+  String batch15FinalizeRemoval(int rowNumber) {
+    return 'Apagar definitivamente a linha $rowNumber deste registo';
+  }
+
+  @override
+  String batch15TombstonedAnnouncement(String subtotal) {
+    return 'Linha removida deste registo. Novo subtotal provisório: $subtotal.';
+  }
+
+  @override
+  String batch15RestoredAnnouncement(String subtotal) {
+    return 'Linha restaurada neste registo. Novo subtotal provisório: $subtotal.';
+  }
+
+  @override
+  String get batch15FinalizedAnnouncement =>
+      'A linha removida foi apagada definitivamente deste registo.';
+
+  @override
+  String get batch15NoProvisionalSubtotal =>
+      'nenhum montante positivo introduzido';
+
+  @override
+  String get batch15ResolveTombstoneError =>
+      'Anula a remoção ou apaga definitivamente esta linha antes de continuar.';
 }

@@ -900,6 +900,60 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Cette saisie accepte au maximum 50 prestataires. Vérifie la liste avant de continuer.'**
   String get batch14ProviderCapacity;
+
+  /// No description provided for @batch15RemoveProvider.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer cette ligne de ma saisie'**
+  String get batch15RemoveProvider;
+
+  /// No description provided for @batch15TombstoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne {rowNumber} retirée de cette saisie'**
+  String batch15TombstoneLabel(int rowNumber);
+
+  /// No description provided for @batch15UndoRemoval.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler le retrait de la ligne {rowNumber}'**
+  String batch15UndoRemoval(int rowNumber);
+
+  /// No description provided for @batch15FinalizeRemoval.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer définitivement la ligne {rowNumber} de cette saisie'**
+  String batch15FinalizeRemoval(int rowNumber);
+
+  /// No description provided for @batch15TombstonedAnnouncement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne retirée de cette saisie. Nouveau sous-total provisoire : {subtotal}.'**
+  String batch15TombstonedAnnouncement(String subtotal);
+
+  /// No description provided for @batch15RestoredAnnouncement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ligne restaurée dans cette saisie. Nouveau sous-total provisoire : {subtotal}.'**
+  String batch15RestoredAnnouncement(String subtotal);
+
+  /// No description provided for @batch15FinalizedAnnouncement.
+  ///
+  /// In fr, this message translates to:
+  /// **'La ligne supprimée a été définitivement effacée de cette saisie.'**
+  String get batch15FinalizedAnnouncement;
+
+  /// No description provided for @batch15NoProvisionalSubtotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'aucun montant positif saisi'**
+  String get batch15NoProvisionalSubtotal;
+
+  /// No description provided for @batch15ResolveTombstoneError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annule le retrait ou efface définitivement cette ligne avant de continuer.'**
+  String get batch15ResolveTombstoneError;
 }
 
 class _MintNextLocalizationsDelegate

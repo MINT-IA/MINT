@@ -5,36 +5,105 @@ import 'ordinary_chf_amount.dart';
 
 enum MultiProviderAddResult { added, existingEmpty, capacityReached }
 
+enum MultiProviderRowLifecycle { active, tombstone }
+
+enum MultiProviderRemoveResult {
+  tombstoned,
+  removedEmpty,
+  stale,
+  minimumActive,
+}
+
+enum MultiProviderUndoResult { restored, stale }
+
+enum MultiProviderFinalizeResult { finalized, stale }
+
+sealed class _RowToken {
+  const _RowToken(this.rowId, this.epoch, this.generation, this.nonce);
+  final String rowId;
+  final int epoch;
+  final int generation;
+  final int nonce;
+}
+
+final class MultiProviderEditToken extends _RowToken {
+  const MultiProviderEditToken._(
+    super.rowId,
+    super.epoch,
+    super.generation,
+    super.nonce,
+  );
+}
+
+final class MultiProviderRemoveToken extends _RowToken {
+  const MultiProviderRemoveToken._(
+    super.rowId,
+    super.epoch,
+    super.generation,
+    super.nonce,
+  );
+}
+
+final class MultiProviderUndoToken extends _RowToken {
+  const MultiProviderUndoToken._(
+    super.rowId,
+    super.epoch,
+    super.generation,
+    super.nonce,
+  );
+}
+
+final class MultiProviderFinalizeToken extends _RowToken {
+  const MultiProviderFinalizeToken._(
+    super.rowId,
+    super.epoch,
+    super.generation,
+    super.nonce,
+  );
+}
+
 class MultiProviderAmountRow {
-  MultiProviderAmountRow._(this.id);
+  MultiProviderAmountRow._(this.id, this._generation);
 
   final String id;
+  int _generation;
+  MultiProviderRowLifecycle _lifecycle = MultiProviderRowLifecycle.active;
   String _providerName = '';
   String _rawAmount = '';
   int? _amountMinorUnits;
   bool _amountInvalid = false;
+  MultiProviderEditToken? _editToken;
+  MultiProviderRemoveToken? _removeToken;
+  MultiProviderUndoToken? _undoToken;
+  MultiProviderFinalizeToken? _finalizeToken;
 
-  String get providerName => _providerName;
-  String get rawAmount => _rawAmount;
-  int? get amountMinorUnits => _amountMinorUnits;
+  MultiProviderRowLifecycle get lifecycle => _lifecycle;
+  String get providerName => isActive ? _providerName : '';
+  String get rawAmount => isActive ? _rawAmount : '';
+  int? get amountMinorUnits => isActive ? _amountMinorUnits : null;
   bool get amountInvalid => _amountInvalid;
+  MultiProviderEditToken get editToken => _editToken!;
+  MultiProviderRemoveToken? get removeToken => _removeToken;
+  MultiProviderUndoToken? get undoToken => _undoToken;
+  MultiProviderFinalizeToken? get finalizeToken => _finalizeToken;
 
+  bool get isActive => _lifecycle == MultiProviderRowLifecycle.active;
   bool get isCompletelyEmpty =>
-      _providerName.trim().isEmpty && _rawAmount.trim().isEmpty;
-
-  bool get hasSafeProviderName => multiProviderLabelIsSafe(_providerName);
-
+      isActive && _providerName.trim().isEmpty && _rawAmount.trim().isEmpty;
+  bool get hasSafeProviderName =>
+      isActive && multiProviderLabelIsSafe(_providerName);
   bool get hasPositiveExactAmount =>
-      !_amountInvalid && (_amountMinorUnits ?? 0) > 0;
+      isActive && !_amountInvalid && (_amountMinorUnits ?? 0) > 0;
 }
 
-/// Ephemeral exact-money draft for the isolated Batch 14 runtime.
-///
-/// This first hidden slice deliberately exposes no persistence, network,
-/// fiscal result, missing-provider request, or contentful deletion API.
+/// Ephemeral exact-money draft for the isolated hidden runtime harness.
 class MultiProviderAmountDraft {
   final List<MultiProviderAmountRow> _rows = [];
   int _nextRowNumber = 1;
+  int _nextNonce = 1;
+  int _sessionEpoch = 1;
+  bool _allProvidersReviewed = false;
+  int? _committedTotalMinorUnits;
 
   MultiProviderAmountDraft() {
     _rows.add(_newRow());
@@ -42,19 +111,57 @@ class MultiProviderAmountDraft {
 
   UnmodifiableListView<MultiProviderAmountRow> get rows =>
       UnmodifiableListView(_rows);
-
-  bool _allProvidersReviewed = false;
-  int? _committedTotalMinorUnits;
-
   bool get allProvidersReviewed => _allProvidersReviewed;
   int? get committedTotalMinorUnits => _committedTotalMinorUnits;
+  int get activeRowCount => _rows.where((row) => row.isActive).length;
+  bool get hasTombstones => _rows.any((row) => !row.isActive);
 
-  MultiProviderAmountRow _newRow() =>
-      MultiProviderAmountRow._('provider-row-${_nextRowNumber++}');
+  MultiProviderAmountRow _newRow() {
+    final row = MultiProviderAmountRow._('provider-row-${_nextRowNumber++}', 1);
+    _issueActiveTokens(row);
+    return row;
+  }
 
-  MultiProviderAmountRow? _row(String id) {
+  void _issueActiveTokens(MultiProviderAmountRow row) {
+    row._editToken = MultiProviderEditToken._(
+      row.id,
+      _sessionEpoch,
+      row._generation,
+      _nextNonce++,
+    );
+    row._removeToken = MultiProviderRemoveToken._(
+      row.id,
+      _sessionEpoch,
+      row._generation,
+      _nextNonce++,
+    );
+    row._undoToken = null;
+    row._finalizeToken = null;
+  }
+
+  void _issueTombstoneTokens(MultiProviderAmountRow row) {
+    row._editToken = null;
+    row._removeToken = null;
+    row._undoToken = MultiProviderUndoToken._(
+      row.id,
+      _sessionEpoch,
+      row._generation,
+      _nextNonce++,
+    );
+    row._finalizeToken = MultiProviderFinalizeToken._(
+      row.id,
+      _sessionEpoch,
+      row._generation,
+      _nextNonce++,
+    );
+  }
+
+  MultiProviderAmountRow? _rowFor(_RowToken token) {
+    if (token.epoch != _sessionEpoch) return null;
     for (final row in _rows) {
-      if (row.id == id) return row;
+      if (row.id == token.rowId && row._generation == token.generation) {
+        return row;
+      }
     }
     return null;
   }
@@ -66,16 +173,25 @@ class MultiProviderAmountDraft {
 
   void invalidateConfirmation() => _invalidateCommit();
 
-  void updateProviderName(String id, String value) {
-    final row = _row(id);
-    if (row == null) return;
+  bool updateProviderName(MultiProviderEditToken token, String value) {
+    final row = _rowFor(token);
+    if (row == null || !identical(row._editToken, token) || !row.isActive) {
+      return false;
+    }
     row._providerName = value;
     _invalidateCommit();
+    return true;
   }
 
-  void updateAmount(String id, String value, {required String locale}) {
-    final row = _row(id);
-    if (row == null) return;
+  bool updateAmount(
+    MultiProviderEditToken token,
+    String value, {
+    required String locale,
+  }) {
+    final row = _rowFor(token);
+    if (row == null || !identical(row._editToken, token) || !row.isActive) {
+      return false;
+    }
     row._rawAmount = value;
     try {
       row._amountMinorUnits = parseOrdinaryChfAmount(value, locale: locale);
@@ -85,6 +201,7 @@ class MultiProviderAmountDraft {
       row._amountInvalid = true;
     }
     _invalidateCommit();
+    return true;
   }
 
   MultiProviderAddResult addProvider() {
@@ -97,21 +214,71 @@ class MultiProviderAmountDraft {
     return MultiProviderAddResult.added;
   }
 
-  bool removeEmptyProvider(String id) {
-    if (_rows.length <= 1) return false;
-    final index = _rows.indexWhere((row) => row.id == id);
-    if (index < 0 || !_rows[index].isCompletelyEmpty) return false;
-    _rows.removeAt(index);
+  MultiProviderRemoveResult removeProvider(MultiProviderRemoveToken token) {
+    final row = _rowFor(token);
+    if (row == null || !identical(row._removeToken, token) || !row.isActive) {
+      return MultiProviderRemoveResult.stale;
+    }
+    if (activeRowCount <= 1) return MultiProviderRemoveResult.minimumActive;
     _invalidateCommit();
-    return true;
+    if (row.isCompletelyEmpty) {
+      _wipe(row);
+      _rows.remove(row);
+      return MultiProviderRemoveResult.removedEmpty;
+    }
+    row._lifecycle = MultiProviderRowLifecycle.tombstone;
+    row._generation++;
+    _issueTombstoneTokens(row);
+    return MultiProviderRemoveResult.tombstoned;
   }
+
+  MultiProviderUndoResult undoRemoval(MultiProviderUndoToken token) {
+    final row = _rowFor(token);
+    if (row == null || !identical(row._undoToken, token) || row.isActive) {
+      return MultiProviderUndoResult.stale;
+    }
+    row._lifecycle = MultiProviderRowLifecycle.active;
+    row._generation++;
+    _issueActiveTokens(row);
+    _invalidateCommit();
+    return MultiProviderUndoResult.restored;
+  }
+
+  MultiProviderFinalizeResult finalizeRemoval(
+    MultiProviderFinalizeToken token,
+  ) {
+    final row = _rowFor(token);
+    if (row == null || !identical(row._finalizeToken, token) || row.isActive) {
+      return MultiProviderFinalizeResult.stale;
+    }
+    _wipe(row);
+    _rows.remove(row);
+    _invalidateCommit();
+    return MultiProviderFinalizeResult.finalized;
+  }
+
+  void _wipe(MultiProviderAmountRow row) {
+    row._providerName = '';
+    row._rawAmount = '';
+    row._amountMinorUnits = null;
+    row._amountInvalid = false;
+    row._editToken = null;
+    row._removeToken = null;
+    row._undoToken = null;
+    row._finalizeToken = null;
+    row._generation++;
+  }
+
+  Iterable<MultiProviderAmountRow> get _activeRows =>
+      _rows.where((row) => row.isActive);
 
   Set<String> get duplicateRowIds {
     final rowsByKey = <String, List<String>>{};
-    for (final row in _rows) {
+    for (final row in _activeRows) {
       if (!row.hasSafeProviderName) continue;
-      final key = normalizeMultiProviderLabel(row.providerName);
-      rowsByKey.putIfAbsent(key, () => []).add(row.id);
+      rowsByKey
+          .putIfAbsent(normalizeMultiProviderLabel(row.providerName), () => [])
+          .add(row.id);
     }
     return {
       for (final ids in rowsByKey.values)
@@ -122,7 +289,7 @@ class MultiProviderAmountDraft {
   Set<String> get laterDuplicateRowIds {
     final firstRowByKey = <String, String>{};
     final later = <String>{};
-    for (final row in _rows) {
+    for (final row in _activeRows) {
       if (!row.hasSafeProviderName) continue;
       final key = normalizeMultiProviderLabel(row.providerName);
       if (firstRowByKey.containsKey(key)) {
@@ -136,7 +303,7 @@ class MultiProviderAmountDraft {
 
   bool get aggregateOverflow {
     var subtotal = BigInt.zero;
-    for (final row in _rows) {
+    for (final row in _activeRows) {
       final amount = row.amountMinorUnits;
       if (amount == null || amount <= 0) continue;
       subtotal += BigInt.from(amount);
@@ -148,7 +315,7 @@ class MultiProviderAmountDraft {
   int? get provisionalSubtotalMinorUnits {
     if (aggregateOverflow) return null;
     var subtotal = 0;
-    for (final row in _rows) {
+    for (final row in _activeRows) {
       final amount = row.amountMinorUnits;
       if (amount != null && amount > 0) subtotal += amount;
     }
@@ -156,8 +323,9 @@ class MultiProviderAmountDraft {
   }
 
   bool get canConfirmAllProvidersReviewed =>
-      _rows.isNotEmpty &&
-      _rows.every(
+      !hasTombstones &&
+      _activeRows.isNotEmpty &&
+      _activeRows.every(
         (row) => row.hasSafeProviderName && row.hasPositiveExactAmount,
       ) &&
       duplicateRowIds.isEmpty &&
@@ -178,16 +346,13 @@ class MultiProviderAmountDraft {
     if (!_allProvidersReviewed || !canConfirmAllProvidersReviewed) return null;
     final subtotal = provisionalSubtotalMinorUnits;
     if (subtotal == null) return null;
-    _committedTotalMinorUnits = subtotal;
-    return subtotal;
+    return _committedTotalMinorUnits = subtotal;
   }
 
   void purge() {
+    _sessionEpoch++;
     for (final row in _rows) {
-      row._providerName = '';
-      row._rawAmount = '';
-      row._amountMinorUnits = null;
-      row._amountInvalid = false;
+      _wipe(row);
     }
     _rows
       ..clear()

@@ -500,4 +500,43 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
   @override
   String get batch14ProviderCapacity =>
       'Cette saisie accepte au maximum 50 prestataires. Vérifie la liste avant de continuer.';
+
+  @override
+  String get batch15RemoveProvider => 'Retirer cette ligne de ma saisie';
+
+  @override
+  String batch15TombstoneLabel(int rowNumber) {
+    return 'Ligne $rowNumber retirée de cette saisie';
+  }
+
+  @override
+  String batch15UndoRemoval(int rowNumber) {
+    return 'Annuler le retrait de la ligne $rowNumber';
+  }
+
+  @override
+  String batch15FinalizeRemoval(int rowNumber) {
+    return 'Effacer définitivement la ligne $rowNumber de cette saisie';
+  }
+
+  @override
+  String batch15TombstonedAnnouncement(String subtotal) {
+    return 'Ligne retirée de cette saisie. Nouveau sous-total provisoire : $subtotal.';
+  }
+
+  @override
+  String batch15RestoredAnnouncement(String subtotal) {
+    return 'Ligne restaurée dans cette saisie. Nouveau sous-total provisoire : $subtotal.';
+  }
+
+  @override
+  String get batch15FinalizedAnnouncement =>
+      'La ligne supprimée a été définitivement effacée de cette saisie.';
+
+  @override
+  String get batch15NoProvisionalSubtotal => 'aucun montant positif saisi';
+
+  @override
+  String get batch15ResolveTombstoneError =>
+      'Annule le retrait ou efface définitivement cette ligne avant de continuer.';
 }

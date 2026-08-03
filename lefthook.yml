@@ -124,6 +124,9 @@ pre-commit:
     mint-next-batch14-unicode-data-guard:
       run: python3 tools/checks/mint_next_batch14_unicode_data.py
       tags: [agents, mint-next, navigation, unicode, privacy]
+    mint-next-batch15-tombstone-runtime-guard:
+      run: python3 tools/checks/mint_next_batch15_tombstone_runtime_guard.py
+      tags: [agents, mint-next, navigation, flutter, privacy, accessibility]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.

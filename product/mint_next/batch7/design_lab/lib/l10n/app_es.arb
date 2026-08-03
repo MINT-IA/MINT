@@ -278,5 +278,49 @@
         "type": "int"
       }
     }
+  },
+  "batch15RemoveProvider": "Quitar esta fila de mi registro",
+  "batch15TombstoneLabel": "Fila {rowNumber} retirada de este registro",
+  "batch15UndoRemoval": "Deshacer la retirada de la fila {rowNumber}",
+  "batch15FinalizeRemoval": "Borrar definitivamente la fila {rowNumber} de este registro",
+  "batch15TombstonedAnnouncement": "Fila retirada de este registro. Nuevo subtotal provisional: {subtotal}.",
+  "batch15RestoredAnnouncement": "Fila restaurada en este registro. Nuevo subtotal provisional: {subtotal}.",
+  "batch15FinalizedAnnouncement": "La fila retirada se ha borrado definitivamente de este registro.",
+  "batch15NoProvisionalSubtotal": "ningún importe positivo introducido",
+  "batch15ResolveTombstoneError": "Deshaz la retirada o borra definitivamente esta fila antes de continuar.",
+  "@batch15TombstoneLabel": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15UndoRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15FinalizeRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15TombstonedAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch15RestoredAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
   }
 }

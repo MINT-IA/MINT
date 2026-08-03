@@ -278,5 +278,49 @@
         "type": "int"
       }
     }
+  },
+  "batch15RemoveProvider": "Remover esta linha do meu registo",
+  "batch15TombstoneLabel": "Linha {rowNumber} removida deste registo",
+  "batch15UndoRemoval": "Anular a remoção da linha {rowNumber}",
+  "batch15FinalizeRemoval": "Apagar definitivamente a linha {rowNumber} deste registo",
+  "batch15TombstonedAnnouncement": "Linha removida deste registo. Novo subtotal provisório: {subtotal}.",
+  "batch15RestoredAnnouncement": "Linha restaurada neste registo. Novo subtotal provisório: {subtotal}.",
+  "batch15FinalizedAnnouncement": "A linha removida foi apagada definitivamente deste registo.",
+  "batch15NoProvisionalSubtotal": "nenhum montante positivo introduzido",
+  "batch15ResolveTombstoneError": "Anula a remoção ou apaga definitivamente esta linha antes de continuar.",
+  "@batch15TombstoneLabel": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15UndoRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15FinalizeRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15TombstonedAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch15RestoredAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
   }
 }

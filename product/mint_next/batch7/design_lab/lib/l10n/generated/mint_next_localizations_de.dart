@@ -501,4 +501,44 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
   @override
   String get batch14ProviderCapacity =>
       'Diese Eingabe erlaubt höchstens 50 Anbieter. Prüfe die Liste, bevor du fortfährst.';
+
+  @override
+  String get batch15RemoveProvider =>
+      'Diese Zeile aus meiner Eingabe entfernen';
+
+  @override
+  String batch15TombstoneLabel(int rowNumber) {
+    return 'Zeile $rowNumber aus dieser Eingabe entfernt';
+  }
+
+  @override
+  String batch15UndoRemoval(int rowNumber) {
+    return 'Entfernen von Zeile $rowNumber rückgängig machen';
+  }
+
+  @override
+  String batch15FinalizeRemoval(int rowNumber) {
+    return 'Zeile $rowNumber endgültig aus dieser Eingabe löschen';
+  }
+
+  @override
+  String batch15TombstonedAnnouncement(String subtotal) {
+    return 'Zeile aus dieser Eingabe entfernt. Neuer vorläufiger Zwischensaldo: $subtotal.';
+  }
+
+  @override
+  String batch15RestoredAnnouncement(String subtotal) {
+    return 'Zeile in dieser Eingabe wiederhergestellt. Neuer vorläufiger Zwischensaldo: $subtotal.';
+  }
+
+  @override
+  String get batch15FinalizedAnnouncement =>
+      'Die entfernte Zeile wurde endgültig aus dieser Eingabe gelöscht.';
+
+  @override
+  String get batch15NoProvisionalSubtotal => 'kein positiver Betrag erfasst';
+
+  @override
+  String get batch15ResolveTombstoneError =>
+      'Mache das Entfernen rückgängig oder lösche diese Zeile endgültig, bevor du fortfährst.';
 }

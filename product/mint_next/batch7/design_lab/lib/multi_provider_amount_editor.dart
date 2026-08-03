@@ -36,6 +36,9 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
   final Map<String, TextEditingController> _amountControllers = {};
   final Map<String, FocusNode> _providerFocus = {};
   final Map<String, FocusNode> _amountFocus = {};
+  final Map<String, FocusNode> _undoFocus = {};
+  final Map<String, FocusNode> _finalizeFocus = {};
+  final Map<String, FocusNode> _restoredHeadingFocus = {};
   final FocusNode _reviewedFocus = FocusNode(
     debugLabel: 'all providers reviewed',
   );
@@ -51,6 +54,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
   bool _reviewedError = false;
   bool _emptyBeforeAddError = false;
   bool _capacityError = false;
+  String? _tombstoneErrorId;
   String? _removalAnnouncement;
 
   @override
@@ -91,6 +95,21 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
         row.id,
         () => FocusNode(debugLabel: 'amount ${row.id}'),
       );
+      _undoFocus.putIfAbsent(
+        row.id,
+        () => FocusNode(debugLabel: 'undo removal ${row.id}'),
+      );
+      _finalizeFocus.putIfAbsent(
+        row.id,
+        () => FocusNode(debugLabel: 'finalize removal ${row.id}'),
+      );
+      _restoredHeadingFocus.putIfAbsent(
+        row.id,
+        () => FocusNode(
+          debugLabel: 'restored provider heading ${row.id}',
+          skipTraversal: true,
+        ),
+      );
     }
   }
 
@@ -106,6 +125,15 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
       focus.dispose();
     }
     for (final focus in _amountFocus.values) {
+      focus.dispose();
+    }
+    for (final focus in _undoFocus.values) {
+      focus.dispose();
+    }
+    for (final focus in _finalizeFocus.values) {
+      focus.dispose();
+    }
+    for (final focus in _restoredHeadingFocus.values) {
       focus.dispose();
     }
     _reviewedFocus.dispose();
@@ -165,13 +193,66 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     });
   }
 
-  void _removeEmpty(String id) {
-    final removedIndex = widget.draft.rows.indexWhere((row) => row.id == id);
-    if (!widget.draft.removeEmptyProvider(id)) return;
+  void _remove(
+    MultiProviderAmountRow row,
+    MultiProviderRemoveToken removeToken,
+  ) {
+    final id = row.id;
+    final removedIndex = widget.draft.rows.indexWhere((item) => item.id == id);
+    final result = widget.draft.removeProvider(removeToken);
+    if (result == MultiProviderRemoveResult.stale ||
+        result == MultiProviderRemoveResult.minimumActive) {
+      return;
+    }
+    if (result == MultiProviderRemoveResult.tombstoned) {
+      setState(() {
+        _reviewedError = false;
+        _emptyBeforeAddError = false;
+        _capacityError = false;
+        _tombstoneErrorId = null;
+        final l10n = MintNextLocalizations.of(context);
+        _removalAnnouncement = l10n.batch15TombstonedAnnouncement(
+          _subtotalForAnnouncement(l10n),
+        );
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final rows = widget.draft.rows;
+        MultiProviderAmountRow? target;
+        for (var offset = 1; offset < rows.length; offset++) {
+          final candidateIndex = removedIndex + offset;
+          if (candidateIndex < rows.length && rows[candidateIndex].isActive) {
+            target = rows[candidateIndex];
+            break;
+          }
+        }
+        if (target == null) {
+          for (
+            var candidateIndex = removedIndex - 1;
+            candidateIndex >= 0;
+            candidateIndex--
+          ) {
+            if (rows[candidateIndex].isActive) {
+              target = rows[candidateIndex];
+              break;
+            }
+          }
+        }
+        if (target == null) {
+          _addProviderFocus.requestFocus();
+        } else {
+          _providerFocus[target.id]?.requestFocus();
+        }
+      });
+      return;
+    }
     _providerControllers.remove(id)?.dispose();
     _amountControllers.remove(id)?.dispose();
     _providerFocus.remove(id)?.dispose();
     _amountFocus.remove(id)?.dispose();
+    _undoFocus.remove(id)?.dispose();
+    _finalizeFocus.remove(id)?.dispose();
+    _restoredHeadingFocus.remove(id)?.dispose();
     setState(() {
       _providerErrors.remove(id);
       _amountErrors.remove(id);
@@ -185,15 +266,120 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final rows = widget.draft.rows;
-      if (rows.isEmpty) {
+      MultiProviderAmountRow? target;
+      for (
+        var candidateIndex = removedIndex;
+        candidateIndex < rows.length;
+        candidateIndex++
+      ) {
+        if (rows[candidateIndex].isActive) {
+          target = rows[candidateIndex];
+          break;
+        }
+      }
+      if (target == null) {
+        for (
+          var candidateIndex = removedIndex - 1;
+          candidateIndex >= 0;
+          candidateIndex--
+        ) {
+          if (rows[candidateIndex].isActive) {
+            target = rows[candidateIndex];
+            break;
+          }
+        }
+      }
+      if (target == null) {
+        _addProviderFocus.requestFocus();
+      } else {
+        _providerFocus[target.id]?.requestFocus();
+      }
+    });
+  }
+
+  void _undo(MultiProviderAmountRow row, MultiProviderUndoToken undoToken) {
+    if (widget.draft.undoRemoval(undoToken) !=
+        MultiProviderUndoResult.restored) {
+      return;
+    }
+    setState(() {
+      _reviewedError = false;
+      _tombstoneErrorId = null;
+      final l10n = MintNextLocalizations.of(context);
+      _removalAnnouncement = l10n.batch15RestoredAnnouncement(
+        _subtotalForAnnouncement(l10n),
+      );
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _restoredHeadingFocus[row.id]?.requestFocus();
+    });
+  }
+
+  void _finalize(
+    MultiProviderAmountRow row,
+    MultiProviderFinalizeToken finalizeToken,
+  ) {
+    final id = row.id;
+    final index = widget.draft.rows.indexOf(row);
+    String? targetId;
+    final before = widget.draft.rows;
+    for (
+      var candidateIndex = index + 1;
+      candidateIndex < before.length;
+      candidateIndex++
+    ) {
+      if (before[candidateIndex].isActive) {
+        targetId = before[candidateIndex].id;
+        break;
+      }
+    }
+    if (targetId == null) {
+      for (
+        var candidateIndex = index - 1;
+        candidateIndex >= 0;
+        candidateIndex--
+      ) {
+        if (before[candidateIndex].isActive) {
+          targetId = before[candidateIndex].id;
+          break;
+        }
+      }
+    }
+    if (widget.draft.finalizeRemoval(finalizeToken) !=
+        MultiProviderFinalizeResult.finalized) {
+      return;
+    }
+    _providerControllers.remove(id)?.dispose();
+    _amountControllers.remove(id)?.dispose();
+    _providerFocus.remove(id)?.dispose();
+    _amountFocus.remove(id)?.dispose();
+    _undoFocus.remove(id)?.dispose();
+    _finalizeFocus.remove(id)?.dispose();
+    _restoredHeadingFocus.remove(id)?.dispose();
+    setState(() {
+      _providerErrors.remove(id);
+      _amountErrors.remove(id);
+      _reviewedError = false;
+      _tombstoneErrorId = null;
+      _removalAnnouncement = MintNextLocalizations.of(
+        context,
+      ).batch15FinalizedAnnouncement;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (targetId == null) {
         _addProviderFocus.requestFocus();
         return;
       }
-      final targetIndex = removedIndex < rows.length
-          ? removedIndex
-          : rows.length - 1;
-      _providerFocus[rows[targetIndex].id]?.requestFocus();
+      _providerFocus[targetId]?.requestFocus();
     });
+  }
+
+  String _subtotalForAnnouncement(MintNextLocalizations l10n) {
+    final subtotal = widget.draft.provisionalSubtotalMinorUnits;
+    return subtotal == null
+        ? l10n.batch15NoProvisionalSubtotal
+        : _formatMinorUnits(subtotal, Localizations.localeOf(context));
   }
 
   void _continue() {
@@ -202,6 +388,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     String? firstProviderError;
     String? firstAmountError;
     for (final row in widget.draft.rows) {
+      if (!row.isActive) continue;
       final providerError = row.providerName.trim().isEmpty
           ? l10n.batch11ProviderNameEmpty
           : !row.hasSafeProviderName
@@ -227,6 +414,21 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     }
     if (firstAmountError != null) {
       _amountFocus[firstAmountError]?.requestFocus();
+      return;
+    }
+    MultiProviderAmountRow? firstTombstone;
+    for (final row in widget.draft.rows) {
+      if (!row.isActive) {
+        firstTombstone = row;
+        break;
+      }
+    }
+    if (firstTombstone != null) {
+      setState(() {
+        _reviewedError = false;
+        _tombstoneErrorId = firstTombstone!.id;
+      });
+      _undoFocus[firstTombstone.id]?.requestFocus();
       return;
     }
     if (widget.draft.aggregateOverflow) {
@@ -264,6 +466,52 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
           Builder(
             builder: (context) {
               final row = widget.draft.rows[index];
+              if (!row.isActive) {
+                final undoToken = row.undoToken!;
+                final finalizeToken = row.finalizeToken!;
+                return Semantics(
+                  key: ValueKey('group:provider_tombstone:${row.id}'),
+                  container: true,
+                  explicitChildNodes: true,
+                  label: l10n.batch15TombstoneLabel(index + 1),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ExcludeSemantics(
+                        child: Text(l10n.batch15TombstoneLabel(index + 1)),
+                      ),
+                      if (_tombstoneErrorId == row.id)
+                        Semantics(
+                          key: ValueKey('error:tombstone:${row.id}'),
+                          liveRegion: true,
+                          child: Text(l10n.batch15ResolveTombstoneError),
+                        ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 48,
+                        child: OutlinedButton(
+                          key: ValueKey('action:undo_removal:${row.id}'),
+                          focusNode: _undoFocus[row.id],
+                          onPressed: () => _undo(row, undoToken),
+                          child: Text(l10n.batch15UndoRemoval(index + 1)),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 48,
+                        child: TextButton(
+                          key: ValueKey('action:finalize_removal:${row.id}'),
+                          focusNode: _finalizeFocus[row.id],
+                          onPressed: () => _finalize(row, finalizeToken),
+                          child: Text(l10n.batch15FinalizeRemoval(index + 1)),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              final editToken = row.editToken;
+              final removeToken = row.removeToken!;
               final providerError =
                   _providerErrors[row.id] ??
                   (duplicates.contains(row.id) ? l10n.batch14Duplicate : null);
@@ -271,14 +519,17 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
                 key: ValueKey('group:provider_row:${row.id}'),
                 container: true,
                 explicitChildNodes: true,
-                label: l10n.batch14ProviderRowLabel(index + 1),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ExcludeSemantics(
-                      child: Text(
-                        l10n.batch14ProviderRowLabel(index + 1),
-                        style: Theme.of(context).textTheme.titleMedium,
+                    Semantics(
+                      header: true,
+                      child: Focus(
+                        focusNode: _restoredHeadingFocus[row.id],
+                        child: Text(
+                          l10n.batch14ProviderRowLabel(index + 1),
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -292,14 +543,22 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
                         errorText: providerError,
                         border: const OutlineInputBorder(),
                       ),
-                      onChanged: (value) => setState(() {
-                        widget.draft.updateProviderName(row.id, value);
-                        for (final id in _providerErrors.keys.toList()) {
-                          _providerErrors[id] = null;
+                      onChanged: (value) {
+                        if (!widget.draft.updateProviderName(
+                          editToken,
+                          value,
+                        )) {
+                          return;
                         }
-                        _reviewedError = false;
-                        _removalAnnouncement = null;
-                      }),
+                        setState(() {
+                          for (final id in _providerErrors.keys.toList()) {
+                            _providerErrors[id] = null;
+                          }
+                          _reviewedError = false;
+                          _tombstoneErrorId = null;
+                          _removalAnnouncement = null;
+                        });
+                      },
                     ),
                     const SizedBox(height: 10),
                     TextFormField(
@@ -317,24 +576,37 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
                         errorText: _amountErrors[row.id],
                         border: const OutlineInputBorder(),
                       ),
-                      onChanged: (value) => setState(() {
-                        widget.draft.updateAmount(
-                          row.id,
+                      onChanged: (value) {
+                        if (!widget.draft.updateAmount(
+                          editToken,
                           value,
                           locale: Localizations.localeOf(context).languageCode,
-                        );
-                        _amountErrors[row.id] = null;
-                        _reviewedError = false;
-                        _removalAnnouncement = null;
-                      }),
+                        )) {
+                          return;
+                        }
+                        setState(() {
+                          _amountErrors[row.id] = null;
+                          _reviewedError = false;
+                          _tombstoneErrorId = null;
+                          _removalAnnouncement = null;
+                        });
+                      },
                     ),
-                    if (widget.draft.rows.length > 1 && row.isCompletelyEmpty)
+                    if (widget.draft.activeRowCount > 1)
                       Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton(
-                          key: ValueKey('action:remove_empty:${row.id}'),
-                          onPressed: () => _removeEmpty(row.id),
-                          child: Text(l10n.batch14RemoveEmpty),
+                          key: ValueKey(
+                            row.isCompletelyEmpty
+                                ? 'action:remove_empty:${row.id}'
+                                : 'action:remove_provider:${row.id}',
+                          ),
+                          onPressed: () => _remove(row, removeToken),
+                          child: Text(
+                            row.isCompletelyEmpty
+                                ? l10n.batch14RemoveEmpty
+                                : l10n.batch15RemoveProvider,
+                          ),
                         ),
                       ),
                   ],
@@ -407,7 +679,11 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
               _continue();
               return;
             }
-            setState(() => _reviewedError = false);
+            setState(() {
+              _reviewedError = false;
+              _removalAnnouncement = null;
+              _tombstoneErrorId = null;
+            });
           },
         ),
         const SizedBox(height: 12),

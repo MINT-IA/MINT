@@ -498,4 +498,43 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
   @override
   String get batch14ProviderCapacity =>
       'This entry accepts at most 50 providers. Review the list before continuing.';
+
+  @override
+  String get batch15RemoveProvider => 'Remove this row from my entry';
+
+  @override
+  String batch15TombstoneLabel(int rowNumber) {
+    return 'Row $rowNumber removed from this entry';
+  }
+
+  @override
+  String batch15UndoRemoval(int rowNumber) {
+    return 'Undo removal of row $rowNumber';
+  }
+
+  @override
+  String batch15FinalizeRemoval(int rowNumber) {
+    return 'Permanently erase row $rowNumber from this entry';
+  }
+
+  @override
+  String batch15TombstonedAnnouncement(String subtotal) {
+    return 'Row removed from this entry. New provisional subtotal: $subtotal.';
+  }
+
+  @override
+  String batch15RestoredAnnouncement(String subtotal) {
+    return 'Row restored in this entry. New provisional subtotal: $subtotal.';
+  }
+
+  @override
+  String get batch15FinalizedAnnouncement =>
+      'The removed row has been permanently erased from this entry.';
+
+  @override
+  String get batch15NoProvisionalSubtotal => 'no positive amount entered';
+
+  @override
+  String get batch15ResolveTombstoneError =>
+      'Undo the removal or permanently erase this row before continuing.';
 }

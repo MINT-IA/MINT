@@ -503,4 +503,44 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
   @override
   String get batch14ProviderCapacity =>
       'Questa schermata accetta al massimo 50 fornitori. Controlla l’elenco prima di continuare.';
+
+  @override
+  String get batch15RemoveProvider =>
+      'Rimuovi questa riga dalla mia registrazione';
+
+  @override
+  String batch15TombstoneLabel(int rowNumber) {
+    return 'Riga $rowNumber rimossa da questa registrazione';
+  }
+
+  @override
+  String batch15UndoRemoval(int rowNumber) {
+    return 'Annulla la rimozione della riga $rowNumber';
+  }
+
+  @override
+  String batch15FinalizeRemoval(int rowNumber) {
+    return 'Elimina definitivamente la riga $rowNumber da questa registrazione';
+  }
+
+  @override
+  String batch15TombstonedAnnouncement(String subtotal) {
+    return 'Riga rimossa da questa registrazione. Nuovo subtotale provvisorio: $subtotal.';
+  }
+
+  @override
+  String batch15RestoredAnnouncement(String subtotal) {
+    return 'Riga ripristinata in questa registrazione. Nuovo subtotale provvisorio: $subtotal.';
+  }
+
+  @override
+  String get batch15FinalizedAnnouncement =>
+      'La riga rimossa è stata eliminata definitivamente da questa registrazione.';
+
+  @override
+  String get batch15NoProvisionalSubtotal => 'nessun importo positivo inserito';
+
+  @override
+  String get batch15ResolveTombstoneError =>
+      'Annulla la rimozione o elimina definitivamente questa riga prima di continuare.';
 }

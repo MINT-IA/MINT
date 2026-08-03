@@ -278,5 +278,49 @@
         "type": "int"
       }
     }
+  },
+  "batch15RemoveProvider": "Rimuovi questa riga dalla mia registrazione",
+  "batch15TombstoneLabel": "Riga {rowNumber} rimossa da questa registrazione",
+  "batch15UndoRemoval": "Annulla la rimozione della riga {rowNumber}",
+  "batch15FinalizeRemoval": "Elimina definitivamente la riga {rowNumber} da questa registrazione",
+  "batch15TombstonedAnnouncement": "Riga rimossa da questa registrazione. Nuovo subtotale provvisorio: {subtotal}.",
+  "batch15RestoredAnnouncement": "Riga ripristinata in questa registrazione. Nuovo subtotale provvisorio: {subtotal}.",
+  "batch15FinalizedAnnouncement": "La riga rimossa è stata eliminata definitivamente da questa registrazione.",
+  "batch15NoProvisionalSubtotal": "nessun importo positivo inserito",
+  "batch15ResolveTombstoneError": "Annulla la rimozione o elimina definitivamente questa riga prima di continuare.",
+  "@batch15TombstoneLabel": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15UndoRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15FinalizeRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15TombstonedAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch15RestoredAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -249,6 +249,7 @@ ALLOW = {
     "product/mint_next/batch7/design_lab/test/multi_provider_amount_draft_test.dart",
     "product/mint_next/batch7/design_lab/test/design_lab_multi_provider_runtime_test.dart",
     "tools/checks/mint_next_batch14_unicode_data.py",
+    "tools/checks/mint_next_batch15_tombstone_runtime_guard.py",
     "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
     "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",
     "AGENTS.md",

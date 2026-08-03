@@ -278,5 +278,49 @@
         "type": "int"
       }
     }
+  },
+  "batch15RemoveProvider": "Remove this row from my entry",
+  "batch15TombstoneLabel": "Row {rowNumber} removed from this entry",
+  "batch15UndoRemoval": "Undo removal of row {rowNumber}",
+  "batch15FinalizeRemoval": "Permanently erase row {rowNumber} from this entry",
+  "batch15TombstonedAnnouncement": "Row removed from this entry. New provisional subtotal: {subtotal}.",
+  "batch15RestoredAnnouncement": "Row restored in this entry. New provisional subtotal: {subtotal}.",
+  "batch15FinalizedAnnouncement": "The removed row has been permanently erased from this entry.",
+  "batch15NoProvisionalSubtotal": "no positive amount entered",
+  "batch15ResolveTombstoneError": "Undo the removal or permanently erase this row before continuing.",
+  "@batch15TombstoneLabel": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15UndoRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15FinalizeRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15TombstonedAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch15RestoredAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
   }
 }

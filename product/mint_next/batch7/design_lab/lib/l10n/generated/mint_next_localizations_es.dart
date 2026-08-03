@@ -499,4 +499,44 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
   @override
   String get batch14ProviderCapacity =>
       'Esta entrada admite como máximo 50 proveedores. Revisa la lista antes de continuar.';
+
+  @override
+  String get batch15RemoveProvider => 'Quitar esta fila de mi registro';
+
+  @override
+  String batch15TombstoneLabel(int rowNumber) {
+    return 'Fila $rowNumber retirada de este registro';
+  }
+
+  @override
+  String batch15UndoRemoval(int rowNumber) {
+    return 'Deshacer la retirada de la fila $rowNumber';
+  }
+
+  @override
+  String batch15FinalizeRemoval(int rowNumber) {
+    return 'Borrar definitivamente la fila $rowNumber de este registro';
+  }
+
+  @override
+  String batch15TombstonedAnnouncement(String subtotal) {
+    return 'Fila retirada de este registro. Nuevo subtotal provisional: $subtotal.';
+  }
+
+  @override
+  String batch15RestoredAnnouncement(String subtotal) {
+    return 'Fila restaurada en este registro. Nuevo subtotal provisional: $subtotal.';
+  }
+
+  @override
+  String get batch15FinalizedAnnouncement =>
+      'La fila retirada se ha borrado definitivamente de este registro.';
+
+  @override
+  String get batch15NoProvisionalSubtotal =>
+      'ningún importe positivo introducido';
+
+  @override
+  String get batch15ResolveTombstoneError =>
+      'Deshaz la retirada o borra definitivamente esta fila antes de continuar.';
 }

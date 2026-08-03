@@ -278,5 +278,49 @@
         "type": "int"
       }
     }
+  },
+  "batch15RemoveProvider": "Retirer cette ligne de ma saisie",
+  "batch15TombstoneLabel": "Ligne {rowNumber} retirée de cette saisie",
+  "batch15UndoRemoval": "Annuler le retrait de la ligne {rowNumber}",
+  "batch15FinalizeRemoval": "Effacer définitivement la ligne {rowNumber} de cette saisie",
+  "batch15TombstonedAnnouncement": "Ligne retirée de cette saisie. Nouveau sous-total provisoire : {subtotal}.",
+  "batch15RestoredAnnouncement": "Ligne restaurée dans cette saisie. Nouveau sous-total provisoire : {subtotal}.",
+  "batch15FinalizedAnnouncement": "La ligne supprimée a été définitivement effacée de cette saisie.",
+  "batch15NoProvisionalSubtotal": "aucun montant positif saisi",
+  "batch15ResolveTombstoneError": "Annule le retrait ou efface définitivement cette ligne avant de continuer.",
+  "@batch15TombstoneLabel": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15UndoRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15FinalizeRemoval": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch15TombstonedAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
+  },
+  "@batch15RestoredAnnouncement": {
+    "placeholders": {
+      "subtotal": {
+        "type": "String"
+      }
+    }
   }
 }
