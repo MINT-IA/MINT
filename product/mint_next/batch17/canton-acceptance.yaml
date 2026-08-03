@@ -1,0 +1,106 @@
+schema_version: 1
+status: candidate_unaccepted_written_contract_runtime_unimplemented
+current_verdict: PENDING_INDEPENDENT_ROASTS
+current_evidence:
+  written_contract_complete: true
+  scope_guard_complete: false
+  runtime_implemented: false
+  runtime_tests_complete: false
+  user_validation_complete: false
+  product_promotion: forbidden
+  six_locale_semantic_review_complete: false
+  official_source_content_pinned: false
+reviews:
+  ux_navigation_accessibility:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  swiss_privacy_provenance:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  adversarial_mechanical:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+mechanical_binding:
+  scope_guard: tools/checks/mint_next_batch17_canton_scope_guard.py
+  scope_guard_tests: tools/checks/tests/test_mint_next_batch17_canton_scope_guard.py
+  lefthook_key: mint-next-batch17-canton-scope-guard
+  workflow: .github/workflows/mint-next-batch17-canton-contract.yml
+  artifact_sha256:
+    scope: 8e6f6b66b5255373c1a08371f210d37ba2a6d14cb66780bddc8c11c66a4663f3
+    sources: a935f62d840604b2fbe74e543a750d79a74553c9f5495811af883412a279a2f3
+    legacy: 2946509ca4fb52547ba2bf22b5e2fb543a01b4f17548f41622491a38456d8bca
+    copy: 3c6d19a37dee264bf5bd0b9e80151eac2796b6a517ddd82a96feb397c49050fe
+    source_receipt: 18ed0b98d5689d084ce5b9e67d50d02a0c0f6ec7cfbcca156e61a809facba4ff
+    parent_navigation: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+  positive_tests:
+  - test_current_candidate_contract_passes_before_release_acceptance
+  - test_release_gate_rejects_unaccepted_candidate
+  hostile_tests:
+  - test_auto_route_is_rejected
+  - test_back_origin_is_rejected_when_collapsed
+  - test_calculation_is_rejected
+  - test_ci_hash_in_unused_comment_is_rejected
+  - test_commune_collection_is_rejected
+  - test_commune_not_cleared_on_change_is_rejected
+  - test_compact_accessibility_regression_is_rejected
+  - test_complex_case_gate_removal_is_rejected
+  - test_controller_notice_gate_removal_is_rejected
+  - test_copy_byte_drift_is_rejected_by_digest
+  - test_crossed_origin_states_are_rejected
+  - test_default_canton_is_rejected
+  - test_duplicate_yaml_key_is_rejected
+  - test_free_text_is_rejected
+  - test_generic_reference_personal_data_is_rejected
+  - test_honest_copy_rebind_invalidates_prior_review_receipts
+  - test_inference_channel_is_rejected
+  - test_legacy_byte_drift_is_rejected_by_digest
+  - test_legacy_fallback_is_rejected
+  - test_locale_payload_omission_is_rejected
+  - test_localized_canton_label_omission_is_rejected
+  - test_localized_order_swap_is_rejected
+  - test_no_contribution_entry_is_rejected_when_removed
+  - test_nonzero_roast_is_rejected
+  - test_official_source_url_drift_is_rejected
+  - test_personal_storage_is_rejected
+  - test_privacy_logging_is_rejected
+  - test_purge_event_narrowing_is_rejected
+  - test_rehashed_parent_continue_guard_removal_is_rejected_semantically
+  - test_rehashed_parent_safe_exit_removal_is_rejected_semantically
+  - test_removed_ci_command_is_rejected
+  - test_removed_lefthook_binding_is_rejected
+  - test_runtime_evidence_overclaim_is_rejected
+  - test_runtime_promotion_is_rejected
+  - test_safe_exit_action_is_rejected_when_removed
+  - test_scope_byte_drift_is_rejected_by_digest
+  - test_search_control_removal_is_rejected
+  - test_search_privacy_widening_is_rejected
+  - test_six_locale_semantics_are_rejected_when_narrowed
+  - test_source_becoming_advice_authority_is_rejected
+  - test_source_receipt_digest_drift_is_rejected
+  - test_sources_byte_drift_is_rejected_by_digest
+  - test_stale_callback_protection_is_rejected
+  - test_unknown_knowledge_deficit_is_rejected
+  - test_unknown_personal_result_is_rejected
+  - test_wrong_canton_set_is_rejected
+  normalized_workflow_sha256: 3715fb2d56d6cfb2d9309c956bd48dae15dd5b32244cdcb8251bc65db695d067
+  candidate_review_payload_sha256: d064cdc88e5180203d055ae5b86362898520664d9b517b09cffb11593dec6d70
+accepted_scope_only:
+- written_fact_canton_semantics
+- written_navigation_and_lifecycle
+- written_six_locale_copy_and_intents
+- official_claim_review_receipt_with_source_content_unpinned
+- bounded_legacy_inventory
+not_accepted:
+- flutter_runtime
+- commune_collection
+- tax_calculation
+- persistence
+- product_route
+- user_validation
+next_gate: independent_contract_roasts_then_candidate_digest_binding

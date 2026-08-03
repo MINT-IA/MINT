@@ -1,0 +1,350 @@
+schema_version: 1
+status: candidate_written_contract_runtime_forbidden
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_and_numeracy_literacy
+authority:
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  parent_runtime_acceptance: product/mint_next/batch16/runtime-navigation-acceptance.yaml
+  runtime_change: forbidden
+  product_promotion: forbidden
+  source_of_truth_rule: this_contract_may_refine_fact_canton_but_may_not_add_or_remove_batch6_routes
+  parent_navigation_sha256: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+slice:
+  entry_preconditions:
+    shared:
+    - tax_year_explicitly_selected
+    - lpp_affiliation_yes
+    discriminated_origins:
+      fact_contribution:
+        contribution_status: 'no'
+        contributed_amount: absent_or_cleared
+      fact_contributed_amount:
+        contribution_status: 'yes'
+        ordinary_contribution_total: atomically_committed_complete_positive
+    crossed_origin_states: forbidden
+  implemented_nodes:
+  - fact_canton
+  help_nodes:
+  - canton_unknown_help
+  boundary_nodes:
+  - fact_commune
+  - education_explanation
+  locales:
+  - fr
+  - en
+  - de
+  - it
+  - es
+  - pt
+  routes:
+    selected: fact_commune
+    unknown: canton_unknown_help
+    unknown_education_only: education_explanation
+human_outcome:
+  question: Dans quel canton es-tu imposé pour l’année fiscale choisie ?
+  why_now: Le canton permet de sélectionner la composante cantonale officielle pour
+    le cas fiscal supporté; aucun résultat fiscal personnel ne peut être affiché ici.
+  must_understand:
+  - MINT demande le canton fiscal applicable à l’année choisie, pas la localisation
+    actuelle de l’appareil.
+  - Le choix peut être corrigé avant tout calcul.
+  - Si la personne ne sait pas, elle obtient une explication générale sans montant
+    personnel.
+  - Un déménagement ou une situation intercantonale, internationale ou à la source
+    reste hors du cas simple et mène au mode éducatif sans montant personnel.
+  next_small_action:
+    selected: Continuer vers la collecte distincte de la commune.
+    unknown: Comprendre où vérifier ou continuer en mode éducatif.
+fact_contract:
+  id: tax_applicable_canton_for_selected_tax_year
+  tax_year_ref: tax_year
+  provenance: explicit_user_declaration
+  storage: ephemeral
+  initial_state: unset
+  states:
+  - unset
+  - selected
+  - unknown
+  allowed_codes:
+  - AG
+  - AI
+  - AR
+  - BE
+  - BL
+  - BS
+  - FR
+  - GE
+  - GL
+  - GR
+  - JU
+  - LU
+  - NE
+  - NW
+  - OW
+  - SG
+  - SH
+  - SO
+  - SZ
+  - TG
+  - TI
+  - UR
+  - VD
+  - VS
+  - ZG
+  - ZH
+  selected_value_shape: one_exact_uppercase_code_from_allowed_codes
+  unknown_value_shape: explicit_unknown_without_code
+  never_derive_from:
+  - gps_or_device_location
+  - ip_address
+  - postal_address_or_postcode
+  - commune
+  - app_language_or_locale
+  - profile_or_previous_answer
+  - employer_or_provider_location
+  - device_region_or_timezone
+  forbidden_fallbacks:
+  - ZH
+  - first_list_item
+  - most_populous_canton
+  - national_average
+  - marginal_rate_30_percent
+  supported_case: one_ordinary_swiss_tax_domicile_for_the_selected_year_without_intercantonal_or_international_allocation
+  complex_or_uncertain_case: use_explicit_unknown_control_then_education_only_never_force_a_code
+  unknown_state_semantics: does_not_assert_ignorance_also_safe_unsupported_or_complex_escape_never_persisted_or_analysed_as_user_knowledge_deficit
+input_contract:
+  presentation: finite_single_choice_list
+  free_text: false
+  selected_code_visible_with_localized_canton_name: true
+  unknown_is_explicit_control_not_blank_value: true
+  no_preselection: true
+  pattern: scrollable_localized_alphabetical_list_with_accessible_search
+  selection_commits_ephemeral_fact_but_does_not_route: true
+  search_behavior:
+    query_storage: ephemeral_potentially_personal_uncommitted_ui_input
+    clear_behavior: restores_full_list_and_selection
+    no_match: named_empty_state_with_clear_search_action
+    selection_remains_visible_after_query_clear: true
+    maximum_code_points: 64
+    unicode_normalization: NFKC
+    matching: local_casefold_plus_diacritic_fold_prefix_or_substring_against_26_reviewed_labels_only_raw_query_preserved
+    network_logging_analytics_platform_learning_autofill_clipboard: forbidden
+    purge: same_30_min_leave_kill_and_restart_contract_as_personal_facts
+  continue_position: persistent_after_choice_and_reachable_without_obscuring_last_option
+  search_required_for_runtime: true
+node_contracts:
+  fact_canton:
+    required_copy_intents:
+    - selected_tax_year_not_current_device_location
+    - tax_applicable_canton_not_residence_guess
+    - commune_is_a_later_distinct_question
+    - no_tax_result_has_been_calculated
+    - complex_or_moved_case_uses_unknown_education_only
+    controls:
+      choose_canton:
+        operation: atomically_commit_one_allowed_ephemeral_code_without_routing
+      choose_unknown:
+        operation: commit_unknown_and_route_to_help_including_complex_or_uncertain_case
+      continue:
+        to: fact_commune
+        guard: selected_allowed_code
+        operation: validate_active_generation_and_selected_allowed_code_then_route_only
+      back:
+        operation: exact_history_back
+      open_safe_exit:
+        overlay: safe_exit
+      update_search_query:
+        operation: normalize_bound_and_filter_local_26_labels_without_route
+        storage: ephemeral_potentially_personal
+      clear_search:
+        operation: clear_query_restore_full_list_selection_and_search_focus
+    inline_errors:
+      no_selection: Choisis un canton ou « Je ne sais pas encore ».
+      invalid_or_stale_selection: Ce canton n’est plus sélectionné. Choisis-le à nouveau.
+    forbidden:
+    - default_or_recommended_canton
+    - location_permission
+    - automatic_route_after_selection
+    - tax_amount_rate_range_or_saving
+    - commune_input
+    - account_creation
+    copy_source: product/mint_next/batch17/six-locale-copy.yaml#copy.{locale}.fact_*
+  canton_unknown_help:
+    emotional_contract: not_knowing_is_valid_and_never_becomes_a_default
+    controls:
+      continue_education_only:
+        to: education_explanation
+        mode: general_education_no_personal_amount
+      back:
+        operation: exact_history_back_and_clear_unknown
+        to: fact_canton
+        focus: unknown_control
+      open_safe_exit:
+        overlay: safe_exit
+    forbidden:
+    - personal_result
+    - national_average
+    - inferred_canton
+    - commune_collection
+    - dead_end
+    copy_source: product/mint_next/batch17/six-locale-copy.yaml#copy.{locale}.help_*
+mutation_contract:
+  select_or_change_canton:
+    atomic_order:
+    - validate_active_generation_and_allowed_code
+    - if_same_code_stop_without_mutation
+    - invalidate_downstream_result
+    - clear_commune
+    - replace_canton_with_explicit_selected_code
+    - render_selected_state_without_routing
+    failure: no_partial_mutation
+    same_selected_code: idempotent_no_op_preserve_commune_and_result
+  choose_unknown:
+    atomic_order:
+    - validate_active_generation
+    - invalidate_downstream_result
+    - clear_commune
+    - replace_canton_with_unknown
+    - route_to_canton_unknown_help
+    failure: no_partial_mutation
+  tax_year_change:
+    atomic_order:
+    - invalidate_generation
+    - clear_canton
+    - clear_commune
+    - clear_downstream_result
+    - return_to_tax_year_before_render
+navigation_contract:
+  explicit_continue_required: true
+  back:
+    fact_canton: exact_runtime_origin_fact_contribution_or_fact_contributed_amount
+    canton_unknown_help: fact_canton_with_unknown_control_focus
+    fact_commune_boundary: fact_canton_with_selected_code_restored
+  system_back_equals_visible_back: true
+  safe_exit:
+    resume:
+      operation: close
+      system_back: same
+      restores: exact_trigger_focus_scroll_and_selection
+    keep_local_reference:
+      to: reference_saved
+      persistence: local_non_sensitive_allowlist_only
+      generic_reference_allowlist:
+      - journey_id
+      - generic_reference_id
+      - saved_at
+      personal_canton_commune_result_or_search_query: forbidden
+    leave_without_saving:
+      to: dismissed
+      persistence: clear_ephemeral_and_session_result
+  repeated_continue: idempotent_single_route_without_second_write_clear_or_invalidation
+  focus_after_inline_error: canton_choice_group
+  boundary_receipts:
+    fact_commune:
+      mode: non_collecting_boundary_in_batch17
+      arrival_focus: heading
+      visible_controls:
+      - back
+      - open_safe_exit
+      forbidden:
+      - commune_input
+      - calculation
+      - personal_result
+      back: fact_canton_with_selected_code_restored
+    education_explanation:
+      mode: existing_general_education_boundary
+      arrival_focus: heading
+      personal_amount: forbidden
+      back: exact_history_to_canton_unknown_help
+      safe_exit: canonical_overlay
+lifecycle_contract:
+  generation_token_required: true
+  stale_callback: ignored_without_mutation_or_navigation
+  background_resume_before_ttl: restore_node_selection_focus_scroll_and_origin
+  ttl_expiry: purge_and_restart_before_render
+  app_kill: purge_and_restart
+  account_auth_or_network_dependency: forbidden
+  ttl_minutes_sliding: 30
+  tax_year_change: purge_before_render
+  education_subgraph_reversible_return: preserve_unknown_origin_and_history_until_irreversible_exit
+  exact_purge_events:
+  - safe_exit.leave_without_saving
+  - reference_saved.on_enter_after_non_sensitive_allowlist_copy
+  - ttl_expiry
+  - app_kill
+  - tax_year_change
+privacy_contract:
+  storage: ephemeral_local_only
+  network: forbidden
+  logs: forbidden
+  analytics: forbidden
+  crash_breadcrumb_values: forbidden
+  screenshots_or_recording: not_created_by_mint
+  purge_fields:
+  - canton
+  - commune
+  - downstream_result
+  platform_keyboard_learning: forbidden
+  autofill: forbidden
+  clipboard: forbidden
+  session_replay: forbidden
+  crash_breadcrumbs: forbidden
+  screen_capture: mint_does_not_create_or_transmit_and_does_not_claim_to_block_os_or_user
+  regulatory_boundary_ref: product/mint_next/batch4/regulatory_boundaries.yaml
+  controller_privacy_notice_ref: required_before_runtime_not_claimed_by_written_contract
+  personal_fact_persistence: forbidden
+  generic_reference_persistence: exact_non_sensitive_allowlist_only
+  personal_fact_and_search_query_persistence: forbidden
+six_locale_semantic_contract:
+  locales:
+  - fr
+  - en
+  - de
+  - it
+  - es
+  - pt
+  every_locale_must_distinguish:
+  - tax_applicable_canton_for_selected_year_not_device_location
+  - canton_and_commune_are_distinct_facts
+  - unknown_never_means_Zurich_or_average
+  - no_personal_tax_result_exists_at_this_step
+  - choice_is_ephemeral_and_can_be_corrected
+  semantic_human_review_required: true
+  key_parity_alone_is_insufficient: true
+  copy_fixture: product/mint_next/batch17/six-locale-copy.yaml
+  all_visible_copy_errors_accessibility_and_placeholders_required: true
+accessibility_contract:
+  list_role: single_select_group
+  group_name_includes_selected_tax_year: true
+  each_option_name: localized_full_canton_name_primary_code_internal_not_repeated_to_screen_reader
+  selected_state_announced: true
+  unknown_is_peer_control: true
+  continue_disabled_reason_visible_and_announced: true
+  minimum_target_size_points: 48
+  keyboard_and_switch_navigation: deterministic_visual_order
+  focus_restoration: exact_trigger_or_choice_group
+  compact_proof: 320x700_logical_px_at_text_scale_2_no_overflow_clip_or_unreachable_action
+  list_interaction:
+    localized_alphabetical_order: true
+    selected_option_announced_and_scrolled_visible: true
+    search_result_count_announced: true
+    first_middle_last_and_no_match_cases_required: true
+scope_exclusions:
+- flutter_runtime
+- commune_collection_or_dataset
+- tax_calculation_or_personal_result
+- persistence_backend_or_api
+- bank_insurance_pension_avs_or_tax_integration
+- location_or_address_lookup
+- public_product_route
+- user_validation
+future_runtime_gate:
+  requires:
+  - failing_runtime_tests_first
+  - hidden_design_lab_only
+  - six_runtime_locales
+  - compact_320x700_text_scale_2_proof
+  - accessibility_proof
+  - privacy_network_log_proof
+  - zero_p1_p2_p3_roasts
+  product_promotion_after_runtime: separately_forbidden_until_named_gate

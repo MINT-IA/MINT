@@ -1,0 +1,45 @@
+schema_version: 1
+reviewed_at: '2026-08-03'
+source_repo: /Users/julienbattaglia/Desktop/MINT.nosync
+policy: legacy_is_read_only_library_never_authority
+scope: fact_canton_written_contract
+candidates:
+  - path: apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart
+    symbol: _CantonStep
+    decision: adapt_interaction_lessons_only
+    score: 6
+    keep:
+      - finite_26_canton_choice
+      - explicit_selected_state
+      - accessible_choice_semantics
+    reject:
+      - onboarding_coupling
+      - immediate_profile_persistence
+      - any_automatic_progression
+  - path: apps/mobile/lib/models/coach_profile.dart
+    symbol: canton_and_commune_keys
+    decision: defer_canonical_data_mapping
+    score: 4
+    keep: [distinct_canton_and_commune_fact_names]
+    reject: [provider_coupling_for_new_ephemeral_slice, missing_value_fallback]
+  - path: apps/mobile/lib/widgets/coach/chat_inline_inputs.dart
+    symbol: ChatCantonPicker
+    decision: reject_widget
+    score: 3
+    reasons: [duplicate_choice_surface, chat_route_coupling, no_batch17_lifecycle_proof]
+  - path: apps/mobile/lib/services/financial_core/canton_utils.dart
+    symbol: canton_normalization_and_rate_fallbacks
+    decision: reject_fallbacks_defer_validated_code_mapping
+    score: 2
+    reasons: [silent_ZH_fallback_risk, approximate_or_default_rate_is_not_fact_collection]
+  - path: apps/mobile/assets/data/communes.json
+    symbol: commune_dataset
+    decision: defer_out_of_scope
+    score: 0
+    reasons: [commune_is_boundary_only, mobile_and_backend_copies_diverge]
+summary:
+  directly_reusable_widgets: 0
+  canonical_interaction_lessons: 3
+  silent_default_or_rate_fallback_reusable: false
+  commune_dataset_reusable_in_batch17: false
+  batch17_decision: write_the_fact_and_navigation_contract_before_any_runtime_harvest

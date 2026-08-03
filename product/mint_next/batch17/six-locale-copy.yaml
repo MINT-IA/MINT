@@ -1,0 +1,528 @@
+schema_version: 1
+status: candidate_semantic_copy_for_written_contract
+locales:
+- fr
+- en
+- de
+- it
+- es
+- pt
+required_placeholders:
+- taxYear
+copy:
+  fr:
+    question: Dans quel canton es-tu imposé pour {taxYear} ?
+    body: Choisis le canton fiscal applicable à ta situation fiscale simple pour {taxYear},
+      pas l’endroit où se trouve ton appareil aujourd’hui. La commune sera demandée
+      ensuite. Aucun résultat fiscal personnel n’est encore calculé à cette étape.
+      Si tu as déménagé ou si ta situation est plus complexe, choisis « Je ne sais
+      pas / ma situation est complexe ».
+    search_label: Rechercher un canton
+    search_empty: Aucun canton trouvé
+    clear_search: Effacer la recherche
+    unknown: Je ne sais pas / ma situation est complexe
+    continue: Continuer
+    privacy: Choix temporaire et non envoyé. Il est effacé quand tu quittes ce parcours,
+      même si tu conserves une référence générale, ou après 30 minutes d’inactivité.
+    error_no_selection: Choisis un canton ou « Je ne sais pas / ma situation est complexe
+      ».
+    error_stale: Ce canton n’est plus sélectionné. Choisis-le à nouveau.
+    help_title: Le canton est nécessaire pour cette estimation fiscale cantonale et
+      communale.
+    help_body: La charge fiscale varie selon le canton et la commune. Vérifie une
+      déclaration ou taxation disponible, ou demande à ton autorité fiscale. Si ta
+      situation est complexe, continue sans estimation personnelle.
+    education_only: Continuer sans estimation personnelle
+    fact_eyebrow: Simulation 3a · {taxYear}
+    help_eyebrow: Aucun souci
+    fact_back: Retour
+    help_back: Choisir mon canton
+  en:
+    question: In which canton are you taxed for {taxYear}?
+    body: Choose the tax canton that applies to your straightforward tax situation
+      for {taxYear}, not where your device is today. We will ask for the municipality
+      next. No personal tax result has been calculated at this step. If you moved
+      or your situation is more complex, choose “I’m not sure / my situation is complex”.
+    search_label: Search for a canton
+    search_empty: No canton found
+    clear_search: Clear search
+    unknown: I’m not sure / my situation is complex
+    continue: Continue
+    privacy: This choice is temporary and is not sent anywhere. It is deleted when
+      you leave this journey, even if you keep a general reference, or after 30 minutes
+      of inactivity.
+    error_no_selection: Choose a canton or “I’m not sure / my situation is complex”.
+    error_stale: This canton is no longer selected. Choose it again.
+    help_title: The canton is needed for this cantonal and municipal tax estimate.
+    help_body: Tax burden varies by canton and municipality. Check an available tax
+      return or assessment, or ask your tax authority. If your situation is complex,
+      continue without a personal estimate.
+    education_only: Continue without a personal estimate
+    fact_eyebrow: 3a simulation · {taxYear}
+    help_eyebrow: No problem
+    fact_back: Back
+    help_back: Choose my canton
+  de:
+    question: In welchem Kanton wirst du für {taxYear} besteuert?
+    body: Wähle den Steuerkanton, der für deine einfache Steuersituation in {taxYear}
+      gilt, nicht den heutigen Standort deines Geräts. Danach fragen wir nach der
+      Gemeinde. In diesem Schritt wurde noch kein persönliches Steuerergebnis berechnet.
+      Wenn du umgezogen bist oder deine Situation komplexer ist, wähle «Ich bin nicht
+      sicher / meine Situation ist komplex».
+    search_label: Kanton suchen
+    search_empty: Kein Kanton gefunden
+    clear_search: Suche löschen
+    unknown: Ich bin nicht sicher / meine Situation ist komplex
+    continue: Weiter
+    privacy: Diese Auswahl ist vorübergehend und wird nicht übermittelt. Sie wird
+      beim Verlassen dieses Ablaufs gelöscht, auch wenn du eine allgemeine Referenz
+      behältst, oder nach 30 Minuten Inaktivität.
+    error_no_selection: Wähle einen Kanton oder «Ich bin nicht sicher / meine Situation
+      ist komplex».
+    error_stale: Dieser Kanton ist nicht mehr ausgewählt. Wähle ihn erneut.
+    help_title: Der Kanton ist für diese kantonale und kommunale Steuerschätzung erforderlich.
+    help_body: Die Steuerbelastung variiert je nach Kanton und Gemeinde. Prüfe eine
+      vorhandene Steuererklärung oder Veranlagung oder frage deine Steuerbehörde.
+      Bei einer komplexen Situation kannst du ohne persönliche Schätzung fortfahren.
+    education_only: Ohne persönliche Schätzung fortfahren
+    fact_eyebrow: 3a-Simulation · {taxYear}
+    help_eyebrow: Kein Problem
+    fact_back: Zurück
+    help_back: Meinen Kanton wählen
+  it:
+    question: In quale Cantone sei tassato per il {taxYear}?
+    body: Scegli il cantone fiscale applicabile alla tua situazione fiscale semplice
+      per il {taxYear}, non il luogo in cui si trova oggi il tuo dispositivo. In seguito
+      chiederemo il comune. In questa fase non è ancora stato calcolato alcun risultato
+      fiscale personale. Se ti sei trasferito o la tua situazione è più complessa,
+      scegli «Non ne sono sicuro / la mia situazione è complessa».
+    search_label: Cerca un cantone
+    search_empty: Nessun cantone trovato
+    clear_search: Cancella la ricerca
+    unknown: Non ne sono sicuro / la mia situazione è complessa
+    continue: Continua
+    privacy: Questa scelta è temporanea e non viene trasmessa. È cancellata quando
+      lasci questo percorso, anche se conservi un riferimento generale, o dopo 30
+      minuti di inattività.
+    error_no_selection: Scegli un cantone o «Non ne sono sicuro / la mia situazione
+      è complessa».
+    error_stale: Questo cantone non è più selezionato. Selezionalo di nuovo.
+    help_title: Il cantone è necessario per questa stima delle imposte cantonali e
+      comunali.
+    help_body: L’onere fiscale varia secondo il cantone e il comune. Controlla una
+      dichiarazione o decisione di tassazione disponibile oppure chiedi all’autorità
+      fiscale. Se la situazione è complessa, continua senza una stima personale.
+    education_only: Continua senza una stima personale
+    fact_eyebrow: Simulazione 3a · {taxYear}
+    help_eyebrow: Nessun problema
+    fact_back: Indietro
+    help_back: Scegliere il mio cantone
+  es:
+    question: ¿En qué cantón tributas en {taxYear}?
+    body: Elige el cantón fiscal aplicable a tu situación fiscal sencilla en {taxYear},
+      no el lugar donde se encuentra hoy tu dispositivo. Después preguntaremos el
+      municipio. En este paso aún no se ha calculado ningún resultado fiscal personal.
+      Si te has mudado o tu situación es más compleja, elige «No estoy seguro / mi
+      situación es compleja».
+    search_label: Buscar un cantón
+    search_empty: No se ha encontrado ningún cantón
+    clear_search: Borrar búsqueda
+    unknown: No estoy seguro / mi situación es compleja
+    continue: Continuar
+    privacy: Esta elección es temporal y no se envía. Se elimina cuando abandonas
+      este recorrido, aunque conserves una referencia general, o tras 30 minutos de
+      inactividad.
+    error_no_selection: Elige un cantón o «No estoy seguro / mi situación es compleja».
+    error_stale: Este cantón ya no está seleccionado. Vuelve a elegirlo.
+    help_title: El cantón es necesario para esta estimación fiscal cantonal y municipal.
+    help_body: La carga fiscal varía según el cantón y el municipio. Consulta una
+      declaración o resolución fiscal disponible, o pregunta a tu autoridad fiscal.
+      Si tu situación es compleja, continúa sin una estimación personal.
+    education_only: Continuar sin una estimación personal
+    fact_eyebrow: Simulación 3a · {taxYear}
+    help_eyebrow: No pasa nada
+    fact_back: Volver
+    help_back: Elegir mi cantón
+  pt:
+    question: Em que cantão és tributado em {taxYear}?
+    body: Escolhe o cantão fiscal aplicável à tua situação fiscal simples em {taxYear},
+      não o local onde o teu dispositivo se encontra hoje. A seguir perguntaremos
+      o município. Nesta etapa ainda não foi calculado qualquer resultado fiscal pessoal.
+      Se mudaste de residência ou a tua situação é mais complexa, escolhe «Não tenho
+      a certeza / a minha situação é complexa».
+    search_label: Procurar um cantão
+    search_empty: Nenhum cantão encontrado
+    clear_search: Limpar pesquisa
+    unknown: Não tenho a certeza / a minha situação é complexa
+    continue: Continuar
+    privacy: Esta escolha é temporária e não é enviada. É eliminada quando sais deste
+      percurso, mesmo que guardes uma referência geral, ou após 30 minutos de inatividade.
+    error_no_selection: Escolhe um cantão ou «Não tenho a certeza / a minha situação
+      é complexa».
+    error_stale: Este cantão já não está selecionado. Escolhe-o novamente.
+    help_title: O cantão é necessário para esta estimativa fiscal cantonal e municipal.
+    help_body: A carga fiscal varia consoante o cantão e o município. Consulta uma
+      declaração ou decisão de tributação disponível, ou pergunta à autoridade fiscal.
+      Se a situação for complexa, continua sem uma estimativa pessoal.
+    education_only: Continuar sem uma estimativa pessoal
+    fact_eyebrow: Simulação 3a · {taxYear}
+    help_eyebrow: Sem problema
+    fact_back: Voltar
+    help_back: Escolher o meu cantão
+semantic_receipt:
+  required_keys:
+  - body
+  - clear_search
+  - continue
+  - education_only
+  - error_no_selection
+  - error_stale
+  - fact_back
+  - fact_eyebrow
+  - help_back
+  - help_body
+  - help_eyebrow
+  - help_title
+  - privacy
+  - question
+  - search_empty
+  - search_label
+  - unknown
+  forbidden_fallback_locale: true
+  identical_full_locale_payloads: forbidden
+  placeholder_parity_required: true
+  canton_labels: all_26_codes_have_distinct_reviewable_labels_in_every_locale_code_is_internal
+  semantic_assertions_per_locale:
+  - tax_applicable_canton_for_selected_year
+  - complex_or_moved_uses_unknown_education_only
+  - choice_not_sent
+  - ttl_30_minutes
+  - no_personal_estimate_when_unknown_or_complex
+  - canton_and_commune_are_distinct
+  human_review_receipts: required_in_acceptance_and_bound_to_review_payload
+canton_labels:
+  fr:
+    AG: Argovie
+    AI: Appenzell Rhodes-Intérieures
+    AR: Appenzell Rhodes-Extérieures
+    BE: Berne
+    BL: Bâle-Campagne
+    BS: Bâle-Ville
+    FR: Fribourg
+    GE: Genève
+    GL: Glaris
+    GR: Grisons
+    JU: Jura
+    LU: Lucerne
+    NE: Neuchâtel
+    NW: Nidwald
+    OW: Obwald
+    SG: Saint-Gall
+    SH: Schaffhouse
+    SO: Soleure
+    SZ: Schwytz
+    TG: Thurgovie
+    TI: Tessin
+    UR: Uri
+    VD: Vaud
+    VS: Valais
+    ZG: Zoug
+    ZH: Zurich
+  en:
+    AG: Aargau
+    AI: Appenzell Innerrhoden
+    AR: Appenzell Ausserrhoden
+    BE: Bern
+    BL: Basel-Landschaft
+    BS: Basel-Stadt
+    FR: Fribourg
+    GE: Geneva
+    GL: Glarus
+    GR: Graubünden
+    JU: Jura
+    LU: Lucerne
+    NE: Neuchâtel
+    NW: Nidwalden
+    OW: Obwalden
+    SG: St. Gallen
+    SH: Schaffhausen
+    SO: Solothurn
+    SZ: Schwyz
+    TG: Thurgau
+    TI: Ticino
+    UR: Uri
+    VD: Vaud
+    VS: Valais
+    ZG: Zug
+    ZH: Zurich
+  de:
+    AG: Aargau
+    AI: Appenzell Innerrhoden
+    AR: Appenzell Ausserrhoden
+    BE: Bern
+    BL: Basel-Landschaft
+    BS: Basel-Stadt
+    FR: Freiburg
+    GE: Genf
+    GL: Glarus
+    GR: Graubünden
+    JU: Jura
+    LU: Luzern
+    NE: Neuenburg
+    NW: Nidwalden
+    OW: Obwalden
+    SG: St. Gallen
+    SH: Schaffhausen
+    SO: Solothurn
+    SZ: Schwyz
+    TG: Thurgau
+    TI: Tessin
+    UR: Uri
+    VD: Waadt
+    VS: Wallis
+    ZG: Zug
+    ZH: Zürich
+  it:
+    AG: Argovia
+    AI: Appenzello Interno
+    AR: Appenzello Esterno
+    BE: Berna
+    BL: Basilea Campagna
+    BS: Basilea Città
+    FR: Friburgo
+    GE: Ginevra
+    GL: Glarona
+    GR: Grigioni
+    JU: Giura
+    LU: Lucerna
+    NE: Neuchâtel
+    NW: Nidvaldo
+    OW: Obvaldo
+    SG: San Gallo
+    SH: Sciaffusa
+    SO: Soletta
+    SZ: Svitto
+    TG: Turgovia
+    TI: Ticino
+    UR: Uri
+    VD: Vaud
+    VS: Vallese
+    ZG: Zugo
+    ZH: Zurigo
+  es:
+    AG: Argovia
+    AI: Appenzell Rodas Interiores
+    AR: Appenzell Rodas Exteriores
+    BE: Berna
+    BL: Basilea-Campiña
+    BS: Basilea-Ciudad
+    FR: Friburgo
+    GE: Ginebra
+    GL: Glaris
+    GR: Grisones
+    JU: Jura
+    LU: Lucerna
+    NE: Neuchâtel
+    NW: Nidwalden
+    OW: Obwalden
+    SG: San Galo
+    SH: Schaffhausen
+    SO: Soleura
+    SZ: Schwyz
+    TG: Turgovia
+    TI: Tesino
+    UR: Uri
+    VD: Vaud
+    VS: Valais
+    ZG: Zug
+    ZH: Zúrich
+  pt:
+    AG: Argóvia
+    AI: Appenzell Interior
+    AR: Appenzell Exterior
+    BE: Berna
+    BL: Basileia-Campo
+    BS: Basileia-Cidade
+    FR: Friburgo
+    GE: Genebra
+    GL: Glaris
+    GR: Grisões
+    JU: Jura
+    LU: Lucerna
+    NE: Neuchâtel
+    NW: Nidwalden
+    OW: Obwalden
+    SG: São Galo
+    SH: Schaffhausen
+    SO: Soleura
+    SZ: Schwyz
+    TG: Turgóvia
+    TI: Ticino
+    UR: Uri
+    VD: Vaud
+    VS: Valais
+    ZG: Zug
+    ZH: Zurique
+ordered_codes:
+  fr:
+  - AR
+  - AI
+  - AG
+  - BL
+  - BS
+  - BE
+  - FR
+  - GE
+  - GL
+  - GR
+  - JU
+  - LU
+  - NE
+  - NW
+  - OW
+  - SG
+  - SH
+  - SZ
+  - SO
+  - TI
+  - TG
+  - UR
+  - VS
+  - VD
+  - ZG
+  - ZH
+  en:
+  - AG
+  - AR
+  - AI
+  - BL
+  - BS
+  - BE
+  - FR
+  - GE
+  - GL
+  - GR
+  - JU
+  - LU
+  - NE
+  - NW
+  - OW
+  - SH
+  - SZ
+  - SO
+  - SG
+  - TG
+  - TI
+  - UR
+  - VS
+  - VD
+  - ZG
+  - ZH
+  de:
+  - AG
+  - AR
+  - AI
+  - BL
+  - BS
+  - BE
+  - FR
+  - GE
+  - GL
+  - GR
+  - JU
+  - LU
+  - NE
+  - NW
+  - OW
+  - SH
+  - SZ
+  - SO
+  - SG
+  - TI
+  - TG
+  - UR
+  - VD
+  - VS
+  - ZG
+  - ZH
+  it:
+  - AR
+  - AI
+  - AG
+  - BL
+  - BS
+  - BE
+  - FR
+  - GE
+  - JU
+  - GL
+  - GR
+  - LU
+  - NE
+  - NW
+  - OW
+  - SG
+  - SH
+  - SO
+  - SZ
+  - TI
+  - TG
+  - UR
+  - VS
+  - VD
+  - ZG
+  - ZH
+  es:
+  - AR
+  - AI
+  - AG
+  - BL
+  - BS
+  - BE
+  - FR
+  - GE
+  - GL
+  - GR
+  - JU
+  - LU
+  - NE
+  - NW
+  - OW
+  - SG
+  - SH
+  - SZ
+  - SO
+  - TI
+  - TG
+  - UR
+  - VS
+  - VD
+  - ZG
+  - ZH
+  pt:
+  - AR
+  - AI
+  - AG
+  - BL
+  - BS
+  - BE
+  - FR
+  - GE
+  - GL
+  - GR
+  - JU
+  - LU
+  - NE
+  - NW
+  - OW
+  - SG
+  - SH
+  - SZ
+  - SO
+  - TI
+  - TG
+  - UR
+  - VS
+  - VD
+  - ZG
+  - ZH

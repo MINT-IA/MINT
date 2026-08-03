@@ -276,6 +276,17 @@ ALLOW = {
     "tools/checks/mint_next_batch16_runtime_guard.py",
     "tools/checks/tests/test_mint_next_batch16_runtime_guard.py",
     ".github/workflows/mint-next-batch16-runtime-acceptance.yml",
+    # Batch 17: accepted written-only canton fact/navigation contract. Commune
+    # collection, calculation, persistence, runtime and product route remain out.
+    "product/mint_next/batch17/canton-scope.yaml",
+    "product/mint_next/batch17/official-sources.yaml",
+    "product/mint_next/batch17/source-receipt.txt",
+    "product/mint_next/batch17/legacy-inventory.yaml",
+    "product/mint_next/batch17/six-locale-copy.yaml",
+    "product/mint_next/batch17/canton-acceptance.yaml",
+    "tools/checks/mint_next_batch17_canton_scope_guard.py",
+    "tools/checks/tests/test_mint_next_batch17_canton_scope_guard.py",
+    ".github/workflows/mint-next-batch17-canton-contract.yml",
     "product/mint_next/batch7/design_lab/analysis_options.yaml",
     "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
     "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",

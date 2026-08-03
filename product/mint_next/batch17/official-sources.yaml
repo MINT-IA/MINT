@@ -1,0 +1,68 @@
+schema_version: 1
+checked_at: '2026-08-03'
+retrieved_at: '2026-08-03T07:45:00+02:00'
+jurisdiction: CH
+scope: why_fact_canton_precedes_personal_tax_estimation
+sources:
+- id: estv_swiss_tax_statistics
+  authority: Administration fédérale des contributions
+  title: Statistiques fiscales suisses
+  url: https://www.estv.admin.ch/fr/statistiques-fiscales-suisses
+  page_claim: La charge fiscale en Suisse varie selon le canton et la commune; le
+    simulateur calcule les impôts cantonal, communal, ecclésiastique et fédéral.
+  supports:
+  - swiss_tax_burden_varies_by_canton_and_commune
+  retrieved_url: https://www.estv.admin.ch/fr/statistiques-fiscales-suisses
+  final_url: https://www.estv.admin.ch/fr/statistiques-fiscales-suisses
+  language: fr
+  checked_at: '2026-08-03'
+  reviewer: pending_independent_swiss_review
+  receipt_blob: product/mint_next/batch17/source-receipt.txt
+  receipt_sha256: 18ed0b98d5689d084ce5b9e67d50d02a0c0f6ec7cfbcca156e61a809facba4ff
+  review_horizon: recheck_before_runtime_calculation_or_user_facing_claim
+- id: estv_tax_calculator
+  authority: Administration fédérale des contributions
+  title: Simulateur fiscal — Calculez et comparez les impôts
+  url: https://www.estv.admin.ch/fr/simulateur-fiscal-calculer-vos-impots
+  page_claim: Le simulateur officiel fournit des calculs individuels et des données
+    fiscales cantonales.
+  supports:
+  - official_simulator_provides_individual_calculations_and_cantonal_tax_data
+  retrieved_url: https://www.estv.admin.ch/fr/simulateur-fiscal-calculer-vos-impots
+  final_url: https://www.estv.admin.ch/fr/simulateur-fiscal-calculer-vos-impots
+  language: fr
+  checked_at: '2026-08-03'
+  reviewer: pending_independent_swiss_review
+  receipt_blob: product/mint_next/batch17/source-receipt.txt
+  receipt_sha256: 18ed0b98d5689d084ce5b9e67d50d02a0c0f6ec7cfbcca156e61a809facba4ff
+  review_horizon: recheck_before_runtime_calculation_or_user_facing_claim
+direct_fact:
+- swiss_tax_burden_varies_by_canton_and_commune
+product_safety_inferences:
+- id: collect_canton_before_supported_personal_estimate
+  reasoning: Because the official facts show jurisdiction-dependent burden and cantonal
+    data, explicit canton collection reduces wrong-source risk for the supported ordinary
+    case.
+  classification: mint_product_safety_inference_not_official_advice
+  limitations:
+  - ordinary_single_swiss_tax_domicile_only
+  - commune_and_other_facts_still_required
+  - no_result_authorized_by_this_receipt
+- id: withhold_personal_result_when_unknown_or_complex
+  reasoning: A default canton or national average could falsely personalize an unsupported
+    situation.
+  classification: mint_product_safety_inference_not_official_advice
+implementation_limits:
+  authorize_written_copy_only: true
+  authorize_runtime: false
+  authorize_personal_tax_result: false
+  authorize_rate_or_saving: false
+  authorize_legal_or_investment_advice: false
+  authorize_commune_collection: false
+  authorize_network_lookup_or_persistence: false
+receipt:
+  path: product/mint_next/batch17/source-receipt.txt
+  sha256: 18ed0b98d5689d084ce5b9e67d50d02a0c0f6ec7cfbcca156e61a809facba4ff
+  kind: claim_review_receipt_not_retrieved_source_blob
+  source_content: unpinned_dynamic_official_html
+  fresh_official_recheck: required_before_runtime_calculation_or_user_facing_claim
