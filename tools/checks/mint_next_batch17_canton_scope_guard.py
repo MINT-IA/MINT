@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import subprocess
 import sys
 import unicodedata
 from pathlib import Path
@@ -76,12 +77,39 @@ def _review_payload_sha256(root: Path) -> str:
     return digest.hexdigest()
 
 
+def _review_payload_sha256_at_commit(root: Path, commit: str) -> str:
+    def git_show(relative: Path, *, text: bool = False):
+        try:
+            return subprocess.run(
+                ["git", "show", f"{commit}:{relative}"], cwd=root, check=True, capture_output=True, text=text
+            ).stdout
+        except subprocess.CalledProcessError as exc:
+            raise GuardFailure(f"reviewed candidate cannot provide {relative}") from exc
+
+    digest = hashlib.sha256()
+    for relative in (SCOPE, SOURCES, LEGACY, COPY, SOURCE_RECEIPT, PARENT_NAV, GUARD, TESTS, LEFTHOOK):
+        payload = git_show(relative)
+        digest.update(str(relative).encode("utf-8") + b"\0")
+        if relative == SCOPE:
+            canonical_scope = yaml.load(payload.decode("utf-8"), Loader=UniqueKeyLoader)
+            canonical_scope["status"] = "<LIFECYCLE_STATUS>"
+            payload = yaml.safe_dump(canonical_scope, sort_keys=True, allow_unicode=True).encode("utf-8")
+        digest.update(payload + b"\0")
+    workflow = git_show(WORKFLOW, text=True).replace("\r\n", "\n")
+    workflow, replacements = re.subn(
+        r"(?m)^(\s*EXPECTED_BATCH17_[A-Z0-9_]+:\s*)[0-9a-f]{64}\s*$", r"\1<HASH>", workflow
+    )
+    _require(replacements == 3, "reviewed commit workflow trust shape drifted")
+    digest.update(b"normalized-workflow\0" + hashlib.sha256(workflow.encode("utf-8")).hexdigest().encode("ascii"))
+    return digest.hexdigest()
+
+
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise GuardFailure(message)
 
 
-def validate(root: Path, *, check_digests: bool = True, require_accepted: bool | None = True) -> None:
+def validate(root: Path, *, check_digests: bool = True, require_accepted: bool | None = True, check_git: bool = False) -> None:
     paths = [SCOPE, SOURCES, LEGACY, ACCEPTANCE, COPY, SOURCE_RECEIPT, PARENT_NAV, LEFTHOOK, WORKFLOW, GUARD, TESTS]
     for relative in paths:
         _require((root / relative).is_file(), f"missing artifact: {relative}")
@@ -229,7 +257,7 @@ def validate(root: Path, *, check_digests: bool = True, require_accepted: bool |
     _require(binding["scope_guard"] == str(GUARD) and binding["scope_guard_tests"] == str(TESTS), "guard trust unit drifted")
     tests_text = (root / TESTS).read_text(encoding="utf-8")
     discovered = set(re.findall(r"(?m)^    def (test_[a-zA-Z0-9_]+)\(", tests_text))
-    positive = {"test_current_candidate_contract_passes_before_release_acceptance", "test_release_gate_rejects_unaccepted_candidate"}
+    positive = {"test_current_candidate_contract_passes_before_release_acceptance", "test_release_gate_rejects_unaccepted_candidate", "test_accepted_git_anchor_reproduces_candidate_payload"}
     _require(binding["positive_tests"] == sorted(positive), "positive test registry drifted")
     _require(binding["hostile_tests"] == sorted(discovered - positive), "hostile test registry is not exact")
     review_payload = _review_payload_sha256(root)
@@ -242,6 +270,12 @@ def validate(root: Path, *, check_digests: bool = True, require_accepted: bool |
             _require(review == {"reviewer": "batch17_round5_ux_locale_roast", "status": "ACCEPT", "reviewed_at": "2026-08-03", "assertions_validated": copy["semantic_receipt"]["semantic_assertions_per_locale"], "reviewed_payload_sha256": review_payload}, f"locale semantic receipt drifted: {locale}")
         for role in ("ux_navigation_accessibility", "swiss_privacy_provenance", "adversarial_mechanical"):
             _require(acceptance["reviews"][role]["reviewed_payload_sha256"] == review_payload, f"global roast is not bound to reviewed payload: {role}")
+        if check_git:
+            candidate_commit = binding["reviewed_candidate_commit"]
+            _require(re.fullmatch(r"[0-9a-f]{40}", candidate_commit) is not None, "reviewed candidate commit is not full SHA")
+            ancestor = subprocess.run(["git", "merge-base", "--is-ancestor", candidate_commit, "HEAD"], cwd=root)
+            _require(ancestor.returncode == 0, "reviewed candidate commit is not an ancestor of HEAD")
+            _require(_review_payload_sha256_at_commit(root, candidate_commit) == review_payload, "reviewed Git candidate does not reproduce review payload")
 
     lefthook = (root / LEFTHOOK).read_text(encoding="utf-8")
     _require("mint-next-batch17-canton-scope-guard:" in lefthook, "Lefthook binding missing")
@@ -269,7 +303,7 @@ def main() -> int:
         return 2
     require_accepted = None if len(sys.argv) == 2 else True
     try:
-        validate(Path(__file__).resolve().parents[2], require_accepted=require_accepted)
+        validate(Path(__file__).resolve().parents[2], require_accepted=require_accepted, check_git=True)
     except (GuardFailure, KeyError, TypeError, yaml.YAMLError) as exc:
         print(f"Batch17 canton contract guard: FAIL — {exc}", file=sys.stderr)
         return 1

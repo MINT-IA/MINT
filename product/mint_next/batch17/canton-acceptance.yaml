@@ -39,6 +39,7 @@ mechanical_binding:
     source_receipt: 18ed0b98d5689d084ce5b9e67d50d02a0c0f6ec7cfbcca156e61a809facba4ff
     parent_navigation: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
   positive_tests:
+  - test_accepted_git_anchor_reproduces_candidate_payload
   - test_current_candidate_contract_passes_before_release_acceptance
   - test_release_gate_rejects_unaccepted_candidate
   hostile_tests:
@@ -64,7 +65,9 @@ mechanical_binding:
   - test_locale_payload_omission_is_rejected
   - test_localized_canton_label_omission_is_rejected
   - test_localized_order_swap_is_rejected
+  - test_malformed_git_anchor_is_rejected
   - test_no_contribution_entry_is_rejected_when_removed
+  - test_nonancestor_git_anchor_is_rejected
   - test_nonzero_roast_is_rejected
   - test_official_source_url_drift_is_rejected
   - test_personal_storage_is_rejected
@@ -89,7 +92,7 @@ mechanical_binding:
   - test_unknown_personal_result_is_rejected
   - test_wrong_canton_set_is_rejected
   normalized_workflow_sha256: 3715fb2d56d6cfb2d9309c956bd48dae15dd5b32244cdcb8251bc65db695d067
-  candidate_review_payload_sha256: d064cdc88e5180203d055ae5b86362898520664d9b517b09cffb11593dec6d70
+  candidate_review_payload_sha256: ffd7a9b6b583a219a47493b1e71550fc4c0f7c6c48f429322c1a0b5181988d9f
 accepted_scope_only:
 - written_fact_canton_semantics
 - written_navigation_and_lifecycle

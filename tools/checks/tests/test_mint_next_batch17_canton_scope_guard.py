@@ -5,6 +5,7 @@ import tempfile
 import unittest
 import hashlib
 import re
+import subprocess
 from pathlib import Path
 
 import yaml
@@ -52,12 +53,67 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         with self.assertRaises(GuardFailure):
             validate(self.root, check_digests=False, require_accepted=False)
 
+    def _accepted_git_fixture(self) -> str:
+        subprocess.run(["git", "init", "-q"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.email", "batch17@example.invalid"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.name", "Batch17 Test"], cwd=self.root, check=True)
+        subprocess.run(["git", "add", "."], cwd=self.root, check=True)
+        subprocess.run(["git", "commit", "-qm", "candidate"], cwd=self.root, check=True)
+        candidate = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.root, check=True, text=True, capture_output=True).stdout.strip()
+        payload = _review_payload_sha256(self.root)
+        scope_path, scope = self._yaml(ARTIFACTS[0])
+        scope["status"] = "accepted_written_contract_runtime_forbidden"
+        scope_path.write_text(yaml.safe_dump(scope, sort_keys=False), encoding="utf-8")
+        acceptance_path, acceptance = self._yaml(ARTIFACTS[3])
+        acceptance["status"] = "accepted_written_contract_runtime_unimplemented"
+        acceptance["current_verdict"] = "CONTRACT_ACCEPTED_RUNTIME_UNIMPLEMENTED"
+        acceptance["current_evidence"]["scope_guard_complete"] = True
+        acceptance["current_evidence"]["six_locale_semantic_review_complete"] = True
+        acceptance["mechanical_binding"]["artifact_sha256"]["scope"] = hashlib.sha256(scope_path.read_bytes()).hexdigest()
+        acceptance["mechanical_binding"]["reviewed_payload_sha256"] = payload
+        acceptance["mechanical_binding"]["reviewed_candidate_commit"] = candidate
+        copy = yaml.safe_load((self.root / "product/mint_next/batch17/six-locale-copy.yaml").read_text())
+        assertions = copy["semantic_receipt"]["semantic_assertions_per_locale"]
+        acceptance["locale_reviews"] = {locale: {"reviewer": "batch17_round5_ux_locale_roast", "status": "ACCEPT", "reviewed_at": "2026-08-03", "assertions_validated": assertions, "reviewed_payload_sha256": payload} for locale in ("fr", "en", "de", "it", "es", "pt")}
+        for review in acceptance["reviews"].values():
+            review.update({"verdict": "ACCEPT", "p1": 0, "p2": 0, "p3": 0, "reviewed_payload_sha256": payload})
+        acceptance_path.write_text(yaml.safe_dump(acceptance, sort_keys=False), encoding="utf-8")
+        workflow_path = self.root / ".github/workflows/mint-next-batch17-canton-contract.yml"
+        workflow = workflow_path.read_text()
+        hashes = {"GUARD": hashlib.sha256((self.root / ARTIFACTS[-2]).read_bytes()).hexdigest(), "TESTS": hashlib.sha256((self.root / ARTIFACTS[-1]).read_bytes()).hexdigest(), "ACCEPTANCE": hashlib.sha256(acceptance_path.read_bytes()).hexdigest()}
+        for name, digest in hashes.items():
+            workflow = re.sub(rf"(?m)^(  EXPECTED_BATCH17_{name}_SHA256:) [0-9a-f]{{64}}$", rf"\1 {digest}", workflow)
+        workflow_path.write_text(workflow)
+        return candidate
+
     def test_current_candidate_contract_passes_before_release_acceptance(self) -> None:
         validate(self.root, check_digests=True, require_accepted=False)
 
     def test_release_gate_rejects_unaccepted_candidate(self) -> None:
         with self.assertRaises(GuardFailure):
             validate(self.root, check_digests=True, require_accepted=True)
+
+    def test_accepted_git_anchor_reproduces_candidate_payload(self) -> None:
+        self._accepted_git_fixture()
+        validate(self.root, check_digests=True, require_accepted=True, check_git=True)
+
+    def test_malformed_git_anchor_is_rejected(self) -> None:
+        self._accepted_git_fixture()
+        path, acceptance = self._yaml(ARTIFACTS[3])
+        acceptance["mechanical_binding"]["reviewed_candidate_commit"] = "abc123"
+        path.write_text(yaml.safe_dump(acceptance, sort_keys=False), encoding="utf-8")
+        with self.assertRaises(GuardFailure):
+            validate(self.root, check_digests=False, require_accepted=True, check_git=True)
+
+    def test_nonancestor_git_anchor_is_rejected(self) -> None:
+        self._accepted_git_fixture()
+        tree = subprocess.run(["git", "mktree"], cwd=self.root, input="", text=True, check=True, capture_output=True).stdout.strip()
+        orphan = subprocess.run(["git", "commit-tree", tree, "-m", "orphan"], cwd=self.root, check=True, text=True, capture_output=True).stdout.strip()
+        path, acceptance = self._yaml(ARTIFACTS[3])
+        acceptance["mechanical_binding"]["reviewed_candidate_commit"] = orphan
+        path.write_text(yaml.safe_dump(acceptance, sort_keys=False), encoding="utf-8")
+        with self.assertRaises(GuardFailure):
+            validate(self.root, check_digests=False, require_accepted=True, check_git=True)
 
     def test_runtime_promotion_is_rejected(self) -> None:
         self._mutate_scope(lambda d: d["authority"].__setitem__("runtime_change", "implemented"))
