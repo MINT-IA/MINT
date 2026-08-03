@@ -69,10 +69,13 @@ Future<void> _openCantonFromPositive(WidgetTester tester) async {
   await _openContribution(tester);
   await _tapVisible(tester, 'action:fact_contribution.choose_yes');
   await tester.enterText(
-    _key('field:fact_contributed_amount.provider_name'),
+    _editableUnder(_key('field:fact_contributed_amount.provider_name')),
     'Prestataire test',
   );
-  await tester.enterText(_key('field:fact_contributed_amount.amount'), '1000');
+  await tester.enterText(
+    _editableUnder(_key('field:fact_contributed_amount.amount')),
+    '1000',
+  );
   await _tapVisible(
     tester,
     'action:fact_contributed_amount.toggle_all_reviewed',
@@ -265,7 +268,10 @@ void main() {
         reason: '[R1_01] no-contribution origin must be explicit and immutable',
       );
       expect(_key('receipt:fact_canton.origin.positive'), findsNothing);
-      await tester.enterText(_key('field:fact_canton.search'), 'Genève');
+      await tester.enterText(
+        _editableUnder(_key('field:fact_canton.search')),
+        'Genève',
+      );
       await tester.pump();
       await _tapVisible(tester, 'choice:fact_canton.GE');
       expect(_key('receipt:fact_canton.origin.no'), findsOneWidget);
@@ -286,7 +292,10 @@ void main() {
         reason: '[R1_01] positive committed origin must be explicit',
       );
       expect(_key('receipt:fact_canton.origin.no'), findsNothing);
-      await tester.enterText(_key('field:fact_canton.search'), 'Zurich');
+      await tester.enterText(
+        _editableUnder(_key('field:fact_canton.search')),
+        'Zurich',
+      );
       await tester.pump();
       await _tapVisible(tester, 'choice:fact_canton.ZH');
       expect(_key('receipt:fact_canton.origin.positive'), findsOneWidget);
@@ -294,19 +303,17 @@ void main() {
       await _tapVisible(tester, 'action:fact_canton.back');
       expect(_key('node:fact_contributed_amount'), findsOneWidget);
       expect(
-        tester
-            .widget<TextFormField>(
-              _key('field:fact_contributed_amount.provider_name'),
-            )
-            .controller!
-            .text,
+        _editableWidget(
+          tester,
+          _key('field:fact_contributed_amount.provider_name'),
+        ).controller.text,
         'Prestataire test',
       );
       expect(
-        tester
-            .widget<TextFormField>(_key('field:fact_contributed_amount.amount'))
-            .controller!
-            .text,
+        _editableWidget(
+          tester,
+          _key('field:fact_contributed_amount.amount'),
+        ).controller.text,
         '1000',
       );
     });
