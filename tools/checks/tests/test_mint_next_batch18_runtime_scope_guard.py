@@ -231,15 +231,18 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
 
     def test_current_artifacts_are_a_pending_candidate_anchor(self) -> None:
+        expected_payload = yaml.safe_load((self.root / ACCEPTANCE).read_text())["mechanical_binding"]["candidate_review_payload_sha256"]
         _validate_pending_candidate_artifacts(
             (self.root / SCOPE).read_text(),
             (self.root / ACCEPTANCE).read_text(),
             (self.root / WORKFLOW).read_text(),
             (self.root / SPEC).read_text(),
+            expected_payload,
         )
 
     def test_candidate_anchor_with_extra_runtime_claim_is_rejected(self) -> None:
         acceptance = yaml.safe_load((self.root / ACCEPTANCE).read_text())
+        expected_payload = acceptance["mechanical_binding"]["candidate_review_payload_sha256"]
         acceptance["mechanical_binding"]["runtime_accepted"] = True
         with self.assertRaisesRegex(GuardFailure, "reviewed anchor binding schema drifted"):
             _validate_pending_candidate_artifacts(
@@ -247,9 +250,24 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
                 yaml.safe_dump(acceptance, sort_keys=False),
                 (self.root / WORKFLOW).read_text(),
                 (self.root / SPEC).read_text(),
+                expected_payload,
+            )
+
+    def test_candidate_anchor_with_wrong_well_formed_payload_is_rejected(self) -> None:
+        acceptance = yaml.safe_load((self.root / ACCEPTANCE).read_text())
+        expected_payload = acceptance["mechanical_binding"]["candidate_review_payload_sha256"]
+        acceptance["mechanical_binding"]["candidate_review_payload_sha256"] = "0" * 64
+        with self.assertRaisesRegex(GuardFailure, "reviewed anchor candidate payload was not self-bound"):
+            _validate_pending_candidate_artifacts(
+                (self.root / SCOPE).read_text(),
+                yaml.safe_dump(acceptance, sort_keys=False),
+                (self.root / WORKFLOW).read_text(),
+                (self.root / SPEC).read_text(),
+                expected_payload,
             )
 
     def test_promoted_artifacts_cannot_be_reused_as_candidate_anchor(self) -> None:
+        expected_payload = yaml.safe_load((self.root / ACCEPTANCE).read_text())["mechanical_binding"]["candidate_review_payload_sha256"]
         self._promote_fixture()
         with self.assertRaisesRegex(GuardFailure, "reviewed anchor was not a pending scope candidate"):
             _validate_pending_candidate_artifacts(
@@ -257,6 +275,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
                 (self.root / ACCEPTANCE).read_text(),
                 (self.root / WORKFLOW).read_text(),
                 (self.root / SPEC).read_text(),
+                expected_payload,
             )
 
     def test_r4_planned_file_swap_is_rejected(self) -> None:

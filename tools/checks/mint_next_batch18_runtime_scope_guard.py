@@ -182,7 +182,7 @@ def _review_payload_sha256_at_commit(root: Path, commit: str) -> str:
     return digest.hexdigest()
 
 
-def _validate_pending_candidate_artifacts(scope_text: str, acceptance_text: str, workflow_text: str, spec_text: str) -> None:
+def _validate_pending_candidate_artifacts(scope_text: str, acceptance_text: str, workflow_text: str, spec_text: str, expected_payload: str) -> None:
     scope = yaml.load(scope_text, Loader=UniqueKeyLoader)
     acceptance = yaml.load(acceptance_text, Loader=UniqueKeyLoader)
     workflow = yaml.load(workflow_text, Loader=UniqueStringKeyLoader)
@@ -194,7 +194,7 @@ def _validate_pending_candidate_artifacts(scope_text: str, acceptance_text: str,
     _require(all(review == pending_review for review in acceptance["reviews"].values()), "reviewed anchor already carried review receipts")
     binding = acceptance.get("mechanical_binding", {})
     _require(set(binding) == {"candidate_review_payload_sha256", "reviewed_payload_sha256", "reviewed_candidate_commit", "positive_tests", "hostile_tests"}, "reviewed anchor binding schema drifted")
-    _require(re.fullmatch(r"[0-9a-f]{64}", binding.get("candidate_review_payload_sha256") or "") is not None, "reviewed anchor candidate payload missing")
+    _require(binding.get("candidate_review_payload_sha256") == expected_payload, "reviewed anchor candidate payload was not self-bound")
     _require(binding.get("reviewed_payload_sha256") is None and binding.get("reviewed_candidate_commit") is None, "reviewed anchor already carried accepted binding")
     _require(binding.get("positive_tests") == EXPECTED_POSITIVE_TESTS and binding.get("hostile_tests") == EXPECTED_HOSTILE_TESTS, "reviewed anchor test inventory drifted")
     _require(acceptance.get("accepted_scope_only") == [], "reviewed anchor already claimed accepted scope")
@@ -210,14 +210,14 @@ def _validate_pending_candidate_artifacts(scope_text: str, acceptance_text: str,
     _require(verify is not None and verify.group(1).splitlines().count(f"batch18-canton-runtime-scope: {candidate_command}") == 1, "reviewed anchor SPEC was not in candidate mode")
 
 
-def _require_pending_candidate_at_commit(root: Path, commit: str) -> None:
+def _require_pending_candidate_at_commit(root: Path, commit: str, expected_payload: str) -> None:
     def show(relative: Path) -> str:
         try:
             return subprocess.run(["git", "show", f"{commit}:{relative}"], cwd=root, check=True, capture_output=True, text=True).stdout
         except subprocess.CalledProcessError as exc:
             raise GuardFailure(f"reviewed candidate cannot provide lifecycle artifact {relative}") from exc
 
-    _validate_pending_candidate_artifacts(show(SCOPE), show(ACCEPTANCE), show(WORKFLOW), show(SPEC))
+    _validate_pending_candidate_artifacts(show(SCOPE), show(ACCEPTANCE), show(WORKFLOW), show(SPEC), expected_payload)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -350,6 +350,7 @@ EXPECTED_HOSTILE_TESTS = ['test_acceptance_claim_without_reviews_is_rejected',
  'test_authority_retarget_is_rejected_semantically',
  'test_byte_drift_has_its_own_failure',
  'test_candidate_anchor_with_extra_runtime_claim_is_rejected',
+ 'test_candidate_anchor_with_wrong_well_formed_payload_is_rejected',
  'test_candidate_binding_extra_runtime_claim_is_rejected',
  'test_candidate_review_extra_runtime_claim_is_rejected',
  'test_ci_comment_is_not_operational',
@@ -540,8 +541,9 @@ def validate(root: Path, *, check_byte_digest: bool = True, check_parent_git: bo
         if check_parent_git:
             candidate = binding["reviewed_candidate_commit"]
             _require(subprocess.run(["git", "merge-base", "--is-ancestor", candidate, "HEAD"], cwd=root).returncode == 0, "reviewed scope candidate is not an ancestor")
-            _require_pending_candidate_at_commit(root, candidate)
-            _require(_review_payload_sha256_at_commit(root, candidate) == payload, "reviewed scope candidate does not reproduce payload")
+            candidate_payload = _review_payload_sha256_at_commit(root, candidate)
+            _require_pending_candidate_at_commit(root, candidate, candidate_payload)
+            _require(candidate_payload == payload, "reviewed scope candidate does not reproduce payload")
     else:
         _require(binding["reviewed_payload_sha256"] is None and binding["reviewed_candidate_commit"] is None, "candidate carries accepted receipt")
         _require(acceptance["accepted_scope_only"] == [], "candidate claims accepted scope")

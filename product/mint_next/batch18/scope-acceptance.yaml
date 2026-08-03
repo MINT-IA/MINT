@@ -18,7 +18,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_review_payload_sha256: 86099a54f969c65c8e6392b3e1a8f3f796d4b3cc41ffd8672545267a5113f459
+  candidate_review_payload_sha256: 19d82d614812300c0fa24152a950a6af6317fdc1f85d2232fb32723e3798c8c3
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
   positive_tests:
@@ -30,6 +30,7 @@ mechanical_binding:
   - test_authority_retarget_is_rejected_semantically
   - test_byte_drift_has_its_own_failure
   - test_candidate_anchor_with_extra_runtime_claim_is_rejected
+  - test_candidate_anchor_with_wrong_well_formed_payload_is_rejected
   - test_candidate_binding_extra_runtime_claim_is_rejected
   - test_candidate_review_extra_runtime_claim_is_rejected
   - test_ci_comment_is_not_operational
