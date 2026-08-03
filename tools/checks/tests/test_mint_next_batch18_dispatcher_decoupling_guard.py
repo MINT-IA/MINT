@@ -45,10 +45,23 @@ class DispatcherDecouplingGuardTest(unittest.TestCase):
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
+        live_acceptance = yaml.safe_load((ROOT / guard.ACCEPTANCE).read_text())
+        reviewed_candidate = live_acceptance.get("mechanical_binding", {}).get("reviewed_candidate_commit")
+        candidate_lifecycle_files = {guard.ACCEPTANCE, guard.WORKFLOW, guard.SPEC}
         for relative in FILES:
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(ROOT / relative, target)
+            if live_acceptance.get("status") == "accepted_dispatcher_decoupling" and relative in candidate_lifecycle_files:
+                target.write_bytes(
+                    subprocess.run(
+                        ["git", "show", f"{reviewed_candidate}:{relative}"],
+                        cwd=ROOT,
+                        check=True,
+                        capture_output=True,
+                    ).stdout
+                )
+            else:
+                shutil.copy2(ROOT / relative, target)
         guard.validate(self.root, check_git=False, require_accepted=False)
 
     def tearDown(self) -> None:
@@ -64,6 +77,9 @@ class DispatcherDecouplingGuardTest(unittest.TestCase):
 
     def test_current_candidate_passes(self) -> None:
         guard.validate(self.root, check_git=False, require_accepted=False)
+
+    def test_live_repository_lifecycle_passes(self) -> None:
+        guard.validate(ROOT, check_git=False, require_accepted=None)
 
     def test_review_payload_is_well_formed_and_bound(self) -> None:
         payload = guard.review_payload(self.root)

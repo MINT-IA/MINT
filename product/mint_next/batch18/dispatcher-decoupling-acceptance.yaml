@@ -23,7 +23,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_review_payload_sha256: 45e275145a003a8560a25f243d3c1eec5e5d6e0106ac87c5d79e222aa81197e7
+  candidate_review_payload_sha256: ac88fee933b248a9185a7a32107535c2f9c0871414f49aaaaf095c0dbd5ef4d1
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
 accepted_change: []
