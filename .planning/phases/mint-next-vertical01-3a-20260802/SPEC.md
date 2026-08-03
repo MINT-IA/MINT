@@ -45,7 +45,7 @@ batch12-package-manifest: python3 tools/checks/mint_next_artifact_manifest.py ve
 batch13-multi-provider-written-contract: python3 tools/checks/mint_next_batch13_multi_provider_contract_guard.py
 batch13-multi-provider-hostile-tests: python3 -m unittest tools.checks.tests.test_mint_next_batch13_multi_provider_contract_guard
 batch17-canton-written-contract: python3 tools/checks/mint_next_batch17_canton_scope_guard.py
-batch18-canton-runtime-scope: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract
+batch18-canton-runtime-scope: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py
 batch18-canton-runtime-scope-hostiles: python3 -m unittest tools.checks.tests.test_mint_next_batch18_runtime_scope_guard
 active-context: python3 tools/checks/active_context_guard.py
 phase-contract: python3 tools/checks/phase_contract_guard.py

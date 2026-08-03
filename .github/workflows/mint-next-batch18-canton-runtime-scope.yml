@@ -14,9 +14,9 @@ permissions:
   contents: read
 
 env:
-  EXPECTED_BATCH18_GUARD_SHA256: 0000000000000000000000000000000000000000000000000000000000000000
-  EXPECTED_BATCH18_TESTS_SHA256: 0000000000000000000000000000000000000000000000000000000000000000
-  EXPECTED_BATCH18_ACCEPTANCE_SHA256: 0000000000000000000000000000000000000000000000000000000000000000
+  EXPECTED_BATCH18_GUARD_SHA256: 447e75d6f49ba53929f510adf21db7a54b5cd472b0d56663919f8558110ada4a
+  EXPECTED_BATCH18_TESTS_SHA256: 5d28589263f3dbc2d21463f12f533b4e1e8108100f8f953baf52e7a3a95e4ee2
+  EXPECTED_BATCH18_ACCEPTANCE_SHA256: 1e6e549edcec04304964754901f3b4fe0d5a5add8a240991dd81f115af111ff5
 
 jobs:
   scope:
@@ -30,6 +30,6 @@ jobs:
       - name: Install exact guard dependency
         run: python3 -m pip install PyYAML==6.0.2
       - name: Verify bounded scope contract
-        run: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract
+        run: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py
       - name: Fire hostile scope mutations
         run: python3 -m unittest tools.checks.tests.test_mint_next_batch18_runtime_scope_guard

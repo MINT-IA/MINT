@@ -1,5 +1,5 @@
 schema_version: 1
-status: candidate_scope_acceptance_absent
+status: accepted_scope_contract_runtime_state_not_evaluated
 batch: 18
 journey_id: swiss_3a_question_to_next_action
 runtime_surface: hidden_design_lab_only
