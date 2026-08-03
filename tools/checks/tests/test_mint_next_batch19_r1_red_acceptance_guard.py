@@ -310,6 +310,22 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
                 guard._require_clean_worktree(root)
             ignored.unlink()
 
+            shadow = root / "tools/checks/yaml.py"
+            shadow.parent.mkdir(parents=True, exist_ok=True)
+            (root / ".git/info/exclude").write_text("tools/checks/yaml.py\n")
+            shadow.write_text("raise SystemExit('shadowed')\n")
+            with self.assertRaisesRegex(guard.GuardFailure, "ignored protected files"):
+                guard._require_clean_worktree(root)
+            shadow.unlink()
+
+            fake_cache_runtime = root / "product/mint_next/batch7/design_lab/build/lib/main.dart"
+            fake_cache_runtime.parent.mkdir(parents=True, exist_ok=True)
+            (root / ".git/info/exclude").write_text("product/mint_next/batch7/design_lab/build/\n")
+            fake_cache_runtime.write_text("hidden runtime in claimed cache\n")
+            with self.assertRaisesRegex(guard.GuardFailure, "ignored protected files"):
+                guard._require_clean_worktree(root)
+            fake_cache_runtime.unlink()
+
             subprocess.run(["git", "update-index", "--assume-unchanged", "tracked.txt"], cwd=root, check=True)
             tracked.write_text("hidden tracked mutation\n")
             with self.assertRaisesRegex(guard.GuardFailure, "hidden index flags"):

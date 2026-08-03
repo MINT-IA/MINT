@@ -3,12 +3,20 @@
 
 from __future__ import annotations
 
+import sys
+
+# Direct CLI execution must import stdlib and PyYAML without first consulting
+# the script directory, where an ignored shadow module could otherwise run
+# before the worktree check. Unit imports keep their normal package path.
+if __name__ == "__main__":
+    sys.path[:] = [entry for index, entry in enumerate(sys.path) if index != 0 and entry]
+sys.dont_write_bytecode = True
+
 import argparse
 import hashlib
 import json
 import re
 import subprocess
-import sys
 import tempfile
 from pathlib import Path
 
@@ -18,7 +26,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.checks import journey_os_check
+if __name__ != "__main__":
+    from tools.checks import journey_os_check
+else:
+    journey_os_check = None
 
 ACCEPTANCE = Path("product/mint_next/batch19/r1-red-acceptance.yaml")
 GUARD = Path("tools/checks/mint_next_batch19_r1_red_acceptance_guard.py")
@@ -73,6 +84,14 @@ UniqueLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _un
 def _require(condition: bool, message: str) -> None:
     if not condition:
         raise GuardFailure(message)
+
+
+def _journey_os_module():
+    global journey_os_check
+    if journey_os_check is None:
+        from tools.checks import journey_os_check as module
+        journey_os_check = module
+    return journey_os_check
 
 
 def _load_bytes(raw: bytes) -> dict:
@@ -214,6 +233,7 @@ def _require_clean_worktree(root: Path) -> None:
                 "git", "ls-files", "--others", "--ignored",
                 "--exclude-standard", "-z", "--",
                 "product/mint_next", ".planning/journeys/path-owners",
+                "tools/checks", ":(top,glob)*.py", ":(top,glob)*/*.py",
             ],
             cwd=root, check=True, capture_output=True,
         ).stdout.decode("utf-8").split("\0")
@@ -225,14 +245,7 @@ def _require_clean_worktree(root: Path) -> None:
         if len(entry) > 2 and (entry[0].islower() or entry[0] == "S")
     )
     _require(not hidden_index, f"acceptance proof rejects hidden index flags: {hidden_index}")
-    safe_generated_prefixes = (
-        "product/mint_next/batch7/design_lab/.dart_tool/",
-        "product/mint_next/batch7/design_lab/build/",
-    )
-    hidden_ignored = sorted(
-        path for path in ignored
-        if path and not path.startswith(safe_generated_prefixes)
-    )
+    hidden_ignored = sorted(path for path in ignored if path)
     _require(not hidden_ignored, f"acceptance proof rejects ignored protected files: {hidden_ignored}")
 
 
@@ -249,12 +262,13 @@ def _require_owned_tail_chronology(
     cannot retroactively bless older target work.
     """
     manifests_by_path: dict[str, str] = {}
-    owners = root / journey_os_check.PATH_OWNERS
+    journey = _journey_os_module()
+    owners = root / journey.PATH_OWNERS
     for manifest in sorted(owners.glob("*.json")):
         try:
             data = json.loads(
                 manifest.read_text(encoding="utf-8"),
-                object_pairs_hook=journey_os_check._reject_duplicate_json_keys,
+                object_pairs_hook=journey._reject_duplicate_json_keys,
             )
         except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
             raise GuardFailure(f"cannot inspect accepted path-owner chronology: {manifest}") from exc
@@ -329,7 +343,7 @@ def _git_boundary(root: Path) -> None:
         if not path.startswith(".planning/journeys/path-owners/")
     }
     _require(product_changes <= trust_paths, f"acceptance scope widened: {sorted(product_changes - trust_paths)}")
-    owned_paths, owner_errors = journey_os_check._load_path_owners(root)
+    owned_paths, owner_errors = _journey_os_module()._load_path_owners(root)
     _require(not owner_errors, f"future path-owner registry invalid: {owner_errors}")
     unexpected_tail = {
         path for path in tail
