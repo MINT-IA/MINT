@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner_id": "batch19-r1-red-acceptance",
-  "status": "candidate_unaccepted",
+  "status": "accepted",
   "paths": [
     "product/mint_next/batch19/r1-red-acceptance.yaml",
     "tools/checks/mint_next_batch19_r1_red_acceptance_guard.py",
@@ -9,27 +9,30 @@
   ],
   "reviews": {
     "journey_safety": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "976096159df64983cd86d3c52fb46d645038e985d50a06ba29601e9325ad9eaa"
     },
     "mechanical_adversary": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "976096159df64983cd86d3c52fb46d645038e985d50a06ba29601e9325ad9eaa"
     },
     "scope_integrity": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "976096159df64983cd86d3c52fb46d645038e985d50a06ba29601e9325ad9eaa"
     }
   },
   "mechanical_binding": {
     "candidate_payload_sha256": "976096159df64983cd86d3c52fb46d645038e985d50a06ba29601e9325ad9eaa",
-    "reviewed_payload_sha256": null,
-    "reviewed_candidate_commit": null
+    "reviewed_payload_sha256": "976096159df64983cd86d3c52fb46d645038e985d50a06ba29601e9325ad9eaa",
+    "reviewed_candidate_commit": "a00b262c13a51c4c60c2206c5276cbddc5f65159"
   }
 }
