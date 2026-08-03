@@ -18,6 +18,8 @@ acceptance_model:
   execution_rule: a_runtime_microstep_gets_an_executable_command_and_expected_failing_tests_before_implementation_then_its_named_gate_must_pass_before_the_next_microstep
   global_rule: no_runtime_acceptance_until_every_named_microstep_and_cross_step_gate_exists_passes_and_is_bound_to_one_exact_reviewed_state
   promotion_rule: no_microstep_or_partial_combination_promotes_runtime
+  runtime_execution_registry: product/mint_next/batch18/runtime-gates.yaml
+  runtime_execution_registry_rule: separately_versioned_and_guarded_runtime_evidence_may_evolve_without_rewriting_this_accepted_scope
   complete_runtime_gate_requires:
   - R1_R2_R3_R4_all_complete_on_one_exact_reviewed_state
   - failing_runtime_tests_first_for_every_obligation
@@ -87,11 +89,11 @@ microsteps:
     - R4_04_keep_reference_persists_only_journey_id_generic_reference_id_saved_at_then_purges_personal_ephemeral_state
     - R4_05_leave_without_saving_purges_and_dismisses
     - R4_06_background_resume_before_30_min_restores_exact_node_focus_scroll_selection_and_origin
-    - R4_07_ttl_expiry_app_kill_and_tax_year_change_purge_before_render_and_restart_at_tax_year
+    - R4_07_ttl_expiry_and_tax_year_change_purge_before_render_and_restart_at_tax_year_while_process_kill_persists_no_personal_state_and_fresh_launch_starts_at_canonical_first_node
     - R4_08_stale_callbacks_never_mutate_or_navigate
     - R4_09_search_and_personal_facts_never_use_network_logs_analytics_autofill_clipboard_platform_learning_or_persistence
     - R4_10_every_interactive_target_is_at_least_48_by_48_logical_points
-    - R4_11_semantics_cover_tax_year_group_name_full_label_selected_state_unknown_result_count_disabled_reason_and_errors
+    - R4_11_semantics_cover_tax_year_group_name_full_label_selected_state_unknown_result_count_persistent_prerequisite_validation_and_stale_errors
     - R4_12_keyboard_and_switch_order_is_deterministic_with_no_hidden_focus_targets_and_exact_modal_focus_return
     - R4_13_system_back_has_an_explicit_equivalent_on_every_base_node_and_overlay
     - R4_14_all_six_locales_use_reviewed_copy_labels_orders_and_taxYear_interpolation_with_human_semantic_review
@@ -184,48 +186,43 @@ forbidden_claims_until_separate_acceptance:
 - production_ready
 - calculation_available
 - privacy_compliant_by_declaration
-runtime_gate_registry:
-  scope_contract:
-    state: EVALUATED_BY_SCOPE_ACCEPTANCE_ARTIFACT
-    candidate_command: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py
-      --contract
-    accepted_command: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py
-  R1:
-    state: NOT_EVALUATED
-    command: null
-    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart
-  R2:
-    state: NOT_EVALUATED
-    command: null
-    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r2_test.dart
-  R3:
-    state: NOT_EVALUATED
-    command: null
-    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r3_test.dart
-  R4a_safe_exit:
-    state: NOT_EVALUATED
-    command: null
-    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4a_safe_exit_test.dart
-  R4b_lifecycle_generation_and_privacy:
-    state: NOT_EVALUATED
-    command: null
-    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4b_lifecycle_privacy_test.dart
-  R4c_six_locale_accessibility_and_compact:
-    state: NOT_EVALUATED
-    command: null
-    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4c_accessibility_locales_test.dart
-  R4d_cross_step_integration:
-    state: NOT_EVALUATED
-    command: null
-    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4d_integration_test.dart
-  R4:
-    state: NOT_EVALUATED
-    command: null
-    requires:
-    - R4a_safe_exit
-    - R4b_lifecycle_generation_and_privacy
-    - R4c_six_locale_accessibility_and_compact
-    - R4d_cross_step_integration
-  runtime_global:
-    state: NOT_EVALUATED
-    command: null
+planned_gate_topology:
+  external_runtime_registry: product/mint_next/batch18/runtime-gates.yaml
+  rule: runtime_commands_states_and_evidence_live_only_in_the_separately_versioned_external_registry
+  ordered_gates:
+  - R1
+  - R2
+  - R3
+  - R4a_safe_exit
+  - R4b_lifecycle_generation_and_privacy
+  - R4c_six_locale_accessibility_and_compact
+  - R4d_cross_step_integration
+  - R4
+  - runtime_global
+  gates:
+    R1:
+      planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart
+    R2:
+      planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r2_test.dart
+    R3:
+      planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r3_test.dart
+    R4a_safe_exit:
+      planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4a_safe_exit_test.dart
+    R4b_lifecycle_generation_and_privacy:
+      planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4b_lifecycle_privacy_test.dart
+    R4c_six_locale_accessibility_and_compact:
+      planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4c_accessibility_locales_test.dart
+    R4d_cross_step_integration:
+      planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4d_integration_test.dart
+    R4:
+      requires:
+      - R4a_safe_exit
+      - R4b_lifecycle_generation_and_privacy
+      - R4c_six_locale_accessibility_and_compact
+      - R4d_cross_step_integration
+    runtime_global:
+      requires:
+      - R1
+      - R2
+      - R3
+      - R4

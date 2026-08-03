@@ -20,7 +20,7 @@ env:
 
 jobs:
   scope:
-    name: Hidden canton runtime remains unaccepted
+    name: Verify hidden canton runtime scope contract
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -29,7 +29,7 @@ jobs:
           python-version: '3.11'
       - name: Install exact guard dependency
         run: python3 -m pip install PyYAML==6.0.2
-      - name: Verify bounded unaccepted scope
+      - name: Verify bounded scope contract
         run: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract
       - name: Fire hostile scope mutations
         run: python3 -m unittest tools.checks.tests.test_mint_next_batch18_runtime_scope_guard

@@ -55,9 +55,13 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
 
     def _promote_fixture(self) -> None:
         scope_path = self.root / SCOPE
-        scope = yaml.safe_load(scope_path.read_text())
-        scope["status"] = "accepted_scope_contract_runtime_state_not_evaluated"
-        scope_path.write_text(yaml.safe_dump(scope, sort_keys=False, allow_unicode=True))
+        scope_text = scope_path.read_text()
+        self.assertEqual(scope_text.count("status: candidate_scope_acceptance_absent"), 1)
+        scope_path.write_text(scope_text.replace(
+            "status: candidate_scope_acceptance_absent",
+            "status: accepted_scope_contract_runtime_state_not_evaluated",
+            1,
+        ))
         acceptance_path = self.root / ACCEPTANCE
         acceptance = yaml.safe_load(acceptance_path.read_text())
         payload = acceptance["mechanical_binding"]["candidate_review_payload_sha256"]
@@ -99,13 +103,69 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
 
     def test_promoted_fixture_passes_and_hostile_is_not_lifecycle_vacuous(self) -> None:
         self._promote_fixture()
-        validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+        validate(self.root, check_byte_digest=True, check_parent_git=False, require_accepted=None)
         scope_path = self.root / SCOPE
         scope = yaml.safe_load(scope_path.read_text())
         scope["product_promotion"] = "allowed"
         scope_path.write_text(yaml.safe_dump(scope, sort_keys=False, allow_unicode=True))
         with self.assertRaisesRegex(GuardFailure, "product promotion widened"):
             validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_candidate_binding_extra_runtime_claim_is_rejected(self) -> None:
+        path = self.root / ACCEPTANCE
+        data = yaml.safe_load(path.read_text())
+        data["mechanical_binding"]["runtime_accepted"] = True
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        with self.assertRaisesRegex(GuardFailure, "mechanical binding schema drifted"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_candidate_review_extra_runtime_claim_is_rejected(self) -> None:
+        path = self.root / ACCEPTANCE
+        data = yaml.safe_load(path.read_text())
+        data["reviews"]["engineering_parent_feasibility"]["runtime_implemented"] = True
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        with self.assertRaisesRegex(GuardFailure, "candidate review is not pending"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_promoted_binding_extra_runtime_claim_is_rejected(self) -> None:
+        self._promote_fixture()
+        path = self.root / ACCEPTANCE
+        data = yaml.safe_load(path.read_text())
+        data["mechanical_binding"]["runtime_accepted"] = True
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        with self.assertRaisesRegex(GuardFailure, "mechanical binding schema drifted"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_promoted_review_extra_user_validated_claim_is_rejected(self) -> None:
+        self._promote_fixture()
+        path = self.root / ACCEPTANCE
+        data = yaml.safe_load(path.read_text())
+        data["reviews"]["ux_accessibility_microstep_scope"]["user_validated"] = True
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        with self.assertRaisesRegex(GuardFailure, "accepted review schema drifted"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_ci_custom_shell_cannot_make_commands_inert(self) -> None:
+        path = self.root / WORKFLOW
+        data = yaml.load(path.read_text(), Loader=yaml.BaseLoader)
+        data["jobs"]["scope"]["steps"][3]["shell"] = "echo {0}"
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        with self.assertRaisesRegex(GuardFailure, "CI scope steps are not exact executable steps"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_r4_planned_file_swap_is_rejected(self) -> None:
+        self._mutate(
+            lambda d: d["microsteps"]["R4"]["subgate_contracts"]["R4a_safe_exit"].update(
+                planned_test_file="one_shared_fake_test.dart"
+            ),
+            "R4a_safe_exit planned test ownership drifted",
+        )
+
+    def test_planned_topology_cannot_claim_runtime_state(self) -> None:
+        self._mutate(
+            lambda d: d["planned_gate_topology"]["gates"]["R1"].update(state="PASS", command="true"),
+            "planned gate topology drifted",
+        )
 
     def test_byte_drift_has_its_own_failure(self) -> None:
         path = self.root / SCOPE
@@ -159,7 +219,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
         self._mutate(lambda d: d["microsteps"]["R4"]["obligations"].pop(), "R4 obligation coverage drifted")
 
     def test_same_prefix_nonsense_obligation_is_rejected_exactly(self) -> None:
-        self._mutate(lambda d: d["microsteps"]["R1"]["obligations"].__setitem__(0, "R1_99_nonsense"), "exact semantic scope inventory drifted")
+        self._mutate(lambda d: d["microsteps"]["R1"]["obligations"].__setitem__(0, "R1_99_nonsense"), "R1 exact obligations drifted")
 
     def test_required_control_removal_is_rejected_semantically(self) -> None:
         self._mutate(lambda d: d["required_controls"]["safe_exit"].remove("keep_local_reference"), "required control topology drifted")
@@ -174,7 +234,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
         self._mutate(lambda d: d["forbidden_claims_until_separate_acceptance"].remove("privacy_compliant_by_declaration"), "forbidden claim inventory drifted")
 
     def test_runtime_gate_registry_claim_is_rejected_semantically(self) -> None:
-        self._mutate(lambda d: d["runtime_gate_registry"]["R1"].update(state="PASS"), "runtime gate registry drifted")
+        self._mutate(lambda d: d["planned_gate_topology"]["gates"]["R1"].update(state="PASS"), "planned gate topology drifted")
 
     def test_parent_drift_is_rejected_even_if_scope_parent_hash_is_rebound(self) -> None:
         parent = self.root / PARENT
@@ -195,13 +255,13 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
     def test_ci_comment_is_not_operational(self) -> None:
         path = self.root / WORKFLOW
         path.write_text(path.read_text().replace("        run: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py", "        # run: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py"))
-        with self.assertRaisesRegex(GuardFailure, "operational CI guard command"):
+        with self.assertRaisesRegex(GuardFailure, "CI scope steps are not exact executable steps"):
             validate(self.root, check_parent_git=False, require_accepted=None)
 
     def test_ci_false_condition_is_rejected(self) -> None:
         path = self.root / WORKFLOW
         path.write_text(path.read_text().replace("  scope:\n", "  scope:\n    if: false\n"))
-        with self.assertRaisesRegex(GuardFailure, "CI scope job can be disabled"):
+        with self.assertRaisesRegex(GuardFailure, "CI scope job schema drifted"):
             validate(self.root, check_parent_git=False, require_accepted=None)
 
     def test_spec_comment_is_not_operational(self) -> None:
@@ -222,7 +282,7 @@ class Batch18RuntimeScopeGuardTest(unittest.TestCase):
         start = text.index("    def test_byte_drift_has_its_own_failure")
         end = text.index("    def test_duplicate_yaml_key_is_rejected_semantically", start)
         path.write_text(text[:start] + text[end:])
-        with self.assertRaisesRegex(GuardFailure, "hostile test registry drifted"):
+        with self.assertRaisesRegex(GuardFailure, "immutable test inventory drifted"):
             validate(self.root, check_parent_git=False, require_accepted=None)
 
     def test_acceptance_claim_without_reviews_is_rejected(self) -> None:

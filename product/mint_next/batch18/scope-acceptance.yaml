@@ -18,7 +18,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_review_payload_sha256: 4625201b6d11d6abefb8ba997238a2dd6a3987859ffbdeea3351e1331c30b177
+  candidate_review_payload_sha256: 08990d56f204f5dc23dbfee3ec4d7e1df8cf0a05cd07bb087fc838e90706a7f1
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
   positive_tests:
@@ -29,7 +29,10 @@ mechanical_binding:
   - test_any_out_of_scope_removal_is_rejected_semantically
   - test_authority_retarget_is_rejected_semantically
   - test_byte_drift_has_its_own_failure
+  - test_candidate_binding_extra_runtime_claim_is_rejected
+  - test_candidate_review_extra_runtime_claim_is_rejected
   - test_ci_comment_is_not_operational
+  - test_ci_custom_shell_cannot_make_commands_inert
   - test_ci_false_condition_is_rejected
   - test_complete_gate_removal_is_rejected_semantically
   - test_contradictory_extra_acceptance_key_is_rejected
@@ -43,10 +46,14 @@ mechanical_binding:
   - test_parent_drift_is_rejected_even_if_scope_parent_hash_is_rebound
   - test_parent_locale_copy_drift_is_rejected_by_parent_guard
   - test_partial_microstep_acceptance_is_rejected_semantically
+  - test_planned_topology_cannot_claim_runtime_state
   - test_post_runtime_product_promotion_is_rejected_semantically
   - test_product_promotion_is_rejected_semantically
+  - test_promoted_binding_extra_runtime_claim_is_rejected
   - test_promoted_fixture_passes_and_hostile_is_not_lifecycle_vacuous
+  - test_promoted_review_extra_user_validated_claim_is_rejected
   - test_r4_obligation_ownership_swap_is_rejected_semantically
+  - test_r4_planned_file_swap_is_rejected
   - test_required_control_removal_is_rejected_semantically
   - test_required_test_mode_removal_is_rejected_semantically
   - test_runtime_gate_registry_claim_is_rejected_semantically
