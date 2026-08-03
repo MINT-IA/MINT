@@ -30,8 +30,27 @@ ANCHOR = "7bbf90b447c5d772597bd807810c39b22b232632"
 
 EXPECTED_SCOPE_SHA256 = "ecb83ff852211d055ca50d9e0667d138b744e1bca1a7ba81131c2c1814761f8a"
 EXPECTED_COPY_SHA256 = "3c6d19a37dee264bf5bd0b9e80151eac2796b6a517ddd82a96feb397c49050fe"
-EXPECTED_TEST_SHA256 = "b46c2b6c9c60ef9f29eb972b388ba04ccc1a238f51a5cc518c426f95bea1d5fb"
+EXPECTED_TEST_SHA256 = "3bee04dfaaf7fe76b8e84b0bf719591217a3368262ee9914a42b593c65b15c40"
 EXPECTED_FIXTURE_SHA256 = "204e505c92a94c650f888d872faf8240b58a763d8d2fa2326ad1c6796b8534ec"
+EXPECTED_PUBSPEC_SHA256 = "0b83bf36a5ee2242becbd0fb601235f0c3b2942813207552a03957aaf1569326"
+EXPECTED_LIB_SOURCE_SHA256 = {
+    "design_lab_app.dart": "95a795d2b68360365792da2966864be476ca00f6064a53637454cd686a2d812f",
+    "l10n/generated/mint_next_localizations.dart": "4fb82bcbeb91bfc814d8e773615cf972933b8810749271928ece466034056a13",
+    "l10n/generated/mint_next_localizations_de.dart": "950543ea668b2370bd260d362508978a7443b6f5ca527adea8e3f708d01dc45e",
+    "l10n/generated/mint_next_localizations_en.dart": "79c5382c4f1832e19ad78bd99223ac60f32c7f53475b381392e6b13303b48998",
+    "l10n/generated/mint_next_localizations_es.dart": "e55a7388fa3528c1f4b45fb431ff91c6b8a737b051781cfa3e57b7f3842e4f99",
+    "l10n/generated/mint_next_localizations_fr.dart": "d8453505d2b796f9b0e4d53b690b465e7b3b9cd3671dc2f6483937900440f639",
+    "l10n/generated/mint_next_localizations_it.dart": "28f997c26dc66796b999aabe23aa8dc67aea440c85c5f45db2854e184e641e95",
+    "l10n/generated/mint_next_localizations_pt.dart": "0873ec7c8617e7b84667b0d3ae47e0bca8df86eab296849a84e839279e797370",
+    "main.dart": "5c8b1681e8997acde204ff7049204fb55aa9829d98c81dd065202992c85efd24",
+    "multi_provider_amount_draft.dart": "6ec168f74f21d56703eb37498c3a5ac86a13d1911b01e1296832144d2849e6c7",
+    "multi_provider_amount_editor.dart": "3f2bf5c29e678bc4a0dd8a0d7fba6365a4d0fd751ea9f93f548804a01019f145",
+    "multi_provider_casefold_data.dart": "9acee5029f8b19b02c2fc87cc133a199efaf5aa8c9c5226f7ceaca870d5f2115",
+    "multi_provider_default_ignorable_data.dart": "0f8bb0b187d94f0c5cfb56e1735f220541c5ed7a9238917a66c92aec799bec66",
+    "multi_provider_label.dart": "f39f18d582dcec006422631710f1168d3fd582da1dc688bf330ca0f8c56757ac",
+    "ordinary_chf_amount.dart": "43c9850e89d0696f98d11c1b6cdd295ab48aeb480149b8d5e60116fccf4b55be",
+    "provider_label.dart": "06f3714e147660539e6eed40898f9f691a77b7fdaa50f7ca6ad7a44d36c3188a",
+}
 EXPECTED_ORDER = [
     "R1", "R2", "R3", "R4a_safe_exit",
     "R4b_lifecycle_generation_and_privacy",
@@ -85,21 +104,6 @@ EXPECTED_BLOCKED_GATES = {
     "R4": "blocked_by_R4d",
     "runtime_global": "blocked_by_R4",
 }
-FORBIDDEN_CAPABILITY_TOKENS = {
-    "package:http", "package:dio", "shared_preferences", "firebase_analytics",
-    "package:sentry", "dart:developer", "dart:io", "dart:ffi",
-}
-FORBIDDEN_CAPABILITY_IDENTIFIERS = {
-    "ServicesBinding", "SystemChannels", "PlatformDispatcher", "sendPlatformMessage",
-    "print", "dumpErrorToConsole", "presentError", "reportError",
-    "analytics", "logger",
-}
-FORBIDDEN_CAPABILITY_IDENTIFIER_PATTERNS = {
-    r"[A-Za-z0-9_]*(?:MethodChannel|MessageChannel|EventChannel|BinaryMessenger)",
-    r"debug(?:Print|Dump)[A-Za-z0-9_]*",
-}
-
-
 class GuardFailure(RuntimeError):
     pass
 
@@ -282,32 +286,22 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     )
     _require(_sha(root / TEST) == EXPECTED_TEST_SHA256, "R1 test digest drifted")
     _require(_sha(root / FIXTURE) == EXPECTED_FIXTURE_SHA256, "R1 fixture digest drifted")
+    _require(_sha(root / PUBSPEC) == EXPECTED_PUBSPEC_SHA256, "reviewed pubspec digest drifted")
     pubspec = _load(root / PUBSPEC)
     _require(
         set(pubspec.get("dependencies", {}))
         == {"characters", "flutter", "flutter_localizations", "intl", "unorm_dart"},
         "Design Lab dependency capability surface widened",
     )
-    capability_source = "\n".join(
-        path.read_text(encoding="utf-8")
+    sources = {
+        path.relative_to(root / LIB_ROOT).as_posix(): _sha(path)
         for path in sorted((root / LIB_ROOT).rglob("*.dart"))
+        if path.is_file() and not path.is_symlink()
+    }
+    _require(
+        sources == EXPECTED_LIB_SOURCE_SHA256,
+        "reviewed RED runtime source inventory or digest drifted",
     )
-    leaked = sorted(token for token in FORBIDDEN_CAPABILITY_TOKENS if token in capability_source)
-    leaked.extend(
-        sorted(
-            identifier
-            for identifier in FORBIDDEN_CAPABILITY_IDENTIFIERS
-            if re.search(rf"(?<![A-Za-z0-9_$]){re.escape(identifier)}(?![A-Za-z0-9_$])", capability_source)
-        )
-    )
-    leaked.extend(
-        sorted(
-            pattern
-            for pattern in FORBIDDEN_CAPABILITY_IDENTIFIER_PATTERNS
-            if re.search(rf"(?<![A-Za-z0-9_$])(?:{pattern})(?![A-Za-z0-9_$])", capability_source)
-        )
-    )
-    _require(not leaked, f"Design Lab uninstrumented capability path present: {leaked}")
     if check_git:
         _validate_diff_boundary(root)
 

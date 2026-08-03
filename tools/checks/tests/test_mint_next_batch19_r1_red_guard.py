@@ -163,10 +163,10 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "not a regular file"):
             guard.validate(self.root, check_git=False)
 
-    def test_uninstrumented_method_channel_is_rejected(self) -> None:
+    def test_any_unreviewed_runtime_source_mutation_is_rejected(self) -> None:
         path = self.root / guard.LIB_ROOT / "design_lab_app.dart"
-        path.write_text(path.read_text() + "\n// MethodChannel('analytics')\n")
-        with self.assertRaisesRegex(guard.GuardFailure, "uninstrumented capability"):
+        path.write_text(path.read_text() + "\n// Even harmless drift requires a new reviewed candidate.\n")
+        with self.assertRaisesRegex(guard.GuardFailure, "source inventory or digest drifted"):
             guard.validate(self.root, check_git=False)
 
     def test_channel_and_platform_constructor_bypasses_are_rejected(self) -> None:
@@ -177,6 +177,10 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             "final optionalNew = OptionalMethodChannel.new('mint.exfil');",
             "final background = BackgroundIsolateBinaryMessenger.instance;",
             "final custom = createBinaryMessenger();",
+            "Image.network('https://evil.example/leak');",
+            "final image = NetworkImage('https://evil.example/leak');",
+            "Clipboard.setData(const ClipboardData(text: 'secret'));",
+            "import 'dart:html' as h;",
             "SystemChannels.platform.invokeMethod<void>('exfil');",
             "PlatformDispatcher.instance.sendPlatformMessage('exfil', null, (_) {});",
             "WidgetsBinding.instance.defaultBinaryMessenger.send('mint.exfil', null);",
@@ -196,8 +200,20 @@ class Batch19R1RedGuardTest(unittest.TestCase):
                     shutil.copytree(self.root, root, dirs_exist_ok=True)
                     path = root / guard.LIB_ROOT / "design_lab_app.dart"
                     path.write_text(path.read_text() + f"\n{mutation}\n")
-                    with self.assertRaisesRegex(guard.GuardFailure, "uninstrumented capability"):
+                    with self.assertRaisesRegex(guard.GuardFailure, "source inventory or digest drifted"):
                         guard.validate(root, check_git=False)
+
+    def test_dev_dependency_alias_cannot_widen_capabilities(self) -> None:
+        path = self.root / guard.PUBSPEC
+        path.write_text(
+            path.read_text().replace(
+                "dev_dependencies:\n",
+                "dev_dependencies:\n  innocent:\n    path: /tmp/attacker-package\n",
+                1,
+            )
+        )
+        with self.assertRaisesRegex(guard.GuardFailure, "pubspec digest drifted"):
+            guard.validate(self.root, check_git=False)
 
     def test_nonexistent_batch18_harness_is_rejected(self) -> None:
         path = self.root / guard.TEST
