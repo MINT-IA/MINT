@@ -154,7 +154,8 @@ graph:
         operation:
           bound_active_row: focus_first_invalid_or_empty_control_in_order_provider_name_safety_or_empty_then_amount_invalid_or_empty_then_duplicate_provider_name_then_unresolved_classification_help
           bound_tombstoned_row: focus_bound_tombstone_undo_then_finalize_group
-          unallocated: route_partial_help_focus_capacity_recovery_or_education
+          unallocated_under_capacity: apply_missing_provider_resolution_contract_recovery_transition_without_new_token_then_focus_exact_bound_row_control
+          unallocated_at_capacity: route_partial_help_focus_capacity_recovery_or_education
         repeated_activation: idempotent_never_create_or_rebind_token
       retract_missing_provider:
         visibility: missing_provider_declared_or_allocation_blocked
@@ -205,7 +206,7 @@ graph:
         mutation: canonical_total_remains_null
       back_or_system_back:
         to: fact_contributed_amount
-        focus: missing_amount_trigger
+        focus: return_to_missing_request_trigger_for_active_bound_or_unallocated_request
     mode_no_amount_known:
       purpose: explain_how_to_find_the_first_provider_total
       primary:
@@ -378,6 +379,9 @@ missing_provider_resolution_contract:
     second: if_no_eligible_row_and_rendered_count_below_50_allocate_one_synthetic_empty_row_and_bind
     third: if_no_eligible_row_and_rendered_count_is_50_stay_unallocated_set_allocation_blocked
   capacity_freed_by_finalize: if_unallocated_atomically_allocate_and_bind_one_empty_row
+  recovery_control_while_unallocated:
+    under_capacity: rerun_exact_declaration_transition_order_without_creating_or_rebinding_token_then_focus_exact_bound_row_control
+    at_capacity: remain_unallocated_route_partial_help_focus_education_action
   ordinary_add_while_unallocated: bind_added_row_once
   ordinary_add_while_bound: never_rebind_token_new_row_is_unrelated
   edits_after_binding: never_unbind_or_rebind_token_invalid_or_duplicate_or_unresolved_bound_row_remains_bound_until_resolved_retracted_tombstoned_or_finalized
@@ -399,6 +403,7 @@ row_count_contract:
     undo_existing_tombstone: always_allowed_without_new_row_id
     finalize_tombstone: frees_one_rendered_slot_but_row_id_is_never_reused
     copy_fr: Cette saisie accepte jusqu’à 50 lignes. Confirme une suppression, ou continue sans montant personnel si ta situation dépasse cette limite.
+    six_locale_intent: technical_non_fiscal_50_rendered_row_limit_with_finalize_then_add_education_only_and_safe_exit_recovery_choices
     continue_education_only_without_personal_amount: {to: education_explanation, mutation: canonical_total_remains_null}
     leave_without_saving: {to: safe_exit_overlay}
   never_present_as_provider_or_3a_legal_limit: true
@@ -509,10 +514,17 @@ state_contract:
   network_transmission_of_names_amounts_subtotal_or_rows: forbidden
   unresolved_movement_correction_or_classification: canonical_total_null_until_provider_confirmed_amount_and_global_reconfirmation
   tombstone_lifecycle:
+    operation_token_generation:
+      remove: create_fresh_one_shot_remove_token_for_active_row_generation
+      undo: consume_remove_token_create_fresh_one_shot_undo_token_for_same_tombstone_generation
+      remove_after_undo: consume_prior_generation_and_create_new_tombstone_generation_with_fresh_remove_token
+      finalize: consume_current_generation_token_retire_row_id_and_all_tokens
+      stale_callback_from_any_prior_generation: no_op_never_recreate_retarget_or_mutate
     preserved_through: [all_help_modes_and_back, entire_reversible_inherited_education_subgraph, safe_exit_resume_cancel_or_system_back, fact_contribution_correction_and_back]
     finalized_only_by: [explicit_finalize_remove, status_change, tax_year_change, explicit_education_session_completion_or_reference_save, leave_without_saving, app_kill_or_ttl_expiry]
-  stale_callback_after_finalize:
-    edit_focus_remove_undo_or_finalize_for_retired_row_id: no_op_never_recreate_or_retarget_with_polite_announcement_when_user_visible
+  stale_callback_after_finalize_or_any_terminal_purge:
+    generation_and_session_identity: never_reused_across_finalize_status_tax_year_leave_app_kill_or_ttl_purge
+    delayed_edit_focus_remove_undo_or_finalize_for_retired_row_id_or_session: no_op_never_recreate_retarget_mutate_cross_year_or_restore_personal_data_with_polite_announcement_when_user_visible
 
 focus_contract:
   every_node_entry: temporarily_focus_semantic_heading_without_adding_heading_to_tab_order
@@ -578,6 +590,7 @@ six_locale_intent_contract:
     - selected_provider_full_refund_with_other_positive_provider_rows_tombstones_only_selected_row_preserves_other_rows_and_requires_global_reconfirmation
     - only_explicit_nothing_remaining_across_all_providers_returns_to_status_without_automatic_zero
     - insurance_uses_annual_attestation_not_cash_value_or_risk_savings_split
+    - technical_non_fiscal_50_rendered_row_limit_and_finalize_add_education_only_or_safe_exit_recovery_choices
   semantic_review_evidence_required_locale_by_locale: true
   key_parity_alone_is_insufficient: true
 
@@ -609,6 +622,7 @@ proof_contract:
     - stale_confirmation_after_any_mutation
     - stale_commit_after_unchecking_confirmation_or_declaring_missing_provider
     - stale_remove_or_undo_callback_and_row_id_reuse
+    - remove_undo_remove_requires_fresh_generation_tokens_and_rejects_prior_callbacks
     - active_row_count_confused_with_tombstone_count
     - tombstone_lost_across_reversible_help_overlay_correction_or_education_route
     - rendered_row_capacity_allocation_or_undo_bypass
@@ -625,6 +639,7 @@ proof_contract:
     - full_refund_route_missing_correction_entry_mode_or_ambiguously_mutating_row
     - education_subgraph_loses_or_leaks_tombstone_and_personal_state
     - stale_edit_or_focus_callback_recreates_finalized_row
+    - delayed_callback_after_status_tax_year_leave_app_kill_or_ttl_purge_recreates_or_mutates_state
     - runtime_proof_omits_missing_request_finalize_capacity_or_exact_purge_paths
     - pending_missing_recovery_label_accessible_name_or_state_focus_missing
     - missing_request_binding_nondeterministic_or_targets_unresolved_or_duplicate_row
