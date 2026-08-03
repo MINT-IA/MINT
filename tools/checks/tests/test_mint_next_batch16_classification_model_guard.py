@@ -26,6 +26,7 @@ FILES = (
     Path("tools/checks/tests/test_mint_next_batch16_classification_model_guard.py"),
     Path("product/mint_next/batch7/design_lab/test/multi_provider_amount_draft_test.dart"),
     Path("product/mint_next/batch7/design_lab/test/design_lab_multi_provider_runtime_test.dart"),
+    Path("product/mint_next/batch7/design_lab/test/multi_provider_unresolved_siblings_test.dart"),
 )
 
 
@@ -66,6 +67,21 @@ class Batch16ClassificationModelGuardTest(unittest.TestCase):
         path.write_text(path.read_text() + "\n// weakened proof\n")
         self.assertTrue(validate_static(self.root))
 
+    def test_missing_sibling_executable_test_is_rejected(self) -> None:
+        path = self.root / FILES[12]
+        path.write_text(
+            path.read_text().replace(
+                "doubt issues distinct provider refund and all-zero siblings",
+                "removed sibling proof",
+            )
+        )
+        self.assertTrue(validate_static(self.root))
+
+    def test_sibling_test_digest_drift_is_rejected(self) -> None:
+        path = self.root / FILES[12]
+        path.write_text(path.read_text() + "\n// weakened sibling proof\n")
+        self.assertTrue(validate_static(self.root))
+
     def test_editor_exposure_is_rejected(self) -> None:
         path = self.root / FILES[1]
         path.write_text(path.read_text() + "\n// markAmountUnresolved\n")
@@ -104,7 +120,7 @@ class Batch16ClassificationModelGuardTest(unittest.TestCase):
     def test_coordinated_behavior_claim_drift_is_rejected(self) -> None:
         path = self.root / FILES[5]
         data = yaml.safe_load(path.read_text())
-        data["accepted_behavior"]["provider_reported_resolution"] = "confirmed"
+        data["accepted_behavior"]["provider_total"] = "confirmed"
         path.write_text(yaml.safe_dump(data, sort_keys=False))
         self._rebind_receipt_hash()
         self.assertTrue(validate_static(self.root))
@@ -113,6 +129,14 @@ class Batch16ClassificationModelGuardTest(unittest.TestCase):
         path = self.root / FILES[5]
         data = yaml.safe_load(path.read_text())
         data["explicitly_not_implemented"].remove("product_route")
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        self._rebind_receipt_hash()
+        self.assertTrue(validate_static(self.root))
+
+    def test_red_first_commit_identity_drift_is_rejected(self) -> None:
+        path = self.root / FILES[5]
+        data = yaml.safe_load(path.read_text())
+        data["red_test_commit"] = "not-red-first"
         path.write_text(yaml.safe_dump(data, sort_keys=False))
         self._rebind_receipt_hash()
         self.assertTrue(validate_static(self.root))

@@ -56,35 +56,117 @@ void main() {
     expect(draft.rows.length, 2);
   });
 
-  test('eligible refund tombstones exact origin and preserves every other row', () {
+  test(
+    'eligible refund tombstones exact origin and preserves every other row',
+    () {
+      final draft = MultiProviderAmountDraft();
+      final rows = twoRows(draft);
+      expect(draft.setAllProvidersReviewed(true), isTrue);
+      final secondName = rows.last.providerName;
+      final secondAmount = rows.last.amountMinorUnits;
+      final secondClassification = rows.last.classification;
+      final origin = draft.markAmountUnresolved(rows.first.editToken)!;
+
+      expect(
+        draft.refundFullyProvider(origin.refundToken),
+        MultiProviderUnresolvedRefundResult.tombstoned,
+      );
+
+      expect(rows.first.lifecycle, MultiProviderRowLifecycle.tombstone);
+      expect(rows.first.undoToken, isNotNull);
+      expect(rows.last.lifecycle, MultiProviderRowLifecycle.active);
+      expect(rows.last.providerName, secondName);
+      expect(rows.last.amountMinorUnits, secondAmount);
+      expect(rows.last.classification, secondClassification);
+      expect(draft.provisionalSubtotalMinorUnits, secondAmount);
+      expect(
+        draft.resolveProviderReportedTotal(origin.resolveToken),
+        MultiProviderUnresolvedActionResult.stale,
+      );
+      expect(
+        draft.beginAllProvidersZeroCorrection(origin.allZeroToken),
+        MultiProviderAllZeroCorrectionResult.stale,
+      );
+      expect(
+        draft.refundFullyProvider(origin.refundToken),
+        MultiProviderUnresolvedRefundResult.stale,
+      );
+      expect(
+        draft.undoRemoval(rows.first.undoToken!),
+        MultiProviderUndoResult.restored,
+      );
+      expect(
+        rows.first.classification,
+        MultiProviderAmountClassification.unresolved,
+      );
+      expect(
+        draft.resolveProviderReportedTotal(origin.resolveToken),
+        MultiProviderUnresolvedActionResult.stale,
+      );
+      expect(
+        draft.refundFullyProvider(origin.refundToken),
+        MultiProviderUnresolvedRefundResult.stale,
+      );
+      expect(
+        draft.beginAllProvidersZeroCorrection(origin.allZeroToken),
+        MultiProviderAllZeroCorrectionResult.stale,
+      );
+    },
+  );
+
+  test('simultaneous origins never cross-target or consume the other row', () {
     final draft = MultiProviderAmountDraft();
     final rows = twoRows(draft);
-    expect(draft.setAllProvidersReviewed(true), isTrue);
-    final secondName = rows.last.providerName;
-    final secondAmount = rows.last.amountMinorUnits;
-    final secondClassification = rows.last.classification;
-    final origin = draft.markAmountUnresolved(rows.first.editToken)!;
+    final firstOrigin = draft.markAmountUnresolved(rows.first.editToken)!;
+    final secondOrigin = draft.markAmountUnresolved(rows.last.editToken)!;
 
     expect(
-      draft.refundFullyProvider(origin.refundToken),
+      draft.refundFullyProvider(secondOrigin.refundToken),
       MultiProviderUnresolvedRefundResult.tombstoned,
     );
+    expect(rows.last.lifecycle, MultiProviderRowLifecycle.tombstone);
+    expect(rows.first.lifecycle, MultiProviderRowLifecycle.active);
+    expect(
+      rows.first.classification,
+      MultiProviderAmountClassification.unresolved,
+    );
+    expect(
+      draft.beginAllProvidersZeroCorrection(firstOrigin.allZeroToken),
+      MultiProviderAllZeroCorrectionResult.ready,
+    );
+    expect(
+      draft.resolveProviderReportedTotal(firstOrigin.resolveToken),
+      MultiProviderUnresolvedActionResult.resolvedToUnreviewed,
+    );
+    expect(rows.first.amountMinorUnits, 100000);
+    expect(rows.last.amountMinorUnits, isNull);
+  });
 
-    expect(rows.first.lifecycle, MultiProviderRowLifecycle.tombstone);
-    expect(rows.first.undoToken, isNotNull);
-    expect(rows.last.lifecycle, MultiProviderRowLifecycle.active);
-    expect(rows.last.providerName, secondName);
-    expect(rows.last.amountMinorUnits, secondAmount);
-    expect(rows.last.classification, secondClassification);
-    expect(draft.provisionalSubtotalMinorUnits, secondAmount);
+  test('provider-total on one origin leaves the other refund valid', () {
+    final draft = MultiProviderAmountDraft();
+    final rows = twoRows(draft);
+    final firstOrigin = draft.markAmountUnresolved(rows.first.editToken)!;
+    final secondOrigin = draft.markAmountUnresolved(rows.last.editToken)!;
+
     expect(
-      draft.resolveProviderReportedTotal(origin.resolveToken),
-      MultiProviderUnresolvedActionResult.stale,
+      draft.resolveProviderReportedTotal(firstOrigin.resolveToken),
+      MultiProviderUnresolvedActionResult.resolvedToUnreviewed,
+    );
+    expect(rows.first.lifecycle, MultiProviderRowLifecycle.active);
+    expect(
+      rows.first.classification,
+      MultiProviderAmountClassification.unreviewed,
     );
     expect(
-      draft.beginAllProvidersZeroCorrection(origin.allZeroToken),
-      MultiProviderAllZeroCorrectionResult.stale,
+      rows.last.classification,
+      MultiProviderAmountClassification.unresolved,
     );
+    expect(
+      draft.refundFullyProvider(secondOrigin.refundToken),
+      MultiProviderUnresolvedRefundResult.tombstoned,
+    );
+    expect(rows.first.amountMinorUnits, 100000);
+    expect(rows.last.lifecycle, MultiProviderRowLifecycle.tombstone);
   });
 
   test('ineligible refund is a no-op and consumes nothing', () {
@@ -121,7 +203,10 @@ void main() {
       draft.beginAllProvidersZeroCorrection(origin.allZeroToken),
       MultiProviderAllZeroCorrectionResult.ready,
     );
-    expect(rows.first.classification, MultiProviderAmountClassification.unresolved);
+    expect(
+      rows.first.classification,
+      MultiProviderAmountClassification.unresolved,
+    );
     expect(rows.first.amountMinorUnits, 100000);
     expect(draft.provisionalSubtotalMinorUnits, 300000);
     expect(
@@ -154,27 +239,65 @@ void main() {
     );
   });
 
-  test('new doubt creates fresh siblings and every old sibling stays stale', () {
+  test(
+    'new doubt creates fresh siblings and every old sibling stays stale',
+    () {
+      final draft = MultiProviderAmountDraft();
+      final rows = twoRows(draft);
+      final old = draft.markAmountUnresolved(rows.first.editToken)!;
+      final fresh = draft.markAmountUnresolved(rows.first.editToken)!;
+
+      expect(fresh.resolveToken, isNot(same(old.resolveToken)));
+      expect(fresh.refundToken, isNot(same(old.refundToken)));
+      expect(fresh.allZeroToken, isNot(same(old.allZeroToken)));
+      expect(
+        draft.refundFullyProvider(old.refundToken),
+        MultiProviderUnresolvedRefundResult.stale,
+      );
+      expect(
+        draft.beginAllProvidersZeroCorrection(old.allZeroToken),
+        MultiProviderAllZeroCorrectionResult.stale,
+      );
+      expect(
+        draft.beginAllProvidersZeroCorrection(fresh.allZeroToken),
+        MultiProviderAllZeroCorrectionResult.ready,
+      );
+    },
+  );
+
+  test('provider and amount edits retire every sibling before mutation', () {
     final draft = MultiProviderAmountDraft();
     final rows = twoRows(draft);
-    final old = draft.markAmountUnresolved(rows.first.editToken)!;
-    final fresh = draft.markAmountUnresolved(rows.first.editToken)!;
+    final beforeName = draft.markAmountUnresolved(rows.first.editToken)!;
 
-    expect(fresh.resolveToken, isNot(same(old.resolveToken)));
-    expect(fresh.refundToken, isNot(same(old.refundToken)));
-    expect(fresh.allZeroToken, isNot(same(old.allZeroToken)));
     expect(
-      draft.refundFullyProvider(old.refundToken),
+      draft.updateProviderName(rows.first.editToken, 'VIAC Suisse'),
+      isTrue,
+    );
+    expect(
+      draft.refundFullyProvider(beforeName.refundToken),
       MultiProviderUnresolvedRefundResult.stale,
     );
     expect(
-      draft.beginAllProvidersZeroCorrection(old.allZeroToken),
+      draft.beginAllProvidersZeroCorrection(beforeName.allZeroToken),
       MultiProviderAllZeroCorrectionResult.stale,
     );
+
+    final beforeAmount = draft.markAmountUnresolved(rows.first.editToken)!;
     expect(
-      draft.beginAllProvidersZeroCorrection(fresh.allZeroToken),
-      MultiProviderAllZeroCorrectionResult.ready,
+      draft.updateAmount(rows.first.editToken, '1500', locale: 'fr'),
+      isTrue,
     );
+    expect(
+      draft.refundFullyProvider(beforeAmount.refundToken),
+      MultiProviderUnresolvedRefundResult.stale,
+    );
+    expect(
+      draft.beginAllProvidersZeroCorrection(beforeAmount.allZeroToken),
+      MultiProviderAllZeroCorrectionResult.stale,
+    );
+    expect(rows.first.amountMinorUnits, 150000);
+    expect(rows.last.amountMinorUnits, 200000);
   });
 
   test('purge makes every sibling permanently stale', () {

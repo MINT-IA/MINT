@@ -26,6 +26,10 @@ enum MultiProviderFinalizeResult { finalized, stale }
 
 enum MultiProviderUnresolvedActionResult { resolvedToUnreviewed, stale }
 
+enum MultiProviderUnresolvedRefundResult { tombstoned, ineligible, stale }
+
+enum MultiProviderAllZeroCorrectionResult { ready, stale }
+
 sealed class _RowToken {
   const _RowToken(this.rowId, this.epoch, this.generation, this.nonce);
   final String rowId;
@@ -79,11 +83,38 @@ final class MultiProviderUnresolvedResolveToken extends _RowToken {
   );
 }
 
+final class MultiProviderUnresolvedRefundToken extends _RowToken {
+  const MultiProviderUnresolvedRefundToken._(
+    super.rowId,
+    super.epoch,
+    super.generation,
+    super.nonce,
+  );
+}
+
+final class MultiProviderUnresolvedAllZeroToken extends _RowToken {
+  const MultiProviderUnresolvedAllZeroToken._(
+    super.rowId,
+    super.epoch,
+    super.generation,
+    super.nonce,
+  );
+}
+
 final class MultiProviderUnresolvedOrigin {
-  const MultiProviderUnresolvedOrigin._(this.rowId, this.resolveToken);
+  const MultiProviderUnresolvedOrigin._(
+    this.rowId,
+    this.resolveToken,
+    this.refundToken,
+    this.allZeroToken,
+    this._capturedRemoveToken,
+  );
 
   final String rowId;
   final MultiProviderUnresolvedResolveToken resolveToken;
+  final MultiProviderUnresolvedRefundToken refundToken;
+  final MultiProviderUnresolvedAllZeroToken allZeroToken;
+  final MultiProviderRemoveToken _capturedRemoveToken;
 }
 
 class MultiProviderAmountRow {
@@ -258,6 +289,19 @@ class MultiProviderAmountDraft {
         row._generation,
         _nextNonce++,
       ),
+      MultiProviderUnresolvedRefundToken._(
+        row.id,
+        _sessionEpoch,
+        row._generation,
+        _nextNonce++,
+      ),
+      MultiProviderUnresolvedAllZeroToken._(
+        row.id,
+        _sessionEpoch,
+        row._generation,
+        _nextNonce++,
+      ),
+      row._removeToken!,
     );
     row
       .._classification = MultiProviderAmountClassification.unresolved
@@ -280,6 +324,50 @@ class MultiProviderAmountDraft {
     row._classification = MultiProviderAmountClassification.unreviewed;
     _invalidateCommit();
     return MultiProviderUnresolvedActionResult.resolvedToUnreviewed;
+  }
+
+  MultiProviderUnresolvedRefundResult refundFullyProvider(
+    MultiProviderUnresolvedRefundToken token,
+  ) {
+    final row = _rowFor(token);
+    final origin = row?._unresolvedOrigin;
+    if (row == null ||
+        !row.isActive ||
+        row._classification != MultiProviderAmountClassification.unresolved ||
+        origin == null ||
+        !identical(origin.refundToken, token)) {
+      return MultiProviderUnresolvedRefundResult.stale;
+    }
+    final anotherPositiveProvider = _activeRows.any(
+      (candidate) =>
+          !identical(candidate, row) && candidate.hasPositiveExactAmount,
+    );
+    if (!row.hasPositiveExactAmount ||
+        !anotherPositiveProvider ||
+        !identical(row._removeToken, origin._capturedRemoveToken)) {
+      return MultiProviderUnresolvedRefundResult.ineligible;
+    }
+
+    _invalidateUnresolvedOrigin(row);
+    final result = removeProvider(origin._capturedRemoveToken);
+    if (result != MultiProviderRemoveResult.tombstoned) {
+      throw StateError('validated unresolved refund must tombstone exact row');
+    }
+    return MultiProviderUnresolvedRefundResult.tombstoned;
+  }
+
+  MultiProviderAllZeroCorrectionResult beginAllProvidersZeroCorrection(
+    MultiProviderUnresolvedAllZeroToken token,
+  ) {
+    final row = _rowFor(token);
+    if (row == null ||
+        !row.isActive ||
+        row._classification != MultiProviderAmountClassification.unresolved ||
+        !identical(row._unresolvedOrigin?.allZeroToken, token)) {
+      return MultiProviderAllZeroCorrectionResult.stale;
+    }
+    _invalidateCommit();
+    return MultiProviderAllZeroCorrectionResult.ready;
   }
 
   MultiProviderAddResult addProvider() {

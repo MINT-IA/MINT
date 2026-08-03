@@ -1,16 +1,19 @@
 schema_version: 1
-batch: 16A
-status: accepted_hidden_model_groundwork_only
+batch: 16B
+status: accepted_hidden_sibling_transaction_groundwork_only
 contract_ref: product/mint_next/batch16/classification-doubt-scope.yaml
 runtime_surface: no_new_control_or_route
 product_promotion: forbidden
 full_batch16_runtime_acceptance: forbidden
+red_test_commit: b4345742b
 
 exact_files:
   model: product/mint_next/batch7/design_lab/lib/multi_provider_amount_draft.dart
-  model_sha256: a10deeb5233715e767201e1480b73cc31e7b6704f24b2c6dff1088e3df89d5c2
-  tests: product/mint_next/batch7/design_lab/test/multi_provider_classification_test.dart
-  tests_sha256: b5e098a008cbd9819defa84ca22621a6f6c33b2c18be8e1095bd71af857e3de2
+  model_sha256: e8d4a4f2a5caae82cc8ca68181e4d9412b3c6ac44d909a82f12e074822f21db9
+  classification_tests: product/mint_next/batch7/design_lab/test/multi_provider_classification_test.dart
+  classification_tests_sha256: b5e098a008cbd9819defa84ca22621a6f6c33b2c18be8e1095bd71af857e3de2
+  sibling_tests: product/mint_next/batch7/design_lab/test/multi_provider_unresolved_siblings_test.dart
+  sibling_tests_sha256: 30f54327f785a761aaecdd43178c7654072ef6e42603de3175ecc0b991b97a0b
   prior_model_tests_sha256: fdec013acf75831821b54f922010eb65143d6daf1358eb459f756848b93e97de
   prior_widget_runtime_tests_sha256: 6cde992628aa5823fa47c87dacd342c687a64c323d9193c7c37869cfd9519cbe
   unchanged_editor_sha256: e273bb089c18335bb6455288e2e7377e3d0a8be7491c627c16fcada9f0da9675
@@ -19,17 +22,21 @@ exact_files:
 
 accepted_behavior:
   states: [unreviewed, confirmedOrdinary, unresolved]
+  sibling_tokens: distinct_provider_total_refund_and_all_zero_tokens_per_fresh_origin
+  provider_total: consumes_origin_and_all_siblings_then_returns_same_row_to_unreviewed_without_changing_amount
+  refund_success: validates_every_guard_before_consumption_then_uses_exact_captured_remove_token_and_tombstones_origin
+  refund_failed_validation: no_op_and_consume_nothing
+  all_zero_entry: validates_same_origin_without_mutation_consumption_zero_or_status_inference
   unresolved: included_in_provisional_subtotal_but_blocks_review_and_commit
-  provider_reported_resolution: returns_same_row_to_unreviewed_without_changing_amount
   confirmed_ordinary_only_by: successful_global_review
-  remove_undo: preserve_exact_classification
-  finalize_purge: erase_classification_and_origin
+  remove_undo: preserve_exact_classification_but_never_revive_old_siblings
+  finalize_purge: erase_classification_origin_and_siblings
   stale_actions: no_op
 
 explicitly_not_implemented:
   - unresolved_help_UI
-  - refund_sibling_token_and_transaction
-  - all_zero_sibling_token_and_correction_route
+  - refund_help_UI
+  - all_zero_correction_route_and_status_choice
   - education_navigation_binding
   - six_locale_copy
   - runtime_guard_or_runtime_acceptance
@@ -41,9 +48,10 @@ roast_receipt:
   adversarial: accepted_p1_0_p2_0_p3_0
 
 proofs:
-  targeted_tests: 8
-  combined_model_tests: 26
-  combined_model_and_widget_runtime_tests: 59
+  classification_tests: 8
+  sibling_transaction_tests: 11
+  combined_model_tests: 37
+  combined_model_and_widget_runtime_tests: 70
   flutter_analyze: clean
   guard: tools/checks/mint_next_batch16_classification_model_guard.py
   guard_tests: tools/checks/tests/test_mint_next_batch16_classification_model_guard.py
