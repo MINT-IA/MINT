@@ -173,6 +173,27 @@ def _accepted(root: Path, data: dict, payload: str) -> None:
     _require(data.get("next_gate") == "create_and_review_R1_runtime_path_owner_receipt", "accepted next gate drifted")
 
 
+def _git_boundary(root: Path) -> None:
+    trust_paths = {str(ACCEPTANCE), str(GUARD), str(TESTS)}
+    try:
+        candidate_end = subprocess.run(
+            ["git", "log", "-1", "--format=%H", "HEAD", "--", *sorted(trust_paths)],
+            cwd=root, check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        _require(re.fullmatch(r"[0-9a-f]{40}", candidate_end) is not None, "cannot locate acceptance candidate commit")
+        changed = subprocess.run(
+            ["git", "diff", "--name-only", f"{RED_COMMIT}..{candidate_end}"],
+            cwd=root, check=True, capture_output=True, text=True,
+        ).stdout.splitlines()
+    except subprocess.CalledProcessError as exc:
+        raise GuardFailure("cannot inspect acceptance candidate boundary") from exc
+    product_changes = {
+        path for path in changed
+        if not path.startswith(".planning/journeys/path-owners/")
+    }
+    _require(product_changes <= trust_paths, f"acceptance scope widened: {sorted(product_changes - trust_paths)}")
+
+
 def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, check_git: bool = True) -> None:
     for relative in (ACCEPTANCE, GUARD, TESTS, OWNER, *RED_ARTIFACTS):
         path = root / relative
@@ -193,12 +214,7 @@ def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, ch
     else:
         raise GuardFailure("acceptance lifecycle status drifted")
     if check_git:
-        changed = subprocess.run(
-            ["git", "diff", "--name-only", f"{RED_COMMIT}..HEAD"],
-            cwd=root, check=True, capture_output=True, text=True,
-        ).stdout.splitlines()
-        allowed = {str(OWNER), str(ACCEPTANCE), str(GUARD), str(TESTS)}
-        _require(set(changed) <= allowed, f"acceptance scope widened: {sorted(set(changed) - allowed)}")
+        _git_boundary(root)
 
 
 def run_proofs(root: Path = REPO_ROOT) -> None:

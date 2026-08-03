@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -99,6 +100,34 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
         path.write_text(path.read_text().replace("test_runtime_implementation_claim", "removed_runtime_claim", 1))
         with self.assertRaisesRegex(guard.GuardFailure, "candidate payload drifted"):
             self._validate()
+
+    def test_future_path_owner_does_not_deadlock_accepted_next_gate(self) -> None:
+        completed = [
+            subprocess.CompletedProcess([], 0, "a" * 40 + "\n", ""),
+            subprocess.CompletedProcess(
+                [],
+                0,
+                "\n".join([
+                    str(guard.OWNER),
+                    str(guard.ACCEPTANCE),
+                    str(guard.GUARD),
+                    str(guard.TESTS),
+                    ".planning/journeys/path-owners/batch20-r1-runtime.json",
+                ]) + "\n",
+                "",
+            ),
+        ]
+        with patch.object(guard.subprocess, "run", side_effect=completed):
+            guard._git_boundary(self.root)
+
+    def test_non_owner_future_path_inside_candidate_window_is_rejected(self) -> None:
+        completed = [
+            subprocess.CompletedProcess([], 0, "a" * 40 + "\n", ""),
+            subprocess.CompletedProcess([], 0, "product/mint_next/hidden-runtime.dart\n", ""),
+        ]
+        with patch.object(guard.subprocess, "run", side_effect=completed):
+            with self.assertRaisesRegex(guard.GuardFailure, "acceptance scope widened"):
+                guard._git_boundary(self.root)
 
 
 if __name__ == "__main__":
