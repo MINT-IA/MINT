@@ -41,7 +41,7 @@
     }
   },
   "mechanical_binding": {
-    "candidate_review_payload_sha256": "6ef7ab3d6ce75cef6d63da268b356b75d6542875fe91f6336b43723bf2b9f31c",
+    "candidate_review_payload_sha256": "3f553531acfcbe00fca8ff92e60a09bc732fb2c27da09e1fd49552e38dff2786",
     "reviewed_payload_sha256": null,
     "reviewed_candidate_commit": null
   },

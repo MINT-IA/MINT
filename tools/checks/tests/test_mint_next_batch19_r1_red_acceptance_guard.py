@@ -7,14 +7,20 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
 from unittest.mock import patch
 
 from tools.checks import mint_next_batch19_r1_red_acceptance_guard as guard
 
 ROOT = Path(__file__).resolve().parents[3]
-FILES = (
-    guard.ACCEPTANCE,
+
+# The trust unit whose bytes feed the payload. The live acceptance RECEIPT is
+# deliberately NOT part of this list: this suite never seeds any assertion from
+# the committed receipt's lifecycle. Both the pending and accepted receipts are
+# rebuilt below from the guard's own canonical constants, so the suite is green
+# whether the on-disk receipt is pending or accepted.
+TRUST_FILES = (
     guard.GUARD,
     guard.TESTS,
     guard.OWNER,
@@ -22,24 +28,112 @@ FILES = (
     *guard.RED_ARTIFACTS,
 )
 
+PENDING_REVIEW = {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
+
+
+def _candidate(red_commit: str) -> dict:
+    return {
+        "red_commit": red_commit,
+        "gate": "R1",
+        "lifecycle": "expected_red",
+        "runtime_implemented": False,
+        "runtime_accepted": False,
+        "product_surface": "hidden_design_lab_only",
+        "expected_summary": {"passed": 2, "failed": 13, "load_or_harness_errors": 0},
+    }
+
+
+def _pending_receipt(payload: str, red_commit: str | None = None) -> dict:
+    return {
+        "schema_version": 2,
+        "status": "candidate_red_acceptance_unaccepted",
+        "current_verdict": "PENDING_INDEPENDENT_ROASTS",
+        "candidate": _candidate(red_commit or guard.RED_COMMIT),
+        "proof_commands": dict(guard.COMMANDS),
+        "reviews": {role: dict(PENDING_REVIEW) for role in guard.ROLES},
+        "mechanical_binding": {
+            "candidate_review_payload_sha256": payload,
+            "reviewed_payload_sha256": None,
+            "reviewed_candidate_commit": None,
+        },
+        "accepted_evidence": [],
+        "not_accepted": list(guard.NOT_ACCEPTED),
+        "next_gate": "independent_roasts_of_exact_pending_acceptance_commit",
+    }
+
+
+def _accepted_receipt(payload: str, commit: str, red_commit: str | None = None) -> dict:
+    accepted_review = {
+        "verdict": "ACCEPT", "p1": 0, "p2": 0, "p3": 0,
+        "reviewed_payload_sha256": payload,
+    }
+    return {
+        "schema_version": 2,
+        "status": "accepted_expected_red_evidence_runtime_not_implemented",
+        "current_verdict": "RED_CONTRACT_ACCEPTED_RUNTIME_NOT_IMPLEMENTED",
+        "candidate": _candidate(red_commit or guard.RED_COMMIT),
+        "proof_commands": dict(guard.COMMANDS),
+        "reviews": {role: dict(accepted_review) for role in guard.ROLES},
+        "mechanical_binding": {
+            "candidate_review_payload_sha256": payload,
+            "reviewed_payload_sha256": payload,
+            "reviewed_candidate_commit": commit,
+        },
+        "accepted_evidence": ["expected_failing_R1_contract_only"],
+        "not_accepted": list(guard.NOT_ACCEPTED),
+        "next_gate": "create_and_review_R1_runtime_path_owner_receipt",
+    }
+
+
+def _dumps(data: dict) -> str:
+    return json.dumps(data, ensure_ascii=False, indent=2) + "\n"
+
 
 class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
+    """State-agnostic hostile suite for the R1 RED acceptance guard.
+
+    Neither setUp nor any assertion reads the live committed receipt's
+    lifecycle. The PENDING base is a canonical receipt built here and bound to
+    the freshly computed payload; the ACCEPTED lifecycle is exercised against a
+    real temp-git repository. The suite therefore asserts BOTH lifecycles and
+    their falsifications and stays green whether the on-disk receipt is pending
+    or accepted.
+    """
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
-        for relative in FILES:
+        for relative in TRUST_FILES:
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, target)
+        # Canonical pending base, bound to the freshly computed payload — never
+        # a copy of the live receipt.
+        self._write(self.root, _pending_receipt("0" * 64))
+        self.payload = self._payload()
+        self._write(self.root, _pending_receipt(self.payload))
 
     def tearDown(self) -> None:
         self.temp.cleanup()
 
+    # --- helpers -----------------------------------------------------------
+    @staticmethod
+    def _write(root: Path, data: dict) -> None:
+        path = root / guard.ACCEPTANCE
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(_dumps(data))
+
+    @staticmethod
+    def _from_root(root, commit, relative):
+        return (ROOT / relative).read_bytes()
+
+    def _payload(self) -> str:
+        with patch.object(guard, "_git_bytes", side_effect=self._from_root):
+            return guard._payload(self.root)
+
     def _validate(self, **kwargs) -> None:
         with patch.object(guard, "_ancestor", return_value=True), patch.object(
-            guard,
-            "_git_bytes",
-            side_effect=lambda root, commit, relative: (ROOT / relative).read_bytes(),
+            guard, "_git_bytes", side_effect=self._from_root
         ):
             guard.validate(self.root, check_git=False, **kwargs)
 
@@ -47,10 +141,55 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
         path = self.root / guard.ACCEPTANCE
         data = json.loads(path.read_text())
         mutation(data)
-        path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+        path.write_text(_dumps(data))
         with self.assertRaisesRegex(guard.GuardFailure, expected):
             self._validate()
 
+    def _git(self, root: Path, *args: str) -> str:
+        return subprocess.run(
+            ["git", *args], cwd=root, check=True, capture_output=True, text=True
+        ).stdout.strip()
+
+    def _commit(self, root: Path, message: str) -> str:
+        self._git(root, "add", "-A")
+        self._git(root, "commit", "-q", "-m", message)
+        return self._git(root, "rev-parse", "HEAD")
+
+    def _accepted_repo(self):
+        """Build a real temp-git repo whose working tree carries the ACCEPTED
+        receipt and whose history carries the pending acceptance commit.
+
+        Reuses the temp-git pattern from
+        test_future_target_committed_before_owner_promotion_is_rejected so that
+        the accepted lifecycle is attested by real ``git show`` / ``merge-base``
+        rather than by copying the live receipt.
+        """
+        root = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        self._git(root, "init", "-q")
+        self._git(root, "config", "user.email", "test@mint.invalid")
+        self._git(root, "config", "user.name", "MINT Test")
+        for relative in TRUST_FILES:
+            target = root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / relative, target)
+        red_commit = self._commit(root, "red artifacts and trust unit")
+        with patch.object(guard, "RED_COMMIT", red_commit):
+            self._write(root, _pending_receipt("0" * 64, red_commit))
+            payload = guard._payload(root)
+            self._write(root, _pending_receipt(payload, red_commit))
+            pending_commit = self._commit(root, "acceptance candidate pending")
+            self._write(root, _accepted_receipt(payload, pending_commit, red_commit))
+        return root, payload, red_commit, pending_commit
+
+    @contextmanager
+    def _constants(self, red_commit: str):
+        with patch.object(guard, "RED_COMMIT", red_commit), patch.object(
+            guard, "OWNER_PROMOTION_COMMIT", red_commit
+        ), patch.object(guard, "TRUST_OWNER_PROMOTION_COMMIT", red_commit):
+            yield
+
+    # --- pending lifecycle -------------------------------------------------
     def test_pending_candidate_passes(self) -> None:
         self._validate(require_accepted=False)
 
@@ -141,6 +280,65 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
                     self._validate()
                 (self.root / relative).write_text(original)
 
+    # --- accepted lifecycle (real temp-git) --------------------------------
+    def test_accepted_candidate_passes(self) -> None:
+        root, _payload, red_commit, _pending_commit = self._accepted_repo()
+        with self._constants(red_commit):
+            guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_receipt_rejected_when_expecting_pending(self) -> None:
+        root, _payload, red_commit, _pending_commit = self._accepted_repo()
+        with self._constants(red_commit):
+            with self.assertRaisesRegex(guard.GuardFailure, "expected pending receipt"):
+                guard.validate(root, require_accepted=False, check_git=False)
+
+    def test_accepted_non_exact_review_is_rejected(self) -> None:
+        root, _payload, red_commit, _pending_commit = self._accepted_repo()
+        data = json.loads((root / guard.ACCEPTANCE).read_text())
+        data["reviews"]["mechanical_evidence"]["p1"] = 1
+        self._write(root, data)
+        with self._constants(red_commit):
+            with self.assertRaisesRegex(guard.GuardFailure, "accepted reviews are not exact"):
+                guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_widened_evidence_is_rejected(self) -> None:
+        root, _payload, red_commit, _pending_commit = self._accepted_repo()
+        data = json.loads((root / guard.ACCEPTANCE).read_text())
+        data["accepted_evidence"] = ["expected_failing_R1_contract_only", "runtime"]
+        self._write(root, data)
+        with self._constants(red_commit):
+            with self.assertRaisesRegex(guard.GuardFailure, "accepted evidence widened"):
+                guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_wrong_reviewed_payload_is_rejected(self) -> None:
+        root, _payload, red_commit, _pending_commit = self._accepted_repo()
+        data = json.loads((root / guard.ACCEPTANCE).read_text())
+        data["mechanical_binding"]["reviewed_payload_sha256"] = "f" * 64
+        self._write(root, data)
+        with self._constants(red_commit):
+            with self.assertRaisesRegex(guard.GuardFailure, "accepted payload drifted"):
+                guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_reviewed_commit_must_be_a_real_ancestor(self) -> None:
+        root, _payload, red_commit, _pending_commit = self._accepted_repo()
+        data = json.loads((root / guard.ACCEPTANCE).read_text())
+        data["mechanical_binding"]["reviewed_candidate_commit"] = "a" * 40
+        self._write(root, data)
+        with self._constants(red_commit):
+            with self.assertRaisesRegex(guard.GuardFailure, "reviewed candidate commit invalid"):
+                guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_reviewed_commit_must_carry_the_pending_receipt(self) -> None:
+        root, _payload, red_commit, _pending_commit = self._accepted_repo()
+        data = json.loads((root / guard.ACCEPTANCE).read_text())
+        # red_commit is a valid ancestor but never committed a receipt.
+        data["mechanical_binding"]["reviewed_candidate_commit"] = red_commit
+        self._write(root, data)
+        with self._constants(red_commit):
+            with self.assertRaisesRegex(guard.GuardFailure, "commit cannot provide"):
+                guard.validate(root, require_accepted=True, check_git=False)
+
+    # --- git boundary ------------------------------------------------------
     def test_future_path_owner_does_not_deadlock_accepted_next_gate(self) -> None:
         completed = [
             subprocess.CompletedProcess([], 0, "a" * 40 + "\n", ""),
@@ -433,9 +631,17 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
                 "import os\n"
                 "os._exit(0)\n"
             )
+            # The real defense is that the hostile user-site sitecustomize never
+            # executes inside the isolated (-ISB) proof children — the marker
+            # must not appear. Whether run_proofs then raises depends on the
+            # environment (absent Flutter -> "proof failed"; a full release
+            # environment may let the real proofs pass), so this assertion must
+            # not hinge on run_proofs raising.
             with patch.dict(os.environ, environment, clear=True):
-                with self.assertRaisesRegex(guard.GuardFailure, "proof failed"):
+                try:
                     guard.run_proofs(ROOT)
+                except guard.GuardFailure:
+                    pass
             self.assertFalse(marker.exists(), "user-site sitecustomize bypassed detached proofs")
 
 

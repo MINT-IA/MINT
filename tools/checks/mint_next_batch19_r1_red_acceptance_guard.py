@@ -412,6 +412,24 @@ def run_proofs(root: Path = REPO_ROOT) -> None:
             subprocess.run(["git", "worktree", "remove", "--force", str(replay)], cwd=root, capture_output=True)
 
 
+def run_acceptance_hostile_suite(root: Path = REPO_ROOT) -> None:
+    """Execute the sealed, state-agnostic hostile suite as part of the proof.
+
+    Binding the hostile mutations into --proof/--release means release
+    verification no longer depends on a mutable CI job running the same tests:
+    the guard itself asserts both the pending and accepted lifecycles and their
+    falsifications before it can print PASS.
+    """
+    completed = subprocess.run(
+        [
+            sys.executable, "-m", "unittest",
+            "tools.checks.tests.test_mint_next_batch19_r1_red_acceptance_guard",
+        ],
+        cwd=root,
+    )
+    _require(completed.returncode == 0, "acceptance hostile suite failed")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--release", action="store_true")
@@ -421,6 +439,7 @@ def main() -> int:
         validate(require_accepted=True if args.release else None)
         if args.proof or args.release:
             run_proofs()
+            run_acceptance_hostile_suite()
     except (GuardFailure, OSError, UnicodeError, json.JSONDecodeError, subprocess.CalledProcessError) as exc:
         print(f"BATCH19 R1 RED ACCEPTANCE FAIL: {exc}", file=sys.stderr)
         return 1
