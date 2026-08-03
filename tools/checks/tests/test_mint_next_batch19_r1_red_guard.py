@@ -169,6 +169,26 @@ class Batch19R1RedGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "uninstrumented capability"):
             guard.validate(self.root, check_git=False)
 
+    def test_channel_and_platform_constructor_bypasses_are_rejected(self) -> None:
+        mutations = (
+            "const channel = MethodChannel.new('mint.exfil');",
+            "const channel = MethodChannel .new('mint.exfil');",
+            "SystemChannels.platform.invokeMethod<void>('exfil');",
+            "PlatformDispatcher.instance.sendPlatformMessage('exfil', null, (_) {});",
+            "final file = File.new('/tmp/exfil');",
+            "final socket = Socket.connect('example.invalid', 443);",
+            "final process = Process.run('echo', <String>['exfil']);",
+        )
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                with tempfile.TemporaryDirectory() as directory:
+                    root = Path(directory)
+                    shutil.copytree(self.root, root, dirs_exist_ok=True)
+                    path = root / guard.LIB_ROOT / "design_lab_app.dart"
+                    path.write_text(path.read_text() + f"\n{mutation}\n")
+                    with self.assertRaisesRegex(guard.GuardFailure, "uninstrumented capability"):
+                        guard.validate(root, check_git=False)
+
     def test_nonexistent_batch18_harness_is_rejected(self) -> None:
         path = self.root / guard.TEST
         path.write_text(path.read_text().replace("MintNextDesignLabApp(", "MintNextDesignLabApp.batch18Harness(", 1))

@@ -87,10 +87,13 @@ EXPECTED_BLOCKED_GATES = {
 }
 FORBIDDEN_CAPABILITY_TOKENS = {
     "package:http", "package:dio", "shared_preferences", "firebase_analytics",
-    "package:sentry", "dart:developer", "dart:io", "MethodChannel(",
-    "BasicMessageChannel", "EventChannel(", "BinaryMessenger", "ServicesBinding",
-    "HttpClient", "Socket(", "WebSocket", "File(", "Directory(",
-    "RandomAccessFile", "analytics", "logger", "debugPrint(", "print(",
+    "package:sentry", "dart:developer", "dart:io", "dart:ffi", "dart:ui",
+    "MethodChannel", "BasicMessageChannel", "EventChannel", "BinaryMessenger",
+    "ServicesBinding", "SystemChannels", "PlatformDispatcher", "sendPlatformMessage",
+    "HttpClient", "Socket", "WebSocket", "RawSocket", "SecureSocket",
+    "RawDatagramSocket", "InternetAddress", "NetworkInterface", "Process",
+    "File", "Directory", "RandomAccessFile",
+    "analytics", "logger", "debugPrint(", "print(",
 }
 
 
