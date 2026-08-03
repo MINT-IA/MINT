@@ -1,0 +1,231 @@
+schema_version: 1
+status: candidate_scope_acceptance_absent
+batch: 18
+journey_id: swiss_3a_question_to_next_action
+runtime_surface: hidden_design_lab_only
+product_promotion: forbidden
+audience: beginner_low_financial_and_numeracy_literacy
+authority:
+  parent_contract: product/mint_next/batch17/canton-scope.yaml
+  parent_contract_sha256: bb1a293f55b980ba7e1f07d575d34626ac181369bb97a9f9b9372c04af952c4a
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  locale_copy: product/mint_next/batch17/six-locale-copy.yaml
+  rule: runtime_must_implement_parent_exactly_without_adding_removing_or_retargeting_routes
+acceptance_model:
+  runtime_state_evaluated_by_scope_guard: false
+  self_attested_evidence: forbidden
+  microstep_acceptance: forbidden
+  execution_rule: a_runtime_microstep_gets_an_executable_command_and_expected_failing_tests_before_implementation_then_its_named_gate_must_pass_before_the_next_microstep
+  global_rule: no_runtime_acceptance_until_every_named_microstep_and_cross_step_gate_exists_passes_and_is_bound_to_one_exact_reviewed_state
+  promotion_rule: no_microstep_or_partial_combination_promotes_runtime
+  complete_runtime_gate_requires:
+  - R1_R2_R3_R4_all_complete_on_one_exact_reviewed_state
+  - failing_runtime_tests_first_for_every_obligation
+  - all_required_runtime_tests_green
+  - independent_ux_accessibility_roast_zero_P1_P2_P3
+  - independent_privacy_navigation_adversarial_roast_zero_P1_P2_P3
+  - mechanically_bound_evidence_from_the_exact_reviewed_state
+  - stable_local_precommit_dispatcher_without_rebinding_prior_acceptances
+  - separate_acceptance_artifact_and_separate_commit
+  product_promotion_after_runtime_acceptance: separately_forbidden_until_named_gate_and_user_validation
+microsteps:
+  R1:
+    name: canton_entry_search_and_selection
+    obligations:
+    - R1_01_both_exact_origins_enter_fact_canton_with_immutable_origin_receipt_and_no_fallback
+    - R1_02_initial_unset_state_has_no_default_recommendation_inference_or_preselection
+    - R1_03_R1_acceptance_covers_only_heading_body_search_list_privacy_selection_and_back_while_preexisting_safe_exit_may_render_but_is_not_accepted_until_R4
+    - R1_04_search_is_local_bounded_64_Unicode_codepoints_NFKC_case_and_diacritic_fold_against_reviewed_labels_only
+    - R1_05_exactly_26_localized_full_names_use_reviewed_locale_order_and_internal_codes
+    - R1_06_first_middle_last_no_match_clear_and_rapid_query_cases_are_tested
+    - R1_07_clear_search_restores_full_list_selection_and_search_focus_without_selecting
+    - R1_08_selection_commits_only_an_allowed_ephemeral_code_and_never_routes_or_creates_commune_or_result_state
+    - R1_09_same_code_reselection_is_a_byte_equivalent_no_op_for_the_reachable_runtime_snapshot
+    - R1_10_query_change_or_clear_never_changes_selection_and_selected_row_remains_discoverable
+    - R1_11_generation_token_guards_every_R1_callback_and_old_generation_callbacks_are_no_ops
+    - R1_12_search_disables_autofill_autocorrect_suggestions_platform_learning_clipboard_network_logging_analytics_and_persistence
+    - R1_13_search_clear_back_and_all_26_rows_are_at_least_48_by_48_with_single_select_semantics
+    - R1_14_R1_targeted_gate_must_pass_before_R2_and_unimplemented_later_controls_never_count_as_accepted
+    subgates:
+    - R1a_catalog_origin_and_generation
+    - R1b_local_search_privacy
+    - R1c_selection_semantics_and_layout
+  R2:
+    name: selected_continue_boundary_and_origin_return
+    obligations:
+    - R2_01_continue_is_an_always_reachable_validation_action_with_persistent_visible_and_announced_prerequisite_and_never_routes_when_unset
+    - R2_02_unset_shows_localized_no_selection_error_and_focuses_choice_group_while_stale_or_invalid_shows_distinct_error_without_mutation_or_route
+    - R2_03_valid_continue_checks_active_generation_and_routes_once_to_fact_commune_without_second_write_or_invalidation
+    - R2_04_fact_commune_is_non_collecting_boundary_with_heading_focus_back_and_safe_exit_only
+    - R2_05_fact_commune_back_restores_selected_code_scroll_and_fact_canton_state
+    - R2_06_visible_and_system_back_from_fact_canton_return_the_exact_immutable_no_or_positive_runtime_origin
+    - R2_07_repeated_continue_is_idempotent_and_never_creates_duplicate_history
+    - R2_08_continue_and_boundary_controls_have_48pt_semantics_focus_order_and_no_commune_or_result_value
+    subgates:
+    - R2a_continue_validation
+    - R2b_boundary_and_exact_history
+  R3:
+    name: unknown_complex_help_and_education
+    obligations:
+    - R3_01_unknown_complex_is_explicit_peer_control_not_blank_or_inferred_value
+    - R3_02_unknown_atomically_commits_unknown_once_routes_to_help_once_and_creates_no_commune_or_result_state
+    - R3_03_help_arrival_focuses_heading_and_exposes_only_education_back_and_safe_exit_controls
+    - R3_04_help_copy_explains_where_to_check_and_never_shows_personal_amount_average_or_inferred_canton
+    - R3_05_continue_routes_only_to_existing_education_explanation_in_general_education_mode
+    - R3_06_help_visible_and_system_back_clear_unknown_return_to_fact_canton_and_focus_unknown_control
+    - R3_07_education_back_returns_exact_history_to_canton_unknown_help
+    - R3_08_moved_intercantonal_international_source_tax_or_uncertain_cases_never_enter_personal_calculation
+    subgates:
+    - R3a_unknown_atomic_transition
+    - R3b_help_education_exact_history
+  R4:
+    name: safe_exit_lifecycle_privacy_locales_and_accessibility
+    obligations:
+    - R4_01_safe_exit_on_fact_canton_help_and_boundaries_is_focus_trapped_with_resume_keep_reference_and_leave_controls
+    - R4_02_safe_exit_system_back_equals_resume
+    - R4_03_resume_restores_exact_trigger_focus_node_selection_query_scroll_and_origin
+    - R4_04_keep_reference_persists_only_journey_id_generic_reference_id_saved_at_then_purges_personal_ephemeral_state
+    - R4_05_leave_without_saving_purges_and_dismisses
+    - R4_06_background_resume_before_30_min_restores_exact_node_focus_scroll_selection_and_origin
+    - R4_07_ttl_expiry_app_kill_and_tax_year_change_purge_before_render_and_restart_at_tax_year
+    - R4_08_stale_callbacks_never_mutate_or_navigate
+    - R4_09_search_and_personal_facts_never_use_network_logs_analytics_autofill_clipboard_platform_learning_or_persistence
+    - R4_10_every_interactive_target_is_at_least_48_by_48_logical_points
+    - R4_11_semantics_cover_tax_year_group_name_full_label_selected_state_unknown_result_count_disabled_reason_and_errors
+    - R4_12_keyboard_and_switch_order_is_deterministic_with_no_hidden_focus_targets_and_exact_modal_focus_return
+    - R4_13_system_back_has_an_explicit_equivalent_on_every_base_node_and_overlay
+    - R4_14_all_six_locales_use_reviewed_copy_labels_orders_and_taxYear_interpolation_with_human_semantic_review
+    - R4_15_320x700_text_scale_2_runtime_proof_covers_all_six_locales_and_worst_states_without_overflow_clip_overlap_or_unreachable_action
+    - R4_16_compact_proof_covers_unset_search_results_selected_first_middle_last_no_match_both_errors_help_and_safe_exit
+    - R4_17_reduced_motion_and_screen_reader_semantics_are_runtime_tested
+    subgates:
+    - R4a_safe_exit
+    - R4b_lifecycle_generation_and_privacy
+    - R4c_six_locale_accessibility_and_compact
+    - R4d_cross_step_integration
+    subgate_contracts:
+      R4a_safe_exit:
+        obligation_ids:
+        - R4_01
+        - R4_02
+        - R4_03
+        - R4_04
+        - R4_05
+        planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4a_safe_exit_test.dart
+      R4b_lifecycle_generation_and_privacy:
+        obligation_ids:
+        - R4_06
+        - R4_07
+        - R4_08
+        - R4_09
+        planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4b_lifecycle_privacy_test.dart
+      R4c_six_locale_accessibility_and_compact:
+        obligation_ids:
+        - R4_10
+        - R4_11
+        - R4_12
+        - R4_13
+        - R4_14
+        - R4_15
+        - R4_16
+        - R4_17
+        planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4c_accessibility_locales_test.dart
+      R4d_cross_step_integration:
+        obligation_ids:
+        - R1_R2_R3_R4_cross_step_integration
+        planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4d_integration_test.dart
+required_controls:
+  fact_canton:
+  - back
+  - open_safe_exit
+  - search
+  - clear_search_when_nonempty
+  - choose_exactly_one_canton
+  - choose_unknown_or_complex
+  - continue
+  canton_unknown_help:
+  - back
+  - open_safe_exit
+  - continue_education_only
+  fact_commune_boundary:
+  - back
+  - open_safe_exit
+  safe_exit:
+  - resume
+  - keep_local_reference
+  - leave_without_saving
+hard_out_of_scope:
+- production_or_public_route
+- product_promotion_or_user_validation
+- legacy_or_dev_mutation
+- commune_input_dataset_search_or_lookup
+- tax_calculation_rate_range_saving_or_personal_result
+- gps_ip_address_postcode_device_locale_profile_employer_or_provider_inference
+- location_permission
+- default_ZH_first_item_national_average_or_30_percent_fallback
+- persistent_personal_fact_backend_api_account_auth_or_network_dependency
+- bank_insurance_pension_AVS_AI_or_tax_authority_integration
+- complex_case_personal_calculation
+- design_system_redesign
+- new_navigation_node_route_or_retargeting
+- coach_chat_LLM_RAG_or_Hugging_Face
+- analytics_session_replay_or_MINT_created_screen_capture
+required_test_modes:
+- widget_runtime_state_and_navigation
+- hostile_stale_generation_and_repeated_action
+- semantics_and_keyboard_switch
+- compact_layout_and_golden_evidence
+- six_locale_runtime_and_human_semantic_review
+- privacy_network_log_and_persistence_negative_proof
+forbidden_claims_until_separate_acceptance:
+- runtime_implemented
+- runtime_accepted
+- user_validated
+- production_ready
+- calculation_available
+- privacy_compliant_by_declaration
+runtime_gate_registry:
+  scope_contract:
+    state: EVALUATED_BY_SCOPE_ACCEPTANCE_ARTIFACT
+    candidate_command: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py
+      --contract
+    accepted_command: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py
+  R1:
+    state: NOT_EVALUATED
+    command: null
+    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart
+  R2:
+    state: NOT_EVALUATED
+    command: null
+    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r2_test.dart
+  R3:
+    state: NOT_EVALUATED
+    command: null
+    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r3_test.dart
+  R4a_safe_exit:
+    state: NOT_EVALUATED
+    command: null
+    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4a_safe_exit_test.dart
+  R4b_lifecycle_generation_and_privacy:
+    state: NOT_EVALUATED
+    command: null
+    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4b_lifecycle_privacy_test.dart
+  R4c_six_locale_accessibility_and_compact:
+    state: NOT_EVALUATED
+    command: null
+    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4c_accessibility_locales_test.dart
+  R4d_cross_step_integration:
+    state: NOT_EVALUATED
+    command: null
+    planned_test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r4d_integration_test.dart
+  R4:
+    state: NOT_EVALUATED
+    command: null
+    requires:
+    - R4a_safe_exit
+    - R4b_lifecycle_generation_and_privacy
+    - R4c_six_locale_accessibility_and_compact
+    - R4d_cross_step_integration
+  runtime_global:
+    state: NOT_EVALUATED
+    command: null

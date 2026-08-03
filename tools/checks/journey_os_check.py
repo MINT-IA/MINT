@@ -287,6 +287,13 @@ ALLOW = {
     "tools/checks/mint_next_batch17_canton_scope_guard.py",
     "tools/checks/tests/test_mint_next_batch17_canton_scope_guard.py",
     ".github/workflows/mint-next-batch17-canton-contract.yml",
+    # Batch 18: candidate scope only for the future hidden canton runtime.
+    # No runtime microstep, product route or calculation is accepted here.
+    "product/mint_next/batch18/runtime-scope.yaml",
+    "product/mint_next/batch18/scope-acceptance.yaml",
+    "tools/checks/mint_next_batch18_runtime_scope_guard.py",
+    "tools/checks/tests/test_mint_next_batch18_runtime_scope_guard.py",
+    ".github/workflows/mint-next-batch18-canton-runtime-scope.yml",
     "product/mint_next/batch7/design_lab/analysis_options.yaml",
     "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
     "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",

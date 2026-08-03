@@ -1,0 +1,239 @@
+from __future__ import annotations
+
+import hashlib
+import re
+import shutil
+import tempfile
+import unittest
+from pathlib import Path
+
+import yaml
+
+from tools.checks import mint_next_batch17_canton_scope_guard as batch17
+from tools.checks.mint_next_batch18_runtime_scope_guard import (
+    ACCEPTANCE,
+    GUARD,
+    GuardFailure,
+    JOURNEY_GUARD,
+    PARENT,
+    SCOPE,
+    SPEC,
+    TESTS,
+    WORKFLOW,
+    validate,
+)
+
+
+ROOT = Path(__file__).resolve().parents[3]
+PARENT_FILES = (
+    batch17.SCOPE, batch17.SOURCES, batch17.LEGACY, batch17.ACCEPTANCE,
+    batch17.COPY, batch17.SOURCE_RECEIPT, batch17.PARENT_NAV, batch17.GUARD,
+    batch17.TESTS, batch17.WORKFLOW,
+)
+
+
+class Batch18RuntimeScopeGuardTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        for relative in dict.fromkeys((SCOPE, ACCEPTANCE, PARENT, WORKFLOW, SPEC, GUARD, TESTS, JOURNEY_GUARD, batch17.LEFTHOOK, *PARENT_FILES)):
+            target = self.root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / relative, target)
+        validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def tearDown(self) -> None:
+        self.temp.cleanup()
+
+    def _mutate(self, mutation, expected: str) -> None:
+        path = self.root / SCOPE
+        data = yaml.safe_load(path.read_text(encoding="utf-8"))
+        mutation(data)
+        path.write_text(yaml.safe_dump(data, sort_keys=False, allow_unicode=True), encoding="utf-8")
+        with self.assertRaisesRegex(GuardFailure, expected):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def _promote_fixture(self) -> None:
+        scope_path = self.root / SCOPE
+        scope = yaml.safe_load(scope_path.read_text())
+        scope["status"] = "accepted_scope_contract_runtime_state_not_evaluated"
+        scope_path.write_text(yaml.safe_dump(scope, sort_keys=False, allow_unicode=True))
+        acceptance_path = self.root / ACCEPTANCE
+        acceptance = yaml.safe_load(acceptance_path.read_text())
+        payload = acceptance["mechanical_binding"]["candidate_review_payload_sha256"]
+        acceptance["status"] = "accepted_scope_contract_runtime_not_evaluated"
+        acceptance["current_verdict"] = "SCOPE_ACCEPTED_RUNTIME_NOT_EVALUATED"
+        for review in acceptance["reviews"].values():
+            review.update({"verdict": "ACCEPT", "p1": 0, "p2": 0, "p3": 0, "reviewed_payload_sha256": payload})
+        acceptance["mechanical_binding"]["reviewed_payload_sha256"] = payload
+        acceptance["mechanical_binding"]["reviewed_candidate_commit"] = "a" * 40
+        acceptance["accepted_scope_only"] = ["written_batch18_runtime_scope_and_microstep_order"]
+        acceptance["next_gate"] = "write_expected_failing_R1_tests"
+        acceptance_path.write_text(yaml.safe_dump(acceptance, sort_keys=False, allow_unicode=True))
+        workflow_path = self.root / WORKFLOW
+        workflow = workflow_path.read_text().replace(
+            "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract",
+            "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py",
+        )
+        hashes = {"GUARD": GUARD, "TESTS": TESTS, "ACCEPTANCE": ACCEPTANCE}
+        for name, relative in hashes.items():
+            digest = hashlib.sha256((self.root / relative).read_bytes()).hexdigest()
+            workflow = re.sub(rf"(?m)^(  EXPECTED_BATCH18_{name}_SHA256:) [0-9a-f]{{64}}$", rf"\1 {digest}", workflow)
+        workflow_path.write_text(workflow)
+        spec_path = self.root / SPEC
+        spec_path.write_text(spec_path.read_text().replace(
+            "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py --contract",
+            "python3 tools/checks/mint_next_batch18_runtime_scope_guard.py",
+        ))
+
+    def test_current_scope_passes(self) -> None:
+        validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_release_gate_matches_declared_lifecycle(self) -> None:
+        status = yaml.safe_load((self.root / ACCEPTANCE).read_text())["status"]
+        if status == "candidate_scope_unaccepted":
+            with self.assertRaisesRegex(GuardFailure, "scope acceptance status drifted"):
+                validate(self.root, check_parent_git=False, require_accepted=True)
+        else:
+            validate(self.root, check_parent_git=False, require_accepted=True)
+
+    def test_promoted_fixture_passes_and_hostile_is_not_lifecycle_vacuous(self) -> None:
+        self._promote_fixture()
+        validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+        scope_path = self.root / SCOPE
+        scope = yaml.safe_load(scope_path.read_text())
+        scope["product_promotion"] = "allowed"
+        scope_path.write_text(yaml.safe_dump(scope, sort_keys=False, allow_unicode=True))
+        with self.assertRaisesRegex(GuardFailure, "product promotion widened"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_byte_drift_has_its_own_failure(self) -> None:
+        path = self.root / SCOPE
+        path.write_text(path.read_text() + "\n")
+        with self.assertRaisesRegex(GuardFailure, "scope bytes drifted"):
+            validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_duplicate_yaml_key_is_rejected_semantically(self) -> None:
+        path = self.root / SCOPE
+        path.write_text(path.read_text().replace("status:", "status: duplicate\nstatus:", 1))
+        with self.assertRaisesRegex(GuardFailure, "duplicate YAML key: status"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_scope_acceptance_claim_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d.update(status="accepted_scope"), "scope acceptance status drifted")
+
+    def test_runtime_knowledge_claim_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["acceptance_model"].update(runtime_state_evaluated_by_scope_guard=True), "scope guard claims runtime knowledge")
+
+    def test_product_promotion_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d.update(product_promotion="allowed"), "product promotion widened")
+
+    def test_hidden_surface_widening_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d.update(runtime_surface="production_route"), "runtime surface widened")
+
+    def test_authority_retarget_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["authority"].update(rule="runtime_may_ignore_parent"), "authority contract drifted")
+
+    def test_complete_gate_removal_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["acceptance_model"]["complete_runtime_gate_requires"].pop(), "complete runtime gate obligations drifted")
+
+    def test_post_runtime_product_promotion_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["acceptance_model"].update(product_promotion_after_runtime_acceptance="allowed_now"), "post-runtime product promotion widened")
+
+    def test_partial_microstep_acceptance_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["acceptance_model"].update(microstep_acceptance="allowed"), "a microstep can promote runtime")
+
+    def test_contradictory_extra_acceptance_key_is_rejected(self) -> None:
+        self._mutate(lambda d: d["acceptance_model"].update(runtime_accepted=True), "acceptance schema drifted")
+
+    def test_microstep_removal_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["microsteps"].pop("R3"), "microstep order or coverage drifted")
+
+    def test_subgate_weakening_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["microsteps"]["R4"]["subgates"].pop(), "R4 subgates drifted")
+
+    def test_r4_obligation_ownership_swap_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["microsteps"]["R4"]["subgate_contracts"]["R4a_safe_exit"]["obligation_ids"].__setitem__(0, "R4_06"), "R4a obligation ownership drifted")
+
+    def test_obligation_removal_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["microsteps"]["R4"]["obligations"].pop(), "R4 obligation coverage drifted")
+
+    def test_same_prefix_nonsense_obligation_is_rejected_exactly(self) -> None:
+        self._mutate(lambda d: d["microsteps"]["R1"]["obligations"].__setitem__(0, "R1_99_nonsense"), "exact semantic scope inventory drifted")
+
+    def test_required_control_removal_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["required_controls"]["safe_exit"].remove("keep_local_reference"), "required control topology drifted")
+
+    def test_any_out_of_scope_removal_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["hard_out_of_scope"].remove("bank_insurance_pension_AVS_AI_or_tax_authority_integration"), "hard out-of-scope inventory drifted")
+
+    def test_required_test_mode_removal_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["required_test_modes"].clear(), "required test modes drifted")
+
+    def test_forbidden_privacy_claim_removal_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["forbidden_claims_until_separate_acceptance"].remove("privacy_compliant_by_declaration"), "forbidden claim inventory drifted")
+
+    def test_runtime_gate_registry_claim_is_rejected_semantically(self) -> None:
+        self._mutate(lambda d: d["runtime_gate_registry"]["R1"].update(state="PASS"), "runtime gate registry drifted")
+
+    def test_parent_drift_is_rejected_even_if_scope_parent_hash_is_rebound(self) -> None:
+        parent = self.root / PARENT
+        parent.write_text(parent.read_text() + "\n# drift\n")
+        scope = yaml.safe_load((self.root / SCOPE).read_text())
+        import hashlib
+        scope["authority"]["parent_contract_sha256"] = hashlib.sha256(parent.read_bytes()).hexdigest()
+        (self.root / SCOPE).write_text(yaml.safe_dump(scope, sort_keys=False))
+        with self.assertRaisesRegex(GuardFailure, "accepted Batch17 parent drifted"):
+            validate(self.root, check_byte_digest=False, check_parent_git=False, require_accepted=None)
+
+    def test_parent_locale_copy_drift_is_rejected_by_parent_guard(self) -> None:
+        path = self.root / batch17.COPY
+        path.write_text(path.read_text() + "\n")
+        with self.assertRaisesRegex(batch17.GuardFailure, "candidate review payload drifted"):
+            validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_ci_comment_is_not_operational(self) -> None:
+        path = self.root / WORKFLOW
+        path.write_text(path.read_text().replace("        run: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py", "        # run: python3 tools/checks/mint_next_batch18_runtime_scope_guard.py"))
+        with self.assertRaisesRegex(GuardFailure, "operational CI guard command"):
+            validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_ci_false_condition_is_rejected(self) -> None:
+        path = self.root / WORKFLOW
+        path.write_text(path.read_text().replace("  scope:\n", "  scope:\n    if: false\n"))
+        with self.assertRaisesRegex(GuardFailure, "CI scope job can be disabled"):
+            validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_spec_comment_is_not_operational(self) -> None:
+        path = self.root / SPEC
+        path.write_text(path.read_text().replace("batch18-canton-runtime-scope:", "<!-- batch18-canton-runtime-scope:"))
+        with self.assertRaisesRegex(GuardFailure, "operational SPEC guard binding"):
+            validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_guard_source_drift_invalidates_candidate_receipt(self) -> None:
+        path = self.root / GUARD
+        path.write_text(path.read_text() + "\n# weakened\n")
+        with self.assertRaisesRegex(GuardFailure, "candidate review payload drifted"):
+            validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_hostile_test_deletion_invalidates_registry(self) -> None:
+        path = self.root / TESTS
+        text = path.read_text()
+        start = text.index("    def test_byte_drift_has_its_own_failure")
+        end = text.index("    def test_duplicate_yaml_key_is_rejected_semantically", start)
+        path.write_text(text[:start] + text[end:])
+        with self.assertRaisesRegex(GuardFailure, "hostile test registry drifted"):
+            validate(self.root, check_parent_git=False, require_accepted=None)
+
+    def test_acceptance_claim_without_reviews_is_rejected(self) -> None:
+        path = self.root / ACCEPTANCE
+        data = yaml.safe_load(path.read_text())
+        data["status"] = "accepted_scope_contract_runtime_not_evaluated"
+        data["current_verdict"] = "SCOPE_ACCEPTED_RUNTIME_NOT_EVALUATED"
+        path.write_text(yaml.safe_dump(data, sort_keys=False))
+        with self.assertRaisesRegex(GuardFailure, "scope acceptance lifecycle drifted"):
+            validate(self.root, check_parent_git=False, require_accepted=False)
+
+
+if __name__ == "__main__":
+    unittest.main()

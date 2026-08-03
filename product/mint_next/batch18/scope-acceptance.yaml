@@ -1,0 +1,67 @@
+schema_version: 1
+status: candidate_scope_unaccepted
+current_verdict: PENDING_INDEPENDENT_ROASTS
+reviews:
+  ux_accessibility_microstep_scope:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  engineering_parent_feasibility:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  adversarial_mechanical:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+mechanical_binding:
+  candidate_review_payload_sha256: 4625201b6d11d6abefb8ba997238a2dd6a3987859ffbdeea3351e1331c30b177
+  reviewed_payload_sha256: null
+  reviewed_candidate_commit: null
+  positive_tests:
+  - test_current_scope_passes
+  - test_release_gate_matches_declared_lifecycle
+  hostile_tests:
+  - test_acceptance_claim_without_reviews_is_rejected
+  - test_any_out_of_scope_removal_is_rejected_semantically
+  - test_authority_retarget_is_rejected_semantically
+  - test_byte_drift_has_its_own_failure
+  - test_ci_comment_is_not_operational
+  - test_ci_false_condition_is_rejected
+  - test_complete_gate_removal_is_rejected_semantically
+  - test_contradictory_extra_acceptance_key_is_rejected
+  - test_duplicate_yaml_key_is_rejected_semantically
+  - test_forbidden_privacy_claim_removal_is_rejected_semantically
+  - test_guard_source_drift_invalidates_candidate_receipt
+  - test_hidden_surface_widening_is_rejected_semantically
+  - test_hostile_test_deletion_invalidates_registry
+  - test_microstep_removal_is_rejected_semantically
+  - test_obligation_removal_is_rejected_semantically
+  - test_parent_drift_is_rejected_even_if_scope_parent_hash_is_rebound
+  - test_parent_locale_copy_drift_is_rejected_by_parent_guard
+  - test_partial_microstep_acceptance_is_rejected_semantically
+  - test_post_runtime_product_promotion_is_rejected_semantically
+  - test_product_promotion_is_rejected_semantically
+  - test_promoted_fixture_passes_and_hostile_is_not_lifecycle_vacuous
+  - test_r4_obligation_ownership_swap_is_rejected_semantically
+  - test_required_control_removal_is_rejected_semantically
+  - test_required_test_mode_removal_is_rejected_semantically
+  - test_runtime_gate_registry_claim_is_rejected_semantically
+  - test_runtime_knowledge_claim_is_rejected_semantically
+  - test_same_prefix_nonsense_obligation_is_rejected_exactly
+  - test_scope_acceptance_claim_is_rejected_semantically
+  - test_spec_comment_is_not_operational
+  - test_subgate_weakening_is_rejected_semantically
+accepted_scope_only: []
+not_accepted:
+- any_runtime_microstep
+- hidden_runtime
+- product_route
+- user_validation
+- calculation
+- persistence
+- local_precommit_binding_until_shared_registry_is_decoupled
+next_gate: stabilize_candidate_trust_unit_then_independent_roasts
