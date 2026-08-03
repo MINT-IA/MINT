@@ -116,18 +116,38 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
                 ]) + "\n",
                 "",
             ),
+            subprocess.CompletedProcess(
+                [], 0, ".planning/journeys/path-owners/batch20-r1-runtime.json\n", ""
+            ),
         ]
-        with patch.object(guard.subprocess, "run", side_effect=completed):
+        with patch.object(guard.subprocess, "run", side_effect=completed), patch.object(
+            guard.journey_os_check, "_load_path_owners", return_value=(set(), [])
+        ):
             guard._git_boundary(self.root)
 
     def test_non_owner_future_path_inside_candidate_window_is_rejected(self) -> None:
         completed = [
             subprocess.CompletedProcess([], 0, "a" * 40 + "\n", ""),
+            subprocess.CompletedProcess([], 0, f"{guard.ACCEPTANCE}\n", ""),
             subprocess.CompletedProcess([], 0, "product/mint_next/hidden-runtime.dart\n", ""),
         ]
-        with patch.object(guard.subprocess, "run", side_effect=completed):
-            with self.assertRaisesRegex(guard.GuardFailure, "acceptance scope widened"):
+        with patch.object(guard.subprocess, "run", side_effect=completed), patch.object(
+            guard.journey_os_check, "_load_path_owners", return_value=(set(), [])
+        ):
+            with self.assertRaisesRegex(guard.GuardFailure, "not reviewed-owned"):
                 guard._git_boundary(self.root)
+
+    def test_future_target_is_allowed_only_after_accepted_path_ownership(self) -> None:
+        target = "product/mint_next/batch20/r1-runtime.dart"
+        completed = [
+            subprocess.CompletedProcess([], 0, "a" * 40 + "\n", ""),
+            subprocess.CompletedProcess([], 0, f"{guard.ACCEPTANCE}\n", ""),
+            subprocess.CompletedProcess([], 0, target + "\n", ""),
+        ]
+        with patch.object(guard.subprocess, "run", side_effect=completed), patch.object(
+            guard.journey_os_check, "_load_path_owners", return_value=({target}, [])
+        ):
+            guard._git_boundary(self.root)
 
 
 if __name__ == "__main__":

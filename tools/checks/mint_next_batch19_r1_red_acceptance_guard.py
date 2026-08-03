@@ -15,6 +15,11 @@ from pathlib import Path
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tools.checks import journey_os_check
+
 ACCEPTANCE = Path("product/mint_next/batch19/r1-red-acceptance.yaml")
 GUARD = Path("tools/checks/mint_next_batch19_r1_red_acceptance_guard.py")
 TESTS = Path("tools/checks/tests/test_mint_next_batch19_r1_red_acceptance_guard.py")
@@ -185,6 +190,10 @@ def _git_boundary(root: Path) -> None:
             ["git", "diff", "--name-only", f"{RED_COMMIT}..{candidate_end}"],
             cwd=root, check=True, capture_output=True, text=True,
         ).stdout.splitlines()
+        tail = subprocess.run(
+            ["git", "diff", "--name-only", f"{candidate_end}..HEAD"],
+            cwd=root, check=True, capture_output=True, text=True,
+        ).stdout.splitlines()
     except subprocess.CalledProcessError as exc:
         raise GuardFailure("cannot inspect acceptance candidate boundary") from exc
     product_changes = {
@@ -192,6 +201,14 @@ def _git_boundary(root: Path) -> None:
         if not path.startswith(".planning/journeys/path-owners/")
     }
     _require(product_changes <= trust_paths, f"acceptance scope widened: {sorted(product_changes - trust_paths)}")
+    owned_paths, owner_errors = journey_os_check._load_path_owners(root)
+    _require(not owner_errors, f"future path-owner registry invalid: {owner_errors}")
+    unexpected_tail = {
+        path for path in tail
+        if not path.startswith(".planning/journeys/path-owners/")
+        and path not in owned_paths
+    }
+    _require(not unexpected_tail, f"post-acceptance path is not reviewed-owned: {sorted(unexpected_tail)}")
 
 
 def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, check_git: bool = True) -> None:
