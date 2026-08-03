@@ -363,7 +363,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Confirmed ordinary contribution received · $taxYear';
+    return 'Ordinary contributions received · $taxYear';
   }
 
   @override
@@ -428,14 +428,14 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get batch11HelpPartialBody =>
-      'This first journey cannot yet add several providers. Do not confirm this total here. You can return without confirming or continue with general guidance.';
+      'This first journey cannot yet add several providers. Do not confirm this total here. If you were mistaken and have only one, correct your declaration; otherwise continue with general guidance.';
 
   @override
-  String get batch11HelpFoundPartial => 'Return without confirming';
+  String get batch11HelpFoundPartial => 'Actually, I have only one provider';
 
   @override
   String batch12PositiveCantonTitle(int taxYear) {
-    return 'Your ordinary amount for $taxYear is ready.';
+    return 'Your ordinary-contribution total for $taxYear is ready.';
   }
 
   @override

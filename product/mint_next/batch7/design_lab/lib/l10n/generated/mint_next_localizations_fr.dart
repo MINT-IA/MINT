@@ -362,7 +362,7 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Montant ordinaire crédité confirmé · $taxYear';
+    return 'Cotisations ordinaires créditées · $taxYear';
   }
 
   @override
@@ -429,14 +429,15 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String get batch11HelpPartialBody =>
-      'Ce premier parcours ne peut pas encore additionner plusieurs prestataires. Ne confirme pas ce total ici. Tu peux revenir sans confirmer ou continuer avec une explication générale.';
+      'Ce premier parcours ne peut pas encore additionner plusieurs prestataires. Ne confirme pas ce total ici. Si tu t’es trompé et n’en as qu’un, corrige ta déclaration ; sinon, continue avec une explication générale.';
 
   @override
-  String get batch11HelpFoundPartial => 'Revenir à la saisie sans confirmer';
+  String get batch11HelpFoundPartial =>
+      'En fait, je n’ai qu’un seul prestataire';
 
   @override
   String batch12PositiveCantonTitle(int taxYear) {
-    return 'Ton montant ordinaire pour $taxYear est prêt.';
+    return 'Le total de tes cotisations ordinaires pour $taxYear est prêt.';
   }
 
   @override

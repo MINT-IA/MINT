@@ -682,7 +682,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @batch11OrdinaryAmountLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Montant ordinaire crédité confirmé · {taxYear}'**
+  /// **'Cotisations ordinaires créditées · {taxYear}'**
   String batch11OrdinaryAmountLabel(int taxYear);
 
   /// No description provided for @batch11NotTaxResult.
@@ -796,19 +796,19 @@ abstract class MintNextLocalizations {
   /// No description provided for @batch11HelpPartialBody.
   ///
   /// In fr, this message translates to:
-  /// **'Ce premier parcours ne peut pas encore additionner plusieurs prestataires. Ne confirme pas ce total ici. Tu peux revenir sans confirmer ou continuer avec une explication générale.'**
+  /// **'Ce premier parcours ne peut pas encore additionner plusieurs prestataires. Ne confirme pas ce total ici. Si tu t’es trompé et n’en as qu’un, corrige ta déclaration ; sinon, continue avec une explication générale.'**
   String get batch11HelpPartialBody;
 
   /// No description provided for @batch11HelpFoundPartial.
   ///
   /// In fr, this message translates to:
-  /// **'Revenir à la saisie sans confirmer'**
+  /// **'En fait, je n’ai qu’un seul prestataire'**
   String get batch11HelpFoundPartial;
 
   /// No description provided for @batch12PositiveCantonTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ton montant ordinaire pour {taxYear} est prêt.'**
+  /// **'Le total de tes cotisations ordinaires pour {taxYear} est prêt.'**
   String batch12PositiveCantonTitle(int taxYear);
 
   /// No description provided for @batch12PositiveCantonBody.

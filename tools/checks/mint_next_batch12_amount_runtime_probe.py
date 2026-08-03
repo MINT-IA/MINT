@@ -190,7 +190,7 @@ def run(capture: bool) -> None:
         accessible_text = body + "\n" + "\n".join(ax_reading_names(browser))
         for fragment in (
             "Prestataire 3a",
-            f"Montant ordinaire crédité confirmé · {year}",
+            f"Cotisations ordinaires créditées · {year}",
             f"Je n’ai qu’un seul prestataire 3a et j’ai vérifié son total pour {year}",
             "Ce total n’est pas encore un résultat fiscal",
         ):
@@ -236,7 +236,7 @@ def run(capture: bool) -> None:
         browser.js("new Promise(resolve=>setTimeout(resolve,150))")
         enter_text(
             browser,
-            f"Montant ordinaire crédité confirmé · {year}",
+            f"Cotisations ordinaires créditées · {year}",
             "7258.50",
         )
         click_label(browser, "Continuer")
@@ -264,10 +264,10 @@ def run(capture: bool) -> None:
         check("7258.50" not in text(browser), "partial help does not render personal amount")
         if capture:
             screenshot(browser, CAPTURES / "fr_amount_partial_help_chrome_390.png")
-        click_label(browser, "Revenir à la saisie sans confirmer")
+        click_label(browser, "En fait, je n’ai qu’un seul prestataire")
         check(
             ax_focused_name(browser).startswith(
-                f"Montant ordinaire crédité confirmé · {year}"
+                f"Cotisations ordinaires créditées · {year}"
             ),
             "partial-help return restores amount focus",
         )
@@ -291,10 +291,14 @@ def run(capture: bool) -> None:
             browser.js(f"({checkbox}).getAttribute('aria-checked')") == "true",
             "single-provider confirmation exposes checked state",
         )
+        check(
+            "J’ai plusieurs prestataires 3a" not in text(browser),
+            "complete single-provider state hides the contradictory multi-provider route",
+        )
         click_label(browser, "Continuer")
         check("Aucun résultat fiscal n’est encore calculé" in text(browser), "complete amount reaches honest canton boundary")
         check(
-            f"Ton montant ordinaire pour {year} est prêt." in text(browser),
+            f"Le total de tes cotisations ordinaires pour {year} est prêt." in text(browser),
             "positive path keeps the contribution fact",
         )
         check(

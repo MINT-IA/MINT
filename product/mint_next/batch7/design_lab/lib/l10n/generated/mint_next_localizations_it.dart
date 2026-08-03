@@ -366,7 +366,7 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Contributi ordinari confermati · $taxYear';
+    return 'Contributi ordinari accreditati · $taxYear';
   }
 
   @override
@@ -433,14 +433,14 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get batch11HelpPartialBody =>
-      'Questo primo percorso non può ancora sommare diversi istituti. Non confermare qui questo totale. Puoi tornare senza confermare o continuare con informazioni generali.';
+      'Questo primo percorso non può ancora sommare diversi istituti. Non confermare qui questo totale. Se ti sei sbagliato e ne hai uno solo, correggi la dichiarazione; altrimenti continua con informazioni generali.';
 
   @override
-  String get batch11HelpFoundPartial => 'Torna senza confermare';
+  String get batch11HelpFoundPartial => 'In realtà, ho un solo istituto';
 
   @override
   String batch12PositiveCantonTitle(int taxYear) {
-    return 'Il tuo importo ordinario per il $taxYear è pronto.';
+    return 'Il totale dei tuoi contributi ordinari per il $taxYear è pronto.';
   }
 
   @override

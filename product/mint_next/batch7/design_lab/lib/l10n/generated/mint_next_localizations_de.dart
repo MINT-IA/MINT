@@ -365,7 +365,7 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Bestätigte ordentliche Beiträge · $taxYear';
+    return 'Gutgeschriebene ordentliche Beiträge · $taxYear';
   }
 
   @override
@@ -431,14 +431,14 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get batch11HelpPartialBody =>
-      'Dieser erste Ablauf kann mehrere Anbieter noch nicht addieren. Bestätige den Gesamtbetrag hier nicht. Du kannst ohne Bestätigung zurückkehren oder mit allgemeinen Hinweisen fortfahren.';
+      'Dieser erste Ablauf kann mehrere Anbieter noch nicht addieren. Bestätige den Gesamtbetrag hier nicht. Falls du dich geirrt hast und nur einen hast, korrigiere deine Angabe; sonst fahre mit allgemeinen Hinweisen fort.';
 
   @override
-  String get batch11HelpFoundPartial => 'Ohne Bestätigung zurückkehren';
+  String get batch11HelpFoundPartial => 'Ich habe doch nur einen 3a-Anbieter';
 
   @override
   String batch12PositiveCantonTitle(int taxYear) {
-    return 'Dein ordentlicher Betrag für $taxYear ist bereit.';
+    return 'Die Summe deiner ordentlichen Beiträge für $taxYear ist bereit.';
   }
 
   @override

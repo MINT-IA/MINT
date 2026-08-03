@@ -172,12 +172,12 @@ void main() {
     'pt': ['resgate'],
   };
   const exactOrdinaryAmountLabels = {
-    'fr': 'Montant ordinaire crédité confirmé · {taxYear}',
-    'en': 'Confirmed ordinary contribution received · {taxYear}',
-    'de': 'Bestätigte ordentliche Beiträge · {taxYear}',
-    'it': 'Contributi ordinari confermati · {taxYear}',
-    'es': 'Aportaciones ordinarias confirmadas · {taxYear}',
-    'pt': 'Contribuições ordinárias confirmadas · {taxYear}',
+    'fr': 'Cotisations ordinaires créditées · {taxYear}',
+    'en': 'Ordinary contributions received · {taxYear}',
+    'de': 'Gutgeschriebene ordentliche Beiträge · {taxYear}',
+    'it': 'Contributi ordinari accreditati · {taxYear}',
+    'es': 'Aportaciones ordinarias abonadas · {taxYear}',
+    'pt': 'Contribuições ordinárias creditadas · {taxYear}',
   };
   for (final locale in ['fr', 'en', 'de', 'it', 'es', 'pt']) {
     test(

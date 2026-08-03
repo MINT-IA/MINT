@@ -177,7 +177,10 @@ void main() {
       find.byKey(const ValueKey('node:fact_contributed_amount')),
       findsOneWidget,
     );
-    expect(FocusManager.instance.primaryFocus?.debugLabel, 'ordinary amount');
+    expect(
+      FocusManager.instance.primaryFocus?.debugLabel,
+      'unknown amount trigger',
+    );
   });
 
   testWidgets('positive incomplete draft exposes partial help only', (
@@ -222,7 +225,10 @@ void main() {
       find.textContaining('ne peut pas encore additionner'),
       findsOneWidget,
     );
-    expect(find.text('Revenir à la saisie sans confirmer'), findsOneWidget);
+    expect(
+      find.text('En fait, je n’ai qu’un seul prestataire'),
+      findsOneWidget,
+    );
     expect(
       find.byKey(const ValueKey('action:contributed_amount_unknown_help.back')),
       findsNothing,
@@ -236,6 +242,18 @@ void main() {
     expect(find.text('VIAC'), findsOneWidget);
     expect(find.text('7258'), findsOneWidget);
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'ordinary amount');
+    expect(
+      tester
+          .widget<CheckboxListTile>(
+            find.byKey(
+              const ValueKey(
+                'action:fact_contributed_amount.toggle_all_reviewed',
+              ),
+            ),
+          )
+          .value,
+      isFalse,
+    );
   });
 
   testWidgets('complete positive amount reaches canton and Back restores it', (
@@ -265,7 +283,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
     expect(
-      find.text('Ton montant ordinaire pour 2026 est prêt.'),
+      find.text('Le total de tes cotisations ordinaires pour 2026 est prêt.'),
       findsOneWidget,
     );
     expect(find.textContaining('aucun versement ordinaire'), findsNothing);
@@ -397,10 +415,13 @@ void main() {
     );
     await tester.tap(exit);
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const ValueKey('overlay-action:safe_exit.resume')),
+    final resume = find.byKey(
+      const ValueKey('overlay-action:safe_exit.resume'),
     );
+    await tester.ensureVisible(resume);
+    await tester.tap(resume);
     await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('overlay:safe_exit')), findsNothing);
 
     expect(find.text('VIAC'), findsOneWidget);
     expect(find.text('7258,50'), findsOneWidget);
@@ -549,6 +570,45 @@ void main() {
     expect(find.text('VIAC'), findsOneWidget);
     expect(find.text('7258'), findsOneWidget);
     expect(tester.takeException(), isNull);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('field:fact_contributed_amount.amount')),
+      '7000',
+    );
+    await tester.pump();
+    final multiple = find.byKey(
+      const ValueKey('action:fact_contributed_amount.missing_amount'),
+    );
+    await tester.ensureVisible(multiple);
+    await tester.tap(multiple);
+    await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('node:contributed_amount_unknown_help')),
+      findsOneWidget,
+    );
+    expect(
+      find.textContaining('ne peut pas encore additionner'),
+      findsOneWidget,
+    );
+    final safeExit = find.byKey(
+      const ValueKey('action:contributed_amount_unknown_help.open_safe_exit'),
+    );
+    await tester.ensureVisible(safeExit);
+    await tester.tap(safeExit);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('overlay:safe_exit')), findsOneWidget);
+    final holdingResume = find.byKey(
+      const ValueKey('overlay-action:safe_exit.resume'),
+    );
+    await tester.ensureVisible(holdingResume);
+    await tester.tap(holdingResume);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('overlay:safe_exit')), findsNothing);
+    expect(
+      find.byKey(const ValueKey('node:contributed_amount_unknown_help')),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('amount controls expose year-bound semantics and error text', (
@@ -567,7 +627,7 @@ void main() {
     );
     expect(
       tester.getSemantics(amount).label,
-      contains('Montant ordinaire crédité confirmé · 2026'),
+      contains('Cotisations ordinaires créditées · 2026'),
     );
     expect(tester.getSemantics(reviewed).label, contains('2026'));
 
@@ -595,6 +655,12 @@ void main() {
           .label,
       contains('Indique un montant CHF valide'),
     );
+    final reviewedError = tester.getSemantics(
+      find.byKey(const ValueKey('error:fact_contributed_amount.all_reviewed')),
+    );
+    expect(reviewedError.label, contains('Confirme'));
+    expect(reviewedError.flagsCollection.isLiveRegion, isTrue);
+    expect(tester.getSemantics(reviewed).label, contains('Confirme'));
     semantics.dispose();
   });
 
@@ -672,7 +738,10 @@ void main() {
       find.byKey(const ValueKey('node:contributed_amount_unknown_help')),
       findsOneWidget,
     );
-    expect(find.text('Revenir à la saisie sans confirmer'), findsOneWidget);
+    expect(
+      find.text('En fait, je n’ai qu’un seul prestataire'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('editing a reviewed fact requires explicit reconfirmation', (
@@ -694,11 +763,23 @@ void main() {
     await tester.tap(reviewed);
     await tester.pump();
     expect(tester.widget<CheckboxListTile>(reviewed).value, isTrue);
+    expect(
+      find.byKey(
+        const ValueKey('action:fact_contributed_amount.missing_amount'),
+      ),
+      findsNothing,
+    );
 
     await tester.enterText(amount, '7000');
     await tester.pump();
 
     expect(tester.widget<CheckboxListTile>(reviewed).value, isFalse);
+    expect(
+      find.byKey(
+        const ValueKey('action:fact_contributed_amount.missing_amount'),
+      ),
+      findsOneWidget,
+    );
     await tester.ensureVisible(
       find.byKey(const ValueKey('action:fact_contributed_amount.continue')),
     );

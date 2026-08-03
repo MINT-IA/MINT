@@ -115,6 +115,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   bool _amountWhereToFindExpanded = false;
   bool _amountHelpPartial = false;
   bool _restoreAmountFocus = false;
+  bool _restoreUnknownActionFocus = false;
+  bool _multipleProvidersDeclared = false;
   _DesignNode _educationBackNode = _DesignNode.contributionUnknownHelp;
   final FocusNode _safeExitTriggerFocus = FocusNode(
     debugLabel: 'safe exit trigger',
@@ -139,9 +141,18 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
 
   void _go(_DesignNode node) => setState(() => _node = node);
 
-  void _returnToAmount({bool focusAmount = true}) {
+  void _returnToAmountField() {
     setState(() {
-      _restoreAmountFocus = focusAmount;
+      _restoreAmountFocus = true;
+      _restoreUnknownActionFocus = false;
+      _node = _DesignNode.factContributedAmount;
+    });
+  }
+
+  void _returnToUnknownAmountTrigger() {
+    setState(() {
+      _restoreAmountFocus = false;
+      _restoreUnknownActionFocus = true;
       _node = _DesignNode.factContributedAmount;
     });
   }
@@ -158,6 +169,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _allProvidersReviewed = false;
     _amountWhereToFindExpanded = false;
     _amountHelpPartial = false;
+    _multipleProvidersDeclared = false;
   }
 
   void _clearEphemeralFacts() {
@@ -317,13 +329,21 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                         allProvidersReviewed: _allProvidersReviewed,
                         whereToFindExpanded: _amountWhereToFindExpanded,
                         restoreAmountFocus: _restoreAmountFocus,
+                        restoreUnknownActionFocus: _restoreUnknownActionFocus,
                         onRestoreFocusConsumed: () {
-                          if (mounted && _restoreAmountFocus) {
-                            setState(() => _restoreAmountFocus = false);
+                          if (mounted &&
+                              (_restoreAmountFocus ||
+                                  _restoreUnknownActionFocus)) {
+                            setState(() {
+                              _restoreAmountFocus = false;
+                              _restoreUnknownActionFocus = false;
+                            });
                           }
                         },
-                        onReviewedChanged: (value) =>
-                            setState(() => _allProvidersReviewed = value),
+                        onReviewedChanged: (value) {
+                          if (value && _multipleProvidersDeclared) return;
+                          setState(() => _allProvidersReviewed = value);
+                        },
                         onWhereToFindChanged: (value) =>
                             setState(() => _amountWhereToFindExpanded = value),
                         onUnknown: () => setState(() {
@@ -331,23 +351,40 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                           _node = _DesignNode.contributedAmountUnknownHelp;
                         }),
                         onMissing: () => setState(() {
+                          _allProvidersReviewed = false;
+                          _multipleProvidersDeclared = true;
                           _amountHelpPartial = true;
                           _node = _DesignNode.contributedAmountUnknownHelp;
                         }),
-                        onContinue: () => _go(_DesignNode.factCanton),
+                        onContinue: () {
+                          if (!_multipleProvidersDeclared) {
+                            _go(_DesignNode.factCanton);
+                          }
+                        },
                         onCorrectPrevious: () =>
                             _go(_DesignNode.factContribution),
                       ),
                     _DesignNode.contributedAmountUnknownHelp =>
                       _ContributedAmountUnknownHelp(
                         partial: _amountHelpPartial,
-                        onFoundAmount: _returnToAmount,
+                        onFoundAmount: () {
+                          if (_amountHelpPartial) {
+                            setState(() {
+                              _multipleProvidersDeclared = false;
+                              _restoreAmountFocus = true;
+                              _restoreUnknownActionFocus = false;
+                              _node = _DesignNode.factContributedAmount;
+                            });
+                          } else {
+                            _returnToAmountField();
+                          }
+                        },
                         onContinueEducation: () {
                           _educationBackNode =
                               _DesignNode.contributedAmountUnknownHelp;
                           _go(_DesignNode.educationExplanation);
                         },
-                        onBack: _returnToAmount,
+                        onBack: _returnToUnknownAmountTrigger,
                       ),
                     _DesignNode.factCanton => _CantonBoundary(
                       taxYear: _taxYear!,
@@ -1102,6 +1139,7 @@ class _ContributionAmountForm extends StatefulWidget {
     required this.allProvidersReviewed,
     required this.whereToFindExpanded,
     required this.restoreAmountFocus,
+    required this.restoreUnknownActionFocus,
     required this.onRestoreFocusConsumed,
     required this.onReviewedChanged,
     required this.onWhereToFindChanged,
@@ -1116,6 +1154,7 @@ class _ContributionAmountForm extends StatefulWidget {
   final bool allProvidersReviewed;
   final bool whereToFindExpanded;
   final bool restoreAmountFocus;
+  final bool restoreUnknownActionFocus;
   final VoidCallback onRestoreFocusConsumed;
   final ValueChanged<bool> onReviewedChanged;
   final ValueChanged<bool> onWhereToFindChanged;
@@ -1133,6 +1172,9 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
   final FocusNode _providerFocus = FocusNode(debugLabel: 'provider name');
   final FocusNode _amountFocus = FocusNode(debugLabel: 'ordinary amount');
   final FocusNode _reviewedFocus = FocusNode(debugLabel: 'provider review');
+  final FocusNode _unknownActionFocus = FocusNode(
+    debugLabel: 'unknown amount trigger',
+  );
   String? _providerError;
   String? _amountError;
   bool _reviewedError = false;
@@ -1140,13 +1182,16 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
   @override
   void initState() {
     super.initState();
-    if (widget.restoreAmountFocus) {
+    if (widget.restoreAmountFocus || widget.restoreUnknownActionFocus) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          _amountFocus.requestFocus();
-          final focusContext = _amountFocus.context;
+          final target = widget.restoreAmountFocus
+              ? _amountFocus
+              : _unknownActionFocus;
+          target.requestFocus();
+          final focusContext = target.context;
           if (focusContext != null) {
             Scrollable.ensureVisible(focusContext, alignment: 0.35);
           }
@@ -1161,6 +1206,7 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
     _providerFocus.dispose();
     _amountFocus.dispose();
     _reviewedFocus.dispose();
+    _unknownActionFocus.dispose();
     super.dispose();
   }
 
@@ -1279,6 +1325,7 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
             textInputAction: TextInputAction.done,
             decoration: InputDecoration(
               labelText: l10n.batch11OrdinaryAmountLabel(widget.taxYear),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
               suffixText: 'CHF',
               errorText: _amountError,
               border: const OutlineInputBorder(),
@@ -1358,7 +1405,7 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
           label: l10n.batch11Continue,
           onPressed: _continue,
         ),
-        if (_hasPositiveDraft)
+        if (_hasPositiveDraft && !widget.allProvidersReviewed)
           MintDesignLabAction.secondary(
             key: const ValueKey(
               'action:fact_contributed_amount.missing_amount',
@@ -1374,6 +1421,7 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
               'action:fact_contributed_amount.unknown_amount',
             ),
             label: l10n.batch11UnknownAmount,
+            focusNode: _unknownActionFocus,
             onPressed: () {
               widget.onUnknown();
             },
