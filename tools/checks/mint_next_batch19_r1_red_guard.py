@@ -93,10 +93,11 @@ FORBIDDEN_CAPABILITY_IDENTIFIERS = {
     "MethodChannel", "BasicMessageChannel", "EventChannel", "BinaryMessenger",
     "defaultBinaryMessenger", "ServicesBinding", "SystemChannels",
     "PlatformDispatcher", "sendPlatformMessage",
-    "print", "debugPrint", "debugPrintSynchronously", "debugDumpApp",
-    "debugDumpRenderTree", "debugDumpLayerTree", "debugDumpSemanticsTree",
-    "debugDumpFocusTree", "dumpErrorToConsole",
+    "print", "dumpErrorToConsole", "presentError", "reportError",
     "analytics", "logger",
+}
+FORBIDDEN_CAPABILITY_IDENTIFIER_PATTERNS = {
+    r"debug(?:Print|Dump)[A-Za-z0-9_]*",
 }
 
 
@@ -298,6 +299,13 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
             identifier
             for identifier in FORBIDDEN_CAPABILITY_IDENTIFIERS
             if re.search(rf"(?<![A-Za-z0-9_$]){re.escape(identifier)}(?![A-Za-z0-9_$])", capability_source)
+        )
+    )
+    leaked.extend(
+        sorted(
+            pattern
+            for pattern in FORBIDDEN_CAPABILITY_IDENTIFIER_PATTERNS
+            if re.search(rf"(?<![A-Za-z0-9_$])(?:{pattern})(?![A-Za-z0-9_$])", capability_source)
         )
     )
     _require(not leaked, f"Design Lab uninstrumented capability path present: {leaked}")

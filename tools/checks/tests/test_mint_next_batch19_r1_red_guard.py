@@ -180,6 +180,10 @@ class Batch19R1RedGuardTest(unittest.TestCase):
             "final debugLeak = debugPrint;",
             "final callLeak = (print).call;",
             "final spacedLeak = debugPrint .call;",
+            "debugPrintThrottled('mint.exfil');",
+            "final throttledLeak = debugPrintThrottled;",
+            "debugPrintStack(label: 'mint.exfil');",
+            "debugDumpApp();",
         )
         for mutation in mutations:
             with self.subTest(mutation=mutation):
