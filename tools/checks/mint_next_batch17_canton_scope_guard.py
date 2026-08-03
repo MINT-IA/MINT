@@ -180,7 +180,16 @@ def validate(root: Path, *, check_digests: bool = True, require_accepted: bool |
     select_order = scope["mutation_contract"]["select_or_change_canton"]["atomic_order"]
     _require(select_order[:4] == ["validate_active_generation_and_allowed_code", "if_same_code_stop_without_mutation", "invalidate_downstream_result", "clear_commune"], "canton correction atomic invalidation drifted")
     _require(scope["mutation_contract"]["select_or_change_canton"]["same_selected_code"] == "idempotent_no_op_preserve_commune_and_result", "same-code no-op drifted")
-    _require(scope["node_contracts"]["fact_canton"]["controls"]["continue"]["operation"] == "validate_active_generation_and_selected_allowed_code_then_route_only", "Continue writes an already committed canton")
+    continue_contract = scope["node_contracts"]["fact_canton"]["controls"]["continue"]
+    _require(continue_contract == {
+        "to": "fact_commune",
+        "guard": "selected_allowed_code",
+        "presentation": "enabled_validation_action",
+        "when_unset": "show_localized_no_selection_error_focus_choice_group_without_mutation_or_route",
+        "when_invalid_or_stale": "show_distinct_localized_stale_error_focus_choice_group_without_mutation_or_route",
+        "when_valid": "validate_active_generation_and_selected_allowed_code_then_route_only",
+    }, "Continue validation or routing contract drifted")
+    _require(scope["accessibility_contract"].get("continue_unavailable_reason_visible_and_announced_while_validation_action_remains_reachable") is True, "Continue prerequisite or reachable validation semantics drifted")
     _require({"update_search_query", "clear_search"} <= scope["node_contracts"]["fact_canton"]["controls"].keys(), "visible search control is uncabled")
     _require(scope["lifecycle_contract"]["stale_callback"] == "ignored_without_mutation_or_navigation", "stale callback may mutate")
 
