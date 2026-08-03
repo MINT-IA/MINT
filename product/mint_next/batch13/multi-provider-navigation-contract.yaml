@@ -85,9 +85,10 @@ graph:
         pending_missing_request_behavior: bind_new_row_only_when_missing_request_state_is_unallocated_never_rebind_bound_token
       remove_provider:
         operation:
-          ordinary_empty_row: remove_immediately
           bound_missing_empty_row: remove_immediately_detach_retired_id_transition_request_bound_to_unallocated_keep_missing_true
+          ordinary_unbound_empty_row: remove_immediately_only_when_active_missing_request_bound_row_id_does_not_equal_this_row_id
           row_with_any_content: replace_with_inline_tombstone_excluded_from_subtotal
+        operation_dispatch: bound_missing_empty_row_first_and_all_branch_guards_mutually_exclusive
         visible_when: active_non_tombstoned_row_count_at_least_2
         minimum_active_non_tombstoned_rows_after_removal: 1
         mutations: [clear_all_providers_reviewed, clear_committed_total, clear_downstream_result, recompute_running_subtotal]
@@ -518,7 +519,8 @@ state_contract:
     operation_token_generation:
       active_row_generation_g: expose_fresh_one_shot_remove_token_R_g_before_remove_activation
       successful_contentful_remove_R_g: atomically_consume_R_g_create_tombstone_generation_g_plus_1_and_expose_distinct_sibling_tokens_U_g_plus_1_and_F_g_plus_1
-      successful_ordinary_empty_remove_R_g: atomically_consume_R_g_retire_row_id_and_all_generation_tokens_create_no_tombstone_U_or_F_then_make_all_delayed_row_callbacks_no_op
+      dispatch: bound_missing_empty_remove_has_priority_and_ordinary_unbound_empty_guard_requires_active_missing_request_bound_row_id_not_equal_row_id
+      successful_ordinary_unbound_empty_remove_R_g: atomically_consume_R_g_retire_row_id_and_all_generation_tokens_create_no_tombstone_U_or_F_then_make_all_delayed_row_callbacks_no_op
       successful_bound_missing_empty_remove_R_g: atomically_consume_R_g_retire_row_id_and_all_generation_tokens_create_no_tombstone_U_or_F_transition_missing_request_bound_to_unallocated_keep_missing_true_keep_return_to_missing_request_visible_focus_next_active_row_at_removed_index_else_previous_active_row_else_add_provider_without_running_unallocated_recovery_and_do_not_allocate_or_bind_until_explicit_return_to_missing_request_or_add_provider_activation_then_make_all_delayed_row_callbacks_no_op
       successful_undo_U_g_plus_1: atomically_consume_U_g_plus_1_retire_sibling_F_g_plus_1_restore_active_row_as_fresh_generation_g_plus_2_and_expose_fresh_R_g_plus_2
       successful_remove_after_undo_R_g_plus_2: atomically_consume_R_g_plus_2_create_tombstone_generation_g_plus_3_and_expose_fresh_distinct_U_g_plus_3_and_F_g_plus_3
@@ -631,6 +633,7 @@ proof_contract:
     - ordinary_or_bound_missing_empty_immediate_remove_leaves_tombstone_or_live_token_or_accepts_delayed_callback
     - bound_missing_empty_immediate_remove_implicitly_reallocates_or_binds_before_explicit_recovery_activation
     - retract_synthetic_missing_row_leaves_remove_token_row_id_or_delayed_callback_live
+    - bound_missing_empty_row_dispatches_through_ordinary_unbound_remove_branch
     - active_row_count_confused_with_tombstone_count
     - tombstone_lost_across_reversible_help_overlay_correction_or_education_route
     - rendered_row_capacity_allocation_or_undo_bypass
