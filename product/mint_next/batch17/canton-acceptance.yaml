@@ -1,38 +1,41 @@
 schema_version: 1
-status: candidate_unaccepted_written_contract_runtime_unimplemented
-current_verdict: PENDING_INDEPENDENT_ROASTS
+status: accepted_written_contract_runtime_unimplemented
+current_verdict: CONTRACT_ACCEPTED_RUNTIME_UNIMPLEMENTED
 current_evidence:
   written_contract_complete: true
-  scope_guard_complete: false
+  scope_guard_complete: true
   runtime_implemented: false
   runtime_tests_complete: false
   user_validation_complete: false
   product_promotion: forbidden
-  six_locale_semantic_review_complete: false
+  six_locale_semantic_review_complete: true
   official_source_content_pinned: false
 reviews:
   ux_navigation_accessibility:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
   swiss_privacy_provenance:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
   adversarial_mechanical:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
 mechanical_binding:
   scope_guard: tools/checks/mint_next_batch17_canton_scope_guard.py
   scope_guard_tests: tools/checks/tests/test_mint_next_batch17_canton_scope_guard.py
   lefthook_key: mint-next-batch17-canton-scope-guard
   workflow: .github/workflows/mint-next-batch17-canton-contract.yml
   artifact_sha256:
-    scope: 8e6f6b66b5255373c1a08371f210d37ba2a6d14cb66780bddc8c11c66a4663f3
+    scope: 635b302500b88ad8ea81d826d774913e986df232fd79508baad4007d57b721d3
     sources: a935f62d840604b2fbe74e543a750d79a74553c9f5495811af883412a279a2f3
     legacy: 2946509ca4fb52547ba2bf22b5e2fb543a01b4f17548f41622491a38456d8bca
     copy: 3c6d19a37dee264bf5bd0b9e80151eac2796b6a517ddd82a96feb397c49050fe
@@ -94,6 +97,8 @@ mechanical_binding:
   - test_wrong_canton_set_is_rejected
   normalized_workflow_sha256: 3715fb2d56d6cfb2d9309c956bd48dae15dd5b32244cdcb8251bc65db695d067
   candidate_review_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
+  reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
+  reviewed_candidate_commit: 587df8ba55d4262b82f675f52a48feb14efb6777
 accepted_scope_only:
 - written_fact_canton_semantics
 - written_navigation_and_lifecycle
@@ -107,4 +112,47 @@ not_accepted:
 - persistence
 - product_route
 - user_validation
-next_gate: independent_contract_roasts_then_candidate_digest_binding
+next_gate: runtime_implementation_in_separate_batch_with_failing_tests_and_runtime_proof
+locale_reviews:
+  fr:
+    reviewer: batch17_round5_ux_locale_roast
+    status: ACCEPT
+    reviewed_at: '2026-08-03'
+    assertions_validated: &id001
+    - tax_applicable_canton_for_selected_year
+    - complex_or_moved_uses_unknown_education_only
+    - choice_not_sent
+    - ttl_30_minutes
+    - no_personal_estimate_when_unknown_or_complex
+    - canton_and_commune_are_distinct
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
+  en:
+    reviewer: batch17_round5_ux_locale_roast
+    status: ACCEPT
+    reviewed_at: '2026-08-03'
+    assertions_validated: *id001
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
+  de:
+    reviewer: batch17_round5_ux_locale_roast
+    status: ACCEPT
+    reviewed_at: '2026-08-03'
+    assertions_validated: *id001
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
+  it:
+    reviewer: batch17_round5_ux_locale_roast
+    status: ACCEPT
+    reviewed_at: '2026-08-03'
+    assertions_validated: *id001
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
+  es:
+    reviewer: batch17_round5_ux_locale_roast
+    status: ACCEPT
+    reviewed_at: '2026-08-03'
+    assertions_validated: *id001
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
+  pt:
+    reviewer: batch17_round5_ux_locale_roast
+    status: ACCEPT
+    reviewed_at: '2026-08-03'
+    assertions_validated: *id001
+    reviewed_payload_sha256: 23707360bad543612becb61e3fa33808ccf1e554ce694f83e8369ce4c2597ef3
