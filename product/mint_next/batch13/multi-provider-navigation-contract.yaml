@@ -1,0 +1,651 @@
+schema_version: 1
+status: draft_written_runtime_contract_runtime_forbidden
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_literacy
+
+authority:
+  canonical_navigation_and_boundary_contracts:
+    path: product/mint_next/batch6/navigation.yaml
+    sha256: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
+  financial_fact_contract:
+    path: product/mint_next/batch11/ordinary-contribution-amount-scope.yaml
+    sha256: 1310c2d0192e2d1ded2e8555ccaa9b0624e0f1d1b3d206a95dfc47e83799f23c
+  official_sources:
+    path: product/mint_next/batch11/official-sources.yaml
+    sha256: 6ebc04d5edb92d8f437db1b6ce60ebae5daa187f294cdc3cdffbe2d934ce3741
+  predecessor_runtime:
+    path: product/mint_next/batch12/design-lab-acceptance.yaml
+    sha256: 542b1c223ac78ce2202a8981cc1f0f4223dc74e9947f5294b1cbf8693f943dc0
+  change: replace_multi_provider_holding_with_exact_local_provider_rows
+  runtime_change: forbidden_until_this_contract_is_mechanically_accepted
+
+human_contract:
+  promise: Tell MINT what each 3a provider actually credited for the selected year; MINT performs the addition without turning a partial subtotal into an answer.
+  one_screen_job: complete_and_verify_all_provider_rows
+  primary_action: continue_only_with_a_complete_positive_confirmed_total
+  emotional_tone: calm_non_judgmental_no_math_required
+  must_understand:
+    - one_row_is_one_provider_annual_ordinary_total_not_one_contract_or_transaction
+    - the_visible_sum_is_only_a_draft_until_every_provider_is_reviewed
+    - missing_or_unknown_is_valid_and_never_means_zero
+    - no_tax_result_is_calculated_here
+
+scope:
+  entry_preconditions:
+    selected_tax_year: required
+    lpp_affiliation: 'yes'
+    ordinary_contribution_status: 'yes'
+  nodes: [fact_contributed_amount, contributed_amount_unknown_help]
+  boundary_nodes: [fact_contribution, fact_canton, education_explanation, education_teach_back, safe_exit_overlay]
+  introduced_controls: [add_provider, remove_provider, finalize_remove, undo_remove, running_subtotal, all_providers_reviewed, all_reviewed_help, return_to_missing_request, retract_missing_provider]
+  retained_controls: [where_to_find, amount_classification_doubt, missing_amount, unknown_amount, continue, correct_previous, safe_exit]
+  forbidden_controls: [scan_document, connect_provider, import_account, calculate_tax_saving, recommend_provider, reorder_provider]
+  locales: [fr, en, de, it, es, pt]
+
+entry_migration_contract:
+  trigger: batch12_multiple_provider_declaration_or_batch13_add_provider
+  valid_single_provider_draft:
+    row_1: preserve_exact_provider_name_raw_amount_and_parsed_minor_units
+    append: one_empty_row_2
+    clear: [single_provider_confirmation, multiple_providers_declared_flag, committed_total, downstream_result]
+    focus: row_2_provider_name
+  incomplete_or_invalid_single_provider_draft:
+    row_1: preserve_raw_inputs_and_errors
+    append: forbidden_until_row_1_has_any_meaningful_safe_name_or_parse_valid_amount
+    clear: [single_provider_confirmation, committed_total, downstream_result]
+    focus: first_invalid_or_empty_field
+  empty_single_provider_draft:
+    row_1: preserve_one_empty_row_only
+    append: forbidden
+    focus: row_1_provider_name
+  resumed_batch12_multi_provider_holding:
+    row_1: restore_exact_existing_draft
+    append: one_empty_row_only_when_row_1_is_structurally_valid
+    clear: [multiple_providers_declared_flag, committed_total, downstream_result]
+    focus: row_2_provider_name_or_first_invalid_row_1_field
+  migration_atomic_and_idempotent: true
+  no_draft_may_be_dropped_reparsed_or_coerced_during_migration: true
+
+graph:
+  fact_contributed_amount:
+    purpose: build_complete_provider_scoped_ordinary_3a_total_for_selected_year
+    initial_state:
+      rows: one_empty_row
+      committed_total: null
+      all_providers_reviewed: false
+      running_subtotal_visibility: hidden_until_two_active_rows_and_one_parse_valid_positive_amount
+    controls:
+      add_provider:
+        operation: append_one_empty_ephemeral_row
+        guard: no_existing_completely_empty_active_row_and_rendered_row_count_below_50
+        on_guard_failure: stay_focus_existing_empty_row_and_announce_reason
+        mutations: [clear_all_providers_reviewed, clear_committed_total, clear_downstream_result]
+        focus: new_row_provider_name
+        announcement: new_row_heading
+        pending_missing_request_behavior: bind_new_row_only_when_missing_request_state_is_unallocated_never_rebind_bound_token
+      remove_provider:
+        operation:
+          ordinary_empty_row: remove_immediately
+          bound_missing_empty_row: remove_immediately_detach_retired_id_transition_request_bound_to_unallocated_keep_missing_true
+          row_with_any_content: replace_with_inline_tombstone_excluded_from_subtotal
+        visible_when: active_non_tombstoned_row_count_at_least_2
+        minimum_active_non_tombstoned_rows_after_removal: 1
+        mutations: [clear_all_providers_reviewed, clear_committed_total, clear_downstream_result, recompute_running_subtotal]
+        operation_binding: stable_row_id_and_one_shot_remove_token
+        stale_or_repeated_activation: no_op_with_polite_announcement
+        focus: next_active_row_at_removed_index_else_previous_active_row_else_add_provider
+      undo_remove:
+        operation: restore_that_tombstoned_row_at_original_index
+        availability: independently_for_each_contentful_tombstone_until_state_contract_tombstone_finalization_event
+        operation_binding: stable_row_id_and_one_shot_undo_token
+        stale_or_repeated_activation: no_op_with_polite_announcement
+        mutations: [clear_all_providers_reviewed, clear_committed_total, clear_downstream_result, recompute_running_subtotal]
+        focus: temporarily_focus_restored_row_heading_outside_tab_order_then_tab_enters_first_row_field
+      finalize_remove:
+        operation: permanently_purge_that_tombstone_content_without_reusing_its_row_id
+        operation_binding: stable_row_id_and_one_shot_finalize_token
+        stale_or_repeated_activation: no_op_with_polite_announcement
+        mutations: [clear_all_providers_reviewed, clear_committed_total, clear_downstream_result, apply_missing_provider_resolution_contract_after_finalize]
+        focus: newly_allocated_missing_row_provider_name_else_next_active_same_index_else_previous_active_else_add_provider
+      edit_provider_name:
+        operation: update_ephemeral_safe_label
+        mutations: [clear_all_providers_reviewed, clear_committed_total, clear_downstream_result]
+      edit_amount:
+        operation: parse_to_integer_minor_units_or_preserve_raw_error
+        mutations: [set_row_classification_unreviewed, clear_all_providers_reviewed, clear_committed_total, clear_downstream_result, recompute_running_subtotal_from_parse_valid_rows]
+      amount_classification_doubt:
+        to: contributed_amount_unknown_help
+        mode: unresolved_classification
+        mutations: [set_selected_row_classification_unresolved, clear_all_providers_reviewed, clear_committed_total, clear_downstream_result]
+        preserves: [rows, tombstones, raw_inputs, disclosure_state]
+      all_providers_reviewed:
+        role: checkbox
+        label_intent: used_each_provider_annual_ordinary_total_and_reviewed_every_personal_3a_provider_for_selected_year
+        guard: every_active_non_tombstoned_row_has_heuristically_accepted_name_and_positive_exact_amount_and_no_exact_normalized_duplicate_and_no_unresolved_movement_or_correction_and_no_aggregate_overflow_and_no_tombstone_and_missing_provider_declared_false_and_allocation_blocked_false
+        on_guard_failure: remain_unchecked_focus_first_invalid_row
+        failure_focus:
+          row_error: first_error_field
+          tombstone: first_tombstone_undo_then_finalize_group
+          missing_or_allocation_blocked: retract_missing_provider_then_education_only
+          aggregate_overflow: aggregate_error_next_to_subtotal
+        mutations: [set_all_active_rows_classification_confirmed_ordinary, set_all_providers_reviewed_true, keep_committed_total_null_until_continue]
+        toggle_false_mutations: [set_all_rows_classification_unreviewed, clear_all_providers_reviewed, clear_committed_total, clear_downstream_result]
+        visibility: after_at_least_one_parse_valid_positive_row
+      where_to_find:
+        operation: toggle_same_node_disclosure
+        content_ref: copy_contract_fr.where_to_find
+      all_reviewed_help:
+        operation: toggle_same_node_disclosure
+        content_ref: copy_contract_fr.all_reviewed_help
+        focus_and_semantics: trigger_exposes_expanded_state_and_disclosure_heading
+      missing_amount:
+        to: contributed_amount_unknown_help
+        visibility: at_least_one_parse_valid_positive_row_and_active_missing_request_none
+        guard: at_least_one_parse_valid_positive_row_and_active_missing_request_none
+        mode: partial_known
+        mutations: [set_missing_provider_declared, set_all_active_rows_classification_unreviewed, clear_all_providers_reviewed, clear_committed_total, clear_downstream_result, apply_missing_provider_resolution_contract_declaration_transition_order]
+        preserves: [rows, raw_inputs, disclosure_state, tombstones]
+      return_to_missing_request:
+        visibility: active_missing_request_unallocated_or_bound
+        label_by_state:
+          bound_to_one_stable_row_id: copy_contract_fr.controls.return_to_bound_missing_request
+          unallocated: copy_contract_fr.controls.return_to_unallocated_missing_request
+        accessible_name_equals_visible_label: true
+        operation:
+          bound_active_row: focus_first_invalid_or_empty_control_in_order_provider_name_safety_or_empty_then_amount_invalid_or_empty_then_duplicate_provider_name_then_unresolved_classification_help
+          bound_tombstoned_row: focus_bound_tombstone_undo_then_finalize_group
+          unallocated: route_partial_help_focus_capacity_recovery_or_education
+        repeated_activation: idempotent_never_create_or_rebind_token
+      retract_missing_provider:
+        visibility: missing_provider_declared_or_allocation_blocked
+        label_intent: explicit_correction_that_every_provider_is_already_added
+        operation:
+          token_owned_untouched_synthetic_empty_row: remove_that_row_then_clear_request
+          preexisting_or_edited_bound_row: unbind_preserve_row_then_clear_request
+          unallocated_request: clear_request
+        mutations: [set_all_active_rows_classification_unreviewed, clear_all_providers_reviewed, clear_committed_total, clear_downstream_result]
+        focus: first_remaining_invalid_field_else_first_tombstone_undo_or_finalize_else_all_providers_reviewed
+      unknown_amount:
+        to: contributed_amount_unknown_help
+        guard: no_valid_positive_row
+        mode: no_amount_known
+        preserves: [rows, tombstones, raw_inputs, disclosure_state]
+      continue:
+        to: fact_canton
+        guard: every_active_non_tombstoned_row_valid_and_unique_and_classification_confirmed_ordinary_and_all_providers_reviewed_and_missing_provider_declared_false_and_allocation_blocked_false_and_no_tombstone_and_running_subtotal_positive_and_no_aggregate_overflow
+        failure_order: [first_heuristically_rejected_or_empty_provider_name, first_invalid_amount, first_exact_duplicate, first_unresolved_classification, first_tombstone, aggregate_overflow, missing_provider_or_allocation_blocked_correction, all_providers_reviewed]
+        failure_focus:
+          first_tombstone: undo_then_finalize_action_group
+          aggregate_overflow: aggregate_error_next_to_subtotal
+          missing_provider_or_allocation_blocked_correction: retract_missing_provider_then_education_only
+        mutation: atomically_commit_running_subtotal_as_canonical_total
+        repeated_activation: idempotent_single_commit_and_single_route
+      correct_previous:
+        to: fact_contribution
+        entry_mode: correction_from_amount
+        restores_selection: 'yes'
+        preserves_drafts_until_status_changes: true
+      safe_exit:
+        to: safe_exit_overlay
+      back_or_system_back:
+        to: fact_contribution
+        entry_mode: correction_from_amount
+        preserves: [rows, tombstones, raw_inputs, scroll, disclosure_state]
+    forbidden_routes: [automatic_after_typing, automatic_after_checkbox, partial_to_canton, subtotal_to_result]
+
+  contributed_amount_unknown_help:
+    mode_partial_known:
+      purpose: explain_how_to_find_only_the_missing_provider_total
+      primary:
+        label_intent: return_to_first_missing_provider
+        to: fact_contributed_amount
+        focus: first_incomplete_row_or_at_limit_education_action
+      education_only:
+        to: education_explanation
+        mutation: canonical_total_remains_null
+      back_or_system_back:
+        to: fact_contributed_amount
+        focus: missing_amount_trigger
+    mode_no_amount_known:
+      purpose: explain_how_to_find_the_first_provider_total
+      primary:
+        label_intent: enter_first_provider_total
+        to: fact_contributed_amount
+        focus: first_row_provider_name
+      education_only:
+        to: education_explanation
+        mutation: canonical_total_remains_null
+      back_or_system_back:
+        to: fact_contributed_amount
+        focus: unknown_amount_trigger
+    mode_unresolved_classification:
+      purpose: resolve_transfer_buyback_pending_debit_refund_or_correction_without_mental_arithmetic
+      body_intent: use_provider_confirmed_annual_ordinary_total_q_once_and_exclude_nonordinary_movements
+      selected_row_canonical_eligibility: blocked
+      primary:
+        label_intent: i_obtained_the_provider_confirmed_ordinary_total
+        to: fact_contributed_amount
+        guard: selected_stable_row_id_matches_originating_unresolved_row
+        mutation: set_selected_row_unresolved_to_unreviewed_without_requiring_amount_change_keep_canonical_null
+        focus: selected_row_amount
+      selected_provider_fully_refunded_but_other_provider_positive:
+        label_intent: remove_only_this_fully_refunded_provider_preserve_all_other_rows
+        guard: selected_stable_row_id_matches_originating_unresolved_row_and_another_active_provider_has_parse_valid_positive_amount
+        to: fact_contributed_amount
+        operation: reuse_entire_remove_provider_contentful_tombstone_transition
+        mutations: [keep_other_provider_rows, tombstone_selected_row, clear_confirmation_commit_and_downstream, recompute_running_subtotal, announce_updated_provisional_subtotal]
+        operation_binding: same_stable_row_id_and_one_shot_remove_token_as_remove_provider
+        stale_or_repeated_activation: no_op_never_retarget_with_polite_announcement
+        focus: selected_row_tombstone_undo
+      nothing_remained_credited_across_all_providers:
+        label_intent: correct_previous_contribution_status_only_if_all_providers_together_are_zero
+        guard: person_explicitly_declares_no_provider_has_any_ordinary_amount_remaining_credited
+        to: fact_contribution
+        entry_mode: correction_from_amount
+        restores_selection: 'yes'
+        mutation: no_automatic_zero_or_status_change
+      education_only:
+        to: education_explanation
+        mutation: canonical_total_remains_null
+      back_or_system_back:
+        to: fact_contributed_amount
+        focus: selected_row_amount_classification_doubt
+    safe_exit:
+      to: safe_exit_overlay
+    forbidden: [commit_known_subtotal, infer_zero, estimate_personal_amount, provider_deep_link]
+
+  fact_canton:
+    purpose: next_fact_boundary_without_calculation
+    back_or_system_back:
+      label_intent: correct_my_provider_amounts
+      to: fact_contributed_amount
+      restores: [rows, exact_amounts, all_providers_reviewed, committed_total]
+    forbidden: [deductible_amount, remaining_room, tax_saving, provider_recommendation]
+
+  fact_contribution_correction_boundary:
+    entry_mode: correction_from_amount
+    choose_yes:
+      to: fact_contributed_amount
+      mutation: preserve_rows_but_clear_confirmation_commit_and_downstream
+      focus: page_heading
+    choose_no_or_unknown:
+      to: inherited_next_route_for_explicit_status
+      mutation: atomically_purge_exact_personal_state_purge_fields_before_route
+    back_or_system_back:
+      to: fact_contributed_amount
+      restores: [rows, tombstones, raw_inputs, scroll, originating_correct_previous_focus]
+
+  education_explanation_boundary:
+    authority: inherit_batch6_education_explanation_semantics_without_personal_result
+    continue:
+      to: education_teach_back
+    back_or_system_back:
+      to: exact_originating_help_mode
+      restores: [rows, tombstones, raw_inputs, help_mode, originating_education_only_focus]
+      canonical_total: null
+    safe_exit:
+      to: safe_exit_overlay
+
+  education_teach_back_boundary:
+    authority: inherit_batch6_education_teach_back_semantics_without_personal_result
+    entry_focus: semantic_page_heading
+    choose_answer: to_inherited_correction_or_next_action
+    back_or_system_back:
+      to: education_explanation
+      restores: [rows, tombstones, raw_inputs, originating_continue_focus]
+      canonical_total: null
+    safe_exit:
+      to: safe_exit_overlay
+
+  inherited_education_subgraph_boundary:
+    authority: canonical_navigation_and_boundary_contracts_sha256
+    nodes: [education_explanation, education_teach_back, education_teach_back_correction, education_next_action, reference_saved, dismissed]
+    reversible_same_process_navigation: preserve_rows_tombstones_raw_inputs_and_help_origin
+    answer_or_correction_routes: preserve_until_explicit_session_completion_or_leave
+    keep_local_reference:
+      persist_only: [journey_id, generic_reference_id, saved_at]
+      mutation: atomically_purge_exact_personal_state_purge_fields_before_reference_saved
+    leave_or_dismiss:
+      mutation: atomically_purge_exact_personal_state_purge_fields_before_dismiss
+    restart_or_ttl_expiry:
+      mutation: atomically_purge_exact_personal_state_purge_fields_before_restart
+
+  safe_exit_overlay:
+    resume_cancel_or_system_back:
+      operation: close_overlay_without_mutation
+      focus: originating_safe_exit_trigger
+    leave_without_saving:
+      to: dismissed
+      mutation: atomically_purge_exact_personal_state_purge_fields_before_dismiss
+    privacy_copy_fr: Rien n’est enregistré ni envoyé. Si tu quittes, les noms et montants saisis seront effacés.
+    focus_trap_restore_and_accessible_modal_semantics: required
+
+row_contract:
+  row_identity:
+    type: opaque_session_row_id_never_provider_name
+    uniqueness: unique_for_entire_session
+    stable_across_reindex_and_tombstone_restore: true
+    reuse_after_remove: forbidden
+    every_edit_remove_undo_and_focus_callback_bound_to_id: true
+  row_semantics: one_provider_total_q_for_selected_year
+  fields: [ephemeral_provider_name, ordinary_amount_chf, classification_state]
+  classification_state:
+    values: [unreviewed, confirmed_ordinary, unresolved]
+    initial: unreviewed
+    amount_edit_effect: unreviewed
+    explicit_doubt_effect: unresolved
+    confirmed_ordinary_only_by: successful_global_all_provider_confirmation
+    unresolved_blocks_canonical_total: true
+  provider_name:
+    required: true
+    persisted: false
+    logged_analytics_crash_breadcrumbs: false
+    screening: heuristic_best_effort_not_proof_of_absence
+    reject_known_patterns: [account_number, policy_number, avs_number, iban]
+    maximum_grapheme_clusters_technical_not_semantic: 80
+    grapheme_limit_applied_to: unicode_nfkc_normalized_value
+    excessive_length_behavior: preserve_raw_focus_and_show_inline_error
+    reject_unicode_categories: [control, bidi_override, zero_width_format]
+    safety_and_duplicate_pipeline: [reject_forbidden_unicode_before_normalization, unicode_nfkc, heuristic_sensitive_identifier_screen_on_normalized_text, casefold_for_duplicate_key, trim_unicode_whitespace, collapse_unicode_whitespace]
+    exact_duplicate_behavior: block_confirmation_and_focus_later_duplicate_provider_name
+    alias_homoglyph_or_renamed_provider_identity_proof: not_supported
+  amount:
+    representation: integer_minor_units
+    parser: inherit_batch11_exact_parser_contract
+    positive_required: true
+    zero_blank_unknown_or_invalid: never_coerce_to_zero
+  provider_total_may_cover_multiple_contracts: show_once_per_screen_before_confirmation
+  remove:
+    icon_only_forbidden: true
+    accessible_name_includes_row_index_or_safe_provider_name: true
+    destructive_confirmation_dialog: forbidden_to_avoid_repetitive_friction
+    contentful_row_becomes_inline_tombstone_until_explicit_finalization_event: true
+    accessible_undo_required_when_row_had_any_content: true
+
+missing_provider_resolution_contract:
+  active_request_states: [none, unallocated, bound_to_one_stable_row_id]
+  request_identity: unique_one_shot_missing_request_token_created_only_on_none_to_unallocated_transition
+  terminal_transition:
+    resolved: retire_token_then_active_request_none
+    explicitly_retracted: retire_token_then_active_request_none
+  new_request_after_terminal_transition: create_fresh_never_reused_token
+  repeated_missing_activation_while_pending: idempotent_focus_bound_row_or_unallocated_recovery_never_allocate_or_rebind
+  bound_row_provenance: [synthetic_untouched_placeholder, preexisting_or_user_edited_row]
+  existing_row_binding_eligibility: active_non_tombstoned_row_with_empty_or_invalid_provider_name_or_amount_excluding_unresolved_classification_and_exact_duplicate
+  existing_row_tie_break: first_eligible_row_in_visual_order
+  declaration_transition_order:
+    first: if_eligible_row_exists_bind_first_eligible_stable_row_id_regardless_of_rendered_capacity
+    second: if_no_eligible_row_and_rendered_count_below_50_allocate_one_synthetic_empty_row_and_bind
+    third: if_no_eligible_row_and_rendered_count_is_50_stay_unallocated_set_allocation_blocked
+  capacity_freed_by_finalize: if_unallocated_atomically_allocate_and_bind_one_empty_row
+  ordinary_add_while_unallocated: bind_added_row_once
+  ordinary_add_while_bound: never_rebind_token_new_row_is_unrelated
+  edits_after_binding: never_unbind_or_rebind_token_invalid_or_duplicate_or_unresolved_bound_row_remains_bound_until_resolved_retracted_tombstoned_or_finalized
+  bound_row_tombstoned: preserve_binding_so_undo_restores_same_request_row
+  bound_empty_row_removed_immediately: detach_retired_id_transition_bound_to_unallocated_keep_missing_true_and_allocation_blocked_false_next_add_binds_once
+  bound_row_finalized: detach_retired_id_transition_to_unallocated_keep_missing_true_then_atomically_allocate_and_bind_replacement_when_capacity_exists
+  automatic_resolution_only_when: the_same_bound_missing_row_becomes_active_structurally_valid_unique_and_classification_not_unresolved
+  automatic_resolution_mutation: transition_bound_to_resolved_clear_missing_provider_declared_and_allocation_blocked_keep_global_confirmation_false
+  removing_tombstoning_or_finalizing_bound_missing_row: keep_missing_provider_declared_true
+  explicit_retraction_only_via: retract_missing_provider
+  checkbox_and_continue_never_clear_missing_state: true
+
+row_count_contract:
+  maximum_rendered_rows_including_active_and_tombstones_technical_not_legal_or_fiscal: 50
+  reason: bound_dynamic_focus_memory_and_checked_sum_behavior
+  at_limit:
+    add_provider: disabled_with_accessible_reason
+    missing_provider_declaration: set_allocation_blocked_clear_confirmation_commit_and_downstream_then_route_partial_help_without_allocating
+    undo_existing_tombstone: always_allowed_without_new_row_id
+    finalize_tombstone: frees_one_rendered_slot_but_row_id_is_never_reused
+    copy_fr: Cette saisie accepte jusqu’à 50 lignes. Confirme une suppression, ou continue sans montant personnel si ta situation dépasse cette limite.
+    continue_education_only_without_personal_amount: {to: education_explanation, mutation: canonical_total_remains_null}
+    leave_without_saving: {to: safe_exit_overlay}
+  never_present_as_provider_or_3a_legal_limit: true
+
+subtotal_contract:
+  computation: exact_integer_sum_of_every_active_non_tombstoned_amount_parse_valid_positive_row
+  addition: checked_integer_minor_unit_addition_without_float
+  maximum_aggregate_minor_units_technical_not_fiscal: 99999999999999
+  aggregate_overflow:
+    canonical_total: null
+    confirmation: false
+    classification_ready_state: forbidden
+    continue: blocked
+    focus: aggregate_error_next_to_subtotal
+    precedence: before_confirmation_and_ready_label
+    error_fr: Le total saisi est trop grand. Vérifie les montants de tes prestataires.
+  locality: on_device_ephemeral_only
+  label_states:
+    any_row_empty_unsafe_duplicate_unreviewed_or_unresolved: draft_subtotal_incomplete_or_to_correct_not_confirmed
+    all_rows_valid_unconfirmed: draft_total_to_review_not_confirmed
+    ready_only_when: all_active_rows_valid_unique_and_confirmed_ordinary_and_no_unresolved_no_tombstone_no_missing_flag_no_overflow_and_all_providers_reviewed_true
+  canonical_fact_before_explicit_continue: null
+  flagged_row_amounts_remain_visible_in_draft_subtotal_never_silently_excluded: true
+  flagged_rows_prevent_ready_label_confirmation_and_commit: true
+  subtotal_alone_may_enable_continue: false
+  format: locale_aware_chf_display_without_float
+  live_region: polite_debounced_on_blur_add_remove_or_undo_never_each_keystroke
+  forbidden: [tax_deduction, remaining_room, tax_saving, statutory_ceiling_comparison, animated_gain]
+
+copy_contract_fr:
+  page:
+    eyebrow: Tes versements 3a · {taxYear}
+    title: Ajoute tes prestataires 3a, un par un.
+    body: Pour chacun, saisis le total annuel des cotisations ordinaires créditées pour toi en {taxYear}, tel qu’il figure sur ton attestation. MINT fait l’addition.
+    provider_total_note: Si une attestation regroupe plusieurs contrats, utilise son total une seule fois.
+    privacy_note: Rien n’est enregistré ni envoyé. Si tu quittes, les noms et montants saisis seront effacés.
+  where_to_find:
+    title: Sur l’attestation annuelle de chaque prestataire
+    body: Pour {taxYear}, cherche « Total des cotisations au pilier 3a » ou le total Q. Utilise ce total une seule fois, même s’il regroupe plusieurs contrats. Ne saisis ni le solde, ni un versement prévu ou seulement débité.
+    exclusions: Un transfert, un rachat rétroactif ou un remboursement n’est pas une cotisation ordinaire. Après une correction, demande au prestataire son nouveau total ordinaire net au lieu de faire la soustraction toi-même.
+  all_reviewed_help:
+    title: Vérifie chaque endroit où tu as un 3a
+    body: Regarde tes apps et attestations de banque, fintech, fondation ou assurance 3a pour {taxYear}. Ajoute une seule ligne par prestataire, même si son attestation regroupe plusieurs contrats.
+    privacy: Utilise seulement le nom figurant sur l’attestation, sans numéro de compte, de police, AVS ou IBAN.
+  row:
+    heading: Prestataire 3a n° {index}
+    provider_name: Nom du prestataire
+    provider_hint: Le nom figurant sur l’attestation, par exemple VIAC, ta banque, une fondation ou une assurance — aucun numéro.
+    amount: Cotisations ordinaires créditées · {taxYear}
+    amount_doubt: J’ai un doute sur ce montant
+    remove: Supprimer ce prestataire
+    undo_remove: Annuler la suppression du prestataire {index}
+    tombstone: Prestataire supprimé
+    finalize_remove: Confirmer la suppression du prestataire {index}
+    finalize_announcement: La ligne supprimée a été définitivement effacée de cette saisie.
+  subtotal:
+    incomplete: Sous-total saisi — encore incomplet
+    includes_unresolved: Addition provisoire — inclut un montant à vérifier
+    unconfirmed: Total saisi — à vérifier
+    ready: Total prêt — aucun résultat fiscal calculé
+  controls:
+    add_provider: Ajouter un autre prestataire 3a
+    all_reviewed: J’ai utilisé le total annuel ordinaire de chaque prestataire et vérifié tous mes 3a pour {taxYear}
+    missing_amount: Il me manque encore un montant
+    unknown_amount: Je ne connais encore aucun montant
+    continue: Continuer
+    correct_previous: Corriger ma réponse précédente
+    all_reviewed_help: Comment savoir si j’ai d’autres prestataires à vérifier ?
+    return_to_bound_missing_request: Revenir au montant manquant
+    return_to_unallocated_missing_request: Reprendre l’ajout du prestataire manquant
+    retract_missing_provider: En fait, j’ai déjà ajouté tous mes prestataires
+  errors:
+    empty_before_add: Commence la ligne vide ou supprime-la avant d’en ajouter une autre.
+    provider_name_empty: Indique seulement le nom du prestataire, sans numéro.
+    provider_name_unsafe: Retire le numéro de compte, de police, AVS ou l’IBAN.
+    amount_empty: Indique le total ordinaire crédité pour {taxYear}.
+    exact_duplicate: Ce prestataire est déjà présent. Corrige sa ligne au lieu de compter son total deux fois.
+    confirmation_missing: Confirme que tu as vérifié tous tes prestataires 3a pour {taxYear}.
+    unresolved_classification: Vérifie s’il s’agit bien du total ordinaire confirmé, sans transfert, rachat rétroactif ni remboursement.
+    invalid_format: Utilise uniquement des chiffres et un seul séparateur décimal.
+    too_many_decimals: Indique au maximum deux chiffres après le séparateur.
+    zero: Le montant doit être supérieur à zéro. Si rien n’est resté crédité, corrige ta réponse précédente.
+    negative_or_forbidden_token: Vérifie le total indiqué sur l’attestation; ne saisis ni signe, pourcentage, exposant ou autre devise.
+    ambiguous_separator: Le séparateur est ambigu. Saisis par exemple 7258 ou 7258,50.
+    amount_overflow: Ce montant est trop long. Vérifie le total indiqué par ton prestataire.
+    provider_name_too_long: Le nom est trop long. Indique seulement le nom visible sur l’attestation, sans numéro.
+  unresolved_help:
+    title: Vérifie ce qui compose ce montant
+    body: Utilise le total annuel ordinaire ou total Q confirmé par ton prestataire pour {taxYear}. Ne compte pas un transfert, un rachat rétroactif, un versement encore en attente ou un remboursement.
+    correction: Après un remboursement ou une correction, demande le nouveau total ordinaire net. Ne fais pas la soustraction toi-même.
+    insurance: Pour une assurance 3a, utilise l’attestation annuelle, pas la valeur de rachat ni la répartition risque-épargne.
+    one_provider_refunded: Si seul ce prestataire a tout remboursé mais que d’autres montants restent crédités, supprime seulement cette ligne.
+    all_providers_zero: Corrige ta réponse précédente uniquement si rien n’est resté crédité chez aucun de tes prestataires.
+    remove_refunded_provider_action: Supprimer seulement ce prestataire remboursé
+    all_providers_zero_action: Rien n’est resté crédité chez aucun de mes prestataires
+
+state_contract:
+  edit_add_remove_undo_confirmation_toggle_or_missing_provider_declaration: atomically_clear_confirmation_committed_total_and_downstream_result
+  back_from_canton: restore_complete_rows_without_recommitting_or_recalculating_tax
+  back_from_help: restore_exact_drafts_scroll_disclosure_and_originating_focus
+  personal_state_purge_fields: [provider_names, raw_amounts, parsed_minor_units, classification_states, active_rows, tombstones_and_content, row_ids_and_operation_tokens, missing_request_token, missing_request_bound_row_id, missing_request_row_provenance, missing_request_retry_state, subtotal, aggregate_error, missing_provider_declared, allocation_blocked, all_providers_reviewed, committed_total, downstream_result, disclosure_state]
+  status_change_to_no_or_unknown: atomically_purge_exact_personal_state_purge_fields_before_route
+  tax_year_change: atomically_purge_exact_personal_state_purge_fields_before_render
+  leave_without_saving: atomically_purge_exact_personal_state_purge_fields_before_dismiss
+  app_kill_or_ttl_expiry: atomically_purge_exact_personal_state_purge_fields_then_restart
+  provider_name_and_amount_persistence: forbidden
+  analytics_and_crash_reporting_of_names_amounts_or_subtotal: forbidden
+  network_transmission_of_names_amounts_subtotal_or_rows: forbidden
+  unresolved_movement_correction_or_classification: canonical_total_null_until_provider_confirmed_amount_and_global_reconfirmation
+  tombstone_lifecycle:
+    preserved_through: [all_help_modes_and_back, entire_reversible_inherited_education_subgraph, safe_exit_resume_cancel_or_system_back, fact_contribution_correction_and_back]
+    finalized_only_by: [explicit_finalize_remove, status_change, tax_year_change, explicit_education_session_completion_or_reference_save, leave_without_saving, app_kill_or_ttl_expiry]
+  stale_callback_after_finalize:
+    edit_focus_remove_undo_or_finalize_for_retired_row_id: no_op_never_recreate_or_retarget_with_polite_announcement_when_user_visible
+
+focus_contract:
+  every_node_entry: temporarily_focus_semantic_heading_without_adding_heading_to_tab_order
+  fact_contributed_amount_from_migration: entry_migration_contract_focus
+  help_partial_known: help_heading_then_primary_returns_first_incomplete_or_at_limit_action
+  help_no_amount_known: help_heading_then_primary_returns_first_provider_name
+  help_unresolved: help_heading_then_primary_returns_same_stable_row_amount
+  fact_canton: canton_heading
+  fact_contribution_correction: contribution_heading
+  education_explanation: education_heading
+  education_teach_back: teach_back_heading
+  safe_exit: modal_heading_with_focus_trap
+  system_back_help: identical_to_exact_mode_back_control
+
+accessibility_contract:
+  row_role: named_group
+  unique_heading_and_input_names_include_row_index_and_selected_year: true
+  add_focus: provider_name_of_new_row_with_row_heading_announced_as_group_label
+  remove_focus: next_active_same_index_else_previous_active_else_add_button
+  duplicate_error_focus: later_duplicate_provider_name
+  unsafe_or_empty_name_error_focus: provider_name
+  invalid_amount_error_focus: amount
+  unresolved_error_focus: amount_classification_doubt
+  confirmation_error_focus: checkbox_only_after_all_row_errors_are_clear
+  undo_announcement_and_focus_restore: required
+  inline_error_described_by_and_polite_announcement: required
+  invalid_continue_focuses_first_error: true
+  checkbox_error_focus_and_live_announcement: required
+  touch_target_minimum: 48x48_logical_pixels
+  keyboard_and_visual_order_match: true
+  no_color_only_state: true
+  reduced_motion: true
+  required_proofs:
+    - 320x700_text_scale_2_with_three_rows_error_keyboard_navigation_scroll_into_view_and_no_keyboard_obstruction
+    - 390x844_real_chrome_add_remove_undo_partial_help_complete_and_back
+    - screen_reader_row_group_remove_tombstone_undo_subtotal_and_error_announcements
+    - hostile_runtime_synthetic_and_preexisting_missing_resolve_retract_second_request_and_repeated_activation_with_focus_checked_and_live_region
+    - hostile_runtime_tombstone_finalize_capacity_replacement_no_continue_bypass_and_safe_exit_exact_purge_with_focus_and_semantics
+
+six_locale_intent_contract:
+  locales: [fr, en, de, it, es, pt]
+  mandatory_intents:
+    - one_provider_not_one_contract_or_transaction
+    - selected_year_actual_ordinary_credit_not_planned_payment
+    - mint_adds_locally_user_does_not_do_math
+    - draft_subtotal_is_incomplete_and_not_a_tax_result
+    - all_provider_review_confirmation
+    - missing_unknown_and_invalid_never_equal_zero
+    - exact_duplicate_prevents_double_counting_without_claiming_identity_grade_deduplication
+    - contentful_removed_row_is_a_tombstone_until_undo_or_explicit_finalize_and_blocks_confirmation
+    - pending_missing_request_recovery_has_state_specific_label_and_never_creates_or_rebinds_token
+    - no_account_policy_avs_or_iban_in_provider_name
+    - nothing_is_persisted_or_transmitted_and_leaving_erases_provider_names_and_amounts
+    - provider_total_q_not_balance_cash_value_or_statutory_ceiling
+    - provider_transfer_is_excluded
+    - retroactive_buyback_is_separate
+    - pending_or_debited_payment_is_not_yet_credited
+    - investment_return_or_yield_is_not_a_contribution
+    - spouse_or_partner_amount_is_never_included
+    - provider_attested_employer_or_third_party_initiated_for_the_person_is_included_but_spouse_partner_is_not
+    - refund_or_correction_requires_provider_confirmed_net_without_mental_subtraction
+    - unresolved_classification_blocks_confirmation_and_commit
+    - selected_provider_full_refund_with_other_positive_provider_rows_tombstones_only_selected_row_preserves_other_rows_and_requires_global_reconfirmation
+    - only_explicit_nothing_remaining_across_all_providers_returns_to_status_without_automatic_zero
+    - insurance_uses_annual_attestation_not_cash_value_or_risk_savings_split
+  semantic_review_evidence_required_locale_by_locale: true
+  key_parity_alone_is_insufficient: true
+
+content_boundaries:
+  runtime_implementation: forbidden
+  product_integration: forbidden
+  persistence: forbidden
+  document_scan_ocr_api_or_bank_connection: forbidden
+  provider_alias_homoglyph_or_identity_resolution: forbidden
+  tax_calculation_deduction_ceiling_room_or_saving: forbidden
+  provider_recommendation_or_financial_advice: forbidden
+  ios_android_or_user_validation_claim: forbidden
+
+proof_contract:
+  written_guard_must_reject:
+    - runtime_authorization
+    - any_dead_or_missing_back_route
+    - partial_or_unconfirmed_commit
+    - add_while_a_completely_empty_row_exists
+    - removing_the_only_row
+    - silent_destructive_remove_without_undo
+    - subtotal_as_tax_result_or_continue_enabler
+    - duplicate_provider_canonicalization
+    - unchecked_or_float_aggregate_overflow
+    - overflow_confirmation_or_ready_label
+    - duplicate_yaml_mapping_key
+    - identity_grade_deduplication_claim
+    - sensitive_identifier_collection_or_telemetry
+    - stale_confirmation_after_any_mutation
+    - stale_commit_after_unchecking_confirmation_or_declaring_missing_provider
+    - stale_remove_or_undo_callback_and_row_id_reuse
+    - active_row_count_confused_with_tombstone_count
+    - tombstone_lost_across_reversible_help_overlay_correction_or_education_route
+    - rendered_row_capacity_allocation_or_undo_bypass
+    - one_provider_full_refund_must_preserve_other_positive_provider_rows
+    - status_correction_requires_explicit_all_provider_zero_declaration
+    - unresolved_resolution_requires_fake_amount_edit_or_targets_wrong_row_id
+    - missing_provider_flag_survives_global_reconfirmation
+    - missing_request_double_bind_rebind_or_wrong_row_resolution
+    - repeated_pending_missing_activation_or_second_request_after_terminal_state
+    - deleting_the_missing_placeholder_silently_clears_missing_state
+    - tombstone_confirmation_or_continue_bypass
+    - finalize_remove_missing_copy_semantics_or_announcement
+    - capacity_freed_without_binding_pending_missing_request
+    - full_refund_route_missing_correction_entry_mode_or_ambiguously_mutating_row
+    - education_subgraph_loses_or_leaks_tombstone_and_personal_state
+    - stale_edit_or_focus_callback_recreates_finalized_row
+    - runtime_proof_omits_missing_request_finalize_capacity_or_exact_purge_paths
+    - pending_missing_recovery_label_accessible_name_or_state_focus_missing
+    - missing_request_binding_nondeterministic_or_targets_unresolved_or_duplicate_row
+    - at_capacity_with_eligible_existing_row_fails_to_bind_without_allocation
+    - missing_control_bypasses_canonical_declaration_transition_order
+    - bound_row_becomes_filled_duplicate_unsafe_invalid_or_unresolved_and_recovery_focus_misses_exact_error
+    - full_refund_tombstone_fails_to_recompute_and_announce_exact_subtotal
+    - missing_retraction_drops_preexisting_row_or_keeps_synthetic_empty_placeholder
+    - missing_bound_tombstone_undo_or_finalize_strands_request
+    - bound_empty_missing_row_immediate_remove_strands_request
+    - missing_request_token_or_provenance_omitted_from_any_purge
+    - full_refund_callback_targets_retired_or_different_row_id
+    - repeated_full_refund_action_duplicates_or_retargets_tombstone
+    - unicode_equivalent_or_invisible_duplicate_bypass
+    - unknown_or_invalid_to_zero
+    - missing_status_tax_year_leave_or_app_kill_purge
+    - any_single_personal_state_purge_field_removed
+    - narrow_safe_exit_or_status_correction_purge_alias
+    - missing_safe_exit_education_or_correction_boundary_back_edge
+    - missing_six_locale_intent
+  advisory_roasts: [ux_navigation_accessibility, swiss_compliance_locale, adversarial]
+  acceptance_threshold: {p1: 0, p2: 0}
+  user_test_required: false
+  next_gate: isolated_multi_provider_runtime_only_after_written_acceptance

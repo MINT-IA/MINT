@@ -1,0 +1,63 @@
+schema_version: 1
+reviewed_at: '2026-08-03'
+policy: legacy_and_existing_runtime_are_read_only_libraries_never_authority
+scope: multi_provider_ordinary_3a_amount_runtime_candidates
+
+candidates:
+  - path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+    symbols: [_ContributionAmountForm, _ContributionAmountFormState, _multipleProvidersDeclared]
+    actual_wiring: main_to_MintNextDesignLabApp_to_fact_contributed_amount
+    decision: adapt_shell_and_interaction_patterns_only
+    score: 6
+    reusable:
+      - exact_back_and_safe_exit_restoration_pattern
+      - first_error_focus_and_live_region_pattern
+      - disclosure_and_checkbox_semantics_pattern
+    reject_as_complete_feature:
+      - current_state_is_fixed_single_provider
+      - multi_provider_route_is_intentionally_holding_only
+      - fixed_focus_nodes_cannot_scale_to_dynamic_rows
+      - add_remove_and_local_sum_do_not_exist
+  - path: product/mint_next/batch7/design_lab/lib/ordinary_chf_amount.dart
+    symbols: [parseOrdinaryChfAmount, maxOrdinaryChfAmountMinorUnits]
+    actual_wiring: called_by_live_contribution_amount_form
+    decision: reuse_per_row_parser_add_new_checked_aggregate
+    score: 9
+    reusable: [exact_integer_minor_unit_parser, six_locale_separator_contract, technical_per_row_bound]
+    missing: [checked_multi_row_sum, aggregate_overflow_state]
+  - path: product/mint_next/batch7/design_lab/lib/provider_label.dart
+    symbols: [normalizeProviderLabel, providerLabelIsSafe]
+    actual_wiring: safety_called_by_live_form_normalizer_covered_by_tests
+    decision: reuse_safety_adapt_exact_duplicate_key_only
+    score: 7
+    reusable: [heuristic_sensitive_identifier_screening, trim_casefold_space_normalization]
+    limitations:
+      - no_alias_legal_suffix_accent_or_homoglyph_identity_resolution
+      - false_positive_or_false_negative_possible
+      - never_silently_merge_money_rows
+  - path: product/mint_next/batch6/navigation.yaml
+    symbols: [ephemeral_provider_rows, add_provider_row, remove_provider_row, use_automatic_total]
+    actual_wiring: written_only_no_dart_caller
+    decision: adapt_semantic_intent_only
+    score: 4
+    missing: [stable_row_identity, checked_sum, duplicate_behavior, deletion_undo, dynamic_focus, privacy_proof]
+  - path: apps/mobile
+    symbols: [Provider3a, ProviderResult, Pillar3aDeepService]
+    actual_wiring: provider_catalog_and_comparison_not_year_scoped_contribution_collection
+    decision: reject_wrong_domain
+    score: 1
+
+capability_result:
+  dynamic_provider_rows: absent
+  add_remove: absent
+  checked_exact_aggregation: absent
+  duplicate_provider_rejection: absent
+  reusable_exact_per_row_parser: present
+  reusable_heuristic_identifier_screening: present
+  reusable_fixed_form_accessibility_patterns: present_but_requires_dynamic_redesign
+
+reuse_policy:
+  copy_widget_wholesale: forbidden
+  reuse_only_after_contract_test_proves_semantics: true
+  preserve_batch12_accepted_routes_focus_purge_and_privacy_invariants: true
+  new_row_model_required_before_runtime: true

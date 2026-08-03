@@ -231,6 +231,10 @@ ALLOW = {
     "tools/checks/mint_next_batch12_amount_runtime_guard.py",
     "tools/checks/tests/test_mint_next_batch12_amount_runtime_guard.py",
     ".github/workflows/mint-next-batch12-runtime.yml",
+    # Batch 13: write-only multi-provider navigation/state-machine contract
+    # plus bounded legacy evidence. Runtime and product wiring remain forbidden.
+    "product/mint_next/batch13/multi-provider-navigation-contract.yaml",
+    "product/mint_next/batch13/legacy-inventory.yaml",
     "AGENTS.md",
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",
