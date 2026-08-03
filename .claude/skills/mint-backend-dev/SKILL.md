@@ -44,4 +44,8 @@ All migrated L2-L4 calcs land in `services/backend/app/api/v1/endpoints/` with `
 
 `app/services/fiscal/cantonal_comparator.py` : estimate_income_tax(_parts), estimate_income_tax_on_rente, estimate_capital_withdrawal_tax (IFD exact + interpolation ESTV, marié par canton) ; fortune : wealth_tax_service (modèle simplifié OFS, PAS calibré ESTV). Ne jamais recomposer un taux plat ni un proxy heuristique — parités croisées gelées au centime (tools/fixtures/*.json). Modèle v1 supprimé.
 
+### Roster élargi (2026-08-03)
+
+`mint-integrations-security` (`.claude/agents/mint-integrations-security.md`) porte consentement, provenance, design de connecteurs externes (scopes, expiration, révocation, réconciliation) et sécurité ; `mint-backend` implémente contre ce design. Doctrine canonique : `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`. Sortie d'agent = finding, jamais vérité — reproduction mécanique exigée.
+
 <!-- mint-data-architecture-v1-01-canonical:end -->

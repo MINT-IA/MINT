@@ -136,6 +136,10 @@ ALLOW = {
     ".github/workflows/ci.yml",
     # -dj3 : évolution doctrine 6 fichiers (UI Kit réel + fiscal v2)
     "CLAUDE.md",
+    # --- feat(agents) : roster élargi selon handoff 2026-08-03 §11.2/§11.4 —
+    # deux agents permanents ajoutés au roster canonique .claude/agents/. ---
+    ".claude/agents/mint-experience.md",
+    ".claude/agents/mint-integrations-security.md",
     "docs/AGENTS/flutter.md",
     "docs/AGENTS/backend.md",
     ".claude/skills/mint-flutter-dev/SKILL.md",
