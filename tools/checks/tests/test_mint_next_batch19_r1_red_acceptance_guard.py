@@ -300,6 +300,27 @@ class Batch19R1RedAcceptanceGuardTest(unittest.TestCase):
             (root / "untracked-runtime.dart").write_text("hidden\n")
             with self.assertRaisesRegex(guard.GuardFailure, "clean worktree"):
                 guard._require_clean_worktree(root)
+            (root / "untracked-runtime.dart").unlink()
+
+            ignored = root / "product/mint_next/batch999/evil.dart"
+            ignored.parent.mkdir(parents=True, exist_ok=True)
+            (root / ".git/info/exclude").write_text("product/mint_next/batch999/evil.dart\n")
+            ignored.write_text("hidden ignored runtime\n")
+            with self.assertRaisesRegex(guard.GuardFailure, "ignored protected files"):
+                guard._require_clean_worktree(root)
+            ignored.unlink()
+
+            subprocess.run(["git", "update-index", "--assume-unchanged", "tracked.txt"], cwd=root, check=True)
+            tracked.write_text("hidden tracked mutation\n")
+            with self.assertRaisesRegex(guard.GuardFailure, "hidden index flags"):
+                guard._require_clean_worktree(root)
+            subprocess.run(["git", "update-index", "--no-assume-unchanged", "tracked.txt"], cwd=root, check=True)
+            subprocess.run(["git", "checkout", "-q", "--", "tracked.txt"], cwd=root, check=True)
+
+            subprocess.run(["git", "update-index", "--skip-worktree", "tracked.txt"], cwd=root, check=True)
+            tracked.write_text("hidden skip-worktree mutation\n")
+            with self.assertRaisesRegex(guard.GuardFailure, "hidden index flags"):
+                guard._require_clean_worktree(root)
 
 
 if __name__ == "__main__":

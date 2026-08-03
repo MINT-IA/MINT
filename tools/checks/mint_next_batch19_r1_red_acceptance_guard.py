@@ -205,9 +205,35 @@ def _require_clean_worktree(root: Path) -> None:
             ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
             cwd=root, check=True, capture_output=True,
         ).stdout
+        index_tags = subprocess.run(
+            ["git", "ls-files", "-v", "-z"],
+            cwd=root, check=True, capture_output=True,
+        ).stdout.decode("utf-8").split("\0")
+        ignored = subprocess.run(
+            [
+                "git", "ls-files", "--others", "--ignored",
+                "--exclude-standard", "-z", "--",
+                "product/mint_next", ".planning/journeys/path-owners",
+            ],
+            cwd=root, check=True, capture_output=True,
+        ).stdout.decode("utf-8").split("\0")
     except subprocess.CalledProcessError as exc:
         raise GuardFailure("cannot inspect worktree state") from exc
     _require(not dirty, "acceptance proof requires a clean worktree and index")
+    hidden_index = sorted(
+        entry[2:] for entry in index_tags
+        if len(entry) > 2 and (entry[0].islower() or entry[0] == "S")
+    )
+    _require(not hidden_index, f"acceptance proof rejects hidden index flags: {hidden_index}")
+    safe_generated_prefixes = (
+        "product/mint_next/batch7/design_lab/.dart_tool/",
+        "product/mint_next/batch7/design_lab/build/",
+    )
+    hidden_ignored = sorted(
+        path for path in ignored
+        if path and not path.startswith(safe_generated_prefixes)
+    )
+    _require(not hidden_ignored, f"acceptance proof rejects ignored protected files: {hidden_ignored}")
 
 
 def _require_owned_tail_chronology(
