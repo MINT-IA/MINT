@@ -24179,6 +24179,27 @@ class SDe extends S {
       'Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.';
 
   @override
+  String get safeModeContinueAnyway => 'Trotzdem fortfahren';
+
+  @override
+  String get safeModeCorrectData => 'Meine Daten korrigieren';
+
+  @override
+  String get safeModeReasonsIntro => 'Was die Pause auslöst:';
+
+  @override
+  String get safeModeReasonDebtLoad =>
+      'In deinem Profil sind laufende Schulden erfasst.';
+
+  @override
+  String get safeModeReasonHighDebtRatio =>
+      'Deine Kreditraten übersteigen den empfohlenen Anteil deines Nettoeinkommens.';
+
+  @override
+  String get safeModeReasonThinCushion =>
+      'Dein angegebener Notgroschen deckt weniger als drei Monate Ausgaben.';
+
+  @override
   String get scanSummaryLppCertificate => 'BVG-Ausweis gescannt';
 
   @override

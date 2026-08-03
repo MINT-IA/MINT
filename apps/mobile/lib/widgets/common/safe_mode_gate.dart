@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart' show SafeModeSignal;
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -21,7 +22,54 @@ bool lookupSafeModeFlag(BuildContext context) {
   }
 }
 
-class SafeModeGate extends StatelessWidget {
+/// Localized provenance for the active SafeMode pause — the DATA that triggers
+/// it, so the gate never blocks without naming why. Derived from the profile's
+/// [SafeModeSignal]s (single source of truth). Returns `[]` when no provider is
+/// in the tree (isolated widget tests).
+List<String> lookupSafeModeReasons(BuildContext context) {
+  final l = S.of(context)!;
+  List<SafeModeSignal> signals;
+  try {
+    signals =
+        context.watch<CoachProfileProvider>().profile?.safeModeSignals ??
+            const <SafeModeSignal>[];
+  } on ProviderNotFoundException {
+    return const <String>[];
+  }
+
+  final reasons = <String>[];
+  void add(String reason) {
+    if (!reasons.contains(reason)) reasons.add(reason);
+  }
+
+  for (final signal in signals) {
+    switch (signal) {
+      case SafeModeSignal.consumerDebt:
+      case SafeModeSignal.retirementDebtLoad:
+        add(l.safeModeReasonDebtLoad);
+        break;
+      case SafeModeSignal.highDebtRatio:
+        add(l.safeModeReasonHighDebtRatio);
+        break;
+      case SafeModeSignal.thinEmergencyFund:
+        add(l.safeModeReasonThinCushion);
+        break;
+    }
+  }
+  return reasons;
+}
+
+/// Advisory pause for advanced 3a / LPP optimizations while a SafeMode signal is
+/// active.
+///
+/// Doctrine (« jamais de blocage sans explication, sans provenance, sans
+/// sortie ») — this gate is NEVER a dead end:
+///   1. It names WHY it paused (provenance [reasons], auto-fetched from the
+///      profile when none are passed).
+///   2. It lets the user CORRECT the source data ([correctDataRoute]).
+///   3. It ALWAYS offers « Continuer quand même », which reveals the child so
+///      the user can proceed with what they came for.
+class SafeModeGate extends StatefulWidget {
   final bool hasDebt;
   final Widget child;
   final String? lockedTitle;
@@ -29,6 +77,10 @@ class SafeModeGate extends StatelessWidget {
   final List<String> reasons;
   final String? ctaRoute;
   final String? ctaLabel;
+
+  /// Where « Corriger mes données » sends the user to fix the data that caused
+  /// the pause (savings / expenses / debt). Defaults to the budget screen.
+  final String correctDataRoute;
 
   const SafeModeGate({
     super.key,
@@ -39,18 +91,32 @@ class SafeModeGate extends StatelessWidget {
     this.reasons = const [],
     this.ctaRoute = '/debt/repayment',
     this.ctaLabel,
+    this.correctDataRoute = '/budget',
   });
 
   @override
+  State<SafeModeGate> createState() => _SafeModeGateState();
+}
+
+class _SafeModeGateState extends State<SafeModeGate> {
+  /// User chose « Continuer quand même » — reveal the child from here on.
+  bool _bypassed = false;
+
+  @override
   Widget build(BuildContext context) {
-    if (!hasDebt) {
-      return child;
+    if (!widget.hasDebt || _bypassed) {
+      return widget.child;
     }
 
     final l = S.of(context)!;
-    final title = lockedTitle ?? l.safeModeTitle;
-    final message = lockedMessage ?? l.safeModeMessage;
-    final cta = ctaLabel ?? l.safeModeCta;
+    final title = widget.lockedTitle ?? l.safeModeTitle;
+    final message = widget.lockedMessage ?? l.safeModeMessage;
+    final cta = widget.ctaLabel ?? l.safeModeCta;
+
+    // Provenance: prefer explicit reasons, else auto-derive from the profile so
+    // every gate names its cause without touching each call site.
+    final reasons =
+        widget.reasons.isNotEmpty ? widget.reasons : lookupSafeModeReasons(context);
 
     // Locked State visualization
     return Container(
@@ -81,7 +147,12 @@ class SafeModeGate extends StatelessWidget {
                   style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(height: 1.4),
                 ),
                 if (reasons.isNotEmpty) ...[
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
+                  Text(
+                    l.safeModeReasonsIntro,
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 6),
                   ...reasons.take(3).map(
                         (reason) => Padding(
                           padding: const EdgeInsets.only(bottom: 4),
@@ -161,11 +232,11 @@ class SafeModeGate extends StatelessWidget {
                 ),
                 ),
                 const SizedBox(height: 12),
+                // Correct the source data that triggered the pause.
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
-                    onPressed:
-                        ctaRoute == null ? null : () => context.push(ctaRoute!),
+                    onPressed: () => context.push(widget.correctDataRoute),
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: MintColors.primary),
                       foregroundColor: MintColors.primary,
@@ -175,8 +246,43 @@ class SafeModeGate extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      cta,
+                      l.safeModeCorrectData,
                       style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+                if (widget.ctaRoute != null) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      // lint-ignore: prefer_mint_cta
+                      onPressed: () => context.push(widget.ctaRoute!),
+                      style: TextButton.styleFrom(
+                        foregroundColor: MintColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                      ),
+                      child: Text(
+                        cta,
+                        style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 4),
+                // Never a dead end — always let the user proceed.
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: () => setState(() => _bypassed = true),
+                    style: TextButton.styleFrom(
+                      foregroundColor: MintColors.textSecondary,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ),
+                    child: Text(
+                      l.safeModeContinueAnyway,
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

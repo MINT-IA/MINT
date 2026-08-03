@@ -172,6 +172,70 @@ void main() {
     });
   });
 
+  // ── P0 2026-08-03 — partial-data false positive ───────────────────────────────
+  group('P0 — salary-only partial profile is NOT in debt crisis', () {
+    test('salary known, no debt, no savings entered, no expenses → false', () {
+      // Mirrors the julien_swiss seed / Julien's real device profile: a payslip
+      // import gives a gross salary, but savings (epargneLiquide) and expenses
+      // are not yet entered → both default to 0. This must NOT be read as a
+      // zero cushion / debt crisis. Previously Signal C fabricated an expense
+      // base (net × 0.6) and divided the 0 savings default → false "crisis".
+      final p = makeProfile(
+        salaire: 9500,
+        epargneLiquide: 0,
+        totalMensuelDepenses: 0,
+      );
+      expect(p.dettes.totalDettes, 0);
+      expect(p.isInDebtCrisis, isFalse);
+      expect(p.safeModeSignals, isEmpty);
+    });
+
+    test('expenses declared but savings unknown (0) → false (no fabrication)',
+        () {
+      // Expenses entered from a budget, but the liquid-savings field left blank
+      // (0). Unknown savings must not be read as a zero cushion.
+      final p = makeProfile(
+        salaire: 9500,
+        epargneLiquide: 0,
+        totalMensuelDepenses: 3000,
+      );
+      expect(p.isInDebtCrisis, isFalse);
+    });
+
+    test('savings declared but expenses unknown (0) → false (no fabrication)',
+        () {
+      final p = makeProfile(
+        salaire: 9500,
+        epargneLiquide: 2000,
+        totalMensuelDepenses: 0,
+      );
+      expect(p.isInDebtCrisis, isFalse);
+    });
+
+    test('real thin cushion (both known) still fires Signal C', () {
+      // Regression guard: the fix must not suppress a genuine shortfall when
+      // BOTH cushion and burn rate are actually declared.
+      final p = makeProfile(
+        salaire: 9500,
+        epargneLiquide: 4000,
+        totalMensuelDepenses: 3000, // 1.33 months < 3 → fires
+      );
+      expect(p.isInDebtCrisis, isTrue);
+      expect(p.safeModeSignals, contains(SafeModeSignal.thinEmergencyFund));
+    });
+
+    test('real consumer debt still fires (provenance = consumerDebt)', () {
+      final p = makeProfile(
+        salaire: 9500,
+        creditConsommation: 8000,
+        epargneLiquide: 0,
+        totalMensuelDepenses: 0,
+      );
+      expect(p.isInDebtCrisis, isTrue);
+      expect(p.safeModeSignals, contains(SafeModeSignal.consumerDebt));
+    });
+  });
+
   // ── Edge cases ────────────────────────────────────────────────────────────────
   group('Edge cases', () {
     test('E4 student — zero salary, no debt → false', () {

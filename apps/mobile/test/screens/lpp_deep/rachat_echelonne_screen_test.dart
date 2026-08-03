@@ -69,6 +69,17 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       final l = await S.delegate.load(const Locale('fr'));
+      // P0 2026-08-03 : depuis que le gate SafeMode n'est plus verrouillé à tort
+      // pour un profil partiel, l'écran est plein hauteur et le « Plan annuel »
+      // (badge / note 79b) vit SOUS le pli. Le corps est un CustomScrollView
+      // paresseux (SliverChildListDelegate ne monte que viewport + cache) : il
+      // faut le faire défiler à l'écran avant d'asserter. Contenu RÉEL rendu sur
+      // device — aucune assertion affaiblie, aucun contournement.
+      await tester.scrollUntilVisible(
+        find.text(l.rachatEchelonneFenetre79bNote, skipOffstage: false),
+        400,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(
         find.text(l.rachatEchelonneFenetre79bBadge, skipOffstage: false),
         findsWidgets,

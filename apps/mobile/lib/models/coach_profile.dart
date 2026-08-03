@@ -60,6 +60,28 @@ enum ProfileDataSource {
   openBanking, // Données bancaires live bLink/SFTI (confiance 1.00)
 }
 
+/// Signaux SafeMode (mode protection) actifs sur un profil.
+///
+/// Chaque signal explique POURQUOI les optimisations avancées (3a / LPP) sont
+/// mises en pause. Sert de provenance déterministe au `SafeModeGate` : jamais de
+/// blocage sans cause nommée. [CoachProfile.isInDebtCrisis] vaut `true` dès
+/// qu'un signal est présent — les deux dérivent de [CoachProfile.safeModeSignals]
+/// (source unique, pas de logique dupliquée).
+enum SafeModeSignal {
+  /// Signal A — un crédit / leasing / autre dette de consommation est déclaré.
+  consumerDebt,
+
+  /// Retraité·e — des dettes en cours pèsent sur un revenu de rente modeste.
+  retirementDebtLoad,
+
+  /// Signal B — les mensualités de crédit dépassent 33 % du revenu net (ASB).
+  highDebtRatio,
+
+  /// Signal C — l'épargne de précaution DÉCLARÉE couvre moins de 3 mois de
+  /// charges DÉCLARÉES. Ne se déclenche jamais sur une donnée absente.
+  thinEmergencyFund,
+}
+
 /// Type d'objectif principal (Goal A)
 enum GoalAType { retraite, achatImmo, independance, debtFree, custom }
 
@@ -2174,17 +2196,33 @@ class CoachProfile {
   ///   E1: retiree — uses rente estimates when salary is zero.
   ///   E2: individual gate — no cross-spouse contamination.
   ///   E4: student (zero income, no debt, no housing) → false (vacuous).
-  bool get isInDebtCrisis {
+  bool get isInDebtCrisis => safeModeSignals.isNotEmpty;
+
+  /// Provenance des signaux SafeMode actifs — source UNIQUE dont [isInDebtCrisis]
+  /// dérive (jamais de logique dupliquée : NEVER #3 / #6). Chaque entrée nomme la
+  /// donnée qui déclenche la mise en pause, pour que le `SafeModeGate` explique
+  /// POURQUOI il bloque et laisse toujours une sortie.
+  ///
+  /// Correctif P0 (2026-08-03) — Signal C : un profil salarié partiel (épargne et
+  /// charges pas encore saisies) lisait le `0` par défaut de `epargneLiquide`
+  /// comme un coussin nul ET fabriquait une base de charges (`net × 0.6`) — donc
+  /// TOUT profil partiel était marqué « en crise de dette » et tous les écrans 3a
+  /// profonds étaient verrouillés à tort. Signal C ne se déclenche désormais que
+  /// si le coussin ET les charges sont RÉELLEMENT connus (jamais sur une absence
+  /// de donnée).
+  List<SafeModeSignal> get safeModeSignals {
+    final signals = <SafeModeSignal>[];
+
     // ── Signal A — consumer debt present (structural proxy) ──────────────────
     final consumerMonthly = dettes.mensualiteConsommation;
     final hasConsumerDebtCapital =
         dettes.detteConsommation > 0 || (dettes.autresDettes ?? 0) > 0;
     if (hasConsumerDebtCapital || hasMaterialConsumerDebtForPriority) {
-      return true;
+      signals.add(SafeModeSignal.consumerDebt);
     }
 
     // ── Net monthly income (E1: retiree, E4: student guard) ─────────────────
-    double netMensuel;
+    double? netMensuel;
     if (salaireBrutMensuel > 0) {
       final breakdown = NetIncomeBreakdown.compute(
         grossSalary: salaireBrutMensuel * nombreDeMois,
@@ -2199,10 +2237,12 @@ class CoachProfile {
           ? prevoyance.projectedRenteLpp! / 12.0
           : 0.0;
       netMensuel = renteAvs + renteLpp;
-      if (netMensuel < 2000 && dettes.totalDettes > 0) return true;
+      if (netMensuel < 2000 && dettes.totalDettes > 0) {
+        signals.add(SafeModeSignal.retirementDebtLoad);
+      }
     } else {
       // E4 — zero income, no consumer debt, no housing → inactive (vacuous)
-      return false;
+      return signals;
     }
 
     // ── Signal B — consumer ratio > 0.33 (ASB 2014) ─────────────────────────
@@ -2217,20 +2257,22 @@ class CoachProfile {
       }
 
       final ratio = (consumerMonthly + mortgageExcess) / netMensuel;
-      if (ratio > 0.33) return true;
+      if (ratio > 0.33) signals.add(SafeModeSignal.highDebtRatio);
     }
 
-    // ── Signal C — emergency fund shortfall (< 3 months) ────────────────────
-    final plausibleMonthlyExpenses = totalDepensesMensuelles;
-    final monthlyExpenses = plausibleMonthlyExpenses > 0
-        ? plausibleMonthlyExpenses
-        : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
-    if (monthlyExpenses > 0) {
-      final monthsLiquidity = patrimoine.epargneLiquide / monthlyExpenses;
-      if (monthsLiquidity < 3) return true;
+    // ── Signal C — emergency fund shortfall (< 3 months), KNOWN data only ────
+    // Fire ONLY when BOTH the cushion (epargneLiquide) and the burn rate
+    // (declared monthly expenses) are actually known. Absent data (the 0
+    // default) must never be read as a zero cushion, and we never fabricate an
+    // expense base from net income. See the P0 note above.
+    final declaredMonthlyExpenses = totalDepensesMensuelles;
+    final knownLiquidSavings = patrimoine.epargneLiquide;
+    if (declaredMonthlyExpenses > 0 && knownLiquidSavings > 0) {
+      final monthsLiquidity = knownLiquidSavings / declaredMonthlyExpenses;
+      if (monthsLiquidity < 3) signals.add(SafeModeSignal.thinEmergencyFund);
     }
 
-    return false;
+    return signals;
   }
 
   /// Consumer/leasing debt that should be treated before 3a/LPP optimization.

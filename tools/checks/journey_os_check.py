@@ -1210,6 +1210,22 @@ ALLOW = {
     # socle ci-dessus ; monotonie running-max au rendu (le service reste brut).
     "apps/mobile/lib/widgets/aujourdhui/confidence_evolution_card.dart",
     "apps/mobile/test/widgets/aujourdhui/confidence_evolution_card_test.dart",
+    # codex/journey-os-p0-gate-3a : P0 device (2026-08-03) — le gate dette
+    # (SafeMode, isInDebtCrisis Signal C) verrouillait à tort les écrans 3a
+    # profonds pour un profil salarié PARTIEL (épargne/charges non saisies lues
+    # comme coussin nul + base de charges fabriquée). Correctif faux positif +
+    # le mur explique (provenance), laisse corriger la donnée et offre toujours
+    # « Continuer quand même ». coach_profile.dart et les ARB sont déjà couverts.
+    "apps/mobile/lib/widgets/common/safe_mode_gate.dart",
+    "apps/mobile/test/models/coach_profile_safe_mode_test.dart",
+    "apps/mobile/test/safe_mode_gate_test.dart",
+    # Même P0 : le fix du faux positif ouvre le gate pour un profil partiel et
+    # DÉMASQUE deux bugs pré-existants de l'écran rachat échelonné (overflow
+    # horizontal 320pt iPhone SE + plan annuel 79b sous le pli d'un
+    # CustomScrollView paresseux). Correctif responsive + a11y (état sélectionné,
+    # cible 44pt) + test qui scrolle vers le contenu paresseux réel.
+    "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+    "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

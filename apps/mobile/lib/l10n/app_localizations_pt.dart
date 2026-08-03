@@ -24138,6 +24138,27 @@ class SPt extends S {
       'Estes levantamentos continuam possíveis em caso de procedimento formal de saneamento de dívidas — fala com um especialista.';
 
   @override
+  String get safeModeContinueAnyway => 'Continuar mesmo assim';
+
+  @override
+  String get safeModeCorrectData => 'Corrigir os meus dados';
+
+  @override
+  String get safeModeReasonsIntro => 'O que ativa a pausa:';
+
+  @override
+  String get safeModeReasonDebtLoad =>
+      'Há dívidas em curso registadas no teu perfil.';
+
+  @override
+  String get safeModeReasonHighDebtRatio =>
+      'As tuas prestações de crédito ultrapassam a percentagem recomendada do teu rendimento líquido.';
+
+  @override
+  String get safeModeReasonThinCushion =>
+      'A tua poupança de emergência declarada cobre menos de três meses de despesas.';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificado LPP digitalizado';
 
   @override

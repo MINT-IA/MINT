@@ -527,10 +527,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           const SizedBox(height: MintSpacing.lg),
 
           // Canton dropdown
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(l.rachatEchelonneCanton, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+              const SizedBox(height: MintSpacing.xs),
               Semantics(
                 label: l.rachatEchelonneCanton,
                 child: MintSurface(
@@ -541,9 +542,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                     child: DropdownButton<String>(
                       value: _canton,
                       isDense: true,
+                      isExpanded: true,
                       style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                       items: _cantonCodes.map((code) {
-                        return DropdownMenuItem(value: code, child: Text('$code — ${_cantonNames[code]}'));
+                        return DropdownMenuItem(value: code, child: Text('$code — ${_cantonNames[code]}', overflow: TextOverflow.ellipsis));
                       }).toList(),
                       onChanged: (v) { if (v != null) { _canton = v; _onInputChanged(); } },
                     ),
@@ -555,18 +557,18 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           const SizedBox(height: MintSpacing.md),
 
           // Civil status toggle
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(l.rachatEchelonneEtatCivil, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+              const SizedBox(height: MintSpacing.xs),
               MintSurface(
                 tone: MintSurfaceTone.porcelaine,
                 radius: 8,
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildStatusChip(l.rachatEchelonneCelibataire, 'single'),
-                    _buildStatusChip(l.rachatEchelonneMarieE, 'married'),
+                    Expanded(child: _buildStatusChip(l.rachatEchelonneCelibataire, 'single')),
+                    Expanded(child: _buildStatusChip(l.rachatEchelonneMarieE, 'married')),
                   ],
                 ),
               ),
@@ -593,7 +595,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                         children: [
                           Row(
                             children: [
-                              Text(l.rachatEchelonneTauxMarginal, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+                              Flexible(
+                                child: Text(l.rachatEchelonneTauxMarginal, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
+                              ),
                               const SizedBox(width: 6),
                               Semantics(
                                 label: l.rachatEchelonneTauxMarginalSemantics,
@@ -672,18 +676,25 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
   Widget _buildStatusChip(String label, String value) {
     final selected = _civilStatus == value;
+    // Panel a11y : le contrôle segmenté doit annoncer l'état sélectionné (pas
+    // couleur-seule, WCAG 4.1.2) et garder une cible tactile >= 44pt même
+    // quand les chips partagent la largeur (Expanded).
     return Semantics(
       label: label,
       button: true,
+      selected: selected,
+      inMutuallyExclusiveGroup: true,
       child: GestureDetector(
         onTap: () { HapticFeedback.lightImpact(); _civilStatus = value; _onInputChanged(); },
         child: Container(
+          alignment: Alignment.center,
+          constraints: const BoxConstraints(minHeight: 44),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
             color: selected ? MintColors.primary : MintColors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(label, style: MintTextStyles.labelMedium(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600)),
+          child: Text(label, textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis, style: MintTextStyles.labelMedium(color: selected ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600)),
         ),
       ),
     );
@@ -757,7 +768,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           child: Icon(icon, size: 18, color: MintColors.primary),
         ),
         const SizedBox(width: MintSpacing.sm + 4),
-        Text(label, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+        Expanded(
+          child: Text(label, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+        ),
       ],
     );
   }
@@ -940,7 +953,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l.rachatEchelonneTotal, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600)),
+                Flexible(child: Text(l.rachatEchelonneTotal, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600))),
+                const SizedBox(width: MintSpacing.sm),
                 Flexible(
                     child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,

@@ -24193,6 +24193,27 @@ class SIt extends S {
       'Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista.';
 
   @override
+  String get safeModeContinueAnyway => 'Continua comunque';
+
+  @override
+  String get safeModeCorrectData => 'Correggi i miei dati';
+
+  @override
+  String get safeModeReasonsIntro => 'Cosa attiva la pausa:';
+
+  @override
+  String get safeModeReasonDebtLoad =>
+      'Nel tuo profilo sono registrati debiti in corso.';
+
+  @override
+  String get safeModeReasonHighDebtRatio =>
+      'Le rate del credito superano la quota consigliata del tuo reddito netto.';
+
+  @override
+  String get safeModeReasonThinCushion =>
+      'Il tuo risparmio di emergenza dichiarato copre meno di tre mesi di spese.';
+
+  @override
   String get scanSummaryLppCertificate => 'Certificato LPP scansionato';
 
   @override
