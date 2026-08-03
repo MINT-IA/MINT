@@ -352,11 +352,10 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String get batch11AmountBody =>
-      'Indica o total confirmado das contribuições ordinárias de cada prestador. A MINT soma os valores.';
+      'Começa pelo teu prestador 3a. Se tiveres mais do que um, indica depois deste primeiro valor que falta um.';
 
   @override
-  String get batch11ProviderNameLabel =>
-      'Nome do prestador (por ex., VIAC ou o teu banco)';
+  String get batch11ProviderNameLabel => 'Prestador 3a';
 
   @override
   String get batch11ProviderNamePrivacy =>
@@ -364,7 +363,7 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Contribuições ordinárias confirmadas de $taxYear';
+    return 'Valor confirmado · $taxYear';
   }
 
   @override
@@ -373,7 +372,7 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String batch11AllProvidersReviewed(int taxYear) {
-    return 'Verifiquei todos os meus prestadores 3a de $taxYear';
+    return 'Tenho apenas um prestador 3a e verifiquei o total de $taxYear';
   }
 
   @override
@@ -434,4 +433,13 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String get batch11HelpFoundPartial => 'Adicionar o valor em falta';
+
+  @override
+  String batch12PositiveCantonTitle(int taxYear) {
+    return 'O teu valor ordinário de $taxYear está pronto.';
+  }
+
+  @override
+  String get batch12PositiveCantonBody =>
+      'Ainda não foi calculado qualquer resultado fiscal. O próximo passo perguntará o teu cantão.';
 }

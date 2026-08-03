@@ -176,12 +176,12 @@
   },
   "batch11AmountEyebrow": "I TUOI CONTRIBUTI 3A · {taxYear}",
   "batch11AmountTitle": "Quanto hanno effettivamente ricevuto in totale tutti i tuoi istituti 3a nel {taxYear}?",
-  "batch11AmountBody": "Inserisci per ogni istituto il totale confermato dei contributi ordinari. MINT li somma.",
-  "batch11ProviderNameLabel": "Nome dell’istituto (ad es. VIAC o la tua banca)",
+  "batch11AmountBody": "Inizia dal tuo istituto 3a. Se ne hai più di uno, dopo questo primo importo indica che ne manca uno.",
+  "batch11ProviderNameLabel": "Istituto 3a",
   "batch11ProviderNamePrivacy": "Non inserire numeri di conto, polizza, AVS o IBAN.",
-  "batch11OrdinaryAmountLabel": "Contributi ordinari confermati per il {taxYear}",
+  "batch11OrdinaryAmountLabel": "Importo confermato · {taxYear}",
   "batch11NotTaxResult": "Questo totale non è ancora un risultato fiscale.",
-  "batch11AllProvidersReviewed": "Ho verificato tutti i miei istituti 3a per il {taxYear}",
+  "batch11AllProvidersReviewed": "Ho un solo istituto 3a e ho verificato il suo totale per il {taxYear}",
   "batch11WhereFindTitle": "Dove trovo l’importo?",
   "batch11WhereFindBody": "Sull’attestazione di ogni istituto cerca «Totale contributi al pilastro 3a». Usa una sola volta il totale dell’istituto, anche se comprende più contratti.",
   "batch11UnknownAmount": "Non conosco ancora alcun importo",
@@ -227,5 +227,14 @@
   "batch11HelpBack": "Torna all’inserimento",
   "batch11MissingAmount": "Mi manca l’importo di un istituto 3a",
   "batch11HelpPartialBody": "Conserva gli importi già inseriti. Manca ancora almeno un istituto: trova il suo totale confermato prima di convalidare.",
-  "batch11HelpFoundPartial": "Aggiungi l’importo mancante"
+  "batch11HelpFoundPartial": "Aggiungi l’importo mancante",
+  "batch12PositiveCantonTitle": "Il tuo importo ordinario per il {taxYear} è pronto.",
+  "batch12PositiveCantonBody": "Non è ancora stato calcolato alcun risultato fiscale. Il prossimo passaggio chiederà il tuo cantone.",
+  "@batch12PositiveCantonTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
 }

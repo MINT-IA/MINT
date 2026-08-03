@@ -355,11 +355,10 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get batch11AmountBody =>
-      'Inserisci per ogni istituto il totale confermato dei contributi ordinari. MINT li somma.';
+      'Inizia dal tuo istituto 3a. Se ne hai più di uno, dopo questo primo importo indica che ne manca uno.';
 
   @override
-  String get batch11ProviderNameLabel =>
-      'Nome dell’istituto (ad es. VIAC o la tua banca)';
+  String get batch11ProviderNameLabel => 'Istituto 3a';
 
   @override
   String get batch11ProviderNamePrivacy =>
@@ -367,7 +366,7 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Contributi ordinari confermati per il $taxYear';
+    return 'Importo confermato · $taxYear';
   }
 
   @override
@@ -376,7 +375,7 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String batch11AllProvidersReviewed(int taxYear) {
-    return 'Ho verificato tutti i miei istituti 3a per il $taxYear';
+    return 'Ho un solo istituto 3a e ho verificato il suo totale per il $taxYear';
   }
 
   @override
@@ -438,4 +437,13 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get batch11HelpFoundPartial => 'Aggiungi l’importo mancante';
+
+  @override
+  String batch12PositiveCantonTitle(int taxYear) {
+    return 'Il tuo importo ordinario per il $taxYear è pronto.';
+  }
+
+  @override
+  String get batch12PositiveCantonBody =>
+      'Non è ancora stato calcolato alcun risultato fiscale. Il prossimo passaggio chiederà il tuo cantone.';
 }

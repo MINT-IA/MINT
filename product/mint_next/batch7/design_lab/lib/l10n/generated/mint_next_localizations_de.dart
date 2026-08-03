@@ -354,11 +354,10 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get batch11AmountBody =>
-      'Erfasse pro Anbieter den bestätigten Gesamtbetrag der ordentlichen Beiträge. MINT addiert.';
+      'Beginne mit deinem 3a-Anbieter. Wenn du mehrere hast, gib nach diesem ersten Betrag an, dass noch einer fehlt.';
 
   @override
-  String get batch11ProviderNameLabel =>
-      'Name des Anbieters (z. B. VIAC oder deine Bank)';
+  String get batch11ProviderNameLabel => '3a-Anbieter';
 
   @override
   String get batch11ProviderNamePrivacy =>
@@ -366,7 +365,7 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String batch11OrdinaryAmountLabel(int taxYear) {
-    return 'Bestätigte ordentliche Beiträge für $taxYear';
+    return 'Bestätigter Betrag · $taxYear';
   }
 
   @override
@@ -374,7 +373,7 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String batch11AllProvidersReviewed(int taxYear) {
-    return 'Ich habe alle meine 3a-Anbieter für $taxYear geprüft';
+    return 'Ich habe nur einen 3a-Anbieter und seinen Gesamtbetrag für $taxYear geprüft';
   }
 
   @override
@@ -436,4 +435,13 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get batch11HelpFoundPartial => 'Fehlenden Betrag hinzufügen';
+
+  @override
+  String batch12PositiveCantonTitle(int taxYear) {
+    return 'Dein ordentlicher Betrag für $taxYear ist bereit.';
+  }
+
+  @override
+  String get batch12PositiveCantonBody =>
+      'Es wurde noch kein Steuerergebnis berechnet. Im nächsten Schritt wird dein Kanton gefragt.';
 }

@@ -664,13 +664,13 @@ abstract class MintNextLocalizations {
   /// No description provided for @batch11AmountBody.
   ///
   /// In fr, this message translates to:
-  /// **'Saisis le total ordinaire indiqué par chaque prestataire 3a. MINT additionne les montants.'**
+  /// **'Commence par ton prestataire 3a. Si tu en as plusieurs, indique après ce premier montant qu’il t’en manque un.'**
   String get batch11AmountBody;
 
   /// No description provided for @batch11ProviderNameLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Nom du prestataire (par ex. VIAC ou ta banque)'**
+  /// **'Prestataire 3a'**
   String get batch11ProviderNameLabel;
 
   /// No description provided for @batch11ProviderNamePrivacy.
@@ -682,7 +682,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @batch11OrdinaryAmountLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Montant ordinaire confirmé pour {taxYear}'**
+  /// **'Montant confirmé · {taxYear}'**
   String batch11OrdinaryAmountLabel(int taxYear);
 
   /// No description provided for @batch11NotTaxResult.
@@ -694,7 +694,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @batch11AllProvidersReviewed.
   ///
   /// In fr, this message translates to:
-  /// **'J’ai vérifié tous mes 3a pour {taxYear}'**
+  /// **'Je n’ai qu’un seul prestataire 3a et j’ai vérifié son total pour {taxYear}'**
   String batch11AllProvidersReviewed(int taxYear);
 
   /// No description provided for @batch11WhereFindTitle.
@@ -804,6 +804,18 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Ajouter le montant manquant'**
   String get batch11HelpFoundPartial;
+
+  /// No description provided for @batch12PositiveCantonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton montant ordinaire pour {taxYear} est prêt.'**
+  String batch12PositiveCantonTitle(int taxYear);
+
+  /// No description provided for @batch12PositiveCantonBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat fiscal n’est encore calculé. L’étape suivante demandera ton canton.'**
+  String get batch12PositiveCantonBody;
 }
 
 class _MintNextLocalizationsDelegate

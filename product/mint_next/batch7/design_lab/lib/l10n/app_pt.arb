@@ -176,12 +176,12 @@
   },
   "batch11AmountEyebrow": "AS TUAS CONTRIBUIÇÕES 3A · {taxYear}",
   "batch11AmountTitle": "Quanto receberam efetivamente, no total, todos os teus prestadores 3a em {taxYear}?",
-  "batch11AmountBody": "Indica o total confirmado das contribuições ordinárias de cada prestador. A MINT soma os valores.",
-  "batch11ProviderNameLabel": "Nome do prestador (por ex., VIAC ou o teu banco)",
+  "batch11AmountBody": "Começa pelo teu prestador 3a. Se tiveres mais do que um, indica depois deste primeiro valor que falta um.",
+  "batch11ProviderNameLabel": "Prestador 3a",
   "batch11ProviderNamePrivacy": "Não indiques números de conta, apólice, seguro social suíço ou IBAN.",
-  "batch11OrdinaryAmountLabel": "Contribuições ordinárias confirmadas de {taxYear}",
+  "batch11OrdinaryAmountLabel": "Valor confirmado · {taxYear}",
   "batch11NotTaxResult": "Este total ainda não é um resultado fiscal.",
-  "batch11AllProvidersReviewed": "Verifiquei todos os meus prestadores 3a de {taxYear}",
+  "batch11AllProvidersReviewed": "Tenho apenas um prestador 3a e verifiquei o total de {taxYear}",
   "batch11WhereFindTitle": "Onde encontro o valor?",
   "batch11WhereFindBody": "No certificado de cada prestador, procura o total das contribuições para o pilar 3a. Usa-o uma única vez, mesmo que inclua vários contratos.",
   "batch11UnknownAmount": "Ainda não conheço nenhum valor",
@@ -227,5 +227,14 @@
   "batch11HelpBack": "Voltar à introdução",
   "batch11MissingAmount": "Falta-me o valor de um prestador 3a",
   "batch11HelpPartialBody": "Mantém os valores já introduzidos. Falta ainda pelo menos um prestador: encontra o total confirmado antes de validar.",
-  "batch11HelpFoundPartial": "Adicionar o valor em falta"
+  "batch11HelpFoundPartial": "Adicionar o valor em falta",
+  "batch12PositiveCantonTitle": "O teu valor ordinário de {taxYear} está pronto.",
+  "batch12PositiveCantonBody": "Ainda não foi calculado qualquer resultado fiscal. O próximo passo perguntará o teu cantão.",
+  "@batch12PositiveCantonTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
 }

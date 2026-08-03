@@ -176,12 +176,12 @@
   },
   "batch11AmountEyebrow": "TES VERSEMENTS 3A · {taxYear}",
   "batch11AmountTitle": "Combien tes 3a ont-ils reçu au total en {taxYear} ?",
-  "batch11AmountBody": "Saisis le total ordinaire indiqué par chaque prestataire 3a. MINT additionne les montants.",
-  "batch11ProviderNameLabel": "Nom du prestataire (par ex. VIAC ou ta banque)",
+  "batch11AmountBody": "Commence par ton prestataire 3a. Si tu en as plusieurs, indique après ce premier montant qu’il t’en manque un.",
+  "batch11ProviderNameLabel": "Prestataire 3a",
   "batch11ProviderNamePrivacy": "N’indique aucun numéro de compte, de police, AVS ou IBAN.",
-  "batch11OrdinaryAmountLabel": "Montant ordinaire confirmé pour {taxYear}",
+  "batch11OrdinaryAmountLabel": "Montant confirmé · {taxYear}",
   "batch11NotTaxResult": "Ce total n’est pas encore un résultat fiscal.",
-  "batch11AllProvidersReviewed": "J’ai vérifié tous mes 3a pour {taxYear}",
+  "batch11AllProvidersReviewed": "Je n’ai qu’un seul prestataire 3a et j’ai vérifié son total pour {taxYear}",
   "batch11WhereFindTitle": "Où trouver le montant ?",
   "batch11WhereFindBody": "Sur l’attestation de chaque prestataire, cherche « Total des cotisations au pilier 3a ». Utilise ce total une seule fois, même s’il couvre plusieurs contrats.",
   "batch11UnknownAmount": "Je ne connais encore aucun montant",
@@ -227,5 +227,14 @@
   "batch11HelpBack": "Revenir à la saisie",
   "batch11MissingAmount": "Il me manque le montant d’un de mes 3a",
   "batch11HelpPartialBody": "Garde les montants déjà saisis. Il manque encore au moins un prestataire : retrouve son total confirmé avant de valider.",
-  "batch11HelpFoundPartial": "Ajouter le montant manquant"
+  "batch11HelpFoundPartial": "Ajouter le montant manquant",
+  "batch12PositiveCantonTitle": "Ton montant ordinaire pour {taxYear} est prêt.",
+  "batch12PositiveCantonBody": "Aucun résultat fiscal n’est encore calculé. L’étape suivante demandera ton canton.",
+  "@batch12PositiveCantonTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
 }

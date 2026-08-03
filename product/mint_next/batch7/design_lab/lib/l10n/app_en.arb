@@ -176,12 +176,12 @@
   },
   "batch11AmountEyebrow": "YOUR 3A CONTRIBUTIONS · {taxYear}",
   "batch11AmountTitle": "How much did all your 3a providers actually receive in {taxYear}?",
-  "batch11AmountBody": "Enter each provider’s confirmed ordinary-contribution total. MINT adds them up.",
-  "batch11ProviderNameLabel": "Provider name (for example VIAC or your bank)",
+  "batch11AmountBody": "Start with your 3a provider. If you have more than one, say that one is missing after this first amount.",
+  "batch11ProviderNameLabel": "3a provider",
   "batch11ProviderNamePrivacy": "Do not enter an account, policy, Swiss social-security or IBAN number.",
-  "batch11OrdinaryAmountLabel": "Confirmed ordinary amount for {taxYear}",
+  "batch11OrdinaryAmountLabel": "Confirmed amount · {taxYear}",
   "batch11NotTaxResult": "This total is not a tax result yet.",
-  "batch11AllProvidersReviewed": "I checked all my 3a providers for {taxYear}",
+  "batch11AllProvidersReviewed": "I have only one 3a provider and checked its total for {taxYear}",
   "batch11WhereFindTitle": "Where can I find it?",
   "batch11WhereFindBody": "On each provider certificate, find “Total 3a contributions”. Use that provider total once, even if it covers several contracts.",
   "batch11UnknownAmount": "I do not know any amount yet",
@@ -227,5 +227,14 @@
   "batch11HelpBack": "Back to entry",
   "batch11MissingAmount": "I am missing one provider’s amount",
   "batch11HelpPartialBody": "Keep the amounts already entered. At least one provider is still missing: find its confirmed total before validating.",
-  "batch11HelpFoundPartial": "Add the missing amount"
+  "batch11HelpFoundPartial": "Add the missing amount",
+  "batch12PositiveCantonTitle": "Your ordinary amount for {taxYear} is ready.",
+  "batch12PositiveCantonBody": "No tax result has been calculated yet. The next step will ask for your canton.",
+  "@batch12PositiveCantonTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
 }

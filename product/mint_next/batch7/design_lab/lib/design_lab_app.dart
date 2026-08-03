@@ -108,8 +108,9 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   _LppAffiliation? _lppAffiliation;
   _ContributionStatus? _contributionStatus;
   bool _contributionEdgeHelpExpanded = false;
-  String _providerName = '';
-  String _ordinaryAmountRaw = '';
+  final TextEditingController _providerNameController = TextEditingController();
+  final TextEditingController _ordinaryAmountController =
+      TextEditingController();
   bool _allProvidersReviewed = false;
   bool _amountWhereToFindExpanded = false;
   bool _amountHelpPartial = false;
@@ -129,6 +130,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
 
   @override
   void dispose() {
+    _providerNameController.dispose();
+    _ordinaryAmountController.dispose();
     _safeExitTriggerFocus.dispose();
     super.dispose();
   }
@@ -142,8 +145,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   }
 
   void _clearContributionAmount() {
-    _providerName = '';
-    _ordinaryAmountRaw = '';
+    _providerNameController.clear();
+    _ordinaryAmountController.clear();
     _allProvidersReviewed = false;
     _amountWhereToFindExpanded = false;
     _amountHelpPartial = false;
@@ -301,12 +304,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                     _DesignNode.factContributedAmount =>
                       _ContributionAmountForm(
                         taxYear: _taxYear!,
-                        providerName: _providerName,
-                        amountRaw: _ordinaryAmountRaw,
+                        providerController: _providerNameController,
+                        amountController: _ordinaryAmountController,
                         allProvidersReviewed: _allProvidersReviewed,
                         whereToFindExpanded: _amountWhereToFindExpanded,
-                        onProviderNameChanged: (value) => _providerName = value,
-                        onAmountChanged: (value) => _ordinaryAmountRaw = value,
                         onReviewedChanged: (value) =>
                             setState(() => _allProvidersReviewed = value),
                         onWhereToFindChanged: (value) =>
@@ -337,6 +338,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
                       ),
                     _DesignNode.factCanton => _CantonBoundary(
                       taxYear: _taxYear!,
+                      hasPositiveContribution:
+                          _contributionStatus == _ContributionStatus.yes,
                       onBack: () => _go(
                         _contributionStatus == _ContributionStatus.yes
                             ? _DesignNode.factContributedAmount
@@ -1080,12 +1083,10 @@ class _ContributedAmountUnknownHelp extends StatelessWidget {
 class _ContributionAmountForm extends StatefulWidget {
   const _ContributionAmountForm({
     required this.taxYear,
-    required this.providerName,
-    required this.amountRaw,
+    required this.providerController,
+    required this.amountController,
     required this.allProvidersReviewed,
     required this.whereToFindExpanded,
-    required this.onProviderNameChanged,
-    required this.onAmountChanged,
     required this.onReviewedChanged,
     required this.onWhereToFindChanged,
     required this.onUnknown,
@@ -1094,12 +1095,10 @@ class _ContributionAmountForm extends StatefulWidget {
     required this.onCorrectPrevious,
   });
   final int taxYear;
-  final String providerName;
-  final String amountRaw;
+  final TextEditingController providerController;
+  final TextEditingController amountController;
   final bool allProvidersReviewed;
   final bool whereToFindExpanded;
-  final ValueChanged<String> onProviderNameChanged;
-  final ValueChanged<String> onAmountChanged;
   final ValueChanged<bool> onReviewedChanged;
   final ValueChanged<bool> onWhereToFindChanged;
   final VoidCallback onUnknown;
@@ -1113,8 +1112,6 @@ class _ContributionAmountForm extends StatefulWidget {
 }
 
 class _ContributionAmountFormState extends State<_ContributionAmountForm> {
-  late final TextEditingController _providerController;
-  late final TextEditingController _amountController;
   final FocusNode _providerFocus = FocusNode(debugLabel: 'provider name');
   final FocusNode _amountFocus = FocusNode(debugLabel: 'ordinary amount');
   String? _providerError;
@@ -1122,30 +1119,22 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
   bool _reviewedError = false;
 
   @override
-  void initState() {
-    super.initState();
-    _providerController = TextEditingController(text: widget.providerName);
-    _amountController = TextEditingController(text: widget.amountRaw);
-  }
-
-  @override
   void dispose() {
-    _providerController.dispose();
-    _amountController.dispose();
     _providerFocus.dispose();
     _amountFocus.dispose();
     super.dispose();
   }
 
   void _continue() {
-    final providerMissing = _providerController.text.trim().isEmpty;
+    final providerMissing = widget.providerController.text.trim().isEmpty;
     final providerUnsafe =
-        !providerMissing && !providerLabelIsSafe(_providerController.text);
+        !providerMissing &&
+        !providerLabelIsSafe(widget.providerController.text);
     final l10n = MintNextLocalizations.of(context);
     int? amount;
     try {
       amount = parseOrdinaryChfAmount(
-        _amountController.text,
+        widget.amountController.text,
         locale: Localizations.localeOf(context).languageCode,
       );
     } on FormatException {
@@ -1179,7 +1168,7 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
   bool get _hasPositiveDraft {
     try {
       return parseOrdinaryChfAmount(
-            _amountController.text,
+            widget.amountController.text,
             locale: Localizations.localeOf(context).languageCode,
           ) >
           0;
@@ -1201,21 +1190,24 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
         children: [
           TextFormField(
             key: const ValueKey('field:fact_contributed_amount.provider_name'),
-            controller: _providerController,
+            controller: widget.providerController,
             focusNode: _providerFocus,
             textInputAction: TextInputAction.next,
             decoration: InputDecoration(
               labelText: l10n.batch11ProviderNameLabel,
-              helperText: l10n.batch11ProviderNamePrivacy,
               errorText: _providerError,
               border: const OutlineInputBorder(),
             ),
             onChanged: (value) {
-              widget.onProviderNameChanged(value);
               if (_providerError != null) {
                 setState(() => _providerError = null);
               }
             },
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.batch11ProviderNamePrivacy,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           if (_providerError != null)
             Semantics(
@@ -1229,7 +1221,7 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
           const SizedBox(height: 20),
           TextFormField(
             key: const ValueKey('field:fact_contributed_amount.amount'),
-            controller: _amountController,
+            controller: widget.amountController,
             focusNode: _amountFocus,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textInputAction: TextInputAction.done,
@@ -1240,7 +1232,6 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
               border: const OutlineInputBorder(),
             ),
             onChanged: (value) {
-              widget.onAmountChanged(value);
               setState(() => _amountError = null);
             },
           ),
@@ -1273,15 +1264,20 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
             },
           ),
           Semantics(
+            key: const ValueKey(
+              'action:fact_contributed_amount.toggle_where_to_find',
+            ),
             button: true,
             expanded: widget.whereToFindExpanded,
-            child: TextButton(
-              key: const ValueKey(
-                'action:fact_contributed_amount.toggle_where_to_find',
+            label: l10n.batch11WhereFindTitle,
+            onTap: () =>
+                widget.onWhereToFindChanged(!widget.whereToFindExpanded),
+            child: ExcludeSemantics(
+              child: TextButton(
+                onPressed: () =>
+                    widget.onWhereToFindChanged(!widget.whereToFindExpanded),
+                child: Text(l10n.batch11WhereFindTitle),
               ),
-              onPressed: () =>
-                  widget.onWhereToFindChanged(!widget.whereToFindExpanded),
-              child: Text(l10n.batch11WhereFindTitle),
             ),
           ),
           if (widget.whereToFindExpanded)
@@ -1305,7 +1301,9 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
               'action:fact_contributed_amount.missing_amount',
             ),
             label: l10n.batch11MissingAmount,
-            onPressed: widget.onMissing,
+            onPressed: () {
+              widget.onMissing();
+            },
           )
         else
           MintDesignLabAction.secondary(
@@ -1313,7 +1311,9 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
               'action:fact_contributed_amount.unknown_amount',
             ),
             label: l10n.batch11UnknownAmount,
-            onPressed: widget.onUnknown,
+            onPressed: () {
+              widget.onUnknown();
+            },
           ),
         MintDesignLabAction.text(
           key: const ValueKey(
@@ -1328,8 +1328,13 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
 }
 
 class _CantonBoundary extends StatelessWidget {
-  const _CantonBoundary({required this.taxYear, required this.onBack});
+  const _CantonBoundary({
+    required this.taxYear,
+    required this.hasPositiveContribution,
+    required this.onBack,
+  });
   final int taxYear;
+  final bool hasPositiveContribution;
   final VoidCallback onBack;
 
   @override
@@ -1338,8 +1343,12 @@ class _CantonBoundary extends StatelessWidget {
     return _Page(
       nodeId: 'fact_canton',
       eyebrow: l10n.nextStepEyebrow,
-      title: l10n.contributionCantonBoundaryTitle(taxYear),
-      body: l10n.contributionCantonBoundaryBody,
+      title: hasPositiveContribution
+          ? l10n.batch12PositiveCantonTitle(taxYear)
+          : l10n.contributionCantonBoundaryTitle(taxYear),
+      body: hasPositiveContribution
+          ? l10n.batch12PositiveCantonBody
+          : l10n.contributionCantonBoundaryBody,
       accent: const _QuietOrb(),
       actions: [
         MintDesignLabAction.text(

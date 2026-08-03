@@ -65,6 +65,7 @@ void main() {
         findsNothing,
       );
       expect(find.textContaining('2026'), findsWidgets);
+      expect(find.textContaining('un seul prestataire 3a'), findsOneWidget);
 
       final provider = tester.widget<TextFormField>(
         find.byKey(
@@ -248,6 +249,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
+    expect(
+      find.text('Ton montant ordinaire pour 2026 est prêt.'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('aucun versement ordinaire'), findsNothing);
     expect(find.textContaining('Aucun résultat fiscal'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('action:fact_canton.back')));
     await tester.pumpAndSettle();
@@ -508,7 +514,7 @@ void main() {
       find.byKey(const ValueKey('action:fact_contributed_amount.continue')),
     );
     await tester.pump();
-    expect(tester.getSemantics(provider).label, contains('Nom du prestataire'));
+    expect(tester.getSemantics(provider).label, contains('Prestataire 3a'));
     expect(tester.getSemantics(amount).label, contains('2026'));
     expect(
       tester
