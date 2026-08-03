@@ -1,0 +1,110 @@
+schema_version: 1
+status: candidate_expected_red_evidence_runtime_not_implemented
+batch: 18
+authority:
+  immutable_scope: product/mint_next/batch18/runtime-scope.yaml
+  immutable_scope_sha256: ecb83ff852211d055ca50d9e0667d138b744e1bca1a7ba81131c2c1814761f8a
+  runtime_surface: hidden_design_lab_only
+  product_promotion: forbidden
+ordered_gates:
+- R1
+- R2
+- R3
+- R4a_safe_exit
+- R4b_lifecycle_generation_and_privacy
+- R4c_six_locale_accessibility_and_compact
+- R4d_cross_step_integration
+- R4
+- runtime_global
+gates:
+  R1:
+    state: expected_red
+    runtime_implemented: false
+    runtime_accepted: false
+    next_gate: R2
+    later_gate_evidence_counts_for_R1: false
+    test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart
+    fixture_file: product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart
+    command:
+    - flutter
+    - test
+    - test/design_lab_batch18_canton_r1_test.dart
+    - --machine
+    working_directory: product/mint_next/batch7/design_lab
+    expected_exit_code: 1
+    expected_summary:
+      passed: 2
+      failed: 13
+      load_or_harness_errors: 0
+    candidate_binding:
+      test_sha256: b46c2b6c9c60ef9f29eb972b388ba04ccc1a238f51a5cc518c426f95bea1d5fb
+      fixture_sha256: 204e505c92a94c650f888d872faf8240b58a763d8d2fa2326ad1c6796b8534ec
+    subgates:
+      R1a_catalog_origin_and_generation:
+      - R1_01
+      - R1_02
+      - R1_03
+      - R1_05
+      - R1_11
+      R1b_local_search_privacy:
+      - R1_04
+      - R1_06
+      - R1_07
+      - R1_10
+      - R1_12
+      R1c_selection_semantics_and_layout:
+      - R1_08
+      - R1_09
+      - R1_13
+    obligation_test_names:
+      R1_01:
+      - R1_01 baseline both legacy origins reach fact_canton
+      - R1_01 exact immutable receipt and Back for both origins
+      R1_02: R1_02 entry is unset without fallback or recommendation
+      R1_03: R1_03 exact beginner copy and R1-only surface
+      R1_04: R1_04 bounded normalized labels-only local search
+      R1_05: R1_05 exact six-locale catalog, labels, codes and order
+      R1_06: R1_06 first middle last no-match clear and rapid query
+      R1_07: R1_07 clear restores list selection and search focus
+      R1_08: R1_08 selection commits one allowed ephemeral code only
+      R1_09: R1_09 same-code reselection is byte-equivalent no-op
+      R1_10: R1_10 query changes and clear never mutate selection
+      R1_11: R1_11 every old-generation R1 callback is a total no-op
+      R1_12: R1_12 search exposes no learning or clipboard capability
+      R1_13: R1_13 all R1 targets and single-select semantics are usable
+      R1_14: R1_14 registry keeps R1 before R2 and excludes later evidence
+    expected_red_sentinels:
+      R1_01 exact immutable receipt and Back for both origins: R1_01
+      R1_02 entry is unset without fallback or recommendation: R1_02
+      R1_03 exact beginner copy and R1-only surface: R1_03
+      R1_04 bounded normalized labels-only local search: R1_04
+      R1_05 exact six-locale catalog, labels, codes and order: R1_05
+      R1_06 first middle last no-match clear and rapid query: R1_06
+      R1_07 clear restores list selection and search focus: R1_07
+      R1_08 selection commits one allowed ephemeral code only: R1_08
+      R1_09 same-code reselection is byte-equivalent no-op: R1_09
+      R1_10 query changes and clear never mutate selection: R1_10
+      R1_11 every old-generation R1 callback is a total no-op: R1_11
+      R1_12 search exposes no learning or clipboard capability: R1_12
+      R1_13 all R1 targets and single-select semantics are usable: R1_13
+  R2:
+    state: blocked_by_R1
+  R3:
+    state: blocked_by_R2
+  R4a_safe_exit:
+    state: blocked_by_R3
+  R4b_lifecycle_generation_and_privacy:
+    state: blocked_by_R4a
+  R4c_six_locale_accessibility_and_compact:
+    state: blocked_by_R4b
+  R4d_cross_step_integration:
+    state: blocked_by_R4c
+  R4:
+    state: blocked_by_R4d
+  runtime_global:
+    state: blocked_by_R4
+forbidden_claims:
+- runtime_implemented
+- runtime_accepted
+- user_validated
+- production_ready
