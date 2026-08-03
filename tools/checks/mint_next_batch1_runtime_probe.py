@@ -57,11 +57,9 @@ def main() -> int:
         print(f"PASS query={query}")
     with tempfile.TemporaryDirectory(prefix="mint-b1-chrome-") as temp_root:
         profile = Path(temp_root) / "saved-profile"
-        reload_profile = Path(temp_root) / "reload-profile"
         base = [chrome, "--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--dump-dom"]
         saved = subprocess.run(base + [f"--user-data-dir={profile}", f"{source}?direction=a&probe=save"], capture_output=True, text=True, timeout=30)
-        shutil.copytree(profile, reload_profile, ignore=shutil.ignore_patterns("Singleton*"))
-        reloaded = subprocess.run(base + [f"--user-data-dir={reload_profile}", f"{source}?direction=a"], capture_output=True, text=True, timeout=30)
+        reloaded = subprocess.run(base + [f"--user-data-dir={profile}", f"{source}?direction=a"], capture_output=True, text=True, timeout=30)
         expected = ["6 / 6", "Cap enregistré localement", "Cap enregistré"]
         missing = [value for value in expected if value not in reloaded.stdout]
         if saved.returncode or reloaded.returncode or missing:
