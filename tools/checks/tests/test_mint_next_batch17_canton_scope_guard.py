@@ -174,7 +174,10 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         self._mutate_scope(lambda d: d["navigation_contract"].__setitem__("explicit_continue_required", False))
 
     def test_unreachable_no_selection_validation_is_rejected(self) -> None:
-        self._mutate_scope(lambda d: d["node_contracts"]["fact_canton"]["controls"]["continue"].__setitem__("presentation", "disabled_unreachable_action"))
+        self._mutate_scope(lambda d: d["node_contracts"]["fact_canton"]["controls"]["continue"].__setitem__("activation", "guard_controls_reachability"))
+
+    def test_continue_route_guard_cannot_run_before_validation(self) -> None:
+        self._mutate_scope(lambda d: d["node_contracts"]["fact_canton"]["controls"]["continue"].__setitem__("validation_precedence", ["selected_allowed_code", "unset", "invalid_or_stale"]))
 
     def test_continue_prerequisite_announcement_is_rejected_when_removed(self) -> None:
         self._mutate_scope(lambda d: d["accessibility_contract"].pop("continue_unavailable_reason_visible_and_announced_while_validation_action_remains_reachable"))

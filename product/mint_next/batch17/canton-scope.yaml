@@ -147,8 +147,13 @@ node_contracts:
         operation: commit_unknown_and_route_to_help_including_complex_or_uncertain_case
       continue:
         to: fact_commune
-        guard: selected_allowed_code
-        presentation: enabled_validation_action
+        activation: always_enabled_validation_dispatch
+        route_guard: selected_allowed_code
+        canonical_batch6_guard_mapping: route_guard_only_never_control_reachability
+        validation_precedence:
+        - unset
+        - invalid_or_stale
+        - selected_allowed_code
         when_unset: show_localized_no_selection_error_focus_choice_group_without_mutation_or_route
         when_invalid_or_stale: show_distinct_localized_stale_error_focus_choice_group_without_mutation_or_route
         when_valid: validate_active_generation_and_selected_allowed_code_then_route_only
