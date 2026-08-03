@@ -1,0 +1,40 @@
+name: MINT Next Batch 13 Multi-provider Written Contract
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+  push:
+    branches: [dev, staging, main]
+
+concurrency:
+  group: mint-next-batch13-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  EXPECTED_BATCH13_GUARD_SHA256: 17d4886162edcda3a1d5a5eeef35b604020d898383412a97879e623e9c288fab
+  EXPECTED_BATCH13_TESTS_SHA256: b0c812fc70642f14897b8716f34b944baf2933dfcfd1217e073e2533092e8a5b
+  EXPECTED_BATCH13_ACCEPTANCE_SHA256: 01490a66fcd32bee96d1e3fba369acad188f81fe49083364a9526c8151100f42
+
+jobs:
+  contract:
+    name: Multi-provider 3a amount written navigation contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency
+        run: python3 -m pip install PyYAML==6.0.2
+      - name: Verify the verifier trust unit
+        run: |
+          test "$(shasum -a 256 tools/checks/mint_next_batch13_multi_provider_contract_guard.py | cut -d ' ' -f 1)" = "$EXPECTED_BATCH13_GUARD_SHA256"
+          test "$(shasum -a 256 tools/checks/tests/test_mint_next_batch13_multi_provider_contract_guard.py | cut -d ' ' -f 1)" = "$EXPECTED_BATCH13_TESTS_SHA256"
+          test "$(shasum -a 256 product/mint_next/batch13/multi-provider-navigation-acceptance.yaml | cut -d ' ' -f 1)" = "$EXPECTED_BATCH13_ACCEPTANCE_SHA256"
+      - name: Verify write-only multi-provider contract
+        run: python3 tools/checks/mint_next_batch13_multi_provider_contract_guard.py
+      - name: Fire hostile multi-provider contract mutations
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch13_multi_provider_contract_guard

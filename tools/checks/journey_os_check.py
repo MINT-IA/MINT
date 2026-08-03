@@ -235,6 +235,10 @@ ALLOW = {
     # plus bounded legacy evidence. Runtime and product wiring remain forbidden.
     "product/mint_next/batch13/multi-provider-navigation-contract.yaml",
     "product/mint_next/batch13/legacy-inventory.yaml",
+    "product/mint_next/batch13/multi-provider-navigation-acceptance.yaml",
+    "tools/checks/mint_next_batch13_multi_provider_contract_guard.py",
+    "tools/checks/tests/test_mint_next_batch13_multi_provider_contract_guard.py",
+    ".github/workflows/mint-next-batch13-contract.yml",
     "AGENTS.md",
     "docs/MINT_AGENT_WORKFLOW.md",
     "lefthook.yml",

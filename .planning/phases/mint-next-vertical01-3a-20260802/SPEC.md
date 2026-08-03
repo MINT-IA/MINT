@@ -42,6 +42,8 @@ batch12-amount-runtime-probe: python3 tools/checks/mint_next_batch12_amount_runt
 batch12-amount-runtime: python3 tools/checks/mint_next_batch12_amount_runtime_guard.py
 batch12-amount-hostile-tests: python3 -m unittest tools.checks.tests.test_mint_next_batch12_amount_runtime_guard
 batch12-package-manifest: python3 tools/checks/mint_next_artifact_manifest.py verify product/mint_next/batch12/design-lab-manifest.yaml
+batch13-multi-provider-written-contract: python3 tools/checks/mint_next_batch13_multi_provider_contract_guard.py
+batch13-multi-provider-hostile-tests: python3 -m unittest tools.checks.tests.test_mint_next_batch13_multi_provider_contract_guard
 active-context: python3 tools/checks/active_context_guard.py
 phase-contract: python3 tools/checks/phase_contract_guard.py
 mint-rules: python3 tools/checks/mint_rules_guard.py

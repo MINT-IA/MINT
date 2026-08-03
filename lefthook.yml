@@ -118,6 +118,9 @@ pre-commit:
     mint-next-batch12-amount-runtime-guard:
       run: python3 tools/checks/mint_next_batch12_amount_runtime_guard.py
       tags: [agents, planning, workflow, mint-next, navigation, flutter, swiss, evidence]
+    mint-next-batch13-multi-provider-contract-guard:
+      run: python3 tools/checks/mint_next_batch13_multi_provider_contract_guard.py
+      tags: [agents, planning, workflow, mint-next, navigation, swiss, privacy]
     agent-reference-guard:
       # MINT Karpathy rules infra — active agent docs must not point at the
       # quarantined original checkout.

@@ -1,0 +1,89 @@
+schema_version: 1
+status: mechanically_accepted_written_navigation_runtime_unimplemented
+accepted_at: '2026-08-03T04:30:00+02:00'
+accepted_candidate:
+  commit: 59b00b36aff8c13767d9b5c1f1b648cf353fe7f1
+  tree: 72c455c21a7777120785117516410d230e35fdaa
+artifacts:
+  navigation_contract:
+    path: product/mint_next/batch13/multi-provider-navigation-contract.yaml
+    sha256: c609f4038842fdc51173e3009f95f8fa1fbd6351a87a24241aa2b3997ac6b282
+  legacy_inventory:
+    path: product/mint_next/batch13/legacy-inventory.yaml
+    sha256: d0ef90cf1b973d48e202de87a88ad507bbd70381fe7cd7f9194051112a5dae85
+verifier_trust_unit:
+  guard:
+    path: tools/checks/mint_next_batch13_multi_provider_contract_guard.py
+    sha256: 17d4886162edcda3a1d5a5eeef35b604020d898383412a97879e623e9c288fab
+  tests:
+    path: tools/checks/tests/test_mint_next_batch13_multi_provider_contract_guard.py
+    sha256: b0c812fc70642f14897b8716f34b944baf2933dfcfd1217e073e2533092e8a5b
+ci_workflow:
+  path: .github/workflows/mint-next-batch13-contract.yml
+  normalized_sha256: 558f4599b71f2e0c17f5e24c4fd5f84db43a510155267736dd67ceb7273de5d1
+  verification: exact_job_triggers_permissions_commands_and_verifier_hashes
+mechanical_acceptance_basis:
+  authority: exact_artifact_and_authority_digests_candidate_tree_no_runtime_diff_duplicate_key_rejection_61_hostile_obligation_mutations_targeted_semantic_mutations_and_three_exact_roasts
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent_identity_truthfulness_branch_protection_external_ci_execution_and_runtime_behavior_are_not_authenticated_here
+advisory_roasts:
+  - role: ux_navigation_accessibility
+    verdict: ACCEPT
+    score: 10.0
+    p1: 0
+    p2: 0
+    p3: 0
+    bound_commit: 59b00b36aff8c13767d9b5c1f1b648cf353fe7f1
+    bound_contract_sha256: c609f4038842fdc51173e3009f95f8fa1fbd6351a87a24241aa2b3997ac6b282
+    limitation: written_contract_only_no_runtime_claim
+  - role: swiss_compliance_locale
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    bound_commit: 59b00b36aff8c13767d9b5c1f1b648cf353fe7f1
+    bound_contract_sha256: c609f4038842fdc51173e3009f95f8fa1fbd6351a87a24241aa2b3997ac6b282
+    limitation: written_contract_only_no_runtime_claim
+  - role: adversarial
+    verdict: ROAST_PASS
+    p1: 0
+    p2: 0
+    p3: 0
+    bound_commit: 59b00b36aff8c13767d9b5c1f1b648cf353fe7f1
+    bound_contract_sha256: c609f4038842fdc51173e3009f95f8fa1fbd6351a87a24241aa2b3997ac6b282
+    limitation: written_contract_only_no_runtime_claim
+commands:
+  - python3 tools/checks/mint_next_batch13_multi_provider_contract_guard.py
+  - python3 -m unittest tools.checks.tests.test_mint_next_batch13_multi_provider_contract_guard
+  - python3 tools/checks/mint_next_batch12_amount_runtime_guard.py
+  - python3 tools/checks/journey_os_check.py
+  - python3 tools/checks/phase_contract_guard.py
+  - python3 tools/checks/workflow_contract_guard.py
+  - git diff --check
+accepted_scope_only:
+  - written_multi_provider_navigation_and_state_machine
+  - written_deterministic_routes_back_focus_and_safe_exit
+  - written_exact_local_sum_confirmation_and_overflow_boundaries
+  - written_missing_request_tombstone_and_one_shot_token_lifecycle
+  - written_privacy_purge_and_stale_callback_contract
+  - written_six_locale_semantic_intents
+  - bounded_legacy_reuse_inventory
+not_accepted:
+  - flutter_runtime
+  - product_integration
+  - six_translated_runtime_copies
+  - runtime_state_machine
+  - runtime_accessibility_or_focus
+  - runtime_exact_sum_or_overflow
+  - persistence
+  - document_scan_upload_ocr_or_provider_api
+  - calculation_engine
+  - contribution_ceiling_or_remaining_room
+  - deductible_amount_or_tax_saving
+  - personal_tax_result
+  - ios_runtime
+  - android_runtime
+  - external_ci_execution
+  - branch_protection_required_checks
+  - user_validation
+next_gate: isolated_multi_provider_runtime_only_after_written_acceptance
