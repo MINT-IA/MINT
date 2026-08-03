@@ -57,6 +57,7 @@ Les règles §29 du handoff, amendées par l'audit. Chaque règle est impérativ
 10. **(nouveau)** Termine chaque batch par un runtime touchable ; sinon le batch a échoué.
 11. Ne crois jamais le résumé d'un agent : inspecte diff, Git, runtime et preuves.
 12. Garde dev et main intacts hors du chemin PR ; ne merge rien sans CI verte et décision explicite.
+13. **(nouveau)** Cercle herméneutique : chaque batch se clôt par deux questions consignées — « qu'est-ce que ce batch révèle du tout ? » et « que doit réviser le tout ? » — et la révision du tout (doctrine, contrat de navigation, inventaire) est committée dans le même cycle. Une leçon laissée en mémoire de session est une leçon perdue.
 
 ## Le workflow par batch (A→I condensé)
 
@@ -78,11 +79,15 @@ Les règles §29 du handoff, amendées par l'audit. Chaque règle est impérativ
 - **mint-lead** — borne le périmètre, refuse la dérive, décide merge/no-merge sur preuves, et **porte le battement produit** : à lui de faire finir chaque batch sur du touchable, pas seulement sur du propre.
 - **mint-quality-gate** — gates auth/privacy/onboarding/runtime, pouvoir de veto ; vérifie le diff et les preuves, pas les résumés.
 - **mint-mobile / mint-backend / mint-swiss-brain** — implémentation par verticale, chacun dans ses paths owned.
+- **mint-experience** — journey, architecture d'information, microcopy pédagogique, accessibilité, tests de compréhension ; cinquième lentille des panels design avec mandat de fidélité au design historique validé.
+- **mint-integrations-security** — consentement, provenance, APIs externes futures, design sécurité, chemins de récupération.
 - **Codex en critique croisée, bornée dans le temps** — tout livrable significatif (diff, ADR, constat, synthèse) passe une critique Codex couvrant six axes : code, architecture, flow, UX, actuariat, légal. Ne jamais laisser le même agent construire, s'auto-noter et promouvoir.
 - **Preuves en CI, liées au SHA** — l'exécuteur des preuves est la CI, pas la machine de l'agent qui a écrit le code. Les gates locaux (lefthook) restent des filtres rapides ; ils ne promeuvent rien.
 - **Julien** — valide la compréhension et la douceur en 3-5 minutes par micro-batch ; arbitre les compromis majeurs.
 
 ## Ce qui est déjà prouvé et se réutilise
+
+Deux noms fixent le vocabulaire partagé de la reconstruction (confirmés par Julien, 2026-08-03). **Strangler Fig** = la structure : MINT Next pousse à côté du produit vivant (`product/mint_next/`, surface `hidden_design_lab_only`), verticale par verticale, et la couture est explicite — contrat de navigation, discriminateur de payloads L1/L2-L4, gates de promotion par batch (cf. D-11). **Legacy-as-library** = la politique d'approvisionnement : l'ancien MINT est une carrière de matériaux dont on n'extrait que des blocs prouvés, avec leurs tests et leurs reçus — jamais du legacy en vrac. Pendant que le figuier pousse, l'ancien arbre reste vivant et soigné : les P0 du produit courant se corrigent sur le legacy sans attendre la reconstruction.
 
 L'inventaire se fait contre dev actuel (règle 9). Ces briques sont mergées sur dev et se réutilisent telles quelles :
 
@@ -98,7 +103,7 @@ L'inventaire se fait contre dev actuel (règle 9). Ces briques sont mergées sur
 - **What does the strongest opposing view say ?**
   La rigueur maximale du handoff (roasts systématiques repartant de zéro, invalidation totale au moindre finding, gardes d'acceptation durcies) a réellement trouvé des bugs que des relectures expertes avaient manqués — le bypass `sitecustomize` en est la preuve documentée (handoff §34-35). Relâcher cette pression (roast scoped au fix, plafond méta 20 %) pourrait laisser passer le prochain bypass. Symétriquement, le gate « runtime touchable à chaque batch » peut pousser à des démos superficielles : un écran qui se tape au doigt n'est pas une preuve de justesse actuarielle, et la pression du touchable peut éroder la discipline RED-first qu'elle est censée compléter.
 - **What does this source not address ?**
-  Le plafond méta 20 % n'a pas de méthode de mesure définie (20 % de quoi — commits, lignes, temps ?) ; il sera apprécié au jugé du lead tant qu'aucune métrique n'est fixée. La critique croisée Codex sur six axes n'a pas de rubrique versionnée par axe (l'actuariat et le légal sont appréciés par le même agent que le code). L'audit Fable du 2026-08-03 est une session, pas un artefact versionné : ce document est son seul enregistrement durable. Enfin, la fusion fil rouge × North Star n'a été validée par aucun test utilisateur — le recouvrement « à 80 % » est un jugement éditorial, pas une mesure.
+  Le plafond méta 20 % n'a pas de méthode de mesure définie (20 % de quoi — commits, lignes, temps ?) ; il sera apprécié au jugé du lead tant qu'aucune métrique n'est fixée. La critique croisée Codex sur six axes n'a pas de rubrique versionnée par axe (l'actuariat et le légal sont appréciés par le même agent que le code). L'audit Fable du 2026-08-03 est une session, pas un artefact versionné : ce document est son seul enregistrement durable. Enfin, la fusion fil rouge × North Star n'a été validée par aucun test utilisateur — le recouvrement « à 80 % » est un jugement éditorial, pas une mesure. Le pattern Strangler Fig porte aussi son risque classique, non traité ici : la double maintenance (legacy + MINT Next) qui s'éternise si les promotions de verticales ne suivent pas le rythme des batches.
 - **What would change this conclusion ?**
   Un bypass de preuve passant la CI (l'exécuteur neutre compromis) → retour à l'invalidation large de §29 et re-litigation de la règle 7. Deux batches consécutifs dont le runtime touchable se révèle être une démo sans justesse (finding actuariel post-merge) → renforcer l'étape F au détriment du battement. Une situation où le plafond méta 20 % bloquerait un durcissement de sécurité réellement nécessaire → exception explicite par décision versionnée, pas par dérive silencieuse.
 
