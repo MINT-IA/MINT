@@ -539,4 +539,116 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
   @override
   String get batch15ResolveTombstoneError =>
       'Anula a remoção ou apaga definitivamente esta linha antes de continuar.';
+
+  @override
+  String get batch16AnnualOrdinaryTotalMeaning =>
+      'Introduz uma única vez, para cada prestador, o total anual das contribuições ordinárias indicado no certificado anual.';
+
+  @override
+  String batch16ActuallyCreditedMeaning(int taxYear) {
+    return 'Conta apenas o que foi efetivamente creditado para $taxYear, não o que estava previsto, foi enviado ou debitado.';
+  }
+
+  @override
+  String get batch16ExcludedMovementsMeaning =>
+      'Não incluas transferências, contribuições retroativas, movimentos pendentes, reembolsos nem ganhos de investimento.';
+
+  @override
+  String get batch16ProviderConfirmedNetMeaning =>
+      'Após uma correção ou um reembolso, pede ao prestador o total líquido confirmado das contribuições ordinárias; não subtraias nada por tua conta.';
+
+  @override
+  String get batch16InsuranceCertificateMeaning =>
+      'Para um seguro, utiliza o certificado anual; não uses nem o valor de resgate nem a repartição entre risco e poupança.';
+
+  @override
+  String get batch16RefundVsAllZeroMeaning =>
+      'O reembolso integral de um prestador não significa que todos os prestadores estejam a zero.';
+
+  @override
+  String get batch16MintNotVerifiedMeaning =>
+      'A MINT não verificou o montante introduzido.';
+
+  @override
+  String get batch16NoTaxAdviceMeaning =>
+      'Este passo não produz qualquer resultado fiscal nem recomendação.';
+
+  @override
+  String batch16RowContext(int rowNumber, int taxYear) {
+    return 'linha $rowNumber · $taxYear';
+  }
+
+  @override
+  String get batch16HelpTitle => 'Precisas de ajuda?';
+
+  @override
+  String get batch16HelpCompactTitle => 'Ajuda';
+
+  @override
+  String get batch16HelpCompactBody => 'MINT: não verificado.';
+
+  @override
+  String get batch16HelpBody =>
+      'A MINT não verificou este total. Escolhe apenas se tens a certeza.';
+
+  @override
+  String get batch16HelpDetails => 'Compreender as regras desta linha';
+
+  @override
+  String get batch16HelpProviderTotal => 'Total ordinário obtido';
+
+  @override
+  String get batch16HelpProviderTotalCompact => 'Total 3a recebido';
+
+  @override
+  String get batch16HelpProviderRefunded =>
+      'Reembolso integral deste prestador';
+
+  @override
+  String get batch16HelpAllZero => 'Todos os meus prestadores estão a zero';
+
+  @override
+  String get batch16HelpEducation => 'Quero perceber o que é contabilizado';
+
+  @override
+  String get batch16HelpBack => 'Voltar à introdução';
+
+  @override
+  String get batch16StatusUnreviewed => 'Por verificar';
+
+  @override
+  String get batch16StatusConfirmed => 'Confirmado';
+
+  @override
+  String get batch16StatusUnresolved => 'Questão por resolver';
+
+  @override
+  String get batch16UnresolvedError =>
+      'Responde a esta pergunta antes de continuar.';
+
+  @override
+  String get batch16CorrectionTitle => 'Corrigir esta resposta';
+
+  @override
+  String get batch16CorrectionDataLoss =>
+      'Se escolheres «Não» ou «Não sei», a MINT apagará imediatamente todos os prestadores e montantes desta introdução local. Esta ação não pode ser anulada.';
+
+  @override
+  String get batch16CurrentYes => 'Resposta atual: Sim';
+
+  @override
+  String get batch16Unselected => 'Nenhuma resposta selecionada';
+
+  @override
+  String get batch16ChooseYes => 'Escolher Sim';
+
+  @override
+  String get batch16ChooseNo => 'Não — apagar estes montantes e continuar';
+
+  @override
+  String get batch16ChooseUnknown =>
+      'Não sei — apagar os montantes e verificar';
+
+  @override
+  String get batch16Back => 'Voltar';
 }

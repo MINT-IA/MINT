@@ -1,6 +1,32 @@
 schema_version: 1
-status: candidate_for_swiss_roast
+status: reviewed_for_hidden_runtime
 selected_tax_year_placeholder: '{taxYear}'
+provenance:
+  registry: product/mint_next/batch16/official-sources.yaml
+  checked_at: '2026-08-03'
+  retrieved_at: '2026-08-03T00:50:00+02:00'
+  review_due_at: '2026-12-31'
+  jurisdiction: CH
+intent_provenance:
+  batch16AnnualOrdinaryTotalMeaning:
+    source_ids: [estv_form_21_edp_notice, estv_form_21_edp_2026]
+  batch16ActuallyCreditedMeaning:
+    source_ids: [estv_circular_18a, ofas_your_third_pillar_contribution]
+  batch16ExcludedMovementsMeaning:
+    source_ids: [estv_circular_18a, estv_form_21_edp_notice]
+  batch16ProviderConfirmedNetMeaning:
+    source_ids: [estv_circular_18a]
+  batch16InsuranceCertificateMeaning:
+    source_ids: [estv_circular_18a, estv_form_21_edp_notice, estv_form_21_edp_2026]
+  batch16RefundVsAllZeroMeaning:
+    source_ids: [estv_circular_18a, estv_form_21_edp_notice]
+    classification: product_safety_inference_not_direct_official_quote
+  batch16MintNotVerifiedMeaning:
+    source_ids: [estv_form_21_edp_notice]
+    classification: product_safety_inference_not_direct_official_quote
+  batch16NoTaxAdviceMeaning:
+    source_ids: [estv_circular_18a, estv_form_21_edp_notice]
+    classification: product_safety_inference_not_direct_official_quote
 intents:
   batch16AnnualOrdinaryTotalMeaning:
     fr: Saisis une seule fois, pour chaque prestataire, le total annuel des cotisations ordinaires indiqué sur son attestation annuelle.

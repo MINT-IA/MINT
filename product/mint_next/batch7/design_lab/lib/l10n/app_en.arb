@@ -322,5 +322,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "batch16AnnualOrdinaryTotalMeaning": "Enter once, for each provider, the annual total of ordinary contributions shown on its annual certificate.",
+  "batch16ActuallyCreditedMeaning": "Count only what was actually credited for {taxYear}, not what was planned, sent or debited.",
+  "@batch16ActuallyCreditedMeaning": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16ExcludedMovementsMeaning": "Do not include transfers, retroactive buy-ins, pending movements, refunds or investment gains.",
+  "batch16ProviderConfirmedNetMeaning": "After a correction or refund, ask the provider for its confirmed net total of ordinary contributions; do not subtract anything yourself.",
+  "batch16InsuranceCertificateMeaning": "For insurance, use the annual certificate; use neither the surrender value nor the risk/savings split.",
+  "batch16RefundVsAllZeroMeaning": "A full refund from one provider does not mean that all providers are at zero.",
+  "batch16MintNotVerifiedMeaning": "MINT has not verified the amount entered.",
+  "batch16NoTaxAdviceMeaning": "This step produces neither a tax result nor a recommendation.",
+  "batch16RowContext": "row {rowNumber} · {taxYear}",
+  "@batch16RowContext": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      },
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16HelpTitle": "Need help?",
+  "batch16HelpCompactTitle": "Help",
+  "batch16HelpCompactBody": "MINT: not verified.",
+  "batch16HelpBody": "MINT has not verified this total. Choose only if you are sure.",
+  "batch16HelpDetails": "Understand the rules for this row",
+  "batch16HelpProviderTotal": "Ordinary total obtained",
+  "batch16HelpProviderTotalCompact": "3a total received",
+  "batch16HelpProviderRefunded": "Full refund from this provider",
+  "batch16HelpAllZero": "All my providers are at zero",
+  "batch16HelpEducation": "I want to understand what counts",
+  "batch16HelpBack": "Back to entry",
+  "batch16StatusUnreviewed": "Needs review",
+  "batch16StatusConfirmed": "Confirmed",
+  "batch16StatusUnresolved": "Unresolved question",
+  "batch16UnresolvedError": "Answer this question before continuing.",
+  "batch16CorrectionTitle": "Correct this answer",
+  "batch16CorrectionDataLoss": "If you choose “No” or “I don’t know”, MINT will immediately erase every provider and amount from this local entry. This cannot be undone.",
+  "batch16CurrentYes": "Current answer: Yes",
+  "batch16Unselected": "No answer selected",
+  "batch16ChooseYes": "Choose Yes",
+  "batch16ChooseNo": "No — erase these amounts and continue",
+  "batch16ChooseUnknown": "I don’t know — erase these amounts and check",
+  "batch16Back": "Back"
 }

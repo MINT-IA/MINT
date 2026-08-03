@@ -4,6 +4,13 @@ import 'package:intl/intl.dart';
 import 'l10n/generated/mint_next_localizations.dart';
 import 'multi_provider_amount_draft.dart';
 
+enum MultiProviderAmountEditorFocusTarget {
+  amount,
+  doubt,
+  undo,
+  continueAction,
+}
+
 class MultiProviderAmountEditor extends StatefulWidget {
   const MultiProviderAmountEditor({
     super.key,
@@ -15,6 +22,11 @@ class MultiProviderAmountEditor extends StatefulWidget {
     required this.restoreAmountFocus,
     required this.restoreUnknownActionFocus,
     required this.onRestoreFocusConsumed,
+    this.enableBatch16 = false,
+    this.onAmountDoubt,
+    this.restoreRowId,
+    this.restoreFocusTarget,
+    this.onDraftChanged,
   });
 
   final int taxYear;
@@ -25,6 +37,11 @@ class MultiProviderAmountEditor extends StatefulWidget {
   final bool restoreAmountFocus;
   final bool restoreUnknownActionFocus;
   final VoidCallback onRestoreFocusConsumed;
+  final bool enableBatch16;
+  final ValueChanged<MultiProviderUnresolvedOrigin>? onAmountDoubt;
+  final String? restoreRowId;
+  final MultiProviderAmountEditorFocusTarget? restoreFocusTarget;
+  final VoidCallback? onDraftChanged;
 
   @override
   State<MultiProviderAmountEditor> createState() =>
@@ -38,6 +55,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
   final Map<String, FocusNode> _amountFocus = {};
   final Map<String, FocusNode> _undoFocus = {};
   final Map<String, FocusNode> _finalizeFocus = {};
+  final Map<String, FocusNode> _doubtFocus = {};
   final Map<String, FocusNode> _restoredHeadingFocus = {};
   final FocusNode _reviewedFocus = FocusNode(
     debugLabel: 'all providers reviewed',
@@ -49,32 +67,72 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
   final FocusNode _unknownActionFocus = FocusNode(
     debugLabel: 'unknown amount trigger',
   );
+  final FocusNode _continueFocus = FocusNode(
+    debugLabel: 'all confirmed editor continue',
+  );
   final Map<String, String?> _providerErrors = {};
   final Map<String, String?> _amountErrors = {};
   bool _reviewedError = false;
   bool _emptyBeforeAddError = false;
   bool _capacityError = false;
   String? _tombstoneErrorId;
+  String? _unresolvedErrorId;
   String? _removalAnnouncement;
 
   @override
   void initState() {
     super.initState();
     _ensureResources();
-    if (widget.restoreAmountFocus || widget.restoreUnknownActionFocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final target = widget.restoreAmountFocus
-            ? _amountFocus[widget.draft.rows.first.id]
-            : _unknownActionFocus;
-        target?.requestFocus();
-        final focusContext = target?.context;
-        if (focusContext != null) {
-          Scrollable.ensureVisible(focusContext, alignment: 0.35);
-        }
-        widget.onRestoreFocusConsumed();
-      });
+    _scheduleRequestedFocusRestore();
+  }
+
+  @override
+  void didUpdateWidget(covariant MultiProviderAmountEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _ensureResources();
+    if (oldWidget.restoreAmountFocus != widget.restoreAmountFocus ||
+        oldWidget.restoreUnknownActionFocus !=
+            widget.restoreUnknownActionFocus ||
+        oldWidget.restoreRowId != widget.restoreRowId ||
+        oldWidget.restoreFocusTarget != widget.restoreFocusTarget) {
+      _scheduleRequestedFocusRestore();
     }
+  }
+
+  void _scheduleRequestedFocusRestore() {
+    final hasLegacyRequest =
+        widget.restoreAmountFocus || widget.restoreUnknownActionFocus;
+    final hasExactRequest =
+        widget.restoreFocusTarget != null &&
+        (widget.restoreFocusTarget ==
+                MultiProviderAmountEditorFocusTarget.continueAction ||
+            widget.restoreRowId != null);
+    if (!hasLegacyRequest && !hasExactRequest) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      FocusNode? target;
+      if (hasExactRequest) {
+        target = switch (widget.restoreFocusTarget!) {
+          MultiProviderAmountEditorFocusTarget.amount =>
+            _amountFocus[widget.restoreRowId],
+          MultiProviderAmountEditorFocusTarget.doubt =>
+            _doubtFocus[widget.restoreRowId],
+          MultiProviderAmountEditorFocusTarget.undo =>
+            _undoFocus[widget.restoreRowId],
+          MultiProviderAmountEditorFocusTarget.continueAction => _continueFocus,
+        };
+      } else if (widget.restoreAmountFocus) {
+        target = _amountFocus[widget.draft.rows.first.id];
+      } else {
+        target = _unknownActionFocus;
+      }
+      target?.requestFocus();
+      final focusContext = target?.context;
+      if (focusContext != null) {
+        Scrollable.ensureVisible(focusContext, alignment: 0.35);
+      }
+      widget.onRestoreFocusConsumed();
+    });
   }
 
   void _ensureResources() {
@@ -102,6 +160,10 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
       _finalizeFocus.putIfAbsent(
         row.id,
         () => FocusNode(debugLabel: 'finalize removal ${row.id}'),
+      );
+      _doubtFocus.putIfAbsent(
+        row.id,
+        () => FocusNode(debugLabel: 'amount doubt ${row.id}'),
       );
       _restoredHeadingFocus.putIfAbsent(
         row.id,
@@ -133,6 +195,9 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     for (final focus in _finalizeFocus.values) {
       focus.dispose();
     }
+    for (final focus in _doubtFocus.values) {
+      focus.dispose();
+    }
     for (final focus in _restoredHeadingFocus.values) {
       focus.dispose();
     }
@@ -140,6 +205,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     _addProviderFocus.dispose();
     _aggregateOverflowFocus.dispose();
     _unknownActionFocus.dispose();
+    _continueFocus.dispose();
     super.dispose();
   }
 
@@ -184,6 +250,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
       _removalAnnouncement = null;
       _ensureResources();
     });
+    widget.onDraftChanged?.call();
     final added = widget.draft.rows.last.id;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -215,6 +282,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
           _subtotalForAnnouncement(l10n),
         );
       });
+      widget.onDraftChanged?.call();
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final rows = widget.draft.rows;
@@ -252,6 +320,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     _amountFocus.remove(id)?.dispose();
     _undoFocus.remove(id)?.dispose();
     _finalizeFocus.remove(id)?.dispose();
+    _doubtFocus.remove(id)?.dispose();
     _restoredHeadingFocus.remove(id)?.dispose();
     setState(() {
       _providerErrors.remove(id);
@@ -263,6 +332,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
         context,
       ).batch14RemovedAnnouncement;
     });
+    widget.onDraftChanged?.call();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       final rows = widget.draft.rows;
@@ -310,6 +380,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
         _subtotalForAnnouncement(l10n),
       );
     });
+    widget.onDraftChanged?.call();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _restoredHeadingFocus[row.id]?.requestFocus();
     });
@@ -355,6 +426,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     _amountFocus.remove(id)?.dispose();
     _undoFocus.remove(id)?.dispose();
     _finalizeFocus.remove(id)?.dispose();
+    _doubtFocus.remove(id)?.dispose();
     _restoredHeadingFocus.remove(id)?.dispose();
     setState(() {
       _providerErrors.remove(id);
@@ -365,6 +437,7 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
         context,
       ).batch15FinalizedAnnouncement;
     });
+    widget.onDraftChanged?.call();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (targetId == null) {
@@ -382,11 +455,51 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
         : _formatMinorUnits(subtotal, Localizations.localeOf(context));
   }
 
+  String _classificationLabel(
+    MintNextLocalizations l10n,
+    MultiProviderAmountRow row,
+    int rowNumber,
+  ) {
+    final prefix = l10n.batch16RowContext(rowNumber, widget.taxYear);
+    return switch (row.classification) {
+      MultiProviderAmountClassification.unreviewed =>
+        '$prefix. ${l10n.batch16MintNotVerifiedMeaning}',
+      MultiProviderAmountClassification.confirmedOrdinary =>
+        '$prefix. ${l10n.batch16AnnualOrdinaryTotalMeaning}',
+      MultiProviderAmountClassification.unresolved =>
+        '$prefix. ${l10n.batch16RefundVsAllZeroMeaning}',
+    };
+  }
+
+  String _classificationKey(MultiProviderAmountRow row) =>
+      switch (row.classification) {
+        MultiProviderAmountClassification.unreviewed => 'amount_unreviewed',
+        MultiProviderAmountClassification.confirmedOrdinary =>
+          'amount_confirmed_ordinary',
+        MultiProviderAmountClassification.unresolved => 'amount_unresolved',
+      };
+
+  void _markAmountDoubt(MultiProviderAmountRow row) {
+    final origin = widget.draft.markAmountUnresolved(row.editToken);
+    if (origin == null) {
+      _amountFocus[row.id]?.requestFocus();
+      return;
+    }
+    setState(() {
+      _reviewedError = false;
+      _unresolvedErrorId = null;
+      _tombstoneErrorId = null;
+      _removalAnnouncement = null;
+    });
+    widget.onAmountDoubt?.call(origin);
+  }
+
   void _continue() {
     final l10n = MintNextLocalizations.of(context);
     final duplicates = widget.draft.laterDuplicateRowIds;
     String? firstProviderError;
     String? firstAmountError;
+    String? firstUnresolved;
     for (final row in widget.draft.rows) {
       if (!row.isActive) continue;
       final providerError = row.providerName.trim().isEmpty
@@ -405,6 +518,10 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
       _amountErrors[row.id] = amountError;
       firstProviderError ??= providerError == null ? null : row.id;
       firstAmountError ??= amountError == null ? null : row.id;
+      if (firstUnresolved == null &&
+          row.classification == MultiProviderAmountClassification.unresolved) {
+        firstUnresolved = row.id;
+      }
     }
     final committed = widget.draft.commit();
     setState(() => _reviewedError = !widget.draft.allProvidersReviewed);
@@ -414,6 +531,14 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
     }
     if (firstAmountError != null) {
       _amountFocus[firstAmountError]?.requestFocus();
+      return;
+    }
+    if (firstUnresolved != null) {
+      setState(() {
+        _reviewedError = false;
+        _unresolvedErrorId = firstUnresolved;
+      });
+      _doubtFocus[firstUnresolved]?.requestFocus();
       return;
     }
     MultiProviderAmountRow? firstTombstone;
@@ -538,6 +663,9 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
                       controller: _providerControllers[row.id],
                       focusNode: _providerFocus[row.id],
                       textInputAction: TextInputAction.next,
+                      enableIMEPersonalizedLearning: false,
+                      enableSuggestions: false,
+                      autocorrect: false,
                       decoration: InputDecoration(
                         labelText: l10n.batch11ProviderNameLabel,
                         errorText: providerError,
@@ -555,9 +683,11 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
                             _providerErrors[id] = null;
                           }
                           _reviewedError = false;
+                          _unresolvedErrorId = null;
                           _tombstoneErrorId = null;
                           _removalAnnouncement = null;
                         });
+                        widget.onDraftChanged?.call();
                       },
                     ),
                     const SizedBox(height: 10),
@@ -568,6 +698,9 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
+                      enableIMEPersonalizedLearning: false,
+                      enableSuggestions: false,
+                      autocorrect: false,
                       decoration: InputDecoration(
                         labelText: l10n.batch11OrdinaryAmountLabel(
                           widget.taxYear,
@@ -587,11 +720,55 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
                         setState(() {
                           _amountErrors[row.id] = null;
                           _reviewedError = false;
+                          _unresolvedErrorId = null;
                           _tombstoneErrorId = null;
                           _removalAnnouncement = null;
                         });
+                        widget.onDraftChanged?.call();
                       },
                     ),
+                    if (widget.enableBatch16) ...[
+                      const SizedBox(height: 8),
+                      Semantics(
+                        key: ValueKey(
+                          'status:${_classificationKey(row)}:${row.id}',
+                        ),
+                        label: _classificationLabel(l10n, row, index + 1),
+                        child: ExcludeSemantics(
+                          child: Text(
+                            _classificationLabel(l10n, row, index + 1),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Semantics(
+                        key: ValueKey('action:amount_doubt:${row.id}'),
+                        label:
+                            '${l10n.batch11UnknownAmount}. '
+                            '${l10n.batch16RowContext(index + 1, widget.taxYear)}. '
+                            '${l10n.batch11OrdinaryAmountLabel(widget.taxYear)}',
+                        hint: _unresolvedErrorId == row.id
+                            ? l10n.batch16MintNotVerifiedMeaning
+                            : null,
+                        button: true,
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton(
+                            focusNode: _doubtFocus[row.id],
+                            onPressed: row.hasPositiveExactAmount
+                                ? () => _markAmountDoubt(row)
+                                : null,
+                            child: Text(l10n.batch11UnknownAmount),
+                          ),
+                        ),
+                      ),
+                      if (_unresolvedErrorId == row.id)
+                        Semantics(
+                          key: ValueKey('error:amount_unresolved:${row.id}'),
+                          liveRegion: true,
+                          child: Text(l10n.batch16MintNotVerifiedMeaning),
+                        ),
+                    ],
                     if (widget.draft.activeRowCount > 1)
                       Align(
                         alignment: Alignment.centerLeft,
@@ -653,12 +830,15 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
           )
         else if (subtotal != null) ...[
           const SizedBox(height: 16),
-          Text(
-            l10n.batch14ProvisionalSubtotal(
-              _formatMinorUnits(subtotal, Localizations.localeOf(context)),
-            ),
+          Semantics(
             key: const ValueKey(
               'value:fact_contributed_amount.running_subtotal',
+            ),
+            liveRegion: true,
+            child: Text(
+              l10n.batch14ProvisionalSubtotal(
+                _formatMinorUnits(subtotal, Localizations.localeOf(context)),
+              ),
             ),
           ),
         ],
@@ -684,11 +864,13 @@ class _MultiProviderAmountEditorState extends State<MultiProviderAmountEditor> {
               _removalAnnouncement = null;
               _tombstoneErrorId = null;
             });
+            widget.onDraftChanged?.call();
           },
         ),
         const SizedBox(height: 12),
         FilledButton(
           key: const ValueKey('action:fact_contributed_amount.continue'),
+          focusNode: _continueFocus,
           onPressed: _continue,
           child: Text(l10n.batch11Continue),
         ),

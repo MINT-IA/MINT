@@ -242,6 +242,10 @@ class MultiProviderAmountDraft {
       return false;
     }
     _invalidateUnresolvedOrigin(row);
+    if (row._classification ==
+        MultiProviderAmountClassification.confirmedOrdinary) {
+      row._classification = MultiProviderAmountClassification.unreviewed;
+    }
     row._providerName = value;
     _invalidateCommit();
     return true;

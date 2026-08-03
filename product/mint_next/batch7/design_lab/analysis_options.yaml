@@ -4,4 +4,3 @@ include: package:flutter_lints/flutter.yaml
 # this one-file exclusion in the immediate GREEN commit.
 analyzer:
   exclude:
-    - test/design_lab_batch16_unresolved_navigation_test.dart

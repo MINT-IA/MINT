@@ -152,6 +152,9 @@ tools/mcp/mint-tools/.venv/
 test_anonymous_chat_eclairage.db
 apps/mobile/test/golden/failures/
 
+# Flutter golden mismatch artifacts
+product/mint_next/batch7/design_lab/test/failures/
+
 # Flutter build output (symlinked to /tmp for .nosync codesign workaround)
 apps/mobile/build
 

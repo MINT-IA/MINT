@@ -954,6 +954,198 @@ abstract class MintNextLocalizations {
   /// In fr, this message translates to:
   /// **'Annule le retrait ou efface définitivement cette ligne avant de continuer.'**
   String get batch15ResolveTombstoneError;
+
+  /// No description provided for @batch16AnnualOrdinaryTotalMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis une seule fois, pour chaque prestataire, le total annuel des cotisations ordinaires indiqué sur son attestation annuelle.'**
+  String get batch16AnnualOrdinaryTotalMeaning;
+
+  /// No description provided for @batch16ActuallyCreditedMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte uniquement ce qui a réellement été crédité pour {taxYear}, pas ce qui était prévu, envoyé ou débité.'**
+  String batch16ActuallyCreditedMeaning(int taxYear);
+
+  /// No description provided for @batch16ExcludedMovementsMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'N’inclus pas les transferts, rachats rétroactifs, mouvements en attente, remboursements ni gains de placement.'**
+  String get batch16ExcludedMovementsMeaning;
+
+  /// No description provided for @batch16ProviderConfirmedNetMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Après une correction ou un remboursement, demande au prestataire son total net confirmé des cotisations ordinaires; ne soustrais rien toi-même.'**
+  String get batch16ProviderConfirmedNetMeaning;
+
+  /// No description provided for @batch16InsuranceCertificateMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour une assurance, utilise l’attestation annuelle; n’utilise ni la valeur de rachat ni la répartition risque/épargne.'**
+  String get batch16InsuranceCertificateMeaning;
+
+  /// No description provided for @batch16RefundVsAllZeroMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le remboursement intégral d’un prestataire ne signifie pas que tous les prestataires sont à zéro.'**
+  String get batch16RefundVsAllZeroMeaning;
+
+  /// No description provided for @batch16MintNotVerifiedMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n’a pas vérifié le montant saisi.'**
+  String get batch16MintNotVerifiedMeaning;
+
+  /// No description provided for @batch16NoTaxAdviceMeaning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette étape ne produit ni résultat fiscal ni recommandation.'**
+  String get batch16NoTaxAdviceMeaning;
+
+  /// No description provided for @batch16RowContext.
+  ///
+  /// In fr, this message translates to:
+  /// **'ligne {rowNumber} · {taxYear}'**
+  String batch16RowContext(int rowNumber, int taxYear);
+
+  /// No description provided for @batch16HelpTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Besoin d’aide ?'**
+  String get batch16HelpTitle;
+
+  /// No description provided for @batch16HelpCompactTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide'**
+  String get batch16HelpCompactTitle;
+
+  /// No description provided for @batch16HelpCompactBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT : non vérifié.'**
+  String get batch16HelpCompactBody;
+
+  /// No description provided for @batch16HelpBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n’a pas vérifié ce total. Choisis seulement si tu es sûr.'**
+  String get batch16HelpBody;
+
+  /// No description provided for @batch16HelpDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre les règles pour cette ligne'**
+  String get batch16HelpDetails;
+
+  /// No description provided for @batch16HelpProviderTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total ordinaire obtenu'**
+  String get batch16HelpProviderTotal;
+
+  /// No description provided for @batch16HelpProviderTotalCompact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total 3a reçu'**
+  String get batch16HelpProviderTotalCompact;
+
+  /// No description provided for @batch16HelpProviderRefunded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remboursement intégral de ce prestataire'**
+  String get batch16HelpProviderRefunded;
+
+  /// No description provided for @batch16HelpAllZero.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous mes prestataires sont à zéro'**
+  String get batch16HelpAllZero;
+
+  /// No description provided for @batch16HelpEducation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux comprendre ce qui compte'**
+  String get batch16HelpEducation;
+
+  /// No description provided for @batch16HelpBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenir à la saisie'**
+  String get batch16HelpBack;
+
+  /// No description provided for @batch16StatusUnreviewed.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get batch16StatusUnreviewed;
+
+  /// No description provided for @batch16StatusConfirmed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmé'**
+  String get batch16StatusConfirmed;
+
+  /// No description provided for @batch16StatusUnresolved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Question non résolue'**
+  String get batch16StatusUnresolved;
+
+  /// No description provided for @batch16UnresolvedError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponds à cette question avant de continuer.'**
+  String get batch16UnresolvedError;
+
+  /// No description provided for @batch16CorrectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger cette réponse'**
+  String get batch16CorrectionTitle;
+
+  /// No description provided for @batch16CorrectionDataLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu choisis « Non » ou « Je ne sais pas », MINT effacera immédiatement tous les prestataires et montants de cette saisie locale. Cette action ne peut pas être annulée.'**
+  String get batch16CorrectionDataLoss;
+
+  /// No description provided for @batch16CurrentYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse actuelle : Oui'**
+  String get batch16CurrentYes;
+
+  /// No description provided for @batch16Unselected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune réponse sélectionnée'**
+  String get batch16Unselected;
+
+  /// No description provided for @batch16ChooseYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir Oui'**
+  String get batch16ChooseYes;
+
+  /// No description provided for @batch16ChooseNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non — effacer ces montants et continuer'**
+  String get batch16ChooseNo;
+
+  /// No description provided for @batch16ChooseUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas — effacer ces montants et vérifier'**
+  String get batch16ChooseUnknown;
+
+  /// No description provided for @batch16Back.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get batch16Back;
 }
 
 class _MintNextLocalizationsDelegate

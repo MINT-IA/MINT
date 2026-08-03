@@ -27,6 +27,7 @@ FILES = (
     Path("product/mint_next/batch7/design_lab/test/multi_provider_amount_draft_test.dart"),
     Path("product/mint_next/batch7/design_lab/test/design_lab_multi_provider_runtime_test.dart"),
     Path("product/mint_next/batch7/design_lab/test/multi_provider_unresolved_siblings_test.dart"),
+    Path("product/mint_next/batch16/runtime-navigation-acceptance.yaml"),
 )
 
 

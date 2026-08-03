@@ -322,5 +322,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "batch16AnnualOrdinaryTotalMeaning": "Erfasse für jeden Anbieter einmal den Jahrestotalbetrag der ordentlichen Beiträge aus seiner Jahresbescheinigung.",
+  "batch16ActuallyCreditedMeaning": "Zähle nur, was für {taxYear} tatsächlich gutgeschrieben wurde, nicht was geplant, überwiesen oder belastet wurde.",
+  "@batch16ActuallyCreditedMeaning": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16ExcludedMovementsMeaning": "Schliesse Überträge, rückwirkende Einkäufe, ausstehende Bewegungen, Rückerstattungen und Anlagegewinne aus.",
+  "batch16ProviderConfirmedNetMeaning": "Frage den Anbieter nach einer Korrektur oder Rückerstattung nach dem bestätigten Nettototal der ordentlichen Beiträge; ziehe selbst nichts ab.",
+  "batch16InsuranceCertificateMeaning": "Verwende bei einer Versicherung die Jahresbescheinigung; nutze weder den Rückkaufswert noch die Aufteilung in Risiko und Sparen.",
+  "batch16RefundVsAllZeroMeaning": "Eine vollständige Rückerstattung eines Anbieters bedeutet nicht, dass bei allen Anbietern null verbleibt.",
+  "batch16MintNotVerifiedMeaning": "MINT hat den eingegebenen Betrag nicht überprüft.",
+  "batch16NoTaxAdviceMeaning": "Dieser Schritt liefert weder ein Steuerergebnis noch eine Empfehlung.",
+  "batch16RowContext": "Zeile {rowNumber} · {taxYear}",
+  "@batch16RowContext": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      },
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16HelpTitle": "Brauchst du Hilfe?",
+  "batch16HelpCompactTitle": "Hilfe",
+  "batch16HelpCompactBody": "MINT: nicht geprüft.",
+  "batch16HelpBody": "MINT hat diesen Gesamtbetrag nicht geprüft. Wähle nur, wenn du sicher bist.",
+  "batch16HelpDetails": "Regeln für diese Zeile verstehen",
+  "batch16HelpProviderTotal": "Ordentlichen Gesamtbetrag erhalten",
+  "batch16HelpProviderTotalCompact": "3a-Betrag erhalten",
+  "batch16HelpProviderRefunded": "Vollständige Rückerstattung dieses Anbieters",
+  "batch16HelpAllZero": "Bei allen meinen Anbietern ist der Betrag null",
+  "batch16HelpEducation": "Ich möchte verstehen, was zählt",
+  "batch16HelpBack": "Zurück zur Eingabe",
+  "batch16StatusUnreviewed": "Zu prüfen",
+  "batch16StatusConfirmed": "Bestätigt",
+  "batch16StatusUnresolved": "Ungeklärte Frage",
+  "batch16UnresolvedError": "Beantworte diese Frage, bevor du fortfährst.",
+  "batch16CorrectionTitle": "Diese Antwort korrigieren",
+  "batch16CorrectionDataLoss": "Wenn du „Nein“ oder „Ich weiß es nicht“ wählst, löscht MINT sofort alle Anbieter und Beträge dieser lokalen Eingabe. Dies kann nicht rückgängig gemacht werden.",
+  "batch16CurrentYes": "Aktuelle Antwort: Ja",
+  "batch16Unselected": "Keine Antwort ausgewählt",
+  "batch16ChooseYes": "Ja auswählen",
+  "batch16ChooseNo": "Nein — diese Beträge löschen und fortfahren",
+  "batch16ChooseUnknown": "Ich weiß es nicht — Beträge löschen und prüfen",
+  "batch16Back": "Zurück"
 }

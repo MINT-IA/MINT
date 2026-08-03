@@ -1,0 +1,623 @@
+schema_version: 1
+batch: 16C-green
+status: accepted_hidden_runtime
+contract_ref: product/mint_next/batch16/classification-doubt-scope.yaml
+navigation_ref: product/mint_next/batch16/navigation.mmd
+model_green_commit: f3c4932fd
+runtime_surface: batch16_harness
+product_promotion: forbidden
+test_file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+six_locale_semantic_fixture: product/mint_next/batch16/six-locale-semantic-fixture.yaml
+official_sources: product/mint_next/batch16/official-sources.yaml
+atomic_scenarios:
+- all_confirmed_full_reversible_matrix
+- all_confirmed_reversible_edits_and_safe_exit
+- all_confirmed_safe_exit_system_back_leave_and_canton_back
+- all_zero_explicit_entry_back_and_system_back
+- all_zero_yes_preserves_origin_no_unknown_purge
+- compact_keyboard_layout_targets_and_order
+- compact_header_warning_and_typography_remain_accessible
+- correction_safe_exit_exact_restore_and_leave
+- education_back_safe_exit_and_terminal_purge
+- eligible_refund_exact_tombstone_and_replay
+- exact_row_doubt_help_back_and_system_back
+- help_safe_exit_resume_back_leave_and_stale_callbacks
+- ineligible_refund_hidden_without_consumption
+- local_ephemeral_inputs_disable_platform_learning
+- mixed_editor_safe_exit_resume_system_back_and_leave
+- provider_total_exact_return_and_sibling_consumption
+- rules_disclosure_same_origin_no_mutation_and_focus
+- semantic_names_states_modal_trap_and_reduced_motion
+- six_locale_private_semantic_intents_
+- stale_callbacks_never_retarget_after_every_invalidation
+- system_back_has_an_explicit_edge_on_every_base_node
+- terminal_choices_and_leaves_purge_data_and_callbacks
+- three_rows_exact_origin_never_falls_back_to_first
+- unresolved_blocks_review_commit_continue_and_canton
+- wrong_row_and_repeated_actions_never_retarget
+- year_ttl_and_app_lifecycle_purge_callbacks
+acceptance_boundary:
+  hidden_batch16_runtime: accepted
+  production_product_route: forbidden
+  promotion_requires: separate_runtime_product_gate_and_user_validation
+roast_receipts:
+- reviewer: batch16_green_ux_roast
+  scope: ux_navigation_accessibility
+  verdict: ACCEPT
+  reviewed_on: '2026-08-03'
+  reviewed_payload_sha256: 411655e87da719d65b328f4e8ae31078d43abfd093dacd7a5b3f24e3eefebf36
+  severity_counts:
+    P1: 0
+    P2: 0
+    P3: 0
+- reviewer: batch16_green_swiss_privacy_roast
+  scope: swiss_privacy_provenance
+  verdict: ACCEPT
+  reviewed_on: '2026-08-03'
+  reviewed_payload_sha256: 411655e87da719d65b328f4e8ae31078d43abfd093dacd7a5b3f24e3eefebf36
+  severity_counts:
+    P1: 0
+    P2: 0
+    P3: 0
+- reviewer: batch16c_final_ux_roast
+  scope: adversarial_final_mechanical
+  verdict: ACCEPT
+  reviewed_on: '2026-08-03'
+  reviewed_payload_sha256: 411655e87da719d65b328f4e8ae31078d43abfd093dacd7a5b3f24e3eefebf36
+  severity_counts:
+    P1: 0
+    P2: 0
+    P3: 0
+mechanical_binding:
+  guard: tools/checks/mint_next_batch16_runtime_guard.py
+  guard_tests: tools/checks/tests/test_mint_next_batch16_runtime_guard.py
+  lefthook_key: mint-next-batch16-runtime-guard
+  ci_workflow: .github/workflows/mint-next-batch16-runtime-acceptance.yml
+  normalized_ci_workflow_sha256: 10a5da6066088ebb14c81c16e1284dc2e56608da07fe2d709e256f31cf5f38a0
+  flutter_test_in_analyzer_and_ci: true
+proof_map:
+  doubt_to_help_exact_origin:
+    type: widget_runtime
+    planned_test_name: exact_row_help_round_trip_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: exact_row_doubt_help_back_and_system_back
+    assertion_anchors:
+    - openUnresolvedHelp(tester, origin)
+    - handlePopRoute
+    - status:amount_unresolved:$origin
+    - amount doubt $origin
+  unresolved_commit_block_removed:
+    type: widget_runtime
+    planned_test_name: unresolved_blocks_review_commit_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: unresolved_blocks_review_commit_continue_and_canton
+    assertion_anchors: &id001
+    - 3\u202f000
+    - error:amount_unresolved:$origin
+    - node:fact_canton
+    - amount doubt $origin
+  amount_edit_does_not_reset_origin_row:
+    type: widget_runtime
+    planned_test_name: amount_edit_resets_only_origin_row_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: stale_callbacks_never_retarget_after_every_invalidation
+    assertion_anchors: &id002
+    - staleProviderTotal();
+    - action:remove_provider:$origin
+    - action:undo_removal:$origin
+    - retiredByNewDoubt();
+    - retiredByFinalize();
+  global_review_not_sole_confirmation_transition:
+    type: widget_runtime
+    planned_test_name: global_review_only_confirms_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_confirmed_full_reversible_matrix
+    assertion_anchors:
+    - field:provider_name:${rows.last}
+    - action:fact_contributed_amount.add_provider
+    - toggle_all_reviewed
+    - action:remove_provider:${rows.last}
+    - openUnresolvedHelp(tester, rows.last)
+    - action:fact_contributed_amount.correct_previous
+  unresolved_removed_from_provisional_subtotal:
+    type: widget_runtime
+    planned_test_name: unresolved_subtotal_label_and_value_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: unresolved_blocks_review_commit_continue_and_canton
+    assertion_anchors: *id001
+  remove_undo_drops_classification:
+    type: widget_runtime
+    planned_test_name: remove_undo_preserves_classification_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: stale_callbacks_never_retarget_after_every_invalidation
+    assertion_anchors: *id002
+  finalize_keeps_classification:
+    type: widget_runtime
+    planned_test_name: finalize_erases_classification_and_tokens_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: stale_callbacks_never_retarget_after_every_invalidation
+    assertion_anchors:
+    - staleUndo();
+    - retiredByFinalize();
+    - action:finalize_removal:$origin
+    - provider name ${rows.first}
+    - field:amount:$origin
+  tombstone_finalize_exit_missing:
+    type: widget_runtime
+    planned_test_name: finalize_navigation_focus_and_stale_undo_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: stale_callbacks_never_retarget_after_every_invalidation
+    assertion_anchors:
+    - staleUndo();
+    - retiredByFinalize();
+    - action:finalize_removal:$origin
+    - provider name ${rows.first}
+    - field:amount:$origin
+  all_confirmed_edit_exit_missing:
+    type: widget_runtime
+    planned_test_name: all_confirmed_reversible_exit_matrix_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_confirmed_full_reversible_matrix
+    assertion_anchors:
+    - field:provider_name:${rows.last}
+    - action:fact_contributed_amount.add_provider
+    - toggle_all_reviewed
+    - action:remove_provider:${rows.last}
+    - openUnresolvedHelp(tester, rows.last)
+    - action:fact_contributed_amount.correct_previous
+  all_confirmed_safe_exit_loses_state:
+    type: widget_runtime
+    planned_test_name: all_confirmed_safe_exit_exact_restore_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_confirmed_reversible_edits_and_safe_exit
+    assertion_anchors:
+    - status:amount_confirmed_ordinary:$row
+    - overlay-action:safe_exit.resume
+    - all confirmed editor safe exit
+    - status:amount_unreviewed:${rows.last}
+  choose_yes_changes_unresolved:
+    type: widget_runtime
+    planned_test_name: all_zero_choose_yes_preserves_unresolved_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_zero_yes_preserves_origin_no_unknown_purge
+    assertion_anchors:
+    - action:contribution_correction.choose_yes
+    - status:amount_unresolved:$origin
+    - action:contribution_correction.choose_unknown
+    - action:contribution_correction.choose_no
+  correction_back_removed:
+    type: widget_runtime
+    planned_test_name: all_zero_correction_back_origin_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_zero_explicit_entry_back_and_system_back
+    assertion_anchors:
+    - status:contribution_current_yes
+    - status:contribution_correction_unselected
+    - action:contribution_correction.back
+    - status:amount_unresolved:$origin
+    - isFalse
+  education_entry_back_removed:
+    type: widget_runtime
+    planned_test_name: education_entry_back_exact_origin_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: education_back_safe_exit_and_terminal_purge
+    assertion_anchors: &id003
+    - action:education_explanation.back
+    - overlay-action:safe_exit.resume
+    - overlay-action:safe_exit.leave_without_saving
+    - node:dismissed
+  education_safe_exit_loses_origin:
+    type: widget_runtime
+    planned_test_name: education_safe_exit_exact_restore_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: education_back_safe_exit_and_terminal_purge
+    assertion_anchors: *id003
+  sibling_not_consumed:
+    type: widget_runtime
+    planned_test_name: first_successful_help_action_consumes_siblings_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: provider_total_exact_return_and_sibling_consumption
+    assertion_anchors:
+    - staleRefund();
+    - staleAllZero();
+    - status:amount_unreviewed:$origin
+    - isFalse
+  edit_then_new_doubt_reuses_nonce:
+    type: widget_runtime
+    planned_test_name: fresh_nonce_after_edit_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: stale_callbacks_never_retarget_after_every_invalidation
+    assertion_anchors: *id002
+  wrong_row_or_repeated_retargets:
+    type: widget_runtime
+    planned_test_name: wrong_row_repeated_no_retarget_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: wrong_row_and_repeated_actions_never_retarget
+    assertion_anchors:
+    - secondProviderTotal();
+    - status:amount_unresolved:$first
+    - status:amount_unresolved:$second
+    - field:amount:$first
+  refund_order_rearranged:
+    type: widget_runtime
+    planned_test_name: refund_atomic_R_g_transition_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: eligible_refund_exact_tombstone_and_replay
+    assertion_anchors:
+    - group:provider_tombstone:$origin
+    - staleRefund();
+    - equals([rows.first])
+    - equals(rows)
+    - status:amount_unreviewed:${rows.first}
+    - action:undo_removal:$origin
+  refund_changes_other_row:
+    type: widget_runtime
+    planned_test_name: refund_preserves_other_rows_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: eligible_refund_exact_tombstone_and_replay
+    assertion_anchors:
+    - group:provider_tombstone:$origin
+    - staleRefund();
+    - equals([rows.first])
+    - equals(rows)
+    - status:amount_unreviewed:${rows.first}
+    - action:undo_removal:$origin
+  refund_focus_not_undo:
+    type: widget_runtime
+    planned_test_name: refund_focuses_origin_tombstone_undo_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: eligible_refund_exact_tombstone_and_replay
+    assertion_anchors:
+    - group:provider_tombstone:$origin
+    - staleRefund();
+    - equals([rows.first])
+    - equals(rows)
+    - status:amount_unreviewed:${rows.first}
+    - action:undo_removal:$origin
+  external_remove_keeps_origin:
+    type: widget_runtime
+    planned_test_name: external_remove_invalidates_origin_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: stale_callbacks_never_retarget_after_every_invalidation
+    assertion_anchors: *id002
+  safe_exit_help_loses_origin:
+    type: widget_runtime
+    planned_test_name: help_safe_exit_exact_restore_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: help_safe_exit_resume_back_leave_and_stale_callbacks
+    assertion_anchors:
+    - staleProviderTotal
+    - handlePopRoute
+    - overlay-action:safe_exit.resume
+    - node:dismissed
+  all_zero_not_explicit:
+    type: widget_runtime
+    planned_test_name: all_zero_requires_explicit_activation_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_zero_explicit_entry_back_and_system_back
+    assertion_anchors:
+    - status:contribution_current_yes
+    - status:contribution_correction_unselected
+    - action:contribution_correction.back
+    - status:amount_unresolved:$origin
+    - isFalse
+  post_purge_callback_mutates:
+    type: widget_runtime
+    planned_test_name: terminal_purge_callbacks_no_op_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: terminal_choices_and_leaves_purge_data_and_callbacks
+    assertion_anchors:
+    - terminalCallback();
+    - expectSingleEmptyDraft(tester)
+    - action:contribution_correction.choose_no
+    - action:contribution_correction.choose_unknown
+    - overlay-action:safe_exit.leave_without_saving
+  continue_focus_precedence_changed:
+    type: widget_runtime
+    planned_test_name: unresolved_canonical_error_precedence_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: unresolved_blocks_review_commit_continue_and_canton
+    assertion_anchors: *id001
+  compact_help_action_not_hittable:
+    type: widget_runtime
+    planned_test_name: compact_text2_keyboard_rect_hit_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: compact_keyboard_layout_targets_and_order
+    assertion_anchors:
+    - Size(320, 700)
+    - 'FakeViewPadding(bottom: 280)'
+    - greaterThanOrEqualTo(48)
+    - properties.sortKey
+    - LogicalKeyboardKey.tab
+    - orderedFocusLabels
+  semantics_row_or_help_duplicate:
+    type: widget_runtime
+    planned_test_name: semantics_tree_focus_and_labels_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: six_locale_private_semantic_intents_
+    assertion_anchors:
+    - batch16SemanticFixture[language]
+    - batch16AnnualOrdinaryTotalMeaning
+    - batch16ProviderConfirmedNetMeaning
+    - batch16NoTaxAdviceMeaning
+    - helpTree
+    - safeExitLabel
+    - Prestataire A
+    - Prestataire B
+  parent_purge_narrowed:
+    type: future_hostile_guard
+    planned_test_name: purge_superset_guard_test_must_fail
+    guard_file: tools/checks/tests/test_mint_next_batch16_classification_runtime_guard.py
+  parent_error_order_reordered:
+    type: future_hostile_guard
+    planned_test_name: error_order_inheritance_guard_test_must_fail
+    guard_file: tools/checks/tests/test_mint_next_batch16_classification_runtime_guard.py
+  one_locale_intent_omitted:
+    type: widget_runtime
+    planned_test_name: six_locale_semantic_review_guard_test_must_fail
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: six_locale_private_semantic_intents_
+    assertion_anchors:
+    - batch16SemanticFixture[language]
+    - batch16AnnualOrdinaryTotalMeaning
+    - batch16ProviderConfirmedNetMeaning
+    - batch16NoTaxAdviceMeaning
+    - helpTree
+    - safeExitLabel
+    - Prestataire A
+    - Prestataire B
+  runtime_test_skipped_or_commented:
+    type: future_hostile_guard
+    planned_test_name: executable_test_inventory_guard_test_must_fail
+    guard_file: tools/checks/tests/test_mint_next_batch16_classification_runtime_guard.py
+  lefthook_binding_removed:
+    type: future_hostile_guard
+    planned_test_name: workflow_binding_guard_test_must_fail
+    guard_file: tools/checks/tests/test_mint_next_batch16_classification_runtime_guard.py
+  ci_binding_removed:
+    type: future_hostile_guard
+    planned_test_name: workflow_binding_guard_test_must_fail
+    guard_file: tools/checks/tests/test_mint_next_batch16_classification_runtime_guard.py
+  hidden_harness_limit_changed:
+    type: future_hostile_guard
+    planned_test_name: hidden_surface_guard_test_must_fail
+    guard_file: tools/checks/tests/test_mint_next_batch16_classification_runtime_guard.py
+  canonical_correction_safe_exit_complete:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.complete_navigation.correction_safe_exit_cancel_resume_system_back_and_leave_have_exact_focus_and_purge
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: correction_safe_exit_exact_restore_and_leave
+    assertion_anchors:
+    - handlePopRoute
+    - overlay-action:safe_exit.resume
+    - overlay-action:safe_exit.leave_without_saving
+    - staleProviderTotal();
+    - correction safe exit trigger
+  canonical_tax_year_purge_callbacks:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.identity_and_hostility.year_leave_status_and_ttl_purge_neutralize_all_callbacks.tax_year
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: year_ttl_and_app_lifecycle_purge_callbacks
+    assertion_anchors:
+    - 'currentYear: 2027'
+    - staleProviderTotal();
+    - node:fact_tax_year
+  canonical_ttl_app_lifecycle_purge_callbacks:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.identity_and_hostility.year_leave_status_and_ttl_purge_neutralize_all_callbacks.ttl_app_kill
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: year_ttl_and_app_lifecycle_purge_callbacks
+    assertion_anchors:
+    - 'Duration(minutes: 29)'
+    - action:unresolved_help.details
+    - 'Duration(minutes: 2)'
+    - 'Duration(minutes: 31)'
+    - AppLifecycleState.detached
+    - staleProviderTotal();
+    - node:fact_tax_year
+  canonical_all_confirmed_full_matrix:
+    type: widget_runtime
+    canonical_requirement: navigation.Editor_AllConfirmed.all_reversible_exits
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_confirmed_full_reversible_matrix
+    assertion_anchors:
+    - field:provider_name:${rows.last}
+    - action:fact_contributed_amount.add_provider
+    - toggle_all_reviewed
+    - action:remove_provider:${rows.last}
+    - openUnresolvedHelp(tester, rows.last)
+    - action:fact_contributed_amount.correct_previous
+  canonical_three_rows_exact_origin:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.identity_and_hostility.three_rows_exact_origin_round_trip_never_first_row_fallback
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: three_rows_exact_origin_never_falls_back_to_first
+    assertion_anchors:
+    - enterThreeProviders(tester)
+    - final origin = rows[1]
+    - status:amount_unreviewed:$origin
+    - amount $origin
+    - equals(['1000', '2000', '3000'])
+  canonical_all_confirmed_canton_and_exit:
+    type: widget_runtime
+    canonical_requirement: navigation.Editor_AllConfirmed.complete_canton_and_safe_exit_edges
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: all_confirmed_safe_exit_system_back_leave_and_canton_back
+    assertion_anchors:
+    - handlePopRoute
+    - node:fact_canton
+    - equals(rows)
+    - all confirmed editor continue
+    - overlay-action:safe_exit.leave_without_saving
+    - node:dismissed
+    - restartBatch16AmountBuilder(tester)
+    - expectSingleEmptyDraft(tester)
+  canonical_mixed_editor_safe_exit:
+    type: widget_runtime
+    canonical_requirement: navigation.Editor_RowsMixed.complete_safe_exit_edges
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: mixed_editor_safe_exit_resume_system_back_and_leave
+    assertion_anchors:
+    - handlePopRoute
+    - mixed editor safe exit
+    - overlay-action:safe_exit.resume
+    - overlay-action:safe_exit.leave_without_saving
+    - node:dismissed
+    - restartBatch16AmountBuilder(tester)
+    - staleProviderTotal();
+    - expectSingleEmptyDraft(tester)
+  canonical_accessibility_complete:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.layout_and_semantics.screen_reader_named_row_doubt_error_help_heading_subtotal_and_focus_return
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: semantic_names_states_modal_trap_and_reduced_motion
+    assertion_anchors:
+    - 'FakeAccessibilityFeatures(disableAnimations: true)'
+    - state must not rely on color
+    - contains('ligne 2')
+    - expect(label, startsWith(visibleText)
+    - labels.toSet()
+    - modal.properties.scopesRoute
+    - modal.properties.namesRoute
+    - LogicalKeyboardKey.tab
+    - transientCallbackCount
+    - safe exit heading
+  canonical_privacy_no_outputs:
+    type: static_guard
+    canonical_requirement: privacy_and_lifecycle.persistence_network_analytics_crash_breadcrumbs.forbidden
+    guard_file: tools/checks/mint_next_batch16_runtime_guard.py
+    assertion_anchors:
+    - forbidden_output_tokens
+    - Design Lab dependency boundary gained an unreviewed output capability
+    - for dart_file in design_lab_lib.rglob
+  canonical_platform_learning_disabled:
+    type: widget_runtime
+    canonical_requirement: privacy_and_lifecycle.local_inputs.disable_platform_learning_and_suggestions
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: local_ephemeral_inputs_disable_platform_learning
+    assertion_anchors:
+    - enableIMEPersonalizedLearning
+    - enableSuggestions
+    - autocorrect
+  canonical_swiss_intents_rendered:
+    type: widget_runtime
+    canonical_requirement: six_locale_semantic_contract.every_locale_must_render_every_reviewed_intent
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: six_locale_private_semantic_intents_
+    assertion_anchors:
+    - expect(find.text(intent), findsOneWidget)
+    - tester.getSemantics(find.text(intent)).label
+    - batch16SemanticFixture[language]
+    - helpTree
+  canonical_refund_subtotal_live:
+    type: widget_runtime
+    canonical_requirement: accessibility.refund_subtotal_polite_live_announcement
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: eligible_refund_exact_tombstone_and_replay
+    assertion_anchors:
+    - value:fact_contributed_amount.running_subtotal
+    - flagsCollection.isLiveRegion
+    - subtotalSemantics.label
+  canonical_system_back_complete:
+    type: widget_runtime
+    canonical_requirement: navigation.system_back.every_rendered_node_has_explicit_edge
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: system_back_has_an_explicit_edge_on_every_base_node
+    assertion_anchors:
+    - tester.binding.handlePopRoute()
+    - node:today_3a_intent
+    - node:fact_lpp_affiliation
+    - node:fact_contribution
+    - node:fact_contributed_amount
+    - node:contributed_amount_unknown_help
+    - node:dismissed
+  canonical_rules_disclosure_mapped:
+    type: widget_runtime
+    canonical_requirement: navigation.unresolved_help_rules_disclosure.same_origin_no_mutation
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: rules_disclosure_same_origin_no_mutation_and_focus
+    assertion_anchors:
+    - action:unresolved_help.details
+    - unresolved details action
+    - content:unresolved_help.details
+    - expect(batch16RowIds(tester), rows)
+    - status:amount_unresolved:$origin
+  canonical_compact_first_choice_discoverable:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.layout_and_semantics.first_choice_visible_at_320_text2_keyboard_without_scroll
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: compact_keyboard_layout_targets_and_order
+    assertion_anchors:
+    - firstChoiceRect.bottom
+    - visibleHeight
+    - discoverable at 320px/text×2/keyboard
+  canonical_destructive_correction_warning:
+    type: widget_runtime
+    canonical_requirement: navigation.contribution_status_correction.no_or_unknown_announces_irreversible_local_purge
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: compact_header_warning_and_typography_remain_accessible
+    assertion_anchors:
+    - warning:contribution_correction.data_loss
+    - warningSeenAtCompactOffset
+    - destructiveSeenAtCompactOffset
+    - hitTestOnBinding
+  canonical_compact_header_no_overflow:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.layout_and_semantics.320_width_six_locales_have_no_header_overflow_and_contextual_safe_exit
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: compact_header_warning_and_typography_remain_accessible
+    assertion_anchors:
+    - tester.takeException()
+    - exitLabel
+    - contains('2026')
+  canonical_text_scaling_preserved:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.layout_and_semantics.text_scale_2_preserves_base_typography_and_at_least_doubles_effective_help_and_correction_heading_sizes
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: compact_header_warning_and_typography_remain_accessible
+    assertion_anchors:
+    - normalEffectiveSize
+    - scaledEffectiveSize
+    - greaterThanOrEqualTo(normalEffectiveSize * 2)
+    - scaledCorrectionEffectiveSize
+    - greaterThanOrEqualTo(normalCorrectionEffectiveSize * 2)
+  canonical_correction_question_first:
+    type: widget_runtime
+    canonical_requirement: required_runtime_proofs.layout_and_semantics.correction_question_intersects_the_initial_320_viewport_before_warning_and_actions_at_text_scale_1_and_2
+    file: product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart
+    test_name: compact_header_warning_and_typography_remain_accessible
+    assertion_anchors:
+    - heading:contribution_status_correction
+    - headingRect.bottom
+    - scaledHeadingRect.overlaps(scaledViewportRect)
+    - contains('2026')
+green_proof_commands:
+- cd product/mint_next/batch7/design_lab && flutter analyze
+- cd product/mint_next/batch7/design_lab && flutter test test/design_lab_batch16_unresolved_navigation_test.dart
+- cd product/mint_next/batch7/design_lab && flutter test
+green_proof_counts:
+  batch16_expanded_runtime_tests: 31
+  full_design_lab_tests: 187
+runtime_files_sha256:
+  product/mint_next/batch7/design_lab/lib/design_lab_app.dart: 95a795d2b68360365792da2966864be476ca00f6064a53637454cd686a2d812f
+  product/mint_next/batch7/design_lab/lib/main.dart: 5c8b1681e8997acde204ff7049204fb55aa9829d98c81dd065202992c85efd24
+  product/mint_next/batch7/design_lab/lib/multi_provider_amount_editor.dart: 3f2bf5c29e678bc4a0dd8a0d7fba6365a4d0fd751ea9f93f548804a01019f145
+  product/mint_next/batch7/design_lab/lib/multi_provider_amount_draft.dart: 6ec168f74f21d56703eb37498c3a5ac86a13d1911b01e1296832144d2849e6c7
+  product/mint_next/batch7/design_lab/lib/multi_provider_casefold_data.dart: 9acee5029f8b19b02c2fc87cc133a199efaf5aa8c9c5226f7ceaca870d5f2115
+  product/mint_next/batch7/design_lab/lib/multi_provider_default_ignorable_data.dart: 0f8bb0b187d94f0c5cfb56e1735f220541c5ed7a9238917a66c92aec799bec66
+  product/mint_next/batch7/design_lab/lib/multi_provider_label.dart: f39f18d582dcec006422631710f1168d3fd582da1dc688bf330ca0f8c56757ac
+  product/mint_next/batch7/design_lab/lib/ordinary_chf_amount.dart: 43c9850e89d0696f98d11c1b6cdd295ab48aeb480149b8d5e60116fccf4b55be
+  product/mint_next/batch7/design_lab/lib/provider_label.dart: 06f3714e147660539e6eed40898f9f691a77b7fdaa50f7ca6ad7a44d36c3188a
+  product/mint_next/batch7/design_lab/lib/l10n/app_fr.arb: f37b21af04584bcac05cc932f30b4311628059b263ab76807b496fd9cfbf05a4
+  product/mint_next/batch7/design_lab/lib/l10n/app_en.arb: 59b383b51a9808e7e5514b77d7db55e232f12793f6f91e6f1ce1ae676e07de61
+  product/mint_next/batch7/design_lab/lib/l10n/app_de.arb: 7f283d427787d7bd23138433128c7adc2653906b780e48df8fba668a8564d8ad
+  product/mint_next/batch7/design_lab/lib/l10n/app_it.arb: 01e53567f90955a8828d73355cb92e937dfdd8da50f7af2153ffc639356e36a7
+  product/mint_next/batch7/design_lab/lib/l10n/app_es.arb: 1f8130fee1785858cd878acc768bc8b7a6e92760babbdf63e5ed6b14e41b8dd0
+  product/mint_next/batch7/design_lab/lib/l10n/app_pt.arb: b44a6f641f21c7300b7dfee4eeb91157ba67fd28487b65e5e885167963a0f462
+  product/mint_next/batch7/design_lab/lib/l10n/generated/mint_next_localizations.dart: 4fb82bcbeb91bfc814d8e773615cf972933b8810749271928ece466034056a13
+  product/mint_next/batch7/design_lab/lib/l10n/generated/mint_next_localizations_fr.dart: d8453505d2b796f9b0e4d53b690b465e7b3b9cd3671dc2f6483937900440f639
+  product/mint_next/batch7/design_lab/lib/l10n/generated/mint_next_localizations_en.dart: 79c5382c4f1832e19ad78bd99223ac60f32c7f53475b381392e6b13303b48998
+  product/mint_next/batch7/design_lab/lib/l10n/generated/mint_next_localizations_de.dart: 950543ea668b2370bd260d362508978a7443b6f5ca527adea8e3f708d01dc45e
+  product/mint_next/batch7/design_lab/lib/l10n/generated/mint_next_localizations_it.dart: 28f997c26dc66796b999aabe23aa8dc67aea440c85c5f45db2854e184e641e95
+  product/mint_next/batch7/design_lab/lib/l10n/generated/mint_next_localizations_es.dart: e55a7388fa3528c1f4b45fb431ff91c6b8a737b051781cfa3e57b7f3842e4f99
+  product/mint_next/batch7/design_lab/lib/l10n/generated/mint_next_localizations_pt.dart: 0873ec7c8617e7b84667b0d3ae47e0bca8df86eab296849a84e839279e797370

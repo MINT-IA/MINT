@@ -101,6 +101,9 @@ navigation:
 
   unresolved_help_to_provider_total_obtained:
     visible_label_intent: i_obtained_the_provider_reported_ordinary_total_and_understand_mint_has_not_verified_it
+    compact_visible_label: short_ordinary_total_obtained
+    preceding_body_requirement: mint_has_not_verified_this_total_choose_only_if_sure
+    accessible_name_requirement: short_visible_label_plus_not_verified_warning_plus_row_and_tax_year
     guard: exact_origin_is_same_active_unresolved_generation
     instruction_if_provider_gave_different_total: edit_the_amount_field_after_return
     mutation: atomically_consume_origin_and_siblings_then_unresolved_to_unreviewed_keep_amount_unchanged_keep_canonical_null
@@ -110,6 +113,7 @@ navigation:
 
   unresolved_help_to_one_provider_refunded:
     visible_label_intent: remove_only_this_fully_refunded_provider
+    compact_visible_label: full_refund_from_this_provider
     guard: exact_origin_is_same_active_unresolved_generation_and_origin_is_contentful_and_origin_has_positive_parse_valid_amount_and_another_active_provider_has_positive_parse_valid_amount
     operation: atomically_consume_origin_and_siblings_then_reuse_exact_captured_batch15_contentful_remove_token_R_g
     preserves: [all_other_rows, their_exact_order, their_raw_values, their_classification]
@@ -145,6 +149,13 @@ navigation:
     safe_exit_leave: terminally_purge_before_dismiss
     full_batch13_teach_back_correction_next_action_reference_subgraph: not_implemented_outside_batch16_and_not_claimed_as_runtime
 
+  unresolved_help_rules_disclosure:
+    visible_label_intent: understand_rules_for_this_exact_row_and_selected_tax_year
+    mutation: none
+    destination: same_unresolved_help_same_origin
+    focus: disclosure_trigger
+    accessible_name: visible_label_plus_selected_provider_row_context_without_private_provider_name
+
   unresolved_help_back_or_system_back:
     destination: editor
     mutation: none
@@ -179,6 +190,8 @@ runtime_manifest_at_head_1c7c18ccd:
     - correct_previous
     - global_open_safe_exit
   rendered_existing_correction_boundary_controls:
+    - full_correction_question_with_selected_tax_year_first_in_scroll_order
+    - destructive_purge_warning_for_no_and_unknown
     - choose_yes
     - choose_no
     - choose_unknown
@@ -194,6 +207,7 @@ runtime_manifest_at_head_1c7c18ccd:
     - unresolved_help_one_provider_refunded_when_guard_true
     - unresolved_help_all_providers_zero
     - unresolved_help_education
+    - unresolved_help_rules_disclosure
     - unresolved_help_back
   not_implemented_outside_batch16_and_not_claimed_as_inherited:
     - where_to_find
@@ -201,7 +215,6 @@ runtime_manifest_at_head_1c7c18ccd:
     - missing_amount_partial_known
     - return_to_missing_request
     - retract_missing_provider
-    - editor_system_back_contract
     - full_education_teach_back_correction_next_action_reference_subgraph
   proof_rule: every_control_claimed_as_rendered_has_a_runtime_finder_activation_destination_mutation_and_focus_assertion
 
@@ -217,11 +230,11 @@ error_and_focus_order:
 
 accessibility:
   all_displayed_actions_minimum_target: 48x48
-  accessible_name_equals_visible_label_for_text_actions: true
+  accessible_name_equals_visible_label_for_text_actions: except_help_actions_extend_visible_label_with_row_year_and_provider_total_verification_status
   doubt_accessible_name: visible_label_plus_visual_row_index_and_selected_tax_year
   help_actions_accessible_names: unique_and_include_selected_provider_row_context_without_exposing_private_provider_name
   help_heading: unique_semantic_heading_temporarily_focused_and_skip_traversal
-  help_action_order: [provider_total_obtained, one_provider_refunded_when_guard_true, all_providers_zero, education, back, safe_exit]
+  help_action_order: [provider_total_obtained, one_provider_refunded_when_guard_true, all_providers_zero, education, rules_disclosure, back, safe_exit]
   keyboard_visual_order: identical
   no_color_only_state: true
   reduced_motion: true
@@ -229,6 +242,12 @@ accessibility:
 privacy_and_lifecycle:
   local_ephemeral_only: true
   persistence_network_analytics_crash_breadcrumbs: forbidden
+  local_inputs:
+    disable_platform_learning_and_suggestions: true
+  ttl_semantics:
+    duration: 30_minutes
+    mode: sliding_since_last_pointer_or_keyboard_activity
+    activity_resets_deadline_without_persisting_or_logging: true
   purge_events: [status_no_or_unknown, tax_year_change, safe_exit_leave, education_completion_or_reference_save, app_kill_or_ttl_expiry]
   education_completion_or_reference_save_in_batch16_runtime: not_rendered_future_canonical_event_only
   purged_fields:
@@ -261,8 +280,16 @@ required_runtime_proofs:
     - all_zero_correction_back_and_system_back_restore_same_help_origin_and_action_focus
     - all_zero_choose_yes_preserves_unresolved_and_returns_exact_doubt_trigger
     - correction_safe_exit_cancel_resume_system_back_and_leave_have_exact_focus_and_purge
+    - rules_disclosure_is_same_origin_no_mutation_and_is_written_in_graph
+    - no_or_unknown_announces_irreversible_local_purge_before_action
+    - every_rendered_node_has_an_explicit_system_back_edge
   layout_and_semantics:
     - 320x700_text_scale_2_three_rows_keyboard_inset_280_each_help_action_back_and_safe_exit_has_48px_rect_is_scrollable_visible_and_hittable
+    - first_choice_visible_and_hittable_at_320_text_scale_2_keyboard_inset_280_without_scroll
+    - 320_width_six_locales_have_no_header_overflow_and_contextual_safe_exit
+    - text_scale_2_preserves_base_typography_and_at_least_doubles_effective_help_and_correction_heading_sizes
+    - destructive_warning_is_encountered_before_destructive_actions_at_320_text_scale_1_and_2
+    - correction_question_intersects_the_initial_320_viewport_before_warning_and_actions_at_text_scale_1_and_2
     - screen_reader_named_row_doubt_error_help_heading_subtotal_and_focus_return
     - six_locale_semantic_intent_review_without_placeholders
 

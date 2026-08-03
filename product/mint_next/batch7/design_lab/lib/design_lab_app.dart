@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,8 @@ enum _DesignNode {
   contributionUnknownHelp,
   factContributedAmount,
   contributedAmountUnknownHelp,
+  unresolvedAmountHelp,
+  contributionStatusCorrection,
   factCanton,
   educationExplanation,
   dismissed,
@@ -34,7 +38,9 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.locale,
     this.textScaler,
     this.currentYear,
-  }) : _enableBatch14MultiProvider = false;
+  }) : _enableBatch14MultiProvider = false,
+       _enableBatch16Unresolved = false,
+       now = null;
 
   @visibleForTesting
   const MintNextDesignLabApp.batch14Harness({
@@ -42,12 +48,26 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.locale,
     this.textScaler,
     this.currentYear,
-  }) : _enableBatch14MultiProvider = true;
+  }) : _enableBatch14MultiProvider = true,
+       _enableBatch16Unresolved = false,
+       now = null;
+
+  @visibleForTesting
+  const MintNextDesignLabApp.batch16Harness({
+    super.key,
+    this.locale,
+    this.textScaler,
+    this.currentYear,
+    this.now,
+  }) : _enableBatch14MultiProvider = true,
+       _enableBatch16Unresolved = true;
 
   final Locale? locale;
   final TextScaler? textScaler;
   final int? currentYear;
   final bool _enableBatch14MultiProvider;
+  final bool _enableBatch16Unresolved;
+  final DateTime Function()? now;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +84,8 @@ class MintNextDesignLabApp extends StatelessWidget {
       home: _DesignLabJourney(
         currentYear: currentYear ?? DateTime.now().year,
         enableBatch14MultiProvider: _enableBatch14MultiProvider,
+        enableBatch16Unresolved: _enableBatch16Unresolved,
+        now: now ?? DateTime.now,
       ),
     );
   }
@@ -111,16 +133,21 @@ class _DesignLabJourney extends StatefulWidget {
   const _DesignLabJourney({
     required this.currentYear,
     required this.enableBatch14MultiProvider,
+    required this.enableBatch16Unresolved,
+    required this.now,
   });
 
   final int currentYear;
   final bool enableBatch14MultiProvider;
+  final bool enableBatch16Unresolved;
+  final DateTime Function() now;
 
   @override
   State<_DesignLabJourney> createState() => _DesignLabJourneyState();
 }
 
-class _DesignLabJourneyState extends State<_DesignLabJourney> {
+class _DesignLabJourneyState extends State<_DesignLabJourney>
+    with WidgetsBindingObserver {
   _DesignNode _node = _DesignNode.today3aIntent;
   int? _taxYear;
   _LppAffiliation? _lppAffiliation;
@@ -138,15 +165,80 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   bool _restoreUnknownActionFocus = false;
   bool _multipleProvidersDeclared = false;
   _DesignNode _educationBackNode = _DesignNode.contributionUnknownHelp;
-  final FocusNode _safeExitTriggerFocus = FocusNode(
+  MultiProviderUnresolvedOrigin? _unresolvedOrigin;
+  String? _restoreBatch16RowId;
+  String? _restoreBatch16Target;
+  String _helpRestoreTarget = 'heading';
+  Timer? _batch16Ttl;
+  late DateTime _batch16LastActivity;
+  final FocusNode _defaultSafeExitFocus = FocusNode(
     debugLabel: 'safe exit trigger',
   );
+  final FocusNode _mixedSafeExitFocus = FocusNode(
+    debugLabel: 'mixed editor safe exit',
+  );
+  final FocusNode _confirmedSafeExitFocus = FocusNode(
+    debugLabel: 'all confirmed editor safe exit',
+  );
+  final FocusNode _unresolvedSafeExitFocus = FocusNode(
+    debugLabel: 'unresolved safe exit trigger',
+  );
+  final FocusNode _correctionSafeExitFocus = FocusNode(
+    debugLabel: 'correction safe exit trigger',
+  );
+  final FocusNode _educationSafeExitFocus = FocusNode(
+    debugLabel: 'education safe exit trigger',
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _batch16LastActivity = widget.now();
+    _armBatch16Ttl();
+  }
+
+  void _armBatch16Ttl() {
+    _batch16Ttl?.cancel();
+    if (!widget.enableBatch16Unresolved) return;
+    _batch16Ttl = Timer(const Duration(minutes: 30), _expireBatch16IfStale);
+  }
+
+  void _expireBatch16IfStale() {
+    const ttl = Duration(minutes: 30);
+    final elapsed = widget.now().difference(_batch16LastActivity);
+    if (elapsed >= ttl) {
+      _purgeToTaxYear();
+      return;
+    }
+    _batch16Ttl = Timer(ttl - elapsed, _expireBatch16IfStale);
+  }
+
+  void _touchBatch16() {
+    _batch16LastActivity = widget.now();
+    _armBatch16Ttl();
+  }
+
+  void _purgeToTaxYear() {
+    if (!mounted || !widget.enableBatch16Unresolved) return;
+    setState(() {
+      _clearContributionFacts();
+      _unresolvedOrigin = null;
+      _node = _DesignNode.factTaxYear;
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) _purgeToTaxYear();
+  }
 
   @override
   void didUpdateWidget(covariant _DesignLabJourney oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentYear != widget.currentYear) {
       _clearEphemeralFacts();
+      _unresolvedOrigin = null;
       _node = _DesignNode.factTaxYear;
     }
   }
@@ -155,7 +247,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
   void dispose() {
     _providerNameController.dispose();
     _ordinaryAmountController.dispose();
-    _safeExitTriggerFocus.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _batch16Ttl?.cancel();
+    _defaultSafeExitFocus.dispose();
+    _mixedSafeExitFocus.dispose();
+    _confirmedSafeExitFocus.dispose();
+    _unresolvedSafeExitFocus.dispose();
+    _correctionSafeExitFocus.dispose();
+    _educationSafeExitFocus.dispose();
     super.dispose();
   }
 
@@ -191,6 +290,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _amountHelpPartial = false;
     _multipleProvidersDeclared = false;
     _multiProviderDraft.purge();
+    _unresolvedOrigin = null;
   }
 
   void _clearEphemeralFacts() {
@@ -218,10 +318,121 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
     _DesignNode.factContributedAmount => 'fact_contributed_amount',
     _DesignNode.contributedAmountUnknownHelp =>
       'contributed_amount_unknown_help',
+    _DesignNode.unresolvedAmountHelp => 'unresolved_amount_help',
+    _DesignNode.contributionStatusCorrection =>
+      'contribution_status_correction',
     _DesignNode.factCanton => 'fact_canton',
     _DesignNode.educationExplanation => 'education_explanation',
     _DesignNode.dismissed => 'dismissed',
   };
+
+  FocusNode get _activeSafeExitFocus => switch (_node) {
+    _DesignNode.factContributedAmount when widget.enableBatch16Unresolved =>
+      _multiProviderDraft.allProvidersReviewed
+          ? _confirmedSafeExitFocus
+          : _mixedSafeExitFocus,
+    _DesignNode.unresolvedAmountHelp => _unresolvedSafeExitFocus,
+    _DesignNode.contributionStatusCorrection => _correctionSafeExitFocus,
+    _DesignNode.educationExplanation when _unresolvedOrigin != null =>
+      _educationSafeExitFocus,
+    _ => _defaultSafeExitFocus,
+  };
+
+  void _openBatch16Help(MultiProviderUnresolvedOrigin origin) {
+    _touchBatch16();
+    setState(() {
+      _unresolvedOrigin = origin;
+      _helpRestoreTarget = 'heading';
+      _node = _DesignNode.unresolvedAmountHelp;
+    });
+  }
+
+  void _returnFromBatch16Help() {
+    final rowId = _unresolvedOrigin?.rowId;
+    if (rowId == null) return;
+    setState(() {
+      _restoreBatch16RowId = rowId;
+      _restoreBatch16Target = 'doubt';
+      _node = _DesignNode.factContributedAmount;
+    });
+  }
+
+  void _returnToBatch16Help(String target) {
+    if (_unresolvedOrigin == null) return;
+    setState(() {
+      _helpRestoreTarget = target;
+      _node = _DesignNode.unresolvedAmountHelp;
+    });
+  }
+
+  void _resolveBatch16ProviderTotal(MultiProviderUnresolvedResolveToken token) {
+    if (!identical(_unresolvedOrigin?.resolveToken, token)) return;
+    if (_multiProviderDraft.resolveProviderReportedTotal(token) !=
+        MultiProviderUnresolvedActionResult.resolvedToUnreviewed) {
+      return;
+    }
+    final rowId = _unresolvedOrigin?.rowId;
+    if (rowId == null) return;
+    setState(() {
+      _unresolvedOrigin = null;
+      _restoreBatch16RowId = rowId;
+      _restoreBatch16Target = 'amount';
+      _node = _DesignNode.factContributedAmount;
+    });
+  }
+
+  void _refundBatch16Provider(MultiProviderUnresolvedRefundToken token) {
+    if (!identical(_unresolvedOrigin?.refundToken, token)) return;
+    if (_multiProviderDraft.refundFullyProvider(token) !=
+        MultiProviderUnresolvedRefundResult.tombstoned) {
+      return;
+    }
+    final rowId = _unresolvedOrigin?.rowId;
+    if (rowId == null) return;
+    setState(() {
+      _unresolvedOrigin = null;
+      _restoreBatch16RowId = rowId;
+      _restoreBatch16Target = 'undo';
+      _node = _DesignNode.factContributedAmount;
+    });
+  }
+
+  void _beginBatch16AllZero(MultiProviderUnresolvedAllZeroToken token) {
+    if (!identical(_unresolvedOrigin?.allZeroToken, token)) return;
+    if (_multiProviderDraft.beginAllProvidersZeroCorrection(token) !=
+        MultiProviderAllZeroCorrectionResult.ready) {
+      return;
+    }
+    setState(() => _node = _DesignNode.contributionStatusCorrection);
+  }
+
+  void _chooseBatch16Correction(_ContributionStatus status) {
+    switch (status) {
+      case _ContributionStatus.yes:
+        final rowId = _unresolvedOrigin?.rowId;
+        if (rowId == null) return;
+        setState(() {
+          _contributionStatus = status;
+          _restoreBatch16RowId = rowId;
+          _restoreBatch16Target = 'doubt';
+          _node = _DesignNode.factContributedAmount;
+        });
+      case _ContributionStatus.no:
+        setState(() {
+          _clearContributionAmount();
+          _contributionStatus = status;
+          _unresolvedOrigin = null;
+          _node = _DesignNode.factCanton;
+        });
+      case _ContributionStatus.unknown:
+        setState(() {
+          _clearContributionAmount();
+          _contributionStatus = status;
+          _unresolvedOrigin = null;
+          _node = _DesignNode.contributionUnknownHelp;
+        });
+    }
+  }
 
   Future<void> _showSafeExit() async {
     final l10n = MintNextLocalizations.of(context);
@@ -229,6 +440,9 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
       context: context,
       isScrollControlled: true,
       backgroundColor: _paper,
+      sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
+          ? AnimationStyle.noAnimation
+          : null,
       builder: (sheetContext) => _SafeExitSheet(
         l10n: l10n,
         onResume: () => Navigator.pop(sheetContext, false),
@@ -239,239 +453,399 @@ class _DesignLabJourneyState extends State<_DesignLabJourney> {
       ),
     );
     if (mounted && leftJourney != true) {
-      _safeExitTriggerFocus.requestFocus();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _activeSafeExitFocus.requestFocus();
+      });
+      WidgetsBinding.instance.ensureVisualUpdate();
+    }
+  }
+
+  void _backFromContributionAmount() {
+    if (widget.enableBatch14MultiProvider) {
+      _multiProviderDraft.setAllProvidersReviewed(false);
+    }
+    _go(_DesignNode.factContribution);
+  }
+
+  void _backFromCanton() {
+    if (widget.enableBatch16Unresolved &&
+        _multiProviderDraft.allProvidersReviewed) {
+      setState(() {
+        _restoreBatch16Target = 'continue';
+        _node = _DesignNode.factContributedAmount;
+      });
+      return;
+    }
+    _go(
+      _contributionStatus == _ContributionStatus.yes
+          ? _DesignNode.factContributedAmount
+          : _DesignNode.factContribution,
+    );
+  }
+
+  void _backFromEducation() {
+    if (_educationBackNode == _DesignNode.unresolvedAmountHelp) {
+      _returnToBatch16Help('education');
+      return;
+    }
+    _go(_educationBackNode);
+  }
+
+  void _handleSystemBack() {
+    switch (_node) {
+      case _DesignNode.today3aIntent:
+        _showSafeExit();
+      case _DesignNode.orientation:
+        _go(_DesignNode.today3aIntent);
+      case _DesignNode.factTaxYear:
+        _go(_DesignNode.orientation);
+      case _DesignNode.factLppAffiliation:
+        _go(_DesignNode.factTaxYear);
+      case _DesignNode.lppUnknownHelp:
+      case _DesignNode.withoutLppBoundary:
+        _go(_DesignNode.factLppAffiliation);
+      case _DesignNode.factContribution:
+        _go(_DesignNode.factLppAffiliation);
+      case _DesignNode.contributionUnknownHelp:
+        _go(_DesignNode.factContribution);
+      case _DesignNode.factContributedAmount:
+        _backFromContributionAmount();
+      case _DesignNode.contributedAmountUnknownHelp:
+        _returnToUnknownAmountTrigger();
+      case _DesignNode.unresolvedAmountHelp:
+        _returnFromBatch16Help();
+      case _DesignNode.contributionStatusCorrection:
+        _returnToBatch16Help('all_zero');
+      case _DesignNode.factCanton:
+        _backFromCanton();
+      case _DesignNode.educationExplanation:
+        _backFromEducation();
+      case _DesignNode.dismissed:
+        _go(_DesignNode.today3aIntent);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = MintNextLocalizations.of(context);
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _Header(
-              nodeId: _nodeId,
-              onExit: _showSafeExit,
-              exitFocusNode: _safeExitTriggerFocus,
-            ),
-            Expanded(
-              child: AnimatedSwitcher(
-                key: ValueKey('journey-switcher:${widget.currentYear}'),
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : const Duration(milliseconds: 240),
-                switchInCurve: Curves.easeOutCubic,
-                child: KeyedSubtree(
-                  key: ValueKey('node:$_nodeId'),
-                  child: switch (_node) {
-                    _DesignNode.today3aIntent => _Today(
-                      onStart: () => _go(_DesignNode.orientation),
-                    ),
-                    _DesignNode.orientation => _Orientation(
-                      onContinue: () => _go(_DesignNode.factTaxYear),
-                      onBack: () => _go(_DesignNode.today3aIntent),
-                    ),
-                    _DesignNode.factTaxYear => _TaxYear(
-                      selectedYear: _taxYear,
-                      currentYear: widget.currentYear,
-                      onSelect: () => setState(() {
-                        if (_taxYear != widget.currentYear) {
-                          _clearContributionFacts();
-                        }
-                        _taxYear = widget.currentYear;
-                      }),
-                      onBack: () => _go(_DesignNode.orientation),
-                      onContinue: () => _go(_DesignNode.factLppAffiliation),
-                    ),
-                    _DesignNode.factLppAffiliation => _LppQuestion(
-                      selected: _lppAffiliation,
-                      onChoose: (value) {
-                        setState(() {
-                          if (_lppAffiliation != value) {
-                            _clearContributionFacts();
-                          }
-                          _lppAffiliation = value;
-                        });
-                        _go(switch (value) {
-                          _LppAffiliation.yes => _DesignNode.factContribution,
-                          _LppAffiliation.no => _DesignNode.withoutLppBoundary,
-                          _LppAffiliation.unknown => _DesignNode.lppUnknownHelp,
-                        });
-                      },
-                      onBack: () => _go(_DesignNode.factTaxYear),
-                    ),
-                    _DesignNode.lppUnknownHelp => _LppUnknownHelp(
-                      onBack: () => _go(_DesignNode.factLppAffiliation),
-                    ),
-                    _DesignNode.withoutLppBoundary => _WithoutLppBoundary(
-                      onBack: () => _go(_DesignNode.factLppAffiliation),
-                    ),
-                    _DesignNode.factContribution => _ContributionQuestion(
-                      taxYear: _taxYear!,
-                      selected: _contributionStatus,
-                      edgeHelpExpanded: _contributionEdgeHelpExpanded,
-                      onToggleEdgeHelp: () => setState(
-                        () => _contributionEdgeHelpExpanded =
-                            !_contributionEdgeHelpExpanded,
-                      ),
-                      onChoose: (value) {
-                        setState(() {
-                          if (_contributionStatus != value) {
-                            _clearContributionAmount();
-                          }
-                          _contributionStatus = value;
-                          if (widget.enableBatch14MultiProvider &&
-                              value == _ContributionStatus.yes) {
-                            _multiProviderDraft.invalidateConfirmation();
-                          }
-                        });
-                        _go(switch (value) {
-                          _ContributionStatus.yes =>
-                            _DesignNode.factContributedAmount,
-                          _ContributionStatus.no => _DesignNode.factCanton,
-                          _ContributionStatus.unknown =>
-                            _DesignNode.contributionUnknownHelp,
-                        });
-                      },
-                      onBack: () => _go(_DesignNode.factLppAffiliation),
-                    ),
-                    _DesignNode.contributionUnknownHelp =>
-                      _ContributionUnknownHelp(
-                        taxYear: _taxYear!,
-                        onContinueEducation: () {
-                          _educationBackNode =
-                              _DesignNode.contributionUnknownHelp;
-                          _go(_DesignNode.educationExplanation);
-                        },
-                        onBack: () => _go(_DesignNode.factContribution),
-                      ),
-                    _DesignNode.factContributedAmount =>
-                      widget.enableBatch14MultiProvider
-                          ? _Page(
-                              nodeId: 'fact_contributed_amount',
-                              eyebrow: l10n.batch11AmountEyebrow(_taxYear!),
-                              title: l10n.batch11AmountTitle(_taxYear!),
-                              body: l10n.batch14AmountBody,
-                              accent: MultiProviderAmountEditor(
-                                taxYear: _taxYear!,
-                                draft: _multiProviderDraft,
-                                onCommitted: (_) => _go(_DesignNode.factCanton),
-                                restoreAmountFocus: _restoreAmountFocus,
-                                restoreUnknownActionFocus:
-                                    _restoreUnknownActionFocus,
-                                onRestoreFocusConsumed: () {
-                                  if (mounted &&
-                                      (_restoreAmountFocus ||
-                                          _restoreUnknownActionFocus)) {
-                                    setState(() {
-                                      _restoreAmountFocus = false;
-                                      _restoreUnknownActionFocus = false;
-                                    });
-                                  }
-                                },
-                                onUnknown: () => setState(() {
-                                  _amountHelpPartial = false;
-                                  _node =
-                                      _DesignNode.contributedAmountUnknownHelp;
-                                }),
-                                onCorrectPrevious: () {
-                                  _multiProviderDraft.invalidateConfirmation();
-                                  _go(_DesignNode.factContribution);
-                                },
-                              ),
-                              actions: const [],
-                            )
-                          : _ContributionAmountForm(
-                              taxYear: _taxYear!,
-                              providerController: _providerNameController,
-                              amountController: _ordinaryAmountController,
-                              allProvidersReviewed: _allProvidersReviewed,
-                              whereToFindExpanded: _amountWhereToFindExpanded,
-                              restoreAmountFocus: _restoreAmountFocus,
-                              restoreUnknownActionFocus:
-                                  _restoreUnknownActionFocus,
-                              onRestoreFocusConsumed: () {
-                                if (mounted &&
-                                    (_restoreAmountFocus ||
-                                        _restoreUnknownActionFocus)) {
-                                  setState(() {
-                                    _restoreAmountFocus = false;
-                                    _restoreUnknownActionFocus = false;
-                                  });
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _handleSystemBack();
+      },
+      child: Focus(
+        canRequestFocus: false,
+        includeSemantics: false,
+        onKeyEvent: (node, event) {
+          _touchBatch16();
+          return KeyEventResult.ignored;
+        },
+        child: Listener(
+          onPointerDown: (_) => _touchBatch16(),
+          child: Scaffold(
+            body: SafeArea(
+              child: Column(
+                children: [
+                  _Header(
+                    nodeId: _nodeId,
+                    onExit: _showSafeExit,
+                    exitFocusNode: _activeSafeExitFocus,
+                    exitLabel: _node == _DesignNode.unresolvedAmountHelp
+                        ? '${l10n.quit} · ${l10n.batch16RowContext(_multiProviderDraft.rows.indexWhere((row) => row.id == _unresolvedOrigin!.rowId) + 1, _taxYear!)}'
+                        : null,
+                    exitSortKey: _node == _DesignNode.unresolvedAmountHelp
+                        ? const OrdinalSortKey(6)
+                        : const OrdinalSortKey(1),
+                  ),
+                  Expanded(
+                    child: AnimatedSwitcher(
+                      key: ValueKey('journey-switcher:${widget.currentYear}'),
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : const Duration(milliseconds: 240),
+                      switchInCurve: Curves.easeOutCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey('node:$_nodeId'),
+                        child: switch (_node) {
+                          _DesignNode.today3aIntent => _Today(
+                            onStart: () => _go(_DesignNode.orientation),
+                          ),
+                          _DesignNode.orientation => _Orientation(
+                            onContinue: () => _go(_DesignNode.factTaxYear),
+                            onBack: () => _go(_DesignNode.today3aIntent),
+                          ),
+                          _DesignNode.factTaxYear => _TaxYear(
+                            selectedYear: _taxYear,
+                            currentYear: widget.currentYear,
+                            onSelect: () => setState(() {
+                              if (_taxYear != widget.currentYear) {
+                                _clearContributionFacts();
+                              }
+                              _taxYear = widget.currentYear;
+                            }),
+                            onBack: () => _go(_DesignNode.orientation),
+                            onContinue: () =>
+                                _go(_DesignNode.factLppAffiliation),
+                          ),
+                          _DesignNode.factLppAffiliation => _LppQuestion(
+                            selected: _lppAffiliation,
+                            onChoose: (value) {
+                              setState(() {
+                                if (_lppAffiliation != value) {
+                                  _clearContributionFacts();
                                 }
-                              },
-                              onReviewedChanged: (value) {
-                                if (value && _multipleProvidersDeclared) return;
-                                setState(() => _allProvidersReviewed = value);
-                              },
-                              onWhereToFindChanged: (value) => setState(
-                                () => _amountWhereToFindExpanded = value,
-                              ),
-                              onUnknown: () => setState(() {
-                                _amountHelpPartial = false;
-                                _node =
-                                    _DesignNode.contributedAmountUnknownHelp;
-                              }),
-                              onMissing: () => setState(() {
-                                _allProvidersReviewed = false;
-                                _multipleProvidersDeclared = true;
-                                _amountHelpPartial = true;
-                                _node =
-                                    _DesignNode.contributedAmountUnknownHelp;
-                              }),
-                              onContinue: () {
-                                if (!_multipleProvidersDeclared) {
-                                  _go(_DesignNode.factCanton);
-                                }
-                              },
-                              onCorrectPrevious: () =>
-                                  _go(_DesignNode.factContribution),
+                                _lppAffiliation = value;
+                              });
+                              _go(switch (value) {
+                                _LppAffiliation.yes =>
+                                  _DesignNode.factContribution,
+                                _LppAffiliation.no =>
+                                  _DesignNode.withoutLppBoundary,
+                                _LppAffiliation.unknown =>
+                                  _DesignNode.lppUnknownHelp,
+                              });
+                            },
+                            onBack: () => _go(_DesignNode.factTaxYear),
+                          ),
+                          _DesignNode.lppUnknownHelp => _LppUnknownHelp(
+                            onBack: () => _go(_DesignNode.factLppAffiliation),
+                          ),
+                          _DesignNode.withoutLppBoundary => _WithoutLppBoundary(
+                            onBack: () => _go(_DesignNode.factLppAffiliation),
+                          ),
+                          _DesignNode.factContribution => _ContributionQuestion(
+                            taxYear: _taxYear!,
+                            selected: _contributionStatus,
+                            edgeHelpExpanded: _contributionEdgeHelpExpanded,
+                            onToggleEdgeHelp: () => setState(
+                              () => _contributionEdgeHelpExpanded =
+                                  !_contributionEdgeHelpExpanded,
                             ),
-                    _DesignNode.contributedAmountUnknownHelp =>
-                      _ContributedAmountUnknownHelp(
-                        partial: _amountHelpPartial,
-                        onFoundAmount: () {
-                          if (_amountHelpPartial) {
-                            setState(() {
-                              _multipleProvidersDeclared = false;
-                              _restoreAmountFocus = true;
-                              _restoreUnknownActionFocus = false;
-                              _node = _DesignNode.factContributedAmount;
-                            });
-                          } else {
-                            _returnToAmountField();
-                          }
+                            onChoose: (value) {
+                              setState(() {
+                                if (_contributionStatus != value) {
+                                  _clearContributionAmount();
+                                }
+                                _contributionStatus = value;
+                                if (widget.enableBatch14MultiProvider &&
+                                    value == _ContributionStatus.yes) {
+                                  _multiProviderDraft.invalidateConfirmation();
+                                }
+                              });
+                              _go(switch (value) {
+                                _ContributionStatus.yes =>
+                                  _DesignNode.factContributedAmount,
+                                _ContributionStatus.no =>
+                                  _DesignNode.factCanton,
+                                _ContributionStatus.unknown =>
+                                  _DesignNode.contributionUnknownHelp,
+                              });
+                            },
+                            onBack: () => _go(_DesignNode.factLppAffiliation),
+                          ),
+                          _DesignNode.contributionUnknownHelp =>
+                            _ContributionUnknownHelp(
+                              taxYear: _taxYear!,
+                              onContinueEducation: () {
+                                _educationBackNode =
+                                    _DesignNode.contributionUnknownHelp;
+                                _go(_DesignNode.educationExplanation);
+                              },
+                              onBack: () => _go(_DesignNode.factContribution),
+                            ),
+                          _DesignNode.factContributedAmount =>
+                            widget.enableBatch14MultiProvider
+                                ? _Page(
+                                    nodeId: 'fact_contributed_amount',
+                                    eyebrow: l10n.batch11AmountEyebrow(
+                                      _taxYear!,
+                                    ),
+                                    title: l10n.batch11AmountTitle(_taxYear!),
+                                    body: l10n.batch14AmountBody,
+                                    accent: MultiProviderAmountEditor(
+                                      taxYear: _taxYear!,
+                                      draft: _multiProviderDraft,
+                                      onCommitted: (_) =>
+                                          _go(_DesignNode.factCanton),
+                                      enableBatch16:
+                                          widget.enableBatch16Unresolved,
+                                      onAmountDoubt: _openBatch16Help,
+                                      onDraftChanged: () {
+                                        if (mounted) setState(() {});
+                                      },
+                                      restoreRowId: _restoreBatch16RowId,
+                                      restoreFocusTarget:
+                                          switch (_restoreBatch16Target) {
+                                            'amount' =>
+                                              MultiProviderAmountEditorFocusTarget
+                                                  .amount,
+                                            'doubt' =>
+                                              MultiProviderAmountEditorFocusTarget
+                                                  .doubt,
+                                            'undo' =>
+                                              MultiProviderAmountEditorFocusTarget
+                                                  .undo,
+                                            'continue' =>
+                                              MultiProviderAmountEditorFocusTarget
+                                                  .continueAction,
+                                            _ => null,
+                                          },
+                                      restoreAmountFocus: _restoreAmountFocus,
+                                      restoreUnknownActionFocus:
+                                          _restoreUnknownActionFocus,
+                                      onRestoreFocusConsumed: () {
+                                        if (mounted &&
+                                            (_restoreAmountFocus ||
+                                                _restoreUnknownActionFocus ||
+                                                _restoreBatch16RowId != null ||
+                                                _restoreBatch16Target !=
+                                                    null)) {
+                                          setState(() {
+                                            _restoreAmountFocus = false;
+                                            _restoreUnknownActionFocus = false;
+                                            _restoreBatch16RowId = null;
+                                            _restoreBatch16Target = null;
+                                          });
+                                        }
+                                      },
+                                      onUnknown: () => setState(() {
+                                        _amountHelpPartial = false;
+                                        _node = _DesignNode
+                                            .contributedAmountUnknownHelp;
+                                      }),
+                                      onCorrectPrevious: () {
+                                        _backFromContributionAmount();
+                                      },
+                                    ),
+                                    actions: const [],
+                                  )
+                                : _ContributionAmountForm(
+                                    taxYear: _taxYear!,
+                                    providerController: _providerNameController,
+                                    amountController: _ordinaryAmountController,
+                                    allProvidersReviewed: _allProvidersReviewed,
+                                    whereToFindExpanded:
+                                        _amountWhereToFindExpanded,
+                                    restoreAmountFocus: _restoreAmountFocus,
+                                    restoreUnknownActionFocus:
+                                        _restoreUnknownActionFocus,
+                                    onRestoreFocusConsumed: () {
+                                      if (mounted &&
+                                          (_restoreAmountFocus ||
+                                              _restoreUnknownActionFocus)) {
+                                        setState(() {
+                                          _restoreAmountFocus = false;
+                                          _restoreUnknownActionFocus = false;
+                                        });
+                                      }
+                                    },
+                                    onReviewedChanged: (value) {
+                                      if (value && _multipleProvidersDeclared) {
+                                        return;
+                                      }
+                                      setState(
+                                        () => _allProvidersReviewed = value,
+                                      );
+                                    },
+                                    onWhereToFindChanged: (value) => setState(
+                                      () => _amountWhereToFindExpanded = value,
+                                    ),
+                                    onUnknown: () => setState(() {
+                                      _amountHelpPartial = false;
+                                      _node = _DesignNode
+                                          .contributedAmountUnknownHelp;
+                                    }),
+                                    onMissing: () => setState(() {
+                                      _allProvidersReviewed = false;
+                                      _multipleProvidersDeclared = true;
+                                      _amountHelpPartial = true;
+                                      _node = _DesignNode
+                                          .contributedAmountUnknownHelp;
+                                    }),
+                                    onContinue: () {
+                                      if (!_multipleProvidersDeclared) {
+                                        _go(_DesignNode.factCanton);
+                                      }
+                                    },
+                                    onCorrectPrevious:
+                                        _backFromContributionAmount,
+                                  ),
+                          _DesignNode.contributedAmountUnknownHelp =>
+                            _ContributedAmountUnknownHelp(
+                              partial: _amountHelpPartial,
+                              onFoundAmount: () {
+                                if (_amountHelpPartial) {
+                                  setState(() {
+                                    _multipleProvidersDeclared = false;
+                                    _restoreAmountFocus = true;
+                                    _restoreUnknownActionFocus = false;
+                                    _node = _DesignNode.factContributedAmount;
+                                  });
+                                } else {
+                                  _returnToAmountField();
+                                }
+                              },
+                              onContinueEducation: () {
+                                _educationBackNode =
+                                    _DesignNode.contributedAmountUnknownHelp;
+                                _go(_DesignNode.educationExplanation);
+                              },
+                              onBack: _returnToUnknownAmountTrigger,
+                            ),
+                          _DesignNode.unresolvedAmountHelp =>
+                            _Batch16UnresolvedHelp(
+                              taxYear: _taxYear!,
+                              rowNumber:
+                                  _multiProviderDraft.rows.indexWhere(
+                                    (row) => row.id == _unresolvedOrigin!.rowId,
+                                  ) +
+                                  1,
+                              origin: _unresolvedOrigin!,
+                              refundEligible:
+                                  _multiProviderDraft.activeRowCount > 1 &&
+                                  _multiProviderDraft.rows.any(
+                                    (row) =>
+                                        row.isActive &&
+                                        row.id != _unresolvedOrigin!.rowId &&
+                                        row.hasPositiveExactAmount,
+                                  ),
+                              restoreTarget: _helpRestoreTarget,
+                              onProviderTotal: _resolveBatch16ProviderTotal,
+                              onRefund: _refundBatch16Provider,
+                              onAllZero: _beginBatch16AllZero,
+                              onEducation: () {
+                                _educationBackNode =
+                                    _DesignNode.unresolvedAmountHelp;
+                                _go(_DesignNode.educationExplanation);
+                              },
+                              onBack: _returnFromBatch16Help,
+                            ),
+                          _DesignNode.contributionStatusCorrection =>
+                            _Batch16ContributionCorrection(
+                              taxYear: _taxYear!,
+                              onChoose: _chooseBatch16Correction,
+                              onBack: () => _returnToBatch16Help('all_zero'),
+                            ),
+                          _DesignNode.factCanton => _CantonBoundary(
+                            taxYear: _taxYear!,
+                            hasPositiveContribution:
+                                _contributionStatus == _ContributionStatus.yes,
+                            onBack: _backFromCanton,
+                          ),
+                          _DesignNode.educationExplanation =>
+                            _EducationBoundary(onBack: _backFromEducation),
+                          _DesignNode.dismissed => _Terminal(
+                            title: l10n.dismissedTitle,
+                            onRestart: () => _go(_DesignNode.today3aIntent),
+                          ),
                         },
-                        onContinueEducation: () {
-                          _educationBackNode =
-                              _DesignNode.contributedAmountUnknownHelp;
-                          _go(_DesignNode.educationExplanation);
-                        },
-                        onBack: _returnToUnknownAmountTrigger,
-                      ),
-                    _DesignNode.factCanton => _CantonBoundary(
-                      taxYear: _taxYear!,
-                      hasPositiveContribution:
-                          _contributionStatus == _ContributionStatus.yes,
-                      onBack: () => _go(
-                        _contributionStatus == _ContributionStatus.yes
-                            ? _DesignNode.factContributedAmount
-                            : _DesignNode.factContribution,
                       ),
                     ),
-                    _DesignNode.educationExplanation => _EducationBoundary(
-                      onBack: () => _go(_educationBackNode),
-                    ),
-                    _DesignNode.dismissed => _Terminal(
-                      title: l10n.dismissedTitle,
-                      onRestart: () => _go(_DesignNode.today3aIntent),
-                    ),
-                  },
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -483,15 +857,21 @@ class _Header extends StatelessWidget {
     required this.nodeId,
     required this.onExit,
     required this.exitFocusNode,
+    this.exitLabel,
+    required this.exitSortKey,
   });
   final String nodeId;
   final VoidCallback onExit;
   final FocusNode exitFocusNode;
+  final String? exitLabel;
+  final SemanticsSortKey exitSortKey;
 
   @override
   Widget build(BuildContext context) {
     final l10n = MintNextLocalizations.of(context);
     final largeText = MediaQuery.textScalerOf(context).scale(16) > 24;
+    final viewportWidth = MediaQuery.sizeOf(context).width;
+    final compactWidth = viewportWidth > 0 && viewportWidth <= 320;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 8, 12, 8),
       child: Row(
@@ -514,13 +894,17 @@ class _Header extends StatelessWidget {
               ),
             ),
           ),
-          if (largeText)
+          if (largeText || compactWidth)
             Semantics(
-              sortKey: const OrdinalSortKey(1),
+              label: exitLabel ?? l10n.quitJourney,
+              button: true,
+              onTap: onExit,
+              excludeSemantics: true,
+              sortKey: exitSortKey,
               child: IconButton(
                 key: ValueKey('action:$nodeId.open_safe_exit'),
                 focusNode: exitFocusNode,
-                tooltip: l10n.quitJourney,
+                tooltip: exitLabel ?? l10n.quitJourney,
                 onPressed: onExit,
                 icon: const ExcludeSemantics(
                   child: Text(
@@ -533,9 +917,9 @@ class _Header extends StatelessWidget {
           else
             MintDesignLabAction.text(
               key: ValueKey('action:$nodeId.open_safe_exit'),
-              label: l10n.quit,
-              semanticsLabel: l10n.quitJourney,
-              semanticsSortKey: const OrdinalSortKey(1),
+              label: exitLabel ?? l10n.quit,
+              semanticsLabel: exitLabel ?? l10n.quitJourney,
+              semanticsSortKey: exitSortKey,
               focusNode: exitFocusNode,
               onPressed: onExit,
               compact: true,
@@ -1028,21 +1412,33 @@ class _DisclosureAction extends StatelessWidget {
     required this.label,
     required this.expanded,
     required this.onPressed,
+    this.actionKey = const ValueKey(
+      'action:fact_contribution.toggle_edge_help',
+    ),
+    this.focusNode,
+    this.semanticsSortKey,
+    this.semanticsLabel,
   });
 
   final String label;
   final bool expanded;
   final VoidCallback onPressed;
+  final Key actionKey;
+  final FocusNode? focusNode;
+  final SemanticsSortKey? semanticsSortKey;
+  final String? semanticsLabel;
 
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
     expanded: expanded,
-    label: label,
+    label: semanticsLabel ?? label,
+    sortKey: semanticsSortKey,
     onTap: onPressed,
     excludeSemantics: true,
     child: InkWell(
-      key: const ValueKey('action:fact_contribution.toggle_edge_help'),
+      key: actionKey,
+      focusNode: focusNode,
       onTap: onPressed,
       borderRadius: BorderRadius.circular(14),
       child: Container(
@@ -1518,6 +1914,346 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
   }
 }
 
+class _Batch16UnresolvedHelp extends StatefulWidget {
+  const _Batch16UnresolvedHelp({
+    required this.taxYear,
+    required this.rowNumber,
+    required this.origin,
+    required this.refundEligible,
+    required this.restoreTarget,
+    required this.onProviderTotal,
+    required this.onRefund,
+    required this.onAllZero,
+    required this.onEducation,
+    required this.onBack,
+  });
+
+  final int taxYear;
+  final int rowNumber;
+  final MultiProviderUnresolvedOrigin origin;
+  final bool refundEligible;
+  final String restoreTarget;
+  final ValueChanged<MultiProviderUnresolvedResolveToken> onProviderTotal;
+  final ValueChanged<MultiProviderUnresolvedRefundToken> onRefund;
+  final ValueChanged<MultiProviderUnresolvedAllZeroToken> onAllZero;
+  final VoidCallback onEducation;
+  final VoidCallback onBack;
+
+  @override
+  State<_Batch16UnresolvedHelp> createState() => _Batch16UnresolvedHelpState();
+}
+
+class _Batch16UnresolvedHelpState extends State<_Batch16UnresolvedHelp> {
+  final ScrollController _scroll = ScrollController();
+  bool _detailsExpanded = false;
+  final FocusNode _heading = FocusNode(
+    debugLabel: 'unresolved help heading',
+    skipTraversal: true,
+  );
+  final FocusNode _providerTotal = FocusNode(
+    debugLabel: 'unresolved provider total action',
+  );
+  final FocusNode _refunded = FocusNode(
+    debugLabel: 'unresolved provider refunded action',
+  );
+  final FocusNode _allZero = FocusNode(
+    debugLabel: 'unresolved all zero action',
+  );
+  final FocusNode _education = FocusNode(
+    debugLabel: 'unresolved education action',
+  );
+  final FocusNode _details = FocusNode(debugLabel: 'unresolved details action');
+  final FocusNode _back = FocusNode(debugLabel: 'unresolved back action');
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      switch (widget.restoreTarget) {
+        case 'all_zero':
+          _allZero.requestFocus();
+        case 'education':
+          _education.requestFocus();
+        default:
+          _heading.requestFocus();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _heading.dispose();
+    _providerTotal.dispose();
+    _refunded.dispose();
+    _allZero.dispose();
+    _education.dispose();
+    _details.dispose();
+    _back.dispose();
+    super.dispose();
+  }
+
+  Widget _action({
+    required Key key,
+    required int order,
+    required String label,
+    required String semanticsLabel,
+    double fontSize = 16,
+    required FocusNode focus,
+    required VoidCallback onPressed,
+    MintActionTone tone = MintActionTone.secondary,
+  }) {
+    final sortKey = OrdinalSortKey(order.toDouble());
+    return switch (tone) {
+      MintActionTone.primary => MintDesignLabAction(
+        key: key,
+        label: label,
+        semanticsLabel: semanticsLabel,
+        semanticsSortKey: sortKey,
+        focusNode: focus,
+        fontSize: fontSize,
+        onPressed: onPressed,
+      ),
+      MintActionTone.secondary => MintDesignLabAction.secondary(
+        key: key,
+        label: label,
+        semanticsLabel: semanticsLabel,
+        semanticsSortKey: sortKey,
+        focusNode: focus,
+        fontSize: fontSize,
+        onPressed: onPressed,
+      ),
+      MintActionTone.text => MintDesignLabAction.text(
+        key: key,
+        label: label,
+        semanticsLabel: semanticsLabel,
+        semanticsSortKey: sortKey,
+        focusNode: focus,
+        fontSize: fontSize,
+        onPressed: onPressed,
+      ),
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    final rowContext = l10n.batch16RowContext(widget.rowNumber, widget.taxYear);
+    final viewportWidth = MediaQuery.sizeOf(context).width;
+    final compactLargeText =
+        viewportWidth > 0 &&
+        viewportWidth <= 320 &&
+        MediaQuery.textScalerOf(context).scale(16) > 24;
+    String contextual(String label) => '$label · $rowContext';
+    final intents = [
+      l10n.batch16AnnualOrdinaryTotalMeaning,
+      l10n.batch16ActuallyCreditedMeaning(widget.taxYear),
+      l10n.batch16ExcludedMovementsMeaning,
+      l10n.batch16ProviderConfirmedNetMeaning,
+      l10n.batch16InsuranceCertificateMeaning,
+      l10n.batch16RefundVsAllZeroMeaning,
+      l10n.batch16MintNotVerifiedMeaning,
+      l10n.batch16NoTaxAdviceMeaning,
+    ];
+    return FocusTraversalGroup(
+      policy: WidgetOrderTraversalPolicy(),
+      child: Scrollbar(
+        controller: _scroll,
+        thumbVisibility: true,
+        child: SingleChildScrollView(
+          key: const ValueKey('scroll:unresolved_amount_help'),
+          controller: _scroll,
+          padding: EdgeInsets.fromLTRB(24, compactLargeText ? 0 : 20, 24, 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Focus(
+                key: const ValueKey('heading:unresolved_amount_help'),
+                focusNode: _heading,
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    compactLargeText
+                        ? l10n.batch16HelpCompactTitle
+                        : l10n.batch16HelpTitle,
+                    style: _editorial(32),
+                  ),
+                ),
+              ),
+              SizedBox(height: compactLargeText ? 4 : 12),
+              Text(
+                compactLargeText
+                    ? l10n.batch16HelpCompactBody
+                    : l10n.batch16HelpBody,
+              ),
+              SizedBox(height: compactLargeText ? 4 : 16),
+              _action(
+                key: const ValueKey('action:unresolved_help.provider_total'),
+                order: 0,
+                label: compactLargeText
+                    ? l10n.batch16HelpProviderTotalCompact
+                    : l10n.batch16HelpProviderTotal,
+                semanticsLabel: contextual(
+                  '${l10n.batch16HelpProviderTotal}. ${l10n.batch16MintNotVerifiedMeaning}',
+                ),
+                fontSize: 16,
+                focus: _providerTotal,
+                tone: MintActionTone.primary,
+                onPressed: () =>
+                    widget.onProviderTotal(widget.origin.resolveToken),
+              ),
+              const SizedBox(height: 8),
+              if (widget.refundEligible) ...[
+                _action(
+                  key: const ValueKey(
+                    'action:unresolved_help.provider_refunded',
+                  ),
+                  order: 1,
+                  label: l10n.batch16HelpProviderRefunded,
+                  semanticsLabel: contextual(l10n.batch16HelpProviderRefunded),
+                  fontSize: 16,
+                  focus: _refunded,
+                  onPressed: () => widget.onRefund(widget.origin.refundToken),
+                ),
+                const SizedBox(height: 8),
+              ],
+              _action(
+                key: const ValueKey('action:unresolved_help.all_zero'),
+                order: 2,
+                label: l10n.batch16HelpAllZero,
+                semanticsLabel: contextual(l10n.batch16HelpAllZero),
+                fontSize: 16,
+                focus: _allZero,
+                onPressed: () => widget.onAllZero(widget.origin.allZeroToken),
+              ),
+              const SizedBox(height: 8),
+              _action(
+                key: const ValueKey('action:unresolved_help.education'),
+                order: 3,
+                label: l10n.batch16HelpEducation,
+                semanticsLabel: contextual(l10n.batch16HelpEducation),
+                fontSize: 16,
+                focus: _education,
+                onPressed: widget.onEducation,
+              ),
+              const SizedBox(height: 12),
+              _DisclosureAction(
+                actionKey: const ValueKey('action:unresolved_help.details'),
+                label: l10n.batch16HelpDetails,
+                semanticsLabel: contextual(l10n.batch16HelpDetails),
+                expanded: _detailsExpanded,
+                focusNode: _details,
+                semanticsSortKey: const OrdinalSortKey(4),
+                onPressed: () {
+                  _details.requestFocus();
+                  setState(() => _detailsExpanded = !_detailsExpanded);
+                },
+              ),
+              if (_detailsExpanded) ...[
+                const SizedBox(height: 12),
+                Container(
+                  key: const ValueKey('content:unresolved_help.details'),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  decoration: BoxDecoration(
+                    color: _porcelain,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: _border),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final intent in intents) ...[
+                        Text(intent),
+                        const SizedBox(height: 8),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 8),
+              _action(
+                key: const ValueKey('action:unresolved_help.back'),
+                order: 5,
+                label: l10n.batch16HelpBack,
+                semanticsLabel: contextual(l10n.batch16HelpBack),
+                fontSize: 16,
+                focus: _back,
+                tone: MintActionTone.text,
+                onPressed: widget.onBack,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Batch16ContributionCorrection extends StatelessWidget {
+  const _Batch16ContributionCorrection({
+    required this.taxYear,
+    required this.onChoose,
+    required this.onBack,
+  });
+
+  final int taxYear;
+  final ValueChanged<_ContributionStatus> onChoose;
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = MintNextLocalizations.of(context);
+    return _Page(
+      nodeId: 'contribution_status_correction',
+      eyebrow: 'MINT',
+      title: l10n.contributionTitle(taxYear),
+      preserveHeadingBaseAtLargeText: true,
+      body:
+          '${l10n.batch16CorrectionTitle}\n\n${l10n.contributionBody}\n\n${l10n.batch16NoTaxAdviceMeaning}',
+      accent: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l10n.batch16CurrentYes,
+            key: const ValueKey('status:contribution_current_yes'),
+          ),
+          Text(
+            l10n.batch16Unselected,
+            key: const ValueKey('status:contribution_correction_unselected'),
+          ),
+        ],
+      ),
+      actions: [
+        Text(
+          l10n.batch16CorrectionDataLoss,
+          key: const ValueKey('warning:contribution_correction.data_loss'),
+        ),
+        MintDesignLabAction(
+          key: const ValueKey('action:contribution_correction.choose_yes'),
+          label: l10n.batch16ChooseYes,
+          onPressed: () => onChoose(_ContributionStatus.yes),
+        ),
+        MintDesignLabAction.secondary(
+          key: const ValueKey('action:contribution_correction.choose_no'),
+          label: l10n.batch16ChooseNo,
+          onPressed: () => onChoose(_ContributionStatus.no),
+        ),
+        MintDesignLabAction.secondary(
+          key: const ValueKey('action:contribution_correction.choose_unknown'),
+          label: l10n.batch16ChooseUnknown,
+          onPressed: () => onChoose(_ContributionStatus.unknown),
+        ),
+        MintDesignLabAction.text(
+          key: const ValueKey('action:contribution_correction.back'),
+          label: l10n.batch16Back,
+          onPressed: onBack,
+        ),
+      ],
+    );
+  }
+}
+
 class _CantonBoundary extends StatelessWidget {
   const _CantonBoundary({
     required this.taxYear,
@@ -1586,6 +2322,7 @@ class _Page extends StatefulWidget {
     required this.body,
     required this.accent,
     required this.actions,
+    this.preserveHeadingBaseAtLargeText = false,
   });
   final String nodeId;
   final String eyebrow;
@@ -1593,6 +2330,7 @@ class _Page extends StatefulWidget {
   final String body;
   final Widget accent;
   final List<Widget> actions;
+  final bool preserveHeadingBaseAtLargeText;
 
   @override
   State<_Page> createState() => _PageState();
@@ -1620,6 +2358,9 @@ class _PageState extends State<_Page> {
   @override
   Widget build(BuildContext context) {
     final largeText = MediaQuery.textScalerOf(context).scale(16) > 24;
+    final viewportWidth = MediaQuery.sizeOf(context).width;
+    final compactWidth = viewportWidth > 0 && viewportWidth <= 320;
+    final scrollActions = largeText || compactWidth;
     final actionPanel = _ActionPanel(actions: widget.actions);
     return Column(
       children: [
@@ -1656,7 +2397,11 @@ class _PageState extends State<_Page> {
                         liveRegion: true,
                         child: Text(
                           widget.title,
-                          style: _editorial(largeText ? 28 : 38),
+                          style: _editorial(
+                            widget.preserveHeadingBaseAtLargeText
+                                ? 38
+                                : (largeText ? 28 : 38),
+                          ),
                         ),
                       ),
                     ),
@@ -1667,14 +2412,17 @@ class _PageState extends State<_Page> {
                     ),
                     const SizedBox(height: 32),
                     widget.accent,
-                    if (largeText) ...[const SizedBox(height: 24), actionPanel],
+                    if (scrollActions) ...[
+                      const SizedBox(height: 24),
+                      actionPanel,
+                    ],
                   ],
                 ),
               ),
             ),
           ),
         ),
-        if (!largeText)
+        if (!scrollActions)
           Semantics(
             container: true,
             sortKey: const OrdinalSortKey(3),
@@ -1725,7 +2473,14 @@ class _SafeExitSheet extends StatefulWidget {
 
 class _SafeExitSheetState extends State<_SafeExitSheet> {
   final ScrollController _controller = ScrollController();
-  final FocusNode _headingFocus = FocusNode(debugLabel: 'safe exit heading');
+  final FocusNode _headingFocus = FocusNode(
+    debugLabel: 'safe exit heading',
+    skipTraversal: true,
+  );
+  final FocusNode _resumeFocus = FocusNode(debugLabel: 'safe exit resume');
+  final FocusNode _leaveFocus = FocusNode(
+    debugLabel: 'safe exit leave without saving',
+  );
 
   @override
   void initState() {
@@ -1739,6 +2494,8 @@ class _SafeExitSheetState extends State<_SafeExitSheet> {
   void dispose() {
     _controller.dispose();
     _headingFocus.dispose();
+    _resumeFocus.dispose();
+    _leaveFocus.dispose();
     super.dispose();
   }
 
@@ -1759,58 +2516,65 @@ class _SafeExitSheetState extends State<_SafeExitSheet> {
             : scope.nextFocus();
         return KeyEventResult.handled;
       },
-      child: SafeArea(
+      child: Semantics(
         key: const ValueKey('overlay:safe_exit'),
-        child: Scrollbar(
-          controller: _controller,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
-            key: const ValueKey('scroll:safe_exit'),
+        scopesRoute: true,
+        namesRoute: true,
+        explicitChildNodes: true,
+        child: SafeArea(
+          child: Scrollbar(
             controller: _controller,
-            padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Focus(
-                  key: const ValueKey('heading:safe_exit'),
-                  focusNode: _headingFocus,
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      widget.l10n.safeExitTitle,
-                      style: _editorial(30),
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              key: const ValueKey('scroll:safe_exit'),
+              controller: _controller,
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Focus(
+                    key: const ValueKey('heading:safe_exit'),
+                    focusNode: _headingFocus,
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        widget.l10n.safeExitTitle,
+                        style: _editorial(30),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  widget.l10n.safeExitBody,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                MintDesignLabAction(
-                  key: const ValueKey('overlay-action:safe_exit.resume'),
-                  label: widget.l10n.resume,
-                  onPressed: widget.onResume,
-                ),
-                const SizedBox(height: 10),
-                MintDesignLabAction.secondary(
-                  key: const ValueKey(
-                    'overlay-action:safe_exit.keep_local_reference',
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.l10n.safeExitBody,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                  label: widget.l10n.keepReferenceUnavailable,
-                  onPressed: null,
-                ),
-                const SizedBox(height: 10),
-                MintDesignLabAction.text(
-                  key: const ValueKey(
-                    'overlay-action:safe_exit.leave_without_saving',
+                  const SizedBox(height: 24),
+                  MintDesignLabAction(
+                    key: const ValueKey('overlay-action:safe_exit.resume'),
+                    label: widget.l10n.resume,
+                    focusNode: _resumeFocus,
+                    onPressed: widget.onResume,
                   ),
-                  label: widget.l10n.leave,
-                  onPressed: widget.onLeave,
-                ),
-              ],
+                  const SizedBox(height: 10),
+                  MintDesignLabAction.secondary(
+                    key: const ValueKey(
+                      'overlay-action:safe_exit.keep_local_reference',
+                    ),
+                    label: widget.l10n.keepReferenceUnavailable,
+                    onPressed: null,
+                  ),
+                  const SizedBox(height: 10),
+                  MintDesignLabAction.text(
+                    key: const ValueKey(
+                      'overlay-action:safe_exit.leave_without_saving',
+                    ),
+                    label: widget.l10n.leave,
+                    focusNode: _leaveFocus,
+                    onPressed: widget.onLeave,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1893,6 +2657,7 @@ class MintDesignLabAction extends StatelessWidget {
     this.semanticsLabel,
     this.semanticsSortKey,
     this.focusNode,
+    this.fontSize = 16,
   }) : tone = MintActionTone.primary;
   const MintDesignLabAction.secondary({
     super.key,
@@ -1902,6 +2667,7 @@ class MintDesignLabAction extends StatelessWidget {
     this.semanticsLabel,
     this.semanticsSortKey,
     this.focusNode,
+    this.fontSize = 16,
   }) : tone = MintActionTone.secondary;
   const MintDesignLabAction.text({
     super.key,
@@ -1911,6 +2677,7 @@ class MintDesignLabAction extends StatelessWidget {
     this.semanticsLabel,
     this.semanticsSortKey,
     this.focusNode,
+    this.fontSize = 16,
   }) : tone = MintActionTone.text;
 
   final String label;
@@ -1919,6 +2686,7 @@ class MintDesignLabAction extends StatelessWidget {
   final String? semanticsLabel;
   final SemanticsSortKey? semanticsSortKey;
   final FocusNode? focusNode;
+  final double fontSize;
   final MintActionTone tone;
 
   @override
@@ -1933,17 +2701,17 @@ class MintDesignLabAction extends StatelessWidget {
       shape: WidgetStatePropertyAll(
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      textStyle: const WidgetStatePropertyAll(
+      textStyle: WidgetStatePropertyAll(
         TextStyle(
           fontFamily: 'Supreme',
-          fontSize: 16,
+          fontSize: fontSize,
           fontWeight: FontWeight.w700,
         ),
       ),
     );
     final button = switch (tone) {
       MintActionTone.primary => FilledButton(
-        focusNode: semanticsLabel == null ? focusNode : null,
+        focusNode: focusNode,
         style: style.copyWith(
           backgroundColor: const WidgetStatePropertyAll(_ink),
           foregroundColor: const WidgetStatePropertyAll(Colors.white),
@@ -1952,7 +2720,7 @@ class MintDesignLabAction extends StatelessWidget {
         child: Text(label),
       ),
       MintActionTone.secondary => OutlinedButton(
-        focusNode: semanticsLabel == null ? focusNode : null,
+        focusNode: focusNode,
         style: style.copyWith(
           foregroundColor: const WidgetStatePropertyAll(_ink),
           side: const WidgetStatePropertyAll(BorderSide(color: _ink)),
@@ -1961,7 +2729,7 @@ class MintDesignLabAction extends StatelessWidget {
         child: Text(label),
       ),
       MintActionTone.text => TextButton(
-        focusNode: semanticsLabel == null ? focusNode : null,
+        focusNode: focusNode,
         style: style.copyWith(
           foregroundColor: const WidgetStatePropertyAll(_secondaryInk),
         ),
@@ -1970,17 +2738,14 @@ class MintDesignLabAction extends StatelessWidget {
       ),
     };
     if (semanticsLabel == null) return button;
-    return Focus(
-      focusNode: focusNode,
-      child: Semantics(
-        label: semanticsLabel,
-        sortKey: semanticsSortKey,
-        button: true,
-        enabled: onPressed != null,
-        onTap: onPressed,
-        excludeSemantics: true,
-        child: button,
-      ),
+    return Semantics(
+      label: semanticsLabel,
+      sortKey: semanticsSortKey,
+      button: true,
+      enabled: onPressed != null,
+      onTap: onPressed,
+      excludeSemantics: true,
+      child: button,
     );
   }
 }

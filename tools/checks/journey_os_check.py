@@ -250,8 +250,8 @@ ALLOW = {
     "product/mint_next/batch7/design_lab/test/design_lab_multi_provider_runtime_test.dart",
     "tools/checks/mint_next_batch14_unicode_data.py",
     "tools/checks/mint_next_batch15_tombstone_runtime_guard.py",
-    # Batch 16 accepted written classification/doubt contract. Runtime remains
-    # forbidden until the red tests and runtime guard named by acceptance exist.
+    # Batch 16: written contract, hidden model, historical RED receipt, then
+    # accepted hidden GREEN runtime. Production-route promotion remains separate.
     "product/mint_next/batch16/classification-doubt-scope.yaml",
     "product/mint_next/batch16/navigation.mmd",
     "product/mint_next/batch16/acceptance.yaml",
@@ -266,11 +266,16 @@ ALLOW = {
     "product/mint_next/batch7/design_lab/test/multi_provider_unresolved_siblings_test.dart",
     "product/mint_next/batch16/runtime-navigation-red.yaml",
     "product/mint_next/batch16/six-locale-semantic-fixture.yaml",
+    "product/mint_next/batch16/official-sources.yaml",
     "product/mint_next/batch7/design_lab/test/design_lab_batch16_unresolved_navigation_test.dart",
     "product/mint_next/batch7/design_lab/test/batch16_semantic_fixture.g.dart",
     "tools/checks/mint_next_batch16_runtime_red_contract_guard.py",
     "tools/checks/tests/test_mint_next_batch16_runtime_red_contract_guard.py",
     ".github/workflows/mint-next-batch16-red-contract.yml",
+    "product/mint_next/batch16/runtime-navigation-acceptance.yaml",
+    "tools/checks/mint_next_batch16_runtime_guard.py",
+    "tools/checks/tests/test_mint_next_batch16_runtime_guard.py",
+    ".github/workflows/mint-next-batch16-runtime-acceptance.yml",
     "product/mint_next/batch7/design_lab/analysis_options.yaml",
     "tools/checks/fixtures/unicode/CaseFolding-17.0.0.txt.gz",
     "tools/checks/fixtures/unicode/DefaultIgnorable-17.0.0.txt",

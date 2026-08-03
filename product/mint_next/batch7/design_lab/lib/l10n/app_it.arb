@@ -322,5 +322,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "batch16AnnualOrdinaryTotalMeaning": "Inserisci una sola volta, per ogni offerente, il totale annuo dei contributi ordinari indicato nell’attestazione annuale.",
+  "batch16ActuallyCreditedMeaning": "Considera solo quanto è stato effettivamente accreditato per il {taxYear}, non quanto era previsto, inviato o addebitato.",
+  "@batch16ActuallyCreditedMeaning": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16ExcludedMovementsMeaning": "Non includere trasferimenti, versamenti retroattivi, movimenti in sospeso, rimborsi o guadagni d’investimento.",
+  "batch16ProviderConfirmedNetMeaning": "Dopo una correzione o un rimborso, chiedi all’offerente il totale netto confermato dei contributi ordinari; non sottrarre nulla autonomamente.",
+  "batch16InsuranceCertificateMeaning": "Per un’assicurazione usa l’attestazione annuale; non usare né il valore di riscatto né la ripartizione rischio/risparmio.",
+  "batch16RefundVsAllZeroMeaning": "Il rimborso integrale di un offerente non significa che tutti gli offerenti siano a zero.",
+  "batch16MintNotVerifiedMeaning": "MINT non ha verificato l’importo inserito.",
+  "batch16NoTaxAdviceMeaning": "Questo passaggio non produce né un risultato fiscale né una raccomandazione.",
+  "batch16RowContext": "riga {rowNumber} · {taxYear}",
+  "@batch16RowContext": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      },
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16HelpTitle": "Hai bisogno di aiuto?",
+  "batch16HelpCompactTitle": "Aiuto",
+  "batch16HelpCompactBody": "MINT: non verificato.",
+  "batch16HelpBody": "MINT non ha verificato questo totale. Scegli solo se ne sei sicuro.",
+  "batch16HelpDetails": "Capire le regole per questa riga",
+  "batch16HelpProviderTotal": "Totale ordinario ottenuto",
+  "batch16HelpProviderTotalCompact": "Totale 3a ricevuto",
+  "batch16HelpProviderRefunded": "Rimborso integrale da questo offerente",
+  "batch16HelpAllZero": "Tutti i miei offerenti sono a zero",
+  "batch16HelpEducation": "Voglio capire che cosa conta",
+  "batch16HelpBack": "Torna all’inserimento",
+  "batch16StatusUnreviewed": "Da verificare",
+  "batch16StatusConfirmed": "Confermato",
+  "batch16StatusUnresolved": "Questione non risolta",
+  "batch16UnresolvedError": "Rispondi a questa domanda prima di continuare.",
+  "batch16CorrectionTitle": "Correggi questa risposta",
+  "batch16CorrectionDataLoss": "Se scegli «No» o «Non lo so», MINT cancellerà subito tutti gli offerenti e gli importi di questo inserimento locale. Non potrai annullare questa azione.",
+  "batch16CurrentYes": "Risposta attuale: Sì",
+  "batch16Unselected": "Nessuna risposta selezionata",
+  "batch16ChooseYes": "Scegli Sì",
+  "batch16ChooseNo": "No — cancella questi importi e continua",
+  "batch16ChooseUnknown": "Non lo so — cancella gli importi e verifica",
+  "batch16Back": "Indietro"
 }

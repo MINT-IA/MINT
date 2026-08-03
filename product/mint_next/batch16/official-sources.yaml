@@ -1,0 +1,71 @@
+schema_version: 1
+checked_at: '2026-08-03'
+retrieved_at: '2026-08-03T00:50:00+02:00'
+review_due_at: '2026-12-31'
+jurisdiction: CH
+scope: batch16_ordinary_3a_classification_help
+reused_from: product/mint_next/batch11/official-sources.yaml
+sources:
+  - id: estv_circular_18a
+    authority: Administration fédérale des contributions
+    title: Circulaire no 18a — Traitement fiscal des cotisations et prestations du pilier 3a
+    url: https://www.estv.admin.ch/dam/estv/fr/dokumente/dbst/kreisschreiben/dbst-ks-2025-1-018a-dv.pdf.download.pdf/dbst-ks-2025-1-018a-dv.pdf
+    version: '18a · 2025-12-22'
+    effective_from: '2026-01-01'
+    anchors:
+      - section_5_1_printed_pages_4_5_credit_to_individual_account_or_policy_is_decisive
+      - section_5_2_printed_page_5_total_across_multiple_bank_and_insurance_contracts
+      - section_5_6_printed_pages_6_7_retroactive_buyback_is_distinct
+      - section_6_2_a_printed_page_9_provider_transfer_is_not_new_ordinary_contribution
+      - section_8_printed_pages_11_12_attestations_and_transfer_history
+      - section_9_1_printed_page_12_excess_contribution_refund_and_correction
+  - id: estv_form_21_edp_notice
+    authority: Administration fédérale des contributions
+    title: Notice sur l’établissement de l’attestation concernant les cotisations de prévoyance — formulaire 21 EDP
+    url: https://www.estv.admin.ch/dam/fr/sd-web/bwQT3vUiDRc1/dbst-mb-21edp-2025-fr.pdf
+    version: '2025-07-29'
+    effective_from: '2026-01-01'
+    anchors:
+      - marginal_25_provider_is_recognized_insurance_or_bank_foundation_that_received_contribution
+      - marginal_26_each_policy_or_agreement_and_corresponding_calendar_year
+      - marginal_27_provider_total_q_is_actual_total_not_only_deductible_ceiling
+      - marginals_28_32_buybacks_are_section_3_and_not_cumulated_with_ordinary_section_2
+      - marginal_33_provider_certifies_correctness
+  - id: estv_form_21_edp_2026
+    authority: Administration fédérale des contributions
+    title: Attestation concernant les cotisations de prévoyance — formulaire 21 EDP édition 06.2026
+    url: https://www.estv.admin.ch/dam/de/sd-web/SGAqZmbwA2OC/21EDP-2026-de.pdf
+    version: '06.2026'
+    effective_from: '2026-06-03'
+    anchors:
+      - trilingual_section_2_ordinary_3a_contributions
+      - field_q_total_ordinary_3a_contributions
+      - section_3_retroactive_buybacks
+      - field_x_total_3a_buybacks
+  - id: ofas_your_third_pillar_contribution
+    authority: Office fédéral des assurances sociales
+    title: Votre cotisation au 3e pilier
+    url: https://www.bsv.admin.ch/fr/votre-cotisation-au-3e-pilier
+    version: '2025-11-27'
+    effective_from: '2026-01-01'
+    anchors:
+      - line_29_bank_or_insurance_and_annual_limits
+      - line_30_credit_by_31_december_for_same_year_tax_treatment
+      - lines_32_35_retroactive_buyback_is_separate
+
+review_boundaries:
+  official_sources_support:
+    - provider_scoped_annual_attestation_and_ordinary_total
+    - actual_credit_timing_for_selected_tax_year
+    - separation_of_transfer_retroactive_buyback_refund_and_ordinary_contribution
+    - insurance_and_bank_foundations_are_both_in_scope
+  product_safety_inferences_not_direct_official_quotes:
+    - a_full_refund_at_one_provider_does_not_prove_every_provider_is_zero
+    - mint_does_not_verify_user_input_in_this_local_harness
+    - this_collection_step_returns_no_tax_result_or_recommendation
+  not_authorized:
+    - tax_result
+    - tax_saving_or_deduction
+    - recommendation
+    - provider_import_scan_ocr_or_api
+    - persistence_logging_or_network_output

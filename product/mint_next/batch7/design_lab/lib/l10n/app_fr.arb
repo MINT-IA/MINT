@@ -322,5 +322,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "batch16AnnualOrdinaryTotalMeaning": "Saisis une seule fois, pour chaque prestataire, le total annuel des cotisations ordinaires indiqué sur son attestation annuelle.",
+  "batch16ActuallyCreditedMeaning": "Compte uniquement ce qui a réellement été crédité pour {taxYear}, pas ce qui était prévu, envoyé ou débité.",
+  "@batch16ActuallyCreditedMeaning": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16ExcludedMovementsMeaning": "N’inclus pas les transferts, rachats rétroactifs, mouvements en attente, remboursements ni gains de placement.",
+  "batch16ProviderConfirmedNetMeaning": "Après une correction ou un remboursement, demande au prestataire son total net confirmé des cotisations ordinaires; ne soustrais rien toi-même.",
+  "batch16InsuranceCertificateMeaning": "Pour une assurance, utilise l’attestation annuelle; n’utilise ni la valeur de rachat ni la répartition risque/épargne.",
+  "batch16RefundVsAllZeroMeaning": "Le remboursement intégral d’un prestataire ne signifie pas que tous les prestataires sont à zéro.",
+  "batch16MintNotVerifiedMeaning": "MINT n’a pas vérifié le montant saisi.",
+  "batch16NoTaxAdviceMeaning": "Cette étape ne produit ni résultat fiscal ni recommandation.",
+  "batch16RowContext": "ligne {rowNumber} · {taxYear}",
+  "@batch16RowContext": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      },
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16HelpTitle": "Besoin d’aide ?",
+  "batch16HelpCompactTitle": "Aide",
+  "batch16HelpCompactBody": "MINT : non vérifié.",
+  "batch16HelpBody": "MINT n’a pas vérifié ce total. Choisis seulement si tu es sûr.",
+  "batch16HelpDetails": "Comprendre les règles pour cette ligne",
+  "batch16HelpProviderTotal": "Total ordinaire obtenu",
+  "batch16HelpProviderTotalCompact": "Total 3a reçu",
+  "batch16HelpProviderRefunded": "Remboursement intégral de ce prestataire",
+  "batch16HelpAllZero": "Tous mes prestataires sont à zéro",
+  "batch16HelpEducation": "Je veux comprendre ce qui compte",
+  "batch16HelpBack": "Revenir à la saisie",
+  "batch16StatusUnreviewed": "À vérifier",
+  "batch16StatusConfirmed": "Confirmé",
+  "batch16StatusUnresolved": "Question non résolue",
+  "batch16UnresolvedError": "Réponds à cette question avant de continuer.",
+  "batch16CorrectionTitle": "Corriger cette réponse",
+  "batch16CorrectionDataLoss": "Si tu choisis « Non » ou « Je ne sais pas », MINT effacera immédiatement tous les prestataires et montants de cette saisie locale. Cette action ne peut pas être annulée.",
+  "batch16CurrentYes": "Réponse actuelle : Oui",
+  "batch16Unselected": "Aucune réponse sélectionnée",
+  "batch16ChooseYes": "Choisir Oui",
+  "batch16ChooseNo": "Non — effacer ces montants et continuer",
+  "batch16ChooseUnknown": "Je ne sais pas — effacer ces montants et vérifier",
+  "batch16Back": "Retour"
 }

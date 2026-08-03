@@ -3,25 +3,27 @@ batch: 16
 status: contract_accepted_runtime_unimplemented
 scope_ref: product/mint_next/batch16/classification-doubt-scope.yaml
 navigation_ref: product/mint_next/batch16/navigation.mmd
-
 review_required:
   ux_navigation: accepted_contract_only_p1_0_p2_0_p3_0
   swiss_finance_copy: accepted_contract_only_p1_0_p2_0_p3_0
   adversarial_state_machine: accepted_contract_only_p1_0_p2_0_p3_0
-
 contract_roast_receipt:
   rounds: 6
-  final_exact_artifacts: [classification-doubt-scope.yaml, navigation.mmd, acceptance.yaml]
+  final_exact_artifacts:
+  - classification-doubt-scope.yaml
+  - navigation.mmd
+  - acceptance.yaml
   runtime_claim: forbidden
-
 full_runtime_acceptance_requires:
-  severity_counts: {p1: 0, p2: 0, p3: 0}
+  severity_counts:
+    p1: 0
+    p2: 0
+    p3: 0
   no_dead_end: true
   no_uncabled_control: true
   no_automatic_financial_inference: true
   runtime_proofs_complete: true
   hidden_harness_only: true
-
 current_evidence:
   written_contract_roasts_complete: true
   scope_guard_complete: true
@@ -29,7 +31,6 @@ current_evidence:
   runtime_proofs_complete: false
   runtime_guard_complete: false
   product_promotion: forbidden
-
 mechanical_binding:
   scope_guard: tools/checks/mint_next_batch16_classification_scope_guard.py
   scope_guard_tests: tools/checks/tests/test_mint_next_batch16_classification_scope_guard.py
@@ -41,16 +42,16 @@ mechanical_binding:
   flutter_runtime_tests: product/mint_next/batch7/design_lab/test/design_lab_multi_provider_runtime_test.dart
   ci_workflow: .github/workflows/mint-next-batch16-runtime.yml
   required_scope_commands:
-    - python3 tools/checks/mint_next_batch16_classification_scope_guard.py
-    - python3 -m unittest tools.checks.tests.test_mint_next_batch16_classification_scope_guard
+  - python3 tools/checks/mint_next_batch16_classification_scope_guard.py
+  - python3 -m unittest tools.checks.tests.test_mint_next_batch16_classification_scope_guard
   required_runtime_commands_planned:
-    - python3 tools/checks/mint_next_batch16_classification_runtime_guard.py
-    - python3 -m unittest tools.checks.tests.test_mint_next_batch16_classification_runtime_guard
-    - cd product/mint_next/batch7/design_lab && flutter analyze
-    - cd product/mint_next/batch7/design_lab && flutter test
+  - python3 tools/checks/mint_next_batch16_classification_runtime_guard.py
+  - python3 -m unittest tools.checks.tests.test_mint_next_batch16_classification_runtime_guard
+  - cd product/mint_next/batch7/design_lab && flutter analyze
+  - cd product/mint_next/batch7/design_lab && flutter test
   digest_binding:
-    contract_sha256: c5bf3eb9eef71aa4e50125cbc32abc4d73ea1fa11d25536ab49c89b4b006adee
-    navigation_sha256: ff8efef370d20fe9fb0a9fa73d04148f4dc41155eded8150d3985c6a273fd053
+    contract_sha256: b92bbbdc3500f2027d9c0d7e8c548082a65a08a1a3c8d04689b8d0de57675f08
+    navigation_sha256: e2894b8a47ce971a1bb8cdccf25e9e8d336183fb64416e9f5eb1be184fec48e5
     normalized_workflow_sha256: f96890b67b2f7db01ddac5a1ebcefe94c4d89079a26df252cb67ba70781cf27e
   scope_hostile_mutations_executed:
     runtime_promotion: test_runtime_promotion_is_rejected
@@ -104,5 +105,4 @@ mechanical_binding:
     lefthook_binding_removed: workflow_binding_guard_test_must_fail
     ci_binding_removed: workflow_binding_guard_test_must_fail
     hidden_harness_limit_changed: hidden_surface_guard_test_must_fail
-
 current_verdict: CONTRACT_ACCEPTED_RUNTIME_UNIMPLEMENTED

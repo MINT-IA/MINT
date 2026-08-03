@@ -322,5 +322,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "batch16AnnualOrdinaryTotalMeaning": "Introduce una sola vez, para cada proveedor, el total anual de las aportaciones ordinarias indicado en su certificado anual.",
+  "batch16ActuallyCreditedMeaning": "Cuenta solo lo que se abonó realmente para {taxYear}, no lo que estaba previsto, se envió o se cargó.",
+  "@batch16ActuallyCreditedMeaning": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16ExcludedMovementsMeaning": "No incluyas transferencias, aportaciones retroactivas, movimientos pendientes, reembolsos ni ganancias de inversión.",
+  "batch16ProviderConfirmedNetMeaning": "Tras una corrección o un reembolso, pide al proveedor el total neto confirmado de las aportaciones ordinarias; no restes nada por tu cuenta.",
+  "batch16InsuranceCertificateMeaning": "Para un seguro, utiliza el certificado anual; no uses ni el valor de rescate ni el reparto entre riesgo y ahorro.",
+  "batch16RefundVsAllZeroMeaning": "El reembolso íntegro de un proveedor no significa que todos los proveedores estén a cero.",
+  "batch16MintNotVerifiedMeaning": "MINT no ha verificado el importe introducido.",
+  "batch16NoTaxAdviceMeaning": "Este paso no produce ni un resultado fiscal ni una recomendación.",
+  "batch16RowContext": "fila {rowNumber} · {taxYear}",
+  "@batch16RowContext": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      },
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16HelpTitle": "¿Necesitas ayuda?",
+  "batch16HelpCompactTitle": "Ayuda",
+  "batch16HelpCompactBody": "MINT: no verificado.",
+  "batch16HelpBody": "MINT no ha verificado este total. Elige solo si estás seguro.",
+  "batch16HelpDetails": "Entender las reglas de esta fila",
+  "batch16HelpProviderTotal": "Total ordinario obtenido",
+  "batch16HelpProviderTotalCompact": "Total 3a recibido",
+  "batch16HelpProviderRefunded": "Reembolso íntegro de este proveedor",
+  "batch16HelpAllZero": "Todos mis proveedores están a cero",
+  "batch16HelpEducation": "Quiero entender qué se tiene en cuenta",
+  "batch16HelpBack": "Volver a la introducción",
+  "batch16StatusUnreviewed": "Por revisar",
+  "batch16StatusConfirmed": "Confirmado",
+  "batch16StatusUnresolved": "Pregunta sin resolver",
+  "batch16UnresolvedError": "Responde a esta pregunta antes de continuar.",
+  "batch16CorrectionTitle": "Corregir esta respuesta",
+  "batch16CorrectionDataLoss": "Si eliges «No» o «No lo sé», MINT borrará inmediatamente todos los proveedores e importes de esta entrada local. Esta acción no se puede deshacer.",
+  "batch16CurrentYes": "Respuesta actual: Sí",
+  "batch16Unselected": "Ninguna respuesta seleccionada",
+  "batch16ChooseYes": "Elegir Sí",
+  "batch16ChooseNo": "No — borrar estos importes y continuar",
+  "batch16ChooseUnknown": "No lo sé — borrar los importes y comprobar",
+  "batch16Back": "Atrás"
 }

@@ -539,4 +539,116 @@ class MintNextLocalizationsEs extends MintNextLocalizations {
   @override
   String get batch15ResolveTombstoneError =>
       'Deshaz la retirada o borra definitivamente esta fila antes de continuar.';
+
+  @override
+  String get batch16AnnualOrdinaryTotalMeaning =>
+      'Introduce una sola vez, para cada proveedor, el total anual de las aportaciones ordinarias indicado en su certificado anual.';
+
+  @override
+  String batch16ActuallyCreditedMeaning(int taxYear) {
+    return 'Cuenta solo lo que se abonó realmente para $taxYear, no lo que estaba previsto, se envió o se cargó.';
+  }
+
+  @override
+  String get batch16ExcludedMovementsMeaning =>
+      'No incluyas transferencias, aportaciones retroactivas, movimientos pendientes, reembolsos ni ganancias de inversión.';
+
+  @override
+  String get batch16ProviderConfirmedNetMeaning =>
+      'Tras una corrección o un reembolso, pide al proveedor el total neto confirmado de las aportaciones ordinarias; no restes nada por tu cuenta.';
+
+  @override
+  String get batch16InsuranceCertificateMeaning =>
+      'Para un seguro, utiliza el certificado anual; no uses ni el valor de rescate ni el reparto entre riesgo y ahorro.';
+
+  @override
+  String get batch16RefundVsAllZeroMeaning =>
+      'El reembolso íntegro de un proveedor no significa que todos los proveedores estén a cero.';
+
+  @override
+  String get batch16MintNotVerifiedMeaning =>
+      'MINT no ha verificado el importe introducido.';
+
+  @override
+  String get batch16NoTaxAdviceMeaning =>
+      'Este paso no produce ni un resultado fiscal ni una recomendación.';
+
+  @override
+  String batch16RowContext(int rowNumber, int taxYear) {
+    return 'fila $rowNumber · $taxYear';
+  }
+
+  @override
+  String get batch16HelpTitle => '¿Necesitas ayuda?';
+
+  @override
+  String get batch16HelpCompactTitle => 'Ayuda';
+
+  @override
+  String get batch16HelpCompactBody => 'MINT: no verificado.';
+
+  @override
+  String get batch16HelpBody =>
+      'MINT no ha verificado este total. Elige solo si estás seguro.';
+
+  @override
+  String get batch16HelpDetails => 'Entender las reglas de esta fila';
+
+  @override
+  String get batch16HelpProviderTotal => 'Total ordinario obtenido';
+
+  @override
+  String get batch16HelpProviderTotalCompact => 'Total 3a recibido';
+
+  @override
+  String get batch16HelpProviderRefunded =>
+      'Reembolso íntegro de este proveedor';
+
+  @override
+  String get batch16HelpAllZero => 'Todos mis proveedores están a cero';
+
+  @override
+  String get batch16HelpEducation => 'Quiero entender qué se tiene en cuenta';
+
+  @override
+  String get batch16HelpBack => 'Volver a la introducción';
+
+  @override
+  String get batch16StatusUnreviewed => 'Por revisar';
+
+  @override
+  String get batch16StatusConfirmed => 'Confirmado';
+
+  @override
+  String get batch16StatusUnresolved => 'Pregunta sin resolver';
+
+  @override
+  String get batch16UnresolvedError =>
+      'Responde a esta pregunta antes de continuar.';
+
+  @override
+  String get batch16CorrectionTitle => 'Corregir esta respuesta';
+
+  @override
+  String get batch16CorrectionDataLoss =>
+      'Si eliges «No» o «No lo sé», MINT borrará inmediatamente todos los proveedores e importes de esta entrada local. Esta acción no se puede deshacer.';
+
+  @override
+  String get batch16CurrentYes => 'Respuesta actual: Sí';
+
+  @override
+  String get batch16Unselected => 'Ninguna respuesta seleccionada';
+
+  @override
+  String get batch16ChooseYes => 'Elegir Sí';
+
+  @override
+  String get batch16ChooseNo => 'No — borrar estos importes y continuar';
+
+  @override
+  String get batch16ChooseUnknown =>
+      'No lo sé — borrar los importes y comprobar';
+
+  @override
+  String get batch16Back => 'Atrás';
 }

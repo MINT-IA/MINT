@@ -151,6 +151,25 @@ def validate_static(root: Path = ROOT) -> list[str]:
     if "skip:" in test_source or "skip:" in sibling_test_source:
         errors.append("classification or sibling model tests may not be skipped")
     exact_files = receipt.get("exact_files", {})
+    runtime_acceptance_path = (
+        root / "product/mint_next/batch16/runtime-navigation-acceptance.yaml"
+    )
+    accepted_runtime_hashes: dict[str, str] = {}
+    if runtime_acceptance_path.is_file():
+        try:
+            runtime_acceptance = _load_yaml(runtime_acceptance_path)
+        except yaml.YAMLError as exc:
+            errors.append(f"invalid Batch16C runtime acceptance YAML: {exc}")
+        else:
+            if runtime_acceptance.get("status") not in {
+                "candidate_hidden_runtime",
+                "accepted_hidden_runtime",
+            }:
+                errors.append("Batch16C runtime acceptance status drifted")
+            else:
+                accepted_runtime_hashes = runtime_acceptance.get(
+                    "runtime_files_sha256", {}
+                )
     if set(exact_files) != {
         "model",
         "model_sha256",
@@ -174,13 +193,18 @@ def validate_static(root: Path = ROOT) -> list[str]:
     for path, expected_key in (
         (editor, "unchanged_editor_sha256"),
         (design_app, "unchanged_design_app_sha256"),
-        (entrypoint, "unchanged_entrypoint_sha256"),
     ):
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
-        if digest != exact_files.get(expected_key):
-            errors.append(f"Batch16B UI boundary drifted: {path.relative_to(root)}")
+        expected = accepted_runtime_hashes.get(str(path.relative_to(root)))
+        if expected is None:
+            expected = exact_files.get(expected_key)
+        if digest != expected:
+            errors.append(f"Batch16 UI boundary drifted: {path.relative_to(root)}")
+    if hashlib.sha256(entrypoint.read_bytes()).hexdigest() != exact_files.get(
+        "unchanged_entrypoint_sha256"
+    ):
+        errors.append(f"Batch16B UI boundary drifted: {entrypoint.relative_to(root)}")
     for path, expected_key in (
-        (model, "model_sha256"),
         (tests, "classification_tests_sha256"),
         (sibling_tests, "sibling_tests_sha256"),
         (lab / "test/multi_provider_amount_draft_test.dart", "prior_model_tests_sha256"),
@@ -189,6 +213,12 @@ def validate_static(root: Path = ROOT) -> list[str]:
         digest = hashlib.sha256(path.read_bytes()).hexdigest()
         if digest != exact_files.get(expected_key):
             errors.append(f"Batch16B accepted model proof drifted: {path.relative_to(root)}")
+    model_digest = hashlib.sha256(model.read_bytes()).hexdigest()
+    expected_model = accepted_runtime_hashes.get(str(model.relative_to(root)))
+    if expected_model is None:
+        expected_model = exact_files.get("model_sha256")
+    if model_digest != expected_model:
+        errors.append(f"Batch16 accepted model proof drifted: {model.relative_to(root)}")
     if receipt.get("status") != "accepted_hidden_sibling_transaction_groundwork_only":
         errors.append("model receipt status drifted")
     if receipt.get("red_test_commit") != "b4345742b":

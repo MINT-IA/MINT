@@ -322,5 +322,54 @@
         "type": "String"
       }
     }
-  }
+  },
+  "batch16AnnualOrdinaryTotalMeaning": "Introduz uma única vez, para cada prestador, o total anual das contribuições ordinárias indicado no certificado anual.",
+  "batch16ActuallyCreditedMeaning": "Conta apenas o que foi efetivamente creditado para {taxYear}, não o que estava previsto, foi enviado ou debitado.",
+  "@batch16ActuallyCreditedMeaning": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16ExcludedMovementsMeaning": "Não incluas transferências, contribuições retroativas, movimentos pendentes, reembolsos nem ganhos de investimento.",
+  "batch16ProviderConfirmedNetMeaning": "Após uma correção ou um reembolso, pede ao prestador o total líquido confirmado das contribuições ordinárias; não subtraias nada por tua conta.",
+  "batch16InsuranceCertificateMeaning": "Para um seguro, utiliza o certificado anual; não uses nem o valor de resgate nem a repartição entre risco e poupança.",
+  "batch16RefundVsAllZeroMeaning": "O reembolso integral de um prestador não significa que todos os prestadores estejam a zero.",
+  "batch16MintNotVerifiedMeaning": "A MINT não verificou o montante introduzido.",
+  "batch16NoTaxAdviceMeaning": "Este passo não produz qualquer resultado fiscal nem recomendação.",
+  "batch16RowContext": "linha {rowNumber} · {taxYear}",
+  "@batch16RowContext": {
+    "placeholders": {
+      "rowNumber": {
+        "type": "int"
+      },
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch16HelpTitle": "Precisas de ajuda?",
+  "batch16HelpCompactTitle": "Ajuda",
+  "batch16HelpCompactBody": "MINT: não verificado.",
+  "batch16HelpBody": "A MINT não verificou este total. Escolhe apenas se tens a certeza.",
+  "batch16HelpDetails": "Compreender as regras desta linha",
+  "batch16HelpProviderTotal": "Total ordinário obtido",
+  "batch16HelpProviderTotalCompact": "Total 3a recebido",
+  "batch16HelpProviderRefunded": "Reembolso integral deste prestador",
+  "batch16HelpAllZero": "Todos os meus prestadores estão a zero",
+  "batch16HelpEducation": "Quero perceber o que é contabilizado",
+  "batch16HelpBack": "Voltar à introdução",
+  "batch16StatusUnreviewed": "Por verificar",
+  "batch16StatusConfirmed": "Confirmado",
+  "batch16StatusUnresolved": "Questão por resolver",
+  "batch16UnresolvedError": "Responde a esta pergunta antes de continuar.",
+  "batch16CorrectionTitle": "Corrigir esta resposta",
+  "batch16CorrectionDataLoss": "Se escolheres «Não» ou «Não sei», a MINT apagará imediatamente todos os prestadores e montantes desta introdução local. Esta ação não pode ser anulada.",
+  "batch16CurrentYes": "Resposta atual: Sim",
+  "batch16Unselected": "Nenhuma resposta selecionada",
+  "batch16ChooseYes": "Escolher Sim",
+  "batch16ChooseNo": "Não — apagar estes montantes e continuar",
+  "batch16ChooseUnknown": "Não sei — apagar os montantes e verificar",
+  "batch16Back": "Voltar"
 }

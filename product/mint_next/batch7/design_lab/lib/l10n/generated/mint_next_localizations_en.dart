@@ -537,4 +537,115 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
   @override
   String get batch15ResolveTombstoneError =>
       'Undo the removal or permanently erase this row before continuing.';
+
+  @override
+  String get batch16AnnualOrdinaryTotalMeaning =>
+      'Enter once, for each provider, the annual total of ordinary contributions shown on its annual certificate.';
+
+  @override
+  String batch16ActuallyCreditedMeaning(int taxYear) {
+    return 'Count only what was actually credited for $taxYear, not what was planned, sent or debited.';
+  }
+
+  @override
+  String get batch16ExcludedMovementsMeaning =>
+      'Do not include transfers, retroactive buy-ins, pending movements, refunds or investment gains.';
+
+  @override
+  String get batch16ProviderConfirmedNetMeaning =>
+      'After a correction or refund, ask the provider for its confirmed net total of ordinary contributions; do not subtract anything yourself.';
+
+  @override
+  String get batch16InsuranceCertificateMeaning =>
+      'For insurance, use the annual certificate; use neither the surrender value nor the risk/savings split.';
+
+  @override
+  String get batch16RefundVsAllZeroMeaning =>
+      'A full refund from one provider does not mean that all providers are at zero.';
+
+  @override
+  String get batch16MintNotVerifiedMeaning =>
+      'MINT has not verified the amount entered.';
+
+  @override
+  String get batch16NoTaxAdviceMeaning =>
+      'This step produces neither a tax result nor a recommendation.';
+
+  @override
+  String batch16RowContext(int rowNumber, int taxYear) {
+    return 'row $rowNumber · $taxYear';
+  }
+
+  @override
+  String get batch16HelpTitle => 'Need help?';
+
+  @override
+  String get batch16HelpCompactTitle => 'Help';
+
+  @override
+  String get batch16HelpCompactBody => 'MINT: not verified.';
+
+  @override
+  String get batch16HelpBody =>
+      'MINT has not verified this total. Choose only if you are sure.';
+
+  @override
+  String get batch16HelpDetails => 'Understand the rules for this row';
+
+  @override
+  String get batch16HelpProviderTotal => 'Ordinary total obtained';
+
+  @override
+  String get batch16HelpProviderTotalCompact => '3a total received';
+
+  @override
+  String get batch16HelpProviderRefunded => 'Full refund from this provider';
+
+  @override
+  String get batch16HelpAllZero => 'All my providers are at zero';
+
+  @override
+  String get batch16HelpEducation => 'I want to understand what counts';
+
+  @override
+  String get batch16HelpBack => 'Back to entry';
+
+  @override
+  String get batch16StatusUnreviewed => 'Needs review';
+
+  @override
+  String get batch16StatusConfirmed => 'Confirmed';
+
+  @override
+  String get batch16StatusUnresolved => 'Unresolved question';
+
+  @override
+  String get batch16UnresolvedError =>
+      'Answer this question before continuing.';
+
+  @override
+  String get batch16CorrectionTitle => 'Correct this answer';
+
+  @override
+  String get batch16CorrectionDataLoss =>
+      'If you choose “No” or “I don’t know”, MINT will immediately erase every provider and amount from this local entry. This cannot be undone.';
+
+  @override
+  String get batch16CurrentYes => 'Current answer: Yes';
+
+  @override
+  String get batch16Unselected => 'No answer selected';
+
+  @override
+  String get batch16ChooseYes => 'Choose Yes';
+
+  @override
+  String get batch16ChooseNo => 'No — erase these amounts and continue';
+
+  @override
+  String get batch16ChooseUnknown =>
+      'I don’t know — erase these amounts and check';
+
+  @override
+  String get batch16Back => 'Back';
 }
