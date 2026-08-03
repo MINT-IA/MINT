@@ -1,0 +1,69 @@
+schema_version: 1
+status: candidate_runtime_evidence_not_promotion
+captured_at: '2026-08-03T03:15:00+02:00'
+runner: local_real_chrome_cdp_flutter_web_release
+viewport:
+  width: 390
+  height: 844
+  device_scale_factor: 1
+app:
+  path: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  sha256: 75c95241282eb12ff6066de5c0c2205e3bf6b0008558755268c96a437c504c4a
+probe:
+  path: tools/checks/mint_next_batch12_amount_runtime_probe.py
+  sha256: de632b95cfe6d87816024e1cdb43b558abdc290c823617ed3ac553c66db459a3
+navigation:
+  path: product/mint_next/batch12/navigation-runtime.yaml
+  sha256: 6db1521aa753a02e51529505956cde23e7e32c45f3a49de54ebe9777018781d7
+commands:
+- flutter analyze
+- flutter test
+- python3 tools/checks/mint_next_batch12_amount_runtime_probe.py --capture
+- python3 tools/checks/journey_os_check.py
+- python3 tools/checks/mint_next_batch11_amount_scope_guard.py
+- lefthook run pre-commit
+assertions:
+- exact_integer_minor_unit_amount_parser
+- single_provider_precondition_is_explicit
+- multi_provider_holding_requires_explicit_correction
+- provider_identifier_rejection
+- empty_invalid_partial_and_complete_routes
+- edit_clears_completeness
+- help_back_restores_origin_focus
+- checkbox_error_focus_and_live_region
+- keyboard_done_and_disclosure_never_commit
+- positive_boundary_never_inverts_fact
+- status_leave_and_tax_year_purge
+- six_locale_ordinary_credited_received_semantics
+- 320x700_text_scale_2_holding_and_safe_exit
+- real_chrome_ax_focus_expanded_and_checked_states
+- real_runtime_has_no_external_https_resource
+captures:
+- path: product/mint_next/batch12/evidence/runtime/fr_amount_complete_boundary_chrome_390.png
+  sha256: 23f302c46407400df15e343ef050d39c61a37e5a8daa77c8133c9763e1729e12
+  width: 390
+  height: 844
+- path: product/mint_next/batch12/evidence/runtime/fr_amount_disclosure_chrome_390.png
+  sha256: 183760e9782d8776e4e943dc9f4ec2fb14ff2366ea73ddd1b2e8496edb55f4bc
+  width: 390
+  height: 844
+- path: product/mint_next/batch12/evidence/runtime/fr_amount_empty_chrome_390.png
+  sha256: 5ad2aa3d7884d246bf7399d04ba2cd7df2ab82bdf7d499fa40576fae901af299
+  width: 390
+  height: 844
+- path: product/mint_next/batch12/evidence/runtime/fr_amount_partial_help_chrome_390.png
+  sha256: 596da3fe4925f4e4044c8010cec9104eff05875fd61035e307dee54fb1d8d3be
+  width: 390
+  height: 844
+limitations:
+- single_provider_only
+- multi_provider_collection_not_accepted
+- not_product_integrated
+- ios_not_run
+- android_not_run
+- external_ci_not_run
+- user_not_validated
+- no_personal_tax_result
+- no_persisted_user_fact
+- chrome_probe_narrower_than_hostile_widget_suite
+- provider_identifier_screening_is_heuristic

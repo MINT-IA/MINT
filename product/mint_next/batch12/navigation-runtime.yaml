@@ -1,0 +1,110 @@
+schema_version: 1
+status: candidate_written_runtime_map_not_product
+journey_id: swiss_3a_question_to_next_action
+bound_commit: 44f7ee6f2d503ccc16b8e9bbff161566611502c3
+bound_tree: e837dcad6b2dbb9b079a3a2d05c460710c9a6889
+audience: beginner_low_financial_literacy
+
+scope:
+  implemented: single_provider_ordinary_3a_amount
+  inherited_entry: fact_contribution_yes
+  terminal_boundaries: [fact_canton, education_explanation]
+  explicitly_not_implemented: [additional_provider_rows, local_provider_sum, personal_tax_result, persistence, product_integration]
+
+graph:
+  fact_contributed_amount:
+    purpose: collect_one_provider_ordinary_contributions_actually_credited_for_selected_year
+    visible_facts: [selected_tax_year, ephemeral_provider_name, exact_chf_amount, single_provider_confirmation]
+    controls:
+      continue:
+        to: fact_canton
+        guard: safe_provider_name_and_positive_exact_amount_and_single_provider_confirmed
+        failure_order: [provider_name, amount, single_provider_confirmation]
+      where_to_find:
+        to: fact_contributed_amount
+        operation: toggle_same_node_disclosure
+      unknown_amount:
+        to: contributed_amount_unknown_help
+        guard: no_positive_draft
+        mode: unknown
+      multiple_providers:
+        to: contributed_amount_unknown_help
+        guard: positive_draft_and_not_single_provider_confirmed
+        mode: multi_provider_holding
+        mutations: [clear_single_provider_confirmation, set_multiple_providers_declared]
+      correct_previous:
+        to: fact_contribution
+        mutation: preserve_draft_until_status_changes
+      safe_exit:
+        to: safe_exit_overlay
+    forbidden_routes: [automatic_after_typing, add_provider, remove_provider, calculated_result]
+
+  contributed_amount_unknown_help:
+    mode_unknown:
+      found_first_amount:
+        to: fact_contributed_amount
+        focus: ordinary_amount_field
+      back:
+        to: fact_contributed_amount
+        focus: unknown_amount_trigger
+      education_only:
+        to: education_explanation
+    mode_multi_provider_holding:
+      invariant: known_incomplete_subtotal_can_never_be_committed
+      explicit_correction:
+        label_intent: user_declares_they_actually_have_only_one_provider
+        to: fact_contributed_amount
+        mutations: [clear_multiple_providers_declared, keep_draft_unconfirmed]
+        focus: ordinary_amount_field
+      education_only:
+        to: education_explanation
+      absent_controls: [back_without_correction, continue_to_canton, single_provider_confirmation, add_provider]
+    safe_exit:
+      to: safe_exit_overlay
+
+  fact_canton:
+    purpose: next_step_boundary_without_calculation
+    back:
+      label_intent: correct_my_amounts
+      to: fact_contributed_amount
+      restores: [provider_name, exact_amount, single_provider_confirmation]
+    forbidden: [tax_result, deductible_amount, tax_saving, provider_recommendation]
+
+focus_contract:
+  route_default: node_heading
+  invalid_continue: first_invalid_control
+  missing_single_provider_confirmation: checkbox_and_live_error
+  unknown_help_back: originating_unknown_trigger
+  found_or_corrected_amount: ordinary_amount_field
+  canton_back: node_heading_then_user_can_correct
+  safe_exit_resume: originating_safe_exit_trigger
+
+state_invariants:
+  - no_prefilled_or_inferred_zero
+  - invalid_edit_never_reuses_previous_valid_value
+  - editing_provider_or_amount_clears_single_provider_confirmation
+  - single_provider_confirmed_hides_multi_provider_route
+  - multiple_providers_declared_blocks_single_provider_commit_until_explicit_correction
+  - status_change_leave_without_saving_or_tax_year_rollover_purges_amount_facts
+  - partial_and_unknown_routes_never_render_a_personal_result
+  - keyboard_done_and_disclosure_never_commit_or_route
+
+proof_matrix:
+  flutter_widget:
+    - all_graph_routes_and_back_edges
+    - hostile_identifier_and_exact_parser_cases
+    - stale_confirmation_and_multi_provider_contradictions
+    - focus_live_region_and_semantics
+    - 320x700_text_scale_2_holding_boundary_and_safe_exit
+  real_chrome_390x844:
+    - heading_and_textbox_focus
+    - disclosure_expanded_state_and_visible_capture
+    - checkbox_error_focus_and_checked_state
+    - multi_provider_holding_then_explicit_single_provider_correction
+    - exact_draft_restoration_and_positive_canton_boundary
+    - no_external_https_resource
+
+promotion_gate:
+  required: [full_package_manifest, runtime_receipt, fail_closed_guard, hostile_guard_tests, ux_accessibility_roast, adversarial_roast, swiss_six_locale_roast]
+  severity_threshold: {p1: 0, p2: 0}
+  acceptance_never_implies: [product_integration, multi_provider_collection, ios_runtime, android_runtime, user_validation, personal_tax_result]

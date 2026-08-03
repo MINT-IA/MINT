@@ -36,9 +36,12 @@ batch7-design-lab-acceptance: python3 tools/checks/mint_next_batch7_design_lab_g
 batch8-lpp-written-scope: python3 tools/checks/mint_next_batch8_lpp_scope_guard.py
 batch8-lpp-runtime: python3 tools/checks/mint_next_batch8_lpp_runtime_guard.py
 batch9-contribution-written-scope: python3 tools/checks/mint_next_batch9_contribution_scope_guard.py
-batch10-contribution-runtime-probe: python3 tools/checks/mint_next_batch10_contribution_runtime_probe.py
 batch10-contribution-runtime: python3 tools/checks/mint_next_batch10_contribution_runtime_guard.py
 batch11-amount-written-scope: python3 tools/checks/mint_next_batch11_amount_scope_guard.py
+batch12-amount-runtime-probe: python3 tools/checks/mint_next_batch12_amount_runtime_probe.py
+batch12-amount-runtime: python3 tools/checks/mint_next_batch12_amount_runtime_guard.py
+batch12-amount-hostile-tests: python3 -m unittest tools.checks.tests.test_mint_next_batch12_amount_runtime_guard
+batch12-package-manifest: python3 tools/checks/mint_next_artifact_manifest.py verify product/mint_next/batch12/design-lab-manifest.yaml
 active-context: python3 tools/checks/active_context_guard.py
 phase-contract: python3 tools/checks/phase_contract_guard.py
 mint-rules: python3 tools/checks/mint_rules_guard.py

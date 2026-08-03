@@ -1,0 +1,241 @@
+{
+  "@@locale": "en",
+  "brand": "MINT",
+  "quit": "Exit",
+  "todayEyebrow": "TODAY · PILLAR 3A",
+  "todayTitle": "What changes if I pay into 3a this year?",
+  "todayBody": "We will understand the effects one step at a time. MINT informs you, but does not decide for you.",
+  "start": "Understand",
+  "orientationEyebrow": "BEFORE THE NUMBERS",
+  "orientationTitle": "Saving for retirement may also reduce your tax.",
+  "orientationBody": "A 3a payment may lower your taxable income — the amount on which your tax is calculated. Your available cash falls now and the 3a capital remains tied until retirement, except in cases allowed by law.",
+  "orientationNote": "We will first check the year and your situation. No amount will be recommended.",
+  "continueLabel": "Continue",
+  "backLabel": "Back",
+  "taxYearEyebrow": "STEP 1 · TAX YEAR",
+  "taxYearTitle": "Which year are we talking about?",
+  "taxYearBody": "The maximum depends on the year and your situation, including your earned income and pension-fund affiliation. The current year is suggested, never chosen for you.",
+  "currentYearLabel": "Current year: {year}",
+  "confirmYear": "Choose {year}",
+  "yearChosen": "Year {year} selected",
+  "partialBoundary": "The next screen will be added in the next batch. Nothing is saved.",
+  "safeExitTitle": "Would you like to stop here?",
+  "safeExitBody": "No personal financial data is saved in this Design Lab.",
+  "resume": "Continue here",
+  "leave": "Leave without saving",
+  "dismissedTitle": "Journey closed",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Start",
+  "keepReferenceUnavailable": "Local marker — coming soon",
+  "lppQuestionEyebrow": "YOUR SITUATION",
+  "lppQuestionTitle": "Do you currently have a pension fund?",
+  "lppQuestionBody": "This is also called occupational pension or second pillar. You may be covered through work or voluntarily. We are asking whether you are currently covered, not how much you pay.",
+  "lppQuestionEvidence": "To check, look for a pension-fund line on a payslip, check a recent pension certificate, or ask your pension fund, employer or HR.",
+  "lppChoiceYes": "Yes",
+  "lppChoiceNo": "No",
+  "lppChoiceUnknown": "I don’t know",
+  "lppUnknownEyebrow": "NO PROBLEM",
+  "lppUnknownTitle": "You can check without guessing.",
+  "lppUnknownBody": "Start with whatever feels easiest. Once you know, restart this journey and answer the question again.",
+  "lppUnknownListLabel": "Three ways to check your pension-fund affiliation",
+  "lppUnknownPayslip": "Look for an occupational pension, second pillar or pension-fund line on a recent payslip.",
+  "lppUnknownCertificate": "Look for a recent pension certificate sent by your pension fund.",
+  "lppUnknownAsk": "Ask your pension fund, employer or HR whether you are currently affiliated.",
+  "lppBackToQuestion": "Back to the question",
+  "lppKeepChecklist": "Keep this list on this device",
+  "localReferenceUnavailable": "Coming soon",
+  "withoutLppEyebrow": "A DIFFERENT RULE APPLIES",
+  "withoutLppTitle": "You may still be able to pay into pillar 3a, but different rules apply.",
+  "withoutLppBody": "Your answer does not mean you are ineligible for pillar 3a. This first calculation simply does not cover this case yet.",
+  "lppCorrectAnswer": "Correct my answer",
+  "withoutLppKeepExplanation": "Keep this explanation on this device",
+  "nextStepEyebrow": "NEXT STEP",
+  "nextStepTitle": "Your affiliation is clear.",
+  "nextStepBody": "The next question will ask what you have already paid this year. It will be added in the next small batch. Nothing is saved.",
+  "quitJourney": "Leave this journey",
+  "contributionEyebrow": "YOUR 3A CONTRIBUTIONS · {taxYear}",
+  "contributionTitle": "In {taxYear}, did one of your pillar 3a accounts receive a new contribution?",
+  "contributionBody": "Answer for all your pillar 3a accounts, including a 3a insurance policy.",
+  "contributionCreditedNote": "Count only new money received for {taxYear}. A payment merely sent or debited does not count yet; nor do a transfer, investment return or fee refund.",
+  "contributionAmountNote": "You do not need the total yet. We will ask for it only if you answer yes.",
+  "contributionChoiceYes": "Yes, a new contribution was received",
+  "contributionChoiceNo": "No, no new contribution",
+  "contributionChoiceUnknown": "I don’t know",
+  "contributionChoiceGroupLabel": "New pillar 3a contributions received in {taxYear}",
+  "contributionEdgeHelp": "What counts — and what does not",
+  "contributionEdgePending": "A scheduled, sent or debited payment counts only once your pillar 3a receives it.",
+  "contributionEdgeTransfer": "Do not count a transfer between two pillar 3a providers: it is not new money.",
+  "contributionEdgeBuyback": "Keep a retroactive/catch-up contribution for a past year separate.",
+  "contributionEdgeFullRefund": "After a full refund, answer no if no effective ordinary contribution remains.",
+  "contributionEdgePartialRefund": "After a partial refund, answer yes if the provider confirms a positive net amount remains.",
+  "contributionEdgeUnclearCorrection": "If a correction makes the effective amount unclear, choose “I don’t know”.",
+  "contributionEdgeMixedTransfer": "If a transfer and new money arrive together, count only the new money.",
+  "contributionEdgeReturn": "Do not count investment returns or interest as a contribution.",
+  "contributionEdgeAdjustment": "Do not count a fee refund, rebate or other adjustment.",
+  "contributionUnknownEyebrow": "NO PROBLEM",
+  "contributionUnknownTitle": "You can check without adding it up yourself.",
+  "contributionUnknownBody": "Check whether an ordinary contribution was received for {taxYear} on each of your pillar 3a accounts. If a transfer, retroactive/catch-up contribution for a past year, or refund makes the answer unclear, keep “I don’t know”.",
+  "contributionUnknownListLabel": "How to check without guessing",
+  "contributionUnknownProviderStatement": "In each bank or fintech app or statement, look for a credit received for {taxYear}.",
+  "contributionUnknownInsuranceCertificate": "For a pillar 3a insurance policy, check the annual certificate or ask which ordinary contribution was received.",
+  "contributionUnknownProviderQuestion": "If unsure, ask the provider whether the movement is an ordinary contribution, transfer, retroactive/catch-up contribution for a past year, or refund.",
+  "contributionUnknownTransferWarning": "Never add a transfer between two pillar 3a accounts. That would count the same money twice.",
+  "contributionUnknownEducationLimit": "You may continue without a personal amount. MINT will show only a general explanation.",
+  "contributionUnknownContinueEducation": "Continue with a general explanation",
+  "contributionBackToQuestion": "Back to the question",
+  "contributionAmountBoundaryTitle": "Next, MINT will ask for the ordinary total already received for {taxYear}.",
+  "contributionAmountBoundaryBody": "The total must cover all your pillar 3a accounts and policies. After a partial refund, you can use the net amount confirmed by the provider. For now, no amount is known or calculated.",
+  "contributionCantonBoundaryTitle": "Based on your answer, no ordinary contribution is included for {taxYear}.",
+  "contributionCantonBoundaryBody": "No personal tax result has been calculated. The next step will ask for your canton.",
+  "contributionBoundaryBack": "Correct my answer",
+  "contributionEducationTitle": "You can understand the rule without giving an amount.",
+  "contributionEducationBody": "This explanation remains general: no personal amount, pillar 3a room or personal tax saving is calculated.",
+  "contributionEducationBack": "Back to the checks",
+  "@contributionEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCreditedNote": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionChoiceGroupLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownProviderStatement": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCantonBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11AmountEyebrow": "YOUR 3A CONTRIBUTIONS · {taxYear}",
+  "batch11AmountTitle": "How much did all your 3a providers actually receive in {taxYear}?",
+  "batch11AmountBody": "Start with your 3a provider. If you have more than one, say that one is missing after this first amount.",
+  "batch11ProviderNameLabel": "3a provider",
+  "batch11ProviderNamePrivacy": "Do not enter an account, policy, Swiss social-security or IBAN number.",
+  "batch11OrdinaryAmountLabel": "Ordinary contributions received · {taxYear}",
+  "batch11NotTaxResult": "This total is not a tax result yet.",
+  "batch11AllProvidersReviewed": "I have only one 3a provider and checked its total for {taxYear}",
+  "batch11WhereFindTitle": "Where can I find it?",
+  "batch11WhereFindBody": "On each provider certificate, find “Total 3a contributions”. Use that provider total once, even if it covers several contracts.",
+  "batch11UnknownAmount": "I do not know any amount yet",
+  "batch11Continue": "Continue",
+  "batch11CorrectPrevious": "Correct my previous answer",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Enter the provider name.",
+  "batch11ProviderNameSensitive": "Use only the provider name, without an account, policy, Swiss social-security or IBAN number.",
+  "batch11AmountInvalid": "Enter a valid CHF amount.",
+  "batch11AmountZero": "The amount must be greater than zero.",
+  "batch11ReviewAllRequired": "Confirm that you checked all your 3a providers.",
+  "batch11HelpTitle": "First find one confirmed amount.",
+  "batch11HelpUnknownBody": "Start with one provider certificate. Find its ordinary-contribution total for the year, without adding a transfer, catch-up contribution or refund.",
+  "batch11HelpFoundFirst": "I found a first amount",
+  "batch11HelpEducationOnly": "Continue with a general explanation",
+  "batch11HelpBack": "Back to entry",
+  "batch11MissingAmount": "I have several pillar 3a providers",
+  "batch11HelpPartialBody": "This first journey cannot yet add several providers. Do not confirm this total here. If you were mistaken and have only one, correct your declaration; otherwise continue with general guidance.",
+  "batch11HelpFoundPartial": "Actually, I have only one provider",
+  "batch12PositiveCantonTitle": "Your ordinary-contribution total for {taxYear} is ready.",
+  "batch12PositiveCantonBody": "No tax result has been calculated yet. The next step will ask for your canton.",
+  "batch12CorrectAmounts": "Correct my amounts",
+  "@batch12PositiveCantonTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
+}

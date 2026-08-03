@@ -1,0 +1,241 @@
+{
+  "@@locale": "pt",
+  "brand": "MINT",
+  "quit": "Sair",
+  "todayEyebrow": "HOJE · PILAR 3A",
+  "todayTitle": "O que muda se contribuir para o pilar 3a este ano?",
+  "todayBody": "Vamos compreender os efeitos passo a passo. A MINT informa-te, mas não decide por ti.",
+  "start": "Compreender",
+  "orientationEyebrow": "ANTES DOS NÚMEROS",
+  "orientationTitle": "Poupar para a tua reforma também pode reduzir os teus impostos.",
+  "orientationBody": "Uma contribuição para o pilar 3a pode reduzir o teu rendimento tributável — o montante sobre o qual os impostos são calculados. O teu dinheiro disponível diminui agora e o capital 3a fica vinculado até à reforma, salvo nos casos previstos por lei.",
+  "orientationNote": "Primeiro verificamos o ano e a tua situação. Não será recomendado qualquer montante.",
+  "continueLabel": "Continuar",
+  "backLabel": "Voltar",
+  "taxYearEyebrow": "PASSO 1 · ANO FISCAL",
+  "taxYearTitle": "De que ano estamos a falar?",
+  "taxYearBody": "O limite depende do ano e da tua situação, incluindo o rendimento profissional e a filiação numa caixa de pensões. O ano atual é proposto, nunca escolhido por ti.",
+  "currentYearLabel": "Ano atual: {year}",
+  "confirmYear": "Escolher {year}",
+  "yearChosen": "Ano {year} selecionado",
+  "partialBoundary": "O ecrã seguinte será adicionado no próximo pequeno lote. Nada é guardado.",
+  "safeExitTitle": "Queres parar aqui?",
+  "safeExitBody": "Este Design Lab não guarda dados financeiros pessoais.",
+  "resume": "Continuar aqui",
+  "leave": "Sair sem guardar",
+  "dismissedTitle": "Percurso encerrado",
+  "@currentYearLabel": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@confirmYear": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "@yearChosen": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "startShort": "Começar",
+  "keepReferenceUnavailable": "Referência local — disponível em breve",
+  "lppQuestionEyebrow": "A TUA SITUAÇÃO",
+  "lppQuestionTitle": "Tens atualmente uma caixa de pensões?",
+  "lppQuestionBody": "Também se chama previdência profissional, LPP ou segundo pilar. Podes estar afiliado através do trabalho ou voluntariamente. Perguntamos se tens cobertura atualmente, não quanto pagas.",
+  "lppQuestionEvidence": "Para verificar, procura uma linha LPP ou caixa de pensões num recibo de salário, consulta um certificado recente ou pergunta à tua caixa de pensões, empregador ou recursos humanos.",
+  "lppChoiceYes": "Sim",
+  "lppChoiceNo": "Não",
+  "lppChoiceUnknown": "Não sei",
+  "lppUnknownEyebrow": "SEM PROBLEMA",
+  "lppUnknownTitle": "Podes verificar sem adivinhar.",
+  "lppUnknownBody": "Começa pelo que for mais fácil para ti. Quando tiveres a resposta, retoma este percurso e responde novamente à pergunta.",
+  "lppUnknownListLabel": "Três formas de verificar a tua afiliação",
+  "lppUnknownPayslip": "Procura LPP, segundo pilar ou caixa de pensões num recibo de salário recente.",
+  "lppUnknownCertificate": "Procura um certificado de previdência recente enviado pela tua caixa de pensões.",
+  "lppUnknownAsk": "Pergunta à tua caixa de pensões, empregador ou recursos humanos se estás atualmente afiliado.",
+  "lppBackToQuestion": "Voltar à pergunta",
+  "lppKeepChecklist": "Guardar esta lista neste dispositivo",
+  "localReferenceUnavailable": "Em breve",
+  "withoutLppEyebrow": "APLICA-SE OUTRA REGRA",
+  "withoutLppTitle": "Talvez possas contribuir para o pilar 3a, mas aplicam-se outras regras.",
+  "withoutLppBody": "A tua resposta não significa que não tens direito ao pilar 3a. Este primeiro cálculo simplesmente ainda não cobre este caso.",
+  "lppCorrectAnswer": "Corrigir a minha resposta",
+  "withoutLppKeepExplanation": "Guardar esta explicação neste dispositivo",
+  "nextStepEyebrow": "PRÓXIMO PASSO",
+  "nextStepTitle": "A tua afiliação está clara.",
+  "nextStepBody": "A próxima pergunta será sobre o que já pagaste este ano. Será adicionada no próximo pequeno lote. Nada é guardado.",
+  "quitJourney": "Sair deste percurso",
+  "contributionEyebrow": "AS TUAS CONTRIBUIÇÕES 3A · {taxYear}",
+  "contributionTitle": "Em {taxYear}, algum dos teus pilares 3a recebeu uma nova contribuição?",
+  "contributionBody": "Responde considerando todos os teus pilares 3a, incluindo um seguro 3a.",
+  "contributionCreditedNote": "Conta apenas o dinheiro novo recebido para {taxYear}. Um pagamento apenas enviado ou debitado ainda não conta; nem uma transferência, rendimento ou reembolso de despesas.",
+  "contributionAmountNote": "Ainda não precisas de saber o total. Só perguntaremos se responderes sim.",
+  "contributionChoiceYes": "Sim, foi recebida uma nova contribuição",
+  "contributionChoiceNo": "Não, nenhuma nova contribuição",
+  "contributionChoiceUnknown": "Não sei",
+  "contributionChoiceGroupLabel": "Novas contribuições 3a recebidas em {taxYear}",
+  "contributionEdgeHelp": "O que conta — e o que não conta",
+  "contributionEdgePending": "Um pagamento planeado, enviado ou debitado só conta quando chega ao teu 3a.",
+  "contributionEdgeTransfer": "Não contes uma transferência entre dois pilares 3a: não é dinheiro novo.",
+  "contributionEdgeBuyback": "Mantém separada uma contribuição retroativa para colmatar uma lacuna de um ano anterior.",
+  "contributionEdgeFullRefund": "Após um reembolso total, responde não se não restar nenhuma contribuição ordinária efetiva.",
+  "contributionEdgePartialRefund": "Após um reembolso parcial, responde sim se a instituição confirmar um valor líquido positivo.",
+  "contributionEdgeUnclearCorrection": "Se uma correção tornar incerto o valor efetivo, escolhe «Não sei».",
+  "contributionEdgeMixedTransfer": "Se uma transferência e dinheiro novo chegarem juntos, conta apenas o dinheiro novo.",
+  "contributionEdgeReturn": "Não contes rendimentos ou juros como contribuição.",
+  "contributionEdgeAdjustment": "Não contes reembolsos de despesas, bonificações ou outros ajustes.",
+  "contributionUnknownEyebrow": "SEM PROBLEMA",
+  "contributionUnknownTitle": "Podes verificar sem fazer as contas sozinho.",
+  "contributionUnknownBody": "Verifica em cada um dos teus 3a se foi recebida uma contribuição ordinária para {taxYear}. Se uma transferência, uma contribuição retroativa para colmatar uma lacuna de um ano anterior ou um reembolso tornar a resposta incerta, mantém «Não sei».",
+  "contributionUnknownListLabel": "Como verificar sem adivinhar",
+  "contributionUnknownProviderStatement": "Na app ou extrato de cada banco ou fintech 3a, procura um crédito recebido para {taxYear}.",
+  "contributionUnknownInsuranceCertificate": "Para um seguro 3a, consulta a declaração anual ou pergunta que contribuição ordinária foi recebida.",
+  "contributionUnknownProviderQuestion": "Em caso de dúvida, pergunta à instituição se o movimento é uma contribuição ordinária, uma transferência, uma contribuição retroativa para colmatar uma lacuna de um ano anterior ou um reembolso.",
+  "contributionUnknownTransferWarning": "Nunca somes uma transferência entre dois 3a. Contarias o mesmo dinheiro duas vezes.",
+  "contributionUnknownEducationLimit": "Podes continuar sem um valor pessoal. A MINT mostrará apenas uma explicação geral.",
+  "contributionUnknownContinueEducation": "Continuar com uma explicação geral",
+  "contributionBackToQuestion": "Voltar à pergunta",
+  "contributionAmountBoundaryTitle": "Depois, a MINT pedirá o total ordinário já recebido para {taxYear}.",
+  "contributionAmountBoundaryBody": "O total deverá abranger todas as tuas contas e apólices 3a. Após um reembolso parcial, poderás usar o valor líquido confirmado pela instituição. Por agora, nenhum valor é conhecido ou calculado.",
+  "contributionCantonBoundaryTitle": "Segundo a tua resposta, nenhuma contribuição ordinária é considerada para {taxYear}.",
+  "contributionCantonBoundaryBody": "Ainda não foi calculado qualquer resultado fiscal pessoal. O passo seguinte perguntará o teu cantão.",
+  "contributionBoundaryBack": "Corrigir a minha resposta",
+  "contributionEducationTitle": "Podes compreender a regra sem indicar um valor.",
+  "contributionEducationBody": "Esta explicação continua geral: não é calculado qualquer valor pessoal, margem 3a ou poupança fiscal pessoal.",
+  "contributionEducationBack": "Voltar às verificações",
+  "@contributionEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCreditedNote": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionChoiceGroupLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionUnknownProviderStatement": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionAmountBoundaryBody": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@contributionCantonBoundaryTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11AmountEyebrow": "AS TUAS CONTRIBUIÇÕES 3A · {taxYear}",
+  "batch11AmountTitle": "Quanto receberam efetivamente, no total, todos os teus prestadores 3a em {taxYear}?",
+  "batch11AmountBody": "Começa pelo teu prestador 3a. Se tiveres mais do que um, indica depois deste primeiro valor que falta um.",
+  "batch11ProviderNameLabel": "Prestador 3a",
+  "batch11ProviderNamePrivacy": "Não indiques números de conta, apólice, seguro social suíço ou IBAN.",
+  "batch11OrdinaryAmountLabel": "Contribuições ordinárias creditadas · {taxYear}",
+  "batch11NotTaxResult": "Este total ainda não é um resultado fiscal.",
+  "batch11AllProvidersReviewed": "Tenho apenas um prestador 3a e verifiquei o total de {taxYear}",
+  "batch11WhereFindTitle": "Onde encontro o valor?",
+  "batch11WhereFindBody": "No certificado de cada prestador, procura o total das contribuições para o pilar 3a. Usa-o uma única vez, mesmo que inclua vários contratos.",
+  "batch11UnknownAmount": "Ainda não conheço nenhum valor",
+  "batch11Continue": "Continuar",
+  "batch11CorrectPrevious": "Corrigir a resposta anterior",
+  "@batch11AllProvidersReviewed": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountEyebrow": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11OrdinaryAmountLabel": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "@batch11AmountTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  },
+  "batch11ProviderNameEmpty": "Indica o nome do prestador.",
+  "batch11ProviderNameSensitive": "Usa apenas o nome do prestador, sem números de conta, apólice, seguro social suíço ou IBAN.",
+  "batch11AmountInvalid": "Indica um valor CHF válido.",
+  "batch11AmountZero": "O valor deve ser superior a zero.",
+  "batch11ReviewAllRequired": "Confirma que verificaste todos os teus prestadores 3a.",
+  "batch11HelpTitle": "Primeiro encontra um valor confirmado.",
+  "batch11HelpUnknownBody": "Começa pelo certificado de um prestador 3a. Procura o total das contribuições ordinárias do ano, sem adicionar transferências, contribuições retroativas ou reembolsos.",
+  "batch11HelpFoundFirst": "Encontrei um primeiro valor",
+  "batch11HelpEducationOnly": "Continuar com uma explicação geral",
+  "batch11HelpBack": "Voltar à introdução",
+  "batch11MissingAmount": "Tenho vários prestadores 3a",
+  "batch11HelpPartialBody": "Este primeiro percurso ainda não consegue somar vários prestadores. Não confirmes aqui este total. Se te enganaste e tens apenas um, corrige a declaração; caso contrário, continua com informações gerais.",
+  "batch11HelpFoundPartial": "Afinal, tenho apenas um prestador",
+  "batch12PositiveCantonTitle": "O total das tuas contribuições ordinárias de {taxYear} está pronto.",
+  "batch12PositiveCantonBody": "Ainda não foi calculado qualquer resultado fiscal. O próximo passo perguntará o teu cantão.",
+  "batch12CorrectAmounts": "Corrigir os meus valores",
+  "@batch12PositiveCantonTitle": {
+    "placeholders": {
+      "taxYear": {
+        "type": "int"
+      }
+    }
+  }
+}

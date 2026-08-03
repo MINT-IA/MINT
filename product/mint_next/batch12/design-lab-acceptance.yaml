@@ -1,0 +1,110 @@
+schema_version: 1
+status: mechanically_accepted_isolated_single_provider_amount_slice
+accepted_at: '2026-08-03T03:30:00+02:00'
+written_contract:
+  scope:
+    path: product/mint_next/batch11/ordinary-contribution-amount-scope.yaml
+    sha256: 1310c2d0192e2d1ded2e8555ccaa9b0624e0f1d1b3d206a95dfc47e83799f23c
+  sources:
+    path: product/mint_next/batch11/official-sources.yaml
+    sha256: 6ebc04d5edb92d8f437db1b6ce60ebae5daa187f294cdc3cdffbe2d934ce3741
+  acceptance:
+    path: product/mint_next/batch11/ordinary-contribution-amount-acceptance.yaml
+    sha256: 5b6c78a50ec4bcb2d54ce3487f0c7836d9a56a5afd80ef6f6a1b1922f8ca1dec
+predecessor_runtime:
+  acceptance:
+    path: product/mint_next/batch10/design-lab-acceptance.yaml
+    sha256: 36c9ef128aa7b548c1df04637d9721cda2babfe330ef16ff1133f5a1288846f2
+written_navigation:
+  path: product/mint_next/batch12/navigation-runtime.yaml
+  sha256: 6db1521aa753a02e51529505956cde23e7e32c45f3a49de54ebe9777018781d7
+  authority: exact_nodes_controls_guards_back_focus_state_and_proof_matrix
+implementation_snapshot:
+  manifest:
+    path: product/mint_next/batch12/design-lab-manifest.yaml
+    sha256: 13f4dfe91d70af8fee000878ab72e7824121310118fc6bd0c7dbdcb52d1f71be
+    verification: offline_current_or_content_addressed_blob_no_git_or_network
+  accepted_commit: 44f7ee6f2d503ccc16b8e9bbff161566611502c3
+  accepted_tree: e837dcad6b2dbb9b079a3a2d05c460710c9a6889
+  tracked_files: 48
+  content_addressed_archive: all_48_entries_present
+verifier_trust_unit:
+  guard:
+    path: tools/checks/mint_next_batch12_amount_runtime_guard.py
+    sha256: efdb4df8c9824ae771fe4de894478cfa6687bfcca249eb675d136a7c47825599
+  tests:
+    path: tools/checks/tests/test_mint_next_batch12_amount_runtime_guard.py
+    sha256: 6087792a6f640a47c5f6d300999ef785e2718b790de5e37ca3c341edeeb5f825
+runtime_evidence:
+  probe:
+    path: tools/checks/mint_next_batch12_amount_runtime_probe.py
+    sha256: de632b95cfe6d87816024e1cdb43b558abdc290c823617ed3ac553c66db459a3
+  receipt:
+    path: product/mint_next/batch12/evidence/runtime/receipt.yaml
+    sha256: aa25a2fcda59a6894a59aa99d779260042d698a5a161c1a2a61bc5b0e1b93def
+  capture_count: 4
+mechanical_acceptance_basis:
+  authority: deterministic_commands_exact_digests_full_package_manifest_written_graph_real_chrome_receipt_and_hostile_mutations
+  advisory_roasts_authorize_acceptance: false
+  limitation: agent_identity_branch_protection_external_ci_execution_and_user_validation_are_not_authenticated_here
+advisory_roasts:
+- role: ux_accessibility
+  verdict: ACCEPT
+  score: 10.0
+  p1: 0
+  p2: 0
+  p3: 0
+  bound_commit: 44f7ee6f2d503ccc16b8e9bbff161566611502c3
+- role: swiss_locale
+  verdict: ACCEPT
+  p1: 0
+  p2: 0
+  p3: 0
+  bound_commit: 44f7ee6f2d503ccc16b8e9bbff161566611502c3
+- role: adversarial
+  verdict: ROAST_PASS
+  p1: 0
+  p2: 0
+  p3: 1
+  p3_disclosed_as:
+  - provider_identifier_screening_is_heuristic
+  - chrome_probe_narrower_than_hostile_widget_suite
+  bound_commit: 44f7ee6f2d503ccc16b8e9bbff161566611502c3
+commands:
+- flutter analyze
+- flutter test
+- python3 tools/checks/mint_next_batch12_amount_runtime_probe.py
+- python3 tools/checks/mint_next_batch12_amount_runtime_guard.py
+- python3 -m unittest tools.checks.tests.test_mint_next_batch12_amount_runtime_guard
+- python3 tools/checks/mint_next_artifact_manifest.py verify product/mint_next/batch12/design-lab-manifest.yaml
+- python3 tools/checks/mint_next_batch11_amount_scope_guard.py
+- python3 tools/checks/journey_os_check.py
+- lefthook run pre-commit
+accepted_scope_only:
+- isolated_flutter_design_lab
+- written_single_provider_amount_navigation
+- exact_chf_integer_minor_unit_parser
+- ordinary_contributions_actually_credited_for_selected_tax_year
+- ephemeral_safe_provider_name
+- explicit_single_provider_confirmation
+- multi_provider_holding_with_explicit_correction_or_general_education_only
+- unknown_and_partial_never_equal_zero
+- back_focus_and_draft_restoration
+- edit_invalidates_completeness
+- status_leave_and_tax_year_purge
+- six_source_locales_and_generated_output_parity
+- real_chrome_390x844_ax_and_visual_runtime
+- 320x700_text_scale_2_holding_and_safe_exit_runtime
+not_accepted:
+- product_integration
+- ios_runtime
+- android_runtime
+- external_ci_execution
+- user_validation
+- multi_provider_collection
+- provider_rows_or_local_sum
+- calculation_engine
+- personal_tax_result
+- persisted_user_fact
+- provider_recommendation
+next_batch_boundary: write_and_roast_additional_provider_rows_and_exact_local_sum_before_runtime
