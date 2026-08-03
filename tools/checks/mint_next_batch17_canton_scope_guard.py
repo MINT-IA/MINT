@@ -257,7 +257,7 @@ def validate(root: Path, *, check_digests: bool = True, require_accepted: bool |
     _require(binding["scope_guard"] == str(GUARD) and binding["scope_guard_tests"] == str(TESTS), "guard trust unit drifted")
     tests_text = (root / TESTS).read_text(encoding="utf-8")
     discovered = set(re.findall(r"(?m)^    def (test_[a-zA-Z0-9_]+)\(", tests_text))
-    positive = {"test_current_candidate_contract_passes_before_release_acceptance", "test_release_gate_rejects_unaccepted_candidate", "test_accepted_git_anchor_reproduces_candidate_payload"}
+    positive = {"test_current_contract_passes_for_its_declared_lifecycle", "test_accepted_git_anchor_reproduces_candidate_payload"}
     _require(binding["positive_tests"] == sorted(positive), "positive test registry drifted")
     _require(binding["hostile_tests"] == sorted(discovered - positive), "hostile test registry is not exact")
     review_payload = _review_payload_sha256(root)

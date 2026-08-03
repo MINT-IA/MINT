@@ -40,8 +40,7 @@ mechanical_binding:
     parent_navigation: 461d8257b79c781b0ca1b11aa6d21f67d17ee387a9de0e17932c159eac469250
   positive_tests:
   - test_accepted_git_anchor_reproduces_candidate_payload
-  - test_current_candidate_contract_passes_before_release_acceptance
-  - test_release_gate_rejects_unaccepted_candidate
+  - test_current_contract_passes_for_its_declared_lifecycle
   hostile_tests:
   - test_auto_route_is_rejected
   - test_back_origin_is_rejected_when_collapsed
@@ -75,6 +74,7 @@ mechanical_binding:
   - test_purge_event_narrowing_is_rejected
   - test_rehashed_parent_continue_guard_removal_is_rejected_semantically
   - test_rehashed_parent_safe_exit_removal_is_rejected_semantically
+  - test_release_gate_rejects_unaccepted_candidate
   - test_removed_ci_command_is_rejected
   - test_removed_lefthook_binding_is_rejected
   - test_runtime_evidence_overclaim_is_rejected
@@ -92,7 +92,7 @@ mechanical_binding:
   - test_unknown_personal_result_is_rejected
   - test_wrong_canton_set_is_rejected
   normalized_workflow_sha256: 3715fb2d56d6cfb2d9309c956bd48dae15dd5b32244cdcb8251bc65db695d067
-  candidate_review_payload_sha256: ffd7a9b6b583a219a47493b1e71550fc4c0f7c6c48f429322c1a0b5181988d9f
+  candidate_review_payload_sha256: 12137ad905de0695e9611a4a5d311b531ef07ae5e713c4ab39ee5a37c3476ee2
 accepted_scope_only:
 - written_fact_canton_semantics
 - written_navigation_and_lifecycle

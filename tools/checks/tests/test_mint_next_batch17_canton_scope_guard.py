@@ -86,10 +86,13 @@ class Batch17CantonScopeGuardTest(unittest.TestCase):
         workflow_path.write_text(workflow)
         return candidate
 
-    def test_current_candidate_contract_passes_before_release_acceptance(self) -> None:
-        validate(self.root, check_digests=True, require_accepted=False)
+    def test_current_contract_passes_for_its_declared_lifecycle(self) -> None:
+        validate(self.root, check_digests=True, require_accepted=None)
 
     def test_release_gate_rejects_unaccepted_candidate(self) -> None:
+        scope_path, scope = self._yaml(ARTIFACTS[0])
+        scope["status"] = "candidate_written_contract_runtime_forbidden"
+        scope_path.write_text(yaml.safe_dump(scope, sort_keys=False), encoding="utf-8")
         with self.assertRaises(GuardFailure):
             validate(self.root, check_digests=True, require_accepted=True)
 
