@@ -191,7 +191,7 @@ jobs:
       - name: Install exact guard dependency (system + USER site — the detached proof's sys.path is [root, user-site] only)
         run: |
           python3 -m pip install PyYAML==6.0.2
-          python3 -m pip install --user PyYAML==6.0.2
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           # Only the SDK that satisfies the design_lab pinned pubspec.lock under
