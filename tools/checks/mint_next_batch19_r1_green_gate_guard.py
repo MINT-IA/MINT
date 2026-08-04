@@ -55,8 +55,8 @@ FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch19_r1_green_gate_
 # Re-pinned immutables frozen by this transition. These MUST equal the current
 # files: the RED contract and its registry cannot silently drift while the GREEN
 # gate that supersedes their replay is under review.
-RED_GUARD_SHA256 = "04e599fbccadb4eb1b8cb14db4b75cb03c2f45acc151e33d7ffa16b8019b6144"
-REGISTRY_SHA256 = "a2f3c1961d61c39b6d89c000d0d29c40f9b94fbd339b6af589371f5d42faac5a"
+RED_GUARD_SHA256 = "1bd17d5a90eac539df8bf92b7b747718b6b6db31b1f17c0fa58c959bf7d9d534"
+REGISTRY_SHA256 = "03c9a956a5f38eb1938adcf49c2565fdbae7c3c7aa94c3d62e28852e7408155c"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected
@@ -128,9 +128,9 @@ EXPECTED_RUNTIME_REGATING = {
 # The RED acceptance this GREEN gate supersedes (declarative provenance).
 EXPECTED_SUPERSEDES = {
     "red_acceptance_receipt": "product/mint_next/batch19/r1-red-acceptance.json",
-    "accepted_payload_sha256": "3f553531acfcbe00fca8ff92e60a09bc732fb2c27da09e1fd49552e38dff2786",
-    "accepted_commit": "3345adc02",
-    "attestation_run": "https://github.com/MINT-IA/MINT/actions/runs/30884111626",
+    "accepted_payload_sha256": "ffbc3fb46353ce0420a053dad5c02d2f6f9f79fa36f244ff407393dbd708e9fd",
+    "accepted_commit": "d7461aab184125c11ec78c8d0f269c23a1236c7b",
+    "attestation_run": "https://github.com/MINT-IA/MINT/actions/runs/30915390698",
 }
 
 # not_accepted is state-DEPENDENT (so it is NOT in the descriptor / payload — the

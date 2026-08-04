@@ -13,14 +13,14 @@ status: candidate_green_gate_unaccepted
 current_verdict: PENDING_INDEPENDENT_ROASTS
 supersedes:
   red_acceptance_receipt: product/mint_next/batch19/r1-red-acceptance.json
-  accepted_payload_sha256: 3f553531acfcbe00fca8ff92e60a09bc732fb2c27da09e1fd49552e38dff2786
-  accepted_commit: 3345adc02
-  attestation_run: https://github.com/MINT-IA/MINT/actions/runs/30884111626
+  accepted_payload_sha256: ffbc3fb46353ce0420a053dad5c02d2f6f9f79fa36f244ff407393dbd708e9fd
+  accepted_commit: d7461aab184125c11ec78c8d0f269c23a1236c7b
+  attestation_run: https://github.com/MINT-IA/MINT/actions/runs/30915390698
 green_gate:
   retires: red_replay_2_13
   active_gate_upon_promotion: green_replay_15_15
   test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart
-  test_sha256: c5dde1139cb52855140322c0254b6dc60f3e6a66e1c21cb6060795dd460e071b
+  test_sha256: 2c7421297e4f1a14bd3885391ef3937e05e01b1bf37e69a43283b7cade34563e
   fixture_file: product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart
   fixture_sha256: 204e505c92a94c650f888d872faf8240b58a763d8d2fa2326ad1c6796b8534ec
   command:
@@ -59,10 +59,10 @@ green_gate:
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch19_r1_red_guard.py
-    sha256: 04e599fbccadb4eb1b8cb14db4b75cb03c2f45acc151e33d7ffa16b8019b6144
+    sha256: 1bd17d5a90eac539df8bf92b7b747718b6b6db31b1f17c0fa58c959bf7d9d534
   registry:
     path: product/mint_next/batch18/runtime-gates.yaml
-    sha256: a2f3c1961d61c39b6d89c000d0d29c40f9b94fbd339b6af589371f5d42faac5a
+    sha256: 03c9a956a5f38eb1938adcf49c2565fdbae7c3c7aa94c3d62e28852e7408155c
 runtime_regating:
   scope_owner: batch19-r1-runtime
   regated_file: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
@@ -86,7 +86,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_payload_sha256: cd7b9023e8dfa1f0f3308e765ae22b929806578f1411aa836bc2326f718886d1
+  candidate_payload_sha256: 0c7bd7875dc9e49ecb047b024bce7dd3b894d98af00801361109dec5d90e895a
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
   # null while PENDING (no runtime built); at acceptance this MUST be the 64-hex
