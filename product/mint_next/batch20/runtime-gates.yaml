@@ -1,0 +1,113 @@
+schema_version: 1
+status: candidate_expected_red_evidence_runtime_not_implemented
+batch: 20
+authority:
+  immutable_scope: product/mint_next/batch20/commune-scope.yaml
+  immutable_scope_sha256: a9be522b3b7363ce9c1da3d7592c748f8e69e7a2bbc76060076332cecab99af9
+  runtime_surface: hidden_design_lab_only
+  product_promotion: forbidden
+  supersedes:
+    r1_green_gate: product/mint_next/batch19/r1-green-gate.yaml
+    r1_green_accepted_commit: '584702094'
+    r1_green_attestation_run: https://github.com/MINT-IA/MINT/actions/runs/30916749754
+    r1_red_acceptance_commit: d7461aab184125c11ec78c8d0f269c23a1236c7b
+    no_live_reattestation_of_r1: true
+ordered_gates:
+- R2
+- R3
+- R4a_safe_exit
+- R4b_lifecycle_generation_and_privacy
+- R4c_six_locale_accessibility_and_compact
+- R4d_cross_step_integration
+- R4
+- runtime_global
+gates:
+  R2:
+    state: expected_red
+    runtime_implemented: false
+    runtime_accepted: false
+    next_gate: R3
+    later_gate_evidence_counts_for_R2: false
+    test_file: product/mint_next/batch7/design_lab/test/design_lab_batch20_commune_r2_test.dart
+    fixture_file: product/mint_next/batch7/design_lab/test/batch20_commune_fixture.g.dart
+    command:
+    - flutter
+    - test
+    - test/design_lab_batch20_commune_r2_test.dart
+    - --machine
+    - --no-pub
+    working_directory: product/mint_next/batch7/design_lab
+    expected_exit_code: 1
+    expected_summary:
+      passed: 2
+      failed: 13
+      load_or_harness_errors: 0
+    candidate_binding:
+      test_sha256: b3b0658971402ec69e12b2853c7c722926c640e9fcf7a9aa3ca602d165a26704
+      fixture_sha256: 25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700
+    subgates:
+      R2a_arrival_states_and_national_search:
+      - R2_02
+      - R2_03
+      - R2_04
+      - R2_05
+      - R2_12
+      R2b_matching_privacy_npa_and_aliases:
+      - R2_06
+      - R2_07
+      - R2_08
+      - R2_10
+      R2c_selection_glossary_a11y_and_compact:
+      - R2_09
+      - R2_11
+      - R2_13
+      - R2_14
+    obligation_test_names:
+      R2_01: R2_01 the shared entry path reaches the contribution boundary before the fused location runtime
+      R2_02: R2_02 arrival focuses the heading not a raised keyboard and the question carries the meaning without a body
+      R2_03: R2_03 an empty national query prompts for a commune name and dumps nothing until a prefix is typed
+      R2_04: R2_04 every national result names its derived canton
+      R2_05: R2_05 results cap at fifty with an overflow status carrying the total
+      R2_06: R2_06 bilingual aliases and official variants match the reviewed labels
+      R2_07: R2_07 the postcode is searchable secondary text but never the committed value
+      R2_08: R2_08 the selection summary persists and is visible when the selected commune is not in the current results
+      R2_09: R2_09 selecting a commune announces the commune and its derived canton atomically as one node
+      R2_10: R2_10 no match prompts a spelling check and reveals a help link that escalates to r3 in the no match state only
+      R2_11: R2_11 a tappable glossary anchor opens an aerated definition sheet with a sentence and a metaphor and restores focus
+      R2_12: R2_12 entry is unset with no default recommended or derived commune and no unknown control
+      R2_13: R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton naming result reachable
+      R2_14: R2_14 continue is guarded by a reviewed commune reselection is idempotent and continue never routes in r2
+      R2_15: R2_15 registry keeps R2 before R3 and excludes later evidence
+    expected_red_sentinels:
+      R2_02 arrival focuses the heading not a raised keyboard and the question carries the meaning without a body: R2_02
+      R2_03 an empty national query prompts for a commune name and dumps nothing until a prefix is typed: R2_03
+      R2_04 every national result names its derived canton: R2_04
+      R2_05 results cap at fifty with an overflow status carrying the total: R2_05
+      R2_06 bilingual aliases and official variants match the reviewed labels: R2_06
+      R2_07 the postcode is searchable secondary text but never the committed value: R2_07
+      R2_08 the selection summary persists and is visible when the selected commune is not in the current results: R2_08
+      R2_09 selecting a commune announces the commune and its derived canton atomically as one node: R2_09
+      R2_10 no match prompts a spelling check and reveals a help link that escalates to r3 in the no match state only: R2_10
+      R2_11 a tappable glossary anchor opens an aerated definition sheet with a sentence and a metaphor and restores focus: R2_11
+      R2_12 entry is unset with no default recommended or derived commune and no unknown control: R2_12
+      R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton naming result reachable: R2_13
+      R2_14 continue is guarded by a reviewed commune reselection is idempotent and continue never routes in r2: R2_14
+  R3:
+    state: blocked_by_R2
+  R4a_safe_exit:
+    state: blocked_by_R3
+  R4b_lifecycle_generation_and_privacy:
+    state: blocked_by_R4a
+  R4c_six_locale_accessibility_and_compact:
+    state: blocked_by_R4b
+  R4d_cross_step_integration:
+    state: blocked_by_R4c
+  R4:
+    state: blocked_by_R4d
+  runtime_global:
+    state: blocked_by_R4
+forbidden_claims:
+- runtime_implemented
+- runtime_accepted
+- user_validated
+- production_ready
