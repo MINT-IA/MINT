@@ -2959,6 +2959,33 @@ class SDe extends S {
       'BVG Art. 4 (keine Pflicht für Selbstständige) / BVG Art. 44 (freiwillige Versicherung) / BVV3 Art. 7 (grosse 3a: 20% des Nettoeinkommens, max 36\'288) / AHVG Art. 8 (Beiträge Selbstständige) / UVG Art. 4 / KVG';
 
   @override
+  String get independantLppRescueOption1Label => 'Freizügigkeitsstiftung';
+
+  @override
+  String get independantLppRescueOption1Description => 'Lege dein Guthaben in eine Freizügigkeitsstiftung, mit anständiger Rendite.';
+
+  @override
+  String get independantLppRescueOption1LegalRef => 'FZG Art. 4';
+
+  @override
+  String get independantLppRescueOption2Label => 'Auffangeinrichtung';
+
+  @override
+  String get independantLppRescueOption2Description => 'Wenn du nichts tust, wird dein Guthaben nach 6 Monaten automatisch dorthin übertragen — zur Mindestrendite.';
+
+  @override
+  String get independantLppRescueOption2LegalRef => 'FZG Art. 4 Abs. 2';
+
+  @override
+  String get independantLppRescueOption3Label => 'Neue Pensionskasse (BVG)';
+
+  @override
+  String get independantLppRescueOption3Description => 'Du schliesst dich freiwillig einer BVG-Pensionskasse an.';
+
+  @override
+  String get independantLppRescueOption3LegalRef => 'BVG Art. 44';
+
+  @override
   String get independantDisclaimer =>
       'Die angegebenen Beträge sind unverbindliche Schätzungen. Die tatsächlichen Beiträge hängen von deiner persönlichen Situation und den verfügbaren Versicherungsangeboten ab. Wende dich an einen Treuhänder oder Versicherer.';
 
@@ -13245,6 +13272,64 @@ class SDe extends S {
   @override
   String get dividendeSimulationDisclaimer =>
       'Vereinfachte Simulation. Die Gewinnsteuer ist über einen repräsentativen Schweizer Satz (Durchschnitt KPMG 2025) enthalten; der genaue kantonale Satz, persönliche Abzüge, die Vermögenssteuer und die durch den Lohn erworbenen AHV/BVG-Ansprüche sind nicht modelliert. Ein marktkonformer Lohn wird angenommen. Ziehe eine Fachperson für eine vollständige Analyse bei.';
+
+  @override
+  String get dividendeHeaderIntro => 'Wenn du eine AG oder GmbH besitzt, kannst du dir eine Kombination aus Lohn und Dividenden auszahlen. Die Dividende wird zu 50 % besteuert (qualifizierte Beteiligung) und entgeht den AHV-Beiträgen. Finde den passendsten Split.';
+
+  @override
+  String dividendeEconomieCaptionSaving(String amount) {
+    return 'Der passende Split spart dir ${amount}/Jahr gegenüber 100 % Lohn';
+  }
+
+  @override
+  String get dividendeEconomieCaptionAdjust => 'Passe den Split an, um eine Ersparnis zu finden';
+
+  @override
+  String get dividendeRequalificationTitle => 'Umqualifizierungsrisiko';
+
+  @override
+  String get dividendeRequalificationBody => 'Sinkt der Lohnanteil unter ~60 % des Gewinns, kann das Steueramt einen Teil der Dividenden als Lohn umqualifizieren (die Praxis variiert je nach Kanton). Die Folge: rückwirkend geforderte AHV-Beiträge.';
+
+  @override
+  String get dividendeResultPartDividende => 'Dividendenanteil';
+
+  @override
+  String dividendeResultPctBenefice(int pct) {
+    return '${pct} % des Gewinns';
+  }
+
+  @override
+  String get dividendeResultChargeDividende => 'Belastung auf Dividende';
+
+  @override
+  String get dividendeResultChargeTotale => 'Gesamtbelastung (Split)';
+
+  @override
+  String get dividendeEduImpotBeneficeTitle => 'Gewinnsteuer';
+
+  @override
+  String get dividendeEduImpotBeneficeBody => 'Denk daran: Der als Dividende ausgeschüttete Gewinn wird zuerst auf Ebene der Gesellschaft besteuert (Gewinnsteuer), dann auf persönlicher Ebene (wirtschaftliche Doppelbesteuerung).';
+
+  @override
+  String get dividendeEduAvsTitle => 'AHV nur auf dem Lohn';
+
+  @override
+  String get dividendeEduAvsBody => 'Die AHV-Beiträge (rund 12.5 % insgesamt) gelten nur für den Lohnanteil. Die Dividende entgeht den Sozialabgaben — daher lohnt sich das Anpassen des Splits.';
+
+  @override
+  String get dividendeEduCantonalTitle => 'Kantonale Praxis';
+
+  @override
+  String get dividendeEduCantonalBody => 'Die Steuerbehörden achten auf übermässige Dividendenausschüttungen. Erwartet wird ein « marktkonformer » Lohn. Die Grenze variiert je nach Kanton.';
+
+  @override
+  String get dividendeCantonalDisclaimer => 'Die steuerliche Wirkung hängt von der kantonalen Praxis ab. Die Umqualifizierungsschwellen variieren von Kanton zu Kanton.';
+
+  @override
+  String get dividendeComplianceEducatif => 'Bildungstool — stellt keine Finanzberatung dar (FIDLEG).';
+
+  @override
+  String get dividendeComplianceSources => 'Quellen: DBG Art. 18, 20, 33; OR Art. 660';
 
   @override
   String get successionUrgence => 'Sofortiger Handlungsbedarf';

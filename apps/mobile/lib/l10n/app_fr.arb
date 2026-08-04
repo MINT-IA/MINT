@@ -1314,6 +1314,15 @@
   "independantAnalysisHeader": "Analyse MINT — Ton kit indépendant",
   "independantSourcesTitle": "Sources",
   "independantSourcesBody": "LPP art. 4 (pas d'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20 % du revenu net, max 36'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal",
+  "independantLppRescueOption1Label": "Fondation de libre passage",
+  "independantLppRescueOption1Description": "Place ton avoir dans une fondation de libre passage : il continue de fructifier à un rendement correct.",
+  "independantLppRescueOption1LegalRef": "LFLP art. 4",
+  "independantLppRescueOption2Label": "Institution supplétive",
+  "independantLppRescueOption2Description": "Si tu ne fais rien, ton avoir y est transféré d'office après 6 mois — au rendement minimal.",
+  "independantLppRescueOption2LegalRef": "LFLP art. 4 al. 2",
+  "independantLppRescueOption3Label": "Nouvelle caisse LPP",
+  "independantLppRescueOption3Description": "Tu t'affilies volontairement à une caisse LPP.",
+  "independantLppRescueOption3LegalRef": "LPP art. 44",
   "independantDisclaimer": "Les montants présentés sont des estimations indicatives. Les cotisations réelles dépendent de ta situation personnelle et des offres d'assurance disponibles. Consulte un fiduciaire ou un assureur avant toute décision.",
   "jobCompareAgeTitle": "Ton âge",
   "jobCompareAgeSubtitle": "Utilisé pour projeter le capital retraite",
@@ -6662,6 +6671,34 @@
   },
   "dividendeConfidenceMessage": "Cette estimation intègre l'impôt sur le bénéfice via un taux suisse représentatif (moyenne KPMG 2025) et une part imposable du dividende simplifiée de 60 % ; la répartition réelle fédéral 70 % (LIFD art. 20 al. 1bis) / cantonal ≥ 50 % dépend du canton. Elle ne valorise pas les droits AVS/LPP acquis par le salaire. À valider avec une fiduciaire.",
   "dividendeSimulationDisclaimer": "Simulation simplifiée. L'impôt sur le bénéfice est intégré via un taux suisse représentatif (moyenne KPMG 2025) ; le taux exact du canton, les déductions personnelles, l'impôt sur la fortune et les droits AVS/LPP acquis par le salaire ne sont pas modélisés. Un salaire conforme au marché est supposé. Consulte un·e spécialiste pour une analyse complète.",
+  "dividendeHeaderIntro": "Si tu possèdes une SA ou une Sàrl, tu peux combiner salaire et dividendes. Le dividende est imposé à 50 % en cas de participation qualifiante et n'est pas soumis aux cotisations AVS. Cherche le split le plus adapté à ta situation.",
+  "dividendeEconomieCaptionSaving": "Le split adapté te fait économiser {amount}/an par rapport à 100 % salaire",
+  "@dividendeEconomieCaptionSaving": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "dividendeEconomieCaptionAdjust": "Ajuste le split pour trouver une économie",
+  "dividendeRequalificationTitle": "Risque de requalification",
+  "dividendeRequalificationBody": "Si la part salaire descend sous ~60 % du bénéfice, le fisc peut requalifier une partie des dividendes en salaire (la pratique varie d'un canton à l'autre). À la clé : des cotisations AVS réclamées rétroactivement.",
+  "dividendeResultPartDividende": "Part dividende",
+  "dividendeResultPctBenefice": "{pct} % du bénéfice",
+  "@dividendeResultPctBenefice": {
+    "placeholders": {
+      "pct": { "type": "int" }
+    }
+  },
+  "dividendeResultChargeDividende": "Charge sur dividende",
+  "dividendeResultChargeTotale": "Charge totale (split)",
+  "dividendeEduImpotBeneficeTitle": "Impôt sur le bénéfice",
+  "dividendeEduImpotBeneficeBody": "Rappelle-toi : le bénéfice distribué en dividende est imposé une première fois au niveau de la société, puis au niveau personnel — c'est la double imposition économique.",
+  "dividendeEduAvsTitle": "AVS uniquement sur le salaire",
+  "dividendeEduAvsBody": "Les cotisations AVS (environ 12.5 % au total) ne s'appliquent qu'à la part salaire. Le dividende échappe aux charges sociales, d'où l'intérêt d'ajuster le split.",
+  "dividendeEduCantonalTitle": "Pratique cantonale",
+  "dividendeEduCantonalBody": "Les autorités fiscales surveillent les distributions excessives de dividendes et attendent un salaire « conforme au marché ». La limite varie selon les cantons.",
+  "dividendeCantonalDisclaimer": "L'impact fiscal dépend de la pratique cantonale. Les seuils de requalification varient d'un canton à l'autre.",
+  "dividendeComplianceEducatif": "Outil éducatif — ne constitue pas un conseil financier (LSFin).",
+  "dividendeComplianceSources": "Sources : LIFD art. 18, 20, 33 ; CO art. 660",
   "successionUrgence": "Urgence immédiate",
   "successionDemarches": "Démarches administratives",
   "successionLegale": "Succession légale",

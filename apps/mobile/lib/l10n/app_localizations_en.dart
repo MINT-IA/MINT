@@ -2928,6 +2928,33 @@ class SEn extends S {
       'LPP art. 4 (no obligation for self-employed) / LPP art. 44 (voluntary affiliation) / OPP3 art. 7 (large 3a: 20% of net income, max 36,288) / LAVS art. 8 (self-employed contributions) / LAA art. 4 / LAMal';
 
   @override
+  String get independantLppRescueOption1Label => 'Vested benefits foundation';
+
+  @override
+  String get independantLppRescueOption1Description => 'Park your assets in a vested benefits foundation, with a decent return.';
+
+  @override
+  String get independantLppRescueOption1LegalRef => 'LFLP art. 4';
+
+  @override
+  String get independantLppRescueOption2Label => 'Substitute institution';
+
+  @override
+  String get independantLppRescueOption2Description => 'If you do nothing, your assets are transferred there automatically after 6 months — at the minimum return.';
+
+  @override
+  String get independantLppRescueOption2LegalRef => 'LFLP art. 4 al. 2';
+
+  @override
+  String get independantLppRescueOption3Label => 'New LPP fund';
+
+  @override
+  String get independantLppRescueOption3Description => 'You voluntarily join an LPP pension fund.';
+
+  @override
+  String get independantLppRescueOption3LegalRef => 'LPP art. 44';
+
+  @override
   String get independantDisclaimer =>
       'The amounts shown are indicative estimates. Actual contributions depend on your personal situation and available insurance offers. Consult a fiduciary or insurer before any decision.';
 
@@ -13149,6 +13176,64 @@ class SEn extends S {
   @override
   String get dividendeSimulationDisclaimer =>
       'Simplified simulation. Corporate profit tax is included via a representative Swiss rate (KPMG 2025 average); the exact cantonal rate, personal deductions, wealth tax and the AVS/LPP entitlements built by salary are not modelled. A market-conform salary is assumed. Consult a specialist for a full analysis.';
+
+  @override
+  String get dividendeHeaderIntro => 'If you own an SA or Sàrl, you can pay yourself a mix of salary and dividends. The dividend is taxed at 50 % (qualifying participation) and escapes AVS contributions. Find the split that fits best.';
+
+  @override
+  String dividendeEconomieCaptionSaving(String amount) {
+    return 'The right split saves you ${amount}/year compared with 100 % salary';
+  }
+
+  @override
+  String get dividendeEconomieCaptionAdjust => 'Adjust the split to find a saving';
+
+  @override
+  String get dividendeRequalificationTitle => 'Reclassification risk';
+
+  @override
+  String get dividendeRequalificationBody => 'If the salary share drops below ~60 % of profit, the tax office can reclassify part of the dividends as salary (practice varies by canton). The upshot: AVS contributions claimed retroactively.';
+
+  @override
+  String get dividendeResultPartDividende => 'Dividend share';
+
+  @override
+  String dividendeResultPctBenefice(int pct) {
+    return '${pct} % of profit';
+  }
+
+  @override
+  String get dividendeResultChargeDividende => 'Charge on dividend';
+
+  @override
+  String get dividendeResultChargeTotale => 'Total charge (split)';
+
+  @override
+  String get dividendeEduImpotBeneficeTitle => 'Profit tax';
+
+  @override
+  String get dividendeEduImpotBeneficeBody => 'Remember that profit distributed as a dividend is taxed first at company level (profit tax), then at personal level (economic double taxation).';
+
+  @override
+  String get dividendeEduAvsTitle => 'AVS only on salary';
+
+  @override
+  String get dividendeEduAvsBody => 'AVS contributions (about 12.5 % in total) apply only to the salary share. The dividend escapes social charges, hence the point of adjusting the split.';
+
+  @override
+  String get dividendeEduCantonalTitle => 'Cantonal practice';
+
+  @override
+  String get dividendeEduCantonalBody => 'Tax authorities watch for excessive dividend distributions. A salary « in line with the market » is expected. The limit varies by canton.';
+
+  @override
+  String get dividendeCantonalDisclaimer => 'The tax impact depends on cantonal practice. Reclassification thresholds vary from one canton to another.';
+
+  @override
+  String get dividendeComplianceEducatif => 'Educational tool — does not constitute financial advice (FinSA).';
+
+  @override
+  String get dividendeComplianceSources => 'Sources: LIFD art. 18, 20, 33; CO art. 660';
 
   @override
   String get successionUrgence => 'Immediate urgency';

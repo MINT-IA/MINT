@@ -2946,6 +2946,33 @@ class SIt extends S {
       'LPP art. 4 (nessun obbligo per indipendenti) / LPP art. 44 (affiliazione volontaria) / OPP3 art. 7 (3a grande: 20% del reddito netto, max 36\'288) / LAVS art. 8 (contributi indipendenti) / LAINF art. 4 / LAMal';
 
   @override
+  String get independantLppRescueOption1Label => 'Fondazione di libero passaggio';
+
+  @override
+  String get independantLppRescueOption1Description => 'Colloca il tuo avere in una fondazione di libero passaggio, con un rendimento corretto.';
+
+  @override
+  String get independantLppRescueOption1LegalRef => 'LFLP art. 4';
+
+  @override
+  String get independantLppRescueOption2Label => 'Istituto collettore';
+
+  @override
+  String get independantLppRescueOption2Description => 'Se non fai nulla, il tuo avere vi è trasferito d\'ufficio dopo 6 mesi — al rendimento minimo.';
+
+  @override
+  String get independantLppRescueOption2LegalRef => 'LFLP art. 4 al. 2';
+
+  @override
+  String get independantLppRescueOption3Label => 'Nuova cassa LPP';
+
+  @override
+  String get independantLppRescueOption3Description => 'Ti affili volontariamente a una cassa LPP.';
+
+  @override
+  String get independantLppRescueOption3LegalRef => 'LPP art. 44';
+
+  @override
   String get independantDisclaimer =>
       'Gli importi presentati sono stime indicative. I contributi reali dipendono dalla tua situazione personale e dalle offerte assicurative disponibili. Consulta un fiduciario o un assicuratore prima di qualsiasi decisione.';
 
@@ -13249,6 +13276,64 @@ class SIt extends S {
   @override
   String get dividendeSimulationDisclaimer =>
       'Simulazione semplificata. L\'imposta sull\'utile è inclusa tramite un\'aliquota svizzera rappresentativa (media KPMG 2025); l\'aliquota cantonale esatta, le deduzioni personali, l\'imposta sul patrimonio e i diritti AVS/LPP acquisiti con il salario non sono modellizzati. Si presuppone un salario conforme al mercato. Consulta una persona specialista per un\'analisi completa.';
+
+  @override
+  String get dividendeHeaderIntro => 'Se possiedi una SA o Sàrl, puoi versarti una combinazione di stipendio e dividendi. Il dividendo è tassato al 50 % (partecipazione qualificata) ed è esente dai contributi AVS. Trova la ripartizione più adatta.';
+
+  @override
+  String dividendeEconomieCaptionSaving(String amount) {
+    return 'La ripartizione adatta ti fa risparmiare ${amount}/anno rispetto al 100 % di stipendio';
+  }
+
+  @override
+  String get dividendeEconomieCaptionAdjust => 'Regola la ripartizione per trovare un risparmio';
+
+  @override
+  String get dividendeRequalificationTitle => 'Rischio di riqualificazione';
+
+  @override
+  String get dividendeRequalificationBody => 'Se la quota di stipendio scende sotto il ~60 % dell\'utile, il fisco può riqualificare una parte dei dividendi come stipendio (la prassi varia da cantone a cantone). Il risultato: contributi AVS richiesti retroattivamente.';
+
+  @override
+  String get dividendeResultPartDividende => 'Quota dividendo';
+
+  @override
+  String dividendeResultPctBenefice(int pct) {
+    return '${pct} % dell\'utile';
+  }
+
+  @override
+  String get dividendeResultChargeDividende => 'Onere su dividendo';
+
+  @override
+  String get dividendeResultChargeTotale => 'Onere totale (ripartizione)';
+
+  @override
+  String get dividendeEduImpotBeneficeTitle => 'Imposta sull\'utile';
+
+  @override
+  String get dividendeEduImpotBeneficeBody => 'Ricorda che l\'utile distribuito come dividendo è tassato prima a livello della società (imposta sull\'utile), poi a livello personale (doppia imposizione economica).';
+
+  @override
+  String get dividendeEduAvsTitle => 'AVS solo sullo stipendio';
+
+  @override
+  String get dividendeEduAvsBody => 'I contributi AVS (circa il 12.5 % in totale) si applicano solo alla quota di stipendio. Il dividendo è esente dagli oneri sociali, da cui l\'interesse di regolare la ripartizione.';
+
+  @override
+  String get dividendeEduCantonalTitle => 'Prassi cantonale';
+
+  @override
+  String get dividendeEduCantonalBody => 'Le autorità fiscali sorvegliano le distribuzioni eccessive di dividendi. Ci si aspetta uno stipendio « conforme al mercato ». Il limite varia da cantone a cantone.';
+
+  @override
+  String get dividendeCantonalDisclaimer => 'L\'impatto fiscale dipende dalla prassi cantonale. Le soglie di riqualificazione variano da un cantone all\'altro.';
+
+  @override
+  String get dividendeComplianceEducatif => 'Strumento educativo — non costituisce consulenza finanziaria (LSFin).';
+
+  @override
+  String get dividendeComplianceSources => 'Fonti: LIFD art. 18, 20, 33; CO art. 660';
 
   @override
   String get successionUrgence => 'Urgenza immediata';
