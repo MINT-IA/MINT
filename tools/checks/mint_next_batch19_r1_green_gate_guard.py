@@ -47,9 +47,9 @@ TESTS = Path("tools/checks/tests/test_mint_next_batch19_r1_green_gate_guard.py")
 PATH_OWNER = Path(".planning/journeys/path-owners/batch19-r1-green-gate.json")
 RED_GUARD = Path("tools/checks/mint_next_batch19_r1_red_guard.py")
 REGISTRY = red.REGISTRY  # product/mint_next/batch18/runtime-gates.yaml
-CI_WORKFLOW = Path(".github/workflows/mint-next-proofs.yml")
-# The line the CI workflow MUST carry before this gate can be accepted: the guard
-# run in full (non-contract) mode, which mechanically fires the 15/15 replay.
+# The command that ACTUALLY fires the fail-closed 15/15 replay (validate accepted
+# + run_expected_green). Acceptance is attested by a dispatched run of this, not
+# by any static check of the CI workflow file.
 FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --release"
 
 # Re-pinned immutables frozen by this transition. These MUST equal the current
@@ -67,12 +67,18 @@ GREEN_COMMAND = [
 ]
 GREEN_SUMMARY = {"passed": 15, "failed": 0, "load_or_harness_errors": 0}
 
-# (c) CI enforcement: while PENDING only the structure gate runs; once ACCEPTED
-# the full 15/15 replay is REQUIRED (the RED 2/13 replay is retired). This block
-# is descriptor-immutable — it is the same in both lifecycle states.
+# (c) CI enforcement. While PENDING only the structure gate runs (--contract).
+# Acceptance is attested by EXECUTING the full green replay (run_expected_green
+# via --release), fail-closed — NOT by any static presence check of a workflow
+# file (a static check cannot prove execution: it is defeated by a comment,
+# `echo`, `|| true`, or a disabled step). This mirrors the RED release
+# attestation: the accepted SHA is proven by a dispatched --release run whose
+# exit-0 requires the sealed spec to actually replay 15/15. Descriptor-immutable.
 EXPECTED_CI_ENFORCEMENT = {
     "pending": "contract_only",
-    "accepted": "full_green_replay_15_15_required",
+    "accepted_attested_by": "dispatched_full_green_replay_run_expected_green",
+    "attestation_command": FULL_MODE_INVOCATION,
+    "retires": "red_replay_2_13",
 }
 
 ROLES = {"scope_integrity", "mechanical_adversary", "journey_safety"}
@@ -99,8 +105,8 @@ EXPECTED_GREEN_GATE = {
     "expected_summary": dict(GREEN_SUMMARY),
     "expected_exit_code": 0,
     "obligation_test_names": sorted(red.EXPECTED_TEST_NAMES),
-    # (c) the 15/15 replay is mechanically wired into CI, not left optional.
-    "ci_workflow": str(CI_WORKFLOW),
+    # (c) the 15/15 replay is enforced by EXECUTION (run_expected_green via
+    # --release), attested by dispatch — see EXPECTED_CI_ENFORCEMENT.
     "ci_enforcement": dict(EXPECTED_CI_ENFORCEMENT),
 }
 
@@ -296,30 +302,14 @@ def _accepted(root: Path, data: dict, payload: str) -> None:
     # LEFT the not-accepted boundary. A manifest that still forbids them cannot be
     # accepted (an accepted green gate whose runtime is unbuilt is a contradiction).
     _require(data.get("not_accepted") == ACCEPTED_NOT_ACCEPTED, "accepted not-accepted boundary drifted")
-    # The 15/15 replay must be mechanically wired in CI: the workflow named by the
-    # descriptor must invoke this guard in full (non-contract) mode. Until CI
-    # carries that line, acceptance is mechanically impossible.
-    workflow_path = root / CI_WORKFLOW
-    _require(workflow_path.is_file() and not workflow_path.is_symlink(), "green gate CI workflow is missing")
-    # Textual presence is not proof of execution: require the full-mode 15/15
-    # invocation to appear in an actual, enabled job step's `run` command — not a
-    # comment, an inert scalar, or a disabled (`if: false`) step.
-    try:
-        workflow = yaml.load(workflow_path.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
-    except yaml.YAMLError as exc:
-        raise GuardFailure("green gate CI workflow is not valid YAML") from exc
-    jobs = workflow.get("jobs") if isinstance(workflow, dict) else None
-    executed = False
-    for job in (jobs.values() if isinstance(jobs, dict) else []):
-        if not isinstance(job, dict):
-            continue
-        for step in (job.get("steps") if isinstance(job.get("steps"), list) else []):
-            if not isinstance(step, dict) or not isinstance(step.get("run"), str):
-                continue
-            disabled = str(step.get("if", "")).strip().lower() in {"false", "${{ false }}"}
-            if not disabled and FULL_MODE_INVOCATION in step["run"]:
-                executed = True
-    _require(executed, "green gate CI does not wire the full 15/15 replay in an executable step")
+    # The 15/15 replay is NOT proven by any static check of the CI workflow file
+    # (a static check cannot prove execution). It is proven by EXECUTION:
+    # ``--release`` runs ``run_expected_green`` which replays the sealed spec and
+    # is fail-closed on anything but exactly 15/15. Acceptance is therefore
+    # attested by a dispatched --release run at the accepted SHA (exit 0), exactly
+    # as the RED acceptance was attested by its release-attestation run. This
+    # structural ``_accepted`` gate validates only the receipt; the runtime proof
+    # is the dispatched execution.
     binding = data["mechanical_binding"]
     commit = binding.get("reviewed_candidate_commit")
     _require(

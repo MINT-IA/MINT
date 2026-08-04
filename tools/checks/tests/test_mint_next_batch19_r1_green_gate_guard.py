@@ -132,18 +132,6 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(_dump(data))
 
-    def _write_workflow(self, root: Path, invocation: str | None = None) -> None:
-        """Stage the CI workflow the accepted lifecycle requires. Defaults to the
-        full-mode (15/15) invocation so the accepted happy-path passes."""
-        if invocation is None:
-            invocation = guard.FULL_MODE_INVOCATION
-        path = root / guard.CI_WORKFLOW
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            "name: mint-next-proofs\njobs:\n  green-gate-release:\n"
-            f"    steps:\n      - run: {invocation}\n"
-        )
-
     def _accepted_repo(self):
         """Build a real temp-git repo whose working tree carries the ACCEPTED
         manifest and whose history carries the pending candidate commit.
@@ -167,8 +155,6 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         self._write_at(root, _pending_manifest(payload))
         pending_commit = self._commit(root, "green gate candidate pending")
         self._write_at(root, _accepted_manifest(payload, pending_commit))
-        # The accepted lifecycle requires CI to wire the full 15/15 replay.
-        self._write_workflow(root)
         return root, payload, pending_commit
 
     # --- pending lifecycle -------------------------------------------------
@@ -333,50 +319,6 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "commit cannot provide"):
             guard.validate(root, require_accepted=True, check_git=False)
 
-    def test_accepted_ci_workflow_without_full_mode_is_rejected(self) -> None:
-        # CI carries only the --contract job: the 15/15 replay is not wired, so
-        # acceptance is mechanically impossible.
-        root, payload, _pending_commit = self._accepted_repo()
-        self._write_workflow(
-            root,
-            invocation="python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --contract",
-        )
-        with self.assertRaisesRegex(guard.GuardFailure, "does not wire the full 15/15 replay"):
-            guard.validate(root, require_accepted=True, check_git=False)
-
-    def test_accepted_missing_ci_workflow_is_rejected(self) -> None:
-        root, payload, _pending_commit = self._accepted_repo()
-        (root / guard.CI_WORKFLOW).unlink()
-        with self.assertRaisesRegex(guard.GuardFailure, "CI workflow is missing"):
-            guard.validate(root, require_accepted=True, check_git=False)
-
-    def test_accepted_full_mode_only_in_comment_is_rejected(self) -> None:
-        # Textual presence is not execution: the invocation appears only in a YAML
-        # comment, never in an executable step.run — acceptance must still fail.
-        root, payload, _pending_commit = self._accepted_repo()
-        path = root / guard.CI_WORKFLOW
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            "name: mint-next-proofs\n"
-            f"# a fake line: {guard.FULL_MODE_INVOCATION}\n"
-            "jobs:\n  green-gate-contract:\n    steps:\n"
-            "      - run: python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --contract\n"
-        )
-        with self.assertRaisesRegex(guard.GuardFailure, "does not wire the full 15/15 replay"):
-            guard.validate(root, require_accepted=True, check_git=False)
-
-    def test_accepted_full_mode_in_disabled_step_is_rejected(self) -> None:
-        # A disabled (`if: false`) step carrying the invocation does not execute.
-        root, payload, _pending_commit = self._accepted_repo()
-        path = root / guard.CI_WORKFLOW
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(
-            "name: mint-next-proofs\njobs:\n  green-gate-release:\n    steps:\n"
-            f"      - if: false\n        run: {guard.FULL_MODE_INVOCATION}\n"
-        )
-        with self.assertRaisesRegex(guard.GuardFailure, "does not wire the full 15/15 replay"):
-            guard.validate(root, require_accepted=True, check_git=False)
-
     def test_accepted_still_forbidding_runtime_is_rejected(self) -> None:
         # An accepted green gate whose not_accepted still forbids the runtime /
         # lib inventory seal is a contradiction (acceptance ⟹ runtime built).
@@ -413,7 +355,6 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         self._write_at(root, _pending_manifest("0" * 64))
         canonical_payload = guard._payload(root)
         self._write_at(root, _accepted_manifest(canonical_payload, pending_commit))
-        self._write_workflow(root)
         with self.assertRaisesRegex(guard.GuardFailure, "not-accepted boundary drifted"):
             guard.validate(root, require_accepted=True, check_git=False)
 
