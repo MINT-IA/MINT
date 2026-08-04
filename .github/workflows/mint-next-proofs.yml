@@ -204,5 +204,7 @@ jobs:
         run: flutter pub get --enforce-lockfile
       - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
         run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling check rejects ignored files under protected paths; pub cache stays warm in ~/.pub-cache)
+        run: git clean -fdx product/mint_next/batch7/design_lab
       - name: Full guard release attestation (validate check_git=True + run_proofs + hostile suite)
         run: python3 -I tools/checks/mint_next_batch19_r1_red_acceptance_guard.py --release
