@@ -5433,6 +5433,60 @@ abstract class S {
   /// **'LPP art. 4 (pas d\'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20 % du revenu net, max 36\'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal'**
   String get independantSourcesBody;
 
+  /// No description provided for @independantLppRescueOption1Label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fondation de libre passage'**
+  String get independantLppRescueOption1Label;
+
+  /// No description provided for @independantLppRescueOption1Description.
+  ///
+  /// In fr, this message translates to:
+  /// **'Place ton avoir dans une fondation de libre passage : il continue de fructifier à un rendement correct.'**
+  String get independantLppRescueOption1Description;
+
+  /// No description provided for @independantLppRescueOption1LegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'LFLP art. 4'**
+  String get independantLppRescueOption1LegalRef;
+
+  /// No description provided for @independantLppRescueOption2Label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Institution supplétive'**
+  String get independantLppRescueOption2Label;
+
+  /// No description provided for @independantLppRescueOption2Description.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu ne fais rien, ton avoir y est transféré d\'office après 6 mois — au rendement minimal.'**
+  String get independantLppRescueOption2Description;
+
+  /// No description provided for @independantLppRescueOption2LegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'LFLP art. 4 al. 2'**
+  String get independantLppRescueOption2LegalRef;
+
+  /// No description provided for @independantLppRescueOption3Label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle caisse LPP'**
+  String get independantLppRescueOption3Label;
+
+  /// No description provided for @independantLppRescueOption3Description.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu t\'affilies volontairement à une caisse LPP.'**
+  String get independantLppRescueOption3Description;
+
+  /// No description provided for @independantLppRescueOption3LegalRef.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP art. 44'**
+  String get independantLppRescueOption3LegalRef;
+
   /// No description provided for @independantDisclaimer.
   ///
   /// In fr, this message translates to:
@@ -23334,6 +23388,114 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Simulation simplifiée. L\'impôt sur le bénéfice est intégré via un taux suisse représentatif (moyenne KPMG 2025) ; le taux exact du canton, les déductions personnelles, l\'impôt sur la fortune et les droits AVS/LPP acquis par le salaire ne sont pas modélisés. Un salaire conforme au marché est supposé. Consulte un·e spécialiste pour une analyse complète.'**
   String get dividendeSimulationDisclaimer;
+
+  /// No description provided for @dividendeHeaderIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu possèdes une SA ou une Sàrl, tu peux combiner salaire et dividendes. Le dividende est imposé à 50 % en cas de participation qualifiante et n\'est pas soumis aux cotisations AVS. Cherche le split le plus adapté à ta situation.'**
+  String get dividendeHeaderIntro;
+
+  /// No description provided for @dividendeEconomieCaptionSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le split adapté te fait économiser {amount}/an par rapport à 100 % salaire'**
+  String dividendeEconomieCaptionSaving(String amount);
+
+  /// No description provided for @dividendeEconomieCaptionAdjust.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajuste le split pour trouver une économie'**
+  String get dividendeEconomieCaptionAdjust;
+
+  /// No description provided for @dividendeRequalificationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Risque de requalification'**
+  String get dividendeRequalificationTitle;
+
+  /// No description provided for @dividendeRequalificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si la part salaire descend sous ~60 % du bénéfice, le fisc peut requalifier une partie des dividendes en salaire (la pratique varie d\'un canton à l\'autre). À la clé : des cotisations AVS réclamées rétroactivement.'**
+  String get dividendeRequalificationBody;
+
+  /// No description provided for @dividendeResultPartDividende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Part dividende'**
+  String get dividendeResultPartDividende;
+
+  /// No description provided for @dividendeResultPctBenefice.
+  ///
+  /// In fr, this message translates to:
+  /// **'{pct} % du bénéfice'**
+  String dividendeResultPctBenefice(int pct);
+
+  /// No description provided for @dividendeResultChargeDividende.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge sur dividende'**
+  String get dividendeResultChargeDividende;
+
+  /// No description provided for @dividendeResultChargeTotale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge totale (split)'**
+  String get dividendeResultChargeTotale;
+
+  /// No description provided for @dividendeEduImpotBeneficeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impôt sur le bénéfice'**
+  String get dividendeEduImpotBeneficeTitle;
+
+  /// No description provided for @dividendeEduImpotBeneficeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappelle-toi : le bénéfice distribué en dividende est imposé une première fois au niveau de la société, puis au niveau personnel — c\'est la double imposition économique.'**
+  String get dividendeEduImpotBeneficeBody;
+
+  /// No description provided for @dividendeEduAvsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS uniquement sur le salaire'**
+  String get dividendeEduAvsTitle;
+
+  /// No description provided for @dividendeEduAvsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les cotisations AVS (environ 12.5 % au total) ne s\'appliquent qu\'à la part salaire. Le dividende échappe aux charges sociales, d\'où l\'intérêt d\'ajuster le split.'**
+  String get dividendeEduAvsBody;
+
+  /// No description provided for @dividendeEduCantonalTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pratique cantonale'**
+  String get dividendeEduCantonalTitle;
+
+  /// No description provided for @dividendeEduCantonalBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les autorités fiscales surveillent les distributions excessives de dividendes et attendent un salaire « conforme au marché ». La limite varie selon les cantons.'**
+  String get dividendeEduCantonalBody;
+
+  /// No description provided for @dividendeCantonalDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'impact fiscal dépend de la pratique cantonale. Les seuils de requalification varient d\'un canton à l\'autre.'**
+  String get dividendeCantonalDisclaimer;
+
+  /// No description provided for @dividendeComplianceEducatif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin).'**
+  String get dividendeComplianceEducatif;
+
+  /// No description provided for @dividendeComplianceSources.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sources : LIFD art. 18, 20, 33 ; CO art. 660'**
+  String get dividendeComplianceSources;
 
   /// No description provided for @successionUrgence.
   ///

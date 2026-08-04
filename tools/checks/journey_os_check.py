@@ -1184,6 +1184,11 @@ ALLOW = {
     "apps/mobile/lib/widgets/coach/lpp_rescue_widget.dart",
     "apps/mobile/lib/screens/independant_screen.dart",
     "apps/mobile/test/widgets/coach/lpp_rescue_widget_test.dart",
+    # fix(i18n) résidus FR (codex/journey-os-fr-residuals) : les LppTransferOption
+    # passés par independant_screen au widget partagé portaient label/description/
+    # legalRef en FR codé en dur (dette « débit du CALLER » #1190) → extraits en
+    # ARB 6 langues. Preuve de vraie localisation (EN-locale) dans ce test dédié.
+    "apps/mobile/test/screens/independant_lpp_rescue_i18n_test.dart",
     # Tranche AX 3 (ADR 2026-07-30, patron #1127/#1140/#1146) : migration
     # SliverAppBar → AppBar classique fixe sur 7 ecrans a route poussee
     # (CustomScrollView, barre titre-seule, sans expandedHeight/flexibleSpace).

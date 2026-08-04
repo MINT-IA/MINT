@@ -149,10 +149,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Si tu possèdes une SA ou Sàrl, tu peux te verser une '
-              'combinaison de salaire et de dividendes. Le dividende '
-              'est imposé à 50% (participation qualifiante) et échappe '
-              'aux cotisations AVS. Trouve le split le plus adapte.',
+              S.of(context)!.dividendeHeaderIntro,
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
@@ -246,10 +243,10 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             MintHeroNumber(
               value: IndependantsService.formatChf(saving),
               caption: saving > 0
-                  ? 'Le split adapté te fait économiser '
-                    '${IndependantsService.formatChf(saving)}/an '
-                    'par rapport à 100% salaire'
-                  : 'Ajuste le split pour trouver une économie',
+                  ? S.of(context)!.dividendeEconomieCaptionSaving(
+                      IndependantsService.formatChf(saving),
+                    )
+                  : S.of(context)!.dividendeEconomieCaptionAdjust,
               color: saving > 0 ? MintColors.success : MintColors.primary,
             ),
           ],
@@ -321,15 +318,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Risque de requalification',
+                  S.of(context)!.dividendeRequalificationTitle,
                   style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
-                  'Si la part salaire est inférieure à ~60% du bénéfice, '
-                  'l\'administration fiscale peut requalifier une partie '
-                  'des dividendes en salaire (pratique cantonale variable). '
-                  'Cela entraîne des cotisations AVS rétroactives.',
+                  S.of(context)!.dividendeRequalificationBody,
                   style: MintTextStyles.bodySmall(color: MintColors.error.withValues(alpha: 0.8)),
                 ),
               ],
@@ -354,37 +348,41 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
       child: Column(
         children: [
           _buildResultRow(
-            'Part salaire',
+            S.of(context)!.dividendePartSalaire,
             IndependantsService.formatChf(r.partSalaire),
-            subtitle: '${_partSalairePct.toInt()}% du bénéfice',
+            subtitle: S.of(context)!.dividendeResultPctBenefice(
+              _partSalairePct.toInt(),
+            ),
           ),
           const SizedBox(height: 12),
           _buildResultRow(
-            'Part dividende',
+            S.of(context)!.dividendeResultPartDividende,
             IndependantsService.formatChf(r.partDividende),
-            subtitle: '${(100 - _partSalairePct).toInt()}% du bénéfice',
+            subtitle: S.of(context)!.dividendeResultPctBenefice(
+              (100 - _partSalairePct).toInt(),
+            ),
           ),
           const Divider(height: 24),
           _buildResultRow(
-            'Charge sur salaire',
+            S.of(context)!.dividendeVsSalaireChargeSalaire,
             IndependantsService.formatChf(r.chargeSalaire),
             color: MintColors.error,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Charge sur dividende',
+            S.of(context)!.dividendeResultChargeDividende,
             IndependantsService.formatChf(r.chargeDividende),
             color: MintColors.info,
           ),
           const Divider(height: 24),
           _buildResultRow(
-            'Charge totale (split)',
+            S.of(context)!.dividendeResultChargeTotale,
             IndependantsService.formatChf(r.chargeTotal),
             bold: true,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            'Charge si 100% salaire',
+            S.of(context)!.dividendeVsSalaireCharge100Salaire,
             IndependantsService.formatChf(r.chargeToutSalaire),
             color: MintColors.textMuted,
           ),
@@ -533,24 +531,18 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.account_balance_outlined,
-          'Impôt sur le bénéfice',
-          'Rappelle-toi que le bénéfice distribué en dividende est '
-          'imposé d\'abord au niveau de la société (impôt sur le bénéfice), '
-          'puis au niveau personnel (double imposition économique).',
+          S.of(context)!.dividendeEduImpotBeneficeTitle,
+          S.of(context)!.dividendeEduImpotBeneficeBody,
         ),
         _buildEduCard(
           Icons.people_outline,
-          'AVS uniquement sur le salaire',
-          'Les cotisations AVS (environ 12.5% au total) ne s\'appliquent '
-          'qu\'à la part salaire. Le dividende échappe aux charges sociales, '
-          'd\'où l\'intérêt d\'ajuster le split.',
+          S.of(context)!.dividendeEduAvsTitle,
+          S.of(context)!.dividendeEduAvsBody,
         ),
         _buildEduCard(
           Icons.gavel_outlined,
-          'Pratique cantonale',
-          'Les autorités fiscales surveillent les distributions excessives '
-          'de dividendes. Un salaire "conforme au marché" est attendu. '
-          'La limite varie selon les cantons.',
+          S.of(context)!.dividendeEduCantonalTitle,
+          S.of(context)!.dividendeEduCantonalBody,
         ),
       ],
     );
@@ -633,8 +625,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(
-        'L\'impact fiscal dépend de la pratique cantonale. '
-        'Les seuils de requalification varient d\'un canton à l\'autre.',
+        S.of(context)!.dividendeCantonalDisclaimer,
         style: MintTextStyles.micro(color: MintColors.textMuted),
         textAlign: TextAlign.center,
       ),
@@ -653,12 +644,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
+            S.of(context)!.dividendeComplianceEducatif,
             style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
-            'Sources\u00a0: LIFD art.\u00a018, 20, 33\u00a0; CO art.\u00a0660',
+            S.of(context)!.dividendeComplianceSources,
             style: MintTextStyles.micro(color: MintColors.textMuted),
           ),
         ],
