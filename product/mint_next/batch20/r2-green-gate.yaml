@@ -1,0 +1,110 @@
+# Batch20 R2 GREEN-GATE manifest — PENDING, pre-implementation.
+# Governance transition only: retires the accepted 2/13 RED replay of the fused
+# fact_lieu (COMMUNE DIRECTE) contract and installs the 15/15 GREEN replay as the
+# active R2 gate upon promotion + implementation. The R2 runtime path-owner
+# (batch20-r2-runtime: fact_lieu.dart + fact_lieu_catalog.g.dart) is not yet
+# accepted; do not run the GREEN Flutter replay while pending (it would still be
+# 2/13). green_gate.ci_enforcement: --contract validates structure while pending;
+# acceptance is attested by EXECUTING the full --release replay (run_expected_green,
+# fail-closed 15/15), dispatched at the accepted SHA like the RED release
+# attestation — NOT by any static check of the CI workflow file. Sealed by
+# tools/checks/mint_next_batch20_r2_green_gate_guard.py.
+schema_version: 1
+status: candidate_green_gate_unaccepted
+current_verdict: PENDING_INDEPENDENT_ROASTS
+supersedes:
+  red_acceptance_receipt: product/mint_next/batch20/r2-red-acceptance.json
+  accepted_payload_sha256: a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792
+  accepted_commit: 062a12ac4650888d8adc2cc7a4e3f9533b6ad7b7
+  attestation_run: https://github.com/MINT-IA/MINT/actions/runs/30953934739
+green_gate:
+  retires: red_replay_2_13
+  active_gate_upon_promotion: green_replay_15_15
+  test_file: product/mint_next/batch7/design_lab/test/design_lab_batch20_commune_r2_test.dart
+  test_sha256: b3b0658971402ec69e12b2853c7c722926c640e9fcf7a9aa3ca602d165a26704
+  fixture_file: product/mint_next/batch7/design_lab/test/batch20_commune_fixture.g.dart
+  fixture_sha256: 25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700
+  command:
+  - flutter
+  - test
+  - test/design_lab_batch20_commune_r2_test.dart
+  - --machine
+  - --no-pub
+  working_directory: product/mint_next/batch7/design_lab
+  expected_summary:
+    passed: 15
+    failed: 0
+    load_or_harness_errors: 0
+  expected_exit_code: 0
+  obligation_test_names:
+  - R2_01 the shared entry path reaches the contribution boundary before the fused
+    location runtime
+  - R2_02 arrival focuses the heading not a raised keyboard and the question carries
+    the meaning without a body
+  - R2_03 an empty national query prompts for a commune name and dumps nothing until
+    a prefix is typed
+  - R2_04 every national result names its derived canton
+  - R2_05 results cap at fifty with an overflow status carrying the total
+  - R2_06 bilingual aliases and official variants match the reviewed labels
+  - R2_07 the postcode is searchable secondary text but never the committed value
+  - R2_08 the selection summary persists and is visible when the selected commune
+    is not in the current results
+  - R2_09 selecting a commune announces the commune and its derived canton atomically
+    as one node
+  - R2_10 no match prompts a spelling check and reveals a help link that escalates
+    to r3 in the no match state only
+  - R2_11 a tappable glossary anchor opens an aerated definition sheet with a sentence
+    and a metaphor and restores focus
+  - R2_12 entry is unset with no default recommended or derived commune and no unknown
+    control
+  - R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton
+    naming result reachable
+  - R2_14 continue is guarded by a reviewed commune reselection is idempotent and
+    continue never routes in r2
+  - R2_15 registry keeps R2 before R3 and excludes later evidence
+  ci_enforcement:
+    pending: contract_only
+    accepted_attested_by: dispatched_full_green_replay_run_expected_green
+    attestation_command: python3 -I tools/checks/mint_next_batch20_r2_green_gate_guard.py
+      --release
+    retires: red_replay_2_13
+re_pinned_immutables:
+  red_guard:
+    path: tools/checks/mint_next_batch20_r2_red_guard.py
+    sha256: 4d6d459ac2fe07e8fcfdd1c5735081f6d3fda82d97eba66d8ea5503461e3ad86
+  registry:
+    path: product/mint_next/batch20/runtime-gates.yaml
+    sha256: 9544be94bbc10cba9e1e323131a778e2e67dbd4ce5239efe533447c5e57482e7
+runtime_regating:
+  scope_owner: batch20-r2-runtime
+  regated_file: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  lib_inventory_seal: deferred_to_implementation_under_this_gate
+runtime_surface: hidden_design_lab_only
+product_promotion: forbidden
+reviews:
+  journey_safety:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  mechanical_adversary:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  scope_integrity:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+mechanical_binding:
+  candidate_payload_sha256: a213f30cf5ed92167b41d781bed47e984d4f924a5f1880cdf93d6afdc15f8265
+  reviewed_payload_sha256: null
+  reviewed_candidate_commit: null
+  green_lib_inventory_sha256: null
+not_accepted:
+- runtime_implemented
+- lib_inventory_sealed
+- product_route
+- production_ready
+next_gate: seal_R2_green_lib_inventory_then_R3

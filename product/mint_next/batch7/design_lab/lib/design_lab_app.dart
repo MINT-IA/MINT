@@ -5,6 +5,7 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import 'canton_r1.dart';
+import 'fact_lieu.dart';
 import 'l10n/generated/mint_next_localizations.dart';
 import 'multi_provider_amount_draft.dart';
 import 'multi_provider_amount_editor.dart';
@@ -25,6 +26,7 @@ enum _DesignNode {
   unresolvedAmountHelp,
   contributionStatusCorrection,
   factCanton,
+  factLieu,
   educationExplanation,
   dismissed,
 }
@@ -323,6 +325,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     _DesignNode.contributionStatusCorrection =>
       'contribution_status_correction',
     _DesignNode.factCanton => 'fact_canton',
+    _DesignNode.factLieu => 'fact_lieu',
     _DesignNode.educationExplanation => 'education_explanation',
     _DesignNode.dismissed => 'dismissed',
   };
@@ -519,6 +522,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
         _returnToBatch16Help('all_zero');
       case _DesignNode.factCanton:
         _backFromCanton();
+      case _DesignNode.factLieu:
+        // The fused fact_lieu is reached from the "no contribution" branch;
+        // system-back returns to the contribution boundary.
+        _go(_DesignNode.factContribution);
       case _DesignNode.educationExplanation:
         _backFromEducation();
       case _DesignNode.dismissed:
@@ -636,8 +643,11 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                               _go(switch (value) {
                                 _ContributionStatus.yes =>
                                   _DesignNode.factContributedAmount,
-                                _ContributionStatus.no =>
-                                  _DesignNode.factCanton,
+                                // Commune-directe pivot (Julien 2026-08-04): the
+                                // "no contribution" branch reaches the fused
+                                // fact_lieu node (national commune search, canton
+                                // derived) in place of the standalone fact_canton.
+                                _ContributionStatus.no => _DesignNode.factLieu,
                                 _ContributionStatus.unknown =>
                                   _DesignNode.contributionUnknownHelp,
                               });
@@ -832,6 +842,9 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             hasPositiveContribution:
                                 _contributionStatus == _ContributionStatus.yes,
                             onBack: _backFromCanton,
+                          ),
+                          _DesignNode.factLieu => FactLieuScreen(
+                            taxYear: _taxYear!,
                           ),
                           _DesignNode.educationExplanation =>
                             _EducationBoundary(onBack: _backFromEducation),

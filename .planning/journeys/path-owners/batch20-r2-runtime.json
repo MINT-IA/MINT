@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "owner_id": "batch20-r2-runtime",
+  "status": "candidate_unaccepted",
+  "paths": [
+    "product/mint_next/batch7/design_lab/lib/fact_lieu.dart",
+    "product/mint_next/batch7/design_lab/lib/fact_lieu_catalog.g.dart"
+  ],
+  "reviews": {
+    "journey_safety": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "mechanical_adversary": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "scope_integrity": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    }
+  },
+  "mechanical_binding": {
+    "candidate_payload_sha256": "e0beb6c5f164f0b6e3bbbecba15ead93d9cbdfa692db903dc294414251cf8f75",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
+  }
+}
