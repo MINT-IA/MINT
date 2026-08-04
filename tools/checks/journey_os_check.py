@@ -1248,6 +1248,16 @@ ALLOW = {
     # cible 44pt) + test qui scrolle vers le contenu paresseux réel.
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
+    # codex/journey-os-sweep-320pt-safemode : extension systémique de la leçon
+    # #1177. Le fix du faux positif ouvre le SafeModeGate pour un profil partiel
+    # et rend PLEINE HAUTEUR les autres écrans 3a/LPP profonds — jamais couverts
+    # par un test 320pt. Sweep : overflows RenderFlex horizontaux confirmés puis
+    # corrigés (Expanded/Flexible sur libellés, isExpanded sur dropdown, FittedBox
+    # sur chiffres, Flexible sur colonnes). epl_screen n'était pas encore
+    # whitelisté ; les autres écrans le sont déjà (lignes ci-dessus). Le widget
+    # partagé LppRescueWidget (hors gate, i18n en dette) est documenté, non touché.
+    "apps/mobile/lib/screens/lpp_deep/epl_screen.dart",
+    "apps/mobile/test/screens/sweep320_safemode_deep_test.dart",
     # codex/journey-os-mx-fidelite-design : audit de fidélité au design validé
     # (mint-experience, 5e lentille) sur les 4 surfaces ci-dessus + login/3a.
     # Constat sans patch — aucune surface modifiée, un seul artefact d'audit.

@@ -396,12 +396,15 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
+              Flexible(
+                child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    S.of(context)!.retroactive3aTauxMarginal,
-                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                  Flexible(
+                    child: Text(
+                      S.of(context)!.retroactive3aTauxMarginal,
+                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                    ),
                   ),
                   if (_prefilledFields.contains('taux_marginal'))
                     const SmartDefaultIndicator(
@@ -410,6 +413,8 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                     ),
                 ],
               ),
+              ),
+              const SizedBox(width: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
                 decoration: BoxDecoration(
@@ -639,14 +644,19 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  '${S.of(context)!.retroactive3aTotal} ${S.of(context)!.retroactive3aHeaderDeductible} ${DateTime.now().year}',
-                  style: MintTextStyles.labelSmall(color: MintColors.white70)
-                      .copyWith(fontWeight: FontWeight.w700),
+                Expanded(
+                  child: Text(
+                    '${S.of(context)!.retroactive3aTotal} ${S.of(context)!.retroactive3aHeaderDeductible} ${DateTime.now().year}',
+                    style: MintTextStyles.labelSmall(color: MintColors.white70)
+                        .copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
+                const SizedBox(width: 12),
                 Text(
                   'CHF\u00a0${formatChf(result.totalContribution)}',
+                  textAlign: TextAlign.end,
                   style: MintTextStyles.titleMedium(color: MintColors.white),
                 ),
               ],

@@ -388,40 +388,63 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           // Metrics row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.providerComparatorRendement, style: MintTextStyles.micro(color: MintColors.textMuted)),
-                  Text(
-                    '${(result.rendementNet * 100).toStringAsFixed(1)}%',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.providerComparatorFrais, style: MintTextStyles.micro(color: MintColors.textMuted)),
-                  Text(
-                    '${(result.provider.fraisGestion * 100).toStringAsFixed(2)}%',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(l.providerComparatorCapitalFinal, style: MintTextStyles.micro(color: MintColors.textMuted)),
-                  Text(
-                    'CHF ${formatChf(result.capitalFinal)}',
-                    style: MintTextStyles.titleMedium(
-                      color: isWarning
-                              ? MintColors.error
-                              : MintColors.textPrimary,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.providerComparatorRendement, style: MintTextStyles.micro(color: MintColors.textMuted)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${(result.rendementNet * 100).toStringAsFixed(1)}%',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.providerComparatorFrais, style: MintTextStyles.micro(color: MintColors.textMuted)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${(result.provider.fraisGestion * 100).toStringAsFixed(2)}%',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(l.providerComparatorCapitalFinal,
+                        textAlign: TextAlign.end,
+                        style: MintTextStyles.micro(color: MintColors.textMuted)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'CHF ${formatChf(result.capitalFinal)}',
+                        style: MintTextStyles.titleMedium(
+                          color: isWarning
+                                  ? MintColors.error
+                                  : MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
