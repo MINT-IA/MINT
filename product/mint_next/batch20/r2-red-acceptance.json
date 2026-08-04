@@ -1,0 +1,58 @@
+{
+  "schema_version": 2,
+  "status": "candidate_red_acceptance_unaccepted",
+  "current_verdict": "PENDING_INDEPENDENT_ROASTS",
+  "candidate": {
+    "red_commit": "533d8e4eac50b46196a26ba517f8bad1e517c780",
+    "gate": "R2",
+    "lifecycle": "expected_red",
+    "runtime_implemented": false,
+    "runtime_accepted": false,
+    "product_surface": "hidden_design_lab_only",
+    "expected_summary": {
+      "passed": 2,
+      "failed": 13,
+      "load_or_harness_errors": 0
+    }
+  },
+  "proof_commands": {
+    "hostile_unit": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} unittest tools.checks.tests.test_mint_next_batch20_r2_red_guard",
+    "isolated_expected_red": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.mint_next_batch20_r2_red_guard",
+    "journey_scope": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.journey_os_check"
+  },
+  "reviews": {
+    "architecture_integrity": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "mechanical_evidence": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "ux_navigation_scope": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    }
+  },
+  "mechanical_binding": {
+    "candidate_review_payload_sha256": "dfac400115c5c1d94835e8007d6a25fb39661452410663df4b6fa017b4707cfe",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
+  },
+  "accepted_evidence": [],
+  "not_accepted": [
+    "runtime_implemented",
+    "runtime_accepted",
+    "user_validated",
+    "product_route",
+    "R3_or_later_gate",
+    "production_ready"
+  ],
+  "next_gate": "independent_roasts_of_exact_pending_acceptance_commit"
+}
