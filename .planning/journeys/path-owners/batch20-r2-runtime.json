@@ -1,34 +1,37 @@
 {
   "schema_version": 1,
   "owner_id": "batch20-r2-runtime",
-  "status": "candidate_unaccepted",
+  "status": "accepted",
   "paths": [
     "product/mint_next/batch7/design_lab/lib/fact_lieu.dart",
     "product/mint_next/batch7/design_lab/lib/fact_lieu_catalog.g.dart"
   ],
   "reviews": {
     "journey_safety": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "e0beb6c5f164f0b6e3bbbecba15ead93d9cbdfa692db903dc294414251cf8f75"
     },
     "mechanical_adversary": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "e0beb6c5f164f0b6e3bbbecba15ead93d9cbdfa692db903dc294414251cf8f75"
     },
     "scope_integrity": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "e0beb6c5f164f0b6e3bbbecba15ead93d9cbdfa692db903dc294414251cf8f75"
     }
   },
   "mechanical_binding": {
     "candidate_payload_sha256": "e0beb6c5f164f0b6e3bbbecba15ead93d9cbdfa692db903dc294414251cf8f75",
-    "reviewed_payload_sha256": null,
-    "reviewed_candidate_commit": null
+    "reviewed_payload_sha256": "e0beb6c5f164f0b6e3bbbecba15ead93d9cbdfa692db903dc294414251cf8f75",
+    "reviewed_candidate_commit": "fec98e82b9a8027102241d37982b9923fe910b15"
   }
 }

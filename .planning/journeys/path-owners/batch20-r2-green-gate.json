@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner_id": "batch20-r2-green-gate",
-  "status": "candidate_unaccepted",
+  "status": "accepted",
   "paths": [
     "product/mint_next/batch20/r2-green-gate.yaml",
     "tools/checks/mint_next_batch20_r2_green_gate_guard.py",
@@ -9,27 +9,30 @@
   ],
   "reviews": {
     "journey_safety": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "eb9fb3c1a7368d51fb5409dad07850dbe05f4d46aa4a934d127648ccf0ab24b1"
     },
     "mechanical_adversary": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "eb9fb3c1a7368d51fb5409dad07850dbe05f4d46aa4a934d127648ccf0ab24b1"
     },
     "scope_integrity": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "eb9fb3c1a7368d51fb5409dad07850dbe05f4d46aa4a934d127648ccf0ab24b1"
     }
   },
   "mechanical_binding": {
     "candidate_payload_sha256": "eb9fb3c1a7368d51fb5409dad07850dbe05f4d46aa4a934d127648ccf0ab24b1",
-    "reviewed_payload_sha256": null,
-    "reviewed_candidate_commit": null
+    "reviewed_payload_sha256": "eb9fb3c1a7368d51fb5409dad07850dbe05f4d46aa4a934d127648ccf0ab24b1",
+    "reviewed_candidate_commit": "fec98e82b9a8027102241d37982b9923fe910b15"
   }
 }
