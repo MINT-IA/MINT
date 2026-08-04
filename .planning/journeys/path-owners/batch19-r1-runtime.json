@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "owner_id": "batch19-r1-runtime",
+  "status": "candidate_unaccepted",
+  "paths": [
+    "product/mint_next/batch7/design_lab/lib/canton_r1.dart",
+    "product/mint_next/batch7/design_lab/lib/canton_r1_catalog.g.dart",
+    "product/mint_next/batch7/design_lab/lib/design_lab_app.dart"
+  ],
+  "reviews": {
+    "journey_safety": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "mechanical_adversary": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "scope_integrity": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    }
+  },
+  "mechanical_binding": {
+    "candidate_payload_sha256": "774bb81378ebc074bbb714821565087380ce0f1cd09c22294e3f44596c636ecc",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
+  }
+}
