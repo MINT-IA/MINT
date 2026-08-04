@@ -692,6 +692,7 @@ void main() {
       );
       expect(clipboardCalls, 0, reason: '[R1_12] local search used clipboard');
       expect(logs, isEmpty, reason: '[R1_12] query or selection was logged');
+      debugPrint = oldDebugPrint;
       await tester.pumpWidget(const SizedBox.shrink());
       await _openCantonFromNo(tester);
       expect(_editableWidget(tester, search).controller.text, isEmpty);

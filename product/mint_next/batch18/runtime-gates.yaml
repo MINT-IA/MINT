@@ -38,7 +38,7 @@ gates:
       failed: 13
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: c5dde1139cb52855140322c0254b6dc60f3e6a66e1c21cb6060795dd460e071b
+      test_sha256: 2c7421297e4f1a14bd3885391ef3937e05e01b1bf37e69a43283b7cade34563e
       fixture_sha256: 204e505c92a94c650f888d872faf8240b58a763d8d2fa2326ad1c6796b8534ec
     subgates:
       R1a_catalog_origin_and_generation:

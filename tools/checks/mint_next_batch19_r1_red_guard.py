@@ -31,11 +31,16 @@ PUBSPEC_LOCK = Path("product/mint_next/batch7/design_lab/pubspec.lock")
 LIB_ROOT = Path("product/mint_next/batch7/design_lab/lib")
 L10N_CONFIG = Path("product/mint_next/batch7/design_lab/l10n.yaml")
 ASSETS_ROOT = Path("product/mint_next/batch7/design_lab/assets")
-ANCHOR = "7bbf90b447c5d772597bd807810c39b22b232632"
+# Baseline for the RED-scope diff (ANCHOR..candidate_end must touch only
+# ALLOWED_DIFF_PATHS). MUST be the parent of the commit that (re-)authored the
+# sealed RED files: any re-seal that re-commits the RED files onto a newer base
+# has to advance this to that base, else the range sweeps in the base's
+# accumulated non-RED history. Here: parent of the OPTION-A re-seal commit.
+ANCHOR = "fd3fd21504d0ee0743691e42b0468740a627005a"
 
 EXPECTED_SCOPE_SHA256 = "ecb83ff852211d055ca50d9e0667d138b744e1bca1a7ba81131c2c1814761f8a"
 EXPECTED_COPY_SHA256 = "3c6d19a37dee264bf5bd0b9e80151eac2796b6a517ddd82a96feb397c49050fe"
-EXPECTED_TEST_SHA256 = "c5dde1139cb52855140322c0254b6dc60f3e6a66e1c21cb6060795dd460e071b"
+EXPECTED_TEST_SHA256 = "2c7421297e4f1a14bd3885391ef3937e05e01b1bf37e69a43283b7cade34563e"
 EXPECTED_FIXTURE_SHA256 = "204e505c92a94c650f888d872faf8240b58a763d8d2fa2326ad1c6796b8534ec"
 EXPECTED_PUBSPEC_SHA256 = "0b83bf36a5ee2242becbd0fb601235f0c3b2942813207552a03957aaf1569326"
 EXPECTED_PUBSPEC_LOCK_SHA256 = "6d7f501ae44e385c80d3726c6a25d830d04d3acf0a7456c6129a293f97f885a1"
