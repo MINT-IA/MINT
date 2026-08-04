@@ -1,0 +1,429 @@
+schema_version: 1
+status: pending_reviewed_dataset_runtime_forbidden
+kind: fact_commune_reviewed_dataset
+# R2 reviewed commune dataset for the hidden design lab. Keyed by BFS/OFS Gemeindenummer
+# (committed key). REPRESENTATIVE reviewed set for sealed tests, NOT the full ~2000 Swiss
+# communes. Obeys product/mint_next/batch20/commune-scope.yaml (fact_contract, input_contract,
+# perimeter_decisions_closed). Runtime and product promotion forbidden.
+contract: product/mint_next/batch20/commune-scope.yaml
+committed_key: bfs_ofs_gemeindenummer
+provenance_kind: explicit_user_declaration_reviewed_finite_set
+determining_date: jour_determinant_31_12_of_selected_tax_year
+coefficient_scope: political_commune_civil_multiplier_church_tax_excluded
+# No church/confessional multiplier, tax amount, rate, range or saving is carried here.
+locales: [fr, en, de, it, es, pt]
+tax_years: [2024, 2025, 2026]
+cantons: [BE, BS, FR, JU]
+canton_roles:
+  BE: large_canton_exercises_render_cap_50_and_beyond_cap_overflow
+  BS: small_canton_exercises_shown_list_fallback
+  FR: bilingual_canton_exercises_official_variant_alias_matching
+  JU: canton_transfer_destination_for_the_tax_year_edge
+name_localization_note: >-
+  Contrairement aux cantons (exonymes officiels multilingues), une commune porte un seul
+  nom officiel au registre fédéral ; les six locales partagent donc ce même nom. Les formes
+  bilingues et exonymes (Biel/Bienne, Fribourg/Freiburg, Morat, Guin) sont fournies dans
+  aliases pour l'appariement, jamais comme nom d'affichage distinct. Un nom OFS conserve
+  son suffixe cantonal officiel (p. ex. Bargen (BE)) quand il lève une homonymie inter-cantonale.
+npa_note: >-
+  Le NPA est un texte secondaire d'affichage uniquement (jamais une entrée ni un chemin de
+  dérivation, cf. scope_exclusions du contrat). Un NPA peut couvrir plusieurs communes et une
+  commune plusieurs NPA ; la valeur retenue est le NPA principal représentatif.
+overflow_probe:
+  canton: BE
+  query: en   # R1-demonstrated contains-fold match; exceeds render_cap 50
+  matches_per_tax_year: {2024: 54, 2025: 54, 2026: 54}
+scope:
+  BE:
+    2024: [302, 305, 306, 311, 321, 324, 329, 335, 339, 340, 342, 344, 351, 352, 353, 355, 356, 358, 359, 360, 361, 362, 363, 371, 382, 383, 385, 386, 387, 388, 389, 391, 392, 393, 394, 401, 402, 404, 405, 410, 411, 412, 413, 420, 421, 423, 424, 441, 443, 446, 491, 493, 495, 496, 499, 500, 533, 535, 538, 540, 543, 546, 551, 565, 576, 627, 700, 723, 733, 743, 768, 769, 861, 939, 942, 954, 957]
+    2025: [302, 305, 306, 311, 321, 324, 329, 335, 339, 340, 342, 344, 351, 352, 353, 355, 356, 358, 359, 360, 361, 362, 363, 371, 382, 383, 385, 386, 387, 388, 389, 391, 392, 393, 394, 401, 402, 404, 405, 410, 411, 412, 413, 420, 421, 423, 424, 441, 443, 446, 491, 493, 495, 496, 499, 500, 533, 535, 538, 540, 543, 546, 551, 565, 576, 627, 700, 723, 733, 743, 768, 769, 861, 939, 942, 954, 957]
+    2026: [302, 305, 306, 311, 321, 324, 329, 335, 339, 340, 342, 344, 351, 352, 353, 355, 356, 358, 359, 360, 361, 362, 363, 371, 382, 383, 385, 386, 387, 388, 389, 391, 392, 393, 394, 401, 402, 404, 405, 410, 411, 412, 413, 420, 421, 423, 424, 441, 443, 446, 491, 493, 495, 496, 499, 500, 533, 535, 538, 540, 543, 546, 551, 565, 576, 627, 723, 733, 743, 768, 769, 861, 939, 942, 954, 957]
+  BS:
+    2024: [2701, 2702, 2703]
+    2025: [2701, 2702, 2703]
+    2026: [2701, 2702, 2703]
+  FR:
+    2024: [2054, 2125, 2135, 2196, 2206, 2228, 2254, 2265, 2275, 2293]
+    2025: [2054, 2125, 2135, 2196, 2206, 2228, 2254, 2265, 2275, 2293]
+    2026: [2054, 2125, 2135, 2196, 2206, 2228, 2254, 2265, 2275, 2293]
+  JU:
+    2024: [6711, 6800]
+    2025: [6711, 6800]
+    2026: [6711, 6800, 6831]
+communes:
+  302:
+    name: Bargen (BE)
+    npa: '3282'
+    aliases: []
+  305:
+    name: Kappelen
+    npa: '3273'
+    aliases: []
+  306:
+    name: Lyss
+    npa: '3250'
+    aliases: []
+  311:
+    name: Schüpfen
+    npa: '3054'
+    aliases: []
+  321:
+    name: Aarwangen
+    npa: '4912'
+    aliases: []
+  324:
+    name: Bleienbach
+    npa: '3368'
+    aliases: []
+  329:
+    name: Langenthal
+    npa: '4900'
+    aliases: []
+  335:
+    name: Oeschenbach
+    npa: '4943'
+    aliases: []
+  339:
+    name: Rohrbachgraben
+    npa: '4938'
+    aliases: []
+  340:
+    name: Rütschelen
+    npa: '4933'
+    aliases: []
+  342:
+    name: Thunstetten
+    npa: '4922'
+    aliases: []
+  344:
+    name: Ursenbach
+    npa: '4937'
+    aliases: []
+  351:
+    name: Bern
+    npa: '3011'
+    aliases: ["Berne", "Berna"]
+  352:
+    name: Bolligen
+    npa: '3065'
+    aliases: []
+  353:
+    name: Bremgarten bei Bern
+    npa: '3047'
+    aliases: []
+  355:
+    name: Köniz
+    npa: '3098'
+    aliases: []
+  356:
+    name: Muri bei Bern
+    npa: '3074'
+    aliases: []
+  358:
+    name: Stettlen
+    npa: '3066'
+    aliases: []
+  359:
+    name: Vechigen
+    npa: '3067'
+    aliases: []
+  360:
+    name: Wohlen bei Bern
+    npa: '3033'
+    aliases: []
+  361:
+    name: Zollikofen
+    npa: '3052'
+    aliases: []
+  362:
+    name: Ittigen
+    npa: '3063'
+    aliases: []
+  363:
+    name: Ostermundigen
+    npa: '3072'
+    aliases: []
+  371:
+    name: Biel/Bienne
+    npa: '2502'
+    aliases: ["Biel", "Bienne"]
+  382:
+    name: Büetigen
+    npa: '3263'
+    aliases: []
+  383:
+    name: Büren an der Aare
+    npa: '3294'
+    aliases: []
+  385:
+    name: Diessbach bei Büren
+    npa: '3264'
+    aliases: []
+  386:
+    name: Dotzigen
+    npa: '3293'
+    aliases: []
+  387:
+    name: Lengnau (BE)
+    npa: '2543'
+    aliases: []
+  388:
+    name: Leuzigen
+    npa: '3297'
+    aliases: []
+  389:
+    name: Meienried
+    npa: '3294'
+    aliases: []
+  391:
+    name: Oberwil bei Büren
+    npa: '3298'
+    aliases: []
+  392:
+    name: Pieterlen
+    npa: '2542'
+    aliases: []
+  393:
+    name: Rüti bei Büren
+    npa: '3295'
+    aliases: []
+  394:
+    name: Wengi
+    npa: '3251'
+    aliases: []
+  401:
+    name: Aefligen
+    npa: '3426'
+    aliases: []
+  402:
+    name: Alchenstorf
+    npa: '3473'
+    aliases: []
+  404:
+    name: Burgdorf
+    npa: '3400'
+    aliases: []
+  405:
+    name: Ersigen
+    npa: '3423'
+    aliases: []
+  410:
+    name: Höchstetten
+    npa: '3429'
+    aliases: []
+  411:
+    name: Kernenried
+    npa: '3309'
+    aliases: []
+  412:
+    name: Kirchberg (BE)
+    npa: '3422'
+    aliases: []
+  413:
+    name: Koppigen
+    npa: '3425'
+    aliases: []
+  420:
+    name: Rüdtligen-Alchenflüh
+    npa: '3422'
+    aliases: []
+  421:
+    name: Rumendingen
+    npa: '3472'
+    aliases: []
+  423:
+    name: Willadingen
+    npa: '3425'
+    aliases: []
+  424:
+    name: Wynigen
+    npa: '3472'
+    aliases: []
+  441:
+    name: Renan (BE)
+    npa: '2616'
+    aliases: []
+  443:
+    name: Saint-Imier
+    npa: '2610'
+    aliases: []
+  446:
+    name: Tramelan
+    npa: '2720'
+    aliases: []
+  491:
+    name: Brüttelen
+    npa: '3237'
+    aliases: []
+  493:
+    name: Finsterhennen
+    npa: '2577'
+    aliases: []
+  495:
+    name: Gampelen
+    npa: '3236'
+    aliases: []
+  496:
+    name: Ins
+    npa: '3232'
+    aliases: []
+  499:
+    name: Siselen
+    npa: '2577'
+    aliases: []
+  500:
+    name: Treiten
+    npa: '3226'
+    aliases: []
+  533:
+    name: Bätterkinden
+    npa: '3315'
+    aliases: []
+  535:
+    name: Deisswil bei Münchenbuchsee
+    npa: '3053'
+    aliases: []
+  538:
+    name: Fraubrunnen
+    npa: '3312'
+    aliases: []
+  540:
+    name: Jegenstorf
+    npa: '3303'
+    aliases: []
+  543:
+    name: Mattstetten
+    npa: '3322'
+    aliases: []
+  546:
+    name: Münchenbuchsee
+    npa: '3053'
+    aliases: []
+  551:
+    name: Urtenen-Schönbühl
+    npa: '3322'
+    aliases: []
+  565:
+    name: Kandersteg
+    npa: '3718'
+    aliases: []
+  576:
+    name: Grindelwald
+    npa: '3818'
+    aliases: []
+  627:
+    name: Worb
+    npa: '3076'
+    aliases: []
+  700:
+    name: Moutier
+    npa: '2740'
+    aliases: []
+    provenance: "Moutier : commune du canton de Berne (numéro OFS 700, arrondissement administratif du Jura bernois) jusqu'au 31.12.2025 ; présente au périmètre BE pour les années fiscales 2024 et 2025, absente dès 2026. Source : OFS/BFS, Répertoire officiel des communes ; réappartenance votée le 28.03.2021."
+  723:
+    name: La Neuveville
+    npa: '2520'
+    aliases: ["Neuenstadt"]
+  733:
+    name: Brügg
+    npa: '2555'
+    aliases: []
+  743:
+    name: Nidau
+    npa: '2560'
+    aliases: []
+  768:
+    name: Spiez
+    npa: '3700'
+    aliases: []
+  769:
+    name: Wimmis
+    npa: '3752'
+    aliases: []
+  861:
+    name: Belp
+    npa: '3123'
+    aliases: []
+  939:
+    name: Steffisburg
+    npa: '3612'
+    aliases: []
+  942:
+    name: Thun
+    npa: '3600'
+    aliases: ["Thoune"]
+  954:
+    name: Huttwil
+    npa: '4950'
+    aliases: []
+  957:
+    name: Sumiswald
+    npa: '3454'
+    aliases: []
+  2054:
+    name: Estavayer
+    npa: '1470'
+    aliases: ["Estavayer-le-Lac"]
+    provenance: "Estavayer : commune issue de la fusion du 01.01.2017 (Estavayer-le-Lac et six communes voisines) ; l'alias Estavayer-le-Lac désigne le chef-lieu et l'ancienne commune. Source : OFS/BFS."
+  2125:
+    name: Bulle
+    npa: '1630'
+    aliases: []
+  2135:
+    name: Gruyères
+    npa: '1663'
+    aliases: ["Greyerz"]
+  2196:
+    name: Fribourg
+    npa: '1700'
+    aliases: ["Freiburg", "Freiburg im Üechtland"]
+  2206:
+    name: Marly
+    npa: '1723'
+    aliases: []
+  2228:
+    name: Villars-sur-Glâne
+    npa: '1752'
+    aliases: []
+  2254:
+    name: Courtepin
+    npa: '1784'
+    aliases: []
+  2265:
+    name: Kerzers
+    npa: '3210'
+    aliases: ["Chiètres"]
+  2275:
+    name: Murten
+    npa: '3280'
+    aliases: ["Morat"]
+    provenance: "Murten / Morat : a absorbé la commune bernoise de Clavaleyres (ancien numéro OFS 661) le 01.01.2022, premier changement de territoire cantonal FR depuis deux siècles ; antérieur à la fenêtre 2024-2026. Source : OFS/BFS ; Canton de Fribourg BDLF 112.7."
+  2293:
+    name: Düdingen
+    npa: '3186'
+    aliases: ["Guin"]
+  2701:
+    name: Basel
+    npa: '4001'
+    aliases: ["Bâle", "Basilea"]
+  2702:
+    name: Bettingen
+    npa: '4126'
+    aliases: []
+  2703:
+    name: Riehen
+    npa: '4125'
+    aliases: []
+  6711:
+    name: Delémont
+    npa: '2800'
+    aliases: ["Delsberg"]
+  6800:
+    name: Porrentruy
+    npa: '2900'
+    aliases: ["Pruntrut"]
+  6831:
+    name: Moutier
+    npa: '2740'
+    aliases: []
+    provenance: "Moutier : commune du canton du Jura (numéro OFS 6831, nouveau district de Moutier) dès le 01.01.2026 ; présente au périmètre JU pour 2026, absente pour 2024-2025. Le numéro OFS a changé lors du changement de canton (700 BE vers 6831 JU). Source : OFS/BFS, traitement statistique du transfert de Moutier."

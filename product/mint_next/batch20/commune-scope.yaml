@@ -1,0 +1,238 @@
+schema_version: 2
+status: accepted_written_contract_runtime_forbidden
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_and_numeracy_literacy
+# R2 = fact_lieu. COMMUNE DIRECTE model (Julien decision 2026-08-04, AskUserQuestion):
+# fact_canton + fact_commune FUSE into ONE node. The user answers "Où habites-tu ?"
+# with a NATIONAL commune search; the canton is DERIVED from the chosen commune and
+# shown, never asked first. One screen less, zero redundancy. Supersedes the earlier
+# canton-scoped two-node draft (reachable in reflog at 4a633b404).
+model: commune_directe_single_node
+
+navigation_amendment:
+  # To fold into product/mint_next/batch6/navigation.yaml via a governed revision.
+  fuses: [fact_canton, fact_commune]
+  into: fact_lieu
+  decision_trace: julien_askuserquestion_2026_08_04_commune_directe
+  canton_node_status: removed_as_a_standalone_question_canton_is_now_derived
+  authority_note: this_contract_amends_batch6_navigation_it_may_not_add_or_remove_other_routes
+
+authority:
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  source_of_truth_rule: this_contract_amends_fact_lieu_and_folds_canton_into_it_but_may_not_touch_other_batch6_routes
+  runtime_change: forbidden
+  product_promotion: forbidden
+  supersedes:
+    # SUPERSESSION by PIN (regle13): R2 supersedes R1-green without live re-attestation.
+    r1_green_gate: product/mint_next/batch19/r1-green-gate.yaml
+    r1_green_accepted_commit: '584702094'
+    r1_green_attestation_run: https://github.com/MINT-IA/MINT/actions/runs/30916749754
+    r1_red_acceptance_commit: d7461aab184125c11ec78c8d0f269c23a1236c7b
+    no_live_reattestation_of_r1: true
+
+perimeter_decisions_closed:
+  selection_pattern: national_commune_search_first   # ~2100 communes; a wheel is unfit at that scale
+  canton_is_derived_not_asked: true                  # commune -> canton is a total function (a commune belongs to one canton)
+  canton_shown_on_every_result_and_after_selection: true   # "Morat — Fribourg"
+  homonym_disambiguation: official_bfs_suffix_plus_secondary_npa   # "Bargen (BE)"; NPA secondary text disambiguates further
+  results_render_cap: 50
+  results_scrollable: true
+  unknown_control_pinned: true
+  unknown_fallback_pattern: cupertino_wheel_canton_then_widen_to_cantonal_band   # Apple wheel decided; short bounded 26-canton set fits a wheel
+  npa_display_only_and_matchable_never_committed: true
+  committed_key: bfs_ofs_gemeindenummer   # national-unique; canton derived from it
+  border_contrast_min_ratio: 3.0
+  query_clamp_enforced_at_state_boundary: true
+
+privacy_copy_rule:
+  # HARD (Julien 2026-08-04): a privacy sentence MUST derive from THIS screen's data
+  # contract. The committed commune JOINS the profile — it is NOT device-only. So
+  # "ton choix reste sur ton téléphone" would be a LIE. Only the transient SEARCH
+  # query is local-only. Honest copy: "La recherche reste sur ton téléphone." or nothing.
+  on_device_claims_must_not_exceed_data_contract: true
+  search_query_is_device_local_only: true
+  committed_commune_joins_profile: true
+  forbidden_privacy_claim: any_on_device_or_not_sent_claim_about_the_committed_commune_or_the_choice
+  honest_privacy_claim_scope: the_search_query_only
+
+slice:
+  entry_preconditions:
+    shared: [tax_year_explicitly_selected, lpp_affiliation_yes]
+  implemented_nodes: [fact_lieu]
+  boundary_nodes: [fact_household]
+  locales: [fr, en, de, es, it, pt]
+
+human_outcome:
+  question: Où habites-tu ?
+  why_now: La commune de domicile situe l’imposition ; le canton s’en déduit et un
+    impôt communal peut s’ajouter à l’impôt cantonal. Aucun résultat fiscal personnel
+    n’est affiché ici.
+  must_understand:
+  - MINT demande la commune de domicile fiscal au jour déterminant de l’année (en principe le 31 décembre), pas l’adresse de l’appareil ; le canton est déduit de la commune, jamais demandé d’abord.
+  - Ne pas connaître sa commune est valide et ne bloque jamais — on demande alors le canton via une molette et on élargit l’estimation à la fourchette cantonale.
+  - Le choix est éphémère et corrigible avant tout calcul.
+  canton_derivation: commune_to_canton_is_total_derived_from_the_reviewed_dataset_and_displayed
+  next_small_action:
+    selected: Continuer vers la collecte distincte du ménage.
+    unknown: Choisir le canton à la molette et continuer avec une estimation élargie.
+
+fact_contract:
+  id: tax_applicable_commune_of_domicile_national_search_with_derived_canton_for_selected_tax_year
+  provenance: explicit_user_declaration
+  storage: ephemeral_until_committed_then_joins_profile   # search query stays local; committed commune joins profile
+  initial_state: unset
+  states: [unset, selected, unknown_canton_only]
+  committed_key: bfs_ofs_gemeindenummer
+  derived_on_commit: canton_from_bfs
+  selected_value_shape: one_reviewed_national_bfs_commune_number_valid_at_the_determining_date_with_its_derived_canton
+  unknown_value_shape: explicit_unknown_commune_with_a_wheel_selected_canton_only
+  determining_date: jour_determinant_31_12_of_selected_tax_year
+  coefficient_scope: political_commune_civil_multiplier_church_tax_excluded
+  never_derive_commune_from:
+  - gps_or_device_location
+  - ip_address
+  - postal_address_or_postcode
+  - app_language_or_locale
+  - profile_or_previous_answer
+  - employer_or_provider_location
+  - device_region_or_timezone
+  forbidden_fallbacks:
+  - canton_capital
+  - first_list_item
+  - most_populous_commune
+  - previous_or_last_used_commune
+  supported_case: one_ordinary_commune_of_domicile_in_switzerland_valid_at_the_determining_date
+  unknown_state_semantics: wheel_selects_canton_only_then_widens_to_that_canton_communal_min_max_band_never_forces_a_commune
+  downstream_dependency_must_verify_before_eclaire_gate: unknown_commune_estimate_widens_to_the_derived_or_wheel_selected_canton_communal_min_max_band_no_point_default
+
+input_contract:
+  presentation: national_search_required   # ~2100 communes; no full dump
+  free_text_commits_a_fact: false
+  no_preselection: true
+  unknown_is_explicit_control_not_blank_value: true
+  selection_summary_persistent_and_visible_in_every_query_state: true
+  result_shows_derived_canton: true          # "Morat — Fribourg" on every row
+  disambiguation: official_bfs_suffix_on_name_plus_npa_secondary_text_also_matchable_never_committed
+  results:
+    render_cap: 50
+    scrollable: true
+    stable_localized_sort: true
+    selected_row_marked_and_announced_when_in_results: true
+    each_row_names_its_derived_canton: true
+  post_commit_render: keep_query_and_filtered_results_mark_selected_row_show_derived_canton_keep_selection_summary
+  search_behavior:
+    query_storage: ephemeral_device_local_only_never_sent_never_committed
+    maximum_code_points: 64
+    maximum_code_points_enforced_at: state_mutation_boundary_and_input_formatter
+    unicode_normalization: NFKC
+    hyphen_and_space_insensitive: true
+    reviewed_label_set_includes_official_variants_and_aliases: true   # Biel/Bienne, Fribourg/Freiburg
+    matching: national_local_casefold_plus_diacritic_fold_prefix_or_boundary_substring_against_reviewed_commune_labels_and_official_npa_raw_query_preserved
+    empty_query: prompt_to_type_a_commune_name_no_full_dump_example_placeholder
+    no_match: named_empty_state_with_clear_search_action_and_pinned_unknown
+    overflow_beyond_cap: named_status_with_total_match_count_refine_search_never_silent_truncate
+    misspell_or_postcode_typer_recovery: find_by_name_or_use_unknown_no_dead_end
+    network_logging_analytics_platform_learning_autofill_clipboard: forbidden
+    purge: same_30_min_leave_kill_and_restart_contract_as_personal_facts
+  three_regions:
+    pinned_header: search_field_and_count_status
+    scrollable_middle: capped_results_each_naming_its_derived_canton
+    pinned_footer: unknown_control_above_continue
+
+node_contracts:
+  fact_lieu:
+    arrival_focus: heading_not_auto_raised_keyboard
+    required_copy_intents:
+    - where_do_you_live_commune_of_tax_domicile_not_device_location
+    - the_canton_is_derived_from_the_commune_and_shown_never_asked_first
+    - not_knowing_is_valid_wheel_the_canton_and_widen_the_estimate_never_forces_a_commune
+    - commune_only_refines_it_does_not_produce_a_personal_result_here
+    - choice_is_ephemeral_and_correctable
+    - a_communal_tax_may_be_added_to_the_cantonal_tax_and_varies_by_commune_mechanism_neutral_no_coefficient_jargon
+    - the_political_commune_is_the_tax_unit_parish_is_separate_church_tax_postal_locality_npa_has_no_fiscal_effect
+    - excluding_church_tax_this_estimate_is_not_the_total_tax_burden
+    - only_the_search_query_stays_on_device_the_committed_commune_joins_the_profile   # privacy_copy_rule
+    controls:
+      choose_commune: {operation: atomically_commit_one_reviewed_national_bfs_number_and_its_derived_canton_without_routing}
+      choose_unknown: {operation: open_canton_wheel_commit_canton_only_widen_band_without_routing_pinned_and_reachable_without_a_query_or_scroll}
+      update_search_query: {operation: normalize_clamp_filter_national_commune_labels_without_route, storage: ephemeral_device_local_only}
+      clear_search: {operation: clear_query_restore_example_prompt_preserve_selection_and_focus}
+      continue: {to: fact_household, route_guard: commune_or_wheel_canton_answered, activation: always_enabled_validation_dispatch, never_routes_in_r2: true}
+      back: {operation: exact_history_back}
+      open_safe_exit: {overlay: safe_exit}
+    same_commune_reselect: idempotent_no_op_no_state_churn_selection_summary_unchanged
+    forbidden:
+    - default_or_recommended_commune
+    - commune_or_canton_derived_from_location
+    - asking_the_canton_before_the_commune
+    - automatic_route_after_selection
+    - tax_amount_rate_range_or_saving
+    - full_national_commune_dump_on_empty_query
+    - account_creation
+    - any_privacy_claim_that_the_committed_commune_stays_on_device
+    copy_source: product/mint_next/batch20/six-locale-copy.yaml#copy.{locale}.fact_commune_*
+
+accessibility_contract:
+  inherit_from_r1_except: [list_interaction, compact_proof]
+  semantics_traversal_order: unknown_and_continue_reachable_before_or_independently_of_the_50_results_never_trapped_below_results
+  empty_query_discoverable_by_screen_reader: named_type_to_search_prompt_announced_not_only_visual
+  selection_refindable: selection_summary_is_a_focusable_announced_region_even_when_selected_row_not_in_current_results
+  result_count_liveregion: announced_count_matches_visible_overflow_status_including_beyond_cap_total
+  derived_canton_announced_with_each_result: true
+  minimum_target_size_points: 48
+  border_contrast_min_ratio: 3.0
+  text_contrast_min_ratio: 4.5
+  keyboard_and_switch_navigation: deterministic_visual_and_traversal_order
+  wheel_fallback_accessible: cupertino_wheel_is_screen_reader_and_switch_operable_with_26_reviewed_cantons
+  focus_restoration: exact_trigger_or_heading
+  compact_proof: 320x700_logical_px_text_scale_2_with_keyboard_raised_shows_unknown_and_continue_and_at_least_one_result_naming_its_derived_canton_no_overflow_clip
+  required_proof_cases:
+  - national_filtered_list_with_derived_canton_per_row
+  - first_result
+  - beyond_cap_overflow
+  - no_match
+  - selected_not_in_current_results
+  - unknown_wheel_canton_fallback
+
+inherited_verbatim_from_R1:
+  - mutation_contract.atomic_order_and_generation_guard
+  - navigation_contract.safe_exit_resume_keep_reference_leave
+  - lifecycle_contract.generation_token_30min_ttl_app_kill_taxyear_purge
+  - privacy_contract.search_query_ephemeral_local_only_no_network_log_analytics_autofill_clipboard   # committed fact joins profile per privacy_copy_rule
+  - six_locale_semantic_contract.human_review_required_key_parity_insufficient
+  - accessibility_contract.single_select_group_focus_restoration_48pt
+
+scope_exclusions:
+- flutter_runtime
+- tax_calculation_or_personal_result
+- persistence_backend_or_api
+- location_or_address_lookup
+- postcode_as_an_input_or_derivation_path
+- public_product_route
+- user_validation
+- routing_to_fact_household
+- church_tax_or_confession
+- the_standalone_fact_canton_question   # folded into fact_lieu; canton is derived
+
+sealing_lessons_regle13_to_apply:
+  a_simulated_green_smoke_at_red_sealing: true
+  b_delta_scoped_proofs: true
+  c_supersession_pin_not_reattest: true
+  d_mechanical_anchor_invariant_assertion: true
+
+roast_status:
+  four_lens_delta_roast_required_on_the_fused_flow: pending   # beginner/ux/swiss_finance/a11y on COMMUNE DIRECTE
+  bulk_survives_from_canton_scoped_draft: dataset_fixture_and_voice_copy_states
+
+future_runtime_gate:
+  requires:
+  - failing_runtime_tests_first
+  - hidden_design_lab_only
+  - six_runtime_locales
+  - national_search_over_the_reviewed_commune_set_with_derived_canton_per_row
+  - cupertino_wheel_canton_fallback_widening_to_cantonal_band
+  - compact_320x700_text_scale_2_with_keyboard_raised_proof
+  - accessibility_proof_including_switch_control_voiceover_traversal_and_wheel
+  - privacy_proof_that_only_the_search_query_is_device_local
+  - zero_p1_p2_p3_roasts
+  product_promotion_after_runtime: separately_forbidden_until_named_gate

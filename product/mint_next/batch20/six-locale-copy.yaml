@@ -1,0 +1,226 @@
+# R2 fact_lieu (COMMUNE DIRECTE) — six-locale semantic copy (candidate, PENDING review).
+# Mirrors the structure/format of product/mint_next/batch17/six-locale-copy.yaml (R1 fact_canton).
+# Governed by product/mint_next/batch20/commune-scope.yaml (status: accepted_written_contract_runtime_forbidden).
+# Keys are prefixed fact_commune_* per commune-scope.yaml node_contracts.fact_commune.copy_source.
+# Commune names and NPA/postcode are DISPLAY-ONLY, drawn from the canton-and-tax-year-scoped
+# reviewed label dataset — they are not authored in this file.
+schema_version: 1
+status: candidate_semantic_copy_for_written_contract
+locales:
+- fr
+- en
+- de
+- it
+- es
+- pt
+required_placeholders:
+- taxYear
+- canton
+- count
+- commune
+- npa
+copy:
+  fr:
+    fact_commune_eyebrow: "Simulation 3a · {taxYear}"
+    fact_commune_question: "Où habites-tu ?"
+    fact_commune_body: "La commune où tu habites, pas là où tu te trouves aujourd’hui — le canton, on le déduit."
+    fact_commune_kind_note: "On regarde ta commune de domicile au jour déterminant, en principe le 31 décembre. Selon la commune, un impôt communal peut s’ajouter à l’impôt cantonal, et il change d’une commune à l’autre. Ce qui compte, c’est ta commune politique, pas ta paroisse ni ton NPA : la paroisse relève de l’impôt ecclésiastique, compté à part, et le NPA n’a aucun effet fiscal. Comme l’impôt ecclésiastique n’est pas compté ici, ce n’est pas ta charge totale — et à cette étape, on ne calcule aucun résultat personnel."
+    fact_commune_scoped_canton: "Canton : {canton}"
+    fact_commune_search_label: "Rechercher une commune"
+    fact_commune_search_placeholder: "Bulle, Morat, Fribourg…"
+    fact_commune_empty_large_canton: "Commence à taper le nom de ta commune pour la trouver dans le canton choisi : {canton}. La liste s’affiche au fur et à mesure."
+    fact_commune_empty_small_canton: "Voici les communes du canton choisi : {canton}. Choisis la tienne dans la liste."
+    fact_commune_match_count: "Communes trouvées : {count}"
+    fact_commune_overflow_status: "Trop de communes correspondent ({count}) — affine ta recherche pour trouver la bonne."
+    fact_commune_no_match: "Aucune commune ne correspond à ta recherche. Cherche par le nom de la commune plutôt que par le numéro postal, et vérifie l’orthographe. Tu peux effacer et réessayer, ou choisir « Je ne connais pas ma commune » plus bas."
+    fact_commune_clear_search: "Effacer la recherche"
+    fact_commune_npa_secondary: "NPA {npa}"
+    fact_commune_selection_label: "Ta sélection"
+    fact_commune_selection_selected: "Commune choisie : {commune}. Tu peux la changer."
+    fact_commune_selection_unknown: "Tu continues sans commune : l’estimation est moins précise, avec une fourchette plus large. Tu peux choisir une commune quand tu veux."
+    fact_commune_selection_none: "Aucune commune choisie pour l’instant."
+    fact_commune_unknown: "Je ne connais pas ma commune"
+    fact_commune_unknown_reassurance: "Ne pas connaître ta commune, c’est tout à fait normal : ça ne bloque jamais et rien ne t’oblige à en choisir une. On continue sans commune ; l’estimation sera moins précise, avec une fourchette plus large, et tu pourras préciser plus tard."
+    fact_commune_continue: "Continuer"
+    fact_commune_back: "Retour"
+    fact_commune_privacy: "Ta recherche reste sur ton téléphone."
+    fact_commune_error_no_selection: "Choisis une commune, ou « Je ne connais pas ma commune », pour continuer."
+    fact_commune_error_stale: "Cette commune n’est plus sélectionnée. Choisis-la à nouveau."
+  en:
+    fact_commune_eyebrow: "3a simulation · {taxYear}"
+    fact_commune_question: "Where do you live?"
+    fact_commune_body: "The municipality where you live, not where you happen to be today — we work out the canton."
+    fact_commune_kind_note: "We look at your municipality of residence on the reference date, usually 31 December. Depending on the municipality, a communal tax may be added to the cantonal tax, and it changes from one municipality to another. What counts is your political municipality, not your parish or your postcode: the parish is about church tax, counted separately, and the postcode has no tax effect. Since church tax isn’t counted here, this isn’t your total tax — and at this step nothing personal is calculated."
+    fact_commune_scoped_canton: "Canton: {canton}"
+    fact_commune_search_label: "Search for a municipality"
+    fact_commune_search_placeholder: "Bulle, Morat, Fribourg…"
+    fact_commune_empty_large_canton: "Start typing your municipality’s name to find it in your chosen canton: {canton}. The list appears as you type."
+    fact_commune_empty_small_canton: "Here are the municipalities in your chosen canton: {canton}. Pick yours from the list."
+    fact_commune_match_count: "Municipalities found: {count}"
+    fact_commune_overflow_status: "Too many municipalities match ({count}) — narrow your search to find the right one."
+    fact_commune_no_match: "No municipality matches your search. Search by the municipality’s name rather than its postcode, and check the spelling. You can clear and try again, or choose “I don’t know my municipality” below."
+    fact_commune_clear_search: "Clear search"
+    fact_commune_npa_secondary: "Postcode {npa}"
+    fact_commune_selection_label: "Your selection"
+    fact_commune_selection_selected: "Chosen municipality: {commune}. You can change it."
+    fact_commune_selection_unknown: "You’re continuing without a municipality: the estimate is less precise, with a broader range. You can choose a municipality whenever you like."
+    fact_commune_selection_none: "No municipality chosen yet."
+    fact_commune_unknown: "I don’t know my municipality"
+    fact_commune_unknown_reassurance: "Not knowing your municipality is completely normal: it never blocks you, and nothing forces you to pick one. We continue without a municipality; the estimate is less precise, with a broader range, and you can add it later."
+    fact_commune_continue: "Continue"
+    fact_commune_back: "Back"
+    fact_commune_privacy: "Your search stays on your phone."
+    fact_commune_error_no_selection: "Choose a municipality, or “I don’t know my municipality”, to continue."
+    fact_commune_error_stale: "This municipality is no longer selected. Choose it again."
+  de:
+    fact_commune_eyebrow: "3a-Simulation · {taxYear}"
+    fact_commune_question: "Wo wohnst du?"
+    fact_commune_body: "Die Gemeinde, in der du wohnst, nicht wo du gerade bist — den Kanton leiten wir ab."
+    fact_commune_kind_note: "Wir schauen auf deine Wohnsitzgemeinde am Stichtag, in der Regel am 31. Dezember. Je nach Gemeinde kann zur Kantonssteuer eine Gemeindesteuer hinzukommen, und sie ist von Gemeinde zu Gemeinde verschieden. Was zählt, ist deine politische Gemeinde, nicht deine Kirchgemeinde oder deine Postleitzahl: Die Kirchgemeinde betrifft die Kirchensteuer, separat gezählt, und die Postleitzahl hat keine steuerliche Wirkung. Da die Kirchensteuer hier nicht mitgezählt wird, ist das nicht deine gesamte Steuer — und in diesem Schritt wird nichts Persönliches berechnet."
+    fact_commune_scoped_canton: "Kanton: {canton}"
+    fact_commune_search_label: "Gemeinde suchen"
+    fact_commune_search_placeholder: "Bulle, Murten, Freiburg…"
+    fact_commune_empty_large_canton: "Beginne, den Namen deiner Gemeinde einzugeben, um sie im gewählten Kanton {canton} zu finden. Die Liste erscheint während der Eingabe."
+    fact_commune_empty_small_canton: "Hier sind die Gemeinden des gewählten Kantons {canton}. Wähle deine aus der Liste."
+    fact_commune_match_count: "Gefundene Gemeinden: {count}"
+    fact_commune_overflow_status: "Zu viele Gemeinden gefunden ({count}) — grenze deine Suche ein, um die richtige zu finden."
+    fact_commune_no_match: "Für deine Suche wurde keine Gemeinde gefunden. Suche nach dem Namen der Gemeinde statt nach der Postleitzahl und prüfe die Schreibweise. Du kannst die Suche löschen und es erneut versuchen oder unten «Ich kenne meine Gemeinde nicht» wählen."
+    fact_commune_clear_search: "Suche löschen"
+    fact_commune_npa_secondary: "PLZ {npa}"
+    fact_commune_selection_label: "Deine Auswahl"
+    fact_commune_selection_selected: "Gewählte Gemeinde: {commune}. Du kannst sie ändern."
+    fact_commune_selection_unknown: "Du fährst ohne Gemeinde fort: Die Schätzung wird ungenauer, mit einer breiteren Spanne. Du kannst jederzeit eine Gemeinde wählen."
+    fact_commune_selection_none: "Noch keine Gemeinde gewählt."
+    fact_commune_unknown: "Ich kenne meine Gemeinde nicht"
+    fact_commune_unknown_reassurance: "Deine Gemeinde nicht zu kennen ist völlig normal: Das blockiert dich nie, und nichts zwingt dich, eine zu wählen. Wir fahren ohne Gemeinde fort; die Schätzung wird ungenauer, mit einer breiteren Spanne, und du kannst sie später ergänzen."
+    fact_commune_continue: "Weiter"
+    fact_commune_back: "Zurück"
+    fact_commune_privacy: "Deine Suche bleibt auf deinem Gerät."
+    fact_commune_error_no_selection: "Wähle eine Gemeinde oder «Ich kenne meine Gemeinde nicht», um fortzufahren."
+    fact_commune_error_stale: "Diese Gemeinde ist nicht mehr ausgewählt. Wähle sie erneut."
+  it:
+    fact_commune_eyebrow: "Simulazione 3a · {taxYear}"
+    fact_commune_question: "Dove abiti?"
+    fact_commune_body: "Il comune in cui abiti, non dove ti trovi oggi — il cantone lo deduciamo noi."
+    fact_commune_kind_note: "Guardiamo il tuo comune di domicilio alla data di riferimento, di norma il 31 dicembre. A seconda del comune, all’imposta cantonale può aggiungersi un’imposta comunale, e cambia da un comune all’altro. Conta il tuo comune politico, non la tua parrocchia o il tuo NPA: la parrocchia riguarda l’imposta di culto, contata a parte, e il NPA non ha alcun effetto fiscale. Poiché l’imposta di culto non è contata qui, non è la tua imposta totale — e in questa fase non si calcola nulla di personale."
+    fact_commune_scoped_canton: "Cantone: {canton}"
+    fact_commune_search_label: "Cerca un comune"
+    fact_commune_search_placeholder: "Bulle, Morat, Friburgo…"
+    fact_commune_empty_large_canton: "Inizia a digitare il nome del tuo comune per trovarlo nel cantone scelto: {canton}. L’elenco appare man mano che scrivi."
+    fact_commune_empty_small_canton: "Ecco i comuni del cantone scelto: {canton}. Scegli il tuo dall’elenco."
+    fact_commune_match_count: "Comuni trovati: {count}"
+    fact_commune_overflow_status: "Troppi comuni corrispondono ({count}) — affina la ricerca per trovare quello giusto."
+    fact_commune_no_match: "Nessun comune corrisponde alla tua ricerca. Cerca per nome del comune anziché per numero postale e controlla l’ortografia. Puoi cancellare e riprovare, oppure scegliere «Non conosco il mio comune» qui sotto."
+    fact_commune_clear_search: "Cancella la ricerca"
+    fact_commune_npa_secondary: "NPA {npa}"
+    fact_commune_selection_label: "La tua selezione"
+    fact_commune_selection_selected: "Comune scelto: {commune}. Puoi cambiarlo."
+    fact_commune_selection_unknown: "Continui senza comune: la stima è meno precisa, con un intervallo più ampio. Puoi scegliere un comune quando vuoi."
+    fact_commune_selection_none: "Nessun comune scelto per ora."
+    fact_commune_unknown: "Non conosco il mio comune"
+    fact_commune_unknown_reassurance: "Non conoscere il tuo comune è del tutto normale: non ti blocca mai e niente ti obbliga a sceglierne uno. Continuiamo senza comune; la stima è meno precisa, con un intervallo più ampio, e potrai precisarla più tardi."
+    fact_commune_continue: "Continua"
+    fact_commune_back: "Indietro"
+    fact_commune_privacy: "La tua ricerca resta sul tuo dispositivo."
+    fact_commune_error_no_selection: "Scegli un comune o «Non conosco il mio comune» per continuare."
+    fact_commune_error_stale: "Questo comune non è più selezionato. Selezionalo di nuovo."
+  es:
+    fact_commune_eyebrow: "Simulación 3a · {taxYear}"
+    fact_commune_question: "¿Dónde vives?"
+    fact_commune_body: "El municipio donde vives, no donde estás hoy — el cantón lo deducimos nosotros."
+    fact_commune_kind_note: "Miramos tu municipio de domicilio en la fecha de referencia, por lo general el 31 de diciembre. Según el municipio, al impuesto cantonal puede añadirse un impuesto municipal, y cambia de un municipio a otro. Lo que cuenta es tu municipio político, no tu parroquia ni tu código postal: la parroquia es cosa del impuesto eclesiástico, contado aparte, y el código postal no tiene efecto fiscal. Como el impuesto eclesiástico no se cuenta aquí, no es tu impuesto total — y en este paso no se calcula nada personal."
+    fact_commune_scoped_canton: "Cantón: {canton}"
+    fact_commune_search_label: "Buscar un municipio"
+    fact_commune_search_placeholder: "Bulle, Morat, Friburgo…"
+    fact_commune_empty_large_canton: "Empieza a escribir el nombre de tu municipio para encontrarlo en el cantón elegido: {canton}. La lista aparece a medida que escribes."
+    fact_commune_empty_small_canton: "Estos son los municipios del cantón elegido: {canton}. Elige el tuyo en la lista."
+    fact_commune_match_count: "Municipios encontrados: {count}"
+    fact_commune_overflow_status: "Demasiados municipios coinciden ({count}) — afina tu búsqueda para encontrar el correcto."
+    fact_commune_no_match: "Ningún municipio coincide con tu búsqueda. Busca por el nombre del municipio en lugar del código postal y revisa la ortografía. Puedes borrar e intentarlo de nuevo, o elegir «No conozco mi municipio» más abajo."
+    fact_commune_clear_search: "Borrar búsqueda"
+    fact_commune_npa_secondary: "Código postal {npa}"
+    fact_commune_selection_label: "Tu selección"
+    fact_commune_selection_selected: "Municipio elegido: {commune}. Puedes cambiarlo."
+    fact_commune_selection_unknown: "Continúas sin municipio: la estimación es menos precisa, con un intervalo más amplio. Puedes elegir un municipio cuando quieras."
+    fact_commune_selection_none: "Aún no has elegido ningún municipio."
+    fact_commune_unknown: "No conozco mi municipio"
+    fact_commune_unknown_reassurance: "No conocer tu municipio es del todo normal: nunca te bloquea y nada te obliga a elegir uno. Continuamos sin municipio; la estimación es menos precisa, con un intervalo más amplio, y podrás precisarla más tarde."
+    fact_commune_continue: "Continuar"
+    fact_commune_back: "Volver"
+    fact_commune_privacy: "Tu búsqueda se queda en tu teléfono."
+    fact_commune_error_no_selection: "Elige un municipio o «No conozco mi municipio» para continuar."
+    fact_commune_error_stale: "Este municipio ya no está seleccionado. Vuelve a elegirlo."
+  pt:
+    fact_commune_eyebrow: "Simulação 3a · {taxYear}"
+    fact_commune_question: "Onde moras?"
+    fact_commune_body: "O município onde vives, não onde estás hoje — o cantão deduzimos nós."
+    fact_commune_kind_note: "Olhamos para o teu município de domicílio na data de referência, por regra 31 de dezembro. Consoante o município, ao imposto cantonal pode acrescer um imposto municipal, e muda de um município para outro. O que conta é o teu município político, não a tua paróquia nem o teu código postal: a paróquia é do imposto eclesiástico, contado à parte, e o código postal não tem efeito fiscal. Como o imposto eclesiástico não é contado aqui, não é o teu imposto total — e nesta etapa não se calcula nada pessoal."
+    fact_commune_scoped_canton: "Cantão: {canton}"
+    fact_commune_search_label: "Procurar um município"
+    fact_commune_search_placeholder: "Bulle, Morat, Friburgo…"
+    fact_commune_empty_large_canton: "Começa a escrever o nome do teu município para o encontrar no cantão escolhido: {canton}. A lista aparece à medida que escreves."
+    fact_commune_empty_small_canton: "Estes são os municípios do cantão escolhido: {canton}. Escolhe o teu na lista."
+    fact_commune_match_count: "Municípios encontrados: {count}"
+    fact_commune_overflow_status: "Demasiados municípios correspondem ({count}) — afina a tua pesquisa para encontrar o certo."
+    fact_commune_no_match: "Nenhum município corresponde à tua pesquisa. Procura pelo nome do município em vez do código postal e verifica a ortografia. Podes limpar e tentar de novo, ou escolher «Não conheço o meu município» mais abaixo."
+    fact_commune_clear_search: "Limpar pesquisa"
+    fact_commune_npa_secondary: "Código postal {npa}"
+    fact_commune_selection_label: "A tua seleção"
+    fact_commune_selection_selected: "Município escolhido: {commune}. Podes alterá-lo."
+    fact_commune_selection_unknown: "Continuas sem município: a estimativa é menos precisa, com um intervalo mais amplo. Podes escolher um município quando quiseres."
+    fact_commune_selection_none: "Ainda não escolheste nenhum município."
+    fact_commune_unknown: "Não conheço o meu município"
+    fact_commune_unknown_reassurance: "Não conhecer o teu município é completamente normal: nunca te bloqueia e nada te obriga a escolher um. Continuamos sem município; a estimativa é menos precisa, com um intervalo mais amplo, e poderás precisá-la mais tarde."
+    fact_commune_continue: "Continuar"
+    fact_commune_back: "Voltar"
+    fact_commune_privacy: "A tua pesquisa fica no teu telefone."
+    fact_commune_error_no_selection: "Escolhe um município ou «Não conheço o meu município» para continuar."
+    fact_commune_error_stale: "Este município já não está selecionado. Escolhe-o novamente."
+semantic_receipt:
+  required_keys:
+  - fact_commune_back
+  - fact_commune_body
+  - fact_commune_clear_search
+  - fact_commune_continue
+  - fact_commune_empty_large_canton
+  - fact_commune_empty_small_canton
+  - fact_commune_error_no_selection
+  - fact_commune_error_stale
+  - fact_commune_eyebrow
+  - fact_commune_kind_note
+  - fact_commune_match_count
+  - fact_commune_no_match
+  - fact_commune_npa_secondary
+  - fact_commune_overflow_status
+  - fact_commune_privacy
+  - fact_commune_question
+  - fact_commune_scoped_canton
+  - fact_commune_search_label
+  - fact_commune_search_placeholder
+  - fact_commune_selection_label
+  - fact_commune_selection_none
+  - fact_commune_selection_selected
+  - fact_commune_selection_unknown
+  - fact_commune_unknown
+  - fact_commune_unknown_reassurance
+  forbidden_fallback_locale: true
+  identical_full_locale_payloads: forbidden
+  placeholder_parity_required: true
+  postcode_npa_display_only_never_an_input: true
+  unknown_never_forces_a_commune_and_widens_range: true
+  no_personal_result_at_this_step: true
+  commune_labels_note: commune_names_and_npa_come_from_the_canton_and_tax_year_scoped_reviewed_dataset_not_authored_here_npa_is_secondary_display_only_text
+  semantic_assertions_per_locale:
+  - tax_applicable_commune_of_domicile_national_search_with_canton_derived_for_selected_year
+  - commune_is_domicile_not_device_location
+  - determining_date_named_in_principle_31_12_not_absolute
+  - a_communal_tax_may_be_added_to_the_cantonal_tax_and_varies_by_commune_not_by_canton_mechanism_neutral_no_coefficient_jargon
+  - political_commune_is_the_tax_unit_parish_is_separate_church_tax_postal_locality_npa_has_no_fiscal_effect
+  - excluding_church_tax_this_estimate_is_not_the_total_tax_burden
+  - unknown_is_valid_never_blocks_never_forces_a_commune_and_widens_the_estimate_no_minimizer
+  - no_personal_result_calculated_at_this_step
+  - choice_is_ephemeral_and_correctable
+  - derived_canton_named_on_each_result_national_search_never_canton_scoped_first
+  - postcode_npa_is_matchable_display_only_secondary_text_never_the_committed_value_recovery_directs_postcode_typers_to_search_by_name_or_unknown
+  - only_the_search_query_is_device_local_and_not_sent_the_committed_commune_joins_the_profile_query_ttl_30_minutes
+  human_review_receipts: required_in_acceptance_and_bound_to_review_payload
