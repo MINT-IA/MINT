@@ -25076,6 +25076,63 @@ class SDe extends S {
       'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch.';
 
   @override
+  String get dividendeLegendChargeTotale => 'Gesamtbelastung';
+
+  @override
+  String get dividendeLegendSplitAdapte => 'Passende Aufteilung';
+
+  @override
+  String get dividendeLegendPositionActuelle => 'Aktuelle Position';
+
+  @override
+  String get dividendeChargeCurveTitle => 'Gesamtbelastung nach Aufteilung';
+
+  @override
+  String get dividendeEducationTitle => 'Zum Merken';
+
+  @override
+  String get lppRescueSemanticsLabel => 'Rettung BVG 2. Säule Freizügigkeit';
+
+  @override
+  String get lppRescueTitle => 'Rettungsaktion 2. Säule';
+
+  @override
+  String lppRescueDaysLeft(int days) {
+    return 'Dir bleiben noch $days Tage zum Handeln';
+  }
+
+  @override
+  String lppRescueBalance(String balance) {
+    return 'Dein BVG-Guthaben: CHF $balance';
+  }
+
+  @override
+  String lppRescueOptionLabel(int number, String label) {
+    return 'Option $number: $label';
+  }
+
+  @override
+  String get lppRescueRecommended => 'Empfohlen';
+
+  @override
+  String lppRescueGainPositive(String gain) {
+    return '+CHF $gain über 5 Jahre';
+  }
+
+  @override
+  String lppRescueGainLoss(String gain) {
+    return '-CHF $gain über 5 Jahre';
+  }
+
+  @override
+  String get lppRescueSuppletiveTitle => 'Nichts tun = Auffangeinrichtung';
+
+  @override
+  String lppRescueSuppletiveBody(String balance, String loss) {
+    return 'Der technische Zins ist tief und die Gebühren hoch. Ein Guthaben von CHF $balance kann über 5 Jahre bis zu CHF $loss verlieren gegenüber einem passenden Freizügigkeitskonto.';
+  }
+
+  @override
   String get expatDeadline3aLabel => 'Säule 3a — Auflösung oder Sperrung';
 
   @override

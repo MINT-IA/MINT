@@ -24886,6 +24886,64 @@ class SEn extends S {
       'Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch.';
 
   @override
+  String get dividendeLegendChargeTotale => 'Total charge';
+
+  @override
+  String get dividendeLegendSplitAdapte => 'Suitable split';
+
+  @override
+  String get dividendeLegendPositionActuelle => 'Current position';
+
+  @override
+  String get dividendeChargeCurveTitle => 'Total charge by split';
+
+  @override
+  String get dividendeEducationTitle => 'Key points';
+
+  @override
+  String get lppRescueSemanticsLabel => 'LPP 2nd pillar vested benefits rescue';
+
+  @override
+  String get lppRescueTitle => '2nd pillar rescue operation';
+
+  @override
+  String lppRescueDaysLeft(int days) {
+    return 'You have $days days left to act';
+  }
+
+  @override
+  String lppRescueBalance(String balance) {
+    return 'Your LPP balance: CHF $balance';
+  }
+
+  @override
+  String lppRescueOptionLabel(int number, String label) {
+    return 'Option $number: $label';
+  }
+
+  @override
+  String get lppRescueRecommended => 'Recommended';
+
+  @override
+  String lppRescueGainPositive(String gain) {
+    return '+CHF $gain over 5 years';
+  }
+
+  @override
+  String lppRescueGainLoss(String gain) {
+    return '-CHF $gain over 5 years';
+  }
+
+  @override
+  String get lppRescueSuppletiveTitle =>
+      'Doing nothing = substitute institution';
+
+  @override
+  String lppRescueSuppletiveBody(String balance, String loss) {
+    return 'The technical rate is low and the fees high. A balance of CHF $balance can lose up to CHF $loss over 5 years versus a suitable vested benefits account.';
+  }
+
+  @override
   String get expatDeadline3aLabel => 'Pillar 3a — closure or freeze';
 
   @override

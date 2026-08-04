@@ -5695,6 +5695,11 @@
   "pillar3aIndepEduInvestirBody": "Pour un horizon long (>10 ans), un 3a investi en actions peut offrir un rendement bien supérieur à un compte d’épargne 3a classique.",
   "pillar3aIndepDisclaimer": "L’impact fiscal est estimé sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.",
   "dividendeVsSalaireTitle": "Dividende vs Salaire",
+  "dividendeLegendChargeTotale": "Charge totale",
+  "dividendeLegendSplitAdapte": "Split adapté",
+  "dividendeLegendPositionActuelle": "Position actuelle",
+  "dividendeChargeCurveTitle": "Charge totale par split",
+  "dividendeEducationTitle": "À retenir",
   "dividendeVsSalaireChargeSalaire": "Charge sur salaire",
   "dividendeVsSalaireCharge100Salaire": "Charge si 100 % salaire",
   "dividendeVsSalairePctSalaire0": "0 % salaire",
@@ -13496,5 +13501,47 @@
   "librePassageOptionFondsLabel": "Fonds de placement",
   "librePassageOptionFondsDescription": "Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.",
   "librePassageOptionFondsLegalRef": "OLP art. 19a",
-  "lppRescueDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch."
+  "lppRescueDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.",
+  "lppRescueSemanticsLabel": "Sauvetage LPP 2e pilier libre passage",
+  "lppRescueTitle": "Opération sauvetage 2e pilier",
+  "lppRescueDaysLeft": "Il te reste {days} jours pour agir",
+  "@lppRescueDaysLeft": {
+    "placeholders": {
+      "days": { "type": "int" }
+    }
+  },
+  "lppRescueBalance": "Ton avoir LPP : CHF {balance}",
+  "@lppRescueBalance": {
+    "placeholders": {
+      "balance": { "type": "String" }
+    }
+  },
+  "lppRescueOptionLabel": "Option {number} : {label}",
+  "@lppRescueOptionLabel": {
+    "placeholders": {
+      "number": { "type": "int" },
+      "label": { "type": "String" }
+    }
+  },
+  "lppRescueRecommended": "Recommandé",
+  "lppRescueGainPositive": "+CHF {gain} sur 5 ans",
+  "@lppRescueGainPositive": {
+    "placeholders": {
+      "gain": { "type": "String" }
+    }
+  },
+  "lppRescueGainLoss": "-CHF {gain} sur 5 ans",
+  "@lppRescueGainLoss": {
+    "placeholders": {
+      "gain": { "type": "String" }
+    }
+  },
+  "lppRescueSuppletiveTitle": "Ne rien faire = institution supplétive",
+  "lppRescueSuppletiveBody": "Le taux technique est bas et les frais élevés. Un avoir de CHF {balance} peut perdre jusqu’à CHF {loss} sur 5 ans vs un compte de libre passage adapté.",
+  "@lppRescueSuppletiveBody": {
+    "placeholders": {
+      "balance": { "type": "String" },
+      "loss": { "type": "String" }
+    }
+  }
 }

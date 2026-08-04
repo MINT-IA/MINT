@@ -5222,6 +5222,11 @@
   "pillar3aIndepEduInvestirBody": "Per un orizzonte lungo (>10 anni), un 3a investito in azioni può offrire rendimenti superiori.",
   "pillar3aIndepDisclaimer": "L'impatto fiscale è stimato in base all'aliquota marginale indicata. Consulta uno specialista.",
   "dividendeVsSalaireTitle": "Dividendo vs Stipendio",
+  "dividendeLegendChargeTotale": "Onere totale",
+  "dividendeLegendSplitAdapte": "Ripartizione adeguata",
+  "dividendeLegendPositionActuelle": "Posizione attuale",
+  "dividendeChargeCurveTitle": "Onere totale per ripartizione",
+  "dividendeEducationTitle": "Da ricordare",
   "dividendeVsSalaireChargeSalaire": "Onere su stipendio",
   "dividendeVsSalaireCharge100Salaire": "Onere se 100% stipendio",
   "dividendeVsSalairePctSalaire0": "0% stipendio",
@@ -11864,5 +11869,15 @@
   "librePassageOptionFondsLabel": "Fondo d’investimento",
   "librePassageOptionFondsDescription": "Maggiore potenziale di rendimento. Rischio di mercato da accettare sull’orizzonte.",
   "librePassageOptionFondsLegalRef": "OLP art. 19a",
-  "lppRescueDisclaimer": "Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Senza istruzioni, trasferimento d’ufficio tra 6 mesi e 2 anni (LFLP art. 4 al. 2). Averi dimenticati: sfbvg.ch."
+  "lppRescueDisclaimer": "Strumento educativo · non costituisce consulenza finanziaria ai sensi della LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Senza istruzioni, trasferimento d’ufficio tra 6 mesi e 2 anni (LFLP art. 4 al. 2). Averi dimenticati: sfbvg.ch.",
+  "lppRescueSemanticsLabel": "Salvataggio LPP 2° pilastro libero passaggio",
+  "lppRescueTitle": "Operazione salvataggio 2° pilastro",
+  "lppRescueDaysLeft": "Ti restano {days} giorni per agire",
+  "lppRescueBalance": "Il tuo avere LPP: CHF {balance}",
+  "lppRescueOptionLabel": "Opzione {number}: {label}",
+  "lppRescueRecommended": "Consigliato",
+  "lppRescueGainPositive": "+CHF {gain} su 5 anni",
+  "lppRescueGainLoss": "-CHF {gain} su 5 anni",
+  "lppRescueSuppletiveTitle": "Non fare nulla = istituto collettore",
+  "lppRescueSuppletiveBody": "Il tasso tecnico è basso e le spese elevate. Un avere di CHF {balance} può perdere fino a CHF {loss} su 5 anni rispetto a un conto di libero passaggio adeguato."
 }

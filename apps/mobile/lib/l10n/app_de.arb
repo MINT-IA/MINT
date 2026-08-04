@@ -5222,6 +5222,11 @@
   "pillar3aIndepEduInvestirBody": "Bei langem Anlagehorizont (>10 Jahre) kann eine aktienbasierte 3a deutlich höhere Renditen bieten als ein klassisches 3a-Sparkonto.",
   "pillar3aIndepDisclaimer": "Der Steuereffekt basiert auf dem angegebenen Grenzsteuersatz. Der tatsächliche Satz hängt von Kanton, Gemeinde und Familiensituation ab.",
   "dividendeVsSalaireTitle": "Dividende vs Gehalt",
+  "dividendeLegendChargeTotale": "Gesamtbelastung",
+  "dividendeLegendSplitAdapte": "Passende Aufteilung",
+  "dividendeLegendPositionActuelle": "Aktuelle Position",
+  "dividendeChargeCurveTitle": "Gesamtbelastung nach Aufteilung",
+  "dividendeEducationTitle": "Zum Merken",
   "dividendeVsSalaireChargeSalaire": "Belastung auf Gehalt",
   "dividendeVsSalaireCharge100Salaire": "Belastung bei 100 % Gehalt",
   "dividendeVsSalairePctSalaire0": "0 % Gehalt",
@@ -11861,5 +11866,15 @@
   "librePassageOptionFondsLabel": "Anlagefonds",
   "librePassageOptionFondsDescription": "Höheres Renditepotenzial. Marktrisiko über den Anlagehorizont in Kauf zu nehmen.",
   "librePassageOptionFondsLegalRef": "FZV Art. 19a",
-  "lppRescueDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch."
+  "lppRescueDisclaimer": "Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch.",
+  "lppRescueSemanticsLabel": "Rettung BVG 2. Säule Freizügigkeit",
+  "lppRescueTitle": "Rettungsaktion 2. Säule",
+  "lppRescueDaysLeft": "Dir bleiben noch {days} Tage zum Handeln",
+  "lppRescueBalance": "Dein BVG-Guthaben: CHF {balance}",
+  "lppRescueOptionLabel": "Option {number}: {label}",
+  "lppRescueRecommended": "Empfohlen",
+  "lppRescueGainPositive": "+CHF {gain} über 5 Jahre",
+  "lppRescueGainLoss": "-CHF {gain} über 5 Jahre",
+  "lppRescueSuppletiveTitle": "Nichts tun = Auffangeinrichtung",
+  "lppRescueSuppletiveBody": "Der technische Zins ist tief und die Gebühren hoch. Ein Guthaben von CHF {balance} kann über 5 Jahre bis zu CHF {loss} verlieren gegenüber einem passenden Freizügigkeitskonto."
 }

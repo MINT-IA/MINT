@@ -449,7 +449,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               const Icon(Icons.show_chart, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
               Text(
-                'CHARGE TOTALE PAR SPLIT',
+                S.of(context)!.dividendeChargeCurveTitle,
                 style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
               ),
             ],
@@ -482,11 +482,11 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           // Legend
           Row(
             children: [
-              _buildChartLegend(MintColors.primary, 'Charge totale'),
+              _buildChartLegend(MintColors.primary, S.of(context)!.dividendeLegendChargeTotale),
               const SizedBox(width: 16),
-              _buildChartLegend(MintColors.success, 'Split adapte'),
+              _buildChartLegend(MintColors.success, S.of(context)!.dividendeLegendSplitAdapte),
               const SizedBox(width: 16),
-              _buildChartLegend(MintColors.info, 'Position actuelle'),
+              _buildChartLegend(MintColors.info, S.of(context)!.dividendeLegendPositionActuelle),
             ],
           ),
         ],
@@ -525,7 +525,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              'À RETENIR',
+              S.of(context)!.dividendeEducationTitle,
               style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
             ),
           ],

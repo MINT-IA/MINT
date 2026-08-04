@@ -25019,6 +25019,64 @@ class SEs extends S {
       'Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 3-4, OLP art. 10. Sin instrucción, transferencia de oficio entre 6 meses y 2 años (LFLP art. 4 al. 2). Haberes olvidados: sfbvg.ch.';
 
   @override
+  String get dividendeLegendChargeTotale => 'Carga total';
+
+  @override
+  String get dividendeLegendSplitAdapte => 'Reparto adecuado';
+
+  @override
+  String get dividendeLegendPositionActuelle => 'Posición actual';
+
+  @override
+  String get dividendeChargeCurveTitle => 'Carga total por reparto';
+
+  @override
+  String get dividendeEducationTitle => 'Para recordar';
+
+  @override
+  String get lppRescueSemanticsLabel => 'Rescate LPP 2.º pilar libre paso';
+
+  @override
+  String get lppRescueTitle => 'Operación rescate 2.º pilar';
+
+  @override
+  String lppRescueDaysLeft(int days) {
+    return 'Te quedan $days días para actuar';
+  }
+
+  @override
+  String lppRescueBalance(String balance) {
+    return 'Tu haber LPP: CHF $balance';
+  }
+
+  @override
+  String lppRescueOptionLabel(int number, String label) {
+    return 'Opción $number: $label';
+  }
+
+  @override
+  String get lppRescueRecommended => 'Recomendado';
+
+  @override
+  String lppRescueGainPositive(String gain) {
+    return '+CHF $gain en 5 años';
+  }
+
+  @override
+  String lppRescueGainLoss(String gain) {
+    return '-CHF $gain en 5 años';
+  }
+
+  @override
+  String get lppRescueSuppletiveTitle =>
+      'No hacer nada = institución supletoria';
+
+  @override
+  String lppRescueSuppletiveBody(String balance, String loss) {
+    return 'El tipo técnico es bajo y las comisiones elevadas. Un haber de CHF $balance puede perder hasta CHF $loss en 5 años frente a una cuenta de libre paso adecuada.';
+  }
+
+  @override
   String get expatDeadline3aLabel => 'Pilar 3a — cierre o congelación';
 
   @override
