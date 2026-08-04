@@ -44,6 +44,7 @@ def _pending_manifest(payload: str) -> dict:
             "candidate_payload_sha256": payload,
             "reviewed_payload_sha256": None,
             "reviewed_candidate_commit": None,
+            "green_lib_inventory_sha256": None,
         },
         "not_accepted": list(guard.PENDING_NOT_ACCEPTED),
         "next_gate": guard.EXPECTED_NEXT_GATE,
@@ -63,6 +64,8 @@ def _accepted_manifest(payload: str, commit: str) -> dict:
         "candidate_payload_sha256": payload,
         "reviewed_payload_sha256": payload,
         "reviewed_candidate_commit": commit,
+        # A concrete 64-hex green lib-inventory seal is mandatory at acceptance.
+        "green_lib_inventory_sha256": "e" * 64,
     }
     # Acceptance ⟹ runtime implemented + sealed: those two leave not_accepted.
     manifest["not_accepted"] = list(guard.ACCEPTED_NOT_ACCEPTED)
@@ -252,6 +255,14 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
             "pending manifest claims reviewed binding",
         )
 
+    def test_pending_non_null_inventory_seal_is_rejected(self) -> None:
+        # A pending manifest cannot claim a concrete lib-inventory seal — no
+        # runtime is built yet.
+        self._mutate(
+            lambda d: d["mechanical_binding"].__setitem__("green_lib_inventory_sha256", "a" * 64),
+            "pending manifest claims a green lib inventory seal",
+        )
+
     def test_freeze_rejects_drifted_red_guard_file(self) -> None:
         path = self.root / guard.RED_GUARD
         path.write_text(path.read_text() + "\n# drift\n")
@@ -328,6 +339,27 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         self._write_at(root, data)
         with self.assertRaisesRegex(guard.GuardFailure, "accepted not-accepted boundary drifted"):
             guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_null_inventory_seal_is_rejected(self) -> None:
+        # Acceptance MUST seal a concrete lib inventory; null is a contradiction.
+        root, payload, pending_commit = self._accepted_repo()
+        data = _accepted_manifest(payload, pending_commit)
+        data["mechanical_binding"]["green_lib_inventory_sha256"] = None
+        self._write_at(root, data)
+        with self.assertRaisesRegex(guard.GuardFailure, "accepted green lib inventory seal invalid"):
+            guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_inventory_mismatch_fails_replay(self) -> None:
+        # The sealed inventory must equal the live lib/ tree digest. A mismatch
+        # (here the temp repo carries no design_lab lib/, so the live digest is the
+        # empty-tree digest) fails run_expected_green BEFORE the behavioral replay —
+        # a smuggled/removed lib file cannot slip through on green tests alone.
+        root, payload, pending_commit = self._accepted_repo()
+        data = _accepted_manifest(payload, pending_commit)
+        data["mechanical_binding"]["green_lib_inventory_sha256"] = "a" * 64
+        self._write_at(root, data)
+        with self.assertRaisesRegex(guard.GuardFailure, "GREEN lib inventory drifted"):
+            guard.run_expected_green(root)
 
     def test_accepted_replay_rejects_tampered_pending_history(self) -> None:
         """A pending commit whose descriptor differs cannot back an acceptance."""

@@ -268,7 +268,7 @@ def _core(root: Path, data: dict) -> None:
     _require(
         set(data.get("mechanical_binding", {})) == {
             "candidate_payload_sha256", "reviewed_payload_sha256",
-            "reviewed_candidate_commit",
+            "reviewed_candidate_commit", "green_lib_inventory_sha256",
         },
         "mechanical binding schema drifted",
     )
@@ -291,6 +291,9 @@ def _pending(data: dict, payload: str) -> None:
         binding.get("reviewed_payload_sha256") is None and binding.get("reviewed_candidate_commit") is None,
         "pending manifest claims reviewed binding",
     )
+    # No runtime is built while pending, so no concrete lib-inventory seal may be
+    # claimed. It becomes mandatory (and non-null) only at acceptance.
+    _require(binding.get("green_lib_inventory_sha256") is None, "pending manifest claims a green lib inventory seal")
 
 
 def _accepted(root: Path, data: dict, payload: str) -> None:
@@ -311,6 +314,15 @@ def _accepted(root: Path, data: dict, payload: str) -> None:
     # structural ``_accepted`` gate validates only the receipt; the runtime proof
     # is the dispatched execution.
     binding = data["mechanical_binding"]
+    # Acceptance MUST seal a concrete green lib inventory (the exact live lib/ tree
+    # digest). run_expected_green verifies the live lib/ against this value before
+    # the behavioral replay, so retiring the RED lib-inventory pin cannot let a
+    # smuggled or removed lib file survive merely because the 15 tests still pass.
+    inventory = binding.get("green_lib_inventory_sha256")
+    _require(
+        isinstance(inventory, str) and re.fullmatch(r"[0-9a-f]{64}", inventory) is not None,
+        "accepted green lib inventory seal invalid",
+    )
     commit = binding.get("reviewed_candidate_commit")
     _require(
         isinstance(commit, str) and re.fullmatch(r"[0-9a-f]{40}", commit) is not None and _ancestor(root, commit),
@@ -359,14 +371,42 @@ def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, ch
         _require_clean_worktree(root)
 
 
-def run_expected_green(root: Path = REPO_ROOT) -> None:
-    """DEFERRED: replay the sealed spec and require an all-green 15/15 result.
+def _live_lib_inventory_sha256(root: Path) -> str:
+    """Digest of the EXACT live design-lab lib/ tree ({relpath: sha256}).
 
-    Never invoked while the manifest is pending — the R1 runtime is unwritten, so
-    the replay would still be 2/13. This runs only after implementation, on the
-    default/``--release`` path, reusing the RED guard's isolated runner.
+    Reuses the RED guard's inventory basis (red.LIB_ROOT + red._sha). This is the
+    inventory that the retired RED replay used to pin; the green gate re-pins it
+    against the accepted seal so no lib file can be smuggled in or removed.
     """
-    validate(root, check_git=False)
+    lib = root / red.LIB_ROOT
+    sources = {
+        path.relative_to(lib).as_posix(): red._sha(path)
+        for path in sorted(lib.rglob("*"))
+        if path.is_file() and not path.is_symlink()
+    }
+    return hashlib.sha256(
+        json.dumps(sources, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+
+
+def run_expected_green(root: Path = REPO_ROOT) -> None:
+    """Verify the sealed lib inventory, then replay the sealed spec for 15/15.
+
+    Runs ONLY on an accepted green gate (require_accepted=True): while pending the
+    R1 runtime is unwritten and the replay would still be 2/13, so a pending replay
+    has no reason to exist. Reuses the RED guard's isolated runner.
+    """
+    validate(root, require_accepted=True, check_git=False)
+    # Exact-inventory seal BEFORE the behavioral replay: the accepted seal must
+    # equal the live lib/ tree digest, else a smuggled/removed lib file that still
+    # passes 15/15 would be accepted. The RED replay's SHA pin is retired; this
+    # restores it under the green regime.
+    manifest = _load_manifest_bytes((root / MANIFEST).read_bytes())
+    sealed = manifest["mechanical_binding"]["green_lib_inventory_sha256"]
+    _require(
+        _live_lib_inventory_sha256(root) == sealed,
+        "R1 GREEN lib inventory drifted from the sealed seal (smuggled or removed lib file)",
+    )
     try:
         completed = red._run_candidate_command(root, {"command": list(GREEN_COMMAND)})
     except subprocess.TimeoutExpired as exc:
@@ -440,9 +480,12 @@ def main() -> int:
     args = parser.parse_args()
     try:
         if args.contract:
+            # Structure-only gate (no Flutter): valid in either lifecycle state.
             validate(REPO_ROOT, check_git=False)
         else:
-            validate(REPO_ROOT, require_accepted=True if args.release else None)
+            # Both the bare CLI and --release run the accepted-only 15/15 replay;
+            # run_expected_green itself requires the accepted state (no pending
+            # replay exists).
             run_expected_green(REPO_ROOT)
     except (GuardFailure, OSError, UnicodeError, json.JSONDecodeError, subprocess.CalledProcessError, yaml.YAMLError) as exc:
         print(f"BATCH19 R1 GREEN GATE FAIL: {exc}", file=sys.stderr)

@@ -86,9 +86,13 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_payload_sha256: 5ae434aa945b93905c5c80f77c9e6a459e02ef191f3a353df1df38949b1ebf5b
+  candidate_payload_sha256: b9de8b5095addf9339eff117ffea4d9c9a574e1c76e5f275bb30cf4ed2f900bb
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
+  # null while PENDING (no runtime built); at acceptance this MUST be the 64-hex
+  # digest of the exact live design_lab lib/ tree, verified by run_expected_green
+  # before the 15/15 replay.
+  green_lib_inventory_sha256: null
 not_accepted:
 - runtime_implemented
 - lib_inventory_sealed
