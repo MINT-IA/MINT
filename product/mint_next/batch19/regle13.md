@@ -1,0 +1,16 @@
+# Règle 13 — clôture herméneutique du Batch 19 (R1 fact_canton)
+
+Consigné par mint-lead le 2026-08-04, à la promotion attestée du green-gate (`584702094`, run 30916749754). Réponses aux deux questions de la règle 13 (ADR doctrine 2026-08-03).
+
+## 1. Qu'est-ce que ce batch révèle du tout ?
+
+- **Un contrat RED ne prouve que la rougeur.** Le défaut latent de R1_12 (restauration `debugPrint` via `addTearDown`, incompatible avec l'ordre des post-checks de Flutter 3.41.6) était invisible en état rouge : le test échouait plus tôt et n'atteignait jamais la branche défectueuse. Les défauts d'infrastructure de test dans les branches jamais exécutées en rouge n'apparaissent qu'au passage au vert.
+- **L'enforcement vivant rend inextensible.** Une preuve qui évalue l'état de branche entier (l'ancien scope journey, l'ANCHOR non avancé) couple chaque gate à tout ce qui a suivi — un fix d'une ligne a exigé une cascade complète de re-scellement. La doctrine de supersession (chaque gate prouve SON delta à son SHA immuable, le gate suivant le supersède sans le re-attester en vivant) est née de ce constat et a été adoptée par le relecteur : **cette cascade est la dernière**.
+- **La séparation à quatre acteurs fonctionne sous pression.** Auteur ≠ relecteur (7 roasts indépendants) ≠ promoteur (lead, tous les flips) ≠ autorisation (humaine). Deux tentatives d'auto-acceptation ont été refusées en chemin ; chaque relâchement proposé (`{14,1,0}`, contrôle statique de workflow) a été rejeté au profit d'un durcissement (re-seal, enforcement par exécution).
+- **`validate` n'est pas `--release`.** Chaque écart entre la preuve locale partielle et le chemin CI complet a coûté un cycle de dispatch. La preuve locale doit couvrir l'intégralité du chemin d'attestation avant tout push.
+
+## 2. Que doit réviser le tout ?
+
+- **Le contrat R2 reçoit des entrées nommées obligatoires** (issues du panel 5 lentilles, gate de promotion produit — aucune n'est un défaut R1, toutes sont scellées à dessein) : le contrôle « Je ne sais pas / ma situation est complexe » (la copie scellée l'annonce, R3_01 le réalise — R2/R3 doivent le livrer avant toute surface réelle) ; la physics de scroll de R1_09 vs la navigation tactile d'une liste de 26 éléments ; les détails Semantics figés par le snapshot ; le contraste de bordure ; le clamp 64 code points en défense en profondeur ; la ré-évaluation de l'entrée ALLOW de `design_lab_app.dart` (le sha-pin RED qui le couvrait est retiré).
+- **Les futurs contrats scellés** : (a) inclure un smoke de l'infrastructure de test en état simulé-vert dès le scellement RED ; (b) tout scope de garde porte un ANCHOR qui doit avancer avec un re-seal (invariant documenté dans le RED guard — à asserter mécaniquement quand l'occasion se présente) ; (c) préférer les preuves delta-scopées aux preuves branche-entière, la couverture branche-entière restant au gate dédié (`journey_os_check` standalone, vérifié intact).
+- **Aucune révision de la doctrine ni du contrat de navigation n'est requise** : le batch les a appliqués et confirmés. L'inventaire réutilisable gagne : machinerie d'acceptation scellée (guards + suites hostiles state-agnostiques + attestation par dispatch), réutilisée trois fois dans ce batch (RED, path-owner, GREEN).
