@@ -54,7 +54,9 @@ ISOLATED_BOOTSTRAP = (
 COMMANDS = {
     "hostile_unit": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} unittest tools.checks.tests.test_mint_next_batch20_r2_red_guard",
     "isolated_expected_red": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.mint_next_batch20_r2_red_guard",
-    "journey_scope": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.journey_os_check",
+    # ownership proof runs against the LIVE tree (path-owners live there, not at
+    # the detached RED_COMMIT); delta-scope is preserved by --base-ref RED_COMMIT^.
+    "journey_scope": "python3 -ISB -c <isolated_bootstrap> {live_root} {dependency_site} tools.checks.journey_os_check --base-ref RED_COMMIT^",
 }
 NOT_ACCEPTED = [
     "runtime_implemented", "runtime_accepted", "user_validated",
@@ -383,6 +385,21 @@ def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, ch
 
 
 def run_proofs(root: Path = REPO_ROOT) -> None:
+    trusted_home = pwd.getpwuid(os.getuid()).pw_dir
+    dependency_site = subprocess.run(
+        ["python3", "-ISB", "-c", "import site;print(site.getusersitepackages())"],
+        check=True, capture_output=True, text=True,
+        env={**os.environ, "HOME": trusted_home},
+    ).stdout.strip()
+    _require(Path(dependency_site).is_dir(), "trusted dependency site is unavailable")
+    # journey_os_check defaults to `origin/dev...HEAD`. Each gate proves only its
+    # own delta (supersession doctrine), so the base is pinned to RED_COMMIT's
+    # parent (ANCHOR): the diff is exactly this batch's delta since ANCHOR, not
+    # the accumulated branch state.
+    journey_base = subprocess.run(
+        ["git", "rev-parse", f"{RED_COMMIT}^"],
+        cwd=root, check=True, capture_output=True, text=True,
+    ).stdout.strip()
     with tempfile.TemporaryDirectory(prefix="mint-b20-r2-red-replay-") as directory:
         replay = Path(directory) / "candidate"
         added = subprocess.run(
@@ -391,33 +408,33 @@ def run_proofs(root: Path = REPO_ROOT) -> None:
         )
         _require(added.returncode == 0, "cannot create detached RED replay")
         try:
-            trusted_home = pwd.getpwuid(os.getuid()).pw_dir
-            dependency_site = subprocess.run(
-                ["python3", "-ISB", "-c", "import site;print(site.getusersitepackages())"],
-                check=True, capture_output=True, text=True,
-                env={**os.environ, "HOME": trusted_home},
-            ).stdout.strip()
-            _require(Path(dependency_site).is_dir(), "trusted dependency site is unavailable")
-            prefix = [
+            # The two RED proofs attest the RED artifacts and re-run the RED test
+            # at the sealed RED_COMMIT snapshot; they do NOT depend on path-owners,
+            # so they run in the detached RED_COMMIT replay.
+            replay_prefix = [
                 "python3", "-ISB", "-c", ISOLATED_BOOTSTRAP,
                 str(replay), dependency_site,
             ]
-            # journey_os_check defaults to `origin/dev...HEAD`, i.e. it asserts the
-            # journey-OS ownership of the WHOLE branch since dev. In a RED replay we
-            # only attest that THIS RED_COMMIT's own delta respects journey-OS
-            # ownership (supersession doctrine: each gate proves its own delta, not
-            # the world). Pin the proof's base to RED_COMMIT's parent so the diff is
-            # exactly the RED_COMMIT delta, not the accumulated branch state.
-            journey_base = subprocess.run(
-                ["git", "rev-parse", f"{RED_COMMIT}^"],
-                cwd=root, check=True, capture_output=True, text=True,
-            ).stdout.strip()
             for command in (
-                [*prefix, "unittest", "tools.checks.tests.test_mint_next_batch20_r2_red_guard"],
-                [*prefix, "tools.checks.mint_next_batch20_r2_red_guard"],
-                [*prefix, "tools.checks.journey_os_check", "--base-ref", journey_base],
+                [*replay_prefix, "unittest", "tools.checks.tests.test_mint_next_batch20_r2_red_guard"],
+                [*replay_prefix, "tools.checks.mint_next_batch20_r2_red_guard"],
             ):
                 _require(subprocess.run(command, cwd=replay).returncode == 0, f"proof failed: {' '.join(command)}")
+            # INVARIANT: the ownership proof evaluates ownership WHERE OWNERSHIP
+            # LIVES — the current (live) tree at attestation time, NOT the detached
+            # RED_COMMIT replay. The RED delta cannot own itself at its own commit:
+            # path-owners are necessarily born AFTER RED_COMMIT (two-commit path —
+            # review receipt, then work), so a detached replay at RED_COMMIT has no
+            # owners and would wrongly reject the very RED delta it seals. Running
+            # journey_os_check against the live root (with --base-ref RED_COMMIT^,
+            # so the delta-scope is unchanged) resolves ownership from the accepted
+            # path-owners that exist in the live tree at attestation time.
+            live_prefix = [
+                "python3", "-ISB", "-c", ISOLATED_BOOTSTRAP,
+                str(root), dependency_site,
+            ]
+            journey = [*live_prefix, "tools.checks.journey_os_check", "--base-ref", journey_base]
+            _require(subprocess.run(journey, cwd=root).returncode == 0, f"proof failed: {' '.join(journey)}")
         finally:
             subprocess.run(["git", "worktree", "remove", "--force", str(replay)], cwd=root, capture_output=True)
 

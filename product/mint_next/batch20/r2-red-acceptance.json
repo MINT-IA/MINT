@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "status": "accepted_expected_red_evidence_runtime_not_implemented",
-  "current_verdict": "RED_CONTRACT_ACCEPTED_RUNTIME_NOT_IMPLEMENTED",
+  "status": "candidate_red_acceptance_unaccepted",
+  "current_verdict": "PENDING_INDEPENDENT_ROASTS",
   "candidate": {
     "red_commit": "533d8e4eac50b46196a26ba517f8bad1e517c780",
     "gate": "R2",
@@ -18,39 +18,34 @@
   "proof_commands": {
     "hostile_unit": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} unittest tools.checks.tests.test_mint_next_batch20_r2_red_guard",
     "isolated_expected_red": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.mint_next_batch20_r2_red_guard",
-    "journey_scope": "python3 -ISB -c <isolated_bootstrap> {detached_root} {dependency_site} tools.checks.journey_os_check"
+    "journey_scope": "python3 -ISB -c <isolated_bootstrap> {live_root} {dependency_site} tools.checks.journey_os_check --base-ref RED_COMMIT^"
   },
   "reviews": {
     "architecture_integrity": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "a0eaa1b517d4888ec9d7d6f2a0c3fb4521995e197c542e531082071d35ef6f23"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     },
     "mechanical_evidence": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "a0eaa1b517d4888ec9d7d6f2a0c3fb4521995e197c542e531082071d35ef6f23"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     },
     "ux_navigation_scope": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "a0eaa1b517d4888ec9d7d6f2a0c3fb4521995e197c542e531082071d35ef6f23"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     }
   },
   "mechanical_binding": {
-    "candidate_review_payload_sha256": "a0eaa1b517d4888ec9d7d6f2a0c3fb4521995e197c542e531082071d35ef6f23",
-    "reviewed_payload_sha256": "a0eaa1b517d4888ec9d7d6f2a0c3fb4521995e197c542e531082071d35ef6f23",
-    "reviewed_candidate_commit": "28afeca4c51812e9595f569759cef41977d01874"
+    "candidate_review_payload_sha256": "a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
   },
-  "accepted_evidence": [
-    "expected_failing_R2_contract_only"
-  ],
+  "accepted_evidence": [],
   "not_accepted": [
     "runtime_implemented",
     "runtime_accepted",
@@ -59,5 +54,5 @@
     "R3_or_later_gate",
     "production_ready"
   ],
-  "next_gate": "create_and_review_R2_runtime_path_owner_receipt"
+  "next_gate": "independent_roasts_of_exact_pending_acceptance_commit"
 }
