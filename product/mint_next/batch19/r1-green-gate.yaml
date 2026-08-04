@@ -86,7 +86,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_payload_sha256: 7651aae126cd6b93ccb96e25386b98f70a387d7ed0466f8a0f34066d35f51d98
+  candidate_payload_sha256: cd7b9023e8dfa1f0f3308e765ae22b929806578f1411aa836bc2326f718886d1
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
   # null while PENDING (no runtime built); at acceptance this MUST be the 64-hex

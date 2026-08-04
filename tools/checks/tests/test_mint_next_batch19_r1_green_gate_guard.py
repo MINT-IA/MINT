@@ -377,6 +377,16 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "symlink or special entry"):
             guard.run_expected_green(root)
 
+    def test_accepted_inventory_rejects_empty_dir_in_lib(self) -> None:
+        # An extra empty dir is not covered by a file-only digest but is copied by
+        # copytree — the topology must be sealed, so it is rejected.
+        root, payload, pending_commit = self._accepted_repo()
+        lib = self._make_lib(root)
+        (lib / "empty_subdir").mkdir()
+        self._write_at(root, _accepted_manifest(payload, pending_commit))
+        with self.assertRaisesRegex(guard.GuardFailure, "empty directory"):
+            guard.run_expected_green(root)
+
     def test_accepted_inventory_rejects_missing_lib(self) -> None:
         # Empty / missing lib/ is structurally rejected (cannot seal nothing).
         root, payload, pending_commit = self._accepted_repo()

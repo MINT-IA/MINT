@@ -371,6 +371,19 @@ def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, ch
         _require_clean_worktree(root)
 
 
+def _require_no_empty_dirs(tree: Path, nodes: list[Path]) -> None:
+    """Reject empty directories: a file-only digest does not cover an extra empty
+    dir, but shutil.copytree copies it, so the tree topology would not be fully
+    sealed. Every directory must (transitively) contain a sealed file."""
+    files = [n for n in nodes if n.is_file()]
+    for node in nodes:
+        if node.is_dir():
+            _require(
+                any(f.is_relative_to(node) for f in files),
+                f"tree contains an empty directory: {node.relative_to(tree).as_posix()}",
+            )
+
+
 def _live_lib_inventory_sha256(root: Path) -> str:
     """Digest of the EXACT live design-lab lib/ tree ({relpath: sha256}).
 
@@ -389,6 +402,7 @@ def _live_lib_inventory_sha256(root: Path) -> str:
         all(not node.is_symlink() and (node.is_file() or node.is_dir()) for node in nodes),
         "R1 GREEN lib/ contains a symlink or special entry",
     )
+    _require_no_empty_dirs(lib, nodes)
     sources = {
         node.relative_to(lib).as_posix(): red._sha(node)
         for node in nodes if node.is_file()
@@ -425,10 +439,12 @@ def _seal_runner_inputs(root: Path) -> None:
             _require(red._sha(path) == expected, f"R1 GREEN runner input drifted: {relative}")
     assets = root / red.ASSETS_ROOT
     _require(assets.is_dir() and not assets.is_symlink(), "R1 GREEN assets/ is not a regular directory")
+    asset_nodes = sorted(assets.rglob("*"))
     _require(
-        all(not n.is_symlink() and (n.is_file() or n.is_dir()) for n in assets.rglob("*")),
+        all(not n.is_symlink() and (n.is_file() or n.is_dir()) for n in asset_nodes),
         "R1 GREEN assets/ contains a symlink or special entry",
     )
+    _require_no_empty_dirs(assets, asset_nodes)
     design_lab = red.PUBSPEC.parent
     auxiliary = {"l10n.yaml": red._sha(root / red.L10N_CONFIG)}
     auxiliary.update({
