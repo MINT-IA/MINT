@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "owner_id": "batch20-r2-red-acceptance",
+  "status": "candidate_unaccepted",
+  "paths": [
+    "tools/checks/mint_next_batch20_r2_red_acceptance_guard.py",
+    "tools/checks/tests/test_mint_next_batch20_r2_red_acceptance_guard.py"
+  ],
+  "reviews": {
+    "scope_integrity": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "mechanical_adversary": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "journey_safety": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    }
+  },
+  "mechanical_binding": {
+    "candidate_payload_sha256": "196728fdb0f14108beed4910855526190a2d9dbb307f763168986ff7826eb8b9",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
+  }
+}

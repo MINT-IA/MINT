@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "owner_id": "batch20-r2-red-acceptance-json",
+  "status": "candidate_unaccepted",
+  "paths": [
+    "product/mint_next/batch20/r2-red-acceptance.json"
+  ],
+  "reviews": {
+    "scope_integrity": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "mechanical_adversary": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "journey_safety": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    }
+  },
+  "mechanical_binding": {
+    "candidate_payload_sha256": "44880b30c104d806333ce63641513ecfa6dc9a7aae871bfdeed41fac72b55a1a",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
+  }
+}
