@@ -10,8 +10,8 @@
 # attestation — NOT by any static check of the CI workflow file. Sealed by
 # tools/checks/mint_next_batch20_r2_green_gate_guard.py.
 schema_version: 1
-status: candidate_green_gate_unaccepted
-current_verdict: PENDING_INDEPENDENT_ROASTS
+status: accepted_green_gate_runtime_implemented_hidden_only
+current_verdict: GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY
 supersedes:
   red_acceptance_receipt: product/mint_next/batch20/r2-red-acceptance.json
   accepted_payload_sha256: a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792
@@ -83,28 +83,29 @@ runtime_surface: hidden_design_lab_only
 product_promotion: forbidden
 reviews:
   journey_safety:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
   mechanical_adversary:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
   scope_integrity:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
 mechanical_binding:
   candidate_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
-  reviewed_payload_sha256: null
-  reviewed_candidate_commit: null
-  green_lib_inventory_sha256: null
+  reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
+  reviewed_candidate_commit: 957ae60ea568b77d503369c858893065bac85ce1
+  green_lib_inventory_sha256: 0c987bb83500d01621307f2d8479f322500418a435e2cc86280ca4c4fe5f5b19
 not_accepted:
-- runtime_implemented
-- lib_inventory_sealed
 - product_route
 - production_ready
 next_gate: seal_R2_green_lib_inventory_then_R3
