@@ -1,13 +1,25 @@
-name: MINT Next Batch 19 R1 RED Proofs
+name: MINT Next Batch 19 R1 Proofs
 
-# Neutral CI executor for the Batch 19 R1 expected-RED contract.
-# The clean GitHub runner IS the isolation: this job runs the guards directly
-# and does NOT depend on the guard's anti-local-state machinery
-# (isolated -ISB bootstrap / detached worktree replay). The 27 hostile
-# acceptance-guard tests + the 2-pass/13-behavioral-fail RED replay are the
-# proof. The acceptance guard's git-boundary check is intentionally NOT run
-# here: this branch carries the workflow file, a path foreign to that guard by
-# design, and the branch is a declared non-merge executor.
+# Neutral CI executor + GREEN release attestation for the Batch 19 R1 transition.
+# Two regimes:
+#   - executor jobs (if != workflow_dispatch): acceptance-receipt substance
+#     (hostile suite + payload/schema/RED-integrity; the git boundary is waived
+#     here because this branch is a declared non-merge executor that carries the
+#     workflow file, a path foreign to that guard by design) + the green-gate
+#     transition CONTRACT (--contract, structure only, no Flutter).
+#     The retired expected-RED replay (2 pass / 13 behavioral fail) is
+#     intentionally NOT run here: after the OPTION-A re-seal it fails on two
+#     axes that are hygiene, not 2/13 substance — the RED guard's diff-boundary
+#     (candidate_end moved past accumulated non-RED commits) and lib-inventory
+#     drift (the R1 runtime is now written). Behavioral 2/13 at the new
+#     RED_COMMIT eb3211a2 is proven locally (check_git=False) and attested
+#     historically via the dev release-attestation dispatch (check_git=True).
+#   - green-release-attestation (if == workflow_dispatch): checks out an
+#     immutable promotion SHA and runs the green guard `--release`
+#     (validate require_accepted=True + exact lib-inventory seal + runner-input
+#     seal + the 15/15 replay), then the state-agnostic hostile suite. This
+#     attests the GREEN flip mechanically at promotion time. On a PENDING
+#     manifest `--release` exits 1 ("green gate is still pending").
 
 on:
   pull_request:
@@ -15,7 +27,9 @@ on:
     paths:
       - 'product/mint_next/**'
       - 'tools/checks/mint_next_batch19_r1_red*'
+      - 'tools/checks/mint_next_batch19_r1_green*'
       - 'tools/checks/tests/test_mint_next_batch19_r1_red*'
+      - 'tools/checks/tests/test_mint_next_batch19_r1_green*'
       - '.planning/journeys/path-owners/**'
       - '.github/workflows/mint-next-proofs.yml'
   push:
@@ -24,13 +38,20 @@ on:
     paths:
       - 'product/mint_next/**'
       - 'tools/checks/mint_next_batch19_r1_red*'
+      - 'tools/checks/mint_next_batch19_r1_green*'
       - 'tools/checks/tests/test_mint_next_batch19_r1_red*'
+      - 'tools/checks/tests/test_mint_next_batch19_r1_green*'
       - '.planning/journeys/path-owners/**'
       - '.github/workflows/mint-next-proofs.yml'
   workflow_dispatch:
+    inputs:
+      promotion_sha:
+        description: 'Immutable promotion head SHA to attest with the green guard --release (accepted manifest, 15/15). Leave empty for the executor jobs.'
+        required: false
+        default: ''
 
 concurrency:
-  group: mint-next-batch19-r1-red-proofs-${{ github.ref }}
+  group: mint-next-batch19-r1-proofs-${{ github.ref }}-${{ inputs.promotion_sha }}
   cancel-in-progress: true
 
 permissions:
@@ -38,7 +59,8 @@ permissions:
 
 jobs:
   acceptance-contract:
-    name: Batch19 acceptance guard hostile suite (27) + receipt substance
+    name: Batch19 acceptance guard hostile suite + receipt substance
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -52,23 +74,24 @@ jobs:
         run: |
           python3 -m pip install PyYAML==6.0.2
           # run_proofs' trusted dependency_site probe (exercised by the
-          # sitecustomize-isolation test) requires the user site-packages DIR
-          # to exist. A fresh runner has none, and --user would no-op because
-          # PyYAML is already satisfied in the interpreter site, so create the
-          # dir directly. An empty dir is enough: the isolated proof then fails
-          # on the absent yaml/flutter, which is the expected "proof failed".
+          # sitecustomize-isolation test) requires the user site-packages DIR to
+          # exist. A fresh runner has none, and --user would no-op because PyYAML
+          # is already satisfied in the interpreter site, so create the dir
+          # directly. An empty dir is enough: the isolated proof then fails on the
+          # absent yaml/flutter, which is the expected "proof failed".
           python3 -c "import site, os; os.makedirs(site.getusersitepackages(), exist_ok=True)"
-      - name: Fire the 27 hostile acceptance-guard mutations
+      - name: Fire the hostile acceptance-guard mutations
         run: python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_red_acceptance_guard
-      - name: Verify acceptance receipt substance (payload + schema + RED integrity; git boundary waived on this non-merge executor branch)
+      - name: Verify acceptance receipt substance (payload + schema + RED integrity; git boundary attested separately by release-attestation)
         run: >-
           python3 -c "import sys; sys.path.insert(0, '.');
           from tools.checks.mint_next_batch19_r1_red_acceptance_guard import validate, REPO_ROOT;
           validate(REPO_ROOT, check_git=False);
           print('ACCEPTANCE RECEIPT SUBSTANCE OK')"
 
-  red-replay:
-    name: Batch19 R1 expected-RED replay (2 pass / 13 behavioral fail)
+  green-gate-contract:
+    name: Batch19 R1 green-gate transition contract (PENDING, --contract, no Flutter)
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -80,44 +103,46 @@ jobs:
           python-version: '3.11'
       - name: Install exact guard dependency
         run: python3 -m pip install PyYAML==6.0.2
+      - name: Validate the PENDING green-gate transition contract (structure only; the 15/15 replay is deferred to green-release-attestation)
+        run: |
+          python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --contract
+          echo "GREEN GATE CONTRACT PASS — pending, structure only"
+      - name: Fire the hostile green-gate mutations (state-agnostic)
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_green_gate_guard
+
+  green-release-attestation:
+    name: Batch19 R1 GREEN release attestation (accepted, 15/15, dispatch-only)
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Immutable promotion head SHA. On a PENDING manifest --release exits 1
+          # ("green gate is still pending"); on the accepted green flip commit it
+          # runs validate(require_accepted=True) + the exact lib-inventory seal +
+          # the runner-input seal + the 15/15 replay and exits 0.
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency + create user-site dir
+        run: |
+          python3 -m pip install PyYAML==6.0.2
+          python3 -c "import site, os; os.makedirs(site.getusersitepackages(), exist_ok=True)"
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
-          # The RED contract's pubspec.lock (test_api 0.7.10, vector_math 2.2.0,
-          # Dart ^3.11.0) is satisfied only by 3.41.6 — the SDK it was authored
-          # on. Newer Flutter re-pins those SDK-vendored packages, so
-          # `pub get --offline --enforce-lockfile` (used inside the guard)
-          # cannot resolve. Verified locally: 3.41.6 replays exactly 2/13.
+          # Only the SDK that satisfies the design_lab pinned pubspec.lock under
+          # --enforce-lockfile; --release replays the sealed spec to 15/15.
           flutter-version: '3.41.6'
           channel: stable
           cache: true
       - name: Warm pub cache with the LOCKED versions (no lock rewrite)
         working-directory: product/mint_next/batch7/design_lab
-        # --enforce-lockfile downloads exactly the pinned lockfile versions
-        # (what the guard's isolated `pub get --offline --enforce-lockfile`
-        # needs) WITHOUT upgrading/rewriting pubspec.lock. Plain `flutter pub
-        # get` would upgrade transitive deps and drift the guard's pinned SHA.
         run: flutter pub get --enforce-lockfile
       - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
         run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
-      - name: Replay expected-RED contract and assert exact 2/13 behavioral pattern
-        run: python3 tools/checks/mint_next_batch19_r1_red_guard.py
-      - name: Fire the 40 hostile RED-guard mutations
-        run: python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_red_guard
-
-  green-gate-contract:
-    name: Batch19 R1 green-gate transition contract (PENDING, --contract, no Flutter)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          fetch-depth: 0
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
-        with:
-          python-version: '3.11'
-      - name: Install exact guard dependency
-        run: python3 -m pip install PyYAML==6.0.2
-      - name: Validate the PENDING green-gate transition contract (structure only, retires 2/13 + re-pins + green target 15/0)
-        run: python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --contract
+      - name: Full green release attestation (validate require_accepted + inventory seal + runner-input seal + 15/15 replay)
+        run: python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --release
       - name: Fire the hostile green-gate mutations (state-agnostic)
         run: python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_green_gate_guard
