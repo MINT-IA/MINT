@@ -1,0 +1,398 @@
+#!/usr/bin/env python3
+"""Seal the Batch19 R1 GREEN-GATE governance transition (pending, pre-impl).
+
+This guard governs the transition that RETIRES the accepted 2/13 expected-RED
+replay and installs, in its place, the 15/15 GREEN replay as the active R1 gate.
+It is a PENDING, pre-implementation artifact: the R1 runtime (canton_r1.dart,
+canton_r1_catalog.g.dart and the design_lab_app.dart re-gating) is NOT written
+yet, so the GREEN replay would still be 2/13 today. The green Flutter replay is
+therefore DEFERRED (``run_expected_green``) and never runs while the manifest is
+pending; ``--contract`` validates STRUCTURE ONLY and is what CI runs meanwhile.
+
+The design mirrors mint_next_batch19_r1_red_acceptance_guard.py: a payload-bound
+pending/accepted lifecycle, isolated (-I) execution, duplicate-key rejection.
+It reuses the sealed RED replay machinery from mint_next_batch19_r1_red_guard.
+"""
+
+from __future__ import annotations
+
+import sys
+
+if __name__ == "__main__" and not sys.flags.isolated:
+    raise SystemExit(
+        "USAGE: run this proof as python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py"
+    )
+sys.dont_write_bytecode = True
+
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+import yaml
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from tools.checks import mint_next_batch19_r1_red_guard as red
+
+MANIFEST = Path("product/mint_next/batch19/r1-green-gate.yaml")
+GUARD = Path("tools/checks/mint_next_batch19_r1_green_gate_guard.py")
+TESTS = Path("tools/checks/tests/test_mint_next_batch19_r1_green_gate_guard.py")
+RED_GUARD = Path("tools/checks/mint_next_batch19_r1_red_guard.py")
+REGISTRY = red.REGISTRY  # product/mint_next/batch18/runtime-gates.yaml
+
+# Re-pinned immutables frozen by this transition. These MUST equal the current
+# files: the RED contract and its registry cannot silently drift while the GREEN
+# gate that supersedes their replay is under review.
+RED_GUARD_SHA256 = "04e599fbccadb4eb1b8cb14db4b75cb03c2f45acc151e33d7ffa16b8019b6144"
+REGISTRY_SHA256 = "a2f3c1961d61c39b6d89c000d0d29c40f9b94fbd339b6af589371f5d42faac5a"
+
+WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
+# Same targeted, machine-readable command as the RED replay; only the expected
+# outcome changes from 2/13 RED to 15/15 GREEN once the runtime is implemented.
+GREEN_COMMAND = [
+    "flutter", "test", "test/design_lab_batch18_canton_r1_test.dart",
+    "--machine", "--no-pub",
+]
+GREEN_SUMMARY = {"passed": 15, "failed": 0, "load_or_harness_errors": 0}
+
+ROLES = {"scope_integrity", "mechanical_adversary", "journey_safety"}
+PENDING_REVIEW = {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
+
+TOP_KEYS = {
+    "schema_version", "status", "current_verdict", "supersedes", "green_gate",
+    "re_pinned_immutables", "runtime_regating", "runtime_surface",
+    "product_promotion", "reviews", "mechanical_binding", "not_accepted",
+    "next_gate",
+}
+
+# (a) The RED 2/13 replay is retired; upon promotion + implementation the active
+# CI gate becomes the GREEN 15/15 replay of the exact same sealed spec.
+EXPECTED_GREEN_GATE = {
+    "retires": "red_replay_2_13",
+    "active_gate_upon_promotion": "green_replay_15_15",
+    "test_file": str(red.TEST),
+    "test_sha256": red.EXPECTED_TEST_SHA256,
+    "fixture_file": str(red.FIXTURE),
+    "fixture_sha256": red.EXPECTED_FIXTURE_SHA256,
+    "command": list(GREEN_COMMAND),
+    "working_directory": WORKING_DIRECTORY,
+    "expected_summary": dict(GREEN_SUMMARY),
+    "expected_exit_code": 0,
+    "obligation_test_names": sorted(red.EXPECTED_TEST_NAMES),
+}
+
+# (b) The two immutables this transition freezes.
+EXPECTED_RE_PINNED = {
+    "red_guard": {"path": str(RED_GUARD), "sha256": RED_GUARD_SHA256},
+    "registry": {"path": str(REGISTRY), "sha256": REGISTRY_SHA256},
+}
+
+# (d) design_lab_app.dart is re-gated under the already-accepted runtime owner.
+# Its CONTENT seal (a lib-inventory sha pin, like Batch16 GREEN) CANNOT be pinned
+# now because the runtime is unimplemented; it is deferred to implementation.
+EXPECTED_RUNTIME_REGATING = {
+    "scope_owner": "batch19-r1-runtime",
+    "regated_file": "product/mint_next/batch7/design_lab/lib/design_lab_app.dart",
+    "lib_inventory_seal": "deferred_to_implementation_under_this_gate",
+}
+
+# The RED acceptance this GREEN gate supersedes (declarative provenance).
+EXPECTED_SUPERSEDES = {
+    "red_acceptance_receipt": "product/mint_next/batch19/r1-red-acceptance.json",
+    "accepted_payload_sha256": "3f553531acfcbe00fca8ff92e60a09bc732fb2c27da09e1fd49552e38dff2786",
+    "accepted_commit": "3345adc02",
+    "attestation_run": "https://github.com/MINT-IA/MINT/actions/runs/30884111626",
+}
+
+EXPECTED_NOT_ACCEPTED = [
+    "runtime_implemented",
+    "lib_inventory_sealed",
+    "product_route",
+    "production_ready",
+]
+EXPECTED_NEXT_GATE = "implement_R1a_R1b_R1c_then_seal_green_lib_inventory"
+
+PENDING_STATUS = "candidate_green_gate_unaccepted"
+PENDING_VERDICT = "PENDING_INDEPENDENT_ROASTS"
+ACCEPTED_STATUS = "accepted_green_gate_runtime_not_implemented"
+ACCEPTED_VERDICT = "GREEN_GATE_ACCEPTED_RUNTIME_NOT_IMPLEMENTED"
+
+
+class GuardFailure(RuntimeError):
+    pass
+
+
+class UniqueKeyLoader(yaml.SafeLoader):
+    pass
+
+
+def _unique_mapping(loader: yaml.Loader, node: yaml.MappingNode, deep: bool = False) -> dict:
+    result: dict = {}
+    for key_node, value_node in node.value:
+        key = loader.construct_object(key_node, deep=deep)
+        if key in result:
+            raise GuardFailure(f"duplicate YAML key: {key}")
+        result[key] = loader.construct_object(value_node, deep=deep)
+    return result
+
+
+UniqueKeyLoader.add_constructor(
+    yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _unique_mapping
+)
+
+
+def _require(condition: bool, message: str) -> None:
+    if not condition:
+        raise GuardFailure(message)
+
+
+def _git_bytes(root: Path, commit: str, relative: Path) -> bytes:
+    try:
+        return subprocess.run(
+            ["git", "show", f"{commit}:{relative}"], cwd=root,
+            check=True, capture_output=True,
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        raise GuardFailure(f"commit cannot provide {relative}: {commit}") from exc
+
+
+def _ancestor(root: Path, commit: str) -> bool:
+    return subprocess.run(
+        ["git", "merge-base", "--is-ancestor", commit, "HEAD"],
+        cwd=root, capture_output=True,
+    ).returncode == 0
+
+
+def _load_manifest_bytes(raw: bytes) -> dict:
+    data = yaml.load(raw.decode("utf-8"), Loader=UniqueKeyLoader)
+    _require(isinstance(data, dict), "green gate manifest root must be a mapping")
+    return data
+
+
+def _descriptor(data: dict) -> dict:
+    """The immutable content the payload binds: (a)-(d) plus the boundary."""
+    return {
+        "supersedes": data.get("supersedes"),
+        "green_gate": data.get("green_gate"),
+        "re_pinned_immutables": data.get("re_pinned_immutables"),
+        "runtime_regating": data.get("runtime_regating"),
+        "not_accepted": data.get("not_accepted"),
+    }
+
+
+def _payload(root: Path = REPO_ROOT, commit: str | None = None) -> str:
+    """Hash the immutable descriptor plus the guard and guard-test bytes.
+
+    Binding the guard and its hostile suite means a silent weakening of either
+    changes the payload and breaks the candidate binding. The descriptor carries
+    the re-pinned immutables, so the frozen RED guard and registry are bound too.
+    """
+    def read(relative: Path) -> bytes:
+        return _git_bytes(root, commit, relative) if commit else (root / relative).read_bytes()
+
+    manifest = _load_manifest_bytes(read(MANIFEST))
+    parts = {
+        "GREEN_GATE_DESCRIPTOR": json.dumps(
+            _descriptor(manifest), sort_keys=True, separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8"),
+        str(GUARD): read(GUARD),
+        str(TESTS): read(TESTS),
+    }
+    digest = hashlib.sha256()
+    for name, raw in sorted(parts.items()):
+        digest.update(name.encode("utf-8") + b"\0" + raw + b"\0")
+    return digest.hexdigest()
+
+
+def _core(root: Path, data: dict) -> None:
+    _require(set(data) == TOP_KEYS and data.get("schema_version") == 1, "green gate schema drifted")
+    _require(data.get("supersedes") == EXPECTED_SUPERSEDES, "superseded reference drifted")
+    _require(data.get("green_gate") == EXPECTED_GREEN_GATE, "green gate parameters drifted")
+    _require(data.get("re_pinned_immutables") == EXPECTED_RE_PINNED, "re-pinned immutables drifted")
+    _require(data.get("runtime_regating") == EXPECTED_RUNTIME_REGATING, "runtime re-gating drifted")
+    _require(data.get("runtime_surface") == "hidden_design_lab_only", "runtime surface widened")
+    _require(data.get("product_promotion") == "forbidden", "product promotion widened")
+    _require(data.get("not_accepted") == EXPECTED_NOT_ACCEPTED, "not-accepted boundary drifted")
+    _require(data.get("next_gate") == EXPECTED_NEXT_GATE, "next gate drifted")
+    _require(set(data.get("reviews", {})) == ROLES, "review roles drifted")
+    _require(
+        set(data.get("mechanical_binding", {})) == {
+            "candidate_payload_sha256", "reviewed_payload_sha256",
+            "reviewed_candidate_commit",
+        },
+        "mechanical binding schema drifted",
+    )
+    # Freeze: the re-pinned RED guard + registry must still equal the current
+    # files. The transition may not proceed on top of a drifted RED contract.
+    _require(red._sha(root / RED_GUARD) == RED_GUARD_SHA256, "re-pinned RED guard drifted")
+    _require(red._sha(root / REGISTRY) == REGISTRY_SHA256, "re-pinned registry drifted")
+
+
+def _pending(data: dict, payload: str) -> None:
+    _require(
+        data.get("status") == PENDING_STATUS and data.get("current_verdict") == PENDING_VERDICT,
+        "pending lifecycle drifted",
+    )
+    _require(all(value == PENDING_REVIEW for value in data["reviews"].values()), "pending manifest claims reviews")
+    binding = data["mechanical_binding"]
+    _require(binding.get("candidate_payload_sha256") == payload, "candidate payload drifted")
+    _require(
+        binding.get("reviewed_payload_sha256") is None and binding.get("reviewed_candidate_commit") is None,
+        "pending manifest claims reviewed binding",
+    )
+
+
+def _accepted(root: Path, data: dict, payload: str) -> None:
+    _require(
+        data.get("status") == ACCEPTED_STATUS and data.get("current_verdict") == ACCEPTED_VERDICT,
+        "accepted lifecycle drifted",
+    )
+    binding = data["mechanical_binding"]
+    commit = binding.get("reviewed_candidate_commit")
+    _require(
+        isinstance(commit, str) and re.fullmatch(r"[0-9a-f]{40}", commit) is not None and _ancestor(root, commit),
+        "reviewed candidate commit invalid",
+    )
+    _require(
+        binding.get("candidate_payload_sha256") == payload and binding.get("reviewed_payload_sha256") == payload,
+        "accepted payload drifted",
+    )
+    exact = {"verdict": "ACCEPT", "p1": 0, "p2": 0, "p3": 0, "reviewed_payload_sha256": payload}
+    _require(all(value == exact for value in data["reviews"].values()), "accepted reviews are not exact")
+    previous = _load_manifest_bytes(_git_bytes(root, commit, MANIFEST))
+    _core(root, previous)
+    _pending(previous, payload)
+    _require(_payload(root, commit) == payload, "reviewed pending trust unit cannot replay")
+
+
+def _require_clean_worktree(root: Path) -> None:
+    try:
+        dirty = subprocess.run(
+            ["git", "status", "--porcelain=v1", "-z", "--untracked-files=all"],
+            cwd=root, check=True, capture_output=True,
+        ).stdout
+    except subprocess.CalledProcessError as exc:
+        raise GuardFailure("cannot inspect worktree state") from exc
+    _require(not dirty, "green gate acceptance requires a clean worktree")
+
+
+def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, check_git: bool = True) -> None:
+    for relative in (MANIFEST, GUARD, TESTS, RED_GUARD, REGISTRY):
+        path = root / relative
+        _require(path.is_file() and not path.is_symlink(), f"artifact is not a regular file: {relative}")
+    data = _load_manifest_bytes((root / MANIFEST).read_bytes())
+    _core(root, data)
+    payload = _payload(root)
+    status = data.get("status")
+    if status == PENDING_STATUS:
+        _pending(data, payload)
+        _require(require_accepted is not True, "green gate is still pending")
+    elif status == ACCEPTED_STATUS:
+        _accepted(root, data, payload)
+        _require(require_accepted is not False, "expected pending green gate")
+    else:
+        raise GuardFailure("green gate lifecycle status drifted")
+    if check_git:
+        _require_clean_worktree(root)
+
+
+def run_expected_green(root: Path = REPO_ROOT) -> None:
+    """DEFERRED: replay the sealed spec and require an all-green 15/15 result.
+
+    Never invoked while the manifest is pending — the R1 runtime is unwritten, so
+    the replay would still be 2/13. This runs only after implementation, on the
+    default/``--release`` path, reusing the RED guard's isolated runner.
+    """
+    validate(root, check_git=False)
+    try:
+        completed = red._run_candidate_command(root, {"command": list(GREEN_COMMAND)})
+    except subprocess.TimeoutExpired as exc:
+        raise GuardFailure("R1 GREEN command timed out") from exc
+    _require(not completed.stderr.strip(), "R1 GREEN runner emitted stderr")
+    _require(completed.returncode == 0, f"R1 GREEN exit was {completed.returncode}, expected 0")
+    starts: dict[int, str] = {}
+    results: dict[str, str] = {}
+    load_result: str | None = None
+    done_events: list[dict] = []
+    error_ids: list[int] = []
+    test_done_ids: list[int] = []
+    passive_event_types = {"start", "suite", "allSuites", "group", "print"}
+    for line in completed.stdout.splitlines():
+        if not line.strip():
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            raise GuardFailure("R1 GREEN runner emitted non-JSON stdout")
+        if isinstance(event, list):
+            _require(
+                len(event) == 1 and isinstance(event[0], dict)
+                and event[0].get("event") == "test.startedProcess",
+                "R1 GREEN runner emitted unknown list event",
+            )
+            continue
+        _require(isinstance(event, dict), "R1 GREEN runner emitted non-object event")
+        kind = event.get("type")
+        if kind == "testStart":
+            test = event["test"]
+            _require(test["id"] not in starts, "duplicate R1 GREEN testStart id")
+            starts[test["id"]] = test["name"]
+        elif kind == "testDone":
+            _require(event["testID"] in starts, "testDone without testStart")
+            _require(event["testID"] not in test_done_ids, "duplicate testDone id")
+            test_done_ids.append(event["testID"])
+            name = starts.get(event["testID"], "<unknown>")
+            if name.startswith("loading "):
+                load_result = event["result"]
+            elif not event.get("hidden", False):
+                short = name.split(" ", 1)[1] if name.startswith(("R1a_", "R1b_", "R1c_")) else name
+                _require(short not in results, "duplicate R1 GREEN test execution")
+                results[short] = event["result"]
+            else:
+                _require(False, "unexpected hidden testDone event")
+        elif kind == "error":
+            error_ids.append(event["testID"])
+        elif kind == "done":
+            done_events.append(event)
+        else:
+            _require(kind in passive_event_types, f"unknown R1 GREEN machine event: {kind}")
+    _require(load_result == "success", "R1 GREEN test failed to compile or load")
+    _require(set(test_done_ids) == set(starts), "R1 GREEN testStart/testDone inventory drifted")
+    _require(
+        len(done_events) == 1 and done_events[0].get("success") is True,
+        "R1 GREEN final done event is not success",
+    )
+    _require(not error_ids, "R1 GREEN emitted error events")
+    _require(set(results) == red.EXPECTED_TEST_NAMES, "executed R1 GREEN test inventory drifted")
+    failed = sorted(name for name, result in results.items() if result != "success")
+    _require(not failed, f"R1 GREEN tests did not all pass: {failed}")
+    summary = {"passed": len(results), "failed": len(failed), "load_or_harness_errors": 0}
+    _require(summary == GREEN_SUMMARY, f"R1 GREEN summary drifted: {summary}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--contract", action="store_true", help="validate structure only (no Flutter)")
+    parser.add_argument("--release", action="store_true", help="require accepted, then run the GREEN replay")
+    args = parser.parse_args()
+    try:
+        if args.contract:
+            validate(REPO_ROOT, check_git=False)
+        else:
+            validate(REPO_ROOT, require_accepted=True if args.release else None)
+            run_expected_green(REPO_ROOT)
+    except (GuardFailure, OSError, UnicodeError, json.JSONDecodeError, subprocess.CalledProcessError, yaml.YAMLError) as exc:
+        print(f"BATCH19 R1 GREEN GATE FAIL: {exc}", file=sys.stderr)
+        return 1
+    print("BATCH19 R1 GREEN GATE PASS")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

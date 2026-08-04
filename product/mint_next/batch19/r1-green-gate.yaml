@@ -1,0 +1,88 @@
+# Batch19 R1 GREEN-GATE manifest — PENDING, pre-implementation.
+# Governance transition only: retires the accepted 2/13 RED replay and
+# installs the 15/15 GREEN replay as the active R1 gate upon promotion +
+# implementation. The R1 runtime is UNWRITTEN; do not run the GREEN
+# Flutter replay while pending (it would still be 2/13).
+# Sealed by tools/checks/mint_next_batch19_r1_green_gate_guard.py.
+schema_version: 1
+status: candidate_green_gate_unaccepted
+current_verdict: PENDING_INDEPENDENT_ROASTS
+supersedes:
+  red_acceptance_receipt: product/mint_next/batch19/r1-red-acceptance.json
+  accepted_payload_sha256: 3f553531acfcbe00fca8ff92e60a09bc732fb2c27da09e1fd49552e38dff2786
+  accepted_commit: 3345adc02
+  attestation_run: https://github.com/MINT-IA/MINT/actions/runs/30884111626
+green_gate:
+  retires: red_replay_2_13
+  active_gate_upon_promotion: green_replay_15_15
+  test_file: product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart
+  test_sha256: c5dde1139cb52855140322c0254b6dc60f3e6a66e1c21cb6060795dd460e071b
+  fixture_file: product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart
+  fixture_sha256: 204e505c92a94c650f888d872faf8240b58a763d8d2fa2326ad1c6796b8534ec
+  command:
+  - flutter
+  - test
+  - test/design_lab_batch18_canton_r1_test.dart
+  - --machine
+  - --no-pub
+  working_directory: product/mint_next/batch7/design_lab
+  expected_summary:
+    passed: 15
+    failed: 0
+    load_or_harness_errors: 0
+  expected_exit_code: 0
+  obligation_test_names:
+  - R1_01 baseline both legacy origins reach fact_canton
+  - R1_01 exact immutable receipt and Back for both origins
+  - R1_02 entry is unset without fallback or recommendation
+  - R1_03 exact beginner copy and R1-only surface
+  - R1_04 bounded normalized labels-only local search
+  - R1_05 exact six-locale catalog, labels, codes and order
+  - R1_06 first middle last no-match clear and rapid query
+  - R1_07 clear restores list selection and search focus
+  - R1_08 selection commits one allowed ephemeral code only
+  - R1_09 same-code reselection is byte-equivalent no-op
+  - R1_10 query changes and clear never mutate selection
+  - R1_11 every old-generation R1 callback is a total no-op
+  - R1_12 search exposes no learning or clipboard capability
+  - R1_13 all R1 targets and single-select semantics are usable
+  - R1_14 registry keeps R1 before R2 and excludes later evidence
+re_pinned_immutables:
+  red_guard:
+    path: tools/checks/mint_next_batch19_r1_red_guard.py
+    sha256: 04e599fbccadb4eb1b8cb14db4b75cb03c2f45acc151e33d7ffa16b8019b6144
+  registry:
+    path: product/mint_next/batch18/runtime-gates.yaml
+    sha256: a2f3c1961d61c39b6d89c000d0d29c40f9b94fbd339b6af589371f5d42faac5a
+runtime_regating:
+  scope_owner: batch19-r1-runtime
+  regated_file: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  lib_inventory_seal: deferred_to_implementation_under_this_gate
+runtime_surface: hidden_design_lab_only
+product_promotion: forbidden
+reviews:
+  journey_safety:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  mechanical_adversary:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+  scope_integrity:
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
+mechanical_binding:
+  candidate_payload_sha256: 87b2eb903ecfd529a7c6452d0c296b851c87b014a02fd3e361a8b1c16715a75b
+  reviewed_payload_sha256: null
+  reviewed_candidate_commit: null
+not_accepted:
+- runtime_implemented
+- lib_inventory_sealed
+- product_route
+- production_ready
+next_gate: implement_R1a_R1b_R1c_then_seal_green_lib_inventory
