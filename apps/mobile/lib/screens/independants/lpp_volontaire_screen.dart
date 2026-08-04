@@ -421,9 +421,11 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             children: [
               const Icon(Icons.bar_chart, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
-              Text(
-                S.of(context)!.lppVolontaireProjectionTitle,
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  S.of(context)!.lppVolontaireProjectionTitle,
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -537,9 +539,11 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             children: [
               const Icon(Icons.table_chart_outlined, size: 16, color: MintColors.textMuted),
               const SizedBox(width: 8),
-              Text(
-                S.of(context)!.lppVolontaireBonificationTitle,
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
+              Expanded(
+                child: Text(
+                  S.of(context)!.lppVolontaireBonificationTitle,
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
+                ),
               ),
             ],
           ),
@@ -564,7 +568,8 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
+          Flexible(
+            child: Row(
             children: [
               if (isCurrent)
                 Container(
@@ -579,14 +584,19 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                     style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-              Text(
-                age,
-                style: MintTextStyles.bodyMedium(color: isCurrent ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400),
+              Flexible(
+                child: Text(
+                  age,
+                  style: MintTextStyles.bodyMedium(color: isCurrent ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400),
+                ),
               ),
             ],
           ),
+          ),
+          const SizedBox(width: 12),
           Text(
             taux,
+            textAlign: TextAlign.end,
             style: MintTextStyles.titleMedium(color: isCurrent ? MintColors.primary : MintColors.textSecondary),
           ),
         ],
