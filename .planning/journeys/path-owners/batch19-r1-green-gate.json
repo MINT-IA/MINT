@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "owner_id": "batch19-r1-green-gate",
+  "status": "candidate_unaccepted",
+  "paths": [
+    "product/mint_next/batch19/r1-green-gate.yaml",
+    "tools/checks/mint_next_batch19_r1_green_gate_guard.py",
+    "tools/checks/tests/test_mint_next_batch19_r1_green_gate_guard.py"
+  ],
+  "reviews": {
+    "journey_safety": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "mechanical_adversary": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "scope_integrity": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    }
+  },
+  "mechanical_binding": {
+    "candidate_payload_sha256": "4eecec83377d8b3041c8bb6ba308c9a02413e4a14e193c0bd30b21c71b39c101",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
+  }
+}
