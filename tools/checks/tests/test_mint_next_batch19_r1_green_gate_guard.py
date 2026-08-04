@@ -350,6 +350,33 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "CI workflow is missing"):
             guard.validate(root, require_accepted=True, check_git=False)
 
+    def test_accepted_full_mode_only_in_comment_is_rejected(self) -> None:
+        # Textual presence is not execution: the invocation appears only in a YAML
+        # comment, never in an executable step.run — acceptance must still fail.
+        root, payload, _pending_commit = self._accepted_repo()
+        path = root / guard.CI_WORKFLOW
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "name: mint-next-proofs\n"
+            f"# a fake line: {guard.FULL_MODE_INVOCATION}\n"
+            "jobs:\n  green-gate-contract:\n    steps:\n"
+            "      - run: python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --contract\n"
+        )
+        with self.assertRaisesRegex(guard.GuardFailure, "does not wire the full 15/15 replay"):
+            guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_full_mode_in_disabled_step_is_rejected(self) -> None:
+        # A disabled (`if: false`) step carrying the invocation does not execute.
+        root, payload, _pending_commit = self._accepted_repo()
+        path = root / guard.CI_WORKFLOW
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "name: mint-next-proofs\njobs:\n  green-gate-release:\n    steps:\n"
+            f"      - if: false\n        run: {guard.FULL_MODE_INVOCATION}\n"
+        )
+        with self.assertRaisesRegex(guard.GuardFailure, "does not wire the full 15/15 replay"):
+            guard.validate(root, require_accepted=True, check_git=False)
+
     def test_accepted_still_forbidding_runtime_is_rejected(self) -> None:
         # An accepted green gate whose not_accepted still forbids the runtime /
         # lib inventory seal is a contradiction (acceptance ⟹ runtime built).

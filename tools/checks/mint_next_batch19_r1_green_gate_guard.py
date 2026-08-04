@@ -146,8 +146,11 @@ EXPECTED_NEXT_GATE = "implement_R1a_R1b_R1c_then_seal_green_lib_inventory"
 
 PENDING_STATUS = "candidate_green_gate_unaccepted"
 PENDING_VERDICT = "PENDING_INDEPENDENT_ROASTS"
-ACCEPTED_STATUS = "accepted_green_gate_runtime_not_implemented"
-ACCEPTED_VERDICT = "GREEN_GATE_ACCEPTED_RUNTIME_NOT_IMPLEMENTED"
+# Acceptance ⟹ the R1 runtime IS implemented + lib-inventory sealed + the 15/15
+# replay wired (see _accepted). It remains HIDDEN (design-lab only); product
+# route and production readiness stay forbidden. The name reflects that.
+ACCEPTED_STATUS = "accepted_green_gate_runtime_implemented_hidden_only"
+ACCEPTED_VERDICT = "GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY"
 
 
 class GuardFailure(RuntimeError):
@@ -298,10 +301,25 @@ def _accepted(root: Path, data: dict, payload: str) -> None:
     # carries that line, acceptance is mechanically impossible.
     workflow_path = root / CI_WORKFLOW
     _require(workflow_path.is_file() and not workflow_path.is_symlink(), "green gate CI workflow is missing")
-    _require(
-        FULL_MODE_INVOCATION in workflow_path.read_text(encoding="utf-8"),
-        "green gate CI does not wire the full 15/15 replay",
-    )
+    # Textual presence is not proof of execution: require the full-mode 15/15
+    # invocation to appear in an actual, enabled job step's `run` command — not a
+    # comment, an inert scalar, or a disabled (`if: false`) step.
+    try:
+        workflow = yaml.load(workflow_path.read_text(encoding="utf-8"), Loader=UniqueKeyLoader)
+    except yaml.YAMLError as exc:
+        raise GuardFailure("green gate CI workflow is not valid YAML") from exc
+    jobs = workflow.get("jobs") if isinstance(workflow, dict) else None
+    executed = False
+    for job in (jobs.values() if isinstance(jobs, dict) else []):
+        if not isinstance(job, dict):
+            continue
+        for step in (job.get("steps") if isinstance(job.get("steps"), list) else []):
+            if not isinstance(step, dict) or not isinstance(step.get("run"), str):
+                continue
+            disabled = str(step.get("if", "")).strip().lower() in {"false", "${{ false }}"}
+            if not disabled and FULL_MODE_INVOCATION in step["run"]:
+                executed = True
+    _require(executed, "green gate CI does not wire the full 15/15 replay in an executable step")
     binding = data["mechanical_binding"]
     commit = binding.get("reviewed_candidate_commit")
     _require(
