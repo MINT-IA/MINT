@@ -30,6 +30,16 @@ authority:
     r1_red_acceptance_commit: d7461aab184125c11ec78c8d0f269c23a1236c7b
     no_live_reattestation_of_r1: true
 
+dataset_perimeter:
+  # finding (c) — clarify test fixture vs production coverage so no reviewer mistakes the sealed
+  # subset for the shipping scope.
+  production_search_scope: national_all_swiss_communes_circa_2100
+  sealed_test_dataset: product/mint_next/batch20/commune-dataset.yaml
+  sealed_test_dataset_is: a_representative_reviewed_subset_BE_BS_FR_JU_not_the_full_national_set
+  why_a_subset: exercises_render_cap_overflow_small_canton_bilingual_variants_and_a_cross_canton_tax_year_edge_deterministically
+  copy_and_mockups_target: the_national_production_experience_illustrations_may_name_communes_outside_the_sealed_subset
+  no_claim_that_the_subset_is_the_product_coverage: true
+
 perimeter_decisions_closed:
   selection_pattern: national_commune_search_first   # ~2100 communes; a wheel is unfit at that scale
   canton_is_derived_not_asked: true                  # commune -> canton is a total function (a commune belongs to one canton)
@@ -37,8 +47,9 @@ perimeter_decisions_closed:
   homonym_disambiguation: official_bfs_suffix_plus_secondary_npa   # "Bargen (BE)"; NPA secondary text disambiguates further
   results_render_cap: 50
   results_scrollable: true
-  unknown_control_pinned: true
-  unknown_fallback_pattern: cupertino_wheel_canton_then_widen_to_cantonal_band   # Apple wheel decided; short bounded 26-canton set fits a wheel
+  # amendement Julien 2026-08-04 : molette-canton retirée d'ici. Voir product_decision_no_wheel_here.
+  not_found_fallback_pattern: no_match_check_spelling_plus_a_discreet_help_link_escalating_to_r3_complex_situation   # remplace la molette
+  canton_is_pure_derived_display_no_canton_input_control_on_this_screen: true
   npa_display_only_and_matchable_never_committed: true
   committed_key: bfs_ofs_gemeindenummer   # national-unique; canton derived from it
   border_contrast_min_ratio: 3.0
@@ -68,24 +79,26 @@ human_outcome:
     impôt communal peut s’ajouter à l’impôt cantonal. Aucun résultat fiscal personnel
     n’est affiché ici.
   must_understand:
-  - MINT demande la commune de domicile fiscal au jour déterminant de l’année (en principe le 31 décembre), pas l’adresse de l’appareil ; le canton est déduit de la commune, jamais demandé d’abord.
-  - Ne pas connaître sa commune est valide et ne bloque jamais — on demande alors le canton via une molette et on élargit l’estimation à la fourchette cantonale.
+  # Amendement Julien 2026-08-04 : la question « Où habites-tu ? » porte seule le sens (pas de body) ;
+  # le canton est PUR AFFICHAGE dérivé (jamais demandé, jamais une molette ici) ; la molette-canton
+  # de secours est retirée de cet écran.
+  - La question suffit : on cherche la commune de domicile fiscal, le canton s’en déduit et s’affiche, il n’est jamais demandé. L’anti-appareil (pas de GPS/NPA/locale) vit dans le contrat, pas dans une phrase à l’écran.
+  - Si la commune est introuvable, ce n’est pas bloquant mais ce n’est pas une molette : l’état no_match invite à vérifier l’orthographe, et un lien d’aide discret escalade vers le chemin d’aide R3 (situation complexe) — seule sortie résiduelle.
   - Le choix est éphémère et corrigible avant tout calcul.
-  canton_derivation: commune_to_canton_is_total_derived_from_the_reviewed_dataset_and_displayed
+  canton_derivation: commune_to_canton_is_total_derived_from_the_reviewed_dataset_and_displayed_pure_display_never_asked_never_a_wheel_here
   next_small_action:
     selected: Continuer vers la collecte distincte du ménage.
-    unknown: Choisir le canton à la molette et continuer avec une estimation élargie.
+    not_found: Vérifier l’orthographe, ou suivre le lien d’aide qui escalade vers le chemin R3 (situation complexe).
 
 fact_contract:
   id: tax_applicable_commune_of_domicile_national_search_with_derived_canton_for_selected_tax_year
   provenance: explicit_user_declaration
   storage: ephemeral_until_committed_then_joins_profile   # search query stays local; committed commune joins profile
   initial_state: unset
-  states: [unset, selected, unknown_canton_only]
+  states: [unset, selected]   # amendement Julien 2026-08-04 : unknown_canton_only retiré (molette hors écran)
   committed_key: bfs_ofs_gemeindenummer
   derived_on_commit: canton_from_bfs
   selected_value_shape: one_reviewed_national_bfs_commune_number_valid_at_the_determining_date_with_its_derived_canton
-  unknown_value_shape: explicit_unknown_commune_with_a_wheel_selected_canton_only
   determining_date: jour_determinant_31_12_of_selected_tax_year
   coefficient_scope: political_commune_civil_multiplier_church_tax_excluded
   never_derive_commune_from:
@@ -102,14 +115,14 @@ fact_contract:
   - most_populous_commune
   - previous_or_last_used_commune
   supported_case: one_ordinary_commune_of_domicile_in_switzerland_valid_at_the_determining_date
-  unknown_state_semantics: wheel_selects_canton_only_then_widens_to_that_canton_communal_min_max_band_never_forces_a_commune
-  downstream_dependency_must_verify_before_eclaire_gate: unknown_commune_estimate_widens_to_the_derived_or_wheel_selected_canton_communal_min_max_band_no_point_default
+  not_found_semantics: no_match_state_prompts_spelling_check_and_offers_a_discreet_help_link_that_escalates_to_the_r3_complex_situation_help_path_never_a_wheel_never_a_forced_commune_never_a_canton_input
+  no_commit_without_a_reviewed_commune: true   # amendement Julien 2026-08-04 : plus d'état canton-seul ; Continuer exige une commune
 
 input_contract:
   presentation: national_search_required   # ~2100 communes; no full dump
   free_text_commits_a_fact: false
   no_preselection: true
-  unknown_is_explicit_control_not_blank_value: true
+  help_escalation_link_visible_in_no_match_only: true   # amendement Julien 2026-08-04 : remplace le contrôle unknown/molette
   selection_summary_persistent_and_visible_in_every_query_state: true
   result_shows_derived_canton: true          # "Morat — Fribourg" on every row
   disambiguation: official_bfs_suffix_on_name_plus_npa_secondary_text_also_matchable_never_committed
@@ -129,35 +142,58 @@ input_contract:
     reviewed_label_set_includes_official_variants_and_aliases: true   # Biel/Bienne, Fribourg/Freiburg
     matching: national_local_casefold_plus_diacritic_fold_prefix_or_boundary_substring_against_reviewed_commune_labels_and_official_npa_raw_query_preserved
     empty_query: prompt_to_type_a_commune_name_no_full_dump_example_placeholder
-    no_match: named_empty_state_with_clear_search_action_and_pinned_unknown
+    no_match: named_empty_state_check_spelling_with_clear_search_action_and_a_discreet_help_link_escalating_to_r3   # amendement Julien 2026-08-04
     overflow_beyond_cap: named_status_with_total_match_count_refine_search_never_silent_truncate
-    misspell_or_postcode_typer_recovery: find_by_name_or_use_unknown_no_dead_end
+    misspell_or_postcode_typer_recovery: find_by_name_or_follow_the_help_link_to_r3_no_dead_end   # molette retirée
     network_logging_analytics_platform_learning_autofill_clipboard: forbidden
     purge: same_30_min_leave_kill_and_restart_contract_as_personal_facts
   three_regions:
     pinned_header: search_field_and_count_status
-    scrollable_middle: capped_results_each_naming_its_derived_canton
-    pinned_footer: unknown_control_above_continue
+    scrollable_middle: capped_results_each_naming_its_derived_canton_help_link_appears_here_in_no_match_only
+    pinned_footer: continue_above_back_no_unknown_control
 
 node_contracts:
   fact_lieu:
     arrival_focus: heading_not_auto_raised_keyboard
     required_copy_intents:
-    - where_do_you_live_commune_of_tax_domicile_not_device_location
-    - the_canton_is_derived_from_the_commune_and_shown_never_asked_first
-    - not_knowing_is_valid_wheel_the_canton_and_widen_the_estimate_never_forces_a_commune
+    - where_do_you_live_the_question_alone_carries_domicile_no_body_sentence   # amendement Julien 1
+    - the_canton_is_derived_from_the_commune_and_shown_never_asked_first_never_a_scoping_header_never_a_wheel_here
+    - commune_not_found_is_not_blocking_check_spelling_then_a_discreet_help_link_escalates_to_r3_the_only_residual_exit   # amendement Julien 2
     - commune_only_refines_it_does_not_produce_a_personal_result_here
     - choice_is_ephemeral_and_correctable
     - a_communal_tax_may_be_added_to_the_cantonal_tax_and_varies_by_commune_mechanism_neutral_no_coefficient_jargon
     - the_political_commune_is_the_tax_unit_parish_is_separate_church_tax_postal_locality_npa_has_no_fiscal_effect
     - excluding_church_tax_this_estimate_is_not_the_total_tax_burden
     - only_the_search_query_stays_on_device_the_committed_commune_joins_the_profile   # privacy_copy_rule
+    teaching_mechanism:
+      # Julien 2026-08-04 (ferme) : plus AUCUN pavé d'enseignement inline. Tout terme difficile est
+      # tappable (marque discrète : souligné pointillé ou teinte sauge) et ouvre une feuille de
+      # définition ultra-aérée (1 phrase + métaphore éventuelle, LSFin-safe). Réalise le
+      # « glossaire vivant » de l'ADR navigation-compagnon (profondeur sur demande, par étages).
+      pattern: tap_glossary_sheet_no_dense_inline_note
+      dense_kind_note_removed: true   # fact_commune_kind_note supprimé de la copie
+      concepts_are_glossary_entries: [impot_communal, commune_politique, jour_determinant, impot_ecclesiastique, npa]
+      on_screen_anchors_minimal: communal_hint_carries_impot_communal_anchor_npa_secondary_carries_npa_anchor
+      sheet_copy_intents: [one_plain_sentence, optional_fun_metaphor_lsfin_safe_never_a_promise_never_mocking]
+      copy_source: product/mint_next/batch20/six-locale-copy.yaml#copy.{locale}.fact_commune_gloss_*
+    coach_intent:
+      # Julien 2026-08-04 : le LLM est navigateur ET monstrateur de widgets/graphs. Chaque écran et
+      # widget du contrat porte un identifiant coach-invocable. EXIGENCE DE CONTRAT, NON IMPLÉMENTÉE EN R2.
+      status: contract_requirement_not_implemented_in_r2
+      invocable_id: fact_lieu
+      three_paths_rule:   # règle des trois chemins de l'ADR navigation-compagnon
+        declared_route: fact_lieu_in_batch6_navigation
+        hub_reachable_within_taps: 2
+        natural_language_intents: ["où suis-je imposé ?", "ma commune fiscale", "quel canton pour mes impôts ?"]
+      coach_may_show_widget: communal_tax_impact_widget_grounded_on_this_fact_when_it_exists
+      every_screen_and_widget_carries_a_coach_invocable_id: true
     controls:
+      # amendement Julien 2026-08-04 : choose_unknown (molette canton) RETIRÉ de cet écran.
       choose_commune: {operation: atomically_commit_one_reviewed_national_bfs_number_and_its_derived_canton_without_routing}
-      choose_unknown: {operation: open_canton_wheel_commit_canton_only_widen_band_without_routing_pinned_and_reachable_without_a_query_or_scroll}
       update_search_query: {operation: normalize_clamp_filter_national_commune_labels_without_route, storage: ephemeral_device_local_only}
       clear_search: {operation: clear_query_restore_example_prompt_preserve_selection_and_focus}
-      continue: {to: fact_household, route_guard: commune_or_wheel_canton_answered, activation: always_enabled_validation_dispatch, never_routes_in_r2: true}
+      help_escalation: {visible_in: no_match_state_only, operation: escalate_to_r3_complex_situation_help_path_without_committing_a_fact_or_a_canton, never_routes_in_r2: true}
+      continue: {to: fact_household, route_guard: a_reviewed_commune_is_selected, activation: always_enabled_validation_dispatch, never_routes_in_r2: true}
       back: {operation: exact_history_back}
       open_safe_exit: {overlay: safe_exit}
     same_commune_reselect: idempotent_no_op_no_state_churn_selection_summary_unchanged
@@ -165,6 +201,9 @@ node_contracts:
     - default_or_recommended_commune
     - commune_or_canton_derived_from_location
     - asking_the_canton_before_the_commune
+    - a_canton_wheel_or_any_canton_input_on_this_screen   # amendement Julien 2026-08-04
+    - a_body_sentence_below_the_question   # amendement Julien 2026-08-04
+    - committing_a_canton_only_answer_without_a_commune
     - automatic_route_after_selection
     - tax_amount_rate_range_or_saving
     - full_national_commune_dump_on_empty_query
@@ -174,25 +213,45 @@ node_contracts:
 
 accessibility_contract:
   inherit_from_r1_except: [list_interaction, compact_proof]
-  semantics_traversal_order: unknown_and_continue_reachable_before_or_independently_of_the_50_results_never_trapped_below_results
+  semantics_traversal_order: continue_reachable_before_or_independently_of_the_50_results_never_trapped_below_results_help_link_in_no_match_is_reachable_without_scrolling_past_results
   empty_query_discoverable_by_screen_reader: named_type_to_search_prompt_announced_not_only_visual
   selection_refindable: selection_summary_is_a_focusable_announced_region_even_when_selected_row_not_in_current_results
   result_count_liveregion: announced_count_matches_visible_overflow_status_including_beyond_cap_total
   derived_canton_announced_with_each_result: true
+  # finding (e) — ATOMIC announcement of the derived result. Commune + its derived canton are ONE
+  # semantics node, spoken as a single utterance on selection ("Morat, canton Fribourg, choisi"),
+  # never two split announcements; selecting a row is the derivation, so the derivation is not a
+  # second live-region event the user could miss.
+  derived_canton_announced_atomically_with_commune_on_selection:
+    single_semantics_node: true
+    utterance_template: commune_then_canton_then_selected_state_one_node
+    never_split_into_two_liveregion_updates: true
+  # amendement Julien 2026-08-04 : la molette-canton est retirée de cet écran ; son contrat a11y
+  # (wheel_fallback_accessible) est supprimé ici. Le pattern molette reste ailleurs (voir
+  # product_decision_no_wheel_here). Sortie résiduelle a11y = lien d'aide dans no_match.
+  help_link_accessible:
+    help_link_is_a_named_button_role_announced_in_no_match_only: true
+    activating_it_escalates_to_r3_and_restores_focus_predictably_no_dead_end: true
+  # glossary sheet a11y (tap-glossary teaching_mechanism).
+  glossary_sheet_accessible:
+    anchor_is_a_named_button_role_not_a_bare_styled_span: true
+    sheet_opens_with_focus_on_its_heading_traps_focus_until_dismissed_then_restores_to_the_anchor: true
+    dismiss_by_swipe_button_and_screen_reader_escape: true
+    anchor_visible_mark_meets_border_contrast_min_ratio_not_colour_only: true
   minimum_target_size_points: 48
   border_contrast_min_ratio: 3.0
   text_contrast_min_ratio: 4.5
   keyboard_and_switch_navigation: deterministic_visual_and_traversal_order
-  wheel_fallback_accessible: cupertino_wheel_is_screen_reader_and_switch_operable_with_26_reviewed_cantons
   focus_restoration: exact_trigger_or_heading
-  compact_proof: 320x700_logical_px_text_scale_2_with_keyboard_raised_shows_unknown_and_continue_and_at_least_one_result_naming_its_derived_canton_no_overflow_clip
+  compact_proof: 320x700_logical_px_text_scale_2_with_keyboard_raised_shows_continue_and_at_least_one_result_naming_its_derived_canton_no_overflow_clip
   required_proof_cases:
   - national_filtered_list_with_derived_canton_per_row
   - first_result
   - beyond_cap_overflow
-  - no_match
+  - no_match_with_spelling_prompt_and_help_escalation_link   # amendement Julien 2026-08-04 (remplace unknown_wheel_canton_fallback)
   - selected_not_in_current_results
-  - unknown_wheel_canton_fallback
+  - derived_canton_announced_atomically_on_selection
+  - glossary_sheet_open_focus_trapped_and_restored
 
 inherited_verbatim_from_R1:
   - mutation_contract.atomic_order_and_generation_guard
@@ -213,6 +272,21 @@ scope_exclusions:
 - routing_to_fact_household
 - church_tax_or_confession
 - the_standalone_fact_canton_question   # folded into fact_lieu; canton is derived
+- the_canton_wheel_fallback_on_this_screen   # amendement Julien 2026-08-04 : molette retirée d'ici (reste le pattern des choix courts ailleurs)
+
+product_decision_no_wheel_here:
+  # Décision produit datée (Julien, Revue d'écrans 2026-08-04) — à ne pas reperdre.
+  date: 2026-08-04
+  author: Julien (Revue d'écrans fact_lieu)
+  decision: >-
+    La molette-canton de secours est RETIRÉE de fact_lieu. Le canton est pur affichage dérivé de la
+    commune (montré sous/sur la sélection), jamais demandé, jamais saisi ici. Le cas résiduel
+    « commune introuvable » se règle par l'état no_match (vérifier l'orthographe) plus un lien d'aide
+    discret qui escalade vers le chemin d'aide R3 (situation complexe) — seule sortie résiduelle.
+  rationale: tout le monde connaît sa commune de domicile ; une molette-canton ici était une sortie
+    de secours surdimensionnée qui rendait le canton saisissable et brouillait « le canton est déduit ».
+  wheel_still_used_elsewhere: true   # la molette Cupertino reste le pattern GÉNÉRAL des choix courts bornés (autres écrans), décision antérieure conservée.
+  supersedes_within_this_contract: [unknown_canton_only_state, choose_unknown_control, wheel_fallback_accessible_block]
 
 sealing_lessons_regle13_to_apply:
   a_simulated_green_smoke_at_red_sealing: true
@@ -230,9 +304,9 @@ future_runtime_gate:
   - hidden_design_lab_only
   - six_runtime_locales
   - national_search_over_the_reviewed_commune_set_with_derived_canton_per_row
-  - cupertino_wheel_canton_fallback_widening_to_cantonal_band
+  - no_match_state_with_spelling_prompt_and_a_discreet_help_link_escalating_to_r3   # amendement Julien 2026-08-04 (remplace la molette)
   - compact_320x700_text_scale_2_with_keyboard_raised_proof
-  - accessibility_proof_including_switch_control_voiceover_traversal_and_wheel
+  - accessibility_proof_including_switch_control_voiceover_traversal_and_help_link_escalation
   - privacy_proof_that_only_the_search_query_is_device_local
   - zero_p1_p2_p3_roasts
   product_promotion_after_runtime: separately_forbidden_until_named_gate
