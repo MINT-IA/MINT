@@ -67,6 +67,9 @@ ALLOW = {
     "apps/mobile/test/services/secure_wizard_store_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
+    # Fix namespace-shadowing CI 2026-08-04 : tools/ devient un paquet régulier.
+    "tools/__init__.py",
+    "tools/checks/__init__.py",
     # Décision S4-F1 (2026-08-04) : §4.8 vocabulaire de la confiance —
     # trame vs courbe, acte l'écart majeur de l'audit de fidélité #1185.
     "docs/DESIGN_SYSTEM.md",
