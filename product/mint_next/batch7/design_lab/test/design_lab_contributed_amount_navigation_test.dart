@@ -283,7 +283,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
     expect(
-      find.text('Le total de tes cotisations ordinaires pour 2026 est prêt.'),
+      find.text('Dans quel canton es-tu imposé pour 2026 ?'),
       findsOneWidget,
     );
     expect(find.textContaining('aucun versement ordinaire'), findsNothing);
@@ -560,7 +560,7 @@ void main() {
     await tester.tap(continueAction);
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
-    expect(find.text('Corriger mes montants'), findsOneWidget);
+    expect(find.text('Retour'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     final back = find.byKey(const ValueKey('action:fact_canton.back'));
