@@ -384,6 +384,19 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "not a regular directory"):
             guard.run_expected_green(root)
 
+    def test_accepted_unsealed_runner_input_is_rejected(self) -> None:
+        # A matching lib seal is not enough: every OTHER input the runner copies
+        # (pubspec, lockfile, l10n, assets, ...) must be sealed too. Here the temp
+        # repo carries none of them, so the runner-input seal rejects before replay.
+        root, payload, pending_commit = self._accepted_repo()
+        self._make_lib(root)
+        seal = guard._live_lib_inventory_sha256(root)
+        data = _accepted_manifest(payload, pending_commit)
+        data["mechanical_binding"]["green_lib_inventory_sha256"] = seal
+        self._write_at(root, data)
+        with self.assertRaisesRegex(guard.GuardFailure, "runner input is not a regular file"):
+            guard.run_expected_green(root)
+
     def test_accepted_replay_rejects_tampered_pending_history(self) -> None:
         """A pending commit whose descriptor differs cannot back an acceptance."""
         root = Path(tempfile.mkdtemp())

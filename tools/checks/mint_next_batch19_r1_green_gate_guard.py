@@ -399,6 +399,45 @@ def _live_lib_inventory_sha256(root: Path) -> str:
     ).hexdigest()
 
 
+def _seal_runner_inputs(root: Path) -> None:
+    """Pin every NON-lib file the runner copies into execution.
+
+    ``red._run_candidate_command`` copytree/copy2's the live pubspec, lockfile,
+    l10n.yaml, assets/, test, fixture and registry into an isolated dir it then
+    runs. Only lib/ changes from RED to GREEN, so these are pinned against the
+    frozen RED contract values (the RED guard file is re-pinned in _core, so its
+    EXPECTED_* constants cannot drift). Without this, copytree would carry unsealed
+    live bytes — a poisoned dependency, asset, or lockfile — into resolution and
+    execution even with a sealed lib/. assets/ gets the same symlink discipline as
+    lib/ (copytree dereferences symlinks)."""
+    pinned = {
+        red.PUBSPEC: red.EXPECTED_PUBSPEC_SHA256,
+        red.PUBSPEC_LOCK: red.EXPECTED_PUBSPEC_LOCK_SHA256,
+        red.L10N_CONFIG: None,  # sealed via the aux digest below
+        red.TEST: red.EXPECTED_TEST_SHA256,
+        red.FIXTURE: red.EXPECTED_FIXTURE_SHA256,
+        red.REGISTRY: REGISTRY_SHA256,
+    }
+    for relative, expected in pinned.items():
+        path = root / relative
+        _require(path.is_file() and not path.is_symlink(), f"R1 GREEN runner input is not a regular file: {relative}")
+        if expected is not None:
+            _require(red._sha(path) == expected, f"R1 GREEN runner input drifted: {relative}")
+    assets = root / red.ASSETS_ROOT
+    _require(assets.is_dir() and not assets.is_symlink(), "R1 GREEN assets/ is not a regular directory")
+    _require(
+        all(not n.is_symlink() and (n.is_file() or n.is_dir()) for n in assets.rglob("*")),
+        "R1 GREEN assets/ contains a symlink or special entry",
+    )
+    design_lab = red.PUBSPEC.parent
+    auxiliary = {"l10n.yaml": red._sha(root / red.L10N_CONFIG)}
+    auxiliary.update({
+        path.relative_to(root / design_lab).as_posix(): red._sha(path)
+        for path in sorted(assets.rglob("*")) if path.is_file()
+    })
+    _require(auxiliary == red.EXPECTED_AUX_INPUT_SHA256, "R1 GREEN auxiliary input (l10n/assets) drifted")
+
+
 def run_expected_green(root: Path = REPO_ROOT) -> None:
     """Verify the sealed lib inventory, then replay the sealed spec for 15/15.
 
@@ -417,6 +456,9 @@ def run_expected_green(root: Path = REPO_ROOT) -> None:
         _live_lib_inventory_sha256(root) == sealed,
         "R1 GREEN lib inventory drifted from the sealed seal (smuggled or removed lib file)",
     )
+    # Seal every OTHER input the runner copies (deps, l10n, assets, test, fixture,
+    # registry) so no unsealed live bytes reach dependency resolution / execution.
+    _seal_runner_inputs(root)
     try:
         completed = red._run_candidate_command(root, {"command": list(GREEN_COMMAND)})
     except subprocess.TimeoutExpired as exc:
