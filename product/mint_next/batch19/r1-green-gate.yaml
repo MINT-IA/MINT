@@ -9,8 +9,8 @@
 # attestation — NOT by any static check of the CI workflow file. Sealed by
 # tools/checks/mint_next_batch19_r1_green_gate_guard.py.
 schema_version: 1
-status: candidate_green_gate_unaccepted
-current_verdict: PENDING_INDEPENDENT_ROASTS
+status: accepted_green_gate_runtime_implemented_hidden_only
+current_verdict: GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY
 supersedes:
   red_acceptance_receipt: product/mint_next/batch19/r1-red-acceptance.json
   accepted_payload_sha256: ffbc3fb46353ce0420a053dad5c02d2f6f9f79fa36f244ff407393dbd708e9fd
@@ -71,31 +71,32 @@ runtime_surface: hidden_design_lab_only
 product_promotion: forbidden
 reviews:
   journey_safety:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 0c7bd7875dc9e49ecb047b024bce7dd3b894d98af00801361109dec5d90e895a
   mechanical_adversary:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 0c7bd7875dc9e49ecb047b024bce7dd3b894d98af00801361109dec5d90e895a
   scope_integrity:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 0c7bd7875dc9e49ecb047b024bce7dd3b894d98af00801361109dec5d90e895a
 mechanical_binding:
   candidate_payload_sha256: 0c7bd7875dc9e49ecb047b024bce7dd3b894d98af00801361109dec5d90e895a
-  reviewed_payload_sha256: null
-  reviewed_candidate_commit: null
+  reviewed_payload_sha256: 0c7bd7875dc9e49ecb047b024bce7dd3b894d98af00801361109dec5d90e895a
+  reviewed_candidate_commit: 7949270393dffd53ab070957265774ea66ca7fc2
   # null while PENDING (no runtime built); at acceptance this MUST be the 64-hex
   # digest of the exact live design_lab lib/ tree, verified by run_expected_green
   # before the 15/15 replay.
-  green_lib_inventory_sha256: null
+  green_lib_inventory_sha256: f5ca9d5cc8c620db48d6b25000690396eeb12fc0e8a6f094236f412a78747653
 not_accepted:
-- runtime_implemented
-- lib_inventory_sealed
 - product_route
 - production_ready
 next_gate: implement_R1a_R1b_R1c_then_seal_green_lib_inventory
