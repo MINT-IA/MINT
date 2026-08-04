@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[3]
 TRUST_FILES = (
     guard.GUARD,
     guard.TESTS,
+    guard.PATH_OWNER,
     guard.RED_GUARD,
     guard.REGISTRY,
 )
@@ -44,7 +45,7 @@ def _pending_manifest(payload: str) -> dict:
             "reviewed_payload_sha256": None,
             "reviewed_candidate_commit": None,
         },
-        "not_accepted": list(guard.EXPECTED_NOT_ACCEPTED),
+        "not_accepted": list(guard.PENDING_NOT_ACCEPTED),
         "next_gate": guard.EXPECTED_NEXT_GATE,
     }
 
@@ -63,6 +64,8 @@ def _accepted_manifest(payload: str, commit: str) -> dict:
         "reviewed_payload_sha256": payload,
         "reviewed_candidate_commit": commit,
     }
+    # Acceptance ⟹ runtime implemented + sealed: those two leave not_accepted.
+    manifest["not_accepted"] = list(guard.ACCEPTED_NOT_ACCEPTED)
     return manifest
 
 
@@ -129,6 +132,18 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(_dump(data))
 
+    def _write_workflow(self, root: Path, invocation: str | None = None) -> None:
+        """Stage the CI workflow the accepted lifecycle requires. Defaults to the
+        full-mode (15/15) invocation so the accepted happy-path passes."""
+        if invocation is None:
+            invocation = guard.FULL_MODE_INVOCATION
+        path = root / guard.CI_WORKFLOW
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            "name: mint-next-proofs\njobs:\n  green-gate-release:\n"
+            f"    steps:\n      - run: {invocation}\n"
+        )
+
     def _accepted_repo(self):
         """Build a real temp-git repo whose working tree carries the ACCEPTED
         manifest and whose history carries the pending candidate commit.
@@ -152,6 +167,8 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         self._write_at(root, _pending_manifest(payload))
         pending_commit = self._commit(root, "green gate candidate pending")
         self._write_at(root, _accepted_manifest(payload, pending_commit))
+        # The accepted lifecycle requires CI to wire the full 15/15 replay.
+        self._write_workflow(root)
         return root, payload, pending_commit
 
     # --- pending lifecycle -------------------------------------------------
@@ -224,9 +241,15 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
 
     def test_widened_not_accepted_is_rejected(self) -> None:
         self._mutate(
-            lambda d: d.__setitem__("not_accepted", list(guard.EXPECTED_NOT_ACCEPTED)[:-1]),
+            lambda d: d.__setitem__("not_accepted", list(guard.PENDING_NOT_ACCEPTED)[:-1]),
             "not-accepted boundary drifted",
         )
+
+    def test_path_owner_drift_changes_payload(self) -> None:
+        path = self.root / guard.PATH_OWNER
+        path.write_text(path.read_text().rstrip("\n") + "\n\n")
+        with self.assertRaisesRegex(guard.GuardFailure, "candidate payload drifted"):
+            self._validate()
 
     def test_next_gate_drift_is_rejected(self) -> None:
         self._mutate(lambda d: d.__setitem__("next_gate", "ship_it"), "next gate drifted")
@@ -310,6 +333,33 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "commit cannot provide"):
             guard.validate(root, require_accepted=True, check_git=False)
 
+    def test_accepted_ci_workflow_without_full_mode_is_rejected(self) -> None:
+        # CI carries only the --contract job: the 15/15 replay is not wired, so
+        # acceptance is mechanically impossible.
+        root, payload, _pending_commit = self._accepted_repo()
+        self._write_workflow(
+            root,
+            invocation="python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --contract",
+        )
+        with self.assertRaisesRegex(guard.GuardFailure, "does not wire the full 15/15 replay"):
+            guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_missing_ci_workflow_is_rejected(self) -> None:
+        root, payload, _pending_commit = self._accepted_repo()
+        (root / guard.CI_WORKFLOW).unlink()
+        with self.assertRaisesRegex(guard.GuardFailure, "CI workflow is missing"):
+            guard.validate(root, require_accepted=True, check_git=False)
+
+    def test_accepted_still_forbidding_runtime_is_rejected(self) -> None:
+        # An accepted green gate whose not_accepted still forbids the runtime /
+        # lib inventory seal is a contradiction (acceptance ⟹ runtime built).
+        root, payload, pending_commit = self._accepted_repo()
+        data = _accepted_manifest(payload, pending_commit)
+        data["not_accepted"] = list(guard.PENDING_NOT_ACCEPTED)
+        self._write_at(root, data)
+        with self.assertRaisesRegex(guard.GuardFailure, "accepted not-accepted boundary drifted"):
+            guard.validate(root, require_accepted=True, check_git=False)
+
     def test_accepted_replay_rejects_tampered_pending_history(self) -> None:
         """A pending commit whose descriptor differs cannot back an acceptance."""
         root = Path(tempfile.mkdtemp())
@@ -322,10 +372,11 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / relative, target)
         self._commit(root, "green gate trust unit")
-        # A pending manifest whose not_accepted was narrowed: it is internally
-        # payload-consistent but is NOT the canonical pending scope.
+        # A pending manifest whose not_accepted was narrowed. not_accepted is not
+        # in the descriptor, so the payload is unchanged — but the accepted replay
+        # re-runs _pending on the historical commit and rejects the narrowed scope.
         tampered = _pending_manifest("0" * 64)
-        tampered["not_accepted"] = list(guard.EXPECTED_NOT_ACCEPTED)[:-1]
+        tampered["not_accepted"] = list(guard.PENDING_NOT_ACCEPTED)[:-1]
         self._write_at(root, tampered)
         tampered_payload = guard._payload(root)
         tampered["mechanical_binding"]["candidate_payload_sha256"] = tampered_payload
@@ -335,6 +386,7 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         self._write_at(root, _pending_manifest("0" * 64))
         canonical_payload = guard._payload(root)
         self._write_at(root, _accepted_manifest(canonical_payload, pending_commit))
+        self._write_workflow(root)
         with self.assertRaisesRegex(guard.GuardFailure, "not-accepted boundary drifted"):
             guard.validate(root, require_accepted=True, check_git=False)
 

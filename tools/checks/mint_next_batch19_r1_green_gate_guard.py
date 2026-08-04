@@ -42,8 +42,15 @@ from tools.checks import mint_next_batch19_r1_red_guard as red
 MANIFEST = Path("product/mint_next/batch19/r1-green-gate.yaml")
 GUARD = Path("tools/checks/mint_next_batch19_r1_green_gate_guard.py")
 TESTS = Path("tools/checks/tests/test_mint_next_batch19_r1_green_gate_guard.py")
+# The reviewed path-owner receipt that owns this transition's trust unit. Its
+# bytes are bound into the payload so tampering it breaks the candidate binding.
+PATH_OWNER = Path(".planning/journeys/path-owners/batch19-r1-green-gate.json")
 RED_GUARD = Path("tools/checks/mint_next_batch19_r1_red_guard.py")
 REGISTRY = red.REGISTRY  # product/mint_next/batch18/runtime-gates.yaml
+CI_WORKFLOW = Path(".github/workflows/mint-next-proofs.yml")
+# The line the CI workflow MUST carry before this gate can be accepted: the guard
+# run in full (non-contract) mode, which mechanically fires the 15/15 replay.
+FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch19_r1_green_gate_guard.py --release"
 
 # Re-pinned immutables frozen by this transition. These MUST equal the current
 # files: the RED contract and its registry cannot silently drift while the GREEN
@@ -59,6 +66,14 @@ GREEN_COMMAND = [
     "--machine", "--no-pub",
 ]
 GREEN_SUMMARY = {"passed": 15, "failed": 0, "load_or_harness_errors": 0}
+
+# (c) CI enforcement: while PENDING only the structure gate runs; once ACCEPTED
+# the full 15/15 replay is REQUIRED (the RED 2/13 replay is retired). This block
+# is descriptor-immutable — it is the same in both lifecycle states.
+EXPECTED_CI_ENFORCEMENT = {
+    "pending": "contract_only",
+    "accepted": "full_green_replay_15_15_required",
+}
 
 ROLES = {"scope_integrity", "mechanical_adversary", "journey_safety"}
 PENDING_REVIEW = {"verdict": "PENDING", "p1": None, "p2": None, "p3": None}
@@ -84,6 +99,9 @@ EXPECTED_GREEN_GATE = {
     "expected_summary": dict(GREEN_SUMMARY),
     "expected_exit_code": 0,
     "obligation_test_names": sorted(red.EXPECTED_TEST_NAMES),
+    # (c) the 15/15 replay is mechanically wired into CI, not left optional.
+    "ci_workflow": str(CI_WORKFLOW),
+    "ci_enforcement": dict(EXPECTED_CI_ENFORCEMENT),
 }
 
 # (b) The two immutables this transition freezes.
@@ -109,9 +127,18 @@ EXPECTED_SUPERSEDES = {
     "attestation_run": "https://github.com/MINT-IA/MINT/actions/runs/30884111626",
 }
 
-EXPECTED_NOT_ACCEPTED = [
+# not_accepted is state-DEPENDENT (so it is NOT in the descriptor / payload — the
+# replay requires an identical descriptor across pending and accepted). While
+# PENDING nothing is built; at ACCEPTED the runtime IS implemented and its lib
+# inventory IS sealed, so those two leave the boundary. Product route and
+# production readiness remain forbidden in BOTH states (hidden runtime only).
+PENDING_NOT_ACCEPTED = [
     "runtime_implemented",
     "lib_inventory_sealed",
+    "product_route",
+    "production_ready",
+]
+ACCEPTED_NOT_ACCEPTED = [
     "product_route",
     "production_ready",
 ]
@@ -175,22 +202,29 @@ def _load_manifest_bytes(raw: bytes) -> dict:
 
 
 def _descriptor(data: dict) -> dict:
-    """The immutable content the payload binds: (a)-(d) plus the boundary."""
+    """The immutable content the payload binds: (a)-(d), identical across states.
+
+    ``not_accepted`` is deliberately EXCLUDED: it narrows at acceptance (runtime
+    implemented + sealed) and so cannot live in a descriptor that the accepted
+    replay requires to be byte-identical to the reviewed pending one. It is
+    instead exact-pinned per lifecycle state in ``_pending`` / ``_accepted``.
+    """
     return {
         "supersedes": data.get("supersedes"),
         "green_gate": data.get("green_gate"),
         "re_pinned_immutables": data.get("re_pinned_immutables"),
         "runtime_regating": data.get("runtime_regating"),
-        "not_accepted": data.get("not_accepted"),
     }
 
 
 def _payload(root: Path = REPO_ROOT, commit: str | None = None) -> str:
-    """Hash the immutable descriptor plus the guard and guard-test bytes.
+    """Hash the immutable descriptor plus the guard, guard-test and owner bytes.
 
     Binding the guard and its hostile suite means a silent weakening of either
-    changes the payload and breaks the candidate binding. The descriptor carries
-    the re-pinned immutables, so the frozen RED guard and registry are bound too.
+    changes the payload and breaks the candidate binding. The reviewed path-owner
+    receipt is bound too, so tampering the receipt that authorizes this trust unit
+    also breaks the binding. The descriptor carries the re-pinned immutables, so
+    the frozen RED guard and registry are bound transitively.
     """
     def read(relative: Path) -> bytes:
         return _git_bytes(root, commit, relative) if commit else (root / relative).read_bytes()
@@ -203,6 +237,7 @@ def _payload(root: Path = REPO_ROOT, commit: str | None = None) -> str:
         ).encode("utf-8"),
         str(GUARD): read(GUARD),
         str(TESTS): read(TESTS),
+        str(PATH_OWNER): read(PATH_OWNER),
     }
     digest = hashlib.sha256()
     for name, raw in sorted(parts.items()):
@@ -218,7 +253,7 @@ def _core(root: Path, data: dict) -> None:
     _require(data.get("runtime_regating") == EXPECTED_RUNTIME_REGATING, "runtime re-gating drifted")
     _require(data.get("runtime_surface") == "hidden_design_lab_only", "runtime surface widened")
     _require(data.get("product_promotion") == "forbidden", "product promotion widened")
-    _require(data.get("not_accepted") == EXPECTED_NOT_ACCEPTED, "not-accepted boundary drifted")
+    # not_accepted is state-dependent (see _descriptor); pinned in _pending/_accepted.
     _require(data.get("next_gate") == EXPECTED_NEXT_GATE, "next gate drifted")
     _require(set(data.get("reviews", {})) == ROLES, "review roles drifted")
     _require(
@@ -239,6 +274,7 @@ def _pending(data: dict, payload: str) -> None:
         data.get("status") == PENDING_STATUS and data.get("current_verdict") == PENDING_VERDICT,
         "pending lifecycle drifted",
     )
+    _require(data.get("not_accepted") == PENDING_NOT_ACCEPTED, "not-accepted boundary drifted")
     _require(all(value == PENDING_REVIEW for value in data["reviews"].values()), "pending manifest claims reviews")
     binding = data["mechanical_binding"]
     _require(binding.get("candidate_payload_sha256") == payload, "candidate payload drifted")
@@ -252,6 +288,19 @@ def _accepted(root: Path, data: dict, payload: str) -> None:
     _require(
         data.get("status") == ACCEPTED_STATUS and data.get("current_verdict") == ACCEPTED_VERDICT,
         "accepted lifecycle drifted",
+    )
+    # Acceptance ⟹ runtime implemented + lib inventory sealed: those two must have
+    # LEFT the not-accepted boundary. A manifest that still forbids them cannot be
+    # accepted (an accepted green gate whose runtime is unbuilt is a contradiction).
+    _require(data.get("not_accepted") == ACCEPTED_NOT_ACCEPTED, "accepted not-accepted boundary drifted")
+    # The 15/15 replay must be mechanically wired in CI: the workflow named by the
+    # descriptor must invoke this guard in full (non-contract) mode. Until CI
+    # carries that line, acceptance is mechanically impossible.
+    workflow_path = root / CI_WORKFLOW
+    _require(workflow_path.is_file() and not workflow_path.is_symlink(), "green gate CI workflow is missing")
+    _require(
+        FULL_MODE_INVOCATION in workflow_path.read_text(encoding="utf-8"),
+        "green gate CI does not wire the full 15/15 replay",
     )
     binding = data["mechanical_binding"]
     commit = binding.get("reviewed_candidate_commit")
@@ -283,7 +332,7 @@ def _require_clean_worktree(root: Path) -> None:
 
 
 def validate(root: Path = REPO_ROOT, *, require_accepted: bool | None = None, check_git: bool = True) -> None:
-    for relative in (MANIFEST, GUARD, TESTS, RED_GUARD, REGISTRY):
+    for relative in (MANIFEST, GUARD, TESTS, PATH_OWNER, RED_GUARD, REGISTRY):
         path = root / relative
         _require(path.is_file() and not path.is_symlink(), f"artifact is not a regular file: {relative}")
     data = _load_manifest_bytes((root / MANIFEST).read_bytes())

@@ -3,7 +3,9 @@
 # installs the 15/15 GREEN replay as the active R1 gate upon promotion +
 # implementation. The R1 runtime is UNWRITTEN; do not run the GREEN
 # Flutter replay while pending (it would still be 2/13).
-# Sealed by tools/checks/mint_next_batch19_r1_green_gate_guard.py.
+# green_gate.ci_enforcement wires the 15/15 into CI: --contract while
+# pending, full --release replay once accepted. Sealed by
+# tools/checks/mint_next_batch19_r1_green_gate_guard.py.
 schema_version: 1
 status: candidate_green_gate_unaccepted
 current_verdict: PENDING_INDEPENDENT_ROASTS
@@ -47,6 +49,10 @@ green_gate:
   - R1_12 search exposes no learning or clipboard capability
   - R1_13 all R1 targets and single-select semantics are usable
   - R1_14 registry keeps R1 before R2 and excludes later evidence
+  ci_workflow: .github/workflows/mint-next-proofs.yml
+  ci_enforcement:
+    pending: contract_only
+    accepted: full_green_replay_15_15_required
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch19_r1_red_guard.py
@@ -77,7 +83,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_payload_sha256: 87b2eb903ecfd529a7c6452d0c296b851c87b014a02fd3e361a8b1c16715a75b
+  candidate_payload_sha256: 6f246894ab45e024c4075b043ae75a751f843c1a07a1fbd994fb4d70ec6efd68
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
 not_accepted:
