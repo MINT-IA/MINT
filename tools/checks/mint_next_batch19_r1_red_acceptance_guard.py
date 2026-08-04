@@ -40,7 +40,7 @@ REGISTRY = Path("product/mint_next/batch18/runtime-gates.yaml")
 R1_TEST = Path("product/mint_next/batch7/design_lab/test/design_lab_batch18_canton_r1_test.dart")
 FIXTURE = Path("product/mint_next/batch7/design_lab/test/batch18_canton_fixture.g.dart")
 RED_ARTIFACTS = (REGISTRY, R1_TEST, FIXTURE, RED_GUARD, RED_TESTS)
-RED_COMMIT = "387d74a150b49eb38c436d61068e68d596ab89f9"
+RED_COMMIT = "891355d9aac1eb9caba2bbe2bac5f93982d90fca"
 OWNER_PROMOTION_COMMIT = "2ecc5210c6fff8b40c838c51c71733b244a2a256"
 TRUST_OWNER_PROMOTION_COMMIT = "91d0652b01b2c9663925af34048a215372e87793"
 ROLES = {"architecture_integrity", "mechanical_evidence", "ux_navigation_scope"}
@@ -402,10 +402,20 @@ def run_proofs(root: Path = REPO_ROOT) -> None:
                 "python3", "-ISB", "-c", ISOLATED_BOOTSTRAP,
                 str(replay), dependency_site,
             ]
+            # journey_os_check defaults to `origin/dev...HEAD`, i.e. it asserts the
+            # journey-OS ownership of the WHOLE branch since dev. In a RED replay we
+            # only attest that THIS RED_COMMIT's own delta respects journey-OS
+            # ownership (supersession doctrine: each gate proves its own delta, not
+            # the world). Pin the proof's base to RED_COMMIT's parent so the diff is
+            # exactly the RED_COMMIT delta, not the accumulated branch state.
+            journey_base = subprocess.run(
+                ["git", "rev-parse", f"{RED_COMMIT}^"],
+                cwd=root, check=True, capture_output=True, text=True,
+            ).stdout.strip()
             for command in (
                 [*prefix, "unittest", "tools.checks.tests.test_mint_next_batch19_r1_red_guard"],
                 [*prefix, "tools.checks.mint_next_batch19_r1_red_guard"],
-                [*prefix, "tools.checks.journey_os_check"],
+                [*prefix, "tools.checks.journey_os_check", "--base-ref", journey_base],
             ):
                 _require(subprocess.run(command, cwd=replay).returncode == 0, f"proof failed: {' '.join(command)}")
         finally:

@@ -3,7 +3,7 @@
   "status": "candidate_red_acceptance_unaccepted",
   "current_verdict": "PENDING_INDEPENDENT_ROASTS",
   "candidate": {
-    "red_commit": "387d74a150b49eb38c436d61068e68d596ab89f9",
+    "red_commit": "891355d9aac1eb9caba2bbe2bac5f93982d90fca",
     "gate": "R1",
     "lifecycle": "expected_red",
     "runtime_implemented": false,
@@ -41,7 +41,7 @@
     }
   },
   "mechanical_binding": {
-    "candidate_review_payload_sha256": "3f553531acfcbe00fca8ff92e60a09bc732fb2c27da09e1fd49552e38dff2786",
+    "candidate_review_payload_sha256": "ffbc3fb46353ce0420a053dad5c02d2f6f9f79fa36f244ff407393dbd708e9fd",
     "reviewed_payload_sha256": null,
     "reviewed_candidate_commit": null
   },
