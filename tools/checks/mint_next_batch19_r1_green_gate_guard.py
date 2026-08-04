@@ -379,11 +379,21 @@ def _live_lib_inventory_sha256(root: Path) -> str:
     against the accepted seal so no lib file can be smuggled in or removed.
     """
     lib = root / red.LIB_ROOT
+    _require(lib.is_dir() and not lib.is_symlink(), "R1 GREEN lib/ is not a regular directory")
+    nodes = sorted(lib.rglob("*"))
+    # Reject symlinks and special entries outright (mirrors the RED guard's tree
+    # discipline). A symlink is excluded from a digest yet DEREFERENCED by the
+    # runner's shutil.copytree, so silently skipping it would smuggle unsealed
+    # external bytes into execution. Empty lib/ is rejected too.
+    _require(
+        all(not node.is_symlink() and (node.is_file() or node.is_dir()) for node in nodes),
+        "R1 GREEN lib/ contains a symlink or special entry",
+    )
     sources = {
-        path.relative_to(lib).as_posix(): red._sha(path)
-        for path in sorted(lib.rglob("*"))
-        if path.is_file() and not path.is_symlink()
+        node.relative_to(lib).as_posix(): red._sha(node)
+        for node in nodes if node.is_file()
     }
+    _require(sources, "R1 GREEN lib/ inventory is empty")
     return hashlib.sha256(
         json.dumps(sources, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
     ).hexdigest()

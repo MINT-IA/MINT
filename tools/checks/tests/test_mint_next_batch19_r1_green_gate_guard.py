@@ -349,16 +349,39 @@ class Batch19R1GreenGateGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "accepted green lib inventory seal invalid"):
             guard.validate(root, require_accepted=True, check_git=False)
 
+    def _make_lib(self, root: Path) -> Path:
+        lib = root / guard.red.LIB_ROOT
+        lib.mkdir(parents=True, exist_ok=True)
+        (lib / "real.dart").write_text("void main() {}\n")
+        return lib
+
     def test_accepted_inventory_mismatch_fails_replay(self) -> None:
         # The sealed inventory must equal the live lib/ tree digest. A mismatch
-        # (here the temp repo carries no design_lab lib/, so the live digest is the
-        # empty-tree digest) fails run_expected_green BEFORE the behavioral replay —
-        # a smuggled/removed lib file cannot slip through on green tests alone.
+        # fails run_expected_green BEFORE the behavioral replay — a smuggled or
+        # removed lib file cannot slip through on green tests alone.
         root, payload, pending_commit = self._accepted_repo()
+        self._make_lib(root)
         data = _accepted_manifest(payload, pending_commit)
-        data["mechanical_binding"]["green_lib_inventory_sha256"] = "a" * 64
+        data["mechanical_binding"]["green_lib_inventory_sha256"] = "a" * 64  # != real digest
         self._write_at(root, data)
         with self.assertRaisesRegex(guard.GuardFailure, "GREEN lib inventory drifted"):
+            guard.run_expected_green(root)
+
+    def test_accepted_inventory_rejects_symlink_in_lib(self) -> None:
+        # A symlink is excluded from a naive digest but DEREFERENCED by the runner's
+        # copytree — it must be rejected outright, else external bytes execute.
+        root, payload, pending_commit = self._accepted_repo()
+        lib = self._make_lib(root)
+        (lib / "evil.dart").symlink_to(lib / "real.dart")
+        self._write_at(root, _accepted_manifest(payload, pending_commit))
+        with self.assertRaisesRegex(guard.GuardFailure, "symlink or special entry"):
+            guard.run_expected_green(root)
+
+    def test_accepted_inventory_rejects_missing_lib(self) -> None:
+        # Empty / missing lib/ is structurally rejected (cannot seal nothing).
+        root, payload, pending_commit = self._accepted_repo()
+        self._write_at(root, _accepted_manifest(payload, pending_commit))
+        with self.assertRaisesRegex(guard.GuardFailure, "not a regular directory"):
             guard.run_expected_green(root)
 
     def test_accepted_replay_rejects_tampered_pending_history(self) -> None:
