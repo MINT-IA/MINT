@@ -5222,6 +5222,11 @@
   "pillar3aIndepEduInvestirBody": "Para um horizonte longo (>10 anos), um 3a investido em ações pode oferecer rendimentos superiores.",
   "pillar3aIndepDisclaimer": "O impacto fiscal é estimado com base na taxa marginal indicada. Consulta um especialista.",
   "dividendeVsSalaireTitle": "Dividendo vs Salário",
+  "dividendeLegendChargeTotale": "Encargo total",
+  "dividendeLegendSplitAdapte": "Divisão adequada",
+  "dividendeLegendPositionActuelle": "Posição atual",
+  "dividendeChargeCurveTitle": "Encargo total por divisão",
+  "dividendeEducationTitle": "A reter",
   "dividendeVsSalaireChargeSalaire": "Encargo sobre salário",
   "dividendeVsSalaireCharge100Salaire": "Encargo se 100% salário",
   "dividendeVsSalairePctSalaire0": "0% salário",
@@ -11864,5 +11869,15 @@
   "librePassageOptionFondsLabel": "Fundo de investimento",
   "librePassageOptionFondsDescription": "Maior potencial de rendimento. Risco de mercado a aceitar no horizonte.",
   "librePassageOptionFondsLegalRef": "OLP art. 19a",
-  "lppRescueDisclaimer": "Ferramenta educativa · não constitui aconselhamento financeiro na aceção da LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Sem instrução, transferência oficiosa entre 6 meses e 2 anos (LFLP art. 4 al. 2). Haveres esquecidos: sfbvg.ch."
+  "lppRescueDisclaimer": "Ferramenta educativa · não constitui aconselhamento financeiro na aceção da LSFin. Fonte: LFLP art. 3-4, OLP art. 10. Sem instrução, transferência oficiosa entre 6 meses e 2 anos (LFLP art. 4 al. 2). Haveres esquecidos: sfbvg.ch.",
+  "lppRescueSemanticsLabel": "Resgate LPP 2.º pilar livre passagem",
+  "lppRescueTitle": "Operação resgate 2.º pilar",
+  "lppRescueDaysLeft": "Faltam {days} dias para agir",
+  "lppRescueBalance": "O teu haver LPP: CHF {balance}",
+  "lppRescueOptionLabel": "Opção {number}: {label}",
+  "lppRescueRecommended": "Recomendado",
+  "lppRescueGainPositive": "+CHF {gain} em 5 anos",
+  "lppRescueGainLoss": "-CHF {gain} em 5 anos",
+  "lppRescueSuppletiveTitle": "Não fazer nada = instituição supletiva",
+  "lppRescueSuppletiveBody": "A taxa técnica é baixa e as taxas elevadas. Um haver de CHF {balance} pode perder até CHF {loss} em 5 anos face a uma conta de livre passagem adequada."
 }

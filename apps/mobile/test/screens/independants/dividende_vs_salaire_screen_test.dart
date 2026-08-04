@@ -95,4 +95,30 @@ void main() {
       findsNothing,
     );
   });
+
+  testWidgets(
+      'légendes du graphe localisées (« Split adapté » accentué) + titres en '
+      'casse normale (VOICE_SYSTEM, plus d\'UPPERCASE)', (tester) async {
+    _bigSurface(tester);
+    await tester.pumpWidget(_host());
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    final ctx = tester.element(find.byType(DividendeVsSalaireScreen));
+    final l = S.of(ctx)!;
+
+    // Légende : accent corrigé (audit #1185, « Split adapte » -> « Split adapté »)
+    // et strings sorties du code vers l'ARB 6 langues.
+    expect(l.dividendeLegendSplitAdapte, 'Split adapté');
+    expect(find.text('Split adapté'), findsOneWidget);
+    expect(find.text('Split adapte'), findsNothing); // plus de variante ASCII
+    expect(find.text(l.dividendeLegendChargeTotale), findsWidgets);
+    expect(find.text(l.dividendeLegendPositionActuelle), findsOneWidget);
+
+    // Casse normale : l'UPPERCASE non conforme VOICE_SYSTEM a disparu.
+    expect(find.text('CHARGE TOTALE PAR SPLIT'), findsNothing);
+    expect(find.text('À RETENIR'), findsNothing);
+    expect(find.text(l.dividendeChargeCurveTitle), findsOneWidget);
+    expect(find.text(l.dividendeEducationTitle), findsOneWidget);
+  });
 }

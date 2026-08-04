@@ -5222,6 +5222,11 @@
   "pillar3aIndepEduInvestirBody": "Para un horizonte largo (>10 años), un 3a invertido en acciones puede ofrecer rendimientos superiores.",
   "pillar3aIndepDisclaimer": "El impacto fiscal se estima según la tasa marginal indicada. Consulta un especialista.",
   "dividendeVsSalaireTitle": "Dividendo vs Salario",
+  "dividendeLegendChargeTotale": "Carga total",
+  "dividendeLegendSplitAdapte": "Reparto adecuado",
+  "dividendeLegendPositionActuelle": "Posición actual",
+  "dividendeChargeCurveTitle": "Carga total por reparto",
+  "dividendeEducationTitle": "Para recordar",
   "dividendeVsSalaireChargeSalaire": "Carga sobre salario",
   "dividendeVsSalaireCharge100Salaire": "Carga si 100% salario",
   "dividendeVsSalairePctSalaire0": "0% salario",
@@ -11864,5 +11869,15 @@
   "librePassageOptionFondsLabel": "Fondo de inversión",
   "librePassageOptionFondsDescription": "Mayor potencial de rendimiento. Riesgo de mercado a aceptar en el horizonte.",
   "librePassageOptionFondsLegalRef": "OLP art. 19a",
-  "lppRescueDisclaimer": "Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 3-4, OLP art. 10. Sin instrucción, transferencia de oficio entre 6 meses y 2 años (LFLP art. 4 al. 2). Haberes olvidados: sfbvg.ch."
+  "lppRescueDisclaimer": "Herramienta educativa · no constituye asesoramiento financiero en el sentido de la LSFin. Fuente: LFLP art. 3-4, OLP art. 10. Sin instrucción, transferencia de oficio entre 6 meses y 2 años (LFLP art. 4 al. 2). Haberes olvidados: sfbvg.ch.",
+  "lppRescueSemanticsLabel": "Rescate LPP 2.º pilar libre paso",
+  "lppRescueTitle": "Operación rescate 2.º pilar",
+  "lppRescueDaysLeft": "Te quedan {days} días para actuar",
+  "lppRescueBalance": "Tu haber LPP: CHF {balance}",
+  "lppRescueOptionLabel": "Opción {number}: {label}",
+  "lppRescueRecommended": "Recomendado",
+  "lppRescueGainPositive": "+CHF {gain} en 5 años",
+  "lppRescueGainLoss": "-CHF {gain} en 5 años",
+  "lppRescueSuppletiveTitle": "No hacer nada = institución supletoria",
+  "lppRescueSuppletiveBody": "El tipo técnico es bajo y las comisiones elevadas. Un haber de CHF {balance} puede perder hasta CHF {loss} en 5 años frente a una cuenta de libre paso adecuada."
 }

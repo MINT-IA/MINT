@@ -43625,6 +43625,96 @@ abstract class S {
   /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.'**
   String get lppRescueDisclaimer;
 
+  /// No description provided for @dividendeLegendChargeTotale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge totale'**
+  String get dividendeLegendChargeTotale;
+
+  /// No description provided for @dividendeLegendSplitAdapte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Split adapté'**
+  String get dividendeLegendSplitAdapte;
+
+  /// No description provided for @dividendeLegendPositionActuelle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position actuelle'**
+  String get dividendeLegendPositionActuelle;
+
+  /// No description provided for @dividendeChargeCurveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge totale par split'**
+  String get dividendeChargeCurveTitle;
+
+  /// No description provided for @dividendeEducationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À retenir'**
+  String get dividendeEducationTitle;
+
+  /// No description provided for @lppRescueSemanticsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauvetage LPP 2e pilier libre passage'**
+  String get lppRescueSemanticsLabel;
+
+  /// No description provided for @lppRescueTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Opération sauvetage 2e pilier'**
+  String get lppRescueTitle;
+
+  /// No description provided for @lppRescueDaysLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te reste {days} jours pour agir'**
+  String lppRescueDaysLeft(int days);
+
+  /// No description provided for @lppRescueBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avoir LPP : CHF {balance}'**
+  String lppRescueBalance(String balance);
+
+  /// No description provided for @lppRescueOptionLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Option {number} : {label}'**
+  String lppRescueOptionLabel(int number, String label);
+
+  /// No description provided for @lppRescueRecommended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandé'**
+  String get lppRescueRecommended;
+
+  /// No description provided for @lppRescueGainPositive.
+  ///
+  /// In fr, this message translates to:
+  /// **'+CHF {gain} sur 5 ans'**
+  String lppRescueGainPositive(String gain);
+
+  /// No description provided for @lppRescueGainLoss.
+  ///
+  /// In fr, this message translates to:
+  /// **'-CHF {gain} sur 5 ans'**
+  String lppRescueGainLoss(String gain);
+
+  /// No description provided for @lppRescueSuppletiveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne rien faire = institution supplétive'**
+  String get lppRescueSuppletiveTitle;
+
+  /// No description provided for @lppRescueSuppletiveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux technique est bas et les frais élevés. Un avoir de CHF {balance} peut perdre jusqu’à CHF {loss} sur 5 ans vs un compte de libre passage adapté.'**
+  String lppRescueSuppletiveBody(String balance, String loss);
+
   /// No description provided for @expatDeadline3aLabel.
   ///
   /// In fr, this message translates to:

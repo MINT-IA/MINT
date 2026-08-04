@@ -55,6 +55,7 @@ class LppRescueWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final daysLeft = (_actionDays - daysElapsed).clamp(0, _actionDays);
     final urgencyColor = daysLeft > 14
         ? MintColors.scoreExcellent
@@ -63,7 +64,7 @@ class LppRescueWidget extends StatelessWidget {
             : MintColors.scoreCritique;
 
     return Semantics(
-      label: 'Sauvetage LPP 2e pilier libre passage',
+      label: l.lppRescueSemanticsLabel,
       child: Container(
         decoration: BoxDecoration(
           color: MintColors.white,
@@ -73,22 +74,22 @@ class LppRescueWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(daysLeft, urgencyColor),
+            _buildHeader(l, daysLeft, urgencyColor),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildBalanceChip(),
+                  _buildBalanceChip(l),
                   const SizedBox(height: 20),
                   ...options.asMap().entries.map(
                     (e) => Padding(
                       padding: const EdgeInsets.only(bottom: 12),
-                      child: _buildOptionCard(e.value, e.key),
+                      child: _buildOptionCard(l, e.value, e.key),
                     ),
                   ),
                   const SizedBox(height: 4),
-                  _buildPremierEclairage(),
+                  _buildPremierEclairage(l),
                   const SizedBox(height: 16),
                   _buildDisclaimer(context),
                 ],
@@ -100,7 +101,7 @@ class LppRescueWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(int daysLeft, Color urgencyColor) {
+  Widget _buildHeader(S l, int daysLeft, Color urgencyColor) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -116,7 +117,7 @@ class LppRescueWidget extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Opération sauvetage 2e pilier',
+                  l.lppRescueTitle,
                   style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
               ),
@@ -135,9 +136,11 @@ class LppRescueWidget extends StatelessWidget {
               children: [
                 Icon(Icons.timer_outlined, color: urgencyColor, size: 16),
                 const SizedBox(width: 6),
-                Text(
-                  'Il te reste $daysLeft jours pour agir',
-                  style: MintTextStyles.bodySmall(color: urgencyColor).copyWith(fontWeight: FontWeight.w700),
+                Flexible(
+                  child: Text(
+                    l.lppRescueDaysLeft(daysLeft),
+                    style: MintTextStyles.bodySmall(color: urgencyColor).copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
               ],
             ),
@@ -147,7 +150,7 @@ class LppRescueWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildBalanceChip() {
+  Widget _buildBalanceChip(S l) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
@@ -159,16 +162,18 @@ class LppRescueWidget extends StatelessWidget {
         children: [
           const Icon(Icons.account_balance_outlined, color: MintColors.info, size: 18),
           const SizedBox(width: 10),
-          Text(
-            'Ton avoir LPP : CHF ${_fmt(lppBalance)}',
-            style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
+          Expanded(
+            child: Text(
+              l.lppRescueBalance(_fmt(lppBalance)),
+              style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOptionCard(LppTransferOption option, int index) {
+  Widget _buildOptionCard(S l, LppTransferOption option, int index) {
     // isWorst: seule la première option avec le gain minimum est marquée "pire".
     // Garde : options.length > 1 pour éviter de marquer l'unique option comme pire.
     final worstOption = options.length > 1
@@ -204,7 +209,7 @@ class LppRescueWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Option ${index + 1} : ${option.label}',
+                  l.lppRescueOptionLabel(index + 1, option.label),
                   style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
@@ -216,7 +221,7 @@ class LppRescueWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    'Recommandé',
+                    l.lppRescueRecommended,
                     style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -231,8 +236,8 @@ class LppRescueWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               option.fiveYearGain > 0
-                  ? '+CHF ${_fmt(option.fiveYearGain)} sur 5 ans'
-                  : '-CHF ${_fmt(option.fiveYearGain.abs())} sur 5 ans',
+                  ? l.lppRescueGainPositive(_fmt(option.fiveYearGain))
+                  : l.lppRescueGainLoss(_fmt(option.fiveYearGain.abs())),
               style: MintTextStyles.bodySmall(color: option.fiveYearGain > 0 ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
@@ -248,7 +253,7 @@ class LppRescueWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPremierEclairage() {
+  Widget _buildPremierEclairage(S l) {
     // Estimation pédagogique : surcoût institutionnel ~1.5 % du solde sur 5 ans
     // (taux technique bas + frais de gestion suppl.). Source : CHS PP rapports.
     final estimatedLoss = (lppBalance * 0.015).clamp(500.0, 15000.0);
@@ -270,14 +275,12 @@ class LppRescueWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ne rien faire = institution supplétive',
+                  l.lppRescueSuppletiveTitle,
                   style: MintTextStyles.bodySmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Le taux technique est bas et les frais élevés. '
-                  'Un avoir de CHF ${_fmt(lppBalance)} peut perdre jusqu\'à '
-                  'CHF ${_fmt(estimatedLoss)} sur 5 ans vs un compte libre passage optimisé.',
+                  l.lppRescueSuppletiveBody(_fmt(lppBalance), _fmt(estimatedLoss)),
                   style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],

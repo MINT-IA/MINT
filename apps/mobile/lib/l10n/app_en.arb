@@ -5222,6 +5222,11 @@
   "pillar3aIndepEduInvestirBody": "For a long horizon (>10 years), a 3a invested in equities can offer much higher returns than a classic 3a savings account.",
   "pillar3aIndepDisclaimer": "The tax impact is estimated based on the indicated marginal rate. The actual rate depends on your canton, municipality, and family situation. Consult a specialist for a personalized calculation.",
   "dividendeVsSalaireTitle": "Dividend vs Salary",
+  "dividendeLegendChargeTotale": "Total charge",
+  "dividendeLegendSplitAdapte": "Suitable split",
+  "dividendeLegendPositionActuelle": "Current position",
+  "dividendeChargeCurveTitle": "Total charge by split",
+  "dividendeEducationTitle": "Key points",
   "dividendeVsSalaireChargeSalaire": "Salary charge",
   "dividendeVsSalaireCharge100Salaire": "Charge if 100% salary",
   "dividendeVsSalairePctSalaire0": "0% salary",
@@ -11881,5 +11886,15 @@
   "librePassageOptionFondsLabel": "Investment fund",
   "librePassageOptionFondsDescription": "Higher return potential. Market risk to accept over the horizon.",
   "librePassageOptionFondsLegalRef": "OLP art. 19a",
-  "lppRescueDisclaimer": "Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch."
+  "lppRescueDisclaimer": "Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch.",
+  "lppRescueSemanticsLabel": "LPP 2nd pillar vested benefits rescue",
+  "lppRescueTitle": "2nd pillar rescue operation",
+  "lppRescueDaysLeft": "You have {days} days left to act",
+  "lppRescueBalance": "Your LPP balance: CHF {balance}",
+  "lppRescueOptionLabel": "Option {number}: {label}",
+  "lppRescueRecommended": "Recommended",
+  "lppRescueGainPositive": "+CHF {gain} over 5 years",
+  "lppRescueGainLoss": "-CHF {gain} over 5 years",
+  "lppRescueSuppletiveTitle": "Doing nothing = substitute institution",
+  "lppRescueSuppletiveBody": "The technical rate is low and the fees high. A balance of CHF {balance} can lose up to CHF {loss} over 5 years versus a suitable vested benefits account."
 }
