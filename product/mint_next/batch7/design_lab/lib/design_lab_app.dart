@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
+import 'canton_r1.dart';
 import 'l10n/generated/mint_next_localizations.dart';
 import 'multi_provider_amount_draft.dart';
 import 'multi_provider_amount_editor.dart';
@@ -826,7 +827,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                               onChoose: _chooseBatch16Correction,
                               onBack: () => _returnToBatch16Help('all_zero'),
                             ),
-                          _DesignNode.factCanton => _CantonBoundary(
+                          _DesignNode.factCanton => CantonR1Screen(
                             taxYear: _taxYear!,
                             hasPositiveContribution:
                                 _contributionStatus == _ContributionStatus.yes,
@@ -2247,42 +2248,6 @@ class _Batch16ContributionCorrection extends StatelessWidget {
         MintDesignLabAction.text(
           key: const ValueKey('action:contribution_correction.back'),
           label: l10n.batch16Back,
-          onPressed: onBack,
-        ),
-      ],
-    );
-  }
-}
-
-class _CantonBoundary extends StatelessWidget {
-  const _CantonBoundary({
-    required this.taxYear,
-    required this.hasPositiveContribution,
-    required this.onBack,
-  });
-  final int taxYear;
-  final bool hasPositiveContribution;
-  final VoidCallback onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = MintNextLocalizations.of(context);
-    return _Page(
-      nodeId: 'fact_canton',
-      eyebrow: l10n.nextStepEyebrow,
-      title: hasPositiveContribution
-          ? l10n.batch12PositiveCantonTitle(taxYear)
-          : l10n.contributionCantonBoundaryTitle(taxYear),
-      body: hasPositiveContribution
-          ? l10n.batch12PositiveCantonBody
-          : l10n.contributionCantonBoundaryBody,
-      accent: const _QuietOrb(),
-      actions: [
-        MintDesignLabAction.text(
-          key: const ValueKey('action:fact_canton.back'),
-          label: hasPositiveContribution
-              ? l10n.batch12CorrectAmounts
-              : l10n.contributionBoundaryBack,
           onPressed: onBack,
         ),
       ],
