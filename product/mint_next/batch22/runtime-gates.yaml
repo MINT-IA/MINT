@@ -1,0 +1,142 @@
+schema_version: 1
+status: candidate_expected_red_evidence_runtime_not_implemented
+batch: 22
+authority:
+  immutable_scopes:
+    scenarios_versement: product/mint_next/batch22/scenarios_versement-scope.yaml
+    fact_etat_civil: product/mint_next/batch22/fact_etat_civil-scope.yaml
+  immutable_scope_sha256:
+    scenarios_versement: 5d3ebea8de3d0e8c16cbd2f8c10e982d04383655d3d3b8e9a96f44aa34a2c320
+    fact_etat_civil: a3fb33c2d9b0a0ab70d39be6f16c958036b849e1f8f3a2da396fb3a08d1c704e
+  immutable_copy: product/mint_next/batch22/r4-six-locale-copy.yaml
+  immutable_copy_sha256: b4e767ea44da998ed8ed25de4df8e642b487ca0c441798dae4ba5ea3d892b418
+  immutable_fixtures: product/mint_next/batch22/r4-engine-fixtures.yaml
+  immutable_fixtures_sha256: ec1b419f1edd102b723b3a96f0bf773330fc94010e68c5f6d4498d86a30c51b2
+  runtime_surface: hidden_design_lab_only
+  product_promotion: forbidden
+  supersedes:
+    r3_green_gate: product/mint_next/batch21/r3-green-gate.yaml
+    r3_green_accepted_commit: '0a81c9b60'
+    no_live_reattestation_of_r3: true
+ordered_gates:
+- R4
+- runtime_global
+gates:
+  R4:
+    state: expected_red
+    runtime_implemented: false
+    runtime_accepted: false
+    next_gate: runtime_global
+    later_gate_evidence_counts_for_R4: false
+    test_file: product/mint_next/batch7/design_lab/test/design_lab_batch22_r4_test.dart
+    command:
+    - flutter
+    - test
+    - test/design_lab_batch22_r4_test.dart
+    - --machine
+    - --no-pub
+    working_directory: product/mint_next/batch7/design_lab
+    expected_exit_code: 1
+    expected_summary:
+      passed: 2
+      failed: 14
+      load_or_harness_errors: 0
+    candidate_binding:
+      test_sha256: 27abb5ff0803af695c1ca2614cf0ae4d1492426325a56d7a136b9935f266a151
+    subgates:
+      R4a_scenarios_versement:
+      - R4_02
+      - R4_03
+      - R4_04
+      - R4_05
+      - R4_06
+      - R4_07
+      - R4_08
+      R4b_fact_etat_civil:
+      - R4_09
+      - R4_10
+      - R4_11
+      - R4_12
+      - R4_13
+      - R4_14
+      - R4_15
+    obligation_test_names:
+      R4_01: R4_01 the wired arc reaches the delivered eclairage boundary before the R4 fermeture runtime
+      R4_02: R4_02 scenarios_versement nominal shows the choose line at least two scenario effect ranges and never a single bare number
+      R4_03: R4_03 scenarios_versement arrival focuses the choose line heading not a scenario amount and carries the meaning without a body
+      R4_04: R4_04 scenarios_versement states the locked liquidity cost and the chef lieu commune caveat and the estimate not advice disclaimer
+      R4_05: R4_05 a scenario is a named announced region whose amount and effect are spoken as one utterance
+      R4_06: R4_06 the plafond glossary sheet opens focus trapped and restores to the anchor
+      R4_07: R4_07 the own amount control is an optional named button pulled by value with no preselected amount
+      R4_08: R4_08 compact 320x700 text scale two shows the choose line at least one scenario the liquidity note and the disclaimer without overflow
+      R4_09: R4_09 fact_etat_civil shows three civil status cards none preselected and no wheel or keyboard
+      R4_10: R4_10 fact_etat_civil arrival focuses the question and the 31 december determining hint without a body sentence
+      R4_11: R4_11 selecting the concubinage card announces the selection summary and marks it
+      R4_12: R4_12 the splitting glossary sheet opens focus trapped and restored
+      R4_13: R4_13 the concubinage glossary states separate taxation never the married splitting
+      R4_14: R4_14 fact_etat_civil error no selection is announced and continue never routes in r4
+      R4_15: R4_15 compact 320x700 text scale two shows the question the three status cards and continue without overflow
+      R4_16: R4_16 registry keeps R4 after R3 before runtime_global and excludes later evidence
+    expected_red_sentinels:
+      R4_02 scenarios_versement nominal shows the choose line at least two scenario effect ranges and never a single bare number: R4_02
+      R4_03 scenarios_versement arrival focuses the choose line heading not a scenario amount and carries the meaning without a body: R4_03
+      R4_04 scenarios_versement states the locked liquidity cost and the chef lieu commune caveat and the estimate not advice disclaimer: R4_04
+      R4_05 a scenario is a named announced region whose amount and effect are spoken as one utterance: R4_05
+      R4_06 the plafond glossary sheet opens focus trapped and restores to the anchor: R4_06
+      R4_07 the own amount control is an optional named button pulled by value with no preselected amount: R4_07
+      R4_08 compact 320x700 text scale two shows the choose line at least one scenario the liquidity note and the disclaimer without overflow: R4_08
+      R4_09 fact_etat_civil shows three civil status cards none preselected and no wheel or keyboard: R4_09
+      R4_10 fact_etat_civil arrival focuses the question and the 31 december determining hint without a body sentence: R4_10
+      R4_11 selecting the concubinage card announces the selection summary and marks it: R4_11
+      R4_12 the splitting glossary sheet opens focus trapped and restored: R4_12
+      R4_13 the concubinage glossary states separate taxation never the married splitting: R4_13
+      R4_14 fact_etat_civil error no selection is announced and continue never routes in r4: R4_14
+      R4_15 compact 320x700 text scale two shows the question the three status cards and continue without overflow: R4_15
+  runtime_global:
+    state: blocked_by_R4
+runtime_regating:
+  scope_owner: batch22-r4-runtime
+  regated_files:
+  - product/mint_next/batch7/design_lab/lib/scenarios_versement.dart
+  - product/mint_next/batch7/design_lab/lib/fact_etat_civil.dart
+  - product/mint_next/batch7/design_lab/lib/r4_fermeture_catalog.g.dart
+  - product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  lib_inventory_seal: deferred_to_implementation_under_this_gate
+deferred_integration:
+  # RIDER 1 (explicit lifecycle) : the R4 forward edges never route in R4
+  # (scenarios continue.never_routes_in_r4 ; fact_etat_civil continue.never_routes_in_r4
+  # and the situation row is display_only). So this expected-RED binds only the
+  # obligations reachable by the navigation that EXISTS pre-runtime — the wired R3
+  # arc up to the delivered eclairage boundary. The R4 SCREENS land first (runtime),
+  # and this LINEAR contract flips green at the INTEGRATION BATCH, not at the
+  # screen-flip.
+  status: declared_next_governance_unit_after_r4_runtime_lands
+  green_flips_here_not_at_screen_flip: true
+  scope:
+  - wire_eclairage_continue_to_scenarios_versement_refreshing_next_action
+  - upgrade_the_eclairage_situation_row_to_a_refine_affordance_routing_to_fact_etat_civil
+  - wire_fact_etat_civil_continue_to_recompute_eclairage_with_is_married_no_re_ask_of_income
+  - route_the_non_affilie_lpp_no_branch_to_a_derived_ceiling_not_a_flat_7258
+  - keep_situation_display_only_until_the_married_recompute_exists_engine_side
+  - re_gate_sibling_screens_touched_by_the_new_wiring
+  interim_evidence:
+    # the screens are NOT a silent gray zone between screen-flip and integration:
+    # they are attested by the NAMED runtime dev tests, reached via the harness.
+    runtime_dev_tests:
+    - product/mint_next/batch7/design_lab/test/dev_scenarios_versement_r4_test.dart
+    - product/mint_next/batch7/design_lab/test/dev_fact_etat_civil_r4_test.dart
+    reached_via: MintNextDesignLabApp.batch22Harness
+    not_a_silent_gray_zone: true
+  green_gate_semantics:
+    # RIDER 2 (green-gate re-semanticized) : the future R4 green-gate's acceptance
+    # means runtime IMPLEMENTED **and** journey WIRED — its --release attestation
+    # replays THIS linear test, which passes only once the two nodes are wired into
+    # the journey. No pin may attest a runtime-only state without the wiring.
+    acceptance_means: r4_runtime_implemented_AND_journey_wired
+    release_attestation_replays: this_linear_integration_test_passing_within_the_wired_screens
+    no_pin_may_attest_runtime_only_without_wiring: true
+forbidden_claims:
+- runtime_implemented
+- runtime_accepted
+- user_validated
+- production_ready
