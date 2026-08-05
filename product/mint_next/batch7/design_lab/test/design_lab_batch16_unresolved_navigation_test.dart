@@ -9,9 +9,10 @@ import 'batch16_semantic_fixture.g.dart';
 
 const batch16AmountBuilderEntryActions = [
   'action:today_3a_intent.start',
+  // Phase B: orientation.continue seeds the current-year default and routes
+  // straight to the LPP question (6-screen journey); the two fact_tax_year taps
+  // are gone with the screen.
   'action:orientation.continue',
-  'action:fact_tax_year.confirm_current_year',
-  'action:fact_tax_year.continue',
   'action:fact_lpp_affiliation.choose_yes',
   'action:fact_contribution.choose_yes',
 ];
@@ -222,28 +223,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('node:orientation')), findsOne);
 
+    // Phase B: orientation.continue lands on the LPP question directly; a
+    // system-back from there returns to orientation (was fact_tax_year).
     await tapVisible(
       tester,
       find.byKey(const ValueKey('action:orientation.continue')),
     );
     await tester.pumpAndSettle();
-    await tapVisible(
-      tester,
-      find.byKey(const ValueKey('action:fact_tax_year.confirm_current_year')),
-    );
-    await tester.pumpAndSettle();
-    await tapVisible(
-      tester,
-      find.byKey(const ValueKey('action:fact_tax_year.continue')),
-    );
-    await tester.pumpAndSettle();
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOne);
+    expect(find.byKey(const ValueKey('node:orientation')), findsOne);
 
+    // Re-enter the LPP question to continue the system-back choreography.
     await tapVisible(
       tester,
-      find.byKey(const ValueKey('action:fact_tax_year.continue')),
+      find.byKey(const ValueKey('action:orientation.continue')),
     );
     await tester.pumpAndSettle();
     await tapVisible(
@@ -1329,9 +1323,9 @@ void main() {
     await tester.pumpAndSettle();
     for (final action in [
       'action:today_3a_intent.start',
+      // Phase B: 6-screen journey — orientation.continue lands on the LPP
+      // question directly (fact_tax_year taps removed with the screen).
       'action:orientation.continue',
-      'action:fact_tax_year.confirm_current_year',
-      'action:fact_tax_year.continue',
       'action:fact_lpp_affiliation.choose_yes',
       'action:fact_contribution.choose_yes',
     ]) {
@@ -1361,7 +1355,10 @@ void main() {
     await tester.pumpAndSettle();
     staleProviderTotal();
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOne);
+    // Phase B: the batch16 safe purge (TTL / detached) and the calendar-year
+    // rollover now re-seed the current-year default and land on orientation
+    // (was fact_tax_year, the screen that left the journey).
+    expect(find.byKey(const ValueKey('node:orientation')), findsOne);
 
     await openBatch16AmountBuilder(tester, now: () => now);
     rows = await enterTwoProviders(tester);
@@ -1386,7 +1383,10 @@ void main() {
     await tester.pumpAndSettle();
     staleProviderTotal();
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOne);
+    // Phase B: the batch16 safe purge (TTL / detached) and the calendar-year
+    // rollover now re-seed the current-year default and land on orientation
+    // (was fact_tax_year, the screen that left the journey).
+    expect(find.byKey(const ValueKey('node:orientation')), findsOne);
 
     await openBatch16AmountBuilder(tester, now: () => now);
     rows = await enterTwoProviders(tester);
@@ -1409,7 +1409,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOne);
+    // Phase B: the batch16 safe purge (TTL / detached) and the calendar-year
+    // rollover now re-seed the current-year default and land on orientation
+    // (was fact_tax_year, the screen that left the journey).
+    expect(find.byKey(const ValueKey('node:orientation')), findsOne);
   });
 
   testWidgets('stale_callbacks_never_retarget_after_every_invalidation', (

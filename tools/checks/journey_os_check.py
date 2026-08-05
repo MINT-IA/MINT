@@ -170,6 +170,9 @@ ALLOW = {
     "product/mint_next/batch7/design_lab/test/design_lab_golden_test.dart",
     "product/mint_next/batch7/design_lab/test/goldens/fr_today_390.png",
     "product/mint_next/batch7/design_lab/test/goldens/fr_orientation_390.png",
+    "product/mint_next/batch7/design_lab/test/goldens/fr_lpp_affiliation_390.png",
+    # Phase B: fr_tax_year_390.png deleted (screen removed from journey); entry
+    # retained so the tranche's deletion is whitelisted (superseded by the line above).
     "product/mint_next/batch7/design_lab/test/goldens/fr_tax_year_390.png",
     "product/mint_next/batch7/design_lab/test/goldens/de_today_320_text2.png",
     "tools/checks/mint_next_batch7_design_lab_guard.py",

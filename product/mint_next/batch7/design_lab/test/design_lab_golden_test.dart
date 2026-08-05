@@ -45,10 +45,16 @@ void main() {
 
     await tester.tap(find.byKey(const ValueKey('action:orientation.continue')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOneWidget);
+    // Phase B: orientation.continue now lands on the LPP affiliation question
+    // (fact_tax_year screen removed from the journey). Golden the screen that
+    // now follows orientation.
+    expect(
+      find.byKey(const ValueKey('node:fact_lpp_affiliation')),
+      findsOneWidget,
+    );
     await expectLater(
       find.byType(MaterialApp),
-      matchesGoldenFile('goldens/fr_tax_year_390.png'),
+      matchesGoldenFile('goldens/fr_lpp_affiliation_390.png'),
     );
   });
 
@@ -82,6 +88,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('action:orientation.continue')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOneWidget);
+    // Phase B: 6-screen journey — orientation.continue lands on the LPP
+    // affiliation question directly (fact_tax_year screen removed).
+    expect(
+      find.byKey(const ValueKey('node:fact_lpp_affiliation')),
+      findsOneWidget,
+    );
   });
 }

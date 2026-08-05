@@ -214,9 +214,9 @@ void main() {
         );
         for (final action in [
           'action:today_3a_intent.start',
+          // Phase B: 6-screen journey — orientation.continue reaches the LPP
+          // question directly (fact_tax_year screen removed).
           'action:orientation.continue',
-          'action:fact_tax_year.confirm_current_year',
-          'action:fact_tax_year.continue',
           'action:fact_lpp_affiliation.choose_yes',
         ]) {
           final finder = find.byKey(ValueKey(action));

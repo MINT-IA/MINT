@@ -8,13 +8,9 @@ Future<void> openLppQuestion(WidgetTester tester) async {
   await tester.pumpWidget(const MintNextDesignLabApp(locale: Locale('fr')));
   await tester.tap(find.byKey(const ValueKey('action:today_3a_intent.start')));
   await tester.pumpAndSettle();
+  // Phase B: orientation.continue seeds the current-year default and routes
+  // straight to the LPP question (fact_tax_year screen removed from journey).
   await tester.tap(find.byKey(const ValueKey('action:orientation.continue')));
-  await tester.pumpAndSettle();
-  await tester.tap(
-    find.byKey(const ValueKey('action:fact_tax_year.confirm_current_year')),
-  );
-  await tester.pumpAndSettle();
-  await tester.tap(find.byKey(const ValueKey('action:fact_tax_year.continue')));
   await tester.pumpAndSettle();
   expect(
     find.byKey(const ValueKey('node:fact_lpp_affiliation')),
@@ -38,9 +34,9 @@ void main() {
     );
     for (final key in [
       'action:today_3a_intent.start',
+      // Phase B: 6-screen journey — orientation.continue lands on the LPP
+      // question directly (fact_tax_year screen removed).
       'action:orientation.continue',
-      'action:fact_tax_year.confirm_current_year',
-      'action:fact_tax_year.continue',
     ]) {
       final finder = find.byKey(ValueKey(key));
       await tester.ensureVisible(finder);
@@ -289,20 +285,13 @@ void main() {
       find.byKey(const ValueKey('action:orientation.continue')),
     );
     await tester.pumpAndSettle();
+    // Phase B: orientation.continue now lands on the LPP question directly; the
+    // removed fact_tax_year screen and its continue action are gone from the
+    // journey (assertion retained to document the screen's absence).
     expect(
       find.byKey(const ValueKey('action:fact_tax_year.continue')),
       findsNothing,
     );
-    await tester.tap(
-      find.byKey(
-        const ValueKey('action:fact_tax_year.confirm_current_year'),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(const ValueKey('action:fact_tax_year.continue')),
-    );
-    await tester.pumpAndSettle();
     for (final id in ['choose_yes', 'choose_no', 'choose_unknown']) {
       expect(
         tester

@@ -19,9 +19,9 @@ Future<void> openBatch14AmountBuilder(
   );
   for (final action in [
     'action:today_3a_intent.start',
+    // Phase B: orientation.continue routes straight to the LPP question (the
+    // fact_tax_year screen left the journey; year is now a default hypothesis).
     'action:orientation.continue',
-    'action:fact_tax_year.confirm_current_year',
-    'action:fact_tax_year.continue',
     'action:fact_lpp_affiliation.choose_yes',
     'action:fact_contribution.choose_yes',
   ]) {

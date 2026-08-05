@@ -15,11 +15,19 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('node:orientation')), findsOneWidget);
 
+    // Phase B: orientation.continue seeds the current-year default and lands on
+    // the LPP affiliation question directly (6-screen journey; fact_tax_year
+    // screen removed). Back from the LPP question returns to orientation.
     await tester.tap(find.byKey(const ValueKey('action:orientation.continue')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('node:fact_lpp_affiliation')),
+      findsOneWidget,
+    );
 
-    await tester.tap(find.byKey(const ValueKey('action:fact_tax_year.back')));
+    await tester.tap(
+      find.byKey(const ValueKey('action:fact_lpp_affiliation.back')),
+    );
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('node:orientation')), findsOneWidget);
   });

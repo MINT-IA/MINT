@@ -49,14 +49,15 @@ void main() {
         await tester.pumpAndSettle();
         await tester.tap(continueAction);
         await tester.pumpAndSettle();
+        // Phase B: orientation.continue lands on the LPP affiliation question
+        // (was fact_tax_year). Scrolling its bottom-most action into view proves
+        // the screen stays overflow-free at 320px / text scale 2.
         expect(
-          find.byKey(const ValueKey('node:fact_tax_year')),
+          find.byKey(const ValueKey('node:fact_lpp_affiliation')),
           findsOneWidget,
         );
         await tester.ensureVisible(
-          find.byKey(
-            const ValueKey('action:fact_tax_year.confirm_current_year'),
-          ),
+          find.byKey(const ValueKey('action:fact_lpp_affiliation.back')),
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
@@ -100,7 +101,7 @@ void main() {
     );
   });
 
-  testWidgets('reduced motion removes page and selection animation', (
+  testWidgets('reduced motion removes page animation', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -120,15 +121,21 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const ValueKey('action:orientation.continue')));
     await tester.pump();
+    // Phase B: the in-content selection AnimatedContainer lived only on the
+    // removed fact_tax_year year-chip. The remaining reduced-motion-driven
+    // widget is the page AnimatedSwitcher; the transition into the LPP question
+    // must stay zero-duration under reduced motion.
     expect(
-      tester.widget<AnimatedContainer>(find.byType(AnimatedContainer)).duration,
+      tester.widget<AnimatedSwitcher>(find.byType(AnimatedSwitcher)).duration,
       Duration.zero,
     );
   });
 
-  testWidgets('tax year selection exposes a semantic tap action', (
+  testWidgets('lpp affiliation selection exposes a semantic tap action', (
     tester,
   ) async {
+    // Phase B: orientation.continue reaches the LPP affiliation question
+    // directly (was fact_tax_year). Its choice exposes a semantic tap action.
     final semantics = tester.ensureSemantics();
     await tester.pumpWidget(const MintNextDesignLabApp(locale: Locale('de')));
     await tester.tap(
@@ -138,7 +145,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('action:orientation.continue')));
     await tester.pumpAndSettle();
     final node = tester.getSemantics(
-      find.byKey(const ValueKey('action:fact_tax_year.confirm_current_year')),
+      find.byKey(const ValueKey('action:fact_lpp_affiliation.choose_yes')),
     );
     expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
     semantics.dispose();

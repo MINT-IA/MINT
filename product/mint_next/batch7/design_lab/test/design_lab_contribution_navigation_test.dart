@@ -20,9 +20,9 @@ Future<void> openContributionQuestion(
   );
   for (final action in [
     'action:today_3a_intent.start',
+    // Phase B: orientation.continue seeds the current-year default and routes
+    // straight to the LPP question (fact_tax_year screen removed from journey).
     'action:orientation.continue',
-    'action:fact_tax_year.confirm_current_year',
-    'action:fact_tax_year.continue',
     'action:fact_lpp_affiliation.choose_yes',
   ]) {
     final finder = find.byKey(ValueKey(action));
@@ -291,7 +291,7 @@ void main() {
     expect(action.focusNode?.hasFocus, isTrue);
   });
 
-  testWidgets('year rollover returns to tax year and clears scoped facts', (
+  testWidgets('year rollover returns to orientation and clears scoped facts', (
     tester,
   ) async {
     await openContributionQuestion(tester, currentYear: 2026);
@@ -304,7 +304,10 @@ void main() {
       const MintNextDesignLabApp(locale: Locale('fr'), currentYear: 2027),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOneWidget);
+    // Phase B: the calendar-year rollover re-seeds the current-year default and
+    // returns to orientation (was fact_tax_year, the screen removed from the
+    // journey); the removed screen's continue action is nowhere to be found.
+    expect(find.byKey(const ValueKey('node:orientation')), findsOneWidget);
     expect(
       find.byKey(const ValueKey('action:fact_tax_year.continue')),
       findsNothing,

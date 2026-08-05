@@ -11,9 +11,9 @@ Future<void> openContributedAmountBuilder(
   );
   for (final action in [
     'action:today_3a_intent.start',
+    // Phase B: 6-screen journey — orientation.continue routes straight to the
+    // LPP question (fact_tax_year screen removed; year is a default hypothesis).
     'action:orientation.continue',
-    'action:fact_tax_year.confirm_current_year',
-    'action:fact_tax_year.continue',
     'action:fact_lpp_affiliation.choose_yes',
     'action:fact_contribution.choose_yes',
   ]) {
@@ -447,7 +447,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('action:orientation.continue')));
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOneWidget);
+    // Phase B: after restart, orientation.continue lands on the LPP question
+    // directly (was fact_tax_year); the restarted journey carries no scoped
+    // amount facts forward.
+    expect(
+      find.byKey(const ValueKey('node:fact_lpp_affiliation')),
+      findsOneWidget,
+    );
     expect(find.text('VIAC'), findsNothing);
     expect(find.text('7258,50'), findsNothing);
   });
@@ -469,7 +475,10 @@ void main() {
       const MintNextDesignLabApp(locale: Locale('fr'), currentYear: 2027),
     );
     await tester.pump();
-    expect(find.byKey(const ValueKey('node:fact_tax_year')), findsOneWidget);
+    // Phase B: the calendar-year rollover purges scoped amounts and re-seeds the
+    // current-year default, returning to orientation (was fact_tax_year); the
+    // removed screen's continue action is absent from the journey.
+    expect(find.byKey(const ValueKey('node:orientation')), findsOneWidget);
     expect(find.text('VIAC'), findsNothing);
     expect(find.text('7258'), findsNothing);
     expect(find.textContaining('2026'), findsNothing);
@@ -495,9 +504,9 @@ void main() {
     );
     for (final action in [
       'action:today_3a_intent.start',
+      // Phase B: orientation.continue reaches the LPP question directly
+      // (fact_tax_year screen removed from the linear journey).
       'action:orientation.continue',
-      'action:fact_tax_year.confirm_current_year',
-      'action:fact_tax_year.continue',
       'action:fact_lpp_affiliation.choose_yes',
       'action:fact_contribution.choose_yes',
       'action:fact_contributed_amount.toggle_where_to_find',
