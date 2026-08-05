@@ -254,38 +254,16 @@ class Batch20R2RedGuardTest(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardFailure, "stay modal"):
             guard.validate(self.root, check_git=False)
 
-    def test_copy_privacy_dropping_search_scope_is_rejected(self) -> None:
-        # A privacy line that names the committed choice instead of the search
-        # query drops the search keyword entirely.
+    def test_copy_reintroducing_the_removed_privacy_key_is_rejected(self) -> None:
+        # privacy_copy_rule was removed (locality claims abolished 2026-08-05):
+        # a security fact is consulted on demand, not whispered. Re-adding the
+        # fact_commune_privacy key drifts the sealed 31-key set and must be rejected.
         self._mutate_copy(
             lambda d: d["copy"]["fr"].__setitem__(
-                "fact_commune_privacy", "Ton choix reste sur ton téléphone."
+                "fact_commune_privacy", "Ta recherche reste sur ton téléphone."
             )
         )
-        with self.assertRaisesRegex(guard.GuardFailure, "search query only"):
-            guard.validate(self.root, check_git=False)
-
-    def test_copy_privacy_extending_to_committed_commune_is_rejected(self) -> None:
-        # The exact bypass: keep the honest search keyword but ALSO claim the
-        # committed commune stays on device (it joins the profile). Must still be
-        # rejected even though the search-scope keyword is present.
-        self._mutate_copy(
-            lambda d: d["copy"]["fr"].__setitem__(
-                "fact_commune_privacy", "Ta recherche et ta commune restent sur ton téléphone."
-            )
-        )
-        with self.assertRaisesRegex(guard.GuardFailure, "exceeds the data contract"):
-            guard.validate(self.root, check_git=False)
-
-    def test_copy_privacy_naming_search_without_locality_is_rejected(self) -> None:
-        # The bypass: a line that names the search but asserts the OPPOSITE of
-        # locality ("sent to our servers") must not pass on the search word alone.
-        self._mutate_copy(
-            lambda d: d["copy"]["en"].__setitem__(
-                "fact_commune_privacy", "Your search is sent to our servers."
-            )
-        )
-        with self.assertRaisesRegex(guard.GuardFailure, "stays local/on-device"):
+        with self.assertRaisesRegex(guard.GuardFailure, "key set drifted"):
             guard.validate(self.root, check_git=False)
 
     def test_copy_church_not_marked_excluded_is_rejected(self) -> None:

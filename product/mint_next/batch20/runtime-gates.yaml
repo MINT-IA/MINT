@@ -3,7 +3,7 @@ status: candidate_expected_red_evidence_runtime_not_implemented
 batch: 20
 authority:
   immutable_scope: product/mint_next/batch20/commune-scope.yaml
-  immutable_scope_sha256: a9be522b3b7363ce9c1da3d7592c748f8e69e7a2bbc76060076332cecab99af9
+  immutable_scope_sha256: ee347aeb8d9081441d0ba700e7c85ecbdf9178863f3b849325c06d1ea9fbbe00
   runtime_surface: hidden_design_lab_only
   product_promotion: forbidden
   supersedes:
@@ -40,10 +40,10 @@ gates:
     expected_exit_code: 1
     expected_summary:
       passed: 2
-      failed: 13
+      failed: 14
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: b3b0658971402ec69e12b2853c7c722926c640e9fcf7a9aa3ca602d165a26704
+      test_sha256: 4777ae43c7dc34ca9807c8395756b42f8a52f7e7e6ff8abd6adc03e7321cdb38
       fixture_sha256: 25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700
     subgates:
       R2a_arrival_states_and_national_search:
@@ -52,6 +52,7 @@ gates:
       - R2_04
       - R2_05
       - R2_12
+      - R2_16
       R2b_matching_privacy_npa_and_aliases:
       - R2_06
       - R2_07
@@ -78,6 +79,7 @@ gates:
       R2_13: R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton naming result reachable
       R2_14: R2_14 continue is guarded by a reviewed commune reselection is idempotent and continue never routes in r2
       R2_15: R2_15 registry keeps R2 before R3 and excludes later evidence
+      R2_16: R2_16 the positive contribution branch also reaches the fused location runtime and back returns to the amount step
     expected_red_sentinels:
       R2_02 arrival focuses the heading not a raised keyboard and the question carries the meaning without a body: R2_02
       R2_03 an empty national query prompts for a commune name and dumps nothing until a prefix is typed: R2_03
@@ -92,6 +94,7 @@ gates:
       R2_12 entry is unset with no default recommended or derived commune and no unknown control: R2_12
       R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton naming result reachable: R2_13
       R2_14 continue is guarded by a reviewed commune reselection is idempotent and continue never routes in r2: R2_14
+      R2_16 the positive contribution branch also reaches the fused location runtime and back returns to the amount step: R2_16
   R3:
     state: blocked_by_R2
   R4a_safe_exit:

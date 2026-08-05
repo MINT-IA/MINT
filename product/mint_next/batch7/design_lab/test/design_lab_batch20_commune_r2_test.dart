@@ -4,9 +4,10 @@
 // HONEST + GREEN-REACHABLE expected-RED: the fused fact_lieu runtime does NOT
 // exist yet. The commune-directe pivot (Julien 2026-08-04) folds fact_canton
 // into fact_lieu — the user answers "Ou habites-tu ?" with a NATIONAL commune
-// search and the canton is DERIVED from the chosen commune, never asked. The
-// current runtime still lands on the superseded standalone fact_canton node
-// after the contribution boundary; fact_lieu is unwired. So each behavioural
+// search and the canton is DERIVED from the chosen commune, never asked. At the
+// sealed RED_COMMIT the fused fact_lieu node is unwired after the contribution
+// boundary (in the green build both contribution branches reach fact_lieu and
+// the standalone fact_canton screen is condemned). So each behavioural
 // obligation drives the real MintNextDesignLabApp through the already-green
 // shared 3a entry path to the contribution boundary (attested R1 green — see
 // product/mint_next/batch20/runtime-gates.yaml authority.supersedes), chooses
@@ -17,8 +18,9 @@
 // the fused node, the same green path lands directly on fact_lieu and each test
 // proceeds past the reach to validate the real behaviour. Two positive controls
 // pass: R2_01 (the shared entry path reaches the contribution boundary before
-// the fused runtime exists) and R2_15 (the registry keeps R2 first). Expected
-// machine summary: 2 passed, 13 failed, 0 load/harness errors.
+// the fused runtime exists) and R2_15 (the registry keeps R2 first). R2_16 adds
+// the positive contribution branch reaching the same fused node. Expected
+// machine summary: 2 passed, 14 failed, 0 load/harness errors.
 //
 // regle13 lesson (a) simulated-green smoke: this file mutates NO process-global
 // state (no debugPrint reassignment, no un-restored overrides); the only
@@ -141,8 +143,9 @@ Future<void> _reachLieu(
     findsOneWidget,
     reason:
         '$sentinel fact_lieu is unreachable: after the contribution boundary the '
-        'fused location node is absent (the R2 runtime is unimplemented; the '
-        'current runtime still lands on the superseded standalone fact_canton node)',
+        'fused location node is absent (the R2 runtime is unimplemented at this '
+        'sealed RED_COMMIT; in the green build both contribution branches reach '
+        'the fused fact_lieu and the standalone fact_canton screen is condemned)',
   );
 }
 
@@ -161,6 +164,40 @@ void main() {
   );
 
   // --- fact_lieu arrival, national search empty states and scope (R2a) ---
+
+  // Positive control #2 for the shared reach: the POSITIVE contribution branch
+  // (amount recorded) also reaches the fused fact_lieu node, and origin-aware
+  // system-back returns to the amount step (commune-directe: BOTH contribution
+  // branches reach fact_lieu). FAILS in RED (fact_lieu absent), PASSES in GREEN.
+  testWidgets(
+    'R2_16 the positive contribution branch also reaches the fused location runtime and back returns to the amount step',
+    (tester) async {
+      await _driveToContribution(tester);
+      await _tapVisible(tester, 'action:fact_contribution.choose_yes');
+      await tester.enterText(
+        _key('field:fact_contributed_amount.provider_name'),
+        'VIAC',
+      );
+      await tester.enterText(
+        _key('field:fact_contributed_amount.amount'),
+        '7000',
+      );
+      await _tapVisible(tester, 'action:fact_contributed_amount.toggle_all_reviewed');
+      await _tapVisible(tester, 'action:fact_contributed_amount.continue');
+      expect(
+        _key('node:fact_lieu'),
+        findsOneWidget,
+        reason:
+            '[R2_16] the positive contribution branch must reach the fused '
+            'fact_lieu node (the R2 runtime is unimplemented at this sealed '
+            'RED_COMMIT)',
+      );
+      // origin-aware system-back returns to the amount step (positive origin).
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(_key('node:fact_contributed_amount'), findsOneWidget);
+    },
+  );
 
   testWidgets(
     'R2_02 arrival focuses the heading not a raised keyboard and the question carries the meaning without a body',

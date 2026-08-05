@@ -13,6 +13,16 @@ fact_lieu surface: 2 pass, 13 named behavioural RED failures, 0 load/harness
 errors.
 """
 
+# HISTORICAL-REPLAY NOTICE (batch19 pattern, product decision 2026-08-05). This is
+# an expected-RED guard: validate()/run_expected_red assert the PRE-runtime state
+# (EXPECTED_LIB_SOURCE_SHA256 = the lib WITHOUT the fact_lieu runtime). The fact_lieu
+# runtime has existed since fec98e82b, so validate() and `--contract` fail on the
+# lib-inventory drift post-runtime — the expected-RED replay is HISTORICAL, attested
+# at the sealed RED_COMMIT, never a live proof. The STRUCTURAL constants below
+# (ANCHOR, EXPECTED_{COPY,SCOPE,TEST}_SHA256, EXPECTED_TEST_NAMES, subgates) remain
+# the sealed reference the green-gate reads; the LIVE structural proof is the
+# green-gate guard's `--contract`.
+
 from __future__ import annotations
 
 import argparse
@@ -50,12 +60,12 @@ ASSETS_ROOT = Path("product/mint_next/batch7/design_lab/assets")
 # dataset, fixture) — the frozen fact_lieu contract validated by Julien. The
 # RED-scope diff ANCHOR..candidate_end must touch only ALLOWED_DIFF_PATHS.
 # test_..._red_guard.py asserts ANCHOR == RED_COMMIT^.
-ANCHOR = "14dfceefe56a6f4abc6d3fd6f61ba92e678c682a"
+ANCHOR = "df4f7a4427e0feed44957ab7f3aec1f4d42779ed"
 
-EXPECTED_SCOPE_SHA256 = "a9be522b3b7363ce9c1da3d7592c748f8e69e7a2bbc76060076332cecab99af9"
-EXPECTED_COPY_SHA256 = "8c858ac6cb52ff170e8e86b4cc9e58dae798b45e271e6610de50bfccd8ac8a4c"
+EXPECTED_SCOPE_SHA256 = "ee347aeb8d9081441d0ba700e7c85ecbdf9178863f3b849325c06d1ea9fbbe00"
+EXPECTED_COPY_SHA256 = "a0de2dc4990bd69032e7b47a28efe95910d528cabe8b307ac94a986234d9e1de"
 EXPECTED_DATASET_SHA256 = "da63fba5a08ce7f6757e2ae794bd4ae12a57b87a6d909e382d4a7deb8e1c3969"
-EXPECTED_TEST_SHA256 = "b3b0658971402ec69e12b2853c7c722926c640e9fcf7a9aa3ca602d165a26704"
+EXPECTED_TEST_SHA256 = "4777ae43c7dc34ca9807c8395756b42f8a52f7e7e6ff8abd6adc03e7321cdb38"
 EXPECTED_FIXTURE_SHA256 = "25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700"
 EXPECTED_PUBSPEC_SHA256 = "0b83bf36a5ee2242becbd0fb601235f0c3b2942813207552a03957aaf1569326"
 EXPECTED_PUBSPEC_LOCK_SHA256 = "6d7f501ae44e385c80d3726c6a25d830d04d3acf0a7456c6129a293f97f885a1"
@@ -116,6 +126,7 @@ EXPECTED_TEST_NAMES = {
     "R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton naming result reachable",
     "R2_14 continue is guarded by a reviewed commune reselection is idempotent and continue never routes in r2",
     "R2_15 registry keeps R2 before R3 and excludes later evidence",
+    "R2_16 the positive contribution branch also reaches the fused location runtime and back returns to the amount step",
 }
 EXPECTED_FAILED_NAMES = EXPECTED_TEST_NAMES - {
     "R2_01 the shared entry path reaches the contribution boundary before the fused location runtime",
@@ -147,7 +158,7 @@ EXPECTED_BLOCKED_GATES = {
     "runtime_global": "blocked_by_R4",
 }
 EXPECTED_SUBGATES = {
-    "R2a_arrival_states_and_national_search": ["R2_02", "R2_03", "R2_04", "R2_05", "R2_12"],
+    "R2a_arrival_states_and_national_search": ["R2_02", "R2_03", "R2_04", "R2_05", "R2_12", "R2_16"],
     "R2b_matching_privacy_npa_and_aliases": ["R2_06", "R2_07", "R2_08", "R2_10"],
     "R2c_selection_glossary_a11y_and_compact": ["R2_09", "R2_11", "R2_13", "R2_14"],
 }
@@ -172,7 +183,7 @@ EXPECTED_COPY_KEYS = {
     "fact_commune_clear_search", "fact_commune_npa_secondary", "fact_commune_selection_label",
     "fact_commune_selection_selected", "fact_commune_selection_none", "fact_commune_change",
     "fact_commune_communal_hint", "fact_commune_continue", "fact_commune_back",
-    "fact_commune_privacy", "fact_commune_error_no_selection", "fact_commune_error_stale",
+    "fact_commune_error_no_selection", "fact_commune_error_stale",
     "fact_commune_gloss_communal_term", "fact_commune_gloss_communal_def",
     "fact_commune_gloss_communal_metaphor", "fact_commune_gloss_politique_term",
     "fact_commune_gloss_politique_def", "fact_commune_gloss_jour_term",
@@ -207,37 +218,13 @@ COPY_POLITICAL = {
     "de": ["politische", "wohnsitz"], "it": ["politico", "domicilio"],
     "es": ["político", "domicilio"], "pt": ["político", "domicílio"],
 }
-# privacy_copy_rule: only the transient SEARCH query is device-local; the
-# committed commune joins the profile. The privacy line must scope itself to the
-# search query — a broad "your choice stays on your phone" claim would lack the
-# search keyword and is rejected.
-COPY_SEARCH_LOCAL = {
-    "fr": ["recherche"], "en": ["search"], "de": ["suche"],
-    "it": ["ricerca"], "es": ["búsqueda"], "pt": ["pesquisa"],
-}
-# The privacy line must assert the search stays LOCAL (on device / not sent), not
-# merely mention the word "search": "search is sent to our servers" names the
-# search but is the opposite of the data contract.
-COPY_PRIVACY_LOCAL = {
-    "fr": ["téléphone", "appareil", "local"],
-    "en": ["phone", "device", "local"],
-    "de": ["gerät", "telefon", "lokal"],
-    "it": ["telefono", "dispositivo", "local"],
-    "es": ["teléfono", "telefono", "dispositivo", "local"],
-    "pt": ["telefone", "dispositivo", "local"],
-}
-# privacy_copy_rule.forbidden_privacy_claim: the on-device claim must NOT extend
-# to the committed commune or the choice (they join the profile). The honest line
-# names only the search, so any reference to the commune/municipality/choice in
-# the privacy line is a lie even when the search keyword is also present.
-COPY_PRIVACY_FORBIDDEN = {
-    "fr": ["commune", "choix", "domicile"],
-    "en": ["municipality", "commune", "choice"],
-    "de": ["gemeinde", "wahl"],
-    "it": ["comune", "scelta"],
-    "es": ["municipio", "elección", "eleccion"],
-    "pt": ["município", "municipio", "escolha"],
-}
+# privacy_copy_rule REMOVED (product decision 2026-08-05): the fact_lieu screen no
+# longer carries an unsolicited on-device claim — privacy claims derive from the
+# screen's data contract and locality claims are abolished everywhere. The former
+# COPY_SEARCH_LOCAL / COPY_PRIVACY_LOCAL / COPY_PRIVACY_FORBIDDEN dicts (which
+# constrained the removed fact_commune_privacy copy line) are dropped with the key.
+# The search query stays device-local as a DATA fact (commune-scope runtime_contract),
+# it is simply no longer whispered on screen.
 # church tax is EXCLUDED here: the church glossary definition must negate (not
 # merely mention church tax). Word-bounded negation particle, never a verbatim
 # phrase, so the copy stays free to say "we don't count it here" any way it likes.
@@ -334,7 +321,6 @@ def _validate_copy_semantics(root: Path) -> None:
             + str(block["fact_commune_gloss_politique_def"])
         )
         jour_def = str(block["fact_commune_gloss_jour_def"])
-        privacy = str(block["fact_commune_privacy"])
         selection = str(block["fact_commune_selection_selected"])
 
         _require(
@@ -360,18 +346,6 @@ def _validate_copy_semantics(root: Path) -> None:
         _require(
             "31" in jour_def,
             f"copy [{locale}] determining-date glossary must name the 31 December reference",
-        )
-        _require(
-            _has_any(privacy, COPY_SEARCH_LOCAL[locale]),
-            f"copy [{locale}] privacy line must scope on-device to the search query only (data contract)",
-        )
-        _require(
-            _has_any(privacy, COPY_PRIVACY_LOCAL[locale]),
-            f"copy [{locale}] privacy line must assert the search stays local/on-device, not merely name the search",
-        )
-        _require(
-            not _has_any(privacy, COPY_PRIVACY_FORBIDDEN[locale]),
-            f"copy [{locale}] privacy line claims the committed commune/choice stays on device (exceeds the data contract)",
         )
         _require(
             "{commune}" in selection and "{canton}" in selection,
@@ -467,9 +441,9 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     )
     _require(r2.get("working_directory") == "product/mint_next/batch7/design_lab", "R2 working directory drifted")
     _require(r2.get("expected_exit_code") == 1, "R2 expected exit drifted")
-    _require(r2.get("expected_summary") == {"passed": 2, "failed": 13, "load_or_harness_errors": 0}, "R2 expected summary drifted")
+    _require(r2.get("expected_summary") == {"passed": 2, "failed": 14, "load_or_harness_errors": 0}, "R2 expected summary drifted")
     obligation_map = r2.get("obligation_test_names", {})
-    expected_ids = {f"R2_{index:02d}" for index in range(1, 16)}
+    expected_ids = {f"R2_{index:02d}" for index in range(1, 17)}
     _require(set(obligation_map) == expected_ids, "R2 obligation coverage drifted")
     mapped_names = set()
     for value in obligation_map.values():
