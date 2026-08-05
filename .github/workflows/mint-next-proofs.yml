@@ -31,6 +31,8 @@ on:
       - 'tools/checks/tests/test_mint_next_batch19_r1_green*'
       - 'tools/checks/mint_next_batch20_r2_*'
       - 'tools/checks/tests/test_mint_next_batch20_r2_*'
+      - 'tools/checks/mint_next_batch21_r3_*'
+      - 'tools/checks/tests/test_mint_next_batch21_r3_*'
       - '.planning/journeys/path-owners/**'
       - '.github/workflows/mint-next-proofs.yml'
   push:
@@ -44,6 +46,8 @@ on:
       - 'tools/checks/tests/test_mint_next_batch19_r1_green*'
       - 'tools/checks/mint_next_batch20_r2_*'
       - 'tools/checks/tests/test_mint_next_batch20_r2_*'
+      - 'tools/checks/mint_next_batch21_r3_*'
+      - 'tools/checks/tests/test_mint_next_batch21_r3_*'
       - '.planning/journeys/path-owners/**'
       - '.github/workflows/mint-next-proofs.yml'
   workflow_dispatch:
@@ -104,6 +108,33 @@ jobs:
   # workflow is foreign to that git boundary by design), and the green-gate
   # --contract validates structure while pending. The 16/16 GREEN replay + the
   # historical RED replay stay dispatch-only (never on push).
+  # batch21 R3 mirrors the batch20 job below — same status-agnostic structural
+  # proof (accepted RED receipt; the expected-RED replay is the linear
+  # integration-journey contract, green at the declared integration batch —
+  # see product/mint_next/batch21/runtime-gates.yaml deferred_integration).
+  batch21-acceptance-contract:
+    name: Batch21 R3 acceptance receipt contract (status-agnostic, check_git=False, no Flutter)
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency
+        run: python3 -m pip install PyYAML==6.0.2
+      - name: Verify the batch21 R3 acceptance receipt substance (payload + schema + RED-artifact drift; check_git=False — status-agnostic, passes PENDING and accepted)
+        run: >-
+          python3 -B -c "import sys; sys.path.insert(0, '.');
+          from tools.checks.mint_next_batch21_r3_red_acceptance_guard import validate, REPO_ROOT;
+          validate(REPO_ROOT, check_git=False);
+          print('BATCH21 ACCEPTANCE RECEIPT SUBSTANCE OK')"
+      - name: Fire the hostile acceptance-guard mutations (state-agnostic)
+        run: python3 -B -m unittest tools.checks.tests.test_mint_next_batch21_r3_red_acceptance_guard
+
   batch20-acceptance-contract:
     name: Batch20 R2 acceptance receipt contract (status-agnostic, check_git=False, no Flutter)
     if: github.event_name != 'workflow_dispatch'
