@@ -57,8 +57,8 @@ FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch20_r2_green_gate_
 # Re-pinned immutables frozen by this transition. These MUST equal the current
 # files: the RED contract and its registry cannot silently drift while the GREEN
 # gate that supersedes their replay is under review.
-RED_GUARD_SHA256 = "4d6d459ac2fe07e8fcfdd1c5735081f6d3fda82d97eba66d8ea5503461e3ad86"
-REGISTRY_SHA256 = "9544be94bbc10cba9e1e323131a778e2e67dbd4ce5239efe533447c5e57482e7"
+RED_GUARD_SHA256 = "50b839ac2b1591389fd870802bb210b6691242181b99179205274e8b73e842c5"
+REGISTRY_SHA256 = "496dfb6ab850e142d355c4b6b7c098e7e39b99ba3a46e4529f16fd605ddcabe1"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected
@@ -67,7 +67,7 @@ GREEN_COMMAND = [
     "flutter", "test", "test/design_lab_batch20_commune_r2_test.dart",
     "--machine", "--no-pub",
 ]
-GREEN_SUMMARY = {"passed": 15, "failed": 0, "load_or_harness_errors": 0}
+GREEN_SUMMARY = {"passed": 16, "failed": 0, "load_or_harness_errors": 0}
 
 # (c) CI enforcement. While PENDING only the structure gate runs (--contract).
 # Acceptance is attested by EXECUTING the full green replay (run_expected_green
@@ -80,7 +80,7 @@ EXPECTED_CI_ENFORCEMENT = {
     "pending": "contract_only",
     "accepted_attested_by": "dispatched_full_green_replay_run_expected_green",
     "attestation_command": FULL_MODE_INVOCATION,
-    "retires": "red_replay_2_13",
+    "retires": "red_replay_2_14",
 }
 
 ROLES = {"scope_integrity", "mechanical_adversary", "journey_safety"}
@@ -96,8 +96,8 @@ TOP_KEYS = {
 # (a) The RED 2/13 replay is retired; upon promotion + implementation the active
 # CI gate becomes the GREEN 15/15 replay of the exact same sealed spec.
 EXPECTED_GREEN_GATE = {
-    "retires": "red_replay_2_13",
-    "active_gate_upon_promotion": "green_replay_15_15",
+    "retires": "red_replay_2_14",
+    "active_gate_upon_promotion": "green_replay_16_16",
     "test_file": str(red.TEST),
     "test_sha256": red.EXPECTED_TEST_SHA256,
     "fixture_file": str(red.FIXTURE),

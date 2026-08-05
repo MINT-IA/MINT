@@ -1,27 +1,16 @@
-# Batch20 R2 GREEN-GATE manifest — PENDING, pre-implementation.
-# Governance transition only: retires the accepted 2/13 RED replay of the fused
-# fact_lieu (COMMUNE DIRECTE) contract and installs the 15/15 GREEN replay as the
-# active R2 gate upon promotion + implementation. The R2 runtime path-owner
-# (batch20-r2-runtime: fact_lieu.dart + fact_lieu_catalog.g.dart) is not yet
-# accepted; do not run the GREEN Flutter replay while pending (it would still be
-# 2/13). green_gate.ci_enforcement: --contract validates structure while pending;
-# acceptance is attested by EXECUTING the full --release replay (run_expected_green,
-# fail-closed 15/15), dispatched at the accepted SHA like the RED release
-# attestation — NOT by any static check of the CI workflow file. Sealed by
-# tools/checks/mint_next_batch20_r2_green_gate_guard.py.
 schema_version: 1
-status: accepted_green_gate_runtime_implemented_hidden_only
-current_verdict: GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY
+status: candidate_green_gate_unaccepted
+current_verdict: PENDING_INDEPENDENT_ROASTS
 supersedes:
   red_acceptance_receipt: product/mint_next/batch20/r2-red-acceptance.json
   accepted_payload_sha256: a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792
   accepted_commit: 062a12ac4650888d8adc2cc7a4e3f9533b6ad7b7
   attestation_run: https://github.com/MINT-IA/MINT/actions/runs/30953934739
 green_gate:
-  retires: red_replay_2_13
-  active_gate_upon_promotion: green_replay_15_15
+  retires: red_replay_2_14
+  active_gate_upon_promotion: green_replay_16_16
   test_file: product/mint_next/batch7/design_lab/test/design_lab_batch20_commune_r2_test.dart
-  test_sha256: b3b0658971402ec69e12b2853c7c722926c640e9fcf7a9aa3ca602d165a26704
+  test_sha256: 4777ae43c7dc34ca9807c8395756b42f8a52f7e7e6ff8abd6adc03e7321cdb38
   fixture_file: product/mint_next/batch7/design_lab/test/batch20_commune_fixture.g.dart
   fixture_sha256: 25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700
   command:
@@ -32,7 +21,7 @@ green_gate:
   - --no-pub
   working_directory: product/mint_next/batch7/design_lab
   expected_summary:
-    passed: 15
+    passed: 16
     failed: 0
     load_or_harness_errors: 0
   expected_exit_code: 0
@@ -62,19 +51,21 @@ green_gate:
   - R2_14 continue is guarded by a reviewed commune reselection is idempotent and
     continue never routes in r2
   - R2_15 registry keeps R2 before R3 and excludes later evidence
+  - R2_16 the positive contribution branch also reaches the fused location runtime
+    and back returns to the amount step
   ci_enforcement:
     pending: contract_only
     accepted_attested_by: dispatched_full_green_replay_run_expected_green
     attestation_command: python3 -I tools/checks/mint_next_batch20_r2_green_gate_guard.py
       --release
-    retires: red_replay_2_13
+    retires: red_replay_2_14
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch20_r2_red_guard.py
-    sha256: 4d6d459ac2fe07e8fcfdd1c5735081f6d3fda82d97eba66d8ea5503461e3ad86
+    sha256: 50b839ac2b1591389fd870802bb210b6691242181b99179205274e8b73e842c5
   registry:
     path: product/mint_next/batch20/runtime-gates.yaml
-    sha256: 9544be94bbc10cba9e1e323131a778e2e67dbd4ce5239efe533447c5e57482e7
+    sha256: 496dfb6ab850e142d355c4b6b7c098e7e39b99ba3a46e4529f16fd605ddcabe1
 runtime_regating:
   scope_owner: batch20-r2-runtime
   regated_file: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
@@ -83,29 +74,28 @@ runtime_surface: hidden_design_lab_only
 product_promotion: forbidden
 reviews:
   journey_safety:
-    verdict: ACCEPT
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
   mechanical_adversary:
-    verdict: ACCEPT
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
   scope_integrity:
-    verdict: ACCEPT
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
 mechanical_binding:
-  candidate_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
-  reviewed_payload_sha256: 28a3e205a441de0f681710c1ef3d5f658c6a763b4522259ce23b8b332a855d4f
-  reviewed_candidate_commit: 957ae60ea568b77d503369c858893065bac85ce1
-  green_lib_inventory_sha256: 0c987bb83500d01621307f2d8479f322500418a435e2cc86280ca4c4fe5f5b19
+  candidate_payload_sha256: 1f69fee94a364b6a8f0cd8bfdfd4c6237ecc902d0ceb4ca0d4a1118bf7ba59e8
+  reviewed_payload_sha256: null
+  reviewed_candidate_commit: null
+  green_lib_inventory_sha256: null
 not_accepted:
+- runtime_implemented
+- lib_inventory_sealed
 - product_route
 - production_ready
 next_gate: seal_R2_green_lib_inventory_then_R3
