@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "status": "accepted_expected_red_evidence_runtime_not_implemented",
-  "current_verdict": "RED_CONTRACT_ACCEPTED_RUNTIME_NOT_IMPLEMENTED",
+  "status": "candidate_red_acceptance_unaccepted",
+  "current_verdict": "PENDING_INDEPENDENT_ROASTS",
   "candidate": {
-    "red_commit": "533d8e4eac50b46196a26ba517f8bad1e517c780",
+    "red_commit": "1d24622f4051b81a2a7f23753ea76df6f8435118",
     "gate": "R2",
     "lifecycle": "expected_red",
     "runtime_implemented": false,
@@ -11,7 +11,7 @@
     "product_surface": "hidden_design_lab_only",
     "expected_summary": {
       "passed": 2,
-      "failed": 13,
+      "failed": 14,
       "load_or_harness_errors": 0
     }
   },
@@ -22,35 +22,30 @@
   },
   "reviews": {
     "architecture_integrity": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     },
     "mechanical_evidence": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     },
     "ux_navigation_scope": {
-      "verdict": "ACCEPT",
-      "p1": 0,
-      "p2": 0,
-      "p3": 0,
-      "reviewed_payload_sha256": "a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792"
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
     }
   },
   "mechanical_binding": {
-    "candidate_review_payload_sha256": "a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792",
-    "reviewed_payload_sha256": "a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792",
-    "reviewed_candidate_commit": "4e2f61d5f409e9160bddc745711087f9515f3607"
+    "candidate_review_payload_sha256": "0fe7bab3ec0b6aadb3f76a43f13a56052722e335300d9042b89cb0431aae5623",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
   },
-  "accepted_evidence": [
-    "expected_failing_R2_contract_only"
-  ],
+  "accepted_evidence": [],
   "not_accepted": [
     "runtime_implemented",
     "runtime_accepted",
@@ -59,5 +54,5 @@
     "R3_or_later_gate",
     "production_ready"
   ],
-  "next_gate": "create_and_review_R2_runtime_path_owner_receipt"
+  "next_gate": "independent_roasts_of_exact_pending_acceptance_commit"
 }

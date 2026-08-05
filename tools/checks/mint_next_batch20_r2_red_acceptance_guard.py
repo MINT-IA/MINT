@@ -40,7 +40,7 @@ RED_TESTS = Path("tools/checks/tests/test_mint_next_batch20_r2_red_guard.py")
 REGISTRY = Path("product/mint_next/batch20/runtime-gates.yaml")
 R2_TEST = Path("product/mint_next/batch7/design_lab/test/design_lab_batch20_commune_r2_test.dart")
 RED_ARTIFACTS = (REGISTRY, R2_TEST, RED_GUARD, RED_TESTS)
-RED_COMMIT = "533d8e4eac50b46196a26ba517f8bad1e517c780"
+RED_COMMIT = "1d24622f4051b81a2a7f23753ea76df6f8435118"
 OWNER_PROMOTION_COMMIT = "d5b62d8f8e9ef2bd3bf911e3b9a1293718e5208d"
 TRUST_OWNER_PROMOTION_COMMIT = "d5b62d8f8e9ef2bd3bf911e3b9a1293718e5208d"
 ROLES = {"architecture_integrity", "mechanical_evidence", "ux_navigation_scope"}
@@ -163,7 +163,7 @@ def _core(data: dict) -> None:
         "runtime_implemented": False,
         "runtime_accepted": False,
         "product_surface": "hidden_design_lab_only",
-        "expected_summary": {"passed": 2, "failed": 13, "load_or_harness_errors": 0},
+        "expected_summary": {"passed": 2, "failed": 14, "load_or_harness_errors": 0},
     }, "RED candidate identity or boundary drifted")
     _require(data.get("proof_commands") == COMMANDS, "proof command inventory drifted")
     _require(data.get("not_accepted") == NOT_ACCEPTED, "not-accepted boundary drifted")
