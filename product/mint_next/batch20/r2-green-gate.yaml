@@ -1,6 +1,6 @@
 schema_version: 1
-status: candidate_green_gate_unaccepted
-current_verdict: PENDING_INDEPENDENT_ROASTS
+status: accepted_green_gate_runtime_implemented_hidden_only
+current_verdict: GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY
 supersedes:
   red_acceptance_receipt: product/mint_next/batch20/r2-red-acceptance.json
   accepted_payload_sha256: a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792
@@ -73,28 +73,29 @@ runtime_surface: hidden_design_lab_only
 product_promotion: forbidden
 reviews:
   journey_safety:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 5eeacb6c66fada4799d82bee63d963c839515960ea4dc2d9b61f16d7cf14163b
   mechanical_adversary:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 5eeacb6c66fada4799d82bee63d963c839515960ea4dc2d9b61f16d7cf14163b
   scope_integrity:
-    verdict: PENDING
-    p1: null
-    p2: null
-    p3: null
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 5eeacb6c66fada4799d82bee63d963c839515960ea4dc2d9b61f16d7cf14163b
 mechanical_binding:
   candidate_payload_sha256: 5eeacb6c66fada4799d82bee63d963c839515960ea4dc2d9b61f16d7cf14163b
-  reviewed_payload_sha256: null
-  reviewed_candidate_commit: null
-  green_lib_inventory_sha256: null
+  reviewed_payload_sha256: 5eeacb6c66fada4799d82bee63d963c839515960ea4dc2d9b61f16d7cf14163b
+  reviewed_candidate_commit: de47319789cc755f53db9d6a6ed4f1fe11faf0a3
+  green_lib_inventory_sha256: b488fd3da8ddf93c1a35aa38c8e0fdad1fe9d0df9997fa1a9ce45cae80caada2
 not_accepted:
-- runtime_implemented
-- lib_inventory_sealed
 - product_route
 - production_ready
 next_gate: seal_R2_green_lib_inventory_then_R3
