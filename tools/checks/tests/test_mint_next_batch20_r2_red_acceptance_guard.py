@@ -39,7 +39,7 @@ def _candidate(red_commit: str) -> dict:
         "runtime_implemented": False,
         "runtime_accepted": False,
         "product_surface": "hidden_design_lab_only",
-        "expected_summary": {"passed": 2, "failed": 13, "load_or_harness_errors": 0},
+        "expected_summary": {"passed": 2, "failed": 14, "load_or_harness_errors": 0},
     }
 
 
