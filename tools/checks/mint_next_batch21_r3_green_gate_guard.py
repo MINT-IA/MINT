@@ -77,7 +77,7 @@ GREEN_SUMMARY = {"passed": 14, "failed": 0, "load_or_harness_errors": 0}
 # display_only ruling, the unused batch20 compile-fixture import dropped. This is
 # the delivered test the GREEN replay runs — distinct from red.EXPECTED_TEST_SHA256
 # (the frozen RED test).
-GREEN_TEST_SHA256 = "41f4bbfca4aabfe95bb8261ae5296a0051b870f70bd992a2cc9c47feaf59df99"
+GREEN_TEST_SHA256 = "356172a908461607011e261a31e056f6e73ad4dd808efeda791f897d525b1b70"
 GREEN_TEST_NAMES = {
     "R3_01 the shared entry path reaches the fact_lieu boundary before the R3 fact_revenu runtime",
     "R3_02 fact_revenu shows six taxable income band cards none preselected and no wheel or keyboard",

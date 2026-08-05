@@ -42,7 +42,7 @@ gates:
       failed: 14
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: 27abb5ff0803af695c1ca2614cf0ae4d1492426325a56d7a136b9935f266a151
+      test_sha256: f285ccc9d283037bfe1197064b8a801d3ae3ee1e9dede32f141be3290da2dbc5
     subgates:
       R4a_scenarios_versement:
       - R4_02
@@ -108,8 +108,9 @@ deferred_integration:
   # SCREENS are now REACHABLE from the linear journey via the two INBOUND edges:
   # eclairage.continue -> scenarios_versement ; the eclairage situation row refine
   # -> fact_etat_civil. BOTH inbound edges are PROVEN by the 16/16 reach (the sealed
-  # test drives them). The frozen R4 expected-RED test (sha 27abb5ff...) flips 2/14
-  # -> 16/16 by this WIRING ALONE (no test amendment). The OUTBOUND loop is NOT
+  # test drives them). The R4 sealed test flips 2/14 -> 16/16 by the green WIRING;
+  # Phase B then re-pinned its shared entry path (sha 27abb5ff -> f285ccc9) when the
+  # fact_tax_year screen left the journey — still 16/16. The OUTBOUND loop is NOT
   # closed in this wave and is NOT claimed: fact_etat_civil.continue NEVER routes
   # (sealed R4_14; runtime onContinue:null) and the scenarios footer controls do not
   # route (runtime no-ops) — the married recompute (etat_civil -> eclairage,

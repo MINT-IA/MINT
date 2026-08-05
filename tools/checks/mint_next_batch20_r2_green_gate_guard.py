@@ -57,8 +57,8 @@ FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch20_r2_green_gate_
 # Re-pinned immutables frozen by this transition. These MUST equal the current
 # files: the RED contract and its registry cannot silently drift while the GREEN
 # gate that supersedes their replay is under review.
-RED_GUARD_SHA256 = "50b839ac2b1591389fd870802bb210b6691242181b99179205274e8b73e842c5"
-REGISTRY_SHA256 = "496dfb6ab850e142d355c4b6b7c098e7e39b99ba3a46e4529f16fd605ddcabe1"
+RED_GUARD_SHA256 = "93d9d10000347e9885407b825254bbc737d6272def16860d843502f4b82d3bfe"
+REGISTRY_SHA256 = "015fb0aaa0f6df449d6d30a0bee86c4e88d9076451d095a8c1bddbed8a78638e"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected

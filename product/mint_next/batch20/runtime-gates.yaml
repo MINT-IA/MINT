@@ -43,7 +43,7 @@ gates:
       failed: 14
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: 4777ae43c7dc34ca9807c8395756b42f8a52f7e7e6ff8abd6adc03e7321cdb38
+      test_sha256: 1df3c7f0b2823c8d10fe1f753a132ea2e0c0806e1dca0e24e1be399804512a33
       fixture_sha256: 25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700
     subgates:
       R2a_arrival_states_and_national_search:

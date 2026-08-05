@@ -81,12 +81,12 @@ FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch22_r4_green_gate_
 
 # Re-pinned immutables frozen by this transition. These MUST equal the current
 # files: the RED guard and the ANCHOR-green registry cannot silently drift while
-# the GREEN gate that supersedes their replay is under review. RED_GUARD_SHA256 is
-# the frozen batch22 RED guard (unchanged by the green wave); REGISTRY_SHA256 is
-# the ANCHOR-green registry (deferred_integration -> delivered + reconciliation
-# graved), re-pinned in cascade.
-RED_GUARD_SHA256 = "c410712f32c168f5b380d681f2aff98205797e96cc2aa1e7a055832e05c5b003"
-REGISTRY_SHA256 = "befd12cc1b428e5caf8a83c24e3ab478a31369f8eef17bee9c078bf9a33fcd60"
+# the GREEN gate that supersedes their replay is under review. Phase B (année =
+# hypothèse par défaut, plus une question) re-pinned BOTH: the RED guard's
+# EXPECTED_TEST_SHA256 + the registry's candidate_binding to the new sealed-test
+# sha after the shared entry path dropped the two fact_tax_year taps.
+RED_GUARD_SHA256 = "c87c3a692582f36bf88ffc9b513684df65dc2cec124fd5d6e7b123dbeb3a8f91"
+REGISTRY_SHA256 = "e8bf0a2aa210c0ebb1b5339788c6ca4dabe1c5e97d5d7c6a35e8dad3efb4385d"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected

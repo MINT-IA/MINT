@@ -21,6 +21,13 @@ import 'scenarios_versement.dart';
 enum _DesignNode {
   today3aIntent,
   orientation,
+  // Phase B (année = hypothèse par défaut, plus une question): factTaxYear is
+  // kept as a documented-historical, UNREACHABLE node — no inbound edge routes
+  // here anymore (orientation.continue, the batch16 purge, the year-rollover
+  // reset and the LPP back-edge all now target orientation). The linear journey
+  // dropped from 7 to 6 screens before the éclairage. Retained only for switch
+  // exhaustiveness + the frozen batch6/batch7 contract (navigation.yaml still
+  // describes the 7-screen graph — declared divergence, superseded by runtime).
   factTaxYear,
   factLppAffiliation,
   lppUnknownHelp,
@@ -392,7 +399,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     const ttl = Duration(minutes: 30);
     final elapsed = widget.now().difference(_batch16LastActivity);
     if (elapsed >= ttl) {
-      _purgeToTaxYear();
+      _purgeToOrientation();
       return;
     }
     _batch16Ttl = Timer(ttl - elapsed, _expireBatch16IfStale);
@@ -403,18 +410,22 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     _armBatch16Ttl();
   }
 
-  void _purgeToTaxYear() {
+  void _purgeToOrientation() {
     if (!mounted || !widget.enableBatch16Unresolved) return;
     setState(() {
       _clearContributionFacts();
       _unresolvedOrigin = null;
-      _node = _DesignNode.factTaxYear;
+      // Phase B: the tax-year screen is gone; the batch16 safe purge now lands on
+      // orientation (the screen that precedes the LPP question) and re-seeds the
+      // default year hypothesis so downstream `_taxYear!` stays non-null.
+      _taxYear = widget.currentYear;
+      _node = _DesignNode.orientation;
     });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.detached) _purgeToTaxYear();
+    if (state == AppLifecycleState.detached) _purgeToOrientation();
   }
 
   @override
@@ -423,7 +434,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     if (oldWidget.currentYear != widget.currentYear) {
       _clearEphemeralFacts();
       _unresolvedOrigin = null;
-      _node = _DesignNode.factTaxYear;
+      // Phase B: on a calendar-year rollover the default year hypothesis re-seeds
+      // silently to the new current year and the journey returns to orientation.
+      // DEFERRED: the batch6 navigation contract wanted to surface
+      // `tax_year_rolled_over`; with the tax-year screen removed that surfacing
+      // waits for the future year-refinement affordance (no rollover screen in
+      // this wave — explicit deferral, not a silent gap).
+      _taxYear = widget.currentYear;
+      _node = _DesignNode.orientation;
     }
   }
 
@@ -711,9 +729,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       case _DesignNode.orientation:
         _go(_DesignNode.today3aIntent);
       case _DesignNode.factTaxYear:
+        // Historical-unreachable (Phase B); kept for switch exhaustiveness.
         _go(_DesignNode.orientation);
       case _DesignNode.factLppAffiliation:
-        _go(_DesignNode.factTaxYear);
+        _go(_DesignNode.orientation);
       case _DesignNode.lppUnknownHelp:
       case _DesignNode.withoutLppBoundary:
         _go(_DesignNode.factLppAffiliation);
@@ -802,9 +821,21 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             onStart: () => _go(_DesignNode.orientation),
                           ),
                           _DesignNode.orientation => _Orientation(
-                            onContinue: () => _go(_DesignNode.factTaxYear),
+                            // Phase B: orientation now leads straight to the LPP
+                            // affiliation question (6-screen journey). The tax
+                            // year is no longer a screen — it is seeded here as
+                            // the default hypothesis (current calendar year),
+                            // shown later in the éclairage eyebrow (Impôts ·
+                            // {année}) and refinable in a future wave.
+                            onContinue: () => setState(() {
+                              _taxYear = widget.currentYear;
+                              _node = _DesignNode.factLppAffiliation;
+                            }),
                             onBack: () => _go(_DesignNode.today3aIntent),
                           ),
+                          // Phase B: historical-unreachable renderer, retained
+                          // for switch exhaustiveness (no inbound edge routes
+                          // to factTaxYear anymore).
                           _DesignNode.factTaxYear => _TaxYear(
                             selectedYear: _taxYear,
                             currentYear: widget.currentYear,
@@ -836,7 +867,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                   _DesignNode.lppUnknownHelp,
                               });
                             },
-                            onBack: () => _go(_DesignNode.factTaxYear),
+                            onBack: () => _go(_DesignNode.orientation),
                           ),
                           _DesignNode.lppUnknownHelp => _LppUnknownHelp(
                             onBack: () => _go(_DesignNode.factLppAffiliation),

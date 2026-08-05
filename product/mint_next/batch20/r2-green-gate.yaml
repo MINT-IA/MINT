@@ -1,6 +1,6 @@
 schema_version: 1
-status: accepted_green_gate_runtime_implemented_hidden_only
-current_verdict: GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY
+status: candidate_green_gate_unaccepted
+current_verdict: PENDING_INDEPENDENT_ROASTS
 supersedes:
   red_acceptance_receipt: product/mint_next/batch20/r2-red-acceptance.json
   accepted_payload_sha256: a81c7cd13c56d19b67c79af0134af06f0373a99e763f1be733e45f125bf4f792
@@ -10,7 +10,7 @@ green_gate:
   retires: red_replay_2_14
   active_gate_upon_promotion: green_replay_16_16
   test_file: product/mint_next/batch7/design_lab/test/design_lab_batch20_commune_r2_test.dart
-  test_sha256: 4777ae43c7dc34ca9807c8395756b42f8a52f7e7e6ff8abd6adc03e7321cdb38
+  test_sha256: 1df3c7f0b2823c8d10fe1f753a132ea2e0c0806e1dca0e24e1be399804512a33
   fixture_file: product/mint_next/batch7/design_lab/test/batch20_commune_fixture.g.dart
   fixture_sha256: 25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700
   command:
@@ -62,10 +62,10 @@ green_gate:
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch20_r2_red_guard.py
-    sha256: 50b839ac2b1591389fd870802bb210b6691242181b99179205274e8b73e842c5
+    sha256: 93d9d10000347e9885407b825254bbc737d6272def16860d843502f4b82d3bfe
   registry:
     path: product/mint_next/batch20/runtime-gates.yaml
-    sha256: 496dfb6ab850e142d355c4b6b7c098e7e39b99ba3a46e4529f16fd605ddcabe1
+    sha256: 015fb0aaa0f6df449d6d30a0bee86c4e88d9076451d095a8c1bddbed8a78638e
 runtime_regating:
   scope_owner: batch20-r2-runtime
   regated_file: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
@@ -74,29 +74,28 @@ runtime_surface: hidden_design_lab_only
 product_promotion: forbidden
 reviews:
   journey_safety:
-    verdict: ACCEPT
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 1f69fee94a364b6a8f0cd8bfdfd4c6237ecc902d0ceb4ca0d4a1118bf7ba59e8
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
   mechanical_adversary:
-    verdict: ACCEPT
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 1f69fee94a364b6a8f0cd8bfdfd4c6237ecc902d0ceb4ca0d4a1118bf7ba59e8
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
   scope_integrity:
-    verdict: ACCEPT
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 1f69fee94a364b6a8f0cd8bfdfd4c6237ecc902d0ceb4ca0d4a1118bf7ba59e8
+    verdict: PENDING
+    p1: null
+    p2: null
+    p3: null
 mechanical_binding:
-  candidate_payload_sha256: 1f69fee94a364b6a8f0cd8bfdfd4c6237ecc902d0ceb4ca0d4a1118bf7ba59e8
-  reviewed_payload_sha256: 1f69fee94a364b6a8f0cd8bfdfd4c6237ecc902d0ceb4ca0d4a1118bf7ba59e8
-  reviewed_candidate_commit: c5d13c9f62c43a0274a9473bb8b07f91f3ac0381
-  green_lib_inventory_sha256: cd4b05717e48c086aea8b3d1af7b1ac273ef759be74af9527ef234e1d6609631
+  candidate_payload_sha256: 79c21fe14f8d1a83602d1ec1f439eb4ceb3bf9b42b1e653bfdcc5e71befe62a0
+  reviewed_payload_sha256: null
+  reviewed_candidate_commit: null
+  green_lib_inventory_sha256: null
 not_accepted:
+- runtime_implemented
+- lib_inventory_sealed
 - product_route
 - production_ready
 next_gate: seal_R2_green_lib_inventory_then_R3

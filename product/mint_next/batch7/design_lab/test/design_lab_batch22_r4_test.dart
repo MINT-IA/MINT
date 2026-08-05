@@ -41,11 +41,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_next_design_lab/design_lab_app.dart';
 
+// Phase B supersession: the fact_tax_year screen left the journey (année =
+// hypothèse par défaut, plus une question). orientation.continue now seeds the
+// current-year default and routes straight to the LPP question — the two
+// fact_tax_year taps are dropped from the shared entry path. Obligation count
+// is unchanged (the taps were setup, not assertions).
 const _entryActions = <String>[
   'action:today_3a_intent.start',
   'action:orientation.continue',
-  'action:fact_tax_year.confirm_current_year',
-  'action:fact_tax_year.continue',
   'action:fact_lpp_affiliation.choose_yes',
 ];
 
