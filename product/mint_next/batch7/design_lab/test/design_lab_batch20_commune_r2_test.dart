@@ -453,13 +453,17 @@ void main() {
   );
 
   testWidgets(
-    'R2_14 continue is guarded by a reviewed commune reselection is idempotent and continue never routes in r2',
+    'R2_14 continue is guarded by a reviewed commune and reselection is idempotent and continue routes to the r3 fact_revenu node at the eclairage integration',
     (tester) async {
       await _reachLieu(tester, sentinel: '[R2_14]');
-      // GREEN: continue with nothing selected surfaces the no-selection guard
-      // (route_guard a_reviewed_commune_is_selected); select Bern (BFS 351),
-      // reselect it (idempotent no-op), then continue — which validates but
-      // never routes out of fact_lieu in R2.
+      // GREEN, superseded by the batch21 éclairage integration: continue with
+      // nothing selected surfaces the no-selection guard (route_guard
+      // a_reviewed_commune_is_selected); select Bern (BFS 351), reselect it
+      // (idempotent no-op), then continue — which now that the éclairage arc is
+      // wired into the journey routes forward to the R3 fact_revenu node. The
+      // batch20 R2 « never routes in r2 » outbound-edge obligation is superseded
+      // BY PIN (registry.deferred_integration); batch20 stays attested at its
+      // historical green replay run, this live sibling is re-gated to the wire.
       await _tapVisible(tester, 'action:fact_lieu.continue');
       expect(_key('status:fact_lieu.error_no_selection'), findsOneWidget);
       await _query(tester, 'Bern');
@@ -468,7 +472,7 @@ void main() {
       await _tapVisible(tester, 'choice:fact_lieu.351');
       expect(_key('status:fact_lieu.selection'), findsOneWidget);
       await _tapVisible(tester, 'action:fact_lieu.continue');
-      expect(_key('node:fact_lieu'), findsOneWidget);
+      expect(_key('node:fact_revenu'), findsOneWidget);
     },
   );
 

@@ -35,8 +35,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_next_design_lab/design_lab_app.dart';
 
-import 'batch20_commune_fixture.g.dart';
-
 const _entryActions = <String>[
   'action:today_3a_intent.start',
   'action:orientation.continue',

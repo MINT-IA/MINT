@@ -104,9 +104,15 @@ class _CommuneEntry {
 }
 
 class FactLieuScreen extends StatefulWidget {
-  const FactLieuScreen({super.key, required this.taxYear});
+  const FactLieuScreen({super.key, required this.taxYear, this.onContinue});
 
   final int taxYear;
+
+  /// Forward route once a reviewed commune is selected. In the batch20-only
+  /// harness this is null and continue validates in place (never routes in R2).
+  /// The batch21 éclairage integration wires it to the R3 fact_revenu node,
+  /// superseding the R2 outbound-edge obligation (registry.deferred_integration).
+  final VoidCallback? onContinue;
 
   @override
   State<FactLieuScreen> createState() => _FactLieuScreenState();
@@ -198,9 +204,16 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
 
   void _handleContinue(Object generation) {
     if (_isStale(generation)) return;
-    // Continue is guarded and NEVER routes in R2: with nothing selected it
-    // surfaces the no-selection guard; otherwise it simply validates in place.
-    setState(() => _showNoSelectionError = _selectedBfs == null);
+    // Guarded continue: with nothing selected it surfaces the no-selection
+    // guard and stays. With a reviewed commune selected it routes forward when
+    // a forward route is wired (batch21 éclairage integration -> fact_revenu),
+    // otherwise it validates in place (batch20-only harness, onContinue null).
+    if (_selectedBfs == null) {
+      setState(() => _showNoSelectionError = true);
+      return;
+    }
+    setState(() => _showNoSelectionError = false);
+    widget.onContinue?.call();
   }
 
   void _handleHelp(Object generation) {

@@ -924,6 +924,12 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                           ),
                           _DesignNode.factLieu => FactLieuScreen(
                             taxYear: _taxYear!,
+                            // ÉCLAIRAGE integration (batch21): the guarded
+                            // fact_lieu continue now routes forward to the R3
+                            // fact_revenu node once a commune is selected,
+                            // superseding the batch20 R2 outbound-edge
+                            // obligation (registry.deferred_integration).
+                            onContinue: () => _go(_DesignNode.factRevenu),
                           ),
                           // R3 batch21 — the ÉCLAIRAGE arc. fact_revenu commits a
                           // band without routing (continue never routes in R3);
@@ -936,6 +942,12 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             onSelectBand: (band) =>
                                 setState(() => _taxableIncomeBand = band),
                             onBack: () => _go(_DesignNode.factLieu),
+                            // ÉCLAIRAGE integration (batch21): a committed band
+                            // routes forward to the eclairage payoff node; with
+                            // no band the guard surfaces error_no_selection and
+                            // never routes (fact_revenu continue guard).
+                            onContinue: () =>
+                                _go(_DesignNode.eclairageImpot3a),
                           ),
                           _DesignNode.eclairageImpot3a => EclairageScreen(
                             taxYear: _taxYear!,

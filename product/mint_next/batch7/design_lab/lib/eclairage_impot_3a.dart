@@ -590,6 +590,11 @@ class _EclairageScreenState extends State<EclairageScreen> {
       child: Focus(
         focusNode: _anchor('gloss_deduction'),
         child: GestureDetector(
+          // The mechanism line IS the deduction glossary opener (control
+          // open_deduction_glossary, node_contracts.eclairage_impot_3a). The
+          // action key names the control explicitly for the integration
+          // journey; the enclosing `text:eclairage.mechanism` semantics stays.
+          key: const ValueKey('action:eclairage.open_deduction_glossary'),
           behavior: HitTestBehavior.opaque,
           onTap: () => _openOverlay(_Overlay.glossDeduction,
               restoreAnchorId: 'gloss_deduction'),

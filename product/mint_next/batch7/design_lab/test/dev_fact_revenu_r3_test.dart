@@ -97,19 +97,22 @@ void main() {
     expect(find.textContaining('70 000 – 100 000 CHF'), findsOneWidget);
   });
 
-  testWidgets('continue is guarded and NEVER routes in R3', (tester) async {
+  testWidgets(
+      'continue is guarded: no band stays on fact_revenu, a band routes to eclairage (integration)',
+      (tester) async {
     await _pumpFactRevenu(tester);
     // Nothing selected -> the no-selection guard is announced, no route.
     await _tap(tester, 'action:fact_revenu.continue');
     expect(_key('status:fact_revenu.error_no_selection'), findsOneWidget);
     expect(_key('node:fact_revenu'), findsOneWidget);
-    // Select then continue -> validates in place, error clears, never routes
-    // (no eclairage node appears).
+    expect(_key('node:eclairage_impot_3a'), findsNothing);
+    // Select then continue -> the guard clears and, now that the éclairage arc
+    // is wired into the journey (batch21 integration, superseding the R3
+    // never-routes obligation), continue routes forward to the payoff node.
     await _tap(tester, 'choice:fact_revenu.b50_70');
     await _tap(tester, 'action:fact_revenu.continue');
-    expect(_key('status:fact_revenu.error_no_selection'), findsNothing);
-    expect(_key('node:fact_revenu'), findsOneWidget);
-    expect(_key('node:eclairage_impot_3a'), findsNothing);
+    expect(_key('node:eclairage_impot_3a'), findsOneWidget);
+    expect(_key('node:fact_revenu'), findsNothing);
   });
 
   testWidgets('same-band reselect is idempotent (no churn)', (tester) async {

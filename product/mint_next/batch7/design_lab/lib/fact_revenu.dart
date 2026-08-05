@@ -42,6 +42,7 @@ class FactRevenuScreen extends StatefulWidget {
     required this.selectedBand,
     required this.onSelectBand,
     required this.onBack,
+    this.onContinue,
   });
 
   final int taxYear;
@@ -54,6 +55,12 @@ class FactRevenuScreen extends StatefulWidget {
 
   /// Exact history back.
   final VoidCallback onBack;
+
+  /// Forward route once a band is selected. Null in the batch21 harness (the
+  /// screen is reached directly and continue validates in place); the éclairage
+  /// integration wires it to the eclairage_impot_3a payoff node. Guarded: with
+  /// no band selected, continue surfaces the no-selection error and never routes.
+  final VoidCallback? onContinue;
 
   @override
   State<FactRevenuScreen> createState() => _FactRevenuScreenState();
@@ -113,9 +120,16 @@ class _FactRevenuScreenState extends State<FactRevenuScreen> {
 
   void _handleContinue(Object generation) {
     if (_isStale(generation)) return;
-    // Continue is guarded and NEVER routes in R3: with nothing selected it
-    // surfaces the no-selection guard; otherwise it validates in place.
-    setState(() => _showNoSelectionError = widget.selectedBand == null);
+    // Guarded continue: with no band selected it surfaces the no-selection
+    // guard and stays (never routes). With a band committed it routes forward
+    // when a forward route is wired (éclairage integration -> eclairage_impot_3a),
+    // otherwise it validates in place (batch21 harness, onContinue null).
+    if (widget.selectedBand == null) {
+      setState(() => _showNoSelectionError = true);
+      return;
+    }
+    setState(() => _showNoSelectionError = false);
+    widget.onContinue?.call();
   }
 
   void _openGloss(Object generation) {
