@@ -24,7 +24,7 @@ Demande du product owner : « un endroit où on peut voir d'un coup tous les éc
 
 ## Decision
 
-- **Construire** le générateur maison (contrats YAML scellés → HTML autonome privé) : Widgetbook — seul acteur Flutter vivant et mature — est orthogonal (catalogue interactif de composants en isolation, pas d'ingestion de métadonnées externes, valeur clé dans un cloud hébergé incompatible avec la contrainte de confidentialité) ; toutes les alternatives sont mortes ou marginales ; côté spec-driven, l'analyse de Fowler (oct. 2025) confirme qu'aucun outil ne projette des specs vers de la documentation ; aucun linter de graphe de navigation n'existe en OSS.
+- **Construire** le générateur maison (contrats YAML scellés → HTML autonome privé). Dans le périmètre de la recherche du 2026-08-05 (bornée, US-centric — voir data gaps) : Widgetbook, le seul acteur Flutter identifié à la fois vivant et mature, est orthogonal (catalogue interactif de composants en isolation, pas d'ingestion de métadonnées externes ; ses capacités clés vivent dans une offre cloud hébergée — écartée par choix de posture : pas d'envoi des rendus produit à un SaaS tiers avant le lancement, décision de confidentialité, pas impossibilité technique) ; les alternatives identifiées sont mortes ou marginales ; l'analyse de Fowler (oct. 2025) ne recense aucun outil SDD projetant des specs vers de la documentation ; aucun linter de graphe de navigation OSS n'a été identifié.
 - **Imiter** quatre patterns éprouvés : scorecards de complétude par entité (Backstage), structure exigence→preuve liant chaque statut à son attestation (Serenity BDD living documentation), tags filtrables + identifiant unique par entrée + autodocs (Storybook 9), UX de graphe de routes généré (Compodoc).
 - **Adopter** : Mermaid pour les graphes (rendu natif des artifacts) ; goldens Flutter natifs à vraies polices pour les rendus.
 - Publication : artifact privé à URL stable tant que le repo est public ; régénération = livrable de clôture de chaque batch ; page générée, jamais rédigée (un champ manquant s'affiche « non contractualisé »).
@@ -36,7 +36,7 @@ Demande du product owner : « un endroit où on peut voir d'un coup tous les éc
 - **What does this source not address ?**
   Recherche US-centric ; statut d'Overflow.io non tranché ; flowgen.dev évalué via résultats moteur (403 en direct) ; aucun chiffrage du coût de maintenance du générateur sur 12 mois ; pas d'essai concret de Widgetbook sur notre design lab (évaluation documentaire).
 - **What would change this conclusion ?**
-  Widgetbook ajoutant l'ingestion de métadonnées externes + un export statique monofichier ; le passage du repo en privé (ouvrant les options hébergées) ; un coût de maintenance du générateur qui dépasserait quelques heures par mois ; l'émergence d'un OSS « screen registry » crédible (à re-vérifier semestriellement).
+  Widgetbook ajoutant l'ingestion de métadonnées externes + un export statique monofichier ; le passage du repo en privé ou un assouplissement de la posture SaaS (ouvrant les options hébergées) ; un coût de maintenance mesuré du générateur dépassant le seuil de travail (« quelques heures par mois » — seuil provisoire, à remplacer par la mesure réelle) ; l'émergence d'un OSS « screen registry » crédible (re-vérification semestrielle). Cette décision est prise sur preuve documentaire, avec une v1 déjà en construction et un coût d'entrée faible — elle est réversible ; l'essai concret de Widgetbook sur le design lab est l'action de re-litigation désignée si l'un de ces signaux se déclenche.
 
 ## Sources
 
