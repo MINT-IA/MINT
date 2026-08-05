@@ -444,6 +444,27 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
 
   void _go(_DesignNode node) => setState(() => _node = node);
 
+  /// R4 (batch22) integration: from the éclairage payoff, `continue` opens the
+  /// scenarios_versement fermeture-de-boucle node, seeding its facts from the
+  /// journey — affiliated from lpp_affiliation (choose_yes -> true), contributed
+  /// 0 for the contribution-status = no walk, and the FR fixture commune/canton
+  /// the payoff already displays (the documented offline-lab grounding, mirrored
+  /// from eclairage_impot_3a's communeLabel/cantonLabel). This supersedes the R3
+  /// kept boundary on this edge (batch21 eclairage-scope.yaml
+  /// future_target_r4: scenarios_versement); the batch21 sealed test never taps
+  /// eclairage.continue, so R3 stays green.
+  void _enterScenariosFromEclairage() {
+    setState(() {
+      _scenariosTaxYear = _taxYear;
+      _scenariosCommune = r3ExampleCommune;
+      _scenariosCanton = r3ExampleCanton;
+      _scenariosBand = _taxableIncomeBand;
+      _scenariosAffiliated = _lppAffiliation == _LppAffiliation.yes;
+      _scenariosContributedChf = 0;
+      _node = _DesignNode.scenariosVersement;
+    });
+  }
+
   void _returnToAmountField() {
     setState(() {
       _restoreAmountFocus = true;
@@ -1083,12 +1104,18 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                 EclairageSituation.celibataire,
                             initialExactIncome: widget.batch21?.exactIncome,
                             onBack: () => _go(_DesignNode.factRevenu),
-                            // continue -> next_action never routes in R3.
-                            onContinue: () {},
+                            // R4 (batch22) integration: continue now routes to
+                            // the scenarios_versement fermeture node (superseding
+                            // the R3 kept boundary on this edge).
+                            onContinue: _enterScenariosFromEclairage,
                             onEditRevenu: () => _go(_DesignNode.factRevenu),
                             onEditLieu: () => _go(_DesignNode.factLieu),
                             onPendingComplete: () =>
                                 _go(_DesignNode.factRevenu),
+                            // R4 (batch22) integration: the situation row's
+                            // refine affordance opens the civil-status node.
+                            onRefineSituation: () =>
+                                _go(_DesignNode.factEtatCivil),
                           ),
                           _DesignNode.educationExplanation =>
                             _EducationBoundary(onBack: _backFromEducation),
@@ -1096,14 +1123,16 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             title: l10n.dismissedTitle,
                             onRestart: () => _go(_DesignNode.today3aIntent),
                           ),
-                          // R4 batch22 — isolated parallel prep (NOT wired into
-                          // the linear journey; the promoter's integration wave
-                          // does that). onBack/onContinue/onPendingComplete/
-                          // onKeepLocalReference/onReviewExistingOvercontribution
-                          // are inert no-ops here: never_routes_in_r4 covers
-                          // scenarios_versement's continue/keep_local_reference/
-                          // prepare_personal_setup/review_existing_overcontribution
-                          // and BOTH fact_etat_civil's continue and back.
+                          // R4 batch22 — INBOUND edges are now wired by this
+                          // integration batch (eclairage.continue -> scenarios
+                          // via _enterScenariosFromEclairage, and the eclairage
+                          // situation refine -> fact_etat_civil). These nodes'
+                          // OWN forward/back edges stay inert no-ops:
+                          // never_routes_in_r4 still covers scenarios_versement's
+                          // continue/keep_local_reference/prepare_personal_setup/
+                          // review_existing_overcontribution and BOTH
+                          // fact_etat_civil's continue and back — their outbound
+                          // wiring (incl. the married recompute) is a later batch.
                           _DesignNode.scenariosVersement =>
                             ScenariosVersementScreen(
                               taxYear: _scenariosTaxYear,

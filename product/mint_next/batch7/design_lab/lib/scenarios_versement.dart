@@ -540,7 +540,7 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
           // NEVER offered when the room is exhausted (that is marge_epuisee,
           // handled in its own body, fault_E).
           _LinkAction(
-            actionKey: 'action:scenarios.open_own_amount',
+            actionKey: 'action:scenarios.own_amount',
             label: copy['scenarios_own_amount']!,
             focusNode: _anchor('open_own_amount'),
             onPressed: () => _openOverlay(
@@ -591,12 +591,15 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
           .replaceAll('{low}', _fmtChf(_floor100(anchor.savingLowRaw!)))
           .replaceAll('{high}', _fmtChf(_floor100(anchor.savingHighRaw!)));
     }
-    final rowKey = 'row:scenarios.scenario_$index';
+    // The announced scenario REGION: amount + effect spoken as one utterance
+    // (reconciled key region:scenarios.scenario — one per grounded scenario;
+    // each lives under its own Focus/Padding, never a direct sibling of another
+    // region, so the shared ValueKey never trips the duplicate-key assertion).
     final label = '$amountText$suffix — $effectText';
     return Focus(
       focusNode: _anchor('scenario_$index'),
       child: Semantics(
-        key: ValueKey(rowKey),
+        key: const ValueKey('region:scenarios.scenario'),
         container: true,
         label: label,
         excludeSemantics: true,
@@ -639,7 +642,11 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
               const SizedBox(height: 6),
               Text(
                 effectText,
-                key: ValueKey('text:scenarios.scenario_$index.effect'),
+                // Reconciled key amount:scenarios.effect — the francs effect
+                // RANGE of this scenario (one per grounded scenario; >= 2 in
+                // the nominal spectrum). Shared across rows but each under its
+                // own scenario Column, so no duplicate-key assertion.
+                key: const ValueKey('amount:scenarios.effect'),
                 style: const TextStyle(
                   fontFamily: 'Supreme',
                   fontSize: 16,

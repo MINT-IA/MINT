@@ -101,22 +101,22 @@ void main() {
     await _pumpEtatCivil(tester);
     expect(_key('node:fact_etat_civil'), findsOneWidget);
     expect(_key('action:fact_etat_civil.open_safe_exit'), findsOneWidget);
-    expect(_key('text:fact_etat_civil.eyebrow'), findsOneWidget);
-    expect(_key('text:fact_etat_civil.question'), findsOneWidget);
-    expect(_key('text:fact_etat_civil.determining_hint'), findsOneWidget);
+    expect(_key('text:etat_civil.eyebrow'), findsOneWidget);
+    expect(_key('text:etat_civil.question'), findsOneWidget);
+    expect(_key('text:etat_civil.determining_hint'), findsOneWidget);
   });
 
   testWidgets(
       'arrival: heading focused, no raised keyboard, three cards none preselected, determining hint names the tax year',
       (tester) async {
     await _pumpEtatCivil(tester);
-    expect(_focusOwnedBy('text:fact_etat_civil.question'), isTrue);
+    expect(_focusOwnedBy('text:etat_civil.question'), isTrue);
     expect(find.byType(EditableText), findsNothing);
     for (final s in _statuses) {
-      expect(_key('choice:fact_etat_civil.$s'), findsOneWidget);
+      expect(_key('choice:etat_civil.$s'), findsOneWidget);
     }
-    expect(_key('status:fact_etat_civil.selection_none'), findsOneWidget);
-    expect(_key('status:fact_etat_civil.selection'), findsNothing);
+    expect(_key('status:etat_civil.selection_none'), findsOneWidget);
+    expect(_key('status:etat_civil.selection'), findsNothing);
     expect(find.textContaining('31 décembre 2026'), findsOneWidget);
     // No personal tax amount/rate on this collection screen.
     expect(find.textContaining('CHF'), findsNothing);
@@ -126,20 +126,20 @@ void main() {
   testWidgets('selecting a status commits it, summary shows, no auto-route',
       (tester) async {
     await _pumpEtatCivil(tester);
-    await _tap(tester, 'choice:fact_etat_civil.concubinage');
-    expect(_key('status:fact_etat_civil.selection'), findsOneWidget);
-    expect(_key('status:fact_etat_civil.selection_none'), findsNothing);
+    await _tap(tester, 'choice:etat_civil.concubinage');
+    expect(_key('status:etat_civil.selection'), findsOneWidget);
+    expect(_key('status:etat_civil.selection_none'), findsNothing);
     expect(_key('node:fact_etat_civil'), findsOneWidget); // no route
     expect(find.textContaining('En couple, non marié'), findsWidgets);
-    expect(_key('text:fact_etat_civil.recompute_hint'), findsOneWidget);
+    expect(_key('text:etat_civil.recompute_hint'), findsOneWidget);
   });
 
   testWidgets('same-status reselect is idempotent (no churn)', (tester) async {
     await _pumpEtatCivil(tester);
-    await _tap(tester, 'choice:fact_etat_civil.marie_pacse');
-    expect(_key('status:fact_etat_civil.selection'), findsOneWidget);
-    await _tap(tester, 'choice:fact_etat_civil.marie_pacse');
-    expect(_key('status:fact_etat_civil.selection'), findsOneWidget);
+    await _tap(tester, 'choice:etat_civil.marie_pacse');
+    expect(_key('status:etat_civil.selection'), findsOneWidget);
+    await _tap(tester, 'choice:etat_civil.marie_pacse');
+    expect(_key('status:etat_civil.selection'), findsOneWidget);
     expect(find.textContaining('Marié·e ou en partenariat enregistré'),
         findsWidgets);
   });
@@ -148,12 +148,12 @@ void main() {
       'continue is guarded: no status stays put with an announced error, a status clears the guard',
       (tester) async {
     await _pumpEtatCivil(tester);
-    await _tap(tester, 'action:fact_etat_civil.continue');
-    expect(_key('status:fact_etat_civil.error_no_selection'), findsOneWidget);
+    await _tap(tester, 'action:etat_civil.continue');
+    expect(_key('status:etat_civil.error_no_selection'), findsOneWidget);
     expect(_key('node:fact_etat_civil'), findsOneWidget);
-    await _tap(tester, 'choice:fact_etat_civil.celibataire');
-    await _tap(tester, 'action:fact_etat_civil.continue');
-    expect(_key('status:fact_etat_civil.error_no_selection'), findsNothing);
+    await _tap(tester, 'choice:etat_civil.celibataire');
+    await _tap(tester, 'action:etat_civil.continue');
+    expect(_key('status:etat_civil.error_no_selection'), findsNothing);
     // never_routes_in_r4 (continue AND back for this node): stays on the
     // node — parallel prep, linear wiring is the promoter's integration wave.
     expect(_key('node:fact_etat_civil'), findsOneWidget);
@@ -163,7 +163,7 @@ void main() {
       'concubinage is preselectable via the harness and renders as committed, never mapped to married',
       (tester) async {
     await _pumpEtatCivil(tester, civilStatus: 'concubinage');
-    expect(_key('status:fact_etat_civil.selection'), findsOneWidget);
+    expect(_key('status:etat_civil.selection'), findsOneWidget);
     expect(find.textContaining('En couple, non marié'), findsWidgets);
     expect(r4IsMarriedFromCivilStatus('concubinage'), isFalse);
   });
@@ -173,14 +173,14 @@ void main() {
         'help_link opens the splitting sheet (marié·e primary + célibataire secondary), focus-trapped, restores',
         (tester) async {
       await _pumpEtatCivil(tester);
-      await _tap(tester, 'action:fact_etat_civil.help_link');
-      expect(_key('sheet:fact_etat_civil.gloss.splitting'), findsOneWidget);
+      await _tap(tester, 'action:etat_civil.open_splitting_glossary');
+      expect(_key('sheet:etat_civil.gloss.splitting'), findsOneWidget);
       expect(
-        _key('sheet:fact_etat_civil.gloss.splitting.heading'),
+        _key('sheet:etat_civil.gloss.splitting.heading'),
         findsOneWidget,
       );
       expect(
-        _focusOwnedBy('sheet:fact_etat_civil.gloss.splitting.heading'),
+        _focusOwnedBy('sheet:etat_civil.gloss.splitting.heading'),
         isTrue,
       );
       expect(find.textContaining('imposé·e avec ton ou ta partenaire'),
@@ -192,14 +192,14 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pump();
         expect(
-          _focusOwnedBy('sheet:fact_etat_civil.gloss.splitting'),
+          _focusOwnedBy('sheet:etat_civil.gloss.splitting'),
           isTrue,
           reason: 'traversal $i escaped the trapped sheet',
         );
       }
-      await _tap(tester, 'sheet:fact_etat_civil.gloss.splitting.dismiss');
-      expect(_key('sheet:fact_etat_civil.gloss.splitting'), findsNothing);
-      expect(_focusOwnedBy('action:fact_etat_civil.help_link'), isTrue);
+      await _tap(tester, 'sheet:etat_civil.gloss.splitting.dismiss');
+      expect(_key('sheet:etat_civil.gloss.splitting'), findsNothing);
+      expect(_focusOwnedBy('action:etat_civil.open_splitting_glossary'), isTrue);
     });
 
     testWidgets(
@@ -207,18 +207,18 @@ void main() {
         (tester) async {
       await _pumpEtatCivil(tester);
       // Opening the glossary anchor must NOT itself commit a selection.
-      await _tap(tester, 'action:fact_etat_civil.open_concubinage_glossary');
-      expect(_key('sheet:fact_etat_civil.gloss.concubinage'), findsOneWidget);
+      await _tap(tester, 'action:etat_civil.open_concubinage_glossary');
+      expect(_key('sheet:etat_civil.gloss.concubinage'), findsOneWidget);
       expect(find.textContaining('imposé séparément'), findsOneWidget);
       expect(
-        _focusOwnedBy('sheet:fact_etat_civil.gloss.concubinage.heading'),
+        _focusOwnedBy('sheet:etat_civil.gloss.concubinage.heading'),
         isTrue,
       );
-      await _tap(tester, 'sheet:fact_etat_civil.gloss.concubinage.dismiss');
-      expect(_key('status:fact_etat_civil.selection'), findsNothing,
+      await _tap(tester, 'sheet:etat_civil.gloss.concubinage.dismiss');
+      expect(_key('status:etat_civil.selection'), findsNothing,
           reason: 'the glossary anchor must not commit a selection');
       expect(
-        _focusOwnedBy('action:fact_etat_civil.open_concubinage_glossary'),
+        _focusOwnedBy('action:etat_civil.open_concubinage_glossary'),
         isTrue,
       );
     });
@@ -228,17 +228,17 @@ void main() {
       'a status card is activable by physical keyboard (Space), not only pointer/VoiceOver',
       (tester) async {
     await _pumpEtatCivil(tester);
-    expect(_key('status:fact_etat_civil.selection_none'), findsOneWidget);
+    expect(_key('status:etat_civil.selection_none'), findsOneWidget);
     final gesture = find.descendant(
-      of: _key('choice:fact_etat_civil.marie_pacse'),
+      of: _key('choice:etat_civil.marie_pacse'),
       matching: find.byType(GestureDetector),
     );
     Focus.of(tester.element(gesture)).requestFocus();
     await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.space);
     await tester.pumpAndSettle();
-    expect(_key('status:fact_etat_civil.selection'), findsOneWidget);
-    expect(_key('status:fact_etat_civil.selection_none'), findsNothing);
+    expect(_key('status:etat_civil.selection'), findsOneWidget);
+    expect(_key('status:etat_civil.selection_none'), findsNothing);
   });
 
   testWidgets(
@@ -250,12 +250,12 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     await _pumpEtatCivil(tester, textScaler: const TextScaler.linear(2));
     expect(tester.takeException(), isNull);
-    expect(_key('text:fact_etat_civil.question'), findsOneWidget);
-    expect(_key('text:fact_etat_civil.determining_hint'), findsOneWidget);
+    expect(_key('text:etat_civil.question'), findsOneWidget);
+    expect(_key('text:etat_civil.determining_hint'), findsOneWidget);
     for (final s in _statuses) {
-      expect(_key('choice:fact_etat_civil.$s'), findsOneWidget);
+      expect(_key('choice:etat_civil.$s'), findsOneWidget);
     }
-    final continueF = _key('action:fact_etat_civil.continue');
+    final continueF = _key('action:etat_civil.continue');
     expect(continueF, findsOneWidget);
     expect(tester.getRect(continueF).height, greaterThanOrEqualTo(48));
   });

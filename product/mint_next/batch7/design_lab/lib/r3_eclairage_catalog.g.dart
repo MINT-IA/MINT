@@ -67,6 +67,7 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_hyp_revenu': 'Revenu imposable · {band} CHF',
     'eclairage_hyp_versement': 'Versement 3a · {versement} CHF',
     'eclairage_hyp_situation': 'Situation · célibataire',
+    'eclairage_refine_situation': 'Préciser mon état civil',
     'eclairage_hyp_lieu': 'Impôts · {commune} ({canton})',
     'eclairage_hyp_edit_hint': 'Tu peux modifier chaque ligne.',
     'eclairage_assumptions':
@@ -149,6 +150,7 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_hyp_revenu': 'Taxable income · {band} CHF',
     'eclairage_hyp_versement': '3a contribution · {versement} CHF',
     'eclairage_hyp_situation': 'Situation · single',
+    'eclairage_refine_situation': 'Refine my civil status',
     'eclairage_hyp_lieu': 'Tax · {commune} ({canton})',
     'eclairage_hyp_edit_hint': 'You can change any line.',
     'eclairage_assumptions':
@@ -229,6 +231,7 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_hyp_revenu': 'Steuerbares Einkommen · {band} CHF',
     'eclairage_hyp_versement': '3a-Beitrag · {versement} CHF',
     'eclairage_hyp_situation': 'Situation · ledig',
+    'eclairage_refine_situation': 'Zivilstand präzisieren',
     'eclairage_hyp_lieu': 'Steuern · {commune} ({canton})',
     'eclairage_hyp_edit_hint': 'Du kannst jede Zeile ändern.',
     'eclairage_assumptions':
@@ -310,6 +313,7 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_hyp_revenu': 'Reddito imponibile · {band} CHF',
     'eclairage_hyp_versement': 'Versamento 3a · {versement} CHF',
     'eclairage_hyp_situation': 'Situazione · celibe/nubile',
+    'eclairage_refine_situation': 'Precisa il mio stato civile',
     'eclairage_hyp_lieu': 'Imposte · {commune} ({canton})',
     'eclairage_hyp_edit_hint': 'Puoi modificare ogni riga.',
     'eclairage_assumptions':
@@ -391,6 +395,7 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_hyp_revenu': 'Ingreso imponible · {band} CHF',
     'eclairage_hyp_versement': 'Aportación 3a · {versement} CHF',
     'eclairage_hyp_situation': 'Situación · soltero/a',
+    'eclairage_refine_situation': 'Precisar mi estado civil',
     'eclairage_hyp_lieu': 'Impuestos · {commune} ({canton})',
     'eclairage_hyp_edit_hint': 'Puedes modificar cada línea.',
     'eclairage_assumptions':
@@ -472,6 +477,7 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_hyp_revenu': 'Rendimento tributável · {band} CHF',
     'eclairage_hyp_versement': 'Depósito 3a · {versement} CHF',
     'eclairage_hyp_situation': 'Situação · solteiro/a',
+    'eclairage_refine_situation': 'Precisar o meu estado civil',
     'eclairage_hyp_lieu': 'Impostos · {commune} ({canton})',
     'eclairage_hyp_edit_hint': 'Podes alterar cada linha.',
     'eclairage_assumptions':

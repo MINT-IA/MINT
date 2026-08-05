@@ -225,7 +225,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
     final headerChildren = <Widget>[
       Text(
         withYear(c('etat_civil_eyebrow')),
-        key: const ValueKey('text:fact_etat_civil.eyebrow'),
+        key: const ValueKey('text:etat_civil.eyebrow'),
         style: const TextStyle(
           fontFamily: 'Supreme',
           fontSize: 12,
@@ -237,7 +237,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
       const SizedBox(height: 16),
       // The question stands ALONE (no body sentence) and takes arrival focus.
       Focus(
-        key: const ValueKey('text:fact_etat_civil.question'),
+        key: const ValueKey('text:etat_civil.question'),
         focusNode: _questionFocus,
         child: Semantics(
           header: true,
@@ -257,7 +257,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
       // question (fact_etat_civil-scope.yaml determining_date).
       Text(
         withYear(c('etat_civil_determining_hint')),
-        key: const ValueKey('text:fact_etat_civil.determining_hint'),
+        key: const ValueKey('text:etat_civil.determining_hint'),
         style: const TextStyle(
           fontFamily: 'Supreme',
           fontSize: 14,
@@ -271,7 +271,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
     // --- scrollable region: header content + three status cards + help_link
     // ---
     final scroll = SingleChildScrollView(
-      key: const ValueKey('scroll:fact_etat_civil'),
+      key: const ValueKey('scroll:etat_civil'),
       physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       child: Column(
@@ -279,7 +279,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
         children: [
           ...headerChildren,
           Semantics(
-            key: const ValueKey('group:fact_etat_civil.cards'),
+            key: const ValueKey('group:etat_civil.cards'),
             container: true,
             explicitChildNodes: true,
             child: Column(
@@ -298,7 +298,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
                       // selection (never conflating "select" with "learn
                       // more").
                       glossaryActionKey: option.key == 'concubinage'
-                          ? 'action:fact_etat_civil.open_concubinage_glossary'
+                          ? 'action:etat_civil.open_concubinage_glossary'
                           : null,
                       glossaryLabel: option.key == 'concubinage'
                           ? c('etat_civil_gloss_concubinage_term')
@@ -316,7 +316,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
           ),
           const SizedBox(height: 4),
           _LinkAction(
-            actionKey: 'action:fact_etat_civil.help_link',
+            actionKey: 'action:etat_civil.open_splitting_glossary',
             label: c('etat_civil_help_link'),
             focusNode: _helpLinkFocus,
             onPressed: () => _openOverlay(_Overlay.glossSplitting),
@@ -324,7 +324,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
           const SizedBox(height: 20),
           if (selected == null)
             _StatusChip(
-              statusKey: 'status:fact_etat_civil.selection_none',
+              statusKey: 'status:etat_civil.selection_none',
               text: c('etat_civil_selection_none'),
               liveRegion: false,
             )
@@ -337,7 +337,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
             const SizedBox(height: 10),
             Text(
               c('etat_civil_recompute_hint'),
-              key: const ValueKey('text:fact_etat_civil.recompute_hint'),
+              key: const ValueKey('text:etat_civil.recompute_hint'),
               style: const TextStyle(
                 fontFamily: 'Supreme',
                 fontSize: 14,
@@ -362,7 +362,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
           children: [
             if (_showNoSelectionError) ...[
               _StatusChip(
-                statusKey: 'status:fact_etat_civil.error_no_selection',
+                statusKey: 'status:etat_civil.error_no_selection',
                 text: c('etat_civil_error_no_selection'),
                 liveRegion: true,
                 tone: _StatusTone.error,
@@ -370,14 +370,14 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
               const SizedBox(height: 12),
             ],
             _PrimaryButton(
-              buttonKey: 'action:fact_etat_civil.continue',
+              buttonKey: 'action:etat_civil.continue',
               label: c('etat_civil_continue'),
               filled: selected != null,
               onPressed: () => _handleContinue(generation),
             ),
             const SizedBox(height: 8),
             _TextButton(
-              buttonKey: 'action:fact_etat_civil.back',
+              buttonKey: 'action:etat_civil.back',
               label: c('etat_civil_back'),
               onPressed: widget.onBack,
             ),
@@ -407,7 +407,7 @@ class _FactEtatCivilScreenState extends State<FactEtatCivilScreen> {
           ),
         if (_overlay == _Overlay.glossConcubinage)
           _GlossSheet(
-            sheetId: 'sheet:fact_etat_civil.gloss.concubinage',
+            sheetId: 'sheet:etat_civil.gloss.concubinage',
             headingFocus: _sheetHeadingFocus,
             term: c('etat_civil_gloss_concubinage_term'),
             definition: c('etat_civil_gloss_concubinage_def'),
@@ -485,7 +485,7 @@ class _StatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final card = Semantics(
-      key: ValueKey('choice:fact_etat_civil.$statusKey'),
+      key: ValueKey('choice:etat_civil.$statusKey'),
       button: true,
       inMutuallyExclusiveGroup: true,
       selected: selected,
@@ -631,7 +631,7 @@ class _SelectionSummary extends StatelessWidget {
     // (selection_refindable). The status is text, not colour-only
     // (concubinage_distinction_not_colour_only).
     return Semantics(
-      key: const ValueKey('status:fact_etat_civil.selection'),
+      key: const ValueKey('status:etat_civil.selection'),
       container: true,
       liveRegion: true,
       label: '$label : $value',
@@ -827,7 +827,7 @@ class _SplittingGlossSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned.fill(
-      key: const ValueKey('sheet:fact_etat_civil.gloss.splitting'),
+      key: const ValueKey('sheet:etat_civil.gloss.splitting'),
       child: FocusScope(
         child: Stack(
           fit: StackFit.expand,
@@ -851,7 +851,7 @@ class _SplittingGlossSheet extends StatelessWidget {
                         const SizedBox(height: 16),
                         Focus(
                           key: const ValueKey(
-                            'sheet:fact_etat_civil.gloss.splitting.heading',
+                            'sheet:etat_civil.gloss.splitting.heading',
                           ),
                           focusNode: headingFocus,
                           child: Semantics(
@@ -899,7 +899,7 @@ class _SplittingGlossSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         _PrimaryButton(
-                          buttonKey: 'sheet:fact_etat_civil.gloss.splitting.dismiss',
+                          buttonKey: 'sheet:etat_civil.gloss.splitting.dismiss',
                           label: dismissLabel,
                           filled: false,
                           onPressed: onDismiss,

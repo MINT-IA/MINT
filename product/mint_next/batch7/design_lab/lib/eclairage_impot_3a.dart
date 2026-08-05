@@ -81,6 +81,7 @@ class EclairageScreen extends StatefulWidget {
     required this.onEditRevenu,
     required this.onEditLieu,
     required this.onPendingComplete,
+    this.onRefineSituation,
   });
 
   final int taxYear;
@@ -115,6 +116,13 @@ class EclairageScreen extends StatefulWidget {
 
   /// pending complete_action -> fact_revenu.
   final VoidCallback onPendingComplete;
+
+  /// R4 (batch22) integration: the situation row's REFINE affordance ->
+  /// fact_etat_civil. The situation VALUE stays display-only (no fabricated
+  /// « marié » recompute); this is the new edge that opens the civil-status
+  /// collection node. Null when the affordance is not wired (kept optional so
+  /// the R3 harness constructions compile unchanged).
+  final VoidCallback? onRefineSituation;
 
   @override
   State<EclairageScreen> createState() => _EclairageScreenState();
@@ -477,14 +485,23 @@ class _EclairageScreenState extends State<EclairageScreen> {
                   rowKey: 'row:eclairage.hyp.situation',
                   label: copy['eclairage_hyp_situation']!.split(' · ').first,
                   value: _situationLabel(copy),
-                  // DISPLAY-ONLY in R3 (ANCHOR''' amendment, LSFin ground): the
+                  // DISPLAY-ONLY value (ANCHOR''' amendment, LSFin ground): the
                   // situation is a STATED assumption, never an inline toggle. A
                   // « marié » toggle would surface a possibly-overstated splitting
                   // economy the user does not own (×0.80 on a forfait chef-lieu
-                  // multiplier); the situation refine, with a clean engine
-                  // recompute, arrives at the état-civil batch (R4).
-                  // concubinage == célibataire (no ×0.80) stays graven.
+                  // multiplier). concubinage == célibataire (no ×0.80) stays graven.
                   displayOnly: true,
+                  // R4 (batch22) integration: the situation refine is now a real
+                  // edge to the civil-status collection node (fact_etat_civil).
+                  // The value stays display-only until the married recompute
+                  // lands (later backend batch) — this opens the collection, it
+                  // does NOT fabricate a range here.
+                  refineActionKey: widget.onRefineSituation == null
+                      ? null
+                      : 'action:eclairage.refine_situation',
+                  refineLabel: copy['eclairage_refine_situation'],
+                  refineFocusNode: _anchor('refine_situation'),
+                  onRefine: widget.onRefineSituation,
                 ),
                 _HypRow(
                   rowKey: 'row:eclairage.hyp.lieu',
@@ -949,6 +966,10 @@ class _HypRow extends StatelessWidget {
     this.badge,
     this.isLast = false,
     this.displayOnly = false,
+    this.refineActionKey,
+    this.refineLabel,
+    this.refineFocusNode,
+    this.onRefine,
   });
 
   final String rowKey;
@@ -959,6 +980,15 @@ class _HypRow extends StatelessWidget {
   final String? badge;
   final VoidCallback? onTap;
   final bool isLast;
+
+  /// An optional REFINE affordance rendered as a DISTINCT tap target attached
+  /// below a display-only row (R4 situation row): the value stays read-only, the
+  /// refine opens the collection node. A separate button role, never conflated
+  /// with the row's stated value.
+  final String? refineActionKey;
+  final String? refineLabel;
+  final FocusNode? refineFocusNode;
+  final VoidCallback? onRefine;
 
   /// A DISPLAY-ONLY row is a stated assumption, not an editable control: no
   /// button role, no tap target, no chevron affordance, no action key. Used by
@@ -1045,7 +1075,7 @@ class _HypRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 14),
       child: content,
     );
-    return Semantics(
+    final row = Semantics(
       key: ValueKey(rowKey),
       button: !displayOnly,
       readOnly: displayOnly,
@@ -1078,6 +1108,30 @@ class _HypRow extends StatelessWidget {
                 ),
         ),
       ),
+    );
+
+    final refineKey = refineActionKey;
+    final refine = onRefine;
+    if (refineKey == null || refine == null) return row;
+    // The display-only value keeps its read-only role; the refine is a SEPARATE
+    // named button below it (the new R4 edge to the civil-status node).
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        row,
+        Padding(
+          padding: const EdgeInsets.only(top: 2, bottom: 6),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: _LinkAction(
+              actionKey: refineKey,
+              label: refineLabel!,
+              focusNode: refineFocusNode,
+              onPressed: refine,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

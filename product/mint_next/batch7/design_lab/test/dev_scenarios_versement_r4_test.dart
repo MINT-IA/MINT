@@ -16,6 +16,11 @@ import 'package:mint_next_design_lab/r4_fermeture_catalog.g.dart';
 
 Finder _key(String v) => find.byKey(ValueKey<String>(v));
 
+// Reconciled (batch22 integration): the per-scenario announced region now shares
+// one key (region:scenarios.scenario) — one widget per grounded scenario. Count
+// the regions instead of indexing distinct row keys.
+Finder _regions() => find.byKey(const ValueKey<String>('region:scenarios.scenario'));
+
 Future<void> _pumpScenarios(
   WidgetTester tester, {
   bool taxYearKnown = true,
@@ -175,9 +180,8 @@ void main() {
         'shows 2-3 grounded scenarios, each a RANGE, the maximum marked, liquidity + disclaimer + commune caveat',
         (tester) async {
       await _pumpScenarios(tester);
-      expect(_key('row:scenarios.scenario_0'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_1'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_2'), findsOneWidget);
+      expect(_regions(), findsNWidgets(3));
+      expect(_key('amount:scenarios.effect'), findsNWidgets(3));
       // 2 000 -> environ 500 à 600 CHF ; 4 000 -> environ 1 000 à 1 200 CHF ;
       // 7 258 (max) -> environ 1 800 à 2 200 CHF (= R3 payoff, same engine).
       expect(find.textContaining('2 000 CHF'), findsOneWidget);
@@ -193,7 +197,7 @@ void main() {
       expect(_key('text:scenarios.liquidity'), findsOneWidget);
       expect(_key('text:scenarios.disclaimer'), findsOneWidget);
       expect(_key('text:scenarios.commune_caveat'), findsOneWidget);
-      expect(_key('action:scenarios.open_own_amount'), findsOneWidget);
+      expect(_key('action:scenarios.own_amount'), findsOneWidget);
       // No "already" line at contributed = 0.
       expect(_key('text:scenarios.already'), findsNothing);
     });
@@ -213,7 +217,7 @@ void main() {
         (tester) async {
       final handle = tester.ensureSemantics();
       await _pumpScenarios(tester);
-      final node = tester.getSemantics(_key('row:scenarios.scenario_2'));
+      final node = tester.getSemantics(_regions().at(2));
       final data = node.getSemanticsData();
       expect(data.label, contains('7 258 CHF'));
       expect(data.label, contains('1 800 à 2 200 CHF'));
@@ -235,7 +239,8 @@ void main() {
       expect(find.textContaining('+3 258 CHF'), findsOneWidget);
       expect(find.textContaining('800 à 1 000 CHF'), findsOneWidget);
       expect(find.textContaining('encore possible cette année'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_2'), findsNothing);
+      // marge_reduite grounds exactly 2 incremental scenarios (no third).
+      expect(_regions(), findsNWidgets(2));
     });
 
     testWidgets('an ungrounded contributed amount shows no invented scenario row',
@@ -243,7 +248,7 @@ void main() {
       // No fixture exists for 2 500 déjà versé — 0-trust: no row is invented.
       await _pumpScenarios(tester, contributedChf: 2500);
       expect(find.textContaining('déjà versé 2 500 CHF'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_0'), findsNothing);
+      expect(_regions(), findsNothing);
       // Liquidity + disclaimer still mandatory.
       expect(_key('text:scenarios.liquidity'), findsOneWidget);
       expect(_key('text:scenarios.disclaimer'), findsOneWidget);
@@ -259,8 +264,8 @@ void main() {
       expect(find.textContaining('déjà versé 8 000 CHF'), findsOneWidget);
       expect(find.textContaining('plafond de 7 258 CHF'), findsOneWidget);
       expect(find.textContaining('742 CHF de plus'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_0'), findsNothing);
-      expect(_key('action:scenarios.open_own_amount'), findsNothing);
+      expect(_regions(), findsNothing);
+      expect(_key('action:scenarios.own_amount'), findsNothing);
       expect(
         _key('action:scenarios.review_existing_overcontribution'),
         findsOneWidget,
@@ -278,8 +283,8 @@ void main() {
       expect(_key('text:scenarios.plafond20_line'), findsOneWidget);
       expect(find.textContaining('4 000 CHF cette année'), findsOneWidget);
       expect(_key('text:scenarios.plafond20_income_hyp'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_0'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_1'), findsNothing);
+      // Non-affilié overlay: exactly ONE qualitative max scenario.
+      expect(_regions(), findsNWidgets(1));
       // Never a flat 7 258 for a non-affilié (fault_A).
       expect(find.textContaining('7 258'), findsNothing);
       // Qualitative note, never a numeric fourchette ("à" range join) for
@@ -308,7 +313,7 @@ void main() {
       await _pumpScenarios(tester, taxYearKnown: false);
       expect(_key('status:scenarios.pending'), findsOneWidget);
       expect(find.textContaining('l’année fiscale'), findsOneWidget);
-      expect(_key('row:scenarios.scenario_0'), findsNothing);
+      expect(_regions(), findsNothing);
       expect(_key('action:scenarios.pending_action'), findsOneWidget);
     });
 
@@ -335,7 +340,7 @@ void main() {
   group('own_amount: pulled by value, optional, no preselection', () {
     testWidgets('opens the sheet, no preselected amount', (tester) async {
       await _pumpScenarios(tester);
-      await _tap(tester, 'action:scenarios.open_own_amount');
+      await _tap(tester, 'action:scenarios.own_amount');
       expect(_key('sheet:scenarios.own_amount'), findsOneWidget);
       final field = tester.widget<TextField>(
         find.descendant(
@@ -350,7 +355,7 @@ void main() {
         'entering the exact remaining room shows the grounded max effect (honest, not fabricated)',
         (tester) async {
       await _pumpScenarios(tester); // nominal, remaining room = 7 258
-      await _tap(tester, 'action:scenarios.open_own_amount');
+      await _tap(tester, 'action:scenarios.own_amount');
       await tester.enterText(
         find.descendant(
           of: _key('sheet:scenarios.own_amount.field'),
@@ -368,7 +373,7 @@ void main() {
         'entering MORE than the remaining room states the excess, never credits a benefit on it (fault_B)',
         (tester) async {
       await _pumpScenarios(tester);
-      await _tap(tester, 'action:scenarios.open_own_amount');
+      await _tap(tester, 'action:scenarios.own_amount');
       await tester.enterText(
         find.descendant(
           of: _key('sheet:scenarios.own_amount.field'),
@@ -387,7 +392,7 @@ void main() {
     testWidgets('an ungrounded own amount shows the amount with no invented effect',
         (tester) async {
       await _pumpScenarios(tester);
-      await _tap(tester, 'action:scenarios.open_own_amount');
+      await _tap(tester, 'action:scenarios.own_amount');
       await tester.enterText(
         find.descendant(
           of: _key('sheet:scenarios.own_amount.field'),
@@ -405,7 +410,7 @@ void main() {
         'the own_amount control is NOT offered when the room is exhausted (fault_E)',
         (tester) async {
       await _pumpScenarios(tester, contributedChf: 8000);
-      expect(_key('action:scenarios.open_own_amount'), findsNothing);
+      expect(_key('action:scenarios.own_amount'), findsNothing);
     });
   });
 
@@ -458,7 +463,7 @@ void main() {
     await _pumpScenarios(tester, textScaler: const TextScaler.linear(2));
     expect(tester.takeException(), isNull);
     expect(_key('text:scenarios.choose_line'), findsOneWidget);
-    expect(_key('row:scenarios.scenario_0'), findsOneWidget);
+    expect(_regions(), findsAtLeastNWidgets(1));
     expect(_key('text:scenarios.liquidity'), findsOneWidget);
     expect(_key('text:scenarios.disclaimer'), findsOneWidget);
     final continueF = _key('action:scenarios.continue');
