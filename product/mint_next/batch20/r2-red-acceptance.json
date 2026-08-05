@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "status": "candidate_red_acceptance_unaccepted",
-  "current_verdict": "PENDING_INDEPENDENT_ROASTS",
+  "status": "accepted_expected_red_evidence_runtime_not_implemented",
+  "current_verdict": "RED_CONTRACT_ACCEPTED_RUNTIME_NOT_IMPLEMENTED",
   "candidate": {
     "red_commit": "1d24622f4051b81a2a7f23753ea76df6f8435118",
     "gate": "R2",
@@ -22,30 +22,35 @@
   },
   "reviews": {
     "architecture_integrity": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "f059522cfc5fd5c6d75b3b93b6000b7961d350000882f6d2ddd280c0066bb81f"
     },
     "mechanical_evidence": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "f059522cfc5fd5c6d75b3b93b6000b7961d350000882f6d2ddd280c0066bb81f"
     },
     "ux_navigation_scope": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "f059522cfc5fd5c6d75b3b93b6000b7961d350000882f6d2ddd280c0066bb81f"
     }
   },
   "mechanical_binding": {
     "candidate_review_payload_sha256": "f059522cfc5fd5c6d75b3b93b6000b7961d350000882f6d2ddd280c0066bb81f",
-    "reviewed_payload_sha256": null,
-    "reviewed_candidate_commit": null
+    "reviewed_payload_sha256": "f059522cfc5fd5c6d75b3b93b6000b7961d350000882f6d2ddd280c0066bb81f",
+    "reviewed_candidate_commit": "9b933002b3d6b4f446e58ee9c2e8babaf5a3d6e4"
   },
-  "accepted_evidence": [],
+  "accepted_evidence": [
+    "expected_failing_R2_contract_only"
+  ],
   "not_accepted": [
     "runtime_implemented",
     "runtime_accepted",
@@ -54,5 +59,5 @@
     "R3_or_later_gate",
     "production_ready"
   ],
-  "next_gate": "independent_roasts_of_exact_pending_acceptance_commit"
+  "next_gate": "create_and_review_R2_runtime_path_owner_receipt"
 }
