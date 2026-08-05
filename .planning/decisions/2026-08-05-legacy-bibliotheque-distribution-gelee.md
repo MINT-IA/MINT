@@ -19,7 +19,7 @@ La distribution TestFlight de l'app legacy est gelée ; le legacy sert de biblio
 
 ## Context
 
-La reconstruction MINT Next (voir `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`) suit le motif strangler-fig : construction parallèle sous `product/mint_next/`, legacy maintenu vivant. Restait ouverte la question de la distribution : la branche `dev` porte plus de 18 correctifs vérifiés de l'app legacy, et la reprise des envois TestFlight était en attente d'arbitrage du product owner. Le 2026-08-05, le product owner tranche : l'app legacy ne répond plus au niveau d'exigence produit ; elle sert de source d'inspiration, pas de véhicule de distribution.
+La reconstruction MINT Next (voir `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`) suit le motif strangler-fig : construction parallèle sous `product/mint_next/`, legacy maintenu vivant. Restait ouverte la question de la distribution : la branche `dev` porte une série de correctifs de l'app legacy déjà fusionnés, et la reprise des envois TestFlight était en attente d'arbitrage du product owner. Le 2026-08-05, le product owner tranche en session : l'app legacy ne répond plus au niveau d'exigence produit ; elle sert de source d'inspiration, pas de véhicule de distribution.
 
 ## Decision
 
@@ -28,6 +28,7 @@ La reconstruction MINT Next (voir `.planning/decisions/2026-08-03-doctrine-recon
 - Le legacy reste une **source d'inspiration** : parcours, copies, mécanismes existants sont du matériau de fouille pour MINT Next, jamais un standard à égaler.
 - Les correctifs legacy déjà fusionnés dans `dev` servent la santé de la bibliothèque ; ils ne déclenchent pas de distribution.
 - MINT Next reste en design lab non promu (`product_promotion: forbidden` dans ses contrats) jusqu'à décision explicite du product owner.
+- Conséquence assumée : aucune distribution utilisateur pendant la construction de MINT Next. La levée de cet état est une décision explicite du product owner ; le critère de bascule sera défini à ce moment-là.
 
 ## Counter-arguments and data gaps
 
@@ -47,6 +48,7 @@ La reconstruction MINT Next (voir `.planning/decisions/2026-08-03-doctrine-recon
 ## Status & follow-up
 
 - Implementation tracking : aucun changement de code requis ; les items d'exploitation liés à la distribution legacy (vérification register Apple post-promotion staging, pipeline TestFlight) passent en priorité dormante.
+- Mécanisme de gel effectif : le pipeline TestFlight ne se déclenche que sur promotion vers `staging` ; aucune promotion `dev`→`staging` n'est effectuée. Un verrou mécanique du workflow peut être ajouté en durcissement ultérieur.
 - Re-litigation triggers : les trois signaux listés en counter-arguments ; toute demande explicite du product owner.
 
 ---

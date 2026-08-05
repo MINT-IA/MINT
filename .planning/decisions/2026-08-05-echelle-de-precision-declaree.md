@@ -19,15 +19,17 @@ Les faits chiffrés se collectent d'abord en tranches (effort minimal, honnêtet
 
 ## Context
 
-Revue du batch R3 (arc éclairage) : le product owner soulève la tension « si on commence par des estimations, il faudra quand même faire l'effort des chiffres précis plus tard » et délègue l'arbitrage. Précédent interne : la régression corrigée par #1061 — un chiffre affiché précis mais surestimé de 25 à 77 % parce que la précision de l'affichage dépassait celle du calcul. Infrastructure existante alignée : score de confiance multi-axes avec invitations d'enrichissement (doctrine projection), parseurs de documents (certificat de salaire, taxation) dans la bibliothèque legacy.
+Revue du batch R3 (arc éclairage) : le product owner soulève la tension « si on commence par des estimations, il faudra quand même faire l'effort des chiffres précis plus tard », délègue l'arbitrage, puis valide la position rendue en session le 2026-08-05. Précédent interne : la régression corrigée par #1061 — un chiffre affiché précis mais surestimé de 25 à 77 % parce que la précision de l'affichage dépassait celle du calcul. Infrastructure existante alignée : score de confiance multi-axes avec invitations d'enrichissement (doctrine projection), parseurs de documents (certificat de salaire, taxation) dans la bibliothèque legacy.
 
 ## Decision
 
 - **Entrée, moteur et sortie montent en précision ensemble.** La précision demandée à l'utilisateur ne dépasse jamais celle que le moteur peut honnêtement restituer.
 - **Collecte par défaut = tranche** (une touche, répondable de mémoire). La largeur de la fourchette rendue est dérivée des bornes de tranche et des approximations moteur — jamais d'un ± décoratif.
 - **Raffinement tiré par la valeur** : sur l'écran de restitution, chaque hypothèse affichée est une action de raffinage optionnelle (tranche → valeur exacte déclarée → document importé). L'effort est demandé au moment de motivation maximale, jamais à l'accueil.
-- **Raffiner remplace en place** : même fait, résolution et provenance mises à niveau. On ne repose jamais une question déjà répondue.
+- **Raffiner remplace en place** : même fait, résolution et provenance mises à niveau. On ne repose jamais une question déjà répondue — une mise à niveau se propose, elle ne se redemande pas.
+- **Un document importé améliore la provenance, pas automatiquement l'exactitude** : une valeur issue de document porte sa fraîcheur et sa confiance de lecture, et se confirme par l'utilisateur avant de remplacer la valeur déclarée.
 - **La fourchette se resserre mais ne s'effondre jamais** en chiffre unique tant que des approximations moteur subsistent.
+- Les seuils mécaniques (définition des approximations restantes, largeur minimale de fourchette, règles d'invalidation d'un fait) sont spécifiés par les contrats de batch, pas par cet ADR.
 
 ## Counter-arguments and data gaps
 
