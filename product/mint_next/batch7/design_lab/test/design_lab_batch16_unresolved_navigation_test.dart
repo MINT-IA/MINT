@@ -430,7 +430,7 @@ void main() {
         .getSemantics(find.byKey(ValueKey('action:amount_doubt:$origin')))
         .getSemanticsData();
     expect(doubtSemantics.hint, contains(errorSemantics.label));
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
     expectExactFocus('amount doubt $origin');
   });
 
@@ -484,7 +484,7 @@ void main() {
       find.byKey(ValueKey('status:amount_unreviewed:${rows.last}')),
       findsOne,
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
   });
 
   testWidgets('all_confirmed_safe_exit_system_back_leave_and_canton_back', (
@@ -526,7 +526,7 @@ void main() {
       find.byKey(const ValueKey('action:fact_contributed_amount.continue')),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsOne);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsOne);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(batch16RowIds(tester), equals(rows));
@@ -700,7 +700,7 @@ void main() {
       find.byKey(ValueKey('status:amount_unresolved:${rows.last}')),
       findsOne,
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
 
     rows = await enterConfirmed();
     await tapVisible(
@@ -771,7 +771,7 @@ void main() {
       '2000',
     );
     expectExactFocus('amount $origin');
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
     staleRefund();
     staleAllZero();
     await tester.pumpAndSettle();
@@ -780,7 +780,7 @@ void main() {
       find.byKey(ValueKey('group:provider_tombstone:$origin')),
       findsNothing,
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
   });
 
   testWidgets('eligible_refund_exact_tombstone_and_replay', (tester) async {
@@ -926,7 +926,7 @@ void main() {
     expect(find.text(correctionL10n.batch16CorrectionDataLoss), findsOne);
     expect(find.text(correctionL10n.batch16ChooseNo), findsOne);
     expect(find.text(correctionL10n.batch16ChooseUnknown), findsOne);
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('node:unresolved_amount_help')), findsOne);
@@ -1023,7 +1023,7 @@ void main() {
       find.byKey(const ValueKey('action:contribution_correction.choose_no')),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsOne);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsOne);
     expect(
       find.byWidgetPredicate(
         (widget) =>
@@ -1263,10 +1263,8 @@ void main() {
     await tester.pumpAndSettle();
     terminalCallback();
     await tester.pumpAndSettle();
-    await tapVisible(
-      tester,
-      find.byKey(const ValueKey('action:fact_canton.back')),
-    );
+    // Commune-directe: fact_lieu is left via origin-aware system-back.
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     await tapVisible(
       tester,
@@ -1443,7 +1441,7 @@ void main() {
       findsNothing,
     );
     expect(find.byKey(ValueKey('field:amount:${rows.first}')), findsOne);
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
 
     await openUnresolvedHelp(tester, origin);
     staleProviderTotal = tester

@@ -215,8 +215,8 @@ void main() {
       await tester.tap(continueAction);
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const ValueKey('node:fact_canton')), findsOne);
-      await tester.tap(find.byKey(const ValueKey('action:fact_canton.back')));
+      expect(find.byKey(const ValueKey('node:fact_lieu')), findsOne);
+      await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
 
       expect(find.text('VIAC'), findsOne);
@@ -322,7 +322,7 @@ void main() {
       FocusManager.instance.primaryFocus?.debugLabel,
       'provider name $second',
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
   });
 
   testWidgets(
@@ -580,7 +580,7 @@ void main() {
     await tester.ensureVisible(continueAction);
     await tester.tap(continueAction);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('action:fact_canton.back')));
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
     final correct = find.byKey(

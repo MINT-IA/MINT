@@ -95,7 +95,7 @@ void main() {
       find.byKey(const ValueKey('node:fact_contributed_amount')),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'provider name');
 
     await tester.enterText(
@@ -118,7 +118,7 @@ void main() {
       find.byKey(const ValueKey('error:fact_contributed_amount.all_reviewed')),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
   });
 
   testWidgets('provider field rejects sensitive identifiers without routing', (
@@ -141,7 +141,7 @@ void main() {
 
     expect(find.textContaining('sans numéro de compte'), findsOneWidget);
     expect(FocusManager.instance.primaryFocus?.debugLabel, 'provider name');
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
   });
 
   testWidgets('empty amount opens distinct unknown help and Back restores it', (
@@ -256,7 +256,7 @@ void main() {
     );
   });
 
-  testWidgets('complete positive amount reaches canton and Back restores it', (
+  testWidgets('complete positive amount reaches the commune step and Back restores it', (
     tester,
   ) async {
     await openContributedAmountBuilder(tester);
@@ -281,14 +281,11 @@ void main() {
     await tester.tap(continueAction);
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
-    expect(
-      find.text('Dans quel canton es-tu imposé pour 2026 ?'),
-      findsOneWidget,
-    );
+    // Commune-directe: the positive branch now reaches the fused fact_lieu node
+    // (canton derived), and origin-aware system-back restores the amount draft.
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsOneWidget);
     expect(find.textContaining('aucun versement ordinaire'), findsNothing);
-    expect(find.textContaining('Aucun résultat fiscal'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('action:fact_canton.back')));
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
     expect(
@@ -329,7 +326,8 @@ void main() {
       find.byKey(const ValueKey('action:fact_contribution.choose_no')),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('action:fact_canton.back')));
+    // Commune-directe: choose_no now lands on fact_lieu; leave via system-back.
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     await tester.tap(
       find.byKey(const ValueKey('action:fact_contribution.choose_yes')),
@@ -376,7 +374,8 @@ void main() {
     await tester.ensureVisible(continueAction);
     await tester.tap(continueAction);
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('action:fact_canton.back')));
+    // Commune-directe: continue reaches fact_lieu; return via system-back.
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
     await tester.enterText(amount, '7,258');
@@ -387,7 +386,7 @@ void main() {
       find.byKey(const ValueKey('node:fact_contributed_amount')),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
     expect(find.text('7,258'), findsOneWidget);
     expect(find.textContaining('montant CHF valide'), findsOneWidget);
   });
@@ -559,13 +558,11 @@ void main() {
     await tester.ensureVisible(continueAction);
     await tester.tap(continueAction);
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
-    expect(find.text('Retour'), findsOneWidget);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsOneWidget);
     expect(tester.takeException(), isNull);
 
-    final back = find.byKey(const ValueKey('action:fact_canton.back'));
-    await tester.ensureVisible(back);
-    await tester.tap(back);
+    // Commune-directe: leave fact_lieu via origin-aware system-back.
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(find.text('VIAC'), findsOneWidget);
     expect(find.text('7258'), findsOneWidget);
@@ -683,7 +680,7 @@ void main() {
       find.byKey(const ValueKey('node:fact_contributed_amount')),
       findsOneWidget,
     );
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
 
     final disclosure = find.byKey(
       const ValueKey('action:fact_contributed_amount.toggle_where_to_find'),
@@ -693,7 +690,7 @@ void main() {
     await tester.pump();
     expect(find.textContaining('une seule fois'), findsOneWidget);
     expect(find.textContaining('plusieurs contrats'), findsOneWidget);
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsNothing);
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsNothing);
   });
 
   testWidgets('education-only from partial help reveals no personal result', (

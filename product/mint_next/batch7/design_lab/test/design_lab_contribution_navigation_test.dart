@@ -99,7 +99,7 @@ void main() {
     );
   });
 
-  testWidgets('no routes to canton boundary and back restores no', (
+  testWidgets('no routes to the commune boundary and back restores no', (
     tester,
   ) async {
     await openContributionQuestion(tester, currentYear: 2026);
@@ -107,10 +107,10 @@ void main() {
       find.byKey(const ValueKey('action:fact_contribution.choose_no')),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('node:fact_canton')), findsOneWidget);
-    expect(find.textContaining('Aucun résultat fiscal'), findsOneWidget);
+    // Commune-directe: choose_no now reaches the fused fact_lieu node.
+    expect(find.byKey(const ValueKey('node:fact_lieu')), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('action:fact_canton.back')));
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
     expect(
       selectedState(tester, 'action:fact_contribution.choose_no'),
@@ -334,7 +334,20 @@ void main() {
       'action:education_explanation.back',
       'action:contribution_unknown_help.back',
       'action:fact_contribution.choose_no',
-      'action:fact_canton.back',
+    ]) {
+      final finder = find.byKey(ValueKey(action));
+      await tester.ensureVisible(finder);
+      await tester.tap(finder);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    }
+    // Commune-directe: choose_no lands on the fused fact_lieu node, which has no
+    // fact_canton.back button; origin-aware system-back returns to the
+    // contribution boundary.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    for (final action in [
       'action:fact_contribution.choose_yes',
       'action:fact_contributed_amount.correct_previous',
     ]) {

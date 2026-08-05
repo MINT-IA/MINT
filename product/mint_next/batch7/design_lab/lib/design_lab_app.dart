@@ -426,7 +426,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
           _clearContributionAmount();
           _contributionStatus = status;
           _unresolvedOrigin = null;
-          _node = _DesignNode.factCanton;
+          // Commune-directe (product decision 2026-08-05): the "no contribution"
+          // branch reaches the fused fact_lieu node (canton derived), never the
+          // condemned standalone fact_canton screen.
+          _node = _DesignNode.factLieu;
         });
       case _ContributionStatus.unknown:
         setState(() {
@@ -523,9 +526,12 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       case _DesignNode.factCanton:
         _backFromCanton();
       case _DesignNode.factLieu:
-        // The fused fact_lieu is reached from the "no contribution" branch;
-        // system-back returns to the contribution boundary.
-        _go(_DesignNode.factContribution);
+        // Commune-directe: fact_lieu is reached from BOTH contribution branches
+        // (no → directly; positive → after the amount step). System-back is
+        // origin-aware (same helper the condemned fact_canton used): it returns
+        // to the amount step for a positive contribution, otherwise to the
+        // contribution boundary.
+        _backFromCanton();
       case _DesignNode.educationExplanation:
         _backFromEducation();
       case _DesignNode.dismissed:
@@ -677,7 +683,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                       taxYear: _taxYear!,
                                       draft: _multiProviderDraft,
                                       onCommitted: (_) =>
-                                          _go(_DesignNode.factCanton),
+                                          _go(_DesignNode.factLieu),
                                       enableBatch16:
                                           widget.enableBatch16Unresolved,
                                       onAmountDoubt: _openBatch16Help,
@@ -775,7 +781,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                     }),
                                     onContinue: () {
                                       if (!_multipleProvidersDeclared) {
-                                        _go(_DesignNode.factCanton);
+                                        _go(_DesignNode.factLieu);
                                       }
                                     },
                                     onCorrectPrevious:
