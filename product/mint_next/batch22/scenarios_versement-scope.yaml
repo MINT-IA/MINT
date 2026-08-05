@@ -1,0 +1,547 @@
+schema_version: 1
+status: sealed_expected_red_contract_runtime_not_implemented   # R4 batch22 — contrat SCELLÉ, runtime pas encore implémenté
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_and_numeracy_literacy
+# R4 = FERMETURE DE LA BOUCLE. Après l'éclairage (R3, le payoff), scenarios_versement répond à
+# « et maintenant ? » : ce que l'utilisateur POURRAIT verser cette année et l'effet estimé de chaque
+# scénario. STRICTEMENT ÉDUCATIF : des scénarios, JAMAIS une recommandation ; pas d'impératif ;
+# « pourrait » ; toujours une fourchette, jamais un chiffre nu ; la liquidité bloquée dite honnêtement
+# (anti-dark-pattern). Ce nœud REFRAÎCHIT `next_action` de batch6.
+model: scenarios_render_and_optional_amount_node
+
+navigation_amendment:
+  refreshes: next_action                 # batch6 navigation.yaml:545
+  into: scenarios_versement
+  keeps:
+    - next_action_persistence_choices_keep_local_reference_leave_without_saving   # navigation.yaml:548-552 (leave_without_saving à :552)
+    - contributed_amount_and_additional_planned_amount_facts_and_their_formulas   # navigation.yaml:50,63-67
+  decision_trace: r4_lead_scope_fermeture_boucle_2026_08_05
+  conflict_to_resolve_with_lead: >-
+    batch6 porte result -> teach_back -> next_action. R3 a refraîchi `result` en eclairage_impot_3a et a
+    laissé le sort de teach_back au lead. R4 refraîchit `next_action` en scenarios_versement. Le
+    rattachement exact (teach_back de compréhension conservé entre éclairage et scenarios_versement ?)
+    reste une décision de navigation du lead ; ce draft ne touche aucun autre nœud batch6.
+  authority_note: this_draft_refreshes_next_action_only_it_may_not_add_or_remove_other_batch6_routes
+
+authority:
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  source_of_truth_rule: this_draft_refreshes_next_action_it_may_not_touch_other_batch6_routes
+  runtime_change: forbidden
+  product_promotion: forbidden
+  sealing: forbidden_this_is_a_pre_review_draft
+
+# ────────────────────────────────────────────────────────────────────────────
+# ARCHITECTURE NÉE AVEC LA LEÇON γ (2026-08-05) — déclarer la cible, jamais câbler en R4
+# Ce contrat DÉCLARE des positions/cibles de navigation mais NE CÂBLE aucun routage, recompute
+# ou persistance en R4 (never_routes_in_r4:true sur tous les contrôles). Ce qui doit être
+# intégré plus tard est ÉNONCÉ ICI — jamais découvert au green (RIDER INTÉGRATION R3, eclairage-scope.yaml:334-337).
+# ────────────────────────────────────────────────────────────────────────────
+deferred_integration:
+  principle: declare_target_position_only_never_wire_the_route_or_recompute_in_this_r_batch
+  never_routes_in_r4_applies_to: [continue, keep_local_reference, prepare_personal_setup, review_existing_overcontribution]
+  items:
+    - id: contributed_amount_to_remaining_room_wiring
+      what: le_cablage_runtime_remaining_3a_room_eq_max0_annual_cap_moins_effective_contributed_amount_et_le_recompute_des_scenarios_dessus
+      etalon_ref: [product/mint_next/batch6/navigation.yaml:63]   # navigation.yaml:63 = étalon AUTORITAIRE max(0, cap - effective_contributed_amount). NOTE: pillar3a_room_calculator.dart:34-40 soustrait plannedAnnualContribution (=total3aMensuel×12), PAS le déjà-versé — miroir sémantiquement DIFFÉRENT, à NE PAS recopier pour ce câblage
+      r4_position: la_regle_est_gravee_parameter_coverage_contributed_amount_wiring_seul_le_cablage_runtime_est_differe   # marge restante cablee sur remaining_3a_room : REGLE gravee, cablage differe
+      defers_to: integration_wave_runtime_batch
+      green_must_assert: scenarios_recompute_on_remaining_room_not_on_full_cap
+    - id: non_affilie_ceiling_routing
+      what: router_la_branche_lpp_affiliation_no_vers_un_vrai_plafond_derive_au_lieu_du_without_lpp_boundary_educatif_de_batch6
+      rule_engraved_here: ceiling_derivation_opp3   # la regle f(affiliation,revenu) + les 3 cas OPP3 sont GRAVES ; seul le ROUTAGE no-LPP est differe vers la vague d'integration
+      defers_to: integration_wave_lead_plus_swiss_brain_navigation_decision
+      green_must_assert: non_affilie_reaches_a_derived_ceiling_never_a_flat_7258
+    - id: married_recompute_backend
+      what: le_vrai_bareme_marie_sur_le_revenu_du_menage_remplacant_l_approximation_etalon_x080_sur_la_meme_tranche
+      defers_to: later_backend_batch   # recompute marie -> batch backend ulterieur
+      r4_position: x080_sur_la_meme_tranche_est_une_hypothese_visible_fourchette_elargie_jamais_un_point_situation_display_only_tant_que_le_recompute_n_existe_pas
+    - id: communal_multiplier_recomposition
+      what: moduler_l_estimation_chef_lieu_par_le_multiplicateur_communal_reel
+      inherits: r3_pending_named_source   # commune-multipliers-reviewed.yaml, pending_reviewed_dataset (dispersion MESUREE, cf communal_residual_rule)
+      defers_to: named_source_ingestion_then_integration_wave
+    - id: rachat_3a_classification
+      what: distinguer_contribution_ordinaire_rachat_admissible_OPP3_art7a_et_vrai_excedent_avant_l_etat_marge_epuisee
+      etalon_ref: OPP3_art_7_to_7b_en_vigueur_01_01_2025_1er_rachat_annee_fiscale_2026_plafonne_7258_par_annee_lacunaire
+      defers_to: later_backend_batch_needs_the_buy_in_mechanism_and_gap_year_tracking
+      green_must_assert: an_amount_above_the_annual_cap_is_NOT_labelled_non_deductible_without_checking_buy_in_eligibility
+  rider_no_green_surprise: >-
+    Le batch d'intégration NE DOIT PAS découvrir ces câblages au green. Chaque item ci-dessus est
+    déclaré ; la spec green de l'intégration porte l'assertion green_must_assert correspondante.
+
+# ────────────────────────────────────────────────────────────────────────────
+# DÉCISION PRODUIT — nature de l'écran (scénarios éducatifs, pas un configurateur)
+# ────────────────────────────────────────────────────────────────────────────
+product_decision_screen_nature:
+  date: 2026-08-05
+  decision: SCENARIOS_EDUCATIFS_DISCRETS_plus_saisie_optionnelle_tirée_par_la_valeur
+  rejected_slider: >-
+    Un curseur « glisse jusqu'au max » pousse psychologiquement vers le plafond — biais de
+    configurateur, borderline dark pattern (on maximise le produit, pas la lucidité de l'utilisateur).
+    Aussi : pénible en VoiceOver/switch-control. Rejeté.
+  rejected_single_recommended_amount: >-
+    Afficher UN montant « conseillé » serait une RECOMMANDATION (interdit MINT/LSFin) et un chiffre nu.
+    Rejeté.
+  chosen_discrete_scenarios: >-
+    2 à 3 scénarios illustratifs (montant -> effet en fourchette), couvrant un SPECTRE (petit / moyen /
+    le maximum possible). L'enseignement = « tu peux verser ce que tu veux jusqu'au plafond, voici
+    l'effet à différents niveaux ». Non prescriptif, honnête, chaque effet dérivé du moteur.
+  own_amount_is_pulled_not_pushed: >-
+    L'utilisateur PEUT saisir son propre montant (fact additional_planned_amount, navigation.yaml:340) —
+    TIRÉ par la valeur (il le veut), jamais poussé par un formulaire imposé. Défaut = aucun montant
+    choisi ; on ne présélectionne rien.
+  liquidity_is_shown_not_hidden:
+    decision: la_liquidité_bloquée_est_DITE_sur_l_écran_pas_seulement_l_économie
+    why: >-
+      Montrer l'économie d'impôt SANS dire que l'argent est bloqué jusqu'à la retraite (sauf exceptions)
+      ferait passer le 3a pour de l'argent gratuit = dark pattern. L'objectif d'apprentissage batch6 est
+      explicite : « understand tax deduction, LOCKED LIQUIDITY, and no tax benefit above remaining room »
+      (navigation.yaml:123-124). On l'honore.
+    tradeoff_surfaced_for_julien: >-
+      Enthousiasme d'un écran « voilà tout ce que tu économises » VS honnêteté d'un écran qui dit aussi
+      « et c'est bloqué ». Choix = honnêteté (lucidité, pas vente). La note liquidité est une phrase +
+      un glossaire des exceptions (aéré).
+
+privacy_copy_rule:
+  # HARD (décision produit 2026-08-05) : toute phrase privacy dérive du contrat de données de CET écran. Ici
+  # additional_planned_amount et contributed_amount sont éphémères puis rejoignent le profil (comme la
+  # tranche R3). AUCUNE donnée device-only exclusive à cet écran -> AUCUNE phrase privacy.
+  on_device_claims_must_not_exceed_data_contract: true
+  device_local_only_datum_on_this_screen: none
+  committed_amounts_join_profile: true
+  privacy_sentence_on_screen: omitted_because_no_device_only_datum_exists_here
+  forbidden_privacy_claim: any_on_device_or_not_sent_claim_about_the_amounts
+
+# ────────────────────────────────────────────────────────────────────────────
+# DÉRIVATION — la seule source de vérité chiffrée (0-trust, path:line, moteur RÉELLEMENT exécuté)
+# Chaque valeur des maquettes est une SORTIE du moteur (voir scoring/derivations-suisse-r4.md +
+# scoring/derive_r4.py). Rien saisi à la main.
+# ────────────────────────────────────────────────────────────────────────────
+number_derivation:
+  canonical_saving_source: services/backend/app/services/fiscal/cantonal_comparator.py
+  saving_function: "estimate_tax_saving(taxable_income, deduction, canton, is_married)"      # :426
+  saving_method: difference_of_tax_impot(revenu)_moins_impot(revenu_moins_deductible)_JAMAIS_plafond_fois_taux   # :441-444
+  income_tax_function: "estimate_income_tax(taxable_income, canton, is_married)"              # :448
+  etalon_calibration: chef_lieu_celibataire_sans_enfant_sans_confession_fortune_0            # :99-101
+  deductible_is_within_room_only:
+    formula: deductible_amount = min(scenario_amount, remaining_3a_room)                       # navigation.yaml:65
+    tax_base: deductible_amount_only                                                           # navigation.yaml:67
+    why: un_versement_au_dela_de_la_marge_ne_reduit_PAS_l_impot_effet_plafonne_a_la_marge
+  fourchette_construction:
+    low: estimate_tax_saving_at_the_income_band_LOWER_edge_on_the_deductible
+    high: estimate_tax_saving_at_the_income_band_UPPER_edge_on_the_deductible
+    incremental_when_already_contributed: >-
+      effet_additionnel = saving(income, already + add) - saving(income, already), aux deux bornes de
+      tranche. La marge déjà acquise n'est pas recomptée (honnête).
+    rounding: floor_to_100_both_bounds_never_collapse   # HÉRITÉ R3 (eclairage-scope.yaml:44) : les DEUX bornes au plancher CHF 100 ; jamais gonflé, jamais effondré en un point ; si floor(low)==floor(high) élargir (aucune valeur R4 ne le déclenche)
+    residual_width_at_exact_income: derived_from_MEASURED_canton_communal_dispersion_never_a_decorative_pm   # voir communal_residual_rule
+  # LACUNE COMMUNALE — la dispersion est désormais MESURÉE, plus supposée (rapport coordinateur 2026-08-05)
+  communal_residual_rule:
+    report: scratchpad/RESEARCH-steuerfuss-communal-source-BE-BS-FR-JU.md   # lecture seule, consulté 2026-08-05
+    measured_dispersion_BE:
+      steuanlg_civil_range: "0.89 (Deisswil b. M., bfs 535) à 2.20 (Schelten, bfs 708)"   # rapport §2, geoparquet AGI
+      chef_lieu_bern: 1.54
+      cantonal_base_BE: "≈3.06"
+      magnitude: "~×2.5 sur la part communale — massif, PAS ±3%"
+    measured_dispersion_FR_example_canton:
+      mechanism: pct_of_cantonal_base   # FR = coefficient en % (pas des unités)
+      published_2026_spread: "32% (Greng) à 100% (Jaun)"   # rapport §3.6, encore plus large
+    r3_assumption_corrected: la_reserve_R3_~pm3pct_ou_pm5pct_communal_etait_OPTIMISTE_la_dispersion_reelle_est_grande
+    named_source_status:
+      identified: true   # per-canton, en file (rapport §4) : BE fin.be.ch+AGI ; JU jura.ch ; FR fr.ch DIAF/SCOM ; BS table 3 communes
+      in_repo_yet: false   # commune-multipliers-reviewed.yaml PROPOSÉ, pas encore ingéré
+      status: source_named_ingestion_pending_seal_stays_chef_lieu_until_filed
+    display_rule:
+      at_band_income: width_dominated_by_income_band_edges_commune_shown_as_a_visible_chef_lieu_hypothesis_with_honest_caveat
+      at_exact_income: width_reflects_MEASURED_canton_dispersion_never_a_tight_number   # ex. plafond-20% : effet dit modeste_et_depend_beaucoup_de_la_commune
+      hypothesis_line_always_visible: "Impôts · <commune> (chef-lieu du canton)"
+      forbidden: claiming_a_tight_communal_precision_the_chef_lieu_seal_cannot_support
+  mockup_values_executed:   # SORTIES réelles (derive_r4.py), arrondies vers l'intérieur pour l'écran
+    nominal_band_70_100k_FR_celibataire_plafond_7258_deja_0:
+      - {verser: 2000, effet_brut: "504.53 a 617.87", affiche: "environ 500 à 600 CHF"}
+      - {verser: 4000, effet_brut: "1009.07 a 1235.73", affiche: "environ 1 000 à 1 200 CHF"}
+      - {verser: 7258, effet_brut: "1830.95 a 2242.24", affiche: "environ 1 800 à 2 200 CHF"}   # = R3 payoff
+    marge_reduite_deja_4000_reste_3258:
+      - {verser_de_plus: 1000, effet_additionnel_brut: "252.26 a 308.94", affiche: "environ 200 à 300 CHF"}   # floor_to_100 des DEUX bornes (252.26->200, 308.94->300) ; corrige le nearest_50 du draft
+      - {verser_de_plus: 3258, effet_additionnel_brut: "821.88 a 1006.51", affiche: "environ 800 à 1 000 CHF"}
+    plafond_20pct_non_affilie_revenu_20000:
+      plafond_derive: 4000   # 20% * 20000, sous le max 36288 (règle OPP3) — LA valeur crisp de cet état
+      effet_point_chef_lieu_FR: "586.40"   # revenu EXACT -> plus de largeur de tranche ; le résidu = dispersion communale MESURÉE (grande)
+      affiche: effet_dit_QUALITATIVEMENT_modeste_et_depend_beaucoup_de_la_commune_PAS_un_nombre_serre   # communal_residual_rule.display_rule.at_exact_income
+      why: a_revenu_exact_la_seule_largeur_restante_est_la_dispersion_communale_massive_donc_aucune_fausse_precision
+  regression_fixed_reference: commit_c62d70682_#1061_imperatif_et_surestimation_supprimes
+
+# ────────────────────────────────────────────────────────────────────────────
+# LE PLAFOND DÉRIVE DE L'AFFILIATION + DU REVENU — règle OPP3 GRAVÉE, 3 cas de test contractuels
+# (directive lead R4). Rend impossible le forfait 7258 servi à un non-affilié. Cite l'étalon path:line.
+# ────────────────────────────────────────────────────────────────────────────
+ceiling_derivation_opp3:
+  rule_statement: >-
+    Le plafond 3a de l'année DÉRIVE de l'AFFILIATION au 2e pilier + du revenu, JAMAIS du statut
+    salarié/indépendant, JAMAIS un forfait servi à tous.
+  legal_basis:
+    affilie: LIFD_art_33_al_1_let_e   # plafond avec affiliation = 7258 (petit 3a)
+    non_affilie: OPP3_art_7           # 20% du revenu net de l'activité lucrative, max 36288 (grand 3a)
+  etalon_refs:
+    plafond_avec_lpp: apps/mobile/lib/constants/social_insurance.dart:398          # pilier3aPlafondAvecLpp = 7258.0
+    plafond_sans_lpp_max: apps/mobile/lib/constants/social_insurance.dart:401      # pilier3aPlafondSansLpp = 36288.0
+    taux_sans_lpp: apps/mobile/lib/constants/social_insurance.dart:404             # pilier3aTauxRevenuSansLpp = 0.20
+    opp3_formula_backend: services/backend/app/services/independant_service.py:147_161   # calculate_3a_plafond = round(min(revenu_net*0.20, 36288))
+    opp3_art7_mention: services/backend/app/services/independant_service.py:26_and_150
+    cap_switch_avec_sans_lpp: services/backend/app/services/independant_service.py:207_212
+    room_calculator_mobile: apps/mobile/lib/services/financial_core/pillar3a_room_calculator.dart:8_28   # annualCeiling: gate canContribute3a -> 0 ; independentNoLpp -> incomeBase*0.20 clamp[0,36288] ; sinon 7258. ATTENTION :19-20 branche sur FinancialArchetype.independentNoLpp (ARCHÉTYPE) — à NE PAS recopier comme source d'affiliation ; la règle R4 dérive de l'AFFILIATION (fait), pas de l'archétype
+  legacy_bug_site: apps/mobile/lib/services/minimal_profile_service.dart:228   # hasLpp = !isIndependantNoLpp (STATUT — à ne pas recopier)
+  mandatory_contract_test_cases:   # gouvernent le contrat ; le runtime devra les faire passer
+    - {revenu: 20000, affilie: false, plafond_attendu: 4000, verified_engine: true, why: "20% * 20000 ; le forfait 7258 SURESTIMERAIT le plafond de 81%"}
+    - {revenu: 250000, affilie: false, plafond_attendu: 36288, verified_engine: true, why: "20% plafonné au max ; le forfait 7258 SOUS-ESTIMERAIT de 5x"}
+    - {revenu: "any", affilie: true, plafond_attendu: 7258, verified_engine: true, why: "affilié -> petit 3a quel que soit le revenu (testé 20000 ET 250000 -> 7258)"}
+  net_professional_income_is_a_visible_hypothesis: >-
+    Pour le non-affilié, la base des 20% est le « revenu net de l'activité lucrative » — un input
+    DISTINCT du revenu imposable (base du taux). Nommé comme hypothèse VISIBLE, jamais le brut en
+    silence (cohérent R3 fault_2).
+  precision_note_non_affilie: >-
+    Un plafond PRÉCIS (4000) exige un revenu PRÉCIS (20000). Avec seulement une tranche, le plafond
+    non-affilié serait lui-même une fourchette (20% des bornes). Cohérent principe 1 R3 (précision
+    entrée <= précision sortie). La maquette plafond-20% illustre le cas revenu connu.
+  batch6_current_scope_boundary:
+    fact: batch6_couvre_aujourd_hui_UNIQUEMENT_le_salarie_avec_LPP
+    evidence:
+      - navigation.yaml:52_annual_cap_key_pillar3a_with_lpp_annual_cap_only
+      - navigation.yaml_outcome_predicate_unsupported_case_lpp_affiliation_is_not_yes
+      - navigation.yaml_without_lpp_boundary_purpose_no_lpp_ceiling_differs_and_this_first_calculation_does_not_cover_it
+    r4_position: >-
+      R4 GRAVE la règle complète (f(affiliation, revenu)) pour qu'elle soit correcte et prête. Câbler
+      la branche non-affilié vers un VRAI plafond (au lieu de l'actuel without_lpp_boundary éducatif)
+      est une décision de navigation lead + swiss-brain pour un batch ultérieur. La maquette plafond-20%
+      montre la règle ; le contrat déclare la branche `pending_lead_navigation`.
+    status: rule_engraved_non_affilie_wiring_pending_lead
+
+# ────────────────────────────────────────────────────────────────────────────
+# COUVERTURE DES PARAMÈTRES (règle DURE, directive coordinateur 2026-08-05)
+# Chaque entrée du calcul est un fait collecté OU une hypothèse VISIBLE. Jamais d'orphelin silencieux.
+# ────────────────────────────────────────────────────────────────────────────
+parameter_coverage:
+  calc_inputs_ref: navigation.yaml:50   # [tax_year, lpp_affiliation, contribution_status, contributed_amount, canton, commune, household, taxable_income_band, additional_planned_amount]
+  rule: every_input_is_a_collected_fact_or_a_shown_default_hypothesis_no_silent_orphan
+  map:
+    scenario_amount:
+      role: le_montant_illustratif_de_chaque_scenario_PAS_un_fait
+      coverage: derived_anchor_amounts_from_remaining_room   # 2-3 ancres dans [0, remaining_room]
+    remaining_3a_room:
+      etalon_ref: navigation.yaml:63   # max(0, annual_cap - effective_contributed_amount)
+      coverage: derived_variable
+      depends_on: [annual_cap_from_affiliation_income, contributed_amount]
+    annual_cap:
+      etalon_ref: ceiling_derivation_opp3   # f(affiliation, revenu)
+      coverage: derived_fact
+      source: affiliation_fact_lpp_plus_revenu
+    tax_year:
+      etalon_ref: navigation.yaml:51_55   # le plafond/barème a une année d'effet (millésime) ; {cap} injecté par placeholder
+      coverage: collected_fact
+      source_node: fact_annee_fiscale
+      note: le_plafond_et_le_bareme_sont_millesimes_le_glossaire_plafond_utilise_le_placeholder_cap
+    lpp_affiliation:
+      etalon_ref: ceiling_derivation_opp3   # pilote annual_cap (7258 vs 20%)
+      coverage: collected_fact
+      source_node: fact_lpp_affiliation
+    contribution_status:
+      etalon_ref: navigation.yaml:108_113
+      coverage: collected_fact
+      source_node: fact_contribution   # oui/non -> contributed_amount visible quand > 0
+    commune:
+      etalon_ref: cantonal_comparator.py:99_101   # chef-lieu ; résidu communal MESURÉ (communal_residual_rule)
+      coverage: collected_fact
+      source_node: fact_lieu
+    household_bucket:
+      status: SUPERSEDED_by_civil_status_is_married   # le seau grossier household remplacé par fact_etat_civil (fault_5) ; plus un input silencieux
+      coverage: not_an_input_replaced
+    contributed_amount:
+      etalon_ref: navigation.yaml:108_113_contributed_amount_contract
+      coverage: collected_fact_optional   # défaut 0 si contribution_status=no ; VISIBLE quand > 0
+      source_node: fact_contributed_amount   # navigation.yaml:260
+      wiring: reduces_remaining_room_max(0, cap - contributed_amount)   # LE câblage demandé par le lead
+    additional_planned_amount:
+      etalon_ref: navigation.yaml:340
+      coverage: collected_fact_optional_pulled   # l'utilisateur PEUT saisir son montant ; défaut aucun
+      source_node: fact_amount
+    deductible_amount:
+      etalon_ref: navigation.yaml:65   # min(additional_planned_amount, remaining_3a_room)
+      coverage: derived_variable
+      note: seule_la_part_dans_la_marge_reduit_l_impot
+    taxable_income_band:
+      etalon_ref: fact_revenu_R3   # bornes -> fourchette d'effet
+      coverage: collected_fact
+      source_node: fact_revenu
+    canton:
+      etalon_ref: cantonal_comparator.py:448
+      coverage: derived_fact
+      source_node: fact_lieu   # commune -> canton
+    civil_status_is_married:
+      etalon_ref: cantonal_comparator.py:482_483_x080_splitting
+      coverage: shown_hypothesis_refined_via_fact_etat_civil   # défaut célibataire ; devient fait via fact_etat_civil (R4)
+      default: celibataire
+      refines_via: fact_etat_civil   # contrat frère R4 collecte le fait
+      display_only_until_married_recompute_exists: true   # cohérence batch21 : le fait est COLLECTÉ + AFFICHÉ, mais l'effet ×0.80 sur les scénarios ne se recompute qu'à l'intégration (deferred_integration.married_recompute_backend)
+    children:
+      etalon_ref: cantonal_comparator.py:33_39   # ne mord que si marié + enfants
+      coverage: shown_hypothesis_STATED_not_falsely_editable
+      default: sans_enfant
+    confession / regime_source:
+      coverage: shown_hypothesis_STATED   # hérité éclairage R3 (imposé ordinairement tappable)
+  data_map_dependency:
+    inventaire: scratchpad/inventaire_exhaustivite_3a.md
+    key_finding: la_collecte_existait_deja_le_CABLAGE_contributed_amount_vers_remaining_room_est_le_travail_R4
+
+# ────────────────────────────────────────────────────────────────────────────
+# FAUTES RENDUES IMPOSSIBLES PAR LE CONTRAT (assertions vérifiables, cité path:line)
+# ────────────────────────────────────────────────────────────────────────────
+legacy_faults_made_impossible:
+
+  fault_A_ceiling_from_affiliation_not_status:
+    inherits: r3_eclairage_fault_1   # même règle, ici RENDUE OPÉRATIONNELLE (le plafond pilote l'UI)
+    contract_assertion: >-
+      Aucun scénario n'utilise un plafond dérivé du statut d'emploi ou d'un archétype. Le plafond
+      dérive de l'affiliation + du revenu (ceiling_derivation_opp3). Les 3 cas de test le gouvernent.
+    forbidden: serving_a_flat_7258_to_a_non_affilie_or_deriving_the_cap_from_employment_status
+
+  fault_B_no_benefit_above_remaining_room:
+    etalon_ref: navigation.yaml:65_67   # deductible = min(planned, room) ; tax_base = deductible_only
+    contract_assertion: >-
+      L'effet fiscal d'un scénario ne s'applique QU'À la part dans la marge restante (deductible_amount).
+      Un montant au-dessus de la marge n'ajoute AUCUNE économie ; l'excédent (planned_excess) est dit,
+      jamais silencieusement crédité d'un bénéfice. Anti-illusion.
+    forbidden: showing_a_tax_effect_on_the_portion_of_a_scenario_that_exceeds_remaining_room
+
+  fault_C_never_a_bare_number_never_a_promise:
+    contract_assertion: >-
+      Chaque effet de scénario est une FOURCHETTE (bornes de tranche / résidu moteur), jamais un chiffre
+      nu, jamais « garanti/optimal », jamais un impératif « Verse X ». Framing « pourrait » + « tu
+      choisis ». Cohérent régression #1061.
+    forbidden: [a_single_promised_effect, an_imperative_to_contribute, any_banned_lsfin_term]
+
+  fault_D_liquidity_never_hidden:
+    etalon_ref: navigation.yaml:123_124   # learning_objective inclut LOCKED LIQUIDITY
+    contract_assertion: >-
+      L'écran DIT que le versement est bloqué jusqu'à la retraite (sauf exceptions légales). Ne montrer
+      que l'économie serait un dark pattern (3a = argent gratuit). Interdit de masquer le coût liquidité.
+    forbidden: presenting_only_the_tax_saving_without_stating_the_locked_liquidity
+
+  fault_E_overcontribution_is_honest_not_silent:
+    etalon_ref: navigation.yaml:64_and_515_518   # existing_excess_contribution ; existing_overcontribution_help
+    contract_assertion: >-
+      Si le déjà-versé dépasse le plafond, la marge restante est 0 : AUCUN scénario « verser plus »,
+      et la part excédentaire est dite (« au-dessus du plafond, ne réduit pas l'impôt, à corriger »),
+      avec une aide (existing_overcontribution_help). Jamais un scénario qui inviterait à sur-cotiser.
+    forbidden: offering_a_contribute_more_scenario_when_remaining_room_is_zero
+
+lsfin_no_promise_contract:
+  banned_terms_absent: [garanti, optimal, meilleur, sans_risque, assuré, parfait, certain]
+  never_imperative: true   # PRÉCISION : aucun impératif de CONTRIBUTION/INVESTISSEMENT (« Verse X », « Cotise au max » ABOLIS) ; un impératif PROTECTEUR/correctif (« Vérifie avec ton prestataire ») reste admis (légal)
+  never_a_single_promised_number: true
+  always_a_range_per_scenario: true
+  scenarios_never_a_recommendation: true   # spectre éducatif, l'utilisateur choisit
+  liquidity_cost_stated: true
+  disclaimer_present_estimate_not_advice: true
+  framed_on_this_years_tax_not_retirement: true
+  marginal_rate_jargon_not_surfaced: true   # francs, pas taux
+
+slice:
+  entry_preconditions:
+    shared: [tax_year_explicitly_selected, commune_selected, taxable_income_band_selected, eclairage_seen]
+    nominal_path_also: [lpp_affiliation_yes]   # hérité R3 ; le plafond-20% illustre la branche non-affiliée gravée
+  implemented_nodes: [scenarios_versement]
+  boundary_nodes: [personal_setup_boundary, reference_saved, existing_overcontribution_help]   # navigation.yaml:555,518
+  locales: [fr, en, de, es, it, pt]
+
+human_outcome:
+  what_it_renders: >-
+    Un petit spectre de scénarios : ce que l'utilisateur POURRAIT verser cette année (dans sa marge
+    restante) et l'effet d'impôt estimé de chaque montant, en fourchette. Plus la note honnête que
+    l'argent reste bloqué. Pas un conseil, pas une invitation à verser.
+  must_understand:
+    - C'est toi qui choisis combien verser (ou rien) — aucun montant n'est recommandé.
+    - Chaque montant a un effet ESTIMÉ en fourchette, jamais un montant fixe.
+    - Seule la part dans ta marge restante réduit l'impôt ; au-delà, pas d'effet.
+    - Un versement 3a reste bloqué jusqu'à la retraite, sauf quelques exceptions.
+    - Ce qui compte déjà versé réduit ce qu'il te reste de possible cette année.
+  next_small_action:
+    default: Garder ce repère, ou continuer — sans pression.
+
+render_contract:
+  states:
+    nominal:
+      precondition: remaining_3a_room_gt_0_and_lpp_affiliation_yes_and_contributed_amount_zero
+      shows: [choose_line, scenarios_2_or_3, liquidity_note, disclaimer, next_step_actions]
+      each_scenario_shape: amount_plus_effect_range_never_single
+    marge_reduite:
+      precondition: contributed_amount_gt_0_and_remaining_3a_room_gt_0
+      shows: [already_line_contributed_amount, remaining_line, scenarios_on_remaining_incremental, liquidity_note, disclaimer, next_step_actions]
+      wiring: remaining_3a_room = max(0, annual_cap - contributed_amount)   # navigation.yaml:63
+      scenario_effect: incremental_effect_of_additional_above_already   # la marge acquise non recomptée
+    plafond_20pct_non_affilie:
+      precondition: lpp_affiliation_no   # branche gravée ; câblage runtime pending_lead
+      shows: [ceiling_depends_on_income_line, derived_ceiling_amount, one_max_scenario, income_base_hypothesis, low_income_honest_note, liquidity_note, disclaimer]   # income_base_hypothesis -> scenarios_plafond20_income_hyp (receipt gap comblé)
+      ceiling_derivation: min(0.20 * revenu_net_activite, 36288)   # OPP3 art.7
+      net_income_base_is_a_visible_hypothesis: true
+      role: non_affilie_ceiling_OVERLAY_illustration_at_contributed_zero_composes_with_marge_states_NOT_terminal   # correctif Codex
+      status: rule_shown_wiring_pending_lead
+    marge_epuisee_overcontribution:
+      precondition: effective_contributed_amount_ge_annual_cap   # remaining_room = 0
+      shows: [cap_line, contributed_line, excess_line_no_tax_benefit, correction_help_action]
+      shows_no_contribute_more_scenario: true   # fault_E
+      excess_is_not_asserted_an_error: true   # rachat 3a (OPP3 art.7-7b) possible au-dessus du plafond ANNUEL
+      excess_vs_rachat_distinction_deferred: true   # correctif Codex : R4 ne CLASSE pas {excess} en excédent définitif ; copie « ne réduit pas TOUJOURS » + « vérifie » ; distinguer contribution ordinaire / rachat admissible / vrai excédent = deferred_integration.rachat_3a_classification
+      maps_to: existing_overcontribution_help   # navigation.yaml:518
+    pending_missing_fact:
+      precondition: a_critical_input_missing_EXCLUDING_additional_planned_amount   # CARVE-OUT : additional_planned_amount est optionnel-tiré (own_amount_control.optional, défaut aucun) — il ne déclenche JAMAIS pending, sinon l'état nominal serait impossible ; navigation.yaml:84 le liste critical pour le nœud fact_amount, PAS pour l'écran scénarios
+      critical_inputs_for_this_screen: [tax_year, commune, taxable_income_band, lpp_affiliation]   # les facteurs SANS lesquels aucun scénario n'est calculable
+      shows: [pending_title, which_fact_missing, complete_action]
+      which_fact_missing_key: scenarios_pending_which   # receipt gap comblé : {fact} nomme le fait manquant
+      shows_no_scenario_number: true
+
+  ceiling_dimension:   # correctif Codex 2026-08-05 : l'AFFILIATION détermine le PLAFOND (dimension), PAS un état de rendu terminal
+    cap: ceiling_derivation_opp3   # affilié -> 7258 (LIFD 33-1-e) ; non-affilié -> min(0.20*revenu_net, 36288) (OPP3 art.7)
+    note: >-
+      Les états de rendu s'évaluent RELATIVEMENT au cap DÉRIVÉ, quelle que soit l'affiliation. La branche
+      non-affiliée ne PLAFONNE pas le parcours : elle change le cap et AJOUTE une explication de plafond
+      (ceiling_depends_on_income_line + income_base_hypothesis + low_income_note) par-dessus l'état marge
+      applicable. Câblage complet = deferred_integration.non_affilie_ceiling_routing.
+  state_precedence:   # ORDRE de résolution DÉTERMINISTE (corrigé Codex) : premier état satisfait GAGNE, RELATIF au cap dérivé
+    order:
+      - pending_missing_fact            # 1. fait critique de l'écran manquant (hors additional_planned_amount)
+      - marge_epuisee_overcontribution  # 2. contributed >= cap_dérivé -> marge 0 (affilié OU non-affilié)
+      - marge_reduite                   # 3. 0 < contributed < cap_dérivé
+      - nominal                         # 4. contributed == 0 (défaut)
+    non_affilie_overlay: >-
+      plafond_20pct_non_affilie n'est PAS un état terminal : c'est l'OVERLAY d'explication du cap non-affilié
+      (illustré à contributed==0) qui se COMPOSE avec l'état marge ci-dessus ; correctif Codex — le plafond
+      dérivé ne masque jamais la marge restante ni un dépassement.
+    rule: preconditions_evaluated_first_match_wins_RELATIVE_to_the_DERIVED_cap_affiliation_only_changes_the_cap
+    resolves:
+      - non_affilie_who_contributed_reaches_marge_reduite_or_marge_epuisee_on_their_20pct_cap_never_swallowed_by_a_terminal_ceiling_state
+      - over_contributor_resolves_to_marge_epuisee_before_marge_reduite
+
+  scenarios_block:
+    label_key: scenarios_choose_line
+    scenario_row_shape:
+      amount_key: scenarios_amount            # ex. « 7 258 CHF »
+      max_marker_key: scenarios_amount_max    # « — le maximum cette année » sur la borne haute
+      effect_key: scenarios_effect            # ex. « environ 1 800 à 2 200 CHF d'impôt en moins »
+    anchors_rule: 2_or_3_amounts_spanning_zeroish_to_remaining_room_low_to_high
+    every_effect_is_a_range_derived_from_income_band_edges: true
+    own_amount_control:   # TIRÉ par la valeur, jamais poussé
+      key: scenarios_own_amount
+      opens: exact_amount_sheet
+      writes: additional_planned_amount   # navigation.yaml:340
+      optional: true
+      no_preselection: true
+    liquidity_note:
+      key: scenarios_liquidity
+      glossary_anchor: scenarios_gloss_bloque   # exceptions au blocage (logement, départ CH, indépendance)
+    excess_note_when_scenario_exceeds_room:
+      key: scenarios_excess_note   # fault_B : la part au-dessus de la marge n'a pas d'effet
+      shown_only_when: a_scenario_or_own_amount_exceeds_remaining_room
+
+node_contracts:
+  scenarios_versement:
+    arrival_focus: heading_the_choose_line_announced_not_a_scenario_amount
+    required_copy_intents:
+      - it_is_the_user_who_chooses_how_much_no_amount_is_recommended
+      - each_amount_has_an_estimated_range_effect_never_a_single_promised_number
+      - only_the_part_within_remaining_room_reduces_tax
+      - a_3a_payment_is_locked_until_retirement_save_a_few_exceptions
+      - what_is_already_paid_reduces_what_is_still_possible_this_year
+      - framed_on_this_years_tax_not_on_retirement
+    teaching_mechanism:
+      pattern: tap_glossary_sheet_no_dense_inline_note
+      concepts_are_glossary_entries: [plafond_3a, marge_restante, bloque_liquidite]
+      on_screen_anchors_minimal: choose_line_carries_plafond_anchor_remaining_line_carries_marge_anchor_liquidity_note_carries_bloque_anchor
+      sheet_copy_intents: [one_plain_sentence, where_relevant_the_exceptions, optional_fun_metaphor_lsfin_safe_never_a_promise]
+      copy_source: product/mint_next/batch22/r4-six-locale-copy.yaml#copy.{locale}.scenarios_gloss_*
+    coach_intent:
+      status: contract_requirement_not_implemented_in_r4
+      invocable_id: scenarios_versement
+      three_paths_rule:
+        declared_route: scenarios_versement_refreshes_next_action_in_batch6
+        hub_reachable_within_taps: 2
+        natural_language_intents: ["combien je pourrais verser sur mon 3a", "l'effet si je verse plus", "ce qu'il me reste à verser cette année", "est-ce que mon argent est bloqué"]
+      coach_may_offer_own_amount: pulled_by_value_never_a_recommendation   # coach ne conseille jamais un montant
+      coach_may_show_widget: scenarios_spectrum_widget_grounded_on_this_estimate_with_its_room_and_liquidity_note
+      widget_must_carry_the_same_liquidity_note_and_disclaimer_as_the_screen: true
+      every_screen_and_widget_carries_a_coach_invocable_id: true
+    controls:
+      open_own_amount: {overlay: exact_amount_sheet, operation: optionally_set_additional_planned_amount_pulled_by_value_then_recompute_within_room}
+      open_plafond_glossary: {operation: open_plafond_sheet_no_route}
+      open_marge_glossary: {operation: open_marge_restante_sheet_no_route}
+      open_liquidity_glossary: {operation: open_bloque_exceptions_sheet_no_route}
+      review_existing_overcontribution: {to: existing_overcontribution_help, visible_when: existing_excess_contribution_gt_0}   # navigation.yaml:515
+      keep_local_reference: {to: reference_saved, persistence: local_non_sensitive}   # navigation.yaml:549
+      prepare_personal_setup: {to: personal_setup_boundary}                            # navigation.yaml:550
+      continue: {activation: always_enabled, never_routes_in_r4: true}
+      back: {operation: exact_history_back}
+      open_safe_exit: {overlay: safe_exit}
+    forbidden:
+      - a_recommended_or_highlighted_amount   # scénarios, jamais une reco
+      - a_single_promised_effect
+      - an_imperative_to_contribute_verse_or_cotise
+      - showing_a_tax_effect_on_the_portion_above_remaining_room   # fault_B
+      - hiding_the_locked_liquidity_cost   # fault_D
+      - offering_a_contribute_more_scenario_when_remaining_room_is_zero   # fault_E
+      - a_flat_7258_ceiling_for_a_non_affilie   # fault_A
+      - a_rate_or_percentage_as_the_headline
+      - reinventing_estimate_tax_saving_or_the_ceiling_rule_cross_layer   # NEVER#3
+      - framing_the_scenarios_as_a_retirement_outcome
+      - account_creation
+    copy_source: product/mint_next/batch22/r4-six-locale-copy.yaml#copy.{locale}.scenarios_*
+
+accessibility_contract:
+  inherit_from_r2_r3_except: [scenario_list_semantics]
+  each_scenario_is_a_named_region_amount_and_effect_spoken_as_one_utterance: true
+  effect_range_not_conveyed_by_colour_alone: true
+  liquidity_note_reachable_by_screen_reader_not_only_visual: true
+  own_amount_and_glossary_anchors_are_named_buttons_not_bare_styled_spans: true
+  glossary_sheet_accessible:
+    sheet_opens_with_focus_on_its_heading_traps_focus_until_dismissed_then_restores_to_the_anchor: true
+    dismiss_by_swipe_button_and_screen_reader_escape: true
+  minimum_target_size_points: 48
+  border_contrast_min_ratio: 3.0
+  text_contrast_min_ratio: 4.5
+  secondary_text_contrast_binding:   # amendement post-revue Codex 2026-08-05 (contraste sauge MESURÉ 3,37:1)
+    rule: all_functional_text_including_secondary_sauge_meets_4.5_to_1_on_paper_background
+    applies_to: [eyebrow, effect_ranges, amount_max_suffix, commune_caveat, disclaimer, plafond20_notes]
+    measured_violation: sauge_rgb_110_140_116_on_paper_rgb_246_244_238_is_3.37_to_1_BELOW_4.5   # les fourchettes d'effet SONT l'info décisionnelle, jamais décoratives
+    required_fix: darken_the_sauge_text_token_until_ge_4.5_to_1_effect_ranges_and_disclaimer_are_functional
+    forbidden: treating_effect_ranges_or_disclaimer_as_decorative_low_contrast
+    token_location: apps/mobile/lib/theme/colors.dart   # le TOKEN sauge vit dans le thème Flutter, HORS de ce contrat de données ; ce contrat le BORNE
+    status: MUST_FIX_BEFORE_GREEN_runtime_obligation   # correctif Codex : le changement de token + re-render maquette = tâche runtime ; la spec green DOIT prouver >= 4.5:1
+  compact_proof: 320x700_logical_px_text_scale_2_shows_choose_line_at_least_one_scenario_liquidity_note_and_disclaimer_no_overflow_clip
+  required_proof_cases:
+    - nominal_two_or_three_scenarios_each_a_range_plus_liquidity_note
+    - marge_reduite_already_line_remaining_line_incremental_scenarios
+    - plafond_20pct_ceiling_depends_on_income_derived_amount_low_income_note
+    - marge_epuisee_no_contribute_more_scenario_excess_stated
+    - a_scenario_region_focused_and_announced
+    - plafond_glossary_sheet_open_focus_trapped_and_restored
+
+inherited_verbatim_from_R1_R2_R3:
+  - navigation_contract.safe_exit_resume_keep_reference_leave
+  - lifecycle_contract.generation_token_30min_ttl_app_kill_taxyear_purge
+  - six_locale_semantic_contract.human_review_required_key_parity_insufficient
+  - r3_declared_precision_scale_principles_1_to_4   # arbitrage produit 2026-08-05 « échelle de précision » (eclairage-scope.yaml:221-259) : l'effet ne dépasse pas la précision moteur ; jamais un point
+
+scope_exclusions:
+  - flutter_runtime
+  - persistence_backend_or_api
+  - the_non_affilie_ceiling_runtime_wiring_until_lead_navigation_decision   # règle gravée, câblage pending
+  - the_communal_multiplier_recomposition_until_a_named_source_exists   # hérité R3 pending
+  - public_product_route
+  - user_validation
+  - routing_to_personal_setup_or_reference_saved
+  - retirement_projection_or_capital_at_65
+  - account_creation_or_bank_connection
+  - the_3a_buy_in_rachat_mechanism_OPP3_art_7_to_7b   # rachat 3a (en vigueur 01.01.2025 ; 1er rachat possible ANNÉE FISCALE 2026 pour lacunes dès 2025 ; plafonné 7258/année lacunaire ; exige le versement annuel max d'abord ; fenêtre 10 ans) = mécanisme AVANCÉ conditionnel HORS périmètre de l'écran scénarios ORDINAIRES ; escaladé lead+swiss-brain. R4 ne l'affiche pas mais dé-absolutise scenarios_over_excess pour ne PAS le contredire ni pousser à annuler un rachat valable
+  - reimplementing_estimate_tax_saving_or_the_ceiling_rule_cross_layer
+
+hermeneutic_inscription:
+  experience_visee: "Après avoir vu ce qu'un versement change, l'utilisateur voit le SPECTRE — petit, moyen, le maximum — et comprend que c'est LUI qui choisit, sans qu'on lui pousse un chiffre."
+  pourquoi_la_decision: "Des scénarios, jamais une recommandation ; chaque effet en fourchette dérivée du moteur ; le plafond dérivé de l'affiliation+revenu (pas un forfait) ; et — décisif — la liquidité bloquée DITE, pour que le 3a ne passe pas pour de l'argent gratuit. Lucidité, pas vente."
+  ce_que_ca_prepare: "L'autonomie : l'utilisateur repart avec un repère honnête (ce qu'il pourrait faire, à quel effet, à quel coût de liquidité) et décide seul de l'étape suivante — la boucle se ferme sans qu'on décide à sa place."

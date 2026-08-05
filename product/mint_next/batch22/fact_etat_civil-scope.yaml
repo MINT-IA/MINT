@@ -1,0 +1,368 @@
+schema_version: 1
+status: sealed_expected_red_contract_runtime_not_implemented   # R4 batch22 — contrat SCELLÉ, runtime pas encore implémenté
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_and_numeracy_literacy
+# R4 = FERMETURE DE LA BOUCLE. fact_etat_civil collecte le fait le plus LOURD de la carte de
+# sensibilité : la situation. Il REFRAÎCHIT `fact_household` de batch6 (le SEAU GROSSIER couple/family
+# qui EST le site du bug fault_5) en un fait PRÉCIS d'état civil qui dérive is_married correctement :
+# marié·e/partenaire enregistré·e -> splitting ×0.80 ; concubinage -> traitement CÉLIBATAIRE, jamais ×0.80.
+# Ce fait alimente le RAFFINAGE en place de l'éclairage (la ligne « Situation · célibataire » devient
+# raffinable). Aucun résultat personnel affiché ici (comme fact_revenu).
+model: civil_status_fact_single_node
+
+navigation_amendment:
+  refreshes: fact_household            # batch6 navigation.yaml:311 (seau grossier household)
+  into: fact_etat_civil
+  keeps: choose_category_semantics_but_makes_the_category_a_PRECISE_civil_status_not_a_coarse_couple_family_bucket
+  corrects: >-
+    fault_5 (inventaire) : household 'couple'||'family' -> is_married mappait le CONCUBINAGE sur marié
+    (×0.80 mésappliqué). fact_etat_civil dérive is_married UNIQUEMENT de {marie, partenariat_enregistre}.
+  decision_trace: r4_lead_scope_fermeture_boucle_2026_08_05
+  supersedes_r3_choice: >-
+    R3 fact_revenu avait exclu la question ménage autonome (« situation devient hypothèse éditable sur
+    éclairage, défaut célibataire », product/mint_next/batch21/fact_revenu-scope.yaml:16,245). R4, sur décision lead, DONNE à
+    cette hypothèse un vrai foyer de collecte : fact_etat_civil. La ligne d'hypothèse éclairage
+    (défaut célibataire) devient la CIBLE de raffinage de ce nœud. Pas une contradiction : R3 laissait
+    la situation en hypothèse-avec-édition-inline ; R4 la promeut en fait déclaré, tiré par la valeur.
+  reached_how:
+    primary: pull_based_refinement_of_the_eclairage_situation_row   # principe 2 R3 : tiré par la valeur
+    r3_eclairage_control_upgraded: toggle_situation_overlay_situation_sheet_now_routes_to_or_opens_fact_etat_civil   # product/mint_next/batch21/eclairage-scope.yaml:356_396
+    linear_step_status: whether_it_also_replaces_fact_household_in_the_linear_flow_is_a_lead_navigation_decision   # flaggé, comme R3
+  authority_note: this_draft_refreshes_fact_household_only_it_may_not_add_or_remove_other_batch6_routes
+
+authority:
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  source_of_truth_rule: this_draft_refreshes_fact_household_it_may_not_touch_other_batch6_routes
+  runtime_change: forbidden
+  product_promotion: forbidden
+  sealing: forbidden_this_is_a_pre_review_draft
+
+# ────────────────────────────────────────────────────────────────────────────
+# ARCHITECTURE NÉE AVEC LA LEÇON γ (2026-08-05) — déclarer la cible, jamais câbler en R4
+# fact_etat_civil COLLECTE le fait ; le RECOMPUTE moteur (x0.80) et le routage de raffinage sont
+# l'intégration, DÉCLARÉE ICI, jamais découverte au green (leçon R3, eclairage-scope.yaml:334-356).
+# ────────────────────────────────────────────────────────────────────────────
+deferred_integration:
+  principle: declare_target_position_only_never_wire_the_route_or_recompute_in_this_r_batch
+  never_routes_in_r4_applies_to: [continue, back]
+  items:
+    - id: fact_household_refresh_wiring
+      what: remplacer_le_seau_grossier_fact_household_de_batch6_par_fact_etat_civil_et_le_routage_de_refresh
+      etalon_ref: product/mint_next/batch6/navigation.yaml:311
+      r4_position: la_regle_is_married_derivation_est_gravee_seul_le_remplacement_dans_le_flux_lineaire_est_une_decision_lead
+      defers_to: integration_wave_lead_navigation_decision
+      green_must_assert: is_married_derives_from_civil_status_enum_never_from_a_coarse_household_bucket
+    - id: eclairage_situation_row_upgrade
+      what: promouvoir_la_ligne_situation_de_l_eclairage_de_display_only_R3_a_une_action_de_raffinage_vers_fact_etat_civil
+      etalon_ref: [product/mint_next/batch21/eclairage-scope.yaml:356, product/mint_next/batch21/eclairage-scope.yaml:396]
+      defers_to: integration_wave_runtime_batch
+      green_must_assert: situation_row_becomes_refinable_and_recomputes_with_is_married
+    - id: married_recompute_backend
+      what: le_vrai_bareme_marie_sur_le_revenu_du_menage_remplacant_l_approximation_etalon_x080_sur_la_meme_tranche
+      etalon_ref: services/backend/app/services/fiscal/cantonal_comparator.py:482_483   # x0.80 approximation LHID sur le MEME taxable_income
+      defers_to: later_backend_batch   # recompute marie -> batch backend ulterieur
+      r4_position: display_only_situation_et_x080_hypothese_visible_tant_que_le_recompute_moteur_n_existe_pas
+    - id: single_parent_and_children_rate
+      what: bareme_personne_seule_avec_enfant_plus_child_factor_marie_avec_enfants
+      etalon_ref: services/backend/app/services/fiscal/cantonal_comparator.py:33_39   # FAMILY_ADJUSTMENTS
+      defers_to: later_lead_plus_swiss_brain_batch   # escalade, priorite moyenne
+  situation_stays_display_only_until_recompute: true   # coherence batch21 : tant que le recompute marie n'existe pas cote moteur
+  rider_no_green_surprise: >-
+    Cohérence batch21 : la ligne situation de l'éclairage reste display_only tant que le recompute
+    marié n'existe pas côté moteur (eclairage-scope.yaml:356). fact_etat_civil COLLECTE le fait ;
+    le RECOMPUTE et le routage sont l'intégration, déclarée ici, jamais découverte au green.
+
+# ────────────────────────────────────────────────────────────────────────────
+# DÉCISION PRODUIT — pattern de saisie (molette Apple vs cartes) — TRANCHÉ AVEC PANEL, documenté
+# ────────────────────────────────────────────────────────────────────────────
+product_decision_input_pattern:
+  date: 2026-08-05
+  decision: CARTES_tappables_single_select   # ni molette
+  panel_4_lens_verdict: cards_unanimous   # détail : scoring/panel-input-pattern-r4.md
+  rejected_wheel_cupertino_picker: >-
+    La molette (validée en revue produit pour l'ANNÉE fiscale = enum ORDONNÉ à détentes : 2024/2025/2026) est
+    inadaptée à l'état civil. (a) L'état civil est NOMINAL, non ordonné : une molette suggère un
+    continuum/ordre là où il n'y en a pas. (b) Une molette CACHE les options non sélectionnées derrière
+    la rotation — un débutant pourrait manquer l'option « en couple, non marié·e » et tomber par défaut
+    sur la 1re visible : exactement le risque de mésclassification que le ruling concubinage interdit
+    (safety-critique). (c) VoiceOver/switch-control sur CupertinoPicker = sémantique « adjustable »
+    ambiguë, rotor pénible. Rejetée.
+  chosen_cards: >-
+    Trois cartes single-select, toutes visibles d'un coup (découvrabilité), chacune un bouton nommé
+    48pt (a11y), réutilisant le composant single-select de fact_revenu (cohérence d'arc + une seule
+    surface à tester). La distinction contractuelle marié/concubinage/célibataire est UNMISSABLE.
+  extends_fact_revenu_reasoning: >-
+    Prolonge EXACTEMENT le rejet-molette de fact_revenu (R3) : molette = détentes ordonnées ; choix
+    nominal borné = cartes. Décision confiante, cohérente, documentée.
+  three_options_not_five:
+    decision: trois_cartes_celibataire_marie_pacse_concubinage
+    why: >-
+      Pour l'estimation 3a, seul is_married mord (splitting ×0.80). Les trois options couvrent la
+      distinction contractuelle OBLIGATOIRE (marié/partenaire enregistré vs concubinage vs célibataire) et matchent
+      les options déjà scellées dans le situation_sheet de l'éclairage R3
+      (product/mint_next/batch21/eclairage-scope.yaml:210). Cohérence de raffinage : la carte choisie ici EST la valeur de
+      la ligne situation de l'éclairage.
+    divorce_veuvage_coverage: >-
+      Divorcé·e et veuf·ve sont imposé·e·s comme personne SEULE (traitement célibataire pour is_married).
+      Ils tombent sous « Célibataire » pour cette estimation ; le glossaire de la carte le dit
+      (« seul·e, y compris après séparation durable, divorce ou veuvage »). LIMITE documentée : le barème
+      « personne seule avec enfant » (parent isolé, splitting-like) n'est PAS couvert — défaut sans-enfant
+      R3, escaladé lead+swiss-brain pour un batch ultérieur. Priorité MOYENNE.
+
+privacy_copy_rule:
+  # HARD (décision produit 2026-08-05) : la phrase privacy dérive du contrat de données. L'état civil committé
+  # REJOINT le profil (comme la tranche, comme la commune). AUCUNE donnée device-only -> AUCUNE phrase privacy.
+  on_device_claims_must_not_exceed_data_contract: true
+  device_local_only_datum_on_this_screen: none
+  committed_status_joins_profile: true
+  privacy_sentence_on_screen: omitted_because_no_device_only_datum_exists_here
+  forbidden_privacy_claim: any_on_device_or_not_sent_claim_about_the_committed_status
+
+slice:
+  entry_preconditions:
+    shared: [tax_year_explicitly_selected, commune_selected, eclairage_seen]   # tiré depuis la ligne situation de l'éclairage
+  implemented_nodes: [fact_etat_civil]
+  boundary_nodes: [eclairage_impot_3a]   # retour à l'éclairage raffiné
+  locales: [fr, en, de, es, it, pt]
+
+human_outcome:
+  question: "Quelle est ta situation de famille ?"   # aligné copie finale (destructeur R2)
+  why_now: >-
+    C'est le fait qui pèse le plus sur l'estimation d'impôt : marié·e ou partenaire enregistré·e, vous êtes imposé·e·s
+    ensemble (barème splitting), ce qui change le chiffre. En couple non marié·e, ou célibataire, tu es
+    imposé·e séparément. Aucun résultat personnel n'est affiché ici.
+  must_understand:
+    - La question suffit : trois situations, une touche.
+    - Marié·e/partenaire enregistré·e change le barème (imposition commune) ; concubinage et célibataire non.
+    - « En couple, non marié·e » (concubinage) = imposé·e séparément, comme une personne seule.
+    - Le choix est corrigible et remplace l'hypothèse « célibataire » de l'éclairage, sans re-demander le reste.
+  next_small_action:
+    selected: Revenir à l'éclairage — l'estimation se recalcule avec ta situation.
+
+fact_contract:
+  id: civil_status_for_income_tax_splitting_single_assessment_unit
+  provenance: explicit_user_declaration
+  storage: ephemeral_until_committed_then_joins_profile
+  initial_state: default_hypothesis   # valeur DANS l'enum states ; l'hypothèse par défaut = célibataire (resolution_scale.ladder ; l'éclairage montre « Situation · célibataire »)
+  states: [default_hypothesis, declared]
+  committed_key: civil_status_enum
+  status_enum: [celibataire, marie_pacse, concubinage]   # marie_pacse = marié·e OU partenaire enregistré·e (jamais le PACS français, art. LPart) ; renommage de la clé = décision lead
+  # DÉRIVATION is_married — la règle GRAVÉE (ruling concubinage, axe justesse suisse)
+  is_married_derivation:
+    map: {celibataire: false, marie_pacse: true, concubinage: false}
+    etalon_ref: services/backend/app/services/fiscal/cantonal_comparator.py:482_483   # if is_married: total *= 0.80
+    family_adjustments_ref: services/backend/app/services/fiscal/cantonal_comparator.py:33_39   # AUCUNE clé concubinage
+    ruling: >-
+      Concubinage = TRAITEMENT CÉLIBATAIRE (is_married=False). En droit suisse, les concubins sont
+      imposés SÉPARÉMENT (chacun comme personne seule) ; seuls mariés et partenaires enregistrés sont
+      imposés conjointement avec effet de splitting. L'étalon n'a AUCUNE clé concubinage.
+    legacy_bug_site: apps/mobile/lib/services/minimal_profile_service.dart:215_216   # isMarriedHousehold = household 'couple'||'family' (concubinage -> couple -> ×0.80 à tort)
+    forbidden: mapping_concubinage_to_married_or_deriving_is_married_from_a_coarse_household_bucket
+  never_derive_status_from:
+    - a_coarse_household_couple_or_family_bucket   # le site exact du bug legacy
+    - device_or_account_signals
+    - profile_or_previous_unrelated_answer
+  forbidden_fallbacks:
+    - a_default_or_recommended_status
+    - the_most_common_status
+    - silently_keeping_celibataire_as_if_declared   # défaut = hypothèse AFFICHÉE, pas un fait déclaré
+  no_commit_without_a_selected_status: true
+  # DATE DÉTERMINANTE (LIFD/LHID) — l'état civil qui compte est celui AU 31 DÉCEMBRE de l'année fiscale
+  determining_date:
+    rule: civil_status_at_31_december_of_the_selected_tax_year_governs_the_whole_period
+    legal_basis: periode_fiscale_etat_civil_determinant_au_31_decembre_LIFD_LHID   # ESTV/AFC imposition couple-famille
+    divorce_or_separation_during_year: each_person_taxed_individually_for_the_ENTIRE_period   # séparation durable/divorce dans l'année -> imposition séparée toute la période
+    exceptions:   # correctif Codex : « le 31.12 gouverne toute la période » n'est PAS absolu
+      death_of_a_spouse: opens_DISTINCT_tax_periods_the_surviving_spouse_is_NOT_simply_taxed_as_single_for_the_whole_year   # décès -> périodes fiscales séparées
+      end_of_tax_liability: partial_year_on_arrival_or_departure_CH_prorates_the_period   # fin/début d'assujettissement -> période partielle
+      r4_scope_bound: R4_modelise_le_contribuable_VIVANT_et_assujetti_TOUTE_l_annee_deces_et_assujettissement_partiel_escaladés_lead_plus_swiss_brain
+    consequence_for_r4: >-
+      Le fait collecté est la situation AU 31 DÉCEMBRE de {taxYear}, pas « aujourd'hui ». Ancre de copie
+      REQUISE (câblée, PLUS déférée — correctif Codex) : etat_civil_determining_hint « On regarde ta situation
+      au 31 décembre {taxYear} », affichée en sous-ligne discrète sous la question (sans surcharger la question).
+      Pour une année PASSÉE ou un changement en cours d'année, cette ancre rend le fait correct.
+    source_dated: "ESTV/AFC — état civil déterminant au 31.12 (imposition couple/famille), consulté 2026-08-05"
+    reform_awareness: >-
+      Votation 08.03.2026 : imposition individuelle acceptée (54,23%). NON en vigueur pour 2025/2026 ; le
+      régime joint + splitting reste applicable. Transition à suivre (batch ultérieur, hors R4).
+  # ÉCHELLE DE PRÉCISION DÉCLARÉE (décision produit 2026-08-05) — analogue catégoriel de fact_revenu.
+  resolution_scale:
+    ladder: [default_hypothesis_celibataire, declared_status]
+    default_entry_form: shown_hypothesis   # l'éclairage montre « Situation · célibataire » AVANT toute déclaration
+    declared_status: {value_shape: one_of_three_statuses, provenance: explicit_user_declaration}
+    replaces_in_place: same_situation_fact_upgraded_provenance_never_re_asked   # principe 3
+    entered_where: as_a_refine_action_on_the_eclairage_situation_row_not_a_forced_linear_step   # principe 2
+    invariant_provenance_over_value: >-
+      Déclarer la situation UPGRADE la provenance (hypothèse -> fait) et retire le hedge « on suppose ».
+      Si le statut déclaré diffère du défaut (marié), l'estimation SE DÉPLACE (×0.80) et se recalcule.
+      La fourchette ne s'EFFONDRE jamais en point (tranche revenu + résidu communal MESURÉ subsistent).
+
+input_contract:
+  presentation: bounded_category_choice_tappable_cards   # ni molette, ni clavier (voir product_decision_input_pattern)
+  free_text_commits_a_fact: false
+  wheel_picker: forbidden_on_this_screen
+  numeric_keyboard: not_applicable
+  no_preselection: true   # le défaut célibataire est une HYPOTHÈSE de l'éclairage, PAS une carte pré-cochée ici
+  statuses_rendered_as: three_tappable_cards_stable_order
+  cards:
+    - {key: celibataire, label_key: etat_civil_card_celibataire, is_married: false, gloss: etat_civil_gloss_celibataire}
+    - {key: marie_pacse, label_key: etat_civil_card_marie_pacse, is_married: true,  gloss: etat_civil_gloss_marie}
+    - {key: concubinage, label_key: etat_civil_card_concubinage, is_married: false, gloss: etat_civil_gloss_concubinage}   # LE glossaire du ruling
+  selection_summary_persistent_and_visible: true
+  help_link:
+    visible: always
+    label_key: etat_civil_help_link   # « Pourquoi ça change l'impôt ? »
+    operation: open_glossary_sheet_splitting_vs_separate_no_route_no_commit
+  post_commit_render: keep_cards_mark_selected_show_selection_summary
+  three_regions:
+    pinned_header: eyebrow_question_and_determining_hint   # correctif Codex : ancre 31.12 en sous-ligne
+    scrollable_middle: three_status_cards_plus_help_link
+    pinned_footer: continue_above_back
+
+node_contracts:
+  fact_etat_civil:
+    arrival_focus: heading_not_auto_raised_keyboard
+    required_copy_intents:
+      - the_question_alone_carries_the_situation_no_body_sentence
+      - the_situation_is_the_one_at_31_december_of_the_selected_tax_year   # etat_civil_determining_hint (correctif Codex, câblé)
+      - marie_pacse_means_joint_taxation_splitting_which_moves_the_estimate
+      - concubinage_is_the_single_treatment_never_the_married_splitting   # le ruling, en clair
+      - the_choice_replaces_the_celibataire_hypothesis_in_place_and_recomputes
+      - no_personal_tax_amount_is_shown_here
+    teaching_mechanism:
+      pattern: tap_glossary_sheet_no_dense_inline_note
+      concepts_are_glossary_entries: [imposition_commune_splitting, concubinage, celibataire_seul]
+      on_screen_anchors_minimal: help_link_opens_the_splitting_vs_separate_sheet_concubinage_card_carries_its_own_gloss
+      sheet_copy_intents: [one_plain_sentence, why_it_changes_the_tax, optional_fun_metaphor_lsfin_safe_never_a_promise]
+      copy_source: product/mint_next/batch22/r4-six-locale-copy.yaml#copy.{locale}.etat_civil_gloss_*
+    coach_intent:
+      status: contract_requirement_not_implemented_in_r4
+      invocable_id: fact_etat_civil
+      three_paths_rule:
+        declared_route: fact_etat_civil_refreshes_fact_household_in_batch6
+        hub_reachable_within_taps: 2
+        natural_language_intents: ["je suis marié pour l'impôt", "je vis en concubinage", "ma situation de famille", "est-ce que le concubinage compte comme marié"]
+      coach_may_show_widget: civil_status_picker_grounded_on_this_fact_that_maps_is_married_correctly
+      widget_must_not_map_concubinage_to_married: true   # le ruling porté jusque dans le widget coach
+      every_screen_and_widget_carries_a_coach_invocable_id: true
+    controls:
+      choose_status: {operation: atomically_commit_one_reviewed_status_without_routing, upgrades_provenance: hypothesis_to_declared, replaces_in_place: true}
+      open_splitting_glossary: {operation: open_splitting_vs_separate_sheet_no_route_no_commit}
+      open_concubinage_glossary: {operation: open_concubinage_sheet_no_route_no_commit}   # le ruling
+      continue: {to: eclairage_impot_3a, route_guard: a_status_is_selected, activation: always_enabled_validation_dispatch, never_routes_in_r4: true, operation: recompute_eclairage_with_is_married_no_re_ask_of_income}
+      back: {operation: exact_history_back_restores_prior_situation_hypothesis_or_declared}
+      open_safe_exit: {overlay: safe_exit}
+    same_status_reselect: idempotent_no_op_no_state_churn
+    forbidden:
+      - a_default_or_recommended_status
+      - a_preselected_card
+      - mapping_concubinage_to_married   # fault_5, ruling
+      - deriving_is_married_from_a_coarse_household_bucket   # fault_5 site
+      - a_body_sentence_below_the_question
+      - any_tax_amount_rate_range_or_saving_shown_here   # comme fact_revenu
+      - re_asking_the_income_band_after_a_status_change_in_r4   # principe 3 ; voir joint_income_model_limit
+      - automatic_route_after_selection
+      - account_creation
+      - any_privacy_claim_that_the_committed_status_stays_on_device
+    copy_source: product/mint_next/batch22/r4-six-locale-copy.yaml#copy.{locale}.etat_civil_*
+
+# ────────────────────────────────────────────────────────────────────────────
+# COUVERTURE DES PARAMÈTRES — ce fait EST le paramètre civil_status/is_married de l'étalon.
+# ────────────────────────────────────────────────────────────────────────────
+parameter_coverage:
+  etalon_signature: "estimate_income_tax(taxable_income, canton, is_married)"   # cantonal_comparator.py:448
+  rule: this_screen_collects_the_is_married_input_previously_only_a_shown_hypothesis
+  map:
+    civil_status_is_married:
+      etalon_ref: cantonal_comparator.py:482_483
+      coverage: collected_fact   # promu d'hypothèse (R3) à fait (R4)
+      source_node: fact_etat_civil
+      before_r4: shown_hypothesis_default_celibataire   # product/mint_next/batch21/eclairage-scope.yaml:83
+    children:
+      etalon_ref: cantonal_comparator.py:33_39   # ne mord que si marié + enfants
+      coverage: shown_hypothesis_STATED_not_collected_here   # défaut sans-enfant R3 ; hors périmètre de CE fait
+      note: un_marie_AVEC_enfants_a_un_facteur_0.66_non_couvert_defaut_sans_enfant_escaladé_lead
+  joint_income_model_limit:
+    etalon_reality: le_marié_×0.80_est_appliqué_à_l_impôt_sur_le_MÊME_taxable_income_approximation_splitting   # cantonal_comparator.py:482 (commentaire « approximation LHID »)
+    consequence_for_r4: >-
+      Déclarer marié NE re-demande PAS le revenu (l'étalon réutilise la même tranche avec ×0.80,
+      principe 3). MAIS le vrai barème marié porte sur le revenu du MÉNAGE (unité d'imposition conjointe),
+      que l'étalon ne modélise pas.
+    divergence_from_batch6: >-
+      batch6 fact_household EFFACE le revenu au changement de ménage (navigation.yaml:315, changement
+      d'unité d'imposition). R4 ne l'efface pas (l'étalon ×0.80 réutilise la tranche). Divergence ASSUMÉE
+      et documentée ; le revenu conjoint précis (vraie unité mariée) est une LIMITE de l'étalon.
+    escalation_to_lead: >-
+      Modéliser le revenu conjoint (barème marié réel sur revenu ménage) dépasse R4. Escaladé
+      lead+swiss-brain. R4 : ×0.80 sur la même tranche = hypothèse VISIBLE, fourchette élargie du résidu.
+
+legacy_faults_made_impossible:
+  fault_5_civil_status_splitting_ruling:
+    inherits: r3_eclairage_fault_5   # ici RENDU OPÉRATIONNEL : le fait est collecté, pas juste une hypothèse
+    contract_assertion: >-
+      is_married DÉRIVE du fait ÉTAT CIVIL (civil_status ∈ {marie_pacse}) UNIQUEMENT. Le concubinage ->
+      traitement célibataire. is_married ne dérive JAMAIS d'un seau ménage grossier « couple/family »
+      (le site du bug legacy minimal_profile_service.dart:215-216).
+    verified_engine:   # derive_r4.py, sorties réelles
+      celibataire_effet_7258_70_100k: "1830.95 à 2242.24"
+      concubinage_effet_7258_70_100k: "1830.95 à 2242.24"   # IDENTIQUE au célibataire — PREUVE du ruling
+      marie_pacse_effet_7258_70_100k: "1464.76 à 1793.79"   # ×0.80 : impôt de base plus bas -> économie 3a plus basse
+    forbidden: mapping_concubinage_to_married_or_deriving_is_married_from_a_coarse_household_bucket
+
+lsfin_no_promise_contract:
+  banned_terms_absent: [garanti, optimal, meilleur, sans_risque, assuré, parfait, certain]
+  never_imperative: true
+  no_tax_amount_on_this_screen: true   # fait de collecte, comme fact_revenu
+  situation_change_is_descriptive_not_a_recommendation: true
+
+accessibility_contract:
+  inherit_from_r2_r3_except: [list_interaction]
+  status_cards_single_select_group: true
+  selection_refindable: selection_summary_is_a_focusable_announced_region
+  semantics_traversal_order: continue_reachable_before_or_independently_of_the_status_cards_never_trapped
+  concubinage_distinction_not_colour_only: the_ruling_is_carried_by_text_and_glossary_not_a_colour   # a11y : la distinction critique est lisible
+  glossary_sheet_accessible:
+    anchor_is_a_named_button_role_not_a_bare_styled_span: true
+    sheet_opens_with_focus_on_its_heading_traps_focus_until_dismissed_then_restores_to_the_anchor: true
+    dismiss_by_swipe_button_and_screen_reader_escape: true
+  minimum_target_size_points: 48
+  border_contrast_min_ratio: 3.0
+  text_contrast_min_ratio: 4.5
+  secondary_text_contrast_binding:   # amendement post-revue Codex 2026-08-05 (contraste sauge MESURÉ 3,37:1)
+    rule: all_functional_text_including_secondary_sauge_meets_4.5_to_1_on_paper_background
+    applies_to: [eyebrow, help_link, selection_summary, glossary_body]
+    measured_violation: sauge_rgb_110_140_116_on_paper_rgb_246_244_238_is_3.37_to_1_BELOW_4.5   # token maquette trop pâle
+    required_fix: darken_the_sauge_text_token_until_ge_4.5_to_1_secondary_text_is_functional_not_decorative
+    forbidden: treating_eyebrow_or_help_link_as_decorative_low_contrast
+    token_location: apps/mobile/lib/theme/colors.dart   # le TOKEN sauge vit dans le thème Flutter, HORS de ce contrat de données ; ce contrat le BORNE
+    status: MUST_FIX_BEFORE_GREEN_runtime_obligation   # correctif Codex : le changement de token + re-render maquette = tâche runtime ; la spec green DOIT prouver >= 4.5:1
+  compact_proof: 320x700_logical_px_text_scale_2_shows_question_continue_and_all_three_status_cards_no_overflow_clip
+  required_proof_cases:
+    - three_status_cards_none_preselected
+    - concubinage_selected_summary_announced
+    - splitting_glossary_sheet_open_focus_trapped_and_restored
+    - concubinage_glossary_sheet_states_separate_taxation
+    - error_no_selection_announced
+
+inherited_verbatim_from_R1_R2_R3:
+  - navigation_contract.safe_exit_resume_keep_reference_leave
+  - lifecycle_contract.generation_token_30min_ttl_app_kill_taxyear_purge
+  - six_locale_semantic_contract.human_review_required_key_parity_insufficient
+  - accessibility_contract.single_select_group_focus_restoration_48pt
+  - r3_declared_precision_scale_principles_2_and_3   # arbitrage produit 2026-08-05 « échelle de précision » (eclairage-scope.yaml:221-259) : tiré par la valeur ; remplace en place, jamais re-demandé
+
+scope_exclusions:
+  - flutter_runtime
+  - tax_calculation_or_personal_result   # le recalcul se voit sur l'éclairage (R3), pas ici
+  - the_children_count_question   # défaut sans-enfant R3
+  - the_joint_household_income_model   # limite d'étalon, escaladé lead
+  - the_single_parent_rate_personne_seule_avec_enfant   # non couvert, escaladé lead
+  - persistence_backend_or_api
+  - public_product_route
+  - user_validation
+  - routing_to_eclairage
+
+hermeneutic_inscription:
+  experience_visee: "Le débutant dit sa situation en une touche, et comprend que « en couple non marié·e » n'est PAS « marié·e » aux yeux de l'impôt — sans jargon."
+  pourquoi_la_decision: "Trois cartes (pas une molette) parce que l'état civil est nominal et que rater l'option concubinage serait rejouer le bug legacy ; is_married dérive du seul état civil marié/partenaire enregistré — le concubinage reste traité comme célibataire, gravé contre le seau ménage grossier."
+  ce_que_ca_prepare: "Le raffinage honnête de l'éclairage : le fait le plus lourd de la sensibilité devient déclaré, remplace l'hypothèse en place sans re-demander le reste, et l'estimation se déplace si — et seulement si — la situation le justifie vraiment."

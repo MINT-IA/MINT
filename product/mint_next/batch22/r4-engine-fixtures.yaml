@@ -1,0 +1,128 @@
+# R4 batch22 — engine-derived fixtures for the fermeture-de-boucle (scenarios_versement +
+# fact_etat_civil). Every value below is DERIVED by EXECUTING the canonical fiscal engine +
+# the OPP3 rule, never authored (0-trust).
+# Executed 2026-08-05 against services/backend at dev HEAD (524ce7de1). The fiscal engine
+# (cantonal_comparator.py, independant_service.py, constants/social_insurance.py) was verified
+# BYTE-IDENTICAL to codex/journey-os-batch21-r3 tip (de06f7f2b) via
+#   git diff --stat dev codex/journey-os-batch21-r3 -- <engine files>   (empty, exit 0),
+# so these values are the same engine that sealed R3. Reproduction script:
+# scratchpad/exec_r4.py ; matches scratchpad/R4-deliverables/scoring/derivations-suisse-r4.md.
+schema_version: 1
+status: sealed_engine_fixtures_runtime_not_implemented
+provenance:
+  engine: services/backend/app/services/fiscal/cantonal_comparator.py
+  saving_function: "estimate_tax_saving(taxable_income, deduction, canton, is_married)"   # :426
+  income_tax_function: "estimate_income_tax(taxable_income, canton, is_married)"           # :448
+  splitting_site: "if is_married: total *= 0.80"                                           # :482-483
+  etalon_table: CANTONAL_COMMUNAL_TAX_CHF                                                  # :122
+  income_points: CANTONAL_TAX_POINTS_INCOME                                                # :118  [15,25,35,40,70,100,150,250]k
+  calibration_profile: chef_lieu_celibataire_sans_enfant_sans_confession_fortune_0        # :99-101
+  etalon_source: api_officielle_estv_API_calculateSimpleTaxes
+  method: difference_of_tax_impot_revenu_moins_impot_revenu_moins_deductible               # :439-445 ; JAMAIS plafond*taux
+  opp3_engine: services/backend/app/services/independant_service.py
+  opp3_function: "IndependantService().calculate_3a_plafond(revenu_net)"                   # :147-161  round(min(revenu*0.20, 36288), 2)
+  opp3_constants: app/constants/social_insurance.py:363_366_369                            # avec_lpp=7258.0 sans_lpp=36288.0 taux=0.20
+  regression_fixed: commit_c62d70682_#1061_imperatif_et_surestimation_supprimes
+  executed_date: 2026-08-05
+  executed_env: services_backend_dev_HEAD_engine_byte_identical_to_codex_journey_os_batch21_r3
+  reproduction_script: scratchpad/exec_r4.py
+
+# ── DISPLAY ROUNDING — floor_to_100 sur les DEUX bornes, jamais un point (hérité R3) ──
+rounding_rule:
+  name: floor_to_100_both_bounds_never_collapse
+  inherited_from: product/mint_next/batch21/eclairage-scope.yaml:44
+  definition: display_low = floor100(raw_low) ; display_high = floor100(raw_high)
+  never_collapse_guard: >-
+    Si floor100(low) == floor100(high), la fourchette d'affichage serait effondrée en un point :
+    interdit. Élargir (p. ex. plancher bas / plafond haut au 100 suivant). AUCUNE valeur R4
+    ci-dessous ne déclenche ce garde (toutes les paires diffèrent d'au moins 100).
+  note: les FIXTURES portent la valeur moteur brute ; la clé `display` porte la valeur floor_to_100 rendue à l'écran.
+
+# ── 1. PLAFOND = f(affiliation, revenu) — les 3 cas OPP3 contractuels (EXÉCUTÉS) ──
+# affilié -> 7258 (LIFD 33-1-e, constante) ; NON affilié -> min(0.20 * revenu_net, 36288) (OPP3 art.7).
+# Ces 3 cas gouvernent le contrat scenarios_versement.ceiling_derivation_opp3 ; le runtime devra les faire passer.
+opp3_ceiling_cases:
+  - {revenu_chf: 20000,  affilie: false, plafond_chf: 4000.0,  executed: "IndependantService().calculate_3a_plafond(20000)",  why: "20% * 20000 ; le forfait 7258 SURESTIMERAIT le plafond de 81%"}
+  - {revenu_chf: 250000, affilie: false, plafond_chf: 36288.0, executed: "IndependantService().calculate_3a_plafond(250000)", why: "20% plafonné au max ; le forfait 7258 SOUS-ESTIMERAIT de 5x"}
+  - {revenu_chf: any,    affilie: true,  plafond_chf: 7258.0,  executed: "constante PILIER_3A_PLAFOND_AVEC_LPP + room-calculator switch", why: "affilié -> petit 3a quel que soit le revenu (constante, testé 20000 ET 250000 -> 7258)"}
+
+# ── 2. NOMINAL scenarios_versement — affilié, plafond 7258, déjà versé 0, tranche 70-100k FR célibataire ──
+# Le spectre de scénarios : ce que l'utilisateur POURRAIT verser + effet (fourchette bornes de tranche).
+nominal_scenarios:
+  canton: FR
+  is_married: false
+  already_contributed_chf: 0
+  band: {key: b70_100, edges_chf: [70000, 100000]}
+  scenarios:
+    - {verser_chf: 2000, saving_low_raw: 504.53,  saving_high_raw: 617.87,  display: "environ 500 à 600 CHF"}
+    - {verser_chf: 4000, saving_low_raw: 1009.07, saving_high_raw: 1235.73, display: "environ 1 000 à 1 200 CHF"}
+    - {verser_chf: 7258, saving_low_raw: 1830.95, saving_high_raw: 2242.24, display: "environ 1 800 à 2 200 CHF", note: "borne haute = maximum cette annee ; = payoff R3"}
+  executed: "estimate_tax_saving({70000|100000}, verser, 'FR', False)"
+
+# ── 3. MARGE-RESTANTE-RÉDUITE — déjà versé 4000, plafond 7258 -> reste 3258 ; effet INCRÉMENTAL ──
+# effet_additionnel = saving(income, already+add) - saving(income, already), aux deux bornes.
+marge_reduite_incremental:
+  canton: FR
+  is_married: false
+  already_contributed_chf: 4000
+  remaining_room_chf: 3258         # max(0, 7258 - 4000)
+  scenarios:
+    - {verser_de_plus_chf: 1000, add_saving_low_raw: 252.26, add_saving_high_raw: 308.94,  display: "environ 200 à 300 CHF", note: "floor_to_100 des deux bornes (252.26->200, 308.94->300)"}
+    - {verser_de_plus_chf: 3258, add_saving_low_raw: 821.88, add_saving_high_raw: 1006.51, display: "environ 800 à 1 000 CHF", note: "le reste"}
+  contexte_deja_verse:
+    effet_deja_acquis_low_raw: 1009.07
+    effet_deja_acquis_high_raw: 1235.73
+    rule: la_marge_deja_acquise_n_est_PAS_recomptee_honnete
+  executed: "estimate_tax_saving({70000|100000}, 4000+add, 'FR', False) - estimate_tax_saving({70000|100000}, 4000, 'FR', False)"
+
+# ── 4. PLAFOND-20% — NON affilié, revenu EXACT 20000 -> plafond 4000 (cas bas-revenu non-affilié) ──
+# À revenu EXACT, la seule largeur restante = dispersion communale MESURÉE (grande) -> PAS de nombre serré.
+plafond_20pct_exact:
+  canton: FR
+  affilie: false
+  revenu_exact_chf: 20000
+  plafond_derive_chf: 4000.0       # IndependantService().calculate_3a_plafond(20000)
+  impot_a_20000_chef_lieu_chf: 1663.46
+  effet_verser_4000_chf: 586.40    # estimate_tax_saving(20000, 4000, 'FR', False) — point chef-lieu
+  display_rule: effet_dit_QUALITATIVEMENT_modeste_et_depend_beaucoup_de_la_commune_PAS_un_nombre_serre
+  why: a_revenu_exact_la_seule_largeur_restante_est_la_dispersion_communale_massive_aucune_fausse_precision
+  executed: "estimate_income_tax(20000,'FR',False)=1663.46 ; estimate_tax_saving(20000,4000,'FR',False)=586.40"
+
+# ── 5. fact_etat_civil — splitting x0.80 (marié) vs célibataire vs concubinage ──
+# PREUVE DU RULING : concubinage == célibataire (is_married=False), effet IDENTIQUE. Marié x0.80 -> effet plus bas.
+# fact_etat_civil n'AFFICHE aucun de ces chiffres (écran de collecte) ; ils gouvernent le recompute de l'éclairage (deferred).
+etat_civil_splitting:
+  canton: FR
+  versement_chf: 7258
+  band: {key: b70_100, edges_chf: [70000, 100000]}
+  situations:
+    - {situation: celibataire,     is_married: false, saving_low_raw: 1830.95, saving_high_raw: 2242.24, display_if_shown: "environ 1 800 à 2 200 CHF"}
+    - {situation: concubinage,     is_married: false, saving_low_raw: 1830.95, saving_high_raw: 2242.24, display_if_shown: "environ 1 800 à 2 200 CHF", note: "IDENTIQUE au celibataire — PREUVE du ruling concubinage"}
+    - {situation: marie_pacse,     is_married: true,  saving_low_raw: 1464.76, saving_high_raw: 1793.79, display_if_shown: "environ 1 400 à 1 700 CHF", note: "floor_to_100 (1464.76->1400, 1793.79->1700)"}
+  base_tax_ratio_proof:
+    - {income_chf: 70000,  celib_tax_chf: 12672.44, marie_tax_chf: 10137.95, ratio: 0.8000}
+    - {income_chf: 100000, celib_tax_chf: 21676.44, marie_tax_chf: 17341.15, ratio: 0.8000}
+  ruling: concubinage_traitement_celibataire_aucune_cle_concubinage_dans_FAMILY_ADJUSTMENTS   # cantonal_comparator.py:33-39
+  executed: "estimate_tax_saving({70000|100000}, 7258, 'FR', is_married) ; estimate_income_tax(inc,'FR',is_married)"
+
+# ── 6. Contrôle cross-canton (même band 70-100k, versement 7258, célibataire, chef-lieu) ──
+# Dispersion CANTONALE, exécutée live. Cohérent avec R3 r3-engine-fixtures.yaml:35-39 (à l'arrondi près).
+cross_canton_control:
+  band: {key: b70_100, edges_chf: [70000, 100000]}
+  versement_chf: 7258
+  is_married: false
+  cantons:
+    FR: {inc70k: 1830.95, inc100k: 2242.24}
+    BE: {inc70k: 1737.32, inc100k: 2207.40}
+    JU: {inc70k: 1801.44, inc100k: 2226.03}
+    BS: {inc70k: 1739.74, inc100k: 2003.21}
+  executed: "estimate_tax_saving({70000|100000}, 7258, canton, False)"
+
+# ── 7. Résidu communal — MESURÉ, plus supposé (verdict P3, hérité R3) ──
+communal_residual:
+  central_estimate_locality: canton_chef_lieu
+  measured_dispersion_BE: "steuanlg communal civil 0.89 (Deisswil b. M., BFS 535) a 2.20 (Schelten, BFS 708) — ~x2.5 sur la part communale ; chef-lieu Bern 1.54"
+  measured_dispersion_FR: "coefficient communal 2026 de 32% (Greng) a 100% (Jaun) de l'impot de base cantonal"
+  verdict: la_dispersion_intra_cantonale_est_MASSIVE_pas_un_pm3pct_decoratif_ce_qui_justifie_le_scelle_chef_lieu
+  named_source_status: source_named_ingestion_pending_le_scelle_reste_chef_lieu   # commune-multipliers-reviewed.yaml pending_reviewed_dataset
+  source: scratchpad/RESEARCH-steuerfuss-communal-source-BE-BS-FR-JU.md

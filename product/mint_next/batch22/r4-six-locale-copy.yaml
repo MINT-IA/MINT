@@ -1,0 +1,476 @@
+# R4 — FERMETURE DE LA BOUCLE — six-locale semantic copy (paquet prêt-à-sceller, revue lead 2026-08-05 passée).
+# Écrans : scenarios_versement (« et maintenant ? ») + fact_etat_civil (le fait le plus lourd).
+# Governed by product/mint_next/batch22/{scenarios_versement,fact_etat_civil}-scope.yaml (SCELLÉ).
+# Pattern hérité de product/mint_next/batch21/r3-six-locale-copy.yaml (R3, SCELLÉ).
+#
+# STADE : CONTRAT + MAQUETTES. Runtime interdit, promotion produit interdite, AUCUN scellement.
+#
+# DOCTRINE APPLIQUÉE :
+#  - Écrans ultra-aérés : la question / la phrase se suffit, aucun body redondant.
+#  - Test voix haute sur chaque phrase (« dirait-on ça à un ami ? »).
+#  - Glossaire PAR TAP : plafond, marge restante, bloqué, imposition commune, concubinage = ancres.
+#  - LSFin STRICT sur scenarios_versement : des SCÉNARIOS, JAMAIS une recommandation ; pas d'impératif
+#    (« Verse X », « Cotise au max » ABOLIS) ; toujours une fourchette, jamais un chiffre nu ;
+#    la LIQUIDITÉ bloquée DITE (anti-dark-pattern) ; « estimation, pas un conseil ».
+#  - Le PLAFOND dérive de l'affiliation + du revenu (7 258 avec caisse ; 20 % du revenu sans).
+#  - CONCUBINAGE = traitement célibataire (jamais le splitting marié ×0.80) — ruling gravé.
+#  - AUCUNE claim de localité ; aucune donnée device-only ici -> aucune phrase privacy.
+#  - Résidu communal MESURÉ (rapport RESEARCH-steuerfuss-communal-source-BE-BS-FR-JU.md) : l'estimation
+#    part du chef-lieu, la commune peut changer le montant — dit, jamais un ± décoratif.
+#  - Framing « Simulation 3a » (effet SUR L'IMPÔT DE CETTE ANNÉE), jamais « retraite ».
+#
+# Les VALEURS chiffrées sont DÉRIVÉES du moteur (cantonal_comparator.py estimate_tax_saving + règle
+# OPP3). Détail : scoring/derivations-suisse-r4.md + scoring/derive_r4.py. Rien inventé.
+
+schema_version: 1
+status: sealed_semantic_copy_runtime_not_implemented
+model: r4_fermeture_boucle_two_nodes
+locales: [fr, en, de, it, es, pt]
+required_placeholders:
+  - taxYear      # ex. 2026
+  - amount       # montant d'un scénario, ex. "7 258"
+  - low          # borne basse de la fourchette d'effet, ex. "1 800"
+  - high         # borne haute, ex. "2 200"
+  - room         # marge restante, ex. "3 258"
+  - contributed  # déjà versé, ex. "4 000"
+  - cap          # plafond de l'année, ex. "7 258"
+  - affiliatedCap  # petit plafond 3a AVEC caisse (LIFD 33-1-e), millésimé, ex. "7 258" — distinct de cap (peut être 20% du revenu sans caisse)
+  - excess       # part au-dessus du plafond, ex. "742"
+  - ceiling      # plafond dérivé du revenu (sans caisse), ex. "4 000"
+  - commune      # commune de fact_lieu, ex. "Fribourg"
+  - canton       # canton dérivé, ex. "Fribourg"
+  - status       # état civil choisi, ex. "En couple, non marié·e"
+  - fact         # nom localisé du fait manquant (état pending), ex. "revenu imposable"
+
+copy:
+  fr:
+    # ---------------------------------------------------------------------
+    # ÉCRAN 1 — scenarios_versement  (« et maintenant ? » ; scénarios éducatifs stricts)
+    # ---------------------------------------------------------------------
+    scenarios_eyebrow: "Simulation 3a · {taxYear}"
+    scenarios_choose_line: "À toi de choisir le montant. Voici l’effet estimé pour chacun."
+    scenarios_remaining: "Tu peux encore verser jusqu’à {room} CHF cette année."
+    scenarios_amount: "{amount} CHF"
+    scenarios_amount_max_suffix: " · le maximum cette année"
+    scenarios_effect: "environ {low} à {high} CHF d’impôt en moins"
+    # état marge-restante-réduite (un versement existe déjà)
+    scenarios_already: "Tu as déjà versé {contributed} CHF cette année."
+    scenarios_amount_more: "+{amount} CHF"
+    scenarios_amount_rest_suffix: " · encore possible cette année"
+    # honnêteté liquidité (anti-dark-pattern) — DITE, jamais cachée
+    scenarios_liquidity: "L’argent versé sur un 3a reste bloqué jusqu’à la retraite, sauf dans les cas prévus par la loi."
+    # caveat communal (dispersion MESURÉE, rapport) — l'estimation part du chef-lieu
+    scenarios_commune_caveat: "L’estimation part du chef-lieu du canton ; selon ta commune, le montant peut changer."
+    scenarios_disclaimer: "Ce sont des estimations, pas un conseil."
+    scenarios_own_amount: "Entrer mon propre montant"
+    scenarios_keep_reference: "Garder cette estimation"
+    scenarios_continue: "Continuer"
+    scenarios_back: "Retour"
+    # état plafond-20 % (sans caisse de pension, bas revenu non-affilié : 20 000 -> 4 000)
+    scenarios_plafond20_line: "Sans caisse de pension, ton plafond 3a dépend de ton revenu (20 %)."
+    scenarios_plafond20_amount: "Ton plafond est de {ceiling} CHF cette année."
+    scenarios_plafond20_effect_note: "À ce revenu, l’effet sur l’impôt reste modeste et dépend beaucoup de ta commune."
+    scenarios_plafond20_income_hyp: "Estimation basée sur ton revenu d’activité."
+    # état marge épuisée / au-dessus du plafond (honnête, jamais silencieux)
+    scenarios_over_line: "Tu as déjà versé {contributed} CHF, au-dessus du plafond de {cap} CHF cette année."
+    scenarios_over_excess: "Tu as versé {excess} CHF de plus que le plafond annuel ordinaire. Selon ta situation, ce surplus ne réduit pas toujours l’impôt. Vérifie avec ton prestataire 3a ce qui s’applique."
+    scenarios_over_action: "Voir ce qu’il faut vérifier"
+    # état en attente (un fait manque)
+    scenarios_pending_title: "Il manque une information pour calculer les scénarios."
+    scenarios_pending_which: "Information manquante : {fact}."
+    scenarios_pending_action: "Ajouter l’information"
+    # glossaire par tap
+    scenarios_gloss_plafond_term: "plafond"
+    scenarios_gloss_plafond_def: "Le plafond est le total que tu peux verser sur tes 3a cette année. Avec une caisse de pension : {affiliatedCap} CHF. Sans caisse : 20 % de ton revenu, jusqu’à un maximum fixé par la loi."
+    scenarios_gloss_marge_term: "marge restante"
+    scenarios_gloss_marge_def: "Ce qu’il te reste à verser cette année : le plafond, moins ce que tu as déjà mis."
+    scenarios_gloss_bloque_term: "bloqué"
+    scenarios_gloss_bloque_def: "L’argent du 3a ne peut pas être retiré librement. Un retrait anticipé est notamment possible pour acheter ton logement, te mettre à ton compte ou quitter définitivement la Suisse. Sinon, il reste bloqué jusqu’à la retraite."
+
+    # ---------------------------------------------------------------------
+    # ÉCRAN 2 — fact_etat_civil  (le fait le plus lourd ; choix court borné ; cartes)
+    # ---------------------------------------------------------------------
+    etat_civil_eyebrow: "Simulation 3a · {taxYear}"
+    etat_civil_question: "Quelle est ta situation de famille ?"
+    etat_civil_determining_hint: "On regarde ta situation au 31 décembre {taxYear}."
+    etat_civil_card_celibataire: "Célibataire"
+    etat_civil_card_marie_pacse: "Marié·e ou en partenariat enregistré"
+    etat_civil_card_concubinage: "En couple, non marié·e"
+    etat_civil_help_link: "Pourquoi ça change l’impôt ?"
+    etat_civil_recompute_hint: "Ton choix remplace l’hypothèse et met l’estimation à jour."
+    etat_civil_selection_label: "Ton choix"
+    etat_civil_selection_none: "Tu n’as pas encore choisi."
+    etat_civil_selection_selected: "{status}"
+    etat_civil_change: "Modifier"
+    etat_civil_continue: "Continuer"
+    etat_civil_back: "Retour"
+    etat_civil_error_no_selection: "Choisis ta situation pour continuer."
+    # glossaire par tap — imposition commune (splitting) : ancre du help_link + carte marié
+    etat_civil_gloss_marie_term: "marié·e ou en partenariat enregistré"
+    etat_civil_gloss_marie_def: "Marié·e ou en partenariat enregistré et vivant en ménage commun, tu es imposé·e avec ton ou ta partenaire : vos revenus entrent dans un calcul commun. Séparé·e durablement, tu es imposé·e comme une personne seule."
+    # glossaire par tap — concubinage (LE ruling, en clair)
+    etat_civil_gloss_concubinage_term: "en couple, non marié·e"
+    etat_civil_gloss_concubinage_def: "Sans mariage ni partenariat enregistré, chacun est imposé séparément, comme une personne célibataire."
+    # glossaire par tap — célibataire (couvre divorce / veuvage)
+    etat_civil_gloss_celibataire_term: "célibataire"
+    etat_civil_gloss_celibataire_def: "Après une séparation durable, un divorce ou un veuvage, l’impôt te considère aussi comme célibataire."
+
+  # ---------------------------------------------------------------------
+  # AUTRES LOCALES — traduction sémantique HUMAINE (pas MT). Parité de clés +
+  # placeholders avec fr ; aucune locale identique ; termes bannis LSFin absents
+  # (même niés). Terminologie état-civil alignée sur R3 (eclairage_situation_*).
+  # ---------------------------------------------------------------------
+  en:
+    scenarios_eyebrow: "3a simulation · {taxYear}"
+    scenarios_choose_line: "You choose the amount. Here’s the estimated effect for each one."
+    scenarios_remaining: "You can still pay in up to {room} CHF this year."
+    scenarios_amount: "{amount} CHF"
+    scenarios_amount_max_suffix: " · the most this year"
+    scenarios_effect: "around {low} to {high} CHF less tax"
+    scenarios_already: "You’ve already paid in {contributed} CHF this year."
+    scenarios_amount_more: "+{amount} CHF"
+    scenarios_amount_rest_suffix: " · still possible this year"
+    scenarios_liquidity: "Money paid into a 3a stays locked until retirement, except in the cases allowed by law."
+    scenarios_commune_caveat: "The estimate starts from the canton’s main town; depending on your municipality, the amount can change."
+    scenarios_disclaimer: "These are estimates, not advice."
+    scenarios_own_amount: "Enter my own amount"
+    scenarios_keep_reference: "Keep this estimate"
+    scenarios_continue: "Continue"
+    scenarios_back: "Back"
+    scenarios_plafond20_line: "Without a pension fund, your 3a limit depends on your income (20%)."
+    scenarios_plafond20_amount: "Your limit is {ceiling} CHF this year."
+    scenarios_plafond20_effect_note: "At this income, the effect on tax stays modest and depends a lot on your municipality."
+    scenarios_plafond20_income_hyp: "Based on your earned income."
+    scenarios_over_line: "You’ve already paid in {contributed} CHF, above the {cap} CHF limit for this year."
+    scenarios_over_excess: "You’ve paid {excess} CHF more than the ordinary annual limit. Depending on your situation, this surplus doesn’t always reduce your tax. Check with your 3a provider what applies."
+    scenarios_over_action: "See what to check"
+    scenarios_pending_title: "Some information is missing to work out the scenarios."
+    scenarios_pending_which: "Missing information: {fact}."
+    scenarios_pending_action: "Add the information"
+    scenarios_gloss_plafond_term: "limit"
+    scenarios_gloss_plafond_def: "The limit is the total you can pay into your 3a this year. With a pension fund: {affiliatedCap} CHF. Without one: 20% of your income, up to a maximum set by law."
+    scenarios_gloss_marge_term: "remaining room"
+    scenarios_gloss_marge_def: "What you’ve still got left to pay in this year: the limit, minus what you’ve already put in."
+    scenarios_gloss_bloque_term: "locked"
+    scenarios_gloss_bloque_def: "Money in a 3a can’t be withdrawn freely. An early withdrawal is possible in particular to buy your home, become self-employed or leave Switzerland for good. Otherwise it stays locked until retirement."
+    etat_civil_eyebrow: "3a simulation · {taxYear}"
+    etat_civil_question: "What’s your family situation?"
+    etat_civil_determining_hint: "We look at your situation on 31 December {taxYear}."
+    etat_civil_card_celibataire: "Single"
+    etat_civil_card_marie_pacse: "Married or in a registered partnership"
+    etat_civil_card_concubinage: "Living together, not married"
+    etat_civil_help_link: "Why does this change the tax?"
+    etat_civil_recompute_hint: "Your choice replaces the assumption and updates the estimate."
+    etat_civil_selection_label: "Your choice"
+    etat_civil_selection_none: "You haven’t chosen yet."
+    etat_civil_selection_selected: "{status}"
+    etat_civil_change: "Change"
+    etat_civil_continue: "Continue"
+    etat_civil_back: "Back"
+    etat_civil_error_no_selection: "Choose your situation to continue."
+    etat_civil_gloss_marie_term: "married or in a registered partnership"
+    etat_civil_gloss_marie_def: "Married or in a registered partnership and living in the same household, you’re taxed together with your partner: your incomes go into one joint calculation. If you’re lastingly separated, you’re taxed as a single person."
+    etat_civil_gloss_concubinage_term: "living together, not married"
+    etat_civil_gloss_concubinage_def: "Without marriage or a registered partnership, each person is taxed separately, like a single person."
+    etat_civil_gloss_celibataire_term: "single"
+    etat_civil_gloss_celibataire_def: "After a lasting separation, a divorce or being widowed, tax also treats you as single."
+  de:
+    scenarios_eyebrow: "3a-Simulation · {taxYear}"
+    scenarios_choose_line: "Du wählst den Betrag. Hier ist die geschätzte Wirkung für jeden."
+    scenarios_remaining: "Du kannst dieses Jahr noch bis zu {room} CHF einzahlen."
+    scenarios_amount: "{amount} CHF"
+    scenarios_amount_max_suffix: " · das Maximum dieses Jahr"
+    scenarios_effect: "rund {low} bis {high} CHF weniger Steuer"
+    scenarios_already: "Du hast dieses Jahr schon {contributed} CHF eingezahlt."
+    scenarios_amount_more: "+{amount} CHF"
+    scenarios_amount_rest_suffix: " · dieses Jahr noch möglich"
+    scenarios_liquidity: "Geld in einer 3a bleibt bis zur Pensionierung gebunden, ausser in den vom Gesetz vorgesehenen Fällen."
+    scenarios_commune_caveat: "Die Schätzung geht vom Kantonshauptort aus; je nach deiner Gemeinde kann der Betrag anders ausfallen."
+    scenarios_disclaimer: "Das sind Schätzungen, keine Beratung."
+    scenarios_own_amount: "Eigenen Betrag eingeben"
+    scenarios_keep_reference: "Diese Schätzung behalten"
+    scenarios_continue: "Weiter"
+    scenarios_back: "Zurück"
+    scenarios_plafond20_line: "Ohne Pensionskasse hängt deine 3a-Grenze von deinem Einkommen ab (20 %)."
+    scenarios_plafond20_amount: "Deine Grenze liegt dieses Jahr bei {ceiling} CHF."
+    scenarios_plafond20_effect_note: "Bei diesem Einkommen bleibt die Wirkung auf die Steuer gering und hängt stark von deiner Gemeinde ab."
+    scenarios_plafond20_income_hyp: "Auf Basis deines Erwerbseinkommens."
+    scenarios_over_line: "Du hast schon {contributed} CHF eingezahlt, über der Grenze von {cap} CHF für dieses Jahr."
+    scenarios_over_excess: "Du hast {excess} CHF mehr als die ordentliche Jahresgrenze eingezahlt. Je nach Situation senkt dieser Überschuss die Steuer nicht immer. Kläre mit deinem 3a-Anbieter, was für dich gilt."
+    scenarios_over_action: "Sehen, was zu prüfen ist"
+    scenarios_pending_title: "Für die Szenarien fehlt eine Angabe."
+    scenarios_pending_which: "Fehlende Angabe: {fact}."
+    scenarios_pending_action: "Angabe ergänzen"
+    scenarios_gloss_plafond_term: "Höchstbetrag"
+    scenarios_gloss_plafond_def: "Der Höchstbetrag ist das Total, das du dieses Jahr in deine 3a einzahlen kannst. Mit Pensionskasse: {affiliatedCap} CHF. Ohne: 20 % deines Einkommens, bis zu einem gesetzlich festgelegten Maximum."
+    scenarios_gloss_marge_term: "verbleibender Spielraum"
+    scenarios_gloss_marge_def: "Was du dieses Jahr noch einzahlen kannst: der Höchstbetrag, minus das, was du schon eingezahlt hast."
+    scenarios_gloss_bloque_term: "gebunden"
+    scenarios_gloss_bloque_def: "Geld in der 3a kann nicht frei bezogen werden. Ein Vorbezug ist namentlich möglich, um Wohneigentum zu kaufen, sich selbständig zu machen oder die Schweiz endgültig zu verlassen. Sonst bleibt es bis zur Pensionierung gebunden."
+    etat_civil_eyebrow: "3a-Simulation · {taxYear}"
+    etat_civil_question: "Wie ist deine familiäre Situation?"
+    etat_civil_determining_hint: "Massgebend ist deine Situation am 31. Dezember {taxYear}."
+    etat_civil_card_celibataire: "Ledig"
+    etat_civil_card_marie_pacse: "Verheiratet oder in eingetragener Partnerschaft"
+    etat_civil_card_concubinage: "Zusammenlebend, nicht verheiratet"
+    etat_civil_help_link: "Warum ändert das die Steuer?"
+    etat_civil_recompute_hint: "Deine Wahl ersetzt die Annahme und aktualisiert die Schätzung."
+    etat_civil_selection_label: "Deine Wahl"
+    etat_civil_selection_none: "Du hast noch nicht gewählt."
+    etat_civil_selection_selected: "{status}"
+    etat_civil_change: "Ändern"
+    etat_civil_continue: "Weiter"
+    etat_civil_back: "Zurück"
+    etat_civil_error_no_selection: "Wähle deine Situation, um fortzufahren."
+    etat_civil_gloss_marie_term: "verheiratet oder in eingetragener Partnerschaft"
+    etat_civil_gloss_marie_def: "Verheiratet oder in eingetragener Partnerschaft und im gemeinsamen Haushalt lebend, wirst du zusammen mit deiner Partnerin oder deinem Partner besteuert: eure Einkommen kommen in eine gemeinsame Berechnung. Dauerhaft getrennt, wirst du wie eine ledige Person besteuert."
+    etat_civil_gloss_concubinage_term: "zusammenlebend, nicht verheiratet"
+    etat_civil_gloss_concubinage_def: "Ohne Heirat oder eingetragene Partnerschaft wird jede Person einzeln besteuert, wie eine ledige Person."
+    etat_civil_gloss_celibataire_term: "ledig"
+    etat_civil_gloss_celibataire_def: "Nach einer dauerhaften Trennung, einer Scheidung oder einer Verwitwung behandelt dich die Steuer ebenfalls als ledig."
+  it:
+    scenarios_eyebrow: "Simulazione 3a · {taxYear}"
+    scenarios_choose_line: "Scegli tu l’importo. Ecco l’effetto stimato per ciascuno."
+    scenarios_remaining: "Quest’anno puoi ancora versare fino a {room} CHF."
+    scenarios_amount: "{amount} CHF"
+    scenarios_amount_max_suffix: " · il massimo quest’anno"
+    scenarios_effect: "circa da {low} a {high} CHF di imposta in meno"
+    scenarios_already: "Quest’anno hai già versato {contributed} CHF."
+    scenarios_amount_more: "+{amount} CHF"
+    scenarios_amount_rest_suffix: " · ancora possibile quest’anno"
+    scenarios_liquidity: "Il denaro versato su una 3a resta vincolato fino alla pensione, salvo nei casi previsti dalla legge."
+    scenarios_commune_caveat: "La stima parte dal capoluogo del cantone; a seconda del tuo comune, l’importo può cambiare."
+    scenarios_disclaimer: "Sono stime, non una consulenza."
+    scenarios_own_amount: "Inserire il mio importo"
+    scenarios_keep_reference: "Conservare questa stima"
+    scenarios_continue: "Continua"
+    scenarios_back: "Indietro"
+    scenarios_plafond20_line: "Senza cassa pensioni, il tuo limite 3a dipende dal tuo reddito (20%)."
+    scenarios_plafond20_amount: "Il tuo limite è di {ceiling} CHF quest’anno."
+    scenarios_plafond20_effect_note: "Con questo reddito, l’effetto sull’imposta resta modesto e dipende molto dal tuo comune."
+    scenarios_plafond20_income_hyp: "In base al tuo reddito da attività."
+    scenarios_over_line: "Hai già versato {contributed} CHF, oltre il limite di {cap} CHF per quest’anno."
+    scenarios_over_excess: "Hai versato {excess} CHF in più del limite annuo ordinario. A seconda della tua situazione, questo surplus non riduce sempre l’imposta. Verifica con il tuo istituto 3a cosa vale per te."
+    scenarios_over_action: "Vedere cosa verificare"
+    scenarios_pending_title: "Manca un’informazione per calcolare gli scenari."
+    scenarios_pending_which: "Informazione mancante: {fact}."
+    scenarios_pending_action: "Aggiungere l’informazione"
+    scenarios_gloss_plafond_term: "limite"
+    scenarios_gloss_plafond_def: "Il limite è il totale che puoi versare sulle tue 3a quest’anno. Con una cassa pensioni: {affiliatedCap} CHF. Senza: il 20% del tuo reddito, fino a un massimo fissato dalla legge."
+    scenarios_gloss_marge_term: "margine restante"
+    scenarios_gloss_marge_def: "Quello che ti resta da versare quest’anno: il limite, meno quello che hai già messo."
+    scenarios_gloss_bloque_term: "vincolato"
+    scenarios_gloss_bloque_def: "Il denaro della 3a non può essere ritirato liberamente. Un prelievo anticipato è possibile in particolare per comprare la tua abitazione, metterti in proprio o lasciare definitivamente la Svizzera. Altrimenti resta vincolato fino alla pensione."
+    etat_civil_eyebrow: "Simulazione 3a · {taxYear}"
+    etat_civil_question: "Qual è la tua situazione familiare?"
+    etat_civil_determining_hint: "Conta la tua situazione al 31 dicembre {taxYear}."
+    etat_civil_card_celibataire: "Celibe/nubile"
+    etat_civil_card_marie_pacse: "Sposato/a o in unione domestica registrata"
+    etat_civil_card_concubinage: "In coppia, non sposato/a"
+    etat_civil_help_link: "Perché cambia l’imposta?"
+    etat_civil_recompute_hint: "La tua scelta sostituisce l’ipotesi e aggiorna la stima."
+    etat_civil_selection_label: "La tua scelta"
+    etat_civil_selection_none: "Non hai ancora scelto."
+    etat_civil_selection_selected: "{status}"
+    etat_civil_change: "Modifica"
+    etat_civil_continue: "Continua"
+    etat_civil_back: "Indietro"
+    etat_civil_error_no_selection: "Scegli la tua situazione per continuare."
+    etat_civil_gloss_marie_term: "sposato/a o in unione domestica registrata"
+    etat_civil_gloss_marie_def: "Sposato/a o in unione domestica registrata e convivente, sei tassato/a insieme al tuo o alla tua partner: i vostri redditi entrano in un calcolo comune. Se sei separato/a in modo duraturo, sei tassato/a come una persona sola."
+    etat_civil_gloss_concubinage_term: "in coppia, non sposato/a"
+    etat_civil_gloss_concubinage_def: "Senza matrimonio né unione domestica registrata, ciascuno è tassato separatamente, come una persona sola."
+    etat_civil_gloss_celibataire_term: "celibe/nubile"
+    etat_civil_gloss_celibataire_def: "Dopo una separazione duratura, un divorzio o una vedovanza, l’imposta ti considera come una persona sola."
+  es:
+    scenarios_eyebrow: "Simulación 3a · {taxYear}"
+    scenarios_choose_line: "Tú eliges el importe. Aquí tienes el efecto estimado de cada uno."
+    scenarios_remaining: "Este año aún puedes aportar hasta {room} CHF."
+    scenarios_amount: "{amount} CHF"
+    scenarios_amount_max_suffix: " · el máximo este año"
+    scenarios_effect: "alrededor de {low} a {high} CHF de impuesto menos"
+    scenarios_already: "Este año ya has aportado {contributed} CHF."
+    scenarios_amount_more: "+{amount} CHF"
+    scenarios_amount_rest_suffix: " · aún posible este año"
+    scenarios_liquidity: "El dinero aportado a un 3a queda bloqueado hasta la jubilación, salvo en los casos previstos por la ley."
+    scenarios_commune_caveat: "La estimación parte de la capital del cantón; según tu municipio, el importe puede cambiar."
+    scenarios_disclaimer: "Son estimaciones, no un asesoramiento."
+    scenarios_own_amount: "Introducir mi propio importe"
+    scenarios_keep_reference: "Guardar esta estimación"
+    scenarios_continue: "Continuar"
+    scenarios_back: "Atrás"
+    scenarios_plafond20_line: "Sin caja de pensiones, tu límite 3a depende de tu ingreso (20 %)."
+    scenarios_plafond20_amount: "Tu límite es de {ceiling} CHF este año."
+    scenarios_plafond20_effect_note: "Con este ingreso, el efecto sobre el impuesto es modesto y depende mucho de tu municipio."
+    scenarios_plafond20_income_hyp: "Según tu ingreso por actividad."
+    scenarios_over_line: "Ya has aportado {contributed} CHF, por encima del límite de {cap} CHF de este año."
+    scenarios_over_excess: "Has aportado {excess} CHF más que el límite anual ordinario. Según tu situación, este excedente no siempre reduce el impuesto. Consulta con tu proveedor 3a qué se aplica."
+    scenarios_over_action: "Ver qué comprobar"
+    scenarios_pending_title: "Falta un dato para calcular los escenarios."
+    scenarios_pending_which: "Falta este dato: {fact}."
+    scenarios_pending_action: "Añadir el dato"
+    scenarios_gloss_plafond_term: "límite"
+    scenarios_gloss_plafond_def: "El límite es el total que puedes aportar a tus 3a este año. Con una caja de pensiones: {affiliatedCap} CHF. Sin ella: el 20 % de tu ingreso, hasta un máximo fijado por la ley."
+    scenarios_gloss_marge_term: "margen restante"
+    scenarios_gloss_marge_def: "Lo que te queda por aportar este año: el límite, menos lo que ya has puesto."
+    scenarios_gloss_bloque_term: "bloqueado"
+    scenarios_gloss_bloque_def: "El dinero del 3a no se puede retirar libremente. Un retiro anticipado es posible en particular para comprar tu vivienda, establecerte por tu cuenta o dejar Suiza de forma definitiva. Si no, queda bloqueado hasta la jubilación."
+    etat_civil_eyebrow: "Simulación 3a · {taxYear}"
+    etat_civil_question: "¿Cuál es tu situación familiar?"
+    etat_civil_determining_hint: "Cuenta tu situación a 31 de diciembre de {taxYear}."
+    etat_civil_card_celibataire: "Soltero/a"
+    etat_civil_card_marie_pacse: "Casado/a o en unión registrada"
+    etat_civil_card_concubinage: "En pareja, no casado/a"
+    etat_civil_help_link: "¿Por qué cambia el impuesto?"
+    etat_civil_recompute_hint: "Tu elección reemplaza la hipótesis y actualiza la estimación."
+    etat_civil_selection_label: "Tu elección"
+    etat_civil_selection_none: "Todavía no has elegido."
+    etat_civil_selection_selected: "{status}"
+    etat_civil_change: "Cambiar"
+    etat_civil_continue: "Continuar"
+    etat_civil_back: "Atrás"
+    etat_civil_error_no_selection: "Elige tu situación para continuar."
+    etat_civil_gloss_marie_term: "casado/a o en unión registrada"
+    etat_civil_gloss_marie_def: "Casado/a o en unión registrada y viviendo en el mismo hogar, tributas junto con tu pareja: vuestros ingresos entran en un cálculo común. Si estás separado/a de forma duradera, tributas como una persona sola."
+    etat_civil_gloss_concubinage_term: "en pareja, no casado/a"
+    etat_civil_gloss_concubinage_def: "Sin matrimonio ni unión registrada, cada uno tributa por separado, como una persona soltera."
+    etat_civil_gloss_celibataire_term: "soltero/a"
+    etat_civil_gloss_celibataire_def: "Tras una separación duradera, un divorcio o una viudedad, el impuesto también te considera soltero/a."
+  pt:
+    scenarios_eyebrow: "Simulação 3a · {taxYear}"
+    scenarios_choose_line: "És tu que escolhes o montante. Eis o efeito estimado de cada um."
+    scenarios_remaining: "Este ano ainda podes depositar até {room} CHF."
+    scenarios_amount: "{amount} CHF"
+    scenarios_amount_max_suffix: " · o máximo este ano"
+    scenarios_effect: "cerca de {low} a {high} CHF de imposto a menos"
+    scenarios_already: "Este ano já depositaste {contributed} CHF."
+    scenarios_amount_more: "+{amount} CHF"
+    scenarios_amount_rest_suffix: " · ainda possível este ano"
+    scenarios_liquidity: "O dinheiro depositado num 3a fica bloqueado até à reforma, salvo nos casos previstos na lei."
+    scenarios_commune_caveat: "A estimativa parte da capital do cantão; consoante o teu município, o montante pode mudar."
+    scenarios_disclaimer: "São estimativas, não um aconselhamento."
+    scenarios_own_amount: "Inserir o meu próprio montante"
+    scenarios_keep_reference: "Guardar esta estimativa"
+    scenarios_continue: "Continuar"
+    scenarios_back: "Voltar"
+    scenarios_plafond20_line: "Sem caixa de pensões, o teu limite 3a depende do teu rendimento (20%)."
+    scenarios_plafond20_amount: "O teu limite é de {ceiling} CHF este ano."
+    scenarios_plafond20_effect_note: "Com este rendimento, o efeito no imposto é modesto e depende muito do teu município."
+    scenarios_plafond20_income_hyp: "Com base no teu rendimento de atividade."
+    scenarios_over_line: "Já depositaste {contributed} CHF, acima do limite de {cap} CHF deste ano."
+    scenarios_over_excess: "Depositaste {excess} CHF a mais do que o limite anual ordinário. Consoante a tua situação, este excedente nem sempre reduz o imposto. Confirma com o teu fornecedor 3a o que se aplica."
+    scenarios_over_action: "Ver o que verificar"
+    scenarios_pending_title: "Falta uma informação para calcular os cenários."
+    scenarios_pending_which: "Informação em falta: {fact}."
+    scenarios_pending_action: "Adicionar a informação"
+    scenarios_gloss_plafond_term: "limite"
+    scenarios_gloss_plafond_def: "O limite é o total que podes depositar nas tuas 3a este ano. Com uma caixa de pensões: {affiliatedCap} CHF. Sem ela: 20% do teu rendimento, até um máximo fixado pela lei."
+    scenarios_gloss_marge_term: "margem restante"
+    scenarios_gloss_marge_def: "O que te falta depositar este ano: o limite, menos o que já puseste."
+    scenarios_gloss_bloque_term: "bloqueado"
+    scenarios_gloss_bloque_def: "O dinheiro do 3a não pode ser levantado livremente. Um levantamento antecipado é possível, em particular, para comprar a tua habitação, começar a trabalhar por conta própria ou deixar definitivamente a Suíça. Caso contrário, fica bloqueado até à reforma."
+    etat_civil_eyebrow: "Simulação 3a · {taxYear}"
+    etat_civil_question: "Qual é a tua situação familiar?"
+    etat_civil_determining_hint: "Conta a tua situação a 31 de dezembro de {taxYear}."
+    etat_civil_card_celibataire: "Solteiro/a"
+    etat_civil_card_marie_pacse: "Casado/a ou em parceria registada"
+    etat_civil_card_concubinage: "Em casal, não casado/a"
+    etat_civil_help_link: "Porque é que isto muda o imposto?"
+    etat_civil_recompute_hint: "A tua escolha substitui a hipótese e atualiza a estimativa."
+    etat_civil_selection_label: "A tua escolha"
+    etat_civil_selection_none: "Ainda não escolheste."
+    etat_civil_selection_selected: "{status}"
+    etat_civil_change: "Alterar"
+    etat_civil_continue: "Continuar"
+    etat_civil_back: "Voltar"
+    etat_civil_error_no_selection: "Escolhe a tua situação para continuar."
+    etat_civil_gloss_marie_term: "casado/a ou em parceria registada"
+    etat_civil_gloss_marie_def: "Casado/a ou em parceria registada e a viver em economia comum, és tributado/a em conjunto com o teu ou a tua parceira: os vossos rendimentos entram num cálculo comum. Se estás separado/a de forma duradoura, és tributado/a como uma pessoa sozinha."
+    etat_civil_gloss_concubinage_term: "em casal, não casado/a"
+    etat_civil_gloss_concubinage_def: "Sem casamento nem parceria registada, cada um é tributado separadamente, como uma pessoa solteira."
+    etat_civil_gloss_celibataire_term: "solteiro/a"
+    etat_civil_gloss_celibataire_def: "Após uma separação duradoura, um divórcio ou uma viuvez, o imposto também te considera solteiro/a."
+
+semantic_receipt:
+  required_keys_scenarios:
+    - scenarios_eyebrow
+    - scenarios_choose_line
+    - scenarios_remaining
+    - scenarios_amount
+    - scenarios_amount_max_suffix
+    - scenarios_effect
+    - scenarios_already
+    - scenarios_amount_more
+    - scenarios_amount_rest_suffix
+    - scenarios_liquidity
+    - scenarios_commune_caveat
+    - scenarios_disclaimer
+    - scenarios_own_amount
+    - scenarios_keep_reference
+    - scenarios_continue
+    - scenarios_back
+    - scenarios_plafond20_line
+    - scenarios_plafond20_amount
+    - scenarios_plafond20_effect_note
+    - scenarios_plafond20_income_hyp
+    - scenarios_over_line
+    - scenarios_over_excess
+    - scenarios_over_action
+    - scenarios_pending_title
+    - scenarios_pending_which
+    - scenarios_pending_action
+    - scenarios_gloss_plafond_term
+    - scenarios_gloss_plafond_def
+    - scenarios_gloss_marge_term
+    - scenarios_gloss_marge_def
+    - scenarios_gloss_bloque_term
+    - scenarios_gloss_bloque_def
+  required_keys_etat_civil:
+    - etat_civil_eyebrow
+    - etat_civil_question
+    - etat_civil_determining_hint
+    - etat_civil_card_celibataire
+    - etat_civil_card_marie_pacse
+    - etat_civil_card_concubinage
+    - etat_civil_help_link
+    - etat_civil_recompute_hint
+    - etat_civil_selection_label
+    - etat_civil_selection_none
+    - etat_civil_selection_selected
+    - etat_civil_change
+    - etat_civil_continue
+    - etat_civil_back
+    - etat_civil_error_no_selection
+    - etat_civil_gloss_marie_term
+    - etat_civil_gloss_marie_def
+    - etat_civil_gloss_concubinage_term
+    - etat_civil_gloss_concubinage_def
+    - etat_civil_gloss_celibataire_term
+    - etat_civil_gloss_celibataire_def
+  forbidden_fallback_locale: true
+  identical_full_locale_payloads: forbidden
+  placeholder_parity_required: true
+  glossary_entries:
+    - {term: scenarios_gloss_plafond_term, body: scenarios_gloss_plafond_def, on_screen_anchor: scenarios_remaining}
+    - {term: scenarios_gloss_marge_term, body: scenarios_gloss_marge_def, on_screen_anchor: scenarios_remaining}
+    - {term: scenarios_gloss_bloque_term, body: scenarios_gloss_bloque_def, on_screen_anchor: scenarios_liquidity}
+    - {term: etat_civil_gloss_marie_term, body: etat_civil_gloss_marie_def, on_screen_anchor: etat_civil_card_marie_pacse}
+    - {term: etat_civil_gloss_concubinage_term, body: etat_civil_gloss_concubinage_def, on_screen_anchor: etat_civil_card_concubinage}
+    - {term: etat_civil_gloss_celibataire_term, body: etat_civil_gloss_celibataire_def, on_screen_anchor: etat_civil_card_celibataire}
+  semantic_assertions_per_locale:
+    - scenarios_are_educational_never_a_recommendation_no_highlighted_amount
+    - every_scenario_effect_is_a_RANGE_never_a_single_promised_number_never_an_imperative
+    - only_the_part_within_remaining_room_reduces_tax_excess_stated_never_credited
+    - the_locked_liquidity_cost_is_STATED_on_screen_not_hidden   # anti dark pattern
+    - the_ceiling_derives_from_affiliation_and_income_7258_with_pension_20pct_without
+    - what_is_already_contributed_reduces_the_remaining_room
+    - scenarios_are_framed_on_THIS_YEARS_tax_never_on_retirement
+    - the_communal_estimate_is_chef_lieu_and_the_commune_may_change_it_stated_not_a_decorative_pm
+    - no_privacy_on_device_claim_because_no_datum_here_is_device_only
+    - marginal_rate_jargon_is_NOT_surfaced_francs_not_a_rate
+    - etat_civil_collects_a_PRECISE_civil_status_not_a_coarse_couple_family_bucket
+    - concubinage_is_the_single_treatment_never_the_married_x080_splitting   # ruling
+    - marie_pacse_is_the_only_status_that_triggers_joint_taxation_splitting
+    - the_question_alone_carries_etat_civil_no_body_sentence
+    - etat_civil_shows_no_personal_tax_amount   # fait de collecte
+  human_review_receipts: required_at_translation_and_acceptance_stage
