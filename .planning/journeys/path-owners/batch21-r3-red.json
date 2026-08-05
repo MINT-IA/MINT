@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "owner_id": "batch21-r3-red",
+  "status": "candidate_unaccepted",
+  "paths": [
+    "product/mint_next/batch21/runtime-gates.yaml",
+    "product/mint_next/batch7/design_lab/test/design_lab_batch21_r3_test.dart",
+    "tools/checks/mint_next_batch21_r3_red_guard.py",
+    "tools/checks/tests/test_mint_next_batch21_r3_red_guard.py"
+  ],
+  "reviews": {
+    "scope_integrity": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "mechanical_adversary": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    },
+    "journey_safety": {
+      "verdict": "PENDING",
+      "p1": null,
+      "p2": null,
+      "p3": null
+    }
+  },
+  "mechanical_binding": {
+    "candidate_payload_sha256": "04f83aaf68e87221c4b68ece0263a5414864ff4ced22b4ae3062d08b7ebcc89b",
+    "reviewed_payload_sha256": null,
+    "reviewed_candidate_commit": null
+  }
+}
