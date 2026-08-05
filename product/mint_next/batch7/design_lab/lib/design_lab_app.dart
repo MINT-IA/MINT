@@ -5,12 +5,15 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import 'canton_r1.dart';
+import 'eclairage_impot_3a.dart';
 import 'fact_lieu.dart';
+import 'fact_revenu.dart';
 import 'l10n/generated/mint_next_localizations.dart';
 import 'multi_provider_amount_draft.dart';
 import 'multi_provider_amount_editor.dart';
 import 'ordinary_chf_amount.dart';
 import 'provider_label.dart';
+import 'r3_eclairage_catalog.g.dart';
 
 enum _DesignNode {
   today3aIntent,
@@ -27,6 +30,8 @@ enum _DesignNode {
   contributionStatusCorrection,
   factCanton,
   factLieu,
+  factRevenu,
+  eclairageImpot3a,
   educationExplanation,
   dismissed,
 }
@@ -34,6 +39,32 @@ enum _DesignNode {
 enum _LppAffiliation { yes, no, unknown }
 
 enum _ContributionStatus { yes, no, unknown }
+
+/// Which R3 (batch21) éclairage node the test harness lands on directly.
+///
+/// The R3 forward controls never route in R3 (never_routes_in_r3), so — like
+/// batch20's fact_lieu, reached via the shared entry path — the two éclairage
+/// nodes are reached by a harness that starts on the requested node with its
+/// facts preset. fact_revenu commits a band without routing; eclairage renders
+/// one of the five sealed states from the preset facts.
+enum Batch21Start { factRevenu, eclairage }
+
+/// Preset facts for the batch21 harness (test-only reachability).
+class Batch21Config {
+  const Batch21Config({
+    this.startNode = Batch21Start.factRevenu,
+    this.band,
+    this.situation = EclairageSituation.celibataire,
+    this.exactIncome,
+    this.canContribute = true,
+  });
+
+  final Batch21Start startNode;
+  final String? band; // committed taxable_income_band_enum, null -> pending
+  final EclairageSituation situation;
+  final int? exactIncome; // grounded exact point -> precision_refined
+  final bool canContribute; // false -> non_applicable_source
+}
 
 class MintNextDesignLabApp extends StatelessWidget {
   const MintNextDesignLabApp({
@@ -43,6 +74,7 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.currentYear,
   }) : _enableBatch14MultiProvider = false,
        _enableBatch16Unresolved = false,
+       batch21 = null,
        now = null;
 
   @visibleForTesting
@@ -53,6 +85,7 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.currentYear,
   }) : _enableBatch14MultiProvider = true,
        _enableBatch16Unresolved = false,
+       batch21 = null,
        now = null;
 
   @visibleForTesting
@@ -63,13 +96,29 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.currentYear,
     this.now,
   }) : _enableBatch14MultiProvider = true,
-       _enableBatch16Unresolved = true;
+       _enableBatch16Unresolved = true,
+       batch21 = null;
+
+  /// R3 (batch21) éclairage-arc harness: lands directly on [Batch21Config.startNode]
+  /// with the preset facts, so the two nodes are reachable despite the R3 forward
+  /// controls never routing (never_routes_in_r3).
+  @visibleForTesting
+  const MintNextDesignLabApp.batch21Harness({
+    super.key,
+    this.locale,
+    this.textScaler,
+    this.currentYear,
+    this.batch21 = const Batch21Config(),
+  }) : _enableBatch14MultiProvider = false,
+       _enableBatch16Unresolved = false,
+       now = null;
 
   final Locale? locale;
   final TextScaler? textScaler;
   final int? currentYear;
   final bool _enableBatch14MultiProvider;
   final bool _enableBatch16Unresolved;
+  final Batch21Config? batch21;
   final DateTime Function()? now;
 
   @override
@@ -88,6 +137,7 @@ class MintNextDesignLabApp extends StatelessWidget {
         currentYear: currentYear ?? DateTime.now().year,
         enableBatch14MultiProvider: _enableBatch14MultiProvider,
         enableBatch16Unresolved: _enableBatch16Unresolved,
+        batch21: batch21,
         now: now ?? DateTime.now,
       ),
     );
@@ -137,12 +187,14 @@ class _DesignLabJourney extends StatefulWidget {
     required this.currentYear,
     required this.enableBatch14MultiProvider,
     required this.enableBatch16Unresolved,
+    required this.batch21,
     required this.now,
   });
 
   final int currentYear;
   final bool enableBatch14MultiProvider;
   final bool enableBatch16Unresolved;
+  final Batch21Config? batch21;
   final DateTime Function() now;
 
   @override
@@ -153,6 +205,9 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     with WidgetsBindingObserver {
   _DesignNode _node = _DesignNode.today3aIntent;
   int? _taxYear;
+  // R3 (batch21): the committed taxable-income band (fact_revenu), read by the
+  // eclairage payoff node. Ephemeral until committed, then joins the profile.
+  String? _taxableIncomeBand;
   _LppAffiliation? _lppAffiliation;
   _ContributionStatus? _contributionStatus;
   bool _contributionEdgeHelpExpanded = false;
@@ -199,6 +254,18 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     WidgetsBinding.instance.addObserver(this);
     _batch16LastActivity = widget.now();
     _armBatch16Ttl();
+    // R3 harness: land directly on the requested éclairage node with its facts
+    // preset (the R3 forward controls never route, so the journey cannot walk
+    // into these nodes — the harness places the runtime under test).
+    final batch21 = widget.batch21;
+    if (batch21 != null) {
+      _taxYear = widget.currentYear;
+      _taxableIncomeBand = batch21.band;
+      _node = switch (batch21.startNode) {
+        Batch21Start.factRevenu => _DesignNode.factRevenu,
+        Batch21Start.eclairage => _DesignNode.eclairageImpot3a,
+      };
+    }
   }
 
   void _armBatch16Ttl() {
@@ -326,6 +393,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       'contribution_status_correction',
     _DesignNode.factCanton => 'fact_canton',
     _DesignNode.factLieu => 'fact_lieu',
+    _DesignNode.factRevenu => 'fact_revenu',
+    _DesignNode.eclairageImpot3a => 'eclairage_impot_3a',
     _DesignNode.educationExplanation => 'education_explanation',
     _DesignNode.dismissed => 'dismissed',
   };
@@ -532,6 +601,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
         // to the amount step for a positive contribution, otherwise to the
         // contribution boundary.
         _backFromCanton();
+      case _DesignNode.factRevenu:
+        _go(_DesignNode.factLieu);
+      case _DesignNode.eclairageImpot3a:
+        _go(_DesignNode.factRevenu);
       case _DesignNode.educationExplanation:
         _backFromEducation();
       case _DesignNode.dismissed:
@@ -851,6 +924,36 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                           ),
                           _DesignNode.factLieu => FactLieuScreen(
                             taxYear: _taxYear!,
+                          ),
+                          // R3 batch21 — the ÉCLAIRAGE arc. fact_revenu commits a
+                          // band without routing (continue never routes in R3);
+                          // eclairage renders the payoff state from the committed
+                          // facts. Forward controls never route (next_action is
+                          // out of R3 scope); edit/back reopen within the arc.
+                          _DesignNode.factRevenu => FactRevenuScreen(
+                            taxYear: _taxYear!,
+                            selectedBand: _taxableIncomeBand,
+                            onSelectBand: (band) =>
+                                setState(() => _taxableIncomeBand = band),
+                            onBack: () => _go(_DesignNode.factLieu),
+                          ),
+                          _DesignNode.eclairageImpot3a => EclairageScreen(
+                            taxYear: _taxYear!,
+                            band: _taxableIncomeBand,
+                            communeLabel: r3ExampleCommune,
+                            cantonLabel: r3ExampleCanton,
+                            canContribute3a:
+                                widget.batch21?.canContribute ?? true,
+                            initialSituation: widget.batch21?.situation ??
+                                EclairageSituation.celibataire,
+                            initialExactIncome: widget.batch21?.exactIncome,
+                            onBack: () => _go(_DesignNode.factRevenu),
+                            // continue -> next_action never routes in R3.
+                            onContinue: () {},
+                            onEditRevenu: () => _go(_DesignNode.factRevenu),
+                            onEditLieu: () => _go(_DesignNode.factLieu),
+                            onPendingComplete: () =>
+                                _go(_DesignNode.factRevenu),
                           ),
                           _DesignNode.educationExplanation =>
                             _EducationBoundary(onBack: _backFromEducation),
