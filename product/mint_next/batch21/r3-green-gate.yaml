@@ -1,0 +1,103 @@
+current_verdict: PENDING_INDEPENDENT_ROASTS
+green_gate:
+  active_gate_upon_promotion: green_replay_14_14
+  ci_enforcement:
+    accepted_attested_by: dispatched_full_green_replay_run_expected_green
+    attestation_command: python3 -I tools/checks/mint_next_batch21_r3_green_gate_guard.py
+      --release
+    pending: contract_only
+    retires: red_replay_2_12
+  command:
+  - flutter
+  - test
+  - test/design_lab_batch21_r3_test.dart
+  - --machine
+  - --no-pub
+  expected_exit_code: 0
+  expected_summary:
+    failed: 0
+    load_or_harness_errors: 0
+    passed: 14
+  obligation_test_names:
+  - R3_01 the shared entry path reaches the fact_lieu boundary before the R3 fact_revenu
+    runtime
+  - R3_02 fact_revenu shows six taxable income band cards none preselected and no
+    wheel or keyboard
+  - R3_03 fact_revenu arrival focuses the heading not a raised keyboard and the question
+    carries the meaning without a body
+  - R3_04 selecting a taxable income band announces the selection summary and marks
+    the band
+  - R3_05 the revenu imposable glossary sheet opens focus trapped and restores to
+    the anchor
+  - R3_06 fact_revenu error no selection is announced and continue never routes in
+    r3
+  - R3_07 eclairage nominal shows the mechanism a low to high range four hypotheses
+    and the disclaimer never a single number
+  - R3_08 eclairage revenu and lieu are editable hypotheses with a refine affordance
+    and versement and situation are display only
+  - R3_09 eclairage precision refined tightens the range but never collapses it to
+    a single number
+  - R3_10 eclairage pending missing income shows no number and eclairage low income
+    floor shows the honest note
+  - R3_11 eclairage non_applicable source shows no chf amount under the binary gate
+  - R3_12 the deduction glossary sheet opens focus trapped and restored
+  - R3_13 compact 320x700 text scale two shows the eclairage mechanism range and disclaimer
+    without overflow
+  - R3_14 registry keeps R3 after R2 before R4 and excludes later evidence
+  retires: red_replay_2_12
+  test_file: product/mint_next/batch7/design_lab/test/design_lab_batch21_r3_test.dart
+  test_sha256: 41f4bbfca4aabfe95bb8261ae5296a0051b870f70bd992a2cc9c47feaf59df99
+  working_directory: product/mint_next/batch7/design_lab
+mechanical_binding:
+  candidate_payload_sha256: fbb9ebfcca3244d7fcf51adb22a977e2f9fd08a6816c6f83494ae9f4c8398bcb
+  green_lib_inventory_sha256: null
+  reviewed_candidate_commit: null
+  reviewed_payload_sha256: null
+next_gate: seal_R3_green_lib_inventory_then_R4a_safe_exit
+not_accepted:
+- runtime_accepted
+- lib_inventory_sealed
+- product_route
+- production_ready
+product_promotion: forbidden
+re_pinned_immutables:
+  red_guard:
+    path: tools/checks/mint_next_batch21_r3_red_guard.py
+    sha256: 774cc9378f2b691f528d050ee6b3576de1c2a99aee2317fafc1550de8f030e94
+  registry:
+    path: product/mint_next/batch21/runtime-gates.yaml
+    sha256: 9ab1a173e52c058203bb1b30708832b6ac0f71bd4acefc6944a077908bfaf55b
+reviews:
+  journey_safety:
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
+  mechanical_adversary:
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
+  scope_integrity:
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
+runtime_regating:
+  lib_inventory_seal: sealed_at_acceptance_green_lib_inventory_sha256
+  regated_files:
+  - product/mint_next/batch7/design_lab/lib/fact_revenu.dart
+  - product/mint_next/batch7/design_lab/lib/eclairage_impot_3a.dart
+  - product/mint_next/batch7/design_lab/lib/r3_eclairage_catalog.g.dart
+  - product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  - product/mint_next/batch7/design_lab/lib/fact_lieu.dart
+  scope_owner: batch21-r3-runtime
+runtime_surface: hidden_design_lab_only
+schema_version: 1
+status: candidate_green_gate_unaccepted
+supersedes:
+  accepted_payload_sha256: c5f16c5ce0f91840847a6d87c076cb8145a300393a9ba1131dcfcdb1983003f4
+  accepted_receipt_commit: fe837316b
+  attestation_dispatched_at_ci_commit: 56797e1c2
+  red_acceptance_receipt: product/mint_next/batch21/r3-red-acceptance.json
+  red_commit: 343d6f323a59e2e8c14890785b82b51cb187cce5
