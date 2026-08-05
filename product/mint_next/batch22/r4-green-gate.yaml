@@ -1,0 +1,114 @@
+current_verdict: PENDING_INDEPENDENT_ROASTS
+green_gate:
+  active_gate_upon_promotion: green_replay_16_16
+  ci_enforcement:
+    accepted_attested_by: dispatched_full_green_replay_run_expected_green
+    attestation_command: python3 -I tools/checks/mint_next_batch22_r4_green_gate_guard.py
+      --release
+    pending: contract_only
+    retires: red_replay_2_14
+  command:
+  - flutter
+  - test
+  - test/design_lab_batch22_r4_test.dart
+  - --machine
+  - --no-pub
+  expected_exit_code: 0
+  expected_summary:
+    failed: 0
+    load_or_harness_errors: 0
+    passed: 16
+  obligation_test_names:
+  - R4_01 the wired arc reaches the delivered eclairage boundary before the R4 fermeture
+    runtime
+  - R4_02 scenarios_versement nominal shows the choose line at least two scenario
+    effect ranges and never a single bare number
+  - R4_03 scenarios_versement arrival focuses the choose line heading not a scenario
+    amount and carries the meaning without a body
+  - R4_04 scenarios_versement states the locked liquidity cost and the chef lieu commune
+    caveat and the estimate not advice disclaimer
+  - R4_05 a scenario is a named announced region whose amount and effect are spoken
+    as one utterance
+  - R4_06 the plafond glossary sheet opens focus trapped and restores to the anchor
+  - R4_07 the own amount control is an optional named button pulled by value with
+    no preselected amount
+  - R4_08 compact 320x700 text scale two shows the choose line at least one scenario
+    the liquidity note and the disclaimer without overflow
+  - R4_09 fact_etat_civil shows three civil status cards none preselected and no wheel
+    or keyboard
+  - R4_10 fact_etat_civil arrival focuses the question and the 31 december determining
+    hint without a body sentence
+  - R4_11 selecting the concubinage card announces the selection summary and marks
+    it
+  - R4_12 the splitting glossary sheet opens focus trapped and restored
+  - R4_13 the concubinage glossary states separate taxation never the married splitting
+  - R4_14 fact_etat_civil error no selection is announced and continue never routes
+    in r4
+  - R4_15 compact 320x700 text scale two shows the question the three status cards
+    and continue without overflow
+  - R4_16 registry keeps R4 after R3 before runtime_global and excludes later evidence
+  retires: red_replay_2_14
+  test_file: product/mint_next/batch7/design_lab/test/design_lab_batch22_r4_test.dart
+  test_sha256: 27abb5ff0803af695c1ca2614cf0ae4d1492426325a56d7a136b9935f266a151
+  working_directory: product/mint_next/batch7/design_lab
+mechanical_binding:
+  candidate_payload_sha256: 1c7dcdae1d50cdaecee41b20e8e3df1fde7c2ffd1048eabc540e51133998644f
+  green_lib_inventory_sha256: null
+  reviewed_candidate_commit: null
+  reviewed_payload_sha256: null
+next_gate: seal_R4_green_lib_inventory_then_runtime_global
+not_accepted:
+- runtime_accepted
+- lib_inventory_sealed
+- product_route
+- production_ready
+path_owner_topology:
+  decision: candidate_for_life
+  flip_would_drift_the_green_payload: true
+  green_gate_path_owner: .planning/journeys/path-owners/batch22-r4-green-gate.json
+  journey_coverage: allow_list_not_owner_acceptance
+  payload_binds_owner_bytes: true
+  reason_not_born_accepted: an_accepted_journey_os_owner_requires_a_prior_candidate_unaccepted_commit_a_promoter_two_commit_review_act_and_this_seal_performs_no_flip
+product_promotion: forbidden
+re_pinned_immutables:
+  red_guard:
+    path: tools/checks/mint_next_batch22_r4_red_guard.py
+    sha256: c410712f32c168f5b380d681f2aff98205797e96cc2aa1e7a055832e05c5b003
+  registry:
+    path: product/mint_next/batch22/runtime-gates.yaml
+    sha256: befd12cc1b428e5caf8a83c24e3ab478a31369f8eef17bee9c078bf9a33fcd60
+reviews:
+  journey_safety:
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
+  mechanical_adversary:
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
+  scope_integrity:
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
+runtime_regating:
+  lib_inventory_seal: sealed_at_acceptance_green_lib_inventory_sha256
+  regated_files:
+  - product/mint_next/batch7/design_lab/lib/scenarios_versement.dart
+  - product/mint_next/batch7/design_lab/lib/fact_etat_civil.dart
+  - product/mint_next/batch7/design_lab/lib/r4_fermeture_catalog.g.dart
+  - product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  - product/mint_next/batch7/design_lab/lib/eclairage_impot_3a.dart
+  - product/mint_next/batch7/design_lab/lib/r3_eclairage_catalog.g.dart
+  scope_owner: batch22-r4-runtime
+runtime_surface: hidden_design_lab_only
+schema_version: 1
+status: candidate_green_gate_unaccepted
+supersedes:
+  accepted_payload_sha256: 03a65849bebfb9e0aaab81d321bbea556bfe89797b0eebee55ddcaab7b2c8f99
+  accepted_receipt_commit: 5b83b7e7b
+  attestation_run: https://github.com/MINT-IA/MINT/actions/runs/31036042475
+  red_acceptance_receipt: product/mint_next/batch22/r4-red-acceptance.json
+  red_commit: d4a31c62c1af0f49a20b61608c136322963a88e6
