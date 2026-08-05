@@ -5,9 +5,9 @@ authority:
   immutable_scopes:
     fact_revenu: product/mint_next/batch21/fact_revenu-scope.yaml
     eclairage: product/mint_next/batch21/eclairage-scope.yaml
-  immutable_scope_sha256:
-    fact_revenu: 7a7b02925833c1a7604513fb7f426aa137596dc0e65b7e3af37824b36ddd1681
-    eclairage: e8903173a5fb9572271a5fb3f0e9f9cfd5c56b790eb22567a683af5fe77ff3dc
+  immutable_scope_sha256:   # re-pinned by ANCHOR''' 2026-08-05 (delivered scopes: never_routes retired on the delivered edges, versement display_only)
+    fact_revenu: f244d28a7b5ebdcc3269a480a23015ee9700b992b111d390e5aeb1b4d892d3c1
+    eclairage: 0ac99e11ff42ac75d33e2a6197f21cbd97709c367d12d4014db4cd276ce9b3db
   immutable_copy: product/mint_next/batch21/r3-six-locale-copy.yaml
   immutable_copy_sha256: ae6d8c9d01b7cec2bd67a31ba7d2d20c2c20aa9528f631e1e5adad4d6b3c5bf6
   immutable_fixtures: product/mint_next/batch21/r3-engine-fixtures.yaml
@@ -117,7 +117,20 @@ deferred_integration:
   # obligations reachable by the navigation that EXISTS pre-runtime — the linear
   # journey. The R3 SCREENS land first (runtime), and this LINEAR contract flips green
   # at the INTEGRATION BATCH, not at the screen-flip.
-  status: declared_next_governance_unit_after_r3_runtime_lands
+  status: delivered   # ANCHOR''' 2026-08-05 — the éclairage integration wave landed (see amendment below)
+  delivered_2026_08_05:
+    # forward-only content amendment (ANCHOR'''): the linear journey is wired and the R3
+    # frozen-RED contract above stays the sealed record; the live delivered record is the
+    # batch21 R3 green-gate. R3_14 keeps reading this registry (expected_red / runtime_implemented
+    # strings intact) and passes in RED and after integration.
+    wired: fact_lieu_continue_to_fact_revenu_then_fact_revenu_continue_to_eclairage
+    batch20_r2_outbound_edge: superseded_by_pin_and_r2_14_re_gated
+    situation_toggle: removed_situation_is_display_only
+    versement: display_only_amount_choice_deferred_to_r4_scenarios_versement   # lead ruling 1a
+    revenu_refine: recompute_by_band_mapping_only_the_sealed_85000_point_tightens   # lead ruling 1b
+    eclairage_continue: boundary_kept_future_target_r4_scenarios_versement   # lead decision 2
+    a11y: real_keyboard_switch_activation_on_r3_controls
+    green_record: product/mint_next/batch21/r3-green-gate.yaml
   green_flips_here_not_at_screen_flip: true
   scope:
   - wire_journey_fact_lieu_continue_to_fact_revenu_then_fact_revenu_continue_to_eclairage_then_next_action

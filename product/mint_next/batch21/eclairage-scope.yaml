@@ -1,5 +1,20 @@
 schema_version: 1
-status: sealed_expected_red_contract_runtime_not_implemented   # R3 batch21 — contrat SCELLÉ, runtime pas encore implémenté
+status: delivered_at_integration_runtime_implemented_hidden_only   # ANCHOR''' 2026-08-05 — R3 runtime wired into the journey (was: sealed_expected_red_contract_runtime_not_implemented)
+amendment_anchor_iii:
+  date: 2026-08-05
+  supersedes_status: sealed_expected_red_contract_runtime_not_implemented
+  what_changed: >-
+    Forward-only content amendment at the éclairage integration.
+    DELIVERED edges (never_routes_in_r3 superseded): eclairage.edit_revenu -> fact_revenu
+    and eclairage.edit_lieu -> fact_lieu now route within the arc.
+    BOUNDARY kept (lead decision 2): eclairage.continue -> next_action stays a boundary
+    in R3 (no result/next_action node in design_lab); future target = R4 scenarios_versement.
+    NEUTRALIZED (lead ruling 1a): the versement hypothesis is display_only — the LPP plafond
+    (7258) is shown, the amount CHOICE is the R4 scenarios_versement screen's job; a cosmetic
+    inline edit is forbidden (#1061). REVENU refine (lead ruling 1b): offline realization is
+    recompute BY BAND MAPPING — an entered exact income maps to ITS band -> that band's
+    fixture range; only the sealed exact point (85000 -> b70_100) tightens (2100 à 2300), never
+    a point. Runtime hidden design-lab only. See registry deferred_integration.status: delivered.
 journey_id: swiss_3a_question_to_next_action
 audience: beginner_low_financial_and_numeracy_literacy
 # R3 = arc ÉCLAIRAGE. eclairage_impot_3a est LE PAYOFF : le premier moment où l'app REND quelque
@@ -336,7 +351,7 @@ render_contract:
       # prouve) ; le batch d'intégration DOIT inclure un commit runtime retirant ce toggle, et sa spec
       # green doit asserter situation display_only.
       - {id: revenu,    copy: eclairage_hyp_revenu,    edit_to: fact_revenu,        editable: true}
-      - {id: versement, copy: eclairage_hyp_versement, edit: inline_amount_sheet,   editable: true, default: plafond_3a_avec_lpp_pinned_swiss_constant}
+      - {id: versement, copy: eclairage_hyp_versement, editable: false, display_only: true, amount_choice_deferred_to_r4_scenarios_versement: true, default: plafond_3a_avec_lpp_pinned_swiss_constant}   # NEUTRALIZED (ANCHOR''' lead ruling 1a) : shows the LPP plafond, the amount choice is the R4 scenarios_versement screen's job
       - {id: situation, copy: eclairage_hyp_situation, editable: false, display_only: true, refine_deferred_to_etat_civil_batch: true, default: celibataire}
       - {id: lieu,      copy: eclairage_hyp_lieu,      edit_to: fact_lieu,          editable: true}
     stated_assumptions_line:   # params NON éditables (calibration figée) — montrés, jamais orphelins
@@ -351,8 +366,9 @@ render_contract:
       revenu:
         tap_opens: exact_taxable_income_sheet_optional
         on_exact: {upgrades_provenance: declared_bracket_to_declared_exact, replaces_in_place: true, range_tightens: true, never_collapses_to_point: true}
+        r3_offline_realization: recompute_by_band_mapping   # ANCHOR''' (lead ruling 1b) : an entered exact income maps to ITS band -> that band's fixture range ; only the sealed exact point 85000 (b70_100) tightens to 2100 à 2300, never a point ; a non-85k value never tightens
         copy: [eclairage_exact_revenu_title, eclairage_exact_revenu_placeholder, eclairage_exact_revenu_note, eclairage_exact_save]
-      versement: {tap_opens: exact_amount_sheet, on_exact: recompute_tighter_within_plafond}
+      versement: {display_only: true, amount_choice_deferred_to_r4_scenarios_versement: true}   # NEUTRALIZED (ANCHOR''' lead ruling 1a) : PAS de raffinage inline en R3 ; le choix du montant est l'écran R4 scenarios_versement (ses propres fixtures). Un édit cosmétique est interdit (#1061)
       situation: {display_only: true, refine_deferred_to_etat_civil_batch: true}   # amendement ANCHOR' : PAS de raffinage inline en R3 ; recompute moteur avec le batch état-civil (R4). concubinage->single gravé
       lieu: {tap_opens: fact_lieu, on_change: recompute}
     provenance_shown_per_row_when_refined: true   # une ligne raffinée montre sa valeur exacte + sa provenance
@@ -390,12 +406,12 @@ node_contracts:
       every_screen_and_widget_carries_a_coach_invocable_id: true
     controls:
       refine_revenu:  {overlay: exact_taxable_income_sheet, operation: optionally_set_exact_taxable_income_upgrade_provenance_replace_in_place_then_TIGHTEN_range_never_collapse, keeps_bracket_as_fallback: true}
-      edit_revenu:    {to: fact_revenu, operation: reopen_band_choice_then_recompute, never_routes_in_r3: true}
-      edit_lieu:      {to: fact_lieu,   operation: reopen_commune_choice_then_recompute, never_routes_in_r3: true}
-      edit_versement: {overlay: amount_sheet, operation: set_versement_within_plafond_then_recompute}
+      edit_revenu:    {to: fact_revenu, operation: reopen_band_choice_then_recompute, routes_at_integration: true}   # DELIVERED (ANCHOR''') : routes back to fact_revenu within the arc
+      edit_lieu:      {to: fact_lieu,   operation: reopen_commune_choice_then_recompute, routes_at_integration: true}   # DELIVERED (ANCHOR''') : routes back to fact_lieu within the arc
+      edit_versement: {status: display_only_in_r3, amount_choice_deferred_to_r4_scenarios_versement: true}   # NEUTRALIZED (ANCHOR''' lead ruling 1a) : no inline amount edit in R3
       toggle_situation: {status: deferred_to_etat_civil_batch_r4, display_only_in_r3: true}   # neutralisé (amendement ANCHOR' 2026-08-05) : pas de toggle inline en R3, sinon économie sciemment surestimée
       open_deduction_glossary: {operation: open_deduction_sheet_no_route}
-      continue: {to: next_action, activation: always_enabled, never_routes_in_r3: true}
+      continue: {to: next_action, activation: always_enabled, never_routes_in_r3: true, future_target_r4: scenarios_versement}   # BOUNDARY KEPT (ANCHOR''' lead decision 2) : no result/next_action node in design_lab in R3 ; the forward target lands at R4 (scenarios_versement)
       back: {operation: exact_history_back}
       open_safe_exit: {overlay: safe_exit}
     forbidden:

@@ -1,5 +1,13 @@
 schema_version: 1
-status: sealed_expected_red_contract_runtime_not_implemented   # R3 batch21 — contrat SCELLÉ, runtime pas encore implémenté
+status: delivered_at_integration_runtime_implemented_hidden_only   # ANCHOR''' 2026-08-05 — R3 runtime wired into the journey (was: sealed_expected_red_contract_runtime_not_implemented)
+amendment_anchor_iii:
+  date: 2026-08-05
+  supersedes_status: sealed_expected_red_contract_runtime_not_implemented
+  what_changed: >-
+    Forward-only content amendment at the éclairage integration. fact_revenu.continue
+    is DELIVERED: with a band selected it routes to eclairage_impot_3a (the R3
+    never_routes_in_r3 obligation on this edge is superseded — see registry
+    deferred_integration.status: delivered). Runtime hidden design-lab only.
 journey_id: swiss_3a_question_to_next_action
 audience: beginner_low_financial_and_numeracy_literacy
 # R3 = arc ÉCLAIRAGE. Ce nœud, fact_revenu, REFRAÎCHIT le nœud fact_income de batch6
@@ -189,7 +197,7 @@ node_contracts:
     controls:
       choose_band: {operation: atomically_commit_one_reviewed_band_without_routing}
       open_income_glossary: {operation: open_revenu_imposable_sheet_no_route_no_commit}
-      continue: {to: eclairage_impot_3a, route_guard: a_band_is_selected, activation: always_enabled_validation_dispatch, never_routes_in_r3: true}
+      continue: {to: eclairage_impot_3a, route_guard: a_band_is_selected, activation: always_enabled_validation_dispatch, routes_at_integration: true}   # DELIVERED (ANCHOR''') : with a band selected, routes to eclairage_impot_3a ; no band -> error_no_selection, stays
       back: {operation: exact_history_back}
       open_safe_exit: {overlay: safe_exit}
     same_band_reselect: idempotent_no_op_no_state_churn
