@@ -124,7 +124,7 @@ EXPECTED_TEST_NAMES = {
     "R2_11 a tappable glossary anchor opens an aerated definition sheet with a sentence and a metaphor and restores focus",
     "R2_12 entry is unset with no default recommended or derived commune and no unknown control",
     "R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton naming result reachable",
-    "R2_14 continue is guarded by a reviewed commune reselection is idempotent and continue never routes in r2",
+    "R2_14 continue is guarded by a reviewed commune and reselection is idempotent and continue routes to the r3 fact_revenu node at the eclairage integration",
     "R2_15 registry keeps R2 before R3 and excludes later evidence",
     "R2_16 the positive contribution branch also reaches the fused location runtime and back returns to the amount step",
 }

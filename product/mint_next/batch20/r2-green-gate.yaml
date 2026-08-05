@@ -48,8 +48,7 @@ green_gate:
     control
   - R2_13 compact 320x700 text scale two keyboard raised keeps continue and a canton
     naming result reachable
-  - R2_14 continue is guarded by a reviewed commune reselection is idempotent and
-    continue never routes in r2
+  - R2_14 continue is guarded by a reviewed commune and reselection is idempotent and continue routes to the r3 fact_revenu node at the eclairage integration
   - R2_15 registry keeps R2 before R3 and excludes later evidence
   - R2_16 the positive contribution branch also reaches the fused location runtime
     and back returns to the amount step
@@ -62,10 +61,10 @@ green_gate:
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch20_r2_red_guard.py
-    sha256: 93d9d10000347e9885407b825254bbc737d6272def16860d843502f4b82d3bfe
+    sha256: beb07b641afe9b4fbeb16c4dbf87b36767e0cb05b7334ddf6cc32bb4205eb36c
   registry:
     path: product/mint_next/batch20/runtime-gates.yaml
-    sha256: 015fb0aaa0f6df449d6d30a0bee86c4e88d9076451d095a8c1bddbed8a78638e
+    sha256: f3aaf3e11e1c9483c406ff390df681a1ec2368ae80226c881ed2545304aa2073
 runtime_regating:
   scope_owner: batch20-r2-runtime
   regated_file: product/mint_next/batch7/design_lab/lib/design_lab_app.dart
@@ -89,7 +88,7 @@ reviews:
     p2: null
     p3: null
 mechanical_binding:
-  candidate_payload_sha256: 79c21fe14f8d1a83602d1ec1f439eb4ceb3bf9b42b1e653bfdcc5e71befe62a0
+  candidate_payload_sha256: 5eeacb6c66fada4799d82bee63d963c839515960ea4dc2d9b61f16d7cf14163b
   reviewed_payload_sha256: null
   reviewed_candidate_commit: null
   green_lib_inventory_sha256: null
