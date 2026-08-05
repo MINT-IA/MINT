@@ -316,6 +316,45 @@ class _FactRevenuScreenState extends State<FactRevenuScreen> {
   }
 }
 
+/// Wraps [child] so [onPressed] fires on pointer tap AND on real keyboard/switch
+/// activation (Enter/Space -> ActivateIntent) once the control is focused. This
+/// puts the control in the focus tree (a physical Tab/switch stop) on top of the
+/// enclosing Semantics button role, so keyboard and switch users can reach AND
+/// activate it — not only VoiceOver double-tap. Any [focusNode] the caller owns
+/// (for focus restoration) is preserved. On this screen every finder key sits on
+/// the enclosing Semantics, so no key needs to live on the tap target.
+class _Activable extends StatelessWidget {
+  const _Activable({
+    required this.onPressed,
+    required this.child,
+    this.focusNode,
+  });
+
+  final VoidCallback onPressed;
+  final Widget child;
+  final FocusNode? focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    return FocusableActionDetector(
+      focusNode: focusNode,
+      actions: <Type, Action<Intent>>{
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            onPressed();
+            return null;
+          },
+        ),
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: child,
+      ),
+    );
+  }
+}
+
 class _BandCard extends StatelessWidget {
   const _BandCard({
     required this.bandKey,
@@ -339,9 +378,8 @@ class _BandCard extends StatelessWidget {
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      child: _Activable(
+        onPressed: onPressed,
         child: Container(
           constraints: const BoxConstraints(minHeight: 56),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -489,25 +527,22 @@ class _GlossAnchor extends StatelessWidget {
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: Focus(
+      child: _Activable(
         focusNode: focusNode,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onPressed,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 44),
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: _forest,
-                decoration: TextDecoration.underline,
-                decorationColor: _forest,
-              ),
+        onPressed: onPressed,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44),
+          alignment: Alignment.centerLeft,
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Supreme',
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: _forest,
+              decoration: TextDecoration.underline,
+              decorationColor: _forest,
             ),
           ),
         ),
@@ -535,9 +570,8 @@ class _LinkAction extends StatelessWidget {
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      child: _Activable(
+        onPressed: onPressed,
         child: Container(
           constraints: const BoxConstraints(minHeight: 48),
           alignment: Alignment.centerLeft,
@@ -580,9 +614,8 @@ class _PrimaryButton extends StatelessWidget {
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      child: _Activable(
+        onPressed: onPressed,
         child: Container(
           width: double.infinity,
           constraints: const BoxConstraints(minHeight: 52),
@@ -627,9 +660,8 @@ class _TextButton extends StatelessWidget {
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      child: _Activable(
+        onPressed: onPressed,
         child: Container(
           width: double.infinity,
           constraints: const BoxConstraints(minHeight: 48),

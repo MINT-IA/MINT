@@ -279,24 +279,21 @@ class _EclairageScreenState extends State<EclairageScreen> {
       label: text,
       onTap: () => _openOverlay(_Overlay.gloss3a, restoreAnchorId: 'gloss_3a'),
       excludeSemantics: true,
-      child: Focus(
+      child: _Activable(
         focusNode: _anchor('gloss_3a'),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () =>
-              _openOverlay(_Overlay.gloss3a, restoreAnchorId: 'gloss_3a'),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 32),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              text,
-              style: const TextStyle(
-                fontFamily: 'Supreme',
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.3,
-                color: _moss,
-              ),
+        onPressed: () =>
+            _openOverlay(_Overlay.gloss3a, restoreAnchorId: 'gloss_3a'),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 32),
+          alignment: Alignment.centerLeft,
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontFamily: 'Supreme',
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.3,
+              color: _moss,
             ),
           ),
         ),
@@ -596,19 +593,16 @@ class _EclairageScreenState extends State<EclairageScreen> {
       onTap: () => _openOverlay(_Overlay.glossDeduction,
           restoreAnchorId: 'gloss_deduction'),
       excludeSemantics: true,
-      child: Focus(
+      child: _Activable(
         focusNode: _anchor('gloss_deduction'),
-        child: GestureDetector(
-          // The mechanism line IS the deduction glossary opener (control
-          // open_deduction_glossary, node_contracts.eclairage_impot_3a). The
-          // action key names the control explicitly for the integration
-          // journey; the enclosing `text:eclairage.mechanism` semantics stays.
-          key: const ValueKey('action:eclairage.open_deduction_glossary'),
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _openOverlay(_Overlay.glossDeduction,
-              restoreAnchorId: 'gloss_deduction'),
-          child: Text.rich(TextSpan(style: baseStyle, children: children)),
-        ),
+        // The mechanism line IS the deduction glossary opener (control
+        // open_deduction_glossary, node_contracts.eclairage_impot_3a). The
+        // action key names the control explicitly for the integration
+        // journey; the enclosing `text:eclairage.mechanism` semantics stays.
+        actionKey: const ValueKey('action:eclairage.open_deduction_glossary'),
+        onPressed: () => _openOverlay(_Overlay.glossDeduction,
+            restoreAnchorId: 'gloss_deduction'),
+        child: Text.rich(TextSpan(style: baseStyle, children: children)),
       ),
     );
   }
@@ -646,14 +640,11 @@ class _EclairageScreenState extends State<EclairageScreen> {
       onTap: () => _openOverlay(_Overlay.glossOrdinaire,
           restoreAnchorId: 'gloss_ordinaire'),
       excludeSemantics: true,
-      child: Focus(
+      child: _Activable(
         focusNode: _anchor('gloss_ordinaire'),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _openOverlay(_Overlay.glossOrdinaire,
-              restoreAnchorId: 'gloss_ordinaire'),
-          child: Text.rich(TextSpan(style: baseStyle, children: children)),
-        ),
+        onPressed: () => _openOverlay(_Overlay.glossOrdinaire,
+            restoreAnchorId: 'gloss_ordinaire'),
+        child: Text.rich(TextSpan(style: baseStyle, children: children)),
       ),
     );
   }
@@ -906,6 +897,47 @@ enum _Overlay {
   refineRevenu,
 }
 
+/// Wraps [child] so [onPressed] fires on pointer tap AND on real keyboard/switch
+/// activation (Enter/Space -> ActivateIntent) once the control is focused. Puts
+/// the control in the focus tree (a physical Tab/switch stop) on top of the
+/// enclosing Semantics button role. Any [focusNode] the caller owns (for focus
+/// restoration) is preserved, and any [actionKey] a finder needs stays on the
+/// tap target.
+class _Activable extends StatelessWidget {
+  const _Activable({
+    required this.onPressed,
+    required this.child,
+    this.focusNode,
+    this.actionKey,
+  });
+
+  final VoidCallback onPressed;
+  final Widget child;
+  final FocusNode? focusNode;
+  final Key? actionKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return FocusableActionDetector(
+      focusNode: focusNode,
+      actions: <Type, Action<Intent>>{
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            onPressed();
+            return null;
+          },
+        ),
+      },
+      child: GestureDetector(
+        key: actionKey,
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: child,
+      ),
+    );
+  }
+}
+
 class _HypRow extends StatelessWidget {
   const _HypRow({
     required this.rowKey,
@@ -1035,17 +1067,14 @@ class _HypRow extends StatelessWidget {
           ),
           child: displayOnly
               ? inner
-              : Focus(
+              : _Activable(
                   focusNode: focusNode,
-                  child: GestureDetector(
-                    // Explicit ValueKey<String>: an interactive row always
-                    // carries a non-null actionKey, and the finders match the
-                    // exact ValueKey<String> type.
-                    key: ValueKey<String>(actionKey!),
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onTap,
-                    child: inner,
-                  ),
+                  // Explicit ValueKey<String>: an interactive row always carries
+                  // a non-null actionKey, and the finders match the exact
+                  // ValueKey<String> type.
+                  actionKey: ValueKey<String>(actionKey!),
+                  onPressed: onTap!,
+                  child: inner,
                 ),
         ),
       ),
@@ -1348,15 +1377,17 @@ class _LinkAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final child = Semantics(
+    return Semantics(
       key: ValueKey(actionKey),
       button: true,
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      child: _Activable(
+        // The caller's focusNode (na_action restoration) lives on the _Activable
+        // so keyboard activation and focus restoration target the same node.
+        focusNode: focusNode,
+        onPressed: onPressed,
         child: Container(
           constraints: const BoxConstraints(minHeight: 48),
           alignment: Alignment.centerLeft,
@@ -1375,7 +1406,6 @@ class _LinkAction extends StatelessWidget {
         ),
       ),
     );
-    return focusNode == null ? child : Focus(focusNode: focusNode, child: child);
   }
 }
 
@@ -1400,9 +1430,8 @@ class _PrimaryButton extends StatelessWidget {
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      child: _Activable(
+        onPressed: onPressed,
         child: Container(
           width: double.infinity,
           constraints: const BoxConstraints(minHeight: 52),
@@ -1447,9 +1476,8 @@ class _TextButton extends StatelessWidget {
       label: label,
       onTap: onPressed,
       excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
+      child: _Activable(
+        onPressed: onPressed,
         child: Container(
           width: double.infinity,
           constraints: const BoxConstraints(minHeight: 48),

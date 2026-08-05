@@ -339,6 +339,22 @@ void main() {
   });
 
   testWidgets(
+      'the refine control is activable by physical keyboard (Enter), not only pointer/VoiceOver',
+      (tester) async {
+    await _pumpEclairage(tester);
+    expect(_key('sheet:eclairage.refine_revenu'), findsNothing);
+    // Focus the refine control (its FocusableActionDetector) WITHOUT a pointer
+    // tap and press Enter — the keyed GestureDetector is inside the _Activable.
+    Focus.of(tester.element(_key('action:eclairage.refine_revenu')))
+        .requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    // Enter activated it (ActivateIntent -> open the refine sheet), no tap.
+    expect(_key('sheet:eclairage.refine_revenu'), findsOneWidget);
+  });
+
+  testWidgets(
       'compact 320x700 text scale two keeps mechanism, range, >=2 hyps, disclaimer, no overflow',
       (tester) async {
     tester.view.physicalSize = const Size(320, 700);

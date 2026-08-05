@@ -161,6 +161,26 @@ void main() {
   });
 
   testWidgets(
+      'a band card is activable by physical keyboard (Space), not only pointer/VoiceOver',
+      (tester) async {
+    await _pumpFactRevenu(tester);
+    expect(_key('status:fact_revenu.selection_none'), findsOneWidget);
+    // Reach the control's focus node (the FocusableActionDetector inside the
+    // card) and focus it WITHOUT a pointer tap, then press Space.
+    final gesture = find.descendant(
+      of: _key('choice:fact_revenu.b70_100'),
+      matching: find.byType(GestureDetector),
+    );
+    Focus.of(tester.element(gesture)).requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.space);
+    await tester.pumpAndSettle();
+    // Space activated the band (ActivateIntent -> commit), no tap involved.
+    expect(_key('status:fact_revenu.selection'), findsOneWidget);
+    expect(_key('status:fact_revenu.selection_none'), findsNothing);
+  });
+
+  testWidgets(
       'compact 320x700 text scale two keeps question, continue and >=2 bands, no overflow clip',
       (tester) async {
     tester.view.physicalSize = const Size(320, 700);
