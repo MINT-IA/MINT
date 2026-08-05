@@ -295,6 +295,15 @@ ALLOW = {
     "product/mint_next/batch7/design_lab/lib/r4_etat_civil_catalog.g.dart",
     "product/mint_next/batch7/design_lab/test/dev_scenarios_versement_r4_test.dart",
     "product/mint_next/batch7/design_lab/test/dev_fact_etat_civil_r4_test.dart",
+    # Batch 22 R4 GREEN gate (2026-08-05): the delivered record of the fermeture
+    # integration (INBOUND edges wired, 16/16 reach). Its trust files are bound BY
+    # BYTES into the green payload and its path-owner (batch22-r4-green-gate) stays
+    # candidate-for-life (decision-b, graved in the manifest path_owner_topology) —
+    # so journey coverage comes from this ALLOW block, not owner acceptance (mirror
+    # of the batch21 green-gate ALLOW at r3-green-gate above). Hidden design-lab only.
+    "product/mint_next/batch22/r4-green-gate.yaml",
+    "tools/checks/mint_next_batch22_r4_green_gate_guard.py",
+    "tools/checks/tests/test_mint_next_batch22_r4_green_gate_guard.py",
     # Batch 13: write-only multi-provider navigation/state-machine contract
     # plus bounded legacy evidence. Runtime and product wiring remain forbidden.
     "product/mint_next/batch13/multi-provider-navigation-contract.yaml",
