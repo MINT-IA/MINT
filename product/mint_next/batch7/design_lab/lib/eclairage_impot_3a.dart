@@ -126,7 +126,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
   // Restores focus to the anchor/row that opened the active overlay.
   final Map<String, FocusNode> _anchorFocus = <String, FocusNode>{};
 
-  late EclairageSituation _situation;
   late int _versementChf;
   int? _exactIncome;
 
@@ -146,7 +145,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
   @override
   void initState() {
     super.initState();
-    _situation = widget.initialSituation;
     _versementChf = widget.initialVersementChf;
     _exactIncome = widget.initialExactIncome;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -211,12 +209,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
         if (!_isStale(generation)) _anchor(restore).requestFocus();
       });
     }
-  }
-
-  void _chooseSituation(EclairageSituation s, Object generation) {
-    if (_isStale(generation)) return;
-    setState(() => _situation = s);
-    _closeOverlay(generation);
   }
 
   void _saveVersement(int value, Object generation) {
@@ -471,14 +463,16 @@ class _EclairageScreenState extends State<EclairageScreen> {
                 ),
                 _HypRow(
                   rowKey: 'row:eclairage.hyp.situation',
-                  actionKey: 'action:eclairage.toggle_situation',
-                  focusNode: _anchor('toggle_situation'),
                   label: copy['eclairage_hyp_situation']!.split(' · ').first,
                   value: _situationLabel(copy),
-                  onTap: () => _openOverlay(
-                    _Overlay.situation,
-                    restoreAnchorId: 'toggle_situation',
-                  ),
+                  // DISPLAY-ONLY in R3 (ANCHOR''' amendment, LSFin ground): the
+                  // situation is a STATED assumption, never an inline toggle. A
+                  // « marié » toggle would surface a possibly-overstated splitting
+                  // economy the user does not own (×0.80 on a forfait chef-lieu
+                  // multiplier); the situation refine, with a clean engine
+                  // recompute, arrives at the état-civil batch (R4).
+                  // concubinage == célibataire (no ×0.80) stays graven.
+                  displayOnly: true,
                 ),
                 _HypRow(
                   rowKey: 'row:eclairage.hyp.lieu',
@@ -649,7 +643,8 @@ class _EclairageScreenState extends State<EclairageScreen> {
     );
   }
 
-  String _situationLabel(Map<String, String> copy) => switch (_situation) {
+  String _situationLabel(Map<String, String> copy) =>
+      switch (widget.initialSituation) {
         EclairageSituation.celibataire => copy['eclairage_situation_celibataire']!,
         EclairageSituation.marie => copy['eclairage_situation_marie']!,
         EclairageSituation.concubinage => copy['eclairage_situation_concubinage']!,
@@ -873,14 +868,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
           dismissLabel: copy['gloss_dismiss']!,
           onDismiss: () => _closeOverlay(generation),
         );
-      case _Overlay.situation:
-        return _SituationSheet(
-          headingFocus: _sheetHeadingFocus,
-          copy: copy,
-          selected: _situation,
-          onChoose: (s) => _chooseSituation(s, generation),
-          onDismiss: () => _closeOverlay(generation),
-        );
       case _Overlay.versement:
         return _VersementSheet(
           headingFocus: _sheetHeadingFocus,
@@ -909,7 +896,6 @@ enum _Overlay {
   gloss3a,
   glossDeduction,
   glossOrdinaire,
-  situation,
   versement,
   refineRevenu,
 }
@@ -917,33 +903,119 @@ enum _Overlay {
 class _HypRow extends StatelessWidget {
   const _HypRow({
     required this.rowKey,
-    required this.actionKey,
-    required this.focusNode,
     required this.label,
     required this.value,
-    required this.onTap,
+    this.actionKey,
+    this.focusNode,
+    this.onTap,
     this.badge,
     this.isLast = false,
+    this.displayOnly = false,
   });
 
   final String rowKey;
-  final String actionKey;
-  final FocusNode focusNode;
+  final String? actionKey;
+  final FocusNode? focusNode;
   final String label;
   final String value;
   final String? badge;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final bool isLast;
+
+  /// A DISPLAY-ONLY row is a stated assumption, not an editable control: no
+  /// button role, no tap target, no chevron affordance, no action key. Used by
+  /// the R3 situation row (display_only, refine deferred to the état-civil batch;
+  /// a false inline toggle would surface a possibly-overstated economy).
+  final bool displayOnly;
 
   @override
   Widget build(BuildContext context) {
+    final content = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // label · value (+ optional badge) as one wrapping rich text so a 320pt
+        // viewport at 2x text scale never overflows.
+        Expanded(
+          child: Text.rich(
+            TextSpan(
+              style: const TextStyle(
+                fontFamily: 'Supreme',
+                fontSize: 16,
+                height: 1.35,
+              ),
+              children: [
+                TextSpan(
+                  text: '$label  ·  ',
+                  style: const TextStyle(color: _moss),
+                ),
+                TextSpan(
+                  text: value,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: _ink,
+                  ),
+                ),
+                if (badge != null)
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _bandBorder,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          badge!,
+                          style: const TextStyle(
+                            fontFamily: 'Supreme',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: _forest,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (!displayOnly) ...[
+          const SizedBox(width: 10),
+          // Chevron affordance — U+203A (›), decorative.
+          const ExcludeSemantics(
+            child: Text(
+              '›',
+              style: TextStyle(
+                fontFamily: 'Supreme',
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: _moss,
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+    final inner = Container(
+      constraints: const BoxConstraints(minHeight: 56),
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      child: content,
+    );
     return Semantics(
       key: ValueKey(rowKey),
-      button: true,
-      // Announced editable: label + value + hint.
+      button: !displayOnly,
+      readOnly: displayOnly,
+      // Interactive rows are announced editable (label + value + hint); the
+      // display-only row is announced as a stated, read-only assumption.
       label: '$label : $value',
       hint: badge,
-      onTap: onTap,
+      onTap: displayOnly ? null : onTap,
       excludeSemantics: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
@@ -955,88 +1027,20 @@ class _HypRow extends StatelessWidget {
           decoration: const BoxDecoration(
             border: Border(top: BorderSide(color: _border)),
           ),
-          child: Focus(
-            focusNode: focusNode,
-            child: GestureDetector(
-              key: ValueKey(actionKey),
-              behavior: HitTestBehavior.opaque,
-              onTap: onTap,
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 56),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // label · value (+ optional badge) as one wrapping rich text
-                    // so a 320pt viewport at 2x text scale never overflows.
-                    Expanded(
-                      child: Text.rich(
-                        TextSpan(
-                          style: const TextStyle(
-                            fontFamily: 'Supreme',
-                            fontSize: 16,
-                            height: 1.35,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: '$label  ·  ',
-                              style: const TextStyle(color: _moss),
-                            ),
-                            TextSpan(
-                              text: value,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: _ink,
-                              ),
-                            ),
-                            if (badge != null)
-                              WidgetSpan(
-                                alignment: PlaceholderAlignment.middle,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: _bandBorder,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      badge!,
-                                      style: const TextStyle(
-                                        fontFamily: 'Supreme',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w700,
-                                        color: _forest,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    // Chevron affordance — U+203A (›), decorative.
-                    const ExcludeSemantics(
-                      child: Text(
-                        '›',
-                        style: TextStyle(
-                          fontFamily: 'Supreme',
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: _moss,
-                        ),
-                      ),
-                    ),
-                  ],
+          child: displayOnly
+              ? inner
+              : Focus(
+                  focusNode: focusNode,
+                  child: GestureDetector(
+                    // Explicit ValueKey<String>: an interactive row always
+                    // carries a non-null actionKey, and the finders match the
+                    // exact ValueKey<String> type.
+                    key: ValueKey<String>(actionKey!),
+                    behavior: HitTestBehavior.opaque,
+                    onTap: onTap,
+                    child: inner,
+                  ),
                 ),
-              ),
-            ),
-          ),
         ),
       ),
     );
@@ -1140,159 +1144,6 @@ class _GlossSheet extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SituationSheet extends StatelessWidget {
-  const _SituationSheet({
-    required this.headingFocus,
-    required this.copy,
-    required this.selected,
-    required this.onChoose,
-    required this.onDismiss,
-  });
-
-  final FocusNode headingFocus;
-  final Map<String, String> copy;
-  final EclairageSituation selected;
-  final ValueChanged<EclairageSituation> onChoose;
-  final VoidCallback onDismiss;
-
-  @override
-  Widget build(BuildContext context) {
-    final options = <(EclairageSituation, String, String)>[
-      (
-        EclairageSituation.celibataire,
-        'sheet:eclairage.situation.celibataire',
-        copy['eclairage_situation_celibataire']!,
-      ),
-      (
-        EclairageSituation.marie,
-        'sheet:eclairage.situation.marie',
-        copy['eclairage_situation_marie']!,
-      ),
-      (
-        EclairageSituation.concubinage,
-        'sheet:eclairage.situation.concubinage',
-        copy['eclairage_situation_concubinage']!,
-      ),
-    ];
-    return Positioned.fill(
-      key: const ValueKey('sheet:eclairage.situation'),
-      child: FocusScope(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const ModalBarrier(color: Color(0x66102217), dismissible: false),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Material(
-                color: _paper,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const _SheetHandle(),
-                        const SizedBox(height: 16),
-                        Focus(
-                          key: const ValueKey('sheet:eclairage.situation.heading'),
-                          focusNode: headingFocus,
-                          child: Semantics(
-                            header: true,
-                            child: Text(
-                              copy['eclairage_hyp_situation']!.split(' · ').first,
-                              style: const TextStyle(
-                                fontFamily: 'Gambarino',
-                                fontSize: 24,
-                                color: _forest,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        for (final (situation, key, label) in options)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: _ChoiceRow(
-                              choiceKey: key,
-                              label: label,
-                              selected: situation == selected,
-                              onTap: () => onChoose(situation),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ChoiceRow extends StatelessWidget {
-  const _ChoiceRow({
-    required this.choiceKey,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String choiceKey;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      key: ValueKey(choiceKey),
-      button: true,
-      inMutuallyExclusiveGroup: true,
-      selected: selected,
-      label: label,
-      onTap: onTap,
-      excludeSemantics: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 52),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: selected ? _forest : _porcelain,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: selected ? _forest : _bandBorder),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: 'Supreme',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: selected ? _paper : _ink,
-                  ),
-                ),
-              ),
-              if (selected)
-                const Icon(Icons.check_rounded, size: 20, color: _paper),
-            ],
-          ),
         ),
       ),
     );

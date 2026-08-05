@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_next_design_lab/design_lab_app.dart';
+import 'package:mint_next_design_lab/eclairage_impot_3a.dart';
 import 'package:mint_next_design_lab/r3_eclairage_catalog.g.dart';
 
 Finder _key(String v) => find.byKey(ValueKey<String>(v));
@@ -242,30 +243,49 @@ void main() {
     expect(_rangeText(tester).contains(' à '), isTrue);
   });
 
-  testWidgets('hypothesis rows are named editable buttons; situation offers three',
+  testWidgets(
+      'hypothesis rows: revenu/versement/lieu are editable controls, situation is display-only',
       (tester) async {
     await _pumpEclairage(tester);
-    // Rows are buttons announced editable.
+    // All four hypothesis rows are shown.
     for (final id in ['revenu', 'versement', 'situation', 'lieu']) {
       expect(_key('row:eclairage.hyp.$id'), findsOneWidget);
     }
-    await _tap(tester, 'action:eclairage.toggle_situation');
-    expect(_key('sheet:eclairage.situation'), findsOneWidget);
-    expect(_key('sheet:eclairage.situation.celibataire'), findsOneWidget);
-    expect(_key('sheet:eclairage.situation.marie'), findsOneWidget);
-    expect(_key('sheet:eclairage.situation.concubinage'), findsOneWidget);
+    // The three editable rows carry a refine/edit control.
+    expect(_key('action:eclairage.refine_revenu'), findsOneWidget);
+    expect(_key('action:eclairage.edit_versement'), findsOneWidget);
+    expect(_key('action:eclairage.edit_lieu'), findsOneWidget);
+    // Situation is DISPLAY-ONLY (ANCHOR''' amendment): no inline toggle, no
+    // situation sheet — a false « marié » control would overstate the economy.
+    // The refine of situation is deferred to the état-civil batch (R4).
+    expect(_key('action:eclairage.toggle_situation'), findsNothing);
+    expect(_key('sheet:eclairage.situation'), findsNothing);
+    // Its stated value is still shown (célibataire by default).
+    expect(find.textContaining('élibataire'), findsWidgets);
   });
 
   testWidgets(
-      'ruling: concubinage keeps the SAME range as célibataire (no married x0.80)',
+      'ruling: concubinage renders the SAME range as célibataire (no married x0.80)',
       (tester) async {
+    // Célibataire (default) grounded range.
     await _pumpEclairage(tester);
-    final before = _rangeText(tester);
-    expect(before, '1 800 à 2 200 CHF');
-    await _tap(tester, 'action:eclairage.toggle_situation');
-    await _tap(tester, 'sheet:eclairage.situation.concubinage');
-    // Concubinage is the single treatment: the grounded range is unchanged.
-    expect(_rangeText(tester), before);
+    expect(_rangeText(tester), '1 800 à 2 200 CHF');
+    // Concubinage is preset via the harness — situation is DISPLAY-ONLY in R3, so
+    // there is no inline toggle. It is the SINGLE treatment (is_married=false, no
+    // ×0.80), so the grounded range is byte-identical to célibataire.
+    await tester.pumpWidget(
+      MintNextDesignLabApp.batch21Harness(
+        locale: const Locale('fr'),
+        currentYear: 2026,
+        batch21: const Batch21Config(
+          startNode: Batch21Start.eclairage,
+          band: 'b70_100',
+          situation: EclairageSituation.concubinage,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(_rangeText(tester), '1 800 à 2 200 CHF');
     expect(find.textContaining('En couple, non marié'), findsWidgets);
   });
 
