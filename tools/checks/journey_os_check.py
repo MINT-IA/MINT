@@ -174,6 +174,10 @@ ALLOW = {
     "lefthook.yml",
     ".github/workflows/ai-workflow-guards.yml",
     ".planning/decisions/2026-07-24-campagne-contenu-officiel-garanti.md",
+    # ADR Atlas des écrans + mémos d'état de l'art (2026-08-05)
+    ".planning/decisions/2026-08-05-atlas-ecrans-construit-pas-adopte.md",
+    ".planning/audit/2026-08-05-atlas-ecosysteme-flutter.md",
+    ".planning/audit/2026-08-05-atlas-etat-de-lart-hors-flutter.md",
     # -b6k : littéral lppReturn -> reg() avec fallback
     "apps/mobile/test/screens/arbitrage/rvc_lpp_return_registry_test.dart",
     "tools/checks/ci_gate_aggregation_check.py",
