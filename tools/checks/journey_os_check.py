@@ -250,6 +250,21 @@ ALLOW = {
     # Shared accumulating MINT-Next proofs workflow (same treatment as every
     # other mint-next-batchN workflow above).
     ".github/workflows/mint-next-proofs.yml",
+    # Batch 21 R3 ÉCLAIRAGE INTEGRATION (ANCHOR''' 2026-08-05): the runtime is
+    # wired into the linear journey (fact_lieu -> fact_revenu -> eclairage). The
+    # two scopes are re-sealed to the delivered contract (never_routes retired on
+    # the delivered edges, versement display_only); the R3 runtime screens are
+    # re-gated; the green-gate machinery is the live delivered record. Hidden
+    # design-lab only; product route stays forbidden.
+    "product/mint_next/batch21/fact_revenu-scope.yaml",
+    "product/mint_next/batch21/eclairage-scope.yaml",
+    "product/mint_next/batch7/design_lab/lib/fact_revenu.dart",
+    "product/mint_next/batch7/design_lab/lib/eclairage_impot_3a.dart",
+    "product/mint_next/batch7/design_lab/test/dev_fact_revenu_r3_test.dart",
+    "product/mint_next/batch7/design_lab/test/dev_eclairage_r3_test.dart",
+    "product/mint_next/batch21/r3-green-gate.yaml",
+    "tools/checks/mint_next_batch21_r3_green_gate_guard.py",
+    "tools/checks/tests/test_mint_next_batch21_r3_green_gate_guard.py",
     # Batch 13: write-only multi-provider navigation/state-machine contract
     # plus bounded legacy evidence. Runtime and product wiring remain forbidden.
     "product/mint_next/batch13/multi-provider-navigation-contract.yaml",
