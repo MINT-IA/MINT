@@ -260,6 +260,7 @@ ALLOW = {
     "product/mint_next/batch21/eclairage-scope.yaml",
     "product/mint_next/batch7/design_lab/lib/fact_revenu.dart",
     "product/mint_next/batch7/design_lab/lib/eclairage_impot_3a.dart",
+    "product/mint_next/batch7/design_lab/lib/r3_eclairage_catalog.g.dart",
     "product/mint_next/batch7/design_lab/test/dev_fact_revenu_r3_test.dart",
     "product/mint_next/batch7/design_lab/test/dev_eclairage_r3_test.dart",
     "product/mint_next/batch21/r3-green-gate.yaml",
