@@ -1,4 +1,4 @@
-current_verdict: PENDING_INDEPENDENT_ROASTS
+current_verdict: GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY
 green_gate:
   active_gate_upon_promotion: green_replay_14_14
   ci_enforcement:
@@ -50,13 +50,11 @@ green_gate:
   working_directory: product/mint_next/batch7/design_lab
 mechanical_binding:
   candidate_payload_sha256: 1edca03da16a96c81991e3dec39cb0ee71d37daf0d8bae152b01f9827ff0dbbb
-  green_lib_inventory_sha256: null
-  reviewed_candidate_commit: null
-  reviewed_payload_sha256: null
+  green_lib_inventory_sha256: 3c8d5a0ba0b40fbbe2b47b1677a88603b154f6d5c179992d80abc613310c39c0
+  reviewed_candidate_commit: ca531e8e7a914b7468f1f6cb2dbf4d6e61f68860
+  reviewed_payload_sha256: 1edca03da16a96c81991e3dec39cb0ee71d37daf0d8bae152b01f9827ff0dbbb
 next_gate: seal_R3_green_lib_inventory_then_R4a_safe_exit
 not_accepted:
-- runtime_accepted
-- lib_inventory_sealed
 - product_route
 - production_ready
 product_promotion: forbidden
@@ -69,20 +67,23 @@ re_pinned_immutables:
     sha256: 9ab1a173e52c058203bb1b30708832b6ac0f71bd4acefc6944a077908bfaf55b
 reviews:
   journey_safety:
-    p1: null
-    p2: null
-    p3: null
-    verdict: PENDING
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 1edca03da16a96c81991e3dec39cb0ee71d37daf0d8bae152b01f9827ff0dbbb
+    verdict: ACCEPT
   mechanical_adversary:
-    p1: null
-    p2: null
-    p3: null
-    verdict: PENDING
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 1edca03da16a96c81991e3dec39cb0ee71d37daf0d8bae152b01f9827ff0dbbb
+    verdict: ACCEPT
   scope_integrity:
-    p1: null
-    p2: null
-    p3: null
-    verdict: PENDING
+    p1: 0
+    p2: 0
+    p3: 0
+    reviewed_payload_sha256: 1edca03da16a96c81991e3dec39cb0ee71d37daf0d8bae152b01f9827ff0dbbb
+    verdict: ACCEPT
 runtime_regating:
   lib_inventory_seal: sealed_at_acceptance_green_lib_inventory_sha256
   regated_files:
@@ -94,7 +95,7 @@ runtime_regating:
   scope_owner: batch21-r3-runtime
 runtime_surface: hidden_design_lab_only
 schema_version: 1
-status: candidate_green_gate_unaccepted
+status: accepted_green_gate_runtime_implemented_hidden_only
 supersedes:
   accepted_payload_sha256: c5f16c5ce0f91840847a6d87c076cb8145a300393a9ba1131dcfcdb1983003f4
   accepted_receipt_commit: fe837316b
