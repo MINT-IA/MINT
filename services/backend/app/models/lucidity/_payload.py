@@ -47,7 +47,7 @@ disposition at schema level).
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, Any, Dict, List, Literal, Union
+from typing import Annotated, List, Literal, Union
 
 from pydantic import (
     BaseModel,
@@ -191,6 +191,42 @@ class L2ComparePayload(_LucidityBase):
 # ---------------------------------------------------------------------------
 
 
+class _CascadeEffect(_LucidityBase):
+    """A single downstream effect inside an `L3EclairePayload`.
+
+    Typed shape for the L3 cascade (the follow-up the L3 docstring anticipated).
+    Because an L2/L3 sensitivity must never be a nude single number (LSFin
+    ranking risk + the band never collapses when a genuine uncertainty exists),
+    the effect carries a LOW/HIGH band rather than one `delta_value` :
+
+      - `delta_bas` / `delta_haut` : low/high bounds of the effect on the
+        domain (CHF, same sign convention across the payload).
+      - `hypothese_fr` : the explicit assumption(s) that bound the band
+        (min_length=20 forces a real disclosure, never a nude qualifier).
+
+    Inherits `_LucidityBase` (`extra="forbid"` + `frozen=True`) : the ranking
+    field names (`recommended_option` & paraphrases) cannot exist here either.
+    The `delta_bas <= delta_haut` validator forbids an inverted band at type
+    level.
+    """
+
+    domain_fr: str = Field(..., min_length=1)
+    delta_bas: float
+    delta_haut: float
+    hypothese_fr: str = Field(..., min_length=20)
+    citation_key: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _enforce_band_order(self) -> "_CascadeEffect":
+        if self.delta_bas > self.delta_haut:
+            raise ValueError(
+                f"_CascadeEffect band inverted : delta_bas={self.delta_bas} > "
+                f"delta_haut={self.delta_haut}. A cascade band must satisfy "
+                f"delta_bas <= delta_haut."
+            )
+        return self
+
+
 class L3EclairePayload(_LucidityBase):
     """L3 « Éclairer l'arbitrage caché » : show downstream cascade effects.
 
@@ -202,16 +238,15 @@ class L3EclairePayload(_LucidityBase):
     ranking field. The narrator may not embed « tu devrais X » directly in
     `primary_choice_fr` — that's the D-CE-16(c) runtime gate's job.
 
-    `cascade_effects` is intentionally a list of dicts (open-shape) for
-    Wave-2 calculators to populate ; each dict typically carries
-    {`domain_fr: str`, `delta_value: float`, `narrative_fr: str`,
-    `citation_key: str`}. A typed `_CascadeEffect` may be introduced in a
-    follow-up plan once Wave 2 calculators agree on the shape.
+    `cascade_effects` is a list of typed `_CascadeEffect` (each with a
+    LOW/HIGH band + explicit assumption). Pydantic still coerces a list of
+    plain dicts to `_CascadeEffect` at `model_validate` time, so any
+    dict-shaped caller keeps working while gaining schema validation.
     """
 
     level: Literal[LucidityLevel.L3] = LucidityLevel.L3
     primary_choice_fr: str = Field(..., min_length=1)
-    cascade_effects: List[Dict[str, Any]]
+    cascade_effects: List[_CascadeEffect]
     horizon_years: int = Field(..., ge=1, le=99)
 
 
