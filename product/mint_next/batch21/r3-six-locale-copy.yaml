@@ -76,7 +76,7 @@ copy:
     eclairage_hyp_versement: "Versement 3a · {versement} CHF"
     eclairage_hyp_situation: "Situation · célibataire"
     eclairage_hyp_lieu: "Impôts · {commune} ({canton})"
-    eclairage_hyp_edit_hint: "Tu peux modifier chaque ligne."
+    eclairage_hyp_edit_hint: "Modifie les lignes marquées."
     # couverture des paramètres (directive coordinateur 2026-08-05) : les hypothèses NON éditables
     # de l'étalon, montrées honnêtement. « imposé ordinairement » est tappable (garde-fou source).
     eclairage_assumptions: "On suppose aussi : sans enfant, hors impôt d’Église, imposé ordinairement."
@@ -113,6 +113,10 @@ copy:
     eclairage_exact_revenu_placeholder: "p. ex. 85 000"
     eclairage_exact_revenu_note: "Pas besoin d’un chiffre exact. Si tu l’as, il resserre l’estimation."
     eclairage_exact_save: "Utiliser ce chiffre"
+    # tranche ouverte gt150 : bornée BAS (2776 arrondi plancher -> 2700), JAMAIS de borne haute inventée
+    eclairage_amount_open: "{low} CHF et plus"
+    # badge de l'état precision_refined : l'estimation part désormais du chiffre exact déclaré
+    provenance_exact: "Chiffre exact"
 
   # ---------------------------------------------------------------------
   # AUTRES LOCALES — VIDES, BALISÉES. Traduction sémantique humaine requise
@@ -152,7 +156,7 @@ copy:
     eclairage_hyp_versement: "3a contribution · {versement} CHF"
     eclairage_hyp_situation: "Situation · single"
     eclairage_hyp_lieu: "Tax · {commune} ({canton})"
-    eclairage_hyp_edit_hint: "You can change any line."
+    eclairage_hyp_edit_hint: "Change the marked lines."
     eclairage_assumptions: "We also assume: no children, church tax not counted, taxed at the ordinary rate."
     eclairage_disclaimer: "This is an estimate, not tax advice. The exact amount is on your tax assessment."
     eclairage_continue: "Continue"
@@ -182,6 +186,8 @@ copy:
     eclairage_exact_revenu_placeholder: "e.g. 85 000"
     eclairage_exact_revenu_note: "No need for an exact figure. If you have it, it narrows the estimate."
     eclairage_exact_save: "Use this figure"
+    eclairage_amount_open: "{low} CHF and more"
+    provenance_exact: "Exact figure"
   de:
     fact_revenu_eyebrow: "3a-Simulation · {taxYear}"
     fact_revenu_question: "Dein steuerbares Einkommen — ungefähr wie viel?"
@@ -214,7 +220,7 @@ copy:
     eclairage_hyp_versement: "3a-Beitrag · {versement} CHF"
     eclairage_hyp_situation: "Situation · ledig"
     eclairage_hyp_lieu: "Steuern · {commune} ({canton})"
-    eclairage_hyp_edit_hint: "Du kannst jede Zeile ändern."
+    eclairage_hyp_edit_hint: "Ändere die markierten Zeilen."
     eclairage_assumptions: "Wir nehmen ausserdem an: keine Kinder, ohne Kirchensteuer, ordentlich besteuert."
     eclairage_disclaimer: "Das ist eine Schätzung, keine Steuerberatung. Der genaue Betrag steht auf deiner Veranlagung."
     eclairage_continue: "Weiter"
@@ -244,6 +250,8 @@ copy:
     eclairage_exact_revenu_placeholder: "z. B. 85 000"
     eclairage_exact_revenu_note: "Eine genaue Zahl ist nicht nötig. Wenn du sie hast, verengt sie die Schätzung."
     eclairage_exact_save: "Diese Zahl verwenden"
+    eclairage_amount_open: "{low} CHF und mehr"
+    provenance_exact: "Genaue Zahl"
   it:
     fact_revenu_eyebrow: "Simulazione 3a · {taxYear}"
     fact_revenu_question: "Il tuo reddito imponibile, più o meno quanto?"
@@ -276,7 +284,7 @@ copy:
     eclairage_hyp_versement: "Versamento 3a · {versement} CHF"
     eclairage_hyp_situation: "Situazione · celibe/nubile"
     eclairage_hyp_lieu: "Imposte · {commune} ({canton})"
-    eclairage_hyp_edit_hint: "Puoi modificare ogni riga."
+    eclairage_hyp_edit_hint: "Modifica le righe contrassegnate."
     eclairage_assumptions: "Supponiamo anche: senza figli, senza imposta di culto, tassazione ordinaria."
     eclairage_disclaimer: "È una stima, non una consulenza fiscale. L’importo esatto è sulla tua tassazione."
     eclairage_continue: "Continua"
@@ -306,6 +314,8 @@ copy:
     eclairage_exact_revenu_placeholder: "es. 85 000"
     eclairage_exact_revenu_note: "Non serve una cifra esatta. Se ce l’hai, restringe la stima."
     eclairage_exact_save: "Usare questa cifra"
+    eclairage_amount_open: "{low} CHF e più"
+    provenance_exact: "Cifra esatta"
   es:
     fact_revenu_eyebrow: "Simulación 3a · {taxYear}"
     fact_revenu_question: "Tu ingreso imponible, ¿más o menos cuánto?"
@@ -338,7 +348,7 @@ copy:
     eclairage_hyp_versement: "Aportación 3a · {versement} CHF"
     eclairage_hyp_situation: "Situación · soltero/a"
     eclairage_hyp_lieu: "Impuestos · {commune} ({canton})"
-    eclairage_hyp_edit_hint: "Puedes modificar cada línea."
+    eclairage_hyp_edit_hint: "Modifica las líneas marcadas."
     eclairage_assumptions: "También suponemos: sin hijos, sin impuesto eclesiástico, tributación ordinaria."
     eclairage_disclaimer: "Es una estimación, no un asesoramiento fiscal. El importe exacto está en tu liquidación."
     eclairage_continue: "Continuar"
@@ -368,6 +378,8 @@ copy:
     eclairage_exact_revenu_placeholder: "p. ej. 85 000"
     eclairage_exact_revenu_note: "No hace falta una cifra exacta. Si la tienes, estrecha la estimación."
     eclairage_exact_save: "Usar esta cifra"
+    eclairage_amount_open: "{low} CHF y más"
+    provenance_exact: "Cifra exacta"
   pt:
     fact_revenu_eyebrow: "Simulação 3a · {taxYear}"
     fact_revenu_question: "O teu rendimento tributável, mais ou menos quanto?"
@@ -400,7 +412,7 @@ copy:
     eclairage_hyp_versement: "Depósito 3a · {versement} CHF"
     eclairage_hyp_situation: "Situação · solteiro/a"
     eclairage_hyp_lieu: "Impostos · {commune} ({canton})"
-    eclairage_hyp_edit_hint: "Podes alterar cada linha."
+    eclairage_hyp_edit_hint: "Altera as linhas marcadas."
     eclairage_assumptions: "Supomos também: sem filhos, sem imposto eclesiástico, tributado normalmente."
     eclairage_disclaimer: "É uma estimativa, não um aconselhamento fiscal. O montante exato está na tua tributação."
     eclairage_continue: "Continuar"
@@ -430,6 +442,8 @@ copy:
     eclairage_exact_revenu_placeholder: "p. ex. 85 000"
     eclairage_exact_revenu_note: "Não precisas de um número exato. Se o tens, estreita a estimativa."
     eclairage_exact_save: "Usar este número"
+    eclairage_amount_open: "{low} CHF e mais"
+    provenance_exact: "Número exato"
 
 semantic_receipt:
   required_keys_fact_revenu:
@@ -495,6 +509,10 @@ semantic_receipt:
     - eclairage_exact_revenu_placeholder
     - eclairage_exact_revenu_note
     - eclairage_exact_save
+    - eclairage_amount_open      # tranche ouverte gt150 : bornée bas ({low}), jamais de borne haute inventée
+    - provenance_exact           # badge état precision_refined : « part de ton chiffre exact »
+  # gloss_dismiss (« Compris » — fermeture des feuilles glossaire) : RÉUTILISE la clé batch20 déjà
+  # acceptée (product/mint_next/batch20/six-locale-copy.yaml), référence croisée — PAS de doublon ici.
   forbidden_fallback_locale: true
   identical_full_locale_payloads: forbidden
   placeholder_parity_required: true

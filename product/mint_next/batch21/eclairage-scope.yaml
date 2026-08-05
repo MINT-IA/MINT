@@ -41,7 +41,7 @@ number_derivation:
   fourchette_construction:
     low: estimate_tax_saving_at_the_selected_band_LOWER_edge
     high: estimate_tax_saving_at_the_selected_band_UPPER_edge
-    rounding: inward_or_to_nearest_100_never_inflated
+    rounding: floor_to_100_both_bounds_never_collapse   # amendement ANCHOR' 2026-08-05 : les DEUX bornes arrondies au plancher CHF 100 ; jamais gonflé, jamais effondré en un point (b50_70 1794->1831 rend « 1 700 à 1 800 » ; b70_100 reproduit la maquette)
     central_estimate_locality: canton_chef_lieu   # voir communal_multiplier_gap
   regression_fixed_reference: commit_c62d70682_#1061_imperatif_et_surestimation_25_a_77_pct_supprimés
   # LACUNE À REMONTER — ne pas contourner en silence :
@@ -307,6 +307,9 @@ render_contract:
       shows: [pending_title, pending_revenu, complete_action]
       shows_no_number: true
     non_applicable_source:
+      # CHOIX DÉLIBÉRÉ (amendement ANCHOR' 2026-08-05) : PAS de clé disclaimer d'estimation ici.
+      # Aucun chiffre n'est montré (shows_no_number) ; un « estimation, pas un conseil » sans estimation
+      # serait du texte mort. C'est « vérifie ta situation » (na_body/na_action) qui porte l'action.
       precondition: not_canContribute3a   # imposition à la source non quasi-résident OU gate FATCA
       shows: [na_title, na_body, na_action_opens_ordinaire_glossary]
       shows_no_number: true   # JAMAIS un CHF X sous un gate faux (fault_3)
@@ -321,10 +324,20 @@ render_contract:
         gonflé par interpolation dans le genou post-seuil (limite dite, cantonal_comparator.py:113-117).
   hypotheses_block:
     label_key: eclairage_hyp_label
-    rows:   # les 4 hypothèses ÉDITABLES (params réellement consommés par l'étalon)
+    rows:   # 4 hypothèses MONTRÉES ; 3 ÉDITABLES (revenu/versement/lieu) + situation DISPLAY_ONLY en R3
+      # AMENDEMENT ANCHOR' 2026-08-05 (arbitrage coordinateur) : la ligne situation est AFFICHÉE mais
+      # NON raffinable en R3. FONDEMENT = LSFin, PAS une incapacité de recompute : offrir un toggle
+      # « marié » montrerait une économie « marié » possiblement SURESTIMÉE (splitting ×0.80 appliqué à
+      # partir d'un multiplicateur FORFAITAIRE de l'étalon chef-lieu) à un profil célibataire — surface
+      # d'une hypothèse plus rose non détenue par l'utilisateur. Le raffinage situation (avec recompute
+      # moteur propre) arrive au batch état-civil. concubinage==célibataire (pas de ×0.80) reste gravé.
+      # RIDER INTÉGRATION (voir registry.deferred_integration — à ne PAS découvrir au green) : le runtime
+      # mint-mobile a implémenté situation comme toggle inline ÉDITABLE + feuille (dev_eclairage_r3_test le
+      # prouve) ; le batch d'intégration DOIT inclure un commit runtime retirant ce toggle, et sa spec
+      # green doit asserter situation display_only.
       - {id: revenu,    copy: eclairage_hyp_revenu,    edit_to: fact_revenu,        editable: true}
       - {id: versement, copy: eclairage_hyp_versement, edit: inline_amount_sheet,   editable: true, default: plafond_3a_avec_lpp_pinned_swiss_constant}
-      - {id: situation, copy: eclairage_hyp_situation, edit: inline_toggle_celibataire_marie, editable: true, default: celibataire}
+      - {id: situation, copy: eclairage_hyp_situation, editable: false, display_only: true, refine_deferred_to_etat_civil_batch: true, default: celibataire}
       - {id: lieu,      copy: eclairage_hyp_lieu,      edit_to: fact_lieu,          editable: true}
     stated_assumptions_line:   # params NON éditables (calibration figée) — montrés, jamais orphelins
       copy: eclairage_assumptions
@@ -340,7 +353,7 @@ render_contract:
         on_exact: {upgrades_provenance: declared_bracket_to_declared_exact, replaces_in_place: true, range_tightens: true, never_collapses_to_point: true}
         copy: [eclairage_exact_revenu_title, eclairage_exact_revenu_placeholder, eclairage_exact_revenu_note, eclairage_exact_save]
       versement: {tap_opens: exact_amount_sheet, on_exact: recompute_tighter_within_plafond}
-      situation: {tap_opens: situation_sheet, on_change: recompute}   # célibataire/marié/concubinage (concubinage->single)
+      situation: {display_only: true, refine_deferred_to_etat_civil_batch: true}   # amendement ANCHOR' : PAS de raffinage inline en R3 ; recompute moteur avec le batch état-civil (R4). concubinage->single gravé
       lieu: {tap_opens: fact_lieu, on_change: recompute}
     provenance_shown_per_row_when_refined: true   # une ligne raffinée montre sa valeur exacte + sa provenance
   versement_default_note: >-
@@ -380,7 +393,7 @@ node_contracts:
       edit_revenu:    {to: fact_revenu, operation: reopen_band_choice_then_recompute, never_routes_in_r3: true}
       edit_lieu:      {to: fact_lieu,   operation: reopen_commune_choice_then_recompute, never_routes_in_r3: true}
       edit_versement: {overlay: amount_sheet, operation: set_versement_within_plafond_then_recompute}
-      toggle_situation: {overlay: situation_sheet, operation: switch_celibataire_marie_or_concubinage_concubinage_is_single_no_x080_then_recompute}
+      toggle_situation: {status: deferred_to_etat_civil_batch_r4, display_only_in_r3: true}   # neutralisé (amendement ANCHOR' 2026-08-05) : pas de toggle inline en R3, sinon économie sciemment surestimée
       open_deduction_glossary: {operation: open_deduction_sheet_no_route}
       continue: {to: next_action, activation: always_enabled, never_routes_in_r3: true}
       back: {operation: exact_history_back}
