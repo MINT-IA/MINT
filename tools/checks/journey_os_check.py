@@ -239,6 +239,17 @@ ALLOW = {
     "tools/checks/mint_next_batch12_amount_runtime_guard.py",
     "tools/checks/tests/test_mint_next_batch12_amount_runtime_guard.py",
     ".github/workflows/mint-next-batch12-runtime.yml",
+    # Batch 21 R3 (2026-08-05): acceptance surfaces ALLOW-listed — their two
+    # path-owners are payload-BOUND (pending bytes sealed into c5f16c5c) and
+    # cannot flip accepted without breaking the accepted receipt; their
+    # acceptance is deferred to the next payload cycle (green/integration).
+    # The RED artifacts are owned by the accepted batch21-r3-red owner.
+    "product/mint_next/batch21/r3-red-acceptance.json",
+    "tools/checks/mint_next_batch21_r3_red_acceptance_guard.py",
+    "tools/checks/tests/test_mint_next_batch21_r3_red_acceptance_guard.py",
+    # Shared accumulating MINT-Next proofs workflow (same treatment as every
+    # other mint-next-batchN workflow above).
+    ".github/workflows/mint-next-proofs.yml",
     # Batch 13: write-only multi-provider navigation/state-machine contract
     # plus bounded legacy evidence. Runtime and product wiring remain forbidden.
     "product/mint_next/batch13/multi-provider-navigation-contract.yaml",

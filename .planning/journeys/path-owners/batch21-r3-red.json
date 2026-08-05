@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "owner_id": "batch21-r3-red",
-  "status": "candidate_unaccepted",
+  "status": "accepted",
   "paths": [
     "product/mint_next/batch21/runtime-gates.yaml",
     "product/mint_next/batch7/design_lab/test/design_lab_batch21_r3_test.dart",
@@ -10,27 +10,30 @@
   ],
   "reviews": {
     "scope_integrity": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "04f83aaf68e87221c4b68ece0263a5414864ff4ced22b4ae3062d08b7ebcc89b"
     },
     "mechanical_adversary": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "04f83aaf68e87221c4b68ece0263a5414864ff4ced22b4ae3062d08b7ebcc89b"
     },
     "journey_safety": {
-      "verdict": "PENDING",
-      "p1": null,
-      "p2": null,
-      "p3": null
+      "verdict": "ACCEPT",
+      "p1": 0,
+      "p2": 0,
+      "p3": 0,
+      "reviewed_payload_sha256": "04f83aaf68e87221c4b68ece0263a5414864ff4ced22b4ae3062d08b7ebcc89b"
     }
   },
   "mechanical_binding": {
     "candidate_payload_sha256": "04f83aaf68e87221c4b68ece0263a5414864ff4ced22b4ae3062d08b7ebcc89b",
-    "reviewed_payload_sha256": null,
-    "reviewed_candidate_commit": null
+    "reviewed_payload_sha256": "04f83aaf68e87221c4b68ece0263a5414864ff4ced22b4ae3062d08b7ebcc89b",
+    "reviewed_candidate_commit": "ccf1982c488aa6d2b5dd35d1ba2178514cf5340f"
   }
 }
