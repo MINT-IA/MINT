@@ -266,6 +266,35 @@ ALLOW = {
     "product/mint_next/batch21/r3-green-gate.yaml",
     "tools/checks/mint_next_batch21_r3_green_gate_guard.py",
     "tools/checks/tests/test_mint_next_batch21_r3_green_gate_guard.py",
+    # Batch 22 R4 FERMETURE DE LA BOUCLE (2026-08-05): the R4 expected-RED seal
+    # (scenarios_versement + fact_etat_civil). The four RED artifacts are OWNED by
+    # the pending batch22-r4-red owner AND ALLOW-listed here so branch CI stays green
+    # at PENDING before the promoter flips the owner (belt-and-suspenders, batch21
+    # acceptance-surface precedent). Content, acceptance surfaces, and the FUTURE
+    # runtime files + generated catalogs + dev tests are ALLOW-listed so the
+    # post-flip integration lands covered (the batch21 forgotten-.g.dart lesson).
+    # Hidden design-lab only; product route stays forbidden.
+    "product/mint_next/batch22/scenarios_versement-scope.yaml",
+    "product/mint_next/batch22/fact_etat_civil-scope.yaml",
+    "product/mint_next/batch22/r4-six-locale-copy.yaml",
+    "product/mint_next/batch22/r4-engine-fixtures.yaml",
+    "product/mint_next/batch22/runtime-gates.yaml",
+    "product/mint_next/batch7/design_lab/test/design_lab_batch22_r4_test.dart",
+    "tools/checks/mint_next_batch22_r4_red_guard.py",
+    "tools/checks/tests/test_mint_next_batch22_r4_red_guard.py",
+    "product/mint_next/batch22/r4-red-acceptance.json",
+    "tools/checks/mint_next_batch22_r4_red_acceptance_guard.py",
+    "tools/checks/tests/test_mint_next_batch22_r4_red_acceptance_guard.py",
+    # FUTURE R4 runtime (lands post-flip in the unowned tail, cherry-picked by the
+    # promoter from wt-batch22-runtime — prescribed names, ALLOW-listed ahead so the
+    # forgotten-.g.dart scramble does not repeat).
+    "product/mint_next/batch7/design_lab/lib/scenarios_versement.dart",
+    "product/mint_next/batch7/design_lab/lib/fact_etat_civil.dart",
+    "product/mint_next/batch7/design_lab/lib/r4_fermeture_catalog.g.dart",
+    "product/mint_next/batch7/design_lab/lib/r4_scenarios_catalog.g.dart",
+    "product/mint_next/batch7/design_lab/lib/r4_etat_civil_catalog.g.dart",
+    "product/mint_next/batch7/design_lab/test/dev_scenarios_versement_r4_test.dart",
+    "product/mint_next/batch7/design_lab/test/dev_fact_etat_civil_r4_test.dart",
     # Batch 13: write-only multi-provider navigation/state-machine contract
     # plus bounded legacy evidence. Runtime and product wiring remain forbidden.
     "product/mint_next/batch13/multi-provider-navigation-contract.yaml",
