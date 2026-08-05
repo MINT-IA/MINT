@@ -44,6 +44,21 @@ Future<void> _tap(WidgetTester tester, String key) async {
   await tester.pumpAndSettle();
 }
 
+// Open the refine-revenu sheet, enter an exact income and save it.
+Future<void> _refineTo(WidgetTester tester, String value) async {
+  await _tap(tester, 'action:eclairage.refine_revenu');
+  expect(_key('sheet:eclairage.refine_revenu'), findsOneWidget);
+  await tester.enterText(
+    find.descendant(
+      of: _key('sheet:eclairage.refine_revenu.field'),
+      matching: find.byType(EditableText),
+    ),
+    value,
+  );
+  await tester.pump();
+  await _tap(tester, 'sheet:eclairage.refine_revenu.save');
+}
+
 String _rangeText(WidgetTester t) =>
     t.widget<Text>(_key('text:eclairage.range_value')).data ?? '';
 
@@ -223,38 +238,46 @@ void main() {
     expect(find.textContaining('85 000 CHF'), findsWidgets);
   });
 
-  testWidgets('refine is pulled by value: sheet tightens the range in place',
+  testWidgets(
+      'refine RECOMPUTES by band mapping: 85k tightens, 90k stays the band range, 120k maps to its band',
       (tester) async {
-    await _pumpEclairage(tester); // nominal 1 800 à 2 200
+    await _pumpEclairage(tester); // committed b70_100 -> nominal 1 800 à 2 200
     expect(_rangeText(tester), '1 800 à 2 200 CHF');
-    await _tap(tester, 'action:eclairage.refine_revenu');
-    expect(_key('sheet:eclairage.refine_revenu'), findsOneWidget);
-    await tester.enterText(
-      find.descendant(
-        of: _key('sheet:eclairage.refine_revenu.field'),
-        matching: find.byType(EditableText),
-      ),
-      '85000',
-    );
-    await tester.pump();
-    await _tap(tester, 'sheet:eclairage.refine_revenu.save');
-    // The range narrows in place, never collapsing to a point.
+    // 85 000 is the sealed fixture point in b70_100 -> the TIGHTENED window,
+    // still a range (never a point), provenance upgraded to exact.
+    await _refineTo(tester, '85000');
     expect(_rangeText(tester), '2 100 à 2 300 CHF');
+    expect(_rangeText(tester).contains(' à '), isTrue);
+    expect(find.text('exact'), findsOneWidget);
+    // 90 000 maps to its band (b70_100) -> the BAND range, NEVER the tightened
+    // window. A non-85k point never tightens; the width honestly says the band.
+    await _refineTo(tester, '90000');
+    expect(_rangeText(tester), '1 800 à 2 200 CHF');
+    expect(find.text('exact'), findsNothing);
+    // 120 000 maps to a DIFFERENT band (b100_150) -> that band's fixture range
+    // (recompute by mapping, always grounded — floor100 of 2242/2776).
+    await _refineTo(tester, '120000');
+    expect(_rangeText(tester), '2 200 à 2 700 CHF');
     expect(_rangeText(tester).contains(' à '), isTrue);
   });
 
   testWidgets(
-      'hypothesis rows: revenu/versement/lieu are editable controls, situation is display-only',
+      'hypothesis rows: revenu/lieu are editable controls, versement and situation are display-only',
       (tester) async {
     await _pumpEclairage(tester);
     // All four hypothesis rows are shown.
     for (final id in ['revenu', 'versement', 'situation', 'lieu']) {
       expect(_key('row:eclairage.hyp.$id'), findsOneWidget);
     }
-    // The three editable rows carry a refine/edit control.
+    // The two editable rows carry a refine/edit control.
     expect(_key('action:eclairage.refine_revenu'), findsOneWidget);
-    expect(_key('action:eclairage.edit_versement'), findsOneWidget);
     expect(_key('action:eclairage.edit_lieu'), findsOneWidget);
+    // Versement is DISPLAY-ONLY (decision 1a): amount choice is R4
+    // scenarios_versement's job; a cosmetic edit that cannot recompute would
+    // mislead (#1061 class). The plafond default (7 258) is still shown.
+    expect(_key('action:eclairage.edit_versement'), findsNothing);
+    expect(_key('sheet:eclairage.versement'), findsNothing);
+    expect(find.textContaining('7 258'), findsWidgets);
     // Situation is DISPLAY-ONLY (ANCHOR''' amendment): no inline toggle, no
     // situation sheet — a false « marié » control would overstate the economy.
     // The refine of situation is deferred to the état-civil batch (R4).

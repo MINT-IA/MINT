@@ -183,16 +183,23 @@ void main() {
   );
 
   testWidgets(
-    'R3_08 each eclairage hypothesis row is a named editable control with a refine affordance',
+    'R3_08 eclairage revenu and lieu are editable hypotheses with a refine affordance and versement and situation are display only',
     (tester) async {
-      // situation is DISPLAY_ONLY (ANCHOR' amendment, LSFin ground) — no toggle.
-      // The EDITABLE rows (revenu/versement/lieu) each carry a refine affordance;
-      // the runtime's inline situation toggle is removed at the integration batch
-      // (registry.deferred_integration).
+      // Lead ruling 2026-08-05: in R3 the EDITABLE hypotheses are revenu (refine
+      // to an exact income) and lieu (reopen the commune). versement is
+      // DISPLAY-ONLY — the amount choice is the R4 scenarios_versement screen's
+      // job (its own executed fixtures) — and situation is DISPLAY-ONLY (a false
+      // « marié » toggle would overstate the economy; its refine is deferred to
+      // the état-civil batch). A cosmetic edit is forbidden (#1061). All four
+      // hypothesis rows are shown; only the two editable ones carry a control.
       await _reachEclairage(tester, sentinel: '[R3_08]');
+      for (final id in ['revenu', 'versement', 'situation', 'lieu']) {
+        expect(_key('row:eclairage.hyp.$id'), findsOneWidget);
+      }
       expect(_key('action:eclairage.refine_revenu'), findsOneWidget);
-      expect(_key('action:eclairage.edit_versement'), findsOneWidget);
       expect(_key('action:eclairage.edit_lieu'), findsOneWidget);
+      expect(_key('action:eclairage.edit_versement'), findsNothing);
+      expect(_key('action:eclairage.toggle_situation'), findsNothing);
     },
   );
 

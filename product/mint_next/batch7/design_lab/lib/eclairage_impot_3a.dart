@@ -126,7 +126,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
   // Restores focus to the anchor/row that opened the active overlay.
   final Map<String, FocusNode> _anchorFocus = <String, FocusNode>{};
 
-  late int _versementChf;
   int? _exactIncome;
 
   // The active overlay, if any. Only one overlay open at a time.
@@ -145,7 +144,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
   @override
   void initState() {
     super.initState();
-    _versementChf = widget.initialVersementChf;
     _exactIncome = widget.initialExactIncome;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && !_headingFocusRequested) {
@@ -170,12 +168,38 @@ class _EclairageScreenState extends State<EclairageScreen> {
     return r3Copy.containsKey(code) ? code : 'fr';
   }
 
-  R3Band? get _bandData => widget.band == null
-      ? null
-      : r3Bands.firstWhere((b) => b.key == widget.band);
+  /// The band an exact taxable income falls into (by the sealed fixture edges),
+  /// or null if it lands outside every band. Refinement is pulled by value: any
+  /// entered income maps to ITS band -> that band's fixture-grounded range (lead
+  /// ruling 2026-08-05), never a fabricated point.
+  String? _bandForIncome(int income) {
+    for (final b in r3Bands) {
+      final high = b.highEdge;
+      if (income >= b.lowEdge && (high == null || income < high)) return b.key;
+    }
+    return null;
+  }
 
+  /// The effective band the payoff renders: an entered exact income maps to its
+  /// band (recompute by band mapping), otherwise the committed band.
+  String? get _effectiveBand {
+    final exact = _exactIncome;
+    if (exact != null) {
+      final mapped = _bandForIncome(exact);
+      if (mapped != null) return mapped;
+    }
+    return widget.band;
+  }
+
+  R3Band? get _bandData => _effectiveBand == null
+      ? null
+      : r3Bands.firstWhere((b) => b.key == _effectiveBand);
+
+  // The range tightens ONLY at the single fixture-covered exact point (85 000 ->
+  // b70_100 -> 2 100 à 2 300); every other exact value renders its band range,
+  // never the tightened window (lead ruling: a non-85k point never tightens).
   bool get _refineGrounded =>
-      _exactIncome == r3RefinedExactIncomeChf && widget.band == 'b70_100';
+      _exactIncome == r3RefinedExactIncomeChf && _effectiveBand == 'b70_100';
 
   _RenderState _resolveState() {
     if (!widget.canContribute3a) return _RenderState.nonApplicable;
@@ -209,15 +233,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
         if (!_isStale(generation)) _anchor(restore).requestFocus();
       });
     }
-  }
-
-  void _saveVersement(int value, Object generation) {
-    if (_isStale(generation)) return;
-    // Clamp within the plafond (versement_default_note). The offline lab keeps
-    // the grounded fixture range regardless (see file header limitation).
-    final clamped = value.clamp(0, r3VersementChf);
-    setState(() => _versementChf = clamped);
-    _closeOverlay(generation);
   }
 
   void _saveExactIncome(int? value, Object generation) {
@@ -452,14 +467,14 @@ class _EclairageScreenState extends State<EclairageScreen> {
                 ),
                 _HypRow(
                   rowKey: 'row:eclairage.hyp.versement',
-                  actionKey: 'action:eclairage.edit_versement',
-                  focusNode: _anchor('edit_versement'),
                   label: copy['eclairage_hyp_versement']!.split(' · ').first,
-                  value: '${_fmtChf(_versementChf)} CHF',
-                  onTap: () => _openOverlay(
-                    _Overlay.versement,
-                    restoreAnchorId: 'edit_versement',
-                  ),
+                  value: '${_fmtChf(widget.initialVersementChf)} CHF',
+                  // DISPLAY-ONLY in R3 (lead ruling 2026-08-05): the versement
+                  // shows the LPP plafond hypothesis (7258). The amount CHOICE is
+                  // the R4 scenarios_versement screen's job (its own executed
+                  // fixtures 2000/4000/7258). A cosmetic inline edit is forbidden
+                  // (#1061); duplicating the choice here would be churn.
+                  displayOnly: true,
                 ),
                 _HypRow(
                   rowKey: 'row:eclairage.hyp.situation',
@@ -868,14 +883,6 @@ class _EclairageScreenState extends State<EclairageScreen> {
           dismissLabel: copy['gloss_dismiss']!,
           onDismiss: () => _closeOverlay(generation),
         );
-      case _Overlay.versement:
-        return _VersementSheet(
-          headingFocus: _sheetHeadingFocus,
-          copy: copy,
-          initial: _versementChf,
-          onSave: (v) => _saveVersement(v, generation),
-          onDismiss: () => _closeOverlay(generation),
-        );
       case _Overlay.refineRevenu:
         return _RefineRevenuSheet(
           headingFocus: _sheetHeadingFocus,
@@ -896,7 +903,6 @@ enum _Overlay {
   gloss3a,
   glossDeduction,
   glossOrdinaire,
-  versement,
   refineRevenu,
 }
 
@@ -1136,122 +1142,6 @@ class _GlossSheet extends StatelessWidget {
                           label: dismissLabel,
                           filled: false,
                           onPressed: onDismiss,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _VersementSheet extends StatefulWidget {
-  const _VersementSheet({
-    required this.headingFocus,
-    required this.copy,
-    required this.initial,
-    required this.onSave,
-    required this.onDismiss,
-  });
-
-  final FocusNode headingFocus;
-  final Map<String, String> copy;
-  final int initial;
-  final ValueChanged<int> onSave;
-  final VoidCallback onDismiss;
-
-  @override
-  State<_VersementSheet> createState() => _VersementSheetState();
-}
-
-class _VersementSheetState extends State<_VersementSheet> {
-  late final TextEditingController _controller =
-      TextEditingController(text: widget.initial.toString());
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      key: const ValueKey('sheet:eclairage.versement'),
-      child: FocusScope(
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const ModalBarrier(color: Color(0x66102217), dismissible: false),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Material(
-                color: _paper,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const _SheetHandle(),
-                        const SizedBox(height: 16),
-                        Focus(
-                          key: const ValueKey('sheet:eclairage.versement.heading'),
-                          focusNode: widget.headingFocus,
-                          child: Semantics(
-                            header: true,
-                            child: Text(
-                              widget.copy['eclairage_gloss_versement_term']!,
-                              style: const TextStyle(
-                                fontFamily: 'Gambarino',
-                                fontSize: 24,
-                                color: _forest,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          widget.copy['eclairage_gloss_versement_def']!,
-                          style: const TextStyle(
-                            fontFamily: 'Supreme',
-                            fontSize: 16,
-                            height: 1.45,
-                            color: _secondaryInk,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _NumberField(
-                          fieldKey: 'sheet:eclairage.versement.field',
-                          controller: _controller,
-                          suffix: 'CHF',
-                        ),
-                        const SizedBox(height: 20),
-                        _PrimaryButton(
-                          buttonKey: 'sheet:eclairage.versement.save',
-                          label: widget.copy['eclairage_exact_save']!,
-                          filled: true,
-                          onPressed: () {
-                            final parsed = int.tryParse(
-                              _controller.text.replaceAll(RegExp(r'[^0-9]'), ''),
-                            );
-                            widget.onSave(parsed ?? widget.initial);
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        _TextButton(
-                          buttonKey: 'sheet:eclairage.versement.dismiss',
-                          label: widget.copy['eclairage_back']!,
-                          onPressed: widget.onDismiss,
                         ),
                       ],
                     ),
