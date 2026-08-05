@@ -1,0 +1,444 @@
+schema_version: 1
+status: sealed_expected_red_contract_runtime_not_implemented   # R3 batch21 — contrat SCELLÉ, runtime pas encore implémenté
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_and_numeracy_literacy
+# R3 = arc ÉCLAIRAGE. eclairage_impot_3a est LE PAYOFF : le premier moment où l'app REND quelque
+# chose au lieu de collecter. Ce qu'un versement 3a change à l'IMPÔT DE CETTE ANNÉE. Framing
+# life-event (impôt), jamais « retraite ». Refraîchit le nœud `result` de batch6.
+model: eclairage_single_render_node
+
+navigation_amendment:
+  inserts: eclairage_impot_3a
+  position: second_to_last_node                # décision lead 2026-08-05
+  before: the_batch6_result_teach_back_closure_which_stays_the_final_node
+  keeps_batch6_closure: result_and_teach_back_remain_the_journey_closure_untouched
+  decision_trace: r3_lead_scope_eclairage_arc_2026_08_05
+  lead_ruling_2026_08_05: >-
+    eclairage_impot_3a s'insère comme AVANT-DERNIER nœud du parcours ; le result/teach_back de batch6
+    RESTE la clôture (nœud final). R3 ajoute l'écran de payoff juste avant la clôture, sans redessiner ni
+    retirer le nœud result/teach_back de batch6. Le gate imposition-à-la-source = état non_applicable sur
+    eclairage (le nœud de routage amont reste hors périmètre R3, tranché par le lead).
+  authority_note: this_draft_inserts_the_eclairage_payoff_before_the_batch6_closure_it_may_not_add_or_remove_other_batch6_routes
+
+authority:
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  source_of_truth_rule: this_draft_refreshes_result_into_eclairage_it_may_not_touch_other_batch6_routes
+  runtime_change: forbidden
+  product_promotion: forbidden
+  sealing: forbidden_this_is_a_pre_review_draft
+
+# ────────────────────────────────────────────────────────────────────────────
+# DÉRIVATION — la seule source de vérité chiffrée (0-trust, path:line)
+# ────────────────────────────────────────────────────────────────────────────
+number_derivation:
+  canonical_source: services/backend/app/services/fiscal/cantonal_comparator.py
+  saving_function: "estimate_tax_saving(taxable_income, deduction, canton, is_married)"   # :426-445
+  saving_method: difference_of_tax_impot(revenu)_moins_impot(revenu_moins_versement)_JAMAIS_plafond_fois_taux   # :432-437
+  income_tax_function: "estimate_income_tax(taxable_income, canton, is_married)"           # :448
+  etalon_table: CANTONAL_COMMUNAL_TAX_CHF                                                  # :122-149
+  etalon_calibration: chef_lieu_celibataire_sans_enfant_sans_confession_fortune_0          # :99-101
+  etalon_source: api_officielle_estv_API_calculateSimpleTaxes
+  fourchette_construction:
+    low: estimate_tax_saving_at_the_selected_band_LOWER_edge
+    high: estimate_tax_saving_at_the_selected_band_UPPER_edge
+    rounding: inward_or_to_nearest_100_never_inflated
+    central_estimate_locality: canton_chef_lieu   # voir communal_multiplier_gap
+  regression_fixed_reference: commit_c62d70682_#1061_imperatif_et_surestimation_25_a_77_pct_supprimés
+  # LACUNE À REMONTER — ne pas contourner en silence :
+  communal_multiplier_gap:
+    brief_asked: etalon_ESTV_canton_x_multiplicateur_communal_dataset_batch20_sha_da63fba5_93_communes
+    reality_in_wt_batch20_red:
+      - sha_da63fba5_does_not_resolve_absent_from_git_all
+      - commune_dataset_yaml_carries_NO_multiplier_coefficient_scope_excludes_it_l12_13
+      - commune_service_py_has_multipliers_but_for_a_DIFFERENT_commune_set_ZH_not_the_93_BE_BS_FR_JU
+      - estimate_income_tax_takes_NO_commune_multiplier_input_it_is_frozen_at_chef_lieu
+    r3_position: central_estimate_at_chef_lieu_is_legitimate_and_derivable_now
+    before_runtime_sealing: a_NAMED_multiplier_source_and_a_recomposition_path_mult_commune_over_mult_chef_lieu_MUST_exist
+    status: pending_named_source
+
+# ────────────────────────────────────────────────────────────────────────────
+# COUVERTURE DES PARAMÈTRES (directive coordinateur 2026-08-05, question Julien
+# « l'onboarding est-il exhaustif sur le périmètre ? »)
+# RÈGLE DURE : chaque paramètre d'entrée de l'étalon ESTV est SOIT un fait collecté
+# en amont, SOIT une hypothèse par défaut VISIBLE sur l'écran d'éclairage. Jamais un
+# paramètre orphelin silencieux. Signature réelle citée path:line.
+# ────────────────────────────────────────────────────────────────────────────
+parameter_coverage:
+  etalon_signature: "estimate_tax(revenu_imposable, canton, civil_status='celibataire', children=0)"   # cantonal_comparator.py:577-581
+  saving_signature: "estimate_tax_saving(taxable_income, deduction, canton, is_married)"                # cantonal_comparator.py:426
+  rule: every_parameter_is_a_collected_fact_or_a_shown_default_hypothesis_no_silent_orphan
+  map:
+    revenu_imposable:
+      etalon_ref: cantonal_comparator.py:577_and_448_and_426
+      coverage: collected_fact
+      source_node: fact_revenu   # band edges
+    canton:
+      etalon_ref: cantonal_comparator.py:577_and_448
+      coverage: derived_fact
+      source_node: fact_lieu     # commune -> canton
+    deduction_versement_3a:
+      etalon_ref: estimate_tax_saving_deduction_arg_cantonal_comparator.py:426
+      coverage: collected_fact_with_editable_default
+      source_node: fact_contribution_fact_amount_default_plafond
+    civil_status_is_married:
+      etalon_ref: cantonal_comparator.py:580_and_482_x080_splitting
+      coverage: shown_hypothesis_EDITABLE
+      default: celibataire
+      control: toggle_situation
+    children:
+      etalon_ref: cantonal_comparator.py:581_child_factor_applies_only_if_married_and_children_gt_0_lines_52_57
+      coverage: shown_hypothesis_STATED_not_falsely_editable   # éditer sans effet moteur serait un faux contrôle
+      default: sans_enfant
+      shown_in: eclairage_assumptions
+      note: child_factor_only_bites_for_married_with_children_so_a_single_user_default_needs_no_control
+    confession_impot_ecclesiastique:
+      etalon_ref: not_a_param_of_estimate_tax_church_tax_is_a_separate_service_income_etalon_is_sans_confession
+      coverage: shown_hypothesis_STATED
+      default: hors_impot_d_eglise
+      shown_in: eclairage_assumptions
+    regime_ordinaire_vs_source:
+      etalon_ref: not_modelled_the_etalon_is_an_ordinary_assessment_model_only
+      coverage: shown_hypothesis_STATED_plus_COPY_GUARDRAIL
+      default: impose_ordinairement
+      shown_in: eclairage_assumptions   # « imposé ordinairement » tappable
+      guardrail: >-
+        HARD (justesse suisse) : imposition à la source (frontalier, permis B sans C) peut rendre la
+        déduction 3a non réclamable de la même façon (rectification / taxation ordinaire ultérieure
+        requise). Le glossaire eclairage_gloss_ordinaire_def le dit et invite à vérifier. Formulation
+        non-committale (« peut ne pas s'appliquer pareil — vérifie »), LSFin-safe.
+      escalation_to_lead: >-
+        Un VRAI garde d'éligibilité en amont (question « imposé à la source ? » qui route hors éclairage
+        ordinaire) dépasse le périmètre R3 (fact_revenu + eclairage). À trancher par lead + swiss-brain
+        pour un batch ultérieur. R3 couvre le risque par hypothèse affichée + garde-fou de copie.
+    fortune_wealth:
+      etalon_ref: income_etalon_only_wealth_tax_is_a_separate_service
+      coverage: out_of_scope_income_tax_only_no_orphan_because_not_an_income_param
+  data_map_dependency:
+    inventaire_delivered: scratchpad/inventaire_exhaustivite_3a.md
+    inventaire_verdict: la_collecte_existait_deja_presque_entierement_le_CABLAGE_etait_faux
+    reconciled_2026_08_05: true
+    key_finding: three_of_the_heaviest_gaps_are_wiring_faults_not_missing_data
+
+# ────────────────────────────────────────────────────────────────────────────
+# FAUTES LEGACY RENDUES IMPOSSIBLES PAR LE CONTRAT (directive coordinateur 2026-08-05)
+# Le contrat doit rendre ces fautes IMPOSSIBLES, pas seulement les éviter. Chaque règle
+# est une ASSERTION vérifiable, citée path:line contre l'étalon et contre le site du bug.
+# Spot-checks 0-trust effectués dans wt-batch20-red (citations confirmées).
+# ────────────────────────────────────────────────────────────────────────────
+legacy_faults_made_impossible:
+
+  fault_1_cap_from_AFFILIATION_not_employment_status:
+    # Raffinement Julien 2026-08-05 (cas du salarié à faible revenu NON affilié LPP).
+    # Le critère légal du plafond 3a est l'AFFILIATION au 2e pilier, PAS le statut salarié/indépendant.
+    legal_basis:
+      affilie_petit_3a: LIFD_art_33_al_1_let_e   # plafond avec affiliation = 7258
+      non_affilie_grand_3a: OPP3_art_7   # 20% du revenu net de l'activité lucrative, max 36288
+    etalon_refs:
+      plafond_avec_lpp: apps/mobile/lib/constants/social_insurance.dart:397   # 7258.0
+      plafond_sans_lpp: apps/mobile/lib/constants/social_insurance.dart:400   # 36288.0
+      taux_sans_lpp: apps/mobile/lib/constants/social_insurance.dart:403      # 0.20
+      opp3_art7_in_code: services/backend/app/services/independant_service.py:26_and_150   # « OPP3 art. 7 : 20% du revenu net, max 36'288 »
+      seuil_entree_lpp: apps/mobile/lib/services/financial_core/lpp_calculator.dart:88   # 22'680 (sous ce seuil, un salarié n'est pas affilié d'office)
+      cap_switch: apps/mobile/lib/services/financial_core/tax_calculator.dart:464_and_484_497
+    legacy_bug_site: apps/mobile/lib/services/minimal_profile_service.dart:228   # hasLpp = !isIndependantNoLpp (STATUT d'emploi)
+    do_not_copy_shortcut: services/backend/app/services/rules_engine.py:404_405   # « Salarié affilié / Indépendant sans LPP » — raccourci de statut, NE PAS recopier
+    contract_assertion: >-
+      Le plafond 3a DÉRIVE du fait AFFILIATION 2e pilier (fait exact de fact_lpp_affiliation :
+      « as-tu une caisse de pension ? »), JAMAIS du statut salarié/indépendant. Règle exacte :
+      affilié -> 7258 (LIFD 33-1-e) ; NON affilié -> min(0.20 * revenu_net_activité_lucrative, 36288)
+      — le plafond du non-affilié dépend donc du REVENU, ce n'est pas un forfait 7258.
+    net_income_base_is_a_visible_hypothesis: >-
+      « revenu net de l'activité lucrative » ≠ brut : l'approximation utilisée pour la base du plafond
+      non-affilié est nommée comme hypothèse VISIBLE (cohérent avec fault_2). Jamais le brut en silence.
+    mandatory_contract_test_cases:   # le runtime devra les faire passer ; ici ils gouvernent le contrat
+      - {revenu: 20000, affilie: false, plafond_attendu: 4000, why: "20% * 20000 ; sous le seuil d'entrée 22'680 ; le forfait 7258 SURESTIMERAIT"}
+      - {revenu: 250000, affilie: false, plafond_attendu: 36288, why: "20% plafonné ; le forfait 7258 SOUS-ESTIMERAIT"}
+      - {revenu: any, affilie: true, plafond_attendu: 7258, why: "affilié -> petit 3a quel que soit le revenu"}
+    forbidden: deriving_the_cap_from_employment_status_or_archetype_or_serving_a_flat_7258_to_a_non_affilie
+    r3_note: la_precondition_de_slice_est_lpp_affiliation_yes_donc_cap_7258_en_R3_mais_la_REGLE_de_liaison_gravée_est_l_affiliation
+
+  fault_2_never_gross_as_taxable:
+    etalon_expects: taxable_income   # cantonal_comparator.py:448
+    legacy_model_choice: apps/mobile/lib/services/minimal_profile_service.dart:226   # grossAnnualSalary passé tel quel
+    legacy_hedge_copy: apps/mobile/lib/services/premier_eclairage_selector.dart:316   # « si ton revenu imposable ressemble au salaire déclaré »
+    contract_assertion: >-
+      L'entrée revenu de l'éclairage est le revenu IMPOSABLE (fact_revenu demande explicitement le
+      revenu imposable, en tranche). Le brut n'est JAMAIS injecté comme imposable en silence : biais
+      systématiquement haussier de l'économie affichée = le pire sens LSFin (bug #1061 déjà corrigé côté
+      taux). Si une approximation brut->imposable est un jour utilisée, elle est une hypothèse VISIBLE.
+    forbidden: feeding_gross_salary_as_taxable_income_silently
+    r3_status: fact_revenu_asks_revenu_imposable_directly_so_this_fault_cannot_occur_in_r3
+
+  fault_3_source_taxation_binary_gate:
+    etalon_gate: apps/mobile/lib/services/financial_core/pillar3a_room_calculator.dart:12_17   # annualCeiling -> 0 si !canContribute3a
+    unavailable_state: apps/mobile/lib/services/minimal_profile_service.dart:222_234   # Pillar3aTaxImpactEstimate.unavailable
+    contract_assertion: >-
+      L'imposition à la source (frontalier / permis B taxé à la source non quasi-résident) et le gate
+      FATCA sont un GATE BINAIRE canContribute3a, PAS un taux. Si le gate est faux, l'éclairage rend
+      l'état `non_applicable` (titre + explication + « Pourquoi ? »), JAMAIS un « CHF X ». Un chiffre
+      d'économie sous un gate faux serait une promesse fausse.
+    forbidden: showing_any_chf_saving_amount_when_canContribute3a_is_false
+    render_state_added: non_applicable_source   # voir render_contract.states
+
+  fault_4_children_explicit_default:
+    legacy_bug_site: apps/mobile/lib/services/minimal_profile_service.dart:230   # children: 0 codé en dur, silencieux
+    etalon_ref: cantonal_comparator.py:33_39   # FAMILY_ADJUSTMENTS, enfants ne mordent que si marié
+    contract_assertion: >-
+      Le défaut « sans enfant » est AFFICHÉ (eclairage_assumptions), jamais codé en dur en silence.
+      child_factor ne mord que pour un marié avec enfants (cantonal_comparator.py, FAMILY_ADJUSTMENTS) ;
+      pour le défaut célibataire il est neutre — d'où affichage suffisant, contrôle non nécessaire en R3.
+    forbidden: a_silent_hardcoded_children_value_without_an_on_screen_statement
+
+  fault_5_civil_status_splitting_ruling:
+    # RULING axe justesse suisse (tranché avant scellement, comme demandé par le coordinateur).
+    etalon_refs:
+      family_adjustments: cantonal_comparator.py:33_39   # seules les clés marie_* ont le splitting ; pas de clé concubinage
+      is_married_x080: cantonal_comparator.py:391_393_and_482   # ×0.80 ne se déclenche que si is_married
+    collected_statuses: apps/mobile/lib/screens/onboarding/mvp_wedge/scenes/mint_scene_etat_civil.dart:41_45   # celibataire/marie/divorce/veuf/CONCUBINAGE (5, distincts)
+    legacy_bug_risk_site: apps/mobile/lib/services/minimal_profile_service.dart:215_216   # isMarriedHousehold = household 'couple'||'family'
+    ruling: >-
+      VERDICT — Concubinage = TRAITEMENT CÉLIBATAIRE (is_married=False, FAMILY_ADJUSTMENTS
+      « celibataire » 1.00), JAMAIS le splitting marié ×0.80. En droit suisse, les concubins sont
+      imposés SÉPARÉMENT (chacun comme personne seule) ; seuls les mariés et partenaires enregistrés
+      sont imposés conjointement avec effet de splitting. L'étalon n'a d'ailleurs AUCUNE clé
+      concubinage.
+    contract_assertion: >-
+      is_married DÉRIVE du fait ÉTAT CIVIL (civil_status ∈ {marie, partenariat_enregistre}) UNIQUEMENT.
+      Le concubinage -> traitement célibataire. is_married ne DÉRIVE JAMAIS d'un seau ménage grossier
+      « couple/family » où le concubinage pourrait tomber (site du bug legacy).
+    forbidden: mapping_concubinage_to_married_or_deriving_is_married_from_a_coarse_household_bucket
+    situation_control_options: [eclairage_situation_celibataire, eclairage_situation_marie, eclairage_situation_concubinage]
+    situation_to_is_married_map: {celibataire: false, concubinage: false, marie: true, partenariat_enregistre: true}
+
+  minimal_viable_fact_set:   # proposé par l'inventaire §3.c, adopté
+    facts: [canton_derived_from_commune, revenu_imposable, lpp_reelle_q_has_pension_fund, etat_civil_marie_vs_concubin_distingué, gate_source_fatca]
+    everything_else: explicit_default_plus_caveat_never_a_bare_number   # NEVER#9 enrichmentPrompt
+
+# ────────────────────────────────────────────────────────────────────────────
+# ÉCHELLE DE PRÉCISION DÉCLARÉE (arbitrage Julien 2026-08-05 : tranches vs valeurs exactes)
+# Quatre principes contractuels. L'entrée, le moteur et la sortie montent en précision ENSEMBLE.
+# ────────────────────────────────────────────────────────────────────────────
+declared_precision_scale:
+  principle_1_input_le_output:
+    rule: >-
+      La précision de l'ENTRÉE ne dépasse jamais la précision que le moteur peut honnêtement rendre en
+      SORTIE. Anti-#1061 généralisé : on ne montre pas un chiffre plus fin que ce que le modèle sait.
+    consequence: bracket_input_wide_range ; exact_input_tighter_range ; never_a_precision_the_model_cannot_back
+  principle_2_refinement_pulled_by_value_not_pushed_by_form:
+    rule: >-
+      Le raffinement est TIRÉ par la valeur, jamais poussé par un formulaire. Chaque ligne d'hypothèse
+      de l'éclairage (les chevrons de la maquette) EST une action de raffinage : tap -> saisie exacte
+      OPTIONNELLE -> la fourchette se resserre sous les yeux.
+    applies_to_rows: [revenu, versement, situation, lieu]
+    fact_revenu_stays_a_bracket_by_default: true   # on ne pré-durcit pas le formulaire amont
+  principle_3_refine_replaces_in_place_never_re_asks:
+    rule: >-
+      Raffiner REMPLACE en place : même fait, résolution et provenance upgradées
+      (declared_bracket -> declared_exact -> un jour document_parsed). On ne re-demande jamais.
+    provenance_ladder: [declared_bracket, declared_exact, document_parsed]
+    document_parsed_legacy_parser: apps/mobile/lib/services/document_parser/tax_declaration_parser.dart   # + backend twin + extraction_confidence_scorer.py
+  principle_4_range_tightens_never_collapses:
+    rule: >-
+      La fourchette se RESSERRE mais ne s'effondre JAMAIS en chiffre unique tant que des approximations
+      MOTEUR subsistent. Largeur minimale > 0, dérivée des approximations restantes, jamais zéro.
+    residual_model_approximations:   # les sources qui interdisent le point même à revenu exact
+      - chef_lieu_multiplier_not_the_actual_commune   # cantonal_comparator.py:99,472 (+ dataset communal PENDING, cf number_derivation.communal_multiplier_gap)
+      - calibration_profile_celibataire_sans_enfant_sans_confession   # cantonal_comparator.py:99-101
+      - linear_interpolation_between_estv_nodes   # cantonal_comparator.py:465-467
+    min_width_assertion: >-
+      width(range) = f(residual_model_approximations) et width > 0 TANT QUE l'une d'elles subsiste.
+      Un point unique ne serait autorisé QUE si toutes les approximations moteur tombaient (elles ne
+      tombent pas en R3). Interdit : afficher un chiffre unique d'économie.
+    r3_refined_width_measured: >-
+      P3 (Julien 2026-08-05) : le résidu communal N'EST PAS ~±3% optimiste. Dispersion intra-cantonale
+      MESURÉE (source officielle Amt für Geoinformation BE, geoparquet opendata.swiss steuanlg, steujahr
+      2024) = steuanlg communal civil de 0.89 (Deisswil b. M., BFS 535) à 2.20 (Schelten, BFS 708) — soit
+      ~×2.5 sur la SEULE part communale, aujourd'hui masqué par le scellé chef-lieu. La largeur exacte
+      reste PENDING le dataset communal reviewed (commune-multipliers-reviewed.yaml,
+      pending_reviewed_dataset_runtime_forbidden) ; la fourchette resserrée reste donc LARGE et DITE — elle
+      ne descend jamais à ±3/±5%. Source : scratchpad/RESEARCH-steuerfuss-communal-source-BE-BS-FR-JU.md.
+
+lsfin_no_promise_contract:
+  banned_terms_absent: [garanti, optimal, meilleur, sans_risque, assuré, parfait, certain]
+  never_imperative: true   # « Économise X » ABOLI (#1061) — descriptif conditionnel seulement
+  never_a_single_promised_number: true
+  always_a_range: true
+  hypotheses_visible: true
+  hypotheses_editable: true
+  disclaimer_present_estimate_not_advice: true
+  framed_on_this_years_tax_not_retirement: true
+  church_tax_excluded_and_not_recomputed_here: true
+  marginal_rate_jargon_not_surfaced: true   # on montre des francs, pas un taux (cohérent différence)
+
+slice:
+  entry_preconditions:
+    shared: [tax_year_explicitly_selected, lpp_affiliation_yes, commune_selected, taxable_income_band_selected]
+  implemented_nodes: [eclairage_impot_3a]
+  boundary_nodes: [next_action]
+  locales: [fr, en, de, es, it, pt]
+
+human_outcome:
+  what_it_renders: >-
+    Une fourchette d'impôt en MOINS pour l'année courante si un versement 3a est fait, avec les
+    hypothèses de calcul visibles et éditables. Pas un conseil, pas une promesse.
+  must_understand:
+    - Un versement 3a baisse le revenu imposable, donc l'impôt de l'année — c'est le mécanisme (vrai).
+    - Le montant est une FOURCHETTE estimée, pas un chiffre exact ni une promesse.
+    - Chaque hypothèse (revenu, versement, situation, commune) est visible et modifiable d'une touche.
+    - Le montant exact viendra de la taxation ; ceci éclaire, ne conseille pas.
+  next_small_action:
+    default: Continuer vers l'étape suivante (une action concrète, honnête).
+
+render_contract:
+  states:
+    nominal:
+      precondition: all_entry_preconditions_met
+      shows: [mechanism_line, amount_range, amount_caption, hypotheses_block, disclaimer]
+      amount_shape: low_a_high_chf_range_never_single
+    precision_refined:
+      precondition: at_least_one_hypothesis_refined_to_declared_exact   # ex. revenu exact saisi
+      shows: [mechanism_line, amount_range_TIGHTER, amount_caption_refined, hypotheses_block_with_upgraded_provenance, disclaimer]
+      amount_shape: tighter_low_a_high_chf_range_STILL_never_single   # principe 4
+      what_changed: the_refined_row_shows_the_exact_value_and_its_provenance_the_range_narrows_in_place
+      never_collapses_to_a_point: true   # min_width_assertion
+      same_fact_not_re_asked: true        # principe 3
+    pending_missing_income:
+      precondition: taxable_income_band_unset
+      shows: [pending_title, pending_revenu, complete_action]
+      shows_no_number: true
+    non_applicable_source:
+      precondition: not_canContribute3a   # imposition à la source non quasi-résident OU gate FATCA
+      shows: [na_title, na_body, na_action_opens_ordinaire_glossary]
+      shows_no_number: true   # JAMAIS un CHF X sous un gate faux (fault_3)
+      maps_to_engine: Pillar3aTaxImpactEstimate.unavailable
+      binary_gate_not_a_rate: true
+    low_income_floor:
+      precondition: selected_band_is_lt30
+      shows: [zero_income_honest_note]
+      why: >-
+        Sous ~30k l'impôt est très bas (seuils non imposables ~15k, cantonal_comparator.py:108-117) ;
+        l'économie 3a y est faible en absolu. On le DIT honnêtement plutôt que d'afficher un chiffre
+        gonflé par interpolation dans le genou post-seuil (limite dite, cantonal_comparator.py:113-117).
+  hypotheses_block:
+    label_key: eclairage_hyp_label
+    rows:   # les 4 hypothèses ÉDITABLES (params réellement consommés par l'étalon)
+      - {id: revenu,    copy: eclairage_hyp_revenu,    edit_to: fact_revenu,        editable: true}
+      - {id: versement, copy: eclairage_hyp_versement, edit: inline_amount_sheet,   editable: true, default: plafond_3a_avec_lpp_pinned_swiss_constant}
+      - {id: situation, copy: eclairage_hyp_situation, edit: inline_toggle_celibataire_marie, editable: true, default: celibataire}
+      - {id: lieu,      copy: eclairage_hyp_lieu,      edit_to: fact_lieu,          editable: true}
+    stated_assumptions_line:   # params NON éditables (calibration figée) — montrés, jamais orphelins
+      copy: eclairage_assumptions
+      covers: [children_sans_enfant, confession_hors_impot_eglise, regime_impose_ordinairement]
+      tappable_anchor: imposé_ordinairement_opens_source_taxation_guardrail_glossary
+      not_falsely_editable: true   # éditer un param sans effet moteur serait un faux contrôle (dark pattern)
+    edit_hint_key: eclairage_hyp_edit_hint
+    refine_hint_key: eclairage_refine_hint   # « Un chiffre exact resserre l'estimation. »
+    every_edit_reinvalidates_and_recomputes_the_range: true
+    rows_are_refine_actions:   # principe 2 : chaque ligne EST une action de raffinage, tirée par la valeur
+      revenu:
+        tap_opens: exact_taxable_income_sheet_optional
+        on_exact: {upgrades_provenance: declared_bracket_to_declared_exact, replaces_in_place: true, range_tightens: true, never_collapses_to_point: true}
+        copy: [eclairage_exact_revenu_title, eclairage_exact_revenu_placeholder, eclairage_exact_revenu_note, eclairage_exact_save]
+      versement: {tap_opens: exact_amount_sheet, on_exact: recompute_tighter_within_plafond}
+      situation: {tap_opens: situation_sheet, on_change: recompute}   # célibataire/marié/concubinage (concubinage->single)
+      lieu: {tap_opens: fact_lieu, on_change: recompute}
+    provenance_shown_per_row_when_refined: true   # une ligne raffinée montre sa valeur exacte + sa provenance
+  versement_default_note: >-
+    Défaut = plafond 3a DÉRIVÉ du fait LPP (fault_1) : LPP oui -> pilier3aPlafondAvecLpp
+    (social_insurance.dart:397 = 7258) ; LPP non -> min(0.20 * revenu_net, pilier3aPlafondSansLpp
+    social_insurance.dart:400 = 36288). En R3 la précondition lpp_affiliation_yes fixe 7258. La
+    maquette illustre 7 258. La valeur exacte est épinglée depuis la constante, jamais codée en dur.
+
+node_contracts:
+  eclairage_impot_3a:
+    arrival_focus: heading_the_result_region_announced_atomically
+    required_copy_intents:
+      - a_3a_contribution_lowers_taxable_income_hence_this_years_tax_the_mechanism_true
+      - the_amount_is_an_estimated_range_never_a_single_promised_number_never_an_imperative
+      - each_hypothesis_revenu_versement_situation_lieu_is_visible_and_editable
+      - this_is_an_estimate_not_tax_advice_exact_amount_comes_from_the_assessment
+      - framed_on_this_years_tax_not_on_retirement
+    teaching_mechanism:
+      pattern: tap_glossary_sheet_no_dense_inline_note
+      concepts_are_glossary_entries: [deduction, pilier_3a, versement_3a, imposé_ordinairement]
+      on_screen_anchors_minimal: mechanism_line_carries_deduction_anchor_versement_row_carries_versement_anchor_eyebrow_carries_3a_anchor_assumptions_line_carries_ordinaire_anchor
+      sheet_copy_intents: [one_plain_sentence, optional_fun_metaphor_lsfin_safe_never_a_promise]
+      copy_source: product/mint_next/batch21/r3-six-locale-copy.yaml#copy.{locale}.eclairage_gloss_*
+    coach_intent:
+      status: contract_requirement_not_implemented_in_r3
+      invocable_id: eclairage_impot_3a
+      three_paths_rule:
+        declared_route: eclairage_impot_3a_in_batch6_navigation_refresh
+        hub_reachable_within_taps: 2
+        natural_language_intents: ["combien j'économise d'impôt avec le 3a", "ce que le 3a change à mes impôts", "mon estimation 3a", "affiner mon estimation", "entrer mon revenu exact"]
+      coach_can_trigger_refine: the_coach_may_offer_to_refine_a_hypothesis_pulled_by_value_never_a_form_dump   # principe 2
+      coach_may_show_widget: tax_saving_range_widget_grounded_on_this_estimate_with_its_hypotheses
+      widget_must_carry_the_same_hypotheses_and_disclaimer_as_the_screen: true
+      every_screen_and_widget_carries_a_coach_invocable_id: true
+    controls:
+      refine_revenu:  {overlay: exact_taxable_income_sheet, operation: optionally_set_exact_taxable_income_upgrade_provenance_replace_in_place_then_TIGHTEN_range_never_collapse, keeps_bracket_as_fallback: true}
+      edit_revenu:    {to: fact_revenu, operation: reopen_band_choice_then_recompute, never_routes_in_r3: true}
+      edit_lieu:      {to: fact_lieu,   operation: reopen_commune_choice_then_recompute, never_routes_in_r3: true}
+      edit_versement: {overlay: amount_sheet, operation: set_versement_within_plafond_then_recompute}
+      toggle_situation: {overlay: situation_sheet, operation: switch_celibataire_marie_or_concubinage_concubinage_is_single_no_x080_then_recompute}
+      open_deduction_glossary: {operation: open_deduction_sheet_no_route}
+      continue: {to: next_action, activation: always_enabled, never_routes_in_r3: true}
+      back: {operation: exact_history_back}
+      open_safe_exit: {overlay: safe_exit}
+    forbidden:
+      - a_single_promised_amount
+      - collapsing_the_range_to_a_single_number_while_any_model_approximation_remains   # principe 4
+      - pushing_an_exact_income_form_before_the_user_pulls_it   # principe 2 : jamais poussé par formulaire
+      - re_asking_a_fact_already_declared_instead_of_upgrading_it_in_place   # principe 3
+      - showing_a_precision_finer_than_the_engine_can_back   # principe 1
+      - any_imperative_economise_or_gagne
+      - any_banned_lsfin_term
+      - a_rate_or_percentage_presented_as_the_headline   # francs, pas taux
+      - a_communal_precision_claim_the_chef_lieu_etalon_cannot_support
+      - reinventing_estimate_tax_saving_in_dart_or_backend_cross_layer   # NEVER#3
+      - framing_the_payoff_as_a_retirement_outcome
+      - hiding_or_locking_a_hypothesis
+      - account_creation
+    copy_source: product/mint_next/batch21/r3-six-locale-copy.yaml#copy.{locale}.eclairage_*
+
+accessibility_contract:
+  result_announced_atomically: the_range_and_its_unit_are_one_semantics_node_spoken_as_a_single_utterance
+  hypotheses_are_named_buttons_each_announces_editable_state: true
+  disclaimer_reachable_by_screen_reader_not_only_visual: true
+  amount_range_not_conveyed_by_colour_alone: true
+  glossary_sheet_accessible:
+    anchor_is_a_named_button_role_not_a_bare_styled_span: true
+    sheet_opens_with_focus_on_its_heading_traps_focus_until_dismissed_then_restores_to_the_anchor: true
+    dismiss_by_swipe_button_and_screen_reader_escape: true
+  minimum_target_size_points: 48
+  border_contrast_min_ratio: 3.0
+  text_contrast_min_ratio: 4.5
+  compact_proof: 320x700_logical_px_text_scale_2_shows_mechanism_range_at_least_two_hypotheses_and_disclaimer_no_overflow_clip
+  required_proof_cases:
+    - nominal_range_with_four_hypotheses_and_disclaimer
+    - precision_refined_range_tighter_but_still_a_range_provenance_upgraded   # principe 4
+    - pending_missing_income_no_number_shown
+    - low_income_floor_honest_note
+    - a_hypothesis_row_focused_and_announced_editable
+    - deduction_glossary_sheet_open_focus_trapped_and_restored
+
+inherited_verbatim_from_R1_R2:
+  - navigation_contract.safe_exit_resume_keep_reference_leave
+  - lifecycle_contract.generation_token_30min_ttl_app_kill_taxyear_purge
+  - six_locale_semantic_contract.human_review_required_key_parity_insufficient
+
+scope_exclusions:
+  - flutter_runtime
+  - persistence_backend_or_api
+  - the_communal_multiplier_recomposition_until_a_named_source_exists   # pending, voir number_derivation
+  - public_product_route
+  - user_validation
+  - routing_to_next_action
+  - retirement_projection_or_capital_at_65   # ce n'est pas un écran retraite
+  - church_tax_or_confession
+  - reimplementing_the_fiscal_engine_cross_layer
+
+hermeneutic_inscription:
+  experience_visee: "Le débutant voit, pour la première fois, ce que l'app lui rend : un ordre de grandeur d'impôt en moins cette année, avec les hypothèses en clair et modifiables."
+  pourquoi_la_decision: "Une fourchette dérivée par différence d'impôt (jamais un chiffre promis ni un impératif — le bug #1061), hypothèses éditables, cadrée sur l'impôt de l'année : lucidité, pas promesse, pas retraite."
+  ce_que_ca_prepare: "La confiance : si l'estimation est honnête et manipulable, l'utilisateur peut décider lui-même de l'étape suivante — au lieu qu'on décide pour lui."

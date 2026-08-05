@@ -1,0 +1,250 @@
+schema_version: 1
+status: sealed_expected_red_contract_runtime_not_implemented   # R3 batch21 — contrat SCELLÉ, runtime pas encore implémenté
+journey_id: swiss_3a_question_to_next_action
+audience: beginner_low_financial_and_numeracy_literacy
+# R3 = arc ÉCLAIRAGE. Ce nœud, fact_revenu, REFRAÎCHIT le nœud fact_income de batch6
+# (navigation.yaml:320) : « estimate the current-year TAXABLE-income band … avoid a false point
+# estimate ». Le modèle canonique était DÉJÀ une TRANCHE (choose_band), pas un chiffre précis.
+# R3 conserve la tranche et durcit la voix beginner. Il ne réinvente pas le modèle.
+model: taxable_income_band_single_node
+
+navigation_amendment:
+  refreshes: fact_income          # batch6 navigation.yaml:320
+  into: fact_revenu
+  keeps: choose_band_semantics_taxable_income_band_not_a_precise_figure
+  decision_trace: r3_lead_scope_eclairage_arc_2026_08_05
+  household_node_status: NOT_collected_as_a_separate_question_here_situation_becomes_an_editable_hypothesis_on_eclairage_default_célibataire
+  authority_note: this_draft_amends_fact_income_only_it_may_not_add_or_remove_other_batch6_routes
+
+authority:
+  canonical_navigation: product/mint_next/batch6/navigation.yaml
+  source_of_truth_rule: this_draft_refreshes_fact_income_into_fact_revenu_it_may_not_touch_other_batch6_routes
+  runtime_change: forbidden
+  product_promotion: forbidden
+  sealing: forbidden_this_is_a_pre_review_draft
+
+# ────────────────────────────────────────────────────────────────────────────
+# DÉCISION PRODUIT — pattern de saisie (la question que le lead m'a confiée)
+# ────────────────────────────────────────────────────────────────────────────
+product_decision_input_pattern:
+  date: 2026-08-05
+  decision: TRANCHE_de_revenu_imposable_en_cartes_tappables   # ni molette, ni clavier libre
+  rejected_wheel: >-
+    La molette (CupertinoPicker) est le pattern d'un CHOIX COURT BORNÉ à détentes exactes et ordonnées
+    (année fiscale, oui/non). Une tranche est une PLAGE, pas une détente ; la molette suggère un
+    continuum et cache les autres options derrière la rotation — mauvaise découvrabilité pour un
+    débutant. Inapte ici.
+  rejected_free_keyboard: >-
+    Un clavier numérique libre invite un chiffre PRÉCIS. Or (a) un débutant connaît rarement son
+    revenu imposable exact, (b) un chiffre précis « brut » n'est pas le revenu imposable, et injecter
+    le brut comme imposable SURESTIME l'économie — exactement le bug LSFin corrigé par #1061, et (c)
+    un point précis contredit le principe canonique du parcours lui-même (« avoid a false point
+    estimate », navigation.yaml:312/320).
+  chosen_band_cards: >-
+    Cartes de tranche tappables : imprécision assumée (« à peu près »), zéro anxiété de clavier, et —
+    décisif — les BORNES de la tranche produisent la fourchette de l'éclairage par construction
+    (estimate_tax_saving à la borne basse ET haute). La fourchette est DÉRIVÉE, pas inventée.
+    Beginner-kind + LSFin (pas de fausse précision) + aligné moteur.
+  taxable_not_gross:
+    decision: on_collecte_le_revenu_IMPOSABLE_approximatif_pas_le_salaire_brut
+    why: >-
+      L'entrée du moteur canonique est taxable_income (cantonal_comparator.py:448). L'étalon ESTV est
+      calibré sur le revenu imposable (cantonal_comparator.py:94-101). Le brut surestime l'impôt donc
+      l'économie (bug #1061). « revenu imposable » est une ancre glossaire tappable (où le trouver :
+      dernière taxation).
+  tradeoff_surfaced_for_julien: >-
+    Chaleur de « combien tu gagnes ? » (brut, familier) VS justesse de « revenu imposable » (honnête).
+    Choix = justesse, rattrapée par glossaire-tap + « à peu près » + « où le trouver ». Pivot bon
+    marché au stade contrat si Julien préfère la chaleur du brut.
+  bands_aligned_to_estimator_nodes: >-
+    Bornes 30/50/70/100/150k choisies pour tomber sur/entre les points calibrés ESTV
+    CANTONAL_TAX_POINTS_INCOME [15,25,35,40,70,100,150,250]k (cantonal_comparator.py:118-120) —
+    interpolation la plus stable aux bornes.
+
+privacy_copy_rule:
+  # HARD (Julien 2026-08-05, « reste sur ton téléphone » ABOLI) : toute phrase privacy dérive du
+  # contrat de données de CET écran. Ici il n'y a AUCUNE donnée device-only : pas de recherche libre,
+  # la tranche committée REJOINT le profil comme la commune. Donc AUCUNE phrase privacy sur cet écran.
+  on_device_claims_must_not_exceed_data_contract: true
+  device_local_only_datum_on_this_screen: none
+  committed_band_joins_profile: true
+  privacy_sentence_on_screen: omitted_because_no_device_only_datum_exists_here
+  forbidden_privacy_claim: any_on_device_or_not_sent_claim_about_the_committed_band
+
+slice:
+  entry_preconditions:
+    shared: [tax_year_explicitly_selected, lpp_affiliation_yes, commune_selected]
+  implemented_nodes: [fact_revenu]
+  boundary_nodes: [eclairage_impot_3a]
+  locales: [fr, en, de, es, it, pt]
+
+human_outcome:
+  question: "Ton revenu imposable, c’est combien à peu près ?"
+  why_now: >-
+    L'impôt — et donc l'effet d'un versement 3a — dépend du revenu imposable. Une tranche suffit :
+    elle porte l'incertitude honnêtement et donne la fourchette de l'éclairage suivant. Aucun résultat
+    personnel n'est affiché ici.
+  must_understand:
+    - La question suffit : on cherche le revenu imposable APPROXIMATIF, en tranche, pas un chiffre exact.
+    - « revenu imposable » est tappable : définition simple + où le trouver (dernière taxation).
+    - Une tranche assume l'à-peu-près ; pas de fausse précision, pas de point unique.
+    - Le choix est corrigible avant tout calcul.
+  next_small_action:
+    selected: Continuer vers l'éclairage — ce qu'un versement 3a change à l'impôt de cette année.
+
+fact_contract:
+  id: approximate_taxable_income_band_for_selected_tax_year_single_assessment_unit
+  provenance: explicit_user_declaration
+  storage: ephemeral_until_committed_then_joins_profile
+  initial_state: unset
+  states: [unset, selected]
+  committed_key: taxable_income_band_enum
+  band_enum: [lt30, b30_50, b50_70, b70_100, b100_150, gt150]
+  selected_value_shape: one_of_six_reviewed_taxable_income_bands_valid_for_the_selected_tax_year
+  unit: chf_per_year_taxable
+  determining_basis: revenu_imposable_annuel_starting_point_dernière_taxation_adjustable
+  never_derive_income_from:
+    - gross_salary_fed_directly_as_taxable
+    - device_or_account_signals
+    - profile_or_previous_unrelated_answer
+    - employer_or_provider_data
+  forbidden_fallbacks:
+    - a_default_or_recommended_band
+    - the_median_or_most_common_band
+    - the_previous_or_last_used_band
+  supported_case: one_ordinary_single_assessment_unit_with_an_approximate_taxable_income
+  no_commit_without_a_selected_band: true
+  # ÉCHELLE DE PRÉCISION DÉCLARÉE (Julien 2026-08-05) — même fait, résolution + provenance montantes.
+  resolution_scale:
+    ladder: [declared_bracket, declared_exact, document_parsed]
+    default_entry_form: declared_bracket   # la TRANCHE reste l'entrée par défaut ; fact_revenu ne change pas de forme
+    declared_bracket: {value_shape: one_of_six_bands, provenance: explicit_user_declaration_approximate}
+    declared_exact:
+      value_shape: one_exact_chf_taxable_income
+      provenance: explicit_user_declaration_exact
+      optional: true   # jamais imposé ; TIRÉ par la valeur depuis eclairage, pas poussé par ce formulaire
+      replaces_in_place: same_fact_upgraded_resolution_never_re_asked   # principe 3
+      entered_where: as_a_refine_action_on_eclairage_hypothesis_row_not_a_new_fact_revenu_variant
+    document_parsed:
+      status: FUTURE_not_r3
+      value_shape: taxable_income_extracted_from_a_tax_assessment
+      provenance: parsed_document_with_confidence
+      legacy_parser_to_reuse: apps/mobile/lib/services/document_parser/tax_declaration_parser.dart   # + twin backend + extraction_confidence_scorer.py
+      note: un_jour_declared_bracket_ou_exact_devient_document_parsed_meme_fait_provenance_upgraded
+    invariant_input_le_output: >-
+      La précision de l'entrée ne dépasse jamais la précision que le moteur peut honnêtement rendre en
+      sortie (principe 1, anti-#1061 généralisé). Une tranche -> une fourchette large ; un exact ->
+      une fourchette resserrée (jamais un point tant que des approximations moteur subsistent).
+
+input_contract:
+  presentation: bounded_band_choice_tappable_cards   # ni molette, ni clavier libre (voir product_decision_input_pattern)
+  free_text_commits_a_fact: false
+  numeric_keyboard: forbidden_on_this_screen
+  wheel_picker: forbidden_on_this_screen
+  no_preselection: true
+  bands_rendered_as: six_tappable_cards_stable_order_low_to_high
+  bands:
+    - {key: lt30,     label_key: fact_revenu_band_lt30,     edges_chf: [0, 30000]}
+    - {key: b30_50,   label_key: fact_revenu_band_30_50,    edges_chf: [30000, 50000]}
+    - {key: b50_70,   label_key: fact_revenu_band_50_70,    edges_chf: [50000, 70000]}
+    - {key: b70_100,  label_key: fact_revenu_band_70_100,   edges_chf: [70000, 100000]}
+    - {key: b100_150, label_key: fact_revenu_band_100_150,  edges_chf: [100000, 150000]}
+    - {key: gt150,    label_key: fact_revenu_band_gt150,    edges_chf: [150000, null]}   # open-topped
+  edges_are_the_eclairage_fourchette_source: true    # borne basse/haute -> estimate_tax_saving low/high
+  selection_summary_persistent_and_visible: true
+  help_link:
+    visible: always
+    label_key: fact_revenu_help_link
+    operation: open_glossary_sheet_revenu_imposable_where_to_find_it_no_route_no_commit
+  post_commit_render: keep_bands_mark_selected_band_show_selection_summary
+  three_regions:
+    pinned_header: eyebrow_and_question
+    scrollable_middle: six_band_cards_plus_help_link
+    pinned_footer: continue_above_back
+
+node_contracts:
+  fact_revenu:
+    arrival_focus: heading_not_auto_raised_keyboard   # pas de clavier ici
+    required_copy_intents:
+      - the_question_alone_carries_taxable_income_no_body_sentence
+      - revenu_imposable_is_a_tap_glossary_anchor_definition_plus_where_to_find_dernière_taxation
+      - a_band_is_approximate_à_peu_près_no_false_point_estimate
+      - choice_is_ephemeral_and_correctable
+      - brut_is_not_taxable_carried_by_glossary_not_an_inline_wall
+    teaching_mechanism:
+      pattern: tap_glossary_sheet_no_dense_inline_note
+      concepts_are_glossary_entries: [revenu_imposable, brut]
+      on_screen_anchors_minimal: question_carries_revenu_imposable_anchor_help_link_reopens_the_same_sheet
+      sheet_copy_intents: [one_plain_sentence, where_to_find_it, optional_fun_metaphor_lsfin_safe_never_a_promise]
+      copy_source: product/mint_next/batch21/r3-six-locale-copy.yaml#copy.{locale}.fact_revenu_gloss_*
+    coach_intent:
+      status: contract_requirement_not_implemented_in_r3
+      invocable_id: fact_revenu
+      three_paths_rule:
+        declared_route: fact_revenu_in_batch6_navigation_refresh
+        hub_reachable_within_taps: 2
+        natural_language_intents: ["combien je gagne pour les impôts", "ma tranche de revenu", "mon revenu imposable"]
+      coach_may_show_widget: taxable_income_band_picker_grounded_on_this_fact
+      every_screen_and_widget_carries_a_coach_invocable_id: true
+    controls:
+      choose_band: {operation: atomically_commit_one_reviewed_band_without_routing}
+      open_income_glossary: {operation: open_revenu_imposable_sheet_no_route_no_commit}
+      continue: {to: eclairage_impot_3a, route_guard: a_band_is_selected, activation: always_enabled_validation_dispatch, never_routes_in_r3: true}
+      back: {operation: exact_history_back}
+      open_safe_exit: {overlay: safe_exit}
+    same_band_reselect: idempotent_no_op_no_state_churn
+    forbidden:
+      - a_default_or_recommended_band
+      - a_numeric_keyboard_or_a_precise_figure_on_this_screen
+      - a_wheel_picker_on_this_screen
+      - a_body_sentence_below_the_question
+      - feeding_gross_salary_as_taxable_income
+      - tax_amount_rate_range_or_saving_shown_here
+      - automatic_route_after_selection
+      - account_creation
+      - any_privacy_claim_that_the_committed_band_stays_on_device
+    copy_source: product/mint_next/batch21/r3-six-locale-copy.yaml#copy.{locale}.fact_revenu_*
+
+accessibility_contract:
+  inherit_from_r2_except: [list_interaction]
+  band_cards_single_select_group: true
+  selection_refindable: selection_summary_is_a_focusable_announced_region
+  semantics_traversal_order: continue_reachable_before_or_independently_of_the_band_cards_never_trapped
+  glossary_sheet_accessible:
+    anchor_is_a_named_button_role_not_a_bare_styled_span: true
+    sheet_opens_with_focus_on_its_heading_traps_focus_until_dismissed_then_restores_to_the_anchor: true
+    dismiss_by_swipe_button_and_screen_reader_escape: true
+    anchor_visible_mark_meets_border_contrast_min_ratio_not_colour_only: true
+  minimum_target_size_points: 48
+  border_contrast_min_ratio: 3.0
+  text_contrast_min_ratio: 4.5
+  keyboard_and_switch_navigation: deterministic_visual_and_traversal_order
+  focus_restoration: exact_trigger_or_heading
+  compact_proof: 320x700_logical_px_text_scale_2_shows_question_continue_and_at_least_two_band_cards_no_overflow_clip
+  required_proof_cases:
+    - six_band_cards_none_preselected
+    - one_band_selected_summary_announced
+    - income_glossary_sheet_open_focus_trapped_and_restored
+    - error_no_selection_announced
+
+inherited_verbatim_from_R1_R2:
+  - navigation_contract.safe_exit_resume_keep_reference_leave
+  - lifecycle_contract.generation_token_30min_ttl_app_kill_taxyear_purge
+  - six_locale_semantic_contract.human_review_required_key_parity_insufficient
+  - accessibility_contract.single_select_group_focus_restoration_48pt
+
+scope_exclusions:
+  - flutter_runtime
+  - tax_calculation_or_personal_result   # ça, c'est l'écran suivant (eclairage)
+  - a_precise_income_figure_or_numeric_keyboard
+  - gross_to_taxable_conversion_model
+  - persistence_backend_or_api
+  - public_product_route
+  - user_validation
+  - routing_to_eclairage
+  - the_standalone_fact_household_question   # situation devient hypothèse éditable sur eclairage
+
+hermeneutic_inscription:
+  experience_visee: "Le débutant situe son revenu sans stress, en une touche, à peu près — et sait où vérifier."
+  pourquoi_la_decision: "Une tranche (pas un chiffre) parce qu'un point précis serait une fausse précision et, en brut, surestimerait l'économie (bug #1061) ; les bornes fabriquent la fourchette honnête d'après."
+  ce_que_ca_prepare: "L'entrée exacte du moteur ESTV et les deux bouts de la fourchette de l'éclairage — le premier moment où l'app rend quelque chose."

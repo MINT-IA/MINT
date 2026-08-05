@@ -1,0 +1,71 @@
+# R3 batch21 — engine-derived fixtures for the eclairage payoff. Every value below is
+# DERIVED by EXECUTING the canonical fiscal engine, never authored (0-trust).
+# Executed 2026-08-05 in wt-batch20-red @ codex/journey-os-batch21-r3 (values reproduced
+# live from services/backend, matching scratchpad/R3-deliverables/scoring/derivations-suisse.md).
+schema_version: 1
+status: sealed_engine_fixtures_runtime_not_implemented
+provenance:
+  engine: services/backend/app/services/fiscal/cantonal_comparator.py
+  saving_function: "estimate_tax_saving(taxable_income, deduction, canton, is_married)"   # :426
+  income_tax_function: "estimate_income_tax(taxable_income, canton, is_married)"           # :448
+  etalon_table: CANTONAL_COMMUNAL_TAX_CHF                                                  # :122
+  income_points: CANTONAL_TAX_POINTS_INCOME                                                # :118  [15,25,35,40,70,100,150,250]k
+  calibration_profile: chef_lieu_celibataire_sans_enfant_sans_confession_fortune_0        # :99-101
+  etalon_source: api_officielle_estv_API_calculateSimpleTaxes
+  method: difference_of_tax_impot_revenu_moins_impot_revenu_moins_versement                # :432-437 ; JAMAIS plafond*taux
+  regression_fixed: commit_c62d70682_#1061_imperatif_et_surestimation_supprimes
+  executed_date: 2026-08-05
+  executed_command: "estimate_tax_saving(inc, 7258, canton, is_married=False)"
+
+# ── Fourchette d'économie (versement 3a = plafond avec LPP 7258, célibataire, chef-lieu) ──
+# La fourchette d'un band = économie à la borne BASSE et à la borne HAUTE (imprécision du revenu,
+# source dominante). Estimation centrale au chef-lieu du canton (P3 : dispersion communale résiduelle
+# DITE, mesurée, jamais cachée). Toutes valeurs exécutées live.
+saving_fourchette:
+  versement_chf: 7258            # pilier3aPlafondAvecLpp — apps/mobile/lib/constants/social_insurance.dart:397
+  is_married: false
+  example_canton: FR             # Fribourg (bilingue, présent dans le dataset R2), chef-lieu
+  bands:
+    lt30:     {edges_chf: [0, 30000],       saving_low: 0,    saving_high: 1243, render_state: low_income_floor}
+    b30_50:   {edges_chf: [30000, 50000],   saving_low: 1243, saving_high: 1794, render_state: nominal}
+    b50_70:   {edges_chf: [50000, 70000],   saving_low: 1794, saving_high: 1831, render_state: nominal}
+    b70_100:  {edges_chf: [70000, 100000],  saving_low: 1831, saving_high: 2242, render_state: nominal}   # maquette « ≈ 1 800 à 2 200 CHF »
+    b100_150: {edges_chf: [100000, 150000], saving_low: 2242, saving_high: 2776, render_state: nominal}
+    gt150:    {edges_chf: [150000, null],   saving_low: 2776, saving_high: null, render_state: nominal}    # open-topped
+  cross_canton_control:          # même band 70-100k, autres cantons chef-lieu — dispersion cantonale, exécutée live
+    FR: {inc70k: 1831, inc100k: 2242}
+    BE: {inc70k: 1737, inc100k: 2207}
+    JU: {inc70k: 1801, inc100k: 2226}
+    BS: {inc70k: 1740, inc100k: 2003}
+
+# ── État precision_refined : point à revenu EXACT (jamais affiché comme point) ──
+precision_refined_point:
+  exact_taxable_income_chf: 85000
+  canton: FR
+  saving_chf: 2213              # estimate_tax_saving(85000, 7258, 'FR', is_married=False), exécuté live
+  income_tax_chf: 17042
+  never_displayed_as_a_point: true
+  residual_width_measured_P3: >-
+    Le point ci-dessus n'est jamais affiché. L'état resserré montre une FOURCHETTE autour de lui, de
+    largeur dérivée des approximations moteur restantes (declared_precision_scale.principle_4). Résidu
+    communal MESURÉ (verdict P3, Julien 2026-08-05) = dispersion intra-cantonale officielle AGI BE
+    steuanlg 0.89 (Deisswil b. M., BFS 535) → 2.20 (Schelten, BFS 708), ~×2.5 sur la seule part
+    communale — PAS un ±3/±5% optimiste. Largeur exacte PENDING le dataset communal reviewed
+    (commune-multipliers-reviewed.yaml, pending_reviewed_dataset). La fourchette resserrée reste large
+    et dite, jamais un point. Source : scratchpad/RESEARCH-steuerfuss-communal-source-BE-BS-FR-JU.md.
+
+# ── Plafond 3a — dérive de l'AFFILIATION 2e pilier, jamais du statut d'emploi (fault_1) ──
+# affilié -> 7258 (LIFD 33-1-e) ; NON affilié -> min(0.20 × revenu_net, 36288) (OPP3 art.7).
+# Les 3 cas gouvernent le contrat : le runtime devra les faire passer.
+plafond_3a_derivation:
+  refs:
+    plafond_avec_lpp: apps/mobile/lib/constants/social_insurance.dart:397   # 7258.0
+    plafond_sans_lpp: apps/mobile/lib/constants/social_insurance.dart:400   # 36288.0
+    taux_sans_lpp: apps/mobile/lib/constants/social_insurance.dart:403      # 0.20
+    opp3_art7: services/backend/app/services/independant_service.py:26_and_150   # « OPP3 art.7 : 20% du revenu net, max 36'288 »
+    seuil_entree_lpp: apps/mobile/lib/services/financial_core/lpp_calculator.dart:88   # 22680
+  mandatory_contract_test_cases:   # eclairage-scope.yaml legacy_faults_made_impossible.fault_1
+    - {revenu_chf: 20000,  affilie: false, plafond_chf: 4000,  formula: "min(0.20*20000, 36288)=4000",  why: "sous seuil entrée LPP 22680 ; forfait 7258 SURESTIMERAIT"}
+    - {revenu_chf: 250000, affilie: false, plafond_chf: 36288, formula: "min(0.20*250000, 36288)=36288", why: "20% plafonné ; forfait 7258 SOUS-ESTIMERAIT"}
+    - {revenu_chf: null,   affilie: true,  plafond_chf: 7258,  formula: "LIFD 33-1-e petit 3a",           why: "affilié -> 7258 quel que soit le revenu"}
+  r3_precondition: slice_lpp_affiliation_yes_so_cap_is_7258_but_the_binding_rule_gravee_is_affiliation_not_employment_status
