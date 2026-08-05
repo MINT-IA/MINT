@@ -77,7 +77,7 @@ GREEN_SUMMARY = {"passed": 14, "failed": 0, "load_or_harness_errors": 0}
 # display_only ruling, the unused batch20 compile-fixture import dropped. This is
 # the delivered test the GREEN replay runs — distinct from red.EXPECTED_TEST_SHA256
 # (the frozen RED test).
-GREEN_TEST_SHA256 = "356172a908461607011e261a31e056f6e73ad4dd808efeda791f897d525b1b70"
+GREEN_TEST_SHA256 = "41efc70144b732a404ad0dd9ab9e8b5223f80f9943cbf08d1f1acd9ea082eff9"
 GREEN_TEST_NAMES = {
     "R3_01 the shared entry path reaches the fact_lieu boundary before the R3 fact_revenu runtime",
     "R3_02 fact_revenu shows six taxable income band cards none preselected and no wheel or keyboard",
@@ -85,7 +85,7 @@ GREEN_TEST_NAMES = {
     "R3_04 selecting a taxable income band announces the selection summary and marks the band",
     "R3_05 the revenu imposable glossary sheet opens focus trapped and restores to the anchor",
     "R3_06 fact_revenu error no selection is announced and continue never routes in r3",
-    "R3_07 eclairage nominal shows the mechanism a low to high range four hypotheses and the disclaimer never a single number",
+    "R3_07 eclairage nominal shows the mechanism a low to high range five hypotheses and the disclaimer never a single number",
     "R3_08 eclairage revenu and lieu are editable hypotheses with a refine affordance and versement and situation are display only",
     "R3_09 eclairage precision refined tightens the range but never collapses it to a single number",
     "R3_10 eclairage pending missing income shows no number and eclairage low income floor shows the honest note",

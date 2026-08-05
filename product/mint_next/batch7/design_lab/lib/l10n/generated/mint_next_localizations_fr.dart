@@ -32,7 +32,7 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String get orientationTitle =>
-      'Épargner pour ta retraite peut aussi réduire tes impôts.';
+      'Mettre de côté peut aussi réduire tes impôts.';
 
   @override
   String get orientationBody =>
@@ -40,7 +40,7 @@ class MintNextLocalizationsFr extends MintNextLocalizations {
 
   @override
   String get orientationNote =>
-      'On vérifiera d’abord l’année et ta situation. Aucun montant ne sera recommandé.';
+      'On vérifiera d’abord ta situation. Aucun montant ne sera recommandé.';
 
   @override
   String get continueLabel => 'Continuer';

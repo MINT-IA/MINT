@@ -31,8 +31,7 @@ green_gate:
     the anchor
   - R3_06 fact_revenu error no selection is announced and continue never routes in
     r3
-  - R3_07 eclairage nominal shows the mechanism a low to high range four hypotheses
-    and the disclaimer never a single number
+  - R3_07 eclairage nominal shows the mechanism a low to high range five hypotheses and the disclaimer never a single number
   - R3_08 eclairage revenu and lieu are editable hypotheses with a refine affordance
     and versement and situation are display only
   - R3_09 eclairage precision refined tightens the range but never collapses it to
@@ -46,10 +45,10 @@ green_gate:
   - R3_14 registry keeps R3 after R2 before R4 and excludes later evidence
   retires: red_replay_2_12
   test_file: product/mint_next/batch7/design_lab/test/design_lab_batch21_r3_test.dart
-  test_sha256: 356172a908461607011e261a31e056f6e73ad4dd808efeda791f897d525b1b70
+  test_sha256: 41efc70144b732a404ad0dd9ab9e8b5223f80f9943cbf08d1f1acd9ea082eff9
   working_directory: product/mint_next/batch7/design_lab
 mechanical_binding:
-  candidate_payload_sha256: 0ec3549640daabf64ccdd174e59fa3a262f9ddf73a5c2d5f3d175b56628b4ef1
+  candidate_payload_sha256: 6a2344e3c3c010ae6cac86bee5982c2aa2cf42a45cc09e977134f5a3934ed3a8
   green_lib_inventory_sha256: null
   reviewed_candidate_commit: null
   reviewed_payload_sha256: null

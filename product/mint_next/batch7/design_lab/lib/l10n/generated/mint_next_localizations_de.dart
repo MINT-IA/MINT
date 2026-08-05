@@ -33,7 +33,7 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get orientationTitle =>
-      'Für deine Pensionierung sparen kann auch deine Steuern senken.';
+      'Geld beiseitelegen kann auch deine Steuern senken.';
 
   @override
   String get orientationBody =>
@@ -41,7 +41,7 @@ class MintNextLocalizationsDe extends MintNextLocalizations {
 
   @override
   String get orientationNote =>
-      'Zuerst prüfen wir das Jahr und deine Situation. Es wird kein Betrag empfohlen.';
+      'Zuerst prüfen wir deine Situation. Es wird kein Betrag empfohlen.';
 
   @override
   String get continueLabel => 'Weiter';

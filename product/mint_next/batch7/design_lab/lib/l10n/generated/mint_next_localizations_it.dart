@@ -33,7 +33,7 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get orientationTitle =>
-      'Risparmiare per la tua pensione può anche ridurre le imposte.';
+      'Mettere da parte può anche ridurre le tue imposte.';
 
   @override
   String get orientationBody =>
@@ -41,7 +41,7 @@ class MintNextLocalizationsIt extends MintNextLocalizations {
 
   @override
   String get orientationNote =>
-      'Prima verificheremo l’anno e la tua situazione. Non verrà consigliato alcun importo.';
+      'Prima verificheremo la tua situazione. Non verrà consigliato alcun importo.';
 
   @override
   String get continueLabel => 'Continua';

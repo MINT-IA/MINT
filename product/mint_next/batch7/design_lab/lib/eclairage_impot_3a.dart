@@ -382,6 +382,12 @@ class _EclairageScreenState extends State<EclairageScreen> {
         : copy['eclairage_amount_caption']!;
 
     // Each hyp row splits its localized template on ' · ' into (label, value).
+    // Phase B — année display_only, comprehension anchor, refine deferred to the
+    // future year-refinement wave.
+    final anneeValue = copy['eclairage_hyp_annee']!
+        .split(' · ')
+        .last
+        .replaceAll('{taxYear}', widget.taxYear.toString());
     final revenuValue = refined
         ? '${_fmtChf(_exactIncome!)} CHF'
         : copy['eclairage_hyp_revenu']!
@@ -458,6 +464,14 @@ class _EclairageScreenState extends State<EclairageScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                _HypRow(
+                  rowKey: 'row:eclairage.hyp.annee',
+                  label: copy['eclairage_hyp_annee']!.split(' · ').first,
+                  value: anneeValue,
+                  // Phase B — année display_only, comprehension anchor, refine
+                  // deferred to the future year-refinement wave.
+                  displayOnly: true,
+                ),
                 _HypRow(
                   rowKey: 'row:eclairage.hyp.revenu',
                   actionKey: 'action:eclairage.refine_revenu',

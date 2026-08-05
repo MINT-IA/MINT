@@ -32,7 +32,7 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String get orientationTitle =>
-      'Poupar para a tua reforma também pode reduzir os teus impostos.';
+      'Pôr dinheiro de lado também pode reduzir os teus impostos.';
 
   @override
   String get orientationBody =>
@@ -40,7 +40,7 @@ class MintNextLocalizationsPt extends MintNextLocalizations {
 
   @override
   String get orientationNote =>
-      'Primeiro verificamos o ano e a tua situação. Não será recomendado qualquer montante.';
+      'Primeiro verificamos a tua situação. Não será recomendado qualquer montante.';
 
   @override
   String get continueLabel => 'Continuar';

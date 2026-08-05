@@ -154,7 +154,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @orientationTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Épargner pour ta retraite peut aussi réduire tes impôts.'**
+  /// **'Mettre de côté peut aussi réduire tes impôts.'**
   String get orientationTitle;
 
   /// No description provided for @orientationBody.
@@ -166,7 +166,7 @@ abstract class MintNextLocalizations {
   /// No description provided for @orientationNote.
   ///
   /// In fr, this message translates to:
-  /// **'On vérifiera d’abord l’année et ta situation. Aucun montant ne sera recommandé.'**
+  /// **'On vérifiera d’abord ta situation. Aucun montant ne sera recommandé.'**
   String get orientationNote;
 
   /// No description provided for @continueLabel.

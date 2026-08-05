@@ -32,7 +32,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get orientationTitle =>
-      'Saving for retirement may also reduce your tax.';
+      'Setting money aside may also reduce your tax.';
 
   @override
   String get orientationBody =>
@@ -40,7 +40,7 @@ class MintNextLocalizationsEn extends MintNextLocalizations {
 
   @override
   String get orientationNote =>
-      'We will first check the year and your situation. No amount will be recommended.';
+      'We will first check your situation. No amount will be recommended.';
 
   @override
   String get continueLabel => 'Continue';

@@ -173,13 +173,13 @@ void main() {
   );
 
   testWidgets(
-    'R3_07 eclairage nominal shows the mechanism a low to high range four hypotheses and the disclaimer never a single number',
+    'R3_07 eclairage nominal shows the mechanism a low to high range five hypotheses and the disclaimer never a single number',
     (tester) async {
       await _reachEclairage(tester, sentinel: '[R3_07]');
       expect(_key('text:eclairage.mechanism'), findsOneWidget);
       expect(_key('amount:eclairage.range'), findsOneWidget);
       expect(_key('text:eclairage.disclaimer'), findsOneWidget);
-      for (final id in ['revenu', 'versement', 'situation', 'lieu']) {
+      for (final id in ['annee', 'revenu', 'versement', 'situation', 'lieu']) {
         expect(_key('row:eclairage.hyp.$id'), findsOneWidget);
       }
     },
@@ -196,7 +196,7 @@ void main() {
       // the état-civil batch). A cosmetic edit is forbidden (#1061). All four
       // hypothesis rows are shown; only the two editable ones carry a control.
       await _reachEclairage(tester, sentinel: '[R3_08]');
-      for (final id in ['revenu', 'versement', 'situation', 'lieu']) {
+      for (final id in ['annee', 'revenu', 'versement', 'situation', 'lieu']) {
         expect(_key('row:eclairage.hyp.$id'), findsOneWidget);
       }
       expect(_key('action:eclairage.refine_revenu'), findsOneWidget);

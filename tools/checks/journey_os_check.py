@@ -261,6 +261,8 @@ ALLOW = {
     # design-lab only; product route stays forbidden.
     "product/mint_next/batch21/fact_revenu-scope.yaml",
     "product/mint_next/batch21/eclairage-scope.yaml",
+    # Phase B P1-B: added eclairage_hyp_annee (année display_only hypothesis line).
+    "product/mint_next/batch21/r3-six-locale-copy.yaml",
     "product/mint_next/batch7/design_lab/lib/fact_revenu.dart",
     "product/mint_next/batch7/design_lab/lib/eclairage_impot_3a.dart",
     "product/mint_next/batch7/design_lab/lib/r3_eclairage_catalog.g.dart",
