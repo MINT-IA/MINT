@@ -391,3 +391,37 @@ def test_horizon_years_is_annual_minimum() -> None:
         etat_civil="celibataire",
     )
     assert payload.horizon_years == 1
+
+
+# ---------------------------------------------------------------------------
+# Test 18 — la mention « plafond OPP3 » n'apparait QUE si le montant affiche
+# EST le plafond (versement None, ou demande >= plafond). Un versement explicite
+# sous plafond est un montant choisi : la copie ne doit pas le presenter comme
+# le plafond legal.
+# ---------------------------------------------------------------------------
+
+
+def test_ceiling_mention_only_when_amount_is_ceiling() -> None:
+    common = dict(revenu_imposable=90_000.0, canton="VD", etat_civil="marie")
+
+    # (a) versement explicite SOUS le plafond -> ni « plafond » ni « OPP3 ».
+    sous = sensibilite_3a_menage(
+        versement_3a=2_000.0, **common
+    ).primary_choice_fr.lower()
+    assert "plafond" not in sous
+    assert "opp3" not in sous
+    assert "2'000" in sous  # le montant choisi est bien affiche
+
+    # (b) versement None -> plafond affiche -> mentionne « plafond » + « OPP3 ».
+    au_plafond = sensibilite_3a_menage(
+        versement_3a=None, employment_status="salarie", has_lpp=True, **common
+    ).primary_choice_fr.lower()
+    assert "plafond" in au_plafond
+    assert "opp3" in au_plafond
+
+    # (c) versement AU-DESSUS du plafond -> clampe au plafond -> meme mention.
+    au_dessus = sensibilite_3a_menage(
+        versement_3a=20_000.0, employment_status="salarie", has_lpp=True, **common
+    ).primary_choice_fr.lower()
+    assert "plafond" in au_dessus
+    assert "opp3" in au_dessus

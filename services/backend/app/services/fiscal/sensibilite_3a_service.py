@@ -134,6 +134,10 @@ def sensibilite_3a_menage(
     plafond = get_3a_ceiling(employment_status, has_lpp)
     demande = plafond if versement_3a is None else versement_3a
     versement = max(0.0, min(demande, plafond))  # borné au plafond (OPP3 art. 7)
+    # Le montant AFFICHÉ est le plafond seulement si l'appelant n'a rien demandé
+    # (``None``) ou a demandé au moins le plafond (clampé) — la mention
+    # « (plafond OPP3 art. 7) » ne doit pas qualifier un montant sous-plafond.
+    montant_au_plafond = versement_3a is None or versement_3a >= plafond
 
     revenu = max(0.0, revenu_imposable)
 
@@ -171,8 +175,15 @@ def sensibilite_3a_menage(
             "La fourchette se resserre si le revenu du conjoint est connu."
         )
 
-    delta_bas = round(_BAND_LOW * raw_bas, 2)
-    delta_haut = round(_BAND_HIGH * raw_haut, 2)
+    # Tri défensif des bornes brutes AVANT l'enveloppe ±10%. L'interpolation de
+    # ``estimate_tax_saving`` est monotone croissante en revenu (borne basse =
+    # ménage le plus bas), donc raw_bas <= raw_haut est attendu — mais on trie
+    # explicitement : une exception de validation en production (le validateur
+    # ``_CascadeEffect._enforce_band_order`` LÈVE) serait pire que l'anomalie
+    # qu'elle signale. La construction du payload reste ainsi totale.
+    raw_lo, raw_hi = min(raw_bas, raw_haut), max(raw_bas, raw_haut)
+    delta_bas = round(_BAND_LOW * raw_lo, 2)
+    delta_haut = round(_BAND_HIGH * raw_hi, 2)
 
     effet = _CascadeEffect(
         domain_fr="Impôt sur le revenu",
@@ -183,11 +194,17 @@ def sensibilite_3a_menage(
     )
 
     montant_fr = f"{versement:,.0f}".replace(",", "'")
-    primary_choice_fr = (
-        f"Si tu verses jusqu'à {montant_fr} CHF à ton pilier 3a cette année "
-        f"(plafond OPP3 art. 7), voici l'effet estimé sur ton impôt sur le "
-        f"revenu."
-    )
+    if montant_au_plafond:
+        primary_choice_fr = (
+            f"Si tu verses jusqu'à {montant_fr} CHF à ton pilier 3a cette "
+            f"année (plafond OPP3 art. 7), voici l'effet estimé sur ton impôt "
+            f"sur le revenu."
+        )
+    else:
+        primary_choice_fr = (
+            f"Si tu verses {montant_fr} CHF à ton pilier 3a cette année, voici "
+            f"l'effet estimé sur ton impôt sur le revenu."
+        )
 
     return L3EclairePayload(
         primary_choice_fr=primary_choice_fr,
