@@ -356,7 +356,6 @@ class FactLieuCopy {
     required this.communalHint,
     required this.continueLabel,
     required this.back,
-    required this.privacy,
     required this.errorNoSelection,
     required this.errorStale,
     required this.glossCommunalTerm,
@@ -384,7 +383,6 @@ class FactLieuCopy {
   final String communalHint;
   final String continueLabel;
   final String back;
-  final String privacy;
   final String errorNoSelection;
   final String errorStale;
   final String glossCommunalTerm;
@@ -414,7 +412,6 @@ const Map<String, FactLieuCopy> factLieuCopy = <String, FactLieuCopy>{
     communalHint: "En plus du canton, ta commune a son impôt communal.",
     continueLabel: "Continuer",
     back: "Retour",
-    privacy: "Ta recherche reste sur ton téléphone.",
     errorNoSelection: "Choisis ta commune pour continuer.",
     errorStale: "Ça n’a pas marché. Choisis de nouveau ta commune.",
     glossCommunalTerm: "impôt communal",
@@ -442,7 +439,6 @@ const Map<String, FactLieuCopy> factLieuCopy = <String, FactLieuCopy>{
     communalHint: "On top of the canton, your municipality has its own communal tax.",
     continueLabel: "Continue",
     back: "Back",
-    privacy: "Your search stays on your phone.",
     errorNoSelection: "Choose your municipality to continue.",
     errorStale: "That didn’t work. Choose your municipality again.",
     glossCommunalTerm: "communal tax",
@@ -470,7 +466,6 @@ const Map<String, FactLieuCopy> factLieuCopy = <String, FactLieuCopy>{
     communalHint: "Zusätzlich zum Kanton hat deine Gemeinde ihre eigene Gemeindesteuer.",
     continueLabel: "Weiter",
     back: "Zurück",
-    privacy: "Deine Suche bleibt auf deinem Gerät.",
     errorNoSelection: "Wähle deine Gemeinde, um fortzufahren.",
     errorStale: "Das hat nicht geklappt. Wähle deine Gemeinde erneut.",
     glossCommunalTerm: "Gemeindesteuer",
@@ -498,7 +493,6 @@ const Map<String, FactLieuCopy> factLieuCopy = <String, FactLieuCopy>{
     communalHint: "Oltre al cantone, il tuo comune ha la sua imposta comunale.",
     continueLabel: "Continua",
     back: "Indietro",
-    privacy: "La tua ricerca resta sul tuo telefono.",
     errorNoSelection: "Scegli il tuo comune per continuare.",
     errorStale: "Non ha funzionato. Scegli di nuovo il tuo comune.",
     glossCommunalTerm: "imposta comunale",
@@ -526,7 +520,6 @@ const Map<String, FactLieuCopy> factLieuCopy = <String, FactLieuCopy>{
     communalHint: "Además del cantón, tu municipio tiene su propio impuesto municipal.",
     continueLabel: "Continuar",
     back: "Volver",
-    privacy: "Tu búsqueda se queda en tu teléfono.",
     errorNoSelection: "Elige tu municipio para continuar.",
     errorStale: "No ha funcionado. Elige de nuevo tu municipio.",
     glossCommunalTerm: "impuesto municipal",
@@ -554,7 +547,6 @@ const Map<String, FactLieuCopy> factLieuCopy = <String, FactLieuCopy>{
     communalHint: "Além do cantão, o teu município tem o seu próprio imposto municipal.",
     continueLabel: "Continuar",
     back: "Voltar",
-    privacy: "A tua pesquisa fica no teu telefone.",
     errorNoSelection: "Escolhe o teu município para continuar.",
     errorStale: "Não funcionou. Escolhe de novo o teu município.",
     glossCommunalTerm: "imposto municipal",

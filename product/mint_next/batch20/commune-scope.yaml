@@ -55,16 +55,13 @@ perimeter_decisions_closed:
   border_contrast_min_ratio: 3.0
   query_clamp_enforced_at_state_boundary: true
 
-privacy_copy_rule:
-  # HARD (Julien 2026-08-04): a privacy sentence MUST derive from THIS screen's data
-  # contract. The committed commune JOINS the profile — it is NOT device-only. So
-  # "ton choix reste sur ton téléphone" would be a LIE. Only the transient SEARCH
-  # query is local-only. Honest copy: "La recherche reste sur ton téléphone." or nothing.
-  on_device_claims_must_not_exceed_data_contract: true
-  search_query_is_device_local_only: true
-  committed_commune_joins_profile: true
-  forbidden_privacy_claim: any_on_device_or_not_sent_claim_about_the_committed_commune_or_the_choice
-  honest_privacy_claim_scope: the_search_query_only
+# privacy_copy_rule REMOVED (product decision 2026-08-05): privacy claims derive
+# from the screen's data contract; locality claims are abolished everywhere. The
+# search query stays device-local as a DATA fact (see runtime_contract query_storage
+# below), but the screen no longer whispers an unsolicited on-device claim — a
+# security fact is consulted on demand, not chuchoté. The committed commune joins the
+# profile, so any on-device claim about the choice would have been a lie; removing the
+# claim removes the question it created instead of building trust.
 
 slice:
   entry_preconditions:

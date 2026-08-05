@@ -494,20 +494,6 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
             label: copy.communalHint,
             onPressed: () => _openGloss(generation),
           ),
-          const SizedBox(height: 16),
-          Container(
-            key: const ValueKey('status:fact_lieu.privacy'),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: _porcelain,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: _border),
-            ),
-            child: Semantics(
-              container: true,
-              child: Text(copy.privacy, style: textTheme.bodyMedium),
-            ),
-          ),
         ],
       ),
     );

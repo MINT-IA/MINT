@@ -55,7 +55,6 @@ copy:
     fact_commune_communal_hint: "En plus du canton, ta commune a son impôt communal."
     fact_commune_continue: "Continuer"
     fact_commune_back: "Retour"
-    fact_commune_privacy: "Ta recherche reste sur ton téléphone."
     fact_commune_error_no_selection: "Choisis ta commune pour continuer."
     fact_commune_error_stale: "Ça n’a pas marché. Choisis de nouveau ta commune."
     fact_commune_gloss_communal_term: "impôt communal"
@@ -88,7 +87,6 @@ copy:
     fact_commune_communal_hint: "On top of the canton, your municipality has its own communal tax."
     fact_commune_continue: "Continue"
     fact_commune_back: "Back"
-    fact_commune_privacy: "Your search stays on your phone."
     fact_commune_error_no_selection: "Choose your municipality to continue."
     fact_commune_error_stale: "That didn’t work. Choose your municipality again."
     fact_commune_gloss_communal_term: "communal tax"
@@ -121,7 +119,6 @@ copy:
     fact_commune_communal_hint: "Zusätzlich zum Kanton hat deine Gemeinde ihre eigene Gemeindesteuer."
     fact_commune_continue: "Weiter"
     fact_commune_back: "Zurück"
-    fact_commune_privacy: "Deine Suche bleibt auf deinem Gerät."
     fact_commune_error_no_selection: "Wähle deine Gemeinde, um fortzufahren."
     fact_commune_error_stale: "Das hat nicht geklappt. Wähle deine Gemeinde erneut."
     fact_commune_gloss_communal_term: "Gemeindesteuer"
@@ -154,7 +151,6 @@ copy:
     fact_commune_communal_hint: "Oltre al cantone, il tuo comune ha la sua imposta comunale."
     fact_commune_continue: "Continua"
     fact_commune_back: "Indietro"
-    fact_commune_privacy: "La tua ricerca resta sul tuo telefono."
     fact_commune_error_no_selection: "Scegli il tuo comune per continuare."
     fact_commune_error_stale: "Non ha funzionato. Scegli di nuovo il tuo comune."
     fact_commune_gloss_communal_term: "imposta comunale"
@@ -187,7 +183,6 @@ copy:
     fact_commune_communal_hint: "Además del cantón, tu municipio tiene su propio impuesto municipal."
     fact_commune_continue: "Continuar"
     fact_commune_back: "Volver"
-    fact_commune_privacy: "Tu búsqueda se queda en tu teléfono."
     fact_commune_error_no_selection: "Elige tu municipio para continuar."
     fact_commune_error_stale: "No ha funcionado. Elige de nuevo tu municipio."
     fact_commune_gloss_communal_term: "impuesto municipal"
@@ -220,7 +215,6 @@ copy:
     fact_commune_communal_hint: "Além do cantão, o teu município tem o seu próprio imposto municipal."
     fact_commune_continue: "Continuar"
     fact_commune_back: "Voltar"
-    fact_commune_privacy: "A tua pesquisa fica no teu telefone."
     fact_commune_error_no_selection: "Escolhe o teu município para continuar."
     fact_commune_error_stale: "Não funcionou. Escolhe de novo o teu município."
     fact_commune_gloss_communal_term: "imposto municipal"
@@ -261,7 +255,6 @@ semantic_receipt:
   - fact_commune_no_match
   - fact_commune_npa_secondary
   - fact_commune_overflow_status
-  - fact_commune_privacy
   - fact_commune_question
   - fact_commune_search_label
   - fact_commune_search_placeholder
@@ -300,6 +293,5 @@ semantic_receipt:
   - choice_is_ephemeral_and_correctable_change_affordance_present
   - derived_canton_named_on_each_result_and_bundled_atomically_with_the_commune_on_selection   # finding e (copy side)
   - postcode_npa_is_matchable_display_only_secondary_text_never_the_committed_value_committed_key_is_the_commune_ofs_number   # finding d
-  - only_the_search_query_is_device_local_and_not_sent_the_committed_commune_joins_the_profile_query_ttl_30_minutes
   - teaching_delivered_by_tap_glossary_sheets_not_dense_inline_notes
   human_review_receipts: required_in_acceptance_and_bound_to_review_payload
