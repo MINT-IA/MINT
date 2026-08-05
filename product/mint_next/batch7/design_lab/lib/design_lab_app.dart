@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 
 import 'canton_r1.dart';
 import 'eclairage_impot_3a.dart';
+import 'fact_etat_civil.dart';
 import 'fact_lieu.dart';
 import 'fact_revenu.dart';
 import 'l10n/generated/mint_next_localizations.dart';
@@ -14,6 +15,8 @@ import 'multi_provider_amount_editor.dart';
 import 'ordinary_chf_amount.dart';
 import 'provider_label.dart';
 import 'r3_eclairage_catalog.g.dart';
+import 'r4_fermeture_catalog.g.dart';
+import 'scenarios_versement.dart';
 
 enum _DesignNode {
   today3aIntent,
@@ -34,6 +37,8 @@ enum _DesignNode {
   eclairageImpot3a,
   educationExplanation,
   dismissed,
+  scenariosVersement,
+  factEtatCivil,
 }
 
 enum _LppAffiliation { yes, no, unknown }
@@ -66,6 +71,60 @@ class Batch21Config {
   final bool canContribute; // false -> non_applicable_source
 }
 
+/// Which R4 (batch22, "fermeture de la boucle") node the test harness lands
+/// on directly.
+///
+/// batch22 is PARALLEL PREP in an isolated worktree (codex/journey-os-batch22-
+/// runtime) — it is NOT wired into the linear journey (never_routes_in_r4 on
+/// both nodes' forward controls; fact_etat_civil's `back` too). Like the R3
+/// harness before its own integration wave, the two R4 nodes are reached by a
+/// harness that starts on the requested node with its facts preset, not by
+/// walking the (still R3-only) linear journey.
+enum Batch22Start { scenariosVersement, factEtatCivil }
+
+/// Preset facts for the batch22 harness (test-only reachability).
+///
+/// scenarios_versement's four critical inputs (tax_year, commune,
+/// taxable_income_band, lpp_affiliation — additional_planned_amount is NEVER
+/// a pending trigger) are each modelled as a `*Known` flag so a dev test can
+/// null out exactly one and assert `pending_missing_fact` names it. The
+/// grounded engine fixtures (r4_fermeture_catalog.g.dart) cover ONLY canton
+/// FR / band b70_100 / célibataire — an OFFLINE-LAB LIMITATION documented in
+/// scenarios_versement.dart, mirroring R3's single grounded refine point.
+class Batch22Config {
+  const Batch22Config({
+    this.startNode = Batch22Start.scenariosVersement,
+    this.taxYearKnown = true,
+    this.commune = r3ExampleCommune,
+    this.canton = r3ExampleCanton,
+    this.communeKnown = true,
+    this.band = 'b70_100',
+    this.bandKnown = true,
+    this.affiliated = true,
+    this.affiliationKnown = true,
+    this.contributedChf = 0,
+    this.nonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf,
+    this.civilStatus,
+  });
+
+  final Batch22Start startNode;
+
+  final bool taxYearKnown;
+  final String commune;
+  final String canton;
+  final bool communeKnown;
+  final String band;
+  final bool bandKnown;
+  final bool affiliated;
+  final bool affiliationKnown;
+  final int contributedChf;
+  final int nonAffiliatedIncomeChf;
+
+  /// fact_etat_civil preset selection. null = no card selected
+  /// (default_hypothesis, no_preselection).
+  final String? civilStatus;
+}
+
 class MintNextDesignLabApp extends StatelessWidget {
   const MintNextDesignLabApp({
     super.key,
@@ -75,6 +134,7 @@ class MintNextDesignLabApp extends StatelessWidget {
   }) : _enableBatch14MultiProvider = false,
        _enableBatch16Unresolved = false,
        batch21 = null,
+       batch22 = null,
        now = null;
 
   @visibleForTesting
@@ -86,6 +146,7 @@ class MintNextDesignLabApp extends StatelessWidget {
   }) : _enableBatch14MultiProvider = true,
        _enableBatch16Unresolved = false,
        batch21 = null,
+       batch22 = null,
        now = null;
 
   @visibleForTesting
@@ -97,7 +158,8 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.now,
   }) : _enableBatch14MultiProvider = true,
        _enableBatch16Unresolved = true,
-       batch21 = null;
+       batch21 = null,
+       batch22 = null;
 
   /// R3 (batch21) éclairage-arc harness: lands directly on [Batch21Config.startNode]
   /// with the preset facts, so the two nodes are reachable despite the R3 forward
@@ -111,6 +173,23 @@ class MintNextDesignLabApp extends StatelessWidget {
     this.batch21 = const Batch21Config(),
   }) : _enableBatch14MultiProvider = false,
        _enableBatch16Unresolved = false,
+       batch22 = null,
+       now = null;
+
+  /// R4 (batch22, "fermeture de la boucle") harness: lands directly on
+  /// [Batch22Config.startNode] with the preset facts, so scenarios_versement
+  /// and fact_etat_civil are reachable despite their forward controls never
+  /// routing in R4 (parallel prep, not the integration wave).
+  @visibleForTesting
+  const MintNextDesignLabApp.batch22Harness({
+    super.key,
+    this.locale,
+    this.textScaler,
+    this.currentYear,
+    this.batch22 = const Batch22Config(),
+  }) : _enableBatch14MultiProvider = false,
+       _enableBatch16Unresolved = false,
+       batch21 = null,
        now = null;
 
   final Locale? locale;
@@ -119,6 +198,7 @@ class MintNextDesignLabApp extends StatelessWidget {
   final bool _enableBatch14MultiProvider;
   final bool _enableBatch16Unresolved;
   final Batch21Config? batch21;
+  final Batch22Config? batch22;
   final DateTime Function()? now;
 
   @override
@@ -138,6 +218,7 @@ class MintNextDesignLabApp extends StatelessWidget {
         enableBatch14MultiProvider: _enableBatch14MultiProvider,
         enableBatch16Unresolved: _enableBatch16Unresolved,
         batch21: batch21,
+        batch22: batch22,
         now: now ?? DateTime.now,
       ),
     );
@@ -188,6 +269,7 @@ class _DesignLabJourney extends StatefulWidget {
     required this.enableBatch14MultiProvider,
     required this.enableBatch16Unresolved,
     required this.batch21,
+    required this.batch22,
     required this.now,
   });
 
@@ -195,6 +277,7 @@ class _DesignLabJourney extends StatefulWidget {
   final bool enableBatch14MultiProvider;
   final bool enableBatch16Unresolved;
   final Batch21Config? batch21;
+  final Batch22Config? batch22;
   final DateTime Function() now;
 
   @override
@@ -208,6 +291,18 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
   // R3 (batch21): the committed taxable-income band (fact_revenu), read by the
   // eclairage payoff node. Ephemeral until committed, then joins the profile.
   String? _taxableIncomeBand;
+  // R4 (batch22): scenarios_versement's facts (each nullable field IS the
+  // "missing" state for pending_missing_fact) + fact_etat_civil's committed
+  // status. Preset by the isolated batch22 harness only (parallel prep, not
+  // wired into the linear journey).
+  int? _scenariosTaxYear;
+  String? _scenariosCommune;
+  String? _scenariosCanton;
+  String? _scenariosBand;
+  bool? _scenariosAffiliated;
+  int _scenariosContributedChf = 0;
+  int _scenariosNonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf;
+  String? _batch22CivilStatus;
   _LppAffiliation? _lppAffiliation;
   _ContributionStatus? _contributionStatus;
   bool _contributionEdgeHelpExpanded = false;
@@ -264,6 +359,25 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       _node = switch (batch21.startNode) {
         Batch21Start.factRevenu => _DesignNode.factRevenu,
         Batch21Start.eclairage => _DesignNode.eclairageImpot3a,
+      };
+    }
+    // R4 (batch22) harness: land directly on the requested fermeture-de-la-
+    // boucle node with its facts preset — isolated parallel prep, the linear
+    // journey is not wired (never_routes_in_r4).
+    final batch22 = widget.batch22;
+    if (batch22 != null) {
+      _scenariosTaxYear = batch22.taxYearKnown ? widget.currentYear : null;
+      _scenariosCommune = batch22.communeKnown ? batch22.commune : null;
+      _scenariosCanton = batch22.communeKnown ? batch22.canton : null;
+      _scenariosBand = batch22.bandKnown ? batch22.band : null;
+      _scenariosAffiliated =
+          batch22.affiliationKnown ? batch22.affiliated : null;
+      _scenariosContributedChf = batch22.contributedChf;
+      _scenariosNonAffiliatedIncomeChf = batch22.nonAffiliatedIncomeChf;
+      _batch22CivilStatus = batch22.civilStatus;
+      _node = switch (batch22.startNode) {
+        Batch22Start.scenariosVersement => _DesignNode.scenariosVersement,
+        Batch22Start.factEtatCivil => _DesignNode.factEtatCivil,
       };
     }
   }
@@ -397,6 +511,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     _DesignNode.eclairageImpot3a => 'eclairage_impot_3a',
     _DesignNode.educationExplanation => 'education_explanation',
     _DesignNode.dismissed => 'dismissed',
+    _DesignNode.scenariosVersement => 'scenarios_versement',
+    _DesignNode.factEtatCivil => 'fact_etat_civil',
   };
 
   FocusNode get _activeSafeExitFocus => switch (_node) {
@@ -609,6 +725,13 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
         _backFromEducation();
       case _DesignNode.dismissed:
         _go(_DesignNode.today3aIntent);
+      case _DesignNode.scenariosVersement:
+      case _DesignNode.factEtatCivil:
+        // Isolated batch22 harness entries: no prior node in this
+        // parallel-prep lane (linear wiring is the promoter's integration
+        // wave) — system back offers the safe-exit sheet, like the other
+        // harness entry points.
+        _showSafeExit();
     }
   }
 
@@ -972,6 +1095,38 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                           _DesignNode.dismissed => _Terminal(
                             title: l10n.dismissedTitle,
                             onRestart: () => _go(_DesignNode.today3aIntent),
+                          ),
+                          // R4 batch22 — isolated parallel prep (NOT wired into
+                          // the linear journey; the promoter's integration wave
+                          // does that). onBack/onContinue/onPendingComplete/
+                          // onKeepLocalReference/onReviewExistingOvercontribution
+                          // are inert no-ops here: never_routes_in_r4 covers
+                          // scenarios_versement's continue/keep_local_reference/
+                          // prepare_personal_setup/review_existing_overcontribution
+                          // and BOTH fact_etat_civil's continue and back.
+                          _DesignNode.scenariosVersement =>
+                            ScenariosVersementScreen(
+                              taxYear: _scenariosTaxYear,
+                              commune: _scenariosCommune,
+                              canton: _scenariosCanton,
+                              band: _scenariosBand,
+                              affiliated: _scenariosAffiliated,
+                              contributedChf: _scenariosContributedChf,
+                              nonAffiliatedIncomeChf:
+                                  _scenariosNonAffiliatedIncomeChf,
+                              onBack: () {},
+                              onContinue: () {},
+                              onPendingComplete: () {},
+                              onKeepLocalReference: () {},
+                              onReviewExistingOvercontribution: () {},
+                            ),
+                          _DesignNode.factEtatCivil => FactEtatCivilScreen(
+                            taxYear: widget.currentYear,
+                            selectedStatus: _batch22CivilStatus,
+                            onSelectStatus: (status) =>
+                                setState(() => _batch22CivilStatus = status),
+                            onBack: () {},
+                            onContinue: null,
                           ),
                         },
                       ),
