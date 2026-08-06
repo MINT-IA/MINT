@@ -20,13 +20,16 @@ related:
 
 Le coach navigateur-monstrateur (le chat qui route vers l'écran porteur du
 chiffre *et* montre un widget fondé sur ce même chiffre) tourne dans le **pont
-produit** : le vrai coach backend, qui porte déjà la justesse (outils forcés +
-citation gate + receipts). Nous écartons le lab scripté comme *destination* — il
-prouverait la coquille d'UX en simulant la seule chose qui distingue MINT de
-Cleo, la justesse : c'est la « démo sans justesse » nommée par la doctrine. Sa
-pré-condition (une surface fiscale réelle où pointer) **est** le produit de la
-clôture du thème « Optimisation fiscale v1 » — pas un chantier de hub séparé. Le
-coach ne se lance qu'après cette clôture, en un batch de câblage mince, sur *un*
+produit** : le vrai coach backend, dont le pipeline de justesse existe côté
+backend (citation gate + freshness gate + outils). Nous écartons le lab scripté
+comme *destination* — il prouverait la coquille d'UX en simulant la seule chose
+qui distingue MINT de Cleo, la justesse : c'est la « démo sans justesse » nommée
+par la doctrine. Sa pré-condition (une surface fiscale réelle où pointer) **est**
+le produit de la clôture du thème « Optimisation fiscale v1 » — pas un chantier
+de hub séparé. Précision d'inventaire (amendée 2026-08-06, revue Codex) : le
+**navigateur** existe en runtime réel ; le **monstrateur à parité receipt**
+n'existe pas encore — le premier batch coach le CONSTRUIT, il ne se contente pas
+de câbler. Le coach ne se lance qu'après la clôture fiscale, sur *un*
 `invocable_id` d'abord.
 
 ## Context
@@ -79,22 +82,29 @@ est le runtime qui le consomme.
 
 **État réel de la tuyauterie — inventaire contre dev (règle 9).**
 
-1. **Le vrai coach backend existe et porte déjà la justesse.** Le coach
-   `route_to_screen` + cartes riches est câblé :
-   - `apps/mobile/lib/services/coach/coach_orchestrator.dart:805` déclare
-     quatre outils forcés (`route_to_screen`, `generate_document`,
-     `generate_financial_plan`, `record_check_in`) ; la chaîne server-key
-     (`coach_orchestrator.dart:462`→`486`) appelle `/coach/chat` (clé Railway),
-     dont le backend porte la justesse : `citation_registry.py` (248 l.),
-     `citation_grammar.py` (666 l.), `runtime_freshness_gate.py` (237 l.),
-     `coach_tools.py` — tous sous `services/backend/app/services/coach/`.
+1. **Le vrai coach backend existe ; sa justesse est backend, son monstrateur
+   n'est pas encore fondé** (amendé 2026-08-06, revue Codex) :
+   - `apps/mobile/lib/services/coach/coach_orchestrator.dart:805` déclare une
+     liste de quatre outils **offerts au modèle du tier BYOK**
+     (`route_to_screen`, `generate_document`, `generate_financial_plan`,
+     `record_check_in`) — ce n'est PAS une invocation forcée. Côté server-key
+     (`coach_orchestrator.dart:462`→`486`, `/coach/chat`, clé Railway), le
+     backend expose un jeu d'outils bien plus large et ne force l'appel que sur
+     certains intents (réglementaires / définitions / couple) ; le pipeline de
+     justesse est là : `citation_registry.py` (248 l.), `citation_grammar.py`
+     (666 l.), `runtime_freshness_gate.py` (237 l.), `coach_tools.py` — tous
+     sous `services/backend/app/services/coach/`.
    - `apps/mobile/lib/widgets/coach/widget_renderer.dart:53`→`89` transforme un
      `tool_use` en widget : `route_to_screen` → `_buildRouteSuggestion`
      (`:106`, « Le coach propose ; l'utilisateur décide. No automatic push »),
      qui résout l'intention via `ChatToolDispatcher.resolveRoute` sur le
-     `MintScreenRegistry` ; les cartes `show_fact_card` /
-     `generate_financial_plan` (numéros issus du plan persisté, `:472`, **pas**
-     du LLM) / `record_check_in` / `show_commitment_card` sont le monstrateur.
+     `MintScreenRegistry`. MAIS les cartes riches ne garantissent PAS la parité
+     avec un receipt d'écran : `show_fact_card` affiche directement
+     `value`/`highlight_value` du tool input (`:178-186`), et le fallback du
+     plan (`:491-538`, sans plan persisté) affiche `monthly_amount`/
+     `monthly_target` issus du payload LLM. **Le monstrateur défini par cet ADR
+     (mêmes nombres, mêmes hypothèses, même disclaimer que l'écran) n'existe
+     donc pas encore** — c'est l'objet du premier batch coach.
    - **Le navigateur-monstrateur est donc déjà un runtime réel — mais pour la
      surface legacy.** Ses cibles `route_to_screen` sont des routes legacy :
      `screen_registry.dart:429` `/pilier-3a` (`intentTag: simulator_3a`),
@@ -103,9 +113,10 @@ est le runtime qui le consomme.
      `invocable_id` de la reconstruction (`git grep eclairage_impot_3a` sur
      `apps/mobile/**` = vide).
    - Contrainte dure : le coach est calibré `swiss_native` uniquement
-     (`coach_orchestrator.dart:335` — `_calibratedArchetypes = {'swiss_native'}`,
-     `enableCoachHardGate` défaut true), tout autre archétype est refusé avant
-     tout dispatch LLM.
+     (`coach_orchestrator.dart:335` — `_calibratedArchetypes = {'swiss_native'}` ;
+     le défaut true de `enableCoachHardGate` vit dans
+     `feature_flags.dart:113-135`), tout autre archétype est refusé avant tout
+     dispatch LLM.
 
 2. **L'arc fiscal de la reconstruction n'est pas dans l'app réelle.** Le
    design_lab (`product/mint_next/batch7/design_lab`, surface
@@ -118,13 +129,15 @@ est le runtime qui le consomme.
    jour).
 
 3. **Le SLM on-device est dormant.** `apps/mobile/lib/services/feature_flags.dart:62`
-   — `slmPluginReady = false` (défaut) ; le tier SLM (Gemma 3n) ne s'exécute
-   jamais en production aujourd'hui, même si `enableSlmNarratives = true`
+   — `slmPluginReady = false` en valeur initiale ; `main.dart:80-98` tente de
+   l'activer, mais le stub `slm_engine.dart:50-84` prouve qu'aucune inférence
+   locale ne s'exécute aujourd'hui, même avec `enableSlmNarratives = true`
    (`:37`). Le coach réel = server-key backend ou BYOK.
 
-La question n'est donc pas « construire un coach » — il existe — mais « lui
-donner une surface fiscale réelle et fondée où pointer », et « décider si la
-reconstruction mérite son propre coach ou réutilise celui-ci ».
+La question n'est donc pas « construire un coach depuis zéro » — le navigateur
+existe — mais « lui donner une surface fiscale réelle et fondée où pointer »,
+« construire le monstrateur à parité receipt qui n'existe pas encore », et
+« décider si la reconstruction mérite son propre coach ou réutilise celui-ci ».
 
 ## Decision
 
@@ -150,7 +163,9 @@ doctrine nomme précisément ce piège :
 Le pont produit, à l'inverse, prouve les deux moitiés à la fois : la règle des
 trois chemins (navigation réelle) *et* la justesse (le widget monstrateur fondé
 sur le receipt, via le harnais de parité coach×receipt déjà mergé, #1114). Le
-coach n'a pas à être bâti — seulement câblé à une surface réelle.
+navigateur n'a pas à être bâti — seulement câblé à une surface réelle ; le
+monstrateur fondé, lui, est à CONSTRUIRE (amendé 2026-08-06 : les cartes
+actuelles affichent des valeurs du tool input, pas d'un receipt).
 
 **Pourquoi ce n'est pas le prochain batch.** L'ADR fiscal impose de fermer
 « Optimisation fiscale v1 » avant tout autre horizon. Lancer le coach maintenant
@@ -170,11 +185,14 @@ voit ses leviers fiscaux, chiffrés honnêtement, au même endroit »). Cet écr
   batch de clôture « Tes leviers »). La promotion de l'arc fiscal du design_lab
   vers des routes réelles est la première interception Strangler Fig mesurable ;
   elle appartient au thème fiscal, pas au coach.
-- **le coach = +1 batch de câblage** après clôture, par-dessus une surface déjà
-  réelle et déjà fondée. Chemin (a) de la règle des trois chemins (route
-  déclarée) devient mécanique via le garde de contrat ; chemin (b) (≤2 taps
-  depuis « Tes leviers ») est tenu par la structure du hub ; le coach ajoute le
-  chemin (c).
+- **le coach = +1 batch** après clôture, par-dessus une surface déjà réelle et
+  déjà fondée : câblage du navigateur (résolution `invocable_id` → route) ET
+  construction du monstrateur à parité receipt (qui n'existe pas encore).
+  Chemin (a) de la règle des trois chemins (route déclarée) devient mécanique
+  via le garde de contrat ; chemin (b) (≤2 taps depuis « Tes leviers ») est
+  tenu par la structure du hub ; le coach ajoute le chemin (c). Ce batch est
+  étiqueté **expérimental mono-archétype** (`swiss_native` seul) tant que le
+  verrou d'archétypes tient — jamais présenté comme le hub général.
 
 **Définition exacte du premier batch coach (si l'option se lance un jour).**
 Gouvernance identique à l'arc 3a (RED contrat scellé → roast indépendant →
@@ -204,7 +222,7 @@ runtime touchable, preuves en CI liées au SHA) :
 **Le SLM on-device n'est pas un candidat court-terme.** La vision voice-first
 (`docs/VOICE_FIRST_ARCHITECTURE_2028.md`) l'exclut elle-même explicitement de la
 portée actuelle : « Local model inference — v2.0 uses backend Coach LLM. Edge
-computing comes later. These are 2027-2028 features. » (PART 6, ~l.862). Trois
+computing comes later. These are 2027-2028 features. » (PART 6, l.865). Trois
 raisons convergent : (1) le flag est dormant (`slmPluginReady = false`) ; (2) le
 document voice-first est hors de l'ADR navigation 2026-08-04, qui ne retient de
 l'esprit « ambient » que la proactivité calendaire ; (3) surtout, un modèle
@@ -287,8 +305,9 @@ refus définitif : c'est un « tard et délibéré », comme la stratégie de do
   portes + guidage coach », le « vide du coach à l'entrée » comme faiblesse
   observée.
 - `apps/mobile/lib/services/coach/coach_orchestrator.dart` — `:335` garde
-  `swiss_native` ; `:462`→`486` tier server-key `/coach/chat` ; `:805` les
-  quatre outils forcés.
+  `swiss_native` ; `:462`→`486` tier server-key `/coach/chat` ; `:805` la liste
+  des quatre outils offerts au tier BYOK (le forçage server-key, sélectif par
+  intent, vit côté backend).
 - `apps/mobile/lib/widgets/coach/widget_renderer.dart` — `:53`→`89` dispatch
   `tool_use` → widget ; `:96`→`166` navigateur (`route_to_screen`, « le coach
   propose, l'utilisateur décide », résolution via `MintScreenRegistry`).
@@ -317,16 +336,17 @@ refus définitif : c'est un « tard et délibéré », comme la stratégie de do
 ## Status & follow-up
 
 - Statut : **Proposed** — décision de Julien après lecture. Critique croisée
-  Codex (six axes : code, architecture, flow, UX, actuariat, légal) à appliquer
-  avant tout passage à Decided (doctrine 2026-08-03, §Rôles et vérification). Le
-  français, la conformité LSFin du registre et l'absence de cadrage
-  « retraite-first » ont été tenus à l'écriture ; à re-vérifier au roast.
-- Réconciliation règle 13 : cet ADR **ne déclenche pas** le trigger fiscal « lab
-  scripté légitime + hub minimal peu coûteux → le coach repasse devant la fin du
-  thème ». Il maintient le coach *derrière* la clôture fiscale ; les deux ADR
-  restent cohérents. Le seul cas où le coach repasse devant est une démo/bêta
-  datée (trigger 1 ci-dessus), et alors comme spike assumé, pas comme
-  architecture.
+  Codex APPLIQUÉE le 2026-08-06 (verdict P1: 6 sur la paire d'ADR ; les
+  prétentions factuelles de celui-ci corrigées : outils offerts ≠ forcés,
+  monstrateur à construire, preuves hard-gate/SLM re-citées, ligne voice-first
+  exacte). Le français, la conformité LSFin et l'absence de cadrage
+  « retraite-first » re-tenus à l'amendement.
+- Réconciliation règle 13 : l'ancien déclencheur fiscal « lab scripté légitime +
+  hub minimal peu coûteux » a été RETIRÉ de l'ADR fiscal (amendement
+  2026-08-06) car ses conditions étaient satisfaites sans que la conclusion
+  suive. Le seul déclencheur qui fait repasser le coach devant est une
+  démo/bêta datée (trigger 1 ci-dessus), et alors comme spike assumé, pas comme
+  architecture. Les deux ADR sont cohérents sous cette forme.
 - Implementation tracking : aucun batch ouvert. Le premier batch coach (défini
   ci-dessus, `invocable_id` `eclairage_impot_3a`, `swiss_native`) ne s'ouvre
   qu'après le scellement de « Tes leviers » et la promotion de l'arc fiscal en
@@ -334,5 +354,5 @@ refus définitif : c'est un « tard et délibéré », comme la stratégie de do
 - Re-litigation triggers : voir « What would change this conclusion ? ».
 
 ---
-*Draft — à committer par Julien après revue. Suggéré :
-`.planning/decisions/2026-08-06-architecture-coach-navigateur-monstrateur.md`.*
+*Mergé sur dev (#1212) en Proposed ; amendé le 2026-08-06 après la revue
+destructrice Codex (avec l'ADR fiscal, même vague d'amendement).*
