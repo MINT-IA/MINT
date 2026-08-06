@@ -41,28 +41,48 @@ attestations au sha unique `d218259d1`) ; la série backend mariée est mergée
 Le chantier actif est « Optimisation fiscale v1 », avec ses chapitres ordonnés
 et son critère de clôture :
 
-1. **3a** — fait (arc R1-R4 attesté, boucle état-civil fermée, série backend
-   mariée mergée). Dette qui bloque « fermé » : contrat produit marié (pont
-   precision + champ `household_type` de contrat) et câblage `remaining_room`.
-2. **Logement-fiscal** — prochain batch : déduction intérêts + entretien
-   (entièrement fondée sur l'étalon ESTV), valeur locative posée en
-   contre-hypothèse visible tant que ses taux ne sont pas calibrés (même
-   traitement que le multiplicateur communal). C'est AUSSI le test de
-   généralisation de la machinerie (mécanisme neuf) : l'argument du dossier
-   d'horizon survit intact dans ce cadre.
-3. **Rachats LPP** — mécanique identique déduction → économie ; écarté comme
-   tête de série (perception retraite), légitime comme chapitre 3 d'un thème
-   fiscal déjà large. Framing « déduction », jamais « retraite » (règle
-   identitaire : MINT n'est pas une app retraite).
+1. **3a** — premier parcours fait (arc R1-R4 attesté, boucle état-civil fermée,
+   série backend mariée mergée). Dette qui bloque « fermé » : contrat produit
+   marié (pont precision + champ `household_type` de contrat), câblage
+   `remaining_room`, **rachats 3a rétroactifs** (OPP3 art. 7a-7b, possibles
+   depuis 2025 — déféré gravé au contrat batch22) et **retraits 3a échelonnés**
+   (le levier de sortie ; l'écran legacy `/3a-deep/staggered-withdrawal` en
+   atteste l'existence métier). Amendé 2026-08-06 (revue Codex) : « fait »
+   désignait le parcours, pas l'épuisement des leviers 3a.
+2. **Logement-fiscal** — prochain batch, **modèle à deux régimes versionné par
+   année fiscale** (amendé 2026-08-06, revue Codex, fait vérifié) : le Conseil
+   fédéral a fixé le 1er avril 2026 l'entrée en vigueur de la réforme de
+   l'imposition du logement au **1er janvier 2029** — valeur locative supprimée,
+   entretien non déductible (sauf biens loués), intérêts passifs partiellement
+   déductibles seulement. Régime A (années fiscales ≤ 2028) : déduction
+   intérêts + entretien (entièrement fondée sur l'étalon ESTV), valeur locative
+   en contre-hypothèse visible tant que ses taux ne sont pas calibrés. Régime
+   B (dès 2029) : le levier déduction s'éteint pour le logement propre — l'écran
+   le DIT (date d'expiration affichée), jamais une projection au-delà de 2028
+   sous le régime A. C'est AUSSI le test de généralisation de la machinerie
+   (mécanisme neuf) : l'argument du dossier d'horizon survit intact.
+3. **Rachats LPP** — mécanique déduction → économie, mais le cadrage dit la
+   nature complète du levier : **effet fiscal + effet prévoyance + liquidité +
+   horizon** (amendé 2026-08-06, revue Codex). En particulier LPP art. 79b
+   al. 3 : blocage de trois ans du retrait en capital après un rachat — dit à
+   l'écran, jamais masqué. Écarté comme tête de série (perception retraite),
+   légitime comme chapitre 3 ; le thème reste cadré par événement fiscal, pas
+   « retraite-first », sans amputer les conséquences de prévoyance.
 4. **Déductions du quotidien** — frais professionnels, formation, garde/enfants
    (le paramètre enfants est déjà dans la file backend).
 5. **Lieu** — le levier commune/canton existe à l'éclairage ; sa clôture attend
    le dataset des multiplicateurs communaux (dette nommée).
 
 **Critère de clôture** : l'écran « Tes leviers » — la vue d'ensemble des leviers
-fiscaux du profil, chacun avec sa fourchette honnête et ses hypothèses, classés
-par effet pour ce profil. « Fermé » ne signifie pas « tout modélisé » mais « un
-utilisateur voit ses leviers fiscaux, chiffrés honnêtement, au même endroit ».
+fiscaux du profil, chacun avec sa fourchette honnête et ses hypothèses,
+présentés **côte à côte, jamais classés** (amendé 2026-08-06, revue Codex :
+l'interdit absolu No-Ranking du contrat repo, `docs/AGENTS/swiss-brain.md` §8.4
+— un tri par CHF transformerait l'estimation en priorité d'action et ignorerait
+liquidité, irréversibilité, effort et applicabilité). L'écran porte une
+**matrice d'applicabilité** (un levier non applicable est dit non applicable,
+pas caché) et un état honnête « aucun levier pertinent pour ta situation ».
+« Fermé » ne signifie pas « tout modélisé » mais « un utilisateur voit ses
+leviers fiscaux, chiffrés honnêtement, au même endroit ».
 
 Le coach navigateur-monstrateur reste derrière son ADR d'architecture (où
 tourne-t-il ; pré-condition hub), à écrire sans lancer le chantier coach.
@@ -76,18 +96,24 @@ tourne-t-il ; pré-condition hub), à écrire sans lancer le chantier coach.
   démo/bêta est imminente, un spike coach assumé comme démo frapperait plus fort
   que l'écran « Tes leviers ».
 - **What does this source not address ?** Aucune donnée d'usage réelle (pas de
-  bêta) ; les taux de valeur locative ne sont pas calibrés/sourcés (déféré
-  déclaré) ; l'effort exact des chapitres 3-5 n'est pas chiffré ; l'écran « Tes
-  leviers » n'a ni maquette ni contrat de ranking (le classement « par effet »
-  devra éviter tout langage de recommandation LSFin) ; la réforme valeur
-  locative 2028 reste une incertitude législative vive.
-- **What would change this conclusion ?** Une démo/bêta imminente (bascule vers
-  un spike coach-démo assumé) ; un trou moteur logement plus grand qu'un batch
-  découvert à l'exécution (bascule chapitre 4 devant chapitre 2) ; l'ADR
-  d'architecture coach tranchant « lab scripté légitime + hub minimal peu
-  coûteux » (le coach repasse devant la fin du thème) ; deux chapitres livrés
-  sans réutilisation réelle de la machinerie (la « chaîne de production » serait
-  réfutée — re-litiger l'approche batch).
+  bêta) ; les taux de valeur locative du régime A ne sont pas calibrés/sourcés
+  (déféré déclaré) ; l'effort exact des chapitres 3-5 n'est pas chiffré ;
+  l'écran « Tes leviers » n'a ni maquette ni contrat de présentation (côte à
+  côte + matrice d'applicabilité restent à spécifier) ; l'ordre des chapitres
+  2-3 privilégie des leviers à forte condition d'éligibilité — une matrice
+  couverture × applicabilité pourrait faire remonter les déductions du
+  quotidien ; la frontière juridique exacte entre information fiscale et
+  service financier au sens LSFin n'est pas qualifiée levier par levier.
+- **What would change this conclusion ?** Une démo/bêta datée (bascule vers un
+  spike coach-démo assumé, cf. ADR architecture coach, trigger 1 — le seul
+  déclencheur qui fait repasser le coach devant) ; un trou moteur logement plus
+  grand qu'un batch découvert à l'exécution (bascule chapitre 4 devant
+  chapitre 2) ; deux chapitres livrés sans réutilisation réelle de la
+  machinerie (la « chaîne de production » serait réfutée — re-litiger
+  l'approche batch). Amendé 2026-08-06 (revue Codex) : l'ancien déclencheur
+  « lab scripté légitime + hub peu coûteux » est retiré — ses deux conditions
+  étaient satisfaites par l'ADR coach lui-même sans que la conclusion suive,
+  donc il ne déclenchait rien.
 
 ## Sources
 
@@ -96,11 +122,17 @@ tourne-t-il ; pré-condition hub), à écrire sans lancer le chantier coach.
 - Série mariée : PRs #1208 (service L3 `sensibilite_3a_service.py`), #1209 (coach), #1210 (onboarding).
 - Arc 3a : branche executor tip `d218259d1` (parcours 6 écrans attesté, runs 31053433101 / 31053533663 / 31053638859).
 - Doctrine : `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md` ; North Star : `.planning/decisions/2026-07-31-north-star-experience.md`.
+- No-Ranking : `docs/AGENTS/swiss-brain.md` §8.4 (interdit absolu, side-by-side jamais ranked).
+- Réforme imposition du logement : décision du Conseil fédéral du 1er avril 2026, entrée en vigueur 1er janvier 2029 — <https://www.admin.ch/fr/newnsb/yGTqBPowRqyVh0zPokW-q> (consulté 2026-08-06).
+- Rachats LPP : LPP art. 79b al. 3 (blocage 3 ans du retrait en capital) — <https://www.fedlex.admin.ch/eli/cc/1983/797_797_797/fr#art_79_b>.
 
 ## Status & follow-up
 
 - Implementation tracking : batch logement-fiscal (RED contrat scellé → roast →
-  runtime, même gouvernance que l'arc 3a) à ouvrir après le scellement de la
-  vague groupée design_lab en cours ; ADR architecture coach à écrire en
-  parallèle.
+  runtime, même gouvernance que l'arc 3a, modèle deux-régimes obligatoire) à
+  ouvrir après le scellement de la vague groupée design_lab en cours ; ADR
+  architecture coach écrit (Proposed, `2026-08-06-architecture-coach-navigateur-monstrateur.md`).
+- Amendement 2026-08-06 : revue destructrice Codex appliquée (réforme logement
+  2029 vérifiée deux sources, leviers 3a restants nommés, No-Ranking sur « Tes
+  leviers », cadrage complet des rachats LPP, déclencheur inter-ADR réparé).
 - Re-litigation triggers : voir « What would change this conclusion ? ».
