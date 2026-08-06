@@ -461,3 +461,41 @@ def test_dispatcher_inputs_hash_deterministic(monkeypatch) -> None:
     h1 = json.loads(raw_1)["inputsHash"]
     h2 = json.loads(raw_2)["inputsHash"]
     assert h1 == h2
+
+
+# ---------------------------------------------------------------------------
+# Batch G — G3 (normalisation camelCase) + G1 (plafond inconnu -> None).
+# ---------------------------------------------------------------------------
+
+
+def test_g3_canonical_camelcase_profile_yields_20000():
+    """Profil CANONIQUE camelCase (indépendant sans LPP, 100'000) -> plafond
+    20'000 (pas ValueError, pas 7'258) — revue Codex G3."""
+    from app.services.arbitrage.cross_pillar_service import CrossPillarService
+
+    prof = {
+        "employmentStatus": "independant",
+        "has2ndPillar": False,
+        "incomeGrossYearly": 100_000.0,
+        "annual_3a_contribution": 0.0,
+    }
+    a = CrossPillarService.compute(profile_data=prof)
+    assert a.three_a_ceiling == Decimal("20000.00")
+
+
+def test_g1_unknown_income_ceiling_is_none_not_zero():
+    """Non-affilié sans revenu déterminant -> plafond None (jamais 0.00
+    fabriqué) — revue Codex G1."""
+    from app.services.arbitrage.cross_pillar_service import CrossPillarService
+
+    for income in (None, 0.0, -10_000.0):
+        prof = {
+            "employmentStatus": "independant",
+            "has2ndPillar": False,
+            "annual_3a_contribution": 0.0,
+        }
+        if income is not None:
+            prof["incomeGrossYearly"] = income
+        a = CrossPillarService.compute(profile_data=prof)
+        assert a.three_a_ceiling is None
+        assert a.three_a_remaining is None

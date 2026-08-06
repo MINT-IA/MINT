@@ -645,3 +645,32 @@ def test_non_finite_conjoint_fails_closed() -> None:
             revenu_imposable=90_000.0, canton="ZH", versement_3a=None,
             etat_civil="marie", revenu_imposable_conjoint=float("inf"),
         )
+
+
+# ---------------------------------------------------------------------------
+# G2 — double activité (LIFD art. 33 al. 2) conditionnelle : appliquée seulement
+# si les DEUX époux exercent une activité lucrative.
+# ---------------------------------------------------------------------------
+
+
+def test_double_activite_only_when_two_earners() -> None:
+    # oracle arithmétique : art. 35 (2'800) + double activité (8'600) -> 18'600 ;
+    # sans double activité -> 30'000 - 2'800 = 27'200.
+    assert _household_imposable(20_000.0, 10_000.0, apply_double_activite=True) == 18_600.0
+    assert _household_imposable(20_000.0, 10_000.0, apply_double_activite=False) == 27_200.0
+
+
+def test_deux_revenus_activite_param_controls_and_discloses() -> None:
+    common = dict(
+        revenu_imposable=20_000.0, canton="NE", versement_3a=None,
+        etat_civil="marie", revenu_imposable_conjoint=10_000.0,
+    )
+    # False -> pas de double activité (imposable plus haut -> économie plus haute).
+    off = _effect(sensibilite_3a_menage(deux_revenus_activite=False, **common))
+    on = _effect(sensibilite_3a_menage(deux_revenus_activite=True, **common))
+    assert off.delta_haut > on.delta_haut  # 27'200 > 18'600 -> impôt/économie plus haut
+    assert "double activité" not in off.hypothese_fr
+    # None (défaut) -> applique ET divulgue l'hypothèse.
+    default = _effect(sensibilite_3a_menage(**common))
+    assert default.delta_bas == on.delta_bas  # applique comme True
+    assert "activité lucrative" in default.hypothese_fr  # divulgation

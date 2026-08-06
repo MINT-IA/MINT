@@ -911,17 +911,17 @@ class CoachingEngine:
             id="independant_no_lpp",
             category="prevoyance",
             priority="haute",
-            title="Independant: pas de LPP obligatoire",
+            title="Indépendant : pas de LPP obligatoire",
             message=(
-                f"En tant qu'independant, vous n'avez PAS de LPP obligatoire. "
-                f"Envisagez une affiliation volontaire ou un 3a renforce "
-                f"(plafond: {plafond_txt}). "
-                f"Sans 2e pilier, votre prevoyance repose essentiellement "
+                f"En tant qu'indépendant, vous n'avez PAS de LPP obligatoire. "
+                f"Envisagez une affiliation volontaire ou un 3a renforcé "
+                f"(plafond : {plafond_txt}). "
+                f"Sans 2e pilier, votre prévoyance repose essentiellement "
                 f"sur l'AVS et le 3e pilier."
             ),
             action=(
-                "Renseignez-vous sur l'affiliation volontaire LPP aupres "
-                "d'une fondation de prevoyance et maximisez votre 3e pilier."
+                "Renseignez-vous sur l'affiliation volontaire LPP auprès "
+                "d'une fondation de prévoyance et maximisez votre 3e pilier."
             ),
             estimated_impact_chf=None,
             source="LPP art. 4",

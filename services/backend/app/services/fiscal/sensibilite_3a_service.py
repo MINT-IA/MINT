@@ -83,30 +83,40 @@ def _finite_float(name: str, value: object, *, allow_none: bool = False) -> floa
     return f
 
 
-def _household_imposable(revenu_1: float, revenu_2: float) -> float:
+def _household_imposable(
+    revenu_1: float, revenu_2: float, *, apply_double_activite: bool = True
+) -> float:
     """Revenu imposable du ménage marié à partir de DEUX revenus DÉJÀ IMPOSABLES.
 
-    Contrat d'entrée (revue Codex P1-5) : ``revenu_1``/``revenu_2`` sont des
-    revenus IMPOSABLES individuels (déductions personnelles déjà appliquées). On
-    ne retranche donc QUE les déductions SPÉCIFIQUES à l'imposition commune, qui
-    n'existent pas dans un imposable célibataire :
+    Contrat d'entrée : ``revenu_1``/``revenu_2`` sont des revenus IMPOSABLES
+    individuels (déductions personnelles déjà appliquées). On ne retranche donc
+    QUE les déductions SPÉCIFIQUES à l'imposition commune, absentes d'un
+    imposable célibataire :
 
       - déduction pour personnes mariées (LIFD art. 35 al. 1 let. c) ;
-      - déduction pour double activité des époux (LIFD art. 33 al. 2).
+      - déduction pour double activité des époux (LIFD art. 33 al. 2), UNIQUEMENT
+        si ``apply_double_activite`` (les DEUX époux exercent une activité
+        lucrative — revue Codex G2 : deux imposables génériques ne le prouvent
+        pas, ils peuvent inclure rente/immeuble).
 
-    L'assurance-vie (art. 33 al. 1 let. g) N'EST PLUS retranchée : elle est déjà
-    dans l'imposable individuel (1'800 célibataire) ; le delta marié (3'700 vs
-    2×1'800) est négligeable (~100 CHF). L'ancienne version retranchait 3'700 en
-    plus -> double déduction (Codex : NE 20'000+10'000 tombait à 156-190 CHF au
-    lieu de s'approcher de l'étalon-somme).
+    Résultat 18'600 pour (20'000, 10'000) « deux actifs » = APPROXIMATION à
+    ~100 CHF près (revue Codex G4/P3) : le delta assurance marié (3'700 vs
+    2×1'800 = 100) n'est pas modélisé — l'assurance est déjà dans l'imposable
+    individuel, jamais retranchée deux fois. Ce n'est donc pas une dérivation
+    exacte au franc.
 
-    Limite dite : la déduction par enfant (LIFD art. 35 al. 1 let. a) n'est pas
-    modélisée (pas d'entrée « nombre d'enfants ») -> divulguée « ménage sans
-    enfants à charge » dans ``hypothese_fr``.
+    DETTE dite (Codex G2) : l'assiette réelle de l'art. 33 al. 2 est 50% du
+    REVENU D'ACTIVITÉ le plus bas ; ici on l'approxime sur le revenu imposable
+    fourni (proportionnalité non modélisée faute d'entrée « part d'activité »).
+
+    Limite dite : déduction par enfant (LIFD art. 35 al. 1 let. a) non modélisée
+    -> divulguée « ménage sans enfants à charge » dans ``hypothese_fr``.
     """
     r2 = max(0.0, revenu_2)
     combine = max(0.0, revenu_1) + r2
-    deductions = DEDUCTION_MARIES + deduction_double_activite(revenu_1, r2)
+    deductions = DEDUCTION_MARIES
+    if apply_double_activite:
+        deductions += deduction_double_activite(revenu_1, r2)
     return max(0.0, combine - deductions)
 
 
@@ -118,6 +128,7 @@ def sensibilite_3a_menage(
     revenu_imposable_conjoint: float | None = None,
     employment_status: str | None = None,
     has_lpp: bool | None = None,
+    deux_revenus_activite: bool | None = None,
 ) -> L3EclairePayload:
     """Sensibilité d'un versement 3a sur l'impôt sur le revenu, selon l'état civil.
 
@@ -179,6 +190,18 @@ def sensibilite_3a_menage(
 
     revenu = max(0.0, revenu_imposable)
 
+    # Double activité (LIFD art. 33 al. 2) : appliquée si les DEUX époux
+    # exercent une activité lucrative. True -> applique ; False -> non ; None
+    # (défaut) -> applique EN DIVULGUANT l'hypothèse (direction prudente : imposable
+    # plus bas -> économie plus basse). Revue Codex G2.
+    _apply_da = deux_revenus_activite is not False
+    _da_caveat = (
+        " En supposant que les deux revenus proviennent d'une activité lucrative "
+        "(double activité, LIFD art. 33 al. 2)."
+        if _apply_da and deux_revenus_activite is None
+        else ""
+    )
+
     if not _is_married(etat_civil):
         raw_bas = raw_haut = estimate_tax_saving(
             revenu, versement, canton_norm, is_married=False
@@ -189,23 +212,28 @@ def sensibilite_3a_menage(
             "varient selon ta commune et ta situation."
         )
     elif revenu_imposable_conjoint is not None:
-        imposable = _household_imposable(revenu, revenu_imposable_conjoint)
+        imposable = _household_imposable(
+            revenu, revenu_imposable_conjoint, apply_double_activite=_apply_da
+        )
         raw_bas = raw_haut = estimate_tax_saving(
             imposable, versement, canton_norm, is_married=True
         )
         hypothese_fr = (
             "Estimation sur le revenu imposable combiné du ménage sans enfants "
             "à charge (imposition commune, LIFD art. 9 al. 1), déductions "
-            "spécifiques au couple appliquées (double activité art. 33 al. 2, "
-            "personnes mariées art. 35). Barème marié approximé par un "
-            "splitting forfaitaire (LHID)."
+            "spécifiques au couple appliquées (personnes mariées art. 35"
+            + (", double activité art. 33 al. 2" if _apply_da else "")
+            + "). Barème marié approximé par un splitting forfaitaire (LHID)."
+            + _da_caveat
         )
     else:
         raw_bas = estimate_tax_saving(
-            _household_imposable(revenu, 0.0), versement, canton_norm, is_married=True
+            _household_imposable(revenu, 0.0, apply_double_activite=_apply_da),
+            versement, canton_norm, is_married=True,
         )
         raw_haut = estimate_tax_saving(
-            _household_imposable(revenu, revenu), versement, canton_norm, is_married=True
+            _household_imposable(revenu, revenu, apply_double_activite=_apply_da),
+            versement, canton_norm, is_married=True,
         )
         # Formulation DIRECTION-NEUTRE : le modèle n'est pas monotone partout
         # (le tri défensif ci-dessous peut inverser raw_bas/raw_haut, ex. VS
@@ -216,9 +244,10 @@ def sensibilite_3a_menage(
             "ton conjoint (imposition commune, LIFD art. 9 al. 1) : conjoint "
             "sans revenu, ou conjoint à revenu comparable au tien. Ménage sans "
             "enfants à charge, déductions spécifiques au couple appliquées "
-            "(LIFD art. 33 al. 2, art. 35). Si ton conjoint gagne plus que toi, "
-            "l'économie réelle peut dépasser cette fourchette. La fourchette se "
-            "resserre si le revenu du conjoint est connu."
+            "(art. 35" + (", double activité art. 33 al. 2" if _apply_da else "")
+            + "). Si ton conjoint gagne plus que toi, l'économie réelle peut "
+            "dépasser cette fourchette. La fourchette se resserre si le revenu "
+            "du conjoint est connu." + _da_caveat
         )
 
     # Tri défensif des bornes brutes AVANT l'enveloppe ±10%. L'interpolation de

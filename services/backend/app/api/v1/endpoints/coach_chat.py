@@ -4392,7 +4392,12 @@ def _compute_cross_pillar_analysis(user_id: str | None, ctx: dict, db) -> str:
             "lpp_buyback_max": float(analysis.lpp_buyback_max),
             "lpp_capital": float(analysis.lpp_capital),
             "tax_saving_potential": float(analysis.tax_saving_potential),
-            "three_a_ceiling": float(analysis.three_a_ceiling),
+            # None = plafond inconnu (grand 3a sans revenu) — jamais 0.00 fabriqué
+            # (revue Codex G1). Le JSON sérialise `null`, honnête « inconnu ».
+            "three_a_ceiling": (
+                None if analysis.three_a_ceiling is None
+                else float(analysis.three_a_ceiling)
+            ),
         }
         response = CrossPillarAnalysisResponse(
             annual_3a_contribution=analysis.annual_3a_contribution,

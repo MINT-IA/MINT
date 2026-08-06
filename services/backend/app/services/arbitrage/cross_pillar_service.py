@@ -37,6 +37,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, ROUND_HALF_UP
+from typing import Optional
 
 from app.services.rules_engine import (
     get_3a_ceiling,
@@ -50,8 +51,10 @@ from app.services.arbitrage.allocation_annuelle import (
 @dataclass(frozen=True)
 class CrossPillarAnalysis:
     annual_3a_contribution: Decimal
-    three_a_ceiling: Decimal
-    three_a_remaining: Decimal
+    # None = plafond 3a INCONNU (grand 3a dû sans revenu déterminant) — jamais
+    # 0.00 fabriqué (revue Codex G1). La sérialisation affiche la règle.
+    three_a_ceiling: Optional[Decimal]
+    three_a_remaining: Optional[Decimal]
     lpp_buyback_max: Decimal
     lpp_capital: Decimal
     tax_saving_potential: Decimal
@@ -59,6 +62,29 @@ class CrossPillarAnalysis:
     # Sentry breadcrumb. NOT serialized into the Pydantic response.
     lpp_buyback_source: str = "from_profile"   # or "missing_from_profile"
     tax_saving_source: str = "strategy_a"      # or "strategy_b" or "missing_from_profile"
+
+
+# Profil canonique persisté en camelCase (schemas/profile.py) -> clés snake_case
+# lues par les règles internes. Les DEUX formes sont acceptées (revue Codex G3).
+_PROFILE_KEY_ALIASES = {
+    "employmentStatus": "employment_status",
+    "has2ndPillar": "has_2nd_pillar",
+    "incomeGrossYearly": "income_gross_yearly",
+    "selfEmployedNetIncome": "self_employed_net_income",
+    "annual3AContribution": "annual_3a_contribution",
+    "lppAvoir": "lpp_avoir",
+    "lppCapital": "lpp_capital",
+    "lppBuybackMax": "lpp_buyback_max",
+    "taxSavingPotential": "tax_saving_potential",
+}
+
+
+def _normalize_profile_keys(profile_data: dict) -> dict:
+    out = dict(profile_data)
+    for camel, snake in _PROFILE_KEY_ALIASES.items():
+        if out.get(snake) is None and profile_data.get(camel) is not None:
+            out[snake] = profile_data[camel]
+    return out
 
 
 def _q(v) -> Decimal:
@@ -87,6 +113,10 @@ class CrossPillarService:
         lpp_buyback_max, tax_saving_potential, lpp_capital alias) are
         present — mirrors `_format_cross_pillar_analysis` line 2602 guard.
         """
+        # Normalisation camelCase (profil canonique persistant) -> snake_case
+        # (règles internes) : les DEUX formes sont acceptées (revue Codex G3).
+        profile_data = _normalize_profile_keys(profile_data)
+
         annual_3a = profile_data.get("annual_3a_contribution")
         lpp_avoir = profile_data.get("lpp_avoir")
         if lpp_avoir is None:
@@ -117,12 +147,15 @@ class CrossPillarService:
         )
 
         annual_3a_d = _q(annual_3a) if annual_3a is not None else Decimal("0.00")
-        # get_3a_ceiling renvoie None (grand 3a dû sans revenu) : NE JAMAIS servir
-        # 36'288 nu (revue Codex F1) — plafond non déterminable -> 0.00.
-        three_a_ceiling_d = _q(ceiling_raw) if ceiling_raw is not None else Decimal("0.00")
-        three_a_remaining_d = max(
-            Decimal("0.00"), three_a_ceiling_d - annual_3a_d
-        )
+        # Plafond INCONNU (grand 3a dû sans revenu déterminant) : représenté
+        # None, JAMAIS 0.00 fabriqué (une affirmation chiffrée fausse est pire
+        # que 36'288 — revue Codex G1). La sérialisation coach affiche la règle.
+        if ceiling_raw is None:
+            three_a_ceiling_d = None
+            three_a_remaining_d = None
+        else:
+            three_a_ceiling_d = _q(ceiling_raw)
+            three_a_remaining_d = max(Decimal("0.00"), three_a_ceiling_d - annual_3a_d)
 
         # === LPP buyback max — RELAY from profile (no server function) ===
         if lpp_buyback_raw is None:

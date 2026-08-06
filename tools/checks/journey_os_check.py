@@ -43,6 +43,8 @@ ALLOW = {
     "services/backend/app/api/v1/endpoints/health.py",
     "services/backend/app/schemas/common.py",
     "services/backend/app/schemas/coaching.py",
+    "services/backend/app/models/coach_tools/cross_pillar.py",
+    "services/backend/tests/test_coach_tools_cross_pillar.py",
     "services/backend/tests/test_health.py",
     # --- prep Flutter 3.44.8 : ancêtre Material pour les tiles en carte colorée
     # (assertion debug ListTile._debugCheckBackgroundIsHidden). Écrans/widgets
