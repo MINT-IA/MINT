@@ -9,7 +9,7 @@ authority:
     scenarios_versement: 5d3ebea8de3d0e8c16cbd2f8c10e982d04383655d3d3b8e9a96f44aa34a2c320
     fact_etat_civil: a3fb33c2d9b0a0ab70d39be6f16c958036b849e1f8f3a2da396fb3a08d1c704e
   immutable_copy: product/mint_next/batch22/r4-six-locale-copy.yaml
-  immutable_copy_sha256: b4e767ea44da998ed8ed25de4df8e642b487ca0c441798dae4ba5ea3d892b418
+  immutable_copy_sha256: 889e33bc8f73dc04c0a7b81da455e4b27c7be3b6339947cca7aff0eb89cc0bf2
   immutable_fixtures: product/mint_next/batch22/r4-engine-fixtures.yaml
   immutable_fixtures_sha256: ec1b419f1edd102b723b3a96f0bf773330fc94010e68c5f6d4498d86a30c51b2
   runtime_surface: hidden_design_lab_only
@@ -42,7 +42,7 @@ gates:
       failed: 15
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: 9bd42346cfae38ec87026d4fdb57da32036d9cbbe7fcb997a33fda52e57fff9e
+      test_sha256: 6eba597a8a26734638bd3d2bf84fdb91b6afb6b7b54379d7e92692ab59dcea49
     subgates:
       R4a_scenarios_versement:
       - R4_02
@@ -104,26 +104,30 @@ runtime_regating:
   - product/mint_next/batch7/design_lab/lib/fact_etat_civil.dart
   - product/mint_next/batch7/design_lab/lib/r4_fermeture_catalog.g.dart
   - product/mint_next/batch7/design_lab/lib/design_lab_app.dart
+  # Vague Groupée fermeture: fact_lieu.dart is R4-regated (it lifts the picked
+  # commune LABEL to the éclairage payoff via onCommuneSelected).
+  - product/mint_next/batch7/design_lab/lib/fact_lieu.dart
   lib_inventory_seal: deferred_to_implementation_under_this_gate
 deferred_integration:
-  # DELIVERED — INBOUND ONLY (green wave, 2026-08-05). The R4 fermeture-de-boucle
-  # runtime landed (scenarios_versement.dart + fact_etat_civil.dart) and the two R4
-  # SCREENS are now REACHABLE from the linear journey via the two INBOUND edges:
-  # eclairage.continue -> scenarios_versement ; the eclairage situation row refine
-  # -> fact_etat_civil. BOTH inbound edges are PROVEN by the 16/16 reach (the sealed
-  # test drives them). The R4 sealed test flips 2/14 -> 16/16 by the green WIRING;
-  # Phase B then re-pinned its shared entry path (sha 27abb5ff -> f285ccc9) when the
-  # fact_tax_year screen left the journey — still 16/16. The OUTBOUND loop is NOT
-  # closed in this wave and is NOT claimed: fact_etat_civil.continue NEVER routes
-  # (sealed R4_14; runtime onContinue:null) and the scenarios footer controls do not
-  # route (runtime no-ops) — the married recompute (etat_civil -> eclairage,
-  # is_married) and the outbound routing remain DEFERRED (see scope +
-  # not_yet_delivered). "fermeture-de-boucle" here means the two closing SCREENS are
-  # reachable, NOT that the recompute loop is wired. This registry deliberately KEEPS
-  # the frozen RED R4 gate strings (state expected_red, runtime_implemented:false) so
-  # the sealed R4_16 control holds unchanged; the LIVE delivered record is the R4
-  # GREEN gate (r4-green-gate.yaml), which seals the 16/16 reachability replay only.
-  status: delivered_r4_screens_reachable_inbound_wired_recompute_deferred
+  # LOOP CLOSED (Vague Groupée fermeture-de-boucle, 2026-08-06). The R4 fermeture
+  # OUTBOUND edges are now WIRED: scenarios_versement.continue -> fact_etat_civil ;
+  # fact_etat_civil.continue (with a selected status) -> éclairage (sealed R4_14) ;
+  # the scenarios footer controls (back / keep-reference) route. The fermeture-loop
+  # financial state (own-amount "versement", kept reference, committed amount, and
+  # the picked commune LABEL) is PRESERVED across one loop turn (scenarios ->
+  # etat_civil -> éclairage -> scenarios) rather than reset, and the éclairage shows
+  # the commune the user actually picked (never the fixture). The non-affilié LPP-no
+  # branch routes to a DERIVED ceiling (min(20% net, grand plafond) — sealed R4_17,
+  # never a flat 7258). The ONLY piece NOT recomputed in Dart is the MARRIED CHIFFRE
+  # (splitting quotient): selecting marie_pacse routes but does not move the éclairage
+  # number — that recompute is a BACKEND L2 (comparer) contract on dev (CLAUDE.md
+  # NEVER#3, canonical layer), so the runtime shows a co-located married caveat on the
+  # éclairage Situation row (Vague Groupée P1) instead of a fabricated number. The
+  # registry KEEPS the frozen RED R4 gate strings (state expected_red,
+  # runtime_implemented:false) so the sealed R4_16 control holds; the LIVE delivered
+  # record is the R4 GREEN gate. This block is asserted byte-equal to the R4
+  # red_guard's EXPECTED_DEFERRED_INTEGRATION.
+  status: delivered_r4_loop_closed_married_chiffre_recompute_backend_l2_deferred
   green_flips_here_not_at_screen_flip: true
   key_reconciliation:
     # GRAVEN direction (roast p3): the RUNTIME conforms to the FROZEN sealed test,
@@ -138,23 +142,26 @@ deferred_integration:
     - region_scenarios_scenario_not_row_scenarios_scenario_N
     - amount_scenarios_effect
   delivered_edges:
-    # câblage livré: the TWO INBOUND edges the integration wired + PROVEN by the
-    # sealed 16/16 reach (the test drives eclairage.continue and
-    # eclairage.refine_situation). The batch21 ECLAIRAGE arc itself
-    # (fact_lieu -> fact_revenu -> eclairage) is UNTOUCHED by this wave.
+    # câblage livré: the 2 INBOUND edges (reached by the sealed 17/17) + the 2
+    # OUTBOUND edges wired by the Vague Groupée. The batch21 ÉCLAIRAGE arc
+    # (fact_lieu -> fact_revenu -> éclairage) is UNTOUCHED. The outbound
+    # etat_civil.continue edge is ROUTING only (sealed R4_14) — the married chiffre
+    # recompute it would trigger stays backend-deferred (see not_yet_delivered).
     edges:
     - eclairage_continue_to_scenarios_versement
     - eclairage_situation_row_refine_to_fact_etat_civil
+    - fact_etat_civil_continue_routes_to_eclairage_with_a_selected_status
+    - scenarios_versement_footer_continue_back_keep_routing
+    non_affilie_routes_to_a_derived_ceiling_never_a_flat_7258: true  # sealed R4_17
     eclairage_batch21_arc_untouched: true
   not_yet_delivered:
-    # HONESTY (independent roast, mint-experience P1 + mint-swiss-brain P3b): the
-    # OUTBOUND loop is NOT closed in this wave and is NOT claimed as delivered. These
-    # stay DEFERRED (see scope). Surfaced, not hidden.
-    edges:
-    - fact_etat_civil_continue_recomputes_eclairage_with_is_married  # sealed R4_14: etat_civil.continue never routes; runtime onContinue:null
-    - scenarios_versement_footer_continue_back_keep_routing  # runtime onContinue/onBack/onKeepLocalReference are no-ops
-    married_recompute_is_display_only_today: true  # selecting marie_pacse does not move the eclairage number yet (splitting quotient deferred backend-side)
-    recompute_hint_copy_over_promises_flag_for_lead: true  # etat_civil.recompute_hint says "met l'estimation a jour" but the update is deferred
+    # the ONLY deferred piece: the MARRIED CHIFFRE recompute is a backend L2
+    # (comparer) contract on dev, NOT an in-Dart number. The runtime shows a
+    # co-located married caveat on the éclairage Situation row (Vague Groupée P1) —
+    # no over-promise, no fabricated number. No outbound edges remain deferred.
+    edges: []
+    married_chiffre_recompute_is_backend_l2_contract_on_dev: true
+    eclairage_situation_row_shows_a_colocated_married_caveat: true
   scope:
   - wire_eclairage_continue_to_scenarios_versement_refreshing_next_action
   - upgrade_the_eclairage_situation_row_to_a_refine_affordance_routing_to_fact_etat_civil

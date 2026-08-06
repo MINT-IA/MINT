@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Seal the Batch22 R4 GREEN-GATE governance transition (fermeture de la boucle).
 
-This guard governs the transition that RETIRES the accepted 2/14 expected-RED
+This guard governs the transition that RETIRES the accepted 2/15 expected-RED
 replay of the R4 arc (scenarios_versement + fact_etat_civil) and installs, in its
-place, the 16/16 GREEN replay as the active R4 gate — the fermeture-de-boucle
+place, the 17/17 GREEN replay as the active R4 gate — the fermeture-de-boucle
 INTEGRATION proof (eclairage.continue -> scenarios_versement ; the eclairage
-situation row refine -> fact_etat_civil ; fact_etat_civil.continue recomputes the
-eclairage with is_married and never re-asks income).
+situation row refine -> fact_etat_civil ; fact_etat_civil.continue routes to the
+eclairage with a selected status; the married CHIFFRE recompute is a backend L2
+contract on dev, deferred — the runtime carries a co-located married caveat).
 
 Unlike batch21 (whose sealed test was AMENDED at the integration), the batch22
-sealed test is BYTE-IDENTICAL from RED to GREEN — it flips 2/14 -> 16/16 by the
+sealed test is BYTE-IDENTICAL from RED to GREEN — it flips 2/15 -> 17/17 by the
 WIRING ALONE, no test amendment (the batch20 pattern, one notch cleaner than
 batch21). So the GREEN gate pins the SAME test sha the RED guard froze
 (red.EXPECTED_TEST_SHA256) and the SAME obligation names
@@ -80,14 +81,16 @@ REGISTRY = red.REGISTRY  # product/mint_next/batch22/runtime-gates.yaml
 FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch22_r4_green_gate_guard.py --release"
 
 # Re-pinned immutables frozen by this transition. These MUST equal the current
-# files: the RED guard and the ANCHOR-green registry cannot silently drift while
-# the GREEN gate that supersedes their replay is under review. Re-pinned twice:
-# Phase B (fact_tax_year removal → entry-path sha) and the Vague Groupée fermeture
-# (etat_civil.continue→eclairage wiring renamed R4_14, non_affilie R4_17 added →
-# 16→17 obligations; the RED guard's EXPECTED_TEST_NAMES/SUBGATES + registry
-# named-inventory/sentinels/subgates/summary + candidate_binding all re-pinned).
-RED_GUARD_SHA256 = "1ea35e18664e32b1e572aba15065cb7a72149c2d9377f143b8786a3c276293d3"
-REGISTRY_SHA256 = "c4b709a5e9cc8439fada9f8ba8d1677eabf6b4baf75ce05abbb36aaac81e1ef7"
+# files: the RED guard and the registry cannot silently drift while the GREEN gate
+# that supersedes their replay is under review. Re-pinned across: Phase B
+# (fact_tax_year removal → entry-path sha) and the Vague Groupée fermeture (loop
+# closed: etat_civil.continue→eclairage routing sealed R4_14, non_affilie R4_17
+# added → 16→17 obligations, and the fermeture content shas — the sealed test
+# (6eba597a) + six-locale copy (889e33bc) — with the RED guard's summary/ids
+# consistency + candidate_binding + deferred_integration loop-closed all re-pinned
+# and mirrored into the registry).
+RED_GUARD_SHA256 = "008ce16c3c6c9224386d5bb888b54ea58c40c27bdd1f2a4e73433d333ec16f1c"
+REGISTRY_SHA256 = "02acc8e00e823dd8665095f8812755d2f770c2652cc9aa0dd0e4e2c46db4b5bf"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected
@@ -106,7 +109,7 @@ EXPECTED_CI_ENFORCEMENT = {
     "pending": "contract_only",
     "accepted_attested_by": "dispatched_full_green_replay_run_expected_green",
     "attestation_command": FULL_MODE_INVOCATION,
-    "retires": "red_replay_2_14",
+    "retires": "red_replay_2_15",
 }
 
 ROLES = {"scope_integrity", "mechanical_adversary", "journey_safety"}
@@ -119,11 +122,11 @@ TOP_KEYS = {
     "not_accepted", "next_gate",
 }
 
-# (a) The RED 2/14 replay is retired; upon promotion the active CI gate becomes the
-# GREEN 16/16 replay of the exact same sealed spec (byte-identical test).
+# (a) The RED 2/15 replay is retired; upon promotion the active CI gate becomes the
+# GREEN 17/17 replay of the exact same sealed spec (byte-identical test).
 EXPECTED_GREEN_GATE = {
-    "retires": "red_replay_2_14",
-    "active_gate_upon_promotion": "green_replay_16_16",
+    "retires": "red_replay_2_15",
+    "active_gate_upon_promotion": "green_replay_17_17",
     "test_file": str(red.TEST),
     # BYTE-IDENTICAL: the frozen RED test IS the GREEN test. No GREEN_TEST_SHA256.
     "test_sha256": red.EXPECTED_TEST_SHA256,

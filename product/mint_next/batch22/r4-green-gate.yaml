@@ -1,12 +1,12 @@
 current_verdict: PENDING_INDEPENDENT_ROASTS
 green_gate:
-  active_gate_upon_promotion: green_replay_16_16
+  active_gate_upon_promotion: green_replay_17_17
   ci_enforcement:
     accepted_attested_by: dispatched_full_green_replay_run_expected_green
     attestation_command: python3 -I tools/checks/mint_next_batch22_r4_green_gate_guard.py
       --release
     pending: contract_only
-    retires: red_replay_2_14
+    retires: red_replay_2_15
   command:
   - flutter
   - test
@@ -48,12 +48,12 @@ green_gate:
     and continue without overflow
   - R4_16 registry keeps R4 after R3 before runtime_global and excludes later evidence
   - R4_17 non_affilie reaches a derived ceiling never a flat 7258
-  retires: red_replay_2_14
+  retires: red_replay_2_15
   test_file: product/mint_next/batch7/design_lab/test/design_lab_batch22_r4_test.dart
-  test_sha256: 9bd42346cfae38ec87026d4fdb57da32036d9cbbe7fcb997a33fda52e57fff9e
+  test_sha256: 6eba597a8a26734638bd3d2bf84fdb91b6afb6b7b54379d7e92692ab59dcea49
   working_directory: product/mint_next/batch7/design_lab
 mechanical_binding:
-  candidate_payload_sha256: f626d094490f81638cc821c47c1a817c998b227d89b80b8cdf06c351ecba2aab
+  candidate_payload_sha256: fdeed32f9a4e62526c2df60640edabbe8ccf6bf733b30e364405ad8ccd562669
   green_lib_inventory_sha256: null
   reviewed_candidate_commit: null
   reviewed_payload_sha256: null
@@ -74,10 +74,10 @@ product_promotion: forbidden
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch22_r4_red_guard.py
-    sha256: 1ea35e18664e32b1e572aba15065cb7a72149c2d9377f143b8786a3c276293d3
+    sha256: 008ce16c3c6c9224386d5bb888b54ea58c40c27bdd1f2a4e73433d333ec16f1c
   registry:
     path: product/mint_next/batch22/runtime-gates.yaml
-    sha256: c4b709a5e9cc8439fada9f8ba8d1677eabf6b4baf75ce05abbb36aaac81e1ef7
+    sha256: 02acc8e00e823dd8665095f8812755d2f770c2652cc9aa0dd0e4e2c46db4b5bf
 reviews:
   journey_safety:
     p1: null

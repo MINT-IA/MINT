@@ -17,19 +17,23 @@ failures, 0 load/harness errors.
 """
 
 # HISTORICAL-REPLAY NOTICE (batch19/batch20/batch21 pattern, product decision
-# 2026-08-05). This is an expected-RED guard: validate()/run_expected_red assert the
-# PRE-runtime state (EXPECTED_LIB_SOURCE_SHA256 = the lib WITHOUT the R4 runtime — it
-# carries the attested R1 canton + R2 fact_lieu + R3 fact_revenu/eclairage runtimes
-# and shared infra only). At this sealed RED_COMMIT the R4 runtime is unimplemented,
-# so validate() and `--contract` PASS live now. When R4 wires the two nodes
-# (mint-mobile runtime, integrated post-flip: scenarios_versement.dart +
-# fact_etat_civil.dart land and design_lab_app.dart changes — see
-# registry.runtime_regating), the lib inventory drifts and validate()/`--contract`
-# will fail on that drift: the expected-RED replay BECOMES HISTORICAL at the green
-# flip, attested at the sealed RED_COMMIT, never a live proof past it. The STRUCTURAL
-# constants below (ANCHOR, EXPECTED_*_SHA256, EXPECTED_TEST_NAMES, subgates) remain
-# the sealed reference the green-gate reads; the LIVE structural proof past the flip
-# is the green-gate guard's `--contract`.
+# 2026-08-05; re-graved for the Vague Groupée fermeture 2026-08-06). This is an
+# expected-RED guard: validate()/run_expected_red assert the PRE-runtime state
+# (EXPECTED_LIB_SOURCE_SHA256 = the lib WITHOUT the R4 runtime). That state is now in
+# the PAST: the R4 runtime is IMPLEMENTED and the fermeture loop is WIRED
+# (scenarios_versement.dart + fact_etat_civil.dart + r4_fermeture_catalog.g.dart
+# landed; design_lab_app.dart + fact_lieu.dart re-gated — see
+# registry.runtime_regating). So validate() and `--contract` FAIL LIVE NOW, BY
+# DESIGN, on EXPECTED_LIB_SOURCE_SHA256 (the "reviewed RED runtime source inventory
+# or digest drifted" require — the last inventory block of validate(): the live lib
+# carries the delivered R4 runtime the frozen inventory omits). The expected-RED
+# replay is HISTORICAL, attested at the sealed RED_COMMIT, never a live proof past
+# the green flip. deferred_integration below reflects the DELIVERED Vague-Groupée
+# state (loop closed; only the married CHIFFRE recompute stays a backend L2 contract
+# on dev) and is asserted byte-equal to the registry. The STRUCTURAL constants
+# (ANCHOR, EXPECTED_*_SHA256, EXPECTED_TEST_NAMES, subgates) remain the sealed
+# reference the green-gate reads; the LIVE structural proof past the flip is the
+# green-gate guard's `--contract`.
 
 from __future__ import annotations
 
@@ -75,21 +79,25 @@ ANCHOR = "c8b67214f19e50df66266454800ef38e2f3859a6"
 
 EXPECTED_SCENARIOS_SCOPE_SHA256 = "5d3ebea8de3d0e8c16cbd2f8c10e982d04383655d3d3b8e9a96f44aa34a2c320"
 EXPECTED_ETAT_CIVIL_SCOPE_SHA256 = "a3fb33c2d9b0a0ab70d39be6f16c958036b849e1f8f3a2da396fb3a08d1c704e"
-EXPECTED_COPY_SHA256 = "b4e767ea44da998ed8ed25de4df8e642b487ca0c441798dae4ba5ea3d892b418"
+EXPECTED_COPY_SHA256 = "889e33bc8f73dc04c0a7b81da455e4b27c7be3b6339947cca7aff0eb89cc0bf2"
 EXPECTED_FIXTURES_SHA256 = "ec1b419f1edd102b723b3a96f0bf773330fc94010e68c5f6d4498d86a30c51b2"
-EXPECTED_TEST_SHA256 = "9bd42346cfae38ec87026d4fdb57da32036d9cbbe7fcb997a33fda52e57fff9e"
+EXPECTED_TEST_SHA256 = "6eba597a8a26734638bd3d2bf84fdb91b6afb6b7b54379d7e92692ab59dcea49"
 EXPECTED_FIXTURE_SHA256 = "25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700"
 EXPECTED_PUBSPEC_SHA256 = "0b83bf36a5ee2242becbd0fb601235f0c3b2942813207552a03957aaf1569326"
 EXPECTED_PUBSPEC_LOCK_SHA256 = "6d7f501ae44e385c80d3726c6a25d830d04d3acf0a7456c6129a293f97f885a1"
-# PRE-runtime-R4 inventory: R1 canton + R2 fact_lieu + R3 fact_revenu/eclairage
-# runtimes + shared infra, and NO scenarios_versement.dart / fact_etat_civil.dart.
-# This proves the R4 runtime is NOT implemented.
+# PRE-runtime-R4 inventory (HISTORICAL): the frozen lib WITHOUT the R4 runtime.
+# fact_lieu.dart is NO LONGER frozen here — the Vague Groupée fermeture re-gated it
+# (it gained onCommuneSelected to lift the picked commune LABEL into the éclairage
+# payoff), so it moved to EXPECTED_RUNTIME_REGATING.regated_files below. Its
+# generated catalog fact_lieu_catalog.g.dart stays frozen (untouched by R4). This
+# whole inventory is a HISTORICAL sha snapshot: post-runtime the live lib carries
+# the delivered R4 runtime, so validate()/`--contract` fail on it BY DESIGN (see
+# the module header). It never lists scenarios_versement.dart / fact_etat_civil.dart.
 EXPECTED_LIB_SOURCE_SHA256 = {
     'canton_r1.dart': '928297a39bcb50466df1460f730b2700287f8c93ec6504b0adfb62faadbe1161',
     'canton_r1_catalog.g.dart': 'f8444b10283d4dc600feb695c19850963b044e67cb3a4766dab9f2c69d40781d',
     'design_lab_app.dart': 'ec39dcb8a0e040c53eb8cf01af4c1a1474e0d20d76ee12a1676b5b9dd5deda40',
     'eclairage_impot_3a.dart': '0eace8eec21528a4e3cc999066c79b621bb0a9d842de2a7efa61f7ed8916e0c8',
-    'fact_lieu.dart': 'a7dd6a006cc58c8dba5a25bc86d2029f98261310eb46eb9285fcff45fbd225b4',
     'fact_lieu_catalog.g.dart': '5f7e4003a701205ffc74e9c9679a8f56ce44f41c65ba292e3e7721902ae19ba8',
     'fact_revenu.dart': 'f26884f8dff16abb76f34e86baa8b7c861e2f4f6b37bb9f7103ae370e258e344',
     'l10n/app_de.arb': '7f283d427787d7bd23138433128c7adc2653906b780e48df8fba668a8564d8ad',
@@ -186,13 +194,49 @@ EXPECTED_RUNTIME_REGATING = {
         "product/mint_next/batch7/design_lab/lib/fact_etat_civil.dart",
         "product/mint_next/batch7/design_lab/lib/r4_fermeture_catalog.g.dart",
         "product/mint_next/batch7/design_lab/lib/design_lab_app.dart",
+        # Vague Groupée fermeture: fact_lieu.dart is R4-regated (it lifts the
+        # picked commune LABEL to the éclairage payoff via onCommuneSelected).
+        "product/mint_next/batch7/design_lab/lib/fact_lieu.dart",
     ],
     "lib_inventory_seal": "deferred_to_implementation_under_this_gate",
 }
 # RIDER 1+2 — the deferred integration governance unit sealed into the registry.
+# LOOP CLOSED (Vague Groupée fermeture-de-boucle, 2026-08-06): the OUTBOUND edges
+# are wired (scenarios.continue -> fact_etat_civil ; fact_etat_civil.continue with
+# a selected status -> éclairage ; scenarios footer back/keep route), the non-affilié
+# LPP-no branch routes to a DERIVED ceiling (sealed R4_17, never a flat 7258), and
+# the fermeture-loop financial state survives one loop turn. The ONLY piece not
+# recomputed in Dart is the MARRIED CHIFFRE (splitting quotient) — that is a backend
+# L2 (comparer) contract on dev (CLAUDE.md NEVER#3), so the runtime carries a
+# co-located married caveat on the éclairage Situation row (Vague Groupée P1) rather
+# than a fabricated in-Dart number. This dict MUST stay byte-equal to the registry's
+# deferred_integration (validate() asserts equality); registry comments are ignored.
 EXPECTED_DEFERRED_INTEGRATION = {
-    "status": "declared_next_governance_unit_after_r4_runtime_lands",
+    "status": "delivered_r4_loop_closed_married_chiffre_recompute_backend_l2_deferred",
     "green_flips_here_not_at_screen_flip": True,
+    "key_reconciliation": {
+        "direction": "runtime_conforms_to_sealed_test_never_the_inverse",
+        "runtime_adopted_test_keys": [
+            "etat_civil_dot_prefix_not_fact_etat_civil_dot",
+            "region_scenarios_scenario_not_row_scenarios_scenario_N",
+            "amount_scenarios_effect",
+        ],
+    },
+    "delivered_edges": {
+        "edges": [
+            "eclairage_continue_to_scenarios_versement",
+            "eclairage_situation_row_refine_to_fact_etat_civil",
+            "fact_etat_civil_continue_routes_to_eclairage_with_a_selected_status",
+            "scenarios_versement_footer_continue_back_keep_routing",
+        ],
+        "non_affilie_routes_to_a_derived_ceiling_never_a_flat_7258": True,
+        "eclairage_batch21_arc_untouched": True,
+    },
+    "not_yet_delivered": {
+        "edges": [],
+        "married_chiffre_recompute_is_backend_l2_contract_on_dev": True,
+        "eclairage_situation_row_shows_a_colocated_married_caveat": True,
+    },
     "scope": [
         "wire_eclairage_continue_to_scenarios_versement_refreshing_next_action",
         "upgrade_the_eclairage_situation_row_to_a_refine_affordance_routing_to_fact_etat_civil",
@@ -576,9 +620,9 @@ def validate(root: Path = REPO_ROOT, *, check_git: bool = True) -> None:
     )
     _require(r4.get("working_directory") == "product/mint_next/batch7/design_lab", "R4 working directory drifted")
     _require(r4.get("expected_exit_code") == 1, "R4 expected exit drifted")
-    _require(r4.get("expected_summary") == {"passed": 2, "failed": 14, "load_or_harness_errors": 0}, "R4 expected summary drifted")
+    _require(r4.get("expected_summary") == {"passed": 2, "failed": 15, "load_or_harness_errors": 0}, "R4 expected summary drifted")
     obligation_map = r4.get("obligation_test_names", {})
-    expected_ids = {f"R4_{index:02d}" for index in range(1, 17)}
+    expected_ids = {f"R4_{index:02d}" for index in range(1, 18)}
     _require(set(obligation_map) == expected_ids, "R4 obligation coverage drifted")
     mapped_names = set()
     for value in obligation_map.values():

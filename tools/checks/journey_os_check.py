@@ -302,6 +302,9 @@ ALLOW = {
     "product/mint_next/batch7/design_lab/test/dev_fact_etat_civil_r4_test.dart",
     # Vague Groupée P1: married-only co-located caveat on the éclairage Situation row.
     "product/mint_next/batch7/design_lab/test/dev_eclairage_situation_caveat_test.dart",
+    # Vague Groupée fermeture: fermeture-loop state ownership (own-amount + reference
+    # + committed amount + picked commune preserved across one loop turn — roast P1-1).
+    "product/mint_next/batch7/design_lab/test/dev_scenarios_state_ownership_r4_test.dart",
     # Batch 22 R4 GREEN gate (2026-08-05): the delivered record of the fermeture
     # integration (INBOUND edges wired, 16/16 reach). Its trust files are bound BY
     # BYTES into the green payload and its path-owner (batch22-r4-green-gate) stays
