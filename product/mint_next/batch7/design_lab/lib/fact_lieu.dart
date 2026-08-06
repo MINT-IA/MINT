@@ -127,7 +127,10 @@ class FactLieuScreen extends StatefulWidget {
   /// harnesses (which never lift the commune), so their sealed constructions are
   /// unchanged. The engine fixtures stay canton-FR-grounded (documented
   /// offline-lab limitation) — this lifts the LABEL, never re-derives a number.
-  final void Function(String commune, String canton)? onCommuneSelected;
+  /// V3-1 (Codex P1-1): also lifts the canton CODE so the éclairage can disclose
+  /// (locale-robustly) when the FR-fixture hero range is not the user's canton.
+  final void Function(String commune, String canton, String cantonCode)?
+  onCommuneSelected;
 
   @override
   State<FactLieuScreen> createState() => _FactLieuScreenState();
@@ -221,6 +224,7 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
     Object generation, {
     String? communeName,
     String? cantonLabel,
+    String? cantonCode,
   }) {
     if (_isStale(generation)) return;
     // Guarded continue: with nothing selected it surfaces the no-selection
@@ -235,8 +239,8 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
     // R4 (batch22): lift the committed commune + derived canton LABEL up so the
     // éclairage payoff shows the commune the user picked (never the fixture
     // commune) before routing forward.
-    if (communeName != null && cantonLabel != null) {
-      widget.onCommuneSelected?.call(communeName, cantonLabel);
+    if (communeName != null && cantonLabel != null && cantonCode != null) {
+      widget.onCommuneSelected?.call(communeName, cantonLabel, cantonCode);
     }
     widget.onContinue?.call();
   }
@@ -564,6 +568,7 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
                 cantonLabel: selected == null
                     ? null
                     : cantonLabelOf(selected.cantonCode),
+                cantonCode: selected?.cantonCode,
               ),
               // Subtle until a commune is selected, strong once it is — the
               // continue is guarded and never routes in R2, so the affordance

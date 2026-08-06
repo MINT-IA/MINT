@@ -72,6 +72,7 @@ class EclairageScreen extends StatefulWidget {
     required this.band,
     required this.communeLabel,
     required this.cantonLabel,
+    this.showFixtureCantonDisclosure = false,
     this.canContribute3a = true,
     this.initialSituation = EclairageSituation.celibataire,
     this.initialVersementChf = r3VersementChf,
@@ -91,6 +92,12 @@ class EclairageScreen extends StatefulWidget {
 
   final String communeLabel;
   final String cantonLabel;
+
+  /// V3-1 (Codex P1-1): true when the picked canton ≠ the fixture canton (FR),
+  /// so the hero range (always the Fribourg fixture figure) is honestly flagged
+  /// as an example computed at refinement. Computed by the journey on the canton
+  /// CODE (locale-robust); false for a Fribourg pick or the harness default.
+  final bool showFixtureCantonDisclosure;
 
   /// The source-taxation / FATCA binary gate. false -> non_applicable_source
   /// (canContribute3a): NEVER a CHF amount under a false gate (fault_3).
@@ -533,6 +540,21 @@ class _EclairageScreenState extends State<EclairageScreen> {
                   focusNode: _anchor('edit_lieu'),
                   label: copy['eclairage_hyp_lieu']!.split(' · ').first,
                   value: lieuValue,
+                  // V3-1 (Codex P1-1) FIXTURE-CANTON disclosure, co-located under
+                  // the lieu row: the hero range is ALWAYS the Fribourg fixture
+                  // figure (offline-lab limitation), so showing the user's picked
+                  // canton on that number is a displayable lie unless disclosed.
+                  // When the picked canton ≠ the fixture canton (Fribourg), say so
+                  // — the LABEL keeps the real commune, the number is honestly
+                  // flagged as an example computed at refinement. When the canton
+                  // IS Fribourg (or the harness default), the number is theirs, so
+                  // no disclosure is shown. The condition is on the canton CODE
+                  // (locale-robust), computed by the journey — never a
+                  // locale-dependent label comparison.
+                  caveat: widget.showFixtureCantonDisclosure
+                      ? copy['eclairage_lieu_fixture_disclosure']
+                      : null,
+                  caveatKey: 'text:eclairage.lieu_caveat',
                   onTap: widget.onEditLieu,
                   isLast: true,
                 ),
@@ -991,6 +1013,7 @@ class _HypRow extends StatelessWidget {
     this.isLast = false,
     this.displayOnly = false,
     this.caveat,
+    this.caveatKey = 'text:eclairage.situation_caveat',
     this.refineActionKey,
     this.refineLabel,
     this.refineFocusNode,
@@ -1013,6 +1036,11 @@ class _HypRow extends StatelessWidget {
   /// row's spoken label so a screen reader announces it WITH the row. Never a
   /// promised number, never a promised delay — an honest bound on the estimate.
   final String? caveat;
+
+  /// The ValueKey of the co-located caveat Text. Defaults to the situation-row
+  /// married caveat; the lieu row (V3-1 canton disclosure) overrides it so the
+  /// two co-located caveats are distinct finder targets.
+  final String caveatKey;
 
   /// An optional REFINE affordance rendered as a DISTINCT tap target attached
   /// below a display-only row (R4 situation row): the value stays read-only, the
@@ -1120,7 +1148,7 @@ class _HypRow extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   caveatText,
-                  key: const ValueKey('text:eclairage.situation_caveat'),
+                  key: ValueKey<String>(caveatKey),
                   style: const TextStyle(
                     fontFamily: 'Supreme',
                     fontSize: 13,

@@ -177,6 +177,13 @@ void main() {
       expect(_key('text:scenarios.choose_line'), findsOneWidget);
       expect(_key('text:scenarios.body'), findsNothing);
       expect(_key('action:scenarios.continue'), findsOneWidget);
+      // V3-3b (Codex P1-3): arrival REALLY focuses the choose-line heading (not a
+      // scenario amount) — assert the primary focus, not just the text's presence.
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'scenarios choose_line',
+        reason: '[R4_03] arrival must focus the choose-line heading',
+      );
     },
   );
 
@@ -204,6 +211,20 @@ void main() {
       await _reachScenarios(tester, sentinel: '[R4_06]');
       await _tapVisible(tester, 'action:scenarios.open_plafond_glossary');
       expect(_key('sheet:scenarios.gloss.plafond'), findsOneWidget);
+      // V3-3b (Codex P1-3): the sheet REALLY traps focus on its heading on open,
+      // and dismissing REALLY restores focus to the choose-line anchor.
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'scenarios sheet heading',
+        reason: '[R4_06] the plafond glossary must trap focus on its heading',
+      );
+      await _tapVisible(tester, 'sheet:scenarios.gloss.plafond.dismiss');
+      expect(_key('sheet:scenarios.gloss.plafond'), findsNothing);
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'scenarios choose_line',
+        reason: '[R4_06] dismiss must restore focus to the choose-line anchor',
+      );
     },
   );
 
@@ -270,6 +291,13 @@ void main() {
       expect(_key('text:etat_civil.question'), findsOneWidget);
       expect(_key('text:etat_civil.determining_hint'), findsOneWidget);
       expect(_key('text:etat_civil.body'), findsNothing);
+      // V3-3b (Codex P1-3): arrival REALLY focuses the question (which stands
+      // alone, no body) — assert the primary focus, not just text presence.
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'fact_etat_civil question',
+        reason: '[R4_10] arrival must focus the question',
+      );
     },
   );
 
@@ -288,6 +316,20 @@ void main() {
       await _reachEtatCivil(tester, sentinel: '[R4_12]');
       await _tapVisible(tester, 'action:etat_civil.open_splitting_glossary');
       expect(_key('sheet:etat_civil.gloss.splitting'), findsOneWidget);
+      // V3-3b (Codex P1-3): the splitting sheet REALLY traps focus on its heading,
+      // and dismissing REALLY restores focus to the help-link anchor it opened from.
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'fact_etat_civil sheet heading',
+        reason: '[R4_12] the splitting glossary must trap focus on its heading',
+      );
+      await _tapVisible(tester, 'sheet:etat_civil.gloss.splitting.dismiss');
+      expect(_key('sheet:etat_civil.gloss.splitting'), findsNothing);
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'fact_etat_civil help_link anchor',
+        reason: '[R4_12] dismiss must restore focus to the help-link anchor',
+      );
     },
   );
 
@@ -297,6 +339,17 @@ void main() {
       await _reachEtatCivil(tester, sentinel: '[R4_13]');
       await _tapVisible(tester, 'action:etat_civil.open_concubinage_glossary');
       expect(_key('sheet:etat_civil.gloss.concubinage'), findsOneWidget);
+      // V3-3b (Codex P1-3): assert the RULING itself, not just the sheet's
+      // existence — the concubinage gloss states SEPARATE taxation (imposé
+      // séparément, comme une personne célibataire), never the married splitting.
+      expect(
+        find.descendant(
+          of: _key('sheet:etat_civil.gloss.concubinage'),
+          matching: find.textContaining('séparément'),
+        ),
+        findsOneWidget,
+        reason: '[R4_13] the concubinage gloss must state separate taxation',
+      );
     },
   );
 

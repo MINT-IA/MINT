@@ -105,6 +105,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_concubinage': 'En couple, non marié·e',
     'eclairage_situation_caveat_marie':
         'Estimation encore basée sur une personne seule ; l’effet pour un ménage marié dépend du revenu du couple.',
+    'eclairage_lieu_fixture_disclosure':
+        'Exemple chiffré sur le canton de Fribourg ; ton canton sera calculé au raffinage.',
     'eclairage_refine_hint': 'Un chiffre exact resserre l’estimation.',
     'eclairage_amount_caption_refined':
         'd’impôt en moins cette année, d’après ton chiffre.',
@@ -191,6 +193,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_concubinage': 'Living together, not married',
     'eclairage_situation_caveat_marie':
         'Still estimated for a single person; the effect for a married household depends on the couple’s income.',
+    'eclairage_lieu_fixture_disclosure':
+        'Example figure for the canton of Fribourg; your canton will be computed at refinement.',
     'eclairage_refine_hint': 'An exact figure narrows the estimate.',
     'eclairage_amount_caption_refined': 'less tax this year, based on your figure.',
     'eclairage_exact_revenu_title': 'Your exact taxable income',
@@ -275,6 +279,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_concubinage': 'Zusammenlebend, nicht verheiratet',
     'eclairage_situation_caveat_marie':
         'Noch für eine Einzelperson geschätzt; die Wirkung für einen verheirateten Haushalt hängt vom Einkommen des Paares ab.',
+    'eclairage_lieu_fixture_disclosure':
+        'Beispielzahl für den Kanton Freiburg; dein Kanton wird bei der Verfeinerung berechnet.',
     'eclairage_refine_hint': 'Eine genaue Zahl verengt die Schätzung.',
     'eclairage_amount_caption_refined': 'weniger Steuer dieses Jahr, nach deiner Zahl.',
     'eclairage_exact_revenu_title': 'Dein genaues steuerbares Einkommen',
@@ -360,6 +366,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_concubinage': 'In coppia, non sposato/a',
     'eclairage_situation_caveat_marie':
         'Stima ancora basata su una persona sola; l’effetto per un nucleo sposato dipende dal reddito della coppia.',
+    'eclairage_lieu_fixture_disclosure':
+        'Cifra d’esempio per il cantone di Friburgo; il tuo cantone sarà calcolato al perfezionamento.',
     'eclairage_refine_hint': 'Una cifra esatta restringe la stima.',
     'eclairage_amount_caption_refined':
         'di imposta in meno quest’anno, in base alla tua cifra.',
@@ -445,6 +453,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_concubinage': 'En pareja, no casado/a',
     'eclairage_situation_caveat_marie':
         'Estimación aún basada en una persona sola; el efecto para un hogar casado depende de los ingresos de la pareja.',
+    'eclairage_lieu_fixture_disclosure':
+        'Cifra de ejemplo para el cantón de Friburgo; tu cantón se calculará al perfeccionar.',
     'eclairage_refine_hint': 'Una cifra exacta estrecha la estimación.',
     'eclairage_amount_caption_refined':
         'de impuesto menos este año, según tu cifra.',
@@ -530,6 +540,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_concubinage': 'Em casal, não casado/a',
     'eclairage_situation_caveat_marie':
         'Estimativa ainda baseada numa pessoa sozinha; o efeito para um agregado casado depende do rendimento do casal.',
+    'eclairage_lieu_fixture_disclosure':
+        'Valor de exemplo para o cantão de Friburgo; o teu cantão será calculado no refinamento.',
     'eclairage_refine_hint': 'Um número exato estreita a estimativa.',
     'eclairage_amount_caption_refined':
         'de imposto a menos este ano, com base no teu número.',

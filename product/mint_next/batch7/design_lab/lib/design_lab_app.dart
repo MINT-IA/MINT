@@ -320,6 +320,12 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
   // estimate; eclairage-scope.yaml:60,69 freezes the number at the chef-lieu).
   String _eclairageCommune = r3ExampleCommune;
   String _eclairageCanton = r3ExampleCanton;
+  // V3-1 (Codex P1-1): the canton CODE the user actually picked in fact_lieu.
+  // Default = the fixture canton (FR / Fribourg) — the offline-lab hero range is
+  // always the FR fixture, so any picked canton ≠ FR triggers the co-located
+  // "example figure for Fribourg" disclosure on the éclairage lieu row. Locale-
+  // robust (a CODE, never a locale-dependent label).
+  String _eclairageCantonCode = 'FR';
   // R4 (batch22) integration: the scenarios own-amount ("versement"), LIFTED to
   // the parent so it survives one fermeture loop turn (scenarios -> etat_civil
   // -> éclairage -> scenarios) instead of dying with the ScenariosVersementScreen
@@ -599,6 +605,10 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     _multipleProvidersDeclared = false;
     _multiProviderDraft.purge();
     _unresolvedOrigin = null;
+    // V3-2 (Codex P1-2): re-choosing the contribution status (e.g. yes -> no)
+    // clears the entered amount, so the scenarios margin returns to a full
+    // plafond (contributed 0) rather than keeping a stale value.
+    _scenariosContributedChf = 0;
   }
 
   void _clearEphemeralFacts() {
@@ -1017,8 +1027,19 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                     accent: MultiProviderAmountEditor(
                                       taxYear: _taxYear!,
                                       draft: _multiProviderDraft,
-                                      onCommitted: (_) =>
-                                          _go(_DesignNode.factLieu),
+                                      onCommitted: (totalMinorUnits) {
+                                        // V3-2 (Codex P1-2): the committed
+                                        // multi-provider total is the real
+                                        // already-contributed amount → feed it
+                                        // into the scenarios margin. It is in
+                                        // MINOR UNITS (rappen); the scenarios
+                                        // screen is in whole CHF, so convert.
+                                        setState(
+                                          () => _scenariosContributedChf =
+                                              totalMinorUnits ~/ 100,
+                                        );
+                                        _go(_DesignNode.factLieu);
+                                      },
                                       enableBatch16:
                                           widget.enableBatch16Unresolved,
                                       onAmountDoubt: _openBatch16Help,
@@ -1114,8 +1135,18 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                       _node = _DesignNode
                                           .contributedAmountUnknownHelp;
                                     }),
-                                    onContinue: () {
+                                    onContinue: (contributedMinorUnits) {
                                       if (!_multipleProvidersDeclared) {
+                                        // V3-2 (Codex P1-2): feed the real
+                                        // already-contributed amount into the
+                                        // scenarios margin (plafond − versé).
+                                        // parseOrdinaryChfAmount returns MINOR
+                                        // UNITS (rappen); the scenarios screen +
+                                        // fixtures are in whole CHF, so convert.
+                                        setState(
+                                          () => _scenariosContributedChf =
+                                              contributedMinorUnits ~/ 100,
+                                        );
                                         _go(_DesignNode.factLieu);
                                       }
                                     },
@@ -1195,10 +1226,16 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             // R4 (batch22): lift the picked commune LABEL up so
                             // the éclairage payoff shows the user's actual
                             // commune, never the hardcoded fixture (roast P1-1i).
-                            onCommuneSelected: (commune, canton) => setState(() {
-                              _eclairageCommune = commune;
-                              _eclairageCanton = canton;
-                            }),
+                            onCommuneSelected: (commune, canton, cantonCode) =>
+                                setState(() {
+                                  _eclairageCommune = commune;
+                                  _eclairageCanton = canton;
+                                  // V3-1 (Codex P1-1): track the picked canton
+                                  // CODE so the éclairage can disclose when the
+                                  // hero range (FR fixture) is not the user's
+                                  // canton.
+                                  _eclairageCantonCode = cantonCode;
+                                }),
                           ),
                           // R3 batch21 — the ÉCLAIRAGE arc. fact_revenu commits a
                           // band without routing (continue never routes in R3);
@@ -1228,6 +1265,11 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             // limitation, disclaimed) — this is the LABEL only.
                             communeLabel: _eclairageCommune,
                             cantonLabel: _eclairageCanton,
+                            // V3-1 (Codex P1-1): disclose the FR-fixture basis
+                            // whenever the picked canton ≠ FR (locale-robust code
+                            // comparison). The label stays the real commune.
+                            showFixtureCantonDisclosure:
+                                _eclairageCantonCode != 'FR',
                             canContribute3a:
                                 widget.batch21?.canContribute ?? true,
                             // R4 (batch22) integration: the situation hypothesis
@@ -2108,7 +2150,10 @@ class _ContributionAmountForm extends StatefulWidget {
   final ValueChanged<bool> onWhereToFindChanged;
   final VoidCallback onUnknown;
   final VoidCallback onMissing;
-  final VoidCallback onContinue;
+  // V3-2 (Codex P1-2): carries the parsed already-contributed CHF up to the
+  // journey so _scenariosContributedChf reflects the real value entered here —
+  // the scenarios margin becomes plafond − versé (never a silent 0).
+  final ValueChanged<int> onContinue;
   final VoidCallback onCorrectPrevious;
 
   @override
@@ -2205,7 +2250,9 @@ class _ContributionAmountFormState extends State<_ContributionAmountForm> {
       });
       return;
     }
-    widget.onContinue();
+    // V3-2 (Codex P1-2): the guards above guarantee amount is non-null and > 0;
+    // carry it up so the scenarios margin is plafond − versé (never a silent 0).
+    widget.onContinue(amount!);
   }
 
   bool get _hasPositiveDraft {
