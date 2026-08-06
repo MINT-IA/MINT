@@ -34,6 +34,7 @@ from app.constants.social_insurance import (
     PILIER_3A_PLAFOND_AVEC_LPP,
     PILIER_3A_PLAFOND_SANS_LPP,
 )
+from app.services.fiscal.civil_status import is_married_civil_status
 
 
 # ---------------------------------------------------------------------------
@@ -180,6 +181,14 @@ class CoachingEngine:
     # 3a pillar limits (OPP3 art. 7)
     PLAFOND_3A_SALARIE = PILIER_3A_PLAFOND_AVEC_LPP
     PLAFOND_3A_INDEPENDANT = PILIER_3A_PLAFOND_SANS_LPP
+
+    # Divulgation (revue Codex P1-3) : pour un ménage marié, l'économie est
+    # calculée sur le seul revenu de l'utilisateur — le revenu du conjoint
+    # (imposition commune, LIFD art. 9 al. 1) n'est pas dans le profil coach.
+    _CONJOINT_CAVEAT = (
+        " Estimation sur votre seul revenu ; le revenu de votre conjoint "
+        "n'est pas pris en compte."
+    )
 
     # LPP constants
     COORDINATION_DEDUCTION = LPP_DEDUCTION_COORDINATION
@@ -404,6 +413,27 @@ class CoachingEngine:
         )
 
     # ------------------------------------------------------------------
+    # Helper: économie fiscale d'une déduction (DIFFÉRENCE d'impôt canonique)
+    # ------------------------------------------------------------------
+
+    def _tax_saving(
+        self, profile: CoachingProfile, deduction: float, is_married: bool
+    ) -> float:
+        """Économie fiscale d'une déduction — DIFFÉRENCE d'impôt de l'étalon.
+
+        Remplace le produit ``déduction × taux marginal`` (revue Codex P1-4 :
+        NE marié 16'000 -> coach 1'055 vs différence réelle 295, soit +258%).
+        Le taux marginal du dernier franc n'est pas celui de toute la déduction ;
+        ``estimate_tax_saving`` est exact par construction et respecte l'état
+        civil (imposition commune, LIFD art. 9 al. 1).
+        """
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
+        return estimate_tax_saving(
+            profile.revenu_annuel, deduction, profile.canton, is_married=is_married
+        )
+
+    # ------------------------------------------------------------------
     # (a) 3a deadline (Oct 1 - Dec 31)
     # ------------------------------------------------------------------
 
@@ -434,16 +464,15 @@ class CoachingEngine:
         end_of_year = date(today.year, 12, 31)
         days_remaining = (end_of_year - today).days
 
-        # Calculate fiscal impact
-        taux = self._get_marginal_rate(
-            profile.canton, profile.revenu_annuel, profile.etat_civil
-        )
         if profile.has_3a:
             montant_deductible = montant_restant
         else:
             montant_deductible = plafond
 
-        economie_fiscale = montant_deductible * taux
+        # Économie = DIFFÉRENCE d'impôt (étalon), pas déduction × taux (P1-4).
+        is_married = is_married_civil_status(profile.etat_civil)
+        economie_fiscale = self._tax_saving(profile, montant_deductible, is_married)
+        caveat = self._CONJOINT_CAVEAT if is_married else ""
 
         tips.append(CoachingTip(
             id="3a_deadline",
@@ -455,7 +484,7 @@ class CoachingEngine:
                 f"3e pilier {today.year}. Montant deductible restant: "
                 f"CHF {montant_deductible:,.0f}. "
                 f"Economie fiscale estimee: CHF {economie_fiscale:,.0f}. "
-                f"Ce montant depend de votre situation fiscale individuelle."
+                f"Ce montant depend de votre situation fiscale individuelle.{caveat}"
             ),
             action=(
                 "Versez le montant restant sur votre compte 3a avant "
@@ -487,10 +516,10 @@ class CoachingEngine:
 
         plafond = self._ceiling_3a(profile)
 
-        taux = self._get_marginal_rate(
-            profile.canton, profile.revenu_annuel, profile.etat_civil
-        )
-        economie_annuelle = plafond * taux
+        # Économie = DIFFÉRENCE d'impôt (étalon), pas plafond × taux (P1-4).
+        is_married = is_married_civil_status(profile.etat_civil)
+        economie_annuelle = self._tax_saving(profile, plafond, is_married)
+        caveat = self._CONJOINT_CAVEAT if is_married else ""
 
         tips.append(CoachingTip(
             id="missing_3a",
@@ -498,11 +527,11 @@ class CoachingEngine:
             priority="haute",
             title="Pas de 3e pilier",
             message=(
-                f"Vous n'avez pas de 3e pilier. En epargnant "
-                f"CHF {plafond:,.0f}/an, vous pourriez economiser "
-                f"environ CHF {economie_annuelle:,.0f} d'impots par an "
+                f"Vous n'avez pas de 3e pilier. En épargnant "
+                f"CHF {plafond:,.0f}/an, vous pourriez économiser "
+                f"environ CHF {economie_annuelle:,.0f} d'impôts par an "
                 f"(estimation selon votre canton). "
-                f"L'impact reel depend de votre revenu imposable."
+                f"L'impact réel dépend de votre revenu imposable.{caveat}"
             ),
             action=(
                 "Comparer les comptes 3a (banque, assurance) selon les frais "
@@ -529,13 +558,13 @@ class CoachingEngine:
         if profile.age < 25:
             return tips
 
-        taux = self._get_marginal_rate(
-            profile.canton, profile.revenu_annuel, profile.etat_civil
-        )
         # Estimate: suggest buying back up to the full gap,
         # but show impact for a reasonable yearly amount
         montant_rachat_sugere = min(profile.lacune_lpp, 20_000.0)
-        economie_fiscale = montant_rachat_sugere * taux
+        # Économie = DIFFÉRENCE d'impôt (étalon), pas rachat × taux (P1-4).
+        is_married = is_married_civil_status(profile.etat_civil)
+        economie_fiscale = self._tax_saving(profile, montant_rachat_sugere, is_married)
+        caveat = self._CONJOINT_CAVEAT if is_married else ""
 
         tips.append(CoachingTip(
             id="lpp_buyback",
@@ -547,7 +576,7 @@ class CoachingEngine:
                 f"Un rachat volontaire est intégralement déductible "
                 f"fiscalement. Pour un rachat de CHF {montant_rachat_sugere:,.0f}, "
                 f"l'économie fiscale estimée est de CHF {economie_fiscale:,.0f}. "
-                f"L'impact réel dépend de votre situation fiscale."
+                f"L'impact réel dépend de votre situation fiscale.{caveat}"
             ),
             action=(
                 "Demandez a votre caisse de pension le montant maximal "

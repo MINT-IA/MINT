@@ -864,3 +864,62 @@ class TestCoachingCeilingOPP3:
         # le plafond borné 4'000 apparaît, le grand 3a nu 36'288 disparaît.
         assert ("4,000" in tip.message) or ("4'000" in tip.message)
         assert "36,288" not in tip.message and "36'288" not in tip.message
+
+
+class TestCoachingTaxSavingIsDifference:
+    """Batch E2 — les 3 tips affichent la DIFFÉRENCE d'impôt (estimate_tax_saving),
+    pas déduction × taux marginal (revue Codex P1-4)."""
+
+    def test_missing_3a_repro_ne_marie_16k(self, engine):
+        """Repro Codex exécuté : NE, marié, 16'000. Ancien coach = 1'055.39
+        (7'258 × taux), nouveau = 294.93 (différence d'impôt). Oracle externe."""
+        p = _profile(
+            has_3a=False, age=35, canton="NE",
+            revenu_annuel=16_000.0, etat_civil="marie",
+            employment_status="salarie", has_lpp=True,
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 5, 1)), "missing_3a")
+        assert tip is not None
+        assert tip.estimated_impact_chf == pytest.approx(294.93, abs=0.01)  # externe
+        assert tip.estimated_impact_chf != pytest.approx(1055.39, abs=0.01)  # ancien produit
+
+    def test_missing_3a_equals_canonical_difference(self, engine):
+        """Le montant du tip == estimate_tax_saving (jamais plafond × taux)."""
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
+        p = _profile(
+            has_3a=False, age=35, canton="ZH", revenu_annuel=90_000.0,
+            etat_civil="marie", employment_status="salarie", has_lpp=True,
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 5, 1)), "missing_3a")
+        plafond = engine._ceiling_3a(p)
+        expected = estimate_tax_saving(90_000.0, plafond, "ZH", is_married=True)
+        assert tip.estimated_impact_chf == pytest.approx(round(expected, 2), abs=0.01)
+
+    def test_lpp_buyback_equals_canonical_difference(self, engine):
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
+        p = _profile(
+            age=40, canton="VD", revenu_annuel=100_000.0, lacune_lpp=30_000.0,
+            etat_civil="celibataire",
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 5, 1)), "lpp_buyback")
+        montant = min(30_000.0, 20_000.0)
+        expected = estimate_tax_saving(100_000.0, montant, "VD", is_married=False)
+        assert tip.estimated_impact_chf == pytest.approx(round(expected, 2), abs=0.01)
+
+    def test_married_caveat_present_only_when_married(self, engine):
+        common = dict(
+            has_3a=False, age=35, canton="ZH", revenu_annuel=90_000.0,
+            employment_status="salarie", has_lpp=True,
+        )
+        marie = _find_tip(
+            engine.generate_tips(_profile(etat_civil="marie", **common), today_date=date(2026, 5, 1)),
+            "missing_3a",
+        )
+        single = _find_tip(
+            engine.generate_tips(_profile(etat_civil="celibataire", **common), today_date=date(2026, 5, 1)),
+            "missing_3a",
+        )
+        assert "conjoint" in marie.message.lower()
+        assert "conjoint" not in single.message.lower()
