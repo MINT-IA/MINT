@@ -11,6 +11,7 @@ from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
     PILIER_3A_PLAFOND_AVEC_LPP,
     PILIER_3A_PLAFOND_SANS_LPP,
+    PILIER_3A_TAUX_REVENU_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     get_ai_rente_monthly,
 )
@@ -405,16 +406,23 @@ def calculate_marginal_tax_rate(
 def get_3a_ceiling(
     employment_status: Optional[str] = None,
     has_2nd_pillar: Optional[bool] = None,
+    annual_income: Optional[float] = None,
 ) -> float:
     """Return the applicable 3a annual contribution ceiling.
 
     OPP3 art. 7:
     - Salarié affilié LPP (petit 3a): 7'258 CHF
-    - Indépendant sans LPP (grand 3a): 36'288 CHF (20% du revenu net, max)
+    - Indépendant sans LPP (grand 3a): min(20% du revenu de l'activité,
+      36'288 CHF). Le plafond absolu n'est atteint qu'à partir de ~181'440 CHF
+      de revenu — servir 36'288 nu à un indépendant modeste surestime la
+      déduction (revue Codex : revenu 20'000 -> plafond réel 4'000, pas 36'288).
 
     Args:
         employment_status: 'salarie', 'independant', 'employee', 'self_employed', etc.
         has_2nd_pillar: Whether the person is affiliated to a LPP pension fund.
+        annual_income: revenu annuel de l'activité (CHF). Requis pour borner le
+            grand 3a à 20% ; ``None`` -> fallback au plafond absolu (dégradé,
+            documenté : sans revenu on ne peut pas appliquer la borne OPP3).
 
     Returns:
         Annual 3a ceiling in CHF.
@@ -422,7 +430,12 @@ def get_3a_ceiling(
     _status = (employment_status or "").lower().strip()
     is_independent = _status in ("independant", "self_employed")
     if is_independent and not has_2nd_pillar:
-        return PILIER_3A_PLAFOND_SANS_LPP
+        if annual_income is None or annual_income <= 0:
+            return PILIER_3A_PLAFOND_SANS_LPP
+        return round(
+            min(PILIER_3A_TAUX_REVENU_SANS_LPP * annual_income, PILIER_3A_PLAFOND_SANS_LPP),
+            2,
+        )
     return PILIER_3A_PLAFOND_AVEC_LPP
 
 
@@ -434,7 +447,7 @@ def calculate_tax_potential(
     """Estimate potential tax savings (3a only) for MVP display."""
     from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
-    ceiling = get_3a_ceiling(employment_status, has_2nd_pillar)
+    ceiling = get_3a_ceiling(employment_status, has_2nd_pillar, annual_income=income_gross)
     # DIFFERENCE d'impot, pas « plafond x taux marginal ». Le taux marginal
     # du dernier franc n'est pas celui des 7'258 francs precedents : le
     # produit surestime des que la deduction traverse un palier.
@@ -724,7 +737,10 @@ def generate_recommendations(
 def _create_3a_optimizer_recommendation(
     profile: Profile, reference_date: Optional[datetime] = None
 ) -> Recommendation:
-    annual_contribution = get_3a_ceiling(profile.employmentStatus, profile.has2ndPillar)
+    _income_for_3a = profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85
+    annual_contribution = get_3a_ceiling(
+        profile.employmentStatus, profile.has2ndPillar, annual_income=_income_for_3a
+    )
     household_type = "married" if profile.householdType.value in ("couple", "family") else "single"
     marginal_rate = calculate_marginal_tax_rate(
         profile.canton or "ZH",

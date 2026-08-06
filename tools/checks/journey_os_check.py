@@ -550,7 +550,9 @@ ALLOW = {
     "services/backend/app/services/rules_engine.py",
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
+    "services/backend/app/services/arbitrage/cross_pillar_service.py",
     "services/backend/tests/test_rules_engine.py",
+    "services/backend/tests/test_w16_logic_gaps.py",
     # Lint prescriptions (ADR 2026-07-28-prescriptions U1-U4)
     "services/backend/app/services/coach/prescription_vocab.py",
     "services/backend/tests/test_prescription_vocab.py",

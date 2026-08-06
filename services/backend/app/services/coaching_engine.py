@@ -384,6 +384,26 @@ class CoachingEngine:
         )
 
     # ------------------------------------------------------------------
+    # Helper: 3a ceiling (OPP3 art. 7 — source unique rules_engine)
+    # ------------------------------------------------------------------
+
+    def _ceiling_3a(self, profile: CoachingProfile) -> float:
+        """Plafond 3a applicable — délègue à la source unique OPP3 art. 7.
+
+        Remplace la sélection locale ``PLAFOND_3A_INDEPENDANT/SALARIE`` qui
+        (a) ignorait ``has_lpp`` (un indépendant AVEC LPP recevait le grand 3a)
+        et (b) ne bornait pas le grand 3a à 20% du revenu (revue Codex P1-2 :
+        indépendant à 20'000 CHF -> plafond réel 4'000, pas 36'288).
+        """
+        from app.services.rules_engine import get_3a_ceiling
+
+        return get_3a_ceiling(
+            profile.employment_status,
+            profile.has_lpp,
+            annual_income=profile.revenu_annuel,
+        )
+
+    # ------------------------------------------------------------------
     # (a) 3a deadline (Oct 1 - Dec 31)
     # ------------------------------------------------------------------
 
@@ -396,11 +416,7 @@ class CoachingEngine:
         if today.month < 10:
             return tips
 
-        # Determine plafond
-        if profile.employment_status == "independant":
-            plafond = self.PLAFOND_3A_INDEPENDANT
-        else:
-            plafond = self.PLAFOND_3A_SALARIE
+        plafond = self._ceiling_3a(profile)
 
         # Check if there's room to contribute more
         montant_restant = plafond - profile.montant_3a
@@ -469,11 +485,7 @@ class CoachingEngine:
         if profile.employment_status == "retraite":
             return tips
 
-        # Determine plafond
-        if profile.employment_status == "independant":
-            plafond = self.PLAFOND_3A_INDEPENDANT
-        else:
-            plafond = self.PLAFOND_3A_SALARIE
+        plafond = self._ceiling_3a(profile)
 
         taux = self._get_marginal_rate(
             profile.canton, profile.revenu_annuel, profile.etat_civil

@@ -108,7 +108,12 @@ class CrossPillarService:
         # === 3a ceiling (OPP3 art. 7) — single source of truth ===
         employment_status = profile_data.get("employment_status", "salarie")
         has_2nd_pillar = profile_data.get("has_2nd_pillar", True)
-        ceiling_raw = get_3a_ceiling(employment_status, has_2nd_pillar)
+        # OPP3 art. 7 : grand 3a borné à 20% du revenu (revue Codex P1-2).
+        ceiling_raw = get_3a_ceiling(
+            employment_status,
+            has_2nd_pillar,
+            annual_income=profile_data.get("income_gross_yearly"),
+        )
 
         annual_3a_d = _q(annual_3a) if annual_3a is not None else Decimal("0.00")
         three_a_ceiling_d = _q(ceiling_raw)

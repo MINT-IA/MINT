@@ -97,17 +97,20 @@ class TestCoaching3a:
         assert not _has_tip(tips, "3a_deadline")
 
     def test_3a_deadline_independant_plafond(self, engine):
-        """Independant: use higher plafond (36288)."""
+        """Independant SANS LPP : grand 3a borné à 20% du revenu (OPP3 art. 7).
+        revenu 85'000 -> plafond 17'000 (pas 36'288) ; 7'258 versé < 17'000
+        donc marge restante -> tip généré (revue Codex P1-2)."""
         profile = _profile(
             has_3a=True,
             montant_3a=7258.0,
             employment_status="independant",
+            has_lpp=False,
+            revenu_annuel=85_000.0,
         )
         tips = engine.generate_tips(profile, today_date=date(2026, 11, 1))
-        # 7258 < 36288 -> should generate tip
+        # plafond 17'000 > 7'258 versé -> marge restante -> tip
         assert _has_tip(tips, "3a_deadline")
         tip = _find_tip(tips, "3a_deadline")
-        # Montant deductible = 35280 - 7056 = 28224
         assert tip.estimated_impact_chf > 0
 
     def test_3a_deadline_retraite_excluded(self, engine):
@@ -830,3 +833,34 @@ class TestCoachingMarginalRateCivilStatus:
         assert engine._get_marginal_rate(canton, revenu, statut) == (
             estimate_marginal_rate(revenu, canton, is_married=False)
         )
+
+
+class TestCoachingCeilingOPP3:
+    """Batch E1 — le grand 3a (indépendant sans LPP) est borné à 20% du revenu
+    (OPP3 art. 7). Repro Codex : indépendant 20'000 -> 4'000, pas 36'288."""
+
+    def test_ceiling_independant_capped_at_20pct(self, engine):
+        p = _profile(employment_status="independant", has_lpp=False, revenu_annuel=20_000.0)
+        # oracle externe : 20% de 20'000 = 4'000
+        assert engine._ceiling_3a(p) == 4_000.0
+        assert engine._ceiling_3a(p) != 36_288.0
+
+    def test_ceiling_independant_with_lpp_is_small_3a(self, engine):
+        from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
+        p = _profile(employment_status="independant", has_lpp=True, revenu_annuel=20_000.0)
+        assert engine._ceiling_3a(p) == PILIER_3A_PLAFOND_AVEC_LPP
+
+    def test_missing_3a_tip_shows_capped_ceiling(self, engine):
+        """Public path : le tip missing_3a d'un indépendant modeste ne propose
+        plus 36'288 mais le plafond borné."""
+        p = _profile(
+            has_3a=False, age=35, employment_status="independant",
+            has_lpp=False, revenu_annuel=20_000.0, canton="ZH",
+        )
+        tips = engine.generate_tips(p, today_date=date(2026, 5, 1))
+        tip = _find_tip(tips, "missing_3a")
+        assert tip is not None
+        # le plafond borné 4'000 apparaît, le grand 3a nu 36'288 disparaît.
+        assert ("4,000" in tip.message) or ("4'000" in tip.message)
+        assert "36,288" not in tip.message and "36'288" not in tip.message

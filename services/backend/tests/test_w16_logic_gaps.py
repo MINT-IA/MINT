@@ -72,6 +72,36 @@ class TestGet3aCeiling:
         assert get_3a_ceiling("INDEPENDANT", False) == PILIER_3A_PLAFOND_SANS_LPP
         assert get_3a_ceiling("Self_Employed", False) == PILIER_3A_PLAFOND_SANS_LPP
 
+    # ── OPP3 art. 7 : grand 3a borné à 20% du revenu (revue Codex P1-2) ──
+    # Oracles externes calculés à la main (jamais via le helper de prod).
+
+    def test_grand_3a_capped_at_20pct_of_income(self):
+        """Indépendant sans LPP, revenu 20'000 -> 20% = 4'000 (pas 36'288)."""
+        assert get_3a_ceiling("independant", False, annual_income=20_000.0) == 4_000.0
+
+    def test_grand_3a_20pct_below_absolute_ceiling(self):
+        """Revenu 100'000 -> 20% = 20'000 (< plafond absolu)."""
+        assert get_3a_ceiling("independant", False, annual_income=100_000.0) == 20_000.0
+
+    def test_grand_3a_absolute_ceiling_when_income_high(self):
+        """Revenu 200'000 -> 20% = 40'000 borné à 36'288."""
+        assert get_3a_ceiling(
+            "independant", False, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
+
+    def test_grand_3a_no_income_falls_back_to_absolute(self):
+        """Sans revenu on ne peut pas borner -> fallback plafond absolu."""
+        assert get_3a_ceiling("independant", False, annual_income=None) == PILIER_3A_PLAFOND_SANS_LPP
+        assert get_3a_ceiling("independant", False, annual_income=0.0) == PILIER_3A_PLAFOND_SANS_LPP
+
+    def test_income_ignored_for_salarie(self):
+        """Le revenu n'affecte pas le petit 3a (salarié affilié LPP)."""
+        assert get_3a_ceiling("salarie", True, annual_income=20_000.0) == PILIER_3A_PLAFOND_AVEC_LPP
+
+    def test_income_cap_ignored_when_independant_has_lpp(self):
+        """Indépendant AVEC LPP -> petit 3a, revenu sans effet."""
+        assert get_3a_ceiling("independant", True, annual_income=20_000.0) == PILIER_3A_PLAFOND_AVEC_LPP
+
 
 class TestCalculateTaxPotentialWith3aCeiling:
     """Verify calculate_tax_potential uses dynamic 3a ceiling."""
@@ -81,7 +111,9 @@ class TestCalculateTaxPotentialWith3aCeiling:
         assert "CHF" in result
 
     def test_independant_sans_lpp_higher_potential(self):
-        """Indépendant sans LPP should have ~5x higher tax saving potential."""
+        """Indépendant sans LPP garde un potentiel plus élevé, mais borné par
+        OPP3 art. 7 (20% du revenu) : à 100'000 le grand 3a est plafonné à
+        20'000 (pas 36'288), soit ~2.8x le petit 3a et non ~5x (revue Codex P1-2)."""
         result_salarie = calculate_tax_potential("ZH", 100_000, "single", "salarie", True)
         result_indep = calculate_tax_potential("ZH", 100_000, "single", "independant", False)
         # Parse the range values
@@ -90,7 +122,7 @@ class TestCalculateTaxPotentialWith3aCeiling:
             return sum(nums) / len(nums)
         avg_salarie = parse_range(result_salarie)
         avg_indep = parse_range(result_indep)
-        assert avg_indep > avg_salarie * 3  # At least 3x higher
+        assert avg_indep > avg_salarie * 2  # encore nettement plus élevé, cap OPP3
 
 
 class TestRecommendationsUse3aCeiling:
@@ -112,14 +144,17 @@ class TestRecommendationsUse3aCeiling:
         )
 
     def test_independant_sans_lpp_3a_recommendation(self):
-        """Indépendant sans LPP should get 36'288 in 3a recommendation."""
+        """Indépendant sans LPP : grand 3a borné à 20% du revenu (OPP3 art. 7).
+        Profil incomeGrossYearly=120'000 -> 20% = 24'000 (pas le 36'288 nu ;
+        revue Codex P1-2)."""
         profile = self._make_profile("independant", False)
         recos = generate_recommendations(profile)
         three_a_recos = [r for r in recos if r.kind == "pillar3a"]
         assert len(three_a_recos) == 1
-        # The assumption text should mention 36'288, not 7'258
+        # oracle externe : 0.20 * 120'000 = 24'000 (grand 3a > petit 7'258).
         assumptions_text = " ".join(three_a_recos[0].assumptions)
-        assert "36" in assumptions_text  # 36,288 or 36'288
+        assert "24000" in assumptions_text
+        assert "36288" not in assumptions_text
 
     def test_salarie_avec_lpp_3a_recommendation(self):
         """Salarié avec LPP should get 7'258 in 3a recommendation."""

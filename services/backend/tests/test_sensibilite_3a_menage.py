@@ -461,6 +461,26 @@ def test_ceiling_mention_only_when_amount_is_ceiling() -> None:
 
 
 # ---------------------------------------------------------------------------
+# E1 — grand 3a borné à 20% du revenu (OPP3 art. 7). Repro Codex : indépendant
+# revenu imposable 20'000, versement None -> plafond affiché 4'000, pas 36'288.
+# ---------------------------------------------------------------------------
+
+
+def test_independant_ceiling_capped_at_20pct_in_copy() -> None:
+    p = sensibilite_3a_menage(
+        revenu_imposable=20_000.0,
+        canton="ZH",
+        versement_3a=None,
+        etat_civil="celibataire",
+        employment_status="independant",
+        has_lpp=False,
+    )
+    copy = p.primary_choice_fr
+    # 20% de 20'000 = 4'000 (jamais le grand 3a nu 36'288).
+    assert "4'000" in copy
+    assert "36'288" not in copy
+
+# ---------------------------------------------------------------------------
 # Test 19 — branche de TRI DÉFENSIF (non-monotonie réelle du modèle) : avec les
 # repros exacts VS r=152'500 et FR r=200'000, raw_bas(conjoint 0) > raw_haut
 # (conjoint comparable). Le tri doit préserver delta_bas <= delta_haut ET la

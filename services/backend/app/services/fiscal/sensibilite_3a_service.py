@@ -132,7 +132,10 @@ def sensibilite_3a_menage(
             f"{', '.join(sorted(CANTONAL_COMMUNAL_TAX_CHF))}."
         )
 
-    plafond = get_3a_ceiling(employment_status, has_lpp)
+    # OPP3 art. 7 : le grand 3a (indépendant sans LPP) est borné à 20% du
+    # revenu — on passe le revenu imposable pour ne pas afficher 36'288 nu
+    # à un indépendant modeste (revue Codex P1-2).
+    plafond = get_3a_ceiling(employment_status, has_lpp, annual_income=revenu_imposable)
     demande = plafond if versement_3a is None else versement_3a
     versement = max(0.0, min(demande, plafond))  # borné au plafond (OPP3 art. 7)
     # Le montant AFFICHÉ est le plafond seulement si l'appelant n'a rien demandé
