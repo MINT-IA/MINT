@@ -415,7 +415,9 @@ class TestStatusBasedAssietteAndSessionReport:
         # base salariale (100k, plafond 7'258) -> 2'305.38, pas 1'044.38 (20k).
         assert r.impact.amountCHF == pytest.approx(2305.38, abs=0.01)
 
-    def test_i2_session_report_threads_affiliation(self):
+    def test_i2_tax_potential_is_affiliation_aware(self):
+        # NOTE : teste calculate_tax_potential directement (le chemin
+        # generate_session_report a été vérifié manuellement — revue ronde 5).
         # indépendant sans LPP 20k : avec statut, plafond 4'000 (< sans statut
         # 7'258) -> potentiel plus bas, affiliation-aware.
         aware = calculate_tax_potential(

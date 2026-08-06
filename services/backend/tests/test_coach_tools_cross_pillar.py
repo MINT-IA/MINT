@@ -4,7 +4,7 @@ Test layout:
   Tests 1-5: CrossPillarService.compute orchestration + Pydantic shape +
              settings flag default. (Task 1.)
   Tests 6-9: CrossPillarAnalysisResponse Pydantic v2 model + chain reuse
-             via mock on compare_allocation_annuelle. (Task 1.)
+             non-call structurel de compare_allocation_annuelle (Batch H).
   Tests 10-14: _compute_cross_pillar_analysis dispatcher (flag ON/OFF +
               DB lookup + fallback + missing-buyback breadcrumb tag +
               inputs_hash determinism). (Task 2.)
@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 from decimal import Decimal
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -62,9 +62,6 @@ def test_compute_strategy_a_success_path() -> None:
     assert analysis.tax_saving_source == "strategy_a"
 
     # Compute the expected tax_saving by re-calling the same chain.
-    from app.services.arbitrage.allocation_annuelle import (
-        compare_allocation_annuelle,
-    )
     # Strategy A calcule désormais la DIFFÉRENCE d'impôt canonique sur le
     # versement borné au plafond d'affiliation (revue Codex H3), plus
     # compare_allocation_annuelle (qui bornait à 7'258 × taux).
@@ -208,72 +205,28 @@ def test_settings_flag_default_off() -> None:
     assert fresh.COACH_TOOL_SERVER_SIDE_CROSS_PILLAR_ENABLED is False
 
 
-def test_chain_calls_compare_allocation_annuelle_with_expected_args() -> None:
-    """Test 9: chain assertion — compare_allocation_annuelle is called
-    exactly once with montant_disponible=5000.0, potentiel_rachat_lpp=
-    12000.0, annees_avant_retraite=1 (proves Strategy A invocation).
-
-    When the mock returns a synthetic ArbitrageResult whose 3a option
-    trajectory[0].cumulative_tax_delta == -1700.0, the service returns
-    tax_saving_potential == Decimal('1700.00') (sign-flipped per
-    allocation_annuelle.py:101 convention).
+def test_chain_no_longer_references_compare_allocation_annuelle() -> None:
+    """Batch H (revue Codex ronde 3, H3) : Strategy A route l'économie par la
+    différence d'impôt canonique (estimate_tax_saving, plafond d'affiliation)
+    et n'importe ni n'appelle plus compare_allocation_annuelle (borné au petit
+    3a). Preuve structurelle : le module ne référence plus ce symbole du tout
+    (l'ancienne preuve par patch est impossible — l'import n'existe plus).
+    La valeur canonique (6'338.81) est pinnée par le test H3 dédié.
     """
-    from app.services.arbitrage.arbitrage_models import (
-        ArbitrageResult,
-        TrajectoireOption,
-        YearlySnapshot,
-    )
+    import ast
+    import inspect
 
-    synthetic_snapshot = YearlySnapshot(
-        year=1,
-        net_patrimony=5000.0,
-        annual_cashflow=5000.0,
-        cumulative_tax_delta=-1700.0,  # -ve = saving per convention
-    )
-    synthetic_3a = TrajectoireOption(
-        id="3a",
-        label="Pilier 3a (test)",
-        trajectory=[synthetic_snapshot],
-        terminal_value=5000.0,
-        cumulative_tax_impact=-1700.0,
-    )
-    synthetic_result = ArbitrageResult(
-        options=[synthetic_3a],
-        breakeven_year=-1,
-        premier_eclairage="test",
-        display_summary="test",
-        hypotheses=[],
-        disclaimer="test",
-        sources=[],
-        confidence_score=0.0,
-        sensitivity={},
-    )
+    from app.services.arbitrage import cross_pillar_service as _svc
 
-    # Revue Codex H3 : cross_pillar N'appelle PLUS compare_allocation_annuelle
-    # (qui bornait à 7'258 × taux) — Strategy A est désormais la DIFFÉRENCE
-    # d'impôt canonique. On prouve le NON-appel + l'égalité à estimate_tax_saving.
-    _ = synthetic_result  # setup conservé, plus mocké
-    from app.services.fiscal.cantonal_comparator import estimate_tax_saving
-
-    profile = {
-        "annual_3a_contribution": 5000.0,
-        "lpp_buyback_max": 12000.0,
-        "canton": "VD",
-        "income_gross_yearly": 90000.0,
-        "household_type": "single",
-    }
-
-    with patch(
-        "app.services.arbitrage.cross_pillar_service.compare_allocation_annuelle",
-    ) as mock_chain:
-        analysis = CrossPillarService.compute(profile)
-
-    assert mock_chain.call_count == 0  # plus de délégation au calculateur borné
-    expected = Decimal(
-        str(estimate_tax_saving(90000.0, min(5000.0, 7258.0), "VD", is_married=False))
-    ).quantize(Decimal("0.01"))
-    assert analysis.tax_saving_potential == expected
-    assert analysis.tax_saving_source == "strategy_a"
+    tree = ast.parse(inspect.getsource(_svc))
+    refs = [
+        node
+        for node in ast.walk(tree)
+        if (isinstance(node, ast.ImportFrom) and any(a.name == "compare_allocation_annuelle" for a in node.names))
+        or (isinstance(node, ast.Name) and node.id == "compare_allocation_annuelle")
+        or (isinstance(node, ast.Attribute) and node.attr == "compare_allocation_annuelle")
+    ]
+    assert refs == []
 
 
 # ---------------------------------------------------------------------------

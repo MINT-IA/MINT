@@ -8,11 +8,11 @@ Architecture (grep-verified 2026-05-14):
     DO NOT import from `app.api.v1.endpoints.coach_chat` (that module ITSELF
     imports from rules_engine at line 86, so importing back here would
     create a circular import).
-  - `compare_allocation_annuelle` — imported from
-    `app.services.arbitrage.allocation_annuelle` (line 324). Called with
-    `annees_avant_retraite=1` so trajectory[0].cumulative_tax_delta carries
-    the year-1 tax saving (sign-flipped: negative = saving, per
-    `_build_3a_option` line 101).
+  - tax saving — Batch H (revue Codex) : la délégation historique à
+    `compare_allocation_annuelle` (bornée au petit 3a, versement × taux) a été
+    REMPLACÉE par la différence d'impôt canonique `estimate_tax_saving` sur le
+    versement borné au plafond d'affiliation. Ce module ne référence plus
+    `allocation_annuelle`.
   - `lpp_buyback_max` — there is NO server function that derives this from
     a profile. Flutter financial_core writes it into
     `profile_data["lpp_buyback_max"]` (persisted at
@@ -20,18 +20,10 @@ Architecture (grep-verified 2026-05-14):
     value; if absent -> Decimal("0.00") + Sentry breadcrumb tag
     `lpp_buyback_source="missing_from_profile"` (emitted at the dispatcher
     layer in Task 2, not here — this service stays pure).
-  - `tax_saving_potential`:
-      * Strategy A (preferred): call `compare_allocation_annuelle(...)` with
-        the profile's annual 3a contribution + marginal rate + buyback.
-        Read back the 3a option's year-1 cumulative_tax_delta (sign-flipped).
-        The math itself runs in `_build_3a_option` line 94
-        (`annual_tax_saving = contribution * taux_marginal`) — we are a
-        CALLER, not a re-implementer.
-      * Strategy B (fallback when canton/income missing): read
-        `profile_data["tax_saving_potential"]` directly (Flutter wrote it
-        via `coach_context_builder.py:78`).
-      * If neither available -> Decimal("0.00") + breadcrumb tag
-        `tax_saving_source="missing_from_profile"`.
+  - `tax_saving_potential`: différence d'impôt canonique
+    (`estimate_tax_saving(base_déterminante, versement_borné_au_plafond,
+    canton, is_married)`) — jamais versement × taux marginal (anti-patron
+    #1061), jamais le petit plafond pour un non-affilié (Batch H, H3).
 """
 from __future__ import annotations
 
@@ -41,10 +33,6 @@ from typing import Optional
 
 from app.services.rules_engine import (
     get_3a_ceiling,
-    calculate_marginal_tax_rate,
-)
-from app.services.arbitrage.allocation_annuelle import (
-    compare_allocation_annuelle,
 )
 
 
