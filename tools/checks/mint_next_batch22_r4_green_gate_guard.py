@@ -89,8 +89,8 @@ FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch22_r4_green_gate_
 # (6eba597a) + six-locale copy (889e33bc) — with the RED guard's summary/ids
 # consistency + candidate_binding + deferred_integration loop-closed all re-pinned
 # and mirrored into the registry).
-RED_GUARD_SHA256 = "8a4bdfe9592b124e7133dc4e889e8a7a905cc30a020c516ab36f648d347dbbff"
-REGISTRY_SHA256 = "3201b1a2bcadc25b676e92cb3528428baf475ac772b33c86f84a42e0e8b9fd74"
+RED_GUARD_SHA256 = "99c1684b230081c49de1e7ec4d0571f4463049131552c679023f5565b68e4a0a"
+REGISTRY_SHA256 = "75f105b68f777b84eb22dc74598a2c8ca16884d27afa0f5201bd10f306ef5d2d"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected

@@ -50,10 +50,10 @@ green_gate:
   - R4_17 non_affilie reaches a derived ceiling never a flat 7258
   retires: red_replay_2_15
   test_file: product/mint_next/batch7/design_lab/test/design_lab_batch22_r4_test.dart
-  test_sha256: 42dfbadae42f85a9b48cba6fa875d0331716d837f69180c25020350a90c520cb
+  test_sha256: 892092c4c2907848f5311bbe398890ec0cbfd222e81ef96d656c3b89ef08382c
   working_directory: product/mint_next/batch7/design_lab
 mechanical_binding:
-  candidate_payload_sha256: 22f0504efa4de57f1ef5bd71b43e3c63c9983fd619c8250b1b64927d73c44942
+  candidate_payload_sha256: 3cefbcd9b5947c54d39cda6846dfdc6c8c11bc1c434faf7933f7c48b685b79fe
   green_lib_inventory_sha256: null
   reviewed_candidate_commit: null
   reviewed_payload_sha256: null
@@ -74,10 +74,10 @@ product_promotion: forbidden
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch22_r4_red_guard.py
-    sha256: 8a4bdfe9592b124e7133dc4e889e8a7a905cc30a020c516ab36f648d347dbbff
+    sha256: 99c1684b230081c49de1e7ec4d0571f4463049131552c679023f5565b68e4a0a
   registry:
     path: product/mint_next/batch22/runtime-gates.yaml
-    sha256: 3201b1a2bcadc25b676e92cb3528428baf475ac772b33c86f84a42e0e8b9fd74
+    sha256: 75f105b68f777b84eb22dc74598a2c8ca16884d27afa0f5201bd10f306ef5d2d
 reviews:
   journey_safety:
     p1: null

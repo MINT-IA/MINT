@@ -305,6 +305,9 @@ ALLOW = {
     # Vague Groupée fermeture: fermeture-loop state ownership (own-amount + reference
     # + committed amount + picked commune preserved across one loop turn — roast P1-1).
     "product/mint_next/batch7/design_lab/test/dev_scenarios_state_ownership_r4_test.dart",
+    # Vague Groupée v4: rappen/centime + exact-cap + two-level locality trap tests
+    # (Codex v3 P1 repros — 4000.99/7258.00/7258.01, Bulle/Bern/Fribourg disclosure).
+    "product/mint_next/batch7/design_lab/test/dev_scenarios_rappen_traps_r4_test.dart",
     # Batch 22 R4 GREEN gate (2026-08-05): the delivered record of the fermeture
     # integration (INBOUND edges wired, 16/16 reach). Its trust files are bound BY
     # BYTES into the green payload and its path-owner (batch22-r4-green-gate) stays

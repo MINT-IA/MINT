@@ -9,7 +9,7 @@ authority:
     scenarios_versement: 5d3ebea8de3d0e8c16cbd2f8c10e982d04383655d3d3b8e9a96f44aa34a2c320
     fact_etat_civil: a3fb33c2d9b0a0ab70d39be6f16c958036b849e1f8f3a2da396fb3a08d1c704e
   immutable_copy: product/mint_next/batch22/r4-six-locale-copy.yaml
-  immutable_copy_sha256: 889e33bc8f73dc04c0a7b81da455e4b27c7be3b6339947cca7aff0eb89cc0bf2
+  immutable_copy_sha256: abaaffc55da11f7d2a8939218572d4cd3ad3300fe74872776f7497bc5bee2515
   immutable_fixtures: product/mint_next/batch22/r4-engine-fixtures.yaml
   immutable_fixtures_sha256: ec1b419f1edd102b723b3a96f0bf773330fc94010e68c5f6d4498d86a30c51b2
   runtime_surface: hidden_design_lab_only
@@ -42,7 +42,7 @@ gates:
       failed: 15
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: 42dfbadae42f85a9b48cba6fa875d0331716d837f69180c25020350a90c520cb
+      test_sha256: 892092c4c2907848f5311bbe398890ec0cbfd222e81ef96d656c3b89ef08382c
     subgates:
       R4a_scenarios_versement:
       - R4_02
