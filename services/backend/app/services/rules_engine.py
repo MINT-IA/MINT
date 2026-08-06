@@ -340,8 +340,9 @@ def is_married_household(household_type: str | None) -> bool:
     """household_type (vocabulaire ANGLAIS married/couple/family) -> imposition
     commune (LIFD art. 9 al. 1). Source unique du BON domaine, partagée avec
     l'onboarding (``minimal_profile_service``) — à ne pas confondre avec
-    ``fiscal.civil_status`` (vocabulaire état civil FR). ``None`` -> single."""
-    return (household_type or "single").lower() in _MARRIED_HOUSEHOLD_LABELS
+    ``fiscal.civil_status`` (vocabulaire état civil FR). ``None`` -> single.
+    Casse ET espaces normalisés («  couple  » -> True ; revue Codex P2-b)."""
+    return (household_type or "single").strip().lower() in _MARRIED_HOUSEHOLD_LABELS
 
 
 # Alias privé rétro-compatible (appelants internes historiques).

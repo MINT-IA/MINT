@@ -27,6 +27,8 @@ surface produit l'attache au payload.
 """
 from __future__ import annotations
 
+from math import isfinite
+
 from app.models.lucidity._payload import L3EclairePayload, _CascadeEffect
 from app.services.fiscal.cantonal_comparator import (
     CANTONAL_COMMUNAL_TAX_CHF,
@@ -35,7 +37,6 @@ from app.services.fiscal.cantonal_comparator import (
 )
 from app.services.fiscal.civil_status import is_married_civil_status
 from app.services.family.mariage_service import (
-    DEDUCTION_ASSURANCES_MARIES,
     DEDUCTION_MARIES,
     deduction_double_activite,
 )
@@ -68,25 +69,29 @@ _is_married = is_married_civil_status
 
 
 def _household_imposable(revenu_1: float, revenu_2: float) -> float:
-    """Revenu imposable du ménage marié — réutilise les déductions de couple de
-    ``mariage_service`` : personnes mariées (LIFD art. 35), assurances (LIFD
-    art. 33 al. 1 let. g) et double activité (LIFD art. 33 al. 2). Aucun barème
-    réécrit.
+    """Revenu imposable du ménage marié à partir de DEUX revenus DÉJÀ IMPOSABLES.
 
-    Limite dite : la déduction par enfant (``DEDUCTION_PAR_ENFANT``, LIFD
-    art. 35 al. 1 let. a) N'EST PAS appliquée — le service n'a pas d'entrée
-    « nombre d'enfants ». L'omission est NON conservatrice (un ménage avec
-    enfants a un imposable plus bas, donc une économie 3a réelle plus faible) :
-    elle est donc divulguée dans ``hypothese_fr`` (« ménage sans enfants à
-    charge »), jamais masquée.
+    Contrat d'entrée (revue Codex P1-5) : ``revenu_1``/``revenu_2`` sont des
+    revenus IMPOSABLES individuels (déductions personnelles déjà appliquées). On
+    ne retranche donc QUE les déductions SPÉCIFIQUES à l'imposition commune, qui
+    n'existent pas dans un imposable célibataire :
+
+      - déduction pour personnes mariées (LIFD art. 35 al. 1 let. c) ;
+      - déduction pour double activité des époux (LIFD art. 33 al. 2).
+
+    L'assurance-vie (art. 33 al. 1 let. g) N'EST PLUS retranchée : elle est déjà
+    dans l'imposable individuel (1'800 célibataire) ; le delta marié (3'700 vs
+    2×1'800) est négligeable (~100 CHF). L'ancienne version retranchait 3'700 en
+    plus -> double déduction (Codex : NE 20'000+10'000 tombait à 156-190 CHF au
+    lieu de s'approcher de l'étalon-somme).
+
+    Limite dite : la déduction par enfant (LIFD art. 35 al. 1 let. a) n'est pas
+    modélisée (pas d'entrée « nombre d'enfants ») -> divulguée « ménage sans
+    enfants à charge » dans ``hypothese_fr``.
     """
     r2 = max(0.0, revenu_2)
     combine = max(0.0, revenu_1) + r2
-    deductions = (
-        DEDUCTION_MARIES
-        + DEDUCTION_ASSURANCES_MARIES
-        + deduction_double_activite(revenu_1, r2)
-    )
+    deductions = DEDUCTION_MARIES + deduction_double_activite(revenu_1, r2)
     return max(0.0, combine - deductions)
 
 
@@ -122,9 +127,20 @@ def sensibilite_3a_menage(
 
     Raises:
         ValueError: si ``canton`` n'est pas l'un des 26 codes cantonaux
-            canoniques (fail-closed au niveau du service : on refuse « XX »
-            plutôt que de renvoyer la moyenne-26 du modèle sous-jacent).
+            canoniques (fail-closed : on refuse « XX » plutôt que de renvoyer la
+            moyenne-26 du modèle sous-jacent) ; ou si un montant est non fini
+            (NaN/Inf), qui produirait sinon une bande [0,0] ou « 0 CHF »
+            trompeuse (revue Codex P2-c).
     """
+    # Fail-closed sur les nombres non finis (NaN/Inf) — jamais un zéro crédible.
+    for _name, _val in (
+        ("revenu_imposable", revenu_imposable),
+        ("versement_3a", versement_3a),
+        ("revenu_imposable_conjoint", revenu_imposable_conjoint),
+    ):
+        if _val is not None and not isfinite(_val):
+            raise ValueError(f"{_name} doit être un nombre fini, reçu {_val!r}.")
+
     canton_norm = (canton or "").strip().upper()
     if canton_norm not in CANTONAL_COMMUNAL_TAX_CHF:
         raise ValueError(
@@ -161,10 +177,10 @@ def sensibilite_3a_menage(
         )
         hypothese_fr = (
             "Estimation sur le revenu imposable combiné du ménage sans enfants "
-            "à charge (imposition commune, LIFD art. 9 al. 1), déductions de "
-            "couple appliquées (double activité art. 33 al. 2, personnes "
-            "mariées art. 35, assurances art. 33 al. 1 let. g). Barème marié "
-            "approximé par un splitting forfaitaire (LHID)."
+            "à charge (imposition commune, LIFD art. 9 al. 1), déductions "
+            "spécifiques au couple appliquées (double activité art. 33 al. 2, "
+            "personnes mariées art. 35). Barème marié approximé par un "
+            "splitting forfaitaire (LHID)."
         )
     else:
         raw_bas = estimate_tax_saving(
@@ -181,9 +197,10 @@ def sensibilite_3a_menage(
             "Fourchette bornée par deux hypothèses sur le revenu imposable de "
             "ton conjoint (imposition commune, LIFD art. 9 al. 1) : conjoint "
             "sans revenu, ou conjoint à revenu comparable au tien. Ménage sans "
-            "enfants à charge, déductions de couple appliquées (LIFD art. 33 "
-            "al. 2, art. 35, art. 33 al. 1 let. g). La fourchette se resserre "
-            "si le revenu du conjoint est connu."
+            "enfants à charge, déductions spécifiques au couple appliquées "
+            "(LIFD art. 33 al. 2, art. 35). Si ton conjoint gagne plus que toi, "
+            "l'économie réelle peut dépasser cette fourchette. La fourchette se "
+            "resserre si le revenu du conjoint est connu."
         )
 
     # Tri défensif des bornes brutes AVANT l'enveloppe ±10%. L'interpolation de

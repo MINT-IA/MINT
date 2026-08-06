@@ -578,28 +578,22 @@ class TestOnboardingMarginalRateHouseholdType:
         assert marie.marginal_tax_rate < single.marginal_tax_rate
 
     def test_compute_marginal_rate_threads_is_married(self):
-        """_compute_marginal_tax_rate == etalon ESTV avec is_married, et differe
-        du celibataire (repro revue : ZH 120k)."""
-        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
-
+        """Oracles externes GELÉS (P2-a, repro Codex ZH 120k) : célibataire
+        0.30008, marié 0.24006 (splitting)."""
         rate_single = _compute_marginal_tax_rate(120_000.0, "ZH")
         rate_married = _compute_marginal_tax_rate(120_000.0, "ZH", is_married=True)
-        assert rate_single != rate_married
-        assert rate_single == estimate_marginal_rate(120_000.0, "ZH", is_married=False)
-        assert rate_married == estimate_marginal_rate(120_000.0, "ZH", is_married=True)
+        assert rate_single == pytest.approx(0.30008, abs=1e-5)
+        assert rate_married == pytest.approx(0.24006, abs=1e-5)
 
     def test_estimate_tax_saving_threads_is_married(self):
-        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
-
-        s_single = _estimate_tax_saving(
-            income=120_000.0, deduction=7_258.0, canton="ZH"
-        )
+        """Oracles externes GELÉS (P2-a) : économie sur 7'258 à ZH 120k,
+        célibataire 2'177.98, marié 1'742.38."""
+        s_single = _estimate_tax_saving(income=120_000.0, deduction=7_258.0, canton="ZH")
         s_married = _estimate_tax_saving(
             income=120_000.0, deduction=7_258.0, canton="ZH", is_married=True
         )
-        assert s_single != s_married
-        assert s_single == estimate_tax_saving(120_000.0, 7_258.0, "ZH", is_married=False)
-        assert s_married == estimate_tax_saving(120_000.0, 7_258.0, "ZH", is_married=True)
+        assert s_single == pytest.approx(2177.98, abs=0.01)
+        assert s_married == pytest.approx(1742.38, abs=0.01)
 
     def test_single_default_is_non_regressed(self):
         """Non-regression : sans is_married, le taux est INCHANGE (celibataire)."""

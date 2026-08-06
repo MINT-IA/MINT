@@ -581,11 +581,21 @@ class TestIsMarriedHousehold:
     """is_married_household — normalisation household_type (vocabulaire ANGLAIS),
     promue publique pour être partagée par l'onboarding (Batch D)."""
 
-    @pytest.mark.parametrize("ht", ["married", "couple", "family", "COUPLE"])
+    @pytest.mark.parametrize("ht", ["married", "couple", "family", "COUPLE", "  couple  "])
     def test_married_labels(self, ht):
+        """Casse ET espaces normalisés («  couple  » -> True ; revue Codex P2-b)."""
         from app.services.rules_engine import is_married_household
 
         assert is_married_household(ht) is True
+
+    def test_civil_status_fr_does_not_accept_english_married(self):
+        """Décision de périmètre (P2-b) : le normaliseur ÉTAT CIVIL FR n'accepte
+        pas l'anglais « married » — c'est le domaine household_type."""
+        from app.services.fiscal.civil_status import is_married_civil_status
+
+        assert is_married_civil_status("married") is False
+        assert is_married_civil_status("marie") is True
+        assert is_married_civil_status("  MARIÉ  ") is True
 
     @pytest.mark.parametrize("ht", ["single", None, "", "divorced", "widowed"])
     def test_non_married_labels(self, ht):

@@ -24,11 +24,6 @@ from app.services.fiscal.cantonal_comparator import (
     DISCLAIMER as CANONICAL_DISCLAIMER,
     estimate_tax_saving,
 )
-from app.services.family.mariage_service import (
-    DEDUCTION_ASSURANCES_MARIES,
-    DEDUCTION_MARIES,
-    deduction_double_activite,
-)
 from app.services.rules_engine import PILIER_3A_PLAFOND_AVEC_LPP
 from app.services.encryption.banned_terms_runtime import (
     BannedTermsViolation,
@@ -37,28 +32,17 @@ from app.services.encryption.banned_terms_runtime import (
 from app.services.fiscal.sensibilite_3a_service import (
     DISCLAIMER,
     sensibilite_3a_menage,
+    _household_imposable,  # importé du service (jamais recopié — anti-circularité)
 )
 
 
 # ---------------------------------------------------------------------------
-# Helpers — reproduisent la reference canonique cote test (pas de duplication
-# de la logique fiscale : on APPELLE les memes fonctions que le service).
+# Helpers de test.
 # ---------------------------------------------------------------------------
 
 _CITATION = "cantonal_comparator__estimate_tax_saving"
 _BAND_LOW = 0.90
 _BAND_HIGH = 1.10
-
-
-def _household_imposable(revenu_1: float, revenu_2: float) -> float:
-    r2 = max(0.0, revenu_2)
-    combine = max(0.0, revenu_1) + r2
-    deductions = (
-        DEDUCTION_MARIES
-        + DEDUCTION_ASSURANCES_MARIES
-        + deduction_double_activite(revenu_1, r2)
-    )
-    return max(0.0, combine - deductions)
 
 
 def _effect(payload: L3EclairePayload) -> _CascadeEffect:
@@ -154,25 +138,19 @@ def test_married_synonyms_treated_identically(statut: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_married_none_band_brackets_conjoint_assumptions() -> None:
-    revenu = 90_000.0
-    versement = PILIER_3A_PLAFOND_AVEC_LPP
-    canton = "ZH"
+def test_married_none_band_is_pinned_oracle() -> None:
+    """Oracle externe GELÉ (capturé une fois, jamais recalculé via un helper de
+    prod au moment du test — revue Codex P2-a) : ZH, revenu 90'000, versement
+    plafond, conjoint inconnu."""
     payload = sensibilite_3a_menage(
-        revenu_imposable=revenu,
-        canton=canton,
-        versement_3a=versement,
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
         etat_civil="marie",
     )
-    raw_bas = estimate_tax_saving(
-        _household_imposable(revenu, 0.0), versement, canton, is_married=True
-    )
-    raw_haut = estimate_tax_saving(
-        _household_imposable(revenu, revenu), versement, canton, is_married=True
-    )
     eff = _effect(payload)
-    assert eff.delta_bas == pytest.approx(round(_BAND_LOW * raw_bas, 2))
-    assert eff.delta_haut == pytest.approx(round(_BAND_HIGH * raw_haut, 2))
+    assert eff.delta_bas == pytest.approx(1317.44, abs=0.01)
+    assert eff.delta_haut == pytest.approx(2277.93, abs=0.01)
     assert eff.delta_bas <= eff.delta_haut
 
 
@@ -199,21 +177,18 @@ def test_known_conjoint_narrows_band() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_known_conjoint_point_reuses_canonical_saving() -> None:
-    revenu, conjoint, versement, canton = 90_000.0, 60_000.0, PILIER_3A_PLAFOND_AVEC_LPP, "ZH"
+def test_known_conjoint_band_is_pinned_oracle() -> None:
+    """Oracle externe GELÉ (P2-a) : ZH, revenu 90'000 + conjoint 60'000."""
     payload = sensibilite_3a_menage(
-        revenu_imposable=revenu,
-        canton=canton,
-        versement_3a=versement,
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
         etat_civil="marie",
-        revenu_imposable_conjoint=conjoint,
-    )
-    point = estimate_tax_saving(
-        _household_imposable(revenu, conjoint), versement, canton, is_married=True
+        revenu_imposable_conjoint=60_000.0,
     )
     eff = _effect(payload)
-    assert eff.delta_bas == pytest.approx(round(_BAND_LOW * point, 2))
-    assert eff.delta_haut == pytest.approx(round(_BAND_HIGH * point, 2))
+    assert eff.delta_bas == pytest.approx(1568.14, abs=0.01)
+    assert eff.delta_haut == pytest.approx(1916.62, abs=0.01)
 
 
 # ---------------------------------------------------------------------------
@@ -489,12 +464,15 @@ def test_independant_ceiling_capped_at_20pct_in_copy() -> None:
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("canton,revenu", [("VS", 152_500.0), ("FR", 200_000.0)])
+@pytest.mark.parametrize("canton,revenu", [("VS", 152_500.0)])
 def test_defensive_sort_branch_keeps_band_ordered_and_neutral_copy(
     canton: str, revenu: float
 ) -> None:
     versement = PILIER_3A_PLAFOND_AVEC_LPP
-    # 1) prouver que la région est non-monotone (le tri s'active vraiment).
+    # 1) prouver que la région est non-monotone (le tri s'active vraiment). On
+    # utilise le VRAI _household_imposable du service (assertion de PROPRIÉTÉ de
+    # la prod, pas un oracle recopié) — VS 152'500 inverse encore après retrait
+    # de l'assurance (P1-5) ; FR 200'000 devient exactement égal, retiré.
     raw_bas = estimate_tax_saving(
         _household_imposable(revenu, 0.0), versement, canton, is_married=True
     )
@@ -584,3 +562,73 @@ def test_concubinage_uppercase_is_separate() -> None:
     )
     assert _effect(got).delta_bas == _effect(single).delta_bas
     assert _effect(got).delta_haut == _effect(single).delta_haut
+
+
+# ---------------------------------------------------------------------------
+# E3 P1-5 — retrait de la double déduction assurances : la bande NE 20k+10k se
+# rapproche de l'étalon-somme (avant : 156-190 ; étalon sur 30'000 : 1'239.92).
+# Oracle externe gelé.
+# ---------------------------------------------------------------------------
+
+
+def test_ne_20k_10k_band_no_double_deduction() -> None:
+    payload = sensibilite_3a_menage(
+        revenu_imposable=20_000.0,
+        canton="NE",
+        versement_3a=None,
+        etat_civil="marie",
+        revenu_imposable_conjoint=10_000.0,
+    )
+    eff = _effect(payload)
+    # gelé : nettement au-dessus de l'ancien 156-190 (double déduction retirée).
+    assert eff.delta_bas == pytest.approx(552.66, abs=0.01)
+    assert eff.delta_haut == pytest.approx(675.48, abs=0.01)
+    assert eff.delta_bas > 190.0  # l'ancienne borne haute buggée
+
+
+# ---------------------------------------------------------------------------
+# E3 P1-1 — enclosure : un conjoint qui gagne PLUS que l'utilisateur peut sortir
+# de la fourchette conjoint-inconnu (limitation réelle, désormais divulguée).
+# ---------------------------------------------------------------------------
+
+
+def test_richer_conjoint_can_exceed_unknown_band_and_is_disclosed() -> None:
+    common = dict(
+        revenu_imposable=90_000.0, canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP, etat_civil="marie",
+    )
+    inconnu = _effect(sensibilite_3a_menage(**common))
+    riche = _effect(sensibilite_3a_menage(revenu_imposable_conjoint=300_000.0, **common))
+    # le point conjoint-300k dépasse la borne haute de la bande inconnue.
+    assert riche.delta_haut > inconnu.delta_haut
+    # ... et la copie inconnue DIVULGUE cette limite.
+    assert "dépasser cette fourchette" in inconnu.hypothese_fr
+
+
+# ---------------------------------------------------------------------------
+# E3 P2-c — NaN/Inf fail-closed (ValueError), jamais un zéro crédible.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf")])
+def test_non_finite_revenu_fails_closed(bad) -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=bad, canton="ZH", versement_3a=None, etat_civil="celibataire"
+        )
+
+
+def test_non_finite_versement_fails_closed() -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=90_000.0, canton="ZH",
+            versement_3a=float("nan"), etat_civil="celibataire",
+        )
+
+
+def test_non_finite_conjoint_fails_closed() -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=90_000.0, canton="ZH", versement_3a=None,
+            etat_civil="marie", revenu_imposable_conjoint=float("inf"),
+        )

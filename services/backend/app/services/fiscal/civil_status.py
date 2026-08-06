@@ -40,5 +40,13 @@ def is_married_civil_status(etat_civil: str | None) -> bool:
     Casse, accents et espaces sont normalisés. Tout statut inconnu — y compris
     ``divorce`` et ``veuf`` — retombe sur ``False`` (taxation séparée, hypothèse
     conservatrice : pas d'agrégation de ménage fabriquée).
+
+    Décision de périmètre (revue Codex P2-b) : ce normaliseur est le domaine de
+    l'ÉTAT CIVIL FR. Il n'accepte PAS l'anglais « married » — c'est le vocabulaire
+    ``household_type`` (married/couple/family), géré par
+    ``rules_engine.is_married_household``. Les modèles qui alimentent ce
+    normaliseur (``CoachingProfile.etat_civil`` = « celibataire | marie | divorce
+    | veuf ») ne produisent jamais « married » ; mélanger les deux dialectes
+    rejouerait la divergence inter-surfaces que ces modules corrigent.
     """
     return (etat_civil or "").strip().lower() in MARRIED_CIVIL_STATUSES

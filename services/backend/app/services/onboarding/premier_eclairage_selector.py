@@ -58,6 +58,7 @@ _SOURCES_RETIREMENT = [
 _SOURCES_TAX = [
     "OPP3 art. 7 (plafond 3a: 7'258 CHF)",
     "LIFD art. 33 (déduction 3a du revenu imposable)",
+    "LIFD art. 9 al. 1 (imposition commune des époux)",
 ]
 
 _SOURCES_LIQUIDITY = [
@@ -222,10 +223,12 @@ def _build_tax_saving_choc(profile: MinimalProfileResult) -> PremierEclairage:
         f"CHF {tax_saving:,.0f} par an."
     )
     explanation_text = (
-        "Estimation basée sur ton salaire déclaré, "
+        "Estimation basée sur ton seul salaire déclaré, "
         f"un taux marginal estimé de {marginal_rate_pct}% "
         f"et le canton {canton}. Le versement 3e pilier est déductible "
-        "du revenu imposable jusqu'au plafond OPP3."
+        "du revenu imposable jusqu'au plafond OPP3. En cas d'imposition "
+        "commune (mariage, LIFD art. 9), le revenu du conjoint n'est pas "
+        "pris en compte ici et peut modifier ce montant."
     )
     action_text = "Explore les options 3a et leur impact fiscal \u2192"
 

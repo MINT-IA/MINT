@@ -463,6 +463,7 @@ ALLOW = {
     "services/backend/app/services/couple_optimizer/couple_optimizer.py",
     "services/backend/app/services/document_parser/avs_extract_parser.py",
     "services/backend/app/services/onboarding/minimal_profile_service.py",
+    "services/backend/app/services/onboarding/premier_eclairage_selector.py",
     "services/backend/app/services/retirement/avs_estimation_service.py",
     "services/backend/tests/test_golden_julien_lauren.py",
     "services/backend/tests/test_fiscal.py",
