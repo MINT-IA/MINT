@@ -4445,13 +4445,23 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
         ceiling = get_3a_ceiling(
             ctx.get("employment_status"),
             ctx.get("has_2nd_pillar"),
+            annual_income=ctx.get("income_gross_yearly"),
         )
-        remaining = max(0, ceiling - float(annual_3a))
-        lines.append(
-            f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}"
-        )
-        if remaining > 0:
-            lines.append(f"- 3a restant à verser : {_fmt_chf(remaining)}")
+        if ceiling is None:
+            # Grand 3a dû sans revenu déterminant -> LA RÈGLE, jamais 36'288 nu.
+            from app.services.rules_engine import GRAND_3A_RULE_FR
+
+            lines.append(
+                f"- 3a versé cette année : {_fmt_chf(annual_3a)} "
+                f"(plafond : {GRAND_3A_RULE_FR})"
+            )
+        else:
+            remaining = max(0, ceiling - float(annual_3a))
+            lines.append(
+                f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}"
+            )
+            if remaining > 0:
+                lines.append(f"- 3a restant à verser : {_fmt_chf(remaining)}")
     if lpp_buyback is not None and float(lpp_buyback) > 0:
         lines.append(f"- Rachat LPP possible : jusqu'à {_fmt_chf(lpp_buyback)}")
     if lpp_capital is not None:

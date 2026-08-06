@@ -68,6 +68,21 @@ _HORIZON_ANNUEL = 1
 _is_married = is_married_civil_status
 
 
+def _finite_float(name: str, value: object, *, allow_none: bool = False) -> float | None:
+    """Coerce en float fini, ou ValueError contractuel (revue Codex F3)."""
+    if value is None:
+        if allow_none:
+            return None
+        raise ValueError(f"{name} est requis.")
+    try:
+        f = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        raise ValueError(f"{name} doit être numérique, reçu {value!r}.")
+    if not isfinite(f):
+        raise ValueError(f"{name} doit être un nombre fini, reçu {value!r}.")
+    return f
+
+
 def _household_imposable(revenu_1: float, revenu_2: float) -> float:
     """Revenu imposable du ménage marié à partir de DEUX revenus DÉJÀ IMPOSABLES.
 
@@ -132,14 +147,14 @@ def sensibilite_3a_menage(
             (NaN/Inf), qui produirait sinon une bande [0,0] ou « 0 CHF »
             trompeuse (revue Codex P2-c).
     """
-    # Fail-closed sur les nombres non finis (NaN/Inf) — jamais un zéro crédible.
-    for _name, _val in (
-        ("revenu_imposable", revenu_imposable),
-        ("versement_3a", versement_3a),
-        ("revenu_imposable_conjoint", revenu_imposable_conjoint),
-    ):
-        if _val is not None and not isfinite(_val):
-            raise ValueError(f"{_name} doit être un nombre fini, reçu {_val!r}.")
+    # Coercition + fail-closed (revue Codex P2-c/F3) : Decimal / chaîne numérique
+    # -> float ; NaN/Inf/non numérique -> ValueError CONTRACTUEL (jamais un
+    # TypeError brut ni un zéro crédible).
+    revenu_imposable = _finite_float("revenu_imposable", revenu_imposable)
+    versement_3a = _finite_float("versement_3a", versement_3a, allow_none=True)
+    revenu_imposable_conjoint = _finite_float(
+        "revenu_imposable_conjoint", revenu_imposable_conjoint, allow_none=True
+    )
 
     canton_norm = (canton or "").strip().upper()
     if canton_norm not in CANTONAL_COMMUNAL_TAX_CHF:
@@ -148,10 +163,13 @@ def sensibilite_3a_menage(
             f"{', '.join(sorted(CANTONAL_COMMUNAL_TAX_CHF))}."
         )
 
-    # OPP3 art. 7 : le grand 3a (indépendant sans LPP) est borné à 20% du
-    # revenu — on passe le revenu imposable pour ne pas afficher 36'288 nu
-    # à un indépendant modeste (revue Codex P1-2).
+    # OPP3 art. 7 : le grand 3a (non affilié au 2e pilier) est borné à 20% du
+    # revenu déterminant. get_3a_ceiling renvoie None si le grand 3a est dû sans
+    # revenu — ici revenu_imposable est requis et fini ; le seul cas None est
+    # revenu <= 0 (non affilié), où l'économie est nulle de toute façon.
     plafond = get_3a_ceiling(employment_status, has_lpp, annual_income=revenu_imposable)
+    if plafond is None:
+        plafond = 0.0
     demande = plafond if versement_3a is None else versement_3a
     versement = max(0.0, min(demande, plafond))  # borné au plafond (OPP3 art. 7)
     # Le montant AFFICHÉ est le plafond seulement si l'appelant n'a rien demandé

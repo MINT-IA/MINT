@@ -43,12 +43,21 @@ class TestGet3aCeiling:
         assert get_3a_ceiling("employee", True) == PILIER_3A_PLAFOND_AVEC_LPP
 
     def test_independant_without_lpp_gets_grand_3a(self):
-        """Indépendant sans LPP -> grand 3a (36'288)."""
-        assert get_3a_ceiling("independant", False) == PILIER_3A_PLAFOND_SANS_LPP
+        """Indépendant sans LPP + revenu élevé -> grand 3a (borne absolue)."""
+        assert get_3a_ceiling(
+            "independant", False, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
 
     def test_self_employed_without_lpp_gets_grand_3a(self):
-        """Self-employed (EN alias) without LPP -> grand 3a."""
-        assert get_3a_ceiling("self_employed", False) == PILIER_3A_PLAFOND_SANS_LPP
+        """Self-employed (EN alias) sans LPP + revenu élevé -> grand 3a."""
+        assert get_3a_ceiling(
+            "self_employed", False, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
+
+    def test_salarie_without_lpp_also_gets_grand_3a(self):
+        """AFFILIATION-based (revue Codex F1) : un SALARIÉ sans 2e pilier a aussi
+        droit au grand 3a (20% du revenu) — pas seulement l'indépendant."""
+        assert get_3a_ceiling("salarie", False, annual_income=100_000.0) == 20_000.0
 
     def test_independant_with_lpp_gets_small_3a(self):
         """Indépendant AVEC LPP volontaire -> petit 3a."""
@@ -58,19 +67,22 @@ class TestGet3aCeiling:
         """Unknown employment -> defaults to petit 3a (safe)."""
         assert get_3a_ceiling(None, None) == PILIER_3A_PLAFOND_AVEC_LPP
 
-    def test_retraite_gets_small_3a(self):
-        """Retirees -> petit 3a (they can't contribute anyway, but safe default)."""
-        assert get_3a_ceiling("retraite", False) == PILIER_3A_PLAFOND_AVEC_LPP
+    def test_retraite_unknown_affiliation_gets_small_3a(self):
+        """Non-indépendant + affiliation inconnue (None) -> petit 3a (safe)."""
+        assert get_3a_ceiling("retraite", None) == PILIER_3A_PLAFOND_AVEC_LPP
 
-    def test_self_employed_with_none_lpp_gets_grand_3a(self):
-        """Self-employed with has_2nd_pillar=None (unknown) -> grand 3a.
-        For independents, default assumption is no LPP (most common case)."""
-        assert get_3a_ceiling("self_employed", None) == PILIER_3A_PLAFOND_SANS_LPP
+    def test_self_employed_with_none_lpp_grand_3a_needs_income(self):
+        """Self-employed affiliation inconnue -> grand 3a ; sans revenu ->
+        fail-closed None (jamais 36'288)."""
+        assert get_3a_ceiling("self_employed", None) is None
+        assert get_3a_ceiling(
+            "self_employed", None, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
 
     def test_case_insensitive(self):
         """Employment status should be case-insensitive."""
-        assert get_3a_ceiling("INDEPENDANT", False) == PILIER_3A_PLAFOND_SANS_LPP
-        assert get_3a_ceiling("Self_Employed", False) == PILIER_3A_PLAFOND_SANS_LPP
+        assert get_3a_ceiling("INDEPENDANT", False, annual_income=200_000.0) == PILIER_3A_PLAFOND_SANS_LPP
+        assert get_3a_ceiling("Self_Employed", False, annual_income=200_000.0) == PILIER_3A_PLAFOND_SANS_LPP
 
     # ── OPP3 art. 7 : grand 3a borné à 20% du revenu (revue Codex P1-2) ──
     # Oracles externes calculés à la main (jamais via le helper de prod).
@@ -89,10 +101,25 @@ class TestGet3aCeiling:
             "independant", False, annual_income=200_000.0
         ) == PILIER_3A_PLAFOND_SANS_LPP
 
-    def test_grand_3a_no_income_falls_back_to_absolute(self):
-        """Sans revenu on ne peut pas borner -> fallback plafond absolu."""
-        assert get_3a_ceiling("independant", False, annual_income=None) == PILIER_3A_PLAFOND_SANS_LPP
-        assert get_3a_ceiling("independant", False, annual_income=0.0) == PILIER_3A_PLAFOND_SANS_LPP
+    def test_grand_3a_no_income_fails_closed(self):
+        """FAIL-CLOSED (revue Codex F1) : grand 3a dû mais revenu inconnu / nul /
+        négatif -> None, JAMAIS 36'288. Les appelants affichent la règle."""
+        assert get_3a_ceiling("independant", False, annual_income=None) is None
+        assert get_3a_ceiling("independant", False, annual_income=0.0) is None
+        assert get_3a_ceiling("independant", False, annual_income=-10_000.0) is None
+        assert get_3a_ceiling("salarie", False, annual_income=None) is None
+
+    def test_grand_3a_non_finite_income_fails_closed(self):
+        """Revenu non fini / non numérique -> None (jamais un nan propagé)."""
+        assert get_3a_ceiling("independant", False, annual_income=float("nan")) is None
+        assert get_3a_ceiling("independant", False, annual_income=float("inf")) is None
+
+    def test_grand_3a_coerces_decimal_and_string_income(self):
+        """Decimal / chaîne numérique coercés proprement (pas de TypeError)."""
+        from decimal import Decimal
+
+        assert get_3a_ceiling("independant", False, annual_income=Decimal("20000")) == 4_000.0
+        assert get_3a_ceiling("independant", False, annual_income="20000") == 4_000.0
 
     def test_income_ignored_for_salarie(self):
         """Le revenu n'affecte pas le petit 3a (salarié affilié LPP)."""

@@ -108,15 +108,18 @@ class CrossPillarService:
         # === 3a ceiling (OPP3 art. 7) — single source of truth ===
         employment_status = profile_data.get("employment_status", "salarie")
         has_2nd_pillar = profile_data.get("has_2nd_pillar", True)
-        # OPP3 art. 7 : grand 3a borné à 20% du revenu (revue Codex P1-2).
+        # Assiette : net indépendant si fourni (OPP3 art. 7), sinon brut.
+        income_for_ceiling = profile_data.get("self_employed_net_income")
+        if income_for_ceiling is None:
+            income_for_ceiling = profile_data.get("income_gross_yearly")
         ceiling_raw = get_3a_ceiling(
-            employment_status,
-            has_2nd_pillar,
-            annual_income=profile_data.get("income_gross_yearly"),
+            employment_status, has_2nd_pillar, annual_income=income_for_ceiling
         )
 
         annual_3a_d = _q(annual_3a) if annual_3a is not None else Decimal("0.00")
-        three_a_ceiling_d = _q(ceiling_raw)
+        # get_3a_ceiling renvoie None (grand 3a dû sans revenu) : NE JAMAIS servir
+        # 36'288 nu (revue Codex F1) — plafond non déterminable -> 0.00.
+        three_a_ceiling_d = _q(ceiling_raw) if ceiling_raw is not None else Decimal("0.00")
         three_a_remaining_d = max(
             Decimal("0.00"), three_a_ceiling_d - annual_3a_d
         )

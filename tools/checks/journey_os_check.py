@@ -42,6 +42,7 @@ ALLOW = {
     # --- ops: sha de deploy dans /api/v1/health (vérification post-promotion) ---
     "services/backend/app/api/v1/endpoints/health.py",
     "services/backend/app/schemas/common.py",
+    "services/backend/app/schemas/coaching.py",
     "services/backend/tests/test_health.py",
     # --- prep Flutter 3.44.8 : ancêtre Material pour les tiles en carte colorée
     # (assertion debug ListTile._debugCheckBackgroundIsHidden). Écrans/widgets

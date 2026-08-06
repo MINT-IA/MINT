@@ -417,9 +417,17 @@ class CoachingEngine:
     # ------------------------------------------------------------------
 
     def _tax_saving(
-        self, profile: CoachingProfile, deduction: float, is_married: bool
+        self,
+        profile: CoachingProfile,
+        deduction: float,
+        is_married: bool,
+        base_income: float | None = None,
     ) -> float:
         """Économie fiscale d'une déduction — DIFFÉRENCE d'impôt de l'étalon.
+
+        ``base_income`` permet l'économie INCRÉMENTALE (revue Codex F2) : pour
+        un versement RESTANT, le point de départ est le revenu déjà diminué des
+        versements effectués, pas le revenu brut.
 
         Remplace le produit ``déduction × taux marginal`` (revue Codex P1-4 :
         NE marié 16'000 -> coach 1'055 vs différence réelle 295, soit +258%).
@@ -429,9 +437,8 @@ class CoachingEngine:
         """
         from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
-        return estimate_tax_saving(
-            profile.revenu_annuel, deduction, profile.canton, is_married=is_married
-        )
+        base = profile.revenu_annuel if base_income is None else base_income
+        return estimate_tax_saving(base, deduction, profile.canton, is_married=is_married)
 
     # ------------------------------------------------------------------
     # (a) 3a deadline (Oct 1 - Dec 31)
@@ -447,6 +454,9 @@ class CoachingEngine:
             return tips
 
         plafond = self._ceiling_3a(profile)
+        if plafond is None:
+            # Grand 3a dû mais revenu déterminant inconnu -> pas de rappel chiffré.
+            return tips
 
         # Check if there's room to contribute more
         montant_restant = plafond - profile.montant_3a
@@ -469,26 +479,31 @@ class CoachingEngine:
         else:
             montant_deductible = plafond
 
-        # Économie = DIFFÉRENCE d'impôt (étalon), pas déduction × taux (P1-4).
+        # Économie du RESTANT = différence d'impôt INCRÉMENTALE (revue Codex F2) :
+        # base = revenu déjà diminué des versements effectués (les francs déjà
+        # versés ont déjà réduit l'imposable ; le restant mord plus bas).
         is_married = is_married_civil_status(profile.etat_civil)
-        economie_fiscale = self._tax_saving(profile, montant_deductible, is_married)
+        base = max(0.0, profile.revenu_annuel - profile.montant_3a)
+        economie_fiscale = self._tax_saving(
+            profile, montant_deductible, is_married, base_income=base
+        )
         caveat = self._CONJOINT_CAVEAT if is_married else ""
 
         tips.append(CoachingTip(
             id="3a_deadline",
             category="prevoyance",
             priority="haute",
-            title="Delai 3e pilier: fin d'annee",
+            title="Délai 3e pilier : fin d'année",
             message=(
                 f"Il vous reste {days_remaining} jours pour maximiser votre "
-                f"3e pilier {today.year}. Montant deductible restant: "
+                f"3e pilier {today.year}. Montant déductible restant : "
                 f"CHF {montant_deductible:,.0f}. "
-                f"Economie fiscale estimee: CHF {economie_fiscale:,.0f}. "
-                f"Ce montant depend de votre situation fiscale individuelle.{caveat}"
+                f"Économie fiscale estimée : CHF {economie_fiscale:,.0f}. "
+                f"Ce montant dépend de votre situation fiscale individuelle.{caveat}"
             ),
             action=(
                 "Versez le montant restant sur votre compte 3a avant "
-                "le 31 decembre."
+                "le 31 décembre."
             ),
             estimated_impact_chf=round(economie_fiscale, 2),
             source="LIFD art. 33, OPP3 art. 7",
@@ -514,30 +529,43 @@ class CoachingEngine:
         if profile.employment_status == "retraite":
             return tips
 
-        plafond = self._ceiling_3a(profile)
+        from app.services.rules_engine import GRAND_3A_RULE_FR
 
-        # Économie = DIFFÉRENCE d'impôt (étalon), pas plafond × taux (P1-4).
+        plafond = self._ceiling_3a(profile)
         is_married = is_married_civil_status(profile.etat_civil)
-        economie_annuelle = self._tax_saving(profile, plafond, is_married)
         caveat = self._CONJOINT_CAVEAT if is_married else ""
+
+        if plafond is None:
+            # Grand 3a dû mais revenu déterminant inconnu -> LA RÈGLE, pas 36'288.
+            message = (
+                f"Vous n'avez pas de 3e pilier. Sans 2e pilier, votre plafond "
+                f"3a est {GRAND_3A_RULE_FR} — indiquez votre revenu de "
+                f"l'activité pour estimer l'économie."
+            )
+            impact = None
+        else:
+            # Économie = DIFFÉRENCE d'impôt (étalon), pas plafond × taux (P1-4).
+            economie_annuelle = self._tax_saving(profile, plafond, is_married)
+            impact = round(economie_annuelle, 2)
+            message = (
+                f"Vous n'avez pas de 3e pilier. En épargnant "
+                f"CHF {plafond:,.0f}/an, vous pourriez économiser "
+                f"environ CHF {economie_annuelle:,.0f} d'impôts par an "
+                f"(estimation selon votre canton). "
+                f"L'impact réel dépend de votre revenu imposable.{caveat}"
+            )
 
         tips.append(CoachingTip(
             id="missing_3a",
             category="prevoyance",
             priority="haute",
             title="Pas de 3e pilier",
-            message=(
-                f"Vous n'avez pas de 3e pilier. En épargnant "
-                f"CHF {plafond:,.0f}/an, vous pourriez économiser "
-                f"environ CHF {economie_annuelle:,.0f} d'impôts par an "
-                f"(estimation selon votre canton). "
-                f"L'impact réel dépend de votre revenu imposable.{caveat}"
-            ),
+            message=message,
             action=(
                 "Comparer les comptes 3a (banque, assurance) selon les frais "
                 "et la souplesse de versement, puis décider où épargner."
             ),
-            estimated_impact_chf=round(economie_annuelle, 2),
+            estimated_impact_chf=impact,
             source="LIFD art. 33",
             icon="add_circle",
         ))
@@ -579,7 +607,7 @@ class CoachingEngine:
                 f"L'impact réel dépend de votre situation fiscale.{caveat}"
             ),
             action=(
-                "Demandez a votre caisse de pension le montant maximal "
+                "Demandez à votre caisse de pension le montant maximal "
                 "de rachat et évaluez un rachat échelonné sur plusieurs années."
             ),
             estimated_impact_chf=round(economie_fiscale, 2),
@@ -872,6 +900,13 @@ class CoachingEngine:
         if profile.employment_status != "independant":
             return tips
 
+        from app.services.rules_engine import GRAND_3A_RULE_FR
+
+        # Plafond réel (borné 20% ou None) — plus de constante 36'288 en dur qui
+        # contredisait le tip missing_3a dans la même réponse (revue Codex F1).
+        _plaf = self._ceiling_3a(profile)
+        plafond_txt = GRAND_3A_RULE_FR if _plaf is None else f"{_plaf:,.0f} CHF"
+
         tips.append(CoachingTip(
             id="independant_no_lpp",
             category="prevoyance",
@@ -880,7 +915,7 @@ class CoachingEngine:
             message=(
                 f"En tant qu'independant, vous n'avez PAS de LPP obligatoire. "
                 f"Envisagez une affiliation volontaire ou un 3a renforce "
-                f"(plafond: {self.PLAFOND_3A_INDEPENDANT:,.0f} CHF). "
+                f"(plafond: {plafond_txt}). "
                 f"Sans 2e pilier, votre prevoyance repose essentiellement "
                 f"sur l'AVS et le 3e pilier."
             ),

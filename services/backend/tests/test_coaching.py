@@ -518,14 +518,36 @@ class TestCoachingIndependant:
     """Tests for independent worker coaching tips."""
 
     def test_independant_alert(self, engine):
-        """Independent worker: should get no-LPP alert."""
-        profile = _profile(employment_status="independant")
+        """Independent worker sans LPP + revenu élevé: no-LPP alert, plafond réel
+        (grand 3a borné, ici 36'288 à revenu 200k)."""
+        profile = _profile(
+            employment_status="independant", has_lpp=False, revenu_annuel=200_000.0
+        )
         tips = engine.generate_tips(profile, today_date=date(2026, 5, 1))
         assert _has_tip(tips, "independant_no_lpp")
         tip = _find_tip(tips, "independant_no_lpp")
         assert "36,288" in tip.message or "36'288" in tip.message
         assert "LPP art. 4" in tip.source
         assert tip.priority == "haute"
+
+    def test_independant_no_income_shows_rule(self, engine):
+        """Indépendant sans LPP ET sans revenu -> le tip affiche LA RÈGLE
+        (« 20 % ... au maximum 36'288 »), pas un plafond chiffré isolé faux
+        (revue Codex F1). missing_3a idem -> cohérent, plus de 4'000/36'288
+        contradictoires dans la même réponse."""
+        profile = _profile(
+            employment_status="independant", has_lpp=False,
+            revenu_annuel=0.0, has_3a=False, age=35,
+        )
+        tips = engine.generate_tips(profile, today_date=date(2026, 5, 1))
+        alert = _find_tip(tips, "independant_no_lpp")
+        missing = _find_tip(tips, "missing_3a")
+        assert alert is not None and missing is not None
+        # les DEUX tips montrent la règle (20% + OPP3), aucun ne propose un
+        # plafond chiffré nu -> plus de contradiction 4'000 vs 36'288.
+        for msg in (alert.message, missing.message):
+            assert "20 %" in msg and "OPP3 art. 7" in msg
+        assert missing.estimated_impact_chf is None
 
     def test_salarie_no_independant_alert(self, engine):
         """Salaried worker: no independant alert."""
@@ -883,6 +905,19 @@ class TestCoachingTaxSavingIsDifference:
         assert tip.estimated_impact_chf == pytest.approx(294.93, abs=0.01)  # externe
         assert tip.estimated_impact_chf != pytest.approx(1055.39, abs=0.01)  # ancien produit
 
+    def test_deadline_incremental_already_contributed(self, engine):
+        """F2 — économie du RESTANT incrémentale : NE marié 16'000, 3'000 déjà
+        versés -> 101.73 (différence entre revenu-3'000 et revenu-plafond), pas
+        223.25 (base = revenu brut). Oracle externe exécuté."""
+        p = _profile(
+            has_3a=True, montant_3a=3_000.0, canton="NE", revenu_annuel=16_000.0,
+            etat_civil="marie", employment_status="salarie", has_lpp=True, age=35,
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 11, 1)), "3a_deadline")
+        assert tip is not None
+        assert tip.estimated_impact_chf == pytest.approx(101.73, abs=0.01)
+        assert tip.estimated_impact_chf != pytest.approx(223.25, abs=0.01)
+
     def test_missing_3a_equals_canonical_difference(self, engine):
         """Le montant du tip == estimate_tax_saving (jamais plafond × taux)."""
         from app.services.fiscal.cantonal_comparator import estimate_tax_saving
@@ -923,3 +958,27 @@ class TestCoachingTaxSavingIsDifference:
         )
         assert "conjoint" in marie.message.lower()
         assert "conjoint" not in single.message.lower()
+
+
+class TestCoachingEndpointBoundaryValidation:
+    """F3 — l'endpoint rejette proprement (422) les revenus non finis au lieu de
+    renvoyer 200 + 36'288 (repro Codex endpoint exécuté)."""
+
+    def test_infinite_income_returns_clean_422_not_36288(self):
+        from fastapi.testclient import TestClient
+        from app.main import app
+
+        client = TestClient(app, raise_server_exceptions=False)
+        raw = (
+            '{"age":35,"canton":"NE","revenuAnnuel":Infinity,"has3a":false,'
+            '"montant3a":0,"hasLpp":false,"avoirLpp":0,"lacuneLpp":0,'
+            '"tauxActivite":100,"chargesFixesMensuelles":2000,'
+            '"epargneDisponible":5000,"detteTotale":0,"hasBudget":true,'
+            '"employmentStatus":"independant","etatCivil":"celibataire"}'
+        )
+        r = client.post(
+            "/api/v1/coaching/tips", content=raw,
+            headers={"content-type": "application/json"},
+        )
+        assert r.status_code == 422  # propre, pas 200 ni 500
+        assert "36288" not in r.text and "36'288" not in r.text

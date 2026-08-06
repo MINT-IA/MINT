@@ -571,19 +571,32 @@ def test_concubinage_uppercase_is_separate() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_ne_20k_10k_band_no_double_deduction() -> None:
-    payload = sensibilite_3a_menage(
-        revenu_imposable=20_000.0,
-        canton="NE",
-        versement_3a=None,
-        etat_civil="marie",
-        revenu_imposable_conjoint=10_000.0,
-    )
-    eff = _effect(payload)
-    # gelé : nettement au-dessus de l'ancien 156-190 (double déduction retirée).
-    assert eff.delta_bas == pytest.approx(552.66, abs=0.01)
-    assert eff.delta_haut == pytest.approx(675.48, abs=0.01)
-    assert eff.delta_bas > 190.0  # l'ancienne borne haute buggée
+def test_household_imposable_only_couple_specific_deductions() -> None:
+    """F4 — DÉRIVATION LÉGALE INDÉPENDANTE (arithmétique explicite, constantes
+    pinnées dans le test, jamais un helper de prod ni une sortie gelée).
+
+    Contrat d'entrée : ``revenu_1``/``revenu_2`` = revenus imposables INDIVIDUELS
+    (déductions personnelles, dont assurance-vie art. 33 al. 1 let. g au taux
+    célibataire, déjà appliquées). En imposition commune (LIFD art. 9 al. 1), le
+    couple obtient EN PLUS deux déductions qu'un célibataire ne peut pas claimer :
+      - personnes mariées (LIFD art. 35 al. 1 let. c) = 2'800 ;
+      - double activité des époux (LIFD art. 33 al. 2) = 50% du revenu le plus
+        bas, plancher 8'600, plafond 14'100, borné au revenu concerné.
+    L'assurance mariée (3'700) NE se retranche PAS : elle remplace 2×1'800 déjà
+    dans les imposables individuels (delta ~100, immatériel) -> sinon double
+    compte. Le ×0.80 est une approximation de BARÈME (splitting), pas une
+    déduction, et n'entre donc pas ici.
+    """
+    DEDUCTION_MARIES_PIN = 2_800.0
+    # double activité pour (20'000, 10'000) : 50% du bas 10'000 = 5'000, relevé
+    # au plancher 8'600, plafonné au revenu bas 10'000 -> 8'600.
+    DOUBLE_ACTIVITE_PIN = 8_600.0
+    expected_household = 20_000.0 + 10_000.0 - DEDUCTION_MARIES_PIN - DOUBLE_ACTIVITE_PIN
+    assert expected_household == 18_600.0
+    assert _household_imposable(20_000.0, 10_000.0) == expected_household
+    # L'assurance mariée (3'700) n'est PAS retranchée -> pas de 30'000-11'400=18'600
+    # DEVENU 14'900 comme dans le bug initial.
+    assert _household_imposable(20_000.0, 10_000.0) != 14_900.0
 
 
 # ---------------------------------------------------------------------------

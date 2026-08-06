@@ -5,6 +5,7 @@ Generates recommendations based on user profile and session answers.
 
 import uuid
 from datetime import datetime, timezone
+from math import isfinite
 from typing import List, Optional, Tuple
 
 from app.constants.social_insurance import (
@@ -404,40 +405,66 @@ def calculate_marginal_tax_rate(
     )
 
 
+# Règle affichable quand le grand 3a est dû mais que le revenu déterminant est
+# inconnu -> les appelants montrent LA RÈGLE, jamais 36'288 nu (revue Codex F1).
+GRAND_3A_RULE_FR = (
+    "20 % du revenu déterminant de l'activité, au maximum 36'288 CHF "
+    "(OPP3 art. 7)"
+)
+
+
+def _coerce_income(value: object) -> Optional[float]:
+    """Coerce un revenu (float / Decimal / chaîne numérique) en float fini, ou
+    ``None`` si non numérique / non fini (revue Codex F3 : jamais de TypeError
+    brut, jamais un nan qui se propage)."""
+    if value is None:
+        return None
+    try:
+        f = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    return f if isfinite(f) else None
+
+
 def get_3a_ceiling(
     employment_status: Optional[str] = None,
     has_2nd_pillar: Optional[bool] = None,
     annual_income: Optional[float] = None,
-) -> float:
-    """Return the applicable 3a annual contribution ceiling.
+) -> Optional[float]:
+    """Plafond 3a annuel applicable — éligibilité par AFFILIATION (OPP3 art. 7 +
+    circulaire AFC 18a ch. 5.5), pas par statut.
 
-    OPP3 art. 7:
-    - Salarié affilié LPP (petit 3a): 7'258 CHF
-    - Indépendant sans LPP (grand 3a): min(20% du revenu de l'activité,
-      36'288 CHF). Le plafond absolu n'est atteint qu'à partir de ~181'440 CHF
-      de revenu — servir 36'288 nu à un indépendant modeste surestime la
-      déduction (revue Codex : revenu 20'000 -> plafond réel 4'000, pas 36'288).
+    - Affilié à un 2e pilier (``has_2nd_pillar`` True) -> petit 3a (7'258 CHF).
+    - NON affilié (``has_2nd_pillar`` False, salarié OU indépendant) -> grand 3a
+      = min(20% du revenu déterminant, 36'288 CHF).
+    - Affiliation inconnue (``None``) : défaut petit 3a, sauf indépendant (défaut
+      grand 3a — cas le plus courant).
 
-    Args:
-        employment_status: 'salarie', 'independant', 'employee', 'self_employed', etc.
-        has_2nd_pillar: Whether the person is affiliated to a LPP pension fund.
-        annual_income: revenu annuel de l'activité (CHF). Requis pour borner le
-            grand 3a à 20% ; ``None`` -> fallback au plafond absolu (dégradé,
-            documenté : sans revenu on ne peut pas appliquer la borne OPP3).
+    Revenu déterminant : pour l'indépendant, le résultat net après cotisations
+    personnelles (``selfEmployedNetIncome``) quand l'appelant le fournit ; sinon
+    le revenu passé, avec l'hypothèse divulguée par l'appelant.
 
     Returns:
-        Annual 3a ceiling in CHF.
+        Le plafond en CHF, ou ``None`` quand le grand 3a est dû mais que le
+        revenu déterminant est inconnu / nul / négatif — FAIL-CLOSED : sans
+        revenu la borne 20% ne peut pas s'appliquer, et servir 36'288 nu la
+        VIOLE. Les appelants doivent alors afficher ``GRAND_3A_RULE_FR``.
     """
+    if has_2nd_pillar:
+        return PILIER_3A_PLAFOND_AVEC_LPP
+
     _status = (employment_status or "").lower().strip()
-    is_independent = _status in ("independant", "self_employed")
-    if is_independent and not has_2nd_pillar:
-        if annual_income is None or annual_income <= 0:
-            return PILIER_3A_PLAFOND_SANS_LPP
-        return round(
-            min(PILIER_3A_TAUX_REVENU_SANS_LPP * annual_income, PILIER_3A_PLAFOND_SANS_LPP),
-            2,
-        )
-    return PILIER_3A_PLAFOND_AVEC_LPP
+    _independent = _status in ("independant", "self_employed")
+    not_affiliated = (has_2nd_pillar is False) or (has_2nd_pillar is None and _independent)
+    if not not_affiliated:
+        return PILIER_3A_PLAFOND_AVEC_LPP
+
+    income = _coerce_income(annual_income)
+    if income is None or income <= 0:
+        return None
+    return round(
+        min(PILIER_3A_TAUX_REVENU_SANS_LPP * income, PILIER_3A_PLAFOND_SANS_LPP), 2
+    )
 
 
 def calculate_tax_potential(
@@ -449,6 +476,9 @@ def calculate_tax_potential(
     from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
     ceiling = get_3a_ceiling(employment_status, has_2nd_pillar, annual_income=income_gross)
+    if ceiling is None:
+        # Grand 3a dû mais revenu déterminant inconnu -> LA RÈGLE, jamais 36'288.
+        return GRAND_3A_RULE_FR
     # DIFFERENCE d'impot, pas « plafond x taux marginal ». Le taux marginal
     # du dernier franc n'est pas celui des 7'258 francs precedents : le
     # produit surestime des que la deduction traverse un palier.
@@ -738,28 +768,46 @@ def generate_recommendations(
 def _create_3a_optimizer_recommendation(
     profile: Profile, reference_date: Optional[datetime] = None
 ) -> Recommendation:
-    _income_for_3a = profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85
+    from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
+    # Assiette du grand 3a : revenu déterminant = net indépendant si fourni
+    # (``selfEmployedNetIncome``), sinon revenu brut/dérivé (hypothèse divulguée).
+    _derived = profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85
+    income_det = profile.selfEmployedNetIncome if profile.selfEmployedNetIncome is not None else _derived
     annual_contribution = get_3a_ceiling(
-        profile.employmentStatus, profile.has2ndPillar, annual_income=_income_for_3a
+        profile.employmentStatus, profile.has2ndPillar, annual_income=income_det
     )
     household_type = "married" if profile.householdType.value in ("couple", "family") else "single"
-    marginal_rate = calculate_marginal_tax_rate(
-        profile.canton or "ZH",
-        profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85,
-        household_type,
+    is_married = _is_married_household(household_type)
+
+    if annual_contribution is None:
+        # Grand 3a dû mais revenu déterminant inconnu -> afficher LA RÈGLE.
+        return Recommendation(
+            id=uuid.uuid4(),
+            kind="pillar3a",
+            title="Optimiser votre 3e pilier",
+            summary=f"Plafond 3a : {GRAND_3A_RULE_FR}.",
+            why=["Déduction fiscale immédiate."],
+            assumptions=[GRAND_3A_RULE_FR],
+            impact=Impact(amountCHF=0.0, period=Period.yearly),
+            risks=["Capital bloqué."],
+            alternatives=["Compte épargne"],
+            evidenceLinks=[],
+            nextActions=[],
+        )
+
+    # Économie = DIFFÉRENCE d'impôt canonique (jamais contribution × taux — F2).
+    annual_tax_saved = estimate_tax_saving(
+        _derived, annual_contribution, profile.canton or "ZH", is_married=is_married
     )
-    now = reference_date or datetime.now(timezone.utc)
-    retirement_age = getattr(profile, 'targetRetirementAge', None) or 65
-    years = max(5, retirement_age - (now.year - (profile.birthYear or 1990)))
-    calc = calculate_pillar3a_tax_benefit(annual_contribution, marginal_rate, years)
     return Recommendation(
         id=uuid.uuid4(),
         kind="pillar3a",
         title="Optimiser votre 3e pilier",
-        summary=f"Économisez CHF {calc['annualTaxSaved']:,.0f}/an d'impôts.",
+        summary=f"Économisez CHF {annual_tax_saved:,.0f}/an d'impôts.",
         why=["Déduction fiscale immédiate."],
         assumptions=[f"Contribution max: CHF {annual_contribution}"],
-        impact=Impact(amountCHF=calc["annualTaxSaved"], period=Period.yearly),
+        impact=Impact(amountCHF=annual_tax_saved, period=Period.yearly),
         risks=["Capital bloqué."],
         alternatives=["Compte épargne"],
         evidenceLinks=[

@@ -4,7 +4,7 @@ Pydantic schemas for the Proactive Coaching module.
 Sprint S11: Coaching proactif.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 from enum import Enum
 
@@ -34,6 +34,10 @@ class EtatCivil(str, Enum):
 
 class CoachingProfileRequest(BaseModel):
     """Request model for coaching tip generation."""
+
+    # Rejette Infinity / NaN sur TOUS les champs float (revue Codex F3 : sinon
+    # `revenuAnnuel: Infinity` passait en HTTP 200 et proposait 36'288). 422 propre.
+    model_config = ConfigDict(allow_inf_nan=False)
 
     age: int = Field(..., description="User's age", ge=0, le=120)
     canton: str = Field(
