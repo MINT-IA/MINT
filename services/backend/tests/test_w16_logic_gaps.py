@@ -372,3 +372,26 @@ class TestTargetRetirementAge:
         # Both should be positive
         assert early_value > 0
         assert late_value > 0
+
+
+class TestOptimizerSingleAssiette:
+    """Codex H2 — le revenu déterminant (net indépendant) sert AU PLAFOND ET À
+    L'ÉCONOMIE (pas le plafond sur le net et l'économie sur le brut)."""
+
+    def test_independant_net_income_used_for_both_ceiling_and_saving(self):
+        import uuid
+        from datetime import datetime, timezone
+
+        profile = Profile(
+            id=str(uuid.uuid4()), birthYear=1985, canton="VD",
+            householdType=HouseholdType.single,
+            employmentStatus="independant", has2ndPillar=False,
+            incomeGrossYearly=120_000.0, selfEmployedNetIncome=20_000.0,
+            goal="optimize_taxes", createdAt=datetime.now(timezone.utc),
+        )
+        recos = [r for r in generate_recommendations(profile) if r.kind == "pillar3a"]
+        assert len(recos) == 1
+        # plafond = 20% de 20'000 net = 4'000 ; économie sur le NET 20'000 (pas
+        # le brut 120'000) = 674.40, jamais 1'487.04.
+        assert recos[0].impact.amountCHF == pytest.approx(674.40, abs=0.01)
+        assert "4000" in " ".join(recos[0].assumptions)

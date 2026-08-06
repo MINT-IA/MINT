@@ -65,22 +65,13 @@ def test_compute_strategy_a_success_path() -> None:
     from app.services.arbitrage.allocation_annuelle import (
         compare_allocation_annuelle,
     )
-    from app.services.rules_engine import calculate_marginal_tax_rate
+    # Strategy A calcule désormais la DIFFÉRENCE d'impôt canonique sur le
+    # versement borné au plafond d'affiliation (revue Codex H3), plus
+    # compare_allocation_annuelle (qui bornait à 7'258 × taux).
+    from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
-    expected_marginal = calculate_marginal_tax_rate("VD", 90000.0, "single")
-    expected_result = compare_allocation_annuelle(
-        montant_disponible=5000.0,
-        taux_marginal=expected_marginal,
-        a3a_maxed=False,
-        potentiel_rachat_lpp=12000.0,
-        is_property_owner=False,
-        annees_avant_retraite=1,
-        canton="VD",
-    )
-    opt_3a = next((o for o in expected_result.options if o.id == "3a"), None)
-    assert opt_3a is not None and opt_3a.trajectory
     expected_saving = Decimal(
-        str(-opt_3a.trajectory[0].cumulative_tax_delta)
+        str(estimate_tax_saving(90000.0, min(5000.0, 7258.0), "VD", is_married=False))
     ).quantize(Decimal("0.01"))
     assert analysis.tax_saving_potential == expected_saving
     assert analysis.tax_saving_potential > Decimal("0.00")
@@ -258,6 +249,12 @@ def test_chain_calls_compare_allocation_annuelle_with_expected_args() -> None:
         sensitivity={},
     )
 
+    # Revue Codex H3 : cross_pillar N'appelle PLUS compare_allocation_annuelle
+    # (qui bornait à 7'258 × taux) — Strategy A est désormais la DIFFÉRENCE
+    # d'impôt canonique. On prouve le NON-appel + l'égalité à estimate_tax_saving.
+    _ = synthetic_result  # setup conservé, plus mocké
+    from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
     profile = {
         "annual_3a_contribution": 5000.0,
         "lpp_buyback_max": 12000.0,
@@ -268,16 +265,14 @@ def test_chain_calls_compare_allocation_annuelle_with_expected_args() -> None:
 
     with patch(
         "app.services.arbitrage.cross_pillar_service.compare_allocation_annuelle",
-        return_value=synthetic_result,
     ) as mock_chain:
         analysis = CrossPillarService.compute(profile)
 
-    assert mock_chain.call_count == 1
-    kwargs = mock_chain.call_args.kwargs
-    assert kwargs["montant_disponible"] == 5000.0
-    assert kwargs["potentiel_rachat_lpp"] == 12000.0
-    assert kwargs["annees_avant_retraite"] == 1
-    assert analysis.tax_saving_potential == Decimal("1700.00")
+    assert mock_chain.call_count == 0  # plus de délégation au calculateur borné
+    expected = Decimal(
+        str(estimate_tax_saving(90000.0, min(5000.0, 7258.0), "VD", is_married=False))
+    ).quantize(Decimal("0.01"))
+    assert analysis.tax_saving_potential == expected
     assert analysis.tax_saving_source == "strategy_a"
 
 
@@ -468,19 +463,63 @@ def test_dispatcher_inputs_hash_deterministic(monkeypatch) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_g3_canonical_camelcase_profile_yields_20000():
-    """Profil CANONIQUE camelCase (indépendant sans LPP, 100'000) -> plafond
-    20'000 (pas ValueError, pas 7'258) — revue Codex G3."""
+def _real_profile_dump(**overrides):
+    """Construit un VRAI Profile puis model_dump(by_alias=True) — zéro clé à la
+    main (revue Codex H1/P2 : un test canonique PART de Profile.model_dump)."""
+    import uuid
+    from datetime import datetime, timezone
+    from app.schemas.profile import Profile, HouseholdType
+
+    base = dict(
+        id=str(uuid.uuid4()), birthYear=1985, canton="VD",
+        householdType=HouseholdType.single, createdAt=datetime.now(timezone.utc),
+    )
+    base.update(overrides)
+    return Profile(**base).model_dump(by_alias=True)
+
+
+def test_g3_h1_canonical_profile_independant_no_lpp_yields_20000():
+    """Profil CANONIQUE (Profile.model_dump) indépendant sans LPP 100'000,
+    pillar3aAnnual=0 -> calcule (pas ValueError), plafond 20'000 — Codex H1."""
     from app.services.arbitrage.cross_pillar_service import CrossPillarService
 
-    prof = {
-        "employmentStatus": "independant",
-        "has2ndPillar": False,
-        "incomeGrossYearly": 100_000.0,
-        "annual_3a_contribution": 0.0,
-    }
-    a = CrossPillarService.compute(profile_data=prof)
+    d = _real_profile_dump(
+        employmentStatus="independant", has2ndPillar=False,
+        incomeGrossYearly=100_000.0, selfEmployedNetIncome=100_000.0,
+        pillar3aAnnual=0.0,
+    )
+    a = CrossPillarService.compute(profile_data=d)
     assert a.three_a_ceiling == Decimal("20000.00")
+
+
+def test_h1_pillar3a_annual_reflected_in_contribution():
+    """pillar3aAnnual=20'000 -> annual3AContribution reflète 20'000 versés
+    (pas « 0.00 versé / 20'000 restants ») — Codex H1."""
+    from app.services.arbitrage.cross_pillar_service import CrossPillarService
+
+    d = _real_profile_dump(
+        employmentStatus="independant", has2ndPillar=False,
+        incomeGrossYearly=100_000.0, selfEmployedNetIncome=100_000.0,
+        pillar3aAnnual=20_000.0,
+    )
+    a = CrossPillarService.compute(profile_data=d)
+    assert a.annual_3a_contribution == Decimal("20000.00")
+    assert a.three_a_remaining == Decimal("0.00")
+
+
+def test_h3_cross_pillar_saving_is_canonical_difference_not_capped():
+    """L'économie cross_pillar = différence d'impôt sur le versement borné au
+    plafond D'AFFILIATION (20'000), pas 7'258 × taux. Indep sans LPP 100'000,
+    versement 20'000, VD -> 6'338.81 (pas 2'305.36) — Codex H3."""
+    from app.services.arbitrage.cross_pillar_service import CrossPillarService
+
+    d = _real_profile_dump(
+        employmentStatus="independant", has2ndPillar=False,
+        incomeGrossYearly=100_000.0, selfEmployedNetIncome=100_000.0,
+        pillar3aAnnual=20_000.0,
+    )
+    a = CrossPillarService.compute(profile_data=d)
+    assert a.tax_saving_potential == Decimal("6338.81")
 
 
 def test_g1_unknown_income_ceiling_is_none_not_zero():

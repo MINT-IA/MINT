@@ -796,9 +796,11 @@ def _create_3a_optimizer_recommendation(
             nextActions=[],
         )
 
-    # Économie = DIFFÉRENCE d'impôt canonique (jamais contribution × taux — F2).
+    # Économie = DIFFÉRENCE d'impôt canonique (jamais contribution × taux — F2)
+    # SUR LE MÊME revenu déterminant que le plafond (revue Codex H2 : le net
+    # indépendant sert au plafond ET à l'économie — pas le brut).
     annual_tax_saved = estimate_tax_saving(
-        _derived, annual_contribution, profile.canton or "ZH", is_married=is_married
+        income_det, annual_contribution, profile.canton or "ZH", is_married=is_married
     )
     return Recommendation(
         id=uuid.uuid4(),

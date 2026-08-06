@@ -66,16 +66,17 @@ class CrossPillarAnalysis:
 
 # Profil canonique persisté en camelCase (schemas/profile.py) -> clés snake_case
 # lues par les règles internes. Les DEUX formes sont acceptées (revue Codex G3).
+# Clés camelCase RÉELLES persistées par ``schemas/profile.py`` (revue Codex H1 :
+# le profil persiste ``pillar3aAnnual`` et ``avoirLpp``, PAS ``annual3AContribution``
+# ni ``lppAvoir``). Vérifiées sur ``Profile.model_dump(by_alias=True)``.
 _PROFILE_KEY_ALIASES = {
     "employmentStatus": "employment_status",
     "has2ndPillar": "has_2nd_pillar",
     "incomeGrossYearly": "income_gross_yearly",
     "selfEmployedNetIncome": "self_employed_net_income",
-    "annual3AContribution": "annual_3a_contribution",
-    "lppAvoir": "lpp_avoir",
-    "lppCapital": "lpp_capital",
+    "pillar3aAnnual": "annual_3a_contribution",
+    "avoirLpp": "lpp_avoir",
     "lppBuybackMax": "lpp_buyback_max",
-    "taxSavingPotential": "tax_saving_potential",
 }
 
 
@@ -174,6 +175,8 @@ class CrossPillarService:
             annual_3a=annual_3a,
             lpp_buyback_max=float(lpp_buyback_max_d),
             tax_saving_raw_profile=tax_saving_raw_profile,
+            ceiling=ceiling_raw,
+            income_det=income_for_ceiling,
         )
 
         return CrossPillarAnalysis(
@@ -193,14 +196,18 @@ def _derive_tax_saving(
     annual_3a: float | None,
     lpp_buyback_max: float,
     tax_saving_raw_profile: float | None,
+    ceiling: float | None = None,
+    income_det: float | None = None,
 ) -> tuple[Decimal, str]:
     """Pick a tax-saving derivation path. Returns (value, source_tag).
 
-    Strategy A — chain `compare_allocation_annuelle`. Requires `annual_3a`
-    (or any positive disposable amount) AND a derivable marginal rate.
-    The marginal rate comes from `profile_data["taux_marginal"]` if
-    present, else from `calculate_marginal_tax_rate(canton, income, type)`
-    if canton + income_gross_yearly are present.
+    Strategy A (revue Codex H3) — DIFFÉRENCE d'impôt canonique
+    ``estimate_tax_saving`` sur le versement borné au plafond D'AFFILIATION
+    (``ceiling``), sur le revenu déterminant (``income_det``). Remplace la
+    délégation à ``compare_allocation_annuelle`` qui bornait à 7'258 ET
+    multipliait par le taux marginal — incohérent avec un plafond 20'000
+    affiché pour un non-affilié. ``compare_allocation_annuelle`` reste inchangé
+    pour ses autres appelants.
 
     Strategy B — read `profile_data["tax_saving_potential"]` directly.
 
@@ -208,45 +215,28 @@ def _derive_tax_saving(
     """
     montant_disponible = float(annual_3a) if annual_3a is not None else 0.0
 
-    # Derive marginal rate (Strategy A pre-requisite).
-    taux_marginal: float | None = None
-    explicit_taux = profile_data.get("taux_marginal")
-    if explicit_taux is not None:
-        taux_marginal = float(explicit_taux)
-    else:
-        canton = profile_data.get("canton")
-        income_gross = profile_data.get("income_gross_yearly")
-        if canton and income_gross is not None:
-            household = profile_data.get("household_type", "single")
-            taux_marginal = calculate_marginal_tax_rate(
-                canton=str(canton),
-                income_gross=float(income_gross),
-                household_type=str(household),
-            )
-
-    # --- Strategy A: chain compare_allocation_annuelle ---
-    if taux_marginal is not None and montant_disponible > 0:
+    # --- Strategy A: différence d'impôt canonique, versement borné au plafond ---
+    if (
+        montant_disponible > 0
+        and ceiling is not None
+        and income_det is not None
+        and profile_data.get("canton")
+    ):
         try:
-            result = compare_allocation_annuelle(
-                montant_disponible=montant_disponible,
-                taux_marginal=taux_marginal,
-                a3a_maxed=False,
-                potentiel_rachat_lpp=lpp_buyback_max,
-                is_property_owner=bool(profile_data.get("is_property_owner", False)),
-                annees_avant_retraite=1,  # year-1 tax saving readout
-                canton=str(profile_data.get("canton") or "VD"),
+            from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+            from app.services.rules_engine import is_married_household
+
+            deduction = min(montant_disponible, float(ceiling))
+            is_married = is_married_household(profile_data.get("household_type"))
+            saving = estimate_tax_saving(
+                float(income_det),
+                deduction,
+                str(profile_data["canton"]),
+                is_married=is_married,
             )
-            option_3a = next(
-                (o for o in result.options if o.id == "3a"), None
-            )
-            if option_3a is not None and option_3a.trajectory:
-                # cumulative_tax_delta is NEGATIVE for a saving
-                # (`allocation_annuelle.py:101`). Sign-flip to positive.
-                saving = -option_3a.trajectory[0].cumulative_tax_delta
-                return _q(saving), "strategy_a"
+            return _q(saving), "strategy_a"
         except Exception:
-            # Defensive — never let the chain crash compute(). Fall
-            # through to Strategy B / fallback.
+            # Defensive — never let the chain crash compute().
             pass
 
     # --- Strategy B: relay from profile ---
