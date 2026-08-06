@@ -129,7 +129,10 @@ class FactLieuScreen extends StatefulWidget {
   /// offline-lab limitation) — this lifts the LABEL, never re-derives a number.
   /// V3-1 (Codex P1-1): also lifts the canton CODE so the éclairage can disclose
   /// (locale-robustly) when the FR-fixture hero range is not the user's canton.
-  final void Function(String commune, String canton, String cantonCode)?
+  /// V4-1 (Codex P1-1): also lifts the commune BFS id so the éclairage can
+  /// disclose by EXACT LOCALITY — no disclosure at the chef-lieu, an intra-
+  /// cantonal one for another FR commune, an inter-cantonal one otherwise.
+  final void Function(String commune, String canton, String cantonCode, int bfs)?
   onCommuneSelected;
 
   @override
@@ -225,6 +228,7 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
     String? communeName,
     String? cantonLabel,
     String? cantonCode,
+    int? communeBfs,
   }) {
     if (_isStale(generation)) return;
     // Guarded continue: with nothing selected it surfaces the no-selection
@@ -239,8 +243,12 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
     // R4 (batch22): lift the committed commune + derived canton LABEL up so the
     // éclairage payoff shows the commune the user picked (never the fixture
     // commune) before routing forward.
-    if (communeName != null && cantonLabel != null && cantonCode != null) {
-      widget.onCommuneSelected?.call(communeName, cantonLabel, cantonCode);
+    if (communeName != null &&
+        cantonLabel != null &&
+        cantonCode != null &&
+        communeBfs != null) {
+      widget.onCommuneSelected
+          ?.call(communeName, cantonLabel, cantonCode, communeBfs);
     }
     widget.onContinue?.call();
   }
@@ -569,6 +577,7 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
                     ? null
                     : cantonLabelOf(selected.cantonCode),
                 cantonCode: selected?.cantonCode,
+                communeBfs: selected?.bfs,
               ),
               // Subtle until a commune is selected, strong once it is — the
               // continue is guarded and never routes in R2, so the affordance

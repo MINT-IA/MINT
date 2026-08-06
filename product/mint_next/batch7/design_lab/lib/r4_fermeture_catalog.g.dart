@@ -94,6 +94,8 @@ const Map<String, Map<String, String>> r4Copy = <String, Map<String, String>>{
     'scenarios_over_excess':
         'Tu as versé {excess} CHF de plus que le plafond annuel ordinaire. Selon ta situation, ce surplus ne réduit pas toujours l’impôt. Vérifie avec ton prestataire 3a ce qui s’applique.',
     'scenarios_over_action': 'Voir ce qui est à vérifier',
+    'scenarios_plafond_atteint':
+        'Ton plafond de cette année est atteint : tu as déjà versé {contributed} CHF.',
     'scenarios_pending_title': 'Il manque une information pour calculer les scénarios.',
     'scenarios_pending_which': 'Information manquante : {fact}.',
     'scenarios_pending_action': 'Ajouter l’information',
@@ -171,6 +173,8 @@ const Map<String, Map<String, String>> r4Copy = <String, Map<String, String>>{
     'scenarios_over_excess':
         'You’ve paid {excess} CHF more than the ordinary annual limit. Depending on your situation, this surplus doesn’t always reduce your tax. Check with your 3a provider what applies.',
     'scenarios_over_action': 'See what to check',
+    'scenarios_plafond_atteint':
+        'You’ve reached your limit for this year: you’ve already paid in {contributed} CHF.',
     'scenarios_pending_title': 'Some information is missing to work out the scenarios.',
     'scenarios_pending_which': 'Missing information: {fact}.',
     'scenarios_pending_action': 'Add the information',
@@ -246,6 +250,8 @@ const Map<String, Map<String, String>> r4Copy = <String, Map<String, String>>{
     'scenarios_over_excess':
         'Du hast {excess} CHF mehr als die ordentliche Jahresgrenze eingezahlt. Je nach Situation senkt dieser Überschuss die Steuer nicht immer. Kläre mit deinem 3a-Anbieter, was für dich gilt.',
     'scenarios_over_action': 'Sehen, was zu prüfen ist',
+    'scenarios_plafond_atteint':
+        'Dein Höchstbetrag für dieses Jahr ist erreicht: Du hast schon {contributed} CHF eingezahlt.',
     'scenarios_pending_title': 'Für die Szenarien fehlt eine Angabe.',
     'scenarios_pending_which': 'Fehlende Angabe: {fact}.',
     'scenarios_pending_action': 'Angabe ergänzen',
@@ -320,6 +326,8 @@ const Map<String, Map<String, String>> r4Copy = <String, Map<String, String>>{
     'scenarios_over_excess':
         'Hai versato {excess} CHF in più del limite annuo ordinario. A seconda della tua situazione, questo surplus non riduce sempre l’imposta. Verifica con il tuo istituto 3a cosa vale per te.',
     'scenarios_over_action': 'Vedere cosa verificare',
+    'scenarios_plafond_atteint':
+        'Hai raggiunto il tuo limite per quest’anno: hai già versato {contributed} CHF.',
     'scenarios_pending_title': 'Manca un’informazione per calcolare gli scenari.',
     'scenarios_pending_which': 'Informazione mancante: {fact}.',
     'scenarios_pending_action': 'Aggiungere l’informazione',
@@ -394,6 +402,8 @@ const Map<String, Map<String, String>> r4Copy = <String, Map<String, String>>{
     'scenarios_over_excess':
         'Has aportado {excess} CHF más que el límite anual ordinario. Según tu situación, este excedente no siempre reduce el impuesto. Consulta con tu proveedor 3a qué se aplica.',
     'scenarios_over_action': 'Ver qué comprobar',
+    'scenarios_plafond_atteint':
+        'Has alcanzado tu límite de este año: ya has aportado {contributed} CHF.',
     'scenarios_pending_title': 'Falta un dato para calcular los escenarios.',
     'scenarios_pending_which': 'Falta este dato: {fact}.',
     'scenarios_pending_action': 'Añadir el dato',
@@ -468,6 +478,8 @@ const Map<String, Map<String, String>> r4Copy = <String, Map<String, String>>{
     'scenarios_over_excess':
         'Depositaste {excess} CHF a mais do que o limite anual ordinário. Consoante a tua situação, este excedente nem sempre reduz o imposto. Confirma com o teu fornecedor 3a o que se aplica.',
     'scenarios_over_action': 'Ver o que verificar',
+    'scenarios_plafond_atteint':
+        'Atingiste o teu limite deste ano: já depositaste {contributed} CHF.',
     'scenarios_pending_title': 'Falta uma informação para calcular os cenários.',
     'scenarios_pending_which': 'Informação em falta: {fact}.',
     'scenarios_pending_action': 'Adicionar a informação',

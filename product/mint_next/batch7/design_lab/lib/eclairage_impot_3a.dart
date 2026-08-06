@@ -44,6 +44,35 @@ const Color _bandBorder = Color(0xFFCAD8C3);
 /// treatment (fault_5_civil_status_splitting_ruling), never the married ×0.80.
 enum EclairageSituation { celibataire, marie, concubinage }
 
+/// V4-1 (Codex P1-1): the lieu-row fixture disclosure, resolved by EXACT
+/// locality. The hero range is ALWAYS the Fribourg CHEF-LIEU fixture (offline-
+/// lab), so how much of a displayable lie the picked-commune label is depends
+/// on the exact commune, not merely the canton:
+///   * [none]        — the picked commune IS the chef-lieu (BFS 2196): the number
+///                     is theirs, no disclosure.
+///   * [intraCanton] — canton FR but NOT the chef-lieu (e.g. Bulle BFS 2125): the
+///                     canton IS theirs, but their commune may differ from the
+///                     chef-lieu the figure is computed at.
+///   * [interCanton] — canton ≠ FR: the whole canton differs; the figure is a
+///                     Fribourg example computed at refinement.
+enum EclairageLieuDisclosure { none, intraCanton, interCanton }
+
+/// The BFS number of the chef-lieu Fribourg — the exact commune the sealed R3
+/// engine fixture is computed at (r3-engine-fixtures.yaml; r3ExampleCommune).
+/// The disclosure classifier compares the picked commune against it.
+const int eclairageFixtureChefLieuBfs = 2196;
+
+/// Classifies the lieu-row disclosure from the picked commune's BFS + canton
+/// CODE (locale-robust — never a label comparison). See [EclairageLieuDisclosure].
+EclairageLieuDisclosure eclairageLieuDisclosureFor({
+  required int bfs,
+  required String cantonCode,
+}) {
+  if (bfs == eclairageFixtureChefLieuBfs) return EclairageLieuDisclosure.none;
+  if (cantonCode == 'FR') return EclairageLieuDisclosure.intraCanton;
+  return EclairageLieuDisclosure.interCanton;
+}
+
 /// The resolved render state (render_contract.states).
 enum _RenderState {
   nominal,
@@ -72,7 +101,7 @@ class EclairageScreen extends StatefulWidget {
     required this.band,
     required this.communeLabel,
     required this.cantonLabel,
-    this.showFixtureCantonDisclosure = false,
+    this.lieuDisclosure = EclairageLieuDisclosure.none,
     this.canContribute3a = true,
     this.initialSituation = EclairageSituation.celibataire,
     this.initialVersementChf = r3VersementChf,
@@ -93,11 +122,11 @@ class EclairageScreen extends StatefulWidget {
   final String communeLabel;
   final String cantonLabel;
 
-  /// V3-1 (Codex P1-1): true when the picked canton ≠ the fixture canton (FR),
-  /// so the hero range (always the Fribourg fixture figure) is honestly flagged
-  /// as an example computed at refinement. Computed by the journey on the canton
-  /// CODE (locale-robust); false for a Fribourg pick or the harness default.
-  final bool showFixtureCantonDisclosure;
+  /// V4-1 (Codex P1-1): the lieu-row fixture disclosure resolved by EXACT
+  /// locality (never merely by canton). Computed by the journey from the picked
+  /// commune's BFS + canton CODE (locale-robust) via [eclairageLieuDisclosureFor];
+  /// [EclairageLieuDisclosure.none] for a chef-lieu pick or the harness default.
+  final EclairageLieuDisclosure lieuDisclosure;
 
   /// The source-taxation / FATCA binary gate. false -> non_applicable_source
   /// (canContribute3a): NEVER a CHF amount under a false gate (fault_3).
@@ -540,20 +569,24 @@ class _EclairageScreenState extends State<EclairageScreen> {
                   focusNode: _anchor('edit_lieu'),
                   label: copy['eclairage_hyp_lieu']!.split(' · ').first,
                   value: lieuValue,
-                  // V3-1 (Codex P1-1) FIXTURE-CANTON disclosure, co-located under
-                  // the lieu row: the hero range is ALWAYS the Fribourg fixture
-                  // figure (offline-lab limitation), so showing the user's picked
-                  // canton on that number is a displayable lie unless disclosed.
-                  // When the picked canton ≠ the fixture canton (Fribourg), say so
-                  // — the LABEL keeps the real commune, the number is honestly
-                  // flagged as an example computed at refinement. When the canton
-                  // IS Fribourg (or the harness default), the number is theirs, so
-                  // no disclosure is shown. The condition is on the canton CODE
-                  // (locale-robust), computed by the journey — never a
-                  // locale-dependent label comparison.
-                  caveat: widget.showFixtureCantonDisclosure
-                      ? copy['eclairage_lieu_fixture_disclosure']
-                      : null,
+                  // V4-1 (Codex P1-1) FIXTURE-LOCALITY disclosure, co-located
+                  // under the lieu row: the hero range is ALWAYS the Fribourg
+                  // CHEF-LIEU fixture figure (offline-lab limitation), so the
+                  // picked-commune label on that number is a displayable lie
+                  // unless disclosed BY EXACT LOCALITY. The chef-lieu pick itself
+                  // needs no disclosure (the number is theirs); a different FR
+                  // commune needs the INTRA-cantonal disclosure (canton theirs,
+                  // commune may differ); another canton needs the INTER-cantonal
+                  // one. ONE caveat key renders whichever applies. The condition
+                  // is on the BFS + canton CODE (locale-robust), computed by the
+                  // journey — never a locale-dependent label comparison.
+                  caveat: switch (widget.lieuDisclosure) {
+                    EclairageLieuDisclosure.none => null,
+                    EclairageLieuDisclosure.intraCanton =>
+                      copy['eclairage_lieu_intra_canton_disclosure'],
+                    EclairageLieuDisclosure.interCanton =>
+                      copy['eclairage_lieu_fixture_disclosure'],
+                  },
                   caveatKey: 'text:eclairage.lieu_caveat',
                   onTap: widget.onEditLieu,
                   isLast: true,

@@ -297,13 +297,26 @@ void main() {
       expect(_key('text:scenarios.disclaimer'), findsOneWidget);
     });
 
-    testWidgets('marge_epuisee still resolves relative to the DERIVED cap',
+    testWidgets(
+        'exactly at the DERIVED cap is plafond_atteint (V4-3); strictly over is the overcontribution state',
         (tester) async {
-      // non-affilié, cap dérivé 4 000, déjà versé 4 000 -> épuisé, PAS marge
-      // réduite, PAS avalé par un état plafond terminal (state_precedence).
+      // non-affilié, cap dérivé 4 000. Déjà versé EXACTEMENT 4 000 -> plafond
+      // ATTEINT (jamais « au-dessus », aucune ligne d'excédent), résolu relatif
+      // au cap DÉRIVÉ (state_precedence), jamais avalé par le forfait 7 258.
       await _pumpScenarios(tester, affiliated: false, contributedChf: 4000);
+      expect(_key('status:scenarios.plafond_atteint'), findsOneWidget);
+      expect(_key('status:scenarios.over'), findsNothing);
+      expect(find.textContaining('au-dessus'), findsNothing);
+      expect(find.textContaining('4 000'), findsWidgets);
+
+      // Strictement au-dessus du cap dérivé (5 000 > 4 000) -> marge épuisée,
+      // relative au cap DÉRIVÉ (jamais le forfait 7 258), excédent 1 000.
+      await tester.pumpWidget(const SizedBox());
+      await _pumpScenarios(tester, affiliated: false, contributedChf: 5000);
       expect(_key('status:scenarios.over'), findsOneWidget);
+      expect(_key('status:scenarios.plafond_atteint'), findsNothing);
       expect(find.textContaining('plafond de 4 000 CHF'), findsOneWidget);
+      expect(find.textContaining('1 000 CHF de plus'), findsOneWidget);
     });
   });
 

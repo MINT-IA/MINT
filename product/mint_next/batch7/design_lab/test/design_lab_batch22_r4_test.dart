@@ -36,6 +36,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_next_design_lab/design_lab_app.dart';
 
@@ -62,6 +63,33 @@ Future<void> _tapVisible(WidgetTester tester, String key) async {
 
 Finder _editableUnder(Finder control) =>
     find.descendant(of: control, matching: find.byType(EditableText));
+
+// V4-4 (Codex P1-4): true when the current primary focus lives INSIDE the sheet
+// identified by [sheetKey] — either the focused node carries that key or one of
+// its ancestor elements does. Used to fail-closed on a focus escape: a traversal
+// that leaves the open sheet lands on a background node and returns false.
+bool _focusWithinSheet(String sheetKey) {
+  final target = ValueKey<String>(sheetKey);
+  final context = FocusManager.instance.primaryFocus?.context;
+  if (context == null) return false;
+  var within = context.widget.key == target;
+  context.visitAncestorElements((element) {
+    if (element.widget.key == target) {
+      within = true;
+      return false;
+    }
+    return true;
+  });
+  return within;
+}
+
+// Sends Shift+Tab (reverse focus traversal) and settles a frame.
+Future<void> _shiftTab(WidgetTester tester) async {
+  await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+  await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+  await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+  await tester.pump();
+}
 
 // Drive the attested GREEN arc all the way to the delivered eclairage_impot_3a
 // payoff (batch21 R3 integration: fact_lieu.continue -> fact_revenu ->
@@ -218,6 +246,27 @@ void main() {
         'scenarios sheet heading',
         reason: '[R4_06] the plafond glossary must trap focus on its heading',
       );
+      // V4-4 (Codex P1-4): fail-closed focus CONFINEMENT — Tab and Shift+Tab a
+      // few times each and the primary focus must STAY inside the sheet, never
+      // escaping to a background control (e.g. 'scenarios choose_line') while the
+      // sheet is open. Testing entry + restoration alone did not test confinement.
+      for (var i = 0; i < 4; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(
+          _focusWithinSheet('sheet:scenarios.gloss.plafond'),
+          isTrue,
+          reason: '[R4_06] Tab #$i escaped the trapped plafond sheet',
+        );
+      }
+      for (var i = 0; i < 4; i++) {
+        await _shiftTab(tester);
+        expect(
+          _focusWithinSheet('sheet:scenarios.gloss.plafond'),
+          isTrue,
+          reason: '[R4_06] Shift+Tab #$i escaped the trapped plafond sheet',
+        );
+      }
       await _tapVisible(tester, 'sheet:scenarios.gloss.plafond.dismiss');
       expect(_key('sheet:scenarios.gloss.plafond'), findsNothing);
       expect(
@@ -323,6 +372,26 @@ void main() {
         'fact_etat_civil sheet heading',
         reason: '[R4_12] the splitting glossary must trap focus on its heading',
       );
+      // V4-4 (Codex P1-4): fail-closed focus CONFINEMENT — Tab and Shift+Tab a
+      // few times each and the primary focus must STAY inside the splitting sheet,
+      // never escaping to a background control while the sheet is open.
+      for (var i = 0; i < 4; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        expect(
+          _focusWithinSheet('sheet:etat_civil.gloss.splitting'),
+          isTrue,
+          reason: '[R4_12] Tab #$i escaped the trapped splitting sheet',
+        );
+      }
+      for (var i = 0; i < 4; i++) {
+        await _shiftTab(tester);
+        expect(
+          _focusWithinSheet('sheet:etat_civil.gloss.splitting'),
+          isTrue,
+          reason: '[R4_12] Shift+Tab #$i escaped the trapped splitting sheet',
+        );
+      }
       await _tapVisible(tester, 'sheet:etat_civil.gloss.splitting.dismiss');
       expect(_key('sheet:etat_civil.gloss.splitting'), findsNothing);
       expect(

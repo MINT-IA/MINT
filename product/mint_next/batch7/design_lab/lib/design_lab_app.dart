@@ -307,7 +307,11 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
   String? _scenariosCanton;
   String? _scenariosBand;
   bool? _scenariosAffiliated;
-  int _scenariosContributedChf = 0;
+  // V4-2 (Codex P1-2): the already-contributed amount is carried in RAPPEN (minor
+  // units) end-to-end so the scenarios margin never truncates centimes. The
+  // harness API stays francs (converted ×100 at the seed boundary); the live
+  // contribution flows lift the parser's minor units directly (no ~/100).
+  int _scenariosContributedRappen = 0;
   int _scenariosNonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf;
   // R4 (batch22) integration: the committed commune + derived canton LABEL,
   // lifted from fact_lieu (onCommuneSelected) so the éclairage payoff hypothesis
@@ -326,6 +330,13 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
   // "example figure for Fribourg" disclosure on the éclairage lieu row. Locale-
   // robust (a CODE, never a locale-dependent label).
   String _eclairageCantonCode = 'FR';
+  // V4-1 (Codex P1-1): the BFS id of the commune the user actually picked in
+  // fact_lieu. Default = the chef-lieu Fribourg fixture BFS (harness paths that
+  // skip fact_lieu keep the graved example, so they disclose NOTHING). The
+  // éclairage resolves the lieu disclosure by EXACT locality (chef-lieu -> none ;
+  // other FR commune -> intra-cantonal ; other canton -> inter-cantonal) from
+  // this BFS + the canton CODE, never a label.
+  int _eclairageBfs = eclairageFixtureChefLieuBfs;
   // R4 (batch22) integration: the scenarios own-amount ("versement"), LIFTED to
   // the parent so it survives one fermeture loop turn (scenarios -> etat_civil
   // -> éclairage -> scenarios) instead of dying with the ScenariosVersementScreen
@@ -415,7 +426,9 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       _scenariosBand = batch22.bandKnown ? batch22.band : null;
       _scenariosAffiliated =
           batch22.affiliationKnown ? batch22.affiliated : null;
-      _scenariosContributedChf = batch22.contributedChf;
+      // V4-2: the harness API is francs; convert to rappen at the seed boundary
+      // so the runtime is rappen-native while Batch22Config stays francs.
+      _scenariosContributedRappen = batch22.contributedChf * 100;
       _scenariosNonAffiliatedIncomeChf = batch22.nonAffiliatedIncomeChf;
       _batch22CivilStatus = batch22.civilStatus;
       _node = switch (batch22.startNode) {
@@ -517,11 +530,12 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       _scenariosBand = _taxableIncomeBand;
       _scenariosAffiliated = _lppAffiliation == _LppAffiliation.yes;
       // PRESERVE financial state across ONE fermeture loop turn: do NOT force
-      // contributedChf to 0, do NOT erase the own-amount ("versement"), do NOT
-      // reset referenceKept. Re-entering scenarios from the éclairage payoff is
-      // a loop turn, not a fresh journey — the earlier fix reset all three and
-      // silently destroyed the user's state (roast P1-1). _scenariosContributedChf,
-      // _scenariosOwnAmountChf and _scenariosReferenceKept keep their values.
+      // the contributed amount to 0, do NOT erase the own-amount ("versement"),
+      // do NOT reset referenceKept. Re-entering scenarios from the éclairage
+      // payoff is a loop turn, not a fresh journey — the earlier fix reset all
+      // three and silently destroyed the user's state (roast P1-1).
+      // _scenariosContributedRappen, _scenariosOwnAmountChf and
+      // _scenariosReferenceKept keep their values.
       _node = _DesignNode.scenariosVersement;
     });
   }
@@ -608,7 +622,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
     // V3-2 (Codex P1-2): re-choosing the contribution status (e.g. yes -> no)
     // clears the entered amount, so the scenarios margin returns to a full
     // plafond (contributed 0) rather than keeping a stale value.
-    _scenariosContributedChf = 0;
+    _scenariosContributedRappen = 0;
   }
 
   void _clearEphemeralFacts() {
@@ -1028,15 +1042,16 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                       taxYear: _taxYear!,
                                       draft: _multiProviderDraft,
                                       onCommitted: (totalMinorUnits) {
-                                        // V3-2 (Codex P1-2): the committed
+                                        // V4-2 (Codex P1-2): the committed
                                         // multi-provider total is the real
                                         // already-contributed amount → feed it
-                                        // into the scenarios margin. It is in
-                                        // MINOR UNITS (rappen); the scenarios
-                                        // screen is in whole CHF, so convert.
+                                        // into the scenarios margin in RAPPEN
+                                        // (minor units). No ~/100 truncation: the
+                                        // scenarios screen is now rappen-native and
+                                        // floors only at display.
                                         setState(
-                                          () => _scenariosContributedChf =
-                                              totalMinorUnits ~/ 100,
+                                          () => _scenariosContributedRappen =
+                                              totalMinorUnits,
                                         );
                                         _go(_DesignNode.factLieu);
                                       },
@@ -1137,15 +1152,17 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                                     }),
                                     onContinue: (contributedMinorUnits) {
                                       if (!_multipleProvidersDeclared) {
-                                        // V3-2 (Codex P1-2): feed the real
+                                        // V4-2 (Codex P1-2): feed the real
                                         // already-contributed amount into the
-                                        // scenarios margin (plafond − versé).
-                                        // parseOrdinaryChfAmount returns MINOR
-                                        // UNITS (rappen); the scenarios screen +
-                                        // fixtures are in whole CHF, so convert.
+                                        // scenarios margin (plafond − versé) in
+                                        // RAPPEN. parseOrdinaryChfAmount returns
+                                        // MINOR UNITS; carry them verbatim — the
+                                        // scenarios screen is rappen-native and
+                                        // floors only at display (no centime
+                                        // truncation at entry).
                                         setState(
-                                          () => _scenariosContributedChf =
-                                              contributedMinorUnits ~/ 100,
+                                          () => _scenariosContributedRappen =
+                                              contributedMinorUnits,
                                         );
                                         _go(_DesignNode.factLieu);
                                       }
@@ -1226,16 +1243,22 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             // R4 (batch22): lift the picked commune LABEL up so
                             // the éclairage payoff shows the user's actual
                             // commune, never the hardcoded fixture (roast P1-1i).
-                            onCommuneSelected: (commune, canton, cantonCode) =>
-                                setState(() {
-                                  _eclairageCommune = commune;
-                                  _eclairageCanton = canton;
-                                  // V3-1 (Codex P1-1): track the picked canton
-                                  // CODE so the éclairage can disclose when the
-                                  // hero range (FR fixture) is not the user's
-                                  // canton.
-                                  _eclairageCantonCode = cantonCode;
-                                }),
+                            onCommuneSelected:
+                                (commune, canton, cantonCode, bfs) =>
+                                    setState(() {
+                                      _eclairageCommune = commune;
+                                      _eclairageCanton = canton;
+                                      // V3-1 (Codex P1-1): track the picked canton
+                                      // CODE so the éclairage can disclose when the
+                                      // hero range (FR fixture) is not the user's
+                                      // canton.
+                                      _eclairageCantonCode = cantonCode;
+                                      // V4-1 (Codex P1-1): track the picked commune
+                                      // BFS so the disclosure is by EXACT locality
+                                      // (chef-lieu vs another FR commune vs another
+                                      // canton), not merely by canton.
+                                      _eclairageBfs = bfs;
+                                    }),
                           ),
                           // R3 batch21 — the ÉCLAIRAGE arc. fact_revenu commits a
                           // band without routing (continue never routes in R3);
@@ -1265,11 +1288,15 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             // limitation, disclaimed) — this is the LABEL only.
                             communeLabel: _eclairageCommune,
                             cantonLabel: _eclairageCanton,
-                            // V3-1 (Codex P1-1): disclose the FR-fixture basis
-                            // whenever the picked canton ≠ FR (locale-robust code
-                            // comparison). The label stays the real commune.
-                            showFixtureCantonDisclosure:
-                                _eclairageCantonCode != 'FR',
+                            // V4-1 (Codex P1-1): disclose the FR chef-lieu fixture
+                            // basis by EXACT locality — none at the chef-lieu,
+                            // intra-cantonal for another FR commune, inter-cantonal
+                            // for another canton (locale-robust BFS + code, never a
+                            // label). The label stays the real commune.
+                            lieuDisclosure: eclairageLieuDisclosureFor(
+                              bfs: _eclairageBfs,
+                              cantonCode: _eclairageCantonCode,
+                            ),
                             canContribute3a:
                                 widget.batch21?.canContribute ?? true,
                             // R4 (batch22) integration: the situation hypothesis
@@ -1326,7 +1353,7 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                               canton: _scenariosCanton,
                               band: _scenariosBand,
                               affiliated: _scenariosAffiliated,
-                              contributedChf: _scenariosContributedChf,
+                              contributedRappen: _scenariosContributedRappen,
                               nonAffiliatedIncomeChf:
                                   _scenariosNonAffiliatedIncomeChf,
                               referenceKept: _scenariosReferenceKept,

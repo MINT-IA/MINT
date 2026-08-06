@@ -83,7 +83,12 @@ String _fmtChf(int n) {
   return out.toString();
 }
 
-enum _RenderState { pending, margeEpuisee, margeReduite, nominal }
+enum _RenderState { pending, plafondAtteint, margeEpuisee, margeReduite, nominal }
+
+/// Floors a rappen amount to whole CHF (conservative display rule, V4-2): a
+/// partial franc of remaining room is never rounded UP into a franc the user
+/// does not actually have.
+int _rappenToChfFloor(int rappen) => rappen ~/ 100;
 
 enum _Overlay { glossPlafond, glossMarge, glossBloque, ownAmount }
 
@@ -95,7 +100,7 @@ class ScenariosVersementScreen extends StatefulWidget {
     required this.canton,
     required this.band,
     required this.affiliated,
-    this.contributedChf = 0,
+    this.contributedRappen = 0,
     this.nonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf,
     this.referenceKept = false,
     this.initialOwnAmountChf,
@@ -118,9 +123,16 @@ class ScenariosVersementScreen extends StatefulWidget {
   /// lpp_affiliation. null -> pending_missing_fact (a critical input).
   final bool? affiliated;
 
-  /// contributed_amount (navigation.yaml:260). Default 0 (contribution_status
-  /// = no). Not a critical input — it always has a value.
-  final int contributedChf;
+  /// contributed_amount (navigation.yaml:260) in RAPPEN (minor units). Default 0
+  /// (contribution_status = no). Not a critical input — it always has a value.
+  ///
+  /// V4-2 (Codex P1-2): the amount is carried rappen-native so accepted centimes
+  /// are never truncated at entry. The state resolution compares rappen to the
+  /// cap ×100 (so exact-cap equality is a distinct state, V4-3), and every
+  /// francs DISPLAY floors rappen/100 (conservative: 7257.99 CHF contributed
+  /// shows 0 CHF of margin, never 1). The harness API stays francs and converts
+  /// at the seed boundary.
+  final int contributedRappen;
 
   /// The non-affilié "revenu net de l'activité lucrative" hypothesis feeding
   /// the OPP3 20% cap. Defaults to the sealed exact fixture point (20 000).
@@ -241,9 +253,15 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
 
   _RenderState _resolveState() {
     if (_firstMissingFact != null) return _RenderState.pending;
-    final cap = _annualCapChf;
-    if (widget.contributedChf >= cap) return _RenderState.margeEpuisee;
-    if (widget.contributedChf > 0) return _RenderState.margeReduite;
+    // V4-2/V4-3: resolve in RAPPEN. Exact-cap equality is its own state
+    // ("plafond atteint" — no excess, no "au-dessus"); strictly over the cap is
+    // the overcontribution state; a partial franc still lands in the reduced
+    // margin (never silently collapsed to "épuisé").
+    final capRappen = _annualCapChf * 100;
+    final contributedRappen = widget.contributedRappen;
+    if (contributedRappen == capRappen) return _RenderState.plafondAtteint;
+    if (contributedRappen > capRappen) return _RenderState.margeEpuisee;
+    if (contributedRappen > 0) return _RenderState.margeReduite;
     return _RenderState.nominal;
   }
 
@@ -289,16 +307,20 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
   List<R4ScenarioAnchor> _scenarioAnchorsFor({
     required _RenderState state,
     required bool affiliated,
-    required int contributed,
-    required int remaining,
+    required int contributedRappen,
+    required int remainingChf,
   }) {
     if (!affiliated) {
       return <R4ScenarioAnchor>[
-        R4ScenarioAnchor(amountChf: remaining, isMax: true),
+        R4ScenarioAnchor(amountChf: remainingChf, isMax: true),
       ];
     }
     if (state == _RenderState.nominal) return r4NominalScenarios;
-    if (contributed == r4MargeReduiteGroundedContributedChf) {
+    // V4-2 (Codex P1-2): the grounded marge-réduite fixture fires ONLY at
+    // EXACTLY 4 000.00 CHF contributed (400 000 rappen). 4 000.99 (400 099
+    // rappen) is a different, ungrounded amount — it must NOT inherit the sealed
+    // +1 000 / +3 258 spectrum (which was computed for the exact 4 000 point).
+    if (contributedRappen == r4MargeReduiteGroundedContributedChf * 100) {
       return r4MargeReduiteScenarios;
     }
     // Ungrounded contributed value on the affilié path: no fixture exists for
@@ -315,6 +337,7 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
 
     final body = switch (state) {
       _RenderState.pending => _pendingBody(copy, generation),
+      _RenderState.plafondAtteint => _plafondAtteintBody(copy, generation),
       _RenderState.margeEpuisee => _margeEpuiseeBody(copy, generation),
       _RenderState.margeReduite ||
       _RenderState.nominal =>
@@ -473,15 +496,19 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
     _RenderState state,
   ) {
     final cap = _annualCapChf;
-    final contributed = widget.contributedChf;
-    final remaining = cap - contributed;
+    final capRappen = cap * 100;
+    final contributedRappen = widget.contributedRappen;
+    // V4-2: francs DISPLAYS floor rappen/100 (conservative). The remaining room
+    // never rounds a partial franc UP into room the user does not have.
+    final contributed = _rappenToChfFloor(contributedRappen);
+    final remaining = _rappenToChfFloor(capRappen - contributedRappen);
     final affiliated = widget.affiliated!;
 
     final anchors = _scenarioAnchorsFor(
       state: state,
       affiliated: affiliated,
-      contributed: contributed,
-      remaining: remaining,
+      contributedRappen: contributedRappen,
+      remainingChf: remaining,
     );
 
     final scroll = SingleChildScrollView(
@@ -553,8 +580,8 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
                     padding: const EdgeInsets.only(bottom: 12),
                     child: _ownAmountRow(
                       copy,
-                      remaining: remaining,
-                      contributed: contributed,
+                      remainingChf: remaining,
+                      contributedRappen: contributedRappen,
                       affiliated: affiliated,
                     ),
                   ),
@@ -695,13 +722,13 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
   // amount. Never a fabricated number (0-trust / NEVER#3).
   Widget _ownAmountRow(
     Map<String, String> copy, {
-    required int remaining,
-    required int contributed,
+    required int remainingChf,
+    required int contributedRappen,
     required bool affiliated,
   }) {
     final entered = _ownAmountChf!;
-    final deductible = entered < remaining ? entered : remaining;
-    final useMoreTemplate = contributed > 0;
+    final deductible = entered < remainingChf ? entered : remainingChf;
+    final useMoreTemplate = contributedRappen > 0;
     final amountText = useMoreTemplate
         ? copy['scenarios_amount_more']!
             .replaceAll('{amount}', _fmtChf(entered))
@@ -711,13 +738,14 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
     if (!affiliated) {
       effectText = copy['scenarios_plafond20_effect_note'];
     } else {
-      final state =
-          contributed > 0 ? _RenderState.margeReduite : _RenderState.nominal;
+      final state = contributedRappen > 0
+          ? _RenderState.margeReduite
+          : _RenderState.nominal;
       final anchors = _scenarioAnchorsFor(
         state: state,
         affiliated: true,
-        contributed: contributed,
-        remaining: remaining,
+        contributedRappen: contributedRappen,
+        remainingChf: remainingChf,
       );
       for (final a in anchors) {
         if (a.amountChf == deductible) {
@@ -729,7 +757,7 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
       }
     }
 
-    final exceeds = entered > remaining;
+    final exceeds = entered > remainingChf;
     final labelParts = <String>[amountText];
     if (effectText != null) labelParts.add(effectText);
     if (exceeds) labelParts.add(copy['scenarios_excess_note']!);
@@ -865,10 +893,12 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
   }
 
   // --- marge_epuisee_overcontribution (fault_E: no contribute-more scenario) ---
+  // Reached ONLY when strictly OVER the cap (exact-cap equality is the distinct
+  // plafond_atteint state, V4-3). Excess/contributed francs floor rappen/100.
   Widget _margeEpuiseeBody(Map<String, String> copy, Object generation) {
     final cap = _annualCapChf;
-    final contributed = widget.contributedChf;
-    final excess = contributed - cap;
+    final contributed = _rappenToChfFloor(widget.contributedRappen);
+    final excess = _rappenToChfFloor(widget.contributedRappen - cap * 100);
     final overLine = copy['scenarios_over_line']!
         .replaceAll('{contributed}', _fmtChf(contributed))
         .replaceAll('{cap}', _fmtChf(cap));
@@ -947,6 +977,67 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
           ),
         ),
         _footer(copy, state: _RenderState.margeEpuisee),
+      ],
+    );
+  }
+
+  // --- plafond_atteint (V4-3: contributed EXACTLY at the cap) ---
+  // The ceiling is reached to the centime, not exceeded: there is no more room
+  // (so, like marge_epuisee, no contribute-more scenario — fault_E) and nothing
+  // is "au-dessus" (no excess line — that would be a fabricated overage). It
+  // states the reached ceiling honestly and keeps the mandatory liquidity note +
+  // estimate disclaimer.
+  Widget _plafondAtteintBody(Map<String, String> copy, Object generation) {
+    final contributed = _rappenToChfFloor(widget.contributedRappen);
+    final line = copy['scenarios_plafond_atteint']!
+        .replaceAll('{contributed}', _fmtChf(contributed));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            key: const ValueKey('scroll:scenarios'),
+            physics: const ClampingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _eyebrowText(copy),
+                const SizedBox(height: 16),
+                _chooseLine(copy, generation),
+                const SizedBox(height: 24),
+                Semantics(
+                  key: const ValueKey('status:scenarios.plafond_atteint'),
+                  container: true,
+                  liveRegion: true,
+                  child: Focus(
+                    focusNode: _anchor('plafond_atteint_status'),
+                    child: Text(
+                      line,
+                      key: const ValueKey('text:scenarios.plafond_atteint'),
+                      style: const TextStyle(
+                        fontFamily: 'Supreme',
+                        fontSize: 17,
+                        height: 1.4,
+                        color: _ink,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _liquidityNote(copy, generation),
+                const SizedBox(height: 12),
+                _plainText(
+                  copy['scenarios_disclaimer']!,
+                  key: 'text:scenarios.disclaimer',
+                  sauge: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+        _footer(copy, state: _RenderState.plafondAtteint),
       ],
     );
   }
