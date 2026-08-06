@@ -33,6 +33,7 @@ from app.services.fiscal.cantonal_comparator import (
     DISCLAIMER as _CANONICAL_DISCLAIMER,
     estimate_tax_saving,
 )
+from app.services.fiscal.civil_status import is_married_civil_status
 from app.services.family.mariage_service import (
     DEDUCTION_ASSURANCES_MARIES,
     DEDUCTION_MARIES,
@@ -60,33 +61,10 @@ _BAND_HIGH = 1.10
 # l'horizon L3 minimal (1 an) est la seule affirmation honnête sans âge/retraite.
 _HORIZON_ANNUEL = 1
 
-# Imposition commune (LIFD art. 9 al. 1 / al. 1bis) : mariage ET partenariat
-# enregistré sont taxés conjointement. Le concubinage reste une taxation
-# séparée (identique au célibataire) — il n'appartient donc PAS à cet ensemble.
-_MARRIED_STATUSES = frozenset(
-    {
-        "marie",
-        "marié",
-        "marie_pacse",
-        "marié_pacsé",
-        "marie_pacsé",
-        "pacse",
-        "pacsé",
-        "partenariat",
-        "partenariat_enregistre",
-        "partenariat_enregistré",
-        "registered_partnership",
-    }
-)
-
-
-def _is_married(etat_civil: str) -> bool:
-    """Normalise l'état civil AU NIVEAU DU SERVICE (LIFD art. 9 al. 1bis).
-
-    Tout état inconnu retombe sur ``False`` (taxation séparée, hypothèse
-    conservatrice : pas d'agrégation de ménage fabriquée).
-    """
-    return (etat_civil or "").strip().lower() in _MARRIED_STATUSES
+# Normalisation « qui est marié » — source UNIQUE partagée avec le coach
+# (``coaching_engine``) via ``fiscal.civil_status`` : aucune copie divergente de
+# la liste des statuts (LIFD art. 9 al. 1 / al. 1bis).
+_is_married = is_married_civil_status
 
 
 def _household_imposable(revenu_1: float, revenu_2: float) -> float:

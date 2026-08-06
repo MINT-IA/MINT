@@ -745,3 +745,88 @@ class TestCoachingEndpoints:
         data = response.json()
         tip_ids = [t["id"] for t in data["tips"]]
         assert "independant_no_lpp" in tip_ids
+
+
+# ---------------------------------------------------------------------------
+# Marginal rate honours civil status (Batch C — coherence fix).
+#
+# Le coach appelait estimate_marginal_rate SANS is_married : un marie recevait
+# le taux marginal celibataire, alors que rules_engine.calculate_marginal_tax_rate
+# respecte deja le statut. C'est le vice « un seul taux marginal » (#1061/#1062).
+# ---------------------------------------------------------------------------
+
+
+class TestCoachingMarginalRateCivilStatus:
+
+    def test_married_and_single_get_different_impact_public_path(self, engine):
+        """Regression (public path) : le tip missing_3a affiche une economie
+        d'impot = plafond x taux marginal. Un marie et un celibataire, meme
+        revenu/canton, doivent obtenir des impacts DIFFERENTS."""
+        common = dict(has_3a=False, age=30, canton="ZH", revenu_annuel=120_000.0)
+        marie = _find_tip(
+            engine.generate_tips(
+                _profile(etat_civil="marie", **common), today_date=date(2026, 5, 1)
+            ),
+            "missing_3a",
+        )
+        single = _find_tip(
+            engine.generate_tips(
+                _profile(etat_civil="celibataire", **common),
+                today_date=date(2026, 5, 1),
+            ),
+            "missing_3a",
+        )
+        assert marie is not None and single is not None
+        assert marie.estimated_impact_chf != single.estimated_impact_chf
+
+    def test_marginal_rate_matches_rules_engine_and_etalon(self, engine):
+        """Le taux coach == etalon ESTV avec is_married, ET == ce que
+        rules_engine produirait pour le meme statut (surfaces reconciliees)."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+        from app.services.rules_engine import calculate_marginal_tax_rate
+
+        canton, revenu = "ZH", 120_000.0
+        taux_marie = engine._get_marginal_rate(canton, revenu, "marie")
+        taux_single = engine._get_marginal_rate(canton, revenu, "celibataire")
+
+        assert taux_marie != taux_single
+        assert taux_marie == estimate_marginal_rate(revenu, canton, is_married=True)
+        assert taux_single == estimate_marginal_rate(revenu, canton, is_married=False)
+        assert taux_marie == calculate_marginal_tax_rate(canton, revenu, "married")
+        assert taux_single == calculate_marginal_tax_rate(canton, revenu, "single")
+
+    def test_single_rate_is_non_regressed(self, engine):
+        """Non-regression : le taux celibataire est INCHANGE (defaut historique
+        = celibataire), egal a l'etalon is_married=False."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        canton, revenu = "GE", 85_000.0
+        # defaut de signature (pas d'etat civil passe) == celibataire explicite.
+        assert engine._get_marginal_rate(canton, revenu) == estimate_marginal_rate(
+            revenu, canton, is_married=False
+        )
+        assert engine._get_marginal_rate(canton, revenu, "celibataire") == (
+            estimate_marginal_rate(revenu, canton, is_married=False)
+        )
+
+    @pytest.mark.parametrize("statut", ["marie", "marie_pacse", "MARIÉ", "partenariat"])
+    def test_married_synonyms_use_married_rate(self, engine, statut):
+        """Synonymes maries (normalisation partagee fiscal.civil_status) ->
+        taux marie."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        canton, revenu = "ZH", 120_000.0
+        assert engine._get_marginal_rate(canton, revenu, statut) == (
+            estimate_marginal_rate(revenu, canton, is_married=True)
+        )
+
+    @pytest.mark.parametrize("statut", ["celibataire", "divorce", "veuf", "concubinage"])
+    def test_separate_taxation_statuses_use_single_rate(self, engine, statut):
+        """Divorce, veuvage, concubinage = taxation separee -> taux celibataire
+        (jamais le taux marie)."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        canton, revenu = "ZH", 120_000.0
+        assert engine._get_marginal_rate(canton, revenu, statut) == (
+            estimate_marginal_rate(revenu, canton, is_married=False)
+        )
