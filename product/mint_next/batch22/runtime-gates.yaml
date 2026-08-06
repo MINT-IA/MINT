@@ -42,7 +42,7 @@ gates:
       failed: 15
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: 6eba597a8a26734638bd3d2bf84fdb91b6afb6b7b54379d7e92692ab59dcea49
+      test_sha256: 42dfbadae42f85a9b48cba6fa875d0331716d837f69180c25020350a90c520cb
     subgates:
       R4a_scenarios_versement:
       - R4_02
@@ -134,7 +134,7 @@ deferred_integration:
     # NEVER the inverse. At the RED seal the runtime spoke fact_etat_civil.* +
     # row:scenarios.scenario_N ; the integration RECONCILED the runtime keys to the
     # sealed test (etat_civil.* + region:scenarios.scenario + amount:scenarios.effect),
-    # proven by the 16/16 replay of the byte-identical test. No sealed obligation was
+    # proven by the 17/17 replay of the byte-identical test. No sealed obligation was
     # weakened to fit the runtime.
     direction: runtime_conforms_to_sealed_test_never_the_inverse
     runtime_adopted_test_keys:
@@ -152,16 +152,22 @@ deferred_integration:
     - eclairage_situation_row_refine_to_fact_etat_civil
     - fact_etat_civil_continue_routes_to_eclairage_with_a_selected_status
     - scenarios_versement_footer_continue_back_keep_routing
-    non_affilie_routes_to_a_derived_ceiling_never_a_flat_7258: true  # sealed R4_17
+    # V3-3a (Codex P1-3a): the non-affilié DERIVED ceiling is delivered + SEALED —
+    # R4_17 proves min(20% net, grand plafond), never a flat 7258. But this is the
+    # DERIVATION, attested via Batch22Harness, NOT the real LPP-no user routing.
+    non_affilie_ceiling_derivation_delivered_and_sealed_r4_17: true
     eclairage_batch21_arc_untouched: true
   not_yet_delivered:
-    # the ONLY deferred piece: the MARRIED CHIFFRE recompute is a backend L2
-    # (comparer) contract on dev, NOT an in-Dart number. The runtime shows a
-    # co-located married caveat on the éclairage Situation row (Vague Groupée P1) —
-    # no over-promise, no fabricated number. No outbound edges remain deferred.
+    # the deferred pieces: (1) the MARRIED CHIFFRE recompute is a backend L2
+    # (comparer) contract on dev, NOT an in-Dart number — the runtime shows a
+    # co-located married caveat on the éclairage Situation row (Vague Groupée P1),
+    # no over-promise, no fabricated number; (2) the real LPP-no branch still stops
+    # at withoutLppBoundary (design_lab_app.dart), so ROUTING the non-affilié path
+    # to the scenarios derived ceiling is deferred (scope item), not delivered.
     edges: []
     married_chiffre_recompute_is_backend_l2_contract_on_dev: true
     eclairage_situation_row_shows_a_colocated_married_caveat: true
+    non_affilie_routing_to_scenarios_deferred_real_lpp_no_stops_at_without_lpp_boundary: true
   scope:
   - wire_eclairage_continue_to_scenarios_versement_refreshing_next_action
   - upgrade_the_eclairage_situation_row_to_a_refine_affordance_routing_to_fact_etat_civil

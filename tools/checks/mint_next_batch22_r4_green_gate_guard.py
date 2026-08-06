@@ -75,7 +75,7 @@ TESTS = Path("tools/checks/tests/test_mint_next_batch22_r4_green_gate_guard.py")
 PATH_OWNER = Path(".planning/journeys/path-owners/batch22-r4-green-gate.json")
 RED_GUARD = Path("tools/checks/mint_next_batch22_r4_red_guard.py")
 REGISTRY = red.REGISTRY  # product/mint_next/batch22/runtime-gates.yaml
-# The command that ACTUALLY fires the fail-closed 16/16 replay (validate accepted
+# The command that ACTUALLY fires the fail-closed 17/17 replay (validate accepted
 # + run_expected_green). Acceptance is attested by a dispatched run of this, not
 # by any static check of the CI workflow file.
 FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch22_r4_green_gate_guard.py --release"
@@ -89,12 +89,12 @@ FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch22_r4_green_gate_
 # (6eba597a) + six-locale copy (889e33bc) — with the RED guard's summary/ids
 # consistency + candidate_binding + deferred_integration loop-closed all re-pinned
 # and mirrored into the registry).
-RED_GUARD_SHA256 = "008ce16c3c6c9224386d5bb888b54ea58c40c27bdd1f2a4e73433d333ec16f1c"
-REGISTRY_SHA256 = "02acc8e00e823dd8665095f8812755d2f770c2652cc9aa0dd0e4e2c46db4b5bf"
+RED_GUARD_SHA256 = "8a4bdfe9592b124e7133dc4e889e8a7a905cc30a020c516ab36f648d347dbbff"
+REGISTRY_SHA256 = "3201b1a2bcadc25b676e92cb3528428baf475ac772b33c86f84a42e0e8b9fd74"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected
-# outcome changes from 2/14 RED to 16/16 GREEN once the wiring lands.
+# outcome changes from 2/15 RED to 17/17 GREEN once the wiring lands.
 GREEN_COMMAND = [
     "flutter", "test", "test/design_lab_batch22_r4_test.dart",
     "--machine", "--no-pub",
@@ -424,7 +424,7 @@ def _live_lib_inventory_sha256(root: Path) -> str:
 
     Reuses the RED guard's inventory basis (red.LIB_ROOT + red._sha). The green
     gate re-pins it against the accepted seal so no lib file can be smuggled in or
-    removed while the 16 tests still pass.
+    removed while the 17 tests still pass.
     """
     lib = root / red.LIB_ROOT
     _require(lib.is_dir() and not lib.is_symlink(), "R4 GREEN lib/ is not a regular directory")
@@ -486,7 +486,7 @@ def _seal_runner_inputs(root: Path) -> None:
 
 
 def run_expected_green(root: Path = REPO_ROOT) -> None:
-    """Verify the sealed lib inventory, then replay the sealed spec for 16/16.
+    """Verify the sealed lib inventory, then replay the sealed spec for 17/17.
 
     Runs ONLY on an accepted green gate (require_accepted=True). Reuses the RED
     guard's isolated runner.

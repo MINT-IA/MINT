@@ -81,7 +81,7 @@ EXPECTED_SCENARIOS_SCOPE_SHA256 = "5d3ebea8de3d0e8c16cbd2f8c10e982d04383655d3d3b
 EXPECTED_ETAT_CIVIL_SCOPE_SHA256 = "a3fb33c2d9b0a0ab70d39be6f16c958036b849e1f8f3a2da396fb3a08d1c704e"
 EXPECTED_COPY_SHA256 = "889e33bc8f73dc04c0a7b81da455e4b27c7be3b6339947cca7aff0eb89cc0bf2"
 EXPECTED_FIXTURES_SHA256 = "ec1b419f1edd102b723b3a96f0bf773330fc94010e68c5f6d4498d86a30c51b2"
-EXPECTED_TEST_SHA256 = "6eba597a8a26734638bd3d2bf84fdb91b6afb6b7b54379d7e92692ab59dcea49"
+EXPECTED_TEST_SHA256 = "42dfbadae42f85a9b48cba6fa875d0331716d837f69180c25020350a90c520cb"
 EXPECTED_FIXTURE_SHA256 = "25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700"
 EXPECTED_PUBSPEC_SHA256 = "0b83bf36a5ee2242becbd0fb601235f0c3b2942813207552a03957aaf1569326"
 EXPECTED_PUBSPEC_LOCK_SHA256 = "6d7f501ae44e385c80d3726c6a25d830d04d3acf0a7456c6129a293f97f885a1"
@@ -229,13 +229,14 @@ EXPECTED_DEFERRED_INTEGRATION = {
             "fact_etat_civil_continue_routes_to_eclairage_with_a_selected_status",
             "scenarios_versement_footer_continue_back_keep_routing",
         ],
-        "non_affilie_routes_to_a_derived_ceiling_never_a_flat_7258": True,
+        "non_affilie_ceiling_derivation_delivered_and_sealed_r4_17": True,
         "eclairage_batch21_arc_untouched": True,
     },
     "not_yet_delivered": {
         "edges": [],
         "married_chiffre_recompute_is_backend_l2_contract_on_dev": True,
         "eclairage_situation_row_shows_a_colocated_married_caveat": True,
+        "non_affilie_routing_to_scenarios_deferred_real_lpp_no_stops_at_without_lpp_boundary": True,
     },
     "scope": [
         "wire_eclairage_continue_to_scenarios_versement_refreshing_next_action",
