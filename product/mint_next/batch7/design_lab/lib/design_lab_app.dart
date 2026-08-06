@@ -309,6 +309,23 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
   bool? _scenariosAffiliated;
   int _scenariosContributedChf = 0;
   int _scenariosNonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf;
+  // R4 (batch22) integration: the committed commune + derived canton LABEL,
+  // lifted from fact_lieu (onCommuneSelected) so the éclairage payoff hypothesis
+  // row shows the commune the user actually picked — never the hardcoded fixture
+  // commune presented as their choice (the displayable-lie fix). Default = the
+  // offline-lab fixture example (canton FR / Fribourg): the batch21/batch22
+  // harness paths land on éclairage/scenarios WITHOUT walking fact_lieu, so they
+  // keep the graved example, and the canton-FR-grounded engine fixtures are
+  // never re-derived (NEVER#3 — this lifts the LABEL only, disclaimed as an
+  // estimate; eclairage-scope.yaml:60,69 freezes the number at the chef-lieu).
+  String _eclairageCommune = r3ExampleCommune;
+  String _eclairageCanton = r3ExampleCanton;
+  // R4 (batch22) integration: the scenarios own-amount ("versement"), LIFTED to
+  // the parent so it survives one fermeture loop turn (scenarios -> etat_civil
+  // -> éclairage -> scenarios) instead of dying with the ScenariosVersementScreen
+  // widget on destruction. Null on first arrival (no preselected amount — sealed
+  // R4_07); preserved thereafter so a loop never silently drops it.
+  int? _scenariosOwnAmountChf;
   String? _batch22CivilStatus;
   // R4 (batch22) integration: fact_etat_civil is now reachable from BOTH the
   // éclairage situation-row refine AND scenarios_versement.continue — its back
@@ -487,13 +504,18 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
   void _enterScenariosFromEclairage() {
     setState(() {
       _scenariosTaxYear = _taxYear;
-      _scenariosCommune = r3ExampleCommune;
-      _scenariosCanton = r3ExampleCanton;
+      // Lifted commune/canton (the commune the user actually picked in
+      // fact_lieu), never the hardcoded fixture — matches the éclairage payoff.
+      _scenariosCommune = _eclairageCommune;
+      _scenariosCanton = _eclairageCanton;
       _scenariosBand = _taxableIncomeBand;
       _scenariosAffiliated = _lppAffiliation == _LppAffiliation.yes;
-      _scenariosContributedChf = 0;
-      // A fresh arrival on scenarios starts with no local reference kept.
-      _scenariosReferenceKept = false;
+      // PRESERVE financial state across ONE fermeture loop turn: do NOT force
+      // contributedChf to 0, do NOT erase the own-amount ("versement"), do NOT
+      // reset referenceKept. Re-entering scenarios from the éclairage payoff is
+      // a loop turn, not a fresh journey — the earlier fix reset all three and
+      // silently destroyed the user's state (roast P1-1). _scenariosContributedChf,
+      // _scenariosOwnAmountChf and _scenariosReferenceKept keep their values.
       _node = _DesignNode.scenariosVersement;
     });
   }
@@ -1170,6 +1192,13 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             // superseding the batch20 R2 outbound-edge
                             // obligation (registry.deferred_integration).
                             onContinue: () => _go(_DesignNode.factRevenu),
+                            // R4 (batch22): lift the picked commune LABEL up so
+                            // the éclairage payoff shows the user's actual
+                            // commune, never the hardcoded fixture (roast P1-1i).
+                            onCommuneSelected: (commune, canton) => setState(() {
+                              _eclairageCommune = commune;
+                              _eclairageCanton = canton;
+                            }),
                           ),
                           // R3 batch21 — the ÉCLAIRAGE arc. fact_revenu commits a
                           // band without routing (continue never routes in R3);
@@ -1192,8 +1221,13 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                           _DesignNode.eclairageImpot3a => EclairageScreen(
                             taxYear: _taxYear!,
                             band: _taxableIncomeBand,
-                            communeLabel: r3ExampleCommune,
-                            cantonLabel: r3ExampleCanton,
+                            // R4 (batch22): the commune the user actually picked
+                            // in fact_lieu (default = the graved fixture example
+                            // for harness paths that skip fact_lieu). The engine
+                            // number stays the canton-FR fixture (offline-lab
+                            // limitation, disclaimed) — this is the LABEL only.
+                            communeLabel: _eclairageCommune,
+                            cantonLabel: _eclairageCanton,
                             canContribute3a:
                                 widget.batch21?.canContribute ?? true,
                             // R4 (batch22) integration: the situation hypothesis
@@ -1254,6 +1288,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                               nonAffiliatedIncomeChf:
                                   _scenariosNonAffiliatedIncomeChf,
                               referenceKept: _scenariosReferenceKept,
+                              // R4 (batch22): the own-amount lives in the PARENT
+                              // so it survives a fermeture loop turn (roast
+                              // P1-1ii). Seed from the preserved value; report
+                              // changes back up.
+                              initialOwnAmountChf: _scenariosOwnAmountChf,
+                              onOwnAmountChanged: (value) => setState(
+                                () => _scenariosOwnAmountChf = value,
+                              ),
                               onBack: () => _go(_DesignNode.eclairageImpot3a),
                               onContinue: _enterEtatCivilFromScenarios,
                               onPendingComplete: () {},

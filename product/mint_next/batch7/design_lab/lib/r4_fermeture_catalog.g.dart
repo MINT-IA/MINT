@@ -93,7 +93,7 @@ const Map<String, Map<String, String>> r4Copy = <String, Map<String, String>>{
         'Tu as déjà versé {contributed} CHF, au-dessus du plafond de {cap} CHF cette année.',
     'scenarios_over_excess':
         'Tu as versé {excess} CHF de plus que le plafond annuel ordinaire. Selon ta situation, ce surplus ne réduit pas toujours l’impôt. Vérifie avec ton prestataire 3a ce qui s’applique.',
-    'scenarios_over_action': 'Voir ce qu’il faut vérifier',
+    'scenarios_over_action': 'Voir ce qui est à vérifier',
     'scenarios_pending_title': 'Il manque une information pour calculer les scénarios.',
     'scenarios_pending_which': 'Information manquante : {fact}.',
     'scenarios_pending_action': 'Ajouter l’information',

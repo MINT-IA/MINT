@@ -35,13 +35,14 @@
 // overlay, whose note is qualitative and therefore safe to reuse for ANY
 // deductible amount (it never states a number).
 //
-// CONTRACT GAP note: three copy keys the sealed r4-six-locale-copy.yaml scope
+// CONTRACT GAP note: two copy keys the sealed r4-six-locale-copy.yaml scope
 // names but does not provide (`scenarios_excess_note`,
-// `scenarios_own_amount_save`, and the batch22-integration
-// `scenarios_reference_kept` — the announced keep_local_reference confirmation)
-// and four per-fact pending nouns are filled as documented gap-fills in
-// r4_fermeture_catalog.g.dart (same pattern R3 used for gloss_dismiss /
-// provenance_exact / eclairage_amount_open).
+// `scenarios_own_amount_save`) and four per-fact pending nouns are filled as
+// documented gap-fills in r4_fermeture_catalog.g.dart (same pattern R3 used for
+// gloss_dismiss / provenance_exact / eclairage_amount_open). The
+// batch22-integration `scenarios_reference_kept` (the announced
+// keep_local_reference confirmation) is now GOVERNED — added ×6 to
+// r4-six-locale-copy.yaml, catalog↔yaml parity restored (roast P2-1).
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -97,6 +98,8 @@ class ScenariosVersementScreen extends StatefulWidget {
     this.contributedChf = 0,
     this.nonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf,
     this.referenceKept = false,
+    this.initialOwnAmountChf,
+    this.onOwnAmountChanged,
     required this.onBack,
     required this.onContinue,
     required this.onPendingComplete,
@@ -127,6 +130,16 @@ class ScenariosVersementScreen extends StatefulWidget {
   /// local reference. keep_local_reference STAYS on this node (never routes) and
   /// this flag drives the announced "reference kept" live-region chip.
   final bool referenceKept;
+
+  /// R4 (batch22) integration: the own-amount ("versement") LIFTED to the parent
+  /// journey so it survives one fermeture loop turn (scenarios -> etat_civil ->
+  /// éclairage -> scenarios) instead of dying with this widget on destruction.
+  /// Null = no preselected amount on a fresh arrival (sealed R4_07).
+  final int? initialOwnAmountChf;
+
+  /// R4 (batch22) integration: reports own-amount changes up to the parent so a
+  /// loop turn re-seeds [initialOwnAmountChf] instead of silently dropping it.
+  final ValueChanged<int?>? onOwnAmountChanged;
 
   /// Exact history back. `back` is NOT in scenarios_versement-scope.yaml's
   /// never_routes_in_r4_applies_to list, but the isolated batch22 harness has
@@ -182,6 +195,9 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
   @override
   void initState() {
     super.initState();
+    // Seed the own-amount from the parent-preserved value so a fermeture loop
+    // turn restores it (roast P1-1ii). Null on a fresh arrival (no preselection).
+    _ownAmountChf = widget.initialOwnAmountChf;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && !_headingFocusRequested) {
         _headingFocusRequested = true;
@@ -262,6 +278,8 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
   void _saveOwnAmount(int? value, Object generation) {
     if (_isStale(generation)) return;
     setState(() => _ownAmountChf = value);
+    // Lift the change to the parent so it survives a fermeture loop turn.
+    widget.onOwnAmountChanged?.call(value);
     _closeOverlay(generation);
   }
 

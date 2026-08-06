@@ -223,7 +223,23 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await _reachScenarios(tester, sentinel: '[R4_08]');
+      // The compact/2x overflow proof is REAL: drive the delivered scenarios
+      // runtime at textScaler 2.0 (the harness lands on the nominal scenarios
+      // state — same content the wired arc reaches, proven by R4_02..R4_07). The
+      // prior form set the 320x700 viewport but never applied the scale, so the
+      // "text scale two" it names was never exercised (roast P1-2).
+      await tester.pumpWidget(
+        MintNextDesignLabApp.batch22Harness(
+          locale: const Locale('fr'),
+          currentYear: 2026,
+          textScaler: const TextScaler.linear(2.0),
+          batch22: const Batch22Config(
+            startNode: Batch22Start.scenariosVersement,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_key('node:scenarios_versement'), findsOneWidget);
       expect(_key('text:scenarios.choose_line'), findsOneWidget);
       expect(_key('amount:scenarios.effect'), findsAtLeastNWidgets(1));
       expect(_key('text:scenarios.liquidity'), findsOneWidget);
@@ -300,6 +316,13 @@ void main() {
       await _tapVisible(tester, 'action:etat_civil.continue');
       expect(_key('node:fact_etat_civil'), findsNothing);
       expect(_key('node:eclairage_impot_3a'), findsOneWidget);
+      // It is the NOMINAL PAYOFF, not merely the node: the éclairage range value
+      // is present AND the married caveat is co-located (the range stays the
+      // single-person fixture figure — no fabricated ×0.80 recompute, NEVER#3 /
+      // sealed R4_13). Asserting the node alone let a blank/error éclairage pass
+      // (roast P1-2).
+      expect(_key('text:eclairage.range_value'), findsOneWidget);
+      expect(_key('text:eclairage.situation_caveat'), findsOneWidget);
     },
   );
 
@@ -310,7 +333,21 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
-      await _reachEtatCivil(tester, sentinel: '[R4_15]');
+      // Real 2x proof: drive the delivered fact_etat_civil runtime at textScaler
+      // 2.0 via the harness (the arc reach is proven by R4_09..R4_14). The prior
+      // form set the viewport but never applied the scale (roast P1-2).
+      await tester.pumpWidget(
+        MintNextDesignLabApp.batch22Harness(
+          locale: const Locale('fr'),
+          currentYear: 2026,
+          textScaler: const TextScaler.linear(2.0),
+          batch22: const Batch22Config(
+            startNode: Batch22Start.factEtatCivil,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_key('node:fact_etat_civil'), findsOneWidget);
       expect(_key('text:etat_civil.question'), findsOneWidget);
       for (final s in ['celibataire', 'marie_pacse', 'concubinage']) {
         expect(_key('choice:etat_civil.$s'), findsOneWidget);
@@ -328,11 +365,57 @@ void main() {
     (tester) async {
       final registry =
           File('../../batch22/runtime-gates.yaml').readAsStringSync();
-      expect(registry.contains('batch: 22'), isTrue);
-      expect(registry.contains('R4:'), isTrue);
-      expect(registry.contains('expected_red'), isTrue);
-      expect(registry.contains('runtime_implemented'), isTrue);
-      expect(registry.contains('runtime_global'), isTrue);
+      final lines = registry.split('\n');
+
+      // ORDER — ordered_gates lists R4 STRICTLY before runtime_global (parsed,
+      // not a loose contains: a reordered list would now fail).
+      final orderedStart =
+          lines.indexWhere((l) => l.trimRight() == 'ordered_gates:');
+      expect(orderedStart, greaterThanOrEqualTo(0),
+          reason: 'ordered_gates block must exist');
+      final ordered = <String>[];
+      for (var i = orderedStart + 1; i < lines.length; i++) {
+        final m = RegExp(r'^-\s*(\S+)\s*$').firstMatch(lines[i]);
+        if (m == null) break;
+        ordered.add(m.group(1)!);
+      }
+      expect(ordered.contains('R4'), isTrue);
+      expect(ordered.contains('runtime_global'), isTrue);
+      expect(ordered.indexOf('R4') < ordered.indexOf('runtime_global'), isTrue,
+          reason: 'R4 must be ordered before runtime_global');
+
+      // The R4 gate block: its next gate is runtime_global and it EXCLUDES later
+      // (runtime_global) evidence. Sliced from `  R4:` to the next top-level gate
+      // key so a stray field elsewhere cannot satisfy the check.
+      final r4Start = lines.indexWhere((l) => l == '  R4:');
+      expect(r4Start, greaterThanOrEqualTo(0), reason: 'gates.R4 must exist');
+      final r4End = lines.indexWhere(
+        (l) => RegExp(r'^  \S').hasMatch(l) && l != '  R4:',
+        r4Start + 1,
+      );
+      final r4Block =
+          lines.sublist(r4Start, r4End < 0 ? lines.length : r4End).join('\n');
+      expect(r4Block.contains('next_gate: runtime_global'), isTrue,
+          reason: 'R4.next_gate must be runtime_global');
+      expect(
+          r4Block.contains('later_gate_evidence_counts_for_R4: false'), isTrue,
+          reason: 'R4 must EXCLUDE later-gate (runtime_global) evidence');
+      // The frozen RED control strings are deliberately kept stable in R4.
+      expect(r4Block.contains('state: expected_red'), isTrue);
+      expect(r4Block.contains('runtime_implemented: false'), isTrue);
+
+      // runtime_global is the LATER gate and is blocked BY R4 (R4 gates it).
+      final laterStart = lines.indexWhere((l) => l == '  runtime_global:');
+      expect(laterStart, greaterThanOrEqualTo(0),
+          reason: 'gates.runtime_global must exist');
+      expect(lines[laterStart + 1].contains('state: blocked_by_R4'), isTrue,
+          reason: 'runtime_global must be blocked_by_R4');
+
+      // R4 comes AFTER R3: it SUPERSEDES the accepted R3 green gate and forbids
+      // re-attesting R3 live (regle13 supersession).
+      expect(registry.contains('r3_green_gate:'), isTrue,
+          reason: 'R4 supersedes the accepted R3 gate (R4 after R3)');
+      expect(registry.contains('no_live_reattestation_of_r3: true'), isTrue);
     },
   );
 
@@ -347,6 +430,14 @@ void main() {
   testWidgets(
     'R4_17 non_affilie reaches a derived ceiling never a flat 7258',
     (tester) async {
+      // ONE obligation, the THREE mandatory OPP3 contract cases
+      // (scenarios_versement-scope.yaml:193-196). The cap DERIVES from
+      // affiliation + income (min(0.20 * net income, 36 288) without a pension
+      // fund ; flat 7 258 with one) — never a flat 7 258 forfait served to a
+      // non-affilié, never derived from employment status.
+
+      // (1) non-affilié, revenu 20 000 -> min(0.20*20000, 36288) = 4 000 ; the
+      //     forfait 7 258 would OVERSTATE this cap by 81%.
       await tester.pumpWidget(
         MintNextDesignLabApp.batch22Harness(
           locale: const Locale('fr'),
@@ -360,13 +451,52 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(_key('node:scenarios_versement'), findsOneWidget);
-      // The derived cap min(0.20 * 20 000, 36 288) = 4 000 is surfaced on the
-      // plafond line...
       expect(_key('text:scenarios.plafond20_amount'), findsOneWidget);
       expect(find.textContaining('4 000'), findsWidgets);
-      // ...and the flat affiliated 7 258 is NEVER shown for a non-affilié
-      // (fault_A: the forfait would overstate this cap by 81%).
       expect(find.textContaining('7 258'), findsNothing);
+
+      // (2) non-affilié, revenu 250 000 -> 20% = 50 000 CLAMPED to the max
+      //     36 288 ; the forfait 7 258 would UNDERSTATE this cap ~5x.
+      // Force a full teardown first: re-pumping the same MintNextDesignLabApp
+      // type reuses the journey State (its harness config is read once in
+      // initState), so without this the income would stay case (1)'s 20 000.
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(
+        MintNextDesignLabApp.batch22Harness(
+          locale: const Locale('fr'),
+          currentYear: 2026,
+          batch22: const Batch22Config(
+            startNode: Batch22Start.scenariosVersement,
+            affiliated: false,
+            nonAffiliatedIncomeChf: 250000,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_key('node:scenarios_versement'), findsOneWidget);
+      expect(_key('text:scenarios.plafond20_amount'), findsOneWidget);
+      expect(find.textContaining('36 288'), findsWidgets);
+      expect(find.textContaining('7 258'), findsNothing);
+
+      // (3) affilié -> petit 3a = 7 258 flat, WHATEVER the income (driven at
+      //     250 000 to prove income-independence): the affilié path shows NO 20%
+      //     ceiling line and the remaining room IS the 7 258 cap.
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpWidget(
+        MintNextDesignLabApp.batch22Harness(
+          locale: const Locale('fr'),
+          currentYear: 2026,
+          batch22: const Batch22Config(
+            startNode: Batch22Start.scenariosVersement,
+            affiliated: true,
+            nonAffiliatedIncomeChf: 250000,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_key('node:scenarios_versement'), findsOneWidget);
+      expect(_key('text:scenarios.plafond20_amount'), findsNothing);
+      expect(find.textContaining('7 258'), findsWidgets);
     },
   );
 }

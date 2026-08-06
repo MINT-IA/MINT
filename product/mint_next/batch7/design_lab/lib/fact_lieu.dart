@@ -104,7 +104,12 @@ class _CommuneEntry {
 }
 
 class FactLieuScreen extends StatefulWidget {
-  const FactLieuScreen({super.key, required this.taxYear, this.onContinue});
+  const FactLieuScreen({
+    super.key,
+    required this.taxYear,
+    this.onContinue,
+    this.onCommuneSelected,
+  });
 
   final int taxYear;
 
@@ -113,6 +118,16 @@ class FactLieuScreen extends StatefulWidget {
   /// The batch21 éclairage integration wires it to the R3 fact_revenu node,
   /// superseding the R2 outbound-edge obligation (registry.deferred_integration).
   final VoidCallback? onContinue;
+
+  /// R4 (batch22) integration: LIFTS the committed commune label + its derived
+  /// canton label to the parent journey at the moment continue commits, so the
+  /// éclairage payoff hypothesis row shows the commune the user actually picked
+  /// (never a hardcoded fixture commune) and the same commune seeds the
+  /// scenarios_versement fermeture node. Optional: null in the batch20/batch21
+  /// harnesses (which never lift the commune), so their sealed constructions are
+  /// unchanged. The engine fixtures stay canton-FR-grounded (documented
+  /// offline-lab limitation) — this lifts the LABEL, never re-derives a number.
+  final void Function(String commune, String canton)? onCommuneSelected;
 
   @override
   State<FactLieuScreen> createState() => _FactLieuScreenState();
@@ -202,7 +217,11 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
     });
   }
 
-  void _handleContinue(Object generation) {
+  void _handleContinue(
+    Object generation, {
+    String? communeName,
+    String? cantonLabel,
+  }) {
     if (_isStale(generation)) return;
     // Guarded continue: with nothing selected it surfaces the no-selection
     // guard and stays. With a reviewed commune selected it routes forward when
@@ -213,6 +232,12 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
       return;
     }
     setState(() => _showNoSelectionError = false);
+    // R4 (batch22): lift the committed commune + derived canton LABEL up so the
+    // éclairage payoff shows the commune the user picked (never the fixture
+    // commune) before routing forward.
+    if (communeName != null && cantonLabel != null) {
+      widget.onCommuneSelected?.call(communeName, cantonLabel);
+    }
     widget.onContinue?.call();
   }
 
@@ -533,7 +558,13 @@ class _FactLieuScreenState extends State<FactLieuScreen> {
             _ContinueControl(
               key: const ValueKey('action:fact_lieu.continue'),
               label: copy.continueLabel,
-              onPressed: () => _handleContinue(generation),
+              onPressed: () => _handleContinue(
+                generation,
+                communeName: selected?.name,
+                cantonLabel: selected == null
+                    ? null
+                    : cantonLabelOf(selected.cantonCode),
+              ),
               // Subtle until a commune is selected, strong once it is — the
               // continue is guarded and never routes in R2, so the affordance
               // signals readiness rather than promising a route.
