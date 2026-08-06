@@ -27,6 +27,8 @@ from app.services.onboarding.minimal_profile_service import (
     _estimate_lpp_from_age_25,
     _compute_confidence_score,
     _estimate_3a_tax_impact,
+    _compute_marginal_tax_rate,
+    _estimate_tax_saving,
 )
 from app.services.onboarding.onboarding_models import MinimalProfileInput
 from app.constants.social_insurance import (
@@ -543,3 +545,85 @@ class TestReferenceAgeCohort:
             "née le 31.12.1962 reste cohorte 1962 (64 ans, AVS 21)"
         )
         assert orig("female", 1962) == 64
+
+
+# ===========================================================================
+# TestOnboardingMarginalRateHouseholdType — Batch D (coherence fix)
+#
+# _compute_marginal_tax_rate / _estimate_tax_saving etaient single-only alors
+# que MinimalProfileInput.household_type est disponible. Un menage marie voyait
+# un taux marginal + une economie 3a celibataires (surestimes ~25 %). C'est le
+# vice « un seul taux marginal » (#1061/#1062). Vocabulaire ANGLAIS
+# household_type (married/couple/family) — normalise via
+# rules_engine.is_married_household, PAS l'etat civil FR.
+# ===========================================================================
+
+
+class TestOnboardingMarginalRateHouseholdType:
+
+    def test_married_and_single_differ_public_path(self):
+        """Public path : compute_minimal_profile expose marginal_tax_rate ET
+        tax_saving_3a. Un menage marie (household_type='married') et un
+        celibataire, meme salaire/canton, doivent differer."""
+        common = dict(age=40, gross_salary=120_000.0, canton="ZH")
+        marie = compute_minimal_profile(
+            MinimalProfileInput(household_type="married", **common)
+        )
+        single = compute_minimal_profile(
+            MinimalProfileInput(household_type="single", **common)
+        )
+        assert marie.marginal_tax_rate != single.marginal_tax_rate
+        assert marie.tax_saving_3a != single.tax_saving_3a
+        # le marie est plus bas (splitting) — surestimation corrigee.
+        assert marie.marginal_tax_rate < single.marginal_tax_rate
+
+    def test_compute_marginal_rate_threads_is_married(self):
+        """_compute_marginal_tax_rate == etalon ESTV avec is_married, et differe
+        du celibataire (repro revue : ZH 120k)."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        rate_single = _compute_marginal_tax_rate(120_000.0, "ZH")
+        rate_married = _compute_marginal_tax_rate(120_000.0, "ZH", is_married=True)
+        assert rate_single != rate_married
+        assert rate_single == estimate_marginal_rate(120_000.0, "ZH", is_married=False)
+        assert rate_married == estimate_marginal_rate(120_000.0, "ZH", is_married=True)
+
+    def test_estimate_tax_saving_threads_is_married(self):
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
+        s_single = _estimate_tax_saving(
+            income=120_000.0, deduction=7_258.0, canton="ZH"
+        )
+        s_married = _estimate_tax_saving(
+            income=120_000.0, deduction=7_258.0, canton="ZH", is_married=True
+        )
+        assert s_single != s_married
+        assert s_single == estimate_tax_saving(120_000.0, 7_258.0, "ZH", is_married=False)
+        assert s_married == estimate_tax_saving(120_000.0, 7_258.0, "ZH", is_married=True)
+
+    def test_single_default_is_non_regressed(self):
+        """Non-regression : sans is_married, le taux est INCHANGE (celibataire)."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        assert _compute_marginal_tax_rate(120_000.0, "ZH") == (
+            estimate_marginal_rate(120_000.0, "ZH", is_married=False)
+        )
+
+    @pytest.mark.parametrize("ht,expect_married", [
+        ("married", True), ("couple", True), ("family", True),
+        ("single", False), ("divorced", False), (None, False),
+    ])
+    def test_household_type_normalization_via_3a_impact(self, ht, expect_married):
+        """household_type married/couple/family -> taux marie ; single/None/
+        divorced -> celibataire. Passe par _estimate_3a_tax_impact (le vrai
+        chemin de l'onboarding)."""
+        got, _, _ = _estimate_3a_tax_impact(
+            120_000.0, "ZH", has_lpp=True, household_type=ht
+        )
+        married_ref, _, _ = _estimate_3a_tax_impact(
+            120_000.0, "ZH", has_lpp=True, household_type="married"
+        )
+        single_ref, _, _ = _estimate_3a_tax_impact(
+            120_000.0, "ZH", has_lpp=True, household_type="single"
+        )
+        assert got == (married_ref if expect_married else single_ref)

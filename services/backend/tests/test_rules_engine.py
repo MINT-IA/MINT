@@ -575,3 +575,28 @@ class TestDisabilityGap:
         r = compute_disability_gap(3000, "employee", "ZH", 5, True, 100)
         # Phase 3 gap = 3000 - 2450 = 550 (< 3000 threshold)
         assert r["risk_level"] == "low"
+
+
+class TestIsMarriedHousehold:
+    """is_married_household — normalisation household_type (vocabulaire ANGLAIS),
+    promue publique pour être partagée par l'onboarding (Batch D)."""
+
+    @pytest.mark.parametrize("ht", ["married", "couple", "family", "COUPLE"])
+    def test_married_labels(self, ht):
+        from app.services.rules_engine import is_married_household
+
+        assert is_married_household(ht) is True
+
+    @pytest.mark.parametrize("ht", ["single", None, "", "divorced", "widowed"])
+    def test_non_married_labels(self, ht):
+        from app.services.rules_engine import is_married_household
+
+        assert is_married_household(ht) is False
+
+    def test_private_alias_points_to_public(self):
+        from app.services.rules_engine import (
+            is_married_household,
+            _is_married_household,
+        )
+
+        assert _is_married_household is is_married_household

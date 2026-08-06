@@ -335,8 +335,16 @@ def calculate_leasing_opportunity_cost(
 _MARRIED_HOUSEHOLD_LABELS = frozenset({"married", "couple", "family"})
 
 
-def _is_married_household(household_type: str | None) -> bool:
+def is_married_household(household_type: str | None) -> bool:
+    """household_type (vocabulaire ANGLAIS married/couple/family) -> imposition
+    commune (LIFD art. 9 al. 1). Source unique du BON domaine, partagée avec
+    l'onboarding (``minimal_profile_service``) — à ne pas confondre avec
+    ``fiscal.civil_status`` (vocabulaire état civil FR). ``None`` -> single."""
     return (household_type or "single").lower() in _MARRIED_HOUSEHOLD_LABELS
+
+
+# Alias privé rétro-compatible (appelants internes historiques).
+_is_married_household = is_married_household
 
 
 # Les baremes IFD 2024 (IFD_BRACKETS_SINGLE / _MARRIED) et la table d'add-on
