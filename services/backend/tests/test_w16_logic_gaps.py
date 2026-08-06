@@ -395,3 +395,36 @@ class TestOptimizerSingleAssiette:
         # le brut 120'000) = 674.40, jamais 1'487.04.
         assert recos[0].impact.amountCHF == pytest.approx(674.40, abs=0.01)
         assert "4000" in " ".join(recos[0].assumptions)
+
+
+class TestStatusBasedAssietteAndSessionReport:
+    """Codex I1 (assiette selon statut) + I2 (rapport de session affiliation-aware)."""
+
+    def test_i1_salarie_residual_indep_key_uses_salary(self):
+        import uuid
+        from datetime import datetime, timezone
+
+        p = Profile(
+            id=str(uuid.uuid4()), birthYear=1985, canton="VD",
+            householdType=HouseholdType.single, employmentStatus="salarie",
+            has2ndPillar=True, incomeGrossYearly=100_000.0,
+            selfEmployedNetIncome=20_000.0, goal="optimize_taxes",
+            createdAt=datetime.now(timezone.utc),
+        )
+        r = [x for x in generate_recommendations(p) if x.kind == "pillar3a"][0]
+        # base salariale (100k, plafond 7'258) -> 2'305.38, pas 1'044.38 (20k).
+        assert r.impact.amountCHF == pytest.approx(2305.38, abs=0.01)
+
+    def test_i2_session_report_threads_affiliation(self):
+        # indépendant sans LPP 20k : avec statut, plafond 4'000 (< sans statut
+        # 7'258) -> potentiel plus bas, affiliation-aware.
+        aware = calculate_tax_potential(
+            "VD", 20_000, employment_status="independant", has_2nd_pillar=False
+        )
+        naive = calculate_tax_potential("VD", 20_000)
+
+        def _avg(s):
+            n = [int(x) for x in s.replace("~", "").replace(" CHF", "").split("-")]
+            return sum(n) / len(n)
+
+        assert _avg(aware) < _avg(naive)

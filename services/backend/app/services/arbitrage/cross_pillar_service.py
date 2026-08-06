@@ -139,9 +139,17 @@ class CrossPillarService:
         # === 3a ceiling (OPP3 art. 7) — single source of truth ===
         employment_status = profile_data.get("employment_status", "salarie")
         has_2nd_pillar = profile_data.get("has_2nd_pillar", True)
-        # Assiette : net indépendant si fourni (OPP3 art. 7), sinon brut.
-        income_for_ceiling = profile_data.get("self_employed_net_income")
-        if income_for_ceiling is None:
+        # Assiette selon le STATUT, pas la simple présence de la clé (revue Codex
+        # I1) : net indépendant SEULEMENT si le statut est indépendant ; sinon
+        # base salariale (une clé indépendante résiduelle d'un update partiel ne
+        # remplace jamais le salaire). Activité mixte non combinée = dette dite.
+        _is_indep = str(employment_status or "").lower().strip() in (
+            "independant", "self_employed"
+        )
+        _self_net = profile_data.get("self_employed_net_income")
+        if _is_indep and _self_net is not None:
+            income_for_ceiling = _self_net
+        else:
             income_for_ceiling = profile_data.get("income_gross_yearly")
         ceiling_raw = get_3a_ceiling(
             employment_status, has_2nd_pillar, annual_income=income_for_ceiling

@@ -770,10 +770,19 @@ def _create_3a_optimizer_recommendation(
 ) -> Recommendation:
     from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
-    # Assiette du grand 3a : revenu déterminant = net indépendant si fourni
-    # (``selfEmployedNetIncome``), sinon revenu brut/dérivé (hypothèse divulguée).
+    # Assiette du grand 3a selon le STATUT (revue Codex I1) : net indépendant
+    # SEULEMENT si employmentStatus est indépendant ; sinon base salariale (une
+    # clé selfEmployedNetIncome résiduelle d'un update partiel ne remplace pas
+    # le salaire). Activité mixte non combinée = dette explicite.
     _derived = profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85
-    income_det = profile.selfEmployedNetIncome if profile.selfEmployedNetIncome is not None else _derived
+    _is_indep = str(profile.employmentStatus or "").lower().strip() in (
+        "independant", "self_employed"
+    )
+    income_det = (
+        profile.selfEmployedNetIncome
+        if (_is_indep and profile.selfEmployedNetIncome is not None)
+        else _derived
+    )
     annual_contribution = get_3a_ceiling(
         profile.employmentStatus, profile.has2ndPillar, annual_income=income_det
     )
@@ -1075,7 +1084,10 @@ def generate_session_report(
             ScoreboardItem(
                 label="Épargne/Impôts",
                 value=calculate_tax_potential(
-                    profile.canton, profile.incomeGrossYearly or 80000
+                    profile.canton,
+                    profile.incomeGrossYearly or 80000,
+                    employment_status=profile.employmentStatus,
+                    has_2nd_pillar=profile.has2ndPillar,
                 ),
                 note="Basé sur votre canton",
             ),

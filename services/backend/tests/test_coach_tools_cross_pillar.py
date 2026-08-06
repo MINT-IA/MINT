@@ -538,3 +538,20 @@ def test_g1_unknown_income_ceiling_is_none_not_zero():
         a = CrossPillarService.compute(profile_data=prof)
         assert a.three_a_ceiling is None
         assert a.three_a_remaining is None
+
+
+def test_i1_salarie_with_residual_independent_key_uses_salary_base():
+    """Revue Codex I1 : salarié affilié LPP, brut 100'000, avec une clé
+    selfEmployedNetIncome RÉSIDUELLE 20'000 (update partiel) -> assiette = base
+    salariale 100'000, plafond 7'258, économie 2'305.38 (pas 1'044.38 sur 20k).
+    La clé indépendante ne remplace jamais le salaire pour un salarié."""
+    from app.services.arbitrage.cross_pillar_service import CrossPillarService
+
+    d = _real_profile_dump(
+        employmentStatus="salarie", has2ndPillar=True,
+        incomeGrossYearly=100_000.0, selfEmployedNetIncome=20_000.0,
+        pillar3aAnnual=7_258.0,
+    )
+    a = CrossPillarService.compute(profile_data=d)
+    assert a.three_a_ceiling == Decimal("7258.00")
+    assert a.tax_saving_potential == Decimal("2305.38")
