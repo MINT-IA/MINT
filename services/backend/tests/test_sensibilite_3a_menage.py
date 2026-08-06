@@ -30,6 +30,10 @@ from app.services.family.mariage_service import (
     deduction_double_activite,
 )
 from app.services.rules_engine import PILIER_3A_PLAFOND_AVEC_LPP
+from app.services.encryption.banned_terms_runtime import (
+    BannedTermsViolation,
+    scan_value_for_banned_terms,
+)
 from app.services.fiscal.sensibilite_3a_service import (
     DISCLAIMER,
     sensibilite_3a_menage,
@@ -273,9 +277,29 @@ def test_versement_above_ceiling_is_clamped() -> None:
 
 
 def test_no_banned_lsfin_terms_in_copy() -> None:
-    banned = (
-        "garanti", "optimal", "meilleur", "certain",
-        "sans risque", "parfait", "assure ",
+    # Autorité : le scanner LSFin CANONIQUE embarqué (le meme que le gate
+    # fail-closed d'encrypt_value) — garanti/optimal/meilleur/certain/assure/
+    # parfait/sans risque + verbes de paraphrase, avec normalisation NFKC.
+    # Il LEVE BannedTermsViolation sur un terme banni.
+    for statut in ("celibataire", "marie"):
+        payload = sensibilite_3a_menage(
+            revenu_imposable=95_000.0,
+            canton="VD",
+            versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+            etat_civil=statut,
+        )
+        for text in [payload.primary_choice_fr] + [
+            e.hypothese_fr for e in payload.cascade_effects
+        ]:
+            scan_value_for_banned_terms(text)  # ne doit rien lever
+
+    # Supplement : le scanner canonique borne ses mots (\bassure\b) et rate les
+    # formes accentuees / feminines de la liste CLAUDE.md — on les couvre ici
+    # explicitement (« assure » sans accent est deja pris par le scanner).
+    accented_forms = (
+        "garantie", "optimale", "meilleure", "certaine", "certaines",
+        "assuré", "assurée", "assurés", "assurées", "sûr", "sûre",
+        "parfaite", "sans risque",
     )
     payload = sensibilite_3a_menage(
         revenu_imposable=95_000.0,
@@ -283,12 +307,21 @@ def test_no_banned_lsfin_terms_in_copy() -> None:
         versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
         etat_civil="marie",
     )
-    texts = [payload.primary_choice_fr] + [
-        e.hypothese_fr for e in payload.cascade_effects
-    ]
-    blob = " ".join(texts).lower()
-    for term in banned:
-        assert term not in blob, f"terme banni LSFin present : {term!r}"
+    blob = " ".join(
+        [payload.primary_choice_fr] + [e.hypothese_fr for e in payload.cascade_effects]
+    ).lower()
+    for term in accented_forms:
+        assert term not in blob, f"forme bannie (accentuee) presente : {term!r}"
+
+
+# ---------------------------------------------------------------------------
+# Sanity — le scanner canonique LEVE bien sur un terme banni (garde non illusoire).
+# ---------------------------------------------------------------------------
+
+
+def test_canonical_scanner_actually_raises() -> None:
+    with pytest.raises(BannedTermsViolation):
+        scan_value_for_banned_terms("Un rendement garanti sans risque.")
 
 
 # ---------------------------------------------------------------------------
@@ -425,3 +458,109 @@ def test_ceiling_mention_only_when_amount_is_ceiling() -> None:
     ).primary_choice_fr.lower()
     assert "plafond" in au_dessus
     assert "opp3" in au_dessus
+
+
+# ---------------------------------------------------------------------------
+# Test 19 — branche de TRI DÉFENSIF (non-monotonie réelle du modèle) : avec les
+# repros exacts VS r=152'500 et FR r=200'000, raw_bas(conjoint 0) > raw_haut
+# (conjoint comparable). Le tri doit préserver delta_bas <= delta_haut ET la
+# copie doit rester direction-neutre (pas de « borne basse si conjoint sans
+# revenu », qui serait factuellement inversée).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("canton,revenu", [("VS", 152_500.0), ("FR", 200_000.0)])
+def test_defensive_sort_branch_keeps_band_ordered_and_neutral_copy(
+    canton: str, revenu: float
+) -> None:
+    versement = PILIER_3A_PLAFOND_AVEC_LPP
+    # 1) prouver que la région est non-monotone (le tri s'active vraiment).
+    raw_bas = estimate_tax_saving(
+        _household_imposable(revenu, 0.0), versement, canton, is_married=True
+    )
+    raw_haut = estimate_tax_saving(
+        _household_imposable(revenu, revenu), versement, canton, is_married=True
+    )
+    assert raw_bas > raw_haut, "repro attendu : conjoint 0 > conjoint comparable"
+
+    payload = sensibilite_3a_menage(
+        revenu_imposable=revenu,
+        canton=canton,
+        versement_3a=versement,
+        etat_civil="marie",
+    )
+    eff = _effect(payload)
+    # 2) malgré l'inversion, la bande reste ordonnée (tri défensif).
+    assert eff.delta_bas <= eff.delta_haut
+    # 3) la copie ne fait AUCUNE assignation directionnelle inversable.
+    h = eff.hypothese_fr.lower()
+    assert "borne basse si" not in h
+    assert "borne haute si" not in h
+    # mais nomme bien les deux hypothèses bornantes.
+    assert "sans revenu" in h
+    assert "comparable" in h
+
+
+# ---------------------------------------------------------------------------
+# Test 20 — fail-closed canton inconnu : ValueError au niveau du service (pas
+# de moyenne-26 silencieuse pour un « XX »).
+# ---------------------------------------------------------------------------
+
+
+def test_unknown_canton_fails_closed() -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=100_000.0,
+            canton="XX",
+            versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+            etat_civil="celibataire",
+        )
+    # un canton valide en minuscules reste accepté (normalisation).
+    ok = sensibilite_3a_menage(
+        revenu_imposable=100_000.0,
+        canton="zh",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    assert isinstance(ok, L3EclairePayload)
+
+
+# ---------------------------------------------------------------------------
+# Test 21 — normalisation d'état civil : casse, accents, espaces.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("statut", ["MARIÉ", "Marié", "  marie  ", "MARIÉ_PACSÉ"])
+def test_married_normalization_variants(statut: str) -> None:
+    ref = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+    )
+    got = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil=statut,
+    )
+    # traité comme marié -> bande identique au « marie » de référence.
+    assert _effect(got).delta_bas == _effect(ref).delta_bas
+    assert _effect(got).delta_haut == _effect(ref).delta_haut
+
+
+def test_concubinage_uppercase_is_separate() -> None:
+    single = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    got = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="CONCUBINAGE",
+    )
+    assert _effect(got).delta_bas == _effect(single).delta_bas
+    assert _effect(got).delta_haut == _effect(single).delta_haut

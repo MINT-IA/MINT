@@ -239,9 +239,11 @@ class L3EclairePayload(_LucidityBase):
     `primary_choice_fr` — that's the D-CE-16(c) runtime gate's job.
 
     `cascade_effects` is a list of typed `_CascadeEffect` (each with a
-    LOW/HIGH band + explicit assumption). Pydantic still coerces a list of
-    plain dicts to `_CascadeEffect` at `model_validate` time, so any
-    dict-shaped caller keeps working while gaining schema validation.
+    LOW/HIGH band + explicit assumption). A dict is only accepted at
+    `model_validate` time if it matches the `_CascadeEffect` shape exactly
+    (`extra="forbid"`) — the earlier open `{domain_fr, delta_value,
+    narrative_fr, citation_key}` shape no longer validates (there was no
+    caller of it).
     """
 
     level: Literal[LucidityLevel.L3] = LucidityLevel.L3

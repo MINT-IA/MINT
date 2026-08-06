@@ -29,6 +29,7 @@ from __future__ import annotations
 
 from app.models.lucidity._payload import L3EclairePayload, _CascadeEffect
 from app.services.fiscal.cantonal_comparator import (
+    CANTONAL_COMMUNAL_TAX_CHF,
     DISCLAIMER as _CANONICAL_DISCLAIMER,
     estimate_tax_saving,
 )
@@ -90,7 +91,16 @@ def _is_married(etat_civil: str) -> bool:
 
 def _household_imposable(revenu_1: float, revenu_2: float) -> float:
     """Revenu imposable du ménage marié — réutilise les déductions de couple de
-    ``mariage_service`` (LIFD art. 33 al. 2 / art. 35). Aucun barème réécrit.
+    ``mariage_service`` : personnes mariées (LIFD art. 35), assurances (LIFD
+    art. 33 al. 1 let. g) et double activité (LIFD art. 33 al. 2). Aucun barème
+    réécrit.
+
+    Limite dite : la déduction par enfant (``DEDUCTION_PAR_ENFANT``, LIFD
+    art. 35 al. 1 let. a) N'EST PAS appliquée — le service n'a pas d'entrée
+    « nombre d'enfants ». L'omission est NON conservatrice (un ménage avec
+    enfants a un imposable plus bas, donc une économie 3a réelle plus faible) :
+    elle est donc divulguée dans ``hypothese_fr`` (« ménage sans enfants à
+    charge »), jamais masquée.
     """
     r2 = max(0.0, revenu_2)
     combine = max(0.0, revenu_1) + r2
@@ -129,8 +139,21 @@ def sensibilite_3a_menage(
     Returns:
         ``L3EclairePayload`` : un effet cascade « Impôt sur le revenu » portant
         une fourchette basse/haute (jamais un chiffre nu) + l'hypothèse qui la
-        borne, horizon annuel.
+        borne, horizon annuel. Estimation « ménage sans enfants à charge »
+        (la déduction par enfant n'est pas modélisée — cf. ``_household_imposable``).
+
+    Raises:
+        ValueError: si ``canton`` n'est pas l'un des 26 codes cantonaux
+            canoniques (fail-closed au niveau du service : on refuse « XX »
+            plutôt que de renvoyer la moyenne-26 du modèle sous-jacent).
     """
+    canton_norm = (canton or "").strip().upper()
+    if canton_norm not in CANTONAL_COMMUNAL_TAX_CHF:
+        raise ValueError(
+            f"Canton inconnu : {canton!r}. Codes valides : "
+            f"{', '.join(sorted(CANTONAL_COMMUNAL_TAX_CHF))}."
+        )
+
     plafond = get_3a_ceiling(employment_status, has_lpp)
     demande = plafond if versement_3a is None else versement_3a
     versement = max(0.0, min(demande, plafond))  # borné au plafond (OPP3 art. 7)
@@ -143,7 +166,7 @@ def sensibilite_3a_menage(
 
     if not _is_married(etat_civil):
         raw_bas = raw_haut = estimate_tax_saving(
-            revenu, versement, canton, is_married=False
+            revenu, versement, canton_norm, is_married=False
         )
         hypothese_fr = (
             "Estimation au chef-lieu, revenu imposable simplifié, imposition "
@@ -153,26 +176,33 @@ def sensibilite_3a_menage(
     elif revenu_imposable_conjoint is not None:
         imposable = _household_imposable(revenu, revenu_imposable_conjoint)
         raw_bas = raw_haut = estimate_tax_saving(
-            imposable, versement, canton, is_married=True
+            imposable, versement, canton_norm, is_married=True
         )
         hypothese_fr = (
-            "Estimation sur le revenu imposable combiné du ménage (imposition "
-            "commune, LIFD art. 9 al. 1), déductions de couple appliquées "
-            "(double activité art. 33 al. 2, personnes mariées art. 35). "
-            "Barème marié approximé par un splitting forfaitaire (LHID)."
+            "Estimation sur le revenu imposable combiné du ménage sans enfants "
+            "à charge (imposition commune, LIFD art. 9 al. 1), déductions de "
+            "couple appliquées (double activité art. 33 al. 2, personnes "
+            "mariées art. 35, assurances art. 33 al. 1 let. g). Barème marié "
+            "approximé par un splitting forfaitaire (LHID)."
         )
     else:
         raw_bas = estimate_tax_saving(
-            _household_imposable(revenu, 0.0), versement, canton, is_married=True
+            _household_imposable(revenu, 0.0), versement, canton_norm, is_married=True
         )
         raw_haut = estimate_tax_saving(
-            _household_imposable(revenu, revenu), versement, canton, is_married=True
+            _household_imposable(revenu, revenu), versement, canton_norm, is_married=True
         )
+        # Formulation DIRECTION-NEUTRE : le modèle n'est pas monotone partout
+        # (le tri défensif ci-dessous peut inverser raw_bas/raw_haut, ex. VS
+        # ~152'500, FR ~200'000), donc on n'assigne PAS « borne basse = conjoint
+        # sans revenu » — on borne par les deux hypothèses sans direction fixe.
         hypothese_fr = (
-            "Fourchette selon le revenu imposable de ton conjoint (imposition "
-            "commune, LIFD art. 9 al. 1) : borne basse si le conjoint est sans "
-            "revenu, borne haute si le conjoint a un revenu comparable au tien. "
-            "La fourchette se resserre si le revenu du conjoint est connu."
+            "Fourchette bornée par deux hypothèses sur le revenu imposable de "
+            "ton conjoint (imposition commune, LIFD art. 9 al. 1) : conjoint "
+            "sans revenu, ou conjoint à revenu comparable au tien. Ménage sans "
+            "enfants à charge, déductions de couple appliquées (LIFD art. 33 "
+            "al. 2, art. 35, art. 33 al. 1 let. g). La fourchette se resserre "
+            "si le revenu du conjoint est connu."
         )
 
     # Tri défensif des bornes brutes AVANT l'enveloppe ±10%. L'interpolation de
