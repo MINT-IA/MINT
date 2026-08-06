@@ -4392,7 +4392,12 @@ def _compute_cross_pillar_analysis(user_id: str | None, ctx: dict, db) -> str:
             "lpp_buyback_max": float(analysis.lpp_buyback_max),
             "lpp_capital": float(analysis.lpp_capital),
             "tax_saving_potential": float(analysis.tax_saving_potential),
-            "three_a_ceiling": float(analysis.three_a_ceiling),
+            # None = plafond inconnu (grand 3a sans revenu) — jamais 0.00 fabriqué
+            # (revue Codex G1). Le JSON sérialise `null`, honnête « inconnu ».
+            "three_a_ceiling": (
+                None if analysis.three_a_ceiling is None
+                else float(analysis.three_a_ceiling)
+            ),
         }
         response = CrossPillarAnalysisResponse(
             annual_3a_contribution=analysis.annual_3a_contribution,
@@ -4445,13 +4450,23 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
         ceiling = get_3a_ceiling(
             ctx.get("employment_status"),
             ctx.get("has_2nd_pillar"),
+            annual_income=ctx.get("income_gross_yearly"),
         )
-        remaining = max(0, ceiling - float(annual_3a))
-        lines.append(
-            f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}"
-        )
-        if remaining > 0:
-            lines.append(f"- 3a restant à verser : {_fmt_chf(remaining)}")
+        if ceiling is None:
+            # Grand 3a dû sans revenu déterminant -> LA RÈGLE, jamais 36'288 nu.
+            from app.services.rules_engine import GRAND_3A_RULE_FR
+
+            lines.append(
+                f"- 3a versé cette année : {_fmt_chf(annual_3a)} "
+                f"(plafond : {GRAND_3A_RULE_FR})"
+            )
+        else:
+            remaining = max(0, ceiling - float(annual_3a))
+            lines.append(
+                f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}"
+            )
+            if remaining > 0:
+                lines.append(f"- 3a restant à verser : {_fmt_chf(remaining)}")
     if lpp_buyback is not None and float(lpp_buyback) > 0:
         lines.append(f"- Rachat LPP possible : jusqu'à {_fmt_chf(lpp_buyback)}")
     if lpp_capital is not None:

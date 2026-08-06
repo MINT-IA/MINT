@@ -5,6 +5,7 @@ from uuid import uuid4
 
 import sentry_sdk
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -197,6 +198,32 @@ async def _rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 
 app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
+
+
+# Validation errors : renvoyer un 422 PROPRE même quand l'input rejeté est un
+# float non fini (Infinity/NaN). Le handler FastAPI par défaut ré-échoue en
+# json.dumps(inf) -> 500 (revue Codex F3). On assainit les valeurs non finies.
+@app.exception_handler(RequestValidationError)
+async def _validation_exception_handler(request: Request, exc: RequestValidationError):
+    import math as _math
+
+    from fastapi.encoders import jsonable_encoder
+
+    def _sanitize(obj):
+        # Remplace tout float non fini (Infinity/NaN) par sa forme texte : le
+        # handler FastAPI par défaut ré-échoue en json.dumps(inf) -> 500.
+        if isinstance(obj, float) and not _math.isfinite(obj):
+            return str(obj)
+        if isinstance(obj, dict):
+            return {k: _sanitize(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple)):
+            return [_sanitize(v) for v in obj]
+        return obj
+
+    # jsonable_encoder d'abord (robustesse identique au handler par défaut :
+    # gère les objets d'exception dans ``ctx``), puis assainit les non-finis.
+    detail = _sanitize(jsonable_encoder(exc.errors()))
+    return JSONResponse(status_code=422, content={"detail": detail})
 
 
 # Global exception handler — catch unhandled exceptions

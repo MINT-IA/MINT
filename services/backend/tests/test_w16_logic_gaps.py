@@ -43,12 +43,21 @@ class TestGet3aCeiling:
         assert get_3a_ceiling("employee", True) == PILIER_3A_PLAFOND_AVEC_LPP
 
     def test_independant_without_lpp_gets_grand_3a(self):
-        """Indépendant sans LPP -> grand 3a (36'288)."""
-        assert get_3a_ceiling("independant", False) == PILIER_3A_PLAFOND_SANS_LPP
+        """Indépendant sans LPP + revenu élevé -> grand 3a (borne absolue)."""
+        assert get_3a_ceiling(
+            "independant", False, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
 
     def test_self_employed_without_lpp_gets_grand_3a(self):
-        """Self-employed (EN alias) without LPP -> grand 3a."""
-        assert get_3a_ceiling("self_employed", False) == PILIER_3A_PLAFOND_SANS_LPP
+        """Self-employed (EN alias) sans LPP + revenu élevé -> grand 3a."""
+        assert get_3a_ceiling(
+            "self_employed", False, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
+
+    def test_salarie_without_lpp_also_gets_grand_3a(self):
+        """AFFILIATION-based (revue Codex F1) : un SALARIÉ sans 2e pilier a aussi
+        droit au grand 3a (20% du revenu) — pas seulement l'indépendant."""
+        assert get_3a_ceiling("salarie", False, annual_income=100_000.0) == 20_000.0
 
     def test_independant_with_lpp_gets_small_3a(self):
         """Indépendant AVEC LPP volontaire -> petit 3a."""
@@ -58,19 +67,67 @@ class TestGet3aCeiling:
         """Unknown employment -> defaults to petit 3a (safe)."""
         assert get_3a_ceiling(None, None) == PILIER_3A_PLAFOND_AVEC_LPP
 
-    def test_retraite_gets_small_3a(self):
-        """Retirees -> petit 3a (they can't contribute anyway, but safe default)."""
-        assert get_3a_ceiling("retraite", False) == PILIER_3A_PLAFOND_AVEC_LPP
+    def test_retraite_unknown_affiliation_gets_small_3a(self):
+        """Non-indépendant + affiliation inconnue (None) -> petit 3a (safe)."""
+        assert get_3a_ceiling("retraite", None) == PILIER_3A_PLAFOND_AVEC_LPP
 
-    def test_self_employed_with_none_lpp_gets_grand_3a(self):
-        """Self-employed with has_2nd_pillar=None (unknown) -> grand 3a.
-        For independents, default assumption is no LPP (most common case)."""
-        assert get_3a_ceiling("self_employed", None) == PILIER_3A_PLAFOND_SANS_LPP
+    def test_self_employed_with_none_lpp_grand_3a_needs_income(self):
+        """Self-employed affiliation inconnue -> grand 3a ; sans revenu ->
+        fail-closed None (jamais 36'288)."""
+        assert get_3a_ceiling("self_employed", None) is None
+        assert get_3a_ceiling(
+            "self_employed", None, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
 
     def test_case_insensitive(self):
         """Employment status should be case-insensitive."""
-        assert get_3a_ceiling("INDEPENDANT", False) == PILIER_3A_PLAFOND_SANS_LPP
-        assert get_3a_ceiling("Self_Employed", False) == PILIER_3A_PLAFOND_SANS_LPP
+        assert get_3a_ceiling("INDEPENDANT", False, annual_income=200_000.0) == PILIER_3A_PLAFOND_SANS_LPP
+        assert get_3a_ceiling("Self_Employed", False, annual_income=200_000.0) == PILIER_3A_PLAFOND_SANS_LPP
+
+    # ── OPP3 art. 7 : grand 3a borné à 20% du revenu (revue Codex P1-2) ──
+    # Oracles externes calculés à la main (jamais via le helper de prod).
+
+    def test_grand_3a_capped_at_20pct_of_income(self):
+        """Indépendant sans LPP, revenu 20'000 -> 20% = 4'000 (pas 36'288)."""
+        assert get_3a_ceiling("independant", False, annual_income=20_000.0) == 4_000.0
+
+    def test_grand_3a_20pct_below_absolute_ceiling(self):
+        """Revenu 100'000 -> 20% = 20'000 (< plafond absolu)."""
+        assert get_3a_ceiling("independant", False, annual_income=100_000.0) == 20_000.0
+
+    def test_grand_3a_absolute_ceiling_when_income_high(self):
+        """Revenu 200'000 -> 20% = 40'000 borné à 36'288."""
+        assert get_3a_ceiling(
+            "independant", False, annual_income=200_000.0
+        ) == PILIER_3A_PLAFOND_SANS_LPP
+
+    def test_grand_3a_no_income_fails_closed(self):
+        """FAIL-CLOSED (revue Codex F1) : grand 3a dû mais revenu inconnu / nul /
+        négatif -> None, JAMAIS 36'288. Les appelants affichent la règle."""
+        assert get_3a_ceiling("independant", False, annual_income=None) is None
+        assert get_3a_ceiling("independant", False, annual_income=0.0) is None
+        assert get_3a_ceiling("independant", False, annual_income=-10_000.0) is None
+        assert get_3a_ceiling("salarie", False, annual_income=None) is None
+
+    def test_grand_3a_non_finite_income_fails_closed(self):
+        """Revenu non fini / non numérique -> None (jamais un nan propagé)."""
+        assert get_3a_ceiling("independant", False, annual_income=float("nan")) is None
+        assert get_3a_ceiling("independant", False, annual_income=float("inf")) is None
+
+    def test_grand_3a_coerces_decimal_and_string_income(self):
+        """Decimal / chaîne numérique coercés proprement (pas de TypeError)."""
+        from decimal import Decimal
+
+        assert get_3a_ceiling("independant", False, annual_income=Decimal("20000")) == 4_000.0
+        assert get_3a_ceiling("independant", False, annual_income="20000") == 4_000.0
+
+    def test_income_ignored_for_salarie(self):
+        """Le revenu n'affecte pas le petit 3a (salarié affilié LPP)."""
+        assert get_3a_ceiling("salarie", True, annual_income=20_000.0) == PILIER_3A_PLAFOND_AVEC_LPP
+
+    def test_income_cap_ignored_when_independant_has_lpp(self):
+        """Indépendant AVEC LPP -> petit 3a, revenu sans effet."""
+        assert get_3a_ceiling("independant", True, annual_income=20_000.0) == PILIER_3A_PLAFOND_AVEC_LPP
 
 
 class TestCalculateTaxPotentialWith3aCeiling:
@@ -81,7 +138,9 @@ class TestCalculateTaxPotentialWith3aCeiling:
         assert "CHF" in result
 
     def test_independant_sans_lpp_higher_potential(self):
-        """Indépendant sans LPP should have ~5x higher tax saving potential."""
+        """Indépendant sans LPP garde un potentiel plus élevé, mais borné par
+        OPP3 art. 7 (20% du revenu) : à 100'000 le grand 3a est plafonné à
+        20'000 (pas 36'288), soit ~2.8x le petit 3a et non ~5x (revue Codex P1-2)."""
         result_salarie = calculate_tax_potential("ZH", 100_000, "single", "salarie", True)
         result_indep = calculate_tax_potential("ZH", 100_000, "single", "independant", False)
         # Parse the range values
@@ -90,7 +149,7 @@ class TestCalculateTaxPotentialWith3aCeiling:
             return sum(nums) / len(nums)
         avg_salarie = parse_range(result_salarie)
         avg_indep = parse_range(result_indep)
-        assert avg_indep > avg_salarie * 3  # At least 3x higher
+        assert avg_indep > avg_salarie * 2  # encore nettement plus élevé, cap OPP3
 
 
 class TestRecommendationsUse3aCeiling:
@@ -112,14 +171,17 @@ class TestRecommendationsUse3aCeiling:
         )
 
     def test_independant_sans_lpp_3a_recommendation(self):
-        """Indépendant sans LPP should get 36'288 in 3a recommendation."""
+        """Indépendant sans LPP : grand 3a borné à 20% du revenu (OPP3 art. 7).
+        Profil incomeGrossYearly=120'000 -> 20% = 24'000 (pas le 36'288 nu ;
+        revue Codex P1-2)."""
         profile = self._make_profile("independant", False)
         recos = generate_recommendations(profile)
         three_a_recos = [r for r in recos if r.kind == "pillar3a"]
         assert len(three_a_recos) == 1
-        # The assumption text should mention 36'288, not 7'258
+        # oracle externe : 0.20 * 120'000 = 24'000 (grand 3a > petit 7'258).
         assumptions_text = " ".join(three_a_recos[0].assumptions)
-        assert "36" in assumptions_text  # 36,288 or 36'288
+        assert "24000" in assumptions_text
+        assert "36288" not in assumptions_text
 
     def test_salarie_avec_lpp_3a_recommendation(self):
         """Salarié avec LPP should get 7'258 in 3a recommendation."""
@@ -310,3 +372,61 @@ class TestTargetRetirementAge:
         # Both should be positive
         assert early_value > 0
         assert late_value > 0
+
+
+class TestOptimizerSingleAssiette:
+    """Codex H2 — le revenu déterminant (net indépendant) sert AU PLAFOND ET À
+    L'ÉCONOMIE (pas le plafond sur le net et l'économie sur le brut)."""
+
+    def test_independant_net_income_used_for_both_ceiling_and_saving(self):
+        import uuid
+        from datetime import datetime, timezone
+
+        profile = Profile(
+            id=str(uuid.uuid4()), birthYear=1985, canton="VD",
+            householdType=HouseholdType.single,
+            employmentStatus="independant", has2ndPillar=False,
+            incomeGrossYearly=120_000.0, selfEmployedNetIncome=20_000.0,
+            goal="optimize_taxes", createdAt=datetime.now(timezone.utc),
+        )
+        recos = [r for r in generate_recommendations(profile) if r.kind == "pillar3a"]
+        assert len(recos) == 1
+        # plafond = 20% de 20'000 net = 4'000 ; économie sur le NET 20'000 (pas
+        # le brut 120'000) = 674.40, jamais 1'487.04.
+        assert recos[0].impact.amountCHF == pytest.approx(674.40, abs=0.01)
+        assert "4000" in " ".join(recos[0].assumptions)
+
+
+class TestStatusBasedAssietteAndSessionReport:
+    """Codex I1 (assiette selon statut) + I2 (rapport de session affiliation-aware)."""
+
+    def test_i1_salarie_residual_indep_key_uses_salary(self):
+        import uuid
+        from datetime import datetime, timezone
+
+        p = Profile(
+            id=str(uuid.uuid4()), birthYear=1985, canton="VD",
+            householdType=HouseholdType.single, employmentStatus="salarie",
+            has2ndPillar=True, incomeGrossYearly=100_000.0,
+            selfEmployedNetIncome=20_000.0, goal="optimize_taxes",
+            createdAt=datetime.now(timezone.utc),
+        )
+        r = [x for x in generate_recommendations(p) if x.kind == "pillar3a"][0]
+        # base salariale (100k, plafond 7'258) -> 2'305.38, pas 1'044.38 (20k).
+        assert r.impact.amountCHF == pytest.approx(2305.38, abs=0.01)
+
+    def test_i2_tax_potential_is_affiliation_aware(self):
+        # NOTE : teste calculate_tax_potential directement (le chemin
+        # generate_session_report a été vérifié manuellement — revue ronde 5).
+        # indépendant sans LPP 20k : avec statut, plafond 4'000 (< sans statut
+        # 7'258) -> potentiel plus bas, affiliation-aware.
+        aware = calculate_tax_potential(
+            "VD", 20_000, employment_status="independant", has_2nd_pillar=False
+        )
+        naive = calculate_tax_potential("VD", 20_000)
+
+        def _avg(s):
+            n = [int(x) for x in s.replace("~", "").replace(" CHF", "").split("-")]
+            return sum(n) / len(n)
+
+        assert _avg(aware) < _avg(naive)

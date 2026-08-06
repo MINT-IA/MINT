@@ -42,6 +42,9 @@ ALLOW = {
     # --- ops: sha de deploy dans /api/v1/health (vérification post-promotion) ---
     "services/backend/app/api/v1/endpoints/health.py",
     "services/backend/app/schemas/common.py",
+    "services/backend/app/schemas/coaching.py",
+    "services/backend/app/models/coach_tools/cross_pillar.py",
+    "services/backend/tests/test_coach_tools_cross_pillar.py",
     "services/backend/tests/test_health.py",
     # --- prep Flutter 3.44.8 : ancêtre Material pour les tiles en carte colorée
     # (assertion debug ListTile._debugCheckBackgroundIsHidden). Écrans/widgets
@@ -463,6 +466,7 @@ ALLOW = {
     "services/backend/app/services/couple_optimizer/couple_optimizer.py",
     "services/backend/app/services/document_parser/avs_extract_parser.py",
     "services/backend/app/services/onboarding/minimal_profile_service.py",
+    "services/backend/app/services/onboarding/premier_eclairage_selector.py",
     "services/backend/app/services/retirement/avs_estimation_service.py",
     "services/backend/tests/test_golden_julien_lauren.py",
     "services/backend/tests/test_fiscal.py",
@@ -550,7 +554,9 @@ ALLOW = {
     "services/backend/app/services/rules_engine.py",
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
+    "services/backend/app/services/arbitrage/cross_pillar_service.py",
     "services/backend/tests/test_rules_engine.py",
+    "services/backend/tests/test_w16_logic_gaps.py",
     # Lint prescriptions (ADR 2026-07-28-prescriptions U1-U4)
     "services/backend/app/services/coach/prescription_vocab.py",
     "services/backend/tests/test_prescription_vocab.py",
