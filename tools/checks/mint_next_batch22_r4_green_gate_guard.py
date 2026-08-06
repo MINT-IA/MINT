@@ -81,12 +81,13 @@ FULL_MODE_INVOCATION = "python3 -I tools/checks/mint_next_batch22_r4_green_gate_
 
 # Re-pinned immutables frozen by this transition. These MUST equal the current
 # files: the RED guard and the ANCHOR-green registry cannot silently drift while
-# the GREEN gate that supersedes their replay is under review. Phase B (année =
-# hypothèse par défaut, plus une question) re-pinned BOTH: the RED guard's
-# EXPECTED_TEST_SHA256 + the registry's candidate_binding to the new sealed-test
-# sha after the shared entry path dropped the two fact_tax_year taps.
-RED_GUARD_SHA256 = "c87c3a692582f36bf88ffc9b513684df65dc2cec124fd5d6e7b123dbeb3a8f91"
-REGISTRY_SHA256 = "e8bf0a2aa210c0ebb1b5339788c6ca4dabe1c5e97d5d7c6a35e8dad3efb4385d"
+# the GREEN gate that supersedes their replay is under review. Re-pinned twice:
+# Phase B (fact_tax_year removal → entry-path sha) and the Vague Groupée fermeture
+# (etat_civil.continue→eclairage wiring renamed R4_14, non_affilie R4_17 added →
+# 16→17 obligations; the RED guard's EXPECTED_TEST_NAMES/SUBGATES + registry
+# named-inventory/sentinels/subgates/summary + candidate_binding all re-pinned).
+RED_GUARD_SHA256 = "1ea35e18664e32b1e572aba15065cb7a72149c2d9377f143b8786a3c276293d3"
+REGISTRY_SHA256 = "c4b709a5e9cc8439fada9f8ba8d1677eabf6b4baf75ce05abbb36aaac81e1ef7"
 
 WORKING_DIRECTORY = "product/mint_next/batch7/design_lab"
 # Same targeted, machine-readable command as the RED replay; only the expected
@@ -95,7 +96,7 @@ GREEN_COMMAND = [
     "flutter", "test", "test/design_lab_batch22_r4_test.dart",
     "--machine", "--no-pub",
 ]
-GREEN_SUMMARY = {"passed": 16, "failed": 0, "load_or_harness_errors": 0}
+GREEN_SUMMARY = {"passed": 17, "failed": 0, "load_or_harness_errors": 0}
 
 # (c) CI enforcement. While PENDING only the structure gate runs (--contract).
 # Acceptance is attested by EXECUTING the full green replay (run_expected_green

@@ -453,6 +453,36 @@ void main() {
     });
   });
 
+  group('R4 fermeture footer wiring (batch22 integration)', () {
+    testWidgets('continue advances to the civil-status node (registry order)',
+        (tester) async {
+      await _pumpScenarios(tester);
+      await _tap(tester, 'action:scenarios.continue');
+      expect(_key('node:fact_etat_civil'), findsOneWidget);
+      expect(_key('node:scenarios_versement'), findsNothing);
+    });
+
+    testWidgets('back returns to the eclairage payoff', (tester) async {
+      await _pumpScenarios(tester);
+      await _tap(tester, 'action:scenarios.back');
+      expect(_key('node:eclairage_impot_3a'), findsOneWidget);
+      expect(_key('node:scenarios_versement'), findsNothing);
+    });
+
+    testWidgets(
+        'keep_local_reference persists and STAYS on the node with an announced chip',
+        (tester) async {
+      await _pumpScenarios(tester);
+      expect(_key('status:scenarios.reference_kept'), findsNothing);
+      await _tap(tester, 'action:scenarios.keep_local_reference');
+      // Never leaves the fermeture node...
+      expect(_key('node:scenarios_versement'), findsOneWidget);
+      // ...and announces the persisted state (a11y live-region chip).
+      expect(_key('status:scenarios.reference_kept'), findsOneWidget);
+      expect(find.textContaining('Estimation gardée'), findsOneWidget);
+    });
+  });
+
   testWidgets(
       'compact 320x700 text scale two keeps choose_line, a scenario, liquidity, disclaimer, no overflow',
       (tester) async {

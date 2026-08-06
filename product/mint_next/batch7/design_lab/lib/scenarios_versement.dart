@@ -35,11 +35,13 @@
 // overlay, whose note is qualitative and therefore safe to reuse for ANY
 // deductible amount (it never states a number).
 //
-// CONTRACT GAP note: two copy keys the sealed r4-six-locale-copy.yaml scope
+// CONTRACT GAP note: three copy keys the sealed r4-six-locale-copy.yaml scope
 // names but does not provide (`scenarios_excess_note`,
-// `scenarios_own_amount_save`) and four per-fact pending nouns are filled as
-// documented gap-fills in r4_fermeture_catalog.g.dart (same pattern R3 used
-// for gloss_dismiss / provenance_exact / eclairage_amount_open).
+// `scenarios_own_amount_save`, and the batch22-integration
+// `scenarios_reference_kept` — the announced keep_local_reference confirmation)
+// and four per-fact pending nouns are filled as documented gap-fills in
+// r4_fermeture_catalog.g.dart (same pattern R3 used for gloss_dismiss /
+// provenance_exact / eclairage_amount_open).
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -94,6 +96,7 @@ class ScenariosVersementScreen extends StatefulWidget {
     required this.affiliated,
     this.contributedChf = 0,
     this.nonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf,
+    this.referenceKept = false,
     required this.onBack,
     required this.onContinue,
     required this.onPendingComplete,
@@ -119,6 +122,11 @@ class ScenariosVersementScreen extends StatefulWidget {
   /// The non-affilié "revenu net de l'activité lucrative" hypothesis feeding
   /// the OPP3 20% cap. Defaults to the sealed exact fixture point (20 000).
   final int nonAffiliatedIncomeChf;
+
+  /// R4 (batch22) integration: true once keep_local_reference has persisted the
+  /// local reference. keep_local_reference STAYS on this node (never routes) and
+  /// this flag drives the announced "reference kept" live-region chip.
+  final bool referenceKept;
 
   /// Exact history back. `back` is NOT in scenarios_versement-scope.yaml's
   /// never_routes_in_r4_applies_to list, but the isolated batch22 harness has
@@ -936,6 +944,13 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // R4 (batch22) integration: keep_local_reference persists in place —
+            // the announced live-region chip confirms the kept state without
+            // leaving the node (it is never offered in the pending state).
+            if (state != _RenderState.pending && widget.referenceKept) ...[
+              _ReferenceKeptChip(text: copy['scenarios_reference_kept']!),
+              const SizedBox(height: 12),
+            ],
             if (state == _RenderState.pending)
               _PrimaryButton(
                 buttonKey: 'action:scenarios.pending_action',
@@ -1172,6 +1187,43 @@ class _TextButton extends StatelessWidget {
               fontWeight: FontWeight.w700,
               color: _sauge,
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// R4 (batch22) integration: the announced "reference kept" confirmation for
+/// keep_local_reference. A live-region so the screen reader speaks it the moment
+/// the reference is persisted, without leaving the node.
+class _ReferenceKeptChip extends StatelessWidget {
+  const _ReferenceKeptChip({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const ValueKey('status:scenarios.reference_kept'),
+      alignment: Alignment.centerLeft,
+      constraints: const BoxConstraints(minHeight: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: _porcelain,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _cardBorder),
+      ),
+      child: Semantics(
+        container: true,
+        liveRegion: true,
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontFamily: 'Supreme',
+            fontSize: 15,
+            height: 1.35,
+            color: _ink,
           ),
         ),
       ),

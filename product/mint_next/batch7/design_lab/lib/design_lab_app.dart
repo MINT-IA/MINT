@@ -310,6 +310,15 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
   int _scenariosContributedChf = 0;
   int _scenariosNonAffiliatedIncomeChf = r4Plafond20DemoIncomeChf;
   String? _batch22CivilStatus;
+  // R4 (batch22) integration: fact_etat_civil is now reachable from BOTH the
+  // éclairage situation-row refine AND scenarios_versement.continue — its back
+  // button returns to whichever origin opened it (origin-aware, like the
+  // fact_lieu/fact_canton back helpers). Defaults to the éclairage payoff.
+  _DesignNode _etatCivilOrigin = _DesignNode.eclairageImpot3a;
+  // R4 (batch22) integration: scenarios_versement.keep_local_reference is a
+  // stay-put persist (never leaves the node) — this flag drives the announced
+  // "reference kept" live-region chip.
+  bool _scenariosReferenceKept = false;
   _LppAffiliation? _lppAffiliation;
   _ContributionStatus? _contributionStatus;
   bool _contributionEdgeHelpExpanded = false;
@@ -369,10 +378,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       };
     }
     // R4 (batch22) harness: land directly on the requested fermeture-de-la-
-    // boucle node with its facts preset — isolated parallel prep, the linear
-    // journey is not wired (never_routes_in_r4).
+    // boucle node with its facts preset. The fermeture edges are now WIRED
+    // (fact_etat_civil.continue -> éclairage ; scenarios.back -> éclairage), so
+    // the harness seeds the default year hypothesis (Phase B: année is always
+    // seeded once in-journey) — otherwise routing to the éclairage payoff would
+    // hit a null `_taxYear!`.
     final batch22 = widget.batch22;
     if (batch22 != null) {
+      _taxYear = widget.currentYear;
       _scenariosTaxYear = batch22.taxYearKnown ? widget.currentYear : null;
       _scenariosCommune = batch22.communeKnown ? batch22.commune : null;
       _scenariosCanton = batch22.communeKnown ? batch22.canton : null;
@@ -479,8 +492,58 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       _scenariosBand = _taxableIncomeBand;
       _scenariosAffiliated = _lppAffiliation == _LppAffiliation.yes;
       _scenariosContributedChf = 0;
+      // A fresh arrival on scenarios starts with no local reference kept.
+      _scenariosReferenceKept = false;
       _node = _DesignNode.scenariosVersement;
     });
+  }
+
+  /// R4 (batch22) integration: map a committed civil status to the éclairage
+  /// situation hypothesis. marie_pacse -> marié ; concubinage -> concubinage
+  /// (is_married = false, so the NUMBER stays célibataire-equivalent — no ×0.80
+  /// splitting, per the sealed R4_13 ruling) ; célibataire / unset -> célibataire.
+  EclairageSituation _situationFromCivilStatus(String? status) =>
+      switch (status) {
+        'marie_pacse' => EclairageSituation.marie,
+        'concubinage' => EclairageSituation.concubinage,
+        _ => EclairageSituation.celibataire,
+      };
+
+  /// R4 (batch22) integration: the éclairage situation-row refine affordance
+  /// opens the civil-status collection node; origin-aware back returns here.
+  void _refineSituationToEtatCivil() {
+    setState(() {
+      _etatCivilOrigin = _DesignNode.eclairageImpot3a;
+      _node = _DesignNode.factEtatCivil;
+    });
+  }
+
+  /// R4 (batch22) integration: scenarios_versement.continue advances to the
+  /// civil-status node (registry order scenarios -> etat_civil); origin-aware
+  /// back returns to scenarios.
+  void _enterEtatCivilFromScenarios() {
+    setState(() {
+      _etatCivilOrigin = _DesignNode.scenariosVersement;
+      _node = _DesignNode.factEtatCivil;
+    });
+  }
+
+  /// R4 (batch22) integration: fact_etat_civil.continue returns to the éclairage
+  /// payoff, which re-derives its situation hypothesis from the committed
+  /// status (still display-only — no fabricated married range, NEVER#3). The
+  /// screen guards this edge (a_status_is_selected): with no status it surfaces
+  /// the no-selection error and never calls this.
+  void _continueFromEtatCivil() => _go(_DesignNode.eclairageImpot3a);
+
+  /// R4 (batch22) integration: origin-aware back from fact_etat_civil.
+  void _backFromEtatCivil() => _go(_etatCivilOrigin);
+
+  /// R4 (batch22) integration: scenarios_versement.keep_local_reference persists
+  /// a local reference and STAYS on the node, announcing the kept state via an
+  /// a11y live-region chip — it never leaves the fermeture node.
+  void _keepScenariosReference() {
+    if (_scenariosReferenceKept) return;
+    setState(() => _scenariosReferenceKept = true);
   }
 
   void _returnToAmountField() {
@@ -766,12 +829,14 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
       case _DesignNode.dismissed:
         _go(_DesignNode.today3aIntent);
       case _DesignNode.scenariosVersement:
+        // R4 (batch22) integration: scenarios is now linearly reached from the
+        // éclairage payoff — system back mirrors the screen back edge.
+        _go(_DesignNode.eclairageImpot3a);
       case _DesignNode.factEtatCivil:
-        // Isolated batch22 harness entries: no prior node in this
-        // parallel-prep lane (linear wiring is the promoter's integration
-        // wave) — system back offers the safe-exit sheet, like the other
-        // harness entry points.
-        _showSafeExit();
+        // R4 (batch22) integration: fact_etat_civil is now linearly reached from
+        // the éclairage refine OR scenarios.continue — system back mirrors the
+        // origin-aware screen back edge.
+        _backFromEtatCivil();
     }
   }
 
@@ -1131,8 +1196,16 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             cantonLabel: r3ExampleCanton,
                             canContribute3a:
                                 widget.batch21?.canContribute ?? true,
-                            initialSituation: widget.batch21?.situation ??
-                                EclairageSituation.celibataire,
+                            // R4 (batch22) integration: the situation hypothesis
+                            // DERIVES from the committed civil status once the
+                            // user has refined it (fact_etat_civil), else falls
+                            // back to the R3 default (célibataire). The value
+                            // stays display-only — the row's NUMBER never gets a
+                            // fabricated married ×0.80 (NEVER#3 / sealed R4_13).
+                            initialSituation: _batch22CivilStatus != null
+                                ? _situationFromCivilStatus(_batch22CivilStatus)
+                                : (widget.batch21?.situation ??
+                                    EclairageSituation.celibataire),
                             initialExactIncome: widget.batch21?.exactIncome,
                             onBack: () => _go(_DesignNode.factRevenu),
                             // R4 (batch22) integration: continue now routes to
@@ -1144,9 +1217,9 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             onPendingComplete: () =>
                                 _go(_DesignNode.factRevenu),
                             // R4 (batch22) integration: the situation row's
-                            // refine affordance opens the civil-status node.
-                            onRefineSituation: () =>
-                                _go(_DesignNode.factEtatCivil),
+                            // refine affordance opens the civil-status node
+                            // (origin-aware back returns to the payoff).
+                            onRefineSituation: _refineSituationToEtatCivil,
                           ),
                           _DesignNode.educationExplanation =>
                             _EducationBoundary(onBack: _backFromEducation),
@@ -1154,16 +1227,22 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             title: l10n.dismissedTitle,
                             onRestart: () => _go(_DesignNode.today3aIntent),
                           ),
-                          // R4 batch22 — INBOUND edges are now wired by this
-                          // integration batch (eclairage.continue -> scenarios
-                          // via _enterScenariosFromEclairage, and the eclairage
-                          // situation refine -> fact_etat_civil). These nodes'
-                          // OWN forward/back edges stay inert no-ops:
-                          // never_routes_in_r4 still covers scenarios_versement's
-                          // continue/keep_local_reference/prepare_personal_setup/
-                          // review_existing_overcontribution and BOTH
-                          // fact_etat_civil's continue and back — their outbound
-                          // wiring (incl. the married recompute) is a later batch.
+                          // R4 batch22 — the fermeture-de-boucle loop is now
+                          // CLOSED by this integration batch. Inbound:
+                          // eclairage.continue -> scenarios (via
+                          // _enterScenariosFromEclairage) and eclairage situation
+                          // refine -> fact_etat_civil. Outbound (this wave):
+                          // scenarios.continue -> fact_etat_civil (registry
+                          // order) ; scenarios.back -> eclairage ;
+                          // scenarios.keep_local_reference persists + STAYS on
+                          // the node (announced) ; fact_etat_civil.continue ->
+                          // eclairage (situation re-derives, display-only —
+                          // never a fabricated married ×0.80, NEVER#3) ;
+                          // fact_etat_civil.back is origin-aware. Still inert:
+                          // scenarios.pending complete_action and
+                          // review_existing_overcontribution (boundary nodes out
+                          // of scope). The married RECOMPUTE stays a later
+                          // backend batch (L2 sensitivity, NEVER#3).
                           _DesignNode.scenariosVersement =>
                             ScenariosVersementScreen(
                               taxYear: _scenariosTaxYear,
@@ -1174,10 +1253,11 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                               contributedChf: _scenariosContributedChf,
                               nonAffiliatedIncomeChf:
                                   _scenariosNonAffiliatedIncomeChf,
-                              onBack: () {},
-                              onContinue: () {},
+                              referenceKept: _scenariosReferenceKept,
+                              onBack: () => _go(_DesignNode.eclairageImpot3a),
+                              onContinue: _enterEtatCivilFromScenarios,
                               onPendingComplete: () {},
-                              onKeepLocalReference: () {},
+                              onKeepLocalReference: _keepScenariosReference,
                               onReviewExistingOvercontribution: () {},
                             ),
                           _DesignNode.factEtatCivil => FactEtatCivilScreen(
@@ -1185,8 +1265,8 @@ class _DesignLabJourneyState extends State<_DesignLabJourney>
                             selectedStatus: _batch22CivilStatus,
                             onSelectStatus: (status) =>
                                 setState(() => _batch22CivilStatus = status),
-                            onBack: () {},
-                            onContinue: null,
+                            onBack: _backFromEtatCivil,
+                            onContinue: _continueFromEtatCivil,
                           ),
                         },
                       ),

@@ -1,4 +1,4 @@
-current_verdict: GREEN_GATE_ACCEPTED_RUNTIME_IMPLEMENTED_HIDDEN_ONLY
+current_verdict: PENDING_INDEPENDENT_ROASTS
 green_gate:
   active_gate_upon_promotion: green_replay_16_16
   ci_enforcement:
@@ -17,7 +17,7 @@ green_gate:
   expected_summary:
     failed: 0
     load_or_harness_errors: 0
-    passed: 16
+    passed: 17
   obligation_test_names:
   - R4_01 the wired arc reaches the delivered eclairage boundary before the R4 fermeture
     runtime
@@ -42,22 +42,25 @@ green_gate:
     it
   - R4_12 the splitting glossary sheet opens focus trapped and restored
   - R4_13 the concubinage glossary states separate taxation never the married splitting
-  - R4_14 fact_etat_civil error no selection is announced and continue never routes
-    in r4
+  - R4_14 fact_etat_civil no selection announces the error and stays but a selected
+    status routes continue to eclairage
   - R4_15 compact 320x700 text scale two shows the question the three status cards
     and continue without overflow
   - R4_16 registry keeps R4 after R3 before runtime_global and excludes later evidence
+  - R4_17 non_affilie reaches a derived ceiling never a flat 7258
   retires: red_replay_2_14
   test_file: product/mint_next/batch7/design_lab/test/design_lab_batch22_r4_test.dart
-  test_sha256: f285ccc9d283037bfe1197064b8a801d3ae3ee1e9dede32f141be3290da2dbc5
+  test_sha256: 9bd42346cfae38ec87026d4fdb57da32036d9cbbe7fcb997a33fda52e57fff9e
   working_directory: product/mint_next/batch7/design_lab
 mechanical_binding:
-  candidate_payload_sha256: 0af9b73377b47f74983e74a876942af544f8d63bd0421b14f3227f773b481dbf
-  green_lib_inventory_sha256: b488fd3da8ddf93c1a35aa38c8e0fdad1fe9d0df9997fa1a9ce45cae80caada2
-  reviewed_candidate_commit: c04f2fa33a84b2eb950f831c42e7d9f1705b7da7
-  reviewed_payload_sha256: 0af9b73377b47f74983e74a876942af544f8d63bd0421b14f3227f773b481dbf
+  candidate_payload_sha256: f626d094490f81638cc821c47c1a817c998b227d89b80b8cdf06c351ecba2aab
+  green_lib_inventory_sha256: null
+  reviewed_candidate_commit: null
+  reviewed_payload_sha256: null
 next_gate: seal_R4_green_lib_inventory_then_runtime_global
 not_accepted:
+- runtime_accepted
+- lib_inventory_sealed
 - product_route
 - production_ready
 path_owner_topology:
@@ -71,29 +74,26 @@ product_promotion: forbidden
 re_pinned_immutables:
   red_guard:
     path: tools/checks/mint_next_batch22_r4_red_guard.py
-    sha256: c87c3a692582f36bf88ffc9b513684df65dc2cec124fd5d6e7b123dbeb3a8f91
+    sha256: 1ea35e18664e32b1e572aba15065cb7a72149c2d9377f143b8786a3c276293d3
   registry:
     path: product/mint_next/batch22/runtime-gates.yaml
-    sha256: e8bf0a2aa210c0ebb1b5339788c6ca4dabe1c5e97d5d7c6a35e8dad3efb4385d
+    sha256: c4b709a5e9cc8439fada9f8ba8d1677eabf6b4baf75ce05abbb36aaac81e1ef7
 reviews:
   journey_safety:
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 0af9b73377b47f74983e74a876942af544f8d63bd0421b14f3227f773b481dbf
-    verdict: ACCEPT
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
   mechanical_adversary:
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 0af9b73377b47f74983e74a876942af544f8d63bd0421b14f3227f773b481dbf
-    verdict: ACCEPT
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
   scope_integrity:
-    p1: 0
-    p2: 0
-    p3: 0
-    reviewed_payload_sha256: 0af9b73377b47f74983e74a876942af544f8d63bd0421b14f3227f773b481dbf
-    verdict: ACCEPT
+    p1: null
+    p2: null
+    p3: null
+    verdict: PENDING
 runtime_regating:
   lib_inventory_seal: sealed_at_acceptance_green_lib_inventory_sha256
   regated_files:
@@ -106,7 +106,7 @@ runtime_regating:
   scope_owner: batch22-r4-runtime
 runtime_surface: hidden_design_lab_only
 schema_version: 1
-status: accepted_green_gate_runtime_implemented_hidden_only
+status: candidate_green_gate_unaccepted
 supersedes:
   accepted_payload_sha256: 03a65849bebfb9e0aaab81d321bbea556bfe89797b0eebee55ddcaab7b2c8f99
   accepted_receipt_commit: 5b83b7e7b

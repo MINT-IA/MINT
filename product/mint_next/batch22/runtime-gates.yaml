@@ -39,10 +39,10 @@ gates:
     expected_exit_code: 1
     expected_summary:
       passed: 2
-      failed: 14
+      failed: 15
       load_or_harness_errors: 0
     candidate_binding:
-      test_sha256: f285ccc9d283037bfe1197064b8a801d3ae3ee1e9dede32f141be3290da2dbc5
+      test_sha256: 9bd42346cfae38ec87026d4fdb57da32036d9cbbe7fcb997a33fda52e57fff9e
     subgates:
       R4a_scenarios_versement:
       - R4_02
@@ -52,6 +52,7 @@ gates:
       - R4_06
       - R4_07
       - R4_08
+      - R4_17
       R4b_fact_etat_civil:
       - R4_09
       - R4_10
@@ -74,9 +75,10 @@ gates:
       R4_11: R4_11 selecting the concubinage card announces the selection summary and marks it
       R4_12: R4_12 the splitting glossary sheet opens focus trapped and restored
       R4_13: R4_13 the concubinage glossary states separate taxation never the married splitting
-      R4_14: R4_14 fact_etat_civil error no selection is announced and continue never routes in r4
+      R4_14: R4_14 fact_etat_civil no selection announces the error and stays but a selected status routes continue to eclairage
       R4_15: R4_15 compact 320x700 text scale two shows the question the three status cards and continue without overflow
       R4_16: R4_16 registry keeps R4 after R3 before runtime_global and excludes later evidence
+      R4_17: R4_17 non_affilie reaches a derived ceiling never a flat 7258
     expected_red_sentinels:
       R4_02 scenarios_versement nominal shows the choose line at least two scenario effect ranges and never a single bare number: R4_02
       R4_03 scenarios_versement arrival focuses the choose line heading not a scenario amount and carries the meaning without a body: R4_03
@@ -90,8 +92,9 @@ gates:
       R4_11 selecting the concubinage card announces the selection summary and marks it: R4_11
       R4_12 the splitting glossary sheet opens focus trapped and restored: R4_12
       R4_13 the concubinage glossary states separate taxation never the married splitting: R4_13
-      R4_14 fact_etat_civil error no selection is announced and continue never routes in r4: R4_14
+      R4_14 fact_etat_civil no selection announces the error and stays but a selected status routes continue to eclairage: R4_14
       R4_15 compact 320x700 text scale two shows the question the three status cards and continue without overflow: R4_15
+      R4_17 non_affilie reaches a derived ceiling never a flat 7258: R4_17
   runtime_global:
     state: blocked_by_R4
 runtime_regating:

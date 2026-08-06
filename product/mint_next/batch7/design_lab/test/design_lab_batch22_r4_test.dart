@@ -1,35 +1,33 @@
 // Batch22 R4 (FERMETURE DE LA BOUCLE — scenarios_versement + fact_etat_civil)
-// expected-RED contract for the hidden design lab.
+// GREEN integration contract for the hidden design lab.
 //
-// HONEST expected-RED — the INTEGRATION-JOURNEY contract, one notch beyond R3.
-// R3 is DONE and wired: the shared 3a entry path now routes fact_lieu ->
-// fact_revenu -> eclairage_impot_3a (the attested batch21 GREEN boundary — it
-// works, and this test drives it). R4 closes the loop with two nodes that the
-// journey does NOT yet reach:
-//   * scenarios_versement — reached by eclairage.continue, which today is a
-//     kept boundary (action:eclairage.continue exists but NEVER routes in R3);
-//   * fact_etat_civil — reached by a FUTURE refine affordance on the eclairage
-//     situation row (display-only in R3, no refine action exists yet).
-// Each obligation walks the already-green path to the delivered eclairage
-// boundary, then asserts the R4 surface the journey does not yet reach, failing
-// on its named reach assertion with a clean [R4_XX] TestFailure — never a
-// route/late-init/range harness error, and never by mutating R1/R2/R3.
+// The INTEGRATION-JOURNEY contract, one notch beyond R3, now DELIVERED: the
+// fermeture-de-la-boucle loop is CLOSED. The shared 3a entry path routes
+// fact_lieu -> fact_revenu -> eclairage_impot_3a (the attested batch21 GREEN
+// boundary), and R4 wires the two nodes the journey now reaches:
+//   * scenarios_versement — reached by eclairage.continue (superseding the R3
+//     kept boundary on that edge). Its footer is wired: continue ->
+//     fact_etat_civil (registry order), back -> eclairage, keep_local_reference
+//     persists + STAYS on the node (announced live-region);
+//   * fact_etat_civil — reached by the eclairage situation-row refine affordance.
+//     Its footer is wired: continue -> eclairage (the situation hypothesis
+//     re-derives from the committed status, still DISPLAY-ONLY — no fabricated
+//     married range, NEVER#3), back is origin-aware (eclairage OR scenarios).
+// Each obligation walks the green linear path (R4_02..R4_15) or drives the
+// batch22 harness for a non-linear state (R4_17), asserting the DELIVERED R4
+// surface — never a route/late-init/range harness error, and never by mutating
+// R1/R2/R3.
 //
-// COMPILES PRE-RUNTIME: only string ValueKeys and MintNextDesignLabApp — no R4
-// Dart symbol (no batch22Harness, no scenarios/etat_civil widget import). The R4
-// SCREENS land first (mint-mobile runtime), attested in the interim by the
-// runtime dev tests named in registry.deferred_integration.interim_evidence
-// (dev_scenarios_versement_r4_test.dart, dev_fact_etat_civil_r4_test.dart,
-// reached via MintNextDesignLabApp.batch22Harness). This linear contract flips
-// GREEN at the INTEGRATION BATCH — the declared next governance unit after the
-// runtime lands — which wires eclairage.continue -> scenarios_versement and the
-// eclairage situation row -> fact_etat_civil (refresh next_action / fact_household),
-// keeps situation display-only until the married recompute exists, and re-gates
-// the siblings. NOT at the screen-flip. Two positive controls pass: R4_01 (the
-// wired arc reaches the delivered eclairage boundary and the R4 nodes are not yet
-// there — holds in RED and after integration) and R4_16 (the registry keeps R4
-// after R3 / before runtime_global).
-// Expected machine summary: 2 passed, 14 failed, 0 load/harness errors.
+// The married RECOMPUTE stays out of scope (backend L2 sensitivity, NEVER#3):
+// the offline lab never calls the spouse-income-bounded range service and never
+// computes a married ×0.80 number in Dart. R4 delivers honest STATES / COPIES /
+// ROUTING only. Two positive controls hold: R4_01 (the wired arc reaches the
+// delivered eclairage boundary and neither R4 node is present there before
+// continue/refine) and R4_16 (the registry keeps R4 after R3 / before
+// runtime_global). R4_17 (D) drives the harness to a non-affilié scenarios state
+// and asserts the OPP3-derived ceiling (min(20% * net earned income, 36 288) =
+// 4 000 at income 20 000), never the flat affiliated 7 258.
+// Expected machine summary: 17 passed, 0 failed, 0 load/harness errors.
 //
 // regle13 lesson (a) simulated-green smoke: this file mutates NO process-global
 // state (no debugPrint reassignment, no un-restored overrides); the only
@@ -287,11 +285,21 @@ void main() {
   );
 
   testWidgets(
-    'R4_14 fact_etat_civil error no selection is announced and continue never routes in r4',
+    'R4_14 fact_etat_civil no selection announces the error and stays but a selected status routes continue to eclairage',
     (tester) async {
       await _reachEtatCivil(tester, sentinel: '[R4_14]');
+      // (a) no selection: continue announces the error and STAYS on the node.
       await _tapVisible(tester, 'action:etat_civil.continue');
       expect(_key('status:etat_civil.error_no_selection'), findsOneWidget);
+      expect(_key('node:fact_etat_civil'), findsOneWidget);
+      // (b) with a selection: continue clears the guard and ROUTES to the
+      // eclairage payoff, whose situation hypothesis re-derives from the
+      // committed status (still display-only — no fabricated married range,
+      // NEVER#3).
+      await _tapVisible(tester, 'choice:etat_civil.marie_pacse');
+      await _tapVisible(tester, 'action:etat_civil.continue');
+      expect(_key('node:fact_etat_civil'), findsNothing);
+      expect(_key('node:eclairage_impot_3a'), findsOneWidget);
     },
   );
 
@@ -325,6 +333,40 @@ void main() {
       expect(registry.contains('expected_red'), isTrue);
       expect(registry.contains('runtime_implemented'), isTrue);
       expect(registry.contains('runtime_global'), isTrue);
+    },
+  );
+
+  // --- R4 D: the non-affilié ceiling DERIVES (OPP3 art. 7) — never a flat 7258 ---
+  //
+  // Driven via the batch22 harness on a non-affilié scenarios state: the
+  // célibataire/affilié linear walk (choose_yes) can never reach affiliated:false,
+  // so — like the other off-nominal scenarios states in the runtime dev proof —
+  // this obligation lands the runtime under test directly. The cap is
+  // L1-deterministic (a crisp min(20% * net earned income, 36 288)), not a
+  // sensitivity, so it lives in the offline lab.
+  testWidgets(
+    'R4_17 non_affilie reaches a derived ceiling never a flat 7258',
+    (tester) async {
+      await tester.pumpWidget(
+        MintNextDesignLabApp.batch22Harness(
+          locale: const Locale('fr'),
+          currentYear: 2026,
+          batch22: const Batch22Config(
+            startNode: Batch22Start.scenariosVersement,
+            affiliated: false,
+            nonAffiliatedIncomeChf: 20000,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(_key('node:scenarios_versement'), findsOneWidget);
+      // The derived cap min(0.20 * 20 000, 36 288) = 4 000 is surfaced on the
+      // plafond line...
+      expect(_key('text:scenarios.plafond20_amount'), findsOneWidget);
+      expect(find.textContaining('4 000'), findsWidgets);
+      // ...and the flat affiliated 7 258 is NEVER shown for a non-affilié
+      // (fault_A: the forfait would overstate this cap by 81%).
+      expect(find.textContaining('7 258'), findsNothing);
     },
   );
 }

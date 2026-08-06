@@ -77,7 +77,7 @@ EXPECTED_SCENARIOS_SCOPE_SHA256 = "5d3ebea8de3d0e8c16cbd2f8c10e982d04383655d3d3b
 EXPECTED_ETAT_CIVIL_SCOPE_SHA256 = "a3fb33c2d9b0a0ab70d39be6f16c958036b849e1f8f3a2da396fb3a08d1c704e"
 EXPECTED_COPY_SHA256 = "b4e767ea44da998ed8ed25de4df8e642b487ca0c441798dae4ba5ea3d892b418"
 EXPECTED_FIXTURES_SHA256 = "ec1b419f1edd102b723b3a96f0bf773330fc94010e68c5f6d4498d86a30c51b2"
-EXPECTED_TEST_SHA256 = "f285ccc9d283037bfe1197064b8a801d3ae3ee1e9dede32f141be3290da2dbc5"
+EXPECTED_TEST_SHA256 = "9bd42346cfae38ec87026d4fdb57da32036d9cbbe7fcb997a33fda52e57fff9e"
 EXPECTED_FIXTURE_SHA256 = "25b9adad279215b54d67d924f9ea5fb754e97b5dae7746f30acf26e635f38700"
 EXPECTED_PUBSPEC_SHA256 = "0b83bf36a5ee2242becbd0fb601235f0c3b2942813207552a03957aaf1569326"
 EXPECTED_PUBSPEC_LOCK_SHA256 = "6d7f501ae44e385c80d3726c6a25d830d04d3acf0a7456c6129a293f97f885a1"
@@ -139,9 +139,10 @@ EXPECTED_TEST_NAMES = {
     "R4_11 selecting the concubinage card announces the selection summary and marks it",
     "R4_12 the splitting glossary sheet opens focus trapped and restored",
     "R4_13 the concubinage glossary states separate taxation never the married splitting",
-    "R4_14 fact_etat_civil error no selection is announced and continue never routes in r4",
+    "R4_14 fact_etat_civil no selection announces the error and stays but a selected status routes continue to eclairage",
     "R4_15 compact 320x700 text scale two shows the question the three status cards and continue without overflow",
     "R4_16 registry keeps R4 after R3 before runtime_global and excludes later evidence",
+    "R4_17 non_affilie reaches a derived ceiling never a flat 7258",
 }
 EXPECTED_FAILED_NAMES = EXPECTED_TEST_NAMES - {
     "R4_01 the wired arc reaches the delivered eclairage boundary before the R4 fermeture runtime",
@@ -167,7 +168,7 @@ EXPECTED_BLOCKED_GATES = {
     "runtime_global": "blocked_by_R4",
 }
 EXPECTED_SUBGATES = {
-    "R4a_scenarios_versement": ["R4_02", "R4_03", "R4_04", "R4_05", "R4_06", "R4_07", "R4_08"],
+    "R4a_scenarios_versement": ["R4_02", "R4_03", "R4_04", "R4_05", "R4_06", "R4_07", "R4_08", "R4_17"],
     "R4b_fact_etat_civil": [
         "R4_09", "R4_10", "R4_11", "R4_12", "R4_13", "R4_14", "R4_15",
     ],

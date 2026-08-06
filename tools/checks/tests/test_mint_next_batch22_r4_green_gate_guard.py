@@ -197,11 +197,12 @@ class Batch22R4GreenGateGuardTest(unittest.TestCase):
 
     def test_green_pins_the_frozen_red_test_byte_identical(self) -> None:
         # batch22 is byte-identical RED->GREEN (batch20 motif): the green gate pins
-        # the SAME test sha the RED guard froze, and the 16 obligation names are the
-        # RED names verbatim. There is no separate GREEN_TEST_SHA256.
+        # the SAME test sha the RED guard froze, and the 17 obligation names are the
+        # RED names verbatim (16 + the Vague Groupée R4_17 non_affilie obligation).
+        # There is no separate GREEN_TEST_SHA256.
         self.assertEqual(guard.EXPECTED_GREEN_GATE["test_sha256"], guard.red.EXPECTED_TEST_SHA256)
-        self.assertEqual(guard.GREEN_SUMMARY, {"passed": 16, "failed": 0, "load_or_harness_errors": 0})
-        self.assertEqual(len(guard.red.EXPECTED_TEST_NAMES), 16)
+        self.assertEqual(guard.GREEN_SUMMARY, {"passed": 17, "failed": 0, "load_or_harness_errors": 0})
+        self.assertEqual(len(guard.red.EXPECTED_TEST_NAMES), 17)
         self.assertEqual(
             guard.EXPECTED_GREEN_GATE["obligation_test_names"],
             sorted(guard.red.EXPECTED_TEST_NAMES),

@@ -129,9 +129,14 @@ void main() {
     await _tap(tester, 'choice:etat_civil.concubinage');
     expect(_key('status:etat_civil.selection'), findsOneWidget);
     expect(_key('status:etat_civil.selection_none'), findsNothing);
-    expect(_key('node:fact_etat_civil'), findsOneWidget); // no route
+    expect(_key('node:fact_etat_civil'), findsOneWidget); // no route on select
     expect(find.textContaining('En couple, non marié'), findsWidgets);
     expect(_key('text:etat_civil.recompute_hint'), findsOneWidget);
+    // The recompute hint is HONEST (batch22): it precises the "Situation"
+    // assumption and says the married economy depends on the couple's income —
+    // it never claims the estimate updates here (the lab is display-only).
+    expect(find.textContaining('Pour un ménage marié'), findsOneWidget);
+    expect(find.textContaining('met l’estimation à jour'), findsNothing);
   });
 
   testWidgets('same-status reselect is idempotent (no churn)', (tester) async {
@@ -145,7 +150,7 @@ void main() {
   });
 
   testWidgets(
-      'continue is guarded: no status stays put with an announced error, a status clears the guard',
+      'continue is guarded: no status stays put with an announced error, a selected status routes to the éclairage payoff',
       (tester) async {
     await _pumpEtatCivil(tester);
     await _tap(tester, 'action:etat_civil.continue');
@@ -154,9 +159,11 @@ void main() {
     await _tap(tester, 'choice:etat_civil.celibataire');
     await _tap(tester, 'action:etat_civil.continue');
     expect(_key('status:etat_civil.error_no_selection'), findsNothing);
-    // never_routes_in_r4 (continue AND back for this node): stays on the
-    // node — parallel prep, linear wiring is the promoter's integration wave.
-    expect(_key('node:fact_etat_civil'), findsOneWidget);
+    // R4 (batch22) integration: continue now clears the guard and routes to the
+    // éclairage payoff, whose situation hypothesis re-derives from the committed
+    // status (display-only — no fabricated married range, NEVER#3).
+    expect(_key('node:fact_etat_civil'), findsNothing);
+    expect(_key('node:eclairage_impot_3a'), findsOneWidget);
   });
 
   testWidgets(
