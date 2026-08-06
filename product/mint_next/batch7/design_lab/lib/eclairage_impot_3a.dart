@@ -505,6 +505,16 @@ class _EclairageScreenState extends State<EclairageScreen> {
                   // economy the user does not own (×0.80 on a forfait chef-lieu
                   // multiplier). concubinage == célibataire (no ×0.80) stays graven.
                   displayOnly: true,
+                  // MARRIED-ONLY co-located caveat (mint-experience P1, lead
+                  // arbitration VAGUE GROUPÉE): when the user is marié·e/pacsé·e
+                  // the hero range is STILL the single-person fixture figure (no
+                  // fabricated ×0.80, NEVER#3 — backend L2 sensitivity owns the
+                  // couple-income recompute). Say so, co-located with the row.
+                  // célibataire AND concubinage are is_married=false — the number
+                  // IS theirs, so no caveat is shown.
+                  caveat: widget.initialSituation == EclairageSituation.marie
+                      ? copy['eclairage_situation_caveat_marie']
+                      : null,
                   // R4 (batch22) integration: the situation refine is now a real
                   // edge to the civil-status collection node (fact_etat_civil).
                   // The value stays display-only until the married recompute
@@ -980,6 +990,7 @@ class _HypRow extends StatelessWidget {
     this.badge,
     this.isLast = false,
     this.displayOnly = false,
+    this.caveat,
     this.refineActionKey,
     this.refineLabel,
     this.refineFocusNode,
@@ -994,6 +1005,14 @@ class _HypRow extends StatelessWidget {
   final String? badge;
   final VoidCallback? onTap;
   final bool isLast;
+
+  /// An optional CO-LOCATED display-only caveat rendered directly under the
+  /// row's label·value (used by the R3 situation row when the user is married:
+  /// the fixture range is still a single-person figure — no fabricated ×0.80,
+  /// NEVER#3). It renders inside the row's Semantics node and is folded into the
+  /// row's spoken label so a screen reader announces it WITH the row. Never a
+  /// promised number, never a promised delay — an honest bound on the estimate.
+  final String? caveat;
 
   /// An optional REFINE affordance rendered as a DISTINCT tap target attached
   /// below a display-only row (R4 situation row): the value stays read-only, the
@@ -1084,18 +1103,43 @@ class _HypRow extends StatelessWidget {
         ],
       ],
     );
+    // A co-located caveat (situation row, married) renders directly under the
+    // label·value, inside the row. excludeSemantics on the row node strips the
+    // caveat Text's own semantics, so it is announced only once — via the folded
+    // row label below — never doubled.
+    final caveatText = caveat;
     final inner = Container(
       constraints: const BoxConstraints(minHeight: 56),
       padding: const EdgeInsets.symmetric(vertical: 14),
-      child: content,
+      child: caveatText == null
+          ? content
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                content,
+                const SizedBox(height: 6),
+                Text(
+                  caveatText,
+                  key: const ValueKey('text:eclairage.situation_caveat'),
+                  style: const TextStyle(
+                    fontFamily: 'Supreme',
+                    fontSize: 13,
+                    height: 1.4,
+                    color: _moss,
+                  ),
+                ),
+              ],
+            ),
     );
     final row = Semantics(
       key: ValueKey(rowKey),
       button: !displayOnly,
       readOnly: displayOnly,
       // Interactive rows are announced editable (label + value + hint); the
-      // display-only row is announced as a stated, read-only assumption.
-      label: '$label : $value',
+      // display-only row is announced as a stated, read-only assumption. A
+      // co-located caveat is folded into the same utterance (announced WITH the
+      // row, not as a separate node).
+      label: caveatText == null ? '$label : $value' : '$label : $value. $caveatText',
       hint: badge,
       onTap: displayOnly ? null : onTap,
       excludeSemantics: true,

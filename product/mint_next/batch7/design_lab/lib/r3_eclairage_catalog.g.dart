@@ -103,6 +103,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_celibataire': 'Célibataire',
     'eclairage_situation_marie': 'Marié·e ou pacsé·e',
     'eclairage_situation_concubinage': 'En couple, non marié·e',
+    'eclairage_situation_caveat_marie':
+        'Estimation encore basée sur une personne seule ; l’effet pour un ménage marié dépend du revenu du couple.',
     'eclairage_refine_hint': 'Un chiffre exact resserre l’estimation.',
     'eclairage_amount_caption_refined':
         'd’impôt en moins cette année, d’après ton chiffre.',
@@ -187,6 +189,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_celibataire': 'Single',
     'eclairage_situation_marie': 'Married or in a registered partnership',
     'eclairage_situation_concubinage': 'Living together, not married',
+    'eclairage_situation_caveat_marie':
+        'Still estimated for a single person; the effect for a married household depends on the couple’s income.',
     'eclairage_refine_hint': 'An exact figure narrows the estimate.',
     'eclairage_amount_caption_refined': 'less tax this year, based on your figure.',
     'eclairage_exact_revenu_title': 'Your exact taxable income',
@@ -269,6 +273,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_celibataire': 'Ledig',
     'eclairage_situation_marie': 'Verheiratet oder in eingetragener Partnerschaft',
     'eclairage_situation_concubinage': 'Zusammenlebend, nicht verheiratet',
+    'eclairage_situation_caveat_marie':
+        'Noch für eine Einzelperson geschätzt; die Wirkung für einen verheirateten Haushalt hängt vom Einkommen des Paares ab.',
     'eclairage_refine_hint': 'Eine genaue Zahl verengt die Schätzung.',
     'eclairage_amount_caption_refined': 'weniger Steuer dieses Jahr, nach deiner Zahl.',
     'eclairage_exact_revenu_title': 'Dein genaues steuerbares Einkommen',
@@ -352,6 +358,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_celibataire': 'Celibe/nubile',
     'eclairage_situation_marie': 'Sposato/a o in unione domestica registrata',
     'eclairage_situation_concubinage': 'In coppia, non sposato/a',
+    'eclairage_situation_caveat_marie':
+        'Stima ancora basata su una persona sola; l’effetto per un nucleo sposato dipende dal reddito della coppia.',
     'eclairage_refine_hint': 'Una cifra esatta restringe la stima.',
     'eclairage_amount_caption_refined':
         'di imposta in meno quest’anno, in base alla tua cifra.',
@@ -435,6 +443,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_celibataire': 'Soltero/a',
     'eclairage_situation_marie': 'Casado/a o en unión registrada',
     'eclairage_situation_concubinage': 'En pareja, no casado/a',
+    'eclairage_situation_caveat_marie':
+        'Estimación aún basada en una persona sola; el efecto para un hogar casado depende de los ingresos de la pareja.',
     'eclairage_refine_hint': 'Una cifra exacta estrecha la estimación.',
     'eclairage_amount_caption_refined':
         'de impuesto menos este año, según tu cifra.',
@@ -518,6 +528,8 @@ const Map<String, Map<String, String>> r3Copy = <String, Map<String, String>>{
     'eclairage_situation_celibataire': 'Solteiro/a',
     'eclairage_situation_marie': 'Casado/a ou em parceria registada',
     'eclairage_situation_concubinage': 'Em casal, não casado/a',
+    'eclairage_situation_caveat_marie':
+        'Estimativa ainda baseada numa pessoa sozinha; o efeito para um agregado casado depende do rendimento do casal.',
     'eclairage_refine_hint': 'Um número exato estreita a estimativa.',
     'eclairage_amount_caption_refined':
         'de imposto a menos este ano, com base no teu número.',
