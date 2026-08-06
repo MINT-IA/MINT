@@ -83,6 +83,19 @@ String _fmtChf(int n) {
   return out.toString();
 }
 
+/// Renders a NON-NEGATIVE rappen amount as CHF, appending centimes ONLY when the
+/// sub-franc remainder is non-zero (725801 -> "7 258.01", 1 -> "0.01", 725800 ->
+/// "7 258"). Used by the OVER state so an exact sub-franc overage is stated
+/// truthfully instead of floored to a false "0 CHF de plus" (V5, Codex final P1).
+/// The whole-franc part stays on the home space-separated format; centimes are a
+/// dotted two-digit suffix — locale-neutral, no rounding.
+String _fmtChfExact(int rappen) {
+  final francs = rappen ~/ 100;
+  final centimes = rappen % 100;
+  if (centimes == 0) return _fmtChf(francs);
+  return '${_fmtChf(francs)}.${centimes.toString().padLeft(2, '0')}';
+}
+
 enum _RenderState { pending, plafondAtteint, margeEpuisee, margeReduite, nominal }
 
 /// Floors a rappen amount to whole CHF (conservative display rule, V4-2): a
@@ -897,13 +910,16 @@ class _ScenariosVersementScreenState extends State<ScenariosVersementScreen> {
   // plafond_atteint state, V4-3). Excess/contributed francs floor rappen/100.
   Widget _margeEpuiseeBody(Map<String, String> copy, Object generation) {
     final cap = _annualCapChf;
-    final contributed = _rappenToChfFloor(widget.contributedRappen);
-    final excess = _rappenToChfFloor(widget.contributedRappen - cap * 100);
+    // V5 (Codex final P1): the OVER state shows contributed AND excess EXACTLY —
+    // with centimes when the amount is not a whole franc (7 258.01 CHF versé ->
+    // 0.01 CHF de plus), never floored to a false "0 CHF de plus". The cap is a
+    // whole franc, so it stays integer. (The remaining-room margeReduite floor is
+    // unchanged — a partial franc of ROOM is still never rounded up.)
     final overLine = copy['scenarios_over_line']!
-        .replaceAll('{contributed}', _fmtChf(contributed))
+        .replaceAll('{contributed}', _fmtChfExact(widget.contributedRappen))
         .replaceAll('{cap}', _fmtChf(cap));
-    final overExcess =
-        copy['scenarios_over_excess']!.replaceAll('{excess}', _fmtChf(excess));
+    final overExcess = copy['scenarios_over_excess']!
+        .replaceAll('{excess}', _fmtChfExact(widget.contributedRappen - cap * 100));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -208,7 +208,8 @@ void main() {
     });
 
     testWidgets(
-        '7 258.01 CHF (strictly over the cap) is the overcontribution state',
+        '7 258.01 CHF (strictly over) is the over state AND shows the EXACT '
+        'sub-franc amounts (7 258.01 versé, 0.01 de plus), never a false "0"',
         (tester) async {
       await _reachScenarios(
         tester,
@@ -220,6 +221,46 @@ void main() {
       expect(_key('status:scenarios.plafond_atteint'), findsNothing);
       expect(find.textContaining('au-dessus'), findsWidgets,
           reason: 'strictly over the cap keeps the "above the ceiling" state');
+      // V5 (Codex final P1): the RENDERED STRINGS must be exact — the real
+      // overage is 0.01 CHF, never floored to a false "0 CHF de plus".
+      final overLine = tester
+          .widget<Text>(_key('text:scenarios.over_line'))
+          .data!;
+      expect(overLine, contains('7 258.01'),
+          reason: 'contributed must render exactly as 7 258.01, not 7 258');
+      final overExcess = tester
+          .widget<Text>(_key('text:scenarios.over_excess'))
+          .data!;
+      expect(overExcess, contains('0.01'),
+          reason: 'the excess must render exactly as 0.01, never a false 0');
+      expect(overExcess, isNot(contains('0 CHF de plus')),
+          reason: 'the floored "0 CHF de plus" is the fixed bug');
+    });
+
+    testWidgets(
+        '8 000 CHF (whole-franc overage) renders integer excess (742), no centimes',
+        (tester) async {
+      await _reachScenarios(
+        tester,
+        search: 'Fribourg',
+        communeId: 2196,
+        amount: '8000',
+      );
+      expect(_key('status:scenarios.over'), findsOneWidget);
+      final overLine = tester
+          .widget<Text>(_key('text:scenarios.over_line'))
+          .data!;
+      expect(overLine, contains('8 000 CHF'),
+          reason: 'a whole-franc contributed amount stays integer (no centimes)');
+      expect(overLine, isNot(contains('8 000.')),
+          reason: 'no spurious decimal on a whole-franc amount');
+      final overExcess = tester
+          .widget<Text>(_key('text:scenarios.over_excess'))
+          .data!;
+      expect(overExcess, contains('742 CHF'),
+          reason: '8 000 − 7 258 = 742 CHF exact overage, integer');
+      expect(overExcess, isNot(contains('742.')),
+          reason: 'a whole-franc excess stays integer (no centimes)');
     });
   });
 }
