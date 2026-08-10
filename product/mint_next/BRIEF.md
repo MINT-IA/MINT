@@ -168,26 +168,47 @@ audit permanent de tout le repo. Un token dépensé doit servir l'écran livré.
 
 ## 5. Lego en cours
 
-**Cadrage n°1 (à faire ensemble)** — la localisation du jumeau est DÉJÀ
-tranchée (ADR 2026-08-08 : canonique local on-device, chemin nommé ci-dessus) ;
-ne pas rouvrir. Reste à décider ensemble :
-1. le séquencement de l'atterrissage de la fondation Codex sur `dev`
-   (585 commits — en un merge ? en tranches ? quoi d'abord ?) ;
-2. le câblage des faits design_lab (commune, état civil, revenu, versements
-   3a) dans le cycle canonique en 7 points ;
-3. l'arbitrage machinerie d'évidence B0-B5 vs discipline token ;
-4. le Lego 1 + budget token.
-Sortie attendue : plan d'atterrissage + Lego 1 défini + budget.
+**Cadrage n°1 — CONVERGÉ (2026-08-10, verdict Codex : « CADRAGE: CONVERGÉ »)** :
+1. **Atterrissage reconstruit en 3 PR depuis dev** (jamais un merge des
+   585 commits — gardes historiques trop entrelacés) :
+   **PR A** vérité produit zéro runtime (ADR 2026-08-08, storyboard + schéma +
+   garde autonome, SPEC 3a AMENDÉ sans cérémonie B0-B5, contrats substantiels
+   faits/plans/calcul/privacy/anti-PII/clés/rétention/threat-model/AIPD) ·
+   **PR B** fondation canonique prouvée (modèle fait logement, chemin
+   canonique, « Ma situation », flags OFF, 6 langues, tests + preuve runtime,
+   garde générique du cycle des faits) · **PR C** shell 3a minimal (routes et
+   écrans `mint_next_*` réellement appelés, flag OFF, contrats de calcul
+   fail-closed, gate unique + CI minimal). Règle : aucun workflow n'atterrit
+   sans ses gardes/tests/fixtures dans la même PR.
+2. **design_lab = laboratoire, jamais writer canonique** ; portage écran par
+   écran dans apps/mobile, aucun adaptateur design_lab → jumeau.
+3. **Cérémonie B0-B5 abandonnée par Codex** (symétrique). Minimum conservé :
+   contrats substantiels + tests déterministes, provenance/version des
+   sources officielles, preuve liée au SHA promu, runtime Maestro du parcours
+   réel, review indépendante P1=0, gate unique 5 conditions. Reçus acceptés =
+   historiques, ni prolongés ni rejoués.
+4. **Lego 1 confirmé** : domicile fiscal (voir ci-dessous), implémenteur
+   Claude, reviewer Codex, plafond 80k tokens (cible 50-60k), arrêt et
+   recadrage avant dépassement. Aucun autre fait dans ce Lego.
+Verdict complet : scratchpad session `codex-cadrage1.md`.
 
-**Lego 1 (proposition Claude, à confirmer au cadrage n°1)** : UN seul
-ensemble cohérent de faits — le **domicile fiscal** (commune + canton, code
-BFS) — à travers le cycle canonique complet en 7 points : sauvegarde par le
-chemin canonique, rechargement après relance, visibilité « Ma situation »,
-correction et suppression, un consommateur réel hors écran de collecte
-(l'éclairage 3a du design_lab lit le fait), invalidation des dépendants à la
-correction, zéro transmission. Les autres faits (état civil, revenu,
-versements 3a — les faits logement étant déjà faits par la phase Codex)
-suivent **un ensemble par Lego**, jamais la tranche multi-domaines d'un coup.
+**Lego 1 (CONFIRMÉ au cadrage n°1)** : UN seul ensemble cohérent de faits —
+le **domicile fiscal** (commune + canton, code BFS) — à travers le cycle
+canonique complet en 7 points : sauvegarde par le chemin canonique,
+rechargement après relance, visibilité « Ma situation », correction et
+suppression, un consommateur réel hors écran de collecte (l'éclairage 3a lit
+le fait), invalidation des dépendants à la correction, zéro transmission.
+Sortie obligatoire : cycle 7 points + gate unique 5 conditions complets.
+Prérequis : PR A et PR B de l'atterrissage (le chemin canonique et la garde
+du cycle doivent être sur dev avant d'y câbler un nouveau fait). Les autres
+faits (état civil, revenu, versements 3a — le logement étant déjà fait)
+suivent **un ensemble par Lego**.
+
+## 6bis. Journal des cadrages
+
+| Date | Cadrage | Verdict |
+|---|---|---|
+| 2026-08-10 | n°1 — atterrissage 3 PR, design_lab = labo, fin B0-B5, Lego 1 domicile | CONVERGÉ |
 
 ## 6. Journal des Legos
 
