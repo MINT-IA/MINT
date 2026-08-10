@@ -89,6 +89,9 @@ TestFlight, or work on `dev`.
 - **What would change this conclusion ?**
   Per the 2026-08-10 amendment, batch promotion now goes through the unique
   5-condition gate instead of the B0 receipt chain ; if two consecutive
-  promoted batches ship an authority-related wrong number that the receipt
-  chain would mechanically have blocked, this ADR's change-control section is
-  re-litigated. A 2027 scope or a second canton starts a new contract version.
+  promoted batches ship an authority-integrity anomaly that the retired
+  integrity controls would actually have detected (altered source bytes, hash
+  drift, stale extraction reused after its source changed), this ADR's
+  change-control section is re-litigated. The receipt chain never proved the
+  semantic correctness of a number — only provenance and integrity. A 2027
+  scope or a second canton starts a new contract version.

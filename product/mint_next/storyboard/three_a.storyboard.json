@@ -8,7 +8,7 @@
   "generated_at": "2026-08-09",
   "phase_authority": {
     "path": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
-    "sha256": "f9e4da8807c83869594a68e8a936f837765d064c0cd2a9837665abf5b51e5d70",
+    "sha256": "0e8747d66142f0c8b38010a3316372b7b4a4c3907a25306e78b42fafc8ca170e",
     "status_anchor": "Status: `pre_activation`"
   },
   "design_authority": {
@@ -34,13 +34,13 @@
       "field": "navigation",
       "path": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
       "anchor": "## Canonical navigation and state machine",
-      "sha256": "f9e4da8807c83869594a68e8a936f837765d064c0cd2a9837665abf5b51e5d70"
+      "sha256": "0e8747d66142f0c8b38010a3316372b7b4a4c3907a25306e78b42fafc8ca170e"
     },
     {
       "field": "phase_status",
       "path": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
       "anchor": "Status: `pre_activation`",
-      "sha256": "f9e4da8807c83869594a68e8a936f837765d064c0cd2a9837665abf5b51e5d70"
+      "sha256": "0e8747d66142f0c8b38010a3316372b7b4a4c3907a25306e78b42fafc8ca170e"
     },
     {
       "field": "visual_language",

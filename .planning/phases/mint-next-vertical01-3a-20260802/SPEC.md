@@ -255,7 +255,7 @@ Any missing or ambiguous item is STOP/OFF.
 
 | Batch | Entry | Required exit proof | Does not prove |
 |---|---|---|---|
-| B0a | none | accepted provenance receipt and hashes | B0, engine, product |
+| B0a | none | hash-bound source-authority annexes passing the provenance guard (`three-a-provenance`) | B0, engine, product |
 | B0 | B0a | every B0 artifact above | UI/runtime |
 | B1 | B0 | encrypted Fact lifecycle, migrations, purge and key-loss proofs | calculation |
 | B2 | B1 | deterministic engine, independent oracles, mutation/rounding tests | navigation/advice |
