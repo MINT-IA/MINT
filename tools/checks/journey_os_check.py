@@ -46,6 +46,9 @@ ALLOW = {
     "services/backend/app/models/coach_tools/cross_pillar.py",
     "services/backend/tests/test_coach_tools_cross_pillar.py",
     "services/backend/tests/test_health.py",
+    # --- doctrine 2026-08-10 : BRIEF partagé Claude×Codex (contexte lu à chaque
+    # session — ADR 2026-08-10-jumeau-financier-et-collaboration-codex.md). ---
+    "product/mint_next/BRIEF.md",
     # --- prep Flutter 3.44.8 : ancêtre Material pour les tiles en carte colorée
     # (assertion debug ListTile._debugCheckBackgroundIsHidden). Écrans/widgets
     # partagés touchés, hors whitelist Journey OS existante. ---
