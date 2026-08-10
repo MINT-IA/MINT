@@ -52,6 +52,8 @@ ALLOW = {
     # --- PR B correctifs CI (2026-08-11) : relabel « MA SITUATION » dans le
     # flow legacy (renommage financialSummaryTitle porté par la fondation). ---
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
+    "apps/mobile/test/app_router_observers_test.dart",
     # --- atterrissage PR B (cadrage n°1, 2026-08-10) : fondation canonique
     # prouvée — cycle de vie du fait logement (modèle, écran, carte
     # Aujourd'hui, transaction coordonnée SecureWizardStore, Ma situation),
