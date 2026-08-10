@@ -236,7 +236,7 @@ class FinancialPlan {
 /// Computes a deterministic hash of the financially-relevant fields of [profile].
 ///
 /// Uses: salaireBrutMensuel, prevoyance.avoirLppTotal, prevoyance.totalEpargne3a,
-/// canton, dateOfBirth (ISO string) or birthYear.
+/// canton, dateOfBirth (ISO string) or birthYear, and housingStatus.
 ///
 /// Algorithm: concatenate fields as string, iterate runes with polynomial rolling hash.
 /// Does NOT use Object.hash() (non-deterministic across Dart sessions — see A1 RESEARCH.md).
@@ -248,8 +248,12 @@ String computeProfileHash(CoachProfile profile) {
   final epargne3a = profile.prevoyance.totalEpargne3a.toString();
   final canton = profile.canton;
   final dob = profile.dateOfBirth?.toIso8601String() ?? profile.birthYear.toString();
+  final housingSegment =
+      profile.housingStatus == null ? '' : '|${profile.housingStatus}';
 
-  final raw = '$salary|$lpp|$epargne3a|$canton|$dob';
+  // Preserve legacy hashes while housing is unknown so an app update alone
+  // never marks an otherwise unchanged plan stale.
+  final raw = '$salary|$lpp|$epargne3a|$canton|$dob$housingSegment';
 
   var hash = 0;
   for (final c in raw.runes) {

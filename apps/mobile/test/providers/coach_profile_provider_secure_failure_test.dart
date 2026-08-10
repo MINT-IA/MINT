@@ -4,12 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/install_lifecycle_service.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,6 +23,8 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     AuthService.resetMemoryCacheForTest();
     ApiService.setHttpClientForTesting(null);
+    CoachProfileProvider.debugAfterOwnedSecurePurgePrearm = null;
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -39,6 +43,8 @@ void main() {
   tearDown(() {
     ApiService.setHttpClientForTesting(null);
     AuthService.resetMemoryCacheForTest();
+    CoachProfileProvider.debugAfterOwnedSecurePurgePrearm = null;
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride = null;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
       const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
@@ -94,6 +100,21 @@ void main() {
     expect(provider.profile, isNull);
   });
 
+  test('housing save reports secure persistence failure to its caller',
+      () async {
+    final provider = CoachProfileProvider();
+    final fact = MintNextHousingFact(
+      tenure: PrimaryHomeTenure.tenant,
+      assertedAt: DateTime.utc(2026, 8, 8),
+      source: 'housing_flow',
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+
+    await expectLater(provider.saveHousingFact(fact), throwsStateError);
+    expect(provider.housingFact, isNull);
+  });
+
   test('clearAll purges active conversation namespace', () async {
     ConversationStore.setCurrentUserId(null);
     final store = ConversationStore();
@@ -114,6 +135,207 @@ void main() {
     await provider.clearAll();
 
     expect(await store.listConversations(), isEmpty);
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+      isNull,
+    );
+  });
+
+  test('clearAll interruption after prearm is retried on next startup',
+      () async {
+    final secureStorage = <String, String>{
+      'byok_api_key': 'stale-key',
+      '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
+      'q_net_income_period_chf': '8000',
+      'foreign_app_key': 'must-stay',
+    };
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key != null) secureStorage.remove(key);
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+    CoachProfileProvider.debugAfterOwnedSecurePurgePrearm = () async {
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+        isTrue,
+      );
+      expect(secureStorage['q_net_income_period_chf'], '8000');
+      expect(secureStorage['_mint_wizard_secure_keys_v1'], isNotNull);
+      throw StateError('simulated interruption');
+    };
+
+    await expectLater(CoachProfileProvider().clearAll(), throwsStateError);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+      isTrue,
+    );
+    expect(secureStorage['byok_api_key'], 'stale-key');
+    expect(secureStorage['q_net_income_period_chf'], '8000');
+    expect(secureStorage['_mint_wizard_secure_keys_v1'], isNotNull);
+
+    CoachProfileProvider.debugAfterOwnedSecurePurgePrearm = null;
+    expect(await InstallLifecycleService.prepareForAuthRestore(), isFalse);
+    expect(secureStorage['byok_api_key'], isNull);
+    expect(secureStorage['q_net_income_period_chf'], isNull);
+    expect(secureStorage['_mint_wizard_secure_keys_v1'], isNull);
+    expect(secureStorage['foreign_app_key'], 'must-stay');
+    expect(
+      prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+      isNull,
+    );
+  });
+
+  test('clearAll does not start secure purge when prearm cannot persist',
+      () async {
+    var ownedSecureDeleteCalls = 0;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (call) async {
+        if (call.method == 'delete' &&
+            call.arguments['key'] == 'byok_provider') {
+          ownedSecureDeleteCalls += 1;
+        }
+        return null;
+      },
+    );
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride =
+        (purged, prefs) async => false;
+
+    await expectLater(CoachProfileProvider().clearAll(), throwsStateError);
+
+    expect(ownedSecureDeleteCalls, 0);
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+      isNull,
+    );
+  });
+
+  test('clearAll does not start secure purge when prearm throws', () async {
+    var ownedSecureDeleteCalls = 0;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (call) async {
+        if (call.method == 'delete' &&
+            call.arguments['key'] == 'byok_provider') {
+          ownedSecureDeleteCalls += 1;
+        }
+        return null;
+      },
+    );
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride =
+        (purged, prefs) async => throw StateError('marker unavailable');
+
+    await expectLater(CoachProfileProvider().clearAll(), throwsStateError);
+
+    expect(ownedSecureDeleteCalls, 0);
+  });
+
+  test('clearAll reports deferred purge and preserves auth plus retry marker',
+      () async {
+    final secureStorage = <String, String>{
+      'jwt_token': 'auth-must-stay',
+      'byok_api_key': 'stale-key',
+      'foreign_app_key': 'must-stay',
+    };
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key == 'byok_api_key') {
+              throw PlatformException(code: 'owned_delete_failed');
+            }
+            if (key != null) secureStorage.remove(key);
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+
+    await expectLater(CoachProfileProvider().clearAll(), throwsStateError);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+      isTrue,
+    );
+    expect(secureStorage['byok_api_key'], 'stale-key');
+    expect(secureStorage['jwt_token'], 'auth-must-stay');
+    expect(secureStorage['foreign_app_key'], 'must-stay');
+  });
+
+  test('clearAll keeps stale marker safe when completion removal fails',
+      () async {
+    final secureStorage = <String, String>{
+      'byok_api_key': 'delete-me',
+      'foreign_app_key': 'must-stay',
+    };
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+      (call) async {
+        final key = call.arguments['key'] as String?;
+        switch (call.method) {
+          case 'read':
+            return key == null ? null : secureStorage[key];
+          case 'delete':
+            if (key != null) secureStorage.remove(key);
+            return null;
+          default:
+            return null;
+        }
+      },
+    );
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride =
+        (purged, prefs) async {
+      if (!purged) {
+        return prefs.setBool(
+          InstallLifecycleService.ownedSecurePurgePendingKey,
+          true,
+        );
+      }
+      return false;
+    };
+
+    await expectLater(CoachProfileProvider().clearAll(), throwsStateError);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(secureStorage['byok_api_key'], isNull);
+    expect(
+      prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+      isTrue,
+    );
+
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride = null;
+    expect(await InstallLifecycleService.prepareForAuthRestore(), isFalse);
+    expect(
+      prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+      isNull,
+    );
+    expect(secureStorage['foreign_app_key'], 'must-stay');
   });
 
   test('clearAll does not purge a namespace selected after the call', () async {

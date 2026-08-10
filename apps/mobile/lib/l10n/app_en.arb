@@ -2168,7 +2168,7 @@
   "futurCompleterProfil": "Complete your profile to refine the projection.",
   "futurDisclaimer": "Educational projection — does not constitute advice (FinSA). SWR 4% = 4% rule, results not guaranteed. AVS/LPP pensions estimated per OASI art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explore details",
-  "financialSummaryTitle": "MY PROFILE",
+  "financialSummaryTitle": "MY SITUATION",
   "financialSummaryDossierTitle": "Verifiable dossier",
   "financialSummaryDossierSubtitle": "Your facts, their sources, and your corrections before any projection.",
   "financialSummaryDossierFactCountLabel": "tracked facts",
@@ -2204,6 +2204,40 @@
   "financialSummaryRachatPlanifie": "Planned buyback",
   "financialSummaryCaisse": "Fund",
   "financialSummary3a3ePilier": "3a (3rd pillar)",
+  "threeAAccountsSmartAction": "Detail your 3a accounts",
+  "threeAAccountsSmartReason": "~1 min · to prepare tax-staggered withdrawals",
+  "threeAAccountAdd": "Add a 3a account",
+  "threeAAccountTitle": "Add your 3a account",
+  "threeAAccountWhy": "This information helps show your wealth and prepare withdrawals. It remains under your control in My Situation.",
+  "financialSummaryBalanceAsOf": "Balance as of {date}",
+  "@financialSummaryBalanceAsOf": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "financialSummaryBalanceDateUnknown": "Balance date to confirm",
+  "financialSummarySourceUserInput": "Entered manually",
+  "threeAAccountProvider": "Institution",
+  "threeAAccountBalance": "Current balance",
+  "threeAAccountBalanceDate": "Balance date",
+  "threeAAccountOwnerSelf": "Owner: you",
+  "threeAAccountInvalid": "Enter an institution and a valid balance.",
+  "threeAAccountSaveError": "Could not save. Nothing was changed.",
+  "threeAAccountSave": "Save this account",
+  "financialSummary3aPlannedAnnual": "Planned annual contribution",
+  "financialSummary3aPlannedAnnualOwner": "{name} · planned annual contribution",
+  "@financialSummary3aPlannedAnnualOwner": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "financialSummaryDateUnknown": "Date to confirm",
+  "financialSummaryUpdatedOn": "Updated on {date}",
+  "@financialSummaryUpdatedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
   "financialSummaryNComptes": "{n} account(s)",
   "@financialSummaryNComptes": {
     "placeholders": {
@@ -4627,6 +4661,9 @@
   "sim3aCtaCompare": "Compare",
   "sim3aCtaCalculate": "Calculate",
   "sim3aCtaPlan": "Plan",
+  "sim3aSavePlan": "Save this plan",
+  "sim3aPlanSaved": "Plan saved",
+  "sim3aPlanRemoved": "Plan removed",
   "sim3aDisclaimer": "Educational estimate. Actual savings depend on your place of residence and family situation. Not financial advice (FinSA).",
   "sim3aDebtLockedTitle": "Debt repayment first",
   "sim3aDebtLockedMessage": "In safe mode, 3a action recommendations are disabled. The priority is to stabilise your finances before contributing to 3a.",
@@ -11923,5 +11960,148 @@
   "lppRescueGainPositive": "+CHF {gain} over 5 years",
   "lppRescueGainLoss": "-CHF {gain} over 5 years",
   "lppRescueSuppletiveTitle": "Doing nothing = substitute institution",
-  "lppRescueSuppletiveBody": "The technical rate is low and the fees high. A balance of CHF {balance} can lose up to CHF {loss} over 5 years versus a suitable vested benefits account."
+  "lppRescueSuppletiveBody": "The technical rate is low and the fees high. A balance of CHF {balance} can lose up to CHF {loss} over 5 years versus a suitable vested benefits account.",
+  "mintNext3aTeachBackQuestion": "What should you check before deciding how much to pay into your pillar 3a this year?",
+  "mintNext3aTeachBackChoiceAnnualTotal": "The total that all my pillar 3a banks and insurers confirmed receiving this year, excluding transfers between pillar 3a accounts.",
+  "mintNext3aTeachBackChoiceLatestPayment": "Only the latest debit from my bank account.",
+  "mintNext3aTeachBackChoicePayMax": "The maximum now, without checking.",
+  "mintNext3aTeachBackFeedbackCorrect": "Yes. Check what all your pillar 3a providers confirmed receiving this year. A transfer between two pillar 3a accounts does not add to the total.",
+  "mintNext3aTeachBackFeedbackRetry": "Not quite. A debit from your bank account does not yet prove that your pillar 3a received the money. Check the confirmations from all your pillar 3a providers.",
+  "mintNext3aCountingHelpTitle": "What should you count?",
+  "mintNext3aCountingHelpBody": "Count only new money that your pillar 3a providers confirm receiving for this year. A transfer between pillar 3a accounts does not add to the total.",
+  "mintNext3aCountingHelpUncertain": "If you see a refund, retroactive buy-in or correction, do not guess: check the supporting document.",
+  "mintNext3aPersonalUnavailable": "Your personal calculation is not available. Check your annual total received; no personal tax amount is calculated.",
+  "mintNext3aTaskTitle": "Check my annual pillar 3a total",
+  "mintNext3aTaskBody": "Add up the contributions that all your pillar 3a banks and insurers confirmed receiving for {year}. MINT does not choose an amount or make any payment.",
+  "mintNext3aStorageDisclosure": "If you keep it, only this step will be saved on this device. Your answers and calculations from this journey will be deleted.",
+  "mintNext3aSave": "Keep this step",
+  "mintNext3aLeaveWithoutSaving": "Leave without keeping it",
+  "mintNext3aSavedTitle": "Step saved",
+  "mintNext3aSavedLocation": "You will find it in Today.",
+  "mintNext3aExpiryDisclosure": "It will be deleted automatically on 31 January {year}. You can delete it sooner.",
+  "mintNext3aReturnToday": "Back to Today",
+  "mintNext3aTodayStatus": "{year} · To do",
+  "mintNext3aTodayDoneStatus": "{year} · Completed",
+  "mintNext3aMarkDone": "I've checked",
+  "mintNext3aDoneTitle": "Done",
+  "mintNext3aOpenTask": "Open",
+  "mintNext3aDelete": "Delete this step",
+  "mintNext3aDeleteQuestion": "Delete this next step?",
+  "mintNext3aDeleteBoundary": "The financial journey will not be affected.",
+  "mintNext3aCancel": "Cancel",
+  "mintNext3aDeleteConfirm": "Delete",
+  "mintNext3aSafeExitTitle": "Do you want to stop here?",
+  "mintNext3aSafeExitBody": "Nothing from this journey will be saved.",
+  "mintNext3aSafeExitResume": "Continue here",
+  "mintNext3aSafeExitLeave": "Leave without saving",
+  "mintNext3aStorageFailure": "{kind, select, read{Unable to check this step on this device. It may still be saved.} verifyRead{Mint could not verify whether this step was saved. It may be saved.} delete{Unable to delete this step on this device. It is still saved.} cleanupDelete{Mint could not delete this step. It is still saved. You can try again now.} complete{Unable to mark this step as completed. It remains saved as to do.} other{Unable to save this step on this device. Nothing was saved.}}",
+  "mintNext3aCleanupPending": "Removing this step…",
+  "housingExplore": "Understand my housing situation",
+  "housingQuestion": "For the home you live in today…",
+  "housingTenant": "I rent it",
+  "housingOwnerOccupier": "I own all or part of it",
+  "housingOther": "I’m in another situation",
+  "housingUnknown": "I don’t know",
+  "housingContinue": "Continue",
+  "housingTenantBoundary": "You rent this home. Questions about homeowner tax rules do not apply here.",
+  "housingOwnerBoundary": "Your answer only prepares the next questions. No tax benefit has been calculated yet.",
+  "housingOtherHelp": "Some situations are not simply renting or owning. We will clarify without guessing.",
+  "housingUnknownHelp": "You can check your lease or ownership document. We infer nothing from this uncertainty.",
+  "housingBack": "Back",
+  "housingFinish": "Back to overview",
+  "housingSafeExit": "Take a break",
+  "housingResume": "Keep going",
+  "housingLeaveWithoutSaving": "Leave without saving",
+  "housingMortgageQuestion": "Is this home financed with a mortgage?",
+  "housingMortgageYes": "Yes",
+  "housingMortgageNo": "No",
+  "housingMortgageUnknown": "I don’t know",
+  "housingMortgageYesBoundary": "This answer will help us ask the right financing questions. Nothing has been calculated yet.",
+  "housingMortgageNoBoundary": "This answer will help us ask the right ownership questions. Nothing has been calculated yet.",
+  "housingMortgageUnknownBoundary": "You can check your mortgage statement or ask your provider. Mint infers nothing from this uncertainty.",
+  "mortgageStatementQuestion": "Do you have your annual mortgage statement at hand?",
+  "mortgageStatementReady": "Yes, I have it",
+  "mortgageStatementFindLater": "I’ll find it later",
+  "mortgageStatementUnknown": "I don’t know which document to look for",
+  "mortgageStatementReadyBoundary": "Great. Later, Mint can help you identify the useful data in this document. For now, no figures are read or saved.",
+  "mortgageStatementFindLaterBoundary": "No problem. You can continue when you find it. For now, no figures are requested or saved.",
+  "mortgageStatementUnknownBoundary": "Mint will explain how to recognise the right document before you enter anything. For now, no figures are requested or saved.",
+  "mortgageInterestQuestion": "What mortgage interest amount is shown for the year?",
+  "mortgageInterestHint": "Copy only the annual total shown on the statement. Mint is not calculating anything yet.",
+  "mortgageInterestLabel": "Annual interest",
+  "mortgageInterestBoundary": "For {year}, you entered CHF {amount} in annual interest. This figure stays local and no tax saving has been calculated yet.",
+  "@mortgageInterestBoundary": {
+    "description": "Locally entered annual mortgage interest review, bound to the user-declared statement year.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "4’250.50"
+      },
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "mortgageDebtQuestion": "What mortgage debt balance is shown at 31 December {year}?",
+  "mortgageDebtHint": "Copy the balance shown on the same statement. Mint does not infer anything from this amount alone.",
+  "mortgageDebtLabel": "Debt at 31 December",
+  "mortgageReviewTitle": "Your {year} statement in two figures",
+  "mortgageReviewInterest": "Annual interest: CHF {amount}",
+  "mortgageReviewDebt": "Debt at 31 December: CHF {amount}",
+  "mortgageReviewBoundary": "These two figures stay local. They are neither a confirmed tax deduction nor a result.",
+  "@mortgageReviewInterest": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "@mortgageReviewDebt": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "mortgageStatementYearLabel": "Year shown on the statement",
+  "mortgageStatementYearHint": "For example 2025",
+  "@mortgageDebtQuestion": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "@mortgageReviewTitle": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "housingSave": "Save this information",
+  "housingSaveError": "Unable to save right now. Nothing was lost.",
+  "housingSavedTitle": "What MINT knows about your home",
+  "housingSavedBody": "Saved on this device. You can correct or delete this information at any time.",
+  "housingSavedProvenance": "Source: {source} · updated on {date}.",
+  "@housingSavedProvenance": {"placeholders": {"source": {"type": "String"}, "date": {"type": "String"}}},
+  "housingSavedSourceHousingFlow": "entered by you in MINT",
+  "housingSavedSourceUnknown": "to be checked",
+  "housingSavedPeriod": "Statement period: {year}.",
+  "@housingSavedPeriod": {"placeholders": {"year": {"type": "int"}}},
+  "housingSavedEdit": "Correct",
+  "housingSavedDelete": "Delete this information",
+  "housingSavedDeleteTitle": "Delete housing information?",
+  "housingSavedDeleteBody": "MINT will no longer use it in future insights.",
+  "housingSavedDeleteCancel": "Keep",
+  "housingSavedDeleteConfirm": "Delete"
 }

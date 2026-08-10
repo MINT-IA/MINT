@@ -8779,7 +8779,7 @@ abstract class S {
   /// No description provided for @financialSummaryTitle.
   ///
   /// In fr, this message translates to:
-  /// **'MON PROFIL'**
+  /// **'MA SITUATION'**
   String get financialSummaryTitle;
 
   /// No description provided for @financialSummaryDossierTitle.
@@ -8949,6 +8949,120 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'3a (3e pilier)'**
   String get financialSummary3a3ePilier;
+
+  /// No description provided for @threeAAccountsSmartAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détailler tes comptes 3a'**
+  String get threeAAccountsSmartAction;
+
+  /// No description provided for @threeAAccountsSmartReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'~1 min · pour préparer des retraits fiscalement échelonnés'**
+  String get threeAAccountsSmartReason;
+
+  /// No description provided for @threeAAccountAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un compte 3a'**
+  String get threeAAccountAdd;
+
+  /// No description provided for @threeAAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter ton compte 3a'**
+  String get threeAAccountTitle;
+
+  /// No description provided for @threeAAccountWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces informations servent à montrer ton patrimoine et préparer les retraits. Elles restent sous ton contrôle dans Ma situation.'**
+  String get threeAAccountWhy;
+
+  /// No description provided for @financialSummaryBalanceAsOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde au {date}'**
+  String financialSummaryBalanceAsOf(String date);
+
+  /// No description provided for @financialSummaryBalanceDateUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du solde à confirmer'**
+  String get financialSummaryBalanceDateUnknown;
+
+  /// No description provided for @financialSummarySourceUserInput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisi manuellement'**
+  String get financialSummarySourceUserInput;
+
+  /// No description provided for @threeAAccountProvider.
+  ///
+  /// In fr, this message translates to:
+  /// **'Établissement'**
+  String get threeAAccountProvider;
+
+  /// No description provided for @threeAAccountBalance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solde actuel'**
+  String get threeAAccountBalance;
+
+  /// No description provided for @threeAAccountBalanceDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date du solde'**
+  String get threeAAccountBalanceDate;
+
+  /// No description provided for @threeAAccountOwnerSelf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Propriétaire : toi'**
+  String get threeAAccountOwnerSelf;
+
+  /// No description provided for @threeAAccountInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique un établissement et un solde valide.'**
+  String get threeAAccountInvalid;
+
+  /// No description provided for @threeAAccountSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement impossible. Rien n’a été modifié.'**
+  String get threeAAccountSaveError;
+
+  /// No description provided for @threeAAccountSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer ce compte'**
+  String get threeAAccountSave;
+
+  /// No description provided for @financialSummary3aPlannedAnnual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versement annuel planifié'**
+  String get financialSummary3aPlannedAnnual;
+
+  /// No description provided for @financialSummary3aPlannedAnnualOwner.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} · versement annuel planifié'**
+  String financialSummary3aPlannedAnnualOwner(String name);
+
+  /// No description provided for @financialSummaryDateUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date à confirmer'**
+  String get financialSummaryDateUnknown;
+
+  /// No description provided for @financialSummaryUpdatedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mis à jour le {date}'**
+  String financialSummaryUpdatedOn(String date);
 
   /// No description provided for @financialSummaryNComptes.
   ///
@@ -9937,7 +10051,7 @@ abstract class S {
   /// No description provided for @pillar3aDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.'**
+  /// **'Hypothèses pédagogiques basées sur rendements historiques moyens. Les rendements passés ne préjugent pas des rendements futurs.'**
   String get pillar3aDisclaimer;
 
   /// No description provided for @pillar3aCapitalEvolution.
@@ -17803,6 +17917,24 @@ abstract class S {
   /// **'Planifier'**
   String get sim3aCtaPlan;
 
+  /// No description provided for @sim3aSavePlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer ce projet'**
+  String get sim3aSavePlan;
+
+  /// No description provided for @sim3aPlanSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projet enregistré'**
+  String get sim3aPlanSaved;
+
+  /// No description provided for @sim3aPlanRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projet supprimé'**
+  String get sim3aPlanRemoved;
+
   /// No description provided for @sim3aDisclaimer.
   ///
   /// In fr, this message translates to:
@@ -19710,6 +19842,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Dividende vs Salaire'**
   String get dividendeVsSalaireTitle;
+
+  /// No description provided for @dividendeLegendChargeTotale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge totale'**
+  String get dividendeLegendChargeTotale;
+
+  /// No description provided for @dividendeLegendSplitAdapte.
+  ///
+  /// In fr, this message translates to:
+  /// **'Split adapté'**
+  String get dividendeLegendSplitAdapte;
+
+  /// No description provided for @dividendeLegendPositionActuelle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Position actuelle'**
+  String get dividendeLegendPositionActuelle;
+
+  /// No description provided for @dividendeChargeCurveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charge totale par split'**
+  String get dividendeChargeCurveTitle;
+
+  /// No description provided for @dividendeEducationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À retenir'**
+  String get dividendeEducationTitle;
 
   /// No description provided for @dividendeVsSalaireChargeSalaire.
   ///
@@ -25457,6 +25619,78 @@ abstract class S {
   /// **'Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.'**
   String get authErrorAccountDeletedRecreate;
 
+  /// No description provided for @authRecreateAccountCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recréer mon compte'**
+  String get authRecreateAccountCta;
+
+  /// No description provided for @pillar3aProviderNameFintechA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fintech A'**
+  String get pillar3aProviderNameFintechA;
+
+  /// No description provided for @pillar3aProviderNameFintechB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fintech B'**
+  String get pillar3aProviderNameFintechB;
+
+  /// No description provided for @pillar3aProviderNameFintechC.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fintech C'**
+  String get pillar3aProviderNameFintechC;
+
+  /// No description provided for @pillar3aProviderNameBanque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Banque classique (compte 3a)'**
+  String get pillar3aProviderNameBanque;
+
+  /// No description provided for @pillar3aProviderNameAssurance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance 3a (mixte)'**
+  String get pillar3aProviderNameAssurance;
+
+  /// No description provided for @pillar3aProviderDescFintechA.
+  ///
+  /// In fr, this message translates to:
+  /// **'App mobile, stratégies passives indexées, gestion automatisée'**
+  String get pillar3aProviderDescFintechA;
+
+  /// No description provided for @pillar3aProviderDescFintechB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais parmi les plus bas, stratégies globales, flexibilité'**
+  String get pillar3aProviderDescFintechB;
+
+  /// No description provided for @pillar3aProviderDescFintechC.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solution digitale d’une banque cantonale'**
+  String get pillar3aProviderDescFintechC;
+
+  /// No description provided for @pillar3aProviderDescBanque.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux fixe, non exposé aux marchés, rendement limité'**
+  String get pillar3aProviderDescBanque;
+
+  /// No description provided for @pillar3aProviderDescAssurance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combine épargne et couverture (décès, invalidité). Frais élevés, durée d’engagement longue.'**
+  String get pillar3aProviderDescAssurance;
+
+  /// No description provided for @pillar3aProviderAssuranceWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'À {age} ans, selon les hypothèses de frais et de couverture retenues, l’écart de capital final entre une assurance 3a et un prestataire fintech est d’environ CHF {montant} sur {duree} ans dans ta simulation. Une assurance 3a lie épargne et couverture ; ses frais et sa flexibilité varient selon le contrat.'**
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree);
+
   /// No description provided for @authErrorService.
   ///
   /// In fr, this message translates to:
@@ -28310,7 +28544,7 @@ abstract class S {
   /// No description provided for @disabilityGapAct1Detail.
   ///
   /// In fr, this message translates to:
-  /// **'80 % de ton salaire versé par ton employeur'**
+  /// **'100 % de ton salaire (obligation légale employeur)'**
   String get disabilityGapAct1Detail;
 
   /// No description provided for @disabilityGapAct1Duration.
@@ -29279,6 +29513,210 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Aucun droit AC suisse si tu travailles à l\'étranger'**
   String get expatNoAcRightsAbroad;
+
+  /// No description provided for @expatDeadline3aLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier 3a — clôture ou gel'**
+  String get expatDeadline3aLabel;
+
+  /// No description provided for @expatDeadline3aAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contacte ta banque pour planifier la clôture ou le transfert du 3a.'**
+  String get expatDeadline3aAction;
+
+  /// No description provided for @expatDeadline3aConsequence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.'**
+  String get expatDeadline3aConsequence;
+
+  /// No description provided for @expatDeadlineLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP — libre passage'**
+  String get expatDeadlineLppLabel;
+
+  /// No description provided for @expatDeadlineLppAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.'**
+  String get expatDeadlineLppAction;
+
+  /// No description provided for @expatDeadlineAvsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS — cotisation volontaire'**
+  String get expatDeadlineAvsLabel;
+
+  /// No description provided for @expatDeadlineAvsAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu t\'installes hors UE/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.'**
+  String get expatDeadlineAvsAction;
+
+  /// No description provided for @expatRightAvsLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS — cotisation obligatoire'**
+  String get expatRightAvsLabel;
+
+  /// No description provided for @expatRightAvsBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cotisation automatique via l\'employeur'**
+  String get expatRightAvsBefore;
+
+  /// No description provided for @expatRightAvsAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lacunes AVS → rente réduite'**
+  String get expatRightAvsAfter;
+
+  /// No description provided for @expatRightAvsImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année manquante réduit ta rente AVS d\'environ {perYear} %. 10 ans = −{tenYear} % à vie.'**
+  String expatRightAvsImpact(String perYear, String tenYear);
+
+  /// No description provided for @expatRightLppLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP — 2e pilier'**
+  String get expatRightLppLabel;
+
+  /// No description provided for @expatRightLppBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne retraite obligatoire'**
+  String get expatRightLppBefore;
+
+  /// No description provided for @expatRightLppAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital bloqué ou retiré sans rendement'**
+  String get expatRightLppAfter;
+
+  /// No description provided for @expatRightLppImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt sur le capital retiré. La reconstitution est impossible à l\'étranger.'**
+  String get expatRightLppImpact;
+
+  /// No description provided for @expatRight3aLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pilier 3a'**
+  String get expatRight3aLabel;
+
+  /// No description provided for @expatRight3aBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions fiscales annuelles'**
+  String get expatRight3aBefore;
+
+  /// No description provided for @expatRight3aAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte bloqué — aucun nouveau versement possible'**
+  String get expatRight3aAfter;
+
+  /// No description provided for @expatRight3aImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu perds le droit de verser dans le 3a dès que tu n\'as plus de revenu soumis à l\'AVS suisse.'**
+  String get expatRight3aImpact;
+
+  /// No description provided for @expatRightLamalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAMal — assurance maladie'**
+  String get expatRightLamalLabel;
+
+  /// No description provided for @expatRightLamalBefore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couverture universelle en Suisse'**
+  String get expatRightLamalBefore;
+
+  /// No description provided for @expatRightLamalAfter.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'assurance maladie relève désormais du pays de résidence'**
+  String get expatRightLamalAfter;
+
+  /// No description provided for @expatRightLamalImpact.
+  ///
+  /// In fr, this message translates to:
+  /// **'La couverture internationale est souvent partielle et coûteuse. Vérifie les conventions bilatérales.'**
+  String get expatRightLamalImpact;
+
+  /// No description provided for @expatRightAcLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chômage AC'**
+  String get expatRightAcLabel;
+
+  /// No description provided for @expatDestinationAbroad.
+  ///
+  /// In fr, this message translates to:
+  /// **'l\'étranger'**
+  String get expatDestinationAbroad;
+
+  /// No description provided for @expatAvsConfidenceMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation sur un modèle linéaire simplifié (rente réduite au prorata des années cotisées). La rente AVS réelle dépend aussi du revenu annuel moyen et des bonifications. À valider avec ta caisse de compensation.'**
+  String get expatAvsConfidenceMessage;
+
+  /// No description provided for @frontalierChargeMaladie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance maladie'**
+  String get frontalierChargeMaladie;
+
+  /// No description provided for @frontalierChargeRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite / vieillesse'**
+  String get frontalierChargeRetraite;
+
+  /// No description provided for @frontalierChargeChomage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chômage'**
+  String get frontalierChargeChomage;
+
+  /// No description provided for @frontalierChargeDependance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépendance'**
+  String get frontalierChargeDependance;
+
+  /// No description provided for @frontalierChargeLogement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aide au logement'**
+  String get frontalierChargeLogement;
+
+  /// No description provided for @frontalierChargeCsgCrds.
+  ///
+  /// In fr, this message translates to:
+  /// **'CSG / CRDS'**
+  String get frontalierChargeCsgCrds;
+
+  /// No description provided for @frontalierChargeLppEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP (est.)'**
+  String get frontalierChargeLppEstimated;
+
+  /// No description provided for @frontalierSourceTaxConfidenceMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation sur un taux moyen simplifié par canton. Le barème réellement prélevé dépend de ta situation familiale (célibataire, marié·e, nombre d\'enfants) — que ce modèle plat ne distingue pas. Séparément, le statut de quasi-résident·e peut ouvrir une taxation ordinaire ultérieure avec déductions, sans changer le barème prélevé. À valider avec l\'administration fiscale cantonale.'**
+  String get frontalierSourceTaxConfidenceMessage;
 
   /// No description provided for @expertArchetypeCrossBorder.
   ///
@@ -33795,19 +34233,19 @@ abstract class S {
   /// No description provided for @pillar3aProviderDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consultez un ou une spécialiste.'**
+  /// **'Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consulte un ou une spécialiste.'**
   String get pillar3aProviderDisclaimer;
 
   /// No description provided for @pillar3aRealReturnDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.'**
+  /// **'Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consulte un ou une spécialiste avant toute décision.'**
   String get pillar3aRealReturnDisclaimer;
 
   /// No description provided for @pillar3aStaggeredDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consultez un ou une spécialiste en prévoyance avant toute décision.'**
+  /// **'Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consulte un ou une spécialiste en prévoyance avant toute décision.'**
   String get pillar3aStaggeredDisclaimer;
 
   /// No description provided for @portfolioAppBarTitle.
@@ -43787,36 +44225,6 @@ abstract class S {
   /// **'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.'**
   String get lppRescueDisclaimer;
 
-  /// No description provided for @dividendeLegendChargeTotale.
-  ///
-  /// In fr, this message translates to:
-  /// **'Charge totale'**
-  String get dividendeLegendChargeTotale;
-
-  /// No description provided for @dividendeLegendSplitAdapte.
-  ///
-  /// In fr, this message translates to:
-  /// **'Split adapté'**
-  String get dividendeLegendSplitAdapte;
-
-  /// No description provided for @dividendeLegendPositionActuelle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Position actuelle'**
-  String get dividendeLegendPositionActuelle;
-
-  /// No description provided for @dividendeChargeCurveTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Charge totale par split'**
-  String get dividendeChargeCurveTitle;
-
-  /// No description provided for @dividendeEducationTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'À retenir'**
-  String get dividendeEducationTitle;
-
   /// No description provided for @lppRescueSemanticsLabel.
   ///
   /// In fr, this message translates to:
@@ -43877,282 +44285,557 @@ abstract class S {
   /// **'Le taux technique est bas et les frais élevés. Un avoir de CHF {balance} peut perdre jusqu’à CHF {loss} sur 5 ans vs un compte de libre passage adapté.'**
   String lppRescueSuppletiveBody(String balance, String loss);
 
-  /// No description provided for @expatDeadline3aLabel.
+  /// No description provided for @mintNext3aTeachBackQuestion.
   ///
   /// In fr, this message translates to:
-  /// **'3e pilier 3a — clôture ou gel'**
-  String get expatDeadline3aLabel;
+  /// **'Que dois-tu vérifier avant de choisir combien verser sur ton 3a cette année ?'**
+  String get mintNext3aTeachBackQuestion;
 
-  /// No description provided for @expatDeadline3aAction.
+  /// No description provided for @mintNext3aTeachBackChoiceAnnualTotal.
   ///
   /// In fr, this message translates to:
-  /// **'Contacte ta banque pour planifier la clôture ou le transfert du 3a.'**
-  String get expatDeadline3aAction;
+  /// **'Le total que toutes mes banques et assurances 3a ont confirmé avoir reçu cette année, sans compter un transfert d’un 3a à un autre.'**
+  String get mintNext3aTeachBackChoiceAnnualTotal;
 
-  /// No description provided for @expatDeadline3aConsequence.
+  /// No description provided for @mintNext3aTeachBackChoiceLatestPayment.
   ///
   /// In fr, this message translates to:
-  /// **'Un 3a non géré avant le départ peut bloquer des fonds pendant des années.'**
-  String get expatDeadline3aConsequence;
+  /// **'Seulement le dernier débit de mon compte bancaire.'**
+  String get mintNext3aTeachBackChoiceLatestPayment;
 
-  /// No description provided for @expatDeadlineLppLabel.
+  /// No description provided for @mintNext3aTeachBackChoicePayMax.
   ///
   /// In fr, this message translates to:
-  /// **'LPP — libre passage'**
-  String get expatDeadlineLppLabel;
+  /// **'Le maximum tout de suite, sans vérification.'**
+  String get mintNext3aTeachBackChoicePayMax;
 
-  /// No description provided for @expatDeadlineLppAction.
+  /// No description provided for @mintNext3aTeachBackFeedbackCorrect.
   ///
   /// In fr, this message translates to:
-  /// **'Demande le transfert de ton avoir LPP sur un compte de libre passage ou une police.'**
-  String get expatDeadlineLppAction;
+  /// **'Oui. Vérifie ce que tous tes 3a ont confirmé avoir reçu cette année. Un transfert entre deux 3a ne s’ajoute pas au total.'**
+  String get mintNext3aTeachBackFeedbackCorrect;
 
-  /// No description provided for @expatDeadlineAvsLabel.
+  /// No description provided for @mintNext3aTeachBackFeedbackRetry.
   ///
   /// In fr, this message translates to:
-  /// **'AVS — cotisation volontaire'**
-  String get expatDeadlineAvsLabel;
+  /// **'Pas tout à fait. Un débit sur ton compte ne prouve pas encore que ton 3a a reçu l’argent. Vérifie les confirmations de tous tes 3a.'**
+  String get mintNext3aTeachBackFeedbackRetry;
 
-  /// No description provided for @expatDeadlineAvsAction.
+  /// No description provided for @mintNext3aCountingHelpTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Si tu t\'installes hors UE/AELE, tu peux t\'affilier volontairement à l\'AVS pour éviter des lacunes.'**
-  String get expatDeadlineAvsAction;
+  /// **'Que faut-il compter ?'**
+  String get mintNext3aCountingHelpTitle;
 
-  /// No description provided for @expatRightAvsLabel.
+  /// No description provided for @mintNext3aCountingHelpBody.
   ///
   /// In fr, this message translates to:
-  /// **'AVS — cotisation obligatoire'**
-  String get expatRightAvsLabel;
+  /// **'Compte seulement l’argent nouveau que tes 3a confirment avoir reçu pour cette année. Un transfert d’un 3a à un autre ne s’ajoute pas.'**
+  String get mintNext3aCountingHelpBody;
 
-  /// No description provided for @expatRightAvsBefore.
+  /// No description provided for @mintNext3aCountingHelpUncertain.
   ///
   /// In fr, this message translates to:
-  /// **'Cotisation automatique via l\'employeur'**
-  String get expatRightAvsBefore;
+  /// **'Si un remboursement, un rachat rétroactif ou une correction apparaît, ne devine pas : vérifie le justificatif.'**
+  String get mintNext3aCountingHelpUncertain;
 
-  /// No description provided for @expatRightAvsAfter.
+  /// No description provided for @mintNext3aPersonalUnavailable.
   ///
   /// In fr, this message translates to:
-  /// **'Lacunes AVS → rente réduite'**
-  String get expatRightAvsAfter;
+  /// **'Ton calcul personnel n’est pas disponible. Vérifie ton total annuel reçu ; aucun montant fiscal personnel n’est calculé.'**
+  String get mintNext3aPersonalUnavailable;
 
-  /// No description provided for @expatRightAvsImpact.
+  /// No description provided for @mintNext3aTaskTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Chaque année manquante réduit ta rente AVS d\'environ {perYear} %. 10 ans = −{tenYear} % à vie.'**
-  String expatRightAvsImpact(String perYear, String tenYear);
+  /// **'Vérifier mon total 3a annuel'**
+  String get mintNext3aTaskTitle;
 
-  /// No description provided for @expatRightLppLabel.
+  /// No description provided for @mintNext3aTaskBody.
   ///
   /// In fr, this message translates to:
-  /// **'LPP — 2e pilier'**
-  String get expatRightLppLabel;
+  /// **'Additionne les versements que toutes tes banques et assurances 3a ont confirmé avoir reçus pour {year}. MINT ne choisit aucun montant et n’effectue aucun versement.'**
+  String mintNext3aTaskBody(Object year);
 
-  /// No description provided for @expatRightLppBefore.
+  /// No description provided for @mintNext3aStorageDisclosure.
   ///
   /// In fr, this message translates to:
-  /// **'Épargne retraite obligatoire'**
-  String get expatRightLppBefore;
+  /// **'Si tu la gardes, seule cette étape sera enregistrée sur cet appareil. Tes réponses et calculs de ce parcours seront effacés.'**
+  String get mintNext3aStorageDisclosure;
 
-  /// No description provided for @expatRightLppAfter.
+  /// No description provided for @mintNext3aSave.
   ///
   /// In fr, this message translates to:
-  /// **'Capital bloqué ou retiré sans rendement'**
-  String get expatRightLppAfter;
+  /// **'Garder cette étape'**
+  String get mintNext3aSave;
 
-  /// No description provided for @expatRightLppImpact.
+  /// No description provided for @mintNext3aLeaveWithoutSaving.
   ///
   /// In fr, this message translates to:
-  /// **'Tu peux retirer ton avoir LPP, mais tu paies l\'impôt sur le capital retiré. La reconstitution est impossible à l\'étranger.'**
-  String get expatRightLppImpact;
+  /// **'Quitter sans la garder'**
+  String get mintNext3aLeaveWithoutSaving;
 
-  /// No description provided for @expatRight3aLabel.
+  /// No description provided for @mintNext3aSavedTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Pilier 3a'**
-  String get expatRight3aLabel;
+  /// **'Étape gardée'**
+  String get mintNext3aSavedTitle;
 
-  /// No description provided for @expatRight3aBefore.
+  /// No description provided for @mintNext3aSavedLocation.
   ///
   /// In fr, this message translates to:
-  /// **'Déductions fiscales annuelles'**
-  String get expatRight3aBefore;
+  /// **'Tu la retrouveras dans Aujourd’hui.'**
+  String get mintNext3aSavedLocation;
 
-  /// No description provided for @expatRight3aAfter.
+  /// No description provided for @mintNext3aExpiryDisclosure.
   ///
   /// In fr, this message translates to:
-  /// **'Compte bloqué — aucun nouveau versement possible'**
-  String get expatRight3aAfter;
+  /// **'Elle sera supprimée automatiquement le 31 janvier {year}. Tu peux la supprimer avant.'**
+  String mintNext3aExpiryDisclosure(Object year);
 
-  /// No description provided for @expatRight3aImpact.
+  /// No description provided for @mintNext3aReturnToday.
   ///
   /// In fr, this message translates to:
-  /// **'Tu perds le droit de verser dans le 3a dès que tu n\'as plus de revenu soumis à l\'AVS suisse.'**
-  String get expatRight3aImpact;
+  /// **'Retour à Aujourd’hui'**
+  String get mintNext3aReturnToday;
 
-  /// No description provided for @expatRightLamalLabel.
+  /// No description provided for @mintNext3aTodayStatus.
   ///
   /// In fr, this message translates to:
-  /// **'LAMal — assurance maladie'**
-  String get expatRightLamalLabel;
+  /// **'{year} · À faire'**
+  String mintNext3aTodayStatus(Object year);
 
-  /// No description provided for @expatRightLamalBefore.
+  /// No description provided for @mintNext3aTodayDoneStatus.
   ///
   /// In fr, this message translates to:
-  /// **'Couverture universelle en Suisse'**
-  String get expatRightLamalBefore;
+  /// **'{year} · Terminé'**
+  String mintNext3aTodayDoneStatus(Object year);
 
-  /// No description provided for @expatRightLamalAfter.
+  /// No description provided for @mintNext3aMarkDone.
   ///
   /// In fr, this message translates to:
-  /// **'L\'assurance maladie relève désormais du pays de résidence'**
-  String get expatRightLamalAfter;
+  /// **'J’ai vérifié'**
+  String get mintNext3aMarkDone;
 
-  /// No description provided for @expatRightLamalImpact.
+  /// No description provided for @mintNext3aDoneTitle.
   ///
   /// In fr, this message translates to:
-  /// **'La couverture internationale est souvent partielle et coûteuse. Vérifie les conventions bilatérales.'**
-  String get expatRightLamalImpact;
+  /// **'C’est fait'**
+  String get mintNext3aDoneTitle;
 
-  /// No description provided for @expatRightAcLabel.
+  /// No description provided for @mintNext3aOpenTask.
   ///
   /// In fr, this message translates to:
-  /// **'Chômage AC'**
-  String get expatRightAcLabel;
+  /// **'Ouvrir'**
+  String get mintNext3aOpenTask;
 
-  /// No description provided for @expatDestinationAbroad.
+  /// No description provided for @mintNext3aDelete.
   ///
   /// In fr, this message translates to:
-  /// **'l\'étranger'**
-  String get expatDestinationAbroad;
+  /// **'Supprimer cette étape'**
+  String get mintNext3aDelete;
 
-  /// No description provided for @expatAvsConfidenceMessage.
+  /// No description provided for @mintNext3aDeleteQuestion.
   ///
   /// In fr, this message translates to:
-  /// **'Estimation sur un modèle linéaire simplifié (rente réduite au prorata des années cotisées). La rente AVS réelle dépend aussi du revenu annuel moyen et des bonifications. À valider avec ta caisse de compensation.'**
-  String get expatAvsConfidenceMessage;
+  /// **'Supprimer cette prochaine étape ?'**
+  String get mintNext3aDeleteQuestion;
 
-  /// No description provided for @frontalierChargeMaladie.
+  /// No description provided for @mintNext3aDeleteBoundary.
   ///
   /// In fr, this message translates to:
-  /// **'Assurance maladie'**
-  String get frontalierChargeMaladie;
+  /// **'Le parcours financier n’est pas affecté.'**
+  String get mintNext3aDeleteBoundary;
 
-  /// No description provided for @frontalierChargeRetraite.
+  /// No description provided for @mintNext3aCancel.
   ///
   /// In fr, this message translates to:
-  /// **'Retraite / vieillesse'**
-  String get frontalierChargeRetraite;
+  /// **'Annuler'**
+  String get mintNext3aCancel;
 
-  /// No description provided for @frontalierChargeChomage.
+  /// No description provided for @mintNext3aDeleteConfirm.
   ///
   /// In fr, this message translates to:
-  /// **'Chômage'**
-  String get frontalierChargeChomage;
+  /// **'Supprimer'**
+  String get mintNext3aDeleteConfirm;
 
-  /// No description provided for @frontalierChargeDependance.
+  /// No description provided for @mintNext3aSafeExitTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Dépendance'**
-  String get frontalierChargeDependance;
+  /// **'Tu veux t’arrêter ici ?'**
+  String get mintNext3aSafeExitTitle;
 
-  /// No description provided for @frontalierChargeLogement.
+  /// No description provided for @mintNext3aSafeExitBody.
   ///
   /// In fr, this message translates to:
-  /// **'Aide au logement'**
-  String get frontalierChargeLogement;
+  /// **'Rien de ce parcours ne sera enregistré.'**
+  String get mintNext3aSafeExitBody;
 
-  /// No description provided for @frontalierChargeCsgCrds.
+  /// No description provided for @mintNext3aSafeExitResume.
   ///
   /// In fr, this message translates to:
-  /// **'CSG / CRDS'**
-  String get frontalierChargeCsgCrds;
+  /// **'Continuer ici'**
+  String get mintNext3aSafeExitResume;
 
-  /// No description provided for @frontalierChargeLppEstimated.
+  /// No description provided for @mintNext3aSafeExitLeave.
   ///
   /// In fr, this message translates to:
-  /// **'LPP (est.)'**
-  String get frontalierChargeLppEstimated;
+  /// **'Quitter sans enregistrer'**
+  String get mintNext3aSafeExitLeave;
 
-  /// No description provided for @frontalierSourceTaxConfidenceMessage.
+  /// No description provided for @mintNext3aStorageFailure.
   ///
   /// In fr, this message translates to:
-  /// **'Estimation sur un taux moyen simplifié par canton. Le barème réellement prélevé dépend de ta situation familiale (célibataire, marié·e, nombre d\'enfants) — que ce modèle plat ne distingue pas. Séparément, le statut de quasi-résident·e peut ouvrir une taxation ordinaire ultérieure avec déductions, sans changer le barème prélevé. À valider avec l\'administration fiscale cantonale.'**
-  String get frontalierSourceTaxConfidenceMessage;
+  /// **'{kind, select, read{Impossible de vérifier cette étape sur cet appareil. Elle peut encore être enregistrée.} verifyRead{Mint n’a pas pu vérifier si cette étape est bien enregistrée. Elle peut l’être.} delete{Impossible de supprimer cette étape sur cet appareil. Elle est encore enregistrée.} cleanupDelete{Mint n’a pas pu supprimer cette étape. Elle est encore enregistrée. Tu peux réessayer maintenant.} complete{Impossible de marquer cette étape comme terminée. Elle reste enregistrée comme à faire.} other{Impossible de garder cette étape sur cet appareil. Rien n’a été enregistré.}}'**
+  String mintNext3aStorageFailure(String kind);
 
-  /// No description provided for @authRecreateAccountCta.
+  /// No description provided for @mintNext3aCleanupPending.
   ///
   /// In fr, this message translates to:
-  /// **'Recréer mon compte'**
-  String get authRecreateAccountCta;
+  /// **'Suppression de cette étape en cours…'**
+  String get mintNext3aCleanupPending;
 
-  /// No description provided for @pillar3aProviderNameFintechA.
+  /// No description provided for @housingExplore.
   ///
   /// In fr, this message translates to:
-  /// **'Fintech A'**
-  String get pillar3aProviderNameFintechA;
+  /// **'Comprendre ma situation de logement'**
+  String get housingExplore;
 
-  /// No description provided for @pillar3aProviderNameFintechB.
+  /// No description provided for @housingQuestion.
   ///
   /// In fr, this message translates to:
-  /// **'Fintech B'**
-  String get pillar3aProviderNameFintechB;
+  /// **'Pour le logement où tu vis aujourd’hui…'**
+  String get housingQuestion;
 
-  /// No description provided for @pillar3aProviderNameFintechC.
+  /// No description provided for @housingTenant.
   ///
   /// In fr, this message translates to:
-  /// **'Fintech C'**
-  String get pillar3aProviderNameFintechC;
+  /// **'Je le loue'**
+  String get housingTenant;
 
-  /// No description provided for @pillar3aProviderNameBanque.
+  /// No description provided for @housingOwnerOccupier.
   ///
   /// In fr, this message translates to:
-  /// **'Banque classique (compte 3a)'**
-  String get pillar3aProviderNameBanque;
+  /// **'J’en possède tout ou partie'**
+  String get housingOwnerOccupier;
 
-  /// No description provided for @pillar3aProviderNameAssurance.
+  /// No description provided for @housingOther.
   ///
   /// In fr, this message translates to:
-  /// **'Assurance 3a (mixte)'**
-  String get pillar3aProviderNameAssurance;
+  /// **'Je suis dans une autre situation'**
+  String get housingOther;
 
-  /// No description provided for @pillar3aProviderDescFintechA.
+  /// No description provided for @housingUnknown.
   ///
   /// In fr, this message translates to:
-  /// **'App mobile, stratégies passives indexées, gestion automatisée'**
-  String get pillar3aProviderDescFintechA;
+  /// **'Je ne sais pas'**
+  String get housingUnknown;
 
-  /// No description provided for @pillar3aProviderDescFintechB.
+  /// No description provided for @housingContinue.
   ///
   /// In fr, this message translates to:
-  /// **'Frais parmi les plus bas, stratégies globales, flexibilité'**
-  String get pillar3aProviderDescFintechB;
+  /// **'Continuer'**
+  String get housingContinue;
 
-  /// No description provided for @pillar3aProviderDescFintechC.
+  /// No description provided for @housingTenantBoundary.
   ///
   /// In fr, this message translates to:
-  /// **'Solution digitale d’une banque cantonale'**
-  String get pillar3aProviderDescFintechC;
+  /// **'Tu loues ce logement. Les questions fiscales liées à la propriété ne te concernent pas ici.'**
+  String get housingTenantBoundary;
 
-  /// No description provided for @pillar3aProviderDescBanque.
+  /// No description provided for @housingOwnerBoundary.
   ///
   /// In fr, this message translates to:
-  /// **'Taux fixe, non exposé aux marchés, rendement limité'**
-  String get pillar3aProviderDescBanque;
+  /// **'Ta réponse prépare seulement les prochaines questions. Aucun avantage fiscal n’est encore calculé.'**
+  String get housingOwnerBoundary;
 
-  /// No description provided for @pillar3aProviderDescAssurance.
+  /// No description provided for @housingOtherHelp.
   ///
   /// In fr, this message translates to:
-  /// **'Combine épargne et couverture (décès, invalidité). Frais élevés, durée d’engagement longue.'**
-  String get pillar3aProviderDescAssurance;
+  /// **'Certaines situations ne sont ni simplement locataire ni propriétaire. Nous clarifierons sans deviner.'**
+  String get housingOtherHelp;
 
-  /// No description provided for @pillar3aProviderAssuranceWarning.
+  /// No description provided for @housingUnknownHelp.
   ///
   /// In fr, this message translates to:
-  /// **'À {age} ans, une assurance 3a te coûte environ CHF {montant} de rendement en moins sur {duree} ans par rapport à une fintech. Frais élevés et flexibilité réduite.'**
-  String pillar3aProviderAssuranceWarning(int age, String montant, int duree);
+  /// **'Tu peux vérifier ton bail ou ton acte. Nous ne déduisons rien de cette incertitude.'**
+  String get housingUnknownHelp;
 
+  /// No description provided for @housingBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get housingBack;
+
+  /// No description provided for @housingFinish.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à l’aperçu'**
+  String get housingFinish;
+
+  /// No description provided for @housingSafeExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire une pause'**
+  String get housingSafeExit;
+
+  /// No description provided for @housingResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer ici'**
+  String get housingResume;
+
+  /// No description provided for @housingLeaveWithoutSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans enregistrer'**
+  String get housingLeaveWithoutSaving;
+
+  /// No description provided for @housingMortgageQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce logement est-il financé par une hypothèque ?'**
+  String get housingMortgageQuestion;
+
+  /// No description provided for @housingMortgageYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get housingMortgageYes;
+
+  /// No description provided for @housingMortgageNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get housingMortgageNo;
+
+  /// No description provided for @housingMortgageUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas'**
+  String get housingMortgageUnknown;
+
+  /// No description provided for @housingMortgageYesBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette réponse permettra de poser les bonnes questions sur le financement. Rien n’est encore calculé.'**
+  String get housingMortgageYesBoundary;
+
+  /// No description provided for @housingMortgageNoBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette réponse permettra de poser les bonnes questions sur la propriété. Rien n’est encore calculé.'**
+  String get housingMortgageNoBoundary;
+
+  /// No description provided for @housingMortgageUnknownBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux vérifier ton relevé hypothécaire ou demander à ton établissement. Mint ne déduit rien de cette incertitude.'**
+  String get housingMortgageUnknownBoundary;
+
+  /// No description provided for @mortgageStatementQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'As-tu l’attestation annuelle de ton hypothèque sous la main ?'**
+  String get mortgageStatementQuestion;
+
+  /// No description provided for @mortgageStatementReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, je l’ai'**
+  String get mortgageStatementReady;
+
+  /// No description provided for @mortgageStatementFindLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je la chercherai plus tard'**
+  String get mortgageStatementFindLater;
+
+  /// No description provided for @mortgageStatementUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne sais pas quel document chercher'**
+  String get mortgageStatementUnknown;
+
+  /// No description provided for @mortgageStatementReadyBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parfait. Plus tard, Mint pourra t’aider à relever les données utiles de ce document. Pour l’instant, aucun chiffre n’est lu ni enregistré.'**
+  String get mortgageStatementReadyBoundary;
+
+  /// No description provided for @mortgageStatementFindLaterBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de problème. Tu pourras reprendre quand tu l’auras retrouvée. Pour l’instant, aucun chiffre n’est demandé ni enregistré.'**
+  String get mortgageStatementFindLaterBoundary;
+
+  /// No description provided for @mortgageStatementUnknownBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint t’expliquera comment reconnaître le bon document avant toute saisie. Pour l’instant, aucun chiffre n’est demandé ni enregistré.'**
+  String get mortgageStatementUnknownBoundary;
+
+  /// No description provided for @mortgageInterestQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel montant d’intérêts hypothécaires est indiqué pour l’année ?'**
+  String get mortgageInterestQuestion;
+
+  /// No description provided for @mortgageInterestHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recopie uniquement le total annuel indiqué sur l’attestation. Mint ne calcule encore rien.'**
+  String get mortgageInterestHint;
+
+  /// No description provided for @mortgageInterestLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêts annuels'**
+  String get mortgageInterestLabel;
+
+  /// Locally entered annual mortgage interest review, bound to the user-declared statement year.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour {year}, tu as relevé CHF {amount} d’intérêts annuels. Ce chiffre reste local et aucune économie fiscale n’est encore calculée.'**
+  String mortgageInterestBoundary(String amount, int year);
+
+  /// User-declared mortgage statement year shown on the question or review.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel solde de dette hypothécaire est indiqué au 31 décembre {year} ?'**
+  String mortgageDebtQuestion(int year);
+
+  /// No description provided for @mortgageDebtHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recopie le solde indiqué sur la même attestation. Mint ne déduit rien de ce montant seul.'**
+  String get mortgageDebtHint;
+
+  /// No description provided for @mortgageDebtLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dette au 31 décembre'**
+  String get mortgageDebtLabel;
+
+  /// User-declared mortgage statement year shown on the question or review.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton attestation {year}, en deux chiffres'**
+  String mortgageReviewTitle(int year);
+
+  /// Locally entered CHF amount shown in the mortgage statement review.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intérêts annuels : CHF {amount}'**
+  String mortgageReviewInterest(String amount);
+
+  /// Locally entered CHF amount shown in the mortgage statement review.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dette au 31 décembre : CHF {amount}'**
+  String mortgageReviewDebt(String amount);
+
+  /// No description provided for @mortgageReviewBoundary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces deux chiffres restent locaux. Ils ne constituent ni une déduction fiscale confirmée ni un résultat.'**
+  String get mortgageReviewBoundary;
+
+  /// No description provided for @mortgageStatementYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année inscrite sur l’attestation'**
+  String get mortgageStatementYearLabel;
+
+  /// No description provided for @mortgageStatementYearHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple 2025'**
+  String get mortgageStatementYearHint;
+
+  /// No description provided for @housingSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer ces informations'**
+  String get housingSave;
+
+  /// No description provided for @housingSaveError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d’enregistrer pour l’instant. Rien n’a été perdu.'**
+  String get housingSaveError;
+
+  /// No description provided for @housingSavedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que MINT sait de ton logement'**
+  String get housingSavedTitle;
+
+  /// No description provided for @housingSavedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistré sur cet appareil. Tu peux corriger ou supprimer ces informations à tout moment.'**
+  String get housingSavedBody;
+
+  /// No description provided for @housingSavedProvenance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : {source} · mise à jour le {date}.'**
+  String housingSavedProvenance(String source, String date);
+
+  /// No description provided for @housingSavedSourceHousingFlow.
+  ///
+  /// In fr, this message translates to:
+  /// **'saisi par toi dans MINT'**
+  String get housingSavedSourceHousingFlow;
+
+  /// No description provided for @housingSavedSourceUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'à vérifier'**
+  String get housingSavedSourceUnknown;
+
+  /// No description provided for @housingSavedPeriod.
+  ///
+  /// In fr, this message translates to:
+  /// **'Période du relevé : {year}.'**
+  String housingSavedPeriod(int year);
+
+  /// No description provided for @housingSavedEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger'**
+  String get housingSavedEdit;
+
+  /// No description provided for @housingSavedDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ces informations'**
+  String get housingSavedDelete;
+
+  /// No description provided for @housingSavedDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer les informations logement ?'**
+  String get housingSavedDeleteTitle;
+
+  /// No description provided for @housingSavedDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne les utilisera plus dans ses prochains éclairages.'**
+  String get housingSavedDeleteBody;
+
+  /// No description provided for @housingSavedDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder'**
+  String get housingSavedDeleteCancel;
+
+  /// No description provided for @housingSavedDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get housingSavedDeleteConfirm;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

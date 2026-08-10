@@ -463,6 +463,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     requiresAuth: true,
     description: 'Legacy redirect -> /pilier-3a',
   ),
+  '/mint-next/housing': RouteMeta(
+    path: '/mint-next/housing',
+    category: RouteCategory.flow,
+    owner: RouteOwner.system,
+    requiresAuth: false,
+    killFlag: 'enableMintNextHousing',
+    description: 'Ephemeral housing-tenure clarification flow',
+  ),
   '/3a-deep/comparator': RouteMeta(
     path: '/3a-deep/comparator',
     category: RouteCategory.destination,

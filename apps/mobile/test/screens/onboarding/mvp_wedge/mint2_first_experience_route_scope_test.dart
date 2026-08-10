@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -70,6 +71,10 @@ Future<void> _openAxes(
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues(const <String, Object>{});
+    // Le chemin canonique des réponses touche désormais le secure store
+    // (canonicalisation logement) — sans mock, l'appel au canal réel pend
+    // sous flutter_test.
+    FlutterSecureStorage.setMockInitialValues({});
     FeatureFlags.enableMint2FirstExperienceEntry = true;
   });
 

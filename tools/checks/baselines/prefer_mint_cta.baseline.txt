@@ -59,6 +59,10 @@ lib/screens/household/household_screen.dart:418: FilledButton(
 lib/screens/household/household_screen.dart:97: FilledButton(
 lib/screens/landing_screen.dart:163: FilledButton(
 lib/screens/lpp_deep/rachat_echelonne_screen.dart:643: TextButton(
+lib/screens/mon_argent/mon_argent_screen.dart:302: TextButton(
+lib/screens/mon_argent/mon_argent_screen.dart:309: TextButton(
+lib/screens/mon_argent/mon_argent_screen.dart:718: TextButton(
+lib/screens/mon_argent/mon_argent_screen.dart:728: TextButton(
 lib/screens/mortgage/affordability_screen.dart:758: OutlinedButton(
 lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:1077: TextButton(
 lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart:301: FilledButton(

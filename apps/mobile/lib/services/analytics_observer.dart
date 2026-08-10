@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/observability/private_route_telemetry.dart';
 
 /// NavigatorObserver that automatically tracks screen views
 ///
@@ -12,7 +13,10 @@ import 'package:mint_mobile/services/analytics_service.dart';
 /// );
 /// ```
 class AnalyticsRouteObserver extends NavigatorObserver {
-  final AnalyticsService _analytics = AnalyticsService();
+  AnalyticsRouteObserver({void Function(String)? trackScreenView})
+      : _track = trackScreenView ?? AnalyticsService().trackScreenView;
+
+  final void Function(String) _track;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -39,8 +43,10 @@ class AnalyticsRouteObserver extends NavigatorObserver {
   void _trackScreenView(Route<dynamic> route) {
     // Get route name from settings
     final routeName = route.settings.name;
-    if (routeName != null && routeName.isNotEmpty) {
-      _analytics.trackScreenView(routeName);
+    if (routeName != null &&
+        routeName.isNotEmpty &&
+        !isMintNext3aPrivateRouteName(routeName)) {
+      _track(routeName);
     }
   }
 }

@@ -1,0 +1,162 @@
+appId: ch.mint.app
+tags:
+  - mint-next-housing
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- assertVisible: "applied.*cadre_salarie_lpp_suisse_ready.*storage=(secureSeal|debugPlainFallback).*"
+# Restart once so router/auth providers hydrate the persisted fixture rather than
+# racing the debug bootstrap screen.
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mint-next/housing"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/housing"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/housing"
+- extendedWaitUntil:
+    visible:
+      id: "node:fact_logement"
+    timeout: 15000
+- tapOn:
+    id: "choice:fact_logement.tenant"
+- tapOn:
+    id: "action:fact_logement.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:housing_tenant_boundary"
+    timeout: 5000
+- tapOn:
+    text: "Enregistrer ces informations"
+- extendedWaitUntil:
+    notVisible:
+      id: "node:housing_tenant_boundary"
+    timeout: 10000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mint-next/housing"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/housing"
+- extendedWaitUntil:
+    visible:
+      id: "node:housing_saved_summary"
+    timeout: 15000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_housing_fact"
+    timeout: 15000
+- assertVisible: "Je le loue"
+- assertVisible: "Source : saisi par toi dans MINT · mise à jour le .+"
+- takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_housing_fact"
+    timeout: 15000
+- assertVisible: "Je le loue"
+- assertVisible: "Source : saisi par toi dans MINT · mise à jour le .+"
+- takeScreenshot: "${OUTPUT_DIR}/02-cold-relaunch-visible"
+- tapOn:
+    id: "action:mon_argent.housing.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:housing_saved_summary"
+    timeout: 8000
+- tapOn:
+    id: "action:housing_saved.edit"
+- tapOn:
+    id: "choice:fact_logement.other"
+- tapOn:
+    id: "action:fact_logement.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:housing_other_help"
+    timeout: 5000
+- tapOn:
+    text: "Enregistrer ces informations"
+- waitForAnimationToEnd:
+    timeout: 6000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_housing_fact"
+    timeout: 12000
+- assertVisible: "Je suis dans une autre situation"
+- assertVisible: "Source : saisi par toi dans MINT · mise à jour le .+"
+- takeScreenshot: "${OUTPUT_DIR}/03-edited-visible"
+- tapOn:
+    id: "action:mon_argent.housing.delete"
+- extendedWaitUntil:
+    visible: "Supprimer les informations logement ?"
+    timeout: 5000
+- tapOn:
+    text: "^Supprimer$"
+- extendedWaitUntil:
+    notVisible: "Supprimer les informations logement ?"
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_housing_fact"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/04-deleted-absent"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_housing_fact"
+    timeout: 12000
+- takeScreenshot: "${OUTPUT_DIR}/05-delete-survives-relaunch"

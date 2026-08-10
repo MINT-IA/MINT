@@ -108,3 +108,10 @@ from the 5-expert MINT panel synthesis at
 `.planning/decisions/2026-05-04-phase-53-target.md`. Mirrors the
 `tools/checks/route_registry_parity-KNOWN-MISSES.md` discipline established
 in Phase 32-04 (MAP-04).
+
+## 2026-08-10 — /mint-next/housing (PR B atterrissage fondation jumeau)
+
+Flow logement MINT Next derrière kill-flag `enableMintNextHousing` (OFF par
+défaut, fail-closed). Aucun intent coach n'est câblé dans cette tranche : le
+coach ne doit pas pouvoir suggérer une route invisible. À retirer de
+`_NOT_CHAT_ROUTABLE` quand le shell coach MINT Next câblera l'intent typé.

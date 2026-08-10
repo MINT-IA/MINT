@@ -126,7 +126,7 @@ tags:
     text: "Mon bilan"
 - extendedWaitUntil:
     visible:
-      text: "MON PROFIL"  # stable route AppBar, seeded or empty profile
+      text: "MA SITUATION"  # stable route AppBar, seeded or empty profile
     timeout: 6000
 - takeScreenshot: "03-mon-bilan"
 - openLink: "mintapp:///explore"

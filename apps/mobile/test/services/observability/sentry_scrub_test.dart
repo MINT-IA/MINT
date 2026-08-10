@@ -5,6 +5,7 @@
 // scrubber on the actual field it scrubs at runtime.
 // ignore_for_file: deprecated_member_use
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/observability/private_route_telemetry.dart';
 import 'package:mint_mobile/services/observability/sentry_scrub.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -16,6 +17,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 /// event. Each test names the regulation it grounds.
 
 void main() {
+  tearDown(() => MintPrivateFinancialTelemetryScope.setActive(false));
+
   group('MintSentryScrub.beforeSend', () {
     SentryEvent eventWith({
       Map<String, dynamic>? extra,
@@ -65,8 +68,7 @@ void main() {
 
     test('forbidden key (prompt) drops VALUE wholesale (LSFin Art. 8)', () {
       final event = eventWith(extra: {
-        'prompt':
-            'tu garantis un rendement optimal pour la retraite à 65 ans',
+        'prompt': 'tu garantis un rendement optimal pour la retraite à 65 ans',
         'safe_metric': 42,
       });
       final out = MintSentryScrub.beforeSend(event, Hint());
@@ -74,7 +76,8 @@ void main() {
       expect(out.extra!['safe_metric'], 42); // untouched
     });
 
-    test('forbidden claude_* payload keys dropped — request_id preserved (I3)', () {
+    test('forbidden claude_* payload keys dropped — request_id preserved (I3)',
+        () {
       // Per code-review I3: `claude_request_id` / `claude_model` /
       // `claude_token_usage` are non-PII triage identifiers needed to
       // correlate Sentry crashes with Anthropic logs (msg_01ABCDEF).
@@ -127,8 +130,8 @@ void main() {
     });
 
     test('C2: IBAN NBSP-separated is redacted', () {
-      final event = eventWith(
-          message: 'transfer to CH93 0076 2011 6238 5295 7');
+      final event =
+          eventWith(message: 'transfer to CH93 0076 2011 6238 5295 7');
       final out = MintSentryScrub.beforeSend(event, Hint());
       expect(out!.message!.formatted, isNot(contains('CH93 0076')));
     });
@@ -191,6 +194,151 @@ void main() {
       final nested = out!.extra!['context'] as Map<String, dynamic>;
       expect(nested['archetype'], 'expat_us'); // untouched, no PII
       expect(nested['note'], isNot(contains('756.1111')));
+    });
+
+    test('Batch32 private financial context is removed recursively', () {
+      final contexts = Contexts()
+        ..['financial_context'] = {
+          'tax_year': 2026,
+          'answer': 'annual_total',
+        };
+      final event = SentryEvent(
+        transaction: '/mint-next/3a',
+        contexts: contexts,
+        message: SentryMessage(
+          'failure at /mint-next/3a?year=2026',
+          template: 'failed route /mint-next/3a with %s',
+          params: ['3a.verify_annual_credited_total', 2026],
+        ),
+        extra: {
+          'context': {
+            'tax_year': 2026,
+            'task_id': '3a.verify_annual_credited_total',
+            'answers': ['annual_total'],
+            'profile_facts': {'canton': 'ZH'},
+            'financial_context': {'income': 120000},
+          },
+        },
+        tags: const {
+          'surface': 'private_financial_flow',
+          'task_status': 'open',
+          'route': '/mint-next/3a',
+        },
+        breadcrumbs: [
+          Breadcrumb(
+            message: 'opened /mint-next/3a',
+            data: const {'private_route_name': '/mint-next/3a'},
+          ),
+        ],
+      );
+
+      final out = MintSentryScrub.beforeSend(event, Hint())!;
+      final serialized = out.toJson().toString();
+      expect(serialized, isNot(contains('/mint-next/3a')));
+      expect(serialized, isNot(contains('annual_total')));
+      expect(serialized, isNot(contains('120000')));
+      expect(serialized, isNot(contains('3a.verify_annual_credited_total')));
+      expect(out.extra, isEmpty);
+      expect(out.tags, const {'surface': 'private_financial_flow'});
+      expect(out.breadcrumbs, isEmpty);
+      expect(out.request?.url, anyOf(isNull, MintSentryScrub.redacted));
+    });
+
+    test('each private free-text channel independently fails closed', () {
+      final events = <SentryEvent>[
+        SentryEvent(message: SentryMessage('annual_total')),
+        SentryEvent(message: SentryMessage('safe', template: 'tax_year=2026')),
+        SentryEvent(transaction: '3a.verify_annual_credited_total'),
+        SentryEvent(request: SentryRequest(url: '/mint-next/3a?year=2026')),
+        SentryEvent(breadcrumbs: [
+          Breadcrumb(category: 'annual_total', message: 'safe'),
+        ]),
+        SentryEvent(exceptions: [
+          SentryException(type: 'StateError', value: 'tax_year=2026'),
+        ]),
+      ];
+
+      for (final event in events) {
+        final out = MintSentryScrub.beforeSend(event, Hint())!;
+        final serialized = out.toJson().toString();
+        expect(serialized, isNot(contains('annual_total')));
+        expect(serialized, isNot(contains('tax_year')));
+        expect(serialized, isNot(contains('/mint-next/3a')));
+        expect(out.tags, const {'surface': 'private_financial_flow'});
+      }
+    });
+
+    test('active private surface classifies an ordinary technical exception',
+        () {
+      MintPrivateFinancialTelemetryScope.setActive(true);
+      final out = MintSentryScrub.beforeSend(
+        SentryEvent(exceptions: [
+          SentryException(type: 'StateError', value: 'ordinary failure'),
+        ], tags: const {
+          'build': 'candidate'
+        }),
+        Hint(),
+      )!;
+
+      expect(out.exceptions!.single.type, 'StateError');
+      expect(out.exceptions!.single.value, MintSentryScrub.redacted);
+      expect(out.tags, const {'surface': 'private_financial_flow'});
+    });
+
+    test('private exception clears every stack-frame local value', () {
+      MintPrivateFinancialTelemetryScope.setActive(true);
+      final out = MintSentryScrub.beforeSend(
+        SentryEvent(exceptions: [
+          SentryException(
+            type: 'StateError',
+            value: 'ordinary failure',
+            stackTrace: SentryStackTrace(frames: [
+              SentryStackFrame(vars: const {
+                'tax_year': '2026',
+                'balance': '6500',
+              }),
+            ]),
+          ),
+        ]),
+        Hint(),
+      )!;
+
+      final serialized = out.toJson().toString();
+      expect(serialized, isNot(contains('annual_total')));
+      expect(serialized, isNot(contains('6500')));
+      expect(out.exceptions!.single.stackTrace!.frames.single.vars, isEmpty);
+    });
+
+    test('stack-frame-only marker classifies a late private exception', () {
+      expect(MintPrivateFinancialTelemetryScope.isActive, isFalse);
+      final out = MintSentryScrub.beforeSend(
+        SentryEvent(exceptions: [
+          SentryException(
+            type: 'StateError',
+            value: 'ordinary late failure',
+            stackTrace: SentryStackTrace(frames: [
+              SentryStackFrame(vars: const {
+                'tax_year': '2026',
+                'balance': '6500',
+              }),
+            ]),
+          ),
+        ]),
+        Hint(),
+      )!;
+
+      expect(out.tags, const {'surface': 'private_financial_flow'});
+      expect(out.exceptions!.single.stackTrace!.frames.single.vars, isEmpty);
+    });
+
+    test('ordinary status events are not mislabeled as private 3a', () {
+      final out = MintSentryScrub.beforeSend(
+        eventWith(extra: const {'status': 'authenticated'}),
+        Hint(),
+      )!;
+
+      expect(out.extra!['status'], 'authenticated');
+      expect(out.tags?['surface'], isNot('private_financial_flow'));
     });
   });
 }

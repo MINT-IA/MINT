@@ -44,7 +44,8 @@ class _FakeCoachProfileProvider extends CoachProfileProvider {
   bool get hasProfile => _fakeProfile != null;
 
   @override
-  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+  Future<void> mergeAnswers(Map<String, dynamic> partial,
+      {bool syncToBackend = true, bool failOnPersistenceError = false}) async {
     // Sub-phase 01.5 W02-T03: the us-tax-person hard-gate writes
     // {'q_us_tax_person': bool} via the same mergeAnswers entry-point.
     // It is NOT the T8 dossier flush — exclude it from throw + log,

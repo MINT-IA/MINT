@@ -65,7 +65,7 @@ tags:
 - openLink: "mintapp:///profile/bilan"
 - extendedWaitUntil:
     visible:
-      text: "MON PROFIL"
+      text: "MA SITUATION"
     timeout: 8000
 - extendedWaitUntil:
     visible:
@@ -165,7 +165,7 @@ tags:
       text: "SCANNER UN DOCUMENT"
     timeout: 8000
 - assertNotVisible:
-    text: "MON PROFIL"
+    text: "MA SITUATION"
 - takeScreenshot: "07-row22-scan-primary"
 
 # 11 — Explorer is the secondary calculators / education entrypoint.

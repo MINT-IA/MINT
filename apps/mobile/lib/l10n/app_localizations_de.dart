@@ -2962,7 +2962,8 @@ class SDe extends S {
   String get independantLppRescueOption1Label => 'Freizügigkeitsstiftung';
 
   @override
-  String get independantLppRescueOption1Description => 'Lege dein Guthaben in eine Freizügigkeitsstiftung, mit anständiger Rendite.';
+  String get independantLppRescueOption1Description =>
+      'Lege dein Guthaben in eine Freizügigkeitsstiftung, mit anständiger Rendite.';
 
   @override
   String get independantLppRescueOption1LegalRef => 'FZG Art. 4';
@@ -2971,7 +2972,8 @@ class SDe extends S {
   String get independantLppRescueOption2Label => 'Auffangeinrichtung';
 
   @override
-  String get independantLppRescueOption2Description => 'Wenn du nichts tust, wird dein Guthaben nach 6 Monaten automatisch dorthin übertragen — zur Mindestrendite.';
+  String get independantLppRescueOption2Description =>
+      'Wenn du nichts tust, wird dein Guthaben nach 6 Monaten automatisch dorthin übertragen — zur Mindestrendite.';
 
   @override
   String get independantLppRescueOption2LegalRef => 'FZG Art. 4 Abs. 2';
@@ -2980,7 +2982,8 @@ class SDe extends S {
   String get independantLppRescueOption3Label => 'Neue Pensionskasse (BVG)';
 
   @override
-  String get independantLppRescueOption3Description => 'Du schliesst dich freiwillig einer BVG-Pensionskasse an.';
+  String get independantLppRescueOption3Description =>
+      'Du schliesst dich freiwillig einer BVG-Pensionskasse an.';
 
   @override
   String get independantLppRescueOption3LegalRef => 'BVG Art. 44';
@@ -4850,7 +4853,7 @@ class SDe extends S {
   String get futurExplorerDetails => 'Details erkunden';
 
   @override
-  String get financialSummaryTitle => 'MEIN PROFIL';
+  String get financialSummaryTitle => 'MEINE SITUATION';
 
   @override
   String get financialSummaryDossierTitle => 'Prüfbares Dossier';
@@ -4942,6 +4945,73 @@ class SDe extends S {
 
   @override
   String get financialSummary3a3ePilier => '3a (3. Säule)';
+
+  @override
+  String get threeAAccountsSmartAction => 'Deine 3a-Konten detaillieren';
+
+  @override
+  String get threeAAccountsSmartReason =>
+      '~1 Min. · für steuerlich gestaffelte Bezüge';
+
+  @override
+  String get threeAAccountAdd => '3a-Konto hinzufügen';
+
+  @override
+  String get threeAAccountTitle => 'Dein 3a-Konto hinzufügen';
+
+  @override
+  String get threeAAccountWhy =>
+      'Diese Angaben zeigen dein Vermögen und helfen bei der Bezugsplanung. Sie bleiben unter deiner Kontrolle in Meine Situation.';
+
+  @override
+  String financialSummaryBalanceAsOf(String date) {
+    return 'Saldo per $date';
+  }
+
+  @override
+  String get financialSummaryBalanceDateUnknown => 'Saldodatum zu bestätigen';
+
+  @override
+  String get financialSummarySourceUserInput => 'Manuell eingegeben';
+
+  @override
+  String get threeAAccountProvider => 'Institut';
+
+  @override
+  String get threeAAccountBalance => 'Aktueller Saldo';
+
+  @override
+  String get threeAAccountBalanceDate => 'Saldodatum';
+
+  @override
+  String get threeAAccountOwnerSelf => 'Eigentümer: du';
+
+  @override
+  String get threeAAccountInvalid =>
+      'Gib ein Institut und einen gültigen Saldo ein.';
+
+  @override
+  String get threeAAccountSaveError =>
+      'Speichern nicht möglich. Es wurde nichts geändert.';
+
+  @override
+  String get threeAAccountSave => 'Konto speichern';
+
+  @override
+  String get financialSummary3aPlannedAnnual => 'Geplanter Jahresbeitrag';
+
+  @override
+  String financialSummary3aPlannedAnnualOwner(String name) {
+    return '$name · geplanter Jahresbeitrag';
+  }
+
+  @override
+  String get financialSummaryDateUnknown => 'Datum zu bestätigen';
+
+  @override
+  String financialSummaryUpdatedOn(String date) {
+    return 'Aktualisiert am $date';
+  }
 
   @override
   String financialSummaryNComptes(String n) {
@@ -10129,6 +10199,15 @@ class SDe extends S {
   String get sim3aCtaPlan => 'Planen';
 
   @override
+  String get sim3aSavePlan => 'Diesen Plan speichern';
+
+  @override
+  String get sim3aPlanSaved => 'Plan gespeichert';
+
+  @override
+  String get sim3aPlanRemoved => 'Plan entfernt';
+
+  @override
   String get sim3aDisclaimer =>
       'Bildungsschätzung. Die tatsächlichen Einsparungen hängen von deinem Wohnort und deiner Familiensituation ab. Keine Finanzberatung (FIDLEG).';
 
@@ -11224,6 +11303,21 @@ class SDe extends S {
 
   @override
   String get dividendeVsSalaireTitle => 'Dividende vs Gehalt';
+
+  @override
+  String get dividendeLegendChargeTotale => 'Gesamtbelastung';
+
+  @override
+  String get dividendeLegendSplitAdapte => 'Passende Aufteilung';
+
+  @override
+  String get dividendeLegendPositionActuelle => 'Aktuelle Position';
+
+  @override
+  String get dividendeChargeCurveTitle => 'Gesamtbelastung nach Aufteilung';
+
+  @override
+  String get dividendeEducationTitle => 'Zum Merken';
 
   @override
   String get dividendeVsSalaireChargeSalaire => 'Belastung auf Gehalt';
@@ -13274,28 +13368,31 @@ class SDe extends S {
       'Vereinfachte Simulation. Die Gewinnsteuer ist über einen repräsentativen Schweizer Satz (Durchschnitt KPMG 2025) enthalten; der genaue kantonale Satz, persönliche Abzüge, die Vermögenssteuer und die durch den Lohn erworbenen AHV/BVG-Ansprüche sind nicht modelliert. Ein marktkonformer Lohn wird angenommen. Ziehe eine Fachperson für eine vollständige Analyse bei.';
 
   @override
-  String get dividendeHeaderIntro => 'Wenn du eine AG oder GmbH besitzt, kannst du dir eine Kombination aus Lohn und Dividenden auszahlen. Die Dividende wird zu 50 % besteuert (qualifizierte Beteiligung) und entgeht den AHV-Beiträgen. Finde den passendsten Split.';
+  String get dividendeHeaderIntro =>
+      'Wenn du eine AG oder GmbH besitzt, kannst du dir eine Kombination aus Lohn und Dividenden auszahlen. Die Dividende wird zu 50 % besteuert (qualifizierte Beteiligung) und entgeht den AHV-Beiträgen. Finde den passendsten Split.';
 
   @override
   String dividendeEconomieCaptionSaving(String amount) {
-    return 'Der passende Split spart dir ${amount}/Jahr gegenüber 100 % Lohn';
+    return 'Der passende Split spart dir $amount/Jahr gegenüber 100 % Lohn';
   }
 
   @override
-  String get dividendeEconomieCaptionAdjust => 'Passe den Split an, um eine Ersparnis zu finden';
+  String get dividendeEconomieCaptionAdjust =>
+      'Passe den Split an, um eine Ersparnis zu finden';
 
   @override
   String get dividendeRequalificationTitle => 'Umqualifizierungsrisiko';
 
   @override
-  String get dividendeRequalificationBody => 'Sinkt der Lohnanteil unter ~60 % des Gewinns, kann das Steueramt einen Teil der Dividenden als Lohn umqualifizieren (die Praxis variiert je nach Kanton). Die Folge: rückwirkend geforderte AHV-Beiträge.';
+  String get dividendeRequalificationBody =>
+      'Sinkt der Lohnanteil unter ~60 % des Gewinns, kann das Steueramt einen Teil der Dividenden als Lohn umqualifizieren (die Praxis variiert je nach Kanton). Die Folge: rückwirkend geforderte AHV-Beiträge.';
 
   @override
   String get dividendeResultPartDividende => 'Dividendenanteil';
 
   @override
   String dividendeResultPctBenefice(int pct) {
-    return '${pct} % des Gewinns';
+    return '$pct % des Gewinns';
   }
 
   @override
@@ -13308,28 +13405,34 @@ class SDe extends S {
   String get dividendeEduImpotBeneficeTitle => 'Gewinnsteuer';
 
   @override
-  String get dividendeEduImpotBeneficeBody => 'Denk daran: Der als Dividende ausgeschüttete Gewinn wird zuerst auf Ebene der Gesellschaft besteuert (Gewinnsteuer), dann auf persönlicher Ebene (wirtschaftliche Doppelbesteuerung).';
+  String get dividendeEduImpotBeneficeBody =>
+      'Denk daran: Der als Dividende ausgeschüttete Gewinn wird zuerst auf Ebene der Gesellschaft besteuert (Gewinnsteuer), dann auf persönlicher Ebene (wirtschaftliche Doppelbesteuerung).';
 
   @override
   String get dividendeEduAvsTitle => 'AHV nur auf dem Lohn';
 
   @override
-  String get dividendeEduAvsBody => 'Die AHV-Beiträge (rund 12.5 % insgesamt) gelten nur für den Lohnanteil. Die Dividende entgeht den Sozialabgaben — daher lohnt sich das Anpassen des Splits.';
+  String get dividendeEduAvsBody =>
+      'Die AHV-Beiträge (rund 12.5 % insgesamt) gelten nur für den Lohnanteil. Die Dividende entgeht den Sozialabgaben — daher lohnt sich das Anpassen des Splits.';
 
   @override
   String get dividendeEduCantonalTitle => 'Kantonale Praxis';
 
   @override
-  String get dividendeEduCantonalBody => 'Die Steuerbehörden achten auf übermässige Dividendenausschüttungen. Erwartet wird ein « marktkonformer » Lohn. Die Grenze variiert je nach Kanton.';
+  String get dividendeEduCantonalBody =>
+      'Die Steuerbehörden achten auf übermässige Dividendenausschüttungen. Erwartet wird ein « marktkonformer » Lohn. Die Grenze variiert je nach Kanton.';
 
   @override
-  String get dividendeCantonalDisclaimer => 'Die steuerliche Wirkung hängt von der kantonalen Praxis ab. Die Umqualifizierungsschwellen variieren von Kanton zu Kanton.';
+  String get dividendeCantonalDisclaimer =>
+      'Die steuerliche Wirkung hängt von der kantonalen Praxis ab. Die Umqualifizierungsschwellen variieren von Kanton zu Kanton.';
 
   @override
-  String get dividendeComplianceEducatif => 'Bildungstool — stellt keine Finanzberatung dar (FIDLEG).';
+  String get dividendeComplianceEducatif =>
+      'Bildungstool — stellt keine Finanzberatung dar (FIDLEG).';
 
   @override
-  String get dividendeComplianceSources => 'Quellen: DBG Art. 18, 20, 33; OR Art. 660';
+  String get dividendeComplianceSources =>
+      'Quellen: DBG Art. 18, 20, 33; OR Art. 660';
 
   @override
   String get successionUrgence => 'Sofortiger Handlungsbedarf';
@@ -14448,6 +14551,49 @@ class SDe extends S {
   @override
   String get authErrorAccountDeletedRecreate =>
       'Dieses Apple-Konto wurde gelöscht. Erstelle dein Konto mit Apple erneut, um fortzufahren.';
+
+  @override
+  String get authRecreateAccountCta => 'Mein Konto neu erstellen';
+
+  @override
+  String get pillar3aProviderNameFintechA => 'Fintech A';
+
+  @override
+  String get pillar3aProviderNameFintechB => 'Fintech B';
+
+  @override
+  String get pillar3aProviderNameFintechC => 'Fintech C';
+
+  @override
+  String get pillar3aProviderNameBanque => 'Klassische Bank (3a-Konto)';
+
+  @override
+  String get pillar3aProviderNameAssurance => '3a-Versicherung (gemischt)';
+
+  @override
+  String get pillar3aProviderDescFintechA =>
+      'Mobile App, passive Indexstrategien, automatisierte Verwaltung';
+
+  @override
+  String get pillar3aProviderDescFintechB =>
+      'Gebühren unter den niedrigsten, globale Strategien, Flexibilität';
+
+  @override
+  String get pillar3aProviderDescFintechC =>
+      'Digitale Lösung einer Kantonalbank';
+
+  @override
+  String get pillar3aProviderDescBanque =>
+      'Fester Zins, nicht marktabhängig, begrenzte Rendite';
+
+  @override
+  String get pillar3aProviderDescAssurance =>
+      'Kombiniert Sparen und Deckung (Tod, Invalidität). Hohe Gebühren, lange Bindungsdauer.';
+
+  @override
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
+    return 'Mit $age Jahren beträgt der Unterschied beim Endkapital zwischen einer 3a-Versicherung und einem Fintech-Anbieter gemäss den angenommenen Gebühren und Deckungen in deiner Simulation rund CHF $montant über $duree Jahre. Eine 3a-Versicherung verbindet Sparen und Absicherung; Gebühren und Flexibilität variieren je nach Vertrag.';
+  }
 
   @override
   String get authErrorService =>
@@ -16715,6 +16861,122 @@ class SDe extends S {
   @override
   String get expatNoAcRightsAbroad =>
       'Keine Schweizer AC-Rechte bei Arbeit im Ausland';
+
+  @override
+  String get expatDeadline3aLabel => 'Säule 3a — Auflösung oder Sperrung';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Kontaktiere deine Bank, um die Auflösung oder Übertragung der 3a zu planen.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'Eine vor der Abreise nicht geregelte 3a kann Gelder über Jahre blockieren.';
+
+  @override
+  String get expatDeadlineLppLabel => 'BVG — Freizügigkeit';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Beantrage die Übertragung deines BVG-Guthabens auf ein Freizügigkeitskonto oder eine Police.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AHV — freiwilliger Beitrag';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'Wenn du dich ausserhalb der EU/EFTA niederlässt, kannst du der AHV freiwillig beitreten, um Lücken zu vermeiden.';
+
+  @override
+  String get expatRightAvsLabel => 'AHV — obligatorischer Beitrag';
+
+  @override
+  String get expatRightAvsBefore =>
+      'Automatischer Beitrag über den Arbeitgeber';
+
+  @override
+  String get expatRightAvsAfter => 'AHV-Lücken → gekürzte Rente';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Jedes fehlende Jahr senkt deine AHV-Rente um rund $perYear %. 10 Jahre = −$tenYear % auf Lebenszeit.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'BVG — 2. Säule';
+
+  @override
+  String get expatRightLppBefore => 'Obligatorisches Altersguthaben';
+
+  @override
+  String get expatRightLppAfter => 'Kapital gesperrt oder ohne Rendite bezogen';
+
+  @override
+  String get expatRightLppImpact =>
+      'Du kannst dein BVG-Guthaben beziehen, zahlst aber Steuern auf das bezogene Kapital. Der Wiederaufbau aus dem Ausland ist nicht möglich.';
+
+  @override
+  String get expatRight3aLabel => 'Säule 3a';
+
+  @override
+  String get expatRight3aBefore => 'Jährliche Steuerabzüge';
+
+  @override
+  String get expatRight3aAfter =>
+      'Konto gesperrt — keine neuen Einzahlungen möglich';
+
+  @override
+  String get expatRight3aImpact =>
+      'Du verlierst das Recht auf Einzahlungen in die 3a, sobald du kein AHV-pflichtiges Einkommen mehr hast.';
+
+  @override
+  String get expatRightLamalLabel => 'KVG — Krankenversicherung';
+
+  @override
+  String get expatRightLamalBefore => 'Universelle Deckung in der Schweiz';
+
+  @override
+  String get expatRightLamalAfter =>
+      'Die Krankenversicherung richtet sich neu nach deinem Wohnsitzland';
+
+  @override
+  String get expatRightLamalImpact =>
+      'Der internationale Schutz ist oft teilweise und teuer. Prüfe die bilateralen Abkommen.';
+
+  @override
+  String get expatRightAcLabel => 'Arbeitslosigkeit ALV';
+
+  @override
+  String get expatDestinationAbroad => 'das Ausland';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Schätzung auf Basis eines vereinfachten linearen Modells (Rente anteilig zu den Beitragsjahren gekürzt). Die tatsächliche AHV-Rente hängt auch vom durchschnittlichen Jahreseinkommen und den Gutschriften ab. Mit deiner Ausgleichskasse zu bestätigen.';
+
+  @override
+  String get frontalierChargeMaladie => 'Krankenversicherung';
+
+  @override
+  String get frontalierChargeRetraite => 'Alter / Rente';
+
+  @override
+  String get frontalierChargeChomage => 'Arbeitslosigkeit';
+
+  @override
+  String get frontalierChargeDependance => 'Pflege';
+
+  @override
+  String get frontalierChargeLogement => 'Wohnbauförderung';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'BVG (geschätzt)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Der tatsächlich angewandte Quellensteuertarif hängt von deiner Familiensituation ab (ledig, verheiratet, Anzahl Kinder) — was dieses pauschale Modell nicht unterscheidet. Der Quasi-Ansässigkeitsstatus kann separat eine nachträgliche ordentliche Veranlagung mit Abzügen eröffnen, ohne den angewandten Tarif zu ändern. Mit der kantonalen Steuerverwaltung zu bestätigen.';
 
   @override
   String get expertArchetypeCrossBorder => 'Grenzgänger·in';
@@ -25161,21 +25423,6 @@ class SDe extends S {
       'Bildungstool · keine Finanzberatung im Sinne des FIDLEG. Quelle: FZG Art. 3-4, FZV Art. 10. Ohne Anweisung Übertragung von Amtes wegen zwischen 6 Monaten und 2 Jahren (FZG Art. 4 Abs. 2). Vergessene Guthaben: sfbvg.ch.';
 
   @override
-  String get dividendeLegendChargeTotale => 'Gesamtbelastung';
-
-  @override
-  String get dividendeLegendSplitAdapte => 'Passende Aufteilung';
-
-  @override
-  String get dividendeLegendPositionActuelle => 'Aktuelle Position';
-
-  @override
-  String get dividendeChargeCurveTitle => 'Gesamtbelastung nach Aufteilung';
-
-  @override
-  String get dividendeEducationTitle => 'Zum Merken';
-
-  @override
   String get lppRescueSemanticsLabel => 'Rettung BVG 2. Säule Freizügigkeit';
 
   @override
@@ -25218,157 +25465,351 @@ class SDe extends S {
   }
 
   @override
-  String get expatDeadline3aLabel => 'Säule 3a — Auflösung oder Sperrung';
+  String get mintNext3aTeachBackQuestion =>
+      'Was musst du prüfen, bevor du entscheidest, wie viel du dieses Jahr in deine Säule 3a einzahlst?';
 
   @override
-  String get expatDeadline3aAction =>
-      'Kontaktiere deine Bank, um die Auflösung oder Übertragung der 3a zu planen.';
+  String get mintNext3aTeachBackChoiceAnnualTotal =>
+      'Den Gesamtbetrag, dessen Eingang alle meine 3a-Banken und -Versicherungen dieses Jahr bestätigt haben, ohne Überträge von einer Säule 3a zu einer anderen.';
 
   @override
-  String get expatDeadline3aConsequence =>
-      'Eine vor der Abreise nicht geregelte 3a kann Gelder über Jahre blockieren.';
+  String get mintNext3aTeachBackChoiceLatestPayment =>
+      'Nur die letzte Belastung meines Bankkontos.';
 
   @override
-  String get expatDeadlineLppLabel => 'BVG — Freizügigkeit';
+  String get mintNext3aTeachBackChoicePayMax =>
+      'Sofort der Höchstbetrag, ohne Prüfung.';
 
   @override
-  String get expatDeadlineLppAction =>
-      'Beantrage die Übertragung deines BVG-Guthabens auf ein Freizügigkeitskonto oder eine Police.';
+  String get mintNext3aTeachBackFeedbackCorrect =>
+      'Ja. Prüfe, welchen Eingang alle deine 3a-Anbieter dieses Jahr bestätigt haben. Ein Übertrag zwischen zwei Säulen 3a erhöht den Gesamtbetrag nicht.';
 
   @override
-  String get expatDeadlineAvsLabel => 'AHV — freiwilliger Beitrag';
+  String get mintNext3aTeachBackFeedbackRetry =>
+      'Noch nicht ganz. Eine Belastung deines Bankkontos beweist noch nicht, dass deine Säule 3a das Geld erhalten hat. Prüfe die Bestätigungen aller deiner 3a-Anbieter.';
 
   @override
-  String get expatDeadlineAvsAction =>
-      'Wenn du dich ausserhalb der EU/EFTA niederlässt, kannst du der AHV freiwillig beitreten, um Lücken zu vermeiden.';
+  String get mintNext3aCountingHelpTitle => 'Was musst du mitzählen?';
 
   @override
-  String get expatRightAvsLabel => 'AHV — obligatorischer Beitrag';
+  String get mintNext3aCountingHelpBody =>
+      'Zähle nur neues Geld, dessen Eingang deine 3a-Anbieter für dieses Jahr bestätigen. Ein Übertrag zwischen Säulen 3a erhöht den Gesamtbetrag nicht.';
 
   @override
-  String get expatRightAvsBefore =>
-      'Automatischer Beitrag über den Arbeitgeber';
+  String get mintNext3aCountingHelpUncertain =>
+      'Wenn eine Rückzahlung, ein rückwirkender Einkauf oder eine Korrektur erscheint, rate nicht: Prüfe den Beleg.';
 
   @override
-  String get expatRightAvsAfter => 'AHV-Lücken → gekürzte Rente';
+  String get mintNext3aPersonalUnavailable =>
+      'Deine persönliche Berechnung ist nicht verfügbar. Prüfe deinen erhaltenen Jahresgesamtbetrag; es wird kein persönlicher Steuerbetrag berechnet.';
 
   @override
-  String expatRightAvsImpact(String perYear, String tenYear) {
-    return 'Jedes fehlende Jahr senkt deine AHV-Rente um rund $perYear %. 10 Jahre = −$tenYear % auf Lebenszeit.';
+  String get mintNext3aTaskTitle => 'Meinen 3a-Jahresgesamtbetrag prüfen';
+
+  @override
+  String mintNext3aTaskBody(Object year) {
+    return 'Zähle zusammen, welche Einzahlungen deine 3a-Banken und -Versicherungen für $year als eingegangen bestätigt haben. MINT wählt keinen Betrag und führt keine Einzahlung aus.';
   }
 
   @override
-  String get expatRightLppLabel => 'BVG — 2. Säule';
+  String get mintNext3aStorageDisclosure =>
+      'Wenn du diesen Schritt behältst, wird nur er auf diesem Gerät gespeichert. Deine Antworten und Berechnungen aus diesem Ablauf werden gelöscht.';
 
   @override
-  String get expatRightLppBefore => 'Obligatorisches Altersguthaben';
+  String get mintNext3aSave => 'Diesen Schritt behalten';
 
   @override
-  String get expatRightLppAfter => 'Kapital gesperrt oder ohne Rendite bezogen';
+  String get mintNext3aLeaveWithoutSaving => 'Verlassen, ohne ihn zu behalten';
 
   @override
-  String get expatRightLppImpact =>
-      'Du kannst dein BVG-Guthaben beziehen, zahlst aber Steuern auf das bezogene Kapital. Der Wiederaufbau aus dem Ausland ist nicht möglich.';
+  String get mintNext3aSavedTitle => 'Schritt gespeichert';
 
   @override
-  String get expatRight3aLabel => 'Säule 3a';
+  String get mintNext3aSavedLocation => 'Du findest ihn unter Heute.';
 
   @override
-  String get expatRight3aBefore => 'Jährliche Steuerabzüge';
-
-  @override
-  String get expatRight3aAfter =>
-      'Konto gesperrt — keine neuen Einzahlungen möglich';
-
-  @override
-  String get expatRight3aImpact =>
-      'Du verlierst das Recht auf Einzahlungen in die 3a, sobald du kein AHV-pflichtiges Einkommen mehr hast.';
-
-  @override
-  String get expatRightLamalLabel => 'KVG — Krankenversicherung';
-
-  @override
-  String get expatRightLamalBefore => 'Universelle Deckung in der Schweiz';
-
-  @override
-  String get expatRightLamalAfter =>
-      'Die Krankenversicherung richtet sich neu nach deinem Wohnsitzland';
-
-  @override
-  String get expatRightLamalImpact =>
-      'Der internationale Schutz ist oft teilweise und teuer. Prüfe die bilateralen Abkommen.';
-
-  @override
-  String get expatRightAcLabel => 'Arbeitslosigkeit ALV';
-
-  @override
-  String get expatDestinationAbroad => 'das Ausland';
-
-  @override
-  String get expatAvsConfidenceMessage =>
-      'Schätzung auf Basis eines vereinfachten linearen Modells (Rente anteilig zu den Beitragsjahren gekürzt). Die tatsächliche AHV-Rente hängt auch vom durchschnittlichen Jahreseinkommen und den Gutschriften ab. Mit deiner Ausgleichskasse zu bestätigen.';
-
-  @override
-  String get frontalierChargeMaladie => 'Krankenversicherung';
-
-  @override
-  String get frontalierChargeRetraite => 'Alter / Rente';
-
-  @override
-  String get frontalierChargeChomage => 'Arbeitslosigkeit';
-
-  @override
-  String get frontalierChargeDependance => 'Pflege';
-
-  @override
-  String get frontalierChargeLogement => 'Wohnbauförderung';
-
-  @override
-  String get frontalierChargeCsgCrds => 'CSG / CRDS';
-
-  @override
-  String get frontalierChargeLppEstimated => 'BVG (geschätzt)';
-
-  @override
-  String get frontalierSourceTaxConfidenceMessage =>
-      'Schätzung auf Basis eines vereinfachten Durchschnittssatzes pro Kanton. Der tatsächlich angewandte Quellensteuertarif hängt von deiner Familiensituation ab (ledig, verheiratet, Anzahl Kinder) — was dieses pauschale Modell nicht unterscheidet. Der Quasi-Ansässigkeitsstatus kann separat eine nachträgliche ordentliche Veranlagung mit Abzügen eröffnen, ohne den angewandten Tarif zu ändern. Mit der kantonalen Steuerverwaltung zu bestätigen.';
-
-  @override
-  String get authRecreateAccountCta => 'Mein Konto neu erstellen';
-
-  @override
-  String get pillar3aProviderNameFintechA => 'Fintech A';
-
-  @override
-  String get pillar3aProviderNameFintechB => 'Fintech B';
-
-  @override
-  String get pillar3aProviderNameFintechC => 'Fintech C';
-
-  @override
-  String get pillar3aProviderNameBanque => 'Klassische Bank (3a-Konto)';
-
-  @override
-  String get pillar3aProviderNameAssurance => '3a-Versicherung (gemischt)';
-
-  @override
-  String get pillar3aProviderDescFintechA => 'Mobile App, passive Indexstrategien, automatisierte Verwaltung';
-
-  @override
-  String get pillar3aProviderDescFintechB => 'Gebühren unter den niedrigsten, globale Strategien, Flexibilität';
-
-  @override
-  String get pillar3aProviderDescFintechC => 'Digitale Lösung einer Kantonalbank';
-
-  @override
-  String get pillar3aProviderDescBanque => 'Fester Zins, nicht marktabhängig, begrenzte Rendite';
-
-  @override
-  String get pillar3aProviderDescAssurance => 'Kombiniert Sparen und Deckung (Tod, Invalidität). Hohe Gebühren, lange Bindungsdauer.';
-
-  @override
-  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'Mit $age Jahren beträgt der Unterschied beim Endkapital zwischen einer 3a-Versicherung und einem Fintech-Anbieter gemäss den angenommenen Gebühren und Deckungen in deiner Simulation rund CHF $montant über $duree Jahre. Eine 3a-Versicherung verbindet Sparen und Absicherung; Gebühren und Flexibilität variieren je nach Vertrag.';
+  String mintNext3aExpiryDisclosure(Object year) {
+    return 'Er wird am 31. Januar $year automatisch gelöscht. Du kannst ihn vorher löschen.';
   }
 
+  @override
+  String get mintNext3aReturnToday => 'Zurück zu Heute';
+
+  @override
+  String mintNext3aTodayStatus(Object year) {
+    return '$year · Offen';
+  }
+
+  @override
+  String mintNext3aTodayDoneStatus(Object year) {
+    return '$year · Erledigt';
+  }
+
+  @override
+  String get mintNext3aMarkDone => 'Ich habe es geprüft';
+
+  @override
+  String get mintNext3aDoneTitle => 'Erledigt';
+
+  @override
+  String get mintNext3aOpenTask => 'Öffnen';
+
+  @override
+  String get mintNext3aDelete => 'Diesen Schritt löschen';
+
+  @override
+  String get mintNext3aDeleteQuestion => 'Diesen nächsten Schritt löschen?';
+
+  @override
+  String get mintNext3aDeleteBoundary =>
+      'Der Finanzablauf bleibt davon unberührt.';
+
+  @override
+  String get mintNext3aCancel => 'Abbrechen';
+
+  @override
+  String get mintNext3aDeleteConfirm => 'Löschen';
+
+  @override
+  String get mintNext3aSafeExitTitle => 'Möchtest du hier aufhören?';
+
+  @override
+  String get mintNext3aSafeExitBody =>
+      'Aus diesem Ablauf wird nichts gespeichert.';
+
+  @override
+  String get mintNext3aSafeExitResume => 'Hier fortfahren';
+
+  @override
+  String get mintNext3aSafeExitLeave => 'Ohne Speichern verlassen';
+
+  @override
+  String mintNext3aStorageFailure(String kind) {
+    String _temp0 = intl.Intl.selectLogic(
+      kind,
+      {
+        'read':
+            'Dieser Schritt kann auf diesem Gerät nicht geprüft werden. Er könnte noch gespeichert sein.',
+        'verifyRead':
+            'Mint konnte nicht prüfen, ob dieser Schritt gespeichert ist. Er könnte gespeichert sein.',
+        'delete':
+            'Dieser Schritt kann auf diesem Gerät nicht gelöscht werden. Er ist noch gespeichert.',
+        'cleanupDelete':
+            'Mint konnte diesen Schritt nicht löschen. Er ist noch gespeichert. Du kannst es jetzt erneut versuchen.',
+        'complete':
+            'Dieser Schritt konnte nicht als erledigt markiert werden. Er bleibt als offen gespeichert.',
+        'other':
+            'Dieser Schritt konnte auf diesem Gerät nicht gespeichert werden. Es wurde nichts gespeichert.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mintNext3aCleanupPending => 'Dieser Schritt wird gelöscht…';
+
+  @override
+  String get housingExplore => 'Meine Wohnsituation verstehen';
+
+  @override
+  String get housingQuestion => 'Für das Zuhause, in dem du heute wohnst …';
+
+  @override
+  String get housingTenant => 'Ich miete es';
+
+  @override
+  String get housingOwnerOccupier => 'Es gehört mir ganz oder teilweise';
+
+  @override
+  String get housingOther => 'Meine Situation ist anders';
+
+  @override
+  String get housingUnknown => 'Ich weiss es nicht';
+
+  @override
+  String get housingContinue => 'Weiter';
+
+  @override
+  String get housingTenantBoundary =>
+      'Für dieses Zuhause gelten die Steuerfragen für selbst bewohntes Eigentum nicht.';
+
+  @override
+  String get housingOwnerBoundary =>
+      'Deine Antwort bereitet nur die nächsten Fragen vor. Ein Steuervorteil wurde noch nicht berechnet.';
+
+  @override
+  String get housingOtherHelp =>
+      'Manche Situationen sind nicht einfach Miete oder Eigentum. Wir klären sie, ohne zu raten.';
+
+  @override
+  String get housingUnknownHelp =>
+      'Du kannst deinen Mietvertrag oder Eigentumsnachweis prüfen. Wir leiten aus dieser Unsicherheit nichts ab.';
+
+  @override
+  String get housingBack => 'Zurück';
+
+  @override
+  String get housingFinish => 'Zur Übersicht';
+
+  @override
+  String get housingSafeExit => 'Pause machen';
+
+  @override
+  String get housingResume => 'Hier fortsetzen';
+
+  @override
+  String get housingLeaveWithoutSaving => 'Ohne Speichern verlassen';
+
+  @override
+  String get housingMortgageQuestion =>
+      'Ist dieses Zuhause mit einer Hypothek finanziert?';
+
+  @override
+  String get housingMortgageYes => 'Ja';
+
+  @override
+  String get housingMortgageNo => 'Nein';
+
+  @override
+  String get housingMortgageUnknown => 'Ich weiss es nicht';
+
+  @override
+  String get housingMortgageYesBoundary =>
+      'Diese Antwort hilft, die richtigen Fragen zur Finanzierung zu stellen. Es wurde noch nichts berechnet.';
+
+  @override
+  String get housingMortgageNoBoundary =>
+      'Diese Antwort hilft, die richtigen Fragen zum Eigentum zu stellen. Es wurde noch nichts berechnet.';
+
+  @override
+  String get housingMortgageUnknownBoundary =>
+      'Du kannst deinen Hypothekarauszug prüfen oder beim Institut nachfragen. Mint leitet aus dieser Unsicherheit nichts ab.';
+
+  @override
+  String get mortgageStatementQuestion =>
+      'Hast du den Jahresauszug deiner Hypothek zur Hand?';
+
+  @override
+  String get mortgageStatementReady => 'Ja, ich habe ihn';
+
+  @override
+  String get mortgageStatementFindLater => 'Ich suche ihn später';
+
+  @override
+  String get mortgageStatementUnknown =>
+      'Ich weiss nicht, welches Dokument gemeint ist';
+
+  @override
+  String get mortgageStatementReadyBoundary =>
+      'Perfekt. Später kann Mint dir helfen, die nützlichen Angaben in diesem Dokument zu erkennen. Vorerst werden keine Zahlen gelesen oder gespeichert.';
+
+  @override
+  String get mortgageStatementFindLaterBoundary =>
+      'Kein Problem. Du kannst fortfahren, wenn du ihn gefunden hast. Vorerst werden keine Zahlen verlangt oder gespeichert.';
+
+  @override
+  String get mortgageStatementUnknownBoundary =>
+      'Mint wird dir vor jeder Eingabe erklären, woran du das richtige Dokument erkennst. Vorerst werden keine Zahlen verlangt oder gespeichert.';
+
+  @override
+  String get mortgageInterestQuestion =>
+      'Welcher Hypothekarzinsbetrag ist für das Jahr angegeben?';
+
+  @override
+  String get mortgageInterestHint =>
+      'Übertrage nur den Jahresgesamtbetrag aus dem Auszug. Mint berechnet noch nichts.';
+
+  @override
+  String get mortgageInterestLabel => 'Jahreszinsen';
+
+  @override
+  String mortgageInterestBoundary(String amount, int year) {
+    return 'Für $year hast du CHF $amount Jahreszinsen erfasst. Diese Zahl bleibt lokal und es wurde noch keine Steuerersparnis berechnet.';
+  }
+
+  @override
+  String mortgageDebtQuestion(int year) {
+    return 'Welcher Hypothekarschuldsaldo ist per 31. Dezember $year angegeben?';
+  }
+
+  @override
+  String get mortgageDebtHint =>
+      'Übertrage den Saldo aus demselben Auszug. Mint leitet aus diesem Betrag allein nichts ab.';
+
+  @override
+  String get mortgageDebtLabel => 'Schuld per 31. Dezember';
+
+  @override
+  String mortgageReviewTitle(int year) {
+    return 'Dein Auszug $year in zwei Zahlen';
+  }
+
+  @override
+  String mortgageReviewInterest(String amount) {
+    return 'Jahreszinsen: CHF $amount';
+  }
+
+  @override
+  String mortgageReviewDebt(String amount) {
+    return 'Schuld per 31. Dezember: CHF $amount';
+  }
+
+  @override
+  String get mortgageReviewBoundary =>
+      'Diese beiden Zahlen bleiben lokal. Sie sind weder ein bestätigter Steuerabzug noch ein Ergebnis.';
+
+  @override
+  String get mortgageStatementYearLabel => 'Jahr auf dem Auszug';
+
+  @override
+  String get mortgageStatementYearHint => 'Zum Beispiel 2025';
+
+  @override
+  String get housingSave => 'Diese Angaben speichern';
+
+  @override
+  String get housingSaveError =>
+      'Speichern ist gerade nicht möglich. Nichts ging verloren.';
+
+  @override
+  String get housingSavedTitle => 'Was MINT über dein Zuhause weiss';
+
+  @override
+  String get housingSavedBody =>
+      'Auf diesem Gerät gespeichert. Du kannst diese Angaben jederzeit korrigieren oder löschen.';
+
+  @override
+  String housingSavedProvenance(String source, String date) {
+    return 'Quelle: $source · aktualisiert am $date.';
+  }
+
+  @override
+  String get housingSavedSourceHousingFlow => 'von dir in MINT eingegeben';
+
+  @override
+  String get housingSavedSourceUnknown => 'zu prüfen';
+
+  @override
+  String housingSavedPeriod(int year) {
+    return 'Abrechnungszeitraum: $year.';
+  }
+
+  @override
+  String get housingSavedEdit => 'Korrigieren';
+
+  @override
+  String get housingSavedDelete => 'Diese Angaben löschen';
+
+  @override
+  String get housingSavedDeleteTitle => 'Wohnangaben löschen?';
+
+  @override
+  String get housingSavedDeleteBody =>
+      'MINT verwendet sie danach nicht mehr für künftige Einblicke.';
+
+  @override
+  String get housingSavedDeleteCancel => 'Behalten';
+
+  @override
+  String get housingSavedDeleteConfirm => 'Löschen';
 }

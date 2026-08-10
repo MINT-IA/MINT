@@ -9,12 +9,22 @@
 ///   - FINMA circular 2023/1 (operational risk)
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mint_mobile/models/mint_next_housing_fact.dart';
+
+enum CanonicalHousingStatus { missing, present, deleted, corrupt, unavailable }
+
+class CanonicalHousingRead {
+  final CanonicalHousingStatus status;
+  final MintNextHousingFact? fact;
+  const CanonicalHousingRead(this.status, [this.fact]);
+}
 
 class SecureWizardSealResult {
   final Map<String, dynamic> cleaned;
@@ -26,6 +36,13 @@ class SecureWizardSealResult {
   });
 }
 
+class SecureDeleteReconciliation {
+  final Map<String, dynamic> answers;
+  final bool rewriteRequired;
+
+  const SecureDeleteReconciliation(this.answers, this.rewriteRequired);
+}
+
 enum WizardStorageClassification {
   sensitive,
   nonSensitive,
@@ -34,6 +51,33 @@ enum WizardStorageClassification {
 }
 
 class SecureWizardStore {
+  static Completer<void> _canonicalMutationDone = Completer<void>()..complete();
+  static int _canonicalResetGeneration = 0;
+
+  static Future<T> runCanonicalHousingTransaction<T>(
+      Future<T> Function() action) async {
+    final resetAtRequest = _canonicalResetGeneration;
+    final previousDone = _canonicalMutationDone;
+    final done = Completer<void>();
+    _canonicalMutationDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
+    if (_canonicalResetGeneration != resetAtRequest) {
+      done.complete();
+      throw StateError('Secure reset superseded housing transaction');
+    }
+    try {
+      final result = await action();
+      if (_canonicalResetGeneration != resetAtRequest) {
+        throw StateError('Secure reset superseded housing transaction');
+      }
+      return result;
+    } finally {
+      done.complete();
+    }
+  }
+
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(
@@ -41,6 +85,15 @@ class SecureWizardStore {
   );
 
   static const _manifestKey = '_mint_wizard_secure_keys_v1';
+  static const _deleteJournalKey = '_mint_wizard_delete_journal_v2';
+  static const _canonicalHousingKey = '_mint_canonical_housing_v1';
+  static const _canonicalHousingInitializedKey =
+      '_mint_canonical_housing_initialized_v1';
+  static int _processEpochCounter = 0;
+  static String _processEpoch = _newProcessEpoch();
+
+  static String _newProcessEpoch() =>
+      '${DateTime.now().microsecondsSinceEpoch}-${_processEpochCounter++}';
   static const _heldPrefix = '_mint_held_anonymous_wizard_';
   static const _heldManifestKey = '_mint_held_anonymous_wizard_secure_keys_v1';
 
@@ -81,6 +134,30 @@ class SecureWizardStore {
   @visibleForTesting
   static bool? debugSealFallbackOverride;
 
+  /// Failure-injection seam for atomic deletion tests.
+  @visibleForTesting
+  static Future<bool> Function(Set<String> keys)? debugDeleteKeysOverride;
+  static Future<bool> Function()? debugCommitDeleteOverride;
+  static Future<bool> Function()? debugFinalizeDeleteOverride;
+  @visibleForTesting
+  static Future<void> Function()? debugCanonicalMarkerWriteOverride;
+
+  static Future<void> restoreCanonical3aPayload(String? previous) async {
+    if (_sealFallbackEnabled) {
+      if (previous == null) {
+        _e2eSealFallbackStore.remove('_coach_3a_accounts_v1');
+      } else {
+        _e2eSealFallbackStore['_coach_3a_accounts_v1'] = previous;
+      }
+      return;
+    }
+    if (previous == null) {
+      await _storage.delete(key: '_coach_3a_accounts_v1');
+    } else {
+      await _storage.write(key: '_coach_3a_accounts_v1', value: previous);
+    }
+  }
+
   /// True only when the E2E seal fallback is active. Release short-circuits to
   /// false (const), so the fallback branches strip from the release snapshot.
   static bool get _sealFallbackEnabled {
@@ -114,6 +191,16 @@ class SecureWizardStore {
   static void resetSealFallbackForTest() {
     _e2eSealFallbackStore.clear();
     debugSealFallbackOverride = null;
+    debugDeleteKeysOverride = null;
+    debugCommitDeleteOverride = null;
+    debugFinalizeDeleteOverride = null;
+    debugCanonicalMarkerWriteOverride = null;
+    _processEpoch = _newProcessEpoch();
+  }
+
+  @visibleForTesting
+  static void simulateNewProcessForTest() {
+    _processEpoch = _newProcessEpoch();
   }
 
   static const _classifiedSensitiveKeys = {
@@ -125,10 +212,21 @@ class SecureWizardStore {
     'q_pay_frequency',
     'q_self_employed_net_income_annual_chf',
     'q_target_retirement_age',
+    'q_housing_status',
+    'q_housing_mortgage_status',
+    'q_housing_mortgage_statement_availability',
+    'q_housing_mortgage_statement_year',
+    'q_housing_mortgage_annual_interest_cents',
+    'q_housing_mortgage_debt_balance_cents',
+    'q_housing_fact_asserted_at',
+    'q_housing_fact_source',
+    'q_housing_fact_schema_version',
+    'q_housing_fact_needs_confirmation',
   };
 
   static const _nonSensitiveKeys = {
     'q_canton',
+    '_coach_3a_accounts_revision_v1',
   };
 
   static const _productPreferenceKeys = {
@@ -180,6 +278,7 @@ class SecureWizardStore {
     'q_total_3a',
     'q_3a_accounts_count',
     'q_3a_annual_contribution',
+    '_coach_3a_accounts_v1',
     '_coach_total_3a',
     'q_partner_salary',
     'q_partner_net_income_chf',
@@ -330,11 +429,279 @@ class SecureWizardStore {
       return _e2eSealFallbackStore[key];
     }
     try {
-      return await _storage.read(key: key);
+      final journal = await _readDeleteJournal();
+      final targets = _deleteJournalTargets(journal);
+      if (journal?['state'] == 'committed' && targets.contains(key)) {
+        return null;
+      }
+      final value = await _storage.read(key: key);
+      if (value != null) return value;
+      if (journal != null &&
+          journal['state'] == 'prepared' &&
+          (journal['values'] as Map<String, dynamic>).containsKey(key)) {
+        return (journal['values'] as Map<String, dynamic>)[key] as String?;
+      }
+      return null;
     } on Exception {
       if (_sealFallbackEnabled) return _e2eSealFallbackStore[key];
       return null;
     }
+  }
+
+  static Future<Map<String, dynamic>?> _readDeleteJournal() async {
+    final raw = await _storage.read(key: _deleteJournalKey);
+    if (raw == null || raw.isEmpty) return null;
+    final decoded = json.decode(raw);
+    if (decoded is! Map) return null;
+    if (decoded['state'] == 'prepared' && decoded['values'] is Map) {
+      return <String, dynamic>{
+        'state': 'prepared',
+        'values': Map<String, dynamic>.from(decoded['values'] as Map),
+      };
+    }
+    if (decoded['state'] == 'committed' && decoded['keys'] is List) {
+      return <String, dynamic>{
+        'state': 'committed',
+        'keys': (decoded['keys'] as List).whereType<String>().toList(),
+        'epoch': decoded['epoch'],
+      };
+    }
+    return null;
+  }
+
+  static Set<String> _deleteJournalTargets(Map<String, dynamic>? journal) {
+    if (journal == null) return {};
+    if (journal['state'] == 'prepared') {
+      return (journal['values'] as Map<String, dynamic>).keys.toSet();
+    }
+    return (journal['keys'] as List<String>).toSet();
+  }
+
+  /// Durably stages encrypted copies before any original is removed.
+  /// The manifest is written last, making an interrupted prepare harmless.
+  static Future<bool> prepareDeleteTransaction(Iterable<String> keys) async {
+    final targets = keys.where(isSensitive).toSet();
+    try {
+      final existing = await _readDeleteJournal();
+      if (existing != null) {
+        final existingKeys = _deleteJournalTargets(existing);
+        if (existing['state'] == 'prepared') {
+          return setEquals(existingKeys, targets);
+        }
+        if (setEquals(existingKeys, targets)) return true;
+        if (!await finalizeDeleteTransaction()) return false;
+      }
+      final values = <String, String?>{};
+      for (final key in targets) {
+        // Strict reads: an exception is a failed prepare, not "absent".
+        values[key] = await _storage.read(key: key);
+      }
+      await _storage.write(
+        key: _deleteJournalKey,
+        value: json.encode({'state': 'prepared', 'values': values}),
+      );
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<bool> commitDeleteTransaction() async {
+    final override = debugCommitDeleteOverride;
+    if (override != null) return override();
+    try {
+      final journal = await _readDeleteJournal();
+      if (journal == null) return true;
+      final targets = _deleteJournalTargets(journal);
+      await _storage.write(
+        key: _deleteJournalKey,
+        value: json.encode({
+          'state': 'committed',
+          'keys': targets.toList(),
+          'epoch': _processEpoch,
+        }),
+      );
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  /// Removes durable recovery material after the plain answer-map commit.
+  static Future<bool> finalizeDeleteTransaction() async {
+    final override = debugFinalizeDeleteOverride;
+    if (override != null) return override();
+    try {
+      await _storage.delete(key: _deleteJournalKey);
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  /// Uses the durable plain-map truth to resolve a crash between map commit and
+  /// journal commit. Presence of any target placeholder means rollback remains
+  /// necessary; otherwise deletion committed and only cleanup remains.
+  static Future<SecureDeleteReconciliation> reconcileDeleteTransaction(
+      Map<String, dynamic> persisted) async {
+    try {
+      final journal = await _readDeleteJournal();
+      if (journal == null) return SecureDeleteReconciliation(persisted, false);
+      final targets = _deleteJournalTargets(journal);
+      final anyPresent = targets.any(persisted.containsKey);
+      if (journal['state'] == 'prepared' && !anyPresent) {
+        await commitDeleteTransaction();
+        return SecureDeleteReconciliation(persisted, false);
+      }
+      if (journal['state'] == 'committed') {
+        if (!anyPresent) {
+          // A second read in the same process can observe SharedPreferences'
+          // cleaned cache before NSUserDefaults has flushed it. Only a new
+          // process epoch observing an already-clean raw map may retire the
+          // tombstone.
+          if (journal['epoch'] != _processEpoch) {
+            await finalizeDeleteTransaction();
+          }
+          return SecureDeleteReconciliation(persisted, false);
+        }
+        final cleaned = Map<String, dynamic>.from(persisted)
+          ..removeWhere((key, _) => targets.contains(key));
+        await _storage.write(
+          key: _deleteJournalKey,
+          value: json.encode({
+            'state': 'committed',
+            'keys': targets.toList(),
+            'epoch': _processEpoch,
+          }),
+        );
+        return SecureDeleteReconciliation(cleaned, true);
+      }
+    } on Exception {
+      // A later load retries; never discard recovery material on ambiguity.
+    }
+    return SecureDeleteReconciliation(persisted, false);
+  }
+
+  static Future<Set<String>> committedDeleteTargets() async {
+    try {
+      final journal = await _readDeleteJournal();
+      if (journal?['state'] != 'committed') return {};
+      return _deleteJournalTargets(journal)
+        ..removeAll(MintNextHousingFact.wizardKeys);
+    } on Exception {
+      return {};
+    }
+  }
+
+  static Future<CanonicalHousingRead> readCanonicalHousing() async {
+    late final String? raw;
+    try {
+      raw = await _storage.read(key: _canonicalHousingKey);
+    } on Exception {
+      return const CanonicalHousingRead(CanonicalHousingStatus.unavailable);
+    }
+    if (raw == null) {
+      return const CanonicalHousingRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalHousingRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalHousingRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextHousingFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalHousingRead(CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalHousingRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalHousingRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  static Future<bool> writeCanonicalHousing(MintNextHousingFact fact) async {
+    try {
+      await _storage.write(
+        key: _canonicalHousingKey,
+        value:
+            json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}),
+      );
+      try {
+        final override = debugCanonicalMarkerWriteOverride;
+        if (override != null) {
+          await override();
+        } else {
+          await _storage.write(
+              key: _canonicalHousingInitializedKey, value: '1');
+        }
+      } catch (_) {
+        // The single canonical record already closes migration while present.
+      }
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<bool> writeCanonicalHousingDeleted() async {
+    try {
+      await _storage.write(
+        key: _canonicalHousingKey,
+        value: json.encode({'state': 'deleted'}),
+      );
+      try {
+        final override = debugCanonicalMarkerWriteOverride;
+        if (override != null) {
+          await override();
+        } else {
+          await _storage.write(
+              key: _canonicalHousingInitializedKey, value: '1');
+        }
+      } catch (_) {
+        // The value-free canonical tombstone is already authoritative.
+      }
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<Map<String, dynamic>> canonicalizeHousingAnswers(
+      Map<String, dynamic> answers) async {
+    final result = Map<String, dynamic>.from(answers)
+      ..removeWhere((key, _) => MintNextHousingFact.wizardKeys.contains(key));
+    final canonical = await readCanonicalHousing();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      // The wizard cache still projects secure placeholders, so its per-key
+      // encrypted values remain required while the canonical fact is present.
+      result.addAll(canonical.fact!.toWizardAnswers());
+    } else if (canonical.status == CanonicalHousingStatus.deleted) {
+      // Tombstone authority is independent of cleanup success. Retry obsolete
+      // legacy PII removal on every load/save until secure storage cooperates.
+      await deleteKeys(MintNextHousingFact.wizardKeys);
+    } else if (canonical.status == CanonicalHousingStatus.missing) {
+      try {
+        if (await _storage.read(key: _canonicalHousingInitializedKey) != null) {
+          return result;
+        }
+      } on Exception {
+        return result;
+      }
+      // Legacy answer maps contain `__secure__` placeholders. Only the truly
+      // missing-canonical branch may consult their per-key encrypted values.
+      final restoredLegacy = await restoreSensitiveKeys(answers);
+      final legacy = MintNextHousingFact.fromWizardAnswers(restoredLegacy);
+      if (legacy != null && await writeCanonicalHousing(legacy)) {
+        result.addAll(legacy.toWizardAnswers());
+      }
+    }
+    return result;
   }
 
   static Future<Set<String>> _readManifest() async {
@@ -445,8 +812,101 @@ class SecureWizardStore {
     return deletedAll;
   }
 
+  /// Deletes a caller-provided, bounded subset of wizard-owned secure keys.
+  /// Non-sensitive keys are ignored so this cannot erase unrelated secrets.
+  static Future<bool> deleteKeys(Iterable<String> keys) async {
+    var deletedAll = true;
+    final sensitiveKeys = keys.where(isSensitive).toSet();
+    final override = debugDeleteKeysOverride;
+    if (override != null) return override(sensitiveKeys);
+    if (!kReleaseMode) {
+      for (final key in sensitiveKeys) {
+        _e2eSealFallbackStore.remove(key);
+      }
+    }
+    for (final key in sensitiveKeys) {
+      try {
+        await _storage.delete(key: key);
+      } on Exception {
+        deletedAll = false;
+      }
+    }
+    if (!deletedAll) return false;
+
+    try {
+      final manifest = await _readManifest()
+        ..removeAll(sensitiveKeys);
+      if (manifest.isEmpty) {
+        await _storage.delete(key: _manifestKey);
+      } else {
+        await _storage.write(
+          key: _manifestKey,
+          value: json.encode(manifest.toList()),
+        );
+      }
+    } on Exception {
+      return false;
+    }
+    return true;
+  }
+
+  /// Captures the encrypted values for a bounded set before a destructive
+  /// operation. Callers can use [restoreValues] to roll back a failed commit.
+  static Future<Map<String, String?>> backupValues(
+      Iterable<String> keys) async {
+    final backup = <String, String?>{};
+    for (final key in keys.where(isSensitive).toSet()) {
+      backup[key] = await read(key);
+    }
+    return backup;
+  }
+
+  /// Best-effort rollback companion to [backupValues].
+  static Future<bool> restoreValues(Map<String, String?> backup) async {
+    var restoredAll = true;
+    for (final entry in backup.entries) {
+      if (!isSensitive(entry.key)) continue;
+      try {
+        if (entry.value == null) {
+          await _storage.delete(key: entry.key);
+        } else {
+          await _storage.write(key: entry.key, value: entry.value);
+          restoredAll = await _rememberKey(entry.key) && restoredAll;
+        }
+      } on Exception {
+        restoredAll = false;
+      }
+    }
+    return restoredAll;
+  }
+
+  /// Réinitialise la chaîne de mutations canonique pour les tests — même
+  /// piège que ReportPersistenceService.debugResetTransactionQueueForTest :
+  /// un test de widget terminé pendant une mutation en vol laisse un Completer
+  /// jamais complété qui figerait tous les tests suivants du fichier.
+  @visibleForTesting
+  static void debugResetCanonicalQueueForTest() {
+    _canonicalMutationDone = Completer<void>()..complete();
+  }
+
   /// Delete all sensitive keys from encrypted storage.
   static Future<bool> deleteAll() async {
+    _canonicalResetGeneration++;
+    final previousDone = _canonicalMutationDone;
+    final done = Completer<void>();
+    _canonicalMutationDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
+    try {
+      return await deleteAllDuringCoordinatedReset();
+    } finally {
+      done.complete();
+    }
+  }
+
+  /// Caller already owns the ReportPersistenceService transaction coordinator.
+  static Future<bool> deleteAllDuringCoordinatedReset() async {
     var deletedAll = true;
     // Privacy reset must also purge the E2E in-memory fallback. Gated on
     // `!kReleaseMode` (NOT the E2E flag) so it strips from the release snapshot
@@ -469,6 +929,16 @@ class SecureWizardStore {
     } on Exception {
       deletedAll = false;
     }
+    try {
+      await _storage.delete(key: _deleteJournalKey);
+    } on Exception {
+      deletedAll = false;
+    }
+    try {
+      await _storage.delete(key: _canonicalHousingKey);
+    } on Exception {
+      deletedAll = false;
+    }
     return deletedAll;
   }
 
@@ -476,6 +946,8 @@ class SecureWizardStore {
     Map<String, dynamic> answers,
   ) async {
     final cleaned = Map<String, dynamic>.from(answers);
+    final tombstoned = await committedDeleteTargets();
+    cleaned.removeWhere((key, _) => tombstoned.contains(key));
     var allSensitiveSealed = true;
     final sensitiveKeys = cleaned.keys.where(isSensitive).toList();
     final previousSecureValues = <String, String?>{};
@@ -483,7 +955,10 @@ class SecureWizardStore {
     for (final key in sensitiveKeys) {
       if (cleaned.containsKey(key) && cleaned[key] != null) {
         previousSecureValues[key] = await read(key);
-        final sealed = await write(key, cleaned[key].toString());
+        final value = key == '_coach_3a_accounts_v1'
+            ? json.encode(cleaned[key])
+            : cleaned[key].toString();
+        final sealed = await write(key, value);
         if (sealed) {
           touchedKeys.add(key);
           cleaned[key] = '__secure__';
@@ -541,6 +1016,15 @@ class SecureWizardStore {
       if (!isSensitive(key)) continue;
       final value = await read(key);
       if (value != null) {
+        if (key == '_coach_3a_accounts_v1') {
+          try {
+            final decoded = json.decode(value);
+            restored[key] = decoded is List ? decoded : const <dynamic>[];
+          } on FormatException {
+            restored[key] = const <dynamic>[];
+          }
+          continue;
+        }
         if (value == 'true' || value == 'false') {
           restored[key] = value == 'true';
           continue;

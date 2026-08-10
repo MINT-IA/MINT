@@ -2931,7 +2931,8 @@ class SEn extends S {
   String get independantLppRescueOption1Label => 'Vested benefits foundation';
 
   @override
-  String get independantLppRescueOption1Description => 'Park your assets in a vested benefits foundation, with a decent return.';
+  String get independantLppRescueOption1Description =>
+      'Park your assets in a vested benefits foundation, with a decent return.';
 
   @override
   String get independantLppRescueOption1LegalRef => 'LFLP art. 4';
@@ -2940,7 +2941,8 @@ class SEn extends S {
   String get independantLppRescueOption2Label => 'Substitute institution';
 
   @override
-  String get independantLppRescueOption2Description => 'If you do nothing, your assets are transferred there automatically after 6 months — at the minimum return.';
+  String get independantLppRescueOption2Description =>
+      'If you do nothing, your assets are transferred there automatically after 6 months — at the minimum return.';
 
   @override
   String get independantLppRescueOption2LegalRef => 'LFLP art. 4 al. 2';
@@ -2949,7 +2951,8 @@ class SEn extends S {
   String get independantLppRescueOption3Label => 'New LPP fund';
 
   @override
-  String get independantLppRescueOption3Description => 'You voluntarily join an LPP pension fund.';
+  String get independantLppRescueOption3Description =>
+      'You voluntarily join an LPP pension fund.';
 
   @override
   String get independantLppRescueOption3LegalRef => 'LPP art. 44';
@@ -4816,7 +4819,7 @@ class SEn extends S {
   String get futurExplorerDetails => 'Explore details';
 
   @override
-  String get financialSummaryTitle => 'MY PROFILE';
+  String get financialSummaryTitle => 'MY SITUATION';
 
   @override
   String get financialSummaryDossierTitle => 'Verifiable dossier';
@@ -4908,6 +4911,72 @@ class SEn extends S {
 
   @override
   String get financialSummary3a3ePilier => '3a (3rd pillar)';
+
+  @override
+  String get threeAAccountsSmartAction => 'Detail your 3a accounts';
+
+  @override
+  String get threeAAccountsSmartReason =>
+      '~1 min · to prepare tax-staggered withdrawals';
+
+  @override
+  String get threeAAccountAdd => 'Add a 3a account';
+
+  @override
+  String get threeAAccountTitle => 'Add your 3a account';
+
+  @override
+  String get threeAAccountWhy =>
+      'This information helps show your wealth and prepare withdrawals. It remains under your control in My Situation.';
+
+  @override
+  String financialSummaryBalanceAsOf(String date) {
+    return 'Balance as of $date';
+  }
+
+  @override
+  String get financialSummaryBalanceDateUnknown => 'Balance date to confirm';
+
+  @override
+  String get financialSummarySourceUserInput => 'Entered manually';
+
+  @override
+  String get threeAAccountProvider => 'Institution';
+
+  @override
+  String get threeAAccountBalance => 'Current balance';
+
+  @override
+  String get threeAAccountBalanceDate => 'Balance date';
+
+  @override
+  String get threeAAccountOwnerSelf => 'Owner: you';
+
+  @override
+  String get threeAAccountInvalid =>
+      'Enter an institution and a valid balance.';
+
+  @override
+  String get threeAAccountSaveError => 'Could not save. Nothing was changed.';
+
+  @override
+  String get threeAAccountSave => 'Save this account';
+
+  @override
+  String get financialSummary3aPlannedAnnual => 'Planned annual contribution';
+
+  @override
+  String financialSummary3aPlannedAnnualOwner(String name) {
+    return '$name · planned annual contribution';
+  }
+
+  @override
+  String get financialSummaryDateUnknown => 'Date to confirm';
+
+  @override
+  String financialSummaryUpdatedOn(String date) {
+    return 'Updated on $date';
+  }
 
   @override
   String financialSummaryNComptes(String n) {
@@ -10047,6 +10116,15 @@ class SEn extends S {
   String get sim3aCtaPlan => 'Plan';
 
   @override
+  String get sim3aSavePlan => 'Save this plan';
+
+  @override
+  String get sim3aPlanSaved => 'Plan saved';
+
+  @override
+  String get sim3aPlanRemoved => 'Plan removed';
+
+  @override
   String get sim3aDisclaimer =>
       'Educational estimate. Actual savings depend on your place of residence and family situation. Not financial advice (FinSA).';
 
@@ -11132,6 +11210,21 @@ class SEn extends S {
 
   @override
   String get dividendeVsSalaireTitle => 'Dividend vs Salary';
+
+  @override
+  String get dividendeLegendChargeTotale => 'Total charge';
+
+  @override
+  String get dividendeLegendSplitAdapte => 'Suitable split';
+
+  @override
+  String get dividendeLegendPositionActuelle => 'Current position';
+
+  @override
+  String get dividendeChargeCurveTitle => 'Total charge by split';
+
+  @override
+  String get dividendeEducationTitle => 'Key points';
 
   @override
   String get dividendeVsSalaireChargeSalaire => 'Salary charge';
@@ -13178,28 +13271,31 @@ class SEn extends S {
       'Simplified simulation. Corporate profit tax is included via a representative Swiss rate (KPMG 2025 average); the exact cantonal rate, personal deductions, wealth tax and the AVS/LPP entitlements built by salary are not modelled. A market-conform salary is assumed. Consult a specialist for a full analysis.';
 
   @override
-  String get dividendeHeaderIntro => 'If you own an SA or Sàrl, you can pay yourself a mix of salary and dividends. The dividend is taxed at 50 % (qualifying participation) and escapes AVS contributions. Find the split that fits best.';
+  String get dividendeHeaderIntro =>
+      'If you own an SA or Sàrl, you can pay yourself a mix of salary and dividends. The dividend is taxed at 50 % (qualifying participation) and escapes AVS contributions. Find the split that fits best.';
 
   @override
   String dividendeEconomieCaptionSaving(String amount) {
-    return 'The right split saves you ${amount}/year compared with 100 % salary';
+    return 'The right split saves you $amount/year compared with 100 % salary';
   }
 
   @override
-  String get dividendeEconomieCaptionAdjust => 'Adjust the split to find a saving';
+  String get dividendeEconomieCaptionAdjust =>
+      'Adjust the split to find a saving';
 
   @override
   String get dividendeRequalificationTitle => 'Reclassification risk';
 
   @override
-  String get dividendeRequalificationBody => 'If the salary share drops below ~60 % of profit, the tax office can reclassify part of the dividends as salary (practice varies by canton). The upshot: AVS contributions claimed retroactively.';
+  String get dividendeRequalificationBody =>
+      'If the salary share drops below ~60 % of profit, the tax office can reclassify part of the dividends as salary (practice varies by canton). The upshot: AVS contributions claimed retroactively.';
 
   @override
   String get dividendeResultPartDividende => 'Dividend share';
 
   @override
   String dividendeResultPctBenefice(int pct) {
-    return '${pct} % of profit';
+    return '$pct % of profit';
   }
 
   @override
@@ -13212,28 +13308,34 @@ class SEn extends S {
   String get dividendeEduImpotBeneficeTitle => 'Profit tax';
 
   @override
-  String get dividendeEduImpotBeneficeBody => 'Remember that profit distributed as a dividend is taxed first at company level (profit tax), then at personal level (economic double taxation).';
+  String get dividendeEduImpotBeneficeBody =>
+      'Remember that profit distributed as a dividend is taxed first at company level (profit tax), then at personal level (economic double taxation).';
 
   @override
   String get dividendeEduAvsTitle => 'AVS only on salary';
 
   @override
-  String get dividendeEduAvsBody => 'AVS contributions (about 12.5 % in total) apply only to the salary share. The dividend escapes social charges, hence the point of adjusting the split.';
+  String get dividendeEduAvsBody =>
+      'AVS contributions (about 12.5 % in total) apply only to the salary share. The dividend escapes social charges, hence the point of adjusting the split.';
 
   @override
   String get dividendeEduCantonalTitle => 'Cantonal practice';
 
   @override
-  String get dividendeEduCantonalBody => 'Tax authorities watch for excessive dividend distributions. A salary « in line with the market » is expected. The limit varies by canton.';
+  String get dividendeEduCantonalBody =>
+      'Tax authorities watch for excessive dividend distributions. A salary « in line with the market » is expected. The limit varies by canton.';
 
   @override
-  String get dividendeCantonalDisclaimer => 'The tax impact depends on cantonal practice. Reclassification thresholds vary from one canton to another.';
+  String get dividendeCantonalDisclaimer =>
+      'The tax impact depends on cantonal practice. Reclassification thresholds vary from one canton to another.';
 
   @override
-  String get dividendeComplianceEducatif => 'Educational tool — does not constitute financial advice (FinSA).';
+  String get dividendeComplianceEducatif =>
+      'Educational tool — does not constitute financial advice (FinSA).';
 
   @override
-  String get dividendeComplianceSources => 'Sources: LIFD art. 18, 20, 33; CO art. 660';
+  String get dividendeComplianceSources =>
+      'Sources: LIFD art. 18, 20, 33; CO art. 660';
 
   @override
   String get successionUrgence => 'Immediate urgency';
@@ -14339,6 +14441,49 @@ class SEn extends S {
   @override
   String get authErrorAccountDeletedRecreate =>
       'This Apple account was deleted. Recreate your account with Apple to continue.';
+
+  @override
+  String get authRecreateAccountCta => 'Recreate my account';
+
+  @override
+  String get pillar3aProviderNameFintechA => 'Fintech A';
+
+  @override
+  String get pillar3aProviderNameFintechB => 'Fintech B';
+
+  @override
+  String get pillar3aProviderNameFintechC => 'Fintech C';
+
+  @override
+  String get pillar3aProviderNameBanque => 'Traditional bank (3a account)';
+
+  @override
+  String get pillar3aProviderNameAssurance => '3a insurance (mixed)';
+
+  @override
+  String get pillar3aProviderDescFintechA =>
+      'Mobile app, passive index strategies, automated management';
+
+  @override
+  String get pillar3aProviderDescFintechB =>
+      'Among the lowest fees, global strategies, flexibility';
+
+  @override
+  String get pillar3aProviderDescFintechC =>
+      'Digital solution from a cantonal bank';
+
+  @override
+  String get pillar3aProviderDescBanque =>
+      'Fixed rate, not exposed to markets, limited return';
+
+  @override
+  String get pillar3aProviderDescAssurance =>
+      'Combines savings and coverage (death, disability). High fees, long commitment period.';
+
+  @override
+  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
+    return 'At $age, based on the fee and coverage assumptions used, the final-capital gap between a 3a insurance and a fintech provider is about CHF $montant over $duree years in your simulation. A 3a insurance combines savings and coverage; its fees and flexibility vary by contract.';
+  }
 
   @override
   String get authErrorService =>
@@ -16590,6 +16735,122 @@ class SEn extends S {
 
   @override
   String get expatNoAcRightsAbroad => 'No Swiss AC rights if you work abroad';
+
+  @override
+  String get expatDeadline3aLabel => 'Pillar 3a — closure or freeze';
+
+  @override
+  String get expatDeadline3aAction =>
+      'Contact your bank to plan the closure or transfer of your 3a.';
+
+  @override
+  String get expatDeadline3aConsequence =>
+      'A 3a left unmanaged before departure can lock up funds for years.';
+
+  @override
+  String get expatDeadlineLppLabel => 'LPP — vested benefits';
+
+  @override
+  String get expatDeadlineLppAction =>
+      'Request the transfer of your LPP assets to a vested-benefits account or policy.';
+
+  @override
+  String get expatDeadlineAvsLabel => 'AVS — voluntary contribution';
+
+  @override
+  String get expatDeadlineAvsAction =>
+      'If you settle outside the EU/EFTA, you can join the AVS voluntarily to avoid gaps.';
+
+  @override
+  String get expatRightAvsLabel => 'AVS — mandatory contribution';
+
+  @override
+  String get expatRightAvsBefore => 'Automatic contribution via your employer';
+
+  @override
+  String get expatRightAvsAfter => 'AVS gaps → reduced pension';
+
+  @override
+  String expatRightAvsImpact(String perYear, String tenYear) {
+    return 'Each missing year reduces your AVS pension by about $perYear %. 10 years = −$tenYear % for life.';
+  }
+
+  @override
+  String get expatRightLppLabel => 'LPP — 2nd pillar';
+
+  @override
+  String get expatRightLppBefore => 'Mandatory retirement savings';
+
+  @override
+  String get expatRightLppAfter =>
+      'Capital locked or withdrawn without returns';
+
+  @override
+  String get expatRightLppImpact =>
+      'You can withdraw your LPP assets, but you pay tax on the withdrawn capital. Rebuilding it from abroad is not possible.';
+
+  @override
+  String get expatRight3aLabel => 'Pillar 3a';
+
+  @override
+  String get expatRight3aBefore => 'Annual tax deductions';
+
+  @override
+  String get expatRight3aAfter =>
+      'Account frozen — no new contributions possible';
+
+  @override
+  String get expatRight3aImpact =>
+      'You lose the right to pay into the 3a as soon as you no longer have income subject to Swiss AVS.';
+
+  @override
+  String get expatRightLamalLabel => 'LAMal — health insurance';
+
+  @override
+  String get expatRightLamalBefore => 'Universal coverage in Switzerland';
+
+  @override
+  String get expatRightLamalAfter =>
+      'Health insurance now falls under your country of residence';
+
+  @override
+  String get expatRightLamalImpact =>
+      'International coverage is often partial and costly. Check the bilateral agreements.';
+
+  @override
+  String get expatRightAcLabel => 'Unemployment AC';
+
+  @override
+  String get expatDestinationAbroad => 'abroad';
+
+  @override
+  String get expatAvsConfidenceMessage =>
+      'Estimate based on a simplified linear model (pension reduced pro rata to contribution years). The actual AVS pension also depends on average annual income and credits. Confirm with your compensation fund.';
+
+  @override
+  String get frontalierChargeMaladie => 'Health insurance';
+
+  @override
+  String get frontalierChargeRetraite => 'Retirement / old age';
+
+  @override
+  String get frontalierChargeChomage => 'Unemployment';
+
+  @override
+  String get frontalierChargeDependance => 'Long-term care';
+
+  @override
+  String get frontalierChargeLogement => 'Housing support';
+
+  @override
+  String get frontalierChargeCsgCrds => 'CSG / CRDS';
+
+  @override
+  String get frontalierChargeLppEstimated => 'LPP (est.)';
+
+  @override
+  String get frontalierSourceTaxConfidenceMessage =>
+      'Estimate based on a simplified average rate per canton. The scale actually withheld depends on your family situation (single, married, number of children) — which this flat model does not distinguish. Separately, quasi-resident status can open a subsequent ordinary assessment with deductions, without changing the withheld scale. Confirm with the cantonal tax authority.';
 
   @override
   String get expertArchetypeCrossBorder => 'Cross-border worker';
@@ -24971,21 +25232,6 @@ class SEn extends S {
       'Educational tool · not financial advice within the meaning of FinSA. Source: LFLP art. 3-4, OLP art. 10. Default transfer between 6 months and 2 years if no instruction is given (LFLP art. 4 al. 2). Forgotten assets: sfbvg.ch.';
 
   @override
-  String get dividendeLegendChargeTotale => 'Total charge';
-
-  @override
-  String get dividendeLegendSplitAdapte => 'Suitable split';
-
-  @override
-  String get dividendeLegendPositionActuelle => 'Current position';
-
-  @override
-  String get dividendeChargeCurveTitle => 'Total charge by split';
-
-  @override
-  String get dividendeEducationTitle => 'Key points';
-
-  @override
   String get lppRescueSemanticsLabel => 'LPP 2nd pillar vested benefits rescue';
 
   @override
@@ -25029,157 +25275,349 @@ class SEn extends S {
   }
 
   @override
-  String get expatDeadline3aLabel => 'Pillar 3a — closure or freeze';
+  String get mintNext3aTeachBackQuestion =>
+      'What should you check before deciding how much to pay into your pillar 3a this year?';
 
   @override
-  String get expatDeadline3aAction =>
-      'Contact your bank to plan the closure or transfer of your 3a.';
+  String get mintNext3aTeachBackChoiceAnnualTotal =>
+      'The total that all my pillar 3a banks and insurers confirmed receiving this year, excluding transfers between pillar 3a accounts.';
 
   @override
-  String get expatDeadline3aConsequence =>
-      'A 3a left unmanaged before departure can lock up funds for years.';
+  String get mintNext3aTeachBackChoiceLatestPayment =>
+      'Only the latest debit from my bank account.';
 
   @override
-  String get expatDeadlineLppLabel => 'LPP — vested benefits';
+  String get mintNext3aTeachBackChoicePayMax =>
+      'The maximum now, without checking.';
 
   @override
-  String get expatDeadlineLppAction =>
-      'Request the transfer of your LPP assets to a vested-benefits account or policy.';
+  String get mintNext3aTeachBackFeedbackCorrect =>
+      'Yes. Check what all your pillar 3a providers confirmed receiving this year. A transfer between two pillar 3a accounts does not add to the total.';
 
   @override
-  String get expatDeadlineAvsLabel => 'AVS — voluntary contribution';
+  String get mintNext3aTeachBackFeedbackRetry =>
+      'Not quite. A debit from your bank account does not yet prove that your pillar 3a received the money. Check the confirmations from all your pillar 3a providers.';
 
   @override
-  String get expatDeadlineAvsAction =>
-      'If you settle outside the EU/EFTA, you can join the AVS voluntarily to avoid gaps.';
+  String get mintNext3aCountingHelpTitle => 'What should you count?';
 
   @override
-  String get expatRightAvsLabel => 'AVS — mandatory contribution';
+  String get mintNext3aCountingHelpBody =>
+      'Count only new money that your pillar 3a providers confirm receiving for this year. A transfer between pillar 3a accounts does not add to the total.';
 
   @override
-  String get expatRightAvsBefore => 'Automatic contribution via your employer';
+  String get mintNext3aCountingHelpUncertain =>
+      'If you see a refund, retroactive buy-in or correction, do not guess: check the supporting document.';
 
   @override
-  String get expatRightAvsAfter => 'AVS gaps → reduced pension';
+  String get mintNext3aPersonalUnavailable =>
+      'Your personal calculation is not available. Check your annual total received; no personal tax amount is calculated.';
 
   @override
-  String expatRightAvsImpact(String perYear, String tenYear) {
-    return 'Each missing year reduces your AVS pension by about $perYear %. 10 years = −$tenYear % for life.';
+  String get mintNext3aTaskTitle => 'Check my annual pillar 3a total';
+
+  @override
+  String mintNext3aTaskBody(Object year) {
+    return 'Add up the contributions that all your pillar 3a banks and insurers confirmed receiving for $year. MINT does not choose an amount or make any payment.';
   }
 
   @override
-  String get expatRightLppLabel => 'LPP — 2nd pillar';
+  String get mintNext3aStorageDisclosure =>
+      'If you keep it, only this step will be saved on this device. Your answers and calculations from this journey will be deleted.';
 
   @override
-  String get expatRightLppBefore => 'Mandatory retirement savings';
+  String get mintNext3aSave => 'Keep this step';
 
   @override
-  String get expatRightLppAfter =>
-      'Capital locked or withdrawn without returns';
+  String get mintNext3aLeaveWithoutSaving => 'Leave without keeping it';
 
   @override
-  String get expatRightLppImpact =>
-      'You can withdraw your LPP assets, but you pay tax on the withdrawn capital. Rebuilding it from abroad is not possible.';
+  String get mintNext3aSavedTitle => 'Step saved';
 
   @override
-  String get expatRight3aLabel => 'Pillar 3a';
+  String get mintNext3aSavedLocation => 'You will find it in Today.';
 
   @override
-  String get expatRight3aBefore => 'Annual tax deductions';
-
-  @override
-  String get expatRight3aAfter =>
-      'Account frozen — no new contributions possible';
-
-  @override
-  String get expatRight3aImpact =>
-      'You lose the right to pay into the 3a as soon as you no longer have income subject to Swiss AVS.';
-
-  @override
-  String get expatRightLamalLabel => 'LAMal — health insurance';
-
-  @override
-  String get expatRightLamalBefore => 'Universal coverage in Switzerland';
-
-  @override
-  String get expatRightLamalAfter =>
-      'Health insurance now falls under your country of residence';
-
-  @override
-  String get expatRightLamalImpact =>
-      'International coverage is often partial and costly. Check the bilateral agreements.';
-
-  @override
-  String get expatRightAcLabel => 'Unemployment AC';
-
-  @override
-  String get expatDestinationAbroad => 'abroad';
-
-  @override
-  String get expatAvsConfidenceMessage =>
-      'Estimate based on a simplified linear model (pension reduced pro rata to contribution years). The actual AVS pension also depends on average annual income and credits. Confirm with your compensation fund.';
-
-  @override
-  String get frontalierChargeMaladie => 'Health insurance';
-
-  @override
-  String get frontalierChargeRetraite => 'Retirement / old age';
-
-  @override
-  String get frontalierChargeChomage => 'Unemployment';
-
-  @override
-  String get frontalierChargeDependance => 'Long-term care';
-
-  @override
-  String get frontalierChargeLogement => 'Housing support';
-
-  @override
-  String get frontalierChargeCsgCrds => 'CSG / CRDS';
-
-  @override
-  String get frontalierChargeLppEstimated => 'LPP (est.)';
-
-  @override
-  String get frontalierSourceTaxConfidenceMessage =>
-      'Estimate based on a simplified average rate per canton. The scale actually withheld depends on your family situation (single, married, number of children) — which this flat model does not distinguish. Separately, quasi-resident status can open a subsequent ordinary assessment with deductions, without changing the withheld scale. Confirm with the cantonal tax authority.';
-
-  @override
-  String get authRecreateAccountCta => 'Recreate my account';
-
-  @override
-  String get pillar3aProviderNameFintechA => 'Fintech A';
-
-  @override
-  String get pillar3aProviderNameFintechB => 'Fintech B';
-
-  @override
-  String get pillar3aProviderNameFintechC => 'Fintech C';
-
-  @override
-  String get pillar3aProviderNameBanque => 'Traditional bank (3a account)';
-
-  @override
-  String get pillar3aProviderNameAssurance => '3a insurance (mixed)';
-
-  @override
-  String get pillar3aProviderDescFintechA => 'Mobile app, passive index strategies, automated management';
-
-  @override
-  String get pillar3aProviderDescFintechB => 'Among the lowest fees, global strategies, flexibility';
-
-  @override
-  String get pillar3aProviderDescFintechC => 'Digital solution from a cantonal bank';
-
-  @override
-  String get pillar3aProviderDescBanque => 'Fixed rate, not exposed to markets, limited return';
-
-  @override
-  String get pillar3aProviderDescAssurance => 'Combines savings and coverage (death, disability). High fees, long commitment period.';
-
-  @override
-  String pillar3aProviderAssuranceWarning(int age, String montant, int duree) {
-    return 'At $age, based on the fee and coverage assumptions used, the final-capital gap between a 3a insurance and a fintech provider is about CHF $montant over $duree years in your simulation. A 3a insurance combines savings and coverage; its fees and flexibility vary by contract.';
+  String mintNext3aExpiryDisclosure(Object year) {
+    return 'It will be deleted automatically on 31 January $year. You can delete it sooner.';
   }
 
+  @override
+  String get mintNext3aReturnToday => 'Back to Today';
+
+  @override
+  String mintNext3aTodayStatus(Object year) {
+    return '$year · To do';
+  }
+
+  @override
+  String mintNext3aTodayDoneStatus(Object year) {
+    return '$year · Completed';
+  }
+
+  @override
+  String get mintNext3aMarkDone => 'I\'ve checked';
+
+  @override
+  String get mintNext3aDoneTitle => 'Done';
+
+  @override
+  String get mintNext3aOpenTask => 'Open';
+
+  @override
+  String get mintNext3aDelete => 'Delete this step';
+
+  @override
+  String get mintNext3aDeleteQuestion => 'Delete this next step?';
+
+  @override
+  String get mintNext3aDeleteBoundary =>
+      'The financial journey will not be affected.';
+
+  @override
+  String get mintNext3aCancel => 'Cancel';
+
+  @override
+  String get mintNext3aDeleteConfirm => 'Delete';
+
+  @override
+  String get mintNext3aSafeExitTitle => 'Do you want to stop here?';
+
+  @override
+  String get mintNext3aSafeExitBody =>
+      'Nothing from this journey will be saved.';
+
+  @override
+  String get mintNext3aSafeExitResume => 'Continue here';
+
+  @override
+  String get mintNext3aSafeExitLeave => 'Leave without saving';
+
+  @override
+  String mintNext3aStorageFailure(String kind) {
+    String _temp0 = intl.Intl.selectLogic(
+      kind,
+      {
+        'read':
+            'Unable to check this step on this device. It may still be saved.',
+        'verifyRead':
+            'Mint could not verify whether this step was saved. It may be saved.',
+        'delete':
+            'Unable to delete this step on this device. It is still saved.',
+        'cleanupDelete':
+            'Mint could not delete this step. It is still saved. You can try again now.',
+        'complete':
+            'Unable to mark this step as completed. It remains saved as to do.',
+        'other': 'Unable to save this step on this device. Nothing was saved.',
+      },
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get mintNext3aCleanupPending => 'Removing this step…';
+
+  @override
+  String get housingExplore => 'Understand my housing situation';
+
+  @override
+  String get housingQuestion => 'For the home you live in today…';
+
+  @override
+  String get housingTenant => 'I rent it';
+
+  @override
+  String get housingOwnerOccupier => 'I own all or part of it';
+
+  @override
+  String get housingOther => 'I’m in another situation';
+
+  @override
+  String get housingUnknown => 'I don’t know';
+
+  @override
+  String get housingContinue => 'Continue';
+
+  @override
+  String get housingTenantBoundary =>
+      'You rent this home. Questions about homeowner tax rules do not apply here.';
+
+  @override
+  String get housingOwnerBoundary =>
+      'Your answer only prepares the next questions. No tax benefit has been calculated yet.';
+
+  @override
+  String get housingOtherHelp =>
+      'Some situations are not simply renting or owning. We will clarify without guessing.';
+
+  @override
+  String get housingUnknownHelp =>
+      'You can check your lease or ownership document. We infer nothing from this uncertainty.';
+
+  @override
+  String get housingBack => 'Back';
+
+  @override
+  String get housingFinish => 'Back to overview';
+
+  @override
+  String get housingSafeExit => 'Take a break';
+
+  @override
+  String get housingResume => 'Keep going';
+
+  @override
+  String get housingLeaveWithoutSaving => 'Leave without saving';
+
+  @override
+  String get housingMortgageQuestion =>
+      'Is this home financed with a mortgage?';
+
+  @override
+  String get housingMortgageYes => 'Yes';
+
+  @override
+  String get housingMortgageNo => 'No';
+
+  @override
+  String get housingMortgageUnknown => 'I don’t know';
+
+  @override
+  String get housingMortgageYesBoundary =>
+      'This answer will help us ask the right financing questions. Nothing has been calculated yet.';
+
+  @override
+  String get housingMortgageNoBoundary =>
+      'This answer will help us ask the right ownership questions. Nothing has been calculated yet.';
+
+  @override
+  String get housingMortgageUnknownBoundary =>
+      'You can check your mortgage statement or ask your provider. Mint infers nothing from this uncertainty.';
+
+  @override
+  String get mortgageStatementQuestion =>
+      'Do you have your annual mortgage statement at hand?';
+
+  @override
+  String get mortgageStatementReady => 'Yes, I have it';
+
+  @override
+  String get mortgageStatementFindLater => 'I’ll find it later';
+
+  @override
+  String get mortgageStatementUnknown =>
+      'I don’t know which document to look for';
+
+  @override
+  String get mortgageStatementReadyBoundary =>
+      'Great. Later, Mint can help you identify the useful data in this document. For now, no figures are read or saved.';
+
+  @override
+  String get mortgageStatementFindLaterBoundary =>
+      'No problem. You can continue when you find it. For now, no figures are requested or saved.';
+
+  @override
+  String get mortgageStatementUnknownBoundary =>
+      'Mint will explain how to recognise the right document before you enter anything. For now, no figures are requested or saved.';
+
+  @override
+  String get mortgageInterestQuestion =>
+      'What mortgage interest amount is shown for the year?';
+
+  @override
+  String get mortgageInterestHint =>
+      'Copy only the annual total shown on the statement. Mint is not calculating anything yet.';
+
+  @override
+  String get mortgageInterestLabel => 'Annual interest';
+
+  @override
+  String mortgageInterestBoundary(String amount, int year) {
+    return 'For $year, you entered CHF $amount in annual interest. This figure stays local and no tax saving has been calculated yet.';
+  }
+
+  @override
+  String mortgageDebtQuestion(int year) {
+    return 'What mortgage debt balance is shown at 31 December $year?';
+  }
+
+  @override
+  String get mortgageDebtHint =>
+      'Copy the balance shown on the same statement. Mint does not infer anything from this amount alone.';
+
+  @override
+  String get mortgageDebtLabel => 'Debt at 31 December';
+
+  @override
+  String mortgageReviewTitle(int year) {
+    return 'Your $year statement in two figures';
+  }
+
+  @override
+  String mortgageReviewInterest(String amount) {
+    return 'Annual interest: CHF $amount';
+  }
+
+  @override
+  String mortgageReviewDebt(String amount) {
+    return 'Debt at 31 December: CHF $amount';
+  }
+
+  @override
+  String get mortgageReviewBoundary =>
+      'These two figures stay local. They are neither a confirmed tax deduction nor a result.';
+
+  @override
+  String get mortgageStatementYearLabel => 'Year shown on the statement';
+
+  @override
+  String get mortgageStatementYearHint => 'For example 2025';
+
+  @override
+  String get housingSave => 'Save this information';
+
+  @override
+  String get housingSaveError => 'Unable to save right now. Nothing was lost.';
+
+  @override
+  String get housingSavedTitle => 'What MINT knows about your home';
+
+  @override
+  String get housingSavedBody =>
+      'Saved on this device. You can correct or delete this information at any time.';
+
+  @override
+  String housingSavedProvenance(String source, String date) {
+    return 'Source: $source · updated on $date.';
+  }
+
+  @override
+  String get housingSavedSourceHousingFlow => 'entered by you in MINT';
+
+  @override
+  String get housingSavedSourceUnknown => 'to be checked';
+
+  @override
+  String housingSavedPeriod(int year) {
+    return 'Statement period: $year.';
+  }
+
+  @override
+  String get housingSavedEdit => 'Correct';
+
+  @override
+  String get housingSavedDelete => 'Delete this information';
+
+  @override
+  String get housingSavedDeleteTitle => 'Delete housing information?';
+
+  @override
+  String get housingSavedDeleteBody =>
+      'MINT will no longer use it in future insights.';
+
+  @override
+  String get housingSavedDeleteCancel => 'Keep';
+
+  @override
+  String get housingSavedDeleteConfirm => 'Delete';
 }

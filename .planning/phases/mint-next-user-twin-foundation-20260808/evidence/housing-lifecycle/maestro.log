@@ -1,0 +1,84 @@
+Running on Mint Housing Proof-538c52647-18777 - iOS 26.2 - A356AF11-8FB0-49FC-8A76-7EFB30ABEA4B
+ > Flow flow_mint_next_housing_lifecycle
+Launch app "ch.mint.app" with clear state... COMPLETED
+Run flow when "Je comprends, on y va" is visible...
+  Tap on "Je comprends, on y va"... COMPLETED
+  Wait for animation to end... COMPLETED
+Run flow when "Je comprends, on y va" is visible... COMPLETED
+Open mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready... COMPLETED
+Run flow when "Ouvrir" is visible...
+  Tap on "Ouvrir"... COMPLETED
+Run flow when "Ouvrir" is visible... COMPLETED
+Assert that id: e2e_profile_fixture_applied is visible... COMPLETED
+Assert that "applied.*cadre_salarie_lpp_suisse_ready.*storage=(secureSeal|debugPlainFallback).*" is visible... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Open mintapp:///mint-next/housing... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mint-next/housing... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mint-next/housing... COMPLETED
+Assert that id: node:fact_logement is visible... COMPLETED
+Tap on id: choice:fact_logement.tenant... COMPLETED
+Tap on id: action:fact_logement.continue... COMPLETED
+Assert that id: node:housing_tenant_boundary is visible... COMPLETED
+Tap on "Enregistrer ces informations"... COMPLETED
+Assert that id: node:housing_tenant_boundary is not visible... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Open mintapp:///mint-next/housing... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mint-next/housing... COMPLETED
+Assert that id: node:housing_saved_summary is visible... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Assert that id: mon_argent_housing_fact is visible... COMPLETED
+Assert that "Je le loue" is visible... COMPLETED
+Assert that "Source : saisi par toi dans MINT · mise à jour le .+" is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/01-created-visible... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Assert that id: mon_argent_housing_fact is visible... COMPLETED
+Assert that "Je le loue" is visible... COMPLETED
+Assert that "Source : saisi par toi dans MINT · mise à jour le .+" is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/02-cold-relaunch-visible... COMPLETED
+Tap on id: action:mon_argent.housing.edit... COMPLETED
+Assert that id: node:housing_saved_summary is visible... COMPLETED
+Tap on id: action:housing_saved.edit... COMPLETED
+Tap on id: choice:fact_logement.other... COMPLETED
+Tap on id: action:fact_logement.continue... COMPLETED
+Assert that id: node:housing_other_help is visible... COMPLETED
+Tap on "Enregistrer ces informations"... COMPLETED
+Wait for animation to end within 6000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Assert that id: mon_argent_housing_fact is visible... COMPLETED
+Assert that "Je suis dans une autre situation" is visible... COMPLETED
+Assert that "Source : saisi par toi dans MINT · mise à jour le .+" is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/03-edited-visible... COMPLETED
+Tap on id: action:mon_argent.housing.delete... COMPLETED
+Assert that "Supprimer les informations logement ?" is visible... COMPLETED
+Tap on "^Supprimer$"... COMPLETED
+Assert that "Supprimer les informations logement ?" is not visible... COMPLETED
+Assert that id: mon_argent_housing_fact is not visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/04-deleted-absent... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Assert that id: mon_argent_housing_fact is not visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/05-delete-survives-relaunch... COMPLETED

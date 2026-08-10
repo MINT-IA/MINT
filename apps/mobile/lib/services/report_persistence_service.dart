@@ -3,12 +3,68 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/data/budget/budget_local_store.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/confidence/confidence_history_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 class ReportPersistenceService {
+  @visibleForTesting
+  static Future<void> Function()? debugHousingBeforeAction;
+  static Completer<void> _mutationTailDone = Completer<void>()..complete();
+  static int _resetGeneration = 0;
+
+  static Future<T> runHousingTransaction<T>(Future<T> Function() action) async {
+    final resetAtRequest = _resetGeneration;
+    final previousDone = _mutationTailDone;
+    final done = Completer<void>();
+    _mutationTailDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
+    try {
+      await debugHousingBeforeAction?.call();
+      if (_resetGeneration != resetAtRequest) {
+        throw StateError('Diagnostic reset superseded housing transaction');
+      }
+      final result = await action();
+      if (_resetGeneration != resetAtRequest) {
+        throw StateError('Diagnostic reset superseded housing transaction');
+      }
+      return result;
+    } finally {
+      done.complete();
+    }
+  }
+
+  /// Réinitialise la queue de transactions pour les tests : un test de widget
+  /// qui se termine pendant qu'une transaction est en vol laisse un Completer
+  /// jamais complété (sa zone FakeAsync est détruite), ce qui bloquerait tous
+  /// les tests suivants du même fichier. À appeler dans setUp.
+  @visibleForTesting
+  static void debugResetTransactionQueueForTest() {
+    _mutationTailDone = Completer<void>()..complete();
+  }
+
+  static Future<T> _runResetTransaction<T>(Future<T> Function() action) async {
+    _resetGeneration++;
+    final previousDone = _mutationTailDone;
+    final done = Completer<void>();
+    _mutationTailDone = done;
+    // N'attend le prédécesseur que s'il est réellement en vol : attendre un
+    // futur déjà complété planifierait une microtâche dans la zone du
+    // producteur — potentiellement morte sous flutter_test.
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
+    try {
+      return await action();
+    } finally {
+      done.complete();
+    }
+  }
+
   static const String _wizardKey = 'wizard_answers_v2';
   static const String _completedKey = 'wizard_completed';
   static const String _heldAnonymousWizardKey =
@@ -27,31 +83,69 @@ class ReportPersistenceService {
   /// SEC-10: Sensitive financial keys are stored in encrypted storage.
   static Future<bool> saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
-    await _retryPendingSecureDelete(prefs);
+    answers = await SecureWizardStore.canonicalizeHousingAnswers(answers);
     final sealed = await SecureWizardStore.sealSensitiveKeys(answers);
     if (!sealed.allSensitiveSealed) {
       await _scrubLegacyPlainSensitiveAnswers(prefs);
       return false;
     }
     final jsonString = json.encode(sealed.cleaned);
-    await prefs.setString(_wizardKey, jsonString);
+    final saved = await prefs.setString(_wizardKey, jsonString);
+    if (!saved) return false;
     return true;
+  }
+
+  static Future<bool> drainPendingSecureDeleteBeforeCanonicalWrite() async {
+    final prefs = await SharedPreferences.getInstance();
+    await _retryPendingSecureDelete(prefs);
+    return prefs.getBool(_secureDeletePendingKey) != true;
+  }
+
+  /// Restores only the plain placeholder map after journal promotion failed.
+  /// Sensitive values are already held by the prepared encrypted journal and
+  /// must never be copied into SharedPreferences during this rollback.
+  static Future<bool> restorePreparedDeleteAnswerMap(
+      Map<String, dynamic> answers) async {
+    final prefs = await SharedPreferences.getInstance();
+    final placeholderMap = Map<String, dynamic>.from(answers);
+    for (final key in placeholderMap.keys.toList()) {
+      if (SecureWizardStore.isSensitive(key)) {
+        placeholderMap[key] = '__secure__';
+      }
+    }
+    return prefs.setString(_wizardKey, json.encode(placeholderMap));
   }
 
   /// Charge les réponses existantes.
   /// SEC-10: Sensitive financial keys are restored from encrypted storage.
-  static Future<Map<String, dynamic>> loadAnswers() async {
+  static Future<Map<String, dynamic>> loadAnswers({
+    bool retryPendingSecureDelete = true,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
+    if (retryPendingSecureDelete &&
+        prefs.getBool(_secureDeletePendingKey) == true) {
+      // Startup recovery is a real reset transaction, never a background
+      // delete hidden inside an ordinary save. It announces reset precedence
+      // before waiting, so an active housing mutation cannot publish success.
+      await _runResetTransaction(() => _retryPendingSecureDelete(prefs));
+    }
     final jsonString = prefs.getString(_wizardKey);
 
     if (jsonString == null) {
-      await _retryPendingSecureDelete(prefs);
-      return {};
+      return SecureWizardStore.canonicalizeHousingAnswers({});
     }
 
     try {
-      final answers = Map<String, dynamic>.from(json.decode(jsonString));
-      return await SecureWizardStore.restoreSensitiveKeys(answers);
+      final rawAnswers = await SecureWizardStore.canonicalizeHousingAnswers(
+        Map<String, dynamic>.from(json.decode(jsonString)),
+      );
+      final reconciliation =
+          await SecureWizardStore.reconcileDeleteTransaction(rawAnswers);
+      if (reconciliation.rewriteRequired) {
+        await prefs.setString(_wizardKey, json.encode(reconciliation.answers));
+      }
+      return await SecureWizardStore.restoreSensitiveKeys(
+          reconciliation.answers);
     } catch (e, stack) {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');
@@ -188,7 +282,8 @@ class ReportPersistenceService {
 
   static Future<void> _retryPendingSecureDelete(SharedPreferences prefs) async {
     if (prefs.getBool(_secureDeletePendingKey) != true) return;
-    final secureDeleted = await SecureWizardStore.deleteAll();
+    final secureDeleted =
+        await SecureWizardStore.deleteAllDuringCoordinatedReset();
     final heldDeleted = await SecureWizardStore.deleteHeldSensitiveValues();
     if (secureDeleted && heldDeleted) {
       await prefs.remove(_secureDeletePendingKey);
@@ -945,6 +1040,13 @@ class ReportPersistenceService {
   /// - contributions planifiées liées au profil
   static Future<void> clearDiagnostic({
     bool includeHeldAnonymous = true,
+  }) =>
+      _runResetTransaction(() => _clearDiagnosticUnlocked(
+            includeHeldAnonymous: includeHeldAnonymous,
+          ));
+
+  static Future<void> _clearDiagnosticUnlocked({
+    required bool includeHeldAnonymous,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_wizardKey);
@@ -962,7 +1064,8 @@ class ReportPersistenceService {
     await prefs.remove(_coachNarrativeModeKey);
     await prefs.remove(_hasSeenPremierEclairageKey);
     await prefs.remove(_premierEclairageSnapshotKey);
-    final secureDeleted = await SecureWizardStore.deleteAll();
+    final secureDeleted =
+        await SecureWizardStore.deleteAllDuringCoordinatedReset();
     if (secureDeleted) {
       await prefs.remove(_secureDeletePendingKey);
     } else {

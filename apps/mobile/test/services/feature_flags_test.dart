@@ -1,4 +1,6 @@
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
 /// Tests for FeatureFlags — server-driven feature gating.
@@ -19,6 +21,10 @@ void main() {
     FeatureFlags.enableOpenBanking = false;
     FeatureFlags.enableAdminScreens = false;
     FeatureFlags.enableMint2FirstExperienceEntry = false;
+    FeatureFlags.enableMintNextHousing = false;
+    FeatureFlags.debugBackendFetcher = null;
+    FeatureFlags.debugBackendRefreshTimeout = null;
+    E2eRuntimeFlags.resetForTest();
   });
 
   group('FeatureFlags — default values', () {
@@ -56,6 +62,32 @@ void main() {
   });
 
   group('FeatureFlags.applyFromMap', () {
+    test('debug-only housing harness opens the same product gate', () {
+      expect(FeatureFlags.enableMintNextHousing, isFalse);
+      E2eRuntimeFlags.mintNextHousingOverride = true;
+      FeatureFlags.applyRuntimeOverrides();
+      expect(FeatureFlags.enableMintNextHousing, isTrue);
+      expect(FeatureFlags.mintNextHousingListenable.value, isTrue);
+
+      FeatureFlags.applyFromMap({'enableMintNextHousing': false});
+      FeatureFlags.applyRuntimeOverrides();
+      expect(FeatureFlags.enableMintNextHousing, isTrue);
+      expect(FeatureFlags.mintNextHousingListenable.value, isTrue);
+
+      E2eRuntimeFlags.resetForTest();
+      FeatureFlags.enableMintNextHousing = false;
+      expect(FeatureFlags.enableMintNextHousing, isFalse);
+      expect(FeatureFlags.mintNextHousingListenable.value, isFalse);
+    });
+
+    test('keeps Mint Next housing default-off and accepts only true', () {
+      expect(FeatureFlags.enableMintNextHousing, isFalse);
+      FeatureFlags.applyFromMap({'enableMintNextHousing': true});
+      expect(FeatureFlags.enableMintNextHousing, isTrue);
+      FeatureFlags.applyFromMap({'enableMintNextHousing': 'true'});
+      expect(FeatureFlags.enableMintNextHousing, isFalse);
+    });
+
     test('applies enableCouplePlusTier from map', () {
       FeatureFlags.applyFromMap({'enableCouplePlusTier': false});
       expect(FeatureFlags.enableCouplePlusTier, isFalse);
