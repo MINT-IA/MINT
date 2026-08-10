@@ -104,10 +104,19 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 153 entries', () {
-      // 147 in Phase 32 ; 6 routes added since. Refresh count when adding /
+    test('has exactly 155 entries', () {
+      // 147 in Phase 32 ; 7 routes added since. Refresh count when adding /
       // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 153);
+      expect(kRouteRegistry.length, 154);
+    });
+
+    test('/mint-next/housing is a separately killable public flow', () {
+      final route = kRouteRegistry['/mint-next/housing'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextHousing');
     });
 
     test('every entry path matches its key', () {

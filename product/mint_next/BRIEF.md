@@ -128,9 +128,10 @@ audit permanent de tout le repo. Un token dépensé doit servir l'écran livré.
   - **Phase jumeau COMPLÉTÉE** `mint-next-user-twin-foundation-20260808` :
     cycle logement prouvé en runtime (création, 2 relances à froid, édition,
     suppression durable — Maestro, roast indépendant P1=P2=P3=0). Chemin
-    canonique local : `CoachProfileProvider.mergeAnswers →
-    ReportPersistenceService → SecureWizardStore/wizard_answers_v2 →
-    CoachProfile.fromWizardAnswers`. INTERDITS comme sources de vérité :
+    canonique local : transaction coordonnée `CoachProfileProvider.saveHousingFact`
+    (drain purge en attente → snapshot → `SecureWizardStore.writeCanonicalHousing`
+    = seule autorité → cache `ReportPersistenceService`) →
+    `CoachProfile.fromWizardAnswers`. INTERDITS comme sources de vérité :
     Design Lab store, `BiographyRepository`, écritures backend `FactEvent`.
   - **SPEC Golden 3a Vertical** `mint-next-vertical01-3a-20260802`
     (pre_activation, flag OFF) : machine à états fail-closed (35 transitions),

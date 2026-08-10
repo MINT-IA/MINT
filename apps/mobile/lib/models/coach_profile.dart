@@ -60,6 +60,8 @@ enum ProfileDataSource {
   openBanking, // Données bancaires live bLink/SFTI (confiance 1.00)
 }
 
+enum Compte3aOwner { self }
+
 /// Signaux SafeMode (mode protection) actifs sur un profil.
 ///
 /// Chaque signal explique POURQUOI les optimisations avancées (3a / LPP) sont
@@ -726,13 +728,21 @@ class PrevoyanceProfile {
 
 /// Compte 3a individuel
 class Compte3a {
+  final String? id;
+  final Compte3aOwner owner;
   final String provider; // "VIAC", "Finpens", "Banque", etc.
   final double solde;
+  final DateTime? balanceAsOf;
+  final ProfileDataSource? source;
   final double rendementEstime; // rendement annuel estime
 
   const Compte3a({
+    this.id,
+    this.owner = Compte3aOwner.self,
     required this.provider,
     required this.solde,
+    this.balanceAsOf,
+    this.source,
     this.rendementEstime = 0.04,
   });
 
@@ -740,26 +750,91 @@ class Compte3a {
     return Compte3a(
       provider: (json['provider'] as String?) ?? 'Inconnu',
       solde: (json['solde'] as num?)?.toDouble() ?? 0.0,
+      id: json['id'] as String?,
+      owner: Compte3aOwner.values.firstWhere(
+        (value) => value.name == json['owner'],
+        orElse: () => Compte3aOwner.self,
+      ),
+      balanceAsOf: DateTime.tryParse(json['balanceAsOf'] as String? ?? ''),
+      source: ProfileDataSource.values.cast<ProfileDataSource?>().firstWhere(
+            (value) => value?.name == json['source'],
+            orElse: () => null,
+          ),
       rendementEstime: (json['rendementEstime'] as num?)?.toDouble() ?? 0.04,
     );
   }
 
+  static Compte3a? tryFromCanonicalJson(Object? raw) {
+    if (raw is! Map) return null;
+    if (raw.keys.any((key) => key is! String)) return null;
+    final json = Map<String, dynamic>.from(raw);
+    final id = json['id'];
+    final owner = json['owner'];
+    final provider = json['provider'];
+    final balance = json['balance'];
+    final balanceAsOfRaw = json['balanceAsOf'];
+    final source = json['source'];
+    final balanceAsOf =
+        balanceAsOfRaw is String ? DateTime.tryParse(balanceAsOfRaw) : null;
+    if (id is! String ||
+        id.trim().isEmpty ||
+        owner != Compte3aOwner.self.name ||
+        provider is! String ||
+        provider.trim().isEmpty ||
+        balance is! num ||
+        !balance.toDouble().isFinite ||
+        balance.toDouble() < 0 ||
+        balanceAsOf == null ||
+        source != ProfileDataSource.userInput.name) {
+      return null;
+    }
+    return Compte3a(
+      id: id,
+      owner: Compte3aOwner.self,
+      provider: provider.trim(),
+      solde: balance.toDouble(),
+      balanceAsOf: balanceAsOf,
+      source: ProfileDataSource.userInput,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
+        'id': id,
+        'owner': owner.name,
         'provider': provider,
         'solde': solde,
+        'balanceAsOf': balanceAsOf?.toIso8601String(),
+        'source': source?.name,
         'rendementEstime': rendementEstime,
       };
+
+  Map<String, dynamic>? toCanonicalJson() {
+    if (id == null || balanceAsOf == null || source == null) return null;
+    return {
+      'id': id,
+      'owner': owner.name,
+      'provider': provider,
+      'balance': solde,
+      'balanceAsOf': balanceAsOf!.toUtc().toIso8601String(),
+      'source': source!.name,
+    };
+  }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is Compte3a &&
+          id == other.id &&
+          owner == other.owner &&
           provider == other.provider &&
           solde == other.solde &&
+          balanceAsOf == other.balanceAsOf &&
+          source == other.source &&
           rendementEstime == other.rendementEstime;
 
   @override
-  int get hashCode => Object.hash(provider, solde, rendementEstime);
+  int get hashCode => Object.hash(
+      id, owner, provider, solde, balanceAsOf, source, rendementEstime);
 }
 
 /// Compte de libre passage (apres changement d'emploi ou lacune LPP).
@@ -2889,6 +2964,15 @@ class CoachProfile {
         _parseDouble(answers['q_lpp_buyback_available']);
     final contribution3a =
         _parseDouble(answers['q_3a_annual_contribution']) ?? 0;
+    final canonical3aRaw = answers['_coach_3a_accounts_v1'];
+    final canonical3aAccounts = canonical3aRaw is List
+        ? canonical3aRaw
+            .map(Compte3a.tryFromCanonicalJson)
+            .whereType<Compte3a>()
+            .toList(growable: false)
+        : const <Compte3a>[];
+    final hasCanonical3aAccounts = canonical3aRaw is List &&
+        (canonical3aRaw.isEmpty || canonical3aAccounts.isNotEmpty);
     final reported3aTotal = _parseDouble(answers['q_3a_total']) ??
         _parseDouble(answers['q_total_3a']);
     final coachTotal3a = _parseDouble(answers['_coach_total_3a']);
@@ -2896,9 +2980,11 @@ class CoachProfile {
         contribution3a > 0 ||
         (reported3aTotal != null && reported3aTotal > 0) ||
         (coachTotal3a != null && coachTotal3a > 0);
-    final nombre3a = _parseInt(answers['q_3a_accounts_count']) ??
-        _parseInt(answers['q_nombre_3a']) ??
-        (has3a ? 1 : 0);
+    final nombre3a = hasCanonical3aAccounts
+        ? canonical3aAccounts.length
+        : _parseInt(answers['q_3a_accounts_count']) ??
+            _parseInt(answers['q_nombre_3a']) ??
+            (has3a ? 1 : 0);
     final avsLacunesStatus = answers['q_avs_lacunes_status'] as String?;
     // Compute arrivalAge for expats who arrived late in Switzerland.
     // Used by _estimateLppAvoir() to start LPP bonification loop at
@@ -2992,9 +3078,12 @@ class CoachProfile {
 
     // Estimate 3a total from contribution and age
     // Si une valeur reelle a ete saisie via annual refresh, on la prefere
-    final estimated3aTotal = reported3aTotal ??
-        coachTotal3a ??
-        (has3a ? _estimate3aTotal(contribution3a, age) : 0.0);
+    final estimated3aTotal = hasCanonical3aAccounts
+        ? canonical3aAccounts.fold<double>(
+            0, (sum, account) => sum + account.solde)
+        : reported3aTotal ??
+            coachTotal3a ??
+            (has3a ? _estimate3aTotal(contribution3a, age) : 0.0);
 
     final prevoyance = PrevoyanceProfile(
       anneesContribuees: avsYears,
@@ -3011,6 +3100,7 @@ class CoachProfile {
       ramd: coachAvsRamd,
       nombre3a: nombre3a,
       totalEpargne3a: estimated3aTotal,
+      comptes3a: canonical3aAccounts,
       lppEstimationBlocked: lppEstimationBlocked,
     );
 
@@ -3196,6 +3286,19 @@ class CoachProfile {
           ));
         }
       }
+    }
+
+    // An explicitly saved 3a plan is canonical user intent. It must survive
+    // an older savings-allocation answer that did not include 3a.
+    if (contribution3a > 0 &&
+        !contributions.any((item) => item.category == '3a')) {
+      contributions.add(PlannedMonthlyContribution(
+        id: '3a_user',
+        label: '3a ${firstName ?? "Toi"}',
+        amount: contribution3a / 12,
+        category: '3a',
+        isAutomatic: false,
+      ));
     }
 
     // Restore inline-edited rachat LPP mensuel (persisted by updateInline).

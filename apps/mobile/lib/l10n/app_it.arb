@@ -2168,7 +2168,7 @@
   "futurCompleterProfil": "Completa il tuo profilo per affinare la proiezione.",
   "futurDisclaimer": "Proiezione educativa — non costituisce consulenza (LSF). SWR 4% = regola del 4%, risultati non assicurati. Rendite AVS/LPP stimate secondo LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Esplora i dettagli",
-  "financialSummaryTitle": "IL MIO PROFILO",
+  "financialSummaryTitle": "LA MIA SITUAZIONE",
   "financialSummaryDossierTitle": "Dossier verificabile",
   "financialSummaryDossierSubtitle": "I tuoi dati, le loro fonti e le tue correzioni prima di ogni proiezione.",
   "financialSummaryDossierFactCountLabel": "dati seguiti",
@@ -2204,6 +2204,40 @@
   "financialSummaryRachatPlanifie": "Riscatto pianificato",
   "financialSummaryCaisse": "Cassa",
   "financialSummary3a3ePilier": "3a (3° pilastro)",
+  "threeAAccountsSmartAction": "Dettagliare i tuoi conti 3a",
+  "threeAAccountsSmartReason": "~1 min · per preparare prelievi fiscali scaglionati",
+  "threeAAccountAdd": "Aggiungi un conto 3a",
+  "threeAAccountTitle": "Aggiungi il tuo conto 3a",
+  "threeAAccountWhy": "Questi dati mostrano il tuo patrimonio e aiutano a preparare i prelievi. Restano sotto il tuo controllo in La mia situazione.",
+  "financialSummaryBalanceAsOf": "Saldo al {date}",
+  "@financialSummaryBalanceAsOf": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "financialSummaryBalanceDateUnknown": "Data del saldo da confermare",
+  "financialSummarySourceUserInput": "Inserito manualmente",
+  "threeAAccountProvider": "Istituto",
+  "threeAAccountBalance": "Saldo attuale",
+  "threeAAccountBalanceDate": "Data del saldo",
+  "threeAAccountOwnerSelf": "Titolare: tu",
+  "threeAAccountInvalid": "Inserisci un istituto e un saldo valido.",
+  "threeAAccountSaveError": "Salvataggio impossibile. Nessuna modifica effettuata.",
+  "threeAAccountSave": "Salva questo conto",
+  "financialSummary3aPlannedAnnual": "Versamento annuo pianificato",
+  "financialSummary3aPlannedAnnualOwner": "{name} · versamento annuo pianificato",
+  "@financialSummary3aPlannedAnnualOwner": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "financialSummaryDateUnknown": "Data da confermare",
+  "financialSummaryUpdatedOn": "Aggiornato il {date}",
+  "@financialSummaryUpdatedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
   "financialSummaryNComptes": "{n} conto/i",
   "@financialSummaryNComptes": {
     "placeholders": {
@@ -4627,6 +4661,9 @@
   "sim3aCtaCompare": "Confrontare",
   "sim3aCtaCalculate": "Calcolare",
   "sim3aCtaPlan": "Pianificare",
+  "sim3aSavePlan": "Salva questo piano",
+  "sim3aPlanSaved": "Piano salvato",
+  "sim3aPlanRemoved": "Piano rimosso",
   "sim3aDisclaimer": "Stima educativa. I risparmi reali dipendono dal luogo di residenza e dalla situazione familiare. Non costituisce consulenza finanziaria (LSFin).",
   "sim3aDebtLockedTitle": "Priorità al disdebitamento",
   "sim3aDebtLockedMessage": "In modalità protezione, le raccomandazioni 3a sono disattivate. La priorità è stabilizzare la situazione finanziaria.",
@@ -11906,5 +11943,148 @@
   "lppRescueGainPositive": "+CHF {gain} su 5 anni",
   "lppRescueGainLoss": "-CHF {gain} su 5 anni",
   "lppRescueSuppletiveTitle": "Non fare nulla = istituto collettore",
-  "lppRescueSuppletiveBody": "Il tasso tecnico è basso e le spese elevate. Un avere di CHF {balance} può perdere fino a CHF {loss} su 5 anni rispetto a un conto di libero passaggio adeguato."
+  "lppRescueSuppletiveBody": "Il tasso tecnico è basso e le spese elevate. Un avere di CHF {balance} può perdere fino a CHF {loss} su 5 anni rispetto a un conto di libero passaggio adeguato.",
+  "mintNext3aTeachBackQuestion": "Cosa devi verificare prima di decidere quanto versare nel pilastro 3a quest’anno?",
+  "mintNext3aTeachBackChoiceAnnualTotal": "Il totale che tutte le mie banche e assicurazioni del pilastro 3a hanno confermato di aver ricevuto quest’anno, esclusi i trasferimenti tra pilastri 3a.",
+  "mintNext3aTeachBackChoiceLatestPayment": "Solo l’ultimo addebito sul mio conto bancario.",
+  "mintNext3aTeachBackChoicePayMax": "Subito l’importo massimo, senza verifica.",
+  "mintNext3aTeachBackFeedbackCorrect": "Sì. Verifica quanto tutti i tuoi fornitori 3a hanno confermato di aver ricevuto quest’anno. Un trasferimento tra due pilastri 3a non si aggiunge al totale.",
+  "mintNext3aTeachBackFeedbackRetry": "Non proprio. Un addebito sul conto bancario non dimostra ancora che il tuo pilastro 3a abbia ricevuto il denaro. Verifica le conferme di tutti i tuoi fornitori 3a.",
+  "mintNext3aCountingHelpTitle": "Cosa bisogna contare?",
+  "mintNext3aCountingHelpBody": "Conta solo il denaro nuovo che i tuoi fornitori 3a confermano di aver ricevuto per quest’anno. Un trasferimento tra pilastri 3a non si aggiunge al totale.",
+  "mintNext3aCountingHelpUncertain": "Se compare un rimborso, un riscatto retroattivo o una correzione, non tirare a indovinare: verifica il documento.",
+  "mintNext3aPersonalUnavailable": "Il tuo calcolo personale non è disponibile. Verifica il totale annuo ricevuto; non viene calcolato alcun importo fiscale personale.",
+  "mintNext3aTaskTitle": "Verificare il mio totale 3a annuo",
+  "mintNext3aTaskBody": "Somma i versamenti che tutte le tue banche e assicurazioni 3a hanno confermato di aver ricevuto per il {year}. MINT non sceglie alcun importo e non effettua alcun versamento.",
+  "mintNext3aStorageDisclosure": "Se la conservi, solo questa tappa sarà salvata su questo dispositivo. Le risposte e i calcoli di questo percorso saranno eliminati.",
+  "mintNext3aSave": "Conserva questa tappa",
+  "mintNext3aLeaveWithoutSaving": "Esci senza conservarla",
+  "mintNext3aSavedTitle": "Tappa salvata",
+  "mintNext3aSavedLocation": "La ritroverai in Oggi.",
+  "mintNext3aExpiryDisclosure": "Sarà eliminata automaticamente il 31 gennaio {year}. Puoi eliminarla prima.",
+  "mintNext3aReturnToday": "Torna a Oggi",
+  "mintNext3aTodayStatus": "{year} · Da fare",
+  "mintNext3aTodayDoneStatus": "{year} · Completato",
+  "mintNext3aMarkDone": "Ho verificato",
+  "mintNext3aDoneTitle": "Fatto",
+  "mintNext3aOpenTask": "Apri",
+  "mintNext3aDelete": "Elimina questa tappa",
+  "mintNext3aDeleteQuestion": "Eliminare questa prossima tappa?",
+  "mintNext3aDeleteBoundary": "Il percorso finanziario non sarà interessato.",
+  "mintNext3aCancel": "Annulla",
+  "mintNext3aDeleteConfirm": "Elimina",
+  "mintNext3aSafeExitTitle": "Vuoi fermarti qui?",
+  "mintNext3aSafeExitBody": "Non sarà salvato nulla di questo percorso.",
+  "mintNext3aSafeExitResume": "Continua qui",
+  "mintNext3aSafeExitLeave": "Esci senza salvare",
+  "mintNext3aStorageFailure": "{kind, select, read{Impossibile verificare questa tappa sul dispositivo. Potrebbe essere ancora salvata.} verifyRead{Mint non ha potuto verificare se questa tappa è stata salvata. Potrebbe esserlo.} delete{Impossibile eliminare questa tappa dal dispositivo. È ancora salvata.} cleanupDelete{Mint non ha potuto eliminare questa tappa. È ancora salvata. Puoi riprovare ora.} complete{Impossibile segnare questa tappa come completata. Resta salvata come da fare.} other{Impossibile salvare questa tappa su questo dispositivo. Non è stato salvato nulla.}}",
+  "mintNext3aCleanupPending": "Eliminazione della tappa in corso…",
+  "housingExplore": "Capire la mia situazione abitativa",
+  "housingQuestion": "Per l’abitazione in cui vivi oggi…",
+  "housingTenant": "Sono in affitto",
+  "housingOwnerOccupier": "Ne possiedo una parte o la totalità",
+  "housingOther": "La mia situazione è diversa",
+  "housingUnknown": "Non lo so",
+  "housingContinue": "Continua",
+  "housingTenantBoundary": "Sei in affitto. Le domande fiscali per i proprietari non si applicano qui.",
+  "housingOwnerBoundary": "La tua risposta prepara soltanto le prossime domande. Non è ancora stato calcolato alcun vantaggio fiscale.",
+  "housingOtherHelp": "Alcune situazioni non sono semplicemente affitto o proprietà. Le chiariremo senza fare supposizioni.",
+  "housingUnknownHelp": "Puoi verificare il contratto di locazione o l’atto di proprietà. Non deduciamo nulla da questa incertezza.",
+  "housingBack": "Indietro",
+  "housingFinish": "Torna alla panoramica",
+  "housingSafeExit": "Fai una pausa",
+  "housingResume": "Continua qui",
+  "housingLeaveWithoutSaving": "Esci senza salvare",
+  "housingMortgageQuestion": "Questa abitazione è finanziata con un’ipoteca?",
+  "housingMortgageYes": "Sì",
+  "housingMortgageNo": "No",
+  "housingMortgageUnknown": "Non lo so",
+  "housingMortgageYesBoundary": "Questa risposta aiuterà a porre le domande giuste sul finanziamento. Non è ancora stato calcolato nulla.",
+  "housingMortgageNoBoundary": "Questa risposta aiuterà a porre le domande giuste sulla proprietà. Non è ancora stato calcolato nulla.",
+  "housingMortgageUnknownBoundary": "Puoi controllare l’estratto ipotecario o chiedere al tuo istituto. Mint non deduce nulla da questa incertezza.",
+  "mortgageStatementQuestion": "Hai a portata di mano l’attestazione annuale della tua ipoteca?",
+  "mortgageStatementReady": "Sì, ce l’ho",
+  "mortgageStatementFindLater": "La cercherò più tardi",
+  "mortgageStatementUnknown": "Non so quale documento cercare",
+  "mortgageStatementReadyBoundary": "Perfetto. Più avanti Mint potrà aiutarti a individuare i dati utili nel documento. Per ora non viene letto né salvato alcun importo.",
+  "mortgageStatementFindLaterBoundary": "Nessun problema. Potrai continuare quando l’avrai trovata. Per ora non viene richiesto né salvato alcun importo.",
+  "mortgageStatementUnknownBoundary": "Mint ti spiegherà come riconoscere il documento giusto prima di qualsiasi inserimento. Per ora non viene richiesto né salvato alcun importo.",
+  "mortgageInterestQuestion": "Quale importo di interessi ipotecari è indicato per l’anno?",
+  "mortgageInterestHint": "Copia soltanto il totale annuale indicato nell’attestazione. Mint non calcola ancora nulla.",
+  "mortgageInterestLabel": "Interessi annuali",
+  "mortgageInterestBoundary": "Per il {year} hai inserito CHF {amount} di interessi annuali. Questo dato resta locale e non è ancora stato calcolato alcun risparmio fiscale.",
+  "@mortgageInterestBoundary": {
+    "description": "Locally entered annual mortgage interest review, bound to the user-declared statement year.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "4’250.50"
+      },
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "mortgageDebtQuestion": "Quale saldo del debito ipotecario è indicato al 31 dicembre {year}?",
+  "mortgageDebtHint": "Copia il saldo indicato nella stessa attestazione. Mint non deduce nulla da questo importo da solo.",
+  "mortgageDebtLabel": "Debito al 31 dicembre",
+  "mortgageReviewTitle": "La tua attestazione {year} in due cifre",
+  "mortgageReviewInterest": "Interessi annuali: CHF {amount}",
+  "mortgageReviewDebt": "Debito al 31 dicembre: CHF {amount}",
+  "mortgageReviewBoundary": "Queste due cifre restano locali. Non costituiscono né una deduzione fiscale confermata né un risultato.",
+  "@mortgageReviewInterest": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "@mortgageReviewDebt": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "mortgageStatementYearLabel": "Anno indicato sull’attestazione",
+  "mortgageStatementYearHint": "Per esempio 2025",
+  "@mortgageDebtQuestion": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "@mortgageReviewTitle": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "housingSave": "Salva queste informazioni",
+  "housingSaveError": "Impossibile salvare ora. Non è andato perso nulla.",
+  "housingSavedTitle": "Cosa sa MINT sulla tua abitazione",
+  "housingSavedBody": "Salvato su questo dispositivo. Puoi correggere o eliminare queste informazioni in ogni momento.",
+  "housingSavedProvenance": "Fonte: {source} · aggiornata il {date}.",
+  "@housingSavedProvenance": {"placeholders": {"source": {"type": "String"}, "date": {"type": "String"}}},
+  "housingSavedSourceHousingFlow": "inserita da te in MINT",
+  "housingSavedSourceUnknown": "da verificare",
+  "housingSavedPeriod": "Periodo dell’estratto: {year}.",
+  "@housingSavedPeriod": {"placeholders": {"year": {"type": "int"}}},
+  "housingSavedEdit": "Correggi",
+  "housingSavedDelete": "Elimina queste informazioni",
+  "housingSavedDeleteTitle": "Eliminare le informazioni sull’abitazione?",
+  "housingSavedDeleteBody": "MINT non le userà più nelle prossime spiegazioni.",
+  "housingSavedDeleteCancel": "Mantieni",
+  "housingSavedDeleteConfirm": "Elimina"
 }

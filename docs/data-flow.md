@@ -165,6 +165,25 @@ Read by `CoachProfile.fromWizardAnswers`. Sorted by domain.
   `_coach_depenses_electricite`, `_coach_depenses_frais_medicaux`,
   `_coach_depenses_autres`
 
+The Mint Next housing flow owns one canonical fact bundle in
+`wizard_answers_v2`: `q_housing_status`, `q_housing_mortgage_status`,
+`q_housing_mortgage_statement_availability`,
+`q_housing_mortgage_statement_year`,
+`q_housing_mortgage_annual_interest_cents`,
+`q_housing_mortgage_debt_balance_cents`, `q_housing_fact_asserted_at`,
+`q_housing_fact_source`, `q_housing_fact_schema_version`, and
+`q_housing_fact_needs_confirmation`. Monetary values are integer cents.
+`CoachProfileProvider.saveHousingFact` does NOT go through `mergeAnswers`: it
+runs one coordinated serialized transaction — drain any pending secure delete,
+snapshot current answers via `ReportPersistenceService.loadAnswers`, write the
+canonical bundle with `SecureWizardStore.writeCanonicalHousing` (the sole
+authority; a failed write aborts), then refresh the non-authoritative
+`ReportPersistenceService` cache. Deletion runs the same transaction with a
+canonical delete, so unrelated wizard answers survive. No remote sync path is
+invoked: this phase keeps the bundle local even for authenticated users. Every
+bundle key is classified sensitive and sealed by `SecureWizardStore`; no second
+housing store exists.
+
 **AVS (1st pillar)**
 - `q_avs_lacunes_status`, `q_avs_years_abroad`, `q_avs_contribution_years`,
   `q_avs_arrival_year`, `q_spouse_avs_contribution_years`,

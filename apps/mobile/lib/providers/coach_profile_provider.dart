@@ -1,4 +1,5 @@
 import 'dart:async' show unawaited;
+import 'dart:convert' show jsonEncode;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
@@ -8,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -26,6 +28,7 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 
@@ -47,6 +50,14 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
 ///
 /// Le profil est recalcule a chaque appel a [loadFromWizard()].
 class CoachProfileProvider extends ChangeNotifier {
+  @visibleForTesting
+  static Future<void> Function()? debugAfter3aSaveBeforeVerification;
+  @visibleForTesting
+  static Future<void> Function()? debugHousingAfterDrain;
+  @visibleForTesting
+  static Future<void> Function()? debugHousingAfterCanonicalWrite;
+  @visibleForTesting
+  static Future<void> Function()? debugAfterOwnedSecurePurgePrearm;
   CoachProfile? _profile;
   bool _isLoading = false;
   bool _isLoaded = false;
@@ -64,6 +75,88 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
+
+  MintNextHousingFact? get housingFact =>
+      MintNextHousingFact.fromWizardAnswers(_lastAnswers);
+
+  Future<void> _runHousingCoordinated(Future<void> Function() action) async {
+    try {
+      await ReportPersistenceService.runHousingTransaction(
+          () => SecureWizardStore.runCanonicalHousingTransaction(action));
+    } on StateError catch (error) {
+      if (error.message.contains('superseded')) {
+        _lastAnswers = const {};
+        _profile = null;
+        notifyListeners();
+      }
+      rethrow;
+    }
+  }
+
+  /// Persists the complete owned bundle through the canonical answer pipeline.
+  Future<void> saveHousingFact(MintNextHousingFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          await debugHousingAfterDrain?.call();
+          if (!await SecureWizardStore.writeCanonicalHousing(fact)) {
+            throw StateError('Canonical housing persistence failed');
+          }
+          await debugHousingAfterCanonicalWrite?.call();
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          // Canonical remains authoritative if this cache write returns false.
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'Housing cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Deletes the complete owned bundle without disturbing other answers.
+  Future<void> deleteHousingFact() => _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          await debugHousingAfterDrain?.call();
+          if (!await SecureWizardStore.writeCanonicalHousingDeleted()) {
+            throw StateError('Canonical housing deletion failed');
+          }
+          await debugHousingAfterCanonicalWrite?.call();
+          await SecureWizardStore.deleteKeys(MintNextHousingFact.wizardKeys);
+          snapshot.removeWhere(
+              (key, _) => MintNextHousingFact.wizardKeys.contains(key));
+          // Tombstone remains authoritative if this cache write returns false.
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(snapshot);
+          if (!cacheSaved) {
+            debugPrint(
+                'Housing cache cleanup failed; tombstone remains authority');
+          }
+          _lastAnswers = snapshot;
+          _profile = snapshot.isEmpty
+              ? null
+              : CoachProfile.fromWizardAnswers(snapshot);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
 
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
@@ -754,6 +847,7 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_spouse_avs_contribution_years',
       'q_avs_contribution_years',
       'q_target_retirement_age',
+      'q_housing_status',
     };
     if (backendHydrationKeys.any((key) => _isAnswered(answers[key]))) {
       return true;
@@ -824,7 +918,11 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Used by chat inline pickers to update one field at a time without
   /// overwriting the rest of the profile. A null value deletes the key, which
   /// lets edit screens clear optional values instead of preserving stale data.
-  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+  Future<void> mergeAnswers(
+    Map<String, dynamic> partial, {
+    bool syncToBackend = true,
+    bool failOnPersistenceError = false,
+  }) async {
     if (partial.isEmpty) return;
     return _enqueueProfilePersistence(() async {
       // Deep-walk crack #15: always re-read the on-disk answers before
@@ -848,7 +946,45 @@ class CoachProfileProvider extends ChangeNotifier {
       if (_isSingleHouseholdType(partial['q_household_type'])) {
         _removePartnerAnswers(merged);
       }
-      final persisted = await _saveAnswersReturningPersisted(merged);
+      final deletionKeys = partial.entries
+          .where((entry) => entry.value == null)
+          .map((entry) => entry.key)
+          .where(SecureWizardStore.isSensitive)
+          .toSet();
+      var secureDeletePrepared = false;
+      if (failOnPersistenceError && deletionKeys.isNotEmpty) {
+        secureDeletePrepared =
+            await SecureWizardStore.prepareDeleteTransaction(deletionKeys);
+        if (!secureDeletePrepared) {
+          throw StateError('Secure wizard deletion backup failed');
+        }
+        final deleted = await SecureWizardStore.deleteKeys(deletionKeys);
+        if (!deleted) {
+          throw StateError('Secure wizard key deletion failed');
+        }
+      }
+      late final Map<String, dynamic> persisted;
+      try {
+        persisted = await _saveAnswersReturningPersisted(
+          merged,
+          failOnPersistenceError: failOnPersistenceError,
+        );
+      } catch (_) {
+        rethrow;
+      }
+      if (secureDeletePrepared) {
+        final committed = await SecureWizardStore.commitDeleteTransaction();
+        if (!committed) {
+          await ReportPersistenceService.restorePreparedDeleteAnswerMap(
+              current);
+          throw StateError('Secure wizard deletion commit failed');
+        }
+        // The verified answer-map write above is the deletion commit point.
+        // Journal promotion/cleanup is recoverable maintenance: a cold load
+        // reconciles a still-prepared journal from the now-absent target keys.
+        // Reporting failure here would retain the card in memory even though
+        // restart deterministically completes the already-committed deletion.
+      }
       _lastAnswers = persisted;
       _profile =
           persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
@@ -857,7 +993,83 @@ class CoachProfileProvider extends ChangeNotifier {
       _profileUpdatedSinceBudget = true;
       CoachNarrativeService.invalidateCache(profile: _profile);
       notifyListeners();
-      _syncToBackend(); // Fire-and-forget, does not block UI
+      if (syncToBackend) {
+        _syncToBackend(); // Fire-and-forget, does not block UI
+      }
+    });
+  }
+
+  Future<void> addSelfOwned3aAccount({
+    required String provider,
+    required double balance,
+    required DateTime balanceAsOf,
+  }) async {
+    final normalizedProvider = provider.trim();
+    final balanceDate = DateTime(
+      balanceAsOf.year,
+      balanceAsOf.month,
+      balanceAsOf.day,
+    );
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    if (normalizedProvider.isEmpty ||
+        !balance.isFinite ||
+        balance < 0 ||
+        balanceDate.isAfter(todayDate)) {
+      throw ArgumentError('Invalid self-owned 3a account');
+    }
+    await _enqueueProfilePersistence(() async {
+      final current = await ReportPersistenceService.loadAnswers();
+      final rawAccounts = current['_coach_3a_accounts_v1'];
+      final preservedRecords =
+          rawAccounts is List ? List<dynamic>.from(rawAccounts) : <dynamic>[];
+      final existingAccounts = preservedRecords
+          .map(Compte3a.tryFromCanonicalJson)
+          .whereType<Compte3a>()
+          .toList();
+      final usedSuffixes = existingAccounts
+          .map((account) =>
+              RegExp(r'^self-3a-(\d+)$').firstMatch(account.id ?? ''))
+          .whereType<RegExpMatch>()
+          .map((match) => int.parse(match.group(1)!))
+          .toSet();
+      var suffix = 1;
+      while (usedSuffixes.contains(suffix)) {
+        suffix++;
+      }
+      final account = <String, dynamic>{
+        'id': 'self-3a-$suffix',
+        'owner': Compte3aOwner.self.name,
+        'provider': normalizedProvider,
+        'balance': balance,
+        'balanceAsOf': balanceDate.toIso8601String(),
+        'source': ProfileDataSource.userInput.name,
+      };
+      final merged = Map<String, dynamic>.from(current)
+        ..['_coach_3a_accounts_v1'] = [...preservedRecords, account]
+        ..['_coach_3a_accounts_revision_v1'] =
+            ((current['_coach_3a_accounts_revision_v1'] as num?)?.toInt() ??
+                    0) +
+                1;
+      final previousSecure =
+          await SecureWizardStore.read('_coach_3a_accounts_v1');
+      late final Map<String, dynamic> persisted;
+      try {
+        persisted = await _saveAnswersReturningPersisted(
+          merged,
+          failOnPersistenceError: true,
+        );
+      } catch (_) {
+        await SecureWizardStore.restoreCanonical3aPayload(previousSecure);
+        rethrow;
+      }
+      _lastAnswers = persisted;
+      _profile = CoachProfile.fromWizardAnswers(persisted);
+      _hasSessionOnlyProfile = false;
+      _isLoaded = true;
+      _profileUpdatedSinceBudget = true;
+      CoachNarrativeService.invalidateCache(profile: _profile);
+      notifyListeners();
     });
   }
 
@@ -921,10 +1133,29 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> _saveAnswersReturningPersisted(
-    Map<String, dynamic> answers,
-  ) async {
+    Map<String, dynamic> answers, {
+    bool failOnPersistenceError = false,
+  }) async {
     final fullySealed = await ReportPersistenceService.saveAnswers(answers);
-    if (fullySealed) return answers;
+    if (failOnPersistenceError &&
+        answers.containsKey('_coach_3a_accounts_v1')) {
+      await debugAfter3aSaveBeforeVerification?.call();
+    }
+    if (fullySealed) {
+      if (failOnPersistenceError) {
+        // SharedPreferences setters may report `false` without throwing. Read
+        // the committed view back before finalizing a secure delete; while the
+        // transaction is open, secure placeholders resolve through its backup.
+        final committed = await ReportPersistenceService.loadAnswers();
+        if (jsonEncode(committed) != jsonEncode(answers)) {
+          throw StateError('Wizard answer-map commit failed');
+        }
+      }
+      return answers;
+    }
+    if (failOnPersistenceError) {
+      throw StateError('Secure wizard persistence failed');
+    }
     return ReportPersistenceService.loadAnswers();
   }
 
@@ -3153,10 +3384,20 @@ class CoachProfileProvider extends ChangeNotifier {
     _lastAnswers = const {};
     _hasSessionOnlyProfile = false;
     notifyListeners();
-    // Durable reset: wait for persisted diagnostic and companion local stores
-    // to clear before callers navigate or relaunch.
+    // Capture the caller's namespace before the first await so a concurrent
+    // account switch cannot redirect this reset to the new user's history.
     final conversationNamespacePurge =
         ConversationStore.clearCurrentNamespace();
+    final purgeRetryArmed =
+        await InstallLifecycleService.recordOwnedSecurePurgeResult(false);
+    if (!purgeRetryArmed) {
+      throw StateError(
+        'Owned secure purge retry marker could not be persisted',
+      );
+    }
+    await debugAfterOwnedSecurePurgePrearm?.call();
+    // Durable reset: wait for persisted diagnostic and companion local stores
+    // to clear before callers navigate or relaunch.
     String? conversationUserId;
     try {
       conversationUserId = await AuthService.getUserId();
@@ -3170,7 +3411,16 @@ class CoachProfileProvider extends ChangeNotifier {
     final securePurged = await InstallLifecycleService.purgeMintSecureStorage(
       includeAuthSession: false,
     );
-    await InstallLifecycleService.recordOwnedSecurePurgeResult(securePurged);
+    final purgeResultRecorded =
+        await InstallLifecycleService.recordOwnedSecurePurgeResult(
+      securePurged,
+    );
+    if (!securePurged) {
+      throw StateError('Owned secure purge deferred for startup retry');
+    }
+    if (!purgeResultRecorded) {
+      throw StateError('Owned secure purge completion could not be persisted');
+    }
   }
 
   /// Sub-phase 01.5 W02-T03 Task 6 — nLPD art. 6 minimization

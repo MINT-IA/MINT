@@ -2168,7 +2168,7 @@
   "futurCompleterProfil": "Vervollständige dein Profil, um die Projektion zu verfeinern.",
   "futurDisclaimer": "Bildungsorientierte Projektion — keine Beratung (FIDLEG). SWR 4% = 4%-Regel, Ergebnisse nicht garantiert. AHV/BVG-Renten geschätzt gemäss AHVG Art. 21-40, BVG Art. 14-16.",
   "futurExplorerDetails": "Details erkunden",
-  "financialSummaryTitle": "MEIN PROFIL",
+  "financialSummaryTitle": "MEINE SITUATION",
   "financialSummaryDossierTitle": "Prüfbares Dossier",
   "financialSummaryDossierSubtitle": "Deine Fakten, ihre Quellen und deine Korrekturen vor jeder Projektion.",
   "financialSummaryDossierFactCountLabel": "verfolgte Fakten",
@@ -2204,6 +2204,40 @@
   "financialSummaryRachatPlanifie": "Geplanter Einkauf",
   "financialSummaryCaisse": "Kasse",
   "financialSummary3a3ePilier": "3a (3. Säule)",
+  "threeAAccountsSmartAction": "Deine 3a-Konten detaillieren",
+  "threeAAccountsSmartReason": "~1 Min. · für steuerlich gestaffelte Bezüge",
+  "threeAAccountAdd": "3a-Konto hinzufügen",
+  "threeAAccountTitle": "Dein 3a-Konto hinzufügen",
+  "threeAAccountWhy": "Diese Angaben zeigen dein Vermögen und helfen bei der Bezugsplanung. Sie bleiben unter deiner Kontrolle in Meine Situation.",
+  "financialSummaryBalanceAsOf": "Saldo per {date}",
+  "@financialSummaryBalanceAsOf": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "financialSummaryBalanceDateUnknown": "Saldodatum zu bestätigen",
+  "financialSummarySourceUserInput": "Manuell eingegeben",
+  "threeAAccountProvider": "Institut",
+  "threeAAccountBalance": "Aktueller Saldo",
+  "threeAAccountBalanceDate": "Saldodatum",
+  "threeAAccountOwnerSelf": "Eigentümer: du",
+  "threeAAccountInvalid": "Gib ein Institut und einen gültigen Saldo ein.",
+  "threeAAccountSaveError": "Speichern nicht möglich. Es wurde nichts geändert.",
+  "threeAAccountSave": "Konto speichern",
+  "financialSummary3aPlannedAnnual": "Geplanter Jahresbeitrag",
+  "financialSummary3aPlannedAnnualOwner": "{name} · geplanter Jahresbeitrag",
+  "@financialSummary3aPlannedAnnualOwner": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "financialSummaryDateUnknown": "Datum zu bestätigen",
+  "financialSummaryUpdatedOn": "Aktualisiert am {date}",
+  "@financialSummaryUpdatedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
   "financialSummaryNComptes": "{n} Konto(s)",
   "@financialSummaryNComptes": {
     "placeholders": {
@@ -4627,6 +4661,9 @@
   "sim3aCtaCompare": "Vergleichen",
   "sim3aCtaCalculate": "Berechnen",
   "sim3aCtaPlan": "Planen",
+  "sim3aSavePlan": "Diesen Plan speichern",
+  "sim3aPlanSaved": "Plan gespeichert",
+  "sim3aPlanRemoved": "Plan entfernt",
   "sim3aDisclaimer": "Bildungsschätzung. Die tatsächlichen Einsparungen hängen von deinem Wohnort und deiner Familiensituation ab. Keine Finanzberatung (FIDLEG).",
   "sim3aDebtLockedTitle": "Entschuldung hat Vorrang",
   "sim3aDebtLockedMessage": "Im Schutzmodus sind 3a-Empfehlungen deaktiviert. Priorität ist die Stabilisierung deiner Finanzen vor Einzahlungen in die 3a.",
@@ -11903,5 +11940,148 @@
   "lppRescueGainPositive": "+CHF {gain} über 5 Jahre",
   "lppRescueGainLoss": "-CHF {gain} über 5 Jahre",
   "lppRescueSuppletiveTitle": "Nichts tun = Auffangeinrichtung",
-  "lppRescueSuppletiveBody": "Der technische Zins ist tief und die Gebühren hoch. Ein Guthaben von CHF {balance} kann über 5 Jahre bis zu CHF {loss} verlieren gegenüber einem passenden Freizügigkeitskonto."
+  "lppRescueSuppletiveBody": "Der technische Zins ist tief und die Gebühren hoch. Ein Guthaben von CHF {balance} kann über 5 Jahre bis zu CHF {loss} verlieren gegenüber einem passenden Freizügigkeitskonto.",
+  "mintNext3aTeachBackQuestion": "Was musst du prüfen, bevor du entscheidest, wie viel du dieses Jahr in deine Säule 3a einzahlst?",
+  "mintNext3aTeachBackChoiceAnnualTotal": "Den Gesamtbetrag, dessen Eingang alle meine 3a-Banken und -Versicherungen dieses Jahr bestätigt haben, ohne Überträge von einer Säule 3a zu einer anderen.",
+  "mintNext3aTeachBackChoiceLatestPayment": "Nur die letzte Belastung meines Bankkontos.",
+  "mintNext3aTeachBackChoicePayMax": "Sofort der Höchstbetrag, ohne Prüfung.",
+  "mintNext3aTeachBackFeedbackCorrect": "Ja. Prüfe, welchen Eingang alle deine 3a-Anbieter dieses Jahr bestätigt haben. Ein Übertrag zwischen zwei Säulen 3a erhöht den Gesamtbetrag nicht.",
+  "mintNext3aTeachBackFeedbackRetry": "Noch nicht ganz. Eine Belastung deines Bankkontos beweist noch nicht, dass deine Säule 3a das Geld erhalten hat. Prüfe die Bestätigungen aller deiner 3a-Anbieter.",
+  "mintNext3aCountingHelpTitle": "Was musst du mitzählen?",
+  "mintNext3aCountingHelpBody": "Zähle nur neues Geld, dessen Eingang deine 3a-Anbieter für dieses Jahr bestätigen. Ein Übertrag zwischen Säulen 3a erhöht den Gesamtbetrag nicht.",
+  "mintNext3aCountingHelpUncertain": "Wenn eine Rückzahlung, ein rückwirkender Einkauf oder eine Korrektur erscheint, rate nicht: Prüfe den Beleg.",
+  "mintNext3aPersonalUnavailable": "Deine persönliche Berechnung ist nicht verfügbar. Prüfe deinen erhaltenen Jahresgesamtbetrag; es wird kein persönlicher Steuerbetrag berechnet.",
+  "mintNext3aTaskTitle": "Meinen 3a-Jahresgesamtbetrag prüfen",
+  "mintNext3aTaskBody": "Zähle zusammen, welche Einzahlungen deine 3a-Banken und -Versicherungen für {year} als eingegangen bestätigt haben. MINT wählt keinen Betrag und führt keine Einzahlung aus.",
+  "mintNext3aStorageDisclosure": "Wenn du diesen Schritt behältst, wird nur er auf diesem Gerät gespeichert. Deine Antworten und Berechnungen aus diesem Ablauf werden gelöscht.",
+  "mintNext3aSave": "Diesen Schritt behalten",
+  "mintNext3aLeaveWithoutSaving": "Verlassen, ohne ihn zu behalten",
+  "mintNext3aSavedTitle": "Schritt gespeichert",
+  "mintNext3aSavedLocation": "Du findest ihn unter Heute.",
+  "mintNext3aExpiryDisclosure": "Er wird am 31. Januar {year} automatisch gelöscht. Du kannst ihn vorher löschen.",
+  "mintNext3aReturnToday": "Zurück zu Heute",
+  "mintNext3aTodayStatus": "{year} · Offen",
+  "mintNext3aTodayDoneStatus": "{year} · Erledigt",
+  "mintNext3aMarkDone": "Ich habe es geprüft",
+  "mintNext3aDoneTitle": "Erledigt",
+  "mintNext3aOpenTask": "Öffnen",
+  "mintNext3aDelete": "Diesen Schritt löschen",
+  "mintNext3aDeleteQuestion": "Diesen nächsten Schritt löschen?",
+  "mintNext3aDeleteBoundary": "Der Finanzablauf bleibt davon unberührt.",
+  "mintNext3aCancel": "Abbrechen",
+  "mintNext3aDeleteConfirm": "Löschen",
+  "mintNext3aSafeExitTitle": "Möchtest du hier aufhören?",
+  "mintNext3aSafeExitBody": "Aus diesem Ablauf wird nichts gespeichert.",
+  "mintNext3aSafeExitResume": "Hier fortfahren",
+  "mintNext3aSafeExitLeave": "Ohne Speichern verlassen",
+  "mintNext3aStorageFailure": "{kind, select, read{Dieser Schritt kann auf diesem Gerät nicht geprüft werden. Er könnte noch gespeichert sein.} verifyRead{Mint konnte nicht prüfen, ob dieser Schritt gespeichert ist. Er könnte gespeichert sein.} delete{Dieser Schritt kann auf diesem Gerät nicht gelöscht werden. Er ist noch gespeichert.} cleanupDelete{Mint konnte diesen Schritt nicht löschen. Er ist noch gespeichert. Du kannst es jetzt erneut versuchen.} complete{Dieser Schritt konnte nicht als erledigt markiert werden. Er bleibt als offen gespeichert.} other{Dieser Schritt konnte auf diesem Gerät nicht gespeichert werden. Es wurde nichts gespeichert.}}",
+  "mintNext3aCleanupPending": "Dieser Schritt wird gelöscht…",
+  "housingExplore": "Meine Wohnsituation verstehen",
+  "housingQuestion": "Für das Zuhause, in dem du heute wohnst …",
+  "housingTenant": "Ich miete es",
+  "housingOwnerOccupier": "Es gehört mir ganz oder teilweise",
+  "housingOther": "Meine Situation ist anders",
+  "housingUnknown": "Ich weiss es nicht",
+  "housingContinue": "Weiter",
+  "housingTenantBoundary": "Für dieses Zuhause gelten die Steuerfragen für selbst bewohntes Eigentum nicht.",
+  "housingOwnerBoundary": "Deine Antwort bereitet nur die nächsten Fragen vor. Ein Steuervorteil wurde noch nicht berechnet.",
+  "housingOtherHelp": "Manche Situationen sind nicht einfach Miete oder Eigentum. Wir klären sie, ohne zu raten.",
+  "housingUnknownHelp": "Du kannst deinen Mietvertrag oder Eigentumsnachweis prüfen. Wir leiten aus dieser Unsicherheit nichts ab.",
+  "housingBack": "Zurück",
+  "housingFinish": "Zur Übersicht",
+  "housingSafeExit": "Pause machen",
+  "housingResume": "Hier fortsetzen",
+  "housingLeaveWithoutSaving": "Ohne Speichern verlassen",
+  "housingMortgageQuestion": "Ist dieses Zuhause mit einer Hypothek finanziert?",
+  "housingMortgageYes": "Ja",
+  "housingMortgageNo": "Nein",
+  "housingMortgageUnknown": "Ich weiss es nicht",
+  "housingMortgageYesBoundary": "Diese Antwort hilft, die richtigen Fragen zur Finanzierung zu stellen. Es wurde noch nichts berechnet.",
+  "housingMortgageNoBoundary": "Diese Antwort hilft, die richtigen Fragen zum Eigentum zu stellen. Es wurde noch nichts berechnet.",
+  "housingMortgageUnknownBoundary": "Du kannst deinen Hypothekarauszug prüfen oder beim Institut nachfragen. Mint leitet aus dieser Unsicherheit nichts ab.",
+  "mortgageStatementQuestion": "Hast du den Jahresauszug deiner Hypothek zur Hand?",
+  "mortgageStatementReady": "Ja, ich habe ihn",
+  "mortgageStatementFindLater": "Ich suche ihn später",
+  "mortgageStatementUnknown": "Ich weiss nicht, welches Dokument gemeint ist",
+  "mortgageStatementReadyBoundary": "Perfekt. Später kann Mint dir helfen, die nützlichen Angaben in diesem Dokument zu erkennen. Vorerst werden keine Zahlen gelesen oder gespeichert.",
+  "mortgageStatementFindLaterBoundary": "Kein Problem. Du kannst fortfahren, wenn du ihn gefunden hast. Vorerst werden keine Zahlen verlangt oder gespeichert.",
+  "mortgageStatementUnknownBoundary": "Mint wird dir vor jeder Eingabe erklären, woran du das richtige Dokument erkennst. Vorerst werden keine Zahlen verlangt oder gespeichert.",
+  "mortgageInterestQuestion": "Welcher Hypothekarzinsbetrag ist für das Jahr angegeben?",
+  "mortgageInterestHint": "Übertrage nur den Jahresgesamtbetrag aus dem Auszug. Mint berechnet noch nichts.",
+  "mortgageInterestLabel": "Jahreszinsen",
+  "mortgageInterestBoundary": "Für {year} hast du CHF {amount} Jahreszinsen erfasst. Diese Zahl bleibt lokal und es wurde noch keine Steuerersparnis berechnet.",
+  "@mortgageInterestBoundary": {
+    "description": "Locally entered annual mortgage interest review, bound to the user-declared statement year.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "4’250.50"
+      },
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "mortgageDebtQuestion": "Welcher Hypothekarschuldsaldo ist per 31. Dezember {year} angegeben?",
+  "mortgageDebtHint": "Übertrage den Saldo aus demselben Auszug. Mint leitet aus diesem Betrag allein nichts ab.",
+  "mortgageDebtLabel": "Schuld per 31. Dezember",
+  "mortgageReviewTitle": "Dein Auszug {year} in zwei Zahlen",
+  "mortgageReviewInterest": "Jahreszinsen: CHF {amount}",
+  "mortgageReviewDebt": "Schuld per 31. Dezember: CHF {amount}",
+  "mortgageReviewBoundary": "Diese beiden Zahlen bleiben lokal. Sie sind weder ein bestätigter Steuerabzug noch ein Ergebnis.",
+  "@mortgageReviewInterest": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "@mortgageReviewDebt": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "mortgageStatementYearLabel": "Jahr auf dem Auszug",
+  "mortgageStatementYearHint": "Zum Beispiel 2025",
+  "@mortgageDebtQuestion": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "@mortgageReviewTitle": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "housingSave": "Diese Angaben speichern",
+  "housingSaveError": "Speichern ist gerade nicht möglich. Nichts ging verloren.",
+  "housingSavedTitle": "Was MINT über dein Zuhause weiss",
+  "housingSavedBody": "Auf diesem Gerät gespeichert. Du kannst diese Angaben jederzeit korrigieren oder löschen.",
+  "housingSavedProvenance": "Quelle: {source} · aktualisiert am {date}.",
+  "@housingSavedProvenance": {"placeholders": {"source": {"type": "String"}, "date": {"type": "String"}}},
+  "housingSavedSourceHousingFlow": "von dir in MINT eingegeben",
+  "housingSavedSourceUnknown": "zu prüfen",
+  "housingSavedPeriod": "Abrechnungszeitraum: {year}.",
+  "@housingSavedPeriod": {"placeholders": {"year": {"type": "int"}}},
+  "housingSavedEdit": "Korrigieren",
+  "housingSavedDelete": "Diese Angaben löschen",
+  "housingSavedDeleteTitle": "Wohnangaben löschen?",
+  "housingSavedDeleteBody": "MINT verwendet sie danach nicht mehr für künftige Einblicke.",
+  "housingSavedDeleteCancel": "Behalten",
+  "housingSavedDeleteConfirm": "Löschen"
 }

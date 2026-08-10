@@ -8,6 +8,7 @@ import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _mint2AxisHandoffKey = 'mint2_axis_handoff_v1';
@@ -25,10 +26,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   final Map<String, String> mockSecureStorage = {};
+  var canonicalReadUnavailable = false;
 
   // Reset SharedPreferences and secure storage before each test
   setUp(() {
     mockSecureStorage.clear();
+    canonicalReadUnavailable = false;
     SharedPreferences.setMockInitialValues({});
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
@@ -44,6 +47,10 @@ void main() {
             return null;
           case 'read':
             final key = call.arguments['key'] as String;
+            if (key == '_mint_canonical_housing_v1' &&
+                canonicalReadUnavailable) {
+              throw PlatformException(code: 'canonical-unavailable');
+            }
             return mockSecureStorage[key];
           case 'delete':
             final key = call.arguments['key'] as String;
@@ -72,6 +79,137 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════
 
   group('ReportPersistenceService.saveAnswers / loadAnswers', () {
+    test('missing canonical migrates complete legacy secure placeholders',
+        () async {
+      final fact = <String, dynamic>{
+        'q_housing_status': 'owner_occupier',
+        'q_housing_mortgage_status': 'yes',
+        'q_housing_mortgage_statement_availability': 'ready',
+        'q_housing_mortgage_statement_year': 2025,
+        'q_housing_mortgage_annual_interest_cents': 123,
+        'q_housing_mortgage_debt_balance_cents': 45600000,
+        'q_housing_fact_asserted_at': '2026-08-08T00:00:00.000Z',
+        'q_housing_fact_source': 'housing_flow',
+        'q_housing_fact_schema_version': 1,
+        'q_housing_fact_needs_confirmation': false,
+      };
+      mockSecureStorage
+          .addAll(fact.map((key, value) => MapEntry(key, value.toString())));
+      await (await SharedPreferences.getInstance()).setString(
+        'wizard_answers_v2',
+        json.encode({for (final key in fact.keys) key: '__secure__'}),
+      );
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+
+      expect(loaded['q_housing_status'], 'owner_occupier');
+      expect(loaded['q_housing_mortgage_debt_balance_cents'], 45600000);
+      expect(mockSecureStorage['_mint_canonical_housing_v1'],
+          contains('"state":"present"'));
+    });
+
+    test('legacy migration never repeats after canonical generation existed',
+        () async {
+      await SecureWizardStore.writeCanonicalHousingDeleted();
+      await SecureWizardStore.deleteAll();
+      mockSecureStorage['q_housing_status'] = 'tenant';
+      mockSecureStorage['q_housing_fact_asserted_at'] =
+          '2026-08-08T00:00:00.000Z';
+      mockSecureStorage['q_housing_fact_source'] = 'housing_flow';
+      mockSecureStorage['q_housing_fact_schema_version'] = '1';
+      mockSecureStorage['q_housing_fact_needs_confirmation'] = 'false';
+      await (await SharedPreferences.getInstance()).setString(
+        'wizard_answers_v2',
+        json.encode({
+          'q_housing_status': '__secure__',
+          'q_housing_fact_asserted_at': '__secure__',
+          'q_housing_fact_source': '__secure__',
+          'q_housing_fact_schema_version': '__secure__',
+          'q_housing_fact_needs_confirmation': '__secure__',
+        }),
+      );
+
+      expect(await ReportPersistenceService.loadAnswers(), isEmpty);
+      expect((await SecureWizardStore.readCanonicalHousing()).status,
+          CanonicalHousingStatus.missing);
+    });
+
+    test('corrupt canonical strips stale legacy without consulting it',
+        () async {
+      mockSecureStorage['_mint_canonical_housing_v1'] = '{broken';
+      mockSecureStorage['q_housing_status'] = 'owner_occupier';
+      await (await SharedPreferences.getInstance()).setString(
+        'wizard_answers_v2',
+        json.encode({'q_housing_status': '__secure__', 'q_canton': 'VD'}),
+      );
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded, {'q_canton': 'VD'});
+      expect((await SecureWizardStore.readCanonicalHousing()).status,
+          CanonicalHousingStatus.corrupt);
+    });
+
+    test('unavailable canonical strips stale legacy without consulting it',
+        () async {
+      mockSecureStorage['q_housing_status'] = 'owner_occupier';
+      await (await SharedPreferences.getInstance()).setString(
+        'wizard_answers_v2',
+        json.encode({'q_housing_status': '__secure__', 'q_canton': 'GE'}),
+      );
+      canonicalReadUnavailable = true;
+
+      final loaded = await ReportPersistenceService.loadAnswers();
+      expect(loaded, {'q_canton': 'GE'});
+      expect((await SecureWizardStore.readCanonicalHousing()).status,
+          CanonicalHousingStatus.unavailable);
+    });
+
+    test('committed tombstone suppresses stale disk placeholders then retires',
+        () async {
+      await ReportPersistenceService.saveAnswers({
+        'q_canton': 'VD',
+        'q_housing_status': 'owner_occupier',
+      });
+      await SecureWizardStore.prepareDeleteTransaction({'q_housing_status'});
+      await SecureWizardStore.commitDeleteTransaction();
+
+      final firstColdLoad = await ReportPersistenceService.loadAnswers();
+      expect(firstColdLoad, {'q_canton': 'VD'});
+      final committedJournal =
+          mockSecureStorage['_mint_wizard_delete_journal_v2'];
+      expect(committedJournal, isNotNull);
+      expect(committedJournal, isNot(contains('owner_occupier')));
+      final rawAfterRewrite = json.decode(
+        (await SharedPreferences.getInstance()).getString('wizard_answers_v2')!,
+      ) as Map<String, dynamic>;
+      expect(rawAfterRewrite.containsKey('q_housing_status'), isFalse);
+
+      final secondSameProcessLoad =
+          await ReportPersistenceService.loadAnswers();
+      expect(secondSameProcessLoad, {'q_canton': 'VD'});
+      expect(mockSecureStorage['_mint_wizard_delete_journal_v2'], isNotNull);
+
+      SecureWizardStore.simulateNewProcessForTest();
+      final nextProcessLoad = await ReportPersistenceService.loadAnswers();
+      expect(nextProcessLoad, {'q_canton': 'VD'});
+      expect(mockSecureStorage['_mint_wizard_delete_journal_v2'], isNull);
+    });
+
+    test('generic stale write cannot retire or bypass committed tombstone',
+        () async {
+      await ReportPersistenceService.saveAnswers(
+          {'q_housing_status': 'tenant'});
+      await SecureWizardStore.prepareDeleteTransaction({'q_housing_status'});
+      await SecureWizardStore.commitDeleteTransaction();
+
+      await ReportPersistenceService.saveAnswers(
+          {'q_housing_status': 'owner_occupier'});
+
+      expect((await ReportPersistenceService.loadAnswers())['q_housing_status'],
+          isNull);
+      expect(mockSecureStorage['_mint_wizard_delete_journal_v2'], isNotNull);
+    });
+
     test('saves and loads a simple answers map', () async {
       final answers = <String, dynamic>{
         'q_canton': 'VD',

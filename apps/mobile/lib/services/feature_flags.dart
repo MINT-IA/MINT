@@ -12,6 +12,14 @@ import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 class FeatureFlags {
+  static int _refreshGeneration = 0;
+
+  @visibleForTesting
+  static Future<Map<String, dynamic>> Function()? debugBackendFetcher;
+
+  @visibleForTesting
+  static Duration? debugBackendRefreshTimeout;
+
   /// Timer for periodic backend refresh (set in main, cancellable).
   static Timer? periodicRefreshTimer;
 
@@ -110,6 +118,16 @@ class FeatureFlags {
   /// When false, `/onb` keeps the existing MVP wedge intent cards.
   static bool enableMint2FirstExperienceEntry = false;
 
+  static final ValueNotifier<bool> _mintNextHousing =
+      ValueNotifier<bool>(false);
+
+  static bool get enableMintNextHousing => _mintNextHousing.value;
+  static set enableMintNextHousing(bool value) =>
+      _mintNextHousing.value = value;
+
+  static ValueListenable<bool> get mintNextHousingListenable =>
+      _mintNextHousing;
+
   /// Sub-phase 01.5 archetype HARD GATE kill switch (Codex R5 release-blocker).
   ///
   /// **Default: `true`** — gate is active. Non-supported archetypes
@@ -180,6 +198,9 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mint2FirstExperienceEntry) {
       enableMint2FirstExperienceEntry = true;
     }
+    if (E2eRuntimeFlags.mintNextHousing) {
+      enableMintNextHousing = true;
+    }
   }
 
   /// Apply flags from a backend response map.
@@ -220,6 +241,9 @@ class FeatureFlags {
           data['enableMint2FirstExperienceEntry'] == true ||
               E2eRuntimeFlags.mint2FirstExperienceEntry;
     }
+    if (data.containsKey('enableMintNextHousing')) {
+      enableMintNextHousing = data['enableMintNextHousing'] == true;
+    }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
@@ -250,8 +274,16 @@ class FeatureFlags {
   /// Refresh server-driven flags from backend.
   /// Called at app launch + every 6 hours.
   static Future<void> refreshFromBackend() async {
+    final generation = ++_refreshGeneration;
+    enableMintNextHousing = false;
     try {
-      final data = await ApiService.get('/config/feature-flags');
+      // Debug seams are ignored by compiled release builds. Production always
+      // uses ApiService and its established 30-second transport timeout.
+      final fetcher = kReleaseMode ? null : debugBackendFetcher;
+      final request =
+          fetcher == null ? ApiService.get('/config/feature-flags') : fetcher();
+      final data = await request;
+      if (generation != _refreshGeneration) return;
       applyFromMap(data);
       // OBS-05 — feature_flags breadcrumb on success (D-03 4-level).
       MintBreadcrumbs.featureFlagsRefresh(
@@ -259,13 +291,17 @@ class FeatureFlags {
         flagCount: data.length,
       );
     } on TimeoutException {
-      // Keep current values on failure — safe fallback
+      if (generation == _refreshGeneration) {
+        enableMintNextHousing = false;
+      }
       MintBreadcrumbs.featureFlagsRefresh(
         success: false,
         errorCode: 'network_timeout',
       );
     } catch (e) {
-      // Keep current values on failure — safe fallback
+      if (generation == _refreshGeneration) {
+        enableMintNextHousing = false;
+      }
       // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
       // literal `failure`, NOT `error`). Error code enum only — no raw
       // exception message (may contain PII / stack detail).

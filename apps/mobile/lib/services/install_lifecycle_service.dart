@@ -12,6 +12,9 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 /// it as a fresh local install and purge the known MINT secure-storage keys
 /// before auth has a chance to restore a stale session.
 class InstallLifecycleService {
+  @visibleForTesting
+  static Future<bool> Function(bool purged, SharedPreferences prefs)?
+      debugRecordOwnedSecurePurgeResultOverride;
   static const installMarkerKey = 'mint_install_marker_v1';
   static const securePurgePendingKey = 'mint_install_secure_purge_pending_v1';
   static const ownedSecurePurgePendingKey =
@@ -81,16 +84,17 @@ class InstallLifecycleService {
     await recordOwnedSecurePurgeResult(purged, prefs: prefs);
   }
 
-  static Future<void> recordOwnedSecurePurgeResult(
+  static Future<bool> recordOwnedSecurePurgeResult(
     bool purged, {
     SharedPreferences? prefs,
   }) async {
     final store = prefs ?? await SharedPreferences.getInstance();
+    final override = debugRecordOwnedSecurePurgeResultOverride;
+    if (override != null) return override(purged, store);
     if (purged) {
-      await store.remove(ownedSecurePurgePendingKey);
-    } else {
-      await store.setBool(ownedSecurePurgePendingKey, true);
+      return store.remove(ownedSecurePurgePendingKey);
     }
+    return store.setBool(ownedSecurePurgePendingKey, true);
   }
 
   static Future<bool> purgeMintSecureStorage({
@@ -104,10 +108,10 @@ class InstallLifecycleService {
     for (final key in _directSecureKeys) {
       try {
         await _storage.delete(key: key);
-      } on Exception catch (e) {
+      } on Exception {
         purged = false;
         if (kDebugMode) {
-          debugPrint('[InstallLifecycle] secure purge failed for $key: $e');
+          debugPrint('[InstallLifecycle] owned secure purge failed');
         }
       }
     }

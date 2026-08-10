@@ -161,12 +161,14 @@ void main() {
       double? lpp = 70377.0,
       double epargne3a = 32000.0,
       String canton = 'VS',
+      String? housingStatus,
       DateTime? dob,
     }) {
       return CoachProfile(
         birthYear: 1977,
         dateOfBirth: dob ?? DateTime(1977, 1, 12),
         canton: canton,
+        housingStatus: housingStatus,
         salaireBrutMensuel: salaireBrutMensuel,
         prevoyance: PrevoyanceProfile(
           avoirLppTotal: lpp,
@@ -196,12 +198,23 @@ void main() {
     });
 
     test('Test 9: computeProfileHash does NOT change when unrelated CoachProfile field changes', () {
-      // canton, salary, lpp, 3a, dob are the only hashed fields.
+      // canton, salary, lpp, 3a, dob and housingStatus are hashed fields.
       // Two profiles with same hashed fields should produce the same hash.
       final profile1 = makeProfile(salaireBrutMensuel: 8333.33, canton: 'ZH');
       final profile2 = makeProfile(salaireBrutMensuel: 8333.33, canton: 'ZH');
 
       expect(computeProfileHash(profile1), equals(computeProfileHash(profile2)));
+    });
+
+    test('housing status changes the plan dependency hash', () {
+      final tenant = makeProfile(housingStatus: 'tenant');
+      final owner = makeProfile(housingStatus: 'owner_occupier');
+
+      expect(computeProfileHash(tenant), isNot(computeProfileHash(owner)));
+    });
+
+    test('unknown housing keeps the legacy plan hash stable', () {
+      expect(computeProfileHash(makeProfile()), '1885551930');
     });
   });
 }

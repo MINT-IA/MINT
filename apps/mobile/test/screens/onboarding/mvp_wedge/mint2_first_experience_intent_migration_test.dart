@@ -20,7 +20,8 @@ class _CapturingCoachProvider extends CoachProfileProvider {
   bool get hasProfile => _fakeProfile != null;
 
   @override
-  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+  Future<void> mergeAnswers(Map<String, dynamic> partial,
+      {bool syncToBackend = true, bool failOnPersistenceError = false}) async {
     flushedAnswers = Map<String, dynamic>.from(partial);
     _fakeProfile = CoachProfile.fromWizardAnswers(partial);
   }
