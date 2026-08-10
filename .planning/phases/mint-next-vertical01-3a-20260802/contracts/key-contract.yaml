@@ -1,0 +1,745 @@
+schema_version: 1
+contract_id: mint_next_three_a_key_lifecycle_contract_v1
+phase: mint-next-vertical01-3a-20260802
+status: partial_design_only_runtime_lifecycle_unproven
+contract_kind: internal_key_lifecycle_design_contract_not_runtime_security_proof
+prepared_on: '2026-08-10'
+review_by: '2026-11-08'
+upstream_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/threat-model.yaml
+  sha256: f41f63128720892b63ba4fc525f49902cc118b1fc45633ba17f6e4f703076181
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/threat-model-risk-register.json
+  sha256: 16ab5c7fa42c415569cb49bf6cc01d2700466f932fab716ed358a48df09f08eb
+threat_dependencies:
+  T01:
+    scenario: shared_device_reads_unlocked_financial_twin
+    required_controls:
+    - C03
+    - C08
+  T02:
+    scenario: local_process_extracts_or_substitutes_platform_key
+    required_controls:
+    - C03
+    - C10
+  T08:
+    scenario: repository_concentration_exposes_the_complete_financial_profile
+    required_controls:
+    - C03
+    - C07
+  T12:
+    scenario: corrupted_repository_or_failed_recovery_must_fail_closed
+    required_controls:
+    - C03
+    - C07
+    - C08
+  T13:
+    scenario: platform_key_loss_or_restore_mismatch_makes_data_unrecoverable
+    required_controls:
+    - C03
+    - C10
+control_dependencies:
+  C03: require_encrypted_repository_and_platform_key_reference_contract
+  C07: require_export_revocation_deletion_and_tombstone_contract
+  C08: require_state_machine_and_navigation_transition_validation
+  C10: require_dependency_integrity_and_reproducible_build_evidence
+key_model:
+  ownership: one_application_scoped_platform_key_reference_per_local_repository
+  material_location: platform_keychain_or_keystore_non_exportable_design_target
+  ciphertext_scope: canonical_facts_results_plans_drafts_caches_and_dependencies
+  custom_cryptography: forbidden
+  algorithm_selection: unselected_pending_runtime_security_review
+  runtime_lifecycle_proof: absent
+lifecycle:
+  states:
+  - absent
+  - provisioned_locked
+  - available
+  - authentication_failed
+  - rotation_pending
+  - unavailable_recovery_required
+  - revoked
+  - lost
+  - purged
+  initial_state: absent
+  terminal_states:
+  - purged
+  transitions:
+  - transition: provision
+    from: absent
+    event: provision_requested
+    to: provisioned_locked
+    completion_rule: platform_key_reference_created_without_exportable_material
+  - transition: unlock
+    from: provisioned_locked
+    event: platform_auth_succeeded
+    to: available
+    completion_rule: repository_open_only_after_key_ciphertext_match
+  - transition: lock
+    from: available
+    event: application_or_device_locked
+    to: provisioned_locked
+    completion_rule: repository_access_denied
+  - transition: auth_reject
+    from: provisioned_locked
+    event: platform_auth_failed
+    to: authentication_failed
+    completion_rule: repository_access_denied
+  - transition: auth_retry
+    from: authentication_failed
+    event: explicit_retry_requested
+    to: provisioned_locked
+    completion_rule: no_repository_access_until_new_platform_auth
+  - transition: rotate_begin
+    from: available
+    event: rotation_requested
+    to: rotation_pending
+    completion_rule: old_key_retained_until_atomic_commit
+  - transition: rotate_commit
+    from: rotation_pending
+    event: all_ciphertext_rewrapped_and_verified
+    to: available
+    completion_rule: new_key_committed_then_old_reference_invalidated
+  - transition: rotation_crash
+    from: rotation_pending
+    event: rotation_crash_detected
+    to: unavailable_recovery_required
+    completion_rule: mixed_key_repository_rejected_and_recovery_evidence_preserved
+  - transition: rotation_rollback
+    from: rotation_pending
+    event: rotation_rollback_requested
+    to: unavailable_recovery_required
+    completion_rule: unverified_rollback_rejected_and_recovery_required
+  - transition: reinstall
+    from: absent
+    event: reinstall_detected_with_existing_ciphertext
+    to: unavailable_recovery_required
+    completion_rule: key_ciphertext_relationship_unverified_and_repository_closed
+  - transition: backup_restore
+    from: absent
+    event: backup_restore_detected
+    to: unavailable_recovery_required
+    completion_rule: matching_key_reference_required_before_open
+  - transition: recovery_verified
+    from: unavailable_recovery_required
+    event: independently_authenticated_preprovisioned_recovery_verified
+    to: provisioned_locked
+    completion_rule: recovered_reference_verified_against_ciphertext_before_use
+  - transition: lost_recovery_verified
+    from: lost
+    event: independently_authenticated_preprovisioned_recovery_verified
+    to: provisioned_locked
+    completion_rule: recovered_reference_verified_against_ciphertext_before_use
+  - transition: key_loss
+    from: provisioned_locked
+    event: platform_key_reference_missing
+    to: lost
+    completion_rule: repository_closed_and_irrecoverability_explained_unless_preprovisioned_recovery_exists
+  - transition: revoke
+    from: available
+    event: user_revocation_confirmed
+    to: revoked
+    completion_rule: wrapping_key_reference_invalidated_and_repository_access_denied_pending_purge
+  - transition: purge_from_absent
+    from: absent
+    event: consented_purge_completed_from_absent
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  - transition: purge_from_provisioned_locked
+    from: provisioned_locked
+    event: consented_purge_completed_from_provisioned_locked
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  - transition: purge_from_available
+    from: available
+    event: consented_purge_completed_from_available
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  - transition: purge_from_authentication_failed
+    from: authentication_failed
+    event: consented_purge_completed_from_authentication_failed
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  - transition: purge_from_rotation_pending
+    from: rotation_pending
+    event: consented_purge_completed_from_rotation_pending
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  - transition: purge_from_unavailable_recovery_required
+    from: unavailable_recovery_required
+    event: consented_purge_completed_from_unavailable_recovery_required
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  - transition: purge_from_revoked
+    from: revoked
+    event: consented_purge_completed_from_revoked
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  - transition: purge_from_lost
+    from: lost
+    event: consented_purge_completed_from_lost
+    to: purged
+    completion_rule: wrapping_key_reference_destroyed_or_confirmed_absent_and_dependent_purge_completed_with_non_value_tombstone
+  undefined_transition: reject_fail_closed
+  incomplete_purge: remain_in_source_state_and_deny_repository_access
+platform_contracts:
+  ios:
+    provider: apple_keychain_reference
+    provider_status: design_target_runtime_unverified
+    access_control: platform_access_control_policy_unselected
+    backup_behavior: platform_and_entitlement_behavior_unverified
+  android:
+    provider: android_keystore_reference
+    provider_status: design_target_runtime_unverified
+    access_control: platform_access_control_policy_unselected
+    backup_behavior: device_and_backup_behavior_unverified
+scenario_matrix:
+- scenario_id: ios_lock
+  platform: ios
+  scenario_kind: lock
+  transition_id: lock
+  event: application_or_device_locked
+  pre_state: available
+  expected_state: provisioned_locked
+  required_behavior: deny_repository_access_until_platform_auth_succeeds
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_authentication_failure
+  platform: ios
+  scenario_kind: authentication_failure
+  transition_id: auth_reject
+  event: platform_auth_failed
+  pre_state: provisioned_locked
+  expected_state: authentication_failed
+  required_behavior: deny_repository_access_and_offer_explicit_retry
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_rotation_crash
+  platform: ios
+  scenario_kind: rotation_crash
+  transition_id: rotation_crash
+  event: rotation_crash_detected
+  pre_state: rotation_pending
+  expected_state: unavailable_recovery_required
+  required_behavior: reject_mixed_key_repository_and_require_verified_recovery
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_rotation_rollback
+  platform: ios
+  scenario_kind: rotation_rollback
+  transition_id: rotation_rollback
+  event: rotation_rollback_requested
+  pre_state: rotation_pending
+  expected_state: unavailable_recovery_required
+  required_behavior: reject_unverified_rollback_and_preserve_recovery_evidence
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_reinstall
+  platform: ios
+  scenario_kind: reinstall
+  transition_id: reinstall
+  event: reinstall_detected_with_existing_ciphertext
+  pre_state: absent
+  expected_state: unavailable_recovery_required
+  required_behavior: treat_key_and_ciphertext_relationship_as_unverified
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_backup_restore
+  platform: ios
+  scenario_kind: backup_restore
+  transition_id: backup_restore
+  event: backup_restore_detected
+  pre_state: absent
+  expected_state: unavailable_recovery_required
+  required_behavior: require_matching_platform_key_reference_before_open
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_key_loss
+  platform: ios
+  scenario_kind: key_loss
+  transition_id: key_loss
+  event: platform_key_reference_missing
+  pre_state: provisioned_locked
+  expected_state: lost
+  required_behavior: use_independently_authenticated_preprovisioned_recovery_or_explain_irrecoverability_and_offer_consented_purge_reset
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_revoke
+  platform: ios
+  scenario_kind: revoke
+  transition_id: revoke
+  event: user_revocation_confirmed
+  pre_state: available
+  expected_state: revoked
+  required_behavior: invalidate_wrapping_key_reference_deny_access_and_require_dependent_purge_completion
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: ios_delete
+  platform: ios
+  scenario_kind: delete
+  transition_id: purge_from_provisioned_locked
+  event: consented_purge_completed_from_provisioned_locked
+  pre_state: provisioned_locked
+  expected_state: purged
+  required_behavior: destroy_or_confirm_absent_wrapping_key_reference_complete_dependent_purge_and_write_non_value_tombstone
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_lock
+  platform: android
+  scenario_kind: lock
+  transition_id: lock
+  event: application_or_device_locked
+  pre_state: available
+  expected_state: provisioned_locked
+  required_behavior: deny_repository_access_until_platform_auth_succeeds
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_authentication_failure
+  platform: android
+  scenario_kind: authentication_failure
+  transition_id: auth_reject
+  event: platform_auth_failed
+  pre_state: provisioned_locked
+  expected_state: authentication_failed
+  required_behavior: deny_repository_access_and_offer_explicit_retry
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_rotation_crash
+  platform: android
+  scenario_kind: rotation_crash
+  transition_id: rotation_crash
+  event: rotation_crash_detected
+  pre_state: rotation_pending
+  expected_state: unavailable_recovery_required
+  required_behavior: reject_mixed_key_repository_and_require_verified_recovery
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_rotation_rollback
+  platform: android
+  scenario_kind: rotation_rollback
+  transition_id: rotation_rollback
+  event: rotation_rollback_requested
+  pre_state: rotation_pending
+  expected_state: unavailable_recovery_required
+  required_behavior: reject_unverified_rollback_and_preserve_recovery_evidence
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_reinstall
+  platform: android
+  scenario_kind: reinstall
+  transition_id: reinstall
+  event: reinstall_detected_with_existing_ciphertext
+  pre_state: absent
+  expected_state: unavailable_recovery_required
+  required_behavior: treat_key_and_ciphertext_relationship_as_unverified
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_backup_restore
+  platform: android
+  scenario_kind: backup_restore
+  transition_id: backup_restore
+  event: backup_restore_detected
+  pre_state: absent
+  expected_state: unavailable_recovery_required
+  required_behavior: require_matching_platform_key_reference_before_open
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_key_loss
+  platform: android
+  scenario_kind: key_loss
+  transition_id: key_loss
+  event: platform_key_reference_missing
+  pre_state: provisioned_locked
+  expected_state: lost
+  required_behavior: use_independently_authenticated_preprovisioned_recovery_or_explain_irrecoverability_and_offer_consented_purge_reset
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_revoke
+  platform: android
+  scenario_kind: revoke
+  transition_id: revoke
+  event: user_revocation_confirmed
+  pre_state: available
+  expected_state: revoked
+  required_behavior: invalidate_wrapping_key_reference_deny_access_and_require_dependent_purge_completion
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+- scenario_id: android_delete
+  platform: android
+  scenario_kind: delete
+  transition_id: purge_from_provisioned_locked
+  event: consented_purge_completed_from_provisioned_locked
+  pre_state: provisioned_locked
+  expected_state: purged
+  required_behavior: destroy_or_confirm_absent_wrapping_key_reference_complete_dependent_purge_and_write_non_value_tombstone
+  forbidden_behaviors:
+  - plaintext_fallback
+  - export_key_material
+  - silent_new_key
+  - silent_data_loss
+  - claim_runtime_verified
+  - claim_purge_complete_before_all_dependencies_removed
+  runtime_lifecycle_proof: absent
+invariants:
+- no_plaintext_fallback
+- no_key_material_export
+- no_secret_or_key_value_in_artifacts_logs_or_evidence
+- no_silent_new_key_after_loss_or_restore_mismatch
+- no_silent_data_loss
+- no_custom_cryptography
+- no_repository_open_before_key_and_ciphertext_match_verified
+- rotation_requires_all_ciphertext_rewrapped_and_verified_before_commit
+- platform_authentication_does_not_prove_user_identity_or_runtime_security
+- revocation_invalidates_wrapping_key_reference_and_denies_access_until_dependent_purge_completes
+- purged_requires_key_reference_destruction_or_confirmed_absence_dependent_purge_completion_and_non_value_tombstone
+- incomplete_purge_never_transitions_to_purged
+- lost_key_never_implies_recoverable_export
+- only_independently_authenticated_preprovisioned_recovery_may_restore_access
+unresolved_inputs:
+- ios_access_control_and_entitlement_selection
+- android_key_properties_and_authentication_selection
+- backup_exclusion_or_recovery_design
+- reinstall_persistence_behavior
+- rotation_implementation_and_atomicity
+- secure_deletion_limits_for_backups_and_platform_storage
+- runtime_device_matrix
+- runtime_lifecycle_proof
+- external_security_review
+external_security_review:
+  status: pending
+  reviewer: null
+  receipt: null
+  reviewed_product_sha: null
+prohibitions:
+- no_encryption_verified_claim
+- no_secure_storage_verified_claim
+- no_platform_behavior_claim
+- no_external_review_claim
+- no_runtime_lifecycle_claim
+- no_real_user_exposure
+does_not_prove:
+- implemented_encryption
+- implemented_key_storage
+- runtime_lifecycle_proof
+- platform_backup_behavior
+- secure_deletion
+- privacy_contract
+- retention_export_deletion
+- anti_pii
+- external_security_review
+- runtime
+- B0
+runtime_binding: none
+real_user_exposure: forbidden
+does_not_activate_runtime: true
+does_not_close_B0: true
+threat_to_scenarios:
+  T01:
+  - android_authentication_failure
+  - android_lock
+  - ios_authentication_failure
+  - ios_lock
+  T02:
+  - android_backup_restore
+  - android_key_loss
+  - android_reinstall
+  - ios_backup_restore
+  - ios_key_loss
+  - ios_reinstall
+  T08:
+  - android_delete
+  - android_revoke
+  - ios_delete
+  - ios_revoke
+  T12:
+  - android_backup_restore
+  - android_delete
+  - android_reinstall
+  - android_rotation_crash
+  - android_rotation_rollback
+  - ios_backup_restore
+  - ios_delete
+  - ios_reinstall
+  - ios_rotation_crash
+  - ios_rotation_rollback
+  T13:
+  - android_backup_restore
+  - android_key_loss
+  - android_reinstall
+  - ios_backup_restore
+  - ios_key_loss
+  - ios_reinstall
+threat_to_transitions:
+  T01:
+  - auth_reject
+  - auth_retry
+  - lock
+  - unlock
+  T02:
+  - backup_restore
+  - key_loss
+  - lost_recovery_verified
+  - provision
+  - reinstall
+  T08:
+  - purge_from_absent
+  - purge_from_authentication_failed
+  - purge_from_available
+  - purge_from_lost
+  - purge_from_provisioned_locked
+  - purge_from_revoked
+  - purge_from_rotation_pending
+  - purge_from_unavailable_recovery_required
+  - revoke
+  T12:
+  - purge_from_absent
+  - purge_from_authentication_failed
+  - purge_from_available
+  - purge_from_lost
+  - purge_from_provisioned_locked
+  - purge_from_revoked
+  - purge_from_rotation_pending
+  - purge_from_unavailable_recovery_required
+  - recovery_verified
+  - rotate_begin
+  - rotate_commit
+  - rotation_crash
+  - rotation_rollback
+  T13:
+  - backup_restore
+  - key_loss
+  - lost_recovery_verified
+  - purge_from_absent
+  - purge_from_authentication_failed
+  - purge_from_available
+  - purge_from_lost
+  - purge_from_provisioned_locked
+  - purge_from_revoked
+  - purge_from_rotation_pending
+  - purge_from_unavailable_recovery_required
+  - reinstall
+recovery_and_purge_policy:
+  key_loss_recovery: only_independently_authenticated_preprovisioned_recovery_may_restore_access
+  no_recovery_available: explain_irrecoverability_then_offer_informed_consented_purge_reset
+  purge_completion: destroy_or_confirm_absent_wrapping_key_reference_then_remove_all_dependent_ciphertext_cache_drafts_results_plans_and_write_non_value_tombstone
+  incomplete_purge: never_enter_purged_state_and_keep_repository_access_denied
+  reset_after_purge: new_repository_provisioning_is_a_new_lifecycle_and_never_silent_key_replacement
+scenario_to_threats:
+  android_authentication_failure:
+  - T01
+  android_backup_restore:
+  - T02
+  - T12
+  - T13
+  android_delete:
+  - T08
+  - T12
+  android_key_loss:
+  - T02
+  - T13
+  android_lock:
+  - T01
+  android_reinstall:
+  - T02
+  - T12
+  - T13
+  android_revoke:
+  - T08
+  android_rotation_crash:
+  - T12
+  android_rotation_rollback:
+  - T12
+  ios_authentication_failure:
+  - T01
+  ios_backup_restore:
+  - T02
+  - T12
+  - T13
+  ios_delete:
+  - T08
+  - T12
+  ios_key_loss:
+  - T02
+  - T13
+  ios_lock:
+  - T01
+  ios_reinstall:
+  - T02
+  - T12
+  - T13
+  ios_revoke:
+  - T08
+  ios_rotation_crash:
+  - T12
+  ios_rotation_rollback:
+  - T12
+transition_to_threats:
+  auth_reject:
+  - T01
+  auth_retry:
+  - T01
+  backup_restore:
+  - T02
+  - T13
+  key_loss:
+  - T02
+  - T13
+  lock:
+  - T01
+  lost_recovery_verified:
+  - T02
+  - T13
+  provision:
+  - T02
+  purge_from_absent:
+  - T08
+  - T12
+  - T13
+  purge_from_authentication_failed:
+  - T08
+  - T12
+  - T13
+  purge_from_available:
+  - T08
+  - T12
+  - T13
+  purge_from_lost:
+  - T08
+  - T12
+  - T13
+  purge_from_provisioned_locked:
+  - T08
+  - T12
+  - T13
+  purge_from_revoked:
+  - T08
+  - T12
+  - T13
+  purge_from_rotation_pending:
+  - T08
+  - T12
+  - T13
+  purge_from_unavailable_recovery_required:
+  - T08
+  - T12
+  - T13
+  recovery_verified:
+  - T12
+  reinstall:
+  - T02
+  - T13
+  revoke:
+  - T08
+  rotate_begin:
+  - T12
+  rotate_commit:
+  - T12
+  rotation_crash:
+  - T12
+  rotation_rollback:
+  - T12
+  unlock:
+  - T01

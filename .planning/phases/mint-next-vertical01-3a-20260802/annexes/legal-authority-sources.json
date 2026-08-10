@@ -1,0 +1,266 @@
+{
+  "as_of": "2026-08-10",
+  "authorities": [
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "co_contractual_responsibility",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Code of Obligations; scope questions only",
+      "official_identifier": "SR 220",
+      "regimes": [
+        "tax_legal_professional_boundary"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_law",
+      "title": "Code of Obligations (CO)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/27/317_321_377/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 298396,
+      "content_kind": "official_pdf",
+      "content_sha256": "68b8d3a4b2cf436a1db9eeed6b21d40e5c2ca723a52e11cf9c45d1bb0d4b3934",
+      "content_snapshot": "not_checked_in",
+      "id": "estv_circular_18a",
+      "issuer": "Federal Tax Administration",
+      "locator": "Circular 18a; pillar 3a tax treatment",
+      "official_identifier": "AFC Circular 18a (22.12.2025)",
+      "regimes": [
+        "substantive_3a_tax",
+        "tax_legal_professional_boundary"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.estv.admin.ch/dam/fr/sd-web/yQgKmvu80LEr/dbst-ks-2025-1-018a-dv-fr.pdf",
+      "review_by": "2026-11-08",
+      "source_kind": "official_guidance",
+      "title": "Circular no. 18a \u2014 pillar 3a",
+      "url": "https://www.estv.admin.ch/dam/fr/sd-web/yQgKmvu80LEr/dbst-ks-2025-1-018a-dv-fr.pdf",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "fedlex_amla",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Articles 1\u20132; scope questions only",
+      "official_identifier": "SR 955.0",
+      "regimes": [
+        "anti_money_laundering"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/1998/892_892_892/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_law",
+      "title": "Anti-Money Laundering Act (AMLA)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/1998/892_892_892/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "fedlex_data_protection_act",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Articles 6\u20138 and 19\u201324; processing and risk questions",
+      "official_identifier": "SR 235.1",
+      "regimes": [
+        "data_protection"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/2022/491/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_law",
+      "title": "Federal Act on Data Protection (FADP)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/2022/491/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "fedlex_finia",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Scope and authorisation provisions; activity questions only",
+      "official_identifier": "SR 954.1",
+      "regimes": [
+        "prudential_licensing"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/2019/759/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_law",
+      "title": "Financial Institutions Act (FinIA)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/2019/759/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "fedlex_finsa",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Definitions and conduct provisions; service questions only",
+      "official_identifier": "SR 950.1",
+      "regimes": [
+        "finsa",
+        "prudential_licensing",
+        "tax_legal_professional_boundary"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/2019/758/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_law",
+      "title": "Financial Services Act (FinSA)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/2019/758/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "fedlex_insurance_supervision_act",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Insurance intermediation provisions; activity questions only",
+      "official_identifier": "SR 961.01",
+      "regimes": [
+        "insurance_intermediation"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/2005/734/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_law",
+      "title": "Insurance Supervision Act (ISA)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/2005/734/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "fedlex_opp3",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Pillar 3a eligibility, contribution and withdrawal framework",
+      "official_identifier": "SR 831.461.3",
+      "regimes": [
+        "substantive_3a_tax"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/1985/1778_1778_1778/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_ordinance",
+      "title": "Ordinance on Tax-Deductible Contributions to Pillar 3a (OPP 3)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/1985/1778_1778_1778/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77151,
+      "content_kind": "fedlex_application_shell_not_substantive_legal_text",
+      "content_sha256": "3e728a20465ed940d4fcd55a25d62eb329ee9e9be6de660967c2ee75f2090df7",
+      "content_snapshot": "not_checked_in",
+      "id": "fedlex_unfair_competition_act",
+      "issuer": "Swiss Confederation / Fedlex",
+      "locator": "Articles 2\u20133; commercial communication questions only",
+      "official_identifier": "SR 241",
+      "regimes": [
+        "unfair_competition"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/fr",
+      "review_by": "2026-11-08",
+      "source_kind": "consolidated_law",
+      "title": "Unfair Competition Act (UCA)",
+      "url": "https://www.fedlex.admin.ch/eli/cc/1988/223_223_223/fr",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 77021,
+      "content_kind": "official_html_page",
+      "content_sha256": "d5624f43ee0f2821300df9a6f4b243ca8dd468a735efd524afb698e744e06768",
+      "content_snapshot": "not_checked_in",
+      "id": "finma_client_adviser_registration",
+      "issuer": "FINMA",
+      "locator": "Registration, conduct and conflicts overview; classification questions only",
+      "official_identifier": "FINMA client-adviser registration page",
+      "regimes": [
+        "finsa"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.finma.ch/fr/finma-public/fragen-und-probleme/zur-registrierung-von-kundenberaterinnen-oder-kundenberatern/",
+      "review_by": "2026-11-08",
+      "source_kind": "official_supervisory_guidance",
+      "title": "Client adviser registration questions",
+      "url": "https://www.finma.ch/fr/finma-public/fragen-und-probleme/zur-registrierung-von-kundenberaterinnen-oder-kundenberatern/",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 136533,
+      "content_kind": "official_html_page",
+      "content_sha256": "dbe7f8f00e7064af363ba717dabc2749bcd70a43a9a498337f5c5b23214c123c",
+      "content_snapshot": "not_checked_in",
+      "id": "finma_insurance_intermediation",
+      "issuer": "FINMA",
+      "locator": "Definition and registration overview; classification questions only",
+      "official_identifier": "FINMA insurance-intermediation page",
+      "regimes": [
+        "insurance_intermediation"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.finma.ch/fr/autorisation/intermediation-dassurance/",
+      "review_by": "2026-11-08",
+      "source_kind": "official_supervisory_guidance",
+      "title": "Insurance intermediaries",
+      "url": "https://www.finma.ch/fr/autorisation/intermediation-dassurance/",
+      "version_as_of": "2026-08-10"
+    },
+    {
+      "accessed_on": "2026-08-10",
+      "content_bytes": 468068,
+      "content_kind": "official_html_page",
+      "content_sha256": "823506b77a96f47f864a849861a0aee755a434572a533b1a0af165160b7c2e22",
+      "content_snapshot": "not_checked_in",
+      "id": "pfpdt_aipd",
+      "issuer": "Federal Data Protection and Information Commissioner",
+      "locator": "DPIA threshold, content and residual-risk consultation overview",
+      "official_identifier": "PFPDT AIPD guidance page",
+      "regimes": [
+        "data_protection"
+      ],
+      "retrieval_state": "official_response_hashed_not_checked_in",
+      "retrieved_url": "https://www.edoeb.admin.ch/fr/analyse-dimpact-relative-a-la-protection-des-donnees-personnelles",
+      "review_by": "2026-11-08",
+      "source_kind": "official_regulator_guidance",
+      "title": "Data protection impact assessment",
+      "url": "https://www.edoeb.admin.ch/fr/analyse-dimpact-relative-a-la-protection-des-donnees-personnelles",
+      "version_as_of": "2026-08-10"
+    }
+  ],
+  "manifest_id": "mint_next_three_a_legal_authority_sources_v1",
+  "review_by": "2026-11-08",
+  "runtime_fetch": false,
+  "schema_version": 1,
+  "status": "internal_citation_manifest_pending_external_legal_review",
+  "use": "citation_only_no_source_content_or_runtime_fetch"
+}

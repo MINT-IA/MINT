@@ -1,0 +1,47 @@
+schema_version: 1
+contract_version: 1
+phase_status: pre_activation
+decision: STOP
+activation: 'OFF'
+does_not_close_B0: true
+current_schema_version: 1
+minimum_readable_version: 1
+runtime_implemented: false
+executable_transitions: []
+v1_identity:
+  read: true
+  write: false
+  mutation: false
+unsupported_inputs:
+  unversioned: fail_closed
+  version_0: fail_closed
+  too_old: fail_closed
+  corrupt: fail_closed
+  newer: fail_closed
+recovery:
+  options:
+  - encrypted_export
+  - explicit_recovery
+  - future_consented_reset
+  automatic_reset: false
+  silent_reset: false
+  silent_loss: false
+  default_coercion: false
+  downgrade: false
+future_transition_invariants:
+  versions_contiguous: true
+  deterministic: true
+  idempotent: true
+  atomic_copy_on_write: true
+  validate_before_swap: true
+  rollback_encrypted_original_bytes: true
+  plaintext_logs: false
+key_contract_ref: unresolved
+privacy_contract_ref: unresolved
+retention_contract_ref: unresolved
+real_user_exposure: forbidden
+contract_id: three_a_plan_migrations_v1
+record_kind: Plan3aRecord
+schema_id: mint_next_3a_plan_record
+schema_sha256: 75c0fcfcd214d8a0de70cb8eeda4cbc930d1f9b35b7dc4344d54c384a9afafe5
+canonicalization_algorithm: rfc8785_embedded_v1

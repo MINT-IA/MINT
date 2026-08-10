@@ -1,0 +1,807 @@
+schema_version: 1
+contract_id: feature_flag_kill_switch
+phase: mint-next-vertical01-3a-20260802
+status: design_complete_runtime_proof_absent
+contract_kind: design_only_feature_flag_kill_switch_contract
+prepared_on: '2026-08-10'
+review_by: '2026-11-10'
+upstream_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/state-machine.yaml
+  sha256: 9692936cabed8f7edc92b9410e18e0088b7bf8d26928910e073133ed8aa905c3
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/navigation-graph.yaml
+  sha256: a03d46af6980d5b36f3f1524e906e751da565da470f7740c056f6018b5cb333d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/privacy-contract.yaml
+  sha256: 8c4e4978c48d4f49f9b455bf955bc88095ab06423d2343d9d2be6e6097371756
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/anti-pii.yaml
+  sha256: 192307c0e0c892d50ce5c5c16fb1db8c68b99a310f063c09950b8764d9dec8bf
+- path: apps/mobile/lib/services/feature_flags.dart
+  sha256: e51da5bd0002a4242e35e0b235dc5c56f008a09074b767f89ae7f592f521fa18
+- path: apps/mobile/test/screens/mint_next_3a/mint_next_3a_product_handoff_test.dart
+  sha256: e3cbf61235f6c1f4a978fdaaae4d26d4fa4a62b2146cc5fb6112fbd809750387
+default_off_policy:
+  cold_start: 'OFF'
+  process_restart: 'OFF'
+  refresh_started: 'OFF'
+  unknown_state: 'OFF'
+  state_persistence: forbidden
+enable_semantics:
+  meaning: open_only_after_exact_current_authenticated_true_within_deadline
+  positive_value: exact_boolean_true
+  not_a_kill_switch: enablement_is_conditional_and_reversible
+kill_semantics:
+  meaning: any_current_false_or_failure_closes_immediately
+  precedence: kill_and_failure_dominate_prior_enable
+  distinct_from_enable: closure_never_requires_cleanup_success
+remote_decision_policy:
+  authenticated_required: true
+  latest_generation_only: true
+  deadline_required: true
+  accepted_value: exact_boolean_true_only
+  'false': 'OFF'
+  missing: 'OFF'
+  malformed: 'OFF'
+  timeout: 'OFF'
+  offline: 'OFF'
+  parse_error: 'OFF'
+  transport_error: 'OFF'
+  unknown_error: 'OFF'
+  stale: 'OFF'
+  out_of_order: 'OFF'
+deadline_policy:
+  clock: process_local_monotonic
+  clock_id: mint_flag_refresh_clock
+  unit: milliseconds
+  decision_window_ms: 700
+  deadline_derivation: refresh_started_at_ms_plus_decision_window_ms
+  comparison: response_received_at_ms_lte_derived_deadline_ms
+  boundary: inclusive
+  timestamp_type: nonnegative_integer
+  response_supplied_deadline: forbidden
+  overflow: fail_OFF
+  decision_window_source: apps/mobile/lib/services/feature_flags.dart#_mintNext3aDecisionDeadline
+fallback_policy:
+  last_known_true: forbidden
+  cached_true: forbidden
+  optimistic_open: forbidden
+  partial_response: 'OFF'
+kill_effects:
+  entry: blocked_immediately
+  route: blocked_immediately
+  resume: blocked_immediately
+  render: blocked_immediately
+  read_model: blocked_immediately
+  new_writes: blocked_immediately
+gated_surface_inventory:
+  projection_sources:
+  - navigation-graph#entry_edges
+  - navigation-graph#destination_bindings_except_control_transition_destination
+  - navigation-graph#continuation_target_bindings
+  - state-machine#states_except_control_transition_next
+  - state-machine#transitions_nonzero_writes_except_control_transition
+  entry_surface_ids:
+  - coach
+  - today
+  navigation_target_ids:
+  - availability_check
+  - comparison
+  - confirmation
+  - current_surface
+  - explanation
+  - fact_review
+  - flow_exit
+  - one_fact_refresh
+  - pedagogical_widget
+  - privacy_recovery
+  - scenario
+  - today
+  workflow_state_ids:
+  - calculation_impossible
+  - calculation_ready
+  - completed
+  - confirmation
+  - contradiction
+  - known
+  - loading
+  - missing
+  - offline
+  - plan_confirmation
+  - refusal
+  - result
+  - rules_explanation
+  - rules_unavailable
+  - secure_fail
+  - stale
+  - unsupported
+  - unsupported_explanation
+  write_command_ids:
+  - 1 decision, 0 plan
+  - 1 result receipt
+  - exactly 1 fact version
+  - exactly 1 idempotent write
+  - exactly 1 plan
+  - exactly 1 supersession
+  read_contract_refs:
+  - state-machine#coach_entry_contract
+  - state-machine#today_visibility_guard
+  resume_target_ids:
+  - Today
+  - completed
+  - confirmation
+  - contradiction
+  - loading
+  - plan_confirmation
+  - result
+  - safe exit
+  - stale
+  gate_id: mint_next_3a
+  kill_rule: every_product_mapping_blocks_when_flag_OFF
+product_gate_mappings:
+- group: entry_surface_ids
+  id: coach
+  operation: entry
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: entry_surface_ids
+  id: today
+  operation: entry
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: availability_check
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: comparison
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: confirmation
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: current_surface
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: explanation
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: fact_review
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: flow_exit
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: one_fact_refresh
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: pedagogical_widget
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: privacy_recovery
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: scenario
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: navigation_target_ids
+  id: today
+  operation: navigate_or_render
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: calculation_impossible
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: calculation_ready
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: completed
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: confirmation
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: contradiction
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: known
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: loading
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: missing
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: offline
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: plan_confirmation
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: refusal
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: result
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: rules_explanation
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: rules_unavailable
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: secure_fail
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: stale
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: unsupported
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: workflow_state_ids
+  id: unsupported_explanation
+  operation: enter_or_resume_state
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: write_command_ids
+  id: 1 decision, 0 plan
+  operation: write
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: write_command_ids
+  id: 1 result receipt
+  operation: write
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: write_command_ids
+  id: exactly 1 fact version
+  operation: write
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: write_command_ids
+  id: exactly 1 idempotent write
+  operation: write
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: write_command_ids
+  id: exactly 1 plan
+  operation: write
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: write_command_ids
+  id: exactly 1 supersession
+  operation: write
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: read_contract_refs
+  id: state-machine#coach_entry_contract
+  operation: read
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: read_contract_refs
+  id: state-machine#today_visibility_guard
+  operation: read
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: Today
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: completed
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: confirmation
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: contradiction
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: loading
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: plan_confirmation
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: result
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: safe exit
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+- group: resume_target_ids
+  id: stale
+  operation: resume
+  gate_id: mint_next_3a
+  'on': allow
+  'off': block_before_cleanup
+control_plane_surfaces:
+  product_gate_exempt: true
+  derived_delete_chain:
+    event: revoke/delete
+    next_state: deleted
+    write_command: 1 tombstone + purge graph
+    destination: Today/privacy
+    destination_target: privacy
+    source_selector: any persisted state
+  additional_controls:
+  - command_id: correct
+    status: required_unproven
+    authoritative_ref: null
+  - command_id: export
+    status: required_unproven
+    authoritative_ref: null
+  - command_id: consent_revoke
+    status: required_unproven
+    authoritative_ref: null
+  authorization: independent_user_control_authorization
+  off_reachability_requirement: delete_chain_must_remain_reachable_while_product_mappings_block
+  runtime_reachability: unproven
+off_state_user_controls:
+  delete: design_chain_derived_runtime_unproven
+  export: required_unproven
+  correct: required_unproven
+  consent_revoke: required_unproven
+cleanup_policy:
+  gate_transition: OFF_before_cleanup
+  failure_reporting: explicit_cleanup_failed
+  failure_gate: remains_OFF
+  retry: idempotent_from_authoritative_state
+  must_not_claim_purge: without_runtime_evidence
+override_policy:
+  debug_non_release: test_seam_only
+  release: forbidden
+  e2e_release: forbidden
+  environment_coercion: forbidden
+activation_requirements:
+  gates:
+  - B0
+  - B1
+  - B2
+  - B3
+  - B4
+  - B5
+  binding: same_reviewed_product_sha
+  evidence: all_required_runtime_and_review_receipts
+  current_decision: STOP_OFF
+state_machine:
+  states:
+  - 'OFF'
+  - 'ON'
+  - OFF_CLEANUP_FAILED
+  initial: 'OFF'
+  terminal_safe_states:
+  - 'OFF'
+  - OFF_CLEANUP_FAILED
+  generation_rule: monotonic_latest_generation_wins_and_closed_generation_never_reopens
+  events:
+  - cold_start
+  - process_restart
+  - refresh_started
+  - response
+  - missing
+  - malformed
+  - timeout
+  - offline
+  - parse_error
+  - transport_error
+  - unknown_error
+  - stale
+  - out_of_order
+  - kill
+  - release_override
+  terminal_generation_rule: false_failure_timeout_or_kill_revokes_current_generation_until_new_refresh
+synthetic_sequences:
+- case_id: COLD_START_STAYS_OFF
+  events:
+  - kind: cold_start
+  expected_states:
+  - 'OFF'
+- case_id: EXACT_TRUE_BEFORE_DEADLINE_OPENS
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10699
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'ON'
+- case_id: EXACT_TRUE_AT_DEADLINE_OPENS
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'ON'
+- case_id: EXACT_TRUE_AFTER_DEADLINE_STAYS_OFF
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10701
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'OFF'
+- case_id: RESPONSE_BEFORE_REFRESH_START_STAYS_OFF
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    response_received_at_ms: 9999
+    clock_id: mint_flag_refresh_clock
+    value: true
+  expected_states:
+  - 'OFF'
+  - 'OFF'
+- case_id: OLD_SUCCESS_AFTER_NEW_KILL
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  - kind: refresh_started
+    generation: 2
+    refresh_started_at_ms: 20000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 2
+    current_generation: 2
+    authenticated: true
+    value: false
+    response_received_at_ms: 20700
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 2
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'ON'
+  - 'OFF'
+  - 'OFF'
+  - 'OFF'
+- case_id: KILL_OLD_WHILE_NEW_PENDING_THEN_TRUE
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  - kind: refresh_started
+    generation: 2
+    refresh_started_at_ms: 20000
+    clock_id: mint_flag_refresh_clock
+  - kind: kill
+    generation: 1
+  - kind: response
+    generation: 2
+    current_generation: 2
+    authenticated: true
+    value: true
+    response_received_at_ms: 20700
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'ON'
+  - 'OFF'
+  - 'OFF'
+  - 'OFF'
+- case_id: TIMEOUT_THEN_LATE_TRUE_SAME_GEN
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: timeout
+    generation: 1
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'OFF'
+  - 'OFF'
+- case_id: FALSE_THEN_TRUE_SAME_GEN
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: false
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'OFF'
+  - 'OFF'
+- case_id: NEW_REFRESH_AFTER_REVOKE_CAN_OPEN
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: timeout
+    generation: 1
+  - kind: refresh_started
+    generation: 2
+    refresh_started_at_ms: 20000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 2
+    current_generation: 2
+    authenticated: true
+    value: true
+    response_received_at_ms: 20700
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'OFF'
+  - 'OFF'
+  - 'ON'
+- case_id: KILL_WITH_CLEANUP_FAILURE
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  - kind: kill
+    generation: 2
+    cleanup: failed
+  expected_states:
+  - 'OFF'
+  - 'ON'
+  - OFF_CLEANUP_FAILED
+- case_id: RELEASE_OVERRIDE_FORBIDDEN
+  events:
+  - kind: release_override
+    value: true
+  expected_states:
+  - 'OFF'
+- case_id: MALFORMED_TRUE_LIKE_VALUES_OFF
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: 1
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: 'true'
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  expected_states:
+  - 'OFF'
+  - 'OFF'
+  - 'OFF'
+- case_id: RESTART_FORGETS_PRIOR_TRUE
+  events:
+  - kind: refresh_started
+    generation: 1
+    refresh_started_at_ms: 10000
+    clock_id: mint_flag_refresh_clock
+  - kind: response
+    generation: 1
+    current_generation: 1
+    authenticated: true
+    value: true
+    response_received_at_ms: 10700
+    clock_id: mint_flag_refresh_clock
+  - kind: process_restart
+  expected_states:
+  - 'OFF'
+  - 'ON'
+  - 'OFF'
+read_only_runtime_bindings:
+  flag_source: apps/mobile/lib/services/feature_flags.dart
+  existing_test_source: apps/mobile/test/screens/mint_next_3a/mint_next_3a_product_handoff_test.dart
+  binding_kind: byte_pinned_read_only_dependency_not_runtime_proof
+runtime_proof: absent
+external_review: not_claimed
+does_not_prove:
+- B0_acceptance
+- B5_acceptance
+- additional_user_control_design_paths
+- cleanup_failure_reporting_runtime_behavior
+- cleanup_or_purge_success
+- cleanup_retry_runtime_behavior
+- flutter_runtime_effectiveness
+- network_timeout_behavior
+- off_state_user_control_runtime_reachability
+- release_override_runtime_behavior
+- remote_config_authentication
+- resume_runtime_effectiveness
+- route_runtime_effectiveness
+activation_gate: STOP
+feature_flag: 'OFF'
+does_not_close_B0: true

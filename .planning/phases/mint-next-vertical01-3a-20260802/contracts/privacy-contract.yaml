@@ -1,0 +1,1067 @@
+schema_version: 1
+contract_id: mint_next_three_a_privacy_design_contract_v1
+phase: mint-next-vertical01-3a-20260802
+status: partial_design_only_runtime_privacy_unproven
+contract_kind: internal_privacy_design_contract_not_legal_or_runtime_proof
+prepared_on: '2026-08-10'
+review_by: '2026-11-08'
+upstream_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/threat-model.yaml
+  sha256: f41f63128720892b63ba4fc525f49902cc118b1fc45633ba17f6e4f703076181
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/threat-model-risk-register.json
+  sha256: 16ab5c7fa42c415569cb49bf6cc01d2700466f932fab716ed358a48df09f08eb
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/key-contract.yaml
+  sha256: 899aa7d9fee4865ad81892af0a1ca14cd426fe060185a7836d2015d46b140481
+data_classes:
+- identity_context
+- household_context
+- employment_and_income
+- assets_and_liabilities
+- housing
+- insurance
+- social_security_and_pension
+- tax
+- goals_and_preferences
+- financial_documents
+- provenance_and_audit_metadata
+- calculation_outputs
+- plan_3a_state_and_dependencies
+- user_control_and_tombstone_metadata
+- coach_transient_and_free_text
+- notification_metadata
+- telemetry_metadata
+purpose_matrix:
+- purpose_id: maintain_user_confirmed_financial_twin
+  data_classes:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+  - create_provenance
+  - store_provenance
+  - read_provenance_for_declared_purpose
+  processing_basis: user_requested_service_with_specific_notice
+- purpose_id: answer_user_financial_question
+  data_classes:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  - coach_transient_and_free_text
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+  - read_user_visible_result
+  - present_explanation
+  - process_locally_transient
+  - discard_after_response
+  processing_basis: user_requested_service_with_specific_notice
+- purpose_id: run_deterministic_financial_calculation
+  data_classes:
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+  - create_versioned_result
+  - store_user_visible_result
+  - read_user_visible_result
+  processing_basis: user_requested_service_with_specific_notice
+- purpose_id: extract_user_supplied_document
+  data_classes:
+  - financial_documents
+  - provenance_and_audit_metadata
+  allowed_operations:
+  - receive_explicit_upload_locally
+  - extract_provisional_candidates_locally
+  - discard_raw_document
+  - create_extraction_provenance
+  - store_provisional_provenance
+  - read_provisional_provenance
+  processing_basis: explicit_optional_user_action_with_specific_notice
+- purpose_id: track_user_selected_mini_plan
+  data_classes:
+  - goals_and_preferences
+  - assets_and_liabilities
+  - employment_and_income
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  - plan_3a_state_and_dependencies
+  allowed_operations:
+  - read_minimum_required
+  - compare_to_user_selected_trajectory
+  - read_user_visible_result
+  - create_user_selected_trajectory
+  - store_user_selected_trajectory
+  - read_user_selected_trajectory
+  processing_basis: explicit_optional_user_action_with_specific_notice
+- purpose_id: protect_and_audit_repository_access
+  data_classes:
+  - provenance_and_audit_metadata
+  - user_control_and_tombstone_metadata
+  - notification_metadata
+  - telemetry_metadata
+  allowed_operations:
+  - authorize_least_privilege
+  - record_non_content_audit_event
+  - investigate_declared_security_event
+  - read_user_control_status
+  - disable_notification
+  - emit_bounded_generic_notification
+  - record_non_content_local_only
+  processing_basis: necessary_service_security_with_specific_notice
+purpose_threat_matrix:
+  answer_user_financial_question:
+  - T03
+  - T04
+  - T09
+  extract_user_supplied_document:
+  - T04
+  - T06
+  - T08
+  maintain_user_confirmed_financial_twin:
+  - T01
+  - T03
+  - T07
+  - T08
+  - T12
+  protect_and_audit_repository_access:
+  - T01
+  - T05
+  - T06
+  - T08
+  - T11
+  - T12
+  run_deterministic_financial_calculation:
+  - T03
+  - T04
+  - T09
+  track_user_selected_mini_plan:
+  - T03
+  - T09
+threat_purpose_matrix:
+  T01:
+  - maintain_user_confirmed_financial_twin
+  - protect_and_audit_repository_access
+  T03:
+  - maintain_user_confirmed_financial_twin
+  - answer_user_financial_question
+  - run_deterministic_financial_calculation
+  - track_user_selected_mini_plan
+  T04:
+  - answer_user_financial_question
+  - run_deterministic_financial_calculation
+  - extract_user_supplied_document
+  T05:
+  - protect_and_audit_repository_access
+  T06:
+  - extract_user_supplied_document
+  - protect_and_audit_repository_access
+  T07:
+  - maintain_user_confirmed_financial_twin
+  T08:
+  - maintain_user_confirmed_financial_twin
+  - extract_user_supplied_document
+  - protect_and_audit_repository_access
+  T09:
+  - answer_user_financial_question
+  - run_deterministic_financial_calculation
+  - track_user_selected_mini_plan
+  T11:
+  - protect_and_audit_repository_access
+  T12:
+  - maintain_user_confirmed_financial_twin
+  - protect_and_audit_repository_access
+collection_policy:
+  timing: just_in_time_for_user_visible_declared_purpose
+  amount: minimum_required_for_current_operation
+  optional_data: separately_explained_and_skippable
+  unknown_fact_behavior: remain_unknown_and_request_when_material
+  prohibited_behavior: speculative_profile_enrichment
+canonical_fact_policy:
+  promotion: explicit_user_confirmation_required
+  required_metadata:
+  - source
+  - confidence
+  - observed_or_valid_period
+  - captured_at
+  - confirmation_status
+  contradiction_behavior: preserve_history_mark_conflict_and_request_resolution
+  silent_overwrite: forbidden
+document_policy:
+  extracted_fact_status: provisional_candidate
+  canonical_promotion: explicit_user_confirmation_required
+  send_raw_document_or_extracted_content_to_external_ai: forbidden_without_exception
+  unsupported_extraction: fail_closed_and_keep_fact_unknown
+ai_boundary:
+  role: local_navigator_and_explainer_only
+  source_of_truth: forbidden
+  financial_calculation_authority: local_deterministic_versioned_engine_only
+  canonical_write: forbidden_without_explicit_user_confirmation
+  provider_training: not_applicable_external_ai_blocked
+  external_ai_processing: blocked
+  external_ai_payload: no_user_personal_financial_source_prompt_free_text_document_or_metadata_payload_permitted
+  permitted_payload: closed_non_user_non_personal_static_product_content_only_or_block
+  processor_retention: unresolved_therefore_blocked
+  subprocessors: unresolved_therefore_blocked
+  recipient_and_jurisdiction: unresolved_therefore_blocked
+  unknown_tool_or_recipient: deny
+secondary_use_policy:
+  default: deny
+  authorization: explicit_granular_purpose_specific_opt_in
+  bundling: forbidden
+  withdrawal: available_and_without_prejudice_to_core_service
+  after_withdrawal: stop_optional_processing_and_preserve_required_audit_only
+user_controls:
+- view
+- correct
+- delete
+- export
+- withdraw_optional_consent
+recipient_policy:
+  disclosure: named_allowlisted_recipient_and_declared_purpose_only
+  unknown_recipient: deny
+  onward_transfer: deny_unless_separately_assessed_and_disclosed
+cross_border_policy:
+  destination: named_and_assessed_before_transfer
+  unknown_destination: deny
+  user_visibility: destination_recipient_purpose_and_data_classes_before_choice
+access_policy:
+  authorization: least_privilege_purpose_and_operation_bound
+  default: deny
+  audit: non_content_event_with_actor_purpose_time_and_outcome
+  expired_or_unknown_authorization: deny
+event_matrix:
+- event_id: just_in_time_collection
+  trigger: material_fact_missing_for_user_requested_operation
+  required_action: explain_purpose_request_minimum_and_allow_skip
+  user_visibility: before_collection
+- event_id: provisional_document_extraction
+  trigger: user_explicitly_supplies_document
+  required_action: show_candidates_and_request_confirmation
+  user_visibility: before_canonical_promotion
+- event_id: canonical_fact_promotion
+  trigger: user_confirms_candidate_and_metadata
+  required_action: preserve_source_confidence_time_and_confirmation
+  user_visibility: immediate
+- event_id: contradiction_detected
+  trigger: new_candidate_conflicts_with_current_fact
+  required_action: preserve_both_mark_conflict_and_request_resolution
+  user_visibility: immediate
+- event_id: personalized_conclusion_requested
+  trigger: before_every_personalized_answer_calculation_or_plan_evaluation
+  required_action: verify_each_material_fact_observed_or_valid_period_covers_decision_time_or_deny_personalized_conclusion_and_degrade_to_non_personal_education
+  user_visibility: before_personalized_conclusion
+- event_id: optional_consent_change
+  trigger: user_grants_or_withdraws_optional_choice
+  required_action: apply_prospectively_and_show_affected_purpose
+  user_visibility: immediate
+- event_id: recipient_or_destination_request
+  trigger: operation_requires_external_recipient_or_cross_border_destination
+  required_action: disclose_named_recipient_destination_purpose_and_classes_or_deny
+  user_visibility: before_transfer
+- event_id: ai_assistance_request
+  trigger: coach_requires_permitted_ai_narrative
+  required_action: execute_locally_with_no_user_payload_transfer_or_block_external_ai
+  user_visibility: local_processing_or_explicit_blocked_status
+- event_id: access_decision
+  trigger: service_or_operator_requests_data
+  required_action: authorize_exact_purpose_and_operation_or_deny_and_audit_non_content_outcome
+  user_visibility: available_in_access_history
+- event_id: user_control_request
+  trigger: user_requests_view_correction_deletion_export_or_consent_withdrawal
+  required_action: route_to_unproven_adjacent_contract_without_claiming_completion
+  user_visibility: immediate_status_and_limit
+external_privacy_review:
+  status: pending
+  reviewer: null
+  evidence_sha256: null
+runtime_privacy_proof: absent
+does_not_prove:
+- legal_compliance
+- regulatory_approval
+- runtime_privacy
+- retention_export_deletion
+- anti_pii
+- runtime_security
+does_not_close_B0: true
+activation_gate: STOP
+feature_flag: 'OFF'
+purpose_data_operation_matrix:
+- data_class: identity_context
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: household_context
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: employment_and_income
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: assets_and_liabilities
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: housing
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: insurance
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: social_security_and_pension
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: tax
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: goals_and_preferences
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - collect_just_in_time
+  - validate
+  - store_confirmed
+  - update_with_history
+  - read_for_declared_purpose
+- data_class: provenance_and_audit_metadata
+  purpose_id: maintain_user_confirmed_financial_twin
+  allowed_operations:
+  - create_provenance
+  - store_provenance
+  - read_provenance_for_declared_purpose
+- data_class: identity_context
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: household_context
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: employment_and_income
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: assets_and_liabilities
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: housing
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: insurance
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: social_security_and_pension
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: tax
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: goals_and_preferences
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: provenance_and_audit_metadata
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_minimum_required
+  - request_missing_fact
+- data_class: calculation_outputs
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - read_user_visible_result
+  - present_explanation
+- data_class: coach_transient_and_free_text
+  purpose_id: answer_user_financial_question
+  allowed_operations:
+  - process_locally_transient
+  - discard_after_response
+- data_class: household_context
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: employment_and_income
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: assets_and_liabilities
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: housing
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: insurance
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: social_security_and_pension
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: tax
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: goals_and_preferences
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: provenance_and_audit_metadata
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - read_minimum_required
+  - calculate_with_versioned_engine
+- data_class: calculation_outputs
+  purpose_id: run_deterministic_financial_calculation
+  allowed_operations:
+  - create_versioned_result
+  - store_user_visible_result
+  - read_user_visible_result
+- data_class: financial_documents
+  purpose_id: extract_user_supplied_document
+  allowed_operations:
+  - receive_explicit_upload_locally
+  - extract_provisional_candidates_locally
+  - discard_raw_document
+- data_class: provenance_and_audit_metadata
+  purpose_id: extract_user_supplied_document
+  allowed_operations:
+  - create_extraction_provenance
+  - store_provisional_provenance
+  - read_provisional_provenance
+- data_class: goals_and_preferences
+  purpose_id: track_user_selected_mini_plan
+  allowed_operations:
+  - read_minimum_required
+  - compare_to_user_selected_trajectory
+- data_class: assets_and_liabilities
+  purpose_id: track_user_selected_mini_plan
+  allowed_operations:
+  - read_minimum_required
+  - compare_to_user_selected_trajectory
+- data_class: employment_and_income
+  purpose_id: track_user_selected_mini_plan
+  allowed_operations:
+  - read_minimum_required
+  - compare_to_user_selected_trajectory
+- data_class: provenance_and_audit_metadata
+  purpose_id: track_user_selected_mini_plan
+  allowed_operations:
+  - read_minimum_required
+  - compare_to_user_selected_trajectory
+- data_class: calculation_outputs
+  purpose_id: track_user_selected_mini_plan
+  allowed_operations:
+  - read_user_visible_result
+  - compare_to_user_selected_trajectory
+- data_class: plan_3a_state_and_dependencies
+  purpose_id: track_user_selected_mini_plan
+  allowed_operations:
+  - create_user_selected_trajectory
+  - store_user_selected_trajectory
+  - read_user_selected_trajectory
+- data_class: provenance_and_audit_metadata
+  purpose_id: protect_and_audit_repository_access
+  allowed_operations:
+  - authorize_least_privilege
+  - record_non_content_audit_event
+  - investigate_declared_security_event
+- data_class: user_control_and_tombstone_metadata
+  purpose_id: protect_and_audit_repository_access
+  allowed_operations:
+  - authorize_least_privilege
+  - read_user_control_status
+- data_class: notification_metadata
+  purpose_id: protect_and_audit_repository_access
+  allowed_operations:
+  - authorize_least_privilege
+  - disable_notification
+  - emit_bounded_generic_notification
+- data_class: telemetry_metadata
+  purpose_id: protect_and_audit_repository_access
+  allowed_operations:
+  - authorize_least_privilege
+  - record_non_content_local_only
+data_purpose_operation_matrix:
+  identity_context:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  household_context:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  employment_and_income:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  - purpose_id: track_user_selected_mini_plan
+    allowed_operations:
+    - read_minimum_required
+    - compare_to_user_selected_trajectory
+  assets_and_liabilities:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  - purpose_id: track_user_selected_mini_plan
+    allowed_operations:
+    - read_minimum_required
+    - compare_to_user_selected_trajectory
+  housing:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  insurance:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  social_security_and_pension:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  tax:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  goals_and_preferences:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - collect_just_in_time
+    - validate
+    - store_confirmed
+    - update_with_history
+    - read_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  - purpose_id: track_user_selected_mini_plan
+    allowed_operations:
+    - read_minimum_required
+    - compare_to_user_selected_trajectory
+  financial_documents:
+  - purpose_id: extract_user_supplied_document
+    allowed_operations:
+    - receive_explicit_upload_locally
+    - extract_provisional_candidates_locally
+    - discard_raw_document
+  provenance_and_audit_metadata:
+  - purpose_id: maintain_user_confirmed_financial_twin
+    allowed_operations:
+    - create_provenance
+    - store_provenance
+    - read_provenance_for_declared_purpose
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_minimum_required
+    - request_missing_fact
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - read_minimum_required
+    - calculate_with_versioned_engine
+  - purpose_id: extract_user_supplied_document
+    allowed_operations:
+    - create_extraction_provenance
+    - store_provisional_provenance
+    - read_provisional_provenance
+  - purpose_id: track_user_selected_mini_plan
+    allowed_operations:
+    - read_minimum_required
+    - compare_to_user_selected_trajectory
+  - purpose_id: protect_and_audit_repository_access
+    allowed_operations:
+    - authorize_least_privilege
+    - record_non_content_audit_event
+    - investigate_declared_security_event
+  calculation_outputs:
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - read_user_visible_result
+    - present_explanation
+  - purpose_id: run_deterministic_financial_calculation
+    allowed_operations:
+    - create_versioned_result
+    - store_user_visible_result
+    - read_user_visible_result
+  - purpose_id: track_user_selected_mini_plan
+    allowed_operations:
+    - read_user_visible_result
+    - compare_to_user_selected_trajectory
+  plan_3a_state_and_dependencies:
+  - purpose_id: track_user_selected_mini_plan
+    allowed_operations:
+    - create_user_selected_trajectory
+    - store_user_selected_trajectory
+    - read_user_selected_trajectory
+  user_control_and_tombstone_metadata:
+  - purpose_id: protect_and_audit_repository_access
+    allowed_operations:
+    - authorize_least_privilege
+    - read_user_control_status
+  coach_transient_and_free_text:
+  - purpose_id: answer_user_financial_question
+    allowed_operations:
+    - process_locally_transient
+    - discard_after_response
+  notification_metadata:
+  - purpose_id: protect_and_audit_repository_access
+    allowed_operations:
+    - authorize_least_privilege
+    - disable_notification
+    - emit_bounded_generic_notification
+  telemetry_metadata:
+  - purpose_id: protect_and_audit_repository_access
+    allowed_operations:
+    - authorize_least_privilege
+    - record_non_content_local_only
+telemetry_policy:
+  content: no_financial_personal_prompt_free_text_document_or_fact_content
+  identifier: no_stable_or_cross_session_user_identifier
+  recipient: unresolved_therefore_blocked
+  jurisdiction: unresolved_therefore_blocked
+  default: local_only_or_disabled
+notification_policy:
+  locked_device_content: generic_non_financial_non_identifying_message_only
+  fact_goal_amount_or_plan_detail: forbidden
+  unknown_lock_state: treat_as_locked
+audit_identity_policy:
+  actor: local_ephemeral_pseudonym
+  export: forbidden
+  link_to_identity: forbidden
+fact_freshness_policy:
+  check_timing: before_every_personalized_answer_calculation_or_plan_evaluation
+  validity_evaluation: each_material_fact_observed_or_valid_period_must_cover_decision_time
+  expired_without_contradiction: deny_personalized_conclusion_or_degrade_to_non_personal_education
+  stale_or_unknown: deny_personalized_conclusion_or_degrade_to_non_personal_education
+  required_explanation:
+  - assumptions
+  - uncertainty
+  - affected_inputs
+  - alternatives
+  silent_confident_nudge: forbidden
+threat_policy_action_matrix:
+  T01:
+    policies:
+    - access_policy
+    - adjacent_key_runtime_proof_deferred
+    event: access_decision
+    action: deny_repository_access_without_verified_current_authorization_and_key_state
+  T03:
+    policies:
+    - fact_freshness_policy
+    - canonical_fact_policy
+    event: personalized_conclusion_requested
+    action: deny_or_degrade_personalization_and_show_assumptions_uncertainty_alternatives
+  T04:
+    policies:
+    - ai_boundary
+    - canonical_fact_policy
+    event: ai_assistance_request
+    action: keep_untrusted_text_outside_fact_and_calculation_authority_or_block
+  T05:
+    policies:
+    - telemetry_policy
+    - audit_identity_policy
+    event: access_decision
+    action: keep_local_non_content_without_stable_identifier_or_block
+  T06:
+    policies:
+    - recipient_policy
+    - cross_border_policy
+    - ai_boundary
+    - telemetry_policy
+    event: recipient_or_destination_request
+    action: block_unresolved_recipient_jurisdiction_retention_or_subprocessors
+  T07:
+    policies:
+    - user_controls
+    - adjacent_retention_export_deletion_contract_deferred
+    event: user_control_request
+    action: report_incomplete_and_block_success_claim_until_adjacent_contract_proves_completion
+  T08:
+    policies:
+    - access_policy
+    - adjacent_key_runtime_proof_deferred
+    - adjacent_anti_pii_proof_deferred
+    event: access_decision
+    action: deny_repository_read_or_copy_without_verified_runtime_controls
+  T09:
+    policies:
+    - fact_freshness_policy
+    - canonical_fact_policy
+    event: personalized_conclusion_requested
+    action: deny_confident_personalized_conclusion_from_deterministic_output_or_coach_and_offer_non_personal_alternatives
+  T11:
+    policies:
+    - notification_policy
+    event: access_decision
+    action: disable_notification_or_emit_bounded_generic_notification
+  T12:
+    policies:
+    - canonical_fact_policy
+    - adjacent_key_runtime_proof_deferred
+    - adjacent_retention_export_deletion_contract_deferred
+    event: access_decision
+    action: reject_corrupt_restore_keep_repository_blocked_and_report_recovery_unproven
+event_purpose_matrix:
+  just_in_time_collection:
+  - maintain_user_confirmed_financial_twin
+  - answer_user_financial_question
+  - run_deterministic_financial_calculation
+  - track_user_selected_mini_plan
+  provisional_document_extraction:
+  - extract_user_supplied_document
+  canonical_fact_promotion:
+  - maintain_user_confirmed_financial_twin
+  - extract_user_supplied_document
+  contradiction_detected:
+  - maintain_user_confirmed_financial_twin
+  - answer_user_financial_question
+  - run_deterministic_financial_calculation
+  - track_user_selected_mini_plan
+  personalized_conclusion_requested:
+  - answer_user_financial_question
+  - run_deterministic_financial_calculation
+  - track_user_selected_mini_plan
+  optional_consent_change:
+  - extract_user_supplied_document
+  - track_user_selected_mini_plan
+  recipient_or_destination_request:
+  - extract_user_supplied_document
+  - protect_and_audit_repository_access
+  ai_assistance_request:
+  - answer_user_financial_question
+  access_decision:
+  - maintain_user_confirmed_financial_twin
+  - protect_and_audit_repository_access
+  user_control_request:
+  - maintain_user_confirmed_financial_twin
+  - protect_and_audit_repository_access
+purpose_event_matrix:
+  maintain_user_confirmed_financial_twin:
+  - just_in_time_collection
+  - canonical_fact_promotion
+  - contradiction_detected
+  - access_decision
+  - user_control_request
+  answer_user_financial_question:
+  - just_in_time_collection
+  - contradiction_detected
+  - personalized_conclusion_requested
+  - ai_assistance_request
+  run_deterministic_financial_calculation:
+  - just_in_time_collection
+  - contradiction_detected
+  - personalized_conclusion_requested
+  extract_user_supplied_document:
+  - provisional_document_extraction
+  - canonical_fact_promotion
+  - optional_consent_change
+  - recipient_or_destination_request
+  track_user_selected_mini_plan:
+  - just_in_time_collection
+  - contradiction_detected
+  - personalized_conclusion_requested
+  - optional_consent_change
+  protect_and_audit_repository_access:
+  - recipient_or_destination_request
+  - access_decision
+  - user_control_request
+control_event_data_matrix:
+  C01:
+    events:
+    - canonical_fact_promotion
+    - provisional_document_extraction
+    data_classes:
+    - financial_documents
+    - provenance_and_audit_metadata
+  C02:
+    events:
+    - contradiction_detected
+    - personalized_conclusion_requested
+    - just_in_time_collection
+    data_classes:
+    - provenance_and_audit_metadata
+  C05:
+    events:
+    - ai_assistance_request
+    - access_decision
+    data_classes:
+    - coach_transient_and_free_text
+    - calculation_outputs
+  C06:
+    events:
+    - recipient_or_destination_request
+    - access_decision
+    data_classes:
+    - telemetry_metadata
+    - notification_metadata
+  C08:
+    events:
+    - access_decision
+    - user_control_request
+    data_classes:
+    - user_control_and_tombstone_metadata
+    - provenance_and_audit_metadata
+  C09:
+    events:
+    - just_in_time_collection
+    - access_decision
+    data_classes:
+    - telemetry_metadata
+    - notification_metadata
+    - coach_transient_and_free_text
+recipient_cross_border_purpose_data_matrix:
+- purpose_id: maintain_user_confirmed_financial_twin
+  data_classes:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  external_recipient: blocked_unless_future_separately_reviewed_contract
+  cross_border_destination: blocked_unless_future_separately_reviewed_contract
+- purpose_id: answer_user_financial_question
+  data_classes:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  - coach_transient_and_free_text
+  external_recipient: blocked_unless_future_separately_reviewed_contract
+  cross_border_destination: blocked_unless_future_separately_reviewed_contract
+- purpose_id: run_deterministic_financial_calculation
+  data_classes:
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  external_recipient: blocked_unless_future_separately_reviewed_contract
+  cross_border_destination: blocked_unless_future_separately_reviewed_contract
+- purpose_id: extract_user_supplied_document
+  data_classes:
+  - financial_documents
+  - provenance_and_audit_metadata
+  external_recipient: blocked_unless_future_separately_reviewed_contract
+  cross_border_destination: blocked_unless_future_separately_reviewed_contract
+- purpose_id: track_user_selected_mini_plan
+  data_classes:
+  - goals_and_preferences
+  - assets_and_liabilities
+  - employment_and_income
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  - plan_3a_state_and_dependencies
+  external_recipient: blocked_unless_future_separately_reviewed_contract
+  cross_border_destination: blocked_unless_future_separately_reviewed_contract
+- purpose_id: protect_and_audit_repository_access
+  data_classes:
+  - provenance_and_audit_metadata
+  - user_control_and_tombstone_metadata
+  - notification_metadata
+  - telemetry_metadata
+  external_recipient: blocked_unless_future_separately_reviewed_contract
+  cross_border_destination: blocked_unless_future_separately_reviewed_contract

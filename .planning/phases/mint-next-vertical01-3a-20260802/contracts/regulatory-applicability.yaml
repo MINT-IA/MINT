@@ -1,0 +1,530 @@
+schema_version: 1
+contract_id: mint_next_three_a_regulatory_applicability_v1
+phase: mint-next-vertical01-3a-20260802
+status: partial_pending_external_legal_review
+contract_kind: internal_fail_closed_questionnaire_not_legal_opinion
+authority_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  locator: Privacy, compliance and regulatory boundary
+  projection_sha256: 34d834f843d30327440bb2e175e94ff161443f227ab9905ebf542781bae52ee4
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/calculation-contract.yaml
+  sha256: 637d08de4fee6913ecfaac27bcea7553862ad54af4bf21962648e57f8f370562
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/state-machine.yaml
+  sha256: 9692936cabed8f7edc92b9410e18e0088b7bf8d26928910e073133ed8aa905c3
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/navigation-graph.yaml
+  sha256: a03d46af6980d5b36f3f1524e906e751da565da470f7740c056f6018b5cb333d
+supported_context:
+  residence: Switzerland
+  location: Lausanne_VD
+  tax_year: 2026
+  taxation: ordinary_full_year
+  persona: frozen_supported_persona_only
+  device_processing: encrypted_on_device_only
+  real_user_exposure: forbidden
+surfaces:
+  today_opportunity:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  coach_typed_intent:
+  - finsa
+  - data_protection
+  coach_narrative:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  - tax_legal_professional_boundary
+  fact_review:
+  - data_protection
+  - substantive_3a_tax
+  fact_proposal:
+  - data_protection
+  - substantive_3a_tax
+  confirmation_refusal:
+  - data_protection
+  contradiction_resolution:
+  - data_protection
+  - substantive_3a_tax
+  stale_refresh:
+  - data_protection
+  - substantive_3a_tax
+  unsupported_explanation:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  rules_unavailable_explanation:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  result_widget_contribution:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  - tax_legal_professional_boundary
+  result_widget_tax_reduction:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  - tax_legal_professional_boundary
+  result_widget_liquidity:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  - tax_legal_professional_boundary
+  result_widget_withdrawal_tax:
+  - finsa
+  - substantive_3a_tax
+  - unfair_competition
+  - data_protection
+  - tax_legal_professional_boundary
+  amount_choice:
+  - finsa
+  - substantive_3a_tax
+  - data_protection
+  - tax_legal_professional_boundary
+  plan_confirmation:
+  - finsa
+  - substantive_3a_tax
+  - data_protection
+  - tax_legal_professional_boundary
+  plan_status:
+  - finsa
+  - substantive_3a_tax
+  - data_protection
+  - tax_legal_professional_boundary
+  situation_read_model:
+  - data_protection
+  - substantive_3a_tax
+  secure_failure_recovery:
+  - data_protection
+  revoke_delete_export:
+  - data_protection
+  notification:
+  - finsa
+  - substantive_3a_tax
+  - data_protection
+  - unfair_competition
+  telemetry_crash_evidence:
+  - data_protection
+blocked_surface_regimes:
+  explorer:
+  - finsa
+  - substantive_3a_tax
+  - data_protection
+  - unfair_competition
+  - tax_legal_professional_boundary
+  provider_or_product_comparison_or_ranking:
+  - finsa
+  - prudential_licensing
+  - unfair_competition
+  - tax_legal_professional_boundary
+  account_opening_or_referral:
+  - finsa
+  - prudential_licensing
+  - anti_money_laundering
+  - data_protection
+  - unfair_competition
+  order_execution_or_transmission:
+  - finsa
+  - prudential_licensing
+  - anti_money_laundering
+  - data_protection
+  custody_or_money_movement:
+  - prudential_licensing
+  - anti_money_laundering
+  - data_protection
+  portfolio_management_or_rebalancing:
+  - finsa
+  - prudential_licensing
+  - data_protection
+  - tax_legal_professional_boundary
+  insurance_comparison_or_intermediation:
+  - finsa
+  - insurance_intermediation
+  - data_protection
+  - unfair_competition
+  bank_insurance_pension_tax_api_sync:
+  - prudential_licensing
+  - insurance_intermediation
+  - anti_money_laundering
+  - data_protection
+  tax_filing_submission_or_representation:
+  - substantive_3a_tax
+  - data_protection
+  - tax_legal_professional_boundary
+  marketing_affiliate_or_commission_flow:
+  - finsa
+  - insurance_intermediation
+  - data_protection
+  - unfair_competition
+regimes:
+  finsa:
+    question: Does behavior provide a financial service, investment recommendation, or client-adviser activity professionally
+      in Switzerland?
+    unresolved_result: external_legal_review_required_block
+    never_conclude:
+    - outside_finsa
+    - unregulated
+    - finma_approved
+    - finma_supervised
+  prudential_licensing:
+    question: Does behavior accept deposits, hold assets, manage portfolios, execute or transmit orders, or operate another
+      licensable financial-market activity?
+    unresolved_result: external_legal_review_required_block
+    never_conclude:
+    - licence_not_required
+    - finma_authorised
+  insurance_intermediation:
+    question: Does behavior propose, compare, recommend, or intermediate a specific insurance product?
+    unresolved_result: external_legal_review_required_block
+    never_conclude:
+    - registration_not_required
+  anti_money_laundering:
+    question: Does behavior receive, hold, transfer, or control third-party money or assets?
+    unresolved_result: external_legal_review_required_block
+    never_conclude:
+    - amla_not_applicable
+  data_protection:
+    question: Does behavior process personal data, add a recipient or transfer, use new technology, or make a legally significant
+      automated decision?
+    unresolved_result: block
+    always_applicable_to_current_facts: true
+    aipd_decision_owned_by: separate_aipd_screening
+  substantive_3a_tax:
+    question: Are OPP3 and federal, cantonal, communal tax rules current and applicable to the exact supported facts and year?
+    unresolved_result: unavailable
+    licensing_conclusion: forbidden
+  unfair_competition:
+    question: Could wording, ranking, omission, remuneration, or a quantified promise mislead a user commercially?
+    unresolved_result: block
+  tax_legal_professional_boundary:
+    question: Could personalized wording be understood as tax or legal advice or create professional or civil reliance?
+    unresolved_result: external_legal_review_required_block
+    legal_memo_required: true
+triggers:
+  specific_provider_or_instrument: block_and_external_legal_review
+  personalized_recommendation: block_and_external_legal_review
+  provider_or_product_ranking: block
+  suitability_best_optimal_language: block
+  imperative_financial_action: block
+  account_opening_or_referral: block_and_external_legal_review
+  commission_or_affiliate_remuneration: block_and_external_legal_review
+  insurance_product_comparison: block_and_external_legal_review
+  order_execution_or_transmission: block_and_external_legal_review
+  custody_or_money_movement: block_and_external_legal_review
+  portfolio_allocation_or_rebalancing: block_and_external_legal_review
+  tax_filing_submission_or_representation: block_and_external_legal_review
+  sold_human_advice_escalation: block_and_external_legal_review
+  unsupported_persona_canton_year_or_taxation: unavailable
+  cross_border_user_or_service: block_and_external_legal_review
+  data_leaves_device_or_new_recipient_or_transfer: block_and_privacy_reassessment
+  automated_legally_significant_decision: block_and_privacy_reassessment
+  llm_free_text_outside_allowlist: block
+  stale_or_unreviewed_authority: unavailable
+  claim_of_finma_approval_or_supervision: block
+  observed_transaction_or_daily_monitoring_claim: block
+trigger_regime_mapping:
+  specific_provider_or_instrument:
+  - finsa
+  - prudential_licensing
+  personalized_recommendation:
+  - finsa
+  - tax_legal_professional_boundary
+  provider_or_product_ranking:
+  - finsa
+  - unfair_competition
+  - tax_legal_professional_boundary
+  suitability_best_optimal_language:
+  - finsa
+  - unfair_competition
+  - tax_legal_professional_boundary
+  imperative_financial_action:
+  - finsa
+  - tax_legal_professional_boundary
+  account_opening_or_referral:
+  - finsa
+  - prudential_licensing
+  - data_protection
+  - unfair_competition
+  commission_or_affiliate_remuneration:
+  - finsa
+  - insurance_intermediation
+  - unfair_competition
+  insurance_product_comparison:
+  - finsa
+  - insurance_intermediation
+  - unfair_competition
+  order_execution_or_transmission:
+  - finsa
+  - prudential_licensing
+  - anti_money_laundering
+  custody_or_money_movement:
+  - prudential_licensing
+  - anti_money_laundering
+  portfolio_allocation_or_rebalancing:
+  - finsa
+  - prudential_licensing
+  tax_filing_submission_or_representation:
+  - substantive_3a_tax
+  - data_protection
+  - tax_legal_professional_boundary
+  sold_human_advice_escalation:
+  - finsa
+  - tax_legal_professional_boundary
+  unsupported_persona_canton_year_or_taxation:
+  - substantive_3a_tax
+  - tax_legal_professional_boundary
+  cross_border_user_or_service:
+  - finsa
+  - data_protection
+  - tax_legal_professional_boundary
+  data_leaves_device_or_new_recipient_or_transfer:
+  - data_protection
+  automated_legally_significant_decision:
+  - data_protection
+  llm_free_text_outside_allowlist:
+  - finsa
+  - substantive_3a_tax
+  - data_protection
+  - unfair_competition
+  - tax_legal_professional_boundary
+  stale_or_unreviewed_authority:
+  - substantive_3a_tax
+  - unfair_competition
+  - tax_legal_professional_boundary
+  claim_of_finma_approval_or_supervision:
+  - finsa
+  - prudential_licensing
+  - unfair_competition
+  observed_transaction_or_daily_monitoring_claim:
+  - data_protection
+  - unfair_competition
+regime_trigger_inverse:
+  insurance_intermediation:
+  - commission_or_affiliate_remuneration
+  - insurance_product_comparison
+  finsa:
+  - specific_provider_or_instrument
+  - personalized_recommendation
+  - provider_or_product_ranking
+  - suitability_best_optimal_language
+  - imperative_financial_action
+  - account_opening_or_referral
+  - commission_or_affiliate_remuneration
+  - insurance_product_comparison
+  - order_execution_or_transmission
+  - portfolio_allocation_or_rebalancing
+  - sold_human_advice_escalation
+  - cross_border_user_or_service
+  - llm_free_text_outside_allowlist
+  - claim_of_finma_approval_or_supervision
+  tax_legal_professional_boundary:
+  - personalized_recommendation
+  - provider_or_product_ranking
+  - suitability_best_optimal_language
+  - imperative_financial_action
+  - tax_filing_submission_or_representation
+  - sold_human_advice_escalation
+  - unsupported_persona_canton_year_or_taxation
+  - cross_border_user_or_service
+  - llm_free_text_outside_allowlist
+  - stale_or_unreviewed_authority
+  prudential_licensing:
+  - specific_provider_or_instrument
+  - account_opening_or_referral
+  - order_execution_or_transmission
+  - custody_or_money_movement
+  - portfolio_allocation_or_rebalancing
+  - claim_of_finma_approval_or_supervision
+  anti_money_laundering:
+  - order_execution_or_transmission
+  - custody_or_money_movement
+  substantive_3a_tax:
+  - tax_filing_submission_or_representation
+  - unsupported_persona_canton_year_or_taxation
+  - llm_free_text_outside_allowlist
+  - stale_or_unreviewed_authority
+  unfair_competition:
+  - provider_or_product_ranking
+  - suitability_best_optimal_language
+  - account_opening_or_referral
+  - commission_or_affiliate_remuneration
+  - insurance_product_comparison
+  - llm_free_text_outside_allowlist
+  - stale_or_unreviewed_authority
+  - claim_of_finma_approval_or_supervision
+  - observed_transaction_or_daily_monitoring_claim
+  data_protection:
+  - account_opening_or_referral
+  - tax_filing_submission_or_representation
+  - cross_border_user_or_service
+  - data_leaves_device_or_new_recipient_or_transfer
+  - automated_legally_significant_decision
+  - llm_free_text_outside_allowlist
+  - observed_transaction_or_daily_monitoring_claim
+state_navigation_adaptation:
+  states:
+    calculation_impossible: fact_review
+    calculation_ready: amount_choice
+    completed: today_opportunity
+    confirmation: confirmation_refusal
+    contradiction: contradiction_resolution
+    deleted: revoke_delete_export
+    known: fact_review
+    loading: fact_review
+    missing: fact_proposal
+    offline: rules_unavailable_explanation
+    plan_confirmation: plan_confirmation
+    refusal: confirmation_refusal
+    result: result_widget_contribution
+    rules_explanation: rules_unavailable_explanation
+    rules_unavailable: rules_unavailable_explanation
+    secure_fail: secure_failure_recovery
+    stale: stale_refresh
+    unsupported: unsupported_explanation
+    unsupported_explanation: unsupported_explanation
+  entry_adapters:
+    today_intent: today_opportunity
+    coach_intent_resume: coach_typed_intent
+  destinations:
+    Today: today_opportunity
+    Today/privacy: revoke_delete_export
+    availability check: rules_unavailable_explanation
+    comparison: contradiction_resolution
+    confirmation: confirmation_refusal
+    explanation: unsupported_explanation
+    fact review: fact_review
+    one-fact refresh: stale_refresh
+    privacy recovery: secure_failure_recovery
+    safe exit: confirmation_refusal
+    same route: fact_review
+    scenario: amount_choice
+    widget: result_widget_contribution
+  blocked: []
+  exempt: []
+claim_classes:
+  allowed:
+  - neutral_education_and_explanation
+  - user_controlled_factual_summary
+  - user_free_choice_including_zero
+  - dated_authoritative_source_attribution
+  conditional:
+    deterministic_estimate:
+    - exact_supported_context
+    - facts_fresh_confirmed_noncontradictory
+    - assumptions_and_limits_adjacent
+    - calculation_contract_available
+    arithmetic_room_exact:
+    - eligibility_confirmed
+    - provider_inventory_exhaustively_confirmed
+    - ordinary_2026_scope
+  forbidden:
+  - exact_or_guaranteed_tax_saving_deductibility_or_return
+  - filing_truth_or_legal_tax_advice
+  - best_optimal_recommended_suitable
+  - named_provider_product_or_ranking
+  - instruction_to_open_pay_buy_or_transfer
+  - finma_approved_authorised_supervised
+  - disclaimer_as_regulatory_cure
+  - economic_effort_as_return_or_cash_debit
+  - credited_monitored_or_daily_tracking_without_observation
+  - universal_or_cross_border_applicability
+questions:
+- id: context_supported
+  answer:
+  - 'yes'
+  - 'no'
+  - unknown
+  unknown_result: block
+- id: surface_known_and_allowlisted
+  answer:
+  - 'yes'
+  - 'no'
+  no_result: block
+- id: every_mapped_regime_reviewed
+  answer:
+  - 'yes'
+  - 'no'
+  - unknown
+  unknown_result: external_legal_review_required_block
+- id: any_trigger_present
+  answer:
+  - 'yes'
+  - 'no'
+  - unknown
+  unknown_result: block
+- id: claim_class_known
+  answer:
+  - allowed
+  - conditional
+  - forbidden
+  - unknown
+  unknown_result: block
+- id: conditional_requirements_satisfied
+  answer:
+  - 'yes'
+  - 'no'
+  - not_applicable
+  - unknown
+  unknown_result: unavailable
+- id: authority_current_and_applicable
+  answer:
+  - 'yes'
+  - 'no'
+  - unknown
+  unknown_result: unavailable
+- id: external_legal_review_bound
+  answer:
+  - 'yes'
+  - 'no'
+  no_result: real_user_exposure_forbidden
+decision_policy:
+  outcomes:
+  - allow_internal_contract_only
+  - unavailable
+  - block
+  - external_legal_review_required_block
+  default: block
+  unknown_enum_or_field: block
+  forbidden_claim_dominates: true
+  blocking_trigger_dominates: true
+  most_restrictive_regime_wins: true
+  disclaimer_never_downgrades: true
+  legal_review_required_never_renders_personalized_claim: true
+  no_default_allow: true
+  output_requires_reason_code: true
+  output_requires_safe_non_prescriptive_alternative: true
+escalations:
+  external_legal_review:
+    status: pending
+    effect: keep_exposure_forbidden
+    owner_artifact: separate_versioned_legal_memo_and_reviewer_receipt
+  privacy_reassessment:
+    status: separate_contract_required
+    effect: block_changed_processing
+  unsupported_context:
+    status: unavailable
+    effect: explain_boundary_without_recommendation
+prohibitions:
+- no_legal_opinion_or_regulatory_status_conclusion
+- no_finma_approval_authorisation_or_supervision_claim
+- no_external_review_claim
+- no_runtime_or_user_exposure
+- no_llm_as_classifier_or_source_of_truth
+- no_disclaimer_override
+external_legal_review:
+  status: pending
+  receipt: null
+  reviewer: null
+  reviewed_product_sha: null
+runtime_binding: none
+real_user_exposure: forbidden
+does_not_activate_runtime: true
+does_not_close_B0: true

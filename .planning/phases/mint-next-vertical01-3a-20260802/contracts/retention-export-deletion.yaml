@@ -1,0 +1,3335 @@
+schema_version: 1
+contract_id: mint_next_three_a_retention_export_deletion_design_contract_v1
+phase: mint-next-vertical01-3a-20260802
+status: partial_design_only_runtime_retention_export_deletion_unproven
+contract_kind: internal_design_contract_not_legal_or_runtime_proof
+prepared_on: '2026-08-10'
+review_by: '2026-11-08'
+upstream_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/privacy-contract.yaml
+  sha256: 8c4e4978c48d4f49f9b455bf955bc88095ab06423d2343d9d2be6e6097371756
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/key-contract.yaml
+  sha256: 899aa7d9fee4865ad81892af0a1ca14cd426fe060185a7836d2015d46b140481
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/threat-model.yaml
+  sha256: f41f63128720892b63ba4fc525f49902cc118b1fc45633ba17f6e4f703076181
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/threat-model-risk-register.json
+  sha256: 16ab5c7fa42c415569cb49bf6cc01d2700466f932fab716ed358a48df09f08eb
+- path: .planning/phases/mint-next-vertical01-3a-20260802/schemas/fact.schema.json
+  sha256: 7a3b90f7843b4a5335840080afedb92f0025d3f2a4d16f9fdd7652b22d09e0f2
+- path: .planning/phases/mint-next-vertical01-3a-20260802/schemas/plan.schema.json
+  sha256: 75c0fcfcd214d8a0de70cb8eeda4cbc930d1f9b35b7dc4344d54c384a9afafe5
+- path: .planning/phases/mint-next-vertical01-3a-20260802/schemas/dependency.schema.json
+  sha256: e5b1c1082f404a36fd69dd8cd17034a2996b1748df18536170d4be50da9614f9
+- path: .planning/phases/mint-next-vertical01-3a-20260802/migrations/fact-migrations.yaml
+  sha256: e680250386d7e355c33e674934713086577c29a27d725c8d5f2cd359cf88aee3
+- path: .planning/phases/mint-next-vertical01-3a-20260802/migrations/plan-migrations.yaml
+  sha256: 1388451ee71657f3e8107ec0c87d88bd7ffdadfee8106b6a1e4f2cd2b7e76ff4
+- path: .planning/phases/mint-next-vertical01-3a-20260802/migrations/schema-migration-fixtures.json
+  sha256: 2a46c81db2e26cb14a2490413cc74a856fab0042c6b99f5d30a807872470fc59
+data_classes:
+- identity_context
+- household_context
+- employment_and_income
+- assets_and_liabilities
+- housing
+- insurance
+- social_security_and_pension
+- tax
+- goals_and_preferences
+- financial_documents
+- provenance_and_audit_metadata
+- calculation_outputs
+- plan_3a_state_and_dependencies
+- user_control_and_tombstone_metadata
+- coach_transient_and_free_text
+- notification_metadata
+- telemetry_metadata
+storage_sinks:
+- encrypted_canonical_value_records
+- encrypted_provenance_records
+- encrypted_derived_read_models
+- encrypted_plan_records
+- encrypted_draft_records
+- encrypted_provisional_extraction_records
+- encrypted_application_caches
+- in_memory_ephemeral_coach_turn
+- local_non_content_security_audit
+- local_notification_store
+- local_telemetry_buffer
+- platform_backup_ciphertext
+- app_controlled_export_staging
+- non_value_tombstone_store
+sink_data_class_matrix:
+  encrypted_canonical_value_records:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  encrypted_provenance_records:
+  - provenance_and_audit_metadata
+  encrypted_derived_read_models:
+  - calculation_outputs
+  encrypted_plan_records:
+  - plan_3a_state_and_dependencies
+  encrypted_draft_records:
+  - goals_and_preferences
+  - financial_documents
+  encrypted_provisional_extraction_records:
+  - financial_documents
+  - provenance_and_audit_metadata
+  encrypted_application_caches:
+  - calculation_outputs
+  - financial_documents
+  local_non_content_security_audit:
+  - provenance_and_audit_metadata
+  local_notification_store:
+  - notification_metadata
+  local_telemetry_buffer:
+  - telemetry_metadata
+  platform_backup_ciphertext:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  - plan_3a_state_and_dependencies
+  - user_control_and_tombstone_metadata
+  app_controlled_export_staging:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  - plan_3a_state_and_dependencies
+  non_value_tombstone_store:
+  - user_control_and_tombstone_metadata
+  in_memory_ephemeral_coach_turn:
+  - coach_transient_and_free_text
+sink_semantics:
+  app_controlled_export_staging:
+    controller: MINT
+    contains: temporary_value_archive
+    must_be_purged: after_delivery_failure_cancel_or_timeout
+    classes_rule: projection_of_exactly_included_source_sink_class_record_kind_records
+    source_records_rule: exactly_export_staging_record_matrix_no_other_records
+  user_owned_delivered_copy:
+    controller: user_after_atomic_handoff
+    is_storage_sink: false
+    MINT_can_delete_after_handoff: false
+    delivery_rule: success_only_after_atomic_handoff_then_app_staging_cleanup
+  non_value_tombstone_store:
+    contains: non_value_anti_resurrection_markers_only
+    must_not_reconstruct_value: true
+  draft_cache_read_model_provisional_rule: each_is_explicit_sink_with_own_retention_and_targeted_purge
+  in_memory_ephemeral_coach_turn:
+    contains: current_turn_transient_free_text_only
+    persistence: forbidden
+    draft_cache_log_telemetry_backup_export: forbidden
+    lifetime: current_turn_only
+    purge: mandatory_on_turn_completion_failure_cancel_or_app_background
+retention_matrix:
+- data_class: identity_context
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__identity_context
+  completion_evidence: no_live_value__encrypted_canonical_value_records__identity_context
+- data_class: household_context
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__household_context
+  completion_evidence: no_live_value__encrypted_canonical_value_records__household_context
+- data_class: employment_and_income
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__employment_and_income
+  completion_evidence: no_live_value__encrypted_canonical_value_records__employment_and_income
+- data_class: assets_and_liabilities
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__assets_and_liabilities
+  completion_evidence: no_live_value__encrypted_canonical_value_records__assets_and_liabilities
+- data_class: housing
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__housing
+  completion_evidence: no_live_value__encrypted_canonical_value_records__housing
+- data_class: insurance
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__insurance
+  completion_evidence: no_live_value__encrypted_canonical_value_records__insurance
+- data_class: social_security_and_pension
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__social_security_and_pension
+  completion_evidence: no_live_value__encrypted_canonical_value_records__social_security_and_pension
+- data_class: tax
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__tax
+  completion_evidence: no_live_value__encrypted_canonical_value_records__tax
+- data_class: goals_and_preferences
+  storage_sink: encrypted_canonical_value_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_user_confirmed_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: canonical_value_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_canonical_value_records__goals_and_preferences
+  completion_evidence: no_live_value__encrypted_canonical_value_records__goals_and_preferences
+- data_class: provenance_and_audit_metadata
+  storage_sink: encrypted_provenance_records
+  record_kind: value_or_operational_record
+  purpose_id: maintain_traceable_financial_twin
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: provenance_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_provenance_records__provenance_and_audit_metadata
+  completion_evidence: no_live_value__encrypted_provenance_records__provenance_and_audit_metadata
+- data_class: calculation_outputs
+  storage_sink: encrypted_derived_read_models
+  record_kind: value_or_operational_record
+  purpose_id: run_deterministic_financial_calculation
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: derived_read_model_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_derived_read_models__calculation_outputs
+  completion_evidence: no_live_value__encrypted_derived_read_models__calculation_outputs
+- data_class: plan_3a_state_and_dependencies
+  storage_sink: encrypted_plan_records
+  record_kind: value_or_operational_record
+  purpose_id: track_user_selected_mini_plan
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: plan_committed
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_plan_records__plan_3a_state_and_dependencies
+  completion_evidence: no_live_value__encrypted_plan_records__plan_3a_state_and_dependencies
+- data_class: goals_and_preferences
+  storage_sink: encrypted_draft_records
+  record_kind: value_or_operational_record
+  purpose_id: complete_user_started_draft
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: draft_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_draft_records__goals_and_preferences
+  completion_evidence: no_live_value__encrypted_draft_records__goals_and_preferences
+- data_class: financial_documents
+  storage_sink: encrypted_draft_records
+  record_kind: value_or_operational_record
+  purpose_id: complete_user_started_draft
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: draft_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_draft_records__financial_documents
+  completion_evidence: no_live_value__encrypted_draft_records__financial_documents
+- data_class: financial_documents
+  storage_sink: encrypted_provisional_extraction_records
+  record_kind: value_or_operational_record
+  purpose_id: confirm_user_supplied_document_extraction
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: provisional_extraction_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_provisional_extraction_records__financial_documents
+  completion_evidence: no_live_value__encrypted_provisional_extraction_records__financial_documents
+- data_class: provenance_and_audit_metadata
+  storage_sink: encrypted_provisional_extraction_records
+  record_kind: value_or_operational_record
+  purpose_id: confirm_user_supplied_document_extraction
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: provisional_extraction_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_provisional_extraction_records__provenance_and_audit_metadata
+  completion_evidence: no_live_value__encrypted_provisional_extraction_records__provenance_and_audit_metadata
+- data_class: calculation_outputs
+  storage_sink: encrypted_application_caches
+  record_kind: value_or_operational_record
+  purpose_id: serve_current_user_operation
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: cache_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_application_caches__calculation_outputs
+  completion_evidence: no_live_value__encrypted_application_caches__calculation_outputs
+- data_class: financial_documents
+  storage_sink: encrypted_application_caches
+  record_kind: value_or_operational_record
+  purpose_id: serve_current_user_operation
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: cache_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__encrypted_application_caches__financial_documents
+  completion_evidence: no_live_value__encrypted_application_caches__financial_documents
+- data_class: provenance_and_audit_metadata
+  storage_sink: local_non_content_security_audit
+  record_kind: value_or_operational_record
+  purpose_id: protect_repository_access
+  processing_basis: necessary_service_security_with_specific_notice
+  start_trigger: security_event_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__local_non_content_security_audit__provenance_and_audit_metadata
+  completion_evidence: no_live_value__local_non_content_security_audit__provenance_and_audit_metadata
+- data_class: notification_metadata
+  storage_sink: local_notification_store
+  record_kind: value_or_operational_record
+  purpose_id: deliver_user_requested_notification
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: notification_scheduled
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__local_notification_store__notification_metadata
+  completion_evidence: no_live_value__local_notification_store__notification_metadata
+- data_class: telemetry_metadata
+  storage_sink: local_telemetry_buffer
+  record_kind: value_or_operational_record
+  purpose_id: diagnose_opted_in_runtime
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: telemetry_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__local_telemetry_buffer__telemetry_metadata
+  completion_evidence: no_live_value__local_telemetry_buffer__telemetry_metadata
+- data_class: identity_context
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__identity_context
+  completion_evidence: no_live_value__platform_backup_ciphertext__identity_context
+- data_class: household_context
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__household_context
+  completion_evidence: no_live_value__platform_backup_ciphertext__household_context
+- data_class: employment_and_income
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__employment_and_income
+  completion_evidence: no_live_value__platform_backup_ciphertext__employment_and_income
+- data_class: assets_and_liabilities
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__assets_and_liabilities
+  completion_evidence: no_live_value__platform_backup_ciphertext__assets_and_liabilities
+- data_class: housing
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__housing
+  completion_evidence: no_live_value__platform_backup_ciphertext__housing
+- data_class: insurance
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__insurance
+  completion_evidence: no_live_value__platform_backup_ciphertext__insurance
+- data_class: social_security_and_pension
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__social_security_and_pension
+  completion_evidence: no_live_value__platform_backup_ciphertext__social_security_and_pension
+- data_class: tax
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__tax
+  completion_evidence: no_live_value__platform_backup_ciphertext__tax
+- data_class: goals_and_preferences
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__goals_and_preferences
+  completion_evidence: no_live_value__platform_backup_ciphertext__goals_and_preferences
+- data_class: provenance_and_audit_metadata
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__provenance_and_audit_metadata
+  completion_evidence: no_live_value__platform_backup_ciphertext__provenance_and_audit_metadata
+- data_class: calculation_outputs
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__calculation_outputs
+  completion_evidence: no_live_value__platform_backup_ciphertext__calculation_outputs
+- data_class: plan_3a_state_and_dependencies
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__plan_3a_state_and_dependencies
+  completion_evidence: no_live_value__platform_backup_ciphertext__plan_3a_state_and_dependencies
+- data_class: user_control_and_tombstone_metadata
+  storage_sink: platform_backup_ciphertext
+  record_kind: value_or_operational_record
+  purpose_id: recover_encrypted_repository
+  processing_basis: user_requested_service_with_specific_notice
+  start_trigger: backup_epoch_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__platform_backup_ciphertext__user_control_and_tombstone_metadata
+  completion_evidence: no_live_value__platform_backup_ciphertext__user_control_and_tombstone_metadata
+- data_class: identity_context
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__identity_context
+  completion_evidence: no_live_value__app_controlled_export_staging__identity_context
+- data_class: household_context
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__household_context
+  completion_evidence: no_live_value__app_controlled_export_staging__household_context
+- data_class: employment_and_income
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__employment_and_income
+  completion_evidence: no_live_value__app_controlled_export_staging__employment_and_income
+- data_class: assets_and_liabilities
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__assets_and_liabilities
+  completion_evidence: no_live_value__app_controlled_export_staging__assets_and_liabilities
+- data_class: housing
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__housing
+  completion_evidence: no_live_value__app_controlled_export_staging__housing
+- data_class: insurance
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__insurance
+  completion_evidence: no_live_value__app_controlled_export_staging__insurance
+- data_class: social_security_and_pension
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__social_security_and_pension
+  completion_evidence: no_live_value__app_controlled_export_staging__social_security_and_pension
+- data_class: tax
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__tax
+  completion_evidence: no_live_value__app_controlled_export_staging__tax
+- data_class: goals_and_preferences
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__goals_and_preferences
+  completion_evidence: no_live_value__app_controlled_export_staging__goals_and_preferences
+- data_class: provenance_and_audit_metadata
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__provenance_and_audit_metadata
+  completion_evidence: no_live_value__app_controlled_export_staging__provenance_and_audit_metadata
+- data_class: calculation_outputs
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__calculation_outputs
+  completion_evidence: no_live_value__app_controlled_export_staging__calculation_outputs
+- data_class: plan_3a_state_and_dependencies
+  storage_sink: app_controlled_export_staging
+  record_kind: value_or_operational_record
+  purpose_id: exercise_user_export_control
+  processing_basis: explicit_optional_user_action_with_specific_notice
+  start_trigger: export_staging_created
+  end_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  - record_revoked
+  - user_delete_requested
+  - source_value_deleted
+  - account_or_repository_purged
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__app_controlled_export_staging__plan_3a_state_and_dependencies
+  completion_evidence: no_live_value__app_controlled_export_staging__plan_3a_state_and_dependencies
+- data_class: user_control_and_tombstone_metadata
+  storage_sink: non_value_tombstone_store
+  record_kind: non_value_tombstone
+  purpose_id: prevent_deleted_value_resurrection
+  processing_basis: user_requested_deletion_control
+  start_trigger: value_absence_verified
+  end_triggers:
+  - authoritative_anti_resurrection_retention_ended
+  duration: authoritative_duration_unset_runtime_blocked
+  purge_action_id: purge__non_value_tombstone_store__user_control_and_tombstone_metadata
+  completion_evidence: no_live_value__non_value_tombstone_store__user_control_and_tombstone_metadata
+- data_class: coach_transient_and_free_text
+  storage_sink: in_memory_ephemeral_coach_turn
+  record_kind: value_or_operational_record
+  purpose_id: answer_current_coach_turn_without_persistence
+  processing_basis: user_requested_transient_operation
+  start_trigger: current_coach_turn_started
+  end_triggers:
+  - turn_completed
+  - turn_failed
+  - turn_cancelled
+  - app_backgrounded
+  duration: current_turn_only
+  purge_action_id: purge__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+  completion_evidence: no_live_value__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+retention_policy:
+  duration_authority: external_privacy_and_legal_review_required
+  unset_duration_behavior: runtime_persistence_or_export_for_that_pair_blocked
+  trigger_rule: earliest_applicable_trigger_starts_targeted_purge
+  non_user_triggers:
+  - retention_expired
+  - purpose_ended
+  - consent_withdrawn_where_consent_is_basis
+  - record_superseded
+  silent_extension: forbidden
+  unknown_or_conflict: deny_retention_and_require_review
+  tombstone_trigger_rule: create_exactly_after_value_absence_verified_before_or_with_backup_epoch_invalidation
+  tombstone_end_rule: purge_only_after_authoritative_anti_resurrection_retention_ended_never_source_value_deleted
+  ephemeral_coach_rule: in_memory_current_turn_only_purge_on_completion_failure_cancel_or_background
+record_lifecycle_machines:
+  revoke:
+    meaning: stop_reliance_on_named_record_without_replacement
+    states:
+    - active
+    - revoke_requested
+    - purge_pending
+    - revoked
+    transitions:
+    - transition_id: revoke_request
+      from: active
+      event: user_or_verified_source_revokes
+      to: revoke_requested
+      action_id: request_revoke
+    - transition_id: revoke_detach
+      from: revoke_requested
+      event: dependents_marked_stale_and_value_purge_enqueued
+      to: purge_pending
+      action_id: request_revoke
+    - transition_id: revoke_complete
+      from: purge_pending
+      event: targeted_value_purge_verified_and_non_value_tombstone_committed
+      to: revoked
+      action_id: verify_purge
+    interruption_policy: action_failure_or_interruption_leaves_source_state_and_retries_same_idempotent_action
+  supersede:
+    meaning: replace_named_active_record_with_new_confirmed_version
+    states:
+    - active
+    - replacement_requested
+    - replacement_committed
+    - old_value_purge_pending
+    - superseded
+    transitions:
+    - transition_id: supersede_request
+      from: active
+      event: confirmed_replacement_submitted
+      to: replacement_requested
+      action_id: request_supersede
+    - transition_id: supersede_commit
+      from: replacement_requested
+      event: new_version_atomically_committed
+      to: replacement_committed
+      action_id: request_supersede
+    - transition_id: supersede_enqueue_old_purge
+      from: replacement_committed
+      event: dependents_rebound_or_stale_and_old_value_purge_enqueued
+      to: old_value_purge_pending
+      action_id: request_supersede
+    - transition_id: supersede_complete
+      from: old_value_purge_pending
+      event: old_value_purge_verified_and_non_value_link_committed
+      to: superseded
+      action_id: verify_purge
+    interruption_policy: action_failure_or_interruption_leaves_source_state_and_retries_same_idempotent_action
+  delete:
+    meaning: erase_named_scope_without_replacement
+    states:
+    - live
+    - delete_requested
+    - authenticated
+    - purge_in_progress
+    - purge_interrupted
+    - purge_verifying
+    - deleted
+    transitions:
+    - transition_id: delete_request
+      from: live
+      event: user_requests_closed_scope_deletion
+      to: delete_requested
+      action_id: request_delete
+    - transition_id: delete_auth
+      from: delete_requested
+      event: fresh_auth_and_scope_confirmation_succeed
+      to: authenticated
+      action_id: request_delete
+    - transition_id: delete_begin
+      from: authenticated
+      event: targeted_purge_actions_enqueued
+      to: purge_in_progress
+      action_id: request_delete
+    - transition_id: delete_interrupt
+      from: purge_in_progress
+      event: partial_failure_or_interruption
+      to: purge_interrupted
+      action_id: verify_purge
+    - transition_id: delete_resume
+      from: purge_interrupted
+      event: idempotent_resume
+      to: purge_in_progress
+      action_id: verify_purge
+    - transition_id: delete_verify
+      from: purge_in_progress
+      event: all_targeted_actions_have_evidence
+      to: purge_verifying
+      action_id: verify_purge
+    - transition_id: delete_complete
+      from: purge_verifying
+      event: same_graph_evidence_and_tombstone_verified
+      to: deleted
+      action_id: verify_purge
+    interruption_policy: action_failure_or_interruption_leaves_source_state_and_retries_same_idempotent_action
+purge_orchestration:
+  targeting_rule: closed_data_class_sink_pairs_only
+  all_pairs_have_action_and_evidence: true
+  partial_or_unknown: not_complete_deny_value_access_resume_idempotently
+  completion_rule: every_targeted_pair_evidence_verified_for_same_graph
+  key_rule: destroy_key_reference_only_when_scope_is_whole_repository_else_targeted_value_deletion
+  graph_id: required_immutable_unique_nonempty
+  targeted_pairs: closed_unique_nonempty_set
+  action_binding: exactly_one_targeted_action_per_pair_in_same_graph
+  evidence_binding: exactly_one_unique_nonempty_evidence_per_pair_and_action_in_same_graph
+  evidence_inverse: every_graph_evidence_maps_to_exactly_one_targeted_pair_and_action
+  verify_purge_aggregation: all_and_only_targeted_pair_evidence_for_same_graph_must_verify
+  source_delete_is_not_tombstone_purge_authority: true
+  tombstone_creation_rule: commit_non_value_marker_exactly_after_value_absence_verified
+  tombstone_epoch_rule: commit_atomically_before_or_with_backup_epoch_invalidation
+  tombstone_purge_rule: require_all_resurrection_channels_impossible_and_separately_authoritative_horizon_ended
+export_state_machine:
+  states:
+  - idle
+  - requested
+  - authenticated
+  - snapshotted
+  - built
+  - verified
+  - delivered
+  - failed
+  - cleaned
+  terminal_states:
+  - cleaned
+  success_state: delivered
+  transitions:
+  - transition_id: export_request
+    from: idle
+    event: user_requests_closed_scope
+    to: requested
+    action_id: request_export
+  - transition_id: export_authenticate
+    from: requested
+    event: fresh_auth_succeeds
+    to: authenticated
+    action_id: authenticate_export
+  - transition_id: export_snapshot
+    from: authenticated
+    event: consistent_snapshot_created
+    to: snapshotted
+    action_id: snapshot_export
+  - transition_id: export_build
+    from: snapshotted
+    event: archive_and_manifest_built_in_app_staging
+    to: built
+    action_id: build_export
+  - transition_id: export_verify
+    from: built
+    event: all_checksums_scope_and_manifest_verified
+    to: verified
+    action_id: verify_export
+  - transition_id: export_deliver
+    from: verified
+    event: atomic_handoff_to_user_destination_succeeds
+    to: delivered
+    action_id: deliver_export
+  - transition_id: export_fail_requested
+    from: requested
+    event: cancel_timeout_or_failure
+    to: failed
+    action_id: fail_export
+  - transition_id: export_fail_authenticated
+    from: authenticated
+    event: cancel_timeout_or_failure
+    to: failed
+    action_id: fail_export
+  - transition_id: export_fail_snapshotted
+    from: snapshotted
+    event: cancel_timeout_or_failure
+    to: failed
+    action_id: fail_export
+  - transition_id: export_fail_built
+    from: built
+    event: cancel_timeout_or_failure
+    to: failed
+    action_id: fail_export
+  - transition_id: export_fail_verified
+    from: verified
+    event: cancel_timeout_or_atomic_handoff_failure
+    to: failed
+    action_id: fail_export
+  - transition_id: export_cleanup_failed
+    from: failed
+    event: all_app_staging_removed
+    to: cleaned
+    action_id: cleanup_export
+  - transition_id: export_cleanup_delivered
+    from: delivered
+    event: all_app_staging_removed_after_handoff
+    to: cleaned
+    action_id: cleanup_export
+  undefined_transition: reject_fail_closed
+  partial_success: forbidden
+  delivery_rule: verified_archive_atomic_handoff_or_fail_then_cleanup
+export_scope_matrix:
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: identity_context
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: household_context
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: employment_and_income
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: assets_and_liabilities
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: housing
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: insurance
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: social_security_and_pension
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: tax
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: goals_and_preferences
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_provenance_records
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_derived_read_models
+  data_class: calculation_outputs
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_plan_records
+  data_class: plan_3a_state_and_dependencies
+  source_record_kind: value_or_operational_record
+  included: true
+  reason: included_confirmed_user_or_derived_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_draft_records
+  data_class: goals_and_preferences
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_unconfirmed_draft_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_draft_records
+  data_class: financial_documents
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_unconfirmed_draft_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_provisional_extraction_records
+  data_class: financial_documents
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_provisional_record_not_canonical
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_provisional_extraction_records
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_provisional_record_not_canonical
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_application_caches
+  data_class: calculation_outputs
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_rebuildable_cache_record
+  user_visible_in_manifest: true
+- source_storage_sink: encrypted_application_caches
+  data_class: financial_documents
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_rebuildable_cache_record
+  user_visible_in_manifest: true
+- source_storage_sink: local_non_content_security_audit
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_audit_identity_and_security_metadata_export_forbidden
+  user_visible_in_manifest: true
+- source_storage_sink: local_notification_store
+  data_class: notification_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_delivery_operational_metadata
+  user_visible_in_manifest: true
+- source_storage_sink: local_telemetry_buffer
+  data_class: telemetry_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_diagnostic_operational_metadata
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: identity_context
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: household_context
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: employment_and_income
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: assets_and_liabilities
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: housing
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: insurance
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: social_security_and_pension
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: tax
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: goals_and_preferences
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: calculation_outputs
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: plan_3a_state_and_dependencies
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: user_control_and_tombstone_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_backup_ciphertext_and_security_control_material
+  user_visible_in_manifest: true
+- source_storage_sink: non_value_tombstone_store
+  data_class: user_control_and_tombstone_metadata
+  source_record_kind: non_value_tombstone
+  included: false
+  reason: excluded_anti_resurrection_security_control_metadata
+  user_visible_in_manifest: true
+- source_storage_sink: in_memory_ephemeral_coach_turn
+  data_class: coach_transient_and_free_text
+  source_record_kind: value_or_operational_record
+  included: false
+  reason: excluded_transient_conversation_not_canonical
+  user_visible_in_manifest: true
+export_policy:
+  authentication: fresh_user_authentication_required
+  authorization: explicit_user_request_for_closed_data_scope
+  source_snapshot: one_consistent_repository_version_or_fail
+  format: versioned_machine_readable_archive_with_human_manifest
+  delivery: atomic_local_handoff_to_user_owned_destination
+  app_staging_cleanup: mandatory_after_delivery_failure_cancel_or_timeout
+  unknown_destination: deny
+  external_delivery: forbidden
+  secret_or_key_material: forbidden
+  manifest_fields:
+  - export_schema_version
+  - created_at
+  - included_source_sink_class_record_kinds
+  - excluded_source_sink_class_record_kinds_and_reasons
+  - source_repository_version
+  - file_checksums
+  - completion_status
+  - fact_provenance
+  - record_history
+  - validity_and_freshness
+  - assumptions
+  - staleness
+  - plan_dependencies
+  - known_limits
+  excluded_class_handling: source_sink_class_record_kind_and_plain_language_reason_in_non_content_manifest_only_no_excluded_content_staged
+  staging_rule: exactly_included_source_sink_class_record_kind_records_no_other_records
+  human_manifest_scope_rule: list_every_included_and_excluded_source_sink_class_record_kind_with_plain_language_reason
+action_matrix:
+- action_id: purge__encrypted_canonical_value_records__identity_context
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__identity_context
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__identity_context
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__household_context
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__household_context
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__household_context
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__employment_and_income
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__employment_and_income
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__employment_and_income
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__assets_and_liabilities
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__assets_and_liabilities
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__assets_and_liabilities
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__housing
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__housing
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__housing
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__insurance
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__insurance
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__insurance
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__social_security_and_pension
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__social_security_and_pension
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__social_security_and_pension
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__tax
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__tax
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__tax
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_canonical_value_records__goals_and_preferences
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_canonical_value_records__goals_and_preferences
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_canonical_value_records__goals_and_preferences
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_provenance_records__provenance_and_audit_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_provenance_records__provenance_and_audit_metadata
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_provenance_records__provenance_and_audit_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_derived_read_models__calculation_outputs
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_derived_read_models__calculation_outputs
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_derived_read_models__calculation_outputs
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_plan_records__plan_3a_state_and_dependencies
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_plan_records__plan_3a_state_and_dependencies
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_plan_records__plan_3a_state_and_dependencies
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_draft_records__goals_and_preferences
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_draft_records__goals_and_preferences
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_draft_records__goals_and_preferences
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_draft_records__financial_documents
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_draft_records__financial_documents
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_draft_records__financial_documents
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_provisional_extraction_records__financial_documents
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_provisional_extraction_records__financial_documents
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_provisional_extraction_records__financial_documents
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_provisional_extraction_records__provenance_and_audit_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_provisional_extraction_records__provenance_and_audit_metadata
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_provisional_extraction_records__provenance_and_audit_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_application_caches__calculation_outputs
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_application_caches__calculation_outputs
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_application_caches__calculation_outputs
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__encrypted_application_caches__financial_documents
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__encrypted_application_caches__financial_documents
+  idempotent: true
+  completion_evidence: no_live_value__encrypted_application_caches__financial_documents
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__local_non_content_security_audit__provenance_and_audit_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__local_non_content_security_audit__provenance_and_audit_metadata
+  idempotent: true
+  completion_evidence: no_live_value__local_non_content_security_audit__provenance_and_audit_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__local_notification_store__notification_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__local_notification_store__notification_metadata
+  idempotent: true
+  completion_evidence: no_live_value__local_notification_store__notification_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__local_telemetry_buffer__telemetry_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__local_telemetry_buffer__telemetry_metadata
+  idempotent: true
+  completion_evidence: no_live_value__local_telemetry_buffer__telemetry_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__identity_context
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__identity_context
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__identity_context
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__household_context
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__household_context
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__household_context
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__employment_and_income
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__employment_and_income
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__employment_and_income
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__assets_and_liabilities
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__assets_and_liabilities
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__assets_and_liabilities
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__housing
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__housing
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__housing
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__insurance
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__insurance
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__insurance
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__social_security_and_pension
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__social_security_and_pension
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__social_security_and_pension
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__tax
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__tax
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__tax
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__goals_and_preferences
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__goals_and_preferences
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__goals_and_preferences
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__provenance_and_audit_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__provenance_and_audit_metadata
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__provenance_and_audit_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__calculation_outputs
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__calculation_outputs
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__calculation_outputs
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__plan_3a_state_and_dependencies
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__plan_3a_state_and_dependencies
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__plan_3a_state_and_dependencies
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__platform_backup_ciphertext__user_control_and_tombstone_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__platform_backup_ciphertext__user_control_and_tombstone_metadata
+  idempotent: true
+  completion_evidence: no_live_value__platform_backup_ciphertext__user_control_and_tombstone_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__identity_context
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__identity_context
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__identity_context
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__household_context
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__household_context
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__household_context
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__employment_and_income
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__employment_and_income
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__employment_and_income
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__assets_and_liabilities
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__assets_and_liabilities
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__assets_and_liabilities
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__housing
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__housing
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__housing
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__insurance
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__insurance
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__insurance
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__social_security_and_pension
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__social_security_and_pension
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__social_security_and_pension
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__tax
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__tax
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__tax
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__goals_and_preferences
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__goals_and_preferences
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__goals_and_preferences
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__provenance_and_audit_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__provenance_and_audit_metadata
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__provenance_and_audit_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__calculation_outputs
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__calculation_outputs
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__calculation_outputs
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__app_controlled_export_staging__plan_3a_state_and_dependencies
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__app_controlled_export_staging__plan_3a_state_and_dependencies
+  idempotent: true
+  completion_evidence: no_live_value__app_controlled_export_staging__plan_3a_state_and_dependencies
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__non_value_tombstone_store__user_control_and_tombstone_metadata
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__non_value_tombstone_store__user_control_and_tombstone_metadata
+  idempotent: true
+  completion_evidence: no_live_value__non_value_tombstone_store__user_control_and_tombstone_metadata
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: request_export
+  kind: orchestration
+  authorization: fresh_auth_and_explicit_closed_scope
+  least_privilege: read_requested_classes_only
+  idempotent: true
+  completion_evidence: request_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: authenticate_export
+  kind: orchestration
+  authorization: fresh_auth_challenge
+  least_privilege: authenticate_only
+  idempotent: true
+  completion_evidence: authenticate_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: snapshot_export
+  kind: orchestration
+  authorization: active_authenticated_request
+  least_privilege: consistent_snapshot_read_only
+  idempotent: true
+  completion_evidence: snapshot_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: build_export
+  kind: orchestration
+  authorization: verified_snapshot
+  least_privilege: app_staging_write_only
+  idempotent: true
+  completion_evidence: build_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: verify_export
+  kind: orchestration
+  authorization: built_archive
+  least_privilege: checksums_and_manifest_read_only
+  idempotent: true
+  completion_evidence: verify_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: deliver_export
+  kind: orchestration
+  authorization: verified_archive_and_user_destination
+  least_privilege: atomic_handoff_only
+  idempotent: true
+  completion_evidence: deliver_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: fail_export
+  kind: orchestration
+  authorization: active_export_request
+  least_privilege: remove_app_staging_only
+  idempotent: true
+  completion_evidence: fail_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: cleanup_export
+  kind: orchestration
+  authorization: delivered_failed_or_cancelled
+  least_privilege: remove_app_staging_only
+  idempotent: true
+  completion_evidence: cleanup_export_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: request_delete
+  kind: orchestration
+  authorization: fresh_auth_and_explicit_scope
+  least_privilege: mark_closed_scope_only
+  idempotent: true
+  completion_evidence: request_delete_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: request_revoke
+  kind: orchestration
+  authorization: authenticated_user_or_verified_source
+  least_privilege: revoke_closed_record_only
+  idempotent: true
+  completion_evidence: request_revoke_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: request_supersede
+  kind: orchestration
+  authorization: authenticated_user_and_replacement
+  least_privilege: replace_closed_record_only
+  idempotent: true
+  completion_evidence: request_supersede_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: release_legal_hold
+  kind: orchestration
+  authorization: verified_hold_release
+  least_privilege: release_closed_hold_scope_only
+  idempotent: true
+  completion_evidence: release_legal_hold_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: verify_purge
+  kind: orchestration
+  authorization: active_purge_graph
+  least_privilege: read_non_value_evidence_only
+  idempotent: true
+  completion_evidence: verify_purge_evidence
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+- action_id: purge__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+  kind: targeted_sink_class_purge
+  authorization: verified_trigger_and_scope
+  least_privilege: delete_only__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+  idempotent: true
+  interruption_policy: failure_or_interruption_leaves_source_state_and_same_action_retries_idempotently
+  completion_evidence: no_live_value__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+backup_policy:
+  content: ciphertext_only_no_plaintext_or_export_key_material
+  backup_epoch: monotonic_epoch_bound_to_repository_and_key_generation
+  restore_gate: matching_key_generation_integrity_latest_tombstone_epoch_and_purge_ledger_required
+  targeted_deletion: purge_propagates_to_supported_backup_or_tombstone_epoch_blocks_value_on_restore
+  whole_repository_deletion: wrapping_key_destroyed_and_backup_ciphertext_purge_requested_restore_cryptographically_blocked
+  stale_backup: reject_restore_never_rehydrate_deleted_value
+  unknown_platform_behavior: runtime_backup_disabled_or_B0_STOP
+  completion: may_use_confirmed_propagation_or_cryptographic_inaccessibility_with_current_tombstone_epoch
+  restore_epoch_rule: reject_backup_epoch_older_than_latest_committed_tombstone_epoch_even_when_backup_purge_not_propagated
+  unpropagated_backup_at_delete: tombstone_epoch_blocks_restore_immediately_without_waiting_for_backup_propagation
+  unpropagated_delete_sequence:
+  - value_absence_verified
+  - tombstone_committed_atomically_before_or_with_backup_epoch_invalidation
+  - stale_backup_restore_rejected_by_tombstone_epoch
+  - backup_propagation_or_cryptographic_invalidation_completed_later
+legal_hold_policy:
+  default: deny_no_hold
+  activation: only_sourced_versioned_authoritative_obligation_after_external_legal_review
+  required_fields:
+  - authority_source
+  - source_version
+  - closed_scope
+  - start_at
+  - end_at_or_review_at
+  - review_cadence
+  - user_visibility
+  - release_criteria
+  invented_duration: forbidden
+  scope: minimum_closed_pairs_only
+  user_visibility: required_unless_sourced_lawful_exception
+  release_transition: release_immediately_enqueues_targeted_purge_if_other_basis_or_purpose_absent
+  current_holds: []
+  runtime_without_valid_hold_contract: hold_forbidden
+tombstone_policy:
+  record_kind: non_value_tombstone
+  contains_user_value: false
+  reconstructs_deleted_value: false
+  allowed_fields:
+  - kind
+  - occurred_at
+  - predecessor_record_version
+  - purge_graph_ref
+  - backup_epoch
+  forbidden_fields:
+  - normalized_value
+  - source_ref
+  - free_text
+  - file_path_or_name
+  - stable_user_identifier
+  duration: authoritative_duration_unset_runtime_blocked
+  start_trigger: value_absence_verified
+  end_triggers:
+  - authoritative_anti_resurrection_retention_ended
+  source_value_deleted_is_end_trigger: false
+  stale_backup_restore: blocked_by_tombstone_epoch_even_if_backup_purge_unpropagated_and_after_tombstone_purge
+  resurrection_channels:
+  - canonical_records
+  - provenance_records
+  - derived_read_models
+  - plan_records
+  - draft_records
+  - provisional_extractions
+  - application_caches
+  - platform_backups
+  - export_staging
+  - notification_store
+  - telemetry_buffer
+  creation_precondition: value_absence_verified
+  commit_epoch_atomicity: tombstone_committed_atomically_before_or_with_backup_epoch_invalidation
+  purge_preconditions:
+    resurrection_channels: all_resurrection_channels_impossible
+    authoritative_horizon: authoritative_anti_resurrection_retention_ended
+    combination: both_independently_required
+threat_dependencies:
+  T07: see_pinned_threat_model
+  T08: see_pinned_threat_model
+  T12: see_pinned_threat_model
+  T13: see_pinned_threat_model
+threat_to_actions:
+  T07:
+  - purge__encrypted_derived_read_models__calculation_outputs
+  - purge__app_controlled_export_staging__tax
+  - purge__app_controlled_export_staging__goals_and_preferences
+  - purge__platform_backup_ciphertext__identity_context
+  - purge__platform_backup_ciphertext__goals_and_preferences
+  - purge__app_controlled_export_staging__provenance_and_audit_metadata
+  - purge__encrypted_application_caches__financial_documents
+  - purge__platform_backup_ciphertext__housing
+  - purge__encrypted_canonical_value_records__insurance
+  - purge__local_telemetry_buffer__telemetry_metadata
+  - purge__platform_backup_ciphertext__calculation_outputs
+  - purge__non_value_tombstone_store__user_control_and_tombstone_metadata
+  - purge__platform_backup_ciphertext__plan_3a_state_and_dependencies
+  - verify_purge
+  - request_supersede
+  - purge__platform_backup_ciphertext__employment_and_income
+  - purge__local_notification_store__notification_metadata
+  - purge__app_controlled_export_staging__identity_context
+  - purge__app_controlled_export_staging__household_context
+  - purge__platform_backup_ciphertext__insurance
+  - purge__app_controlled_export_staging__insurance
+  - deliver_export
+  - purge__encrypted_canonical_value_records__housing
+  - purge__encrypted_plan_records__plan_3a_state_and_dependencies
+  - purge__encrypted_provisional_extraction_records__provenance_and_audit_metadata
+  - purge__encrypted_application_caches__calculation_outputs
+  - authenticate_export
+  - purge__platform_backup_ciphertext__user_control_and_tombstone_metadata
+  - purge__encrypted_canonical_value_records__employment_and_income
+  - cleanup_export
+  - release_legal_hold
+  - purge__platform_backup_ciphertext__social_security_and_pension
+  - purge__encrypted_draft_records__goals_and_preferences
+  - purge__app_controlled_export_staging__employment_and_income
+  - snapshot_export
+  - purge__encrypted_canonical_value_records__goals_and_preferences
+  - fail_export
+  - purge__app_controlled_export_staging__social_security_and_pension
+  - purge__encrypted_canonical_value_records__household_context
+  - purge__platform_backup_ciphertext__tax
+  - purge__encrypted_canonical_value_records__identity_context
+  - purge__encrypted_canonical_value_records__social_security_and_pension
+  - purge__platform_backup_ciphertext__household_context
+  - purge__platform_backup_ciphertext__provenance_and_audit_metadata
+  - purge__encrypted_canonical_value_records__assets_and_liabilities
+  - verify_export
+  - request_revoke
+  - purge__encrypted_draft_records__financial_documents
+  - purge__app_controlled_export_staging__plan_3a_state_and_dependencies
+  - purge__encrypted_provenance_records__provenance_and_audit_metadata
+  - purge__encrypted_canonical_value_records__tax
+  - purge__platform_backup_ciphertext__assets_and_liabilities
+  - purge__app_controlled_export_staging__calculation_outputs
+  - purge__app_controlled_export_staging__assets_and_liabilities
+  - request_delete
+  - purge__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+  - purge__app_controlled_export_staging__housing
+  - request_export
+  - purge__encrypted_provisional_extraction_records__financial_documents
+  - purge__local_non_content_security_audit__provenance_and_audit_metadata
+  - build_export
+  T08:
+  - purge__encrypted_derived_read_models__calculation_outputs
+  - purge__app_controlled_export_staging__tax
+  - purge__app_controlled_export_staging__goals_and_preferences
+  - purge__platform_backup_ciphertext__identity_context
+  - purge__platform_backup_ciphertext__goals_and_preferences
+  - purge__app_controlled_export_staging__provenance_and_audit_metadata
+  - purge__encrypted_application_caches__financial_documents
+  - purge__platform_backup_ciphertext__housing
+  - purge__encrypted_canonical_value_records__insurance
+  - purge__local_telemetry_buffer__telemetry_metadata
+  - purge__platform_backup_ciphertext__calculation_outputs
+  - purge__non_value_tombstone_store__user_control_and_tombstone_metadata
+  - purge__platform_backup_ciphertext__plan_3a_state_and_dependencies
+  - verify_purge
+  - purge__platform_backup_ciphertext__employment_and_income
+  - purge__local_notification_store__notification_metadata
+  - purge__app_controlled_export_staging__identity_context
+  - purge__app_controlled_export_staging__household_context
+  - purge__platform_backup_ciphertext__insurance
+  - purge__app_controlled_export_staging__insurance
+  - purge__encrypted_canonical_value_records__housing
+  - purge__encrypted_plan_records__plan_3a_state_and_dependencies
+  - purge__encrypted_provisional_extraction_records__provenance_and_audit_metadata
+  - purge__encrypted_application_caches__calculation_outputs
+  - purge__platform_backup_ciphertext__user_control_and_tombstone_metadata
+  - purge__encrypted_canonical_value_records__employment_and_income
+  - cleanup_export
+  - purge__platform_backup_ciphertext__social_security_and_pension
+  - purge__encrypted_draft_records__goals_and_preferences
+  - purge__app_controlled_export_staging__employment_and_income
+  - snapshot_export
+  - purge__encrypted_canonical_value_records__goals_and_preferences
+  - fail_export
+  - purge__app_controlled_export_staging__social_security_and_pension
+  - purge__encrypted_canonical_value_records__household_context
+  - purge__platform_backup_ciphertext__tax
+  - purge__encrypted_canonical_value_records__identity_context
+  - purge__encrypted_canonical_value_records__social_security_and_pension
+  - purge__platform_backup_ciphertext__household_context
+  - purge__platform_backup_ciphertext__provenance_and_audit_metadata
+  - purge__encrypted_canonical_value_records__assets_and_liabilities
+  - verify_export
+  - purge__encrypted_draft_records__financial_documents
+  - purge__app_controlled_export_staging__plan_3a_state_and_dependencies
+  - purge__encrypted_provenance_records__provenance_and_audit_metadata
+  - purge__encrypted_canonical_value_records__tax
+  - purge__platform_backup_ciphertext__assets_and_liabilities
+  - purge__app_controlled_export_staging__calculation_outputs
+  - purge__app_controlled_export_staging__assets_and_liabilities
+  - purge__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+  - purge__app_controlled_export_staging__housing
+  - purge__encrypted_provisional_extraction_records__financial_documents
+  - purge__local_non_content_security_audit__provenance_and_audit_metadata
+  - build_export
+  T12:
+  - verify_purge
+  - request_supersede
+  - deliver_export
+  - authenticate_export
+  - cleanup_export
+  - release_legal_hold
+  - snapshot_export
+  - fail_export
+  - verify_export
+  - request_revoke
+  - request_delete
+  - purge__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+  - request_export
+  - build_export
+  T13:
+  - snapshot_export
+  - verify_export
+  - purge__in_memory_ephemeral_coach_turn__coach_transient_and_free_text
+  - build_export
+action_to_threats:
+  purge__encrypted_canonical_value_records__identity_context:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__household_context:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__employment_and_income:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__assets_and_liabilities:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__housing:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__insurance:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__social_security_and_pension:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__tax:
+  - T07
+  - T08
+  purge__encrypted_canonical_value_records__goals_and_preferences:
+  - T07
+  - T08
+  purge__encrypted_provenance_records__provenance_and_audit_metadata:
+  - T07
+  - T08
+  purge__encrypted_derived_read_models__calculation_outputs:
+  - T07
+  - T08
+  purge__encrypted_plan_records__plan_3a_state_and_dependencies:
+  - T07
+  - T08
+  purge__encrypted_draft_records__goals_and_preferences:
+  - T07
+  - T08
+  purge__encrypted_draft_records__financial_documents:
+  - T07
+  - T08
+  purge__encrypted_provisional_extraction_records__financial_documents:
+  - T07
+  - T08
+  purge__encrypted_provisional_extraction_records__provenance_and_audit_metadata:
+  - T07
+  - T08
+  purge__encrypted_application_caches__calculation_outputs:
+  - T07
+  - T08
+  purge__encrypted_application_caches__financial_documents:
+  - T07
+  - T08
+  purge__local_non_content_security_audit__provenance_and_audit_metadata:
+  - T07
+  - T08
+  purge__local_notification_store__notification_metadata:
+  - T07
+  - T08
+  purge__local_telemetry_buffer__telemetry_metadata:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__identity_context:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__household_context:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__employment_and_income:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__assets_and_liabilities:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__housing:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__insurance:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__social_security_and_pension:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__tax:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__goals_and_preferences:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__provenance_and_audit_metadata:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__calculation_outputs:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__plan_3a_state_and_dependencies:
+  - T07
+  - T08
+  purge__platform_backup_ciphertext__user_control_and_tombstone_metadata:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__identity_context:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__household_context:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__employment_and_income:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__assets_and_liabilities:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__housing:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__insurance:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__social_security_and_pension:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__tax:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__goals_and_preferences:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__provenance_and_audit_metadata:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__calculation_outputs:
+  - T07
+  - T08
+  purge__app_controlled_export_staging__plan_3a_state_and_dependencies:
+  - T07
+  - T08
+  purge__non_value_tombstone_store__user_control_and_tombstone_metadata:
+  - T07
+  - T08
+  request_export:
+  - T07
+  - T12
+  authenticate_export:
+  - T07
+  - T12
+  snapshot_export:
+  - T07
+  - T08
+  - T12
+  - T13
+  build_export:
+  - T07
+  - T08
+  - T12
+  - T13
+  verify_export:
+  - T07
+  - T08
+  - T12
+  - T13
+  deliver_export:
+  - T07
+  - T12
+  fail_export:
+  - T07
+  - T08
+  - T12
+  cleanup_export:
+  - T07
+  - T08
+  - T12
+  request_delete:
+  - T07
+  - T12
+  request_revoke:
+  - T07
+  - T12
+  request_supersede:
+  - T07
+  - T12
+  release_legal_hold:
+  - T07
+  - T12
+  verify_purge:
+  - T07
+  - T08
+  - T12
+  purge__in_memory_ephemeral_coach_turn__coach_transient_and_free_text:
+  - T07
+  - T08
+  - T12
+  - T13
+threat_to_transitions:
+  T07:
+  - export_request
+  - export_authenticate
+  - export_snapshot
+  - export_build
+  - export_verify
+  - export_deliver
+  - export_fail_requested
+  - export_fail_authenticated
+  - export_fail_snapshotted
+  - export_fail_built
+  - export_fail_verified
+  - export_cleanup_failed
+  - export_cleanup_delivered
+  - revoke_request
+  - revoke_detach
+  - revoke_complete
+  - supersede_request
+  - supersede_commit
+  - supersede_enqueue_old_purge
+  - supersede_complete
+  - delete_request
+  - delete_auth
+  - delete_begin
+  - delete_interrupt
+  - delete_resume
+  - delete_verify
+  - delete_complete
+  T08:
+  - export_snapshot
+  - export_build
+  - export_verify
+  - export_fail_requested
+  - export_fail_authenticated
+  - export_fail_snapshotted
+  - export_fail_built
+  - export_fail_verified
+  - export_cleanup_failed
+  - export_cleanup_delivered
+  - revoke_complete
+  - supersede_complete
+  - delete_interrupt
+  - delete_resume
+  - delete_verify
+  - delete_complete
+  T12:
+  - export_request
+  - export_authenticate
+  - export_snapshot
+  - export_build
+  - export_verify
+  - export_deliver
+  - export_fail_requested
+  - export_fail_authenticated
+  - export_fail_snapshotted
+  - export_fail_built
+  - export_fail_verified
+  - export_cleanup_failed
+  - export_cleanup_delivered
+  - revoke_request
+  - revoke_detach
+  - revoke_complete
+  - supersede_request
+  - supersede_commit
+  - supersede_enqueue_old_purge
+  - supersede_complete
+  - delete_request
+  - delete_auth
+  - delete_begin
+  - delete_interrupt
+  - delete_resume
+  - delete_verify
+  - delete_complete
+  T13:
+  - export_snapshot
+  - export_build
+  - export_verify
+transition_to_threats:
+  export_request:
+  - T07
+  - T12
+  export_authenticate:
+  - T07
+  - T12
+  export_snapshot:
+  - T07
+  - T08
+  - T12
+  - T13
+  export_build:
+  - T07
+  - T08
+  - T12
+  - T13
+  export_verify:
+  - T07
+  - T08
+  - T12
+  - T13
+  export_deliver:
+  - T07
+  - T12
+  export_fail_requested:
+  - T07
+  - T08
+  - T12
+  export_fail_authenticated:
+  - T07
+  - T08
+  - T12
+  export_fail_snapshotted:
+  - T07
+  - T08
+  - T12
+  export_fail_built:
+  - T07
+  - T08
+  - T12
+  export_fail_verified:
+  - T07
+  - T08
+  - T12
+  export_cleanup_failed:
+  - T07
+  - T08
+  - T12
+  export_cleanup_delivered:
+  - T07
+  - T08
+  - T12
+  revoke_request:
+  - T07
+  - T12
+  revoke_detach:
+  - T07
+  - T12
+  revoke_complete:
+  - T07
+  - T08
+  - T12
+  supersede_request:
+  - T07
+  - T12
+  supersede_commit:
+  - T07
+  - T12
+  supersede_enqueue_old_purge:
+  - T07
+  - T12
+  supersede_complete:
+  - T07
+  - T08
+  - T12
+  delete_request:
+  - T07
+  - T12
+  delete_auth:
+  - T07
+  - T12
+  delete_begin:
+  - T07
+  - T12
+  delete_interrupt:
+  - T07
+  - T08
+  - T12
+  delete_resume:
+  - T07
+  - T08
+  - T12
+  delete_verify:
+  - T07
+  - T08
+  - T12
+  delete_complete:
+  - T07
+  - T08
+  - T12
+runtime_proof: absent
+external_privacy_review:
+  status: pending
+  reviewer: null
+  evidence_sha256: null
+does_not_prove:
+- runtime_retention_enforcement
+- runtime_export_enforcement
+- runtime_deletion_enforcement
+- anti_pii_runtime_enforcement
+- scheduler_or_background_job
+- authoritative_legal_retention_durations
+- external_privacy_review_acceptance
+- backup_runtime_behavior
+- platform_key_runtime_behavior
+- B0_acceptance
+does_not_close_B0: true
+activation_gate: STOP
+feature_flag: 'OFF'
+semantic_presentation_matrix:
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: identity_context
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_identity_context_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_identity_context_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_identity_context_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: household_context
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_household_context_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_household_context_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_household_context_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: employment_and_income
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_employment_and_income_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_employment_and_income_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_employment_and_income_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: assets_and_liabilities
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_assets_and_liabilities_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_assets_and_liabilities_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_assets_and_liabilities_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: housing
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_housing_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_housing_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_housing_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: insurance
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_insurance_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_insurance_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_insurance_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: social_security_and_pension
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_social_security_and_pension_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_social_security_and_pension_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_social_security_and_pension_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: tax
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_tax_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_tax_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_tax_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: goals_and_preferences
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_canonical_value_records_goals_and_preferences_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_canonical_value_records_goals_and_preferences_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_canonical_value_records_goals_and_preferences_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_provenance_records
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_provenance_records_provenance_and_audit_metadata_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_provenance_records_provenance_and_audit_metadata_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_provenance_records_provenance_and_audit_metadata_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_derived_read_models
+  data_class: calculation_outputs
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_derived_read_models_calculation_outputs_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_derived_read_models_calculation_outputs_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_derived_read_models_calculation_outputs_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_plan_records
+  data_class: plan_3a_state_and_dependencies
+  source_record_kind: value_or_operational_record
+  included: true
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_plan_records_plan_3a_state_and_dependencies_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_plan_records_plan_3a_state_and_dependencies_value_or_operational_record_included_reason
+  known_limits_key: export_tuple_encrypted_plan_records_plan_3a_state_and_dependencies_value_or_operational_record_known_limits
+  semantic_fields:
+    status: required_when_semantically_applicable_else_explicit_not_applicable
+    unit: required_when_semantically_applicable_else_explicit_not_applicable
+    period: required_when_semantically_applicable_else_explicit_not_applicable
+    source: required_when_semantically_applicable_else_explicit_not_applicable
+    confidence: required_when_semantically_applicable_else_explicit_not_applicable
+    confirmation: required_when_semantically_applicable_else_explicit_not_applicable
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_draft_records
+  data_class: goals_and_preferences
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_draft_records_goals_and_preferences_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_draft_records_goals_and_preferences_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_encrypted_draft_records_goals_and_preferences_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_draft_records
+  data_class: financial_documents
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_draft_records_financial_documents_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_draft_records_financial_documents_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_encrypted_draft_records_financial_documents_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_provisional_extraction_records
+  data_class: financial_documents
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_provisional_extraction_records_financial_documents_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_provisional_extraction_records_financial_documents_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_encrypted_provisional_extraction_records_financial_documents_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_provisional_extraction_records
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_provisional_extraction_records_provenance_and_audit_metadata_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_provisional_extraction_records_provenance_and_audit_metadata_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_encrypted_provisional_extraction_records_provenance_and_audit_metadata_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_application_caches
+  data_class: calculation_outputs
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_application_caches_calculation_outputs_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_application_caches_calculation_outputs_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_encrypted_application_caches_calculation_outputs_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: encrypted_application_caches
+  data_class: financial_documents
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_encrypted_application_caches_financial_documents_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_encrypted_application_caches_financial_documents_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_encrypted_application_caches_financial_documents_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: local_non_content_security_audit
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_local_non_content_security_audit_provenance_and_audit_metadata_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_local_non_content_security_audit_provenance_and_audit_metadata_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_local_non_content_security_audit_provenance_and_audit_metadata_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: local_notification_store
+  data_class: notification_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_local_notification_store_notification_metadata_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_local_notification_store_notification_metadata_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_local_notification_store_notification_metadata_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: local_telemetry_buffer
+  data_class: telemetry_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_local_telemetry_buffer_telemetry_metadata_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_local_telemetry_buffer_telemetry_metadata_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_local_telemetry_buffer_telemetry_metadata_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: identity_context
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_identity_context_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_identity_context_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_identity_context_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: household_context
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_household_context_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_household_context_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_household_context_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: employment_and_income
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_employment_and_income_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_employment_and_income_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_employment_and_income_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: assets_and_liabilities
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_assets_and_liabilities_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_assets_and_liabilities_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_assets_and_liabilities_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: housing
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_housing_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_housing_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_housing_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: insurance
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_insurance_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_insurance_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_insurance_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: social_security_and_pension
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_social_security_and_pension_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_social_security_and_pension_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_social_security_and_pension_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: tax
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_tax_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_tax_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_tax_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: goals_and_preferences
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_goals_and_preferences_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_goals_and_preferences_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_goals_and_preferences_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_provenance_and_audit_metadata_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_provenance_and_audit_metadata_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_provenance_and_audit_metadata_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: calculation_outputs
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_calculation_outputs_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_calculation_outputs_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_calculation_outputs_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: plan_3a_state_and_dependencies
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_plan_3a_state_and_dependencies_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_plan_3a_state_and_dependencies_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_plan_3a_state_and_dependencies_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: platform_backup_ciphertext
+  data_class: user_control_and_tombstone_metadata
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_platform_backup_ciphertext_user_control_and_tombstone_metadata_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_platform_backup_ciphertext_user_control_and_tombstone_metadata_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_platform_backup_ciphertext_user_control_and_tombstone_metadata_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: non_value_tombstone_store
+  data_class: user_control_and_tombstone_metadata
+  source_record_kind: non_value_tombstone
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_non_value_tombstone_store_user_control_and_tombstone_metadata_non_value_tombstone_description
+  inclusion_or_exclusion_reason_key: export_tuple_non_value_tombstone_store_user_control_and_tombstone_metadata_non_value_tombstone_excluded_reason
+  known_limits_key: export_tuple_non_value_tombstone_store_user_control_and_tombstone_metadata_non_value_tombstone_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+- source_storage_sink: in_memory_ephemeral_coach_turn
+  data_class: coach_transient_and_free_text
+  source_record_kind: value_or_operational_record
+  included: false
+  statuses:
+  - current
+  - historical
+  - provisional
+  - deleted
+  localizable: true
+  plain_language: true
+  description_key: export_tuple_in_memory_ephemeral_coach_turn_coach_transient_and_free_text_value_or_operational_record_description
+  inclusion_or_exclusion_reason_key: export_tuple_in_memory_ephemeral_coach_turn_coach_transient_and_free_text_value_or_operational_record_excluded_reason
+  known_limits_key: export_tuple_in_memory_ephemeral_coach_turn_coach_transient_and_free_text_value_or_operational_record_known_limits
+  semantic_fields:
+    status: explicit_not_applicable_excluded_scope
+    unit: explicit_not_applicable_excluded_scope
+    period: explicit_not_applicable_excluded_scope
+    source: explicit_not_applicable_excluded_scope
+    confidence: explicit_not_applicable_excluded_scope
+    confirmation: explicit_not_applicable_excluded_scope
+  readable_exclusions_and_limits_required: true
+semantic_presentation_policy:
+  render_raw_internal_identifiers_as_user_copy: forbidden
+  missing_semantic_field: render_localized_not_applicable_never_omit
+  all_statuses_user_explainable: true
+  excluded_content: never_staged_only_class_and_reason_manifested
+export_staging_record_matrix:
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: identity_context
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: household_context
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: employment_and_income
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: assets_and_liabilities
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: housing
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: insurance
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: social_security_and_pension
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: tax
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_canonical_value_records
+  data_class: goals_and_preferences
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_provenance_records
+  data_class: provenance_and_audit_metadata
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_derived_read_models
+  data_class: calculation_outputs
+  source_record_kind: value_or_operational_record
+- source_storage_sink: encrypted_plan_records
+  data_class: plan_3a_state_and_dependencies
+  source_record_kind: value_or_operational_record

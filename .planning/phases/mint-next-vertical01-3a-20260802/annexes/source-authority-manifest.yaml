@@ -1,0 +1,50 @@
+schema_version: 1
+manifest_id: lausanne_vd_2026_three_a
+status: mechanically_extracted_pending_independent_content_review_engine_unproven
+required_source_ids:
+- afc_circular_18a
+- ifd_scale_2026
+- lausanne_tax_decree_2025_2029
+- ofas_amounts_2026
+- ofas_contribution_page
+- vd_cantonal_reduction_2026
+- vd_deductions_2026
+- vd_income_scale_2026
+fail_closed:
+  any_required_source_unavailable: tax_delta_unavailable_and_feature_flag_false
+  hash_or_byte_mismatch: entire_ruleset_unavailable
+  expired_after: 2026-12-31
+  future_2027_data: unsupported
+authority_precedence:
+- federal_law_and_AFC_OFAS
+- VD_ACI
+- Ville_de_Lausanne
+claims:
+- id: ordinary_cap
+  value: 7258
+  unit: CHF
+  sources:
+  - ofas_contribution_page
+  - ofas_amounts_2026
+- id: lausanne_coefficient
+  value: 78.5
+  unit: percent
+  sources:
+  - lausanne_tax_decree_2025_2029
+- id: vd_coefficient
+  value: 155.0
+  unit: percent
+  sources:
+  - vd_deductions_2026
+- id: vd_reduction
+  value: 5.0
+  unit: percent
+  sources:
+  - vd_cantonal_reduction_2026
+- id: ifd_single_scale
+  value: form_58c_2026
+  unit: table
+  sources:
+  - ifd_scale_2026
+product_claim: non_binding_estimate_only_after_independent_engine_proof
+source_extractions_sha256: 080658b9388b9c7eea748d904ec73b406d50b91560d2ed3b62ba7a1759fb54a0

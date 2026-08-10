@@ -1,0 +1,1165 @@
+{
+  "activity_to_threats": {
+    "allowlisted_telemetry_crash_evidence": [
+      "T05",
+      "T06",
+      "T11"
+    ],
+    "coach_typed_intent_navigation_and_narrative": [
+      "T04",
+      "T09"
+    ],
+    "encrypted_local_persistence": [
+      "T01",
+      "T02",
+      "T08",
+      "T12",
+      "T13"
+    ],
+    "local_calculation_read_model": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "local_fact_proposal_confirmation": [
+      "T03",
+      "T04"
+    ],
+    "local_notification_eligibility": [
+      "T11"
+    ],
+    "local_plan_confirmation_tracking": [
+      "T09"
+    ],
+    "local_user_control_export_revoke_delete": [
+      "T07"
+    ],
+    "secure_failure_recovery": [
+      "T02",
+      "T12",
+      "T13"
+    ]
+  },
+  "actor_to_threats": {
+    "accidental_operator": [
+      "T07",
+      "T11",
+      "T13"
+    ],
+    "compromised_local_process": [
+      "T02",
+      "T08",
+      "T12"
+    ],
+    "input_manipulator": [
+      "T04",
+      "T09"
+    ],
+    "lost_or_shared_device_actor": [
+      "T01"
+    ],
+    "stale_data_hazard": [
+      "T03"
+    ],
+    "supply_chain_actor": [
+      "T10"
+    ],
+    "telemetry_observer": [
+      "T05",
+      "T06"
+    ]
+  },
+  "actors": {
+    "accidental_operator": "developer_test_or_support_action_exposing_financial_content",
+    "compromised_local_process": "malicious_application_rooted_device_or_debugger",
+    "input_manipulator": "crafted_typed_input_or_state_transition_attempt",
+    "lost_or_shared_device_actor": "physical_access_without_authorized_financial_context",
+    "stale_data_hazard": "authorized_use_of_outdated_or_contradictory_financial_facts",
+    "supply_chain_actor": "compromised_dependency_build_or_update_path",
+    "telemetry_observer": "network_or_processor_access_where_identity_location_contract_unknown"
+  },
+  "as_of": "2026-08-10",
+  "asset_to_threats": {
+    "calculation_inputs_outputs": [
+      "T10"
+    ],
+    "canonical_financial_facts": [
+      "T01",
+      "T03"
+    ],
+    "coach_boundary": [
+      "T04"
+    ],
+    "encrypted_local_repository": [
+      "T08",
+      "T12"
+    ],
+    "notification_metadata": [
+      "T11"
+    ],
+    "plan_state": [
+      "T09"
+    ],
+    "platform_key_material": [
+      "T02",
+      "T13"
+    ],
+    "telemetry_evidence": [
+      "T05",
+      "T06"
+    ],
+    "user_control_artifacts": [
+      "T07"
+    ]
+  },
+  "assets": {
+    "calculation_inputs_outputs": "deterministic_ruleset_inputs_results_and_source_hashes",
+    "canonical_financial_facts": "user_controlled_financial_fact_values_metadata_and_history",
+    "coach_boundary": "typed_intents_allowlisted_narrative_and_widget_payloads",
+    "encrypted_local_repository": "design_target_for_persisted_facts_plans_and_results",
+    "notification_metadata": "minimal_local_eligibility_without_financial_content",
+    "plan_state": "user_confirmed_goal_steps_dependencies_and_progress",
+    "platform_key_material": "keychain_or_keystore_managed_key_reference_not_secret_material",
+    "telemetry_evidence": "allowlisted_non_content_crash_and_runtime_evidence",
+    "user_control_artifacts": "export_revocation_deletion_and_tombstone_state"
+  },
+  "boundary_to_threats": {
+    "build_to_mobile_application": [
+      "T10"
+    ],
+    "engine_to_widgets_and_coach": [
+      "T04",
+      "T09"
+    ],
+    "facts_to_deterministic_engine": [
+      "T03"
+    ],
+    "mobile_to_local_repository": [
+      "T08",
+      "T12"
+    ],
+    "mobile_to_os_notifications": [
+      "T11"
+    ],
+    "mobile_to_platform_keystore": [
+      "T02",
+      "T13"
+    ],
+    "mobile_to_telemetry_processor": [
+      "T05",
+      "T06"
+    ],
+    "mobile_to_user_selected_export": [
+      "T07"
+    ],
+    "user_to_mobile_ui": [
+      "T01"
+    ]
+  },
+  "control_to_threats": {
+    "C01": [
+      "T03"
+    ],
+    "C02": [
+      "T03"
+    ],
+    "C03": [
+      "T01",
+      "T02",
+      "T08",
+      "T12",
+      "T13"
+    ],
+    "C04": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "C05": [
+      "T04",
+      "T09"
+    ],
+    "C06": [
+      "T05",
+      "T06"
+    ],
+    "C07": [
+      "T07",
+      "T08",
+      "T12"
+    ],
+    "C08": [
+      "T01",
+      "T04",
+      "T09",
+      "T11",
+      "T12"
+    ],
+    "C09": [
+      "T05",
+      "T07",
+      "T08",
+      "T11"
+    ],
+    "C10": [
+      "T02",
+      "T10",
+      "T13"
+    ]
+  },
+  "design_controls": {
+    "C01": "require_user_confirmation_before_canonical_fact_promotion",
+    "C02": "require_provenance_validity_history_and_contradiction_state",
+    "C03": "require_encrypted_repository_and_platform_key_reference_contract",
+    "C04": "require_versioned_deterministic_engine_and_source_hashes",
+    "C05": "require_typed_coach_intents_and_allowlisted_narrative_payloads",
+    "C06": "require_allowlisted_non_content_telemetry_with_unknown_recipient_fail_closed",
+    "C07": "require_export_revocation_deletion_and_tombstone_contract",
+    "C08": "require_state_machine_and_navigation_transition_validation",
+    "C09": "require_data_minimization_and_notification_content_exclusion",
+    "C10": "require_dependency_integrity_and_reproducible_build_evidence"
+  },
+  "does_not_activate_runtime": true,
+  "does_not_close_B0": true,
+  "exclusions": [
+    "no_secret_or_key_material",
+    "no_real_user_data",
+    "no_runtime_security_claim",
+    "no_penetration_test_claim",
+    "no_external_review_claim",
+    "no_risk_acceptance"
+  ],
+  "real_user_exposure": "forbidden",
+  "reassessment_trigger_to_threats": {
+    "account_opening_or_referral": [
+      "T09"
+    ],
+    "automated_legally_significant_decision": [
+      "T04",
+      "T09"
+    ],
+    "claim_of_finma_approval_or_supervision": [
+      "T09"
+    ],
+    "commission_or_affiliate_remuneration": [
+      "T09"
+    ],
+    "cross_border_user_or_service": [
+      "T05",
+      "T06",
+      "T07"
+    ],
+    "custody_or_money_movement": [
+      "T07",
+      "T09"
+    ],
+    "data_leaves_device_or_new_recipient_or_transfer": [
+      "T01",
+      "T02",
+      "T05",
+      "T06",
+      "T07",
+      "T11",
+      "T12",
+      "T13"
+    ],
+    "imperative_financial_action": [
+      "T09"
+    ],
+    "insurance_product_comparison": [
+      "T09"
+    ],
+    "llm_free_text_outside_allowlist": [
+      "T04"
+    ],
+    "observed_transaction_or_daily_monitoring_claim": [
+      "T05",
+      "T08"
+    ],
+    "order_execution_or_transmission": [
+      "T07",
+      "T09"
+    ],
+    "personalized_recommendation": [
+      "T04",
+      "T09"
+    ],
+    "portfolio_allocation_or_rebalancing": [
+      "T09"
+    ],
+    "provider_or_product_ranking": [
+      "T09"
+    ],
+    "sold_human_advice_escalation": [
+      "T09"
+    ],
+    "specific_provider_or_instrument": [
+      "T09"
+    ],
+    "stale_or_unreviewed_authority": [
+      "T03",
+      "T10"
+    ],
+    "suitability_best_optimal_language": [
+      "T09"
+    ],
+    "tax_filing_submission_or_representation": [
+      "T03",
+      "T07"
+    ],
+    "unsupported_persona_canton_year_or_taxation": [
+      "T03"
+    ]
+  },
+  "register_id": "mint_next_three_a_threat_model_risk_register_v1",
+  "risk_signal_to_threats": {
+    "coach_boundary_escape": [
+      "T04"
+    ],
+    "deletion_or_export_failure": [
+      "T07"
+    ],
+    "device_or_key_compromise": [
+      "T02",
+      "T12",
+      "T13"
+    ],
+    "financial_profile_concentration": [
+      "T08"
+    ],
+    "incorrect_or_stale_fact_harm": [
+      "T03",
+      "T10"
+    ],
+    "manipulative_or_overconfident_personalization": [
+      "T09"
+    ],
+    "recipient_or_transfer_opacity": [
+      "T06"
+    ],
+    "telemetry_linkability_or_content_leakage": [
+      "T05",
+      "T11"
+    ],
+    "unauthorized_local_access": [
+      "T01"
+    ]
+  },
+  "runtime_binding": "none",
+  "schema_version": 1,
+  "scope": "mint_next_three_a_b0_local_first_design",
+  "status": "design_only_controls_unproven",
+  "surface_to_threats": {
+    "amount_choice": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "coach_narrative": [
+      "T03",
+      "T04",
+      "T09",
+      "T10"
+    ],
+    "coach_typed_intent": [
+      "T04",
+      "T09"
+    ],
+    "confirmation_refusal": [
+      "T03",
+      "T04"
+    ],
+    "contradiction_resolution": [
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T08",
+      "T12",
+      "T13"
+    ],
+    "fact_proposal": [
+      "T03",
+      "T04"
+    ],
+    "fact_review": [
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T08",
+      "T12",
+      "T13"
+    ],
+    "notification": [
+      "T11"
+    ],
+    "plan_confirmation": [
+      "T01",
+      "T02",
+      "T08",
+      "T09",
+      "T12",
+      "T13"
+    ],
+    "plan_status": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "result_widget_contribution": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "result_widget_liquidity": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "result_widget_tax_reduction": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "result_widget_withdrawal_tax": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "revoke_delete_export": [
+      "T07"
+    ],
+    "rules_unavailable_explanation": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "secure_failure_recovery": [
+      "T02",
+      "T12",
+      "T13"
+    ],
+    "situation_read_model": [
+      "T03",
+      "T09",
+      "T10"
+    ],
+    "stale_refresh": [
+      "T01",
+      "T02",
+      "T03",
+      "T04",
+      "T08",
+      "T12",
+      "T13"
+    ],
+    "telemetry_crash_evidence": [
+      "T05",
+      "T06",
+      "T11"
+    ],
+    "today_opportunity": [
+      "T03",
+      "T09",
+      "T10",
+      "T11"
+    ],
+    "unsupported_explanation": [
+      "T03",
+      "T09",
+      "T10"
+    ]
+  },
+  "threat_to_activities": {
+    "T01": [
+      "encrypted_local_persistence"
+    ],
+    "T02": [
+      "encrypted_local_persistence",
+      "secure_failure_recovery"
+    ],
+    "T03": [
+      "local_calculation_read_model",
+      "local_fact_proposal_confirmation"
+    ],
+    "T04": [
+      "coach_typed_intent_navigation_and_narrative",
+      "local_fact_proposal_confirmation"
+    ],
+    "T05": [
+      "allowlisted_telemetry_crash_evidence"
+    ],
+    "T06": [
+      "allowlisted_telemetry_crash_evidence"
+    ],
+    "T07": [
+      "local_user_control_export_revoke_delete"
+    ],
+    "T08": [
+      "encrypted_local_persistence"
+    ],
+    "T09": [
+      "coach_typed_intent_navigation_and_narrative",
+      "local_calculation_read_model",
+      "local_plan_confirmation_tracking"
+    ],
+    "T10": [
+      "local_calculation_read_model"
+    ],
+    "T11": [
+      "allowlisted_telemetry_crash_evidence",
+      "local_notification_eligibility"
+    ],
+    "T12": [
+      "encrypted_local_persistence",
+      "secure_failure_recovery"
+    ],
+    "T13": [
+      "encrypted_local_persistence",
+      "secure_failure_recovery"
+    ]
+  },
+  "threat_to_reassessment_triggers": {
+    "T01": [
+      "data_leaves_device_or_new_recipient_or_transfer"
+    ],
+    "T02": [
+      "data_leaves_device_or_new_recipient_or_transfer"
+    ],
+    "T03": [
+      "stale_or_unreviewed_authority",
+      "tax_filing_submission_or_representation",
+      "unsupported_persona_canton_year_or_taxation"
+    ],
+    "T04": [
+      "automated_legally_significant_decision",
+      "llm_free_text_outside_allowlist",
+      "personalized_recommendation"
+    ],
+    "T05": [
+      "cross_border_user_or_service",
+      "data_leaves_device_or_new_recipient_or_transfer",
+      "observed_transaction_or_daily_monitoring_claim"
+    ],
+    "T06": [
+      "cross_border_user_or_service",
+      "data_leaves_device_or_new_recipient_or_transfer"
+    ],
+    "T07": [
+      "cross_border_user_or_service",
+      "custody_or_money_movement",
+      "data_leaves_device_or_new_recipient_or_transfer",
+      "order_execution_or_transmission",
+      "tax_filing_submission_or_representation"
+    ],
+    "T08": [
+      "observed_transaction_or_daily_monitoring_claim"
+    ],
+    "T09": [
+      "account_opening_or_referral",
+      "automated_legally_significant_decision",
+      "claim_of_finma_approval_or_supervision",
+      "commission_or_affiliate_remuneration",
+      "custody_or_money_movement",
+      "imperative_financial_action",
+      "insurance_product_comparison",
+      "order_execution_or_transmission",
+      "personalized_recommendation",
+      "portfolio_allocation_or_rebalancing",
+      "provider_or_product_ranking",
+      "sold_human_advice_escalation",
+      "specific_provider_or_instrument",
+      "suitability_best_optimal_language"
+    ],
+    "T10": [
+      "stale_or_unreviewed_authority"
+    ],
+    "T11": [
+      "data_leaves_device_or_new_recipient_or_transfer"
+    ],
+    "T12": [
+      "data_leaves_device_or_new_recipient_or_transfer"
+    ],
+    "T13": [
+      "data_leaves_device_or_new_recipient_or_transfer"
+    ]
+  },
+  "threat_to_surfaces": {
+    "T01": [
+      "contradiction_resolution",
+      "fact_review",
+      "plan_confirmation",
+      "stale_refresh"
+    ],
+    "T02": [
+      "contradiction_resolution",
+      "fact_review",
+      "plan_confirmation",
+      "secure_failure_recovery",
+      "stale_refresh"
+    ],
+    "T03": [
+      "amount_choice",
+      "coach_narrative",
+      "confirmation_refusal",
+      "contradiction_resolution",
+      "fact_proposal",
+      "fact_review",
+      "plan_status",
+      "result_widget_contribution",
+      "result_widget_liquidity",
+      "result_widget_tax_reduction",
+      "result_widget_withdrawal_tax",
+      "rules_unavailable_explanation",
+      "situation_read_model",
+      "stale_refresh",
+      "today_opportunity",
+      "unsupported_explanation"
+    ],
+    "T04": [
+      "coach_narrative",
+      "coach_typed_intent",
+      "confirmation_refusal",
+      "contradiction_resolution",
+      "fact_proposal",
+      "fact_review",
+      "stale_refresh"
+    ],
+    "T05": [
+      "telemetry_crash_evidence"
+    ],
+    "T06": [
+      "telemetry_crash_evidence"
+    ],
+    "T07": [
+      "revoke_delete_export"
+    ],
+    "T08": [
+      "contradiction_resolution",
+      "fact_review",
+      "plan_confirmation",
+      "stale_refresh"
+    ],
+    "T09": [
+      "amount_choice",
+      "coach_narrative",
+      "coach_typed_intent",
+      "plan_confirmation",
+      "plan_status",
+      "result_widget_contribution",
+      "result_widget_liquidity",
+      "result_widget_tax_reduction",
+      "result_widget_withdrawal_tax",
+      "rules_unavailable_explanation",
+      "situation_read_model",
+      "today_opportunity",
+      "unsupported_explanation"
+    ],
+    "T10": [
+      "amount_choice",
+      "coach_narrative",
+      "plan_status",
+      "result_widget_contribution",
+      "result_widget_liquidity",
+      "result_widget_tax_reduction",
+      "result_widget_withdrawal_tax",
+      "rules_unavailable_explanation",
+      "situation_read_model",
+      "today_opportunity",
+      "unsupported_explanation"
+    ],
+    "T11": [
+      "notification",
+      "telemetry_crash_evidence",
+      "today_opportunity"
+    ],
+    "T12": [
+      "contradiction_resolution",
+      "fact_review",
+      "plan_confirmation",
+      "secure_failure_recovery",
+      "stale_refresh"
+    ],
+    "T13": [
+      "contradiction_resolution",
+      "fact_review",
+      "plan_confirmation",
+      "secure_failure_recovery",
+      "stale_refresh"
+    ]
+  },
+  "threats": {
+    "T01": {
+      "actor": "lost_or_shared_device_actor",
+      "asset": "canonical_financial_facts",
+      "attack_or_failure_action": "reuse_an_unattended_authenticated_session",
+      "control_ids": [
+        "C03",
+        "C08"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "unauthorized_person_views_or_changes_canonical_financial_facts",
+      "impact": "unauthorized_person_views_or_changes_canonical_financial_facts",
+      "precondition": "shared_device_reads_unlocked_financial_twin_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "confidentiality_loss",
+        "control_loss"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "unauthorized_local_access",
+      "scenario": "shared_device_reads_unlocked_financial_twin",
+      "security_properties": [
+        "confidentiality",
+        "integrity",
+        "privacy"
+      ],
+      "stride_categories": [
+        "spoofing",
+        "information_disclosure"
+      ],
+      "trust_boundary": "user_to_mobile_ui",
+      "verification_contracts": [
+        "key_contract",
+        "privacy_contract"
+      ]
+    },
+    "T02": {
+      "actor": "compromised_local_process",
+      "asset": "platform_key_material",
+      "attack_or_failure_action": "invoke_or_observe_keystore_operations_outside_the_authorized_app_path",
+      "control_ids": [
+        "C03",
+        "C10"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "encrypted_financial_data_is_disclosed_or_accepted_under_an_attacker_controlled_key",
+      "impact": "encrypted_financial_data_is_disclosed_or_accepted_under_an_attacker_controlled_key",
+      "precondition": "local_process_extracts_or_substitutes_platform_key_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "confidentiality_loss",
+        "control_loss"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "device_or_key_compromise",
+      "scenario": "local_process_extracts_or_substitutes_platform_key",
+      "security_properties": [
+        "confidentiality",
+        "integrity",
+        "privacy"
+      ],
+      "stride_categories": [
+        "tampering",
+        "information_disclosure",
+        "elevation_of_privilege"
+      ],
+      "trust_boundary": "mobile_to_platform_keystore",
+      "verification_contracts": [
+        "key_contract",
+        "anti_pii"
+      ]
+    },
+    "T03": {
+      "actor": "stale_data_hazard",
+      "asset": "canonical_financial_facts",
+      "attack_or_failure_action": "retain_a_superseded_or_expired_fact_as_current",
+      "control_ids": [
+        "C01",
+        "C02",
+        "C04"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "calculation_and_recommendation_use_an_incorrect_user_situation",
+      "impact": "calculation_and_recommendation_use_an_incorrect_user_situation",
+      "precondition": "stale_fact_drives_current_financial_decision_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "financial_harm",
+        "autonomy_harm"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "incorrect_or_stale_fact_harm",
+      "scenario": "stale_fact_drives_current_financial_decision",
+      "security_properties": [
+        "integrity",
+        "autonomy"
+      ],
+      "stride_categories": [
+        "tampering",
+        "repudiation"
+      ],
+      "trust_boundary": "facts_to_deterministic_engine",
+      "verification_contracts": [
+        "fact_contract",
+        "dependency_contract"
+      ]
+    },
+    "T04": {
+      "actor": "input_manipulator",
+      "asset": "coach_boundary",
+      "attack_or_failure_action": "present_model_narrative_or_user_text_as_a_verified_fact_or_calculation",
+      "control_ids": [
+        "C05",
+        "C08"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "user_is_shown_or_persists_unverified_financial_advice_as_truth",
+      "impact": "user_is_shown_or_persists_unverified_financial_advice_as_truth",
+      "precondition": "untrusted_input_crosses_from_coach_to_deterministic_authority_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "autonomy_harm",
+        "financial_harm"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "coach_boundary_escape",
+      "scenario": "untrusted_input_crosses_from_coach_to_deterministic_authority",
+      "security_properties": [
+        "integrity",
+        "autonomy"
+      ],
+      "stride_categories": [
+        "tampering",
+        "elevation_of_privilege"
+      ],
+      "trust_boundary": "engine_to_widgets_and_coach",
+      "verification_contracts": [
+        "anti_pii",
+        "privacy_contract"
+      ]
+    },
+    "T05": {
+      "actor": "telemetry_observer",
+      "asset": "telemetry_evidence",
+      "attack_or_failure_action": "capture_content_or_stable_identifiers_in_diagnostics",
+      "control_ids": [
+        "C06",
+        "C09"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "processor_or_observer_can_reconstruct_a_persons_financial_situation",
+      "impact": "processor_or_observer_can_reconstruct_a_persons_financial_situation",
+      "precondition": "telemetry_payload_reveals_financial_content_or_identity_link_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "linkability",
+        "confidentiality_loss"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "telemetry_linkability_or_content_leakage",
+      "scenario": "telemetry_payload_reveals_financial_content_or_identity_link",
+      "security_properties": [
+        "confidentiality",
+        "privacy"
+      ],
+      "stride_categories": [
+        "information_disclosure"
+      ],
+      "trust_boundary": "mobile_to_telemetry_processor",
+      "verification_contracts": [
+        "privacy_contract",
+        "anti_pii"
+      ]
+    },
+    "T06": {
+      "actor": "telemetry_observer",
+      "asset": "telemetry_evidence",
+      "attack_or_failure_action": "route_telemetry_to_an_unlisted_recipient_or_jurisdiction",
+      "control_ids": [
+        "C06"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "user_cannot_understand_or_control_who_receives_financial_metadata",
+      "impact": "user_cannot_understand_or_control_who_receives_financial_metadata",
+      "precondition": "undocumented_recipient_or_transfer_obscures_data_destination_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "opacity",
+        "control_loss"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "recipient_or_transfer_opacity",
+      "scenario": "undocumented_recipient_or_transfer_obscures_data_destination",
+      "security_properties": [
+        "privacy",
+        "autonomy"
+      ],
+      "stride_categories": [
+        "repudiation",
+        "information_disclosure"
+      ],
+      "trust_boundary": "mobile_to_telemetry_processor",
+      "verification_contracts": [
+        "privacy_contract"
+      ]
+    },
+    "T07": {
+      "actor": "accidental_operator",
+      "asset": "user_control_artifacts",
+      "attack_or_failure_action": "report_completion_while_records_or_exports_are_missing_or_retained",
+      "control_ids": [
+        "C07",
+        "C09"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "user_loses_access_to_required_data_or_cannot_exercise_deletion_control",
+      "impact": "user_loses_access_to_required_data_or_cannot_exercise_deletion_control",
+      "precondition": "export_or_deletion_operation_is_partial_or_misleading_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "control_loss",
+        "exclusion_or_access_loss"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "deletion_or_export_failure",
+      "scenario": "export_or_deletion_operation_is_partial_or_misleading",
+      "security_properties": [
+        "availability",
+        "privacy",
+        "autonomy"
+      ],
+      "stride_categories": [
+        "repudiation",
+        "denial_of_service"
+      ],
+      "trust_boundary": "mobile_to_user_selected_export",
+      "verification_contracts": [
+        "retention_export_deletion"
+      ]
+    },
+    "T08": {
+      "actor": "compromised_local_process",
+      "asset": "encrypted_local_repository",
+      "attack_or_failure_action": "read_or_copy_the_local_repository_outside_the_authorized_application",
+      "control_ids": [
+        "C03",
+        "C07",
+        "C09"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "single_compromise_reveals_or_alters_the_users_cross_domain_financial_history",
+      "impact": "single_compromise_reveals_or_alters_the_users_cross_domain_financial_history",
+      "precondition": "repository_concentration_exposes_the_complete_financial_profile_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "confidentiality_loss",
+        "financial_harm"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "financial_profile_concentration",
+      "scenario": "repository_concentration_exposes_the_complete_financial_profile",
+      "security_properties": [
+        "confidentiality",
+        "integrity",
+        "privacy"
+      ],
+      "stride_categories": [
+        "information_disclosure",
+        "tampering"
+      ],
+      "trust_boundary": "mobile_to_local_repository",
+      "verification_contracts": [
+        "key_contract",
+        "privacy_contract"
+      ]
+    },
+    "T09": {
+      "actor": "input_manipulator",
+      "asset": "plan_state",
+      "attack_or_failure_action": "suppress_uncertainty_or_alternatives_in_a_personalized_recommendation",
+      "control_ids": [
+        "C04",
+        "C05",
+        "C08"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "user_is_manipulated_into_an_unsuitable_financial_action",
+      "impact": "user_is_manipulated_into_an_unsuitable_financial_action",
+      "precondition": "personalized_nudge_uses_uncertain_data_as_confident_direction_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "autonomy_harm",
+        "financial_harm"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "manipulative_or_overconfident_personalization",
+      "scenario": "personalized_nudge_uses_uncertain_data_as_confident_direction",
+      "security_properties": [
+        "autonomy",
+        "integrity"
+      ],
+      "stride_categories": [
+        "repudiation",
+        "elevation_of_privilege"
+      ],
+      "trust_boundary": "engine_to_widgets_and_coach",
+      "verification_contracts": [
+        "privacy_contract",
+        "anti_pii"
+      ]
+    },
+    "T10": {
+      "actor": "supply_chain_actor",
+      "asset": "calculation_inputs_outputs",
+      "attack_or_failure_action": "inject_unsigned_or_unreviewed_code_or_constants_into_the_mobile_build",
+      "control_ids": [
+        "C04",
+        "C10"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "calculation_outputs_are_systematically_wrong_without_user_visibility",
+      "impact": "calculation_outputs_are_systematically_wrong_without_user_visibility",
+      "precondition": "build_or_dependency_modifies_financial_calculation_logic_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "financial_harm",
+        "opacity"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "incorrect_or_stale_fact_harm",
+      "scenario": "build_or_dependency_modifies_financial_calculation_logic",
+      "security_properties": [
+        "integrity",
+        "autonomy"
+      ],
+      "stride_categories": [
+        "tampering",
+        "repudiation",
+        "elevation_of_privilege"
+      ],
+      "trust_boundary": "build_to_mobile_application",
+      "verification_contracts": [
+        "dependency_contract",
+        "calculation_contract"
+      ]
+    },
+    "T11": {
+      "actor": "accidental_operator",
+      "asset": "notification_metadata",
+      "attack_or_failure_action": "render_sensitive_goal_tax_or_balance_metadata_on_a_locked_screen",
+      "control_ids": [
+        "C08",
+        "C09"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "bystander_infers_private_financial_status_without_opening_mint",
+      "impact": "bystander_infers_private_financial_status_without_opening_mint",
+      "precondition": "operating_system_notification_discloses_financial_context_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "confidentiality_loss",
+        "linkability"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "telemetry_linkability_or_content_leakage",
+      "scenario": "operating_system_notification_discloses_financial_context",
+      "security_properties": [
+        "confidentiality",
+        "privacy"
+      ],
+      "stride_categories": [
+        "information_disclosure"
+      ],
+      "trust_boundary": "mobile_to_os_notifications",
+      "verification_contracts": [
+        "privacy_contract",
+        "anti_pii"
+      ]
+    },
+    "T12": {
+      "actor": "compromised_local_process",
+      "asset": "encrypted_local_repository",
+      "attack_or_failure_action": "supply_truncated_tampered_or_unreadable_persistence_during_restore",
+      "control_ids": [
+        "C03",
+        "C07",
+        "C08"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "mint_accepts_corrupt_facts_or_permanently_blocks_access_without_a_verified_recovery_path",
+      "impact": "mint_accepts_corrupt_facts_or_permanently_blocks_access_without_a_verified_recovery_path",
+      "precondition": "corrupted_repository_or_failed_recovery_must_fail_closed_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "financial_harm",
+        "exclusion_or_access_loss"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "device_or_key_compromise",
+      "scenario": "corrupted_repository_or_failed_recovery_must_fail_closed",
+      "security_properties": [
+        "integrity",
+        "availability"
+      ],
+      "stride_categories": [
+        "tampering",
+        "denial_of_service"
+      ],
+      "trust_boundary": "mobile_to_local_repository",
+      "verification_contracts": [
+        "key_contract",
+        "retention_export_deletion"
+      ]
+    },
+    "T13": {
+      "actor": "accidental_operator",
+      "asset": "platform_key_material",
+      "attack_or_failure_action": "delete_rotate_or_restore_a_key_without_a_verified_compatible_data_recovery_path",
+      "control_ids": [
+        "C03",
+        "C10"
+      ],
+      "control_posture": "design_requirement_runtime_unproven",
+      "disposition": "blocks_real_user_exposure_until_required_contracts_and_evidence",
+      "harm": "user_loses_access_to_the_financial_twin_or_an_unsafe_fallback_exposes_it",
+      "impact": "user_loses_access_to_the_financial_twin_or_an_unsafe_fallback_exposes_it",
+      "precondition": "platform_key_loss_or_restore_mismatch_makes_data_unrecoverable_is_possible_and_runtime_evidence_is_absent",
+      "privacy_harms": [
+        "exclusion_or_access_loss",
+        "confidentiality_loss"
+      ],
+      "residual_risk": "unassessed",
+      "risk_signal": "device_or_key_compromise",
+      "scenario": "platform_key_loss_or_restore_mismatch_makes_data_unrecoverable",
+      "security_properties": [
+        "availability",
+        "confidentiality",
+        "privacy"
+      ],
+      "stride_categories": [
+        "denial_of_service",
+        "information_disclosure"
+      ],
+      "trust_boundary": "mobile_to_platform_keystore",
+      "verification_contracts": [
+        "key_contract"
+      ]
+    }
+  },
+  "trust_boundaries": {
+    "build_to_mobile_application": "dependencies_and_release_artifacts_enter_mobile_package",
+    "engine_to_widgets_and_coach": "typed_results_cross_into_explanation_surfaces",
+    "facts_to_deterministic_engine": "canonical_inputs_cross_into_versioned_calculation",
+    "mobile_to_local_repository": "application_process_crosses_persistence_boundary",
+    "mobile_to_os_notifications": "minimal_eligibility_crosses_platform_notification_boundary",
+    "mobile_to_platform_keystore": "application_requests_non_exportable_key_operations",
+    "mobile_to_telemetry_processor": "allowlisted_evidence_may_leave_device_recipient_transfer_unknown",
+    "mobile_to_user_selected_export": "user_controlled_export_leaves_managed_storage",
+    "user_to_mobile_ui": "untrusted_input_enters_typed_confirmed_surfaces"
+  },
+  "unresolved_conditions": [
+    "runtime_controls_not_implemented_or_verified",
+    "telemetry_processor_identity_contract_location_transfer_and_retention_unknown",
+    "external_security_review_pending",
+    "residual_risk_unassessed",
+    "penetration_test_absent"
+  ],
+  "upstream_hashes": {
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/aipd-processing-inventory.json": "b4c67f82729a1aa2a94ea322507dae7b4273fc12924e3fb9a2b26b33c1f341b2",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/aipd-screening.yaml": "dd9f991b971e80479f2cdc5959cc55e35f28926fab750b151a8bcb257d63436f",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/navigation-graph.yaml": "a03d46af6980d5b36f3f1524e906e751da565da470f7740c056f6018b5cb333d",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/state-machine.yaml": "9692936cabed8f7edc92b9410e18e0088b7bf8d26928910e073133ed8aa905c3"
+  }
+}

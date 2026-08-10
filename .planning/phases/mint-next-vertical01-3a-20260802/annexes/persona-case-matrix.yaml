@@ -1,0 +1,88 @@
+schema_version: 1
+scope_id: three_a_lausanne_2026_primary
+primary_persona:
+  age: 18_to_65
+  domicile: Lausanne_VD_full_2026
+  taxation: ordinary_not_source
+  household: single_no_children
+  activity: salaried_with_AVS_income
+  lpp: confirmed_active
+  contribution: ordinary_2026_only
+  provider_inventory: exhaustively_confirmed
+  financial_literacy: novice
+cases:
+- id: A
+  condition: primary_complete
+  room: exact_arithmetic
+  tax_delta: non_binding_model_estimate
+  plan: eligible_if_affordable
+  expected: supported
+- id: B
+  condition: independent_without_LPP
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_persona
+  expected: unsupported
+- id: C
+  condition: mixed_activity_or_LPP_ambiguous
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: clarification_required
+  expected: unavailable
+- id: D
+  condition: no_AVS_income
+  room: ineligible
+  tax_delta: unavailable
+  plan: blocked
+  reason: no_eligibility
+  expected: unsupported
+- id: E
+  condition: multi_provider_inventory_incomplete
+  room: unknown
+  tax_delta: unavailable
+  plan: blocked
+  reason: completeness_unconfirmed
+  expected: unavailable
+- id: F
+  condition: ordinary_room_zero_and_2025_catchup_requested
+  room: 0
+  tax_delta: unavailable
+  plan: blocked
+  reason: catchup_detected_unsupported
+  expected: unsupported
+- id: G
+  condition: source_tax_frontier_or_partial_liability
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_taxation
+  expected: unsupported
+- id: H
+  condition: dual_income_couple
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_household
+  expected: unsupported
+- id: I
+  condition: activity_after_reference_age
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_age_activity
+  expected: unsupported
+- id: J
+  condition: primary_but_affordability_gate_fails
+  room: displayable
+  tax_delta: unavailable_until_engine_independently_proven
+  plan: blocked
+  reason: safety_gate
+  expected: unavailable
+invariants:
+- exactly_A_through_J_once
+- unsupported_never_falls_back_to_primary
+- AVS_income_only_for_eligibility_and_cap
+- taxable_income_only_for_tax_delta
+- no_LLM_extraction_or_calculation

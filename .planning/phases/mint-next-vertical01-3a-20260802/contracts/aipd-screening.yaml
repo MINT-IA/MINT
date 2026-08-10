@@ -1,0 +1,276 @@
+schema_version: 1
+contract_id: mint_next_three_a_aipd_screening_v1
+phase: mint-next-vertical01-3a-20260802
+status: partial_potential_high_risk_unresolved
+contract_kind: internal_fail_closed_screening_not_full_aipd_or_legal_opinion
+prepared_on: '2026-08-10'
+review_by: '2026-11-08'
+authority_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/fact-minimum-set.yaml
+  sha256: 27062d01f1aa01c8751a15def7c9be557fe79bf69a9a9b710afc31db7c419636
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/regulatory-applicability.yaml
+  sha256: 7243da5af384cd1c9eaff1fe6c75dcedf03de3b822e54fd76a06ed724115df25
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/legal-authority-sources.json
+  sha256: 6897f765a5fe0c537e7de6be977bc8440986bfe4e6930882bd95491773680d5c
+authority_source_ids:
+- fedlex_data_protection_act
+- pfpdt_aipd
+processing_inventory:
+  path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/aipd-processing-inventory.json
+  sha256: b4c67f82729a1aa2a94ea322507dae7b4273fc12924e3fb9a2b26b33c1f341b2
+  status: design_only_not_runtime_evidence
+supported_context:
+  location: Lausanne_VD
+  tax_year: 2026
+  persona: frozen_supported_persona_only
+  real_user_exposure: forbidden
+screening_dimensions:
+  new_technology:
+    result: potential_high_risk_unresolved
+    basis:
+    - lifelong_financial_twin
+    - coach_mediated_interaction
+    - encrypted_local_repository_runtime_unproven
+  nature:
+    result: potential_high_risk_unresolved
+    basis:
+    - concentrated_financial_profile
+    - tax_and_pension_context
+    - user_decision_support
+  extent:
+    result: unknown
+    basis:
+    - production_population_unknown
+    - processing_frequency_unknown
+    - retention_unknown
+  circumstances:
+    result: potential_high_risk_unresolved
+    basis:
+    - asymmetry_of_financial_understanding
+    - device_loss_or_key_failure
+    - recipient_and_transfer_unknowns
+  purpose:
+    result: potential_high_risk_unresolved
+    basis:
+    - personalized_financial_lucidity
+    - tax_estimate
+    - affordability_gated_plan
+  statutory_sensitive_data:
+    result: unknown
+    basis:
+    - current_FMS_is_internally_sensitive_financial
+    - statutory_classification_requires_external_review
+    - future_confession_or_health_data_excluded
+  high_risk_profiling:
+    result: unresolved
+    basis:
+    - financial_twin_and_personalized_outputs
+    - legal_threshold_not_determined
+  automated_individual_decision:
+    result: not_in_design_runtime_unproven
+    basis:
+    - user_keeps_free_choice
+    - no_legally_significant_decision_in_contract
+  systematic_public_monitoring:
+    result: not_in_design_runtime_unproven
+    basis:
+    - bounded_personal_mobile_flow_only
+risk_signals:
+- coach_boundary_escape
+- deletion_or_export_failure
+- device_or_key_compromise
+- financial_profile_concentration
+- incorrect_or_stale_fact_harm
+- manipulative_or_overconfident_personalization
+- recipient_or_transfer_opacity
+- telemetry_linkability_or_content_leakage
+- unauthorized_local_access
+risk_traceability:
+  risk_to_activities:
+    coach_boundary_escape:
+    - coach_typed_intent_navigation_and_narrative
+    deletion_or_export_failure:
+    - local_user_control_export_revoke_delete
+    device_or_key_compromise:
+    - encrypted_local_persistence
+    - secure_failure_recovery
+    financial_profile_concentration:
+    - encrypted_local_persistence
+    - local_calculation_read_model
+    incorrect_or_stale_fact_harm:
+    - local_calculation_read_model
+    - local_fact_proposal_confirmation
+    manipulative_or_overconfident_personalization:
+    - coach_typed_intent_navigation_and_narrative
+    - local_calculation_read_model
+    recipient_or_transfer_opacity:
+    - allowlisted_telemetry_crash_evidence
+    - local_user_control_export_revoke_delete
+    telemetry_linkability_or_content_leakage:
+    - allowlisted_telemetry_crash_evidence
+    unauthorized_local_access:
+    - encrypted_local_persistence
+    - secure_failure_recovery
+  activity_to_risks:
+    allowlisted_telemetry_crash_evidence:
+    - recipient_or_transfer_opacity
+    - telemetry_linkability_or_content_leakage
+    coach_typed_intent_navigation_and_narrative:
+    - coach_boundary_escape
+    - manipulative_or_overconfident_personalization
+    encrypted_local_persistence:
+    - device_or_key_compromise
+    - financial_profile_concentration
+    - unauthorized_local_access
+    local_calculation_read_model:
+    - financial_profile_concentration
+    - incorrect_or_stale_fact_harm
+    - manipulative_or_overconfident_personalization
+    local_fact_proposal_confirmation:
+    - incorrect_or_stale_fact_harm
+    local_user_control_export_revoke_delete:
+    - deletion_or_export_failure
+    - recipient_or_transfer_opacity
+    secure_failure_recovery:
+    - device_or_key_compromise
+    - unauthorized_local_access
+  risk_to_controls:
+    coach_boundary_escape:
+    - external_review_before_exposure
+    - no_llm_fact_or_calculation_authority
+    - purpose_bound_fact_contract
+    deletion_or_export_failure:
+    - revocation_delete_purge_graph
+    device_or_key_compromise:
+    - encrypted_on_device_repository
+    - fail_closed_unknowns
+    financial_profile_concentration:
+    - encrypted_on_device_repository
+    - purpose_bound_fact_contract
+    incorrect_or_stale_fact_harm:
+    - explicit_user_confirmation
+    - fail_closed_unknowns
+    - purpose_bound_fact_contract
+    manipulative_or_overconfident_personalization:
+    - external_review_before_exposure
+    - no_llm_fact_or_calculation_authority
+    - purpose_bound_fact_contract
+    recipient_or_transfer_opacity:
+    - allowlisted_telemetry_only
+    - external_review_before_exposure
+    telemetry_linkability_or_content_leakage:
+    - allowlisted_telemetry_only
+    - purpose_bound_fact_contract
+    unauthorized_local_access:
+    - encrypted_on_device_repository
+    - fail_closed_unknowns
+  control_to_risks:
+    allowlisted_telemetry_only:
+    - recipient_or_transfer_opacity
+    - telemetry_linkability_or_content_leakage
+    encrypted_on_device_repository:
+    - device_or_key_compromise
+    - financial_profile_concentration
+    - unauthorized_local_access
+    explicit_user_confirmation:
+    - incorrect_or_stale_fact_harm
+    external_review_before_exposure:
+    - coach_boundary_escape
+    - manipulative_or_overconfident_personalization
+    - recipient_or_transfer_opacity
+    fail_closed_unknowns:
+    - device_or_key_compromise
+    - incorrect_or_stale_fact_harm
+    - unauthorized_local_access
+    no_llm_fact_or_calculation_authority:
+    - coach_boundary_escape
+    - manipulative_or_overconfident_personalization
+    purpose_bound_fact_contract:
+    - coach_boundary_escape
+    - financial_profile_concentration
+    - incorrect_or_stale_fact_harm
+    - manipulative_or_overconfident_personalization
+    - telemetry_linkability_or_content_leakage
+    revocation_delete_purge_graph:
+    - deletion_or_export_failure
+  risk_to_reassessment_triggers:
+    coach_boundary_escape:
+    - llm_free_text_outside_allowlist
+    - personalized_recommendation
+    deletion_or_export_failure:
+    - data_leaves_device_or_new_recipient_or_transfer
+    device_or_key_compromise:
+    - data_leaves_device_or_new_recipient_or_transfer
+    financial_profile_concentration:
+    - personalized_recommendation
+    incorrect_or_stale_fact_harm:
+    - stale_or_unreviewed_authority
+    manipulative_or_overconfident_personalization:
+    - imperative_financial_action
+    - suitability_best_optimal_language
+    recipient_or_transfer_opacity:
+    - cross_border_user_or_service
+    - data_leaves_device_or_new_recipient_or_transfer
+    telemetry_linkability_or_content_leakage:
+    - data_leaves_device_or_new_recipient_or_transfer
+    unauthorized_local_access:
+    - data_leaves_device_or_new_recipient_or_transfer
+design_controls:
+  status: design_only_runtime_unproven
+  controls:
+  - encrypted_on_device_repository
+  - explicit_user_confirmation
+  - fail_closed_unknowns
+  - no_llm_fact_or_calculation_authority
+  - purpose_bound_fact_contract
+  - revocation_delete_purge_graph
+  - allowlisted_telemetry_only
+  - external_review_before_exposure
+unresolved_gaps:
+- full_aipd_absent
+- production_scale_unknown
+- processor_identity_contract_and_location_unknown
+- retention_contract_absent
+- runtime_control_evidence_absent
+- residual_risk_unassessed
+- consultation_duty_unresolved
+- external_privacy_review_pending
+screening_decision:
+  screening_outcome: potential_high_risk_unresolved
+  product_policy: full_aipd_required_before_real_user_exposure
+  legal_threshold: unresolved
+  residual_risk: unassessed
+  consultation: unresolved
+  effect: keep_real_user_exposure_forbidden
+reassessment_policy:
+  source: processing_inventory_trigger_reassessment_mapping
+  unknown_or_change: block_and_reassess
+  full_aipd_before_real_exposure: true
+external_privacy_review:
+  status: pending
+  reviewer: null
+  receipt: null
+  reviewed_product_sha: null
+prohibitions:
+- no_low_risk_or_compliance_conclusion
+- no_legal_threshold_conclusion
+- no_consultation_conclusion
+- no_external_review_claim
+- no_runtime_or_control_proof
+- no_real_user_exposure
+does_not_prove:
+- full_aipd
+- threat_model
+- key_contract
+- privacy_contract
+- retention_export_deletion
+- anti_pii
+- external_privacy_review
+- runtime
+- B0
+runtime_binding: none
+real_user_exposure: forbidden
+does_not_activate_runtime: true
+does_not_close_B0: true

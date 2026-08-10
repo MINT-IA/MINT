@@ -1,0 +1,153 @@
+schema_version: 1
+receipt_id: batch59_independent_three_a_provenance_content_review
+scope: provenance_content_review_only
+reviewed_product_sha: 516a4baccece1e950c4313b511bcf540d79ab77b
+reviewed_at: '2026-08-09T13:05:00+02:00'
+independence:
+  implementation_batch: batch57-three-a-source-provenance
+  review_batch: batch59-three-a-content-review
+  reviewers:
+  - id: goal_arch_data_roast
+    angle: architecture_data_provenance
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+  - id: goal_swiss_delivery_roast
+    angle: Swiss_domain_semantics_and_safety
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+  - id: goal_ux_product_roast
+    angle: hostile_product_anti_drift
+    verdict: ACCEPT
+    p1: 0
+    p2: 0
+    p3: 0
+environment:
+  platform: macOS_arm64
+  timezone: Europe/Zurich
+  locale: fr_CH
+  pdftotext: pdftotext version 26.03.0
+replay:
+  command: python3 tools/authority/normalize_three_a_2026_sources.py --source-dir
+    /private/tmp/mint-b56-source-capture --check
+  exit_code: 0
+  result: byte_for_byte_match
+  source_count: 8
+  output_sha256: 080658b9388b9c7eea748d904ec73b406d50b91560d2ed3b62ba7a1759fb54a0
+artifact_sha256:
+  bundle.yaml: 3a6fc7d31b302eba77114d0794bd430d532237bac3acf5310ab1f12270f7beec
+  authority-receipts.yaml: 2646d17d11be7a107e73a4c3c23c9a3b738c6c355d0ec1c065310fee2b97a24d
+  source-extractions.json: 080658b9388b9c7eea748d904ec73b406d50b91560d2ed3b62ba7a1759fb54a0
+  source-authority-manifest.yaml: 052d197cb3166f26ea1979c3eaa407a52461503bac80b4404064e63e65bdb17f
+  normalized-ruleset.yaml: cd0f0666a6e6e9d3a4a1a7b9188f59874eb832a154d5e2a863eb66c904c9d2d2
+  parser-version-manifest.yaml: 2f2145be2f60dae0a98dcf4159c19a2136d4b7bbcfc9dceafae604204604adb7
+  persona-case-matrix.yaml: 5cc16845dd7248192bd4931689369d0a59a04538aac77e4f4631ce200c06888a
+  golden-fixtures.json: 390e200280585c3cdb2bc634139ecca031d0dd20ed27263a7122d8568fc3b985
+  tools/authority/normalize_three_a_2026_sources.py: 7e39c4ad2b6b9d16053c87b6f69ed2f063fad08357264a1af63f43fb5b885c8a
+  tools/authority/tests/test_normalize_three_a_2026_sources.py: 481cc45b8f1a5c21e552d3e51cc7731c414dbb15e8e68f204831f6fa2ca4fa9c
+source_byte_sha256:
+  ofas_contribution_page: 0c4826c99bdc62472ae0416b06e9c873c34d0253df87843836251c48c68e7ae3
+  ofas_amounts_2026: da5dc20f34e0dc7f4c47d218f253b3915880c10d04e370eaa224b6437a97e1a3
+  afc_circular_18a: 68b8d3a4b2cf436a1db9eeed6b21d40e5c2ca723a52e11cf9c45d1bb0d4b3934
+  vd_income_scale_2026: 34cb7f9f38ff8d8ea8e13b966986720a7a55b72947ad31224ce625209fcf3171
+  vd_deductions_2026: 687e8e2ee5c45187d53ada71cf13d27d2a063c894905b007529dd057c818c7f3
+  vd_cantonal_reduction_2026: cecac1bab45eae3ddda9dfafd5e6b9299af6035a69103a96170b259d00b3e3c8
+  lausanne_tax_decree_2025_2029: 8824562fe48194f339b89786ad8e62741c3f64c6ef8bb7e83d47b6b9a4c7ed1b
+  ifd_scale_2026: a8a0ff6914523b9e5defa533759ee69daee892d3ab8669e21881de4728cfceaa
+claim_reviews:
+- source_id: afc_circular_18a
+  claim_id: credit_deadline
+  page: 4
+  line: 186
+  normalized:
+    unit: date_rule
+    value: 31_december
+  semantic_context: ACCEPT
+  document_sha256: 68b8d3a4b2cf436a1db9eeed6b21d40e5c2ca723a52e11cf9c45d1bb0d4b3934
+  token_sha256: 41464d93a62138d3d0256ea39dc7ebfba215eeb3fb2ba422a124e2f2ca42de6d
+- source_id: ifd_scale_2026
+  claim_id: ifd_single_scale
+  page: 1
+  line: 11
+  normalized:
+    unit: table
+    value: form_58c_2026
+  semantic_context: ACCEPT
+  document_sha256: a8a0ff6914523b9e5defa533759ee69daee892d3ab8669e21881de4728cfceaa
+  token_sha256: c6d30c7f5512c5b0f7b033345fe0bfc4402570099ef161f3e7e22998176c3b7d
+- source_id: lausanne_tax_decree_2025_2029
+  claim_id: lausanne_coefficient
+  page: 1
+  line: 23
+  normalized:
+    unit: percent
+    value: 78.5
+  semantic_context: ACCEPT
+  document_sha256: 8824562fe48194f339b89786ad8e62741c3f64c6ef8bb7e83d47b6b9a4c7ed1b
+  token_sha256: d96fd468d78c938386e4db30bbd21ff197b4d1dc9af042b4654908e50bb93e79
+- source_id: ofas_amounts_2026
+  claim_id: ordinary_cap_table
+  page: 2
+  line: 102
+  normalized:
+    unit: CHF
+    value: 7258
+  semantic_context: ACCEPT
+  document_sha256: da5dc20f34e0dc7f4c47d218f253b3915880c10d04e370eaa224b6437a97e1a3
+  token_sha256: a426dd6b94b30e55f71a7583e035c3f86b6ba1e9523edc30ff37b0a81fe3a638
+- source_id: ofas_contribution_page
+  claim_id: ordinary_cap_web
+  page: 1
+  line: 1
+  normalized:
+    unit: CHF
+    value: 7258
+  semantic_context: ACCEPT
+  document_sha256: 0c4826c99bdc62472ae0416b06e9c873c34d0253df87843836251c48c68e7ae3
+  token_sha256: baffe602e2b1ffc604e6f98e54cdcf7549d1b9cc6341fd5ec6b26406d49c81b5
+- source_id: vd_cantonal_reduction_2026
+  claim_id: vd_reduction
+  page: 1
+  line: 1
+  normalized:
+    unit: percent
+    value: 5.0
+  semantic_context: ACCEPT
+  document_sha256: cecac1bab45eae3ddda9dfafd5e6b9299af6035a69103a96170b259d00b3e3c8
+  token_sha256: 2c9e281f352c5162637a1c4a075e13179e7bb2d0d959b9f05f68f0098d919139
+- source_id: vd_deductions_2026
+  claim_id: vd_coefficient
+  page: 2
+  line: 122
+  normalized:
+    unit: percent
+    value: 155.0
+  semantic_context: ACCEPT
+  document_sha256: 687e8e2ee5c45187d53ada71cf13d27d2a063c894905b007529dd057c818c7f3
+  token_sha256: 4e469f0ae1a2af5c9018204aa2ff8abe00a2bd27060015d5d644f8e7582f0784
+- source_id: vd_income_scale_2026
+  claim_id: vd_scale_anchor
+  page: 8
+  line: 455
+  normalized:
+    unit: CHF_pairs
+    value: 72700:5603.00|80000:6389.00
+  semantic_context: ACCEPT
+  document_sha256: 34cb7f9f38ff8d8ea8e13b966986720a7a55b72947ad31224ce625209fcf3171
+  token_sha256: 394e23aa04a6d4a2d8bcee2020177ce8634c9b114b0459ddbf54f861e6dbf7c1
+verdict:
+  score: 10.0
+  p1: 0
+  p2: 0
+  p3: 0
+  result: ACCEPT
+assertions:
+  engine_unproven: true
+  no_tax_output: true
+  no_advice: true
+  no_activation: true
+  does_not_close_B0_or_phase: true
+  feature_flag: false
