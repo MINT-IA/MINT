@@ -148,6 +148,8 @@ import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
+import 'package:mint_mobile/routes/mint_next_3a_route_gate.dart';
+import 'package:mint_mobile/screens/mint_next_3a/mint_next_3a_handoff_screen.dart';
 import 'package:mint_mobile/screens/mint_next_housing/mint_next_housing_screen.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -777,6 +779,16 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       redirect: (_, __) => FeatureFlags.enableMintNextHousing ? null : '/home',
       builder: (context, state) => const MintNextHousingScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/3a',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, state) => mintNext3aRouteRedirect(
+        flagEnabled: FeatureFlags.enableMintNext3aProductHandoff,
+        extra: state.extra,
+      ),
+      builder: (context, state) => const MintNext3aHandoffScreen(),
     ),
     ScopedGoRoute(
       path: '/explore/famille',
@@ -1960,6 +1972,39 @@ void handleMintAppResume(VoidCallback consumeNotificationRoute) {
   consumeNotificationRoute();
 }
 
+class MintNext3aLifecycleGate extends StatefulWidget {
+  const MintNext3aLifecycleGate({required this.builder, super.key});
+
+  final WidgetBuilder builder;
+
+  @override
+  State<MintNext3aLifecycleGate> createState() =>
+      _MintNext3aLifecycleGateState();
+}
+
+class _MintNext3aLifecycleGateState extends State<MintNext3aLifecycleGate> {
+  void _rebuildAfterMintNext3aGateChange() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FeatureFlags.mintNext3aProductHandoffListenable
+        .addListener(_rebuildAfterMintNext3aGateChange);
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.mintNext3aProductHandoffListenable
+        .removeListener(_rebuildAfterMintNext3aGateChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context);
+}
+
 class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   @override
   void initState() {
@@ -2004,7 +2049,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return _buildApp(context);
+    return MintNext3aLifecycleGate(builder: _buildApp);
   }
 
   Widget _buildApp(BuildContext context) {

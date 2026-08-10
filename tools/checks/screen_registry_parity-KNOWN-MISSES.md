@@ -115,3 +115,9 @@ Flow logement MINT Next derrière kill-flag `enableMintNextHousing` (OFF par
 défaut, fail-closed). Aucun intent coach n'est câblé dans cette tranche : le
 coach ne doit pas pouvoir suggérer une route invisible. À retirer de
 `_NOT_CHAT_ROUTABLE` quand le shell coach MINT Next câblera l'intent typé.
+
+## 2026-08-11 — /mint-next/3a (PR C atterrissage shell 3a)
+
+Flow handoff 3a MINT Next derrière kill-flag `enableMintNext3aProductHandoff`
+(OFF par défaut, fail-closed serveur). Aucun intent coach câblé dans cette
+tranche. Même sortie prévue que /mint-next/housing.

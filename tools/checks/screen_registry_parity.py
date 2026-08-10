@@ -61,6 +61,10 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     # kill-flag enableMintNextHousing OFF, aucun intent coach câblé dans
     # cette tranche ; deviendra chat-routable avec le shell coach MINT Next.
     "/mint-next/housing",
+    # MINT Next 3a handoff (PR C atterrissage 2026-08-11) — même statut que le
+    # housing : kill-flag enableMintNext3aProductHandoff OFF, aucun intent
+    # coach câblé dans cette tranche.
+    "/mint-next/3a",
     # FATCA hard-gate destination — non-calibrated archetypes land here.
     # Not chat-routable: the coach is BLOCKED for these users (the whole
     # point of the gate), so the LLM has no chat surface to suggest /waitlist.

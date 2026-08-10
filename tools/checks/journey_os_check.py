@@ -54,6 +54,21 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
     "apps/mobile/test/app_router_observers_test.dart",
+    # --- atterrissage PR C (cadrage n°1, 2026-08-11) : shell 3a minimal —
+    # handoff screen/card, route gate, store 3a, tax boundary + delta engine,
+    # machinerie flag fail-closed, tests dédiés. Flag OFF partout. ---
+    "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart",
+    "apps/mobile/lib/routes/mint_next_3a_route_gate.dart",
+    "apps/mobile/lib/screens/mint_next_3a/mint_next_3a_handoff_screen.dart",
+    "apps/mobile/lib/services/mint_next_3a_task_store.dart",
+    "apps/mobile/lib/services/mint_next_3a_tax_delta_engine.dart",
+    "apps/mobile/lib/widgets/aujourdhui/mint_next_3a_handoff_card.dart",
+    "apps/mobile/test/patrol/mint_next_3a_flag_off_task_test.dart",
+    "apps/mobile/test/patrol/mint_next_3a_product_handoff_test.dart",
+    "apps/mobile/test/screens/mint_next_3a/mint_next_3a_product_handoff_test.dart",
+    "apps/mobile/test/services/install_lifecycle_service_test.dart",
+    "apps/mobile/test/services/mint_next_3a_task_store_test.dart",
+    "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart",
     # --- atterrissage PR B (cadrage n°1, 2026-08-10) : fondation canonique
     # prouvée — cycle de vie du fait logement (modèle, écran, carte
     # Aujourd'hui, transaction coordonnée SecureWizardStore, Ma situation),
