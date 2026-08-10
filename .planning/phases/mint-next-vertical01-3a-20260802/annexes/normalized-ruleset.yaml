@@ -1,0 +1,47 @@
+schema_version: 1
+ruleset_id: lausanne_vd_2026_three_a_contract
+status: mechanically_extracted_pending_independent_content_review_engine_unproven
+effective_period:
+  from: 2026-01-01
+  through: 2026-12-31
+  timezone: Europe/Zurich
+jurisdiction:
+  country: CH
+  canton: VD
+  municipality: Lausanne
+  municipality_id: commune3260
+constants:
+  employee_with_lpp_ordinary_cap_chf: 7258
+  lausanne_income_tax_coefficient_percent: 78.5
+  vd_cantonal_income_tax_coefficient_percent: 155.0
+  vd_cantonal_income_tax_reduction_percent: 5.0
+rounding:
+  contribution_room: CHF_whole_francs
+  tax_delta_display: CHF_whole_francs
+  vd_taxable_income: abandon_fraction_below_CHF100
+availability:
+  room_arithmetic: available_for_primary_persona
+  tax_delta: unavailable_until_all_authorities_available_and_engine_independently_proven
+  product_feature_flag: false
+source_ids:
+- afc_circular_18a
+- ifd_scale_2026
+- lausanne_tax_decree_2025_2029
+- ofas_amounts_2026
+- ofas_contribution_page
+- vd_cantonal_reduction_2026
+- vd_deductions_2026
+- vd_income_scale_2026
+prohibitions:
+- tax_exact_claim
+- personalized_tax_output
+- catchup_calculation
+- runtime_network
+- LLM_calculation
+- silent_recompute
+policies:
+  credit_deadline: 31_december
+anchors:
+  ifd_single_scale: form_58c_2026
+  vd_income_scale: 72700:5603.00|80000:6389.00
+derived_from_source_extractions_sha256: 080658b9388b9c7eea748d904ec73b406d50b91560d2ed3b62ba7a1759fb54a0

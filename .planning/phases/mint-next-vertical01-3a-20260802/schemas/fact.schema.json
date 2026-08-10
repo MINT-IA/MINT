@@ -1,0 +1,1367 @@
+{
+  "$id": "https://mint.local/schemas/three-a/fact-record-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "calculation_instant"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "format": "date-time",
+            "pattern": "(?:\\+01:00|\\+02:00)$",
+            "type": "string"
+          },
+          "unit": {
+            "const": "iso8601"
+          },
+          "verification_state": {
+            "enum": [
+              "system_verified"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "tax_year"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": 2026
+          },
+          "unit": {
+            "const": "year"
+          },
+          "verification_state": {
+            "enum": [
+              "ruleset_verified"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "avs_eligibility_confirmed"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": true
+          },
+          "unit": {
+            "const": "none"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "lpp_active_confirmed"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": true
+          },
+          "unit": {
+            "const": "none"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "credited_contributions"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "amount_whole_chf": {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                "credited_at": {
+                  "format": "date-time",
+                  "pattern": "(?:\\+01:00|\\+02:00)$",
+                  "type": "string"
+                },
+                "local_token": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "local_token",
+                "amount_whole_chf",
+                "credited_at"
+              ],
+              "type": "object"
+            },
+            "minItems": 0,
+            "type": "array",
+            "uniqueItems": true
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "provider_inventory_complete"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": true
+          },
+          "unit": {
+            "const": "none"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "full_year_lausanne_domicile"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": true
+          },
+          "unit": {
+            "const": "none"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "ordinary_full_year_liability"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": true
+          },
+          "unit": {
+            "const": "none"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "civil_status_single"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": true
+          },
+          "unit": {
+            "const": "none"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "dependants_count"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "const": 0
+          },
+          "unit": {
+            "const": "count"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "ifd_taxable_income_pre_3a_chf"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "vd_taxable_income_pre_3a_chf"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "effective_period": {
+            "additionalProperties": false,
+            "properties": {
+              "end_exclusive": {
+                "const": "2027-01-01T00:00:00+01:00"
+              },
+              "start": {
+                "const": "2026-01-01T00:00:00+01:00"
+              },
+              "timezone": {
+                "const": "Europe/Zurich"
+              }
+            },
+            "required": [
+              "timezone",
+              "start",
+              "end_exclusive"
+            ],
+            "type": "object"
+          },
+          "normalized_value": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "liquid_assets_chf"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "selected_emergency_buffer_chf"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "debts_due_90d_chf"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "essential_expenses_30d_chf"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "monthly_surplus_chf"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "type": "integer"
+          },
+          "unit": {
+            "const": "whole_chf"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "overdue_debt_present"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "type": "boolean"
+          },
+          "unit": {
+            "const": "none"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "fact_type": {
+            "const": "maximum_debt_apr_percent"
+          }
+        },
+        "required": [
+          "fact_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "normalized_value": {
+            "maximum": 100,
+            "minimum": 0,
+            "type": "number"
+          },
+          "unit": {
+            "const": "percent"
+          },
+          "verification_state": {
+            "enum": [
+              "proposed",
+              "user_confirmed"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle_state": {
+            "enum": [
+              "confirmed",
+              "superseded",
+              "revoked",
+              "deleted"
+            ]
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "properties": {
+            "verification_state": {
+              "const": "proposed"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle_state": {
+            "const": "revoked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tombstone": {
+            "properties": {
+              "kind": {
+                "const": "revoked"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle_state": {
+            "const": "deleted"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tombstone": {
+            "properties": {
+              "kind": {
+                "const": "deleted"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "oneOf": [
+    {
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "confirmation"
+            ]
+          },
+          {
+            "required": [
+              "idempotency_key"
+            ]
+          },
+          {
+            "required": [
+              "supersedes"
+            ]
+          },
+          {
+            "required": [
+              "tombstone"
+            ]
+          }
+        ]
+      },
+      "properties": {
+        "lifecycle_state": {
+          "const": "proposal"
+        },
+        "verification_state": {
+          "const": "proposed"
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "fact_id",
+        "subject_local_id",
+        "fact_type",
+        "lifecycle_state",
+        "verification_state",
+        "captured_at",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "purpose_contract_ref",
+        "legal_basis_contract_ref",
+        "consent_contract_ref",
+        "normalized_value",
+        "unit",
+        "effective_period",
+        "source_ref"
+      ],
+      "title": "proposal"
+    },
+    {
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "supersedes"
+            ]
+          },
+          {
+            "required": [
+              "tombstone"
+            ]
+          }
+        ]
+      },
+      "properties": {
+        "lifecycle_state": {
+          "const": "confirmed"
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "fact_id",
+        "subject_local_id",
+        "fact_type",
+        "lifecycle_state",
+        "verification_state",
+        "captured_at",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "purpose_contract_ref",
+        "legal_basis_contract_ref",
+        "consent_contract_ref",
+        "normalized_value",
+        "unit",
+        "effective_period",
+        "source_ref",
+        "confirmation",
+        "idempotency_key"
+      ],
+      "title": "confirmed"
+    },
+    {
+      "not": {
+        "required": [
+          "tombstone"
+        ]
+      },
+      "properties": {
+        "lifecycle_state": {
+          "const": "superseded"
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "fact_id",
+        "subject_local_id",
+        "fact_type",
+        "lifecycle_state",
+        "verification_state",
+        "captured_at",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "purpose_contract_ref",
+        "legal_basis_contract_ref",
+        "consent_contract_ref",
+        "normalized_value",
+        "unit",
+        "effective_period",
+        "source_ref",
+        "confirmation",
+        "idempotency_key",
+        "supersedes"
+      ],
+      "title": "superseded"
+    },
+    {
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "normalized_value"
+            ]
+          },
+          {
+            "required": [
+              "unit"
+            ]
+          },
+          {
+            "required": [
+              "effective_period"
+            ]
+          },
+          {
+            "required": [
+              "source_ref"
+            ]
+          },
+          {
+            "required": [
+              "confirmation"
+            ]
+          },
+          {
+            "required": [
+              "idempotency_key"
+            ]
+          },
+          {
+            "required": [
+              "supersedes"
+            ]
+          }
+        ]
+      },
+      "properties": {
+        "lifecycle_state": {
+          "enum": [
+            "revoked",
+            "deleted"
+          ]
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "fact_id",
+        "subject_local_id",
+        "fact_type",
+        "lifecycle_state",
+        "verification_state",
+        "captured_at",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "purpose_contract_ref",
+        "legal_basis_contract_ref",
+        "consent_contract_ref",
+        "tombstone"
+      ],
+      "title": "fact_tombstone"
+    }
+  ],
+  "properties": {
+    "captured_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    },
+    "confirmation": {
+      "additionalProperties": false,
+      "properties": {
+        "confirmation_nonce": {
+          "pattern": "^[A-Za-z0-9_-]{16,64}$",
+          "type": "string"
+        },
+        "confirmation_version": {
+          "const": 1
+        },
+        "confirmed_at": {
+          "format": "date-time",
+          "pattern": "(?:\\+01:00|\\+02:00)$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "confirmation_version",
+        "confirmed_at",
+        "confirmation_nonce"
+      ],
+      "type": "object"
+    },
+    "consent_contract_ref": {
+      "const": "unresolved"
+    },
+    "effective_period": {
+      "additionalProperties": false,
+      "properties": {
+        "end_exclusive": {
+          "format": "date-time",
+          "pattern": "(?:\\+01:00|\\+02:00)$",
+          "type": "string"
+        },
+        "start": {
+          "format": "date-time",
+          "pattern": "(?:\\+01:00|\\+02:00)$",
+          "type": "string"
+        },
+        "timezone": {
+          "const": "Europe/Zurich"
+        }
+      },
+      "required": [
+        "timezone",
+        "start",
+        "end_exclusive"
+      ],
+      "type": "object"
+    },
+    "fact_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "fact_type": {
+      "enum": [
+        "calculation_instant",
+        "tax_year",
+        "avs_eligibility_confirmed",
+        "lpp_active_confirmed",
+        "credited_contributions",
+        "provider_inventory_complete",
+        "full_year_lausanne_domicile",
+        "ordinary_full_year_liability",
+        "civil_status_single",
+        "dependants_count",
+        "ifd_taxable_income_pre_3a_chf",
+        "vd_taxable_income_pre_3a_chf",
+        "liquid_assets_chf",
+        "selected_emergency_buffer_chf",
+        "debts_due_90d_chf",
+        "essential_expenses_30d_chf",
+        "monthly_surplus_chf",
+        "overdue_debt_present",
+        "maximum_debt_apr_percent"
+      ]
+    },
+    "idempotency_key": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "key_contract_ref": {
+      "const": "unresolved"
+    },
+    "legal_basis_contract_ref": {
+      "const": "unresolved"
+    },
+    "lifecycle_state": {
+      "enum": [
+        "proposal",
+        "confirmed",
+        "superseded",
+        "revoked",
+        "deleted"
+      ]
+    },
+    "normalized_value": {},
+    "privacy_contract_ref": {
+      "const": "unresolved"
+    },
+    "purpose_contract_ref": {
+      "const": "unresolved"
+    },
+    "record_type": {
+      "const": "mint_next_3a_fact"
+    },
+    "record_version": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "retention_contract_ref": {
+      "const": "unresolved"
+    },
+    "schema_id": {
+      "const": "mint_next_3a_fact_record"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_ref": {
+      "maxLength": 68,
+      "pattern": "^src_[A-Za-z0-9_-]{8,64}$",
+      "type": "string"
+    },
+    "subject_local_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "supersedes": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_id": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "fact_type": {
+          "enum": [
+            "calculation_instant",
+            "tax_year",
+            "avs_eligibility_confirmed",
+            "lpp_active_confirmed",
+            "credited_contributions",
+            "provider_inventory_complete",
+            "full_year_lausanne_domicile",
+            "ordinary_full_year_liability",
+            "civil_status_single",
+            "dependants_count",
+            "ifd_taxable_income_pre_3a_chf",
+            "vd_taxable_income_pre_3a_chf",
+            "liquid_assets_chf",
+            "selected_emergency_buffer_chf",
+            "debts_due_90d_chf",
+            "essential_expenses_30d_chf",
+            "monthly_surplus_chf",
+            "overdue_debt_present",
+            "maximum_debt_apr_percent"
+          ]
+        },
+        "fact_version": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "fact_id",
+        "fact_version",
+        "fact_type"
+      ],
+      "type": "object"
+    },
+    "tombstone": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "revoked",
+            "deleted"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "pattern": "(?:\\+01:00|\\+02:00)$",
+          "type": "string"
+        },
+        "predecessor_fact_version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "purge_graph_ref": {
+          "pattern": "^purge_[A-Za-z0-9_-]{8,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "occurred_at",
+        "predecessor_fact_version",
+        "purge_graph_ref"
+      ],
+      "type": "object"
+    },
+    "unit": {
+      "enum": [
+        "count",
+        "iso8601",
+        "none",
+        "percent",
+        "whole_chf",
+        "year"
+      ]
+    },
+    "verification_state": {
+      "enum": [
+        "proposed",
+        "user_confirmed",
+        "system_verified",
+        "ruleset_verified"
+      ]
+    }
+  },
+  "title": "MINT Next 3a FactRecord v1",
+  "type": "object",
+  "x-mint-contract": {
+    "activation": "OFF",
+    "allowed_transitions": [
+      "proposal->confirmed",
+      "confirmed->superseded",
+      "confirmed->revoked",
+      "confirmed->deleted"
+    ],
+    "at_most_one_live_confirmed_per_subject_type_period": true,
+    "canonicalization_algorithm": "rfc8785_embedded_v1",
+    "confirmation_write_idempotent": true,
+    "contract_id": "three_a_fact_record_v1",
+    "decision": "STOP",
+    "does_not_close_B0": true,
+    "effective_period_end_after_start": true,
+    "fact_types": [
+      "calculation_instant",
+      "tax_year",
+      "avs_eligibility_confirmed",
+      "lpp_active_confirmed",
+      "credited_contributions",
+      "provider_inventory_complete",
+      "full_year_lausanne_domicile",
+      "ordinary_full_year_liability",
+      "civil_status_single",
+      "dependants_count",
+      "ifd_taxable_income_pre_3a_chf",
+      "vd_taxable_income_pre_3a_chf",
+      "liquid_assets_chf",
+      "selected_emergency_buffer_chf",
+      "debts_due_90d_chf",
+      "essential_expenses_30d_chf",
+      "monthly_surplus_chf",
+      "overdue_debt_present",
+      "maximum_debt_apr_percent"
+    ],
+    "idempotency_algorithm": "sha256_over_rfc8785_embedded_v1",
+    "idempotency_canonical_fields": [
+      "subject_local_id",
+      "fact_type",
+      "effective_period",
+      "normalized_value",
+      "confirmation_nonce"
+    ],
+    "last_write_wins": false,
+    "lifecycle": [
+      "proposal",
+      "confirmed",
+      "superseded",
+      "revoked",
+      "deleted"
+    ],
+    "phase_status": "pre_activation",
+    "real_user_exposure": "forbidden",
+    "resurrection": false,
+    "runtime_implemented": false,
+    "source_ref": "opaque_allowlisted_non_pii",
+    "temporal_order": [
+      "effective_period.start<=captured_at",
+      "captured_at<=confirmation.confirmed_at",
+      "confirmation.confirmed_at<effective_period.end_exclusive",
+      "effective_period.start<=credited_contributions[].credited_at<effective_period.end_exclusive"
+    ],
+    "tombstone_value_source_pii_free": true,
+    "verification_states": [
+      "proposed",
+      "user_confirmed",
+      "system_verified",
+      "ruleset_verified"
+    ]
+  }
+}

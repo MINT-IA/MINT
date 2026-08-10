@@ -1,0 +1,600 @@
+{
+  "as_of": "2026-08-10",
+  "data_subjects": [
+    "one_adult_user_18_to_65_in_frozen_persona"
+  ],
+  "dependency_hashes": {
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/fact-minimum-set.yaml": "27062d01f1aa01c8751a15def7c9be557fe79bf69a9a9b710afc31db7c419636",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/regulatory-applicability.yaml": "7243da5af384cd1c9eaff1fe6c75dcedf03de3b822e54fd76a06ed724115df25"
+  },
+  "design_posture": "design_only_not_runtime_evidence",
+  "does_not_activate_runtime": true,
+  "does_not_close_B0": true,
+  "exclusions": [
+    "backend_sync",
+    "bank_insurance_pension_tax_api_sync",
+    "document_ingestion",
+    "free_text_llm_processing",
+    "provider_comparison_or_referral",
+    "money_movement",
+    "cross_border_context",
+    "full_aipd",
+    "runtime_evidence",
+    "external_privacy_review"
+  ],
+  "fact_data_inventory": {
+    "avs_eligibility_confirmed": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "calculation_instant": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "civil_status_single": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "credited_contributions": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "debts_due_90d_chf": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation",
+        "local_plan_confirmation_tracking"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control",
+        "affordability_gated_plan"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "dependants_count": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "essential_expenses_30d_chf": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation",
+        "local_plan_confirmation_tracking"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control",
+        "affordability_gated_plan"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "full_year_lausanne_domicile": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "ifd_taxable_income_pre_3a_chf": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "liquid_assets_chf": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation",
+        "local_plan_confirmation_tracking"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control",
+        "affordability_gated_plan"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "lpp_active_confirmed": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "maximum_debt_apr_percent": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation",
+        "local_plan_confirmation_tracking"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control",
+        "affordability_gated_plan"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "monthly_surplus_chf": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation",
+        "local_plan_confirmation_tracking"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control",
+        "affordability_gated_plan"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "ordinary_full_year_liability": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "overdue_debt_present": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation",
+        "local_plan_confirmation_tracking"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control",
+        "affordability_gated_plan"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "provider_inventory_complete": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "selected_emergency_buffer_chf": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation",
+        "local_plan_confirmation_tracking"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control",
+        "affordability_gated_plan"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "tax_year": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    },
+    "vd_taxable_income_pre_3a_chf": {
+      "activities": [
+        "encrypted_local_persistence",
+        "local_calculation_read_model",
+        "local_fact_proposal_confirmation"
+      ],
+      "classification": "sensitive_financial",
+      "proof_status": "design_only_runtime_unproven",
+      "purposes": [
+        "bounded_3a_calculation",
+        "financial_twin_user_control"
+      ],
+      "value_storage": "value_forbidden_in_design_artifact"
+    }
+  },
+  "inventory_id": "mint_next_three_a_aipd_processing_inventory_v1",
+  "processing_activities": {
+    "allowlisted_telemetry_crash_evidence": {
+      "data_categories": [
+        "technical_metadata"
+      ],
+      "operations": [
+        "emit_allowlisted_event_id",
+        "emit_ephemeral_pseudonymous_trace_id"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "detect_technical_failure_without_financial_content",
+      "recipient": "unresolved_processor",
+      "retention": "unknown",
+      "storage": "external_processor_unresolved",
+      "transfer": "unknown"
+    },
+    "coach_typed_intent_navigation_and_narrative": {
+      "data_categories": [
+        "typed_intent",
+        "financial_profile"
+      ],
+      "operations": [
+        "process_typed_intent",
+        "render_from_canonical_read_model"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "navigate_and_explain_current_3a_state",
+      "recipient": "none_in_design_runtime_unproven",
+      "retention": "ephemeral_design_intent",
+      "storage": "ephemeral_local",
+      "transfer": "none_in_design_runtime_unproven"
+    },
+    "encrypted_local_persistence": {
+      "data_categories": [
+        "financial_profile",
+        "provenance_metadata"
+      ],
+      "operations": [
+        "create_confirmed_version",
+        "supersede",
+        "tombstone"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "maintain_user_controlled_versioned_financial_twin",
+      "recipient": "none_in_design_runtime_unproven",
+      "retention": "unknown_pending_retention_contract",
+      "storage": "encrypted_on_device_repository",
+      "transfer": "none_in_design_runtime_unproven"
+    },
+    "local_calculation_read_model": {
+      "data_categories": [
+        "financial_profile",
+        "calculation_result"
+      ],
+      "operations": [
+        "read_confirmed_facts",
+        "derive_scenario",
+        "derive_read_model"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "produce_bounded_non_binding_3a_scenario_and_read_model",
+      "recipient": "none_in_design_runtime_unproven",
+      "retention": "unknown_pending_retention_contract",
+      "storage": "local_derived_store",
+      "transfer": "none_in_design_runtime_unproven"
+    },
+    "local_fact_proposal_confirmation": {
+      "data_categories": [
+        "financial_profile",
+        "provenance_metadata"
+      ],
+      "operations": [
+        "draft_proposal",
+        "confirm_or_refuse",
+        "resolve_conflict",
+        "refresh_stale_fact"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "collect_only_required_facts_with_user_confirmation",
+      "recipient": "none_in_design_runtime_unproven",
+      "retention": "unknown_pending_retention_contract",
+      "storage": "local_draft_then_encrypted_repository",
+      "transfer": "none_in_design_runtime_unproven"
+    },
+    "local_notification_eligibility": {
+      "data_categories": [
+        "financial_profile",
+        "technical_metadata"
+      ],
+      "operations": [
+        "evaluate_local_eligibility",
+        "render_local_attention"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "surface_only_material_time_sensitive_attention",
+      "recipient": "none_in_design_runtime_unproven",
+      "retention": "ephemeral_design_intent",
+      "storage": "ephemeral_local",
+      "transfer": "none_in_design_runtime_unproven"
+    },
+    "local_plan_confirmation_tracking": {
+      "data_categories": [
+        "financial_profile",
+        "plan_record"
+      ],
+      "operations": [
+        "confirm_plan",
+        "derive_plan_state",
+        "mark_needs_refresh"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "record_user_chosen_amount_and_manual_progress",
+      "recipient": "none_in_design_runtime_unproven",
+      "retention": "unknown_pending_retention_contract",
+      "storage": "encrypted_on_device_repository",
+      "transfer": "none_in_design_runtime_unproven"
+    },
+    "local_user_control_export_revoke_delete": {
+      "data_categories": [
+        "financial_profile",
+        "provenance_metadata",
+        "calculation_result",
+        "plan_record"
+      ],
+      "operations": [
+        "export",
+        "revoke",
+        "delete",
+        "purge_dependencies"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "support_user_control_and_purge_graph",
+      "recipient": "user_only_for_export_design_runtime_unproven",
+      "retention": "unknown_pending_retention_contract",
+      "storage": "encrypted_on_device_repository",
+      "transfer": "user_initiated_export_destination_unknown"
+    },
+    "secure_failure_recovery": {
+      "data_categories": [
+        "technical_metadata"
+      ],
+      "operations": [
+        "detect_secure_failure",
+        "offer_explicit_recovery_or_consented_reset"
+      ],
+      "proof_status": "design_only_runtime_unproven",
+      "purpose": "fail_closed_on_key_or_secure_store_failure",
+      "recipient": "none_in_design_runtime_unproven",
+      "retention": "unknown_pending_key_contract",
+      "storage": "keychain_or_keystore_design",
+      "transfer": "none_in_design_runtime_unproven"
+    }
+  },
+  "real_user_exposure": "forbidden",
+  "recipients_and_transfers": {
+    "allowlisted_telemetry": {
+      "contract": "unknown",
+      "location": "unknown",
+      "proof_status": "runtime_and_contract_proof_absent",
+      "recipient": "unresolved_processor",
+      "transfer": "unknown"
+    },
+    "canonical_financial_processing": {
+      "proof_status": "design_only_runtime_unproven",
+      "recipient": "none_in_design_runtime_unproven",
+      "transfer": "none_in_design_runtime_unproven"
+    },
+    "user_export": {
+      "proof_status": "runtime_proof_absent",
+      "recipient": "user_only_in_design",
+      "transfer": "user_selected_destination_unknown"
+    }
+  },
+  "runtime_binding": "none",
+  "schema_version": 1,
+  "scope": {
+    "location": "Lausanne_VD",
+    "persona": "frozen_supported_persona_only",
+    "processing_boundary": "bounded_3a_vertical_only",
+    "tax_year": 2026
+  },
+  "status": "design_only_incomplete_pending_full_aipd",
+  "surface_activity_mapping": {
+    "amount_choice": [
+      "local_calculation_read_model",
+      "local_plan_confirmation_tracking"
+    ],
+    "coach_narrative": [
+      "coach_typed_intent_navigation_and_narrative",
+      "local_calculation_read_model"
+    ],
+    "coach_typed_intent": [
+      "coach_typed_intent_navigation_and_narrative"
+    ],
+    "confirmation_refusal": [
+      "local_fact_proposal_confirmation"
+    ],
+    "contradiction_resolution": [
+      "local_fact_proposal_confirmation",
+      "encrypted_local_persistence"
+    ],
+    "fact_proposal": [
+      "local_fact_proposal_confirmation"
+    ],
+    "fact_review": [
+      "local_fact_proposal_confirmation",
+      "encrypted_local_persistence"
+    ],
+    "notification": [
+      "local_notification_eligibility"
+    ],
+    "plan_confirmation": [
+      "local_plan_confirmation_tracking",
+      "encrypted_local_persistence"
+    ],
+    "plan_status": [
+      "local_plan_confirmation_tracking",
+      "local_calculation_read_model"
+    ],
+    "result_widget_contribution": [
+      "local_calculation_read_model"
+    ],
+    "result_widget_liquidity": [
+      "local_calculation_read_model"
+    ],
+    "result_widget_tax_reduction": [
+      "local_calculation_read_model"
+    ],
+    "result_widget_withdrawal_tax": [
+      "local_calculation_read_model"
+    ],
+    "revoke_delete_export": [
+      "local_user_control_export_revoke_delete"
+    ],
+    "rules_unavailable_explanation": [
+      "local_calculation_read_model"
+    ],
+    "secure_failure_recovery": [
+      "secure_failure_recovery"
+    ],
+    "situation_read_model": [
+      "local_calculation_read_model"
+    ],
+    "stale_refresh": [
+      "local_fact_proposal_confirmation",
+      "encrypted_local_persistence"
+    ],
+    "telemetry_crash_evidence": [
+      "allowlisted_telemetry_crash_evidence"
+    ],
+    "today_opportunity": [
+      "local_calculation_read_model",
+      "local_notification_eligibility"
+    ],
+    "unsupported_explanation": [
+      "local_calculation_read_model"
+    ]
+  },
+  "trigger_reassessment_mapping": {
+    "account_opening_or_referral": "block_and_reassess",
+    "automated_legally_significant_decision": "block_and_reassess",
+    "claim_of_finma_approval_or_supervision": "block_and_reassess",
+    "commission_or_affiliate_remuneration": "block_and_reassess",
+    "cross_border_user_or_service": "block_and_reassess",
+    "custody_or_money_movement": "block_and_reassess",
+    "data_leaves_device_or_new_recipient_or_transfer": "block_and_reassess",
+    "imperative_financial_action": "block_and_reassess",
+    "insurance_product_comparison": "block_and_reassess",
+    "llm_free_text_outside_allowlist": "block_and_reassess",
+    "observed_transaction_or_daily_monitoring_claim": "block_and_reassess",
+    "order_execution_or_transmission": "block_and_reassess",
+    "personalized_recommendation": "block_and_reassess",
+    "portfolio_allocation_or_rebalancing": "block_and_reassess",
+    "provider_or_product_ranking": "block_and_reassess",
+    "sold_human_advice_escalation": "block_and_reassess",
+    "specific_provider_or_instrument": "block_and_reassess",
+    "stale_or_unreviewed_authority": "unavailable_and_reassess",
+    "suitability_best_optimal_language": "block_and_reassess",
+    "tax_filing_submission_or_representation": "block_and_reassess",
+    "unsupported_persona_canton_year_or_taxation": "unavailable_and_reassess"
+  },
+  "unresolved_inputs": [
+    "full_aipd",
+    "production_scale",
+    "processor_identity_and_contract",
+    "recipient_and_transfer_locations",
+    "retention_schedule",
+    "runtime_security_controls",
+    "residual_risk_measurement",
+    "consultation_duty",
+    "external_privacy_review"
+  ]
+}

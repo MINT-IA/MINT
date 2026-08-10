@@ -1,0 +1,710 @@
+schema_version: 1
+contract_id: three_a_lausanne_2026_fms_v1
+phase_status: pre_activation
+decision: STOP
+activation: 'OFF'
+real_user_exposure: forbidden
+model_output: unavailable
+does_not_close_B0: true
+scope:
+  city: Lausanne
+  canton: VD
+  tax_year: 2026
+  taxation: ordinary_full_year
+  household: single_zero_dependants
+  age_product_boundary: 18_to_65
+capabilities:
+  ordinary_room:
+    facts:
+    - calculation_instant
+    - tax_year
+    - avs_eligibility_confirmed
+    - lpp_active_confirmed
+    - credited_contributions
+    - provider_inventory_complete
+  tax_delta:
+    facts:
+    - calculation_instant
+    - tax_year
+    - avs_eligibility_confirmed
+    - lpp_active_confirmed
+    - credited_contributions
+    - provider_inventory_complete
+    - full_year_lausanne_domicile
+    - ordinary_full_year_liability
+    - civil_status_single
+    - dependants_count
+    - ifd_taxable_income_pre_3a_chf
+    - vd_taxable_income_pre_3a_chf
+  plan_affordability:
+    facts:
+    - calculation_instant
+    - tax_year
+    - avs_eligibility_confirmed
+    - lpp_active_confirmed
+    - credited_contributions
+    - provider_inventory_complete
+    - liquid_assets_chf
+    - selected_emergency_buffer_chf
+    - debts_due_90d_chf
+    - essential_expenses_30d_chf
+    - monthly_surplus_chf
+    - overdue_debt_present
+    - maximum_debt_apr_percent
+    tax_delta_required_for_economic_effort: true
+    tax_delta_optional_for_plan_creation: true
+facts:
+  calculation_instant:
+    type: datetime
+    unit: iso8601
+    cardinality: one
+    requirement: required
+    effective_period: instant
+    freshness:
+      ttl_days: 0
+      invalidated_by_events: &id001
+      - clock_change
+    events: *id001
+    verification:
+    - system_verified
+    provenance:
+    - system_clock
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      timezone: Europe/Zurich
+      calendar_year_equals_tax_year: true
+  tax_year:
+    type: integer
+    unit: year
+    cardinality: one
+    requirement: required
+    effective_period: calendar_year
+    freshness:
+      ttl_days: 0
+      invalidated_by_events: &id002
+      - year_change
+    events: *id002
+    verification:
+    - ruleset_verified
+    provenance:
+    - ruleset_derived
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: 2026
+  avs_eligibility_confirmed:
+    type: boolean
+    unit: none
+    cardinality: one
+    requirement: required
+    effective_period: tax_year
+    freshness:
+      ttl_days: 365
+      invalidated_by_events: &id003
+      - employment_change
+      - retirement
+    events: *id003
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: true
+  lpp_active_confirmed:
+    type: boolean
+    unit: none
+    cardinality: one
+    requirement: required
+    effective_period: tax_year
+    freshness:
+      ttl_days: 365
+      invalidated_by_events: &id004
+      - employment_change
+      - retirement
+    events: *id004
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: true
+  credited_contributions:
+    type: list
+    unit: whole_chf
+    cardinality: many
+    requirement: required
+    effective_period: tax_year
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id005
+      - contribution_credited
+      - provider_change
+    events: *id005
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    item_schema:
+      type: object
+      required:
+      - local_token
+      - amount_whole_chf
+      - credited_at
+      properties:
+        local_token:
+          type: string
+          format: uuid
+          pii: forbidden
+        amount_whole_chf:
+          type: integer
+          minimum: 0
+        credited_at:
+          type: datetime
+          timezone: Europe/Zurich
+          calendar_year_equals_tax_year: true
+      additional_properties: false
+    value_constraints:
+      list: true
+      minimum_items: 0
+  provider_inventory_complete:
+    type: boolean
+    unit: none
+    cardinality: one
+    requirement: required
+    effective_period: tax_year
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id006
+      - provider_change
+      - contribution_credited
+    events: *id006
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: true
+  full_year_lausanne_domicile:
+    type: boolean
+    unit: none
+    cardinality: one
+    requirement: conditional
+    effective_period: tax_year
+    freshness:
+      ttl_days: 365
+      invalidated_by_events: &id007
+      - move
+      - year_change
+    events: *id007
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: true
+  ordinary_full_year_liability:
+    type: boolean
+    unit: none
+    cardinality: one
+    requirement: conditional
+    effective_period: tax_year
+    freshness:
+      ttl_days: 365
+      invalidated_by_events: &id008
+      - tax_status_change
+      - move
+    events: *id008
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: true
+  civil_status_single:
+    type: boolean
+    unit: none
+    cardinality: one
+    requirement: conditional
+    effective_period: tax_year
+    freshness:
+      ttl_days: 365
+      invalidated_by_events: &id009
+      - marriage
+      - divorce
+    events: *id009
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: true
+  dependants_count:
+    type: integer
+    unit: count
+    cardinality: one
+    requirement: conditional
+    effective_period: tax_year
+    freshness:
+      ttl_days: 365
+      invalidated_by_events: &id010
+      - birth
+      - custody_change
+    events: *id010
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      constant: 0
+  ifd_taxable_income_pre_3a_chf:
+    type: integer
+    unit: whole_chf
+    cardinality: one
+    requirement: conditional
+    effective_period: tax_year
+    freshness:
+      ttl_days: 90
+      invalidated_by_events: &id011
+      - income_change
+      - assessment_change
+    events: *id011
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      integer: true
+      minimum: 0
+  vd_taxable_income_pre_3a_chf:
+    type: integer
+    unit: whole_chf
+    cardinality: one
+    requirement: conditional
+    effective_period: tax_year
+    freshness:
+      ttl_days: 90
+      invalidated_by_events: &id012
+      - income_change
+      - assessment_change
+    events: *id012
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      integer: true
+      minimum: 0
+  liquid_assets_chf:
+    type: integer
+    unit: whole_chf
+    cardinality: one
+    requirement: conditional
+    effective_period: as_of
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id013
+      - balance_change
+    events: *id013
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      integer: true
+      minimum: 0
+  selected_emergency_buffer_chf:
+    type: integer
+    unit: whole_chf
+    cardinality: one
+    requirement: conditional
+    effective_period: as_of
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id014
+      - buffer_change
+    events: *id014
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      integer: true
+      minimum: 0
+  debts_due_90d_chf:
+    type: integer
+    unit: whole_chf
+    cardinality: one
+    requirement: conditional
+    effective_period: as_of
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id015
+      - debt_change
+    events: *id015
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      integer: true
+      minimum: 0
+  essential_expenses_30d_chf:
+    type: integer
+    unit: whole_chf
+    cardinality: one
+    requirement: conditional
+    effective_period: as_of
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id016
+      - expense_change
+    events: *id016
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      integer: true
+      minimum: 0
+  monthly_surplus_chf:
+    type: integer
+    unit: whole_chf
+    cardinality: one
+    requirement: conditional
+    effective_period: as_of
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id017
+      - income_change
+      - expense_change
+    events: *id017
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      integer: true
+      signed: true
+  overdue_debt_present:
+    type: boolean
+    unit: none
+    cardinality: one
+    requirement: conditional
+    effective_period: as_of
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id018
+      - debt_change
+    events: *id018
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      allowed:
+      - false
+      - true
+  maximum_debt_apr_percent:
+    type: decimal
+    unit: percent
+    cardinality: one
+    requirement: conditional
+    effective_period: as_of
+    freshness:
+      ttl_days: 30
+      invalidated_by_events: &id019
+      - debt_change
+    events: *id019
+    verification:
+    - confirmed
+    provenance:
+    - user_declared
+    - user_confirmed_import_later
+    privacy:
+      classification: sensitive_financial
+      value_forbidden_in_contract: true
+      purpose_contract_ref: unresolved
+      legal_basis_contract_ref: unresolved
+      retention_contract_ref: unresolved
+    value_constraints:
+      decimal: true
+      minimum: 0
+      maximum: 100
+outcomes:
+- condition: schema_invalid
+  status: conflict
+  reason: schema_conflict
+  blocking: true
+- condition: confirmed_facts_conflict
+  status: conflict
+  reason: fact_conflict
+  blocking: true
+- condition: outside_supported_boundary
+  status: unsupported
+  reason: unsupported_scope
+  blocking: true
+- condition: decision_fact_expired_or_event_invalidated
+  status: stale
+  reason: refresh_required
+  blocking: true
+- condition: required_fact_absent
+  status: missing
+  reason: fact_required
+  blocking: true
+- condition: all_required_facts_live_confirmed
+  status: available
+  reason: none
+  blocking: false
+outcome_priority:
+- conflict_or_schema
+- unsupported
+- stale
+- missing
+- available
+no_substitution:
+  avs_or_salary_to_taxable_base: false
+  ifd_to_vd_taxable_base: false
+  address_postcode_gps_to_domicile_interval: false
+  ordered_to_credited_contribution: false
+  contribution_count_to_provider_inventory_complete: false
+  probable_lpp_to_confirmed_lpp: false
+  proposal_stale_superseded_to_live_confirmed: false
+  absent_household_data_to_single_zero_dependants: false
+unsupported_dimensions:
+- married_or_partnered
+- one_or_more_dependants
+- move_or_partial_year
+- source_tax_frontier_or_partial_liability
+- self_employed_or_mixed_activity
+- lpp_ambiguous
+- catch_up
+- outside_supported_age_or_activity
+church_confession:
+  collected: false
+  used_by_model: false
+persona_matrix:
+- id: A
+  condition: primary_complete
+  room: exact_arithmetic
+  tax_delta: non_binding_model_estimate
+  plan: eligible_if_affordable
+  expected: supported
+- id: B
+  condition: independent_without_LPP
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_persona
+  expected: unsupported
+- id: C
+  condition: mixed_activity_or_LPP_ambiguous
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: clarification_required
+  expected: unavailable
+- id: D
+  condition: no_AVS_income
+  room: ineligible
+  tax_delta: unavailable
+  plan: blocked
+  reason: no_eligibility
+  expected: unsupported
+- id: E
+  condition: multi_provider_inventory_incomplete
+  room: unknown
+  tax_delta: unavailable
+  plan: blocked
+  reason: completeness_unconfirmed
+  expected: unavailable
+- id: F
+  condition: ordinary_room_zero_and_2025_catchup_requested
+  room: 0
+  tax_delta: unavailable
+  plan: blocked
+  reason: catchup_detected_unsupported
+  expected: unsupported
+- id: G
+  condition: source_tax_frontier_or_partial_liability
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_taxation
+  expected: unsupported
+- id: H
+  condition: dual_income_couple
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_household
+  expected: unsupported
+- id: I
+  condition: activity_after_reference_age
+  room: unavailable
+  tax_delta: unavailable
+  plan: blocked
+  reason: unsupported_age_activity
+  expected: unsupported
+- id: J
+  condition: primary_but_affordability_gate_fails
+  room: displayable
+  tax_delta: unavailable_until_engine_independently_proven
+  plan: blocked
+  reason: safety_gate
+  expected: unavailable
+connectors:
+  bank:
+    status: not_implemented
+    default_enabled: false
+    write_authority: none
+    output: proposal
+    user_confirmation_required: true
+  insurer:
+    status: not_implemented
+    default_enabled: false
+    write_authority: none
+    output: proposal
+    user_confirmation_required: true
+  lpp:
+    status: not_implemented
+    default_enabled: false
+    write_authority: none
+    output: proposal
+    user_confirmation_required: true
+  avs:
+    status: not_implemented
+    default_enabled: false
+    write_authority: none
+    output: proposal
+    user_confirmation_required: true
+  tax:
+    status: not_implemented
+    default_enabled: false
+    write_authority: none
+    output: proposal
+    user_confirmation_required: true
+unresolved_contract_refs:
+- privacy_contract
+- external_legal_review
+- retention_export_deletion_contract

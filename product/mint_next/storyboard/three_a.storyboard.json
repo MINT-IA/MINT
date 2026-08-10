@@ -1,0 +1,447 @@
+{
+  "schema_version": 3,
+  "goal": {
+    "id": "three_a_2026",
+    "title": "Comprendre et décider pour mon 3a",
+    "promise": "Transformer une question fiscale en décision compréhensible, libre et traçable."
+  },
+  "generated_at": "2026-08-09",
+  "phase_authority": {
+    "path": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
+    "sha256": "f9e4da8807c83869594a68e8a936f837765d064c0cd2a9837665abf5b51e5d70",
+    "status_anchor": "Status: `pre_activation`"
+  },
+  "design_authority": {
+    "approved_revision": "mint-v2-2026-08-09",
+    "authority": {
+      "path": "docs/brand/mint-v2/tokens.jsx",
+      "sha256": "00410034daecefa923294d08b02ed71176f6aadef0daadbe885e0aa9b9197e57",
+      "role": "authority"
+    },
+    "historical_context": {
+      "path": "docs/DESIGN_SYSTEM.md",
+      "sha256": "d4b65598f4ef098b3428e69bc01e9b8f805406bdea7304f4701108e3dccfb0e2",
+      "role": "historical_context"
+    }
+  },
+  "field_ownership": [
+    {
+      "field": "narrative",
+      "path": "product/mint_next/storyboard/three_a.storyboard.json",
+      "anchor": "schema_version"
+    },
+    {
+      "field": "navigation",
+      "path": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
+      "anchor": "## Canonical navigation and state machine",
+      "sha256": "f9e4da8807c83869594a68e8a936f837765d064c0cd2a9837665abf5b51e5d70"
+    },
+    {
+      "field": "phase_status",
+      "path": ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
+      "anchor": "Status: `pre_activation`",
+      "sha256": "f9e4da8807c83869594a68e8a936f837765d064c0cd2a9837665abf5b51e5d70"
+    },
+    {
+      "field": "visual_language",
+      "path": "docs/brand/mint-v2/tokens.jsx",
+      "anchor": "const PALETTES",
+      "sha256": "00410034daecefa923294d08b02ed71176f6aadef0daadbe885e0aa9b9197e57"
+    },
+    {
+      "field": "observations",
+      "path": "tools/checks/mint_next_storyboard_guard.py",
+      "anchor": "observation non recevable sans protocole de promotion"
+    }
+  ],
+  "novice_validation": {
+    "status": "not_run",
+    "protocol": {
+      "readers_required": 2,
+      "questions": 5,
+      "time_limit_seconds": 60
+    },
+    "observations": []
+  },
+  "entry_scene": "today_opportunity",
+  "happy_path": [
+    "today_opportunity",
+    "facts_review",
+    "calculate",
+    "explain_result",
+    "free_choice",
+    "plan_confirmation",
+    "return_today"
+  ],
+  "branches": {
+    "missing_data": [
+      "facts_review",
+      "confirm_fact",
+      "facts_review"
+    ],
+    "refusal": [
+      "confirm_fact",
+      "safe_refusal",
+      "return_today"
+    ],
+    "zero_choice": [
+      "free_choice",
+      "return_today"
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D-001",
+      "question": "Le storyboard doit-il déclarer une scène terminée ?",
+      "decision": "Non. Il sépare la cible de toute observation et dérive les axes depuis des preuves recevables.",
+      "rationale": "Un dessin convaincant ne constitue ni du code, ni un test runtime.",
+      "rejected": "Un badge unique « terminé » saisi à la main.",
+      "revisited_when": "Un contrat de promotion scène-par-scène est accepté."
+    }
+  ],
+  "scenes": [
+    {
+      "id": "today_opportunity",
+      "chapter": "Aujourd’hui",
+      "title": "Une occasion, pas une alarme",
+      "summary": "MINT signale une action 3a seulement lorsqu'elle mérite l'attention.",
+      "user_sees": "Une carte calme avec la raison, l'année et une seule action.",
+      "user_understands": "Je peux explorer sans engagement et sans urgence artificielle.",
+      "primary_action": "Voir ma marge",
+      "data": {
+        "reads": [
+          "eligibility",
+          "tax_year",
+          "freshness"
+        ],
+        "writes": []
+      },
+      "architecture": {
+        "route": "today",
+        "state": "loading",
+        "contract": "SPEC.md#Goal"
+      },
+      "transitions": [
+        {
+          "event": "open",
+          "destination": "facts_review"
+        }
+      ],
+      "target": {
+        "intention_oracle": "La promesse est comprise avant toute collecte.",
+        "observation_oracle": "La personne peut expliquer pourquoi la carte apparaît."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "facts_review",
+      "chapter": "Ma situation",
+      "title": "Ce que MINT sait — et ignore",
+      "summary": "Les faits utiles sont visibles avec leur fraîcheur et leur provenance.",
+      "user_sees": "Une liste courte : connu, manquant ou à actualiser.",
+      "user_understands": "Le résultat dépend de ces données et je garde le contrôle.",
+      "primary_action": "Continuer",
+      "data": {
+        "reads": [
+          "FactRecord"
+        ],
+        "writes": []
+      },
+      "architecture": {
+        "route": "three_a_facts",
+        "state": "known|missing",
+        "contract": "SPEC.md#Canonical-financial-twin-contract"
+      },
+      "transitions": [
+        {
+          "event": "facts_complete",
+          "destination": "calculate"
+        },
+        {
+          "event": "fact_missing",
+          "destination": "confirm_fact"
+        }
+      ],
+      "target": {
+        "intention_oracle": "Rendre l'incertitude explicite.",
+        "observation_oracle": "La personne distingue un fait confirmé d'une estimation."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "confirm_fact",
+      "chapter": "Confirmation",
+      "title": "Une seule donnée utile",
+      "summary": "MINT propose une valeur, explique son usage et attend un accord explicite.",
+      "user_sees": "La valeur, sa période, sa source et les choix confirmer ou refuser.",
+      "user_understands": "Rien n'est enregistré sans mon accord.",
+      "primary_action": "Confirmer",
+      "data": {
+        "reads": [
+          "fact_proposal"
+        ],
+        "writes": [
+          "FactRecord confirmed"
+        ]
+      },
+      "architecture": {
+        "route": "three_a_confirm_fact",
+        "state": "confirmation",
+        "contract": "SPEC.md#Canonical-navigation-and-state-machine"
+      },
+      "transitions": [
+        {
+          "event": "confirm",
+          "destination": "facts_review"
+        },
+        {
+          "event": "refuse",
+          "destination": "safe_refusal"
+        }
+      ],
+      "target": {
+        "intention_oracle": "Obtenir un consentement spécifique sans friction trompeuse.",
+        "observation_oracle": "La personne sait refuser et prévoir la conséquence."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "safe_refusal",
+      "chapter": "Sortie sûre",
+      "title": "Continuer sans enregistrer",
+      "summary": "Le refus n'est ni bloquant, ni culpabilisant.",
+      "user_sees": "Une explication brève des limites du résultat.",
+      "user_understands": "Je peux quitter sans dégrader mes données.",
+      "primary_action": "Terminer",
+      "data": {
+        "reads": [],
+        "writes": []
+      },
+      "architecture": {
+        "route": "three_a_refusal",
+        "state": "refusal",
+        "contract": "SPEC.md#Canonical-navigation-and-state-machine"
+      },
+      "transitions": [
+        {
+          "event": "done",
+          "destination": "return_today"
+        }
+      ],
+      "target": {
+        "intention_oracle": "Préserver l'autonomie.",
+        "observation_oracle": "Aucune valeur proposée n'est persistée."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "calculate",
+      "chapter": "Calcul",
+      "title": "Un scénario auditable",
+      "summary": "Le moteur déterministe répond ou déclare honnêtement l'indisponibilité.",
+      "user_sees": "Hypothèses, année, périmètre et limites avant le résultat.",
+      "user_understands": "Ce résultat est une estimation, pas une vérité fiscale.",
+      "primary_action": "Comprendre",
+      "data": {
+        "reads": [
+          "FactRecord confirmed",
+          "ruleset hash"
+        ],
+        "writes": [
+          "result receipt"
+        ]
+      },
+      "architecture": {
+        "route": "three_a_scenario",
+        "state": "calculation_ready",
+        "contract": "SPEC.md#Calculation-and-safety-contract"
+      },
+      "transitions": [
+        {
+          "event": "compute",
+          "destination": "explain_result"
+        }
+      ],
+      "target": {
+        "intention_oracle": "Séparer faits, règles et explication.",
+        "observation_oracle": "Le même input et ruleset donnent le même résultat."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "explain_result",
+      "chapter": "Comprendre",
+      "title": "Quatre morceaux, jamais un chiffre magique",
+      "summary": "Contribution, baisse fiscale estimée, liquidité et impôt au retrait restent distincts.",
+      "user_sees": "Un widget pédagogique aéré et ses hypothèses adjacentes.",
+      "user_understands": "L'économie fiscale ne rend pas l'argent immédiatement disponible.",
+      "primary_action": "Choisir",
+      "data": {
+        "reads": [
+          "result receipt"
+        ],
+        "writes": []
+      },
+      "architecture": {
+        "route": "three_a_result",
+        "state": "result",
+        "contract": "SPEC.md#Calculation-and-safety-contract"
+      },
+      "transitions": [
+        {
+          "event": "understood",
+          "destination": "free_choice"
+        }
+      ],
+      "target": {
+        "intention_oracle": "Faire comprendre le levier sans pousser à cotiser.",
+        "observation_oracle": "La personne reformule correctement les quatre blocs."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "free_choice",
+      "chapter": "Décider",
+      "title": "Zéro est un vrai choix",
+      "summary": "MINT propose seulement des montants compatibles avec la marge et la liquidité connues.",
+      "user_sees": "CHF 0 ou un montant libre, avec effets comparables.",
+      "user_understands": "Je décide ; MINT ne prescrit pas.",
+      "primary_action": "Continuer",
+      "data": {
+        "reads": [
+          "affordability",
+          "3a room"
+        ],
+        "writes": [
+          "decision"
+        ]
+      },
+      "architecture": {
+        "route": "three_a_choice",
+        "state": "result",
+        "contract": "SPEC.md#Specific-mini-plan-schema"
+      },
+      "transitions": [
+        {
+          "event": "choose_zero",
+          "destination": "return_today"
+        },
+        {
+          "event": "choose_amount",
+          "destination": "plan_confirmation"
+        }
+      ],
+      "target": {
+        "intention_oracle": "Protéger la liberté et la liquidité.",
+        "observation_oracle": "Choisir CHF 0 crée zéro plan."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "plan_confirmation",
+      "chapter": "Agir",
+      "title": "Un mini-plan explicite",
+      "summary": "Le plan montre montant, échéance, dépendances et conditions d'actualisation.",
+      "user_sees": "Une confirmation finale et une prochaine action unique.",
+      "user_understands": "Le plan suit une décision ; il ne surveille pas ma banque.",
+      "primary_action": "Confirmer le plan",
+      "data": {
+        "reads": [
+          "decision",
+          "dependencies"
+        ],
+        "writes": [
+          "Plan3aRecord"
+        ]
+      },
+      "architecture": {
+        "route": "three_a_plan_confirm",
+        "state": "plan_confirmation",
+        "contract": "SPEC.md#Specific-mini-plan-schema"
+      },
+      "transitions": [
+        {
+          "event": "confirm",
+          "destination": "return_today"
+        }
+      ],
+      "target": {
+        "intention_oracle": "Transformer une décision en action réversible.",
+        "observation_oracle": "Un double appui crée exactement un plan."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    },
+    {
+      "id": "return_today",
+      "chapter": "Retour",
+      "title": "La boucle se referme",
+      "summary": "Today reste silencieux sauf événement matériel.",
+      "user_sees": "La prochaine action ou rien, sans streak ni culpabilisation.",
+      "user_understands": "Je peux retrouver ma décision dans Ma situation.",
+      "primary_action": "Terminé",
+      "data": {
+        "reads": [
+          "decision",
+          "Plan3aRecord optional"
+        ],
+        "writes": []
+      },
+      "architecture": {
+        "route": "today",
+        "state": "completed",
+        "contract": "SPEC.md#Canonical-navigation-and-state-machine"
+      },
+      "transitions": [],
+      "target": {
+        "intention_oracle": "Créer une boucle finie, pas un tunnel.",
+        "observation_oracle": "Le jeton de reprise est supprimé et aucune route morte ne reste."
+      },
+      "observations": [],
+      "evidence": {
+        "code_refs": [],
+        "runtime_receipts": [],
+        "exposure_receipts": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,777 @@
+schema_version: 1
+contract_id: mint_next_three_a_navigation_graph_v1
+phase: mint-next-vertical01-3a-20260802
+status: present_unaccepted
+projection_kind: state_machine_navigation_projection
+derived_from:
+  path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/state-machine.yaml
+  contract_id: mint_next_three_a_state_machine_v1
+  sha256: 9692936cabed8f7edc92b9410e18e0088b7bf8d26928910e073133ed8aa905c3
+historical_reference:
+- path: product/mint_next/batch6/navigation.yaml
+  sha256: ad01b983ab56711049879868ea34943f07bc221c6f8ebfbbafc06ce442ab2bc5
+  classification: historical_non_authoritative
+- path: product/mint_next/batch6/navigation.mmd
+  sha256: 75fa351541d2b3b0ede5315b0d56fe6c7c3cc428bf43c07291423b4f87406eda
+  classification: historical_non_authoritative
+entry_edges:
+- surface: today
+  target_state: loading
+  contract_ref: state-machine#today_visibility_guard
+- surface: coach
+  target_state: loading
+  contract_ref: state-machine#coach_entry_contract
+states:
+- calculation_impossible
+- calculation_ready
+- completed
+- confirmation
+- contradiction
+- deleted
+- known
+- loading
+- missing
+- offline
+- plan_confirmation
+- refusal
+- result
+- rules_explanation
+- rules_unavailable
+- secure_fail
+- stale
+- unsupported
+- unsupported_explanation
+destination_bindings:
+  Today:
+    kind: route
+    target: today
+  Today/privacy:
+    kind: surface
+    target: privacy
+  availability check:
+    kind: surface
+    target: availability_check
+  comparison:
+    kind: surface
+    target: comparison
+  confirmation:
+    kind: overlay
+    target: confirmation
+  explanation:
+    kind: surface
+    target: explanation
+  fact review:
+    kind: surface
+    target: fact_review
+  one-fact refresh:
+    kind: overlay
+    target: one_fact_refresh
+  privacy recovery:
+    kind: surface
+    target: privacy_recovery
+  safe exit:
+    kind: safe_exit
+    target: flow_exit
+  same route:
+    kind: current
+    target: current_surface
+  scenario:
+    kind: surface
+    target: scenario
+  widget:
+    kind: surface
+    target: pedagogical_widget
+selector_expansions:
+  any fact state:
+    predicate: fact_workflow_state
+    expands_to:
+    - confirmation
+    - contradiction
+    - known
+    - missing
+    - stale
+    excludes:
+    - calculation_impossible
+    - calculation_ready
+    - completed
+    - deleted
+    - loading
+    - offline
+    - plan_confirmation
+    - refusal
+    - result
+    - rules_explanation
+    - rules_unavailable
+    - secure_fail
+    - unsupported
+    - unsupported_explanation
+    rationale: Only states that collect, confirm, compare, or refresh decision-critical facts.
+  any persisted state:
+    predicate: has_live_persisted_graph
+    expands_to:
+    - calculation_impossible
+    - calculation_ready
+    - confirmation
+    - contradiction
+    - known
+    - missing
+    - plan_confirmation
+    - refusal
+    - result
+    - rules_explanation
+    - rules_unavailable
+    - stale
+    - unsupported
+    - unsupported_explanation
+    excludes:
+    - completed
+    - deleted
+    - loading
+    - offline
+    - secure_fail
+    rationale: The transition is eligible only when a live persisted dependency graph exists; state membership alone never proves persistence.
+continuation_target_bindings:
+  none:
+    kind: sentinel
+    target: none
+  not_specified:
+    kind: sentinel
+    target: not_specified
+  intent:
+    kind: entry_adapter_ref
+    target: loading
+    contract_ref: state-machine#entry_adapters/coach_intent_resume
+  exit_safe:
+    kind: surface
+    target: safe exit
+  exit_today:
+    kind: surface
+    target: Today
+  loading:
+    kind: state
+    target: loading
+  confirmation:
+    kind: state
+    target: confirmation
+  contradiction:
+    kind: state
+    target: contradiction
+  stale:
+    kind: state
+    target: stale
+  result:
+    kind: state
+    target: result
+  plan_confirmation:
+    kind: state
+    target: plan_confirmation
+  completed:
+    kind: state
+    target: completed
+continuation_policies:
+  exit_resume_intent:
+    exact_text: exit; resume intent
+    back_ref: none
+    exit_ref: exit_safe
+    resume_ref: intent
+    effects: []
+  exit_resume_loading:
+    exact_text: exit; resume loading
+    back_ref: none
+    exit_ref: exit_safe
+    resume_ref: loading
+    effects: []
+  exit_only_no_plaintext:
+    exact_text: exit only; no plaintext fallback
+    back_ref: none
+    exit_ref: exit_safe
+    resume_ref: none
+    effects:
+    - no_plaintext_fallback
+  exit_only:
+    exact_text: exit only
+    back_ref: none
+    exit_ref: exit_safe
+    resume_ref: none
+    effects: []
+  back_today:
+    exact_text: back Today
+    back_ref: exit_today
+    exit_ref: not_specified
+    resume_ref: none
+    effects: []
+  back_keep_local_draft:
+    exact_text: back keeps local draft only
+    back_ref: not_specified
+    exit_ref: not_specified
+    resume_ref: none
+    effects:
+    - preserve_confirmation_draft
+  interruption_resume_confirmation:
+    exact_text: interruption resumes confirmation
+    back_ref: none
+    exit_ref: not_specified
+    resume_ref: confirmation
+    effects:
+    - preserve_confirmation_draft
+    - interruption_preserves_resume_state
+  back_or_exit:
+    exact_text: back/exit
+    back_ref: not_specified
+    exit_ref: exit_safe
+    resume_ref: none
+    effects: []
+  exit:
+    exact_text: exit
+    back_ref: none
+    exit_ref: exit_safe
+    resume_ref: none
+    effects: []
+  same:
+    exact_text: same
+    same_as_transition: 10
+  exit_resume_conflict:
+    exact_text: exit; resume conflict
+    back_ref: none
+    exit_ref: exit_safe
+    resume_ref: contradiction
+    effects: []
+  exit_resume_stale:
+    exact_text: exit; resume stale
+    back_ref: none
+    exit_ref: exit_safe
+    resume_ref: stale
+    effects: []
+  back_result:
+    exact_text: back result
+    back_ref: result
+    exit_ref: not_specified
+    resume_ref: none
+    effects: []
+  interruption_resume_plan_confirmation:
+    exact_text: interruption resumes
+    back_ref: none
+    exit_ref: not_specified
+    resume_ref: plan_confirmation
+    effects:
+    - preserve_plan_confirmation_draft
+    - interruption_preserves_resume_state
+  back_keep_facts:
+    exact_text: back keeps facts
+    back_ref: not_specified
+    exit_ref: not_specified
+    resume_ref: none
+    effects:
+    - keep_facts
+  resume_completed:
+    exact_text: resume completed
+    back_ref: none
+    exit_ref: not_specified
+    resume_ref: completed
+    effects:
+    - discard_resume_on_entry
+  no_stale_resume:
+    exact_text: no stale resume
+    back_ref: none
+    exit_ref: not_specified
+    resume_ref: none
+    effects:
+    - purge_graph
+    - discard_stale_resume
+fallback:
+  unlisted_pair: stay_in_current_state
+  writes: '0'
+  cta: none
+terminal:
+  state: completed
+  on_entry: render_today_and_discard_resume_token
+  accepted_events: []
+  accepted_ctas: []
+edges:
+- ordinal: 1
+  transition_ref: state-machine#transition-01
+  source_selector: loading
+  guard_predicate: null
+  sources:
+  - loading
+  event: facts complete
+  next: known
+  writes: '0'
+  cta: none
+  continuation: exit; resume intent
+  continuation_policy: exit_resume_intent
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 2
+  transition_ref: state-machine#transition-02
+  source_selector: loading
+  guard_predicate: null
+  sources:
+  - loading
+  event: facts incomplete
+  next: missing
+  writes: '0'
+  cta: none
+  continuation: exit; resume intent
+  continuation_policy: exit_resume_intent
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 3
+  transition_ref: state-machine#transition-03
+  source_selector: loading
+  guard_predicate: null
+  sources:
+  - loading
+  event: offline
+  next: offline
+  writes: '0'
+  cta: Retry
+  continuation: exit; resume loading
+  continuation_policy: exit_resume_loading
+  destination: same route
+  destination_ref: same route
+- ordinal: 4
+  transition_ref: state-machine#transition-04
+  source_selector: loading
+  guard_predicate: null
+  sources:
+  - loading
+  event: key/secure-store failure
+  next: secure_fail
+  writes: '0'
+  cta: Recover
+  continuation: exit only; no plaintext fallback
+  continuation_policy: exit_only_no_plaintext
+  destination: privacy recovery
+  destination_ref: privacy recovery
+- ordinal: 5
+  transition_ref: state-machine#transition-05
+  source_selector: offline
+  guard_predicate: null
+  sources:
+  - offline
+  event: retry
+  next: loading
+  writes: '0'
+  cta: none
+  continuation: exit; resume loading
+  continuation_policy: exit_resume_loading
+  destination: same route
+  destination_ref: same route
+- ordinal: 6
+  transition_ref: state-machine#transition-06
+  source_selector: secure_fail
+  guard_predicate: null
+  sources:
+  - secure_fail
+  event: recovery succeeds
+  next: loading
+  writes: '0'
+  cta: none
+  continuation: exit; resume loading
+  continuation_policy: exit_resume_loading
+  destination: same route
+  destination_ref: same route
+- ordinal: 7
+  transition_ref: state-machine#transition-07
+  source_selector: secure_fail
+  guard_predicate: null
+  sources:
+  - secure_fail
+  event: recovery fails
+  next: secure_fail
+  writes: '0'
+  cta: Retry recovery
+  continuation: exit only
+  continuation_policy: exit_only
+  destination: privacy recovery
+  destination_ref: privacy recovery
+- ordinal: 8
+  transition_ref: state-machine#transition-08
+  source_selector: known
+  guard_predicate: null
+  sources:
+  - known
+  event: continue
+  next: calculation_ready
+  writes: '0'
+  cta: See my situation
+  continuation: back Today
+  continuation_policy: back_today
+  destination: scenario
+  destination_ref: scenario
+- ordinal: 9
+  transition_ref: state-machine#transition-09
+  source_selector: missing
+  guard_predicate: null
+  sources:
+  - missing
+  event: submit proposal
+  next: confirmation
+  writes: '0'
+  cta: Confirm
+  continuation: back keeps local draft only
+  continuation_policy: back_keep_local_draft
+  destination: confirmation
+  destination_ref: confirmation
+- ordinal: 10
+  transition_ref: state-machine#transition-10
+  source_selector: confirmation
+  guard_predicate: null
+  sources:
+  - confirmation
+  event: confirm
+  next: known
+  writes: exactly 1 fact version
+  cta: Continue
+  continuation: interruption resumes confirmation
+  continuation_policy: interruption_resume_confirmation
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 11
+  transition_ref: state-machine#transition-11
+  source_selector: confirmation
+  guard_predicate: null
+  sources:
+  - confirmation
+  event: refuse
+  next: refusal
+  writes: '0'
+  cta: Continue without saving
+  continuation: back/exit
+  continuation_policy: back_or_exit
+  destination: safe exit
+  destination_ref: safe exit
+- ordinal: 12
+  transition_ref: state-machine#transition-12
+  source_selector: refusal
+  guard_predicate: null
+  sources:
+  - refusal
+  event: continue without saving
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  continuation_policy: exit
+  destination: Today
+  destination_ref: Today
+- ordinal: 13
+  transition_ref: state-machine#transition-13
+  source_selector: confirmation
+  guard_predicate: null
+  sources:
+  - confirmation
+  event: double-submit
+  next: known
+  writes: exactly 1 idempotent write
+  cta: Continue
+  continuation: same
+  continuation_policy: same
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 14
+  transition_ref: state-machine#transition-14
+  source_selector: any fact state
+  guard_predicate: fact_workflow_state
+  sources:
+  - confirmation
+  - contradiction
+  - known
+  - missing
+  - stale
+  event: contradiction/conflict
+  next: contradiction
+  writes: '0'
+  cta: Resolve
+  continuation: exit; resume conflict
+  continuation_policy: exit_resume_conflict
+  destination: comparison
+  destination_ref: comparison
+- ordinal: 15
+  transition_ref: state-machine#transition-15
+  source_selector: any fact state
+  guard_predicate: fact_workflow_state
+  sources:
+  - confirmation
+  - contradiction
+  - known
+  - missing
+  - stale
+  event: expiry/life event
+  next: stale
+  writes: '0'
+  cta: Update
+  continuation: exit; resume stale
+  continuation_policy: exit_resume_stale
+  destination: one-fact refresh
+  destination_ref: one-fact refresh
+- ordinal: 16
+  transition_ref: state-machine#transition-16
+  source_selector: contradiction
+  guard_predicate: null
+  sources:
+  - contradiction
+  event: select confirmed version
+  next: known
+  writes: exactly 1 supersession
+  cta: Continue
+  continuation: exit; resume conflict
+  continuation_policy: exit_resume_conflict
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 17
+  transition_ref: state-machine#transition-17
+  source_selector: stale
+  guard_predicate: null
+  sources:
+  - stale
+  event: submit replacement proposal
+  next: confirmation
+  writes: '0'
+  cta: Confirm
+  continuation: back keeps local draft only
+  continuation_policy: back_keep_local_draft
+  destination: confirmation
+  destination_ref: confirmation
+- ordinal: 18
+  transition_ref: state-machine#transition-18
+  source_selector: calculation_ready
+  guard_predicate: null
+  sources:
+  - calculation_ready
+  event: unsupported
+  next: unsupported
+  writes: '0'
+  cta: What I can still do
+  continuation: back Today
+  continuation_policy: back_today
+  destination: explanation
+  destination_ref: explanation
+- ordinal: 19
+  transition_ref: state-machine#transition-19
+  source_selector: unsupported
+  guard_predicate: null
+  sources:
+  - unsupported
+  event: show explanation
+  next: unsupported_explanation
+  writes: '0'
+  cta: Done
+  continuation: back Today
+  continuation_policy: back_today
+  destination: explanation
+  destination_ref: explanation
+- ordinal: 20
+  transition_ref: state-machine#transition-20
+  source_selector: unsupported_explanation
+  guard_predicate: null
+  sources:
+  - unsupported_explanation
+  event: done
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  continuation_policy: exit
+  destination: Today
+  destination_ref: Today
+- ordinal: 21
+  transition_ref: state-machine#transition-21
+  source_selector: calculation_ready
+  guard_predicate: null
+  sources:
+  - calculation_ready
+  event: facts missing
+  next: calculation_impossible
+  writes: '0'
+  cta: Review facts
+  continuation: back/exit
+  continuation_policy: back_or_exit
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 22
+  transition_ref: state-machine#transition-22
+  source_selector: calculation_ready
+  guard_predicate: null
+  sources:
+  - calculation_ready
+  event: rules unavailable
+  next: rules_unavailable
+  writes: '0'
+  cta: Why unavailable
+  continuation: back/exit
+  continuation_policy: back_or_exit
+  destination: explanation
+  destination_ref: explanation
+- ordinal: 23
+  transition_ref: state-machine#transition-23
+  source_selector: calculation_impossible
+  guard_predicate: null
+  sources:
+  - calculation_impossible
+  event: facts complete
+  next: known
+  writes: '0'
+  cta: Continue
+  continuation: back/exit
+  continuation_policy: back_or_exit
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 24
+  transition_ref: state-machine#transition-24
+  source_selector: calculation_impossible
+  guard_predicate: null
+  sources:
+  - calculation_impossible
+  event: facts incomplete
+  next: missing
+  writes: '0'
+  cta: Complete facts
+  continuation: back/exit
+  continuation_policy: back_or_exit
+  destination: fact review
+  destination_ref: fact review
+- ordinal: 25
+  transition_ref: state-machine#transition-25
+  source_selector: rules_unavailable
+  guard_predicate: null
+  sources:
+  - rules_unavailable
+  event: show explanation
+  next: rules_explanation
+  writes: '0'
+  cta: Retry later
+  continuation: back Today
+  continuation_policy: back_today
+  destination: explanation
+  destination_ref: explanation
+- ordinal: 26
+  transition_ref: state-machine#transition-26
+  source_selector: rules_explanation
+  guard_predicate: null
+  sources:
+  - rules_explanation
+  event: retry
+  next: calculation_ready
+  writes: '0'
+  cta: none
+  continuation: exit
+  continuation_policy: exit
+  destination: availability check
+  destination_ref: availability check
+- ordinal: 27
+  transition_ref: state-machine#transition-27
+  source_selector: rules_explanation
+  guard_predicate: null
+  sources:
+  - rules_explanation
+  event: done
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  continuation_policy: exit
+  destination: Today
+  destination_ref: Today
+- ordinal: 28
+  transition_ref: state-machine#transition-28
+  source_selector: calculation_ready
+  guard_predicate: null
+  sources:
+  - calculation_ready
+  event: compute
+  next: result
+  writes: 1 result receipt
+  cta: Understand
+  continuation: back keeps facts
+  continuation_policy: back_keep_facts
+  destination: widget
+  destination_ref: widget
+- ordinal: 29
+  transition_ref: state-machine#transition-29
+  source_selector: result
+  guard_predicate: null
+  sources:
+  - result
+  event: choose CHF 0
+  next: completed
+  writes: 1 decision, 0 plan
+  cta: Finish
+  continuation: resume completed
+  continuation_policy: resume_completed
+  destination: Today
+  destination_ref: Today
+- ordinal: 30
+  transition_ref: state-machine#transition-30
+  source_selector: result
+  guard_predicate: null
+  sources:
+  - result
+  event: choose affordable amount
+  next: plan_confirmation
+  writes: '0'
+  cta: Confirm plan
+  continuation: back result
+  continuation_policy: back_result
+  destination: confirmation
+  destination_ref: confirmation
+- ordinal: 31
+  transition_ref: state-machine#transition-31
+  source_selector: plan_confirmation
+  guard_predicate: null
+  sources:
+  - plan_confirmation
+  event: confirm
+  next: completed
+  writes: exactly 1 plan
+  cta: Finish
+  continuation: interruption resumes
+  continuation_policy: interruption_resume_plan_confirmation
+  destination: Today
+  destination_ref: Today
+- ordinal: 32
+  transition_ref: state-machine#transition-32
+  source_selector: any persisted state
+  guard_predicate: has_live_persisted_graph
+  sources:
+  - calculation_impossible
+  - calculation_ready
+  - confirmation
+  - contradiction
+  - known
+  - missing
+  - plan_confirmation
+  - refusal
+  - result
+  - rules_explanation
+  - rules_unavailable
+  - stale
+  - unsupported
+  - unsupported_explanation
+  event: revoke/delete
+  next: deleted
+  writes: 1 tombstone + purge graph
+  cta: Done
+  continuation: no stale resume
+  continuation_policy: no_stale_resume
+  destination: Today/privacy
+  destination_ref: Today/privacy
+- ordinal: 33
+  transition_ref: state-machine#transition-33
+  source_selector: deleted
+  guard_predicate: null
+  sources:
+  - deleted
+  event: done
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  continuation_policy: exit
+  destination: Today
+  destination_ref: Today
+flutter_routes: []
+runtime_binding: none
+does_not_activate_runtime: true
+does_not_close_B0: true

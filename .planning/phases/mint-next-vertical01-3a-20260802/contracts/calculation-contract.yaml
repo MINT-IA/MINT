@@ -1,0 +1,245 @@
+schema_version: 1
+contract_id: mint_next_three_a_calculation_contract_v1
+phase: mint-next-vertical01-3a-20260802
+status: present_unaccepted
+authority_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/fact-minimum-set.yaml
+  sha256: 27062d01f1aa01c8751a15def7c9be557fe79bf69a9a9b710afc31db7c419636
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/normalized-ruleset.yaml
+  sha256: cd0f0666a6e6e9d3a4a1a7b9188f59874eb832a154d5e2a863eb66c904c9d2d2
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/persona-case-matrix.yaml
+  sha256: 5cc16845dd7248192bd4931689369d0a59a04538aac77e4f4631ce200c06888a
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/source-extractions.json
+  sha256: 080658b9388b9c7eea748d904ec73b406d50b91560d2ed3b62ba7a1759fb54a0
+supported_scope:
+  location: Lausanne_VD
+  tax_year: 2026
+  taxation: ordinary_full_year
+  household: single_zero_dependants
+  activity: salaried_with_AVS_income_and_confirmed_active_LPP
+  contribution: ordinary_2026_only
+  provider_inventory: exhaustively_confirmed
+input_capabilities:
+  ordinary_room:
+  - calculation_instant
+  - tax_year
+  - avs_eligibility_confirmed
+  - lpp_active_confirmed
+  - credited_contributions
+  - provider_inventory_complete
+  tax_delta:
+  - calculation_instant
+  - tax_year
+  - avs_eligibility_confirmed
+  - lpp_active_confirmed
+  - credited_contributions
+  - provider_inventory_complete
+  - full_year_lausanne_domicile
+  - ordinary_full_year_liability
+  - civil_status_single
+  - dependants_count
+  - ifd_taxable_income_pre_3a_chf
+  - vd_taxable_income_pre_3a_chf
+  plan_affordability:
+  - calculation_instant
+  - tax_year
+  - avs_eligibility_confirmed
+  - lpp_active_confirmed
+  - credited_contributions
+  - provider_inventory_complete
+  - liquid_assets_chf
+  - selected_emergency_buffer_chf
+  - debts_due_90d_chf
+  - essential_expenses_30d_chf
+  - monthly_surplus_chf
+  - overdue_debt_present
+  - maximum_debt_apr_percent
+modes:
+- deterministic_model_output
+- range
+- unavailable
+room_arithmetic:
+  cap_whole_chf: 7258
+  formula: max(0, cap_whole_chf - sum(credited_ordinary_2026_contributions_whole_chf))
+  available_when:
+  - all_ordinary_room_facts_fresh_confirmed_noncontradictory
+  - eligibility_confirmed
+  - provider_inventory_exhaustive
+  unavailable_when:
+  - missing
+  - stale
+  - contradictory
+  - eligibility_ambiguous
+  - provider_inventory_incomplete
+  - unsupported_persona
+  minimum_whole_chf: 0
+  maximum_whole_chf: 7258
+  precision: exact_integer_arithmetic
+tax_delta:
+  current_mode: unavailable
+  reason: independent_numeric_oracle_and_B2_engine_proof_absent
+  required_facts:
+  - calculation_instant
+  - tax_year
+  - avs_eligibility_confirmed
+  - lpp_active_confirmed
+  - credited_contributions
+  - provider_inventory_complete
+  - full_year_lausanne_domicile
+  - ordinary_full_year_liability
+  - civil_status_single
+  - dependants_count
+  - ifd_taxable_income_pre_3a_chf
+  - vd_taxable_income_pre_3a_chf
+  unavailable_when:
+  - any_required_fact_missing
+  - any_required_fact_stale
+  - any_required_fact_contradictory
+  - unsupported_taxation
+  - unsupported_household
+  - catchup_detected
+  - rules_unavailable
+  - authority_stale_or_divergent
+  - independent_numeric_oracle_absent
+  forbidden_substitutions:
+  - avs_or_gross_income_for_taxable_income
+  - ifd_taxable_income_for_vd_taxable_income
+  - vd_taxable_income_for_ifd_taxable_income
+  - spouse_income_when_unsupported
+  forbidden_fallbacks:
+  - average_rate
+  - effective_rate
+  - marginal_rate
+  - legacy_tax_table
+  - synthetic_fixture
+  output_wording: non_binding_model_estimate_only_after_B2_proof
+  numeric_output_allowed_at_B0: false
+affordability:
+  formula: liquid_assets_chf - selected_emergency_buffer_chf - debts_due_90d_chf -
+    essential_expenses_30d_chf
+  unit: whole_chf
+  minimum_contribution_whole_chf: 1
+  requires:
+  - free_cash_greater_than_or_equal_to_contribution
+  - contribution_less_than_or_equal_to_room
+  - monthly_surplus_positive
+  blocking_conditions:
+  - unknown_affordability
+  - overdue_debt_present
+  - maximum_debt_apr_percent_greater_than_or_equal_to_5
+  tax_delta_required_for_plan: false
+  tax_delta_required_for_economic_effort: true
+economic_effort:
+  formula: confirmed_contribution_whole_chf - estimated_tax_reduction_whole_chf
+  availability: unavailable_while_tax_delta_unavailable
+  not_cash_debit: true
+  not_investment_return: true
+  components_must_be_adjacent: true
+credit_deadline:
+  timezone: Europe/Zurich
+  tax_year_start: '2026-01-01'
+  tax_year_end: '2026-12-31'
+  deadline_risk_message_from: '2026-12-15'
+  counts_only_when: credited_to_three_a_institution_by_2026-12-31
+  payment_order_never_proves_credit: true
+  catchup_2025: detected_but_unsupported
+rounding:
+  inputs: whole_chf_only
+  contribution_room: whole_chf_exact
+  affordability: whole_chf_exact
+  tax_delta_internal: not_specified_until_B2
+  tax_delta_display: unavailable_until_B2
+  economic_effort: unavailable_until_tax_delta
+tolerances:
+  status_and_reason: exact
+  room_whole_chf: 0
+  affordability_whole_chf: 0
+  tax_delta: not_evaluated_at_B0
+reason_vocabulary:
+- affordability_unknown
+- authority_stale_or_divergent
+- authority_year_unsupported
+- catchup_detected_unsupported
+- clarification_required
+- completeness_unconfirmed
+- contribution_exceeds_room
+- free_cash_below_contribution
+- independent_numeric_oracle_and_B2_engine_proof_absent
+- maximum_debt_apr_at_least_5_percent
+- monthly_surplus_not_positive
+- no_eligibility
+- overdue_debt_present
+- provider_inventory_incomplete
+- required_fact_contradictory
+- required_fact_missing
+- required_fact_stale
+- rules_unavailable
+- safety_gate
+- tax_delta_unavailable
+- unsupported_age_activity
+- unsupported_household
+- unsupported_persona
+- unsupported_taxation
+unavailability_reason_map:
+  room:
+    missing: required_fact_missing
+    stale: required_fact_stale
+    contradictory: required_fact_contradictory
+    eligibility_ambiguous: clarification_required
+    provider_inventory_incomplete: provider_inventory_incomplete
+    unsupported_persona: unsupported_persona
+  tax_delta:
+    any_required_fact_missing: required_fact_missing
+    any_required_fact_stale: required_fact_stale
+    any_required_fact_contradictory: required_fact_contradictory
+    unsupported_taxation: unsupported_taxation
+    unsupported_household: unsupported_household
+    catchup_detected: catchup_detected_unsupported
+    rules_unavailable: rules_unavailable
+    authority_stale_or_divergent: authority_stale_or_divergent
+    independent_numeric_oracle_absent: independent_numeric_oracle_and_B2_engine_proof_absent
+  affordability:
+    free_cash_greater_than_or_equal_to_contribution: free_cash_below_contribution
+    contribution_less_than_or_equal_to_room: contribution_exceeds_room
+    monthly_surplus_positive: monthly_surplus_not_positive
+    unknown_affordability: affordability_unknown
+    overdue_debt_present: overdue_debt_present
+    maximum_debt_apr_percent_greater_than_or_equal_to_5: maximum_debt_apr_at_least_5_percent
+  economic_effort:
+    unavailable_while_tax_delta_unavailable: tax_delta_unavailable
+  adaptations:
+    independent_activity_unsupported: unsupported_persona
+    mixed_activity_requires_clarification: clarification_required
+    avs_eligibility_not_confirmed: no_eligibility
+    provider_inventory_not_confirmed: completeness_unconfirmed
+    source_tax_unsupported: unsupported_taxation
+    household_unsupported: unsupported_household
+    age_activity_unsupported: unsupported_age_activity
+    safety_gate_triggered: safety_gate
+    analysis_year_unsupported: authority_year_unsupported
+result_receipt:
+  required_after_B2:
+  - fact_id_at_version
+  - ruleset_sha256
+  - computed_at
+  dependency_change: synchronously_mark_stale
+  silent_recompute: false
+prohibitions:
+- LLM_calculation
+- runtime_network
+- personalized_numeric_tax_at_B0
+- legacy_as_authority_or_oracle
+- silent_recompute
+- advice
+- exact_tax_claim
+- source_tax_calculation
+- catchup_calculation
+oracle:
+  path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/calculation-oracle-goldens.json
+  status: contract_oracles_present_numeric_tax_oracle_unavailable
+  independence: no_legacy_or_future_engine_execution
+runtime_binding: none
+does_not_activate_runtime: true
+does_not_close_B0: true

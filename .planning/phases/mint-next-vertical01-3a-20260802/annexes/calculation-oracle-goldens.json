@@ -1,0 +1,1220 @@
+{
+  "contract_path": ".planning/phases/mint-next-vertical01-3a-20260802/contracts/calculation-contract.yaml",
+  "contract_sha256": "637d08de4fee6913ecfaac27bcea7553862ad54af4bf21962648e57f8f370562",
+  "fixtures": [
+    {
+      "expected": {
+        "room_whole_chf": 7258,
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "persona_a_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "unsupported_persona"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "unsupported_persona"
+        }
+      },
+      "id": "persona_b_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "B"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "clarification_required"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "clarification_required"
+        }
+      },
+      "id": "persona_c_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "C"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "no_eligibility"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "no_eligibility"
+        }
+      },
+      "id": "persona_d_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "D"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "completeness_unconfirmed"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "completeness_unconfirmed"
+        }
+      },
+      "id": "persona_e_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "E"
+    },
+    {
+      "expected": {
+        "room_whole_chf": 0,
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "catchup_detected_unsupported"
+        }
+      },
+      "id": "persona_f_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "F"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "unsupported_taxation"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "unsupported_taxation"
+        }
+      },
+      "id": "persona_g_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "G"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "unsupported_household"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "unsupported_household"
+        }
+      },
+      "id": "persona_h_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "H"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "unsupported_age_activity"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "unsupported_age_activity"
+        }
+      },
+      "id": "persona_i_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "I"
+    },
+    {
+      "expected": {
+        "plan": {
+          "mode": "unavailable",
+          "reason": "safety_gate"
+        },
+        "room_whole_chf": 7258,
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "persona_j_boundary",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "persona_boundary",
+      "persona_case": "J"
+    },
+    {
+      "expected": {
+        "room_whole_chf": 4258,
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "room_multi_provider_sum",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 1000,
+              "credited_at": "2026-03-01T10:00:00+01:00",
+              "local_token": "00000000-0000-0000-0000-000000000002"
+            },
+            {
+              "amount_whole_chf": 2000,
+              "credited_at": "2026-06-01T10:00:00+02:00",
+              "local_token": "00000000-0000-0000-0000-000000000003"
+            }
+          ]
+        }
+      },
+      "operation": "room",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "room_whole_chf": 0,
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "room_cap_exact",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 7258,
+              "credited_at": "2026-06-01T10:00:00+02:00",
+              "local_token": "00000000-0000-0000-0000-000000000004"
+            }
+          ]
+        }
+      },
+      "operation": "room",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "room_whole_chf": 0,
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "room_over_cap",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 8000,
+              "credited_at": "2026-06-01T10:00:00+02:00",
+              "local_token": "00000000-0000-0000-0000-000000000005"
+            }
+          ]
+        }
+      },
+      "operation": "room",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "required_fact_missing"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "room_fact_missing",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "room_fact_state": "missing"
+        }
+      },
+      "operation": "room",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "required_fact_stale"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "room_fact_stale",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "room_fact_state": "stale"
+        }
+      },
+      "operation": "room",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "room": {
+          "mode": "unavailable",
+          "reason": "required_fact_contradictory"
+        },
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "independent_numeric_oracle_and_B2_engine_proof_absent"
+        }
+      },
+      "id": "room_fact_contradictory",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "room_fact_state": "contradictory"
+        }
+      },
+      "operation": "room",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "required_fact_missing"
+        }
+      },
+      "id": "missing_tax_fact",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "tax_fact_state": "missing"
+        }
+      },
+      "operation": "tax",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "required_fact_stale"
+        }
+      },
+      "id": "stale_tax_fact",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "tax_fact_state": "stale"
+        }
+      },
+      "operation": "tax",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "required_fact_contradictory"
+        }
+      },
+      "id": "contradictory_tax_fact",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "tax_fact_state": "contradictory"
+        }
+      },
+      "operation": "tax",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "unsupported_taxation"
+        }
+      },
+      "id": "unsupported_source_tax",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "tax",
+      "persona_case": "G"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "unsupported_household"
+        }
+      },
+      "id": "unsupported_household",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "tax",
+      "persona_case": "H"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "catchup_detected_unsupported"
+        }
+      },
+      "id": "unsupported_catchup",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {}
+      },
+      "operation": "tax",
+      "persona_case": "F"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "rules_unavailable"
+        }
+      },
+      "id": "tax_rules_unavailable",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "rules_state": "unavailable"
+        }
+      },
+      "operation": "tax",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "authority_stale_or_divergent"
+        }
+      },
+      "id": "tax_authority_stale",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "authority_state": "stale"
+        }
+      },
+      "operation": "tax",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "tax_delta": {
+          "mode": "unavailable",
+          "reason": "authority_stale_or_divergent"
+        }
+      },
+      "id": "tax_authority_divergent",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "authority_state": "divergent"
+        }
+      },
+      "operation": "tax",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "deadline_message": "silent"
+      },
+      "id": "deadline_december_14_silent",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "calculation_instant": "2026-12-14T23:59:59+01:00"
+        }
+      },
+      "operation": "deadline",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "deadline_message": "risk"
+      },
+      "id": "deadline_december_15_risk",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "calculation_instant": "2026-12-15T00:00:00+01:00"
+        }
+      },
+      "operation": "deadline",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "analysis_year": 2026,
+        "credit_year": 2026,
+        "credited_for_analysis_year_whole_chf": 1000,
+        "factual_credited_amount_whole_chf": 1000
+      },
+      "id": "credited_december_30",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 1000,
+              "credited_at": "2026-12-30T23:59:59+01:00",
+              "local_token": "00000000-0000-0000-0000-000000000006"
+            }
+          ]
+        }
+      },
+      "operation": "credit",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "analysis_year": 2026,
+        "credit_year": 2026,
+        "credited_for_analysis_year_whole_chf": 1000,
+        "factual_credited_amount_whole_chf": 1000
+      },
+      "id": "credited_december_31",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 1000,
+              "credited_at": "2026-12-31T23:59:59+01:00",
+              "local_token": "00000000-0000-0000-0000-000000000007"
+            }
+          ]
+        }
+      },
+      "operation": "credit",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "analysis_year": 2026,
+        "credit_year": null,
+        "credited_for_analysis_year_whole_chf": 0,
+        "factual_credited_amount_whole_chf": 0
+      },
+      "id": "ordered_december_31_not_credited",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "ordered_amount_whole_chf": 1000,
+          "ordered_at": "2026-12-31T12:00:00+01:00"
+        }
+      },
+      "operation": "credit",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "affected_result": {
+          "mode": "unavailable",
+          "reason": "authority_year_unsupported"
+        },
+        "analysis_year": 2026,
+        "credit_year": 2027,
+        "credited_for_analysis_year_whole_chf": 0,
+        "factual_credited_amount_whole_chf": 1000
+      },
+      "id": "credited_january_01_next_year",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 1000,
+              "credited_at": "2027-01-01T00:00:00+01:00",
+              "local_token": "00000000-0000-0000-0000-000000000008"
+            }
+          ]
+        }
+      },
+      "operation": "credit",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "eligible"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_arithmetic",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "proposed_contribution_whole_chf": 1000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "eligible"
+        },
+        "room_whole_chf": 5258
+      },
+      "id": "plan_contribution_equals_room",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 2000,
+              "credited_at": "2026-06-01T10:00:00+02:00",
+              "local_token": "00000000-0000-0000-0000-000000000009"
+            }
+          ],
+          "proposed_contribution_whole_chf": 5258
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 5000,
+        "plan": {
+          "mode": "eligible"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "plan_free_cash_equals_contribution",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "liquid_assets_chf": 15000,
+          "proposed_contribution_whole_chf": 5000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "unavailable",
+          "reason": "monthly_surplus_not_positive"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_surplus_zero",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "monthly_surplus_chf": 0,
+          "proposed_contribution_whole_chf": 1000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "eligible"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_surplus_one",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "monthly_surplus_chf": 1,
+          "proposed_contribution_whole_chf": 1000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "plan": {
+          "mode": "unavailable",
+          "reason": "affordability_unknown"
+        }
+      },
+      "id": "affordability_unknown",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "liquid_assets_chf": null,
+          "proposed_contribution_whole_chf": 1000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "no_plan"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_zero_choice",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "proposed_contribution_whole_chf": 0
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "unavailable",
+          "reason": "contribution_exceeds_room"
+        },
+        "room_whole_chf": 258
+      },
+      "id": "affordability_contribution_exceeds_room",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "credited_contributions": [
+            {
+              "amount_whole_chf": 7000,
+              "credited_at": "2026-06-01T10:00:00+02:00",
+              "local_token": "00000000-0000-0000-0000-000000000010"
+            }
+          ],
+          "proposed_contribution_whole_chf": 300
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 4000,
+        "plan": {
+          "mode": "unavailable",
+          "reason": "free_cash_below_contribution"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_free_cash_below_contribution",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "liquid_assets_chf": 14000,
+          "proposed_contribution_whole_chf": 5000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "eligible"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_apr_4_999_allows",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "maximum_debt_apr_percent": "4.999",
+          "proposed_contribution_whole_chf": 1000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "unavailable",
+          "reason": "maximum_debt_apr_at_least_5_percent"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_apr_5_blocks",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "maximum_debt_apr_percent": "5.0",
+          "proposed_contribution_whole_chf": 1000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "free_cash_whole_chf": 10000,
+        "plan": {
+          "mode": "unavailable",
+          "reason": "overdue_debt_present"
+        },
+        "room_whole_chf": 7258
+      },
+      "id": "affordability_overdue_debt",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "overdue_debt_present": true,
+          "proposed_contribution_whole_chf": 1000
+        }
+      },
+      "operation": "affordability",
+      "persona_case": "A"
+    },
+    {
+      "expected": {
+        "economic_effort": {
+          "mode": "unavailable",
+          "reason": "tax_delta_unavailable"
+        }
+      },
+      "id": "economic_effort_unavailable",
+      "inputs": {
+        "analysis_year": 2026,
+        "fact_overrides": {
+          "confirmed_contribution_whole_chf": 7258
+        }
+      },
+      "operation": "economic_effort",
+      "persona_case": "A"
+    }
+  ],
+  "independence": {
+    "basis": "SPEC_FMS_ruleset_persona_and_source_dependencies_only",
+    "future_engine_executed": false,
+    "legacy_engine_executed": false,
+    "numeric_tax_values_present": false
+  },
+  "oracle_id": "mint_next_three_a_calculation_contract_oracles_v1",
+  "persona_baselines": {
+    "A": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "B": {
+      "activity": "independent",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": false,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "C": {
+      "activity": "mixed",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": null,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "D": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": false,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "E": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": false,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "F": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": true,
+      "civil_status_single": true,
+      "credited_contributions": [
+        {
+          "amount_whole_chf": 7258,
+          "credited_at": "2026-06-01T10:00:00+02:00",
+          "local_token": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "G": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": false,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "source_tax",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "H": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": false,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "dual_income_couple",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "I": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 1000,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": false,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    },
+    "J": {
+      "activity": "salaried",
+      "authority_state": "current",
+      "avs_eligibility_confirmed": true,
+      "calculation_instant": "2026-06-01T12:00:00+02:00",
+      "catchup_requested": false,
+      "civil_status_single": true,
+      "credited_contributions": [],
+      "debts_due_90d_chf": 2000,
+      "dependants_count": 0,
+      "essential_expenses_30d_chf": 3000,
+      "full_year_lausanne_domicile": true,
+      "household": "single_zero_dependants",
+      "ifd_taxable_income_pre_3a_chf": 80000,
+      "liquid_assets_chf": 20000,
+      "lpp_active_confirmed": true,
+      "maximum_debt_apr_percent": "0",
+      "monthly_surplus_chf": 0,
+      "ordinary_full_year_liability": true,
+      "overdue_debt_present": false,
+      "provider_inventory_complete": true,
+      "room_fact_state": "confirmed",
+      "rules_state": "available",
+      "selected_emergency_buffer_chf": 5000,
+      "supported_age_activity": true,
+      "tax_fact_state": "confirmed",
+      "tax_year": 2026,
+      "taxation": "ordinary_full_year",
+      "vd_taxable_income_pre_3a_chf": 80000
+    }
+  },
+  "persona_cases": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J"
+  ],
+  "phase": "mint-next-vertical01-3a-20260802",
+  "reason_vocabulary": [
+    "affordability_unknown",
+    "authority_stale_or_divergent",
+    "authority_year_unsupported",
+    "catchup_detected_unsupported",
+    "clarification_required",
+    "completeness_unconfirmed",
+    "contribution_exceeds_room",
+    "free_cash_below_contribution",
+    "independent_numeric_oracle_and_B2_engine_proof_absent",
+    "maximum_debt_apr_at_least_5_percent",
+    "monthly_surplus_not_positive",
+    "no_eligibility",
+    "overdue_debt_present",
+    "provider_inventory_incomplete",
+    "required_fact_contradictory",
+    "required_fact_missing",
+    "required_fact_stale",
+    "rules_unavailable",
+    "safety_gate",
+    "tax_delta_unavailable",
+    "unsupported_age_activity",
+    "unsupported_household",
+    "unsupported_persona",
+    "unsupported_taxation"
+  ],
+  "schema_version": 1,
+  "status": "contract_oracles_present_does_not_prove_engine",
+  "tax_oracle_status": "unavailable_until_independent_B2_numeric_oracle",
+  "tolerances": {
+    "affordability_whole_chf": 0,
+    "room_whole_chf": 0,
+    "status_and_reason": "exact",
+    "tax_delta": "not_evaluated_at_B0",
+    "whole_chf": 0
+  }
+}
