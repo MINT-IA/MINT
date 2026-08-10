@@ -11,7 +11,7 @@ tags:
 - openLink: "mintapp:///profile/bilan"
 - extendedWaitUntil:
     visible:
-      text: "MON PROFIL"
+      text: "MA SITUATION"
     timeout: 12000
 - takeScreenshot: "01-profile-axis-before-claim"
 
@@ -53,7 +53,7 @@ tags:
 - openLink: "mintapp:///profile/bilan"
 - extendedWaitUntil:
     visible:
-      text: "MON PROFIL"
+      text: "MA SITUATION"
     timeout: 12000
 - takeScreenshot: "04-profile-axis-after-claim"
 

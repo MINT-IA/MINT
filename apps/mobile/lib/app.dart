@@ -739,14 +739,6 @@ final _router = GoRouter(
       ],
     ),
 
-    ScopedGoRoute(
-      path: '/mint-next/housing',
-      scope: RouteScope.public,
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (_, __) => FeatureFlags.enableMintNextHousing ? null : '/home',
-      builder: (context, state) => const MintNextHousingScreen(),
-    ),
-
     // ── EXPLORER HUBS ───────────────────────────────────────
     ScopedGoRoute(
       path: '/explore/retraite',
@@ -778,6 +770,13 @@ final _router = GoRouter(
               route: '/libre-passage'),
         ],
       ),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/housing',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) => FeatureFlags.enableMintNextHousing ? null : '/home',
+      builder: (context, state) => const MintNextHousingScreen(),
     ),
     ScopedGoRoute(
       path: '/explore/famille',

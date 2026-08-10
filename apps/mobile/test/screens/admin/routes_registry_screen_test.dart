@@ -33,7 +33,7 @@ void main() {
       expect(RouteOwner.values.length, 15);
     });
 
-    testWidgets('sum of route rows across all buckets == 153', (tester) async {
+    testWidgets('sum of route rows across all buckets == 154', (tester) async {
       // Force a large viewport so every ExpansionTile is laid out simultaneously
       // (default test surface is 800x600 which clips tiles below fold, preventing
       // taps from reaching them reliably after each expansion relayout).
@@ -69,9 +69,9 @@ void main() {
       );
       expect(
         rows,
-        findsNWidgets(153),
+        findsNWidgets(154),
         reason:
-            'registry has 153 entries (/retraite/rente-vs-capital canonicalized 2026-06-30 while legacy alias remains); UI must render all',
+            'registry has 154 entries (/mint-next/housing added 2026-08-10, PR B fondation jumeau; /retraite/rente-vs-capital canonicalized 2026-06-30 while legacy alias remains); UI must render all',
       );
     });
 

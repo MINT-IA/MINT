@@ -12,15 +12,17 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 class ReportPersistenceService {
   @visibleForTesting
   static Future<void> Function()? debugHousingBeforeAction;
-  static Future<void> _mutationTail = Future<void>.value();
+  static Completer<void> _mutationTailDone = Completer<void>()..complete();
   static int _resetGeneration = 0;
 
   static Future<T> runHousingTransaction<T>(Future<T> Function() action) async {
     final resetAtRequest = _resetGeneration;
-    final previous = _mutationTail;
+    final previousDone = _mutationTailDone;
     final done = Completer<void>();
-    _mutationTail = done.future;
-    await previous;
+    _mutationTailDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
     try {
       await debugHousingBeforeAction?.call();
       if (_resetGeneration != resetAtRequest) {
@@ -36,12 +38,26 @@ class ReportPersistenceService {
     }
   }
 
+  /// Réinitialise la queue de transactions pour les tests : un test de widget
+  /// qui se termine pendant qu'une transaction est en vol laisse un Completer
+  /// jamais complété (sa zone FakeAsync est détruite), ce qui bloquerait tous
+  /// les tests suivants du même fichier. À appeler dans setUp.
+  @visibleForTesting
+  static void debugResetTransactionQueueForTest() {
+    _mutationTailDone = Completer<void>()..complete();
+  }
+
   static Future<T> _runResetTransaction<T>(Future<T> Function() action) async {
     _resetGeneration++;
-    final previous = _mutationTail;
+    final previousDone = _mutationTailDone;
     final done = Completer<void>();
-    _mutationTail = done.future;
-    await previous;
+    _mutationTailDone = done;
+    // N'attend le prédécesseur que s'il est réellement en vol : attendre un
+    // futur déjà complété planifierait une microtâche dans la zone du
+    // producteur — potentiellement morte sous flutter_test.
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
     try {
       return await action();
     } finally {

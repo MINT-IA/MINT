@@ -27,6 +27,10 @@ class InstallLifecycleService {
     'anonymous_session_id',
     'anonymous_message_count',
     'mint_biography_key',
+    // PR B 2026-08-10 : purge directe de la clé du store 3a (le store
+    // lui-même atterrit en PR C) — la complétude de purge ne dépend
+    // d'aucun composant absent.
+    'mint_next_3a_task_v1',
   };
 
   static const _freshInstallNeutralPrefs = {

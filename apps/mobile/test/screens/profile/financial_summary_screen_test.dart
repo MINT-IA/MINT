@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -170,6 +171,9 @@ void main() {
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    ReportPersistenceService.debugResetTransactionQueueForTest();
+    SecureWizardStore.debugResetCanonicalQueueForTest();
+    SecureWizardStore.resetSealFallbackForTest();
     FeatureFlags.enableMint2FirstExperienceEntry = false;
     secureStorage.clear();
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger

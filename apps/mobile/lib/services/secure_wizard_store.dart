@@ -51,16 +51,18 @@ enum WizardStorageClassification {
 }
 
 class SecureWizardStore {
-  static Future<void> _canonicalMutationTail = Future<void>.value();
+  static Completer<void> _canonicalMutationDone = Completer<void>()..complete();
   static int _canonicalResetGeneration = 0;
 
   static Future<T> runCanonicalHousingTransaction<T>(
       Future<T> Function() action) async {
     final resetAtRequest = _canonicalResetGeneration;
-    final previous = _canonicalMutationTail;
+    final previousDone = _canonicalMutationDone;
     final done = Completer<void>();
-    _canonicalMutationTail = done.future;
-    await previous;
+    _canonicalMutationDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
     if (_canonicalResetGeneration != resetAtRequest) {
       done.complete();
       throw StateError('Secure reset superseded housing transaction');
@@ -878,13 +880,24 @@ class SecureWizardStore {
     return restoredAll;
   }
 
+  /// Réinitialise la chaîne de mutations canonique pour les tests — même
+  /// piège que ReportPersistenceService.debugResetTransactionQueueForTest :
+  /// un test de widget terminé pendant une mutation en vol laisse un Completer
+  /// jamais complété qui figerait tous les tests suivants du fichier.
+  @visibleForTesting
+  static void debugResetCanonicalQueueForTest() {
+    _canonicalMutationDone = Completer<void>()..complete();
+  }
+
   /// Delete all sensitive keys from encrypted storage.
   static Future<bool> deleteAll() async {
     _canonicalResetGeneration++;
-    final previous = _canonicalMutationTail;
+    final previousDone = _canonicalMutationDone;
     final done = Completer<void>();
-    _canonicalMutationTail = done.future;
-    await previous;
+    _canonicalMutationDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
     try {
       return await deleteAllDuringCoordinatedReset();
     } finally {

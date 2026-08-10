@@ -241,7 +241,15 @@ class _MintNextHousingScreenState extends State<MintNextHousingScreen> {
             (entry) => Padding(
               padding: const EdgeInsets.only(bottom: MintSpacing.sm),
               child: Semantics(
-                identifier: 'choice:fact_logement.${entry.key.id}',
+                // Littéraux exigés par l'audit de locators Maestro — chaque id
+                // du flow doit exister tel quel dans lib/.
+                identifier: switch (entry.key) {
+                  PrimaryHomeTenure.tenant => 'choice:fact_logement.tenant',
+                  PrimaryHomeTenure.ownerOccupier =>
+                    'choice:fact_logement.owner_occupier',
+                  PrimaryHomeTenure.other => 'choice:fact_logement.other',
+                  PrimaryHomeTenure.unknown => 'choice:fact_logement.unknown',
+                },
                 button: true,
                 selected: _selected == entry.key,
                 child: InkWell(
@@ -315,13 +323,13 @@ class _MintNextHousingScreenState extends State<MintNextHousingScreen> {
       PrimaryHomeTenure.unknown => l10n.housingUnknownHelp,
     };
     final node = switch (selected) {
-      PrimaryHomeTenure.tenant => 'housing_tenant_boundary',
-      PrimaryHomeTenure.ownerOccupier => 'housing_owner_boundary',
-      PrimaryHomeTenure.other => 'housing_other_help',
-      PrimaryHomeTenure.unknown => 'housing_unknown_help',
+      PrimaryHomeTenure.tenant => 'node:housing_tenant_boundary',
+      PrimaryHomeTenure.ownerOccupier => 'node:housing_owner_boundary',
+      PrimaryHomeTenure.other => 'node:housing_other_help',
+      PrimaryHomeTenure.unknown => 'node:housing_unknown_help',
     };
     return Semantics(
-      identifier: 'node:$node',
+      identifier: node,
       container: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -39,6 +39,9 @@ void main() {
     ConversationStore.setCurrentUserId(null);
     secureStorage.clear();
     deleteAllCalls = 0;
+    AuthProvider.debugEarlyLocalPurgeFailure = null;
+    AuthProvider.debugAfterOwnedSecurePurgePrearm = null;
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride = null;
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(secureStorageChannel, (call) async {
@@ -68,6 +71,9 @@ void main() {
   });
 
   tearDown(() {
+    AuthProvider.debugEarlyLocalPurgeFailure = null;
+    AuthProvider.debugAfterOwnedSecurePurgePrearm = null;
+    InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride = null;
     ApiService.setHttpClientForTesting(null);
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(secureStorageChannel, null);
@@ -1662,6 +1668,7 @@ void main() {
         'anonymous_session_id': 'anon-1',
         'anonymous_message_count': '1',
         'mint_biography_key': 'bio-key',
+        'mint_next_3a_task_v1': 'task',
         '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
         'q_net_income_period_chf': '8000',
         'foreign_app_key': 'must-stay',
@@ -1679,8 +1686,67 @@ void main() {
       expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
       expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
       expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+      expect(secureStorage.containsKey('mint_next_3a_task_v1'), isFalse);
       expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
     });
+
+    test('account deletion purges owned 3a task but preserves foreign keys',
+        () async {
+      secureStorage.addAll({
+        'mint_next_3a_task_v1': 'task',
+        'foreign_app_key': 'must-stay',
+      });
+      ApiService.setHttpClientForTesting(
+        MintHttpClient(
+          MockClient((request) async => http.Response('{}', 200)),
+        ),
+      );
+
+      expect(await provider.deleteAccount(), isTrue);
+      expect(secureStorage.containsKey('mint_next_3a_task_v1'), isFalse);
+      expect(secureStorage['foreign_app_key'], 'must-stay');
+    });
+
+    test(
+      'account deletion leaves prefs empty when purge retry cannot be armed',
+      () async {
+        secureStorage.addAll({
+          'mint_next_3a_task_v1': 'task',
+          'foreign_app_key': 'must-stay',
+        });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('account_only_pref', 'remove-me');
+        InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride =
+            (purged, _) async => false;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureStorageChannel, (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'mint_next_3a_task_v1') {
+                throw PlatformException(code: 'task_delete_failed');
+              }
+              if (key != null) secureStorage.remove(key);
+              return null;
+            default:
+              return null;
+          }
+        });
+        ApiService.setHttpClientForTesting(
+          MintHttpClient(
+            MockClient((request) async => http.Response('{}', 200)),
+          ),
+        );
+
+        expect(await provider.deleteAccount(), isTrue);
+
+        expect(prefs.getKeys(), isEmpty);
+        expect(secureStorage['mint_next_3a_task_v1'], 'task');
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+      },
+    );
 
     test(
       'logout continues scoped secure purges when one key delete fails',
@@ -1692,6 +1758,7 @@ void main() {
           'anonymous_session_id': 'anon-1',
           'anonymous_message_count': '1',
           'mint_biography_key': 'bio-key',
+          'mint_next_3a_task_v1': 'task',
           '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
           'q_net_income_period_chf': '8000',
           'foreign_app_key': 'must-stay',
@@ -1729,12 +1796,207 @@ void main() {
         expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
         expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
         expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+        expect(secureStorage.containsKey('mint_next_3a_task_v1'), isFalse);
         expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
         final prefs = await SharedPreferences.getInstance();
         expect(
           prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
           isTrue,
         );
+      },
+    );
+
+    test(
+      'logout records owned purge retry when an earlier local step throws',
+      () async {
+        secureStorage.addAll({
+          'byok_provider': 'openai',
+          'mint_next_3a_task_v1': 'task',
+          'foreign_app_key': 'must-stay',
+        });
+        AuthProvider.debugEarlyLocalPurgeFailure = () async {
+          throw StateError('earlier local purge failed');
+        };
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureStorageChannel, (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'mint_next_3a_task_v1') {
+                throw PlatformException(code: 'task_delete_failed');
+              }
+              if (key != null) secureStorage.remove(key);
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        });
+
+        await provider.logout();
+
+        final prefs = await SharedPreferences.getInstance();
+        expect(provider.isLoggedIn, isFalse);
+        expect(secureStorage['byok_provider'], isNull);
+        expect(secureStorage['mint_next_3a_task_v1'], 'task');
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'interruption after retry pre-arm is recovered on next auth prepare',
+      () async {
+        secureStorage.addAll({
+          'mint_next_3a_task_v1': 'task',
+          'foreign_app_key': 'must-stay',
+        });
+        final seededPrefs = await SharedPreferences.getInstance();
+        await seededPrefs.setString('account_only_pref', 'remove-me');
+        var sawAccountPrefsBeforeInterruption = false;
+        AuthProvider.debugAfterOwnedSecurePurgePrearm = () async {
+          final prefs = await SharedPreferences.getInstance();
+          expect(
+            prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+            isTrue,
+          );
+          sawAccountPrefsBeforeInterruption =
+              prefs.getString('account_only_pref') == 'remove-me';
+          throw StateError('simulated interruption after durable pre-arm');
+        };
+
+        await provider.logout();
+
+        var prefs = await SharedPreferences.getInstance();
+        expect(secureStorage['mint_next_3a_task_v1'], 'task');
+        expect(sawAccountPrefsBeforeInterruption, isTrue);
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isTrue,
+        );
+        expect(prefs.getString('account_only_pref'), isNull);
+
+        AuthProvider.debugAfterOwnedSecurePurgePrearm = null;
+        await InstallLifecycleService.prepareForAuthRestore();
+
+        prefs = await SharedPreferences.getInstance();
+        expect(secureStorage['mint_next_3a_task_v1'], isNull);
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isNull,
+        );
+      },
+    );
+
+    test(
+      'failed owned purge keeps retry marker through account prefs cleanup',
+      () async {
+        secureStorage.addAll({
+          'mint_next_3a_task_v1': 'task',
+          'foreign_app_key': 'must-stay',
+        });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('account_only_pref', 'remove-me');
+        await prefs.setString('mint_locale', 'de');
+        var failTaskDelete = true;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureStorageChannel, (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'mint_next_3a_task_v1' && failTaskDelete) {
+                throw PlatformException(code: 'task_delete_failed');
+              }
+              if (key != null) secureStorage.remove(key);
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        });
+
+        await provider.logout();
+
+        expect(prefs.getString('account_only_pref'), isNull);
+        expect(prefs.getString('mint_locale'), 'de');
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isTrue,
+        );
+        expect(secureStorage['mint_next_3a_task_v1'], 'task');
+
+        failTaskDelete = false;
+        await InstallLifecycleService.prepareForAuthRestore();
+
+        expect(secureStorage['mint_next_3a_task_v1'], isNull);
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isNull,
+        );
+      },
+    );
+
+    test(
+      'unwritable retry marker forces empty prefs and fresh-install retry',
+      () async {
+        secureStorage.addAll({
+          'mint_next_3a_task_v1': 'task',
+          'foreign_app_key': 'must-stay',
+        });
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('account_only_pref', 'remove-me');
+        var failTaskDelete = true;
+        InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride =
+            (purged, _) async => false;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(secureStorageChannel, (call) async {
+          final key = call.arguments['key'] as String?;
+          switch (call.method) {
+            case 'read':
+              return key == null ? null : secureStorage[key];
+            case 'delete':
+              if (key == 'mint_next_3a_task_v1' && failTaskDelete) {
+                throw PlatformException(code: 'task_delete_failed');
+              }
+              if (key != null) secureStorage.remove(key);
+              return null;
+            case 'deleteAll':
+              deleteAllCalls += 1;
+              secureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        });
+
+        await provider.logout();
+
+        expect(prefs.getKeys(), isEmpty);
+        expect(secureStorage['mint_next_3a_task_v1'], 'task');
+
+        InstallLifecycleService.debugRecordOwnedSecurePurgeResultOverride =
+            null;
+        failTaskDelete = false;
+        expect(await InstallLifecycleService.prepareForAuthRestore(), isFalse);
+
+        expect(secureStorage['mint_next_3a_task_v1'], isNull);
+        expect(secureStorage['foreign_app_key'], 'must-stay');
+        expect(prefs.getBool(InstallLifecycleService.installMarkerKey), isTrue);
       },
     );
 
@@ -1746,6 +2008,7 @@ void main() {
         'anonymous_session_id': 'anon-1',
         'anonymous_message_count': '1',
         'mint_biography_key': 'bio-key',
+        'mint_next_3a_task_v1': 'task',
         '_mint_wizard_secure_keys_v1': '["q_net_income_period_chf"]',
         'q_net_income_period_chf': '8000',
         'foreign_app_key': 'must-stay',
@@ -1761,6 +2024,7 @@ void main() {
       expect(secureStorage.containsKey('anonymous_session_id'), isFalse);
       expect(secureStorage.containsKey('anonymous_message_count'), isFalse);
       expect(secureStorage.containsKey('mint_biography_key'), isFalse);
+      expect(secureStorage.containsKey('mint_next_3a_task_v1'), isFalse);
       expect(secureStorage.containsKey('q_net_income_period_chf'), isFalse);
     });
 
@@ -1768,11 +2032,13 @@ void main() {
       'profile clearAll records pending secure purge on partial failure',
       () async {
         secureStorage.addAll({
+          'jwt_token': 'auth-must-stay',
           'byok_provider': 'openai',
           'byok_api_key': 'sk-profile-reset',
           'mint_partner_estimate': '{"estimated_salary":100000}',
           'foreign_app_key': 'must-stay',
         });
+        var failByokDelete = true;
 
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(secureStorageChannel, (call) async {
@@ -1781,7 +2047,7 @@ void main() {
             case 'read':
               return key == null ? null : secureStorage[key];
             case 'delete':
-              if (key == 'byok_api_key') {
+              if (key == 'byok_api_key' && failByokDelete) {
                 throw PlatformException(code: '-34018');
               }
               if (key != null) {
@@ -1797,7 +2063,16 @@ void main() {
           }
         });
 
-        await CoachProfileProvider().clearAll();
+        await expectLater(
+          CoachProfileProvider().clearAll(),
+          throwsA(
+            isA<StateError>().having(
+              (error) => error.message,
+              'message',
+              'Owned secure purge deferred for startup retry',
+            ),
+          ),
+        );
 
         final prefs = await SharedPreferences.getInstance();
         expect(
@@ -1805,7 +2080,18 @@ void main() {
           isTrue,
         );
         expect(secureStorage['byok_api_key'], 'sk-profile-reset');
+        expect(secureStorage['jwt_token'], 'auth-must-stay');
         expect(secureStorage['foreign_app_key'], 'must-stay');
+
+        failByokDelete = false;
+        await prefs.setBool(InstallLifecycleService.installMarkerKey, true);
+        expect(await InstallLifecycleService.prepareForAuthRestore(), isTrue);
+        expect(secureStorage['byok_api_key'], isNull);
+        expect(secureStorage['jwt_token'], 'auth-must-stay');
+        expect(
+          prefs.getBool(InstallLifecycleService.ownedSecurePurgePendingKey),
+          isNull,
+        );
       },
     );
 
