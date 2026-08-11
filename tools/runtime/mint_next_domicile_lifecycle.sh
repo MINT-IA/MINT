@@ -154,8 +154,11 @@ EXECUTABLE="$APP/Runner"
 # des clés sensibles échouerait à l'exécution). On réutilise les
 # entitlements du bundle buildé.
 ENTITLEMENTS="$TMP/entitlements.plist"
-codesign -d --entitlements - --xml "$BUILT_APP" > "$ENTITLEMENTS" 2>/dev/null || \
+codesign -d --entitlements - --xml "$BUILT_APP" > "$ENTITLEMENTS" 2>/dev/null || true
+if ! grep -q '<dict' "$ENTITLEMENTS" 2>/dev/null; then
+  # Build non signé : rien à extraire — utiliser les entitlements du projet.
   cp "$ROOT/apps/mobile/ios/Runner/Runner.entitlements" "$ENTITLEMENTS"
+fi
 codesign --force --deep -s - --entitlements "$ENTITLEMENTS" "$APP"
 codesign --verify --deep --strict "$APP"
 SIGNATURE_INFO="$(codesign -dvvv "$APP" 2>&1)"
