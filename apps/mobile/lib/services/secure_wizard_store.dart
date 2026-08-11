@@ -1029,6 +1029,16 @@ class SecureWizardStore {
       await deleteKeys(MintNextLppAffiliationFact.wizardKeys);
       return result;
     }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Un enregistrement canonique corrompu masque le bundle du cache :
+      // un ancien « non » ressusciterait sinon en confirmed_no et piloterait
+      // un mauvais plafond (review Codex Lego 4 P1). `unavailable` (keychain
+      // injoignable) garde le chemin dégradé : le cache vient du même commit
+      // que le canonique.
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+    }
     return answers;
   }
 
@@ -1139,6 +1149,14 @@ class SecureWizardStore {
       }
       return result;
     }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Canonique corrompu : le bundle possédé est masqué (le FAIT devient
+      // absent) ; la projection legacy reste — les consommateurs legacy
+      // gardent leur donnée, aucun fait périmé ne ressuscite.
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+    }
     return answers;
   }
 
@@ -1168,6 +1186,13 @@ class SecureWizardStore {
         ..removeWhere((key, _) => purged.contains(key));
       await deleteKeys(purged);
       return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Canonique corrompu : le bundle du cache est masqué (même règle que
+      // l'affiliation LPP — un statut périmé ne ressuscite pas).
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
     }
     return answers;
   }

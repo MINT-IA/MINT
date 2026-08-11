@@ -105,6 +105,27 @@ void main() {
     expect(persisted['q_birth_year'], 1988);
   });
 
+  test('a corrupt canonical record masks the cached bundle — the reading '
+      'is unknown, never a resurrected confirmed_no', () async {
+    final provider = CoachProfileProvider();
+    await provider.saveLppAffiliationFact(affiliated(value: false));
+
+    // Corruption du canonique APRÈS un commit propre : le cache contient
+    // encore un bundle valide value=false — il ne doit pas ressusciter.
+    await const FlutterSecureStorage().write(
+        key: '_mint_canonical_lpp_affiliation_v1', value: '{"state":"???"}');
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+    expect(reloaded.lppAffiliationFact, isNull,
+        reason: 'the corrupt canonical masks the cached owned bundle');
+    expect(
+        MintNextLppAffiliationFact.statusOf(reloaded.lppAffiliationFact),
+        MintNextLppAffiliationStatus.unknown,
+        reason: 'corruption reads as unknown — a stale confirmed_no would '
+            'drive the wrong plafond');
+  });
+
   test('a corrected affiliation changes the revision', () async {
     final provider = CoachProfileProvider();
     await provider.saveLppAffiliationFact(affiliated());
