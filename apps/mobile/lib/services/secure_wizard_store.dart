@@ -20,6 +20,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:path_provider/path_provider.dart'
     show getTemporaryDirectory;
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
@@ -42,6 +43,12 @@ class CanonicalLppAffiliationRead {
   final CanonicalHousingStatus status;
   final MintNextLppAffiliationFact? fact;
   const CanonicalLppAffiliationRead(this.status, [this.fact]);
+}
+
+class CanonicalVersements3aRead {
+  final CanonicalHousingStatus status;
+  final MintNextVersements3aFact? fact;
+  const CanonicalVersements3aRead(this.status, [this.fact]);
 }
 
 class CanonicalRevenuRead {
@@ -129,6 +136,9 @@ class SecureWizardStore {
       '_mint_canonical_lpp_affiliation_v1';
   static const _canonicalLppAffiliationInitializedKey =
       '_mint_canonical_lpp_affiliation_initialized_v1';
+  static const _canonicalVersements3aKey = '_mint_canonical_versements_3a_v1';
+  static const _canonicalVersements3aInitializedKey =
+      '_mint_canonical_versements_3a_initialized_v1';
   static int _processEpochCounter = 0;
   static String _processEpoch = _newProcessEpoch();
 
@@ -365,6 +375,12 @@ class SecureWizardStore {
     'q_lpp_affiliation_fact_source',
     'q_lpp_affiliation_fact_schema_version',
     'q_lpp_affiliation_fact_needs_confirmation',
+    'q_versements_3a_fact_entries',
+    'q_versements_3a_fact_bucket_revisions',
+    'q_versements_3a_fact_asserted_at',
+    'q_versements_3a_fact_source',
+    'q_versements_3a_fact_schema_version',
+    'q_versements_3a_fact_needs_confirmation',
   };
 
   static const _nonSensitiveKeys = {
@@ -943,6 +959,97 @@ class SecureWizardStore {
     return true;
   }
 
+  /// Seam de test : force le résultat du write canonique versements 3a.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalVersements3aWriteOverride;
+
+  static Future<bool> writeCanonicalVersements3a(
+      MintNextVersements3aFact fact) async {
+    final override = debugCanonicalVersements3aWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalSealedRecord(
+        _canonicalVersements3aKey,
+        _canonicalVersements3aInitializedKey,
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalVersements3aDeleted() =>
+      _writeCanonicalSealedRecord(
+          _canonicalVersements3aKey,
+          _canonicalVersements3aInitializedKey,
+          json.encode({'state': 'deleted'}));
+
+  static Future<CanonicalVersements3aRead> readCanonicalVersements3a() async {
+    String? raw;
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalVersements3aKey)) {
+      raw = _e2eSealFallbackStore[_canonicalVersements3aKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalVersements3aKey);
+      } on Exception {
+        return const CanonicalVersements3aRead(
+            CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalVersements3aRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalVersements3aRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalVersements3aRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextVersements3aFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalVersements3aRead(
+              CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalVersements3aRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalVersements3aRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Projette l'enregistrement canonique versements 3a dans les réponses.
+  /// Présent → le bundle possédé domine ; supprimé → purge (la liste
+  /// disparaît, faits atomiques compris) ; corrompu → bundle masqué (aucune
+  /// liste périmée ne ressuscite) ; manquant → aucune migration implicite.
+  static Future<Map<String, dynamic>> canonicalizeVersements3aAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalVersements3a();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
+      await deleteKeys(MintNextVersements3aFact.wizardKeys);
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
+    }
+    return answers;
+  }
+
   /// Seam de test : force le résultat du write canonique affiliation LPP.
   @visibleForTesting
   static Future<bool> Function()? debugCanonicalLppAffiliationWriteOverride;
@@ -1443,6 +1550,7 @@ class SecureWizardStore {
       _canonicalCivilStatusKey,
       _canonicalRevenuKey,
       _canonicalLppAffiliationKey,
+      _canonicalVersements3aKey,
     ]) {
       try {
         await _storage.delete(key: key);
