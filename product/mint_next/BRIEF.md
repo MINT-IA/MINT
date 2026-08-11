@@ -254,6 +254,7 @@ versements 3a.
 | 2026-08-11 | Lego 1 — domicile fiscal (#1221 + #1222) | LOOP: GO · REJET 3P1→ACCEPT P1=0 · diagnostic runtime Codex | PROMU 5/5 — reçu runtime a28085268750, flag OFF |
 | 2026-08-11 | Lego 2 — état civil (#1224) | LOOP: GO (cadrage Q0-Q5) · REJET 4P1 (3 corrigés, 1 réfuté sur pièces) → ACCEPT · PROMOTION REJET 2P1 → ACCEPT P1=0 | PROMU 5/5 — reçu runtime 37c707aec à portée explicite (proof_scope), flag OFF |
 | 2026-08-11 | Lego 3 — revenu (#1226) | LOOP: GO (Q0-Q5 : clés possédées + projection) · 3× REJET→ACCEPT (watermark tombstone, validation stricte, parsing lexical) · PROMOTION ACCEPT P1=0 | PROMU 5/5 — reçu runtime 8e1c6b418, anti-double-×12 prouvé, budget consommant la projection au runtime (capture 03), flag OFF |
+| 2026-08-11 | Lego 4 — affiliation LPP (#1228) | LOOP: GO AFFILIATION LPP (ordre tranché avant versements) · REJET→ACCEPT (masquage corrupt ×3 faits, unavailable≠corrupt validé) · PROMOTION ACCEPT P1=0 | PROMU 5/5 — reçu runtime b4ff3fa2c au PREMIER run (harnais 9→3→1), tri-état prouvé (suppression = inconnu), plafond 3a déterminable (fiscal v5), flag OFF |
 
 Note budget (honnêteté) : le loop « doctrine + cadrage » annoncé ~150k tokens
 a très largement dépassé son budget — la réconciliation des gates dev jamais
@@ -277,6 +278,10 @@ flake leg-01 des sims neufs) contre 9 au Lego 2, dans le cap 100k.
 Les reviews Codex par tranche (4 REJET→ACCEPT) restent le meilleur
 rapport coût/défauts : watermark tombstone et parsing lexical sont des
 défauts réels que les tests nominaux ne voyaient pas.
+Lego 4 : dans le cap 55k, runtime au premier run — le pattern Lego est
+industrialisé de bout en bout. Note pour le Lego 5 (versements) et le
+moteur attesté : l'année fiscale du plafond devient bloquante dès
+l'arrivée des CHF (learning Codex).
 
 ## 6. Journal des Legos
 

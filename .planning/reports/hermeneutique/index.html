@@ -62,7 +62,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </style>
 <main>
 <header class="hero">
-  <div class="stamp">Herméneutique · v5 · 11 août 2026 · Legos 1-3 promus 5/5 (reçus runtime)</div>
+  <div class="stamp">Herméneutique · v6 · 11 août 2026 · Legos 1-4 promus 5/5 (reçus runtime)</div>
   <h1>Le code raconte-t-il la même histoire que le storyboard&nbsp;?</h1>
   <p class="sub">Chaque thème en trois volets — l'histoire promise, le code qui la porte, la preuve. Quatre états, jamais confondus&nbsp;: <span class="tag proof">PROUVÉ</span> <span class="tag partial">PARTIEL</span> <span class="tag pending">NON PROUVÉ</span> <span class="tag oos">HORS PÉRIMÈTRE</span></p>
   <p class="legend">Types de preuve, du plus fort au plus faible&nbsp;: <strong>runtime</strong> (parcours réel sim/appareil, captures hash-bound) &gt; <strong>test déterministe</strong> (exit code) &gt; <strong>review indépendante</strong> (verdict P1=0) &gt; <strong>déclaration documentaire</strong> (aucune preuve).</p>
@@ -72,6 +72,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <a href="#domicile">Domicile</a>
     <a href="#etatcivil">État civil</a>
     <a href="#revenu">Revenu</a>
+    <a href="#lpp">Affiliation LPP</a>
     <a href="#troisA">3a</a>
     <a href="#fiscalite">Fiscalité</a>
     <a href="#coach">Coach</a>
@@ -90,7 +91,8 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><td>Canton seul (<code>q_canton</code> legacy)</td><td><span class="tag partial">PLAIN LEGACY</span></td><td>réponses wizard (préexistant, partagé)</td><td>calculateurs fiscaux legacy, profil</td></tr>
     <tr><td>État civil (6 statuts, imposition commune/séparée)</td><td><span class="tag proof">CANONIQUE·RUNTIME</span></td><td>enregistrement canonique scellé unique (<code>q_civil_status</code> — la valeur EST le fait, tombstone à la suppression, alias legacy dominé)</td><td>« Ma situation », contexte fiscal 3a v3 (connu/manquant + révision), CoachProfile</td></tr>
     <tr><td>Revenu (net encaissé, montant + période)</td><td><span class="tag proof">CANONIQUE·RUNTIME</span></td><td>enregistrement canonique scellé à clés possédées + projection legacy écriture seule (une clé nue ne survit pas au rechargement ; tombstone à watermark)</td><td>« Ma situation », contexte fiscal 3a v4 (plafond fail-closed LPP), budget legacy via la projection (prouvé au runtime, capture 03)</td></tr>
-    <tr><td>Versements 3a</td><td><span class="tag pending">ÉPHÉMÈRES</span></td><td>état local design_lab — laboratoire, jamais source de vérité</td><td>aucun — prochain Lego (cadrage requis)</td></tr>
+    <tr><td>Affiliation LPP (tri-état)</td><td><span class="tag proof">CANONIQUE·RUNTIME</span></td><td>enregistrement canonique scellé à clés possédées, sans projection ; corruption masquée (jamais un « non » ressuscité) ; suppression = retour à l'INCONNU</td><td>« Ma situation », contexte fiscal 3a v5 (plafond déterminable à 4 branches fail-closed)</td></tr>
+    <tr><td>Versements 3a</td><td><span class="tag pending">ÉPHÉMÈRES</span></td><td>état local design_lab — laboratoire, jamais source de vérité</td><td>aucun — Lego 5 (la marge devient enfin calculable)</td></tr>
     <tr><td>Tâche 3a (<code>mint_next_3a_task_v1</code>)</td><td><span class="tag proof">CANONIQUE</span></td><td>store scellé dédié + double purge</td><td>écran handoff (flag OFF)</td></tr>
   </table></div>
 </section>
@@ -177,6 +179,28 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
   <div class="honest"><strong>Honnêteté&nbsp;:</strong> même portée de preuve que l'état civil (<code>proof_scope</code>&nbsp;: cycle UI/cache/stash, keychain réel non exercé). Le harnais hérité a coûté 3 runs (clavier numérique sans dismiss, flake leg-01 des sims neufs) contre 9 au premier fait scellé — l'infrastructure s'amortit.</div>
 </section>
 
+<section id="lpp">
+  <h2>Affiliation LPP — Lego 4 <span class="tag proof">PROMU 5/5</span></h2>
+  <p class="axiom">Une seule question — suis-je affilié·e à une caisse de pension ? L'absence de réponse n'est jamais un « non »&nbsp;: MINT ne devine pas, et le plafond 3a reste indéterminé tant qu'elle ne sait pas.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Booléen strict stocké, lecture métier TRI-ÉTAT (confirmed_yes | confirmed_no | unknown). Certificat ≠ affiliation ≠ avoir LPP — l'aide de l'écran l'explique, le code ne lit jamais ces proxys. Le dialogue de suppression dit l'honnêteté à l'utilisateur&nbsp;: «&nbsp;ton affiliation redeviendra inconnue&nbsp;». Ordre tranché au cadrage&nbsp;: l'affiliation d'abord, les versements en Lego 5 — pas de marge partielle fictive.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li><code>product/mint_next/storyboard/lpp_affiliation.storyboard.json</code></li>
+      <li><code>models/mint_next_lpp_affiliation_fact.dart</code> (<code>statusOf()</code> = unique porte tri-état)</li>
+      <li>Transaction scellée sans projection ; masquage <em>corrupt</em> appliqué aux 3 faits scellés (un canonique corrompu ne ressuscite jamais un bundle périmé du cache)</li>
+      <li>Fiscal v5&nbsp;: <code>plafond_3a_determination</code> à 4 branches fail-closed, tokens symboliques + année, zéro CHF</li>
+      <li><code>screens/mint_next_lpp_affiliation/</code> · «&nbsp;Ma situation&nbsp;» · registre 159</li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag proof">TESTS</span> 5 modèle + 6 provider + 7 écran + 2 surface + boundary v5 branche par branche · analyze 0</li>
+      <li><span class="tag proof">REVIEW</span> Codex REJET (résurrection corrupt) → ACCEPT (unavailable≠corrupt validé) · PROMOTION ACCEPT P1=0</li>
+      <li><span class="tag proof">RUNTIME</span> reçu <code>runtime.json</code> passed @ <code>b4ff3fa2c</code> au <strong>premier run</strong> — 5 captures dont «&nbsp;suppression = retour à l'inconnu&nbsp;»</li>
+      <li><span class="tag off">FLAG OFF</span> <code>enableMintNextLppAffiliation</code></li>
+    </ul></div>
+  </div>
+  <div class="honest"><strong>Honnêteté&nbsp;:</strong> même portée de preuve (proof_scope&nbsp;: UI/cache/stash). Le harnais est totalement amorti&nbsp;: 9 runs (Lego 2) → 3 (Lego 3) → <strong>1</strong> (Lego 4). L'année fiscale du plafond deviendra bloquante dès l'arrivée des CHF (moteur attesté) — notée au cadrage Lego 5.</div>
+</section>
+
 <section id="troisA">
   <h2>3a — Vertical Golden</h2>
   <p class="axiom">Aujourd'hui → occasion → faits connus/manquants → confirmation minimale → scénario déterministe → widget pédagogique → choix libre → mini-plan → Aujourd'hui.</p>
@@ -236,23 +260,23 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
   <h2>Matrices de contrôle</h2>
   <h3 class="mat">Cycle canonique en 7 points (ADR 2026-08-08) — par Lego</h3>
   <div class="scroll"><table>
-    <tr><th>Point du cycle</th><th>Logement</th><th>Domicile (Lego 1)</th><th>État civil (Lego 2)</th><th>Revenu (Lego 3)</th></tr>
-    <tr><td>1. Sauvegarde par l'unique chemin canonique</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">RUNTIME</span> (+ writers partagés routés)</td><td><span class="tag proof">RUNTIME</span> (clés possédées ; clé nue dominée — testé)</td></tr>
-    <tr><td>2. Rechargement après relance</td><td><span class="tag proof">RUNTIME</span> (2 relances à froid)</td><td><span class="tag proof">RUNTIME</span> (relance à froid, reçu a28085268750)</td><td><span class="tag proof">RUNTIME</span> (relance à froid, reçu 37c707aec)</td><td><span class="tag proof">RUNTIME</span> (relance à froid, reçu 8e1c6b418)</td></tr>
-    <tr><td>3. Visible dans « Ma situation »</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">RUNTIME</span> (avec provenance)</td><td><span class="tag proof">RUNTIME</span> (montant + période + provenance)</td></tr>
-    <tr><td>4. Correction et suppression</td><td><span class="tag proof">RUNTIME</span> (suppression survit à la relance)</td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">RUNTIME</span> (marié→divorcé ; suppression survit à la relance ; tombstone domine l'alias legacy — testé)</td><td><span class="tag proof">RUNTIME</span> (6'500/mois→78'000/an sans double ×12 ; tombstone à watermark)</td></tr>
-    <tr><td>5. Un consommateur réel hors collecte</td><td><span class="tag proof">TEST</span> (staleness plans, carte Aujourd'hui)</td><td><span class="tag proof">TEST</span> (contexte fiscal 3a connu/manquant)</td><td><span class="tag proof">TEST</span> (contexte fiscal 3a v3 : imposition commune/séparée)</td><td><span class="tag proof">RUNTIME</span> (fiscal v4 fail-closed LPP ; budget via projection — capture 03)</td></tr>
-    <tr><td>6. Invalidation des dépendants</td><td><span class="tag proof">TEST</span> (plans stale)</td><td><span class="tag proof">TEST</span> (révision change à la correction ; aucun résultat fiscal persistant n'existe encore)</td><td><span class="tag proof">TEST</span> (révision = assertedAt UTC, change à chaque correction)</td><td><span class="tag proof">TEST</span> (révision + anti-double-×12 en aller-retour)</td></tr>
-    <tr><td>7. Zéro transmission sans contrat</td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">TEST</span> (<code>syncToBackend: false</code>)</td><td><span class="tag proof">TEST</span> (local uniquement, ADR 2026-08-08)</td><td><span class="tag proof">TEST</span> (local uniquement)</td></tr>
+    <tr><th>Point du cycle</th><th>Logement</th><th>Domicile (Lego 1)</th><th>État civil (Lego 2)</th><th>Revenu (Lego 3)</th><th>Affiliation LPP (Lego 4)</th></tr>
+    <tr><td>1. Sauvegarde par l'unique chemin canonique</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">RUNTIME</span> (+ writers partagés routés)</td><td><span class="tag proof">RUNTIME</span> (clés possédées ; clé nue dominée — testé)</td><td><span class="tag proof">RUNTIME</span> (sans projection)</td></tr>
+    <tr><td>2. Rechargement après relance</td><td><span class="tag proof">RUNTIME</span> (2 relances à froid)</td><td><span class="tag proof">RUNTIME</span> (relance à froid, reçu a28085268750)</td><td><span class="tag proof">RUNTIME</span> (relance à froid, reçu 37c707aec)</td><td><span class="tag proof">RUNTIME</span> (relance à froid, reçu 8e1c6b418)</td><td><span class="tag proof">RUNTIME</span> (reçu b4ff3fa2c)</td></tr>
+    <tr><td>3. Visible dans « Ma situation »</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">RUNTIME</span> (avec provenance)</td><td><span class="tag proof">RUNTIME</span> (montant + période + provenance)</td><td><span class="tag proof">RUNTIME</span> (avec provenance)</td></tr>
+    <tr><td>4. Correction et suppression</td><td><span class="tag proof">RUNTIME</span> (suppression survit à la relance)</td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">RUNTIME</span> (marié→divorcé ; suppression survit à la relance ; tombstone domine l'alias legacy — testé)</td><td><span class="tag proof">RUNTIME</span> (6'500/mois→78'000/an sans double ×12 ; tombstone à watermark)</td><td><span class="tag proof">RUNTIME</span> (Oui→Non ; suppression = INCONNU, jamais « non »)</td></tr>
+    <tr><td>5. Un consommateur réel hors collecte</td><td><span class="tag proof">TEST</span> (staleness plans, carte Aujourd'hui)</td><td><span class="tag proof">TEST</span> (contexte fiscal 3a connu/manquant)</td><td><span class="tag proof">TEST</span> (contexte fiscal 3a v3 : imposition commune/séparée)</td><td><span class="tag proof">RUNTIME</span> (fiscal v4 fail-closed LPP ; budget via projection — capture 03)</td><td><span class="tag proof">TEST</span> (fiscal v5 : plafond 4 branches)</td></tr>
+    <tr><td>6. Invalidation des dépendants</td><td><span class="tag proof">TEST</span> (plans stale)</td><td><span class="tag proof">TEST</span> (révision change à la correction ; aucun résultat fiscal persistant n'existe encore)</td><td><span class="tag proof">TEST</span> (révision = assertedAt UTC, change à chaque correction)</td><td><span class="tag proof">TEST</span> (révision + anti-double-×12 en aller-retour)</td><td><span class="tag proof">TEST</span> (révision)</td></tr>
+    <tr><td>7. Zéro transmission sans contrat</td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">TEST</span> (<code>syncToBackend: false</code>)</td><td><span class="tag proof">TEST</span> (local uniquement, ADR 2026-08-08)</td><td><span class="tag proof">TEST</span> (local uniquement)</td><td><span class="tag proof">TEST</span> (local uniquement)</td></tr>
   </table></div>
-  <h3 class="mat">Gate unique de promotion (ADR 2026-08-10) — Legos 1, 2 &amp; 3</h3>
+  <h3 class="mat">Gate unique de promotion (ADR 2026-08-10) — Legos 1 à 4</h3>
   <div class="scroll"><table>
-    <tr><th>Condition</th><th>Lego 1 — domicile</th><th>Lego 2 — état civil</th><th>Lego 3 — revenu</th></tr>
-    <tr><td>1. Beats storyboard mappés à des tests</td><td><span class="tag proof">FAIT</span> — 6 beats nommés</td><td><span class="tag proof">FAIT</span> — 6 beats nommés (<code>etat_civil.storyboard.json</code>)</td><td><span class="tag proof">FAIT</span> — 6 beats (<code>revenu.storyboard.json</code>)</td></tr>
-    <tr><td>2. Tests ciblés verts</td><td><span class="tag proof">FAIT</span> — 18 + 157 régression, analyze 0</td><td><span class="tag proof">FAIT</span> — 114 ciblés + régression onboarding/chat/reset, analyze 0, CI PR verte</td><td><span class="tag proof">FAIT</span> — 116 ciblés + régression, analyze 0, CI PR verte</td></tr>
-    <tr><td>3. Review indépendante P1=0</td><td><span class="tag proof">FAIT</span> — REJET (3 P1) → ACCEPT P1=0</td><td><span class="tag proof">FAIT</span> — REJET (4 P1 : 3 corrigés, 1 réfuté) → ACCEPT → PROMOTION ACCEPT P1=0</td><td><span class="tag proof">FAIT</span> — 3 REJET→ACCEPT → PROMOTION ACCEPT P1=0</td></tr>
-    <tr><td>4. Vérification runtime citée</td><td><span class="tag proof">FAIT</span> — reçu passed, PR #1222 (a attrapé un vrai défaut Keychain)</td><td><span class="tag proof">FAIT</span> — reçu passed @ 37c707aec, portée explicite (<code>proof_scope</code>) ; a attrapé 5 défauts de harnais successifs invisibles aux tests mockés</td><td><span class="tag proof">FAIT</span> — reçu passed @ 8e1c6b418, portée explicite ; 3 runs (harnais amorti)</td></tr>
-    <tr><td>5. Cycle du fait en 7 points</td><td><span class="tag proof">FAIT</span></td><td><span class="tag proof">FAIT</span> — matrice ci-dessus</td><td><span class="tag proof">FAIT</span> — matrice ci-dessus</td></tr>
+    <tr><th>Condition</th><th>Lego 1 — domicile</th><th>Lego 2 — état civil</th><th>Lego 3 — revenu</th><th>Lego 4 — affiliation LPP</th></tr>
+    <tr><td>1. Beats storyboard mappés à des tests</td><td><span class="tag proof">FAIT</span> — 6 beats nommés</td><td><span class="tag proof">FAIT</span> — 6 beats nommés (<code>etat_civil.storyboard.json</code>)</td><td><span class="tag proof">FAIT</span> — 6 beats (<code>revenu.storyboard.json</code>)</td><td><span class="tag proof">FAIT</span> — 6 beats</td></tr>
+    <tr><td>2. Tests ciblés verts</td><td><span class="tag proof">FAIT</span> — 18 + 157 régression, analyze 0</td><td><span class="tag proof">FAIT</span> — 114 ciblés + régression onboarding/chat/reset, analyze 0, CI PR verte</td><td><span class="tag proof">FAIT</span> — 116 ciblés + régression, analyze 0, CI PR verte</td><td><span class="tag proof">FAIT</span> — analyze 0, CI PR verte</td></tr>
+    <tr><td>3. Review indépendante P1=0</td><td><span class="tag proof">FAIT</span> — REJET (3 P1) → ACCEPT P1=0</td><td><span class="tag proof">FAIT</span> — REJET (4 P1 : 3 corrigés, 1 réfuté) → ACCEPT → PROMOTION ACCEPT P1=0</td><td><span class="tag proof">FAIT</span> — 3 REJET→ACCEPT → PROMOTION ACCEPT P1=0</td><td><span class="tag proof">FAIT</span> — REJET→ACCEPT → PROMOTION ACCEPT</td></tr>
+    <tr><td>4. Vérification runtime citée</td><td><span class="tag proof">FAIT</span> — reçu passed, PR #1222 (a attrapé un vrai défaut Keychain)</td><td><span class="tag proof">FAIT</span> — reçu passed @ 37c707aec, portée explicite (<code>proof_scope</code>) ; a attrapé 5 défauts de harnais successifs invisibles aux tests mockés</td><td><span class="tag proof">FAIT</span> — reçu passed @ 8e1c6b418, portée explicite ; 3 runs (harnais amorti)</td><td><span class="tag proof">FAIT</span> — passed @ b4ff3fa2c, 1er run</td></tr>
+    <tr><td>5. Cycle du fait en 7 points</td><td><span class="tag proof">FAIT</span></td><td><span class="tag proof">FAIT</span> — matrice ci-dessus</td><td><span class="tag proof">FAIT</span> — matrice ci-dessus</td><td><span class="tag proof">FAIT</span></td></tr>
   </table></div>
 </section>
 
@@ -269,11 +293,13 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><td class="n">#1224</td><td>Lego 2 — état civil, gate 5/5 (reçu runtime, portée explicite)</td><td>LOOP: GO · REJET 4P1 → ACCEPT · PROMOTION REJET 2P1 → ACCEPT P1=0</td><td class="n">11.08 11:50</td></tr>
     <tr><td class="n">#1225</td><td>Clôture Lego 2 — herméneutique v4 + journal BRIEF</td><td>—</td><td class="n">11.08 12:01</td></tr>
     <tr><td class="n">#1226</td><td>Lego 3 — revenu, gate 5/5 (reçu runtime, anti-double-×12)</td><td>LOOP: GO (Q0-Q5) · 3× REJET→ACCEPT · PROMOTION ACCEPT P1=0</td><td class="n">11.08 13:37</td></tr>
+    <tr><td class="n">#1227</td><td>Clôture Lego 3 — herméneutique v5 + journal BRIEF</td><td>—</td><td class="n">11.08 13:43</td></tr>
+    <tr><td class="n">#1228</td><td>Lego 4 — affiliation LPP, gate 5/5 (runtime 1er run)</td><td>LOOP: GO AFFILIATION LPP · REJET→ACCEPT (masquage corrupt) · PROMOTION ACCEPT P1=0</td><td class="n">11.08 19:46</td></tr>
   </table></div>
   <p style="font-size:.9rem;color:var(--ink-soft)">Accès total Codex acté (11.08)&nbsp;: repo, mémoire persistante Claude, Engram, CLAUDE.md, BRIEF. Ce rapport est versionné sous <code>.planning/reports/hermeneutique/</code> et republié comme artifact à chaque Lego — un artifact seul n'est pas auditable.</p>
 </section>
 
 <footer>
-  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu — clés possédées + projection legacy, harnais amorti (3 runs vs 9). Ce qui n'est pas cité n'est pas prouvé.
+  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu. v6&nbsp;: Lego 4 affiliation LPP promu — tri-état, plafond 3a déterminable, harnais au premier run. Ce qui n'est pas cité n'est pas prouvé.
 </footer>
 </main>
