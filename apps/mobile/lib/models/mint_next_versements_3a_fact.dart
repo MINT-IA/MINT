@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+
 /// Canonical, user-asserted 3a payments fact (Lego 5) — the first PLURAL
 /// fact.
 ///
@@ -89,7 +91,7 @@ class MintNextVersement3aEntry {
       Object.hash(id, amountCents, creditedAt, taxYear, accountRef);
 }
 
-class MintNextVersements3aFact {
+class MintNextVersements3aFact implements ConfirmedVersements3aSource {
   static const userDeclarationSource = 'user_declaration';
 
   static const entriesKey = 'q_versements_3a_fact_entries';
@@ -146,6 +148,16 @@ class MintNextVersements3aFact {
 
   /// Révision du bucket annuel — null si l'année n'a jamais été touchée.
   String? bucketRevision(int taxYear) => bucketRevisions[taxYear];
+
+  @override
+  MintNext3aVersementsContext? toConfirmedVersementsContext(int taxYear) =>
+      needsConfirmation
+          ? null
+          : MintNext3aVersementsContext(
+              taxYear: taxYear,
+              totalVerseAnnualCents: totalForYearCents(taxYear),
+              bucketRevision: bucketRevision(taxYear) ?? revision,
+            );
 
   /// VUE dérivée — l'agrégation de faits est permise ; la soustraction d'un
   /// plafond légal ne l'est pas (moteur attesté).

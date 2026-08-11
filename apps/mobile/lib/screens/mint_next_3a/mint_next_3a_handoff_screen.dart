@@ -10,6 +10,7 @@ import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
 import 'package:mint_mobile/services/mint_next_3a_tax_delta_engine.dart';
@@ -28,6 +29,7 @@ class MintNext3aHandoffScreen extends StatefulWidget {
     this.civilStatusReader = readCanonicalCivilStatusFact,
     this.revenuReader = readCanonicalRevenuFact,
     this.lppAffiliationReader = readCanonicalLppAffiliationFact,
+    this.versementsReader = readCanonicalVersements3aFact,
   });
 
   final MintNext3aTaskStore store;
@@ -62,6 +64,14 @@ class MintNext3aHandoffScreen extends StatefulWidget {
   static Future<MintNextLppAffiliationFact?>
       readCanonicalLppAffiliationFact() async =>
           MintNextLppAffiliationFact.fromWizardAnswers(
+              await ReportPersistenceService.loadAnswers());
+
+  /// Reads the confirmed versements 3a fact from the canonical answers.
+  final Future<MintNextVersements3aFact?> Function() versementsReader;
+
+  static Future<MintNextVersements3aFact?>
+      readCanonicalVersements3aFact() async =>
+          MintNextVersements3aFact.fromWizardAnswers(
               await ReportPersistenceService.loadAnswers());
 
   @override
@@ -141,11 +151,13 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
     final MintNextCivilStatusFact? civilStatus;
     final MintNextRevenuFact? revenu;
     final MintNextLppAffiliationFact? lppAffiliation;
+    final MintNextVersements3aFact? versements;
     try {
       domicile = await widget.domicileReader();
       civilStatus = await widget.civilStatusReader();
       revenu = await widget.revenuReader();
       lppAffiliation = await widget.lppAffiliationReader();
+      versements = await widget.versementsReader();
     } on Object {
       if (mounted && generation == _resolveGeneration) context.go('/home');
       return;
@@ -159,6 +171,8 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
       revenu: MintNext3aRevenuContext.fromConfirmedFact(revenu),
       lppAffiliation:
           MintNext3aLppAffiliationContext.fromConfirmedFact(lppAffiliation),
+      versements:
+          MintNext3aVersementsContext.fromConfirmedFact(versements, now.year),
     );
     try {
       taxResult = await widget.taxEngine.calculate(

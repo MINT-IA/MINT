@@ -9,10 +9,10 @@ void main() {
       effectiveAt: DateTime.utc(2026, 1, 1),
     );
     expect(context.toJson(), {
-      // v5 (Lego 4) : domicile + situation civile + revenu + affiliation
-      // LPP canoniques. Sans faits confirmés, rien de personnel n'apparaît,
-      // et le plafond 3a est non déterminé — l'affiliation INCONNUE domine.
-      'context_version': 5,
+      // v6 (Lego 5) : domicile + situation civile + revenu + affiliation
+      // LPP + versements 3a canoniques. Sans faits confirmés, rien de
+      // personnel n'apparaît, et le plafond 3a est non déterminé.
+      'context_version': 6,
       'tax_year': 2026,
       'effective_at': '2026-01-01T00:00:00.000Z',
       'capability': 'no_attested_engine',
@@ -20,8 +20,33 @@ void main() {
       'civil_status_status': 'missing',
       'revenu_status': 'missing',
       'lpp_affiliation_status': 'unknown',
+      'versements_status': 'missing',
       'plafond_3a_determination': 'undetermined_lpp_affiliation_unknown',
     });
+  });
+
+  test('versements context carries the aggregate and its bucket revision — '
+      'and never any marge nor CHF plafond', () {
+    const versements = MintNext3aVersementsContext(
+      taxYear: 2026,
+      totalVerseAnnualCents: 1100000,
+      bucketRevision: '2026-08-11T20:00:00.000Z',
+    );
+    final context = MintNext3aFiscalContext(
+      taxYear: 2026,
+      effectiveAt: DateTime.utc(2026, 1, 1),
+      versements: versements,
+    );
+    final jsonMap = context.toJson();
+    expect(jsonMap['versements_status'], 'known');
+    expect((jsonMap['versements'] as Map)['total_verse_annual_cents'],
+        1100000,
+        reason: 'above any legal plafond — aggregated truthfully, never '
+            'truncated');
+    final encoded = jsonMap.toString();
+    expect(encoded.contains('marge'), isFalse,
+        reason: 'the marge is an attested-engine output — it exists nowhere '
+            'in the boundary');
   });
 
   test('plafond determination v5 covers the four fail-closed branches', () {
