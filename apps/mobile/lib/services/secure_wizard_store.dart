@@ -12,12 +12,14 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
-import 'dart:io' show Directory, File;
+import 'dart:io' show File;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:path_provider/path_provider.dart'
+    show getTemporaryDirectory;
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 
 enum CanonicalHousingStatus { missing, present, deleted, corrupt, unavailable }
@@ -148,15 +150,18 @@ class SecureWizardStore {
   /// purgé par clearState / désinstallation avec le container.
   static bool _e2eSealFallbackHydrated = false;
 
-  static File get _e2eSealFallbackFile =>
-      File('${Directory.systemTemp.path}/mint_e2e_seal_fallback.json');
+  /// Résolu par path_provider : Directory.systemTemp ne pointe pas vers un
+  /// chemin inscriptible du sandbox sim (preuve diag5 2026-08-11 : tmp/ du
+  /// container vide, fichier introuvable sur tout le device).
+  static Future<File> _sealFallbackFile() async => File(
+      '${(await getTemporaryDirectory()).path}/mint_e2e_seal_fallback.json');
 
   static Future<void> _hydrateSealFallbackStore() async {
     if (!_sealFallbackEnabled || _e2eSealFallbackHydrated) return;
     _e2eSealFallbackHydrated = true;
     try {
       final decoded =
-          json.decode(await _e2eSealFallbackFile.readAsString());
+          json.decode(await (await _sealFallbackFile()).readAsString());
       if (decoded is Map<String, dynamic>) {
         for (final entry in decoded.entries) {
           if (entry.value is String) {
@@ -173,10 +178,12 @@ class SecureWizardStore {
   static Future<void> _persistSealFallbackStore() async {
     if (!_sealFallbackEnabled) return;
     try {
-      await _e2eSealFallbackFile
+      await (await _sealFallbackFile())
           .writeAsString(json.encode(_e2eSealFallbackStore));
-    } on Exception {
+    } on Exception catch (e) {
       // Best-effort harnais : le stash mémoire reste la session courante.
+      dev.log('E2E seal fallback: persist failed: $e',
+          name: 'SecureWizardStore');
     }
   }
 
@@ -1112,7 +1119,7 @@ class SecureWizardStore {
     if (!kReleaseMode) {
       _e2eSealFallbackStore.clear();
       try {
-        await _e2eSealFallbackFile.delete();
+        await (await _sealFallbackFile()).delete();
       } on Exception {
         // Fichier absent — rien à purger.
       }
