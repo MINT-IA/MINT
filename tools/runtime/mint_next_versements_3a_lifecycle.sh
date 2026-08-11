@@ -195,15 +195,26 @@ done
 # the clean-SHA statement even when Maestro itself passed.
 git -C "$ROOT" status --porcelain --untracked-files=all | assert_status_is_evidence_only
 
-# Point 7 du cycle : zéro transmission — aucune clé canonique des versements
-# ne doit apparaître dans une ligne console à contexte réseau.
+# Point 7 du cycle : zéro transmission, observée à la frontière réseau réelle.
+# MintHttpClient.shared est le client unifié process-wide : chaque requête
+# sortante est journalisée vers OSLog ch.mint.http (body inclus en debug),
+# capturée dans CONSOLE_LOG. Le guard statique journey_os_check garantit en
+# parallèle que les modules versements n'importent aucun client HTTP.
+[[ -s "$CONSOLE_LOG" ]] || { echo "console capture empty — cannot prove zero transmission" >&2; exit 1; }
+grep -q "flutter" "$CONSOLE_LOG" || { echo "console capture has no flutter lines — capture channel dead" >&2; exit 1; }
+HTTP_BOUNDARY_LINES=$(grep -c "ch\.mint\.http" "$CONSOLE_LOG" || true)
+if grep -i "ch\.mint\.http" "$CONSOLE_LOG" | grep -Eiq "versements|q_versements_3a"; then
+  echo "zero-transmission check FAILED: versements data crossed the HTTP boundary" >&2
+  grep -i "ch\.mint\.http" "$CONSOLE_LOG" | grep -Ei "versements|q_versements_3a" | head -5 >&2
+  exit 1
+fi
 ZERO_TX_PATTERN='q_versements_3a.*(https?://|railway)|(https?://|railway).*q_versements_3a'
 if grep -Eiq "$ZERO_TX_PATTERN" "$CONSOLE_LOG"; then
   echo "zero-transmission check FAILED: versements key in network-context console line" >&2
   grep -Ei "$ZERO_TX_PATTERN" "$CONSOLE_LOG" | head -5 >&2
   exit 1
 fi
-export ZERO_TX_PATTERN
+export ZERO_TX_PATTERN HTTP_BOUNDARY_LINES
 
 FLOW_SHA="$(shasum -a 256 "$FLOW" | awk '{print $1}')"
 APP_SHA="$(shasum -a 256 "$EXECUTABLE" | awk '{print $1}')"
@@ -269,9 +280,25 @@ receipt = {
         "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart :: versements context carries the aggregate and its bucket revision — and never any marge nor CHF plafond",
     ],
     "zero_transmission_check": {
-        "console_log": "capture log stream du process Runner pendant tout le run",
-        "pattern": os.environ["ZERO_TX_PATTERN"],
-        "result": "no match (mechanical grep, run aborted on match)",
+        "boundary": (
+            "MintHttpClient.shared — client HTTP unifié process-wide ; chaque "
+            "requête sortante est journalisée vers OSLog ch.mint.http (body "
+            "inclus en debug) et capturée dans la console du run"
+        ),
+        "http_boundary_lines_observed": int(os.environ["HTTP_BOUNDARY_LINES"]),
+        "boundary_scan": "aucune ligne ch.mint.http ne contient de donnée versements (run avorté sinon)",
+        "console_pattern": os.environ["ZERO_TX_PATTERN"],
+        "static_guard": (
+            "journey_os_check _storyboard_traceability_errors : les modules "
+            "versements (modèle + écran) n'importent aucun client HTTP — "
+            "FAIL au commit sinon"
+        ),
+        "residual_limitation": (
+            "trafic hors client unifié non journalisé par ce canal : upload "
+            "PDF document_service (chemin jamais atteint par ce flow) et SDKs "
+            "tiers (Sentry, couvert par sentry-privacy-guard)"
+        ),
+        "result": "no match (mechanical, run aborted on match)",
     },
     "screenshots": screens,
     "maestro_log_sha256": hashlib.sha256((out / "maestro.log").read_bytes()).hexdigest(),

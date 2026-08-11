@@ -2235,6 +2235,54 @@ def _runtime_replay_coverage_errors(records: list[tuple[Path, dict[str, Any]]], 
         return [f"top Journey OS issue {top_issue.get('id')} must be replayable through runtime_replay.sets top"]
     return []
 
+
+STORYBOARD_DIR = "product/mint_next/storyboard"
+STORYBOARD_NO_NETWORK_FILES = (
+    "apps/mobile/lib/models/mint_next_versements_3a_fact.dart",
+    "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
+)
+
+def _storyboard_traceability_errors(root: Path) -> list[str]:
+    """Every test name a storyboard declares must exist verbatim in its
+    test_files (Dart adjacent string literals joined), and the versements
+    fact modules must stay free of HTTP client imports (zero-transmission
+    static guard)."""
+    import re as _re
+    errors: list[str] = []
+    for sb_path in sorted((root / STORYBOARD_DIR).glob("*.storyboard.json")):
+        try:
+            data = json.loads(sb_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{sb_path.relative_to(root)} unreadable storyboard: {exc}")
+            continue
+        for beat in data.get("beats", []) if isinstance(data.get("beats"), list) else []:
+            test_files = beat.get("test_files")
+            if not isinstance(test_files, list) or not test_files:
+                continue
+            corpus = ""
+            for rel in test_files:
+                f = root / rel
+                if not f.is_file():
+                    errors.append(f"{sb_path.relative_to(root)} beat {beat.get('id')}: missing test file {rel}")
+                    continue
+                corpus += f.read_text(encoding="utf-8")
+            joined = _re.sub(r"'\s*\n\s*'", "", corpus).replace("\\'", "'")
+            for name in beat.get("tests", []) if isinstance(beat.get("tests"), list) else []:
+                if isinstance(name, str) and name not in joined:
+                    errors.append(
+                        f"{sb_path.relative_to(root)} beat {beat.get('id')}: declared test not found verbatim in test_files: {name}"
+                    )
+    for rel in STORYBOARD_NO_NETWORK_FILES:
+        f = root / rel
+        if not f.is_file():
+            errors.append(f"zero-transmission static guard: missing {rel}")
+            continue
+        body = f.read_text(encoding="utf-8")
+        for marker in ("package:http", "package:dio", "HttpClient("):
+            if marker in body:
+                errors.append(f"zero-transmission static guard: {rel} imports/uses {marker}")
+    return errors
+
 def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "origin/dev") -> list[str]:
     root = root.resolve()
     changed, errors = (changed_files, []) if changed_files else _changed(root, base_ref)
@@ -2276,6 +2324,7 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
                 errors.append(f"{rel} missing Journey OS issue: {issue}")
     errors += _runtime_replay_coverage_errors(records, issues)
     errors += _generated_errors(root)
+    errors += _storyboard_traceability_errors(root)
     return errors
 
 def main(argv: list[str] | None = None) -> int:
