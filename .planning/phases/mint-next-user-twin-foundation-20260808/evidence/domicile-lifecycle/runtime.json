@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "runtime_commit": "6328ad3a8812b6e5914643b25ddbb7fe850977ce",
+  "runtime_commit": "a28085268750c9e0fc9b7921d99fc3fea87bbc07",
   "git_dirty": false,
   "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_domicile_lifecycle.yaml",
-  "flow_sha256": "bfea7ccc726ff80dbf2eca46a26a6f2d6238f2c9d8432bd862a2115d4628c607",
-  "app_sha256": "c0ecdf70daea479ee4e461ed5e17b4e130ce11b0b5a99ef1a71540ab6196819a",
+  "flow_sha256": "5870dd413693b314cbea0b2bbe6f5ac566666e5b7e37fa936a9cde4bf96bb26e",
+  "app_sha256": "8f105efbcd486358c54bdba8c4078a179d868fd5968d401cd83a6ee841c2b7ef",
   "app_signature": "adhoc",
-  "app_cdhash": "ffcd1af6cba7f2952df39dc3947c858dab420ea2",
-  "device_udid": "B3DF8D14-DD2A-4374-AA6B-6A2CA2BF1DB7",
-  "device_name": "Mint Domicile Proof-6328ad3a8-16599",
+  "app_cdhash": "0d2ad92c1913c93f34a71432f0303688054f4f03",
+  "device_udid": "2E61A8CB-B14A-441A-96E1-20DDA3049FA9",
+  "device_name": "Mint Domicile Proof-a28085268-29369",
   "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
   "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
   "runtime_version": "26.2",
   "locale": "fr_CH",
   "maestro_version": "2.5.1",
-  "command": "bash tools/runtime/mint_next_domicile_lifecycle.sh --runtime-commit 6328ad3a8812b6e5914643b25ddbb7fe850977ce --capture-evidence",
-  "captured_at": "2026-08-11T06:54:29Z",
+  "command": "bash tools/runtime/mint_next_domicile_lifecycle.sh --runtime-commit a28085268750c9e0fc9b7921d99fc3fea87bbc07 --capture-evidence",
+  "captured_at": "2026-08-11T07:06:48Z",
   "ordered_outcomes": [
     "saved domicile visible in ma situation",
     "saved domicile survives cold relaunch",
@@ -26,25 +26,25 @@
   ],
   "screenshots": {
     "01-created-visible.png": {
-      "sha256": "ce469928f4a661817494426efb8393cbb99c3391c30a3bc05e22dec55589bb1d",
-      "bytes": 182062
+      "sha256": "ecb05660be3985e23c9562d69b360f4f49f55532741ee77b2a7029536a030c70",
+      "bytes": 181711
     },
     "02-cold-relaunch-visible.png": {
-      "sha256": "ce469928f4a661817494426efb8393cbb99c3391c30a3bc05e22dec55589bb1d",
-      "bytes": 182062
+      "sha256": "ecb05660be3985e23c9562d69b360f4f49f55532741ee77b2a7029536a030c70",
+      "bytes": 181711
     },
     "03-edited-visible.png": {
-      "sha256": "f824de33b69c7bcd5a18d8dad2ca4501ba5eafcde2d8999af2b3226066562e95",
-      "bytes": 181229
+      "sha256": "505ebaf8a580ab4f10e57d6d59b46c686ffc26bf1d3aabb4712c3101287c149a",
+      "bytes": 180970
     },
     "04-deleted-absent.png": {
-      "sha256": "b59e52582696b46264a0c9882be298cacf48431b6a4476e6029d7fa3cf9bdfa5",
-      "bytes": 186610
+      "sha256": "33463945fa1546c47aab92edbeb4d3029636124e661b6382a6b5d089170363a5",
+      "bytes": 186359
     },
     "05-delete-survives-relaunch.png": {
-      "sha256": "b59e52582696b46264a0c9882be298cacf48431b6a4476e6029d7fa3cf9bdfa5",
-      "bytes": 186610
+      "sha256": "33463945fa1546c47aab92edbeb4d3029636124e661b6382a6b5d089170363a5",
+      "bytes": 186359
     }
   },
-  "maestro_log_sha256": "1d67235ce53e533ea133204163ee8c04ceffccbdc0d1395f0c8bbdf99672a9c5"
+  "maestro_log_sha256": "1e08bdc9ac11a1b2e877b65c857fd9af7dab3db5374c9dc5d4547c8e1da051eb"
 }
