@@ -175,6 +175,34 @@ class SecureWizardStore {
     }
   }
 
+  /// E2E harness only : stash générique pour les clés hors wizard (session
+  /// AuthService). Le keychain d'une app re-signée ad hoc est FLAKY sur sim
+  /// (parfois vivant, souvent -34018) — sans session persistée, l'app
+  /// retombe sur le portail d'accueil au relaunch et toutes les surfaces
+  /// profondes deviennent injoignables (preuve diag9 2026-08-11). Null /
+  /// no-op hors fallback.
+  static Future<String?> e2eStashRead(String key) async {
+    if (!_sealFallbackEnabled) return null;
+    await _hydrateSealFallbackStore();
+    return _e2eSealFallbackStore[key];
+  }
+
+  static Future<void> e2eStashWrite(String key, String value) async {
+    if (!_sealFallbackEnabled) return;
+    await _hydrateSealFallbackStore();
+    _e2eSealFallbackStore[key] = value;
+    await _persistSealFallbackStore();
+  }
+
+  static Future<void> e2eStashDelete(Iterable<String> keys) async {
+    if (!_sealFallbackEnabled) return;
+    await _hydrateSealFallbackStore();
+    for (final key in keys) {
+      _e2eSealFallbackStore.remove(key);
+    }
+    await _persistSealFallbackStore();
+  }
+
   static Future<void> _persistSealFallbackStore() async {
     if (!_sealFallbackEnabled) return;
     try {
