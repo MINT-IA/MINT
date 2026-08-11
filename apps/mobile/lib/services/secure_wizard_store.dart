@@ -220,6 +220,17 @@ class SecureWizardStore {
         );
   }
 
+  /// E2E harness only : vrai quand l'échec keychain est l'absence
+  /// d'entitlement attendue sous MINT_E2E_SEAL_FALLBACK (-34018, build CLI
+  /// sim linker-signed). Une purge est alors réussie côté keychain — le
+  /// stash purgé est le store autoritaire du harnais. Sans cette tolérance,
+  /// le flag « owned secure purge pending » ne se libère jamais et la purge
+  /// re-tourne à CHAQUE boot (preuve console diag4 2026-08-11), détruisant
+  /// les données scellées légitimes écrites après l'intention de purge.
+  /// Toujours faux en release.
+  static bool isTolerableE2eKeychainAbsence(Object error) =>
+      _sealFallbackEnabled && _isMissingEntitlement(error);
+
   static bool _isMissingEntitlement(Object error) {
     if (error is! PlatformException) return false;
     // iOS (flutter_secure_storage SwiftFlutterSecureStoragePlugin) surfaces
@@ -980,15 +991,15 @@ class SecureWizardStore {
     for (final key in keys) {
       try {
         await _storage.delete(key: '$_heldPrefix$key');
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
       }
     }
     if (deletedAll) {
       try {
         await _storage.delete(key: _heldManifestKey);
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
       }
     }
     return deletedAll;
@@ -1110,25 +1121,24 @@ class SecureWizardStore {
     for (final key in keys) {
       try {
         await _storage.delete(key: key);
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
         // Best-effort cleanup: do not block logout/reset on keychain state.
       }
     }
-    try {
-      await _storage.delete(key: _manifestKey);
-    } on Exception {
-      deletedAll = false;
-    }
-    try {
-      await _storage.delete(key: _deleteJournalKey);
-    } on Exception {
-      deletedAll = false;
-    }
-    try {
-      await _storage.delete(key: _canonicalHousingKey);
-    } on Exception {
-      deletedAll = false;
+    for (final key in const [
+      _manifestKey,
+      _deleteJournalKey,
+      _canonicalHousingKey,
+      _canonicalHousingInitializedKey,
+      _canonicalCivilStatusKey,
+      _canonicalCivilStatusInitializedKey,
+    ]) {
+      try {
+        await _storage.delete(key: key);
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
+      }
     }
     return deletedAll;
   }

@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 /// Service for managing JWT authentication tokens and user session.
 /// Uses flutter_secure_storage (Keychain on iOS, Keystore on Android).
@@ -295,6 +296,7 @@ class AuthService {
       try {
         await _storage.delete(key: key);
       } on PlatformException catch (e) {
+        if (SecureWizardStore.isTolerableE2eKeychainAbsence(e)) continue;
         purged = false;
         if (kDebugMode) {
           debugPrint('[AuthService] Keychain purge failed for $key: $e');
