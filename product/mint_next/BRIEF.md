@@ -252,6 +252,7 @@ versements 3a.
 | 2026-08-10/11 | Atterrissage fondation (PR A #1217, PR B #1218, PR C #1219) | A : REJET→ACCEPT P1=0 · B : K-PARTIEL + ACCEPT · C : ACCEPT 0 finding | MERGÉ sur dev, flag OFF |
 | 2026-08-11 | Lego 1 — domicile fiscal (#1221 + #1222) | LOOP: GO · REJET 3P1→ACCEPT P1=0 · diagnostic runtime Codex | PROMU 5/5 — reçu runtime a28085268750, flag OFF |
 | 2026-08-11 | Lego 2 — état civil (#1224) | LOOP: GO (cadrage Q0-Q5) · REJET 4P1 (3 corrigés, 1 réfuté sur pièces) → ACCEPT · PROMOTION REJET 2P1 → ACCEPT P1=0 | PROMU 5/5 — reçu runtime 37c707aec à portée explicite (proof_scope), flag OFF |
+| 2026-08-11 | Lego 3 — revenu (#1226) | LOOP: GO (Q0-Q5 : clés possédées + projection) · 3× REJET→ACCEPT (watermark tombstone, validation stricte, parsing lexical) · PROMOTION ACCEPT P1=0 | PROMU 5/5 — reçu runtime 8e1c6b418, anti-double-×12 prouvé, budget consommant la projection au runtime (capture 03), flag OFF |
 
 Note budget (honnêteté) : le loop « doctrine + cadrage » annoncé ~150k tokens
 a très largement dépassé son budget — la réconciliation des gates dev jamais
@@ -270,6 +271,11 @@ session stashée + purges tolérantes -34018 + capture console permanente
 dans le runner — les prochains faits scellés (revenu, 3a) héritent de
 tout. Leçon : un fait scellé de bout en bout ≠ un fait wizard ; budgéter
 le premier de chaque catégorie comme une phase d'infrastructure.
+Lego 3 : l'amortissement est réel — 3 runs harnais (clavier numérique,
+flake leg-01 des sims neufs) contre 9 au Lego 2, dans le cap 100k.
+Les reviews Codex par tranche (4 REJET→ACCEPT) restent le meilleur
+rapport coût/défauts : watermark tombstone et parsing lexical sont des
+défauts réels que les tests nominaux ne voyaient pas.
 
 ## 6. Journal des Legos
 
