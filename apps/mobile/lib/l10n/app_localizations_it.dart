@@ -25974,6 +25974,78 @@ class SIt extends S {
       'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
 
   @override
+  String get mintNextRevenuTitle => 'Il tuo reddito';
+
+  @override
+  String get mintNextRevenuQuestion => 'Quanto ricevi?';
+
+  @override
+  String get mintNextRevenuHint =>
+      'Il tuo reddito netto, come arriva sul tuo conto.';
+
+  @override
+  String get mintNextRevenuAmountLabel => 'Importo (CHF)';
+
+  @override
+  String get mintNextRevenuAmountHint => 'Per esempio 6\'500';
+
+  @override
+  String get mintNextRevenuPeriodMonthly => 'Al mese';
+
+  @override
+  String get mintNextRevenuPeriodYearly => 'All\'anno';
+
+  @override
+  String get mintNextRevenuContinue => 'Continua';
+
+  @override
+  String get mintNextRevenuBack => 'Indietro';
+
+  @override
+  String get mintNextRevenuReviewTitle => 'MINT ricorderà';
+
+  @override
+  String mintNextRevenuReviewSource(String date) {
+    return 'Dichiarato da te il $date';
+  }
+
+  @override
+  String get mintNextRevenuConfirm => 'Salva';
+
+  @override
+  String get mintNextRevenuSavedTitle => 'Reddito salvato';
+
+  @override
+  String get mintNextRevenuEdit => 'Modifica';
+
+  @override
+  String get mintNextRevenuDelete => 'Elimina';
+
+  @override
+  String get mintNextRevenuDeleteTitle => 'Eliminare il tuo reddito?';
+
+  @override
+  String get mintNextRevenuDeleteBody =>
+      'MINT dimenticherà il tuo reddito. Gli altri tuoi dati non cambiano.';
+
+  @override
+  String get mintNextRevenuDeleteCancel => 'Mantieni';
+
+  @override
+  String get mintNextRevenuDeleteConfirm => 'Elimina';
+
+  @override
+  String get mintNextRevenuSafeExit => 'Esci senza salvare';
+
+  @override
+  String get mintNextRevenuErrorMissing =>
+      'Indica l\'importo e scegli un periodo per continuare.';
+
+  @override
+  String get mintNextRevenuSaveFailed =>
+      'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

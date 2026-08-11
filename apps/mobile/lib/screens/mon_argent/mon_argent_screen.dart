@@ -10,10 +10,13 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart'
     show mintNextEtatCivilStatusLabel;
+import 'package:mint_mobile/screens/mint_next_revenu/mint_next_revenu_screen.dart'
+    show mintNextRevenuChf, mintNextRevenuPeriodLabel;
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -127,6 +130,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
         _watchCoachProfileProviderIfAvailable()?.domicileFact;
     final civilStatusFact =
         _watchCoachProfileProviderIfAvailable()?.civilStatusFact;
+    final revenuFact = _watchCoachProfileProviderIfAvailable()?.revenuFact;
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
@@ -220,6 +224,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         housingFact: housingFact,
                         domicileFact: domicileFact,
                         civilStatusFact: civilStatusFact,
+                        revenuFact: revenuFact,
                         budgetProvider: budgetProvider,
                         budgetLoading: _budgetLoading,
                         budgetError: _budgetError,
@@ -249,6 +254,12 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                           }
                         },
                         onEtatCivilDelete: _deleteCivilStatusFact,
+                        onRevenuEdit: () {
+                          if (FeatureFlags.enableMintNextRevenu) {
+                            context.push('/mint-next/revenu');
+                          }
+                        },
+                        onRevenuDelete: _deleteRevenuFact,
                       ),
 
                       // Coach whisper (deterministic, may be null = silence)
@@ -343,6 +354,40 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.mintNextEtatCivilSaveFailed)),
+      );
+    }
+  }
+
+  Future<void> _deleteRevenuFact() async {
+    final l10n = S.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.mintNextRevenuDeleteTitle),
+        content: Text(l10n.mintNextRevenuDeleteBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.mintNextRevenuDeleteCancel),
+          ),
+          Semantics(
+            identifier: 'action:mon_argent.revenu.delete_confirm',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.mintNextRevenuDeleteConfirm),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await context.read<CoachProfileProvider>().deleteRevenuFact();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.mintNextRevenuSaveFailed)),
       );
     }
   }
@@ -557,6 +602,7 @@ class _MonArgentSectionBody extends StatelessWidget {
   final MintNextHousingFact? housingFact;
   final MintNextDomicileFact? domicileFact;
   final MintNextCivilStatusFact? civilStatusFact;
+  final MintNextRevenuFact? revenuFact;
   final BudgetProvider budgetProvider;
   final bool budgetLoading;
   final bool budgetError;
@@ -573,6 +619,8 @@ class _MonArgentSectionBody extends StatelessWidget {
   final Future<void> Function() onDomicileDelete;
   final VoidCallback onEtatCivilEdit;
   final Future<void> Function() onEtatCivilDelete;
+  final VoidCallback onRevenuEdit;
+  final Future<void> Function() onRevenuDelete;
 
   const _MonArgentSectionBody({
     required this.section,
@@ -583,6 +631,7 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.housingFact,
     required this.domicileFact,
     required this.civilStatusFact,
+    required this.revenuFact,
     required this.budgetProvider,
     required this.budgetLoading,
     required this.budgetError,
@@ -599,6 +648,8 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.onDomicileDelete,
     required this.onEtatCivilEdit,
     required this.onEtatCivilDelete,
+    required this.onRevenuEdit,
+    required this.onRevenuDelete,
   });
 
   @override
@@ -619,6 +670,7 @@ class _MonArgentSectionBody extends StatelessWidget {
             housingFact: housingFact,
             domicileFact: domicileFact,
             civilStatusFact: civilStatusFact,
+            revenuFact: revenuFact,
             l10n: l10n,
             onHousingEdit: onHousingEdit,
             onHousingDelete: onHousingDelete,
@@ -626,6 +678,8 @@ class _MonArgentSectionBody extends StatelessWidget {
             onDomicileDelete: onDomicileDelete,
             onEtatCivilEdit: onEtatCivilEdit,
             onEtatCivilDelete: onEtatCivilDelete,
+            onRevenuEdit: onRevenuEdit,
+            onRevenuDelete: onRevenuDelete,
           ),
         _MonArgentSection.month => BudgetSummaryCard(
             snapshot: budgetSnapshot,
@@ -667,6 +721,7 @@ class _TodaySection extends StatelessWidget {
   final MintNextHousingFact? housingFact;
   final MintNextDomicileFact? domicileFact;
   final MintNextCivilStatusFact? civilStatusFact;
+  final MintNextRevenuFact? revenuFact;
   final S l10n;
   final VoidCallback onHousingEdit;
   final Future<void> Function() onHousingDelete;
@@ -674,6 +729,8 @@ class _TodaySection extends StatelessWidget {
   final Future<void> Function() onDomicileDelete;
   final VoidCallback onEtatCivilEdit;
   final Future<void> Function() onEtatCivilDelete;
+  final VoidCallback onRevenuEdit;
+  final Future<void> Function() onRevenuDelete;
 
   const _TodaySection({
     required this.dataSpine,
@@ -685,6 +742,7 @@ class _TodaySection extends StatelessWidget {
     required this.housingFact,
     required this.domicileFact,
     required this.civilStatusFact,
+    required this.revenuFact,
     required this.l10n,
     required this.onHousingEdit,
     required this.onHousingDelete,
@@ -692,6 +750,8 @@ class _TodaySection extends StatelessWidget {
     required this.onDomicileDelete,
     required this.onEtatCivilEdit,
     required this.onEtatCivilDelete,
+    required this.onRevenuEdit,
+    required this.onRevenuDelete,
   });
 
   @override
@@ -700,7 +760,8 @@ class _TodaySection extends StatelessWidget {
     if (presentBudget == null &&
         housingFact == null &&
         domicileFact == null &&
-        civilStatusFact == null) {
+        civilStatusFact == null &&
+        revenuFact == null) {
       return _MissingDataSurface(l10n: l10n);
     }
     return Column(
@@ -739,6 +800,15 @@ class _TodaySection extends StatelessWidget {
             onDelete: onEtatCivilDelete,
           ),
         ],
+        if (revenuFact != null) ...[
+          const SizedBox(height: MintSpacing.md),
+          _RevenuFactSurface(
+            fact: revenuFact!,
+            l10n: l10n,
+            onEdit: onRevenuEdit,
+            onDelete: onRevenuDelete,
+          ),
+        ],
         if (dataSpine != null) ...[
           const SizedBox(height: MintSpacing.md),
           _MonArgentDetailsExpansion(
@@ -772,6 +842,77 @@ class _TodaySection extends StatelessWidget {
             stopRuleTriggered: false,
             emergencyFundMonths: 0,
           ),
+    );
+  }
+}
+
+class _RevenuFactSurface extends StatelessWidget {
+  const _RevenuFactSurface({
+    required this.fact,
+    required this.l10n,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final MintNextRevenuFact fact;
+  final S l10n;
+  final VoidCallback onEdit;
+  final Future<void> Function() onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final assertedDate = MaterialLocalizations.of(context)
+        .formatShortDate(fact.assertedAt.toLocal());
+    return Semantics(
+      key: const Key('mon_argent_revenu_fact'),
+      identifier: 'mon_argent_revenu_fact',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.mintNextRevenuSavedTitle,
+                style:
+                    MintTextStyles.titleLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              '${mintNextRevenuChf(fact.amountCents)} · '
+              '${mintNextRevenuPeriodLabel(l10n, fact.period)}',
+              style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.mintNextRevenuReviewSource(assertedDate),
+              key: const Key('mon_argent_revenu_fact_provenance'),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ValueListenableBuilder<bool>(
+              valueListenable: FeatureFlags.mintNextRevenuListenable,
+              builder: (context, enabled, _) => enabled
+                  ? Semantics(
+                      identifier: 'action:mon_argent.revenu.edit',
+                      button: true,
+                      child: TextButton(
+                        onPressed: onEdit,
+                        child: Text(l10n.mintNextRevenuEdit),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Semantics(
+              identifier: 'action:mon_argent.revenu.delete',
+              button: true,
+              child: TextButton(
+                onPressed: onDelete,
+                child: Text(l10n.mintNextRevenuDelete),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -109,6 +109,7 @@
 /mint-next/domicile | public
 /mint-next/etat-civil | public
 /mint-next/housing | public
+/mint-next/revenu | public
 /mortgage/affordability | authenticated
 /mortgage/amortization | authenticated
 /mortgage/epl-combined | authenticated

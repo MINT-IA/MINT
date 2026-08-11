@@ -8,6 +8,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
 import 'package:mint_mobile/services/mint_next_3a_tax_delta_engine.dart';
@@ -24,6 +25,7 @@ class MintNext3aHandoffScreen extends StatefulWidget {
     this.now,
     this.domicileReader = readCanonicalDomicileFact,
     this.civilStatusReader = readCanonicalCivilStatusFact,
+    this.revenuReader = readCanonicalRevenuFact,
   });
 
   final MintNext3aTaskStore store;
@@ -43,6 +45,13 @@ class MintNext3aHandoffScreen extends StatefulWidget {
 
   static Future<MintNextCivilStatusFact?> readCanonicalCivilStatusFact() async =>
       MintNextCivilStatusFact.fromWizardAnswers(
+          await ReportPersistenceService.loadAnswers());
+
+  /// Reads the confirmed revenu fact from the canonical answers.
+  final Future<MintNextRevenuFact?> Function() revenuReader;
+
+  static Future<MintNextRevenuFact?> readCanonicalRevenuFact() async =>
+      MintNextRevenuFact.fromWizardAnswers(
           await ReportPersistenceService.loadAnswers());
 
   @override
@@ -120,9 +129,11 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
     final Pillar3aTaxDeltaResult taxResult;
     final MintNextDomicileFact? domicile;
     final MintNextCivilStatusFact? civilStatus;
+    final MintNextRevenuFact? revenu;
     try {
       domicile = await widget.domicileReader();
       civilStatus = await widget.civilStatusReader();
+      revenu = await widget.revenuReader();
     } on Object {
       if (mounted && generation == _resolveGeneration) context.go('/home');
       return;
@@ -133,6 +144,7 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
       effectiveAt: now,
       domicile: MintNext3aDomicileContext.fromConfirmedFact(domicile),
       civilStatus: MintNext3aCivilStatusContext.fromConfirmedFact(civilStatus),
+      revenu: MintNext3aRevenuContext.fromConfirmedFact(revenu),
     );
     try {
       taxResult = await widget.taxEngine.calculate(

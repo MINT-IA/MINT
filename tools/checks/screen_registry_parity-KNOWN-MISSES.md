@@ -131,3 +131,8 @@ Cycle canonique du fait domicile derrière kill-flag `enableMintNextDomicile`
 
 Cycle canonique du fait état civil derrière kill-flag `enableMintNextEtatCivil`
 (OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/revenu (Lego 3 fait revenu)
+
+Cycle canonique du fait revenu derrière kill-flag `enableMintNextRevenu`
+(OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.

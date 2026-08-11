@@ -1,0 +1,197 @@
+appId: ch.mint.app
+tags:
+  - mint-next-revenu
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mint-next/revenu"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/revenu"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.collect"
+    timeout: 15000
+- tapOn:
+    id: "input:revenu.amount"
+- inputText: "6500"
+# Pavé numérique iOS : hideKeyboard peut échouer (pas de dismiss heuristique)
+# — optional, le scroll + tap conditionnel absorbent un clavier resté ouvert.
+- hideKeyboard:
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- scrollUntilVisible:
+    element:
+      id: "input:revenu.period_monthly"
+    direction: DOWN
+- tapOn:
+    id: "input:revenu.period_monthly"
+- scrollUntilVisible:
+    element:
+      id: "action:revenu.continue"
+    direction: DOWN
+# hideKeyboard iOS peut fermer le clavier en tapant hors champ — parfois sur
+# Continuer lui-même. Le tap devient conditionnel : seulement si la review
+# n'est pas déjà affichée.
+- runFlow:
+    when:
+      notVisible:
+        id: "node:revenu.review"
+    commands:
+      - tapOn:
+          id: "action:revenu.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.review"
+    timeout: 5000
+- tapOn:
+    id: "action:revenu.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.saved"
+    timeout: 10000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_revenu_fact"
+    timeout: 20000
+- takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_revenu_fact"
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/02-cold-relaunch-visible"
+- tapOn:
+    id: "action:mon_argent.revenu.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.saved"
+    timeout: 8000
+- tapOn:
+    id: "action:revenu.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:revenu.amount"
+- eraseText
+- inputText: "78000"
+- hideKeyboard:
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- scrollUntilVisible:
+    element:
+      id: "input:revenu.period_yearly"
+    direction: DOWN
+- tapOn:
+    id: "input:revenu.period_yearly"
+- scrollUntilVisible:
+    element:
+      id: "action:revenu.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:revenu.review"
+    commands:
+      - tapOn:
+          id: "action:revenu.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.review"
+    timeout: 5000
+- tapOn:
+    id: "action:revenu.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.saved"
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_revenu_fact"
+    timeout: 12000
+- takeScreenshot: "${OUTPUT_DIR}/03-edited-visible"
+- tapOn:
+    id: "action:mon_argent.revenu.delete"
+- extendedWaitUntil:
+    visible: "Supprimer ton revenu ?"
+    timeout: 5000
+- tapOn:
+    text: "^Supprimer$"
+- extendedWaitUntil:
+    notVisible: "Supprimer ton revenu ?"
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_revenu_fact"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/04-deleted-absent"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_revenu_fact"
+    timeout: 12000
+- takeScreenshot: "${OUTPUT_DIR}/05-delete-survives-relaunch"

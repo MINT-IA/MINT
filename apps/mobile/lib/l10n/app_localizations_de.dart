@@ -25962,6 +25962,78 @@ class SDe extends S {
       'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
 
   @override
+  String get mintNextRevenuTitle => 'Dein Einkommen';
+
+  @override
+  String get mintNextRevenuQuestion => 'Wie viel erhältst du?';
+
+  @override
+  String get mintNextRevenuHint =>
+      'Dein Nettoeinkommen, wie es auf deinem Konto ankommt.';
+
+  @override
+  String get mintNextRevenuAmountLabel => 'Betrag (CHF)';
+
+  @override
+  String get mintNextRevenuAmountHint => 'Zum Beispiel 6\'500';
+
+  @override
+  String get mintNextRevenuPeriodMonthly => 'Pro Monat';
+
+  @override
+  String get mintNextRevenuPeriodYearly => 'Pro Jahr';
+
+  @override
+  String get mintNextRevenuContinue => 'Weiter';
+
+  @override
+  String get mintNextRevenuBack => 'Zurück';
+
+  @override
+  String get mintNextRevenuReviewTitle => 'MINT wird sich merken';
+
+  @override
+  String mintNextRevenuReviewSource(String date) {
+    return 'Von dir angegeben am $date';
+  }
+
+  @override
+  String get mintNextRevenuConfirm => 'Speichern';
+
+  @override
+  String get mintNextRevenuSavedTitle => 'Einkommen gespeichert';
+
+  @override
+  String get mintNextRevenuEdit => 'Bearbeiten';
+
+  @override
+  String get mintNextRevenuDelete => 'Löschen';
+
+  @override
+  String get mintNextRevenuDeleteTitle => 'Dein Einkommen löschen?';
+
+  @override
+  String get mintNextRevenuDeleteBody =>
+      'MINT vergisst dein Einkommen. Deine anderen Angaben ändern sich nicht.';
+
+  @override
+  String get mintNextRevenuDeleteCancel => 'Behalten';
+
+  @override
+  String get mintNextRevenuDeleteConfirm => 'Löschen';
+
+  @override
+  String get mintNextRevenuSafeExit => 'Ohne Speichern verlassen';
+
+  @override
+  String get mintNextRevenuErrorMissing =>
+      'Gib deinen Betrag ein und wähle eine Periode, um fortzufahren.';
+
+  @override
+  String get mintNextRevenuSaveFailed =>
+      'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Wohnsitz: $commune ($canton)';
   }

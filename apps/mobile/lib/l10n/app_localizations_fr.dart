@@ -25905,6 +25905,78 @@ class SFr extends S {
       'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
 
   @override
+  String get mintNextRevenuTitle => 'Ton revenu';
+
+  @override
+  String get mintNextRevenuQuestion => 'Combien reçois-tu ?';
+
+  @override
+  String get mintNextRevenuHint =>
+      'Ton revenu net, tel qu\'il arrive sur ton compte.';
+
+  @override
+  String get mintNextRevenuAmountLabel => 'Montant (CHF)';
+
+  @override
+  String get mintNextRevenuAmountHint => 'Par exemple 6\'500';
+
+  @override
+  String get mintNextRevenuPeriodMonthly => 'Par mois';
+
+  @override
+  String get mintNextRevenuPeriodYearly => 'Par an';
+
+  @override
+  String get mintNextRevenuContinue => 'Continuer';
+
+  @override
+  String get mintNextRevenuBack => 'Retour';
+
+  @override
+  String get mintNextRevenuReviewTitle => 'MINT va retenir';
+
+  @override
+  String mintNextRevenuReviewSource(String date) {
+    return 'Déclaré par toi, le $date';
+  }
+
+  @override
+  String get mintNextRevenuConfirm => 'Enregistrer';
+
+  @override
+  String get mintNextRevenuSavedTitle => 'Revenu enregistré';
+
+  @override
+  String get mintNextRevenuEdit => 'Modifier';
+
+  @override
+  String get mintNextRevenuDelete => 'Supprimer';
+
+  @override
+  String get mintNextRevenuDeleteTitle => 'Supprimer ton revenu ?';
+
+  @override
+  String get mintNextRevenuDeleteBody =>
+      'MINT oubliera ton revenu. Tes autres informations ne changent pas.';
+
+  @override
+  String get mintNextRevenuDeleteCancel => 'Garder';
+
+  @override
+  String get mintNextRevenuDeleteConfirm => 'Supprimer';
+
+  @override
+  String get mintNextRevenuSafeExit => 'Quitter sans enregistrer';
+
+  @override
+  String get mintNextRevenuErrorMissing =>
+      'Indique ton montant et choisis une période pour continuer.';
+
+  @override
+  String get mintNextRevenuSaveFailed =>
+      'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicile : $commune ($canton)';
   }
