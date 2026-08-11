@@ -169,7 +169,13 @@ audit permanent de tout le repo. Un token dépensé doit servir l'écran livré.
 
 ## 5. Lego en cours
 
-**Cadrage n°1 — CONVERGÉ (2026-08-10, verdict Codex : « CADRAGE: CONVERGÉ »)** :
+**Cadrage n°1 — EXÉCUTÉ (2026-08-11) : les 3 PR de l'atterrissage sont
+mergées sur dev** — PR A #1217 (vérité produit, SPEC amendé sans B0-B5,
+storyboard re-pinné, design mint-v2), PR B #1218 (fondation canonique du
+jumeau, cycle logement prouvé, 474/474 tests après réconciliation des gates
+dev jamais exécutés sur la branche — dont un deadlock inter-zones flutter_test
+résolu par le pattern Completer.isCompleted), PR C #1219 (shell 3a minimal,
+flag OFF, recâblage ACCEPT Codex zéro finding). Décision d'origine :
 1. **Atterrissage reconstruit en 3 PR depuis dev** (jamais un merge des
    585 commits — gardes historiques trop entrelacés) :
    **PR A** vérité produit zéro runtime (ADR 2026-08-08, storyboard + schéma +
@@ -210,6 +216,18 @@ suivent **un ensemble par Lego**.
 | Date | Cadrage | Verdict |
 |---|---|---|
 | 2026-08-10 | n°1 — atterrissage 3 PR, design_lab = labo, fin B0-B5, Lego 1 domicile | CONVERGÉ |
+
+## 6ter. Journal des Legos
+
+| Date | Lego | Reviews Codex | État |
+|---|---|---|---|
+| 2026-08-10/11 | Atterrissage fondation (PR A #1217, PR B #1218, PR C #1219) | A : REJET→ACCEPT P1=0 · B : K-PARTIEL + ACCEPT · C : ACCEPT 0 finding | MERGÉ sur dev, flag OFF |
+
+Note budget (honnêteté) : le loop « doctrine + cadrage » annoncé ~150k tokens
+a très largement dépassé son budget — la réconciliation des gates dev jamais
+exécutés sur la branche fondation (8 jobs CI rouges, deadlock inter-zones)
+n'était pas anticipée. Leçon : tout atterrissage de branche longue doit
+budgéter une phase de réconciliation CI explicite.
 
 ## 6. Journal des Legos
 
