@@ -39,6 +39,18 @@ String mintNextEtatCivilStatusLabel(S l10n, MintNextCivilStatus status) =>
       MintNextCivilStatus.veuf => l10n.mintNextEtatCivilStatusVeuf,
     };
 
+/// Identifiants sémantiques littéraux (audit locators : chaque `id:` d'un
+/// flow Maestro doit exister tel quel dans lib/ — pas d'interpolation).
+const _statusSemanticsIds = {
+  MintNextCivilStatus.celibataire: 'input:etat_civil.status_celibataire',
+  MintNextCivilStatus.marie: 'input:etat_civil.status_marie',
+  MintNextCivilStatus.partenariatEnregistre:
+      'input:etat_civil.status_partenariat_enregistre',
+  MintNextCivilStatus.concubinage: 'input:etat_civil.status_concubinage',
+  MintNextCivilStatus.divorce: 'input:etat_civil.status_divorce',
+  MintNextCivilStatus.veuf: 'input:etat_civil.status_veuf',
+};
+
 class _MintNextEtatCivilScreenState extends State<MintNextEtatCivilScreen> {
   _Step _step = _Step.collect;
   MintNextCivilStatus? _status;
@@ -204,7 +216,7 @@ class _MintNextEtatCivilScreenState extends State<MintNextEtatCivilScreen> {
   Widget _statusCard(S l10n, MintNextCivilStatus status) {
     final selected = _status == status;
     return Semantics(
-      identifier: 'input:etat_civil.status_${status.id}',
+      identifier: _statusSemanticsIds[status]!,
       button: true,
       selected: selected,
       child: InkWell(
