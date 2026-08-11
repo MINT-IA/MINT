@@ -25919,6 +25919,78 @@ class SPt extends S {
       'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
 
   @override
+  String get mintNextRevenuTitle => 'O teu rendimento';
+
+  @override
+  String get mintNextRevenuQuestion => 'Quanto recebes?';
+
+  @override
+  String get mintNextRevenuHint =>
+      'O teu rendimento líquido, tal como chega à tua conta.';
+
+  @override
+  String get mintNextRevenuAmountLabel => 'Montante (CHF)';
+
+  @override
+  String get mintNextRevenuAmountHint => 'Por exemplo 6\'500';
+
+  @override
+  String get mintNextRevenuPeriodMonthly => 'Por mês';
+
+  @override
+  String get mintNextRevenuPeriodYearly => 'Por ano';
+
+  @override
+  String get mintNextRevenuContinue => 'Continuar';
+
+  @override
+  String get mintNextRevenuBack => 'Voltar';
+
+  @override
+  String get mintNextRevenuReviewTitle => 'A MINT vai lembrar-se';
+
+  @override
+  String mintNextRevenuReviewSource(String date) {
+    return 'Declarado por ti a $date';
+  }
+
+  @override
+  String get mintNextRevenuConfirm => 'Guardar';
+
+  @override
+  String get mintNextRevenuSavedTitle => 'Rendimento guardado';
+
+  @override
+  String get mintNextRevenuEdit => 'Alterar';
+
+  @override
+  String get mintNextRevenuDelete => 'Apagar';
+
+  @override
+  String get mintNextRevenuDeleteTitle => 'Apagar o teu rendimento?';
+
+  @override
+  String get mintNextRevenuDeleteBody =>
+      'A MINT vai esquecer o teu rendimento. Os teus outros dados não mudam.';
+
+  @override
+  String get mintNextRevenuDeleteCancel => 'Manter';
+
+  @override
+  String get mintNextRevenuDeleteConfirm => 'Apagar';
+
+  @override
+  String get mintNextRevenuSafeExit => 'Sair sem guardar';
+
+  @override
+  String get mintNextRevenuErrorMissing =>
+      'Indica o teu montante e escolhe um período para continuar.';
+
+  @override
+  String get mintNextRevenuSaveFailed =>
+      'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicílio: $commune ($canton)';
   }

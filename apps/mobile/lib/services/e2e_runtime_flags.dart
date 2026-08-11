@@ -57,6 +57,9 @@ class E2eRuntimeFlags {
   @visibleForTesting
   static bool? mintNextEtatCivilOverride;
 
+  @visibleForTesting
+  static bool? mintNextRevenuOverride;
+
   static bool get proofAnchors {
     if (kReleaseMode) return false;
     return proofAnchorsOverride ??
@@ -154,6 +157,15 @@ class E2eRuntimeFlags {
         );
   }
 
+  static bool get mintNextRevenu {
+    if (kReleaseMode) return false;
+    return mintNextRevenuOverride ??
+        const bool.fromEnvironment(
+          'MINT_E2E_MINT_NEXT_REVENU',
+          defaultValue: false,
+        );
+  }
+
   @visibleForTesting
   static void resetForTest() {
     proofAnchorsOverride = null;
@@ -167,5 +179,6 @@ class E2eRuntimeFlags {
     mintNextHousingOverride = null;
     mintNextDomicileOverride = null;
     mintNextEtatCivilOverride = null;
+    mintNextRevenuOverride = null;
   }
 }

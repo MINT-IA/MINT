@@ -45107,6 +45107,138 @@ abstract class S {
   /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
   String get mintNextEtatCivilSaveFailed;
 
+  /// No description provided for @mintNextRevenuTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu'**
+  String get mintNextRevenuTitle;
+
+  /// No description provided for @mintNextRevenuQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Combien reçois-tu ?'**
+  String get mintNextRevenuQuestion;
+
+  /// No description provided for @mintNextRevenuHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu net, tel qu\'il arrive sur ton compte.'**
+  String get mintNextRevenuHint;
+
+  /// No description provided for @mintNextRevenuAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant (CHF)'**
+  String get mintNextRevenuAmountLabel;
+
+  /// No description provided for @mintNextRevenuAmountHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple 6\'500'**
+  String get mintNextRevenuAmountHint;
+
+  /// No description provided for @mintNextRevenuPeriodMonthly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par mois'**
+  String get mintNextRevenuPeriodMonthly;
+
+  /// No description provided for @mintNextRevenuPeriodYearly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par an'**
+  String get mintNextRevenuPeriodYearly;
+
+  /// No description provided for @mintNextRevenuContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get mintNextRevenuContinue;
+
+  /// No description provided for @mintNextRevenuBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get mintNextRevenuBack;
+
+  /// No description provided for @mintNextRevenuReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT va retenir'**
+  String get mintNextRevenuReviewTitle;
+
+  /// No description provided for @mintNextRevenuReviewSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré par toi, le {date}'**
+  String mintNextRevenuReviewSource(String date);
+
+  /// No description provided for @mintNextRevenuConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get mintNextRevenuConfirm;
+
+  /// No description provided for @mintNextRevenuSavedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu enregistré'**
+  String get mintNextRevenuSavedTitle;
+
+  /// No description provided for @mintNextRevenuEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get mintNextRevenuEdit;
+
+  /// No description provided for @mintNextRevenuDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextRevenuDelete;
+
+  /// No description provided for @mintNextRevenuDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ton revenu ?'**
+  String get mintNextRevenuDeleteTitle;
+
+  /// No description provided for @mintNextRevenuDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT oubliera ton revenu. Tes autres informations ne changent pas.'**
+  String get mintNextRevenuDeleteBody;
+
+  /// No description provided for @mintNextRevenuDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder'**
+  String get mintNextRevenuDeleteCancel;
+
+  /// No description provided for @mintNextRevenuDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextRevenuDeleteConfirm;
+
+  /// No description provided for @mintNextRevenuSafeExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans enregistrer'**
+  String get mintNextRevenuSafeExit;
+
+  /// No description provided for @mintNextRevenuErrorMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique ton montant et choisis une période pour continuer.'**
+  String get mintNextRevenuErrorMissing;
+
+  /// No description provided for @mintNextRevenuSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
+  String get mintNextRevenuSaveFailed;
+
   /// No description provided for @mintNext3aDomicileKnown.
   ///
   /// In fr, this message translates to:

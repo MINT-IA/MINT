@@ -104,10 +104,10 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 157 entries', () {
-      // 147 in Phase 32 ; 10 routes added since. Refresh count when adding /
+    test('has exactly 158 entries', () {
+      // 147 in Phase 32 ; 11 routes added since. Refresh count when adding /
       // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 157);
+      expect(kRouteRegistry.length, 158);
     });
 
     test('/mint-next/3a is the public local private-flow route', () {
@@ -135,6 +135,15 @@ void main() {
       expect(route.owner, RouteOwner.system);
       expect(route.requiresAuth, isFalse);
       expect(route.killFlag, 'enableMintNextEtatCivil');
+    });
+
+    test('/mint-next/revenu is the canonical income fact flow', () {
+      final route = kRouteRegistry['/mint-next/revenu'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextRevenu');
     });
 
     test('/mint-next/housing is a separately killable public flow', () {

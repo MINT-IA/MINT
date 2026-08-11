@@ -487,6 +487,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     killFlag: 'enableMintNextEtatCivil',
     description: 'Canonical civil-status fact lifecycle (Lego 2)',
   ),
+  '/mint-next/revenu': RouteMeta(
+    path: '/mint-next/revenu',
+    category: RouteCategory.flow,
+    owner: RouteOwner.system,
+    requiresAuth: false,
+    killFlag: 'enableMintNextRevenu',
+    description: 'Canonical income fact lifecycle (Lego 3)',
+  ),
   '/mint-next/housing': RouteMeta(
     path: '/mint-next/housing',
     category: RouteCategory.flow,

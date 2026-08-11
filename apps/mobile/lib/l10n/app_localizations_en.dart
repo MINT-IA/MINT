@@ -25771,6 +25771,78 @@ class SEn extends S {
       'Saving did not complete. Your data has not changed. Try again.';
 
   @override
+  String get mintNextRevenuTitle => 'Your income';
+
+  @override
+  String get mintNextRevenuQuestion => 'How much do you receive?';
+
+  @override
+  String get mintNextRevenuHint =>
+      'Your net income, as it lands on your account.';
+
+  @override
+  String get mintNextRevenuAmountLabel => 'Amount (CHF)';
+
+  @override
+  String get mintNextRevenuAmountHint => 'For example 6\'500';
+
+  @override
+  String get mintNextRevenuPeriodMonthly => 'Per month';
+
+  @override
+  String get mintNextRevenuPeriodYearly => 'Per year';
+
+  @override
+  String get mintNextRevenuContinue => 'Continue';
+
+  @override
+  String get mintNextRevenuBack => 'Back';
+
+  @override
+  String get mintNextRevenuReviewTitle => 'MINT will remember';
+
+  @override
+  String mintNextRevenuReviewSource(String date) {
+    return 'Declared by you on $date';
+  }
+
+  @override
+  String get mintNextRevenuConfirm => 'Save';
+
+  @override
+  String get mintNextRevenuSavedTitle => 'Income saved';
+
+  @override
+  String get mintNextRevenuEdit => 'Edit';
+
+  @override
+  String get mintNextRevenuDelete => 'Delete';
+
+  @override
+  String get mintNextRevenuDeleteTitle => 'Delete your income?';
+
+  @override
+  String get mintNextRevenuDeleteBody =>
+      'MINT will forget your income. Your other information does not change.';
+
+  @override
+  String get mintNextRevenuDeleteCancel => 'Keep';
+
+  @override
+  String get mintNextRevenuDeleteConfirm => 'Delete';
+
+  @override
+  String get mintNextRevenuSafeExit => 'Leave without saving';
+
+  @override
+  String get mintNextRevenuErrorMissing =>
+      'Enter your amount and choose a period to continue.';
+
+  @override
+  String get mintNextRevenuSaveFailed =>
+      'Saving did not complete. Your data has not changed. Try again.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Residence: $commune ($canton)';
   }

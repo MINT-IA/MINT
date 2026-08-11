@@ -25906,6 +25906,78 @@ class SEs extends S {
       'No se pudo guardar. Tus datos no han cambiado. Inténtalo de nuevo.';
 
   @override
+  String get mintNextRevenuTitle => 'Tus ingresos';
+
+  @override
+  String get mintNextRevenuQuestion => '¿Cuánto recibes?';
+
+  @override
+  String get mintNextRevenuHint =>
+      'Tus ingresos netos, tal como llegan a tu cuenta.';
+
+  @override
+  String get mintNextRevenuAmountLabel => 'Importe (CHF)';
+
+  @override
+  String get mintNextRevenuAmountHint => 'Por ejemplo 6\'500';
+
+  @override
+  String get mintNextRevenuPeriodMonthly => 'Al mes';
+
+  @override
+  String get mintNextRevenuPeriodYearly => 'Al año';
+
+  @override
+  String get mintNextRevenuContinue => 'Continuar';
+
+  @override
+  String get mintNextRevenuBack => 'Atrás';
+
+  @override
+  String get mintNextRevenuReviewTitle => 'MINT va a recordar';
+
+  @override
+  String mintNextRevenuReviewSource(String date) {
+    return 'Declarado por ti el $date';
+  }
+
+  @override
+  String get mintNextRevenuConfirm => 'Guardar';
+
+  @override
+  String get mintNextRevenuSavedTitle => 'Ingresos guardados';
+
+  @override
+  String get mintNextRevenuEdit => 'Modificar';
+
+  @override
+  String get mintNextRevenuDelete => 'Eliminar';
+
+  @override
+  String get mintNextRevenuDeleteTitle => '¿Eliminar tus ingresos?';
+
+  @override
+  String get mintNextRevenuDeleteBody =>
+      'MINT olvidará tus ingresos. Tus demás datos no cambian.';
+
+  @override
+  String get mintNextRevenuDeleteCancel => 'Conservar';
+
+  @override
+  String get mintNextRevenuDeleteConfirm => 'Eliminar';
+
+  @override
+  String get mintNextRevenuSafeExit => 'Salir sin guardar';
+
+  @override
+  String get mintNextRevenuErrorMissing =>
+      'Indica tu importe y elige un período para continuar.';
+
+  @override
+  String get mintNextRevenuSaveFailed =>
+      'No se pudo guardar. Tus datos no han cambiado. Inténtalo de nuevo.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }
