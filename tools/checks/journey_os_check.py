@@ -54,6 +54,8 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
     "apps/mobile/test/app_router_observers_test.dart",
+    "tools/runtime/mint_next_versements_3a_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_versements_3a_lifecycle.yaml",
     "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart",
     "apps/mobile/test/screens/mon_argent_versements_3a_fact_test.dart",
     "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
