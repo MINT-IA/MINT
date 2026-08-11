@@ -74,6 +74,9 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     # Lego 3 revenu (2026-08-11) — kill-flag enableMintNextRevenu OFF,
     # aucun intent coach dans cette tranche.
     "/mint-next/revenu",
+    # Lego 4 affiliation LPP (2026-08-11) — kill-flag
+    # enableMintNextLppAffiliation OFF, aucun intent coach dans cette tranche.
+    "/mint-next/lpp-affiliation",
     # FATCA hard-gate destination — non-calibrated archetypes land here.
     # Not chat-routable: the coach is BLOCKED for these users (the whole
     # point of the gate), so the LLM has no chat surface to suggest /waitlist.

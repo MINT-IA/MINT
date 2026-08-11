@@ -45239,6 +45239,138 @@ abstract class S {
   /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
   String get mintNextRevenuSaveFailed;
 
+  /// No description provided for @mintNextLppAffiliationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta caisse de pension'**
+  String get mintNextLppAffiliationTitle;
+
+  /// No description provided for @mintNextLppAffiliationQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Es-tu affilié·e à une caisse de pension LPP ?'**
+  String get mintNextLppAffiliationQuestion;
+
+  /// No description provided for @mintNextLppAffiliationHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Être affilié·e, c\'est cotiser aujourd\'hui au 2e pilier via ton employeur. Avoir un certificat ou un avoir LPP d\'un ancien emploi ne suffit pas.'**
+  String get mintNextLppAffiliationHint;
+
+  /// No description provided for @mintNextLppAffiliationYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, je cotise actuellement'**
+  String get mintNextLppAffiliationYes;
+
+  /// No description provided for @mintNextLppAffiliationNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, je ne cotise pas actuellement'**
+  String get mintNextLppAffiliationNo;
+
+  /// No description provided for @mintNextLppAffiliationStatusYes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Affilié·e à une caisse de pension'**
+  String get mintNextLppAffiliationStatusYes;
+
+  /// No description provided for @mintNextLppAffiliationStatusNo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas affilié·e actuellement'**
+  String get mintNextLppAffiliationStatusNo;
+
+  /// No description provided for @mintNextLppAffiliationContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get mintNextLppAffiliationContinue;
+
+  /// No description provided for @mintNextLppAffiliationBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get mintNextLppAffiliationBack;
+
+  /// No description provided for @mintNextLppAffiliationReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT va retenir'**
+  String get mintNextLppAffiliationReviewTitle;
+
+  /// No description provided for @mintNextLppAffiliationReviewSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré par toi, le {date}'**
+  String mintNextLppAffiliationReviewSource(String date);
+
+  /// No description provided for @mintNextLppAffiliationConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get mintNextLppAffiliationConfirm;
+
+  /// No description provided for @mintNextLppAffiliationSavedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Caisse de pension enregistrée'**
+  String get mintNextLppAffiliationSavedTitle;
+
+  /// No description provided for @mintNextLppAffiliationEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get mintNextLppAffiliationEdit;
+
+  /// No description provided for @mintNextLppAffiliationDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextLppAffiliationDelete;
+
+  /// No description provided for @mintNextLppAffiliationDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ta réponse ?'**
+  String get mintNextLppAffiliationDeleteTitle;
+
+  /// No description provided for @mintNextLppAffiliationDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT oubliera ta réponse : ton affiliation redeviendra inconnue. Tes autres informations ne changent pas.'**
+  String get mintNextLppAffiliationDeleteBody;
+
+  /// No description provided for @mintNextLppAffiliationDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder'**
+  String get mintNextLppAffiliationDeleteCancel;
+
+  /// No description provided for @mintNextLppAffiliationDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextLppAffiliationDeleteConfirm;
+
+  /// No description provided for @mintNextLppAffiliationSafeExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans enregistrer'**
+  String get mintNextLppAffiliationSafeExit;
+
+  /// No description provided for @mintNextLppAffiliationErrorMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis Oui ou Non pour continuer.'**
+  String get mintNextLppAffiliationErrorMissing;
+
+  /// No description provided for @mintNextLppAffiliationSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
+  String get mintNextLppAffiliationSaveFailed;
+
   /// No description provided for @mintNext3aDomicileKnown.
   ///
   /// In fr, this message translates to:

@@ -25991,6 +25991,80 @@ class SPt extends S {
       'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
 
   @override
+  String get mintNextLppAffiliationTitle => 'A tua caixa de pensões';
+
+  @override
+  String get mintNextLppAffiliationQuestion =>
+      'Estás filiado·a numa caixa de pensões LPP?';
+
+  @override
+  String get mintNextLppAffiliationHint =>
+      'Estar filiado·a significa contribuir hoje para o 2.º pilar através do teu empregador. Ter um certificado ou um haver LPP de um emprego anterior não chega.';
+
+  @override
+  String get mintNextLppAffiliationYes => 'Sim, contribuo atualmente';
+
+  @override
+  String get mintNextLppAffiliationNo => 'Não, não contribuo atualmente';
+
+  @override
+  String get mintNextLppAffiliationStatusYes =>
+      'Filiado·a numa caixa de pensões';
+
+  @override
+  String get mintNextLppAffiliationStatusNo => 'Atualmente não filiado·a';
+
+  @override
+  String get mintNextLppAffiliationContinue => 'Continuar';
+
+  @override
+  String get mintNextLppAffiliationBack => 'Voltar';
+
+  @override
+  String get mintNextLppAffiliationReviewTitle => 'A MINT vai lembrar-se';
+
+  @override
+  String mintNextLppAffiliationReviewSource(String date) {
+    return 'Declarado por ti a $date';
+  }
+
+  @override
+  String get mintNextLppAffiliationConfirm => 'Guardar';
+
+  @override
+  String get mintNextLppAffiliationSavedTitle => 'Caixa de pensões guardada';
+
+  @override
+  String get mintNextLppAffiliationEdit => 'Alterar';
+
+  @override
+  String get mintNextLppAffiliationDelete => 'Apagar';
+
+  @override
+  String get mintNextLppAffiliationDeleteTitle => 'Apagar a tua resposta?';
+
+  @override
+  String get mintNextLppAffiliationDeleteBody =>
+      'A MINT vai esquecer a tua resposta: a tua filiação volta a ser desconhecida. Os teus outros dados não mudam.';
+
+  @override
+  String get mintNextLppAffiliationDeleteCancel => 'Manter';
+
+  @override
+  String get mintNextLppAffiliationDeleteConfirm => 'Apagar';
+
+  @override
+  String get mintNextLppAffiliationSafeExit => 'Sair sem guardar';
+
+  @override
+  String get mintNextLppAffiliationErrorMissing =>
+      'Escolhe Sim ou Não para continuar.';
+
+  @override
+  String get mintNextLppAffiliationSaveFailed =>
+      'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicílio: $commune ($canton)';
   }

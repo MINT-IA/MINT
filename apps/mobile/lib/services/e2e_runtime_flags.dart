@@ -60,6 +60,9 @@ class E2eRuntimeFlags {
   @visibleForTesting
   static bool? mintNextRevenuOverride;
 
+  @visibleForTesting
+  static bool? mintNextLppAffiliationOverride;
+
   static bool get proofAnchors {
     if (kReleaseMode) return false;
     return proofAnchorsOverride ??
@@ -166,6 +169,15 @@ class E2eRuntimeFlags {
         );
   }
 
+  static bool get mintNextLppAffiliation {
+    if (kReleaseMode) return false;
+    return mintNextLppAffiliationOverride ??
+        const bool.fromEnvironment(
+          'MINT_E2E_MINT_NEXT_LPP_AFFILIATION',
+          defaultValue: false,
+        );
+  }
+
   @visibleForTesting
   static void resetForTest() {
     proofAnchorsOverride = null;
@@ -180,5 +192,6 @@ class E2eRuntimeFlags {
     mintNextDomicileOverride = null;
     mintNextEtatCivilOverride = null;
     mintNextRevenuOverride = null;
+    mintNextLppAffiliationOverride = null;
   }
 }
