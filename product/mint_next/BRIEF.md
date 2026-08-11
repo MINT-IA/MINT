@@ -215,6 +215,28 @@ du cycle doivent être sur dev avant d'y câbler un nouveau fait). Les autres
 faits (état civil, revenu, versements 3a — le logement étant déjà fait)
 suivent **un ensemble par Lego**.
 
+**Lego 2 — LIVRÉ (2026-08-11, PR #1224)** : état civil, premier fait 100 %
+scellé (la valeur EST le fait, tombstone dominant l'alias legacy), 6 cartes
+sans présélection, consommateur fiscal 3a v3 (imposition commune mariage +
+partenariat enregistré vs séparée — 2 parseurs legacy corrigés qui
+assimilaient le partenariat au concubinage), writers partagés routés par la
+transaction canonique. Gate 5/5, reçu runtime 37c707aec à portée explicite.
+Prochains faits candidats (un par Lego, cadrage Codex requis) : revenu,
+versements 3a.
+
+## 5bis. Pistes produit (veille, ne sautent pas la file des Legos)
+
+- **Perception vs réalité** (money dysmorphia : 43 % des Gen Z/millennials se
+  sentent « en retard » malgré des situations objectivement saines — Credit
+  Karma 2024) : candidat d'axe pour un futur éclairage « où j'en suis
+  vraiment » — MINT montre l'écart entre ressenti et chiffres, sans jugement.
+  S'appuie sur les faits du jumeau, donc après les Legos de faits.
+- **Phrase loud-budgeting partageable** (loud budgeting : ~42 % des Gen Z
+  assument de dire non pour raisons budgétaires) : une future carte
+  « décision » pourrait produire une phrase sobre et partageable
+  (« Ce mois-ci, je choisis X plutôt que Y ») — jamais de montant exposé par
+  défaut, contrat de données inchangé.
+
 ## 6bis. Journal des cadrages
 
 | Date | Cadrage | Verdict |
@@ -227,6 +249,7 @@ suivent **un ensemble par Lego**.
 |---|---|---|---|
 | 2026-08-10/11 | Atterrissage fondation (PR A #1217, PR B #1218, PR C #1219) | A : REJET→ACCEPT P1=0 · B : K-PARTIEL + ACCEPT · C : ACCEPT 0 finding | MERGÉ sur dev, flag OFF |
 | 2026-08-11 | Lego 1 — domicile fiscal (#1221 + #1222) | LOOP: GO · REJET 3P1→ACCEPT P1=0 · diagnostic runtime Codex | PROMU 5/5 — reçu runtime a28085268750, flag OFF |
+| 2026-08-11 | Lego 2 — état civil (#1224) | LOOP: GO (cadrage Q0-Q5) · REJET 4P1 (3 corrigés, 1 réfuté sur pièces) → ACCEPT · PROMOTION REJET 2P1 → ACCEPT P1=0 | PROMU 5/5 — reçu runtime 37c707aec à portée explicite (proof_scope), flag OFF |
 
 Note budget (honnêteté) : le loop « doctrine + cadrage » annoncé ~150k tokens
 a très largement dépassé son budget — la réconciliation des gates dev jamais
@@ -236,6 +259,15 @@ budgéter une phase de réconciliation CI explicite.
 Lego 1 : le cap 80k a aussi été dépassé — le gate runtime (11 itérations de
 harnais sim, diagnostic Codex) coûte cher la première fois ; le harnais est
 maintenant réutilisable, les prochains faits l'amortissent.
+Lego 2 : cap 60k dépassé ~3× — le PREMIER fait 100 % scellé a révélé 5
+verrous de harnais successifs (Keychain sim flaky sur app re-signée, stash
+non persistant, purge en boucle à chaque boot, session perdue → portail
+d'accueil, gel des tests widget par path_provider), chacun prouvé à la
+console avant correction. Acquis durables : stash e2e persistant +
+session stashée + purges tolérantes -34018 + capture console permanente
+dans le runner — les prochains faits scellés (revenu, 3a) héritent de
+tout. Leçon : un fait scellé de bout en bout ≠ un fait wizard ; budgéter
+le premier de chaque catégorie comme une phase d'infrastructure.
 
 ## 6. Journal des Legos
 
