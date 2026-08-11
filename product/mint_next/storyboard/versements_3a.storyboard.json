@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "versements_3a_lego5",
+    "title": "Dire ce que j'ai versé au 3a — versement par versement, année par année",
+    "promise": "Les versements 3a traversent le cycle canonique par le chemin scellé : une LISTE d'entrées atomiques (jamais un total écrasable), chaque versement corrigeable et supprimable individuellement, l'année fiscale pinnée explicitement, le total annuel dérivé — et la préparation 3a transporte enfin total + plafond symbolique, la marge restant au moteur attesté. Un dépassement de plafond est enregistré tel quel, signalé, jamais bloqué ni tronqué."
+  },
+  "generated_at": "2026-08-11",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-08-lifelong-financial-twin-and-plans.md",
+    "cadrage": "verdict Codex LOOP: GO (Lego 5, 2026-08-11) — liste de versements individuels dans l'enregistrement scellé unique, agrégat dérivé jamais canonique, invalidation par année fiscale, marge = sortie du moteur attesté jamais matérialisée ici"
+  },
+  "semantic_contract": "Le fait capture chaque VERSEMENT 3a déclaré : id stable opaque, amount_cents (int exact), credited_at (date de crédit effective — jamais présumée égale à la date de saisie), tax_year EXPLICITEMENT pinnée (depuis 2026 un rachat peut viser une année antérieure : la date de crédit ne détermine plus seule l'année fiscale), account_ref opaque optionnel (multi-comptes — additionner toutes les entrées, jamais un plafond par compte). total_verse_annual_cents est une VUE dérivée par agrégation. La soustraction plafond − total (marge CHF) est une sortie du moteur attesté : NoAttestedEngine ne matérialise ni plafond CHF, ni marge, ni dépassement.",
+  "classification_decision": "Clés possédées q_versements_3a_fact_{entries,asserted_at,source,schema_version,needs_confirmation} — entries = JSON de la liste ; toutes SENSIBLES, bundle commis atomiquement par l'enregistrement canonique scellé (pattern LPP, sans projection legacy). Correction/suppression d'UNE entrée = nouveau commit canonique de la liste complète (l'enregistrement unique est la transaction).",
+  "known_risks_from_cadrage": [
+    "année civile ≠ année fiscale (rachats dès 2026) — tax_year pinnée par entrée, jamais dérivée silencieusement de credited_at",
+    "multi-comptes : additionner toutes les entrées d'une année ; jamais appliquer un plafond par compte",
+    "dépassement du plafond : enregistrer la vérité puis signaler — jamais bloquer ni tronquer une saisie vraie",
+    "date déclarée ≠ preuve bancaire : source = user_declaration, confirmation explicite",
+    "IDs stables : une correction ne devient jamais suppression + doublon",
+    "rachats rétroactifs : le champ tax_year les porte déjà ; leur éligibilité fiscale est HORS de ce Lego"
+  ],
+  "beats": [
+    {
+      "id": "collect_entry",
+      "story": "J'enregistre UN versement : montant + date de crédit — une seule décision factuelle, l'année fiscale affichée et modifiable (pinnée, par défaut celle de la date de crédit). Rien n'est enregistré avant confirmation explicite.",
+      "code": "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
+      "tests": [
+        "collect shows amount and credit date as one factual decision and nothing persists before confirm",
+        "tax year defaults from credit date but stays explicitly pinned and editable",
+        "safe exit before confirmation writes nothing",
+        "missing amount or date blocks with a visible error"
+      ]
+    },
+    {
+      "id": "confirm_persist_sealed",
+      "story": "Je confirme : l'entrée rejoint la liste scellée par la transaction coordonnée — la liste complète est commise atomiquement, jamais un état à moitié écrit. Chaque entrée garde un id stable.",
+      "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveVersement3a",
+      "tests": [
+        "confirm appends the entry to the sealed list atomically and a partial failure leaves no half-written list",
+        "each entry carries a stable opaque id amount date and pinned tax year"
+      ]
+    },
+    {
+      "id": "rehydrate",
+      "story": "Je relance l'app : tous mes versements sont là, restaurés depuis le scellement.",
+      "code": "apps/mobile/lib/services/secure_wizard_store.dart#canonicalizeVersements3aAnswers",
+      "tests": [
+        "versements list rehydrates from sealed storage after provider reload"
+      ]
+    },
+    {
+      "id": "review_list",
+      "story": "Dans « Ma situation », je vois mes versements de l'année avec leur total dérivé — et je peux corriger ou supprimer UNE entrée précise. Corriger un montant n'est jamais supprimer + recréer : l'id reste.",
+      "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
+      "tests": [
+        "mon argent shows the annual entries with derived total and provenance",
+        "editing one entry keeps its id and the others untouched",
+        "deleting one entry removes only that entry and the total re-derives"
+      ]
+    },
+    {
+      "id": "reuse_fiscal",
+      "story": "La préparation 3a transporte, par année fiscale : le total versé (agrégat de faits), la révision du bucket annuel, et la détermination symbolique du plafond. La marge (plafond − total) n'apparaît NULLE PART : c'est une sortie du moteur attesté, absent. Un dépassement n'est ni bloqué ni tronqué.",
+      "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aVersementsContext",
+      "tests": [
+        "fiscal context v6 reports total verse annual cents per pinned tax year with bucket revision",
+        "fiscal context never materializes a marge nor a CHF plafond",
+        "entries above any plafond are aggregated truthfully never truncated"
+      ]
+    },
+    {
+      "id": "invalidate_per_year",
+      "story": "Je corrige un versement : seule l'année fiscale concernée se périme (révision du bucket). Si je change la date ou l'année d'un versement, l'ancienne ET la nouvelle année se périment. Un versement 2025 corrigé ne périme jamais le contexte 2026.",
+      "code": "révision par bucket annuel = max(assertedAt) des entrées de l'année",
+      "tests": [
+        "correcting an entry changes only its tax year bucket revision",
+        "moving an entry across tax years invalidates both the old and the new year",
+        "a 2025 correction never stales the 2026 context"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "marge CHF, plafond CHF, dépassement calculé (moteur attesté, absent)",
+    "éligibilité fiscale des rachats rétroactifs (le champ tax_year les porte, rien de plus)",
+    "établissement bancaire / import de justificatifs (account_ref opaque seulement)",
+    "versements du conjoint (fait distinct)"
+  ],
+  "kill_flag": "enableMintNextVersements3a",
+  "gate": "ADR 2026-08-10 — 5 conditions ; harnais runtime hérité (clone LPP + saisie montant/date, scénario correction d'une entrée parmi plusieurs)"
+}

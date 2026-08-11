@@ -245,6 +245,7 @@ versements 3a.
 | 2026-08-11 | n°2 — Lego 2 état civil Q0-Q5 (chemin scellé, partenariat≠concubinage) | LOOP: GO |
 | 2026-08-11 | n°3 — Lego 3 revenu Q0-Q5 : clés possédées + projection legacy (pas de migration des writers), montant+période, contexte fiscal 3a v4 fail-closed LPP, cap 100k checkpoint 70k | LOOP: GO |
 | 2026-08-11 | n°4 — ordre tranché : affiliation LPP d'abord (Lego 4 court, tri-état jamais absence=false, fiscal v5 symbolique sans CHF), versements 3a en Lego 5 ; cap 55k checkpoint 35k | LOOP: GO AFFILIATION LPP |
+| 2026-08-11 | n°5 — versements 3a : LISTE d'entrées atomiques (id stable, montant, date de crédit, année fiscale PINNÉE — rachats 2026+), agrégat dérivé, fiscal v6 (total + révision par bucket annuel, la marge reste au moteur attesté), invalidation par année, dépassement jamais bloqué | LOOP: GO |
 
 ## 6ter. Journal des Legos
 
