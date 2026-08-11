@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
@@ -90,6 +91,69 @@ class CoachProfileProvider extends ChangeNotifier {
 
   MintNextRevenuFact? get revenuFact =>
       MintNextRevenuFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextLppAffiliationFact? get lppAffiliationFact =>
+      MintNextLppAffiliationFact.fromWizardAnswers(_lastAnswers);
+
+  /// Persiste le fait affiliation LPP par la transaction coordonnée scellée.
+  /// Aucune projection legacy. Local uniquement (ADR 2026-08-08).
+  Future<void> saveLppAffiliationFact(MintNextLppAffiliationFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalLppAffiliation(fact)) {
+            throw StateError('Canonical LPP affiliation persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'LPP affiliation cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime le fait par tombstone canonique : l'affiliation redevient
+  /// INCONNUE — jamais « non ». Les réponses non liées survivent.
+  Future<void> deleteLppAffiliationFact() =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalLppAffiliationDeleted()) {
+            throw StateError('Canonical LPP affiliation deletion failed');
+          }
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere((key, _) =>
+                MintNextLppAffiliationFact.wizardKeys.contains(key));
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'LPP affiliation cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
 
   /// Persiste le fait revenu par la transaction coordonnée scellée (mêmes
   /// verrous globaux) : l'enregistrement canonique unique commet fait +

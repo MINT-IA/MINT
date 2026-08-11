@@ -86,6 +86,8 @@ class ReportPersistenceService {
     answers = await SecureWizardStore.canonicalizeHousingAnswers(answers);
     answers = await SecureWizardStore.canonicalizeCivilStatusAnswers(answers);
     answers = await SecureWizardStore.canonicalizeRevenuAnswers(answers);
+    answers =
+        await SecureWizardStore.canonicalizeLppAffiliationAnswers(answers);
     final sealed = await SecureWizardStore.sealSensitiveKeys(answers);
     if (!sealed.allSensitiveSealed) {
       await _scrubLegacyPlainSensitiveAnswers(prefs);
@@ -134,16 +136,20 @@ class ReportPersistenceService {
     final jsonString = prefs.getString(_wizardKey);
 
     if (jsonString == null) {
-      return SecureWizardStore.canonicalizeRevenuAnswers(
-          await SecureWizardStore.canonicalizeCivilStatusAnswers(
-              await SecureWizardStore.canonicalizeHousingAnswers({})));
+      return SecureWizardStore.canonicalizeLppAffiliationAnswers(
+          await SecureWizardStore.canonicalizeRevenuAnswers(
+              await SecureWizardStore.canonicalizeCivilStatusAnswers(
+                  await SecureWizardStore.canonicalizeHousingAnswers({}))));
     }
 
     try {
-      final rawAnswers = await SecureWizardStore.canonicalizeRevenuAnswers(
-        await SecureWizardStore.canonicalizeCivilStatusAnswers(
-          await SecureWizardStore.canonicalizeHousingAnswers(
-            Map<String, dynamic>.from(json.decode(jsonString)),
+      final rawAnswers =
+          await SecureWizardStore.canonicalizeLppAffiliationAnswers(
+        await SecureWizardStore.canonicalizeRevenuAnswers(
+          await SecureWizardStore.canonicalizeCivilStatusAnswers(
+            await SecureWizardStore.canonicalizeHousingAnswers(
+              Map<String, dynamic>.from(json.decode(jsonString)),
+            ),
           ),
         ),
       );
