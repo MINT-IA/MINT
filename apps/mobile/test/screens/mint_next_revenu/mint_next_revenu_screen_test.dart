@@ -205,6 +205,23 @@ void main() {
     expect(provider.revenuFact, isNull);
   });
 
+  test('amount parsing is lexical, exact and never silently corrected', () {
+    expect(MintNextRevenuScreen.parseAmountCents("6'500.50"), 650050);
+    expect(MintNextRevenuScreen.parseAmountCents('6,5'), 650);
+    expect(MintNextRevenuScreen.parseAmountCents('6500'), 650000);
+    expect(MintNextRevenuScreen.parseAmountCents(''), isNull);
+    expect(MintNextRevenuScreen.parseAmountCents('0'), isNull);
+    expect(MintNextRevenuScreen.parseAmountCents('0.004'), isNull,
+        reason: 'more than two decimals is invalid, never rounded');
+    expect(MintNextRevenuScreen.parseAmountCents('1e9'), isNull,
+        reason: 'scientific notation is rejected, never corrected to 19 CHF');
+    expect(MintNextRevenuScreen.parseAmountCents('-500'), isNull);
+    expect(MintNextRevenuScreen.parseAmountCents('999999999.99'), 99999999999,
+        reason: 'the explicit ceiling is exact in integer cents');
+    expect(MintNextRevenuScreen.parseAmountCents('1000000000'), isNull,
+        reason: 'above the ceiling is invalid — far below 2^53, always exact');
+  });
+
   testWidgets(
       'a persistence failure shows the honest banner and never claims saved',
       (tester) async {

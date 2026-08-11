@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +20,42 @@ class MintNextRevenuScreen extends StatefulWidget {
   const MintNextRevenuScreen({super.key, this.now});
 
   final DateTime Function()? now;
+
+  /// Plafond explicite : 999'999'999.99 CHF — largement au-dessus de tout
+  /// revenu net encaissé plausible, très en dessous de 2^53 (l'int reste
+  /// exact de bout en bout).
+  static const maxAmountCents = 99999999999;
+
+  /// Reconversion LEXICALE centimes → texte éditable — jamais de double
+  /// (review Codex Lego 3 P1 : perte de précision).
+  static String editableAmount(int amountCents) {
+    final francs = amountCents ~/ 100;
+    final cents = amountCents % 100;
+    return cents == 0
+        ? '$francs'
+        : "$francs.${cents.toString().padLeft(2, '0')}";
+  }
+
+  /// CHF saisi → centimes, parsing LEXICAL strict : chiffres + au plus deux
+  /// décimales (point ou virgule), apostrophes/espaces de groupage tolérés.
+  /// Jamais de double (exactitude), jamais de correction silencieuse
+  /// (« 1e9 » est invalide, pas 19 CHF) ; null si invalide, non strictement
+  /// positif ou au-delà du plafond.
+  static int? parseAmountCents(String raw) {
+    final cleaned =
+        raw.trim().replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
+    if (cleaned.isEmpty) return null;
+    final match = RegExp(r'^(\d+)(?:\.(\d{1,2}))?$').firstMatch(cleaned);
+    if (match == null) return null;
+    final francsDigits = match.group(1)!;
+    if (francsDigits.length > 9) return null;
+    final francs = int.parse(francsDigits);
+    final decimals = match.group(2);
+    final cents = decimals == null ? 0 : int.parse(decimals.padRight(2, '0'));
+    final total = francs * 100 + cents;
+    if (total <= 0 || total > maxAmountCents) return null;
+    return total;
+  }
 
   @override
   State<MintNextRevenuScreen> createState() => _MintNextRevenuScreenState();
@@ -66,7 +101,8 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
     if (existing != null) {
       _step = _Step.saved;
       _period = existing.period;
-      _amountController.text = _editableAmount(existing.amountCents);
+      _amountController.text =
+          MintNextRevenuScreen.editableAmount(existing.amountCents);
     }
   }
 
@@ -78,22 +114,6 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
 
   DateTime _now() => (widget.now ?? DateTime.now)();
 
-  static String _editableAmount(int amountCents) => amountCents % 100 == 0
-      ? (amountCents ~/ 100).toString()
-      : (amountCents / 100).toStringAsFixed(2);
-
-  /// CHF saisi → centimes. Accepte « 6500 », « 6500.50 », « 6'500 »,
-  /// virgule ou point ; null si invalide ou non strictement positif.
-  static int? parseAmountCents(String raw) {
-    final cleaned =
-        raw.trim().replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
-    if (cleaned.isEmpty) return null;
-    final value = double.tryParse(cleaned);
-    if (value == null || !value.isFinite || value <= 0) return null;
-    final cents = (value * 100).round();
-    return cents > 0 ? cents : null;
-  }
-
   MintNextRevenuFact _draftFact(int amountCents) => MintNextRevenuFact(
         amountCents: amountCents,
         period: _period!,
@@ -104,7 +124,8 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
       );
 
   Future<void> _confirmSave() async {
-    final amountCents = parseAmountCents(_amountController.text);
+    final amountCents =
+        MintNextRevenuScreen.parseAmountCents(_amountController.text);
     if (amountCents == null || _period == null) {
       setState(() {
         _validationError = true;
@@ -312,9 +333,9 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
                 controller: _amountController,
                 keyboardType:
                     const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r"[\d.,' ]")),
-                ],
+                // Pas de formatter correcteur : il transformait « 1e9 » en
+                // « 19 » silencieusement — le parsing strict rejette et
+                // l'erreur reste visible (review Codex Lego 3).
                 textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
                   labelText: l10n.mintNextRevenuAmountLabel,
@@ -346,7 +367,9 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
                 onPressed: _busy
                     ? null
                     : () {
-                        if (parseAmountCents(_amountController.text) == null ||
+                        if (MintNextRevenuScreen.parseAmountCents(
+                                    _amountController.text) ==
+                                null ||
                             _period == null) {
                           setState(() => _validationError = true);
                           return;
@@ -361,7 +384,12 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
       );
 
   Widget _review(S l10n) {
-    final amountCents = parseAmountCents(_amountController.text);
+    final amountCents =
+        MintNextRevenuScreen.parseAmountCents(_amountController.text);
+    if (amountCents == null || _period == null) {
+      // Invariant rompu — retour à la collecte plutôt qu'un faux « 0 CHF ».
+      return _collect(l10n);
+    }
     return Semantics(
       identifier: 'node:revenu.review',
       container: true,
@@ -387,7 +415,7 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${mintNextRevenuChf(amountCents ?? 0)} · '
+                  '${mintNextRevenuChf(amountCents)} · '
                   '${mintNextRevenuPeriodLabel(l10n, _period!)}',
                   style: MintTextStyles.headlineSmall(
                       color: MintColors.textPrimary),
@@ -485,8 +513,8 @@ class _MintNextRevenuScreenState extends State<MintNextRevenuScreen> {
                   ? null
                   : () => setState(() {
                         _period = fact.period;
-                        _amountController.text =
-                            _editableAmount(fact.amountCents);
+                        _amountController.text = MintNextRevenuScreen
+                            .editableAmount(fact.amountCents);
                         _step = _Step.collect;
                       }),
               child: Text(l10n.mintNextRevenuEdit),
