@@ -46,18 +46,20 @@ tags:
 - hideKeyboard:
     optional: true
 # Le tap hors champ (titre) ferme le clavier datetime — dismiss déterministe.
-- tapOn: "Enregistrer ce versement"
-- waitForAnimationToEnd:
-    timeout: 3000
-- scrollUntilVisible:
-    element:
-      id: "action:versements_3a.continue"
-    direction: DOWN
+# hideKeyboard peut appuyer sur « OK » et soumettre le champ (done) —
+# l'app avance alors d'elle-même à review. Tolérer les deux chemins.
 - runFlow:
     when:
       notVisible:
         id: "node:versements_3a.review"
     commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
       - tapOn:
           id: "action:versements_3a.continue"
 - extendedWaitUntil:
@@ -87,18 +89,20 @@ tags:
 - inputText: "01.06.2026"
 - hideKeyboard:
     optional: true
-- tapOn: "Enregistrer ce versement"
-- waitForAnimationToEnd:
-    timeout: 3000
-- scrollUntilVisible:
-    element:
-      id: "action:versements_3a.continue"
-    direction: DOWN
+# hideKeyboard peut appuyer sur « OK » et soumettre le champ (done) —
+# l'app avance alors d'elle-même à review. Tolérer les deux chemins.
 - runFlow:
     when:
       notVisible:
         id: "node:versements_3a.review"
     commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
       - tapOn:
           id: "action:versements_3a.continue"
 - extendedWaitUntil:
@@ -164,18 +168,20 @@ tags:
 - inputText: "4000"
 - hideKeyboard:
     optional: true
-- tapOn: "Enregistrer ce versement"
-- waitForAnimationToEnd:
-    timeout: 3000
-- scrollUntilVisible:
-    element:
-      id: "action:versements_3a.continue"
-    direction: DOWN
+# hideKeyboard peut appuyer sur « OK » et soumettre le champ (done) —
+# l'app avance alors d'elle-même à review. Tolérer les deux chemins.
 - runFlow:
     when:
       notVisible:
         id: "node:versements_3a.review"
     commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
       - tapOn:
           id: "action:versements_3a.continue"
 - extendedWaitUntil:
