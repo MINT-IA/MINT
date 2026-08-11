@@ -162,5 +162,15 @@ void main() {
     final garbage = Map<String, dynamic>.from(valid)
       ..['q_versements_3a_fact_entries'] = 'not json';
     expect(MintNextVersements3aFact.fromWizardAnswers(garbage), isNull);
+
+    final oversized = Map<String, dynamic>.from(valid)
+      ..['q_versements_3a_fact_entries'] = '[' +
+          List.generate(
+              MintNextVersements3aFact.maxEntries + 1,
+              (i) =>
+                  '{"id":"x\$i","amount_cents":100,"credited_at":"2026-01-01T00:00:00.000Z","tax_year":2026}').join(',') +
+          ']';
+    expect(MintNextVersements3aFact.fromWizardAnswers(oversized), isNull,
+        reason: 'the bound applies at parsing too — never loaded truncated');
   });
 }

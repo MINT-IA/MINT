@@ -328,6 +328,9 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
       entries = parsed.cast<MintNextVersement3aEntry>();
       final ids = entries.map((e) => e.id).toSet();
       if (ids.length != entries.length) return null;
+      // La borne s'applique aussi au parsing : un payload scellé au-delà de
+      // la borne est corrompu par définition — jamais chargé, jamais tronqué.
+      if (entries.length > maxEntries) return null;
       final decodedRevisions = json.decode(rawRevisions);
       if (decodedRevisions is! Map) return null;
       revisions = {};
