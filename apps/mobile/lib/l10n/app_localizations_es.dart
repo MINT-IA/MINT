@@ -25757,4 +25757,81 @@ class SEs extends S {
 
   @override
   String get housingSavedDeleteConfirm => 'Borrar';
+
+  @override
+  String get mintNextDomicileTitle => 'Tu domicilio fiscal';
+
+  @override
+  String get mintNextDomicileQuestion => '¿Dónde vives?';
+
+  @override
+  String get mintNextDomicileWhy =>
+      'Tu cantón y tu comuna determinan cómo se calculan tus impuestos.';
+
+  @override
+  String get mintNextDomicileCantonLabel => 'Cantón';
+
+  @override
+  String get mintNextDomicileCommuneLabel => 'Comuna';
+
+  @override
+  String get mintNextDomicileCommuneHint => 'El nombre de tu comuna';
+
+  @override
+  String get mintNextDomicileContinue => 'Continuar';
+
+  @override
+  String get mintNextDomicileBack => 'Atrás';
+
+  @override
+  String get mintNextDomicileReviewTitle => 'MINT recordará';
+
+  @override
+  String mintNextDomicileReviewSource(String date) {
+    return 'Declarado por ti el $date';
+  }
+
+  @override
+  String get mintNextDomicileConfirm => 'Guardar';
+
+  @override
+  String get mintNextDomicileSavedTitle => 'Domicilio guardado';
+
+  @override
+  String get mintNextDomicileEdit => 'Modificar';
+
+  @override
+  String get mintNextDomicileDelete => 'Eliminar';
+
+  @override
+  String get mintNextDomicileDeleteTitle => '¿Eliminar tu domicilio?';
+
+  @override
+  String get mintNextDomicileDeleteBody =>
+      'MINT olvidará tu comuna. Tu cantón sigue en uso en tu perfil.';
+
+  @override
+  String get mintNextDomicileDeleteCancel => 'Conservar';
+
+  @override
+  String get mintNextDomicileDeleteConfirm => 'Eliminar';
+
+  @override
+  String get mintNextDomicileSafeExit => 'Salir sin guardar';
+
+  @override
+  String get mintNextDomicileErrorMissing =>
+      'Elige tu cantón e indica tu comuna para continuar.';
+
+  @override
+  String get mintNextDomicileSaveFailed =>
+      'No se pudo guardar. Tus datos no han cambiado. Inténtalo de nuevo.';
+
+  @override
+  String mintNext3aDomicileKnown(String commune, String canton) {
+    return 'Domicilio: $commune ($canton)';
+  }
+
+  @override
+  String get mintNext3aDomicileMissing => 'Domicilio: aún no indicado';
 }

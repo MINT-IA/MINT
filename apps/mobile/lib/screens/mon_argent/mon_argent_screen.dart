@@ -9,6 +9,7 @@ import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -119,6 +120,8 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final budgetProvider = context.watch<BudgetProvider>();
     final coachProfile = _watchCoachProfileProviderIfAvailable()?.profile;
     final housingFact = _watchCoachProfileProviderIfAvailable()?.housingFact;
+    final domicileFact =
+        _watchCoachProfileProviderIfAvailable()?.domicileFact;
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
@@ -210,6 +213,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         budgetConfidenceScore: budgetConfidenceScore,
                         patrimoine: patrimoine,
                         housingFact: housingFact,
+                        domicileFact: domicileFact,
                         budgetProvider: budgetProvider,
                         budgetLoading: _budgetLoading,
                         budgetError: _budgetError,
@@ -227,6 +231,12 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                           }
                         },
                         onHousingDelete: _deleteHousingFact,
+                        onDomicileEdit: () {
+                          if (FeatureFlags.enableMintNextDomicile) {
+                            context.push('/mint-next/domicile');
+                          }
+                        },
+                        onDomicileDelete: _deleteDomicileFact,
                       ),
 
                       // Coach whisper (deterministic, may be null = silence)
@@ -289,6 +299,40 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _deleteDomicileFact() async {
+    final l10n = S.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.mintNextDomicileDeleteTitle),
+        content: Text(l10n.mintNextDomicileDeleteBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.mintNextDomicileDeleteCancel),
+          ),
+          Semantics(
+            identifier: 'action:mon_argent.domicile.delete_confirm',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.mintNextDomicileDeleteConfirm),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await context.read<CoachProfileProvider>().deleteDomicileFact();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.mintNextDomicileSaveFailed)),
+      );
+    }
   }
 
   Future<void> _deleteHousingFact() async {
@@ -465,6 +509,7 @@ class _MonArgentSectionBody extends StatelessWidget {
   final double budgetConfidenceScore;
   final PatrimoineSummary patrimoine;
   final MintNextHousingFact? housingFact;
+  final MintNextDomicileFact? domicileFact;
   final BudgetProvider budgetProvider;
   final bool budgetLoading;
   final bool budgetError;
@@ -477,6 +522,8 @@ class _MonArgentSectionBody extends StatelessWidget {
   final ValueChanged<String> onPatrimoineAmountTap;
   final VoidCallback onHousingEdit;
   final Future<void> Function() onHousingDelete;
+  final VoidCallback onDomicileEdit;
+  final Future<void> Function() onDomicileDelete;
 
   const _MonArgentSectionBody({
     required this.section,
@@ -485,6 +532,7 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.budgetConfidenceScore,
     required this.patrimoine,
     required this.housingFact,
+    required this.domicileFact,
     required this.budgetProvider,
     required this.budgetLoading,
     required this.budgetError,
@@ -497,6 +545,8 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.onPatrimoineAmountTap,
     required this.onHousingEdit,
     required this.onHousingDelete,
+    required this.onDomicileEdit,
+    required this.onDomicileDelete,
   });
 
   @override
@@ -515,9 +565,12 @@ class _MonArgentSectionBody extends StatelessWidget {
             budgetPlan: budgetProvider.plan,
             patrimoine: patrimoine,
             housingFact: housingFact,
+            domicileFact: domicileFact,
             l10n: l10n,
             onHousingEdit: onHousingEdit,
             onHousingDelete: onHousingDelete,
+            onDomicileEdit: onDomicileEdit,
+            onDomicileDelete: onDomicileDelete,
           ),
         _MonArgentSection.month => BudgetSummaryCard(
             snapshot: budgetSnapshot,
@@ -557,9 +610,12 @@ class _TodaySection extends StatelessWidget {
   final BudgetPlan? budgetPlan;
   final PatrimoineSummary patrimoine;
   final MintNextHousingFact? housingFact;
+  final MintNextDomicileFact? domicileFact;
   final S l10n;
   final VoidCallback onHousingEdit;
   final Future<void> Function() onHousingDelete;
+  final VoidCallback onDomicileEdit;
+  final Future<void> Function() onDomicileDelete;
 
   const _TodaySection({
     required this.dataSpine,
@@ -569,15 +625,20 @@ class _TodaySection extends StatelessWidget {
     required this.budgetPlan,
     required this.patrimoine,
     required this.housingFact,
+    required this.domicileFact,
     required this.l10n,
     required this.onHousingEdit,
     required this.onHousingDelete,
+    required this.onDomicileEdit,
+    required this.onDomicileDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     final presentBudget = _presentBudget();
-    if (presentBudget == null && housingFact == null) {
+    if (presentBudget == null &&
+        housingFact == null &&
+        domicileFact == null) {
       return _MissingDataSurface(l10n: l10n);
     }
     return Column(
@@ -596,6 +657,15 @@ class _TodaySection extends StatelessWidget {
             l10n: l10n,
             onEdit: onHousingEdit,
             onDelete: onHousingDelete,
+          ),
+        ],
+        if (domicileFact != null) ...[
+          const SizedBox(height: MintSpacing.md),
+          _DomicileFactSurface(
+            fact: domicileFact!,
+            l10n: l10n,
+            onEdit: onDomicileEdit,
+            onDelete: onDomicileDelete,
           ),
         ],
         if (dataSpine != null) ...[
@@ -631,6 +701,74 @@ class _TodaySection extends StatelessWidget {
             stopRuleTriggered: false,
             emergencyFundMonths: 0,
           ),
+    );
+  }
+}
+
+class _DomicileFactSurface extends StatelessWidget {
+  const _DomicileFactSurface({
+    required this.fact,
+    required this.l10n,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final MintNextDomicileFact fact;
+  final S l10n;
+  final VoidCallback onEdit;
+  final Future<void> Function() onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final assertedDate = MaterialLocalizations.of(context)
+        .formatShortDate(fact.assertedAt.toLocal());
+    return Semantics(
+      key: const Key('mon_argent_domicile_fact'),
+      identifier: 'mon_argent_domicile_fact',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.mintNextDomicileSavedTitle,
+                style:
+                    MintTextStyles.titleLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.sm),
+            Text('${fact.communeName} (${fact.canton})',
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.mintNextDomicileReviewSource(assertedDate),
+              key: const Key('mon_argent_domicile_fact_provenance'),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ValueListenableBuilder<bool>(
+              valueListenable: FeatureFlags.mintNextDomicileListenable,
+              builder: (context, enabled, _) => enabled
+                  ? Semantics(
+                      identifier: 'action:mon_argent.domicile.edit',
+                      button: true,
+                      child: TextButton(
+                        onPressed: onEdit,
+                        child: Text(l10n.mintNextDomicileEdit),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Semantics(
+              identifier: 'action:mon_argent.domicile.delete',
+              button: true,
+              child: TextButton(
+                onPressed: onDelete,
+                child: Text(l10n.mintNextDomicileDelete),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

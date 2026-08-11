@@ -138,6 +138,16 @@ class FeatureFlags {
   static final ValueNotifier<bool> _mintNextHousing =
       ValueNotifier<bool>(false);
 
+  static final ValueNotifier<bool> _mintNextDomicile =
+      ValueNotifier<bool>(false);
+
+  static bool get enableMintNextDomicile => _mintNextDomicile.value;
+  static set enableMintNextDomicile(bool value) =>
+      _mintNextDomicile.value = value;
+
+  static ValueListenable<bool> get mintNextDomicileListenable =>
+      _mintNextDomicile;
+
   static bool get enableMintNextHousing => _mintNextHousing.value;
   static set enableMintNextHousing(bool value) =>
       _mintNextHousing.value = value;
@@ -271,6 +281,9 @@ class FeatureFlags {
     if (data.containsKey('enableMintNextHousing')) {
       enableMintNextHousing = data['enableMintNextHousing'] == true;
     }
+    if (data.containsKey('enableMintNextDomicile')) {
+      enableMintNextDomicile = data['enableMintNextDomicile'] == true;
+    }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
@@ -304,6 +317,7 @@ class FeatureFlags {
     final generation = ++_refreshGeneration;
     enableMintNext3aProductHandoff = false;
     enableMintNextHousing = false;
+    enableMintNextDomicile = false;
     final decisionClock = Stopwatch()..start();
     try {
       // Debug seams are ignored by compiled release builds. Production always
@@ -335,6 +349,7 @@ class FeatureFlags {
       if (generation == _refreshGeneration) {
         enableMintNext3aProductHandoff = false;
         enableMintNextHousing = false;
+        enableMintNextDomicile = false;
       }
       MintBreadcrumbs.featureFlagsRefresh(
         success: false,
@@ -344,6 +359,7 @@ class FeatureFlags {
       if (generation == _refreshGeneration) {
         enableMintNext3aProductHandoff = false;
         enableMintNextHousing = false;
+        enableMintNextDomicile = false;
       }
       // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
       // literal `failure`, NOT `error`). Error code enum only — no raw

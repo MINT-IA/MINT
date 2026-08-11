@@ -121,3 +121,8 @@ coach ne doit pas pouvoir suggérer une route invisible. À retirer de
 Flow handoff 3a MINT Next derrière kill-flag `enableMintNext3aProductHandoff`
 (OFF par défaut, fail-closed serveur). Aucun intent coach câblé dans cette
 tranche. Même sortie prévue que /mint-next/housing.
+
+## 2026-08-11 — /mint-next/domicile (Lego 1 fait domicile fiscal)
+
+Cycle canonique du fait domicile derrière kill-flag `enableMintNextDomicile`
+(OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.

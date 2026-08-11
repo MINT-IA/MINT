@@ -44836,6 +44836,144 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Supprimer'**
   String get housingSavedDeleteConfirm;
+
+  /// No description provided for @mintNextDomicileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton domicile fiscal'**
+  String get mintNextDomicileTitle;
+
+  /// No description provided for @mintNextDomicileQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où habites-tu ?'**
+  String get mintNextDomicileQuestion;
+
+  /// No description provided for @mintNextDomicileWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton et ta commune déterminent comment tes impôts sont calculés.'**
+  String get mintNextDomicileWhy;
+
+  /// No description provided for @mintNextDomicileCantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get mintNextDomicileCantonLabel;
+
+  /// No description provided for @mintNextDomicileCommuneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commune'**
+  String get mintNextDomicileCommuneLabel;
+
+  /// No description provided for @mintNextDomicileCommuneHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le nom de ta commune'**
+  String get mintNextDomicileCommuneHint;
+
+  /// No description provided for @mintNextDomicileContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get mintNextDomicileContinue;
+
+  /// No description provided for @mintNextDomicileBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get mintNextDomicileBack;
+
+  /// No description provided for @mintNextDomicileReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT va retenir'**
+  String get mintNextDomicileReviewTitle;
+
+  /// No description provided for @mintNextDomicileReviewSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré par toi, le {date}'**
+  String mintNextDomicileReviewSource(String date);
+
+  /// No description provided for @mintNextDomicileConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get mintNextDomicileConfirm;
+
+  /// No description provided for @mintNextDomicileSavedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Domicile enregistré'**
+  String get mintNextDomicileSavedTitle;
+
+  /// No description provided for @mintNextDomicileEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get mintNextDomicileEdit;
+
+  /// No description provided for @mintNextDomicileDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextDomicileDelete;
+
+  /// No description provided for @mintNextDomicileDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ton domicile ?'**
+  String get mintNextDomicileDeleteTitle;
+
+  /// No description provided for @mintNextDomicileDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT oubliera ta commune. Ton canton reste utilisé par ton profil.'**
+  String get mintNextDomicileDeleteBody;
+
+  /// No description provided for @mintNextDomicileDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder'**
+  String get mintNextDomicileDeleteCancel;
+
+  /// No description provided for @mintNextDomicileDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextDomicileDeleteConfirm;
+
+  /// No description provided for @mintNextDomicileSafeExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans enregistrer'**
+  String get mintNextDomicileSafeExit;
+
+  /// No description provided for @mintNextDomicileErrorMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ton canton et indique ta commune pour continuer.'**
+  String get mintNextDomicileErrorMissing;
+
+  /// No description provided for @mintNextDomicileSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
+  String get mintNextDomicileSaveFailed;
+
+  /// No description provided for @mintNext3aDomicileKnown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Domicile : {commune} ({canton})'**
+  String mintNext3aDomicileKnown(String commune, String canton);
+
+  /// No description provided for @mintNext3aDomicileMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Domicile : pas encore renseigné'**
+  String get mintNext3aDomicileMissing;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

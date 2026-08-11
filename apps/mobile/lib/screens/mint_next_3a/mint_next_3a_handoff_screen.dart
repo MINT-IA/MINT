@@ -6,9 +6,11 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
 import 'package:mint_mobile/services/mint_next_3a_tax_delta_engine.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -19,11 +21,20 @@ class MintNext3aHandoffScreen extends StatefulWidget {
     this.store = const MintNext3aTaskStore(),
     this.taxEngine = const NoAttestedEngine(),
     this.now,
+    this.domicileReader = readCanonicalDomicileFact,
   });
 
   final MintNext3aTaskStore store;
   final Pillar3aTaxDeltaEngine taxEngine;
   final DateTime Function()? now;
+
+  /// Reads the confirmed fiscal-domicile fact from the canonical answers.
+  /// Injected in tests; the default goes through the single canonical path.
+  final Future<MintNextDomicileFact?> Function() domicileReader;
+
+  static Future<MintNextDomicileFact?> readCanonicalDomicileFact() async =>
+      MintNextDomicileFact.fromWizardAnswers(
+          await ReportPersistenceService.loadAnswers());
 
   @override
   State<MintNext3aHandoffScreen> createState() =>
@@ -98,9 +109,18 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
       return;
     }
     final Pillar3aTaxDeltaResult taxResult;
+    final MintNextDomicileFact? domicile;
+    try {
+      domicile = await widget.domicileReader();
+    } on Object {
+      if (mounted && generation == _resolveGeneration) context.go('/home');
+      return;
+    }
+    if (!mounted || generation != _resolveGeneration) return;
     final fiscalContext = MintNext3aFiscalContext(
       taxYear: now.year,
       effectiveAt: now,
+      domicile: MintNext3aDomicileContext.fromConfirmedFact(domicile),
     );
     try {
       taxResult = await widget.taxEngine.calculate(
@@ -472,6 +492,20 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
             Semantics(
               identifier: 'disclosure:3a.task.local_only',
               child: Text(l10n.mintNext3aStorageDisclosure),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Semantics(
+              identifier: _fiscalContext?.domicileKnown == true
+                  ? 'fact:3a.domicile.known'
+                  : 'fact:3a.domicile.missing',
+              child: Text(
+                _fiscalContext?.domicile != null
+                    ? l10n.mintNext3aDomicileKnown(
+                        _fiscalContext!.domicile!.communeName,
+                        _fiscalContext!.domicile!.canton)
+                    : l10n.mintNext3aDomicileMissing,
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              ),
             ),
             const SizedBox(height: MintSpacing.md),
             if (_cleanupPending)

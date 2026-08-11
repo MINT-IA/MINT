@@ -41,7 +41,11 @@ protocole de travail.
    mi-course si besoin · review finale du diff. Rôles alternables (l'un code,
    l'autre audite — jamais d'auto-notation). Les sessions de cadrage et de
    review sont bornées et read-only ; seul l'implémenteur désigné du Lego
-   écrit du code.
+   écrit du code. **Accès total Codex (acté par Julien 2026-08-11)** : le
+   repo entier, la mémoire persistante Claude
+   (`~/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/`),
+   Engram (`~/.engram/engram.db`), CLAUDE.md et ce BRIEF — chaque session
+   Codex reçoit ces chemins dans son prompt.
 3. **Loops co-décidés** : au lancement d'un loop, question à Codex ; à la fin,
    verdict conjoint + décision commune sur le loop suivant.
 4. **Discipline token** : un Lego = valeur visible + faits dans le jumeau,

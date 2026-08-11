@@ -471,6 +471,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     killFlag: 'enableMintNext3aProductHandoff',
     description: 'Private local 3a teach-back and owned next-action flow',
   ),
+  '/mint-next/domicile': RouteMeta(
+    path: '/mint-next/domicile',
+    category: RouteCategory.flow,
+    owner: RouteOwner.system,
+    requiresAuth: false,
+    killFlag: 'enableMintNextDomicile',
+    description: 'Canonical fiscal-domicile fact lifecycle (Lego 1)',
+  ),
   '/mint-next/housing': RouteMeta(
     path: '/mint-next/housing',
     category: RouteCategory.flow,

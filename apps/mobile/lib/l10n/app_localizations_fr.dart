@@ -25755,4 +25755,81 @@ class SFr extends S {
 
   @override
   String get housingSavedDeleteConfirm => 'Supprimer';
+
+  @override
+  String get mintNextDomicileTitle => 'Ton domicile fiscal';
+
+  @override
+  String get mintNextDomicileQuestion => 'Où habites-tu ?';
+
+  @override
+  String get mintNextDomicileWhy =>
+      'Ton canton et ta commune déterminent comment tes impôts sont calculés.';
+
+  @override
+  String get mintNextDomicileCantonLabel => 'Canton';
+
+  @override
+  String get mintNextDomicileCommuneLabel => 'Commune';
+
+  @override
+  String get mintNextDomicileCommuneHint => 'Le nom de ta commune';
+
+  @override
+  String get mintNextDomicileContinue => 'Continuer';
+
+  @override
+  String get mintNextDomicileBack => 'Retour';
+
+  @override
+  String get mintNextDomicileReviewTitle => 'MINT va retenir';
+
+  @override
+  String mintNextDomicileReviewSource(String date) {
+    return 'Déclaré par toi, le $date';
+  }
+
+  @override
+  String get mintNextDomicileConfirm => 'Enregistrer';
+
+  @override
+  String get mintNextDomicileSavedTitle => 'Domicile enregistré';
+
+  @override
+  String get mintNextDomicileEdit => 'Modifier';
+
+  @override
+  String get mintNextDomicileDelete => 'Supprimer';
+
+  @override
+  String get mintNextDomicileDeleteTitle => 'Supprimer ton domicile ?';
+
+  @override
+  String get mintNextDomicileDeleteBody =>
+      'MINT oubliera ta commune. Ton canton reste utilisé par ton profil.';
+
+  @override
+  String get mintNextDomicileDeleteCancel => 'Garder';
+
+  @override
+  String get mintNextDomicileDeleteConfirm => 'Supprimer';
+
+  @override
+  String get mintNextDomicileSafeExit => 'Quitter sans enregistrer';
+
+  @override
+  String get mintNextDomicileErrorMissing =>
+      'Choisis ton canton et indique ta commune pour continuer.';
+
+  @override
+  String get mintNextDomicileSaveFailed =>
+      'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
+
+  @override
+  String mintNext3aDomicileKnown(String commune, String canton) {
+    return 'Domicile : $commune ($canton)';
+  }
+
+  @override
+  String get mintNext3aDomicileMissing => 'Domicile : pas encore renseigné';
 }
