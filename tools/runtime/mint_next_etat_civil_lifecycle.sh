@@ -97,7 +97,13 @@ EVIDENCE_PARENT="$(dirname "$PHASE_EVIDENCE")"
 STAGING="$PHASE_EVIDENCE.staging.$$"
 PREVIOUS="$TMP/previous-evidence"
 DEVICE=""
+CONSOLE_PID=""
+# Console app streamée vers un chemin stable (survit au trap de cleanup) —
+# sans elle, un échec Maestro sur sim jetable est indiagnosticable
+# (5 runs brûlés avant de l'apprendre, 2026-08-11).
+CONSOLE_LOG="${TMPDIR:-/tmp}/mint_etat_civil_console_last.log"
 cleanup() {
+  [[ -z "$CONSOLE_PID" ]] || kill "$CONSOLE_PID" 2>/dev/null || true
   delete_disposable_device "$DEVICE"
   rm -rf "$STAGING"
   if ((CAPTURE)); then restore_previous_evidence "$PHASE_EVIDENCE" "$PREVIOUS"; fi
@@ -135,6 +141,10 @@ xcrun simctl spawn "$DEVICE" defaults write NSGlobalDomain AppleLanguages -array
 xcrun simctl shutdown "$DEVICE"
 xcrun simctl boot "$DEVICE"
 xcrun simctl bootstatus "$DEVICE" -b
+xcrun simctl spawn "$DEVICE" log stream --style compact \
+  --predicate 'processImagePath CONTAINS "Runner"' \
+  > "$CONSOLE_LOG" 2>&1 &
+CONSOLE_PID=$!
 
 (
   cd "$ROOT/apps/mobile"
