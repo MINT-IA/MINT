@@ -156,7 +156,7 @@ tags:
     visible: "Supprimer ton domicile ?"
     timeout: 5000
 - tapOn:
-    id: "action:mon_argent.domicile.delete_confirm"
+    text: "^Supprimer$"
 - extendedWaitUntil:
     notVisible: "Supprimer ton domicile ?"
     timeout: 10000
