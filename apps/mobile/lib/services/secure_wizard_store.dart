@@ -721,10 +721,19 @@ class SecureWizardStore {
 
   static Future<CanonicalCivilStatusRead> readCanonicalCivilStatus() async {
     String? raw;
-    try {
-      raw = await _storage.read(key: _canonicalCivilStatusKey);
-    } on Exception {
-      return const CanonicalCivilStatusRead(CanonicalHousingStatus.unavailable);
+    // E2E harness only (kReleaseMode-stripped) : sous fallback, le stash
+    // mémoire fait autorité dans la session courante — un keychain -34018
+    // rendrait sinon l'enregistrement invisible juste après son write.
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalCivilStatusKey)) {
+      raw = _e2eSealFallbackStore[_canonicalCivilStatusKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalCivilStatusKey);
+      } on Exception {
+        return const CanonicalCivilStatusRead(
+            CanonicalHousingStatus.unavailable);
+      }
     }
     if (raw == null) {
       return const CanonicalCivilStatusRead(CanonicalHousingStatus.missing);
@@ -762,40 +771,41 @@ class SecureWizardStore {
     if (override != null) {
       return override();
     }
-    try {
-      await _storage.write(
-        key: _canonicalCivilStatusKey,
-        value:
-            json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}),
-      );
-      try {
-        await _storage.write(
-            key: _canonicalCivilStatusInitializedKey, value: '1');
-      } catch (_) {
-        // L'enregistrement canonique unique fait déjà autorité.
-      }
-      return true;
-    } on Exception {
-      return false;
-    }
+    return _writeCanonicalCivilStatusRecord(
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
   }
 
-  static Future<bool> writeCanonicalCivilStatusDeleted() async {
+  static Future<bool> writeCanonicalCivilStatusDeleted() =>
+      _writeCanonicalCivilStatusRecord(json.encode({'state': 'deleted'}));
+
+  static Future<bool> _writeCanonicalCivilStatusRecord(String record) async {
+    try {
+      await _storage.write(key: _canonicalCivilStatusKey, value: record);
+    } on Exception catch (e) {
+      if (!(_sealFallbackEnabled && _isMissingEntitlement(e))) {
+        return false;
+      }
+      // E2E harness only (kReleaseMode-stripped) : l'app re-signée ad hoc
+      // perd le droit keychain (-34018) — l'enregistrement canonique bascule
+      // dans le stash mémoire, même contrat que `write()`. Après relaunch le
+      // stash est vide → readCanonicalCivilStatus rend `unavailable` et le
+      // cache wizard (déjà commis) reste la surface lue — chemin dégradé
+      // documenté, jamais atteint en release.
+      _e2eSealFallbackStore[_canonicalCivilStatusKey] = record;
+      dev.log(
+        'E2E seal fallback: canonical civil status stashed in memory '
+        '(keychain -34018, NOT a real keychain seal, NOT release)',
+        name: 'SecureWizardStore',
+      );
+      return true;
+    }
     try {
       await _storage.write(
-        key: _canonicalCivilStatusKey,
-        value: json.encode({'state': 'deleted'}),
-      );
-      try {
-        await _storage.write(
-            key: _canonicalCivilStatusInitializedKey, value: '1');
-      } catch (_) {
-        // Le tombstone canonique sans valeur fait déjà autorité.
-      }
-      return true;
-    } on Exception {
-      return false;
+          key: _canonicalCivilStatusInitializedKey, value: '1');
+    } catch (_) {
+      // L'enregistrement canonique unique fait déjà autorité.
     }
+    return true;
   }
 
   /// Projette l'enregistrement canonique état civil dans les réponses.
