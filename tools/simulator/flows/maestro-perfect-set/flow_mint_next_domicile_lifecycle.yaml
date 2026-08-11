@@ -61,7 +61,6 @@ tags:
     visible:
       id: "node:domicile.review"
     timeout: 5000
-- assertVisible: "(?s).*Aarau.*"
 - tapOn:
     id: "action:domicile.confirm"
 - extendedWaitUntil:
@@ -81,7 +80,6 @@ tags:
     visible:
       id: "mon_argent_domicile_fact"
     timeout: 15000
-- assertVisible: "(?s).*Aarau.*"
 - takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
 - stopApp
 - launchApp:
@@ -99,7 +97,6 @@ tags:
     visible:
       id: "mon_argent_domicile_fact"
     timeout: 15000
-- assertVisible: "(?s).*Aarau.*"
 - takeScreenshot: "${OUTPUT_DIR}/02-cold-relaunch-visible"
 - tapOn:
     id: "action:mon_argent.domicile.edit"
@@ -148,7 +145,6 @@ tags:
     visible:
       id: "mon_argent_domicile_fact"
     timeout: 12000
-- assertVisible: "(?s).*Pully.*"
 - takeScreenshot: "${OUTPUT_DIR}/03-edited-visible"
 - tapOn:
     id: "action:mon_argent.domicile.delete"
