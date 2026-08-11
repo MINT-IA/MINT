@@ -28,9 +28,13 @@
       "code": "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
       "tests": [
         "collect shows amount and credit date as one factual decision and nothing persists before confirm",
-        "tax year defaults from credit date but stays explicitly pinned and editable",
+        "the displayed tax year follows the credit date until pinned manually",
+        "credit date parsing is strict — 31.02 is rejected, never corrected",
         "safe exit before confirmation writes nothing",
         "missing amount or date blocks with a visible error"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
       ]
     },
     {
@@ -38,8 +42,18 @@
       "story": "Je confirme : l'entrée rejoint la liste scellée par la transaction coordonnée — la liste complète est commise atomiquement, jamais un état à moitié écrit. Chaque entrée garde un id stable.",
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveVersement3a",
       "tests": [
-        "confirm appends the entry to the sealed list atomically and a partial failure leaves no half-written list",
-        "each entry carries a stable opaque id amount date and pinned tax year"
+        "adding an entry commits the whole list atomically",
+        "a failed canonical write leaves no half-written list",
+        "confirm appends the entry and the list shows the derived total",
+        "a persistence failure shows the honest banner and never claims saved",
+        "tax year is pinned, never derived from the credit date",
+        "model invariants are enforced, never silent",
+        "round-trips a multi-entry list through wizard answers"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_versements_3a_fact_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart",
+        "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart"
       ]
     },
     {
@@ -47,7 +61,13 @@
       "story": "Je relance l'app : tous mes versements sont là, restaurés depuis le scellement.",
       "code": "apps/mobile/lib/services/secure_wizard_store.dart#canonicalizeVersements3aAnswers",
       "tests": [
-        "versements list rehydrates from sealed storage after provider reload"
+        "the list rehydrates from sealed storage after reload",
+        "a corrupt canonical record masks the cached list",
+        "strict parsing: duplicate ids, zero amounts and garbage yield no fact"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_versements_3a_fact_test.dart",
+        "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart"
       ]
     },
     {
@@ -55,9 +75,14 @@
       "story": "Dans « Ma situation », je vois mes versements de l'année avec leur total dérivé — et je peux corriger ou supprimer UNE entrée précise. Corriger un montant n'est jamais supprimer + recréer : l'id reste.",
       "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
       "tests": [
-        "mon argent shows the annual entries with derived total and provenance",
+        "mon argent shows the versements totals with provenance",
+        "mon argent delete-all removes the versements after confirmation",
         "editing one entry keeps its id and the others untouched",
-        "deleting one entry removes only that entry and the total re-derives"
+        "deleting one entry removes only that entry"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mon_argent_versements_3a_fact_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
       ]
     },
     {
@@ -65,9 +90,13 @@
       "story": "La préparation 3a transporte, par année fiscale : le total versé (agrégat de faits), la révision du bucket annuel, et la détermination symbolique du plafond. La marge (plafond − total) n'apparaît NULLE PART : c'est une sortie du moteur attesté, absent. Un dépassement n'est ni bloqué ni tronqué.",
       "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aVersementsContext",
       "tests": [
-        "fiscal context v6 reports total verse annual cents per pinned tax year with bucket revision",
-        "fiscal context never materializes a marge nor a CHF plafond",
-        "entries above any plafond are aggregated truthfully never truncated"
+        "versements context carries the aggregate and its bucket revision — and never any marge nor CHF plafond",
+        "context is versioned and contains no personal data",
+        "the annual total is a derived view, aggregated across accounts and never truncated"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart",
+        "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart"
       ]
     },
     {
@@ -75,9 +104,17 @@
       "story": "Je corrige un versement : seule l'année fiscale concernée se périme (révision du bucket). Si je change la date ou l'année d'un versement, l'ancienne ET la nouvelle année se périment. Un versement 2025 corrigé ne périme jamais le contexte 2026.",
       "code": "révision par bucket annuel = max(assertedAt) des entrées de l'année",
       "tests": [
-        "correcting an entry changes only its tax year bucket revision",
-        "moving an entry across tax years invalidates both the old and the new year",
-        "a 2025 correction never stales the 2026 context"
+        "correcting an entry keeps its stable id and bumps only its bucket",
+        "moving an entry across tax years bumps both buckets",
+        "removing an entry bumps its bucket — deletion is an event, not an absence",
+        "an untouched bucket has a stable revision independent of other years",
+        "two mutations at the same instant yield distinct bucket revisions",
+        "correcting one entry through the sealed commit keeps the others and bumps only its bucket",
+        "delete tombstones the whole list and preserves unrelated answers"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_versements_3a_fact_test.dart"
       ]
     }
   ],

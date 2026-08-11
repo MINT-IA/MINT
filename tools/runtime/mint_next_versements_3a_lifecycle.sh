@@ -195,6 +195,16 @@ done
 # the clean-SHA statement even when Maestro itself passed.
 git -C "$ROOT" status --porcelain --untracked-files=all | assert_status_is_evidence_only
 
+# Point 7 du cycle : zéro transmission — aucune clé canonique des versements
+# ne doit apparaître dans une ligne console à contexte réseau.
+ZERO_TX_PATTERN='q_versements_3a.*(https?://|railway)|(https?://|railway).*q_versements_3a'
+if grep -Eiq "$ZERO_TX_PATTERN" "$CONSOLE_LOG"; then
+  echo "zero-transmission check FAILED: versements key in network-context console line" >&2
+  grep -Ei "$ZERO_TX_PATTERN" "$CONSOLE_LOG" | head -5 >&2
+  exit 1
+fi
+export ZERO_TX_PATTERN
+
 FLOW_SHA="$(shasum -a 256 "$FLOW" | awk '{print $1}')"
 APP_SHA="$(shasum -a 256 "$EXECUTABLE" | awk '{print $1}')"
 MAESTRO_VERSION="$(maestro --version 2>&1 | head -1)"
@@ -245,12 +255,24 @@ receipt = {
     ),
     "captured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "ordered_outcomes": [
-        "two payments recorded and annual total visible in ma situation",
+        "two payments recorded and annual total visible in ma situation (derived aggregate asserted: 2026 total 5'500 CHF)",
         "payments survive cold relaunch",
         "one targeted entry corrected and the derived total updated",
+        "dependent derived view re-derived after correction (UI-asserted: 2026 total 6'000 CHF)",
         "delete-all dialog dismissed and payments absent",
         "deletion survives cold relaunch",
+        "zero transmission: no canonical versements key in any network-context console line",
     ],
+    "dependent_invalidation_tests": [
+        "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: correcting an entry keeps its stable id and bumps only its bucket",
+        "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: moving an entry across tax years bumps both buckets",
+        "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart :: versements context carries the aggregate and its bucket revision — and never any marge nor CHF plafond",
+    ],
+    "zero_transmission_check": {
+        "console_log": "capture log stream du process Runner pendant tout le run",
+        "pattern": os.environ["ZERO_TX_PATTERN"],
+        "result": "no match (mechanical grep, run aborted on match)",
+    },
     "screenshots": screens,
     "maestro_log_sha256": hashlib.sha256((out / "maestro.log").read_bytes()).hexdigest(),
 }
