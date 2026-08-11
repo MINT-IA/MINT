@@ -107,6 +107,7 @@
 /mariage | authenticated
 /mint-next/3a | public
 /mint-next/domicile | public
+/mint-next/etat-civil | public
 /mint-next/housing | public
 /mortgage/affordability | authenticated
 /mortgage/amortization | authenticated

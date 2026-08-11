@@ -25883,6 +25883,85 @@ class SDe extends S {
       'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
 
   @override
+  String get mintNextEtatCivilTitle => 'Dein Zivilstand';
+
+  @override
+  String get mintNextEtatCivilQuestion => 'Wie ist deine Situation?';
+
+  @override
+  String get mintNextEtatCivilHint =>
+      'Für die Steuern zählt deine Situation am 31. Dezember.';
+
+  @override
+  String get mintNextEtatCivilStatusCelibataire => 'Ledig';
+
+  @override
+  String get mintNextEtatCivilStatusMarie => 'Verheiratet';
+
+  @override
+  String get mintNextEtatCivilStatusPartenariatEnregistre =>
+      'Eingetragene Partnerschaft';
+
+  @override
+  String get mintNextEtatCivilStatusConcubinage => 'Im Konkubinat';
+
+  @override
+  String get mintNextEtatCivilStatusDivorce => 'Geschieden';
+
+  @override
+  String get mintNextEtatCivilStatusVeuf => 'Verwitwet';
+
+  @override
+  String get mintNextEtatCivilContinue => 'Weiter';
+
+  @override
+  String get mintNextEtatCivilBack => 'Zurück';
+
+  @override
+  String get mintNextEtatCivilReviewTitle => 'MINT wird sich merken';
+
+  @override
+  String mintNextEtatCivilReviewSource(String date) {
+    return 'Von dir angegeben am $date';
+  }
+
+  @override
+  String get mintNextEtatCivilConfirm => 'Speichern';
+
+  @override
+  String get mintNextEtatCivilSavedTitle => 'Zivilstand gespeichert';
+
+  @override
+  String get mintNextEtatCivilEdit => 'Bearbeiten';
+
+  @override
+  String get mintNextEtatCivilDelete => 'Löschen';
+
+  @override
+  String get mintNextEtatCivilDeleteTitle => 'Deinen Zivilstand löschen?';
+
+  @override
+  String get mintNextEtatCivilDeleteBody =>
+      'MINT vergisst deinen Zivilstand. Deine anderen Angaben ändern sich nicht.';
+
+  @override
+  String get mintNextEtatCivilDeleteCancel => 'Behalten';
+
+  @override
+  String get mintNextEtatCivilDeleteConfirm => 'Löschen';
+
+  @override
+  String get mintNextEtatCivilSafeExit => 'Ohne Speichern verlassen';
+
+  @override
+  String get mintNextEtatCivilErrorMissing =>
+      'Wähle deine Situation, um fortzufahren.';
+
+  @override
+  String get mintNextEtatCivilSaveFailed =>
+      'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Wohnsitz: $commune ($canton)';
   }

@@ -9,8 +9,11 @@ import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
+import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart'
+    show mintNextEtatCivilStatusLabel;
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -122,6 +125,8 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final housingFact = _watchCoachProfileProviderIfAvailable()?.housingFact;
     final domicileFact =
         _watchCoachProfileProviderIfAvailable()?.domicileFact;
+    final civilStatusFact =
+        _watchCoachProfileProviderIfAvailable()?.civilStatusFact;
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
@@ -214,6 +219,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         patrimoine: patrimoine,
                         housingFact: housingFact,
                         domicileFact: domicileFact,
+                        civilStatusFact: civilStatusFact,
                         budgetProvider: budgetProvider,
                         budgetLoading: _budgetLoading,
                         budgetError: _budgetError,
@@ -237,6 +243,12 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                           }
                         },
                         onDomicileDelete: _deleteDomicileFact,
+                        onEtatCivilEdit: () {
+                          if (FeatureFlags.enableMintNextEtatCivil) {
+                            context.push('/mint-next/etat-civil');
+                          }
+                        },
+                        onEtatCivilDelete: _deleteCivilStatusFact,
                       ),
 
                       // Coach whisper (deterministic, may be null = silence)
@@ -299,6 +311,40 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _deleteCivilStatusFact() async {
+    final l10n = S.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.mintNextEtatCivilDeleteTitle),
+        content: Text(l10n.mintNextEtatCivilDeleteBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.mintNextEtatCivilDeleteCancel),
+          ),
+          Semantics(
+            identifier: 'action:mon_argent.etat_civil.delete_confirm',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.mintNextEtatCivilDeleteConfirm),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await context.read<CoachProfileProvider>().deleteCivilStatusFact();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.mintNextEtatCivilSaveFailed)),
+      );
+    }
   }
 
   Future<void> _deleteDomicileFact() async {
@@ -510,6 +556,7 @@ class _MonArgentSectionBody extends StatelessWidget {
   final PatrimoineSummary patrimoine;
   final MintNextHousingFact? housingFact;
   final MintNextDomicileFact? domicileFact;
+  final MintNextCivilStatusFact? civilStatusFact;
   final BudgetProvider budgetProvider;
   final bool budgetLoading;
   final bool budgetError;
@@ -524,6 +571,8 @@ class _MonArgentSectionBody extends StatelessWidget {
   final Future<void> Function() onHousingDelete;
   final VoidCallback onDomicileEdit;
   final Future<void> Function() onDomicileDelete;
+  final VoidCallback onEtatCivilEdit;
+  final Future<void> Function() onEtatCivilDelete;
 
   const _MonArgentSectionBody({
     required this.section,
@@ -533,6 +582,7 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.patrimoine,
     required this.housingFact,
     required this.domicileFact,
+    required this.civilStatusFact,
     required this.budgetProvider,
     required this.budgetLoading,
     required this.budgetError,
@@ -547,6 +597,8 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.onHousingDelete,
     required this.onDomicileEdit,
     required this.onDomicileDelete,
+    required this.onEtatCivilEdit,
+    required this.onEtatCivilDelete,
   });
 
   @override
@@ -566,11 +618,14 @@ class _MonArgentSectionBody extends StatelessWidget {
             patrimoine: patrimoine,
             housingFact: housingFact,
             domicileFact: domicileFact,
+            civilStatusFact: civilStatusFact,
             l10n: l10n,
             onHousingEdit: onHousingEdit,
             onHousingDelete: onHousingDelete,
             onDomicileEdit: onDomicileEdit,
             onDomicileDelete: onDomicileDelete,
+            onEtatCivilEdit: onEtatCivilEdit,
+            onEtatCivilDelete: onEtatCivilDelete,
           ),
         _MonArgentSection.month => BudgetSummaryCard(
             snapshot: budgetSnapshot,
@@ -611,11 +666,14 @@ class _TodaySection extends StatelessWidget {
   final PatrimoineSummary patrimoine;
   final MintNextHousingFact? housingFact;
   final MintNextDomicileFact? domicileFact;
+  final MintNextCivilStatusFact? civilStatusFact;
   final S l10n;
   final VoidCallback onHousingEdit;
   final Future<void> Function() onHousingDelete;
   final VoidCallback onDomicileEdit;
   final Future<void> Function() onDomicileDelete;
+  final VoidCallback onEtatCivilEdit;
+  final Future<void> Function() onEtatCivilDelete;
 
   const _TodaySection({
     required this.dataSpine,
@@ -626,11 +684,14 @@ class _TodaySection extends StatelessWidget {
     required this.patrimoine,
     required this.housingFact,
     required this.domicileFact,
+    required this.civilStatusFact,
     required this.l10n,
     required this.onHousingEdit,
     required this.onHousingDelete,
     required this.onDomicileEdit,
     required this.onDomicileDelete,
+    required this.onEtatCivilEdit,
+    required this.onEtatCivilDelete,
   });
 
   @override
@@ -638,7 +699,8 @@ class _TodaySection extends StatelessWidget {
     final presentBudget = _presentBudget();
     if (presentBudget == null &&
         housingFact == null &&
-        domicileFact == null) {
+        domicileFact == null &&
+        civilStatusFact == null) {
       return _MissingDataSurface(l10n: l10n);
     }
     return Column(
@@ -666,6 +728,15 @@ class _TodaySection extends StatelessWidget {
             l10n: l10n,
             onEdit: onDomicileEdit,
             onDelete: onDomicileDelete,
+          ),
+        ],
+        if (civilStatusFact != null) ...[
+          const SizedBox(height: MintSpacing.md),
+          _EtatCivilFactSurface(
+            fact: civilStatusFact!,
+            l10n: l10n,
+            onEdit: onEtatCivilEdit,
+            onDelete: onEtatCivilDelete,
           ),
         ],
         if (dataSpine != null) ...[
@@ -701,6 +772,74 @@ class _TodaySection extends StatelessWidget {
             stopRuleTriggered: false,
             emergencyFundMonths: 0,
           ),
+    );
+  }
+}
+
+class _EtatCivilFactSurface extends StatelessWidget {
+  const _EtatCivilFactSurface({
+    required this.fact,
+    required this.l10n,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final MintNextCivilStatusFact fact;
+  final S l10n;
+  final VoidCallback onEdit;
+  final Future<void> Function() onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final assertedDate = MaterialLocalizations.of(context)
+        .formatShortDate(fact.assertedAt.toLocal());
+    return Semantics(
+      key: const Key('mon_argent_etat_civil_fact'),
+      identifier: 'mon_argent_etat_civil_fact',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.mintNextEtatCivilSavedTitle,
+                style:
+                    MintTextStyles.titleLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.sm),
+            Text(mintNextEtatCivilStatusLabel(l10n, fact.status),
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.mintNextEtatCivilReviewSource(assertedDate),
+              key: const Key('mon_argent_etat_civil_fact_provenance'),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ValueListenableBuilder<bool>(
+              valueListenable: FeatureFlags.mintNextEtatCivilListenable,
+              builder: (context, enabled, _) => enabled
+                  ? Semantics(
+                      identifier: 'action:mon_argent.etat_civil.edit',
+                      button: true,
+                      child: TextButton(
+                        onPressed: onEdit,
+                        child: Text(l10n.mintNextEtatCivilEdit),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Semantics(
+              identifier: 'action:mon_argent.etat_civil.delete',
+              button: true,
+              child: TextButton(
+                onPressed: onDelete,
+                child: Text(l10n.mintNextEtatCivilDelete),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

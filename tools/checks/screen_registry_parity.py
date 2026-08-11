@@ -68,6 +68,9 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     # Lego 1 domicile (2026-08-11) — kill-flag enableMintNextDomicile OFF,
     # aucun intent coach dans cette tranche.
     "/mint-next/domicile",
+    # Lego 2 état civil (2026-08-11) — kill-flag enableMintNextEtatCivil OFF,
+    # aucun intent coach dans cette tranche.
+    "/mint-next/etat-civil",
     # FATCA hard-gate destination — non-calibrated archetypes land here.
     # Not chat-routable: the coach is BLOCKED for these users (the whole
     # point of the gate), so the LLM has no chat surface to suggest /waitlist.

@@ -126,3 +126,8 @@ tranche. Même sortie prévue que /mint-next/housing.
 
 Cycle canonique du fait domicile derrière kill-flag `enableMintNextDomicile`
 (OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/etat-civil (Lego 2 fait état civil)
+
+Cycle canonique du fait état civil derrière kill-flag `enableMintNextEtatCivil`
+(OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.

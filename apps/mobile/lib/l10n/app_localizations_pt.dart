@@ -25840,6 +25840,85 @@ class SPt extends S {
       'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
 
   @override
+  String get mintNextEtatCivilTitle => 'O teu estado civil';
+
+  @override
+  String get mintNextEtatCivilQuestion => 'Qual é a tua situação?';
+
+  @override
+  String get mintNextEtatCivilHint =>
+      'Para os impostos, conta a tua situação a 31 de dezembro.';
+
+  @override
+  String get mintNextEtatCivilStatusCelibataire => 'Solteiro·a';
+
+  @override
+  String get mintNextEtatCivilStatusMarie => 'Casado·a';
+
+  @override
+  String get mintNextEtatCivilStatusPartenariatEnregistre =>
+      'Parceria registada';
+
+  @override
+  String get mintNextEtatCivilStatusConcubinage => 'Em união de facto';
+
+  @override
+  String get mintNextEtatCivilStatusDivorce => 'Divorciado·a';
+
+  @override
+  String get mintNextEtatCivilStatusVeuf => 'Viúvo·a';
+
+  @override
+  String get mintNextEtatCivilContinue => 'Continuar';
+
+  @override
+  String get mintNextEtatCivilBack => 'Voltar';
+
+  @override
+  String get mintNextEtatCivilReviewTitle => 'A MINT vai lembrar-se';
+
+  @override
+  String mintNextEtatCivilReviewSource(String date) {
+    return 'Declarado por ti a $date';
+  }
+
+  @override
+  String get mintNextEtatCivilConfirm => 'Guardar';
+
+  @override
+  String get mintNextEtatCivilSavedTitle => 'Estado civil guardado';
+
+  @override
+  String get mintNextEtatCivilEdit => 'Alterar';
+
+  @override
+  String get mintNextEtatCivilDelete => 'Apagar';
+
+  @override
+  String get mintNextEtatCivilDeleteTitle => 'Apagar o teu estado civil?';
+
+  @override
+  String get mintNextEtatCivilDeleteBody =>
+      'A MINT vai esquecer o teu estado civil. Os teus outros dados não mudam.';
+
+  @override
+  String get mintNextEtatCivilDeleteCancel => 'Manter';
+
+  @override
+  String get mintNextEtatCivilDeleteConfirm => 'Apagar';
+
+  @override
+  String get mintNextEtatCivilSafeExit => 'Sair sem guardar';
+
+  @override
+  String get mintNextEtatCivilErrorMissing =>
+      'Escolhe a tua situação para continuar.';
+
+  @override
+  String get mintNextEtatCivilSaveFailed =>
+      'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicílio: $commune ($canton)';
   }
