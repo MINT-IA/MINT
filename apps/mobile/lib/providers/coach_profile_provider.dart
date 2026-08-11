@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -78,6 +79,26 @@ class CoachProfileProvider extends ChangeNotifier {
 
   MintNextHousingFact? get housingFact =>
       MintNextHousingFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextDomicileFact? get domicileFact =>
+      MintNextDomicileFact.fromWizardAnswers(_lastAnswers);
+
+  /// Persists the fiscal-domicile fact through the canonical answer pipeline.
+  /// Local-only by design: no backend sync until a versioned consent contract
+  /// exists (ADR 2026-08-08).
+  Future<void> saveDomicileFact(MintNextDomicileFact fact) => mergeAnswers(
+        fact.toWizardAnswers(),
+        syncToBackend: false,
+        failOnPersistenceError: true,
+      );
+
+  /// Deletes the owned domicile keys; the shared legacy `q_canton` and every
+  /// unrelated answer survive.
+  Future<void> deleteDomicileFact() => mergeAnswers(
+        MintNextDomicileFact.deletionWizardAnswers(),
+        syncToBackend: false,
+        failOnPersistenceError: true,
+      );
 
   Future<void> _runHousingCoordinated(Future<void> Function() action) async {
     try {

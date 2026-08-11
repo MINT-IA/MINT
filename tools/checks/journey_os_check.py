@@ -54,6 +54,12 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
     "apps/mobile/test/app_router_observers_test.dart",
+    # --- Lego 1 domicile fiscal (2026-08-11) : fait canonique domicile
+    # (mini-storyboard, modèle, provider, écran, consommateur 3a). ---
+    "apps/mobile/lib/models/mint_next_domicile_fact.dart",
+    "apps/mobile/test/models/mint_next_domicile_fact_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_domicile_fact_test.dart",
+    "product/mint_next/storyboard/domicile_fiscal.storyboard.json",
     # --- atterrissage PR C (cadrage n°1, 2026-08-11) : shell 3a minimal —
     # handoff screen/card, route gate, store 3a, tax boundary + delta engine,
     # machinerie flag fail-closed, tests dédiés. Flag OFF partout. ---

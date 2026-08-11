@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "domicile_fiscal_lego1",
+    "title": "Dire où je vis — et que MINT s'en souvienne",
+    "promise": "Le domicile fiscal traverse le cycle canonique complet : sauvegardé, retrouvé après relance, visible dans Ma situation, corrigeable, supprimable, réutilisé hors de son écran de collecte."
+  },
+  "generated_at": "2026-08-11",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-08-lifelong-financial-twin-and-plans.md",
+    "cadrage": "verdict Codex LOOP: GO (session 2026-08-11) — q_canton réutilisé, q_domicile_commune_bfs nullable, pas d'année fiscale dans le fait, consommateur = préparation 3a, invalidation limitée aux dérivés fiscaux"
+  },
+  "classification_decision": "Le canton et la commune sont enregistrés comme réponses wizard ordinaires (chemin canonique mergeAnswers, sync backend désactivée), comme q_canton l'est déjà partout ; ils ne rejoignent pas le scellement SecureWizardStore réservé aux montants. La suppression du fait retire les clés possédées (q_domicile_*) et laisse q_canton, partagé avec le profil légal préexistant.",
+  "beats": [
+    {
+      "id": "collect",
+      "story": "Une question à la fois : mon canton, puis ma commune. Rien n'est enregistré tant que je n'ai pas confirmé explicitement.",
+      "code": "apps/mobile/lib/screens/mint_next_domicile/mint_next_domicile_screen.dart",
+      "tests": [
+        "collect shows canton choices then commune entry and nothing persists before confirm",
+        "safe exit before confirmation writes nothing"
+      ]
+    },
+    {
+      "id": "confirm_persist",
+      "story": "Je vois ce que MINT va retenir (canton, commune, source, date) et je confirme. Le fait part par l'unique chemin canonique, sans transmission distante.",
+      "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveDomicileFact",
+      "tests": [
+        "confirm persists the domicile bundle atomically through mergeAnswers without backend sync",
+        "saved fact carries assertedAt source schemaVersion and clears needsConfirmation"
+      ]
+    },
+    {
+      "id": "rehydrate",
+      "story": "Je relance l'app : mon domicile est toujours là, avec sa date et sa source.",
+      "code": "apps/mobile/lib/providers/coach_profile_provider.dart#domicileFact",
+      "tests": [
+        "domicile fact rehydrates from persisted answers after provider reload"
+      ]
+    },
+    {
+      "id": "ma_situation",
+      "story": "Dans « Ma situation », je retrouve mon domicile, sa provenance, et je peux le modifier ou le supprimer.",
+      "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
+      "tests": [
+        "ma situation shows the saved domicile with provenance and edit and delete actions",
+        "delete removes owned domicile keys and preserves unrelated answers including legacy q_canton"
+      ]
+    },
+    {
+      "id": "reuse",
+      "story": "La préparation 3a lit mon domicile sans me le redemander : connu quand il existe, manquant sinon. Aucun chiffre — le moteur reste non attesté.",
+      "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aFiscalContext.domicile",
+      "tests": [
+        "fiscal context reports domicile known with canton and commune when the fact exists",
+        "fiscal context reports domicile missing when no confirmed fact exists"
+      ]
+    },
+    {
+      "id": "invalidate",
+      "story": "Si je corrige mon domicile, tout ce qui en dérivait fiscalement se périme : la préparation 3a reflète immédiatement le nouveau lieu, jamais l'ancien.",
+      "code": "assertedAt = révision du fait ; aucun résultat fiscal persistant n'existe (NoAttestedEngine) — la preuve est la lecture vivante",
+      "tests": [
+        "fiscal context reflects the corrected domicile revision immediately after edit"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "dataset BFS national (le code BFS est nullable tant qu'aucun dataset vérifié n'existe)",
+    "moteur fiscal (NoAttestedEngine, fail-closed)",
+    "carte Aujourd'hui dédiée",
+    "sync backend du fait"
+  ],
+  "kill_flag": "enableMintNextDomicile",
+  "gate": "ADR 2026-08-10 — 5 conditions : beats→tests (ce fichier), tests ciblés verts, review Codex P1=0, vérification runtime citée, cycle 7 points prouvé"
+}
